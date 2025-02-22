@@ -1,0 +1,16 @@
+@import "bootstrap/scss/bootstrap";
+
+:root {
+  --bc-bg: var(--bs-body-bg);
+  --bc-text: var(--bs-body-color);
+}
+
+[data-bs-theme="dark"] {
+  --bc-bg: var(--bs-body-bg);
+  --bc-text: var(--bs-body-color);
+}
+
+body {
+  background-color: var(--bc-bg);
+  color: var(--bc-text);
+}
