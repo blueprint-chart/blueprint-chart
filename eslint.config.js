@@ -17,11 +17,27 @@ export default [
     },
   },
   {
+    languageOptions: {
+      globals: {
+        window: 'readonly',
+        document: 'readonly',
+        localStorage: 'readonly',
+        HTMLElement: 'readonly',
+        SVGElement: 'readonly',
+        SVGGElement: 'readonly',
+        getComputedStyle: 'readonly',
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly',
+        console: 'readonly',
+        MutationObserver: 'readonly',
+        ResizeObserver: 'readonly',
+      },
+    },
     rules: {
       '@stylistic/comma-dangle': ['error', 'always-multiline'],
     },
   },
   {
-    ignores: ['dist/**', 'node_modules/**'],
+    ignores: ['**/dist/**', '**/node_modules/**', 'packages/lib/src/dsl/grammar.js'],
   },
 ]
