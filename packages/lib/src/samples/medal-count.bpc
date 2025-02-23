@@ -1,0 +1,20 @@
+chart bar-multi {
+  title = "Olympic Medal Count"
+  description = "2024 Paris Summer Games — top six nations"
+  source = "Olympics.com"
+  sourceUrl = "https://olympics.com"
+  colors = "#eeca3b, #c0c0c0, #cd7f32"
+  legendPosition = "top"
+  valueLabels = true
+  sort = descending
+
+  data {
+    _series = "Gold,Silver,Bronze"
+    "USA" = "40,44,42"
+    "China" = "38,32,18"
+    "Japan" = "27,14,17"
+    "Great Britain" = "22,21,22"
+    "Australia" = "17,7,22"
+    "France" = "16,20,23"
+  }
+}

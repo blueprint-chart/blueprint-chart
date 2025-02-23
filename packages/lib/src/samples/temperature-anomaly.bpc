@@ -1,0 +1,33 @@
+chart line {
+  title = "Global Temperature Anomaly"
+  description = "Deviation from the 1951–1980 average, in °C"
+  source = "NASA GISS"
+  sourceUrl = "https://data.giss.nasa.gov/gistemp/"
+  note = "Smoothed five-year running mean of global land-ocean temperature index"
+  interpolation = "monotoneX"
+  colors = "#e15759"
+  lineSymbols = true
+  lineSymbolShape = "circle"
+  lineSymbolShowOn = "firstLast"
+  verticalGridStyle = dashed
+  tooltips = true
+
+  annotation "2024" {
+    text = "Hottest year on record"
+    dy = -12
+    showArrow = true
+  }
+
+  data {
+    "1980" = 0.26
+    "1985" = 0.12
+    "1990" = 0.45
+    "1995" = 0.45
+    "2000" = 0.42
+    "2005" = 0.68
+    "2010" = 0.72
+    "2015" = 0.90
+    "2020" = 1.02
+    "2024" = 1.29
+  }
+}

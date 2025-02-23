@@ -1,0 +1,28 @@
+chart bar-vertical {
+  title = "Letter Frequency in English"
+  description = "How often each letter appears in typical English text"
+  byline = "Pierre Romera"
+  source = "Lewand, Cryptological Mathematics"
+  note = "Based on analysis of 40,000 words from English prose"
+  sort = descending
+  valueLabels = true
+  verticalGridStyle = none
+
+  highlight "E" {
+    color = "#e15759"
+    label = "Most frequent"
+  }
+
+  data {
+    "E" = 12.70
+    "T" = 9.06
+    "A" = 8.17
+    "O" = 7.51
+    "I" = 6.97
+    "N" = 6.75
+    "S" = 6.33
+    "H" = 6.09
+    "R" = 5.99
+    "D" = 4.25
+  }
+}

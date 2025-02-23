@@ -1,0 +1,24 @@
+chart bar-horizontal {
+  title = "Life Expectancy at Birth"
+  description = "Selected countries, years (2023)"
+  source = "World Bank"
+  sourceUrl = "https://data.worldbank.org"
+  note = "Figures are estimates and may differ from national statistics"
+  sort = descending
+  colors = "#59a14f"
+  valueLabels = true
+  horizontalGridStyle = none
+
+  data {
+    "Japan" = 84.8
+    "Switzerland" = 83.8
+    "Australia" = 83.5
+    "Sweden" = 83.1
+    "Canada" = 82.7
+    "France" = 82.5
+    "Germany" = 81.4
+    "United Kingdom" = 81.2
+    "United States" = 78.5
+    "China" = 78.2
+  }
+}

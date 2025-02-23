@@ -1,0 +1,33 @@
+chart bar-vertical {
+  title = "CO₂ Emissions by Country"
+  description = "Annual emissions in billion tonnes, 2023"
+  source = "Global Carbon Project"
+  sourceUrl = "https://globalcarbonproject.org"
+  note = "Includes fossil fuel combustion and cement production only"
+  sort = descending
+  colors = "#af4b54"
+  valueLabels = true
+  verticalGridStyle = none
+
+  highlight "China" {
+    color = "#e15759"
+    label = "Largest emitter"
+  }
+
+  annotation "India" {
+    text = "Surpassed EU in 2023"
+    dy = -10
+    showArrow = true
+  }
+
+  data {
+    "China" = 11.90
+    "United States" = 4.78
+    "India" = 2.88
+    "Russia" = 1.78
+    "Japan" = 1.02
+    "Germany" = 0.64
+    "South Korea" = 0.60
+    "Iran" = 0.58
+  }
+}
