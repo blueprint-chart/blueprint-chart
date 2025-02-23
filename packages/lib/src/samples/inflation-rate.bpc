@@ -1,0 +1,34 @@
+chart line {
+  title = "US Inflation Rate"
+  description = "Consumer Price Index, year-over-year change (%)"
+  source = "Bureau of Labor Statistics"
+  sourceUrl = "https://bls.gov/cpi/"
+  byline = "Pierre Romera"
+  note = "All items, seasonally adjusted, urban consumers"
+  interpolation = "monotoneX"
+  colors = "#f28e2b"
+  lineSymbols = true
+  lineSymbolShape = "circle"
+  lineSymbolShowOn = "all"
+  verticalGridStyle = dashed
+  verticalNumberFormat = ".1f"
+  tooltips = true
+
+  annotation "Jun 2022" {
+    text = "Peak: 9.1%"
+    dy = -12
+    showArrow = true
+  }
+
+  data {
+    "Jan 2021" = 1.4
+    "Jun 2021" = 5.4
+    "Jan 2022" = 7.5
+    "Jun 2022" = 9.1
+    "Jan 2023" = 6.4
+    "Jun 2023" = 3.0
+    "Jan 2024" = 3.1
+    "Jun 2024" = 3.0
+    "Jan 2025" = 2.8
+  }
+}

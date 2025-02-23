@@ -1,0 +1,27 @@
+chart bar-horizontal {
+  title = "Most Spoken Languages"
+  description = "Number of native speakers worldwide, in millions"
+  source = "Ethnologue"
+  sourceUrl = "https://ethnologue.com"
+  byline = "Pierre Romera"
+  sort = descending
+  colors = "#4e79a7"
+  valueLabels = true
+  horizontalGridStyle = none
+
+  highlight "Mandarin" {
+    color = "#1b5299"
+    label = "Nearly 1 billion"
+  }
+
+  data {
+    "Mandarin" = 920
+    "Spanish" = 475
+    "English" = 373
+    "Hindi" = 344
+    "Bengali" = 234
+    "Portuguese" = 232
+    "Russian" = 154
+    "Japanese" = 125
+  }
+}

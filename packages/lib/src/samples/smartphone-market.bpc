@@ -1,0 +1,20 @@
+chart donut {
+  title = "Global Smartphone Market Share"
+  description = "Q4 2024, by shipment volume"
+  source = "IDC"
+  sourceUrl = "https://idc.com"
+  note = "Market share based on unit shipments, not revenue"
+  legendPosition = "right"
+  tooltips = true
+  displayAsPercentage = true
+  showTotal = true
+
+  data {
+    "Samsung" = 22.4
+    "Apple" = 17.3
+    "Xiaomi" = 12.8
+    "OPPO" = 9.5
+    "vivo" = 8.6
+    "Others" = 29.4
+  }
+}

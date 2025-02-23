@@ -1,0 +1,22 @@
+chart donut {
+  title = "Global Electricity Generation"
+  description = "Share by source, 2024"
+  source = "IEA"
+  sourceUrl = "https://iea.org"
+  byline = "Pierre Romera"
+  note = "Percentages may not sum to 100 due to rounding"
+  colors = "#76b7b2, #4e79a7, #59a14f, #f28e2b, #edc949, #e15759, #b07aa1"
+  legendPosition = "right"
+  tooltips = true
+  displayAsPercentage = true
+
+  data {
+    "Coal" = 34.2
+    "Natural Gas" = 22.1
+    "Hydro" = 14.8
+    "Nuclear" = 9.4
+    "Wind" = 9.5
+    "Solar" = 6.2
+    "Other" = 3.8
+  }
+}

@@ -1,0 +1,19 @@
+chart pie {
+  title = "World Population by Continent"
+  description = "Estimated share, 2024"
+  source = "United Nations"
+  sourceUrl = "https://population.un.org"
+  legendPosition = "right"
+  tooltips = true
+  displayAsPercentage = true
+  showLabels = true
+
+  data {
+    "Asia" = 59.4
+    "Africa" = 18.3
+    "Europe" = 9.3
+    "Latin America" = 8.2
+    "North America" = 4.7
+    "Oceania" = 0.6
+  }
+}
