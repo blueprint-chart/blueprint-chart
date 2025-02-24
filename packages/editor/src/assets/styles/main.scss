@@ -1,0 +1,116 @@
+@import "./overrides";
+@import "bootstrap/scss/bootstrap";
+
+:root {
+  --bc-bg: var(--bs-body-bg);
+  --bc-text: var(--bs-body-color);
+  --bc-axis-color: #333;
+  --bc-grid-color: #e0e0e0;
+  --bc-text-color: #555;
+  --bc-brand-1: #5b6abf;
+  --bc-brand-2: #3c8dbc;
+
+  // Blueprint canvas — subtle drafting-grid background
+  --bc-canvas-bg: #eef0f4;
+  --bc-canvas-grid-color: rgba(104, 120, 232, 0.07);
+  --bc-canvas-grid-size: 24px;
+  --bc-card-bg: #ffffff;
+  --bc-card-border: #d1d5db;
+  --bc-card-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+[data-bs-theme="dark"] {
+  --bc-bg: var(--bs-body-bg);
+  --bc-text: var(--bs-body-color);
+  --bc-axis-color: #ccc;
+  --bc-grid-color: #444;
+  --bc-text-color: #aaa;
+
+  --bc-canvas-bg: #111111;
+  --bc-canvas-grid-color: rgba(255, 255, 255, 0.04);
+  --bc-card-bg: #1e1e1e;
+  --bc-card-border: #2e2e2e;
+  --bc-card-shadow: 0 1px 3px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+body {
+  background-color: var(--bc-bg);
+  color: var(--bc-text);
+}
+
+// Unified form-label style: match SectionTitle appearance
+// Scoped to #app so teleported popovers (color picker etc.) are not affected
+#app .form-label {
+  font-size: 0.625rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--bs-secondary-color);
+  font-weight: 600;
+}
+
+.bc-frame-title {
+  color: var(--bc-text-color, #333);
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.bc-frame-description {
+  color: var(--bc-text-color, #555);
+  margin: 0.25rem 0 0;
+  font-size: 0.875rem;
+}
+
+.bc-frame-footer {
+  margin-top: 0.5rem;
+  gap: 0.25rem;
+}
+
+.bc-frame-footer-left {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+
+  > :not(:first-child)::before {
+    content: "·";
+    margin-right: 0.5rem;
+    color: var(--bs-secondary-color, #888);
+  }
+}
+
+.bc-frame-note {
+  font-style: italic;
+  color: var(--bs-body-color, #888);
+  font-size: 0.75rem;
+  margin: 0.5rem 0 0;
+}
+
+.bc-frame-byline,
+.bc-frame-source {
+  color: var(--bs-secondary-color, #888);
+  font-size: 0.75rem;
+}
+
+@keyframes bc-brand-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.bc-brand-gradient {
+  font-weight: 600;
+  background: linear-gradient(-45deg, var(--bc-brand-1), var(--bc-brand-2), var(--bc-brand-1));
+  background-size: 200% 200%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: bc-brand-shift 20s ease infinite;
+}
+
+.bc-frame-credit {
+  font-size: 0.75rem;
+  @extend .bc-brand-gradient;
+}
+
+.bc-frame-source-link {
+  color: inherit;
+  text-decoration: underline;
+}
