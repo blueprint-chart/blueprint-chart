@@ -1,0 +1,36 @@
+{
+  "name": "@blueprint-chart/editor",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@blueprint-chart/lib": "workspace:*",
+    "@blueprint-chart/ui": "workspace:*",
+    "@handsontable/vue3": "^16.2.0",
+    "bootstrap": "^5.3",
+    "bootstrap-vue-next": "^0.27",
+    "handsontable": "^16.2.0",
+    "vue": "^3.5",
+    "vue-router": "^4.6.4"
+  },
+  "devDependencies": {
+    "@iconify-json/ph": "^1",
+    "@vitejs/plugin-vue": "^5",
+    "@vue/test-utils": "^2",
+    "jsdom": "^26",
+    "sass-embedded": "^1",
+    "typescript": "^5.7",
+    "unplugin-icons": "^22",
+    "unplugin-vue-components": "^28",
+    "vite": "^6",
+    "vitest": "^3",
+    "vue-tsc": "^2"
+  }
+}
