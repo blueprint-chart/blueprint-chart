@@ -1,0 +1,19 @@
+// Bootstrap variable overrides — imported before bootstrap in main.scss
+$primary: #6878E8;
+$font-family-sans-serif: 'DM Sans', sans-serif;
+$font-family-monospace: 'JetBrains Mono', monospace;
+$body-bg: #f9fafb;
+$border-radius: 0.5rem;
+$border-radius-lg: 0.75rem;
+
+// Tighter small button
+$btn-padding-y-sm: 0.25rem;
+$btn-padding-x-sm: 0.625rem;
+$btn-font-size-sm: 0.8125rem;
+
+// Dark mode: true neutral grays (no blue tint)
+$body-bg-dark: #141414;
+$body-color-dark: #e0e0e0;
+$body-secondary-bg-dark: #1e1e1e;
+$body-tertiary-bg-dark: #181818;
+$border-color-dark: #2e2e2e;
