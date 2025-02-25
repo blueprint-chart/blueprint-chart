@@ -1,0 +1,40 @@
+<template>
+  <div class="d-flex flex-column gap-3">
+    <BFormGroup
+      v-if="hasInterpolation"
+      label="Line interpolation"
+      label-for="opt-interpolation"
+    >
+      <BFormSelect
+        id="opt-interpolation"
+        :model-value="currentOptions.interpolation ?? 'linear'"
+        :options="interpolationChoices"
+        @update:model-value="(v) => setOption('interpolation', v)"
+      />
+    </BFormGroup>
+
+    <EditorLineSymbols v-if="hasLineSymbols" />
+  </div>
+</template>
+
+<script setup lang="ts">
+import { computed } from 'vue'
+import { useChartTypeOptions } from '@/composables/useChartTypeOptions'
+import EditorLineSymbols from './EditorLineSymbols.vue'
+
+const { currentOptions, availableOptionKeys, setOption } = useChartTypeOptions()
+
+const hasInterpolation = computed(() => availableOptionKeys.value.includes('interpolation'))
+const hasLineSymbols = computed(() => availableOptionKeys.value.includes('lineSymbols'))
+
+const interpolationChoices = [
+  { value: 'linear', text: 'Linear' },
+  { value: 'monotoneX', text: 'Monotone' },
+  { value: 'step', text: 'Step' },
+  { value: 'stepBefore', text: 'Step (before)' },
+  { value: 'stepAfter', text: 'Step (after)' },
+  { value: 'basis', text: 'Basis' },
+  { value: 'cardinal', text: 'Cardinal' },
+  { value: 'catmullRom', text: 'Catmull-Rom' },
+]
+</script>
