@@ -1,0 +1,13 @@
+@use 'sass:math';
+@use 'variables' as *;
+
+@mixin app-icon-size($font-size, $scale: 1) {
+  font-size: calc(#{$scale} * #{math.div($font-size, $app-icon-size-scale-base) * 1em});
+  line-height: math.div(1, $font-size) * 1em;
+  vertical-align: (math.div(4, $font-size) - math.div(3, 7)) * 1em;
+}
+
+@mixin app-icon-layers-size($font-size) {
+  line-height: math.div(1, $font-size) * 1em;
+  vertical-align: (math.div(3, $font-size) - math.div(3, 8)) * 1em;
+}
