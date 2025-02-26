@@ -1,0 +1,20 @@
+$app-icon-size-scale-base: 20 !default;
+$app-icon-size-scale-2xs: 12 !default;
+$app-icon-size-scale-xs: 14 !default;
+$app-icon-size-scale-sm: 16 !default;
+$app-icon-size-scale-md: $app-icon-size-scale-base !default;
+$app-icon-size-scale-lg: 24 !default;
+$app-icon-size-scale-xl: 32 !default;
+$app-icon-size-scale-2xl: 40 !default;
+
+$app-icon-sizes: (
+  "2xs": $app-icon-size-scale-2xs,
+  "xs": $app-icon-size-scale-xs,
+  "sm": $app-icon-size-scale-sm,
+  "md": $app-icon-size-scale-md,
+  "lg": $app-icon-size-scale-lg,
+  "xl": $app-icon-size-scale-xl,
+  "2xl": $app-icon-size-scale-2xl,
+) !default;
+
+$spacer-xs: 0.25rem !default;
