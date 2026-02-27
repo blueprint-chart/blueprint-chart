@@ -5,7 +5,9 @@ chart line-multi {
   sourceUrl = "https://bls.gov"
   note = "Not seasonally adjusted. Metro area definitions may vary across years."
   interpolation = "monotoneX"
-  legendPosition = "top"
+  colorPalette = "Maya"
+  directLabelling = auto
+  legend = false
   tooltips = true
   crosshair = true
   crosshairDirection = "vertical"

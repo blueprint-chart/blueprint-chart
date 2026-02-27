@@ -7,6 +7,7 @@ chart bar-vertical {
   sort = descending
   colors = "#af4b54"
   valueLabels = true
+  verticalLabelPosition = off
   verticalGridStyle = none
 
   highlight "China" {
