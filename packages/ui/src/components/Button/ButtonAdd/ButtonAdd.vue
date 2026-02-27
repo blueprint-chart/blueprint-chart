@@ -35,7 +35,7 @@ defineEmits<{
     font-size: 0.8125rem;
     transition: all 0.15s ease;
     text-align: center;
-    
+
     --bs-btn-bg: transparent;
     --bs-btn-color: var(--bs-secondary-color);
     --bs-btn-active-bg: transparent;

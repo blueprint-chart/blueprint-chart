@@ -15,7 +15,10 @@
           class="form-control-colors-input__swatch-btn"
           @click="openPicker(idx, $event)"
         >
-          <DisplayColorSwatch :color="color" size="sm" />
+          <DisplayColorSwatch
+            :color="color"
+            size="sm"
+          />
         </button>
         <span class="form-control-colors-input__hex">{{ color }}</span>
         <button
@@ -91,7 +94,8 @@ function onPickerChange(color: string) {
     const updated = [...model.value]
     updated[editingIndex.value] = color
     model.value = updated
-  } else {
+  }
+  else {
     model.value = [...model.value, color]
     pickerOpen.value = false
   }

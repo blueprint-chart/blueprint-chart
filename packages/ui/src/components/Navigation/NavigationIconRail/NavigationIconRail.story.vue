@@ -18,10 +18,26 @@ import PhGear from '~icons/ph/gear'
       <template #default="{ state }">
         <div class="icon-rail-story__wrapper">
           <IconRail v-model="state.value">
-            <IconRailEntry value="type" :icon="PhChartBar" tooltip="Chart Type" />
-            <IconRailEntry value="text" :icon="PhTextAa" tooltip="Text" />
-            <IconRailEntry value="series" :icon="PhChartLineUp" tooltip="Series" />
-            <IconRailEntry value="axes" :icon="PhCrosshairSimple" tooltip="Axes" />
+            <IconRailEntry
+              value="type"
+              :icon="PhChartBar"
+              tooltip="Chart Type"
+            />
+            <IconRailEntry
+              value="text"
+              :icon="PhTextAa"
+              tooltip="Text"
+            />
+            <IconRailEntry
+              value="series"
+              :icon="PhChartLineUp"
+              tooltip="Series"
+            />
+            <IconRailEntry
+              value="axes"
+              :icon="PhCrosshairSimple"
+              tooltip="Axes"
+            />
             <template #footer>
               <ButtonIcon
                 :icon-left="PhGear"

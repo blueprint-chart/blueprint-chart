@@ -98,7 +98,7 @@ export interface ButtonIconProps {
   loadingText?: string
   tooltipLabel?: string
   tooltipPlacement?: PopoverPlacement
-  tooltipDelay?: { show: number; hide: number }
+  tooltipDelay?: { show: number, hide: number }
   showTooltipForce?: boolean
   hover?: boolean
   truncate?: boolean
@@ -188,7 +188,6 @@ const buttonProps = computed(() => ({
     flex-shrink: 0;
     align-items: center;
     min-width: 0;
-    
 
     .button-icon-counter {
       margin: -0.5em 0 -0.5em $spacer-xs;

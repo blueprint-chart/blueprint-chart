@@ -32,7 +32,10 @@
       >
         <span class="form-control-palette__item">
           <span class="flex-grow-1">{{ palette.label }}</span>
-          <DisplayPalette :colors="palette.colors" bordered />
+          <DisplayPalette
+            :colors="palette.colors"
+            bordered
+          />
         </span>
       </BDropdownItemButton>
     </BDropdown>

@@ -50,7 +50,8 @@ function onChange(e: Event) {
   const value = (e.target as HTMLInputElement).value.trim()
   if (/^#[0-9a-fA-F]{6}$/.test(value)) {
     model.value = value
-  } else {
+  }
+  else {
     (e.target as HTMLInputElement).value = model.value
   }
 }

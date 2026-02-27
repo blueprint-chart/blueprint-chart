@@ -14,11 +14,26 @@ import ButtonIconCounter from './ButtonIconCounter.vue'
     </Variant>
     <Variant title="Variants">
       <div style="display: flex; gap: 1rem; align-items: center;">
-        <ButtonIconCounter :counter="5" variant="primary" />
-        <ButtonIconCounter :counter="5" variant="secondary" />
-        <ButtonIconCounter :counter="5" variant="success" />
-        <ButtonIconCounter :counter="5" variant="danger" />
-        <ButtonIconCounter :counter="5" variant="warning" />
+        <ButtonIconCounter
+          :counter="5"
+          variant="primary"
+        />
+        <ButtonIconCounter
+          :counter="5"
+          variant="secondary"
+        />
+        <ButtonIconCounter
+          :counter="5"
+          variant="success"
+        />
+        <ButtonIconCounter
+          :counter="5"
+          variant="danger"
+        />
+        <ButtonIconCounter
+          :counter="5"
+          variant="warning"
+        />
       </div>
     </Variant>
   </Story>

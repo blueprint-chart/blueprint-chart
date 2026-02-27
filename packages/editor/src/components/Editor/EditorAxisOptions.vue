@@ -100,8 +100,8 @@ const AxisOption: FunctionalComponent<{
 
   if (def.type === 'boolean') {
     return h(FormControlCheckbox, {
-      label: def.label,
-      modelValue: (value ?? def.default ?? false) as boolean,
+      'label': def.label,
+      'modelValue': (value ?? def.default ?? false) as boolean,
       'onUpdate:modelValue': (v: boolean) => emit('update', v),
     })
   }
@@ -109,20 +109,20 @@ const AxisOption: FunctionalComponent<{
   if (def.type === 'select' && def.choices) {
     const options = def.choices.map(c => ({ value: c.value, text: c.text }))
     return h(FormControlButtonGroup, {
-      label: def.label,
+      'label': def.label,
       options,
-      block: true,
-      modelValue: (value ?? def.default ?? '') as string,
+      'block': true,
+      'modelValue': (value ?? def.default ?? '') as string,
       'onUpdate:modelValue': (v: string) => emit('update', v),
     })
   }
 
   if (def.type === 'text') {
     return h(FormControlTextInput, {
-      label: def.label,
-      id: `opt-${def.key}`,
-      placeholder: def.placeholder ?? '',
-      modelValue: (value as string) ?? '',
+      'label': def.label,
+      'id': `opt-${def.key}`,
+      'placeholder': def.placeholder ?? '',
+      'modelValue': (value as string) ?? '',
       'onUpdate:modelValue': (v: string) => emit('update', v),
     })
   }

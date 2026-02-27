@@ -15,10 +15,26 @@ import FormControlDropdownEntry from './FormControlDropdownEntry.vue'
           v-model="state.value"
           :label="state.label"
         >
-          <FormControlDropdownEntry value="bar" label="Bar chart" description="Compare values across categories" />
-          <FormControlDropdownEntry value="line" label="Line chart" description="Show trends over time" />
-          <FormControlDropdownEntry value="pie" label="Pie chart" description="Show parts of a whole" />
-          <FormControlDropdownEntry value="donut" label="Donut chart" description="Like pie, with a hollow centre" />
+          <FormControlDropdownEntry
+            value="bar"
+            label="Bar chart"
+            description="Compare values across categories"
+          />
+          <FormControlDropdownEntry
+            value="line"
+            label="Line chart"
+            description="Show trends over time"
+          />
+          <FormControlDropdownEntry
+            value="pie"
+            label="Pie chart"
+            description="Show parts of a whole"
+          />
+          <FormControlDropdownEntry
+            value="donut"
+            label="Donut chart"
+            description="Like pie, with a hollow centre"
+          />
         </FormControlDropdown>
       </template>
       <template #controls="{ state }">
@@ -43,22 +59,38 @@ import FormControlDropdownEntry from './FormControlDropdownEntry.vue'
           v-model="state.value"
           :label="state.label"
         >
-          <FormControlDropdownEntry value="bar" label="Bar chart" description="Compare values across categories">
+          <FormControlDropdownEntry
+            value="bar"
+            label="Bar chart"
+            description="Compare values across categories"
+          >
             <template #icon>
               <IconPhChartBar />
             </template>
           </FormControlDropdownEntry>
-          <FormControlDropdownEntry value="line" label="Line chart" description="Show trends over time">
+          <FormControlDropdownEntry
+            value="line"
+            label="Line chart"
+            description="Show trends over time"
+          >
             <template #icon>
               <IconPhChartLineUp />
             </template>
           </FormControlDropdownEntry>
-          <FormControlDropdownEntry value="pie" label="Pie chart" description="Show parts of a whole">
+          <FormControlDropdownEntry
+            value="pie"
+            label="Pie chart"
+            description="Show parts of a whole"
+          >
             <template #icon>
               <IconPhChartPieSlice />
             </template>
           </FormControlDropdownEntry>
-          <FormControlDropdownEntry value="donut" label="Donut chart" description="Like pie, with a hollow centre">
+          <FormControlDropdownEntry
+            value="donut"
+            label="Donut chart"
+            description="Like pie, with a hollow centre"
+          >
             <template #icon>
               <IconPhChartDonut />
             </template>
@@ -121,11 +153,26 @@ import FormControlDropdownEntry from './FormControlDropdownEntry.vue'
           :label="state.label"
           block
         >
-          <FormControlDropdownEntry value="linear" label="Linear" />
-          <FormControlDropdownEntry value="basis" label="Basis" />
-          <FormControlDropdownEntry value="cardinal" label="Cardinal" />
-          <FormControlDropdownEntry value="step" label="Step" />
-          <FormControlDropdownEntry value="natural" label="Natural" />
+          <FormControlDropdownEntry
+            value="linear"
+            label="Linear"
+          />
+          <FormControlDropdownEntry
+            value="basis"
+            label="Basis"
+          />
+          <FormControlDropdownEntry
+            value="cardinal"
+            label="Cardinal"
+          />
+          <FormControlDropdownEntry
+            value="step"
+            label="Step"
+          />
+          <FormControlDropdownEntry
+            value="natural"
+            label="Natural"
+          />
         </FormControlDropdown>
       </template>
       <template #controls="{ state }">

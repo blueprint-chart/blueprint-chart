@@ -84,7 +84,8 @@ class FrameChart extends D3Blueprint<FrameData> {
                 link.href = d.href
                 link.textContent = d.text
                 this.appendChild(link)
-              } else {
+              }
+              else {
                 this.appendChild(document.createTextNode(d.text))
               }
             })
@@ -164,7 +165,8 @@ export function createFrame(
 
   if (options.note) {
     note.textContent = options.note
-  } else {
+  }
+  else {
     note.style.display = 'none'
   }
 
