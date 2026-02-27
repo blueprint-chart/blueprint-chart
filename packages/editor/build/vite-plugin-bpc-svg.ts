@@ -115,6 +115,10 @@ function extractData(entries: PropertyNode[]): ChartData {
 }
 
 function extractColors(chart: ChartNode): string[] {
+  const colorsProp = chart.properties.find(p => p.key === 'colors')
+  if (colorsProp) {
+    return String(colorsProp.value).split(',').map(c => c.trim())
+  }
   const paletteProp = chart.properties.find(p => p.key === 'colorPalette')
   if (paletteProp) {
     const colors = resolvePalette(String(paletteProp.value))
