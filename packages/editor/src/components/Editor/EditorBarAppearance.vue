@@ -56,18 +56,13 @@
         >invert</a>
       </div>
 
-      <BFormGroup
+      <FormControlColorInput
         v-if="selected.size > 0"
+        id="bar-highlight-color"
         label="Color for selected"
-        label-for="bar-highlight-color"
-      >
-        <BFormInput
-          id="bar-highlight-color"
-          type="color"
-          :model-value="pickerColor"
-          @update:model-value="applyColor"
-        />
-      </BFormGroup>
+        :model-value="pickerColor"
+        @update:model-value="applyColor"
+      />
 
       <BButton
         v-if="highlights.length > 0"
