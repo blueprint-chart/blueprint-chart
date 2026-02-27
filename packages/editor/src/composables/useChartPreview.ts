@@ -47,6 +47,18 @@ export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
       return
     }
 
+    // When dark mode is not allowed, force light theme on the preview card
+    // so the chart always renders with a light background.
+    const allowDark = currentOptions.value.allowDarkMode ?? true
+    const card = containerRef.value.parentElement
+    if (card) {
+      if (!allowDark && theme.value !== 'light') {
+        card.setAttribute('data-bs-theme', 'light')
+      } else {
+        card.removeAttribute('data-bs-theme')
+      }
+    }
+
     const bg = resolveBackgroundColor(containerRef.value)
     const typeOpts = buildChartOptions(currentOptions.value, bg)
 
