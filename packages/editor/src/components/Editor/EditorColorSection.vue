@@ -50,6 +50,38 @@
       >{{ contrastInfo.qualifier }}</span>
     </div>
 
+    <div
+      v-if="cvdInfo"
+      class="d-flex align-items-center gap-2"
+    >
+      <span class="form-label mb-0">Colorblind</span>
+      <span
+        v-if="cvdInfo.safe"
+        class="editor-color-section__cvd-badge editor-color-section__cvd-badge--safe"
+      >
+        <IconPhCheck />
+        Safe
+      </span>
+      <template v-else>
+        <span
+          v-for="issue in cvdInfo.issues"
+          :key="issue.type"
+          ref="cvdBadgeRefs"
+          class="editor-color-section__cvd-badge editor-color-section__cvd-badge--warn"
+        >
+          <IconPhEye />
+          {{ issue.shortLabel }}
+          <IconPhInfo class="editor-color-section__cvd-info" />
+          <BTooltip
+            teleport-to="body"
+            :target="() => getCvdBadgeEl(issue.type)"
+            :title="issue.tooltip"
+            placement="top"
+          />
+        </span>
+      </template>
+    </div>
+
     <FormControlColorblindPicker
       id="opt-cvd-mode"
       v-model="cvdMode"
@@ -59,12 +91,17 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
+import { BTooltip } from 'bootstrap-vue-next'
 import { FormControlColorsInput, FormControlPalette, FormControlCheckbox, DisplayContrastBadge, FormControlColorblindPicker } from '@blueprint-chart/ui'
 import { useChartConfig } from '@/composables/useChartConfig'
 import { useChartTypeOptions } from '@/composables/useChartTypeOptions'
 import { useCvdMode } from '@/composables/useCvdMode'
-import { parseData, listPalettes, resolvePalette, wcagContrastRatio, wcagLevel, adjustColorsForBackground } from '@blueprint-chart/lib'
+import { parseData, listPalettes, resolvePalette, wcagContrastRatio, wcagLevel, adjustColorsForBackground, checkCvdColors } from '@blueprint-chart/lib'
+import type { CvdType } from '@blueprint-chart/lib'
+import IconPhCheck from '~icons/ph/check'
+import IconPhEye from '~icons/ph/eye'
+import IconPhInfo from '~icons/ph/info'
 import EditorBarAppearance from './EditorBarAppearance.vue'
 
 const { chartType, data, highlights } = useChartConfig()
@@ -121,6 +158,34 @@ const contrastInfo = computed(() => {
   return { level, ratio, qualifier }
 })
 
+const CVD_SHORT_LABELS: Record<CvdType, string> = {
+  protanopia: 'Protan',
+  deuteranopia: 'Deutan',
+  tritanopia: 'Tritan',
+}
+
+const cvdBadgeRefs = ref<HTMLElement[]>([])
+
+function getCvdBadgeEl(type: CvdType): HTMLElement | undefined {
+  const idx = cvdInfo.value?.issues.findIndex(i => i.type === type) ?? -1
+  return idx >= 0 ? cvdBadgeRefs.value[idx] : undefined
+}
+
+const cvdInfo = computed(() => {
+  const colors = activeColors.value
+  if (colors.length < 2) return null
+  const issues = checkCvdColors(colors)
+  if (issues.length === 0) return { safe: true as const, issues: [] }
+  return {
+    safe: false as const,
+    issues: issues.map(i => ({
+      type: i.type,
+      shortLabel: CVD_SHORT_LABELS[i.type],
+      tooltip: `${i.label}: ${i.pairs.length} color ${i.pairs.length === 1 ? 'pair' : 'pairs'} may be hard to distinguish.`,
+    })),
+  }
+})
+
 const paletteOptions = [
   { value: '', label: 'Custom', colors: [] as string[] },
   ...listPalettes().map(p => ({
@@ -135,5 +200,32 @@ const paletteOptions = [
 .editor-color-section__qualifier {
   font-size: 0.6875rem;
   font-style: italic;
+}
+
+.editor-color-section__cvd-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2em;
+  padding: 0.15em 0.45em;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1;
+  border-radius: var(--bs-border-radius-sm);
+  cursor: default;
+
+  &--safe {
+    background-color: var(--bs-success-bg-subtle);
+    color: var(--bs-success-text-emphasis);
+  }
+
+  &--warn {
+    background-color: var(--bs-warning-bg-subtle);
+    color: var(--bs-warning-text-emphasis);
+  }
+}
+
+.editor-color-section__cvd-info {
+  font-size: 0.75em;
+  opacity: 0.7;
 }
 </style>

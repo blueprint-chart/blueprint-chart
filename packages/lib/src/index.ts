@@ -37,8 +37,8 @@ export type { PaletteEntry } from './charts/palettes'
 export { resolveSeriesColor, isSeriesHidden } from './charts/series-helpers'
 export { resolveBackgroundColor, adjustColorsForBackground, wcagContrastRatio, wcagLevel } from './charts/contrast'
 export { getTransitionDuration } from './charts/motion'
-export { getCvdFilterId, createCvdSvgFilter } from './charts/colorblind'
-export type { CvdType } from './charts/colorblind'
+export { getCvdFilterId, createCvdSvgFilter, simulateCvdColor, checkCvdColors } from './charts/colorblind'
+export type { CvdType, CvdIssue } from './charts/colorblind'
 
 // DSL
 export { parse } from './dsl/parser'
