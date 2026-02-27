@@ -36,7 +36,7 @@
     />
 
     <div
-      v-if="activeColors.length > 0"
+      v-if="contrastInfo"
       class="d-flex align-items-center gap-2"
     >
       <span class="form-label mb-0">Contrast</span>
@@ -45,7 +45,6 @@
     </div>
 
     <FormControlColorblindPicker
-      v-if="hasPalette || hasColors"
       id="opt-cvd-mode"
       v-model="cvdMode"
       label="Colorblind simulation"
@@ -59,7 +58,7 @@ import { FormControlColorsInput, FormControlPalette, FormControlCheckbox, Displa
 import { useChartConfig } from '@/composables/useChartConfig'
 import { useChartTypeOptions } from '@/composables/useChartTypeOptions'
 import { useCvdMode } from '@/composables/useCvdMode'
-import { parseData, listPalettes, resolvePalette, wcagContrastRatio, wcagLevel, resolveBackgroundColor } from '@blueprint-chart/lib'
+import { parseData, listPalettes, resolvePalette, wcagContrastRatio, wcagLevel } from '@blueprint-chart/lib'
 import EditorBarAppearance from './EditorBarAppearance.vue'
 
 const { chartType, data, highlights } = useChartConfig()
@@ -92,6 +91,11 @@ function onBaseColorChange(color: string) {
 }
 
 const activeColors = computed<string[]>(() => {
+  if (hasHighlights.value) {
+    const highlightColors = highlights.value.map(h => h.color)
+    const base = baseColor.value
+    return highlightColors.length > 0 ? [base, ...highlightColors] : [base]
+  }
   const paletteName = currentOptions.value.colorPalette as string | undefined
   if (paletteName) return resolvePalette(paletteName) ?? []
   const custom = currentOptions.value.colors as string[] | undefined
@@ -100,8 +104,8 @@ const activeColors = computed<string[]>(() => {
 
 const contrastInfo = computed(() => {
   const colors = activeColors.value
-  if (colors.length === 0) return { level: 'Fail' as const, label: '' }
-  const bg = resolveBackgroundColor()
+  if (colors.length === 0) return null
+  const bg = '#ffffff'
   const ratios = colors.map(c => wcagContrastRatio(c, bg))
   const minRatio = Math.min(...ratios)
   const level = wcagLevel(minRatio)
