@@ -14,9 +14,18 @@ import FormControlButtonGroupEntry from './FormControlButtonGroupEntry.vue'
           v-model="state.value"
           :label="state.label"
         >
-          <FormControlButtonGroupEntry value="left" text="Left" />
-          <FormControlButtonGroupEntry value="center" text="Center" />
-          <FormControlButtonGroupEntry value="right" text="Right" />
+          <FormControlButtonGroupEntry
+            value="left"
+            text="Left"
+          />
+          <FormControlButtonGroupEntry
+            value="center"
+            text="Center"
+          />
+          <FormControlButtonGroupEntry
+            value="right"
+            text="Right"
+          />
         </FormControlButtonGroup>
       </template>
       <template #controls="{ state }">
@@ -40,9 +49,18 @@ import FormControlButtonGroupEntry from './FormControlButtonGroupEntry.vue'
           v-model="state.value"
           :label="state.label"
         >
-          <FormControlButtonGroupEntry value="left" text="Left" />
-          <FormControlButtonGroupEntry value="center" text="Center" />
-          <FormControlButtonGroupEntry value="right" text="Right" />
+          <FormControlButtonGroupEntry
+            value="left"
+            text="Left"
+          />
+          <FormControlButtonGroupEntry
+            value="center"
+            text="Center"
+          />
+          <FormControlButtonGroupEntry
+            value="right"
+            text="Right"
+          />
           <template #section:left>
             <div class="d-flex flex-column gap-2 mt-2">
               Left-aligned content options
@@ -76,17 +94,26 @@ import FormControlButtonGroupEntry from './FormControlButtonGroupEntry.vue'
           v-model="state.value"
           :label="state.label"
         >
-          <FormControlButtonGroupEntry value="left" text="Left">
+          <FormControlButtonGroupEntry
+            value="left"
+            text="Left"
+          >
             <template #icon-left>
               <IconPhTextAlignLeft />
             </template>
           </FormControlButtonGroupEntry>
-          <FormControlButtonGroupEntry value="center" text="Center">
+          <FormControlButtonGroupEntry
+            value="center"
+            text="Center"
+          >
             <template #icon-left>
               <IconPhTextAlignCenter />
             </template>
           </FormControlButtonGroupEntry>
-          <FormControlButtonGroupEntry value="right" text="Right">
+          <FormControlButtonGroupEntry
+            value="right"
+            text="Right"
+          >
             <template #icon-left>
               <IconPhTextAlignRight />
             </template>
@@ -110,9 +137,18 @@ import FormControlButtonGroupEntry from './FormControlButtonGroupEntry.vue'
           :label="state.label"
           block
         >
-          <FormControlButtonGroupEntry value="left" text="Left" />
-          <FormControlButtonGroupEntry value="center" text="Center" />
-          <FormControlButtonGroupEntry value="right" text="Right" />
+          <FormControlButtonGroupEntry
+            value="left"
+            text="Left"
+          />
+          <FormControlButtonGroupEntry
+            value="center"
+            text="Center"
+          />
+          <FormControlButtonGroupEntry
+            value="right"
+            text="Right"
+          />
         </FormControlButtonGroup>
       </template>
       <template #controls="{ state }">
@@ -134,11 +170,26 @@ import FormControlButtonGroupEntry from './FormControlButtonGroupEntry.vue'
             :label="state.label"
             block
           >
-            <FormControlButtonGroupEntry value="linear" text="Linear" />
-            <FormControlButtonGroupEntry value="basis" text="Basis" />
-            <FormControlButtonGroupEntry value="cardinal" text="Cardinal" />
-            <FormControlButtonGroupEntry value="step" text="Step" />
-            <FormControlButtonGroupEntry value="natural" text="Natural" />
+            <FormControlButtonGroupEntry
+              value="linear"
+              text="Linear"
+            />
+            <FormControlButtonGroupEntry
+              value="basis"
+              text="Basis"
+            />
+            <FormControlButtonGroupEntry
+              value="cardinal"
+              text="Cardinal"
+            />
+            <FormControlButtonGroupEntry
+              value="step"
+              text="Step"
+            />
+            <FormControlButtonGroupEntry
+              value="natural"
+              text="Natural"
+            />
           </FormControlButtonGroup>
         </div>
       </template>

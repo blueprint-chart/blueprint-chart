@@ -81,7 +81,8 @@ const cardStyle = computed<CSSProperties>(() => {
   }
   if (l.heightMode === 'fixed') {
     style.height = `${l.fixedHeight}px`
-  } else if (l.heightMode === 'aspect-ratio') {
+  }
+  else if (l.heightMode === 'aspect-ratio') {
     const ratio = parseAspectRatio(l.aspectRatio)
     if (ratio) {
       style.aspectRatio = String(ratio)

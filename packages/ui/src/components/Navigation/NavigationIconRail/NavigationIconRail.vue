@@ -34,7 +34,7 @@ import { IconRailEntriesKey } from '../../../composables/injection-keys'
 const model = defineModel<string>({ required: true })
 
 const props = withDefaults(defineProps<{
-  items?: { value: string; icon: Component; tooltip: string }[]
+  items?: { value: string, icon: Component, tooltip: string }[]
 }>(), {
   items: () => [],
 })

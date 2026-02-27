@@ -32,7 +32,12 @@ import PhPlus from '~icons/ph/plus'
         <div class="panel-story__wrapper">
           <Panel v-bind="state">
             <template #actions>
-              <ButtonIcon :icon-left="PhPlus" label="Add" size="sm" variant="outline-secondary" />
+              <ButtonIcon
+                :icon-left="PhPlus"
+                label="Add"
+                size="sm"
+                variant="outline-secondary"
+              />
             </template>
             <p>Body content with actions in the header.</p>
           </Panel>

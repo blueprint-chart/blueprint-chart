@@ -14,8 +14,8 @@
 import DisplayColorSwatch from '../DisplayColorSwatch/DisplayColorSwatch.vue'
 
 defineProps<{
-  colors: string[],
-  bordered?: boolean,
+  colors: string[]
+  bordered?: boolean
 }>()
 </script>
 

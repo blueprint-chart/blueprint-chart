@@ -58,7 +58,8 @@ watch(open, (isOpen) => {
   if (!props.manual) return
   if (isOpen) {
     document.addEventListener('mousedown', onDocumentClick, true)
-  } else {
+  }
+  else {
     document.removeEventListener('mousedown', onDocumentClick, true)
   }
 })
