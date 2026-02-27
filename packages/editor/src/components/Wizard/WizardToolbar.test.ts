@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { ref, computed, type Plugin } from 'vue'
+import { ref, computed } from 'vue'
 import WizardToolbar from './WizardToolbar.vue'
 
 const mockRouter = { replace: vi.fn() }
@@ -83,7 +83,7 @@ vi.mock('@/composables/useDataParser', () => ({
   parseDelimited: vi.fn(() => ({ columns: [], rows: [] })),
 }))
 
-const uiStubs: Record<string, any> = {
+const uiStubs: Record<string, { template: string, props?: string[] }> = {
   NavigationStepper: { template: '<div class="stepper"><slot /></div>', props: ['currentStep', 'steps'] },
   ButtonIcon: { template: '<button class="btn-icon" :disabled="disabled"><slot /></button>', props: ['iconLeft', 'label', 'hideLabel', 'square', 'variant', 'size', 'disabled'] },
   LayoutToolbarSeparator: { template: '<div class="separator" />' },
