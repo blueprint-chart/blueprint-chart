@@ -26,7 +26,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, useTemplateRef, onMounted, onBeforeUnmount, watch } from 'vue'
+import { computed, useTemplateRef, onBeforeUnmount, watch } from 'vue'
 import { BPopover } from 'bootstrap-vue-next'
 import { TwitterPicker, HueSlider, tinycolor } from 'vue-color'
 import 'vue-color/style.css'
