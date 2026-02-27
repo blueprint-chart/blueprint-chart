@@ -51,6 +51,19 @@
 import { computed } from 'vue'
 import { useChartTypeOptions } from '@/composables/useChartTypeOptions'
 import { FormControlButtonGroup } from '@blueprint-chart/ui'
+import IPhList from '~icons/ph/list'
+import IPhTag from '~icons/ph/tag'
+import IPhEyeSlash from '~icons/ph/eye-slash'
+import IPhMagicWand from '~icons/ph/magic-wand'
+import IPhArrowLineUp from '~icons/ph/arrow-line-up'
+import IPhArrowLineDown from '~icons/ph/arrow-line-down'
+import IPhArrowLineLeft from '~icons/ph/arrow-line-left'
+import IPhArrowLineRight from '~icons/ph/arrow-line-right'
+import IPhAlignLeft from '~icons/ph/align-left'
+import IPhAlignCenterHorizontal from '~icons/ph/align-center-horizontal'
+import IPhAlignRight from '~icons/ph/align-right'
+import IPhArrowSquareOut from '~icons/ph/arrow-square-out'
+import IPhArrowSquareIn from '~icons/ph/arrow-square-in'
 
 const { currentOptions, availableOptionKeys, setOption } = useChartTypeOptions()
 
@@ -69,11 +82,11 @@ const labelMode = computed(() => {
 
 const labelModeChoices = computed(() => {
   const choices = [
-    { value: 'legend', text: 'Legend' },
-    { value: 'none', text: 'None' },
+    { value: 'legend', text: 'Legend', icon: IPhList },
+    { value: 'none', text: 'None', icon: IPhEyeSlash },
   ]
   if (hasDirectLabelling.value) {
-    choices.splice(1, 0, { value: 'direct', text: 'Direct labelling' })
+    choices.splice(1, 0, { value: 'direct', text: 'Direct labelling', icon: IPhTag })
   }
   return choices
 })
@@ -94,25 +107,25 @@ function onLabelModeChange(value: string) {
 }
 
 const directLabelStyleChoices = [
-  { value: 'auto', text: 'Auto' },
-  { value: 'outside', text: 'Outside' },
-  { value: 'inside', text: 'Inside' },
+  { value: 'auto', text: 'Auto', icon: IPhMagicWand },
+  { value: 'outside', text: 'Outside', icon: IPhArrowSquareOut },
+  { value: 'inside', text: 'Inside', icon: IPhArrowSquareIn },
 ]
 const directLabelAnchorChoices = [
-  { value: 'start', text: 'Start' },
-  { value: 'middle', text: 'Middle' },
-  { value: 'end', text: 'End' },
+  { value: 'start', text: 'Start', icon: IPhAlignLeft },
+  { value: 'middle', text: 'Middle', icon: IPhAlignCenterHorizontal },
+  { value: 'end', text: 'End', icon: IPhAlignRight },
 ]
 
 const legendPositionChoices = [
-  { value: 'top', text: 'Top' },
-  { value: 'bottom', text: 'Bottom' },
-  { value: 'left', text: 'Left' },
-  { value: 'right', text: 'Right' },
+  { value: 'top', text: 'Top', icon: IPhArrowLineUp },
+  { value: 'bottom', text: 'Bottom', icon: IPhArrowLineDown },
+  { value: 'left', text: 'Left', icon: IPhArrowLineLeft },
+  { value: 'right', text: 'Right', icon: IPhArrowLineRight },
 ]
 const legendAnchorChoices = [
-  { value: 'start', text: 'Start' },
-  { value: 'middle', text: 'Middle' },
-  { value: 'end', text: 'End' },
+  { value: 'start', text: 'Start', icon: IPhAlignLeft },
+  { value: 'middle', text: 'Middle', icon: IPhAlignCenterHorizontal },
+  { value: 'end', text: 'End', icon: IPhAlignRight },
 ]
 </script>
