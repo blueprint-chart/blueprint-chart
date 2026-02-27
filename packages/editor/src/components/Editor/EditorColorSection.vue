@@ -115,7 +115,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, markRaw, ref } from 'vue'
 import { BTooltip } from 'bootstrap-vue-next'
 import { FormControlColorsInput, FormControlPalette, FormControlCheckbox, DisplayContrastBadge, FormControlButtonGroup } from '@blueprint-chart/ui'
 import { useChartConfig } from '@/composables/useChartConfig'
@@ -127,6 +127,10 @@ import IconPhCheck from '~icons/ph/check'
 import IconPhEye from '~icons/ph/eye'
 import IconPhInfo from '~icons/ph/info'
 import EditorBarAppearance from './EditorBarAppearance.vue'
+import CvdNoneThumb from '@/assets/chart-thumbnails/cvd-none.bpc'
+import CvdProtanopiaThumb from '@/assets/chart-thumbnails/cvd-protanopia.bpc'
+import CvdDeuteranopiaThumb from '@/assets/chart-thumbnails/cvd-deuteranopia.bpc'
+import CvdTritanopiaThumb from '@/assets/chart-thumbnails/cvd-tritanopia.bpc'
 
 const { chartType, data, highlights } = useChartConfig()
 const { currentOptions, availableOptionKeys, setOption } = useChartTypeOptions()
@@ -221,10 +225,10 @@ const cvdInfo = computed(() => {
 })
 
 const cvdOptions = [
-  { value: '', text: 'None' },
-  { value: 'protanopia', text: 'Protanopia' },
-  { value: 'deuteranopia', text: 'Deuteranopia' },
-  { value: 'tritanopia', text: 'Tritanopia' },
+  { value: '', text: 'None', description: 'Normal color vision', visual: markRaw(CvdNoneThumb) },
+  { value: 'protanopia', text: 'Protanopia', description: 'No red cones (1% of males)', visual: markRaw(CvdProtanopiaThumb) },
+  { value: 'deuteranopia', text: 'Deuteranopia', description: 'No green cones (1% of males)', visual: markRaw(CvdDeuteranopiaThumb) },
+  { value: 'tritanopia', text: 'Tritanopia', description: 'No blue cones (very rare)', visual: markRaw(CvdTritanopiaThumb) },
 ]
 
 const paletteOptions = [
