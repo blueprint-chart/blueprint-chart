@@ -3,6 +3,7 @@ chart pie {
   description = "Estimated share, 2024"
   source = "United Nations"
   sourceUrl = "https://population.un.org"
+  colorPalette = "Klimt"
   legendPosition = "right"
   tooltips = true
   displayAsPercentage = true

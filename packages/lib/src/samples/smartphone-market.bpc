@@ -4,6 +4,7 @@ chart donut {
   source = "IDC"
   sourceUrl = "https://idc.com"
   note = "Market share based on unit shipments, not revenue"
+  colorPalette = "Sunset2"
   legendPosition = "right"
   tooltips = true
   displayAsPercentage = true

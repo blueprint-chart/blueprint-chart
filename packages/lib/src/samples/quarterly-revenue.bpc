@@ -6,7 +6,7 @@ chart bar-multi {
   note = "Figures are illustrative and do not represent actual company data"
   legendPosition = "top"
   tooltips = true
-  colorPalette = "Blueprint"
+  colorPalette = "Egypt"
 
   data {
     _series = "Hardware,Software,Services"
