@@ -21,13 +21,24 @@
         :container-ref="canvasRef"
       />
     </div>
-    <ChartEditDockedPanel :collapsed="panelMode !== 'docked'" />
+    <template v-if="isNarrow">
+      <LayoutBottomDrawer
+        v-model="drawerOpen"
+        :title="activeTab"
+      >
+        <ChartEditDockedPanel :collapsed="false" />
+      </LayoutBottomDrawer>
+    </template>
+    <template v-else>
+      <ChartEditDockedPanel :collapsed="panelMode !== 'docked'" />
+    </template>
     <ChartEditIconRail />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, type CSSProperties } from 'vue'
+import { LayoutBottomDrawer, useBreakpoint } from '@blueprint-chart/ui'
 import { useEditorPanel } from '@/composables/useEditorPanel'
 import { useChartConfig } from '@/composables/useChartConfig'
 import PreviewChart from '@/components/Preview/PreviewChart.vue'
@@ -36,7 +47,9 @@ import ChartEditDockedPanel from './ChartEditDockedPanel.vue'
 import ChartEditIconRail from './ChartEditIconRail.vue'
 import ChartEditFloatingPanel from './ChartEditFloatingPanel.vue'
 
-const { panelMode, viewMode } = useEditorPanel()
+const { panelMode, viewMode, activeTab } = useEditorPanel()
+const { isNarrow } = useBreakpoint()
+const drawerOpen = ref(true)
 const { layout } = useChartConfig()
 const canvasRef = ref<HTMLElement | null>(null)
 
