@@ -34,6 +34,7 @@ export { default as DisplayValue } from './components/Display/DisplayValue/Displ
 export { default as DisplayDate } from './components/Display/DisplayDate/DisplayDate.vue'
 export { default as DisplayRange } from './components/Display/DisplayRange/DisplayRange.vue'
 export { default as DisplayNumber } from './components/Display/DisplayNumber/DisplayNumber.vue'
+export { default as DisplayContrastBadge } from './components/Display/DisplayContrastBadge/DisplayContrastBadge.vue'
 
 export { default as SectionGroup } from './components/Section/SectionGroup/SectionGroup.vue'
 export { default as SectionTitle } from './components/Section/SectionTitle/SectionTitle.vue'

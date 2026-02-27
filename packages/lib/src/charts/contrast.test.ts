@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import chroma from 'chroma-js'
-import { readableColor, adjustColorsForBackground, contrastTextColor } from './contrast'
+import { readableColor, adjustColorsForBackground, contrastTextColor, wcagContrastRatio, wcagLevel } from './contrast'
 
 const MIN_CONTRAST = 3
 const MIN_ADJACENT_DELTA_E = 12
@@ -111,5 +111,38 @@ describe('adjustColorsForBackground', () => {
     const result = adjustColorsForBackground(['#eee'], '#fff')
     expect(result).toHaveLength(1)
     expect(chroma.contrast(result[0], '#fff')).toBeGreaterThanOrEqual(MIN_CONTRAST)
+  })
+})
+
+describe('wcagContrastRatio', () => {
+  it('returns 21 for black on white', () => {
+    expect(wcagContrastRatio('#000', '#fff')).toBeCloseTo(21, 0)
+  })
+
+  it('returns 1 for identical colors', () => {
+    expect(wcagContrastRatio('#888', '#888')).toBeCloseTo(1, 1)
+  })
+
+  it('is symmetric', () => {
+    const a = wcagContrastRatio('#4e79a7', '#fff')
+    const b = wcagContrastRatio('#fff', '#4e79a7')
+    expect(a).toBeCloseTo(b, 5)
+  })
+})
+
+describe('wcagLevel', () => {
+  it('returns AAA for ratio >= 7', () => {
+    expect(wcagLevel(7)).toBe('AAA')
+    expect(wcagLevel(21)).toBe('AAA')
+  })
+
+  it('returns AA for ratio >= 4.5 and < 7', () => {
+    expect(wcagLevel(4.5)).toBe('AA')
+    expect(wcagLevel(6.9)).toBe('AA')
+  })
+
+  it('returns Fail for ratio < 4.5', () => {
+    expect(wcagLevel(4.4)).toBe('Fail')
+    expect(wcagLevel(1)).toBe('Fail')
   })
 })
