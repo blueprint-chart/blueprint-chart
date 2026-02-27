@@ -90,10 +90,11 @@
       </template>
     </div>
 
-    <FormControlColorblindPicker
-      id="opt-cvd-mode"
+    <FormControlButtonGroup
       v-model="cvdMode"
       label="Colorblind simulation"
+      :options="cvdOptions"
+      block
     />
   </div>
 </template>
@@ -101,7 +102,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { BTooltip } from 'bootstrap-vue-next'
-import { FormControlColorsInput, FormControlPalette, FormControlCheckbox, DisplayContrastBadge, FormControlColorblindPicker } from '@blueprint-chart/ui'
+import { FormControlColorsInput, FormControlPalette, FormControlCheckbox, DisplayContrastBadge, FormControlButtonGroup } from '@blueprint-chart/ui'
 import { useChartConfig } from '@/composables/useChartConfig'
 import { useChartTypeOptions } from '@/composables/useChartTypeOptions'
 import { useCvdMode } from '@/composables/useCvdMode'
@@ -194,6 +195,13 @@ const cvdInfo = computed(() => {
     })),
   }
 })
+
+const cvdOptions = [
+  { value: '', text: 'None' },
+  { value: 'protanopia', text: 'Protanopia' },
+  { value: 'deuteranopia', text: 'Deuteranopia' },
+  { value: 'tritanopia', text: 'Tritanopia' },
+]
 
 const paletteOptions = [
   { value: '', label: 'Custom', colors: [] as string[] },
