@@ -1,6 +1,7 @@
 import * as d3 from 'd3'
 import 'd3-transition'
 import { D3Blueprint } from 'd3-blueprint'
+import { getTransitionDuration } from '../motion'
 
 const DEFAULT_COLORS = [
   '#4e79a7', '#f28e2b', '#e15759', '#76b7b2',
@@ -117,7 +118,7 @@ function setupLegendHighlight(chartArea: SVGGElement): void {
 
     el.addEventListener('mouseenter', () => {
       if (hoverTimer) clearTimeout(hoverTimer)
-      hoverTimer = setTimeout(() => highlight(seriesIndex), HOVER_DELAY)
+      hoverTimer = setTimeout(() => highlight(seriesIndex), getTransitionDuration(HOVER_DELAY))
     })
 
     el.addEventListener('mouseleave', () => {

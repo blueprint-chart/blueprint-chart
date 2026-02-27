@@ -36,6 +36,7 @@ export type { PaletteEntry } from './charts/palettes'
 
 export { resolveSeriesColor, isSeriesHidden } from './charts/series-helpers'
 export { resolveBackgroundColor, adjustColorsForBackground } from './charts/contrast'
+export { getTransitionDuration } from './charts/motion'
 
 // DSL
 export { parse } from './dsl/parser'
