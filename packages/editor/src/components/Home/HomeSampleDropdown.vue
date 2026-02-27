@@ -44,10 +44,12 @@
         class="home-sample-dropdown__entry"
         @click="onSelect(sample)"
       >
-        <div
-          class="home-sample-dropdown__thumb"
-          v-html="thumbnails[sample.id] ?? ''"
-        />
+        <div class="home-sample-dropdown__thumb">
+          <component
+            :is="sampleThumbnails[sample.id]"
+            v-if="sampleThumbnails[sample.id]"
+          />
+        </div>
         <div class="home-sample-dropdown__text">
           <span class="fw-bold">{{ sample.title }}</span>
           <small class="text-body-secondary">{{ sample.description }}</small>
@@ -58,10 +60,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, onUnmounted } from 'vue'
-import { samples, parseData } from '@blueprint-chart/lib'
+import { ref, onMounted, onUnmounted, markRaw } from 'vue'
+import type { Component } from 'vue'
+import { samples } from '@blueprint-chart/lib'
 import type { ChartSample } from '@blueprint-chart/lib'
-import { renderThumbnailSvg } from '@/composables/useChartThumbnail'
 import IPhPlusCircle from '~icons/ph/plus-circle'
 
 const emit = defineEmits<{
@@ -69,23 +71,27 @@ const emit = defineEmits<{
   select: [sample: ChartSample]
 }>()
 
+// Import all sample .bpc files as Vue components via the bpc-svg plugin.
+// The glob uses a relative path to the lib package's samples directory.
+const bpcModules = import.meta.glob<{ default: Component }>(
+  '../../../../lib/src/samples/*.bpc',
+  { eager: true },
+)
+
+// Build a map from sample id (e.g. "letter-frequency") to component
+const sampleThumbnails: Record<string, Component> = {}
+for (const [path, mod] of Object.entries(bpcModules)) {
+  const filename = path.split('/').pop()?.replace('.bpc', '')
+  if (filename && mod.default) {
+    sampleThumbnails[filename] = markRaw(mod.default)
+  }
+}
+
 const open = ref(false)
 const containerRef = ref<HTMLElement | null>(null)
-const thumbnails = reactive<Record<string, string>>({})
 
 onMounted(() => {
   document.addEventListener('click', onClickOutside)
-
-  for (const sample of samples) {
-    try {
-      const data = parseData(sample.serializedData)
-      const svg = renderThumbnailSvg(sample.chartType, data, {}, 'none')
-      if (svg) thumbnails[sample.id] = svg
-    }
-    catch {
-      // skip if rendering fails
-    }
-  }
 })
 
 onUnmounted(() => {
