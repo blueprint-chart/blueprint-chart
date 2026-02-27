@@ -13,6 +13,14 @@ vi.mock('@blueprint-chart/ui', () => ({
     props: ['iconLeft', 'label', 'hideLabel', 'square', 'variant', 'size'],
     emits: ['click'],
   },
+  ButtonDetach: {
+    template: '<button class="btn-icon" @click="$emit(\'click\')"><slot /></button>',
+    emits: ['click'],
+  },
+  ButtonClose: {
+    template: '<button class="btn-icon" @click="$emit(\'click\')"><slot /></button>',
+    emits: ['click'],
+  },
 }))
 
 vi.mock('@/components/Editor/EditorChartTypePicker.vue', () => ({

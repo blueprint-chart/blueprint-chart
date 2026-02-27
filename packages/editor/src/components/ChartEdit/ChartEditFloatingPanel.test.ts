@@ -9,6 +9,18 @@ vi.mock('@blueprint-chart/ui', () => ({
     props: ['iconLeft', 'label', 'hideLabel', 'square', 'variant', 'size'],
     emits: ['click'],
   },
+  ButtonDrag: {
+    template: '<button class="btn-icon" @click="$emit(\'click\')"><slot /></button>',
+    emits: ['click'],
+  },
+  ButtonDock: {
+    template: '<button class="btn-icon" @click="$emit(\'click\')"><slot /></button>',
+    emits: ['click'],
+  },
+  ButtonClose: {
+    template: '<button class="btn-icon" @click="$emit(\'click\')"><slot /></button>',
+    emits: ['click'],
+  },
 }))
 
 vi.mock('@/composables/usePanelDrag', () => ({
@@ -74,7 +86,7 @@ describe('ChartEditFloatingPanel', () => {
       props: { containerRef: null },
     })
     const buttons = w.findAll('.btn-icon')
-    expect(buttons.length).toBe(2)
+    expect(buttons.length).toBe(3)
   })
 
   it('position style reflects composable state', () => {
