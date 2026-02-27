@@ -58,7 +58,7 @@ import { FormControlColorsInput, FormControlPalette, FormControlCheckbox, Displa
 import { useChartConfig } from '@/composables/useChartConfig'
 import { useChartTypeOptions } from '@/composables/useChartTypeOptions'
 import { useCvdMode } from '@/composables/useCvdMode'
-import { parseData, listPalettes, resolvePalette, wcagContrastRatio, wcagLevel } from '@blueprint-chart/lib'
+import { parseData, listPalettes, resolvePalette, wcagContrastRatio, wcagLevel, adjustColorsForBackground } from '@blueprint-chart/lib'
 import EditorBarAppearance from './EditorBarAppearance.vue'
 
 const { chartType, data, highlights } = useChartConfig()
@@ -101,9 +101,12 @@ const activeColors = computed<string[]>(() => {
 })
 
 const contrastInfo = computed(() => {
-  const colors = activeColors.value
-  if (colors.length === 0) return null
+  const raw = activeColors.value
+  if (raw.length === 0) return null
   const bg = '#ffffff'
+  const colors = currentOptions.value.autoContrast
+    ? adjustColorsForBackground(raw, bg)
+    : raw
   const ratios = colors.map(c => wcagContrastRatio(c, bg))
   const minRatio = Math.min(...ratios)
   const level = wcagLevel(minRatio)
