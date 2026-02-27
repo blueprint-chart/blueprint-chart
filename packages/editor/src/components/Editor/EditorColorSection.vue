@@ -173,8 +173,8 @@ function getCvdBadgeEl(type: CvdType): HTMLElement | undefined {
 
 const cvdInfo = computed(() => {
   const colors = activeColors.value
-  if (colors.length < 2) return null
-  const issues = checkCvdColors(colors)
+  if (colors.length === 0) return null
+  const issues = colors.length >= 2 ? checkCvdColors(colors) : []
   if (issues.length === 0) return { safe: true as const, issues: [] }
   return {
     safe: false as const,
