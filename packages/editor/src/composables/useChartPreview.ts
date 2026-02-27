@@ -61,6 +61,7 @@ export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
         showCredit: config.layout.value.showCredit,
       },
       sort: config.sort.value,
+      sortMode: config.sortMode.value !== 'none' ? config.sortMode.value : undefined,
       ...typeOpts,
       highlights: config.highlights.value.length > 0 ? config.highlights.value : undefined,
       areaFills: config.areaFills.value.length > 0 ? config.areaFills.value : undefined,
@@ -70,7 +71,7 @@ export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
   }
 
   watch(
-    [containerRef, config.chartType, config.title, config.data, config.sort, config.description, config.byline, config.note, config.source, config.sourceUrl, config.selectedColumn, config.highlights, config.areaFills, config.annotations, config.seriesOverrides, config.layout, currentOptions, theme],
+    [containerRef, config.chartType, config.title, config.data, config.sort, config.sortMode, config.description, config.byline, config.note, config.source, config.sourceUrl, config.selectedColumn, config.highlights, config.areaFills, config.annotations, config.seriesOverrides, config.layout, currentOptions, theme],
     render,
     { immediate: true, deep: true },
   )

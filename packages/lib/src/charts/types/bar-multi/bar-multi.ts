@@ -22,6 +22,7 @@ const DEFAULT_COLORS = [
 interface MultiBarDatum {
   label: string
   series: string
+  seriesName: string
   value: number
   seriesIndex: number
 }
@@ -96,8 +97,20 @@ export function render(
   const { chartArea, width, height, margin } = createCanvas(body, marginOverrides)
   const [domainMin, domainMax] = computeLinearDomain(allValues, options.verticalAxis?.range)
 
+  // Sort labels by total (sum across series) when sortMode is 'total'
+  let sortedLabels = data.labels
+  if (options.sortMode === 'total') {
+    const totals = data.labels.map((label, i) => ({
+      label,
+      index: i,
+      total: series.reduce((sum, s) => sum + (s.values[i] ?? 0), 0),
+    }))
+    totals.sort((a, b) => b.total - a.total)
+    sortedLabels = totals.map(t => t.label)
+  }
+
   const x0 = d3.scaleBand<string>()
-    .domain(data.labels)
+    .domain(sortedLabels)
     .range([0, width])
     .padding(0.2)
 
@@ -123,11 +136,26 @@ export function render(
       .attr('stroke', '#666').attr('stroke-width', 1)
   }
 
+  // Build per-group rank map for within-groups sorting
+  const withinGroupRank = new Map<string, string>()
+  if (options.sortMode === 'within-groups') {
+    data.labels.forEach((label, i) => {
+      const items = series.map(s => ({ name: s.name, value: s.values[i] }))
+      items.sort((a, b) => b.value - a.value)
+      items.forEach((item, rank) => {
+        withinGroupRank.set(`${label}\0${item.name}`, seriesNames[rank])
+      })
+    })
+  }
+
   const flatData: MultiBarDatum[] = []
   data.labels.forEach((label, i) => {
     series.forEach((s) => {
       const originalIndex = allSeries.findIndex(a => a.name === s.name)
-      flatData.push({ label, series: s.name, value: s.values[i], seriesIndex: originalIndex })
+      const positionKey = options.sortMode === 'within-groups'
+        ? (withinGroupRank.get(`${label}\0${s.name}`) ?? s.name)
+        : s.name
+      flatData.push({ label, series: positionKey, seriesName: s.name, value: s.values[i], seriesIndex: originalIndex })
     })
   })
 
@@ -142,8 +170,8 @@ export function render(
   // Apply per-series color and opacity overrides to bars
   d3.select(chartArea).selectAll('.bc-bar-multi').each(function (this: SVGRectElement, d: unknown) {
     const datum = d as MultiBarDatum
-    const seriesColor = resolveSeriesColor(datum.series, datum.seriesIndex, colors, overrides)
-    const seriesOpacity = resolveSeriesOpacity(datum.series, overrides)
+    const seriesColor = resolveSeriesColor(datum.seriesName, datum.seriesIndex, colors, overrides)
+    const seriesOpacity = resolveSeriesOpacity(datum.seriesName, overrides)
     const el = d3.select(this)
     el.attr('fill', seriesColor)
     if (seriesOpacity < 1) el.attr('fill-opacity', seriesOpacity)
@@ -191,17 +219,17 @@ export function render(
   // Per-series value labels
   const vlGroup = d3.select(chartArea).append('g').attr('class', 'bc-value-labels')
   flatData.forEach((datum) => {
-    if (!resolveSeriesValueLabels(datum.series, globalValueLabels, overrides)) return
+    if (!resolveSeriesValueLabels(datum.seriesName, globalValueLabels, overrides)) return
     const cx = (x0(datum.label) ?? 0) + (x1(datum.series) ?? 0) + x1.bandwidth() / 2
     const barTop = Math.min(y(0), y(datum.value))
     const barHeight = Math.abs(y(datum.value) - y(0))
     const vlMode = resolveVlMode(barHeight)
-    const hasDl = hasAnyDirectLabels && directLabelSet.has(datum.series)
+    const hasDl = hasAnyDirectLabels && directLabelSet.has(datum.seriesName)
 
     let cy: number
     let fill: string
     if (vlMode === 'inside') {
-      const barColor = resolveSeriesColor(datum.series, datum.seriesIndex, colors, overrides)
+      const barColor = resolveSeriesColor(datum.seriesName, datum.seriesIndex, colors, overrides)
       fill = contrastTextColor(barColor)
       // When direct labels are also inside, offset below the direct label
       const dlIsInside = hasDl && resolveBarDlMode(barHeight) === 'inside'
@@ -233,13 +261,13 @@ export function render(
 
   // Direct labels — mode-aware positioning
   flatData.forEach((datum) => {
-    if (!directLabelSet.has(datum.series)) return
+    if (!directLabelSet.has(datum.seriesName)) return
     const cx = (x0(datum.label) ?? 0) + (x1(datum.series) ?? 0) + x1.bandwidth() / 2
     const barTop = Math.min(y(0), y(datum.value))
     const barHeight = Math.abs(y(datum.value) - y(0))
-    const labelText = overrides?.find(o => o.name === datum.series)?.labelText || datum.series
+    const labelText = overrides?.find(o => o.name === datum.seriesName)?.labelText || datum.seriesName
     const mode = resolveBarDlMode(barHeight)
-    const barColor = resolveSeriesColor(datum.series, datum.seriesIndex, colors, overrides)
+    const barColor = resolveSeriesColor(datum.seriesName, datum.seriesIndex, colors, overrides)
 
     const labelEl = d3.select(chartArea)
       .append('text')

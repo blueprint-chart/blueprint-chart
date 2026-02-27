@@ -136,7 +136,17 @@ export function render(
   const { body } = createFrame(container, options.frame)
 
   const allSeries = data.series ?? []
-  const series = allSeries.filter(s => !isSeriesHidden(s.name, options.seriesOverrides))
+  let series = allSeries.filter(s => !isSeriesHidden(s.name, options.seriesOverrides))
+
+  // Sort series by total values when sortMode is 'total' or 'within-groups'
+  if (options.sortMode === 'total' || options.sortMode === 'within-groups') {
+    series = [...series].sort((a, b) => {
+      const totalA = a.values.reduce((sum, v) => sum + v, 0)
+      const totalB = b.values.reduce((sum, v) => sum + v, 0)
+      return totalB - totalA
+    })
+  }
+
   const colors = options.colors ?? DEFAULT_COLORS
   const seriesNames = series.map(s => s.name)
 
