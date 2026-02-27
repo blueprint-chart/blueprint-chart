@@ -3,8 +3,13 @@ import DisplayContrastBadge from './DisplayContrastBadge.vue'
 
 describe('DisplayContrastBadge', () => {
   it('renders the level text', () => {
-    const wrapper = mount(DisplayContrastBadge, { props: { level: 'AA' } })
-    expect(wrapper.text()).toBe('AA')
+    const wrapper = mount(DisplayContrastBadge, { props: { level: 'AA', ratio: '5.2:1' } })
+    expect(wrapper.text()).toContain('AA')
+  })
+
+  it('renders the ratio when provided', () => {
+    const wrapper = mount(DisplayContrastBadge, { props: { level: 'AA', ratio: '5.2:1' } })
+    expect(wrapper.text()).toContain('5.2:1')
   })
 
   it('applies --aaa class for AAA level', () => {
