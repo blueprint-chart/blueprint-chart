@@ -14,6 +14,21 @@ import renewableEnergyBpc from './samples/renewable-energy.bpc?raw'
 import smartphoneMarketBpc from './samples/smartphone-market.bpc?raw'
 import energySourcesBpc from './samples/energy-sources.bpc?raw'
 import worldPopulationBpc from './samples/world-population.bpc?raw'
+import coffeeProductionBpc from './samples/coffee-production.bpc?raw'
+import tallestBuildingsBpc from './samples/tallest-buildings.bpc?raw'
+import fastestAnimalsBpc from './samples/fastest-animals.bpc?raw'
+import internetUsersBpc from './samples/internet-users.bpc?raw'
+import evSalesBpc from './samples/ev-sales.bpc?raw'
+import streamingRevenueBpc from './samples/streaming-revenue.bpc?raw'
+import seaLevelRiseBpc from './samples/sea-level-rise.bpc?raw'
+import bitcoinPriceBpc from './samples/bitcoin-price.bpc?raw'
+import gdpGrowthBpc from './samples/gdp-growth.bpc?raw'
+import socialMediaUsersBpc from './samples/social-media-users.bpc?raw'
+import browserMarketBpc from './samples/browser-market.bpc?raw'
+import dietCompositionBpc from './samples/diet-composition.bpc?raw'
+import federalBudgetBpc from './samples/federal-budget.bpc?raw'
+import waterUsageBpc from './samples/water-usage.bpc?raw'
+import programmingLanguagesBpc from './samples/programming-languages.bpc?raw'
 
 export interface ChartSample {
   id: string
@@ -87,21 +102,36 @@ export const samples: ChartSample[] = [
   // Bar Vertical
   buildSample('letter-frequency', letterFrequencyBpc),
   buildSample('co2-emissions', co2EmissionsBpc),
+  buildSample('coffee-production', coffeeProductionBpc),
+  buildSample('tallest-buildings', tallestBuildingsBpc),
   // Bar Horizontal
   buildSample('spoken-languages', spokenLanguagesBpc),
   buildSample('life-expectancy', lifeExpectancyBpc),
+  buildSample('fastest-animals', fastestAnimalsBpc),
+  buildSample('internet-users', internetUsersBpc),
   // Bar Multi
   buildSample('quarterly-revenue', quarterlyRevenueBpc),
   buildSample('medal-count', medalCountBpc),
+  buildSample('ev-sales', evSalesBpc),
+  buildSample('streaming-revenue', streamingRevenueBpc),
   // Line
   buildSample('temperature-anomaly', temperatureAnomalyBpc),
   buildSample('inflation-rate', inflationRateBpc),
+  buildSample('sea-level-rise', seaLevelRiseBpc),
+  buildSample('bitcoin-price', bitcoinPriceBpc),
   // Line Multi
   buildSample('unemployment-rates', unemploymentRatesBpc),
   buildSample('renewable-energy', renewableEnergyBpc),
+  buildSample('gdp-growth', gdpGrowthBpc),
+  buildSample('social-media-users', socialMediaUsersBpc),
   // Donut
   buildSample('smartphone-market', smartphoneMarketBpc),
   buildSample('energy-sources', energySourcesBpc),
+  buildSample('browser-market', browserMarketBpc),
+  buildSample('diet-composition', dietCompositionBpc),
   // Pie
   buildSample('world-population', worldPopulationBpc),
+  buildSample('federal-budget', federalBudgetBpc),
+  buildSample('water-usage', waterUsageBpc),
+  buildSample('programming-languages', programmingLanguagesBpc),
 ]

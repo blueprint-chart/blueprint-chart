@@ -1,0 +1,24 @@
+chart line {
+  title = "Global Mean Sea Level Rise"
+  description = "Millimetres above 1993 baseline"
+  source = "NASA Sea Level"
+  sourceUrl = "https://sealevel.nasa.gov"
+  interpolation = "monotoneX"
+  colorPalette = "Leucosternon"
+  lineSymbols = true
+  lineSymbolShowOn = "firstLast"
+  verticalGridStyle = dashed
+  tooltips = true
+
+  data {
+    "1993" = 0
+    "1997" = 12
+    "2001" = 18
+    "2005" = 32
+    "2009" = 42
+    "2013" = 58
+    "2017" = 72
+    "2021" = 97
+    "2025" = 113
+  }
+}

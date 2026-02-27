@@ -1,0 +1,17 @@
+chart donut {
+  title = "Average American Diet Composition"
+  description = "Share of daily caloric intake by macronutrient"
+  source = "USDA Dietary Guidelines 2025"
+  colorPalette = "PabloPicasso"
+  legendPosition = "right"
+  displayAsPercentage = true
+  showTotal = true
+  tooltips = true
+
+  data {
+    "Carbohydrates" = 49
+    "Fat" = 33
+    "Protein" = 16
+    "Alcohol" = 2
+  }
+}

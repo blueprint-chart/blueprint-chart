@@ -1,0 +1,27 @@
+chart bar-vertical {
+  title = "Top Coffee Producing Countries"
+  description = "Million 60-kg bags, 2023/24 crop year"
+  source = "International Coffee Organization"
+  sourceUrl = "https://ico.org"
+  colorPalette = "Harvey"
+  sort = descending
+  valueLabels = true
+  verticalLabelPosition = off
+  verticalGridStyle = none
+
+  highlight "Brazil" {
+    color = "#a4432d"
+    label = "World leader"
+  }
+
+  data {
+    "Brazil" = 66.4
+    "Vietnam" = 29.0
+    "Colombia" = 11.4
+    "Indonesia" = 9.9
+    "Ethiopia" = 8.7
+    "Honduras" = 6.3
+    "India" = 5.8
+    "Uganda" = 5.5
+  }
+}
