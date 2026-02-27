@@ -5,9 +5,11 @@ import { BootstrapVueNextResolver } from 'bootstrap-vue-next'
 import Icons from 'unplugin-icons/vite'
 import IconsResolver from 'unplugin-icons/resolver'
 import { fileURLToPath } from 'node:url'
+import bpcSvg from './build/vite-plugin-bpc-svg'
 
 export default defineConfig({
   plugins: [
+    bpcSvg(),
     vue(),
     Components({
       resolvers: [
