@@ -26,13 +26,22 @@
       <hr>
       <EditorInteractionSection />
     </template>
+
+    <hr>
+    <FormControlColorblindPicker
+      id="opt-cvd-mode"
+      v-model="cvdMode"
+      label="Colorblind simulation"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { FormControlColorblindPicker } from '@blueprint-chart/ui'
 import { useChartConfig } from '@/composables/useChartConfig'
 import { useChartTypeOptions } from '@/composables/useChartTypeOptions'
+import { useCvdMode } from '@/composables/useCvdMode'
 import EditorColorSection from './EditorColorSection.vue'
 import EditorSortSection from './EditorSortSection.vue'
 import EditorLineSection from './EditorLineSection.vue'
@@ -41,6 +50,7 @@ import EditorSliceSection from './EditorSliceSection.vue'
 import EditorInteractionSection from './EditorInteractionSection.vue'
 
 const { chartType } = useChartConfig()
+const { cvdMode } = useCvdMode()
 const { availableOptionKeys } = useChartTypeOptions()
 
 const hasSort = computed(() =>
