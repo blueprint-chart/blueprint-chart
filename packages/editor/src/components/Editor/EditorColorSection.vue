@@ -27,14 +27,6 @@
       />
     </template>
 
-    <div
-      v-if="hasColors && contrastLevel"
-      class="d-flex align-items-center gap-2"
-    >
-      <span class="form-label mb-0">Contrast</span>
-      <DisplayContrastBadge :level="contrastLevel" />
-    </div>
-
     <FormControlCheckbox
       v-if="hasPalette || hasColors"
       id="opt-auto-contrast"
@@ -42,19 +34,37 @@
       :model-value="currentOptions.autoContrast ?? false"
       @update:model-value="(v) => setOption('autoContrast', v)"
     />
+
+    <div
+      v-if="activeColors.length > 0"
+      class="d-flex align-items-center gap-2"
+    >
+      <span class="form-label mb-0">Contrast</span>
+      <DisplayContrastBadge :level="contrastInfo.level" />
+      <span class="text-body-secondary editor-color-section__ratio">{{ contrastInfo.label }}</span>
+    </div>
+
+    <FormControlColorblindPicker
+      v-if="hasPalette || hasColors"
+      id="opt-cvd-mode"
+      v-model="cvdMode"
+      label="Colorblind simulation"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { FormControlColorsInput, FormControlPalette, FormControlCheckbox, DisplayContrastBadge } from '@blueprint-chart/ui'
+import { FormControlColorsInput, FormControlPalette, FormControlCheckbox, DisplayContrastBadge, FormControlColorblindPicker } from '@blueprint-chart/ui'
 import { useChartConfig } from '@/composables/useChartConfig'
 import { useChartTypeOptions } from '@/composables/useChartTypeOptions'
-import { parseData, listPalettes, wcagContrastRatio, wcagLevel, resolveBackgroundColor } from '@blueprint-chart/lib'
+import { useCvdMode } from '@/composables/useCvdMode'
+import { parseData, listPalettes, resolvePalette, wcagContrastRatio, wcagLevel, resolveBackgroundColor } from '@blueprint-chart/lib'
 import EditorBarAppearance from './EditorBarAppearance.vue'
 
 const { chartType, data, highlights } = useChartConfig()
 const { currentOptions, availableOptionKeys, setOption } = useChartTypeOptions()
+const { cvdMode } = useCvdMode()
 
 const hasHighlights = computed(() =>
   ['bar-vertical', 'bar-horizontal', 'vertical-bar', 'horizontal-bar'].includes(chartType.value),
@@ -81,12 +91,22 @@ function onBaseColorChange(color: string) {
   }
 }
 
-const contrastLevel = computed(() => {
-  const colors = currentOptions.value.colors as string[] | undefined
-  if (!colors || colors.length === 0) return null
+const activeColors = computed<string[]>(() => {
+  const paletteName = currentOptions.value.colorPalette as string | undefined
+  if (paletteName) return resolvePalette(paletteName) ?? []
+  const custom = currentOptions.value.colors as string[] | undefined
+  return custom ?? []
+})
+
+const contrastInfo = computed(() => {
+  const colors = activeColors.value
+  if (colors.length === 0) return { level: 'Fail' as const, label: '' }
   const bg = resolveBackgroundColor()
-  const ratio = wcagContrastRatio(colors[0], bg)
-  return wcagLevel(ratio)
+  const ratios = colors.map(c => wcagContrastRatio(c, bg))
+  const minRatio = Math.min(...ratios)
+  const level = wcagLevel(minRatio)
+  const label = `${minRatio.toFixed(1)}:1${colors.length > 1 ? ' (lowest)' : ''}`
+  return { level, label }
 })
 
 const paletteOptions = [
@@ -97,5 +117,10 @@ const paletteOptions = [
     colors: [...p.colors],
   })),
 ]
-
 </script>
+
+<style scoped lang="scss">
+.editor-color-section__ratio {
+  font-size: 0.75rem;
+}
+</style>
