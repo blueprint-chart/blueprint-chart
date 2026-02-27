@@ -25,8 +25,8 @@ export function wcagLevel(ratio: number): 'AAA' | 'AA' | 'Fail' {
   return 'Fail'
 }
 
-/** Minimum WCAG contrast ratio for readable text on a background. */
-const MIN_CONTRAST = 3
+/** Minimum WCAG contrast ratio — targets AA (4.5) for text readability. */
+const MIN_CONTRAST = 4.5
 
 /**
  * Resolve the effective background color of an element by walking up the DOM.

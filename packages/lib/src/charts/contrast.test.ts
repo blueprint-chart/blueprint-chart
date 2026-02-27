@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import chroma from 'chroma-js'
 import { readableColor, adjustColorsForBackground, contrastTextColor, wcagContrastRatio, wcagLevel } from './contrast'
 
-const MIN_CONTRAST = 3
+const MIN_CONTRAST = 4.5
 const MIN_ADJACENT_DELTA_E = 12
 
 describe('contrastTextColor', () => {
@@ -71,7 +71,7 @@ describe('adjustColorsForBackground', () => {
   })
 
   it('leaves well-separated colors unchanged', () => {
-    const colors = ['#e15759', '#4e79a7', '#59a14f']
+    const colors = ['#c73032', '#3a6891', '#3d7a33']
     const result = adjustColorsForBackground(colors, '#fff')
     // These colors already have good contrast and separation — should be untouched
     for (let i = 0; i < colors.length; i++) {
