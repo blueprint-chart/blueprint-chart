@@ -61,6 +61,15 @@
 import { computed } from 'vue'
 import { useChartTypeOptions } from '@/composables/useChartTypeOptions'
 import { FormControlCheckbox, FormControlColorInput, FormControlButtonGroup } from '@blueprint-chart/ui'
+import IPhMagicWand from '~icons/ph/magic-wand'
+import IPhArrowSquareOut from '~icons/ph/arrow-square-out'
+import IPhArrowSquareIn from '~icons/ph/arrow-square-in'
+import IPhArrowsOutCardinal from '~icons/ph/arrows-out-cardinal'
+import IPhArrowsVertical from '~icons/ph/arrows-vertical'
+import IPhArrowsHorizontal from '~icons/ph/arrows-horizontal'
+import IFluentLineSolid from '~icons/fluent/line-horizontal-1-20-filled'
+import IFluentLineDashed from '~icons/fluent/line-horizontal-1-dashes-20-filled'
+import IFluentLineDotted from '~icons/fluent/line-horizontal-1-dot-20-filled'
 
 const { currentOptions, availableOptionKeys, setOption } = useChartTypeOptions()
 
@@ -69,19 +78,19 @@ const hasTooltips = computed(() => availableOptionKeys.value.includes('tooltips'
 const hasCrosshair = computed(() => availableOptionKeys.value.includes('crosshair'))
 
 const valueLabelPositionChoices = [
-  { value: 'auto', text: 'Auto' },
-  { value: 'outside', text: 'Outside' },
-  { value: 'inside', text: 'Inside' },
+  { value: 'auto', text: 'Auto', icon: IPhMagicWand },
+  { value: 'outside', text: 'Outside', icon: IPhArrowSquareOut },
+  { value: 'inside', text: 'Inside', icon: IPhArrowSquareIn },
 ]
 
 const crosshairDirectionChoices = [
-  { value: 'both', text: 'Both' },
-  { value: 'vertical', text: 'Vertical' },
-  { value: 'horizontal', text: 'Horizontal' },
+  { value: 'both', text: 'Both', icon: IPhArrowsOutCardinal },
+  { value: 'vertical', text: 'Vertical', icon: IPhArrowsVertical },
+  { value: 'horizontal', text: 'Horizontal', icon: IPhArrowsHorizontal },
 ]
 const crosshairStyleChoices = [
-  { value: 'solid', text: 'Solid' },
-  { value: 'dashed', text: 'Dashed' },
-  { value: 'dotted', text: 'Dotted' },
+  { value: 'solid', text: 'Solid', icon: IFluentLineSolid },
+  { value: 'dashed', text: 'Dashed', icon: IFluentLineDashed },
+  { value: 'dotted', text: 'Dotted', icon: IFluentLineDotted },
 ]
 </script>
