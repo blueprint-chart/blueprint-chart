@@ -29,7 +29,7 @@
         <component
           :is="visual"
           v-if="typeof visual !== 'string'"
-          class="form-control-dropdown-item__visual-image"
+          class="form-control-dropdown-item__visual-image bg-body rounded-1"
         />
         <img
           v-else
@@ -93,6 +93,9 @@ const descriptionClassList = computed(() => ({
   width: 100%;
   height: 100%;
   object-fit: contain;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .form-control-dropdown-item__text {
