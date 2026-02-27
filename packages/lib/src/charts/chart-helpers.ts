@@ -74,6 +74,8 @@ export function buildChartOptions(opts: Partial<ChartTypeOptions>, backgroundCol
     result.colors = adjustColorsForBackground(result.colors, backgroundColor)
   }
 
+  if (opts.allowDarkMode !== undefined) result.allowDarkMode = opts.allowDarkMode
+
   if (opts.legend !== undefined) {
     result.legend = opts.legend
   }
