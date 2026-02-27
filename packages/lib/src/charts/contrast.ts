@@ -7,6 +7,24 @@ export function contrastTextColor(bg: string): string {
   return chroma.contrast(bg, '#fff') >= chroma.contrast(bg, '#333') ? '#fff' : '#333'
 }
 
+/**
+ * Compute WCAG 2.1 contrast ratio between two colors.
+ * Returns a value between 1 and 21.
+ */
+export function wcagContrastRatio(fg: string, bg: string): number {
+  return chroma.contrast(fg, bg)
+}
+
+/**
+ * Determine WCAG conformance level from a contrast ratio.
+ * AAA ≥ 7, AA ≥ 4.5, otherwise Fail.
+ */
+export function wcagLevel(ratio: number): 'AAA' | 'AA' | 'Fail' {
+  if (ratio >= 7) return 'AAA'
+  if (ratio >= 4.5) return 'AA'
+  return 'Fail'
+}
+
 /** Minimum WCAG contrast ratio for readable text on a background. */
 const MIN_CONTRAST = 3
 

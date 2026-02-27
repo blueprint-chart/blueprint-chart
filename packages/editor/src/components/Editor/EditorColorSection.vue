@@ -27,6 +27,14 @@
       />
     </template>
 
+    <div
+      v-if="hasColors && contrastLevel"
+      class="d-flex align-items-center gap-2"
+    >
+      <span class="form-label mb-0">Contrast</span>
+      <DisplayContrastBadge :level="contrastLevel" />
+    </div>
+
     <FormControlCheckbox
       v-if="hasPalette || hasColors"
       id="opt-auto-contrast"
@@ -39,10 +47,10 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { FormControlColorsInput, FormControlPalette, FormControlCheckbox } from '@blueprint-chart/ui'
+import { FormControlColorsInput, FormControlPalette, FormControlCheckbox, DisplayContrastBadge } from '@blueprint-chart/ui'
 import { useChartConfig } from '@/composables/useChartConfig'
 import { useChartTypeOptions } from '@/composables/useChartTypeOptions'
-import { parseData, listPalettes } from '@blueprint-chart/lib'
+import { parseData, listPalettes, wcagContrastRatio, wcagLevel, resolveBackgroundColor } from '@blueprint-chart/lib'
 import EditorBarAppearance from './EditorBarAppearance.vue'
 
 const { chartType, data, highlights } = useChartConfig()
@@ -72,6 +80,14 @@ function onBaseColorChange(color: string) {
     setOption('colors', [color])
   }
 }
+
+const contrastLevel = computed(() => {
+  const colors = currentOptions.value.colors as string[] | undefined
+  if (!colors || colors.length === 0) return null
+  const bg = resolveBackgroundColor()
+  const ratio = wcagContrastRatio(colors[0], bg)
+  return wcagLevel(ratio)
+})
 
 const paletteOptions = [
   { value: '', label: 'Custom', colors: [] as string[] },
