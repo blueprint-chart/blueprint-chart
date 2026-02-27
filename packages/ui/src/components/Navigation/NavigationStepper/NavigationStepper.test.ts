@@ -35,6 +35,22 @@ describe('Stepper', () => {
     const connectors = wrapper.findAll('.navigation-stepper__connector')
     expect(connectors).toHaveLength(steps.length - 1)
   })
+
+  it('applies disabled class to disabled steps', () => {
+    const wrapper = mount(Stepper, { props: { steps, currentStep: 0, disabledSteps: [2, 3] } })
+    const stepEls = wrapper.findAll('.navigation-stepper__step')
+    expect(stepEls[0].classes()).not.toContain('navigation-stepper__step--disabled')
+    expect(stepEls[1].classes()).not.toContain('navigation-stepper__step--disabled')
+    expect(stepEls[2].classes()).toContain('navigation-stepper__step--disabled')
+    expect(stepEls[3].classes()).toContain('navigation-stepper__step--disabled')
+  })
+
+  it('does not emit update:currentStep when clicking a disabled step', async () => {
+    const wrapper = mount(Stepper, { props: { steps, currentStep: 0, disabledSteps: [2] } })
+    const stepEls = wrapper.findAll('.navigation-stepper__step')
+    await stepEls[2].trigger('click')
+    expect(wrapper.emitted('update:currentStep')).toBeUndefined()
+  })
 })
 
 describe('Stepper (slot entries)', () => {

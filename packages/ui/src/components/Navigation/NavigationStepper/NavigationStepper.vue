@@ -19,8 +19,9 @@
         class="navigation-stepper__step"
         :class="stepClassList(i)"
         :aria-current="i === currentStepModel ? 'step' : undefined"
+        :disabled="isStepDisabled(i)"
         hide-tooltip
-        @click="currentStepModel = i"
+        @click="onStepClick(i)"
       >
         <template #start>
           <span class="navigation-stepper__num">{{ i + 1 }}</span>
@@ -40,14 +41,26 @@ const currentStepModel = defineModel<number>('currentStep', { required: true })
 
 const props = withDefaults(defineProps<{
   steps?: { label: string }[]
+  disabledSteps?: number[]
 }>(), {
   steps: () => [],
+  disabledSteps: () => [],
 })
 
 const { entries } = useChildEntriesProvider(StepperEntriesKey)
 const resolvedSteps = computed(() =>
   entries.value.length > 0 ? entries.value : props.steps,
 )
+
+function isStepDisabled(i: number) {
+  return props.disabledSteps.includes(i)
+}
+
+function onStepClick(i: number) {
+  if (!isStepDisabled(i)) {
+    currentStepModel.value = i
+  }
+}
 
 function connectorClassList(i: number) {
   return { 'navigation-stepper__connector--done': i <= currentStepModel.value }
@@ -57,6 +70,7 @@ function stepClassList(i: number) {
   return {
     'navigation-stepper__step--done': i < currentStepModel.value,
     'navigation-stepper__step--current': i === currentStepModel.value,
+    'navigation-stepper__step--disabled': isStepDisabled(i),
   }
 }
 </script>
@@ -91,6 +105,12 @@ function stepClassList(i: number) {
   &--current.btn {
     color: var(--bs-body-color);
     font-weight: 600;
+  }
+
+  &--disabled.btn {
+    opacity: 0.4;
+    cursor: not-allowed;
+    pointer-events: none;
   }
 }
 
