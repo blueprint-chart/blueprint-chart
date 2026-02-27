@@ -179,6 +179,18 @@ const lineSymbolStyleOpt: ChartOptionDef = {
 const lineSymbolSizeOpt: ChartOptionDef = { key: 'lineSymbolSize', type: 'text', label: 'Size', default: '3.5', placeholder: '3.5' }
 const lineSymbolOpacityOpt: ChartOptionDef = { key: 'lineSymbolOpacity', type: 'text', label: 'Opacity', default: '1', placeholder: '1' }
 
+const sortModeOpt: ChartOptionDef = {
+  key: 'sortMode',
+  type: 'select',
+  label: 'Sort mode',
+  default: 'none',
+  choices: [
+    { value: 'none', text: 'None' },
+    { value: 'total', text: 'By total' },
+    { value: 'within-groups', text: 'Within groups' },
+  ],
+}
+
 const displayAsPercentageOpt: ChartOptionDef = { key: 'displayAsPercentage', type: 'boolean', label: 'Display as percentage', default: false }
 const showTotalOpt: ChartOptionDef = { key: 'showTotal', type: 'boolean', label: 'Show total', default: false }
 const showLabelsOpt: ChartOptionDef = { key: 'showLabels', type: 'boolean', label: 'Show labels', default: true }
@@ -281,9 +293,9 @@ const lineOpts = [valueLabelsOpt, valueLabelPositionOpt, tooltipsOpt, ...crossha
 
 registerChart('bar-vertical', barVertical, [colorsOpt, paletteOpt, autoContrastOpt, ...barVerticalAxisOpts, ...barOpts])
 registerChart('bar-horizontal', barHorizontal, [colorsOpt, paletteOpt, autoContrastOpt, ...barHorizontalAxisOpts, ...barOpts])
-registerChart('bar-multi', barMulti, [colorsOpt, paletteOpt, autoContrastOpt, legendOpt, legendAnchorOpt, legendPositionOpt, directLabellingOpt, directLabelAnchorOpt, ...barVerticalAxisOpts, ...barOpts])
+registerChart('bar-multi', barMulti, [colorsOpt, paletteOpt, autoContrastOpt, sortModeOpt, legendOpt, legendAnchorOpt, legendPositionOpt, directLabellingOpt, directLabelAnchorOpt, ...barVerticalAxisOpts, ...barOpts])
 registerChart('line', line, [colorsOpt, paletteOpt, autoContrastOpt, interpolationOpt, ...lineAxisOpts, ...lineOpts])
-registerChart('line-multi', lineMulti, [colorsOpt, paletteOpt, autoContrastOpt, interpolationOpt, legendOpt, legendAnchorOpt, legendPositionOpt, directLabellingOpt, ...lineAxisOpts, ...lineOpts])
+registerChart('line-multi', lineMulti, [colorsOpt, paletteOpt, autoContrastOpt, interpolationOpt, sortModeOpt, legendOpt, legendAnchorOpt, legendPositionOpt, directLabellingOpt, ...lineAxisOpts, ...lineOpts])
 const arcOpts = [displayAsPercentageOpt, showTotalOpt, showLabelsOpt, showValuesOpt, sliceMaxOpt, sliceGroupLabelOpt]
 registerChart('donut', donut, [colorsOpt, paletteOpt, autoContrastOpt, legendOpt, legendAnchorOpt, legendPositionOpt, directLabellingOpt, tooltipsOpt, ...arcOpts])
 registerChart('pie', pie, [colorsOpt, paletteOpt, autoContrastOpt, legendOpt, legendAnchorOpt, legendPositionOpt, directLabellingOpt, tooltipsOpt, ...arcOpts])

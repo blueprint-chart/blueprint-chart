@@ -38,6 +38,7 @@ export interface ChartConfig {
   sourceUrl: string
   note: string
   sort: 'ascending' | 'descending' | 'none'
+  sortMode: 'total' | 'within-groups' | 'none'
   data: string
   selectedColumn: string
   highlights: ChartHighlight[]
@@ -56,6 +57,7 @@ const defaults: ChartConfig = {
   sourceUrl: '',
   note: '',
   sort: 'none',
+  sortMode: 'none',
   data: '',
   selectedColumn: '',
   highlights: [],

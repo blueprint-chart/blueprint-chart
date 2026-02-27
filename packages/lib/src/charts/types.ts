@@ -89,6 +89,7 @@ export interface ChartOptions {
   verticalAxis?: AxisOptions
   horizontalAxis?: AxisOptions
   sort?: 'ascending' | 'descending' | 'none'
+  sortMode?: 'total' | 'within-groups' | 'none'
   highlights?: HighlightConfig[]
   colors?: string[]
   interpolation?: string
@@ -189,6 +190,7 @@ export interface ChartTypeOptions {
   sliceMax: string
   sliceGroupLabel: string
   autoContrast: boolean
+  sortMode: 'total' | 'within-groups' | 'none'
 }
 
 export type ChartTypeOptionKey = keyof ChartTypeOptions
