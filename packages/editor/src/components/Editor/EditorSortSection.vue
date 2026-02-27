@@ -19,6 +19,9 @@
 import { computed } from 'vue'
 import { FormControlButtonGroup } from '@blueprint-chart/ui'
 import { useChartConfig } from '@/composables/useChartConfig'
+import IPhEquals from '~icons/ph/equals'
+import IPhSortAscending from '~icons/ph/sort-ascending'
+import IPhSortDescending from '~icons/ph/sort-descending'
 
 const { sort, sortMode, chartType } = useChartConfig()
 
@@ -27,14 +30,14 @@ const isMultiChart = computed(() => {
 })
 
 const sortOptions = [
-  { value: 'none', text: 'None' },
-  { value: 'ascending', text: 'Ascending' },
-  { value: 'descending', text: 'Descending' },
+  { value: 'none', text: 'None', icon: IPhEquals },
+  { value: 'ascending', text: 'Ascending', icon: IPhSortAscending },
+  { value: 'descending', text: 'Descending', icon: IPhSortDescending },
 ]
 
 const sortModeOptions = [
-  { value: 'none', text: 'None' },
-  { value: 'total', text: 'By total' },
-  { value: 'within-groups', text: 'Within groups' },
+  { value: 'none', text: 'None', icon: IPhEquals },
+  { value: 'total', text: 'By total', icon: IPhSortAscending },
+  { value: 'within-groups', text: 'Within groups', icon: IPhSortAscending },
 ]
 </script>

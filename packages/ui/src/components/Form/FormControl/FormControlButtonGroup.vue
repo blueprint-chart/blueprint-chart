@@ -24,14 +24,31 @@
         <ButtonIcon
           v-for="opt in resolvedOptions"
           :key="opt.value"
-          :icon-left="opt.iconLeft"
+          :icon-left="opt.icon ?? opt.iconLeft"
           :label="opt.text"
-          :hide-label="!!opt.iconLeft"
-          hide-tooltip
+          :hide-label="!opt.icon && !!opt.iconLeft"
+          :hide-tooltip="!opt.description"
+          :tooltip-label="opt.description"
           :variant="model === opt.value ? 'primary' : 'outline-secondary'"
           :tabindex="overflowed ? -1 : undefined"
           @click="model = opt.value"
-        />
+        >
+          <template v-if="opt.visual" #start>
+            <div class="form-control-button-group__visual">
+              <component
+                :is="opt.visual"
+                v-if="typeof opt.visual !== 'string'"
+                class="form-control-button-group__visual-content"
+              />
+              <img
+                v-else
+                :src="opt.visual"
+                alt=""
+                class="form-control-button-group__visual-content"
+              >
+            </div>
+          </template>
+        </ButtonIcon>
       </BButtonGroup>
     </div>
     <slot />
@@ -50,7 +67,7 @@ const model = defineModel<string>({ required: true })
 
 const props = withDefaults(defineProps<{
   label: string
-  options?: { value: string, text: string, iconLeft?: Component }[]
+  options?: { value: string, text: string, iconLeft?: Component, description?: string, visual?: string | Component, icon?: Component }[]
   block?: boolean
 }>(), {
   options: () => [],
@@ -75,7 +92,13 @@ const buttonsClassList = computed(() => ({
 }))
 
 const dropdownOptions = computed(() =>
-  resolvedOptions.value.map(o => ({ value: o.value, label: o.text })),
+  resolvedOptions.value.map(o => ({
+    value: o.value,
+    label: o.text,
+    description: o.description,
+    icon: o.icon,
+    visual: o.visual,
+  })),
 )
 
 let observer: ResizeObserver | null = null
@@ -128,6 +151,19 @@ onBeforeUnmount(() => {
       justify-content: center;
       white-space: nowrap;
     }
+  }
+
+  &__visual {
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__visual-content {
+    max-height: 100%;
+    max-width: 100%;
+    object-fit: contain;
   }
 }
 </style>

@@ -14,6 +14,15 @@
       :text="selectedOption?.label ?? ''"
       variant="outline-secondary"
     >
+      <template v-if="selectedOption?.icon" #button-content>
+        <span class="form-control-dropdown__toggle-content">
+          <component
+            :is="selectedOption.icon"
+            class="form-control-dropdown__toggle-icon"
+          />
+          {{ selectedOption.label }}
+        </span>
+      </template>
       <FormControlDropdownItem
         v-for="option in resolvedOptions"
         :key="option.value"
@@ -39,7 +48,7 @@ export interface FormControlDropdownOption {
   value: string
   label: string
   description?: string
-  visual?: string
+  visual?: string | Component
   icon?: Component
 }
 
@@ -101,5 +110,18 @@ function selectOption(value: string) {
 
 .form-control-dropdown--light-label :deep(label) {
   font-weight: normal;
+}
+
+.form-control-dropdown__toggle-content {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-right: auto;
+}
+
+.form-control-dropdown__toggle-icon {
+  width: 1.25em;
+  height: 1.25em;
+  flex-shrink: 0;
 }
 </style>

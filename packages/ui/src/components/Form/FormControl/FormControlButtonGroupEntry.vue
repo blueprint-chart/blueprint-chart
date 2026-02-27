@@ -11,6 +11,9 @@ const props = defineProps<{
   value: string
   text: string
   iconLeft?: Component
+  description?: string
+  visual?: string | Component
+  icon?: Component
 }>()
 
 const slots = useSlots()
@@ -22,5 +25,8 @@ useChildEntry(ButtonGroupEntriesKey, () => ({
   value: props.value,
   text: props.text,
   iconLeft: props.iconLeft ?? slotIconLeft,
+  description: props.description,
+  visual: props.visual,
+  icon: props.icon,
 }))
 </script>
