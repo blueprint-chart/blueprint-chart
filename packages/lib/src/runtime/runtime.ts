@@ -1,3 +1,5 @@
+import { CHART_CSS } from './chart-css'
+
 export function initBlueprint(): void {
   const scripts = document.querySelectorAll<HTMLScriptElement>(
     'script[type="application/blueprint-chart"]',
@@ -9,31 +11,49 @@ function processScript(script: HTMLScriptElement): void {
   const dsl = script.textContent?.trim()
   if (!dsl) return
 
-  const container = document.createElement('div')
-  container.className = 'blueprint-chart-container'
-  script.parentNode?.insertBefore(container, script)
+  const iframe = document.createElement('iframe')
+  iframe.className = 'blueprint-chart-iframe'
+  iframe.style.cssText = 'border: none; width: 100%; display: block;'
+  iframe.setAttribute('sandbox', 'allow-scripts')
+  iframe.setAttribute('title', 'Blueprint Chart')
 
-  try {
-    renderFromDsl(container, dsl)
+  script.parentNode?.insertBefore(iframe, script)
+
+  iframe.srcdoc = buildSrcdoc(dsl)
+
+  const onMessage = (e: MessageEvent) => {
+    if (e.data?.type === 'blueprint-chart-resize' && e.source === iframe.contentWindow) {
+      iframe.style.height = `${e.data.height}px`
+    }
   }
-  catch (e) {
-    renderError(container, (e as Error).message)
-  }
+  window.addEventListener('message', onMessage)
 }
 
-function renderFromDsl(container: HTMLElement, dsl: string): void {
-  // Placeholder: actual implementation will use parse() from dsl module
-  // and getChart() from charts module once those are integrated
-  const wrapper = document.createElement('div')
-  wrapper.className = 'blueprint-chart-placeholder'
-  wrapper.textContent = `${dsl.substring(0, 100)}...`
-  container.appendChild(wrapper)
+function buildSrcdoc(dsl: string): string {
+  const escapedDsl = escapeHtml(dsl)
+
+  return [
+    '<!DOCTYPE html>',
+    '<html><head>',
+    `<style>${CHART_CSS}</style>`,
+    '</head><body>',
+    `<div id="chart" class="blueprint-chart-container blueprint-chart-placeholder">${escapedDsl}</div>`,
+    '<script>',
+    'function notifySize() {',
+    '  var h = document.documentElement.scrollHeight;',
+    '  parent.postMessage({ type: "blueprint-chart-resize", height: h }, "*");',
+    '}',
+    'notifySize();',
+    'new ResizeObserver(notifySize).observe(document.body);',
+    '</' + 'script>',
+    '</body></html>',
+  ].join('\n')
 }
 
-function renderError(container: HTMLElement, message: string): void {
-  const wrapper = document.createElement('div')
-  wrapper.className = 'blueprint-chart-error'
-  wrapper.style.cssText = 'color: red; padding: 1em; border: 1px solid red;'
-  wrapper.textContent = message
-  container.appendChild(wrapper)
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
 }

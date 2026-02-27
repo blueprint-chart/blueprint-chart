@@ -12,12 +12,12 @@ describe('initBlueprint', () => {
     `
     initBlueprint()
 
-    const container = document.querySelector('.blueprint-chart-container')
-    expect(container).not.toBeNull()
-    expect(container?.querySelector('.blueprint-chart-placeholder')).not.toBeNull()
+    const iframe = document.querySelector('.blueprint-chart-iframe')
+    expect(iframe).not.toBeNull()
+    expect(iframe?.tagName).toBe('IFRAME')
   })
 
-  it('creates container as a sibling before the script tag', () => {
+  it('creates iframe as a sibling before the script tag', () => {
     document.body.innerHTML = `
       <div id="wrapper">
         <script type="application/blueprint-chart">chart bar { data { "A" = 10 } }</script>
@@ -27,7 +27,7 @@ describe('initBlueprint', () => {
 
     const wrapper = document.getElementById('wrapper')!
     const children = Array.from(wrapper.children)
-    expect(children[0].className).toBe('blueprint-chart-container')
+    expect(children[0].className).toBe('blueprint-chart-iframe')
     expect(children[1].tagName).toBe('SCRIPT')
   })
 
@@ -38,8 +38,8 @@ describe('initBlueprint', () => {
     `
     initBlueprint()
 
-    const containers = document.querySelectorAll('.blueprint-chart-container')
-    expect(containers.length).toBe(0)
+    const iframes = document.querySelectorAll('.blueprint-chart-iframe')
+    expect(iframes.length).toBe(0)
   })
 
   it('ignores non-blueprint script tags', () => {
@@ -49,8 +49,8 @@ describe('initBlueprint', () => {
     `
     initBlueprint()
 
-    const containers = document.querySelectorAll('.blueprint-chart-container')
-    expect(containers.length).toBe(1)
+    const iframes = document.querySelectorAll('.blueprint-chart-iframe')
+    expect(iframes.length).toBe(1)
   })
 
   it('processes multiple script tags', () => {
@@ -60,30 +60,50 @@ describe('initBlueprint', () => {
     `
     initBlueprint()
 
-    const containers = document.querySelectorAll('.blueprint-chart-container')
-    expect(containers.length).toBe(2)
+    const iframes = document.querySelectorAll('.blueprint-chart-iframe')
+    expect(iframes.length).toBe(2)
   })
 
-  it('renders placeholder with DSL content', () => {
+  it('sets srcdoc with escaped DSL content', () => {
     document.body.innerHTML = `
       <script type="application/blueprint-chart">chart bar { data { "A" = 10 } }</script>
     `
     initBlueprint()
 
-    const placeholder = document.querySelector('.blueprint-chart-placeholder')
-    expect(placeholder).not.toBeNull()
-    expect(placeholder?.textContent).toContain('chart bar')
+    const iframe = document.querySelector('.blueprint-chart-iframe') as HTMLIFrameElement
+    expect(iframe.srcdoc).toContain('chart bar')
+    expect(iframe.srcdoc).toContain('blueprint-chart-container')
   })
 
-  it('escapes HTML in DSL content', () => {
+  it('escapes HTML in DSL content within srcdoc', () => {
     document.body.innerHTML = `
       <script type="application/blueprint-chart"><img onerror="alert(1)"> test</script>
     `
     initBlueprint()
 
-    const placeholder = document.querySelector('.blueprint-chart-placeholder')
-    expect(placeholder).not.toBeNull()
-    // The raw HTML should be escaped via textContent, not rendered as an element
-    expect(placeholder?.querySelector('img')).toBeNull()
+    const iframe = document.querySelector('.blueprint-chart-iframe') as HTMLIFrameElement
+    expect(iframe.srcdoc).not.toContain('<img')
+    expect(iframe.srcdoc).toContain('&lt;img')
+  })
+
+  it('sets sandbox attribute for security', () => {
+    document.body.innerHTML = `
+      <script type="application/blueprint-chart">chart bar { data { "A" = 10 } }</script>
+    `
+    initBlueprint()
+
+    const iframe = document.querySelector('.blueprint-chart-iframe') as HTMLIFrameElement
+    expect(iframe.getAttribute('sandbox')).toBe('allow-scripts')
+  })
+
+  it('includes chart CSS in srcdoc', () => {
+    document.body.innerHTML = `
+      <script type="application/blueprint-chart">chart bar { data { "A" = 10 } }</script>
+    `
+    initBlueprint()
+
+    const iframe = document.querySelector('.blueprint-chart-iframe') as HTMLIFrameElement
+    expect(iframe.srcdoc).toContain('<style>')
+    expect(iframe.srcdoc).toContain('bc-frame-title')
   })
 })
