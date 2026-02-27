@@ -8,6 +8,7 @@ export {
   IconRailEntriesKey,
   StepperEntriesKey,
 } from './composables/injection-keys'
+export { useBreakpoint } from './composables/useBreakpoint'
 
 export { default as AppIcon } from './components/App/AppIcon/AppIcon.vue'
 export type { AppIconProps } from './components/App/AppIcon/AppIcon.vue'
@@ -27,6 +28,7 @@ export type { FormControlDropdownOption } from './components/Form/FormControl/Fo
 export { default as FormControlTextInput } from './components/Form/FormControl/FormControlTextInput.vue'
 export { default as FormControlPalette } from './components/Form/FormControl/FormControlPalette.vue'
 export { default as FormControlPaletteEntry } from './components/Form/FormControl/FormControlPaletteEntry.vue'
+export { default as FormControlColorblindPicker } from './components/Form/FormControl/FormControlColorblindPicker.vue'
 
 export { default as DisplayColorSwatch } from './components/Display/DisplayColorSwatch/DisplayColorSwatch.vue'
 export { default as DisplayPalette } from './components/Display/DisplayPalette/DisplayPalette.vue'
@@ -54,6 +56,7 @@ export { default as ButtonUndo } from './components/Button/ButtonUndo/ButtonUndo
 
 export { default as FeedbackEmptyState } from './components/Feedback/FeedbackEmptyState/FeedbackEmptyState.vue'
 
+export { default as LayoutBottomDrawer } from './components/Layout/LayoutBottomDrawer/LayoutBottomDrawer.vue'
 export { default as LayoutPanel } from './components/Layout/LayoutPanel/LayoutPanel.vue'
 export { default as LayoutToolbarSeparator } from './components/Layout/LayoutToolbarSeparator/LayoutToolbarSeparator.vue'
 
