@@ -1,5 +1,9 @@
 <template>
   <div class="p-3 d-flex flex-column gap-3">
+    <div
+      ref="previewRef"
+      class="export-preview border rounded bg-body"
+    />
     <BFormGroup label="DSL Output">
       <BFormTextarea
         :model-value="dsl"
@@ -20,8 +24,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, useTemplateRef } from 'vue'
 import { useDslOutput } from '@/composables/useDslOutput'
+import { useChartPreview } from '@/composables/useChartPreview'
+
+const previewRef = useTemplateRef<HTMLElement>('previewRef')
+useChartPreview(previewRef)
 
 const { dsl } = useDslOutput()
 
@@ -37,3 +45,10 @@ const embedCode = computed(() => {
   ].join('\n')
 })
 </script>
+
+<style scoped lang="scss">
+.export-preview {
+  min-height: 300px;
+  overflow: hidden;
+}
+</style>
