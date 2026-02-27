@@ -50,7 +50,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, h, type FunctionalComponent } from 'vue'
+import { computed, h, type Component, type FunctionalComponent } from 'vue'
 import {
   FormControlButtonGroup,
   FormControlCheckbox,
@@ -58,6 +58,17 @@ import {
 } from '@blueprint-chart/ui'
 import type { ChartOptionDef } from '@blueprint-chart/lib'
 import { useChartTypeOptions, type ChartTypeOptionKey } from '@/composables/useChartTypeOptions'
+import IFluentLineSolid from '~icons/fluent/line-horizontal-1-20-filled'
+import IFluentLineDashed from '~icons/fluent/line-horizontal-1-dashes-20-filled'
+import IFluentLineDotted from '~icons/fluent/line-horizontal-1-dot-20-filled'
+import IPhEyeSlash from '~icons/ph/eye-slash'
+import IPhAlignLeft from '~icons/ph/align-left'
+import IPhAlignRight from '~icons/ph/align-right'
+import IPhMagicWand from '~icons/ph/magic-wand'
+import IPhArrowSquareIn from '~icons/ph/arrow-square-in'
+import IPhArrowSquareOut from '~icons/ph/arrow-square-out'
+import IPhChartLineUp from '~icons/ph/chart-line-up'
+import IPhWaveSine from '~icons/ph/wave-sine'
 
 const VERTICAL_KEYS = new Set([
   'showVerticalAxis',
@@ -92,6 +103,40 @@ const horizontalDefs = computed(() =>
   optionDefs.value.filter(d => HORIZONTAL_KEYS.has(d.key)),
 )
 
+const GRID_STYLE_ICONS: Record<string, Component> = {
+  solid: IFluentLineSolid,
+  dashed: IFluentLineDashed,
+  dotted: IFluentLineDotted,
+  none: IPhEyeSlash,
+}
+
+const LABEL_POSITION_ICONS: Record<string, Component> = {
+  auto: IPhMagicWand,
+  inside: IPhArrowSquareIn,
+  outside: IPhArrowSquareOut,
+  off: IPhEyeSlash,
+}
+
+const AXIS_SIDE_ICONS: Record<string, Component> = {
+  left: IPhAlignLeft,
+  right: IPhAlignRight,
+}
+
+const SCALE_TYPE_ICONS: Record<string, Component> = {
+  linear: IPhChartLineUp,
+  log: IPhWaveSine,
+}
+
+const ICON_MAPS: Record<string, Record<string, Component>> = {
+  verticalGridStyle: GRID_STYLE_ICONS,
+  horizontalGridStyle: GRID_STYLE_ICONS,
+  verticalLabelPosition: LABEL_POSITION_ICONS,
+  horizontalLabelPosition: LABEL_POSITION_ICONS,
+  verticalAxisDirection: AXIS_SIDE_ICONS,
+  verticalScaleType: SCALE_TYPE_ICONS,
+  horizontalScaleType: SCALE_TYPE_ICONS,
+}
+
 const AxisOption: FunctionalComponent<{
   def: ChartOptionDef
   value: unknown
@@ -107,7 +152,12 @@ const AxisOption: FunctionalComponent<{
   }
 
   if (def.type === 'select' && def.choices) {
-    const options = def.choices.map(c => ({ value: c.value, text: c.text }))
+    const iconMap = ICON_MAPS[def.key]
+    const options = def.choices.map(c => ({
+      value: c.value,
+      text: c.text,
+      ...(iconMap?.[c.value] ? { icon: iconMap[c.value] } : {}),
+    }))
     return h(FormControlButtonGroup, {
       'label': def.label,
       options,
