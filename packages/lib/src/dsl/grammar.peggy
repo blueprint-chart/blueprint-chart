@@ -66,11 +66,18 @@ ChartMember
   { return m; }
 
 DataBlock
-  = "data" _ "{" _ entries:DataEntry* _ "}"
+  = "data" _ "{" _ entries:(TabularDataEntry / DataEntry)* _ "}"
   { return { type: 'data', entries }; }
 
 DataEntry
   = _ p:Property _ { return p; }
+
+TabularDataEntry
+  = _ label:TabularLabel "\t" _ value:PropertyValue _
+  { return { type: 'property', key: label, value: value.value, isPercentage: value.isPercentage }; }
+
+TabularLabel
+  = chars:$([^\t\n\r{}=]+) { return chars.trim(); }
 
 Highlight
   = "highlight" __ target:String _ "{" _ props:BlockProperty* _ "}"

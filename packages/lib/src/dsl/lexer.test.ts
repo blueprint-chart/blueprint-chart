@@ -10,9 +10,16 @@ describe('lexer', () => {
   })
 
   it('tokenizes whitespace-only input', () => {
-    const tokens = tokenize('   \n\t  ')
+    const tokens = tokenize('   \n   ')
     expect(tokens).toHaveLength(1)
     expect(tokens[0].type).toBe('eof')
+  })
+
+  it('tokenizes whitespace with tabs', () => {
+    const tokens = tokenize('   \n\t  ')
+    expect(tokens).toHaveLength(2)
+    expect(tokens[0].type).toBe('tab')
+    expect(tokens[1].type).toBe('eof')
   })
 
   it('tokenizes braces and equals', () => {
@@ -141,6 +148,25 @@ describe('lexer', () => {
     expect(keywordValues).toContain('step')
     expect(keywordValues).toContain('highlight')
     expect(keywordValues.filter(v => v === 'step')).toHaveLength(2)
+  })
+
+  it('tokenizes tab characters as tab tokens', () => {
+    const tokens = tokenize('Apple\t42')
+    expect(tokens.map(t => [t.type, t.value])).toEqual([
+      ['identifier', 'Apple'],
+      ['tab', '\t'],
+      ['number', '42'],
+      ['eof', ''],
+    ])
+  })
+
+  it('tokenizes tabular data block content', () => {
+    const input = 'data {\n\tSales\t75\n}'
+    const tokens = tokenize(input)
+    const types = tokens.map(t => t.type)
+    expect(types).toContain('tab')
+    const tabTokens = tokens.filter(t => t.type === 'tab')
+    expect(tabTokens).toHaveLength(2)
   })
 
   it('handles escaped backslash in strings', () => {

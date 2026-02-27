@@ -207,6 +207,61 @@ describe('parser', () => {
     })
   })
 
+  describe('tabular/TSV data syntax', () => {
+    it('parses tab-separated data entries', () => {
+      const ast = parse('chart bar {\n  data {\n    Apple\t42\n    Banana\t58\n  }\n}')
+      expect(ast.data).not.toBeNull()
+      expect(ast.data!.entries).toHaveLength(2)
+      expect(ast.data!.entries[0]).toEqual({
+        type: 'property',
+        key: 'Apple',
+        value: 42,
+        isPercentage: false,
+      })
+      expect(ast.data!.entries[1]).toEqual({
+        type: 'property',
+        key: 'Banana',
+        value: 58,
+        isPercentage: false,
+      })
+    })
+
+    it('parses tab-separated percentage values', () => {
+      const ast = parse('chart bar {\n  data {\n    Sales\t75%\n  }\n}')
+      expect(ast.data!.entries[0]).toEqual({
+        type: 'property',
+        key: 'Sales',
+        value: 75,
+        isPercentage: true,
+      })
+    })
+
+    it('parses tab-separated labels with spaces', () => {
+      const ast = parse('chart bar {\n  data {\n    New York\t100\n    Los Angeles\t80\n  }\n}')
+      expect(ast.data!.entries[0].key).toBe('New York')
+      expect(ast.data!.entries[1].key).toBe('Los Angeles')
+    })
+
+    it('parses tab-separated string values', () => {
+      const ast = parse('chart bar {\n  data {\n    Item\t"hello world"\n  }\n}')
+      expect(ast.data!.entries[0]).toEqual({
+        type: 'property',
+        key: 'Item',
+        value: 'hello world',
+        isPercentage: false,
+      })
+    })
+
+    it('mixes tabular and standard data entries', () => {
+      const ast = parse('chart bar {\n  data {\n    "Quoted" = 10\n    Unquoted\t20\n  }\n}')
+      expect(ast.data!.entries).toHaveLength(2)
+      expect(ast.data!.entries[0].key).toBe('Quoted')
+      expect(ast.data!.entries[0].value).toBe(10)
+      expect(ast.data!.entries[1].key).toBe('Unquoted')
+      expect(ast.data!.entries[1].value).toBe(20)
+    })
+  })
+
   describe('edge cases', () => {
     it('parses chart with no properties or blocks', () => {
       const ast = parse('chart bar {}')
