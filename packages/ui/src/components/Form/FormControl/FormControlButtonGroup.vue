@@ -29,12 +29,13 @@
           :hide-label="!opt.icon && !!opt.iconLeft"
           :hide-tooltip="!opt.description"
           :tooltip-label="opt.description"
+          :show-tooltip-force="!!opt.description"
           :variant="model === opt.value ? 'primary' : 'outline-secondary'"
           :tabindex="overflowed ? -1 : undefined"
           @click="model = opt.value"
         >
           <template v-if="opt.visual" #start>
-            <div class="form-control-button-group__visual">
+            <div class="form-control-button-group__visual bg-body rounded-1">
               <component
                 :is="opt.visual"
                 v-if="typeof opt.visual !== 'string'"
@@ -150,14 +151,22 @@ onBeforeUnmount(() => {
     &:deep(.btn) {
       justify-content: center;
       white-space: nowrap;
+
+      &:has(.form-control-button-group__visual) {
+        flex-direction: column;
+        gap: 0.25rem;
+        padding-block: 0.35rem;
+      }
     }
   }
 
   &__visual {
+    width: 40px;
     height: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
   }
 
   &__visual-content {
