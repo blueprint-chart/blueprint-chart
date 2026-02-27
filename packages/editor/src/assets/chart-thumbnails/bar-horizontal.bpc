@@ -1,0 +1,9 @@
+chart bar-horizontal {
+  colorPalette = Blueprint
+  data {
+    "A" = 14
+    "B" = 22
+    "C" = 9
+    "D" = 18
+  }
+}

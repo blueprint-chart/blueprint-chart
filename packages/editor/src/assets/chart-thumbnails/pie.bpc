@@ -1,0 +1,9 @@
+chart pie {
+  colorPalette = Blueprint
+  data {
+    "A" = 35
+    "B" = 25
+    "C" = 22
+    "D" = 18
+  }
+}
