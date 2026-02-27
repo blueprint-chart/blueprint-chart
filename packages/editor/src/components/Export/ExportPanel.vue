@@ -21,6 +21,18 @@
       />
     </div>
     <BFormGroup label="DSL Output">
+      <template #label>
+        <div class="d-flex align-items-center justify-content-between">
+          <span>DSL Output</span>
+          <BFormCheckbox
+            v-model="compact"
+            switch
+            size="sm"
+          >
+            Compact
+          </BFormCheckbox>
+        </div>
+      </template>
       <BFormTextarea
         :model-value="dsl"
         rows="12"
@@ -51,7 +63,7 @@ const previewRef = useTemplateRef<HTMLElement>('previewRef')
 useChartPreview(previewRef)
 const { downloadSvg, downloadPng } = useImageExport(previewRef)
 
-const { dsl } = useDslOutput()
+const { dsl, compact } = useDslOutput()
 
 const scriptClose = '<' + '/script>'
 
