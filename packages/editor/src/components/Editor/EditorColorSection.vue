@@ -57,10 +57,18 @@
       <span class="form-label mb-0">Colorblind</span>
       <span
         v-if="cvdInfo.safe"
+        ref="cvdSafeBadgeRef"
         class="editor-color-section__cvd-badge editor-color-section__cvd-badge--safe"
       >
         <IconPhCheck />
         Safe
+        <IconPhInfo class="editor-color-section__cvd-info" />
+        <BTooltip
+          teleport-to="body"
+          :target="cvdSafeBadgeRef"
+          title="All colors remain distinguishable under protanopia, deuteranopia, and tritanopia simulations."
+          placement="top"
+        />
       </span>
       <template v-else>
         <span
@@ -164,6 +172,7 @@ const CVD_SHORT_LABELS: Record<CvdType, string> = {
   tritanopia: 'Tritan',
 }
 
+const cvdSafeBadgeRef = ref<HTMLElement>()
 const cvdBadgeRefs = ref<HTMLElement[]>([])
 
 function getCvdBadgeEl(type: CvdType): HTMLElement | undefined {
