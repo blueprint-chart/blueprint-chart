@@ -4,6 +4,7 @@
       <NavigationStepper
         v-model:current-step="currentIndex"
         :steps="stepLabels"
+        :disabled-steps="disabledSteps"
       />
     </div>
     <div class="wizard-toolbar__right">
@@ -76,6 +77,14 @@ const viewModeOptions = [
   { value: 'preview', text: 'Preview' },
   { value: 'dsl', text: 'DSL' },
 ]
+
+const disabledSteps = computed(() => {
+  const hasData = dataTable.rawInput.value.trim().length > 0
+  if (!hasData) return [1, 2, 3]
+  const hasParsed = dataTable.rows.value.length > 0
+  if (!hasParsed) return [2, 3]
+  return []
+})
 
 const canAdvance = computed(() => {
   if (currentIndex.value === 0) {
