@@ -40,8 +40,14 @@
       class="d-flex align-items-center gap-2"
     >
       <span class="form-label mb-0">Contrast</span>
-      <DisplayContrastBadge :level="contrastInfo.level" />
-      <span class="text-body-secondary editor-color-section__ratio">{{ contrastInfo.label }}</span>
+      <DisplayContrastBadge
+        :level="contrastInfo.level"
+        :ratio="contrastInfo.ratio"
+      />
+      <span
+        v-if="contrastInfo.qualifier"
+        class="text-body-secondary editor-color-section__qualifier"
+      >{{ contrastInfo.qualifier }}</span>
     </div>
 
     <FormControlColorblindPicker
@@ -110,8 +116,9 @@ const contrastInfo = computed(() => {
   const ratios = colors.map(c => wcagContrastRatio(c, bg))
   const minRatio = Math.min(...ratios)
   const level = wcagLevel(minRatio)
-  const label = `${minRatio.toFixed(1)}:1${colors.length > 1 ? ' (lowest)' : ''}`
-  return { level, label }
+  const ratio = `${minRatio.toFixed(1)}:1`
+  const qualifier = colors.length > 1 ? 'lowest of palette' : null
+  return { level, ratio, qualifier }
 })
 
 const paletteOptions = [
@@ -125,7 +132,8 @@ const paletteOptions = [
 </script>
 
 <style scoped lang="scss">
-.editor-color-section__ratio {
-  font-size: 0.75rem;
+.editor-color-section__qualifier {
+  font-size: 0.6875rem;
+  font-style: italic;
 }
 </style>
