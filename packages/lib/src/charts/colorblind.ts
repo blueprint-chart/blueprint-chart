@@ -1,9 +1,18 @@
 /**
  * Color Vision Deficiency (CVD) simulation using Brettel/Viénot matrices.
- * Creates SVG `<filter>` elements with `<feColorMatrix>` for live preview.
+ * Creates SVG `<filter>` elements with `<feColorMatrix>` for live preview,
+ * and programmatic simulation for accessibility analysis.
  */
 
+import chroma from 'chroma-js'
+
 export type CvdType = 'protanopia' | 'deuteranopia' | 'tritanopia'
+
+const CVD_LABELS: Record<CvdType, string> = {
+  protanopia: 'Protanopia (no red)',
+  deuteranopia: 'Deuteranopia (no green)',
+  tritanopia: 'Tritanopia (no blue)',
+}
 
 /** Viénot simulation matrices (linearized sRGB). */
 const CVD_MATRICES: Record<CvdType, number[]> = {
@@ -50,4 +59,65 @@ export function createCvdSvgFilter(type: CvdType): SVGFilterElement {
   filter.appendChild(matrix)
 
   return filter
+}
+
+/** sRGB gamma linearization. */
+function toLinear(c: number): number {
+  return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4
+}
+
+/** sRGB gamma companding. */
+function toSrgb(c: number): number {
+  return c <= 0.0031308 ? 12.92 * c : 1.055 * c ** (1 / 2.4) - 0.055
+}
+
+/**
+ * Simulate how a color appears under a given CVD type.
+ * Returns a hex string.
+ */
+export function simulateCvdColor(hex: string, type: CvdType): string {
+  const [r, g, b] = chroma(hex).rgb().map(v => toLinear(v / 255))
+  const m = CVD_MATRICES[type]
+  const sr = toSrgb(m[0] * r + m[1] * g + m[2] * b)
+  const sg = toSrgb(m[5] * r + m[6] * g + m[7] * b)
+  const sb = toSrgb(m[10] * r + m[11] * g + m[12] * b)
+  const clamp = (v: number) => Math.min(255, Math.max(0, Math.round(v * 255)))
+  return chroma(clamp(sr), clamp(sg), clamp(sb)).hex()
+}
+
+/** Minimum deltaE between simulated colors to consider them distinguishable. */
+const MIN_CVD_DELTA_E = 10
+
+export interface CvdIssue {
+  type: CvdType
+  label: string
+  pairs: Array<{ a: string, b: string, deltaE: number }>
+}
+
+/**
+ * Check an array of colors for distinguishability under each CVD type.
+ * Returns issues only for types where at least one pair falls below the threshold.
+ */
+export function checkCvdColors(colors: string[]): CvdIssue[] {
+  if (colors.length < 2) return []
+  const types: CvdType[] = ['protanopia', 'deuteranopia', 'tritanopia']
+  const issues: CvdIssue[] = []
+
+  for (const type of types) {
+    const simulated = colors.map(c => simulateCvdColor(c, type))
+    const pairs: CvdIssue['pairs'] = []
+    for (let i = 0; i < simulated.length; i++) {
+      for (let j = i + 1; j < simulated.length; j++) {
+        const de = chroma.deltaE(simulated[i], simulated[j])
+        if (de < MIN_CVD_DELTA_E) {
+          pairs.push({ a: colors[i], b: colors[j], deltaE: de })
+        }
+      }
+    }
+    if (pairs.length > 0) {
+      issues.push({ type, label: CVD_LABELS[type], pairs })
+    }
+  }
+
+  return issues
 }
