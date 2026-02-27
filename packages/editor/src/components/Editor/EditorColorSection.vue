@@ -75,19 +75,20 @@ const hasPalette = computed(() => availableOptionKeys.value.includes('colorPalet
 const parsed = computed(() => parseData(data.value))
 const dataLabels = computed(() => parsed.value.labels)
 
-const baseColor = computed(() => {
-  const colors = currentOptions.value.colors as string[] | undefined
-  return colors?.[0] ?? '#4e79a7'
+const resolvedColors = computed<string[]>(() => {
+  const paletteName = currentOptions.value.colorPalette as string | undefined
+  if (paletteName) return resolvePalette(paletteName) ?? []
+  const custom = currentOptions.value.colors as string[] | undefined
+  return custom ?? []
 })
 
+const baseColor = computed(() => resolvedColors.value[0] ?? '#4e79a7')
+
 function onBaseColorChange(color: string) {
-  const colors = currentOptions.value.colors as string[] | undefined
-  if (colors && colors.length > 0) {
-    setOption('colors', [color, ...colors.slice(1)])
+  if (currentOptions.value.colorPalette) {
+    setOption('colorPalette', '')
   }
-  else {
-    setOption('colors', [color])
-  }
+  setOption('colors', [color])
 }
 
 const activeColors = computed<string[]>(() => {
@@ -96,10 +97,7 @@ const activeColors = computed<string[]>(() => {
     const base = baseColor.value
     return highlightColors.length > 0 ? [base, ...highlightColors] : [base]
   }
-  const paletteName = currentOptions.value.colorPalette as string | undefined
-  if (paletteName) return resolvePalette(paletteName) ?? []
-  const custom = currentOptions.value.colors as string[] | undefined
-  return custom ?? []
+  return resolvedColors.value
 })
 
 const contrastInfo = computed(() => {
