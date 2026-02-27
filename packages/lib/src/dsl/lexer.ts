@@ -13,6 +13,7 @@ export type TokenType =
   | 'lbrace'
   | 'rbrace'
   | 'equals'
+  | 'tab'
   | 'identifier'
   | 'eof'
 
@@ -42,7 +43,7 @@ export function tokenize(input: string): Token[] {
   }
 
   function skipWhitespace(): void {
-    while (pos < input.length && /\s/.test(input[pos])) {
+    while (pos < input.length && /[ \n\r]/.test(input[pos])) {
       advance()
     }
   }
@@ -129,6 +130,10 @@ export function tokenize(input: string): Token[] {
     }
     else if (/[0-9]/.test(ch)) {
       tokens.push(readNumber())
+    }
+    else if (ch === '\t') {
+      tokens.push({ type: 'tab', value: '\t', line: startLine, column: startColumn })
+      advance()
     }
     else if (/[a-zA-Z_#]/.test(ch)) {
       tokens.push(readIdentifier())
