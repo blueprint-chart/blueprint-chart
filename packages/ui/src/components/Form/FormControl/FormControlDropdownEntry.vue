@@ -11,7 +11,7 @@ const props = defineProps<{
   value: string
   label: string
   description?: string
-  visual?: string
+  visual?: string | Component
   icon?: Component
 }>()
 

@@ -26,7 +26,13 @@
         v-if="visual"
         class="form-control-dropdown-item__visual"
       >
+        <component
+          :is="visual"
+          v-if="typeof visual !== 'string'"
+          class="form-control-dropdown-item__visual-image"
+        />
         <img
+          v-else
           :src="visual"
           alt=""
           class="form-control-dropdown-item__visual-image"
@@ -42,7 +48,7 @@ import { type Component, computed } from 'vue'
 const props = defineProps<{
   label: string
   description?: string
-  visual?: string
+  visual?: string | Component
   icon?: Component
   active?: boolean
   lightLabel?: boolean
