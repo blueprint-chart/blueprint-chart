@@ -1,0 +1,21 @@
+chart bar-horizontal {
+  title = "Internet Users by Country"
+  description = "Millions of users, 2024"
+  source = "ITU / World Bank"
+  colorPalette = "Enara"
+  sort = descending
+  valueLabels = true
+  horizontalLabelPosition = off
+  horizontalGridStyle = none
+
+  data {
+    "China" = 1050
+    "India" = 900
+    "United States" = 312
+    "Indonesia" = 213
+    "Brazil" = 186
+    "Russia" = 130
+    "Japan" = 118
+    "Nigeria" = 110
+  }
+}

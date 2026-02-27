@@ -1,0 +1,25 @@
+chart bar-horizontal {
+  title = "Fastest Animals on Earth"
+  description = "Maximum recorded speed in km/h"
+  source = "National Geographic"
+  colorPalette = "Bright"
+  sort = descending
+  valueLabels = true
+  horizontalLabelPosition = off
+  horizontalGridStyle = none
+
+  highlight "Peregrine Falcon" {
+    color = "#d44d5c"
+    label = "Dive speed"
+  }
+
+  data {
+    "Peregrine Falcon" = 389
+    "Golden Eagle" = 320
+    "Cheetah" = 120
+    "Sailfish" = 110
+    "Pronghorn Antelope" = 98
+    "Springbok" = 88
+    "Lion" = 80
+  }
+}

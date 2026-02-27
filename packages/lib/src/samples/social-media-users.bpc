@@ -1,0 +1,22 @@
+chart line-multi {
+  title = "Social Media Monthly Active Users"
+  description = "Billions of users"
+  source = "Company earnings reports"
+  interpolation = "monotoneX"
+  colorPalette = "Camo873"
+  legendPosition = "top"
+  lineSymbols = true
+  lineSymbolShowOn = "last"
+  verticalGridStyle = dashed
+  tooltips = true
+
+  data {
+    _series = "Facebook,YouTube,Instagram,TikTok"
+    "2019" = "2.41,2.00,1.00,0.50"
+    "2020" = "2.80,2.29,1.16,0.69"
+    "2021" = "2.91,2.56,1.39,1.00"
+    "2022" = "2.96,2.68,1.48,1.20"
+    "2023" = "3.05,2.70,2.00,1.56"
+    "2024" = "3.07,2.53,2.35,1.69"
+  }
+}

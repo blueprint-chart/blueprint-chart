@@ -1,0 +1,25 @@
+chart bar-vertical {
+  title = "Tallest Buildings in the World"
+  description = "Height in metres, as of 2025"
+  source = "Council on Tall Buildings and Urban Habitat"
+  colorPalette = "Imperator"
+  sort = descending
+  valueLabels = true
+  verticalLabelPosition = off
+  verticalGridStyle = none
+
+  annotation "Burj Khalifa" {
+    text = "828 m since 2010"
+    dy = -10
+    showArrow = true
+  }
+
+  data {
+    "Burj Khalifa" = 828
+    "Merdeka 118" = 679
+    "Shanghai Tower" = 632
+    "Abraj Al-Bait" = 601
+    "Ping An Finance" = 599
+    "Lotte World Tower" = 555
+  }
+}

@@ -1,0 +1,19 @@
+chart pie {
+  title = "Most Popular Programming Languages"
+  description = "Stack Overflow Developer Survey 2024"
+  source = "Stack Overflow"
+  sourceUrl = "https://survey.stackoverflow.co"
+  colorPalette = "Pal9"
+  legendPosition = "right"
+  displayAsPercentage = true
+  tooltips = true
+
+  data {
+    "JavaScript" = 62.3
+    "Python" = 51.0
+    "TypeScript" = 38.5
+    "Java" = 30.3
+    "C#" = 27.1
+    "Other" = 45.0
+  }
+}

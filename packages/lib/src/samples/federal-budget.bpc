@@ -1,0 +1,20 @@
+chart pie {
+  title = "US Federal Budget Spending"
+  description = "Major categories, FY 2024"
+  source = "Congressional Budget Office"
+  sourceUrl = "https://cbo.gov"
+  colorPalette = "Sunset"
+  legendPosition = "right"
+  displayAsPercentage = true
+  tooltips = true
+
+  data {
+    "Social Security" = 21
+    "Health" = 15
+    "Medicare" = 13
+    "Defense" = 13
+    "Net Interest" = 13
+    "Income Security" = 10
+    "Other" = 15
+  }
+}
