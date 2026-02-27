@@ -1,0 +1,11 @@
+chart line {
+  colorPalette = Blueprint
+  data {
+    "A" = 4
+    "B" = 10
+    "C" = 7
+    "D" = 16
+    "E" = 13
+    "F" = 20
+  }
+}
