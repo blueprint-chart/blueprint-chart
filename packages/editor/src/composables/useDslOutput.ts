@@ -1,4 +1,4 @@
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useChartConfig } from './useChartConfig'
 import { useChartTypeOptions } from './useChartTypeOptions'
 import { getChartOptions } from '@blueprint-chart/lib'
@@ -6,6 +6,7 @@ import { getChartOptions } from '@blueprint-chart/lib'
 export function useDslOutput() {
   const config = useChartConfig()
   const { currentOptions } = useChartTypeOptions()
+  const compact = ref(false)
 
   const dsl = computed(() => {
     let output = `chart ${config.chartType.value} {\n`
@@ -29,11 +30,14 @@ export function useDslOutput() {
       output += `  sort = ${config.sort.value}\n`
     }
 
-    const supportedKeys = getChartOptions(config.chartType.value).map(d => d.key)
+    const optionDefs = getChartOptions(config.chartType.value)
+    const supportedKeys = optionDefs.map(d => d.key)
+    const defaultMap = new Map(optionDefs.filter(d => d.default !== undefined).map(d => [d.key, String(d.default)]))
     const opts = currentOptions.value
     for (const key of supportedKeys) {
       const val = opts[key as keyof typeof opts]
       if (val === undefined) continue
+      if (compact.value && defaultMap.has(key) && String(val) === defaultMap.get(key)) continue
       if (key === 'colors' && Array.isArray(val) && val.length > 0) {
         output += `  colors = "${val.join(', ')}"\n`
       }
@@ -107,5 +111,5 @@ export function useDslOutput() {
     return output
   })
 
-  return { dsl }
+  return { dsl, compact }
 }

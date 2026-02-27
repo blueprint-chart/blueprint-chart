@@ -1,4 +1,5 @@
 import type { AnnotationNode, AreaFillNode, ChartNode, DataNode, HighlightNode, PropertyNode, SeriesNode, StepNode } from './types'
+import { getChartOptions } from '../charts/registry'
 
 function serializeValue(prop: PropertyNode): string {
   if (typeof prop.value === 'number') {
@@ -84,10 +85,46 @@ function serializeStep(step: StepNode, indent: string): string {
   return lines.join('\n')
 }
 
+function isDefaultValue(key: string, value: string | number, chartType: string): boolean {
+  const optionDefs = getChartOptions(chartType)
+  const def = optionDefs.find(d => d.key === key)
+  if (!def || def.default === undefined) return false
+  return String(def.default) === String(value)
+}
+
 export function serialize(ast: ChartNode): string {
   const lines = [`chart ${ast.chartType} {`]
   for (const prop of ast.properties) {
     lines.push(serializeProperty(prop, '  '))
+  }
+  if (ast.data) {
+    lines.push(serializeData(ast.data, '  '))
+  }
+  for (const highlight of ast.highlights) {
+    lines.push(serializeHighlight(highlight, '  '))
+  }
+  for (const areaFill of ast.areaFills ?? []) {
+    lines.push(serializeAreaFill(areaFill, '  '))
+  }
+  for (const annotation of ast.annotations ?? []) {
+    lines.push(serializeAnnotation(annotation, '  '))
+  }
+  for (const s of ast.series ?? []) {
+    lines.push(serializeSeries(s, '  '))
+  }
+  for (const step of ast.steps) {
+    lines.push(serializeStep(step, '  '))
+  }
+  lines.push('}')
+  return lines.join('\n')
+}
+
+export function compactSerialize(ast: ChartNode): string {
+  const lines = [`chart ${ast.chartType} {`]
+  for (const prop of ast.properties) {
+    if (!isDefaultValue(prop.key, prop.value, ast.chartType)) {
+      lines.push(serializeProperty(prop, '  '))
+    }
   }
   if (ast.data) {
     lines.push(serializeData(ast.data, '  '))
