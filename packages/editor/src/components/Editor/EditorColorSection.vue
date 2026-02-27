@@ -29,6 +29,14 @@
 
     <FormControlCheckbox
       v-if="hasPalette || hasColors"
+      id="opt-allow-dark-mode"
+      label="Allow dark mode"
+      :model-value="currentOptions.allowDarkMode ?? true"
+      @update:model-value="(v) => setOption('allowDarkMode', v)"
+    />
+
+    <FormControlCheckbox
+      v-if="hasPalette || hasColors"
       id="opt-auto-contrast"
       label="Auto-adjust contrast"
       :model-value="currentOptions.autoContrast ?? false"
@@ -36,18 +44,25 @@
     />
 
     <div
-      v-if="contrastInfo"
+      v-if="lightContrastInfo"
       class="d-flex align-items-center gap-2"
     >
-      <span class="form-label mb-0">Contrast</span>
+      <span class="form-label mb-0">Light contrast</span>
       <DisplayContrastBadge
-        :level="contrastInfo.level"
-        :ratio="contrastInfo.ratio"
+        :level="lightContrastInfo.level"
+        :ratio="lightContrastInfo.ratio"
       />
-      <span
-        v-if="contrastInfo.qualifier"
-        class="text-body-secondary editor-color-section__qualifier"
-      >{{ contrastInfo.qualifier }}</span>
+    </div>
+
+    <div
+      v-if="darkContrastInfo"
+      class="d-flex align-items-center gap-2"
+    >
+      <span class="form-label mb-0">Dark contrast</span>
+      <DisplayContrastBadge
+        :level="darkContrastInfo.level"
+        :ratio="darkContrastInfo.ratio"
+      />
     </div>
 
     <div
@@ -152,19 +167,28 @@ const activeColors = computed<string[]>(() => {
   return resolvedColors.value
 })
 
-const contrastInfo = computed(() => {
+const LIGHT_BG = '#ffffff'
+const DARK_BG = '#1a1a1a'
+
+function computeContrast(colors: string[], bg: string, autoContrast: boolean) {
+  const adjusted = autoContrast ? adjustColorsForBackground(colors, bg) : colors
+  const ratios = adjusted.map(c => wcagContrastRatio(c, bg))
+  const minRatio = Math.min(...ratios)
+  return { level: wcagLevel(minRatio), ratio: `${minRatio.toFixed(1)}:1` }
+}
+
+const lightContrastInfo = computed(() => {
   const raw = activeColors.value
   if (raw.length === 0) return null
-  const bg = '#ffffff'
-  const colors = currentOptions.value.autoContrast
-    ? adjustColorsForBackground(raw, bg)
-    : raw
-  const ratios = colors.map(c => wcagContrastRatio(c, bg))
-  const minRatio = Math.min(...ratios)
-  const level = wcagLevel(minRatio)
-  const ratio = `${minRatio.toFixed(1)}:1`
-  const qualifier = colors.length > 1 ? 'lowest of palette' : null
-  return { level, ratio, qualifier }
+  return computeContrast(raw, LIGHT_BG, !!currentOptions.value.autoContrast)
+})
+
+const darkContrastInfo = computed(() => {
+  const raw = activeColors.value
+  if (raw.length === 0) return null
+  const allowDark = currentOptions.value.allowDarkMode ?? true
+  if (!allowDark) return null
+  return computeContrast(raw, DARK_BG, !!currentOptions.value.autoContrast)
 })
 
 const CVD_SHORT_LABELS: Record<CvdType, string> = {

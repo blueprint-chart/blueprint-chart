@@ -51,6 +51,7 @@ const paletteOpt: ChartOptionDef = {
   ],
 }
 const autoContrastOpt: ChartOptionDef = { key: 'autoContrast', type: 'boolean', label: 'Auto-adjust contrast', default: false }
+const allowDarkModeOpt: ChartOptionDef = { key: 'allowDarkMode', type: 'boolean', label: 'Allow dark mode', default: true }
 const legendOpt: ChartOptionDef = { key: 'legend', type: 'boolean', label: 'Show legend', default: true }
 
 const legendPositionOpt: ChartOptionDef = {
@@ -291,15 +292,15 @@ const barOpts = [valueLabelsOpt, valueLabelPositionOpt, tooltipsOpt, ...crosshai
 const lineSymbolOpts = [lineSymbolsOpt, lineSymbolShapeOpt, lineSymbolShowOnOpt, lineSymbolStyleOpt, lineSymbolSizeOpt, lineSymbolOpacityOpt]
 const lineOpts = [valueLabelsOpt, valueLabelPositionOpt, tooltipsOpt, ...crosshairOpts, ...lineSymbolOpts]
 
-registerChart('bar-vertical', barVertical, [colorsOpt, paletteOpt, autoContrastOpt, ...barVerticalAxisOpts, ...barOpts])
-registerChart('bar-horizontal', barHorizontal, [colorsOpt, paletteOpt, autoContrastOpt, ...barHorizontalAxisOpts, ...barOpts])
-registerChart('bar-multi', barMulti, [colorsOpt, paletteOpt, autoContrastOpt, sortModeOpt, legendOpt, legendAnchorOpt, legendPositionOpt, directLabellingOpt, directLabelAnchorOpt, ...barVerticalAxisOpts, ...barOpts])
-registerChart('line', line, [colorsOpt, paletteOpt, autoContrastOpt, interpolationOpt, ...lineAxisOpts, ...lineOpts])
-registerChart('line-multi', lineMulti, [colorsOpt, paletteOpt, autoContrastOpt, interpolationOpt, sortModeOpt, legendOpt, legendAnchorOpt, legendPositionOpt, directLabellingOpt, ...lineAxisOpts, ...lineOpts])
+registerChart('bar-vertical', barVertical, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, ...barVerticalAxisOpts, ...barOpts])
+registerChart('bar-horizontal', barHorizontal, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, ...barHorizontalAxisOpts, ...barOpts])
+registerChart('bar-multi', barMulti, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, sortModeOpt, legendOpt, legendAnchorOpt, legendPositionOpt, directLabellingOpt, directLabelAnchorOpt, ...barVerticalAxisOpts, ...barOpts])
+registerChart('line', line, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, interpolationOpt, ...lineAxisOpts, ...lineOpts])
+registerChart('line-multi', lineMulti, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, interpolationOpt, sortModeOpt, legendOpt, legendAnchorOpt, legendPositionOpt, directLabellingOpt, ...lineAxisOpts, ...lineOpts])
 const arcOpts = [displayAsPercentageOpt, showTotalOpt, showLabelsOpt, showValuesOpt, sliceMaxOpt, sliceGroupLabelOpt]
-registerChart('donut', donut, [colorsOpt, paletteOpt, autoContrastOpt, legendOpt, legendAnchorOpt, legendPositionOpt, directLabellingOpt, tooltipsOpt, ...arcOpts])
-registerChart('pie', pie, [colorsOpt, paletteOpt, autoContrastOpt, legendOpt, legendAnchorOpt, legendPositionOpt, directLabellingOpt, tooltipsOpt, ...arcOpts])
+registerChart('donut', donut, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, legendOpt, legendAnchorOpt, legendPositionOpt, directLabellingOpt, tooltipsOpt, ...arcOpts])
+registerChart('pie', pie, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, legendOpt, legendAnchorOpt, legendPositionOpt, directLabellingOpt, tooltipsOpt, ...arcOpts])
 
 // Aliases share the same entry
-registerChart('vertical-bar', barVertical, [colorsOpt, paletteOpt, autoContrastOpt, ...barVerticalAxisOpts, ...barOpts])
-registerChart('horizontal-bar', barHorizontal, [colorsOpt, paletteOpt, autoContrastOpt, ...barHorizontalAxisOpts, ...barOpts])
+registerChart('vertical-bar', barVertical, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, ...barVerticalAxisOpts, ...barOpts])
+registerChart('horizontal-bar', barHorizontal, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, ...barHorizontalAxisOpts, ...barOpts])

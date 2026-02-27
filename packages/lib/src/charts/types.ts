@@ -118,6 +118,7 @@ export interface ChartOptions {
   sliceMax?: number
   sliceGroupLabel?: string
   autoContrast?: boolean
+  allowDarkMode?: boolean
 }
 
 export type ChartRenderer = (
@@ -190,6 +191,7 @@ export interface ChartTypeOptions {
   sliceMax: string
   sliceGroupLabel: string
   autoContrast: boolean
+  allowDarkMode: boolean
   sortMode: 'total' | 'within-groups' | 'none'
 }
 
