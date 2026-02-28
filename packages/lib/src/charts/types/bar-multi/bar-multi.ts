@@ -97,6 +97,8 @@ export function render(
   if (showLegend && legendPos === 'bottom') marginOverrides.bottom = (marginOverrides.bottom ?? 40) + legendH
   if (showLegend && legendPos === 'left') marginOverrides.left = (marginOverrides.left ?? 50) + legendSize.width + 10
   if (showLegend && legendPos === 'right') marginOverrides.right = (marginOverrides.right ?? 20) + legendSize.width + 10
+  const hasNegative = allValues.some(v => v < 0)
+  if (options.valueLabels && hasNegative) marginOverrides.bottom = Math.max(marginOverrides.bottom ?? 40, 56)
 
   const { chartArea, width, height, margin } = createCanvas(body, marginOverrides)
   const [domainMin, domainMax] = computeLinearDomain(allValues, options.verticalAxis?.range)
@@ -237,11 +239,15 @@ export function render(
     const vlMode = resolveVlMode(barHeight)
     const hasDl = hasAnyDirectLabels && directLabelSet.has(datum.seriesName)
 
+    const isNegative = datum.value < 0
+    const barBottom = barTop + barHeight
     let cy: number
     let fill: string
+    let baseline: string
     if (vlMode === 'inside') {
       const barColor = resolveSeriesColor(datum.seriesName, datum.seriesIndex, colors, overrides)
       fill = contrastTextColor(barColor)
+      baseline = 'central'
       // When direct labels are also inside, offset below the direct label
       const dlIsInside = hasDl && resolveBarDlMode(barHeight) === 'inside'
       if (dlIsInside) {
@@ -254,9 +260,18 @@ export function render(
     }
     else {
       fill = 'currentColor'
-      // Shift up when direct labels are outside above the bar
-      const dlIsOutside = hasDl && resolveBarDlMode(barHeight) === 'outside'
-      cy = dlIsOutside ? barTop - 16 : barTop - 4
+      if (isNegative) {
+        // Place below the bar for negative values
+        const dlIsOutside = hasDl && resolveBarDlMode(barHeight) === 'outside'
+        cy = dlIsOutside ? barBottom + 16 : barBottom + 4
+        baseline = 'hanging'
+      }
+      else {
+        // Place above the bar for positive values
+        const dlIsOutside = hasDl && resolveBarDlMode(barHeight) === 'outside'
+        cy = dlIsOutside ? barTop - 16 : barTop - 4
+        baseline = 'auto'
+      }
     }
 
     const vlEl = vlGroup.append('text')
@@ -264,10 +279,10 @@ export function render(
       .attr('x', cx)
       .attr('y', cy)
       .attr('text-anchor', 'middle')
+      .attr('dominant-baseline', baseline)
       .attr('font-size', '11px')
       .attr('fill', fill)
       .text(String(datum.value))
-    if (vlMode === 'inside') vlEl.attr('dominant-baseline', 'central')
   })
 
   // Direct labels — mode-aware positioning

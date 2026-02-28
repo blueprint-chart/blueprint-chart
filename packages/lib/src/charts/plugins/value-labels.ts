@@ -27,31 +27,64 @@ export function createValueLabelPlugin(options?: {
         const y = parseFloat(rect.attr('y'))
         const w = parseFloat(rect.attr('width'))
         const h = parseFloat(rect.attr('height'))
+        const isNegative = d.value < 0
 
-        let tx: number, ty: number, anchor: string, isInside: boolean
+        let tx: number, ty: number, anchor: string, baseline: string, isInside: boolean
 
         if (orientation === 'horizontal') {
-          const barEnd = x + w
           isInside = pos === 'inside' || (pos === 'auto' && w > 40)
           ty = y + h / 2
-          if (isInside) {
-            tx = barEnd - 4
-            anchor = 'end'
+          baseline = 'central'
+
+          if (isNegative) {
+            // Bar extends leftward from zero: left edge is at x
+            if (isInside) {
+              tx = x + 4
+              anchor = 'start'
+            }
+            else {
+              tx = x - 4
+              anchor = 'end'
+            }
           }
           else {
-            tx = barEnd + 4
-            anchor = 'start'
+            // Bar extends rightward from zero: right edge is at x + w
+            const barEnd = x + w
+            if (isInside) {
+              tx = barEnd - 4
+              anchor = 'end'
+            }
+            else {
+              tx = barEnd + 4
+              anchor = 'start'
+            }
           }
         }
         else {
           isInside = pos === 'inside' || (pos === 'auto' && h > 20)
           tx = x + w / 2
           anchor = 'middle'
-          if (isInside) {
-            ty = y + h / 2
+
+          if (isNegative) {
+            // Bar extends downward from zero: bottom edge is at y + h
+            if (isInside) {
+              ty = y + h / 2
+              baseline = 'central'
+            }
+            else {
+              ty = y + h + 4
+              baseline = 'hanging'
+            }
           }
           else {
-            ty = y - 4
+            if (isInside) {
+              ty = y + h / 2
+              baseline = 'central'
+            }
+            else {
+              ty = y - 4
+              baseline = 'auto'
+            }
           }
         }
 
@@ -64,7 +97,7 @@ export function createValueLabelPlugin(options?: {
           .attr('x', tx)
           .attr('y', ty)
           .attr('text-anchor', anchor)
-          .attr('dominant-baseline', orientation === 'horizontal' ? 'central' : (isInside ? 'central' : 'auto'))
+          .attr('dominant-baseline', baseline)
           .attr('font-size', '11px')
           .attr('fill', fillColor)
           .text(fmt(d.value))
