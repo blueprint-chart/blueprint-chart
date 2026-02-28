@@ -474,22 +474,15 @@ function wrapText(
   for (const word of words) {
     const test = line ? `${line} ${word}` : word
     if (line && test.length * 7 > maxWidth) {
-      textEl.append('tspan')
-        .attr('x', textEl.attr('x'))
-        .attr('dy', lineNumber === 0 ? '0' : '1.2em')
-        .text(line)
+      appendTspan(textEl, line, lineNumber++)
       line = word
-      lineNumber++
     }
     else {
       line = test
     }
   }
   if (line) {
-    textEl.append('tspan')
-      .attr('x', textEl.attr('x'))
-      .attr('dy', lineNumber === 0 ? '0' : '1.2em')
-      .text(line)
+    appendTspan(textEl, line, lineNumber)
   }
 }
 
