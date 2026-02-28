@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils'
 import Drawer from './LayoutBottomDrawer.vue'
 
-describe('LayoutBottomDrawer', () => {
+describe('LayoutBottomDrawer visibility', () => {
   it('renders body slot when open', () => {
     const wrapper = mount(Drawer, {
       props: { modelValue: true },
@@ -16,7 +16,9 @@ describe('LayoutBottomDrawer', () => {
     })
     expect(wrapper.find('.layout-bottom-drawer').exists()).toBe(false)
   })
+})
 
+describe('LayoutBottomDrawer props', () => {
   it('renders title when provided', () => {
     const wrapper = mount(Drawer, {
       props: { modelValue: true, title: 'Settings' },
@@ -24,6 +26,15 @@ describe('LayoutBottomDrawer', () => {
     expect(wrapper.find('.layout-bottom-drawer__title').text()).toBe('Settings')
   })
 
+  it('applies custom maxHeight', () => {
+    const wrapper = mount(Drawer, {
+      props: { modelValue: true, maxHeight: '50vh' },
+    })
+    expect(wrapper.find('.layout-bottom-drawer').attributes('style')).toContain('max-height: 50vh')
+  })
+})
+
+describe('LayoutBottomDrawer interactions', () => {
   it('emits update:modelValue on handle tap', async () => {
     const wrapper = mount(Drawer, {
       props: { modelValue: true },
@@ -42,12 +53,5 @@ describe('LayoutBottomDrawer', () => {
     })
     await wrapper.find('.layout-bottom-drawer__backdrop').trigger('click')
     expect(wrapper.emitted('update:modelValue')).toEqual([[false]])
-  })
-
-  it('applies custom maxHeight', () => {
-    const wrapper = mount(Drawer, {
-      props: { modelValue: true, maxHeight: '50vh' },
-    })
-    expect(wrapper.find('.layout-bottom-drawer').attributes('style')).toContain('max-height: 50vh')
   })
 })

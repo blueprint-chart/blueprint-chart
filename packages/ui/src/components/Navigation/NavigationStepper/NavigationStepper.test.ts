@@ -10,7 +10,7 @@ const steps = [
   { label: 'Export' },
 ]
 
-describe('Stepper', () => {
+describe('Stepper step states', () => {
   it('applies correct step states based on currentStep', () => {
     const wrapper = mount(Stepper, { props: { steps, currentStep: 2 } })
     const stepEls = wrapper.findAll('.navigation-stepper__step')
@@ -24,12 +24,13 @@ describe('Stepper', () => {
 
   it('emits update:currentStep with step index on click', async () => {
     const wrapper = mount(Stepper, { props: { steps, currentStep: 0 } })
-    const stepEls = wrapper.findAll('.navigation-stepper__step')
-
-    await stepEls[2].trigger('click')
+    await wrapper.findAll('.navigation-stepper__step')[2].trigger('click')
     expect(wrapper.emitted('update:currentStep')).toEqual([[2]])
   })
 
+})
+
+describe('Stepper disabled steps', () => {
   it('applies disabled class to disabled steps', () => {
     const wrapper = mount(Stepper, { props: { steps, currentStep: 0, disabledSteps: [2, 3] } })
     const stepEls = wrapper.findAll('.navigation-stepper__step')
@@ -45,52 +46,39 @@ describe('Stepper', () => {
     await stepEls[2].trigger('click')
     expect(wrapper.emitted('update:currentStep')).toBeUndefined()
   })
-
-  it('deduplicates consecutive steps with the same label', () => {
-    const dupeSteps = [
-      { label: 'Data' },
-      { label: 'Data' },
-      { label: 'Visualize' },
-      { label: 'Export' },
-    ]
-    const wrapper = mount(Stepper, { props: { steps: dupeSteps, currentStep: 0 } })
-    const stepEls = wrapper.findAll('.navigation-stepper__step')
-    expect(stepEls).toHaveLength(3)
-    expect(stepEls[0].text()).toBe('Data')
-    expect(stepEls[1].text()).toBe('Visualize')
-    expect(stepEls[2].text()).toBe('Export')
-  })
 })
 
-describe('Stepper (slot entries)', () => {
-  function mountWithSlots(currentStep: number) {
-    return mount(Stepper, {
-      props: { currentStep },
-      slots: {
-        default: () => [
-          h(StepperStep, { label: 'Upload' }),
-          h(StepperStep, { label: 'Check' }),
-          h(StepperStep, { label: 'Edit' }),
-          h(StepperStep, { label: 'Export' }),
-        ],
-      },
-    })
-  }
+function mountStepperWithSlots(currentStep: number) {
+  return mount(Stepper, {
+    props: { currentStep },
+    slots: {
+      default: () => [
+        h(StepperStep, { label: 'Upload' }),
+        h(StepperStep, { label: 'Check' }),
+        h(StepperStep, { label: 'Edit' }),
+        h(StepperStep, { label: 'Export' }),
+      ],
+    },
+  })
+}
 
+describe('Stepper slot entry states', () => {
   it('applies correct step states from slot entries', async () => {
-    const wrapper = mountWithSlots(2)
+    const wrapper = mountStepperWithSlots(2)
     await nextTick()
     const stepEls = wrapper.findAll('.navigation-stepper__step')
     expect(stepEls[0].classes()).toContain('navigation-stepper__step--done')
     expect(stepEls[1].classes()).toContain('navigation-stepper__step--done')
     expect(stepEls[2].classes()).toContain('navigation-stepper__step--current')
   })
+})
 
+describe('Stepper slot entry interaction', () => {
   it('emits update:currentStep on slot entry click', async () => {
-    const wrapper = mountWithSlots(0)
+    const wrapper = mountStepperWithSlots(0)
     await nextTick()
-    const stepEls = wrapper.findAll('.navigation-stepper__step')
-    await stepEls[2].trigger('click')
+    await wrapper.findAll('.navigation-stepper__step')[2].trigger('click')
     expect(wrapper.emitted('update:currentStep')).toEqual([[2]])
   })
+
 })

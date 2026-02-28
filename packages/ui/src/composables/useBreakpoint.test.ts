@@ -9,7 +9,9 @@ function createMockMatchMedia(matches: boolean) {
     addEventListener: (_: string, cb: (e: MediaQueryListEvent) => void) => listeners.push(cb),
     removeEventListener: (_: string, cb: (e: MediaQueryListEvent) => void) => {
       const idx = listeners.indexOf(cb)
-      if (idx >= 0) { listeners.splice(idx, 1) }
+      if (idx >= 0) {
+        listeners.splice(idx, 1)
+      }
     },
   }
   return {
@@ -21,40 +23,33 @@ function createMockMatchMedia(matches: boolean) {
   }
 }
 
+function mountBreakpointComp(matches: boolean) {
+  const mock = createMockMatchMedia(matches)
+  mock.install()
+
+  let isNarrowRef: Ref<boolean> | undefined
+  const Comp = defineComponent({
+    setup() {
+      const bp = useBreakpoint()
+      isNarrowRef = bp.isNarrow
+      return () => h('div')
+    },
+  })
+
+  mount(Comp)
+  return { isNarrowRef: isNarrowRef! }
+}
+
 describe('useBreakpoint', () => {
   it('returns isNarrow=true when viewport is narrow', async () => {
-    const mock = createMockMatchMedia(true)
-    mock.install()
-
-    let isNarrowRef: Ref<boolean> | undefined
-    const Comp = defineComponent({
-      setup() {
-        const bp = useBreakpoint()
-        isNarrowRef = bp.isNarrow
-        return () => h('div')
-      },
-    })
-
-    mount(Comp)
+    const { isNarrowRef } = mountBreakpointComp(true)
     await nextTick()
-    expect(isNarrowRef!.value).toBe(true)
+    expect(isNarrowRef.value).toBe(true)
   })
 
   it('returns isNarrow=false when viewport is wide', async () => {
-    const mock = createMockMatchMedia(false)
-    mock.install()
-
-    let isNarrowRef: Ref<boolean> | undefined
-    const Comp = defineComponent({
-      setup() {
-        const bp = useBreakpoint()
-        isNarrowRef = bp.isNarrow
-        return () => h('div')
-      },
-    })
-
-    mount(Comp)
+    const { isNarrowRef } = mountBreakpointComp(false)
     await nextTick()
-    expect(isNarrowRef!.value).toBe(false)
+    expect(isNarrowRef.value).toBe(false)
   })
 })

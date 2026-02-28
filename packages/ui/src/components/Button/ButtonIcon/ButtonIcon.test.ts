@@ -6,7 +6,7 @@ const stubs = {
   BTooltip: true,
 }
 
-describe('ButtonIcon', () => {
+describe('ButtonIcon rendering', () => {
   it('renders the button-icon class', () => {
     const wrapper = shallowMount(ButtonIcon, {
       global: { stubs },
@@ -29,7 +29,9 @@ describe('ButtonIcon', () => {
     })
     expect(wrapper.find('.button-icon__label').exists()).toBe(false)
   })
+})
 
+describe('ButtonIcon class modifiers', () => {
   it('applies square class', () => {
     const wrapper = shallowMount(ButtonIcon, {
       props: { square: true },
@@ -53,7 +55,9 @@ describe('ButtonIcon', () => {
     })
     expect(wrapper.classes()).toContain('button-icon--truncate')
   })
+})
 
+describe('ButtonIcon loading state', () => {
   it('shows loading text when loading', () => {
     const wrapper = shallowMount(ButtonIcon, {
       props: { label: 'Submit', loading: true, loadingText: 'Saving...' },

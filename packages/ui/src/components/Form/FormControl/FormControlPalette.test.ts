@@ -34,7 +34,7 @@ describe('FormControlPalette', () => {
   })
 })
 
-describe('FormControlPalette (slot entries)', () => {
+describe('FormControlPalette slot entry rendering', () => {
   it('renders palettes from slot entries', async () => {
     const wrapper = mount(FormControlPalette, {
       props: { modelValue: 'warm' },
@@ -50,7 +50,9 @@ describe('FormControlPalette (slot entries)', () => {
     const items = wrapper.findAll('.form-control-palette__item')
     expect(items).toHaveLength(2)
   })
+})
 
+describe('FormControlPalette slot entry selection', () => {
   it('shows selected palette name from slot entries', async () => {
     const wrapper = mount(FormControlPalette, {
       props: { modelValue: 'cool' },

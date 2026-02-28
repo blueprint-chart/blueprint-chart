@@ -36,10 +36,14 @@ export function useChildEntriesProvider<T>(key: InjectionKey<ChildEntriesContext
 
 export function useChildEntry<T>(key: InjectionKey<ChildEntriesContext<T>>, getData: () => T) {
   const context = inject(key, null)
-  if (!context) { return }
+  if (!context) {
+    return
+  }
 
   const instance = getCurrentInstance()
-  if (!instance) { return }
+  if (!instance) {
+    return
+  }
 
   const uid = instance.uid
 

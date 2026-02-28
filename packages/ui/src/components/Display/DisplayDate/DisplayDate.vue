@@ -14,7 +14,9 @@ const props = withDefaults(defineProps<{
 
 const formatted = computed(() => {
   const date = new Date(props.value)
-  if (Number.isNaN(date.getTime())) { return props.value }
+  if (Number.isNaN(date.getTime())) {
+    return props.value
+  }
   if (props.format === 'long') {
     return date.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })
   }
