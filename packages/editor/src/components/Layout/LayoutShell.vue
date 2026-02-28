@@ -28,9 +28,18 @@
             class="shell-navbar__result"
             @click="goToChart(chart.id)"
           >
-            <span class="fw-bold text-truncate d-block">{{ chart.title || 'Untitled' }}</span>
-            <span class="small text-body-secondary text-truncate d-block">{{ chart.description }}</span>
-            <span class="badge text-bg-secondary">{{ chart.chartType }}</span>
+            <div class="d-flex align-items-center gap-2">
+              <!-- eslint-disable-next-line vue/no-v-html -->
+              <div
+                v-if="getThumbnail(chart.id)"
+                class="shell-navbar__result-thumb"
+                v-html="getThumbnail(chart.id)"
+              />
+              <div class="min-width-0 flex-grow-1">
+                <span class="fw-bold text-truncate d-block">{{ chart.title || 'Untitled' }}</span>
+                <span class="small text-body-secondary text-truncate d-block">{{ chart.description }}</span>
+              </div>
+            </div>
           </button>
         </div>
       </div>
@@ -85,6 +94,10 @@ const searchResults = computed(() => {
       || (c.description?.toLowerCase().includes(q)),
   )
 })
+
+function getThumbnail(id: string): string | null {
+  return localStorage.getItem(`blueprint-chart:${id}:thumbnail`)
+}
 
 function goToChart(id: string) {
   searchQuery.value = ''
@@ -158,6 +171,17 @@ onUnmounted(() => document.removeEventListener('click', onDocumentClick))
 
   & + & {
     border-top: 1px solid var(--bs-border-color);
+  }
+}
+
+.shell-navbar__result-thumb {
+  width: 48px;
+  flex-shrink: 0;
+
+  :deep(svg) {
+    width: 100%;
+    height: auto;
+    display: block;
   }
 }
 </style>
