@@ -122,12 +122,19 @@ class HorizontalAxisChart extends D3Blueprint<AxisDatum[]> {
 
           let ticks = this.config('ticks') as (string & d3.NumberValue)[] | null
 
-          // Auto-thin only for band scales (time/linear scales auto-thin via d3)
           const rawScale = this.config('scale') as AnyXScale
-          if (!ticks && availableWidth > 0 && isBandScale(rawScale)) {
-            const domain = rawScale.domain()
-            if (domain.length > Math.floor(availableWidth / MIN_LABEL_SPACING)) {
-              ticks = thinLabels(domain, availableWidth) as (string & d3.NumberValue)[]
+          if (!ticks && availableWidth > 0) {
+            if (isBandScale(rawScale)) {
+              // Auto-thin band scales based on available width
+              const domain = rawScale.domain()
+              if (domain.length > Math.floor(availableWidth / MIN_LABEL_SPACING)) {
+                ticks = thinLabels(domain, availableWidth) as (string & d3.NumberValue)[]
+              }
+            }
+            else {
+              // For time/linear scales, limit tick count based on available width
+              const maxTicks = Math.max(2, Math.floor(availableWidth / MIN_LABEL_SPACING))
+              axisFn.ticks(maxTicks)
             }
           }
 

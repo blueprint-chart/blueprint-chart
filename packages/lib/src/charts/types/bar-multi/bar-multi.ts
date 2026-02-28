@@ -78,12 +78,15 @@ export function render(
 
   // Compute margin adjustments for legend
   const showLegend = options.legend !== false && !options.directLabelling
-  const legendPos = options.legendPosition ?? 'top'
-  const legendAnchor = options.legendAnchor ?? 'start'
-  const legendSize = showLegend ? estimateLegendSize(seriesNames, legendPos) : { width: 0, height: 0 }
-  const legendH = showLegend ? legendSize.height + 10 : 0
-
   const containerWidth = body.getBoundingClientRect().width
+  const NARROW_THRESHOLD = 350
+  const requestedLegendPos = options.legendPosition ?? 'top'
+  const legendPos = (containerWidth > 0 && containerWidth < NARROW_THRESHOLD && (requestedLegendPos === 'left' || requestedLegendPos === 'right'))
+    ? 'top'
+    : requestedLegendPos
+  const legendAnchor = options.legendAnchor ?? 'start'
+  const legendSize = showLegend ? estimateLegendSize(seriesNames, legendPos, containerWidth) : { width: 0, height: 0 }
+  const legendH = showLegend ? legendSize.height + 10 : 0
   const allValues = series.flatMap(s => s.values)
   const vLabelW = estimateVerticalLabelWidth(allValues, options.verticalAxis?.range, options.verticalAxis?.numberFormat, options.verticalAxis?.scaleType)
   const lpMargins = labelPositionMargins(containerWidth, options.verticalAxis?.labelPosition, options.horizontalAxis?.labelPosition, options.verticalAxis?.direction, vLabelW)

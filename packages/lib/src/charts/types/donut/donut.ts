@@ -103,12 +103,18 @@ export function renderArc(
 
   // Compute margin adjustments for legend
   const showLegend = options.legend !== false && !useDirectLabels
-  const legendPos = options.legendPosition ?? 'top'
+  const containerWidth = body.getBoundingClientRect().width
+  const NARROW_THRESHOLD = 350
+  const requestedLegendPos = options.legendPosition ?? 'top'
+  // On narrow containers, move side legends to top to preserve chart space
+  const legendPos = (containerWidth > 0 && containerWidth < NARROW_THRESHOLD && (requestedLegendPos === 'left' || requestedLegendPos === 'right'))
+    ? 'top'
+    : requestedLegendPos
   const legendAnchor = options.legendAnchor ?? 'start'
   const legendSizeLabels = legendSuffixes.length > 0
     ? labels.map((l, i) => `${l} ${legendSuffixes[i]}`)
     : labels
-  const legendSize = showLegend ? estimateLegendSize(legendSizeLabels, legendPos) : { width: 0, height: 0 }
+  const legendSize = showLegend ? estimateLegendSize(legendSizeLabels, legendPos, containerWidth) : { width: 0, height: 0 }
   const legendH = showLegend ? legendSize.height + 10 : 0
 
   const marginOverrides: Record<string, number> = {}
