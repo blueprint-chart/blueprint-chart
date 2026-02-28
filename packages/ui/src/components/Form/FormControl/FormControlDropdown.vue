@@ -69,6 +69,8 @@ const props = withDefaults(defineProps<{
   block?: boolean
   lightLabel?: boolean
 }>(), {
+  label: undefined,
+  id: undefined,
   options: () => [],
   block: false,
   lightLabel: false,

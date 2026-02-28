@@ -1,3 +1,4 @@
+/* eslint-disable vue/one-component-per-file */
 import { defineComponent, h, nextTick, ref, type InjectionKey } from 'vue'
 import { mount } from '@vue/test-utils'
 import { useChildEntriesProvider, useChildEntry, type ChildEntriesContext } from './useChildEntries'

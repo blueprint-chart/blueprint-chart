@@ -57,6 +57,8 @@ const props = withDefaults(defineProps<{
   id?: string
   palettes?: { value: string, label: string, colors: string[] }[]
 }>(), {
+  label: undefined,
+  id: undefined,
   palettes: () => [],
 })
 
