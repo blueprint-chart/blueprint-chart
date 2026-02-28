@@ -7,7 +7,7 @@
     <!-- Point annotations -->
     <template v-if="!isPieOrDonut">
       <div class="d-flex flex-column gap-2">
-        <small class="fw-semibold text-body-secondary">Point annotations</small>
+        <small class="fw-semibold text-body-secondary">Points</small>
         <div
           v-for="{ ann, index } in pointAnnotations"
           :key="index"
@@ -43,7 +43,7 @@
     <!-- Range annotations -->
     <template v-if="!isPieOrDonut">
       <div class="d-flex flex-column gap-2">
-        <small class="fw-semibold text-body-secondary">Range annotations</small>
+        <small class="fw-semibold text-body-secondary">Ranges</small>
         <div
           v-for="{ ann, index } in rangeAnnotations"
           :key="index"
@@ -181,7 +181,7 @@ function update(index: number, value: AnnotationConfig) {
 }
 
 function addPoint() {
-  const ann: PointAnnotationConfig = { kind: 'point', target: props.labels[0] ?? '', text: 'Enter an annotation' }
+  const ann: PointAnnotationConfig = { kind: 'point', target: props.labels[0] ?? '', text: 'Enter an annotation', showLine: true, showArrow: true }
   const next = [...annotations.value, ann]
   emit('update:modelValue', next)
   openIndex.value = next.length - 1
