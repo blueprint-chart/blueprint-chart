@@ -61,7 +61,7 @@ let resizeObserver: ResizeObserver | undefined
 onMounted(() => {
   readChartDimensions()
   resizeObserver = new ResizeObserver(readChartDimensions)
-  if (containerRef.value) resizeObserver.observe(containerRef.value)
+  if (containerRef.value) { resizeObserver.observe(containerRef.value) }
 })
 onBeforeUnmount(() => resizeObserver?.disconnect())
 
@@ -75,7 +75,7 @@ useAnnotationDrag(containerRef, annotations, selectedIndex, handleDragUpdate)
 
 // Consume pending annotation selection (e.g. from double-click on chart)
 watch(pendingAnnotationIndex, async (index) => {
-  if (index === null) return
+  if (index === null) { return }
   await nextTick()
   if (annotationsRef.value) {
     // Toggle: deselect if already open

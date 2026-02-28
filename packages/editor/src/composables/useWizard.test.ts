@@ -34,7 +34,7 @@ describe('useWizard', () => {
 
   it('does not go past last step', () => {
     const { next, currentIndex, steps } = useWizard()
-    for (let i = 0; i < steps.length + 2; i++) next()
+    for (let i = 0; i < steps.length + 2; i++) { next() }
     expect(currentIndex.value).toBe(steps.length - 1)
   })
 
@@ -63,7 +63,7 @@ describe('useWizard', () => {
     const { next, isFirst, isLast, steps } = useWizard()
     expect(isFirst.value).toBe(true)
     expect(isLast.value).toBe(false)
-    for (let i = 0; i < steps.length - 1; i++) next()
+    for (let i = 0; i < steps.length - 1; i++) { next() }
     expect(isFirst.value).toBe(false)
     expect(isLast.value).toBe(true)
   })

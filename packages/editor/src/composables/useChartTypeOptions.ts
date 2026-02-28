@@ -49,10 +49,10 @@ export function useChartTypeOptions() {
     ensureDefaults(newType)
 
     const oldEntry = store[oldType]
-    if (!oldEntry) return
+    if (!oldEntry) { return }
 
     const supported = getChartOptions(newType).map(d => d.key as ChartTypeOptionKey)
-    if (supported.length === 0) return
+    if (supported.length === 0) { return }
 
     for (const key of supported) {
       if (key in oldEntry && !(key in store[newType]!)) {

@@ -64,9 +64,9 @@ function updateFlags() {
 
 function pushState(state: string) {
   const h = getHistory(activeSessionId)
-  if (state === h.currentState) return
+  if (state === h.currentState) { return }
   h.undoStack.push(h.currentState)
-  if (h.undoStack.length > MAX_HISTORY) h.undoStack.shift()
+  if (h.undoStack.length > MAX_HISTORY) { h.undoStack.shift() }
   h.redoStack.length = 0
   h.currentState = state
   updateFlags()
@@ -136,7 +136,7 @@ export function useChartHistory() {
           () => JSON.stringify(store),
         ],
         () => {
-          if (isRestoring || !activeSessionId) return
+          if (isRestoring || !activeSessionId) { return }
           pushState(currentSnap())
         },
         { deep: true },
@@ -156,7 +156,7 @@ export function useChartHistory() {
 
   function undo() {
     const h = historyMap.get(activeSessionId)
-    if (!h || h.undoStack.length === 0) return
+    if (!h || h.undoStack.length === 0) { return }
     h.redoStack.push(h.currentState)
     h.currentState = h.undoStack.pop()!
     updateFlags()
@@ -165,7 +165,7 @@ export function useChartHistory() {
 
   function redo() {
     const h = historyMap.get(activeSessionId)
-    if (!h || h.redoStack.length === 0) return
+    if (!h || h.redoStack.length === 0) { return }
     h.undoStack.push(h.currentState)
     h.currentState = h.redoStack.pop()!
     updateFlags()

@@ -58,7 +58,7 @@ const DATE_PATTERNS = [
 ]
 
 function isDateValue(value: string): boolean {
-  if (!value) return false
+  if (!value) { return false }
   for (const pattern of DATE_PATTERNS) {
     if (pattern.test(value)) {
       // YYYY-MM and YYYY are valid date-like patterns but Date.parse may not handle them
@@ -73,7 +73,7 @@ function isDateValue(value: string): boolean {
 }
 
 function isNumberValue(value: string): boolean {
-  if (!value) return false
+  if (!value) { return false }
   const cleaned = value.replace(/[,%$€£¥₹]/g, '').trim()
   return cleaned.length > 0 && !Number.isNaN(Number(cleaned))
 }
@@ -81,9 +81,9 @@ function isNumberValue(value: string): boolean {
 export function detectColumnTypes(columns: string[], rows: string[][]): ColumnType[] {
   return columns.map((_, ci) => {
     const values = rows.map(r => r[ci] ?? '').filter(v => v.length > 0)
-    if (values.length === 0) return 'string'
-    if (values.every(isDateValue)) return 'date'
-    if (values.every(isNumberValue)) return 'number'
+    if (values.length === 0) { return 'string' }
+    if (values.every(isDateValue)) { return 'date' }
+    if (values.every(isNumberValue)) { return 'number' }
     return 'string'
   })
 }

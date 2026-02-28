@@ -34,11 +34,11 @@ const { selectAnnotation, pendingAnnotationIndex } = useEditorPanel()
 function onDblClick(e: MouseEvent) {
   const target = e.target as Element
   const annG = target.closest('g[data-annotation-index]')
-  if (!annG) return
+  if (!annG) { return }
   e.preventDefault()
   window.getSelection()?.removeAllRanges()
   const index = parseInt(annG.getAttribute('data-annotation-index') || '', 10)
-  if (!isNaN(index)) selectAnnotation(index)
+  if (!isNaN(index)) { selectAnnotation(index) }
 }
 
 onMounted(() => {
@@ -52,15 +52,15 @@ const { cvdMode } = useCvdMode()
 const cvdDefsRef = useTemplateRef<SVGElement>('cvdDefsRef')
 
 watch([cvdMode, cvdDefsRef], ([mode, defs]) => {
-  if (!defs) return
-  while (defs.firstChild) defs.removeChild(defs.firstChild)
+  if (!defs) { return }
+  while (defs.firstChild) { defs.removeChild(defs.firstChild) }
   if (mode) {
     defs.appendChild(createCvdSvgFilter(mode as CvdType))
   }
 }, { immediate: true })
 
 const cvdFilterStyle = computed(() => {
-  if (!cvdMode.value) return undefined
+  if (!cvdMode.value) { return undefined }
   return { filter: `url(#${getCvdFilterId(cvdMode.value as CvdType)})` }
 })
 </script>

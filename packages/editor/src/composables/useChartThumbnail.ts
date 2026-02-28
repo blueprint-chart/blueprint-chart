@@ -15,8 +15,8 @@ export function renderThumbnailSvg(
   options?: { highlights?: ChartHighlight[], seriesOverrides?: SeriesOverride[] },
 ): string | null {
   const renderer = getChart(chartType)
-  if (!renderer) return null
-  if (data.labels.length === 0) return null
+  if (!renderer) { return null }
+  if (data.labels.length === 0) { return null }
 
   const THUMB_W = 600
   const THUMB_H = 400
@@ -48,7 +48,7 @@ export function renderThumbnailSvg(
     })
 
     const svg = container.querySelector('svg')
-    if (!svg) return null
+    if (!svg) { return null }
 
     // Add a viewBox so the SVG scales proportionally when displayed at
     // thumbnail size, instead of being clipped.
@@ -105,8 +105,8 @@ export function generateThumbnail() {
   const { currentOptions } = useChartTypeOptions()
   const { sessionId } = useChartSession()
 
-  if (!sessionId.value) return
-  if (!config.data.value) return
+  if (!sessionId.value) { return }
+  if (!config.data.value) { return }
 
   const data = parseData(config.data.value)
 

@@ -60,12 +60,12 @@ export function useImageExport(containerRef: Ref<HTMLElement | null>) {
 
   function downloadSvg() {
     const svg = getSvgElement()
-    if (svg) exportSvg(svg)
+    if (svg) { exportSvg(svg) }
   }
 
   async function downloadPng() {
     const svg = getSvgElement()
-    if (!svg) return
+    if (!svg) { return }
     const { width, height } = svg.getBoundingClientRect()
     await exportPng(svg, width, height)
   }

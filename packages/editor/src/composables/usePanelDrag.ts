@@ -17,12 +17,12 @@ export function usePanelDrag(
 
   function onMouseDown(e: MouseEvent) {
     const target = e.target as HTMLElement
-    if (target.closest('button') && !target.closest('.button-drag')) return
-    if (!headerRef.value) return
+    if (target.closest('button') && !target.closest('.button-drag')) { return }
+    if (!headerRef.value) { return }
 
     isDragging = true
     const el = headerRef.value.closest('.chart-edit-floating-panel') as HTMLElement | null
-    if (!el) return
+    if (!el) { return }
 
     const rect = el.getBoundingClientRect()
     offsetX = e.clientX - rect.left
@@ -31,7 +31,7 @@ export function usePanelDrag(
   }
 
   function onMouseMove(e: MouseEvent) {
-    if (!isDragging || !containerRef.value) return
+    if (!isDragging || !containerRef.value) { return }
 
     const bounds = containerRef.value.getBoundingClientRect()
     let x = e.clientX - bounds.left - offsetX
