@@ -1,7 +1,7 @@
 <template>
   <div
     class="chart-edit-panel"
-    :class="{ 'chart-edit-panel--narrow': isNarrow }"
+    :class="panelClassList"
   >
     <ChartEditIconRail
       v-if="isNarrow"
@@ -35,7 +35,7 @@
             v-for="tab in tabs"
             :key="tab.key"
             class="chart-edit-panel__drawer-tab"
-            :class="{ 'chart-edit-panel__drawer-tab--active': activeTab === tab.key }"
+            :class="drawerTabClassList(tab.key)"
             @click="selectTab(tab.key)"
           >
             {{ tab.label }}
@@ -108,6 +108,14 @@ const tabs = computed(() => {
   base.push({ key: 'annotate', label: 'Annotate' })
   return base
 })
+const panelClassList = computed(() => ({
+  'chart-edit-panel--narrow': isNarrow.value,
+}))
+
+function drawerTabClassList(key: string) {
+  return { 'chart-edit-panel__drawer-tab--active': activeTab.value === key }
+}
+
 const canvasRef = ref<HTMLElement | null>(null)
 
 function parseAspectRatio(ratio: string): number | undefined {

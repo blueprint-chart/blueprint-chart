@@ -3,7 +3,7 @@
     <div
       v-if="open"
       class="layout-bottom-drawer"
-      :class="{ 'layout-bottom-drawer--dragging': isDragging }"
+      :class="drawerClassList"
       :style="drawerStyle"
     >
       <div
@@ -49,6 +49,10 @@ const props = withDefaults(defineProps<{
 
 const dragOffset = ref(0)
 const isDragging = ref(false)
+
+const drawerClassList = computed(() => ({
+  'layout-bottom-drawer--dragging': isDragging.value,
+}))
 let startY = 0
 let dragged = false
 

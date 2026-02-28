@@ -1,7 +1,7 @@
 <template>
   <nav
     class="navigation-icon-rail"
-    :class="{ 'navigation-icon-rail--horizontal': horizontal }"
+    :class="railClassList"
   >
     <slot />
     <ButtonIcon
@@ -48,6 +48,10 @@ const { entries } = useChildEntriesProvider(IconRailEntriesKey)
 const resolvedItems = computed(() =>
   entries.value.length > 0 ? entries.value : props.items,
 )
+
+const railClassList = computed(() => ({
+  'navigation-icon-rail--horizontal': props.horizontal,
+}))
 
 function buttonClassList(value: string) {
   return { 'navigation-icon-rail__button--active': model.value === value }

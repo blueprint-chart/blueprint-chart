@@ -105,10 +105,12 @@ function goToChart(id: string) {
   router.push(`/edit/${id}`)
 }
 
-// Dismiss on route change
-watch(() => route.path, () => {
+function dismissSearch() {
   searchQuery.value = ''
-})
+}
+
+// Dismiss on route change
+watch(() => route.path, dismissSearch)
 
 // Dismiss on click outside
 onClickOutside(searchContainer, () => {

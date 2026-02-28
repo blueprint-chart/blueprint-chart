@@ -26,7 +26,7 @@
         :key="tab.key"
         :ref="el => { if (tab.key === activeTab) activeTabEl = el as HTMLElement | null }"
         class="chart-edit-floating-panel__tab"
-        :class="{ 'chart-edit-floating-panel__tab--active': activeTab === tab.key }"
+        :class="tabClassList(tab.key)"
         @click="selectTab(tab.key)"
       >
         {{ tab.label }}
@@ -76,13 +76,15 @@ const tabsRef = ref<HTMLElement | null>(null)
 let activeTabEl: HTMLElement | null = null
 const containerRefLocal = computed(() => props.containerRef)
 
-watch(() => activeTab.value, () => {
+function scrollActiveTabIntoView() {
   nextTick(() => {
     if (activeTabEl?.scrollIntoView && tabsRef.value) {
       activeTabEl.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' })
     }
   })
-})
+}
+
+watch(() => activeTab.value, scrollActiveTabIntoView)
 
 const panelRef = ref<HTMLElement | null>(null)
 
@@ -127,6 +129,10 @@ const TAB_LABELS: Record<string, string> = {
 }
 
 const panelTitle = computed(() => TAB_LABELS[activeTab.value] ?? 'Panel')
+
+function tabClassList(key: string) {
+  return { 'chart-edit-floating-panel__tab--active': activeTab.value === key }
+}
 
 const positionStyle = computed(() => ({
   left: `${floatingPosition.value.x}px`,

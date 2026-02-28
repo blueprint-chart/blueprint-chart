@@ -26,11 +26,13 @@ const text = ref('')
 const error = ref<string>()
 const userEditing = ref(false)
 
-watchEffect(() => {
+function syncDslToText() {
   if (!userEditing.value) {
     text.value = dsl.value
   }
-})
+}
+
+watchEffect(syncDslToText)
 
 // eslint-disable-next-line no-undef
 function onInput(event: Event) {
