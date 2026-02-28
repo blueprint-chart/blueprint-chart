@@ -42,7 +42,7 @@
     />
 
     <FormControlCheckbox
-      :model-value="annotation.showLine ?? false"
+      :model-value="annotation.showLine ?? true"
       label="Show line"
       @update:model-value="(v: boolean) => update('showLine', v)"
     >
@@ -97,7 +97,7 @@
 
           <BFormGroup>
             <BFormCheckbox
-              :model-value="annotation.showArrow ?? false"
+              :model-value="annotation.showArrow ?? true"
               @update:model-value="(v: boolean) => update('showArrow', v)"
             >
               Show arrow
