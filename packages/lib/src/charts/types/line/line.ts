@@ -222,7 +222,7 @@ export function render(
       color,
       index: i,
     }))
-    const symbolsGroup = d3.select(clippedArea).append('g').attr('class', 'bc-symbols')
+    const symbolsGroup = d3.select(chartArea).append('g').attr('class', 'bc-symbols')
     renderLineSymbols(symbolsGroup as unknown as d3.Selection<SVGGElement, unknown, null, undefined>, symbolPoints, lineData.length, symbolConfig)
   }
 }
