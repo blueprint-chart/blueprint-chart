@@ -22,17 +22,27 @@ export interface AnnotationContext {
 
 function resolvePosition(value: number | string, size: number): number {
   // Percentage is center-relative: 0% = center, -50% = left/top edge, 50% = right/bottom edge
-  if (typeof value === 'number') { return size / 2 + (value / 100) * size }
+  if (typeof value === 'number') {
+    return size / 2 + (value / 100) * size
+  }
   const str = String(value)
-  if (str.endsWith('%')) { return size / 2 + (parseFloat(str) / 100) * size }
+  if (str.endsWith('%')) {
+    return size / 2 + (parseFloat(str) / 100) * size
+  }
   return parseFloat(str) || 0
 }
 
 function resolveMaxWidth(maxWidth: number | string | undefined, chartWidth: number): number | undefined {
-  if (maxWidth == null) { return undefined }
-  if (typeof maxWidth === 'number') { return maxWidth || undefined }
+  if (maxWidth == null) {
+    return undefined
+  }
+  if (typeof maxWidth === 'number') {
+    return maxWidth || undefined
+  }
   const str = String(maxWidth)
-  if (str.endsWith('%')) { return (parseFloat(str) / 100) * chartWidth }
+  if (str.endsWith('%')) {
+    return (parseFloat(str) / 100) * chartWidth
+  }
   return parseFloat(str) || undefined
 }
 
@@ -144,8 +154,12 @@ export function computeAnchorPoint(
 // ---------------------------------------------------------------------------
 
 function inferTextAnchorFromOffset(offsetX: number): string {
-  if (offsetX < -4) { return 'end' }
-  if (offsetX > 4) { return 'start' }
+  if (offsetX < -4) {
+    return 'end'
+  }
+  if (offsetX > 4) {
+    return 'start'
+  }
   return 'middle'
 }
 
@@ -162,7 +176,9 @@ export function bboxEdgeToward(
   const cx = bbox.x + bbox.width / 2
   const cy = bbox.y + bbox.height / 2
 
-  if (targetX === cx && targetY === cy) { return { x: cx, y: cy } }
+  if (targetX === cx && targetY === cy) {
+    return { x: cx, y: cy }
+  }
 
   // Check which perpendicular projections are valid:
   // Target X within horizontal span → can exit N or S
@@ -175,12 +191,20 @@ export function bboxEdgeToward(
   const candidates: Side[] = []
 
   if (canNS) {
-    if (targetY < cy) { candidates.push({ x: cx, y: bbox.y - pad, dist: Math.abs(cy - targetY) }) } // N
-    else { candidates.push({ x: cx, y: bbox.y + bbox.height + pad, dist: Math.abs(targetY - cy) }) } // S
+    if (targetY < cy) { // N
+      candidates.push({ x: cx, y: bbox.y - pad, dist: Math.abs(cy - targetY) })
+    }
+    else { // S
+      candidates.push({ x: cx, y: bbox.y + bbox.height + pad, dist: Math.abs(targetY - cy) })
+    }
   }
   if (canEW) {
-    if (targetX > cx) { candidates.push({ x: bbox.x + bbox.width + pad, y: cy, dist: Math.abs(targetX - cx) }) } // E
-    else { candidates.push({ x: bbox.x - pad, y: cy, dist: Math.abs(cx - targetX) }) } // W
+    if (targetX > cx) { // E
+      candidates.push({ x: bbox.x + bbox.width + pad, y: cy, dist: Math.abs(targetX - cx) })
+    }
+    else { // W
+      candidates.push({ x: bbox.x - pad, y: cy, dist: Math.abs(cx - targetX) })
+    }
   }
 
   // If we have valid perpendicular projections, pick the one with the shortest
@@ -215,12 +239,16 @@ export function bboxEdgeToward(
 // ---------------------------------------------------------------------------
 
 export function ensureArrowMarker(svg: SVGElement | null, color?: string): string {
-  if (!svg) { return 'bc-arrow' }
+  if (!svg) {
+    return 'bc-arrow'
+  }
 
   const safeColor = color ?? '#666'
   const id = `bc-arrow-${safeColor.replace(/[^a-zA-Z0-9]/g, '')}`
 
-  if (svg.querySelector(`#${id}`)) { return id }
+  if (svg.querySelector(`#${id}`)) {
+    return id
+  }
 
   const defs = d3.select(svg).select('defs').empty()
     ? d3.select(svg).append('defs')
@@ -276,7 +304,9 @@ export function renderTargetCircle(
     .attr('stroke-width', 1.5)
 
   const dash = strokeDashForStyle(opts.style ?? 'solid')
-  if (dash) { circle.attr('stroke-dasharray', dash) }
+  if (dash) {
+    circle.attr('stroke-dasharray', dash)
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -467,8 +497,12 @@ function resolveXPosition(
     const left = band(String(value)) ?? 0
     const bw = band.bandwidth()
     const gap = band.step() - bw
-    if (anchor === 'start') { return left - gap / 2 }
-    if (anchor === 'end') { return left + bw + gap / 2 }
+    if (anchor === 'start') {
+      return left - gap / 2
+    }
+    if (anchor === 'end') {
+      return left + bw + gap / 2
+    }
     return left + bw / 2
   }
   return (scaleX as d3.ScaleLinear<number, number>)(Number(value)) as number
@@ -507,10 +541,14 @@ function renderPointAnnotation(
   index: number,
 ): void {
   const target = 'target' in ann ? (ann as { target: string }).target : undefined
-  if (!target) { return }
+  if (!target) {
+    return
+  }
 
   const datum = ctx.data.find(d => d.label === target)
-  if (!datum) { return }
+  if (!datum) {
+    return
+  }
 
   const annG = g.append('g').attr('data-annotation-index', String(index))
 
@@ -627,7 +665,9 @@ function renderRangeAnnotation(
   ctx: AnnotationContext,
   index: number,
 ): void {
-  if (ann.kind !== 'range') { return }
+  if (ann.kind !== 'range') {
+    return
+  }
 
   const annG = g.append('g').attr('data-annotation-index', String(index))
   const rangeOrientation = ann.orientation ?? 'vertical'
@@ -699,8 +739,12 @@ function renderRangeAnnotation(
     const textX = Math.max(pad, Math.min(x + w * nx, ctx.width - pad))
 
     let textAnchor = 'middle'
-    if (nx < 0.25) { textAnchor = 'start' }
-    else if (nx > 0.75) { textAnchor = 'end' }
+    if (nx < 0.25) {
+      textAnchor = 'start'
+    }
+    else if (nx > 0.75) {
+      textAnchor = 'end'
+    }
 
     // Render at top-inset position first, then adjust after measuring
     const fontSize = 12
@@ -747,7 +791,9 @@ function renderFreeAnnotation(
   ctx: AnnotationContext,
   index: number,
 ): void {
-  if (ann.kind !== 'free') { return }
+  if (ann.kind !== 'free') {
+    return
+  }
 
   const annG = g.append('g').attr('data-annotation-index', String(index))
 
@@ -795,7 +841,9 @@ export function createAnnotationPlugin(
       const base = (chart as unknown as { base: d3.Selection<SVGElement, unknown, null, undefined> }).base
 
       const svg = base.node()?.ownerSVGElement ?? base.node()
-      if (svg) { d3.select(svg).style('overflow', 'visible') }
+      if (svg) {
+        d3.select(svg).style('overflow', 'visible')
+      }
       ensureArrowMarker(svg)
 
       // Range annotations render behind chart content
@@ -836,15 +884,21 @@ export function createAnnotationPlugin(
 function expandSvgToFitAnnotations(
   svg: SVGSVGElement | null,
 ): void {
-  if (!svg) { return }
+  if (!svg) {
+    return
+  }
 
   const svgW = parseFloat(svg.getAttribute('width') || '0')
   const svgH = parseFloat(svg.getAttribute('height') || '0')
-  if (!svgW || !svgH) { return }
+  if (!svgW || !svgH) {
+    return
+  }
 
   // Use the full SVG bounding box which includes all child elements
   const totalBBox = svg.getBBox()
-  if (totalBBox.width === 0 && totalBBox.height === 0) { return }
+  if (totalBBox.width === 0 && totalBBox.height === 0) {
+    return
+  }
 
   const pad = 8
   const minX = Math.min(0, totalBBox.x - pad)
