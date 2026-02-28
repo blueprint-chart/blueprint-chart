@@ -75,8 +75,12 @@ const hasDirectLabelStyle = computed(() => hasDirectLabelling.value)
 const hasDirectLabelAnchor = computed(() => availableOptionKeys.value.includes('directLabelAnchor'))
 
 const labelMode = computed(() => {
-  if (currentOptions.value.directLabelling) { return 'direct' }
-  if (currentOptions.value.legend === false) { return 'none' }
+  if (currentOptions.value.directLabelling) {
+    return 'direct'
+  }
+  if (currentOptions.value.legend === false) {
+    return 'none'
+  }
   return 'legend'
 })
 

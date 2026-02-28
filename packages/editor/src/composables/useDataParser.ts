@@ -13,36 +13,51 @@ function detectDelimiter(raw: string): string {
   return tabs >= commas ? '\t' : ','
 }
 
+interface CsvParseState {
+  cells: string[]
+  current: string
+  inQuotes: boolean
+  index: number
+}
+
+function handleQuoteChar(state: CsvParseState, line: string) {
+  if (state.inQuotes && line[state.index + 1] === '"') {
+    state.current += '"'
+    state.index++
+  }
+  else {
+    state.inQuotes = !state.inQuotes
+  }
+}
+
+function handleDelimiterChar(state: CsvParseState) {
+  state.cells.push(state.current.trim())
+  state.current = ''
+}
+
+function parseCsvRow(line: string, delimiter: string): string[] {
+  const state: CsvParseState = { cells: [], current: '', inQuotes: false, index: 0 }
+  for (; state.index < line.length; state.index++) {
+    const ch = line[state.index]
+    if (ch === '"') {
+      handleQuoteChar(state, line)
+    }
+    else if (ch === delimiter && !state.inQuotes) {
+      handleDelimiterChar(state)
+    }
+    else {
+      state.current += ch
+    }
+  }
+  state.cells.push(state.current.trim())
+  return state.cells
+}
+
 function splitRow(line: string, delimiter: string): string[] {
   if (delimiter === '\t') {
     return line.split('\t').map(c => c.trim())
   }
-
-  const cells: string[] = []
-  let current = ''
-  let inQuotes = false
-
-  for (let i = 0; i < line.length; i++) {
-    const ch = line[i]
-    if (ch === '"') {
-      if (inQuotes && line[i + 1] === '"') {
-        current += '"'
-        i++
-      }
-      else {
-        inQuotes = !inQuotes
-      }
-    }
-    else if (ch === delimiter && !inQuotes) {
-      cells.push(current.trim())
-      current = ''
-    }
-    else {
-      current += ch
-    }
-  }
-  cells.push(current.trim())
-  return cells
+  return parseCsvRow(line, delimiter)
 }
 
 const DATE_PATTERNS = [
@@ -58,7 +73,9 @@ const DATE_PATTERNS = [
 ]
 
 function isDateValue(value: string): boolean {
-  if (!value) { return false }
+  if (!value) {
+    return false
+  }
   for (const pattern of DATE_PATTERNS) {
     if (pattern.test(value)) {
       // YYYY-MM and YYYY are valid date-like patterns but Date.parse may not handle them
@@ -73,7 +90,9 @@ function isDateValue(value: string): boolean {
 }
 
 function isNumberValue(value: string): boolean {
-  if (!value) { return false }
+  if (!value) {
+    return false
+  }
   const cleaned = value.replace(/[,%$€£¥₹]/g, '').trim()
   return cleaned.length > 0 && !Number.isNaN(Number(cleaned))
 }
@@ -81,9 +100,15 @@ function isNumberValue(value: string): boolean {
 export function detectColumnTypes(columns: string[], rows: string[][]): ColumnType[] {
   return columns.map((_, ci) => {
     const values = rows.map(r => r[ci] ?? '').filter(v => v.length > 0)
-    if (values.length === 0) { return 'string' }
-    if (values.every(isDateValue)) { return 'date' }
-    if (values.every(isNumberValue)) { return 'number' }
+    if (values.length === 0) {
+      return 'string'
+    }
+    if (values.every(isDateValue)) {
+      return 'date'
+    }
+    if (values.every(isNumberValue)) {
+      return 'number'
+    }
     return 'string'
   })
 }

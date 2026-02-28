@@ -137,6 +137,40 @@ const ICON_MAPS: Record<string, Record<string, Component>> = {
   horizontalScaleType: SCALE_TYPE_ICONS,
 }
 
+function renderBooleanOption(def: ChartOptionDef, value: unknown, emit: (evt: 'update', v: unknown) => void) {
+  return h(FormControlCheckbox, {
+    'label': def.label,
+    'modelValue': (value ?? def.default ?? false) as boolean,
+    'onUpdate:modelValue': (v: boolean) => emit('update', v),
+  })
+}
+
+function renderSelectOption(def: ChartOptionDef, value: unknown, emit: (evt: 'update', v: unknown) => void) {
+  const iconMap = ICON_MAPS[def.key]
+  const options = def.choices!.map(c => ({
+    value: c.value,
+    text: c.text,
+    ...(iconMap?.[c.value] ? { icon: iconMap[c.value] } : {}),
+  }))
+  return h(FormControlButtonGroup, {
+    'label': def.label,
+    options,
+    'block': true,
+    'modelValue': (value ?? def.default ?? '') as string,
+    'onUpdate:modelValue': (v: string) => emit('update', v),
+  })
+}
+
+function renderTextOption(def: ChartOptionDef, value: unknown, emit: (evt: 'update', v: unknown) => void) {
+  return h(FormControlTextInput, {
+    'label': def.label,
+    'id': `opt-${def.key}`,
+    'placeholder': def.placeholder ?? '',
+    'modelValue': (value as string) ?? '',
+    'onUpdate:modelValue': (v: string) => emit('update', v),
+  })
+}
+
 const AxisOption: FunctionalComponent<{
   def: ChartOptionDef
   value: unknown
@@ -144,39 +178,14 @@ const AxisOption: FunctionalComponent<{
   const { def, value } = props
 
   if (def.type === 'boolean') {
-    return h(FormControlCheckbox, {
-      'label': def.label,
-      'modelValue': (value ?? def.default ?? false) as boolean,
-      'onUpdate:modelValue': (v: boolean) => emit('update', v),
-    })
+    return renderBooleanOption(def, value, emit)
   }
-
   if (def.type === 'select' && def.choices) {
-    const iconMap = ICON_MAPS[def.key]
-    const options = def.choices.map(c => ({
-      value: c.value,
-      text: c.text,
-      ...(iconMap?.[c.value] ? { icon: iconMap[c.value] } : {}),
-    }))
-    return h(FormControlButtonGroup, {
-      'label': def.label,
-      options,
-      'block': true,
-      'modelValue': (value ?? def.default ?? '') as string,
-      'onUpdate:modelValue': (v: string) => emit('update', v),
-    })
+    return renderSelectOption(def, value, emit)
   }
-
   if (def.type === 'text') {
-    return h(FormControlTextInput, {
-      'label': def.label,
-      'id': `opt-${def.key}`,
-      'placeholder': def.placeholder ?? '',
-      'modelValue': (value as string) ?? '',
-      'onUpdate:modelValue': (v: string) => emit('update', v),
-    })
+    return renderTextOption(def, value, emit)
   }
-
   return null
 }
 

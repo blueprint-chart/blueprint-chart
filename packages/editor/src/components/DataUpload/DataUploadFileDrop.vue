@@ -53,13 +53,17 @@ function readFile(file: globalThis.File) {
 function onDrop(e: globalThis.DragEvent) {
   dragging.value = false
   const file = e.dataTransfer?.files[0]
-  if (file) { readFile(file) }
+  if (file) {
+    readFile(file)
+  }
 }
 
 function onFileSelect(e: globalThis.Event) {
   const input = e.target as globalThis.HTMLInputElement
   const file = input.files?.[0]
-  if (file) { readFile(file) }
+  if (file) {
+    readFile(file)
+  }
   input.value = ''
 }
 </script>
