@@ -841,51 +841,51 @@ function renderFreeAnnotation(
 // Plugin factory
 // ---------------------------------------------------------------------------
 
+function renderAnnotation(
+  g: d3.Selection<SVGGElement, unknown, null, undefined>,
+  rangeG: d3.Selection<SVGGElement, unknown, null, undefined>,
+  ann: AnnotationConfig, ctx: AnnotationContext, i: number,
+): void {
+  switch (ann.kind ?? 'point') {
+    case 'point': renderPointAnnotation(g, ann, ctx, i)
+      break
+    case 'range': renderRangeAnnotation(rangeG, ann, ctx, i)
+      break
+    case 'free': renderFreeAnnotation(g, ann, ctx, i)
+      break
+  }
+}
+
+function renderAllAnnotations(
+  base: d3.Selection<SVGElement, unknown, null, undefined>,
+  annotations: AnnotationConfig[], ctx: AnnotationContext,
+): void {
+  const svg = base.node()?.ownerSVGElement ?? base.node()
+  if (svg) {
+    d3.select(svg).style('overflow', 'visible')
+  }
+  ensureArrowMarker(svg)
+  const rangeG = base.insert('g', ':first-child').attr('class', 'bc-annotations-range') as unknown as d3.Selection<SVGGElement, unknown, null, undefined>
+  const g = base.append('g')
+    .attr('class', 'bc-annotations')
+    .attr('data-ctx-width', String(ctx.width))
+    .attr('data-ctx-height', String(ctx.height)) as unknown as d3.Selection<SVGGElement, unknown, null, undefined>
+  for (let i = 0; i < annotations.length; i++) {
+    renderAnnotation(g, rangeG, annotations[i], ctx, i)
+  }
+  expandSvgToFitAnnotations(svg as SVGSVGElement | null)
+}
+
 export function createAnnotationPlugin(
   annotations: AnnotationConfig[],
   ctx: AnnotationContext,
 ): Plugin {
   return {
     name: 'annotations',
-
     install() {},
-
     postDraw(chart: D3Blueprint) {
       const base = (chart as unknown as { base: d3.Selection<SVGElement, unknown, null, undefined> }).base
-
-      const svg = base.node()?.ownerSVGElement ?? base.node()
-      if (svg) {
-        d3.select(svg).style('overflow', 'visible')
-      }
-      ensureArrowMarker(svg)
-
-      // Range annotations render behind chart content
-      const rangeGroup = base.insert('g', ':first-child').attr('class', 'bc-annotations-range') as unknown as d3.Selection<SVGGElement, unknown, null, undefined>
-      // Point/free annotations render on top
-      const g = base.append('g')
-        .attr('class', 'bc-annotations')
-        .attr('data-ctx-width', String(ctx.width))
-        .attr('data-ctx-height', String(ctx.height)) as unknown as d3.Selection<SVGGElement, unknown, null, undefined>
-
-      for (let i = 0; i < annotations.length; i++) {
-        const ann = annotations[i]
-        const kind = ann.kind ?? 'point'
-
-        switch (kind) {
-          case 'point':
-            renderPointAnnotation(g, ann, ctx, i)
-            break
-          case 'range':
-            renderRangeAnnotation(rangeGroup, ann, ctx, i)
-            break
-          case 'free':
-            renderFreeAnnotation(g, ann, ctx, i)
-            break
-        }
-      }
-
-      // Expand SVG viewBox if annotations extend beyond chart bounds
-      expandSvgToFitAnnotations(svg as SVGSVGElement | null)
+      renderAllAnnotations(base, annotations, ctx)
     },
   }
 }
