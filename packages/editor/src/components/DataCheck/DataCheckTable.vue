@@ -1,5 +1,8 @@
 <template>
-  <div class="data-check-table">
+  <div
+    class="data-check-table"
+    :class="{ 'ht-theme-main-dark': isDark }"
+  >
     <hot-table
       ref="hotRef"
       :data="tableData"
@@ -29,9 +32,17 @@ import { registerAllModules } from 'handsontable/registry'
 import 'handsontable/styles/handsontable.min.css'
 import 'handsontable/styles/ht-theme-main.min.css'
 import { useDataTable } from '@/composables/useDataTable'
+import { useTheme } from '@/composables/useTheme'
 import type { ColumnType } from '@/composables/useDataParser'
 
 registerAllModules()
+
+const { theme } = useTheme()
+const isDark = computed(() => {
+  if (theme.value === 'dark') return true
+  if (theme.value === 'auto') return window.matchMedia('(prefers-color-scheme: dark)').matches
+  return false
+})
 
 const hotRef = ref<InstanceType<typeof HotTable> | null>(null)
 
