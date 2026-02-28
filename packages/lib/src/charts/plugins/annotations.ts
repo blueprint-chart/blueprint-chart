@@ -795,6 +795,24 @@ function renderRangeAnnotation(
 // Free annotation
 // ---------------------------------------------------------------------------
 
+function centerTextVertically(
+  annG: d3.Selection<SVGGElement, unknown, null, undefined>,
+  py: number,
+): void {
+  const textEl = annG.select('.bc-annotation-text').node() as SVGTextElement | null
+  if (!textEl) {
+    return
+  }
+  try {
+    const bbox = textEl.getBBox()
+    const dy = py - (bbox.y + bbox.height / 2)
+    if (Math.abs(dy) > 0.5) {
+      textEl.setAttribute('transform', `translate(0, ${dy})`)
+    }
+  }
+  catch { /* getBBox can throw if not in DOM */ }
+}
+
 function renderFreeAnnotation(
   g: d3.Selection<SVGGElement, unknown, null, undefined>,
   ann: AnnotationConfig,
@@ -804,12 +822,9 @@ function renderFreeAnnotation(
   if (ann.kind !== 'free') {
     return
   }
-
   const annG = g.append('g').attr('data-annotation-index', String(index))
-
   const px = resolvePosition(ann.x, ctx.width)
   const py = resolvePosition(ann.y, ctx.height)
-
   if (ann.text) {
     renderAnnotationText(annG, ann.text, px, py, {
       textColor: ann.textColor,
@@ -818,19 +833,7 @@ function renderFreeAnnotation(
       backgroundColor: ctx.backgroundColor,
       textOutline: ann.textOutline,
     })
-
-    // Center vertically around the position point
-    const textEl = annG.select('.bc-annotation-text').node() as SVGTextElement | null
-    if (textEl) {
-      try {
-        const bbox = textEl.getBBox()
-        const dy = py - (bbox.y + bbox.height / 2)
-        if (Math.abs(dy) > 0.5) {
-          textEl.setAttribute('transform', `translate(0, ${dy})`)
-        }
-      }
-      catch { /* getBBox can throw if not in DOM */ }
-    }
+    centerTextVertically(annG, py)
   }
 }
 
