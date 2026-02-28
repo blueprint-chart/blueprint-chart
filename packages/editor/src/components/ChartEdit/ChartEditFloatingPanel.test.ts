@@ -58,7 +58,7 @@ vi.mock('@/components/Editor/EditorAnnotateTab.vue', () => ({
   default: { template: '<div class="annotate" />' },
 }))
 
-describe('ChartEditFloatingPanel tab bar', () => {
+describe('ChartEditFloatingPanel', () => {
   beforeEach(() => {
     useEditorPanel().reset()
   })
@@ -79,12 +79,6 @@ describe('ChartEditFloatingPanel tab bar', () => {
     })
     const activeTab = w.find('.chart-edit-floating-panel__tab--active')
     expect(activeTab.text()).toBe('Text')
-  })
-})
-
-describe('ChartEditFloatingPanel buttons and layout', () => {
-  beforeEach(() => {
-    useEditorPanel().reset()
   })
 
   it('renders dock and close buttons', () => {
