@@ -21,10 +21,12 @@
         size="sm"
         @update:model-value="model = $event"
       />
-      <small
-        v-if="suffix"
-        class="form-control-slider-input__suffix"
-      >{{ suffix }}</small>
+      <slot name="suffix">
+        <small
+          v-if="suffix"
+          class="form-control-slider-input__suffix"
+        >{{ suffix }}</small>
+      </slot>
     </div>
   </BFormGroup>
 </template>
