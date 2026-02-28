@@ -27,15 +27,17 @@
         <BButton
           variant="primary"
           size="sm"
+          class="fw-semibold"
           @click="goToExport"
         >
-          Export &rarr;
+          Next
         </BButton>
       </template>
       <template v-else-if="currentStep.key === 'upload' || currentStep.key === 'check'">
         <BButton
           variant="primary"
           size="sm"
+          class="fw-semibold"
           :disabled="!canAdvance"
           @click="handleAdvance"
         >
