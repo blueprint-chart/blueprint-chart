@@ -14,7 +14,9 @@ const DEFAULT_COLORS = ['#6878E8', '#E07B38', '#B83B5E', '#F0C33E', '#2DAA90', '
 const PALETTE_MAP: Record<string, readonly string[]> = Object.create(null)
 
 function loadPaletteMap() {
-  if (Object.keys(PALETTE_MAP).length > 0) { return }
+  if (Object.keys(PALETTE_MAP).length > 0) {
+    return
+  }
   // Read the palettes source to extract the data.
   const src = readFileSync(resolve(libSrc, 'charts/palettes.ts'), 'utf-8')
   // Extract palette entries using regex - each line looks like:
@@ -29,7 +31,9 @@ function loadPaletteMap() {
 }
 
 function resolvePalette(paletteName: string | undefined): string[] | undefined {
-  if (!paletteName) { return undefined }
+  if (!paletteName) {
+    return undefined
+  }
   loadPaletteMap()
   const scheme = PALETTE_MAP[paletteName]
   return scheme ? [...scheme] : undefined
@@ -122,7 +126,9 @@ function extractColors(chart: ChartNode): string[] {
   const paletteProp = chart.properties.find(p => p.key === 'colorPalette')
   if (paletteProp) {
     const colors = resolvePalette(String(paletteProp.value))
-    if (colors) { return colors }
+    if (colors) {
+      return colors
+    }
   }
   return DEFAULT_COLORS
 }
@@ -158,7 +164,9 @@ const RECT_VB = '0 0 48 36'
 const CIRC_VB = '0 0 40 40'
 
 function renderBarVertical(data: ChartData, colors: string[]): string {
-  if (data.kind !== 'single') { return '' }
+  if (data.kind !== 'single') {
+    return ''
+  }
   const { labels, values } = data
   const maxVal = Math.max(...values)
   const scale = linearScale([0, maxVal], [0, 30])
@@ -174,7 +182,9 @@ function renderBarVertical(data: ChartData, colors: string[]): string {
 }
 
 function renderBarHorizontal(data: ChartData, colors: string[]): string {
-  if (data.kind !== 'single') { return '' }
+  if (data.kind !== 'single') {
+    return ''
+  }
   const { labels, values } = data
   const maxVal = Math.max(...values)
   const scale = linearScale([0, maxVal], [0, 42])
@@ -189,7 +199,9 @@ function renderBarHorizontal(data: ChartData, colors: string[]): string {
 }
 
 function renderBarMulti(data: ChartData, colors: string[]): string {
-  if (data.kind !== 'multi') { return '' }
+  if (data.kind !== 'multi') {
+    return ''
+  }
   const { labels, series } = data
   const allVals = series.flat()
   const maxVal = Math.max(...allVals)
@@ -212,7 +224,9 @@ function renderBarMulti(data: ChartData, colors: string[]): string {
 }
 
 function renderLine(data: ChartData, colors: string[]): string {
-  if (data.kind !== 'single') { return '' }
+  if (data.kind !== 'single') {
+    return ''
+  }
   const { labels, values } = data
   const maxVal = Math.max(...values)
   const minVal = Math.min(...values)
@@ -225,7 +239,9 @@ function renderLine(data: ChartData, colors: string[]): string {
 }
 
 function renderLineMulti(data: ChartData, colors: string[]): string {
-  if (data.kind !== 'multi') { return '' }
+  if (data.kind !== 'multi') {
+    return ''
+  }
   const { labels, series } = data
   const allVals = series.flat()
   const maxVal = Math.max(...allVals)
@@ -251,10 +267,14 @@ function arcPath(cx: number, cy: number, r: number, startAngle: number, endAngle
 }
 
 function renderPieOrDonut(data: ChartData, colors: string[], donut: boolean): string {
-  if (data.kind !== 'single') { return '' }
+  if (data.kind !== 'single') {
+    return ''
+  }
   const { values } = data
   const total = values.reduce((a, b) => a + b, 0)
-  if (total === 0) { return '' }
+  if (total === 0) {
+    return ''
+  }
 
   const cx = 20, cy = 20, outerR = 18
   const innerR = donut ? outerR * 0.6 : 0
@@ -304,7 +324,9 @@ export default function bpcSvgPlugin(): Plugin {
     enforce: 'pre',
 
     async load(id) {
-      if (!id.endsWith('.bpc') || id.includes('?')) { return }
+      if (!id.endsWith('.bpc') || id.includes('?')) {
+        return
+      }
 
       const source = readFileSync(id, 'utf-8')
       const parse = await loadParser()

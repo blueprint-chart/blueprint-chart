@@ -81,14 +81,20 @@ const searchQuery = ref('')
 const searchContainer = ref<HTMLElement | null>(null)
 
 const themeIcon = computed(() => {
-  if (theme.value === 'light') { return IPhSun }
-  if (theme.value === 'dark') { return IPhMoon }
+  if (theme.value === 'light') {
+    return IPhSun
+  }
+  if (theme.value === 'dark') {
+    return IPhMoon
+  }
   return IPhCircleHalf
 })
 
 const searchResults = computed(() => {
   const q = searchQuery.value.trim().toLowerCase()
-  if (!q) { return [] }
+  if (!q) {
+    return []
+  }
   return listSavedCharts().filter(
     c =>
       (c.title?.toLowerCase().includes(q))

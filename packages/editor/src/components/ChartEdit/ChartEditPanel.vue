@@ -89,7 +89,11 @@ const hasAxisOptions = computed(() => availableOptionKeys.value.some(k => AXIS_K
 
 const drawerOpen = computed({
   get: () => isNarrow.value && panelMode.value !== 'collapsed' && !!activeTab.value,
-  set: (open) => { if (!open) { collapse() } },
+  set: (open) => {
+    if (!open) {
+      collapse()
+    }
+  },
 })
 
 const tabs = computed(() => {
@@ -120,7 +124,9 @@ const canvasRef = ref<HTMLElement | null>(null)
 
 function parseAspectRatio(ratio: string): number | undefined {
   const parts = ratio.split(':')
-  if (parts.length !== 2) { return undefined }
+  if (parts.length !== 2) {
+    return undefined
+  }
   const w = Number(parts[0])
   const h = Number(parts[1])
   return w && h ? w / h : undefined

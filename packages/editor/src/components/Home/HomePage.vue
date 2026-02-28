@@ -72,7 +72,9 @@ function loadThumbnails() {
 
     // Generate missing thumbnail on the fly
     const raw = localStorage.getItem(`blueprint-chart:${chart.id}`)
-    if (!raw) { continue }
+    if (!raw) {
+      continue
+    }
     try {
       const payload = JSON.parse(raw)
       const svg = renderThumbnailFromPayload(payload)

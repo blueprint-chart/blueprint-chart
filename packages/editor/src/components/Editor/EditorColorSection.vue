@@ -148,7 +148,9 @@ const dataLabels = computed(() => parsed.value.labels)
 
 const resolvedColors = computed<string[]>(() => {
   const paletteName = currentOptions.value.colorPalette as string | undefined
-  if (paletteName) { return resolvePalette(paletteName) ?? [] }
+  if (paletteName) {
+    return resolvePalette(paletteName) ?? []
+  }
   const custom = currentOptions.value.colors as string[] | undefined
   return custom ?? []
 })
@@ -183,15 +185,21 @@ function computeContrast(colors: string[], bg: string, autoContrast: boolean) {
 
 const lightContrastInfo = computed(() => {
   const raw = activeColors.value
-  if (raw.length === 0) { return null }
+  if (raw.length === 0) {
+    return null
+  }
   return computeContrast(raw, LIGHT_BG, !!currentOptions.value.autoContrast)
 })
 
 const darkContrastInfo = computed(() => {
   const raw = activeColors.value
-  if (raw.length === 0) { return null }
+  if (raw.length === 0) {
+    return null
+  }
   const allowDark = currentOptions.value.allowDarkMode ?? true
-  if (!allowDark) { return null }
+  if (!allowDark) {
+    return null
+  }
   return computeContrast(raw, DARK_BG, !!currentOptions.value.autoContrast)
 })
 
@@ -211,9 +219,13 @@ function getCvdBadgeEl(type: CvdType): HTMLElement | undefined {
 
 const cvdInfo = computed(() => {
   const colors = activeColors.value
-  if (colors.length === 0) { return null }
+  if (colors.length === 0) {
+    return null
+  }
   const issues = colors.length >= 2 ? checkCvdColors(colors) : []
-  if (issues.length === 0) { return { safe: true as const, issues: [] } }
+  if (issues.length === 0) {
+    return { safe: true as const, issues: [] }
+  }
   return {
     safe: false as const,
     issues: issues.map(i => ({

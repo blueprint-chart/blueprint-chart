@@ -1,11 +1,11 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { useEditorPanel } from './useEditorPanel'
 
-describe('useEditorPanel', () => {
-  beforeEach(() => {
-    useEditorPanel().reset()
-  })
+beforeEach(() => {
+  useEditorPanel().reset()
+})
 
+describe('useEditorPanel defaults', () => {
   it('has correct defaults', () => {
     const { panelMode, activeTab, viewMode, floatingPosition, floatingSize } = useEditorPanel()
     expect(panelMode.value).toBe('docked')
@@ -14,7 +14,9 @@ describe('useEditorPanel', () => {
     expect(floatingPosition.value).toEqual({ x: -1, y: 16 })
     expect(floatingSize.value).toEqual({ width: 340, height: 500 })
   })
+})
 
+describe('useEditorPanel dock and float', () => {
   it('dock() sets panelMode to docked', () => {
     const { panelMode, float, dock } = useEditorPanel()
     float()
@@ -35,8 +37,10 @@ describe('useEditorPanel', () => {
     expect(panelMode.value).toBe('collapsed')
     expect(activeTab.value).toBe('')
   })
+})
 
-  it('toggleMode cycles docked → floating → docked', () => {
+describe('useEditorPanel toggleMode', () => {
+  it('cycles docked -> floating -> docked', () => {
     const { panelMode, toggleMode } = useEditorPanel()
     expect(panelMode.value).toBe('docked')
     toggleMode()
@@ -45,25 +49,26 @@ describe('useEditorPanel', () => {
     expect(panelMode.value).toBe('docked')
   })
 
-  it('toggleMode from collapsed restores last open mode', () => {
+  it('from collapsed restores last open mode', () => {
     const { panelMode, collapse, float, toggleMode } = useEditorPanel()
     collapse()
     toggleMode()
     expect(panelMode.value).toBe('docked')
-
     float()
     collapse()
     toggleMode()
     expect(panelMode.value).toBe('floating')
   })
+})
 
-  it('selectTab updates activeTab', () => {
+describe('useEditorPanel selectTab basics', () => {
+  it('updates activeTab', () => {
     const { activeTab, selectTab } = useEditorPanel()
     selectTab('appearance')
     expect(activeTab.value).toBe('appearance')
   })
 
-  it('selectTab opens panel when collapsed (restores last open mode)', () => {
+  it('opens panel when collapsed', () => {
     const { panelMode, activeTab, collapse, selectTab } = useEditorPanel()
     collapse()
     expect(panelMode.value).toBe('collapsed')
@@ -72,29 +77,32 @@ describe('useEditorPanel', () => {
     expect(activeTab.value).toBe('text')
   })
 
-  it('selectTab restores floating mode when collapsed from floating', () => {
+  it('restores floating mode when collapsed from floating', () => {
     const { panelMode, activeTab, float, collapse, selectTab } = useEditorPanel()
     float()
     collapse()
-    expect(panelMode.value).toBe('collapsed')
     selectTab('appearance')
     expect(panelMode.value).toBe('floating')
     expect(activeTab.value).toBe('appearance')
   })
+})
 
-  it('selectTab does not change mode when docked', () => {
+describe('useEditorPanel selectTab mode preservation', () => {
+  it('does not change mode when docked', () => {
     const { panelMode, selectTab } = useEditorPanel()
     selectTab('series')
     expect(panelMode.value).toBe('docked')
   })
 
-  it('selectTab does not change mode when floating', () => {
+  it('does not change mode when floating', () => {
     const { panelMode, float, selectTab } = useEditorPanel()
     float()
     selectTab('axes')
     expect(panelMode.value).toBe('floating')
   })
+})
 
+describe('useEditorPanel viewMode', () => {
   it('setViewMode updates viewMode', () => {
     const { viewMode, setViewMode } = useEditorPanel()
     setViewMode('dsl')
@@ -102,7 +110,9 @@ describe('useEditorPanel', () => {
     setViewMode('preview')
     expect(viewMode.value).toBe('preview')
   })
+})
 
+describe('useEditorPanel reset', () => {
   it('reset restores all defaults', () => {
     const panel = useEditorPanel()
     panel.float()

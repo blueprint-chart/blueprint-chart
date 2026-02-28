@@ -41,8 +41,12 @@ registerAllModules()
 const { theme } = useTheme()
 const prefersDark = useMediaQuery('(prefers-color-scheme: dark)')
 const isDark = computed(() => {
-  if (theme.value === 'dark') { return true }
-  if (theme.value === 'auto') { return prefersDark.value }
+  if (theme.value === 'dark') {
+    return true
+  }
+  if (theme.value === 'auto') {
+    return prefersDark.value
+  }
   return false
 })
 
@@ -57,8 +61,12 @@ const { columns, rows, columnTypes, renameColumn, updateCell, deleteRow } = useD
 const colHeaders = computed(() => [...columns.value])
 
 function hotColumnType(ct: ColumnType): string {
-  if (ct === 'number') { return 'numeric' }
-  if (ct === 'date') { return 'date' }
+  if (ct === 'number') {
+    return 'numeric'
+  }
+  if (ct === 'date') {
+    return 'date'
+  }
   return 'text'
 }
 
@@ -81,7 +89,9 @@ const tableData = computed(() =>
 let syncing = false
 
 function handleChange(changes: Array<[number, number | string, unknown, unknown]> | null) {
-  if (!changes || syncing) { return }
+  if (!changes || syncing) {
+    return
+  }
   syncing = true
   for (const [row, col, , newVal] of changes) {
     const ci = typeof col === 'string' ? columns.value.indexOf(col) : col
@@ -93,7 +103,9 @@ function handleChange(changes: Array<[number, number | string, unknown, unknown]
 }
 
 function handleRemoveRow(index: number, amount: number) {
-  if (syncing) { return }
+  if (syncing) {
+    return
+  }
   syncing = true
   for (let i = amount - 1; i >= 0; i--) {
     deleteRow(index + i)
@@ -102,7 +114,9 @@ function handleRemoveRow(index: number, amount: number) {
 }
 
 function handleCreateRow(index: number, amount: number) {
-  if (syncing) { return }
+  if (syncing) {
+    return
+  }
   syncing = true
   const colCount = columns.value.length
   for (let i = 0; i < amount; i++) {

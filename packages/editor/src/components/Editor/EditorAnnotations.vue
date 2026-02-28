@@ -163,14 +163,22 @@ const freeAnnotations = computed(() =>
 )
 
 function kindLabel(ann: AnnotationConfig): string {
-  if (ann.kind === 'point') { return 'Point' }
-  if (ann.kind === 'range') { return 'Range' }
+  if (ann.kind === 'point') {
+    return 'Point'
+  }
+  if (ann.kind === 'range') {
+    return 'Range'
+  }
   return 'Note'
 }
 
 function summaryText(ann: AnnotationConfig): string {
-  if (ann.kind === 'point') { return ann.text || ann.target || 'Empty' }
-  if (ann.kind === 'range') { return ann.text || `${ann.start} - ${ann.end}` }
+  if (ann.kind === 'point') {
+    return ann.text || ann.target || 'Empty'
+  }
+  if (ann.kind === 'range') {
+    return ann.text || `${ann.start} - ${ann.end}`
+  }
   return ann.text || 'Empty'
 }
 
@@ -216,7 +224,11 @@ function remove(index: number) {
   const copy = [...annotations.value]
   copy.splice(index, 1)
   emit('update:modelValue', copy)
-  if (openIndex.value === index) { openIndex.value = null }
-  else if (openIndex.value !== null && openIndex.value > index) { openIndex.value-- }
+  if (openIndex.value === index) {
+    openIndex.value = null
+  }
+  else if (openIndex.value !== null && openIndex.value > index) {
+    openIndex.value--
+  }
 }
 </script>

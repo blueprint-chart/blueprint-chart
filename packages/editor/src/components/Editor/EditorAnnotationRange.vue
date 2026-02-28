@@ -192,8 +192,12 @@ const labelOptions = computed(() => props.labels.map(l => ({ value: l, text: l }
 
 function update(key: string, value: unknown) {
   const copy = { ...props.annotation }
-  if (value === undefined) { delete (copy as Record<string, unknown>)[key] }
-  else { (copy as Record<string, unknown>)[key] = value }
+  if (value === undefined) {
+    delete (copy as Record<string, unknown>)[key]
+  }
+  else {
+    (copy as Record<string, unknown>)[key] = value
+  }
   emit('update:annotation', copy as RangeAnnotationConfig)
 }
 

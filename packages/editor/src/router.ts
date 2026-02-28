@@ -24,7 +24,9 @@ const router = createRouter({
       beforeEnter: (to) => {
         const { loadChart, startAutoSave } = useChartSession()
         const found = loadChart(to.params.id as string)
-        if (!found) { return '/' }
+        if (!found) {
+          return '/'
+        }
         startAutoSave()
       },
     },
