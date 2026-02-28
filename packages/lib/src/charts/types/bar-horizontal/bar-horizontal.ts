@@ -62,8 +62,6 @@ export function render(
   const containerWidth = body.getBoundingClientRect().width
   const vLabelW = estimateCategoryLabelWidth(data.labels)
   const lpMargins = labelPositionMargins(containerWidth, options.verticalAxis?.labelPosition, options.horizontalAxis?.labelPosition, options.verticalAxis?.direction, vLabelW)
-  const hasNegative = data.values.some(v => v < 0)
-  if (options.valueLabels && hasNegative) lpMargins.left = Math.max(lpMargins.left ?? 0, 70)
   const { chartArea, width, height, margin } = createCanvas(body, lpMargins)
 
   const labels = sortLabels(data, options)
@@ -73,7 +71,12 @@ export function render(
   }))
 
   const useLog = options.horizontalAxis?.scaleType === 'log'
-  const [domainMin, domainMax] = computeLinearDomain(barData.map(d => d.value), options.horizontalAxis?.range)
+  let [domainMin, domainMax] = computeLinearDomain(barData.map(d => d.value), options.horizontalAxis?.range)
+  // Extend domain to leave room for value labels left of negative bars
+  if (options.valueLabels && domainMin < 0 && options.horizontalAxis?.range?.min == null) {
+    const span = domainMax - domainMin
+    domainMin -= span * 0.1
+  }
   const x = useLog
     ? d3.scaleSymlog().domain([domainMin, domainMax]).nice().range([0, width])
     : d3.scaleLinear().domain([domainMin, domainMax]).nice().range([0, width])
