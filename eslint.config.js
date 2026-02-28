@@ -41,14 +41,8 @@ export default [
     },
     rules: {
       'curly': ['error', 'all'],
-      'max-lines-per-function': ['error', { max: 25, skipBlankLines: true, skipComments: true }],
+      'vue/no-v-html': 'off',
       '@stylistic/comma-dangle': ['error', 'always-multiline'],
-    },
-  },
-  {
-    files: ['packages/lib/src/**/*.ts'],
-    rules: {
-      'max-lines-per-function': 'off',
     },
   },
   {
