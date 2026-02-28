@@ -23,32 +23,32 @@
         Invert
       </BButton>
     </div>
-    <div
+    <ListItemRow
       v-for="(name, i) in seriesNames"
       :key="name"
-      class="d-flex align-items-center gap-2 px-1 py-1 rounded"
-      :class="rowClassList(name)"
-      role="button"
+      :label="name"
+      :active="selected.includes(name)"
       @click="toggleSelect(name)"
     >
-      <span
-        class="d-inline-block rounded-circle flex-shrink-0"
-        :style="{ width: '12px', height: '12px', backgroundColor: seriesColor(name, i) }"
-      />
-      <span class="small flex-grow-1 text-truncate">{{ name }}</span>
-      <BFormCheckbox
-        :model-value="!isHidden(name)"
-        size="sm"
-        @click.stop
-        @update:model-value="(v: boolean) => $emit('toggleVisibility', name, !v)"
-      />
-    </div>
+      <template #leading>
+        <DisplayColorSwatch :color="seriesColor(name, i)" />
+      </template>
+      <template #actions>
+        <BFormCheckbox
+          :model-value="!isHidden(name)"
+          size="sm"
+          @click.stop
+          @update:model-value="(v: boolean) => $emit('toggleVisibility', name, !v)"
+        />
+      </template>
+    </ListItemRow>
   </div>
 </template>
 
 <script setup lang="ts">
 import type { SeriesOverride } from '@blueprint-chart/lib'
 import { resolveSeriesColor, isSeriesHidden } from '@blueprint-chart/lib'
+import { ListItemRow, DisplayColorSwatch } from '@blueprint-chart/ui'
 
 const props = defineProps<{
   seriesNames: string[]
@@ -56,10 +56,6 @@ const props = defineProps<{
   colors: string[]
   overrides: SeriesOverride[]
 }>()
-
-function rowClassList(name: string) {
-  return { 'bg-primary-subtle': props.selected.includes(name) }
-}
 
 const emit = defineEmits<{
   'update:selected': [value: string[]]
