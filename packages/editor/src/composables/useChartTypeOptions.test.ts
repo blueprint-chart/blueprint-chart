@@ -14,7 +14,7 @@ describe('useChartTypeOptions', () => {
     const defs = getChartOptions('bar-vertical')
     const expected: Record<string, unknown> = {}
     for (const def of defs) {
-      if (def.default !== undefined) expected[def.key] = def.default
+      if (def.default !== undefined) { expected[def.key] = def.default }
     }
     expect(currentOptions.value).toEqual(expected)
   })
@@ -119,7 +119,7 @@ describe('useChartTypeOptions', () => {
     const defs = getChartOptions('bar-vertical')
     const expected: Record<string, unknown> = {}
     for (const def of defs) {
-      if (def.default !== undefined) expected[def.key] = def.default
+      if (def.default !== undefined) { expected[def.key] = def.default }
     }
     expect(currentOptions.value).toEqual(expected)
   })

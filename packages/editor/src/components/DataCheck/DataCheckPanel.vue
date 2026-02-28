@@ -31,8 +31,8 @@ import type { ColumnType } from '@/composables/useDataParser'
 const { columns, rows, columnTypes } = useDataTable()
 
 function typeBadgeClass(ct: ColumnType | undefined): string {
-  if (ct === 'number') return 'bg-primary'
-  if (ct === 'date') return 'bg-success'
+  if (ct === 'number') { return 'bg-primary' }
+  if (ct === 'date') { return 'bg-success' }
   return 'bg-secondary'
 }
 </script>

@@ -20,7 +20,7 @@ function applyTheme(mode: ThemeMode): void {
 }
 
 watch(prefersDark, () => {
-  if (theme.value === 'auto') applyTheme('auto')
+  if (theme.value === 'auto') { applyTheme('auto') }
 })
 
 watch(theme, (mode) => {

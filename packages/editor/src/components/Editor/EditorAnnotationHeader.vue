@@ -1,10 +1,16 @@
 <template>
-  <ListItemRow :label="summary" @click="$emit('toggleCollapse')">
+  <ListItemRow
+    :label="summary"
+    @click="$emit('toggleCollapse')"
+  >
     <template #leading>
       <span class="badge bg-secondary-subtle text-secondary-emphasis">{{ kindLabel }}</span>
     </template>
     <template #actions>
-      <ListItemActions @duplicate="$emit('duplicate')" @remove="$emit('remove')" />
+      <ListItemActions
+        @duplicate="$emit('duplicate')"
+        @remove="$emit('remove')"
+      />
     </template>
   </ListItemRow>
 </template>

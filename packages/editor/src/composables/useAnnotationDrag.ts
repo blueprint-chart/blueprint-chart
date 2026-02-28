@@ -61,7 +61,7 @@ function shortenToward(
   const dx = anchor.x - from.x
   const dy = anchor.y - from.y
   const len = Math.sqrt(dx * dx + dy * dy)
-  if (len === 0 || distance <= 0) return anchor
+  if (len === 0 || distance <= 0) { return anchor }
   return {
     x: anchor.x - (dx / len) * distance,
     y: anchor.y - (dy / len) * distance,
@@ -76,7 +76,7 @@ function bboxEdgeToward(
   const cx = bbox.x + bbox.width / 2
   const cy = bbox.y + bbox.height / 2
 
-  if (targetX === cx && targetY === cy) return { x: cx, y: cy }
+  if (targetX === cx && targetY === cy) { return { x: cx, y: cy } }
 
   const canNS = targetX >= bbox.x && targetX <= bbox.x + bbox.width
   const canEW = targetY >= bbox.y && targetY <= bbox.y + bbox.height
@@ -85,12 +85,12 @@ function bboxEdgeToward(
   const candidates: Side[] = []
 
   if (canNS) {
-    if (targetY < cy) candidates.push({ x: cx, y: bbox.y - LINE_PAD, dist: Math.abs(cy - targetY) })
-    else candidates.push({ x: cx, y: bbox.y + bbox.height + LINE_PAD, dist: Math.abs(targetY - cy) })
+    if (targetY < cy) { candidates.push({ x: cx, y: bbox.y - LINE_PAD, dist: Math.abs(cy - targetY) }) }
+    else { candidates.push({ x: cx, y: bbox.y + bbox.height + LINE_PAD, dist: Math.abs(targetY - cy) }) }
   }
   if (canEW) {
-    if (targetX > cx) candidates.push({ x: bbox.x + bbox.width + LINE_PAD, y: cy, dist: Math.abs(targetX - cx) })
-    else candidates.push({ x: bbox.x - LINE_PAD, y: cy, dist: Math.abs(cx - targetX) })
+    if (targetX > cx) { candidates.push({ x: bbox.x + bbox.width + LINE_PAD, y: cy, dist: Math.abs(targetX - cx) }) }
+    else { candidates.push({ x: bbox.x - LINE_PAD, y: cy, dist: Math.abs(cx - targetX) }) }
   }
 
   if (candidates.length > 0) {
@@ -123,7 +123,7 @@ export function useAnnotationDrag(
   let cleanup: (() => void) | null = null
 
   function removeOverlay() {
-    if (overlay?.parentNode) overlay.parentNode.removeChild(overlay)
+    if (overlay?.parentNode) { overlay.parentNode.removeChild(overlay) }
     overlay = null
     if (cleanup) {
       cleanup()
@@ -136,20 +136,20 @@ export function useAnnotationDrag(
 
     const container = containerRef.value
     const index = selectedIndex.value
-    if (!container || index === null) return
+    if (!container || index === null) { return }
 
     // Only point and free annotations support drag — skip range
     const ann = annotations.value[index]
-    if (!ann || ann.kind === 'range') return
+    if (!ann || ann.kind === 'range') { return }
 
     const svg = container.querySelector('svg')
-    if (!svg) return
+    if (!svg) { return }
 
     const annG = svg.querySelector(`g[data-annotation-index="${index}"]`) as SVGGElement | null
-    if (!annG) return
+    if (!annG) { return }
 
     const textEl = annG.querySelector('.bc-annotation-text') as SVGTextElement | null
-    if (!textEl) return
+    if (!textEl) { return }
 
     // Find the anchor point — circle center or line endpoint
     const circleEl = annG.querySelector('.bc-annotation-circle') as SVGCircleElement | null
@@ -215,7 +215,7 @@ export function useAnnotationDrag(
         }
         else {
           const parsed = parseFloat(rawMaxWidth)
-          if (parsed > 0) overlayWidth = parsed
+          if (parsed > 0) { overlayWidth = parsed }
         }
       }
     }
@@ -258,7 +258,7 @@ export function useAnnotationDrag(
 
     function updateDragVisuals() {
       const ctm = getScreenCTM()
-      if (!ctm) return
+      if (!ctm) { return }
 
       const dx = (lastClientX - startX) / ctm.a
       const dy = (lastClientY - startY) / ctm.d
@@ -321,7 +321,7 @@ export function useAnnotationDrag(
     }
 
     function onPointerMove(e: PointerEvent) {
-      if (!dragging) return
+      if (!dragging) { return }
       e.preventDefault()
 
       lastClientX = e.clientX
@@ -333,7 +333,7 @@ export function useAnnotationDrag(
     }
 
     function onPointerUp(e: PointerEvent) {
-      if (!dragging) return
+      if (!dragging) { return }
       dragging = false
       overlay!.style.cursor = 'grab'
 
@@ -343,7 +343,7 @@ export function useAnnotationDrag(
       }
 
       const ctm = getScreenCTM()
-      if (!ctm) return
+      if (!ctm) { return }
 
       const dx = (e.clientX - startX) / ctm.a
       const dy = (e.clientY - startY) / ctm.d
@@ -360,7 +360,7 @@ export function useAnnotationDrag(
       }
 
       const ann = annotations.value[index!]
-      if (!ann) return
+      if (!ann) { return }
 
       const updated = { ...ann } as Record<string, unknown>
 
@@ -412,7 +412,7 @@ export function useAnnotationDrag(
     overlay.addEventListener('pointerup', onPointerUp)
 
     cleanup = () => {
-      if (rafId) cancelAnimationFrame(rafId)
+      if (rafId) { cancelAnimationFrame(rafId) }
       overlay?.removeEventListener('pointerdown', onPointerDown)
       overlay?.removeEventListener('pointermove', onPointerMove)
       overlay?.removeEventListener('pointerup', onPointerUp)

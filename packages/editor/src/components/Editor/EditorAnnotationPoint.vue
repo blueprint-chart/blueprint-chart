@@ -141,7 +141,6 @@
               @update:model-value="(v: string) => update('circleStyle', v)"
             />
           </BFormGroup>
-
         </div>
       </template>
     </FormControlCheckbox>
@@ -176,15 +175,15 @@ const strokeStyleOptions = [
 ]
 
 function formatMaxWidth(v: number | string | undefined): string {
-  if (v == null) return '150px'
-  if (typeof v === 'number') return `${v}px`
+  if (v == null) { return '150px' }
+  if (typeof v === 'number') { return `${v}px` }
   return String(v)
 }
 
 function update(key: string, value: unknown) {
   const copy = { ...props.annotation }
-  if (value === undefined) delete (copy as Record<string, unknown>)[key]
-  else (copy as Record<string, unknown>)[key] = value
+  if (value === undefined) { delete (copy as Record<string, unknown>)[key] }
+  else { (copy as Record<string, unknown>)[key] = value }
   emit('update:annotation', copy as PointAnnotationConfig)
 }
 

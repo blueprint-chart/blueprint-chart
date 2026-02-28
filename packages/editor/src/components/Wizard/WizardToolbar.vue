@@ -82,9 +82,9 @@ const viewModeOptions = [
 
 const disabledSteps = computed(() => {
   const hasData = dataTable.rawInput.value.trim().length > 0
-  if (!hasData) return [1, 2, 3]
+  if (!hasData) { return [1, 2, 3] }
   const hasParsed = dataTable.rows.value.length > 0
-  if (!hasParsed) return [2, 3]
+  if (!hasParsed) { return [2, 3] }
   return []
 })
 

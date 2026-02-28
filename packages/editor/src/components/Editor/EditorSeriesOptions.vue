@@ -161,9 +161,9 @@ function applyToSelected(key: keyof SeriesOverride, value: unknown) {
 }
 
 function copyFromFirst() {
-  if (props.selected.length < 2) return
+  if (props.selected.length < 2) { return }
   const source = getOverride(props.selected[0])
-  if (!source) return
+  if (!source) { return }
   const copy = props.overrides.map(o => ({ ...o }))
   for (let i = 1; i < props.selected.length; i++) {
     const name = props.selected[i]

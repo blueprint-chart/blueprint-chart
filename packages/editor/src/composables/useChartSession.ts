@@ -50,7 +50,7 @@ export function useChartSession() {
   const wizard = useWizard()
 
   function save() {
-    if (!sessionId.value) return
+    if (!sessionId.value) { return }
     const payload: SessionPayload = {
       chartConfig: {
         chartType: chartConfig.chartType.value,
@@ -87,7 +87,7 @@ export function useChartSession() {
 
   function load(id: string): boolean {
     const raw = localStorage.getItem(storageKey(id))
-    if (!raw) return false
+    if (!raw) { return false }
     try {
       const payload: SessionPayload = JSON.parse(raw)
       chartConfig.hydrate(payload.chartConfig)
@@ -183,11 +183,11 @@ export function useChartSession() {
     const prefix = 'blueprint-chart:'
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i)
-      if (!key || !key.startsWith(prefix)) continue
+      if (!key || !key.startsWith(prefix)) { continue }
       const id = key.slice(prefix.length)
-      if (id.includes(':')) continue
+      if (id.includes(':')) { continue }
       const raw = localStorage.getItem(key)
-      if (!raw) continue
+      if (!raw) { continue }
       try {
         const payload: SessionPayload = JSON.parse(raw)
         charts.push({
@@ -203,9 +203,9 @@ export function useChartSession() {
       }
     }
     charts.sort((a, b) => {
-      if (!a.savedAt && !b.savedAt) return 0
-      if (!a.savedAt) return 1
-      if (!b.savedAt) return -1
+      if (!a.savedAt && !b.savedAt) { return 0 }
+      if (!a.savedAt) { return 1 }
+      if (!b.savedAt) { return -1 }
       return b.savedAt.localeCompare(a.savedAt)
     })
     return charts

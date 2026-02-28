@@ -113,7 +113,7 @@ function colorForLabel(label: string): string {
 
 const pickerColor = computed(() => {
   const sel = [...selected.value]
-  if (sel.length === 0) return props.baseColor
+  if (sel.length === 0) { return props.baseColor }
   return highlightMap.value.get(sel[0]) ?? props.baseColor
 })
 
@@ -148,7 +148,7 @@ function selectNone() {
 function selectInvert() {
   const next = new Set<string>()
   for (const l of props.labels) {
-    if (!selected.value.has(l)) next.add(l)
+    if (!selected.value.has(l)) { next.add(l) }
   }
   selected.value = next
 }

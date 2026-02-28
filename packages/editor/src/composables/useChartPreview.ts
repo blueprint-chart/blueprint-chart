@@ -21,7 +21,7 @@ export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
   const { theme } = useTheme()
 
   function render() {
-    if (!containerRef.value) return
+    if (!containerRef.value) { return }
     containerRef.value.replaceChildren()
 
     const data = parseData(config.data.value)

@@ -69,14 +69,14 @@ const items = computed(() => {
 })
 
 const toggleIcon = computed(() => {
-  if (panelMode.value === 'collapsed') return IPhSidebarSimple
-  if (panelMode.value === 'floating') return IPhArrowsInSimple
+  if (panelMode.value === 'collapsed') { return IPhSidebarSimple }
+  if (panelMode.value === 'floating') { return IPhArrowsInSimple }
   return IPhArrowsOutSimple
 })
 
 const toggleLabel = computed(() => {
-  if (panelMode.value === 'collapsed') return 'Open panel'
-  if (panelMode.value === 'floating') return 'Dock panel'
+  if (panelMode.value === 'collapsed') { return 'Open panel' }
+  if (panelMode.value === 'floating') { return 'Dock panel' }
   return 'Detach panel'
 })
 </script>
