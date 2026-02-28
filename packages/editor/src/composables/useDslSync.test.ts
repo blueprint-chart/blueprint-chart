@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest'
+import type { RangeAnnotationConfig, FreeAnnotationConfig } from '@blueprint-chart/lib'
 import { useChartConfig } from './useChartConfig'
 import { useDslSync } from './useDslSync'
 import { useChartTypeOptions } from './useChartTypeOptions'
@@ -266,29 +267,93 @@ describe('useDslSync', () => {
   })
 
   describe('annotations', () => {
-    it('parses annotations from DSL', () => {
+    it('parses point annotations from DSL', () => {
       const { applyDsl } = useDslSync()
       applyDsl(`chart line {
   annotation "2024-Q1" {
     text = "Peak"
-    dx = 10
-    dy = 20
+    anchorDirection = NE
+    textOffsetX = 30
+    textOffsetY = -40
     showArrow = true
   }
 }`)
 
       const config = useChartConfig()
       expect(config.annotations.value).toHaveLength(1)
-      expect(config.annotations.value[0].target).toBe('2024-Q1')
-      expect(config.annotations.value[0].text).toBe('Peak')
-      expect(config.annotations.value[0].dx).toBe(10)
-      expect(config.annotations.value[0].dy).toBe(20)
-      expect(config.annotations.value[0].showArrow).toBe(true)
+      const ann = config.annotations.value[0]
+      expect(ann.kind).toBe('point')
+      expect('target' in ann && ann.target).toBe('2024-Q1')
+      expect(ann.text).toBe('Peak')
+      expect('anchorDirection' in ann && ann.anchorDirection).toBe('NE')
+      expect('textOffsetX' in ann && ann.textOffsetX).toBe(30)
+      expect('textOffsetY' in ann && ann.textOffsetY).toBe(-40)
+      expect('showArrow' in ann && ann.showArrow).toBe(true)
+    })
+
+    it('parses range annotations from DSL', () => {
+      const { applyDsl } = useDslSync()
+      applyDsl(`chart line {
+  range {
+    start = 100
+    end = 200
+    orientation = vertical
+    bgColor = "#d3d3d3"
+    bgOpacity = 15
+  }
+}`)
+
+      const config = useChartConfig()
+      expect(config.annotations.value).toHaveLength(1)
+      const ann = config.annotations.value[0]
+      expect(ann.kind).toBe('range')
+      const range = ann as RangeAnnotationConfig
+      expect(range.start).toBe(100)
+      expect(range.end).toBe(200)
+      expect(range.orientation).toBe('vertical')
+      expect(range.bgColor).toBe('#d3d3d3')
+      expect(range.bgOpacity).toBe(15)
+    })
+
+    it('parses free annotations (note) from DSL', () => {
+      const { applyDsl } = useDslSync()
+      applyDsl(`chart line {
+  note {
+    text = "Context"
+    x = 50
+    y = 25
+  }
+}`)
+
+      const config = useChartConfig()
+      expect(config.annotations.value).toHaveLength(1)
+      const ann = config.annotations.value[0]
+      expect(ann.kind).toBe('free')
+      const free = ann as FreeAnnotationConfig
+      expect(free.text).toBe('Context')
+      expect(free.x).toBe(50)
+      expect(free.y).toBe(25)
+    })
+
+    it('parses free annotation with px position from DSL', () => {
+      const { applyDsl } = useDslSync()
+      applyDsl(`chart line {
+  note {
+    text = "Pixel"
+    x = "120px"
+    y = "80px"
+  }
+}`)
+
+      const config = useChartConfig()
+      const free = config.annotations.value[0] as FreeAnnotationConfig
+      expect(free.x).toBe('120px')
+      expect(free.y).toBe('80px')
     })
 
     it('clears annotations when not present', () => {
       const config = useChartConfig()
-      config.annotations.value = [{ target: 'x', text: 'y' }]
+      config.annotations.value = [{ kind: 'point', target: 'x', text: 'y' }]
 
       const { applyDsl } = useDslSync()
       applyDsl(`chart line {

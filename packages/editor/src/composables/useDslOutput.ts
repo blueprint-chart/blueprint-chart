@@ -2,6 +2,23 @@ import { computed, ref } from 'vue'
 import { useChartConfig } from './useChartConfig'
 import { useChartTypeOptions } from './useChartTypeOptions'
 import { getChartOptions } from '@blueprint-chart/lib'
+import type { RangeAnnotationConfig, FreeAnnotationConfig } from '@blueprint-chart/lib'
+
+function serializePosition(v: number | string): string {
+  if (typeof v === 'number') return String(v)
+  const str = String(v)
+  if (str.endsWith('%')) return String(parseFloat(str))
+  // "150px" → quoted string
+  return `"${str}"`
+}
+
+function serializeMaxWidth(v: number | string): string {
+  if (typeof v === 'number') return String(v)
+  const str = String(v)
+  if (str.endsWith('%')) return `"${str}"`
+  // "150px" → bare number
+  return String(parseFloat(str))
+}
 
 export function useDslOutput() {
   const config = useChartConfig()
@@ -78,13 +95,54 @@ export function useDslOutput() {
     }
 
     for (const a of config.annotations.value) {
-      if (!a.target) continue
-      output += `\n  annotation "${a.target}" {\n`
-      if (a.text) output += `    text = "${a.text}"\n`
-      if (a.dx !== undefined) output += `    dx = ${a.dx}\n`
-      if (a.dy !== undefined) output += `    dy = ${a.dy}\n`
-      if (a.showArrow !== undefined) output += `    showArrow = ${a.showArrow}\n`
-      output += `  }\n`
+      const kind = a.kind ?? 'point'
+      if (kind === 'point') {
+        if (!('target' in a) || !a.target) continue
+        output += `\n  annotation "${a.target}" {\n`
+        if (a.text) output += `    text = "${a.text}"\n`
+        if (a.textColor) output += `    textColor = "${a.textColor}"\n`
+        if (a.maxWidth !== undefined) output += `    maxWidth = ${serializeMaxWidth(a.maxWidth)}\n`
+        if (a.textOutline !== undefined) output += `    textOutline = ${a.textOutline}\n`
+        if (a.showLine !== undefined) output += `    showLine = ${a.showLine}\n`
+        if (a.anchorDirection) output += `    anchorDirection = ${a.anchorDirection}\n`
+        if (a.textOffsetX !== undefined) output += `    textOffsetX = ${a.textOffsetX}\n`
+        if (a.textOffsetY !== undefined) output += `    textOffsetY = ${a.textOffsetY}\n`
+        if (a.lineStyle) output += `    lineStyle = ${a.lineStyle}\n`
+        if (a.lineWeight !== undefined) output += `    lineWeight = ${a.lineWeight}\n`
+        if (a.showArrow !== undefined) output += `    showArrow = ${a.showArrow}\n`
+        if (a.lineTargetDistance !== undefined) output += `    lineTargetDistance = ${a.lineTargetDistance}\n`
+        if (a.showCircle !== undefined) output += `    showCircle = ${a.showCircle}\n`
+        if (a.circleSize !== undefined) output += `    circleSize = ${a.circleSize}\n`
+        if (a.circleStyle) output += `    circleStyle = ${a.circleStyle}\n`
+        if (a.circleColor) output += `    circleColor = "${a.circleColor}"\n`
+        output += `  }\n`
+      }
+      else if (kind === 'range') {
+        const ra = a as RangeAnnotationConfig
+        output += `\n  range {\n`
+        if (ra.start !== undefined) output += `    start = ${typeof ra.start === 'string' ? `"${ra.start}"` : ra.start}\n`
+        if (ra.end !== undefined) output += `    end = ${typeof ra.end === 'string' ? `"${ra.end}"` : ra.end}\n`
+        if (ra.orientation) output += `    orientation = ${ra.orientation}\n`
+        if (ra.startAnchor && ra.startAnchor !== 'center') output += `    startAnchor = ${ra.startAnchor}\n`
+        if (ra.endAnchor && ra.endAnchor !== 'center') output += `    endAnchor = ${ra.endAnchor}\n`
+        if (ra.bgColor) output += `    bgColor = "${ra.bgColor}"\n`
+        if (ra.bgOpacity !== undefined) output += `    bgOpacity = ${ra.bgOpacity}\n`
+        if (ra.direction) output += `    direction = ${ra.direction}\n`
+        if (ra.text) output += `    text = "${ra.text}"\n`
+        if (ra.textColor) output += `    textColor = "${ra.textColor}"\n`
+        output += `  }\n`
+      }
+      else if (kind === 'free') {
+        const fa = a as FreeAnnotationConfig
+        output += `\n  note {\n`
+        if (fa.text) output += `    text = "${fa.text}"\n`
+        if (fa.x !== undefined) output += `    x = ${serializePosition(fa.x)}\n`
+        if (fa.y !== undefined) output += `    y = ${serializePosition(fa.y)}\n`
+        if (fa.textColor) output += `    textColor = "${fa.textColor}"\n`
+        if (fa.maxWidth !== undefined) output += `    maxWidth = ${serializeMaxWidth(fa.maxWidth)}\n`
+        if (fa.textOutline !== undefined) output += `    textOutline = ${fa.textOutline}\n`
+        output += `  }\n`
+      }
     }
 
     for (const s of config.seriesOverrides.value) {
