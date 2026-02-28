@@ -22,11 +22,27 @@
       />
     </div>
     <template v-if="isNarrow">
-      <LayoutBottomDrawer
-        v-model="drawerOpen"
-        :title="activeTab"
-      >
-        <ChartEditDockedPanel :collapsed="false" />
+      <LayoutBottomDrawer v-model="drawerOpen">
+        <div class="chart-edit-panel__drawer-tabs">
+          <button
+            v-for="tab in tabs"
+            :key="tab.key"
+            class="chart-edit-panel__drawer-tab"
+            :class="{ 'chart-edit-panel__drawer-tab--active': activeTab === tab.key }"
+            @click="selectTab(tab.key)"
+          >
+            {{ tab.label }}
+          </button>
+        </div>
+        <div class="chart-edit-panel__drawer-body">
+          <EditorChartTypePicker v-if="activeTab === 'type'" />
+          <EditorPropertyForm v-else-if="activeTab === 'text'" />
+          <EditorAppearanceTab v-else-if="activeTab === 'appearance'" />
+          <EditorLayoutTab v-else-if="activeTab === 'layout'" />
+          <EditorSeriesPanel v-else-if="activeTab === 'series'" />
+          <EditorAxisOptions v-else-if="activeTab === 'axes'" />
+          <EditorAnnotateTab v-else-if="activeTab === 'annotate'" />
+        </div>
       </LayoutBottomDrawer>
     </template>
     <template v-else>
@@ -41,16 +57,50 @@ import { ref, computed, type CSSProperties } from 'vue'
 import { LayoutBottomDrawer, useBreakpoint } from '@blueprint-chart/ui'
 import { useEditorPanel } from '@/composables/useEditorPanel'
 import { useChartConfig } from '@/composables/useChartConfig'
+import { useChartTypeOptions } from '@/composables/useChartTypeOptions'
 import PreviewChart from '@/components/Preview/PreviewChart.vue'
 import ChartEditDsl from './ChartEditDsl.vue'
 import ChartEditDockedPanel from './ChartEditDockedPanel.vue'
 import ChartEditIconRail from './ChartEditIconRail.vue'
 import ChartEditFloatingPanel from './ChartEditFloatingPanel.vue'
+import EditorChartTypePicker from '@/components/Editor/EditorChartTypePicker.vue'
+import EditorPropertyForm from '@/components/Editor/EditorPropertyForm.vue'
+import EditorAppearanceTab from '@/components/Editor/EditorAppearanceTab.vue'
+import EditorLayoutTab from '@/components/Editor/EditorLayoutTab.vue'
+import EditorSeriesPanel from '@/components/Editor/EditorSeriesPanel.vue'
+import EditorAxisOptions from '@/components/Editor/EditorAxisOptions.vue'
+import EditorAnnotateTab from '@/components/Editor/EditorAnnotateTab.vue'
 
-const { panelMode, viewMode, activeTab } = useEditorPanel()
+const AXIS_KEYS = ['showVerticalAxis', 'verticalAxisDirection', 'showVerticalTicks', 'verticalLabelPosition', 'verticalGridStyle', 'verticalNumberFormat', 'verticalScaleType', 'verticalRangeMin', 'verticalRangeMax', 'showHorizontalAxis', 'showHorizontalTicks', 'horizontalLabelPosition', 'horizontalGridStyle', 'horizontalNumberFormat', 'horizontalScaleType', 'horizontalRangeMin', 'horizontalRangeMax']
+
+const { panelMode, viewMode, activeTab, collapse, selectTab } = useEditorPanel()
 const { isNarrow } = useBreakpoint()
-const drawerOpen = ref(true)
-const { layout } = useChartConfig()
+const { chartType, layout } = useChartConfig()
+const { availableOptionKeys } = useChartTypeOptions()
+
+const hasAxisOptions = computed(() => availableOptionKeys.value.some(k => AXIS_KEYS.includes(k)))
+
+const drawerOpen = computed({
+  get: () => isNarrow.value && panelMode.value !== 'collapsed' && !!activeTab.value,
+  set: (open) => { if (!open) collapse() },
+})
+
+const tabs = computed(() => {
+  const base: { key: string, label: string }[] = [
+    { key: 'type', label: 'Type' },
+    { key: 'text', label: 'Text' },
+    { key: 'appearance', label: 'Appearance' },
+    { key: 'layout', label: 'Layout' },
+  ]
+  if (['line-multi', 'bar-multi'].includes(chartType.value)) {
+    base.push({ key: 'series', label: 'Series' })
+  }
+  if (hasAxisOptions.value) {
+    base.push({ key: 'axes', label: 'Axes' })
+  }
+  base.push({ key: 'annotate', label: 'Annotate' })
+  return base
+})
 const canvasRef = ref<HTMLElement | null>(null)
 
 function parseAspectRatio(ratio: string): number | undefined {
@@ -167,6 +217,51 @@ const cardStyle = computed<CSSProperties>(() => {
   flex: 1;
   display: flex;
   flex-direction: column;
+}
+
+.chart-edit-panel__drawer-tabs {
+  display: flex;
+  gap: 0;
+  padding: 0 0.875rem;
+  border-bottom: 1px solid var(--bs-border-color-translucent);
+  overflow-x: auto;
+  scrollbar-width: none;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--bs-body-bg);
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.chart-edit-panel__drawer-tab {
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.5rem 0.75rem;
+  white-space: nowrap;
+  flex-shrink: 0;
+  border: none;
+  cursor: pointer;
+  background: transparent;
+  color: var(--bs-secondary-color);
+  border-bottom: 2px solid transparent;
+  transition: all 0.15s;
+
+  &:hover {
+    color: var(--bs-body-color);
+  }
+
+  &--active {
+    color: var(--bs-primary);
+    border-bottom-color: var(--bs-primary);
+  }
+}
+
+.chart-edit-panel__drawer-body {
+  padding: 0.5rem 0;
 }
 
 // Override UI-library backgrounds so rail & panel match the mockup's white chrome
