@@ -1,14 +1,5 @@
 <template>
-  <div
-    v-if="selected.length === 0"
-    class="text-muted small"
-  >
-    Select one or more series to edit.
-  </div>
-  <div
-    v-else
-    class="d-flex flex-column gap-3"
-  >
+  <div class="d-flex flex-column gap-3">
     <small class="text-muted">
       Editing {{ selected.length }} series{{ selected.length > 1 ? '' : `: ${selected[0]}` }}
     </small>
@@ -94,9 +85,7 @@
       />
     </template>
 
-    <hr>
-
-    <div class="d-flex gap-2">
+    <div class="d-flex gap-2 justify-content-end">
       <BButton
         v-if="selected.length > 1"
         variant="outline-secondary"
