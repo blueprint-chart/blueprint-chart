@@ -14,6 +14,7 @@
       :text="selectedOption?.label ?? ''"
       variant="outline-secondary"
       teleport-to="body"
+      :floating-middleware="[sizeMiddleware]"
     >
       <template v-if="selectedOption?.icon" #button-content>
         <span class="form-control-dropdown__toggle-content">
@@ -44,6 +45,16 @@ import { type Component, computed, useTemplateRef } from 'vue'
 import FormControlDropdownItem from './FormControlDropdownItem.vue'
 import { useChildEntriesProvider } from '../../../composables/useChildEntries'
 import { DropdownEntriesKey } from '../../../composables/injection-keys'
+
+const sizeMiddleware = {
+  name: 'matchReferenceWidth',
+  fn({ rects, elements }: { rects: any, elements: any }) {
+    Object.assign(elements.floating.style, {
+      width: `${rects.reference.width}px`,
+    })
+    return {}
+  },
+}
 
 export interface FormControlDropdownOption {
   value: string

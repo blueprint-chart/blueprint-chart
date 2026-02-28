@@ -12,6 +12,7 @@
       :menu-class="['w-100', 'form-control-dropdown-menu']"
       variant="outline-secondary"
       teleport-to="body"
+      :floating-middleware="[sizeMiddleware]"
     >
       <template #button-content>
         <span class="form-control-palette__preview pe-1">
@@ -48,6 +49,16 @@ import { computed, useTemplateRef } from 'vue'
 import DisplayPalette from '../../Display/DisplayPalette/DisplayPalette.vue'
 import { useChildEntriesProvider } from '../../../composables/useChildEntries'
 import { PaletteEntriesKey } from '../../../composables/injection-keys'
+
+const sizeMiddleware = {
+  name: 'matchReferenceWidth',
+  fn({ rects, elements }: { rects: any, elements: any }) {
+    Object.assign(elements.floating.style, {
+      width: `${rects.reference.width}px`,
+    })
+    return {}
+  },
+}
 
 const model = defineModel<string>({ required: true })
 
