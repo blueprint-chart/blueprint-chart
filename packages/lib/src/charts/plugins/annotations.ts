@@ -240,18 +240,7 @@ export function bboxEdgeToward(
 // Arrow marker
 // ---------------------------------------------------------------------------
 
-export function ensureArrowMarker(svg: SVGElement | null, color?: string): string {
-  if (!svg) {
-    return 'bc-arrow'
-  }
-
-  const safeColor = color ?? '#666'
-  const id = `bc-arrow-${safeColor.replace(/[^a-zA-Z0-9]/g, '')}`
-
-  if (svg.querySelector(`#${id}`)) {
-    return id
-  }
-
+function appendArrowMarkerDef(svg: SVGElement, id: string, color: string): void {
   const defs = d3.select(svg).select('defs').empty()
     ? d3.select(svg).append('defs')
     : d3.select(svg).select('defs')
@@ -268,9 +257,19 @@ export function ensureArrowMarker(svg: SVGElement | null, color?: string): strin
     .append('path')
     .attr('d', 'M 0 1 L 7 5 L 0 9')
     .attr('fill', 'none')
-    .attr('stroke', safeColor)
+    .attr('stroke', color)
     .attr('stroke-width', 1.5)
+}
 
+export function ensureArrowMarker(svg: SVGElement | null, color?: string): string {
+  if (!svg) {
+    return 'bc-arrow'
+  }
+  const safeColor = color ?? '#666'
+  const id = `bc-arrow-${safeColor.replace(/[^a-zA-Z0-9]/g, '')}`
+  if (!svg.querySelector(`#${id}`)) {
+    appendArrowMarkerDef(svg, id, safeColor)
+  }
   return id
 }
 
