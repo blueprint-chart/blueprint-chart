@@ -167,6 +167,56 @@ function inferTextAnchorFromOffset(offsetX: number): string {
 // Compute the point on a bounding box edge toward a target point
 // ---------------------------------------------------------------------------
 
+type BboxSide = { x: number, y: number, dist: number }
+
+function bboxProjectionCandidates(
+  bbox: { x: number, y: number, width: number, height: number },
+  tx: number, ty: number, cx: number, cy: number, pad: number,
+): BboxSide[] {
+  const canNS = tx >= bbox.x && tx <= bbox.x + bbox.width
+  const canEW = ty >= bbox.y && ty <= bbox.y + bbox.height
+  const out: BboxSide[] = []
+  if (canNS) {
+    if (ty < cy) {
+      out.push({ x: cx, y: bbox.y - pad, dist: Math.abs(cy - ty) })
+    }
+    else {
+      out.push({ x: cx, y: bbox.y + bbox.height + pad, dist: Math.abs(ty - cy) })
+    }
+  }
+  if (canEW) {
+    if (tx > cx) {
+      out.push({ x: bbox.x + bbox.width + pad, y: cy, dist: Math.abs(tx - cx) })
+    }
+    else {
+      out.push({ x: bbox.x - pad, y: cy, dist: Math.abs(cx - tx) })
+    }
+  }
+  return out
+}
+
+function closestCardinalMidpoint(
+  bbox: { x: number, y: number, width: number, height: number },
+  tx: number, ty: number, cx: number, cy: number, pad: number,
+): { x: number, y: number } {
+  const pts = [
+    { x: cx, y: bbox.y - pad },
+    { x: cx, y: bbox.y + bbox.height + pad },
+    { x: bbox.x + bbox.width + pad, y: cy },
+    { x: bbox.x - pad, y: cy },
+  ]
+  let best = pts[0]
+  let bestDist = (best.x - tx) ** 2 + (best.y - ty) ** 2
+  for (let i = 1; i < pts.length; i++) {
+    const d = (pts[i].x - tx) ** 2 + (pts[i].y - ty) ** 2
+    if (d < bestDist) {
+      best = pts[i]
+      bestDist = d
+    }
+  }
+  return best
+}
+
 export function bboxEdgeToward(
   bbox: { x: number, y: number, width: number, height: number },
   targetX: number,
@@ -175,63 +225,15 @@ export function bboxEdgeToward(
 ): { x: number, y: number } {
   const cx = bbox.x + bbox.width / 2
   const cy = bbox.y + bbox.height / 2
-
   if (targetX === cx && targetY === cy) {
     return { x: cx, y: cy }
   }
-
-  // Check which perpendicular projections are valid:
-  // Target X within horizontal span → can exit N or S
-  const canNS = targetX >= bbox.x && targetX <= bbox.x + bbox.width
-  // Target Y within vertical span → can exit E or W
-  const canEW = targetY >= bbox.y && targetY <= bbox.y + bbox.height
-
-  // Build candidate exit points for valid projections
-  type Side = { x: number, y: number, dist: number }
-  const candidates: Side[] = []
-
-  if (canNS) {
-    if (targetY < cy) { // N
-      candidates.push({ x: cx, y: bbox.y - pad, dist: Math.abs(cy - targetY) })
-    }
-    else { // S
-      candidates.push({ x: cx, y: bbox.y + bbox.height + pad, dist: Math.abs(targetY - cy) })
-    }
-  }
-  if (canEW) {
-    if (targetX > cx) { // E
-      candidates.push({ x: bbox.x + bbox.width + pad, y: cy, dist: Math.abs(targetX - cx) })
-    }
-    else { // W
-      candidates.push({ x: bbox.x - pad, y: cy, dist: Math.abs(cx - targetX) })
-    }
-  }
-
-  // If we have valid perpendicular projections, pick the one with the shortest
-  // distance from bbox center to target along that axis
+  const candidates = bboxProjectionCandidates(bbox, targetX, targetY, cx, cy, pad)
   if (candidates.length > 0) {
     candidates.sort((a, b) => a.dist - b.dist)
-    const { x, y } = candidates[0]
-    return { x, y }
+    return { x: candidates[0].x, y: candidates[0].y }
   }
-
-  // Fallback: anchor is in a corner region — pick the closest cardinal midpoint
-  const midpoints = [
-    { x: cx, y: bbox.y - pad }, // N
-    { x: cx, y: bbox.y + bbox.height + pad }, // S
-    { x: bbox.x + bbox.width + pad, y: cy }, // E
-    { x: bbox.x - pad, y: cy }, // W
-  ]
-  let best = midpoints[0]
-  let bestDist = (best.x - targetX) ** 2 + (best.y - targetY) ** 2
-  for (let i = 1; i < midpoints.length; i++) {
-    const d = (midpoints[i].x - targetX) ** 2 + (midpoints[i].y - targetY) ** 2
-    if (d < bestDist) {
-      best = midpoints[i]
-      bestDist = d
-    }
-  }
-  return best
+  return closestCardinalMidpoint(bbox, targetX, targetY, cx, cy, pad)
 }
 
 // ---------------------------------------------------------------------------
