@@ -16,76 +16,40 @@ export function exportSvg(svgElement: SVGElement, filename = 'chart.svg') {
   triggerDownload(blob, filename)
 }
 
-function serializeSvgToUrl(svgElement: SVGElement): string {
+export function exportPng(svgElement: SVGElement, width: number, height: number, filename = 'chart.png'): Promise<void> {
   const serializer = new XMLSerializer()
   const svgString = serializer.serializeToString(svgElement)
   const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' })
-  return URL.createObjectURL(svgBlob)
-}
-
-function renderToCanvas(img: HTMLImageElement, width: number, height: number): HTMLCanvasElement | null {
-  const canvas = document.createElement('canvas')
-  canvas.width = width
-  canvas.height = height
-  const ctx = canvas.getContext('2d')
-  if (!ctx) {
-    return null
-  }
-  ctx.drawImage(img, 0, 0, width, height)
-  return canvas
-}
-
-function canvasToPngBlob(
-  canvas: HTMLCanvasElement,
-  onBlob: (blob: Blob | null) => void,
-) {
-  canvas.toBlob(onBlob, 'image/png')
-}
-
-export function exportPng(
-  svgElement: SVGElement,
-  width: number,
-  height: number,
-  filename = 'chart.png',
-): Promise<void> {
-  const url = serializeSvgToUrl(svgElement)
+  const url = URL.createObjectURL(svgBlob)
 
   return new Promise((resolve, reject) => {
     const img = new Image()
     img.onload = () => {
-      handleImageLoad(img, width, height, url, filename, resolve, reject)
+      const canvas = document.createElement('canvas')
+      canvas.width = width
+      canvas.height = height
+      const ctx = canvas.getContext('2d')
+      if (!ctx) {
+        URL.revokeObjectURL(url)
+        reject(new Error('Could not get canvas context'))
+        return
+      }
+      ctx.drawImage(img, 0, 0, width, height)
+      canvas.toBlob((blob) => {
+        URL.revokeObjectURL(url)
+        if (!blob) {
+          reject(new Error('Could not create PNG blob'))
+          return
+        }
+        triggerDownload(blob, filename)
+        resolve()
+      }, 'image/png')
     }
     img.onerror = () => {
       URL.revokeObjectURL(url)
       reject(new Error('Failed to load SVG image'))
     }
     img.src = url
-  })
-}
-
-function handleImageLoad(
-  img: HTMLImageElement,
-  width: number,
-  height: number,
-  url: string,
-  filename: string,
-  resolve: () => void,
-  reject: (err: Error) => void,
-) {
-  const canvas = renderToCanvas(img, width, height)
-  if (!canvas) {
-    URL.revokeObjectURL(url)
-    reject(new Error('Could not get canvas context'))
-    return
-  }
-  canvasToPngBlob(canvas, (blob) => {
-    URL.revokeObjectURL(url)
-    if (!blob) {
-      reject(new Error('Could not create PNG blob'))
-      return
-    }
-    triggerDownload(blob, filename)
-    resolve()
   })
 }
 

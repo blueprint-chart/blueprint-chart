@@ -6,77 +6,63 @@ export interface DragPosition {
   y: number
 }
 
-interface DragState {
-  isDragging: boolean
-  offsetX: number
-  offsetY: number
-}
-
-function getPanel(el: HTMLElement | null): HTMLElement | null {
-  return el?.closest('.chart-edit-floating-panel') as HTMLElement | null
-}
-
-function handleMouseDown(
-  e: MouseEvent,
-  headerRef: Ref<HTMLElement | null>,
-  dragState: DragState,
-) {
-  const target = e.target as HTMLElement
-  if (target.closest('button') && !target.closest('.button-drag')) {
-    return
-  }
-  if (!headerRef.value) {
-    return
-  }
-  dragState.isDragging = true
-  const el = getPanel(headerRef.value)
-  if (!el) {
-    return
-  }
-  const rect = el.getBoundingClientRect()
-  dragState.offsetX = e.clientX - rect.left
-  dragState.offsetY = e.clientY - rect.top
-  e.preventDefault()
-}
-
-function clampPosition(val: number, max: number): number {
-  return Math.max(0, Math.min(val, max))
-}
-
-function handleMouseMove(
-  e: MouseEvent,
-  headerRef: Ref<HTMLElement | null>,
-  containerRef: Ref<HTMLElement | null>,
-  dragState: DragState,
-  position: DragPosition,
-) {
-  if (!dragState.isDragging || !containerRef.value) {
-    return
-  }
-  const bounds = containerRef.value.getBoundingClientRect()
-  const el = getPanel(headerRef.value)
-  const elWidth = el?.offsetWidth ?? 340
-  const elHeight = el?.offsetHeight ?? 400
-  position.x = clampPosition(e.clientX - bounds.left - dragState.offsetX, bounds.width - elWidth)
-  position.y = clampPosition(e.clientY - bounds.top - dragState.offsetY, bounds.height - elHeight)
-}
-
 export function usePanelDrag(
   headerRef: Ref<HTMLElement | null>,
   containerRef: Ref<HTMLElement | null>,
   position: DragPosition,
 ) {
-  const dragState: DragState = { isDragging: false, offsetX: 0, offsetY: 0 }
+  let isDragging = false
+  let offsetX = 0
+  let offsetY = 0
 
-  useEventListener(headerRef, 'mousedown', (e: MouseEvent) => {
-    handleMouseDown(e, headerRef, dragState)
-  })
-  useEventListener(document, 'mousemove', (e: MouseEvent) => {
-    handleMouseMove(e, headerRef, containerRef, dragState, position)
-  })
-  useEventListener(document, 'mouseup', () => {
-    dragState.isDragging = false
-  })
+  function onMouseDown(e: MouseEvent) {
+    const target = e.target as HTMLElement
+    if (target.closest('button') && !target.closest('.button-drag')) {
+      return
+    }
+    if (!headerRef.value) {
+      return
+    }
 
-  return { isDragging: dragState.isDragging }
+    isDragging = true
+    const el = headerRef.value.closest('.chart-edit-floating-panel') as HTMLElement | null
+    if (!el) {
+      return
+    }
+
+    const rect = el.getBoundingClientRect()
+    offsetX = e.clientX - rect.left
+    offsetY = e.clientY - rect.top
+    e.preventDefault()
+  }
+
+  function onMouseMove(e: MouseEvent) {
+    if (!isDragging || !containerRef.value) {
+      return
+    }
+
+    const bounds = containerRef.value.getBoundingClientRect()
+    let x = e.clientX - bounds.left - offsetX
+    let y = e.clientY - bounds.top - offsetY
+
+    const el = headerRef.value?.closest('.chart-edit-floating-panel') as HTMLElement | null
+    const elWidth = el?.offsetWidth ?? 340
+    const elHeight = el?.offsetHeight ?? 400
+
+    x = Math.max(0, Math.min(x, bounds.width - elWidth))
+    y = Math.max(0, Math.min(y, bounds.height - elHeight))
+
+    position.x = x
+    position.y = y
+  }
+
+  function onMouseUp() {
+    isDragging = false
+  }
+
+  useEventListener(headerRef, 'mousedown', onMouseDown)
+  useEventListener(document, 'mousemove', onMouseMove)
+  useEventListener(document, 'mouseup', onMouseUp)
+
+  return { isDragging }
 }

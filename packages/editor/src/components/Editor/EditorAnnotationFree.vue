@@ -82,7 +82,8 @@ const emit = defineEmits<{
 
 function formatPosition(v: number | string): string {
   if (typeof v === 'number') {
-    return `${v}%`
+    return `${
+      v}%`
   }
   return String(v)
 }
@@ -92,7 +93,8 @@ function formatMaxWidth(v: number | string | undefined): string {
     return '150px'
   }
   if (typeof v === 'number') {
-    return `${v}px`
+    return `${
+      v}px`
   }
   return String(v)
 }

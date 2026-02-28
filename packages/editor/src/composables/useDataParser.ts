@@ -13,51 +13,36 @@ function detectDelimiter(raw: string): string {
   return tabs >= commas ? '\t' : ','
 }
 
-interface CsvParseState {
-  cells: string[]
-  current: string
-  inQuotes: boolean
-  index: number
-}
-
-function handleQuoteChar(state: CsvParseState, line: string) {
-  if (state.inQuotes && line[state.index + 1] === '"') {
-    state.current += '"'
-    state.index++
-  }
-  else {
-    state.inQuotes = !state.inQuotes
-  }
-}
-
-function handleDelimiterChar(state: CsvParseState) {
-  state.cells.push(state.current.trim())
-  state.current = ''
-}
-
-function parseCsvRow(line: string, delimiter: string): string[] {
-  const state: CsvParseState = { cells: [], current: '', inQuotes: false, index: 0 }
-  for (; state.index < line.length; state.index++) {
-    const ch = line[state.index]
-    if (ch === '"') {
-      handleQuoteChar(state, line)
-    }
-    else if (ch === delimiter && !state.inQuotes) {
-      handleDelimiterChar(state)
-    }
-    else {
-      state.current += ch
-    }
-  }
-  state.cells.push(state.current.trim())
-  return state.cells
-}
-
 function splitRow(line: string, delimiter: string): string[] {
   if (delimiter === '\t') {
     return line.split('\t').map(c => c.trim())
   }
-  return parseCsvRow(line, delimiter)
+
+  const cells: string[] = []
+  let current = ''
+  let inQuotes = false
+
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i]
+    if (ch === '"') {
+      if (inQuotes && line[i + 1] === '"') {
+        current += '"'
+        i++
+      }
+      else {
+        inQuotes = !inQuotes
+      }
+    }
+    else if (ch === delimiter && !inQuotes) {
+      cells.push(current.trim())
+      current = ''
+    }
+    else {
+      current += ch
+    }
+  }
+  cells.push(current.trim())
+  return cells
 }
 
 const DATE_PATTERNS = [

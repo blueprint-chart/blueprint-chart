@@ -177,7 +177,8 @@ function summaryText(ann: AnnotationConfig): string {
     return ann.text || ann.target || 'Empty'
   }
   if (ann.kind === 'range') {
-    return ann.text || `${ann.start} - ${ann.end}`
+    return ann.text || `${ann.start} - ${
+      ann.end}`
   }
   return ann.text || 'Empty'
 }
