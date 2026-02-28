@@ -64,26 +64,69 @@ describe('useDslOutput', () => {
   })
 
   describe('annotation serialization', () => {
-    it('emits annotation blocks', () => {
+    it('emits point annotation blocks', () => {
       const config = useChartConfig()
       config.chartType.value = 'line'
       config.annotations.value = [
-        { target: '2024-Q1', text: 'Peak', dx: 10, dy: 20, showArrow: true },
+        { kind: 'point', target: '2024-Q1', text: 'Peak', showArrow: true, anchorDirection: 'NE', textOffsetX: 30, textOffsetY: -40 },
       ]
 
       const { dsl } = useDslOutput()
       expect(dsl.value).toContain('annotation "2024-Q1"')
       expect(dsl.value).toContain('text = "Peak"')
-      expect(dsl.value).toContain('dx = 10')
-      expect(dsl.value).toContain('dy = 20')
       expect(dsl.value).toContain('showArrow = true')
+      expect(dsl.value).toContain('anchorDirection = NE')
+      expect(dsl.value).toContain('textOffsetX = 30')
+      expect(dsl.value).toContain('textOffsetY = -40')
     })
 
-    it('skips annotations without target', () => {
+    it('emits range annotation blocks', () => {
       const config = useChartConfig()
       config.chartType.value = 'line'
       config.annotations.value = [
-        { target: '', text: 'Peak' },
+        { kind: 'range', start: 100, end: 200, orientation: 'vertical', bgColor: '#d3d3d3', bgOpacity: 15 },
+      ]
+
+      const { dsl } = useDslOutput()
+      expect(dsl.value).toContain('range {')
+      expect(dsl.value).toContain('start = 100')
+      expect(dsl.value).toContain('end = 200')
+      expect(dsl.value).toContain('orientation = vertical')
+      expect(dsl.value).toContain('bgColor = "#d3d3d3"')
+      expect(dsl.value).toContain('bgOpacity = 15')
+    })
+
+    it('emits free annotation (note) blocks', () => {
+      const config = useChartConfig()
+      config.chartType.value = 'line'
+      config.annotations.value = [
+        { kind: 'free', text: 'Context', x: 50, y: 25 },
+      ]
+
+      const { dsl } = useDslOutput()
+      expect(dsl.value).toContain('note {')
+      expect(dsl.value).toContain('text = "Context"')
+      expect(dsl.value).toContain('x = 50')
+      expect(dsl.value).toContain('y = 25')
+    })
+
+    it('emits free annotation with px position', () => {
+      const config = useChartConfig()
+      config.chartType.value = 'line'
+      config.annotations.value = [
+        { kind: 'free', text: 'Pixel', x: '120px', y: '80px' },
+      ]
+
+      const { dsl } = useDslOutput()
+      expect(dsl.value).toContain('x = "120px"')
+      expect(dsl.value).toContain('y = "80px"')
+    })
+
+    it('skips point annotations without target', () => {
+      const config = useChartConfig()
+      config.chartType.value = 'line'
+      config.annotations.value = [
+        { kind: 'point', target: '', text: 'Peak' },
       ]
 
       const { dsl } = useDslOutput()
