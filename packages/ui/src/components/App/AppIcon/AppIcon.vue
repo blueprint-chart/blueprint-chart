@@ -43,7 +43,12 @@ const props = withDefaults(defineProps<AppIconProps>(), {
 })
 
 const currentHover = ref(false)
-watch(() => props.hover, () => (currentHover.value = props.hover), { immediate: true })
+
+function syncHoverProp() {
+  currentHover.value = props.hover
+}
+
+watch(() => props.hover, syncHoverProp, { immediate: true })
 
 const color = computed(() => {
   let colorVariant = 'currentColor'

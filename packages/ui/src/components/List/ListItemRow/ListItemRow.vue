@@ -1,7 +1,7 @@
 <template>
   <div
     class="list-item-row"
-    :class="{ 'list-item-row--active': active }"
+    :class="rowClassList"
     @click="$emit('click', $event)"
   >
     <slot name="leading" />
@@ -11,10 +11,16 @@
 </template>
 
 <script setup lang="ts">
-defineProps<{
+import { computed } from 'vue'
+
+const props = defineProps<{
   label: string
   active?: boolean
 }>()
+
+const rowClassList = computed(() => ({
+  'list-item-row--active': props.active,
+}))
 
 defineEmits<{
   click: [event: MouseEvent]

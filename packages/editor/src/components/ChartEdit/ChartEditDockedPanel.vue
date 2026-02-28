@@ -1,7 +1,7 @@
 <template>
   <div
     class="chart-edit-docked-panel"
-    :class="{ 'chart-edit-docked-panel--collapsed': collapsed, 'chart-edit-docked-panel--resizing': resizing }"
+    :class="panelClassList"
     :style="{ width: collapsed ? undefined : `${panelWidth}px` }"
   >
     <div
@@ -36,11 +36,16 @@ import EditorSeriesPanel from '@/components/Editor/EditorSeriesPanel.vue'
 import EditorAxisOptions from '@/components/Editor/EditorAxisOptions.vue'
 import EditorAnnotateTab from '@/components/Editor/EditorAnnotateTab.vue'
 
-defineProps<{
+const props = defineProps<{
   collapsed: boolean
 }>()
 
 const { activeTab, float, collapse } = useEditorPanel()
+
+const panelClassList = computed(() => ({
+  'chart-edit-docked-panel--collapsed': props.collapsed,
+  'chart-edit-docked-panel--resizing': resizing.value,
+}))
 
 const MIN_WIDTH = 260
 const MAX_WIDTH = 500

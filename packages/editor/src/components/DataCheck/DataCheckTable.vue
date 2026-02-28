@@ -1,7 +1,7 @@
 <template>
   <div
     class="data-check-table"
-    :class="{ 'ht-theme-main-dark': isDark }"
+    :class="themeClass"
   >
     <hot-table
       ref="hotRef"
@@ -45,6 +45,10 @@ const isDark = computed(() => {
   if (theme.value === 'auto') return prefersDark.value
   return false
 })
+
+const themeClass = computed(() => ({
+  'ht-theme-main-dark': isDark.value,
+}))
 
 const hotRef = ref<InstanceType<typeof HotTable> | null>(null)
 
@@ -107,20 +111,23 @@ function handleCreateRow(index: number, amount: number) {
   syncing = false
 }
 
-watch(
-  () => columns.value.map((c, i) => `${c}:${columnTypes.value[i]}`).join(','),
-  () => {
-    nextTick(() => {
-      const hot = hotRef.value?.hotInstance
-      if (hot && !hot.isDestroyed) {
-        hot.updateSettings({
-          colHeaders: [...columns.value],
-          columns: hotColumns.value,
-        })
-      }
-    })
-  },
-)
+function columnFingerprint() {
+  return columns.value.map((c, i) => `${c}:${columnTypes.value[i]}`).join(',')
+}
+
+function syncTableSettings() {
+  nextTick(() => {
+    const hot = hotRef.value?.hotInstance
+    if (hot && !hot.isDestroyed) {
+      hot.updateSettings({
+        colHeaders: [...columns.value],
+        columns: hotColumns.value,
+      })
+    }
+  })
+}
+
+watch(columnFingerprint, syncTableSettings)
 
 defineExpose({
   renameColumn,
