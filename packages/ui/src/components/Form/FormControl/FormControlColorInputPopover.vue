@@ -47,14 +47,16 @@ const emit = defineEmits<{
 const open = defineModel<boolean>('open', { default: false })
 const contentRef = useTemplateRef<HTMLElement>('contentRef')
 
-onClickOutside(contentRef, () => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+onClickOutside(contentRef as any, () => {
   if (props.manual) {
     open.value = false
   }
 }, {
   detectIframe: true,
   ignore: [() => props.target],
-})
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+} as any)
 
 const hue = computed(() => {
   const tc = tinycolor(props.modelValue)

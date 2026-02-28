@@ -6,7 +6,7 @@
       switch
       :model-value="model"
       class="list-series-row__toggle"
-      @update:model-value="model = $event"
+      @update:model-value="model = $event as boolean"
     />
   </div>
 </template>

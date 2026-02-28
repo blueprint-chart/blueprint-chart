@@ -82,8 +82,8 @@ const unitPart = computed(() => parseValue(props.modelValue).unit)
 
 const sliderMax = computed(() => unitPart.value === '%' ? '100' : props.max)
 
-function onNumericChange(v: string) {
-  emit('update:modelValue', `${v}${unitPart.value}`)
+function onNumericChange(v: string | number | null) {
+  emit('update:modelValue', `${String(v ?? '')}${unitPart.value}`)
 }
 
 function onUnitSelect(newUnit: string) {

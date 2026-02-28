@@ -13,13 +13,13 @@
         :max="max"
         :step="step"
         class="form-control-slider-input__range"
-        @update:model-value="model = $event"
+        @update:model-value="model = String($event)"
       />
       <BFormInput
         :model-value="model"
         class="form-control-slider-input__number"
         size="sm"
-        @update:model-value="model = $event"
+        @update:model-value="model = String($event)"
       />
       <slot name="suffix">
         <small

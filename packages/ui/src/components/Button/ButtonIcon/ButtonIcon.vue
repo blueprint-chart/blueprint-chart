@@ -1,6 +1,6 @@
 <template>
   <BButton
-    v-bind="buttonProps"
+    v-bind="(buttonProps as any)"
     :id="buttonId"
     ref="element"
     class="button-icon"
