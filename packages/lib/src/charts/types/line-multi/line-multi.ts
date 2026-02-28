@@ -387,7 +387,7 @@ export function render(
       color: resolveSeriesColor(s.name, si, colors, overrides),
       index: li,
     }))
-    const symbolsGroup = d3.select(clippedArea).append('g').attr('class', 'bc-symbols').attr('data-series', si)
+    const symbolsGroup = d3.select(chartArea).append('g').attr('class', 'bc-symbols').attr('data-series', si)
     renderLineSymbols(symbolsGroup as unknown as d3.Selection<SVGGElement, unknown, null, undefined>, symbolPoints, labelCount, perSeriesSymbolConfig)
   })
 
@@ -405,6 +405,7 @@ export function render(
   })
 
   if (directLabelEntries.length > 0) {
+    directLabelEntries.sort((a, b) => a.naturalY - b.naturalY)
     const naturalYs = directLabelEntries.map(e => e.naturalY)
     const resolvedYs = spreadLabels(naturalYs, 0, height)
     directLabelEntries.forEach((entry, i) => {
