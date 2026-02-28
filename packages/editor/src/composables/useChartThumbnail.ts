@@ -3,7 +3,8 @@ import { useChartConfig } from './useChartConfig'
 import { useChartTypeOptions, type ChartTypeOptions } from './useChartTypeOptions'
 import { useChartSession } from './useChartSession'
 import { getChart, parseData, buildChartOptions } from '@blueprint-chart/lib'
-import type { ChartData } from '@blueprint-chart/lib'
+import type { ChartData, SeriesOverride } from '@blueprint-chart/lib'
+import type { ChartHighlight } from './useChartConfig'
 
 const THUMB_KEY = (id: string) => `blueprint-chart:${id}:thumbnail`
 const THROTTLE_MS = 30_000
@@ -13,6 +14,7 @@ export function renderThumbnailSvg(
   data: ChartData,
   typeOpts: Partial<ChartTypeOptions>,
   sort: 'ascending' | 'descending' | 'none',
+  options?: { highlights?: ChartHighlight[], seriesOverrides?: SeriesOverride[] },
 ): string | null {
   const renderer = getChart(chartType)
   if (!renderer) return null
@@ -43,6 +45,8 @@ export function renderThumbnailSvg(
     renderer(container, data, {
       sort,
       ...chartOpts,
+      highlights: options?.highlights,
+      seriesOverrides: options?.seriesOverrides,
     })
 
     const svg = container.querySelector('svg')
@@ -121,7 +125,10 @@ export function useChartThumbnail() {
       delete data.series
     }
 
-    const svg = renderThumbnailSvg(config.chartType.value, data, currentOptions.value, config.sort.value)
+    const svg = renderThumbnailSvg(config.chartType.value, data, currentOptions.value, config.sort.value, {
+      highlights: config.highlights.value.length > 0 ? config.highlights.value : undefined,
+      seriesOverrides: config.seriesOverrides.value.length > 0 ? config.seriesOverrides.value : undefined,
+    })
     if (svg) {
       saveThumbnail(sessionId.value, svg)
     }
@@ -145,7 +152,7 @@ export function useChartThumbnail() {
   }
 
   watch(
-    [config.chartType, config.data, config.sort, config.selectedColumn, currentOptions],
+    [config.chartType, config.data, config.sort, config.selectedColumn, config.highlights, config.seriesOverrides, currentOptions],
     throttledGenerate,
     { deep: true },
   )
