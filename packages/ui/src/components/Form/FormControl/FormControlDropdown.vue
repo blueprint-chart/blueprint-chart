@@ -13,6 +13,7 @@
       :menu-class="menuClassList"
       :text="selectedOption?.label ?? ''"
       variant="outline-secondary"
+      teleport-to="body"
     >
       <template v-if="selectedOption?.icon" #button-content>
         <span class="form-control-dropdown__toggle-content">
@@ -83,6 +84,7 @@ const dropdownClassList = computed(() => ({
 
 const menuClassList = computed(() => ({
   'w-100': props.block,
+  'form-control-dropdown-menu': true,
 }))
 
 const selectedOption = computed(() =>
@@ -94,6 +96,15 @@ function selectOption(value: string) {
   dropdownRef.value?.hide()
 }
 </script>
+
+<style lang="scss">
+/* Global (unscoped) — needed because the menu is teleported to body */
+.form-control-dropdown-menu {
+  max-height: min(60vh, 400px);
+  overflow-y: auto;
+  z-index: 1060 !important;
+}
+</style>
 
 <style scoped lang="scss">
 .form-control-dropdown__toggle--block {

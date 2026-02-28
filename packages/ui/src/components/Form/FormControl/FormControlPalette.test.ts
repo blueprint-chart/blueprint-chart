@@ -27,6 +27,7 @@ describe('FormControlPalette', () => {
   it('renders dropdown items for each palette', () => {
     const wrapper = mount(FormControlPalette, {
       props: { modelValue: 'warm', palettes },
+      global: { stubs: { Teleport: true } },
     })
     const items = wrapper.findAll('.form-control-palette__item')
     expect(items).toHaveLength(3)
@@ -43,6 +44,7 @@ describe('FormControlPalette (slot entries)', () => {
           h(FormControlPaletteEntry, { value: 'cool', label: 'Cool', colors: ['#3498db', '#2ecc71'] }),
         ],
       },
+      global: { stubs: { Teleport: true } },
     })
     await nextTick()
     const items = wrapper.findAll('.form-control-palette__item')
