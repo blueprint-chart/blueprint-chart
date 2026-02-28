@@ -81,13 +81,21 @@ export function createCrosshairPlugin(options?: {
             cy = y
           }
 
-          if (vLine) { vLine.attr('x1', cx).attr('x2', cx).style('display', null) }
-          if (hLine) { hLine.attr('y1', cy).attr('y2', cy).style('display', null) }
+          if (vLine) {
+            vLine.attr('x1', cx).attr('x2', cx).style('display', null)
+          }
+          if (hLine) {
+            hLine.attr('y1', cy).attr('y2', cy).style('display', null)
+          }
         }
 
         const onLeave = () => {
-          if (vLine) { vLine.style('display', 'none') }
-          if (hLine) { hLine.style('display', 'none') }
+          if (vLine) {
+            vLine.style('display', 'none')
+          }
+          if (hLine) {
+            hLine.style('display', 'none')
+          }
         }
 
         el.addEventListener('mouseenter', onEnter)
@@ -100,7 +108,9 @@ export function createCrosshairPlugin(options?: {
     },
 
     destroy() {
-      for (const cleanup of cleanups) { cleanup() }
+      for (const cleanup of cleanups) {
+        cleanup()
+      }
       cleanups.length = 0
     },
   }
