@@ -22,17 +22,17 @@ export interface AnnotationContext {
 
 function resolvePosition(value: number | string, size: number): number {
   // Percentage is center-relative: 0% = center, -50% = left/top edge, 50% = right/bottom edge
-  if (typeof value === 'number') return size / 2 + (value / 100) * size
+  if (typeof value === 'number') { return size / 2 + (value / 100) * size }
   const str = String(value)
-  if (str.endsWith('%')) return size / 2 + (parseFloat(str) / 100) * size
+  if (str.endsWith('%')) { return size / 2 + (parseFloat(str) / 100) * size }
   return parseFloat(str) || 0
 }
 
 function resolveMaxWidth(maxWidth: number | string | undefined, chartWidth: number): number | undefined {
-  if (maxWidth == null) return undefined
-  if (typeof maxWidth === 'number') return maxWidth || undefined
+  if (maxWidth == null) { return undefined }
+  if (typeof maxWidth === 'number') { return maxWidth || undefined }
   const str = String(maxWidth)
-  if (str.endsWith('%')) return (parseFloat(str) / 100) * chartWidth
+  if (str.endsWith('%')) { return (parseFloat(str) / 100) * chartWidth }
   return parseFloat(str) || undefined
 }
 
@@ -50,6 +50,18 @@ const DIRECTION_VECTORS: Record<CompassDirection, { dx: number, dy: number }> = 
   W: { dx: -1, dy: 0 },
   NW: { dx: -0.707, dy: -0.707 },
   center: { dx: 0, dy: 0 },
+}
+
+const RECT_ANCHOR: Record<CompassDirection, { nx: number, ny: number }> = {
+  N: { nx: 0, ny: -1 },
+  NE: { nx: 1, ny: -1 },
+  E: { nx: 1, ny: 0 },
+  SE: { nx: 1, ny: 1 },
+  S: { nx: 0, ny: 1 },
+  SW: { nx: -1, ny: 1 },
+  W: { nx: -1, ny: 0 },
+  NW: { nx: -1, ny: -1 },
+  center: { nx: 0, ny: 0 },
 }
 
 export function computeDirectionOffset(
@@ -84,6 +96,19 @@ export function rotateDirectionForHorizontal(dir: CompassDirection): CompassDire
 // Anchor point computation
 // ---------------------------------------------------------------------------
 
+function rectAnchorPoint(
+  dir: CompassDirection,
+  rect: { left: number, right: number, top: number, bottom: number },
+): { x: number, y: number } {
+  const midX = (rect.left + rect.right) / 2
+  const midY = (rect.top + rect.bottom) / 2
+  const v = RECT_ANCHOR[dir] ?? RECT_ANCHOR.N
+  return {
+    x: midX + v.nx * (rect.right - rect.left) / 2,
+    y: midY + v.ny * (rect.bottom - rect.top) / 2,
+  }
+}
+
 export function computeAnchorPoint(
   datum: { label: string, value: number },
   scaleX: AnnotationContext['scaleX'],
@@ -99,52 +124,11 @@ export function computeAnchorPoint(
     const zeroPos = scaleY(0)
 
     if (orientation === 'horizontal') {
-      // For horizontal bars: band scale maps to Y axis, linear scale maps to X axis
-      // bandPos/bandW = vertical position, valPos/zeroPos = horizontal position
-      const barY = bandPos
-      const barH = bandW
-      const barRight = valPos   // end of bar (value)
-      const barLeft = zeroPos   // start of bar (zero)
-      const midX = (barLeft + barRight) / 2
-      const midY = barY + barH / 2
-
-      // Remap directions: user thinks in "bar-horizontal" terms where
-      // N=top of bar, E=end of bar (value side), W=start of bar (zero side)
       const dir = rotateDirectionForHorizontal(anchorDirection)
-      switch (dir) {
-        case 'NW': return { x: barLeft, y: barY }
-        case 'N': return { x: midX, y: barY }
-        case 'NE': return { x: barRight, y: barY }
-        case 'W': return { x: barLeft, y: midY }
-        case 'center': return { x: midX, y: midY }
-        case 'E': return { x: barRight, y: midY }
-        case 'SW': return { x: barLeft, y: barY + barH }
-        case 'S': return { x: midX, y: barY + barH }
-        case 'SE': return { x: barRight, y: barY + barH }
-        default: return { x: barRight, y: midY }
-      }
+      return rectAnchorPoint(dir, { left: zeroPos, right: valPos, top: bandPos, bottom: bandPos + bandW })
     }
 
-    // Vertical bar charts (band scale)
-    const barX = bandPos
-    const barW = bandW
-    const barTop = valPos
-    const barBottom = zeroPos
-    const midX = barX + barW / 2
-    const midY = (barTop + barBottom) / 2
-
-    switch (anchorDirection) {
-      case 'NW': return { x: barX, y: barTop }
-      case 'N': return { x: midX, y: barTop }
-      case 'NE': return { x: barX + barW, y: barTop }
-      case 'W': return { x: barX, y: midY }
-      case 'center': return { x: midX, y: midY }
-      case 'E': return { x: barX + barW, y: midY }
-      case 'SW': return { x: barX, y: barBottom }
-      case 'S': return { x: midX, y: barBottom }
-      case 'SE': return { x: barX + barW, y: barBottom }
-      default: return { x: midX, y: barTop }
-    }
+    return rectAnchorPoint(anchorDirection, { left: bandPos, right: bandPos + bandW, top: valPos, bottom: zeroPos })
   }
 
   // Line charts (no bandwidth) — small fixed offsets around data point
@@ -160,8 +144,8 @@ export function computeAnchorPoint(
 // ---------------------------------------------------------------------------
 
 function inferTextAnchorFromOffset(offsetX: number): string {
-  if (offsetX < -4) return 'end'
-  if (offsetX > 4) return 'start'
+  if (offsetX < -4) { return 'end' }
+  if (offsetX > 4) { return 'start' }
   return 'middle'
 }
 
@@ -178,7 +162,7 @@ export function bboxEdgeToward(
   const cx = bbox.x + bbox.width / 2
   const cy = bbox.y + bbox.height / 2
 
-  if (targetX === cx && targetY === cy) return { x: cx, y: cy }
+  if (targetX === cx && targetY === cy) { return { x: cx, y: cy } }
 
   // Check which perpendicular projections are valid:
   // Target X within horizontal span → can exit N or S
@@ -191,33 +175,37 @@ export function bboxEdgeToward(
   const candidates: Side[] = []
 
   if (canNS) {
-    if (targetY < cy) candidates.push({ x: cx, y: bbox.y - pad, dist: Math.abs(cy - targetY) })       // N
-    else candidates.push({ x: cx, y: bbox.y + bbox.height + pad, dist: Math.abs(targetY - cy) })       // S
+    if (targetY < cy) { candidates.push({ x: cx, y: bbox.y - pad, dist: Math.abs(cy - targetY) }) } // N
+    else { candidates.push({ x: cx, y: bbox.y + bbox.height + pad, dist: Math.abs(targetY - cy) }) } // S
   }
   if (canEW) {
-    if (targetX > cx) candidates.push({ x: bbox.x + bbox.width + pad, y: cy, dist: Math.abs(targetX - cx) }) // E
-    else candidates.push({ x: bbox.x - pad, y: cy, dist: Math.abs(cx - targetX) })                           // W
+    if (targetX > cx) { candidates.push({ x: bbox.x + bbox.width + pad, y: cy, dist: Math.abs(targetX - cx) }) } // E
+    else { candidates.push({ x: bbox.x - pad, y: cy, dist: Math.abs(cx - targetX) }) } // W
   }
 
   // If we have valid perpendicular projections, pick the one with the shortest
   // distance from bbox center to target along that axis
   if (candidates.length > 0) {
     candidates.sort((a, b) => a.dist - b.dist)
-    return { x: candidates[0].x, y: candidates[0].y }
+    const { x, y } = candidates[0]
+    return { x, y }
   }
 
   // Fallback: anchor is in a corner region — pick the closest cardinal midpoint
   const midpoints = [
-    { x: cx, y: bbox.y - pad },                  // N
-    { x: cx, y: bbox.y + bbox.height + pad },     // S
-    { x: bbox.x + bbox.width + pad, y: cy },      // E
-    { x: bbox.x - pad, y: cy },                   // W
+    { x: cx, y: bbox.y - pad }, // N
+    { x: cx, y: bbox.y + bbox.height + pad }, // S
+    { x: bbox.x + bbox.width + pad, y: cy }, // E
+    { x: bbox.x - pad, y: cy }, // W
   ]
   let best = midpoints[0]
   let bestDist = (best.x - targetX) ** 2 + (best.y - targetY) ** 2
   for (let i = 1; i < midpoints.length; i++) {
     const d = (midpoints[i].x - targetX) ** 2 + (midpoints[i].y - targetY) ** 2
-    if (d < bestDist) { best = midpoints[i]; bestDist = d }
+    if (d < bestDist) {
+      best = midpoints[i]
+      bestDist = d
+    }
   }
   return best
 }
@@ -227,12 +215,12 @@ export function bboxEdgeToward(
 // ---------------------------------------------------------------------------
 
 export function ensureArrowMarker(svg: SVGElement | null, color?: string): string {
-  if (!svg) return 'bc-arrow'
+  if (!svg) { return 'bc-arrow' }
 
   const safeColor = color ?? '#666'
   const id = `bc-arrow-${safeColor.replace(/[^a-zA-Z0-9]/g, '')}`
 
-  if (svg.querySelector(`#${id}`)) return id
+  if (svg.querySelector(`#${id}`)) { return id }
 
   const defs = d3.select(svg).select('defs').empty()
     ? d3.select(svg).append('defs')
@@ -288,39 +276,38 @@ export function renderTargetCircle(
     .attr('stroke-width', 1.5)
 
   const dash = strokeDashForStyle(opts.style ?? 'solid')
-  if (dash) circle.attr('stroke-dasharray', dash)
+  if (dash) { circle.attr('stroke-dasharray', dash) }
 }
 
 // ---------------------------------------------------------------------------
 // Connecting line
 // ---------------------------------------------------------------------------
 
+// 140° bend angle → the second segment deflects 40° from the first
+const COT_40 = 1 / Math.tan(40 * Math.PI / 180) // ≈ 1.19175
+
+function computeElbowMidpoint(
+  from: { x: number, y: number },
+  to: { x: number, y: number },
+  departVertical: boolean,
+): { x: number, y: number } {
+  if (departVertical) {
+    const vSign = to.y >= from.y ? 1 : -1
+    const segLen = Math.max(Math.abs(to.y - from.y) - Math.abs(to.x - from.x) * COT_40, 12)
+    return { x: from.x, y: from.y + vSign * segLen }
+  }
+  const hSign = to.x >= from.x ? 1 : -1
+  const segLen = Math.max(Math.abs(to.x - from.x) - Math.abs(to.y - from.y) * COT_40, 12)
+  return { x: from.x + hSign * segLen, y: from.y }
+}
+
 export function computeElbowPath(
   from: { x: number, y: number },
   to: { x: number, y: number },
   departVertical: boolean,
 ): string {
-  // 140° bend angle → the second segment deflects 40° from the first
-  // |remaining| = |perpendicular distance| / tan(40°)
-  const COT_40 = 1 / Math.tan(40 * Math.PI / 180) // ≈ 1.19175
-
-  if (departVertical) {
-    const vSign = to.y >= from.y ? 1 : -1
-    const dy = Math.abs(to.y - from.y)
-    const dx = Math.abs(to.x - from.x)
-    const segLen = Math.max(dy - dx * COT_40, 12)
-    const midX = from.x
-    const midY = from.y + vSign * segLen
-    return `M ${from.x} ${from.y} L ${midX} ${midY} L ${to.x} ${to.y}`
-  }
-
-  const hSign = to.x >= from.x ? 1 : -1
-  const dx = Math.abs(to.x - from.x)
-  const dy = Math.abs(to.y - from.y)
-  const segLen = Math.max(dx - dy * COT_40, 12)
-  const midX = from.x + hSign * segLen
-  const midY = from.y
-  return `M ${from.x} ${from.y} L ${midX} ${midY} L ${to.x} ${to.y}`
+  const mid = computeElbowMidpoint(from, to, departVertical)
+  return `M ${from.x} ${from.y} L ${mid.x} ${mid.y} L ${to.x} ${to.y}`
 }
 
 export function renderConnectingLine(
@@ -473,8 +460,8 @@ function resolveXPosition(
     const left = band(String(value)) ?? 0
     const bw = band.bandwidth()
     const gap = band.step() - bw
-    if (anchor === 'start') return left - gap / 2
-    if (anchor === 'end') return left + bw + gap / 2
+    if (anchor === 'start') { return left - gap / 2 }
+    if (anchor === 'end') { return left + bw + gap / 2 }
     return left + bw / 2
   }
   return (scaleX as d3.ScaleLinear<number, number>)(Number(value)) as number
@@ -488,6 +475,21 @@ function resolveYPosition(
 }
 
 // ---------------------------------------------------------------------------
+// Datum center helper
+// ---------------------------------------------------------------------------
+
+function datumCenter(
+  datum: { label: string, value: number },
+  scaleX: AnnotationContext['scaleX'],
+  scaleY: d3.ScaleLinear<number, number>,
+): { x: number, y: number } {
+  const cx = 'bandwidth' in scaleX
+    ? ((scaleX as d3.ScaleBand<string>)(datum.label) ?? 0) + (scaleX as d3.ScaleBand<string>).bandwidth() / 2
+    : (scaleX as d3.ScaleLinear<number, number>)(Number(datum.label)) as number
+  return { x: cx, y: scaleY(datum.value) }
+}
+
+// ---------------------------------------------------------------------------
 // Point annotation
 // ---------------------------------------------------------------------------
 
@@ -498,10 +500,10 @@ function renderPointAnnotation(
   index: number,
 ): void {
   const target = 'target' in ann ? (ann as { target: string }).target : undefined
-  if (!target) return
+  if (!target) { return }
 
   const datum = ctx.data.find(d => d.label === target)
-  if (!datum) return
+  if (!datum) { return }
 
   const annG = g.append('g').attr('data-annotation-index', String(index))
 
@@ -517,31 +519,13 @@ function renderPointAnnotation(
 
   if (legacyAnn.dx != null || legacyAnn.dy != null) {
     // Legacy dx/dy support
-    const scaleX = ctx.scaleX
-    let cx: number
-    if ('bandwidth' in scaleX) {
-      const band = scaleX as d3.ScaleBand<string>
-      cx = (band(datum.label) ?? 0) + band.bandwidth() / 2
-    }
-    else {
-      cx = (scaleX as d3.ScaleLinear<number, number>)(Number(datum.label)) as number
-    }
-    const cy = ctx.scaleY(datum.value)
+    const { x: cx, y: cy } = datumCenter(datum, ctx.scaleX, ctx.scaleY)
     tx = cx + (Number(legacyAnn.dx) || 40)
     ty = cy + (Number(legacyAnn.dy) || -40)
   }
   else if (legacyAnn.direction != null && legacyAnn.textOffsetX == null) {
     // Legacy direction + anchorDistance → compute text position from center
-    const scaleX = ctx.scaleX
-    let cx: number
-    if ('bandwidth' in scaleX) {
-      const band = scaleX as d3.ScaleBand<string>
-      cx = (band(datum.label) ?? 0) + band.bandwidth() / 2
-    }
-    else {
-      cx = (scaleX as d3.ScaleLinear<number, number>)(Number(datum.label)) as number
-    }
-    const cy = ctx.scaleY(datum.value)
+    const { x: cx, y: cy } = datumCenter(datum, ctx.scaleX, ctx.scaleY)
     const direction = legacyAnn.direction as CompassDirection
     const distance = (legacyAnn.anchorDistance as number | undefined) ?? 60
     const offset = computeDirectionOffset(direction, distance)
@@ -636,7 +620,7 @@ function renderRangeAnnotation(
   ctx: AnnotationContext,
   index: number,
 ): void {
-  if (ann.kind !== 'range') return
+  if (ann.kind !== 'range') { return }
 
   const annG = g.append('g').attr('data-annotation-index', String(index))
   const rangeOrientation = ann.orientation ?? 'vertical'
@@ -708,8 +692,8 @@ function renderRangeAnnotation(
     const textX = Math.max(pad, Math.min(x + w * nx, ctx.width - pad))
 
     let textAnchor = 'middle'
-    if (nx < 0.25) textAnchor = 'start'
-    else if (nx > 0.75) textAnchor = 'end'
+    if (nx < 0.25) { textAnchor = 'start' }
+    else if (nx > 0.75) { textAnchor = 'end' }
 
     // Render at top-inset position first, then adjust after measuring
     const fontSize = 12
@@ -756,7 +740,7 @@ function renderFreeAnnotation(
   ctx: AnnotationContext,
   index: number,
 ): void {
-  if (ann.kind !== 'free') return
+  if (ann.kind !== 'free') { return }
 
   const annG = g.append('g').attr('data-annotation-index', String(index))
 
@@ -804,7 +788,7 @@ export function createAnnotationPlugin(
       const base = (chart as unknown as { base: d3.Selection<SVGElement, unknown, null, undefined> }).base
 
       const svg = base.node()?.ownerSVGElement ?? base.node()
-      if (svg) d3.select(svg).style('overflow', 'visible')
+      if (svg) { d3.select(svg).style('overflow', 'visible') }
       ensureArrowMarker(svg)
 
       // Range annotations render behind chart content
@@ -847,21 +831,21 @@ function expandSvgToFitAnnotations(
   annotationGroup: d3.Selection<SVGGElement, unknown, null, undefined>,
   rangeGroup: d3.Selection<SVGGElement, unknown, null, undefined>,
 ): void {
-  if (!svg) return
+  if (!svg) { return }
 
   const svgW = parseFloat(svg.getAttribute('width') || '0')
   const svgH = parseFloat(svg.getAttribute('height') || '0')
-  if (!svgW || !svgH) return
+  if (!svgW || !svgH) { return }
 
   // Use the full SVG bounding box which includes all child elements
   const totalBBox = svg.getBBox()
-  if (totalBBox.width === 0 && totalBBox.height === 0) return
+  if (totalBBox.width === 0 && totalBBox.height === 0) { return }
 
   const pad = 8
-  let minX = Math.min(0, totalBBox.x - pad)
-  let minY = Math.min(0, totalBBox.y - pad)
-  let maxX = Math.max(svgW, totalBBox.x + totalBBox.width + pad)
-  let maxY = Math.max(svgH, totalBBox.y + totalBBox.height + pad)
+  const minX = Math.min(0, totalBBox.x - pad)
+  const minY = Math.min(0, totalBBox.y - pad)
+  const maxX = Math.max(svgW, totalBBox.x + totalBBox.width + pad)
+  const maxY = Math.max(svgH, totalBBox.y + totalBBox.height + pad)
 
   const needsExpand = minX < 0 || minY < 0 || maxX > svgW || maxY > svgH
 
