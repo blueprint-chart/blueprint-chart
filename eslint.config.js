@@ -46,6 +46,6 @@ export default [
     },
   },
   {
-    ignores: ['**/dist/**', '**/node_modules/**', '.claude/**', 'packages/lib/src/dsl/grammar.js'],
+    ignores: ['**/dist/**', '**/node_modules/**', '.claude/**', 'packages/lib/src/dsl/grammar.js', 'e2e/**', 'playwright.config.ts'],
   },
 ]
