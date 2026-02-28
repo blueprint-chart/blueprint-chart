@@ -1,42 +1,38 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 import { render } from './bar-multi'
 
-const DATA = {
-  labels: ['Q1', 'Q2'],
-  values: [],
-  series: [
-    { name: 'Product A', values: [10, 20] },
-    { name: 'Product B', values: [15, 25] },
-  ],
-}
+describe('bar-multi', () => {
+  let container: HTMLElement
 
-function createContainer(): HTMLElement {
-  const container = document.createElement('div')
-  document.body.appendChild(container)
-  return container
-}
+  const data = {
+    labels: ['Q1', 'Q2'],
+    values: [],
+    series: [
+      { name: 'Product A', values: [10, 20] },
+      { name: 'Product B', values: [15, 25] },
+    ],
+  }
 
-describe('bar-multi rendering', () => {
+  beforeEach(() => {
+    container = document.createElement('div')
+    document.body.appendChild(container)
+  })
+
   it('renders grouped bars', () => {
-    const container = createContainer()
-    render(container, DATA)
+    render(container, data)
     const bars = container.querySelectorAll('.bc-bar-multi')
     // 2 labels x 2 series = 4 bars
     expect(bars).toHaveLength(4)
   })
 
   it('creates frame and SVG', () => {
-    const container = createContainer()
-    render(container, DATA)
+    render(container, data)
     expect(container.querySelector('.bc-frame')).not.toBeNull()
     expect(container.querySelector('svg')).not.toBeNull()
   })
-})
 
-describe('bar-multi legend', () => {
   it('renders a legend by default', () => {
-    const container = createContainer()
-    render(container, DATA)
+    render(container, data)
     const legend = container.querySelector('.bc-legend')
     expect(legend).not.toBeNull()
     const items = container.querySelectorAll('.bc-legend-item')
@@ -44,8 +40,7 @@ describe('bar-multi legend', () => {
   })
 
   it('hides legend when legend option is false', () => {
-    const container = createContainer()
-    render(container, DATA, { legend: false })
+    render(container, data, { legend: false })
     const legend = container.querySelector('.bc-legend')
     expect(legend).toBeNull()
   })

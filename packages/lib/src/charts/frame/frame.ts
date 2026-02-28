@@ -30,65 +30,30 @@ interface FrameData {
   footerRightItems: FooterItem[]
 }
 
-function renderFooterContent(el: HTMLElement, d: FooterItem): void {
-  el.textContent = ''
-  if (d.prefix) {
-    const prefixEl = document.createElement('span')
-    prefixEl.className = 'bc-frame-source-prefix'
-    prefixEl.textContent = d.prefix
-    el.appendChild(prefixEl)
-  }
-  if (d.href) {
-    const link = document.createElement('a')
-    link.className = 'bc-frame-source-link'
-    link.href = d.href
-    link.textContent = d.text
-    el.appendChild(link)
-  }
-  else {
-    el.appendChild(document.createTextNode(d.text))
-  }
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function tagInsert(sel: any): any {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return sel.append((d: any) => document.createElement(d.tag))
-}
-
 class FrameChart extends D3Blueprint<FrameData> {
   initialize() {
     const wrapper = this.base.append('div').attr('class', 'bc-frame')
     const header = wrapper.append('div').attr('class', 'bc-frame-header')
     wrapper.append('div').attr('class', 'bc-frame-body')
     wrapper.append('p').attr('class', 'bc-frame-note')
-    const footer = this.createFooter(wrapper)
+    const footer = wrapper.append('div').attr('class', 'bc-frame-footer')
+      .style('display', 'flex')
+      .style('justify-content', 'space-between')
+      .style('align-items', 'baseline')
+      .style('flex-wrap', 'wrap')
+      .style('gap', '0.25rem 1rem')
     const footerLeft = footer.append('div').attr('class', 'bc-frame-footer-left')
       .style('display', 'flex')
       .style('flex-wrap', 'wrap')
       .style('gap', '0.25rem 0.75rem')
     const footerRight = footer.append('div').attr('class', 'bc-frame-footer-right')
 
-    this.addHeaderLayer(header)
-    this.addFooterLeftLayer(footerLeft)
-    this.addFooterRightLayer(footerRight)
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private createFooter(wrapper: any): any {
-    return wrapper.append('div').attr('class', 'bc-frame-footer')
-      .style('display', 'flex')
-      .style('justify-content', 'space-between')
-      .style('align-items', 'baseline')
-      .style('flex-wrap', 'wrap')
-      .style('gap', '0.25rem 1rem')
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private addHeaderLayer(header: any): void {
     this.layer('headerItems', header, {
       dataBind: (sel, data) => sel.selectAll('.bc-frame-header-item').data(data.headerItems),
-      insert: tagInsert,
+      insert: (sel) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        return sel.append((d: any) => document.createElement(d.tag))
+      },
       events: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         enter: (sel: any) => {
@@ -98,31 +63,47 @@ class FrameChart extends D3Blueprint<FrameData> {
         },
       },
     })
-  }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private addFooterLeftLayer(footerLeft: any): void {
     this.layer('footerLeftItems', footerLeft, {
       dataBind: (sel, data) => sel.selectAll('.bc-frame-footer-item').data(data.footerLeftItems),
-      insert: tagInsert,
+      insert: (sel) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        return sel.append((d: any) => document.createElement(d.tag))
+      },
       events: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         enter: (sel: any) => {
           sel
             .attr('class', (d: FooterItem) => d.className)
             .each(function (this: HTMLElement, d: FooterItem) {
-              renderFooterContent(this, d)
+              this.textContent = ''
+              if (d.prefix) {
+                const prefixEl = document.createElement('span')
+                prefixEl.className = 'bc-frame-source-prefix'
+                prefixEl.textContent = d.prefix
+                this.appendChild(prefixEl)
+              }
+              if (d.href) {
+                const link = document.createElement('a')
+                link.className = 'bc-frame-source-link'
+                link.href = d.href
+                link.textContent = d.text
+                this.appendChild(link)
+              }
+              else {
+                this.appendChild(document.createTextNode(d.text))
+              }
             })
         },
       },
     })
-  }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private addFooterRightLayer(footerRight: any): void {
     this.layer('footerRightItems', footerRight, {
       dataBind: (sel, data) => sel.selectAll('.bc-frame-footer-item').data(data.footerRightItems),
-      insert: tagInsert,
+      insert: (sel) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        return sel.append((d: any) => document.createElement(d.tag))
+      },
       events: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         enter: (sel: any) => {

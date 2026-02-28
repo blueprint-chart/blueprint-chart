@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 import * as d3 from 'd3'
 import { shouldShowSymbol, renderLineSymbols } from './line-symbols'
 
@@ -27,31 +27,30 @@ describe('shouldShowSymbol', () => {
   })
 })
 
-function createSymbolFixture() {
-  while (document.body.firstChild) {
-    document.body.removeChild(document.body.firstChild)
-  }
-  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
-  const g = document.createElementNS('http://www.w3.org/2000/svg', 'g')
-  svg.appendChild(g)
-  document.body.appendChild(svg)
-  return g
-}
+describe('renderLineSymbols', () => {
+  let svg: SVGSVGElement
+  let g: SVGGElement
 
-const POINTS = [
-  { cx: 10, cy: 100, color: '#4e79a7', index: 0 },
-  { cx: 50, cy: 80, color: '#4e79a7', index: 1 },
-  { cx: 90, cy: 60, color: '#4e79a7', index: 2 },
-]
+  beforeEach(() => {
+    while (document.body.firstChild) {
+      document.body.removeChild(document.body.firstChild)
+    }
+    svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+    g = document.createElementNS('http://www.w3.org/2000/svg', 'g')
+    svg.appendChild(g)
+    document.body.appendChild(svg)
+  })
 
-function selectG(g: SVGGElement): d3.Selection<SVGGElement, unknown, null, undefined> {
-  return d3.select(g) as unknown as d3.Selection<SVGGElement, unknown, null, undefined>
-}
+  const points = [
+    { cx: 10, cy: 100, color: '#4e79a7', index: 0 },
+    { cx: 50, cy: 80, color: '#4e79a7', index: 1 },
+    { cx: 90, cy: 60, color: '#4e79a7', index: 2 },
+  ]
 
-describe('renderLineSymbols circle', () => {
   it('renders circle symbols for all points', () => {
-    const g = createSymbolFixture()
-    renderLineSymbols(selectG(g), POINTS, 3, { symbol: 'circle', showOn: 'all', style: 'filled', size: 4, opacity: 1 })
+    const sel = d3.select(g) as unknown as d3.Selection<SVGGElement, unknown, null, undefined>
+    renderLineSymbols(sel, points, 3, { symbol: 'circle', showOn: 'all', style: 'filled', size: 4, opacity: 1 })
+
     const circles = g.querySelectorAll('.bc-symbol')
     expect(circles).toHaveLength(3)
     expect(circles[0].tagName).toBe('circle')
@@ -59,25 +58,26 @@ describe('renderLineSymbols circle', () => {
   })
 
   it('renders only first and last for firstLast', () => {
-    const g = createSymbolFixture()
-    renderLineSymbols(selectG(g), POINTS, 3, { symbol: 'circle', showOn: 'firstLast', size: 3.5 })
+    const sel = d3.select(g) as unknown as d3.Selection<SVGGElement, unknown, null, undefined>
+    renderLineSymbols(sel, points, 3, { symbol: 'circle', showOn: 'firstLast', size: 3.5 })
+
     const symbols = g.querySelectorAll('.bc-symbol')
     expect(symbols).toHaveLength(2)
   })
 
   it('renders hollow circles with stroke', () => {
-    const g = createSymbolFixture()
-    renderLineSymbols(selectG(g), POINTS, 3, { symbol: 'circle', showOn: 'all', style: 'hollow', size: 3.5 })
+    const sel = d3.select(g) as unknown as d3.Selection<SVGGElement, unknown, null, undefined>
+    renderLineSymbols(sel, points, 3, { symbol: 'circle', showOn: 'all', style: 'hollow', size: 3.5 })
+
     const circle = g.querySelector('.bc-symbol')!
     expect(circle.getAttribute('fill')).toBe('var(--bs-body-bg, #fff)')
     expect(circle.getAttribute('stroke')).toBe('#4e79a7')
   })
-})
 
-describe('renderLineSymbols path', () => {
   it('renders path elements for non-circle symbols', () => {
-    const g = createSymbolFixture()
-    renderLineSymbols(selectG(g), POINTS, 3, { symbol: 'square', showOn: 'all', size: 4 })
+    const sel = d3.select(g) as unknown as d3.Selection<SVGGElement, unknown, null, undefined>
+    renderLineSymbols(sel, points, 3, { symbol: 'square', showOn: 'all', size: 4 })
+
     const paths = g.querySelectorAll('.bc-symbol')
     expect(paths).toHaveLength(3)
     expect(paths[0].tagName).toBe('path')

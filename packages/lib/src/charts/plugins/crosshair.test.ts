@@ -6,21 +6,18 @@ function makeChartStub(g: SVGGElement) {
   return { base: d3.select(g) } as unknown
 }
 
-function createSvgSetup(): { svg: SVGSVGElement, g: SVGGElement } {
-  while (document.body.firstChild) {
-    document.body.removeChild(document.body.firstChild)
-  }
-  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
-  const g = document.createElementNS('http://www.w3.org/2000/svg', 'g')
-  svg.appendChild(g)
-  document.body.appendChild(svg)
-  return { svg, g }
-}
-
-describe('createCrosshairPlugin: default', () => {
+describe('createCrosshairPlugin', () => {
+  let svg: SVGSVGElement
   let g: SVGGElement
+
   beforeEach(() => {
-    g = createSvgSetup().g
+    while (document.body.firstChild) {
+      document.body.removeChild(document.body.firstChild)
+    }
+    svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+    g = document.createElementNS('http://www.w3.org/2000/svg', 'g')
+    svg.appendChild(g)
+    document.body.appendChild(svg)
   })
 
   it('creates crosshair lines hidden by default', () => {
@@ -41,13 +38,6 @@ describe('createCrosshairPlugin: default', () => {
     expect(hLine).not.toBeNull()
     expect(vLine.style.display).toBe('none')
     expect(hLine.style.display).toBe('none')
-  })
-})
-
-describe('createCrosshairPlugin: custom options', () => {
-  let g: SVGGElement
-  beforeEach(() => {
-    g = createSvgSetup().g
   })
 
   it('uses custom color and dash', () => {

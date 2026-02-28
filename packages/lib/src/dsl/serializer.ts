@@ -47,7 +47,26 @@ function serializeAreaFill(areaFill: AreaFillNode, indent: string): string {
 }
 
 function serializeAnnotation(annotation: AnnotationNode, indent: string): string {
-  const lines = [`${indent}annotation "${annotation.target}" {`]
+  const kind = annotation.kind ?? 'point'
+  if (kind === 'range') {
+    const lines = [`${indent}range {`]
+    for (const prop of annotation.properties) {
+      lines.push(serializeProperty(prop, `${indent}  `))
+    }
+    lines.push(`${indent}}`)
+    return lines.join('\n')
+  }
+  if (kind === 'free') {
+    const lines = [`${indent}note {`]
+    for (const prop of annotation.properties) {
+      lines.push(serializeProperty(prop, `${indent}  `))
+    }
+    lines.push(`${indent}}`)
+    return lines.join('\n')
+  }
+  // point (default)
+  const target = 'target' in annotation ? annotation.target : ''
+  const lines = [`${indent}annotation "${target}" {`]
   for (const prop of annotation.properties) {
     lines.push(serializeProperty(prop, `${indent}  `))
   }
@@ -64,27 +83,23 @@ function serializeSeries(series: SeriesNode, indent: string): string {
   return lines.join('\n')
 }
 
-function serializeChildBlocks(lines: string[], indent: string, data: DataNode | null, highlights: HighlightNode[], areaFills?: AreaFillNode[], annotations?: AnnotationNode[]): void {
-  if (data) {
-    lines.push(serializeData(data, `${indent}  `))
-  }
-  for (const highlight of highlights) {
-    lines.push(serializeHighlight(highlight, `${indent}  `))
-  }
-  for (const areaFill of areaFills ?? []) {
-    lines.push(serializeAreaFill(areaFill, `${indent}  `))
-  }
-  for (const annotation of annotations ?? []) {
-    lines.push(serializeAnnotation(annotation, `${indent}  `))
-  }
-}
-
 function serializeStep(step: StepNode, indent: string): string {
   const lines = [`${indent}step "${step.name}" {`]
   for (const prop of step.properties) {
     lines.push(serializeProperty(prop, `${indent}  `))
   }
-  serializeChildBlocks(lines, indent, step.data, step.highlights, step.areaFills, step.annotations)
+  if (step.data) {
+    lines.push(serializeData(step.data, `${indent}  `))
+  }
+  for (const highlight of step.highlights) {
+    lines.push(serializeHighlight(highlight, `${indent}  `))
+  }
+  for (const areaFill of step.areaFills ?? []) {
+    lines.push(serializeAreaFill(areaFill, `${indent}  `))
+  }
+  for (const annotation of step.annotations ?? []) {
+    lines.push(serializeAnnotation(annotation, `${indent}  `))
+  }
   lines.push(`${indent}}`)
   return lines.join('\n')
 }
@@ -98,30 +113,58 @@ function isDefaultValue(key: string, value: string | number, chartType: string):
   return String(def.default) === String(value)
 }
 
-function serializeChartBody(lines: string[], ast: ChartNode, props: PropertyNode[]): void {
-  for (const prop of props) {
+export function serialize(ast: ChartNode): string {
+  const lines = [`chart ${ast.chartType} {`]
+  for (const prop of ast.properties) {
     lines.push(serializeProperty(prop, '  '))
   }
-  serializeChildBlocks(lines, '', ast.data, ast.highlights, ast.areaFills, ast.annotations)
+  if (ast.data) {
+    lines.push(serializeData(ast.data, '  '))
+  }
+  for (const highlight of ast.highlights) {
+    lines.push(serializeHighlight(highlight, '  '))
+  }
+  for (const areaFill of ast.areaFills ?? []) {
+    lines.push(serializeAreaFill(areaFill, '  '))
+  }
+  for (const annotation of ast.annotations ?? []) {
+    lines.push(serializeAnnotation(annotation, '  '))
+  }
   for (const s of ast.series ?? []) {
     lines.push(serializeSeries(s, '  '))
   }
   for (const step of ast.steps) {
     lines.push(serializeStep(step, '  '))
   }
-}
-
-export function serialize(ast: ChartNode): string {
-  const lines = [`chart ${ast.chartType} {`]
-  serializeChartBody(lines, ast, ast.properties)
   lines.push('}')
   return lines.join('\n')
 }
 
 export function compactSerialize(ast: ChartNode): string {
   const lines = [`chart ${ast.chartType} {`]
-  const nonDefaultProps = ast.properties.filter(p => !isDefaultValue(p.key, p.value, ast.chartType))
-  serializeChartBody(lines, ast, nonDefaultProps)
+  for (const prop of ast.properties) {
+    if (!isDefaultValue(prop.key, prop.value, ast.chartType)) {
+      lines.push(serializeProperty(prop, '  '))
+    }
+  }
+  if (ast.data) {
+    lines.push(serializeData(ast.data, '  '))
+  }
+  for (const highlight of ast.highlights) {
+    lines.push(serializeHighlight(highlight, '  '))
+  }
+  for (const areaFill of ast.areaFills ?? []) {
+    lines.push(serializeAreaFill(areaFill, '  '))
+  }
+  for (const annotation of ast.annotations ?? []) {
+    lines.push(serializeAnnotation(annotation, '  '))
+  }
+  for (const s of ast.series ?? []) {
+    lines.push(serializeSeries(s, '  '))
+  }
+  for (const step of ast.steps) {
+    lines.push(serializeStep(step, '  '))
+  }
   lines.push('}')
   return lines.join('\n')
 }

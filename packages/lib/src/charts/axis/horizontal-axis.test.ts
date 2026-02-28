@@ -2,21 +2,16 @@ import { describe, it, expect, beforeEach } from 'vitest'
 import * as d3 from 'd3'
 import { renderHorizontalAxis, thinLabels, buildTickFormatter, detectDates } from './horizontal-axis'
 
-function createAxisFixture() {
-  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
-  const chartArea = document.createElementNS('http://www.w3.org/2000/svg', 'g') as SVGGElement
-  svg.appendChild(chartArea)
-  document.body.appendChild(svg)
-  const scale = d3.scaleBand<string>().domain(['A', 'B', 'C']).range([0, 300]).padding(0.1)
-  return { chartArea, scale }
-}
-
-describe('horizontal axis position', () => {
+describe('renderHorizontalAxis', () => {
   let chartArea: SVGGElement
   let scale: d3.ScaleBand<string>
 
   beforeEach(() => {
-    ({ chartArea, scale } = createAxisFixture())
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+    chartArea = document.createElementNS('http://www.w3.org/2000/svg', 'g') as SVGGElement
+    svg.appendChild(chartArea)
+    document.body.appendChild(svg)
+    scale = d3.scaleBand<string>().domain(['A', 'B', 'C']).range([0, 300]).padding(0.1)
   })
 
   it('creates a horizontal axis group', () => {
@@ -40,11 +35,8 @@ describe('horizontal axis position', () => {
     expect(domain).not.toBeNull()
     expect(domain?.getAttribute('stroke-dasharray')).toBeNull()
   })
-})
 
-describe('horizontal axis grid lines', () => {
   it('renders dashed grid lines by default when height > 0', () => {
-    const { chartArea, scale } = createAxisFixture()
     const g = renderHorizontalAxis(chartArea, scale, 300, { gridStyle: 'dashed' })
     const gridLines = g.querySelectorAll('.bc-grid-line')
     expect(gridLines.length).toBeGreaterThan(0)
@@ -52,11 +44,8 @@ describe('horizontal axis grid lines', () => {
       expect(line.getAttribute('stroke-dasharray')).toBe('4,4')
     })
   })
-})
 
-describe('horizontal axis label thinning', () => {
   it('auto-thins labels when width is provided and domain is large', () => {
-    const { chartArea } = createAxisFixture()
     const months = Array.from({ length: 120 }, (_, i) => {
       const y = 2009 + Math.floor(i / 12)
       const m = String((i % 12) + 1).padStart(2, '0')
@@ -104,7 +93,7 @@ describe('thinLabels', () => {
   })
 })
 
-describe('detectDates valid formats', () => {
+describe('detectDates', () => {
   it('detects ISO date labels (YYYY-MM-DD)', () => {
     const result = detectDates(['2024-01-15', '2024-02-20', '2024-03-10'])
     expect(result).not.toBeNull()
@@ -129,9 +118,7 @@ describe('detectDates valid formats', () => {
     expect(result).not.toBeNull()
     expect(result!.granularity).toBe('day')
   })
-})
 
-describe('detectDates invalid inputs', () => {
   it('returns null for non-date labels', () => {
     expect(detectDates(['Apple', 'Banana', 'Cherry'])).toBeNull()
   })
@@ -145,7 +132,7 @@ describe('detectDates invalid inputs', () => {
   })
 })
 
-describe('buildTickFormatter explicit formats', () => {
+describe('buildTickFormatter', () => {
   it('returns d3.timeFormat when format contains %', () => {
     const labels = ['2024-01', '2024-02', '2024-03']
     const fmt = buildTickFormatter('%b %Y', labels)
@@ -161,13 +148,6 @@ describe('buildTickFormatter explicit formats', () => {
     expect(fmt!(1000 as unknown as string)).toBe('1,000')
   })
 
-  it('ignores % format when labels are not dates', () => {
-    const fmt = buildTickFormatter('%b %Y', ['Apple', 'Banana'])
-    expect(fmt).toBeNull()
-  })
-})
-
-describe('buildTickFormatter auto-detection', () => {
   it('auto-formats year labels when no format specified', () => {
     const labels = ['2020', '2021', '2022']
     const fmt = buildTickFormatter(null, labels)
@@ -192,6 +172,11 @@ describe('buildTickFormatter auto-detection', () => {
 
   it('returns null for non-date labels with no format', () => {
     const fmt = buildTickFormatter(null, ['Apple', 'Banana'])
+    expect(fmt).toBeNull()
+  })
+
+  it('ignores % format when labels are not dates', () => {
+    const fmt = buildTickFormatter('%b %Y', ['Apple', 'Banana'])
     expect(fmt).toBeNull()
   })
 })

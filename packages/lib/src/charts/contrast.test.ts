@@ -36,7 +36,7 @@ describe('readableColor', () => {
   })
 })
 
-describe('adjustColorsForBackground basic behavior', () => {
+describe('adjustColorsForBackground', () => {
   it('returns an empty array for empty input', () => {
     expect(adjustColorsForBackground([], '#fff')).toEqual([])
   })
@@ -49,32 +49,15 @@ describe('adjustColorsForBackground basic behavior', () => {
     }
   })
 
-  it('works with a single color', () => {
-    const result = adjustColorsForBackground(['#eee'], '#fff')
-    expect(result).toHaveLength(1)
-    expect(chroma.contrast(result[0], '#fff')).toBeGreaterThanOrEqual(MIN_CONTRAST)
-  })
-
-  it('leaves well-separated colors unchanged', () => {
-    const colors = ['#c73032', '#3a6891', '#3d7a33']
-    const result = adjustColorsForBackground(colors, '#fff')
-    for (let i = 0; i < colors.length; i++) {
-      expect(result[i]).toBe(chroma(colors[i]).hex())
-    }
-  })
-})
-
-describe('adjustColorsForBackground adjacent distinguishability', () => {
   it('ensures adjacent colors are perceptually distinguishable', () => {
+    // Two very similar colors that would collapse after bg-contrast adjustment
     const colors = ['#aaa', '#aab', '#aac']
     const result = adjustColorsForBackground(colors, '#fff')
     for (let i = 1; i < result.length; i++) {
       expect(chroma.deltaE(result[i], result[i - 1])).toBeGreaterThanOrEqual(MIN_ADJACENT_DELTA_E)
     }
   })
-})
 
-describe('adjustColorsForBackground dark backgrounds', () => {
   it('handles dark background with low-contrast dark colors', () => {
     const colors = ['#222', '#232', '#242']
     const bg = '#1e1e1e'
@@ -86,33 +69,48 @@ describe('adjustColorsForBackground dark backgrounds', () => {
       expect(chroma.deltaE(result[i], result[i - 1])).toBeGreaterThanOrEqual(MIN_ADJACENT_DELTA_E)
     }
   })
-})
 
-describe('adjustColorsForBackground simultaneous constraints', () => {
-  it('maintains both bg and adjacent contrast simultaneously', () => {
-    const colors = ['#bbb', '#bbc', '#bbd', '#bbe']
-    const bg = '#fff'
-    const result = adjustColorsForBackground(colors, bg)
-    for (const c of result) {
-      expect(chroma.contrast(c, bg)).toBeGreaterThanOrEqual(MIN_CONTRAST)
-    }
-    for (let i = 1; i < result.length; i++) {
-      expect(chroma.deltaE(result[i], result[i - 1])).toBeGreaterThanOrEqual(MIN_ADJACENT_DELTA_E)
+  it('leaves well-separated colors unchanged', () => {
+    const colors = ['#c73032', '#3a6891', '#3d7a33']
+    const result = adjustColorsForBackground(colors, '#fff')
+    // These colors already have good contrast and separation — should be untouched
+    for (let i = 0; i < colors.length; i++) {
+      expect(result[i]).toBe(chroma(colors[i]).hex())
     }
   })
-})
 
-describe('adjustColorsForBackground hue preservation', () => {
   it('preserves hue while adjusting lightness', () => {
     const colors = ['#eee', '#eef']
     const result = adjustColorsForBackground(colors, '#fff')
     for (let i = 0; i < colors.length; i++) {
       const originalHue = chroma(colors[i]).get('hsl.h')
       const adjustedHue = chroma(result[i]).get('hsl.h')
+      // Hue should stay the same (NaN for achromatic is fine)
       if (!isNaN(originalHue) && !isNaN(adjustedHue)) {
         expect(Math.abs(adjustedHue - originalHue)).toBeLessThan(5)
       }
     }
+  })
+
+  it('maintains both bg and adjacent contrast simultaneously', () => {
+    const colors = ['#bbb', '#bbc', '#bbd', '#bbe']
+    const bg = '#fff'
+    const result = adjustColorsForBackground(colors, bg)
+
+    // Every color readable against bg
+    for (const c of result) {
+      expect(chroma.contrast(c, bg)).toBeGreaterThanOrEqual(MIN_CONTRAST)
+    }
+    // Every adjacent pair distinguishable
+    for (let i = 1; i < result.length; i++) {
+      expect(chroma.deltaE(result[i], result[i - 1])).toBeGreaterThanOrEqual(MIN_ADJACENT_DELTA_E)
+    }
+  })
+
+  it('works with a single color', () => {
+    const result = adjustColorsForBackground(['#eee'], '#fff')
+    expect(result).toHaveLength(1)
+    expect(chroma.contrast(result[0], '#fff')).toBeGreaterThanOrEqual(MIN_CONTRAST)
   })
 })
 

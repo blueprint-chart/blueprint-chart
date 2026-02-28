@@ -2,21 +2,16 @@ import { describe, it, expect, beforeEach } from 'vitest'
 import * as d3 from 'd3'
 import { renderVerticalAxis } from './vertical-axis'
 
-function createVerticalAxisFixture() {
-  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
-  const chartArea = document.createElementNS('http://www.w3.org/2000/svg', 'g') as SVGGElement
-  svg.appendChild(chartArea)
-  document.body.appendChild(svg)
-  const scale = d3.scaleLinear().domain([0, 100]).range([300, 0])
-  return { chartArea, scale }
-}
-
-describe('vertical axis group and ticks', () => {
+describe('renderVerticalAxis', () => {
   let chartArea: SVGGElement
   let scale: d3.ScaleLinear<number, number>
 
   beforeEach(() => {
-    ({ chartArea, scale } = createVerticalAxisFixture())
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+    chartArea = document.createElementNS('http://www.w3.org/2000/svg', 'g') as SVGGElement
+    svg.appendChild(chartArea)
+    document.body.appendChild(svg)
+    scale = d3.scaleLinear().domain([0, 100]).range([300, 0])
   })
 
   it('creates a vertical axis group', () => {
@@ -35,30 +30,12 @@ describe('vertical axis group and ticks', () => {
     const tickLines = g.querySelectorAll('.tick line')
     expect(tickLines.length).toBeGreaterThan(0)
   })
-})
-
-describe('vertical axis domain line', () => {
-  let chartArea: SVGGElement
-  let scale: d3.ScaleLinear<number, number>
-
-  beforeEach(() => {
-    ({ chartArea, scale } = createVerticalAxisFixture())
-  })
 
   it('keeps domain line as solid by default', () => {
     const g = renderVerticalAxis(chartArea, scale, 300)
     const domain = g.querySelector('.domain')
     expect(domain).not.toBeNull()
     expect(domain?.getAttribute('stroke-dasharray')).toBeNull()
-  })
-})
-
-describe('vertical axis grid lines', () => {
-  let chartArea: SVGGElement
-  let scale: d3.ScaleLinear<number, number>
-
-  beforeEach(() => {
-    ({ chartArea, scale } = createVerticalAxisFixture())
   })
 
   it('renders dashed grid lines when gridWidth is provided', () => {

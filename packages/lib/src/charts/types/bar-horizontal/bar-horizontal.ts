@@ -11,6 +11,7 @@ import { createValueLabelPlugin } from '../../plugins/value-labels'
 import { createTooltipPlugin } from '../../plugins/tooltip'
 import { createCrosshairPlugin } from '../../plugins/crosshair'
 import { createAnnotationPlugin } from '../../plugins/annotations'
+import { resolveBackgroundColor } from '../../contrast'
 
 const DEFAULT_COLORS = ['#4e79a7']
 
@@ -34,23 +35,21 @@ class BarHorizontalChart extends D3Blueprint<BarDatum[]> {
       dataBind: (sel, data) => sel.selectAll('.bc-bar').data(data),
       insert: sel => sel.append('rect').attr('class', 'bc-bar'),
       events: {
-        enter: this.enterBars.bind(this),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        enter: (sel: any) => {
+          const x = this.config('x') as d3.ScaleLinear<number, number>
+          const y = this.config('y') as d3.ScaleBand<string>
+          const colors = this.config('colors') as string[]
+          const highlights = this.config('highlights') as Map<string, string>
+          sel
+            .attr('x', (d: BarDatum) => Math.min(x(0), x(d.value)))
+            .attr('y', (d: BarDatum) => y(d.label) ?? 0)
+            .attr('width', (d: BarDatum) => Math.abs(x(d.value) - x(0)))
+            .attr('height', y.bandwidth())
+            .attr('fill', (d: BarDatum) => highlights.get(d.label) ?? colors[0])
+        },
       },
     })
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private enterBars(sel: any) {
-    const x = this.config('x') as d3.ScaleLinear<number, number>
-    const y = this.config('y') as d3.ScaleBand<string>
-    const colors = this.config('colors') as string[]
-    const highlights = this.config('highlights') as Map<string, string>
-    sel
-      .attr('x', (d: BarDatum) => Math.min(x(0), x(d.value)))
-      .attr('y', (d: BarDatum) => y(d.label) ?? 0)
-      .attr('width', (d: BarDatum) => Math.abs(x(d.value) - x(0)))
-      .attr('height', y.bandwidth())
-      .attr('fill', (d: BarDatum) => highlights.get(d.label) ?? colors[0])
   }
 }
 
@@ -71,26 +70,13 @@ export function render(
     value: data.values[data.labels.indexOf(l)],
   }))
 
-  const { x, y, useLog, domainMin, domainMax } = buildBarHorizontalScales(barData, labels, width, height, options)
-
-  renderBarHorizontalAxes(chartArea, x, y, height, width, margin, useLog, domainMin, domainMax, options)
-
-  const highlights = new Map(
-    (options.highlights ?? []).map(h => [h.target, h.color]),
-  )
-
-  drawBarHorizontalChart(chartArea, x, y, width, height, barData, highlights, options)
-}
-
-function buildBarHorizontalScales(
-  barData: BarDatum[],
-  labels: string[],
-  width: number,
-  height: number,
-  options: ChartOptions,
-) {
   const useLog = options.horizontalAxis?.scaleType === 'log'
   const [domainMin, domainMax] = computeLinearDomain(barData.map(d => d.value), options.horizontalAxis?.range)
+  // Extend domain to leave room for value labels left of negative bars
+  if (options.valueLabels && domainMin < 0 && options.horizontalAxis?.range?.min == null) {
+    const span = domainMax - domainMin
+    domainMin -= span * 0.1
+  }
   const x = useLog
     ? d3.scaleSymlog().domain([domainMin, domainMax]).nice().range([0, width])
     : d3.scaleLinear().domain([domainMin, domainMax]).nice().range([0, width])
@@ -100,24 +86,10 @@ function buildBarHorizontalScales(
     .range([0, height])
     .padding(0.2)
 
-  return { x, y, useLog, domainMin, domainMax }
-}
-
-function renderBarHorizontalAxes(
-  chartArea: SVGGElement,
-  x: d3.ScaleLinear<number, number> | d3.ScaleSymLog<number, number>,
-  y: d3.ScaleBand<string>,
-  height: number,
-  width: number,
-  margin: { top: number },
-  useLog: boolean,
-  domainMin: number,
-  domainMax: number,
-  options: ChartOptions,
-) {
   renderHorizontalAxis(chartArea, x, height, { ...options.horizontalAxis, width })
   renderVerticalAxis(chartArea, y, height, { ...options.verticalAxis, topPadding: margin.top })
 
+  // Zero baseline when domain spans zero
   if (!useLog && domainMin < 0 && domainMax > 0) {
     d3.select(chartArea).append('line')
       .attr('class', 'bc-zero-baseline')
@@ -125,9 +97,13 @@ function renderBarHorizontalAxes(
       .attr('y1', 0).attr('y2', height)
       .attr('stroke', '#666').attr('stroke-width', 1)
   }
-}
 
-function applyBarHorizontalPlugins(chart: BarHorizontalChart, barData: BarDatum[], x: d3.ScaleLinear<number, number> | d3.ScaleSymLog<number, number>, y: d3.ScaleBand<string>, width: number, height: number, options: ChartOptions): void {
+  const highlights = new Map(
+    (options.highlights ?? []).map(h => [h.target, h.color]),
+  )
+
+  const chart = new BarHorizontalChart(d3.select(chartArea))
+  chart.config({ x, y, width, height, colors: options.colors ?? DEFAULT_COLORS, highlights })
   if (options.valueLabels) {
     chart.use(createValueLabelPlugin({ position: options.valueLabelPosition, orientation: 'horizontal' }))
   }
@@ -138,23 +114,8 @@ function applyBarHorizontalPlugins(chart: BarHorizontalChart, barData: BarDatum[
     chart.use(createCrosshairPlugin({ width, height, direction: options.crosshairDirection, style: options.crosshairStyle, color: options.crosshairColor }))
   }
   if (options.annotations?.length) {
-    chart.use(createAnnotationPlugin(options.annotations, y, x, barData))
+    chart.use(createAnnotationPlugin(options.annotations, { scaleX: y, scaleY: x, data: barData, width, height, backgroundColor: resolveBackgroundColor(container), orientation: 'horizontal' }))
   }
-}
-
-function drawBarHorizontalChart(
-  chartArea: SVGGElement,
-  x: d3.ScaleLinear<number, number> | d3.ScaleSymLog<number, number>,
-  y: d3.ScaleBand<string>,
-  width: number,
-  height: number,
-  barData: BarDatum[],
-  highlights: Map<string, string>,
-  options: ChartOptions,
-) {
-  const chart = new BarHorizontalChart(d3.select(chartArea))
-  chart.config({ x, y, width, height, colors: options.colors ?? DEFAULT_COLORS, highlights })
-  applyBarHorizontalPlugins(chart, barData, x, y, width, height, options)
   chart.draw(barData)
 }
 

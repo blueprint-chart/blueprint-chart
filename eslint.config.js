@@ -46,6 +46,12 @@ export default [
     },
   },
   {
+    files: ['packages/lib/src/**/*.ts'],
+    rules: {
+      'max-lines-per-function': 'off',
+    },
+  },
+  {
     ignores: ['**/dist/**', '**/node_modules/**', '.claude/**', 'packages/lib/src/dsl/grammar.js'],
   },
 ]
