@@ -23,11 +23,26 @@ export interface AreaFillNode {
   properties: PropertyNode[]
 }
 
-export interface AnnotationNode {
+export interface PointAnnotationNode {
   type: 'annotation'
+  kind: 'point'
   target: string
   properties: PropertyNode[]
 }
+
+export interface RangeAnnotationNode {
+  type: 'annotation'
+  kind: 'range'
+  properties: PropertyNode[]
+}
+
+export interface FreeAnnotationNode {
+  type: 'annotation'
+  kind: 'free'
+  properties: PropertyNode[]
+}
+
+export type AnnotationNode = PointAnnotationNode | RangeAnnotationNode | FreeAnnotationNode
 
 export interface SeriesNode {
   type: 'series'
