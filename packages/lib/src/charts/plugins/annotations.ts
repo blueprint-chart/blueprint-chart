@@ -332,7 +332,14 @@ export function renderConnectingLine(
       const dist = Math.sqrt(dx * dx + dy * dy)
       const r = dist * 0.8
       const sweep = style === 'curve-right' ? 1 : 0
-      d = `M ${from.x} ${from.y} A ${r} ${r} 0 0 ${sweep} ${to.x} ${to.y}`
+      // End the arc slightly before the target, then add a straight stub
+      // so the arrow marker points directly at the target instead of
+      // following the arc tangent.
+      const stub = Math.min(8, dist * 0.15)
+      const nx = dist > 0 ? dx / dist : 0
+      const ny = dist > 0 ? dy / dist : 0
+      const arcEnd = { x: to.x - nx * stub, y: to.y - ny * stub }
+      d = `M ${from.x} ${from.y} A ${r} ${r} 0 0 ${sweep} ${arcEnd.x} ${arcEnd.y} L ${to.x} ${to.y}`
       break
     }
     case 'elbow': {
