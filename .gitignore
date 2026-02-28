@@ -3,3 +3,6 @@ dist/
 *.local
 components.d.ts
 .playwright-mcp
+
+# Generated PEG parser
+packages/lib/src/dsl/grammar.js
