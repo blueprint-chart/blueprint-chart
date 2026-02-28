@@ -11,9 +11,9 @@ vi.mock('vue-router', () => ({
 vi.mock('@/composables/useWizard', () => {
   const state = { currentIndex: 0, furthestIndex: 0 }
   const steps = [
-    { label: 'Upload', key: 'upload' },
-    { label: 'Check', key: 'check' },
-    { label: 'Edit', key: 'edit' },
+    { label: 'Data', key: 'upload' },
+    { label: 'Data', key: 'check' },
+    { label: 'Visualize', key: 'edit' },
     { label: 'Export', key: 'export' },
   ]
   return {
@@ -86,7 +86,6 @@ vi.mock('@/composables/useDataParser', () => ({
 const uiStubs: Record<string, { template: string, props?: string[] }> = {
   NavigationStepper: { template: '<div class="stepper"><slot /></div>', props: ['currentStep', 'steps'] },
   ButtonIcon: { template: '<button class="btn-icon" :disabled="disabled"><slot /></button>', props: ['iconLeft', 'label', 'hideLabel', 'square', 'variant', 'size', 'disabled'] },
-  LayoutToolbarSeparator: { template: '<div class="separator" />' },
   FormControlButtonGroup: { template: '<div class="btn-group" />', props: ['modelValue', 'label', 'options'] },
 }
 

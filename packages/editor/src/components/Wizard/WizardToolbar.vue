@@ -23,15 +23,6 @@
           label=""
           :options="viewModeOptions"
         />
-        <LayoutToolbarSeparator />
-        <BButton
-          variant="primary"
-          size="sm"
-          class="fw-semibold"
-          @click="goToExport"
-        >
-          Next
-        </BButton>
       </template>
       <template v-else-if="currentStep.key === 'upload' || currentStep.key === 'check'">
         <BButton
@@ -60,6 +51,9 @@ import { useDataTable } from '@/composables/useDataTable'
 import { useChartConfig } from '@/composables/useChartConfig'
 import { useChartSession } from '@/composables/useChartSession'
 import { parseDelimited } from '@/composables/useDataParser'
+import IPhTable from '~icons/ph/table'
+import IPhChartBar from '~icons/ph/chart-bar'
+import IPhExport from '~icons/ph/export'
 
 const router = useRouter()
 const { currentIndex, currentStep, steps, next, goTo } = useWizard()
@@ -68,7 +62,13 @@ const { canUndo, canRedo, undo, redo } = useChartHistory()
 const dataTable = useDataTable()
 const config = useChartConfig()
 const { sessionId, createSession } = useChartSession()
-const stepLabels = steps.map(s => ({ label: s.label }))
+const stepIcons: Record<string, typeof IPhTable> = {
+  upload: IPhTable,
+  check: IPhTable,
+  edit: IPhChartBar,
+  export: IPhExport,
+}
+const stepLabels = steps.map(s => ({ label: s.label, icon: stepIcons[s.key] }))
 
 const viewModeModel = computed({
   get: () => viewMode.value,
@@ -118,10 +118,6 @@ function handleAdvance() {
     }
   }
   next()
-}
-
-function goToExport() {
-  goTo(3)
 }
 </script>
 
