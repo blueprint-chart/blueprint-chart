@@ -29,7 +29,7 @@ describe('estimateArcLabelMargins', () => {
   })
 })
 
-describe('spreadLabels: basic cases', () => {
+describe('spreadLabels', () => {
   it('returns empty array for empty input', () => {
     expect(spreadLabels([], -100, 100)).toEqual([])
   })
@@ -39,47 +39,50 @@ describe('spreadLabels: basic cases', () => {
     expect(spreadLabels([-200], -100, 100)).toEqual([-100])
     expect(spreadLabels([50], -100, 100)).toEqual([50])
   })
-})
 
-describe('spreadLabels: overlap prevention', () => {
   it('preserves order and does not overlap', () => {
+    // Three labels all at the same Y — must be spread apart
     const result = spreadLabels([0, 0, 0], -200, 200)
     expect(result).toHaveLength(3)
     for (let i = 1; i < result.length; i++) {
       expect(result[i] - result[i - 1]).toBeGreaterThanOrEqual(28)
     }
+    // Order preserved (sorted ascending)
     expect(result[0]).toBeLessThan(result[1])
     expect(result[1]).toBeLessThan(result[2])
   })
 
   it('does not overlap even when clamped to tight bounds', () => {
+    // 5 labels in a space that can barely fit them (5 * 28 = 140, bounds = 150)
     const result = spreadLabels([-50, -50, -50, -50, -50], -75, 75)
     expect(result).toHaveLength(5)
     for (let i = 1; i < result.length; i++) {
       const gap = result[i] - result[i - 1]
+      // Allow tiny floating-point slack
       expect(gap).toBeGreaterThanOrEqual(28 - 0.001)
     }
   })
-})
 
-describe('spreadLabels: natural positions', () => {
   it('keeps labels close to natural positions when space allows', () => {
     const natural = [-100, 0, 100]
     const result = spreadLabels(natural, -200, 200)
+    // With plenty of room, labels should stay at their natural positions
     result.forEach((y, i) => {
       expect(Math.abs(y - natural[i])).toBeLessThan(1)
     })
   })
-})
 
-describe('spreadLabels: crowded scenarios', () => {
-  it('handles crowded top scenario', () => {
+  it('handles crowded top scenario (energy sources left side)', () => {
+    // Simulate the failing case: 5 labels on the left side
+    // Natural Ys for Other Renewables, Solar, Wind, Nuclear, Hydro
     const natural = [-140, -125, -95, -25, 80]
     const result = spreadLabels(natural, -157, 157)
     expect(result).toHaveLength(5)
+    // No overlaps
     for (let i = 1; i < result.length; i++) {
       expect(result[i] - result[i - 1]).toBeGreaterThanOrEqual(28 - 0.001)
     }
+    // All within bounds
     result.forEach((y) => {
       expect(y).toBeGreaterThanOrEqual(-157)
       expect(y).toBeLessThanOrEqual(157)
@@ -117,15 +120,18 @@ describe('renderInsideArcLabels', () => {
     renderInsideArcLabels(g, data, { outerRadius: 100, innerRadius: 60, chartWidth: 300, chartHeight: 300 })
 
     const texts = g.selectAll('.bc-arc-inside-label')
+    // All three slices should be large enough (all > 0.3 rad)
     expect(texts.size()).toBeGreaterThanOrEqual(2)
   })
 
   it('skips slices with small angular span', () => {
     const g = createSvgGroup()
+    // One huge slice and one tiny slice
     const data = makePieData([98, 2], ['Huge', 'Tiny'])
     renderInsideArcLabels(g, data, { outerRadius: 100, innerRadius: 60, chartWidth: 300, chartHeight: 300 })
 
     const texts = g.selectAll('.bc-arc-inside-label')
+    // Tiny slice (2% ≈ 0.126 rad) should be skipped
     expect(texts.size()).toBe(1)
   })
 
@@ -142,6 +148,7 @@ describe('renderInsideArcLabels', () => {
 describe('renderAutoArcLabels', () => {
   it('uses inside for large slices and outline for small ones', () => {
     const g = createSvgGroup()
+    // One very large slice + several small ones with long labels
     const data = makePieData([80, 5, 5, 5, 5], ['Big', 'SmallSliceAlpha', 'SmallSliceBeta', 'SmallSliceGamma', 'SmallSliceDelta'])
     renderAutoArcLabels(g, data, { outerRadius: 100, innerRadius: 60, chartWidth: 300, chartHeight: 300 })
 
@@ -149,12 +156,15 @@ describe('renderAutoArcLabels', () => {
     const insideCount = el.querySelectorAll('.bc-arc-inside-label').length
     const outlineCount = el.querySelectorAll('.bc-arc-label-line').length
 
+    // Big slice should be inside
     expect(insideCount).toBeGreaterThanOrEqual(1)
+    // Small slices with long labels should be outline (with leader lines)
     expect(outlineCount).toBeGreaterThanOrEqual(1)
   })
 
   it('falls back to all-outline when all slices are small', () => {
     const g = createSvgGroup()
+    // Many small slices with long labels → all go to outline
     const data = makePieData(
       [10, 10, 10, 10, 10, 10, 10, 10, 10, 10],
       ['LongLabel1', 'LongLabel2', 'LongLabel3', 'LongLabel4', 'LongLabel5', 'LongLabel6', 'LongLabel7', 'LongLabel8', 'LongLabel9', 'LongLabel10'],
@@ -165,7 +175,9 @@ describe('renderAutoArcLabels', () => {
     const outlineCount = el.querySelectorAll('.bc-arc-label-line').length
     const insideCount = el.querySelectorAll('.bc-arc-inside-label').length
 
+    // All slices should be outline (with leader lines)
     expect(outlineCount).toBeGreaterThanOrEqual(1)
+    // No inside labels
     expect(insideCount).toBe(0)
   })
 })

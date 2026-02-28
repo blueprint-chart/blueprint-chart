@@ -9,6 +9,7 @@ import { renderHorizontalAxis } from '../../axis/horizontal-axis'
 import { renderLegend } from '../../legend/legend'
 import { estimateLegendSize } from '../../legend/legend-size'
 import { computeLinearDomain } from '../../scale-helpers'
+import { createAnnotationPlugin } from '../../plugins/annotations'
 import { createTooltipPlugin } from '../../plugins/tooltip'
 import { createCrosshairPlugin } from '../../plugins/crosshair'
 import { contrastTextColor, readableColor, resolveBackgroundColor } from '../../contrast'
@@ -41,45 +42,23 @@ class BarMultiChart extends D3Blueprint<MultiBarDatum[]> {
       dataBind: (sel, data) => sel.selectAll('.bc-bar-multi').data(data),
       insert: sel => sel.append('rect').attr('class', 'bc-bar bc-bar-multi'),
       events: {
-        enter: this.enterBars.bind(this),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        enter: (sel: any) => {
+          const x0 = this.config('x0') as d3.ScaleBand<string>
+          const x1 = this.config('x1') as d3.ScaleBand<string>
+          const y = this.config('y') as d3.ScaleLinear<number, number>
+          const colors = this.config('colors') as string[]
+          sel
+            .attr('data-series', (d: MultiBarDatum) => d.seriesIndex)
+            .attr('x', (d: MultiBarDatum) => (x0(d.label) ?? 0) + (x1(d.series) ?? 0))
+            .attr('y', (d: MultiBarDatum) => Math.min(y(0), y(d.value)))
+            .attr('width', x1.bandwidth())
+            .attr('height', (d: MultiBarDatum) => Math.abs(y(d.value) - y(0)))
+            .attr('fill', (d: MultiBarDatum) => colors[d.seriesIndex % colors.length])
+        },
       },
     })
   }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private enterBars(sel: any) {
-    const x0 = this.config('x0') as d3.ScaleBand<string>
-    const x1 = this.config('x1') as d3.ScaleBand<string>
-    const y = this.config('y') as d3.ScaleLinear<number, number>
-    const colors = this.config('colors') as string[]
-    sel
-      .attr('data-series', (d: MultiBarDatum) => d.seriesIndex)
-      .attr('x', (d: MultiBarDatum) => (x0(d.label) ?? 0) + (x1(d.series) ?? 0))
-      .attr('y', (d: MultiBarDatum) => Math.min(y(0), y(d.value)))
-      .attr('width', x1.bandwidth())
-      .attr('height', (d: MultiBarDatum) => Math.abs(y(d.value) - y(0)))
-      .attr('fill', (d: MultiBarDatum) => colors[d.seriesIndex % colors.length])
-  }
-}
-
-interface BarMultiLayout {
-  chartArea: SVGGElement
-  width: number
-  height: number
-  margin: { top: number }
-  showLegend: boolean
-  legendPos: string
-  legendAnchor: string
-  legendSize: { width: number, height: number }
-}
-
-interface BarMultiContext {
-  allSeries: { name: string, values: number[] }[]
-  series: { name: string, values: number[] }[]
-  seriesNames: string[]
-  colors: string[]
-  overrides: ChartOptions['seriesOverrides']
-  globalLabelMode: string
 }
 
 export function render(
@@ -88,32 +67,17 @@ export function render(
   options: ChartOptions = {},
 ): void {
   const { body } = createFrame(container, options.frame)
-  const ctx = buildBarMultiContext(data, options)
-  const layout = buildBarMultiLayout(body, ctx, options)
-  const { x0, x1, y } = buildBarMultiScales(data, ctx, layout, options)
-  const flatData = buildFlatData(data, ctx, options)
 
-  drawBarMultiBars(layout, x0, x1, y, flatData, ctx, options)
-  renderBarMultiValueLabels(container, layout.chartArea, flatData, x0, x1, y, ctx, options)
-  renderBarMultiDirectLabels(container, layout.chartArea, flatData, x0, x1, y, ctx, options)
-  renderBarMultiLegend(layout, ctx)
-}
-
-function buildBarMultiContext(data: ChartData, options: ChartOptions): BarMultiContext {
   const allSeries = data.series ?? []
   const series = allSeries.filter(s => !isSeriesHidden(s.name, options.seriesOverrides))
   const seriesNames = series.map(s => s.name)
   const colors = options.colors ?? DEFAULT_COLORS
   const overrides = options.seriesOverrides
-  const globalLabelMode = options.directLabelling ? 'direct' : (options.legend !== false ? 'legend' : 'none')
-  return { allSeries, series, seriesNames, colors, overrides, globalLabelMode }
-}
 
-function buildBarMultiLayout(
-  body: HTMLElement,
-  ctx: BarMultiContext,
-  options: ChartOptions,
-): BarMultiLayout {
+  // Determine global label mode early so margin calculations account for direct labels
+  const globalLabelMode = options.directLabelling ? 'direct' : (options.legend !== false ? 'legend' : 'none')
+
+  // Compute margin adjustments for legend
   const showLegend = options.legend !== false && !options.directLabelling
   const containerWidth = body.getBoundingClientRect().width
   const NARROW_THRESHOLD = 350
@@ -122,402 +86,297 @@ function buildBarMultiLayout(
     ? 'top'
     : requestedLegendPos
   const legendAnchor = options.legendAnchor ?? 'start'
-  const legendSize = showLegend ? estimateLegendSize(ctx.seriesNames, legendPos, containerWidth) : { width: 0, height: 0 }
-  const marginOverrides = computeBarMultiMargins(ctx, showLegend, legendPos, legendSize, containerWidth, options)
-  const { chartArea, width, height, margin } = createCanvas(body, marginOverrides)
-  return { chartArea, width, height, margin, showLegend, legendPos, legendAnchor, legendSize }
-}
-
-function applyLegendMargins(m: Record<string, number>, showLegend: boolean, legendPos: string, legendSize: { width: number, height: number }): void {
-  if (!showLegend) {
-    return
-  }
-  const legendH = legendSize.height + 10
-  if (legendPos === 'top') {
-    m.top = (m.top ?? 20) + legendH
-  }
-  if (legendPos === 'bottom') {
-    m.bottom = (m.bottom ?? 40) + legendH
-  }
-  if (legendPos === 'left') {
-    m.left = (m.left ?? 50) + legendSize.width + 10
-  }
-  if (legendPos === 'right') {
-    m.right = (m.right ?? 20) + legendSize.width + 10
-  }
-}
-
-function computeBarMultiMargins(
-  ctx: BarMultiContext,
-  showLegend: boolean,
-  legendPos: string,
-  legendSize: { width: number, height: number },
-  containerWidth: number,
-  options: ChartOptions,
-): Record<string, number> {
-  const allValues = ctx.series.flatMap(s => s.values)
+  const legendSize = showLegend ? estimateLegendSize(seriesNames, legendPos, containerWidth) : { width: 0, height: 0 }
+  const legendH = showLegend ? legendSize.height + 10 : 0
+  const allValues = series.flatMap(s => s.values)
   const vLabelW = estimateVerticalLabelWidth(allValues, options.verticalAxis?.range, options.verticalAxis?.numberFormat, options.verticalAxis?.scaleType)
   const lpMargins = labelPositionMargins(containerWidth, options.verticalAxis?.labelPosition, options.horizontalAxis?.labelPosition, options.verticalAxis?.direction, vLabelW)
-  const m: Record<string, number> = { ...lpMargins }
-  applyLegendMargins(m, showLegend, legendPos, legendSize)
-  return m
-}
 
-function buildBarMultiScales(
-  data: ChartData,
-  ctx: BarMultiContext,
-  layout: BarMultiLayout,
-  options: ChartOptions,
-) {
-  const allValues = ctx.series.flatMap(s => s.values)
+  const marginOverrides: Record<string, number> = { ...lpMargins }
+  if (showLegend && legendPos === 'top') {
+    marginOverrides.top = (marginOverrides.top ?? 20) + legendH
+  }
+  if (showLegend && legendPos === 'bottom') {
+    marginOverrides.bottom = (marginOverrides.bottom ?? 40) + legendH
+  }
+  if (showLegend && legendPos === 'left') {
+    marginOverrides.left = (marginOverrides.left ?? 50) + legendSize.width + 10
+  }
+  if (showLegend && legendPos === 'right') {
+    marginOverrides.right = (marginOverrides.right ?? 20) + legendSize.width + 10
+  }
+  const { chartArea, width, height, margin } = createCanvas(body, marginOverrides)
   const [domainMin, domainMax] = computeLinearDomain(allValues, options.verticalAxis?.range)
+  // Extend domain to leave room for value labels below negative bars
+  if (options.valueLabels && domainMin < 0 && options.verticalAxis?.range?.min == null) {
+    const span = domainMax - domainMin
+    domainMin -= span * 0.1
+  }
 
-  const sortedLabels = sortBarMultiLabels(data, ctx.series, options)
-  const x0 = d3.scaleBand<string>().domain(sortedLabels).range([0, layout.width]).padding(0.2)
-  const x1 = d3.scaleBand<string>().domain(ctx.seriesNames).range([0, x0.bandwidth()]).padding(0.05)
+  // Sort labels by total (sum across series) when sortMode is 'total'
+  let sortedLabels = data.labels
+  if (options.sortMode === 'total') {
+    const totals = data.labels.map((label, i) => ({
+      label,
+      index: i,
+      total: series.reduce((sum, s) => sum + (s.values[i] ?? 0), 0),
+    }))
+    totals.sort((a, b) => b.total - a.total)
+    sortedLabels = totals.map(t => t.label)
+  }
+
+  const x0 = d3.scaleBand<string>()
+    .domain(sortedLabels)
+    .range([0, width])
+    .padding(0.2)
+
+  const x1 = d3.scaleBand<string>()
+    .domain(seriesNames)
+    .range([0, x0.bandwidth()])
+    .padding(0.05)
 
   const useLog = options.verticalAxis?.scaleType === 'log'
   const y = useLog
-    ? d3.scaleSymlog().domain([domainMin, domainMax]).nice().range([layout.height, 0])
-    : d3.scaleLinear().domain([domainMin, domainMax]).nice().range([layout.height, 0])
+    ? d3.scaleSymlog().domain([domainMin, domainMax]).nice().range([height, 0])
+    : d3.scaleLinear().domain([domainMin, domainMax]).nice().range([height, 0])
 
-  renderBarMultiAxes(layout, x0, y, useLog, domainMin, domainMax, options)
-  return { x0, x1, y }
-}
+  renderVerticalAxis(chartArea, y, height, { ...options.verticalAxis, gridWidth: width, topPadding: margin.top })
+  renderHorizontalAxis(chartArea, x0, height, { ...options.horizontalAxis, width })
 
-function sortBarMultiLabels(
-  data: ChartData,
-  series: { name: string, values: number[] }[],
-  options: ChartOptions,
-): string[] {
-  if (options.sortMode !== 'total') {
-    return data.labels
-  }
-  const totals = data.labels.map((label, i) => ({
-    label,
-    total: series.reduce((sum, s) => sum + (s.values[i] ?? 0), 0),
-  }))
-  totals.sort((a, b) => b.total - a.total)
-  return totals.map(t => t.label)
-}
-
-function renderBarMultiAxes(
-  layout: BarMultiLayout,
-  x0: d3.ScaleBand<string>,
-  y: d3.ScaleLinear<number, number> | d3.ScaleSymLog<number, number>,
-  useLog: boolean,
-  domainMin: number,
-  domainMax: number,
-  options: ChartOptions,
-) {
-  renderVerticalAxis(layout.chartArea, y, layout.height, { ...options.verticalAxis, gridWidth: layout.width, topPadding: layout.margin.top })
-  renderHorizontalAxis(layout.chartArea, x0, layout.height, { ...options.horizontalAxis, width: layout.width })
-
+  // Zero baseline when domain spans zero
   if (!useLog && domainMin < 0 && domainMax > 0) {
-    d3.select(layout.chartArea).append('line')
+    d3.select(chartArea).append('line')
       .attr('class', 'bc-zero-baseline')
-      .attr('x1', 0).attr('x2', layout.width)
+      .attr('x1', 0).attr('x2', width)
       .attr('y1', y(0)).attr('y2', y(0))
       .attr('stroke', '#666').attr('stroke-width', 1)
   }
-}
 
-function buildFlatData(
-  data: ChartData,
-  ctx: BarMultiContext,
-  options: ChartOptions,
-): MultiBarDatum[] {
-  const withinGroupRank = buildWithinGroupRank(data, ctx, options)
+  // Build per-group rank map for within-groups sorting
+  const withinGroupRank = new Map<string, string>()
+  if (options.sortMode === 'within-groups') {
+    data.labels.forEach((label, i) => {
+      const items = series.map(s => ({ name: s.name, value: s.values[i] }))
+      items.sort((a, b) => b.value - a.value)
+      items.forEach((item, rank) => {
+        withinGroupRank.set(`${label}\0${item.name}`, seriesNames[rank])
+      })
+    })
+  }
+
   const flatData: MultiBarDatum[] = []
   data.labels.forEach((label, i) => {
-    ctx.series.forEach((s) => {
-      const originalIndex = ctx.allSeries.findIndex(a => a.name === s.name)
+    series.forEach((s) => {
+      const originalIndex = allSeries.findIndex(a => a.name === s.name)
       const positionKey = options.sortMode === 'within-groups'
         ? (withinGroupRank.get(`${label}\0${s.name}`) ?? s.name)
         : s.name
       flatData.push({ label, series: positionKey, seriesName: s.name, value: s.values[i], seriesIndex: originalIndex })
     })
   })
-  return flatData
-}
 
-function buildWithinGroupRank(
-  data: ChartData,
-  ctx: BarMultiContext,
-  options: ChartOptions,
-): Map<string, string> {
-  const rank = new Map<string, string>()
-  if (options.sortMode !== 'within-groups') {
-    return rank
-  }
-  data.labels.forEach((label, i) => {
-    const items = ctx.series.map(s => ({ name: s.name, value: s.values[i] }))
-    items.sort((a, b) => b.value - a.value)
-    items.forEach((item, r) => {
-      rank.set(`${label}\0${item.name}`, ctx.seriesNames[r])
-    })
-  })
-  return rank
-}
+  const globalValueLabels = options.valueLabels ?? false
 
-function drawBarMultiBars(
-  layout: BarMultiLayout,
-  x0: d3.ScaleBand<string>,
-  x1: d3.ScaleBand<string>,
-  y: d3.ScaleLinear<number, number> | d3.ScaleSymLog<number, number>,
-  flatData: MultiBarDatum[],
-  ctx: BarMultiContext,
-  options: ChartOptions,
-) {
-  const chart = new BarMultiChart(d3.select(layout.chartArea))
-  chart.config({ x0, x1, y, height: layout.height, colors: ctx.colors })
+  const chart = new BarMultiChart(d3.select(chartArea))
+  chart.config({ x0, x1, y, height, colors })
   if (options.tooltips) {
     chart.use(createTooltipPlugin())
   }
   if (options.crosshair) {
-    chart.use(createCrosshairPlugin({ width: layout.width, height: layout.height, direction: options.crosshairDirection, style: options.crosshairStyle, color: options.crosshairColor }))
+    chart.use(createCrosshairPlugin({ width, height, direction: options.crosshairDirection, style: options.crosshairStyle, color: options.crosshairColor }))
+  }
+  if (options.annotations?.length) {
+    const annotationData = data.labels.map((l, i) => ({
+      label: l,
+      value: Math.max(...series.map(s => s.values[i] ?? 0)),
+    }))
+    chart.use(createAnnotationPlugin(options.annotations, { scaleX: x0, scaleY: y, data: annotationData, width, height, backgroundColor: resolveBackgroundColor(container) }))
   }
   chart.draw(flatData)
 
-  applyBarMultiSeriesOverrides(layout.chartArea, ctx)
-}
-
-function applyBarMultiSeriesOverrides(chartArea: SVGGElement, ctx: BarMultiContext) {
+  // Apply per-series color and opacity overrides to bars
   d3.select(chartArea).selectAll('.bc-bar-multi').each(function (this: SVGRectElement, d: unknown) {
     const datum = d as MultiBarDatum
-    const seriesColor = resolveSeriesColor(datum.seriesName, datum.seriesIndex, ctx.colors, ctx.overrides)
-    const seriesOpacity = resolveSeriesOpacity(datum.seriesName, ctx.overrides)
+    const seriesColor = resolveSeriesColor(datum.seriesName, datum.seriesIndex, colors, overrides)
+    const seriesOpacity = resolveSeriesOpacity(datum.seriesName, overrides)
     const el = d3.select(this)
     el.attr('fill', seriesColor)
     if (seriesOpacity < 1) {
       el.attr('fill-opacity', seriesOpacity)
     }
   })
-}
 
-function resolveBarDlMode(dlMode: string, barHeight: number): 'inside' | 'outside' {
-  if (dlMode === 'inside') {
-    return 'inside'
-  }
-  if (dlMode === 'outside') {
-    return 'outside'
-  }
-  return barHeight > 20 ? 'inside' : 'outside'
-}
-
-function insideLabelY(barTop: number, barHeight: number, anchor: string): number {
-  if (anchor === 'start') {
-    return barTop + 12
-  }
-  if (anchor === 'end') {
-    return barTop + barHeight - 4
-  }
-  return barTop + barHeight / 2
-}
-
-function resolveVlMode(vlPos: string, barHeight: number): 'inside' | 'outside' {
-  if (vlPos === 'inside') {
-    return 'inside'
-  }
-  if (vlPos === 'outside') {
-    return 'outside'
-  }
-  return barHeight > 20 ? 'inside' : 'outside'
-}
-
-function buildDirectLabelSet(
-  series: { name: string }[],
-  globalLabelMode: string,
-  overrides: ChartOptions['seriesOverrides'],
-): Set<string> {
-  const set = new Set<string>()
+  // Build set of series that get direct labels so value labels can shift up
+  const directLabelSet = new Set<string>()
   series.forEach((s) => {
     if (resolveSeriesLabelMode(s.name, globalLabelMode, overrides) === 'direct') {
-      set.add(s.name)
+      directLabelSet.add(s.name)
     }
   })
-  return set
-}
-
-function renderBarMultiValueLabels(
-  container: HTMLElement,
-  chartArea: SVGGElement,
-  flatData: MultiBarDatum[],
-  x0: d3.ScaleBand<string>,
-  x1: d3.ScaleBand<string>,
-  y: d3.ScaleLinear<number, number> | d3.ScaleSymLog<number, number>,
-  ctx: BarMultiContext,
-  options: ChartOptions,
-) {
-  const globalValueLabels = options.valueLabels ?? false
-  const directLabelSet = buildDirectLabelSet(ctx.series, ctx.globalLabelMode, ctx.overrides)
   const hasAnyDirectLabels = directLabelSet.size > 0
-  const dlMode = typeof options.directLabelling === 'string' ? options.directLabelling : (options.directLabelling ? 'auto' : '')
-  const dlAnchor = options.directLabelAnchor ?? 'middle'
-  const vlPos = options.valueLabelPosition ?? 'auto'
 
+  const bgColor = resolveBackgroundColor(container)
+
+  // Parse direct label sub-mode
+  const dlMode = typeof options.directLabelling === 'string'
+    ? options.directLabelling
+    : (options.directLabelling ? 'auto' : '')
+  const dlAnchor = options.directLabelAnchor ?? 'middle'
+
+  function resolveBarDlMode(barHeight: number): 'inside' | 'outside' {
+    if (dlMode === 'inside') {
+      return 'inside'
+    }
+    if (dlMode === 'outside') {
+      return 'outside'
+    }
+    // auto: inside if tall enough
+    return barHeight > 20 ? 'inside' : 'outside'
+  }
+
+  function insideLabelY(barTop: number, barHeight: number, anchor: string): number {
+    if (anchor === 'start') {
+      return barTop + 12
+    }
+    if (anchor === 'end') {
+      return barTop + barHeight - 4
+    }
+    return barTop + barHeight / 2 // middle
+  }
+
+  // Resolve value label position independently from direct label mode
+  const vlPos = options.valueLabelPosition ?? 'auto'
+  function resolveVlMode(barHeight: number): 'inside' | 'outside' {
+    if (vlPos === 'inside') {
+      return 'inside'
+    }
+    if (vlPos === 'outside') {
+      return 'outside'
+    }
+    // auto: inside if tall enough
+    return barHeight > 20 ? 'inside' : 'outside'
+  }
+
+  // Per-series value labels
   const vlGroup = d3.select(chartArea).append('g').attr('class', 'bc-value-labels')
   flatData.forEach((datum) => {
-    if (!resolveSeriesValueLabels(datum.seriesName, globalValueLabels, ctx.overrides)) {
+    if (!resolveSeriesValueLabels(datum.seriesName, globalValueLabels, overrides)) {
       return
     }
-    renderSingleValueLabel(vlGroup, datum, x0, x1, y, ctx, directLabelSet, hasAnyDirectLabels, dlMode, dlAnchor, vlPos)
+    const cx = (x0(datum.label) ?? 0) + (x1(datum.series) ?? 0) + x1.bandwidth() / 2
+    const barTop = Math.min(y(0), y(datum.value))
+    const barHeight = Math.abs(y(datum.value) - y(0))
+    const vlMode = resolveVlMode(barHeight)
+    const hasDl = hasAnyDirectLabels && directLabelSet.has(datum.seriesName)
+
+    const isNegative = datum.value < 0
+    const barBottom = barTop + barHeight
+    let cy: number
+    let fill: string
+    let baseline: string
+    if (vlMode === 'inside') {
+      const barColor = resolveSeriesColor(datum.seriesName, datum.seriesIndex, colors, overrides)
+      fill = contrastTextColor(barColor)
+      baseline = 'central'
+      // When direct labels are also inside, offset below the direct label
+      const dlIsInside = hasDl && resolveBarDlMode(barHeight) === 'inside'
+      if (dlIsInside) {
+        const dlY = insideLabelY(barTop, barHeight, dlAnchor)
+        cy = dlY + 14
+      }
+      else {
+        cy = barTop + barHeight / 2
+      }
+    }
+    else {
+      fill = 'currentColor'
+      if (isNegative) {
+        // Place below the bar for negative values
+        const dlIsOutside = hasDl && resolveBarDlMode(barHeight) === 'outside'
+        cy = dlIsOutside ? barBottom + 16 : barBottom + 4
+        baseline = 'hanging'
+      }
+      else {
+        // Place above the bar for positive values
+        const dlIsOutside = hasDl && resolveBarDlMode(barHeight) === 'outside'
+        cy = dlIsOutside ? barTop - 16 : barTop - 4
+        baseline = 'auto'
+      }
+    }
+
+    vlGroup.append('text')
+      .attr('class', 'bc-value-label')
+      .attr('x', cx)
+      .attr('y', cy)
+      .attr('text-anchor', 'middle')
+      .attr('dominant-baseline', baseline)
+      .attr('font-size', '11px')
+      .attr('fill', fill)
+      .text(String(datum.value))
   })
-}
 
-function renderSingleValueLabel(
-  vlGroup: d3.Selection<SVGGElement, unknown, null, undefined>,
-  datum: MultiBarDatum,
-  x0: d3.ScaleBand<string>,
-  x1: d3.ScaleBand<string>,
-  y: d3.ScaleLinear<number, number> | d3.ScaleSymLog<number, number>,
-  ctx: BarMultiContext,
-  directLabelSet: Set<string>,
-  hasAnyDirectLabels: boolean,
-  dlMode: string,
-  dlAnchor: string,
-  vlPos: string,
-) {
-  const cx = (x0(datum.label) ?? 0) + (x1(datum.series) ?? 0) + x1.bandwidth() / 2
-  const barTop = Math.min(y(0), y(datum.value))
-  const barHeight = Math.abs(y(datum.value) - y(0))
-  const vlMode = resolveVlMode(vlPos, barHeight)
-  const hasDl = hasAnyDirectLabels && directLabelSet.has(datum.seriesName)
-  const { cy, fill } = computeValueLabelPosition(vlMode, barTop, barHeight, datum, ctx, hasDl, dlMode, dlAnchor)
-  appendValueLabelText(vlGroup, cx, cy, fill, String(datum.value), vlMode)
-}
-
-function appendValueLabelText(
-  vlGroup: d3.Selection<SVGGElement, unknown, null, undefined>,
-  cx: number, cy: number, fill: string, text: string, vlMode: string,
-): void {
-  const vlEl = vlGroup.append('text')
-    .attr('class', 'bc-value-label')
-    .attr('x', cx).attr('y', cy)
-    .attr('text-anchor', 'middle')
-    .attr('font-size', '11px')
-    .attr('fill', fill)
-    .text(text)
-  if (vlMode === 'inside') {
-    vlEl.attr('dominant-baseline', 'central')
-  }
-}
-
-function computeValueLabelPosition(
-  vlMode: 'inside' | 'outside',
-  barTop: number,
-  barHeight: number,
-  datum: MultiBarDatum,
-  ctx: BarMultiContext,
-  hasDl: boolean,
-  dlMode: string,
-  dlAnchor: string,
-): { cy: number, fill: string } {
-  if (vlMode === 'inside') {
-    const barColor = resolveSeriesColor(datum.seriesName, datum.seriesIndex, ctx.colors, ctx.overrides)
-    const fill = contrastTextColor(barColor)
-    const dlIsInside = hasDl && resolveBarDlMode(dlMode, barHeight) === 'inside'
-    const cy = dlIsInside ? insideLabelY(barTop, barHeight, dlAnchor) + 14 : barTop + barHeight / 2
-    return { cy, fill }
-  }
-  const dlIsOutside = hasDl && resolveBarDlMode(dlMode, barHeight) === 'outside'
-  return { cy: dlIsOutside ? barTop - 16 : barTop - 4, fill: 'currentColor' }
-}
-
-function renderBarMultiDirectLabels(
-  container: HTMLElement,
-  chartArea: SVGGElement,
-  flatData: MultiBarDatum[],
-  x0: d3.ScaleBand<string>,
-  x1: d3.ScaleBand<string>,
-  y: d3.ScaleLinear<number, number> | d3.ScaleSymLog<number, number>,
-  ctx: BarMultiContext,
-  options: ChartOptions,
-) {
-  const directLabelSet = buildDirectLabelSet(ctx.series, ctx.globalLabelMode, ctx.overrides)
-  const bgColor = resolveBackgroundColor(container)
-  const dlMode = typeof options.directLabelling === 'string' ? options.directLabelling : (options.directLabelling ? 'auto' : '')
-  const dlAnchor = options.directLabelAnchor ?? 'middle'
-
+  // Direct labels — mode-aware positioning
   flatData.forEach((datum) => {
     if (!directLabelSet.has(datum.seriesName)) {
       return
     }
-    renderSingleDirectLabel(chartArea, datum, x0, x1, y, ctx, bgColor, dlMode, dlAnchor)
-  })
-}
+    const cx = (x0(datum.label) ?? 0) + (x1(datum.series) ?? 0) + x1.bandwidth() / 2
+    const barTop = Math.min(y(0), y(datum.value))
+    const barHeight = Math.abs(y(datum.value) - y(0))
+    const labelText = overrides?.find(o => o.name === datum.seriesName)?.labelText || datum.seriesName
+    const mode = resolveBarDlMode(barHeight)
+    const barColor = resolveSeriesColor(datum.seriesName, datum.seriesIndex, colors, overrides)
 
-function applyDirectLabelPosition(
-  labelEl: d3.Selection<SVGTextElement, unknown, null, undefined>,
-  mode: string, barTop: number, barHeight: number, barColor: string, bgColor: string, dlAnchor: string,
-): void {
-  if (mode === 'inside') {
-    const ly = insideLabelY(barTop, barHeight, dlAnchor)
-    labelEl.attr('y', ly).attr('fill', contrastTextColor(barColor))
-    if (dlAnchor === 'middle') {
-      labelEl.attr('dominant-baseline', 'central')
+    const labelEl = d3.select(chartArea)
+      .append('text')
+      .attr('class', 'bc-direct-label')
+      .attr('data-series', datum.seriesIndex)
+      .attr('x', cx)
+      .attr('text-anchor', 'middle')
+      .attr('font-size', '10px')
+      .text(labelText)
+
+    if (mode === 'inside') {
+      const ly = insideLabelY(barTop, barHeight, dlAnchor)
+      labelEl
+        .attr('y', ly)
+        .attr('fill', contrastTextColor(barColor))
+      if (dlAnchor === 'middle') {
+        labelEl.attr('dominant-baseline', 'central')
+      }
     }
-  }
-  else {
-    labelEl.attr('y', barTop - 4).attr('fill', readableColor(barColor, bgColor))
-  }
-}
-
-function renderSingleDirectLabel(
-  chartArea: SVGGElement,
-  datum: MultiBarDatum,
-  x0: d3.ScaleBand<string>,
-  x1: d3.ScaleBand<string>,
-  y: d3.ScaleLinear<number, number> | d3.ScaleSymLog<number, number>,
-  ctx: BarMultiContext,
-  bgColor: string,
-  dlMode: string,
-  dlAnchor: string,
-) {
-  const cx = (x0(datum.label) ?? 0) + (x1(datum.series) ?? 0) + x1.bandwidth() / 2
-  const barTop = Math.min(y(0), y(datum.value))
-  const barHeight = Math.abs(y(datum.value) - y(0))
-  const labelText = ctx.overrides?.find(o => o.name === datum.seriesName)?.labelText || datum.seriesName
-  const mode = resolveBarDlMode(dlMode, barHeight)
-  const barColor = resolveSeriesColor(datum.seriesName, datum.seriesIndex, ctx.colors, ctx.overrides)
-
-  const labelEl = d3.select(chartArea)
-    .append('text').attr('class', 'bc-direct-label')
-    .attr('data-series', datum.seriesIndex)
-    .attr('x', cx).attr('text-anchor', 'middle')
-    .attr('font-size', '10px').text(labelText)
-  applyDirectLabelPosition(labelEl as unknown as d3.Selection<SVGTextElement, unknown, null, undefined>, mode, barTop, barHeight, barColor, bgColor, dlAnchor)
-}
-
-function computeLegendPosition(layout: BarMultiLayout): { x: number, y: number } {
-  let x = 0
-  let y = 0
-  if (layout.legendPos === 'top') {
-    y = -(layout.legendSize.height + 5)
-  }
-  else if (layout.legendPos === 'bottom') {
-    y = layout.height + 25
-  }
-  else if (layout.legendPos === 'left') {
-    x = -(layout.legendSize.width + 10)
-  }
-  else if (layout.legendPos === 'right') {
-    x = layout.width + 10
-  }
-  return { x, y }
-}
-
-function renderBarMultiLegend(layout: BarMultiLayout, ctx: BarMultiContext) {
-  const legendSeriesNames = ctx.seriesNames.filter((name) => {
-    return resolveSeriesLabelMode(name, ctx.globalLabelMode, ctx.overrides) === 'legend'
+    else {
+      labelEl
+        .attr('y', barTop - 4)
+        .attr('fill', readableColor(barColor, bgColor))
+    }
   })
-  if (!layout.showLegend || legendSeriesNames.length === 0) {
-    return
-  }
-  const legendColors = legendSeriesNames.map((name) => {
-    const idx = ctx.allSeries.findIndex(s => s.name === name)
-    return resolveSeriesColor(name, idx, ctx.colors, ctx.overrides)
+
+  // Legend: filter to series whose label mode resolves to 'legend'
+  const legendSeriesNames = seriesNames.filter((name) => {
+    return resolveSeriesLabelMode(name, globalLabelMode, overrides) === 'legend'
   })
-  const pos = computeLegendPosition(layout)
-  renderLegend(layout.chartArea, legendSeriesNames, legendColors, pos.y, layout.legendPos, layout.legendAnchor, layout.width, layout.height, pos.x)
+
+  if (showLegend && legendSeriesNames.length > 0) {
+    const legendColors = legendSeriesNames.map((name) => {
+      const idx = allSeries.findIndex(s => s.name === name)
+      return resolveSeriesColor(name, idx, colors, overrides)
+    })
+
+    let xPos = 0
+    let yPos = 0
+    if (legendPos === 'top') {
+      yPos = -(legendSize.height + 5)
+    }
+    else if (legendPos === 'bottom') {
+      yPos = height + 25
+    }
+    else if (legendPos === 'left') {
+      xPos = -(legendSize.width + 10)
+    }
+    else if (legendPos === 'right') {
+      xPos = width + 10
+    }
+    renderLegend(chartArea, legendSeriesNames, legendColors, yPos, legendPos, legendAnchor, width, height, xPos)
+  }
 }

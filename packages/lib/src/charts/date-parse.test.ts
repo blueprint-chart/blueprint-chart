@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { parseDate, detectDates } from './date-parse'
 
-describe('parseDate ISO and datetime formats', () => {
+describe('parseDate', () => {
   it('parses YYYY-MM-DD', () => {
     const d = parseDate('2024-01-15')
     expect(d).not.toBeNull()
@@ -28,9 +28,7 @@ describe('parseDate ISO and datetime formats', () => {
     expect(d).not.toBeNull()
     expect(d!.getFullYear()).toBe(2024)
   })
-})
 
-describe('parseDate US formats', () => {
   it('parses MM/DD/YYYY', () => {
     const d = parseDate('01/15/2024')
     expect(d).not.toBeNull()
@@ -50,9 +48,7 @@ describe('parseDate US formats', () => {
     expect(d).not.toBeNull()
     expect(d!.getDate()).toBe(5)
   })
-})
 
-describe('parseDate European formats', () => {
   it('parses DD/MM/YYYY', () => {
     const d = parseDate('15/01/2024')
     expect(d).not.toBeNull()
@@ -64,9 +60,7 @@ describe('parseDate European formats', () => {
     expect(d).not.toBeNull()
     expect(d!.getDate()).toBe(15)
   })
-})
 
-describe('parseDate named month formats', () => {
   it('parses MMM YYYY', () => {
     const d = parseDate('Jan 2024')
     expect(d).not.toBeNull()
@@ -91,9 +85,7 @@ describe('parseDate named month formats', () => {
     expect(d).not.toBeNull()
     expect(d!.getDate()).toBe(15)
   })
-})
 
-describe('parseDate year-month formats', () => {
   it('parses YYYY-MM', () => {
     const d = parseDate('2024-01')
     expect(d).not.toBeNull()
@@ -112,9 +104,7 @@ describe('parseDate year-month formats', () => {
     expect(d).not.toBeNull()
     expect(d!.getFullYear()).toBe(2024)
   })
-})
 
-describe('parseDate invalid inputs', () => {
   it('rejects non-4-digit numbers as years', () => {
     expect(parseDate('42')).toBeNull()
     expect(parseDate('12345')).toBeNull()
@@ -127,7 +117,7 @@ describe('parseDate invalid inputs', () => {
   })
 })
 
-describe('detectDates day formats', () => {
+describe('detectDates', () => {
   it('detects ISO dates', () => {
     const result = detectDates(['2024-01-15', '2024-02-20', '2024-03-10'])
     expect(result).not.toBeNull()
@@ -135,14 +125,6 @@ describe('detectDates day formats', () => {
     expect(result!.dates).toHaveLength(3)
   })
 
-  it('detects US date format', () => {
-    const result = detectDates(['1/15/2024', '2/20/2024'])
-    expect(result).not.toBeNull()
-    expect(result!.granularity).toBe('day')
-  })
-})
-
-describe('detectDates month and year formats', () => {
   it('detects year-month labels', () => {
     const result = detectDates(['2024-01', '2024-02', '2024-03'])
     expect(result).not.toBeNull()
@@ -153,6 +135,12 @@ describe('detectDates month and year formats', () => {
     const result = detectDates(['2020', '2021', '2022'])
     expect(result).not.toBeNull()
     expect(result!.granularity).toBe('year')
+  })
+
+  it('detects US date format', () => {
+    const result = detectDates(['1/15/2024', '2/20/2024'])
+    expect(result).not.toBeNull()
+    expect(result!.granularity).toBe('day')
   })
 
   it('detects MMM YYYY format', () => {
@@ -166,9 +154,7 @@ describe('detectDates month and year formats', () => {
     expect(result).not.toBeNull()
     expect(result!.granularity).toBe('datetime')
   })
-})
 
-describe('detectDates invalid inputs', () => {
   it('returns null for non-date labels', () => {
     expect(detectDates(['Apple', 'Banana', 'Cherry'])).toBeNull()
   })

@@ -7,6 +7,7 @@ import { createCanvas } from '../../canvas/canvas'
 import { renderLegend } from '../../legend/legend'
 import { estimateLegendSize } from '../../legend/legend-size'
 import { createTooltipPlugin } from '../../plugins/tooltip'
+import { createAnnotationPlugin } from '../../plugins/annotations'
 import { resolveBackgroundColor } from '../../contrast'
 import { renderArcLabels, renderInsideArcLabels, renderAutoArcLabels, estimateArcLabelMargins } from '../../plugins/arc-labels'
 import type { ArcLabelDatum } from '../../plugins/arc-labels'
@@ -50,24 +51,6 @@ export function render(
   renderArc(container, data, options, 0.6)
 }
 
-interface ArcPreparedData {
-  labels: string[]
-  values: number[]
-  percentages: number[]
-  total: number
-}
-
-interface ArcLayout {
-  chartArea: SVGGElement
-  width: number
-  height: number
-  showLegend: boolean
-  legendPos: string
-  legendAnchor: string
-  legendSize: { width: number, height: number }
-  legendSuffixes: string[]
-}
-
 export function renderArc(
   container: HTMLElement,
   data: ChartData,
@@ -75,16 +58,8 @@ export function renderArc(
   innerRadiusRatio: number,
 ): void {
   const { body } = createFrame(container, options.frame)
-  const prepared = prepareArcData(data, options)
-  const colors = options.colors ?? DEFAULT_COLORS
-  const dlMode = typeof options.directLabelling === 'string' ? options.directLabelling : (options.directLabelling ? 'auto' : '')
-  const useDirectLabels = !!dlMode
-  const layout = buildArcLayout(body, prepared, colors, useDirectLabels, options)
 
-  drawArcChart(container, layout, prepared, colors, innerRadiusRatio, dlMode, useDirectLabels, options)
-}
-
-function prepareArcData(data: ChartData, options: ChartOptions): ArcPreparedData {
+  // Sort data
   let labels = [...data.labels]
   let values = [...data.values]
   if (options.sort === 'ascending' || options.sort === 'descending') {
@@ -94,6 +69,7 @@ function prepareArcData(data: ChartData, options: ChartOptions): ArcPreparedData
     values = pairs.map(p => p.value)
   }
 
+  // Auto-group small slices
   if (options.sliceMax && options.sliceMax > 0 && labels.length > options.sliceMax) {
     const keep = options.sliceMax - 1
     const keptLabels = labels.slice(0, keep)
@@ -105,234 +81,180 @@ function prepareArcData(data: ChartData, options: ChartOptions): ArcPreparedData
     values = keptValues
   }
 
+  // Compute percentages
   const total = values.reduce((a, b) => a + b, 0)
   const percentages = values.map(v => total > 0 ? (v / total) * 100 : 0)
-  return { labels, values, percentages, total }
-}
 
-function buildArcLegendSuffixes(prepared: ArcPreparedData, useDirectLabels: boolean, options: ChartOptions): string[] {
+  const colors = options.colors ?? DEFAULT_COLORS
+  const dlMode = typeof options.directLabelling === 'string'
+    ? options.directLabelling
+    : (options.directLabelling ? 'auto' : '')
+  const useDirectLabels = !!dlMode
+
+  // Build legend value suffixes when showValues is on and labels are shown as legend
   const showValuesInLegend = (options.showValues ?? true) && !useDirectLabels
-  if (!showValuesInLegend) {
-    return []
-  }
-  return prepared.values.map((v, i) => {
-    const formatted = options.displayAsPercentage
-      ? `${Math.round(prepared.percentages[i])}%`
-      : String(v)
-    return `(${formatted})`
-  })
-}
+  const legendSuffixes = showValuesInLegend
+    ? values.map((v, i) => {
+        const formatted = options.displayAsPercentage
+          ? `${Math.round(percentages[i])}%`
+          : String(v)
+        return `(${formatted})`
+      })
+    : []
 
-function buildArcLayout(
-  body: HTMLElement,
-  prepared: ArcPreparedData,
-  colors: string[],
-  useDirectLabels: boolean,
-  options: ChartOptions,
-): ArcLayout {
-  const legendSuffixes = buildArcLegendSuffixes(prepared, useDirectLabels, options)
+  // Compute margin adjustments for legend
   const showLegend = options.legend !== false && !useDirectLabels
   const containerWidth = body.getBoundingClientRect().width
   const NARROW_THRESHOLD = 350
   const requestedLegendPos = options.legendPosition ?? 'top'
+  // On narrow containers, move side legends to top to preserve chart space
   const legendPos = (containerWidth > 0 && containerWidth < NARROW_THRESHOLD && (requestedLegendPos === 'left' || requestedLegendPos === 'right'))
     ? 'top'
     : requestedLegendPos
   const legendAnchor = options.legendAnchor ?? 'start'
-  const legendSizeLabels = legendSuffixes.length > 0 ? prepared.labels.map((l, i) => `${l} ${legendSuffixes[i]}`) : prepared.labels
+  const legendSizeLabels = legendSuffixes.length > 0
+    ? labels.map((l, i) => `${l} ${legendSuffixes[i]}`)
+    : labels
   const legendSize = showLegend ? estimateLegendSize(legendSizeLabels, legendPos, containerWidth) : { width: 0, height: 0 }
+  const legendH = showLegend ? legendSize.height + 10 : 0
 
-  const marginOverrides = computeArcMargins(body, prepared.labels, showLegend, legendPos, legendSize, useDirectLabels)
-  const { chartArea, width, height } = createCanvas(body, marginOverrides)
-  return { chartArea, width, height, showLegend, legendPos, legendAnchor, legendSize, legendSuffixes }
-}
+  const marginOverrides: Record<string, number> = {}
+  if (showLegend && legendPos === 'top') {
+    marginOverrides.top = 20 + legendH
+  }
+  if (showLegend && legendPos === 'bottom') {
+    marginOverrides.bottom = 40 + legendH
+  }
+  if (showLegend && legendPos === 'left') {
+    marginOverrides.left = 50 + legendSize.width + 10
+  }
+  if (showLegend && legendPos === 'right') {
+    marginOverrides.right = 20 + legendSize.width + 10
+  }
 
-function applyArcLegendMargins(m: Record<string, number>, showLegend: boolean, legendPos: string, legendSize: { width: number, height: number }): void {
-  if (!showLegend) {
-    return
-  }
-  const legendH = legendSize.height + 10
-  if (legendPos === 'top') {
-    m.top = 20 + legendH
-  }
-  if (legendPos === 'bottom') {
-    m.bottom = 40 + legendH
-  }
-  if (legendPos === 'left') {
-    m.left = 50 + legendSize.width + 10
-  }
-  if (legendPos === 'right') {
-    m.right = 20 + legendSize.width + 10
-  }
-}
-
-function computeArcMargins(
-  body: HTMLElement,
-  labels: string[],
-  showLegend: boolean,
-  legendPos: string,
-  legendSize: { width: number, height: number },
-  useDirectLabels: boolean,
-): Record<string, number> {
-  const m: Record<string, number> = {}
-  applyArcLegendMargins(m, showLegend, legendPos, legendSize)
+  // For direct labels we need to know the approximate outerRadius to estimate
+  // margins, but radius depends on margins.  Use a two-pass approach: estimate
+  // the radius from the raw container size, compute label margins, then create
+  // the canvas with final margins.
   if (useDirectLabels) {
-    applyDirectLabelMargins(body, labels, m)
+    const containerRect = body.getBoundingClientRect()
+    const defaultMargin = 20
+    const roughW = containerRect.width - 2 * defaultMargin
+    // Height may be 0 before the SVG is created; fall back to the default canvas height
+    const roughH = (containerRect.height > 0 ? containerRect.height : 400) - 2 * defaultMargin
+    const roughRadius = Math.min(roughW, roughH) / 2
+    const arcLabelMargins = estimateArcLabelMargins(labels, roughRadius)
+    marginOverrides.left = (marginOverrides.left ?? defaultMargin) + arcLabelMargins.left
+    marginOverrides.right = (marginOverrides.right ?? defaultMargin) + arcLabelMargins.right
+    marginOverrides.top = (marginOverrides.top ?? defaultMargin) + arcLabelMargins.top
+    marginOverrides.bottom = (marginOverrides.bottom ?? defaultMargin) + arcLabelMargins.bottom
   }
-  return m
-}
 
-function applyDirectLabelMargins(body: HTMLElement, labels: string[], m: Record<string, number>) {
-  const containerRect = body.getBoundingClientRect()
-  const defaultMargin = 20
-  const roughW = containerRect.width - 2 * defaultMargin
-  const roughH = (containerRect.height > 0 ? containerRect.height : 400) - 2 * defaultMargin
-  const roughRadius = Math.min(roughW, roughH) / 2
-  const arcLabelMargins = estimateArcLabelMargins(labels, roughRadius)
-  m.left = (m.left ?? defaultMargin) + arcLabelMargins.left
-  m.right = (m.right ?? defaultMargin) + arcLabelMargins.right
-  m.top = (m.top ?? defaultMargin) + arcLabelMargins.top
-  m.bottom = (m.bottom ?? defaultMargin) + arcLabelMargins.bottom
-}
+  const { chartArea, width, height } = createCanvas(body, marginOverrides)
 
-function createArcChartElements(layout: ArcLayout, prepared: ArcPreparedData, colors: string[], innerRadiusRatio: number, options: ChartOptions) {
-  const radius = Math.min(layout.width, layout.height) / 2
+  const radius = Math.min(width, height) / 2
   const innerRadius = radius * innerRadiusRatio
-  const colorScale = d3.scaleOrdinal<string>().domain(prepared.labels).range(colors)
+  const colorScale = d3.scaleOrdinal<string>()
+    .domain(labels)
+    .range(colors)
+
   const pie = d3.pie<number>().sort(null)
-  const arcGen = d3.arc<d3.PieArcDatum<number>>().innerRadius(innerRadius).outerRadius(radius)
-  const centerGroup = d3.select(layout.chartArea).append('g').attr('transform', `translate(${layout.width / 2},${layout.height / 2})`)
-  const pieData = pie(prepared.values)
+  const arcGen = d3.arc<d3.PieArcDatum<number>>()
+    .innerRadius(innerRadius)
+    .outerRadius(radius)
+
+  const centerGroup = d3.select(chartArea)
+    .append('g')
+    .attr('transform', `translate(${width / 2},${height / 2})`)
+
+  const pieData = pie(values)
+
   const chart = new ArcChart(centerGroup)
-  chart.config({ arc: arcGen, colorScale, labels: prepared.labels })
+  chart.config({ arc: arcGen, colorScale, labels })
   if (options.tooltips) {
     chart.use(createTooltipPlugin())
   }
   chart.draw(pieData)
-  return { centerGroup, pieData, colorScale, radius, innerRadius }
-}
 
-function drawArcChart(
-  container: HTMLElement,
-  layout: ArcLayout,
-  prepared: ArcPreparedData,
-  colors: string[],
-  innerRadiusRatio: number,
-  dlMode: string,
-  useDirectLabels: boolean,
-  options: ChartOptions,
-) {
-  const { centerGroup, pieData, colorScale, radius, innerRadius } = createArcChartElements(layout, prepared, colors, innerRadiusRatio, options)
+  // Render annotations at chartArea level (not centerGroup) so coordinates
+  // are relative to the plot area origin, not the center-translated arc group
+  if (options.annotations?.length) {
+    const freeAnnotations = options.annotations.filter(a => a.kind === 'free')
+    if (freeAnnotations.length) {
+      const annPlugin = createAnnotationPlugin(freeAnnotations, {
+        scaleX: d3.scaleBand<string>().domain([]).range([0, width]),
+        scaleY: d3.scaleLinear().domain([0, 1]).range([height, 0]),
+        data: [],
+        width,
+        height,
+        backgroundColor: resolveBackgroundColor(container),
+      })
+      annPlugin.postDraw!({ base: d3.select(chartArea) } as unknown as D3Blueprint, undefined as unknown as d3.PieArcDatum<number>[])
+    }
+  }
+
   if (useDirectLabels) {
-    renderArcDirectLabels(container, centerGroup, pieData, prepared, colorScale, radius, innerRadius, layout, dlMode, options)
+    const arcLabelData: ArcLabelDatum[] = pieData.map((d, i) => ({
+      label: labels[i],
+      value: d.data,
+      startAngle: d.startAngle,
+      endAngle: d.endAngle,
+      color: colorScale(labels[i]),
+      percentage: percentages[i],
+      displayAsPercentage: options.displayAsPercentage,
+      showLabel: options.showLabels ?? true,
+      showValue: options.showValues ?? true,
+    }))
+    const labelParent = centerGroup as unknown as d3.Selection<SVGGElement, unknown, null, undefined>
+    const bgColor = resolveBackgroundColor(container)
+    const labelOpts = { outerRadius: radius, innerRadius, chartWidth: width, chartHeight: height, bgColor }
+    if (dlMode === 'inside') {
+      renderInsideArcLabels(labelParent, arcLabelData, labelOpts)
+    }
+    else if (dlMode === 'auto') {
+      renderAutoArcLabels(labelParent, arcLabelData, labelOpts)
+    }
+    else {
+      renderArcLabels(labelParent, arcLabelData, labelOpts)
+    }
   }
-  renderArcCenterTotal(centerGroup, prepared, innerRadiusRatio, options)
-  renderArcLegend(layout, prepared.labels, colors)
-}
 
-function buildArcLabelData(pieData: d3.PieArcDatum<number>[], prepared: ArcPreparedData, colorScale: d3.ScaleOrdinal<string, string>, options: ChartOptions): ArcLabelDatum[] {
-  return pieData.map((d, i) => ({
-    label: prepared.labels[i],
-    value: d.data,
-    startAngle: d.startAngle,
-    endAngle: d.endAngle,
-    color: colorScale(prepared.labels[i]),
-    percentage: prepared.percentages[i],
-    displayAsPercentage: options.displayAsPercentage,
-    showLabel: options.showLabels ?? true,
-    showValue: options.showValues ?? true,
-  }))
-}
+  // Center total (only for donut — innerRadiusRatio > 0)
+  if (options.showTotal && innerRadiusRatio > 0) {
+    const totalText = options.displayAsPercentage ? '100%' : String(total)
+    centerGroup.append('text')
+      .attr('class', 'bc-arc-total-label')
+      .attr('text-anchor', 'middle')
+      .attr('dy', '-0.3em')
+      .attr('font-size', '11px')
+      .attr('fill', 'var(--bc-text-color, #555)')
+      .attr('opacity', 0.7)
+      .text('Total')
+    centerGroup.append('text')
+      .attr('class', 'bc-arc-total-value')
+      .attr('text-anchor', 'middle')
+      .attr('dy', '1em')
+      .attr('font-size', '18px')
+      .attr('font-weight', 'bold')
+      .attr('fill', 'var(--bc-text-color, #555)')
+      .text(totalText)
+  }
 
-function dispatchArcLabelRenderer(
-  labelParent: d3.Selection<SVGGElement, unknown, null, undefined>,
-  arcLabelData: ArcLabelDatum[],
-  labelOpts: { outerRadius: number, innerRadius: number, chartWidth: number, chartHeight: number, bgColor: string },
-  dlMode: string,
-): void {
-  if (dlMode === 'inside') {
-    renderInsideArcLabels(labelParent, arcLabelData, labelOpts)
+  if (showLegend) {
+    let xPos = 0
+    let yPos = 0
+    if (legendPos === 'top') {
+      yPos = -(legendSize.height + 5)
+    }
+    else if (legendPos === 'bottom') {
+      yPos = height + 25
+    }
+    else if (legendPos === 'left') {
+      xPos = -(legendSize.width + 10)
+    }
+    else if (legendPos === 'right') {
+      xPos = width + 10
+    }
+    renderLegend(chartArea, labels, colors, yPos, legendPos, legendAnchor, width, height, xPos, legendSuffixes)
   }
-  else if (dlMode === 'auto') {
-    renderAutoArcLabels(labelParent, arcLabelData, labelOpts)
-  }
-  else {
-    renderArcLabels(labelParent, arcLabelData, labelOpts)
-  }
-}
-
-function renderArcDirectLabels(
-  container: HTMLElement,
-  centerGroup: d3.Selection<SVGGElement, unknown, null, undefined>,
-  pieData: d3.PieArcDatum<number>[],
-  prepared: ArcPreparedData,
-  colorScale: d3.ScaleOrdinal<string, string>,
-  radius: number,
-  innerRadius: number,
-  layout: ArcLayout,
-  dlMode: string,
-  options: ChartOptions,
-) {
-  const arcLabelData = buildArcLabelData(pieData, prepared, colorScale, options)
-  const labelParent = centerGroup as unknown as d3.Selection<SVGGElement, unknown, null, undefined>
-  const bgColor = resolveBackgroundColor(container)
-  const labelOpts = { outerRadius: radius, innerRadius, chartWidth: layout.width, chartHeight: layout.height, bgColor }
-  dispatchArcLabelRenderer(labelParent, arcLabelData, labelOpts, dlMode)
-}
-
-function appendCenterTotalLabel(centerGroup: d3.Selection<SVGGElement, unknown, null, undefined>): void {
-  centerGroup.append('text')
-    .attr('class', 'bc-arc-total-label')
-    .attr('text-anchor', 'middle')
-    .attr('dy', '-0.3em')
-    .attr('font-size', '11px')
-    .attr('fill', 'var(--bc-text-color, #555)')
-    .attr('opacity', 0.7)
-    .text('Total')
-}
-
-function appendCenterTotalValue(centerGroup: d3.Selection<SVGGElement, unknown, null, undefined>, totalText: string): void {
-  centerGroup.append('text')
-    .attr('class', 'bc-arc-total-value')
-    .attr('text-anchor', 'middle')
-    .attr('dy', '1em')
-    .attr('font-size', '18px')
-    .attr('font-weight', 'bold')
-    .attr('fill', 'var(--bc-text-color, #555)')
-    .text(totalText)
-}
-
-function renderArcCenterTotal(
-  centerGroup: d3.Selection<SVGGElement, unknown, null, undefined>,
-  prepared: ArcPreparedData,
-  innerRadiusRatio: number,
-  options: ChartOptions,
-) {
-  if (!options.showTotal || innerRadiusRatio <= 0) {
-    return
-  }
-  const totalText = options.displayAsPercentage ? '100%' : String(prepared.total)
-  appendCenterTotalLabel(centerGroup)
-  appendCenterTotalValue(centerGroup, totalText)
-}
-
-function renderArcLegend(layout: ArcLayout, labels: string[], colors: string[]) {
-  if (!layout.showLegend) {
-    return
-  }
-  let xPos = 0
-  let yPos = 0
-  if (layout.legendPos === 'top') {
-    yPos = -(layout.legendSize.height + 5)
-  }
-  else if (layout.legendPos === 'bottom') {
-    yPos = layout.height + 25
-  }
-  else if (layout.legendPos === 'left') {
-    xPos = -(layout.legendSize.width + 10)
-  }
-  else if (layout.legendPos === 'right') {
-    xPos = layout.width + 10
-  }
-  renderLegend(layout.chartArea, labels, colors, yPos, layout.legendPos, layout.legendAnchor, layout.width, layout.height, xPos, layout.legendSuffixes)
 }

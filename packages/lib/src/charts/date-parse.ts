@@ -54,8 +54,8 @@ export function parseDate(s: string): Date | null {
   }
 
   for (const fmt of DATE_FORMATS) {
-    if (fmt === 'YYYY') {
-      continue // handled above
+    if (fmt === 'YYYY') { // handled above
+      continue
     }
     const d = dayjs(trimmed, fmt, true)
     if (d.isValid()) {
@@ -65,69 +65,57 @@ export function parseDate(s: string): Date | null {
   return null
 }
 
-function detectYearOnly(labels: string[]): { dates: Date[], granularity: DateGranularity } | null {
-  const dates: Date[] = []
-  for (const label of labels) {
-    const trimmed = label.trim()
-    if (!/^\d{4}$/.test(trimmed)) {
-      return null
-    }
-    const d = dayjs(trimmed, 'YYYY', true)
-    if (!d.isValid()) {
-      return null
-    }
-    dates.push(d.toDate())
+export function detectDates(labels: string[]): { dates: Date[], granularity: DateGranularity } | null {
+  if (labels.length === 0) {
+    return null
   }
-  return { dates, granularity: 'year' }
-}
 
-function findMatchingFormat(first: string): string | null {
+  const dates: Date[] = []
+  let matchedFormat: string | null = null
+
+  // Try to find a format that works for the first label, then verify all labels
+  const first = labels[0].trim()
+  if (!first) {
+    return null
+  }
+
+  // Special case: YYYY only
+  if (/^\d{4}$/.test(first)) {
+    for (const label of labels) {
+      const trimmed = label.trim()
+      if (!/^\d{4}$/.test(trimmed)) {
+        return null
+      }
+      const d = dayjs(trimmed, 'YYYY', true)
+      if (!d.isValid()) {
+        return null
+      }
+      dates.push(d.toDate())
+    }
+    return { dates, granularity: 'year' }
+  }
+
   for (const fmt of DATE_FORMATS) {
     if (fmt === 'YYYY') {
       continue
     }
     const d = dayjs(first, fmt, true)
     if (d.isValid()) {
-      return fmt
+      matchedFormat = fmt
+      break
     }
   }
-  return null
-}
 
-function parseLabelDates(labels: string[], format: string): Date[] | null {
-  const dates: Date[] = []
-  for (const label of labels) {
-    const d = dayjs(label.trim(), format, true)
-    if (!d.isValid()) {
-      return null
-    }
-    dates.push(d.toDate())
-  }
-  return dates
-}
-
-export function detectDates(labels: string[]): { dates: Date[], granularity: DateGranularity } | null {
-  if (labels.length === 0) {
-    return null
-  }
-
-  const first = labels[0].trim()
-  if (!first) {
-    return null
-  }
-
-  if (/^\d{4}$/.test(first)) {
-    return detectYearOnly(labels)
-  }
-
-  const matchedFormat = findMatchingFormat(first)
   if (!matchedFormat) {
     return null
   }
 
-  const dates = parseLabelDates(labels, matchedFormat)
-  if (!dates) {
-    return null
+  for (const label of labels) {
+    const d = dayjs(label.trim(), matchedFormat, true)
+    if (!d.isValid()) {
+      return null
+    }
+    dates.push(d.toDate())
   }
 
   return { dates, granularity: granularityForFormat(matchedFormat) }

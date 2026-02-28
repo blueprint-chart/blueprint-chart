@@ -167,56 +167,6 @@ function inferTextAnchorFromOffset(offsetX: number): string {
 // Compute the point on a bounding box edge toward a target point
 // ---------------------------------------------------------------------------
 
-type BboxSide = { x: number, y: number, dist: number }
-
-function bboxProjectionCandidates(
-  bbox: { x: number, y: number, width: number, height: number },
-  tx: number, ty: number, cx: number, cy: number, pad: number,
-): BboxSide[] {
-  const canNS = tx >= bbox.x && tx <= bbox.x + bbox.width
-  const canEW = ty >= bbox.y && ty <= bbox.y + bbox.height
-  const out: BboxSide[] = []
-  if (canNS) {
-    if (ty < cy) {
-      out.push({ x: cx, y: bbox.y - pad, dist: Math.abs(cy - ty) })
-    }
-    else {
-      out.push({ x: cx, y: bbox.y + bbox.height + pad, dist: Math.abs(ty - cy) })
-    }
-  }
-  if (canEW) {
-    if (tx > cx) {
-      out.push({ x: bbox.x + bbox.width + pad, y: cy, dist: Math.abs(tx - cx) })
-    }
-    else {
-      out.push({ x: bbox.x - pad, y: cy, dist: Math.abs(cx - tx) })
-    }
-  }
-  return out
-}
-
-function closestCardinalMidpoint(
-  bbox: { x: number, y: number, width: number, height: number },
-  tx: number, ty: number, cx: number, cy: number, pad: number,
-): { x: number, y: number } {
-  const pts = [
-    { x: cx, y: bbox.y - pad },
-    { x: cx, y: bbox.y + bbox.height + pad },
-    { x: bbox.x + bbox.width + pad, y: cy },
-    { x: bbox.x - pad, y: cy },
-  ]
-  let best = pts[0]
-  let bestDist = (best.x - tx) ** 2 + (best.y - ty) ** 2
-  for (let i = 1; i < pts.length; i++) {
-    const d = (pts[i].x - tx) ** 2 + (pts[i].y - ty) ** 2
-    if (d < bestDist) {
-      best = pts[i]
-      bestDist = d
-    }
-  }
-  return best
-}
-
 export function bboxEdgeToward(
   bbox: { x: number, y: number, width: number, height: number },
   targetX: number,
@@ -225,22 +175,77 @@ export function bboxEdgeToward(
 ): { x: number, y: number } {
   const cx = bbox.x + bbox.width / 2
   const cy = bbox.y + bbox.height / 2
+
   if (targetX === cx && targetY === cy) {
     return { x: cx, y: cy }
   }
-  const candidates = bboxProjectionCandidates(bbox, targetX, targetY, cx, cy, pad)
+
+  // Check which perpendicular projections are valid:
+  // Target X within horizontal span → can exit N or S
+  const canNS = targetX >= bbox.x && targetX <= bbox.x + bbox.width
+  // Target Y within vertical span → can exit E or W
+  const canEW = targetY >= bbox.y && targetY <= bbox.y + bbox.height
+
+  // Build candidate exit points for valid projections
+  type Side = { x: number, y: number, dist: number }
+  const candidates: Side[] = []
+
+  if (canNS) {
+    if (targetY < cy) { // N
+      candidates.push({ x: cx, y: bbox.y - pad, dist: Math.abs(cy - targetY) })
+    }
+    else { candidates.push({ x: cx, y: bbox.y + bbox.height + pad, dist: Math.abs(targetY - cy) }) } // S
+  }
+  if (canEW) {
+    if (targetX > cx) { // E
+      candidates.push({ x: bbox.x + bbox.width + pad, y: cy, dist: Math.abs(targetX - cx) })
+    }
+    else { candidates.push({ x: bbox.x - pad, y: cy, dist: Math.abs(cx - targetX) }) } // W
+  }
+
+  // If we have valid perpendicular projections, pick the one with the shortest
+  // distance from bbox center to target along that axis
   if (candidates.length > 0) {
     candidates.sort((a, b) => a.dist - b.dist)
-    return { x: candidates[0].x, y: candidates[0].y }
+    const { x, y } = candidates[0]
+    return { x, y }
   }
-  return closestCardinalMidpoint(bbox, targetX, targetY, cx, cy, pad)
+
+  // Fallback: anchor is in a corner region — pick the closest cardinal midpoint
+  const midpoints = [
+    { x: cx, y: bbox.y - pad }, // N
+    { x: cx, y: bbox.y + bbox.height + pad }, // S
+    { x: bbox.x + bbox.width + pad, y: cy }, // E
+    { x: bbox.x - pad, y: cy }, // W
+  ]
+  let best = midpoints[0]
+  let bestDist = (best.x - targetX) ** 2 + (best.y - targetY) ** 2
+  for (let i = 1; i < midpoints.length; i++) {
+    const d = (midpoints[i].x - targetX) ** 2 + (midpoints[i].y - targetY) ** 2
+    if (d < bestDist) {
+      best = midpoints[i]
+      bestDist = d
+    }
+  }
+  return best
 }
 
 // ---------------------------------------------------------------------------
 // Arrow marker
 // ---------------------------------------------------------------------------
 
-function appendArrowMarkerDef(svg: SVGElement, id: string, color: string): void {
+export function ensureArrowMarker(svg: SVGElement | null, color?: string): string {
+  if (!svg) {
+    return 'bc-arrow'
+  }
+
+  const safeColor = color ?? '#666'
+  const id = `bc-arrow-${safeColor.replace(/[^a-zA-Z0-9]/g, '')}`
+
+  if (svg.querySelector(`#${id}`)) {
+    return id
+  }
+
   const defs = d3.select(svg).select('defs').empty()
     ? d3.select(svg).append('defs')
     : d3.select(svg).select('defs')
@@ -257,19 +262,9 @@ function appendArrowMarkerDef(svg: SVGElement, id: string, color: string): void 
     .append('path')
     .attr('d', 'M 0 1 L 7 5 L 0 9')
     .attr('fill', 'none')
-    .attr('stroke', color)
+    .attr('stroke', safeColor)
     .attr('stroke-width', 1.5)
-}
 
-export function ensureArrowMarker(svg: SVGElement | null, color?: string): string {
-  if (!svg) {
-    return 'bc-arrow'
-  }
-  const safeColor = color ?? '#666'
-  const id = `bc-arrow-${safeColor.replace(/[^a-zA-Z0-9]/g, '')}`
-  if (!svg.querySelector(`#${id}`)) {
-    appendArrowMarkerDef(svg, id, safeColor)
-  }
   return id
 }
 
@@ -341,51 +336,47 @@ export function computeElbowPath(
   return `M ${from.x} ${from.y} L ${mid.x} ${mid.y} L ${to.x} ${to.y}`
 }
 
-function computeCurvePath(
-  from: { x: number, y: number },
-  to: { x: number, y: number },
-  style: 'curve-left' | 'curve-right',
-): string {
-  const dx = to.x - from.x
-  const dy = to.y - from.y
-  const dist = Math.sqrt(dx * dx + dy * dy)
-  const r = dist * 0.8
-  const sweep = style === 'curve-right' ? 1 : 0
-  // End arc slightly before target, then straight stub so arrow points at target
-  const stub = Math.min(8, dist * 0.15)
-  const nx = dist > 0 ? dx / dist : 0
-  const ny = dist > 0 ? dy / dist : 0
-  const arcEnd = { x: to.x - nx * stub, y: to.y - ny * stub }
-  return `M ${from.x} ${from.y} A ${r} ${r} 0 0 ${sweep} ${arcEnd.x} ${arcEnd.y} L ${to.x} ${to.y}`
-}
-
-function computeLinePath(
-  from: { x: number, y: number },
-  to: { x: number, y: number },
-  style: AnnotationLineStyle,
-  departVertical: boolean,
-): string {
-  switch (style) {
-    case 'curve-left':
-    case 'curve-right':
-      return computeCurvePath(from, to, style)
-    case 'elbow':
-      return computeElbowPath(from, to, departVertical)
-    default:
-      return `M ${from.x} ${from.y} L ${to.x} ${to.y}`
-  }
-}
-
-type LineOpts = { showArrow?: boolean, lineWeight?: number, color?: string, departVertical?: boolean }
-
 export function renderConnectingLine(
   g: d3.Selection<SVGGElement, unknown, null, undefined>,
   from: { x: number, y: number },
   to: { x: number, y: number },
   style: AnnotationLineStyle = 'direct',
-  opts: LineOpts = {},
+  opts: {
+    showArrow?: boolean
+    lineWeight?: number
+    color?: string
+    departVertical?: boolean
+  } = {},
 ): void {
-  const d = computeLinePath(from, to, style, opts.departVertical ?? false)
+  let d: string
+
+  switch (style) {
+    case 'curve-left':
+    case 'curve-right': {
+      const dx = to.x - from.x
+      const dy = to.y - from.y
+      const dist = Math.sqrt(dx * dx + dy * dy)
+      const r = dist * 0.8
+      const sweep = style === 'curve-right' ? 1 : 0
+      // End the arc slightly before the target, then add a straight stub
+      // so the arrow marker points directly at the target instead of
+      // following the arc tangent.
+      const stub = Math.min(8, dist * 0.15)
+      const nx = dist > 0 ? dx / dist : 0
+      const ny = dist > 0 ? dy / dist : 0
+      const arcEnd = { x: to.x - nx * stub, y: to.y - ny * stub }
+      d = `M ${from.x} ${from.y} A ${r} ${r} 0 0 ${sweep} ${arcEnd.x} ${arcEnd.y} L ${to.x} ${to.y}`
+      break
+    }
+    case 'elbow': {
+      d = computeElbowPath(from, to, opts.departVertical ?? false)
+      break
+    }
+    default: {
+      d = `M ${from.x} ${from.y} L ${to.x} ${to.y}`
+    }
+  }
+
   const lineColor = opts.color ?? '#666'
   const line = g.append('path')
     .attr('class', 'bc-annotation-line')
@@ -405,61 +396,56 @@ export function renderConnectingLine(
 // Text renderer with outline
 // ---------------------------------------------------------------------------
 
-function appendTspan(
-  textEl: d3.Selection<SVGTextElement, unknown, null, undefined>,
-  text: string,
-  lineNumber: number,
-): void {
-  textEl.append('tspan')
-    .attr('x', textEl.attr('x'))
-    .attr('dy', lineNumber === 0 ? '0' : '1.2em')
-    .text(text)
-}
-
-function appendTextContent(
-  textEl: d3.Selection<SVGTextElement, unknown, null, undefined>,
-  text: string,
-  maxWidth?: number,
-): void {
-  const lines = text.split('\n')
-  if (lines.length > 1 || (maxWidth && maxWidth > 0)) {
-    if (maxWidth && maxWidth > 0) {
-      wrapText(textEl, text, maxWidth)
-    }
-    else {
-      for (let i = 0; i < lines.length; i++) {
-        appendTspan(textEl, lines[i], i)
-      }
-    }
-  }
-  else {
-    textEl.text(text)
-  }
-}
-
-type TextOpts = { textColor?: string, maxWidth?: number, textAnchor?: string, backgroundColor?: string, textOutline?: boolean }
-
 export function renderAnnotationText(
   g: d3.Selection<SVGGElement, unknown, null, undefined>,
-  text: string, x: number, y: number,
-  opts: TextOpts = {},
+  text: string,
+  x: number,
+  y: number,
+  opts: {
+    textColor?: string
+    maxWidth?: number
+    textAnchor?: string
+    backgroundColor?: string
+    textOutline?: boolean
+  } = {},
 ): void {
+  const anchor = opts.textAnchor ?? 'middle'
+  const showOutline = opts.textOutline !== false
+
   const textEl = g.append('text')
     .attr('class', 'bc-annotation-text')
     .attr('x', x)
     .attr('y', y)
-    .attr('text-anchor', opts.textAnchor ?? 'middle')
+    .attr('text-anchor', anchor)
     .attr('font-size', '12px')
     .attr('fill', opts.textColor ?? 'currentColor')
 
-  if (opts.textOutline !== false) {
+  if (showOutline) {
     textEl
       .attr('stroke', opts.backgroundColor ?? '#fff')
       .attr('stroke-width', 3)
       .attr('paint-order', 'stroke')
   }
 
-  appendTextContent(textEl, text, opts.maxWidth)
+  // Split on newlines for multiline support
+  const lines = text.split('\n')
+  if (lines.length > 1 || (opts.maxWidth && opts.maxWidth > 0)) {
+    // Multiline: create tspans
+    if (opts.maxWidth && opts.maxWidth > 0) {
+      wrapText(textEl, text, opts.maxWidth)
+    }
+    else {
+      for (let i = 0; i < lines.length; i++) {
+        textEl.append('tspan')
+          .attr('x', textEl.attr('x'))
+          .attr('dy', i === 0 ? '0' : '1.2em')
+          .text(lines[i])
+      }
+    }
+  }
+  else {
+    textEl.text(text)
+  }
 }
 
 function wrapText(
@@ -474,15 +460,22 @@ function wrapText(
   for (const word of words) {
     const test = line ? `${line} ${word}` : word
     if (line && test.length * 7 > maxWidth) {
-      appendTspan(textEl, line, lineNumber++)
+      textEl.append('tspan')
+        .attr('x', textEl.attr('x'))
+        .attr('dy', lineNumber === 0 ? '0' : '1.2em')
+        .text(line)
       line = word
+      lineNumber++
     }
     else {
       line = test
     }
   }
   if (line) {
-    appendTspan(textEl, line, lineNumber)
+    textEl.append('tspan')
+      .attr('x', textEl.attr('x'))
+      .attr('dy', lineNumber === 0 ? '0' : '1.2em')
+      .text(line)
   }
 }
 
@@ -537,125 +530,6 @@ function datumCenter(
 // Point annotation
 // ---------------------------------------------------------------------------
 
-type PointLineConfig = {
-  showLine?: boolean
-  showArrow?: boolean
-  lineStyle?: AnnotationLineStyle
-  lineWeight?: number
-  lineTargetDistance?: number
-  showCircle?: boolean
-  circleSize?: number
-  anchorDirection?: CompassDirection
-  textOffsetX?: number
-  textOffsetY?: number
-}
-
-function resolvePointTextPosition(
-  ann: Record<string, unknown>,
-  lineConfig: PointLineConfig,
-  datum: { label: string, value: number },
-  anchor: { x: number, y: number },
-  ctx: AnnotationContext,
-): { tx: number, ty: number } {
-  if (ann.dx != null || ann.dy != null) {
-    const { x: cx, y: cy } = datumCenter(datum, ctx.scaleX, ctx.scaleY)
-    return { tx: cx + (Number(ann.dx) || 40), ty: cy + (Number(ann.dy) || -40) }
-  }
-  if (ann.direction != null && ann.textOffsetX == null) {
-    const { x: cx, y: cy } = datumCenter(datum, ctx.scaleX, ctx.scaleY)
-    const offset = computeDirectionOffset(ann.direction as CompassDirection, (ann.anchorDistance as number | undefined) ?? 60)
-    return { tx: cx + offset.dx, ty: cy + offset.dy }
-  }
-  return {
-    tx: anchor.x + (lineConfig.textOffsetX ?? -42),
-    ty: anchor.y + (lineConfig.textOffsetY ?? -42),
-  }
-}
-
-function computeLineEndpoint(
-  anchor: { x: number, y: number },
-  tx: number, ty: number, ltd: number,
-): { x: number, y: number } {
-  if (ltd <= 0) {
-    return { x: anchor.x, y: anchor.y }
-  }
-  const dx = anchor.x - tx
-  const dy = anchor.y - ty
-  const len = Math.sqrt(dx * dx + dy * dy)
-  if (len === 0) {
-    return { x: anchor.x, y: anchor.y }
-  }
-  return { x: anchor.x - (dx / len) * ltd, y: anchor.y - (dy / len) * ltd }
-}
-
-function computeLineStart(
-  annG: d3.Selection<SVGGElement, unknown, null, undefined>,
-  tx: number, ty: number, to: { x: number, y: number },
-): { start: { x: number, y: number }, departVertical: boolean } {
-  let start = { x: tx, y: ty }
-  let departVertical = false
-  const textNode = annG.select('.bc-annotation-text').node() as SVGTextElement | null
-  if (textNode) {
-    try {
-      const tBBox = textNode.getBBox()
-      if (tBBox.width > 0 && tBBox.height > 0) {
-        start = bboxEdgeToward(tBBox, to.x, to.y)
-        departVertical = Math.abs(start.x - (tBBox.x + tBBox.width / 2)) < 1
-      }
-    }
-    catch { /* getBBox can throw if not in DOM */ }
-  }
-  return { start, departVertical }
-}
-
-function renderPointCircleAndText(
-  annG: d3.Selection<SVGGElement, unknown, null, undefined>,
-  ann: AnnotationConfig,
-  ctx: AnnotationContext,
-  anchor: { x: number, y: number },
-  tx: number, ty: number, lineColor: string,
-): void {
-  const circleConfig = ann as { showCircle?: boolean, circleSize?: number, circleStyle?: StrokeStyle }
-  if (circleConfig.showCircle) {
-    renderTargetCircle(annG, anchor.x, anchor.y, {
-      size: circleConfig.circleSize, style: circleConfig.circleStyle, color: lineColor,
-    })
-  }
-  if (ann.text) {
-    const clampedX = Math.max(4, Math.min(tx, ctx.width - 4))
-    renderAnnotationText(annG, ann.text, clampedX, ty - 4, {
-      textColor: ann.textColor,
-      maxWidth: resolveMaxWidth(ann.maxWidth, ctx.width),
-      textAnchor: inferTextAnchorFromOffset(tx - anchor.x),
-      backgroundColor: ctx.backgroundColor,
-      textOutline: ann.textOutline,
-    })
-  }
-}
-
-function renderPointLine(
-  annG: d3.Selection<SVGGElement, unknown, null, undefined>,
-  legacyAnn: Record<string, unknown>,
-  lineConfig: PointLineConfig,
-  anchor: { x: number, y: number },
-  tx: number, ty: number, lineColor: string,
-): void {
-  const isLegacy = legacyAnn.dx != null || legacyAnn.dy != null
-  const showLine = isLegacy ? (lineConfig.showLine !== false) : (lineConfig.showLine === true)
-  if (!showLine) {
-    return
-  }
-  const ltd = lineConfig.showCircle
-    ? (lineConfig.circleSize ?? 4) + (lineConfig.lineTargetDistance ?? 5)
-    : (lineConfig.lineTargetDistance ?? 0)
-  const to = computeLineEndpoint(anchor, tx, ty, ltd)
-  const { start, departVertical } = computeLineStart(annG, tx, ty, to)
-  renderConnectingLine(annG, start, to, lineConfig.lineStyle ?? 'direct', {
-    showArrow: lineConfig.showArrow, lineWeight: lineConfig.lineWeight,
-    color: lineColor, departVertical,
-  })
-}
-
 function renderPointAnnotation(
   g: d3.Selection<SVGGElement, unknown, null, undefined>,
   ann: AnnotationConfig & { target?: string },
@@ -666,152 +540,246 @@ function renderPointAnnotation(
   if (!target) {
     return
   }
+
   const datum = ctx.data.find(d => d.label === target)
   if (!datum) {
     return
   }
 
   const annG = g.append('g').attr('data-annotation-index', String(index))
-  const lineConfig = ann as PointLineConfig
-  const anchor = computeAnchorPoint(datum, ctx.scaleX, ctx.scaleY, lineConfig.anchorDirection ?? 'N', ctx.orientation)
-  const legacyAnn = ann as Record<string, unknown>
-  const { tx, ty } = resolvePointTextPosition(legacyAnn, lineConfig, datum, anchor, ctx)
-  const lineColor = legacyAnn.circleColor as string | undefined ?? '#666'
 
-  renderPointCircleAndText(annG, ann, ctx, anchor, tx, ty, lineColor)
-  renderPointLine(annG, legacyAnn, lineConfig, anchor, tx, ty, lineColor)
+  // Compute anchor point on shape
+  const lineConfig = ann as { showLine?: boolean, showArrow?: boolean, lineStyle?: AnnotationLineStyle, lineWeight?: number, lineTargetDistance?: number, showCircle?: boolean, circleSize?: number, anchorDirection?: CompassDirection, textOffsetX?: number, textOffsetY?: number }
+  const anchorDir = lineConfig.anchorDirection ?? 'N'
+  const anchor = computeAnchorPoint(datum, ctx.scaleX, ctx.scaleY, anchorDir, ctx.orientation)
+
+  // Determine text position from textOffsetX/Y, legacy dx/dy, or legacy direction+anchorDistance
+  let tx: number
+  let ty: number
+  const legacyAnn = ann as Record<string, unknown>
+
+  if (legacyAnn.dx != null || legacyAnn.dy != null) {
+    // Legacy dx/dy support
+    const { x: cx, y: cy } = datumCenter(datum, ctx.scaleX, ctx.scaleY)
+    tx = cx + (Number(legacyAnn.dx) || 40)
+    ty = cy + (Number(legacyAnn.dy) || -40)
+  }
+  else if (legacyAnn.direction != null && legacyAnn.textOffsetX == null) {
+    // Legacy direction + anchorDistance → compute text position from center
+    const { x: cx, y: cy } = datumCenter(datum, ctx.scaleX, ctx.scaleY)
+    const direction = legacyAnn.direction as CompassDirection
+    const distance = (legacyAnn.anchorDistance as number | undefined) ?? 60
+    const offset = computeDirectionOffset(direction, distance)
+    tx = cx + offset.dx
+    ty = cy + offset.dy
+  }
+  else {
+    // New: textOffsetX/Y from anchor point
+    tx = anchor.x + (lineConfig.textOffsetX ?? -42)
+    ty = anchor.y + (lineConfig.textOffsetY ?? -42)
+  }
+
+  // Shared line color for line, circle, and arrow
+  const lineColor = (ann as Record<string, unknown>).circleColor as string | undefined ?? '#666'
+
+  // Target circle at anchor point
+  const circleConfig = ann as { showCircle?: boolean, circleSize?: number, circleStyle?: StrokeStyle }
+  if (circleConfig.showCircle) {
+    renderTargetCircle(annG, anchor.x, anchor.y, {
+      size: circleConfig.circleSize,
+      style: circleConfig.circleStyle,
+      color: lineColor,
+    })
+  }
+
+  // Text — render first so we can measure bbox for the line start
+  if (ann.text) {
+    const clampedX = Math.max(4, Math.min(tx, ctx.width - 4))
+    const textAnchor = inferTextAnchorFromOffset(tx - anchor.x)
+    renderAnnotationText(annG, ann.text, clampedX, ty - 4, {
+      textColor: ann.textColor,
+      maxWidth: resolveMaxWidth(ann.maxWidth, ctx.width),
+      textAnchor,
+      backgroundColor: ctx.backgroundColor,
+      textOutline: ann.textOutline,
+    })
+  }
+
+  // Arrow / connecting line — drawn after text so we can use text bbox
+  const isLegacy = legacyAnn.dx != null || legacyAnn.dy != null
+  const showLine = isLegacy ? (lineConfig.showLine !== false) : (lineConfig.showLine === true)
+  if (showLine) {
+    // Shorten line toward anchor by lineTargetDistance
+    const ltd = lineConfig.showCircle
+      ? (lineConfig.circleSize ?? 4) + (lineConfig.lineTargetDistance ?? 5)
+      : (lineConfig.lineTargetDistance ?? 0)
+    let toX = anchor.x
+    let toY = anchor.y
+    if (ltd > 0) {
+      const dx = anchor.x - tx
+      const dy = anchor.y - ty
+      const len = Math.sqrt(dx * dx + dy * dy)
+      if (len > 0) {
+        toX = anchor.x - (dx / len) * ltd
+        toY = anchor.y - (dy / len) * ltd
+      }
+    }
+
+    // Compute line start from text bbox edge toward anchor
+    let lineStart = { x: tx, y: ty }
+    let departVertical = false
+    const textNode = annG.select('.bc-annotation-text').node() as SVGTextElement | null
+    if (textNode) {
+      try {
+        const tBBox = textNode.getBBox()
+        if (tBBox.width > 0 && tBBox.height > 0) {
+          lineStart = bboxEdgeToward(tBBox, toX, toY)
+          // N/S exit → vertical departure for elbow
+          const bboxCx = tBBox.x + tBBox.width / 2
+          departVertical = Math.abs(lineStart.x - bboxCx) < 1
+        }
+      }
+      catch { /* getBBox can throw if not in DOM */ }
+    }
+
+    renderConnectingLine(annG, lineStart, { x: toX, y: toY }, lineConfig.lineStyle ?? 'direct', {
+      showArrow: lineConfig.showArrow,
+      lineWeight: lineConfig.lineWeight,
+      color: lineColor,
+      departVertical,
+    })
+  }
 }
 
 // ---------------------------------------------------------------------------
 // Range annotation
 // ---------------------------------------------------------------------------
 
-function resolveRangeRect(
-  ann: AnnotationConfig & { kind: 'range' },
-  ctx: AnnotationContext,
-): { x: number, y: number, w: number, h: number } {
-  const rangeOrientation = ann.orientation ?? 'vertical'
-  if (ctx.orientation === 'horizontal') {
-    if (rangeOrientation === 'vertical') {
-      const y1 = resolveXPosition(ann.start, ctx.scaleX, ann.startAnchor)
-      const y2 = resolveXPosition(ann.end, ctx.scaleX, ann.endAnchor)
-      return { x: 0, y: Math.min(y1, y2), w: ctx.width, h: Math.abs(y2 - y1) }
-    }
-    const x1 = resolveYPosition(ann.start, ctx.scaleY)
-    const x2 = resolveYPosition(ann.end, ctx.scaleY)
-    return { x: Math.min(x1, x2), y: 0, w: Math.abs(x2 - x1), h: ctx.height }
-  }
-  if (rangeOrientation === 'vertical') {
-    const x1 = resolveXPosition(ann.start, ctx.scaleX, ann.startAnchor)
-    const x2 = resolveXPosition(ann.end, ctx.scaleX, ann.endAnchor)
-    return { x: Math.min(x1, x2), y: 0, w: Math.abs(x2 - x1), h: ctx.height }
-  }
-  const y1 = resolveYPosition(ann.start, ctx.scaleY)
-  const y2 = resolveYPosition(ann.end, ctx.scaleY)
-  return { x: 0, y: Math.min(y1, y2), w: ctx.width, h: Math.abs(y2 - y1) }
-}
-
-function resolveRangeTextPosition(
-  ann: AnnotationConfig & { kind: 'range' },
-  rect: { x: number, y: number, w: number, h: number },
-  ctxWidth: number,
-): { textX: number, textY: number, textAnchor: string, ny: number } {
-  const dir = ann.direction ?? 'center'
-  const pad = 4
-  const v = DIRECTION_VECTORS[dir] ?? DIRECTION_VECTORS.center
-  const nx = 0.5 + v.dx * 0.5
-  const ny = 0.5 + v.dy * 0.5
-  const textX = Math.max(pad, Math.min(rect.x + rect.w * nx, ctxWidth - pad))
-  let textAnchor = 'middle'
-  if (nx < 0.25) {
-    textAnchor = 'start'
-  }
-  else if (nx > 0.75) {
-    textAnchor = 'end'
-  }
-  return { textX, textY: rect.y + pad + 12, textAnchor, ny }
-}
-
-function repositionRangeText(
-  annG: d3.Selection<SVGGElement, unknown, null, undefined>,
-  ny: number, y: number, h: number, pad: number,
-): void {
-  if (ny <= 0.25) {
-    return
-  }
-  const textEl = annG.select('.bc-annotation-text').node() as SVGTextElement | null
-  if (!textEl) {
-    return
-  }
-  try {
-    const tBBox = textEl.getBBox()
-    const dy = ny > 0.75
-      ? (y + h - pad) - (tBBox.y + tBBox.height)
-      : (y + h / 2) - (tBBox.y + tBBox.height / 2)
-    if (Math.abs(dy) > 0.5) {
-      textEl.setAttribute('transform', `translate(0, ${dy})`)
-    }
-  }
-  catch { /* getBBox can throw if not in DOM */ }
-}
-
-function renderRangeText(
-  annG: d3.Selection<SVGGElement, unknown, null, undefined>,
-  ann: AnnotationConfig & { kind: 'range' },
-  ctx: AnnotationContext,
-  rect: { x: number, y: number, w: number, h: number },
-): void {
-  if (!ann.text) {
-    return
-  }
-  const bandWidth = (ann.orientation ?? 'vertical') === 'vertical' ? rect.w : rect.h
-  const rangeMaxWidth = resolveMaxWidth(ann.maxWidth, ctx.width) ?? Math.max(bandWidth, 50)
-  const { textX, textY, textAnchor, ny } = resolveRangeTextPosition(ann, rect, ctx.width)
-  renderAnnotationText(annG, ann.text, textX, textY, {
-    textColor: ann.textColor, maxWidth: rangeMaxWidth, textAnchor,
-    backgroundColor: ctx.backgroundColor, textOutline: ann.textOutline,
-  })
-  repositionRangeText(annG, ny, rect.y, rect.h, 4)
-}
-
 function renderRangeAnnotation(
   g: d3.Selection<SVGGElement, unknown, null, undefined>,
-  ann: AnnotationConfig, ctx: AnnotationContext, index: number,
+  ann: AnnotationConfig,
+  ctx: AnnotationContext,
+  index: number,
 ): void {
   if (ann.kind !== 'range') {
     return
   }
+
   const annG = g.append('g').attr('data-annotation-index', String(index))
-  const rect = resolveRangeRect(ann, ctx)
+  const rangeOrientation = ann.orientation ?? 'vertical'
+
+  let x: number, y: number, w: number, h: number
+
+  if (ctx.orientation === 'horizontal') {
+    // Horizontal bar charts: scaleX is band (vertical), scaleY is linear (horizontal)
+    // "vertical" range annotation → uses band scale (scaleX) to resolve Y positions
+    // "horizontal" range annotation → uses linear scale (scaleY) to resolve X positions
+    if (rangeOrientation === 'vertical') {
+      const y1 = resolveXPosition(ann.start, ctx.scaleX, ann.startAnchor)
+      const y2 = resolveXPosition(ann.end, ctx.scaleX, ann.endAnchor)
+      y = Math.min(y1, y2)
+      h = Math.abs(y2 - y1)
+      x = 0
+      w = ctx.width
+    }
+    else {
+      const x1 = resolveYPosition(ann.start, ctx.scaleY)
+      const x2 = resolveYPosition(ann.end, ctx.scaleY)
+      x = Math.min(x1, x2)
+      w = Math.abs(x2 - x1)
+      y = 0
+      h = ctx.height
+    }
+  }
+  else if (rangeOrientation === 'vertical') {
+    const x1 = resolveXPosition(ann.start, ctx.scaleX, ann.startAnchor)
+    const x2 = resolveXPosition(ann.end, ctx.scaleX, ann.endAnchor)
+    x = Math.min(x1, x2)
+    w = Math.abs(x2 - x1)
+    y = 0
+    h = ctx.height
+  }
+  else {
+    const y1 = resolveYPosition(ann.start, ctx.scaleY)
+    const y2 = resolveYPosition(ann.end, ctx.scaleY)
+    y = Math.min(y1, y2)
+    h = Math.abs(y2 - y1)
+    x = 0
+    w = ctx.width
+  }
+
   annG.append('rect')
     .attr('class', 'bc-annotation-range')
-    .attr('x', rect.x).attr('y', rect.y).attr('width', rect.w).attr('height', rect.h)
+    .attr('x', x)
+    .attr('y', y)
+    .attr('width', w)
+    .attr('height', h)
     .attr('fill', ann.bgColor ?? '#ccc')
     .attr('opacity', (ann.bgOpacity ?? 20) / 100)
-  renderRangeText(annG, ann, ctx, rect)
+
+  if (ann.text) {
+    // Determine the band width (the narrow dimension of the range)
+    const bandWidth = rangeOrientation === 'vertical' ? w : h
+    const rangeMaxWidth = resolveMaxWidth(ann.maxWidth, ctx.width) ?? Math.max(bandWidth, 50)
+
+    // Position text inside the range rect based on direction
+    // Direction maps to the interior corner/edge: N = top-center, NE = top-right, etc.
+    const dir = ann.direction ?? 'center'
+    const pad = 4
+
+    // Map direction to normalized position within rect (0 = left/top, 0.5 = center, 1 = right/bottom)
+    const v = DIRECTION_VECTORS[dir] ?? DIRECTION_VECTORS.center
+    const nx = 0.5 + v.dx * 0.5 // 0, 0.5, or 1
+    const ny = 0.5 + v.dy * 0.5
+
+    const textX = Math.max(pad, Math.min(x + w * nx, ctx.width - pad))
+
+    let textAnchor = 'middle'
+    if (nx < 0.25) {
+      textAnchor = 'start'
+    }
+    else if (nx > 0.75) {
+      textAnchor = 'end'
+    }
+
+    // Render at top-inset position first, then adjust after measuring
+    const fontSize = 12
+    const textY = y + pad + fontSize
+
+    renderAnnotationText(annG, ann.text, textX, textY, {
+      textColor: ann.textColor,
+      maxWidth: rangeMaxWidth,
+      textAnchor,
+      backgroundColor: ctx.backgroundColor,
+      textOutline: ann.textOutline,
+    })
+
+    // Measure rendered text and reposition for center/bottom alignment
+    if (ny > 0.25) {
+      const textEl = annG.select('.bc-annotation-text').node() as SVGTextElement | null
+      if (textEl) {
+        try {
+          const tBBox = textEl.getBBox()
+          let dy = 0
+          if (ny > 0.75) {
+            dy = (y + h - pad) - (tBBox.y + tBBox.height)
+          }
+          else {
+            dy = (y + h / 2) - (tBBox.y + tBBox.height / 2)
+          }
+          if (Math.abs(dy) > 0.5) {
+            textEl.setAttribute('transform', `translate(0, ${dy})`)
+          }
+        }
+        catch { /* getBBox can throw if not in DOM */ }
+      }
+    }
+  }
 }
 
 // ---------------------------------------------------------------------------
 // Free annotation
 // ---------------------------------------------------------------------------
-
-function centerTextVertically(
-  annG: d3.Selection<SVGGElement, unknown, null, undefined>,
-  py: number,
-): void {
-  const textEl = annG.select('.bc-annotation-text').node() as SVGTextElement | null
-  if (!textEl) {
-    return
-  }
-  try {
-    const bbox = textEl.getBBox()
-    const dy = py - (bbox.y + bbox.height / 2)
-    if (Math.abs(dy) > 0.5) {
-      textEl.setAttribute('transform', `translate(0, ${dy})`)
-    }
-  }
-  catch { /* getBBox can throw if not in DOM */ }
-}
 
 function renderFreeAnnotation(
   g: d3.Selection<SVGGElement, unknown, null, undefined>,
@@ -822,9 +790,12 @@ function renderFreeAnnotation(
   if (ann.kind !== 'free') {
     return
   }
+
   const annG = g.append('g').attr('data-annotation-index', String(index))
+
   const px = resolvePosition(ann.x, ctx.width)
   const py = resolvePosition(ann.y, ctx.height)
+
   if (ann.text) {
     renderAnnotationText(annG, ann.text, px, py, {
       textColor: ann.textColor,
@@ -833,7 +804,19 @@ function renderFreeAnnotation(
       backgroundColor: ctx.backgroundColor,
       textOutline: ann.textOutline,
     })
-    centerTextVertically(annG, py)
+
+    // Center vertically around the position point
+    const textEl = annG.select('.bc-annotation-text').node() as SVGTextElement | null
+    if (textEl) {
+      try {
+        const bbox = textEl.getBBox()
+        const dy = py - (bbox.y + bbox.height / 2)
+        if (Math.abs(dy) > 0.5) {
+          textEl.setAttribute('transform', `translate(0, ${dy})`)
+        }
+      }
+      catch { /* getBBox can throw if not in DOM */ }
+    }
   }
 }
 
@@ -841,51 +824,51 @@ function renderFreeAnnotation(
 // Plugin factory
 // ---------------------------------------------------------------------------
 
-function renderAnnotation(
-  g: d3.Selection<SVGGElement, unknown, null, undefined>,
-  rangeG: d3.Selection<SVGGElement, unknown, null, undefined>,
-  ann: AnnotationConfig, ctx: AnnotationContext, i: number,
-): void {
-  switch (ann.kind ?? 'point') {
-    case 'point': renderPointAnnotation(g, ann, ctx, i)
-      break
-    case 'range': renderRangeAnnotation(rangeG, ann, ctx, i)
-      break
-    case 'free': renderFreeAnnotation(g, ann, ctx, i)
-      break
-  }
-}
-
-function renderAllAnnotations(
-  base: d3.Selection<SVGElement, unknown, null, undefined>,
-  annotations: AnnotationConfig[], ctx: AnnotationContext,
-): void {
-  const svg = base.node()?.ownerSVGElement ?? base.node()
-  if (svg) {
-    d3.select(svg).style('overflow', 'visible')
-  }
-  ensureArrowMarker(svg)
-  const rangeG = base.insert('g', ':first-child').attr('class', 'bc-annotations-range') as unknown as d3.Selection<SVGGElement, unknown, null, undefined>
-  const g = base.append('g')
-    .attr('class', 'bc-annotations')
-    .attr('data-ctx-width', String(ctx.width))
-    .attr('data-ctx-height', String(ctx.height)) as unknown as d3.Selection<SVGGElement, unknown, null, undefined>
-  for (let i = 0; i < annotations.length; i++) {
-    renderAnnotation(g, rangeG, annotations[i], ctx, i)
-  }
-  expandSvgToFitAnnotations(svg as SVGSVGElement | null)
-}
-
 export function createAnnotationPlugin(
   annotations: AnnotationConfig[],
   ctx: AnnotationContext,
 ): Plugin {
   return {
     name: 'annotations',
+
     install() {},
+
     postDraw(chart: D3Blueprint) {
       const base = (chart as unknown as { base: d3.Selection<SVGElement, unknown, null, undefined> }).base
-      renderAllAnnotations(base, annotations, ctx)
+
+      const svg = base.node()?.ownerSVGElement ?? base.node()
+      if (svg) {
+        d3.select(svg).style('overflow', 'visible')
+      }
+      ensureArrowMarker(svg)
+
+      // Range annotations render behind chart content
+      const rangeGroup = base.insert('g', ':first-child').attr('class', 'bc-annotations-range') as unknown as d3.Selection<SVGGElement, unknown, null, undefined>
+      // Point/free annotations render on top
+      const g = base.append('g')
+        .attr('class', 'bc-annotations')
+        .attr('data-ctx-width', String(ctx.width))
+        .attr('data-ctx-height', String(ctx.height)) as unknown as d3.Selection<SVGGElement, unknown, null, undefined>
+
+      for (let i = 0; i < annotations.length; i++) {
+        const ann = annotations[i]
+        const kind = ann.kind ?? 'point'
+
+        switch (kind) {
+          case 'point':
+            renderPointAnnotation(g, ann, ctx, i)
+            break
+          case 'range':
+            renderRangeAnnotation(rangeGroup, ann, ctx, i)
+            break
+          case 'free':
+            renderFreeAnnotation(g, ann, ctx, i)
+            break
+        }
+      }
+
+      // Expand SVG viewBox if annotations extend beyond chart bounds
+      expandSvgToFitAnnotations(svg as SVGSVGElement | null, g, rangeGroup)
     },
   }
 }
@@ -894,25 +877,34 @@ export function createAnnotationPlugin(
 // Dynamic viewBox expansion
 // ---------------------------------------------------------------------------
 
-function expandSvgToFitAnnotations(svg: SVGSVGElement | null): void {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function expandSvgToFitAnnotations(svg: SVGSVGElement | null, annotationGroup: d3.Selection<SVGGElement, unknown, null, undefined>, rangeGroup: d3.Selection<SVGGElement, unknown, null, undefined>): void {
   if (!svg) {
     return
   }
+
   const svgW = parseFloat(svg.getAttribute('width') || '0')
   const svgH = parseFloat(svg.getAttribute('height') || '0')
   if (!svgW || !svgH) {
     return
   }
+
+  // Use the full SVG bounding box which includes all child elements
   const totalBBox = svg.getBBox()
   if (totalBBox.width === 0 && totalBBox.height === 0) {
     return
   }
+
   const pad = 8
   const minX = Math.min(0, totalBBox.x - pad)
   const minY = Math.min(0, totalBBox.y - pad)
   const maxX = Math.max(svgW, totalBBox.x + totalBBox.width + pad)
   const maxY = Math.max(svgH, totalBBox.y + totalBBox.height + pad)
-  if (minX < 0 || minY < 0 || maxX > svgW || maxY > svgH) {
+
+  const needsExpand = minX < 0 || minY < 0 || maxX > svgW || maxY > svgH
+
+  if (needsExpand) {
+    // Only set viewBox — keep width/height the same so SVG scales to fit
     d3.select(svg)
       .attr('viewBox', `${minX} ${minY} ${maxX - minX} ${maxY - minY}`)
       .attr('preserveAspectRatio', 'xMidYMid meet')

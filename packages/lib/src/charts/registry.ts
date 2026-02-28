@@ -233,7 +233,15 @@ const LABEL_POSITION_CHOICES = [
   { value: 'off', text: 'Off' },
 ]
 
-function verticalAxisDefs(defaults: { verticalGrid: string, showVerticalTicks: boolean, showVerticalAxis?: boolean, valueAxis?: string }): ChartOptionDef[] {
+function axisOpts(defaults: {
+  verticalGrid: string
+  horizontalGrid: string
+  showVerticalTicks: boolean
+  showHorizontalTicks: boolean
+  showVerticalAxis?: boolean
+  valueAxis?: 'vertical' | 'horizontal'
+  horizontalRange?: boolean
+}): ChartOptionDef[] {
   return [
     { key: 'showVerticalAxis', type: 'boolean', label: 'Show vertical axis', default: defaults.showVerticalAxis ?? true },
     { key: 'verticalAxisDirection', type: 'select', label: 'Vertical axis side', default: 'left', choices: [{ value: 'left', text: 'Left' }, { value: 'right', text: 'Right' }] },
@@ -248,11 +256,6 @@ function verticalAxisDefs(defaults: { verticalGrid: string, showVerticalTicks: b
           { key: 'verticalRangeMax', type: 'text' as const, label: 'Vertical max', placeholder: 'auto' },
         ]
       : []),
-  ]
-}
-
-function horizontalAxisDefs(defaults: { horizontalGrid: string, showHorizontalTicks: boolean, valueAxis?: string, horizontalRange?: boolean }): ChartOptionDef[] {
-  return [
     { key: 'showHorizontalAxis', type: 'boolean', label: 'Show horizontal axis', default: true },
     { key: 'showHorizontalTicks', type: 'boolean', label: 'Show horizontal ticks', default: defaults.showHorizontalTicks },
     { key: 'horizontalLabelPosition', type: 'select', label: 'Horizontal labels', default: 'auto', choices: LABEL_POSITION_CHOICES },
@@ -271,21 +274,6 @@ function horizontalAxisDefs(defaults: { horizontalGrid: string, showHorizontalTi
           { key: 'horizontalRangeMax', type: 'text' as const, label: 'Horizontal max', placeholder: 'auto' },
         ]
       : []),
-  ]
-}
-
-function axisOpts(defaults: {
-  verticalGrid: string
-  horizontalGrid: string
-  showVerticalTicks: boolean
-  showHorizontalTicks: boolean
-  showVerticalAxis?: boolean
-  valueAxis?: 'vertical' | 'horizontal'
-  horizontalRange?: boolean
-}): ChartOptionDef[] {
-  return [
-    ...verticalAxisDefs(defaults),
-    ...horizontalAxisDefs(defaults),
   ]
 }
 

@@ -12,7 +12,13 @@ export interface StepController {
   destroy(): void
 }
 
-function createStepNav(container: HTMLElement): { nav: HTMLElement, prevBtn: HTMLButtonElement, nextBtn: HTMLButtonElement, counter: HTMLSpanElement } {
+export function createStepController(
+  container: HTMLElement,
+  steps: StepDefinition[],
+  onStepChange: (step: StepDefinition, index: number) => void,
+): StepController {
+  let currentStep = 0
+
   const nav = document.createElement('nav')
   nav.className = 'blueprint-chart-steps'
 
@@ -32,28 +38,6 @@ function createStepNav(container: HTMLElement): { nav: HTMLElement, prevBtn: HTM
   nav.appendChild(nextBtn)
   container.appendChild(nav)
 
-  return { nav, prevBtn, nextBtn, counter }
-}
-
-function buildStepControllerResult(nav: HTMLElement, goTo: (index: number) => void, getCurrentStep: () => number, totalSteps: number): StepController {
-  return {
-    get currentStep() { return getCurrentStep() },
-    get totalSteps() { return totalSteps },
-    next() { goTo(getCurrentStep() + 1) },
-    previous() { goTo(getCurrentStep() - 1) },
-    goTo,
-    destroy() { nav.remove() },
-  }
-}
-
-export function createStepController(
-  container: HTMLElement,
-  steps: StepDefinition[],
-  onStepChange: (step: StepDefinition, index: number) => void,
-): StepController {
-  let currentStep = 0
-  const { nav, prevBtn, nextBtn, counter } = createStepNav(container)
-
   function updateCounter(): void {
     counter.textContent = `${currentStep + 1} / ${steps.length}`
   }
@@ -67,6 +51,25 @@ export function createStepController(
 
   prevBtn.addEventListener('click', () => goTo(currentStep - 1))
   nextBtn.addEventListener('click', () => goTo(currentStep + 1))
+
   updateCounter()
-  return buildStepControllerResult(nav, goTo, () => currentStep, steps.length)
+
+  return {
+    get currentStep() {
+      return currentStep
+    },
+    get totalSteps() {
+      return steps.length
+    },
+    next() {
+      goTo(currentStep + 1)
+    },
+    previous() {
+      goTo(currentStep - 1)
+    },
+    goTo,
+    destroy() {
+      nav.remove()
+    },
+  }
 }

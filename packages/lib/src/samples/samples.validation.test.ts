@@ -17,63 +17,47 @@ const FRAME_KEYS = new Set([
   'sort', 'sizing', 'aspectRatio', 'showCredit',
 ])
 
-function validatePropertyKeys(ast: ReturnType<typeof parse>): string[] {
-  const optionKeys = new Set(getChartOptions(ast.chartType).map(o => o.key))
-  const invalid: string[] = []
-
-  for (const prop of ast.properties) {
-    if (!FRAME_KEYS.has(prop.key) && !optionKeys.has(prop.key)) {
-      invalid.push(prop.key)
-    }
-  }
-
-  return invalid
-}
-
-function assertParsesWithRegisteredType(content: string): void {
-  const ast = parse(content)
-  expect(ast.type).toBe('chart')
-  const renderer = getChart(ast.chartType)
-  expect(renderer, `unknown chart type "${ast.chartType}"`).toBeDefined()
-}
-
-function assertValidKeys(content: string): void {
-  const ast = parse(content)
-  const invalid = validatePropertyKeys(ast)
-  expect(invalid, `invalid keys: ${invalid.join(', ')}`).toEqual([])
-}
-
-function assertValidPalette(content: string): void {
-  const ast = parse(content)
-  const paletteProp = ast.properties.find(p => p.key === 'colorPalette')
-  if (!paletteProp) {
-    return
-  }
-
-  const value = String(paletteProp.value)
-  expect(paletteNames.has(value), `unknown palette "${value}"`).toBe(true)
-}
-
-describe('sample .bpc file discovery', () => {
+describe('sample .bpc files', () => {
   it('discovers at least one .bpc file', () => {
     expect(bpcFiles.length).toBeGreaterThan(0)
   })
+
+  for (const file of bpcFiles) {
+    describe(file, () => {
+      const content = readFileSync(join(SAMPLES_DIR, file), 'utf-8')
+      const ast = parse(content)
+
+      it('parses without error', () => {
+        expect(ast.type).toBe('chart')
+      })
+
+      it('has a registered chart type', () => {
+        const renderer = getChart(ast.chartType)
+        expect(renderer, `unknown chart type "${ast.chartType}"`).toBeDefined()
+      })
+
+      it('uses only valid property keys', () => {
+        const optionKeys = new Set(getChartOptions(ast.chartType).map(o => o.key))
+        const invalid: string[] = []
+
+        for (const prop of ast.properties) {
+          if (!FRAME_KEYS.has(prop.key) && !optionKeys.has(prop.key)) {
+            invalid.push(prop.key)
+          }
+        }
+
+        expect(invalid, `invalid keys: ${invalid.join(', ')}`).toEqual([])
+      })
+
+      it('uses a valid colorPalette (if specified)', () => {
+        const paletteProp = ast.properties.find(p => p.key === 'colorPalette')
+        if (!paletteProp) {
+          return
+        }
+
+        const value = String(paletteProp.value)
+        expect(paletteNames.has(value), `unknown palette "${value}"`).toBe(true)
+      })
+    })
+  }
 })
-
-for (const file of bpcFiles) {
-  describe(`sample ${file}`, () => {
-    const content = readFileSync(join(SAMPLES_DIR, file), 'utf-8')
-
-    it('parses and has a registered chart type', () => {
-      assertParsesWithRegisteredType(content)
-    })
-
-    it('uses only valid property keys', () => {
-      assertValidKeys(content)
-    })
-
-    it('uses a valid colorPalette (if specified)', () => {
-      assertValidPalette(content)
-    })
-  })
-}
