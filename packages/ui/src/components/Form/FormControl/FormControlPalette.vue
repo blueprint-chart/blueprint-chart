@@ -9,8 +9,9 @@
       ref="dropdownRef"
       class="form-control-palette__toggle"
       toggle-class="d-flex align-items-center"
-      menu-class="w-100"
+      :menu-class="['w-100', 'form-control-dropdown-menu']"
       variant="outline-secondary"
+      teleport-to="body"
     >
       <template #button-content>
         <span class="form-control-palette__preview pe-1">
