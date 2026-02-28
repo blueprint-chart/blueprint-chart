@@ -19,6 +19,13 @@
         size="sm"
         @click="downloadSvg"
       />
+      <ButtonIcon
+        :icon-left="IPhDownloadSimple"
+        label="Download BPC"
+        variant="outline-primary"
+        size="sm"
+        @click="downloadBpc"
+      />
     </div>
     <BFormGroup label="DSL Output">
       <template #label>
@@ -57,13 +64,17 @@ import { ButtonIcon } from '@blueprint-chart/ui'
 import IPhDownloadSimple from '~icons/ph/download-simple'
 import { useDslOutput } from '@/composables/useDslOutput'
 import { useChartPreview } from '@/composables/useChartPreview'
-import { useImageExport } from '@/composables/useImageExport'
+import { useImageExport, triggerDownload } from '@/composables/useImageExport'
 
 const previewRef = useTemplateRef<HTMLElement>('previewRef')
 useChartPreview(previewRef)
 const { downloadSvg, downloadPng } = useImageExport(previewRef)
 
 const { dsl, compact } = useDslOutput()
+
+function downloadBpc() {
+  triggerDownload(new globalThis.Blob([dsl.value], { type: 'text/plain' }), 'chart.bpc')
+}
 
 const scriptClose = '<' + '/script>'
 
