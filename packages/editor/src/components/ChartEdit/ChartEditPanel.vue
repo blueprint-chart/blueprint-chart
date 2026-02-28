@@ -173,7 +173,6 @@ const cardStyle = computed<CSSProperties>(() => {
 
   &--fixed {
     flex: none;
-    max-width: 100%;
     margin: 0 auto;
   }
 
