@@ -405,56 +405,61 @@ export function renderConnectingLine(
 // Text renderer with outline
 // ---------------------------------------------------------------------------
 
-export function renderAnnotationText(
-  g: d3.Selection<SVGGElement, unknown, null, undefined>,
+function appendTspan(
+  textEl: d3.Selection<SVGTextElement, unknown, null, undefined>,
   text: string,
-  x: number,
-  y: number,
-  opts: {
-    textColor?: string
-    maxWidth?: number
-    textAnchor?: string
-    backgroundColor?: string
-    textOutline?: boolean
-  } = {},
+  lineNumber: number,
 ): void {
-  const anchor = opts.textAnchor ?? 'middle'
-  const showOutline = opts.textOutline !== false
+  textEl.append('tspan')
+    .attr('x', textEl.attr('x'))
+    .attr('dy', lineNumber === 0 ? '0' : '1.2em')
+    .text(text)
+}
 
-  const textEl = g.append('text')
-    .attr('class', 'bc-annotation-text')
-    .attr('x', x)
-    .attr('y', y)
-    .attr('text-anchor', anchor)
-    .attr('font-size', '12px')
-    .attr('fill', opts.textColor ?? 'currentColor')
-
-  if (showOutline) {
-    textEl
-      .attr('stroke', opts.backgroundColor ?? '#fff')
-      .attr('stroke-width', 3)
-      .attr('paint-order', 'stroke')
-  }
-
-  // Split on newlines for multiline support
+function appendTextContent(
+  textEl: d3.Selection<SVGTextElement, unknown, null, undefined>,
+  text: string,
+  maxWidth?: number,
+): void {
   const lines = text.split('\n')
-  if (lines.length > 1 || (opts.maxWidth && opts.maxWidth > 0)) {
-    // Multiline: create tspans
-    if (opts.maxWidth && opts.maxWidth > 0) {
-      wrapText(textEl, text, opts.maxWidth)
+  if (lines.length > 1 || (maxWidth && maxWidth > 0)) {
+    if (maxWidth && maxWidth > 0) {
+      wrapText(textEl, text, maxWidth)
     }
     else {
       for (let i = 0; i < lines.length; i++) {
-        textEl.append('tspan')
-          .attr('x', textEl.attr('x'))
-          .attr('dy', i === 0 ? '0' : '1.2em')
-          .text(lines[i])
+        appendTspan(textEl, lines[i], i)
       }
     }
   }
   else {
     textEl.text(text)
   }
+}
+
+type TextOpts = { textColor?: string, maxWidth?: number, textAnchor?: string, backgroundColor?: string, textOutline?: boolean }
+
+export function renderAnnotationText(
+  g: d3.Selection<SVGGElement, unknown, null, undefined>,
+  text: string, x: number, y: number,
+  opts: TextOpts = {},
+): void {
+  const textEl = g.append('text')
+    .attr('class', 'bc-annotation-text')
+    .attr('x', x)
+    .attr('y', y)
+    .attr('text-anchor', opts.textAnchor ?? 'middle')
+    .attr('font-size', '12px')
+    .attr('fill', opts.textColor ?? 'currentColor')
+
+  if (opts.textOutline !== false) {
+    textEl
+      .attr('stroke', opts.backgroundColor ?? '#fff')
+      .attr('stroke-width', 3)
+      .attr('paint-order', 'stroke')
+  }
+
+  appendTextContent(textEl, text, opts.maxWidth)
 }
 
 function wrapText(
