@@ -824,7 +824,7 @@ export function createAnnotationPlugin(
       }
 
       // Expand SVG viewBox if annotations extend beyond chart bounds
-      expandSvgToFitAnnotations(svg as SVGSVGElement | null, g, rangeGroup)
+      expandSvgToFitAnnotations(svg as SVGSVGElement | null)
     },
   }
 }
@@ -835,8 +835,6 @@ export function createAnnotationPlugin(
 
 function expandSvgToFitAnnotations(
   svg: SVGSVGElement | null,
-  annotationGroup: d3.Selection<SVGGElement, unknown, null, undefined>,
-  rangeGroup: d3.Selection<SVGGElement, unknown, null, undefined>,
 ): void {
   if (!svg) { return }
 
