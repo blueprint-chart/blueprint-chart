@@ -40,7 +40,12 @@ class FrameChart extends D3Blueprint<FrameData> {
       .style('display', 'flex')
       .style('justify-content', 'space-between')
       .style('align-items', 'baseline')
+      .style('flex-wrap', 'wrap')
+      .style('gap', '0.25rem 1rem')
     const footerLeft = footer.append('div').attr('class', 'bc-frame-footer-left')
+      .style('display', 'flex')
+      .style('flex-wrap', 'wrap')
+      .style('gap', '0.25rem 0.75rem')
     const footerRight = footer.append('div').attr('class', 'bc-frame-footer-right')
 
     this.layer('headerItems', header, {
