@@ -1,5 +1,12 @@
 <template>
-  <div class="chart-edit-panel">
+  <div
+    class="chart-edit-panel"
+    :class="{ 'chart-edit-panel--narrow': isNarrow }"
+  >
+    <ChartEditIconRail
+      v-if="isNarrow"
+      horizontal
+    />
     <div
       ref="canvasRef"
       class="chart-edit-panel__canvas"
@@ -47,8 +54,8 @@
     </template>
     <template v-else>
       <ChartEditDockedPanel :collapsed="panelMode !== 'docked'" />
+      <ChartEditIconRail />
     </template>
-    <ChartEditIconRail />
   </div>
 </template>
 
@@ -147,6 +154,15 @@ const cardStyle = computed<CSSProperties>(() => {
   display: flex;
   flex: 1;
   overflow: hidden;
+
+  &--narrow {
+    flex-direction: column;
+
+    :deep(.navigation-icon-rail) {
+      z-index: 1060;
+      position: relative;
+    }
+  }
 }
 
 .chart-edit-panel__canvas {
@@ -154,6 +170,10 @@ const cardStyle = computed<CSSProperties>(() => {
   display: flex;
   flex-direction: column;
   padding: 1.25rem 1.5rem;
+
+  .chart-edit-panel--narrow & {
+    padding: 0.5rem;
+  }
   overflow: auto;
   position: relative;
   background-color: var(--bc-canvas-bg);

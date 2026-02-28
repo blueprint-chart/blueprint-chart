@@ -2,9 +2,13 @@
   <NavigationIconRail
     :model-value="activeTab"
     :items="items"
+    :horizontal="horizontal"
     @update:model-value="selectTab"
   >
-    <template #footer>
+    <template
+      v-if="!horizontal"
+      #footer
+    >
       <ButtonIcon
         :icon-left="toggleIcon"
         :label="toggleLabel"
@@ -34,6 +38,10 @@ import IPhPushPin from '~icons/ph/push-pin'
 import IPhArrowsOutSimple from '~icons/ph/arrows-out-simple'
 import IPhArrowsInSimple from '~icons/ph/arrows-in-simple'
 import IPhSidebarSimple from '~icons/ph/sidebar-simple'
+
+defineProps<{
+  horizontal?: boolean
+}>()
 
 const AXIS_KEYS = ['showVerticalAxis', 'verticalAxisDirection', 'showVerticalTicks', 'verticalLabelPosition', 'verticalGridStyle', 'verticalNumberFormat', 'verticalScaleType', 'verticalRangeMin', 'verticalRangeMax', 'showHorizontalAxis', 'showHorizontalTicks', 'horizontalLabelPosition', 'horizontalGridStyle', 'horizontalNumberFormat', 'horizontalScaleType', 'horizontalRangeMin', 'horizontalRangeMax']
 

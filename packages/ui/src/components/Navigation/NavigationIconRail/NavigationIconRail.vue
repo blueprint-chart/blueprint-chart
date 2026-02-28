@@ -1,5 +1,8 @@
 <template>
-  <nav class="navigation-icon-rail">
+  <nav
+    class="navigation-icon-rail"
+    :class="{ 'navigation-icon-rail--horizontal': horizontal }"
+  >
     <slot />
     <ButtonIcon
       v-for="item in resolvedItems"
@@ -35,8 +38,10 @@ const model = defineModel<string>({ required: true })
 
 const props = withDefaults(defineProps<{
   items?: { value: string, icon: Component, tooltip: string }[]
+  horizontal?: boolean
 }>(), {
   items: () => [],
+  horizontal: false,
 })
 
 const { entries } = useChildEntriesProvider(IconRailEntriesKey)
@@ -83,6 +88,21 @@ function buttonClassList(value: string) {
     }
   }
 
+  &--horizontal {
+    flex-direction: row;
+    width: auto;
+    height: auto;
+    padding: 0.25rem 0.5rem;
+    border-left: none;
+    border-bottom: 1px solid var(--bs-border-color);
+    overflow-x: auto;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
   &__spacer {
     flex: 1;
   }
@@ -92,6 +112,10 @@ function buttonClassList(value: string) {
     flex-direction: column;
     align-items: center;
     gap: 0.25rem;
+
+    .navigation-icon-rail--horizontal & {
+      flex-direction: row;
+    }
 
     :deep(.btn) {
       display: flex;
