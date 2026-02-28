@@ -341,47 +341,51 @@ export function computeElbowPath(
   return `M ${from.x} ${from.y} L ${mid.x} ${mid.y} L ${to.x} ${to.y}`
 }
 
+function computeCurvePath(
+  from: { x: number, y: number },
+  to: { x: number, y: number },
+  style: 'curve-left' | 'curve-right',
+): string {
+  const dx = to.x - from.x
+  const dy = to.y - from.y
+  const dist = Math.sqrt(dx * dx + dy * dy)
+  const r = dist * 0.8
+  const sweep = style === 'curve-right' ? 1 : 0
+  // End arc slightly before target, then straight stub so arrow points at target
+  const stub = Math.min(8, dist * 0.15)
+  const nx = dist > 0 ? dx / dist : 0
+  const ny = dist > 0 ? dy / dist : 0
+  const arcEnd = { x: to.x - nx * stub, y: to.y - ny * stub }
+  return `M ${from.x} ${from.y} A ${r} ${r} 0 0 ${sweep} ${arcEnd.x} ${arcEnd.y} L ${to.x} ${to.y}`
+}
+
+function computeLinePath(
+  from: { x: number, y: number },
+  to: { x: number, y: number },
+  style: AnnotationLineStyle,
+  departVertical: boolean,
+): string {
+  switch (style) {
+    case 'curve-left':
+    case 'curve-right':
+      return computeCurvePath(from, to, style)
+    case 'elbow':
+      return computeElbowPath(from, to, departVertical)
+    default:
+      return `M ${from.x} ${from.y} L ${to.x} ${to.y}`
+  }
+}
+
+type LineOpts = { showArrow?: boolean, lineWeight?: number, color?: string, departVertical?: boolean }
+
 export function renderConnectingLine(
   g: d3.Selection<SVGGElement, unknown, null, undefined>,
   from: { x: number, y: number },
   to: { x: number, y: number },
   style: AnnotationLineStyle = 'direct',
-  opts: {
-    showArrow?: boolean
-    lineWeight?: number
-    color?: string
-    departVertical?: boolean
-  } = {},
+  opts: LineOpts = {},
 ): void {
-  let d: string
-
-  switch (style) {
-    case 'curve-left':
-    case 'curve-right': {
-      const dx = to.x - from.x
-      const dy = to.y - from.y
-      const dist = Math.sqrt(dx * dx + dy * dy)
-      const r = dist * 0.8
-      const sweep = style === 'curve-right' ? 1 : 0
-      // End the arc slightly before the target, then add a straight stub
-      // so the arrow marker points directly at the target instead of
-      // following the arc tangent.
-      const stub = Math.min(8, dist * 0.15)
-      const nx = dist > 0 ? dx / dist : 0
-      const ny = dist > 0 ? dy / dist : 0
-      const arcEnd = { x: to.x - nx * stub, y: to.y - ny * stub }
-      d = `M ${from.x} ${from.y} A ${r} ${r} 0 0 ${sweep} ${arcEnd.x} ${arcEnd.y} L ${to.x} ${to.y}`
-      break
-    }
-    case 'elbow': {
-      d = computeElbowPath(from, to, opts.departVertical ?? false)
-      break
-    }
-    default: {
-      d = `M ${from.x} ${from.y} L ${to.x} ${to.y}`
-    }
-  }
-
+  const d = computeLinePath(from, to, style, opts.departVertical ?? false)
   const lineColor = opts.color ?? '#666'
   const line = g.append('path')
     .attr('class', 'bc-annotation-line')
