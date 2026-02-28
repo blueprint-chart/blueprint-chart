@@ -20,7 +20,30 @@ const ChildEntry = defineComponent({
   },
 })
 
-describe('useChildEntries', () => {
+function createUnmountFixture() {
+  const showB = ref(true)
+  let entries: ReturnType<typeof useChildEntriesProvider>['entries']
+  const ParentCapture = defineComponent({
+    setup(_, { slots }) {
+      const result = useChildEntriesProvider(TestKey)
+      entries = result.entries
+      return () => h('div', slots.default?.())
+    },
+  })
+  const wrapper = mount(defineComponent({
+    setup() {
+      return () =>
+        h(ParentCapture, null, () =>
+          showB.value
+            ? [h(ChildEntry, { id: 'a', key: 'a' }), h(ChildEntry, { id: 'b', key: 'b' })]
+            : [h(ChildEntry, { id: 'a', key: 'a' })],
+        )
+    },
+  }))
+  return { showB, entries: entries!, wrapper }
+}
+
+describe('useChildEntries collection', () => {
   it('collects entries from child components', async () => {
     const wrapper = mount(Parent, {
       slots: {
@@ -37,27 +60,16 @@ describe('useChildEntries', () => {
     expect(entries[1].id).toBe('b')
   })
 
+  it('returns empty array when no children are provided', async () => {
+    const wrapper = mount(Parent)
+    await nextTick()
+    expect((wrapper.vm as any).entries).toHaveLength(0)
+  })
+})
+
+describe('useChildEntries unmounting', () => {
   it('removes entries when child unmounts', async () => {
-    const showB = ref(true)
-    let entries: any
-    const ParentWithRef = defineComponent({
-      setup(_, { slots }) {
-        const result = useChildEntriesProvider(TestKey)
-        entries = result.entries
-        return () => h('div', slots.default?.())
-      },
-    })
-    const Wrapper = defineComponent({
-      setup() {
-        return () =>
-          h(ParentWithRef, null, () =>
-            showB.value
-              ? [h(ChildEntry, { id: 'a', key: 'a' }), h(ChildEntry, { id: 'b', key: 'b' })]
-              : [h(ChildEntry, { id: 'a', key: 'a' })],
-          )
-      },
-    })
-    mount(Wrapper)
+    const { showB, entries } = createUnmountFixture()
     await nextTick()
     expect(entries.value).toHaveLength(2)
 
@@ -66,11 +78,5 @@ describe('useChildEntries', () => {
     await nextTick()
     expect(entries.value).toHaveLength(1)
     expect(entries.value[0].id).toBe('a')
-  })
-
-  it('returns empty array when no children are provided', async () => {
-    const wrapper = mount(Parent)
-    await nextTick()
-    expect((wrapper.vm as any).entries).toHaveLength(0)
   })
 })

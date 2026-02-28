@@ -39,47 +39,37 @@ describe('IconRail', () => {
   })
 })
 
-describe('IconRail (slot entries)', () => {
+function mountIconRailWithSlots(modelValue: string) {
+  return mount(IconRail, {
+    props: { modelValue },
+    slots: {
+      default: () => [
+        h(IconRailEntry, { value: 'type', icon: StubIcon, tooltip: 'Chart Type' }),
+        h(IconRailEntry, { value: 'text', icon: StubIcon, tooltip: 'Text' }),
+      ],
+    },
+  })
+}
+
+describe('IconRail slot entry rendering', () => {
   it('renders items from slot entries', async () => {
-    const wrapper = mount(IconRail, {
-      props: { modelValue: 'type' },
-      slots: {
-        default: () => [
-          h(IconRailEntry, { value: 'type', icon: StubIcon, tooltip: 'Chart Type' }),
-          h(IconRailEntry, { value: 'text', icon: StubIcon, tooltip: 'Text' }),
-        ],
-      },
-    })
+    const wrapper = mountIconRailWithSlots('type')
     await nextTick()
     expect(wrapper.findAll('.navigation-icon-rail__button')).toHaveLength(2)
   })
 
   it('applies active class from slot entries', async () => {
-    const wrapper = mount(IconRail, {
-      props: { modelValue: 'text' },
-      slots: {
-        default: () => [
-          h(IconRailEntry, { value: 'type', icon: StubIcon, tooltip: 'Chart Type' }),
-          h(IconRailEntry, { value: 'text', icon: StubIcon, tooltip: 'Text' }),
-        ],
-      },
-    })
+    const wrapper = mountIconRailWithSlots('text')
     await nextTick()
     const buttons = wrapper.findAll('.navigation-icon-rail__button')
     expect(buttons[0].classes()).not.toContain('navigation-icon-rail__button--active')
     expect(buttons[1].classes()).toContain('navigation-icon-rail__button--active')
   })
+})
 
+describe('IconRail slot entry interaction', () => {
   it('emits update:modelValue on slot entry click', async () => {
-    const wrapper = mount(IconRail, {
-      props: { modelValue: 'type' },
-      slots: {
-        default: () => [
-          h(IconRailEntry, { value: 'type', icon: StubIcon, tooltip: 'Chart Type' }),
-          h(IconRailEntry, { value: 'text', icon: StubIcon, tooltip: 'Text' }),
-        ],
-      },
-    })
+    const wrapper = mountIconRailWithSlots('type')
     await nextTick()
     await wrapper.findAll('.navigation-icon-rail__button')[1].trigger('click')
     expect(wrapper.emitted('update:modelValue')![0]).toEqual(['text'])

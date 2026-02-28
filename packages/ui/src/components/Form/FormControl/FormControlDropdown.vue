@@ -88,7 +88,9 @@ function matchMenuWidth() {
   const { id = null } = dropdownRef.value?.$el?.querySelector('.dropdown-toggle') as HTMLElement | null ?? {}
   // The toggle's id is required to retrieve the corresponding menu element,
   // which is rendered by Bootstrap's dropdown component with a generated id.
-  if (!id) { return }
+  if (!id) {
+    return
+  }
   // Find the menu element by its id using a "-menu" suffix (added by Bootstrap's dropdown component)
   const menu = document.getElementById(`${id}-menu`)
   // Set the menu's width to match the toggle's width

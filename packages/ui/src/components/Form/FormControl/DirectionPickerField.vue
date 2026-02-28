@@ -30,13 +30,25 @@ const rectStyle = computed(() => {
   let left: string
   let top: string
 
-  if (props.x === 0) { left = '-1px' }
-  else if (props.x === 1) { left = 'calc(100% - var(--rect-w) + 1px)' }
-  else { left = `calc(var(--rect-pad) + ${props.x} * (100% - 2 * var(--rect-pad) - var(--rect-w)))` }
+  if (props.x === 0) {
+    left = '-1px'
+  }
+  else if (props.x === 1) {
+    left = 'calc(100% - var(--rect-w) + 1px)'
+  }
+  else {
+    left = `calc(var(--rect-pad) + ${props.x} * (100% - 2 * var(--rect-pad) - var(--rect-w)))`
+  }
 
-  if (props.y === 0) { top = '-1px' }
-  else if (props.y === 1) { top = 'calc(100% - var(--rect-h) + 1px)' }
-  else { top = `calc(var(--rect-pad) + ${props.y} * (100% - 2 * var(--rect-pad) - var(--rect-h)))` }
+  if (props.y === 0) {
+    top = '-1px'
+  }
+  else if (props.y === 1) {
+    top = 'calc(100% - var(--rect-h) + 1px)'
+  }
+  else {
+    top = `calc(var(--rect-pad) + ${props.y} * (100% - 2 * var(--rect-pad) - var(--rect-h)))`
+  }
 
   return { left, top }
 })

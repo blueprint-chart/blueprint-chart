@@ -3,13 +3,14 @@ import FormControlDirectionPicker from './FormControlDirectionPicker.vue'
 import DirectionPickerHandle from './DirectionPickerHandle.vue'
 import DirectionPickerField from './DirectionPickerField.vue'
 
-describe('FormControlDirectionPicker', () => {
-  function mountPicker(modelValue = 'N' as string, size?: string) {
-    return mount(FormControlDirectionPicker, {
-      props: { modelValue, label: 'Position', ...(size ? { size } : {}) } as any,
-    })
-  }
+function mountPicker(modelValue = 'N' as string, size?: string) {
+  return mount(FormControlDirectionPicker, {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    props: { modelValue, label: 'Position', ...(size ? { size } : {}) } as any,
+  })
+}
 
+describe('FormControlDirectionPicker rendering', () => {
   it('renders 9 handles', () => {
     const wrapper = mountPicker()
     const handles = wrapper.findAllComponents(DirectionPickerHandle)
@@ -27,7 +28,9 @@ describe('FormControlDirectionPicker', () => {
     const activeHandle = handles.find(h => h.props('pos') === 'ne')
     expect(activeHandle?.props('active')).toBe(true)
   })
+})
 
+describe('FormControlDirectionPicker inactive handles', () => {
   it('non-selected handles are not active', () => {
     const wrapper = mountPicker('N')
     const handles = wrapper.findAllComponents(DirectionPickerHandle)
@@ -36,7 +39,9 @@ describe('FormControlDirectionPicker', () => {
       expect(h.props('active')).toBe(false)
     }
   })
+})
 
+describe('FormControlDirectionPicker interaction', () => {
   it('emits update:modelValue when a handle is clicked', async () => {
     const wrapper = mountPicker('N')
     const handles = wrapper.findAllComponents(DirectionPickerHandle)
@@ -54,22 +59,26 @@ describe('FormControlDirectionPicker', () => {
     const wrapper = mountPicker('N', 'lg')
     expect(wrapper.find('.direction-picker__anchor--lg').exists()).toBe(true)
   })
+})
 
-  it('passes correct coordinates to the field for center', () => {
+describe('FormControlDirectionPicker field coords: cardinal', () => {
+  it('passes correct coordinates for center', () => {
     const wrapper = mountPicker('center')
     const field = wrapper.findComponent(DirectionPickerField)
     expect(field.props('x')).toBe(0.5)
     expect(field.props('y')).toBe(0.5)
   })
 
-  it('passes correct coordinates to the field for NW', () => {
+  it('passes correct coordinates for NW', () => {
     const wrapper = mountPicker('NW')
     const field = wrapper.findComponent(DirectionPickerField)
     expect(field.props('x')).toBe(0)
     expect(field.props('y')).toBe(0)
   })
+})
 
-  it('passes correct coordinates to the field for SE', () => {
+describe('FormControlDirectionPicker field coords: edges', () => {
+  it('passes correct coordinates for SE', () => {
     const wrapper = mountPicker('SE')
     const field = wrapper.findComponent(DirectionPickerField)
     expect(field.props('x')).toBe(1)
@@ -84,7 +93,7 @@ describe('FormControlDirectionPicker', () => {
   })
 })
 
-describe('DirectionPickerHandle', () => {
+describe('DirectionPickerHandle rendering', () => {
   it('renders a button with the correct title', () => {
     const wrapper = mount(DirectionPickerHandle, {
       props: { pos: 'nw', label: 'Top left', shape: 'corner', active: false },
@@ -105,7 +114,9 @@ describe('DirectionPickerHandle', () => {
     })
     expect(wrapper.find('button').classes()).not.toContain('direction-picker-handle--active')
   })
+})
 
+describe('DirectionPickerHandle shape: corner and edge-h', () => {
   it('applies shape class for corner', () => {
     const wrapper = mount(DirectionPickerHandle, {
       props: { pos: 'nw', label: 'Top left', shape: 'corner', active: false },
@@ -119,7 +130,9 @@ describe('DirectionPickerHandle', () => {
     })
     expect(wrapper.find('button').classes()).toContain('direction-picker-handle--edge-h')
   })
+})
 
+describe('DirectionPickerHandle shape: edge-v and events', () => {
   it('applies shape class for edge-v', () => {
     const wrapper = mount(DirectionPickerHandle, {
       props: { pos: 'w', label: 'Left', shape: 'edge-v', active: false },
@@ -143,7 +156,7 @@ describe('DirectionPickerHandle', () => {
   })
 })
 
-describe('DirectionPickerField', () => {
+describe('DirectionPickerField crosshairs', () => {
   it('renders crosshairs and rect', () => {
     const wrapper = mount(DirectionPickerField, {
       props: { x: 0.5, y: 0.5 },
@@ -162,7 +175,9 @@ describe('DirectionPickerField', () => {
     expect(h.attributes('style')).toContain('top: 50%')
     expect(v.attributes('style')).toContain('left: 50%')
   })
+})
 
+describe('DirectionPickerField origin crosshairs', () => {
   it('positions crosshairs at origin for (0, 0)', () => {
     const wrapper = mount(DirectionPickerField, {
       props: { x: 0, y: 0 },
@@ -182,7 +197,9 @@ describe('DirectionPickerField', () => {
     expect(h.attributes('style')).toContain('top: 100%')
     expect(v.attributes('style')).toContain('left: 100%')
   })
+})
 
+describe('DirectionPickerField flush positioning', () => {
   it('uses flush positioning for rect at top-left', () => {
     const wrapper = mount(DirectionPickerField, {
       props: { x: 0, y: 0 },

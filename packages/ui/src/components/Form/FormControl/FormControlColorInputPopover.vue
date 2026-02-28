@@ -48,7 +48,9 @@ const open = defineModel<boolean>('open', { default: false })
 const contentRef = useTemplateRef<HTMLElement>('contentRef')
 
 onClickOutside(contentRef, () => {
-  if (props.manual) { open.value = false }
+  if (props.manual) {
+    open.value = false
+  }
 }, {
   detectIframe: true,
   ignore: [() => props.target],

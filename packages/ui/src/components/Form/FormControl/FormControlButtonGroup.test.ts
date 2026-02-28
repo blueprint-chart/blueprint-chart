@@ -15,7 +15,7 @@ const options = [
   { value: 'right', text: 'Right' },
 ]
 
-describe('FormControlButtonGroup', () => {
+describe('FormControlButtonGroup rendering', () => {
   it('renders all option buttons', () => {
     const wrapper = mount(FormControlButtonGroup, {
       props: { modelValue: 'left', label: 'Align', options },
@@ -41,7 +41,9 @@ describe('FormControlButtonGroup', () => {
     await buttons[2].trigger('click')
     expect(wrapper.emitted('update:modelValue')?.[0]).toEqual(['right'])
   })
+})
 
+describe('FormControlButtonGroup block modifier', () => {
   it('applies block modifier classes when block prop is true', () => {
     const wrapper = mount(FormControlButtonGroup, {
       props: { modelValue: 'left', label: 'Align', options, block: true },
@@ -67,42 +69,44 @@ describe('FormControlButtonGroup', () => {
   })
 })
 
-describe('FormControlButtonGroup (slot entries)', () => {
-  function mountWithSlots(modelValue: string) {
-    return mount(FormControlButtonGroup, {
-      props: { modelValue, label: 'Align' },
-      slots: {
-        default: () => [
-          h(FormControlButtonGroupEntry, { value: 'left', text: 'Left' }),
-          h(FormControlButtonGroupEntry, { value: 'center', text: 'Center' }),
-          h(FormControlButtonGroupEntry, { value: 'right', text: 'Right' }),
-        ],
-      },
-    })
-  }
+function mountButtonGroupWithSlots(modelValue: string) {
+  return mount(FormControlButtonGroup, {
+    props: { modelValue, label: 'Align' },
+    slots: {
+      default: () => [
+        h(FormControlButtonGroupEntry, { value: 'left', text: 'Left' }),
+        h(FormControlButtonGroupEntry, { value: 'center', text: 'Center' }),
+        h(FormControlButtonGroupEntry, { value: 'right', text: 'Right' }),
+      ],
+    },
+  })
+}
 
+describe('FormControlButtonGroup slot entry rendering', () => {
   it('renders buttons from slot entries', async () => {
-    const wrapper = mountWithSlots('left')
+    const wrapper = mountButtonGroupWithSlots('left')
     await nextTick()
     const buttons = wrapper.findAll('.form-control-button-group__buttons .btn')
     expect(buttons).toHaveLength(3)
   })
 
   it('applies primary variant to selected slot entry', async () => {
-    const wrapper = mountWithSlots('center')
+    const wrapper = mountButtonGroupWithSlots('center')
     await nextTick()
     const buttons = wrapper.findAll('.form-control-button-group__buttons .btn')
     expect(buttons[1].classes()).toContain('btn-primary')
   })
 
   it('emits update:modelValue on slot entry click', async () => {
-    const wrapper = mountWithSlots('left')
+    const wrapper = mountButtonGroupWithSlots('left')
     await nextTick()
     const buttons = wrapper.findAll('.form-control-button-group__buttons .btn')
     await buttons[2].trigger('click')
     expect(wrapper.emitted('update:modelValue')?.[0]).toEqual(['right'])
   })
+})
 
+describe('FormControlButtonGroup slot entry precedence', () => {
   it('prefers slot entries over options prop', async () => {
     const wrapper = mount(FormControlButtonGroup, {
       props: {

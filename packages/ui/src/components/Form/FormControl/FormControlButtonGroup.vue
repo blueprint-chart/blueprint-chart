@@ -108,7 +108,9 @@ const dropdownOptions = computed(() =>
 
 function checkOverflow() {
   const container = containerRef.value
-  if (!container) { return }
+  if (!container) {
+    return
+  }
   const buttons = container.querySelectorAll('.btn')
   const anyTruncated = Array.from(buttons).some(b => b.scrollWidth > b.clientWidth + 1)
   overflowed.value = anyTruncated || container.scrollWidth > container.clientWidth + 1
