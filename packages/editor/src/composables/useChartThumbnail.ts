@@ -1,5 +1,3 @@
-import { watch } from 'vue'
-import { useThrottleFn } from '@vueuse/core'
 import { useChartConfig } from './useChartConfig'
 import { useChartTypeOptions, type ChartTypeOptions } from './useChartTypeOptions'
 import { useChartSession } from './useChartSession'
@@ -8,7 +6,6 @@ import type { ChartData, SeriesOverride } from '@blueprint-chart/lib'
 import type { ChartHighlight } from './useChartConfig'
 
 const THUMB_KEY = (id: string) => `blueprint-chart:${id}:thumbnail`
-const THROTTLE_MS = 30_000
 
 export function renderThumbnailSvg(
   chartType: string,
@@ -103,40 +100,30 @@ export function renderThumbnailFromPayload(payload: {
   return renderThumbnailSvg(chartConfig.chartType, data, typeOpts, chartConfig.sort)
 }
 
-export function useChartThumbnail() {
+export function generateThumbnail() {
   const config = useChartConfig()
   const { currentOptions } = useChartTypeOptions()
   const { sessionId } = useChartSession()
 
-  function generate() {
-    if (!sessionId.value) return
-    if (!config.data.value) return
+  if (!sessionId.value) return
+  if (!config.data.value) return
 
-    const data = parseData(config.data.value)
+  const data = parseData(config.data.value)
 
-    const singleSeriesTypes = ['bar-vertical', 'bar-horizontal', 'line', 'vertical-bar', 'horizontal-bar']
-    if (data.series && data.series.length > 0 && singleSeriesTypes.includes(config.chartType.value)) {
-      const match = data.series.find(s => s.name === config.selectedColumn.value)
-      if (match) {
-        data.values = match.values
-      }
-      delete data.series
+  const singleSeriesTypes = ['bar-vertical', 'bar-horizontal', 'line', 'vertical-bar', 'horizontal-bar']
+  if (data.series && data.series.length > 0 && singleSeriesTypes.includes(config.chartType.value)) {
+    const match = data.series.find(s => s.name === config.selectedColumn.value)
+    if (match) {
+      data.values = match.values
     }
-
-    const svg = renderThumbnailSvg(config.chartType.value, data, currentOptions.value, config.sort.value, {
-      highlights: config.highlights.value.length > 0 ? config.highlights.value : undefined,
-      seriesOverrides: config.seriesOverrides.value.length > 0 ? config.seriesOverrides.value : undefined,
-    })
-    if (svg) {
-      saveThumbnail(sessionId.value, svg)
-    }
+    delete data.series
   }
 
-  const throttledGenerate = useThrottleFn(generate, THROTTLE_MS)
-
-  watch(
-    [config.chartType, config.data, config.sort, config.selectedColumn, config.highlights, config.seriesOverrides, currentOptions],
-    throttledGenerate,
-    { deep: true },
-  )
+  const svg = renderThumbnailSvg(config.chartType.value, data, currentOptions.value, config.sort.value, {
+    highlights: config.highlights.value.length > 0 ? config.highlights.value : undefined,
+    seriesOverrides: config.seriesOverrides.value.length > 0 ? config.seriesOverrides.value : undefined,
+  })
+  if (svg) {
+    saveThumbnail(sessionId.value, svg)
+  }
 }
