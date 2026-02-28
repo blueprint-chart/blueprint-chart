@@ -894,35 +894,25 @@ export function createAnnotationPlugin(
 // Dynamic viewBox expansion
 // ---------------------------------------------------------------------------
 
-function expandSvgToFitAnnotations(
-  svg: SVGSVGElement | null,
-): void {
+function expandSvgToFitAnnotations(svg: SVGSVGElement | null): void {
   if (!svg) {
     return
   }
-
   const svgW = parseFloat(svg.getAttribute('width') || '0')
   const svgH = parseFloat(svg.getAttribute('height') || '0')
   if (!svgW || !svgH) {
     return
   }
-
-  // Use the full SVG bounding box which includes all child elements
   const totalBBox = svg.getBBox()
   if (totalBBox.width === 0 && totalBBox.height === 0) {
     return
   }
-
   const pad = 8
   const minX = Math.min(0, totalBBox.x - pad)
   const minY = Math.min(0, totalBBox.y - pad)
   const maxX = Math.max(svgW, totalBBox.x + totalBBox.width + pad)
   const maxY = Math.max(svgH, totalBBox.y + totalBBox.height + pad)
-
-  const needsExpand = minX < 0 || minY < 0 || maxX > svgW || maxY > svgH
-
-  if (needsExpand) {
-    // Only set viewBox — keep width/height the same so SVG scales to fit
+  if (minX < 0 || minY < 0 || maxX > svgW || maxY > svgH) {
     d3.select(svg)
       .attr('viewBox', `${minX} ${minY} ${maxX - minX} ${maxY - minY}`)
       .attr('preserveAspectRatio', 'xMidYMid meet')
