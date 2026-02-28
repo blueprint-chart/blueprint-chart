@@ -686,126 +686,109 @@ function renderPointAnnotation(
 // Range annotation
 // ---------------------------------------------------------------------------
 
+function resolveRangeRect(
+  ann: AnnotationConfig & { kind: 'range' },
+  ctx: AnnotationContext,
+): { x: number, y: number, w: number, h: number } {
+  const rangeOrientation = ann.orientation ?? 'vertical'
+  if (ctx.orientation === 'horizontal') {
+    if (rangeOrientation === 'vertical') {
+      const y1 = resolveXPosition(ann.start, ctx.scaleX, ann.startAnchor)
+      const y2 = resolveXPosition(ann.end, ctx.scaleX, ann.endAnchor)
+      return { x: 0, y: Math.min(y1, y2), w: ctx.width, h: Math.abs(y2 - y1) }
+    }
+    const x1 = resolveYPosition(ann.start, ctx.scaleY)
+    const x2 = resolveYPosition(ann.end, ctx.scaleY)
+    return { x: Math.min(x1, x2), y: 0, w: Math.abs(x2 - x1), h: ctx.height }
+  }
+  if (rangeOrientation === 'vertical') {
+    const x1 = resolveXPosition(ann.start, ctx.scaleX, ann.startAnchor)
+    const x2 = resolveXPosition(ann.end, ctx.scaleX, ann.endAnchor)
+    return { x: Math.min(x1, x2), y: 0, w: Math.abs(x2 - x1), h: ctx.height }
+  }
+  const y1 = resolveYPosition(ann.start, ctx.scaleY)
+  const y2 = resolveYPosition(ann.end, ctx.scaleY)
+  return { x: 0, y: Math.min(y1, y2), w: ctx.width, h: Math.abs(y2 - y1) }
+}
+
+function resolveRangeTextPosition(
+  ann: AnnotationConfig & { kind: 'range' },
+  rect: { x: number, y: number, w: number, h: number },
+  ctxWidth: number,
+): { textX: number, textY: number, textAnchor: string, ny: number } {
+  const dir = ann.direction ?? 'center'
+  const pad = 4
+  const v = DIRECTION_VECTORS[dir] ?? DIRECTION_VECTORS.center
+  const nx = 0.5 + v.dx * 0.5
+  const ny = 0.5 + v.dy * 0.5
+  const textX = Math.max(pad, Math.min(rect.x + rect.w * nx, ctxWidth - pad))
+  let textAnchor = 'middle'
+  if (nx < 0.25) {
+    textAnchor = 'start'
+  }
+  else if (nx > 0.75) {
+    textAnchor = 'end'
+  }
+  return { textX, textY: rect.y + pad + 12, textAnchor, ny }
+}
+
+function repositionRangeText(
+  annG: d3.Selection<SVGGElement, unknown, null, undefined>,
+  ny: number, y: number, h: number, pad: number,
+): void {
+  if (ny <= 0.25) {
+    return
+  }
+  const textEl = annG.select('.bc-annotation-text').node() as SVGTextElement | null
+  if (!textEl) {
+    return
+  }
+  try {
+    const tBBox = textEl.getBBox()
+    const dy = ny > 0.75
+      ? (y + h - pad) - (tBBox.y + tBBox.height)
+      : (y + h / 2) - (tBBox.y + tBBox.height / 2)
+    if (Math.abs(dy) > 0.5) {
+      textEl.setAttribute('transform', `translate(0, ${dy})`)
+    }
+  }
+  catch { /* getBBox can throw if not in DOM */ }
+}
+
+function renderRangeText(
+  annG: d3.Selection<SVGGElement, unknown, null, undefined>,
+  ann: AnnotationConfig & { kind: 'range' },
+  ctx: AnnotationContext,
+  rect: { x: number, y: number, w: number, h: number },
+): void {
+  if (!ann.text) {
+    return
+  }
+  const bandWidth = (ann.orientation ?? 'vertical') === 'vertical' ? rect.w : rect.h
+  const rangeMaxWidth = resolveMaxWidth(ann.maxWidth, ctx.width) ?? Math.max(bandWidth, 50)
+  const { textX, textY, textAnchor, ny } = resolveRangeTextPosition(ann, rect, ctx.width)
+  renderAnnotationText(annG, ann.text, textX, textY, {
+    textColor: ann.textColor, maxWidth: rangeMaxWidth, textAnchor,
+    backgroundColor: ctx.backgroundColor, textOutline: ann.textOutline,
+  })
+  repositionRangeText(annG, ny, rect.y, rect.h, 4)
+}
+
 function renderRangeAnnotation(
   g: d3.Selection<SVGGElement, unknown, null, undefined>,
-  ann: AnnotationConfig,
-  ctx: AnnotationContext,
-  index: number,
+  ann: AnnotationConfig, ctx: AnnotationContext, index: number,
 ): void {
   if (ann.kind !== 'range') {
     return
   }
-
   const annG = g.append('g').attr('data-annotation-index', String(index))
-  const rangeOrientation = ann.orientation ?? 'vertical'
-
-  let x: number, y: number, w: number, h: number
-
-  if (ctx.orientation === 'horizontal') {
-    // Horizontal bar charts: scaleX is band (vertical), scaleY is linear (horizontal)
-    // "vertical" range annotation → uses band scale (scaleX) to resolve Y positions
-    // "horizontal" range annotation → uses linear scale (scaleY) to resolve X positions
-    if (rangeOrientation === 'vertical') {
-      const y1 = resolveXPosition(ann.start, ctx.scaleX, ann.startAnchor)
-      const y2 = resolveXPosition(ann.end, ctx.scaleX, ann.endAnchor)
-      y = Math.min(y1, y2)
-      h = Math.abs(y2 - y1)
-      x = 0
-      w = ctx.width
-    }
-    else {
-      const x1 = resolveYPosition(ann.start, ctx.scaleY)
-      const x2 = resolveYPosition(ann.end, ctx.scaleY)
-      x = Math.min(x1, x2)
-      w = Math.abs(x2 - x1)
-      y = 0
-      h = ctx.height
-    }
-  }
-  else if (rangeOrientation === 'vertical') {
-    const x1 = resolveXPosition(ann.start, ctx.scaleX, ann.startAnchor)
-    const x2 = resolveXPosition(ann.end, ctx.scaleX, ann.endAnchor)
-    x = Math.min(x1, x2)
-    w = Math.abs(x2 - x1)
-    y = 0
-    h = ctx.height
-  }
-  else {
-    const y1 = resolveYPosition(ann.start, ctx.scaleY)
-    const y2 = resolveYPosition(ann.end, ctx.scaleY)
-    y = Math.min(y1, y2)
-    h = Math.abs(y2 - y1)
-    x = 0
-    w = ctx.width
-  }
-
+  const rect = resolveRangeRect(ann, ctx)
   annG.append('rect')
     .attr('class', 'bc-annotation-range')
-    .attr('x', x)
-    .attr('y', y)
-    .attr('width', w)
-    .attr('height', h)
+    .attr('x', rect.x).attr('y', rect.y).attr('width', rect.w).attr('height', rect.h)
     .attr('fill', ann.bgColor ?? '#ccc')
     .attr('opacity', (ann.bgOpacity ?? 20) / 100)
-
-  if (ann.text) {
-    // Determine the band width (the narrow dimension of the range)
-    const bandWidth = rangeOrientation === 'vertical' ? w : h
-    const rangeMaxWidth = resolveMaxWidth(ann.maxWidth, ctx.width) ?? Math.max(bandWidth, 50)
-
-    // Position text inside the range rect based on direction
-    // Direction maps to the interior corner/edge: N = top-center, NE = top-right, etc.
-    const dir = ann.direction ?? 'center'
-    const pad = 4
-
-    // Map direction to normalized position within rect (0 = left/top, 0.5 = center, 1 = right/bottom)
-    const v = DIRECTION_VECTORS[dir] ?? DIRECTION_VECTORS.center
-    const nx = 0.5 + v.dx * 0.5 // 0, 0.5, or 1
-    const ny = 0.5 + v.dy * 0.5
-
-    const textX = Math.max(pad, Math.min(x + w * nx, ctx.width - pad))
-
-    let textAnchor = 'middle'
-    if (nx < 0.25) {
-      textAnchor = 'start'
-    }
-    else if (nx > 0.75) {
-      textAnchor = 'end'
-    }
-
-    // Render at top-inset position first, then adjust after measuring
-    const fontSize = 12
-    const textY = y + pad + fontSize
-
-    renderAnnotationText(annG, ann.text, textX, textY, {
-      textColor: ann.textColor,
-      maxWidth: rangeMaxWidth,
-      textAnchor,
-      backgroundColor: ctx.backgroundColor,
-      textOutline: ann.textOutline,
-    })
-
-    // Measure rendered text and reposition for center/bottom alignment
-    if (ny > 0.25) {
-      const textEl = annG.select('.bc-annotation-text').node() as SVGTextElement | null
-      if (textEl) {
-        try {
-          const tBBox = textEl.getBBox()
-          let dy = 0
-          if (ny > 0.75) {
-            dy = (y + h - pad) - (tBBox.y + tBBox.height)
-          }
-          else {
-            dy = (y + h / 2) - (tBBox.y + tBBox.height / 2)
-          }
-          if (Math.abs(dy) > 0.5) {
-            textEl.setAttribute('transform', `translate(0, ${dy})`)
-          }
-        }
-        catch { /* getBBox can throw if not in DOM */ }
-      }
-    }
-  }
+  renderRangeText(annG, ann, ctx, rect)
 }
 
 // ---------------------------------------------------------------------------
