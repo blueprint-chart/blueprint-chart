@@ -29,13 +29,11 @@
             @click="goToChart(chart.id)"
           >
             <div class="d-flex align-items-center gap-2">
-              <!-- eslint-disable vue/no-v-html -->
               <div
                 v-if="getThumbnail(chart.id)"
                 class="shell-navbar__result-thumb"
                 v-html="getThumbnail(chart.id)"
               />
-              <!-- eslint-enable vue/no-v-html -->
               <div class="min-width-0 flex-grow-1">
                 <span class="fw-bold text-truncate d-block">{{ chart.title || 'Untitled' }}</span>
                 <span class="small text-body-secondary text-truncate d-block">{{ chart.description }}</span>
