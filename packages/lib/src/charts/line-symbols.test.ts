@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import * as d3 from 'd3'
 import { shouldShowSymbol, renderLineSymbols } from './line-symbols'
 

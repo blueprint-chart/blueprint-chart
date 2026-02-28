@@ -31,7 +31,7 @@ watch(containerRef, (el) => {
   sharedContainerRef.value = el
 }, { immediate: true })
 
-const { selectAnnotation, pendingAnnotationIndex } = useEditorPanel()
+const { selectAnnotation } = useEditorPanel()
 
 function onDblClick(e: MouseEvent) {
   const target = e.target as Element

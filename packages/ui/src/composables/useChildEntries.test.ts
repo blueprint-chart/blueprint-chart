@@ -54,6 +54,7 @@ describe('useChildEntries collection', () => {
       },
     })
     await nextTick()
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const entries = (wrapper.vm as any).entries
     expect(entries).toHaveLength(2)
     expect(entries[0].id).toBe('a')
@@ -63,6 +64,7 @@ describe('useChildEntries collection', () => {
   it('returns empty array when no children are provided', async () => {
     const wrapper = mount(Parent)
     await nextTick()
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     expect((wrapper.vm as any).entries).toHaveLength(0)
   })
 })

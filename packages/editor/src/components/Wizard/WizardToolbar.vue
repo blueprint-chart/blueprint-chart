@@ -56,7 +56,7 @@ import IPhChartBar from '~icons/ph/chart-bar'
 import IPhExport from '~icons/ph/export'
 
 const router = useRouter()
-const { currentIndex, currentStep, steps, next, goTo } = useWizard()
+const { currentIndex, currentStep, steps, next } = useWizard()
 const { viewMode, setViewMode } = useEditorPanel()
 const { canUndo, canRedo, undo, redo } = useChartHistory()
 const dataTable = useDataTable()
