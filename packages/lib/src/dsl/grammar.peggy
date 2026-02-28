@@ -62,7 +62,7 @@ Chart
   }
 
 ChartMember
-  = _ m:(DataBlock / Highlight / AreaFill / Annotation / Series / Step / Property) _
+  = _ m:(DataBlock / Highlight / AreaFill / RangeAnnotation / NoteAnnotation / Annotation / Series / Step / Property) _
   { return m; }
 
 DataBlock
@@ -89,7 +89,15 @@ AreaFill
 
 Annotation
   = "annotation" __ target:String _ "{" _ props:BlockProperty* _ "}"
-  { return { type: 'annotation', target, properties: props }; }
+  { return { type: 'annotation', kind: 'point', target, properties: props }; }
+
+RangeAnnotation
+  = "range" _ "{" _ props:BlockProperty* _ "}"
+  { return { type: 'annotation', kind: 'range', properties: props }; }
+
+NoteAnnotation
+  = "note" _ "{" _ props:BlockProperty* _ "}"
+  { return { type: 'annotation', kind: 'free', properties: props }; }
 
 Series
   = "series" __ name:String _ "{" _ props:BlockProperty* _ "}"
@@ -111,7 +119,7 @@ Step
   }
 
 StepMember
-  = _ m:(DataBlock / Highlight / AreaFill / Annotation / Property) _
+  = _ m:(DataBlock / Highlight / AreaFill / RangeAnnotation / NoteAnnotation / Annotation / Property) _
   { return m; }
 
 BlockProperty
