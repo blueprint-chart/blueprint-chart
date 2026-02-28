@@ -24,11 +24,15 @@ describe('LayoutBottomDrawer', () => {
     expect(wrapper.find('.layout-bottom-drawer__title').text()).toBe('Settings')
   })
 
-  it('emits update:modelValue on handle click', async () => {
+  it('emits update:modelValue on handle tap', async () => {
     const wrapper = mount(Drawer, {
       props: { modelValue: true },
     })
-    await wrapper.find('.layout-bottom-drawer__handle').trigger('click')
+    const handle = wrapper.find('.layout-bottom-drawer__handle')
+    await handle.trigger('pointerdown', { clientY: 100, pointerId: 1 })
+    const upEvent = new Event('pointerup', { bubbles: true })
+    Object.assign(upEvent, { clientY: 100, pointerId: 1 })
+    document.dispatchEvent(upEvent)
     expect(wrapper.emitted('update:modelValue')).toEqual([[false]])
   })
 

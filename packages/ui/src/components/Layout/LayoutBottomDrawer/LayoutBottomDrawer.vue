@@ -3,11 +3,12 @@
     <div
       v-if="open"
       class="layout-bottom-drawer"
+      :class="{ 'layout-bottom-drawer--dragging': isDragging }"
       :style="drawerStyle"
     >
       <div
         class="layout-bottom-drawer__handle"
-        @click="open = false"
+        @pointerdown="onPointerDown"
       >
         <div class="layout-bottom-drawer__bar" />
       </div>
@@ -32,7 +33,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, type CSSProperties } from 'vue'
+import { computed, ref, type CSSProperties } from 'vue'
+
+const DISMISS_THRESHOLD = 80
 
 const open = defineModel<boolean>({ required: true })
 
@@ -44,8 +47,47 @@ const props = withDefaults(defineProps<{
   maxHeight: '70vh',
 })
 
+const dragOffset = ref(0)
+const isDragging = ref(false)
+let startY = 0
+let dragged = false
+
+function onPointerDown(e: PointerEvent) {
+  startY = e.clientY
+  dragOffset.value = 0
+  dragged = false
+  document.addEventListener('pointermove', onPointerMove)
+  document.addEventListener('pointerup', onPointerUp, { once: true })
+  document.addEventListener('pointercancel', onPointerUp, { once: true })
+}
+
+function onPointerMove(e: PointerEvent) {
+  const dy = e.clientY - startY
+  if (!isDragging.value && Math.abs(dy) > 4) {
+    isDragging.value = true
+  }
+  if (isDragging.value) {
+    dragged = true
+    dragOffset.value = Math.max(0, dy)
+  }
+}
+
+function onPointerUp() {
+  document.removeEventListener('pointermove', onPointerMove)
+  document.removeEventListener('pointercancel', onPointerUp)
+  if (isDragging.value && dragOffset.value >= DISMISS_THRESHOLD) {
+    open.value = false
+  }
+  else if (!dragged) {
+    open.value = false
+  }
+  dragOffset.value = 0
+  isDragging.value = false
+}
+
 const drawerStyle = computed<CSSProperties>(() => ({
   maxHeight: props.maxHeight,
+  ...(dragOffset.value > 0 ? { transform: `translateY(${dragOffset.value}px)` } : {}),
 }))
 </script>
 
@@ -63,6 +105,12 @@ const drawerStyle = computed<CSSProperties>(() => ({
   border-radius: var(--bs-border-radius-lg) var(--bs-border-radius-lg) 0 0;
   box-shadow: 0 -0.25rem 1rem rgba(0, 0, 0, 0.15);
   overflow: hidden;
+  transition: transform 0.25s ease;
+  will-change: transform;
+
+  &--dragging {
+    transition: none;
+  }
 }
 
 .layout-bottom-drawer__backdrop {
@@ -76,8 +124,13 @@ const drawerStyle = computed<CSSProperties>(() => ({
   display: flex;
   justify-content: center;
   padding: 0.5rem;
-  cursor: pointer;
+  cursor: grab;
   flex-shrink: 0;
+  touch-action: none;
+
+  &:active {
+    cursor: grabbing;
+  }
 }
 
 .layout-bottom-drawer__bar {
