@@ -1,4 +1,5 @@
 import { watch } from 'vue'
+import { useThrottleFn } from '@vueuse/core'
 import { useChartConfig } from './useChartConfig'
 import { useChartTypeOptions, type ChartTypeOptions } from './useChartTypeOptions'
 import { useChartSession } from './useChartSession'
@@ -107,9 +108,6 @@ export function useChartThumbnail() {
   const { currentOptions } = useChartTypeOptions()
   const { sessionId } = useChartSession()
 
-  let lastRenderTime = 0
-  let pendingTimeout: ReturnType<typeof setTimeout> | null = null
-
   function generate() {
     if (!sessionId.value) return
     if (!config.data.value) return
@@ -134,22 +132,7 @@ export function useChartThumbnail() {
     }
   }
 
-  function throttledGenerate() {
-    const now = Date.now()
-    const elapsed = now - lastRenderTime
-
-    if (elapsed >= THROTTLE_MS) {
-      lastRenderTime = now
-      generate()
-    }
-    else if (!pendingTimeout) {
-      pendingTimeout = setTimeout(() => {
-        pendingTimeout = null
-        lastRenderTime = Date.now()
-        generate()
-      }, THROTTLE_MS - elapsed)
-    }
-  }
+  const throttledGenerate = useThrottleFn(generate, THROTTLE_MS)
 
   watch(
     [config.chartType, config.data, config.sort, config.selectedColumn, config.highlights, config.seriesOverrides, currentOptions],

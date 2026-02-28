@@ -44,6 +44,9 @@ importers:
       '@handsontable/vue3':
         specifier: ^16.2.0
         version: 16.2.0(handsontable@16.2.0)(vue@3.5.29(typescript@5.9.3))
+      '@vueuse/core':
+        specifier: ^14.2.1
+        version: 14.2.1(vue@3.5.29(typescript@5.9.3))
       bootstrap:
         specifier: ^5.3
         version: 5.3.8(@popperjs/core@2.11.8)

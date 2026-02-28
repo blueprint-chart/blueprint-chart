@@ -26,7 +26,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, useTemplateRef, onBeforeUnmount, watch } from 'vue'
+import { computed, useTemplateRef } from 'vue'
+import { onClickOutside } from '@vueuse/core'
 import { BPopover } from 'bootstrap-vue-next'
 import { TwitterPicker, HueSlider, tinycolor } from 'vue-color'
 import 'vue-color/style.css'
@@ -46,26 +47,11 @@ const emit = defineEmits<{
 const open = defineModel<boolean>('open', { default: false })
 const contentRef = useTemplateRef<HTMLElement>('contentRef')
 
-function onDocumentClick(event: MouseEvent) {
-  const target = event.target as Node
-  const popoverEl = contentRef.value?.closest('.popover')
-  if (popoverEl?.contains(target)) return
-  if (props.target?.contains(target)) return
-  open.value = false
-}
-
-watch(open, (isOpen) => {
-  if (!props.manual) return
-  if (isOpen) {
-    document.addEventListener('mousedown', onDocumentClick, true)
-  }
-  else {
-    document.removeEventListener('mousedown', onDocumentClick, true)
-  }
-})
-
-onBeforeUnmount(() => {
-  document.removeEventListener('mousedown', onDocumentClick, true)
+onClickOutside(contentRef, () => {
+  if (props.manual) open.value = false
+}, {
+  detectIframe: true,
+  ignore: [() => props.target],
 })
 
 const hue = computed(() => {

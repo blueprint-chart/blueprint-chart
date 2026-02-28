@@ -27,6 +27,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, nextTick } from 'vue'
+import { useMediaQuery } from '@vueuse/core'
 import { HotTable } from '@handsontable/vue3'
 import { registerAllModules } from 'handsontable/registry'
 import 'handsontable/styles/handsontable.min.css'
@@ -38,9 +39,10 @@ import type { ColumnType } from '@/composables/useDataParser'
 registerAllModules()
 
 const { theme } = useTheme()
+const prefersDark = useMediaQuery('(prefers-color-scheme: dark)')
 const isDark = computed(() => {
   if (theme.value === 'dark') return true
-  if (theme.value === 'auto') return window.matchMedia('(prefers-color-scheme: dark)').matches
+  if (theme.value === 'auto') return prefersDark.value
   return false
 })
 

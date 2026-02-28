@@ -60,7 +60,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, markRaw } from 'vue'
+import { ref, markRaw } from 'vue'
+import { onClickOutside } from '@vueuse/core'
 import type { Component } from 'vue'
 import { samples } from '@blueprint-chart/lib'
 import type { ChartSample } from '@blueprint-chart/lib'
@@ -90,19 +91,9 @@ for (const [path, mod] of Object.entries(bpcModules)) {
 const open = ref(false)
 const containerRef = ref<HTMLElement | null>(null)
 
-onMounted(() => {
-  document.addEventListener('click', onClickOutside)
+onClickOutside(containerRef, () => {
+  open.value = false
 })
-
-onUnmounted(() => {
-  document.removeEventListener('click', onClickOutside)
-})
-
-function onClickOutside(e: MouseEvent) {
-  if (containerRef.value && !containerRef.value.contains(e.target as Node)) {
-    open.value = false
-  }
-}
 
 function onBlank() {
   open.value = false

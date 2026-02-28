@@ -58,7 +58,8 @@
 </template>
 
 <script setup lang="ts">
-import { type Component, computed, onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue'
+import { type Component, computed, ref, useTemplateRef } from 'vue'
+import { useResizeObserver } from '@vueuse/core'
 import ButtonIcon from '../../Button/ButtonIcon/ButtonIcon.vue'
 import FormControlDropdown from './FormControlDropdown.vue'
 import { useChildEntriesProvider } from '../../../composables/useChildEntries'
@@ -102,8 +103,6 @@ const dropdownOptions = computed(() =>
   })),
 )
 
-let observer: ResizeObserver | null = null
-
 function checkOverflow() {
   const container = containerRef.value
   if (!container) return
@@ -112,16 +111,7 @@ function checkOverflow() {
   overflowed.value = anyTruncated || container.scrollWidth > container.clientWidth + 1
 }
 
-onMounted(() => {
-  if (!containerRef.value) return
-  observer = new ResizeObserver(checkOverflow)
-  observer.observe(containerRef.value)
-  checkOverflow()
-})
-
-onBeforeUnmount(() => {
-  observer?.disconnect()
-})
+useResizeObserver(containerRef, checkOverflow)
 </script>
 
 <style scoped lang="scss">

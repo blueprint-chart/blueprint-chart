@@ -1,4 +1,5 @@
-import { watch, onMounted, onUnmounted, type Ref } from 'vue'
+import { watch, type Ref } from 'vue'
+import { useResizeObserver, useThrottleFn } from '@vueuse/core'
 import { useChartConfig } from './useChartConfig'
 import { useChartTypeOptions } from './useChartTypeOptions'
 import { useTheme } from './useTheme'
@@ -54,7 +55,8 @@ export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
     if (card) {
       if (!allowDark && theme.value !== 'light') {
         card.setAttribute('data-bs-theme', 'light')
-      } else {
+      }
+      else {
         card.removeAttribute('data-bs-theme')
       }
     }
@@ -89,22 +91,8 @@ export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
   )
 
   // Re-render when the container itself resizes (panel drag, window resize, etc.)
-  let resizeTimer: ReturnType<typeof setTimeout> | null = null
-  let observer: ResizeObserver | null = null
-
-  function onResize() {
-    if (resizeTimer) clearTimeout(resizeTimer)
-    resizeTimer = setTimeout(render, RESIZE_THROTTLE_MS)
-  }
-
-  onMounted(() => {
-    observer = new ResizeObserver(onResize)
-    if (containerRef.value) observer.observe(containerRef.value)
-  })
-  onUnmounted(() => {
-    observer?.disconnect()
-    if (resizeTimer) clearTimeout(resizeTimer)
-  })
+  const throttledRender = useThrottleFn(render, RESIZE_THROTTLE_MS)
+  useResizeObserver(containerRef, throttledRender)
 
   return { config }
 }
