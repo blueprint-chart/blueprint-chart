@@ -147,7 +147,7 @@ function buildFooterLeftItems(options: FrameOptions): FooterItem[] {
 }
 
 function buildFooterRightItems(options: FrameOptions): FooterItem[] {
-  if (options.showCredit === false) return []
+  if (options.showCredit === false) { return [] }
   return [{ tag: 'span', className: 'bc-frame-credit', text: 'Blueprint Chart' }]
 }
 

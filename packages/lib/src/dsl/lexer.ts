@@ -60,11 +60,11 @@ export function tokenize(input: string): Token[] {
           throw new SyntaxError(`Unterminated string at ${startLine}:${startColumn}`)
         }
         const escaped = input[pos]
-        if (escaped === '"') value += '"'
-        else if (escaped === '\\') value += '\\'
-        else if (escaped === 'n') value += '\n'
-        else if (escaped === 't') value += '\t'
-        else value += escaped
+        if (escaped === '"') { value += '"' }
+        else if (escaped === '\\') { value += '\\' }
+        else if (escaped === 'n') { value += '\n' }
+        else if (escaped === 't') { value += '\t' }
+        else { value += escaped }
       }
       else {
         value += input[pos]
@@ -103,7 +103,7 @@ export function tokenize(input: string): Token[] {
 
   while (pos < input.length) {
     skipWhitespace()
-    if (pos >= input.length) break
+    if (pos >= input.length) { break }
 
     const ch = peek()
     const startLine = line

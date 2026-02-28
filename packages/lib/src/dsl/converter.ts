@@ -23,8 +23,8 @@ export function extractChartTypeOptions(
 
   for (const def of defs) {
     const raw = propMap.get(def.key)
-    if (raw === undefined) continue
-    if (!supported.has(def.key)) continue
+    if (raw === undefined) { continue }
+    if (!supported.has(def.key)) { continue }
 
     if (def.type === 'colors') {
       opts[def.key] = String(raw).split(',').map(s => s.trim()).filter(Boolean)

@@ -104,10 +104,10 @@ export function render(
 
   const chart = new BarHorizontalChart(d3.select(chartArea))
   chart.config({ x, y, width, height, colors: options.colors ?? DEFAULT_COLORS, highlights })
-  if (options.valueLabels) chart.use(createValueLabelPlugin({ position: options.valueLabelPosition, orientation: 'horizontal' }))
-  if (options.tooltips) chart.use(createTooltipPlugin())
-  if (options.crosshair) chart.use(createCrosshairPlugin({ width, height, direction: options.crosshairDirection, style: options.crosshairStyle, color: options.crosshairColor }))
-  if (options.annotations?.length) chart.use(createAnnotationPlugin(options.annotations, { scaleX: y, scaleY: x, data: barData, width, height, backgroundColor: resolveBackgroundColor(container), orientation: 'horizontal' }))
+  if (options.valueLabels) { chart.use(createValueLabelPlugin({ position: options.valueLabelPosition, orientation: 'horizontal' })) }
+  if (options.tooltips) { chart.use(createTooltipPlugin()) }
+  if (options.crosshair) { chart.use(createCrosshairPlugin({ width, height, direction: options.crosshairDirection, style: options.crosshairStyle, color: options.crosshairColor })) }
+  if (options.annotations?.length) { chart.use(createAnnotationPlugin(options.annotations, { scaleX: y, scaleY: x, data: barData, width, height, backgroundColor: resolveBackgroundColor(container), orientation: 'horizontal' })) }
   chart.draw(barData)
 }
 

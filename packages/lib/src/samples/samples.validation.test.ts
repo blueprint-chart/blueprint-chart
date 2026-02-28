@@ -51,7 +51,7 @@ describe('sample .bpc files', () => {
 
       it('uses a valid colorPalette (if specified)', () => {
         const paletteProp = ast.properties.find(p => p.key === 'colorPalette')
-        if (!paletteProp) return
+        if (!paletteProp) { return }
 
         const value = String(paletteProp.value)
         expect(paletteNames.has(value), `unknown palette "${value}"`).toBe(true)

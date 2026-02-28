@@ -3,9 +3,9 @@ import { createTooltipPlugin } from './tooltip'
 
 describe('createTooltipPlugin', () => {
   beforeEach(() => {
-    while (document.body.firstChild) document.body.removeChild(document.body.firstChild)
+    while (document.body.firstChild) { document.body.removeChild(document.body.firstChild) }
     const existing = document.getElementById('bc-tooltip-styles')
-    if (existing) existing.remove()
+    if (existing) { existing.remove() }
   })
 
   it('creates and removes tooltip element', () => {

@@ -5,7 +5,7 @@ import type { D3Blueprint, Plugin } from 'd3-blueprint'
 const TOOLTIP_CLASS = 'bc-tooltip'
 
 function ensureStyles(): void {
-  if (document.getElementById('bc-tooltip-styles')) return
+  if (document.getElementById('bc-tooltip-styles')) { return }
   const style = document.createElement('style')
   style.id = 'bc-tooltip-styles'
   style.textContent = `
@@ -41,7 +41,7 @@ function defaultFormat(d: unknown): string {
     if ('series' in obj && 'value' in obj) {
       return `${obj.series}: ${obj.value}`
     }
-    if ('value' in obj) return String(obj.value)
+    if ('value' in obj) { return String(obj.value) }
   }
   return String(d)
 }
@@ -73,7 +73,7 @@ export function createTooltipPlugin(options?: {
         const el = this
 
         const onEnter = () => {
-          if (!tooltipEl) return
+          if (!tooltipEl) { return }
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const datum = d3.select(el).datum() as any
           tooltipEl.textContent = fmt(datum)
@@ -83,14 +83,14 @@ export function createTooltipPlugin(options?: {
             placement: 'top',
             middleware: [offset(8), flip(), shift()],
           }).then(({ x, y }) => {
-            if (!tooltipEl) return
+            if (!tooltipEl) { return }
             tooltipEl.style.left = `${x}px`
             tooltipEl.style.top = `${y}px`
           })
         }
 
         const onLeave = () => {
-          if (tooltipEl) tooltipEl.style.display = 'none'
+          if (tooltipEl) { tooltipEl.style.display = 'none' }
         }
 
         el.addEventListener('mouseenter', onEnter)
@@ -103,7 +103,7 @@ export function createTooltipPlugin(options?: {
     },
 
     destroy() {
-      for (const cleanup of cleanups) cleanup()
+      for (const cleanup of cleanups) { cleanup() }
       cleanups.length = 0
       if (tooltipEl) {
         tooltipEl.remove()
