@@ -24,59 +24,6 @@ function ensureDefaults(type: string): void {
   }
 }
 
-function copyTransitiveOption(
-  oldEntry: Partial<ChartTypeOptions>,
-  newType: string,
-  key: ChartTypeOptionKey,
-) {
-  if (!(key in oldEntry) || key in store[newType]!) {
-    return
-  }
-  const val = oldEntry[key]
-  const target = store[newType] as Partial<ChartTypeOptions>
-  if (Array.isArray(val)) {
-    (target[key] as ChartTypeOptions[typeof key]) = [...val] as ChartTypeOptions[typeof key]
-  }
-  else {
-    (target[key] as ChartTypeOptions[typeof key]) = val as ChartTypeOptions[typeof key]
-  }
-}
-
-function migrateOptions(oldType: string, newType: string) {
-  ensureDefaults(newType)
-  const oldEntry = store[oldType]
-  if (!oldEntry) {
-    return
-  }
-  const supported = getChartOptions(newType).map(d => d.key as ChartTypeOptionKey)
-  if (supported.length === 0) {
-    return
-  }
-  for (const key of supported) {
-    copyTransitiveOption(oldEntry, newType, key)
-  }
-}
-
-function reset() {
-  for (const key of Object.keys(store)) {
-    delete store[key]
-  }
-}
-
-function hydrate(snapshot: Record<string, Partial<ChartTypeOptions>>) {
-  reset()
-  for (const [key, value] of Object.entries(snapshot)) {
-    store[key] = value
-  }
-}
-
-function setOptionForType<K extends ChartTypeOptionKey>(chartType: string, key: K, value: ChartTypeOptions[K]) {
-  if (!store[chartType]) {
-    store[chartType] = {}
-  }
-  store[chartType][key] = value
-}
-
 export function useChartTypeOptions() {
   const { chartType } = useChartConfig()
 
@@ -86,17 +33,65 @@ export function useChartTypeOptions() {
   })
 
   const optionDefs = computed(() => getChartOptions(chartType.value))
+
   const availableOptionKeys = computed<ChartTypeOptionKey[]>(
     () => optionDefs.value.map(d => d.key as ChartTypeOptionKey),
   )
 
   function setOption<K extends ChartTypeOptionKey>(key: K, value: ChartTypeOptions[K]) {
-    setOptionForType(chartType.value, key, value)
+    if (!store[chartType.value]) {
+      store[chartType.value] = {}
+    }
+    store[chartType.value][key] = value
   }
 
   watch(chartType, (newType, oldType) => {
-    migrateOptions(oldType, newType)
+    ensureDefaults(newType)
+
+    const oldEntry = store[oldType]
+    if (!oldEntry) {
+      return
+    }
+
+    const supported = getChartOptions(newType).map(d => d.key as ChartTypeOptionKey)
+    if (supported.length === 0) {
+      return
+    }
+
+    for (const key of supported) {
+      if (key in oldEntry && !(key in store[newType]!)) {
+        const val = oldEntry[key]
+        const target = store[newType] as Partial<ChartTypeOptions>
+        if (Array.isArray(val)) {
+          (target[key] as ChartTypeOptions[typeof key]) = [...val] as ChartTypeOptions[typeof key]
+        }
+        else {
+          (target[key] as ChartTypeOptions[typeof key]) = val as ChartTypeOptions[typeof key]
+        }
+      }
+    }
   }, { flush: 'sync' })
 
-  return { currentOptions, availableOptionKeys, optionDefs, setOption, reset, hydrate, store }
+  function reset() {
+    for (const key of Object.keys(store)) {
+      delete store[key]
+    }
+  }
+
+  function hydrate(snapshot: Record<string, Partial<ChartTypeOptions>>) {
+    reset()
+    for (const [key, value] of Object.entries(snapshot)) {
+      store[key] = value
+    }
+  }
+
+  return {
+    currentOptions,
+    availableOptionKeys,
+    optionDefs,
+    setOption,
+    reset,
+    hydrate,
+    store,
+  }
 }

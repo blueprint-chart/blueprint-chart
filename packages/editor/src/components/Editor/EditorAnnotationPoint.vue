@@ -179,7 +179,8 @@ function formatMaxWidth(v: number | string | undefined): string {
     return '150px'
   }
   if (typeof v === 'number') {
-    return `${v}px`
+    return `${
+      v}px`
   }
   return String(v)
 }

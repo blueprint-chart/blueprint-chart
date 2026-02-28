@@ -195,9 +195,7 @@ function update(key: string, value: unknown) {
   if (value === undefined) {
     delete (copy as Record<string, unknown>)[key]
   }
-  else {
-    (copy as Record<string, unknown>)[key] = value
-  }
+  else { (copy as Record<string, unknown>)[key] = value }
   emit('update:annotation', copy as RangeAnnotationConfig)
 }
 

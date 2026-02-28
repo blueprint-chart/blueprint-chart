@@ -224,7 +224,8 @@ const cvdInfo = computed(() => {
   }
   const issues = colors.length >= 2 ? checkCvdColors(colors) : []
   if (issues.length === 0) {
-    return { safe: true as const, issues: [] }
+    return {
+      safe: true as const, issues: [] }
   }
   return {
     safe: false as const,
