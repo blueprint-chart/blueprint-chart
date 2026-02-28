@@ -3,8 +3,14 @@
     class="direction-picker"
     :label="label"
   >
-    <div class="direction-picker__anchor" :class="sizeClass">
-      <DirectionPickerField :x="activeDir.x" :y="activeDir.y" />
+    <div
+      class="direction-picker__anchor"
+      :class="sizeClass"
+    >
+      <DirectionPickerField
+        :x="activeDir.x"
+        :y="activeDir.y"
+      />
       <DirectionPickerHandle
         v-for="dir in directions"
         :key="dir.value"

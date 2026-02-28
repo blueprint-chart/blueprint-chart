@@ -9,7 +9,7 @@ function createMockMatchMedia(matches: boolean) {
     addEventListener: (_: string, cb: (e: MediaQueryListEvent) => void) => listeners.push(cb),
     removeEventListener: (_: string, cb: (e: MediaQueryListEvent) => void) => {
       const idx = listeners.indexOf(cb)
-      if (idx >= 0) listeners.splice(idx, 1)
+      if (idx >= 0) { listeners.splice(idx, 1) }
     },
   }
   return {

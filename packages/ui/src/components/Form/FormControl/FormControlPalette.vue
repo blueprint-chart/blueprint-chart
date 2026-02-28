@@ -69,9 +69,9 @@ const dropdownRef = useTemplateRef<{ hide: () => void, $el: HTMLElement }>('drop
 
 function matchMenuWidth() {
   const el = dropdownRef.value?.$el
-  if (!el) return
+  if (!el) { return }
   const toggle = el.querySelector('.dropdown-toggle') as HTMLElement | null
-  if (!toggle?.id) return
+  if (!toggle?.id) { return }
   const menu = document.getElementById(`${toggle.id}-menu`)
   if (menu) {
     menu.style.width = `${toggle.offsetWidth}px`
