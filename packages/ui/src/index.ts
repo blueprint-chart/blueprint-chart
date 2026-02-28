@@ -17,10 +17,12 @@ export type { AppIconLayersProps } from './components/App/AppIconLayers/AppIconL
 
 export { default as FormControlCheckbox } from './components/Form/FormControl/FormControlCheckbox.vue'
 export { default as FormControlColorInput } from './components/Form/FormControl/FormControlColorInput.vue'
+export { default as FormControlDirectionPicker } from './components/Form/FormControl/FormControlDirectionPicker.vue'
 export { default as FormControlColorsInput } from './components/Form/FormControl/FormControlColorsInput.vue'
 export { default as FormControlButtonGroup } from './components/Form/FormControl/FormControlButtonGroup.vue'
 export { default as FormControlButtonGroupEntry } from './components/Form/FormControl/FormControlButtonGroupEntry.vue'
 export { default as FormControlSliderInput } from './components/Form/FormControl/FormControlSliderInput.vue'
+export { default as FormControlUnitsInput } from './components/Form/FormControl/FormControlUnitsInput.vue'
 export { default as FormControlDropdown } from './components/Form/FormControl/FormControlDropdown.vue'
 export { default as FormControlDropdownEntry } from './components/Form/FormControl/FormControlDropdownEntry.vue'
 export { default as FormControlDropdownItem } from './components/Form/FormControl/FormControlDropdownItem.vue'
@@ -65,4 +67,6 @@ export { default as NavigationStepperStep } from './components/Navigation/Naviga
 export { default as NavigationIconRail } from './components/Navigation/NavigationIconRail/NavigationIconRail.vue'
 export { default as NavigationIconRailEntry } from './components/Navigation/NavigationIconRail/NavigationIconRailEntry.vue'
 
+export { default as ListItemRow } from './components/List/ListItemRow/ListItemRow.vue'
+export { default as ListItemActions } from './components/List/ListItemActions/ListItemActions.vue'
 export { default as ListSeriesRow } from './components/List/ListSeriesRow/ListSeriesRow.vue'
