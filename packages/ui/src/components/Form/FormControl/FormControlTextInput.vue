@@ -10,7 +10,7 @@
         :model-value="model"
         :placeholder="placeholder"
         class="form-control-text-input__input"
-        @update:model-value="model = $event"
+        @update:model-value="model = String($event)"
       />
       <small
         v-if="suffix"

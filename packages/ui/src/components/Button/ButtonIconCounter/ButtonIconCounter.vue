@@ -15,7 +15,7 @@ withDefaults(defineProps<ButtonIconCounterProps>(), {
 <template>
   <BBadge
     v-if="counter != null"
-    :variant="variant"
+    :variant="(variant as any)"
     class="button-icon-counter text-nowrap"
     pill
   >

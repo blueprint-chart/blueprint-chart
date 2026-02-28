@@ -16,8 +16,8 @@ const isRawSize = computed(() => {
 
 const style = computed(() => {
   return {
-    '--app-icon-layers-raw-size': isRawSize.value ? props.size : null,
-    '--app-icon-layers-size': isRawSize.value ? null : props.size,
+    '--app-icon-layers-raw-size': isRawSize.value ? props.size : undefined,
+    '--app-icon-layers-size': isRawSize.value ? undefined : props.size,
   }
 })
 

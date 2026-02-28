@@ -5,8 +5,8 @@
   >
     <slot />
     <template
-      v-for="(step, i) in visibleSteps"
-      :key="i"
+      v-for="(step, _i) in visibleSteps"
+      :key="_i"
     >
       <button
         class="navigation-stepper__step"

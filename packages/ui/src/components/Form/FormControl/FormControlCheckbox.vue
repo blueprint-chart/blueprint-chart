@@ -3,7 +3,7 @@
     <BFormCheckbox
       :model-value="model"
       class="form-control-checkbox__input"
-      @update:model-value="model = $event"
+      @update:model-value="model = $event as boolean"
     >
       <slot>{{ label }}</slot>
     </BFormCheckbox>
