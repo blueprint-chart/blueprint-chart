@@ -1,11 +1,7 @@
-import { parse, getChartOptions } from '@blueprint-chart/lib'
+import { parse, propertyMap, extractChartTypeOptions, dataEntriesToString } from '@blueprint-chart/lib'
 import type { SeriesOverride } from '@blueprint-chart/lib'
 import { useChartConfig } from './useChartConfig'
-import { useChartTypeOptions, type ChartTypeOptions, type ChartTypeOptionKey } from './useChartTypeOptions'
-
-const BOOLEAN_KEYS: (keyof ChartTypeOptions)[] = ['legend', 'showVerticalAxis', 'showHorizontalAxis', 'showVerticalTicks', 'showHorizontalTicks', 'valueLabels', 'tooltips', 'crosshair', 'lineSymbols', 'displayAsPercentage', 'showTotal', 'showLabels', 'showValues']
-const STRING_KEYS: (keyof ChartTypeOptions)[] = ['verticalGridStyle', 'horizontalGridStyle', 'verticalNumberFormat', 'horizontalNumberFormat', 'verticalLabelPosition', 'horizontalLabelPosition', 'verticalAxisDirection', 'colorPalette', 'interpolation', 'legendPosition', 'legendAnchor', 'directLabelling', 'directLabelAnchor', 'valueLabelPosition', 'crosshairDirection', 'crosshairStyle', 'crosshairColor', 'lineSymbolShape', 'lineSymbolShowOn', 'lineSymbolStyle', 'verticalScaleType', 'horizontalScaleType', 'sliceGroupLabel']
-const NUMBER_KEYS: (keyof ChartTypeOptions)[] = ['lineSymbolSize', 'lineSymbolOpacity', 'verticalRangeMin', 'verticalRangeMax', 'horizontalRangeMin', 'horizontalRangeMax', 'sliceMax']
+import { useChartTypeOptions, type ChartTypeOptions } from './useChartTypeOptions'
 
 export function useDslSync() {
   const config = useChartConfig()
@@ -17,7 +13,7 @@ export function useDslSync() {
 
       config.chartType.value = ast.chartType
 
-      const propMap = new Map(ast.properties.map(p => [p.key, p.value]))
+      const propMap = propertyMap(ast.properties)
 
       config.title.value = String(propMap.get('title') ?? '')
       config.description.value = String(propMap.get('description') ?? '')
@@ -33,60 +29,13 @@ export function useDslSync() {
         config.sort.value = 'none'
       }
 
-      if (ast.data) {
-        config.data.value = ast.data.entries
-          .map((e) => {
-            const val = e.isPercentage ? `${e.value}%` : String(e.value)
-            // Preserve _series metadata and quoted multi-values as-is
-            if (e.key === '_series') {
-              return `_series = "${val}"`
-            }
-            if (typeof e.value === 'string' && e.value.includes(',')) {
-              return `"${e.key}" = "${val}"`
-            }
-            return `"${e.key}" = ${val}`
-          })
-          .join('\n')
-      }
-      else {
-        config.data.value = ''
-      }
+      config.data.value = ast.data ? dataEntriesToString(ast.data) : ''
 
-      // Parse chart type options
-      const typeOpts: Partial<ChartTypeOptions> = {}
-      const supported = getChartOptions(ast.chartType).map(d => d.key as ChartTypeOptionKey)
-
-      const colorsRaw = propMap.get('colors')
-      if (colorsRaw !== undefined && supported.includes('colors')) {
-        typeOpts.colors = String(colorsRaw).split(',').map(s => s.trim()).filter(Boolean)
-      }
-
-      for (const key of BOOLEAN_KEYS) {
-        const raw = propMap.get(key)
-        if (raw !== undefined && supported.includes(key)) {
-          (typeOpts[key] as boolean) = raw === 'true' || raw === true
-        }
-      }
-
-      for (const key of STRING_KEYS) {
-        const raw = propMap.get(key)
-        if (raw !== undefined && supported.includes(key)) {
-          (typeOpts[key] as string) = String(raw)
-        }
-      }
-
-      for (const key of NUMBER_KEYS) {
-        const raw = propMap.get(key)
-        if (raw !== undefined && supported.includes(key)) {
-          (typeOpts[key] as string) = String(raw)
-        }
-      }
-
-      store[ast.chartType] = typeOpts
+      store[ast.chartType] = extractChartTypeOptions(ast.chartType, ast.properties) as Partial<ChartTypeOptions>
 
       if (ast.highlights) {
         config.highlights.value = ast.highlights.map((h) => {
-          const hProps = new Map(h.properties.map(p => [p.key, p.value]))
+          const hProps = propertyMap(h.properties)
           return {
             target: h.target,
             color: String(hProps.get('color') ?? ''),
@@ -100,7 +49,7 @@ export function useDslSync() {
 
       if (ast.areaFills) {
         config.areaFills.value = ast.areaFills.map((af) => {
-          const afProps = new Map(af.properties.map(p => [p.key, p.value]))
+          const afProps = propertyMap(af.properties)
           return {
             from: af.from,
             to: af.to,
@@ -117,7 +66,7 @@ export function useDslSync() {
 
       if (ast.annotations) {
         config.annotations.value = ast.annotations.map((a) => {
-          const aProps = new Map(a.properties.map(p => [p.key, p.value]))
+          const aProps = propertyMap(a.properties)
           return {
             target: a.target,
             text: String(aProps.get('text') ?? ''),
@@ -133,7 +82,7 @@ export function useDslSync() {
 
       if (ast.series) {
         config.seriesOverrides.value = ast.series.map((s) => {
-          const sProps = new Map(s.properties.map(p => [p.key, p.value]))
+          const sProps = propertyMap(s.properties)
           const override: SeriesOverride = { name: s.name }
           if (sProps.has('color')) override.color = String(sProps.get('color'))
           if (sProps.has('lineWidth')) override.lineWidth = Number(sProps.get('lineWidth'))
