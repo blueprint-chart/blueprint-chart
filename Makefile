@@ -1,4 +1,4 @@
-.PHONY: help install dev dev-story build build-lib build-editor build-story preview preview-story lint lint-fix test test-lib test-editor test-watch clean ci
+.PHONY: help install dev dev-story build build-lib build-editor build-story preview preview-story lint lint-fix test test-lib test-editor test-watch test-e2e clean
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}'
@@ -21,7 +21,7 @@ build-story: ## Build Histoire static site
 build-lib: ## Build lib package (ES + IIFE runtime)
 	pnpm --filter @blueprint-chart/lib build
 
-build-editor: ## Type-check and build editor for production
+build-editor: ## Build editor for production
 	pnpm --filter @blueprint-chart/editor build
 
 preview: ## Preview the production editor build
@@ -36,7 +36,7 @@ lint: ## Run ESLint across all packages
 lint-fix: ## Run ESLint with auto-fix
 	pnpm lint:fix
 
-test: ## Run all tests once
+test: ## Run all unit tests once
 	pnpm -r test
 
 test-lib: ## Run lib tests once
@@ -48,7 +48,8 @@ test-editor: ## Run editor tests once
 test-watch: ## Run editor tests in watch mode
 	pnpm --filter @blueprint-chart/editor test:watch
 
+test-e2e: ## Run Playwright e2e smoke tests
+	npx playwright test
+
 clean: ## Remove all build artifacts and node_modules
 	rm -rf node_modules packages/*/node_modules packages/*/dist
-
-ci: lint test build ## Run lint, test, and build (CI pipeline)
