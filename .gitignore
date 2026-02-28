@@ -6,3 +6,4 @@ components.d.ts
 
 # Generated PEG parser
 packages/lib/src/dsl/grammar.js
+test-results
