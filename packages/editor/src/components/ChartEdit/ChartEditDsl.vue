@@ -34,7 +34,6 @@ function syncDslToText() {
 
 watchEffect(syncDslToText)
 
-// eslint-disable-next-line no-undef
 function onInput(event: Event) {
   const value = (event.target as { value: string }).value
   text.value = value

@@ -36,6 +36,10 @@ export interface AppIconProps {
 }
 
 const props = withDefaults(defineProps<AppIconProps>(), {
+  name: undefined,
+  size: undefined,
+  variant: undefined,
+  hoverVariant: undefined,
   scale: 1,
   beatDuration: '1s',
   fadeDuration: '1s',

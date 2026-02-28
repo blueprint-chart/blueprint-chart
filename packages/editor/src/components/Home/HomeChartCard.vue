@@ -5,12 +5,13 @@
       role="button"
       @click="$emit('select')"
     >
-      <!-- eslint-disable-next-line vue/no-v-html -->
+      <!-- eslint-disable vue/no-v-html -->
       <div
         v-if="thumbnail"
         class="flex-shrink-0 me-3 chart-thumbnail"
         v-html="thumbnail"
       />
+      <!-- eslint-enable vue/no-v-html -->
       <div class="flex-grow-1 me-3">
         <div class="fw-semibold">
           {{ chart.title || 'Untitled' }}
