@@ -11,6 +11,7 @@ import { createValueLabelPlugin } from '../../plugins/value-labels'
 import { createTooltipPlugin } from '../../plugins/tooltip'
 import { createCrosshairPlugin } from '../../plugins/crosshair'
 import { createAnnotationPlugin } from '../../plugins/annotations'
+import { resolveBackgroundColor } from '../../contrast'
 
 const DEFAULT_COLORS = ['#4e79a7']
 
@@ -101,7 +102,7 @@ export function render(
   if (options.valueLabels) chart.use(createValueLabelPlugin({ position: options.valueLabelPosition, orientation: 'horizontal' }))
   if (options.tooltips) chart.use(createTooltipPlugin())
   if (options.crosshair) chart.use(createCrosshairPlugin({ width, height, direction: options.crosshairDirection, style: options.crosshairStyle, color: options.crosshairColor }))
-  if (options.annotations?.length) chart.use(createAnnotationPlugin(options.annotations, y, x, barData))
+  if (options.annotations?.length) chart.use(createAnnotationPlugin(options.annotations, { scaleX: y, scaleY: x, data: barData, width, height, backgroundColor: resolveBackgroundColor(container), orientation: 'horizontal' }))
   chart.draw(barData)
 }
 

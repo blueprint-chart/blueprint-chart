@@ -11,6 +11,7 @@ import { computeLinearDomain } from '../../scale-helpers'
 import { resolveCurve } from '../../curves'
 import { createValueLabelPlugin } from '../../plugins/value-labels'
 import { createAnnotationPlugin } from '../../plugins/annotations'
+import { resolveBackgroundColor } from '../../contrast'
 import { setupProximityInteraction } from '../../plugins/proximity'
 import { renderLineSymbols } from '../../line-symbols'
 
@@ -186,7 +187,7 @@ export function render(
   const chart = new LineChart(d3.select(clippedArea))
   chart.config({ xPos, y, color, curve, areaFill: options.areaFill ?? false, areaFillOpacity: options.areaFillOpacity ?? 0.2, height })
   if (options.valueLabels) chart.use(createValueLabelPlugin({ position: options.valueLabelPosition, orientation: 'vertical' }))
-  if (options.annotations?.length) chart.use(createAnnotationPlugin(options.annotations, xScale as d3.ScaleBand<string>, y, lineData))
+  if (options.annotations?.length) chart.use(createAnnotationPlugin(options.annotations, { scaleX: xScale as d3.ScaleBand<string>, scaleY: y, data: lineData, width, height, backgroundColor: resolveBackgroundColor(container) }))
   chart.draw(lineData)
 
   // Default dots are invisible; proximity interaction handles tooltips/crosshair

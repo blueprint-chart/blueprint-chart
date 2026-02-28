@@ -11,6 +11,8 @@ import { renderLegend } from '../../legend/legend'
 import { estimateLegendSize, estimateDirectLabelWidth } from '../../legend/legend-size'
 import { computeLinearDomain } from '../../scale-helpers'
 import { resolveCurve } from '../../curves'
+import { createAnnotationPlugin } from '../../plugins/annotations'
+import { resolveBackgroundColor } from '../../contrast'
 import { setupProximityInteraction } from '../../plugins/proximity'
 import { renderLineSymbols } from '../../line-symbols'
 import { resolveSeriesColor, resolveSeriesDash, resolveSeriesWidth, resolveSeriesInterpolation, isSeriesHidden, resolveSeriesLabelMode, resolveSeriesValueLabels, resolveSeriesLineSymbols } from '../../series-helpers'
@@ -277,6 +279,13 @@ export function render(
 
   const chart = new LineMultiChart(d3.select(clippedArea))
   chart.config({ xPos, y, colors, labels: data.labels, curve, areaFill: options.areaFill ?? false, areaFillOpacity: options.areaFillOpacity ?? 0.2, height, dots: dotData })
+  if (options.annotations?.length) {
+    const annotationData = data.labels.map((l, i) => ({
+      label: l,
+      value: series[0]?.values[i] ?? 0,
+    }))
+    chart.use(createAnnotationPlugin(options.annotations, { scaleX: xScale as d3.ScaleBand<string>, scaleY: y, data: annotationData, width, height, backgroundColor: resolveBackgroundColor(container) }))
+  }
   chart.draw(seriesData)
 
   // Per-series value labels: render directly so we control which series gets them

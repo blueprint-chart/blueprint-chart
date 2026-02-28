@@ -7,6 +7,7 @@ import { createCanvas } from '../../canvas/canvas'
 import { renderLegend } from '../../legend/legend'
 import { estimateLegendSize } from '../../legend/legend-size'
 import { createTooltipPlugin } from '../../plugins/tooltip'
+import { createAnnotationPlugin } from '../../plugins/annotations'
 import { resolveBackgroundColor } from '../../contrast'
 import { renderArcLabels, renderInsideArcLabels, renderAutoArcLabels, estimateArcLabelMargins } from '../../plugins/arc-labels'
 import type { ArcLabelDatum } from '../../plugins/arc-labels'
@@ -164,6 +165,23 @@ export function renderArc(
   chart.config({ arc: arcGen, colorScale, labels })
   if (options.tooltips) chart.use(createTooltipPlugin())
   chart.draw(pieData)
+
+  // Render annotations at chartArea level (not centerGroup) so coordinates
+  // are relative to the plot area origin, not the center-translated arc group
+  if (options.annotations?.length) {
+    const freeAnnotations = options.annotations.filter(a => a.kind === 'free')
+    if (freeAnnotations.length) {
+      const annPlugin = createAnnotationPlugin(freeAnnotations, {
+        scaleX: d3.scaleBand<string>().domain([]).range([0, width]),
+        scaleY: d3.scaleLinear().domain([0, 1]).range([height, 0]),
+        data: [],
+        width,
+        height,
+        backgroundColor: resolveBackgroundColor(container),
+      })
+      annPlugin.postDraw!({ base: d3.select(chartArea) } as unknown as D3Blueprint, undefined as unknown as d3.PieArcDatum<number>[])
+    }
+  }
 
   if (useDirectLabels) {
     const arcLabelData: ArcLabelDatum[] = pieData.map((d, i) => ({

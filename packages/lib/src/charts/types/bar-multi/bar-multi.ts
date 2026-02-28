@@ -9,6 +9,7 @@ import { renderHorizontalAxis } from '../../axis/horizontal-axis'
 import { renderLegend } from '../../legend/legend'
 import { estimateLegendSize } from '../../legend/legend-size'
 import { computeLinearDomain } from '../../scale-helpers'
+import { createAnnotationPlugin } from '../../plugins/annotations'
 import { createTooltipPlugin } from '../../plugins/tooltip'
 import { createCrosshairPlugin } from '../../plugins/crosshair'
 import { contrastTextColor, readableColor, resolveBackgroundColor } from '../../contrast'
@@ -168,6 +169,13 @@ export function render(
   chart.config({ x0, x1, y, height, colors })
   if (options.tooltips) chart.use(createTooltipPlugin())
   if (options.crosshair) chart.use(createCrosshairPlugin({ width, height, direction: options.crosshairDirection, style: options.crosshairStyle, color: options.crosshairColor }))
+  if (options.annotations?.length) {
+    const annotationData = data.labels.map((l, i) => ({
+      label: l,
+      value: Math.max(...series.map(s => s.values[i] ?? 0)),
+    }))
+    chart.use(createAnnotationPlugin(options.annotations, { scaleX: x0, scaleY: y, data: annotationData, width, height, backgroundColor: resolveBackgroundColor(container) }))
+  }
   chart.draw(flatData)
 
   // Apply per-series color and opacity overrides to bars
