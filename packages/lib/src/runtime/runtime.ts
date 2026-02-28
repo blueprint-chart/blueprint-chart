@@ -9,7 +9,9 @@ export function initBlueprint(): void {
 
 function processScript(script: HTMLScriptElement): void {
   const dsl = script.textContent?.trim()
-  if (!dsl) { return }
+  if (!dsl) {
+    return
+  }
 
   const iframe = document.createElement('iframe')
   iframe.className = 'blueprint-chart-iframe'

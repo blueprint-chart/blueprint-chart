@@ -50,6 +50,33 @@ const LABEL_PADDING = 2
 // d3 axisLeft positions text at x=-9 (inner tick size 6 + padding 3)
 const D3_AXIS_LABEL_OFFSET = 9
 
+function measureMaxLabelWidth(labels: string[]): number | null {
+  try {
+    const canvas = document.createElement('canvas')
+    const ctx = canvas.getContext('2d')
+    if (ctx) {
+      ctx.font = '10px sans-serif'
+      let maxW = 0
+      for (const label of labels) {
+        const w = ctx.measureText(label).width
+        if (w > maxW) {
+          maxW = w
+        }
+      }
+      return Math.ceil(maxW) + LABEL_PADDING + D3_AXIS_LABEL_OFFSET
+    }
+  }
+  catch {
+    /* fallback below */
+  }
+  return null
+}
+
+function fallbackLabelWidth(labels: string[]): number {
+  const maxLen = Math.max(...labels.map(l => l.length))
+  return maxLen * 6 + LABEL_PADDING + D3_AXIS_LABEL_OFFSET
+}
+
 /**
  * Estimate the pixel width of the widest tick label for a vertical axis.
  * Uses an offscreen canvas for measurement, falling back to character-count estimation.
@@ -60,64 +87,30 @@ export function estimateVerticalLabelWidth(
   numberFormat?: string | null,
   scaleType?: string,
 ): number {
-  const dataMin = Math.min(0, ...values)
-  const dataMax = Math.max(0, ...values)
-  const domainMin = range?.min ?? dataMin
-  const domainMax = range?.max ?? dataMax
+  const domainMin = range?.min ?? Math.min(0, ...values)
+  const domainMax = range?.max ?? Math.max(0, ...values)
 
   const scale = scaleType === 'log'
     ? d3.scaleSymlog().domain([domainMin, domainMax]).nice()
     : d3.scaleLinear().domain([domainMin, domainMax]).nice()
 
-  const ticks = scale.ticks()
-  const fmt = numberFormat
-    ? d3.format(numberFormat)
-    : scale.tickFormat()
-
-  const labels = ticks.map(t => fmt(t))
-  if (labels.length === 0) { return 0 }
-
-  try {
-    const canvas = document.createElement('canvas')
-    const ctx = canvas.getContext('2d')
-    if (ctx) {
-      ctx.font = '10px sans-serif'
-      let maxW = 0
-      for (const label of labels) {
-        const w = ctx.measureText(label).width
-        if (w > maxW) { maxW = w }
-      }
-      return Math.ceil(maxW) + LABEL_PADDING + D3_AXIS_LABEL_OFFSET
-    }
+  const fmt = numberFormat ? d3.format(numberFormat) : scale.tickFormat()
+  const labels = scale.ticks().map(t => fmt(t))
+  if (labels.length === 0) {
+    return 0
   }
-  catch { /* fallback below */ }
 
-  // Fallback: ~6px per character
-  const maxLen = Math.max(...labels.map(l => l.length))
-  return maxLen * 6 + LABEL_PADDING + D3_AXIS_LABEL_OFFSET
+  return measureMaxLabelWidth(labels) ?? fallbackLabelWidth(labels)
 }
 
 /**
  * Estimate the pixel width of the widest string label (for band/category axes).
  */
 export function estimateCategoryLabelWidth(labels: string[]): number {
-  if (labels.length === 0) { return 0 }
-  try {
-    const canvas = document.createElement('canvas')
-    const ctx = canvas.getContext('2d')
-    if (ctx) {
-      ctx.font = '10px sans-serif'
-      let maxW = 0
-      for (const label of labels) {
-        const w = ctx.measureText(label).width
-        if (w > maxW) { maxW = w }
-      }
-      return Math.ceil(maxW) + LABEL_PADDING + D3_AXIS_LABEL_OFFSET
-    }
+  if (labels.length === 0) {
+    return 0
   }
-  catch { /* fallback below */ }
-  const maxLen = Math.max(...labels.map(l => l.length))
-  return maxLen * 6 + LABEL_PADDING + D3_AXIS_LABEL_OFFSET
+  return measureMaxLabelWidth(labels) ?? fallbackLabelWidth(labels)
 }
 
 /**
@@ -126,6 +119,29 @@ export function estimateCategoryLabelWidth(labels: string[]): number {
  * so the chart area is flush with the container edges.
  * "auto" resolves based on available container width.
  */
+function resolveEffectivePosition(pos: string, containerWidth: number): string {
+  if (pos !== 'auto') {
+    return pos
+  }
+  return (containerWidth > 0 && containerWidth < AUTO_INSIDE_THRESHOLD) ? 'inside' : 'outside'
+}
+
+function computeVerticalMargins(effectiveV: string, vDir: string, labelW: number): Partial<Margin> {
+  const overrides: Partial<Margin> = {}
+  const labelsCompact = effectiveV === 'inside' || effectiveV === 'off'
+  if (vDir === 'right') {
+    overrides.left = 0
+    overrides.right = labelsCompact ? 0 : labelW
+  }
+  else {
+    overrides.left = labelsCompact ? 0 : labelW
+  }
+  if (effectiveV === 'inside') {
+    overrides.top = 35
+  }
+  return overrides
+}
+
 export function labelPositionMargins(
   containerWidth: number,
   verticalLabelPosition?: string,
@@ -133,42 +149,10 @@ export function labelPositionMargins(
   verticalDirection?: string,
   verticalLabelWidth?: number,
 ): Partial<Margin> {
-  const overrides: Partial<Margin> = {}
-  const labelW = verticalLabelWidth ?? 50
+  const effectiveV = resolveEffectivePosition(verticalLabelPosition ?? 'auto', containerWidth)
+  const overrides = computeVerticalMargins(effectiveV, verticalDirection ?? 'left', verticalLabelWidth ?? 50)
 
-  const vDir = verticalDirection ?? 'left'
-  const vPos = verticalLabelPosition ?? 'auto'
-  const effectiveV = vPos === 'auto'
-    ? (containerWidth > 0 && containerWidth < AUTO_INSIDE_THRESHOLD ? 'inside' : 'outside')
-    : vPos
-  const vLabelsInside = effectiveV === 'inside'
-  const vLabelsHidden = effectiveV === 'off'
-  if (vDir === 'right') {
-    overrides.left = 0
-    if (vLabelsInside || vLabelsHidden) {
-      overrides.right = 0
-    }
-    else {
-      overrides.right = labelW
-    }
-  }
-  else {
-    if (vLabelsInside || vLabelsHidden) {
-      overrides.left = 0
-    }
-    else {
-      overrides.left = labelW
-    }
-  }
-  // Inside labels sit above the top grid line — add top padding
-  if (vLabelsInside) {
-    overrides.top = 35
-  }
-
-  const hPos = horizontalLabelPosition ?? 'auto'
-  const effectiveH = hPos === 'auto'
-    ? (containerWidth > 0 && containerWidth < AUTO_INSIDE_THRESHOLD ? 'inside' : 'outside')
-    : hPos
+  const effectiveH = resolveEffectivePosition(horizontalLabelPosition ?? 'auto', containerWidth)
   if (effectiveH === 'inside' || effectiveH === 'off') {
     overrides.bottom = 5
   }

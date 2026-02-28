@@ -2,20 +2,21 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { createStepController } from './steps'
 import type { StepDefinition } from './steps'
 
-describe('createStepController', () => {
-  let container: HTMLElement
-  const steps: StepDefinition[] = [
-    { name: 'Step 1', data: { value: 1 } },
-    { name: 'Step 2', data: { value: 2 } },
-    { name: 'Step 3', data: { value: 3 } },
-  ]
+const steps: StepDefinition[] = [
+  { name: 'Step 1', data: { value: 1 } },
+  { name: 'Step 2', data: { value: 2 } },
+  { name: 'Step 3', data: { value: 3 } },
+]
 
-  beforeEach(() => {
-    container = document.createElement('div')
-    document.body.innerHTML = ''
-    document.body.appendChild(container)
-  })
+let container: HTMLElement
 
+beforeEach(() => {
+  container = document.createElement('div')
+  document.body.textContent = ''
+  document.body.appendChild(container)
+})
+
+describe('createStepController initialization', () => {
   it('creates navigation UI in the container', () => {
     const onChange = vi.fn()
     createStepController(container, steps, onChange)
@@ -42,7 +43,9 @@ describe('createStepController', () => {
     expect(ctrl.currentStep).toBe(0)
     expect(ctrl.totalSteps).toBe(3)
   })
+})
 
+describe('createStepController next and previous', () => {
   it('advances to the next step', () => {
     const onChange = vi.fn()
     const ctrl = createStepController(container, steps, onChange)
@@ -61,26 +64,9 @@ describe('createStepController', () => {
     expect(ctrl.currentStep).toBe(0)
     expect(onChange).toHaveBeenLastCalledWith(steps[0], 0)
   })
+})
 
-  it('wraps around from last to first step', () => {
-    const onChange = vi.fn()
-    const ctrl = createStepController(container, steps, onChange)
-
-    ctrl.goTo(2)
-    ctrl.next()
-    expect(ctrl.currentStep).toBe(0)
-    expect(onChange).toHaveBeenLastCalledWith(steps[0], 0)
-  })
-
-  it('wraps around from first to last step', () => {
-    const onChange = vi.fn()
-    const ctrl = createStepController(container, steps, onChange)
-
-    ctrl.previous()
-    expect(ctrl.currentStep).toBe(2)
-    expect(onChange).toHaveBeenLastCalledWith(steps[2], 2)
-  })
-
+describe('createStepController goTo and counter', () => {
   it('goTo jumps to a specific step', () => {
     const onChange = vi.fn()
     const ctrl = createStepController(container, steps, onChange)
@@ -101,7 +87,30 @@ describe('createStepController', () => {
     const counter = container.querySelector('.blueprint-chart-steps-counter')
     expect(counter?.textContent).toBe('2 / 3')
   })
+})
 
+describe('createStepController wrapping', () => {
+  it('wraps around from last to first step', () => {
+    const onChange = vi.fn()
+    const ctrl = createStepController(container, steps, onChange)
+
+    ctrl.goTo(2)
+    ctrl.next()
+    expect(ctrl.currentStep).toBe(0)
+    expect(onChange).toHaveBeenLastCalledWith(steps[0], 0)
+  })
+
+  it('wraps around from first to last step', () => {
+    const onChange = vi.fn()
+    const ctrl = createStepController(container, steps, onChange)
+
+    ctrl.previous()
+    expect(ctrl.currentStep).toBe(2)
+    expect(onChange).toHaveBeenLastCalledWith(steps[2], 2)
+  })
+})
+
+describe('createStepController destroy and clicks', () => {
   it('destroy removes the navigation element', () => {
     const onChange = vi.fn()
     const ctrl = createStepController(container, steps, onChange)

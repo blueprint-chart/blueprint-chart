@@ -1,40 +1,42 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { render } from './line'
 
-describe('line chart', () => {
-  let container: HTMLElement
+const DATA = { labels: ['Jan', 'Feb', 'Mar'], values: [10, 25, 15] }
 
-  const data = {
-    labels: ['Jan', 'Feb', 'Mar'],
-    values: [10, 25, 15],
-  }
+function createContainer(): HTMLElement {
+  const container = document.createElement('div')
+  document.body.appendChild(container)
+  return container
+}
 
-  beforeEach(() => {
-    container = document.createElement('div')
-    document.body.appendChild(container)
-  })
-
+describe('line chart rendering', () => {
   it('renders a line path', () => {
-    render(container, data)
+    const container = createContainer()
+    render(container, DATA)
     const path = container.querySelector('.bc-line')
     expect(path).not.toBeNull()
     expect(path?.getAttribute('d')).toBeTruthy()
   })
 
   it('renders dots for each data point', () => {
-    render(container, data)
+    const container = createContainer()
+    render(container, DATA)
     const dots = container.querySelectorAll('.bc-dot')
     expect(dots).toHaveLength(3)
   })
 
   it('creates frame and SVG', () => {
-    render(container, data)
+    const container = createContainer()
+    render(container, DATA)
     expect(container.querySelector('.bc-frame')).not.toBeNull()
     expect(container.querySelector('svg')).not.toBeNull()
   })
+})
 
+describe('line chart options', () => {
   it('applies custom color', () => {
-    render(container, data, { colors: ['#ff0000'] })
+    const container = createContainer()
+    render(container, DATA, { colors: ['#ff0000'] })
     const path = container.querySelector('.bc-line')
     expect(path?.getAttribute('stroke')).toBe('#ff0000')
   })

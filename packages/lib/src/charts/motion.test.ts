@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, afterEach } from 'vitest'
 import { getTransitionDuration } from './motion'
 
-describe('getTransitionDuration', () => {
+describe('getTransitionDuration with matchMedia', () => {
   afterEach(() => {
     vi.restoreAllMocks()
   })
@@ -20,18 +20,20 @@ describe('getTransitionDuration', () => {
     expect(getTransitionDuration(200)).toBe(0)
   })
 
+  it('queries the correct media query string', () => {
+    const matchMediaSpy = vi.fn().mockReturnValue({ matches: false })
+    vi.stubGlobal('window', { matchMedia: matchMediaSpy })
+    getTransitionDuration(100)
+    expect(matchMediaSpy).toHaveBeenCalledWith('(prefers-reduced-motion: reduce)')
+  })
+})
+
+describe('getTransitionDuration SSR fallback', () => {
   it('returns the input duration when window is undefined (SSR)', () => {
     const orig = globalThis.window
     // @ts-expect-error -- simulate SSR
     delete globalThis.window
     expect(getTransitionDuration(300)).toBe(300)
     globalThis.window = orig
-  })
-
-  it('queries the correct media query string', () => {
-    const matchMediaSpy = vi.fn().mockReturnValue({ matches: false })
-    vi.stubGlobal('window', { matchMedia: matchMediaSpy })
-    getTransitionDuration(100)
-    expect(matchMediaSpy).toHaveBeenCalledWith('(prefers-reduced-motion: reduce)')
   })
 })

@@ -59,243 +59,257 @@ const CHART_WITH_STEPS = `chart horizontal-bar {
   }
 }`
 
-describe('parser', () => {
-  describe('simple chart', () => {
-    it('parses the chart type', () => {
-      const ast = parse(SIMPLE_CHART)
-      expect(ast.type).toBe('chart')
-      expect(ast.chartType).toBe('horizontal-bar')
-    })
+describe('parser chart type', () => {
+  it('parses the chart type', () => {
+    const ast = parse(SIMPLE_CHART)
+    expect(ast.type).toBe('chart')
+    expect(ast.chartType).toBe('horizontal-bar')
+  })
 
-    it('parses chart properties', () => {
-      const ast = parse(SIMPLE_CHART)
-      expect(ast.properties).toHaveLength(2)
-      expect(ast.properties[0]).toEqual({
-        type: 'property',
-        key: 'title',
-        value: 'Couverture médiatique',
-        isPercentage: false,
-      })
-      expect(ast.properties[1]).toEqual({
-        type: 'property',
-        key: 'sort',
-        value: 'descending',
-        isPercentage: false,
-      })
-    })
+  it('has no steps', () => {
+    const ast = parse(SIMPLE_CHART)
+    expect(ast.steps).toHaveLength(0)
+  })
+})
 
-    it('parses data block', () => {
-      const ast = parse(SIMPLE_CHART)
-      expect(ast.data).not.toBeNull()
-      expect(ast.data!.entries).toHaveLength(4)
-      expect(ast.data!.entries[0]).toEqual({
-        type: 'property',
-        key: '20 Minutes',
-        value: 61.11,
-        isPercentage: true,
-      })
-      expect(ast.data!.entries[3]).toEqual({
-        type: 'property',
-        key: 'LeMonde',
-        value: 75,
-        isPercentage: true,
-      })
+describe('parser chart properties', () => {
+  it('parses chart properties', () => {
+    const ast = parse(SIMPLE_CHART)
+    expect(ast.properties).toHaveLength(2)
+    expect(ast.properties[0]).toEqual({
+      type: 'property',
+      key: 'title',
+      value: 'Couverture médiatique',
+      isPercentage: false,
     })
-
-    it('parses highlight block', () => {
-      const ast = parse(SIMPLE_CHART)
-      expect(ast.highlights).toHaveLength(1)
-      expect(ast.highlights[0].target).toBe('Guardian')
-      expect(ast.highlights[0].properties).toHaveLength(2)
-      expect(ast.highlights[0].properties[0]).toEqual({
-        type: 'property',
-        key: 'color',
-        value: '#e53e3e',
-        isPercentage: false,
-      })
+    expect(ast.properties[1]).toEqual({
+      type: 'property',
+      key: 'sort',
+      value: 'descending',
+      isPercentage: false,
     })
+  })
+})
 
-    it('has no steps', () => {
-      const ast = parse(SIMPLE_CHART)
-      expect(ast.steps).toHaveLength(0)
+describe('parser data block', () => {
+  it('parses data block', () => {
+    const ast = parse(SIMPLE_CHART)
+    expect(ast.data).not.toBeNull()
+    expect(ast.data!.entries).toHaveLength(4)
+    expect(ast.data!.entries[0]).toEqual({
+      type: 'property',
+      key: '20 Minutes',
+      value: 61.11,
+      isPercentage: true,
+    })
+    expect(ast.data!.entries[3]).toEqual({
+      type: 'property',
+      key: 'LeMonde',
+      value: 75,
+      isPercentage: true,
+    })
+  })
+})
+
+describe('parser highlight block', () => {
+  it('parses highlight block', () => {
+    const ast = parse(SIMPLE_CHART)
+    expect(ast.highlights).toHaveLength(1)
+    expect(ast.highlights[0].target).toBe('Guardian')
+    expect(ast.highlights[0].properties).toHaveLength(2)
+    expect(ast.highlights[0].properties[0]).toEqual({
+      type: 'property',
+      key: 'color',
+      value: '#e53e3e',
+      isPercentage: false,
+    })
+  })
+})
+
+describe('parser step structure', () => {
+  it('parses three steps', () => {
+    const ast = parse(CHART_WITH_STEPS)
+    expect(ast.steps).toHaveLength(3)
+  })
+
+  it('parses step names', () => {
+    const ast = parse(CHART_WITH_STEPS)
+    expect(ast.steps[0].name).toBe('Le leader')
+    expect(ast.steps[1].name).toBe('Le moins bon')
+    expect(ast.steps[2].name).toBe('Année suivante')
+  })
+
+  it('parses step properties', () => {
+    const ast = parse(CHART_WITH_STEPS)
+    expect(ast.steps[0].properties).toEqual([
+      { type: 'property', key: 'sort', value: 'descending', isPercentage: false },
+    ])
+  })
+})
+
+describe('parser step content', () => {
+  it('parses highlights inside steps', () => {
+    const ast = parse(CHART_WITH_STEPS)
+    expect(ast.steps[0].highlights).toHaveLength(1)
+    expect(ast.steps[0].highlights[0].target).toBe('LeMonde')
+    expect(ast.steps[1].highlights).toHaveLength(1)
+    expect(ast.steps[1].highlights[0].target).toBe('Guardian')
+  })
+
+  it('parses data inside steps', () => {
+    const ast = parse(CHART_WITH_STEPS)
+    expect(ast.steps[2].data).not.toBeNull()
+    expect(ast.steps[2].data!.entries).toHaveLength(4)
+    expect(ast.steps[2].data!.entries[0]).toEqual({
+      type: 'property',
+      key: '20 Minutes',
+      value: 51,
+      isPercentage: true,
     })
   })
 
-  describe('chart with steps', () => {
-    it('parses three steps', () => {
-      const ast = parse(CHART_WITH_STEPS)
-      expect(ast.steps).toHaveLength(3)
-    })
+  it('has no data in steps without data block', () => {
+    const ast = parse(CHART_WITH_STEPS)
+    expect(ast.steps[0].data).toBeNull()
+  })
+})
 
-    it('parses step names', () => {
-      const ast = parse(CHART_WITH_STEPS)
-      expect(ast.steps[0].name).toBe('Le leader')
-      expect(ast.steps[1].name).toBe('Le moins bon')
-      expect(ast.steps[2].name).toBe('Année suivante')
-    })
+describe('parser error missing structure', () => {
+  it('throws on missing chart keyword', () => {
+    expect(() => parse('foo {}')).toThrow(/Expected "chart"/)
+  })
 
-    it('parses step properties', () => {
-      const ast = parse(CHART_WITH_STEPS)
-      expect(ast.steps[0].properties).toEqual([
-        { type: 'property', key: 'sort', value: 'descending', isPercentage: false },
-      ])
-    })
+  it('throws on missing opening brace', () => {
+    expect(() => parse('chart bar }')).toThrow(/Expected "\{"/)
+  })
 
-    it('parses highlights inside steps', () => {
-      const ast = parse(CHART_WITH_STEPS)
-      expect(ast.steps[0].highlights).toHaveLength(1)
-      expect(ast.steps[0].highlights[0].target).toBe('LeMonde')
-      expect(ast.steps[1].highlights).toHaveLength(1)
-      expect(ast.steps[1].highlights[0].target).toBe('Guardian')
-    })
+  it('throws on missing closing brace', () => {
+    expect(() => parse('chart bar { title = "x"')).toThrow(/Expected/)
+  })
+})
 
-    it('parses data inside steps', () => {
-      const ast = parse(CHART_WITH_STEPS)
-      expect(ast.steps[2].data).not.toBeNull()
-      expect(ast.steps[2].data!.entries).toHaveLength(4)
-      expect(ast.steps[2].data!.entries[0]).toEqual({
-        type: 'property',
-        key: '20 Minutes',
-        value: 51,
-        isPercentage: true,
-      })
-    })
+describe('parser error invalid properties', () => {
+  it('throws on missing equals in property', () => {
+    expect(() => parse('chart bar { title "x" }')).toThrow(/Expected "="/)
+  })
 
-    it('has no data in steps without data block', () => {
-      const ast = parse(CHART_WITH_STEPS)
-      expect(ast.steps[0].data).toBeNull()
+  it('throws on invalid property value', () => {
+    expect(() => parse('chart bar { title = { } }')).toThrow(/Expected/)
+  })
+
+  it('throws on missing highlight target', () => {
+    expect(() => parse('chart bar { highlight { } }')).toThrow(/Expected/)
+  })
+
+  it('throws on missing step name', () => {
+    expect(() => parse('chart bar { step { } }')).toThrow(/Expected/)
+  })
+
+  it('includes line and column in error', () => {
+    try {
+      parse('chart bar {\n  title "x"\n}')
+      expect.fail('Should have thrown')
+    }
+    catch (e) {
+      expect((e as Error).message).toMatch(/2:\d+/)
+    }
+  })
+})
+
+describe('parser tab-separated data entries', () => {
+  it('parses tab-separated data entries', () => {
+    const ast = parse('chart bar {\n  data {\n    Apple\t42\n    Banana\t58\n  }\n}')
+    expect(ast.data).not.toBeNull()
+    expect(ast.data!.entries).toHaveLength(2)
+    expect(ast.data!.entries[0]).toEqual({
+      type: 'property',
+      key: 'Apple',
+      value: 42,
+      isPercentage: false,
+    })
+    expect(ast.data!.entries[1]).toEqual({
+      type: 'property',
+      key: 'Banana',
+      value: 58,
+      isPercentage: false,
+    })
+  })
+})
+
+describe('parser tab-separated percentage values', () => {
+  it('parses tab-separated percentage values', () => {
+    const ast = parse('chart bar {\n  data {\n    Sales\t75%\n  }\n}')
+    expect(ast.data!.entries[0]).toEqual({
+      type: 'property',
+      key: 'Sales',
+      value: 75,
+      isPercentage: true,
+    })
+  })
+})
+
+describe('parser tab-separated labels and mixed formats', () => {
+  it('parses tab-separated labels with spaces', () => {
+    const ast = parse('chart bar {\n  data {\n    New York\t100\n    Los Angeles\t80\n  }\n}')
+    expect(ast.data!.entries[0].key).toBe('New York')
+    expect(ast.data!.entries[1].key).toBe('Los Angeles')
+  })
+
+  it('parses tab-separated string values', () => {
+    const ast = parse('chart bar {\n  data {\n    Item\t"hello world"\n  }\n}')
+    expect(ast.data!.entries[0]).toEqual({
+      type: 'property',
+      key: 'Item',
+      value: 'hello world',
+      isPercentage: false,
     })
   })
 
-  describe('error handling', () => {
-    it('throws on missing chart keyword', () => {
-      expect(() => parse('foo {}')).toThrow(/Expected "chart"/)
-    })
+  it('mixes tabular and standard data entries', () => {
+    const ast = parse('chart bar {\n  data {\n    "Quoted" = 10\n    Unquoted\t20\n  }\n}')
+    expect(ast.data!.entries).toHaveLength(2)
+    expect(ast.data!.entries[0].key).toBe('Quoted')
+    expect(ast.data!.entries[0].value).toBe(10)
+    expect(ast.data!.entries[1].key).toBe('Unquoted')
+    expect(ast.data!.entries[1].value).toBe(20)
+  })
+})
 
-    it('throws on missing opening brace', () => {
-      expect(() => parse('chart bar }')).toThrow(/Expected "\{"/)
-    })
-
-    it('throws on missing closing brace', () => {
-      expect(() => parse('chart bar { title = "x"')).toThrow(/Expected/)
-    })
-
-    it('throws on missing equals in property', () => {
-      expect(() => parse('chart bar { title "x" }')).toThrow(/Expected "="/)
-    })
-
-    it('throws on invalid property value', () => {
-      expect(() => parse('chart bar { title = { } }')).toThrow(/Expected/)
-    })
-
-    it('throws on missing highlight target', () => {
-      expect(() => parse('chart bar { highlight { } }')).toThrow(/Expected/)
-    })
-
-    it('throws on missing step name', () => {
-      expect(() => parse('chart bar { step { } }')).toThrow(/Expected/)
-    })
-
-    it('includes line and column in error', () => {
-      try {
-        parse('chart bar {\n  title "x"\n}')
-        expect.fail('Should have thrown')
-      }
-      catch (e) {
-        expect((e as Error).message).toMatch(/2:\d+/)
-      }
-    })
+describe('parser empty and minimal edge cases', () => {
+  it('parses chart with no properties or blocks', () => {
+    const ast = parse('chart bar {}')
+    expect(ast.chartType).toBe('bar')
+    expect(ast.properties).toHaveLength(0)
+    expect(ast.data).toBeNull()
+    expect(ast.highlights).toHaveLength(0)
+    expect(ast.steps).toHaveLength(0)
   })
 
-  describe('tabular/TSV data syntax', () => {
-    it('parses tab-separated data entries', () => {
-      const ast = parse('chart bar {\n  data {\n    Apple\t42\n    Banana\t58\n  }\n}')
-      expect(ast.data).not.toBeNull()
-      expect(ast.data!.entries).toHaveLength(2)
-      expect(ast.data!.entries[0]).toEqual({
-        type: 'property',
-        key: 'Apple',
-        value: 42,
-        isPercentage: false,
-      })
-      expect(ast.data!.entries[1]).toEqual({
-        type: 'property',
-        key: 'Banana',
-        value: 58,
-        isPercentage: false,
-      })
-    })
-
-    it('parses tab-separated percentage values', () => {
-      const ast = parse('chart bar {\n  data {\n    Sales\t75%\n  }\n}')
-      expect(ast.data!.entries[0]).toEqual({
-        type: 'property',
-        key: 'Sales',
-        value: 75,
-        isPercentage: true,
-      })
-    })
-
-    it('parses tab-separated labels with spaces', () => {
-      const ast = parse('chart bar {\n  data {\n    New York\t100\n    Los Angeles\t80\n  }\n}')
-      expect(ast.data!.entries[0].key).toBe('New York')
-      expect(ast.data!.entries[1].key).toBe('Los Angeles')
-    })
-
-    it('parses tab-separated string values', () => {
-      const ast = parse('chart bar {\n  data {\n    Item\t"hello world"\n  }\n}')
-      expect(ast.data!.entries[0]).toEqual({
-        type: 'property',
-        key: 'Item',
-        value: 'hello world',
-        isPercentage: false,
-      })
-    })
-
-    it('mixes tabular and standard data entries', () => {
-      const ast = parse('chart bar {\n  data {\n    "Quoted" = 10\n    Unquoted\t20\n  }\n}')
-      expect(ast.data!.entries).toHaveLength(2)
-      expect(ast.data!.entries[0].key).toBe('Quoted')
-      expect(ast.data!.entries[0].value).toBe(10)
-      expect(ast.data!.entries[1].key).toBe('Unquoted')
-      expect(ast.data!.entries[1].value).toBe(20)
-    })
-  })
-
-  describe('edge cases', () => {
-    it('parses chart with no properties or blocks', () => {
-      const ast = parse('chart bar {}')
-      expect(ast.chartType).toBe('bar')
-      expect(ast.properties).toHaveLength(0)
-      expect(ast.data).toBeNull()
-      expect(ast.highlights).toHaveLength(0)
-      expect(ast.steps).toHaveLength(0)
-    })
-
-    it('parses integer percentage values', () => {
-      const ast = parse('chart bar { data { "A" = 50% } }')
-      expect(ast.data!.entries[0].value).toBe(50)
-      expect(ast.data!.entries[0].isPercentage).toBe(true)
-    })
-
-    it('parses non-percentage numbers', () => {
-      const ast = parse('chart bar { width = 100 }')
-      expect(ast.properties[0].value).toBe(100)
-      expect(ast.properties[0].isPercentage).toBe(false)
-    })
-
-    it('parses string property values', () => {
-      const ast = parse('chart bar { title = "Hello World" }')
-      expect(ast.properties[0].value).toBe('Hello World')
-    })
-
-    it('parses multiple highlights', () => {
-      const input = `chart bar {
+  it('parses multiple highlights', () => {
+    const input = `chart bar {
         highlight "A" { color = "#f00" }
         highlight "B" { color = "#0f0" }
       }`
-      const ast = parse(input)
-      expect(ast.highlights).toHaveLength(2)
-    })
+    const ast = parse(input)
+    expect(ast.highlights).toHaveLength(2)
+  })
+})
+
+describe('parser value type edge cases', () => {
+  it('parses integer percentage values', () => {
+    const ast = parse('chart bar { data { "A" = 50% } }')
+    expect(ast.data!.entries[0].value).toBe(50)
+    expect(ast.data!.entries[0].isPercentage).toBe(true)
+  })
+
+  it('parses non-percentage numbers', () => {
+    const ast = parse('chart bar { width = 100 }')
+    expect(ast.properties[0].value).toBe(100)
+    expect(ast.properties[0].isPercentage).toBe(false)
+  })
+
+  it('parses string property values', () => {
+    const ast = parse('chart bar { title = "Hello World" }')
+    expect(ast.properties[0].value).toBe('Hello World')
   })
 })

@@ -11,7 +11,6 @@ import { createValueLabelPlugin } from '../../plugins/value-labels'
 import { createTooltipPlugin } from '../../plugins/tooltip'
 import { createCrosshairPlugin } from '../../plugins/crosshair'
 import { createAnnotationPlugin } from '../../plugins/annotations'
-import { resolveBackgroundColor } from '../../contrast'
 
 const DEFAULT_COLORS = ['#4e79a7']
 
@@ -35,21 +34,23 @@ class BarVerticalChart extends D3Blueprint<BarDatum[]> {
       dataBind: (sel, data) => sel.selectAll('.bc-bar').data(data),
       insert: sel => sel.append('rect').attr('class', 'bc-bar'),
       events: {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        enter: (sel: any) => {
-          const x = this.config('x') as d3.ScaleBand<string>
-          const y = this.config('y') as d3.ScaleLinear<number, number>
-          const colors = this.config('colors') as string[]
-          const highlights = this.config('highlights') as Map<string, string>
-          sel
-            .attr('x', (d: BarDatum) => x(d.label) ?? 0)
-            .attr('y', (d: BarDatum) => Math.min(y(0), y(d.value)))
-            .attr('width', x.bandwidth())
-            .attr('height', (d: BarDatum) => Math.abs(y(d.value) - y(0)))
-            .attr('fill', (d: BarDatum) => highlights.get(d.label) ?? colors[0])
-        },
+        enter: this.enterBars.bind(this),
       },
     })
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private enterBars(sel: any) {
+    const x = this.config('x') as d3.ScaleBand<string>
+    const y = this.config('y') as d3.ScaleLinear<number, number>
+    const colors = this.config('colors') as string[]
+    const highlights = this.config('highlights') as Map<string, string>
+    sel
+      .attr('x', (d: BarDatum) => x(d.label) ?? 0)
+      .attr('y', (d: BarDatum) => Math.min(y(0), y(d.value)))
+      .attr('width', x.bandwidth())
+      .attr('height', (d: BarDatum) => Math.abs(y(d.value) - y(0)))
+      .attr('fill', (d: BarDatum) => highlights.get(d.label) ?? colors[0])
   }
 }
 
@@ -70,26 +71,53 @@ export function render(
     value: data.values[data.labels.indexOf(l)],
   }))
 
+  const { x, y, useLog, domainMin, domainMax } = buildBarVerticalScales(barData, labels, width, height, options)
+
+  renderBarVerticalAxes(chartArea, x, y, height, width, margin, useLog, domainMin, domainMax, options)
+
+  const highlights = new Map(
+    (options.highlights ?? []).map(h => [h.target, h.color]),
+  )
+
+  drawBarVerticalChart(chartArea, x, y, width, height, barData, highlights, options)
+}
+
+function buildBarVerticalScales(
+  barData: BarDatum[],
+  labels: string[],
+  width: number,
+  height: number,
+  options: ChartOptions,
+) {
   const x = d3.scaleBand<string>()
     .domain(labels)
     .range([0, width])
     .padding(0.2)
 
   const useLog = options.verticalAxis?.scaleType === 'log'
-  let [domainMin, domainMax] = computeLinearDomain(barData.map(d => d.value), options.verticalAxis?.range)
-  // Extend domain to leave room for value labels below negative bars
-  if (options.valueLabels && domainMin < 0 && options.verticalAxis?.range?.min == null) {
-    const span = domainMax - domainMin
-    domainMin -= span * 0.1
-  }
+  const [domainMin, domainMax] = computeLinearDomain(barData.map(d => d.value), options.verticalAxis?.range)
   const y = useLog
     ? d3.scaleSymlog().domain([domainMin, domainMax]).nice().range([height, 0])
     : d3.scaleLinear().domain([domainMin, domainMax]).nice().range([height, 0])
 
+  return { x, y, useLog, domainMin, domainMax }
+}
+
+function renderBarVerticalAxes(
+  chartArea: SVGGElement,
+  x: d3.ScaleBand<string>,
+  y: d3.ScaleLinear<number, number> | d3.ScaleSymLog<number, number>,
+  height: number,
+  width: number,
+  margin: { top: number },
+  useLog: boolean,
+  domainMin: number,
+  domainMax: number,
+  options: ChartOptions,
+) {
   renderVerticalAxis(chartArea, y, height, { ...options.verticalAxis, gridWidth: width, topPadding: margin.top })
   renderHorizontalAxis(chartArea, x, height, { ...options.horizontalAxis, width })
 
-  // Zero baseline when domain spans zero
   if (!useLog && domainMin < 0 && domainMax > 0) {
     d3.select(chartArea).append('line')
       .attr('class', 'bc-zero-baseline')
@@ -97,17 +125,36 @@ export function render(
       .attr('y1', y(0)).attr('y2', y(0))
       .attr('stroke', '#666').attr('stroke-width', 1)
   }
+}
 
-  const highlights = new Map(
-    (options.highlights ?? []).map(h => [h.target, h.color]),
-  )
+function applyBarVerticalPlugins(chart: BarVerticalChart, barData: BarDatum[], x: d3.ScaleBand<string>, y: d3.ScaleLinear<number, number> | d3.ScaleSymLog<number, number>, width: number, height: number, options: ChartOptions): void {
+  if (options.valueLabels) {
+    chart.use(createValueLabelPlugin({ position: options.valueLabelPosition, orientation: 'vertical' }))
+  }
+  if (options.tooltips) {
+    chart.use(createTooltipPlugin())
+  }
+  if (options.crosshair) {
+    chart.use(createCrosshairPlugin({ width, height, direction: options.crosshairDirection, style: options.crosshairStyle, color: options.crosshairColor }))
+  }
+  if (options.annotations?.length) {
+    chart.use(createAnnotationPlugin(options.annotations, x, y, barData))
+  }
+}
 
+function drawBarVerticalChart(
+  chartArea: SVGGElement,
+  x: d3.ScaleBand<string>,
+  y: d3.ScaleLinear<number, number> | d3.ScaleSymLog<number, number>,
+  width: number,
+  height: number,
+  barData: BarDatum[],
+  highlights: Map<string, string>,
+  options: ChartOptions,
+) {
   const chart = new BarVerticalChart(d3.select(chartArea))
   chart.config({ x, y, width, height, colors: options.colors ?? DEFAULT_COLORS, highlights })
-  if (options.valueLabels) { chart.use(createValueLabelPlugin({ position: options.valueLabelPosition, orientation: 'vertical' })) }
-  if (options.tooltips) { chart.use(createTooltipPlugin()) }
-  if (options.crosshair) { chart.use(createCrosshairPlugin({ width, height, direction: options.crosshairDirection, style: options.crosshairStyle, color: options.crosshairColor })) }
-  if (options.annotations?.length) { chart.use(createAnnotationPlugin(options.annotations, { scaleX: x, scaleY: y, data: barData, width, height, backgroundColor: resolveBackgroundColor(container) })) }
+  applyBarVerticalPlugins(chart, barData, x, y, width, height, options)
   chart.draw(barData)
 }
 

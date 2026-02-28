@@ -23,6 +23,22 @@ function isBandScale(scale: AnyXScale): scale is d3.ScaleBand<string> {
   return typeof (scale as d3.ScaleBand<string>).bandwidth === 'function'
 }
 
+function buildDateFormatter(
+  timeFmt: (d: Date) => string,
+  labels: string[],
+  dates: Date[],
+): (d: string | d3.NumberValue) => string {
+  const dateMap = new Map<string, Date>()
+  labels.forEach((l, i) => dateMap.set(l, dates[i]))
+  return (d: string | d3.NumberValue) => {
+    if (d instanceof Date) {
+      return timeFmt(d)
+    }
+    const date = dateMap.get(String(d))
+    return date ? timeFmt(date) : String(d)
+  }
+}
+
 function buildTickFormatter(
   fmt: string | null,
   labels: string[],
@@ -30,47 +46,32 @@ function buildTickFormatter(
   const detected = detectDates(labels)
 
   if (fmt && fmt.includes('%')) {
-    // Explicit time format specifier
     if (detected) {
-      const timeFmt = d3.timeFormat(fmt)
-      // For band scales, we get string domain values — map them to dates
-      const dateMap = new Map<string, Date>()
-      labels.forEach((l, i) => dateMap.set(l, detected.dates[i]))
-      return (d: string | d3.NumberValue) => {
-        // For time scales, d is a Date; for band scales, d is a string label
-        if (d instanceof Date) { return timeFmt(d) }
-        const date = dateMap.get(String(d))
-        return date ? timeFmt(date) : String(d)
-      }
+      return buildDateFormatter(d3.timeFormat(fmt), labels, detected.dates)
     }
-    // Format has % but labels aren't parseable dates — ignore
     return null
   }
 
   if (fmt) {
-    // Numeric d3.format
     return d3.format(fmt) as (d: string | d3.NumberValue) => string
   }
 
-  // No explicit format — auto-format dates if detected
   if (detected) {
     const timeFmt = d3.timeFormat(AUTO_DATE_FORMATS[detected.granularity] ?? '%Y-%m-%d')
-    const dateMap = new Map<string, Date>()
-    labels.forEach((l, i) => dateMap.set(l, detected.dates[i]))
-    return (d: string | d3.NumberValue) => {
-      if (d instanceof Date) { return timeFmt(d) }
-      const date = dateMap.get(String(d))
-      return date ? timeFmt(date) : String(d)
-    }
+    return buildDateFormatter(timeFmt, labels, detected.dates)
   }
 
   return null
 }
 
 function thinLabels(domain: string[], availableWidth: number): string[] {
-  if (domain.length <= 1) { return domain }
+  if (domain.length <= 1) {
+    return domain
+  }
   const maxLabels = Math.max(2, Math.floor(availableWidth / MIN_LABEL_SPACING))
-  if (domain.length <= maxLabels) { return domain }
+  if (domain.length <= maxLabels) {
+    return domain
+  }
   const step = Math.ceil(domain.length / maxLabels)
   const thinned: string[] = []
   for (let i = 0; i < domain.length; i += step) {
@@ -81,6 +82,59 @@ function thinLabels(domain: string[], availableWidth: number): string[] {
     thinned.push(domain[domain.length - 1])
   }
   return thinned
+}
+
+const AUTO_INSIDE_THRESHOLD = 400
+
+function resolveEffectiveLabelPosition(labelPos: string, availableWidth: number): string {
+  if (labelPos !== 'auto') {
+    return labelPos
+  }
+  return (availableWidth > 0 && availableWidth < AUTO_INSIDE_THRESHOLD) ? 'inside' : 'outside'
+}
+
+function configureAutoTicks(
+  axisFn: d3.Axis<string | d3.NumberValue>,
+  rawScale: AnyXScale,
+  availableWidth: number,
+  ticks: (string & d3.NumberValue)[] | null,
+): (string & d3.NumberValue)[] | null {
+  if (ticks || availableWidth <= 0) {
+    return ticks
+  }
+  if (isBandScale(rawScale)) {
+    const domain = rawScale.domain()
+    if (domain.length > Math.floor(availableWidth / MIN_LABEL_SPACING)) {
+      return thinLabels(domain, availableWidth) as (string & d3.NumberValue)[]
+    }
+  }
+  else {
+    const maxTicks = Math.max(2, Math.floor(availableWidth / MIN_LABEL_SPACING))
+    axisFn.ticks(maxTicks)
+  }
+  return ticks
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function applyAxisDomain(sel: any, showAxis: boolean, zeroY: number | null, position: string, height: number): void {
+  if (!showAxis) {
+    sel.select('.domain').remove()
+    return
+  }
+  if (zeroY != null) {
+    const offset = zeroY - (position === 'above' ? 0 : height)
+    sel.select('.domain').attr('transform', `translate(0,${offset})`)
+  }
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function applyLabelPosition(sel: any, effective: string): void {
+  if (effective === 'off') {
+    sel.selectAll('.tick text').remove()
+  }
+  else if (effective === 'inside') {
+    sel.selectAll('.tick text').attr('dy', '-0.6em')
+  }
 }
 
 class HorizontalAxisChart extends D3Blueprint<AxisDatum[]> {
@@ -105,89 +159,57 @@ class HorizontalAxisChart extends D3Blueprint<AxisDatum[]> {
       insert: sel => sel.append('g').attr('class', 'bc-axis bc-axis-horizontal'),
       events: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        enter: (sel: any) => {
-          const scale = this.config('scale') as d3.AxisScale<string | d3.NumberValue>
-          const position = this.config('tickPosition') as string
-          const labelPos = this.config('labelPosition') as string
-          const height = this.config('height') as number
-          const availableWidth = this.config('width') as number
-
-          const axisFn = position === 'above'
-            ? d3.axisTop(scale)
-            : d3.axisBottom(scale)
-
-          if (!this.config('showTicks')) {
-            axisFn.tickSizeOuter(0)
-          }
-
-          let ticks = this.config('ticks') as (string & d3.NumberValue)[] | null
-
-          const rawScale = this.config('scale') as AnyXScale
-          if (!ticks && availableWidth > 0) {
-            if (isBandScale(rawScale)) {
-              // Auto-thin band scales based on available width
-              const domain = rawScale.domain()
-              if (domain.length > Math.floor(availableWidth / MIN_LABEL_SPACING)) {
-                ticks = thinLabels(domain, availableWidth) as (string & d3.NumberValue)[]
-              }
-            }
-            else {
-              // For time/linear scales, limit tick count based on available width
-              const maxTicks = Math.max(2, Math.floor(availableWidth / MIN_LABEL_SPACING))
-              axisFn.ticks(maxTicks)
-            }
-          }
-
-          if (ticks) { axisFn.tickValues(ticks) }
-
-          const fmt = this.config('numberFormat') as string | null
-          const labels = this.config('labels') as string[]
-          const formatter = buildTickFormatter(fmt, labels)
-          if (formatter) { axisFn.tickFormat(formatter) }
-
-          const translateY = position === 'above' ? 0 : height
-          sel.attr('transform', `translate(0,${translateY})`)
-          sel.call(axisFn)
-
-          if (!this.config('showAxis')) {
-            sel.select('.domain').remove()
-          }
-
-          // Move the domain line to y=0 when the vertical domain crosses zero
-          const zeroY = this.config('zeroY') as number | null
-          if (zeroY != null && this.config('showAxis')) {
-            const offset = zeroY - (position === 'above' ? 0 : height)
-            sel.select('.domain').attr('transform', `translate(0,${offset})`)
-          }
-
-          if (!this.config('showTicks')) {
-            sel.selectAll('.tick line').remove()
-          }
-
-          // Resolve effective label position — auto switches to inside on narrow charts
-          const AUTO_INSIDE_THRESHOLD = 400
-          const effective = labelPos === 'auto'
-            ? (availableWidth > 0 && availableWidth < AUTO_INSIDE_THRESHOLD ? 'inside' : 'outside')
-            : labelPos
-
-          if (effective === 'off') {
-            sel.selectAll('.tick text').remove()
-          }
-          else if (effective === 'inside') {
-            // Position labels just inside the chart area (above the axis line)
-            sel.selectAll('.tick text')
-              .attr('dy', '-0.6em')
-          }
-        },
+        enter: (sel: any) => this.renderAxis(sel),
       },
     })
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private renderAxis(sel: any): void {
+    const scale = this.config('scale') as d3.AxisScale<string | d3.NumberValue>
+    const position = this.config('tickPosition') as string
+    const height = this.config('height') as number
+    const availableWidth = this.config('width') as number
+
+    const axisFn = this.buildAxisFn(scale, position, availableWidth)
+    sel.attr('transform', `translate(0,${position === 'above' ? 0 : height})`)
+    sel.call(axisFn)
+
+    applyAxisDomain(sel, this.config('showAxis') as boolean, this.config('zeroY') as number | null, position, height)
+    if (!this.config('showTicks')) {
+      sel.selectAll('.tick line').remove()
+    }
+
+    const effective = resolveEffectiveLabelPosition(this.config('labelPosition') as string, availableWidth)
+    applyLabelPosition(sel, effective)
+  }
+
+  private buildAxisFn(scale: d3.AxisScale<string | d3.NumberValue>, position: string, availableWidth: number): d3.Axis<string | d3.NumberValue> {
+    const axisFn = position === 'above' ? d3.axisTop(scale) : d3.axisBottom(scale)
+    if (!this.config('showTicks')) {
+      axisFn.tickSizeOuter(0)
+    }
+
+    const rawScale = this.config('scale') as AnyXScale
+    const ticks = configureAutoTicks(axisFn, rawScale, availableWidth, this.config('ticks') as (string & d3.NumberValue)[] | null)
+    if (ticks) {
+      axisFn.tickValues(ticks)
+    }
+
+    const formatter = buildTickFormatter(this.config('numberFormat') as string | null, this.config('labels') as string[])
+    if (formatter) {
+      axisFn.tickFormat(formatter)
+    }
+    return axisFn
   }
 
   postDraw() {
     const gridStyle = this.config('gridStyle') as string
     const height = this.config('height') as number
     const g = this.base.select('.bc-axis-horizontal').node() as SVGGElement
-    if (!g) { return }
+    if (!g) {
+      return
+    }
 
     if (gridStyle !== 'none' && height > 0) {
       applyGridLines(g, gridStyle, height)
@@ -221,19 +243,9 @@ function applyGridLines(g: SVGGElement, style: string, height: number): void {
   })
 }
 
-export function renderHorizontalAxis(
-  chartArea: SVGGElement,
-  scale: AnyXScale,
-  height: number,
-  options: AxisOptions = {},
-): SVGGElement {
-  const chart = new HorizontalAxisChart(d3.select(chartArea))
-  // Extract labels from band scale domain if available
-  const labels = isBandScale(scale)
-    ? scale.domain()
-    : []
-
-  chart.config({
+function buildHorizontalAxisConfig(scale: AnyXScale, height: number, options: AxisOptions): Record<string, unknown> {
+  const labels = isBandScale(scale) ? scale.domain() : []
+  return {
     scale,
     height,
     tickPosition: options.tickPosition ?? 'below',
@@ -246,7 +258,17 @@ export function renderHorizontalAxis(
     labels,
     labelPosition: options.labelPosition ?? 'auto',
     zeroY: options.zeroY ?? null,
-  })
+  }
+}
+
+export function renderHorizontalAxis(
+  chartArea: SVGGElement,
+  scale: AnyXScale,
+  height: number,
+  options: AxisOptions = {},
+): SVGGElement {
+  const chart = new HorizontalAxisChart(d3.select(chartArea))
+  chart.config(buildHorizontalAxisConfig(scale, height, options))
   chart.draw([{ placeholder: true }])
   return chartArea.querySelector('.bc-axis-horizontal') as SVGGElement
 }

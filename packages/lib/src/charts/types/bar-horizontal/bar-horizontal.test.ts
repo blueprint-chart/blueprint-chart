@@ -1,33 +1,34 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { render } from './bar-horizontal'
 
-describe('bar-horizontal', () => {
-  let container: HTMLElement
+const DATA = { labels: ['A', 'B', 'C'], values: [10, 30, 20] }
 
-  const data = {
-    labels: ['A', 'B', 'C'],
-    values: [10, 30, 20],
-  }
+function createContainer(): HTMLElement {
+  const container = document.createElement('div')
+  document.body.appendChild(container)
+  return container
+}
 
-  beforeEach(() => {
-    container = document.createElement('div')
-    document.body.appendChild(container)
-  })
-
+describe('bar-horizontal rendering', () => {
   it('renders horizontal bars', () => {
-    render(container, data)
+    const container = createContainer()
+    render(container, DATA)
     const bars = container.querySelectorAll('.bc-bar')
     expect(bars).toHaveLength(3)
   })
 
   it('creates frame and SVG', () => {
-    render(container, data)
+    const container = createContainer()
+    render(container, DATA)
     expect(container.querySelector('.bc-frame')).not.toBeNull()
     expect(container.querySelector('svg')).not.toBeNull()
   })
+})
 
+describe('bar-horizontal attributes', () => {
   it('bars have horizontal orientation (width varies)', () => {
-    render(container, data)
+    const container = createContainer()
+    render(container, DATA)
     const bars = container.querySelectorAll('.bc-bar')
     const widths = Array.from(bars).map(b => Number(b.getAttribute('width')))
     expect(widths.some(w => w > 0)).toBe(true)
@@ -37,9 +38,8 @@ describe('bar-horizontal', () => {
   })
 
   it('applies highlight colors', () => {
-    render(container, data, {
-      highlights: [{ target: 'A', color: '#00ff00' }],
-    })
+    const container = createContainer()
+    render(container, DATA, { highlights: [{ target: 'A', color: '#00ff00' }] })
     const bars = container.querySelectorAll('.bc-bar')
     const fills = Array.from(bars).map(b => b.getAttribute('fill'))
     expect(fills).toContain('#00ff00')

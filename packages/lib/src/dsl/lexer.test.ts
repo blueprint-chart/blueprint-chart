@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { tokenize } from './lexer'
 import type { TokenType } from './lexer'
 
-describe('lexer', () => {
+describe('lexer basic tokens', () => {
   it('tokenizes empty input', () => {
     const tokens = tokenize('')
     expect(tokens).toHaveLength(1)
@@ -26,7 +26,9 @@ describe('lexer', () => {
     const tokens = tokenize('{ = }')
     expect(tokens.map(t => t.type)).toEqual(['lbrace', 'equals', 'rbrace', 'eof'])
   })
+})
 
+describe('lexer keywords and identifiers', () => {
   it('tokenizes keywords', () => {
     const tokens = tokenize('chart data highlight step')
     expect(tokens.map(t => [t.type, t.value])).toEqual([
@@ -47,7 +49,9 @@ describe('lexer', () => {
       ['eof', ''],
     ])
   })
+})
 
+describe('lexer strings', () => {
   it('tokenizes strings with unicode', () => {
     const tokens = tokenize('"Année suivante"')
     expect(tokens[0]).toMatchObject({ type: 'string', value: 'Année suivante' })
@@ -58,6 +62,13 @@ describe('lexer', () => {
     expect(tokens[0]).toMatchObject({ type: 'string', value: 'say "hello"' })
   })
 
+  it('handles escaped backslash in strings', () => {
+    const tokens = tokenize('"path\\\\file"')
+    expect(tokens[0].value).toBe('path\\file')
+  })
+})
+
+describe('lexer numbers and percent', () => {
   it('tokenizes numbers and percent', () => {
     const tokens = tokenize('61.11%')
     expect(tokens.map(t => [t.type, t.value])).toEqual([
@@ -72,6 +83,14 @@ describe('lexer', () => {
     expect(tokens[0]).toMatchObject({ type: 'number', value: '42' })
   })
 
+  it('returns correct token types for percent values', () => {
+    const tokens = tokenize('75.00%')
+    const types: TokenType[] = tokens.map(t => t.type)
+    expect(types).toEqual(['number', 'percent', 'eof'])
+  })
+})
+
+describe('lexer position tracking and errors', () => {
   it('tracks line and column', () => {
     const tokens = tokenize('chart\n  data')
     expect(tokens[0]).toMatchObject({ line: 1, column: 1 })
@@ -85,7 +104,9 @@ describe('lexer', () => {
   it('throws on unexpected character', () => {
     expect(() => tokenize('!')).toThrow(/Unexpected character/)
   })
+})
 
+describe('lexer simple chart DSL', () => {
   it('tokenizes simple chart DSL', () => {
     const input = `chart horizontal-bar {
   title = "Couverture médiatique"
@@ -103,17 +124,17 @@ describe('lexer', () => {
 }`
     const tokens = tokenize(input)
     const types = tokens.map(t => t.type)
-    expect(types[0]).toBe('keyword') // chart
-    expect(types[1]).toBe('identifier') // horizontal-bar
+    expect(types[0]).toBe('keyword')
+    expect(types[1]).toBe('identifier')
     expect(types[2]).toBe('lbrace')
     expect(types[types.length - 1]).toBe('eof')
     expect(types.filter(t => t === 'string').length).toBeGreaterThan(0)
     expect(types.filter(t => t === 'number').length).toBeGreaterThan(0)
     expect(types.filter(t => t === 'percent').length).toBeGreaterThan(0)
   })
+})
 
-  it('tokenizes chart with steps', () => {
-    const input = `chart horizontal-bar {
+const CHART_WITH_STEPS_INPUT = `chart horizontal-bar {
   title = "Couverture médiatique en 2025"
   sort = descending
 
@@ -140,7 +161,10 @@ describe('lexer', () => {
     }
   }
 }`
-    const tokens = tokenize(input)
+
+describe('lexer chart with steps DSL', () => {
+  it('tokenizes chart with steps', () => {
+    const tokens = tokenize(CHART_WITH_STEPS_INPUT)
     const keywords = tokens.filter(t => t.type === 'keyword')
     const keywordValues = keywords.map(t => t.value)
     expect(keywordValues).toContain('chart')
@@ -149,7 +173,9 @@ describe('lexer', () => {
     expect(keywordValues).toContain('highlight')
     expect(keywordValues.filter(v => v === 'step')).toHaveLength(2)
   })
+})
 
+describe('lexer tab tokens', () => {
   it('tokenizes tab characters as tab tokens', () => {
     const tokens = tokenize('Apple\t42')
     expect(tokens.map(t => [t.type, t.value])).toEqual([
@@ -167,16 +193,5 @@ describe('lexer', () => {
     expect(types).toContain('tab')
     const tabTokens = tokens.filter(t => t.type === 'tab')
     expect(tabTokens).toHaveLength(2)
-  })
-
-  it('handles escaped backslash in strings', () => {
-    const tokens = tokenize('"path\\\\file"')
-    expect(tokens[0].value).toBe('path\\file')
-  })
-
-  it('returns correct token types for percent values', () => {
-    const tokens = tokenize('75.00%')
-    const types: TokenType[] = tokens.map(t => t.type)
-    expect(types).toEqual(['number', 'percent', 'eof'])
   })
 })

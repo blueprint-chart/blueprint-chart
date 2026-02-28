@@ -64,7 +64,9 @@ const PALETTE_MAP: Record<string, readonly string[]> = Object.fromEntries(
 )
 
 export function resolvePalette(paletteName: string | undefined): string[] | undefined {
-  if (!paletteName) { return undefined }
+  if (!paletteName) {
+    return undefined
+  }
   const scheme = PALETTE_MAP[paletteName]
   return scheme ? [...scheme] : undefined
 }

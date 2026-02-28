@@ -1,15 +1,17 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { initBlueprint } from './runtime'
 
-describe('initBlueprint', () => {
-  beforeEach(() => {
-    document.body.innerHTML = ''
-  })
+function setBody(html: string): void {
+  document.body.innerHTML = html
+}
 
+beforeEach(() => {
+  setBody('')
+})
+
+describe('initBlueprint script tag discovery', () => {
   it('finds and processes blueprint script tags', () => {
-    document.body.innerHTML = `
-      <script type="application/blueprint-chart">chart bar { data { "A" = 10 } }</script>
-    `
+    setBody('<script type="application/blueprint-chart">chart bar { data { "A" = 10 } }</script>')
     initBlueprint()
 
     const iframe = document.querySelector('.blueprint-chart-iframe')
@@ -17,12 +19,45 @@ describe('initBlueprint', () => {
     expect(iframe?.tagName).toBe('IFRAME')
   })
 
+  it('skips empty script tags', () => {
+    setBody([
+      '<script type="application/blueprint-chart"></script>',
+      '<script type="application/blueprint-chart">   </script>',
+    ].join(''))
+    initBlueprint()
+
+    const iframes = document.querySelectorAll('.blueprint-chart-iframe')
+    expect(iframes.length).toBe(0)
+  })
+})
+
+describe('initBlueprint script tag filtering', () => {
+  it('ignores non-blueprint script tags', () => {
+    setBody([
+      '<script type="text/javascript">console.log("hello")</script>',
+      '<script type="application/blueprint-chart">chart bar { data { "A" = 10 } }</script>',
+    ].join(''))
+    initBlueprint()
+
+    const iframes = document.querySelectorAll('.blueprint-chart-iframe')
+    expect(iframes.length).toBe(1)
+  })
+
+  it('processes multiple script tags', () => {
+    setBody([
+      '<script type="application/blueprint-chart">chart bar { data { "A" = 10 } }</script>',
+      '<script type="application/blueprint-chart">chart line { data { "B" = 20 } }</script>',
+    ].join(''))
+    initBlueprint()
+
+    const iframes = document.querySelectorAll('.blueprint-chart-iframe')
+    expect(iframes.length).toBe(2)
+  })
+})
+
+describe('initBlueprint iframe creation', () => {
   it('creates iframe as a sibling before the script tag', () => {
-    document.body.innerHTML = `
-      <div id="wrapper">
-        <script type="application/blueprint-chart">chart bar { data { "A" = 10 } }</script>
-      </div>
-    `
+    setBody('<div id="wrapper"><script type="application/blueprint-chart">chart bar { data { "A" = 10 } }</script></div>')
     initBlueprint()
 
     const wrapper = document.getElementById('wrapper')!
@@ -31,43 +66,8 @@ describe('initBlueprint', () => {
     expect(children[1].tagName).toBe('SCRIPT')
   })
 
-  it('skips empty script tags', () => {
-    document.body.innerHTML = `
-      <script type="application/blueprint-chart"></script>
-      <script type="application/blueprint-chart">   </script>
-    `
-    initBlueprint()
-
-    const iframes = document.querySelectorAll('.blueprint-chart-iframe')
-    expect(iframes.length).toBe(0)
-  })
-
-  it('ignores non-blueprint script tags', () => {
-    document.body.innerHTML = `
-      <script type="text/javascript">console.log("hello")</script>
-      <script type="application/blueprint-chart">chart bar { data { "A" = 10 } }</script>
-    `
-    initBlueprint()
-
-    const iframes = document.querySelectorAll('.blueprint-chart-iframe')
-    expect(iframes.length).toBe(1)
-  })
-
-  it('processes multiple script tags', () => {
-    document.body.innerHTML = `
-      <script type="application/blueprint-chart">chart bar { data { "A" = 10 } }</script>
-      <script type="application/blueprint-chart">chart line { data { "B" = 20 } }</script>
-    `
-    initBlueprint()
-
-    const iframes = document.querySelectorAll('.blueprint-chart-iframe')
-    expect(iframes.length).toBe(2)
-  })
-
   it('sets srcdoc with escaped DSL content', () => {
-    document.body.innerHTML = `
-      <script type="application/blueprint-chart">chart bar { data { "A" = 10 } }</script>
-    `
+    setBody('<script type="application/blueprint-chart">chart bar { data { "A" = 10 } }</script>')
     initBlueprint()
 
     const iframe = document.querySelector('.blueprint-chart-iframe') as HTMLIFrameElement
@@ -75,10 +75,19 @@ describe('initBlueprint', () => {
     expect(iframe.srcdoc).toContain('blueprint-chart-container')
   })
 
+  it('includes chart CSS in srcdoc', () => {
+    setBody('<script type="application/blueprint-chart">chart bar { data { "A" = 10 } }</script>')
+    initBlueprint()
+
+    const iframe = document.querySelector('.blueprint-chart-iframe') as HTMLIFrameElement
+    expect(iframe.srcdoc).toContain('<style>')
+    expect(iframe.srcdoc).toContain('bc-frame-title')
+  })
+})
+
+describe('initBlueprint security', () => {
   it('escapes HTML in DSL content within srcdoc', () => {
-    document.body.innerHTML = `
-      <script type="application/blueprint-chart"><img onerror="alert(1)"> test</script>
-    `
+    setBody('<script type="application/blueprint-chart"><img onerror="alert(1)"> test</script>')
     initBlueprint()
 
     const iframe = document.querySelector('.blueprint-chart-iframe') as HTMLIFrameElement
@@ -87,23 +96,10 @@ describe('initBlueprint', () => {
   })
 
   it('sets sandbox attribute for security', () => {
-    document.body.innerHTML = `
-      <script type="application/blueprint-chart">chart bar { data { "A" = 10 } }</script>
-    `
+    setBody('<script type="application/blueprint-chart">chart bar { data { "A" = 10 } }</script>')
     initBlueprint()
 
     const iframe = document.querySelector('.blueprint-chart-iframe') as HTMLIFrameElement
     expect(iframe.getAttribute('sandbox')).toBe('allow-scripts')
-  })
-
-  it('includes chart CSS in srcdoc', () => {
-    document.body.innerHTML = `
-      <script type="application/blueprint-chart">chart bar { data { "A" = 10 } }</script>
-    `
-    initBlueprint()
-
-    const iframe = document.querySelector('.blueprint-chart-iframe') as HTMLIFrameElement
-    expect(iframe.srcdoc).toContain('<style>')
-    expect(iframe.srcdoc).toContain('bc-frame-title')
   })
 })
