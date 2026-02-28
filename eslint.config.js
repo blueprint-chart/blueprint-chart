@@ -34,6 +34,7 @@ export default [
       },
     },
     rules: {
+      'curly': ['error', 'all'],
       '@stylistic/comma-dangle': ['error', 'always-multiline'],
     },
   },
