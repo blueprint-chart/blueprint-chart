@@ -34,7 +34,10 @@
           :tabindex="overflowed ? -1 : undefined"
           @click="model = opt.value"
         >
-          <template v-if="opt.visual" #start>
+          <template
+            v-if="opt.visual"
+            #start
+          >
             <div class="form-control-button-group__visual bg-body rounded-1">
               <component
                 :is="opt.visual"
