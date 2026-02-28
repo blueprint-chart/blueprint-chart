@@ -1,35 +1,23 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { useWizard } from './useWizard'
 
-beforeEach(() => {
-  useWizard().reset()
-})
+describe('useWizard', () => {
+  beforeEach(() => {
+    useWizard().reset()
+  })
 
-describe('useWizard initial state', () => {
   it('starts at step 0', () => {
     const { currentIndex, currentStep } = useWizard()
     expect(currentIndex.value).toBe(0)
     expect(currentStep.value.key).toBe('upload')
   })
-})
 
-describe('useWizard next', () => {
   it('advances with next()', () => {
     const { next, currentIndex } = useWizard()
     next()
     expect(currentIndex.value).toBe(1)
   })
 
-  it('does not go past last step', () => {
-    const { next, currentIndex, steps } = useWizard()
-    for (let i = 0; i < steps.length + 2; i++) {
-      next()
-    }
-    expect(currentIndex.value).toBe(steps.length - 1)
-  })
-})
-
-describe('useWizard back', () => {
   it('goes back with back()', () => {
     const { next, back, currentIndex } = useWizard()
     next()
@@ -43,10 +31,16 @@ describe('useWizard back', () => {
     back()
     expect(currentIndex.value).toBe(0)
   })
-})
 
-describe('useWizard goTo', () => {
-  it('only allows jumping to visited steps', () => {
+  it('does not go past last step', () => {
+    const { next, currentIndex, steps } = useWizard()
+    for (let i = 0; i < steps.length + 2; i++) {
+      next()
+    }
+    expect(currentIndex.value).toBe(steps.length - 1)
+  })
+
+  it('goTo only allows jumping to visited steps', () => {
     const { next, goTo, currentIndex } = useWizard()
     next()
     next()
@@ -57,9 +51,7 @@ describe('useWizard goTo', () => {
     goTo(3)
     expect(currentIndex.value).toBe(2)
   })
-})
 
-describe('useWizard tracking', () => {
   it('tracks furthestIndex', () => {
     const { next, back, furthestIndex } = useWizard()
     next()

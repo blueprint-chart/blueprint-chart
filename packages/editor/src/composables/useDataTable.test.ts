@@ -1,20 +1,18 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { useDataTable } from './useDataTable'
 
-beforeEach(() => {
-  useDataTable().reset()
-})
+describe('useDataTable', () => {
+  beforeEach(() => {
+    useDataTable().reset()
+  })
 
-describe('useDataTable initial state', () => {
   it('starts empty', () => {
     const { columns, rows, rawInput } = useDataTable()
     expect(columns.value).toEqual([])
     expect(rows.value).toEqual([])
     expect(rawInput.value).toBe('')
   })
-})
 
-describe('useDataTable loading', () => {
   it('loads parsed data', () => {
     const { loadParsed, columns, rows } = useDataTable()
     loadParsed({
@@ -24,9 +22,7 @@ describe('useDataTable loading', () => {
     expect(columns.value).toEqual(['Name', 'Value'])
     expect(rows.value.length).toBe(2)
   })
-})
 
-describe('useDataTable column mutations', () => {
   it('renames a column', () => {
     const { loadParsed, renameColumn, columns } = useDataTable()
     loadParsed({ columns: ['A', 'B'], rows: [] })
@@ -40,9 +36,7 @@ describe('useDataTable column mutations', () => {
     renameColumn(5, 'X')
     expect(columns.value).toEqual(['A'])
   })
-})
 
-describe('useDataTable cell and row mutations', () => {
   it('updates a cell', () => {
     const { loadParsed, updateCell, rows } = useDataTable()
     loadParsed({ columns: ['A', 'B'], rows: [['1', '2']] })
@@ -56,9 +50,7 @@ describe('useDataTable cell and row mutations', () => {
     deleteRow(1)
     expect(rows.value).toEqual([['1'], ['3']])
   })
-})
 
-describe('useDataTable two-column serialization', () => {
   it('serializes to DSL format', () => {
     const { loadParsed, serialize } = useDataTable()
     loadParsed({
@@ -69,21 +61,17 @@ describe('useDataTable two-column serialization', () => {
     expect(result).toBe('"Apples" = 42%\n"Bananas" = 58%')
   })
 
-  it('serializes two-column data without _series header', () => {
-    const { loadParsed, serialize } = useDataTable()
-    loadParsed({
-      columns: ['Name', 'Value'],
-      rows: [['Apples', '42']],
-      columnTypes: ['string', 'number'],
-    })
-    const result = serialize()
-    expect(result).toBe('"Apples" = 42')
-    expect(result).not.toContain('_series')
+  it('resets state', () => {
+    const dt = useDataTable()
+    dt.rawInput.value = 'hello'
+    dt.loadParsed({ columns: ['A'], rows: [['1']] })
+    dt.reset()
+    expect(dt.columns.value).toEqual([])
+    expect(dt.rows.value).toEqual([])
+    expect(dt.rawInput.value).toBe('')
   })
-})
 
-describe('useDataTable multi-series serialization', () => {
-  it('serializes with _series header', () => {
+  it('serializes multi-series data with _series header', () => {
     const { loadParsed, serialize } = useDataTable()
     loadParsed({
       columns: ['Date', 'Chrome', 'IE', 'Firefox'],
@@ -98,16 +86,16 @@ describe('useDataTable multi-series serialization', () => {
     expect(result).toContain('"2009-01" = "1.37,64.97,26.85"')
     expect(result).toContain('"2009-02" = "1.5,63.98,27.66"')
   })
-})
 
-describe('useDataTable reset', () => {
-  it('resets state', () => {
-    const dt = useDataTable()
-    dt.rawInput.value = 'hello'
-    dt.loadParsed({ columns: ['A'], rows: [['1']] })
-    dt.reset()
-    expect(dt.columns.value).toEqual([])
-    expect(dt.rows.value).toEqual([])
-    expect(dt.rawInput.value).toBe('')
+  it('serializes two-column data without _series header', () => {
+    const { loadParsed, serialize } = useDataTable()
+    loadParsed({
+      columns: ['Name', 'Value'],
+      rows: [['Apples', '42']],
+      columnTypes: ['string', 'number'],
+    })
+    const result = serialize()
+    expect(result).toBe('"Apples" = 42')
+    expect(result).not.toContain('_series')
   })
 })
