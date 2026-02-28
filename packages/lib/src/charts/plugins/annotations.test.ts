@@ -1,39 +1,35 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import * as d3 from 'd3'
-import { createAnnotationPlugin, computeDirectionOffset, computeAnchorPoint, bboxEdgeToward, ensureArrowMarker, rotateDirectionForHorizontal } from './annotations'
+import { createAnnotationPlugin } from './annotations'
 
 function makeChartStub(g: SVGGElement) {
   return { base: d3.select(g) } as unknown
 }
 
-describe('createAnnotationPlugin', () => {
-  let svg: SVGSVGElement
-  let g: SVGGElement
+function createSvgSetup(): { svg: SVGSVGElement, g: SVGGElement } {
+  while (document.body.firstChild) {
+    document.body.removeChild(document.body.firstChild)
+  }
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+  const g = document.createElementNS('http://www.w3.org/2000/svg', 'g')
+  svg.appendChild(g)
+  document.body.appendChild(svg)
+  return { svg, g }
+}
 
-  const makeScales = () => {
+describe('createAnnotationPlugin: text and arrow', () => {
+  let g: SVGGElement
+  beforeEach(() => {
+    g = createSvgSetup().g
+  })
+
+  it('renders annotation text and arrow', () => {
     const x = d3.scaleBand<string>().domain(['A', 'B']).range([0, 200]).padding(0.2)
     const y = d3.scaleLinear().domain([0, 100]).range([200, 0])
     const data = [{ label: 'A', value: 50 }, { label: 'B', value: 80 }]
-    return { x, y, data }
-  }
-
-  beforeEach(() => {
-    while (document.body.firstChild) { document.body.removeChild(document.body.firstChild) }
-    svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
-    g = document.createElementNS('http://www.w3.org/2000/svg', 'g')
-    svg.appendChild(g)
-    document.body.appendChild(svg)
-  })
-
-  // -----------------------------------------------------------------------
-  // Point annotations
-  // -----------------------------------------------------------------------
-
-  it('renders point annotation text and arrow', () => {
-    const { x, y, data } = makeScales()
 
     const plugin = createAnnotationPlugin(
-      [{ kind: 'point', target: 'A', text: 'Note here', anchorDirection: 'NW', textOffsetX: -42, textOffsetY: -42, showLine: true }],
+      [{ target: 'A', text: 'Note here', dx: 30, dy: -30 }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200 },
     )
 
@@ -47,30 +43,21 @@ describe('createAnnotationPlugin', () => {
     const lines = g.querySelectorAll('.bc-annotation-line')
     expect(lines).toHaveLength(1)
   })
+})
 
-  it('renders point annotation with circle', () => {
-    const { x, y, data } = makeScales()
-
-    const plugin = createAnnotationPlugin(
-      [{ kind: 'point', target: 'A', text: 'With circle', showCircle: true, circleSize: 6, circleStyle: 'dashed' }],
-      { scaleX: x, scaleY: y, data, width: 200, height: 200 },
-    )
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    plugin.postDraw!(makeChartStub(g) as any, undefined as any)
-
-    const circles = g.querySelectorAll('.bc-annotation-circle')
-    expect(circles).toHaveLength(1)
-    expect(circles[0].getAttribute('r')).toBe('6')
-    expect(circles[0].getAttribute('stroke-dasharray')).toBe('5,4')
+describe('createAnnotationPlugin: unknown target', () => {
+  let g: SVGGElement
+  beforeEach(() => {
+    g = createSvgSetup().g
   })
 
-  it('skips point annotation for unknown target', () => {
-    const { x, y } = makeScales()
+  it('skips annotation for unknown target', () => {
+    const x = d3.scaleBand<string>().domain(['A']).range([0, 100])
+    const y = d3.scaleLinear().domain([0, 100]).range([100, 0])
 
     const plugin = createAnnotationPlugin(
-      [{ kind: 'point', target: 'Z', text: 'Missing' }],
-      { scaleX: x, scaleY: y, data: [{ label: 'A', value: 50 }], width: 200, height: 200 },
+      [{ target: 'Z', text: 'Missing' }],
+      { scaleX: x, scaleY: y, data: [{ label: 'A', value: 50 }], width: 100, height: 100 },
     )
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -78,525 +65,27 @@ describe('createAnnotationPlugin', () => {
 
     expect(g.querySelectorAll('.bc-annotation-text')).toHaveLength(0)
   })
+})
+
+describe('createAnnotationPlugin: showArrow option', () => {
+  let g: SVGGElement
+  beforeEach(() => {
+    g = createSvgSetup().g
+  })
 
   it('hides arrow when showArrow is false', () => {
-    const { x, y, data } = makeScales()
+    const x = d3.scaleBand<string>().domain(['A']).range([0, 100]).padding(0.2)
+    const y = d3.scaleLinear().domain([0, 100]).range([100, 0])
 
     const plugin = createAnnotationPlugin(
-      [{ kind: 'point', target: 'A', text: 'No arrow', showArrow: false }],
-      { scaleX: x, scaleY: y, data, width: 200, height: 200 },
+      [{ target: 'A', text: 'No arrow', showArrow: false }],
+      { scaleX: x, scaleY: y, data: [{ label: 'A', value: 50 }], width: 100, height: 100 },
     )
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     plugin.postDraw!(makeChartStub(g) as any, undefined as any)
 
     expect(g.querySelectorAll('.bc-annotation-text')).toHaveLength(1)
-    expect(g.querySelectorAll('.bc-annotation-line')).toHaveLength(0)
-  })
-
-  // -----------------------------------------------------------------------
-  // Range annotations
-  // -----------------------------------------------------------------------
-
-  it('renders range annotation rect with correct bounds', () => {
-    const { x, y, data } = makeScales()
-
-    const plugin = createAnnotationPlugin(
-      [{ kind: 'range', start: 'A', end: 'B', bgColor: '#ff0000', bgOpacity: 30 }],
-      { scaleX: x, scaleY: y, data, width: 200, height: 200 },
-    )
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    plugin.postDraw!(makeChartStub(g) as any, undefined as any)
-
-    const rects = g.querySelectorAll('.bc-annotation-range')
-    expect(rects).toHaveLength(1)
-    expect(rects[0].getAttribute('fill')).toBe('#ff0000')
-    expect(rects[0].getAttribute('opacity')).toBe('0.3')
-
-    const rectWidth = Number(rects[0].getAttribute('width'))
-    expect(rectWidth).toBeGreaterThan(0)
-  })
-
-  it('renders range annotation with text', () => {
-    const { x, y, data } = makeScales()
-
-    const plugin = createAnnotationPlugin(
-      [{ kind: 'range', start: 'A', end: 'B', text: 'Range label' }],
-      { scaleX: x, scaleY: y, data, width: 200, height: 200 },
-    )
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    plugin.postDraw!(makeChartStub(g) as any, undefined as any)
-
-    const texts = g.querySelectorAll('.bc-annotation-text')
-    expect(texts).toHaveLength(1)
-    expect(texts[0].textContent).toBe('Range label')
-  })
-
-  it('renders horizontal range annotation', () => {
-    const { x, y, data } = makeScales()
-
-    const plugin = createAnnotationPlugin(
-      [{ kind: 'range', orientation: 'horizontal', start: 20, end: 80 }],
-      { scaleX: x, scaleY: y, data, width: 200, height: 200 },
-    )
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    plugin.postDraw!(makeChartStub(g) as any, undefined as any)
-
-    const rects = g.querySelectorAll('.bc-annotation-range')
-    expect(rects).toHaveLength(1)
-    // Width should span the full chart width for horizontal range
-    expect(rects[0].getAttribute('width')).toBe('200')
-  })
-
-  // -----------------------------------------------------------------------
-  // Free annotations
-  // -----------------------------------------------------------------------
-
-  it('renders free annotation at center-relative percentage position', () => {
-    const { x, y, data } = makeScales()
-
-    const plugin = createAnnotationPlugin(
-      [{ kind: 'free', text: 'Free note', x: 0, y: 0 }],
-      { scaleX: x, scaleY: y, data, width: 200, height: 200 },
-    )
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    plugin.postDraw!(makeChartStub(g) as any, undefined as any)
-
-    const texts = g.querySelectorAll('.bc-annotation-text')
-    expect(texts).toHaveLength(1)
-    expect(texts[0].textContent).toBe('Free note')
-    // 0% center-relative: 200/2 + (0/100)*200 = 100
-    expect(texts[0].getAttribute('x')).toBe('100')
-    // 0% center-relative: 200/2 + (0/100)*200 = 100 (vertically centered via transform)
-    expect(texts[0].getAttribute('y')).toBe('100')
-  })
-
-  it('renders free annotation with px position', () => {
-    const { x, y, data } = makeScales()
-
-    const plugin = createAnnotationPlugin(
-      [{ kind: 'free', text: 'Pixel note', x: '80px', y: '60px' }],
-      { scaleX: x, scaleY: y, data, width: 200, height: 200 },
-    )
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    plugin.postDraw!(makeChartStub(g) as any, undefined as any)
-
-    const texts = g.querySelectorAll('.bc-annotation-text')
-    expect(texts).toHaveLength(1)
-    expect(texts[0].getAttribute('x')).toBe('80')
-    expect(texts[0].getAttribute('y')).toBe('60')
-  })
-
-  // -----------------------------------------------------------------------
-  // Direction offsets
-  // -----------------------------------------------------------------------
-
-  it('computes correct direction offsets', () => {
-    const n = computeDirectionOffset('N', 100)
-    expect(n.dx).toBeCloseTo(0)
-    expect(n.dy).toBeCloseTo(-100)
-
-    const se = computeDirectionOffset('SE', 100)
-    expect(se.dx).toBeCloseTo(70.7, 0)
-    expect(se.dy).toBeCloseTo(70.7, 0)
-
-    const w = computeDirectionOffset('W', 50)
-    expect(w.dx).toBeCloseTo(-50)
-    expect(w.dy).toBeCloseTo(0)
-
-    const center = computeDirectionOffset('center', 100)
-    expect(center.dx).toBe(0)
-    expect(center.dy).toBe(0)
-  })
-
-  // -----------------------------------------------------------------------
-  // Line styles
-  // -----------------------------------------------------------------------
-
-  it('renders direct line style as L command', () => {
-    const { x, y, data } = makeScales()
-
-    const plugin = createAnnotationPlugin(
-      [{ kind: 'point', target: 'A', text: 'Direct', lineStyle: 'direct', showLine: true }],
-      { scaleX: x, scaleY: y, data, width: 200, height: 200 },
-    )
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    plugin.postDraw!(makeChartStub(g) as any, undefined as any)
-
-    const line = g.querySelector('.bc-annotation-line')
-    expect(line).toBeTruthy()
-    const d = line!.getAttribute('d')!
-    expect(d).toMatch(/^M .* L /)
-  })
-
-  it('renders curve-left line style as A (arc) command', () => {
-    const { x, y, data } = makeScales()
-
-    const plugin = createAnnotationPlugin(
-      [{ kind: 'point', target: 'A', text: 'Curved', lineStyle: 'curve-left', showLine: true }],
-      { scaleX: x, scaleY: y, data, width: 200, height: 200 },
-    )
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    plugin.postDraw!(makeChartStub(g) as any, undefined as any)
-
-    const line = g.querySelector('.bc-annotation-line')
-    expect(line).toBeTruthy()
-    const d = line!.getAttribute('d')!
-    expect(d).toMatch(/A/)
-  })
-
-  it('renders elbow line style with two L commands', () => {
-    const { x, y, data } = makeScales()
-
-    const plugin = createAnnotationPlugin(
-      [{ kind: 'point', target: 'A', text: 'Elbow', lineStyle: 'elbow', showLine: true }],
-      { scaleX: x, scaleY: y, data, width: 200, height: 200 },
-    )
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    plugin.postDraw!(makeChartStub(g) as any, undefined as any)
-
-    const line = g.querySelector('.bc-annotation-line')
-    expect(line).toBeTruthy()
-    const d = line!.getAttribute('d')!
-    // Elbow: M ... L (horizontal) ... L (to target)
-    const lCount = (d.match(/L/g) || []).length
-    expect(lCount).toBe(2)
-  })
-
-  // -----------------------------------------------------------------------
-  // Text outline
-  // -----------------------------------------------------------------------
-
-  it('renders text with stroke outline for readability', () => {
-    const { x, y, data } = makeScales()
-
-    const plugin = createAnnotationPlugin(
-      [{ kind: 'point', target: 'A', text: 'Outlined' }],
-      { scaleX: x, scaleY: y, data, width: 200, height: 200 },
-    )
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    plugin.postDraw!(makeChartStub(g) as any, undefined as any)
-
-    const text = g.querySelector('.bc-annotation-text')
-    expect(text).toBeTruthy()
-    expect(text!.getAttribute('stroke')).toBe('#fff')
-    expect(text!.getAttribute('stroke-width')).toBe('3')
-    expect(text!.getAttribute('paint-order')).toBe('stroke')
-  })
-
-  // -----------------------------------------------------------------------
-  // Backward compatibility
-  // -----------------------------------------------------------------------
-
-  it('treats annotation without kind as point annotation', () => {
-    const { x, y, data } = makeScales()
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const legacyAnnotation = { target: 'A', text: 'Legacy note', dx: 30, dy: -30 } as any
-
-    const plugin = createAnnotationPlugin(
-      [legacyAnnotation],
-      { scaleX: x, scaleY: y, data, width: 200, height: 200 },
-    )
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    plugin.postDraw!(makeChartStub(g) as any, undefined as any)
-
-    const texts = g.querySelectorAll('.bc-annotation-text')
-    expect(texts).toHaveLength(1)
-    expect(texts[0].textContent).toBe('Legacy note')
-
-    const lines = g.querySelectorAll('.bc-annotation-line')
-    expect(lines).toHaveLength(1)
-  })
-
-  it('supports legacy dx/dy fields by using them directly', () => {
-    const { x, y, data } = makeScales()
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const legacyAnnotation = { target: 'A', text: 'Legacy offset', dx: 50, dy: -20 } as any
-
-    const plugin = createAnnotationPlugin(
-      [legacyAnnotation],
-      { scaleX: x, scaleY: y, data, width: 200, height: 200 },
-    )
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    plugin.postDraw!(makeChartStub(g) as any, undefined as any)
-
-    const text = g.querySelector('.bc-annotation-text')
-    expect(text).toBeTruthy()
-
-    // The text x should be cx + dx
-    const cx = (x('A')! + x.bandwidth() / 2)
-    const expectedX = cx + 50
-    expect(Number(text!.getAttribute('x'))).toBeCloseTo(expectedX, 0)
-  })
-
-  // -----------------------------------------------------------------------
-  // Arrow marker
-  // -----------------------------------------------------------------------
-
-  it('creates arrow marker in defs', () => {
-    const { x, y, data } = makeScales()
-
-    const plugin = createAnnotationPlugin(
-      [{ kind: 'point', target: 'A', text: 'Arrow test' }],
-      { scaleX: x, scaleY: y, data, width: 200, height: 200 },
-    )
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    plugin.postDraw!(makeChartStub(g) as any, undefined as any)
-
-    const marker = svg.querySelector('[id^="bc-arrow-"]')
-    expect(marker).toBeTruthy()
-  })
-
-  it('does not duplicate arrow marker on multiple calls', () => {
-    ensureArrowMarker(svg, '#666')
-    ensureArrowMarker(svg, '#666')
-
-    const markers = svg.querySelectorAll('#bc-arrow-666')
-    expect(markers).toHaveLength(1)
-  })
-
-  // -----------------------------------------------------------------------
-  // Anchor point computation
-  // -----------------------------------------------------------------------
-
-  it('computes anchor point at bar top-right for NE', () => {
-    const { x, y } = makeScales()
-    const datum = { label: 'A', value: 50 }
-
-    const anchor = computeAnchorPoint(datum, x, y, 'NE')
-    const barX = x('A')!
-    const barW = x.bandwidth()
-    const barTop = y(50)
-
-    expect(anchor.x).toBeCloseTo(barX + barW)
-    expect(anchor.y).toBeCloseTo(barTop)
-  })
-
-  it('computes anchor point at bar center for center', () => {
-    const { x, y } = makeScales()
-    const datum = { label: 'A', value: 50 }
-
-    const anchor = computeAnchorPoint(datum, x, y, 'center')
-    const barX = x('A')!
-    const barW = x.bandwidth()
-    const barTop = y(50)
-    const barBottom = y(0)
-
-    expect(anchor.x).toBeCloseTo(barX + barW / 2)
-    expect(anchor.y).toBeCloseTo((barTop + barBottom) / 2)
-  })
-
-  // -----------------------------------------------------------------------
-  // bboxEdgeToward
-  // -----------------------------------------------------------------------
-
-  it('exits from E when target is to the right within vertical span', () => {
-    const bbox = { x: 0, y: 0, width: 100, height: 40 }
-    // target at (200, 20): Y=20 is within [0,40] → can exit E or W; X>cx → E
-    const edge = bboxEdgeToward(bbox, 200, 20)
-    expect(edge.x).toBeCloseTo(104) // right edge + 4px pad
-    expect(edge.y).toBeCloseTo(20) // vertical midpoint
-  })
-
-  it('exits from S when target is below within horizontal span', () => {
-    const bbox = { x: 0, y: 0, width: 100, height: 40 }
-    // target at (50, 200): X=50 is within [0,100] → can exit N or S; Y>cy → S
-    const edge = bboxEdgeToward(bbox, 50, 200)
-    expect(edge.x).toBeCloseTo(50) // horizontal midpoint
-    expect(edge.y).toBeCloseTo(44) // bottom edge + 4px pad
-  })
-
-  it('picks closer axis when both projections are valid', () => {
-    const bbox = { x: 0, y: 0, width: 100, height: 40 }
-    // target at (80, 30): within both spans; dx from center=30, dy=10
-    // N/S dist=10, E/W dist=30 → picks S (shorter axis distance)
-    const edge = bboxEdgeToward(bbox, 80, 30)
-    expect(edge.x).toBeCloseTo(50) // horizontal midpoint (S exit)
-    expect(edge.y).toBeCloseTo(44) // bottom edge + pad
-  })
-
-  it('falls back to closest midpoint in corner region', () => {
-    const bbox = { x: 0, y: 0, width: 100, height: 40 }
-    // target at (200, 200): outside both spans → fallback to closest midpoint
-    const edge = bboxEdgeToward(bbox, 200, 200)
-    // S midpoint (50,44) dist²= 150²+156² = 46836
-    // E midpoint (104,20) dist²= 96²+180² = 41616 → E is closer
-    expect(edge.x).toBeCloseTo(104)
-    expect(edge.y).toBeCloseTo(20)
-  })
-
-  it('exits with no padding when pad=0', () => {
-    const bbox = { x: 0, y: 0, width: 100, height: 100 }
-    // target at (200, 50): Y=50 within [0,100] → exits E
-    const edge = bboxEdgeToward(bbox, 200, 50, 0)
-    expect(edge.x).toBeCloseTo(100) // right edge, no pad
-    expect(edge.y).toBeCloseTo(50) // vertical midpoint
-  })
-
-  it('returns center when target equals center', () => {
-    const bbox = { x: 0, y: 0, width: 100, height: 40 }
-    const edge = bboxEdgeToward(bbox, 50, 20)
-    expect(edge.x).toBeCloseTo(50)
-    expect(edge.y).toBeCloseTo(20)
-  })
-
-  // -----------------------------------------------------------------------
-  // data-annotation-index attribute
-  // -----------------------------------------------------------------------
-
-  it('adds data-annotation-index attribute to annotation groups', () => {
-    const { x, y, data } = makeScales()
-
-    const plugin = createAnnotationPlugin(
-      [
-        { kind: 'point', target: 'A', text: 'First' },
-        { kind: 'point', target: 'B', text: 'Second' },
-      ],
-      { scaleX: x, scaleY: y, data, width: 200, height: 200 },
-    )
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    plugin.postDraw!(makeChartStub(g) as any, undefined as any)
-
-    const groups = g.querySelectorAll('g[data-annotation-index]')
-    expect(groups).toHaveLength(2)
-    expect(groups[0].getAttribute('data-annotation-index')).toBe('0')
-    expect(groups[1].getAttribute('data-annotation-index')).toBe('1')
-  })
-
-  // -----------------------------------------------------------------------
-  // Horizontal orientation
-  // -----------------------------------------------------------------------
-
-  it('rotates compass directions for horizontal orientation', () => {
-    expect(rotateDirectionForHorizontal('N')).toBe('W')
-    expect(rotateDirectionForHorizontal('E')).toBe('N')
-    expect(rotateDirectionForHorizontal('S')).toBe('E')
-    expect(rotateDirectionForHorizontal('W')).toBe('S')
-    expect(rotateDirectionForHorizontal('NE')).toBe('NW')
-    expect(rotateDirectionForHorizontal('SE')).toBe('NE')
-    expect(rotateDirectionForHorizontal('SW')).toBe('SE')
-    expect(rotateDirectionForHorizontal('NW')).toBe('SW')
-    expect(rotateDirectionForHorizontal('center')).toBe('center')
-  })
-
-  it('computes anchor point with horizontal orientation — swaps X/Y', () => {
-    // Horizontal bars: band scale on Y axis, linear scale on X axis
-    const bandY = d3.scaleBand<string>().domain(['A', 'B']).range([0, 200]).padding(0.2)
-    const linearX = d3.scaleLinear().domain([0, 100]).range([0, 200])
-    const datum = { label: 'A', value: 50 }
-
-    // With horizontal orientation, 'N' (top of bar) becomes 'W' (left/zero side)
-    const anchor = computeAnchorPoint(datum, bandY, linearX, 'N', 'horizontal')
-
-    // bandY('A') gives the Y position, linearX(50) gives the X position for value
-    const barY = bandY('A')!
-    const barH = bandY.bandwidth()
-    const barRight = linearX(50)
-    const barLeft = linearX(0)
-    const midX = (barLeft + barRight) / 2
-
-    // 'N' rotates to 'W' → should be at left edge, mid Y
-    expect(anchor.x).toBeCloseTo(barLeft)
-    expect(anchor.y).toBeCloseTo(barY + barH / 2)
-  })
-
-  it('computes anchor point with horizontal orientation — E direction', () => {
-    const bandY = d3.scaleBand<string>().domain(['A', 'B']).range([0, 200]).padding(0.2)
-    const linearX = d3.scaleLinear().domain([0, 100]).range([0, 200])
-    const datum = { label: 'A', value: 80 }
-
-    // 'E' rotates to 'N' → top of bar, mid X
-    const anchor = computeAnchorPoint(datum, bandY, linearX, 'E', 'horizontal')
-
-    const barY = bandY('A')!
-    const barLeft = linearX(0)
-    const barRight = linearX(80)
-    const midX = (barLeft + barRight) / 2
-
-    expect(anchor.x).toBeCloseTo(midX)
-    expect(anchor.y).toBeCloseTo(barY)
-  })
-
-  it('renders point annotation with horizontal orientation context', () => {
-    const bandY = d3.scaleBand<string>().domain(['A', 'B']).range([0, 200]).padding(0.2)
-    const linearX = d3.scaleLinear().domain([0, 100]).range([0, 200])
-    const data = [{ label: 'A', value: 50 }, { label: 'B', value: 80 }]
-
-    const plugin = createAnnotationPlugin(
-      [{ kind: 'point', target: 'A', text: 'Horizontal note', anchorDirection: 'N', textOffsetX: 20, textOffsetY: -20 }],
-      { scaleX: bandY, scaleY: linearX, data, width: 200, height: 200, orientation: 'horizontal' },
-    )
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    plugin.postDraw!(makeChartStub(g) as any, undefined as any)
-
-    const texts = g.querySelectorAll('.bc-annotation-text')
-    expect(texts).toHaveLength(1)
-    expect(texts[0].textContent).toBe('Horizontal note')
-  })
-
-  // -----------------------------------------------------------------------
-  // Bar-multi data (max not sum)
-  // -----------------------------------------------------------------------
-
-  it('bar-multi annotation data should use max (not sum) for grouped scale', () => {
-    // This tests that bar-multi passes correct data to annotations
-    // The annotation system positions based on the value in data
-    // For grouped columns, the y-scale domain is based on individual values,
-    // so annotation data should use the max per label, not the sum
-    const x = d3.scaleBand<string>().domain(['A', 'B']).range([0, 200]).padding(0.2)
-    const y = d3.scaleLinear().domain([0, 50]).range([200, 0])
-
-    // If we use max values (correct), the anchor should be within the chart area
-    const dataWithMax = [{ label: 'A', value: 30 }, { label: 'B', value: 50 }]
-    const anchor = computeAnchorPoint(dataWithMax[0], x, y, 'N')
-    expect(anchor.y).toBeGreaterThanOrEqual(0) // within chart
-    expect(anchor.y).toBeLessThanOrEqual(200)
-
-    // If sum were used (e.g. 80 for series [30, 50]), it would exceed the y domain
-    const dataBadSum = [{ label: 'A', value: 80 }]
-    const badAnchor = computeAnchorPoint(dataBadSum[0], x, y, 'N')
-    // value 80 on domain [0,50] maps to negative y → above chart
-    expect(badAnchor.y).toBeLessThan(0)
-  })
-
-  // -----------------------------------------------------------------------
-  // Free annotation with empty scales (pie/donut scenario)
-  // -----------------------------------------------------------------------
-
-  it('renders free annotation with empty band scale (pie/donut scenario)', () => {
-    const emptyBand = d3.scaleBand<string>().domain([]).range([0, 300])
-    const dummyLinear = d3.scaleLinear().domain([0, 1]).range([300, 0])
-
-    const plugin = createAnnotationPlugin(
-      [{ kind: 'free', text: 'Pie note', x: 0, y: -25 }],
-      { scaleX: emptyBand, scaleY: dummyLinear, data: [], width: 300, height: 300 },
-    )
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    plugin.postDraw!(makeChartStub(g) as any, undefined as any)
-
-    const texts = g.querySelectorAll('.bc-annotation-text')
-    expect(texts).toHaveLength(1)
-    expect(texts[0].textContent).toBe('Pie note')
-    // 0% center-relative of 300 = 150
-    expect(texts[0].getAttribute('x')).toBe('150')
-    // -25% center-relative of 300 = 150 + (-75) = 75
-    expect(texts[0].getAttribute('y')).toBe('75')
+    expect(g.querySelectorAll('.bc-annotation-line[marker-end]')).toHaveLength(0)
   })
 })

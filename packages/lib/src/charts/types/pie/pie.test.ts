@@ -1,33 +1,34 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { render } from './pie'
 
-describe('pie chart', () => {
-  let container: HTMLElement
+const DATA = { labels: ['X', 'Y', 'Z'], values: [40, 35, 25] }
 
-  const data = {
-    labels: ['X', 'Y', 'Z'],
-    values: [40, 35, 25],
-  }
+function createContainer(): HTMLElement {
+  const container = document.createElement('div')
+  document.body.appendChild(container)
+  return container
+}
 
-  beforeEach(() => {
-    container = document.createElement('div')
-    document.body.appendChild(container)
-  })
-
+describe('pie chart rendering', () => {
   it('renders arc paths', () => {
-    render(container, data)
+    const container = createContainer()
+    render(container, DATA)
     const arcs = container.querySelectorAll('.bc-arc')
     expect(arcs).toHaveLength(3)
   })
 
   it('creates frame and SVG', () => {
-    render(container, data)
+    const container = createContainer()
+    render(container, DATA)
     expect(container.querySelector('.bc-frame')).not.toBeNull()
     expect(container.querySelector('svg')).not.toBeNull()
   })
+})
 
+describe('pie chart legend', () => {
   it('renders a legend', () => {
-    render(container, data)
+    const container = createContainer()
+    render(container, DATA)
     const items = container.querySelectorAll('.bc-legend-item')
     expect(items).toHaveLength(3)
   })

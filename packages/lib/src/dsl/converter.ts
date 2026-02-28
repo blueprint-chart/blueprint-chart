@@ -12,29 +12,30 @@ export function propertyMap(properties: PropertyNode[]): Map<string, string | nu
  * Extract typed chart-type options from AST properties by using the registry's
  * option definitions to determine the correct type for each key.
  */
+function coerceOptionValue(raw: string | number | boolean, type: string): unknown {
+  if (type === 'colors') {
+    return String(raw).split(',').map(s => s.trim()).filter(Boolean)
+  }
+  if (type === 'boolean') {
+    return raw === 'true' || raw === true
+  }
+  return String(raw)
+}
+
 export function extractChartTypeOptions(
   chartType: string,
   properties: PropertyNode[],
 ): Record<string, unknown> {
   const propMap = propertyMap(properties)
   const defs = getChartOptions(chartType)
-  const supported = new Set(defs.map(d => d.key))
   const opts: Record<string, unknown> = {}
 
   for (const def of defs) {
     const raw = propMap.get(def.key)
-    if (raw === undefined) { continue }
-    if (!supported.has(def.key)) { continue }
-
-    if (def.type === 'colors') {
-      opts[def.key] = String(raw).split(',').map(s => s.trim()).filter(Boolean)
+    if (raw === undefined) {
+      continue
     }
-    else if (def.type === 'boolean') {
-      opts[def.key] = raw === 'true' || raw === true
-    }
-    else {
-      opts[def.key] = String(raw)
-    }
+    opts[def.key] = coerceOptionValue(raw, def.type)
   }
 
   return opts

@@ -99,7 +99,9 @@ export interface CvdIssue {
  * Returns issues only for types where at least one pair falls below the threshold.
  */
 export function checkCvdColors(colors: string[]): CvdIssue[] {
-  if (colors.length < 2) { return [] }
+  if (colors.length < 2) {
+    return []
+  }
   const types: CvdType[] = ['protanopia', 'deuteranopia', 'tritanopia']
   const issues: CvdIssue[] = []
 

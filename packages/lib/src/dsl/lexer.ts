@@ -19,130 +19,144 @@ export type TokenType =
 
 const KEYWORDS = new Set(['chart', 'data', 'highlight', 'step'])
 
-export function tokenize(input: string): Token[] {
-  const tokens: Token[] = []
-  let pos = 0
-  let line = 1
-  let column = 1
+interface LexerState {
+  input: string
+  tokens: Token[]
+  pos: number
+  line: number
+  column: number
+}
 
-  function advance(count = 1): void {
-    for (let i = 0; i < count; i++) {
-      if (input[pos] === '\n') {
-        line++
-        column = 1
-      }
-      else {
-        column++
-      }
-      pos++
-    }
-  }
-
-  function peek(): string {
-    return input[pos] ?? ''
-  }
-
-  function skipWhitespace(): void {
-    while (pos < input.length && /[ \n\r]/.test(input[pos])) {
-      advance()
-    }
-  }
-
-  function readString(): Token {
-    const startLine = line
-    const startColumn = column
-    advance() // skip opening quote
-    let value = ''
-    while (pos < input.length && input[pos] !== '"') {
-      if (input[pos] === '\\') {
-        advance()
-        if (pos >= input.length) {
-          throw new SyntaxError(`Unterminated string at ${startLine}:${startColumn}`)
-        }
-        const escaped = input[pos]
-        if (escaped === '"') { value += '"' }
-        else if (escaped === '\\') { value += '\\' }
-        else if (escaped === 'n') { value += '\n' }
-        else if (escaped === 't') { value += '\t' }
-        else { value += escaped }
-      }
-      else {
-        value += input[pos]
-      }
-      advance()
-    }
-    if (pos >= input.length) {
-      throw new SyntaxError(`Unterminated string at ${startLine}:${startColumn}`)
-    }
-    advance() // skip closing quote
-    return { type: 'string', value, line: startLine, column: startColumn }
-  }
-
-  function readNumber(): Token {
-    const startLine = line
-    const startColumn = column
-    let value = ''
-    while (pos < input.length && /[0-9.]/.test(input[pos])) {
-      value += input[pos]
-      advance()
-    }
-    return { type: 'number', value, line: startLine, column: startColumn }
-  }
-
-  function readIdentifier(): Token {
-    const startLine = line
-    const startColumn = column
-    let value = ''
-    while (pos < input.length && /[a-zA-Z0-9_#-]/.test(input[pos])) {
-      value += input[pos]
-      advance()
-    }
-    const type: TokenType = KEYWORDS.has(value) ? 'keyword' : 'identifier'
-    return { type, value, line: startLine, column: startColumn }
-  }
-
-  while (pos < input.length) {
-    skipWhitespace()
-    if (pos >= input.length) { break }
-
-    const ch = peek()
-    const startLine = line
-    const startColumn = column
-
-    if (ch === '"') {
-      tokens.push(readString())
-    }
-    else if (ch === '{') {
-      tokens.push({ type: 'lbrace', value: '{', line: startLine, column: startColumn })
-      advance()
-    }
-    else if (ch === '}') {
-      tokens.push({ type: 'rbrace', value: '}', line: startLine, column: startColumn })
-      advance()
-    }
-    else if (ch === '=') {
-      tokens.push({ type: 'equals', value: '=', line: startLine, column: startColumn })
-      advance()
-    }
-    else if (ch === '%') {
-      tokens.push({ type: 'percent', value: '%', line: startLine, column: startColumn })
-      advance()
-    }
-    else if (/[0-9]/.test(ch)) {
-      tokens.push(readNumber())
-    }
-    else if (ch === '\t') {
-      tokens.push({ type: 'tab', value: '\t', line: startLine, column: startColumn })
-      advance()
-    }
-    else if (/[a-zA-Z_#]/.test(ch)) {
-      tokens.push(readIdentifier())
+function lexAdvance(s: LexerState, count = 1): void {
+  for (let i = 0; i < count; i++) {
+    if (s.input[s.pos] === '\n') {
+      s.line++
+      s.column = 1
     }
     else {
-      throw new SyntaxError(`Unexpected character '${ch}' at ${startLine}:${startColumn}`)
+      s.column++
     }
+    s.pos++
+  }
+}
+
+function lexSkipWhitespace(s: LexerState): void {
+  while (s.pos < s.input.length && /[ \n\r]/.test(s.input[s.pos])) {
+    lexAdvance(s)
+  }
+}
+
+function resolveEscape(ch: string): string {
+  if (ch === '"') {
+    return '"'
+  }
+  if (ch === '\\') {
+    return '\\'
+  }
+  if (ch === 'n') {
+    return '\n'
+  }
+  if (ch === 't') {
+    return '\t'
+  }
+  return ch
+}
+
+function lexReadString(s: LexerState): Token {
+  const startLine = s.line
+  const startColumn = s.column
+  lexAdvance(s)
+  let value = ''
+  while (s.pos < s.input.length && s.input[s.pos] !== '"') {
+    if (s.input[s.pos] === '\\') {
+      lexAdvance(s)
+      if (s.pos >= s.input.length) {
+        throw new SyntaxError(`Unterminated string at ${startLine}:${startColumn}`)
+      }
+      value += resolveEscape(s.input[s.pos])
+    }
+    else {
+      value += s.input[s.pos]
+    }
+    lexAdvance(s)
+  }
+  if (s.pos >= s.input.length) {
+    throw new SyntaxError(`Unterminated string at ${startLine}:${startColumn}`)
+  }
+  lexAdvance(s)
+  return { type: 'string', value, line: startLine, column: startColumn }
+}
+
+function lexReadNumber(s: LexerState): Token {
+  const startLine = s.line
+  const startColumn = s.column
+  let value = ''
+  while (s.pos < s.input.length && /[0-9.]/.test(s.input[s.pos])) {
+    value += s.input[s.pos]
+    lexAdvance(s)
+  }
+  return { type: 'number', value, line: startLine, column: startColumn }
+}
+
+function lexReadIdentifier(s: LexerState): Token {
+  const startLine = s.line
+  const startColumn = s.column
+  let value = ''
+  while (s.pos < s.input.length && /[a-zA-Z0-9_#-]/.test(s.input[s.pos])) {
+    value += s.input[s.pos]
+    lexAdvance(s)
+  }
+  const type: TokenType = KEYWORDS.has(value) ? 'keyword' : 'identifier'
+  return { type, value, line: startLine, column: startColumn }
+}
+
+function lexSingleChar(s: LexerState, type: TokenType, value: string): Token {
+  const tok: Token = { type, value, line: s.line, column: s.column }
+  lexAdvance(s)
+  return tok
+}
+
+const SINGLE_CHAR_TOKENS: Record<string, TokenType> = {
+  '{': 'lbrace',
+  '}': 'rbrace',
+  '=': 'equals',
+  '%': 'percent',
+  '\t': 'tab',
+}
+
+function lexNextToken(s: LexerState): void {
+  const ch = s.input[s.pos] ?? ''
+  if (ch === '"') {
+    s.tokens.push(lexReadString(s))
+    return
+  }
+  const singleType = SINGLE_CHAR_TOKENS[ch]
+  if (singleType) {
+    s.tokens.push(lexSingleChar(s, singleType, ch))
+    return
+  }
+  if (/[0-9]/.test(ch)) {
+    s.tokens.push(lexReadNumber(s))
+    return
+  }
+  if (/[a-zA-Z_#]/.test(ch)) {
+    s.tokens.push(lexReadIdentifier(s))
+    return
+  }
+  throw new SyntaxError(`Unexpected character '${ch}' at ${s.line}:${s.column}`)
+}
+
+export function tokenize(input: string): Token[] {
+  const s: LexerState = { input, tokens: [], pos: 0, line: 1, column: 1 }
+
+  while (s.pos < input.length) {
+    lexSkipWhitespace(s)
+    if (s.pos >= input.length) {
+      break
+    }
+    lexNextToken(s)
   }
 
-  tokens.push({ type: 'eof', value: '', line, column })
-  return tokens
+  s.tokens.push({ type: 'eof', value: '', line: s.line, column: s.column })
+  return s.tokens
 }
