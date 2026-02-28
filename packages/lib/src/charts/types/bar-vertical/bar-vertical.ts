@@ -76,7 +76,8 @@ export function render(
     .padding(0.2)
 
   const useLog = options.verticalAxis?.scaleType === 'log'
-  const [domainMin, domainMax] = computeLinearDomain(barData.map(d => d.value), options.verticalAxis?.range)
+  // eslint-disable-next-line prefer-const
+  let [domainMin, domainMax] = computeLinearDomain(barData.map(d => d.value), options.verticalAxis?.range)
   // Extend domain to leave room for value labels below negative bars
   if (options.valueLabels && domainMin < 0 && options.verticalAxis?.range?.min == null) {
     const span = domainMax - domainMin
@@ -105,16 +106,19 @@ export function render(
   const chart = new BarVerticalChart(d3.select(chartArea))
   chart.config({ x, y, width, height, colors: options.colors ?? DEFAULT_COLORS, highlights })
   if (options.valueLabels) {
-    chart.use(createValueLabelPlugin({ position: options.valueLabelPosition, orientation: 'vertical' }))
+    chart.use(createValueLabelPlugin({
+      position: options.valueLabelPosition, orientation: 'vertical' }))
   }
   if (options.tooltips) {
     chart.use(createTooltipPlugin())
   }
   if (options.crosshair) {
-    chart.use(createCrosshairPlugin({ width, height, direction: options.crosshairDirection, style: options.crosshairStyle, color: options.crosshairColor }))
+    chart.use(createCrosshairPlugin({
+      width, height, direction: options.crosshairDirection, style: options.crosshairStyle, color: options.crosshairColor }))
   }
   if (options.annotations?.length) {
-    chart.use(createAnnotationPlugin(options.annotations, { scaleX: x, scaleY: y, data: barData, width, height, backgroundColor: resolveBackgroundColor(container) }))
+    chart.use(createAnnotationPlugin(options.annotations, {
+      scaleX: x, scaleY: y, data: barData, width, height, backgroundColor: resolveBackgroundColor(container) }))
   }
   chart.draw(barData)
 }

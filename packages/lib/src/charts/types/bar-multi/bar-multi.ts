@@ -106,7 +106,8 @@ export function render(
     marginOverrides.right = (marginOverrides.right ?? 20) + legendSize.width + 10
   }
   const { chartArea, width, height, margin } = createCanvas(body, marginOverrides)
-  const [domainMin, domainMax] = computeLinearDomain(allValues, options.verticalAxis?.range)
+  // eslint-disable-next-line prefer-const
+  let [domainMin, domainMax] = computeLinearDomain(allValues, options.verticalAxis?.range)
   // Extend domain to leave room for value labels below negative bars
   if (options.valueLabels && domainMin < 0 && options.verticalAxis?.range?.min == null) {
     const span = domainMax - domainMin
@@ -183,7 +184,8 @@ export function render(
     chart.use(createTooltipPlugin())
   }
   if (options.crosshair) {
-    chart.use(createCrosshairPlugin({ width, height, direction: options.crosshairDirection, style: options.crosshairStyle, color: options.crosshairColor }))
+    chart.use(createCrosshairPlugin({
+      width, height, direction: options.crosshairDirection, style: options.crosshairStyle, color: options.crosshairColor }))
   }
   if (options.annotations?.length) {
     const annotationData = data.labels.map((l, i) => ({

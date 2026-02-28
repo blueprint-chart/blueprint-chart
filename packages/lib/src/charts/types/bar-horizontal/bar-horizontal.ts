@@ -71,7 +71,8 @@ export function render(
   }))
 
   const useLog = options.horizontalAxis?.scaleType === 'log'
-  const [domainMin, domainMax] = computeLinearDomain(barData.map(d => d.value), options.horizontalAxis?.range)
+  // eslint-disable-next-line prefer-const
+  let [domainMin, domainMax] = computeLinearDomain(barData.map(d => d.value), options.horizontalAxis?.range)
   // Extend domain to leave room for value labels left of negative bars
   if (options.valueLabels && domainMin < 0 && options.horizontalAxis?.range?.min == null) {
     const span = domainMax - domainMin
@@ -105,16 +106,19 @@ export function render(
   const chart = new BarHorizontalChart(d3.select(chartArea))
   chart.config({ x, y, width, height, colors: options.colors ?? DEFAULT_COLORS, highlights })
   if (options.valueLabels) {
-    chart.use(createValueLabelPlugin({ position: options.valueLabelPosition, orientation: 'horizontal' }))
+    chart.use(createValueLabelPlugin({
+      position: options.valueLabelPosition, orientation: 'horizontal' }))
   }
   if (options.tooltips) {
     chart.use(createTooltipPlugin())
   }
   if (options.crosshair) {
-    chart.use(createCrosshairPlugin({ width, height, direction: options.crosshairDirection, style: options.crosshairStyle, color: options.crosshairColor }))
+    chart.use(createCrosshairPlugin({
+      width, height, direction: options.crosshairDirection, style: options.crosshairStyle, color: options.crosshairColor }))
   }
   if (options.annotations?.length) {
-    chart.use(createAnnotationPlugin(options.annotations, { scaleX: y, scaleY: x, data: barData, width, height, backgroundColor: resolveBackgroundColor(container), orientation: 'horizontal' }))
+    chart.use(createAnnotationPlugin(options.annotations, {
+      scaleX: y, scaleY: x, data: barData, width, height, backgroundColor: resolveBackgroundColor(container), orientation: 'horizontal' }))
   }
   chart.draw(barData)
 }
