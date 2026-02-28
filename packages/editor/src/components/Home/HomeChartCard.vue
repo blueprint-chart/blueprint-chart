@@ -22,10 +22,6 @@
           {{ chart.description }}
         </div>
         <small class="text-muted">
-          <span
-            v-if="chart.chartType"
-            class="badge bg-secondary me-1"
-          >{{ chart.chartType }}</span>
           <span v-if="chart.savedAt">{{ formatDate(chart.savedAt) }}</span>
         </small>
       </div>
