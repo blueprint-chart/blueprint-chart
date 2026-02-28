@@ -97,11 +97,13 @@ export function render(
   if (showLegend && legendPos === 'bottom') marginOverrides.bottom = (marginOverrides.bottom ?? 40) + legendH
   if (showLegend && legendPos === 'left') marginOverrides.left = (marginOverrides.left ?? 50) + legendSize.width + 10
   if (showLegend && legendPos === 'right') marginOverrides.right = (marginOverrides.right ?? 20) + legendSize.width + 10
-  const hasNegative = allValues.some(v => v < 0)
-  if (options.valueLabels && hasNegative) marginOverrides.bottom = Math.max(marginOverrides.bottom ?? 40, 56)
-
   const { chartArea, width, height, margin } = createCanvas(body, marginOverrides)
-  const [domainMin, domainMax] = computeLinearDomain(allValues, options.verticalAxis?.range)
+  let [domainMin, domainMax] = computeLinearDomain(allValues, options.verticalAxis?.range)
+  // Extend domain to leave room for value labels below negative bars
+  if (options.valueLabels && domainMin < 0 && options.verticalAxis?.range?.min == null) {
+    const span = domainMax - domainMin
+    domainMin -= span * 0.1
+  }
 
   // Sort labels by total (sum across series) when sortMode is 'total'
   let sortedLabels = data.labels
