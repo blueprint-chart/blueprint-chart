@@ -14,7 +14,7 @@
       :text="selectedOption?.label ?? ''"
       variant="outline-secondary"
       teleport-to="body"
-      :floating-middleware="[sizeMiddleware]"
+      @shown="matchMenuWidth"
     >
       <template v-if="selectedOption?.icon" #button-content>
         <span class="form-control-dropdown__toggle-content">
@@ -46,16 +46,6 @@ import FormControlDropdownItem from './FormControlDropdownItem.vue'
 import { useChildEntriesProvider } from '../../../composables/useChildEntries'
 import { DropdownEntriesKey } from '../../../composables/injection-keys'
 
-const sizeMiddleware = {
-  name: 'matchReferenceWidth',
-  fn({ rects, elements }: { rects: any, elements: any }) {
-    Object.assign(elements.floating.style, {
-      width: `${rects.reference.width}px`,
-    })
-    return {}
-  },
-}
-
 export interface FormControlDropdownOption {
   value: string
   label: string
@@ -83,7 +73,18 @@ const resolvedOptions = computed(() =>
   entries.value.length > 0 ? entries.value : props.options,
 )
 
-const dropdownRef = useTemplateRef<{ hide: () => void }>('dropdownRef')
+const dropdownRef = useTemplateRef<{ hide: () => void, $el: HTMLElement }>('dropdownRef')
+
+function matchMenuWidth() {
+  const el = dropdownRef.value?.$el
+  if (!el) return
+  const toggle = el.querySelector('.dropdown-toggle') as HTMLElement | null
+  if (!toggle?.id) return
+  const menu = document.getElementById(`${toggle.id}-menu`)
+  if (menu) {
+    menu.style.width = `${toggle.offsetWidth}px`
+  }
+}
 
 const classList = computed(() => ({
   'form-control-dropdown--light-label': props.lightLabel,
@@ -94,7 +95,6 @@ const dropdownClassList = computed(() => ({
 }))
 
 const menuClassList = computed(() => ({
-  'w-100': props.block,
   'form-control-dropdown-menu': true,
 }))
 

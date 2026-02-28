@@ -9,10 +9,10 @@
       ref="dropdownRef"
       class="form-control-palette__toggle"
       toggle-class="d-flex align-items-center"
-      :menu-class="['w-100', 'form-control-dropdown-menu']"
+      :menu-class="['form-control-dropdown-menu']"
       variant="outline-secondary"
       teleport-to="body"
-      :floating-middleware="[sizeMiddleware]"
+      @shown="matchMenuWidth"
     >
       <template #button-content>
         <span class="form-control-palette__preview pe-1">
@@ -50,16 +50,6 @@ import DisplayPalette from '../../Display/DisplayPalette/DisplayPalette.vue'
 import { useChildEntriesProvider } from '../../../composables/useChildEntries'
 import { PaletteEntriesKey } from '../../../composables/injection-keys'
 
-const sizeMiddleware = {
-  name: 'matchReferenceWidth',
-  fn({ rects, elements }: { rects: any, elements: any }) {
-    Object.assign(elements.floating.style, {
-      width: `${rects.reference.width}px`,
-    })
-    return {}
-  },
-}
-
 const model = defineModel<string>({ required: true })
 
 const props = withDefaults(defineProps<{
@@ -75,7 +65,18 @@ const resolvedPalettes = computed(() =>
   entries.value.length > 0 ? entries.value : props.palettes,
 )
 
-const dropdownRef = useTemplateRef<{ hide: () => void }>('dropdownRef')
+const dropdownRef = useTemplateRef<{ hide: () => void, $el: HTMLElement }>('dropdownRef')
+
+function matchMenuWidth() {
+  const el = dropdownRef.value?.$el
+  if (!el) return
+  const toggle = el.querySelector('.dropdown-toggle') as HTMLElement | null
+  if (!toggle?.id) return
+  const menu = document.getElementById(`${toggle.id}-menu`)
+  if (menu) {
+    menu.style.width = `${toggle.offsetWidth}px`
+  }
+}
 
 const selectedPalette = computed(() =>
   resolvedPalettes.value.find(p => p.value === model.value),
