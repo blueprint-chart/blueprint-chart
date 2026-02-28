@@ -266,19 +266,6 @@ function arcPath(cx: number, cy: number, r: number, startAngle: number, endAngle
   return `${x1.toFixed(3)} ${y1.toFixed(3)} A ${r} ${r} 0 ${largeArc} 1 ${x2.toFixed(3)} ${y2.toFixed(3)}`
 }
 
-function renderSlice(
-  cx: number, cy: number, outerR: number, innerR: number,
-  start: number, end: number, sliceAngle: number, color: string,
-): string {
-  const outerArc = arcPath(cx, cy, outerR, start, end)
-  if (innerR > 0) {
-    const ix1 = cx + innerR * Math.cos(end)
-    const iy1 = cy + innerR * Math.sin(end)
-    return `<path d="M ${outerArc} L ${ix1.toFixed(3)} ${iy1.toFixed(3)} A ${innerR} ${innerR} 0 ${sliceAngle > Math.PI ? 1 : 0} 0 ${(cx + innerR * Math.cos(start)).toFixed(3)} ${(cy + innerR * Math.sin(start)).toFixed(3)} Z" fill="${color}"/>`
-  }
-  return `<path d="M ${cx} ${cy} L ${outerArc} Z" fill="${color}"/>`
-}
-
 function renderPieOrDonut(data: ChartData, colors: string[], donut: boolean): string {
   if (data.kind !== 'single') {
     return ''
@@ -296,8 +283,19 @@ function renderPieOrDonut(data: ChartData, colors: string[], donut: boolean): st
   const paths = values.map((v, i) => {
     const sliceAngle = (v / total) * 2 * Math.PI
     const start = angle
-    angle += sliceAngle
-    return renderSlice(cx, cy, outerR, innerR, start, angle, sliceAngle, colors[i % colors.length])
+    const end = angle + sliceAngle
+    angle = end
+
+    if (innerR > 0) {
+      const outerArc = arcPath(cx, cy, outerR, start, end)
+      const ix1 = cx + innerR * Math.cos(end)
+      const iy1 = cy + innerR * Math.sin(end)
+      return `<path d="M ${outerArc} L ${ix1.toFixed(3)} ${iy1.toFixed(3)} A ${innerR} ${innerR} 0 ${sliceAngle > Math.PI ? 1 : 0} 0 ${(cx + innerR * Math.cos(start)).toFixed(3)} ${(cy + innerR * Math.sin(start)).toFixed(3)} Z" fill="${colors[i % colors.length]}"/>`
+    }
+    else {
+      const outerArc = arcPath(cx, cy, outerR, start, end)
+      return `<path d="M ${cx} ${cy} L ${outerArc} Z" fill="${colors[i % colors.length]}"/>`
+    }
   }).join('')
 
   return `<svg viewBox="${CIRC_VB}" xmlns="http://www.w3.org/2000/svg">${paths}</svg>`
