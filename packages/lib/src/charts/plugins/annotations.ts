@@ -537,6 +537,125 @@ function datumCenter(
 // Point annotation
 // ---------------------------------------------------------------------------
 
+type PointLineConfig = {
+  showLine?: boolean
+  showArrow?: boolean
+  lineStyle?: AnnotationLineStyle
+  lineWeight?: number
+  lineTargetDistance?: number
+  showCircle?: boolean
+  circleSize?: number
+  anchorDirection?: CompassDirection
+  textOffsetX?: number
+  textOffsetY?: number
+}
+
+function resolvePointTextPosition(
+  ann: Record<string, unknown>,
+  lineConfig: PointLineConfig,
+  datum: { label: string, value: number },
+  anchor: { x: number, y: number },
+  ctx: AnnotationContext,
+): { tx: number, ty: number } {
+  if (ann.dx != null || ann.dy != null) {
+    const { x: cx, y: cy } = datumCenter(datum, ctx.scaleX, ctx.scaleY)
+    return { tx: cx + (Number(ann.dx) || 40), ty: cy + (Number(ann.dy) || -40) }
+  }
+  if (ann.direction != null && ann.textOffsetX == null) {
+    const { x: cx, y: cy } = datumCenter(datum, ctx.scaleX, ctx.scaleY)
+    const offset = computeDirectionOffset(ann.direction as CompassDirection, (ann.anchorDistance as number | undefined) ?? 60)
+    return { tx: cx + offset.dx, ty: cy + offset.dy }
+  }
+  return {
+    tx: anchor.x + (lineConfig.textOffsetX ?? -42),
+    ty: anchor.y + (lineConfig.textOffsetY ?? -42),
+  }
+}
+
+function computeLineEndpoint(
+  anchor: { x: number, y: number },
+  tx: number, ty: number, ltd: number,
+): { x: number, y: number } {
+  if (ltd <= 0) {
+    return { x: anchor.x, y: anchor.y }
+  }
+  const dx = anchor.x - tx
+  const dy = anchor.y - ty
+  const len = Math.sqrt(dx * dx + dy * dy)
+  if (len === 0) {
+    return { x: anchor.x, y: anchor.y }
+  }
+  return { x: anchor.x - (dx / len) * ltd, y: anchor.y - (dy / len) * ltd }
+}
+
+function computeLineStart(
+  annG: d3.Selection<SVGGElement, unknown, null, undefined>,
+  tx: number, ty: number, to: { x: number, y: number },
+): { start: { x: number, y: number }, departVertical: boolean } {
+  let start = { x: tx, y: ty }
+  let departVertical = false
+  const textNode = annG.select('.bc-annotation-text').node() as SVGTextElement | null
+  if (textNode) {
+    try {
+      const tBBox = textNode.getBBox()
+      if (tBBox.width > 0 && tBBox.height > 0) {
+        start = bboxEdgeToward(tBBox, to.x, to.y)
+        departVertical = Math.abs(start.x - (tBBox.x + tBBox.width / 2)) < 1
+      }
+    }
+    catch { /* getBBox can throw if not in DOM */ }
+  }
+  return { start, departVertical }
+}
+
+function renderPointCircleAndText(
+  annG: d3.Selection<SVGGElement, unknown, null, undefined>,
+  ann: AnnotationConfig,
+  ctx: AnnotationContext,
+  anchor: { x: number, y: number },
+  tx: number, ty: number, lineColor: string,
+): void {
+  const circleConfig = ann as { showCircle?: boolean, circleSize?: number, circleStyle?: StrokeStyle }
+  if (circleConfig.showCircle) {
+    renderTargetCircle(annG, anchor.x, anchor.y, {
+      size: circleConfig.circleSize, style: circleConfig.circleStyle, color: lineColor,
+    })
+  }
+  if (ann.text) {
+    const clampedX = Math.max(4, Math.min(tx, ctx.width - 4))
+    renderAnnotationText(annG, ann.text, clampedX, ty - 4, {
+      textColor: ann.textColor,
+      maxWidth: resolveMaxWidth(ann.maxWidth, ctx.width),
+      textAnchor: inferTextAnchorFromOffset(tx - anchor.x),
+      backgroundColor: ctx.backgroundColor,
+      textOutline: ann.textOutline,
+    })
+  }
+}
+
+function renderPointLine(
+  annG: d3.Selection<SVGGElement, unknown, null, undefined>,
+  legacyAnn: Record<string, unknown>,
+  lineConfig: PointLineConfig,
+  anchor: { x: number, y: number },
+  tx: number, ty: number, lineColor: string,
+): void {
+  const isLegacy = legacyAnn.dx != null || legacyAnn.dy != null
+  const showLine = isLegacy ? (lineConfig.showLine !== false) : (lineConfig.showLine === true)
+  if (!showLine) {
+    return
+  }
+  const ltd = lineConfig.showCircle
+    ? (lineConfig.circleSize ?? 4) + (lineConfig.lineTargetDistance ?? 5)
+    : (lineConfig.lineTargetDistance ?? 0)
+  const to = computeLineEndpoint(anchor, tx, ty, ltd)
+  const { start, departVertical } = computeLineStart(annG, tx, ty, to)
+  renderConnectingLine(annG, start, to, lineConfig.lineStyle ?? 'direct', {
+    showArrow: lineConfig.showArrow, lineWeight: lineConfig.lineWeight,
+    color: lineColor, departVertical,
+  })
+}
+
 function renderPointAnnotation(
   g: d3.Selection<SVGGElement, unknown, null, undefined>,
   ann: AnnotationConfig & { target?: string },
@@ -547,115 +666,20 @@ function renderPointAnnotation(
   if (!target) {
     return
   }
-
   const datum = ctx.data.find(d => d.label === target)
   if (!datum) {
     return
   }
 
   const annG = g.append('g').attr('data-annotation-index', String(index))
-
-  // Compute anchor point on shape
-  const lineConfig = ann as { showLine?: boolean, showArrow?: boolean, lineStyle?: AnnotationLineStyle, lineWeight?: number, lineTargetDistance?: number, showCircle?: boolean, circleSize?: number, anchorDirection?: CompassDirection, textOffsetX?: number, textOffsetY?: number }
-  const anchorDir = lineConfig.anchorDirection ?? 'N'
-  const anchor = computeAnchorPoint(datum, ctx.scaleX, ctx.scaleY, anchorDir, ctx.orientation)
-
-  // Determine text position from textOffsetX/Y, legacy dx/dy, or legacy direction+anchorDistance
-  let tx: number
-  let ty: number
+  const lineConfig = ann as PointLineConfig
+  const anchor = computeAnchorPoint(datum, ctx.scaleX, ctx.scaleY, lineConfig.anchorDirection ?? 'N', ctx.orientation)
   const legacyAnn = ann as Record<string, unknown>
+  const { tx, ty } = resolvePointTextPosition(legacyAnn, lineConfig, datum, anchor, ctx)
+  const lineColor = legacyAnn.circleColor as string | undefined ?? '#666'
 
-  if (legacyAnn.dx != null || legacyAnn.dy != null) {
-    // Legacy dx/dy support
-    const { x: cx, y: cy } = datumCenter(datum, ctx.scaleX, ctx.scaleY)
-    tx = cx + (Number(legacyAnn.dx) || 40)
-    ty = cy + (Number(legacyAnn.dy) || -40)
-  }
-  else if (legacyAnn.direction != null && legacyAnn.textOffsetX == null) {
-    // Legacy direction + anchorDistance → compute text position from center
-    const { x: cx, y: cy } = datumCenter(datum, ctx.scaleX, ctx.scaleY)
-    const direction = legacyAnn.direction as CompassDirection
-    const distance = (legacyAnn.anchorDistance as number | undefined) ?? 60
-    const offset = computeDirectionOffset(direction, distance)
-    tx = cx + offset.dx
-    ty = cy + offset.dy
-  }
-  else {
-    // New: textOffsetX/Y from anchor point
-    tx = anchor.x + (lineConfig.textOffsetX ?? -42)
-    ty = anchor.y + (lineConfig.textOffsetY ?? -42)
-  }
-
-  // Shared line color for line, circle, and arrow
-  const lineColor = (ann as Record<string, unknown>).circleColor as string | undefined ?? '#666'
-
-  // Target circle at anchor point
-  const circleConfig = ann as { showCircle?: boolean, circleSize?: number, circleStyle?: StrokeStyle }
-  if (circleConfig.showCircle) {
-    renderTargetCircle(annG, anchor.x, anchor.y, {
-      size: circleConfig.circleSize,
-      style: circleConfig.circleStyle,
-      color: lineColor,
-    })
-  }
-
-  // Text — render first so we can measure bbox for the line start
-  if (ann.text) {
-    const clampedX = Math.max(4, Math.min(tx, ctx.width - 4))
-    const textAnchor = inferTextAnchorFromOffset(tx - anchor.x)
-    renderAnnotationText(annG, ann.text, clampedX, ty - 4, {
-      textColor: ann.textColor,
-      maxWidth: resolveMaxWidth(ann.maxWidth, ctx.width),
-      textAnchor,
-      backgroundColor: ctx.backgroundColor,
-      textOutline: ann.textOutline,
-    })
-  }
-
-  // Arrow / connecting line — drawn after text so we can use text bbox
-  const isLegacy = legacyAnn.dx != null || legacyAnn.dy != null
-  const showLine = isLegacy ? (lineConfig.showLine !== false) : (lineConfig.showLine === true)
-  if (showLine) {
-    // Shorten line toward anchor by lineTargetDistance
-    const ltd = lineConfig.showCircle
-      ? (lineConfig.circleSize ?? 4) + (lineConfig.lineTargetDistance ?? 5)
-      : (lineConfig.lineTargetDistance ?? 0)
-    let toX = anchor.x
-    let toY = anchor.y
-    if (ltd > 0) {
-      const dx = anchor.x - tx
-      const dy = anchor.y - ty
-      const len = Math.sqrt(dx * dx + dy * dy)
-      if (len > 0) {
-        toX = anchor.x - (dx / len) * ltd
-        toY = anchor.y - (dy / len) * ltd
-      }
-    }
-
-    // Compute line start from text bbox edge toward anchor
-    let lineStart = { x: tx, y: ty }
-    let departVertical = false
-    const textNode = annG.select('.bc-annotation-text').node() as SVGTextElement | null
-    if (textNode) {
-      try {
-        const tBBox = textNode.getBBox()
-        if (tBBox.width > 0 && tBBox.height > 0) {
-          lineStart = bboxEdgeToward(tBBox, toX, toY)
-          // N/S exit → vertical departure for elbow
-          const bboxCx = tBBox.x + tBBox.width / 2
-          departVertical = Math.abs(lineStart.x - bboxCx) < 1
-        }
-      }
-      catch { /* getBBox can throw if not in DOM */ }
-    }
-
-    renderConnectingLine(annG, lineStart, { x: toX, y: toY }, lineConfig.lineStyle ?? 'direct', {
-      showArrow: lineConfig.showArrow,
-      lineWeight: lineConfig.lineWeight,
-      color: lineColor,
-      departVertical,
-    })
-  }
+  renderPointCircleAndText(annG, ann, ctx, anchor, tx, ty, lineColor)
+  renderPointLine(annG, legacyAnn, lineConfig, anchor, tx, ty, lineColor)
 }
 
 // ---------------------------------------------------------------------------
