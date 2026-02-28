@@ -43,11 +43,11 @@ const { chartType, selectedColumn } = useChartConfig()
 const dataTable = useDataTable()
 
 const chartTypeOptions = [
-  { value: 'bar-vertical', label: 'Bar (Vertical)', description: 'Compare values across categories', visual: markRaw(BarVerticalThumb) },
-  { value: 'bar-horizontal', label: 'Bar (Horizontal)', description: 'Compare values with long labels', visual: markRaw(BarHorizontalThumb) },
-  { value: 'bar-multi', label: 'Bar (Multi)', description: 'Compare multiple series side by side', visual: markRaw(BarMultiThumb) },
+  { value: 'bar-vertical', label: 'Columns', description: 'Compare values across categories', visual: markRaw(BarVerticalThumb) },
+  { value: 'bar-horizontal', label: 'Bars', description: 'Compare values with long labels', visual: markRaw(BarHorizontalThumb) },
+  { value: 'bar-multi', label: 'Grouped Columns', description: 'Compare multiple series side by side', visual: markRaw(BarMultiThumb) },
   { value: 'line', label: 'Line', description: 'Show trends over time', visual: markRaw(LineThumb) },
-  { value: 'line-multi', label: 'Line (Multi)', description: 'Compare trends across series', visual: markRaw(LineMultiThumb) },
+  { value: 'line-multi', label: 'Lines', description: 'Compare trends across series', visual: markRaw(LineMultiThumb) },
   { value: 'donut', label: 'Donut', description: 'Show proportions with a center space', visual: markRaw(DonutThumb) },
   { value: 'pie', label: 'Pie', description: 'Show parts of a whole', visual: markRaw(PieThumb) },
 ]
