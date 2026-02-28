@@ -35,6 +35,7 @@ export default [
     },
     rules: {
       'curly': ['error', 'all'],
+      'max-lines-per-function': ['error', { max: 25, skipBlankLines: true, skipComments: true }],
       '@stylistic/comma-dangle': ['error', 'always-multiline'],
     },
   },
