@@ -62,6 +62,8 @@ export function render(
   const containerWidth = body.getBoundingClientRect().width
   const vLabelW = estimateCategoryLabelWidth(data.labels)
   const lpMargins = labelPositionMargins(containerWidth, options.verticalAxis?.labelPosition, options.horizontalAxis?.labelPosition, options.verticalAxis?.direction, vLabelW)
+  const hasNegative = data.values.some(v => v < 0)
+  if (options.valueLabels && hasNegative) lpMargins.left = Math.max(lpMargins.left ?? 0, 70)
   const { chartArea, width, height, margin } = createCanvas(body, lpMargins)
 
   const labels = sortLabels(data, options)
