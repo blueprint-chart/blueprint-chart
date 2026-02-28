@@ -11,8 +11,9 @@
 </template>
 
 <script setup lang="ts">
+import { onBeforeRouteLeave } from 'vue-router'
 import { useWizard } from '@/composables/useWizard'
-import { useChartThumbnail } from '@/composables/useChartThumbnail'
+import { generateThumbnail } from '@/composables/useChartThumbnail'
 import WizardToolbar from './WizardToolbar.vue'
 import DataUploadPanel from '@/components/DataUpload/DataUploadPanel.vue'
 import DataCheckPanel from '@/components/DataCheck/DataCheckPanel.vue'
@@ -20,7 +21,10 @@ import ChartEditPanel from '@/components/ChartEdit/ChartEditPanel.vue'
 import PublishPanel from '@/components/Publish/PublishPanel.vue'
 
 const { currentStep } = useWizard()
-useChartThumbnail()
+
+onBeforeRouteLeave(() => {
+  generateThumbnail()
+})
 </script>
 
 <style scoped lang="scss">
