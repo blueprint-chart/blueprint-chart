@@ -12,6 +12,13 @@ export type {
   FrameOptions,
   AreaFillConfig,
   AnnotationConfig,
+  PointAnnotationConfig,
+  RangeAnchor,
+  RangeAnnotationConfig,
+  FreeAnnotationConfig,
+  CompassDirection,
+  AnnotationLineStyle,
+  StrokeStyle,
   LineSymbolConfig,
   SeriesOverride,
   Margin,
@@ -44,7 +51,7 @@ export type { CvdType, CvdIssue } from './charts/colorblind'
 export { parse } from './dsl/parser'
 export { serialize, compactSerialize } from './dsl/serializer'
 export { propertyMap, extractChartTypeOptions, dataEntriesToString } from './dsl/converter'
-export type { AnnotationNode, AreaFillNode, ChartNode, DataNode, HighlightNode, PropertyNode, SeriesNode, StepNode } from './dsl/types'
+export type { AnnotationNode, PointAnnotationNode, RangeAnnotationNode, FreeAnnotationNode, AreaFillNode, ChartNode, DataNode, HighlightNode, PropertyNode, SeriesNode, StepNode } from './dsl/types'
 
 // Samples
 export { samples } from './samples'

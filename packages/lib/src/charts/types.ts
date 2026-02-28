@@ -48,13 +48,60 @@ export interface AreaFillConfig {
   interpolation?: string
 }
 
-export interface AnnotationConfig {
-  target: string
-  text: string
-  dx?: number
-  dy?: number
-  showArrow?: boolean
+export type CompassDirection = 'NW' | 'N' | 'NE' | 'E' | 'SE' | 'S' | 'SW' | 'W' | 'center'
+export type AnnotationLineStyle = 'direct' | 'curve-left' | 'curve-right' | 'elbow'
+export type StrokeStyle = 'solid' | 'dotted' | 'dashed'
+
+interface AnnotationBase {
+  text?: string
+  textColor?: string
+  textOutline?: boolean
+  maxWidth?: number | string
 }
+
+interface AnnotationLineConfig {
+  anchorDirection?: CompassDirection
+  textOffsetX?: number
+  textOffsetY?: number
+  showLine?: boolean
+  lineStyle?: AnnotationLineStyle
+  lineWeight?: number
+  showArrow?: boolean
+  lineTargetDistance?: number
+  showCircle?: boolean
+  circleSize?: number
+  circleStyle?: StrokeStyle
+  circleColor?: string
+}
+
+export interface PointAnnotationConfig extends AnnotationBase, AnnotationLineConfig {
+  kind: 'point'
+  text: string
+  target: string
+}
+
+export type RangeAnchor = 'start' | 'center' | 'end'
+
+export interface RangeAnnotationConfig extends AnnotationBase {
+  kind: 'range'
+  orientation?: 'vertical' | 'horizontal'
+  direction?: CompassDirection
+  start: number | string
+  end: number | string
+  startAnchor?: RangeAnchor
+  endAnchor?: RangeAnchor
+  bgOpacity?: number
+  bgColor?: string
+}
+
+export interface FreeAnnotationConfig extends AnnotationBase {
+  kind: 'free'
+  text: string
+  x: number | string
+  y: number | string
+}
+
+export type AnnotationConfig = PointAnnotationConfig | RangeAnnotationConfig | FreeAnnotationConfig
 
 export interface LineSymbolConfig {
   symbol?: 'circle' | 'square' | 'diamond' | 'triangle' | 'triangleDown' | 'cross' | 'star'
