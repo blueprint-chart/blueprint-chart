@@ -9,6 +9,7 @@ const state = reactive({
   viewMode: 'preview' as ViewMode,
   floatingPosition: { x: -1, y: 16 },
   floatingSize: { width: 340, height: 500 },
+  pendingAnnotationIndex: null as number | null,
 })
 
 let lastOpenMode: 'docked' | 'floating' = 'docked'
@@ -50,6 +51,11 @@ function selectTab(tab: string) {
   }
 }
 
+function selectAnnotation(index: number) {
+  state.pendingAnnotationIndex = index
+  selectTab('annotate')
+}
+
 function setViewMode(mode: ViewMode) {
   state.viewMode = mode
 }
@@ -60,6 +66,7 @@ function reset() {
   state.viewMode = 'preview'
   state.floatingPosition = { x: -1, y: 16 }
   state.floatingSize = { width: 340, height: 500 }
+  state.pendingAnnotationIndex = null
   lastOpenMode = 'docked'
 }
 
@@ -71,6 +78,7 @@ export function useEditorPanel() {
     collapse,
     toggleMode,
     selectTab,
+    selectAnnotation,
     setViewMode,
     reset,
   }

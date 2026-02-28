@@ -122,7 +122,7 @@ export function renderThumbnailFromPayload(payload: {
   return renderThumbnailSvg(chartConfig.chartType, data, typeOpts, chartConfig.sort)
 }
 
-function generateThumbnail(
+function generateThumbnailWith(
   config: ReturnType<typeof useChartConfig>,
   currentOptions: { value: Partial<ChartTypeOptions> },
   sessionId: { value: string },
@@ -141,13 +141,20 @@ function generateThumbnail(
   }
 }
 
+export function generateThumbnail() {
+  const config = useChartConfig()
+  const { currentOptions } = useChartTypeOptions()
+  const { sessionId } = useChartSession()
+  generateThumbnailWith(config, currentOptions, sessionId)
+}
+
 export function useChartThumbnail() {
   const config = useChartConfig()
   const { currentOptions } = useChartTypeOptions()
   const { sessionId } = useChartSession()
 
   const throttledGenerate = useThrottleFn(
-    () => generateThumbnail(config, currentOptions, sessionId),
+    () => generateThumbnailWith(config, currentOptions, sessionId),
     THROTTLE_MS,
   )
 
