@@ -157,11 +157,6 @@ const cardStyle = computed<CSSProperties>(() => {
 
   &--narrow {
     flex-direction: column;
-
-    :deep(.navigation-icon-rail) {
-      z-index: 1060;
-      position: relative;
-    }
   }
 }
 
