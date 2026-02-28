@@ -1,10 +1,12 @@
-import { ref, watchEffect } from 'vue'
+import { watch } from 'vue'
+import { useStorage, useMediaQuery } from '@vueuse/core'
 
 export type ThemeMode = 'light' | 'dark' | 'auto'
 
 const STORAGE_KEY = 'blueprint-chart-theme'
 
-const theme = ref<ThemeMode>((localStorage.getItem(STORAGE_KEY) as ThemeMode) ?? 'light')
+const theme = useStorage<ThemeMode>(STORAGE_KEY, 'light')
+const prefersDark = useMediaQuery('(prefers-color-scheme: dark)')
 
 function applyTheme(mode: ThemeMode): void {
   let resolved: 'light' | 'dark' = 'light'
@@ -12,21 +14,18 @@ function applyTheme(mode: ThemeMode): void {
     resolved = 'dark'
   }
   else if (mode === 'auto') {
-    resolved = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+    resolved = prefersDark.value ? 'dark' : 'light'
   }
   document.documentElement.setAttribute('data-bs-theme', resolved)
 }
 
-// Listen to system preference changes
-const mql = window.matchMedia('(prefers-color-scheme: dark)')
-mql.addEventListener('change', () => {
+watch(prefersDark, () => {
   if (theme.value === 'auto') applyTheme('auto')
 })
 
-watchEffect(() => {
-  localStorage.setItem(STORAGE_KEY, theme.value)
-  applyTheme(theme.value)
-})
+watch(theme, (mode) => {
+  applyTheme(mode)
+}, { immediate: true })
 
 export function useTheme() {
   function cycleTheme(): void {

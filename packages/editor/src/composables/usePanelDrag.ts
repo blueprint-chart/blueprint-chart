@@ -1,4 +1,5 @@
-import { onMounted, onUnmounted, type Ref } from 'vue'
+import { type Ref } from 'vue'
+import { useEventListener } from '@vueuse/core'
 
 export interface DragPosition {
   x: number
@@ -51,17 +52,9 @@ export function usePanelDrag(
     isDragging = false
   }
 
-  onMounted(() => {
-    headerRef.value?.addEventListener('mousedown', onMouseDown)
-    document.addEventListener('mousemove', onMouseMove)
-    document.addEventListener('mouseup', onMouseUp)
-  })
-
-  onUnmounted(() => {
-    headerRef.value?.removeEventListener('mousedown', onMouseDown)
-    document.removeEventListener('mousemove', onMouseMove)
-    document.removeEventListener('mouseup', onMouseUp)
-  })
+  useEventListener(headerRef, 'mousedown', onMouseDown)
+  useEventListener(document, 'mousemove', onMouseMove)
+  useEventListener(document, 'mouseup', onMouseUp)
 
   return { isDragging }
 }

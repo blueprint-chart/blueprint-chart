@@ -61,7 +61,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { ref, computed, watch } from 'vue'
+import { onClickOutside } from '@vueuse/core'
 import { useRoute, useRouter } from 'vue-router'
 import { BFormInput } from 'bootstrap-vue-next'
 import { ButtonIcon } from '@blueprint-chart/ui'
@@ -110,14 +111,9 @@ watch(() => route.path, () => {
 })
 
 // Dismiss on click outside
-function onDocumentClick(e: globalThis.MouseEvent) {
-  if (searchContainer.value && !searchContainer.value.contains(e.target as globalThis.Node)) {
-    searchQuery.value = ''
-  }
-}
-
-onMounted(() => document.addEventListener('click', onDocumentClick))
-onUnmounted(() => document.removeEventListener('click', onDocumentClick))
+onClickOutside(searchContainer, () => {
+  searchQuery.value = ''
+})
 </script>
 
 <style scoped lang="scss">
