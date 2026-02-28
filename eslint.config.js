@@ -40,6 +40,6 @@ export default [
     },
   },
   {
-    ignores: ['**/dist/**', '**/node_modules/**', 'packages/lib/src/dsl/grammar.js'],
+    ignores: ['**/dist/**', '**/node_modules/**', '.claude/**', 'packages/lib/src/dsl/grammar.js'],
   },
 ]
