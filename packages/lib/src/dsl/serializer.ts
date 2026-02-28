@@ -107,7 +107,7 @@ function serializeStep(step: StepNode, indent: string): string {
 function isDefaultValue(key: string, value: string | number, chartType: string): boolean {
   const optionDefs = getChartOptions(chartType)
   const def = optionDefs.find(d => d.key === key)
-  if (!def || def.default === undefined) return false
+  if (!def || def.default === undefined) { return false }
   return String(def.default) === String(value)
 }
 

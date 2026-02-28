@@ -40,10 +40,10 @@ class VerticalAxisChart extends D3Blueprint<AxisDatum[]> {
           }
 
           const ticks = this.config('ticks') as number[] | null
-          if (ticks) axisFn.tickValues(ticks as (string & d3.NumberValue)[])
+          if (ticks) { axisFn.tickValues(ticks as (string & d3.NumberValue)[]) }
 
           const fmt = this.config('numberFormat') as string | null
-          if (fmt) axisFn.tickFormat(d3.format(fmt) as (d: string | d3.NumberValue) => string)
+          if (fmt) { axisFn.tickFormat(d3.format(fmt) as (d: string | d3.NumberValue) => string) }
 
           sel.call(axisFn)
 
@@ -93,7 +93,7 @@ class VerticalAxisChart extends D3Blueprint<AxisDatum[]> {
               if (!domain.empty()) {
                 const currentD = domain.attr('d') as string
                 const extended = currentD.replace(/V[\d.]+/, `V${-topPadding}`)
-                if (extended !== currentD) domain.attr('d', extended)
+                if (extended !== currentD) { domain.attr('d', extended) }
               }
             }
           }
@@ -116,7 +116,7 @@ class VerticalAxisChart extends D3Blueprint<AxisDatum[]> {
     const gridWidth = this.config('gridWidth') as number
     const direction = this.config('direction') as string
     const g = this.base.select('.bc-axis-vertical').node() as SVGGElement
-    if (!g) return
+    if (!g) { return }
 
     if (gridStyle !== 'none' && gridWidth > 0) {
       // When axis is on the right, grid lines extend leftward

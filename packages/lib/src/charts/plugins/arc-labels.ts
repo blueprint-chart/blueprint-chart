@@ -28,8 +28,8 @@ const HORIZONTAL_SEG = 20
  * clamped within [top, bottom].
  */
 export function spreadLabels(naturalYs: number[], top: number, bottom: number, gap: number = LABEL_GAP): number[] {
-  if (naturalYs.length === 0) return []
-  if (naturalYs.length === 1) return [Math.max(top, Math.min(bottom, naturalYs[0]))]
+  if (naturalYs.length === 0) { return [] }
+  if (naturalYs.length === 1) { return [Math.max(top, Math.min(bottom, naturalYs[0]))] }
 
   const ys = [...naturalYs]
 
@@ -39,14 +39,14 @@ export function spreadLabels(naturalYs: number[], top: number, bottom: number, g
         ys[i] = ys[i - 1] + gap
       }
     }
-    if (ys[ys.length - 1] > bottom) ys[ys.length - 1] = bottom
+    if (ys[ys.length - 1] > bottom) { ys[ys.length - 1] = bottom }
 
     for (let i = ys.length - 2; i >= 0; i--) {
       if (ys[i + 1] - ys[i] < gap) {
         ys[i] = ys[i + 1] - gap
       }
     }
-    if (ys[0] < top) ys[0] = top
+    if (ys[0] < top) { ys[0] = top }
   }
 
   return ys
@@ -81,7 +81,7 @@ export function renderArcLabels(
   }
 
   function renderSide(side: (ArcLabelDatum & { midAngle: number })[], isRight: boolean) {
-    if (side.length === 0) return
+    if (side.length === 0) { return }
 
     // Sort by angle (ascending)
     side.sort((a, b) => a.midAngle - b.midAngle)
@@ -100,7 +100,7 @@ export function renderArcLabels(
     side.forEach((p, i) => {
       const showLabel = p.showLabel !== false
       const showValue = p.showValue !== false
-      if (!showLabel && !showValue) return
+      if (!showLabel && !showValue) { return }
 
       // The spread angle determines the label position
       const labelAng = resolvedAngs[i]
@@ -175,11 +175,11 @@ export function renderInsideArcLabels(
 
   for (const d of data) {
     const span = d.endAngle - d.startAngle
-    if (span < MIN_INSIDE_ANGLE) continue
+    if (span < MIN_INSIDE_ANGLE) { continue }
 
     const showLabel = d.showLabel !== false
     const showValue = d.showValue !== false
-    if (!showLabel && !showValue) continue
+    if (!showLabel && !showValue) { continue }
 
     const midAngle = (d.startAngle + d.endAngle) / 2 - Math.PI / 2
     const cx = Math.cos(midAngle) * centroidR
@@ -255,7 +255,7 @@ export function renderAutoArcLabels(
  * from centre; we need room for the text itself beyond that.
  */
 export function estimateArcLabelMargins(labels: string[], outerRadius: number): { left: number, right: number, top: number, bottom: number } {
-  if (labels.length === 0) return { left: 0, right: 0, top: 0, bottom: 0 }
+  if (labels.length === 0) { return { left: 0, right: 0, top: 0, bottom: 0 } }
   const maxLen = Math.max(...labels.map(l => l.length))
   // Distance from centre to text column + text gap + text width
   const extension = STUB_LENGTH + HORIZONTAL_SEG + 6 + 4 + maxLen * 7 + 6

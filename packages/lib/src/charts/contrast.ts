@@ -20,8 +20,8 @@ export function wcagContrastRatio(fg: string, bg: string): number {
  * AAA ≥ 7, AA ≥ 4.5, otherwise Fail.
  */
 export function wcagLevel(ratio: number): 'AAA' | 'AA' | 'Fail' {
-  if (ratio >= 7) return 'AAA'
-  if (ratio >= 4.5) return 'AA'
+  if (ratio >= 7) { return 'AAA' }
+  if (ratio >= 4.5) { return 'AA' }
   return 'Fail'
 }
 
@@ -51,13 +51,13 @@ export function resolveBackgroundColor(el?: Element | null): string {
  */
 export function readableColor(color: string, bg: string = '#fff'): string {
   let c = chroma(color)
-  if (chroma.contrast(c, bg) >= MIN_CONTRAST) return c.hex()
+  if (chroma.contrast(c, bg) >= MIN_CONTRAST) { return c.hex() }
 
   // Decide direction: darken if bg is light, lighten if bg is dark
   const bgLight = chroma(bg).luminance() > 0.5
   for (let i = 0; i < 20; i++) {
     c = bgLight ? c.darken(0.3) : c.brighten(0.3)
-    if (chroma.contrast(c, bg) >= MIN_CONTRAST) break
+    if (chroma.contrast(c, bg) >= MIN_CONTRAST) { break }
   }
   return c.hex()
 }
@@ -75,7 +75,7 @@ const MAX_STEPS = 20
  * Only lightness is changed — hue and saturation are preserved.
  */
 export function adjustColorsForBackground(colors: string[], bg: string): string[] {
-  if (colors.length === 0) return []
+  if (colors.length === 0) { return [] }
 
   const bgLight = chroma(bg).luminance() > 0.5
 
@@ -84,7 +84,7 @@ export function adjustColorsForBackground(colors: string[], bg: string): string[
 
   // Pass 2 – nudge adjacent colors apart when they are too similar
   for (let i = 1; i < adjusted.length; i++) {
-    if (chroma.deltaE(adjusted[i], adjusted[i - 1]) >= MIN_ADJACENT_DELTA_E) continue
+    if (chroma.deltaE(adjusted[i], adjusted[i - 1]) >= MIN_ADJACENT_DELTA_E) { continue }
     adjusted[i] = nudgeApart(adjusted[i], adjusted[i - 1], bg, bgLight)
   }
 
@@ -94,7 +94,7 @@ export function adjustColorsForBackground(colors: string[], bg: string): string[
 /** Darken or brighten `c` until it meets MIN_CONTRAST against `bg`. */
 function nudgeForBg(c: chroma.Color, bg: string, bgLight: boolean): chroma.Color {
   for (let i = 0; i < MAX_STEPS; i++) {
-    if (chroma.contrast(c, bg) >= MIN_CONTRAST) return c
+    if (chroma.contrast(c, bg) >= MIN_CONTRAST) { return c }
     c = bgLight ? c.darken(STEP) : c.brighten(STEP)
   }
   return c
@@ -113,7 +113,7 @@ function nudgeApart(
   bgLight: boolean,
 ): chroma.Color {
   const primary = tryNudgeApart(c, neighbor, bg, bgLight)
-  if (chroma.deltaE(primary, neighbor) >= MIN_ADJACENT_DELTA_E) return primary
+  if (chroma.deltaE(primary, neighbor) >= MIN_ADJACENT_DELTA_E) { return primary }
 
   const opposite = tryNudgeApart(c, neighbor, bg, !bgLight)
   if (
@@ -142,7 +142,7 @@ function tryNudgeApart(
       best = candidate
       bestDist = dist
     }
-    if (bestDist >= MIN_ADJACENT_DELTA_E) break
+    if (bestDist >= MIN_ADJACENT_DELTA_E) { break }
   }
 
   return best

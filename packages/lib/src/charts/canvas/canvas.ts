@@ -75,7 +75,7 @@ export function estimateVerticalLabelWidth(
     : scale.tickFormat()
 
   const labels = ticks.map(t => fmt(t))
-  if (labels.length === 0) return 0
+  if (labels.length === 0) { return 0 }
 
   try {
     const canvas = document.createElement('canvas')
@@ -85,7 +85,7 @@ export function estimateVerticalLabelWidth(
       let maxW = 0
       for (const label of labels) {
         const w = ctx.measureText(label).width
-        if (w > maxW) maxW = w
+        if (w > maxW) { maxW = w }
       }
       return Math.ceil(maxW) + LABEL_PADDING + D3_AXIS_LABEL_OFFSET
     }
@@ -101,7 +101,7 @@ export function estimateVerticalLabelWidth(
  * Estimate the pixel width of the widest string label (for band/category axes).
  */
 export function estimateCategoryLabelWidth(labels: string[]): number {
-  if (labels.length === 0) return 0
+  if (labels.length === 0) { return 0 }
   try {
     const canvas = document.createElement('canvas')
     const ctx = canvas.getContext('2d')
@@ -110,7 +110,7 @@ export function estimateCategoryLabelWidth(labels: string[]): number {
       let maxW = 0
       for (const label of labels) {
         const w = ctx.measureText(label).width
-        if (w > maxW) maxW = w
+        if (w > maxW) { maxW = w }
       }
       return Math.ceil(maxW) + LABEL_PADDING + D3_AXIS_LABEL_OFFSET
     }

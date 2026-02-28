@@ -4,7 +4,7 @@ import { computePosition, flip, offset, shift } from '@floating-ui/dom'
 const TOOLTIP_CLASS = 'bc-tooltip'
 
 function ensureStyles(): void {
-  if (document.getElementById('bc-tooltip-styles')) return
+  if (document.getElementById('bc-tooltip-styles')) { return }
   const style = document.createElement('style')
   style.id = 'bc-tooltip-styles'
   style.textContent = `
@@ -47,7 +47,7 @@ export interface ProximityOptions {
 }
 
 function defaultFormat(p: ProximityPoint): string {
-  if (p.series) return `${p.series} – ${p.label}: ${p.value}`
+  if (p.series) { return `${p.series} – ${p.label}: ${p.value}` }
   return `${p.label}: ${p.value}`
 }
 
@@ -72,7 +72,7 @@ export function setupProximityInteraction(
     format = defaultFormat,
   } = options
 
-  if (points.length === 0) return () => {}
+  if (points.length === 0) { return () => {} }
 
   const dashArray = crosshairStyle === 'solid' ? '' : crosshairStyle === 'dotted' ? '2,2' : '4,3'
 
@@ -136,7 +136,7 @@ export function setupProximityInteraction(
     .attr('pointer-events', 'all')
 
   function findNearest(mouseX: number, mouseY: number): ProximityPoint | null {
-    if (xPositions.length === 0) return null
+    if (xPositions.length === 0) { return null }
 
     // Find nearest x-column via bisection
     const bisect = d3.bisectCenter(xPositions, mouseX)
@@ -144,7 +144,7 @@ export function setupProximityInteraction(
 
     // Among points at that x, find closest by y
     const candidates = points.filter(p => p.cx === nearestX)
-    if (candidates.length === 0) return null
+    if (candidates.length === 0) { return null }
 
     let best = candidates[0]
     let bestDist = Math.abs(candidates[0].cy - mouseY)
@@ -161,7 +161,7 @@ export function setupProximityInteraction(
   const onMove = (event: MouseEvent) => {
     const [mouseX, mouseY] = d3.pointer(event, chartArea)
     const nearest = findNearest(mouseX, mouseY)
-    if (!nearest) return
+    if (!nearest) { return }
 
     highlightDot
       .attr('cx', nearest.cx)
@@ -178,21 +178,21 @@ export function setupProximityInteraction(
         placement: 'top',
         middleware: [offset(8), flip(), shift()],
       }).then(({ x, y }) => {
-        if (!tooltipEl) return
+        if (!tooltipEl) { return }
         tooltipEl.style.left = `${x}px`
         tooltipEl.style.top = `${y}px`
       })
     }
 
-    if (vLine) vLine.attr('x1', nearest.cx).attr('x2', nearest.cx).style('display', null)
-    if (hLine) hLine.attr('y1', nearest.cy).attr('y2', nearest.cy).style('display', null)
+    if (vLine) { vLine.attr('x1', nearest.cx).attr('x2', nearest.cx).style('display', null) }
+    if (hLine) { hLine.attr('y1', nearest.cy).attr('y2', nearest.cy).style('display', null) }
   }
 
   const onLeave = () => {
     highlightDot.style('display', 'none')
-    if (tooltipEl) tooltipEl.style.display = 'none'
-    if (vLine) vLine.style('display', 'none')
-    if (hLine) hLine.style('display', 'none')
+    if (tooltipEl) { tooltipEl.style.display = 'none' }
+    if (vLine) { vLine.style('display', 'none') }
+    if (hLine) { hLine.style('display', 'none') }
   }
 
   const overlayNode = overlay.node()!
@@ -208,7 +208,7 @@ export function setupProximityInteraction(
       tooltipEl.remove()
       tooltipEl = null
     }
-    if (vLine) vLine.remove()
-    if (hLine) hLine.remove()
+    if (vLine) { vLine.remove() }
+    if (hLine) { hLine.remove() }
   }
 }

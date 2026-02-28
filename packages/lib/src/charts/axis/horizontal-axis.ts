@@ -38,7 +38,7 @@ function buildTickFormatter(
       labels.forEach((l, i) => dateMap.set(l, detected.dates[i]))
       return (d: string | d3.NumberValue) => {
         // For time scales, d is a Date; for band scales, d is a string label
-        if (d instanceof Date) return timeFmt(d)
+        if (d instanceof Date) { return timeFmt(d) }
         const date = dateMap.get(String(d))
         return date ? timeFmt(date) : String(d)
       }
@@ -58,7 +58,7 @@ function buildTickFormatter(
     const dateMap = new Map<string, Date>()
     labels.forEach((l, i) => dateMap.set(l, detected.dates[i]))
     return (d: string | d3.NumberValue) => {
-      if (d instanceof Date) return timeFmt(d)
+      if (d instanceof Date) { return timeFmt(d) }
       const date = dateMap.get(String(d))
       return date ? timeFmt(date) : String(d)
     }
@@ -68,9 +68,9 @@ function buildTickFormatter(
 }
 
 function thinLabels(domain: string[], availableWidth: number): string[] {
-  if (domain.length <= 1) return domain
+  if (domain.length <= 1) { return domain }
   const maxLabels = Math.max(2, Math.floor(availableWidth / MIN_LABEL_SPACING))
-  if (domain.length <= maxLabels) return domain
+  if (domain.length <= maxLabels) { return domain }
   const step = Math.ceil(domain.length / maxLabels)
   const thinned: string[] = []
   for (let i = 0; i < domain.length; i += step) {
@@ -138,12 +138,12 @@ class HorizontalAxisChart extends D3Blueprint<AxisDatum[]> {
             }
           }
 
-          if (ticks) axisFn.tickValues(ticks)
+          if (ticks) { axisFn.tickValues(ticks) }
 
           const fmt = this.config('numberFormat') as string | null
           const labels = this.config('labels') as string[]
           const formatter = buildTickFormatter(fmt, labels)
-          if (formatter) axisFn.tickFormat(formatter)
+          if (formatter) { axisFn.tickFormat(formatter) }
 
           const translateY = position === 'above' ? 0 : height
           sel.attr('transform', `translate(0,${translateY})`)
@@ -187,7 +187,7 @@ class HorizontalAxisChart extends D3Blueprint<AxisDatum[]> {
     const gridStyle = this.config('gridStyle') as string
     const height = this.config('height') as number
     const g = this.base.select('.bc-axis-horizontal').node() as SVGGElement
-    if (!g) return
+    if (!g) { return }
 
     if (gridStyle !== 'none' && height > 0) {
       applyGridLines(g, gridStyle, height)

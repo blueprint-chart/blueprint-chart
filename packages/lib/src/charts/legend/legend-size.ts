@@ -3,7 +3,7 @@ export function estimateLegendSize(
   position: string,
   availableWidth?: number,
 ): { width: number, height: number } {
-  if (labels.length === 0) return { width: 0, height: 0 }
+  if (labels.length === 0) { return { width: 0, height: 0 } }
   const isVertical = position === 'left' || position === 'right'
   if (isVertical) {
     const maxLen = Math.max(...labels.map(l => l.length))
@@ -36,7 +36,7 @@ export function estimateLegendSize(
 }
 
 export function estimateDirectLabelWidth(labels: string[]): number {
-  if (labels.length === 0) return 0
+  if (labels.length === 0) { return 0 }
   const maxLen = Math.max(...labels.map(l => l.length))
   // ~7px per char + 6px gap from line endpoint
   return maxLen * 7 + 10

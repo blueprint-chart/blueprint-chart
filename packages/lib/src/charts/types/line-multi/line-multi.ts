@@ -178,11 +178,11 @@ export function render(
   const lpMargins = labelPositionMargins(containerWidth, options.verticalAxis?.labelPosition, options.horizontalAxis?.labelPosition, options.verticalAxis?.direction, vLabelW)
 
   const marginOverrides: Record<string, number> = { ...lpMargins }
-  if (showLegend && legendPos === 'top') marginOverrides.top = (marginOverrides.top ?? 20) + legendH
-  if (showLegend && legendPos === 'bottom') marginOverrides.bottom = (marginOverrides.bottom ?? 40) + legendH
-  if (showLegend && legendPos === 'left') marginOverrides.left = (marginOverrides.left ?? 50) + legendSize.width + 10
-  if (showLegend && legendPos === 'right') marginOverrides.right = (marginOverrides.right ?? 20) + legendSize.width + 10
-  if (directLabelW > 0) marginOverrides.right = (marginOverrides.right ?? 20) + directLabelW
+  if (showLegend && legendPos === 'top') { marginOverrides.top = (marginOverrides.top ?? 20) + legendH }
+  if (showLegend && legendPos === 'bottom') { marginOverrides.bottom = (marginOverrides.bottom ?? 40) + legendH }
+  if (showLegend && legendPos === 'left') { marginOverrides.left = (marginOverrides.left ?? 50) + legendSize.width + 10 }
+  if (showLegend && legendPos === 'right') { marginOverrides.right = (marginOverrides.right ?? 20) + legendSize.width + 10 }
+  if (directLabelW > 0) { marginOverrides.right = (marginOverrides.right ?? 20) + directLabelW }
 
   const { chartArea, width, height, margin } = createCanvas(body, marginOverrides)
 
@@ -291,7 +291,7 @@ export function render(
   // Per-series value labels: render directly so we control which series gets them
   const vlGroup = d3.select(clippedArea).append('g').attr('class', 'bc-value-labels')
   dotData.forEach((dot) => {
-    if (!resolveSeriesValueLabels(dot.series, globalValueLabels, overrides)) return
+    if (!resolveSeriesValueLabels(dot.series, globalValueLabels, overrides)) { return }
     const cx = xPos(data.labels.indexOf(dot.label))
     const cy = y(dot.value) as number
     vlGroup.append('text')
@@ -383,7 +383,7 @@ export function render(
   const labelCount = data.labels.length
   series.forEach((s, si) => {
     const resolved = resolveSeriesLineSymbols(s.name, globalSymbolOverride, overrides)
-    if (!resolved) return
+    if (!resolved) { return }
 
     const perSeriesSymbolConfig: LineSymbolConfig = {
       symbol: (resolved.symbolShape as LineSymbolConfig['symbol']) ?? symbolConfig?.symbol ?? 'circle',
@@ -410,7 +410,7 @@ export function render(
   const directLabelEntries: { name: string, index: number, naturalY: number, text: string }[] = []
   series.forEach((s, i) => {
     const seriesLabelMode = resolveSeriesLabelMode(s.name, globalLabelMode, overrides)
-    if (seriesLabelMode !== 'direct') return
+    if (seriesLabelMode !== 'direct') { return }
     const lastValue = s.values[lastLabelIdx]
     const labelText = overrides?.find(o => o.name === s.name)?.labelText || s.name
     directLabelEntries.push({ name: s.name, index: i, naturalY: y(lastValue) as number, text: labelText })
@@ -449,10 +449,10 @@ export function render(
 
     let xLegendPos = 0
     let yPos = 0
-    if (legendPos === 'top') yPos = -(legendSize.height + 5)
-    else if (legendPos === 'bottom') yPos = height + 25
-    else if (legendPos === 'left') xLegendPos = -(legendSize.width + 10)
-    else if (legendPos === 'right') xLegendPos = width + 10
+    if (legendPos === 'top') { yPos = -(legendSize.height + 5) }
+    else if (legendPos === 'bottom') { yPos = height + 25 }
+    else if (legendPos === 'left') { xLegendPos = -(legendSize.width + 10) }
+    else if (legendPos === 'right') { xLegendPos = width + 10 }
     renderLegend(chartArea, legendSeriesNames, legendColors, yPos, legendPos, legendAnchor, width, height, xLegendPos)
   }
 }
@@ -471,7 +471,7 @@ function renderAreaFills(
   for (const fill of fills) {
     const fromSeries = series.find(s => s.name === fill.from)
     const toSeries = series.find(s => s.name === fill.to)
-    if (!fromSeries || !toSeries) continue
+    if (!fromSeries || !toSeries) { continue }
 
     const fillCurve = fill.interpolation ? resolveCurve(fill.interpolation) : curve
     const opacity = (fill.opacity ?? 30) / 100

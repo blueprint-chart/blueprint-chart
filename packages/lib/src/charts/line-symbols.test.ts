@@ -32,7 +32,7 @@ describe('renderLineSymbols', () => {
   let g: SVGGElement
 
   beforeEach(() => {
-    while (document.body.firstChild) document.body.removeChild(document.body.firstChild)
+    while (document.body.firstChild) { document.body.removeChild(document.body.firstChild) }
     svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
     g = document.createElementNS('http://www.w3.org/2000/svg', 'g')
     svg.appendChild(g)

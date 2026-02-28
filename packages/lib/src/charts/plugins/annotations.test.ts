@@ -18,7 +18,7 @@ describe('createAnnotationPlugin', () => {
   }
 
   beforeEach(() => {
-    while (document.body.firstChild) document.body.removeChild(document.body.firstChild)
+    while (document.body.firstChild) { document.body.removeChild(document.body.firstChild) }
     svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
     g = document.createElementNS('http://www.w3.org/2000/svg', 'g')
     svg.appendChild(g)
@@ -409,15 +409,15 @@ describe('createAnnotationPlugin', () => {
     // target at (200, 20): Y=20 is within [0,40] → can exit E or W; X>cx → E
     const edge = bboxEdgeToward(bbox, 200, 20)
     expect(edge.x).toBeCloseTo(104) // right edge + 4px pad
-    expect(edge.y).toBeCloseTo(20)  // vertical midpoint
+    expect(edge.y).toBeCloseTo(20) // vertical midpoint
   })
 
   it('exits from S when target is below within horizontal span', () => {
     const bbox = { x: 0, y: 0, width: 100, height: 40 }
     // target at (50, 200): X=50 is within [0,100] → can exit N or S; Y>cy → S
     const edge = bboxEdgeToward(bbox, 50, 200)
-    expect(edge.x).toBeCloseTo(50)  // horizontal midpoint
-    expect(edge.y).toBeCloseTo(44)  // bottom edge + 4px pad
+    expect(edge.x).toBeCloseTo(50) // horizontal midpoint
+    expect(edge.y).toBeCloseTo(44) // bottom edge + 4px pad
   })
 
   it('picks closer axis when both projections are valid', () => {
@@ -425,8 +425,8 @@ describe('createAnnotationPlugin', () => {
     // target at (80, 30): within both spans; dx from center=30, dy=10
     // N/S dist=10, E/W dist=30 → picks S (shorter axis distance)
     const edge = bboxEdgeToward(bbox, 80, 30)
-    expect(edge.x).toBeCloseTo(50)  // horizontal midpoint (S exit)
-    expect(edge.y).toBeCloseTo(44)  // bottom edge + pad
+    expect(edge.x).toBeCloseTo(50) // horizontal midpoint (S exit)
+    expect(edge.y).toBeCloseTo(44) // bottom edge + pad
   })
 
   it('falls back to closest midpoint in corner region', () => {
@@ -444,7 +444,7 @@ describe('createAnnotationPlugin', () => {
     // target at (200, 50): Y=50 within [0,100] → exits E
     const edge = bboxEdgeToward(bbox, 200, 50, 0)
     expect(edge.x).toBeCloseTo(100) // right edge, no pad
-    expect(edge.y).toBeCloseTo(50)  // vertical midpoint
+    expect(edge.y).toBeCloseTo(50) // vertical midpoint
   })
 
   it('returns center when target equals center', () => {

@@ -46,7 +46,7 @@ function getProp(ast: ChartNode, key: string): string {
 }
 
 function extractTsv(ast: ChartNode): string {
-  if (!ast.data) return ''
+  if (!ast.data) { return '' }
   const entries = ast.data.entries
   const seriesEntry = entries.find((e: PropertyNode) => e.key === '_series')
 
@@ -68,7 +68,7 @@ function extractTsv(ast: ChartNode): string {
 }
 
 function extractSerialized(ast: ChartNode): string {
-  if (!ast.data) return ''
+  if (!ast.data) { return '' }
   const entries = ast.data.entries
   const seriesEntry = entries.find((e: PropertyNode) => e.key === '_series')
 

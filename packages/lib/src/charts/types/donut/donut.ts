@@ -119,10 +119,10 @@ export function renderArc(
   const legendH = showLegend ? legendSize.height + 10 : 0
 
   const marginOverrides: Record<string, number> = {}
-  if (showLegend && legendPos === 'top') marginOverrides.top = 20 + legendH
-  if (showLegend && legendPos === 'bottom') marginOverrides.bottom = 40 + legendH
-  if (showLegend && legendPos === 'left') marginOverrides.left = 50 + legendSize.width + 10
-  if (showLegend && legendPos === 'right') marginOverrides.right = 20 + legendSize.width + 10
+  if (showLegend && legendPos === 'top') { marginOverrides.top = 20 + legendH }
+  if (showLegend && legendPos === 'bottom') { marginOverrides.bottom = 40 + legendH }
+  if (showLegend && legendPos === 'left') { marginOverrides.left = 50 + legendSize.width + 10 }
+  if (showLegend && legendPos === 'right') { marginOverrides.right = 20 + legendSize.width + 10 }
 
   // For direct labels we need to know the approximate outerRadius to estimate
   // margins, but radius depends on margins.  Use a two-pass approach: estimate
@@ -163,7 +163,7 @@ export function renderArc(
 
   const chart = new ArcChart(centerGroup)
   chart.config({ arc: arcGen, colorScale, labels })
-  if (options.tooltips) chart.use(createTooltipPlugin())
+  if (options.tooltips) { chart.use(createTooltipPlugin()) }
   chart.draw(pieData)
 
   // Render annotations at chartArea level (not centerGroup) so coordinates
@@ -233,10 +233,10 @@ export function renderArc(
   if (showLegend) {
     let xPos = 0
     let yPos = 0
-    if (legendPos === 'top') yPos = -(legendSize.height + 5)
-    else if (legendPos === 'bottom') yPos = height + 25
-    else if (legendPos === 'left') xPos = -(legendSize.width + 10)
-    else if (legendPos === 'right') xPos = width + 10
+    if (legendPos === 'top') { yPos = -(legendSize.height + 5) }
+    else if (legendPos === 'bottom') { yPos = height + 25 }
+    else if (legendPos === 'left') { xPos = -(legendSize.width + 10) }
+    else if (legendPos === 'right') { xPos = width + 10 }
     renderLegend(chartArea, labels, colors, yPos, legendPos, legendAnchor, width, height, xPos, legendSuffixes)
   }
 }

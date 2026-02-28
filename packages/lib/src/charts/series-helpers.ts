@@ -21,7 +21,7 @@ export function resolveSeriesWidth(name: string, overrides?: SeriesOverride[]): 
 
 export function resolveSeriesInterpolation(name: string, globalInterpolation: string, overrides?: SeriesOverride[]): string {
   const override = findOverride(name, overrides)
-  if (!override?.interpolation || override.interpolation === 'global') return globalInterpolation
+  if (!override?.interpolation || override.interpolation === 'global') { return globalInterpolation }
   return override.interpolation
 }
 
@@ -32,13 +32,13 @@ export function isSeriesHidden(name: string, overrides?: SeriesOverride[]): bool
 
 export function resolveSeriesLabelMode(name: string, globalMode: string, overrides?: SeriesOverride[]): string {
   const override = findOverride(name, overrides)
-  if (!override?.labelMode || override.labelMode === 'global') return globalMode
+  if (!override?.labelMode || override.labelMode === 'global') { return globalMode }
   return override.labelMode
 }
 
 export function resolveSeriesValueLabels(name: string, globalValueLabels: boolean, overrides?: SeriesOverride[]): boolean {
   const override = findOverride(name, overrides)
-  if (override?.valueLabels !== undefined) return override.valueLabels
+  if (override?.valueLabels !== undefined) { return override.valueLabels }
   return globalValueLabels
 }
 
@@ -49,7 +49,7 @@ export function resolveSeriesOpacity(name: string, overrides?: SeriesOverride[])
 
 export function resolveSeriesLineSymbols(name: string, globalConfig: SeriesOverride | undefined, overrides?: SeriesOverride[]): SeriesOverride | undefined {
   const override = findOverride(name, overrides)
-  if (override?.lineSymbols === false) return undefined
+  if (override?.lineSymbols === false) { return undefined }
   if (override?.lineSymbols === true || globalConfig) {
     return {
       name,

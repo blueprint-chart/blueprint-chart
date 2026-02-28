@@ -87,7 +87,7 @@ class LegendChart extends D3Blueprint<string[]> {
 
 function setupLegendHighlight(chartArea: SVGGElement): void {
   const legendItems = d3.select(chartArea).selectAll<SVGGElement, unknown>('.bc-legend-item')
-  if (legendItems.empty()) return
+  if (legendItems.empty()) { return }
 
   let hoverTimer: ReturnType<typeof setTimeout> | null = null
   let activeIndex: number | null = null
@@ -127,7 +127,7 @@ function setupLegendHighlight(chartArea: SVGGElement): void {
     const seriesIndex = parseInt(d3.select(el).attr('data-series') ?? '0', 10)
 
     el.addEventListener('mouseenter', () => {
-      if (hoverTimer) clearTimeout(hoverTimer)
+      if (hoverTimer) { clearTimeout(hoverTimer) }
       hoverTimer = setTimeout(() => highlight(seriesIndex), getTransitionDuration(HOVER_DELAY))
     })
 
@@ -136,7 +136,7 @@ function setupLegendHighlight(chartArea: SVGGElement): void {
         clearTimeout(hoverTimer)
         hoverTimer = null
       }
-      if (activeIndex !== null) restore()
+      if (activeIndex !== null) { restore() }
     })
   })
 }
@@ -196,12 +196,12 @@ export function renderLegend(
     let tx = xOffset
     let ty = yOffset
     if (layout === 'horizontal') {
-      if (anchor === 'middle') tx += (chartWidth - legendWidth) / 2
-      else if (anchor === 'end') tx += chartWidth - legendWidth
+      if (anchor === 'middle') { tx += (chartWidth - legendWidth) / 2 }
+      else if (anchor === 'end') { tx += chartWidth - legendWidth }
     }
     else {
-      if (anchor === 'middle') ty += (chartHeight - legendHeight) / 2
-      else if (anchor === 'end') ty += chartHeight - legendHeight
+      if (anchor === 'middle') { ty += (chartHeight - legendHeight) / 2 }
+      else if (anchor === 'end') { ty += chartHeight - legendHeight }
     }
     legendEl.setAttribute('transform', `translate(${tx},${ty})`)
   }
