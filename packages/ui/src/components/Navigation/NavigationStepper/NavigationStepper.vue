@@ -5,42 +5,36 @@
   >
     <slot />
     <template
-      v-for="(step, i) in resolvedSteps"
+      v-for="(step, i) in visibleSteps"
       :key="i"
     >
-      <div
-        v-if="i > 0"
-        class="navigation-stepper__connector"
-        :class="connectorClassList(i)"
-      />
-      <ButtonIcon
-        :label="step.label"
-        variant="link"
+      <button
         class="navigation-stepper__step"
-        :class="stepClassList(i)"
-        :aria-current="i === currentStepModel ? 'step' : undefined"
-        :disabled="isStepDisabled(i)"
-        hide-tooltip
-        @click="onStepClick(i)"
+        :class="stepClassList(step.originalIndex)"
+        :aria-current="step.originalIndex === currentStepModel ? 'step' : undefined"
+        :disabled="isStepDisabled(step.originalIndex)"
+        @click="onStepClick(step.originalIndex)"
       >
-        <template #start>
-          <span class="navigation-stepper__num">{{ i + 1 }}</span>
-        </template>
-      </ButtonIcon>
+        <component
+          :is="step.icon"
+          v-if="step.icon"
+          class="navigation-stepper__icon"
+        />
+        {{ step.label }}
+      </button>
     </template>
   </nav>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import ButtonIcon from '../../Button/ButtonIcon/ButtonIcon.vue'
+import { type Component, computed } from 'vue'
 import { useChildEntriesProvider } from '../../../composables/useChildEntries'
 import { StepperEntriesKey } from '../../../composables/injection-keys'
 
 const currentStepModel = defineModel<number>('currentStep', { required: true })
 
 const props = withDefaults(defineProps<{
-  steps?: { label: string }[]
+  steps?: { label: string, icon?: Component }[]
   disabledSteps?: number[]
 }>(), {
   steps: () => [],
@@ -52,6 +46,18 @@ const resolvedSteps = computed(() =>
   entries.value.length > 0 ? entries.value : props.steps,
 )
 
+// Deduplicate consecutive steps with the same label, keeping the first occurrence
+const visibleSteps = computed(() => {
+  const result: { label: string, icon?: Component, originalIndex: number }[] = []
+  for (let i = 0; i < resolvedSteps.value.length; i++) {
+    const step = resolvedSteps.value[i]
+    if (result.length === 0 || result[result.length - 1].label !== step.label) {
+      result.push({ label: step.label, icon: (step as { icon?: Component }).icon, originalIndex: i })
+    }
+  }
+  return result
+})
+
 function isStepDisabled(i: number) {
   return props.disabledSteps.includes(i)
 }
@@ -62,14 +68,19 @@ function onStepClick(i: number) {
   }
 }
 
-function connectorClassList(i: number) {
-  return { 'navigation-stepper__connector--done': i <= currentStepModel.value }
-}
-
 function stepClassList(i: number) {
+  const visibleStep = visibleSteps.value.find(s => s.originalIndex === i)
+  const nextVisible = visibleSteps.value[visibleSteps.value.indexOf(visibleStep!) + 1]
+  const isCurrent = nextVisible
+    ? currentStepModel.value >= i && currentStepModel.value < nextVisible.originalIndex
+    : currentStepModel.value >= i
+  const isDone = nextVisible
+    ? currentStepModel.value >= nextVisible.originalIndex
+    : false
+
   return {
-    'navigation-stepper__step--done': i < currentStepModel.value,
-    'navigation-stepper__step--current': i === currentStepModel.value,
+    'navigation-stepper__step--done': isDone,
+    'navigation-stepper__step--current': isCurrent,
     'navigation-stepper__step--disabled': isStepDisabled(i),
   }
 }
@@ -80,70 +91,49 @@ function stepClassList(i: number) {
   display: flex;
   align-items: center;
   gap: 0;
+  background: var(--bs-tertiary-bg);
+  border-radius: 999px;
+  padding: 0.125rem;
 }
 
 .navigation-stepper__step {
-  &.btn {
-    display: flex;
-    align-items: center;
-    gap: 0.375rem;
-    background: none;
-    border: none;
-    padding: 0.25rem 0.5rem;
-    cursor: pointer;
-    color: var(--bs-secondary-color);
-    font-size: 0.8125rem;
-    border-radius: var(--bs-border-radius);
-    transition: color 0.15s ease;
-    text-decoration: none;
-  }
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  background: none;
+  border: none;
+  padding: 0.25rem 0.75rem;
+  cursor: pointer;
+  color: var(--bs-secondary-color);
+  font-size: 0.8125rem;
+  border-radius: 999px;
+  transition: color 0.15s ease, background 0.15s ease;
+  white-space: nowrap;
 
-  &--done.btn {
-    color: var(--bs-primary);
-  }
-
-  &--current.btn {
+  &:hover:not(:disabled) {
     color: var(--bs-body-color);
-    font-weight: 600;
   }
 
-  &--disabled.btn {
+  &--done {
+    color: var(--bs-secondary-color);
+  }
+
+  &--current {
+    color: var(--bs-white, #fff);
+    font-weight: 600;
+    background: var(--bs-primary);
+  }
+
+  &--disabled {
     opacity: 0.4;
     cursor: not-allowed;
     pointer-events: none;
   }
 }
 
-.navigation-stepper__num {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  font-size: 0.6875rem;
-  font-weight: 600;
-  border: 1.5px solid currentColor;
-
-  .navigation-stepper__step--done & {
-    background: var(--bs-primary);
-    border-color: var(--bs-primary);
-    color: var(--bs-body-bg);
-  }
-
-  .navigation-stepper__step--current & {
-    border-color: var(--bs-body-color);
-  }
-}
-
-.navigation-stepper__connector {
-  width: 24px;
-  height: 1.5px;
-  background: var(--bs-border-color);
+.navigation-stepper__icon {
+  width: 1em;
+  height: 1em;
   flex-shrink: 0;
-
-  &--done {
-    background: var(--bs-primary);
-  }
 }
 </style>

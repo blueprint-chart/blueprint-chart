@@ -30,12 +30,6 @@ describe('Stepper', () => {
     expect(wrapper.emitted('update:currentStep')).toEqual([[2]])
   })
 
-  it('renders connectors between steps (count = steps.length - 1)', () => {
-    const wrapper = mount(Stepper, { props: { steps, currentStep: 0 } })
-    const connectors = wrapper.findAll('.navigation-stepper__connector')
-    expect(connectors).toHaveLength(steps.length - 1)
-  })
-
   it('applies disabled class to disabled steps', () => {
     const wrapper = mount(Stepper, { props: { steps, currentStep: 0, disabledSteps: [2, 3] } })
     const stepEls = wrapper.findAll('.navigation-stepper__step')
@@ -50,6 +44,21 @@ describe('Stepper', () => {
     const stepEls = wrapper.findAll('.navigation-stepper__step')
     await stepEls[2].trigger('click')
     expect(wrapper.emitted('update:currentStep')).toBeUndefined()
+  })
+
+  it('deduplicates consecutive steps with the same label', () => {
+    const dupeSteps = [
+      { label: 'Data' },
+      { label: 'Data' },
+      { label: 'Visualize' },
+      { label: 'Export' },
+    ]
+    const wrapper = mount(Stepper, { props: { steps: dupeSteps, currentStep: 0 } })
+    const stepEls = wrapper.findAll('.navigation-stepper__step')
+    expect(stepEls).toHaveLength(3)
+    expect(stepEls[0].text()).toBe('Data')
+    expect(stepEls[1].text()).toBe('Visualize')
+    expect(stepEls[2].text()).toBe('Export')
   })
 })
 
@@ -83,12 +92,5 @@ describe('Stepper (slot entries)', () => {
     const stepEls = wrapper.findAll('.navigation-stepper__step')
     await stepEls[2].trigger('click')
     expect(wrapper.emitted('update:currentStep')).toEqual([[2]])
-  })
-
-  it('renders connectors between slot entries', async () => {
-    const wrapper = mountWithSlots(0)
-    await nextTick()
-    const connectors = wrapper.findAll('.navigation-stepper__connector')
-    expect(connectors).toHaveLength(3)
   })
 })
