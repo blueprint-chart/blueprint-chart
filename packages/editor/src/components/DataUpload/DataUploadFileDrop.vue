@@ -9,7 +9,7 @@
   >
     <IconPhUploadSimple class="fs-1 text-muted mb-2" />
     <p class="mb-1">
-      Drag & drop a CSV or TSV file here
+      Drag & drop a CSV, TSV, or BPC file here
     </p>
     <p class="text-muted small">
       or click to browse
@@ -17,7 +17,7 @@
     <input
       ref="fileInput"
       type="file"
-      accept=".csv,.tsv,.txt"
+      accept=".csv,.tsv,.txt,.bpc"
       class="d-none"
       @change="onFileSelect"
     >
@@ -27,7 +27,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 
-const emit = defineEmits<{ loaded: [content: string] }>()
+const emit = defineEmits<{ loaded: [content: string], bpc: [content: string] }>()
 
 const fileInput = ref<globalThis.HTMLInputElement | null>(null)
 const dragging = ref(false)
@@ -36,11 +36,15 @@ const classList = computed(() => ({
   'border-primary bg-primary bg-opacity-10': dragging.value,
 }))
 
+function isBpcFile(file: globalThis.File): boolean {
+  return file.name.toLowerCase().endsWith('.bpc')
+}
+
 function readFile(file: globalThis.File) {
   const reader = new globalThis.FileReader()
   reader.onload = () => {
     if (typeof reader.result === 'string') {
-      emit('loaded', reader.result)
+      emit(isBpcFile(file) ? 'bpc' : 'loaded', reader.result)
     }
   }
   reader.readAsText(file)
