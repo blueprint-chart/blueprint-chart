@@ -17,6 +17,7 @@ class LegendChart extends D3Blueprint<string[]> {
     this.configDefine('yOffset', { defaultValue: -10 })
     this.configDefine('layout', { defaultValue: 'horizontal' })
     this.configDefine('valueSuffixes', { defaultValue: [] as string[] })
+    this.configDefine('maxWidth', { defaultValue: 0 })
 
     const g = this.base.append('g').attr('class', 'bc-legend')
 
@@ -31,10 +32,21 @@ class LegendChart extends D3Blueprint<string[]> {
           const suffixes = this.config('valueSuffixes') as string[]
           const rootEl = (this.base.node() as SVGElement)?.ownerSVGElement?.parentElement ?? document.documentElement
           const textColor = getComputedStyle(rootEl).getPropertyValue('--bc-text-color').trim() || '#555'
+          const maxWidth = this.config('maxWidth') as number
           let xOffset = 0
           let yOffset = 0
           sel.each(function (this: SVGGElement, d: string, i: number) {
             const item = d3.select(this)
+            const suffix = suffixes[i]
+            const fullLen = suffix ? d.length + 1 + suffix.length : d.length
+            const itemWidth = 16 + fullLen * 7 + 12
+
+            // Wrap to next row if item exceeds available width
+            if (layout === 'horizontal' && maxWidth > 0 && xOffset > 0 && xOffset + itemWidth > maxWidth) {
+              xOffset = 0
+              yOffset += 20
+            }
+
             item
               .attr('transform', `translate(${xOffset},${yOffset})`)
               .attr('data-series', i)
@@ -43,7 +55,6 @@ class LegendChart extends D3Blueprint<string[]> {
               .attr('width', 12)
               .attr('height', 12)
               .attr('fill', colors[i % colors.length])
-            const suffix = suffixes[i]
             const textEl = item.append('text')
               .attr('x', 16)
               .attr('y', 10)
@@ -56,12 +67,11 @@ class LegendChart extends D3Blueprint<string[]> {
             else {
               textEl.text(d)
             }
-            const fullLen = suffix ? d.length + 1 + suffix.length : d.length
             if (layout === 'vertical') {
               yOffset += 20
             }
             else {
-              xOffset += 16 + fullLen * 7 + 12
+              xOffset += itemWidth
             }
           })
         },
@@ -145,7 +155,7 @@ export function renderLegend(
 ): SVGGElement {
   const layout = (position === 'left' || position === 'right') ? 'vertical' : 'horizontal'
   const chart = new LegendChart(d3.select(chartArea))
-  chart.config({ colors, yOffset, layout, valueSuffixes })
+  chart.config({ colors, yOffset, layout, valueSuffixes, maxWidth: chartWidth })
   chart.draw(labels)
 
   const legendEl = chartArea.querySelector('.bc-legend') as SVGGElement
@@ -158,8 +168,24 @@ export function renderLegend(
       return s ? l.length + 1 + s.length : l.length
     })
     if (layout === 'horizontal') {
-      legendWidth = fullLens.reduce((sum, len) => sum + 16 + len * 7 + 12, 0)
-      legendHeight = 16
+      const itemWidths = fullLens.map(len => 16 + len * 7 + 12)
+      // Account for wrapping
+      let rows = 1
+      let rowWidth = 0
+      let maxRowWidth = 0
+      for (const w of itemWidths) {
+        if (chartWidth > 0 && rowWidth > 0 && rowWidth + w > chartWidth) {
+          maxRowWidth = Math.max(maxRowWidth, rowWidth)
+          rows++
+          rowWidth = w
+        }
+        else {
+          rowWidth += w
+        }
+      }
+      maxRowWidth = Math.max(maxRowWidth, rowWidth)
+      legendWidth = maxRowWidth
+      legendHeight = rows * 20
     }
     else {
       const maxLen = Math.max(...fullLens)
