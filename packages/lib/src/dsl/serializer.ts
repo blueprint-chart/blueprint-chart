@@ -47,7 +47,26 @@ function serializeAreaFill(areaFill: AreaFillNode, indent: string): string {
 }
 
 function serializeAnnotation(annotation: AnnotationNode, indent: string): string {
-  const lines = [`${indent}annotation "${annotation.target}" {`]
+  const kind = annotation.kind ?? 'point'
+  if (kind === 'range') {
+    const lines = [`${indent}range {`]
+    for (const prop of annotation.properties) {
+      lines.push(serializeProperty(prop, `${indent}  `))
+    }
+    lines.push(`${indent}}`)
+    return lines.join('\n')
+  }
+  if (kind === 'free') {
+    const lines = [`${indent}note {`]
+    for (const prop of annotation.properties) {
+      lines.push(serializeProperty(prop, `${indent}  `))
+    }
+    lines.push(`${indent}}`)
+    return lines.join('\n')
+  }
+  // point (default)
+  const target = 'target' in annotation ? annotation.target : ''
+  const lines = [`${indent}annotation "${target}" {`]
   for (const prop of annotation.properties) {
     lines.push(serializeProperty(prop, `${indent}  `))
   }
