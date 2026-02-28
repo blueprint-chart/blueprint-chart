@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils'
-import { defineComponent, h, nextTick } from 'vue'
+import { h, nextTick } from 'vue'
 import FormControlButtonGroup from './FormControlButtonGroup.vue'
 import FormControlButtonGroupEntry from './FormControlButtonGroupEntry.vue'
 

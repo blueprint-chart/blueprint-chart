@@ -27,7 +27,6 @@ describe('Stepper step states', () => {
     await wrapper.findAll('.navigation-stepper__step')[2].trigger('click')
     expect(wrapper.emitted('update:currentStep')).toEqual([[2]])
   })
-
 })
 
 describe('Stepper disabled steps', () => {
@@ -80,5 +79,4 @@ describe('Stepper slot entry interaction', () => {
     await wrapper.findAll('.navigation-stepper__step')[2].trigger('click')
     expect(wrapper.emitted('update:currentStep')).toEqual([[2]])
   })
-
 })
