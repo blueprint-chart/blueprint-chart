@@ -7,7 +7,7 @@ export const CHART_CSS = `
 .bc-frame-footer-left > :not(:first-child)::before { content: "·"; margin-right: 0.5rem; color: #888; }
 .bc-frame-note { font-style: italic; color: #888; font-size: 0.75rem; margin: 0.5rem 0 0; }
 .bc-frame-byline, .bc-frame-source { color: #888; font-size: 0.75rem; }
-.bc-frame-credit { font-size: 0.75rem; font-weight: 600; color: #666; }
+.bc-frame-credit { font-size: 0.75rem; font-weight: 600; color: #666; display: inline-flex; align-items: center; }
 .bc-frame-source-link { color: inherit; text-decoration: underline; }
 .blueprint-chart-error { color: red; padding: 1em; border: 1px solid red; }
 body { margin: 0; overflow: hidden; }
