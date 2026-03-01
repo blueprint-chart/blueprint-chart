@@ -91,7 +91,7 @@ function stepClassList(i: number) {
   display: flex;
   align-items: center;
   gap: 0;
-  background: var(--bs-tertiary-bg);
+  background: var(--bs-border-color);
   border-radius: 999px;
   padding: 0.125rem;
 }
@@ -104,18 +104,18 @@ function stepClassList(i: number) {
   border: none;
   padding: 0.25rem 0.75rem;
   cursor: pointer;
-  color: var(--bs-secondary-color);
+  color: var(--bs-body-color);
   font-size: 0.8125rem;
   border-radius: 999px;
   transition: color 0.15s ease, background 0.15s ease;
   white-space: nowrap;
 
   &:hover:not(:disabled) {
-    color: var(--bs-body-color);
+    color: var(--bs-emphasis-color);
   }
 
   &--done {
-    color: var(--bs-secondary-color);
+    color: var(--bs-body-color);
   }
 
   &--current {
