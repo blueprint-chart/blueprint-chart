@@ -131,7 +131,7 @@ function handleAdvance() {
   align-items: center;
   justify-content: space-between;
   padding: 0.5rem 1rem;
-  background: var(--bc-card-bg);
+  background: var(--bs-navbar-bg);
   border-bottom: 1px solid var(--bs-border-color);
   flex-shrink: 0;
   min-height: 3rem;
