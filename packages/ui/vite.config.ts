@@ -21,6 +21,13 @@ export default defineConfig({
       compiler: 'vue3',
     }),
   ],
+  css: {
+    preprocessorOptions: {
+      scss: {
+        silenceDeprecations: ['color-functions', 'global-builtin', 'import', 'if-function'],
+      },
+    },
+  },
   test: {
     environment: 'jsdom',
     globals: true,

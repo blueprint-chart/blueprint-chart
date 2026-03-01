@@ -24,6 +24,13 @@ export default defineConfig({
       compiler: 'vue3',
     }),
   ],
+  css: {
+    preprocessorOptions: {
+      scss: {
+        silenceDeprecations: ['color-functions', 'global-builtin', 'import', 'if-function'],
+      },
+    },
+  },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
