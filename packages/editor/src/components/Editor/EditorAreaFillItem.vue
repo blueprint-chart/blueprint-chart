@@ -1,5 +1,5 @@
 <template>
-  <div class="border rounded overflow-hidden bg-body">
+  <div class="border rounded overflow-hidden bg-body-tertiary">
     <div class="d-flex align-items-center justify-content-between px-2 py-1 border-bottom">
       <small class="fw-medium">{{ fill.from }} – {{ fill.to }}</small>
       <BButton

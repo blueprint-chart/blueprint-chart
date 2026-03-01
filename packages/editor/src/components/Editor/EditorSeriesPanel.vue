@@ -15,7 +15,7 @@
 
     <div
       v-if="selected.length > 0"
-      class="border rounded overflow-hidden bg-body p-2 d-flex flex-column gap-3"
+      class="border rounded overflow-hidden bg-body-tertiary p-2 d-flex flex-column gap-3"
     >
       <EditorSeriesOptions
         :selected="selected"
