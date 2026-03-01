@@ -9,7 +9,7 @@ describe('useWizard', () => {
   it('starts at step 0', () => {
     const { currentIndex, currentStep } = useWizard()
     expect(currentIndex.value).toBe(0)
-    expect(currentStep.value.key).toBe('upload')
+    expect(currentStep.value.key).toBe('data')
   })
 
   it('advances with next()', () => {

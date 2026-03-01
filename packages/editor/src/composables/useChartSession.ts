@@ -97,7 +97,13 @@ export function useChartSession() {
       chartConfig.hydrate(payload.chartConfig)
       dataTable.hydrate(payload.dataTable)
       chartTypeOptions.hydrate(payload.chartTypeOptions)
-      wizard.hydrate(payload.wizard)
+      const wizardState = payload.wizard
+      // Migrate old 4-step indices (upload=0,check=1,edit=2,export=3) to 3-step (data=0,edit=1,export=2)
+      if (wizardState.furthestIndex > 2) {
+        wizardState.currentIndex = Math.max(0, wizardState.currentIndex - 1)
+        wizardState.furthestIndex = Math.max(0, wizardState.furthestIndex - 1)
+      }
+      wizard.hydrate(wizardState)
       sessionId.value = id
       return true
     }
@@ -144,7 +150,7 @@ export function useChartSession() {
     applyDsl(sample.dsl)
 
     // Advance wizard to edit step
-    wizard.hydrate({ currentIndex: 2, furthestIndex: 2 })
+    wizard.hydrate({ currentIndex: 1, furthestIndex: 1 })
   }
 
   function loadChart(id: string): boolean {

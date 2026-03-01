@@ -1,5 +1,8 @@
-import { reactive, toRefs } from 'vue'
+import { reactive, ref, toRefs, computed } from 'vue'
 import type { ColumnType, ParsedData } from './useDataParser'
+import { useDataTransforms } from './useDataTransforms'
+
+export type SourceFormat = 'delimited' | 'bpc'
 
 interface DataTableState {
   columns: string[]
@@ -15,7 +18,23 @@ const state = reactive<DataTableState>({
   columnTypes: [],
 })
 
+const sourceFormat = ref<SourceFormat>('delimited')
+
 export function useDataTable() {
+  const { steps, applyTransforms } = useDataTransforms()
+
+  const displayData = computed(() => {
+    if (steps.value.length === 0) {
+      return { columns: state.columns, rows: state.rows, columnTypes: state.columnTypes }
+    }
+    return applyTransforms(state.columns, state.rows, state.columnTypes)
+  })
+
+  const displayColumns = computed(() => displayData.value.columns)
+  const displayRows = computed(() => displayData.value.rows)
+  const displayColumnTypes = computed(() => displayData.value.columnTypes)
+  const hasTransforms = computed(() => steps.value.length > 0)
+
   function loadParsed(parsed: ParsedData) {
     state.columns = [...parsed.columns]
     state.rows = parsed.rows.map(r => [...r])
@@ -37,6 +56,12 @@ export function useDataTable() {
   function deleteRow(index: number) {
     if (index >= 0 && index < state.rows.length) {
       state.rows.splice(index, 1)
+    }
+  }
+
+  function setColumnType(index: number, type: ColumnType) {
+    if (index >= 0 && index < state.columnTypes.length) {
+      state.columnTypes[index] = type
     }
   }
 
@@ -77,10 +102,16 @@ export function useDataTable() {
 
   return {
     ...toRefs(state),
+    sourceFormat,
+    displayColumns,
+    displayRows,
+    displayColumnTypes,
+    hasTransforms,
     loadParsed,
     renameColumn,
     updateCell,
     deleteRow,
+    setColumnType,
     serialize,
     reset,
     hydrate,

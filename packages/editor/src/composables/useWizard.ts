@@ -6,8 +6,7 @@ export interface WizardStep {
 }
 
 const steps: WizardStep[] = [
-  { label: 'Data', key: 'upload' },
-  { label: 'Data', key: 'check' },
+  { label: 'Data', key: 'data' },
   { label: 'Visualize', key: 'edit' },
   { label: 'Export', key: 'export' },
 ]
