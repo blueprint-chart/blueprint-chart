@@ -93,7 +93,7 @@ const panelTitle = computed(() => TAB_LABELS[activeTab.value] ?? 'Panel')
   min-width: 0;
   flex-shrink: 0;
   overflow: hidden;
-  box-shadow: var(--bs-box-shadow-lg);
+  box-shadow: var(--bs-box-shadow);
   transition: width 0.3s ease, max-width 0.3s ease, opacity 0.2s ease;
 
   &.chart-edit-docked-panel--resizing {
