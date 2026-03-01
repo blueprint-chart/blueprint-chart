@@ -18,60 +18,39 @@
     />
 
     <template v-if="customizeEnabled">
+      <ListSelectPanel
+        :items="labels"
+        :selected="selectedArray"
+        :on-item-click="onItemClick"
+        @update:selected="selectedArray = $event"
+      >
+        <template #item-leading="{ item }">
+          <DisplayColorSwatch :color="colorForLabel(item)" />
+        </template>
+      </ListSelectPanel>
+
       <div
-        class="bc-label-list border rounded overflow-auto"
-        style="max-height: 220px"
+        v-if="selectedArray.length > 0"
+        class="border rounded overflow-hidden bg-body-tertiary p-2 d-flex flex-column gap-3"
       >
-        <div
-          v-for="label in labels"
-          :key="label"
-          class="bc-label-row d-flex align-items-center gap-2 px-2 py-1 border-bottom"
-          :class="labelRowClassList(label)"
-          role="button"
-          @click="toggleSelect(label, $event)"
+        <small class="text-muted">
+          Editing {{ selectedArray.length }} {{ selectedArray.length === 1 ? 'label' : 'labels' }}
+        </small>
+        <FormControlColorInput
+          id="bar-highlight-color"
+          label="Color for selected"
+          :model-value="pickerColor"
+          @update:model-value="applyColor"
+        />
+        <BButton
+          v-if="highlights.length > 0"
+          variant="outline-danger"
+          size="sm"
+          @click="resetAll"
         >
-          <span
-            class="bc-color-dot rounded-circle flex-shrink-0"
-            :style="{ backgroundColor: colorForLabel(label), width: '14px', height: '14px', display: 'inline-block' }"
-          />
-          <span class="text-truncate small">{{ label }}</span>
-        </div>
+          Reset all changes
+        </BButton>
       </div>
-
-      <div class="d-flex gap-2 small">
-        <a
-          href="#"
-          class="link-primary"
-          @click.prevent="selectAll"
-        >all</a>
-        <a
-          href="#"
-          class="link-primary"
-          @click.prevent="selectNone"
-        >none</a>
-        <a
-          href="#"
-          class="link-primary"
-          @click.prevent="selectInvert"
-        >invert</a>
-      </div>
-
-      <FormControlColorInput
-        v-if="selected.size > 0"
-        id="bar-highlight-color"
-        label="Color for selected"
-        :model-value="pickerColor"
-        @update:model-value="applyColor"
-      />
-
-      <BButton
-        v-if="highlights.length > 0"
-        variant="outline-secondary"
-        size="sm"
-        @click="resetAll"
-      >
-        Reset all changes
-      </BButton>
     </template>
   </div>
 </template>
@@ -79,7 +58,8 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import type { ChartHighlight } from '@/composables/useChartConfig'
-import { FormControlColorInput, FormControlCheckbox } from '@blueprint-chart/ui'
+import { BButton } from 'bootstrap-vue-next'
+import { FormControlColorInput, FormControlCheckbox, ListSelectPanel, DisplayColorSwatch } from '@blueprint-chart/ui'
 
 const props = defineProps<{
   labels: string[]
@@ -92,12 +72,8 @@ const emit = defineEmits<{
   'update:baseColor': [value: string]
 }>()
 
-const selected = ref<Set<string>>(new Set())
+const selectedArray = ref<string[]>([])
 const customizeEnabled = ref(props.highlights.length > 0)
-
-function labelRowClassList(label: string) {
-  return { 'bg-primary-subtle': selected.value.has(label) }
-}
 
 const highlightMap = computed(() => {
   const map = new Map<string, string>()
@@ -112,54 +88,33 @@ function colorForLabel(label: string): string {
 }
 
 const pickerColor = computed(() => {
-  const sel = [...selected.value]
-  if (sel.length === 0) {
+  if (selectedArray.value.length === 0) {
     return props.baseColor
   }
-  return highlightMap.value.get(sel[0]) ?? props.baseColor
+  return highlightMap.value.get(selectedArray.value[0]) ?? props.baseColor
 })
 
-function toggleSelect(label: string, event: globalThis.MouseEvent) {
-  const next = new Set(selected.value)
+function onItemClick(label: string, _index: number, event: MouseEvent) {
   if (event.ctrlKey || event.metaKey) {
-    if (next.has(label)) {
-      next.delete(label)
+    const idx = selectedArray.value.indexOf(label)
+    if (idx >= 0) {
+      selectedArray.value = selectedArray.value.filter(l => l !== label)
     }
     else {
-      next.add(label)
+      selectedArray.value = [...selectedArray.value, label]
     }
   }
-  else if (next.size === 1 && next.has(label)) {
-    next.clear()
+  else if (selectedArray.value.length === 1 && selectedArray.value[0] === label) {
+    selectedArray.value = []
   }
   else {
-    next.clear()
-    next.add(label)
+    selectedArray.value = [label]
   }
-  selected.value = next
-}
-
-function selectAll() {
-  selected.value = new Set(props.labels)
-}
-
-function selectNone() {
-  selected.value = new Set()
-}
-
-function selectInvert() {
-  const next = new Set<string>()
-  for (const l of props.labels) {
-    if (!selected.value.has(l)) {
-      next.add(l)
-    }
-  }
-  selected.value = next
 }
 
 function applyColor(color: string) {
   const current = new Map(props.highlights.map(h => [h.target, h]))
-  for (const label of selected.value) {
+  for (const label of selectedArray.value) {
     current.set(label, { target: label, color, label: '' })
   }
   emit('update:highlights', [...current.values()])
@@ -167,14 +122,14 @@ function applyColor(color: string) {
 
 function resetAll() {
   emit('update:highlights', [])
-  selected.value = new Set()
+  selectedArray.value = []
 }
 
 function onToggleCustomize(val: boolean) {
   customizeEnabled.value = val
   if (!val) {
     emit('update:highlights', [])
-    selected.value = new Set()
+    selectedArray.value = []
   }
 }
 </script>
