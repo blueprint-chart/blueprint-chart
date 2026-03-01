@@ -11,7 +11,7 @@
         <div
           v-for="{ ann, index } in pointAnnotations"
           :key="index"
-          class="rounded overflow-hidden border bg-body"
+          class="rounded overflow-hidden border bg-body-tertiary"
         >
           <EditorAnnotationHeader
             :kind-label="kindLabel(ann)"
@@ -47,7 +47,7 @@
         <div
           v-for="{ ann, index } in rangeAnnotations"
           :key="index"
-          class="rounded overflow-hidden border bg-body"
+          class="rounded overflow-hidden border bg-body-tertiary"
         >
           <EditorAnnotationHeader
             :kind-label="kindLabel(ann)"
@@ -81,7 +81,7 @@
       <div
         v-for="{ ann, index } in freeAnnotations"
         :key="index"
-        class="rounded overflow-hidden border bg-body"
+        class="rounded overflow-hidden border bg-body-tertiary"
       >
         <EditorAnnotationHeader
           :kind-label="kindLabel(ann)"
