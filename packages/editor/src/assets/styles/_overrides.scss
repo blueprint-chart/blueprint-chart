@@ -38,10 +38,10 @@ $card-border-width: 0;
 // Dark:  #0e0e0e > #1c1c1c > #282828
 $body-bg:       #ffffff;
 $body-bg-dark:  #0e0e0e;
-$secondary-bg:       #ffffff;   // inputs, buttons (same as body)
-$secondary-bg-dark:  #1c1c1c;
-$tertiary-bg:        #f4f4f4;   // cards, subsections (recessed)
-$tertiary-bg-dark:   #282828;
+$body-secondary-bg:       #ffffff;   // inputs, buttons (same as body)
+$body-secondary-bg-dark:  #1c1c1c;
+$body-tertiary-bg:        #f4f4f4;   // cards, subsections (recessed)
+$body-tertiary-bg-dark:   #282828;
 
 // Links
 $link-color: $primary;
@@ -52,8 +52,7 @@ $link-color-dark: $prussian-300;
 $link-hover-color-dark: $prussian-100;
 
 // Forms
-$input-bg: $secondary-bg;
-$input-bg-dark: $secondary-bg-dark;
+$input-bg: $body-secondary-bg;
 $input-focus-border-color: $prussian-300;
 $form-check-input-checked-bg-color: $primary;
 $form-check-input-checked-border-color: $primary;
