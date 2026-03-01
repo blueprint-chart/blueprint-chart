@@ -4,14 +4,16 @@
       Series
     </h6>
 
-    <EditorSeriesList
-      :series-names="seriesNames"
-      :selected="selected"
-      :colors="colors"
-      :overrides="seriesOverrides"
-      @update:selected="selected = $event"
-      @toggle-visibility="onToggleVisibility"
-    />
+    <div class="border rounded overflow-hidden bg-body-tertiary p-2">
+      <EditorSeriesList
+        :series-names="seriesNames"
+        :selected="selected"
+        :colors="colors"
+        :overrides="seriesOverrides"
+        @update:selected="selected = $event"
+        @toggle-visibility="onToggleVisibility"
+      />
+    </div>
 
     <div
       v-if="selected.length > 0"
