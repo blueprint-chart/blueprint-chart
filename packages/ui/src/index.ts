@@ -74,4 +74,5 @@ export { default as NavigationIconRailEntry } from './components/Navigation/Navi
 
 export { default as ListItemRow } from './components/List/ListItemRow/ListItemRow.vue'
 export { default as ListItemActions } from './components/List/ListItemActions/ListItemActions.vue'
+export { default as ListSelectPanel } from './components/List/ListSelectPanel/ListSelectPanel.vue'
 export { default as ListSeriesRow } from './components/List/ListSeriesRow/ListSeriesRow.vue'
