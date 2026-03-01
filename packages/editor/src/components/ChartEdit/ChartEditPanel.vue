@@ -183,26 +183,42 @@ const cardStyle = computed<CSSProperties>(() => {
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 1.25rem 1.5rem;
+  padding: 2.5rem 3rem;
 
   .chart-edit-panel--narrow & {
-    padding: 0.5rem;
+    padding: 1rem;
   }
   overflow: auto;
   position: relative;
-  background-color: var(--bc-canvas-bg);
-  background-image:
-    linear-gradient(var(--bc-canvas-grid-color) 1px, transparent 1px),
-    linear-gradient(90deg, var(--bc-canvas-grid-color) 1px, transparent 1px);
-  background-size: var(--bc-canvas-grid-size) var(--bc-canvas-grid-size);
+  background: var(--bc-canvas-bg);
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(var(--bc-canvas-grid-color-major) 1px, transparent 1px),
+      linear-gradient(90deg, var(--bc-canvas-grid-color-major) 1px, transparent 1px),
+      linear-gradient(var(--bc-canvas-grid-color) 1px, transparent 1px),
+      linear-gradient(90deg, var(--bc-canvas-grid-color) 1px, transparent 1px);
+    background-size:
+      calc(var(--bc-canvas-grid-size) * 5) calc(var(--bc-canvas-grid-size) * 5),
+      calc(var(--bc-canvas-grid-size) * 5) calc(var(--bc-canvas-grid-size) * 5),
+      var(--bc-canvas-grid-size) var(--bc-canvas-grid-size),
+      var(--bc-canvas-grid-size) var(--bc-canvas-grid-size);
+    mask-image: linear-gradient(to bottom, black, transparent);
+    -webkit-mask-image: linear-gradient(to bottom, black, transparent);
+  }
 }
 
 .chart-edit-panel__card {
-  background: var(--bc-card-bg);
-  border: 1px solid var(--bc-card-border);
+  position: relative;
+  z-index: 1;
+  background: var(--bs-card-bg);
   border-radius: var(--bs-border-radius-sm);
   overflow: auto;
-  box-shadow: var(--bc-card-shadow);
+  box-shadow: var(--bs-card-box-shadow);
   padding: 1.25rem 1.5rem;
 
   &--fixed {
@@ -305,6 +321,6 @@ const cardStyle = computed<CSSProperties>(() => {
 // Override UI-library backgrounds so rail & panel match the mockup's white chrome
 :deep(.navigation-icon-rail),
 :deep(.layout-panel) {
-  background: var(--bc-card-bg);
+  background: var(--bs-body-bg);
 }
 </style>
