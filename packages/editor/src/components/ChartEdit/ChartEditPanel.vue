@@ -226,15 +226,16 @@ const cardStyle = computed<CSSProperties>(() => {
     }
   }
 
+  &--light,
   &--auto {
-    background: var(--bs-body-bg);
-  }
-
-  &--light {
     background: #f0f0f0;
   }
 
   &--dark {
+    background: #1a1a1a;
+  }
+
+  :global([data-bs-theme="dark"]) &--auto {
     background: #1a1a1a;
   }
 }
