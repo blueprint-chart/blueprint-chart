@@ -5,7 +5,11 @@
         to="/"
         class="navbar-brand text-decoration-none mb-0 d-flex align-items-center gap-2"
       >
-        <img :src="logoSrc" alt="Blueprint Chart" class="shell-navbar__logo" />
+        <img
+          :src="logoSrc"
+          alt="Blueprint Chart"
+          class="shell-navbar__logo"
+        >
         <span class="bc-brand-gradient fw-bold">Blueprint Chart</span>
       </router-link>
 
