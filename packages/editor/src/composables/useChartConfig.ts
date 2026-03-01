@@ -8,8 +8,9 @@ export interface ChartHighlight {
 }
 
 export interface ChartLayout {
-  sizing: 'responsive' | 'fixed'
+  sizing: 'responsive' | 'fixed' | 'max-width'
   fixedWidth: number
+  maxWidth: number
   heightMode: 'auto' | 'fixed' | 'aspect-ratio'
   fixedHeight: number
   aspectRatio: string
@@ -19,8 +20,9 @@ export interface ChartLayout {
 }
 
 export const layoutDefaults: ChartLayout = {
-  sizing: 'responsive',
+  sizing: 'max-width',
   fixedWidth: 600,
+  maxWidth: 660,
   heightMode: 'auto',
   fixedHeight: 400,
   aspectRatio: '16:9',
@@ -76,7 +78,7 @@ export function useChartConfig() {
       Object.assign(state, { ...defaults, highlights: [], areaFills: [], annotations: [], seriesOverrides: [], layout: { ...layoutDefaults } })
     },
     hydrate(config: ChartConfig) {
-      Object.assign(state, config)
+      Object.assign(state, { ...config, layout: { ...layoutDefaults, ...config.layout } })
     },
   }
 }
