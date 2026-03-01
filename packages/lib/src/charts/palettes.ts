@@ -7,7 +7,7 @@ export interface PaletteEntry {
 }
 
 const PALETTES: PaletteEntry[] = [
-  { name: 'Blueprint', label: 'Blueprint', colors: ['#6878E8', '#E07B38', '#B83B5E', '#F0C33E', '#2DAA90', '#503880'] },
+  { name: 'Blueprint', label: 'Blueprint', colors: ['#2563A0', '#D4A63A', '#C94044', '#2D8659', '#4B90CF', '#163A65'] },
   { name: 'JosefAlbers', label: 'Albers', colors: ['#c00559', '#de1f6c', '#f3a20d', '#f07a13', '#de6716'] },
   { name: 'Durorthod', label: 'Amber', colors: ['#2c0c00', '#803c15', '#c6782c', '#ffa91d', '#fff3ad'] },
   { name: 'X41', label: 'Berry', colors: ['#411f6b', '#623976', '#be3979', '#db928a', '#e2c6a6'] },
