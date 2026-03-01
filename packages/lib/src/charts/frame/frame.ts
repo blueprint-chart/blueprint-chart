@@ -112,14 +112,11 @@ class FrameChart extends D3Blueprint<FrameData> {
             .attr('class', (d: FooterItem) => d.className)
             .each(function (this: HTMLElement, d: FooterItem) {
               if (d.html) {
-                const template = document.createElement('template')
-                template.textContent = d.html
-                // Safe: html content is hardcoded, not user-supplied
-                template.innerHTML = d.html // eslint-disable-line no-unsanitized/property
-                while (template.content.firstChild) {
-                  this.appendChild(template.content.firstChild)
-                }
-              } else {
+                const range = document.createRange()
+                const fragment = range.createContextualFragment(d.html)
+                this.appendChild(fragment)
+              }
+              else {
                 this.textContent = d.text
               }
             })
