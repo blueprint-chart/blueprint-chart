@@ -216,6 +216,7 @@ const cardStyle = computed<CSSProperties>(() => {
   position: relative;
   z-index: 1;
   background: var(--bs-card-bg);
+  border: 1px solid var(--bs-border-color);
   border-radius: var(--bs-border-radius-sm);
   overflow: auto;
   box-shadow: var(--bs-card-box-shadow);
