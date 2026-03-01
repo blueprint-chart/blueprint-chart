@@ -138,6 +138,7 @@ const hasConstrainedHeight = computed(() =>
 
 const cardClass = computed(() => ({
   'chart-edit-panel__card--fixed': layout.value.sizing === 'fixed',
+  'chart-edit-panel__card--max-width': layout.value.sizing === 'max-width',
   'chart-edit-panel__card--transparent': layout.value.transparentBackground,
   'chart-edit-panel__card--constrained-height': hasConstrainedHeight.value,
 }))
@@ -149,6 +150,10 @@ const cardStyle = computed<CSSProperties>(() => {
   }
   if (l.sizing === 'fixed') {
     style.width = `${l.fixedWidth}px`
+  }
+  else if (l.sizing === 'max-width') {
+    style.maxWidth = `${l.maxWidth}px`
+    style.width = '100%'
   }
   if (l.heightMode === 'fixed') {
     style.height = `${l.fixedHeight}px`
@@ -203,6 +208,11 @@ const cardStyle = computed<CSSProperties>(() => {
   &--fixed {
     flex: none;
     margin: 0 auto;
+  }
+
+  &--max-width {
+    margin: 0 auto;
+    width: 100%;
   }
 
   &--transparent {

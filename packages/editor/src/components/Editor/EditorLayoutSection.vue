@@ -18,6 +18,18 @@
           />
         </div>
       </template>
+      <template #section:max-width>
+        <div class="pt-2">
+          <FormControlSliderInput
+            id="layout-max-width"
+            v-model="maxWidthStr"
+            label=""
+            min="200"
+            max="1200"
+            suffix="px"
+          />
+        </div>
+      </template>
     </FormControlButtonGroup>
 
     <FormControlButtonGroup
@@ -118,8 +130,14 @@ const showCredit = computed({
   set: (v) => { layout.value.showCredit = v },
 })
 
+const maxWidthStr = computed({
+  get: () => String(layout.value.maxWidth),
+  set: (v) => { layout.value.maxWidth = Number(v) || 660 },
+})
+
 const sizingOptions = [
   { value: 'responsive', text: 'Responsive' },
+  { value: 'max-width', text: 'Max width' },
   { value: 'fixed', text: 'Fixed' },
 ]
 
