@@ -2,11 +2,13 @@ import { reactive, toRefs } from 'vue'
 
 export type PanelMode = 'docked' | 'floating' | 'collapsed'
 export type ViewMode = 'preview' | 'dsl'
+export type CanvasMode = 'blueprint' | 'auto' | 'light' | 'dark'
 
 const state = reactive({
   panelMode: 'docked' as PanelMode,
   activeTab: 'type',
   viewMode: 'preview' as ViewMode,
+  canvasMode: 'blueprint' as CanvasMode,
   floatingPosition: { x: -1, y: 16 },
   floatingSize: { width: 340, height: 500 },
   pendingAnnotationIndex: null as number | null,
@@ -61,10 +63,15 @@ export function useEditorPanel() {
     state.viewMode = mode
   }
 
+  function setCanvasMode(mode: CanvasMode) {
+    state.canvasMode = mode
+  }
+
   function reset() {
     state.panelMode = 'docked'
     state.activeTab = 'type'
     state.viewMode = 'preview'
+    state.canvasMode = 'blueprint'
     state.floatingPosition = { x: -1, y: 16 }
     state.floatingSize = { width: 340, height: 500 }
     state.pendingAnnotationIndex = null
@@ -80,6 +87,7 @@ export function useEditorPanel() {
     selectTab,
     selectAnnotation,
     setViewMode,
+    setCanvasMode,
     reset,
   }
 }
