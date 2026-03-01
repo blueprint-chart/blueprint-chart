@@ -147,7 +147,7 @@ const positionStyle = computed(() => ({
   min-width: 260px;
   background: var(--bs-body-bg);
   border-radius: var(--bs-border-radius-sm);
-  box-shadow: var(--bs-card-box-shadow);
+  box-shadow: var(--bs-box-shadow-lg);
   display: flex;
   flex-direction: column;
   max-height: calc(100% - 40px);
@@ -164,7 +164,7 @@ const positionStyle = computed(() => ({
     cursor: grab;
     user-select: none;
     background: var(--bs-tertiary-bg);
-    border-radius: 0.75rem 0.75rem 0 0;
+    border-radius: inherit;
 
     &:active {
       cursor: grabbing;

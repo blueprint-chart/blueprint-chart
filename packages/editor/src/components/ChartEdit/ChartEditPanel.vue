@@ -10,6 +10,7 @@
     <div
       ref="canvasRef"
       class="chart-edit-panel__canvas"
+      :class="canvasClassList"
     >
       <div
         v-if="viewMode === 'preview'"
@@ -80,7 +81,7 @@ import EditorAnnotateTab from '@/components/Editor/EditorAnnotateTab.vue'
 
 const AXIS_KEYS = ['showVerticalAxis', 'verticalAxisDirection', 'showVerticalTicks', 'verticalLabelPosition', 'verticalGridStyle', 'verticalNumberFormat', 'verticalScaleType', 'verticalRangeMin', 'verticalRangeMax', 'showHorizontalAxis', 'showHorizontalTicks', 'horizontalLabelPosition', 'horizontalGridStyle', 'horizontalNumberFormat', 'horizontalScaleType', 'horizontalRangeMin', 'horizontalRangeMax']
 
-const { panelMode, viewMode, activeTab, collapse, selectTab } = useEditorPanel()
+const { panelMode, viewMode, activeTab, canvasMode, collapse, selectTab } = useEditorPanel()
 const { isNarrow } = useBreakpoint()
 const { chartType, layout } = useChartConfig()
 const { availableOptionKeys } = useChartTypeOptions()
@@ -114,6 +115,10 @@ const tabs = computed(() => {
 })
 const panelClassList = computed(() => ({
   'chart-edit-panel--narrow': isNarrow.value,
+}))
+
+const canvasClassList = computed(() => ({
+  [`chart-edit-panel__canvas--${canvasMode.value}`]: canvasMode.value !== 'blueprint',
 }))
 
 function drawerTabClassList(key: string) {
@@ -207,8 +212,30 @@ const cardStyle = computed<CSSProperties>(() => {
       calc(var(--bc-canvas-grid-size) * 5) calc(var(--bc-canvas-grid-size) * 5),
       var(--bc-canvas-grid-size) var(--bc-canvas-grid-size),
       var(--bc-canvas-grid-size) var(--bc-canvas-grid-size);
+    background-position: top right;
     mask-image: linear-gradient(to bottom, black, transparent);
     -webkit-mask-image: linear-gradient(to bottom, black, transparent);
+  }
+
+  // Plain canvas modes — hide grid, use flat background
+  &--auto,
+  &--light,
+  &--dark {
+    &::before {
+      display: none;
+    }
+  }
+
+  &--auto {
+    background: var(--bs-body-bg);
+  }
+
+  &--light {
+    background: #f0f0f0;
+  }
+
+  &--dark {
+    background: #1a1a1a;
   }
 }
 
