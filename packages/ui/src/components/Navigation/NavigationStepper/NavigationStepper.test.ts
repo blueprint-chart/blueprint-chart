@@ -13,18 +13,18 @@ const steps = [
 describe('Stepper step states', () => {
   it('applies correct step states based on currentStep', () => {
     const wrapper = mount(Stepper, { props: { steps, currentStep: 2 } })
-    const stepEls = wrapper.findAll('.navigation-stepper__step')
+    const stepEls = wrapper.findAll('.navigation-pill__option')
 
-    expect(stepEls[0].classes()).toContain('navigation-stepper__step--done')
-    expect(stepEls[1].classes()).toContain('navigation-stepper__step--done')
-    expect(stepEls[2].classes()).toContain('navigation-stepper__step--current')
-    expect(stepEls[3].classes()).not.toContain('navigation-stepper__step--done')
-    expect(stepEls[3].classes()).not.toContain('navigation-stepper__step--current')
+    expect(stepEls[0].classes()).toContain('navigation-pill__option--done')
+    expect(stepEls[1].classes()).toContain('navigation-pill__option--done')
+    expect(stepEls[2].classes()).toContain('navigation-pill__option--active')
+    expect(stepEls[3].classes()).not.toContain('navigation-pill__option--done')
+    expect(stepEls[3].classes()).not.toContain('navigation-pill__option--active')
   })
 
   it('emits update:currentStep with step index on click', async () => {
     const wrapper = mount(Stepper, { props: { steps, currentStep: 0 } })
-    await wrapper.findAll('.navigation-stepper__step')[2].trigger('click')
+    await wrapper.findAll('.navigation-pill__option')[2].trigger('click')
     expect(wrapper.emitted('update:currentStep')).toEqual([[2]])
   })
 })
@@ -32,16 +32,16 @@ describe('Stepper step states', () => {
 describe('Stepper disabled steps', () => {
   it('applies disabled class to disabled steps', () => {
     const wrapper = mount(Stepper, { props: { steps, currentStep: 0, disabledSteps: [2, 3] } })
-    const stepEls = wrapper.findAll('.navigation-stepper__step')
-    expect(stepEls[0].classes()).not.toContain('navigation-stepper__step--disabled')
-    expect(stepEls[1].classes()).not.toContain('navigation-stepper__step--disabled')
-    expect(stepEls[2].classes()).toContain('navigation-stepper__step--disabled')
-    expect(stepEls[3].classes()).toContain('navigation-stepper__step--disabled')
+    const stepEls = wrapper.findAll('.navigation-pill__option')
+    expect(stepEls[0].classes()).not.toContain('navigation-pill__option--disabled')
+    expect(stepEls[1].classes()).not.toContain('navigation-pill__option--disabled')
+    expect(stepEls[2].classes()).toContain('navigation-pill__option--disabled')
+    expect(stepEls[3].classes()).toContain('navigation-pill__option--disabled')
   })
 
   it('does not emit update:currentStep when clicking a disabled step', async () => {
     const wrapper = mount(Stepper, { props: { steps, currentStep: 0, disabledSteps: [2] } })
-    const stepEls = wrapper.findAll('.navigation-stepper__step')
+    const stepEls = wrapper.findAll('.navigation-pill__option')
     await stepEls[2].trigger('click')
     expect(wrapper.emitted('update:currentStep')).toBeUndefined()
   })
@@ -65,10 +65,10 @@ describe('Stepper slot entry states', () => {
   it('applies correct step states from slot entries', async () => {
     const wrapper = mountStepperWithSlots(2)
     await nextTick()
-    const stepEls = wrapper.findAll('.navigation-stepper__step')
-    expect(stepEls[0].classes()).toContain('navigation-stepper__step--done')
-    expect(stepEls[1].classes()).toContain('navigation-stepper__step--done')
-    expect(stepEls[2].classes()).toContain('navigation-stepper__step--current')
+    const stepEls = wrapper.findAll('.navigation-pill__option')
+    expect(stepEls[0].classes()).toContain('navigation-pill__option--done')
+    expect(stepEls[1].classes()).toContain('navigation-pill__option--done')
+    expect(stepEls[2].classes()).toContain('navigation-pill__option--active')
   })
 })
 
@@ -76,7 +76,7 @@ describe('Stepper slot entry interaction', () => {
   it('emits update:currentStep on slot entry click', async () => {
     const wrapper = mountStepperWithSlots(0)
     await nextTick()
-    await wrapper.findAll('.navigation-stepper__step')[2].trigger('click')
+    await wrapper.findAll('.navigation-pill__option')[2].trigger('click')
     expect(wrapper.emitted('update:currentStep')).toEqual([[2]])
   })
 })
