@@ -124,7 +124,7 @@ function onSelect(sample: ChartSample) {
   width: 360px;
   max-height: 480px;
   overflow-y: auto;
-  background: var(--bc-card-bg);
+  background: var(--bs-navbar-bg);
   border: 1px solid var(--bs-border-color);
   border-radius: 0.375rem;
   box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.15);
