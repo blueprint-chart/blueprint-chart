@@ -98,16 +98,55 @@ export function detectColumnTypes(columns: string[], rows: string[][]): ColumnTy
   })
 }
 
-export function parseDelimited(raw: string): ParsedData {
+export interface ParseDelimitedOptions {
+  firstRowIsHeader?: boolean
+  delimiter?: 'auto' | ',' | '\t' | ';' | '|'
+  decimalSeparator?: '.' | ','
+  trimWhitespace?: boolean
+}
+
+export function parseDelimited(raw: string, options?: ParseDelimitedOptions): ParsedData {
+  const opts = options ?? {}
+  const shouldTrim = opts.trimWhitespace !== false
   const lines = raw.split('\n').filter(l => l.trim().length > 0)
 
   if (lines.length === 0) {
     return { columns: [], rows: [], columnTypes: [] }
   }
 
-  const delimiter = detectDelimiter(raw)
-  const columns = splitRow(lines[0], delimiter)
-  const rows = lines.slice(1).map(line => splitRow(line, delimiter))
+  const delimiter = opts.delimiter && opts.delimiter !== 'auto'
+    ? opts.delimiter
+    : detectDelimiter(raw)
+
+  const firstRowIsHeader = opts.firstRowIsHeader !== false
+
+  let columns: string[]
+  let rows: string[][]
+
+  if (firstRowIsHeader) {
+    columns = splitRow(lines[0], delimiter)
+    rows = lines.slice(1).map(line => splitRow(line, delimiter))
+  }
+  else {
+    const firstRow = splitRow(lines[0], delimiter)
+    columns = firstRow.map((_, i) => `Column ${i + 1}`)
+    rows = lines.map(line => splitRow(line, delimiter))
+  }
+
+  if (shouldTrim) {
+    columns = columns.map(c => c.trim())
+    rows = rows.map(r => r.map(c => c.trim()))
+  }
+
+  if (opts.decimalSeparator === ',') {
+    rows = rows.map(r => r.map((cell) => {
+      if (/^\d+,\d+$/.test(cell)) {
+        return cell.replace(',', '.')
+      }
+      return cell
+    }))
+  }
+
   const columnTypes = detectColumnTypes(columns, rows)
 
   return { columns, rows, columnTypes }

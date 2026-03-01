@@ -59,6 +59,28 @@ describe('parseDelimited', () => {
     expect(result.rows).toEqual([])
   })
 
+  it('parses with firstRowIsHeader false', () => {
+    const csv = 'Apples,42\nBananas,58'
+    const result = parseDelimited(csv, { firstRowIsHeader: false })
+    expect(result.columns).toEqual(['Column 1', 'Column 2'])
+    expect(result.rows.length).toBe(2)
+    expect(result.rows[0]).toEqual(['Apples', '42'])
+  })
+
+  it('parses with explicit delimiter', () => {
+    const data = 'Name;Value\nApples;42'
+    const result = parseDelimited(data, { delimiter: ';' })
+    expect(result.columns).toEqual(['Name', 'Value'])
+    expect(result.rows[0]).toEqual(['Apples', '42'])
+  })
+
+  it('parses with comma decimal separator', () => {
+    const data = 'Name,Value\nApples,"3,14"\nBananas,"2,72"'
+    const result = parseDelimited(data, { decimalSeparator: ',' })
+    expect(result.rows[0][1]).toBe('3.14')
+    expect(result.rows[1][1]).toBe('2.72')
+  })
+
   it('detects column types in parsed result', () => {
     const csv = 'Name,Amount,Date\nApples,42,2024-01-15\nBananas,58,2024-02-20'
     const result = parseDelimited(csv)

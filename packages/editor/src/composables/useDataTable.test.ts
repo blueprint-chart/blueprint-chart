@@ -87,6 +87,20 @@ describe('useDataTable', () => {
     expect(result).toContain('"2009-02" = "1.5,63.98,27.66"')
   })
 
+  it('sets column type', () => {
+    const { loadParsed, setColumnType, columnTypes } = useDataTable()
+    loadParsed({ columns: ['A', 'B'], rows: [['1', '2']], columnTypes: ['string', 'string'] })
+    setColumnType(0, 'number')
+    expect(columnTypes.value[0]).toBe('number')
+  })
+
+  it('ignores setColumnType for out-of-bounds index', () => {
+    const { loadParsed, setColumnType, columnTypes } = useDataTable()
+    loadParsed({ columns: ['A'], rows: [], columnTypes: ['string'] })
+    setColumnType(5, 'number')
+    expect(columnTypes.value).toEqual(['string'])
+  })
+
   it('serializes two-column data without _series header', () => {
     const { loadParsed, serialize } = useDataTable()
     loadParsed({
