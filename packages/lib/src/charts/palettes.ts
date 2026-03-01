@@ -35,6 +35,7 @@ const PALETTES: PaletteEntry[] = [
   { name: 'Klimt', label: 'Klimt', colors: ['#df9ed4', '#c93f55', '#eacc62', '#469d76', '#3c4b99', '#924099'] },
   { name: 'KnickCity', label: 'Knick City', colors: ['#0c2340', '#ff6720', '#707372', '#c8c9c7'] },
   { name: 'London', label: 'London', colors: ['#bd241e', '#e56b1e', '#ffcd22', '#15274d'] },
+  { name: 'Lover', label: 'Lover', colors: ['#b8396b', '#ffd1d7', '#fff5cc', '#76bae0', '#b28f81', '#54483e'] },
   { name: 'Maya', label: 'Maya', colors: ['#3d5a80', '#98c1d9', '#e0fbfc', '#ee6c4d', '#293241'] },
   { name: 'X24', label: 'Mocha', colors: ['#2b1917', '#7e5945', '#bc927b', '#f1e6e1'] },
   { name: 'Camo873', label: 'Neon', colors: ['#132f8a', '#5a56c8', '#fc7ead', '#ffca3e'] },
