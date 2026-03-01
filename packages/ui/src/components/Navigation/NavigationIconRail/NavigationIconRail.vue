@@ -65,7 +65,7 @@ function buttonClassList(value: string) {
   align-items: center;
   width: 48px;
   padding: 0.5rem 0;
-  background: var(--bs-body-bg);
+  background: var(--bs-navbar-bg);
   border-left: 1px solid var(--bs-border-color);
   gap: 0.25rem;
 

@@ -28,7 +28,7 @@ defineProps<{
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: var(--bs-body-bg);
+  background: var(--bs-navbar-bg);
   border-left: 1px solid var(--bs-border-color);
 }
 
