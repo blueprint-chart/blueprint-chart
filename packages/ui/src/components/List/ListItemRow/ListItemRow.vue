@@ -42,7 +42,7 @@ defineEmits<{
 .list-item-row--active {
   border: 1px solid var(--bs-border-color);
   border-radius: var(--bs-border-radius);
-  background: var(--bs-body-bg);
+  background: var(--bs-secondary-bg);
 }
 
 .list-item-row__label {
