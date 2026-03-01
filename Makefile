@@ -1,4 +1,4 @@
-.PHONY: help install dev dev-story build build-lib build-editor build-story preview preview-story lint lint-fix test test-lib test-editor test-watch test-e2e clean
+.PHONY: help install dev dev-story build build-lib build-editor build-story preview preview-story lint lint-fix test test-lib test-editor test-watch test-e2e build-parser clean
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}'
@@ -23,6 +23,9 @@ build-lib: ## Build lib package (ES + IIFE runtime)
 
 build-editor: ## Build editor for production
 	pnpm --filter @blueprint-chart/editor build
+
+build-parser: ## Generate Peggy DSL grammar (packages/lib)
+	pnpm --filter @blueprint-chart/lib generate:parser
 
 preview: ## Preview the production editor build
 	pnpm --filter @blueprint-chart/editor preview
