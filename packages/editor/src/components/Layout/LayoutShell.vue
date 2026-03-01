@@ -3,9 +3,10 @@
     <nav class="shell-navbar">
       <router-link
         to="/"
-        class="navbar-brand bc-brand-gradient fw-bold text-decoration-none mb-0"
+        class="navbar-brand text-decoration-none mb-0 d-flex align-items-center gap-2"
       >
-        Blueprint Chart
+        <img :src="logoSrc" alt="Blueprint Chart" class="shell-navbar__logo" />
+        <span class="bc-brand-gradient fw-bold">Blueprint Chart</span>
       </router-link>
 
       <div
@@ -67,6 +68,8 @@ import { BFormInput } from 'bootstrap-vue-next'
 import { ButtonIcon } from '@blueprint-chart/ui'
 import { useTheme } from '@/composables/useTheme'
 import { useChartSession } from '@/composables/useChartSession'
+import logoLight from '@/assets/images/blueprint-chart-logo.svg'
+import logoDark from '@/assets/images/blueprint-chart-logo-dark.svg'
 import IPhSun from '~icons/ph/sun'
 import IPhMoon from '~icons/ph/moon'
 import IPhCircleHalf from '~icons/ph/circle-half'
@@ -75,6 +78,8 @@ const route = useRoute()
 const router = useRouter()
 const { theme, cycleTheme } = useTheme()
 const { listSavedCharts } = useChartSession()
+
+const logoSrc = computed(() => theme.value === 'dark' ? logoDark : logoLight)
 
 const searchQuery = ref('')
 const searchContainer = ref<HTMLElement | null>(null)
@@ -129,11 +134,16 @@ onClickOutside(searchContainer, () => {
   align-items: center;
   padding: 0.5rem 1rem;
   min-height: 3rem;
-  background: var(--bc-card-bg);
+  background: var(--bs-navbar-bg);
   border-bottom: 1px solid var(--bs-border-color);
   flex-shrink: 0;
   gap: 1rem;
 
+}
+
+.shell-navbar__logo {
+  height: 1.5rem;
+  width: auto;
 }
 
 .shell-navbar__search {
@@ -149,7 +159,7 @@ onClickOutside(searchContainer, () => {
   left: 0;
   right: 0;
   z-index: 100;
-  background: var(--bc-card-bg);
+  background: var(--bs-navbar-bg);
   border: 1px solid var(--bs-border-color);
   border-radius: 0.375rem;
   box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.15);
