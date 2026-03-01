@@ -47,6 +47,12 @@
   // Navbar / toolbar
   --bs-navbar-bg: #0e0e0e;
 
+  // Bootstrap compiles $input-bg as a static value; override for dark mode
+  .form-control,
+  .form-select {
+    background-color: var(--bs-secondary-bg);
+  }
+
   .form-range::-webkit-slider-runnable-track {
     background-color: #444;
   }
