@@ -1,19 +1,57 @@
-// Bootstrap variable overrides — imported before bootstrap in main.scss
-$primary: #6878E8;
-$font-family-sans-serif: 'DM Sans', sans-serif;
-$font-family-monospace: 'JetBrains Mono', monospace;
-$body-bg: #f9fafb;
-$border-radius: 0.5rem;
-$border-radius-lg: 0.75rem;
+// ============================================================================
+// Blueprint Chart — Bootstrap 5.3 Theme
+// Palette: Prussian Blue (Saturated)
+// ============================================================================
+//
+// Minimal overrides — Bootstrap derives emphasis, subtle, and border
+// variants automatically via tint-color() / shade-color().
+//
+// Usage:
+//   @import "settings";
+//   @import "bootstrap/scss/bootstrap";
+//
+// ============================================================================
 
-// Tighter small button
-$btn-padding-y-sm: 0.25rem;
-$btn-padding-x-sm: 0.625rem;
-$btn-font-size-sm: 0.8125rem;
+// Brand scale
+$prussian-900: #0A1E3D;
+$prussian-700: #102E55;
+$prussian-600: #163A65;
+$prussian-500: #2563A0; // primary
+$prussian-300: #4B90CF;
+$prussian-100: #A3C9E8;
+$prussian-50: #E1EEF7;
 
-// Dark mode: true neutral grays (no blue tint)
+// Theme colors
+$primary: $prussian-500;
+$success: #2D8659;
+$info: $prussian-300;
+$warning: #D4A63A;
+$danger: #C94044;
+
+// Borders — subtle translucent borders
+$border-color: rgba(0, 0, 0, 0.08);
+$border-color-dark: rgba(255, 255, 255, 0.08);
+$card-border-width: 0;
+
+// Backgrounds
+$body-bg: #f0f0f0;
 $body-bg-dark: #141414;
-$body-color-dark: #e0e0e0;
-$body-secondary-bg-dark: #1e1e1e;
-$body-tertiary-bg-dark: #181818;
-$border-color-dark: #2e2e2e;
+
+// Links
+$link-color: $primary;
+$link-hover-color: $prussian-600;
+
+// Dark mode links
+$link-color-dark: $prussian-300;
+$link-hover-color-dark: $prussian-100;
+
+// Forms
+$input-focus-border-color: $prussian-300;
+$form-check-input-checked-bg-color: $primary;
+$form-check-input-checked-border-color: $primary;
+
+// Focus ring
+$focus-ring-color: rgba($primary, 0.25);
+
+// Code
+$code-color: $prussian-600;
