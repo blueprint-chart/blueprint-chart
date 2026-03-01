@@ -146,9 +146,8 @@ const positionStyle = computed(() => ({
   width: 340px;
   min-width: 260px;
   background: var(--bs-body-bg);
-  border: 1px solid var(--bc-card-border);
   border-radius: var(--bs-border-radius-sm);
-  box-shadow: var(--bc-card-shadow);
+  box-shadow: var(--bs-card-box-shadow);
   display: flex;
   flex-direction: column;
   max-height: calc(100% - 40px);
