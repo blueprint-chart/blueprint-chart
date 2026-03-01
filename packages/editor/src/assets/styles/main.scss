@@ -3,21 +3,24 @@
 
 :root,
 [data-bs-theme="light"] {
-  --bc-bg: var(--bs-body-bg);
-  --bc-text: var(--bs-body-color);
   --bc-axis-color: #333;
   --bc-grid-color: #e0e0e0;
   --bc-text-color: #555;
   --bc-brand-1: #5b6abf;
   --bc-brand-2: #3c8dbc;
 
-  // Blueprint canvas — subtle drafting-grid background
-  --bc-canvas-bg: #eef0f4;
-  --bc-canvas-grid-color: rgba(104, 120, 232, 0.07);
-  --bc-canvas-grid-size: 24px;
-  --bc-card-bg: #ffffff;
-  --bc-card-border: #d1d5db;
-  --bc-card-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+  // Blueprint canvas
+  --bc-canvas-bg: #244a7c;
+  --bc-canvas-grid-color: rgba(255, 255, 255, 0.06);
+  --bc-canvas-grid-color-major: rgba(255, 255, 255, 0.15);
+  --bc-canvas-grid-size: 20px;
+
+  // Bootstrap overrides for elevated surfaces
+  --bs-card-bg: #ffffff;
+  --bs-card-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+
+  // Navbar / toolbar
+  --bs-navbar-bg: #f6f6f6;
 }
 
 // When [data-bs-theme="light"] is applied to a nested element (e.g. the preview
@@ -25,21 +28,24 @@
 // inherited text/currentColor inside SVGs also switch to the light palette.
 [data-bs-theme="dark"] [data-bs-theme="light"] {
   color: var(--bs-body-color);
-  background-color: var(--bc-card-bg);
+  background-color: var(--bs-card-bg);
 }
 
 [data-bs-theme="dark"] {
-  --bc-bg: var(--bs-body-bg);
-  --bc-text: var(--bs-body-color);
   --bc-axis-color: #ccc;
   --bc-grid-color: #444;
   --bc-text-color: #aaa;
 
-  --bc-canvas-bg: #111111;
+  --bc-canvas-bg: #0c0c0c;
   --bc-canvas-grid-color: rgba(255, 255, 255, 0.04);
-  --bc-card-bg: #1e1e1e;
-  --bc-card-border: #2e2e2e;
-  --bc-card-shadow: 0 1px 3px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.3);
+  --bc-canvas-grid-color-major: rgba(255, 255, 255, 0.10);
+
+  // Bootstrap overrides for elevated surfaces
+  --bs-card-bg: #1e1e1e;
+  --bs-card-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.3);
+
+  // Navbar / toolbar
+  --bs-navbar-bg: #1c1c1c;
 
   .form-range::-webkit-slider-runnable-track {
     background-color: #444;
@@ -51,8 +57,8 @@
 }
 
 body {
-  background-color: var(--bc-bg);
-  color: var(--bc-text);
+  background-color: var(--bs-body-bg);
+  color: var(--bs-body-color);
 }
 
 // Unified form-label style: match SectionTitle appearance
@@ -126,7 +132,10 @@ body {
 
 .bc-frame-credit {
   font-size: 0.75rem;
-  @extend .bc-brand-gradient;
+  font-weight: 600;
+  color: var(--bs-secondary-color, #666);
+  display: inline-flex;
+  align-items: center;
 }
 
 .bc-frame-source-link {
