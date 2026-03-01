@@ -21,7 +21,7 @@ test.describe('smoke tests', () => {
     await expect(page.locator('.ht_master table').first()).toBeVisible()
 
     await page.locator('button', { hasText: 'Next' }).click()
-    await expect(page.locator('svg[width="794"]')).toBeVisible()
+    await expect(page.locator('.bc-frame-body svg')).toBeVisible()
   })
 
   test('editor tabs are accessible', async ({ page }) => {
@@ -32,7 +32,7 @@ test.describe('smoke tests', () => {
     await page.locator('button', { hasText: 'Next' }).click()
     await page.locator('button', { hasText: 'Next' }).click()
 
-    await expect(page.locator('svg[width="794"]')).toBeVisible()
+    await expect(page.locator('.bc-frame-body svg')).toBeVisible()
 
     for (const tab of ['Text', 'Appearance', 'Layout', 'Axes', 'Annotate']) {
       const tabButton = page.locator(`[title="${tab}"], [aria-label="${tab}"]`).first()
@@ -70,7 +70,7 @@ test.describe('smoke tests', () => {
     await textarea.fill('Label,Value\nA,10\nB,20\nC,30')
     await page.locator('button', { hasText: 'Next' }).click()
     await page.locator('button', { hasText: 'Next' }).click()
-    await expect(page.locator('svg[width="794"]')).toBeVisible()
+    await expect(page.locator('.bc-frame-body svg')).toBeVisible()
 
     const realErrors = errors.filter(e => !e.includes('favicon'))
     expect(realErrors).toEqual([])
