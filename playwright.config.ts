@@ -11,7 +11,7 @@ export default defineConfig({
   webServer: {
     command: 'pnpm --filter @blueprint-chart/editor dev',
     url: 'http://localhost:5555',
-    reuseExistingServer: true,
-    timeout: 30_000,
+    reuseExistingServer: !process.env.CI,
+    timeout: 120_000,
   },
 })
