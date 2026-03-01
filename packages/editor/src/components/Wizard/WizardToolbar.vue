@@ -18,9 +18,8 @@
           @click="redo"
         />
         <LayoutToolbarSeparator />
-        <FormControlButtonGroup
+        <NavigationToggle
           v-model="viewModeModel"
-          label=""
           :options="viewModeOptions"
         />
       </template>
@@ -43,7 +42,7 @@
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { BButton } from 'bootstrap-vue-next'
-import { NavigationStepper, LayoutToolbarSeparator, FormControlButtonGroup, ButtonUndo, ButtonRedo } from '@blueprint-chart/ui'
+import { NavigationStepper, NavigationToggle, LayoutToolbarSeparator, ButtonUndo, ButtonRedo } from '@blueprint-chart/ui'
 import { useWizard } from '@/composables/useWizard'
 import { useEditorPanel } from '@/composables/useEditorPanel'
 import { useChartHistory } from '@/composables/useChartHistory'
