@@ -67,8 +67,8 @@ describe('ChartEditFloatingPanel', () => {
     const w = mount(ChartEditFloatingPanel, {
       props: { containerRef: null },
     })
-    const tabs = w.findAll('.chart-edit-floating-panel__tab')
-    // type, text, appearance, axes, annotate (5 base with axes)
+    const tabs = w.findAll('.panel-tab-bar__tab')
+    // type, text, appearance, layout, axes, annotate (6 with axes)
     expect(tabs.length).toBeGreaterThanOrEqual(4)
   })
 
@@ -77,7 +77,7 @@ describe('ChartEditFloatingPanel', () => {
     const w = mount(ChartEditFloatingPanel, {
       props: { containerRef: null },
     })
-    const activeTab = w.find('.chart-edit-floating-panel__tab--active')
+    const activeTab = w.find('.panel-tab-bar__tab--active')
     expect(activeTab.text()).toBe('Text')
   })
 
@@ -95,7 +95,7 @@ describe('ChartEditFloatingPanel', () => {
     const w = mount(ChartEditFloatingPanel, {
       props: { containerRef: null },
     })
-    const style = w.find('.chart-edit-floating-panel').attributes('style')
+    const style = w.find('.panel-floating').attributes('style')
     expect(style).toContain('left: 100px')
     expect(style).toContain('top: 50px')
   })

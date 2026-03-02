@@ -60,7 +60,7 @@ describe('ChartEditDockedPanel', () => {
 
   it('adds collapsed class when collapsed prop is true', () => {
     const w = mount(ChartEditDockedPanel, { props: { collapsed: true } })
-    expect(w.find('.chart-edit-docked-panel--collapsed').exists()).toBe(true)
+    expect(w.find('.panel-docked--collapsed').exists()).toBe(true)
   })
 
   it('renders detach and close buttons', () => {

@@ -10,6 +10,7 @@ export function usePanelDrag(
   headerRef: Ref<HTMLElement | null>,
   containerRef: Ref<HTMLElement | null>,
   position: DragPosition,
+  panelSelector = '.panel-floating',
 ) {
   let isDragging = false
   let offsetX = 0
@@ -25,7 +26,7 @@ export function usePanelDrag(
     }
 
     isDragging = true
-    const el = headerRef.value.closest('.chart-edit-floating-panel') as HTMLElement | null
+    const el = headerRef.value.closest(panelSelector) as HTMLElement | null
     if (!el) {
       return
     }
@@ -45,7 +46,7 @@ export function usePanelDrag(
     let x = e.clientX - bounds.left - offsetX
     let y = e.clientY - bounds.top - offsetY
 
-    const el = headerRef.value?.closest('.chart-edit-floating-panel') as HTMLElement | null
+    const el = headerRef.value?.closest(panelSelector) as HTMLElement | null
     const elWidth = el?.offsetWidth ?? 340
     const elHeight = el?.offsetHeight ?? 400
 
