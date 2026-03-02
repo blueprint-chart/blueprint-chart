@@ -8,6 +8,7 @@ function collectBody(members) {
     annotations: [],
     series: [],
     steps: [],
+    transforms: [],
   };
   for (const m of members) {
     switch (m.type) {
@@ -18,6 +19,7 @@ function collectBody(members) {
       case 'annotation': result.annotations.push(m);break;
       case 'series':     result.series.push(m);     break;
       case 'step':       result.steps.push(m);      break;
+      case 'transform':  result.transforms.push(m); break;
     }
   }
   return result;
@@ -58,11 +60,12 @@ Chart
       annotations: body.annotations,
       series: body.series,
       steps: body.steps,
+      transforms: body.transforms,
     };
   }
 
 ChartMember
-  = _ m:(DataBlock / Highlight / AreaFill / RangeAnnotation / NoteAnnotation / Annotation / Series / Step / Property) _
+  = _ m:(DataBlock / Highlight / AreaFill / RangeAnnotation / NoteAnnotation / Annotation / Series / Step / Transform / Property) _
   { return m; }
 
 DataBlock
@@ -117,6 +120,10 @@ Step
       annotations: body.annotations,
     };
   }
+
+Transform
+  = "transform" __ transformType:Identifier _ "{" _ props:BlockProperty* _ "}"
+  { return { type: 'transform', transformType, properties: props }; }
 
 StepMember
   = _ m:(DataBlock / Highlight / AreaFill / RangeAnnotation / NoteAnnotation / Annotation / Property) _

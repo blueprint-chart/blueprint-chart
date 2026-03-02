@@ -1,4 +1,4 @@
-import type { AnnotationNode, AreaFillNode, ChartNode, DataNode, HighlightNode, PropertyNode, SeriesNode, StepNode } from './types'
+import type { AnnotationNode, AreaFillNode, ChartNode, DataNode, HighlightNode, PropertyNode, SeriesNode, StepNode, TransformNode } from './types'
 import { getChartOptions } from '../charts/registry'
 
 function serializeValue(prop: PropertyNode): string {
@@ -104,6 +104,15 @@ function serializeStep(step: StepNode, indent: string): string {
   return lines.join('\n')
 }
 
+function serializeTransform(transform: TransformNode, indent: string): string {
+  const lines = [`${indent}transform ${transform.transformType} {`]
+  for (const prop of transform.properties) {
+    lines.push(serializeProperty(prop, `${indent}  `))
+  }
+  lines.push(`${indent}}`)
+  return lines.join('\n')
+}
+
 function isDefaultValue(key: string, value: string | number, chartType: string): boolean {
   const optionDefs = getChartOptions(chartType)
   const def = optionDefs.find(d => d.key === key)
@@ -136,6 +145,9 @@ export function serialize(ast: ChartNode): string {
   for (const step of ast.steps) {
     lines.push(serializeStep(step, '  '))
   }
+  for (const transform of ast.transforms ?? []) {
+    lines.push(serializeTransform(transform, '  '))
+  }
   lines.push('}')
   return lines.join('\n')
 }
@@ -164,6 +176,9 @@ export function compactSerialize(ast: ChartNode): string {
   }
   for (const step of ast.steps) {
     lines.push(serializeStep(step, '  '))
+  }
+  for (const transform of ast.transforms ?? []) {
+    lines.push(serializeTransform(transform, '  '))
   }
   lines.push('}')
   return lines.join('\n')
