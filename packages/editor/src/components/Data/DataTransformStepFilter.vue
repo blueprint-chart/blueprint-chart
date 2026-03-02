@@ -3,6 +3,7 @@
     <FormControlDropdown
       :model-value="step.config.column ?? ''"
       label="Column"
+      placeholder="Select a column"
       :options="columnOptions"
       block
       @update:model-value="onUpdate('column', $event)"
