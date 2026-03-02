@@ -11,8 +11,7 @@ vi.mock('vue-router', () => ({
 vi.mock('@/composables/useWizard', () => {
   const state = { currentIndex: 0, furthestIndex: 0 }
   const steps = [
-    { label: 'Data', key: 'upload' },
-    { label: 'Data', key: 'check' },
+    { label: 'Data', key: 'data' },
     { label: 'Visualize', key: 'edit' },
     { label: 'Export', key: 'export' },
   ]
@@ -35,6 +34,10 @@ vi.mock('@/composables/useEditorPanel', () => ({
   useEditorPanel: () => ({
     viewMode: ref('preview'),
     setViewMode: vi.fn(),
+    canvasMode: ref('blueprint'),
+    setCanvasMode: vi.fn(),
+    dataView: ref('upload'),
+    setDataView: vi.fn(),
   }),
 }))
 
@@ -79,12 +82,9 @@ vi.mock('@/composables/useTheme', () => ({
   }),
 }))
 
-vi.mock('@/composables/useDataParser', () => ({
-  parseDelimited: vi.fn(() => ({ columns: [], rows: [] })),
-}))
-
 const uiStubs: Record<string, { template: string, props?: string[] }> = {
   NavigationStepper: { template: '<div class="stepper"><slot /></div>', props: ['currentStep', 'steps'] },
+  NavigationToggle: { template: '<div class="nav-toggle" />', props: ['modelValue', 'options'] },
   ButtonIcon: { template: '<button class="btn-icon" :disabled="disabled"><slot /></button>', props: ['iconLeft', 'label', 'hideLabel', 'square', 'variant', 'size', 'disabled'] },
   FormControlButtonGroup: { template: '<div class="btn-group" />', props: ['modelValue', 'label', 'options'] },
 }
@@ -106,10 +106,8 @@ describe('WizardToolbar', () => {
     expect(w.find('.stepper').exists()).toBe(true)
   })
 
-  it('does not render theme toggle (moved to navbar)', () => {
+  it('renders data view toggle on data step', () => {
     const w = mountToolbar()
-    const icons = w.findAll('.btn-icon')
-    const themeToggle = icons.filter(i => i.attributes('aria-label') === 'Toggle theme')
-    expect(themeToggle.length).toBe(0)
+    expect(w.find('.nav-toggle').exists()).toBe(true)
   })
 })
