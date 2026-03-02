@@ -1,0 +1,215 @@
+<template>
+  <div class="add-wrap">
+    <button
+      class="add-wrap__btn"
+      @click="showMenu = !showMenu"
+    >
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        width="14"
+        height="14"
+      ><path d="M12 5v14M5 12h14" /></svg>
+      Add
+    </button>
+    <div
+      v-if="showMenu"
+      class="add-wrap__dropdown"
+    >
+      <button
+        v-for="opt in options"
+        :key="opt.value"
+        class="add-wrap__dropdown-item"
+        :disabled="opt.disabled"
+        @click="onSelect(opt.value)"
+      >
+        <span
+          class="add-wrap__dropdown-icon"
+          :class="iconClass(opt.value)"
+        >{{ iconFallback(opt.value) }}</span>
+        <div class="add-wrap__dropdown-text">
+          <div class="add-wrap__dropdown-name">
+            {{ opt.label }}
+          </div>
+          <div class="add-wrap__dropdown-desc">
+            {{ opt.desc }}
+          </div>
+        </div>
+      </button>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref } from 'vue'
+
+const emit = defineEmits<{
+  add: [type: string]
+}>()
+
+const showMenu = ref(false)
+
+const options = [
+  { value: 'sort', label: 'Sort', desc: 'Reorder rows by column values', disabled: false },
+  { value: 'filter', label: 'Filter', desc: 'Keep or exclude rows by condition', disabled: false },
+  { value: 'transpose', label: 'Transpose', desc: 'Swap rows and columns', disabled: false },
+  { value: 'group-by', label: 'Group By', desc: 'Aggregate rows (coming soon)', disabled: true },
+  { value: 'computed', label: 'Computed Column', desc: 'Derive new column (coming soon)', disabled: true },
+  { value: 'pivot', label: 'Pivot', desc: 'Reshape wide/long (coming soon)', disabled: true },
+]
+
+function iconClass(type: string): string {
+  const map: Record<string, string> = {
+    'sort': 'add-wrap__dropdown-icon--sort',
+    'filter': 'add-wrap__dropdown-icon--filter',
+    'transpose': 'add-wrap__dropdown-icon--transpose',
+    'group-by': 'add-wrap__dropdown-icon--group',
+    'computed': 'add-wrap__dropdown-icon--computed',
+    'pivot': 'add-wrap__dropdown-icon--pivot',
+  }
+  return map[type] ?? ''
+}
+
+function iconFallback(type: string): string {
+  const map: Record<string, string> = {
+    'sort': 'S',
+    'filter': 'F',
+    'transpose': 'T',
+    'group-by': 'G',
+    'computed': 'C',
+    'pivot': 'P',
+  }
+  return map[type] ?? '?'
+}
+
+function onSelect(type: string) {
+  emit('add', type)
+  showMenu.value = false
+}
+</script>
+
+<style scoped lang="scss">
+.add-wrap {
+  position: relative;
+}
+
+.add-wrap__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  padding: 0.375rem;
+  border: 1.5px dashed var(--bs-border-color);
+  border-radius: var(--bs-border-radius);
+  background: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--bs-secondary-color);
+  width: 100%;
+  transition: all 0.15s;
+
+  &:hover {
+    border-color: var(--bs-primary-border-subtle);
+    color: var(--bs-primary);
+    background: var(--bs-primary-bg-subtle);
+  }
+}
+
+.add-wrap__dropdown {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  background: var(--bs-body-bg);
+  border: 1px solid var(--bs-border-color);
+  border-radius: var(--bs-border-radius);
+  box-shadow: var(--bs-box-shadow);
+  z-index: 50;
+  margin-top: 0.25rem;
+}
+
+.add-wrap__dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  font-size: 0.75rem;
+  transition: background 0.1s;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  color: var(--bs-body-color);
+  font-family: inherit;
+
+  &:hover:not(:disabled) {
+    background: var(--bs-tertiary-bg);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.add-wrap__dropdown-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  flex-shrink: 0;
+
+  &--sort {
+    background: var(--bs-warning-bg-subtle);
+    color: var(--bs-warning-text-emphasis);
+  }
+
+  &--filter {
+    background: var(--bs-danger-bg-subtle);
+    color: var(--bs-danger-text-emphasis);
+  }
+
+  &--transpose {
+    background: var(--bs-info-bg-subtle);
+    color: var(--bs-info-text-emphasis);
+  }
+
+  &--group {
+    background: hsl(270 90% 95%);
+    color: hsl(270 70% 50%);
+  }
+
+  &--computed {
+    background: var(--bs-info-bg-subtle);
+    color: var(--bs-info-text-emphasis);
+  }
+
+  &--pivot {
+    background: hsl(30 100% 93%);
+    color: hsl(25 90% 48%);
+  }
+}
+
+.add-wrap__dropdown-text {
+  flex: 1;
+}
+
+.add-wrap__dropdown-name {
+  font-weight: 600;
+  color: var(--bs-body-color);
+}
+
+.add-wrap__dropdown-desc {
+  font-size: 0.6875rem;
+  color: var(--bs-secondary-color);
+}
+</style>
