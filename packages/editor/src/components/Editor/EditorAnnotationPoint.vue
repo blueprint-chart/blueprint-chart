@@ -98,6 +98,7 @@
           <BFormGroup>
             <BFormCheckbox
               :model-value="annotation.showArrow ?? true"
+              switch
               @update:model-value="(v: boolean) => update('showArrow', v)"
             >
               Show arrow

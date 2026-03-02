@@ -1,15 +1,11 @@
 <template>
   <div class="data-parse-settings">
-    <div class="data-parse-settings__toggle-row">
-      <label>First row is header</label>
-      <button
-        class="data-parse-settings__toggle"
-        :class="{ 'data-parse-settings__toggle--on': headerRow }"
-        role="switch"
-        :aria-checked="headerRow"
-        @click="headerRow = !headerRow"
-      />
-    </div>
+    <BFormCheckbox
+      v-model="headerRow"
+      switch
+    >
+      First row is header
+    </BFormCheckbox>
 
     <div class="data-parse-settings__field">
       <div class="data-parse-settings__label">
@@ -36,32 +32,25 @@
       />
     </div>
 
-    <div class="data-parse-settings__toggle-row">
-      <label>Treat empty as null</label>
-      <button
-        class="data-parse-settings__toggle"
-        :class="{ 'data-parse-settings__toggle--on': emptyAsNull }"
-        role="switch"
-        :aria-checked="emptyAsNull"
-        @click="emptyAsNull = !emptyAsNull"
-      />
-    </div>
+    <BFormCheckbox
+      v-model="emptyAsNull"
+      switch
+    >
+      Treat empty as null
+    </BFormCheckbox>
 
-    <div class="data-parse-settings__toggle-row">
-      <label>Trim whitespace</label>
-      <button
-        class="data-parse-settings__toggle"
-        :class="{ 'data-parse-settings__toggle--on': trimWs }"
-        role="switch"
-        :aria-checked="trimWs"
-        @click="trimWs = !trimWs"
-      />
-    </div>
+    <BFormCheckbox
+      v-model="trimWs"
+      switch
+    >
+      Trim whitespace
+    </BFormCheckbox>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { BFormCheckbox } from 'bootstrap-vue-next'
 import { FormControlDropdown } from '@blueprint-chart/ui'
 import { useParseOptions } from '@/composables/useParseOptions'
 import { useDataTable } from '@/composables/useDataTable'
@@ -133,50 +122,4 @@ const decimalOptions = [
   margin-bottom: 0.25rem;
 }
 
-.data-parse-settings__toggle-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.5rem 0;
-
-  label {
-    font-size: 0.8125rem;
-    color: var(--bs-body-color);
-    font-weight: 500;
-  }
-}
-
-.data-parse-settings__toggle {
-  width: 2.25rem;
-  height: 1.25rem;
-  background: var(--bs-secondary-bg);
-  border-radius: 0.625rem;
-  position: relative;
-  cursor: pointer;
-  transition: background 0.2s;
-  border: none;
-  padding: 0;
-  flex-shrink: 0;
-
-  &::after {
-    content: '';
-    position: absolute;
-    top: 0.125rem;
-    left: 0.125rem;
-    width: 1rem;
-    height: 1rem;
-    background: #fff;
-    border-radius: 50%;
-    transition: transform 0.2s;
-    box-shadow: 0 1px 2px rgb(0 0 0 / 5%);
-  }
-
-  &--on {
-    background: var(--bs-primary);
-
-    &::after {
-      transform: translateX(1rem);
-    }
-  }
-}
 </style>

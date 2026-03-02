@@ -10,6 +10,7 @@
     <template #item-actions="{ item }">
       <BFormCheckbox
         :model-value="!isHidden(item)"
+        switch
         size="sm"
         @click.stop
         @update:model-value="(v: boolean) => $emit('toggleVisibility', item, !v)"
