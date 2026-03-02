@@ -48,6 +48,7 @@
         v-if="selectedStep.type === 'sort'"
         :step="selectedStep"
         :columns="columnsAtStep"
+        :column-types="columnTypesAtStep"
       />
       <DataTransformStepFilter
         v-else-if="selectedStep.type === 'filter'"
@@ -90,12 +91,15 @@ const selectedStepId = ref('')
 const selectedStep = computed(() => steps.value.find(s => s.id === selectedStepId.value))
 const selectedStepIndex = computed(() => steps.value.findIndex(s => s.id === selectedStepId.value))
 
-const columnsAtStep = computed(() => {
+const dataAtStep = computed(() => {
   if (selectedStepIndex.value < 0) {
-    return []
+    return { columns: [] as string[], columnTypes: [] as string[] }
   }
-  return getColumnsAtStep(selectedStepIndex.value, columns.value, rows.value, columnTypes.value).columns
+  return getColumnsAtStep(selectedStepIndex.value, columns.value, rows.value, columnTypes.value)
 })
+
+const columnsAtStep = computed(() => dataAtStep.value.columns)
+const columnTypesAtStep = computed(() => dataAtStep.value.columnTypes)
 
 const transformed = computed(() => applyTransforms(columns.value, rows.value, columnTypes.value))
 const transformedCols = computed(() => transformed.value.columns.length)
