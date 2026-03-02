@@ -2,11 +2,6 @@
   <div class="d-flex flex-column gap-3">
     <EditorColorSection />
 
-    <template v-if="hasSort">
-      <hr>
-      <EditorSortSection />
-    </template>
-
     <template v-if="hasLine">
       <hr>
       <EditorLineSection />
@@ -31,21 +26,14 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useChartConfig } from '@/composables/useChartConfig'
 import { useChartTypeOptions } from '@/composables/useChartTypeOptions'
 import EditorColorSection from './EditorColorSection.vue'
-import EditorSortSection from './EditorSortSection.vue'
 import EditorLineSection from './EditorLineSection.vue'
 import EditorLegendSection from './EditorLegendSection.vue'
 import EditorSliceSection from './EditorSliceSection.vue'
 import EditorInteractionSection from './EditorInteractionSection.vue'
 
-const { chartType } = useChartConfig()
 const { availableOptionKeys } = useChartTypeOptions()
-
-const hasSort = computed(() =>
-  ['bar-vertical', 'bar-horizontal', 'bar-multi', 'vertical-bar', 'horizontal-bar', 'donut', 'pie'].includes(chartType.value),
-)
 
 const hasLine = computed(() =>
   availableOptionKeys.value.includes('interpolation')
