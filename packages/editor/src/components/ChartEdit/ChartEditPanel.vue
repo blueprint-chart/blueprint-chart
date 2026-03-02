@@ -31,17 +31,12 @@
     </div>
     <template v-if="isNarrow">
       <LayoutBottomDrawer v-model="drawerOpen">
-        <div class="chart-edit-panel__drawer-tabs">
-          <button
-            v-for="tab in tabs"
-            :key="tab.key"
-            class="chart-edit-panel__drawer-tab"
-            :class="drawerTabClassList(tab.key)"
-            @click="selectTab(tab.key)"
-          >
-            {{ tab.label }}
-          </button>
-        </div>
+        <PanelTabBar
+          :tabs="tabs"
+          :model-value="activeTab"
+          sticky
+          @update:model-value="selectTab"
+        />
         <div class="chart-edit-panel__drawer-body">
           <EditorChartTypePicker v-if="activeTab === 'type'" />
           <EditorPropertyForm v-else-if="activeTab === 'text'" />
@@ -64,6 +59,7 @@
 import { ref, computed, type CSSProperties } from 'vue'
 import { LayoutBottomDrawer, useBreakpoint } from '@blueprint-chart/ui'
 import { useEditorPanel } from '@/composables/useEditorPanel'
+import PanelTabBar from '@/components/Panel/PanelTabBar.vue'
 import { useChartConfig } from '@/composables/useChartConfig'
 import { useChartTypeOptions } from '@/composables/useChartTypeOptions'
 import PreviewChart from '@/components/Preview/PreviewChart.vue'
@@ -120,10 +116,6 @@ const panelClassList = computed(() => ({
 const canvasClassList = computed(() => ({
   [`chart-edit-panel__canvas--${canvasMode.value}`]: canvasMode.value !== 'blueprint',
 }))
-
-function drawerTabClassList(key: string) {
-  return { 'chart-edit-panel__drawer-tab--active': activeTab.value === key }
-}
 
 const canvasRef = ref<HTMLElement | null>(null)
 
@@ -300,47 +292,6 @@ const cardStyle = computed<CSSProperties>(() => {
   flex: 1;
   display: flex;
   flex-direction: column;
-}
-
-.chart-edit-panel__drawer-tabs {
-  display: flex;
-  gap: 0;
-  padding: 0 0.875rem;
-  border-bottom: 1px solid var(--bs-border-color-translucent);
-  overflow-x: auto;
-  scrollbar-width: none;
-  position: sticky;
-  top: 0;
-  z-index: 1;
-  background: var(--bs-body-bg);
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
-}
-
-.chart-edit-panel__drawer-tab {
-  font-family: inherit;
-  font-size: 0.75rem;
-  font-weight: 500;
-  padding: 0.5rem 0.75rem;
-  white-space: nowrap;
-  flex-shrink: 0;
-  border: none;
-  cursor: pointer;
-  background: transparent;
-  color: var(--bs-secondary-color);
-  border-bottom: 2px solid transparent;
-  transition: all 0.15s;
-
-  &:hover {
-    color: var(--bs-body-color);
-  }
-
-  &--active {
-    color: var(--bs-primary);
-    border-bottom-color: var(--bs-primary);
-  }
 }
 
 .chart-edit-panel__drawer-body {
