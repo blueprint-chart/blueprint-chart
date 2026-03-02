@@ -45,6 +45,7 @@ const showMenu = ref(false)
 const options = [
   { value: 'sort', label: 'Sort', desc: 'Reorder rows by column values', disabled: false },
   { value: 'filter', label: 'Filter', desc: 'Keep or exclude rows by condition', disabled: false },
+  { value: 'hide-columns', label: 'Hide Columns', desc: 'Remove columns from output', disabled: false },
   { value: 'transpose', label: 'Transpose', desc: 'Swap rows and columns', disabled: false },
   { value: 'group-by', label: 'Group By', desc: 'Aggregate rows (coming soon)', disabled: true },
   { value: 'computed', label: 'Computed Column', desc: 'Derive new column (coming soon)', disabled: true },
@@ -55,6 +56,7 @@ function iconClass(type: string): string {
   const map: Record<string, string> = {
     'sort': 'add-wrap__dropdown-icon--sort',
     'filter': 'add-wrap__dropdown-icon--filter',
+    'hide-columns': 'add-wrap__dropdown-icon--hide-columns',
     'transpose': 'add-wrap__dropdown-icon--transpose',
     'group-by': 'add-wrap__dropdown-icon--group',
     'computed': 'add-wrap__dropdown-icon--computed',
@@ -67,6 +69,7 @@ function iconFallback(type: string): string {
   const map: Record<string, string> = {
     'sort': 'S',
     'filter': 'F',
+    'hide-columns': 'H',
     'transpose': 'T',
     'group-by': 'G',
     'computed': 'C',
@@ -143,6 +146,11 @@ function onSelect(type: string) {
   &--filter {
     background: var(--bs-danger-bg-subtle);
     color: var(--bs-danger-text-emphasis);
+  }
+
+  &--hide-columns {
+    background: var(--bs-secondary-bg);
+    color: var(--bs-secondary-text-emphasis);
   }
 
   &--transpose {

@@ -1,7 +1,7 @@
 import { reactive, toRefs } from 'vue'
 import type { ColumnType } from './useDataParser'
 
-export type TransformType = 'sort' | 'filter' | 'transpose' | 'group-by' | 'computed' | 'pivot'
+export type TransformType = 'sort' | 'filter' | 'hide-columns' | 'transpose' | 'group-by' | 'computed' | 'pivot'
 
 export interface TransformStep {
   id: string
@@ -135,6 +135,24 @@ function applyFilter(data: TransformResult, config: Record<string, string>): Tra
   return { ...data, rows: filtered }
 }
 
+function applyHideColumns(data: TransformResult, config: Record<string, string>): TransformResult {
+  const colNames = resolveColumns(config)
+  if (colNames.length === 0) {
+    return data
+  }
+  const keepIndices = data.columns
+    .map((c, i) => (colNames.includes(c) ? -1 : i))
+    .filter(i => i >= 0)
+  if (keepIndices.length === data.columns.length) {
+    return data
+  }
+  return {
+    columns: keepIndices.map(i => data.columns[i]),
+    rows: data.rows.map(r => keepIndices.map(i => r[i])),
+    columnTypes: keepIndices.map(i => data.columnTypes[i]),
+  }
+}
+
 function applyTranspose(data: TransformResult): TransformResult {
   if (data.rows.length === 0 || data.columns.length === 0) {
     return data
@@ -207,6 +225,9 @@ export function useDataTransforms() {
           break
         case 'filter':
           result = applyFilter(result, step.config)
+          break
+        case 'hide-columns':
+          result = applyHideColumns(result, step.config)
           break
         case 'transpose':
           result = applyTranspose(result)

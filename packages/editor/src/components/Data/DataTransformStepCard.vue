@@ -57,6 +57,7 @@ import type { TransformStep } from '@/composables/useDataTransforms'
 import IPhSortAscending from '~icons/ph/sort-ascending'
 import IPhFunnel from '~icons/ph/funnel'
 import IPhArrowsClockwise from '~icons/ph/arrows-clockwise'
+import IPhEyeSlash from '~icons/ph/eye-slash'
 
 const props = defineProps<{
   step: TransformStep
@@ -72,6 +73,7 @@ defineEmits<{
 const iconClassMap: Record<string, string> = {
   'sort': 'step-card__icon--sort',
   'filter': 'step-card__icon--filter',
+  'hide-columns': 'step-card__icon--hide-columns',
   'transpose': 'step-card__icon--transpose',
   'group-by': 'step-card__icon--group',
   'computed': 'step-card__icon--computed',
@@ -79,14 +81,16 @@ const iconClassMap: Record<string, string> = {
 }
 
 const iconComponentMap: Record<string, Component> = {
-  sort: IPhSortAscending,
-  filter: IPhFunnel,
-  transpose: IPhArrowsClockwise,
+  'sort': IPhSortAscending,
+  'filter': IPhFunnel,
+  'hide-columns': IPhEyeSlash,
+  'transpose': IPhArrowsClockwise,
 }
 
 const iconFallbackMap: Record<string, string> = {
   'sort': 'S',
   'filter': 'F',
+  'hide-columns': 'H',
   'transpose': 'T',
   'group-by': 'G',
   'computed': 'C',
@@ -96,6 +100,7 @@ const iconFallbackMap: Record<string, string> = {
 const labelMap: Record<string, string> = {
   'sort': 'Sort',
   'filter': 'Filter',
+  'hide-columns': 'Hide Columns',
   'transpose': 'Transpose',
   'group-by': 'Group By',
   'computed': 'Computed',
@@ -114,6 +119,10 @@ const description = computed(() => {
   }
   if (step.type === 'filter' && step.config.column) {
     return `${step.config.column} ${step.config.condition ?? 'equals'} ${step.config.value ?? ''}`
+  }
+  if (step.type === 'hide-columns') {
+    const cols = step.config.columns ? step.config.columns.split(',').map(c => c.trim()).filter(Boolean) : []
+    return cols.length > 0 ? `Hiding ${cols.join(', ')}` : 'Configure...'
   }
   if (step.type === 'transpose') {
     return 'Swap rows \u2194 columns'
@@ -196,6 +205,11 @@ const description = computed(() => {
   &--filter {
     background: var(--bs-danger-bg-subtle);
     color: var(--bs-danger-text-emphasis);
+  }
+
+  &--hide-columns {
+    background: var(--bs-secondary-bg);
+    color: var(--bs-secondary-text-emphasis);
   }
 
   &--transpose {
