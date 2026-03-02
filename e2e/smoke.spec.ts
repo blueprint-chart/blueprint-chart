@@ -17,10 +17,7 @@ test.describe('smoke tests', () => {
     const textarea = page.locator('textarea')
     await textarea.fill('Label,Value\nA,10\nB,20\nC,30')
 
-    await page.locator('button', { hasText: 'Next' }).click()
-    await expect(page.locator('.ht_master table').first()).toBeVisible()
-
-    await page.locator('button', { hasText: 'Next' }).click()
+    await page.locator('button', { hasText: 'Visualize' }).click()
     await expect(page.locator('.bc-frame-body svg')).toBeVisible()
   })
 
@@ -29,8 +26,7 @@ test.describe('smoke tests', () => {
 
     const textarea = page.locator('textarea')
     await textarea.fill('Label,Value\nA,10\nB,20\nC,30')
-    await page.locator('button', { hasText: 'Next' }).click()
-    await page.locator('button', { hasText: 'Next' }).click()
+    await page.locator('button', { hasText: 'Visualize' }).click()
 
     await expect(page.locator('.bc-frame-body svg')).toBeVisible()
 
@@ -68,8 +64,7 @@ test.describe('smoke tests', () => {
     await page.goto('/new')
     const textarea = page.locator('textarea')
     await textarea.fill('Label,Value\nA,10\nB,20\nC,30')
-    await page.locator('button', { hasText: 'Next' }).click()
-    await page.locator('button', { hasText: 'Next' }).click()
+    await page.locator('button', { hasText: 'Visualize' }).click()
     await expect(page.locator('.bc-frame-body svg')).toBeVisible()
 
     const realErrors = errors.filter(e => !e.includes('favicon'))
