@@ -60,6 +60,12 @@ export interface StepNode {
   annotations: AnnotationNode[]
 }
 
+export interface TransformNode {
+  type: 'transform'
+  transformType: string
+  properties: PropertyNode[]
+}
+
 export interface ChartNode {
   type: 'chart'
   chartType: string
@@ -70,4 +76,5 @@ export interface ChartNode {
   annotations: AnnotationNode[]
   series: SeriesNode[]
   steps: StepNode[]
+  transforms: TransformNode[]
 }
