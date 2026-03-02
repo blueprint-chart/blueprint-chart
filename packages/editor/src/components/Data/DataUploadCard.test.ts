@@ -12,15 +12,10 @@ vi.mock('@/composables/useDataTable', () => ({
   }),
 }))
 
-const uiStubs: Record<string, { template: string, props?: string[] }> = {
-  NavigationToggle: { template: '<div class="nav-toggle"><slot /></div>', props: ['modelValue', 'options'] },
-}
-
 function mountCard() {
   return mount(DataUploadCard, {
     global: {
       stubs: {
-        ...uiStubs,
         DataUploadFileDrop: { template: '<div class="file-drop" />' },
         DataUploadSamples: { template: '<div class="samples" />' },
       },

@@ -2,25 +2,26 @@
   <div
     class="file-drop"
     :class="{ 'file-drop--active': dragging }"
-    @dragover.prevent="dragging = true"
-    @dragleave.prevent="dragging = false"
+    @dragover.prevent="onDragEnter"
+    @dragleave.prevent="onDragLeave"
     @drop.prevent="onDrop"
     @click="fileInput?.click()"
   >
-    <svg
-      class="file-drop__icon"
-      width="28"
-      height="28"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="1.5"
-    ><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12" /></svg>
+    <div class="file-drop__icon">
+      <svg
+        width="22"
+        height="22"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+      ><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12" /></svg>
+    </div>
     <div class="file-drop__title">
       Drag &amp; drop your file here
     </div>
-    <div class="file-drop__hint">
-      CSV, TSV, or BPC
+    <div class="file-drop__or">
+      or
     </div>
     <button
       class="file-drop__btn"
@@ -28,6 +29,11 @@
     >
       Browse files
     </button>
+    <div class="file-drop__formats">
+      <span class="file-drop__format-tag">.csv</span>
+      <span class="file-drop__format-tag">.tsv</span>
+      <span class="file-drop__format-tag">.bpc</span>
+    </div>
     <input
       ref="fileInput"
       type="file"
@@ -41,10 +47,27 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
-const emit = defineEmits<{ loaded: [content: string], bpc: [content: string] }>()
+const emit = defineEmits<{
+  loaded: [content: string],
+  bpc: [content: string],
+  dragState: [active: boolean],
+}>()
 
 const fileInput = ref<globalThis.HTMLInputElement | null>(null)
 const dragging = ref(false)
+
+function setDragState(active: boolean) {
+  dragging.value = active
+  emit('dragState', active)
+}
+
+function onDragEnter() {
+  setDragState(true)
+}
+
+function onDragLeave() {
+  setDragState(false)
+}
 
 function isBpcFile(file: globalThis.File): boolean {
   return file.name.toLowerCase().endsWith('.bpc')
@@ -61,7 +84,7 @@ function readFile(file: globalThis.File) {
 }
 
 function onDrop(e: globalThis.DragEvent) {
-  dragging.value = false
+  setDragState(false)
   const file = e.dataTransfer?.files[0]
   if (file) {
     readFile(file)
@@ -84,43 +107,45 @@ function onFileSelect(e: globalThis.Event) {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.375rem;
-  padding: 2.5rem 1.5rem;
-  border: 2px dashed var(--bs-border-color);
-  border-radius: var(--bs-border-radius-lg);
+  padding: 2rem 1.5rem;
   cursor: pointer;
-  transition: all 0.15s;
-  background: var(--bs-body-bg);
-  width: 100%;
+  transition: background 0.15s;
+  min-height: 180px;
 
-  &:hover,
-  &--active {
-    border-color: var(--bs-primary);
-    background: var(--bs-primary-bg-subtle);
+  &:hover {
+    background: var(--bs-tertiary-bg);
   }
 }
 
 .file-drop__icon {
-  color: var(--bs-secondary-color);
-  margin-bottom: 0.25rem;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.75rem;
+  background: var(--bs-primary-bg-subtle);
+  color: var(--bs-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.75rem;
 }
 
 .file-drop__title {
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   font-weight: 600;
   color: var(--bs-body-color);
+  margin-bottom: 0.125rem;
 }
 
-.file-drop__hint {
+.file-drop__or {
   font-size: 0.75rem;
   color: var(--bs-secondary-color);
+  margin-bottom: 0.875rem;
 }
 
 .file-drop__btn {
-  margin-top: 0.5rem;
-  padding: 0.3125rem 0.875rem;
-  font-size: 0.75rem;
-  font-weight: 500;
+  padding: 0.4375rem 1.25rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
   color: var(--bs-body-color);
   background: var(--bs-body-bg);
   border: 1px solid var(--bs-border-color);
@@ -132,7 +157,25 @@ function onFileSelect(e: globalThis.Event) {
   &:hover {
     border-color: var(--bs-primary);
     color: var(--bs-primary);
+    background: var(--bs-primary-bg-subtle);
   }
+}
+
+.file-drop__formats {
+  display: flex;
+  gap: 0.375rem;
+  margin-top: 0.875rem;
+}
+
+.file-drop__format-tag {
+  font-size: 0.625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.125rem 0.4375rem;
+  border-radius: 0.1875rem;
+  background: var(--bs-tertiary-bg);
+  color: var(--bs-secondary-color);
 }
 
 .file-drop__input {

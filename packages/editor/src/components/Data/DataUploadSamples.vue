@@ -89,6 +89,7 @@ function colCount(sample: ChartSample): number {
   grid-template-columns: 1fr 1fr;
   gap: 0.5rem;
   width: 100%;
+  padding: 0.5rem;
 }
 
 .sample-card {
