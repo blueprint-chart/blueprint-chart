@@ -19,10 +19,10 @@ const CHART_LABELS: Record<string, string> = {
 }
 
 export function useChartRecommendations() {
-  const { rows, columnTypes } = useDataTable()
+  const { displayRows, displayColumnTypes } = useDataTable()
 
   const dataSummary = computed(() => {
-    const types = columnTypes.value
+    const types = displayColumnTypes.value
     const strings = types.filter(t => t === 'string').length
     const numbers = types.filter(t => t === 'number').length
     const dates = types.filter(t => t === 'date').length
@@ -40,7 +40,7 @@ export function useChartRecommendations() {
   })
 
   const recommendations = computed<ChartRecommendation[]>(() => {
-    const types = columnTypes.value
+    const types = displayColumnTypes.value
     if (types.length === 0) {
       return []
     }
@@ -48,7 +48,7 @@ export function useChartRecommendations() {
     const strings = types.filter(t => t === 'string').length
     const numbers = types.filter(t => t === 'number').length
     const dates = types.filter(t => t === 'date').length
-    const rowCount = rows.value.length
+    const rowCount = displayRows.value.length
     const result: ChartRecommendation[] = []
 
     function rec(chartType: string, fitness: ChartRecommendation['fitness'], reason: string) {
