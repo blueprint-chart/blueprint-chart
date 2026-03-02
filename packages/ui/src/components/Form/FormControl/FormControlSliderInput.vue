@@ -58,6 +58,14 @@ withDefaults(defineProps<{
 
 .form-control-slider-input__range {
   flex-grow: 1;
+
+  &::-webkit-slider-runnable-track {
+    background: var(--bs-border-color);
+  }
+
+  &::-moz-range-track {
+    background: var(--bs-border-color);
+  }
 }
 
 .form-control-slider-input__number {
