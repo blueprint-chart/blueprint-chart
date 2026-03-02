@@ -1,9 +1,5 @@
 <template>
   <div class="d-flex flex-column gap-3">
-    <small class="text-muted">
-      Editing {{ selected.length }} series{{ selected.length > 1 ? '' : `: ${selected[0]}` }}
-    </small>
-
     <FormControlColorInput
       id="series-color"
       label="Color"

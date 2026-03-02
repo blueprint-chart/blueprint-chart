@@ -4,20 +4,18 @@
       Series
     </h6>
 
-    <div class="border rounded overflow-hidden bg-body-tertiary p-2">
-      <EditorSeriesList
-        :series-names="seriesNames"
-        :selected="selected"
-        :colors="colors"
-        :overrides="seriesOverrides"
-        @update:selected="selected = $event"
-        @toggle-visibility="onToggleVisibility"
-      />
-    </div>
+    <EditorSeriesList
+      :series-names="seriesNames"
+      :selected="selected"
+      :colors="colors"
+      :overrides="seriesOverrides"
+      @update:selected="selected = $event"
+      @toggle-visibility="onToggleVisibility"
+    />
 
-    <div
+    <SectionCard
       v-if="selected.length > 0"
-      class="border rounded overflow-hidden bg-body-tertiary p-2 d-flex flex-column gap-3"
+      :label="'Editing ' + selected.length + ' ' + (selected.length === 1 ? 'series: ' + selected[0] : 'series')"
     >
       <EditorSeriesOptions
         :selected="selected"
@@ -26,7 +24,7 @@
         :chart-type="chartType"
         @update:overrides="seriesOverrides = $event"
       />
-    </div>
+    </SectionCard>
   </div>
 </template>
 
@@ -36,6 +34,7 @@ import { useChartConfig } from '@/composables/useChartConfig'
 import { useChartTypeOptions } from '@/composables/useChartTypeOptions'
 import { parseData, buildChartOptions } from '@blueprint-chart/lib'
 import type { SeriesOverride } from '@blueprint-chart/lib'
+import { SectionCard } from '@blueprint-chart/ui'
 import EditorSeriesList from './EditorSeriesList.vue'
 import EditorSeriesOptions from './EditorSeriesOptions.vue'
 

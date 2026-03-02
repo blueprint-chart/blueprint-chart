@@ -1,19 +1,9 @@
 <template>
   <div class="add-wrap">
-    <button
-      class="add-wrap__btn"
+    <ButtonAdd
+      label="Add"
       @click="showMenu = !showMenu"
-    >
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        width="14"
-        height="14"
-      ><path d="M12 5v14M5 12h14" /></svg>
-      Add
-    </button>
+    />
     <div
       v-if="showMenu"
       class="add-wrap__dropdown"
@@ -44,6 +34,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { ButtonAdd } from '@blueprint-chart/ui'
 
 const emit = defineEmits<{
   add: [type: string]
@@ -93,30 +84,6 @@ function onSelect(type: string) {
 <style scoped lang="scss">
 .add-wrap {
   position: relative;
-}
-
-.add-wrap__btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.25rem;
-  padding: 0.375rem;
-  border: 1.5px dashed var(--bs-border-color);
-  border-radius: var(--bs-border-radius);
-  background: none;
-  cursor: pointer;
-  font-family: inherit;
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: var(--bs-secondary-color);
-  width: 100%;
-  transition: all 0.15s;
-
-  &:hover {
-    border-color: var(--bs-primary-border-subtle);
-    color: var(--bs-primary);
-    background: var(--bs-primary-bg-subtle);
-  }
 }
 
 .add-wrap__dropdown {

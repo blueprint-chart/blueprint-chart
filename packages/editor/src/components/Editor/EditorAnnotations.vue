@@ -8,31 +8,29 @@
     <template v-if="!isPieOrDonut">
       <div class="d-flex flex-column gap-2">
         <small class="fw-semibold text-body-secondary">Points</small>
-        <div
+        <SectionCard
           v-for="{ ann, index } in pointAnnotations"
           :key="index"
-          class="rounded overflow-hidden border bg-body-tertiary"
         >
-          <EditorAnnotationHeader
-            :kind-label="kindLabel(ann)"
-            :summary="summaryText(ann)"
-            :collapsed="openIndex !== index"
-            @duplicate="duplicate(index)"
-            @remove="remove(index)"
-            @toggle-collapse="toggleCollapse(index)"
-          />
-          <div
-            v-if="openIndex === index"
-            class="p-2 d-flex flex-column gap-2"
-          >
+          <template #header>
+            <EditorAnnotationHeader
+              :kind-label="kindLabel(ann)"
+              :summary="summaryText(ann)"
+              :collapsed="openIndex !== index"
+              @duplicate="duplicate(index)"
+              @remove="remove(index)"
+              @toggle-collapse="toggleCollapse(index)"
+            />
+          </template>
+          <template v-if="openIndex === index">
             <EditorAnnotationPoint
               :annotation="ann"
               :labels="labels"
               :chart-width="chartWidth"
               @update:annotation="(v) => update(index, v)"
             />
-          </div>
-        </div>
+          </template>
+        </SectionCard>
       </div>
       <ButtonAdd
         label="Add"
@@ -44,30 +42,28 @@
     <template v-if="!isPieOrDonut">
       <div class="d-flex flex-column gap-2">
         <small class="fw-semibold text-body-secondary">Ranges</small>
-        <div
+        <SectionCard
           v-for="{ ann, index } in rangeAnnotations"
           :key="index"
-          class="rounded overflow-hidden border bg-body-tertiary"
         >
-          <EditorAnnotationHeader
-            :kind-label="kindLabel(ann)"
-            :summary="summaryText(ann)"
-            :collapsed="openIndex !== index"
-            @duplicate="duplicate(index)"
-            @remove="remove(index)"
-            @toggle-collapse="toggleCollapse(index)"
-          />
-          <div
-            v-if="openIndex === index"
-            class="p-2 d-flex flex-column gap-2"
-          >
+          <template #header>
+            <EditorAnnotationHeader
+              :kind-label="kindLabel(ann)"
+              :summary="summaryText(ann)"
+              :collapsed="openIndex !== index"
+              @duplicate="duplicate(index)"
+              @remove="remove(index)"
+              @toggle-collapse="toggleCollapse(index)"
+            />
+          </template>
+          <template v-if="openIndex === index">
             <EditorAnnotationRange
               :annotation="ann"
               :labels="labels"
               @update:annotation="(v) => update(index, v)"
             />
-          </div>
-        </div>
+          </template>
+        </SectionCard>
       </div>
       <ButtonAdd
         label="Add"
@@ -78,31 +74,29 @@
     <!-- Notes (free annotations) -->
     <div class="d-flex flex-column gap-2">
       <small class="fw-semibold text-body-secondary">Notes</small>
-      <div
+      <SectionCard
         v-for="{ ann, index } in freeAnnotations"
         :key="index"
-        class="rounded overflow-hidden border bg-body-tertiary"
       >
-        <EditorAnnotationHeader
-          :kind-label="kindLabel(ann)"
-          :summary="summaryText(ann)"
-          :collapsed="openIndex !== index"
-          @duplicate="duplicate(index)"
-          @remove="remove(index)"
-          @toggle-collapse="toggleCollapse(index)"
-        />
-        <div
-          v-if="openIndex === index"
-          class="p-2 d-flex flex-column gap-2"
-        >
+        <template #header>
+          <EditorAnnotationHeader
+            :kind-label="kindLabel(ann)"
+            :summary="summaryText(ann)"
+            :collapsed="openIndex !== index"
+            @duplicate="duplicate(index)"
+            @remove="remove(index)"
+            @toggle-collapse="toggleCollapse(index)"
+          />
+        </template>
+        <template v-if="openIndex === index">
           <EditorAnnotationFree
             :annotation="ann"
             :chart-width="chartWidth"
             :chart-height="chartHeight"
             @update:annotation="(v) => update(index, v)"
           />
-        </div>
-      </div>
+        </template>
+      </SectionCard>
     </div>
     <ButtonAdd
       label="Add"
@@ -114,7 +108,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import type { AnnotationConfig, PointAnnotationConfig, RangeAnnotationConfig, FreeAnnotationConfig } from '@blueprint-chart/lib'
-import { ButtonAdd } from '@blueprint-chart/ui'
+import { ButtonAdd, SectionCard } from '@blueprint-chart/ui'
 import EditorAnnotationHeader from './EditorAnnotationHeader.vue'
 import EditorAnnotationPoint from './EditorAnnotationPoint.vue'
 import EditorAnnotationRange from './EditorAnnotationRange.vue'

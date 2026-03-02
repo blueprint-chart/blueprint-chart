@@ -16,4 +16,14 @@ describe('SectionCard', () => {
     const wrapper = mount(SectionCard, { slots: { default: '<p>Content</p>' } })
     expect(wrapper.find('.section-card__body').text()).toBe('Content')
   })
+
+  it('renders header slot', () => {
+    const wrapper = mount(SectionCard, { slots: { header: '<div class="custom-header">Header</div>' } })
+    expect(wrapper.find('.custom-header').text()).toBe('Header')
+  })
+
+  it('hides body when no default slot content', () => {
+    const wrapper = mount(SectionCard, { props: { label: 'Empty' } })
+    expect(wrapper.find('.section-card__body').exists()).toBe(false)
+  })
 })
