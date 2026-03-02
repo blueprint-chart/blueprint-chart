@@ -6,6 +6,7 @@
     <slot />
     <div
       class="navigation-pill__bubble"
+      :class="{ 'navigation-pill__bubble--ready': ready }"
       :style="bubbleStyle"
     />
     <button
@@ -56,6 +57,7 @@ const emit = defineEmits<{
 const buttonRefs = useTemplateRef<Element[]>('buttonRefs')
 const bubbleX = ref(0)
 const bubbleW = ref(0)
+const ready = ref(false)
 
 const bubbleStyle = computed(() => ({
   transform: `translateX(${bubbleX.value}px)`,
@@ -77,7 +79,10 @@ function updateBubble() {
 }
 
 onMounted(() => {
-  nextTick(() => window.requestAnimationFrame(updateBubble))
+  nextTick(() => window.requestAnimationFrame(() => {
+    updateBubble()
+    ready.value = true
+  }))
 })
 
 watch(() => props.items, () => {
@@ -109,9 +114,12 @@ function onSelect(item: NavigationPillItem) {
   border-radius: 999px;
   height: calc(100% - 0.25rem);
   top: 0.125rem;
-  transition: transform 0.2s ease, width 0.2s ease;
   z-index: 0;
   pointer-events: none;
+
+  &--ready {
+    transition: transform 0.2s ease, width 0.2s ease;
+  }
 }
 
 .navigation-pill__option {
