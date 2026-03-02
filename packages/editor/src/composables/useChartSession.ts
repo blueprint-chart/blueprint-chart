@@ -1,6 +1,7 @@
 import { ref, watch } from 'vue'
 import { useChartConfig } from './useChartConfig'
 import { useDataTable } from './useDataTable'
+import { useDataTransforms } from './useDataTransforms'
 import { useChartTypeOptions } from './useChartTypeOptions'
 import { useWizard } from './useWizard'
 import { useDslSync } from './useDslSync'
@@ -9,11 +10,13 @@ import { deleteThumbnail } from './useChartThumbnail'
 import type { ChartConfig } from './useChartConfig'
 import type { ChartTypeOptions } from './useChartTypeOptions'
 import type { ColumnType } from './useDataParser'
+import type { TransformStep } from './useDataTransforms'
 import type { ChartSample } from '@blueprint-chart/lib'
 
 interface SessionPayload {
   chartConfig: ChartConfig
   dataTable: { columns: string[], rows: string[][], rawInput: string, columnTypes?: ColumnType[] }
+  transforms?: TransformStep[]
   chartTypeOptions: Record<string, Partial<ChartTypeOptions>>
   wizard: { currentIndex: number, furthestIndex: number }
   savedAt?: string
@@ -46,6 +49,7 @@ const sessionId = ref('')
 export function useChartSession() {
   const chartConfig = useChartConfig()
   const dataTable = useDataTable()
+  const transforms = useDataTransforms()
   const chartTypeOptions = useChartTypeOptions()
   const wizard = useWizard()
 
@@ -77,6 +81,7 @@ export function useChartSession() {
         rawInput: dataTable.rawInput.value,
         columnTypes: dataTable.columnTypes.value,
       },
+      transforms: transforms.snapshot(),
       chartTypeOptions: { ...chartTypeOptions.store },
       wizard: {
         currentIndex: wizard.currentIndex.value,
@@ -96,6 +101,12 @@ export function useChartSession() {
       const payload: SessionPayload = JSON.parse(raw)
       chartConfig.hydrate(payload.chartConfig)
       dataTable.hydrate(payload.dataTable)
+      if (payload.transforms?.length) {
+        transforms.hydrate(payload.transforms)
+      }
+      else {
+        transforms.reset()
+      }
       chartTypeOptions.hydrate(payload.chartTypeOptions)
       const wizardState = payload.wizard
       // Migrate old 4-step indices (upload=0,check=1,edit=2,export=3) to 3-step (data=0,edit=1,export=2)
@@ -115,6 +126,7 @@ export function useChartSession() {
   function resetAll() {
     chartConfig.reset()
     dataTable.reset()
+    transforms.reset()
     chartTypeOptions.reset()
     wizard.reset()
     sessionId.value = ''
@@ -179,6 +191,7 @@ export function useChartSession() {
         dataTable.rows,
         dataTable.rawInput,
         dataTable.columnTypes,
+        transforms.steps,
         wizard.currentIndex,
         wizard.furthestIndex,
         () => chartTypeOptions.store,

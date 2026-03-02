@@ -66,8 +66,11 @@ export function useDataTable() {
   }
 
   function serialize(): string {
-    if (state.columns.length <= 2) {
-      return state.rows
+    const cols = displayColumns.value
+    const rows = displayRows.value
+
+    if (cols.length <= 2) {
+      return rows
         .map((row) => {
           const label = row[0] ?? ''
           const value = row[1] ?? ''
@@ -76,9 +79,9 @@ export function useDataTable() {
         .join('\n')
     }
 
-    const seriesNames = state.columns.slice(1)
+    const seriesNames = cols.slice(1)
     const header = `_series = "${seriesNames.join(',')}"`
-    const lines = state.rows.map((row) => {
+    const lines = rows.map((row) => {
       const label = row[0] ?? ''
       const values = row.slice(1).map(v => v ?? '').join(',')
       return `"${label}" = "${values}"`
