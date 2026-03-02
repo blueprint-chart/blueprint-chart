@@ -81,7 +81,9 @@ function updateBubble() {
 onMounted(() => {
   nextTick(() => window.requestAnimationFrame(() => {
     updateBubble()
-    ready.value = true
+    window.requestAnimationFrame(() => {
+      ready.value = true
+    })
   }))
 })
 
@@ -118,7 +120,11 @@ function onSelect(item: NavigationPillItem) {
   pointer-events: none;
 
   &--ready {
-    transition: transform 0.2s ease, width 0.2s ease;
+    transition: transform 0.2s ease, width 0.2s ease, opacity 0.15s ease;
+  }
+
+  &:not(&--ready) {
+    visibility: hidden;
   }
 }
 
