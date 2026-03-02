@@ -4,6 +4,7 @@
     :label="label"
     variant="outline-secondary"
     class="button-add"
+    :class="{ 'button-add--sm': size === 'sm' }"
     @click="$emit('click')"
   >
     <slot />
@@ -16,8 +17,10 @@ import ButtonIcon from '../ButtonIcon/ButtonIcon.vue'
 
 withDefaults(defineProps<{
   label?: string
+  size?: 'default' | 'sm'
 }>(), {
   label: 'Add',
+  size: 'default',
 })
 
 defineEmits<{
@@ -47,6 +50,14 @@ defineEmits<{
       color: var(--bs-primary);
       background: transparent;
     }
+  }
+
+  &--sm.btn {
+    width: auto;
+    padding: 0 0.6rem;
+    height: 26px;
+    border-radius: 50rem;
+    font-size: 0.75rem;
   }
 }
 </style>

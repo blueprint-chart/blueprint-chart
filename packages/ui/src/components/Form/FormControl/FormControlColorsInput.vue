@@ -30,15 +30,12 @@
           &times;
         </button>
       </span>
-      <button
+      <ButtonAdd
         :id="id"
         ref="addBtnRef"
-        type="button"
-        class="form-control-colors-input__add-btn"
+        size="sm"
         @click="openAdder"
-      >
-        + Add
-      </button>
+      />
     </div>
     <FormControlColorInputPopover
       v-model:open="pickerOpen"
@@ -52,6 +49,7 @@
 
 <script setup lang="ts">
 import { ref, useTemplateRef } from 'vue'
+import ButtonAdd from '../../Button/ButtonAdd/ButtonAdd.vue'
 import DisplayColorSwatch from '../../Display/DisplayColorSwatch/DisplayColorSwatch.vue'
 import FormControlColorInputPopover from './FormControlColorInputPopover.vue'
 
@@ -62,7 +60,7 @@ defineProps<{
   id: string
 }>()
 
-const addBtnRef = useTemplateRef<HTMLElement>('addBtnRef')
+const addBtnRef = useTemplateRef<InstanceType<typeof ButtonAdd>>('addBtnRef')
 const editingColor = ref('#4e79a7')
 const editingIndex = ref(-1)
 const editingTarget = ref<HTMLElement | null>(null)
@@ -78,7 +76,7 @@ function openPicker(idx: number, event: MouseEvent) {
 function openAdder() {
   editingIndex.value = -1
   editingColor.value = '#4e79a7'
-  editingTarget.value = addBtnRef.value ?? null
+  editingTarget.value = (addBtnRef.value as unknown as { $el: HTMLElement })?.$el ?? null
   pickerOpen.value = true
 }
 
@@ -142,22 +140,6 @@ function onPickerChange(color: string) {
   &:hover {
     opacity: 1;
     color: var(--bs-danger);
-  }
-}
-
-.form-control-colors-input__add-btn {
-  background: none;
-  border: 1px dashed var(--bs-border-color);
-  border-radius: 50rem;
-  height: 26px;
-  padding: 0 0.6rem;
-  font-size: 0.75rem;
-  color: var(--bs-secondary-color);
-  cursor: pointer;
-
-  &:hover {
-    border-color: var(--bs-primary);
-    color: var(--bs-primary);
   }
 }
 </style>
