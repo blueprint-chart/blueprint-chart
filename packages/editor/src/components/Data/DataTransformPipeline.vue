@@ -18,13 +18,6 @@
         :active="selectedStepId === step.id"
         @select="selectedStepId = step.id"
         @delete="onRemoveStep(step.id)"
-      />
-
-      <!-- Step configuration (inline after the selected step) -->
-      <SectionCard
-        v-if="selectedStepId === step.id"
-        :label="'Step ' + (i + 1) + ' Configuration'"
-        class="pipeline__config"
       >
         <DataTransformStepSort
           v-if="step.type === 'sort'"
@@ -49,7 +42,7 @@
         >
           Coming soon
         </div>
-      </SectionCard>
+      </DataTransformStepCard>
     </template>
 
     <!-- Connector always visible (between last step or raw data and add button) -->
@@ -80,7 +73,6 @@ import DataTransformAddButton from './DataTransformAddButton.vue'
 import DataTransformConnector from './DataTransformConnector.vue'
 import DataTransformStepSort from './DataTransformStepSort.vue'
 import DataTransformStepFilter from './DataTransformStepFilter.vue'
-import { SectionCard } from '@blueprint-chart/ui'
 
 const { columns, rows, columnTypes } = useDataTable()
 const { steps, addStep, removeStep, applyTransforms, getColumnsAtStep } = useDataTransforms()
@@ -120,10 +112,6 @@ function onRemoveStep(id: string) {
 .pipeline {
   display: flex;
   flex-direction: column;
-}
-
-.pipeline__config {
-  margin-top: 0.75rem;
 }
 
 .pipeline__config-info {
