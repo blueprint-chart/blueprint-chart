@@ -2,6 +2,7 @@ import { parse, propertyMap, extractChartTypeOptions, dataEntriesToString } from
 import type { PropertyNode, SeriesOverride, AnnotationConfig, PointAnnotationConfig, RangeAnnotationConfig, FreeAnnotationConfig } from '@blueprint-chart/lib'
 import { useChartConfig } from './useChartConfig'
 import { useChartTypeOptions, type ChartTypeOptions } from './useChartTypeOptions'
+import { useDataTransforms, type TransformType } from './useDataTransforms'
 
 function readPosition(properties: PropertyNode[], key: string): number | string | undefined {
   const node = properties.find(p => p.key === key)
@@ -33,9 +34,12 @@ function readMaxWidth(properties: PropertyNode[]): number | string | undefined {
   return node.value
 }
 
+const VALID_TRANSFORM_TYPES = new Set<TransformType>(['sort', 'filter', 'transpose', 'group-by', 'computed', 'pivot'])
+
 export function useDslSync() {
   const config = useChartConfig()
   const { store } = useChartTypeOptions()
+  const transforms = useDataTransforms()
 
   function applyDsl(dslString: string): { success: boolean, error?: string } {
     try {
@@ -264,6 +268,33 @@ export function useDslSync() {
       }
       else {
         config.seriesOverrides.value = []
+      }
+
+      if (ast.transforms?.length) {
+        transforms.reset()
+        for (const t of ast.transforms) {
+          if (!VALID_TRANSFORM_TYPES.has(t.transformType as TransformType)) {
+            continue
+          }
+          const props = propertyMap(t.properties)
+          const stepConfig: Record<string, string> = {}
+          for (const [k, v] of props) {
+            stepConfig[k] = String(v)
+          }
+
+          // Last sort transform with direction drives config.sort for the chart renderer
+          if (t.transformType === 'sort' && props.has('direction')) {
+            const dir = String(props.get('direction'))
+            if (dir === 'ascending' || dir === 'descending') {
+              config.sort.value = dir
+            }
+          }
+
+          transforms.addStep(t.transformType as TransformType, stepConfig)
+        }
+      }
+      else {
+        transforms.reset()
       }
 
       return { success: true }

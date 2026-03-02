@@ -35,14 +35,66 @@ function compareValues(a: string, b: string, type: ColumnType): number {
   return a.localeCompare(b)
 }
 
+function parseNumeric(v: string): number {
+  return Number(v.replace(/[,%$€£¥₹]/g, '').trim()) || 0
+}
+
+function resolveColumns(config: Record<string, string>): string[] {
+  if (config.columns) {
+    return config.columns.split(',').map(c => c.trim()).filter(Boolean)
+  }
+  if (config.column) {
+    return [config.column]
+  }
+  return []
+}
+
 function applySort(data: TransformResult, config: Record<string, string>): TransformResult {
-  const colIndex = data.columns.indexOf(config.column)
-  if (colIndex < 0 || !config.column) {
+  const colNames = resolveColumns(config)
+  if (colNames.length === 0) {
     return data
   }
+
+  const colIndices = colNames.map(c => data.columns.indexOf(c)).filter(i => i >= 0)
+  if (colIndices.length === 0) {
+    return data
+  }
+
   const dir = config.direction === 'descending' ? -1 : 1
-  const type = data.columnTypes[colIndex] ?? 'string'
-  const sorted = [...data.rows].sort((a, b) => dir * compareValues(a[colIndex] ?? '', b[colIndex] ?? '', type))
+  const operation = config.operation // 'sum' | 'avg' | undefined
+
+  if (operation && colIndices.length > 1) {
+    // Aggregate multiple columns into a single sort key
+    const sorted = [...data.rows].sort((a, b) => {
+      const valsA = colIndices.map(ci => parseNumeric(a[ci] ?? ''))
+      const valsB = colIndices.map(ci => parseNumeric(b[ci] ?? ''))
+      let keyA: number
+      let keyB: number
+      if (operation === 'avg') {
+        keyA = valsA.reduce((s, v) => s + v, 0) / valsA.length
+        keyB = valsB.reduce((s, v) => s + v, 0) / valsB.length
+      }
+      else {
+        // sum (default)
+        keyA = valsA.reduce((s, v) => s + v, 0)
+        keyB = valsB.reduce((s, v) => s + v, 0)
+      }
+      return dir * (keyA - keyB)
+    })
+    return { ...data, rows: sorted }
+  }
+
+  // No operation: consecutive sort by each column (stable, like _.sortBy)
+  const sorted = [...data.rows].sort((a, b) => {
+    for (const ci of colIndices) {
+      const type = data.columnTypes[ci] ?? 'string'
+      const cmp = compareValues(a[ci] ?? '', b[ci] ?? '', type)
+      if (cmp !== 0) {
+        return dir * cmp
+      }
+    }
+    return 0
+  })
   return { ...data, rows: sorted }
 }
 
@@ -179,6 +231,15 @@ export function useDataTransforms() {
     nextId = 1
   }
 
+  function hydrate(steps: TransformStep[]) {
+    state.steps = steps.map(s => ({ ...s, config: { ...s.config } }))
+    nextId = steps.reduce((max, s) => Math.max(max, Number(s.id) || 0), 0) + 1
+  }
+
+  function snapshot(): TransformStep[] {
+    return state.steps.map(s => ({ id: s.id, type: s.type, config: { ...s.config } }))
+  }
+
   return {
     ...toRefs(state),
     addStep,
@@ -188,5 +249,7 @@ export function useDataTransforms() {
     applyTransforms,
     getColumnsAtStep,
     reset,
+    hydrate,
+    snapshot,
   }
 }

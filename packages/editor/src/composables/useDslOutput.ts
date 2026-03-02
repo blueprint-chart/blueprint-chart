@@ -1,6 +1,8 @@
 import { computed, ref } from 'vue'
 import { useChartConfig } from './useChartConfig'
 import { useChartTypeOptions } from './useChartTypeOptions'
+import { useDataTransforms } from './useDataTransforms'
+import { useDataTable } from './useDataTable'
 import { getChartOptions } from '@blueprint-chart/lib'
 import type { RangeAnnotationConfig, FreeAnnotationConfig } from '@blueprint-chart/lib'
 
@@ -32,6 +34,8 @@ function serializeMaxWidth(v: number | string): string {
 export function useDslOutput() {
   const config = useChartConfig()
   const { currentOptions } = useChartTypeOptions()
+  const { steps: transformSteps } = useDataTransforms()
+  const dataTable = useDataTable()
   const compact = ref(false)
 
   const dsl = computed(() => {
@@ -52,10 +56,6 @@ export function useDslOutput() {
     if (config.sourceUrl.value) {
       output += `  sourceUrl = "${config.sourceUrl.value}"\n`
     }
-    if (config.sort.value !== 'none') {
-      output += `  sort = ${config.sort.value}\n`
-    }
-
     const optionDefs = getChartOptions(config.chartType.value)
     const supportedKeys = optionDefs.map(d => d.key)
     const defaultMap = new Map(optionDefs.filter(d => d.default !== undefined).map(d => [d.key, String(d.default)]))
@@ -280,6 +280,31 @@ export function useDslOutput() {
         }
         output += `  }\n`
       }
+    }
+
+    for (const t of transformSteps.value) {
+      output += `\n  transform ${t.type} {\n`
+      for (const [k, v] of Object.entries(t.config)) {
+        if (v !== undefined && v !== '') {
+          output += `    ${k} = "${v}"\n`
+        }
+      }
+      output += `  }\n`
+    }
+
+    if (config.sort.value !== 'none') {
+      const cols = dataTable.displayColumns.value
+      const valueCols = cols.length > 2 ? cols.slice(1) : cols.length > 1 ? [cols[1]] : [cols[0] ?? '']
+      output += `\n  transform sort {\n`
+      if (valueCols.length > 1) {
+        output += `    columns = "${valueCols.join(',')}"\n`
+        output += `    operation = sum\n`
+      }
+      else {
+        output += `    column = "${valueCols[0]}"\n`
+      }
+      output += `    direction = ${config.sort.value}\n`
+      output += `  }\n`
     }
 
     for (const s of config.seriesOverrides.value) {
