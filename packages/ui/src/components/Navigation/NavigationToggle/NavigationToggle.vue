@@ -15,7 +15,7 @@ import NavigationPillBase from '../NavigationPillBase/NavigationPillBase.vue'
 
 const props = withDefaults(defineProps<{
   modelValue: string
-  options?: { value: string, text: string, icon?: Component }[]
+  options?: { value: string, text: string, icon?: Component, disabled?: boolean }[]
 }>(), {
   options: () => [],
 })
@@ -35,6 +35,7 @@ const pillItems = computed(() =>
     text: opt.text,
     icon: opt.icon,
     active: opt.value === props.modelValue,
+    disabled: opt.disabled,
   })),
 )
 

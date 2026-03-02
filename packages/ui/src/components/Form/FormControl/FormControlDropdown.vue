@@ -13,6 +13,7 @@
       menu-class="form-control-dropdown-menu"
       :class="dropdownClassList"
       :text="selectedOption?.label ?? ''"
+      :disabled="disabled"
       teleport-to="body"
       variant="outline-secondary"
       @show="matchMenuWidth"
@@ -68,12 +69,14 @@ const props = withDefaults(defineProps<{
   options?: FormControlDropdownOption[]
   block?: boolean
   lightLabel?: boolean
+  disabled?: boolean
 }>(), {
   label: undefined,
   id: undefined,
   options: () => [],
   block: false,
   lightLabel: false,
+  disabled: false,
 })
 
 const { entries } = useChildEntriesProvider(DropdownEntriesKey)

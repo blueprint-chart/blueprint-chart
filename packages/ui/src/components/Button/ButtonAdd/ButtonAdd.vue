@@ -30,7 +30,7 @@ defineEmits<{
   &.btn {
     width: 100%;
     padding: 0.5rem;
-    border: 1px dashed var(--bs-border-color);
+    border: 1px dashed var(--bs-secondary-color);
     border-radius: var(--bs-border-radius);
     font-size: 0.8125rem;
     transition: all 0.15s ease;
