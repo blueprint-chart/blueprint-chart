@@ -64,7 +64,7 @@ import DataParseSettings from './DataParseSettings.vue'
 import DataRecommendations from './DataRecommendations.vue'
 
 const { columns, columnTypes } = useDataTable()
-const { selectedColumnIndex, selectColumn, dataPanelMode, dataPanelTab, dataPanelOpen, openDataPanel, collapseDataPanel } = useEditorPanel()
+const { selectedColumnIndex, selectColumn, dataPanelMode, dataPanelTab, openDataPanel, collapseDataPanel } = useEditorPanel()
 const { isNarrow } = useBreakpoint()
 
 const mainRef = ref<HTMLElement | null>(null)
@@ -77,7 +77,7 @@ const tabs = [
 ]
 
 const drawerOpen = computed({
-  get: () => isNarrow.value && dataPanelOpen.value && !!dataPanelTab.value,
+  get: () => isNarrow.value && dataPanelMode.value !== 'collapsed' && !!dataPanelTab.value,
   set: (open) => {
     if (!open) {
       collapseDataPanel()
