@@ -37,13 +37,11 @@
     />
 
     <!-- Step configuration (auto-opens when step is selected) -->
-    <div
+    <SectionCard
       v-if="selectedStep"
+      :label="'Step ' + (selectedStepIndex + 1) + ' Configuration'"
       class="pipeline__config"
     >
-      <div class="pipeline__config-title">
-        Step {{ selectedStepIndex + 1 }} Configuration
-      </div>
       <DataTransformStepSort
         v-if="selectedStep.type === 'sort'"
         :step="selectedStep"
@@ -67,7 +65,7 @@
       >
         Coming soon
       </div>
-    </div>
+    </SectionCard>
   </div>
 </template>
 
@@ -82,6 +80,7 @@ import DataTransformAddButton from './DataTransformAddButton.vue'
 import DataTransformConnector from './DataTransformConnector.vue'
 import DataTransformStepSort from './DataTransformStepSort.vue'
 import DataTransformStepFilter from './DataTransformStepFilter.vue'
+import { SectionCard } from '@blueprint-chart/ui'
 
 const { columns, rows, columnTypes } = useDataTable()
 const { steps, addStep, removeStep, applyTransforms, getColumnsAtStep } = useDataTransforms()
@@ -125,20 +124,7 @@ function onRemoveStep(id: string) {
 }
 
 .pipeline__config {
-  padding: 0.75rem;
-  border: 1px solid var(--bs-border-color);
-  border-radius: var(--bs-border-radius);
   margin-top: 0.75rem;
-  background: var(--bs-tertiary-bg);
-}
-
-.pipeline__config-title {
-  font-size: 0.625rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--bs-secondary-color);
-  margin-bottom: 0.625rem;
 }
 
 .pipeline__config-info {

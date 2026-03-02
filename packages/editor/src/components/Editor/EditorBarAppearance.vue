@@ -29,13 +29,10 @@
         </template>
       </ListSelectPanel>
 
-      <div
+      <SectionCard
         v-if="selectedArray.length > 0"
-        class="border rounded overflow-hidden bg-body-tertiary p-2 d-flex flex-column gap-3"
+        :label="'Editing ' + selectedArray.length + ' ' + (selectedArray.length === 1 ? 'label' : 'labels')"
       >
-        <small class="text-muted">
-          Editing {{ selectedArray.length }} {{ selectedArray.length === 1 ? 'label' : 'labels' }}
-        </small>
         <FormControlColorInput
           id="bar-highlight-color"
           label="Color for selected"
@@ -50,7 +47,7 @@
         >
           Reset all changes
         </BButton>
-      </div>
+      </SectionCard>
     </template>
   </div>
 </template>
@@ -59,7 +56,7 @@
 import { ref, computed } from 'vue'
 import type { ChartHighlight } from '@/composables/useChartConfig'
 import { BButton } from 'bootstrap-vue-next'
-import { FormControlColorInput, FormControlCheckbox, ListSelectPanel, DisplayColorSwatch } from '@blueprint-chart/ui'
+import { FormControlColorInput, FormControlCheckbox, ListSelectPanel, DisplayColorSwatch, SectionCard } from '@blueprint-chart/ui'
 
 const props = defineProps<{
   labels: string[]
