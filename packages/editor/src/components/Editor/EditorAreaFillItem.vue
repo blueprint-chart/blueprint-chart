@@ -52,6 +52,7 @@
       <BFormGroup>
         <BFormCheckbox
           :model-value="!!fill.negativeColor"
+          switch
           @update:model-value="(v: boolean) => update('negativeColor', v ? '#f28e2b' : undefined)"
         >
           Use different color for negative differences
