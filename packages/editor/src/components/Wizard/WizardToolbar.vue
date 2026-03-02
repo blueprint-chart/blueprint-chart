@@ -28,25 +28,19 @@
           :options="viewModeOptions"
         />
       </template>
-      <template v-else-if="currentStep.key === 'upload' || currentStep.key === 'check'">
-        <BButton
-          variant="primary"
-          size="sm"
-          class="fw-semibold"
-          :disabled="!canAdvance"
-          @click="handleAdvance"
-        >
-          Next
-        </BButton>
+      <template v-else-if="currentStep.key === 'data'">
+        <NavigationToggle
+          v-model="dataViewModel"
+          :options="dataViewOptions"
+        />
       </template>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { BButton } from 'bootstrap-vue-next'
 import { NavigationStepper, NavigationToggle, LayoutToolbarSeparator, ButtonUndo, ButtonRedo } from '@blueprint-chart/ui'
 import { useWizard } from '@/composables/useWizard'
 import { useEditorPanel } from '@/composables/useEditorPanel'
@@ -54,21 +48,19 @@ import { useChartHistory } from '@/composables/useChartHistory'
 import { useDataTable } from '@/composables/useDataTable'
 import { useChartConfig } from '@/composables/useChartConfig'
 import { useChartSession } from '@/composables/useChartSession'
-import { parseDelimited } from '@/composables/useDataParser'
 import IPhTable from '~icons/ph/table'
 import IPhChartBar from '~icons/ph/chart-bar'
 import IPhExport from '~icons/ph/export'
 
 const router = useRouter()
-const { currentIndex, currentStep, steps, next } = useWizard()
-const { viewMode, setViewMode, canvasMode, setCanvasMode } = useEditorPanel()
+const { currentIndex, currentStep, steps } = useWizard()
+const { viewMode, setViewMode, canvasMode, setCanvasMode, dataView, setDataView } = useEditorPanel()
 const { canUndo, canRedo, undo, redo } = useChartHistory()
 const dataTable = useDataTable()
 const config = useChartConfig()
 const { sessionId, createSession } = useChartSession()
 const stepIcons: Record<string, typeof IPhTable> = {
-  upload: IPhTable,
-  check: IPhTable,
+  data: IPhTable,
   edit: IPhChartBar,
   export: IPhExport,
 }
@@ -96,49 +88,40 @@ const canvasModeOptions = [
   { value: 'dark', text: 'Dark' },
 ]
 
+const dataViewModel = computed({
+  get: () => dataView.value,
+  set: (v: string) => setDataView(v as 'upload' | 'structure'),
+})
+
+const hasData = computed(() => dataTable.columns.value.length > 0)
+
+const dataViewOptions = computed(() => [
+  { value: 'upload', text: 'Upload' },
+  { value: 'structure', text: 'Structure', disabled: !hasData.value },
+])
+
 const disabledSteps = computed(() => {
-  const hasData = dataTable.rawInput.value.trim().length > 0
-  if (!hasData) {
-    return [1, 2, 3]
-  }
   const hasParsed = dataTable.rows.value.length > 0
   if (!hasParsed) {
-    return [2, 3]
+    return [1, 2]
   }
   return []
 })
 
-const canAdvance = computed(() => {
-  if (currentIndex.value === 0) {
-    return dataTable.rawInput.value.trim().length > 0
-  }
-  if (currentIndex.value === 1) {
-    return dataTable.rows.value.length > 0
-  }
-  return true
-})
-
-function handleAdvance() {
-  if (currentIndex.value === 0) {
-    const parsed = parseDelimited(dataTable.rawInput.value)
-    dataTable.loadParsed(parsed)
-
-    if (!sessionId.value) {
-      const id = createSession()
-      next()
-      router.replace(`/edit/${id}`)
-      return
-    }
-  }
-  if (currentIndex.value === 1) {
+// Serialize data when navigating from data step to edit step
+watch(currentIndex, (newIndex, oldIndex) => {
+  if (oldIndex === 0 && newIndex === 1) {
     config.data.value = dataTable.serialize()
     if (dataTable.columns.value.length > 2 && !config.chartType.value.includes('multi')) {
       const hasDateLabels = dataTable.columnTypes.value[0] === 'date'
       config.chartType.value = hasDateLabels ? 'line-multi' : 'bar-multi'
     }
+    if (!sessionId.value) {
+      const id = createSession()
+      router.replace(`/edit/${id}`)
+    }
   }
-  next()
-}
+})
 </script>
 
 <style scoped lang="scss">
