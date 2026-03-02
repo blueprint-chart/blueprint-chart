@@ -30,6 +30,11 @@
           :step="step"
           :columns="columnsAtStep"
         />
+        <DataTransformStepHideColumns
+          v-else-if="step.type === 'hide-columns'"
+          :step="step"
+          :columns="columnsAtStep"
+        />
         <div
           v-else-if="step.type === 'transpose'"
           class="pipeline__config-info"
@@ -73,6 +78,7 @@ import DataTransformAddButton from './DataTransformAddButton.vue'
 import DataTransformConnector from './DataTransformConnector.vue'
 import DataTransformStepSort from './DataTransformStepSort.vue'
 import DataTransformStepFilter from './DataTransformStepFilter.vue'
+import DataTransformStepHideColumns from './DataTransformStepHideColumns.vue'
 
 const { columns, rows, columnTypes } = useDataTable()
 const { steps, addStep, removeStep, applyTransforms, getColumnsAtStep } = useDataTransforms()

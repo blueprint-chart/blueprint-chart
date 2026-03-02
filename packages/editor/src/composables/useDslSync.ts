@@ -34,7 +34,7 @@ function readMaxWidth(properties: PropertyNode[]): number | string | undefined {
   return node.value
 }
 
-const VALID_TRANSFORM_TYPES = new Set<TransformType>(['sort', 'filter', 'transpose', 'group-by', 'computed', 'pivot'])
+const VALID_TRANSFORM_TYPES = new Set<TransformType>(['sort', 'filter', 'hide-columns', 'transpose', 'group-by', 'computed', 'pivot'])
 
 export function useDslSync() {
   const config = useChartConfig()

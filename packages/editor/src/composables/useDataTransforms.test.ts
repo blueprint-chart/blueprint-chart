@@ -218,6 +218,43 @@ describe('useDataTransforms', () => {
     expect(result.rows[2][0]).toBe('2024-03-15')
   })
 
+  it('applies hide-columns transform', () => {
+    const { addStep, applyTransforms } = useDataTransforms()
+    addStep('hide-columns', { columns: 'Value' })
+    const result = applyTransforms(
+      ['Name', 'Value', 'Category'],
+      [['A', '10', 'X'], ['B', '20', 'Y']],
+      ['string', 'number', 'string'],
+    )
+    expect(result.columns).toEqual(['Name', 'Category'])
+    expect(result.rows[0]).toEqual(['A', 'X'])
+    expect(result.rows[1]).toEqual(['B', 'Y'])
+    expect(result.columnTypes).toEqual(['string', 'string'])
+  })
+
+  it('applies hide-columns with multiple columns', () => {
+    const { addStep, applyTransforms } = useDataTransforms()
+    addStep('hide-columns', { columns: 'Value,Category' })
+    const result = applyTransforms(
+      ['Name', 'Value', 'Category'],
+      [['A', '10', 'X'], ['B', '20', 'Y']],
+      ['string', 'number', 'string'],
+    )
+    expect(result.columns).toEqual(['Name'])
+    expect(result.rows[0]).toEqual(['A'])
+  })
+
+  it('hide-columns with no config returns same data', () => {
+    const { addStep, applyTransforms } = useDataTransforms()
+    addStep('hide-columns', {})
+    const result = applyTransforms(
+      ['Name', 'Value'],
+      [['A', '10']],
+      ['string', 'number'],
+    )
+    expect(result.columns).toEqual(['Name', 'Value'])
+  })
+
   it('resets state', () => {
     const { steps, addStep, reset } = useDataTransforms()
     addStep('sort', { column: 'A' })
