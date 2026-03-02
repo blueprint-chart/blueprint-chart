@@ -19,6 +19,37 @@
         @select="selectedStepId = step.id"
         @delete="onRemoveStep(step.id)"
       />
+
+      <!-- Step configuration (inline after the selected step) -->
+      <SectionCard
+        v-if="selectedStepId === step.id"
+        :label="'Step ' + (i + 1) + ' Configuration'"
+        class="pipeline__config"
+      >
+        <DataTransformStepSort
+          v-if="step.type === 'sort'"
+          :step="step"
+          :columns="columnsAtStep"
+          :column-types="columnTypesAtStep"
+        />
+        <DataTransformStepFilter
+          v-else-if="step.type === 'filter'"
+          :step="step"
+          :columns="columnsAtStep"
+        />
+        <div
+          v-else-if="step.type === 'transpose'"
+          class="pipeline__config-info"
+        >
+          Transpose swaps rows and columns. The first column values become headers and column headers become the first column.
+        </div>
+        <div
+          v-else
+          class="text-muted text-center py-3"
+        >
+          Coming soon
+        </div>
+      </SectionCard>
     </template>
 
     <!-- Connector always visible (between last step or raw data and add button) -->
@@ -35,37 +66,6 @@
       :columns="transformedCols"
       :rows="transformedRows"
     />
-
-    <!-- Step configuration (auto-opens when step is selected) -->
-    <SectionCard
-      v-if="selectedStep"
-      :label="'Step ' + (selectedStepIndex + 1) + ' Configuration'"
-      class="pipeline__config"
-    >
-      <DataTransformStepSort
-        v-if="selectedStep.type === 'sort'"
-        :step="selectedStep"
-        :columns="columnsAtStep"
-        :column-types="columnTypesAtStep"
-      />
-      <DataTransformStepFilter
-        v-else-if="selectedStep.type === 'filter'"
-        :step="selectedStep"
-        :columns="columnsAtStep"
-      />
-      <div
-        v-else-if="selectedStep.type === 'transpose'"
-        class="pipeline__config-info"
-      >
-        Transpose swaps rows and columns. The first column values become headers and column headers become the first column.
-      </div>
-      <div
-        v-else
-        class="text-muted text-center py-3"
-      >
-        Coming soon
-      </div>
-    </SectionCard>
   </div>
 </template>
 
@@ -87,7 +87,6 @@ const { steps, addStep, removeStep, applyTransforms, getColumnsAtStep } = useDat
 
 const selectedStepId = ref('')
 
-const selectedStep = computed(() => steps.value.find(s => s.id === selectedStepId.value))
 const selectedStepIndex = computed(() => steps.value.findIndex(s => s.id === selectedStepId.value))
 
 const dataAtStep = computed(() => {
