@@ -41,6 +41,13 @@
         ><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></svg>
       </button>
     </div>
+    <div
+      v-if="active && $slots.default"
+      class="step-card__config"
+      @click.stop
+    >
+      <slot />
+    </div>
   </div>
 </template>
 
@@ -119,6 +126,7 @@ const description = computed(() => {
 .step-card {
   display: flex;
   align-items: stretch;
+  flex-wrap: wrap;
   position: relative;
   border: 1px solid var(--bs-border-color);
   border-radius: var(--bs-border-radius);
@@ -264,5 +272,13 @@ const description = computed(() => {
     width: 0.875rem;
     height: 0.875rem;
   }
+}
+
+.step-card__config {
+  width: 100%;
+  padding: 0.75rem;
+  border-top: 1px solid var(--bs-border-color);
+  background: var(--bs-tertiary-bg);
+  cursor: default;
 }
 </style>
