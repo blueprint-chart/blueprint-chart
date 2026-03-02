@@ -1,0 +1,60 @@
+import { describe, it, expect, vi } from 'vitest'
+import { mount } from '@vue/test-utils'
+import PanelDocked from './PanelDocked.vue'
+
+vi.mock('@blueprint-chart/ui', () => ({
+  LayoutPanel: {
+    template: '<div class="panel"><div class="title">{{ title }}</div><slot name="actions" /><slot /></div>',
+    props: ['title'],
+  },
+  ButtonDetach: {
+    template: '<button class="btn-detach" @click="$emit(\'click\')"></button>',
+    emits: ['click'],
+  },
+  ButtonClose: {
+    template: '<button class="btn-close-stub" @click="$emit(\'click\')"></button>',
+    emits: ['click'],
+  },
+}))
+
+describe('PanelDocked', () => {
+  it('renders title from prop', () => {
+    const w = mount(PanelDocked, { props: { collapsed: false, title: 'Settings' } })
+    expect(w.find('.title').text()).toBe('Settings')
+  })
+
+  it('renders slot content', () => {
+    const w = mount(PanelDocked, {
+      props: { collapsed: false, title: 'Test' },
+      slots: { default: '<div class="content">Hello</div>' },
+    })
+    expect(w.find('.content').text()).toBe('Hello')
+  })
+
+  it('adds collapsed class when collapsed prop is true', () => {
+    const w = mount(PanelDocked, { props: { collapsed: true, title: 'Test' } })
+    expect(w.find('.panel-docked--collapsed').exists()).toBe(true)
+  })
+
+  it('does not add collapsed class when collapsed prop is false', () => {
+    const w = mount(PanelDocked, { props: { collapsed: false, title: 'Test' } })
+    expect(w.find('.panel-docked--collapsed').exists()).toBe(false)
+  })
+
+  it('emits float when detach button is clicked', async () => {
+    const w = mount(PanelDocked, { props: { collapsed: false, title: 'Test' } })
+    await w.find('.btn-detach').trigger('click')
+    expect(w.emitted('float')).toHaveLength(1)
+  })
+
+  it('emits close when close button is clicked', async () => {
+    const w = mount(PanelDocked, { props: { collapsed: false, title: 'Test' } })
+    await w.find('.btn-close-stub').trigger('click')
+    expect(w.emitted('close')).toHaveLength(1)
+  })
+
+  it('renders resize handle', () => {
+    const w = mount(PanelDocked, { props: { collapsed: false, title: 'Test' } })
+    expect(w.find('.panel-docked__resize-handle').exists()).toBe(true)
+  })
+})
