@@ -10,7 +10,7 @@ import { detectDates } from '../../date-parse'
 import { computeLinearDomain } from '../../scale-helpers'
 import { resolveCurve } from '../../curves'
 import { createValueLabelPlugin } from '../../plugins/value-labels'
-import { createAnnotationPlugin } from '../../plugins/annotations'
+import { renderAnnotations } from '../../plugins/annotations'
 import { resolveBackgroundColor } from '../../contrast'
 import { setupProximityInteraction } from '../../plugins/proximity'
 import { renderLineSymbols } from '../../line-symbols'
@@ -189,10 +189,11 @@ export function render(
   if (options.valueLabels) {
     chart.use(createValueLabelPlugin({ position: options.valueLabelPosition, orientation: 'vertical' }))
   }
-  if (options.annotations?.length) {
-    chart.use(createAnnotationPlugin(options.annotations, { scaleX: xScale as d3.ScaleBand<string>, scaleY: y, data: lineData, width, height, backgroundColor: resolveBackgroundColor(container) }))
-  }
   chart.draw(lineData)
+
+  if (options.annotations?.length) {
+    renderAnnotations(chartArea, options.annotations, { scaleX: xScale, scaleY: y, data: lineData, width, height, backgroundColor: resolveBackgroundColor(container) })
+  }
 
   // Default dots are invisible; proximity interaction handles tooltips/crosshair
   d3.select(clippedArea).selectAll('.bc-dot')
