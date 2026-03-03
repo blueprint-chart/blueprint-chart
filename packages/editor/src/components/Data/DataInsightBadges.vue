@@ -10,16 +10,37 @@
       <span class="data-insight-badge__icon">{{ qualityIcon }}</span>
       {{ qualityLabel }}
     </span>
+    <span
+      v-if="benford"
+      ref="benfordBadgeRef"
+      class="data-insight-badge"
+      :class="benfordClass"
+    >
+      <span class="data-insight-badge__icon">{{ benfordIcon }}</span>
+      Benford's law
+      <BTooltip
+        teleport-to="body"
+        :target="benfordBadgeRef"
+        :title="benfordTooltip"
+        placement="top"
+      />
+    </span>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, useTemplateRef } from 'vue'
+import { BTooltip } from 'bootstrap-vue-next'
+import { checkBenford } from '@/composables/useBenfordCheck'
+import type { ColumnType } from '@/composables/useDataParser'
 
 const props = defineProps<{
   columns: string[]
   rows: string[][]
+  columnTypes: ColumnType[]
 }>()
+
+const benfordBadgeRef = useTemplateRef<HTMLElement>('benfordBadgeRef')
 
 const missingCount = computed(() => {
   let count = 0
@@ -44,6 +65,28 @@ const qualityLabel = computed(() => {
 const qualityClass = computed(() =>
   missingCount.value === 0 ? 'data-insight-badge--quality-ok' : 'data-insight-badge--quality-warn',
 )
+
+const benford = computed(() => {
+  const r = checkBenford(props.columns, props.rows, props.columnTypes)
+  return r.eligible ? r : null
+})
+
+const benfordIcon = computed(() => {
+  return benford.value?.pass ? '✓' : '⚠'
+})
+const benfordClass = computed(() =>
+  benford.value?.pass ? 'data-insight-badge--benford-ok' : 'data-insight-badge--benford-warn',
+)
+const benfordTooltip = computed(() => {
+  if (!benford.value) {
+    return ''
+  }
+  if (benford.value.pass) {
+    return 'All numeric columns follow Benford\'s Law — the expected distribution of leading digits in real-world data.'
+  }
+  const cols = benford.value.suspicious.join(', ')
+  return `Column(s) ${cols} don't follow Benford's Law — the expected distribution of leading digits. This may indicate fabricated or anomalous data.`
+})
 
 </script>
 
@@ -83,6 +126,16 @@ const qualityClass = computed(() =>
 }
 
 .data-insight-badge--quality-warn {
+  background: var(--bs-warning-bg-subtle);
+  color: var(--bs-warning-text-emphasis);
+}
+
+.data-insight-badge--benford-ok {
+  background: var(--bs-success-bg-subtle);
+  color: var(--bs-success-text-emphasis);
+}
+
+.data-insight-badge--benford-warn {
   background: var(--bs-warning-bg-subtle);
   color: var(--bs-warning-text-emphasis);
 }

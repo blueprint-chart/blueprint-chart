@@ -15,6 +15,7 @@
         <DataInsightBadges
           :columns="columns"
           :rows="rows"
+          :column-types="columnTypes"
         />
         <ButtonIcon
           :icon-left="IPhArrowsClockwise"
@@ -70,7 +71,7 @@ import DataTransformPipeline from './DataTransformPipeline.vue'
 import DataParseSettings from './DataParseSettings.vue'
 import DataRecommendations from './DataRecommendations.vue'
 
-const { columns, rows } = useDataTable()
+const { columns, rows, columnTypes } = useDataTable()
 const { panelMode, dataPanelMode, dataPanelTab, openDataPanel, collapse, setDataView } = useEditorPanel()
 
 function replaceData() {
