@@ -19,25 +19,34 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { LayoutPanel, ButtonDetach, ButtonClose } from '@blueprint-chart/ui'
 
 const props = withDefaults(defineProps<{
   collapsed: boolean
   title: string
   initialWidth?: number
+  modelValue?: number
 }>(), {
   initialWidth: 330,
+  modelValue: undefined,
 })
 
-defineEmits<{
-  float: []
-  close: []
+const emit = defineEmits<{
+  'float': []
+  'close': []
+  'update:modelValue': [width: number]
 }>()
 
 const MIN_WIDTH = 260
 const MAX_WIDTH = 500
-const panelWidth = ref(props.initialWidth)
+const panelWidth = ref(props.modelValue ?? props.initialWidth)
+
+watch(() => props.modelValue, (v) => {
+  if (v !== undefined) {
+    panelWidth.value = v
+  }
+})
 const resizing = ref(false)
 
 const panelClassList = computed(() => ({
@@ -55,6 +64,7 @@ function onResizeStart(e: PointerEvent) {
   function onMove(ev: PointerEvent) {
     const delta = startX - ev.clientX
     panelWidth.value = Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, startWidth + delta))
+    emit('update:modelValue', panelWidth.value)
   }
 
   function onUp() {
