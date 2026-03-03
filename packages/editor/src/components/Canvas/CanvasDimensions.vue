@@ -213,7 +213,7 @@ import type { ChartLayout } from '@/composables/useChartConfig'
 const OFFSET = 20
 const SERIF = 3
 const GAP = 4
-const ROW_SPACING = 16
+const ROW_SPACING = 20
 
 const props = defineProps<{
   cardRef: HTMLElement | null
