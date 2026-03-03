@@ -170,8 +170,8 @@ function onSelect(type: string) {
   }
 
   &--rename {
-    background: var(--bs-warning-bg-subtle);
-    color: var(--bs-warning-text-emphasis);
+    background: var(--bs-primary-bg-subtle);
+    color: var(--bs-primary-text-emphasis);
   }
 
   &--group {

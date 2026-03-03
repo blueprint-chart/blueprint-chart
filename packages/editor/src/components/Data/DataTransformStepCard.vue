@@ -62,6 +62,7 @@ import IPhFunnel from '~icons/ph/funnel'
 import IPhArrowsClockwise from '~icons/ph/arrows-clockwise'
 import IPhEyeSlash from '~icons/ph/eye-slash'
 import IPhWrench from '~icons/ph/wrench'
+import IPhPencilSimple from '~icons/ph/pencil-simple'
 
 const props = defineProps<{
   step: TransformStep
@@ -81,6 +82,7 @@ const iconClassMap: Record<string, string> = {
   'hide-columns': 'step-card__icon--hide-columns',
   'transpose': 'step-card__icon--transpose',
   'parse': 'step-card__icon--parse',
+  'rename': 'step-card__icon--rename',
   'group-by': 'step-card__icon--group',
   'computed': 'step-card__icon--computed',
   'pivot': 'step-card__icon--pivot',
@@ -92,6 +94,7 @@ const iconComponentMap: Record<string, Component> = {
   'hide-columns': IPhEyeSlash,
   'transpose': IPhArrowsClockwise,
   'parse': IPhWrench,
+  'rename': IPhPencilSimple,
 }
 
 const iconFallbackMap: Record<string, string> = {
@@ -100,6 +103,7 @@ const iconFallbackMap: Record<string, string> = {
   'hide-columns': 'H',
   'transpose': 'T',
   'parse': 'P',
+  'rename': 'R',
   'group-by': 'G',
   'computed': 'C',
   'pivot': 'P',
@@ -111,6 +115,7 @@ const labelMap: Record<string, string> = {
   'hide-columns': 'Hide Columns',
   'transpose': 'Transpose',
   'parse': 'Parse',
+  'rename': 'Rename',
   'group-by': 'Group By',
   'computed': 'Computed',
   'pivot': 'Pivot',
@@ -138,6 +143,9 @@ const description = computed(() => {
   }
   if (step.type === 'parse' && step.config.column && step.config.operation) {
     return `${step.config.column} → ${step.config.operation}`
+  }
+  if (step.type === 'rename' && step.config.column && step.config.newName) {
+    return `${step.config.column} → ${step.config.newName}`
   }
   return 'Configure...'
 })
@@ -252,6 +260,11 @@ const description = computed(() => {
   &--parse {
     background: var(--bs-success-bg-subtle);
     color: var(--bs-success-text-emphasis);
+  }
+
+  &--rename {
+    background: var(--bs-primary-bg-subtle);
+    color: var(--bs-primary-text-emphasis);
   }
 
   &--group {
