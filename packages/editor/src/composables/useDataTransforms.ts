@@ -1,7 +1,13 @@
 import { reactive, toRefs } from 'vue'
 import type { ColumnType } from './useDataParser'
+import { applyParse } from './transforms/applyParse'
+import { isTypeCompatible, parseOperationMap } from './transforms/parseOperations'
 
-export type TransformType = 'sort' | 'filter' | 'hide-columns' | 'transpose' | 'group-by' | 'computed' | 'pivot'
+export type { ParseOperation } from './transforms/parseOperations'
+export { parseOperations } from './transforms/parseOperations'
+export { NULL_VALUE } from './transforms/applyParse'
+
+export type TransformType = 'sort' | 'filter' | 'hide-columns' | 'transpose' | 'parse' | 'group-by' | 'computed' | 'pivot'
 
 export interface TransformStep {
   id: string
@@ -64,7 +70,6 @@ function applySort(data: TransformResult, config: Record<string, string>): Trans
   const operation = config.operation // 'sum' | 'avg' | undefined
 
   if (operation && colIndices.length > 1) {
-    // Aggregate multiple columns into a single sort key
     const sorted = [...data.rows].sort((a, b) => {
       const valsA = colIndices.map(ci => parseNumeric(a[ci] ?? ''))
       const valsB = colIndices.map(ci => parseNumeric(b[ci] ?? ''))
@@ -75,7 +80,6 @@ function applySort(data: TransformResult, config: Record<string, string>): Trans
         keyB = valsB.reduce((s, v) => s + v, 0) / valsB.length
       }
       else {
-        // sum (default)
         keyA = valsA.reduce((s, v) => s + v, 0)
         keyB = valsB.reduce((s, v) => s + v, 0)
       }
@@ -84,7 +88,6 @@ function applySort(data: TransformResult, config: Record<string, string>): Trans
     return { ...data, rows: sorted }
   }
 
-  // No operation: consecutive sort by each column (stable, like _.sortBy)
   const sorted = [...data.rows].sort((a, b) => {
     for (const ci of colIndices) {
       const type = data.columnTypes[ci] ?? 'string'
@@ -158,8 +161,6 @@ function applyTranspose(data: TransformResult): TransformResult {
     return data
   }
 
-  // First column values become new column headers
-  // Old column headers (except first) become first column values
   const newColumns = ['Field', ...data.rows.map(r => r[0] ?? '')]
   const newRows: string[][] = []
   const newTypes: ColumnType[] = ['string']
@@ -172,7 +173,6 @@ function applyTranspose(data: TransformResult): TransformResult {
     newRows.push(row)
   }
 
-  // Detect types for each new column
   for (let i = 0; i < data.rows.length; i++) {
     const vals = newRows.map(r => r[i + 1] ?? '').filter(v => v.length > 0)
     if (vals.length > 0 && vals.every(v => !Number.isNaN(Number(v.replace(/[,%$€£¥₹]/g, '').trim())) && v.trim().length > 0)) {
@@ -232,6 +232,9 @@ export function useDataTransforms() {
         case 'transpose':
           result = applyTranspose(result)
           break
+        case 'parse':
+          result = applyParse(result, step.config)
+          break
         // group-by, computed, pivot are not yet implemented
       }
     }
@@ -245,6 +248,32 @@ export function useDataTransforms() {
   function getColumnsAtStep(stepIndex: number, columns: string[], rows: string[][], columnTypes: ColumnType[]): TransformResult {
     const preceding = state.steps.slice(0, stepIndex)
     return applyStepList(preceding, columns, rows, columnTypes)
+  }
+
+  function validateStep(step: TransformStep, columns: string[], columnTypes: ColumnType[]): string | null {
+    const { config } = step
+
+    if (config.column && !columns.includes(config.column)) {
+      return `Column "${config.column}" not found`
+    }
+
+    if (step.type === 'parse' && config.column && config.operation) {
+      const colIndex = columns.indexOf(config.column)
+      if (colIndex >= 0 && !isTypeCompatible(config.operation, columnTypes[colIndex])) {
+        const op = parseOperationMap.get(config.operation)
+        return `${op?.label ?? config.operation} requires ${op?.accepts.join(' or ')} column, got ${columnTypes[colIndex]}`
+      }
+    }
+
+    if (step.type === 'filter' && !config.column) {
+      return 'No column selected'
+    }
+
+    if (step.type === 'sort' && !config.column && !config.columns) {
+      return 'No column selected'
+    }
+
+    return null
   }
 
   function reset() {
@@ -269,6 +298,7 @@ export function useDataTransforms() {
     moveStep,
     applyTransforms,
     getColumnsAtStep,
+    validateStep,
     reset,
     hydrate,
     snapshot,
