@@ -36,6 +36,12 @@
         v-else
         class="export-panel__dsl"
       />
+      <ExportFloatingPanel
+        v-if="!isNarrow && panelMode === 'floating'"
+        :container-ref="canvasRef"
+        @download-png="downloadPng"
+        @download-svg="downloadSvg"
+      />
     </div>
     <template v-if="isNarrow">
       <LayoutBottomDrawer v-model="drawerOpen">
@@ -57,7 +63,9 @@
     </template>
     <template v-else>
       <ExportDockedPanel
-        :collapsed="false"
+        :collapsed="panelMode !== 'docked'"
+        @float="float"
+        @close="collapse"
         @download-png="downloadPng"
         @download-svg="downloadSvg"
       />
@@ -79,12 +87,13 @@ import PanelTabBar from '@/components/Panel/PanelTabBar.vue'
 import ChartEditDsl from '@/components/ChartEdit/ChartEditDsl.vue'
 import ExportIconRail from './ExportIconRail.vue'
 import ExportDockedPanel from './ExportDockedPanel.vue'
+import ExportFloatingPanel from './ExportFloatingPanel.vue'
 import ExportEmbedPanel from './ExportEmbedPanel.vue'
 import ExportDownloadPanel from './ExportDownloadPanel.vue'
 import CanvasDimensions from '@/components/Canvas/CanvasDimensions.vue'
 import CanvasModePicker from '@/components/Canvas/CanvasModePicker.vue'
 
-const { viewMode, canvasMode, showDimensions } = useEditorPanel()
+const { viewMode, canvasMode, showDimensions, panelMode, float, collapse } = useEditorPanel()
 const { exportTab, setExportTab } = useExportPanel()
 const { isNarrow } = useBreakpoint()
 const { layout } = useChartConfig()
