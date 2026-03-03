@@ -33,7 +33,8 @@ defineProps<{
 .layout-panel {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  flex: 1;
+  min-height: 0;
   background: var(--bs-navbar-bg);
   border-left: 1px solid var(--bs-border-color);
 }
