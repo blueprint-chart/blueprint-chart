@@ -1,8 +1,8 @@
 <template>
   <PanelDocked
+    v-model="dockedPanelWidth"
     :collapsed="collapsed"
     :title="panelTitle"
-    :initial-width="340"
     @float="float"
     @close="collapse"
   >
@@ -32,7 +32,7 @@ defineProps<{
   collapsed: boolean
 }>()
 
-const { activeTab, float, collapse } = useEditorPanel()
+const { activeTab, dockedPanelWidth, float, collapse } = useEditorPanel()
 
 const TAB_LABELS: Record<string, string> = {
   type: 'Chart Type',

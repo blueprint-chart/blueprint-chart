@@ -1,8 +1,8 @@
 <template>
   <PanelDocked
+    v-model="dockedPanelWidth"
     :collapsed="collapsed"
     :title="panelTitle"
-    :initial-width="320"
     @float="$emit('float')"
     @close="$emit('close')"
   >
@@ -17,6 +17,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useEditorPanel } from '@/composables/useEditorPanel'
 import { useExportPanel } from '@/composables/useExportPanel'
 import PanelDocked from '@/components/Panel/PanelDocked.vue'
 import ExportEmbedPanel from './ExportEmbedPanel.vue'
@@ -32,6 +33,8 @@ defineEmits<{
   'download-png': [scale: number]
   'download-svg': []
 }>()
+
+const { dockedPanelWidth } = useEditorPanel()
 
 const { exportTab } = useExportPanel()
 

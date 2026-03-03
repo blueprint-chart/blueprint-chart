@@ -1,9 +1,10 @@
 <template>
   <PanelDocked
+    v-model="dockedPanelWidth"
     :collapsed="collapsed"
     :title="panelTitle"
-    @float="floatDataPanel"
-    @close="closeDataPanel"
+    @float="float"
+    @close="collapse"
   >
     <DataColumnSettings v-if="dataPanelTab === 'column'" />
     <DataTransformPipeline v-else-if="dataPanelTab === 'transforms'" />
@@ -25,7 +26,7 @@ defineProps<{
   collapsed: boolean
 }>()
 
-const { dataPanelTab, floatDataPanel, closeDataPanel } = useEditorPanel()
+const { dataPanelTab, dockedPanelWidth, float, collapse } = useEditorPanel()
 
 const TAB_LABELS: Record<string, string> = {
   column: 'Column Settings',
