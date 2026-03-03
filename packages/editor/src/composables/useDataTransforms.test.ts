@@ -257,6 +257,42 @@ describe('useDataTransforms', () => {
     reset()
     expect(steps.value).toEqual([])
   })
+
+  it('applies rename transform', () => {
+    const { addStep, applyTransforms } = useDataTransforms()
+    addStep('rename', { column: 'Name', newName: 'Label' })
+    const result = applyTransforms(
+      ['Name', 'Value'],
+      [['Apples', '42'], ['Bananas', '58']],
+      ['string', 'number'],
+    )
+    expect(result.columns).toEqual(['Label', 'Value'])
+    expect(result.rows[0][0]).toBe('Apples')
+  })
+
+  it('rename is no-op when column not found', () => {
+    const { addStep, applyTransforms } = useDataTransforms()
+    addStep('rename', { column: 'Missing', newName: 'Label' })
+    const result = applyTransforms(
+      ['Name', 'Value'],
+      [['Apples', '42']],
+      ['string', 'number'],
+    )
+    expect(result.columns).toEqual(['Name', 'Value'])
+  })
+
+  it('rename works in pipeline with other transforms', () => {
+    const { addStep, applyTransforms } = useDataTransforms()
+    addStep('rename', { column: 'Name', newName: 'Fruit' })
+    addStep('sort', { column: 'Value', direction: 'ascending' })
+    const result = applyTransforms(
+      ['Name', 'Value'],
+      [['Bananas', '58'], ['Apples', '10']],
+      ['string', 'number'],
+    )
+    expect(result.columns[0]).toBe('Fruit')
+    expect(result.rows[0][0]).toBe('Apples')
+  })
 })
 
 // Helper to run a single parse operation in isolation

@@ -7,7 +7,7 @@ export type { ParseOperation } from './transforms/parseOperations'
 export { parseOperations } from './transforms/parseOperations'
 export { NULL_VALUE } from './transforms/applyParse'
 
-export type TransformType = 'sort' | 'filter' | 'hide-columns' | 'transpose' | 'parse' | 'group-by' | 'computed' | 'pivot'
+export type TransformType = 'sort' | 'filter' | 'hide-columns' | 'transpose' | 'parse' | 'rename' | 'group-by' | 'computed' | 'pivot'
 
 export interface TransformStep {
   id: string
@@ -186,6 +186,16 @@ function applyTranspose(data: TransformResult): TransformResult {
   return { columns: newColumns, rows: newRows, columnTypes: newTypes }
 }
 
+function applyRename(data: TransformResult, config: Record<string, string>): TransformResult {
+  const colIndex = data.columns.indexOf(config.column)
+  if (colIndex < 0 || !config.column || !config.newName) {
+    return data
+  }
+  const columns = [...data.columns]
+  columns[colIndex] = config.newName
+  return { ...data, columns }
+}
+
 export function useDataTransforms() {
   function addStep(type: TransformType, config: Record<string, string> = {}): string {
     const id = String(nextId++)
@@ -235,6 +245,9 @@ export function useDataTransforms() {
         case 'parse':
           result = applyParse(result, step.config)
           break
+        case 'rename':
+          result = applyRename(result, step.config)
+          break
         // group-by, computed, pivot are not yet implemented
       }
     }
@@ -263,6 +276,16 @@ export function useDataTransforms() {
         const op = parseOperationMap.get(config.operation)
         return `${op?.label ?? config.operation} requires ${op?.accepts.join(' or ')} column, got ${columnTypes[colIndex]}`
       }
+    }
+
+    if (step.type === 'rename') {
+      if (!config.column) {
+        return 'No column selected'
+      }
+      if (!config.newName) {
+        return 'New name is required'
+      }
+      return null
     }
 
     if (step.type === 'filter' && !config.column) {

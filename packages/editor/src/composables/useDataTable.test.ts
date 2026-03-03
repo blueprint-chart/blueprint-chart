@@ -37,20 +37,6 @@ describe('useDataTable', () => {
     expect(columns.value).toEqual(['A'])
   })
 
-  it('updates a cell', () => {
-    const { loadParsed, updateCell, rows } = useDataTable()
-    loadParsed({ columns: ['A', 'B'], rows: [['1', '2']] })
-    updateCell(0, 1, '99')
-    expect(rows.value[0][1]).toBe('99')
-  })
-
-  it('deletes a row', () => {
-    const { loadParsed, deleteRow, rows } = useDataTable()
-    loadParsed({ columns: ['A'], rows: [['1'], ['2'], ['3']] })
-    deleteRow(1)
-    expect(rows.value).toEqual([['1'], ['3']])
-  })
-
   it('serializes to DSL format', () => {
     const { loadParsed, serialize } = useDataTable()
     loadParsed({

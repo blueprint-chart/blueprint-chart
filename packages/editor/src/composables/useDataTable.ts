@@ -47,18 +47,6 @@ export function useDataTable() {
     }
   }
 
-  function updateCell(rowIndex: number, colIndex: number, value: string) {
-    if (state.rows[rowIndex]) {
-      state.rows[rowIndex][colIndex] = value
-    }
-  }
-
-  function deleteRow(index: number) {
-    if (index >= 0 && index < state.rows.length) {
-      state.rows.splice(index, 1)
-    }
-  }
-
   function setColumnType(index: number, type: ColumnType) {
     if (index >= 0 && index < state.columnTypes.length) {
       state.columnTypes[index] = type
@@ -112,8 +100,6 @@ export function useDataTable() {
     hasTransforms,
     loadParsed,
     renameColumn,
-    updateCell,
-    deleteRow,
     setColumnType,
     serialize,
     reset,

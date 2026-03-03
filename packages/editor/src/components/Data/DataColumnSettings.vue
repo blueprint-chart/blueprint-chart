@@ -3,17 +3,6 @@
     <template v-if="selectedColumnIndex >= 0 && selectedColumnIndex < columns.length">
       <div class="data-column-settings__field">
         <div class="data-column-settings__label">
-          Column Name
-        </div>
-        <input
-          v-model="columnName"
-          class="data-column-settings__rename"
-          @input="onRename(columnName)"
-        >
-      </div>
-
-      <div class="data-column-settings__field">
-        <div class="data-column-settings__label">
           Type
         </div>
         <FormControlDropdown
@@ -73,9 +62,8 @@ import { useEditorPanel } from '@/composables/useEditorPanel'
 import { useDataTable } from '@/composables/useDataTable'
 import type { ColumnType } from '@/composables/useDataParser'
 const { selectedColumnIndex } = useEditorPanel()
-const { columns, rows, columnTypes, renameColumn, setColumnType } = useDataTable()
+const { columns, rows, columnTypes, setColumnType } = useDataTable()
 
-const columnName = ref('')
 const columnType = ref('string')
 
 const typeOptions = [
@@ -86,14 +74,9 @@ const typeOptions = [
 
 watch(selectedColumnIndex, (idx) => {
   if (idx >= 0 && idx < columns.value.length) {
-    columnName.value = columns.value[idx]
     columnType.value = columnTypes.value[idx] ?? 'string'
   }
 }, { immediate: true })
-
-function onRename(name: string) {
-  renameColumn(selectedColumnIndex.value, name)
-}
 
 function onTypeChange(type: string) {
   setColumnType(selectedColumnIndex.value, type as ColumnType)
@@ -147,23 +130,6 @@ const typeDetection = computed(() => {
   letter-spacing: 0.05em;
   color: var(--bs-secondary-color);
   margin-bottom: 0.25rem;
-}
-
-.data-column-settings__rename {
-  font-size: 1rem;
-  font-weight: 700;
-  border: none;
-  border-bottom: 2px solid transparent;
-  outline: none;
-  background: transparent;
-  padding: 0.125rem 0;
-  color: var(--bs-body-color);
-  font-family: inherit;
-  width: 100%;
-
-  &:focus {
-    border-bottom-color: var(--bs-primary);
-  }
 }
 
 .data-column-settings__divider {
