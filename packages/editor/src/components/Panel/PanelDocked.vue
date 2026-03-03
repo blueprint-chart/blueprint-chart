@@ -90,7 +90,8 @@ function onResizeStart(e: PointerEvent) {
   min-width: 0;
   flex-shrink: 0;
   overflow: hidden;
-  height: 100%;
+  display: flex;
+  flex-direction: column;
   box-shadow: var(--bs-box-shadow);
   transition: width 0.3s ease, max-width 0.3s ease, opacity 0.2s ease;
 
