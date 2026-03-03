@@ -1,0 +1,79 @@
+@top Chart { ChartDecl }
+
+ChartDecl { kw<"chart"> Identifier "{" ChartMember* "}" }
+
+ChartMember {
+  DataBlock |
+  Highlight |
+  AreaFill |
+  RangeAnnotation |
+  NoteAnnotation |
+  Annotation |
+  Series |
+  Step |
+  Transform |
+  Property
+}
+
+DataBlock { kw<"data"> "{" DataEntry* "}" }
+
+DataEntry { Property }
+
+Highlight { kw<"highlight"> String "{" Property* "}" }
+
+AreaFill { kw<"areafill"> String String "{" Property* "}" }
+
+Annotation { kw<"annotation"> String "{" Property* "}" }
+
+RangeAnnotation { kw<"range"> "{" Property* "}" }
+
+NoteAnnotation { kw<"note"> "{" Property* "}" }
+
+Series { kw<"series"> String "{" Property* "}" }
+
+Step { kw<"step"> String "{" StepMember* "}" }
+
+StepMember {
+  DataBlock |
+  Highlight |
+  AreaFill |
+  RangeAnnotation |
+  NoteAnnotation |
+  Annotation |
+  Property
+}
+
+Transform { kw<"transform"> Identifier "{" Property* "}" }
+
+Property { PropertyKey Equals PropertyValue }
+
+PropertyKey { String | Identifier }
+
+PropertyValue { Percentage | Number | String | Identifier }
+
+kw<term> { @specialize[@name={term}]<Identifier, term> }
+
+@tokens {
+  space { @whitespace+ }
+
+  Identifier { $[a-zA-Z_#] $[a-zA-Z0-9_#\-]* }
+
+  Number { "-"? @digit+ ("." @digit+)? }
+
+  Percentage { Number "%" }
+
+  String { '"' StringChar* '"' }
+
+  StringChar { "\\" EscapeChar | !["\\] }
+
+  EscapeChar { '"' | "\\" | "n" | "t" | ![] }
+
+  Equals { "=" }
+
+  LineComment { "//" ![\n]* }
+
+  @precedence { Percentage, Number }
+  @precedence { LineComment, Identifier }
+}
+
+@skip { space | LineComment }
