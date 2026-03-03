@@ -21,6 +21,7 @@ const state = reactive({
   dataPanelOpen: false,
   dataFloatingPosition: { x: -1, y: 16 },
   selectedColumnIndex: -1,
+  dockedPanelWidth: 340,
 })
 
 let lastOpenMode: 'docked' | 'floating' = 'docked'
@@ -144,6 +145,7 @@ export function useEditorPanel() {
     state.dataPanelOpen = false
     state.dataFloatingPosition = { x: -1, y: 16 }
     state.selectedColumnIndex = -1
+    state.dockedPanelWidth = 340
     lastOpenMode = 'docked'
     lastDataOpenMode = 'docked'
   }

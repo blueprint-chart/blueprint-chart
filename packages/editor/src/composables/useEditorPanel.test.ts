@@ -7,7 +7,7 @@ describe('useEditorPanel', () => {
   })
 
   it('has correct defaults', () => {
-    const { panelMode, activeTab, viewMode, dataView, dataPanelMode, dataPanelTab, dataPanelOpen, selectedColumnIndex, floatingPosition, floatingSize, dataFloatingPosition } = useEditorPanel()
+    const { panelMode, activeTab, viewMode, dataView, dataPanelMode, dataPanelTab, dataPanelOpen, selectedColumnIndex, floatingPosition, floatingSize, dataFloatingPosition, dockedPanelWidth } = useEditorPanel()
     expect(panelMode.value).toBe('docked')
     expect(activeTab.value).toBe('type')
     expect(viewMode.value).toBe('preview')
@@ -19,6 +19,7 @@ describe('useEditorPanel', () => {
     expect(floatingPosition.value).toEqual({ x: -1, y: 16 })
     expect(floatingSize.value).toEqual({ width: 340, height: 500 })
     expect(dataFloatingPosition.value).toEqual({ x: -1, y: 16 })
+    expect(dockedPanelWidth.value).toBe(340)
   })
 
   it('dock() sets panelMode to docked', () => {
@@ -229,6 +230,7 @@ describe('useEditorPanel', () => {
     panel.selectColumn(3)
     panel.floatingPosition.value = { x: 100, y: 200 }
     panel.dataFloatingPosition.value = { x: 50, y: 100 }
+    panel.dockedPanelWidth.value = 450
     panel.reset()
     expect(panel.panelMode.value).toBe('docked')
     expect(panel.activeTab.value).toBe('type')
@@ -240,6 +242,14 @@ describe('useEditorPanel', () => {
     expect(panel.selectedColumnIndex.value).toBe(-1)
     expect(panel.floatingPosition.value).toEqual({ x: -1, y: 16 })
     expect(panel.dataFloatingPosition.value).toEqual({ x: -1, y: 16 })
+    expect(panel.dockedPanelWidth.value).toBe(340)
+  })
+
+  it('dockedPanelWidth is shared across calls', () => {
+    const a = useEditorPanel()
+    const b = useEditorPanel()
+    a.dockedPanelWidth.value = 400
+    expect(b.dockedPanelWidth.value).toBe(400)
   })
 
   it('is a singleton across calls', () => {
