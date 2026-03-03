@@ -121,5 +121,6 @@ defineEmits<{
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  border-radius: 0 0 var(--bs-border-radius) var(--bs-border-radius);
 }
 </style>
