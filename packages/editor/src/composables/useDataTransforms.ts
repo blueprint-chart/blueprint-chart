@@ -1,13 +1,19 @@
 import { reactive, toRefs } from 'vue'
 import type { ColumnType } from './useDataParser'
 import { applyParse } from './transforms/applyParse'
+import { applySort } from './transforms/applySort'
+import { applyFilter } from './transforms/applyFilter'
+import { applyHideColumns } from './transforms/applyHideColumns'
+import { applyTranspose } from './transforms/applyTranspose'
+import { applyRename } from './transforms/applyRename'
+import { applyGroupBy } from './transforms/applyGroupBy'
 import { isTypeCompatible, parseOperationMap } from './transforms/parseOperations'
 
 export type { ParseOperation } from './transforms/parseOperations'
 export { parseOperations } from './transforms/parseOperations'
 export { NULL_VALUE } from './transforms/applyParse'
 
-export type TransformType = 'sort' | 'filter' | 'hide-columns' | 'transpose' | 'parse' | 'rename' | 'group-by' | 'computed' | 'pivot'
+export type TransformType = 'sort' | 'filter' | 'hide-columns' | 'transpose' | 'parse' | 'rename' | 'group-by' | 'computed'
 
 export interface TransformStep {
   id: string
@@ -26,175 +32,6 @@ const state = reactive({
 })
 
 let nextId = 1
-
-function compareValues(a: string, b: string, type: ColumnType): number {
-  if (type === 'number') {
-    const na = Number(a.replace(/[,%$€£¥₹]/g, '').trim()) || 0
-    const nb = Number(b.replace(/[,%$€£¥₹]/g, '').trim()) || 0
-    return na - nb
-  }
-  if (type === 'date') {
-    const da = Date.parse(a) || 0
-    const db = Date.parse(b) || 0
-    return da - db
-  }
-  return a.localeCompare(b)
-}
-
-function parseNumeric(v: string): number {
-  return Number(v.replace(/[,%$€£¥₹]/g, '').trim()) || 0
-}
-
-function resolveColumns(config: Record<string, string>): string[] {
-  if (config.columns) {
-    return config.columns.split(',').map(c => c.trim()).filter(Boolean)
-  }
-  if (config.column) {
-    return [config.column]
-  }
-  return []
-}
-
-function applySort(data: TransformResult, config: Record<string, string>): TransformResult {
-  const colNames = resolveColumns(config)
-  if (colNames.length === 0) {
-    return data
-  }
-
-  const colIndices = colNames.map(c => data.columns.indexOf(c)).filter(i => i >= 0)
-  if (colIndices.length === 0) {
-    return data
-  }
-
-  const dir = config.direction === 'descending' ? -1 : 1
-  const operation = config.operation // 'sum' | 'avg' | undefined
-
-  if (operation && colIndices.length > 1) {
-    const sorted = [...data.rows].sort((a, b) => {
-      const valsA = colIndices.map(ci => parseNumeric(a[ci] ?? ''))
-      const valsB = colIndices.map(ci => parseNumeric(b[ci] ?? ''))
-      let keyA: number
-      let keyB: number
-      if (operation === 'avg') {
-        keyA = valsA.reduce((s, v) => s + v, 0) / valsA.length
-        keyB = valsB.reduce((s, v) => s + v, 0) / valsB.length
-      }
-      else {
-        keyA = valsA.reduce((s, v) => s + v, 0)
-        keyB = valsB.reduce((s, v) => s + v, 0)
-      }
-      return dir * (keyA - keyB)
-    })
-    return { ...data, rows: sorted }
-  }
-
-  const sorted = [...data.rows].sort((a, b) => {
-    for (const ci of colIndices) {
-      const type = data.columnTypes[ci] ?? 'string'
-      const cmp = compareValues(a[ci] ?? '', b[ci] ?? '', type)
-      if (cmp !== 0) {
-        return dir * cmp
-      }
-    }
-    return 0
-  })
-  return { ...data, rows: sorted }
-}
-
-function matchesCondition(value: string, condition: string, target: string): boolean {
-  if (!target && condition !== 'equals' && condition !== 'not-equals') {
-    return true
-  }
-  switch (condition) {
-    case 'equals':
-      return value === target
-    case 'not-equals':
-      return value !== target
-    case 'contains':
-      return value.toLowerCase().includes(target.toLowerCase())
-    case 'greater-than': {
-      const num = Number(value.replace(/[,%$€£¥₹]/g, '').trim())
-      const tgt = Number(target)
-      return !Number.isNaN(num) && !Number.isNaN(tgt) && num > tgt
-    }
-    case 'less-than': {
-      const num = Number(value.replace(/[,%$€£¥₹]/g, '').trim())
-      const tgt = Number(target)
-      return !Number.isNaN(num) && !Number.isNaN(tgt) && num < tgt
-    }
-    default:
-      return true
-  }
-}
-
-function applyFilter(data: TransformResult, config: Record<string, string>): TransformResult {
-  const colIndex = data.columns.indexOf(config.column)
-  if (colIndex < 0 || !config.column) {
-    return data
-  }
-  const filtered = data.rows.filter(row =>
-    matchesCondition(row[colIndex] ?? '', config.condition ?? 'equals', config.value ?? ''),
-  )
-  return { ...data, rows: filtered }
-}
-
-function applyHideColumns(data: TransformResult, config: Record<string, string>): TransformResult {
-  const colNames = resolveColumns(config)
-  if (colNames.length === 0) {
-    return data
-  }
-  const keepIndices = data.columns
-    .map((c, i) => (colNames.includes(c) ? -1 : i))
-    .filter(i => i >= 0)
-  if (keepIndices.length === data.columns.length) {
-    return data
-  }
-  return {
-    columns: keepIndices.map(i => data.columns[i]),
-    rows: data.rows.map(r => keepIndices.map(i => r[i])),
-    columnTypes: keepIndices.map(i => data.columnTypes[i]),
-  }
-}
-
-function applyTranspose(data: TransformResult): TransformResult {
-  if (data.rows.length === 0 || data.columns.length === 0) {
-    return data
-  }
-
-  const newColumns = ['Field', ...data.rows.map(r => r[0] ?? '')]
-  const newRows: string[][] = []
-  const newTypes: ColumnType[] = ['string']
-
-  for (let ci = 1; ci < data.columns.length; ci++) {
-    const row = [data.columns[ci]]
-    for (let ri = 0; ri < data.rows.length; ri++) {
-      row.push(data.rows[ri][ci] ?? '')
-    }
-    newRows.push(row)
-  }
-
-  for (let i = 0; i < data.rows.length; i++) {
-    const vals = newRows.map(r => r[i + 1] ?? '').filter(v => v.length > 0)
-    if (vals.length > 0 && vals.every(v => !Number.isNaN(Number(v.replace(/[,%$€£¥₹]/g, '').trim())) && v.trim().length > 0)) {
-      newTypes.push('number')
-    }
-    else {
-      newTypes.push('string')
-    }
-  }
-
-  return { columns: newColumns, rows: newRows, columnTypes: newTypes }
-}
-
-function applyRename(data: TransformResult, config: Record<string, string>): TransformResult {
-  const colIndex = data.columns.indexOf(config.column)
-  if (colIndex < 0 || !config.column || !config.newName) {
-    return data
-  }
-  const columns = [...data.columns]
-  columns[colIndex] = config.newName
-  return { ...data, columns }
-}
 
 export function useDataTransforms() {
   function addStep(type: TransformType, config: Record<string, string> = {}): string {
@@ -248,7 +85,10 @@ export function useDataTransforms() {
         case 'rename':
           result = applyRename(result, step.config)
           break
-        // group-by, computed, pivot are not yet implemented
+        case 'group-by':
+          result = applyGroupBy(result, step.config)
+          break
+        // computed is not yet implemented
       }
     }
     return result
@@ -294,6 +134,16 @@ export function useDataTransforms() {
 
     if (step.type === 'sort' && !config.column && !config.columns) {
       return 'No column selected'
+    }
+
+    if (step.type === 'group-by') {
+      if (!config.groupColumns) {
+        return 'No group columns selected'
+      }
+      if (!config.aggregates) {
+        return 'No aggregates defined'
+      }
+      return null
     }
 
     return null

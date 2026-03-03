@@ -63,6 +63,7 @@ import IPhArrowsClockwise from '~icons/ph/arrows-clockwise'
 import IPhEyeSlash from '~icons/ph/eye-slash'
 import IPhWrench from '~icons/ph/wrench'
 import IPhPencilSimple from '~icons/ph/pencil-simple'
+import IPhStack from '~icons/ph/stack'
 
 const props = defineProps<{
   step: TransformStep
@@ -85,7 +86,6 @@ const iconClassMap: Record<string, string> = {
   'rename': 'step-card__icon--rename',
   'group-by': 'step-card__icon--group',
   'computed': 'step-card__icon--computed',
-  'pivot': 'step-card__icon--pivot',
 }
 
 const iconComponentMap: Record<string, Component> = {
@@ -95,6 +95,7 @@ const iconComponentMap: Record<string, Component> = {
   'transpose': IPhArrowsClockwise,
   'parse': IPhWrench,
   'rename': IPhPencilSimple,
+  'group-by': IPhStack,
 }
 
 const iconFallbackMap: Record<string, string> = {
@@ -106,7 +107,6 @@ const iconFallbackMap: Record<string, string> = {
   'rename': 'R',
   'group-by': 'G',
   'computed': 'C',
-  'pivot': 'P',
 }
 
 const labelMap: Record<string, string> = {
@@ -118,7 +118,6 @@ const labelMap: Record<string, string> = {
   'rename': 'Rename',
   'group-by': 'Group By',
   'computed': 'Computed',
-  'pivot': 'Pivot',
 }
 
 const iconClass = computed(() => iconClassMap[props.step.type] ?? '')
@@ -146,6 +145,17 @@ const description = computed(() => {
   }
   if (step.type === 'rename' && step.config.column && step.config.newName) {
     return `${step.config.column} → ${step.config.newName}`
+  }
+  if (step.type === 'group-by' && step.config.groupColumns && step.config.aggregates) {
+    const groups = step.config.groupColumns.split(',').map(c => c.trim()).filter(Boolean).join(', ')
+    const aggs = step.config.aggregates.split(',').map((a) => {
+      const sep = a.lastIndexOf(':')
+      if (sep < 0) {
+        return a.trim()
+      }
+      return `${a.slice(sep + 1).trim()}(${a.slice(0, sep).trim()})`
+    }).join(', ')
+    return `Group by ${groups} — ${aggs}`
   }
   return 'Configure...'
 })
@@ -277,10 +287,6 @@ const description = computed(() => {
     color: var(--bs-info-text-emphasis);
   }
 
-  &--pivot {
-    background: hsl(30 100% 93%);
-    color: hsl(25 90% 48%);
-  }
 }
 
 .step-card__text {

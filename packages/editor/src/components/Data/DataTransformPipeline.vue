@@ -46,6 +46,12 @@
           :step="step"
           :columns="columnsAtStep"
         />
+        <DataTransformStepGroupBy
+          v-else-if="step.type === 'group-by'"
+          :step="step"
+          :columns="columnsAtStep"
+          :column-types="columnTypesAtStep"
+        />
         <div
           v-else-if="step.type === 'transpose'"
           class="pipeline__config-info"
@@ -92,6 +98,7 @@ import DataTransformStepFilter from './DataTransformStepFilter.vue'
 import DataTransformStepHideColumns from './DataTransformStepHideColumns.vue'
 import DataTransformStepParse from './DataTransformStepParse.vue'
 import DataTransformStepRename from './DataTransformStepRename.vue'
+import DataTransformStepGroupBy from './DataTransformStepGroupBy.vue'
 
 const { columns, rows, columnTypes } = useDataTable()
 const { steps, addStep, removeStep, applyTransforms, getColumnsAtStep, validateStep } = useDataTransforms()

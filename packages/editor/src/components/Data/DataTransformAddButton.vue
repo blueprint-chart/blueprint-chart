@@ -49,9 +49,8 @@ const options = [
   { value: 'transpose', label: 'Transpose', desc: 'Swap rows and columns', disabled: false },
   { value: 'parse', label: 'Parse', desc: 'Transform column values', disabled: false },
   { value: 'rename', label: 'Rename Column', desc: 'Change a column name', disabled: false },
-  { value: 'group-by', label: 'Group By', desc: 'Aggregate rows (coming soon)', disabled: true },
+  { value: 'group-by', label: 'Group By', desc: 'Aggregate rows by column values', disabled: false },
   { value: 'computed', label: 'Computed Column', desc: 'Derive new column (coming soon)', disabled: true },
-  { value: 'pivot', label: 'Pivot', desc: 'Reshape wide/long (coming soon)', disabled: true },
 ]
 
 function iconClass(type: string): string {
@@ -64,7 +63,6 @@ function iconClass(type: string): string {
     'rename': 'add-wrap__dropdown-icon--rename',
     'group-by': 'add-wrap__dropdown-icon--group',
     'computed': 'add-wrap__dropdown-icon--computed',
-    'pivot': 'add-wrap__dropdown-icon--pivot',
   }
   return map[type] ?? ''
 }
@@ -79,7 +77,6 @@ function iconFallback(type: string): string {
     'rename': 'R',
     'group-by': 'G',
     'computed': 'C',
-    'pivot': 'P',
   }
   return map[type] ?? '?'
 }
@@ -184,10 +181,6 @@ function onSelect(type: string) {
     color: var(--bs-info-text-emphasis);
   }
 
-  &--pivot {
-    background: hsl(30 100% 93%);
-    color: hsl(25 90% 48%);
-  }
 }
 
 .add-wrap__dropdown-text {
