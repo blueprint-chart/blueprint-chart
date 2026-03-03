@@ -11,6 +11,7 @@ const state = reactive({
   activeTab: 'type',
   viewMode: 'preview' as ViewMode,
   canvasMode: 'blueprint' as CanvasMode,
+  showDimensions: true,
   floatingPosition: { x: -1, y: 16 },
   floatingSize: { width: 340, height: 500 },
   pendingAnnotationIndex: null as number | null,
@@ -133,6 +134,7 @@ export function useEditorPanel() {
     state.activeTab = 'type'
     state.viewMode = 'preview'
     state.canvasMode = 'blueprint'
+    state.showDimensions = true
     state.floatingPosition = { x: -1, y: 16 }
     state.floatingSize = { width: 340, height: 500 }
     state.pendingAnnotationIndex = null
