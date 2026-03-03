@@ -13,7 +13,9 @@
         <span class="bc-brand-gradient fw-bold">Blueprint Chart</span>
       </router-link>
 
+      <!-- Center: search (home) or stepper (wizard) -->
       <div
+        v-if="mode === 'home'"
         ref="searchContainer"
         class="shell-navbar__search"
       >
@@ -47,16 +49,85 @@
           </button>
         </div>
       </div>
-
-      <ButtonIcon
-        :icon-left="themeIcon"
-        label="Toggle theme"
-        hide-label
-        square
-        variant="outline-secondary"
-        size="sm"
-        @click="cycleTheme"
+      <NavigationStepper
+        v-else
+        v-model:current-step="currentIndex"
+        :steps="stepLabels"
+        :disabled-steps="disabledSteps"
+        size="md"
       />
+
+      <!-- Right: step controls (wizard) + theme toggle -->
+      <div class="shell-navbar__right">
+        <template v-if="mode === 'wizard'">
+          <template v-if="currentStep?.key === 'edit'">
+            <ButtonUndo
+              :disabled="!canUndo"
+              @click="undo"
+            />
+            <ButtonRedo
+              :disabled="!canRedo"
+              @click="redo"
+            />
+            <LayoutToolbarSeparator />
+            <NavigationToggle
+              v-model="viewModeModel"
+              :options="viewModeOptions"
+            />
+          </template>
+          <template v-else-if="currentStep?.key === 'export'">
+            <NavigationToggle
+              v-model="viewModeModel"
+              :options="viewModeOptions"
+            />
+          </template>
+          <!-- Data step: no toolbar controls (replace-data is inline) -->
+          <LayoutToolbarSeparator />
+          <div
+            ref="searchContainer"
+            class="shell-navbar__search shell-navbar__search--compact"
+          >
+            <BFormInput
+              v-model="searchQuery"
+              size="sm"
+              placeholder="Search charts..."
+              @keydown.escape="searchQuery = ''"
+            />
+            <div
+              v-if="searchResults.length"
+              class="shell-navbar__dropdown"
+            >
+              <button
+                v-for="chart in searchResults"
+                :key="chart.id"
+                class="shell-navbar__result"
+                @click="goToChart(chart.id)"
+              >
+                <div class="d-flex align-items-center gap-2">
+                  <div
+                    v-if="getThumbnail(chart.id)"
+                    class="shell-navbar__result-thumb"
+                    v-html="getThumbnail(chart.id)"
+                  />
+                  <div class="min-width-0 flex-grow-1">
+                    <span class="fw-bold text-truncate d-block">{{ chart.title || 'Untitled' }}</span>
+                    <span class="small text-body-secondary text-truncate d-block">{{ chart.description }}</span>
+                  </div>
+                </div>
+              </button>
+            </div>
+          </div>
+        </template>
+        <ButtonIcon
+          :icon-left="themeIcon"
+          label="Toggle theme"
+          hide-label
+          square
+          variant="outline-secondary"
+          size="sm"
+          @click="cycleTheme"
+        />
+      </div>
     </nav>
     <div class="d-flex flex-grow-1 overflow-auto">
       <slot />
@@ -69,19 +140,34 @@ import { ref, computed, watch } from 'vue'
 import { onClickOutside } from '@vueuse/core'
 import { useRoute, useRouter } from 'vue-router'
 import { BFormInput } from 'bootstrap-vue-next'
-import { ButtonIcon } from '@blueprint-chart/ui'
+import { ButtonIcon, NavigationStepper, NavigationToggle, LayoutToolbarSeparator, ButtonUndo, ButtonRedo } from '@blueprint-chart/ui'
 import { useTheme } from '@/composables/useTheme'
 import { useChartSession } from '@/composables/useChartSession'
+import { useNavbar } from '@/composables/useNavbar'
+import { useWizard } from '@/composables/useWizard'
+import { useEditorPanel } from '@/composables/useEditorPanel'
+import { useChartHistory } from '@/composables/useChartHistory'
+import { useDataTable } from '@/composables/useDataTable'
 import logoLight from '@/assets/images/blueprint-chart-logo.svg'
 import logoDark from '@/assets/images/blueprint-chart-logo-dark.svg'
 import IPhSun from '~icons/ph/sun'
 import IPhMoon from '~icons/ph/moon'
 import IPhCircleHalf from '~icons/ph/circle-half'
+import IPhTable from '~icons/ph/table'
+import IPhChartBar from '~icons/ph/chart-bar'
+import IPhExport from '~icons/ph/export'
 
 const route = useRoute()
 const router = useRouter()
 const { theme, cycleTheme } = useTheme()
 const { listSavedCharts } = useChartSession()
+const { mode } = useNavbar()
+
+// Wizard composables (only active when mode === 'wizard')
+const { currentIndex, currentStep, steps } = useWizard()
+const { viewMode, setViewMode } = useEditorPanel()
+const { canUndo, canRedo, undo, redo } = useChartHistory()
+const dataTable = useDataTable()
 
 const logoSrc = computed(() => theme.value === 'dark' ? logoDark : logoLight)
 
@@ -98,6 +184,33 @@ const themeIcon = computed(() => {
   return IPhCircleHalf
 })
 
+// Stepper configuration
+const stepIcons: Record<string, typeof IPhTable> = {
+  data: IPhTable,
+  edit: IPhChartBar,
+  export: IPhExport,
+}
+const stepLabels = steps.map(s => ({ label: s.label, icon: stepIcons[s.key] }))
+
+const viewModeModel = computed({
+  get: () => viewMode.value,
+  set: (v: string) => setViewMode(v as 'preview' | 'dsl'),
+})
+
+const viewModeOptions = [
+  { value: 'preview', text: 'Preview' },
+  { value: 'dsl', text: 'DSL' },
+]
+
+const disabledSteps = computed(() => {
+  const hasParsed = dataTable.rows.value.length > 0
+  if (!hasParsed) {
+    return [1, 2]
+  }
+  return []
+})
+
+// Search
 const searchResults = computed(() => {
   const q = searchQuery.value.trim().toLowerCase()
   if (!q) {
@@ -134,7 +247,8 @@ onClickOutside(searchContainer, () => {
 
 <style scoped lang="scss">
 .shell-navbar {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
   padding: 0.5rem 1rem;
   min-height: 3rem;
@@ -142,7 +256,6 @@ onClickOutside(searchContainer, () => {
   border-bottom: 1px solid var(--bs-border-color);
   flex-shrink: 0;
   gap: 1rem;
-
 }
 
 .shell-navbar__logo {
@@ -152,9 +265,19 @@ onClickOutside(searchContainer, () => {
 
 .shell-navbar__search {
   position: relative;
-  flex: 0 1 320px;
-  margin-left: auto;
-  margin-right: auto;
+  width: 320px;
+  max-width: 100%;
+}
+
+.shell-navbar__search--compact {
+  width: 180px;
+}
+
+.shell-navbar__right {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .shell-navbar__dropdown {
