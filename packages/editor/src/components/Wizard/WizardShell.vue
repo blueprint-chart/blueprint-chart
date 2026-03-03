@@ -4,7 +4,7 @@
     <div class="wizard-shell__content">
       <DataPanel v-if="currentStep.key === 'data'" />
       <ChartEditPanel v-else-if="currentStep.key === 'edit'" />
-      <PublishPanel v-else-if="currentStep.key === 'export'" />
+      <ExportPanel v-else-if="currentStep.key === 'export'" />
     </div>
   </div>
 </template>
@@ -16,7 +16,7 @@ import { generateThumbnail } from '@/composables/useChartThumbnail'
 import WizardToolbar from './WizardToolbar.vue'
 import DataPanel from '@/components/Data/DataPanel.vue'
 import ChartEditPanel from '@/components/ChartEdit/ChartEditPanel.vue'
-import PublishPanel from '@/components/Publish/PublishPanel.vue'
+import ExportPanel from '@/components/Export/ExportPanel.vue'
 
 const { currentStep } = useWizard()
 
