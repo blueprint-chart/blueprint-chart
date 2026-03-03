@@ -26,11 +26,12 @@
         />
       </div>
       <CanvasDimensions
-        v-if="viewMode === 'preview'"
+        v-if="viewMode === 'preview' && showDimensions"
         :card-ref="cardRef"
         :canvas-ref="canvasRef"
         :layout="layout"
       />
+      <CanvasModePicker v-if="viewMode === 'preview'" />
       <ChartEditDsl
         v-else
         class="export-panel__dsl"
@@ -81,8 +82,9 @@ import ExportDockedPanel from './ExportDockedPanel.vue'
 import ExportEmbedPanel from './ExportEmbedPanel.vue'
 import ExportDownloadPanel from './ExportDownloadPanel.vue'
 import CanvasDimensions from '@/components/Canvas/CanvasDimensions.vue'
+import CanvasModePicker from '@/components/Canvas/CanvasModePicker.vue'
 
-const { viewMode, canvasMode } = useEditorPanel()
+const { viewMode, canvasMode, showDimensions } = useEditorPanel()
 const { exportTab, setExportTab } = useExportPanel()
 const { isNarrow } = useBreakpoint()
 const { layout } = useChartConfig()

@@ -9,11 +9,6 @@
     </div>
     <div class="wizard-toolbar__right">
       <template v-if="currentStep.key === 'edit'">
-        <NavigationToggle
-          v-model="canvasModeModel"
-          :options="canvasModeOptions"
-        />
-        <LayoutToolbarSeparator />
         <ButtonUndo
           :disabled="!canUndo"
           @click="undo"
@@ -29,11 +24,6 @@
         />
       </template>
       <template v-else-if="currentStep.key === 'export'">
-        <NavigationToggle
-          v-model="canvasModeModel"
-          :options="canvasModeOptions"
-        />
-        <LayoutToolbarSeparator />
         <NavigationToggle
           v-model="viewModeModel"
           :options="viewModeOptions"
@@ -65,7 +55,7 @@ import IPhExport from '~icons/ph/export'
 
 const router = useRouter()
 const { currentIndex, currentStep, steps } = useWizard()
-const { viewMode, setViewMode, canvasMode, setCanvasMode, dataView, setDataView } = useEditorPanel()
+const { viewMode, setViewMode, dataView, setDataView } = useEditorPanel()
 const { canUndo, canRedo, undo, redo } = useChartHistory()
 const dataTable = useDataTable()
 const config = useChartConfig()
@@ -85,18 +75,6 @@ const viewModeModel = computed({
 const viewModeOptions = [
   { value: 'preview', text: 'Preview' },
   { value: 'dsl', text: 'DSL' },
-]
-
-const canvasModeModel = computed({
-  get: () => canvasMode.value,
-  set: (v: string) => setCanvasMode(v as 'blueprint' | 'auto' | 'light' | 'dark'),
-})
-
-const canvasModeOptions = [
-  { value: 'blueprint', text: 'Blueprint' },
-  { value: 'auto', text: 'Auto' },
-  { value: 'light', text: 'Light' },
-  { value: 'dark', text: 'Dark' },
 ]
 
 const dataViewModel = computed({
