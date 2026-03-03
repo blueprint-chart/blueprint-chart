@@ -69,6 +69,7 @@ import { ref, computed, type CSSProperties } from 'vue'
 import { useResizeObserver } from '@vueuse/core'
 import { LayoutBottomDrawer, useBreakpoint } from '@blueprint-chart/ui'
 import { useEditorPanel } from '@/composables/useEditorPanel'
+import { useCanvasCardStyle } from '@/composables/useCanvasCardStyle'
 import PanelTabBar from '@/components/Panel/PanelTabBar.vue'
 import { useChartConfig } from '@/composables/useChartConfig'
 import { useChartTypeOptions } from '@/composables/useChartTypeOptions'
@@ -93,6 +94,7 @@ const { panelMode, viewMode, activeTab, canvasMode, showDimensions, collapse, se
 const { isNarrow } = useBreakpoint()
 const { chartType, layout } = useChartConfig()
 const { availableOptionKeys } = useChartTypeOptions()
+const { cardClass, cardStyle } = useCanvasCardStyle(layout, 'chart-edit-panel__card')
 
 const hasAxisOptions = computed(() => availableOptionKeys.value.some(k => AXIS_KEYS.includes(k)))
 
@@ -151,50 +153,6 @@ const canvasStyle = computed<CSSProperties>(() => ({
   '--grid-offset-y': `${gridOffsetY.value}px`,
 } as CSSProperties))
 
-function parseAspectRatio(ratio: string): number | undefined {
-  const parts = ratio.split(':')
-  if (parts.length !== 2) {
-    return undefined
-  }
-  const w = Number(parts[0])
-  const h = Number(parts[1])
-  return w && h ? w / h : undefined
-}
-
-const hasConstrainedHeight = computed(() =>
-  layout.value.heightMode === 'fixed' || layout.value.heightMode === 'aspect-ratio',
-)
-
-const cardClass = computed(() => ({
-  'chart-edit-panel__card--fixed': layout.value.sizing === 'fixed',
-  'chart-edit-panel__card--max-width': layout.value.sizing === 'max-width',
-  'chart-edit-panel__card--transparent': layout.value.transparentBackground,
-  'chart-edit-panel__card--constrained-height': hasConstrainedHeight.value,
-}))
-
-const cardStyle = computed<CSSProperties>(() => {
-  const l = layout.value
-  const style: CSSProperties = {
-    padding: `${l.padding}px`,
-  }
-  if (l.sizing === 'fixed') {
-    style.width = `${l.fixedWidth}px`
-  }
-  else if (l.sizing === 'max-width') {
-    style.maxWidth = `${l.maxWidth}px`
-    style.width = '100%'
-  }
-  if (l.heightMode === 'fixed') {
-    style.height = `${l.fixedHeight}px`
-  }
-  else if (l.heightMode === 'aspect-ratio') {
-    const ratio = parseAspectRatio(l.aspectRatio)
-    if (ratio) {
-      style.aspectRatio = String(ratio)
-    }
-  }
-  return style
-})
 </script>
 
 <style scoped lang="scss">
