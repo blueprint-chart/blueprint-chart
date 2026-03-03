@@ -162,7 +162,7 @@ const drawerStyle = computed<CSSProperties>(() => ({
 .layout-bottom-drawer__body {
   flex: 1;
   overflow-y: auto;
-  padding: 0 1rem 1rem;
+  padding: 0 1rem 0;
 }
 
 .drawer-enter-active,
