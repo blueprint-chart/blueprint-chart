@@ -20,7 +20,7 @@
       />
       <DataCheckTable />
       <DataFloatingPanel
-        v-if="dataPanelMode === 'floating'"
+        v-if="panelMode === 'floating' && dataPanelMode !== 'collapsed'"
         :container-ref="mainRef"
       />
     </div>
@@ -41,7 +41,7 @@
       </LayoutBottomDrawer>
     </template>
     <template v-else>
-      <DataSidePanel :collapsed="dataPanelMode !== 'docked'" />
+      <DataSidePanel :collapsed="panelMode !== 'docked' || dataPanelMode === 'collapsed'" />
       <DataSideIconRail />
     </template>
   </div>
@@ -64,7 +64,7 @@ import DataParseSettings from './DataParseSettings.vue'
 import DataRecommendations from './DataRecommendations.vue'
 
 const { columns, columnTypes } = useDataTable()
-const { selectedColumnIndex, selectColumn, dataPanelMode, dataPanelTab, openDataPanel, collapseDataPanel } = useEditorPanel()
+const { selectedColumnIndex, selectColumn, panelMode, dataPanelMode, dataPanelTab, openDataPanel, collapse } = useEditorPanel()
 const { isNarrow } = useBreakpoint()
 
 const mainRef = ref<HTMLElement | null>(null)
@@ -80,7 +80,7 @@ const drawerOpen = computed({
   get: () => isNarrow.value && dataPanelMode.value !== 'collapsed' && !!dataPanelTab.value,
   set: (open) => {
     if (!open) {
-      collapseDataPanel()
+      collapse()
     }
   },
 })

@@ -2,9 +2,9 @@
   <PanelFloating
     :container-ref="containerRef"
     :title="panelTitle"
-    :position="dataFloatingPosition"
-    @dock="dockDataPanel"
-    @close="closeDataPanel"
+    :position="floatingPosition"
+    @dock="dock"
+    @close="collapse"
   >
     <DataColumnSettings v-if="dataPanelTab === 'column'" />
     <DataTransformPipeline v-else-if="dataPanelTab === 'transforms'" />
@@ -26,7 +26,7 @@ defineProps<{
   containerRef: HTMLElement | null
 }>()
 
-const { dataPanelTab, dataFloatingPosition, dockDataPanel, closeDataPanel } = useEditorPanel()
+const { dataPanelTab, floatingPosition, dock, collapse } = useEditorPanel()
 
 const TAB_LABELS: Record<string, string> = {
   column: 'Column Settings',

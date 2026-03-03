@@ -2,7 +2,7 @@
   <PanelIconRail
     :horizontal="horizontal"
     :active-tab="dataPanelTab"
-    :panel-mode="dataPanelMode"
+    :panel-mode="panelMode"
     :items="items"
     @select="onSelect"
     @toggle-mode="onToggleMode"
@@ -22,7 +22,7 @@ defineProps<{
   horizontal?: boolean
 }>()
 
-const { dataPanelTab, dataPanelMode, openDataPanel, dockDataPanel, floatDataPanel } = useEditorPanel()
+const { dataPanelTab, panelMode, openDataPanel, toggleMode } = useEditorPanel()
 
 const items: { value: string, icon: Component, tooltip: string }[] = [
   { value: 'column', icon: IPhColumns, tooltip: 'Columns' },
@@ -36,14 +36,9 @@ function onSelect(tab: string | number) {
 }
 
 function onToggleMode() {
-  if (dataPanelMode.value === 'docked') {
-    floatDataPanel()
-  }
-  else if (dataPanelMode.value === 'floating') {
-    dockDataPanel()
-  }
-  else {
+  if (panelMode.value === 'collapsed') {
     openDataPanel(dataPanelTab.value || 'column')
   }
+  toggleMode()
 }
 </script>
