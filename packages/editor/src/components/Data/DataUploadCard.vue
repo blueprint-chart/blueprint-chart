@@ -50,8 +50,8 @@
       </div>
       <DataUploadFileDrop
         v-if="activeTab === 'file'"
-        @loaded="$emit('loaded', $event)"
-        @bpc="$emit('bpc', $event)"
+        @loaded="(content, filename) => $emit('loaded', content, filename)"
+        @bpc="(content, filename) => $emit('bpc', content, filename)"
         @drag-state="isDragOver = $event"
       />
       <div
@@ -82,7 +82,7 @@
           <button
             class="upload-card__paste-btn"
             :disabled="!pasteInput.trim()"
-            @click="$emit('loaded', pasteInput)"
+            @click="$emit('loaded', pasteInput, 'Pasted')"
           >
             Load data
           </button>
@@ -90,7 +90,7 @@
       </div>
       <DataUploadSamples
         v-else-if="activeTab === 'samples'"
-        @select="$emit('loaded', $event)"
+        @select="$emit('loaded', $event, 'Sample')"
       />
     </div>
   </div>
@@ -102,7 +102,7 @@ import { useDataTable } from '@/composables/useDataTable'
 import DataUploadFileDrop from './DataUploadFileDrop.vue'
 import DataUploadSamples from './DataUploadSamples.vue'
 
-defineEmits<{ loaded: [content: string], bpc: [content: string] }>()
+defineEmits<{ loaded: [content: string, sourceLabel: string], bpc: [content: string, sourceLabel: string] }>()
 
 const { rawInput } = useDataTable()
 
