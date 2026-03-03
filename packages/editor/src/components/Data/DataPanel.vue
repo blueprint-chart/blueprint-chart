@@ -50,17 +50,19 @@ function reparseData() {
   dataTable.loadParsed(parsed)
 }
 
-function onLoaded(content: string) {
+function onLoaded(content: string, label: string) {
   dataTable.rawInput.value = content
   dataTable.sourceFormat.value = 'delimited'
+  dataTable.sourceLabel.value = label || 'Pasted'
   reparseData()
   setDataView('structure')
 }
 
-function onBpcLoaded(content: string) {
+function onBpcLoaded(content: string, label: string) {
   applyDsl(content)
   dataTable.rawInput.value = chartConfig.data.value
   dataTable.sourceFormat.value = 'bpc'
+  dataTable.sourceLabel.value = label || 'Blueprint file'
   reparseData()
   wizard.hydrate({ currentIndex: 1, furthestIndex: 1 })
   setDataView('structure')
