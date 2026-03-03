@@ -11,6 +11,8 @@ export {
 } from './composables/injection-keys'
 export { useBreakpoint } from './composables/useBreakpoint'
 
+export { default as ActionCopyButton } from './components/Action/ActionCopyButton/ActionCopyButton.vue'
+
 export { default as AppIcon } from './components/App/AppIcon/AppIcon.vue'
 export type { AppIconProps } from './components/App/AppIcon/AppIcon.vue'
 export { default as AppIconLayers } from './components/App/AppIconLayers/AppIconLayers.vue'
@@ -29,6 +31,7 @@ export { default as FormControlDropdownEntry } from './components/Form/FormContr
 export { default as FormControlDropdownItem } from './components/Form/FormControl/FormControlDropdownItem.vue'
 export type { FormControlDropdownOption } from './components/Form/FormControl/FormControlDropdown.vue'
 export { default as FormControlTextInput } from './components/Form/FormControl/FormControlTextInput.vue'
+export { default as FormControlToggleSwitch } from './components/Form/FormControl/FormControlToggleSwitch.vue'
 export { default as FormControlPalette } from './components/Form/FormControl/FormControlPalette.vue'
 export { default as FormControlPaletteEntry } from './components/Form/FormControl/FormControlPaletteEntry.vue'
 export { default as FormControlColorblindPicker } from './components/Form/FormControl/FormControlColorblindPicker.vue'
