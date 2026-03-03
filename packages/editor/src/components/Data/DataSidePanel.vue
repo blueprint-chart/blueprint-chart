@@ -10,6 +10,9 @@
     <DataTransformPipeline v-else-if="dataPanelTab === 'transforms'" />
     <DataParseSettings v-else-if="dataPanelTab === 'parsing'" />
     <DataRecommendations v-else-if="dataPanelTab === 'reco'" />
+    <template #footer>
+      <PanelStepperFooter />
+    </template>
   </PanelDocked>
 </template>
 
@@ -21,6 +24,7 @@ import DataColumnSettings from './DataColumnSettings.vue'
 import DataTransformPipeline from './DataTransformPipeline.vue'
 import DataParseSettings from './DataParseSettings.vue'
 import DataRecommendations from './DataRecommendations.vue'
+import PanelStepperFooter from '@/components/Panel/PanelStepperFooter.vue'
 
 defineProps<{
   collapsed: boolean
