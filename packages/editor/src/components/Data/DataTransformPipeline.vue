@@ -17,7 +17,7 @@
         :index="i"
         :active="selectedStepId === step.id"
         :error="stepErrors[step.id]"
-        @select="selectedStepId = step.id"
+        @select="selectStep(step.id)"
         @delete="onRemoveStep(step.id)"
       >
         <DataTransformStepSort
@@ -104,6 +104,7 @@ const { columns, rows, columnTypes } = useDataTable()
 const { steps, addStep, removeStep, applyTransforms, getColumnsAtStep, validateStep } = useDataTransforms()
 
 const selectedStepId = ref('')
+const pristineSteps = ref(new Set<string>())
 
 const selectedStepIndex = computed(() => steps.value.findIndex(s => s.id === selectedStepId.value))
 
@@ -120,8 +121,13 @@ const columnTypesAtStep = computed(() => dataAtStep.value.columnTypes)
 const stepErrors = computed(() => {
   const errors: Record<string, string | null> = {}
   for (let i = 0; i < steps.value.length; i++) {
+    const step = steps.value[i]
+    if (pristineSteps.value.has(step.id)) {
+      errors[step.id] = null
+      continue
+    }
     const data = getColumnsAtStep(i, columns.value, rows.value, columnTypes.value)
-    errors[steps.value[i].id] = validateStep(steps.value[i], data.columns, data.columnTypes)
+    errors[step.id] = validateStep(step, data.columns, data.columnTypes)
   }
   return errors
 })
@@ -130,12 +136,22 @@ const transformed = computed(() => applyTransforms(columns.value, rows.value, co
 const transformedCols = computed(() => transformed.value.columns.length)
 const transformedRows = computed(() => transformed.value.rows.length)
 
-function onAddStep(type: string) {
-  const id = addStep(type as TransformType)
+function selectStep(id: string) {
+  const prev = selectedStepId.value
+  if (prev && prev !== id) {
+    pristineSteps.value.delete(prev)
+  }
   selectedStepId.value = id
 }
 
+function onAddStep(type: string) {
+  const id = addStep(type as TransformType)
+  pristineSteps.value.add(id)
+  selectStep(id)
+}
+
 function onRemoveStep(id: string) {
+  pristineSteps.value.delete(id)
   removeStep(id)
   if (selectedStepId.value === id) {
     selectedStepId.value = steps.value.length > 0 ? steps.value[steps.value.length - 1].id : ''
