@@ -50,8 +50,9 @@ export function usePanelDrag(
     const elWidth = el?.offsetWidth ?? 340
     const elHeight = el?.offsetHeight ?? 400
 
-    x = Math.max(0, Math.min(x, bounds.width - elWidth))
-    y = Math.max(0, Math.min(y, bounds.height - elHeight))
+    const margin = 16
+    x = Math.max(margin, Math.min(x, bounds.width - elWidth - margin))
+    y = Math.max(margin, Math.min(y, bounds.height - elHeight - margin))
 
     position.x = x
     position.y = y
