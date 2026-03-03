@@ -14,6 +14,12 @@
         <ButtonClose @click="$emit('close')" />
       </template>
       <slot />
+      <template
+        v-if="$slots.footer"
+        #footer
+      >
+        <slot name="footer" />
+      </template>
     </LayoutPanel>
   </div>
 </template>
