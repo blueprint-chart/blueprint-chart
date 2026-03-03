@@ -48,9 +48,9 @@
 import { ref } from 'vue'
 
 const emit = defineEmits<{
-  loaded: [content: string],
-  bpc: [content: string],
-  dragState: [active: boolean],
+  loaded: [content: string, filename: string]
+  bpc: [content: string, filename: string]
+  dragState: [active: boolean]
 }>()
 
 const fileInput = ref<globalThis.HTMLInputElement | null>(null)
@@ -77,7 +77,7 @@ function readFile(file: globalThis.File) {
   const reader = new globalThis.FileReader()
   reader.onload = () => {
     if (typeof reader.result === 'string') {
-      emit(isBpcFile(file) ? 'bpc' : 'loaded', reader.result)
+      emit(isBpcFile(file) ? 'bpc' : 'loaded', reader.result, file.name)
     }
   }
   reader.readAsText(file)
