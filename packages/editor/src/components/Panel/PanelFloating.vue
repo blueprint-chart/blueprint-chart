@@ -51,7 +51,9 @@ const position = toRef(props, 'position')
 onMounted(() => {
   if (position.value.x < 0 && props.containerRef) {
     const panelWidth = panelRef.value?.offsetWidth ?? 340
-    position.value.x = props.containerRef.clientWidth - panelWidth - 16
+    const margin = 16
+    position.value.x = props.containerRef.clientWidth - panelWidth - margin
+    position.value.y = Math.max(margin, position.value.y)
   }
 })
 
