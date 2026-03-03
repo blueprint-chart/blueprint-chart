@@ -41,6 +41,11 @@
           :step="step"
           :columns="columnsAtStep"
         />
+        <DataTransformStepRename
+          v-else-if="step.type === 'rename'"
+          :step="step"
+          :columns="columnsAtStep"
+        />
         <div
           v-else-if="step.type === 'transpose'"
           class="pipeline__config-info"
@@ -86,6 +91,7 @@ import DataTransformStepSort from './DataTransformStepSort.vue'
 import DataTransformStepFilter from './DataTransformStepFilter.vue'
 import DataTransformStepHideColumns from './DataTransformStepHideColumns.vue'
 import DataTransformStepParse from './DataTransformStepParse.vue'
+import DataTransformStepRename from './DataTransformStepRename.vue'
 
 const { columns, rows, columnTypes } = useDataTable()
 const { steps, addStep, removeStep, applyTransforms, getColumnsAtStep, validateStep } = useDataTransforms()
