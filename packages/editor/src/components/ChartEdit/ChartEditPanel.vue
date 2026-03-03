@@ -27,11 +27,12 @@
         class="chart-edit-panel__dsl"
       />
       <CanvasDimensions
-        v-if="viewMode === 'preview'"
+        v-if="viewMode === 'preview' && showDimensions"
         :card-ref="cardRef"
         :canvas-ref="canvasRef"
         :layout="layout"
       />
+      <CanvasModePicker v-if="viewMode === 'preview'" />
       <ChartEditFloatingPanel
         v-if="panelMode === 'floating'"
         :container-ref="canvasRef"
@@ -77,6 +78,7 @@ import ChartEditDockedPanel from './ChartEditDockedPanel.vue'
 import ChartEditIconRail from './ChartEditIconRail.vue'
 import ChartEditFloatingPanel from './ChartEditFloatingPanel.vue'
 import CanvasDimensions from '@/components/Canvas/CanvasDimensions.vue'
+import CanvasModePicker from '@/components/Canvas/CanvasModePicker.vue'
 import EditorChartTypePicker from '@/components/Editor/EditorChartTypePicker.vue'
 import EditorPropertyForm from '@/components/Editor/EditorPropertyForm.vue'
 import EditorAppearanceTab from '@/components/Editor/EditorAppearanceTab.vue'
@@ -87,7 +89,7 @@ import EditorAnnotateTab from '@/components/Editor/EditorAnnotateTab.vue'
 
 const AXIS_KEYS = ['showVerticalAxis', 'verticalAxisDirection', 'showVerticalTicks', 'verticalLabelPosition', 'verticalGridStyle', 'verticalNumberFormat', 'verticalScaleType', 'verticalRangeMin', 'verticalRangeMax', 'showHorizontalAxis', 'showHorizontalTicks', 'horizontalLabelPosition', 'horizontalGridStyle', 'horizontalNumberFormat', 'horizontalScaleType', 'horizontalRangeMin', 'horizontalRangeMax']
 
-const { panelMode, viewMode, activeTab, canvasMode, collapse, selectTab } = useEditorPanel()
+const { panelMode, viewMode, activeTab, canvasMode, showDimensions, collapse, selectTab } = useEditorPanel()
 const { isNarrow } = useBreakpoint()
 const { chartType, layout } = useChartConfig()
 const { availableOptionKeys } = useChartTypeOptions()
