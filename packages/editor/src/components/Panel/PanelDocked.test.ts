@@ -57,4 +57,23 @@ describe('PanelDocked', () => {
     const w = mount(PanelDocked, { props: { collapsed: false, title: 'Test' } })
     expect(w.find('.panel-docked__resize-handle').exists()).toBe(true)
   })
+
+  it('uses modelValue as initial width when provided', () => {
+    const w = mount(PanelDocked, { props: { collapsed: false, title: 'Test', modelValue: 400 } })
+    const style = w.find('.panel-docked').attributes('style')
+    expect(style).toContain('width: 400px')
+  })
+
+  it('uses initialWidth when modelValue is not provided', () => {
+    const w = mount(PanelDocked, { props: { collapsed: false, title: 'Test', initialWidth: 300 } })
+    const style = w.find('.panel-docked').attributes('style')
+    expect(style).toContain('width: 300px')
+  })
+
+  it('syncs width when modelValue prop changes', async () => {
+    const w = mount(PanelDocked, { props: { collapsed: false, title: 'Test', modelValue: 340 } })
+    expect(w.find('.panel-docked').attributes('style')).toContain('width: 340px')
+    await w.setProps({ modelValue: 420 })
+    expect(w.find('.panel-docked').attributes('style')).toContain('width: 420px')
+  })
 })
