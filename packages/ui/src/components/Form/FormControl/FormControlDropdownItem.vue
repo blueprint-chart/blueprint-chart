@@ -59,7 +59,7 @@ defineEmits<{
 }>()
 
 const labelClassList = computed(() => ({
-  'form-control-dropdown-item__label--bold': !props.lightLabel,
+  'form-control-dropdown-item__label--bold': !props.lightLabel && props.label && props.description,
 }))
 
 const descriptionClassList = computed(() => ({
