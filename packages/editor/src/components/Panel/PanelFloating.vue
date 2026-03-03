@@ -21,6 +21,12 @@
     <div class="panel-floating__body">
       <slot />
     </div>
+    <div
+      v-if="$slots.footer"
+      class="panel-floating__footer"
+    >
+      <slot name="footer" />
+    </div>
   </div>
 </template>
 
@@ -118,6 +124,12 @@ const positionStyle = computed(() => ({
     flex: 1;
     overflow-y: auto;
     padding: 0.5rem 0.875rem 0.875rem;
+  }
+
+  &__footer {
+    flex-shrink: 0;
+    border-top: 1px solid var(--bs-border-color-translucent);
+    padding: 0.625rem 0.875rem;
   }
 }
 </style>
