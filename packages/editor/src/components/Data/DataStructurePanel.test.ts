@@ -23,11 +23,13 @@ vi.mock('@/composables/useEditorPanel', () => ({
     dataPanelOpen: ref(true),
     openDataPanel: mockOpenDataPanel,
     collapseDataPanel: mockCollapseDataPanel,
+    setDataView: vi.fn(),
   }),
 }))
 
 vi.mock('@blueprint-chart/ui', () => ({
   LayoutBottomDrawer: { template: '<div class="drawer-stub"><slot /></div>', props: ['modelValue'] },
+  ButtonIcon: { template: '<button class="btn-icon-stub"><slot /></button>', props: ['iconLeft', 'label', 'variant', 'size'] },
   useBreakpoint: () => ({ isNarrow: ref(false) }),
 }))
 

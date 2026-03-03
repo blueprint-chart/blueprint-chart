@@ -11,13 +11,21 @@
       ref="mainRef"
       class="data-structure-panel__main"
     >
-      <DataColumnPills
-        :columns="columns"
-        :column-types="columnTypes"
-        :selected="selectedColumnIndex"
-        class="mb-3"
-        @select="selectColumn"
-      />
+      <div class="data-structure-panel__pills-bar">
+        <DataColumnPills
+          :columns="columns"
+          :column-types="columnTypes"
+          :selected="selectedColumnIndex"
+          @select="selectColumn"
+        />
+        <ButtonIcon
+          :icon-left="IPhArrowsClockwise"
+          label="Replace data"
+          variant="outline-secondary"
+          size="sm"
+          @click="replaceData"
+        />
+      </div>
       <DataCheckTable />
       <DataFloatingPanel
         v-if="panelMode === 'floating' && dataPanelMode !== 'collapsed'"
@@ -49,9 +57,10 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { LayoutBottomDrawer, useBreakpoint } from '@blueprint-chart/ui'
+import { LayoutBottomDrawer, ButtonIcon, useBreakpoint } from '@blueprint-chart/ui'
 import { useDataTable } from '@/composables/useDataTable'
 import { useEditorPanel, type DataPanelTab } from '@/composables/useEditorPanel'
+import IPhArrowsClockwise from '~icons/ph/arrows-clockwise'
 import PanelTabBar from '@/components/Panel/PanelTabBar.vue'
 import DataColumnPills from './DataColumnPills.vue'
 import DataCheckTable from './DataCheckTable.vue'
@@ -64,7 +73,11 @@ import DataParseSettings from './DataParseSettings.vue'
 import DataRecommendations from './DataRecommendations.vue'
 
 const { columns, columnTypes } = useDataTable()
-const { selectedColumnIndex, selectColumn, panelMode, dataPanelMode, dataPanelTab, openDataPanel, collapse } = useEditorPanel()
+const { selectedColumnIndex, selectColumn, panelMode, dataPanelMode, dataPanelTab, openDataPanel, collapse, setDataView } = useEditorPanel()
+
+function replaceData() {
+  setDataView('upload')
+}
 const { isNarrow } = useBreakpoint()
 
 const mainRef = ref<HTMLElement | null>(null)
@@ -107,6 +120,18 @@ const panelClassList = computed(() => ({
   overflow: auto;
   padding: 1.25rem;
   position: relative;
+}
+
+.data-structure-panel__pills-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.75rem;
+
+  .data-column-pills {
+    flex: 1;
+  }
 }
 
 .data-structure-panel__drawer-body {
