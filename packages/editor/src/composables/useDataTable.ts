@@ -19,6 +19,8 @@ const state = reactive<DataTableState>({
 })
 
 const sourceFormat = ref<SourceFormat>('delimited')
+const sourceLabel = ref('')
+const loadedAt = ref<number | null>(null)
 
 export function useDataTable() {
   const { steps, applyTransforms } = useDataTransforms()
@@ -35,10 +37,14 @@ export function useDataTable() {
   const displayColumnTypes = computed(() => displayData.value.columnTypes)
   const hasTransforms = computed(() => steps.value.length > 0)
 
-  function loadParsed(parsed: ParsedData) {
+  function loadParsed(parsed: ParsedData, source?: { label?: string }) {
     state.columns = [...parsed.columns]
     state.rows = parsed.rows.map(r => [...r])
     state.columnTypes = parsed.columnTypes ? [...parsed.columnTypes] : parsed.columns.map(() => 'string' as ColumnType)
+    loadedAt.value = Date.now()
+    if (source?.label) {
+      sourceLabel.value = source.label
+    }
   }
 
   function renameColumn(index: number, name: string) {
@@ -82,6 +88,8 @@ export function useDataTable() {
     state.rows = []
     state.rawInput = ''
     state.columnTypes = []
+    sourceLabel.value = ''
+    loadedAt.value = null
   }
 
   function hydrate(snapshot: { columns: string[], rows: string[][], rawInput: string, columnTypes?: ColumnType[] }) {
@@ -94,6 +102,8 @@ export function useDataTable() {
   return {
     ...toRefs(state),
     sourceFormat,
+    sourceLabel,
+    loadedAt,
     displayColumns,
     displayRows,
     displayColumnTypes,
