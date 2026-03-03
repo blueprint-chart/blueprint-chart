@@ -103,6 +103,29 @@ export function rotateDirectionForHorizontal(dir: CompassDirection): CompassDire
 }
 
 // ---------------------------------------------------------------------------
+// Scale helpers
+// ---------------------------------------------------------------------------
+
+function isTimeScale(scale: AnnotationContext['scaleX']): scale is d3.ScaleTime<number, number> {
+  if ('bandwidth' in scale) {
+    return false
+  }
+  const domain = scale.domain()
+  return domain.length > 0 && domain[0] instanceof Date
+}
+
+function scaleXValue(scale: AnnotationContext['scaleX'], label: string): number {
+  if ('bandwidth' in scale) {
+    const band = scale as d3.ScaleBand<string>
+    return (band(label) ?? 0) + band.bandwidth() / 2
+  }
+  if (isTimeScale(scale)) {
+    return scale(new Date(label)) as number
+  }
+  return (scale as d3.ScaleLinear<number, number>)(Number(label)) as number
+}
+
+// ---------------------------------------------------------------------------
 // Anchor point computation
 // ---------------------------------------------------------------------------
 
@@ -142,7 +165,7 @@ export function computeAnchorPoint(
   }
 
   // Line charts (no bandwidth) — small fixed offsets around data point
-  const px = (scaleX as d3.ScaleLinear<number, number>)(Number(datum.label)) as number
+  const px = scaleXValue(scaleX, datum.label)
   const py = scaleY(datum.value)
   const offset = 2
   const v = DIRECTION_VECTORS[anchorDirection] ?? DIRECTION_VECTORS.N
@@ -501,6 +524,9 @@ function resolveXPosition(
     }
     return left + bw / 2
   }
+  if (isTimeScale(scaleX)) {
+    return scaleX(new Date(String(value))) as number
+  }
   return (scaleX as d3.ScaleLinear<number, number>)(Number(value)) as number
 }
 
@@ -520,10 +546,7 @@ function datumCenter(
   scaleX: AnnotationContext['scaleX'],
   scaleY: d3.ScaleLinear<number, number>,
 ): { x: number, y: number } {
-  const cx = 'bandwidth' in scaleX
-    ? ((scaleX as d3.ScaleBand<string>)(datum.label) ?? 0) + (scaleX as d3.ScaleBand<string>).bandwidth() / 2
-    : (scaleX as d3.ScaleLinear<number, number>)(Number(datum.label)) as number
-  return { x: cx, y: scaleY(datum.value) }
+  return { x: scaleXValue(scaleX, datum.label), y: scaleY(datum.value) }
 }
 
 // ---------------------------------------------------------------------------
@@ -818,6 +841,46 @@ function renderFreeAnnotation(
       catch { /* getBBox can throw if not in DOM */ }
     }
   }
+}
+
+// ---------------------------------------------------------------------------
+// Standalone render (outside clip group)
+// ---------------------------------------------------------------------------
+
+export function renderAnnotations(
+  parent: SVGGElement,
+  annotations: AnnotationConfig[],
+  ctx: AnnotationContext,
+): void {
+  const svg = parent.ownerSVGElement ?? parent
+  d3.select(svg).style('overflow', 'visible')
+  ensureArrowMarker(svg)
+
+  const base = d3.select(parent)
+  const rangeGroup = base.insert('g', ':first-child').attr('class', 'bc-annotations-range') as unknown as d3.Selection<SVGGElement, unknown, null, undefined>
+  const g = base.append('g')
+    .attr('class', 'bc-annotations')
+    .attr('data-ctx-width', String(ctx.width))
+    .attr('data-ctx-height', String(ctx.height)) as unknown as d3.Selection<SVGGElement, unknown, null, undefined>
+
+  for (let i = 0; i < annotations.length; i++) {
+    const ann = annotations[i]
+    const kind = ann.kind ?? 'point'
+
+    switch (kind) {
+      case 'point':
+        renderPointAnnotation(g, ann, ctx, i)
+        break
+      case 'range':
+        renderRangeAnnotation(rangeGroup, ann, ctx, i)
+        break
+      case 'free':
+        renderFreeAnnotation(g, ann, ctx, i)
+        break
+    }
+  }
+
+  expandSvgToFitAnnotations(svg as SVGSVGElement | null, g, rangeGroup)
 }
 
 // ---------------------------------------------------------------------------
