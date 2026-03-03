@@ -19,6 +19,9 @@
       @download-png="$emit('download-png', $event)"
       @download-svg="$emit('download-svg')"
     />
+    <template #footer>
+      <PanelStepperFooter />
+    </template>
   </PanelFloating>
 </template>
 
@@ -30,6 +33,7 @@ import PanelFloating from '@/components/Panel/PanelFloating.vue'
 import PanelTabBar from '@/components/Panel/PanelTabBar.vue'
 import ExportEmbedPanel from './ExportEmbedPanel.vue'
 import ExportDownloadPanel from './ExportDownloadPanel.vue'
+import PanelStepperFooter from '@/components/Panel/PanelStepperFooter.vue'
 
 defineProps<{
   containerRef: HTMLElement | null
