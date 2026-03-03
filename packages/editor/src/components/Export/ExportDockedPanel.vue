@@ -12,6 +12,9 @@
       @download-png="$emit('download-png', $event)"
       @download-svg="$emit('download-svg')"
     />
+    <template #footer>
+      <PanelStepperFooter />
+    </template>
   </PanelDocked>
 </template>
 
@@ -22,6 +25,7 @@ import { useExportPanel } from '@/composables/useExportPanel'
 import PanelDocked from '@/components/Panel/PanelDocked.vue'
 import ExportEmbedPanel from './ExportEmbedPanel.vue'
 import ExportDownloadPanel from './ExportDownloadPanel.vue'
+import PanelStepperFooter from '@/components/Panel/PanelStepperFooter.vue'
 
 defineProps<{
   collapsed: boolean

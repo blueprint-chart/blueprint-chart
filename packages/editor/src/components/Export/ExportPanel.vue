@@ -91,6 +91,7 @@ import ExportDockedPanel from './ExportDockedPanel.vue'
 import ExportFloatingPanel from './ExportFloatingPanel.vue'
 import ExportEmbedPanel from './ExportEmbedPanel.vue'
 import ExportDownloadPanel from './ExportDownloadPanel.vue'
+
 import CanvasDimensions from '@/components/Canvas/CanvasDimensions.vue'
 import CanvasModePicker from '@/components/Canvas/CanvasModePicker.vue'
 
@@ -276,6 +277,7 @@ const canvasClassList = computed(() => ({
 .export-panel__drawer-body {
   padding: 0.75rem;
 }
+
 
 :deep(.navigation-icon-rail),
 :deep(.layout-panel) {
