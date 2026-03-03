@@ -28,6 +28,17 @@
           :options="viewModeOptions"
         />
       </template>
+      <template v-else-if="currentStep.key === 'export'">
+        <NavigationToggle
+          v-model="canvasModeModel"
+          :options="canvasModeOptions"
+        />
+        <LayoutToolbarSeparator />
+        <NavigationToggle
+          v-model="viewModeModel"
+          :options="viewModeOptions"
+        />
+      </template>
       <template v-else-if="currentStep.key === 'data'">
         <NavigationToggle
           v-model="dataViewModel"
