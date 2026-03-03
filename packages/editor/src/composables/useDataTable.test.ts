@@ -87,6 +87,35 @@ describe('useDataTable', () => {
     expect(columnTypes.value).toEqual(['string'])
   })
 
+  it('sets sourceLabel from loadParsed source option', () => {
+    const { loadParsed, sourceLabel } = useDataTable()
+    loadParsed({ columns: ['A'], rows: [] }, { label: 'data.csv' })
+    expect(sourceLabel.value).toBe('data.csv')
+  })
+
+  it('keeps previous sourceLabel when no source option given', () => {
+    const { loadParsed, sourceLabel } = useDataTable()
+    loadParsed({ columns: ['A'], rows: [] }, { label: 'first.csv' })
+    loadParsed({ columns: ['B'], rows: [] })
+    expect(sourceLabel.value).toBe('first.csv')
+  })
+
+  it('sets loadedAt timestamp on loadParsed', () => {
+    const { loadParsed, loadedAt } = useDataTable()
+    const before = Date.now()
+    loadParsed({ columns: ['A'], rows: [] })
+    expect(loadedAt.value).toBeGreaterThanOrEqual(before)
+    expect(loadedAt.value).toBeLessThanOrEqual(Date.now())
+  })
+
+  it('resets sourceLabel and loadedAt', () => {
+    const dt = useDataTable()
+    dt.loadParsed({ columns: ['A'], rows: [['1']] }, { label: 'test.csv' })
+    dt.reset()
+    expect(dt.sourceLabel.value).toBe('')
+    expect(dt.loadedAt.value).toBeNull()
+  })
+
   it('serializes two-column data without _series header', () => {
     const { loadParsed, serialize } = useDataTable()
     loadParsed({
