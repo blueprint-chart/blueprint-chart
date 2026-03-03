@@ -43,14 +43,43 @@
             /><path d="M12 16v-4M12 8h.01" /></svg>
             {{ typeDetection }}
           </span>
+          <span
+            v-if="benfordDetection"
+            class="data-column-settings__detection"
+            :class="benfordDetection.pass ? 'data-column-settings__detection--success' : 'data-column-settings__detection--warn'"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            ><path
+              v-if="benfordDetection.pass"
+              d="M20 6L9 17l-5-5"
+            /><path
+              v-else
+              d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"
+            /></svg>
+            {{ benfordDetection.label }}
+          </span>
         </div>
       </div>
     </template>
     <div
       v-else
-      class="text-muted text-center py-4"
+      class="data-column-settings__picker"
     >
-      Select a column to view settings
+      <div class="data-column-settings__label">
+        Column
+      </div>
+      <FormControlDropdown
+        model-value=""
+        label=""
+        :options="columnPickerOptions"
+        block
+        placeholder="Select a column…"
+        @update:model-value="onPickColumn"
+      />
     </div>
   </div>
 </template>
@@ -60,8 +89,9 @@ import { ref, computed, watch } from 'vue'
 import { FormControlDropdown } from '@blueprint-chart/ui'
 import { useEditorPanel } from '@/composables/useEditorPanel'
 import { useDataTable } from '@/composables/useDataTable'
+import { checkBenford } from '@/composables/useBenfordCheck'
 import type { ColumnType } from '@/composables/useDataParser'
-const { selectedColumnIndex } = useEditorPanel()
+const { selectedColumnIndex, selectColumn } = useEditorPanel()
 const { columns, rows, columnTypes, setColumnType } = useDataTable()
 
 const columnType = ref('string')
@@ -80,6 +110,14 @@ watch(selectedColumnIndex, (idx) => {
 
 function onTypeChange(type: string) {
   setColumnType(selectedColumnIndex.value, type as ColumnType)
+}
+
+const columnPickerOptions = computed(() =>
+  columns.value.map((col, i) => ({ value: String(i), label: col })),
+)
+
+function onPickColumn(value: string) {
+  selectColumn(parseInt(value, 10))
 }
 
 const uniqueCount = computed(() => {
@@ -110,6 +148,22 @@ const typeDetection = computed(() => {
   }
   return 'Categorical dimension detected'
 })
+
+const benfordDetection = computed(() => {
+  const idx = selectedColumnIndex.value
+  if (idx < 0) {
+    return null
+  }
+  const colName = columns.value[idx]
+  const result = checkBenford([colName], rows.value.map(r => [r[idx]]), [columnTypes.value[idx]])
+  if (!result.eligible) {
+    return null
+  }
+  return {
+    pass: result.pass,
+    label: result.pass ? 'Follows Benford\'s law' : 'Doesn\'t follow Benford\'s law',
+  }
+})
 </script>
 
 <style scoped lang="scss">
@@ -117,6 +171,10 @@ const typeDetection = computed(() => {
   display: flex;
   flex-direction: column;
   gap: 0;
+}
+
+.data-column-settings__picker {
+  padding-top: 0.25rem;
 }
 
 .data-column-settings__field {
@@ -180,6 +238,11 @@ const typeDetection = computed(() => {
   &--info {
     background: var(--bs-primary-bg-subtle);
     color: var(--bs-primary-text-emphasis);
+  }
+
+  &--warn {
+    background: var(--bs-warning-bg-subtle);
+    color: var(--bs-warning-text-emphasis);
   }
 }
 </style>
