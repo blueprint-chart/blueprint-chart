@@ -13,7 +13,6 @@
     <BTableSimple
       hover
       bordered
-      sticky-header
     >
       <BThead>
         <BTr>
@@ -98,12 +97,11 @@ const isEmpty = computed(() => displayRows.value.length === 0)
 }
 
 .data-check-table {
-  overflow: auto;
-  max-height: 500px;
   position: relative;
   z-index: 0;
-  font-size: 0.8125rem;
   line-height: 1.5;
+  border-radius: var(--bs-border-radius-lg);
+  border: 1px solid var(--bs-border-color);
 
   :deep(table) {
     margin-bottom: 0;
@@ -112,6 +110,18 @@ const isEmpty = computed(() => displayRows.value.length === 0)
   :deep(thead th) {
     background: var(--bs-tertiary-bg);
     border-bottom-width: 2px;
+  }
+
+  :deep(.table-bordered > :not(caption) > *) {
+    border-width: 0;
+  }
+
+  :deep(.table-bordered > :not(caption) > * > *) {
+    border-width: 0 0 1px;
+
+    &:not(:last-child) {
+      border-right-width: 1px;
+    }
   }
 }
 
