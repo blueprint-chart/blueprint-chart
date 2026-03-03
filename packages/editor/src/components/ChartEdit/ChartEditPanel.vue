@@ -26,6 +26,12 @@
         v-else
         class="chart-edit-panel__dsl"
       />
+      <CanvasDimensions
+        v-if="viewMode === 'preview'"
+        :card-ref="cardRef"
+        :canvas-ref="canvasRef"
+        :layout="layout"
+      />
       <ChartEditFloatingPanel
         v-if="panelMode === 'floating'"
         :container-ref="canvasRef"
@@ -70,6 +76,7 @@ import ChartEditDsl from './ChartEditDsl.vue'
 import ChartEditDockedPanel from './ChartEditDockedPanel.vue'
 import ChartEditIconRail from './ChartEditIconRail.vue'
 import ChartEditFloatingPanel from './ChartEditFloatingPanel.vue'
+import CanvasDimensions from '@/components/Canvas/CanvasDimensions.vue'
 import EditorChartTypePicker from '@/components/Editor/EditorChartTypePicker.vue'
 import EditorPropertyForm from '@/components/Editor/EditorPropertyForm.vue'
 import EditorAppearanceTab from '@/components/Editor/EditorAppearanceTab.vue'
@@ -244,14 +251,17 @@ const cardStyle = computed<CSSProperties>(() => {
   &--light,
   &--auto {
     background: #f0f0f0;
+    --bc-canvas-dimension-color: rgba(0, 0, 0, 0.3);
   }
 
   &--dark {
     background: #1a1a1a;
+    --bc-canvas-dimension-color: rgba(255, 255, 255, 0.3);
   }
 
   :global([data-bs-theme="dark"]) &--auto {
     background: #1a1a1a;
+    --bc-canvas-dimension-color: rgba(255, 255, 255, 0.3);
   }
 }
 

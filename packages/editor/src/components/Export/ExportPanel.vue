@@ -25,6 +25,12 @@
           class="export-panel__preview"
         />
       </div>
+      <CanvasDimensions
+        v-if="viewMode === 'preview'"
+        :card-ref="cardRef"
+        :canvas-ref="canvasRef"
+        :layout="layout"
+      />
       <ChartEditDsl
         v-else
         class="export-panel__dsl"
@@ -74,6 +80,7 @@ import ExportIconRail from './ExportIconRail.vue'
 import ExportDockedPanel from './ExportDockedPanel.vue'
 import ExportEmbedPanel from './ExportEmbedPanel.vue'
 import ExportDownloadPanel from './ExportDownloadPanel.vue'
+import CanvasDimensions from '@/components/Canvas/CanvasDimensions.vue'
 
 const { viewMode, canvasMode } = useEditorPanel()
 const { exportTab, setExportTab } = useExportPanel()
@@ -217,14 +224,17 @@ const cardStyle = computed<CSSProperties>(() => {
   &--light,
   &--auto {
     background: #f0f0f0;
+    --bc-canvas-dimension-color: rgba(0, 0, 0, 0.3);
   }
 
   &--dark {
     background: #1a1a1a;
+    --bc-canvas-dimension-color: rgba(255, 255, 255, 0.3);
   }
 
   :global([data-bs-theme="dark"]) &--auto {
     background: #1a1a1a;
+    --bc-canvas-dimension-color: rgba(255, 255, 255, 0.3);
   }
 }
 
