@@ -14,6 +14,12 @@
     <div class="layout-panel__body">
       <slot />
     </div>
+    <div
+      v-if="$slots.footer"
+      class="layout-panel__footer"
+    >
+      <slot name="footer" />
+    </div>
   </div>
 </template>
 
@@ -58,5 +64,11 @@ defineProps<{
   flex: 1;
   overflow-y: auto;
   padding: 1rem;
+}
+
+.layout-panel__footer {
+  flex-shrink: 0;
+  border-top: 1px solid var(--bs-border-color);
+  padding: 0.75rem 1rem;
 }
 </style>
