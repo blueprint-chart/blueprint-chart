@@ -16,6 +16,7 @@
         :step="step"
         :index="i"
         :active="selectedStepId === step.id"
+        :error="stepErrors[step.id]"
         @select="selectedStepId = step.id"
         @delete="onRemoveStep(step.id)"
       >
@@ -32,6 +33,11 @@
         />
         <DataTransformStepHideColumns
           v-else-if="step.type === 'hide-columns'"
+          :step="step"
+          :columns="columnsAtStep"
+        />
+        <DataTransformStepParse
+          v-else-if="step.type === 'parse'"
           :step="step"
           :columns="columnsAtStep"
         />
@@ -79,9 +85,10 @@ import DataTransformConnector from './DataTransformConnector.vue'
 import DataTransformStepSort from './DataTransformStepSort.vue'
 import DataTransformStepFilter from './DataTransformStepFilter.vue'
 import DataTransformStepHideColumns from './DataTransformStepHideColumns.vue'
+import DataTransformStepParse from './DataTransformStepParse.vue'
 
 const { columns, rows, columnTypes } = useDataTable()
-const { steps, addStep, removeStep, applyTransforms, getColumnsAtStep } = useDataTransforms()
+const { steps, addStep, removeStep, applyTransforms, getColumnsAtStep, validateStep } = useDataTransforms()
 
 const selectedStepId = ref('')
 
@@ -96,6 +103,15 @@ const dataAtStep = computed(() => {
 
 const columnsAtStep = computed(() => dataAtStep.value.columns)
 const columnTypesAtStep = computed(() => dataAtStep.value.columnTypes)
+
+const stepErrors = computed(() => {
+  const errors: Record<string, string | null> = {}
+  for (let i = 0; i < steps.value.length; i++) {
+    const data = getColumnsAtStep(i, columns.value, rows.value, columnTypes.value)
+    errors[steps.value[i].id] = validateStep(steps.value[i], data.columns, data.columnTypes)
+  }
+  return errors
+})
 
 const transformed = computed(() => applyTransforms(columns.value, rows.value, columnTypes.value))
 const transformedCols = computed(() => transformed.value.columns.length)

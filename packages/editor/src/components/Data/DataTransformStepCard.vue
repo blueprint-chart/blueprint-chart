@@ -1,7 +1,7 @@
 <template>
   <div
     class="step-card"
-    :class="{ 'step-card--active': active }"
+    :class="{ 'step-card--active': active, 'step-card--error': error }"
     @click="$emit('select')"
   >
     <div class="step-card__number">
@@ -22,8 +22,11 @@
         <div class="step-card__name">
           {{ label }}
         </div>
-        <div class="step-card__desc">
-          {{ description }}
+        <div
+          class="step-card__desc"
+          :class="{ 'step-card__desc--error': error }"
+        >
+          {{ error || description }}
         </div>
       </div>
     </div>
@@ -58,11 +61,13 @@ import IPhSortAscending from '~icons/ph/sort-ascending'
 import IPhFunnel from '~icons/ph/funnel'
 import IPhArrowsClockwise from '~icons/ph/arrows-clockwise'
 import IPhEyeSlash from '~icons/ph/eye-slash'
+import IPhWrench from '~icons/ph/wrench'
 
 const props = defineProps<{
   step: TransformStep
   index: number
   active: boolean
+  error?: string | null
 }>()
 
 defineEmits<{
@@ -75,6 +80,7 @@ const iconClassMap: Record<string, string> = {
   'filter': 'step-card__icon--filter',
   'hide-columns': 'step-card__icon--hide-columns',
   'transpose': 'step-card__icon--transpose',
+  'parse': 'step-card__icon--parse',
   'group-by': 'step-card__icon--group',
   'computed': 'step-card__icon--computed',
   'pivot': 'step-card__icon--pivot',
@@ -85,6 +91,7 @@ const iconComponentMap: Record<string, Component> = {
   'filter': IPhFunnel,
   'hide-columns': IPhEyeSlash,
   'transpose': IPhArrowsClockwise,
+  'parse': IPhWrench,
 }
 
 const iconFallbackMap: Record<string, string> = {
@@ -92,6 +99,7 @@ const iconFallbackMap: Record<string, string> = {
   'filter': 'F',
   'hide-columns': 'H',
   'transpose': 'T',
+  'parse': 'P',
   'group-by': 'G',
   'computed': 'C',
   'pivot': 'P',
@@ -102,6 +110,7 @@ const labelMap: Record<string, string> = {
   'filter': 'Filter',
   'hide-columns': 'Hide Columns',
   'transpose': 'Transpose',
+  'parse': 'Parse',
   'group-by': 'Group By',
   'computed': 'Computed',
   'pivot': 'Pivot',
@@ -126,6 +135,9 @@ const description = computed(() => {
   }
   if (step.type === 'transpose') {
     return 'Swap rows \u2194 columns'
+  }
+  if (step.type === 'parse' && step.config.column && step.config.operation) {
+    return `${step.config.column} → ${step.config.operation}`
   }
   return 'Configure...'
 })
@@ -153,6 +165,20 @@ const description = computed(() => {
     border-color: var(--bs-primary);
     box-shadow: 0 0 0 2px var(--bs-primary-bg-subtle);
   }
+
+  &--error {
+    border-color: var(--bs-danger-border-subtle);
+
+    &:hover {
+      border-color: var(--bs-danger);
+      box-shadow: 0 0 0 2px var(--bs-danger-bg-subtle);
+    }
+
+    &.step-card--active {
+      border-color: var(--bs-danger);
+      box-shadow: 0 0 0 2px var(--bs-danger-bg-subtle);
+    }
+  }
 }
 
 .step-card__number {
@@ -171,10 +197,16 @@ const description = computed(() => {
     background: var(--bs-primary-bg-subtle);
     color: var(--bs-primary);
   }
+
+  .step-card--error & {
+    background: var(--bs-danger-bg-subtle);
+    color: var(--bs-danger);
+  }
 }
 
 .step-card__body {
   flex: 1;
+  min-width: 0;
   padding: 0.5rem 0.75rem;
   display: flex;
   align-items: center;
@@ -217,6 +249,11 @@ const description = computed(() => {
     color: var(--bs-info-text-emphasis);
   }
 
+  &--parse {
+    background: var(--bs-success-bg-subtle);
+    color: var(--bs-success-text-emphasis);
+  }
+
   &--group {
     background: hsl(270 90% 95%);
     color: hsl(270 70% 50%);
@@ -250,6 +287,10 @@ const description = computed(() => {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.step-card__desc--error {
+  color: var(--bs-danger);
 }
 
 .step-card__actions {

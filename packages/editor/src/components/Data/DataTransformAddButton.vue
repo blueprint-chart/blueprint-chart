@@ -47,6 +47,7 @@ const options = [
   { value: 'filter', label: 'Filter', desc: 'Keep or exclude rows by condition', disabled: false },
   { value: 'hide-columns', label: 'Hide Columns', desc: 'Remove columns from output', disabled: false },
   { value: 'transpose', label: 'Transpose', desc: 'Swap rows and columns', disabled: false },
+  { value: 'parse', label: 'Parse', desc: 'Transform column values', disabled: false },
   { value: 'group-by', label: 'Group By', desc: 'Aggregate rows (coming soon)', disabled: true },
   { value: 'computed', label: 'Computed Column', desc: 'Derive new column (coming soon)', disabled: true },
   { value: 'pivot', label: 'Pivot', desc: 'Reshape wide/long (coming soon)', disabled: true },
@@ -58,6 +59,7 @@ function iconClass(type: string): string {
     'filter': 'add-wrap__dropdown-icon--filter',
     'hide-columns': 'add-wrap__dropdown-icon--hide-columns',
     'transpose': 'add-wrap__dropdown-icon--transpose',
+    'parse': 'add-wrap__dropdown-icon--parse',
     'group-by': 'add-wrap__dropdown-icon--group',
     'computed': 'add-wrap__dropdown-icon--computed',
     'pivot': 'add-wrap__dropdown-icon--pivot',
@@ -71,6 +73,7 @@ function iconFallback(type: string): string {
     'filter': 'F',
     'hide-columns': 'H',
     'transpose': 'T',
+    'parse': 'P',
     'group-by': 'G',
     'computed': 'C',
     'pivot': 'P',
@@ -156,6 +159,11 @@ function onSelect(type: string) {
   &--transpose {
     background: var(--bs-info-bg-subtle);
     color: var(--bs-info-text-emphasis);
+  }
+
+  &--parse {
+    background: var(--bs-success-bg-subtle);
+    color: var(--bs-success-text-emphasis);
   }
 
   &--group {
