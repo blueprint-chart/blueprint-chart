@@ -11,9 +11,11 @@
       ref="canvasRef"
       class="chart-edit-panel__canvas"
       :class="canvasClassList"
+      :style="canvasStyle"
     >
       <div
         v-if="viewMode === 'preview'"
+        ref="cardRef"
         class="chart-edit-panel__card"
         :class="cardClass"
         :style="cardStyle"
@@ -57,6 +59,7 @@
 
 <script setup lang="ts">
 import { ref, computed, type CSSProperties } from 'vue'
+import { useResizeObserver } from '@vueuse/core'
 import { LayoutBottomDrawer, useBreakpoint } from '@blueprint-chart/ui'
 import { useEditorPanel } from '@/composables/useEditorPanel'
 import PanelTabBar from '@/components/Panel/PanelTabBar.vue'
@@ -118,6 +121,26 @@ const canvasClassList = computed(() => ({
 }))
 
 const canvasRef = ref<HTMLElement | null>(null)
+const cardRef = ref<HTMLElement | null>(null)
+
+const gridOffsetX = ref(0)
+const gridOffsetY = ref(0)
+
+function updateGridOffset() {
+  const card = cardRef.value
+  if (card) {
+    gridOffsetX.value = card.offsetLeft
+    gridOffsetY.value = card.offsetTop
+  }
+}
+
+useResizeObserver(canvasRef, updateGridOffset)
+useResizeObserver(cardRef, updateGridOffset)
+
+const canvasStyle = computed<CSSProperties>(() => ({
+  '--grid-offset-x': `${gridOffsetX.value}px`,
+  '--grid-offset-y': `${gridOffsetY.value}px`,
+} as CSSProperties))
 
 function parseAspectRatio(ratio: string): number | undefined {
   const parts = ratio.split(':')
@@ -204,7 +227,7 @@ const cardStyle = computed<CSSProperties>(() => {
       calc(var(--bc-canvas-grid-size) * 5) calc(var(--bc-canvas-grid-size) * 5),
       var(--bc-canvas-grid-size) var(--bc-canvas-grid-size),
       var(--bc-canvas-grid-size) var(--bc-canvas-grid-size);
-    background-position: top right;
+    background-position: var(--grid-offset-x, 0) var(--grid-offset-y, 0);
     mask-image: linear-gradient(to bottom, black, transparent);
     -webkit-mask-image: linear-gradient(to bottom, black, transparent);
   }
