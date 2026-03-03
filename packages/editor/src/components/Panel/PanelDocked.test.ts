@@ -4,7 +4,7 @@ import PanelDocked from './PanelDocked.vue'
 
 vi.mock('@blueprint-chart/ui', () => ({
   LayoutPanel: {
-    template: '<div class="panel"><div class="title">{{ title }}</div><slot name="actions" /><slot /></div>',
+    template: '<div class="panel"><div class="title">{{ title }}</div><slot name="actions" /><slot /><div v-if="$slots.footer" class="panel-footer"><slot name="footer" /></div></div>',
     props: ['title'],
   },
   ButtonDetach: {
@@ -75,5 +75,19 @@ describe('PanelDocked', () => {
     expect(w.find('.panel-docked').attributes('style')).toContain('width: 340px')
     await w.setProps({ modelValue: 420 })
     expect(w.find('.panel-docked').attributes('style')).toContain('width: 420px')
+  })
+
+  it('renders footer slot content', () => {
+    const w = mount(PanelDocked, {
+      props: { collapsed: false, title: 'Test' },
+      slots: { footer: '<button>Next</button>' },
+    })
+    expect(w.find('.panel-footer').exists()).toBe(true)
+    expect(w.find('.panel-footer button').text()).toBe('Next')
+  })
+
+  it('hides footer when no footer slot is provided', () => {
+    const w = mount(PanelDocked, { props: { collapsed: false, title: 'Test' } })
+    expect(w.find('.panel-footer').exists()).toBe(false)
   })
 })
