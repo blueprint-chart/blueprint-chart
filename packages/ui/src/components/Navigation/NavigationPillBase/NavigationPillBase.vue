@@ -1,6 +1,7 @@
 <template>
   <nav
     class="navigation-pill"
+    :class="{ 'navigation-pill--md': size === 'md' }"
     :aria-label="ariaLabel"
   >
     <slot />
@@ -45,10 +46,13 @@ export interface NavigationPillItem {
   done?: boolean
 }
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   items: NavigationPillItem[]
   ariaLabel?: string
-}>()
+  size?: 'sm' | 'md'
+}>(), {
+  size: 'sm',
+})
 
 const emit = defineEmits<{
   select: [key: string]
@@ -168,5 +172,20 @@ function onSelect(item: NavigationPillItem) {
   width: 1em;
   height: 1em;
   flex-shrink: 0;
+}
+
+.navigation-pill--md {
+  padding: 0.1875rem;
+
+  .navigation-pill__option {
+    padding: 0.375rem 1rem;
+    font-size: 0.875rem;
+    gap: 0.5rem;
+  }
+
+  .navigation-pill__bubble {
+    height: calc(100% - 0.375rem);
+    top: 0.1875rem;
+  }
 }
 </style>

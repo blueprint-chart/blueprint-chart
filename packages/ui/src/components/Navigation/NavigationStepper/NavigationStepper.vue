@@ -1,6 +1,7 @@
 <template>
   <NavigationPillBase
     :items="pillItems"
+    :size="size"
     aria-label="Progress"
     @select="onSelect"
   >
@@ -19,9 +20,11 @@ const currentStepModel = defineModel<number>('currentStep', { required: true })
 const props = withDefaults(defineProps<{
   steps?: { label: string, icon?: Component }[]
   disabledSteps?: number[]
+  size?: 'sm' | 'md'
 }>(), {
   steps: () => [],
   disabledSteps: () => [],
+  size: 'sm',
 })
 
 const { entries } = useChildEntriesProvider(StepperEntriesKey)
