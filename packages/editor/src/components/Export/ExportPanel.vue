@@ -22,7 +22,7 @@
       >
         <div
           ref="previewRef"
-          class="export-panel__preview"
+          class="export-panel__preview w-100 h-100"
         />
       </div>
       <CanvasDimensions
