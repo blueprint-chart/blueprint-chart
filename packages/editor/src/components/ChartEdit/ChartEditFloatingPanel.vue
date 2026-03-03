@@ -20,6 +20,9 @@
     <EditorSeriesPanel v-else-if="activeTab === 'series'" />
     <EditorAxisOptions v-else-if="activeTab === 'axes'" />
     <EditorAnnotateTab v-else-if="activeTab === 'annotate'" />
+    <template #footer>
+      <PanelStepperFooter />
+    </template>
   </PanelFloating>
 </template>
 
@@ -37,6 +40,7 @@ import EditorLayoutTab from '@/components/Editor/EditorLayoutTab.vue'
 import EditorSeriesPanel from '@/components/Editor/EditorSeriesPanel.vue'
 import EditorAxisOptions from '@/components/Editor/EditorAxisOptions.vue'
 import EditorAnnotateTab from '@/components/Editor/EditorAnnotateTab.vue'
+import PanelStepperFooter from '@/components/Panel/PanelStepperFooter.vue'
 
 const AXIS_KEYS = ['showVerticalAxis', 'verticalAxisDirection', 'showVerticalTicks', 'verticalLabelPosition', 'verticalGridStyle', 'verticalNumberFormat', 'verticalScaleType', 'verticalRangeMin', 'verticalRangeMax', 'showHorizontalAxis', 'showHorizontalTicks', 'horizontalLabelPosition', 'horizontalGridStyle', 'horizontalNumberFormat', 'horizontalScaleType', 'horizontalRangeMin', 'horizontalRangeMax']
 

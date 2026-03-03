@@ -13,6 +13,9 @@
     <EditorSeriesPanel v-else-if="activeTab === 'series'" />
     <EditorAxisOptions v-else-if="activeTab === 'axes'" />
     <EditorAnnotateTab v-else-if="activeTab === 'annotate'" />
+    <template #footer>
+      <PanelStepperFooter />
+    </template>
   </PanelDocked>
 </template>
 
@@ -27,6 +30,7 @@ import EditorLayoutTab from '@/components/Editor/EditorLayoutTab.vue'
 import EditorSeriesPanel from '@/components/Editor/EditorSeriesPanel.vue'
 import EditorAxisOptions from '@/components/Editor/EditorAxisOptions.vue'
 import EditorAnnotateTab from '@/components/Editor/EditorAnnotateTab.vue'
+import PanelStepperFooter from '@/components/Panel/PanelStepperFooter.vue'
 
 defineProps<{
   collapsed: boolean
