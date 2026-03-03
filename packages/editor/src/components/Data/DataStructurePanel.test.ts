@@ -3,21 +3,22 @@ import { mount } from '@vue/test-utils'
 import { ref } from 'vue'
 import DataStructurePanel from './DataStructurePanel.vue'
 
-const mockSelectColumn = vi.fn()
 const mockOpenDataPanel = vi.fn()
 const mockCollapseDataPanel = vi.fn()
 
 vi.mock('@/composables/useDataTable', () => ({
   useDataTable: () => ({
     columns: ref(['Name', 'Value']),
+    rows: ref([['Apples', '42'], ['Bananas', '58']]),
     columnTypes: ref(['string', 'number']),
+    sourceLabel: ref('Pasted'),
   }),
 }))
 
 vi.mock('@/composables/useEditorPanel', () => ({
   useEditorPanel: () => ({
     selectedColumnIndex: ref(-1),
-    selectColumn: mockSelectColumn,
+    selectColumn: vi.fn(),
     dataPanelMode: ref('docked'),
     dataPanelTab: ref('column'),
     dataPanelOpen: ref(true),
@@ -38,7 +39,7 @@ function mountPanel() {
     global: {
       stubs: {
         DataCheckTable: { template: '<div class="table-stub" />' },
-        DataColumnPills: { template: '<div class="pills-stub" />', props: ['columns', 'columnTypes', 'selected'], emits: ['select'] },
+        DataInsightBadges: { template: '<div class="badges-stub" />', props: ['columns', 'rows'] },
         DataSideIconRail: { template: '<div class="icon-rail-stub" />', props: ['horizontal'] },
         DataSidePanel: { template: '<div class="side-panel-stub" />', props: ['collapsed'] },
         DataFloatingPanel: { template: '<div class="floating-panel-stub" />', props: ['containerRef'] },
@@ -54,13 +55,12 @@ function mountPanel() {
 
 describe('DataStructurePanel', () => {
   beforeEach(() => {
-    mockSelectColumn.mockClear()
     mockOpenDataPanel.mockClear()
   })
 
-  it('renders column pills', () => {
+  it('renders insight badges', () => {
     const w = mountPanel()
-    expect(w.find('.pills-stub').exists()).toBe(true)
+    expect(w.find('.badges-stub').exists()).toBe(true)
   })
 
   it('renders data table', () => {

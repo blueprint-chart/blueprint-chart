@@ -12,11 +12,9 @@
       class="data-structure-panel__main"
     >
       <div class="data-structure-panel__pills-bar">
-        <DataColumnPills
+        <DataInsightBadges
           :columns="columns"
-          :column-types="columnTypes"
-          :selected="selectedColumnIndex"
-          @select="selectColumn"
+          :rows="rows"
         />
         <ButtonIcon
           :icon-left="IPhArrowsClockwise"
@@ -62,7 +60,7 @@ import { useDataTable } from '@/composables/useDataTable'
 import { useEditorPanel, type DataPanelTab } from '@/composables/useEditorPanel'
 import IPhArrowsClockwise from '~icons/ph/arrows-clockwise'
 import PanelTabBar from '@/components/Panel/PanelTabBar.vue'
-import DataColumnPills from './DataColumnPills.vue'
+import DataInsightBadges from './DataInsightBadges.vue'
 import DataCheckTable from './DataCheckTable.vue'
 import DataSideIconRail from './DataSideIconRail.vue'
 import DataSidePanel from './DataSidePanel.vue'
@@ -72,8 +70,8 @@ import DataTransformPipeline from './DataTransformPipeline.vue'
 import DataParseSettings from './DataParseSettings.vue'
 import DataRecommendations from './DataRecommendations.vue'
 
-const { columns, columnTypes } = useDataTable()
-const { selectedColumnIndex, selectColumn, panelMode, dataPanelMode, dataPanelTab, openDataPanel, collapse, setDataView } = useEditorPanel()
+const { columns, rows } = useDataTable()
+const { panelMode, dataPanelMode, dataPanelTab, openDataPanel, collapse, setDataView } = useEditorPanel()
 
 function replaceData() {
   setDataView('upload')
@@ -129,7 +127,7 @@ const panelClassList = computed(() => ({
   flex-wrap: wrap;
   margin-bottom: 0.75rem;
 
-  .data-column-pills {
+  .data-insight-badges {
     flex: 1;
   }
 }
