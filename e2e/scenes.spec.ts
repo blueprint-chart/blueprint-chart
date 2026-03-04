@@ -165,15 +165,15 @@ test.describe('Scene Timeline', () => {
     await expect(items.nth(2)).toHaveClass(/scene-timeline-item--active/)
 
     // Click prev → Scene 2
-    await page.locator('[aria-label="Previous scene"]').click()
+    await page.locator('.scene-timeline [aria-label="Previous scene"]').click()
     await expect(items.nth(1)).toHaveClass(/scene-timeline-item--active/)
 
     // Click prev → Scene 1
-    await page.locator('[aria-label="Previous scene"]').click()
+    await page.locator('.scene-timeline [aria-label="Previous scene"]').click()
     await expect(items.nth(0)).toHaveClass(/scene-timeline-item--active/)
 
     // Click next → Scene 2
-    await page.locator('[aria-label="Next scene"]').click()
+    await page.locator('.scene-timeline [aria-label="Next scene"]').click()
     await expect(items.nth(1)).toHaveClass(/scene-timeline-item--active/)
   })
 
