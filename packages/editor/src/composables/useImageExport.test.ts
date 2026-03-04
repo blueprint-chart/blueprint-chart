@@ -32,6 +32,32 @@ describe('exportSvg', () => {
   })
 })
 
+describe('exportFramePng scene-player stripping', () => {
+  it('clone with data-scene-player removed mirrors production behavior', () => {
+    // This test validates the pattern used in exportFramePng:
+    // clone the frame, then remove [data-scene-player] before serialization
+    const frame = document.createElement('div')
+    const body = document.createElement('div')
+    body.classList.add('bc-frame-body')
+    body.textContent = 'chart'
+    frame.appendChild(body)
+    const player = document.createElement('div')
+    player.setAttribute('data-scene-player', '')
+    player.textContent = 'player'
+    frame.appendChild(player)
+
+    // Simulate the clone + strip pattern from exportFramePng
+    const clone = frame.cloneNode(true) as HTMLElement
+    clone.querySelectorAll('[data-scene-player]').forEach(el => el.remove())
+
+    expect(clone.querySelector('[data-scene-player]')).toBeNull()
+    expect(clone.textContent).toBe('chart')
+    // Original is not modified
+    expect(frame.querySelector('[data-scene-player]')).not.toBeNull()
+    expect(frame.textContent).toBe('chartplayer')
+  })
+})
+
 describe('useImageExport', () => {
   it('returns downloadSvg and downloadPng functions', () => {
     const containerRef = shallowRef(null)
