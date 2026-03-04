@@ -3,6 +3,7 @@ import { useChartConfig } from './useChartConfig'
 import { useDslOutput } from './useDslOutput'
 import { useChartTypeOptions } from './useChartTypeOptions'
 import { useScenes } from './useScenes'
+import { useDslSync } from './useDslSync'
 
 describe('useDslOutput', () => {
   beforeEach(() => {
@@ -246,6 +247,62 @@ describe('useDslOutput', () => {
 
       const { dsl } = useDslOutput()
       expect(dsl.value).toContain('colorPalette = "viridis"')
+    })
+
+    it('scene chartType override serializes as type and preserves base chart type', () => {
+      const config = useChartConfig()
+      config.chartType.value = 'bar-vertical'
+      config.data.value = 'Label,Value\nA,10\nB,20\nC,30'
+
+      const scenes = useScenes()
+      scenes.add()
+      scenes.setActive(0)
+
+      // Change chart type while scene is active → should go to scene override
+      config.chartType.value = 'bar-horizontal'
+
+      const { dsl } = useDslOutput()
+      // Top-level must stay bar-vertical
+      expect(dsl.value).toMatch(/^chart bar-vertical \{/)
+      // Scene block must contain type = bar-horizontal
+      const sceneBlock = dsl.value.split('scene {')[1]
+      expect(sceneBlock).toContain('type = bar-horizontal')
+    })
+
+    it('scene chartType round-trips through DSL parse', () => {
+      // Build a DSL string with scene chartType override using parser-native format
+      const dslInput = [
+        'chart bar-vertical {',
+        '  data {',
+        '    "A" = 10',
+        '    "B" = 20',
+        '    "C" = 30',
+        '  }',
+        '',
+        '  scene {',
+        '    type = bar-horizontal',
+        '  }',
+        '}',
+      ].join('\n')
+
+      // Parse it
+      const { applyDsl } = useDslSync()
+      const result = applyDsl(dslInput)
+      expect(result.success).toBe(true)
+
+      // Verify internal state: base chartType is bar-vertical, scene has bar-horizontal
+      const config = useChartConfig()
+      expect(config._base.chartType.value).toBe('bar-vertical')
+
+      const scenes = useScenes()
+      expect(scenes.scenes.value).toHaveLength(1)
+      expect(scenes.scenes.value[0].chartType).toBe('bar-horizontal')
+
+      // Re-serialize and verify DSL output
+      const { dsl } = useDslOutput()
+      expect(dsl.value).toMatch(/^chart bar-vertical \{/)
+      const sceneBlock = dsl.value.split('scene {')[1]
+      expect(sceneBlock).toContain('type = bar-horizontal')
     })
 
     it('does not leak scene values into base chart section', () => {
