@@ -69,15 +69,13 @@ defineProps<{
 .code-block__pre {
   margin: 0;
   padding: 0.75rem;
-  font-size: var(--bs-body-font-size);
   line-height: 1.5;
   overflow-x: auto;
   background: var(--bs-body-bg);
   color: var(--bs-body-color);
 
   code {
-    white-space: pre-wrap;
-    word-break: break-all;
+    font-size: var(--bs-body-font-size-sm);
   }
 }
 </style>
