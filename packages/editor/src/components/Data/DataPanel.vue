@@ -7,6 +7,7 @@
       v-if="dataView === 'upload'"
       @loaded="onLoaded"
       @bpc="onBpcLoaded"
+      @sample="onSampleLoaded"
     />
     <DataStructurePanel v-else />
   </div>
@@ -18,9 +19,11 @@ import { useEditorPanel } from '@/composables/useEditorPanel'
 import { useDataTable } from '@/composables/useDataTable'
 import { useDslSync } from '@/composables/useDslSync'
 import { useChartConfig } from '@/composables/useChartConfig'
+import { useChartSession } from '@/composables/useChartSession'
 import { useWizard } from '@/composables/useWizard'
 import { parseDelimited } from '@/composables/useDataParser'
 import { useParseOptions } from '@/composables/useParseOptions'
+import type { ChartSample } from '@blueprint-chart/lib'
 import DataUploadCard from './DataUploadCard.vue'
 import DataStructurePanel from './DataStructurePanel.vue'
 
@@ -28,6 +31,7 @@ const { dataView, setDataView } = useEditorPanel()
 const dataTable = useDataTable()
 const { applyDsl } = useDslSync()
 const chartConfig = useChartConfig()
+const { loadSample } = useChartSession()
 const wizard = useWizard()
 const parseOptions = useParseOptions()
 
@@ -68,6 +72,11 @@ function onBpcLoaded(content: string, label: string) {
   dataTable.sourceLabel.value = label || 'Blueprint file'
   reparseData()
   wizard.hydrate({ currentIndex: 1, furthestIndex: 1 })
+  setDataView('structure')
+}
+
+function onSampleLoaded(sample: ChartSample) {
+  loadSample(sample)
   setDataView('structure')
 }
 
