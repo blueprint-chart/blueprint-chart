@@ -8,7 +8,7 @@ test.describe('smoke tests', () => {
 
   test('new chart wizard opens', async ({ page }) => {
     await page.goto('/new')
-    await expect(page.locator('text=Upload')).toBeVisible()
+    await expect(page.locator('textarea')).toBeVisible()
   })
 
   test('paste CSV and advance through wizard', async ({ page }) => {
@@ -18,7 +18,7 @@ test.describe('smoke tests', () => {
     await textarea.fill('Label,Value\nA,10\nB,20\nC,30')
     await page.locator('button', { hasText: 'Load data' }).click()
 
-    await page.locator('button', { hasText: 'Visualize' }).click()
+    await page.locator('.navigation-pill__option', { hasText: 'Visualize' }).click()
     await expect(page.locator('.bc-frame-body svg')).toBeVisible()
   })
 
@@ -28,7 +28,7 @@ test.describe('smoke tests', () => {
     const textarea = page.locator('textarea')
     await textarea.fill('Label,Value\nA,10\nB,20\nC,30')
     await page.locator('button', { hasText: 'Load data' }).click()
-    await page.locator('button', { hasText: 'Visualize' }).click()
+    await page.locator('.navigation-pill__option', { hasText: 'Visualize' }).click()
 
     await expect(page.locator('.bc-frame-body svg')).toBeVisible()
 
@@ -67,7 +67,7 @@ test.describe('smoke tests', () => {
     const textarea = page.locator('textarea')
     await textarea.fill('Label,Value\nA,10\nB,20\nC,30')
     await page.locator('button', { hasText: 'Load data' }).click()
-    await page.locator('button', { hasText: 'Visualize' }).click()
+    await page.locator('.navigation-pill__option', { hasText: 'Visualize' }).click()
     await expect(page.locator('.bc-frame-body svg')).toBeVisible()
 
     const realErrors = errors.filter(e => !e.includes('favicon'))
