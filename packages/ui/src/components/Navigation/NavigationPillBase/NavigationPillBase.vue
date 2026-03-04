@@ -51,6 +51,7 @@ const props = withDefaults(defineProps<{
   ariaLabel?: string
   size?: 'sm' | 'md'
 }>(), {
+  ariaLabel: undefined,
   size: 'sm',
 })
 
