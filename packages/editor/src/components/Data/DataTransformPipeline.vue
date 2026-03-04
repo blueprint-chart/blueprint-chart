@@ -1,9 +1,13 @@
 <template>
-  <div class="pipeline">
+  <div
+    class="pipeline"
+    data-testid="transform-pipeline"
+  >
     <!-- Source block -->
     <DataTransformSourceBlock
       :columns="columns.length"
       :rows="rows.length"
+      :label="sourceLabel"
     />
 
     <!-- Pipeline steps -->
@@ -88,6 +92,7 @@
 import { ref, computed } from 'vue'
 import { useDataTable } from '@/composables/useDataTable'
 import { useDataTransforms, type TransformType } from '@/composables/useDataTransforms'
+import { useScenes } from '@/composables/useScenes'
 import DataTransformSourceBlock from './DataTransformSourceBlock.vue'
 import DataTransformOutputBlock from './DataTransformOutputBlock.vue'
 import DataTransformStepCard from './DataTransformStepCard.vue'
@@ -102,6 +107,8 @@ import DataTransformStepGroupBy from './DataTransformStepGroupBy.vue'
 
 const { columns, rows, columnTypes } = useDataTable()
 const { steps, addStep, removeStep, applyTransforms, getColumnsAtStep, validateStep } = useDataTransforms()
+const { activeScene } = useScenes()
+const sourceLabel = computed(() => activeScene.value ? 'Data from Scene 1' : 'Raw Data')
 
 const selectedStepId = ref('')
 const pristineSteps = ref(new Set<string>())
