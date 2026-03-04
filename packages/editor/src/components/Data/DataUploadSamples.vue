@@ -6,8 +6,8 @@
       class="sample-card"
       role="button"
       tabindex="0"
-      @click="$emit('select', sample.tsvData)"
-      @keydown.enter="$emit('select', sample.tsvData)"
+      @click="$emit('select', sample)"
+      @keydown.enter="$emit('select', sample)"
     >
       <div
         class="sample-card__icon"
@@ -46,7 +46,7 @@ import IPhChartLineUp from '~icons/ph/chart-line-up'
 import IPhUsers from '~icons/ph/users'
 import IPhChartBar from '~icons/ph/chart-bar'
 
-defineEmits<{ select: [tsvData: string] }>()
+defineEmits<{ select: [sample: ChartSample] }>()
 
 interface SampleCard extends ChartSample {
   icon: Component

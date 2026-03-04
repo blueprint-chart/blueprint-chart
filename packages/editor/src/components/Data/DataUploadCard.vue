@@ -90,7 +90,7 @@
       </div>
       <DataUploadSamples
         v-else-if="activeTab === 'samples'"
-        @select="$emit('loaded', $event, 'Sample')"
+        @select="$emit('sample', $event)"
       />
     </div>
   </div>
@@ -102,7 +102,11 @@ import { useDataTable } from '@/composables/useDataTable'
 import DataUploadFileDrop from './DataUploadFileDrop.vue'
 import DataUploadSamples from './DataUploadSamples.vue'
 
-defineEmits<{ loaded: [content: string, sourceLabel: string], bpc: [content: string, sourceLabel: string] }>()
+defineEmits<{
+  loaded: [content: string, sourceLabel: string]
+  bpc: [content: string, sourceLabel: string]
+  sample: [sample: import('@blueprint-chart/lib').ChartSample]
+}>()
 
 const { rawInput } = useDataTable()
 
