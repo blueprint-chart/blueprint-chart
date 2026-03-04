@@ -44,4 +44,15 @@ describe('bar-horizontal', () => {
     const fills = Array.from(bars).map(b => b.getAttribute('fill'))
     expect(fills).toContain('#00ff00')
   })
+
+  it('clips bars to the chart area', () => {
+    render(container, data)
+    const clipPath = container.querySelector('clipPath')
+    expect(clipPath).not.toBeNull()
+    const barGroup = clipPath!.id
+      ? container.querySelector(`[clip-path="url(#${clipPath!.id})"]`)
+      : null
+    expect(barGroup).not.toBeNull()
+    expect(barGroup!.querySelector('.bc-bar')).not.toBeNull()
+  })
 })

@@ -48,4 +48,15 @@ describe('bar-vertical', () => {
     expect(heights[0]).toBeGreaterThanOrEqual(heights[1])
     expect(heights[1]).toBeGreaterThanOrEqual(heights[2])
   })
+
+  it('clips bars to the chart area', () => {
+    render(container, data)
+    const clipPath = container.querySelector('clipPath')
+    expect(clipPath).not.toBeNull()
+    const barGroup = clipPath!.id
+      ? container.querySelector(`[clip-path="url(#${clipPath!.id})"]`)
+      : null
+    expect(barGroup).not.toBeNull()
+    expect(barGroup!.querySelector('.bc-bar')).not.toBeNull()
+  })
 })
