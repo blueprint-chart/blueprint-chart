@@ -1,5 +1,6 @@
 import { computed, reactive, watch } from 'vue'
 import { useChartConfig } from './useChartConfig'
+import { useScenes } from './useScenes'
 import { getChartOptions } from '@blueprint-chart/lib'
 import type { ChartOptionDef, ChartTypeOptions, ChartTypeOptionKey } from '@blueprint-chart/lib'
 
@@ -25,11 +26,22 @@ function ensureDefaults(type: string): void {
 }
 
 export function useChartTypeOptions() {
-  const { chartType } = useChartConfig()
+  const { chartType, _base } = useChartConfig()
 
   const currentOptions = computed(() => {
     ensureDefaults(chartType.value)
-    return store[chartType.value] ?? {}
+    const base = store[chartType.value] ?? {}
+    const { activeScene } = useScenes()
+    if (activeScene.value?.chartTypeOptions) {
+      return { ...base, ...activeScene.value.chartTypeOptions }
+    }
+    return base
+  })
+
+  const baseOptions = computed(() => {
+    const baseType = _base.chartType.value
+    ensureDefaults(baseType)
+    return store[baseType] ?? {}
   })
 
   const optionDefs = computed(() => getChartOptions(chartType.value))
@@ -39,6 +51,14 @@ export function useChartTypeOptions() {
   )
 
   function setOption<K extends ChartTypeOptionKey>(key: K, value: ChartTypeOptions[K]) {
+    const { activeIndex, activeScene, update } = useScenes()
+    if (activeIndex.value >= 0 && activeScene.value) {
+      const existing = activeScene.value.chartTypeOptions ?? {}
+      update(activeIndex.value, {
+        chartTypeOptions: { ...existing, [key]: value },
+      })
+      return
+    }
     if (!store[chartType.value]) {
       store[chartType.value] = {}
     }
@@ -87,6 +107,7 @@ export function useChartTypeOptions() {
 
   return {
     currentOptions,
+    baseOptions,
     availableOptionKeys,
     optionDefs,
     setOption,
