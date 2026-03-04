@@ -28,11 +28,12 @@ describe('lexer', () => {
   })
 
   it('tokenizes keywords', () => {
-    const tokens = tokenize('chart data highlight step')
+    const tokens = tokenize('chart data highlight scene step')
     expect(tokens.map(t => [t.type, t.value])).toEqual([
       ['keyword', 'chart'],
       ['keyword', 'data'],
       ['keyword', 'highlight'],
+      ['keyword', 'scene'],
       ['keyword', 'step'],
       ['eof', ''],
     ])
@@ -112,7 +113,7 @@ describe('lexer', () => {
     expect(types.filter(t => t === 'percent').length).toBeGreaterThan(0)
   })
 
-  it('tokenizes chart with steps', () => {
+  it('tokenizes chart with scenes', () => {
     const input = `chart horizontal-bar {
   title = "Couverture médiatique en 2025"
   sort = descending
@@ -122,7 +123,7 @@ describe('lexer', () => {
     "BFMTV"      = 53%
   }
 
-  step "Le leader" {
+  scene "Le leader" {
     sort = descending
 
     highlight "LeMonde" {
@@ -131,7 +132,7 @@ describe('lexer', () => {
     }
   }
 
-  step "Année suivante" {
+  scene "Année suivante" {
     title = "Couverture médiatique en 2026"
 
     data {
@@ -145,9 +146,14 @@ describe('lexer', () => {
     const keywordValues = keywords.map(t => t.value)
     expect(keywordValues).toContain('chart')
     expect(keywordValues).toContain('data')
-    expect(keywordValues).toContain('step')
+    expect(keywordValues).toContain('scene')
     expect(keywordValues).toContain('highlight')
-    expect(keywordValues.filter(v => v === 'step')).toHaveLength(2)
+    expect(keywordValues.filter(v => v === 'scene')).toHaveLength(2)
+  })
+
+  it('tokenizes backward-compatible step keyword', () => {
+    const tokens = tokenize('step')
+    expect(tokens[0]).toMatchObject({ type: 'keyword', value: 'step' })
   })
 
   it('tokenizes tab characters as tab tokens', () => {

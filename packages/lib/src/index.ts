@@ -50,8 +50,8 @@ export type { CvdType, CvdIssue } from './charts/colorblind'
 // DSL
 export { parse } from './dsl/parser'
 export { serialize, compactSerialize } from './dsl/serializer'
-export { propertyMap, extractChartTypeOptions, dataEntriesToString } from './dsl/converter'
-export type { AnnotationNode, PointAnnotationNode, RangeAnnotationNode, FreeAnnotationNode, AreaFillNode, ChartNode, DataNode, HighlightNode, PropertyNode, SeriesNode, StepNode, TransformNode } from './dsl/types'
+export { propertyMap, extractChartTypeOptions, dataEntriesToString, extractSceneOverrides } from './dsl/converter'
+export type { AnnotationNode, PointAnnotationNode, RangeAnnotationNode, FreeAnnotationNode, AreaFillNode, ChartNode, DataNode, HighlightNode, PropertyNode, SceneNode, SeriesNode, StepNode, TransformNode } from './dsl/types'
 
 // Samples
 export { samples } from './samples'

@@ -17,7 +17,7 @@ export type TokenType =
   | 'identifier'
   | 'eof'
 
-const KEYWORDS = new Set(['chart', 'data', 'highlight', 'step'])
+const KEYWORDS = new Set(['chart', 'data', 'highlight', 'scene', 'step'])
 
 export function tokenize(input: string): Token[] {
   const tokens: Token[] = []

@@ -8,5 +8,5 @@ else {
 }
 
 export { initBlueprint }
-export { createStepController } from './steps'
-export type { StepDefinition, StepController } from './steps'
+export { createSceneController, createStepController } from './scenes'
+export type { SceneDefinition, SceneController, StepDefinition, StepController } from './scenes'
