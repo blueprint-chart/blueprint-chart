@@ -75,13 +75,7 @@
               :options="viewModeOptions"
             />
           </template>
-          <template v-else-if="currentStep?.key === 'export'">
-            <NavigationToggle
-              v-model="viewModeModel"
-              :options="viewModeOptions"
-            />
-          </template>
-          <!-- Data step: no toolbar controls (replace-data is inline) -->
+          <!-- Data / Export steps: no toolbar controls -->
           <LayoutToolbarSeparator />
           <div
             ref="searchContainer"
