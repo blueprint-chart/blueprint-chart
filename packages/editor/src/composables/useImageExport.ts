@@ -115,6 +115,9 @@ export function exportFramePng(
   const clone = frameElement.cloneNode(true) as HTMLElement
   inlineStyles(frameElement, clone)
 
+  // Remove scene player elements from export
+  clone.querySelectorAll('[data-scene-player]').forEach(el => el.remove())
+
   // Remove pointer-events, transitions, animations from clone
   clone.style.setProperty('pointer-events', 'auto')
   clone.style.setProperty('transition', 'none')
