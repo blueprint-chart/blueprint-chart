@@ -149,6 +149,28 @@ describe('useChartConfig', () => {
     })
   })
 
+  describe('layout player defaults', () => {
+    it('has playerType default of progress-bar', () => {
+      const config = useChartConfig()
+      expect(config.layout.value.playerType).toBe('progress-bar')
+    })
+
+    it('has playerPosition default of center', () => {
+      const config = useChartConfig()
+      expect(config.layout.value.playerPosition).toBe('center')
+    })
+
+    it('preserves playerType through hydrate', () => {
+      const config = useChartConfig()
+      config.layout.value = { ...config.layout.value, playerType: 'dot-stepper' }
+      expect(config.layout.value.playerType).toBe('dot-stepper')
+
+      // Reset restores default
+      config.reset()
+      expect(config.layout.value.playerType).toBe('progress-bar')
+    })
+  })
+
   describe('_base refs bypass scene awareness', () => {
     it('always reads base values regardless of active scene', () => {
       const scenes = useScenes()

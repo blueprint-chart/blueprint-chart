@@ -18,6 +18,8 @@ export interface ChartLayout {
   padding: number
   transparentBackground: boolean
   showCredit: boolean
+  playerType: 'progress-bar' | 'dot-stepper' | 'minimal-arrows' | 'none'
+  playerPosition: 'left' | 'center' | 'right'
 }
 
 export const layoutDefaults: ChartLayout = {
@@ -30,6 +32,8 @@ export const layoutDefaults: ChartLayout = {
   padding: 24,
   transparentBackground: false,
   showCredit: true,
+  playerType: 'progress-bar',
+  playerPosition: 'center',
 }
 
 export interface ChartConfig {
