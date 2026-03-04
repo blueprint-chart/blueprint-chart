@@ -40,6 +40,16 @@ describe('highlightDsl', () => {
     expect(html).toContain('<span class="tok-keyword">series</span>')
   })
 
+  it('highlights scene keyword', () => {
+    const html = highlightDsl('chart line {\nscene "intro" {\n}\n}')
+    expect(html).toContain('<span class="tok-keyword">scene</span>')
+  })
+
+  it('highlights step keyword for backward compat', () => {
+    const html = highlightDsl('chart line {\nstep "intro" {\n}\n}')
+    expect(html).toContain('<span class="tok-keyword">step</span>')
+  })
+
   it('escapes HTML entities in plain text', () => {
     const html = highlightDsl('chart line {\ntitle = "<b>"\n}')
     expect(html).toContain('&lt;b&gt;')

@@ -305,6 +305,23 @@ describe('useDslOutput', () => {
       expect(sceneBlock).toContain('type = bar-horizontal')
     })
 
+    it('new scene does not get a data block from base data', () => {
+      const config = useChartConfig()
+      config.chartType.value = 'bar-vertical'
+      config.data.value = 'Label,Value\nA,10\nB,20\nC,30'
+
+      const scenes = useScenes()
+      scenes.add()
+      scenes.setActive(0)
+
+      // Scene was just added — should have no data override
+      expect(scenes.scenes.value[0].data).toBeUndefined()
+
+      const { dsl } = useDslOutput()
+      const sceneBlock = dsl.value.split('scene {')[1]
+      expect(sceneBlock).not.toContain('data {')
+    })
+
     it('does not leak scene values into base chart section', () => {
       const config = useChartConfig()
       config.chartType.value = 'bar-vertical'

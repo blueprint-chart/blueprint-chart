@@ -14,6 +14,7 @@ const bpcParser = parser.configure({
       'range': t.keyword,
       'note': t.keyword,
       'series': t.keyword,
+      'scene': t.keyword,
       'step': t.keyword,
       'transform': t.keyword,
       'Identifier': t.variableName,
