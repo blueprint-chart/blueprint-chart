@@ -1,10 +1,12 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { useChartConfig } from './useChartConfig'
 import { useChartTypeOptions } from './useChartTypeOptions'
+import { useScenes } from './useScenes'
 import { getChartOptions } from '@blueprint-chart/lib'
 
 describe('useChartTypeOptions', () => {
   beforeEach(() => {
+    useScenes().reset()
     useChartConfig().reset()
     useChartTypeOptions().reset()
   })
@@ -126,5 +128,95 @@ describe('useChartTypeOptions', () => {
       }
     }
     expect(currentOptions.value).toEqual(expected)
+  })
+
+  describe('scene-aware setOption', () => {
+    it('writes to scene chartTypeOptions when scene is active', () => {
+      const scenes = useScenes()
+      scenes.add()
+      scenes.setActive(0)
+
+      const { setOption } = useChartTypeOptions()
+      setOption('colors', ['#ff0000'])
+
+      expect(scenes.activeScene.value?.chartTypeOptions?.colors).toEqual(['#ff0000'])
+    })
+
+    it('does not modify base store when writing to scene', () => {
+      const scenes = useScenes()
+      scenes.add()
+      scenes.setActive(0)
+
+      const { setOption, store } = useChartTypeOptions()
+      setOption('colors', ['#ff0000'])
+
+      // Base store should not have the scene color
+      expect(store['bar-vertical']?.colors).not.toEqual(['#ff0000'])
+    })
+
+    it('writes to base store when no scene is active', () => {
+      const { setOption, store } = useChartTypeOptions()
+      setOption('colors', ['#00ff00'])
+      expect(store['bar-vertical']?.colors).toEqual(['#00ff00'])
+    })
+
+    it('accumulates multiple scene option writes', () => {
+      const scenes = useScenes()
+      scenes.add()
+      scenes.setActive(0)
+
+      const { setOption } = useChartTypeOptions()
+      setOption('colors', ['#aaa'])
+      setOption('showVerticalTicks', false)
+
+      const opts = scenes.activeScene.value?.chartTypeOptions
+      expect(opts?.colors).toEqual(['#aaa'])
+      expect(opts?.showVerticalTicks).toBe(false)
+    })
+  })
+
+  describe('scene-aware currentOptions', () => {
+    it('merges scene chartTypeOptions over base', () => {
+      const { setOption, currentOptions } = useChartTypeOptions()
+      setOption('colors', ['#base'])
+
+      const scenes = useScenes()
+      scenes.add()
+      scenes.update(0, { chartTypeOptions: { colors: ['#scene'] } })
+      scenes.setActive(0)
+
+      expect(currentOptions.value.colors).toEqual(['#scene'])
+    })
+
+    it('returns base options when scene has no chartTypeOptions', () => {
+      const { setOption, currentOptions } = useChartTypeOptions()
+      setOption('colors', ['#base'])
+
+      const scenes = useScenes()
+      scenes.add()
+      scenes.setActive(0)
+
+      expect(currentOptions.value.colors).toEqual(['#base'])
+    })
+
+    it('returns base options when no scene is active', () => {
+      const { setOption, currentOptions } = useChartTypeOptions()
+      setOption('colors', ['#base'])
+      expect(currentOptions.value.colors).toEqual(['#base'])
+    })
+  })
+
+  describe('baseOptions', () => {
+    it('always returns base store values regardless of active scene', () => {
+      const { setOption, baseOptions } = useChartTypeOptions()
+      setOption('colors', ['#base'])
+
+      const scenes = useScenes()
+      scenes.add()
+      scenes.update(0, { chartTypeOptions: { colors: ['#scene'] } })
+      scenes.setActive(0)
+
+      expect(baseOptions.value.colors).toEqual(['#base'])
+    })
   })
 })
