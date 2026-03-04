@@ -31,7 +31,6 @@ export { default as FormControlDropdownEntry } from './components/Form/FormContr
 export { default as FormControlDropdownItem } from './components/Form/FormControl/FormControlDropdownItem.vue'
 export type { FormControlDropdownOption } from './components/Form/FormControl/FormControlDropdown.vue'
 export { default as FormControlTextInput } from './components/Form/FormControl/FormControlTextInput.vue'
-export { default as FormControlToggleSwitch } from './components/Form/FormControl/FormControlToggleSwitch.vue'
 export { default as FormControlPalette } from './components/Form/FormControl/FormControlPalette.vue'
 export { default as FormControlPaletteEntry } from './components/Form/FormControl/FormControlPaletteEntry.vue'
 export { default as FormControlColorblindPicker } from './components/Form/FormControl/FormControlColorblindPicker.vue'
