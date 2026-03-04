@@ -88,7 +88,6 @@ import EditorSeriesPanel from '@/components/Editor/EditorSeriesPanel.vue'
 import EditorAxisOptions from '@/components/Editor/EditorAxisOptions.vue'
 import EditorAnnotateTab from '@/components/Editor/EditorAnnotateTab.vue'
 
-
 const AXIS_KEYS = ['showVerticalAxis', 'verticalAxisDirection', 'showVerticalTicks', 'verticalLabelPosition', 'verticalGridStyle', 'verticalNumberFormat', 'verticalScaleType', 'verticalRangeMin', 'verticalRangeMax', 'showHorizontalAxis', 'showHorizontalTicks', 'horizontalLabelPosition', 'horizontalGridStyle', 'horizontalNumberFormat', 'horizontalScaleType', 'horizontalRangeMin', 'horizontalRangeMax']
 
 const { panelMode, viewMode, activeTab, canvasMode, showDimensions, collapse, selectTab } = useEditorPanel()
@@ -291,7 +290,6 @@ const canvasStyle = computed<CSSProperties>(() => ({
 .chart-edit-panel__drawer-body {
   padding: 0.5rem 0;
 }
-
 
 // Override UI-library backgrounds so rail & panel match the mockup's white chrome
 :deep(.navigation-icon-rail),

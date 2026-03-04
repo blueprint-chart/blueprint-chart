@@ -278,7 +278,6 @@ const canvasClassList = computed(() => ({
   padding: 0.75rem;
 }
 
-
 :deep(.navigation-icon-rail),
 :deep(.layout-panel) {
   background: var(--bs-body-bg);

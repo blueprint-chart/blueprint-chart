@@ -13,7 +13,7 @@ function benfordData(n: number): string[] {
     }
   }
   // pad to n
-  while (result.length < n) result.push('100')
+  while (result.length < n) { result.push('100') }
   return result.slice(0, n)
 }
 

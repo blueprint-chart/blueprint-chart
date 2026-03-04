@@ -109,7 +109,7 @@ describe('DataInsightBadges', () => {
     })
     const badge = w.find('.data-insight-badge--benford-ok')
     expect(badge.exists()).toBe(true)
-    expect(badge.text()).toContain("Benford's law")
+    expect(badge.text()).toContain('Benford\'s law')
   })
 
   it('shows yellow Benford badge when column is suspicious', () => {
@@ -121,7 +121,7 @@ describe('DataInsightBadges', () => {
     })
     const badge = w.find('.data-insight-badge--benford-warn')
     expect(badge.exists()).toBe(true)
-    expect(badge.text()).toContain("Benford's law")
+    expect(badge.text()).toContain('Benford\'s law')
   })
 
   it('hides Benford badge when not enough numeric data', () => {
