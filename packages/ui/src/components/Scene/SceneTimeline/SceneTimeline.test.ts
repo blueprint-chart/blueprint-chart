@@ -36,7 +36,7 @@ describe('SceneTimeline', () => {
     const wrapper = mount(SceneTimeline, {
       props: { scenes: twoScenes },
     })
-    const playBtn = wrapper.find('.scene-timeline__play-btn')
+    const playBtn = wrapper.find('.scene-timeline-controls__play-btn')
     expect(playBtn.exists()).toBe(true)
     expect(playBtn.attributes('aria-label')).toBe('Play')
   })
@@ -45,7 +45,7 @@ describe('SceneTimeline', () => {
     const wrapper = mount(SceneTimeline, {
       props: { scenes: twoScenes, playing: true },
     })
-    const playBtn = wrapper.find('.scene-timeline__play-btn')
+    const playBtn = wrapper.find('.scene-timeline-controls__play-btn')
     expect(playBtn.attributes('aria-label')).toBe('Pause')
   })
 
@@ -53,7 +53,7 @@ describe('SceneTimeline', () => {
     const wrapper = mount(SceneTimeline, {
       props: { scenes: twoScenes, playing: false },
     })
-    await wrapper.find('.scene-timeline__play-btn').trigger('click')
+    await wrapper.find('.scene-timeline-controls__play-btn').trigger('click')
     expect(wrapper.emitted('play')).toHaveLength(1)
   })
 
@@ -61,7 +61,7 @@ describe('SceneTimeline', () => {
     const wrapper = mount(SceneTimeline, {
       props: { scenes: twoScenes, playing: true },
     })
-    await wrapper.find('.scene-timeline__play-btn').trigger('click')
+    await wrapper.find('.scene-timeline-controls__play-btn').trigger('click')
     expect(wrapper.emitted('pause')).toHaveLength(1)
   })
 
@@ -69,7 +69,7 @@ describe('SceneTimeline', () => {
     const wrapper = mount(SceneTimeline, {
       props: { scenes: twoScenes, activeIndex: 0 },
     })
-    expect(wrapper.find('.scene-timeline__counter').text()).toBe('1 / 2')
+    expect(wrapper.find('.scene-timeline-controls__counter').text()).toBe('1 / 2')
   })
 
   it('emits update:activeIndex for prev button', async () => {
