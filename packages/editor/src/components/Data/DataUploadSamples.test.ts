@@ -34,10 +34,15 @@ describe('DataUploadSamples', () => {
     expect(cards[0].text()).toContain('2 cols')
   })
 
-  it('emits select with tsvData on click', async () => {
+  it('emits select with full ChartSample on click', async () => {
     const w = mountSamples()
     await w.findAll('.sample-card')[0].trigger('click')
-    expect(w.emitted('select')).toEqual([['label\tvalue\nA\t1\nB\t2']])
+    const emitted = w.emitted('select')!
+    expect(emitted).toHaveLength(1)
+    const sample = emitted[0][0] as { id: string, tsvData: string, dsl: string }
+    expect(sample.id).toBe('test-1')
+    expect(sample.tsvData).toBe('label\tvalue\nA\t1\nB\t2')
+    expect(sample).toHaveProperty('dsl')
   })
 
   it('renders an icon component for each card', () => {
