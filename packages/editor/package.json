@@ -4,8 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "build:grammar": "node src/dsl-lang/build.mjs",
     "dev": "vite",
-    "build": "vite build",
+    "build": "node src/dsl-lang/build.mjs && vite build",
     "typecheck": "vue-tsc --noEmit",
     "preview": "vite preview",
     "test": "vitest run",
@@ -14,6 +15,12 @@
   "dependencies": {
     "@blueprint-chart/lib": "workspace:*",
     "@blueprint-chart/ui": "workspace:*",
+    "@codemirror/commands": "^6",
+    "@codemirror/language": "^6",
+    "@codemirror/state": "^6",
+    "@codemirror/view": "^6",
+    "@lezer/highlight": "^1",
+    "@lezer/lr": "^1",
     "bootstrap": "^5.3",
     "bootstrap-vue-next": "^0.27",
     "@vueuse/core": "^14.2.1",
@@ -22,6 +29,7 @@
   },
   "devDependencies": {
     "@iconify-json/ph": "^1",
+    "@lezer/generator": "^1",
     "@vitejs/plugin-vue": "^5",
     "@vue/test-utils": "^2",
     "jsdom": "^26",
