@@ -1,8 +1,9 @@
-import { parse, propertyMap, extractChartTypeOptions, dataEntriesToString } from '@blueprint-chart/lib'
+import { parse, propertyMap, extractChartTypeOptions, extractSceneOverrides, dataEntriesToString } from '@blueprint-chart/lib'
 import type { PropertyNode, SeriesOverride, AnnotationConfig, PointAnnotationConfig, RangeAnnotationConfig, FreeAnnotationConfig } from '@blueprint-chart/lib'
 import { useChartConfig } from './useChartConfig'
 import { useChartTypeOptions, type ChartTypeOptions } from './useChartTypeOptions'
 import { useDataTransforms, type TransformType } from './useDataTransforms'
+import { useScenes, type SceneOverride } from './useScenes'
 
 function readPosition(properties: PropertyNode[], key: string): number | string | undefined {
   const node = properties.find(p => p.key === key)
@@ -40,10 +41,14 @@ export function useDslSync() {
   const config = useChartConfig()
   const { store } = useChartTypeOptions()
   const transforms = useDataTransforms()
+  const scenesComposable = useScenes()
 
   function applyDsl(dslString: string): { success: boolean, error?: string } {
     try {
       const ast = parse(dslString)
+
+      // Bypass scene-aware refs: all writes go to base state
+      scenesComposable.setActive(-1)
 
       config.chartType.value = ast.chartType
 
@@ -295,6 +300,105 @@ export function useDslSync() {
       }
       else {
         transforms.reset()
+      }
+
+      if (ast.scenes?.length) {
+        const extractedScenes: SceneOverride[] = ast.scenes.map((sceneNode) => {
+          const extracted = extractSceneOverrides(sceneNode, ast.chartType)
+          const scene: SceneOverride = {
+            id: Math.random().toString(36).slice(2, 10),
+            name: extracted.name,
+          }
+          if (extracted.chartType) {
+            scene.chartType = extracted.chartType
+          }
+          if (extracted.data) {
+            scene.data = dataEntriesToString(extracted.data)
+          }
+          if (Object.keys(extracted.chartTypeOptions).length > 0) {
+            scene.chartTypeOptions = extracted.chartTypeOptions as Partial<ChartTypeOptions>
+          }
+          if (extracted.highlights.length > 0) {
+            scene.highlights = extracted.highlights.map((h) => {
+              const hProps = propertyMap(h.properties)
+              return {
+                target: h.target,
+                color: String(hProps.get('color') ?? ''),
+                label: String(hProps.get('label') ?? ''),
+              }
+            })
+          }
+          if (extracted.areaFills.length > 0) {
+            scene.areaFills = extracted.areaFills.map((af) => {
+              const afProps = propertyMap(af.properties)
+              return {
+                from: af.from,
+                to: af.to,
+                color: afProps.has('color') ? String(afProps.get('color')) : undefined,
+                negativeColor: afProps.has('negativeColor') ? String(afProps.get('negativeColor')) : undefined,
+                opacity: afProps.has('opacity') ? Number(afProps.get('opacity')) : undefined,
+                interpolation: afProps.has('interpolation') ? String(afProps.get('interpolation')) : undefined,
+              }
+            })
+          }
+          if (extracted.annotations.length > 0) {
+            scene.annotations = extracted.annotations.map((a): AnnotationConfig => {
+              const aProps = propertyMap(a.properties)
+              const kind = a.kind ?? 'point'
+              if (kind === 'range') {
+                const result: RangeAnnotationConfig = {
+                  kind: 'range',
+                  start: aProps.has('start') ? (isNaN(Number(aProps.get('start'))) ? String(aProps.get('start')) : Number(aProps.get('start'))) : 0,
+                  end: aProps.has('end') ? (isNaN(Number(aProps.get('end'))) ? String(aProps.get('end')) : Number(aProps.get('end'))) : 0,
+                }
+                if (aProps.has('text')) {
+                  result.text = String(aProps.get('text'))
+                }
+                return result
+              }
+              if (kind === 'free') {
+                const result: FreeAnnotationConfig = {
+                  kind: 'free',
+                  text: String(aProps.get('text') ?? ''),
+                  x: readPosition(a.properties, 'x') ?? 0,
+                  y: readPosition(a.properties, 'y') ?? 0,
+                }
+                return result
+              }
+              const target = 'target' in a ? a.target : ''
+              const result: PointAnnotationConfig = {
+                kind: 'point',
+                target,
+                text: String(aProps.get('text') ?? ''),
+              }
+              return result
+            })
+          }
+          if (extracted.series.length > 0) {
+            scene.seriesOverrides = extracted.series.map((s) => {
+              const sProps = propertyMap(s.properties)
+              const override: SeriesOverride = { name: s.name }
+              if (sProps.has('color')) {
+                override.color = String(sProps.get('color'))
+              }
+              return override
+            })
+          }
+          if (extracted.transforms.length > 0) {
+            scene.transforms = extracted.transforms.map((t, i) => ({
+              id: String(i),
+              type: t.transformType as TransformType,
+              config: Object.fromEntries(
+                t.properties.map(p => [p.key, String(p.value)]),
+              ),
+            }))
+          }
+          return scene
+        })
+        scenesComposable.hydrate({ scenes: extractedScenes, activeIndex: -1 })
+      }
+      else {
+        scenesComposable.reset()
       }
 
       return { success: true }
