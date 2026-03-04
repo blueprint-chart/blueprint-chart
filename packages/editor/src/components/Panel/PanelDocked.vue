@@ -45,7 +45,7 @@ const emit = defineEmits<{
 }>()
 
 const MIN_WIDTH = 260
-const MAX_WIDTH = 500
+const MAX_WIDTH = 660
 const panelWidth = ref(props.modelValue ?? props.initialWidth)
 
 watch(() => props.modelValue, (v) => {
