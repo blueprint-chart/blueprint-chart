@@ -2,6 +2,9 @@ import { watch, type Ref } from 'vue'
 import { useResizeObserver, useThrottleFn } from '@vueuse/core'
 import { useChartConfig } from './useChartConfig'
 import { useChartTypeOptions } from './useChartTypeOptions'
+import { useScenes } from './useScenes'
+import { useDataTable, serializeTableData } from './useDataTable'
+import { useDataTransforms } from './useDataTransforms'
 import { useTheme } from './useTheme'
 import { getChart, parseData, buildChartOptions, resolveBackgroundColor } from '@blueprint-chart/lib'
 
@@ -18,6 +21,9 @@ const RESIZE_THROTTLE_MS = 150
 export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
   const config = useChartConfig()
   const { currentOptions } = useChartTypeOptions()
+  const { activeScene } = useScenes()
+  const { columns, rows, columnTypes } = useDataTable()
+  const { applyStepList } = useDataTransforms()
   const { theme } = useTheme()
 
   function render() {
@@ -26,17 +32,32 @@ export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
     }
     containerRef.value.replaceChildren()
 
-    const data = parseData(config.data.value)
+    const scene = activeScene.value
+    const chartType = scene?.chartType ?? config.chartType.value
+
+    let dataStr: string
+    if (scene?.data) {
+      // Scene provides explicit data override
+      dataStr = scene.data
+    }
+    else if (scene?.transforms?.length && columns.value.length > 0) {
+      // Apply scene transforms to raw table data
+      const result = applyStepList(scene.transforms, columns.value, rows.value, columnTypes.value)
+      dataStr = serializeTableData(result.columns, result.rows)
+    }
+    else {
+      dataStr = config.data.value
+    }
+    const data = parseData(dataStr)
 
     const singleSeriesTypes = ['bar-vertical', 'bar-horizontal', 'line', 'vertical-bar', 'horizontal-bar']
-    if (data.series && data.series.length > 0 && singleSeriesTypes.includes(config.chartType.value)) {
+    if (data.series && data.series.length > 0 && singleSeriesTypes.includes(chartType)) {
       const colName = config.selectedColumn.value
       const match = data.series.find(s => s.name === colName)
       if (match) {
         data.values = match.values
       }
-      // else keep default (first series values already assigned)
-      delete data.series // don't pass series to single-series renderer
+      delete data.series
     }
 
     if (data.labels.length === 0) {
@@ -44,14 +65,12 @@ export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
       return
     }
 
-    const renderer = getChart(config.chartType.value)
+    const renderer = getChart(chartType)
     if (!renderer) {
-      showPlaceholder(containerRef.value, `Unknown chart type: ${config.chartType.value}`)
+      showPlaceholder(containerRef.value, `Unknown chart type: ${chartType}`)
       return
     }
 
-    // When dark mode is not allowed, force light theme on the preview card
-    // so the chart always renders with a light background.
     const allowDark = currentOptions.value.allowDarkMode ?? true
     const card = containerRef.value.parentElement
     if (card) {
@@ -64,7 +83,15 @@ export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
     }
 
     const bg = resolveBackgroundColor(containerRef.value)
-    const typeOpts = buildChartOptions(currentOptions.value, bg)
+    const mergedOpts = scene?.chartTypeOptions
+      ? { ...currentOptions.value, ...scene.chartTypeOptions }
+      : currentOptions.value
+    const typeOpts = buildChartOptions(mergedOpts, bg)
+
+    const highlights = scene?.highlights ?? config.highlights.value
+    const areaFills = scene?.areaFills ?? config.areaFills.value
+    const annotations = scene?.annotations ?? config.annotations.value
+    const seriesOverrides = scene?.seriesOverrides ?? config.seriesOverrides.value
 
     renderer(containerRef.value, data, {
       frame: {
@@ -79,20 +106,19 @@ export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
       sort: config.sort.value,
       sortMode: config.sortMode.value !== 'none' ? config.sortMode.value : undefined,
       ...typeOpts,
-      highlights: config.highlights.value.length > 0 ? config.highlights.value : undefined,
-      areaFills: config.areaFills.value.length > 0 ? config.areaFills.value : undefined,
-      annotations: config.annotations.value.length > 0 ? config.annotations.value : undefined,
-      seriesOverrides: config.seriesOverrides.value.length > 0 ? config.seriesOverrides.value : undefined,
+      highlights: highlights.length > 0 ? highlights : undefined,
+      areaFills: areaFills.length > 0 ? areaFills : undefined,
+      annotations: annotations.length > 0 ? annotations : undefined,
+      seriesOverrides: seriesOverrides.length > 0 ? seriesOverrides : undefined,
     })
   }
 
   watch(
-    [containerRef, config.chartType, config.title, config.data, config.sort, config.sortMode, config.description, config.byline, config.note, config.source, config.sourceUrl, config.selectedColumn, config.highlights, config.areaFills, config.annotations, config.seriesOverrides, config.layout, currentOptions, theme],
+    [containerRef, config.chartType, config.title, config.data, config.sort, config.sortMode, config.description, config.byline, config.note, config.source, config.sourceUrl, config.selectedColumn, config.highlights, config.areaFills, config.annotations, config.seriesOverrides, config.layout, currentOptions, activeScene, theme],
     render,
     { immediate: true, deep: true },
   )
 
-  // Re-render when the container itself resizes (panel drag, window resize, etc.)
   const throttledRender = useThrottleFn(render, RESIZE_THROTTLE_MS)
   useResizeObserver(containerRef, throttledRender)
 

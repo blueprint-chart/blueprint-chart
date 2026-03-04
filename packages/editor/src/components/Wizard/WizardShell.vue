@@ -20,15 +20,22 @@
 </template>
 
 <script setup lang="ts">
-import { computed, watch, onMounted, onUnmounted } from 'vue'
+import { computed, ref, watch, onMounted, onUnmounted } from 'vue'
 import { onBeforeRouteLeave, useRouter } from 'vue-router'
+import { useDebounceFn } from '@vueuse/core'
 import { useWizard } from '@/composables/useWizard'
 import { useNavbar } from '@/composables/useNavbar'
 import { useDataTable } from '@/composables/useDataTable'
 import { useChartConfig } from '@/composables/useChartConfig'
 import { useChartSession } from '@/composables/useChartSession'
+import { useChartTypeOptions } from '@/composables/useChartTypeOptions'
+import { useDataTransforms, type TransformStep } from '@/composables/useDataTransforms'
+import { serializeTableData } from '@/composables/useDataTable'
 import { useScenes } from '@/composables/useScenes'
-import { generateThumbnail } from '@/composables/useChartThumbnail'
+import { generateThumbnail, renderThumbnailSvg } from '@/composables/useChartThumbnail'
+import type { ChartHighlight } from '@/composables/useChartConfig'
+import { parseData } from '@blueprint-chart/lib'
+import type { SeriesOverride } from '@blueprint-chart/lib'
 import { SceneTimeline } from '@blueprint-chart/ui'
 import DataPanel from '@/components/Data/DataPanel.vue'
 import ChartEditPanel from '@/components/ChartEdit/ChartEditPanel.vue'
@@ -42,54 +49,101 @@ const config = useChartConfig()
 const { sessionId, createSession } = useChartSession()
 const scenesComposable = useScenes()
 const { scenes, activeIndex, playing, startPlayback, stopPlayback } = scenesComposable
+const { baseOptions } = useChartTypeOptions()
+const transforms = useDataTransforms()
+const baseTransforms = ref<TransformStep[]>([])
 
 function addScene() {
   scenesComposable.add()
   scenesComposable.setActive(scenes.value.length - 1)
 }
 
-function countChanges(s: (typeof scenes.value)[number]): number {
-  let n = 0
-  if (s.chartType) {
-    n++
+// --- Scene thumbnail generation ---
+const sceneThumbnails = ref<Record<number, string | null>>({})
+const singleSeriesTypes = ['bar-vertical', 'bar-horizontal', 'line', 'vertical-bar', 'horizontal-bar']
+
+function renderOne(
+  chartType: string,
+  dataStr: string,
+  typeOpts: object,
+  sort: string,
+  highlights?: ChartHighlight[],
+  seriesOverrides?: SeriesOverride[],
+): string | null {
+  const data = parseData(dataStr)
+  if (data.series?.length && singleSeriesTypes.includes(chartType)) {
+    const match = data.series.find(s => s.name === config._base.selectedColumn.value)
+    if (match) {
+      data.values = match.values
+    }
+    delete data.series
   }
-  if (s.data) {
-    n++
-  }
-  if (s.highlights?.length) {
-    n += s.highlights.length
-  }
-  if (s.areaFills?.length) {
-    n += s.areaFills.length
-  }
-  if (s.annotations?.length) {
-    n += s.annotations.length
-  }
-  if (s.seriesOverrides?.length) {
-    n += s.seriesOverrides.length
-  }
-  if (s.transforms?.length) {
-    n += s.transforms.length
-  }
-  if (s.chartTypeOptions) {
-    n += Object.keys(s.chartTypeOptions).length
-  }
-  if (s.properties) {
-    n += Object.keys(s.properties).length
-  }
-  return n
+  return renderThumbnailSvg(chartType, data, typeOpts, sort as 'ascending' | 'descending' | 'none', {
+    highlights: highlights?.length ? highlights : undefined,
+    seriesOverrides: seriesOverrides?.length ? seriesOverrides : undefined,
+  })
 }
+
+function generateSceneThumbnails() {
+  const base = config._base
+  const result: Record<number, string | null> = {}
+
+  // Base scene (timeline index 0)
+  result[0] = renderOne(
+    base.chartType.value, base.data.value, baseOptions.value, base.sort.value,
+    base.highlights.value, base.seriesOverrides.value,
+  )
+
+  // Override scenes (timeline index 1+)
+  for (let i = 0; i < scenes.value.length; i++) {
+    const scene = scenes.value[i]
+    const chartType = scene.chartType ?? base.chartType.value
+    let dataStr: string
+    if (scene.data) {
+      dataStr = scene.data
+    }
+    else if (scene.transforms?.length && dataTable.columns.value.length > 0) {
+      const result = transforms.applyStepList(scene.transforms, dataTable.columns.value, dataTable.rows.value, dataTable.columnTypes.value)
+      dataStr = serializeTableData(result.columns, result.rows)
+    }
+    else {
+      dataStr = base.data.value
+    }
+    const typeOpts = scene.chartTypeOptions
+      ? { ...baseOptions.value, ...scene.chartTypeOptions }
+      : baseOptions.value
+    const highlights = scene.highlights ?? base.highlights.value
+    const seriesOverrides = scene.seriesOverrides ?? base.seriesOverrides.value
+    result[i + 1] = renderOne(chartType, dataStr, typeOpts, base.sort.value, highlights, seriesOverrides)
+  }
+
+  sceneThumbnails.value = result
+}
+
+const debouncedGenerateThumbnails = useDebounceFn(generateSceneThumbnails, 300)
+
+watch(
+  [() => scenes.value, config._base.chartType, config._base.data, config._base.sort,
+    config._base.highlights, config._base.seriesOverrides, config._base.selectedColumn,
+    baseOptions, currentStep],
+  () => {
+    if (currentStep.value.key === 'edit') {
+      debouncedGenerateThumbnails()
+    }
+  },
+  { deep: true },
+)
 
 // Scene 1 is virtual (base chart state, index -1 internally).
 // Override scenes map to indices 0..N-1 internally but display as Scene 2..N+1.
 // Timeline uses 0-based indices where 0 = Scene 1 (base).
 const timelineScenes = computed(() => {
-  const base = [{ name: null as string | null, index: 0, changes: 0, removable: false }]
+  const base = [{ name: null as string | null, index: 0, removable: false, thumbnail: sceneThumbnails.value[0] ?? null }]
   const overrides = scenes.value.map((s, i) => ({
     name: s.name,
     index: i + 1,
-    changes: countChanges(s),
     removable: true,
+    thumbnail: sceneThumbnails.value[i + 1] ?? null,
   }))
   return [...base, ...overrides]
 })
@@ -118,8 +172,30 @@ const showTimeline = computed(() => {
   if (step === 'edit') {
     return true
   }
-  // data step: only show if 2+ scenes
-  return scenes.value.length >= 2
+  // data step: show if 1+ override scenes exist
+  return scenes.value.length >= 1
+})
+
+// Swap transforms when switching scenes on the data step
+watch(activeIndex, (newVal, oldVal) => {
+  if (currentStep.value.key !== 'data') {
+    return
+  }
+  // Leaving base → scene
+  if (oldVal === -1 && newVal >= 0) {
+    baseTransforms.value = transforms.snapshot()
+    transforms.hydrate(scenes.value[newVal]?.transforms ?? [])
+  }
+  // Leaving scene → base
+  else if (oldVal >= 0 && newVal === -1) {
+    scenesComposable.update(oldVal, { transforms: transforms.snapshot() })
+    transforms.hydrate(baseTransforms.value)
+  }
+  // Switching between scenes
+  else if (oldVal >= 0 && newVal >= 0) {
+    scenesComposable.update(oldVal, { transforms: transforms.snapshot() })
+    transforms.hydrate(scenes.value[newVal]?.transforms ?? [])
+  }
 })
 
 onMounted(() => setMode('wizard'))
@@ -128,6 +204,12 @@ onUnmounted(() => resetNavbar())
 // Serialize data when navigating from data step to edit step
 watch(currentIndex, (newIndex, oldIndex) => {
   if (oldIndex === 0 && newIndex === 1) {
+    // If a scene was active on the data step, save its transforms and restore base
+    if (activeIndex.value >= 0) {
+      scenesComposable.update(activeIndex.value, { transforms: transforms.snapshot() })
+      transforms.hydrate(baseTransforms.value)
+      scenesComposable.setActive(-1)
+    }
     config._base.data.value = dataTable.serialize()
     if (dataTable.columns.value.length > 2 && !config._base.chartType.value.includes('multi')) {
       const hasDateLabels = dataTable.columnTypes.value[0] === 'date'
