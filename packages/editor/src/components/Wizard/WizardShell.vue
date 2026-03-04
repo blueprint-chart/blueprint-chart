@@ -198,7 +198,13 @@ watch(activeIndex, (newVal, oldVal) => {
   }
 })
 
-onMounted(() => setMode('wizard'))
+onMounted(() => {
+  setMode('wizard')
+  // Generate thumbnails on mount for reload/direct navigation to edit step
+  if (currentStep.value.key === 'edit' && config._base.data.value) {
+    generateSceneThumbnails()
+  }
+})
 onUnmounted(() => resetNavbar())
 
 // Serialize data when navigating from data step to edit step
