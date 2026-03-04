@@ -1,9 +1,8 @@
 <template>
   <div class="d-flex flex-column h-100">
-    <textarea
-      class="form-control font-monospace flex-grow-1"
-      :value="text"
-      @input="onInput"
+    <div
+      ref="editorEl"
+      class="flex-grow-1 overflow-auto"
     />
     <div
       v-if="error"
@@ -15,36 +14,78 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watchEffect } from 'vue'
+import { ref, onMounted, onUnmounted, watch } from 'vue'
+import { EditorView, keymap } from '@codemirror/view'
+import { EditorState } from '@codemirror/state'
+import { defaultKeymap, history, historyKeymap } from '@codemirror/commands'
 import { useDslOutput } from '@/composables/useDslOutput'
 import { useDslSync } from '@/composables/useDslSync'
+import { bpcLanguage, bpcHighlighter } from '@/dsl-lang'
+import '@/dsl-lang/highlight.scss'
 
 const { dsl } = useDslOutput()
 const { applyDsl } = useDslSync()
 
-const text = ref('')
+const editorEl = ref<HTMLElement>()
 const error = ref<string>()
-const userEditing = ref(false)
+let view: EditorView | undefined
+let updatingFromExternal = false
 
-function syncDslToText() {
-  if (!userEditing.value) {
-    text.value = dsl.value
+function onEditorUpdate(update: { docChanged: boolean, state: EditorState }) {
+  if (!update.docChanged || updatingFromExternal) {
+    return
   }
-}
-
-watchEffect(syncDslToText)
-
-function onInput(event: Event) {
-  const value = (event.target as { value: string }).value
-  text.value = value
-  userEditing.value = true
+  const value = update.state.doc.toString()
   const result = applyDsl(value)
   if (result.success) {
     error.value = undefined
-    userEditing.value = false
   }
   else {
     error.value = result.error
   }
 }
+
+onMounted(() => {
+  const state = EditorState.create({
+    doc: dsl.value,
+    extensions: [
+      keymap.of([...defaultKeymap, ...historyKeymap]),
+      history(),
+      bpcLanguage(),
+      bpcHighlighter,
+      EditorView.updateListener.of(onEditorUpdate),
+      EditorView.theme({
+        '&': { height: '100%', backgroundColor: 'var(--bs-body-bg)', borderRadius: 'var(--bs-border-radius)' },
+        '.cm-scroller': { overflow: 'auto' },
+        '.cm-content': { fontFamily: 'var(--bs-font-monospace)' },
+        '.cm-gutters': {
+          backgroundColor: 'var(--bs-body-bg)',
+          color: 'var(--bs-secondary-color)',
+          borderRight: '1px solid var(--bs-border-color)',
+        },
+      }),
+    ],
+  })
+  view = new EditorView({ state, parent: editorEl.value! })
+})
+
+watch(dsl, (newVal) => {
+  if (!view) {
+    return
+  }
+  const current = view.state.doc.toString()
+  if (current === newVal) {
+    return
+  }
+  updatingFromExternal = true
+  view.dispatch({
+    changes: { from: 0, to: view.state.doc.length, insert: newVal },
+  })
+  updatingFromExternal = false
+})
+
+onUnmounted(() => {
+  view?.destroy()
+  view = undefined
+})
 </script>
