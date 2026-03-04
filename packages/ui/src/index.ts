@@ -78,3 +78,6 @@ export { default as ListItemRow } from './components/List/ListItemRow/ListItemRo
 export { default as ListItemActions } from './components/List/ListItemActions/ListItemActions.vue'
 export { default as ListSelectPanel } from './components/List/ListSelectPanel/ListSelectPanel.vue'
 export { default as ListSeriesRow } from './components/List/ListSeriesRow/ListSeriesRow.vue'
+
+export { default as SceneTimeline } from './components/Scene/SceneTimeline/SceneTimeline.vue'
+export { default as SceneTimelineItem } from './components/Scene/SceneTimelineItem/SceneTimelineItem.vue'
