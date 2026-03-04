@@ -10,7 +10,7 @@ ChartMember {
   NoteAnnotation |
   Annotation |
   Series |
-  Step |
+  Scene |
   Transform |
   Property
 }
@@ -31,15 +31,17 @@ NoteAnnotation { kw<"note"> "{" Property* "}" }
 
 Series { kw<"series"> String "{" Property* "}" }
 
-Step { kw<"step"> String "{" StepMember* "}" }
+Scene { (kw<"scene"> | kw<"step">) String? "{" SceneMember* "}" }
 
-StepMember {
+SceneMember {
   DataBlock |
   Highlight |
   AreaFill |
   RangeAnnotation |
   NoteAnnotation |
   Annotation |
+  Series |
+  Transform |
   Property
 }
 
