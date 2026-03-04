@@ -3,6 +3,7 @@ import { useChartConfig } from './useChartConfig'
 import { useDataTable } from './useDataTable'
 import { useDataTransforms } from './useDataTransforms'
 import { useChartTypeOptions } from './useChartTypeOptions'
+import { useScenes, type ScenesSnapshot } from './useScenes'
 import { useWizard } from './useWizard'
 import { useDslSync } from './useDslSync'
 import { parseDelimited } from './useDataParser'
@@ -18,6 +19,7 @@ interface SessionPayload {
   dataTable: { columns: string[], rows: string[][], rawInput: string, columnTypes?: ColumnType[] }
   transforms?: TransformStep[]
   chartTypeOptions: Record<string, Partial<ChartTypeOptions>>
+  scenes?: ScenesSnapshot
   wizard: { currentIndex: number, furthestIndex: number }
   savedAt?: string
 }
@@ -51,29 +53,31 @@ export function useChartSession() {
   const dataTable = useDataTable()
   const transforms = useDataTransforms()
   const chartTypeOptions = useChartTypeOptions()
+  const scenesComposable = useScenes()
   const wizard = useWizard()
 
   function save() {
     if (!sessionId.value) {
       return
     }
+    const base = chartConfig._base
     const payload: SessionPayload = {
       chartConfig: {
-        chartType: chartConfig.chartType.value,
-        title: chartConfig.title.value,
-        description: chartConfig.description.value,
-        byline: chartConfig.byline.value,
-        note: chartConfig.note.value,
-        source: chartConfig.source.value,
-        sourceUrl: chartConfig.sourceUrl.value,
-        sort: chartConfig.sort.value,
-        data: chartConfig.data.value,
-        selectedColumn: chartConfig.selectedColumn.value,
-        highlights: chartConfig.highlights.value,
-        areaFills: chartConfig.areaFills.value,
-        annotations: chartConfig.annotations.value,
-        seriesOverrides: chartConfig.seriesOverrides.value,
-        layout: chartConfig.layout.value,
+        chartType: base.chartType.value,
+        title: base.title.value,
+        description: base.description.value,
+        byline: base.byline.value,
+        note: base.note.value,
+        source: base.source.value,
+        sourceUrl: base.sourceUrl.value,
+        sort: base.sort.value,
+        data: base.data.value,
+        selectedColumn: base.selectedColumn.value,
+        highlights: base.highlights.value,
+        areaFills: base.areaFills.value,
+        annotations: base.annotations.value,
+        seriesOverrides: base.seriesOverrides.value,
+        layout: base.layout.value,
       },
       dataTable: {
         columns: dataTable.columns.value,
@@ -83,6 +87,7 @@ export function useChartSession() {
       },
       transforms: transforms.snapshot(),
       chartTypeOptions: { ...chartTypeOptions.store },
+      scenes: scenesComposable.snapshot(),
       wizard: {
         currentIndex: wizard.currentIndex.value,
         furthestIndex: wizard.furthestIndex.value,
@@ -108,6 +113,12 @@ export function useChartSession() {
         transforms.reset()
       }
       chartTypeOptions.hydrate(payload.chartTypeOptions)
+      if (payload.scenes) {
+        scenesComposable.hydrate(payload.scenes)
+      }
+      else {
+        scenesComposable.reset()
+      }
       const wizardState = payload.wizard
       // Migrate old 4-step indices (upload=0,check=1,edit=2,export=3) to 3-step (data=0,edit=1,export=2)
       if (wizardState.furthestIndex > 2) {
@@ -128,6 +139,7 @@ export function useChartSession() {
     dataTable.reset()
     transforms.reset()
     chartTypeOptions.reset()
+    scenesComposable.reset()
     wizard.reset()
     sessionId.value = ''
   }
@@ -192,6 +204,8 @@ export function useChartSession() {
         dataTable.rawInput,
         dataTable.columnTypes,
         transforms.steps,
+        scenesComposable.scenes,
+        scenesComposable.activeIndex,
         wizard.currentIndex,
         wizard.furthestIndex,
         () => chartTypeOptions.store,
