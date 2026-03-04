@@ -14,7 +14,6 @@
       :style="canvasStyle"
     >
       <div
-        v-if="viewMode === 'preview'"
         ref="cardRef"
         class="export-panel__card"
         :class="cardClass"
@@ -26,16 +25,12 @@
         />
       </div>
       <CanvasDimensions
-        v-if="viewMode === 'preview' && showDimensions"
+        v-if="showDimensions"
         :card-ref="cardRef"
         :canvas-ref="canvasRef"
         :layout="layout"
       />
-      <CanvasModePicker v-if="viewMode === 'preview'" />
-      <ChartEditDsl
-        v-else
-        class="export-panel__dsl"
-      />
+      <CanvasModePicker />
       <ExportFloatingPanel
         v-if="!isNarrow && panelMode === 'floating'"
         :container-ref="canvasRef"
@@ -85,7 +80,6 @@ import { useChartConfig } from '@/composables/useChartConfig'
 import { useChartPreview } from '@/composables/useChartPreview'
 import { useImageExport } from '@/composables/useImageExport'
 import PanelTabBar from '@/components/Panel/PanelTabBar.vue'
-import ChartEditDsl from '@/components/ChartEdit/ChartEditDsl.vue'
 import ExportIconRail from './ExportIconRail.vue'
 import ExportDockedPanel from './ExportDockedPanel.vue'
 import ExportFloatingPanel from './ExportFloatingPanel.vue'
@@ -95,7 +89,10 @@ import ExportDownloadPanel from './ExportDownloadPanel.vue'
 import CanvasDimensions from '@/components/Canvas/CanvasDimensions.vue'
 import CanvasModePicker from '@/components/Canvas/CanvasModePicker.vue'
 
-const { viewMode, canvasMode, showDimensions, panelMode, float, collapse } = useEditorPanel()
+const { canvasMode, showDimensions, panelMode, float, collapse, setViewMode } = useEditorPanel()
+
+// Export step always shows preview (no DSL toggle)
+setViewMode('preview')
 const { exportTab, setExportTab } = useExportPanel()
 const { isNarrow } = useBreakpoint()
 const { layout } = useChartConfig()
@@ -266,12 +263,6 @@ const canvasClassList = computed(() => ({
 
 .export-panel__preview {
   min-height: 200px;
-}
-
-.export-panel__dsl {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
 }
 
 .export-panel__drawer-body {
