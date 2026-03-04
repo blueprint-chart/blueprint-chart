@@ -172,6 +172,7 @@ export type ChartRenderer = (
   container: HTMLElement,
   data: ChartData,
   options: ChartOptions,
+  transition?: boolean,
 ) => void
 
 export interface ChartOptionDef {
