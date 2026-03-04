@@ -143,7 +143,7 @@ const tabOptions = [
 }
 
 .upload-card__title {
-  font-size: 1.375rem;
+  font-size: var(--bs-font-size-lg);
   font-weight: 700;
   color: var(--bs-body-color);
   margin-bottom: 0.25rem;
@@ -151,7 +151,7 @@ const tabOptions = [
 }
 
 .upload-card__subtitle {
-  font-size: 0.875rem;
+  font-size: var(--bs-font-size-md);
   color: var(--bs-secondary-color);
   text-align: center;
   margin-bottom: 1.75rem;
@@ -194,7 +194,7 @@ const tabOptions = [
   flex: 1;
   padding: 0.625rem 1rem;
   font-family: inherit;
-  font-size: 0.8125rem;
+  font-size: var(--bs-font-size-sm);
   font-weight: 600;
   color: var(--bs-secondary-color);
   border: none;
@@ -253,7 +253,7 @@ const tabOptions = [
   inset: 0;
   padding: 0.875rem 1rem;
   font-family: var(--bs-font-monospace);
-  font-size: 0.75rem;
+  font-size: var(--bs-font-size-sm);
   color: var(--bs-secondary-color);
   opacity: 0.5;
   pointer-events: none;
@@ -267,7 +267,7 @@ const tabOptions = [
   border: none;
   padding: 0.875rem 1rem;
   font-family: var(--bs-font-monospace);
-  font-size: 0.75rem;
+  font-size: var(--bs-font-size-sm);
   resize: vertical;
   outline: none;
   color: var(--bs-body-color);
@@ -290,7 +290,7 @@ const tabOptions = [
 }
 
 .upload-card__paste-hint {
-  font-size: 0.6875rem;
+  font-size: var(--bs-font-size-xs);
   color: var(--bs-secondary-color);
   display: flex;
   align-items: center;
@@ -307,7 +307,7 @@ const tabOptions = [
   background: var(--bs-body-bg);
   border: 1px solid var(--bs-border-color);
   border-radius: 0.1875rem;
-  font-size: 0.625rem;
+  font-size: var(--bs-font-size-xs);
   font-weight: 600;
   color: var(--bs-secondary-color);
   margin: 0 0.0625rem;
@@ -315,7 +315,7 @@ const tabOptions = [
 
 .upload-card__paste-btn {
   padding: 0.3125rem 0.75rem;
-  font-size: 0.75rem;
+  font-size: var(--bs-font-size-sm);
   font-weight: 600;
   color: #fff;
   background: var(--bs-primary);

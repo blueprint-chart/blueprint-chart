@@ -256,7 +256,7 @@ const paletteOptions = [
 
 <style scoped lang="scss">
 .editor-color-section__qualifier {
-  font-size: 0.6875rem;
+  font-size: var(--bs-font-size-xs);
   font-style: italic;
 }
 
@@ -265,7 +265,7 @@ const paletteOptions = [
   align-items: center;
   gap: 0.2em;
   padding: 0.15em 0.45em;
-  font-size: 0.6875rem;
+  font-size: var(--bs-font-size-xs);
   font-weight: 600;
   line-height: 1;
   border-radius: var(--bs-border-radius-sm);
@@ -283,7 +283,7 @@ const paletteOptions = [
 }
 
 .editor-color-section__cvd-info {
-  font-size: 0.75em;
+  font-size: var(--bs-font-size-sm);
   opacity: 0.7;
 }
 </style>

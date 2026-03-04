@@ -3,6 +3,12 @@
 
 :root,
 [data-bs-theme="light"] {
+  // Type scale
+  --bs-font-size-xs: 0.6875rem;
+  --bs-font-size-sm: 0.75rem;
+  --bs-font-size-md: 0.875rem;
+  --bs-font-size-lg: 1.25rem;
+
   // Syntax highlighting (DSL editor + embed code)
   --bc-syn-keyword: #2563A0;
   --bc-syn-string: #2D8659;
@@ -87,7 +93,7 @@ body {
 // Unified form-label style: match SectionTitle appearance
 // Scoped to #app so teleported popovers (color picker etc.) are not affected
 #app .form-label {
-  font-size: 0.625rem;
+  font-size: var(--bs-font-size-xs);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--bs-secondary-color);
@@ -97,13 +103,13 @@ body {
 .bc-frame-title {
   color: var(--bc-text-color, #333);
   margin: 0;
-  font-size: 1.25rem;
+  font-size: var(--bs-font-size-lg);
 }
 
 .bc-frame-description {
   color: var(--bc-text-color, #555);
   margin: 0.25rem 0 0;
-  font-size: 0.875rem;
+  font-size: var(--bs-font-size-md);
 }
 
 .bc-frame-footer {
@@ -126,14 +132,14 @@ body {
 .bc-frame-note {
   font-style: italic;
   color: var(--bs-body-color, #888);
-  font-size: 0.75rem;
+  font-size: var(--bs-font-size-sm);
   margin: 0.5rem 0 0;
 }
 
 .bc-frame-byline,
 .bc-frame-source {
   color: var(--bs-secondary-color, #888);
-  font-size: 0.75rem;
+  font-size: var(--bs-font-size-sm);
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -154,7 +160,7 @@ body {
 }
 
 .bc-frame-credit {
-  font-size: 0.75rem;
+  font-size: var(--bs-font-size-sm);
   font-weight: 600;
   color: var(--bs-secondary-color, #666);
   display: inline-flex;

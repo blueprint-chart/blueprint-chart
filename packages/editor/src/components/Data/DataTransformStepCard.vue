@@ -206,7 +206,7 @@ const description = computed(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.6875rem;
+  font-size: var(--bs-font-size-xs);
   font-weight: 700;
   color: var(--bs-secondary-color);
   border-right: 1px solid var(--bs-border-color);
@@ -239,7 +239,7 @@ const description = computed(() => {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  font-size: 0.6875rem;
+  font-size: var(--bs-font-size-xs);
   font-weight: 700;
 
   :deep(svg) {
@@ -295,13 +295,13 @@ const description = computed(() => {
 }
 
 .step-card__name {
-  font-size: 0.75rem;
+  font-size: var(--bs-font-size-sm);
   font-weight: 600;
   color: var(--bs-body-color);
 }
 
 .step-card__desc {
-  font-size: 0.6875rem;
+  font-size: var(--bs-font-size-xs);
   color: var(--bs-secondary-color);
   white-space: nowrap;
   overflow: hidden;

@@ -182,7 +182,7 @@ const benfordDetection = computed(() => {
 }
 
 .data-column-settings__label {
-  font-size: 0.625rem;
+  font-size: var(--bs-font-size-xs);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -201,7 +201,7 @@ const benfordDetection = computed(() => {
 }
 
 .data-column-settings__section-title {
-  font-size: 0.625rem;
+  font-size: var(--bs-font-size-xs);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -221,7 +221,7 @@ const benfordDetection = computed(() => {
   gap: 0.25rem;
   padding: 0.1875rem 0.5rem;
   border-radius: 0.25rem;
-  font-size: 0.6875rem;
+  font-size: var(--bs-font-size-xs);
   font-weight: 600;
 
   svg {

@@ -54,14 +54,14 @@ defineProps<{
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.6875rem;
+  font-size: var(--bs-font-size-xs);
   font-weight: 700;
   flex-shrink: 0;
 }
 
 .code-block__label {
   flex: 1;
-  font-size: 0.75rem;
+  font-size: var(--bs-body-font-size);
   font-weight: 600;
   color: var(--bs-body-color);
 }
@@ -69,7 +69,7 @@ defineProps<{
 .code-block__pre {
   margin: 0;
   padding: 0.75rem;
-  font-size: 0.6875rem;
+  font-size: var(--bs-body-font-size);
   line-height: 1.5;
   overflow-x: auto;
   background: var(--bs-body-bg);

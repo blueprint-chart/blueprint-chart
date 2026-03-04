@@ -201,7 +201,7 @@ function setAggFn(col: string, fn: string) {
 }
 
 .group-by-step__label {
-  font-size: 0.6875rem;
+  font-size: var(--bs-font-size-xs);
   font-weight: 600;
   color: var(--bs-secondary-color);
   text-transform: uppercase;
@@ -218,7 +218,7 @@ function setAggFn(col: string, fn: string) {
   display: flex;
   align-items: center;
   gap: 0.25rem;
-  font-size: 0.8125rem;
+  font-size: var(--bs-font-size-sm);
   color: var(--bs-body-color);
   cursor: pointer;
   padding: 0.1875rem 0.5rem;
@@ -252,7 +252,7 @@ function setAggFn(col: string, fn: string) {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 0.8125rem;
+  font-size: var(--bs-font-size-sm);
 }
 
 .group-by-step__agg-check {
@@ -269,7 +269,7 @@ function setAggFn(col: string, fn: string) {
 }
 
 .group-by-step__agg-fn {
-  font-size: 0.75rem;
+  font-size: var(--bs-font-size-sm);
   padding: 0.125rem 0.375rem;
   border: 1px solid var(--bs-border-color);
   border-radius: var(--bs-border-radius);
@@ -278,7 +278,7 @@ function setAggFn(col: string, fn: string) {
 }
 
 .group-by-step__agg-fn-label {
-  font-size: 0.75rem;
+  font-size: var(--bs-font-size-sm);
   color: var(--bs-secondary-color);
   font-style: italic;
 }

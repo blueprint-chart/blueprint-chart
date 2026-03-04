@@ -168,7 +168,7 @@ function onSelect(sample: ChartSample) {
 
   &--blank {
     color: var(--bs-secondary-color);
-    font-size: 1.25rem;
+    font-size: var(--bs-font-size-lg);
   }
 }
 
@@ -185,7 +185,7 @@ function onSelect(sample: ChartSample) {
   }
 
   small {
-    font-size: 0.75rem;
+    font-size: var(--bs-font-size-sm);
   }
 }
 </style>

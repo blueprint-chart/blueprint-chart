@@ -327,7 +327,7 @@ const heightLabel = computed(() => {
 
   text {
     fill: var(--bc-canvas-dimension-color);
-    font-size: 11px;
+    font-size: var(--bs-font-size-xs);
     font-family: inherit;
   }
 }

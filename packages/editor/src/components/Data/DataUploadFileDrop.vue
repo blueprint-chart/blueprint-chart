@@ -130,21 +130,21 @@ function onFileSelect(e: globalThis.Event) {
 }
 
 .file-drop__title {
-  font-size: 0.875rem;
+  font-size: var(--bs-font-size-md);
   font-weight: 600;
   color: var(--bs-body-color);
   margin-bottom: 0.125rem;
 }
 
 .file-drop__or {
-  font-size: 0.75rem;
+  font-size: var(--bs-font-size-sm);
   color: var(--bs-secondary-color);
   margin-bottom: 0.875rem;
 }
 
 .file-drop__btn {
   padding: 0.4375rem 1.25rem;
-  font-size: 0.8125rem;
+  font-size: var(--bs-font-size-sm);
   font-weight: 600;
   color: var(--bs-body-color);
   background: var(--bs-body-bg);
@@ -168,7 +168,7 @@ function onFileSelect(e: globalThis.Event) {
 }
 
 .file-drop__format-tag {
-  font-size: 0.625rem;
+  font-size: var(--bs-font-size-xs);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;

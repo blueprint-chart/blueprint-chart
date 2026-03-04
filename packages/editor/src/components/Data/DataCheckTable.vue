@@ -92,7 +92,7 @@ const isEmpty = computed(() => displayRows.value.length === 0)
 
   p {
     margin: 0;
-    font-size: 0.875rem;
+    font-size: var(--bs-font-size-md);
   }
 }
 
@@ -145,7 +145,7 @@ const isEmpty = computed(() => displayRows.value.length === 0)
 }
 
 .data-check-table__col-type {
-  font-size: 0.6875rem;
+  font-size: var(--bs-font-size-xs);
   color: var(--bs-secondary-color);
   font-weight: 400;
 }

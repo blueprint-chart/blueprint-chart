@@ -63,7 +63,7 @@ const fullSnippet = computed(() =>
 }
 
 .export-embed-panel__info {
-  font-size: 0.75rem;
+  font-size: var(--bs-font-size-sm);
   color: var(--bs-secondary-color);
   line-height: 1.5;
 }

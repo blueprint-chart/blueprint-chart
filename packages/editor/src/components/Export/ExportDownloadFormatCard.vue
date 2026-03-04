@@ -104,13 +104,13 @@ defineEmits<{
 }
 
 .format-card__label {
-  font-size: 0.8125rem;
+  font-size: var(--bs-font-size-sm);
   font-weight: 600;
   color: var(--bs-body-color);
 }
 
 .format-card__desc {
-  font-size: 0.6875rem;
+  font-size: var(--bs-font-size-xs);
   color: var(--bs-secondary-color);
 }
 

@@ -139,7 +139,7 @@ const fitnessLabel = computed(() => {
 }
 
 .reco-card__title {
-  font-size: 0.75rem;
+  font-size: var(--bs-font-size-sm);
   font-weight: 700;
   color: var(--bs-body-color);
   display: flex;
@@ -148,13 +148,13 @@ const fitnessLabel = computed(() => {
 }
 
 .reco-card__reason {
-  font-size: 0.6875rem;
+  font-size: var(--bs-font-size-xs);
   color: var(--bs-secondary-color);
   margin-top: 0.125rem;
 }
 
 .reco-card__badge {
-  font-size: 0.5625rem;
+  font-size: var(--bs-font-size-xs);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;

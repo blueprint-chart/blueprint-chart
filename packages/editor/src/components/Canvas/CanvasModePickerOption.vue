@@ -53,7 +53,7 @@ defineEmits<{
 }
 
 .canvas-mode-picker-option__label {
-  font-size: 0.625rem;
+  font-size: var(--bs-font-size-xs);
   font-weight: 500;
   line-height: 1;
   white-space: nowrap;

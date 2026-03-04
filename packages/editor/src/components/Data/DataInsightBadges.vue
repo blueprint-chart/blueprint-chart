@@ -104,13 +104,13 @@ const benfordTooltip = computed(() => {
   gap: 0.25rem;
   padding: 0.25rem 0.5rem;
   border-radius: 0.25rem;
-  font-size: 0.75rem;
+  font-size: var(--bs-font-size-sm);
   font-weight: 500;
   white-space: nowrap;
 }
 
 .data-insight-badge__icon {
-  font-size: 0.6875rem;
+  font-size: var(--bs-font-size-xs);
 }
 
 .data-insight-badge--shape {

@@ -107,7 +107,7 @@ const positionStyle = computed(() => ({
   }
 
   &__title {
-    font-size: 0.8125rem;
+    font-size: var(--bs-font-size-sm);
     font-weight: 600;
     color: var(--bs-body-color);
     display: flex;
