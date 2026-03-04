@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from 'vitest'
-import { getTransitionDuration } from './motion'
+import { getTransitionDuration, getDefaultTransitionMs, DEFAULT_TRANSITION_MS } from './motion'
 
 describe('getTransitionDuration', () => {
   afterEach(() => {
@@ -33,5 +33,31 @@ describe('getTransitionDuration', () => {
     vi.stubGlobal('window', { matchMedia: matchMediaSpy })
     getTransitionDuration(100)
     expect(matchMediaSpy).toHaveBeenCalledWith('(prefers-reduced-motion: reduce)')
+  })
+})
+
+describe('DEFAULT_TRANSITION_MS', () => {
+  it('equals 500', () => {
+    expect(DEFAULT_TRANSITION_MS).toBe(500)
+  })
+})
+
+describe('getDefaultTransitionMs', () => {
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  it('returns 500 when no motion preference is set', () => {
+    vi.stubGlobal('window', {
+      matchMedia: vi.fn().mockReturnValue({ matches: false }),
+    })
+    expect(getDefaultTransitionMs()).toBe(500)
+  })
+
+  it('returns 0 when prefers-reduced-motion: reduce is active', () => {
+    vi.stubGlobal('window', {
+      matchMedia: vi.fn().mockReturnValue({ matches: true }),
+    })
+    expect(getDefaultTransitionMs()).toBe(0)
   })
 })
