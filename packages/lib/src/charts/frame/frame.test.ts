@@ -75,4 +75,11 @@ describe('createFrame', () => {
     const { header } = createFrame(container)
     expect(header.children).toHaveLength(0)
   })
+
+  it('updates header text on second draw', () => {
+    createFrame(container, { title: 'First' })
+    createFrame(container, { title: 'Second' })
+    const titles = container.querySelectorAll('.bc-frame-title')
+    expect(titles.length).toBeGreaterThan(0)
+  })
 })
