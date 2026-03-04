@@ -7,10 +7,7 @@
       <h4 class="mb-0">
         Your Charts
       </h4>
-      <HomeSampleDropdown
-        @blank="handleBlank"
-        @select="handleSample"
-      />
+      <HomeSampleDropdown @blank="handleBlank" />
     </div>
 
     <div
@@ -37,21 +34,14 @@ import { useRouter } from 'vue-router'
 import { useChartSession } from '@/composables/useChartSession'
 import { getThumbnail, saveThumbnail, renderThumbnailFromPayload } from '@/composables/useChartThumbnail'
 import type { SavedChartSummary } from '@/composables/useChartSession'
-import type { ChartSample } from '@blueprint-chart/lib'
 import HomeChartCard from './HomeChartCard.vue'
 import HomeSampleDropdown from './HomeSampleDropdown.vue'
 
 const router = useRouter()
-const { listSavedCharts, deleteChart, createSession, loadSample } = useChartSession()
+const { listSavedCharts, deleteChart } = useChartSession()
 
 function handleBlank() {
   router.push('/new')
-}
-
-function handleSample(sample: ChartSample) {
-  const id = createSession()
-  loadSample(sample)
-  router.push(`/edit/${id}`)
 }
 
 const charts = ref<SavedChartSummary[]>([])
