@@ -44,4 +44,15 @@ describe('bar-multi', () => {
     const legend = container.querySelector('.bc-legend')
     expect(legend).toBeNull()
   })
+
+  it('clips bars to the chart area', () => {
+    render(container, data)
+    const clipPath = container.querySelector('clipPath')
+    expect(clipPath).not.toBeNull()
+    const barGroup = clipPath!.id
+      ? container.querySelector(`[clip-path="url(#${clipPath!.id})"]`)
+      : null
+    expect(barGroup).not.toBeNull()
+    expect(barGroup!.querySelector('.bc-bar')).not.toBeNull()
+  })
 })
