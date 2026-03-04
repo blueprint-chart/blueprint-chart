@@ -2,6 +2,7 @@ import { computed, ref } from 'vue'
 import { useChartConfig } from './useChartConfig'
 import { useChartTypeOptions } from './useChartTypeOptions'
 import { useDataTransforms } from './useDataTransforms'
+import { useScenes } from './useScenes'
 import { useDataTable } from './useDataTable'
 import { getChartOptions } from '@blueprint-chart/lib'
 import type { RangeAnnotationConfig, FreeAnnotationConfig } from '@blueprint-chart/lib'
@@ -33,33 +34,35 @@ function serializeMaxWidth(v: number | string): string {
 
 export function useDslOutput() {
   const config = useChartConfig()
-  const { currentOptions } = useChartTypeOptions()
+  const base = config._base
+  const { baseOptions } = useChartTypeOptions()
   const { steps: transformSteps } = useDataTransforms()
+  const { scenes } = useScenes()
   const dataTable = useDataTable()
   const compact = ref(false)
 
   const dsl = computed(() => {
-    let output = `chart ${config.chartType.value} {\n`
+    let output = `chart ${base.chartType.value} {\n`
 
-    if (config.title.value) {
-      output += `  title = "${config.title.value}"\n`
+    if (base.title.value) {
+      output += `  title = "${base.title.value}"\n`
     }
-    if (config.description.value) {
-      output += `  description = "${config.description.value}"\n`
+    if (base.description.value) {
+      output += `  description = "${base.description.value}"\n`
     }
-    if (config.byline.value) {
-      output += `  byline = "${config.byline.value}"\n`
+    if (base.byline.value) {
+      output += `  byline = "${base.byline.value}"\n`
     }
-    if (config.source.value) {
-      output += `  source = "${config.source.value}"\n`
+    if (base.source.value) {
+      output += `  source = "${base.source.value}"\n`
     }
-    if (config.sourceUrl.value) {
-      output += `  sourceUrl = "${config.sourceUrl.value}"\n`
+    if (base.sourceUrl.value) {
+      output += `  sourceUrl = "${base.sourceUrl.value}"\n`
     }
-    const optionDefs = getChartOptions(config.chartType.value)
+    const optionDefs = getChartOptions(base.chartType.value)
     const supportedKeys = optionDefs.map(d => d.key)
     const defaultMap = new Map(optionDefs.filter(d => d.default !== undefined).map(d => [d.key, String(d.default)]))
-    const opts = currentOptions.value
+    const opts = baseOptions.value
     for (const key of supportedKeys) {
       const val = opts[key as keyof typeof opts]
       if (val === undefined) {
@@ -79,9 +82,9 @@ export function useDslOutput() {
       }
     }
 
-    if (config.data.value) {
+    if (base.data.value) {
       output += '\n  data {\n'
-      const lines = config.data.value
+      const lines = base.data.value
         .split('\n')
         .map(l => l.trim())
         .filter(Boolean)
@@ -89,7 +92,7 @@ export function useDslOutput() {
       output += '\n  }\n'
     }
 
-    for (const h of config.highlights.value) {
+    for (const h of base.highlights.value) {
       if (!h.target) {
         continue
       }
@@ -105,7 +108,7 @@ export function useDslOutput() {
       output += `  }\n`
     }
 
-    for (const af of config.areaFills.value) {
+    for (const af of base.areaFills.value) {
       if (!af.from || !af.to) {
         continue
       }
@@ -129,7 +132,7 @@ export function useDslOutput() {
       output += `  }\n`
     }
 
-    for (const a of config.annotations.value) {
+    for (const a of base.annotations.value) {
       const kind = a.kind ?? 'point'
       if (kind === 'point') {
         if (!('target' in a) || !a.target) {
@@ -292,7 +295,7 @@ export function useDslOutput() {
       output += `  }\n`
     }
 
-    if (config.sort.value !== 'none') {
+    if (base.sort.value !== 'none') {
       const cols = dataTable.displayColumns.value
       const valueCols = cols.length > 2 ? cols.slice(1) : cols.length > 1 ? [cols[1]] : [cols[0] ?? '']
       output += `\n  transform sort {\n`
@@ -303,11 +306,11 @@ export function useDslOutput() {
       else {
         output += `    column = "${valueCols[0]}"\n`
       }
-      output += `    direction = ${config.sort.value}\n`
+      output += `    direction = ${base.sort.value}\n`
       output += `  }\n`
     }
 
-    for (const s of config.seriesOverrides.value) {
+    for (const s of base.seriesOverrides.value) {
       if (!s.name) {
         continue
       }
@@ -367,6 +370,117 @@ export function useDslOutput() {
       if (s.symbolOpacity !== undefined) {
         output += `    symbolOpacity = ${
           s.symbolOpacity}\n`
+      }
+      output += `  }\n`
+    }
+
+    for (const scene of scenes.value) {
+      if (scene.name !== null) {
+        output += `\n  scene "${scene.name}" {\n`
+      }
+      else {
+        output += `\n  scene {\n`
+      }
+      if (scene.chartType) {
+        output += `    type = ${scene.chartType}\n`
+      }
+      if (scene.properties) {
+        for (const [k, v] of Object.entries(scene.properties)) {
+          if (typeof v === 'string') {
+            output += `    ${k} = "${v}"\n`
+          }
+          else {
+            output += `    ${k} = ${v}\n`
+          }
+        }
+      }
+      if (scene.chartTypeOptions) {
+        const sceneChartType = scene.chartType || base.chartType.value
+        const sceneOptDefs = getChartOptions(sceneChartType)
+        const sceneSupportedKeys = sceneOptDefs.map(d => d.key)
+        for (const key of sceneSupportedKeys) {
+          const val = scene.chartTypeOptions[key as keyof typeof scene.chartTypeOptions]
+          if (val === undefined) {
+            continue
+          }
+          if (key === 'colors' && Array.isArray(val) && val.length > 0) {
+            output += `    colors = "${val.join(', ')}"\n`
+          }
+          else if (typeof val === 'boolean') {
+            output += `    ${key} = ${val}\n`
+          }
+          else if (typeof val === 'string' && val !== '') {
+            output += `    ${key} = "${val}"\n`
+          }
+        }
+      }
+      if (scene.data) {
+        output += `\n    data {\n`
+        const lines = scene.data.split('\n').map(l => l.trim()).filter(Boolean)
+        output += lines.map(l => `      ${l}`).join('\n')
+        output += `\n    }\n`
+      }
+      if (scene.highlights) {
+        for (const h of scene.highlights) {
+          if (!h.target) {
+            continue
+          }
+          output += `\n    highlight "${h.target}" {\n`
+          if (h.color) {
+            output += `      color = "${h.color}"\n`
+          }
+          if (h.label) {
+            output += `      label = "${h.label}"\n`
+          }
+          output += `    }\n`
+        }
+      }
+      if (scene.areaFills) {
+        for (const af of scene.areaFills) {
+          if (!af.from || !af.to) {
+            continue
+          }
+          output += `\n    areafill "${af.from}" "${af.to}" {\n`
+          if (af.color) {
+            output += `      color = "${af.color}"\n`
+          }
+          output += `    }\n`
+        }
+      }
+      if (scene.annotations) {
+        for (const a of scene.annotations) {
+          const kind = a.kind ?? 'point'
+          if (kind === 'point' && 'target' in a && a.target) {
+            output += `\n    annotation "${a.target}" {\n`
+            if (a.text) {
+              output += `      text = "${a.text}"\n`
+            }
+            output += `    }\n`
+          }
+        }
+      }
+      if (scene.seriesOverrides) {
+        for (const s of scene.seriesOverrides) {
+          if (!s.name) {
+            continue
+          }
+          output += `\n    series "${s.name}" {\n`
+          if (s.color) {
+            output += `      color = "${s.color}"\n`
+          }
+          output += `    }\n`
+        }
+      }
+      if (scene.transforms) {
+        for (const t of scene.transforms) {
+          output += `\n    transform ${t.type} {\n`
+          for (const [k, v] of Object.entries(t.config)) {
+            if (v !== undefined && v !== '') {
+              output += `      ${k} = "${v}"\n`
+            }
+          }
+          output += `    }\n`
+        }
       }
       output += `  }\n`
     }
