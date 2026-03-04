@@ -81,3 +81,7 @@ export { default as ListSeriesRow } from './components/List/ListSeriesRow/ListSe
 
 export { default as SceneTimeline } from './components/Scene/SceneTimeline/SceneTimeline.vue'
 export { default as SceneTimelineItem } from './components/Scene/SceneTimelineItem/SceneTimelineItem.vue'
+
+export { default as ScenePlayerProgressBar } from './components/Scene/ScenePlayer/ScenePlayerProgressBar.vue'
+export { default as ScenePlayerDotStepper } from './components/Scene/ScenePlayer/ScenePlayerDotStepper.vue'
+export { default as ScenePlayerMinimalArrows } from './components/Scene/ScenePlayer/ScenePlayerMinimalArrows.vue'
