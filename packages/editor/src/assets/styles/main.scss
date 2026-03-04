@@ -3,6 +3,13 @@
 
 :root,
 [data-bs-theme="light"] {
+  // Syntax highlighting (DSL editor + embed code)
+  --bc-syn-keyword: #2563A0;
+  --bc-syn-string: #2D8659;
+  --bc-syn-number: #8B5E00;
+  --bc-syn-identifier: #555;
+  --bc-syn-punct: #888;
+  --bc-syn-comment: #999;
   --bc-axis-color: #333;
   --bc-grid-color: #e0e0e0;
   --bc-text-color: #555;
@@ -33,6 +40,14 @@
 }
 
 [data-bs-theme="dark"] {
+  // Syntax highlighting (DSL editor + embed code)
+  --bc-syn-keyword: #6CA6D6;
+  --bc-syn-string: #6BBF8B;
+  --bc-syn-number: #D4A63A;
+  --bc-syn-identifier: #b0b0b0;
+  --bc-syn-punct: #777;
+  --bc-syn-comment: #666;
+
   --bc-axis-color: #ccc;
   --bc-grid-color: #444;
   --bc-text-color: #aaa;
