@@ -2,9 +2,11 @@ import { describe, it, expect, beforeEach } from 'vitest'
 import { useChartConfig } from './useChartConfig'
 import { useDslOutput } from './useDslOutput'
 import { useChartTypeOptions } from './useChartTypeOptions'
+import { useScenes } from './useScenes'
 
 describe('useDslOutput', () => {
   beforeEach(() => {
+    useScenes().reset()
     useChartConfig().reset()
     useChartTypeOptions().reset()
   })
@@ -199,6 +201,74 @@ describe('useDslOutput', () => {
       expect(dsl.value).toContain('color = "#00ff00"')
       expect(dsl.value).not.toContain('lineWidth')
       expect(dsl.value).not.toContain('dash = ')
+    })
+  })
+
+  describe('scene serialization', () => {
+    it('serializes scene chartTypeOptions', () => {
+      const config = useChartConfig()
+      config.chartType.value = 'bar-vertical'
+
+      const scenes = useScenes()
+      scenes.add()
+      scenes.update(0, {
+        chartTypeOptions: { colors: ['#ff0000', '#00ff00'] },
+      })
+
+      const { dsl } = useDslOutput()
+      expect(dsl.value).toContain('scene {')
+      expect(dsl.value).toContain('colors = "#ff0000, #00ff00"')
+    })
+
+    it('serializes boolean scene chartTypeOptions', () => {
+      const config = useChartConfig()
+      config.chartType.value = 'bar-vertical'
+
+      const scenes = useScenes()
+      scenes.add()
+      scenes.update(0, {
+        chartTypeOptions: { showVerticalTicks: false },
+      })
+
+      const { dsl } = useDslOutput()
+      expect(dsl.value).toContain('showVerticalTicks = false')
+    })
+
+    it('serializes string scene chartTypeOptions', () => {
+      const config = useChartConfig()
+      config.chartType.value = 'bar-vertical'
+
+      const scenes = useScenes()
+      scenes.add()
+      scenes.update(0, {
+        chartTypeOptions: { colorPalette: 'viridis' },
+      })
+
+      const { dsl } = useDslOutput()
+      expect(dsl.value).toContain('colorPalette = "viridis"')
+    })
+
+    it('does not leak scene values into base chart section', () => {
+      const config = useChartConfig()
+      config.chartType.value = 'bar-vertical'
+      config.title.value = 'Base Title'
+
+      const scenes = useScenes()
+      scenes.add()
+      scenes.update(0, {
+        properties: { title: 'Scene Title' },
+        highlights: [{ target: 'A', color: '#f00', label: '' }],
+      })
+      scenes.setActive(0)
+
+      const { dsl } = useDslOutput()
+      // Base section should show base title, not scene title
+      const lines = dsl.value.split('\n')
+      const titleLine = lines.find(l => l.includes('title = ') && !l.includes('scene'))
+      expect(titleLine).toContain('Base Title')
+      // Base section should not have scene highlights
+      const baseSection = dsl.value.split('scene {')[0]
+      expect(baseSection).not.toContain('highlight "A"')
     })
   })
 })
