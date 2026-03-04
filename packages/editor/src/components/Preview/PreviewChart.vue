@@ -4,6 +4,21 @@
     class="w-100 h-100"
     :style="cvdFilterStyle"
   />
+  <Teleport
+    v-if="playerTarget && showPlayer"
+    :to="playerTarget"
+  >
+    <component
+      :is="playerComponent"
+      :total="totalScenes"
+      :current="currentScene"
+      :playing="playing"
+      :position="layout.playerPosition"
+      @update:current="onSceneChange"
+      @play="startPlayback"
+      @pause="stopPlayback"
+    />
+  </Teleport>
   <svg
     v-if="cvdMode"
     class="position-absolute"
@@ -16,12 +31,19 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch, onMounted, onBeforeUnmount, useTemplateRef } from 'vue'
+import { computed, ref, watch, onMounted, onBeforeUnmount, useTemplateRef, type Component } from 'vue'
 import { useChartPreview } from '@/composables/useChartPreview'
 import { useCvdMode } from '@/composables/useCvdMode'
 import { usePreviewContainer } from '@/composables/usePreviewContainer'
 import { useEditorPanel } from '@/composables/useEditorPanel'
+import { useChartConfig } from '@/composables/useChartConfig'
+import { useScenes } from '@/composables/useScenes'
 import { getCvdFilterId, createCvdSvgFilter, type CvdType } from '@blueprint-chart/lib'
+import {
+  ScenePlayerProgressBar,
+  ScenePlayerDotStepper,
+  ScenePlayerMinimalArrows,
+} from '@blueprint-chart/ui'
 
 const containerRef = ref(null)
 useChartPreview(containerRef)
@@ -74,5 +96,68 @@ const cvdFilterStyle = computed(() => {
     return undefined
   }
   return { filter: `url(#${getCvdFilterId(cvdMode.value as CvdType)})` }
+})
+
+// Scene player
+const { layout } = useChartConfig()
+const { scenes, activeIndex, playing, setActive, startPlayback, stopPlayback } = useScenes()
+
+const playerTarget = ref<HTMLElement | null>(null)
+
+const playerComponentMap: Record<string, Component> = {
+  'progress-bar': ScenePlayerProgressBar,
+  'dot-stepper': ScenePlayerDotStepper,
+  'minimal-arrows': ScenePlayerMinimalArrows,
+}
+
+const playerComponent = computed(() => playerComponentMap[layout.value.playerType])
+
+const totalScenes = computed(() => scenes.value.length + 1)
+
+const currentScene = computed(() => activeIndex.value + 2)
+
+const showPlayer = computed(() =>
+  scenes.value.length >= 1 && layout.value.playerType !== 'none',
+)
+
+function onSceneChange(scene: number) {
+  // scene is 1-based: 1 = base, 2 = first override, etc.
+  setActive(scene - 2)
+}
+
+// Observe the container for .bc-frame appearing
+let observer: MutationObserver | null = null
+
+function findFrame() {
+  const el = containerRef.value as HTMLElement | null
+  if (!el) {
+    return null
+  }
+  return el.querySelector<HTMLElement>('.bc-frame')
+}
+
+watch(containerRef, (el) => {
+  if (observer) {
+    observer.disconnect()
+    observer = null
+  }
+  if (!el) {
+    playerTarget.value = null
+    return
+  }
+  // Check immediately
+  playerTarget.value = findFrame()
+  // Observe for changes
+  observer = new MutationObserver(() => {
+    playerTarget.value = findFrame()
+  })
+  observer.observe(el as unknown as Element, { childList: true, subtree: true })
+}, { immediate: true })
+
+onBeforeUnmount(() => {
+  if (observer) {
+    observer.disconnect()
+    observer = null
+  }
 })
 </script>
