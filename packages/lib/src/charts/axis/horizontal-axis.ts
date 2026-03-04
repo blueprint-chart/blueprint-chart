@@ -3,6 +3,7 @@ import 'd3-transition'
 import { D3Blueprint } from 'd3-blueprint'
 import type { AxisOptions } from '../types'
 import { detectDates, type DateGranularity } from '../date-parse'
+import { getDefaultTransitionMs } from '../motion'
 
 interface AxisDatum {
   placeholder: true
@@ -113,7 +114,50 @@ class HorizontalAxisChart extends D3Blueprint<AxisDatum[]> {
       insert: sel => sel.append('g').attr('class', 'bc-axis bc-axis-horizontal'),
       events: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        enter: (sel: any) => {
+        'merge:transition': (sel: any) => {
+          const scale = this.config('scale') as d3.AxisScale<string | d3.NumberValue>
+          const position = this.config('tickPosition') as string
+          const height = this.config('height') as number
+          const axisFn = position === 'above'
+            ? d3.axisTop(scale)
+            : d3.axisBottom(scale)
+          if (!this.config('showTicks')) {
+            axisFn.tickSizeOuter(0)
+          }
+          let ticks = this.config('ticks') as (string & d3.NumberValue)[] | null
+          const availableWidth = this.config('width') as number
+          const rawScale = this.config('scale') as AnyXScale
+          if (!ticks && availableWidth > 0) {
+            if (isBandScale(rawScale)) {
+              const domain = rawScale.domain()
+              if (domain.length > Math.floor(availableWidth / MIN_LABEL_SPACING)) {
+                ticks = thinLabels(domain, availableWidth) as (string & d3.NumberValue)[]
+              }
+            }
+            else {
+              const maxTicks = Math.max(2, Math.floor(availableWidth / MIN_LABEL_SPACING))
+              axisFn.ticks(maxTicks)
+            }
+          }
+          if (ticks) {
+            axisFn.tickValues(ticks)
+          }
+          const fmt = this.config('numberFormat') as string | null
+          const labels = this.config('labels') as string[]
+          const formatter = buildTickFormatter(fmt, labels)
+          if (formatter) {
+            axisFn.tickFormat(formatter)
+          }
+          const translateY = position === 'above' ? 0 : height
+          sel.attr('transform', `translate(0,${translateY})`)
+          sel.duration(getDefaultTransitionMs()).call(axisFn)
+        },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        'exit': (sel: any) => {
+          sel.remove()
+        },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        'enter': (sel: any) => {
           const scale = this.config('scale') as d3.AxisScale<string | d3.NumberValue>
           const position = this.config('tickPosition') as string
           const labelPos = this.config('labelPosition') as string

@@ -2,6 +2,7 @@ import * as d3 from 'd3'
 import 'd3-transition'
 import { D3Blueprint } from 'd3-blueprint'
 import type { AxisOptions } from '../types'
+import { getDefaultTransitionMs } from '../motion'
 
 interface AxisDatum {
   placeholder: true
@@ -27,7 +28,29 @@ class VerticalAxisChart extends D3Blueprint<AxisDatum[]> {
       insert: sel => sel.append('g').attr('class', 'bc-axis bc-axis-vertical'),
       events: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        enter: (sel: any) => {
+        'merge:transition': (sel: any) => {
+          const scale = this.config('scale') as d3.AxisScale<string | d3.NumberValue>
+          const direction = this.config('direction') as string
+          const axisFn = direction === 'right' ? d3.axisRight(scale) : d3.axisLeft(scale)
+          if (!this.config('showTicks')) {
+            axisFn.tickSizeOuter(0)
+          }
+          const ticks = this.config('ticks') as number[] | null
+          if (ticks) {
+            axisFn.tickValues(ticks as (string & d3.NumberValue)[])
+          }
+          const fmt = this.config('numberFormat') as string | null
+          if (fmt) {
+            axisFn.tickFormat(d3.format(fmt) as (d: string | d3.NumberValue) => string)
+          }
+          sel.duration(getDefaultTransitionMs()).call(axisFn)
+        },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        'exit': (sel: any) => {
+          sel.remove()
+        },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        'enter': (sel: any) => {
           const scale = this.config('scale') as d3.AxisScale<string | d3.NumberValue>
           const direction = this.config('direction') as string
           const labelPos = this.config('labelPosition') as string
