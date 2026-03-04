@@ -18,18 +18,27 @@ import IPhFlowArrow from '~icons/ph/flow-arrow'
 import IPhFileText from '~icons/ph/file-text'
 import IPhLightbulb from '~icons/ph/lightbulb'
 
-defineProps<{
+import { computed } from 'vue'
+
+const props = withDefaults(defineProps<{
   horizontal?: boolean
-}>()
+  disabledTabs?: string[]
+}>(), {
+  disabledTabs: () => [],
+})
 
 const { dataPanelTab, panelMode, openDataPanel, toggleMode } = useEditorPanel()
 
-const items: { value: string, icon: Component, tooltip: string }[] = [
+const allItems: { value: string, icon: Component, tooltip: string }[] = [
   { value: 'column', icon: IPhColumns, tooltip: 'Columns' },
   { value: 'transforms', icon: IPhFlowArrow, tooltip: 'Transforms' },
   { value: 'parsing', icon: IPhFileText, tooltip: 'Parsing' },
   { value: 'reco', icon: IPhLightbulb, tooltip: 'Recommendations' },
 ]
+
+const items = computed(() =>
+  allItems.filter(i => !props.disabledTabs.includes(i.value)),
+)
 
 function onSelect(tab: string | number) {
   openDataPanel(tab as DataPanelTab)

@@ -16,16 +16,19 @@
         rx="2"
       /><path d="M3 9h18M9 21V9" /></svg>
     </span>
-    <span>Raw Data</span>
+    <span>{{ label }}</span>
     <span class="source-block__meta">{{ columns }} cols · {{ rows }} rows</span>
   </div>
 </template>
 
 <script setup lang="ts">
-defineProps<{
+withDefaults(defineProps<{
   columns: number
   rows: number
-}>()
+  label?: string
+}>(), {
+  label: 'Raw Data',
+})
 </script>
 
 <style scoped lang="scss">
