@@ -18,7 +18,7 @@ const SIMPLE_CHART = `chart horizontal-bar {
   }
 }`
 
-const CHART_WITH_STEPS = `chart horizontal-bar {
+const CHART_WITH_SCENES = `chart horizontal-bar {
   title = "Couverture médiatique en 2025"
   sort = descending
 
@@ -29,7 +29,7 @@ const CHART_WITH_STEPS = `chart horizontal-bar {
     "LeMonde"    = 75%
   }
 
-  step "Le leader" {
+  scene "Le leader" {
     sort = descending
 
     highlight "LeMonde" {
@@ -38,7 +38,7 @@ const CHART_WITH_STEPS = `chart horizontal-bar {
     }
   }
 
-  step "Le moins bon" {
+  scene "Le moins bon" {
     sort = ascending
 
     highlight "Guardian" {
@@ -47,7 +47,7 @@ const CHART_WITH_STEPS = `chart horizontal-bar {
     }
   }
 
-  step "Année suivante" {
+  scene "Année suivante" {
     title = "Couverture médiatique en 2026"
 
     data {
@@ -115,45 +115,45 @@ describe('parser', () => {
       })
     })
 
-    it('has no steps', () => {
+    it('has no scenes', () => {
       const ast = parse(SIMPLE_CHART)
-      expect(ast.steps).toHaveLength(0)
+      expect(ast.scenes).toHaveLength(0)
     })
   })
 
-  describe('chart with steps', () => {
-    it('parses three steps', () => {
-      const ast = parse(CHART_WITH_STEPS)
-      expect(ast.steps).toHaveLength(3)
+  describe('chart with scenes', () => {
+    it('parses three scenes', () => {
+      const ast = parse(CHART_WITH_SCENES)
+      expect(ast.scenes).toHaveLength(3)
     })
 
-    it('parses step names', () => {
-      const ast = parse(CHART_WITH_STEPS)
-      expect(ast.steps[0].name).toBe('Le leader')
-      expect(ast.steps[1].name).toBe('Le moins bon')
-      expect(ast.steps[2].name).toBe('Année suivante')
+    it('parses scene names', () => {
+      const ast = parse(CHART_WITH_SCENES)
+      expect(ast.scenes[0].name).toBe('Le leader')
+      expect(ast.scenes[1].name).toBe('Le moins bon')
+      expect(ast.scenes[2].name).toBe('Année suivante')
     })
 
-    it('parses step properties', () => {
-      const ast = parse(CHART_WITH_STEPS)
-      expect(ast.steps[0].properties).toEqual([
+    it('parses scene properties', () => {
+      const ast = parse(CHART_WITH_SCENES)
+      expect(ast.scenes[0].properties).toEqual([
         { type: 'property', key: 'sort', value: 'descending', isPercentage: false },
       ])
     })
 
-    it('parses highlights inside steps', () => {
-      const ast = parse(CHART_WITH_STEPS)
-      expect(ast.steps[0].highlights).toHaveLength(1)
-      expect(ast.steps[0].highlights[0].target).toBe('LeMonde')
-      expect(ast.steps[1].highlights).toHaveLength(1)
-      expect(ast.steps[1].highlights[0].target).toBe('Guardian')
+    it('parses highlights inside scenes', () => {
+      const ast = parse(CHART_WITH_SCENES)
+      expect(ast.scenes[0].highlights).toHaveLength(1)
+      expect(ast.scenes[0].highlights[0].target).toBe('LeMonde')
+      expect(ast.scenes[1].highlights).toHaveLength(1)
+      expect(ast.scenes[1].highlights[0].target).toBe('Guardian')
     })
 
-    it('parses data inside steps', () => {
-      const ast = parse(CHART_WITH_STEPS)
-      expect(ast.steps[2].data).not.toBeNull()
-      expect(ast.steps[2].data!.entries).toHaveLength(4)
-      expect(ast.steps[2].data!.entries[0]).toEqual({
+    it('parses data inside scenes', () => {
+      const ast = parse(CHART_WITH_SCENES)
+      expect(ast.scenes[2].data).not.toBeNull()
+      expect(ast.scenes[2].data!.entries).toHaveLength(4)
+      expect(ast.scenes[2].data!.entries[0]).toEqual({
         type: 'property',
         key: '20 Minutes',
         value: 51,
@@ -161,9 +161,37 @@ describe('parser', () => {
       })
     })
 
-    it('has no data in steps without data block', () => {
-      const ast = parse(CHART_WITH_STEPS)
-      expect(ast.steps[0].data).toBeNull()
+    it('has no data in scenes without data block', () => {
+      const ast = parse(CHART_WITH_SCENES)
+      expect(ast.scenes[0].data).toBeNull()
+    })
+
+    it('parses scene with no name', () => {
+      const ast = parse('chart bar {\n  scene {\n    title = "unnamed"\n  }\n}')
+      expect(ast.scenes).toHaveLength(1)
+      expect(ast.scenes[0].name).toBeNull()
+      expect(ast.scenes[0].properties).toHaveLength(1)
+    })
+
+    it('parses scene with series', () => {
+      const ast = parse('chart line {\n  scene "S1" {\n    series "Revenue" {\n      color = "#f00"\n    }\n  }\n}')
+      expect(ast.scenes).toHaveLength(1)
+      expect(ast.scenes[0].series).toHaveLength(1)
+      expect(ast.scenes[0].series[0].name).toBe('Revenue')
+    })
+
+    it('parses scene with transforms', () => {
+      const ast = parse('chart line {\n  scene "S1" {\n    transform cumulative {\n      enabled = true\n    }\n  }\n}')
+      expect(ast.scenes).toHaveLength(1)
+      expect(ast.scenes[0].transforms).toHaveLength(1)
+      expect(ast.scenes[0].transforms[0].transformType).toBe('cumulative')
+    })
+
+    it('accepts backward-compatible "step" keyword', () => {
+      const ast = parse('chart bar {\n  step "Old" {\n    title = "compat"\n  }\n}')
+      expect(ast.scenes).toHaveLength(1)
+      expect(ast.scenes[0].type).toBe('scene')
+      expect(ast.scenes[0].name).toBe('Old')
     })
   })
 
@@ -190,10 +218,6 @@ describe('parser', () => {
 
     it('throws on missing highlight target', () => {
       expect(() => parse('chart bar { highlight { } }')).toThrow(/Expected/)
-    })
-
-    it('throws on missing step name', () => {
-      expect(() => parse('chart bar { step { } }')).toThrow(/Expected/)
     })
 
     it('includes line and column in error', () => {
@@ -269,7 +293,7 @@ describe('parser', () => {
       expect(ast.properties).toHaveLength(0)
       expect(ast.data).toBeNull()
       expect(ast.highlights).toHaveLength(0)
-      expect(ast.steps).toHaveLength(0)
+      expect(ast.scenes).toHaveLength(0)
     })
 
     it('parses integer percentage values', () => {

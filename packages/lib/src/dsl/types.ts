@@ -50,15 +50,20 @@ export interface SeriesNode {
   properties: PropertyNode[]
 }
 
-export interface StepNode {
-  type: 'step'
-  name: string
+export interface SceneNode {
+  type: 'scene'
+  name: string | null
   properties: PropertyNode[]
   data: DataNode | null
   highlights: HighlightNode[]
   areaFills: AreaFillNode[]
   annotations: AnnotationNode[]
+  series: SeriesNode[]
+  transforms: TransformNode[]
 }
+
+/** @deprecated Use SceneNode instead */
+export type StepNode = SceneNode
 
 export interface TransformNode {
   type: 'transform'
@@ -75,6 +80,6 @@ export interface ChartNode {
   areaFills: AreaFillNode[]
   annotations: AnnotationNode[]
   series: SeriesNode[]
-  steps: StepNode[]
+  scenes: SceneNode[]
   transforms: TransformNode[]
 }

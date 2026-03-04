@@ -7,7 +7,7 @@ function collectBody(members) {
     areaFills: [],
     annotations: [],
     series: [],
-    steps: [],
+    scenes: [],
     transforms: [],
   };
   for (const m of members) {
@@ -18,20 +18,22 @@ function collectBody(members) {
       case 'areafill':   result.areaFills.push(m);  break;
       case 'annotation': result.annotations.push(m);break;
       case 'series':     result.series.push(m);     break;
-      case 'step':       result.steps.push(m);      break;
+      case 'scene':      result.scenes.push(m);     break;
       case 'transform':  result.transforms.push(m); break;
     }
   }
   return result;
 }
 
-function collectStepBody(members) {
+function collectSceneBody(members) {
   const result = {
     properties: [],
     data: null,
     highlights: [],
     areaFills: [],
     annotations: [],
+    series: [],
+    transforms: [],
   };
   for (const m of members) {
     switch (m.type) {
@@ -40,6 +42,8 @@ function collectStepBody(members) {
       case 'highlight':  result.highlights.push(m); break;
       case 'areafill':   result.areaFills.push(m);  break;
       case 'annotation': result.annotations.push(m);break;
+      case 'series':     result.series.push(m);     break;
+      case 'transform':  result.transforms.push(m); break;
     }
   }
   return result;
@@ -59,13 +63,13 @@ Chart
       areaFills: body.areaFills,
       annotations: body.annotations,
       series: body.series,
-      steps: body.steps,
+      scenes: body.scenes,
       transforms: body.transforms,
     };
   }
 
 ChartMember
-  = _ m:(DataBlock / Highlight / AreaFill / RangeAnnotation / NoteAnnotation / Annotation / Series / Step / Transform / Property) _
+  = _ m:(DataBlock / Highlight / AreaFill / RangeAnnotation / NoteAnnotation / Annotation / Series / Scene / Transform / Property) _
   { return m; }
 
 DataBlock
@@ -106,18 +110,20 @@ Series
   = "series" __ name:String _ "{" _ props:BlockProperty* _ "}"
   { return { type: 'series', name, properties: props }; }
 
-Step
-  = "step" __ name:String _ "{" _ members:StepMember* _ "}"
+Scene
+  = ("scene" / "step") __ name:String? _ "{" _ members:SceneMember* _ "}"
   {
-    const body = collectStepBody(members);
+    const body = collectSceneBody(members);
     return {
-      type: 'step',
-      name,
+      type: 'scene',
+      name: name ?? null,
       properties: body.properties,
       data: body.data,
       highlights: body.highlights,
       areaFills: body.areaFills,
       annotations: body.annotations,
+      series: body.series,
+      transforms: body.transforms,
     };
   }
 
@@ -125,8 +131,8 @@ Transform
   = "transform" __ transformType:Identifier _ "{" _ props:BlockProperty* _ "}"
   { return { type: 'transform', transformType, properties: props }; }
 
-StepMember
-  = _ m:(DataBlock / Highlight / AreaFill / RangeAnnotation / NoteAnnotation / Annotation / Property) _
+SceneMember
+  = _ m:(DataBlock / Highlight / AreaFill / RangeAnnotation / NoteAnnotation / Annotation / Series / Transform / Property) _
   { return m; }
 
 BlockProperty

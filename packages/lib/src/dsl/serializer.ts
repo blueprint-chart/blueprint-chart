@@ -1,4 +1,4 @@
-import type { AnnotationNode, AreaFillNode, ChartNode, DataNode, HighlightNode, PropertyNode, SeriesNode, StepNode, TransformNode } from './types'
+import type { AnnotationNode, AreaFillNode, ChartNode, DataNode, HighlightNode, PropertyNode, SceneNode, SeriesNode, TransformNode } from './types'
 import { getChartOptions } from '../charts/registry'
 
 function serializeValue(prop: PropertyNode): string {
@@ -83,22 +83,29 @@ function serializeSeries(series: SeriesNode, indent: string): string {
   return lines.join('\n')
 }
 
-function serializeStep(step: StepNode, indent: string): string {
-  const lines = [`${indent}step "${step.name}" {`]
-  for (const prop of step.properties) {
+function serializeScene(scene: SceneNode, indent: string): string {
+  const header = scene.name != null ? `${indent}scene "${scene.name}" {` : `${indent}scene {`
+  const lines = [header]
+  for (const prop of scene.properties) {
     lines.push(serializeProperty(prop, `${indent}  `))
   }
-  if (step.data) {
-    lines.push(serializeData(step.data, `${indent}  `))
+  if (scene.data) {
+    lines.push(serializeData(scene.data, `${indent}  `))
   }
-  for (const highlight of step.highlights) {
+  for (const highlight of scene.highlights) {
     lines.push(serializeHighlight(highlight, `${indent}  `))
   }
-  for (const areaFill of step.areaFills ?? []) {
+  for (const areaFill of scene.areaFills ?? []) {
     lines.push(serializeAreaFill(areaFill, `${indent}  `))
   }
-  for (const annotation of step.annotations ?? []) {
+  for (const annotation of scene.annotations ?? []) {
     lines.push(serializeAnnotation(annotation, `${indent}  `))
+  }
+  for (const s of scene.series ?? []) {
+    lines.push(serializeSeries(s, `${indent}  `))
+  }
+  for (const transform of scene.transforms ?? []) {
+    lines.push(serializeTransform(transform, `${indent}  `))
   }
   lines.push(`${indent}}`)
   return lines.join('\n')
@@ -142,8 +149,8 @@ export function serialize(ast: ChartNode): string {
   for (const s of ast.series ?? []) {
     lines.push(serializeSeries(s, '  '))
   }
-  for (const step of ast.steps) {
-    lines.push(serializeStep(step, '  '))
+  for (const scene of ast.scenes) {
+    lines.push(serializeScene(scene, '  '))
   }
   for (const transform of ast.transforms ?? []) {
     lines.push(serializeTransform(transform, '  '))
@@ -174,8 +181,8 @@ export function compactSerialize(ast: ChartNode): string {
   for (const s of ast.series ?? []) {
     lines.push(serializeSeries(s, '  '))
   }
-  for (const step of ast.steps) {
-    lines.push(serializeStep(step, '  '))
+  for (const scene of ast.scenes) {
+    lines.push(serializeScene(scene, '  '))
   }
   for (const transform of ast.transforms ?? []) {
     lines.push(serializeTransform(transform, '  '))

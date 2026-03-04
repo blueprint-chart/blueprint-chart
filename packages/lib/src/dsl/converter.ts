@@ -1,4 +1,4 @@
-import type { PropertyNode, DataNode } from './types'
+import type { PropertyNode, DataNode, SceneNode } from './types'
 import { getChartOptions } from '../charts/registry'
 
 /**
@@ -61,4 +61,41 @@ export function dataEntriesToString(data: DataNode): string {
       return `"${e.key}" = ${val}`
     })
     .join('\n')
+}
+
+/**
+ * Extract scene overrides from a SceneNode, returning structured data
+ * suitable for applying scene-level configuration.
+ */
+export function extractSceneOverrides(
+  scene: SceneNode,
+  chartType: string,
+): {
+    name: string | null
+    chartType: string | undefined
+    properties: Map<string, string | number | boolean>
+    data: DataNode | null
+    chartTypeOptions: Record<string, unknown>
+    highlights: SceneNode['highlights']
+    areaFills: SceneNode['areaFills']
+    annotations: SceneNode['annotations']
+    series: SceneNode['series']
+    transforms: SceneNode['transforms']
+  } {
+  const props = propertyMap(scene.properties)
+  const typeOverride = props.get('type') as string | undefined
+  const effectiveType = typeOverride ?? chartType
+
+  return {
+    name: scene.name,
+    chartType: typeOverride as string | undefined,
+    properties: props,
+    data: scene.data,
+    chartTypeOptions: extractChartTypeOptions(effectiveType, scene.properties),
+    highlights: scene.highlights,
+    areaFills: scene.areaFills,
+    annotations: scene.annotations,
+    series: scene.series,
+    transforms: scene.transforms,
+  }
 }

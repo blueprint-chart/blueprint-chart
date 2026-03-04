@@ -14,7 +14,8 @@ describe('serializer', () => {
       areaFills: [],
       annotations: [],
       series: [],
-      steps: [],
+      scenes: [],
+      transforms: [],
     }
     expect(serialize(ast)).toBe('chart bar {\n}')
   })
@@ -32,7 +33,8 @@ describe('serializer', () => {
       areaFills: [],
       annotations: [],
       series: [],
-      steps: [],
+      scenes: [],
+      transforms: [],
     }
     const output = serialize(ast)
     expect(output).toContain('  title = Hello')
@@ -55,7 +57,8 @@ describe('serializer', () => {
       areaFills: [],
       annotations: [],
       series: [],
-      steps: [],
+      scenes: [],
+      transforms: [],
     }
     const output = serialize(ast)
     expect(output).toContain('    "Item A" = 50%')
@@ -79,7 +82,8 @@ describe('serializer', () => {
       areaFills: [],
       annotations: [],
       series: [],
-      steps: [],
+      scenes: [],
+      transforms: [],
     }
     const output = serialize(ast)
     expect(output).toContain('  highlight "Guardian" {')
@@ -87,7 +91,7 @@ describe('serializer', () => {
     expect(output).toContain('    label = Leader')
   })
 
-  it('serializes steps', () => {
+  it('serializes scenes', () => {
     const ast: ChartNode = {
       type: 'chart',
       chartType: 'bar',
@@ -97,9 +101,9 @@ describe('serializer', () => {
       areaFills: [],
       annotations: [],
       series: [],
-      steps: [{
-        type: 'step',
-        name: 'Step 1',
+      scenes: [{
+        type: 'scene',
+        name: 'Scene 1',
         properties: [
           { type: 'property', key: 'sort', value: 'ascending', isPercentage: false },
         ],
@@ -113,13 +117,89 @@ describe('serializer', () => {
         }],
         areaFills: [],
         annotations: [],
+        series: [],
+        transforms: [],
       }],
+      transforms: [],
     }
     const output = serialize(ast)
-    expect(output).toContain('  step "Step 1" {')
+    expect(output).toContain('  scene "Scene 1" {')
     expect(output).toContain('    sort = ascending')
     expect(output).toContain('    highlight "X" {')
     expect(output).toContain('      color = "#f00"')
+  })
+
+  it('serializes scene with null name', () => {
+    const ast: ChartNode = {
+      type: 'chart',
+      chartType: 'bar',
+      properties: [],
+      data: null,
+      highlights: [],
+      areaFills: [],
+      annotations: [],
+      series: [],
+      scenes: [{
+        type: 'scene',
+        name: null,
+        properties: [
+          { type: 'property', key: 'title', value: 'unnamed', isPercentage: false },
+        ],
+        data: null,
+        highlights: [],
+        areaFills: [],
+        annotations: [],
+        series: [],
+        transforms: [],
+      }],
+      transforms: [],
+    }
+    const output = serialize(ast)
+    expect(output).toContain('  scene {')
+    expect(output).not.toContain('scene ""')
+  })
+
+  it('serializes scene with series and transforms', () => {
+    const ast: ChartNode = {
+      type: 'chart',
+      chartType: 'line',
+      properties: [],
+      data: null,
+      highlights: [],
+      areaFills: [],
+      annotations: [],
+      series: [],
+      scenes: [{
+        type: 'scene',
+        name: 'Overlay',
+        properties: [],
+        data: null,
+        highlights: [],
+        areaFills: [],
+        annotations: [],
+        series: [{
+          type: 'series',
+          name: 'Revenue',
+          properties: [
+            { type: 'property', key: 'color', value: '#00f', isPercentage: false },
+          ],
+        }],
+        transforms: [{
+          type: 'transform',
+          transformType: 'cumulative',
+          properties: [
+            { type: 'property', key: 'enabled', value: 'true', isPercentage: false },
+          ],
+        }],
+      }],
+      transforms: [],
+    }
+    const output = serialize(ast)
+    expect(output).toContain('  scene "Overlay" {')
+    expect(output).toContain('    series "Revenue" {')
+    expect(output).toContain('      color = "#00f"')
+    expect(output).toContain('    transform cumulative {')
+    expect(output).toContain('      enabled = true')
   })
 
   describe('round-trip', () => {
@@ -145,7 +225,7 @@ describe('serializer', () => {
       expect(ast2).toEqual(ast1)
     })
 
-    const CHART_WITH_STEPS = `chart horizontal-bar {
+    const CHART_WITH_SCENES = `chart horizontal-bar {
   title = "Couverture médiatique en 2025"
   sort = descending
   data {
@@ -154,21 +234,21 @@ describe('serializer', () => {
     "Guardian" = 44%
     "LeMonde" = 75%
   }
-  step "Le leader" {
+  scene "Le leader" {
     sort = descending
     highlight "LeMonde" {
       color = "#e53e3e"
       label = "Leader"
     }
   }
-  step "Le moins bon" {
+  scene "Le moins bon" {
     sort = ascending
     highlight "Guardian" {
       color = "#45a"
       label = "Le pire"
     }
   }
-  step "Année suivante" {
+  scene "Année suivante" {
     title = "Couverture médiatique en 2026"
     data {
       "20 Minutes" = 51%
@@ -179,15 +259,15 @@ describe('serializer', () => {
   }
 }`
 
-    it('produces equivalent AST after round-trip for chart with steps', () => {
-      const ast1 = parse(CHART_WITH_STEPS)
+    it('produces equivalent AST after round-trip for chart with scenes', () => {
+      const ast1 = parse(CHART_WITH_SCENES)
       const serialized = serialize(ast1)
       const ast2 = parse(serialized)
       expect(ast2).toEqual(ast1)
     })
 
     it('produces stable output after double round-trip', () => {
-      const ast1 = parse(CHART_WITH_STEPS)
+      const ast1 = parse(CHART_WITH_SCENES)
       const s1 = serialize(ast1)
       const ast2 = parse(s1)
       const s2 = serialize(ast2)
