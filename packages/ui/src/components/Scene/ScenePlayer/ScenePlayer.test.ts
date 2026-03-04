@@ -235,4 +235,55 @@ describe('ScenePlayerMinimalArrows', () => {
     await wrapper.find('.bc-scene-player__play-btn').trigger('click')
     expect(wrapper.emitted('pause')).toHaveLength(1)
   })
+
+  it('wrap: prev on first scene emits total', async () => {
+    const wrapper = mount(ScenePlayerMinimalArrows, {
+      props: { total: 5, current: 1, wrap: true },
+    })
+    await wrapper.find('[aria-label="Previous scene"]').trigger('click')
+    expect(wrapper.emitted('update:current')?.[0]).toEqual([5])
+  })
+
+  it('wrap: next on last scene emits 1', async () => {
+    const wrapper = mount(ScenePlayerMinimalArrows, {
+      props: { total: 5, current: 5, wrap: true },
+    })
+    await wrapper.find('[aria-label="Next scene"]').trigger('click')
+    expect(wrapper.emitted('update:current')?.[0]).toEqual([1])
+  })
+
+  it('wrap: prev and next are never disabled', () => {
+    const first = mount(ScenePlayerMinimalArrows, {
+      props: { total: 3, current: 1, wrap: true },
+    })
+    expect(first.find('[aria-label="Previous scene"]').attributes('disabled')).toBeUndefined()
+
+    const last = mount(ScenePlayerMinimalArrows, {
+      props: { total: 3, current: 3, wrap: true },
+    })
+    expect(last.find('[aria-label="Next scene"]').attributes('disabled')).toBeUndefined()
+  })
+
+  it('showCounter: false hides counter', () => {
+    const wrapper = mount(ScenePlayerMinimalArrows, {
+      props: { total: 3, current: 1, showCounter: false },
+    })
+    expect(wrapper.find('.bc-scene-player__counter').exists()).toBe(false)
+  })
+
+  it('showCounter: true (default) shows counter', () => {
+    const wrapper = mount(ScenePlayerMinimalArrows, {
+      props: { total: 3, current: 1 },
+    })
+    expect(wrapper.find('.bc-scene-player__counter').exists()).toBe(true)
+  })
+
+  it('order: controls-first renders nav button before counter', () => {
+    const wrapper = mount(ScenePlayerMinimalArrows, {
+      props: { total: 3, current: 2, order: 'controls-first' },
+    })
+    const children = wrapper.find('.bc-scene-player--minimal-arrows').element.children
+    expect(children[0].tagName).toBe('BUTTON')
+    expect(children[children.length - 1].classList.contains('bc-scene-player__counter')).toBe(true)
+  })
 })
