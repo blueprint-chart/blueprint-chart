@@ -218,6 +218,57 @@ test.describe('Scene Timeline', () => {
     expect(scene1Fill?.toLowerCase()).toBe('#9900ef')
   })
 
+  test('scene chart type override persists through reload', async ({ page }) => {
+    await goToVisualizeStep(page)
+
+    // Open Chart Type tab
+    await page.locator('[aria-label="Chart Type"]').click()
+
+    // Verify base type shows "Columns" (bar-vertical)
+    const toggleBtn = page.locator('.form-control-dropdown__toggle .dropdown-toggle')
+    await expect(toggleBtn).toContainText('Columns')
+
+    // Add Scene 2
+    await page.locator('.button-add').click()
+    await page.waitForTimeout(300)
+
+    // Change chart type to bar-horizontal ("Bars") while on Scene 2
+    await toggleBtn.click()
+    await page.locator('.form-control-dropdown-item__label', { hasText: 'Bars' }).first().click()
+    await page.waitForTimeout(500)
+
+    // Verify dropdown now shows "Bars"
+    await expect(toggleBtn).toContainText('Bars')
+
+    // Get the current URL (includes session ID for reload)
+    const url = page.url()
+
+    // Reload the page
+    await page.goto(url)
+    await page.waitForTimeout(1000)
+
+    // Navigate to Visualize step
+    await page.locator('.navigation-pill__option', { hasText: 'Visualize' }).click()
+    await expect(page.locator('.bc-frame-body svg')).toBeVisible()
+
+    // Verify Scene 2 still exists
+    const items = page.locator('.scene-timeline-item')
+    await expect(items).toHaveCount(2)
+
+    // Click Scene 1 and open Chart Type tab
+    await page.locator('.scene-timeline-item').first().click()
+    await page.waitForTimeout(500)
+    await page.locator('[aria-label="Chart Type"]').click()
+
+    // Scene 1 (base) should still be "Columns" (bar-vertical)
+    await expect(toggleBtn).toContainText('Columns')
+
+    // Click Scene 2 and verify it shows "Bars" (bar-horizontal)
+    await page.locator('.scene-timeline-item').nth(1).click()
+    await page.waitForTimeout(500)
+    await expect(toggleBtn).toContainText('Bars')
+  })
+
   test('no console errors during scene operations', async ({ page }) => {
     const errors: string[] = []
     page.on('console', (msg) => {
