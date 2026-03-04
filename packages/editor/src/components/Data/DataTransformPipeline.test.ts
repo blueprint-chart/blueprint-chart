@@ -1,3 +1,4 @@
+/* eslint-disable vue/one-component-per-file */
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { ref, defineComponent } from 'vue'
@@ -51,7 +52,12 @@ const AddButtonStub = defineComponent({
 
 const StepCardStub = defineComponent({
   name: 'DataTransformStepCard',
-  props: ['step', 'index', 'active', 'error'],
+  props: {
+    step: { type: Object, required: true },
+    index: { type: Number, required: true },
+    active: { type: Boolean, default: false },
+    error: { type: String, default: '' },
+  },
   emits: ['select', 'delete'],
   template: `<div class="step-card-stub" :data-error="error || ''" :data-step-id="step.id">
     <slot />

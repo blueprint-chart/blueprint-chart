@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import DataColumnSettings from './DataColumnSettings.vue'
 
 const selectedColumnIndex = ref(-1)
