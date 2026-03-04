@@ -129,7 +129,7 @@ test.describe('Scene Timeline', () => {
   test('counter shows correct position', async ({ page }) => {
     await goToVisualizeStep(page)
 
-    const counter = page.locator('.scene-timeline__counter')
+    const counter = page.locator('.scene-timeline-controls__counter')
     await expect(counter).toHaveText('1 / 1')
 
     // Add Scene 2

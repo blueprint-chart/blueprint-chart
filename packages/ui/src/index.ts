@@ -80,6 +80,7 @@ export { default as ListSelectPanel } from './components/List/ListSelectPanel/Li
 export { default as ListSeriesRow } from './components/List/ListSeriesRow/ListSeriesRow.vue'
 
 export { default as SceneTimeline } from './components/Scene/SceneTimeline/SceneTimeline.vue'
+export { default as SceneTimelineControls } from './components/Scene/SceneTimeline/SceneTimelineControls.vue'
 export { default as SceneTimelineItem } from './components/Scene/SceneTimelineItem/SceneTimelineItem.vue'
 
 export { default as ScenePlayerProgressBar } from './components/Scene/ScenePlayer/ScenePlayerProgressBar.vue'
