@@ -10,17 +10,22 @@
         size="sm"
       />
     </div>
-    <pre class="code-block__pre"><code>{{ code }}</code></pre>
+    <pre class="code-block__pre"><code
+v-if="highlightedHtml"
+                                       v-html="highlightedHtml"
+    /><code v-else>{{ code }}</code></pre>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ActionCopyButton } from '@blueprint-chart/ui'
+import '@/dsl-lang/highlight.scss'
 
 defineProps<{
   step: number
   label: string
   code: string
+  highlightedHtml?: string
 }>()
 </script>
 
