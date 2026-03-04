@@ -22,6 +22,27 @@ const sourceFormat = ref<SourceFormat>('delimited')
 const sourceLabel = ref('')
 const loadedAt = ref<number | null>(null)
 
+export function serializeTableData(cols: string[], rows: string[][]): string {
+  if (cols.length <= 2) {
+    return rows
+      .map((row) => {
+        const label = row[0] ?? ''
+        const value = row[1] ?? ''
+        return `"${label}" = ${value}`
+      })
+      .join('\n')
+  }
+
+  const seriesNames = cols.slice(1)
+  const header = `_series = "${seriesNames.join(',')}"`
+  const lines = rows.map((row) => {
+    const label = row[0] ?? ''
+    const values = row.slice(1).map(v => v ?? '').join(',')
+    return `"${label}" = "${values}"`
+  })
+  return [header, ...lines].join('\n')
+}
+
 export function useDataTable() {
   const { steps, applyTransforms } = useDataTransforms()
 
@@ -60,27 +81,7 @@ export function useDataTable() {
   }
 
   function serialize(): string {
-    const cols = displayColumns.value
-    const rows = displayRows.value
-
-    if (cols.length <= 2) {
-      return rows
-        .map((row) => {
-          const label = row[0] ?? ''
-          const value = row[1] ?? ''
-          return `"${label}" = ${value}`
-        })
-        .join('\n')
-    }
-
-    const seriesNames = cols.slice(1)
-    const header = `_series = "${seriesNames.join(',')}"`
-    const lines = rows.map((row) => {
-      const label = row[0] ?? ''
-      const values = row.slice(1).map(v => v ?? '').join(',')
-      return `"${label}" = "${values}"`
-    })
-    return [header, ...lines].join('\n')
+    return serializeTableData(displayColumns.value, displayRows.value)
   }
 
   function reset() {

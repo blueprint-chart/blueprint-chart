@@ -169,6 +169,7 @@ export function useDataTransforms() {
     removeStep,
     updateStep,
     moveStep,
+    applyStepList,
     applyTransforms,
     getColumnsAtStep,
     validateStep,
