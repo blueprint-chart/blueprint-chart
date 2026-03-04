@@ -1,0 +1,7 @@
+.tok-keyword { color: var(--bc-syn-keyword); }
+.tok-string { color: var(--bc-syn-string); }
+.tok-number { color: var(--bc-syn-number); }
+.tok-variableName { color: var(--bc-syn-identifier); }
+.tok-operator { color: var(--bc-syn-punct); }
+.tok-comment { color: var(--bc-syn-comment); font-style: italic; }
+.tok-punctuation { color: var(--bc-syn-punct); }
