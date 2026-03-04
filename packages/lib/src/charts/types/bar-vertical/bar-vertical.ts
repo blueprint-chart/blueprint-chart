@@ -103,7 +103,17 @@ export function render(
     (options.highlights ?? []).map(h => [h.target, h.color]),
   )
 
-  const chart = new BarVerticalChart(d3.select(chartArea))
+  // Clip bars to the chart area so they truncate at axis boundaries
+  const clipId = `bc-clip-${Math.random().toString(36).slice(2, 8)}`
+  const svg = chartArea.ownerSVGElement!
+  const defs = d3.select(svg).select('defs').empty()
+    ? d3.select(svg).append('defs')
+    : d3.select(svg).select('defs')
+  defs.append('clipPath').attr('id', clipId)
+    .append('rect').attr('width', width).attr('height', height)
+  const clippedGroup = d3.select(chartArea).append('g').attr('clip-path', `url(#${clipId})`)
+
+  const chart = new BarVerticalChart(clippedGroup)
   chart.config({ x, y, width, height, colors: options.colors ?? DEFAULT_COLORS, highlights })
   if (options.valueLabels) {
     chart.use(createValueLabelPlugin({
