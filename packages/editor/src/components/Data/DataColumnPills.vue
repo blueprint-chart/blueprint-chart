@@ -63,7 +63,7 @@ function dotClass(ct: ColumnType | undefined): string {
   padding: 0.25rem 0.625rem;
   border-radius: 0.25rem;
   border: 1px solid transparent;
-  font-size: 0.75rem;
+  font-size: var(--bs-font-size-sm);
   font-weight: 600;
   cursor: pointer;
   transition: filter 0.15s, border-color 0.15s, box-shadow 0.15s;

@@ -31,7 +31,7 @@ defineProps<{
   background: var(--bs-success-bg-subtle);
   border: 1px dashed var(--bs-success);
   border-radius: var(--bs-border-radius);
-  font-size: 0.75rem;
+  font-size: var(--bs-font-size-sm);
   font-weight: 600;
   color: var(--bs-success-text-emphasis);
 }
@@ -51,6 +51,6 @@ defineProps<{
   font-weight: 400;
   color: var(--bs-success-text-emphasis);
   margin-left: auto;
-  font-size: 0.6875rem;
+  font-size: var(--bs-font-size-xs);
 }
 </style>

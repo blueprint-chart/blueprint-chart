@@ -76,7 +76,7 @@ function toggleColumn(col: string) {
 }
 
 .data-transform-step-hide-columns__label {
-  font-size: 0.6875rem;
+  font-size: var(--bs-font-size-xs);
   font-weight: 600;
   color: var(--bs-secondary-color);
   text-transform: uppercase;
@@ -93,7 +93,7 @@ function toggleColumn(col: string) {
   display: flex;
   align-items: center;
   gap: 0.25rem;
-  font-size: 0.8125rem;
+  font-size: var(--bs-font-size-sm);
   color: var(--bs-body-color);
   cursor: pointer;
   padding: 0.1875rem 0.5rem;

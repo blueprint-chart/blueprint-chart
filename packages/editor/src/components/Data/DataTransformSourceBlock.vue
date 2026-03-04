@@ -37,7 +37,7 @@ defineProps<{
   background: var(--bs-tertiary-bg);
   border: 1px solid var(--bs-border-color);
   border-radius: var(--bs-border-radius);
-  font-size: 0.75rem;
+  font-size: var(--bs-font-size-sm);
   font-weight: 600;
   color: var(--bs-secondary-text-emphasis);
 }
@@ -57,6 +57,6 @@ defineProps<{
   font-weight: 400;
   color: var(--bs-secondary-color);
   margin-left: auto;
-  font-size: 0.6875rem;
+  font-size: var(--bs-font-size-xs);
 }
 </style>

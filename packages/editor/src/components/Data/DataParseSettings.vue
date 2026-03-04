@@ -114,7 +114,7 @@ const decimalOptions = [
 }
 
 .data-parse-settings__label {
-  font-size: 0.625rem;
+  font-size: var(--bs-font-size-xs);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;

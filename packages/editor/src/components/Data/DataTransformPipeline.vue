@@ -166,7 +166,7 @@ function onRemoveStep(id: string) {
 }
 
 .pipeline__config-info {
-  font-size: 0.8125rem;
+  font-size: var(--bs-font-size-sm);
   color: var(--bs-secondary-color);
   line-height: 1.5;
 }

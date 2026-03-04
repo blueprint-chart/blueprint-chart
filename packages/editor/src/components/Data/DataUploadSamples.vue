@@ -116,7 +116,7 @@ function colCount(sample: ChartSample): number {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.9375rem;
+  font-size: var(--bs-font-size-md);
   flex-shrink: 0;
 }
 
@@ -126,7 +126,7 @@ function colCount(sample: ChartSample): number {
 }
 
 .sample-card__name {
-  font-size: 0.75rem;
+  font-size: var(--bs-font-size-sm);
   font-weight: 600;
   color: var(--bs-body-color);
   white-space: nowrap;
@@ -135,7 +135,7 @@ function colCount(sample: ChartSample): number {
 }
 
 .sample-card__meta {
-  font-size: 0.6875rem;
+  font-size: var(--bs-font-size-xs);
   color: var(--bs-secondary-color);
   display: flex;
   align-items: center;
@@ -143,7 +143,7 @@ function colCount(sample: ChartSample): number {
 }
 
 .sample-card__tag {
-  font-size: 0.5625rem;
+  font-size: var(--bs-font-size-xs);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;

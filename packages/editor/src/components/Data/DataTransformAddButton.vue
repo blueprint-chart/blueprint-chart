@@ -111,7 +111,7 @@ function onSelect(type: string) {
   gap: 0.5rem;
   padding: 0.5rem 0.75rem;
   cursor: pointer;
-  font-size: 0.75rem;
+  font-size: var(--bs-font-size-sm);
   transition: background 0.1s;
   border: none;
   background: none;
@@ -137,7 +137,7 @@ function onSelect(type: string) {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.75rem;
+  font-size: var(--bs-font-size-sm);
   font-weight: 700;
   flex-shrink: 0;
 
@@ -193,7 +193,7 @@ function onSelect(type: string) {
 }
 
 .add-wrap__dropdown-desc {
-  font-size: 0.6875rem;
+  font-size: var(--bs-font-size-xs);
   color: var(--bs-secondary-color);
 }
 </style>

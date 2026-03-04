@@ -74,7 +74,7 @@ watch(() => activeTabEl, scrollActiveTabIntoView)
 
 .panel-tab-bar__tab {
   font-family: inherit;
-  font-size: 0.75rem;
+  font-size: var(--bs-font-size-sm);
   font-weight: 500;
   padding: 0.5rem 0.75rem;
   white-space: nowrap;

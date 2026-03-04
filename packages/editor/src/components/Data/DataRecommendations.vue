@@ -43,7 +43,7 @@ function onSelect(chartType: string) {
 }
 
 .data-recommendations__summary {
-  font-size: 0.75rem;
+  font-size: var(--bs-font-size-sm);
   color: var(--bs-secondary-color);
   margin-bottom: 0.875rem;
 }
