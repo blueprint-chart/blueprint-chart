@@ -35,6 +35,9 @@ onMounted(() => {
   if (dataTable.columns.value.length > 0) {
     setDataView('structure')
   }
+  else {
+    setDataView('upload')
+  }
 })
 
 function reparseData() {

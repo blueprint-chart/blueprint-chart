@@ -104,6 +104,21 @@ describe('DataPanel', () => {
     expect(mockSetDataView).toHaveBeenCalledWith('structure')
   })
 
+  it('resets to upload view on mount when no data exists', () => {
+    dataViewRef.value = 'structure'
+    columnsRef.value = []
+    mockSetDataView.mockClear()
+    mount(DataPanel, {
+      global: {
+        stubs: {
+          DataUploadCard: { template: '<div class="upload-card" />' },
+          DataStructurePanel: { template: '<div class="structure-panel" />' },
+        },
+      },
+    })
+    expect(mockSetDataView).toHaveBeenCalledWith('upload')
+  })
+
   it('shows structure panel when dataView is structure', () => {
     dataViewRef.value = 'structure'
     const w = mount(DataPanel, {
