@@ -194,3 +194,61 @@ describe('validateStep', () => {
     expect(validateStep(step, ['V'], ['number'])).toBeNull()
   })
 })
+
+describe('applyStepList', () => {
+  it('applies steps without mutating singleton state', () => {
+    const t = useDataTransforms()
+    t.reset()
+    t.addStep('sort', { column: 'Name', direction: 'ascending' })
+    expect(t.steps.value.length).toBe(1)
+
+    const filterSteps = [
+      { id: '99', type: 'filter' as const, config: { column: 'Name', condition: 'equals', value: 'A' } },
+    ]
+    const result = t.applyStepList(
+      filterSteps,
+      ['Name', 'Val'],
+      [['A', '1'], ['B', '2'], ['A', '3']],
+      ['string', 'number'],
+    )
+
+    // Filter applied: only rows with Name=A
+    expect(result.rows.length).toBe(2)
+    expect(result.rows.every(r => r[0] === 'A')).toBe(true)
+
+    // Singleton state unchanged
+    expect(t.steps.value.length).toBe(1)
+    expect(t.steps.value[0].type).toBe('sort')
+    t.reset()
+  })
+
+  it('applies multiple steps in order', () => {
+    const { applyStepList } = useDataTransforms()
+    const steps = [
+      { id: '1', type: 'sort' as const, config: { column: 'Val', direction: 'descending' } },
+      { id: '2', type: 'filter' as const, config: { column: 'Val', condition: 'greater-than', value: '5' } },
+    ]
+    const result = applyStepList(
+      steps,
+      ['Name', 'Val'],
+      [['A', '10'], ['B', '3'], ['C', '7']],
+      ['string', 'number'],
+    )
+    // Sort desc then filter >5 → A(10), C(7)
+    expect(result.rows.length).toBe(2)
+    expect(result.rows[0][0]).toBe('A')
+    expect(result.rows[1][0]).toBe('C')
+  })
+
+  it('returns original data for empty steps', () => {
+    const { applyStepList } = useDataTransforms()
+    const result = applyStepList(
+      [],
+      ['X'],
+      [['1'], ['2']],
+      ['number'],
+    )
+    expect(result.columns).toEqual(['X'])
+    expect(result.rows).toEqual([['1'], ['2']])
+  })
+})
