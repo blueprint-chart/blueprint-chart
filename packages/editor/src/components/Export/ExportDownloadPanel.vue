@@ -31,16 +31,18 @@
       @select="setSelectedFormat('svg')"
       @download="onDownloadSvg"
     >
-      <FormControlToggleSwitch
-        :model-value="svgInlineFonts"
-        label="Inline fonts"
-        @update:model-value="svgInlineFonts = $event"
-      />
-      <FormControlToggleSwitch
-        :model-value="svgMinify"
-        label="Minify"
-        @update:model-value="svgMinify = $event"
-      />
+      <BFormCheckbox
+        v-model="svgInlineFonts"
+        switch
+      >
+        Inline fonts
+      </BFormCheckbox>
+      <BFormCheckbox
+        v-model="svgMinify"
+        switch
+      >
+        Minify
+      </BFormCheckbox>
     </ExportDownloadFormatCard>
 
     <ExportDownloadFormatCard
@@ -53,17 +55,18 @@
       @select="setSelectedFormat('bpc')"
       @download="onDownloadBpc"
     >
-      <FormControlToggleSwitch
-        :model-value="bpcCompact"
-        label="Compact"
-        @update:model-value="bpcCompact = $event"
-      />
+      <BFormCheckbox
+        v-model="bpcCompact"
+        switch
+      >
+        Compact
+      </BFormCheckbox>
     </ExportDownloadFormatCard>
   </div>
 </template>
 
 <script setup lang="ts">
-import { FormControlSliderInput, FormControlToggleSwitch } from '@blueprint-chart/ui'
+import { FormControlSliderInput } from '@blueprint-chart/ui'
 import { useExportPanel } from '@/composables/useExportPanel'
 import { useDslOutput } from '@/composables/useDslOutput'
 import { triggerDownload } from '@/composables/useImageExport'
