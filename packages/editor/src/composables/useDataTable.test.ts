@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { useDataTable } from './useDataTable'
+import { useDataTable, serializeTableData } from './useDataTable'
 
 describe('useDataTable', () => {
   beforeEach(() => {
@@ -126,5 +126,33 @@ describe('useDataTable', () => {
     const result = serialize()
     expect(result).toBe('"Apples" = 42')
     expect(result).not.toContain('_series')
+  })
+})
+
+describe('serializeTableData', () => {
+  it('serializes two-column data', () => {
+    const result = serializeTableData(['Label', 'Value'], [['A', '10'], ['B', '20']])
+    expect(result).toBe('"A" = 10\n"B" = 20')
+  })
+
+  it('serializes multi-column data with _series header', () => {
+    const result = serializeTableData(
+      ['Date', 'X', 'Y'],
+      [['Jan', '1', '2'], ['Feb', '3', '4']],
+    )
+    expect(result).toContain('_series = "X,Y"')
+    expect(result).toContain('"Jan" = "1,2"')
+    expect(result).toContain('"Feb" = "3,4"')
+  })
+
+  it('produces same output as useDataTable.serialize', () => {
+    const { loadParsed, serialize } = useDataTable()
+    loadParsed({
+      columns: ['Name', 'Value'],
+      rows: [['Apples', '42'], ['Bananas', '58']],
+    })
+    const standalone = serializeTableData(['Name', 'Value'], [['Apples', '42'], ['Bananas', '58']])
+    expect(standalone).toBe(serialize())
+    useDataTable().reset()
   })
 })
