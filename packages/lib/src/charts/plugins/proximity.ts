@@ -96,13 +96,20 @@ export function setupProximityInteraction(
     document.body.appendChild(tooltipEl)
   }
 
+  // Insert proximity elements before annotations (if present) so the
+  // annotation layer stays on top and remains interactive.
+  const annSel = '.bc-annotations'
+  const hasAnn = !g.select(annSel).empty()
+  const ins = <T extends SVGElement>(tag: string) =>
+    (hasAnn ? g.insert(tag, annSel) : g.append(tag)) as unknown as d3.Selection<T, unknown, null, undefined>
+
   // Crosshair lines
   const showV = crosshair && (crosshairDirection === 'both' || crosshairDirection === 'vertical')
   const showH = crosshair && (crosshairDirection === 'both' || crosshairDirection === 'horizontal')
   let vLine: d3.Selection<SVGLineElement, unknown, null, undefined> | null = null
   let hLine: d3.Selection<SVGLineElement, unknown, null, undefined> | null = null
   if (showV) {
-    vLine = g.append('line')
+    vLine = ins<SVGLineElement>('line')
       .attr('class', 'bc-crosshair bc-crosshair-v')
       .attr('y1', 0).attr('y2', height)
       .attr('stroke', crosshairColor)
@@ -112,7 +119,7 @@ export function setupProximityInteraction(
       .style('display', 'none')
   }
   if (showH) {
-    hLine = g.append('line')
+    hLine = ins<SVGLineElement>('line')
       .attr('class', 'bc-crosshair bc-crosshair-h')
       .attr('x1', 0).attr('x2', width)
       .attr('stroke', crosshairColor)
@@ -123,7 +130,7 @@ export function setupProximityInteraction(
   }
 
   // Highlight dot shown at the nearest point
-  const highlightDot = g.append('circle')
+  const highlightDot = ins<SVGCircleElement>('circle')
     .attr('class', 'bc-proximity-dot')
     .attr('r', 6)
     .attr('fill', 'none')
@@ -134,7 +141,7 @@ export function setupProximityInteraction(
     .style('display', 'none')
 
   // Transparent overlay for mouse tracking
-  const overlay = g.append('rect')
+  const overlay = ins<SVGRectElement>('rect')
     .attr('class', 'bc-proximity-overlay')
     .attr('width', width)
     .attr('height', height)
