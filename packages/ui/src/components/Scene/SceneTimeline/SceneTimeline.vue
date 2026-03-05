@@ -21,13 +21,11 @@
         @select="$emit('update:activeIndex', scene.index)"
         @remove="$emit('remove', scene.index)"
       />
-    </div>
 
-    <ButtonAdd
-      size="sm"
-      label="Add"
-      @click="$emit('add')"
-    />
+      <div class="scene-timeline__add">
+        <ButtonAdd @click="$emit('add')" />
+      </div>
+    </div>
   </div>
 </template>
 
@@ -78,5 +76,17 @@ defineEmits<{
   }
 
   scrollbar-width: none;
+}
+
+.scene-timeline__add {
+  width: 120px;
+  min-width: 120px;
+  flex-shrink: 0;
+  align-self: stretch;
+
+  :deep(.button-add.btn) {
+    height: 100%;
+    border-radius: var(--bs-border-radius-lg);
+  }
 }
 </style>
