@@ -2,7 +2,7 @@ import * as d3 from 'd3'
 import 'd3-transition'
 import { D3Blueprint } from 'd3-blueprint'
 import type { ChartData, ChartOptions } from '../../types'
-import { getDefaultTransitionMs } from '../../motion'
+import { getDefaultTransitionMs, fadeIn, snapshotForFadeOut, commitFadeOut } from '../../motion'
 import { getCachedChart, setCachedChart } from '../../transition-cache'
 import { createFrame } from '../../frame/frame'
 import { createCanvas } from '../../canvas/canvas'
@@ -81,10 +81,15 @@ export function renderArc(
 ): void {
   // Preserve existing arc elements for smooth D3 data-join transitions
   let priorArcs: Element[] = []
+  let fadeOverlay: HTMLElement | null = null
   if (transition) {
     const cached = getCachedChart(container)
-    if (cached?.chartType === (innerRadiusRatio > 0 ? 'donut' : 'pie')) {
+    const expectedType = innerRadiusRatio > 0 ? 'donut' : 'pie'
+    if (cached?.chartType === expectedType) {
       priorArcs = Array.from(container.querySelectorAll('.bc-arc'))
+    }
+    else if (cached) {
+      fadeOverlay = snapshotForFadeOut(container)
     }
     container.replaceChildren()
   }
@@ -298,4 +303,9 @@ export function renderArc(
   }
 
   setCachedChart(container, { chartType: innerRadiusRatio > 0 ? 'donut' : 'pie' })
+
+  if (fadeOverlay) {
+    fadeIn(centerGroup.node()!)
+    commitFadeOut(container, fadeOverlay)
+  }
 }

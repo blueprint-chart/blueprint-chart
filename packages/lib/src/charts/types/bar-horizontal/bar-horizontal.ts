@@ -12,7 +12,7 @@ import { createTooltipPlugin } from '../../plugins/tooltip'
 import { createCrosshairPlugin } from '../../plugins/crosshair'
 import { createAnnotationPlugin } from '../../plugins/annotations'
 import { resolveBackgroundColor } from '../../contrast'
-import { getDefaultTransitionMs } from '../../motion'
+import { getDefaultTransitionMs, fadeIn, snapshotForFadeOut, commitFadeOut } from '../../motion'
 import { getCachedChart, setCachedChart } from '../../transition-cache'
 
 const DEFAULT_COLORS = ['#4e79a7']
@@ -84,12 +84,18 @@ export function render(
   let priorBars: Element[] = []
   let priorVAxis: Element | null = null
   let priorHAxis: Element | null = null
+  let fadeOverlay: HTMLElement | null = null
   if (transition) {
     const cached = getCachedChart(container)
-    if (cached?.chartType === 'bar-horizontal') {
-      priorBars = Array.from(container.querySelectorAll('.bc-bar'))
+    if (cached) {
       priorVAxis = container.querySelector('.bc-axis-vertical')
       priorHAxis = container.querySelector('.bc-axis-horizontal')
+    }
+    if (cached?.chartType === 'bar-horizontal') {
+      priorBars = Array.from(container.querySelectorAll('.bc-bar'))
+    }
+    else if (cached) {
+      fadeOverlay = snapshotForFadeOut(container)
     }
     container.replaceChildren()
   }
@@ -175,6 +181,11 @@ export function render(
   }
   chart.draw(barData)
   setCachedChart(container, { chartType: 'bar-horizontal' })
+
+  if (fadeOverlay) {
+    fadeIn(clippedGroup.node()!)
+    commitFadeOut(container, fadeOverlay)
+  }
 }
 
 function sortLabels(data: ChartData, options: ChartOptions): string[] {
