@@ -45,6 +45,21 @@ describe('bar-multi', () => {
     expect(legend).toBeNull()
   })
 
+  it('supports transition parameter on second render', () => {
+    render(container, data)
+    const data2 = {
+      labels: ['Q1', 'Q2', 'Q3'],
+      values: [],
+      series: [
+        { name: 'Product A', values: [12, 22, 32] },
+        { name: 'Product B', values: [18, 28, 38] },
+      ],
+    }
+    render(container, data2, {}, true)
+    const bars = container.querySelectorAll('.bc-bar-multi')
+    expect(bars.length).toBeGreaterThanOrEqual(6)
+  })
+
   it('clips bars to the chart area', () => {
     render(container, data)
     const clipPath = container.querySelector('clipPath')

@@ -49,6 +49,13 @@ describe('bar-vertical', () => {
     expect(heights[1]).toBeGreaterThanOrEqual(heights[2])
   })
 
+  it('supports transition parameter on second render', () => {
+    render(container, data)
+    render(container, { labels: ['A', 'B'], values: [15, 25] }, {}, true)
+    const bars = container.querySelectorAll('.bc-bar')
+    expect(bars.length).toBeGreaterThanOrEqual(2)
+  })
+
   it('clips bars to the chart area', () => {
     render(container, data)
     const clipPath = container.querySelector('clipPath')

@@ -14,6 +14,8 @@ import { createTooltipPlugin } from '../../plugins/tooltip'
 import { createCrosshairPlugin } from '../../plugins/crosshair'
 import { contrastTextColor, readableColor, resolveBackgroundColor } from '../../contrast'
 import { resolveSeriesColor, isSeriesHidden, resolveSeriesValueLabels, resolveSeriesOpacity, resolveSeriesLabelMode } from '../../series-helpers'
+import { getDefaultTransitionMs } from '../../motion'
+import { setCachedChart, getCachedChart } from '../../transition-cache'
 
 const DEFAULT_COLORS = [
   '#4e79a7', '#f28e2b', '#e15759', '#76b7b2',
@@ -39,11 +41,11 @@ class BarMultiChart extends D3Blueprint<MultiBarDatum[]> {
     const g = this.base.append('g')
 
     this.layer('bars', g, {
-      dataBind: (sel, data) => sel.selectAll('.bc-bar-multi').data(data),
+      dataBind: (sel, data) => sel.selectAll('.bc-bar-multi').data(data, (d: MultiBarDatum) => d.label + '\0' + d.seriesName),
       insert: sel => sel.append('rect').attr('class', 'bc-bar bc-bar-multi'),
       events: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        enter: (sel: any) => {
+        'enter': (sel: any) => {
           const x0 = this.config('x0') as d3.ScaleBand<string>
           const x1 = this.config('x1') as d3.ScaleBand<string>
           const y = this.config('y') as d3.ScaleLinear<number, number>
@@ -56,6 +58,26 @@ class BarMultiChart extends D3Blueprint<MultiBarDatum[]> {
             .attr('height', (d: MultiBarDatum) => Math.abs(y(d.value) - y(0)))
             .attr('fill', (d: MultiBarDatum) => colors[d.seriesIndex % colors.length])
         },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        'merge:transition': (sel: any) => {
+          const x0 = this.config('x0') as d3.ScaleBand<string>
+          const x1 = this.config('x1') as d3.ScaleBand<string>
+          const y = this.config('y') as d3.ScaleLinear<number, number>
+          const colors = this.config('colors') as string[]
+          sel.duration(getDefaultTransitionMs())
+            .attr('data-series', (d: MultiBarDatum) => d.seriesIndex)
+            .attr('x', (d: MultiBarDatum) => (x0(d.label) ?? 0) + (x1(d.series) ?? 0))
+            .attr('y', (d: MultiBarDatum) => Math.min(y(0), y(d.value)))
+            .attr('width', x1.bandwidth())
+            .attr('height', (d: MultiBarDatum) => Math.abs(y(d.value) - y(0)))
+            .attr('fill', (d: MultiBarDatum) => colors[d.seriesIndex % colors.length])
+        },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        'exit:transition': (sel: any) => {
+          sel.duration(getDefaultTransitionMs())
+            .attr('opacity', 0)
+            .remove()
+        },
       },
     })
   }
@@ -65,7 +87,17 @@ export function render(
   container: HTMLElement,
   data: ChartData,
   options: ChartOptions = {},
+  transition = false,
 ): void {
+  // Preserve existing data elements for smooth D3 data-join transitions
+  let priorBars: Element[] = []
+  if (transition) {
+    const cached = getCachedChart(container)
+    if (cached?.chartType === 'bar-multi') {
+      priorBars = Array.from(container.querySelectorAll('.bc-bar-multi'))
+    }
+    container.replaceChildren()
+  }
   const { body } = createFrame(container, options.frame)
 
   const allSeries = data.series ?? []
@@ -190,6 +222,11 @@ export function render(
 
   const chart = new BarMultiChart(clippedGroup)
   chart.config({ x0, x1, y, height, colors })
+  // Re-insert prior elements so D3 data-join finds them and triggers merge:transition
+  if (priorBars.length > 0) {
+    const layerG = clippedGroup.node()!.querySelector('g')!
+    priorBars.forEach(el => layerG.appendChild(el))
+  }
   if (options.tooltips) {
     chart.use(createTooltipPlugin())
   }
@@ -205,6 +242,7 @@ export function render(
     chart.use(createAnnotationPlugin(options.annotations, { scaleX: x0, scaleY: y, data: annotationData, width, height, backgroundColor: resolveBackgroundColor(container) }))
   }
   chart.draw(flatData)
+  setCachedChart(container, { chartType: 'bar-multi' })
 
   // Apply per-series color and opacity overrides to bars
   d3.select(chartArea).selectAll('.bc-bar-multi').each(function (this: SVGRectElement, d: unknown) {

@@ -12,6 +12,8 @@ import { createTooltipPlugin } from '../../plugins/tooltip'
 import { createCrosshairPlugin } from '../../plugins/crosshair'
 import { createAnnotationPlugin } from '../../plugins/annotations'
 import { resolveBackgroundColor } from '../../contrast'
+import { getDefaultTransitionMs } from '../../motion'
+import { getCachedChart, setCachedChart } from '../../transition-cache'
 
 const DEFAULT_COLORS = ['#4e79a7']
 
@@ -32,11 +34,11 @@ class BarVerticalChart extends D3Blueprint<BarDatum[]> {
     const g = this.base.append('g')
 
     this.layer('bars', g, {
-      dataBind: (sel, data) => sel.selectAll('.bc-bar').data(data),
+      dataBind: (sel, data) => sel.selectAll('.bc-bar').data(data, (d: BarDatum) => d.label),
       insert: sel => sel.append('rect').attr('class', 'bc-bar'),
       events: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        enter: (sel: any) => {
+        'enter': (sel: any) => {
           const x = this.config('x') as d3.ScaleBand<string>
           const y = this.config('y') as d3.ScaleLinear<number, number>
           const colors = this.config('colors') as string[]
@@ -48,6 +50,25 @@ class BarVerticalChart extends D3Blueprint<BarDatum[]> {
             .attr('height', (d: BarDatum) => Math.abs(y(d.value) - y(0)))
             .attr('fill', (d: BarDatum) => highlights.get(d.label) ?? colors[0])
         },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        'merge:transition': (sel: any) => {
+          const x = this.config('x') as d3.ScaleBand<string>
+          const y = this.config('y') as d3.ScaleLinear<number, number>
+          const colors = this.config('colors') as string[]
+          const highlights = this.config('highlights') as Map<string, string>
+          sel.duration(getDefaultTransitionMs())
+            .attr('x', (d: BarDatum) => x(d.label) ?? 0)
+            .attr('y', (d: BarDatum) => Math.min(y(0), y(d.value)))
+            .attr('width', x.bandwidth())
+            .attr('height', (d: BarDatum) => Math.abs(y(d.value) - y(0)))
+            .attr('fill', (d: BarDatum) => highlights.get(d.label) ?? colors[0])
+        },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        'exit:transition': (sel: any) => {
+          sel.duration(getDefaultTransitionMs())
+            .attr('opacity', 0)
+            .remove()
+        },
       },
     })
   }
@@ -57,7 +78,18 @@ export function render(
   container: HTMLElement,
   data: ChartData,
   options: ChartOptions = {},
+  transition = false,
 ): void {
+  // Preserve existing data elements for smooth D3 data-join transitions
+  let priorBars: Element[] = []
+  if (transition) {
+    const cached = getCachedChart(container)
+    if (cached?.chartType === 'bar-vertical') {
+      priorBars = Array.from(container.querySelectorAll('.bc-bar'))
+    }
+    container.replaceChildren()
+  }
+
   const { body } = createFrame(container, options.frame)
   const containerWidth = body.getBoundingClientRect().width
   const vLabelW = estimateVerticalLabelWidth(data.values, options.verticalAxis?.range, options.verticalAxis?.numberFormat, options.verticalAxis?.scaleType)
@@ -115,6 +147,13 @@ export function render(
 
   const chart = new BarVerticalChart(clippedGroup)
   chart.config({ x, y, width, height, colors: options.colors ?? DEFAULT_COLORS, highlights })
+
+  // Re-insert prior elements so D3 data-join finds them and triggers merge:transition
+  if (priorBars.length > 0) {
+    const layerG = clippedGroup.node()!.querySelector('g')!
+    priorBars.forEach(el => layerG.appendChild(el))
+  }
+
   if (options.valueLabels) {
     chart.use(createValueLabelPlugin({
       position: options.valueLabelPosition, orientation: 'vertical' }))
@@ -131,6 +170,7 @@ export function render(
       scaleX: x, scaleY: y, data: barData, width, height, backgroundColor: resolveBackgroundColor(container) }))
   }
   chart.draw(barData)
+  setCachedChart(container, { chartType: 'bar-vertical' })
 }
 
 function sortLabels(data: ChartData, options: ChartOptions): string[] {
