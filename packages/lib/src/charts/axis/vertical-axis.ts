@@ -3,6 +3,7 @@ import 'd3-transition'
 import { D3Blueprint } from 'd3-blueprint'
 import type { AxisOptions } from '../types'
 import { getDefaultTransitionMs } from '../motion'
+import { buildNumberFormatter } from '../format-helpers'
 
 interface AxisDatum {
   placeholder: true
@@ -40,8 +41,9 @@ class VerticalAxisChart extends D3Blueprint<AxisDatum[]> {
             axisFn.tickValues(ticks as (string & d3.NumberValue)[])
           }
           const fmt = this.config('numberFormat') as string | null
-          if (fmt) {
-            axisFn.tickFormat(d3.format(fmt) as (d: string | d3.NumberValue) => string)
+          const fmtFn = fmt ? buildNumberFormatter(fmt) : null
+          if (fmtFn) {
+            axisFn.tickFormat(fmtFn as (d: string | d3.NumberValue) => string)
           }
           sel.duration(getDefaultTransitionMs()).call(axisFn)
         },
@@ -68,8 +70,9 @@ class VerticalAxisChart extends D3Blueprint<AxisDatum[]> {
           }
 
           const fmt = this.config('numberFormat') as string | null
-          if (fmt) {
-            axisFn.tickFormat(d3.format(fmt) as (d: string | d3.NumberValue) => string)
+          const fmtFn = fmt ? buildNumberFormatter(fmt) : null
+          if (fmtFn) {
+            axisFn.tickFormat(fmtFn as (d: string | d3.NumberValue) => string)
           }
 
           sel.call(axisFn)

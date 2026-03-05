@@ -4,6 +4,7 @@ import { D3Blueprint } from 'd3-blueprint'
 import type { AxisOptions } from '../types'
 import { detectDates, type DateGranularity } from '../date-parse'
 import { getDefaultTransitionMs } from '../motion'
+import { buildNumberFormatter } from '../format-helpers'
 
 interface AxisDatum {
   placeholder: true
@@ -52,7 +53,7 @@ function buildTickFormatter(
 
   if (fmt) {
     // Numeric d3.format
-    return d3.format(fmt) as (d: string | d3.NumberValue) => string
+    return (buildNumberFormatter(fmt) ?? d3.format(fmt)) as (d: string | d3.NumberValue) => string
   }
 
   // No explicit format — auto-format dates if detected
