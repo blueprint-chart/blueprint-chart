@@ -5,10 +5,12 @@
   "type": "module",
   "scripts": {
     "build:grammar": "node src/dsl-lang/build.mjs",
+    "predev": "node src/dsl-lang/build.mjs",
     "dev": "vite",
     "build": "node src/dsl-lang/build.mjs && vite build",
     "typecheck": "vue-tsc --noEmit",
     "preview": "vite preview",
+    "pretest": "node src/dsl-lang/build.mjs",
     "test": "vitest run",
     "test:watch": "vitest"
   },
