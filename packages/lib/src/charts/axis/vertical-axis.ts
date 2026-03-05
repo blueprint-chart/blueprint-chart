@@ -188,9 +188,20 @@ export function renderVerticalAxis(
   scale: d3.ScaleLinear<number, number> | d3.ScaleLogarithmic<number, number> | d3.ScaleBand<string>,
   _height: number,
   options: AxisOptions = {},
+  priorAxisElement?: Element | null,
 ): SVGGElement {
   const direction = options.direction ?? 'left'
   const chart = new VerticalAxisChart(d3.select(chartArea))
+
+  // Re-insert prior axis element for D3 data-join transition
+  if (priorAxisElement) {
+    priorAxisElement.querySelectorAll('.bc-grid-line').forEach(el => el.remove())
+    const wrapperG = chartArea.lastElementChild
+    if (wrapperG) {
+      wrapperG.appendChild(priorAxisElement)
+    }
+  }
+
   chart.config({
     scale,
     direction,

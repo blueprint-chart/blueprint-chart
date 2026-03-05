@@ -284,8 +284,19 @@ export function renderHorizontalAxis(
   scale: AnyXScale,
   height: number,
   options: AxisOptions = {},
+  priorAxisElement?: Element | null,
 ): SVGGElement {
   const chart = new HorizontalAxisChart(d3.select(chartArea))
+
+  // Re-insert prior axis element for D3 data-join transition
+  if (priorAxisElement) {
+    priorAxisElement.querySelectorAll('.bc-grid-line').forEach(el => el.remove())
+    const wrapperG = chartArea.lastElementChild
+    if (wrapperG) {
+      wrapperG.appendChild(priorAxisElement)
+    }
+  }
+
   // Extract labels from band scale domain if available
   const labels = isBandScale(scale)
     ? scale.domain()
