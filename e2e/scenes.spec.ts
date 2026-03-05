@@ -1,5 +1,18 @@
 import { test, expect } from '@playwright/test'
 
+function hexToRgb(hex: string): string {
+  const r = parseInt(hex.slice(1, 3), 16)
+  const g = parseInt(hex.slice(3, 5), 16)
+  const b = parseInt(hex.slice(5, 7), 16)
+  return `rgb(${r}, ${g}, ${b})`
+}
+
+function normalizeColor(color: string): string {
+  const c = color.trim().toLowerCase()
+  if (c.startsWith('#')) { return hexToRgb(c) }
+  return c
+}
+
 // Helper: navigate to the Visualize step with sample data loaded
 async function goToVisualizeStep(page) {
   await page.goto('/new')
@@ -194,7 +207,7 @@ test.describe('Scene Timeline', () => {
 
     // Verify the bar uses the new base color
     const baseFill = await page.locator('.bc-frame-body rect').first().getAttribute('fill')
-    expect(baseFill?.toLowerCase()).toBe('#9900ef')
+    expect(normalizeColor(baseFill ?? '')).toBe(normalizeColor('#9900ef'))
 
     // Add Scene 2
     await page.locator('.button-add').click()
@@ -207,7 +220,7 @@ test.describe('Scene Timeline', () => {
 
     // Verify Scene 2 bars use the new color
     const scene2Fill = await page.locator('.bc-frame-body rect').first().getAttribute('fill')
-    expect(scene2Fill?.toLowerCase()).toBe('#0693e3')
+    expect(normalizeColor(scene2Fill ?? '')).toBe(normalizeColor('#0693e3'))
 
     // Switch to Scene 1 (base)
     await page.locator('.scene-timeline-item').first().click()
@@ -215,7 +228,7 @@ test.describe('Scene Timeline', () => {
 
     // Verify Scene 1 bars still use the original color (#9900ef)
     const scene1Fill = await page.locator('.bc-frame-body rect').first().getAttribute('fill')
-    expect(scene1Fill?.toLowerCase()).toBe('#9900ef')
+    expect(normalizeColor(scene1Fill ?? '')).toBe(normalizeColor('#9900ef'))
   })
 
   test('scene chart type override persists through reload', async ({ page }) => {
