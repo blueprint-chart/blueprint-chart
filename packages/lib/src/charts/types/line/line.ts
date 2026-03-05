@@ -180,12 +180,16 @@ export function render(
   let priorAreas: Element[] = []
   let priorLines: Element[] = []
   let priorDots: Element[] = []
+  let priorVAxis: Element | null = null
+  let priorHAxis: Element | null = null
   if (transition) {
     const cached = getCachedChart(container)
     if (cached?.chartType === 'line') {
       priorAreas = Array.from(container.querySelectorAll('.bc-area'))
       priorLines = Array.from(container.querySelectorAll('.bc-line'))
       priorDots = Array.from(container.querySelectorAll('.bc-dot'))
+      priorVAxis = container.querySelector('.bc-axis-vertical')
+      priorHAxis = container.querySelector('.bc-axis-horizontal')
     }
     container.replaceChildren()
   }
@@ -240,12 +244,12 @@ export function render(
     ? d3.scaleSymlog().domain([domainMin, domainMax]).nice().range([height, 0])
     : d3.scaleLinear().domain([domainMin, domainMax]).nice().range([height, 0])
 
-  renderVerticalAxis(chartArea, y, height, { ...options.verticalAxis, gridWidth: width, topPadding: margin.top })
+  renderVerticalAxis(chartArea, y, height, { ...options.verticalAxis, gridWidth: width, topPadding: margin.top }, priorVAxis)
 
   // When the vertical domain crosses zero, position the axis domain line at y=0
   const yDomain = y.domain() as number[]
   const zeroY = yDomain[0] < 0 && yDomain[1] > 0 ? (y(0) as number) : undefined
-  renderHorizontalAxis(chartArea, xScale, height, { ...options.horizontalAxis, width, zeroY })
+  renderHorizontalAxis(chartArea, xScale, height, { ...options.horizontalAxis, width, zeroY }, priorHAxis)
 
   // Clip chart content to the plot area so lines/areas/dots outside the domain are hidden
   const clipId = `bc-clip-${Math.random().toString(36).slice(2, 8)}`

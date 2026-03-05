@@ -82,10 +82,14 @@ export function render(
 ): void {
   // Preserve existing data elements for smooth D3 data-join transitions
   let priorBars: Element[] = []
+  let priorVAxis: Element | null = null
+  let priorHAxis: Element | null = null
   if (transition) {
     const cached = getCachedChart(container)
     if (cached?.chartType === 'bar-horizontal') {
       priorBars = Array.from(container.querySelectorAll('.bc-bar'))
+      priorVAxis = container.querySelector('.bc-axis-vertical')
+      priorHAxis = container.querySelector('.bc-axis-horizontal')
     }
     container.replaceChildren()
   }
@@ -119,8 +123,8 @@ export function render(
     .range([0, height])
     .padding(0.2)
 
-  renderHorizontalAxis(chartArea, x, height, { ...options.horizontalAxis, width })
-  renderVerticalAxis(chartArea, y, height, { ...options.verticalAxis, topPadding: margin.top })
+  renderHorizontalAxis(chartArea, x, height, { ...options.horizontalAxis, width }, priorHAxis)
+  renderVerticalAxis(chartArea, y, height, { ...options.verticalAxis, topPadding: margin.top }, priorVAxis)
 
   // Zero baseline when domain spans zero
   if (!useLog && domainMin < 0 && domainMax > 0) {
