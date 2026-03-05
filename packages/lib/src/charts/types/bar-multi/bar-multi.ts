@@ -91,10 +91,14 @@ export function render(
 ): void {
   // Preserve existing data elements for smooth D3 data-join transitions
   let priorBars: Element[] = []
+  let priorVAxis: Element | null = null
+  let priorHAxis: Element | null = null
   if (transition) {
     const cached = getCachedChart(container)
     if (cached?.chartType === 'bar-multi') {
       priorBars = Array.from(container.querySelectorAll('.bc-bar-multi'))
+      priorVAxis = container.querySelector('.bc-axis-vertical')
+      priorHAxis = container.querySelector('.bc-axis-horizontal')
     }
     container.replaceChildren()
   }
@@ -173,8 +177,8 @@ export function render(
     ? d3.scaleSymlog().domain([domainMin, domainMax]).nice().range([height, 0])
     : d3.scaleLinear().domain([domainMin, domainMax]).nice().range([height, 0])
 
-  renderVerticalAxis(chartArea, y, height, { ...options.verticalAxis, gridWidth: width, topPadding: margin.top })
-  renderHorizontalAxis(chartArea, x0, height, { ...options.horizontalAxis, width })
+  renderVerticalAxis(chartArea, y, height, { ...options.verticalAxis, gridWidth: width, topPadding: margin.top }, priorVAxis)
+  renderHorizontalAxis(chartArea, x0, height, { ...options.horizontalAxis, width }, priorHAxis)
 
   // Zero baseline when domain spans zero
   if (!useLog && domainMin < 0 && domainMax > 0) {
