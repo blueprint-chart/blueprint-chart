@@ -7,18 +7,11 @@
       <h6 class="fw-bold mb-3">
         Vertical Axis
       </h6>
-      <div class="d-flex flex-column gap-2">
-        <template
-          v-for="def in verticalDefs"
-          :key="def.key"
-        >
-          <AxisOption
-            :def="def"
-            :value="currentOptions[def.key as ChartTypeOptionKey]"
-            @update="(v) => setOption(def.key as ChartTypeOptionKey, v as any)"
-          />
-        </template>
-      </div>
+      <AxisGroup
+        :defs="verticalDefs"
+        :current-options="currentOptions"
+        @update="(k, v) => setOption(k, v as any)"
+      />
     </div>
 
     <hr v-if="verticalDefs.length > 0 && horizontalDefs.length > 0">
@@ -27,18 +20,11 @@
       <h6 class="fw-bold mb-3">
         Horizontal Axis
       </h6>
-      <div class="d-flex flex-column gap-2">
-        <template
-          v-for="def in horizontalDefs"
-          :key="def.key"
-        >
-          <AxisOption
-            :def="def"
-            :value="currentOptions[def.key as ChartTypeOptionKey]"
-            @update="(v) => setOption(def.key as ChartTypeOptionKey, v as any)"
-          />
-        </template>
-      </div>
+      <AxisGroup
+        :defs="horizontalDefs"
+        :current-options="currentOptions"
+        @update="(k, v) => setOption(k, v as any)"
+      />
     </div>
   </div>
   <p
@@ -182,4 +168,56 @@ const AxisOption: FunctionalComponent<{
 
 AxisOption.props = ['def', 'value']
 AxisOption.emits = ['update']
+
+function isRangeMin(key: string): boolean {
+  return key.endsWith('RangeMin')
+}
+function isRangeMax(key: string): boolean {
+  return key.endsWith('RangeMax')
+}
+
+const AxisGroup: FunctionalComponent<{
+  defs: ChartOptionDef[]
+  currentOptions: Record<string, unknown>
+}, { update: [key: ChartTypeOptionKey, value: unknown] }> = (props, { emit }) => {
+  const children: ReturnType<typeof h>[] = []
+  const { defs, currentOptions } = props
+  let i = 0
+  while (i < defs.length) {
+    const def = defs[i]
+    // Pair RangeMin + RangeMax on the same row
+    if (isRangeMin(def.key) && i + 1 < defs.length && isRangeMax(defs[i + 1].key)) {
+      const maxDef = defs[i + 1]
+      children.push(
+        h('div', { class: 'd-flex gap-2', key: def.key }, [
+          h(AxisOption, {
+            def,
+            value: currentOptions[def.key as ChartTypeOptionKey],
+            onUpdate: (v: unknown) => emit('update', def.key as ChartTypeOptionKey, v),
+          }),
+          h(AxisOption, {
+            def: maxDef,
+            value: currentOptions[maxDef.key as ChartTypeOptionKey],
+            onUpdate: (v: unknown) => emit('update', maxDef.key as ChartTypeOptionKey, v),
+          }),
+        ]),
+      )
+      i += 2
+    }
+    else {
+      children.push(
+        h(AxisOption, {
+          key: def.key,
+          def,
+          value: currentOptions[def.key as ChartTypeOptionKey],
+          onUpdate: (v: unknown) => emit('update', def.key as ChartTypeOptionKey, v),
+        }),
+      )
+      i++
+    }
+  }
+  return h('div', { class: 'd-flex flex-column gap-2' }, children)
+}
+AxisGroup.props = ['defs', 'currentOptions']
+AxisGroup.emits = ['update']
 </script>
