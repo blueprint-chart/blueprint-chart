@@ -6,7 +6,6 @@ import { createFrame } from '../../frame/frame'
 import { createCanvas, labelPositionMargins, estimateVerticalLabelWidth } from '../../canvas/canvas'
 import { renderVerticalAxis } from '../../axis/vertical-axis'
 import { renderHorizontalAxis, type AnyXScale } from '../../axis/horizontal-axis'
-import { detectDates } from '../../date-parse'
 import { renderLegend } from '../../legend/legend'
 import { estimateLegendSize, estimateDirectLabelWidth } from '../../legend/legend-size'
 import { computeLinearDomain } from '../../scale-helpers'
@@ -296,38 +295,12 @@ export function render(
 
   const [domainMin, domainMax] = computeLinearDomain(allValues, options.verticalAxis?.range)
 
-  // Detect scale type: time > linear > band
-  const dateInfo = detectDates(data.labels)
-  const numericLabels = !dateInfo && data.labels.every(l => !isNaN(Number(l)) && l.trim() !== '')
-
-  let xScale: AnyXScale
-  let xPos: (i: number) => number
-
-  if (dateInfo) {
-    const dates = dateInfo.dates
-    const hRange = options.horizontalAxis?.range
-    const minDate = hRange?.min != null ? new Date(hRange.min) : d3.min(dates)!
-    const maxDate = hRange?.max != null ? new Date(hRange.max) : d3.max(dates)!
-    const timeScale = d3.scaleTime().domain([minDate, maxDate]).range([0, width])
-    xScale = timeScale
-    xPos = i => timeScale(dates[i])
-  }
-  else if (numericLabels) {
-    const nums = data.labels.map(Number)
-    const hRange = options.horizontalAxis?.range
-    const minVal = hRange?.min ?? d3.min(nums)!
-    const maxVal = hRange?.max ?? d3.max(nums)!
-    const linearScale = d3.scaleLinear().domain([minVal, maxVal]).range([0, width])
-    xScale = linearScale
-    xPos = i => linearScale(nums[i])
-  }
-  else {
-    const pointScale = d3.scalePoint<string>()
-      .domain(data.labels)
-      .range([0, width])
-    xScale = pointScale
-    xPos = i => pointScale(data.labels[i]) ?? 0
-  }
+  const pointScale = d3.scalePoint<string>()
+    .domain(data.labels)
+    .range([0, width])
+    .padding(0.6)
+  const xScale: AnyXScale = pointScale
+  const xPos = (i: number) => pointScale(data.labels[i]) ?? 0
 
   const useLog = options.verticalAxis?.scaleType === 'log'
   const y = useLog
