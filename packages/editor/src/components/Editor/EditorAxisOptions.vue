@@ -81,12 +81,22 @@ const HORIZONTAL_KEYS = new Set([
 
 const { currentOptions, optionDefs, setOption } = useChartTypeOptions()
 
+function shortenLabel(label: string): string {
+  return label
+    .replace(/^(Show\s+)?(vertical|horizontal)\s+/i, (_, show) => show ?? '')
+    .replace(/^./, c => c.toUpperCase())
+}
+
 const verticalDefs = computed(() =>
-  optionDefs.value.filter(d => VERTICAL_KEYS.has(d.key)),
+  optionDefs.value
+    .filter(d => VERTICAL_KEYS.has(d.key))
+    .map(d => ({ ...d, label: shortenLabel(d.label) })),
 )
 
 const horizontalDefs = computed(() =>
-  optionDefs.value.filter(d => HORIZONTAL_KEYS.has(d.key)),
+  optionDefs.value
+    .filter(d => HORIZONTAL_KEYS.has(d.key))
+    .map(d => ({ ...d, label: shortenLabel(d.label) })),
 )
 
 const GRID_STYLE_ICONS: Record<string, Component> = {
