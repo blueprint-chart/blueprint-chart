@@ -236,12 +236,11 @@ export function render(
     xPos = (_d, i) => linearScale(nums[i])
   }
   else {
-    const bandScale = d3.scaleBand<string>()
+    const pointScale = d3.scalePoint<string>()
       .domain(data.labels)
       .range([0, width])
-      .padding(0.5)
-    xScale = bandScale
-    xPos = d => (bandScale(d.label) ?? 0) + bandScale.bandwidth() / 2
+    xScale = pointScale
+    xPos = d => pointScale(d.label) ?? 0
   }
 
   const useLog = options.verticalAxis?.scaleType === 'log'
