@@ -18,10 +18,10 @@ const AUTO_DATE_FORMATS: Record<string, string> = {
   datetime: '%b %-d, %Y %H:%M',
 }
 
-type AnyXScale = d3.ScaleBand<string> | d3.ScaleLinear<number, number> | d3.ScaleTime<number, number>
+type AnyXScale = d3.ScaleBand<string> | d3.ScalePoint<string> | d3.ScaleLinear<number, number> | d3.ScaleTime<number, number>
 
-function isBandScale(scale: AnyXScale): scale is d3.ScaleBand<string> {
-  return typeof (scale as d3.ScaleBand<string>).bandwidth === 'function'
+function isOrdinalScale(scale: AnyXScale): scale is d3.ScaleBand<string> | d3.ScalePoint<string> {
+  return typeof (scale as d3.ScaleBand<string>).step === 'function'
 }
 
 function buildTickFormatter(
@@ -128,7 +128,7 @@ class HorizontalAxisChart extends D3Blueprint<AxisDatum[]> {
           const availableWidth = this.config('width') as number
           const rawScale = this.config('scale') as AnyXScale
           if (!ticks && availableWidth > 0) {
-            if (isBandScale(rawScale)) {
+            if (isOrdinalScale(rawScale)) {
               const domain = rawScale.domain()
               if (domain.length > Math.floor(availableWidth / MIN_LABEL_SPACING)) {
                 ticks = thinLabels(domain, availableWidth) as (string & d3.NumberValue)[]
@@ -176,7 +176,7 @@ class HorizontalAxisChart extends D3Blueprint<AxisDatum[]> {
 
           const rawScale = this.config('scale') as AnyXScale
           if (!ticks && availableWidth > 0) {
-            if (isBandScale(rawScale)) {
+            if (isOrdinalScale(rawScale)) {
               // Auto-thin band scales based on available width
               const domain = rawScale.domain()
               if (domain.length > Math.floor(availableWidth / MIN_LABEL_SPACING)) {
@@ -298,7 +298,7 @@ export function renderHorizontalAxis(
   }
 
   // Extract labels from band scale domain if available
-  const labels = isBandScale(scale)
+  const labels = isOrdinalScale(scale)
     ? scale.domain()
     : []
 

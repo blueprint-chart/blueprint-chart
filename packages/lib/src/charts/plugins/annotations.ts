@@ -7,7 +7,7 @@ import type { AnnotationConfig, AnnotationLineStyle, CompassDirection, RangeAnch
 // ---------------------------------------------------------------------------
 
 export interface AnnotationContext {
-  scaleX: d3.ScaleBand<string> | d3.ScaleTime<number, number> | d3.ScaleLinear<number, number>
+  scaleX: d3.ScaleBand<string> | d3.ScalePoint<string> | d3.ScaleTime<number, number> | d3.ScaleLinear<number, number>
   scaleY: d3.ScaleLinear<number, number>
   data: { label: string, value: number }[]
   width: number
@@ -106,8 +106,12 @@ export function rotateDirectionForHorizontal(dir: CompassDirection): CompassDire
 // Scale helpers
 // ---------------------------------------------------------------------------
 
+function isPointScale(scale: AnnotationContext['scaleX']): scale is d3.ScalePoint<string> {
+  return 'step' in scale && !('bandwidth' in scale)
+}
+
 function isTimeScale(scale: AnnotationContext['scaleX']): scale is d3.ScaleTime<number, number> {
-  if ('bandwidth' in scale) {
+  if ('bandwidth' in scale || isPointScale(scale)) {
     return false
   }
   const domain = scale.domain()
@@ -118,6 +122,9 @@ function scaleXValue(scale: AnnotationContext['scaleX'], label: string): number 
   if ('bandwidth' in scale) {
     const band = scale as d3.ScaleBand<string>
     return (band(label) ?? 0) + band.bandwidth() / 2
+  }
+  if (isPointScale(scale)) {
+    return scale(label) ?? 0
   }
   if (isTimeScale(scale)) {
     return scale(new Date(label)) as number
@@ -523,6 +530,17 @@ function resolveXPosition(
       return left + bw + gap / 2
     }
     return left + bw / 2
+  }
+  if (isPointScale(scaleX)) {
+    const pos = scaleX(String(value)) ?? 0
+    const halfStep = scaleX.step() / 2
+    if (anchor === 'start') {
+      return pos - halfStep
+    }
+    if (anchor === 'end') {
+      return pos + halfStep
+    }
+    return pos
   }
   if (isTimeScale(scaleX)) {
     return scaleX(new Date(String(value))) as number
