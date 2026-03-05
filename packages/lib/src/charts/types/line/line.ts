@@ -14,7 +14,7 @@ import { renderAnnotations } from '../../plugins/annotations'
 import { resolveBackgroundColor } from '../../contrast'
 import { setupProximityInteraction } from '../../plugins/proximity'
 import { renderLineSymbols } from '../../line-symbols'
-import { getDefaultTransitionMs } from '../../motion'
+import { getDefaultTransitionMs, fadeIn, snapshotForFadeOut, commitFadeOut } from '../../motion'
 import { getCachedChart, setCachedChart } from '../../transition-cache'
 
 const DEFAULT_COLOR = '#4e79a7'
@@ -182,14 +182,20 @@ export function render(
   let priorDots: Element[] = []
   let priorVAxis: Element | null = null
   let priorHAxis: Element | null = null
+  let fadeOverlay: HTMLElement | null = null
   if (transition) {
     const cached = getCachedChart(container)
+    if (cached) {
+      priorVAxis = container.querySelector('.bc-axis-vertical')
+      priorHAxis = container.querySelector('.bc-axis-horizontal')
+    }
     if (cached?.chartType === 'line') {
       priorAreas = Array.from(container.querySelectorAll('.bc-area'))
       priorLines = Array.from(container.querySelectorAll('.bc-line'))
       priorDots = Array.from(container.querySelectorAll('.bc-dot'))
-      priorVAxis = container.querySelector('.bc-axis-vertical')
-      priorHAxis = container.querySelector('.bc-axis-horizontal')
+    }
+    else if (cached) {
+      fadeOverlay = snapshotForFadeOut(container)
     }
     container.replaceChildren()
   }
@@ -329,4 +335,9 @@ export function render(
   }
 
   setCachedChart(container, { chartType: 'line' })
+
+  if (fadeOverlay) {
+    fadeIn(clippedGroup.node()!)
+    commitFadeOut(container, fadeOverlay)
+  }
 }

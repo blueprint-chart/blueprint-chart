@@ -14,7 +14,7 @@ import { createTooltipPlugin } from '../../plugins/tooltip'
 import { createCrosshairPlugin } from '../../plugins/crosshair'
 import { contrastTextColor, readableColor, resolveBackgroundColor } from '../../contrast'
 import { resolveSeriesColor, isSeriesHidden, resolveSeriesValueLabels, resolveSeriesOpacity, resolveSeriesLabelMode } from '../../series-helpers'
-import { getDefaultTransitionMs } from '../../motion'
+import { getDefaultTransitionMs, fadeIn, snapshotForFadeOut, commitFadeOut } from '../../motion'
 import { setCachedChart, getCachedChart } from '../../transition-cache'
 
 const DEFAULT_COLORS = [
@@ -93,12 +93,18 @@ export function render(
   let priorBars: Element[] = []
   let priorVAxis: Element | null = null
   let priorHAxis: Element | null = null
+  let fadeOverlay: HTMLElement | null = null
   if (transition) {
     const cached = getCachedChart(container)
-    if (cached?.chartType === 'bar-multi') {
-      priorBars = Array.from(container.querySelectorAll('.bc-bar-multi'))
+    if (cached) {
       priorVAxis = container.querySelector('.bc-axis-vertical')
       priorHAxis = container.querySelector('.bc-axis-horizontal')
+    }
+    if (cached?.chartType === 'bar-multi') {
+      priorBars = Array.from(container.querySelectorAll('.bc-bar-multi'))
+    }
+    else if (cached) {
+      fadeOverlay = snapshotForFadeOut(container)
     }
     container.replaceChildren()
   }
@@ -247,6 +253,11 @@ export function render(
   }
   chart.draw(flatData)
   setCachedChart(container, { chartType: 'bar-multi' })
+
+  if (fadeOverlay) {
+    fadeIn(clippedGroup.node()!)
+    commitFadeOut(container, fadeOverlay)
+  }
 
   // Apply per-series color and opacity overrides to bars
   d3.select(chartArea).selectAll('.bc-bar-multi').each(function (this: SVGRectElement, d: unknown) {
