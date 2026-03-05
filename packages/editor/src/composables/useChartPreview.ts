@@ -2,7 +2,7 @@ import { watch, type Ref } from 'vue'
 import { useResizeObserver, useThrottleFn } from '@vueuse/core'
 import { useChartConfig } from './useChartConfig'
 import { useChartTypeOptions } from './useChartTypeOptions'
-import { useScenes } from './useScenes'
+import { useScenes, type SceneOverride } from './useScenes'
 import { useDataTable, serializeTableData } from './useDataTable'
 import { useDataTransforms } from './useDataTransforms'
 import { useTheme } from './useTheme'
@@ -18,30 +18,78 @@ function showPlaceholder(el: HTMLElement, message: string) {
 
 const RESIZE_THROTTLE_MS = 150
 
+/**
+ * Fold scenes 0..index into a single resolved override.
+ * Each field uses "last scene that defined it" semantics, so scene N
+ * inherits anything set by scenes 0..N-1 that it doesn't override itself.
+ */
+export function resolveScene(scenes: SceneOverride[], index: number): SceneOverride | null {
+  if (index < 0 || index >= scenes.length) {
+    return null
+  }
+  const resolved: SceneOverride = { id: scenes[index].id, name: scenes[index].name }
+  for (let i = 0; i <= index; i++) {
+    const s = scenes[i]
+    if (s.chartType !== undefined) {
+      resolved.chartType = s.chartType
+    }
+    if (s.data !== undefined) {
+      resolved.data = s.data
+    }
+    if (s.chartTypeOptions !== undefined) {
+      resolved.chartTypeOptions = resolved.chartTypeOptions
+        ? { ...resolved.chartTypeOptions, ...s.chartTypeOptions }
+        : { ...s.chartTypeOptions }
+    }
+    if (s.highlights !== undefined) {
+      resolved.highlights = s.highlights
+    }
+    if (s.areaFills !== undefined) {
+      resolved.areaFills = s.areaFills
+    }
+    if (s.annotations !== undefined) {
+      resolved.annotations = s.annotations
+    }
+    if (s.seriesOverrides !== undefined) {
+      resolved.seriesOverrides = s.seriesOverrides
+    }
+    if (s.transforms !== undefined) {
+      resolved.transforms = s.transforms
+    }
+    if (s.properties !== undefined) {
+      resolved.properties = resolved.properties
+        ? { ...resolved.properties, ...s.properties }
+        : { ...s.properties }
+    }
+  }
+  return resolved
+}
+
 export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
   const config = useChartConfig()
   const { currentOptions } = useChartTypeOptions()
-  const { activeScene } = useScenes()
+  const { scenes, activeIndex, activeScene } = useScenes()
   const { columns, rows, columnTypes } = useDataTable()
   const { applyStepList } = useDataTransforms()
   const { theme } = useTheme()
 
-  // Track previous scene reference to detect scene navigation.
+  // Track previous active scene ref to detect scene navigation.
   // Symbol sentinel distinguishes "never rendered" from "rendered with no scene (null)".
   const UNSET = Symbol('unset')
-  let prevScene: unknown = UNSET
+  let prevActiveScene: unknown = UNSET
 
   function render() {
     if (!containerRef.value) {
       return
     }
 
-    const scene = activeScene.value
+    const rawScene = activeScene.value
+    const scene = resolveScene(scenes.value, activeIndex.value)
     const chartType = scene?.chartType ?? config.chartType.value
 
     // Transition when the active scene changed (base→scene, scene→scene, scene→base)
     // but not on the very first render or when other config properties changed.
-    const isSceneTransition = prevScene !== UNSET && scene !== prevScene
+    const isSceneTransition = prevActiveScene !== UNSET && rawScene !== prevActiveScene
 
     // Skip clearing during scene transitions so render functions can
     // extract existing data elements for smooth D3 data-join animations
@@ -126,7 +174,7 @@ export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
       seriesOverrides: seriesOverrides.length > 0 ? seriesOverrides : undefined,
     }, isSceneTransition)
 
-    prevScene = scene
+    prevActiveScene = rawScene
   }
 
   watch(
