@@ -38,4 +38,11 @@ describe('donut chart', () => {
     render(container, data, { frame: { title: 'Donut' } })
     expect(container.querySelector('.bc-frame-title')?.textContent).toBe('Donut')
   })
+
+  it('supports transition parameter on second render', () => {
+    render(container, data)
+    render(container, { labels: ['X', 'Y'], values: [40, 60] }, {}, true)
+    const arcs = container.querySelectorAll('.bc-arc')
+    expect(arcs.length).toBeGreaterThan(0)
+  })
 })
