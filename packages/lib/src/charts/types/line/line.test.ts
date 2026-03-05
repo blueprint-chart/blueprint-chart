@@ -38,4 +38,11 @@ describe('line chart', () => {
     const path = container.querySelector('.bc-line')
     expect(path?.getAttribute('stroke')).toBe('#ff0000')
   })
+
+  it('supports transition parameter on second render', () => {
+    render(container, data)
+    render(container, { labels: ['A', 'B'], values: [15, 25] }, {}, true)
+    const lines = container.querySelectorAll('.bc-line')
+    expect(lines.length).toBeGreaterThan(0)
+  })
 })
