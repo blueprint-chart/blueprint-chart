@@ -880,7 +880,7 @@ export function renderAnnotations(
     }
   }
 
-  expandSvgToFitAnnotations(svg as SVGSVGElement | null, g, rangeGroup)
+  expandSvgToFitAnnotations(svg as SVGSVGElement | null)
 }
 
 // ---------------------------------------------------------------------------
@@ -905,10 +905,19 @@ export function createAnnotationPlugin(
       }
       ensureArrowMarker(svg)
 
+      // Render annotations on the parent of the clipped group so they
+      // are not constrained by the chart-area clip-path.  Fall back to
+      // base itself when there is no parent (e.g. standalone usage).
+      const baseNode = base.node()
+      const parentNode = baseNode?.parentNode as SVGGElement | null
+      const target = parentNode && parentNode !== svg
+        ? d3.select(parentNode) as unknown as d3.Selection<SVGElement, unknown, null, undefined>
+        : base
+
       // Range annotations render behind chart content
-      const rangeGroup = base.insert('g', ':first-child').attr('class', 'bc-annotations-range') as unknown as d3.Selection<SVGGElement, unknown, null, undefined>
+      const rangeGroup = target.insert('g', ':first-child').attr('class', 'bc-annotations-range') as unknown as d3.Selection<SVGGElement, unknown, null, undefined>
       // Point/free annotations render on top
-      const g = base.append('g')
+      const g = target.append('g')
         .attr('class', 'bc-annotations')
         .attr('data-ctx-width', String(ctx.width))
         .attr('data-ctx-height', String(ctx.height)) as unknown as d3.Selection<SVGGElement, unknown, null, undefined>
@@ -931,7 +940,7 @@ export function createAnnotationPlugin(
       }
 
       // Expand SVG viewBox if annotations extend beyond chart bounds
-      expandSvgToFitAnnotations(svg as SVGSVGElement | null, g, rangeGroup)
+      expandSvgToFitAnnotations(svg as SVGSVGElement | null)
     },
   }
 }
@@ -940,8 +949,7 @@ export function createAnnotationPlugin(
 // Dynamic viewBox expansion
 // ---------------------------------------------------------------------------
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function expandSvgToFitAnnotations(svg: SVGSVGElement | null, annotationGroup: d3.Selection<SVGGElement, unknown, null, undefined>, rangeGroup: d3.Selection<SVGGElement, unknown, null, undefined>): void {
+function expandSvgToFitAnnotations(svg: SVGSVGElement | null): void {
   if (!svg) {
     return
   }
@@ -958,18 +966,26 @@ function expandSvgToFitAnnotations(svg: SVGSVGElement | null, annotationGroup: d
     return
   }
 
+  // Only add padding on sides where content actually overflows the SVG
+  // dimensions.  This prevents range annotations (which fill the chart
+  // area exactly) from triggering unnecessary viewBox expansion.
   const pad = 8
-  const minX = Math.min(0, totalBBox.x - pad)
-  const minY = Math.min(0, totalBBox.y - pad)
-  const maxX = Math.max(svgW, totalBBox.x + totalBBox.width + pad)
-  const maxY = Math.max(svgH, totalBBox.y + totalBBox.height + pad)
+  const rawMinX = totalBBox.x
+  const rawMinY = totalBBox.y
+  const rawMaxX = totalBBox.x + totalBBox.width
+  const rawMaxY = totalBBox.y + totalBBox.height
 
-  const needsExpand = minX < 0 || minY < 0 || maxX > svgW || maxY > svgH
+  const vbMinX = rawMinX < 0 ? rawMinX - pad : 0
+  const vbMinY = rawMinY < 0 ? rawMinY - pad : 0
+  const vbMaxX = rawMaxX > svgW ? rawMaxX + pad : svgW
+  const vbMaxY = rawMaxY > svgH ? rawMaxY + pad : svgH
+
+  const needsExpand = vbMinX < 0 || vbMinY < 0 || vbMaxX > svgW || vbMaxY > svgH
 
   if (needsExpand) {
     // Only set viewBox — keep width/height the same so SVG scales to fit
     d3.select(svg)
-      .attr('viewBox', `${minX} ${minY} ${maxX - minX} ${maxY - minY}`)
+      .attr('viewBox', `${vbMinX} ${vbMinY} ${vbMaxX - vbMinX} ${vbMaxY - vbMinY}`)
       .attr('preserveAspectRatio', 'xMidYMid meet')
   }
 }
