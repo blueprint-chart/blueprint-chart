@@ -34,6 +34,8 @@ export { default as FormControlTextInput } from './components/Form/FormControl/F
 export { default as FormControlPalette } from './components/Form/FormControl/FormControlPalette.vue'
 export { default as FormControlPaletteEntry } from './components/Form/FormControl/FormControlPaletteEntry.vue'
 export { default as FormControlColorblindPicker } from './components/Form/FormControl/FormControlColorblindPicker.vue'
+export { default as FormControlNumberFormat } from './components/Form/FormControl/FormControlNumberFormat.vue'
+export { default as FormControlDateFormat } from './components/Form/FormControl/FormControlDateFormat.vue'
 
 export { default as DisplayColorSwatch } from './components/Display/DisplayColorSwatch/DisplayColorSwatch.vue'
 export { default as DisplayPalette } from './components/Display/DisplayPalette/DisplayPalette.vue'
