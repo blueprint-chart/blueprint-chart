@@ -15,6 +15,8 @@ import { renderAnnotations } from '../../plugins/annotations'
 import { resolveBackgroundColor } from '../../contrast'
 import { setupProximityInteraction } from '../../plugins/proximity'
 import { renderLineSymbols } from '../../line-symbols'
+import { getDefaultTransitionMs } from '../../motion'
+import { setCachedChart, getCachedChart } from '../../transition-cache'
 import { resolveSeriesColor, resolveSeriesDash, resolveSeriesWidth, resolveSeriesInterpolation, isSeriesHidden, resolveSeriesLabelMode, resolveSeriesValueLabels, resolveSeriesLineSymbols } from '../../series-helpers'
 import type { LineSymbolConfig } from '../../types'
 import { spreadLabels } from '../../plugins/arc-labels'
@@ -55,11 +57,11 @@ class LineMultiChart extends D3Blueprint<SeriesDatum[]> {
     const dotsGroup = this.base.append('g')
 
     this.layer('areas', areaGroup, {
-      dataBind: (sel, data) => sel.selectAll('.bc-area').data(this.config('areaFill') ? data : []),
+      dataBind: (sel, data) => sel.selectAll('.bc-area').data(this.config('areaFill') ? data : [], (d: SeriesDatum) => d.name),
       insert: sel => sel.append('path').attr('class', 'bc-area'),
       events: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        enter: (sel: any) => {
+        'enter': (sel: any) => {
           const xPos = this.config('xPos') as (i: number) => number
           const y = this.config('y') as d3.ScaleLinear<number, number>
           const colors = this.config('colors') as string[]
@@ -79,15 +81,42 @@ class LineMultiChart extends D3Blueprint<SeriesDatum[]> {
               return areaGen(d.values)
             })
         },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        'merge:transition': (sel: any) => {
+          const xPos = this.config('xPos') as (i: number) => number
+          const y = this.config('y') as d3.ScaleLinear<number, number>
+          const colors = this.config('colors') as string[]
+          const curve = this.config('curve') as d3.CurveFactory
+          const h = this.config('height') as number
+          const opacity = this.config('areaFillOpacity') as number
+          sel.duration(getDefaultTransitionMs())
+            .attr('data-series', (d: SeriesDatum) => d.colorIndex)
+            .attr('fill', (d: SeriesDatum) => colors[d.colorIndex % colors.length])
+            .attr('opacity', opacity)
+            .attr('d', (d: SeriesDatum) => {
+              const areaGen = d3.area<number>()
+                .curve(curve)
+                .x((_v, i) => xPos(i))
+                .y0(h)
+                .y1(v => y(v))
+              return areaGen(d.values)
+            })
+        },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        'exit:transition': (sel: any) => {
+          sel.duration(getDefaultTransitionMs())
+            .attr('opacity', 0)
+            .remove()
+        },
       },
     })
 
     this.layer('lines', g, {
-      dataBind: (sel, data) => sel.selectAll('.bc-line').data(data),
+      dataBind: (sel, data) => sel.selectAll('.bc-line').data(data, (d: SeriesDatum) => d.name),
       insert: sel => sel.append('path').attr('class', 'bc-line'),
       events: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        enter: (sel: any) => {
+        'enter': (sel: any) => {
           const xPos = this.config('xPos') as (i: number) => number
           const y = this.config('y') as d3.ScaleLinear<number, number>
           const colors = this.config('colors') as string[]
@@ -105,15 +134,40 @@ class LineMultiChart extends D3Blueprint<SeriesDatum[]> {
               return lineGen(d.values)
             })
         },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        'merge:transition': (sel: any) => {
+          const xPos = this.config('xPos') as (i: number) => number
+          const y = this.config('y') as d3.ScaleLinear<number, number>
+          const colors = this.config('colors') as string[]
+          sel.duration(getDefaultTransitionMs())
+            .attr('data-series', (d: SeriesDatum) => d.colorIndex)
+            .attr('fill', 'none')
+            .attr('stroke', (d: SeriesDatum) => colors[d.colorIndex % colors.length])
+            .attr('stroke-width', 2)
+            .attr('d', (d: SeriesDatum) => {
+              const curve = this.config('curve') as d3.CurveFactory
+              const lineGen = d3.line<number>()
+                .curve(curve)
+                .x((_v, i) => xPos(i))
+                .y(v => y(v))
+              return lineGen(d.values)
+            })
+        },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        'exit:transition': (sel: any) => {
+          sel.duration(getDefaultTransitionMs())
+            .attr('opacity', 0)
+            .remove()
+        },
       },
     })
 
     this.layer('dots', dotsGroup, {
-      dataBind: sel => sel.selectAll('.bc-dot').data(this.config('dots') as DotDatum[]),
+      dataBind: sel => sel.selectAll('.bc-dot').data(this.config('dots') as DotDatum[], (d: DotDatum) => d.label + '\0' + d.series),
       insert: sel => sel.append('circle').attr('class', 'bc-dot'),
       events: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        enter: (sel: any) => {
+        'enter': (sel: any) => {
           const xPos = this.config('xPos') as (i: number) => number
           const y = this.config('y') as d3.ScaleLinear<number, number>
           const colors = this.config('colors') as string[]
@@ -125,6 +179,25 @@ class LineMultiChart extends D3Blueprint<SeriesDatum[]> {
             .attr('r', 3)
             .attr('fill', (d: DotDatum) => colors[d.colorIndex % colors.length])
         },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        'merge:transition': (sel: any) => {
+          const xPos = this.config('xPos') as (i: number) => number
+          const y = this.config('y') as d3.ScaleLinear<number, number>
+          const colors = this.config('colors') as string[]
+          const labels = this.config('labels') as string[]
+          sel.duration(getDefaultTransitionMs())
+            .attr('data-series', (d: DotDatum) => d.colorIndex)
+            .attr('cx', (d: DotDatum) => xPos(labels.indexOf(d.label)))
+            .attr('cy', (d: DotDatum) => y(d.value))
+            .attr('r', 3)
+            .attr('fill', (d: DotDatum) => colors[d.colorIndex % colors.length])
+        },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        'exit:transition': (sel: any) => {
+          sel.duration(getDefaultTransitionMs())
+            .attr('opacity', 0)
+            .remove()
+        },
       },
     })
   }
@@ -134,7 +207,22 @@ export function render(
   container: HTMLElement,
   data: ChartData,
   options: ChartOptions = {},
+  transition = false,
 ): void {
+  // Preserve existing data elements for smooth D3 data-join transitions
+  let priorAreas: Element[] = []
+  let priorLines: Element[] = []
+  let priorDots: Element[] = []
+  if (transition) {
+    const cached = getCachedChart(container)
+    if (cached?.chartType === 'line-multi') {
+      priorAreas = Array.from(container.querySelectorAll('.bc-area'))
+      priorLines = Array.from(container.querySelectorAll('.bc-line'))
+      priorDots = Array.from(container.querySelectorAll('.bc-dot'))
+    }
+    container.replaceChildren()
+  }
+
   const { body } = createFrame(container, options.frame)
 
   const allSeries = data.series ?? []
@@ -289,6 +377,21 @@ export function render(
 
   const chart = new LineMultiChart(d3.select(clippedArea))
   chart.config({ xPos, y, colors, labels: data.labels, curve, areaFill: options.areaFill ?? false, areaFillOpacity: options.areaFillOpacity ?? 0.2, height, dots: dotData })
+
+  // Re-insert prior elements so D3 data-join finds them and triggers merge:transition
+  if (priorLines.length > 0 || priorAreas.length > 0 || priorDots.length > 0) {
+    const groups = clippedArea.querySelectorAll(':scope > g')
+    if (groups[0]) {
+      priorAreas.forEach(el => groups[0].appendChild(el))
+    }
+    if (groups[1]) {
+      priorLines.forEach(el => groups[1].appendChild(el))
+    }
+    if (groups[2]) {
+      priorDots.forEach(el => groups[2].appendChild(el))
+    }
+  }
+
   chart.draw(seriesData)
 
   if (options.annotations?.length) {
@@ -480,6 +583,8 @@ export function render(
     }
     renderLegend(chartArea, legendSeriesNames, legendColors, yPos, legendPos, legendAnchor, width, height, xLegendPos)
   }
+
+  setCachedChart(container, { chartType: 'line-multi' })
 }
 
 function renderAreaFills(

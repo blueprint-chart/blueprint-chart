@@ -14,6 +14,8 @@ import { renderAnnotations } from '../../plugins/annotations'
 import { resolveBackgroundColor } from '../../contrast'
 import { setupProximityInteraction } from '../../plugins/proximity'
 import { renderLineSymbols } from '../../line-symbols'
+import { getDefaultTransitionMs } from '../../motion'
+import { getCachedChart, setCachedChart } from '../../transition-cache'
 
 const DEFAULT_COLOR = '#4e79a7'
 
@@ -42,7 +44,7 @@ class LineChart extends D3Blueprint<LineDatum[]> {
       insert: sel => sel.append('path').attr('class', 'bc-area'),
       events: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        enter: (sel: any) => {
+        'enter': (sel: any) => {
           const xPos = this.config('xPos') as (d: LineDatum, i: number) => number
           const y = this.config('y') as d3.ScaleLinear<number, number>
           const color = this.config('color') as string
@@ -59,6 +61,30 @@ class LineChart extends D3Blueprint<LineDatum[]> {
             .attr('opacity', opacity)
             .attr('d', areaGen)
         },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        'merge:transition': (sel: any) => {
+          const xPos = this.config('xPos') as (d: LineDatum, i: number) => number
+          const y = this.config('y') as d3.ScaleLinear<number, number>
+          const color = this.config('color') as string
+          const curve = this.config('curve') as d3.CurveFactory
+          const h = this.config('height') as number
+          const opacity = this.config('areaFillOpacity') as number
+          const areaGen = d3.area<LineDatum>()
+            .curve(curve)
+            .x((d, i) => xPos(d, i))
+            .y0(h)
+            .y1(d => y(d.value))
+          sel.duration(getDefaultTransitionMs())
+            .attr('fill', color)
+            .attr('opacity', opacity)
+            .attr('d', areaGen)
+        },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        'exit:transition': (sel: any) => {
+          sel.duration(getDefaultTransitionMs())
+            .attr('opacity', 0)
+            .remove()
+        },
       },
     })
 
@@ -67,7 +93,7 @@ class LineChart extends D3Blueprint<LineDatum[]> {
       insert: sel => sel.append('path').attr('class', 'bc-line'),
       events: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        enter: (sel: any) => {
+        'enter': (sel: any) => {
           const xPos = this.config('xPos') as (d: LineDatum, i: number) => number
           const y = this.config('y') as d3.ScaleLinear<number, number>
           const color = this.config('color') as string
@@ -82,15 +108,37 @@ class LineChart extends D3Blueprint<LineDatum[]> {
             .attr('stroke-width', 2)
             .attr('d', lineGen)
         },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        'merge:transition': (sel: any) => {
+          const xPos = this.config('xPos') as (d: LineDatum, i: number) => number
+          const y = this.config('y') as d3.ScaleLinear<number, number>
+          const color = this.config('color') as string
+          const curve = this.config('curve') as d3.CurveFactory
+          const lineGen = d3.line<LineDatum>()
+            .curve(curve)
+            .x((d, i) => xPos(d, i))
+            .y(d => y(d.value))
+          sel.duration(getDefaultTransitionMs())
+            .attr('fill', 'none')
+            .attr('stroke', color)
+            .attr('stroke-width', 2)
+            .attr('d', lineGen)
+        },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        'exit:transition': (sel: any) => {
+          sel.duration(getDefaultTransitionMs())
+            .attr('opacity', 0)
+            .remove()
+        },
       },
     })
 
     this.layer('dots', dotsGroup, {
-      dataBind: (sel, data) => sel.selectAll('.bc-dot').data(data),
+      dataBind: (sel, data) => sel.selectAll('.bc-dot').data(data, (d: LineDatum) => d.label),
       insert: sel => sel.append('circle').attr('class', 'bc-dot'),
       events: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        enter: (sel: any) => {
+        'enter': (sel: any) => {
           const xPos = this.config('xPos') as (d: LineDatum, i: number) => number
           const y = this.config('y') as d3.ScaleLinear<number, number>
           const color = this.config('color') as string
@@ -99,6 +147,23 @@ class LineChart extends D3Blueprint<LineDatum[]> {
             .attr('cy', (d: LineDatum) => y(d.value))
             .attr('r', 3)
             .attr('fill', color)
+        },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        'merge:transition': (sel: any) => {
+          const xPos = this.config('xPos') as (d: LineDatum, i: number) => number
+          const y = this.config('y') as d3.ScaleLinear<number, number>
+          const color = this.config('color') as string
+          sel.duration(getDefaultTransitionMs())
+            .attr('cx', (d: LineDatum, i: number) => xPos(d, i))
+            .attr('cy', (d: LineDatum) => y(d.value))
+            .attr('r', 3)
+            .attr('fill', color)
+        },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        'exit:transition': (sel: any) => {
+          sel.duration(getDefaultTransitionMs())
+            .attr('opacity', 0)
+            .remove()
         },
       },
     })
@@ -109,7 +174,21 @@ export function render(
   container: HTMLElement,
   data: ChartData,
   options: ChartOptions = {},
+  transition = false,
 ): void {
+  // Preserve existing data elements for smooth D3 data-join transitions
+  let priorAreas: Element[] = []
+  let priorLines: Element[] = []
+  let priorDots: Element[] = []
+  if (transition) {
+    const cached = getCachedChart(container)
+    if (cached?.chartType === 'line') {
+      priorAreas = Array.from(container.querySelectorAll('.bc-area'))
+      priorLines = Array.from(container.querySelectorAll('.bc-line'))
+      priorDots = Array.from(container.querySelectorAll('.bc-dot'))
+    }
+    container.replaceChildren()
+  }
   const { body } = createFrame(container, options.frame)
   const containerWidth = body.getBoundingClientRect().width
   const vLabelW = estimateVerticalLabelWidth(data.values, options.verticalAxis?.range, options.verticalAxis?.numberFormat, options.verticalAxis?.scaleType)
@@ -186,6 +265,19 @@ export function render(
 
   const chart = new LineChart(d3.select(clippedArea))
   chart.config({ xPos, y, color, curve, areaFill: options.areaFill ?? false, areaFillOpacity: options.areaFillOpacity ?? 0.2, height })
+  // Re-insert prior elements so D3 data-join finds them and triggers merge:transition
+  if (priorLines.length > 0 || priorAreas.length > 0 || priorDots.length > 0) {
+    const groups = clippedArea.querySelectorAll(':scope > g')
+    if (groups[0]) {
+      priorAreas.forEach(el => groups[0].appendChild(el))
+    }
+    if (groups[1]) {
+      priorLines.forEach(el => groups[1].appendChild(el))
+    }
+    if (groups[2]) {
+      priorDots.forEach(el => groups[2].appendChild(el))
+    }
+  }
   if (options.valueLabels) {
     chart.use(createValueLabelPlugin({ position: options.valueLabelPosition, orientation: 'vertical' }))
   }
@@ -231,4 +323,6 @@ export function render(
     const symbolsGroup = d3.select(chartArea).append('g').attr('class', 'bc-symbols')
     renderLineSymbols(symbolsGroup as unknown as d3.Selection<SVGGElement, unknown, null, undefined>, symbolPoints, lineData.length, symbolConfig)
   }
+
+  setCachedChart(container, { chartType: 'line' })
 }

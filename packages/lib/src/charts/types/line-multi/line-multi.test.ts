@@ -42,4 +42,18 @@ describe('line-multi chart', () => {
     expect(container.querySelector('.bc-frame')).not.toBeNull()
     expect(container.querySelector('svg')).not.toBeNull()
   })
+
+  it('supports transition parameter on second render', () => {
+    render(container, data)
+    render(container, {
+      labels: ['Jan', 'Feb', 'Mar'],
+      values: [],
+      series: [
+        { name: 'Series A', values: [15, 20, 25] },
+        { name: 'Series B', values: [10, 30, 20] },
+      ],
+    }, {}, true)
+    const lines = container.querySelectorAll('.bc-line')
+    expect(lines.length).toBeGreaterThan(0)
+  })
 })
