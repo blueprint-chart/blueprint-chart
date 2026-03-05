@@ -161,6 +161,7 @@ export function labelPositionMargins(
     }
   }
   else {
+    overrides.right = 0
     if (vLabelsInside || vLabelsHidden) {
       overrides.left = 0
     }
