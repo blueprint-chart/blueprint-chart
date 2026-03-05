@@ -2,6 +2,7 @@ import * as d3 from 'd3'
 import 'd3-transition'
 import { D3Blueprint } from 'd3-blueprint'
 import type { Margin } from '../types'
+import { buildNumberFormatter } from '../format-helpers'
 
 export interface CanvasElements {
   svg: SVGSVGElement
@@ -71,7 +72,7 @@ export function estimateVerticalLabelWidth(
 
   const ticks = scale.ticks()
   const fmt = numberFormat
-    ? d3.format(numberFormat)
+    ? (buildNumberFormatter(numberFormat) ?? scale.tickFormat())
     : scale.tickFormat()
 
   const labels = ticks.map(t => fmt(t))
