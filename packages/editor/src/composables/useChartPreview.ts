@@ -26,14 +26,28 @@ export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
   const { applyStepList } = useDataTransforms()
   const { theme } = useTheme()
 
+  // Track previous scene reference to detect scene navigation.
+  // Symbol sentinel distinguishes "never rendered" from "rendered with no scene (null)".
+  const UNSET = Symbol('unset')
+  let prevScene: unknown = UNSET
+
   function render() {
     if (!containerRef.value) {
       return
     }
-    containerRef.value.replaceChildren()
 
     const scene = activeScene.value
     const chartType = scene?.chartType ?? config.chartType.value
+
+    // Transition when the active scene changed (base→scene, scene→scene, scene→base)
+    // but not on the very first render or when other config properties changed.
+    const isSceneTransition = prevScene !== UNSET && scene !== prevScene
+
+    // Skip clearing during scene transitions so render functions can
+    // extract existing data elements for smooth D3 data-join animations
+    if (!isSceneTransition) {
+      containerRef.value.replaceChildren()
+    }
 
     let dataStr: string
     if (scene?.data) {
@@ -110,7 +124,9 @@ export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
       areaFills: areaFills.length > 0 ? areaFills : undefined,
       annotations: annotations.length > 0 ? annotations : undefined,
       seriesOverrides: seriesOverrides.length > 0 ? seriesOverrides : undefined,
-    })
+    }, isSceneTransition)
+
+    prevScene = scene
   }
 
   watch(
