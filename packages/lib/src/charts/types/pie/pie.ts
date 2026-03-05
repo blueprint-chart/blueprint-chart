@@ -5,6 +5,7 @@ export function render(
   container: HTMLElement,
   data: ChartData,
   options: ChartOptions = {},
+  transition = false,
 ): void {
-  renderArc(container, data, options, 0)
+  renderArc(container, data, options, 0, transition)
 }

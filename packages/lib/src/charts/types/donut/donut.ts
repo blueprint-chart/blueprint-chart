@@ -2,6 +2,8 @@ import * as d3 from 'd3'
 import 'd3-transition'
 import { D3Blueprint } from 'd3-blueprint'
 import type { ChartData, ChartOptions } from '../../types'
+import { getDefaultTransitionMs } from '../../motion'
+import { getCachedChart, setCachedChart } from '../../transition-cache'
 import { createFrame } from '../../frame/frame'
 import { createCanvas } from '../../canvas/canvas'
 import { renderLegend } from '../../legend/legend'
@@ -26,17 +28,35 @@ class ArcChart extends D3Blueprint<d3.PieArcDatum<number>[]> {
     const g = this.base.append('g')
 
     this.layer('arcs', g, {
-      dataBind: (sel, data) => sel.selectAll('.bc-arc').data(data),
+      dataBind: (sel, data) => {
+        const labels = this.config('labels') as string[]
+        return sel.selectAll('.bc-arc').data(data, (_d: d3.PieArcDatum<number>, i: number) => labels[i])
+      },
       insert: sel => sel.append('path').attr('class', 'bc-arc'),
       events: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        enter: (sel: any) => {
+        'enter': (sel: any) => {
           const arcGen = this.config('arc') as d3.Arc<unknown, d3.PieArcDatum<number>>
           const colorScale = this.config('colorScale') as d3.ScaleOrdinal<string, string>
           const labels = this.config('labels') as string[]
           sel
             .attr('d', arcGen)
             .attr('fill', (_d: d3.PieArcDatum<number>, i: number) => colorScale(labels[i]))
+        },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        'merge:transition': (sel: any) => {
+          const arcGen = this.config('arc') as d3.Arc<unknown, d3.PieArcDatum<number>>
+          const colorScale = this.config('colorScale') as d3.ScaleOrdinal<string, string>
+          const labels = this.config('labels') as string[]
+          sel.duration(getDefaultTransitionMs())
+            .attr('d', arcGen)
+            .attr('fill', (_d: d3.PieArcDatum<number>, i: number) => colorScale(labels[i]))
+        },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        'exit:transition': (sel: any) => {
+          sel.duration(getDefaultTransitionMs())
+            .attr('opacity', 0)
+            .remove()
         },
       },
     })
@@ -47,8 +67,9 @@ export function render(
   container: HTMLElement,
   data: ChartData,
   options: ChartOptions = {},
+  transition = false,
 ): void {
-  renderArc(container, data, options, 0.6)
+  renderArc(container, data, options, 0.6, transition)
 }
 
 export function renderArc(
@@ -56,7 +77,18 @@ export function renderArc(
   data: ChartData,
   options: ChartOptions,
   innerRadiusRatio: number,
+  transition = false,
 ): void {
+  // Preserve existing arc elements for smooth D3 data-join transitions
+  let priorArcs: Element[] = []
+  if (transition) {
+    const cached = getCachedChart(container)
+    if (cached?.chartType === (innerRadiusRatio > 0 ? 'donut' : 'pie')) {
+      priorArcs = Array.from(container.querySelectorAll('.bc-arc'))
+    }
+    container.replaceChildren()
+  }
+
   const { body } = createFrame(container, options.frame)
 
   // Sort data
@@ -171,6 +203,13 @@ export function renderArc(
 
   const chart = new ArcChart(centerGroup)
   chart.config({ arc: arcGen, colorScale, labels })
+
+  // Re-insert prior arc elements so D3 data-join finds them and triggers merge:transition
+  if (priorArcs.length > 0) {
+    const layerG = centerGroup.node()!.querySelector('g')!
+    priorArcs.forEach(el => layerG.appendChild(el))
+  }
+
   if (options.tooltips) {
     chart.use(createTooltipPlugin())
   }
@@ -257,4 +296,6 @@ export function renderArc(
     }
     renderLegend(chartArea, labels, colors, yPos, legendPos, legendAnchor, width, height, xPos, legendSuffixes)
   }
+
+  setCachedChart(container, { chartType: innerRadiusRatio > 0 ? 'donut' : 'pie' })
 }
