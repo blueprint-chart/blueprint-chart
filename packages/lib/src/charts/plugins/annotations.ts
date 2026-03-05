@@ -683,6 +683,7 @@ function renderRangeAnnotation(
   ann: AnnotationConfig,
   ctx: AnnotationContext,
   index: number,
+  labelGroup?: d3.Selection<SVGGElement, unknown, null, undefined>,
 ): void {
   if (ann.kind !== 'range') {
     return
@@ -769,7 +770,13 @@ function renderRangeAnnotation(
     const fontSize = 12
     const textY = y + pad + fontSize
 
-    renderAnnotationText(annG, ann.text, textX, textY, {
+    // When a separate labelGroup is provided, render text there so it
+    // appears above grid lines while the background rect stays behind.
+    const textTarget = labelGroup
+      ? labelGroup.append('g').attr('data-annotation-index', String(index))
+      : annG
+
+    renderAnnotationText(textTarget, ann.text, textX, textY, {
       textColor: ann.textColor,
       maxWidth: rangeMaxWidth,
       textAnchor,
@@ -779,7 +786,7 @@ function renderRangeAnnotation(
 
     // Measure rendered text and reposition for center/bottom alignment
     if (ny > 0.25) {
-      const textEl = annG.select('.bc-annotation-text').node() as SVGTextElement | null
+      const textEl = textTarget.select('.bc-annotation-text').node() as SVGTextElement | null
       if (textEl) {
         try {
           const tBBox = textEl.getBBox()
@@ -872,7 +879,7 @@ export function renderAnnotations(
         renderPointAnnotation(g, ann, ctx, i)
         break
       case 'range':
-        renderRangeAnnotation(rangeGroup, ann, ctx, i)
+        renderRangeAnnotation(rangeGroup, ann, ctx, i, g)
         break
       case 'free':
         renderFreeAnnotation(g, ann, ctx, i)
@@ -931,7 +938,7 @@ export function createAnnotationPlugin(
             renderPointAnnotation(g, ann, ctx, i)
             break
           case 'range':
-            renderRangeAnnotation(rangeGroup, ann, ctx, i)
+            renderRangeAnnotation(rangeGroup, ann, ctx, i, g)
             break
           case 'free':
             renderFreeAnnotation(g, ann, ctx, i)
