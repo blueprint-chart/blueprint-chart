@@ -45,6 +45,13 @@ describe('bar-horizontal', () => {
     expect(fills).toContain('#00ff00')
   })
 
+  it('supports transition parameter on second render', () => {
+    render(container, data)
+    render(container, { labels: ['A', 'B'], values: [15, 25] }, {}, true)
+    const bars = container.querySelectorAll('.bc-bar')
+    expect(bars.length).toBeGreaterThanOrEqual(2)
+  })
+
   it('clips bars to the chart area', () => {
     render(container, data)
     const clipPath = container.querySelector('clipPath')
