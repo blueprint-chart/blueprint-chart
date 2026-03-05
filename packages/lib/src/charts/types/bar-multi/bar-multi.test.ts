@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { render } from './bar-multi'
 
 describe('bar-multi', () => {
@@ -14,8 +14,13 @@ describe('bar-multi', () => {
   }
 
   beforeEach(() => {
+    vi.useFakeTimers()
     container = document.createElement('div')
     document.body.appendChild(container)
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
   })
 
   it('renders grouped bars', () => {

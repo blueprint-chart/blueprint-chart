@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { render } from './bar-vertical'
 
 describe('bar-vertical', () => {
@@ -10,8 +10,13 @@ describe('bar-vertical', () => {
   }
 
   beforeEach(() => {
+    vi.useFakeTimers()
     container = document.createElement('div')
     document.body.appendChild(container)
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
   })
 
   it('renders bars into the container', () => {
