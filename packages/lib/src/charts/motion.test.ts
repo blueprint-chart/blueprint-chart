@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from 'vitest'
-import { getTransitionDuration, getDefaultTransitionMs, DEFAULT_TRANSITION_MS } from './motion'
+import { getTransitionDuration, getDefaultTransitionMs, DEFAULT_TRANSITION_MS, fadeIn, snapshotForFadeOut, commitFadeOut } from './motion'
 
 describe('getTransitionDuration', () => {
   afterEach(() => {
@@ -59,5 +59,140 @@ describe('getDefaultTransitionMs', () => {
       matchMedia: vi.fn().mockReturnValue({ matches: true }),
     })
     expect(getDefaultTransitionMs()).toBe(0)
+  })
+})
+
+describe('fadeIn', () => {
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  it('calls element.animate with opacity keyframes', () => {
+    vi.stubGlobal('window', {
+      matchMedia: vi.fn().mockReturnValue({ matches: false }),
+    })
+    const el = { animate: vi.fn() }
+    fadeIn(el as unknown as Element)
+    expect(el.animate).toHaveBeenCalledWith(
+      [{ opacity: 0 }, { opacity: 1 }],
+      { duration: 500, easing: 'ease-in-out' },
+    )
+  })
+
+  it('uses custom duration when provided', () => {
+    vi.stubGlobal('window', {
+      matchMedia: vi.fn().mockReturnValue({ matches: false }),
+    })
+    const el = { animate: vi.fn() }
+    fadeIn(el as unknown as Element, 300)
+    expect(el.animate).toHaveBeenCalledWith(
+      [{ opacity: 0 }, { opacity: 1 }],
+      { duration: 300, easing: 'ease-in-out' },
+    )
+  })
+
+  it('skips animation when prefers-reduced-motion is active', () => {
+    vi.stubGlobal('window', {
+      matchMedia: vi.fn().mockReturnValue({ matches: true }),
+    })
+    const el = { animate: vi.fn() }
+    fadeIn(el as unknown as Element)
+    expect(el.animate).not.toHaveBeenCalled()
+  })
+
+  it('skips animation when element lacks animate method', () => {
+    vi.stubGlobal('window', {
+      matchMedia: vi.fn().mockReturnValue({ matches: false }),
+    })
+    const el = {} as Element
+    expect(() => fadeIn(el)).not.toThrow()
+  })
+})
+
+describe('snapshotForFadeOut', () => {
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  it('clones children into an overlay element', () => {
+    vi.stubGlobal('window', {
+      matchMedia: vi.fn().mockReturnValue({ matches: false }),
+    })
+    const container = document.createElement('div')
+    const child = document.createElement('span')
+    child.textContent = 'hello'
+    container.appendChild(child)
+
+    const overlay = snapshotForFadeOut(container)
+
+    expect(overlay).not.toBeNull()
+    expect(overlay!.style.position).toBe('absolute')
+    expect(overlay!.style.pointerEvents).toBe('none')
+    // Overlay contains a clone, not the original
+    expect(overlay!.querySelector('span')!.textContent).toBe('hello')
+    // Original child is still in the container (not moved)
+    expect(container.contains(child)).toBe(true)
+  })
+
+  it('returns null when container is empty', () => {
+    vi.stubGlobal('window', {
+      matchMedia: vi.fn().mockReturnValue({ matches: false }),
+    })
+    const container = document.createElement('div')
+    expect(snapshotForFadeOut(container)).toBeNull()
+  })
+
+  it('returns null when prefers-reduced-motion is active', () => {
+    vi.stubGlobal('window', {
+      matchMedia: vi.fn().mockReturnValue({ matches: true }),
+    })
+    const container = document.createElement('div')
+    container.appendChild(document.createElement('span'))
+    expect(snapshotForFadeOut(container)).toBeNull()
+  })
+})
+
+describe('commitFadeOut', () => {
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  it('appends overlay to container and starts fade-out animation', () => {
+    vi.stubGlobal('window', {
+      matchMedia: vi.fn().mockReturnValue({ matches: false }),
+      getComputedStyle: vi.fn().mockReturnValue({ position: 'relative' }),
+    })
+
+    const animateMock = vi.fn().mockReturnValue({ onfinish: null })
+    const origAnimate = HTMLElement.prototype.animate
+    HTMLElement.prototype.animate = animateMock
+
+    const container = document.createElement('div')
+    const overlay = document.createElement('div')
+
+    commitFadeOut(container, overlay)
+
+    expect(container.contains(overlay)).toBe(true)
+    expect(animateMock).toHaveBeenCalledWith(
+      [{ opacity: 1 }, { opacity: 0 }],
+      { duration: 500, easing: 'ease-in-out' },
+    )
+
+    HTMLElement.prototype.animate = origAnimate
+  })
+
+  it('removes overlay immediately when animate is not available', () => {
+    vi.stubGlobal('window', {
+      matchMedia: vi.fn().mockReturnValue({ matches: false }),
+      getComputedStyle: vi.fn().mockReturnValue({ position: 'relative' }),
+    })
+
+    const container = document.createElement('div')
+    const overlay = document.createElement('div')
+
+    commitFadeOut(container, overlay)
+
+    // JSDOM has no animate, so overlay is removed immediately
+    expect(container.contains(overlay)).toBe(false)
   })
 })
