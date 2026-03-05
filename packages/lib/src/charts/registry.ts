@@ -248,7 +248,7 @@ function axisOpts(defaults: {
     { key: 'showVerticalTicks', type: 'boolean', label: 'Show vertical ticks', default: defaults.showVerticalTicks },
     { key: 'verticalLabelPosition', type: 'select', label: 'Vertical labels', default: 'auto', choices: LABEL_POSITION_CHOICES },
     { key: 'verticalGridStyle', type: 'select', label: 'Vertical grid style', default: defaults.verticalGrid, choices: GRID_STYLE_CHOICES },
-    { key: 'verticalNumberFormat', type: 'text', label: 'Vertical number format', placeholder: ',.0f' },
+    { key: 'verticalNumberFormat', type: 'numberFormat', label: 'Vertical number format' },
     ...(defaults.valueAxis === 'vertical'
       ? [
           { key: 'verticalScaleType', type: 'select' as const, label: 'Vertical scale', default: 'linear', choices: SCALE_TYPE_CHOICES },
@@ -260,7 +260,7 @@ function axisOpts(defaults: {
     { key: 'showHorizontalTicks', type: 'boolean', label: 'Show horizontal ticks', default: defaults.showHorizontalTicks },
     { key: 'horizontalLabelPosition', type: 'select', label: 'Horizontal labels', default: 'auto', choices: LABEL_POSITION_CHOICES },
     { key: 'horizontalGridStyle', type: 'select', label: 'Horizontal grid style', default: defaults.horizontalGrid, choices: GRID_STYLE_CHOICES },
-    { key: 'horizontalNumberFormat', type: 'text', label: 'Horizontal format', placeholder: '%b %Y, ,.0f' },
+    { key: 'horizontalNumberFormat', type: 'numberFormat', label: 'Horizontal number format' },
     ...(defaults.valueAxis === 'horizontal'
       ? [
           { key: 'horizontalScaleType', type: 'select' as const, label: 'Horizontal scale', default: 'linear', choices: SCALE_TYPE_CHOICES },

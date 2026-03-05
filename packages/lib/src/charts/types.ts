@@ -177,7 +177,7 @@ export type ChartRenderer = (
 
 export interface ChartOptionDef {
   key: string
-  type: 'colors' | 'boolean' | 'select' | 'text'
+  type: 'colors' | 'boolean' | 'select' | 'text' | 'numberFormat' | 'dateFormat'
   label: string
   default?: unknown
   choices?: { value: string, text: string }[]
