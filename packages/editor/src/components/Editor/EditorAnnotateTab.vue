@@ -2,14 +2,14 @@
   <div class="d-flex flex-column gap-3">
     <EditorAnnotations
       ref="annotationsRef"
-      :model-value="config._base.annotations.value"
+      :model-value="annotations"
       :labels="dataLabels"
       :chart-type="chartType"
       :chart-width="chartWidth"
       :chart-height="chartHeight"
       :hidden-annotation-ids="hiddenAnnotationIds"
       :can-toggle-visibility="isSceneActive"
-      @update:model-value="(v) => config._base.annotations.value = v"
+      @update:model-value="(v) => annotations = v"
       @toggle-visibility="handleToggleVisibility"
     />
 
@@ -38,7 +38,6 @@ import EditorAnnotations from './EditorAnnotations.vue'
 import EditorAreaFills from './EditorAreaFills.vue'
 
 const { chartType, data, annotations, areaFills } = useChartConfig()
-const config = useChartConfig()
 const { pendingAnnotationIndex } = useEditorPanel()
 const { scenes, activeIndex, activeScene, update: updateScene } = useScenes()
 
