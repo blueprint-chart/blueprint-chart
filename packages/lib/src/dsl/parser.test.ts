@@ -286,6 +286,108 @@ describe('parser', () => {
     })
   })
 
+  describe('annotation visibility directives', () => {
+    it('parses hide_annotation in scene', () => {
+      const ast = parse('chart bar {\n  scene {\n    hide_annotation "abc"\n  }\n}')
+      expect(ast.scenes[0].annotationVisibility).toHaveLength(1)
+      expect(ast.scenes[0].annotationVisibility[0]).toEqual({
+        type: 'annotation-visibility',
+        action: 'hide',
+        kind: 'point',
+        id: 'abc',
+      })
+    })
+
+    it('parses show_annotation in scene', () => {
+      const ast = parse('chart bar {\n  scene {\n    show_annotation "abc"\n  }\n}')
+      expect(ast.scenes[0].annotationVisibility).toHaveLength(1)
+      expect(ast.scenes[0].annotationVisibility[0]).toEqual({
+        type: 'annotation-visibility',
+        action: 'show',
+        kind: 'point',
+        id: 'abc',
+      })
+    })
+
+    it('parses hide_range in scene', () => {
+      const ast = parse('chart bar {\n  scene {\n    hide_range "r1"\n  }\n}')
+      expect(ast.scenes[0].annotationVisibility).toHaveLength(1)
+      expect(ast.scenes[0].annotationVisibility[0]).toEqual({
+        type: 'annotation-visibility',
+        action: 'hide',
+        kind: 'range',
+        id: 'r1',
+      })
+    })
+
+    it('parses show_range in scene', () => {
+      const ast = parse('chart bar {\n  scene {\n    show_range "r1"\n  }\n}')
+      expect(ast.scenes[0].annotationVisibility).toHaveLength(1)
+      expect(ast.scenes[0].annotationVisibility[0]).toEqual({
+        type: 'annotation-visibility',
+        action: 'show',
+        kind: 'range',
+        id: 'r1',
+      })
+    })
+
+    it('parses hide_note in scene', () => {
+      const ast = parse('chart bar {\n  scene {\n    hide_note "n1"\n  }\n}')
+      expect(ast.scenes[0].annotationVisibility).toHaveLength(1)
+      expect(ast.scenes[0].annotationVisibility[0]).toEqual({
+        type: 'annotation-visibility',
+        action: 'hide',
+        kind: 'free',
+        id: 'n1',
+      })
+    })
+
+    it('parses show_note in scene', () => {
+      const ast = parse('chart bar {\n  scene {\n    show_note "n1"\n  }\n}')
+      expect(ast.scenes[0].annotationVisibility).toHaveLength(1)
+      expect(ast.scenes[0].annotationVisibility[0]).toEqual({
+        type: 'annotation-visibility',
+        action: 'show',
+        kind: 'free',
+        id: 'n1',
+      })
+    })
+
+    it('parses multiple visibility directives in one scene', () => {
+      const ast = parse('chart bar {\n  scene {\n    hide_annotation "a1"\n    show_range "r1"\n    hide_note "n1"\n  }\n}')
+      expect(ast.scenes[0].annotationVisibility).toHaveLength(3)
+      expect(ast.scenes[0].annotationVisibility[0]).toEqual({
+        type: 'annotation-visibility',
+        action: 'hide',
+        kind: 'point',
+        id: 'a1',
+      })
+      expect(ast.scenes[0].annotationVisibility[1]).toEqual({
+        type: 'annotation-visibility',
+        action: 'show',
+        kind: 'range',
+        id: 'r1',
+      })
+      expect(ast.scenes[0].annotationVisibility[2]).toEqual({
+        type: 'annotation-visibility',
+        action: 'hide',
+        kind: 'free',
+        id: 'n1',
+      })
+    })
+
+    it('parses annotation id property', () => {
+      const ast = parse('chart bar {\n  annotation "X" {\n    id = "abc"\n  }\n}')
+      expect(ast.annotations).toHaveLength(1)
+      expect(ast.annotations[0].properties).toContainEqual({
+        type: 'property',
+        key: 'id',
+        value: 'abc',
+        isPercentage: false,
+      })
+    })
+  })
+
   describe('edge cases', () => {
     it('parses chart with no properties or blocks', () => {
       const ast = parse('chart bar {}')

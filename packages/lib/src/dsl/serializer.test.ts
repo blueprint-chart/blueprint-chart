@@ -202,6 +202,169 @@ describe('serializer', () => {
     expect(output).toContain('      enabled = true')
   })
 
+  it('serializes annotation with id property', () => {
+    const ast: ChartNode = {
+      type: 'chart',
+      chartType: 'bar',
+      properties: [],
+      data: null,
+      highlights: [],
+      areaFills: [],
+      annotations: [{
+        type: 'annotation',
+        kind: 'point',
+        target: 'X',
+        properties: [
+          { type: 'property', key: 'id', value: 'abc', isPercentage: false },
+          { type: 'property', key: 'label', value: 'My point', isPercentage: false },
+        ],
+      }],
+      series: [],
+      scenes: [],
+      transforms: [],
+    }
+    const output = serialize(ast)
+    expect(output).toContain('id = abc')
+  })
+
+  it('serializes hide_annotation in scene', () => {
+    const ast: ChartNode = {
+      type: 'chart',
+      chartType: 'bar',
+      properties: [],
+      data: null,
+      highlights: [],
+      areaFills: [],
+      annotations: [],
+      series: [],
+      scenes: [{
+        type: 'scene',
+        name: null,
+        properties: [],
+        data: null,
+        highlights: [],
+        areaFills: [],
+        annotations: [],
+        annotationVisibility: [
+          { type: 'annotation-visibility', action: 'hide', kind: 'point', id: 'abc' },
+        ],
+        series: [],
+        transforms: [],
+      }],
+      transforms: [],
+    }
+    const output = serialize(ast)
+    expect(output).toContain('hide_annotation "abc"')
+  })
+
+  it('serializes show_annotation in scene', () => {
+    const ast: ChartNode = {
+      type: 'chart',
+      chartType: 'bar',
+      properties: [],
+      data: null,
+      highlights: [],
+      areaFills: [],
+      annotations: [],
+      series: [],
+      scenes: [{
+        type: 'scene',
+        name: null,
+        properties: [],
+        data: null,
+        highlights: [],
+        areaFills: [],
+        annotations: [],
+        annotationVisibility: [
+          { type: 'annotation-visibility', action: 'show', kind: 'point', id: 'xyz' },
+        ],
+        series: [],
+        transforms: [],
+      }],
+      transforms: [],
+    }
+    const output = serialize(ast)
+    expect(output).toContain('show_annotation "xyz"')
+  })
+
+  it('serializes hide_range and show_range in scene', () => {
+    const ast: ChartNode = {
+      type: 'chart',
+      chartType: 'bar',
+      properties: [],
+      data: null,
+      highlights: [],
+      areaFills: [],
+      annotations: [],
+      series: [],
+      scenes: [{
+        type: 'scene',
+        name: null,
+        properties: [],
+        data: null,
+        highlights: [],
+        areaFills: [],
+        annotations: [],
+        annotationVisibility: [
+          { type: 'annotation-visibility', action: 'hide', kind: 'range', id: 'r1' },
+          { type: 'annotation-visibility', action: 'show', kind: 'range', id: 'r2' },
+        ],
+        series: [],
+        transforms: [],
+      }],
+      transforms: [],
+    }
+    const output = serialize(ast)
+    expect(output).toContain('hide_range "r1"')
+    expect(output).toContain('show_range "r2"')
+  })
+
+  it('serializes hide_note and show_note in scene', () => {
+    const ast: ChartNode = {
+      type: 'chart',
+      chartType: 'bar',
+      properties: [],
+      data: null,
+      highlights: [],
+      areaFills: [],
+      annotations: [],
+      series: [],
+      scenes: [{
+        type: 'scene',
+        name: null,
+        properties: [],
+        data: null,
+        highlights: [],
+        areaFills: [],
+        annotations: [],
+        annotationVisibility: [
+          { type: 'annotation-visibility', action: 'hide', kind: 'free', id: 'n1' },
+          { type: 'annotation-visibility', action: 'show', kind: 'free', id: 'n2' },
+        ],
+        series: [],
+        transforms: [],
+      }],
+      transforms: [],
+    }
+    const output = serialize(ast)
+    expect(output).toContain('hide_note "n1"')
+    expect(output).toContain('show_note "n2"')
+  })
+
+  it('round-trips annotation visibility through parse and serialize', () => {
+    const dsl = `chart bar {
+  scene "Test" {
+    hide_annotation "a1"
+    show_range "r1"
+    hide_note "n1"
+  }
+}`
+    const ast1 = parse(dsl)
+    const serialized = serialize(ast1)
+    const ast2 = parse(serialized)
+    expect(ast2.scenes[0].annotationVisibility).toEqual(ast1.scenes[0].annotationVisibility)
+  })
+
   describe('round-trip', () => {
     const SIMPLE_CHART = `chart horizontal-bar {
   title = "Couverture médiatique"
