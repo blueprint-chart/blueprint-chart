@@ -79,6 +79,7 @@ export function extractSceneOverrides(
     highlights: SceneNode['highlights']
     areaFills: SceneNode['areaFills']
     annotations: SceneNode['annotations']
+    annotationVisibility: SceneNode['annotationVisibility']
     series: SceneNode['series']
     transforms: SceneNode['transforms']
   } {
@@ -95,6 +96,7 @@ export function extractSceneOverrides(
     highlights: scene.highlights,
     areaFills: scene.areaFills,
     annotations: scene.annotations,
+    annotationVisibility: scene.annotationVisibility ?? [],
     series: scene.series,
     transforms: scene.transforms,
   }
