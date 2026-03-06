@@ -32,6 +32,7 @@ function collectSceneBody(members) {
     highlights: [],
     areaFills: [],
     annotations: [],
+    annotationVisibility: [],
     series: [],
     transforms: [],
   };
@@ -42,6 +43,7 @@ function collectSceneBody(members) {
       case 'highlight':  result.highlights.push(m); break;
       case 'areafill':   result.areaFills.push(m);  break;
       case 'annotation': result.annotations.push(m);break;
+      case 'annotation-visibility': result.annotationVisibility.push(m); break;
       case 'series':     result.series.push(m);     break;
       case 'transform':  result.transforms.push(m); break;
     }
@@ -122,6 +124,7 @@ Scene
       highlights: body.highlights,
       areaFills: body.areaFills,
       annotations: body.annotations,
+      annotationVisibility: body.annotationVisibility,
       series: body.series,
       transforms: body.transforms,
     };
@@ -131,8 +134,32 @@ Transform
   = "transform" __ transformType:Identifier _ "{" _ props:BlockProperty* _ "}"
   { return { type: 'transform', transformType, properties: props }; }
 
+HideAnnotation
+  = "hide_annotation" __ id:String
+  { return { type: 'annotation-visibility', action: 'hide', kind: 'point', id }; }
+
+HideRange
+  = "hide_range" __ id:String
+  { return { type: 'annotation-visibility', action: 'hide', kind: 'range', id }; }
+
+HideNote
+  = "hide_note" __ id:String
+  { return { type: 'annotation-visibility', action: 'hide', kind: 'free', id }; }
+
+ShowAnnotation
+  = "show_annotation" __ id:String
+  { return { type: 'annotation-visibility', action: 'show', kind: 'point', id }; }
+
+ShowRange
+  = "show_range" __ id:String
+  { return { type: 'annotation-visibility', action: 'show', kind: 'range', id }; }
+
+ShowNote
+  = "show_note" __ id:String
+  { return { type: 'annotation-visibility', action: 'show', kind: 'free', id }; }
+
 SceneMember
-  = _ m:(DataBlock / Highlight / AreaFill / RangeAnnotation / NoteAnnotation / Annotation / Series / Transform / Property) _
+  = _ m:(DataBlock / Highlight / AreaFill / RangeAnnotation / NoteAnnotation / Annotation / HideAnnotation / HideRange / HideNote / ShowAnnotation / ShowRange / ShowNote / Series / Transform / Property) _
   { return m; }
 
 BlockProperty
