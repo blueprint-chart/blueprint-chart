@@ -55,6 +55,10 @@ defineProps<{
     flex-direction: column;
     gap: 0.5rem;
     padding: 0.5rem 0.75rem 0.75rem;
+
+    &:empty {
+      display: none;
+    }
   }
 }
 </style>
