@@ -70,7 +70,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, type CSSProperties } from 'vue'
+import { ref, computed, watch, type CSSProperties } from 'vue'
 import { useResizeObserver } from '@vueuse/core'
 import { LayoutBottomDrawer, useBreakpoint } from '@blueprint-chart/ui'
 import { useEditorPanel } from '@/composables/useEditorPanel'
@@ -95,6 +95,13 @@ const { canvasMode, showDimensions, panelMode, float, collapse, setViewMode } = 
 setViewMode('preview')
 const { exportTab, setExportTab } = useExportPanel()
 const { isNarrow } = useBreakpoint()
+
+watch(isNarrow, (narrow) => {
+  if (narrow && panelMode.value !== 'collapsed') {
+    collapse()
+  }
+}, { immediate: true })
+
 const { layout } = useChartConfig()
 const { cardClass, cardStyle } = useCanvasCardStyle(layout, 'export-panel__card')
 

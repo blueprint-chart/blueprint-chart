@@ -65,7 +65,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, type CSSProperties } from 'vue'
+import { ref, computed, watch, type CSSProperties } from 'vue'
 import { useResizeObserver } from '@vueuse/core'
 import { LayoutBottomDrawer, useBreakpoint } from '@blueprint-chart/ui'
 import { useEditorPanel } from '@/composables/useEditorPanel'
@@ -92,6 +92,12 @@ const AXIS_KEYS = ['showVerticalAxis', 'verticalAxisDirection', 'showVerticalTic
 
 const { panelMode, viewMode, activeTab, canvasMode, showDimensions, collapse, selectTab } = useEditorPanel()
 const { isNarrow } = useBreakpoint()
+
+watch(isNarrow, (narrow) => {
+  if (narrow && panelMode.value !== 'collapsed') {
+    collapse()
+  }
+}, { immediate: true })
 const { chartType, layout } = useChartConfig()
 const { availableOptionKeys } = useChartTypeOptions()
 const { cardClass, cardStyle } = useCanvasCardStyle(layout, 'chart-edit-panel__card')

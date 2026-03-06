@@ -66,7 +66,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { LayoutBottomDrawer, ButtonIcon, useBreakpoint } from '@blueprint-chart/ui'
 import { useDataTable } from '@/composables/useDataTable'
 import { useEditorPanel, type DataPanelTab } from '@/composables/useEditorPanel'
@@ -84,7 +84,7 @@ import DataParseSettings from './DataParseSettings.vue'
 import DataRecommendations from './DataRecommendations.vue'
 
 const { columns, rows, columnTypes } = useDataTable()
-const { panelMode, dataPanelMode, dataPanelTab, openDataPanel, collapse, setDataView } = useEditorPanel()
+const { panelMode, dataPanelMode, dataPanelTab, openDataPanel, closeDataPanel, collapse, setDataView } = useEditorPanel()
 const { activeScene } = useScenes()
 const isSceneMode = computed(() => activeScene.value !== null)
 
@@ -92,6 +92,12 @@ function replaceData() {
   setDataView('upload')
 }
 const { isNarrow } = useBreakpoint()
+
+watch(isNarrow, (narrow) => {
+  if (narrow && dataPanelMode.value !== 'collapsed') {
+    closeDataPanel()
+  }
+}, { immediate: true })
 
 const mainRef = ref<HTMLElement | null>(null)
 
