@@ -12,6 +12,7 @@
       tooltip-placement="left"
       hide-label
       square
+      size="lg"
       variant="link"
       class="navigation-icon-rail__button"
       :class="buttonClassList(item.value)"
@@ -71,13 +72,10 @@ function buttonClassList(value: string) {
 
   &__button {
     &.btn {
-      width: 36px;
-      height: 36px;
       border-radius: var(--bs-border-radius);
       border: none;
       background: transparent;
       color: var(--bs-secondary-color);
-      padding: 0;
       transition: all 0.15s ease;
     }
 
@@ -125,13 +123,10 @@ function buttonClassList(value: string) {
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 36px;
-      height: 36px;
       border-radius: var(--bs-border-radius);
       border: none;
       background: transparent;
       color: var(--bs-secondary-color);
-      padding: 0;
       transition: all 0.15s ease;
 
       &:hover {
