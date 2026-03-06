@@ -5,6 +5,7 @@ help: ## Show this help
 
 install: ## Install dependencies
 	pnpm install
+	$(MAKE) build-parser
 
 dev: ## Start editor dev server (port 5555)
 	pnpm --filter @blueprint-chart/editor dev
