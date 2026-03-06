@@ -41,9 +41,12 @@ import {
   FormControlButtonGroup,
   FormControlCheckbox,
   FormControlTextInput,
+  FormControlNumberFormat,
+  FormControlDateFormat,
 } from '@blueprint-chart/ui'
 import type { ChartOptionDef } from '@blueprint-chart/lib'
 import { useChartTypeOptions, type ChartTypeOptionKey } from '@/composables/useChartTypeOptions'
+import { useDataTable } from '@/composables/useDataTable'
 import IFluentLineSolid from '~icons/fluent/line-horizontal-1-20-filled'
 import IFluentLineDashed from '~icons/fluent/line-horizontal-1-dashes-20-filled'
 import IFluentLineDotted from '~icons/fluent/line-horizontal-1-dot-20-filled'
@@ -80,6 +83,9 @@ const HORIZONTAL_KEYS = new Set([
 ])
 
 const { currentOptions, optionDefs, setOption } = useChartTypeOptions()
+const { displayColumnTypes } = useDataTable()
+
+const labelColumnType = computed(() => displayColumnTypes.value[0] ?? 'string')
 
 function shortenLabel(label: string): string {
   return label
@@ -87,16 +93,33 @@ function shortenLabel(label: string): string {
     .replace(/^./, c => c.toUpperCase())
 }
 
+function resolveFormatType(def: ChartOptionDef, isHorizontal: boolean): ChartOptionDef {
+  if (def.type !== 'numberFormat') {
+    return def
+  }
+  if (isHorizontal) {
+    const colType = labelColumnType.value
+    if (colType === 'date') {
+      return { ...def, type: 'dateFormat', label: def.label.replace(/number\s+format/i, 'Date format') }
+    }
+    if (colType === 'string') {
+      return { ...def, type: '__hidden' as ChartOptionDef['type'] }
+    }
+  }
+  return def
+}
+
 const verticalDefs = computed(() =>
   optionDefs.value
     .filter(d => VERTICAL_KEYS.has(d.key))
-    .map(d => ({ ...d, label: shortenLabel(d.label) })),
+    .map(d => resolveFormatType({ ...d, label: shortenLabel(d.label) }, false)),
 )
 
 const horizontalDefs = computed(() =>
   optionDefs.value
     .filter(d => HORIZONTAL_KEYS.has(d.key))
-    .map(d => ({ ...d, label: shortenLabel(d.label) })),
+    .map(d => resolveFormatType({ ...d, label: shortenLabel(d.label) }, true))
+    .filter(d => d.type !== '__hidden'),
 )
 
 const GRID_STYLE_ICONS: Record<string, Component> = {
@@ -168,6 +191,24 @@ const AxisOption: FunctionalComponent<{
       'label': def.label,
       'id': `opt-${def.key}`,
       'placeholder': def.placeholder ?? '',
+      'modelValue': (value as string) ?? '',
+      'onUpdate:modelValue': (v: string) => emit('update', v),
+    })
+  }
+
+  if (def.type === 'numberFormat') {
+    return h(FormControlNumberFormat, {
+      'label': def.label,
+      'id': `opt-${def.key}`,
+      'modelValue': (value as string) ?? '',
+      'onUpdate:modelValue': (v: string) => emit('update', v),
+    })
+  }
+
+  if (def.type === 'dateFormat') {
+    return h(FormControlDateFormat, {
+      'label': def.label,
+      'id': `opt-${def.key}`,
       'modelValue': (value as string) ?? '',
       'onUpdate:modelValue': (v: string) => emit('update', v),
     })
