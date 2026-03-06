@@ -89,9 +89,12 @@
             :kind-label="kindLabel(ann)"
             :summary="summaryText(ann)"
             :collapsed="openIndex !== index"
+            :hidden="isHidden(ann)"
+            :can-toggle-visibility="canToggleVisibility"
             @duplicate="duplicate(index)"
             @remove="remove(index)"
             @toggle-collapse="toggleCollapse(index)"
+            @toggle-visibility="toggleVisibility(ann)"
           />
         </template>
         <template v-if="openIndex === index">
