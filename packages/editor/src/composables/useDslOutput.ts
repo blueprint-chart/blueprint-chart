@@ -459,11 +459,54 @@ export function useDslOutput() {
       if (scene.annotations) {
         for (const a of scene.annotations) {
           const kind = a.kind ?? 'point'
-          if (kind === 'point' && 'target' in a && a.target) {
+          if (kind === 'point') {
+            if (!('target' in a) || !a.target) { continue }
             output += `\n    annotation "${a.target}" {\n`
-            if (a.text) {
-              output += `      text = "${a.text}"\n`
-            }
+            if (a.id) { output += `      id = "${a.id}"\n` }
+            if (a.text) { output += `      text = "${a.text}"\n` }
+            if (a.textColor) { output += `      textColor = "${a.textColor}"\n` }
+            if (a.maxWidth !== undefined) { output += `      maxWidth = ${serializeMaxWidth(a.maxWidth)}\n` }
+            if (a.textOutline !== undefined) { output += `      textOutline = ${a.textOutline}\n` }
+            if (a.showLine !== undefined) { output += `      showLine = ${a.showLine}\n` }
+            if (a.anchorDirection) { output += `      anchorDirection = ${a.anchorDirection}\n` }
+            if (a.textOffsetX !== undefined) { output += `      textOffsetX = ${a.textOffsetX}\n` }
+            if (a.textOffsetY !== undefined) { output += `      textOffsetY = ${a.textOffsetY}\n` }
+            if (a.lineStyle) { output += `      lineStyle = ${a.lineStyle}\n` }
+            if (a.lineWeight !== undefined) { output += `      lineWeight = ${a.lineWeight}\n` }
+            if (a.showArrow !== undefined) { output += `      showArrow = ${a.showArrow}\n` }
+            if (a.lineTargetDistance !== undefined) { output += `      lineTargetDistance = ${a.lineTargetDistance}\n` }
+            if (a.showCircle !== undefined) { output += `      showCircle = ${a.showCircle}\n` }
+            if (a.circleSize !== undefined) { output += `      circleSize = ${a.circleSize}\n` }
+            if (a.circleStyle) { output += `      circleStyle = ${a.circleStyle}\n` }
+            if (a.circleColor) { output += `      circleColor = "${a.circleColor}"\n` }
+            output += `    }\n`
+          }
+          else if (kind === 'range') {
+            const ra = a as import('@blueprint-chart/lib').RangeAnnotationConfig
+            output += `\n    range {\n`
+            if (ra.id) { output += `      id = "${ra.id}"\n` }
+            if (ra.start !== undefined) { output += `      start = ${typeof ra.start === 'string' ? `"${ra.start}"` : ra.start}\n` }
+            if (ra.end !== undefined) { output += `      end = ${typeof ra.end === 'string' ? `"${ra.end}"` : ra.end}\n` }
+            if (ra.orientation) { output += `      orientation = ${ra.orientation}\n` }
+            if (ra.startAnchor && ra.startAnchor !== 'center') { output += `      startAnchor = ${ra.startAnchor}\n` }
+            if (ra.endAnchor && ra.endAnchor !== 'center') { output += `      endAnchor = ${ra.endAnchor}\n` }
+            if (ra.bgColor) { output += `      bgColor = "${ra.bgColor}"\n` }
+            if (ra.bgOpacity !== undefined) { output += `      bgOpacity = ${ra.bgOpacity}\n` }
+            if (ra.direction) { output += `      direction = ${ra.direction}\n` }
+            if (ra.text) { output += `      text = "${ra.text}"\n` }
+            if (ra.textColor) { output += `      textColor = "${ra.textColor}"\n` }
+            output += `    }\n`
+          }
+          else if (kind === 'free') {
+            const fa = a as import('@blueprint-chart/lib').FreeAnnotationConfig
+            output += `\n    note {\n`
+            if (fa.id) { output += `      id = "${fa.id}"\n` }
+            if (fa.text) { output += `      text = "${fa.text}"\n` }
+            if (fa.x !== undefined) { output += `      x = ${serializePosition(fa.x)}\n` }
+            if (fa.y !== undefined) { output += `      y = ${serializePosition(fa.y)}\n` }
+            if (fa.textColor) { output += `      textColor = "${fa.textColor}"\n` }
+            if (fa.maxWidth !== undefined) { output += `      maxWidth = ${serializeMaxWidth(fa.maxWidth)}\n` }
+            if (fa.textOutline !== undefined) { output += `      textOutline = ${fa.textOutline}\n` }
             output += `    }\n`
           }
         }
