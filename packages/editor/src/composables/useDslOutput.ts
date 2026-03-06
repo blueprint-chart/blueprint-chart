@@ -139,6 +139,9 @@ export function useDslOutput() {
           continue
         }
         output += `\n  annotation "${a.target}" {\n`
+        if (a.id) {
+          output += `    id = "${a.id}"\n`
+        }
         if (a.text) {
           output += `    text = "${
             a.text}"\n`
@@ -208,6 +211,9 @@ export function useDslOutput() {
       else if (kind === 'range') {
         const ra = a as RangeAnnotationConfig
         output += `\n  range {\n`
+        if (ra.id) {
+          output += `    id = "${ra.id}"\n`
+        }
         if (ra.start !== undefined) {
           output += `    start = ${typeof ra.start === 'string'
             ? `"${
@@ -257,6 +263,9 @@ export function useDslOutput() {
       else if (kind === 'free') {
         const fa = a as FreeAnnotationConfig
         output += `\n  note {\n`
+        if (fa.id) {
+          output += `    id = "${fa.id}"\n`
+        }
         if (fa.text) {
           output += `    text = "${
             fa.text}"\n`
@@ -457,6 +466,12 @@ export function useDslOutput() {
             }
             output += `    }\n`
           }
+        }
+      }
+      if (scene.annotationVisibility) {
+        const kindMap = { point: 'annotation', range: 'range', free: 'note' } as const
+        for (const v of scene.annotationVisibility) {
+          output += `    ${v.action}_${kindMap[v.kind]} "${v.id}"\n`
         }
       }
       if (scene.seriesOverrides) {

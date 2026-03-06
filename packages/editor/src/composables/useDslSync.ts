@@ -3,7 +3,7 @@ import type { PropertyNode, SeriesOverride, AnnotationConfig, PointAnnotationCon
 import { useChartConfig } from './useChartConfig'
 import { useChartTypeOptions, type ChartTypeOptions } from './useChartTypeOptions'
 import { useDataTransforms, type TransformType } from './useDataTransforms'
-import { useScenes, type SceneOverride } from './useScenes'
+import { useScenes, type SceneOverride, type AnnotationVisibility } from './useScenes'
 
 function readPosition(properties: PropertyNode[], key: string): number | string | undefined {
   const node = properties.find(p => p.key === key)
@@ -115,6 +115,9 @@ export function useDslSync() {
               start: aProps.has('start') ? (isNaN(Number(aProps.get('start'))) ? String(aProps.get('start')) : Number(aProps.get('start'))) : 0,
               end: aProps.has('end') ? (isNaN(Number(aProps.get('end'))) ? String(aProps.get('end')) : Number(aProps.get('end'))) : 0,
             }
+            if (aProps.has('id')) {
+              result.id = String(aProps.get('id'))
+            }
             if (aProps.has('orientation')) {
               result.orientation = String(aProps.get('orientation')) as 'vertical' | 'horizontal'
             }
@@ -149,6 +152,9 @@ export function useDslSync() {
               x: readPosition(a.properties, 'x') ?? 0,
               y: readPosition(a.properties, 'y') ?? 0,
             }
+            if (aProps.has('id')) {
+              result.id = String(aProps.get('id'))
+            }
             if (aProps.has('textColor')) {
               result.textColor = String(aProps.get('textColor'))
             }
@@ -168,6 +174,9 @@ export function useDslSync() {
             kind: 'point',
             target,
             text: String(aProps.get('text') ?? ''),
+          }
+          if (aProps.has('id')) {
+            result.id = String(aProps.get('id'))
           }
           if (aProps.has('textColor')) {
             result.textColor = String(aProps.get('textColor'))
@@ -383,6 +392,13 @@ export function useDslSync() {
               }
               return override
             })
+          }
+          if (extracted.annotationVisibility.length > 0) {
+            scene.annotationVisibility = extracted.annotationVisibility.map((v): AnnotationVisibility => ({
+              action: v.action,
+              kind: v.kind,
+              id: v.id,
+            }))
           }
           if (extracted.transforms.length > 0) {
             scene.transforms = extracted.transforms.map((t, i) => ({

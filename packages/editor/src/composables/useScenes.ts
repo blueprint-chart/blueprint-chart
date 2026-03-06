@@ -4,6 +4,12 @@ import type { ChartTypeOptions } from './useChartTypeOptions'
 import type { TransformStep } from './useDataTransforms'
 import type { AreaFillConfig, AnnotationConfig, SeriesOverride } from '@blueprint-chart/lib'
 
+export interface AnnotationVisibility {
+  action: 'hide' | 'show'
+  kind: 'point' | 'range' | 'free'
+  id: string
+}
+
 export interface SceneOverride {
   id: string
   name: string | null
@@ -14,8 +20,11 @@ export interface SceneOverride {
   highlights?: ChartHighlight[]
   areaFills?: AreaFillConfig[]
   annotations?: AnnotationConfig[]
+  annotationVisibility?: AnnotationVisibility[]
   seriesOverrides?: SeriesOverride[]
   transforms?: TransformStep[]
+  /** Resolved at render time by resolveScene — not stored */
+  hiddenAnnotationIds?: Set<string>
 }
 
 export interface ScenesSnapshot {
