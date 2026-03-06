@@ -53,6 +53,7 @@ export type AnnotationLineStyle = 'direct' | 'curve-left' | 'curve-right' | 'elb
 export type StrokeStyle = 'solid' | 'dotted' | 'dashed'
 
 interface AnnotationBase {
+  id?: string
   text?: string
   textColor?: string
   textOutline?: boolean

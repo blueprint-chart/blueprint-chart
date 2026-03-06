@@ -50,6 +50,13 @@ export interface SeriesNode {
   properties: PropertyNode[]
 }
 
+export interface AnnotationVisibilityNode {
+  type: 'annotation-visibility'
+  action: 'hide' | 'show'
+  kind: 'point' | 'range' | 'free'
+  id: string
+}
+
 export interface SceneNode {
   type: 'scene'
   name: string | null
@@ -58,6 +65,7 @@ export interface SceneNode {
   highlights: HighlightNode[]
   areaFills: AreaFillNode[]
   annotations: AnnotationNode[]
+  annotationVisibility: AnnotationVisibilityNode[]
   series: SeriesNode[]
   transforms: TransformNode[]
 }
