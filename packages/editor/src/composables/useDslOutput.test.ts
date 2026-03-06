@@ -125,6 +125,50 @@ describe('useDslOutput', () => {
       expect(dsl.value).toContain('y = "80px"')
     })
 
+    it('emits annotation id for point annotation', () => {
+      const config = useChartConfig()
+      config.chartType.value = 'line'
+      config.annotations.value = [
+        { kind: 'point', target: '2024-Q1', text: 'Peak', id: 'abc12' },
+      ]
+
+      const { dsl } = useDslOutput()
+      expect(dsl.value).toContain('id = "abc12"')
+    })
+
+    it('emits annotation id for range annotation', () => {
+      const config = useChartConfig()
+      config.chartType.value = 'line'
+      config.annotations.value = [
+        { kind: 'range', start: 0, end: 100, id: 'rng01' },
+      ]
+
+      const { dsl } = useDslOutput()
+      expect(dsl.value).toContain('id = "rng01"')
+    })
+
+    it('emits annotation id for free annotation (note)', () => {
+      const config = useChartConfig()
+      config.chartType.value = 'line'
+      config.annotations.value = [
+        { kind: 'free', text: 'Note', x: 50, y: 50, id: 'nt001' },
+      ]
+
+      const { dsl } = useDslOutput()
+      expect(dsl.value).toContain('id = "nt001"')
+    })
+
+    it('does not emit id when annotation has no id', () => {
+      const config = useChartConfig()
+      config.chartType.value = 'line'
+      config.annotations.value = [
+        { kind: 'point', target: '2024-Q1', text: 'Peak' },
+      ]
+
+      const { dsl } = useDslOutput()
+      expect(dsl.value).not.toContain('id = ')
+    })
+
     it('skips point annotations without target', () => {
       const config = useChartConfig()
       config.chartType.value = 'line'
@@ -320,6 +364,42 @@ describe('useDslOutput', () => {
       const { dsl } = useDslOutput()
       const sceneBlock = dsl.value.split('scene {')[1]
       expect(sceneBlock).not.toContain('data {')
+    })
+
+    it('serializes scene annotation visibility directives', () => {
+      const config = useChartConfig()
+      config.chartType.value = 'line'
+
+      const scenes = useScenes()
+      scenes.add()
+      scenes.update(0, {
+        annotationVisibility: [
+          { action: 'hide', kind: 'point', id: 'abc12' },
+        ],
+      })
+
+      const { dsl } = useDslOutput()
+      expect(dsl.value).toContain('hide_annotation "abc12"')
+    })
+
+    it('serializes mixed hide and show directives in scene', () => {
+      const config = useChartConfig()
+      config.chartType.value = 'line'
+
+      const scenes = useScenes()
+      scenes.add()
+      scenes.update(0, {
+        annotationVisibility: [
+          { action: 'hide', kind: 'point', id: 'abc12' },
+          { action: 'show', kind: 'range', id: 'rng01' },
+          { action: 'hide', kind: 'free', id: 'nt001' },
+        ],
+      })
+
+      const { dsl } = useDslOutput()
+      expect(dsl.value).toContain('hide_annotation "abc12"')
+      expect(dsl.value).toContain('show_range "rng01"')
+      expect(dsl.value).toContain('hide_note "nt001"')
     })
 
     it('does not leak scene values into base chart section', () => {

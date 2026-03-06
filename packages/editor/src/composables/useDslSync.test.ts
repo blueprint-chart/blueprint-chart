@@ -3,11 +3,14 @@ import type { RangeAnnotationConfig, FreeAnnotationConfig } from '@blueprint-cha
 import { useChartConfig } from './useChartConfig'
 import { useDslSync } from './useDslSync'
 import { useChartTypeOptions } from './useChartTypeOptions'
+import { useDslOutput } from './useDslOutput'
+import { useScenes } from './useScenes'
 
 describe('useDslSync', () => {
   beforeEach(() => {
     useChartConfig().reset()
     useChartTypeOptions().reset()
+    useScenes().reset()
   })
 
   it('applies a basic DSL string to config', () => {
@@ -351,6 +354,68 @@ describe('useDslSync', () => {
       expect(free.y).toBe('80px')
     })
 
+    it('parses annotation id from DSL', () => {
+      const { applyDsl } = useDslSync()
+      applyDsl(`chart line {
+  annotation "2024-Q1" {
+    id = "abc12"
+    text = "Hello"
+  }
+}`)
+
+      const config = useChartConfig()
+      expect(config.annotations.value).toHaveLength(1)
+      const ann = config.annotations.value[0]
+      expect(ann.id).toBe('abc12')
+    })
+
+    it('parses range annotation id from DSL', () => {
+      const { applyDsl } = useDslSync()
+      applyDsl(`chart line {
+  range {
+    id = "rng01"
+    start = 0
+    end = 100
+  }
+}`)
+
+      const config = useChartConfig()
+      expect(config.annotations.value).toHaveLength(1)
+      const ann = config.annotations.value[0]
+      expect(ann.id).toBe('rng01')
+    })
+
+    it('parses free annotation (note) id from DSL', () => {
+      const { applyDsl } = useDslSync()
+      applyDsl(`chart line {
+  note {
+    id = "nt001"
+    text = "Note"
+    x = 50
+    y = 50
+  }
+}`)
+
+      const config = useChartConfig()
+      expect(config.annotations.value).toHaveLength(1)
+      const ann = config.annotations.value[0]
+      expect(ann.id).toBe('nt001')
+    })
+
+    it('parses annotation without id', () => {
+      const { applyDsl } = useDslSync()
+      applyDsl(`chart line {
+  annotation "2024-Q1" {
+    text = "Hello"
+  }
+}`)
+
+      const config = useChartConfig()
+      expect(config.annotations.value).toHaveLength(1)
+      const ann = config.annotations.value[0]
+      expect(ann.id).toBeUndefined()
+    })
+
     it('clears annotations when not present', () => {
       const config = useChartConfig()
       config.annotations.value = [{ kind: 'point', target: 'x', text: 'y' }]
@@ -360,6 +425,161 @@ describe('useDslSync', () => {
 }`)
 
       expect(config.annotations.value).toEqual([])
+    })
+  })
+
+  describe('annotation visibility in scenes', () => {
+    it('parses hide_annotation directive in scene', () => {
+      const { applyDsl } = useDslSync()
+      applyDsl(`chart line {
+  annotation "2024-Q1" {
+    id = "abc12"
+    text = "Peak"
+  }
+
+  scene {
+    hide_annotation "abc12"
+  }
+}`)
+
+      const scenes = useScenes()
+      expect(scenes.scenes.value).toHaveLength(1)
+      expect(scenes.scenes.value[0].annotationVisibility).toBeDefined()
+      expect(scenes.scenes.value[0].annotationVisibility).toHaveLength(1)
+      expect(scenes.scenes.value[0].annotationVisibility![0]).toEqual({
+        action: 'hide',
+        kind: 'point',
+        id: 'abc12',
+      })
+    })
+
+    it('parses show_annotation directive in scene', () => {
+      const { applyDsl } = useDslSync()
+      applyDsl(`chart line {
+  annotation "2024-Q1" {
+    id = "abc12"
+    text = "Peak"
+  }
+
+  scene {
+    show_annotation "abc12"
+  }
+}`)
+
+      const scenes = useScenes()
+      expect(scenes.scenes.value).toHaveLength(1)
+      expect(scenes.scenes.value[0].annotationVisibility).toHaveLength(1)
+      expect(scenes.scenes.value[0].annotationVisibility![0]).toEqual({
+        action: 'show',
+        kind: 'point',
+        id: 'abc12',
+      })
+    })
+
+    it('parses hide_range directive in scene', () => {
+      const { applyDsl } = useDslSync()
+      applyDsl(`chart line {
+  range {
+    id = "rng01"
+    start = 0
+    end = 100
+  }
+
+  scene {
+    hide_range "rng01"
+  }
+}`)
+
+      const scenes = useScenes()
+      expect(scenes.scenes.value).toHaveLength(1)
+      expect(scenes.scenes.value[0].annotationVisibility).toHaveLength(1)
+      expect(scenes.scenes.value[0].annotationVisibility![0]).toEqual({
+        action: 'hide',
+        kind: 'range',
+        id: 'rng01',
+      })
+    })
+
+    it('parses hide_note directive in scene', () => {
+      const { applyDsl } = useDslSync()
+      applyDsl(`chart line {
+  note {
+    id = "nt001"
+    text = "Note"
+    x = 50
+    y = 50
+  }
+
+  scene {
+    hide_note "nt001"
+  }
+}`)
+
+      const scenes = useScenes()
+      expect(scenes.scenes.value).toHaveLength(1)
+      expect(scenes.scenes.value[0].annotationVisibility).toHaveLength(1)
+      expect(scenes.scenes.value[0].annotationVisibility![0]).toEqual({
+        action: 'hide',
+        kind: 'free',
+        id: 'nt001',
+      })
+    })
+
+    it('parses multiple visibility directives in scene', () => {
+      const { applyDsl } = useDslSync()
+      applyDsl(`chart line {
+  annotation "2024-Q1" {
+    id = "abc12"
+    text = "Peak"
+  }
+
+  range {
+    id = "rng01"
+    start = 0
+    end = 100
+  }
+
+  note {
+    id = "nt001"
+    text = "Note"
+    x = 50
+    y = 50
+  }
+
+  scene {
+    hide_annotation "abc12"
+    show_range "rng01"
+    hide_note "nt001"
+  }
+}`)
+
+      const scenes = useScenes()
+      expect(scenes.scenes.value).toHaveLength(1)
+      const vis = scenes.scenes.value[0].annotationVisibility!
+      expect(vis).toHaveLength(3)
+      expect(vis[0]).toEqual({ action: 'hide', kind: 'point', id: 'abc12' })
+      expect(vis[1]).toEqual({ action: 'show', kind: 'range', id: 'rng01' })
+      expect(vis[2]).toEqual({ action: 'hide', kind: 'free', id: 'nt001' })
+    })
+
+    it('round-trips annotation id through DSL parse and output', () => {
+      const { applyDsl } = useDslSync()
+      const dslInput = `chart line {
+  annotation "2024-Q1" {
+    id = "abc12"
+    text = "Peak"
+  }
+}`
+
+      const result = applyDsl(dslInput)
+      expect(result.success).toBe(true)
+
+      const config = useChartConfig()
+      expect(config.annotations.value).toHaveLength(1)
+      expect(config.annotations.value[0].id).toBe('abc12')
+
+      const { dsl } = useDslOutput()
+      expect(dsl.value).toContain('id = "abc12"')
     })
   })
 

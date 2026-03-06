@@ -87,4 +87,89 @@ describe('resolveScene', () => {
     const result = resolveScene(scenes, 1)!
     expect(result.highlights).toEqual([{ target: 'B', color: 'blue' }])
   })
+
+  it('hide_annotation in a scene populates hiddenAnnotationIds', () => {
+    const scenes = [
+      scene({ annotationVisibility: [{ action: 'hide', kind: 'point', id: 'abc' }] }),
+    ]
+    const result = resolveScene(scenes, 0)!
+    expect(result.hiddenAnnotationIds).toEqual(new Set(['abc']))
+  })
+
+  it('show_annotation after hide removes from hiddenAnnotationIds', () => {
+    const scenes = [
+      scene({ annotationVisibility: [{ action: 'hide', kind: 'point', id: 'abc' }] }),
+      scene({ annotationVisibility: [{ action: 'show', kind: 'point', id: 'abc' }] }),
+    ]
+    const result = resolveScene(scenes, 1)!
+    expect(result.hiddenAnnotationIds).toBeUndefined()
+  })
+
+  it('hide cascades across multiple scenes', () => {
+    const scenes = [
+      scene({ annotationVisibility: [{ action: 'hide', kind: 'point', id: 'abc' }] }),
+      scene({}),
+    ]
+    const result = resolveScene(scenes, 1)!
+    expect(result.hiddenAnnotationIds).toEqual(new Set(['abc']))
+  })
+
+  it('show in later scene overrides hide from earlier scene', () => {
+    const scenes = [
+      scene({ annotationVisibility: [{ action: 'hide', kind: 'range', id: 'x' }] }),
+      scene({}),
+      scene({ annotationVisibility: [{ action: 'show', kind: 'range', id: 'x' }] }),
+    ]
+    const result = resolveScene(scenes, 2)!
+    expect(result.hiddenAnnotationIds).toBeUndefined()
+  })
+
+  it('multiple hides accumulate across scenes', () => {
+    const scenes = [
+      scene({ annotationVisibility: [{ action: 'hide', kind: 'point', id: 'a' }] }),
+      scene({ annotationVisibility: [{ action: 'hide', kind: 'point', id: 'b' }] }),
+    ]
+    const result = resolveScene(scenes, 1)!
+    expect(result.hiddenAnnotationIds).toEqual(new Set(['a', 'b']))
+  })
+
+  it('hiddenAnnotationIds is undefined when no visibility directives exist', () => {
+    const scenes = [
+      scene({ chartType: 'line' }),
+      scene({ chartType: 'bar-vertical' }),
+    ]
+    const result = resolveScene(scenes, 1)!
+    expect(result.hiddenAnnotationIds).toBeUndefined()
+  })
+
+  it('hiddenAnnotationIds is undefined when all hides are canceled by shows', () => {
+    const scenes = [
+      scene({ annotationVisibility: [{ action: 'hide', kind: 'point', id: 'a' }, { action: 'hide', kind: 'range', id: 'b' }] }),
+      scene({ annotationVisibility: [{ action: 'show', kind: 'point', id: 'a' }, { action: 'show', kind: 'range', id: 'b' }] }),
+    ]
+    const result = resolveScene(scenes, 1)!
+    expect(result.hiddenAnnotationIds).toBeUndefined()
+  })
+
+  it('hide and show of different annotation kinds work independently', () => {
+    const scenes = [
+      scene({ annotationVisibility: [
+        { action: 'hide', kind: 'point', id: 'a' },
+        { action: 'hide', kind: 'range', id: 'b' },
+      ] }),
+    ]
+    const result = resolveScene(scenes, 0)!
+    expect(result.hiddenAnnotationIds).toEqual(new Set(['a', 'b']))
+  })
+
+  it('same id hidden and shown in same scene uses last directive', () => {
+    const scenes = [
+      scene({ annotationVisibility: [
+        { action: 'hide', kind: 'point', id: 'a' },
+        { action: 'show', kind: 'point', id: 'a' },
+      ] }),
+    ]
+    const result = resolveScene(scenes, 0)!
+    expect(result.hiddenAnnotationIds).toBeUndefined()
+  })
 })
