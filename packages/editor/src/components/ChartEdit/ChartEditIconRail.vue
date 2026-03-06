@@ -18,9 +18,9 @@ import PanelIconRail from '@/components/Panel/PanelIconRail.vue'
 import IPhChartBar from '~icons/ph/chart-bar'
 import IPhTextAa from '~icons/ph/text-aa'
 import IPhPalette from '~icons/ph/palette'
-import IPhLayout from '~icons/ph/layout'
-import IPhChartLineUp from '~icons/ph/chart-line-up'
-import IPhGridNine from '~icons/ph/grid-nine'
+import IPhPuzzlePiece from '~icons/ph/puzzle-piece'
+import IPhWaves from '~icons/ph/waves'
+import IPhVectorTwo from '~icons/ph/vector-two'
 import IPhPushPin from '~icons/ph/push-pin'
 
 const AXIS_KEYS = ['showVerticalAxis', 'verticalAxisDirection', 'showVerticalTicks', 'verticalLabelPosition', 'verticalGridStyle', 'verticalNumberFormat', 'verticalScaleType', 'verticalRangeMin', 'verticalRangeMax', 'showHorizontalAxis', 'showHorizontalTicks', 'horizontalLabelPosition', 'horizontalGridStyle', 'horizontalNumberFormat', 'horizontalScaleType', 'horizontalRangeMin', 'horizontalRangeMax']
@@ -40,15 +40,15 @@ const items = computed(() => {
     { value: 'type', icon: IPhChartBar, tooltip: 'Chart Type' },
     { value: 'text', icon: IPhTextAa, tooltip: 'Text' },
     { value: 'appearance', icon: IPhPalette, tooltip: 'Appearance' },
-    { value: 'layout', icon: IPhLayout, tooltip: 'Layout' },
   ]
   if (['line-multi', 'bar-multi'].includes(chartType.value)) {
-    base.push({ value: 'series', icon: IPhChartLineUp, tooltip: 'Series' })
+    base.push({ value: 'series', icon: IPhWaves, tooltip: 'Series' })
   }
   if (hasAxisOptions.value) {
-    base.push({ value: 'axes', icon: IPhGridNine, tooltip: 'Axes' })
+    base.push({ value: 'axes', icon: IPhVectorTwo, tooltip: 'Axes' })
   }
   base.push({ value: 'annotate', icon: IPhPushPin, tooltip: 'Annotate' })
+  base.push({ value: 'layout', icon: IPhPuzzlePiece, tooltip: 'Layout' })
   return base
 })
 </script>
