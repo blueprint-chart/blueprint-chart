@@ -17,7 +17,6 @@
       :class="containerClassList"
     >
       <BButtonGroup
-        size="sm"
         class="form-control-button-group__buttons"
         :class="buttonsClassList"
       >
