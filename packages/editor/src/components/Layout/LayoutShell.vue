@@ -250,6 +250,8 @@ onClickOutside(searchContainer, () => {
   border-bottom: 1px solid var(--bs-border-color);
   flex-shrink: 0;
   gap: 1rem;
+  position: relative;
+  z-index: 1060;
 }
 
 .shell-navbar__logo {
