@@ -17,9 +17,12 @@
               :kind-label="kindLabel(ann)"
               :summary="summaryText(ann)"
               :collapsed="openIndex !== index"
+              :hidden="isHidden(ann)"
+              :can-toggle-visibility="canToggleVisibility"
               @duplicate="duplicate(index)"
               @remove="remove(index)"
               @toggle-collapse="toggleCollapse(index)"
+              @toggle-visibility="toggleVisibility(ann)"
             />
           </template>
           <template v-if="openIndex === index">
@@ -51,9 +54,12 @@
               :kind-label="kindLabel(ann)"
               :summary="summaryText(ann)"
               :collapsed="openIndex !== index"
+              :hidden="isHidden(ann)"
+              :can-toggle-visibility="canToggleVisibility"
               @duplicate="duplicate(index)"
               @remove="remove(index)"
               @toggle-collapse="toggleCollapse(index)"
+              @toggle-visibility="toggleVisibility(ann)"
             />
           </template>
           <template v-if="openIndex === index">
@@ -120,13 +126,25 @@ const props = defineProps<{
   chartType?: string
   chartWidth?: number
   chartHeight?: number
+  hiddenAnnotationIds?: Set<string>
+  canToggleVisibility?: boolean
 }>()
 
 const emit = defineEmits<{
   'update:modelValue': [value: AnnotationConfig[]]
+  'toggle-visibility': [id: string, kind: 'point' | 'range' | 'free']
 }>()
 
 const annotations = computed(() => props.modelValue)
+
+const CHARS = 'abcdefghijklmnopqrstuvwxyz0123456789'
+function generateId(): string {
+  let id = ''
+  for (let i = 0; i < 5; i++) {
+    id += CHARS[Math.floor(Math.random() * CHARS.length)]
+  }
+  return id
+}
 
 const isPieOrDonut = computed(() => props.chartType === 'pie' || props.chartType === 'donut')
 
@@ -156,6 +174,16 @@ const freeAnnotations = computed(() =>
     .filter(({ ann }) => ann.kind === 'free'),
 )
 
+function isHidden(ann: AnnotationConfig): boolean {
+  return !!ann.id && !!props.hiddenAnnotationIds?.has(ann.id)
+}
+
+function toggleVisibility(ann: AnnotationConfig) {
+  if (ann.id) {
+    emit('toggle-visibility', ann.id, ann.kind)
+  }
+}
+
 function kindLabel(ann: AnnotationConfig): string {
   if (ann.kind === 'point') {
     return 'Point'
@@ -184,7 +212,7 @@ function update(index: number, value: AnnotationConfig) {
 }
 
 function addPoint() {
-  const ann: PointAnnotationConfig = { kind: 'point', target: props.labels[0] ?? '', text: 'Enter an annotation', showLine: true, showArrow: true }
+  const ann: PointAnnotationConfig = { kind: 'point', id: generateId(), target: props.labels[0] ?? '', text: 'Enter an annotation', showLine: true, showArrow: true }
   const next = [...annotations.value, ann]
   emit('update:modelValue', next)
   openIndex.value = next.length - 1
@@ -194,6 +222,7 @@ function addRange() {
   const hasLabels = props.labels.length > 0
   const ann: RangeAnnotationConfig = {
     kind: 'range',
+    id: generateId(),
     start: hasLabels ? props.labels[0] : 0,
     end: hasLabels ? props.labels[props.labels.length - 1] : 100,
   }
@@ -203,7 +232,7 @@ function addRange() {
 }
 
 function addFree() {
-  const ann: FreeAnnotationConfig = { kind: 'free', text: 'Enter an annotation', x: 0, y: 0 }
+  const ann: FreeAnnotationConfig = { kind: 'free', id: generateId(), text: 'Enter an annotation', x: 0, y: 0 }
   const next = [...annotations.value, ann]
   emit('update:modelValue', next)
   openIndex.value = next.length - 1
@@ -211,7 +240,7 @@ function addFree() {
 
 function duplicate(index: number) {
   const copy = [...annotations.value]
-  copy.splice(index + 1, 0, { ...copy[index] })
+  copy.splice(index + 1, 0, { ...copy[index], id: generateId() })
   emit('update:modelValue', copy)
 }
 

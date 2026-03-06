@@ -2,12 +2,15 @@
   <div class="d-flex flex-column gap-3">
     <EditorAnnotations
       ref="annotationsRef"
-      :model-value="annotations"
+      :model-value="config._base.annotations.value"
       :labels="dataLabels"
       :chart-type="chartType"
       :chart-width="chartWidth"
       :chart-height="chartHeight"
-      @update:model-value="(v) => annotations = v"
+      :hidden-annotation-ids="hiddenAnnotationIds"
+      :can-toggle-visibility="isSceneActive"
+      @update:model-value="(v) => config._base.annotations.value = v"
+      @toggle-visibility="handleToggleVisibility"
     />
 
     <hr v-if="isMultiLine">
@@ -27,13 +30,63 @@ import { useChartConfig } from '@/composables/useChartConfig'
 import { usePreviewContainer } from '@/composables/usePreviewContainer'
 import { useEditorPanel } from '@/composables/useEditorPanel'
 import { useAnnotationDrag } from '@/composables/useAnnotationDrag'
+import { useScenes, type AnnotationVisibility } from '@/composables/useScenes'
+import { resolveScene } from '@/composables/useChartPreview'
 import { parseData } from '@blueprint-chart/lib'
 import type { AnnotationConfig } from '@blueprint-chart/lib'
 import EditorAnnotations from './EditorAnnotations.vue'
 import EditorAreaFills from './EditorAreaFills.vue'
 
 const { chartType, data, annotations, areaFills } = useChartConfig()
+const config = useChartConfig()
 const { pendingAnnotationIndex } = useEditorPanel()
+const { scenes, activeIndex, activeScene, update: updateScene } = useScenes()
+
+const isSceneActive = computed(() => activeIndex.value >= 0)
+
+const hiddenAnnotationIds = computed(() => {
+  if (activeIndex.value < 0) return undefined
+  const resolved = resolveScene(scenes.value, activeIndex.value)
+  return resolved?.hiddenAnnotationIds
+})
+
+function handleToggleVisibility(id: string, kind: 'point' | 'range' | 'free') {
+  if (activeIndex.value < 0) return
+  const scene = activeScene.value
+  if (!scene) return
+
+  const existing = scene.annotationVisibility ?? []
+  const isHidden = hiddenAnnotationIds.value?.has(id)
+
+  if (isHidden) {
+    // Add show directive (or remove hide from this scene)
+    const inThisScene = existing.find(v => v.id === id && v.action === 'hide')
+    if (inThisScene) {
+      updateScene(activeIndex.value, {
+        annotationVisibility: existing.filter(v => !(v.id === id && v.action === 'hide')),
+      })
+    }
+    else {
+      updateScene(activeIndex.value, {
+        annotationVisibility: [...existing, { action: 'show', kind, id }],
+      })
+    }
+  }
+  else {
+    // Add hide directive (or remove show from this scene)
+    const inThisScene = existing.find(v => v.id === id && v.action === 'show')
+    if (inThisScene) {
+      updateScene(activeIndex.value, {
+        annotationVisibility: existing.filter(v => !(v.id === id && v.action === 'show')),
+      })
+    }
+    else {
+      updateScene(activeIndex.value, {
+        annotationVisibility: [...existing, { action: 'hide', kind, id }],
+      })
+    }
+  }
+}
 
 const isMultiLine = computed(() => chartType.value === 'line-multi')
 
