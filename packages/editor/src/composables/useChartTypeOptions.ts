@@ -1,5 +1,5 @@
 import { computed, reactive, watch } from 'vue'
-import { useChartConfig } from './useChartConfig'
+import { useChartConfig, deepEqual } from './useChartConfig'
 import { useScenes } from './useScenes'
 import { getChartOptions } from '@blueprint-chart/lib'
 import type { ChartOptionDef, ChartTypeOptions, ChartTypeOptionKey } from '@blueprint-chart/lib'
@@ -51,12 +51,40 @@ export function useChartTypeOptions() {
   )
 
   function setOption<K extends ChartTypeOptionKey>(key: K, value: ChartTypeOptions[K]) {
-    const { activeIndex, activeScene, update } = useScenes()
+    const { activeIndex, activeScene, scenes: allScenes } = useScenes()
     if (activeIndex.value >= 0 && activeScene.value) {
-      const existing = activeScene.value.chartTypeOptions ?? {}
-      update(activeIndex.value, {
-        chartTypeOptions: { ...existing, [key]: value },
-      })
+      // Compute the inherited value: walk prior scenes, then fall back to base
+      const base = store[chartType.value] ?? {}
+      let inherited: unknown = base[key]
+      for (let i = activeIndex.value - 1; i >= 0; i--) {
+        const prev = allScenes.value[i]?.chartTypeOptions
+        if (prev && key in prev) {
+          inherited = prev[key]
+          break
+        }
+      }
+
+      if (deepEqual(value, inherited)) {
+        // Value matches inherited — remove the key from scene options
+        const existing = { ...activeScene.value.chartTypeOptions }
+        delete existing[key]
+        const opts = Object.keys(existing).length > 0 ? existing : undefined
+        const compacted = { ...activeScene.value }
+        if (opts) {
+          compacted.chartTypeOptions = opts
+        }
+        else {
+          delete compacted.chartTypeOptions
+        }
+        allScenes.value[activeIndex.value] = compacted
+      }
+      else {
+        const existing = activeScene.value.chartTypeOptions ?? {}
+        allScenes.value[activeIndex.value] = {
+          ...activeScene.value,
+          chartTypeOptions: { ...existing, [key]: value },
+        }
+      }
       return
     }
     if (!store[chartType.value]) {
