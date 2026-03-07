@@ -68,7 +68,7 @@ watch(() => activeTabEl, scrollActiveTabIntoView)
     position: sticky;
     top: 0;
     z-index: 1;
-    background: var(--bs-body-bg);
+    background: var(--bc-tile-bg);
   }
 }
 

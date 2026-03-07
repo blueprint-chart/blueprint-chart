@@ -80,9 +80,10 @@ const positionStyle = computed(() => ({
   position: absolute;
   width: 340px;
   min-width: 260px;
-  background: var(--bs-body-bg);
-  border-radius: var(--bs-border-radius-sm);
-  box-shadow: var(--bs-box-shadow);
+  background: var(--bc-tile-bg, var(--bs-body-bg));
+  border-radius: var(--bc-tile-radius, 12px);
+  box-shadow: var(--bc-tile-shadow, var(--bs-box-shadow));
+  border: var(--bc-tile-border, none);
   display: flex;
   flex-direction: column;
   max-height: calc(100% - 40px);
@@ -95,11 +96,9 @@ const positionStyle = computed(() => ({
     align-items: center;
     justify-content: space-between;
     padding: 0.625rem 0.875rem;
-    border-bottom: 1px solid var(--bs-border-color-translucent);
     cursor: grab;
     user-select: none;
-    background: var(--bs-tertiary-bg);
-    border-radius: inherit;
+    border-radius: var(--bc-tile-radius, 12px) var(--bc-tile-radius, 12px) 0 0;
 
     &:active {
       cursor: grabbing;
@@ -128,7 +127,6 @@ const positionStyle = computed(() => ({
 
   &__footer {
     flex-shrink: 0;
-    border-top: 1px solid var(--bs-border-color-translucent);
     padding: 0.625rem 0.875rem;
   }
 }
