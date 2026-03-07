@@ -64,7 +64,7 @@ const resolvedAnnotations = computed<AnnotationConfig[]>({
       const baseUpdates = val.filter(a => a.id && baseIds.has(a.id))
       const sceneUpdates = val.filter(a => !a.id || !baseIds.has(a.id))
       config._base.annotations.value = baseUpdates
-      updateScene(activeIndex.value, { annotations: sceneUpdates })
+      updateScene(activeIndex.value, { annotations: sceneUpdates.length > 0 ? sceneUpdates : undefined })
       return
     }
     config._base.annotations.value = val
