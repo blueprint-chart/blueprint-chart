@@ -1,7 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { useChartConfig } from './useChartConfig'
 import { useScenes } from './useScenes'
-import { resolveScene } from './useChartPreview'
 
 describe('useChartConfig', () => {
   beforeEach(() => {
@@ -299,8 +298,24 @@ describe('useChartConfig', () => {
     })
   })
 
-  describe('annotation cascading across scenes', () => {
-    it('annotations from earlier scene are visible in later scene without annotation override', () => {
+  describe('scene cascading in editor refs', () => {
+    it('highlights from earlier scene are visible in later scene without override', () => {
+      const config = useChartConfig()
+      const scenes = useScenes()
+
+      scenes.add()
+      scenes.update(0, {
+        highlights: [{ target: 'India', color: '#00d084', label: '' }],
+      })
+      scenes.add() // scene 1 has no highlights
+
+      scenes.setActive(1)
+      expect(config.highlights.value).toEqual([
+        { target: 'India', color: '#00d084', label: '' },
+      ])
+    })
+
+    it('annotations from earlier scene cascade to later scene', () => {
       const config = useChartConfig()
       const scenes = useScenes()
 
@@ -310,18 +325,67 @@ describe('useChartConfig', () => {
       })
       scenes.add() // scene 1 has no annotations
 
-      // When scene 1 is active, sceneDirectRef falls back to base (empty)
-      // But resolveScene cascades annotations from scene 0
       scenes.setActive(1)
-      // sceneDirectRef does NOT cascade — this is the known limitation
-      // The editor must use resolveScene for reading
-      expect(config.annotations.value).toEqual([])
-
-      // resolveScene DOES cascade
-      const resolved = resolveScene(scenes.scenes.value, 1)
-      expect(resolved?.annotations).toEqual([
+      expect(config.annotations.value).toEqual([
         { kind: 'point', id: 'p1', text: 'From scene 0', target: 'India' },
       ])
+    })
+
+    it('chartType from earlier scene cascades to later scene', () => {
+      const config = useChartConfig()
+      const scenes = useScenes()
+
+      config._base.chartType.value = 'bar-vertical'
+      scenes.add()
+      scenes.update(0, { chartType: 'line' })
+      scenes.add()
+
+      scenes.setActive(1)
+      expect(config.chartType.value).toBe('line')
+    })
+
+    it('property from earlier scene cascades to later scene', () => {
+      const config = useChartConfig()
+      const scenes = useScenes()
+
+      config._base.title.value = 'Base Title'
+      scenes.add()
+      scenes.update(0, { properties: { title: 'Scene 0 Title' } })
+      scenes.add()
+
+      scenes.setActive(1)
+      expect(config.title.value).toBe('Scene 0 Title')
+    })
+
+    it('own override takes precedence over inherited value', () => {
+      const config = useChartConfig()
+      const scenes = useScenes()
+
+      scenes.add()
+      scenes.update(0, {
+        highlights: [{ target: 'India', color: '#00d084', label: '' }],
+      })
+      scenes.add()
+      scenes.update(1, {
+        highlights: [{ target: 'China', color: '#ff0000', label: '' }],
+      })
+
+      scenes.setActive(1)
+      expect(config.highlights.value).toEqual([
+        { target: 'China', color: '#ff0000', label: '' },
+      ])
+    })
+
+    it('falls back to base when no prior scene overrides', () => {
+      const config = useChartConfig()
+      const scenes = useScenes()
+
+      config._base.chartType.value = 'bar-vertical'
+      scenes.add()
+      scenes.add()
+
+      scenes.setActive(1)
+      expect(config.chartType.value).toBe('bar-vertical')
     })
   })
 

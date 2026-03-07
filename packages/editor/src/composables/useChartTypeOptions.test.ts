@@ -204,6 +204,34 @@ describe('useChartTypeOptions', () => {
       setOption('colors', ['#base'])
       expect(currentOptions.value.colors).toEqual(['#base'])
     })
+
+    it('inherits chartTypeOptions from prior scene when current has none', () => {
+      const { setOption, currentOptions } = useChartTypeOptions()
+      setOption('colors', ['#base'])
+
+      const scenes = useScenes()
+      scenes.add()
+      scenes.update(0, { chartTypeOptions: { colors: ['#scene0'] } })
+      scenes.add() // scene 1 has no chartTypeOptions
+
+      scenes.setActive(1)
+      expect(currentOptions.value.colors).toEqual(['#scene0'])
+    })
+
+    it('merges inherited options with own overrides', () => {
+      const { setOption, currentOptions } = useChartTypeOptions()
+      setOption('colors', ['#base'])
+
+      const scenes = useScenes()
+      scenes.add()
+      scenes.update(0, { chartTypeOptions: { colors: ['#scene0'] } })
+      scenes.add()
+      scenes.update(1, { chartTypeOptions: { showVerticalTicks: true } })
+
+      scenes.setActive(1)
+      expect(currentOptions.value.colors).toEqual(['#scene0'])
+      expect(currentOptions.value.showVerticalTicks).toBe(true)
+    })
   })
 
   describe('baseOptions', () => {
