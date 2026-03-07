@@ -13,6 +13,9 @@
         @update:model-value="selectTab"
       />
     </template>
+    <template #toolbar>
+      <ChartEditToolbar />
+    </template>
     <EditorChartTypePicker v-if="activeTab === 'type'" />
     <EditorPropertyForm v-else-if="activeTab === 'text'" />
     <EditorAppearanceTab v-else-if="activeTab === 'appearance'" />
@@ -41,6 +44,7 @@ import EditorSeriesPanel from '@/components/Editor/EditorSeriesPanel.vue'
 import EditorAxisOptions from '@/components/Editor/EditorAxisOptions.vue'
 import EditorAnnotateTab from '@/components/Editor/EditorAnnotateTab.vue'
 import PanelStepperFooter from '@/components/Panel/PanelStepperFooter.vue'
+import ChartEditToolbar from './ChartEditToolbar.vue'
 
 const AXIS_KEYS = ['showVerticalAxis', 'verticalAxisDirection', 'showVerticalTicks', 'verticalLabelPosition', 'verticalGridStyle', 'verticalNumberFormat', 'verticalScaleType', 'verticalRangeMin', 'verticalRangeMax', 'showHorizontalAxis', 'showHorizontalTicks', 'horizontalLabelPosition', 'horizontalGridStyle', 'horizontalNumberFormat', 'horizontalScaleType', 'horizontalRangeMin', 'horizontalRangeMax']
 
