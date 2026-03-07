@@ -39,7 +39,16 @@ const viewModeOptions = [
 .chart-edit-toolbar {
   display: flex;
   align-items: center;
-  gap: 0.375rem;
+  gap: 0.25rem;
+
+  :deep(.btn-outline-secondary) {
+    border-color: transparent;
+    background: transparent;
+
+    &:hover:not(:disabled) {
+      background: var(--bs-tertiary-bg);
+    }
+  }
 
   .navigation-toggle {
     margin-left: auto;

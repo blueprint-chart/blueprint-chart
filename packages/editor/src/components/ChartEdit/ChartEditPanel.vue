@@ -63,7 +63,10 @@
     </template>
     <template v-else>
       <div class="chart-edit-panel__side">
-        <ChartEditToolbar class="chart-edit-panel__toolbar--docked" />
+        <ChartEditToolbar
+          v-if="panelMode === 'docked'"
+          class="chart-edit-panel__toolbar--docked"
+        />
         <ChartEditDockedPanel :collapsed="panelMode !== 'docked'" />
       </div>
       <ChartEditIconRail />
@@ -333,6 +336,10 @@ const canvasStyle = computed<CSSProperties>(() => ({
   right: 0.75rem;
   z-index: 5;
   padding: 0.25rem 0.5rem;
+  background: var(--bc-tile-bg);
+  border-radius: var(--bc-tile-radius);
+  box-shadow: var(--bc-tile-shadow);
+  border: var(--bc-tile-border);
 }
 
 // Override UI-library background so panel matches the tile surface
