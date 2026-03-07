@@ -340,3 +340,81 @@ describe('annotation filtering', () => {
     expect(result).toEqual(annotations)
   })
 })
+
+describe('base + scene annotation merging', () => {
+  // Reproduces the real scenario: base annotation on "Japan", scene 0 adds
+  // annotation on "India", scene 1 only has a highlight.
+  // All scenes must show base annotations alongside scene annotations.
+
+  function mergeAnnotations(
+    baseAnnotations: AnnotationConfig[],
+    sceneAnnotations: AnnotationConfig[],
+    hiddenIds?: Set<string>,
+  ): AnnotationConfig[] {
+    const raw = [...baseAnnotations, ...sceneAnnotations]
+    if (!hiddenIds) {
+      return raw
+    }
+    return raw.filter(a => !a.id || !hiddenIds.has(a.id))
+  }
+
+  const baseAnns: AnnotationConfig[] = [
+    { kind: 'point', id: '537sb', target: 'Japan', text: 'Base annotation', showLine: true, showArrow: true },
+  ]
+
+  const scene0Anns: AnnotationConfig[] = [
+    { kind: 'point', id: 'tha5f', target: 'India', text: 'Scene annotation', showLine: true, showArrow: true },
+  ]
+
+  it('base annotation is present when no scene is active', () => {
+    const result = mergeAnnotations(baseAnns, [])
+    expect(result).toHaveLength(1)
+    expect(result[0].id).toBe('537sb')
+  })
+
+  it('base + scene annotations are both present in scene with own annotations', () => {
+    const result = mergeAnnotations(baseAnns, scene0Anns)
+    expect(result).toHaveLength(2)
+    expect(result.map(a => a.id)).toEqual(['537sb', 'tha5f'])
+  })
+
+  it('base + cascaded scene annotations are present in later scene without annotations', () => {
+    // Scene 1 inherits scene 0 annotations via resolveScene cascading
+    const scenes = [
+      scene({ annotations: scene0Anns }),
+      scene({ highlights: [{ target: 'China', color: '#9900ef' }] }),
+    ]
+    const resolved = resolveScene(scenes, 1)!
+    const cascadedSceneAnns = resolved.annotations ?? []
+
+    const result = mergeAnnotations(baseAnns, cascadedSceneAnns)
+    expect(result).toHaveLength(2)
+    expect(result[0].id).toBe('537sb')
+    expect(result[1].id).toBe('tha5f')
+  })
+
+  it('hide_annotation removes specific annotation from merged result', () => {
+    const scenes = [
+      scene({
+        annotations: scene0Anns,
+        annotationVisibility: [{ action: 'hide', kind: 'point', id: '537sb' }],
+      }),
+    ]
+    const resolved = resolveScene(scenes, 0)!
+
+    const result = mergeAnnotations(baseAnns, resolved.annotations ?? [], resolved.hiddenAnnotationIds)
+    expect(result).toHaveLength(1)
+    expect(result[0].id).toBe('tha5f')
+  })
+
+  it('scene annotations do not duplicate base annotations', () => {
+    // If a scene has no annotations of its own, only base should appear
+    const scenes = [
+      scene({ highlights: [{ target: 'X', color: 'red' }] }),
+    ]
+    const resolved = resolveScene(scenes, 0)!
+    const result = mergeAnnotations(baseAnns, resolved.annotations ?? [])
+    expect(result).toHaveLength(1)
+    expect(result[0].id).toBe('537sb')
+  })
+})
