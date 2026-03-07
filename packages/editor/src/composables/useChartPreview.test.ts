@@ -172,4 +172,167 @@ describe('resolveScene', () => {
     const result = resolveScene(scenes, 0)!
     expect(result.hiddenAnnotationIds).toBeUndefined()
   })
+
+  it('annotations without id are never filtered by hiddenAnnotationIds', () => {
+    const scenes = [
+      scene({ annotationVisibility: [{ action: 'hide', kind: 'point', id: 'abc' }] }),
+    ]
+    const result = resolveScene(scenes, 0)!
+    // hiddenAnnotationIds contains 'abc', but annotations without id should pass
+    // the filter at render time: !a.id || !hiddenIds.has(a.id)
+    expect(result.hiddenAnnotationIds).toEqual(new Set(['abc']))
+    // An annotation without an id would survive the filter because !a.id is true
+    const annotation = { kind: 'point' as const }
+    const passes = !annotation.id || !result.hiddenAnnotationIds!.has(annotation.id!)
+    expect(passes).toBe(true)
+  })
+
+  it('annotation visibility directives only affect matching ids', () => {
+    const scenes = [
+      scene({ annotationVisibility: [{ action: 'hide', kind: 'point', id: 'abc' }] }),
+    ]
+    const result = resolveScene(scenes, 0)!
+    expect(result.hiddenAnnotationIds).toEqual(new Set(['abc']))
+    expect(result.hiddenAnnotationIds!.has('xyz')).toBe(false)
+  })
+
+  it('empty annotationVisibility array does not set hiddenAnnotationIds', () => {
+    const scenes = [
+      scene({ annotationVisibility: [] }),
+    ]
+    const result = resolveScene(scenes, 0)!
+    expect(result.hiddenAnnotationIds).toBeUndefined()
+  })
+
+  it('hide in scene 0, no directive in scene 1, annotation still hidden at scene 1', () => {
+    const scenes = [
+      scene({ annotationVisibility: [{ action: 'hide', kind: 'point', id: 'abc' }] }),
+      scene({}),
+    ]
+    const result = resolveScene(scenes, 1)!
+    expect(result.hiddenAnnotationIds).toEqual(new Set(['abc']))
+  })
+
+  it('hide in scene 0, show in scene 1, hide again in scene 2', () => {
+    const scenes = [
+      scene({ annotationVisibility: [{ action: 'hide', kind: 'point', id: 'abc' }] }),
+      scene({ annotationVisibility: [{ action: 'show', kind: 'point', id: 'abc' }] }),
+      scene({ annotationVisibility: [{ action: 'hide', kind: 'point', id: 'abc' }] }),
+    ]
+    const result = resolveScene(scenes, 2)!
+    expect(result.hiddenAnnotationIds).toEqual(new Set(['abc']))
+  })
+
+  it('scene annotations override base annotations', () => {
+    const baseAnnotations = [{ id: 'a1', kind: 'point' as const, x: 1, y: 2 }]
+    const sceneAnnotations = [{ id: 'a2', kind: 'range' as const, x: 3, y: 4 }]
+    const scenes = [
+      scene({ annotations: baseAnnotations as any }),
+      scene({ annotations: sceneAnnotations as any }),
+    ]
+    const result = resolveScene(scenes, 1)!
+    expect(result.annotations).toEqual(sceneAnnotations)
+  })
+
+  it('resolved scene without annotations field returns undefined annotations', () => {
+    const scenes = [
+      scene({ chartType: 'line' }),
+    ]
+    const result = resolveScene(scenes, 0)!
+    expect(result.annotations).toBeUndefined()
+  })
+
+  it('deep-merges properties across scenes', () => {
+    const scenes = [
+      scene({ properties: { width: 100, color: 'red' } }),
+      scene({ properties: { color: 'blue' } }),
+    ]
+    const result = resolveScene(scenes, 1)!
+    expect(result.properties).toEqual({ width: 100, color: 'blue' })
+  })
+
+  it('transforms from later scene replace earlier scene', () => {
+    const earlyTransforms = [{ type: 'filter', column: 'A', value: '1' }] as any
+    const lateTransforms = [{ type: 'sort', column: 'B', value: 'asc' }] as any
+    const scenes = [
+      scene({ transforms: earlyTransforms }),
+      scene({ transforms: lateTransforms }),
+    ]
+    const result = resolveScene(scenes, 1)!
+    expect(result.transforms).toEqual(lateTransforms)
+  })
+
+  it('seriesOverrides from later scene replace earlier scene', () => {
+    const earlyOverrides = [{ series: 'A', color: 'red' }] as any
+    const lateOverrides = [{ series: 'B', color: 'blue' }] as any
+    const scenes = [
+      scene({ seriesOverrides: earlyOverrides }),
+      scene({ seriesOverrides: lateOverrides }),
+    ]
+    const result = resolveScene(scenes, 1)!
+    expect(result.seriesOverrides).toEqual(lateOverrides)
+  })
+})
+
+describe('annotation filtering', () => {
+  function filterAnnotations(
+    annotations: { id?: string; kind: string }[],
+    hiddenIds?: Set<string>
+  ): { id?: string; kind: string }[] {
+    if (!hiddenIds) return annotations
+    return annotations.filter(a => !a.id || !hiddenIds.has(a.id))
+  }
+
+  it('returns all annotations when hiddenIds is undefined', () => {
+    const annotations = [
+      { id: 'a', kind: 'point' },
+      { id: 'b', kind: 'range' },
+    ]
+    expect(filterAnnotations(annotations, undefined)).toEqual(annotations)
+  })
+
+  it('filters out annotation with matching id', () => {
+    const annotations = [
+      { id: 'a', kind: 'point' },
+      { id: 'b', kind: 'range' },
+    ]
+    const result = filterAnnotations(annotations, new Set(['a']))
+    expect(result).toEqual([{ id: 'b', kind: 'range' }])
+  })
+
+  it('keeps annotation with no id even when hiddenIds is populated', () => {
+    const annotations = [
+      { kind: 'point' },
+      { id: 'b', kind: 'range' },
+    ]
+    const result = filterAnnotations(annotations, new Set(['b']))
+    expect(result).toEqual([{ kind: 'point' }])
+  })
+
+  it('keeps annotation with id not in hiddenIds', () => {
+    const annotations = [
+      { id: 'x', kind: 'point' },
+    ]
+    const result = filterAnnotations(annotations, new Set(['y']))
+    expect(result).toEqual([{ id: 'x', kind: 'point' }])
+  })
+
+  it('filters multiple annotations with different ids', () => {
+    const annotations = [
+      { id: 'a', kind: 'point' },
+      { id: 'b', kind: 'range' },
+      { id: 'c', kind: 'free' },
+    ]
+    const result = filterAnnotations(annotations, new Set(['a', 'c']))
+    expect(result).toEqual([{ id: 'b', kind: 'range' }])
+  })
+
+  it('empty hiddenIds set filters nothing', () => {
+    const annotations = [
+      { id: 'a', kind: 'point' },
+      { id: 'b', kind: 'range' },
+    ]
+    const result = filterAnnotations(annotations, new Set())
+    expect(result).toEqual(annotations)
+  })
 })

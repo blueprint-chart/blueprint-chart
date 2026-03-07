@@ -171,6 +171,133 @@ describe('useChartConfig', () => {
     })
   })
 
+  describe('annotation scene-awareness', () => {
+    it('annotations reads from base when no scene is active', () => {
+      const config = useChartConfig()
+      config._base.annotations.value = [
+        { kind: 'point', text: 'Base note', target: 'A' },
+      ]
+      expect(config.annotations.value).toEqual([
+        { kind: 'point', text: 'Base note', target: 'A' },
+      ])
+    })
+
+    it('annotations reads from scene when scene with annotations is active', () => {
+      const config = useChartConfig()
+      const scenes = useScenes()
+
+      config._base.annotations.value = [
+        { kind: 'point', text: 'Base note', target: 'A' },
+      ]
+
+      scenes.add()
+      scenes.update(0, {
+        annotations: [{ kind: 'free', text: 'Scene note', x: 10, y: 20 }],
+      })
+      scenes.setActive(0)
+
+      expect(config.annotations.value).toEqual([
+        { kind: 'free', text: 'Scene note', x: 10, y: 20 },
+      ])
+    })
+
+    it('annotations falls back to base when scene has no annotations', () => {
+      const config = useChartConfig()
+      const scenes = useScenes()
+
+      config._base.annotations.value = [
+        { kind: 'point', text: 'Base note', target: 'A' },
+      ]
+
+      scenes.add()
+      scenes.setActive(0)
+
+      expect(config.annotations.value).toEqual([
+        { kind: 'point', text: 'Base note', target: 'A' },
+      ])
+    })
+
+    it('writing annotations targets scene when scene is active', () => {
+      const scenes = useScenes()
+      scenes.add()
+      scenes.setActive(0)
+
+      const config = useChartConfig()
+      config.annotations.value = [
+        { kind: 'free', text: 'Written to scene', x: 5, y: 5 },
+      ]
+
+      expect(scenes.activeScene.value?.annotations).toEqual([
+        { kind: 'free', text: 'Written to scene', x: 5, y: 5 },
+      ])
+      expect(config._base.annotations.value).toEqual([])
+    })
+
+    it('writing annotations targets base when no scene is active', () => {
+      const config = useChartConfig()
+      config.annotations.value = [
+        { kind: 'point', text: 'To base', target: 'B' },
+      ]
+
+      expect(config._base.annotations.value).toEqual([
+        { kind: 'point', text: 'To base', target: 'B' },
+      ])
+    })
+
+    it('scene annotation ids are preserved through read/write cycle', () => {
+      const scenes = useScenes()
+      scenes.add()
+      scenes.update(0, {
+        annotations: [
+          { kind: 'point', id: 'ann-1', text: 'First', target: 'X' },
+          { kind: 'free', id: 'ann-2', text: 'Second', x: 0, y: 0 },
+        ],
+      })
+      scenes.setActive(0)
+
+      const config = useChartConfig()
+      const current = config.annotations.value
+
+      // Modify text but keep ids
+      config.annotations.value = current.map((a) =>
+        a.kind === 'point'
+          ? { ...a, text: 'Updated First' }
+          : { ...a, text: 'Updated Second' },
+      )
+
+      expect(scenes.activeScene.value?.annotations).toEqual([
+        { kind: 'point', id: 'ann-1', text: 'Updated First', target: 'X' },
+        { kind: 'free', id: 'ann-2', text: 'Updated Second', x: 0, y: 0 },
+      ])
+    })
+
+    it('base annotations are not affected when writing to scene annotations', () => {
+      const config = useChartConfig()
+      const scenes = useScenes()
+
+      config._base.annotations.value = [
+        { kind: 'point', text: 'Base stays', target: 'A' },
+      ]
+
+      scenes.add()
+      scenes.setActive(0)
+
+      config.annotations.value = [
+        { kind: 'free', text: 'Scene only', x: 1, y: 2 },
+      ]
+
+      // Deactivate scene
+      scenes.setActive(-1)
+
+      expect(config.annotations.value).toEqual([
+        { kind: 'point', text: 'Base stays', target: 'A' },
+      ])
+      expect(config._base.annotations.value).toEqual([
+        { kind: 'point', text: 'Base stays', target: 'A' },
+      ])
+    })
+  })
+
   describe('_base refs bypass scene awareness', () => {
     it('always reads base values regardless of active scene', () => {
       const scenes = useScenes()

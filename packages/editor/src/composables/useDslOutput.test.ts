@@ -424,5 +424,156 @@ describe('useDslOutput', () => {
       const baseSection = dsl.value.split('scene {')[0]
       expect(baseSection).not.toContain('highlight "A"')
     })
+
+    it('serializes point annotation with id in scene', () => {
+      const config = useChartConfig()
+      config.chartType.value = 'line'
+
+      const scenes = useScenes()
+      scenes.add()
+      scenes.update(0, {
+        annotations: [
+          { kind: 'point', target: '2024-Q1', text: 'Peak', id: 'p1', showArrow: true },
+        ],
+      })
+
+      const { dsl } = useDslOutput()
+      expect(dsl.value).toContain('scene {')
+      expect(dsl.value).toContain('annotation "2024-Q1"')
+      expect(dsl.value).toContain('id = "p1"')
+      expect(dsl.value).toContain('text = "Peak"')
+      expect(dsl.value).toContain('showArrow = true')
+    })
+
+    it('serializes range annotation in scene', () => {
+      const config = useChartConfig()
+      config.chartType.value = 'line'
+
+      const scenes = useScenes()
+      scenes.add()
+      scenes.update(0, {
+        annotations: [
+          { kind: 'range', start: 10, end: 90, bgColor: '#ccc', id: 'r1' },
+        ],
+      })
+
+      const { dsl } = useDslOutput()
+      expect(dsl.value).toContain('scene {')
+      expect(dsl.value).toContain('range {')
+      expect(dsl.value).toContain('id = "r1"')
+      expect(dsl.value).toContain('start = 10')
+      expect(dsl.value).toContain('end = 90')
+      expect(dsl.value).toContain('bgColor = "#ccc"')
+    })
+
+    it('serializes free annotation (note) in scene', () => {
+      const config = useChartConfig()
+      config.chartType.value = 'line'
+
+      const scenes = useScenes()
+      scenes.add()
+      scenes.update(0, {
+        annotations: [
+          { kind: 'free', text: 'Note', x: 50, y: 25, id: 'n1' },
+        ],
+      })
+
+      const { dsl } = useDslOutput()
+      expect(dsl.value).toContain('scene {')
+      expect(dsl.value).toContain('note {')
+      expect(dsl.value).toContain('id = "n1"')
+      expect(dsl.value).toContain('text = "Note"')
+      expect(dsl.value).toContain('x = 50')
+      expect(dsl.value).toContain('y = 25')
+    })
+
+    it('serializes all annotation kinds in scene', () => {
+      const config = useChartConfig()
+      config.chartType.value = 'line'
+
+      const scenes = useScenes()
+      scenes.add()
+      scenes.update(0, {
+        annotations: [
+          { kind: 'point', target: 'X', text: 'Pt', id: 'p1' },
+          { kind: 'range', start: 0, end: 100, id: 'r1' },
+          { kind: 'free', text: 'Free', x: 10, y: 20, id: 'n1' },
+        ],
+      })
+
+      const { dsl } = useDslOutput()
+      expect(dsl.value).toContain('annotation "X"')
+      expect(dsl.value).toContain('range {')
+      expect(dsl.value).toContain('note {')
+    })
+
+    it('scene annotation round-trip through DSL', () => {
+      const { applyDsl } = useDslSync()
+      applyDsl(`chart line {
+  scene {
+    annotation "X" {
+      id = "p1"
+      text = "Hello"
+      showArrow = true
+    }
+    range {
+      id = "r1"
+      start = 10
+      end = 90
+    }
+    note {
+      id = "n1"
+      text = "Note"
+      x = 50
+      y = 25
+    }
+  }
+}`)
+
+      const { dsl } = useDslOutput()
+      expect(dsl.value).toContain('annotation "X"')
+      expect(dsl.value).toContain('id = "p1"')
+      expect(dsl.value).toContain('text = "Hello"')
+      expect(dsl.value).toContain('showArrow = true')
+      expect(dsl.value).toContain('range {')
+      expect(dsl.value).toContain('id = "r1"')
+      expect(dsl.value).toContain('start = 10')
+      expect(dsl.value).toContain('end = 90')
+      expect(dsl.value).toContain('note {')
+      expect(dsl.value).toContain('id = "n1"')
+      expect(dsl.value).toContain('text = "Note"')
+      expect(dsl.value).toContain('x = 50')
+      expect(dsl.value).toContain('y = 25')
+    })
+
+    it('scene annotation with visibility directives round-trip', () => {
+      const { applyDsl } = useDslSync()
+      applyDsl(`chart line {
+  annotation "Base" {
+    id = "base1"
+    text = "Base ann"
+  }
+  range {
+    id = "rng01"
+    start = 0
+    end = 100
+  }
+
+  scene {
+    hide_annotation "base1"
+    show_range "rng01"
+  }
+}`)
+
+      const { dsl } = useDslOutput()
+      // Base annotations should be present
+      expect(dsl.value).toContain('annotation "Base"')
+      expect(dsl.value).toContain('id = "base1"')
+      expect(dsl.value).toContain('range {')
+      expect(dsl.value).toContain('id = "rng01"')
+      // Scene visibility directives should be present
+      expect(dsl.value).toContain('hide_annotation "base1"')
+      expect(dsl.value).toContain('show_range "rng01"')
+    })
   })
 })
