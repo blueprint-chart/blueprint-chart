@@ -57,9 +57,12 @@ defineEmits<{
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  border-top: 1px solid var(--bs-border-color);
   padding: 0.5rem 1rem;
   min-height: 96px;
+  background: var(--bc-tile-bg);
+  border-radius: var(--bc-tile-radius);
+  box-shadow: var(--bc-tile-shadow);
+  border: var(--bc-tile-border);
 }
 
 .scene-timeline__items {
