@@ -101,6 +101,11 @@
   .form-range::-moz-range-track {
     background-color: #444;
   }
+
+  .form-check-input {
+    background-color: var(--bs-tertiary-bg);
+    border-color: var(--bs-border-color);
+  }
 }
 
 body {
