@@ -239,11 +239,17 @@ onBeforeRouteLeave(() => {
   flex-direction: column;
   flex-grow: 1;
   overflow: hidden;
+  gap: var(--bc-tile-gap);
+  padding: var(--bc-tile-gap);
 }
 
 .wizard-shell__content {
   display: flex;
   flex-grow: 1;
   overflow: auto;
+  background: var(--bc-tile-bg);
+  border-radius: var(--bc-tile-radius);
+  box-shadow: var(--bc-tile-shadow);
+  border: var(--bc-tile-border);
 }
 </style>

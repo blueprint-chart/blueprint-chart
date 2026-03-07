@@ -28,11 +28,13 @@ const playingScenes = [
       :init-state="() => ({ activeIndex: 0 })"
     >
       <template #default="{ state }">
-        <SceneTimeline
-          :scenes="defaultScenes"
-          :active-index="state.activeIndex"
-          @update:active-index="state.activeIndex = $event"
-        />
+        <div style="background: var(--bc-void-bg, #1a1a1a); padding: 1rem;">
+          <SceneTimeline
+            :scenes="defaultScenes"
+            :active-index="state.activeIndex"
+            @update:active-index="state.activeIndex = $event"
+          />
+        </div>
       </template>
     </Variant>
 
@@ -41,27 +43,33 @@ const playingScenes = [
       :init-state="() => ({ activeIndex: 1 })"
     >
       <template #default="{ state }">
-        <SceneTimeline
-          :scenes="multipleScenes"
-          :active-index="state.activeIndex"
-          @update:active-index="state.activeIndex = $event"
-        />
+        <div style="background: var(--bc-void-bg, #1a1a1a); padding: 1rem;">
+          <SceneTimeline
+            :scenes="multipleScenes"
+            :active-index="state.activeIndex"
+            @update:active-index="state.activeIndex = $event"
+          />
+        </div>
       </template>
     </Variant>
 
     <Variant title="Playing">
       <template #default>
-        <SceneTimeline
-          :scenes="playingScenes"
-          :active-index="1"
-          :playing="true"
-        />
+        <div style="background: var(--bc-void-bg, #1a1a1a); padding: 1rem;">
+          <SceneTimeline
+            :scenes="playingScenes"
+            :active-index="1"
+            :playing="true"
+          />
+        </div>
       </template>
     </Variant>
 
     <Variant title="Empty">
       <template #default>
-        <SceneTimeline :scenes="[]" />
+        <div style="background: var(--bc-void-bg, #1a1a1a); padding: 1rem;">
+          <SceneTimeline :scenes="[]" />
+        </div>
       </template>
     </Variant>
   </Story>
