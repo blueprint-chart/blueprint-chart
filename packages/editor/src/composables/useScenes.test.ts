@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
+import type { AnnotationConfig } from '@blueprint-chart/lib'
 import { useScenes } from './useScenes'
 
 describe('useScenes', () => {
@@ -337,7 +338,7 @@ describe('useScenes', () => {
         { id: 'ann-1', kind: 'point' as const, x: 10, y: 20, label: 'Note A' },
         { id: 'ann-2', kind: 'range' as const, x: 30, x2: 50, label: 'Note B' },
       ]
-      update(0, { annotations: annotations as any })
+      update(0, { annotations: annotations as AnnotationConfig[] })
       expect(scenes.value[0].annotations).toEqual(annotations)
     })
 
