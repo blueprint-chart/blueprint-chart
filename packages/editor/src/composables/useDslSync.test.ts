@@ -5,7 +5,7 @@ import { useDslSync } from './useDslSync'
 import { useChartTypeOptions } from './useChartTypeOptions'
 import { useDslOutput } from './useDslOutput'
 import { useScenes } from './useScenes'
-import { resolveScene } from './useChartPreview'
+import { resolveScene, resolveSortFromTransforms } from './useChartPreview'
 
 describe('useDslSync', () => {
   beforeEach(() => {
@@ -1158,6 +1158,79 @@ describe('useDslSync', () => {
 }`)
 
       expect(config.seriesOverrides.value).toEqual([])
+    })
+  })
+
+  describe('scene sort transform inheritance', () => {
+    it('sort transform from scene 1 cascades to scene 2 via resolveScene', () => {
+      const { applyDsl } = useDslSync()
+      const result = applyDsl(`chart bar-horizontal {
+  data {
+    "China" = 1050
+    "India" = 900
+    "United States" = 312
+  }
+
+  scene {
+    crosshair = true
+
+    highlight "India" {
+      color = "#00d084"
+    }
+
+    transform sort {
+      columns = "value"
+      direction = "ascending"
+    }
+  }
+
+  scene {
+    highlight "India" {
+      color = "#9900ef"
+    }
+  }
+}`)
+      expect(result.success).toBe(true)
+
+      const scenes = useScenes()
+      expect(scenes.scenes.value).toHaveLength(2)
+
+      // Scene 1 should have the sort transform
+      expect(scenes.scenes.value[0].transforms).toHaveLength(1)
+      expect(scenes.scenes.value[0].transforms![0].type).toBe('sort')
+      expect(scenes.scenes.value[0].transforms![0].config.direction).toBe('ascending')
+
+      // Scene 2 should NOT have its own transforms
+      expect(scenes.scenes.value[1].transforms).toBeUndefined()
+
+      // resolveScene for Scene 2 should inherit transforms from Scene 1
+      const resolved = resolveScene(scenes.scenes.value, 1)!
+      expect(resolved.transforms).toBeDefined()
+      expect(resolved.transforms).toHaveLength(1)
+      expect(resolved.transforms![0].type).toBe('sort')
+
+      // resolveSortFromTransforms should extract 'ascending'
+      expect(resolveSortFromTransforms(resolved)).toBe('ascending')
+    })
+
+    it('base sort is none when sort only exists as scene transform', () => {
+      const { applyDsl } = useDslSync()
+      applyDsl(`chart bar-horizontal {
+  data {
+    "A" = 10
+  }
+
+  scene {
+    transform sort {
+      columns = "value"
+      direction = "ascending"
+    }
+  }
+}`)
+
+      const config = useChartConfig()
+      // Base sort should be 'none' since sort is only in scene transform
+      expect(config.sort.value).toBe('none')
     })
   })
 })
