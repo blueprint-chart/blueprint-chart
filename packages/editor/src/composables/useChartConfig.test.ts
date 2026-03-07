@@ -387,6 +387,19 @@ describe('useChartConfig', () => {
       scenes.setActive(1)
       expect(config.chartType.value).toBe('bar-vertical')
     })
+
+    it('data from earlier scene cascades to later scene', () => {
+      const config = useChartConfig()
+      const scenes = useScenes()
+
+      config._base.data.value = 'Label,Value\nA,10'
+      scenes.add()
+      scenes.update(0, { data: 'Label,Value\nX,99\nY,88' })
+      scenes.add() // scene 1 has no data override
+
+      scenes.setActive(1)
+      expect(config.data.value).toBe('Label,Value\nX,99\nY,88')
+    })
   })
 
   describe('_base refs bypass scene awareness', () => {

@@ -98,6 +98,35 @@ describe('resolveScene', () => {
     expect(result.chartType).toBe('line')
   })
 
+  it('data cascades through multiple scenes', () => {
+    const scenes = [
+      scene({ data: 'X,1\nY,2' }),
+      scene({}),
+      scene({}),
+    ]
+    const result = resolveScene(scenes, 2)!
+    expect(result.data).toBe('X,1\nY,2')
+  })
+
+  it('later scene data overrides earlier scene data', () => {
+    const scenes = [
+      scene({ data: 'A,1' }),
+      scene({ data: 'B,2' }),
+      scene({}),
+    ]
+    const result = resolveScene(scenes, 2)!
+    expect(result.data).toBe('B,2')
+  })
+
+  it('empty string data is a valid override (clears inherited data)', () => {
+    const scenes = [
+      scene({ data: 'A,1\nB,2' }),
+      scene({ data: '' }),
+    ]
+    const result = resolveScene(scenes, 1)!
+    expect(result.data).toBe('')
+  })
+
   it('does not inherit from scenes after the active index', () => {
     const scenes = [
       scene({ chartType: 'line' }),
