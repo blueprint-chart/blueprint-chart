@@ -505,6 +505,99 @@ describe('createAnnotationPlugin', () => {
   })
 
   // -----------------------------------------------------------------------
+  // Line geometry data attributes & draw entrance
+  // -----------------------------------------------------------------------
+
+  it('stores line geometry data attributes on annotation lines', () => {
+    const { x, y, data } = makeScales()
+
+    const plugin = createAnnotationPlugin(
+      [{ kind: 'point', id: 'p1', target: 'A', text: 'Test', showLine: true }],
+      { scaleX: x, scaleY: y, data, width: 200, height: 200 },
+    )
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    plugin.postDraw!(makeChartStub(g) as any, undefined as any)
+
+    const line = g.querySelector('.bc-annotation-line')
+    expect(line).toBeTruthy()
+    // Line should have pathLength for draw animation
+    expect(line!.getAttribute('pathLength')).toBe('1')
+    // Line should store geometry for transition tweening
+    expect(line!.getAttribute('data-line-style')).toBeTruthy()
+    expect(line!.hasAttribute('data-line-from-x')).toBe(true)
+    expect(line!.hasAttribute('data-line-to-x')).toBe(true)
+  })
+
+  it('new annotation line gets stroke-dashoffset draw entrance on transition', () => {
+    const { x, y, data } = makeScales()
+
+    // First render with no annotations
+    const plugin1 = createAnnotationPlugin(
+      [],
+      { scaleX: x, scaleY: y, data, width: 200, height: 200 },
+    )
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    plugin1.postDraw!(makeChartStub(g) as any, undefined as any)
+
+    // Second render adds annotation with line — should get draw entrance
+    const plugin2 = createAnnotationPlugin(
+      [{ kind: 'point', id: 'new-line', target: 'A', text: 'Draw me', showLine: true }],
+      { scaleX: x, scaleY: y, data, width: 200, height: 200, transition: true },
+    )
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    plugin2.postDraw!(makeChartStub(g) as any, undefined as any)
+
+    const line = g.querySelector('g[data-annotation-id="new-line"] .bc-annotation-line')
+    expect(line).toBeTruthy()
+    // Draw entrance: stroke-dasharray and stroke-dashoffset set for draw animation
+    expect(line!.getAttribute('stroke-dasharray')).toBe('1')
+  })
+
+  it('persistent annotation line does NOT get stroke-dashoffset on move', () => {
+    const { x, y, data } = makeScales()
+
+    // First render with annotation
+    const plugin1 = createAnnotationPlugin(
+      [{ kind: 'point', id: 'p-move', target: 'A', text: 'Start', showLine: true }],
+      { scaleX: x, scaleY: y, data, width: 200, height: 200 },
+    )
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    plugin1.postDraw!(makeChartStub(g) as any, undefined as any)
+
+    // Second render moves annotation — should NOT get draw entrance
+    const plugin2 = createAnnotationPlugin(
+      [{ kind: 'point', id: 'p-move', target: 'B', text: 'Moved', showLine: true }],
+      { scaleX: x, scaleY: y, data, width: 200, height: 200, transition: true },
+    )
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    plugin2.postDraw!(makeChartStub(g) as any, undefined as any)
+
+    const line = g.querySelector('g[data-annotation-id="p-move"] .bc-annotation-line')
+    expect(line).toBeTruthy()
+    // Persistent: no stroke-dasharray draw animation
+    expect(line!.getAttribute('stroke-dasharray')).toBeNull()
+  })
+
+  it('elbow line stores geometry data attributes for attrTween', () => {
+    const { x, y, data } = makeScales()
+
+    const plugin = createAnnotationPlugin(
+      [{ kind: 'point', id: 'elb-1', target: 'A', text: 'Elbow', showLine: true, lineStyle: 'elbow' }],
+      { scaleX: x, scaleY: y, data, width: 200, height: 200 },
+    )
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    plugin.postDraw!(makeChartStub(g) as any, undefined as any)
+
+    const line = g.querySelector('g[data-annotation-id="elb-1"] .bc-annotation-line')
+    expect(line).toBeTruthy()
+    expect(line!.getAttribute('data-line-style')).toBe('elbow')
+    expect(line!.hasAttribute('data-line-from-x')).toBe(true)
+    expect(line!.hasAttribute('data-line-from-y')).toBe(true)
+    expect(line!.hasAttribute('data-line-to-x')).toBe(true)
+    expect(line!.hasAttribute('data-line-to-y')).toBe(true)
+  })
+
+  // -----------------------------------------------------------------------
   // data-annotation-index attribute
   // -----------------------------------------------------------------------
 
