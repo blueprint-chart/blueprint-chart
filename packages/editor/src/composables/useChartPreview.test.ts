@@ -423,6 +423,27 @@ describe('resolveSortFromTransforms', () => {
     expect(resolved.transforms).toBeDefined()
     expect(resolveSortFromTransforms(resolved)).toBe('ascending')
   })
+
+  it('defaults to ascending when sort transform has no direction', () => {
+    const resolved = scene({ transforms: [
+      { id: '0', type: 'sort', config: { columns: 'value' } },
+    ] })
+    expect(resolveSortFromTransforms(resolved)).toBe('ascending')
+  })
+
+  it('defaults to ascending for inherited sort transform without direction', () => {
+    const scenes = [
+      scene({
+        transforms: [{ id: '0', type: 'sort', config: { columns: 'value' } }],
+      }),
+      scene({
+        highlights: [{ target: 'India', color: '#9900ef', label: '' }],
+      }),
+    ]
+
+    const resolved = resolveScene(scenes, 1)!
+    expect(resolveSortFromTransforms(resolved)).toBe('ascending')
+  })
 })
 
 describe('annotation filtering', () => {

@@ -1232,5 +1232,54 @@ describe('useDslSync', () => {
       // Base sort should be 'none' since sort is only in scene transform
       expect(config.sort.value).toBe('none')
     })
+
+    it('sort transform without direction defaults to ascending and cascades', () => {
+      const { applyDsl } = useDslSync()
+      const result = applyDsl(`chart bar-horizontal {
+  data {
+    "China" = 1050
+    "India" = 900
+    "United States" = 312
+    "Indonesia" = 213
+    "Brazil" = 186
+    "Russia" = 130
+    "Japan" = 118
+    "Nigeria" = 110
+  }
+
+  scene {
+    tooltips = true
+    crosshair = true
+
+    highlight "India" {
+      color = "#00d084"
+    }
+
+    transform sort {
+      columns = "value"
+    }
+  }
+
+  scene {
+    highlight "India" {
+      color = "#9900ef"
+    }
+  }
+}`)
+      expect(result.success).toBe(true)
+
+      const scenes = useScenes()
+      // Scene 1 has the sort transform (no direction property)
+      expect(scenes.scenes.value[0].transforms).toHaveLength(1)
+      expect(scenes.scenes.value[0].transforms![0].type).toBe('sort')
+      expect(scenes.scenes.value[0].transforms![0].config.direction).toBeUndefined()
+
+      // Scene 2 inherits transforms via resolveScene
+      const resolved = resolveScene(scenes.scenes.value, 1)!
+      expect(resolved.transforms).toHaveLength(1)
+
+      // resolveSortFromTransforms defaults to 'ascending' when no direction
+      expect(resolveSortFromTransforms(resolved)).toBe('ascending')
+    })
   })
 })
