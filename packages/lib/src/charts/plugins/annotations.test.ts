@@ -553,6 +553,37 @@ describe('createAnnotationPlugin', () => {
     expect(line!.getAttribute('stroke-dasharray')).toBe('1')
   })
 
+  it('arrow line uses path growth instead of stroke-dashoffset on draw entrance', () => {
+    const { x, y, data } = makeScales()
+
+    // First render with no annotations
+    const plugin1 = createAnnotationPlugin(
+      [],
+      { scaleX: x, scaleY: y, data, width: 200, height: 200 },
+    )
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    plugin1.postDraw!(makeChartStub(g) as any, undefined as any)
+
+    // Second render adds annotation with arrow line
+    const plugin2 = createAnnotationPlugin(
+      [{ kind: 'point', id: 'arrow-draw', target: 'A', text: 'Arrow', showLine: true, showArrow: true }],
+      { scaleX: x, scaleY: y, data, width: 200, height: 200, transition: true },
+    )
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    plugin2.postDraw!(makeChartStub(g) as any, undefined as any)
+
+    const line = g.querySelector('g[data-annotation-id="arrow-draw"] .bc-annotation-line')
+    expect(line).toBeTruthy()
+    // Arrow lines should NOT use stroke-dashoffset (arrowhead wouldn't follow)
+    expect(line!.getAttribute('stroke-dasharray')).toBeNull()
+    // The path d should start collapsed at the from point (path growth entrance)
+    const d = line!.getAttribute('d')!
+    const coords = d.match(/[\d.-]+/g)!.map(Number)
+    // First two coords (M) should equal the next two (L) — line starts collapsed
+    expect(coords[0]).toBeCloseTo(coords[2], 0)
+    expect(coords[1]).toBeCloseTo(coords[3], 0)
+  })
+
   it('persistent annotation line does NOT get stroke-dashoffset on move', () => {
     const { x, y, data } = makeScales()
 
