@@ -33,10 +33,20 @@ export function deepEqual(a: unknown, b: unknown): boolean {
  * Walks prior scenes (like resolveScene) to find the last override,
  * falling back to the base value.
  */
+function isNonEmptyOverride(val: unknown): boolean {
+  if (val === undefined) {
+    return false
+  }
+  if (Array.isArray(val) && val.length === 0) {
+    return false
+  }
+  return true
+}
+
 function inheritedDirectValue<T>(baseVal: T, sceneKey: DirectSceneKey, scenes: SceneOverride[], activeIndex: number): T {
   for (let i = activeIndex - 1; i >= 0; i--) {
     const s = scenes[i]
-    if (s && sceneKey in s && s[sceneKey] !== undefined) {
+    if (s && sceneKey in s && isNonEmptyOverride(s[sceneKey])) {
       return s[sceneKey] as unknown as T
     }
   }
@@ -139,7 +149,7 @@ function sceneDirectRef<T>(baseRef: Ref<T>, sceneKey: DirectSceneKey): WritableC
     get(): T {
       const { activeScene, activeIndex, scenes: allScenes } = useScenes()
       const scene = activeScene.value
-      if (scene && sceneKey in scene && scene[sceneKey] !== undefined) {
+      if (scene && sceneKey in scene && isNonEmptyOverride(scene[sceneKey])) {
         return scene[sceneKey] as unknown as T
       }
       if (activeIndex.value >= 0) {
