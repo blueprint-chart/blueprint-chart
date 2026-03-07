@@ -66,8 +66,8 @@ function buttonClassList(value: string) {
   align-items: center;
   width: 48px;
   padding: 0.5rem 0;
-  background: var(--bs-navbar-bg);
-  border-left: 1px solid var(--bs-border-color);
+  background: transparent;
+  border-left: none;
   gap: 0.25rem;
 
   &__button {
@@ -76,17 +76,18 @@ function buttonClassList(value: string) {
       border: none;
       background: transparent;
       color: var(--bs-secondary-color);
-      transition: all 0.15s ease;
+      transition: color 0.15s ease, opacity 0.15s ease;
     }
 
     &:hover.btn {
-      background: var(--bs-tertiary-bg);
+      background: transparent;
       color: var(--bs-body-color);
+      opacity: 0.85;
     }
 
     &--active.btn {
-      background: var(--bs-primary-bg-subtle);
-      color: var(--bs-primary);
+      background: transparent;
+      color: var(--bs-body-color);
     }
   }
 
@@ -96,7 +97,7 @@ function buttonClassList(value: string) {
     height: auto;
     padding: 0.25rem 0.5rem;
     border-left: none;
-    border-bottom: 1px solid var(--bs-border-color);
+    border-bottom: none;
     overflow-x: auto;
     scrollbar-width: none;
 
@@ -127,11 +128,12 @@ function buttonClassList(value: string) {
       border: none;
       background: transparent;
       color: var(--bs-secondary-color);
-      transition: all 0.15s ease;
+      transition: color 0.15s ease, opacity 0.15s ease;
 
       &:hover {
-        background: var(--bs-tertiary-bg);
+        background: transparent;
         color: var(--bs-body-color);
+        opacity: 0.85;
       }
     }
   }
