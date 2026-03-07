@@ -1,29 +1,22 @@
 <template>
-  <BFormGroup
-    ref="elementRef"
-    class="form-control-number-format"
+  <FormControlDropdown
+    :id="id"
+    v-model="model"
     :label="label"
-    :label-for="id"
+    :block="block"
+    :placeholder="'auto'"
+    auto-close="outside"
+    menu-class="form-control-number-format-menu"
+    :min-menu-width="260"
   >
-    <BDropdown
-      ref="dropdownRef"
-      class="form-control-number-format__toggle"
-      :class="{ 'form-control-number-format__toggle--block': block }"
-      menu-class="form-control-number-format-menu"
-      :text="displayValue"
-      teleport-to="body"
-      variant="outline-secondary"
-      auto-close="outside"
-      @show="matchMenuWidth"
-      @shown="matchMenuWidth"
-    >
-      <template #button-content>
-        <span
-          class="form-control-number-format__trigger-text"
-          :class="{ 'text-secondary': !model }"
-        >{{ displayValue }}</span>
-      </template>
+    <template #button-content>
+      <span
+        class="form-control-number-format__trigger-text"
+        :class="{ 'text-secondary': !model }"
+      >{{ displayValue }}</span>
+    </template>
 
+    <template #menu>
       <div class="form-control-number-format__popover">
         <!-- Live preview -->
         <div class="form-control-number-format__preview">
@@ -147,13 +140,13 @@
           </div>
         </div>
       </div>
-    </BDropdown>
-  </BFormGroup>
+    </template>
+  </FormControlDropdown>
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref, useTemplateRef, watch } from 'vue'
-import { useElementBounding } from '@vueuse/core'
+import { computed, reactive, ref, watch } from 'vue'
+import FormControlDropdown from './FormControlDropdown.vue'
 import {
   configToD3,
   configToModel,
@@ -203,23 +196,6 @@ const PRESETS: Preset[] = [
 
 const config = reactive<NumberFormatConfig>({ ...DEFAULT_CONFIG })
 const activePreset = ref<string | null>(null)
-
-const elementRef = useTemplateRef<HTMLElement>('elementRef')
-const elementBounding = useElementBounding(elementRef)
-const dropdownRef = useTemplateRef<{ hide: () => void, $el: HTMLElement }>('dropdownRef')
-
-function matchMenuWidth() {
-  const { id: toggleId = null } = dropdownRef.value?.$el?.querySelector('.dropdown-toggle') as HTMLElement | null ?? {}
-  if (!toggleId) {
-    return
-  }
-  const menu = document.getElementById(`${toggleId}-menu`)
-  if (menu) {
-    menu.style.width = `${Math.max(elementBounding.width.value, 260)}px`
-  }
-}
-
-watch(elementBounding.width, matchMenuWidth)
 
 // Initialize config from model
 watch(() => model.value, (newVal) => {
@@ -276,18 +252,6 @@ const previewSamples = computed(() =>
 </style>
 
 <style scoped lang="scss">
-.form-control-number-format__toggle--block {
-  width: 100%;
-
-  :deep(.dropdown-toggle) {
-    width: 100%;
-    display: inline-flex;
-    text-align: left;
-    align-items: center;
-    justify-content: space-between;
-  }
-}
-
 .form-control-number-format__trigger-text {
   overflow: hidden;
   text-overflow: ellipsis;
