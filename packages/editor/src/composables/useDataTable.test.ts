@@ -1,9 +1,13 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { useDataTable, serializeTableData } from './useDataTable'
+import { useScenes } from './useScenes'
+import { useDataTransforms } from './useDataTransforms'
 
 describe('useDataTable', () => {
   beforeEach(() => {
     useDataTable().reset()
+    useScenes().reset()
+    useDataTransforms().reset()
   })
 
   it('starts empty', () => {
@@ -154,5 +158,50 @@ describe('serializeTableData', () => {
     const standalone = serializeTableData(['Name', 'Value'], [['Apples', '42'], ['Bananas', '58']])
     expect(standalone).toBe(serialize())
     useDataTable().reset()
+  })
+
+  describe('scene-aware display data', () => {
+    it('applies inherited sort transform from prior scene', () => {
+      const { loadParsed, displayRows } = useDataTable()
+      const scenes = useScenes()
+
+      loadParsed({
+        columns: ['Name', 'Value'],
+        rows: [['China', '1050'], ['India', '900'], ['Brazil', '186']],
+        columnTypes: ['string', 'number'],
+      })
+
+      // Scene 1 has a sort transform
+      scenes.hydrate({
+        scenes: [
+          { id: '1', name: null, transforms: [{ id: '0', type: 'sort', config: { columns: 'Value', direction: 'ascending' } }] },
+          { id: '2', name: null },
+        ],
+        activeIndex: 1,
+      })
+
+      // Scene 2 (activeIndex=1) inherits sort from Scene 1
+      // Data should be sorted ascending by Value: Brazil(186), India(900), China(1050)
+      expect(displayRows.value[0][0]).toBe('Brazil')
+      expect(displayRows.value[1][0]).toBe('India')
+      expect(displayRows.value[2][0]).toBe('China')
+    })
+
+    it('shows unsorted data when no scene is active', () => {
+      const { loadParsed, displayRows } = useDataTable()
+      const scenes = useScenes()
+      scenes.reset()
+
+      loadParsed({
+        columns: ['Name', 'Value'],
+        rows: [['China', '1050'], ['India', '900'], ['Brazil', '186']],
+        columnTypes: ['string', 'number'],
+      })
+
+      // No scene active — data stays in original order
+      expect(displayRows.value[0][0]).toBe('China')
+      expect(displayRows.value[1][0]).toBe('India')
+      expect(displayRows.value[2][0]).toBe('Brazil')
+    })
   })
 })
