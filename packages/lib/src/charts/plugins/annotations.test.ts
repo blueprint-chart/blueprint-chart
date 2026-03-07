@@ -496,6 +496,12 @@ describe('createAnnotationPlugin', () => {
     // For a curved line, the stub should approach from a different angle than the chord.
     // If the stub were along the chord (the bug), angleDiff would be ~0.
     expect(angleDiff).toBeGreaterThan(0.1)
+
+    // The arc endpoint should be close to but not past the target
+    // (stub approaches the target, arrow points toward it)
+    const stubDist = Math.sqrt((to.x - arcEndX) ** 2 + (to.y - arcEndY) ** 2)
+    expect(stubDist).toBeGreaterThan(1)
+    expect(stubDist).toBeLessThan(20)
   })
 
   // -----------------------------------------------------------------------
