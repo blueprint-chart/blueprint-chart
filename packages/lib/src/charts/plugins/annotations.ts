@@ -16,6 +16,8 @@ export interface AnnotationContext {
   backgroundColor?: string
   orientation?: 'horizontal'
   transition?: boolean
+  /** Pre-computed snapshots of old annotation positions (captured before DOM is cleared). */
+  priorAnnotations?: Map<string, AnnotationSnapshot>
 }
 
 // ---------------------------------------------------------------------------
@@ -894,27 +896,32 @@ export function renderAnnotations(
 
   const base = d3.select(parent)
 
-  // Snapshot old annotation positions before clearing (for transitions)
+  // Use pre-computed snapshots if provided, otherwise try DOM-based snapshot
   let oldSnapshots: Map<string, AnnotationSnapshot> | undefined
   if (ctx.transition) {
-    const existingContainer = parent.querySelector('.bc-annotations')
-    const existingRangeContainer = parent.querySelector('.bc-annotations-range')
-    if (existingContainer || existingRangeContainer) {
-      oldSnapshots = new Map()
-      if (existingContainer) {
-        for (const [k, v] of snapshotAnnotations(existingContainer)) {
-          oldSnapshots.set(k, v)
+    if (ctx.priorAnnotations && ctx.priorAnnotations.size > 0) {
+      oldSnapshots = ctx.priorAnnotations
+    }
+    else {
+      const existingContainer = parent.querySelector('.bc-annotations')
+      const existingRangeContainer = parent.querySelector('.bc-annotations-range')
+      if (existingContainer || existingRangeContainer) {
+        oldSnapshots = new Map()
+        if (existingContainer) {
+          for (const [k, v] of snapshotAnnotations(existingContainer)) {
+            oldSnapshots.set(k, v)
+          }
         }
-      }
-      if (existingRangeContainer) {
-        for (const [k, v] of snapshotAnnotations(existingRangeContainer)) {
-          oldSnapshots.set(k, v)
+        if (existingRangeContainer) {
+          for (const [k, v] of snapshotAnnotations(existingRangeContainer)) {
+            oldSnapshots.set(k, v)
+          }
         }
       }
     }
   }
 
-  // Remove old annotation containers after snapshotting
+  // Remove old annotation containers
   parent.querySelectorAll('.bc-annotations, .bc-annotations-range').forEach(el => el.remove())
 
   const rangeGroup = base.insert('g', ':first-child').attr('class', 'bc-annotations-range') as unknown as d3.Selection<SVGGElement, unknown, null, undefined>
@@ -953,13 +960,13 @@ export function renderAnnotations(
 // Transition helpers
 // ---------------------------------------------------------------------------
 
-interface AnnotationSnapshot {
+export interface AnnotationSnapshot {
   id: string
   element: Element
   rect: { x: number, y: number, width: number, height: number }
 }
 
-function snapshotAnnotations(container: Element): Map<string, AnnotationSnapshot> {
+export function snapshotAnnotations(container: Element): Map<string, AnnotationSnapshot> {
   const map = new Map<string, AnnotationSnapshot>()
   const groups = container.querySelectorAll('g[data-annotation-id]')
   for (const el of groups) {
@@ -1072,28 +1079,34 @@ export function createAnnotationPlugin(
         ? d3.select(parentNode) as unknown as d3.Selection<SVGElement, unknown, null, undefined>
         : base
 
-      // Snapshot old annotation positions before clearing (for transitions)
+      // Use pre-computed snapshots if provided (captured before renderer cleared DOM),
+      // otherwise try to snapshot from current DOM.
       const targetEl = target.node() as Element
       let oldSnapshots: Map<string, AnnotationSnapshot> | undefined
-      if (ctx.transition && targetEl) {
-        const existingContainer = targetEl.querySelector('.bc-annotations')
-        const existingRangeContainer = targetEl.querySelector('.bc-annotations-range')
-        if (existingContainer || existingRangeContainer) {
-          oldSnapshots = new Map()
-          if (existingContainer) {
-            for (const [k, v] of snapshotAnnotations(existingContainer)) {
-              oldSnapshots.set(k, v)
+      if (ctx.transition) {
+        if (ctx.priorAnnotations && ctx.priorAnnotations.size > 0) {
+          oldSnapshots = ctx.priorAnnotations
+        }
+        else if (targetEl) {
+          const existingContainer = targetEl.querySelector('.bc-annotations')
+          const existingRangeContainer = targetEl.querySelector('.bc-annotations-range')
+          if (existingContainer || existingRangeContainer) {
+            oldSnapshots = new Map()
+            if (existingContainer) {
+              for (const [k, v] of snapshotAnnotations(existingContainer)) {
+                oldSnapshots.set(k, v)
+              }
             }
-          }
-          if (existingRangeContainer) {
-            for (const [k, v] of snapshotAnnotations(existingRangeContainer)) {
-              oldSnapshots.set(k, v)
+            if (existingRangeContainer) {
+              for (const [k, v] of snapshotAnnotations(existingRangeContainer)) {
+                oldSnapshots.set(k, v)
+              }
             }
           }
         }
       }
 
-      // Remove old annotation containers after snapshotting
+      // Remove old annotation containers
       if (targetEl) {
         targetEl.querySelectorAll('.bc-annotations, .bc-annotations-range').forEach(el => el.remove())
       }
