@@ -31,7 +31,18 @@ export function useChartTypeOptions() {
   const currentOptions = computed(() => {
     ensureDefaults(chartType.value)
     const base = store[chartType.value] ?? {}
-    const { activeScene } = useScenes()
+    const { activeScene, activeIndex, scenes: allScenes } = useScenes()
+    if (activeIndex.value >= 0) {
+      // Merge inherited options from prior scenes, then own overrides
+      let merged = { ...base }
+      for (let i = 0; i <= activeIndex.value; i++) {
+        const sceneOpts = allScenes.value[i]?.chartTypeOptions
+        if (sceneOpts) {
+          merged = { ...merged, ...sceneOpts }
+        }
+      }
+      return merged
+    }
     if (activeScene.value?.chartTypeOptions) {
       return { ...base, ...activeScene.value.chartTypeOptions }
     }

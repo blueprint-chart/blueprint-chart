@@ -36,7 +36,7 @@ export function deepEqual(a: unknown, b: unknown): boolean {
 function inheritedDirectValue<T>(baseVal: T, sceneKey: DirectSceneKey, scenes: SceneOverride[], activeIndex: number): T {
   for (let i = activeIndex - 1; i >= 0; i--) {
     const s = scenes[i]
-    if (sceneKey in s && s[sceneKey] !== undefined) {
+    if (s && sceneKey in s && s[sceneKey] !== undefined) {
       return s[sceneKey] as unknown as T
     }
   }
@@ -51,7 +51,7 @@ function inheritedDirectValue<T>(baseVal: T, sceneKey: DirectSceneKey, scenes: S
 function inheritedPropValue<T extends string>(baseVal: T, propKey: string, scenes: SceneOverride[], activeIndex: number): T {
   for (let i = activeIndex - 1; i >= 0; i--) {
     const s = scenes[i]
-    if (s.properties && propKey in s.properties) {
+    if (s?.properties && propKey in s.properties) {
       return String(s.properties[propKey]) as T
     }
   }
@@ -137,10 +137,13 @@ type DirectSceneKey = 'chartType' | 'data' | 'highlights' | 'areaFills' | 'annot
 function sceneDirectRef<T>(baseRef: Ref<T>, sceneKey: DirectSceneKey): WritableComputedRef<T> {
   return computed({
     get(): T {
-      const { activeScene } = useScenes()
+      const { activeScene, activeIndex, scenes: allScenes } = useScenes()
       const scene = activeScene.value
       if (scene && sceneKey in scene && scene[sceneKey] !== undefined) {
         return scene[sceneKey] as unknown as T
+      }
+      if (activeIndex.value >= 0) {
+        return inheritedDirectValue(baseRef.value, sceneKey, allScenes.value, activeIndex.value)
       }
       return baseRef.value
     },
@@ -167,10 +170,13 @@ function sceneDirectRef<T>(baseRef: Ref<T>, sceneKey: DirectSceneKey): WritableC
 function scenePropRef<T extends string>(baseRef: Ref<T>, propKey: string): WritableComputedRef<T> {
   return computed({
     get(): T {
-      const { activeScene } = useScenes()
+      const { activeScene, activeIndex, scenes: allScenes } = useScenes()
       const scene = activeScene.value
       if (scene?.properties && propKey in scene.properties) {
         return String(scene.properties[propKey]) as T
+      }
+      if (activeIndex.value >= 0) {
+        return inheritedPropValue(baseRef.value, propKey, allScenes.value, activeIndex.value)
       }
       return baseRef.value
     },
