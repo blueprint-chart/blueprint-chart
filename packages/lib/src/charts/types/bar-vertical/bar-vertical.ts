@@ -7,11 +7,10 @@ import { createCanvas, labelPositionMargins, estimateVerticalLabelWidth } from '
 import { renderVerticalAxis } from '../../axis/vertical-axis'
 import { renderHorizontalAxis } from '../../axis/horizontal-axis'
 import { computeLinearDomain } from '../../scale-helpers'
-import { createValueLabelPlugin } from '../../plugins/value-labels'
 import { createTooltipPlugin } from '../../plugins/tooltip'
 import { createCrosshairPlugin } from '../../plugins/crosshair'
 import { createAnnotationPlugin, snapshotAnnotations, type AnnotationSnapshot } from '../../plugins/annotations'
-import { resolveBackgroundColor } from '../../contrast'
+import { resolveBackgroundColor, contrastTextColor } from '../../contrast'
 import { getDefaultTransitionMs, fadeIn, snapshotForFadeOut, commitFadeOut } from '../../motion'
 import { getCachedChart, setCachedChart } from '../../transition-cache'
 
@@ -82,6 +81,7 @@ export function render(
 ): void {
   // Preserve existing data elements for smooth D3 data-join transitions
   let priorBars: Element[] = []
+  let priorLabels: Element[] = []
   let priorVAxis: Element | null = null
   let priorHAxis: Element | null = null
   let fadeOverlay: HTMLElement | null = null
@@ -94,6 +94,7 @@ export function render(
     }
     if (cached?.chartType === 'bar-vertical') {
       priorBars = Array.from(container.querySelectorAll('.bc-bar'))
+      priorLabels = Array.from(container.querySelectorAll('.bc-value-label'))
     }
     else if (cached) {
       fadeOverlay = snapshotForFadeOut(container)
@@ -172,10 +173,6 @@ export function render(
     priorBars.forEach(el => layerG.appendChild(el))
   }
 
-  if (options.valueLabels) {
-    chart.use(createValueLabelPlugin({
-      position: options.valueLabelPosition, orientation: 'vertical' }))
-  }
   if (options.tooltips) {
     chart.use(createTooltipPlugin())
   }
@@ -188,11 +185,126 @@ export function render(
       scaleX: x, scaleY: y, data: barData, width, height, backgroundColor: resolveBackgroundColor(container), transition, priorAnnotations }))
   }
   chart.draw(barData)
+
+  if (options.valueLabels) {
+    renderValueLabels(clippedGroup, barData, x, y, {
+      position: options.valueLabelPosition,
+      highlights,
+      colors: options.colors ?? DEFAULT_COLORS,
+      transition,
+      priorLabels,
+    })
+  }
+
   setCachedChart(container, { chartType: 'bar-vertical' })
 
   if (fadeOverlay) {
     fadeIn(clippedGroup.node()!)
     commitFadeOut(container, fadeOverlay)
+  }
+}
+
+function valueLabelAttrs(
+  d: BarDatum,
+  x: d3.ScaleBand<string>,
+  y: d3.ScaleLinear<number, number> | d3.ScaleSymLog,
+  pos: 'inside' | 'outside' | 'auto',
+) {
+  const barH = Math.abs(y(d.value) - y(0))
+  const isInside = pos === 'inside' || (pos === 'auto' && barH > 20)
+  const tx = (x(d.label) ?? 0) + x.bandwidth() / 2
+  const anchor = 'middle'
+  let ty: number, baseline: string
+  if (d.value < 0) {
+    if (isInside) { ty = y(d.value) - barH / 2; baseline = 'central' }
+    else { ty = y(d.value) + 4; baseline = 'hanging' }
+  }
+  else {
+    if (isInside) { ty = y(d.value) + barH / 2; baseline = 'central' }
+    else { ty = y(d.value) - 4; baseline = 'auto' }
+  }
+  return { tx, ty, anchor, baseline, isInside }
+}
+
+function renderValueLabels(
+  parent: d3.Selection<SVGGElement, unknown, null, undefined>,
+  barData: BarDatum[],
+  x: d3.ScaleBand<string>,
+  y: d3.ScaleLinear<number, number> | d3.ScaleSymLog,
+  opts: {
+    position?: 'inside' | 'outside' | 'auto'
+    highlights: Map<string, string>
+    colors: string[]
+    transition: boolean
+    priorLabels: Element[]
+  },
+) {
+  const pos = opts.position ?? 'auto'
+
+  let labelGroup = parent.select<SVGGElement>('.bc-value-label-group')
+  if (labelGroup.empty()) {
+    labelGroup = parent.append('g').attr('class', 'bc-value-label-group')
+  }
+
+  if (opts.priorLabels.length > 0) {
+    const node = labelGroup.node()!
+    opts.priorLabels.forEach(el => node.appendChild(el))
+  }
+
+  const join = labelGroup.selectAll<SVGTextElement, BarDatum>('.bc-value-label')
+    .data(barData, (d: BarDatum) => d.label)
+
+  join.exit()
+    .transition().duration(getDefaultTransitionMs())
+    .attr('opacity', 0)
+    .remove()
+
+  const enter = join.enter()
+    .append('text')
+    .attr('class', 'bc-value-label')
+    .attr('font-size', '11px')
+    .each(function (d) {
+      const a = valueLabelAttrs(d, x, y, pos)
+      d3.select(this)
+        .attr('x', a.tx)
+        .attr('y', a.ty)
+        .attr('text-anchor', a.anchor)
+        .attr('dominant-baseline', a.baseline)
+        .attr('fill', a.isInside
+          ? contrastTextColor(opts.highlights.get(d.label) ?? opts.colors[0])
+          : 'currentColor')
+        .text(String(d.value))
+    })
+
+  const merged = enter.merge(join)
+  if (opts.transition) {
+    merged.each(function (d) {
+      const a = valueLabelAttrs(d, x, y, pos)
+      d3.select(this)
+        .text(String(d.value))
+        .transition().duration(getDefaultTransitionMs())
+        .attr('x', a.tx)
+        .attr('y', a.ty)
+        .attr('text-anchor', a.anchor)
+        .attr('dominant-baseline', a.baseline)
+        .attr('fill', a.isInside
+          ? contrastTextColor(opts.highlights.get(d.label) ?? opts.colors[0])
+          : 'currentColor')
+    })
+  }
+  else {
+    merged.each(function (d) {
+      const a = valueLabelAttrs(d, x, y, pos)
+      d3.select(this)
+        .attr('x', a.tx)
+        .attr('y', a.ty)
+        .attr('text-anchor', a.anchor)
+        .attr('dominant-baseline', a.baseline)
+        .attr('fill', a.isInside
+          ? contrastTextColor(opts.highlights.get(d.label) ?? opts.colors[0])
+          : 'currentColor')
+        .text(String(d.value))
+    })
   }
 }
 
