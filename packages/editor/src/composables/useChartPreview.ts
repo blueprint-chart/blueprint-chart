@@ -112,8 +112,8 @@ export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
     }
 
     let dataStr: string
-    if (scene?.data) {
-      // Scene provides explicit data override
+    if (scene?.data !== undefined) {
+      // Scene provides data (cascaded from resolveScene, may be inherited from prior scene)
       dataStr = scene.data
     }
     else if (scene?.transforms?.length && columns.value.length > 0) {
