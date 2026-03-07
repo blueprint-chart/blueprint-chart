@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import * as d3 from 'd3'
-import { createAnnotationPlugin, computeDirectionOffset, computeAnchorPoint, bboxEdgeToward, ensureArrowMarker, rotateDirectionForHorizontal } from './annotations'
+import { createAnnotationPlugin, computeDirectionOffset, computeAnchorPoint, bboxEdgeToward, ensureArrowMarker, rotateDirectionForHorizontal, snapshotAnnotations } from './annotations'
 
 function makeChartStub(g: SVGGElement) {
   return { base: d3.select(g) } as unknown
@@ -765,6 +765,107 @@ describe('createAnnotationPlugin', () => {
     expect(rangeGroup).toBeTruthy()
     const rect = rangeGroup!.querySelector('.bc-annotation-range')
     expect(rect!.getAttribute('fill')).toBe('#00f')
+  })
+
+  // -----------------------------------------------------------------------
+  // priorAnnotations — renderer clears DOM before plugin runs
+  // -----------------------------------------------------------------------
+
+  it('uses priorAnnotations when DOM is cleared before postDraw', () => {
+    const { x, y, data } = makeScales()
+
+    // First render
+    const plugin1 = createAnnotationPlugin(
+      [{ kind: 'point', id: 'p1', target: 'A', text: 'Before' }],
+      { scaleX: x, scaleY: y, data, width: 200, height: 200 },
+    )
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    plugin1.postDraw!(makeChartStub(g) as any, undefined as any)
+
+    // Snapshot old annotations then clear DOM (simulates renderer replaceChildren)
+    const prior = new Map<string, { id: string, element: Element, rect: { x: number, y: number, width: number, height: number } }>()
+    for (const el of g.querySelectorAll('.bc-annotations, .bc-annotations-range')) {
+      for (const [k, v] of snapshotAnnotations(el)) {
+        prior.set(k, v)
+      }
+    }
+    expect(prior.size).toBe(1)
+
+    // Clear DOM — old containers gone
+    g.innerHTML = ''
+
+    // Second render with priorAnnotations
+    const plugin2 = createAnnotationPlugin(
+      [{ kind: 'point', id: 'p1', target: 'B', text: 'After' }],
+      { scaleX: x, scaleY: y, data, width: 200, height: 200, transition: true, priorAnnotations: prior },
+    )
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    plugin2.postDraw!(makeChartStub(g) as any, undefined as any)
+
+    const group = g.querySelector('g[data-annotation-id="p1"]')
+    expect(group).toBeTruthy()
+    expect(group!.querySelector('.bc-annotation-text')!.textContent).toBe('After')
+  })
+
+  it('fades out removed annotations via priorAnnotations after DOM clear', () => {
+    const { x, y, data } = makeScales()
+
+    // First render
+    const plugin1 = createAnnotationPlugin(
+      [{ kind: 'point', id: 'gone-1', target: 'A', text: 'Will go' }],
+      { scaleX: x, scaleY: y, data, width: 200, height: 200 },
+    )
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    plugin1.postDraw!(makeChartStub(g) as any, undefined as any)
+
+    // Snapshot then clear
+    const prior = new Map<string, { id: string, element: Element, rect: { x: number, y: number, width: number, height: number } }>()
+    for (const el of g.querySelectorAll('.bc-annotations, .bc-annotations-range')) {
+      for (const [k, v] of snapshotAnnotations(el)) {
+        prior.set(k, v)
+      }
+    }
+    g.innerHTML = ''
+
+    // Second render with no annotations
+    const plugin2 = createAnnotationPlugin(
+      [],
+      { scaleX: x, scaleY: y, data, width: 200, height: 200, transition: true, priorAnnotations: prior },
+    )
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    plugin2.postDraw!(makeChartStub(g) as any, undefined as any)
+
+    // Old annotation clone should be re-inserted for fade-out
+    const groups = g.querySelectorAll('g[data-annotation-id="gone-1"]')
+    expect(groups.length).toBeGreaterThanOrEqual(1)
+  })
+
+  it('fades in new annotations via priorAnnotations after DOM clear', () => {
+    const { x, y, data } = makeScales()
+
+    // First render with no annotations
+    const plugin1 = createAnnotationPlugin(
+      [],
+      { scaleX: x, scaleY: y, data, width: 200, height: 200 },
+    )
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    plugin1.postDraw!(makeChartStub(g) as any, undefined as any)
+
+    // Empty prior snapshot (no annotations existed), then clear DOM
+    const prior = new Map<string, { id: string, element: Element, rect: { x: number, y: number, width: number, height: number } }>()
+    g.innerHTML = ''
+
+    // Second render adds annotation — should fade in
+    const plugin2 = createAnnotationPlugin(
+      [{ kind: 'free', id: 'f1', text: 'Appeared', x: 0, y: 0 }],
+      { scaleX: x, scaleY: y, data, width: 200, height: 200, transition: true, priorAnnotations: prior },
+    )
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    plugin2.postDraw!(makeChartStub(g) as any, undefined as any)
+
+    const group = g.querySelector('g[data-annotation-id="f1"]')
+    expect(group).toBeTruthy()
+    expect(group!.querySelector('.bc-annotation-text')!.textContent).toBe('Appeared')
   })
 
   // -----------------------------------------------------------------------
