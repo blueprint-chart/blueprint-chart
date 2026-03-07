@@ -18,6 +18,12 @@
       </div>
     </div>
     <slot name="tabs" />
+    <div
+      v-if="$slots.toolbar"
+      class="panel-floating__toolbar"
+    >
+      <slot name="toolbar" />
+    </div>
     <div class="panel-floating__body">
       <slot />
     </div>
@@ -117,6 +123,14 @@ const positionStyle = computed(() => ({
   &__actions {
     display: flex;
     gap: 0.25rem;
+  }
+
+  &__toolbar {
+    flex-shrink: 0;
+    padding: 0.375rem 0.75rem;
+    background: var(--bc-tile-bg-elevated, var(--bs-tertiary-bg));
+    border-top: 1px solid var(--bs-border-color);
+    border-bottom: 1px solid var(--bs-border-color);
   }
 
   &__body {
