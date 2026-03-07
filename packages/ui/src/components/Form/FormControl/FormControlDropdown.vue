@@ -145,6 +145,22 @@ function selectOption(value: string) {
     text-align: left;
     align-items: center;
     justify-content: space-between;
+
+    --bs-btn-border-color: var(--bs-border-color);
+    --bs-btn-color: var(--bs-body-color);
+    --bs-btn-bg: var(--bs-secondary-bg);
+
+    --bs-btn-hover-color: var(--bs-btn-color);
+    --bs-btn-hover-bg: var(--bs-btn-bg);
+    --bs-btn-hover-border-color: var(--bs-btn-border-color);
+
+    --bs-btn-active-color: var(--bs-btn-color);
+    --bs-btn-active-bg: var(--bs-btn-bg);
+    --bs-btn-active-border-color: #4B90CF; // $prussian-300
+
+    &.active, &:active, &.show {
+      box-shadow: 0 0 0 0.25rem rgba(#2563a0, 0.25); // $prussian-500
+    }
   }
 }
 
