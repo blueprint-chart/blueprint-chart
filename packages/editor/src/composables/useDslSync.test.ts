@@ -583,6 +583,237 @@ describe('useDslSync', () => {
     })
   })
 
+  describe('scene annotations', () => {
+    it('parses point annotation with id in scene', () => {
+      const { applyDsl } = useDslSync()
+      applyDsl(`chart line {
+  scene {
+    annotation "X" {
+      id = "p1"
+      text = "Hello"
+      showArrow = true
+    }
+  }
+}`)
+
+      const scenes = useScenes()
+      expect(scenes.scenes.value).toHaveLength(1)
+      expect(scenes.scenes.value[0].annotations).toHaveLength(1)
+      const ann = scenes.scenes.value[0].annotations![0]
+      expect(ann.kind).toBe('point')
+      expect(ann.id).toBe('p1')
+      expect(ann.text).toBe('Hello')
+      expect('showArrow' in ann && ann.showArrow).toBe(true)
+    })
+
+    it('parses range annotation with id in scene', () => {
+      const { applyDsl } = useDslSync()
+      applyDsl(`chart line {
+  scene {
+    range {
+      id = "r1"
+      start = 10
+      end = 90
+      bgColor = "#ccc"
+    }
+  }
+}`)
+
+      const scenes = useScenes()
+      expect(scenes.scenes.value).toHaveLength(1)
+      expect(scenes.scenes.value[0].annotations).toHaveLength(1)
+      const ann = scenes.scenes.value[0].annotations![0]
+      expect(ann.kind).toBe('range')
+      expect(ann.id).toBe('r1')
+      const range = ann as RangeAnnotationConfig
+      expect(range.start).toBe(10)
+      expect(range.end).toBe(90)
+      expect(range.bgColor).toBe('#ccc')
+    })
+
+    it('parses free annotation with id in scene', () => {
+      const { applyDsl } = useDslSync()
+      applyDsl(`chart line {
+  scene {
+    note {
+      id = "n1"
+      text = "Note"
+      x = 50
+      y = 25
+    }
+  }
+}`)
+
+      const scenes = useScenes()
+      expect(scenes.scenes.value).toHaveLength(1)
+      expect(scenes.scenes.value[0].annotations).toHaveLength(1)
+      const ann = scenes.scenes.value[0].annotations![0]
+      expect(ann.kind).toBe('free')
+      expect(ann.id).toBe('n1')
+      const free = ann as FreeAnnotationConfig
+      expect(free.text).toBe('Note')
+      expect(free.x).toBe(50)
+      expect(free.y).toBe(25)
+    })
+
+    it('parses point annotation with all properties in scene', () => {
+      const { applyDsl } = useDslSync()
+      applyDsl(`chart line {
+  scene {
+    annotation "X" {
+      id = "p2"
+      text = "Full"
+      anchorDirection = NE
+      textOffsetX = 10
+      textOffsetY = -20
+      lineStyle = "curve-left"
+      lineWeight = 2
+      showLine = true
+      showCircle = true
+      circleSize = 6
+      circleStyle = "dashed"
+      circleColor = "#f00"
+      textColor = "#333"
+      textOutline = true
+      maxWidth = 120
+      lineTargetDistance = 5
+      showArrow = true
+    }
+  }
+}`)
+
+      const scenes = useScenes()
+      const ann = scenes.scenes.value[0].annotations![0]
+      expect(ann.kind).toBe('point')
+      expect(ann.id).toBe('p2')
+      expect(ann.text).toBe('Full')
+      expect('anchorDirection' in ann && ann.anchorDirection).toBe('NE')
+      expect('textOffsetX' in ann && ann.textOffsetX).toBe(10)
+      expect('textOffsetY' in ann && ann.textOffsetY).toBe(-20)
+      expect('lineStyle' in ann && ann.lineStyle).toBe('curve-left')
+      expect('lineWeight' in ann && ann.lineWeight).toBe(2)
+      expect('showLine' in ann && ann.showLine).toBe(true)
+      expect('showCircle' in ann && ann.showCircle).toBe(true)
+      expect('circleSize' in ann && ann.circleSize).toBe(6)
+      expect('circleStyle' in ann && ann.circleStyle).toBe('dashed')
+      expect('circleColor' in ann && ann.circleColor).toBe('#f00')
+      expect('textColor' in ann && ann.textColor).toBe('#333')
+      expect('textOutline' in ann && ann.textOutline).toBe(true)
+      expect('maxWidth' in ann && ann.maxWidth).toBe(120)
+      expect('lineTargetDistance' in ann && ann.lineTargetDistance).toBe(5)
+      expect('showArrow' in ann && ann.showArrow).toBe(true)
+    })
+
+    it('parses range annotation with all properties in scene', () => {
+      const { applyDsl } = useDslSync()
+      applyDsl(`chart line {
+  scene {
+    range {
+      id = "r2"
+      start = 5
+      end = 95
+      orientation = horizontal
+      startAnchor = "start"
+      endAnchor = "end"
+      bgColor = "#ddd"
+      bgOpacity = 20
+      direction = N
+      textColor = "#111"
+    }
+  }
+}`)
+
+      const scenes = useScenes()
+      const ann = scenes.scenes.value[0].annotations![0] as RangeAnnotationConfig
+      expect(ann.kind).toBe('range')
+      expect(ann.id).toBe('r2')
+      expect(ann.start).toBe(5)
+      expect(ann.end).toBe(95)
+      expect(ann.orientation).toBe('horizontal')
+      expect(ann.startAnchor).toBe('start')
+      expect(ann.endAnchor).toBe('end')
+      expect(ann.bgColor).toBe('#ddd')
+      expect(ann.bgOpacity).toBe(20)
+      expect(ann.direction).toBe('N')
+      expect(ann.textColor).toBe('#111')
+    })
+
+    it('parses free annotation with all properties in scene', () => {
+      const { applyDsl } = useDslSync()
+      applyDsl(`chart line {
+  scene {
+    note {
+      id = "n2"
+      text = "Full note"
+      x = 10
+      y = 80
+      textColor = "#222"
+      maxWidth = 200
+      textOutline = true
+    }
+  }
+}`)
+
+      const scenes = useScenes()
+      const ann = scenes.scenes.value[0].annotations![0] as FreeAnnotationConfig
+      expect(ann.kind).toBe('free')
+      expect(ann.id).toBe('n2')
+      expect(ann.text).toBe('Full note')
+      expect(ann.x).toBe(10)
+      expect(ann.y).toBe(80)
+      expect(ann.textColor).toBe('#222')
+      expect(ann.maxWidth).toBe(200)
+      expect(ann.textOutline).toBe(true)
+    })
+
+    it('parses scene with annotations and visibility directives together', () => {
+      const { applyDsl } = useDslSync()
+      applyDsl(`chart line {
+  annotation "Base" {
+    id = "base1"
+    text = "Base ann"
+  }
+
+  scene {
+    annotation "SceneOnly" {
+      id = "s1"
+      text = "Scene ann"
+    }
+    hide_annotation "base1"
+  }
+}`)
+
+      const scenes = useScenes()
+      expect(scenes.scenes.value).toHaveLength(1)
+      expect(scenes.scenes.value[0].annotations).toHaveLength(1)
+      expect(scenes.scenes.value[0].annotations![0].id).toBe('s1')
+      expect(scenes.scenes.value[0].annotationVisibility).toHaveLength(1)
+      expect(scenes.scenes.value[0].annotationVisibility![0]).toEqual({
+        action: 'hide',
+        kind: 'point',
+        id: 'base1',
+      })
+    })
+
+    it('scene annotations do not leak into base config', () => {
+      const { applyDsl } = useDslSync()
+      applyDsl(`chart line {
+  scene {
+    annotation "X" {
+      id = "p1"
+      text = "Hello"
+    }
+  }
+}`)
+
+      const config = useChartConfig()
+      expect(config._base.annotations.value).toEqual([])
+
+      const scenes = useScenes()
+      expect(scenes.scenes.value[0].annotations).toHaveLength(1)
+    })
+  })
+
   describe('series overrides', () => {
     it('parses series overrides from DSL', () => {
       const { applyDsl } = useDslSync()
