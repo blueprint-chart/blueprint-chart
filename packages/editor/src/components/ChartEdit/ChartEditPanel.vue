@@ -135,6 +135,7 @@ const panelClassList = computed(() => ({
 
 const canvasClassList = computed(() => ({
   [`chart-edit-panel__canvas--${canvasMode.value}`]: canvasMode.value !== 'blueprint',
+  'chart-edit-panel__canvas--dsl': viewMode.value !== 'preview',
 }))
 
 const canvasRef = ref<HTMLElement | null>(null)
@@ -233,6 +234,15 @@ const canvasStyle = computed<CSSProperties>(() => ({
   :global([data-bs-theme="dark"]) &--auto {
     background: #151518;
     --bc-canvas-dimension-color: rgba(255, 255, 255, 0.3);
+  }
+
+  // DSL editor mode — fill the full canvas
+  &--dsl {
+    padding: 0;
+
+    &::before {
+      display: none;
+    }
   }
 }
 
