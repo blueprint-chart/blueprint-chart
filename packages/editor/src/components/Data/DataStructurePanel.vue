@@ -153,9 +153,7 @@ const panelClassList = computed(() => ({
   border: var(--bc-tile-border);
 
   .data-structure-panel--narrow & {
-    border-radius: 0;
-    box-shadow: none;
-    border: none;
+    // keep tile styling on narrow screens
   }
 }
 
