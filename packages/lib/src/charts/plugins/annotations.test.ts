@@ -635,6 +635,20 @@ describe('createAnnotationPlugin', () => {
     expect(line).toBeTruthy()
     // Persistent: no stroke-dasharray draw animation
     expect(line!.getAttribute('stroke-dasharray')).toBeNull()
+
+    // The path d should start at the OLD position (from snapshot),
+    // not the new position. The old line pointed at target A, new at B.
+    // Verify the current d attr reflects old coordinates (transition start).
+    const d = line!.getAttribute('d')!
+    const oldToX = parseFloat(line!.getAttribute('data-line-to-x')!)
+    // The path should NOT start at the new to-x; it starts at the old to-x
+    // and will tween to new. Extract L endpoint from the path.
+    const lMatch = d.match(/L\s+([\d.-]+)\s+([\d.-]+)/)
+    expect(lMatch).toBeTruthy()
+    const pathToX = parseFloat(lMatch![1])
+    // Old target A and new target B have different X positions, so the
+    // current path endpoint should differ from the stored new endpoint.
+    expect(pathToX).not.toBeCloseTo(oldToX, 0)
   })
 
   it('elbow line stores geometry data attributes for attrTween', () => {
