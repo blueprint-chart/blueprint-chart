@@ -63,6 +63,12 @@ function onDblClick(e: MouseEvent) {
   }
   e.preventDefault()
   window.getSelection()?.removeAllRanges()
+  // Prefer annotation id (stable across hidden-annotation filtering)
+  const annId = annG.getAttribute('data-annotation-id')
+  if (annId) {
+    selectAnnotation(annId)
+    return
+  }
   const index = parseInt(annG.getAttribute('data-annotation-index') || '', 10)
   if (!isNaN(index)) {
     selectAnnotation(index)

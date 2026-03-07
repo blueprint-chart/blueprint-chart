@@ -22,7 +22,7 @@ const state = reactive({
   showDimensions: true,
   floatingPosition: { x: -1, y: 16 },
   floatingSize: { width: 340, height: 500 },
-  pendingAnnotationIndex: null as number | null,
+  pendingAnnotationIndex: null as number | string | null,
   dataView: 'upload' as DataView,
   dataPanelMode: 'docked' as PanelMode,
   dataPanelTab: '' as DataPanelTab,
@@ -73,7 +73,7 @@ export function useEditorPanel() {
     }
   }
 
-  function selectAnnotation(index: number) {
+  function selectAnnotation(index: number | string) {
     state.pendingAnnotationIndex = index
     selectTab('annotate')
   }
