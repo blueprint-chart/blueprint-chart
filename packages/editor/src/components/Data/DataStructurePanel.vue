@@ -133,9 +133,11 @@ const panelClassList = computed(() => ({
   display: flex;
   flex: 1;
   overflow: hidden;
+  gap: var(--bc-tile-gap);
 
   &--narrow {
     flex-direction: column;
+    gap: 0;
   }
 }
 
@@ -145,6 +147,16 @@ const panelClassList = computed(() => ({
   overflow: auto;
   padding: 1.25rem;
   position: relative;
+  background: var(--bc-tile-bg);
+  border-radius: var(--bc-tile-radius);
+  box-shadow: var(--bc-tile-shadow);
+  border: var(--bc-tile-border);
+
+  .data-structure-panel--narrow & {
+    border-radius: 0;
+    box-shadow: none;
+    border: none;
+  }
 }
 
 .data-structure-panel__pills-bar {
@@ -176,8 +188,7 @@ const panelClassList = computed(() => ({
   padding: 0.5rem 0;
 }
 
-:deep(.navigation-icon-rail),
 :deep(.layout-panel) {
-  background: var(--bs-body-bg);
+  background: var(--bc-tile-bg);
 }
 </style>

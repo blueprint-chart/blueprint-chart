@@ -102,6 +102,7 @@ watch(
   margin: 0 auto;
   padding: 1.5rem;
   width: 100%;
+  background: var(--bc-void-bg);
 
   // Structure view — full-bleed flex layout matching ChartEditPanel
   &--structure {
@@ -109,15 +110,15 @@ watch(
     flex: 1;
     overflow: hidden;
     max-width: none;
-    padding: 0;
+    padding: var(--bc-tile-gap);
+    gap: var(--bc-tile-gap);
   }
 }
 
-// Match ChartEditPanel: ensure icon rail & layout panel have body-bg background
+// Match ChartEditPanel: ensure layout panel matches the tile surface
 .data-panel--structure {
-  :deep(.navigation-icon-rail),
   :deep(.layout-panel) {
-    background: var(--bs-body-bg);
+    background: var(--bc-tile-bg);
   }
 }
 </style>

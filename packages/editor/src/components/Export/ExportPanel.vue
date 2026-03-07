@@ -148,9 +148,14 @@ const canvasClassList = computed(() => ({
   display: flex;
   flex: 1;
   overflow: hidden;
+  gap: var(--bc-tile-gap);
+  background: var(--bc-void-bg);
+  padding: var(--bc-tile-gap);
 
   &--narrow {
     flex-direction: column;
+    padding: 0;
+    gap: 0;
   }
 }
 
@@ -162,9 +167,15 @@ const canvasClassList = computed(() => ({
   overflow: auto;
   position: relative;
   background: var(--bc-canvas-bg);
+  border-radius: var(--bc-tile-radius);
+  box-shadow: var(--bc-tile-shadow);
+  border: var(--bc-tile-border);
 
   .export-panel--narrow & {
     padding: 1rem;
+    border-radius: 0;
+    box-shadow: none;
+    border: none;
   }
 
   &::before {
@@ -276,8 +287,7 @@ const canvasClassList = computed(() => ({
   padding: 0.75rem;
 }
 
-:deep(.navigation-icon-rail),
 :deep(.layout-panel) {
-  background: var(--bs-body-bg);
+  background: var(--bc-tile-bg);
 }
 </style>

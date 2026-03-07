@@ -166,9 +166,14 @@ const canvasStyle = computed<CSSProperties>(() => ({
   display: flex;
   flex: 1;
   overflow: hidden;
+  gap: var(--bc-tile-gap);
+  background: var(--bc-void-bg);
+  padding: var(--bc-tile-gap);
 
   &--narrow {
     flex-direction: column;
+    padding: 0;
+    gap: 0;
   }
 }
 
@@ -177,13 +182,19 @@ const canvasStyle = computed<CSSProperties>(() => ({
   display: flex;
   flex-direction: column;
   padding: 2.5rem 3rem;
-
-  .chart-edit-panel--narrow & {
-    padding: 1rem;
-  }
   overflow: auto;
   position: relative;
   background: var(--bc-canvas-bg);
+  border-radius: var(--bc-tile-radius);
+  box-shadow: var(--bc-tile-shadow);
+  border: var(--bc-tile-border);
+
+  .chart-edit-panel--narrow & {
+    padding: 1rem;
+    border-radius: 0;
+    box-shadow: none;
+    border: none;
+  }
 
   &::before {
     content: "";
@@ -297,9 +308,8 @@ const canvasStyle = computed<CSSProperties>(() => ({
   padding: 0.5rem 0;
 }
 
-// Override UI-library backgrounds so rail & panel match the mockup's white chrome
-:deep(.navigation-icon-rail),
+// Override UI-library background so panel matches the tile surface
 :deep(.layout-panel) {
-  background: var(--bs-body-bg);
+  background: var(--bc-tile-bg);
 }
 </style>
