@@ -107,8 +107,18 @@ import DataTransformStepGroupBy from './DataTransformStepGroupBy.vue'
 
 const { columns, rows, columnTypes } = useDataTable()
 const { steps, addStep, removeStep, applyTransforms, getColumnsAtStep, validateStep } = useDataTransforms()
-const { activeScene } = useScenes()
-const sourceLabel = computed(() => activeScene.value ? 'Data from Scene 1' : 'Raw Data')
+const { activeScene, activeIndex, scenes } = useScenes()
+const sourceLabel = computed(() => {
+  if (!activeScene.value) {
+    return 'Raw Data'
+  }
+  if (activeIndex.value <= 0) {
+    return 'Data from Scene 1'
+  }
+  const prevScene = scenes.value[activeIndex.value - 1]
+  const name = prevScene?.name
+  return `Data from ${name || `Scene ${activeIndex.value + 1}`}`
+})
 
 const selectedStepId = ref('')
 const pristineSteps = ref(new Set<string>())

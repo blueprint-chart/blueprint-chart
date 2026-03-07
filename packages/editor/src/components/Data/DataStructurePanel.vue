@@ -17,7 +17,7 @@
         class="data-structure-panel__scene-banner"
       >
         <strong>Scene override active.</strong>
-        The table below shows the base data from Scene 1. Use transforms to shape the data for this scene without altering the original.
+        The table below shows the base data from {{ dataSourceLabel }}. Use transforms to shape the data for this scene without altering the original.
       </div>
       <div
         v-if="!isSceneMode"
@@ -85,8 +85,17 @@ import DataRecommendations from './DataRecommendations.vue'
 
 const { columns, rows, columnTypes } = useDataTable()
 const { panelMode, dataPanelMode, dataPanelTab, openDataPanel, closeDataPanel, collapse, setDataView } = useEditorPanel()
-const { activeScene } = useScenes()
+const { activeScene, activeIndex, scenes } = useScenes()
 const isSceneMode = computed(() => activeScene.value !== null)
+const dataSourceLabel = computed(() => {
+  if (activeIndex.value <= 0) {
+    return 'Scene 1'
+  }
+  // The data source for the current scene is the previous scene in the timeline
+  const prevScene = scenes.value[activeIndex.value - 1]
+  const name = prevScene?.name
+  return name || `Scene ${activeIndex.value + 1}`
+})
 
 function replaceData() {
   setDataView('upload')
