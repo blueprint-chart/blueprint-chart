@@ -5,6 +5,7 @@ import { useDslSync } from './useDslSync'
 import { useChartTypeOptions } from './useChartTypeOptions'
 import { useDslOutput } from './useDslOutput'
 import { useScenes } from './useScenes'
+import { resolveScene } from './useChartPreview'
 
 describe('useDslSync', () => {
   beforeEach(() => {
@@ -811,6 +812,169 @@ describe('useDslSync', () => {
 
       const scenes = useScenes()
       expect(scenes.scenes.value[0].annotations).toHaveLength(1)
+    })
+  })
+
+  describe('base + scene annotation merging end-to-end', () => {
+    it('DSL round-trip preserves base + scene annotations', () => {
+      const { applyDsl } = useDslSync()
+      applyDsl(`chart bar-horizontal {
+  annotation "Japan" {
+    id = "537sb"
+    text = "Japan note"
+  }
+
+  scene {
+    annotation "India" {
+      id = "tha5f"
+      text = "India note"
+    }
+  }
+
+  scene {
+    highlight "China" {
+      color = "#9900ef"
+    }
+  }
+}`)
+
+      // Serialize back to DSL
+      const { dsl } = useDslOutput()
+      const output = dsl.value
+
+      // Base annotation must be in the base section (before any scene block)
+      const baseSection = output.split('scene {')[0]
+      expect(baseSection).toContain('annotation "Japan"')
+      expect(baseSection).toContain('id = "537sb"')
+
+      // Scene 0 must have its own annotation
+      const sceneBlocks = output.split('scene {').slice(1)
+      expect(sceneBlocks[0]).toContain('annotation "India"')
+      expect(sceneBlocks[0]).toContain('id = "tha5f"')
+
+      // Re-parse the output
+      const result = applyDsl(output)
+      expect(result.success).toBe(true)
+
+      const config = useChartConfig()
+      const scenes = useScenes()
+
+      expect(config._base.annotations.value).toHaveLength(1)
+      expect(config._base.annotations.value[0].id).toBe('537sb')
+      expect(scenes.scenes.value[0].annotations).toHaveLength(1)
+      expect(scenes.scenes.value[0].annotations![0].id).toBe('tha5f')
+    })
+
+    it('base annotation + scene annotation both visible at later scene', () => {
+      const { applyDsl } = useDslSync()
+      applyDsl(`chart bar-horizontal {
+  annotation "Japan" {
+    id = "537sb"
+    text = "Japan note"
+    showLine = true
+    showArrow = true
+  }
+
+  scene {
+    annotation "India" {
+      id = "tha5f"
+      text = "India note"
+      showLine = true
+      showArrow = true
+    }
+  }
+
+  scene {
+    highlight "China" {
+      color = "#9900ef"
+    }
+  }
+}`)
+
+      const config = useChartConfig()
+      const scenes = useScenes()
+
+      // Base should have Japan annotation
+      expect(config._base.annotations.value).toHaveLength(1)
+      expect(config._base.annotations.value[0].id).toBe('537sb')
+
+      // Scene 0 should have India annotation
+      expect(scenes.scenes.value[0].annotations).toHaveLength(1)
+      expect(scenes.scenes.value[0].annotations![0].id).toBe('tha5f')
+
+      // Scene 1 has no annotations of its own
+      expect(scenes.scenes.value[1].annotations).toBeUndefined()
+
+      // resolveScene at scene 1 cascades scene 0's annotations
+      const resolved = resolveScene(scenes.scenes.value, 1)!
+      expect(resolved.annotations).toHaveLength(1)
+      expect(resolved.annotations![0].id).toBe('tha5f')
+
+      // Merged result (as the render does): base + cascaded scene annotations
+      const base = config._base.annotations.value
+      const sceneAnns = resolved.annotations ?? []
+      const merged = [...base, ...sceneAnns]
+      expect(merged).toHaveLength(2)
+      expect(merged.map(a => a.id)).toEqual(['537sb', 'tha5f'])
+    })
+
+    it('annotations remain after navigating to scene then serializing DSL', () => {
+      const { applyDsl } = useDslSync()
+      applyDsl(`chart bar-horizontal {
+  annotation "Japan" {
+    id = "537sb"
+    text = "Japan note"
+  }
+
+  scene {
+    annotation "India" {
+      id = "tha5f"
+      text = "India note"
+    }
+  }
+
+  scene {
+    highlight "China" {
+      color = "#9900ef"
+    }
+  }
+}`)
+
+      const config = useChartConfig()
+      const scenes = useScenes()
+
+      // Simulate navigating to scene 1
+      scenes.setActive(1)
+
+      // Verify base annotation is still accessible
+      expect(config._base.annotations.value).toHaveLength(1)
+      expect(config._base.annotations.value[0].id).toBe('537sb')
+
+      // Verify scene 0's annotation is still there
+      expect(scenes.scenes.value[0].annotations).toHaveLength(1)
+      expect(scenes.scenes.value[0].annotations![0].id).toBe('tha5f')
+
+      // Serialize DSL while scene 1 is active
+      const { dsl } = useDslOutput()
+      const output = dsl.value
+
+      // Base annotation must survive
+      expect(output).toContain('annotation "Japan"')
+      expect(output).toContain('id = "537sb"')
+
+      // Scene 0 annotation must survive
+      expect(output).toContain('annotation "India"')
+      expect(output).toContain('id = "tha5f"')
+
+      // Re-parse and verify nothing was lost
+      scenes.setActive(-1)
+      const result = applyDsl(output)
+      expect(result.success).toBe(true)
+
+      expect(config._base.annotations.value).toHaveLength(1)
+      expect(config._base.annotations.value[0].id).toBe('537sb')
+      expect(scenes.scenes.value[0].annotations).toHaveLength(1)
+      expect(scenes.scenes.value[0].annotations![0].id).toBe('tha5f')
     })
   })
 
