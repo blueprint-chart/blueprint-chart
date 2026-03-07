@@ -9,6 +9,43 @@ function scene(overrides: Partial<SceneOverride> = {}): SceneOverride {
 }
 
 describe('resolveScene', () => {
+  it('inherits highlights from prior scene when current scene has none', () => {
+    const scenes = [
+      scene({ highlights: [{ target: 'India', color: '#00d084' }] }),
+      scene({}),
+    ]
+    const result = resolveScene(scenes, 1)!
+    expect(result.highlights).toEqual([{ target: 'India', color: '#00d084' }])
+  })
+
+  it('inherits highlights from prior scene even when current scene has empty highlights array', () => {
+    const scenes = [
+      scene({ highlights: [{ target: 'India', color: '#00d084' }] }),
+      scene({ highlights: [] }),
+    ]
+    const result = resolveScene(scenes, 1)!
+    expect(result.highlights).toEqual([{ target: 'India', color: '#00d084' }])
+  })
+
+  it('later scene with non-empty highlights replaces prior highlights', () => {
+    const scenes = [
+      scene({ highlights: [{ target: 'India', color: '#00d084' }] }),
+      scene({ highlights: [{ target: 'China', color: '#ff0000' }] }),
+    ]
+    const result = resolveScene(scenes, 1)!
+    expect(result.highlights).toEqual([{ target: 'China', color: '#ff0000' }])
+  })
+
+  it('inherits seriesOverrides from prior scene when current has empty array', () => {
+    const earlyOverrides: SeriesOverride[] = [{ name: 'A', color: 'red' }]
+    const scenes = [
+      scene({ seriesOverrides: earlyOverrides }),
+      scene({ seriesOverrides: [] }),
+    ]
+    const result = resolveScene(scenes, 1)!
+    expect(result.seriesOverrides).toEqual(earlyOverrides)
+  })
+
   it('returns null for negative index', () => {
     expect(resolveScene([scene()], -1)).toBeNull()
   })
