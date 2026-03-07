@@ -1,6 +1,8 @@
 import { reactive, ref, toRefs, computed } from 'vue'
 import type { ColumnType, ParsedData } from './useDataParser'
 import { useDataTransforms } from './useDataTransforms'
+import { useScenes } from './useScenes'
+import { resolveScene } from './useChartPreview'
 
 export type SourceFormat = 'delimited' | 'bpc'
 
@@ -44,13 +46,22 @@ export function serializeTableData(cols: string[], rows: string[][]): string {
 }
 
 export function useDataTable() {
-  const { steps, applyTransforms } = useDataTransforms()
+  const { steps, applyTransforms, applyStepList } = useDataTransforms()
+  const { activeIndex, scenes } = useScenes()
 
   const displayData = computed(() => {
-    if (steps.value.length === 0) {
-      return { columns: state.columns, rows: state.rows, columnTypes: state.columnTypes }
+    let result = { columns: state.columns, rows: state.rows, columnTypes: state.columnTypes }
+    if (steps.value.length > 0) {
+      result = applyTransforms(state.columns, state.rows, state.columnTypes)
     }
-    return applyTransforms(state.columns, state.rows, state.columnTypes)
+    // When a scene is active, apply inherited transforms from prior scenes
+    if (activeIndex.value >= 0 && result.columns.length > 0) {
+      const resolved = resolveScene(scenes.value, activeIndex.value)
+      if (resolved?.transforms?.length) {
+        result = applyStepList(resolved.transforms, result.columns, result.rows, result.columnTypes)
+      }
+    }
+    return result
   })
 
   const displayColumns = computed(() => displayData.value.columns)
