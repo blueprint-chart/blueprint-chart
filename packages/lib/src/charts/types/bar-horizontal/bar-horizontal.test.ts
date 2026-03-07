@@ -67,4 +67,32 @@ describe('bar-horizontal', () => {
     expect(barGroup).not.toBeNull()
     expect(barGroup!.querySelector('.bc-bar')).not.toBeNull()
   })
+
+  it('shows horizontal axis tick labels by default', () => {
+    render(container, data)
+    const hAxis = container.querySelector('.bc-axis-horizontal')
+    expect(hAxis).not.toBeNull()
+    const tickTexts = hAxis!.querySelectorAll('.tick text')
+    expect(tickTexts.length).toBeGreaterThan(0)
+  })
+
+  it('hides horizontal axis tick labels when showAxis is false', () => {
+    render(container, data, {
+      horizontalAxis: { showAxis: false },
+    })
+    const hAxis = container.querySelector('.bc-axis-horizontal')
+    expect(hAxis).not.toBeNull()
+    const tickTexts = hAxis!.querySelectorAll('.tick text')
+    expect(tickTexts).toHaveLength(0)
+  })
+
+  it('hides horizontal axis domain line when showAxis is false', () => {
+    render(container, data, {
+      horizontalAxis: { showAxis: false },
+    })
+    const hAxis = container.querySelector('.bc-axis-horizontal')
+    expect(hAxis).not.toBeNull()
+    const domain = hAxis!.querySelector('.domain')
+    expect(domain).toBeNull()
+  })
 })

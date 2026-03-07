@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { createCanvas } from './canvas'
+import { createCanvas, labelPositionMargins } from './canvas'
 
 describe('createCanvas', () => {
   let body: HTMLElement
@@ -39,5 +39,22 @@ describe('createCanvas', () => {
     expect(margin.right).toBe(20)
     expect(margin.bottom).toBe(40)
     expect(chartArea.getAttribute('transform')).toBe('translate(100,30)')
+  })
+})
+
+describe('labelPositionMargins', () => {
+  it('reduces bottom margin when showHorizontalAxis is false', () => {
+    const result = labelPositionMargins(800, undefined, undefined, undefined, undefined, false)
+    expect(result.bottom).toBe(5)
+  })
+
+  it('keeps default bottom margin when showHorizontalAxis is true', () => {
+    const result = labelPositionMargins(800, undefined, undefined, undefined, undefined, true)
+    expect(result.bottom).toBeUndefined()
+  })
+
+  it('keeps default bottom margin when showHorizontalAxis is undefined', () => {
+    const result = labelPositionMargins(800)
+    expect(result.bottom).toBeUndefined()
   })
 })
