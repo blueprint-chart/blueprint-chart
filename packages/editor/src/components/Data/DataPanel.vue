@@ -100,7 +100,6 @@ watch(
   // Upload view — centered container layout
   max-width: 960px;
   margin: 0 auto;
-  padding: 1.5rem;
   width: 100%;
   background: var(--bc-void-bg);
 
@@ -110,7 +109,6 @@ watch(
     flex: 1;
     overflow: hidden;
     max-width: none;
-    padding: var(--bc-tile-gap);
     gap: var(--bc-tile-gap);
   }
 }

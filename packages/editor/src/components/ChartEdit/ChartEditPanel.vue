@@ -190,9 +190,6 @@ const canvasStyle = computed<CSSProperties>(() => ({
 
   .chart-edit-panel--narrow & {
     padding: 1rem;
-    border-radius: 0;
-    box-shadow: none;
-    border: none;
   }
 
   &::before {
