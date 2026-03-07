@@ -100,7 +100,7 @@ function generateSceneThumbnails() {
     const resolved = resolveScene(scenes.value, i)
     const chartType = resolved?.chartType ?? base.chartType.value
     let dataStr: string
-    if (resolved?.data) {
+    if (resolved?.data !== undefined) {
       dataStr = resolved.data
     }
     else if (resolved?.transforms?.length && dataTable.columns.value.length > 0) {
