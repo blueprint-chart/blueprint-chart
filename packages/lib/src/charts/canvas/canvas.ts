@@ -163,7 +163,7 @@ export function labelPositionMargins(
     }
   }
   else {
-    overrides.right = 0
+    overrides.right = (showHorizontalAxis !== false) ? 15 : 0
     if (vLabelsInside || vLabelsHidden) {
       overrides.left = 0
     }
