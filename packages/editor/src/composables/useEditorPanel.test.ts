@@ -19,7 +19,8 @@ describe('useEditorPanel', () => {
     expect(floatingPosition.value).toEqual({ x: -1, y: 16 })
     expect(floatingSize.value).toEqual({ width: 340, height: 500 })
     expect(dataFloatingPosition.value).toEqual({ x: -1, y: 16 })
-    expect(dockedPanelWidth.value).toBe(340)
+    const expected = Math.min(660, Math.max(260, Math.floor(window.innerWidth * 0.35)))
+    expect(dockedPanelWidth.value).toBe(expected)
   })
 
   it('dock() sets panelMode to docked', () => {
@@ -242,7 +243,8 @@ describe('useEditorPanel', () => {
     expect(panel.selectedColumnIndex.value).toBe(-1)
     expect(panel.floatingPosition.value).toEqual({ x: -1, y: 16 })
     expect(panel.dataFloatingPosition.value).toEqual({ x: -1, y: 16 })
-    expect(panel.dockedPanelWidth.value).toBe(340)
+    const expectedWidth = Math.min(660, Math.max(260, Math.floor(window.innerWidth * 0.35)))
+    expect(panel.dockedPanelWidth.value).toBe(expectedWidth)
   })
 
   it('dockedPanelWidth is shared across calls', () => {

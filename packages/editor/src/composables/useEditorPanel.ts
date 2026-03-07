@@ -6,6 +6,14 @@ export type CanvasMode = 'blueprint' | 'auto' | 'light' | 'dark'
 export type DataView = 'upload' | 'structure'
 export type DataPanelTab = 'column' | 'transforms' | 'parsing' | 'reco'
 
+const PANEL_MIN_WIDTH = 260
+const PANEL_MAX_WIDTH = 660
+
+function defaultPanelWidth() {
+  const available = Math.floor(window.innerWidth * 0.35)
+  return Math.min(PANEL_MAX_WIDTH, Math.max(PANEL_MIN_WIDTH, available))
+}
+
 const state = reactive({
   panelMode: 'docked' as PanelMode,
   activeTab: 'type',
@@ -21,7 +29,7 @@ const state = reactive({
   dataPanelOpen: false,
   dataFloatingPosition: { x: -1, y: 16 },
   selectedColumnIndex: -1,
-  dockedPanelWidth: 340,
+  dockedPanelWidth: defaultPanelWidth(),
 })
 
 let lastOpenMode: 'docked' | 'floating' = 'docked'
@@ -145,7 +153,7 @@ export function useEditorPanel() {
     state.dataPanelOpen = false
     state.dataFloatingPosition = { x: -1, y: 16 }
     state.selectedColumnIndex = -1
-    state.dockedPanelWidth = 340
+    state.dockedPanelWidth = defaultPanelWidth()
     lastOpenMode = 'docked'
     lastDataOpenMode = 'docked'
   }
