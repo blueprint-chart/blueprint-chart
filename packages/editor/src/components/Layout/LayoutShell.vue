@@ -244,10 +244,11 @@ onClickOutside(searchContainer, () => {
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  padding: 0.5rem 1rem;
-  min-height: 3rem;
-  background: var(--bs-navbar-bg);
-  border-bottom: 1px solid var(--bs-border-color);
+  padding: 0.375rem 1rem;
+  min-height: 2.75rem;
+  background: transparent;
+  border: none;
+  box-shadow: none;
   flex-shrink: 0;
   gap: 1rem;
   position: relative;
@@ -263,6 +264,17 @@ onClickOutside(searchContainer, () => {
   position: relative;
   width: 320px;
   max-width: 100%;
+
+  :deep(.form-control) {
+    background: var(--bc-tile-bg);
+    border: var(--bc-tile-border);
+    border-radius: 8px;
+    box-shadow: var(--bc-tile-shadow);
+
+    &:focus {
+      box-shadow: var(--bc-tile-shadow), 0 0 0 0.2rem rgba(37, 99, 160, 0.15);
+    }
+  }
 }
 
 .shell-navbar__search--compact {
@@ -282,10 +294,10 @@ onClickOutside(searchContainer, () => {
   left: 0;
   right: 0;
   z-index: 100;
-  background: var(--bs-navbar-bg);
-  border: 1px solid var(--bs-border-color);
-  border-radius: 0.375rem;
-  box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.15);
+  background: var(--bc-tile-bg);
+  border: var(--bc-tile-border);
+  border-radius: var(--bc-tile-radius);
+  box-shadow: var(--bc-tile-shadow);
   max-height: 320px;
   overflow-y: auto;
   margin-top: 0.25rem;
