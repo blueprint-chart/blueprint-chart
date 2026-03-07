@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import type { AnnotationConfig, SeriesOverride } from '@blueprint-chart/lib'
-import { resolveScene } from './useChartPreview'
+import { resolveScene, resolveSortFromTransforms } from './useChartPreview'
 import type { SceneOverride } from './useScenes'
 import type { TransformStep } from './useDataTransforms'
 
@@ -125,6 +125,15 @@ describe('resolveScene', () => {
     ]
     const result = resolveScene(scenes, 1)!
     expect(result.data).toBe('')
+  })
+
+  it('inherits sort transform from prior scene', () => {
+    const scenes = [
+      scene({ transforms: [{ id: '0', type: 'sort', config: { columns: 'value', direction: 'ascending' } }] }),
+      scene({}),
+    ]
+    const result = resolveScene(scenes, 1)!
+    expect(result.transforms).toEqual([{ id: '0', type: 'sort', config: { columns: 'value', direction: 'ascending' } }])
   })
 
   it('does not inherit from scenes after the active index', () => {
@@ -367,6 +376,34 @@ describe('resolveScene', () => {
     ]
     const result = resolveScene(scenes, 1)!
     expect(result.seriesOverrides).toEqual(lateOverrides)
+  })
+})
+
+describe('resolveSortFromTransforms', () => {
+  it('extracts sort direction from resolved transforms', () => {
+    const resolved = scene({ transforms: [{ id: '0', type: 'sort', config: { columns: 'value', direction: 'ascending' } }] })
+    expect(resolveSortFromTransforms(resolved)).toBe('ascending')
+  })
+
+  it('returns undefined when no sort transform', () => {
+    const resolved = scene({ transforms: [{ id: '0', type: 'filter', config: { column: 'A', value: '1' } }] })
+    expect(resolveSortFromTransforms(resolved)).toBeUndefined()
+  })
+
+  it('returns undefined when no transforms', () => {
+    expect(resolveSortFromTransforms(scene({}))).toBeUndefined()
+  })
+
+  it('returns undefined for null scene', () => {
+    expect(resolveSortFromTransforms(null)).toBeUndefined()
+  })
+
+  it('uses last sort transform when multiple exist', () => {
+    const resolved = scene({ transforms: [
+      { id: '0', type: 'sort', config: { columns: 'value', direction: 'ascending' } },
+      { id: '1', type: 'sort', config: { columns: 'value', direction: 'descending' } },
+    ] })
+    expect(resolveSortFromTransforms(resolved)).toBe('descending')
   })
 })
 
