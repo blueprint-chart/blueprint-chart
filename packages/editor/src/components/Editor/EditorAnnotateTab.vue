@@ -162,12 +162,20 @@ function handleDragUpdate(index: number, ann: AnnotationConfig) {
 useAnnotationDrag(containerRef, resolvedAnnotations, selectedIndex, handleDragUpdate)
 
 // Consume pending annotation selection (e.g. from double-click on chart)
-watch(pendingAnnotationIndex, async (index) => {
-  if (index === null) {
+watch(pendingAnnotationIndex, async (pending) => {
+  if (pending === null) {
     return
   }
   await nextTick()
   if (annotationsRef.value) {
+    // Resolve annotation id (string) to index in resolvedAnnotations
+    const index = typeof pending === 'string'
+      ? resolvedAnnotations.value.findIndex(a => a.id === pending)
+      : pending
+    if (index < 0) {
+      pendingAnnotationIndex.value = null
+      return
+    }
     // Toggle: deselect if already open
     annotationsRef.value.openIndex = annotationsRef.value.openIndex === index ? null : index
     pendingAnnotationIndex.value = null
