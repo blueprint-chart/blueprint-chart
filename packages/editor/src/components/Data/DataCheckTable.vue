@@ -102,14 +102,20 @@ const isEmpty = computed(() => displayRows.value.length === 0)
   line-height: 1.5;
   border-radius: var(--bs-border-radius-lg);
   border: 1px solid var(--bs-border-color);
+  overflow: hidden;
 
   :deep(table) {
     margin-bottom: 0;
+    --bs-table-border-color: var(--bs-border-color);
   }
 
   :deep(thead th) {
-    background: var(--bs-tertiary-bg);
+    background: var(--bc-tile-bg-elevated, var(--bs-tertiary-bg));
     border-bottom-width: 2px;
+  }
+
+  :deep(tbody td) {
+    background: var(--bc-tile-bg, var(--bs-body-bg));
   }
 
   :deep(.table-bordered > :not(caption) > *) {
@@ -122,6 +128,10 @@ const isEmpty = computed(() => displayRows.value.length === 0)
     &:not(:last-child) {
       border-right-width: 1px;
     }
+  }
+
+  :deep(.table-hover > tbody > tr:hover > *) {
+    background: var(--bc-tile-bg-elevated, var(--bs-tertiary-bg));
   }
 }
 
