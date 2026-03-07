@@ -264,6 +264,34 @@ describe('resolveScene', () => {
     expect(result.transforms).toEqual(lateTransforms)
   })
 
+  it('empty annotations array in later scene does not override cascaded annotations', () => {
+    const scenes = [
+      scene({ annotations: [{ id: 'a1', kind: 'point', target: 'A', text: 'p' }] }),
+      scene({ annotations: [] }),
+    ]
+    const result = resolveScene(scenes, 1)!
+    expect(result.annotations).toEqual([{ id: 'a1', kind: 'point', target: 'A', text: 'p' }])
+  })
+
+  it('non-empty annotations in later scene do override earlier scene', () => {
+    const scenes = [
+      scene({ annotations: [{ id: 'a1', kind: 'point', target: 'A', text: 'p' }] }),
+      scene({ annotations: [{ id: 'a2', kind: 'point', target: 'B', text: 'q' }] }),
+    ]
+    const result = resolveScene(scenes, 1)!
+    expect(result.annotations).toEqual([{ id: 'a2', kind: 'point', target: 'B', text: 'q' }])
+  })
+
+  it('empty annotations in middle scene does not block cascading to later scene', () => {
+    const scenes = [
+      scene({ annotations: [{ id: 'a1', kind: 'point', target: 'A', text: 'p' }] }),
+      scene({ annotations: [] }),
+      scene({}),
+    ]
+    const result = resolveScene(scenes, 2)!
+    expect(result.annotations).toEqual([{ id: 'a1', kind: 'point', target: 'A', text: 'p' }])
+  })
+
   it('seriesOverrides from later scene replace earlier scene', () => {
     const earlyOverrides: SeriesOverride[] = [{ name: 'A', color: 'red' }]
     const lateOverrides: SeriesOverride[] = [{ name: 'B', color: 'blue' }]
