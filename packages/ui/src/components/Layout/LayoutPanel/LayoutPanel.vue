@@ -35,8 +35,7 @@ defineProps<{
   flex-direction: column;
   flex: 1;
   min-height: 0;
-  background: var(--bs-navbar-bg);
-  border-left: 1px solid var(--bs-border-color);
+  background: var(--bc-tile-bg, #ffffff);
 }
 
 .layout-panel__header {
@@ -44,7 +43,6 @@ defineProps<{
   align-items: center;
   justify-content: space-between;
   padding: 0.75rem 1rem;
-  border-bottom: 1px solid var(--bs-border-color);
   flex-shrink: 0;
 }
 
@@ -69,7 +67,6 @@ defineProps<{
 
 .layout-panel__footer {
   flex-shrink: 0;
-  border-top: 1px solid var(--bs-border-color);
   padding: 0.75rem 1rem;
 }
 </style>

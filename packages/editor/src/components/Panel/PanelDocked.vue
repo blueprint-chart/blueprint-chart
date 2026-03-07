@@ -92,7 +92,10 @@ function onResizeStart(e: PointerEvent) {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  box-shadow: var(--bs-box-shadow);
+  background: var(--bc-tile-bg, var(--bs-body-bg));
+  border-radius: var(--bc-tile-radius, 12px);
+  box-shadow: var(--bc-tile-shadow, var(--bs-box-shadow));
+  border: var(--bc-tile-border, none);
   transition: width 0.3s ease, max-width 0.3s ease, opacity 0.2s ease;
 
   &.panel-docked--resizing {
@@ -112,7 +115,7 @@ function onResizeStart(e: PointerEvent) {
   top: 0;
   left: 0;
   bottom: 0;
-  width: 4px;
+  width: 6px;
   cursor: col-resize;
   z-index: 10;
 
