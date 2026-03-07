@@ -11,6 +11,12 @@
         <slot name="actions" />
       </div>
     </div>
+    <div
+      v-if="$slots.toolbar"
+      class="layout-panel__toolbar"
+    >
+      <slot name="toolbar" />
+    </div>
     <div class="layout-panel__body">
       <slot />
     </div>
@@ -57,6 +63,14 @@ defineProps<{
   display: flex;
   align-items: center;
   gap: 0.25rem;
+}
+
+.layout-panel__toolbar {
+  flex-shrink: 0;
+  padding: 0.375rem 0.75rem;
+  background: var(--bc-tile-bg-elevated, var(--bs-tertiary-bg));
+  border-top: 1px solid var(--bs-border-color);
+  border-bottom: 1px solid var(--bs-border-color);
 }
 
 .layout-panel__body {
