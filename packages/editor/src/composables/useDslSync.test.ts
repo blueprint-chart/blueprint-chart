@@ -976,6 +976,135 @@ describe('useDslSync', () => {
       expect(scenes.scenes.value[0].annotations).toHaveLength(1)
       expect(scenes.scenes.value[0].annotations![0].id).toBe('tha5f')
     })
+
+    it('exact user DSL: both annotations visible at scene 1', () => {
+      const { applyDsl } = useDslSync()
+      const result = applyDsl(`chart bar-horizontal {
+  title = "Internet Users by Country"
+  description = "Millions of users, 2024"
+  source = "ITU / World Bank"
+  colors = "#0693e3"
+  colorPalette = "Blueprint"
+  autoContrast = false
+  allowDarkMode = true
+  showVerticalAxis = true
+  verticalAxisDirection = "left"
+  showVerticalTicks = false
+  verticalLabelPosition = "auto"
+  verticalGridStyle = "none"
+  showHorizontalAxis = true
+  showHorizontalTicks = false
+  horizontalLabelPosition = "off"
+  horizontalGridStyle = "none"
+  horizontalScaleType = "linear"
+  valueLabels = true
+  valueLabelPosition = "auto"
+  tooltips = false
+  crosshair = false
+  crosshairDirection = "both"
+  crosshairStyle = "dashed"
+  crosshairColor = "#999"
+
+  data {
+    "China" = 1050
+    "India" = 900
+    "United States" = 312
+    "Indonesia" = 213
+    "Brazil" = 186
+    "Russia" = 130
+    "Japan" = 118
+    "Nigeria" = 110
+  }
+
+  annotation "Japan" {
+    id = "537sb"
+    text = "Enter an annotation"
+    showLine = true
+    anchorDirection = center
+    textOffsetX = 221
+    textOffsetY = 8
+    showArrow = true
+  }
+
+  transform sort {
+    column = "value"
+    direction = "descending"
+  }
+
+  transform sort {
+    column = "value"
+    direction = "descending"
+  }
+
+  transform sort {
+    column = "value"
+    direction = descending
+  }
+
+  scene {
+
+    highlight "India" {
+      color = "#9900ef"
+    }
+
+    annotation "India" {
+      id = "tha5f"
+      text = "Enter an annotation"
+      showLine = true
+      anchorDirection = center
+      textOffsetX = 65
+      textOffsetY = 119
+      showArrow = true
+    }
+  }
+
+  scene {
+
+    highlight "China" {
+      color = "#9900ef"
+    }
+  }
+}`)
+
+      expect(result.success).toBe(true)
+
+      const config = useChartConfig()
+      const scenes = useScenes()
+
+      // Verify parsing
+      expect(config._base.annotations.value).toHaveLength(1)
+      expect(config._base.annotations.value[0].id).toBe('537sb')
+      expect(config._base.annotations.value[0]).toMatchObject({ kind: 'point', target: 'Japan' })
+
+      expect(scenes.scenes.value).toHaveLength(2)
+      expect(scenes.scenes.value[0].annotations).toHaveLength(1)
+      expect(scenes.scenes.value[0].annotations![0].id).toBe('tha5f')
+      expect(scenes.scenes.value[0].annotations![0]).toMatchObject({ kind: 'point', target: 'India' })
+
+      expect(scenes.scenes.value[1].annotations).toBeUndefined()
+
+      // Simulate navigating to scene 1 (the last scene)
+      scenes.setActive(1)
+
+      // resolveScene should cascade scene 0's India annotation to scene 1
+      const resolved = resolveScene(scenes.scenes.value, 1)!
+      expect(resolved).not.toBeNull()
+      expect(resolved.annotations).toHaveLength(1)
+      expect(resolved.annotations![0].id).toBe('tha5f')
+
+      // Simulate what the render function does:
+      const baseAnnotations = config._base.annotations.value
+      const sceneAnnotations = resolved.annotations ?? []
+      const rawAnnotations = [...baseAnnotations, ...sceneAnnotations]
+      const annotations = resolved.hiddenAnnotationIds
+        ? rawAnnotations.filter(a => !a.id || !resolved.hiddenAnnotationIds!.has(a.id))
+        : rawAnnotations
+
+      // BOTH annotations must be present
+      expect(annotations).toHaveLength(2)
+      expect(annotations[0].id).toBe('537sb') // Japan (base)
+      expect(annotations[1].id).toBe('tha5f') // India (cascaded from scene 0)
+    })
   })
 
   describe('series overrides', () => {
