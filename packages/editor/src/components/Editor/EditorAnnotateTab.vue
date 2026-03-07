@@ -30,7 +30,7 @@ import { useChartConfig } from '@/composables/useChartConfig'
 import { usePreviewContainer } from '@/composables/usePreviewContainer'
 import { useEditorPanel } from '@/composables/useEditorPanel'
 import { useAnnotationDrag } from '@/composables/useAnnotationDrag'
-import { useScenes, type AnnotationVisibility } from '@/composables/useScenes'
+import { useScenes } from '@/composables/useScenes'
 import { resolveScene } from '@/composables/useChartPreview'
 import { parseData } from '@blueprint-chart/lib'
 import type { AnnotationConfig } from '@blueprint-chart/lib'
@@ -44,15 +44,21 @@ const { scenes, activeIndex, activeScene, update: updateScene } = useScenes()
 const isSceneActive = computed(() => activeIndex.value >= 0)
 
 const hiddenAnnotationIds = computed(() => {
-  if (activeIndex.value < 0) return undefined
+  if (activeIndex.value < 0) {
+    return undefined
+  }
   const resolved = resolveScene(scenes.value, activeIndex.value)
   return resolved?.hiddenAnnotationIds
 })
 
 function handleToggleVisibility(id: string, kind: 'point' | 'range' | 'free') {
-  if (activeIndex.value < 0) return
+  if (activeIndex.value < 0) {
+    return
+  }
   const scene = activeScene.value
-  if (!scene) return
+  if (!scene) {
+    return
+  }
 
   const existing = scene.annotationVisibility ?? []
   const isHidden = hiddenAnnotationIds.value?.has(id)
