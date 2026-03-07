@@ -44,23 +44,27 @@ const { scenes, activeIndex, activeScene, update: updateScene } = useScenes()
 
 const isSceneActive = computed(() => activeIndex.value >= 0)
 
-// Annotations need cascading resolution across scenes.
-// sceneDirectRef only checks the active scene then falls back to base,
-// but resolveScene folds scenes 0..N so annotations defined in scene 0
-// are visible when editing scene 1.
+// Base annotations are always the foundation; scene annotations are additions.
+// resolveScene cascades scene annotations across scenes 0..N, then we merge
+// with base so annotations defined in base + any scene are all visible.
 const resolvedAnnotations = computed<AnnotationConfig[]>({
   get() {
+    const base = config._base.annotations.value
     if (activeIndex.value >= 0) {
       const resolved = resolveScene(scenes.value, activeIndex.value)
-      if (resolved?.annotations) {
-        return resolved.annotations
-      }
+      const sceneAnns = resolved?.annotations ?? []
+      return [...base, ...sceneAnns]
     }
-    return config._base.annotations.value
+    return base
   },
   set(val: AnnotationConfig[]) {
     if (activeIndex.value >= 0 && activeScene.value) {
-      updateScene(activeIndex.value, { annotations: val })
+      // Split: annotations with ids from base stay in base, the rest go to scene
+      const baseIds = new Set(config._base.annotations.value.map(a => a.id).filter(Boolean))
+      const baseUpdates = val.filter(a => a.id && baseIds.has(a.id))
+      const sceneUpdates = val.filter(a => !a.id || !baseIds.has(a.id))
+      config._base.annotations.value = baseUpdates
+      updateScene(activeIndex.value, { annotations: sceneUpdates })
       return
     }
     config._base.annotations.value = val
