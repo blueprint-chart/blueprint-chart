@@ -219,4 +219,81 @@ describe('useChartTypeOptions', () => {
       expect(baseOptions.value.colors).toEqual(['#base'])
     })
   })
+
+  describe('auto-compact scene chartTypeOptions', () => {
+    it('removes option from scene when value matches base', () => {
+      const { setOption } = useChartTypeOptions()
+      setOption('colors', ['#base'])
+
+      const scenes = useScenes()
+      scenes.add()
+      scenes.setActive(0)
+
+      setOption('colors', ['#scene'])
+      expect(scenes.activeScene.value?.chartTypeOptions?.colors).toEqual(['#scene'])
+
+      // Set back to base value — should compact
+      setOption('colors', ['#base'])
+      expect(scenes.activeScene.value?.chartTypeOptions?.colors).toBeUndefined()
+    })
+
+    it('removes chartTypeOptions when last option is compacted', () => {
+      const { setOption } = useChartTypeOptions()
+      setOption('colors', ['#base'])
+
+      const scenes = useScenes()
+      scenes.add()
+      scenes.setActive(0)
+
+      setOption('colors', ['#scene'])
+      setOption('colors', ['#base'])
+      expect(scenes.activeScene.value?.chartTypeOptions).toBeUndefined()
+    })
+
+    it('keeps other options when one is compacted', () => {
+      const { setOption } = useChartTypeOptions()
+      setOption('colors', ['#base'])
+
+      const scenes = useScenes()
+      scenes.add()
+      scenes.setActive(0)
+
+      setOption('colors', ['#scene'])
+      setOption('showVerticalTicks', true)
+
+      // Compact colors back
+      setOption('colors', ['#base'])
+      expect(scenes.activeScene.value?.chartTypeOptions?.colors).toBeUndefined()
+      expect(scenes.activeScene.value?.chartTypeOptions?.showVerticalTicks).toBe(true)
+    })
+
+    it('compacts considering inherited value from prior scene', () => {
+      const { setOption } = useChartTypeOptions()
+      setOption('colors', ['#base'])
+
+      const scenes = useScenes()
+      scenes.add()
+      scenes.update(0, { chartTypeOptions: { colors: ['#scene0'] } })
+      scenes.add()
+      scenes.setActive(1)
+
+      setOption('colors', ['#scene1'])
+      expect(scenes.scenes.value[1].chartTypeOptions?.colors).toEqual(['#scene1'])
+
+      // Set to value inherited from scene 0 — should compact
+      setOption('colors', ['#scene0'])
+      expect(scenes.scenes.value[1].chartTypeOptions?.colors).toBeUndefined()
+    })
+
+    it('does not compact primitive option when value differs', () => {
+      const { setOption } = useChartTypeOptions()
+
+      const scenes = useScenes()
+      scenes.add()
+      scenes.setActive(0)
+
+      setOption('showVerticalTicks', true)
+      expect(scenes.activeScene.value?.chartTypeOptions?.showVerticalTicks).toBe(true)
+    })
+  })
 })
