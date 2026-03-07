@@ -2,14 +2,14 @@
   <div class="d-flex flex-column gap-3">
     <EditorAnnotations
       ref="annotationsRef"
-      :model-value="annotations"
+      :model-value="resolvedAnnotations"
       :labels="dataLabels"
       :chart-type="chartType"
       :chart-width="chartWidth"
       :chart-height="chartHeight"
       :hidden-annotation-ids="hiddenAnnotationIds"
       :can-toggle-visibility="isSceneActive"
-      @update:model-value="(v) => annotations = v"
+      @update:model-value="(v) => resolvedAnnotations = v"
       @toggle-visibility="handleToggleVisibility"
     />
 
@@ -37,11 +37,35 @@ import type { AnnotationConfig } from '@blueprint-chart/lib'
 import EditorAnnotations from './EditorAnnotations.vue'
 import EditorAreaFills from './EditorAreaFills.vue'
 
-const { chartType, data, annotations, areaFills } = useChartConfig()
+const config = useChartConfig()
+const { chartType, data, areaFills } = config
 const { pendingAnnotationIndex } = useEditorPanel()
 const { scenes, activeIndex, activeScene, update: updateScene } = useScenes()
 
 const isSceneActive = computed(() => activeIndex.value >= 0)
+
+// Annotations need cascading resolution across scenes.
+// sceneDirectRef only checks the active scene then falls back to base,
+// but resolveScene folds scenes 0..N so annotations defined in scene 0
+// are visible when editing scene 1.
+const resolvedAnnotations = computed<AnnotationConfig[]>({
+  get() {
+    if (activeIndex.value >= 0) {
+      const resolved = resolveScene(scenes.value, activeIndex.value)
+      if (resolved?.annotations) {
+        return resolved.annotations
+      }
+    }
+    return config._base.annotations.value
+  },
+  set(val: AnnotationConfig[]) {
+    if (activeIndex.value >= 0 && activeScene.value) {
+      updateScene(activeIndex.value, { annotations: val })
+      return
+    }
+    config._base.annotations.value = val
+  },
+})
 
 const hiddenAnnotationIds = computed(() => {
   if (activeIndex.value < 0) {
@@ -126,12 +150,12 @@ onMounted(() => {
 onBeforeUnmount(() => resizeObserver?.disconnect())
 
 function handleDragUpdate(index: number, ann: AnnotationConfig) {
-  const copy = annotations.value.map(a => ({ ...a }))
+  const copy = resolvedAnnotations.value.map(a => ({ ...a }))
   copy[index] = ann
-  annotations.value = copy
+  resolvedAnnotations.value = copy
 }
 
-useAnnotationDrag(containerRef, annotations, selectedIndex, handleDragUpdate)
+useAnnotationDrag(containerRef, resolvedAnnotations, selectedIndex, handleDragUpdate)
 
 // Consume pending annotation selection (e.g. from double-click on chart)
 watch(pendingAnnotationIndex, async (index) => {
