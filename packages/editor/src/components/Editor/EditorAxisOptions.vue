@@ -86,7 +86,12 @@ const { currentOptions, optionDefs, setOption } = useChartTypeOptions()
 const { displayColumnTypes } = useDataTable()
 
 const labelColumnType = computed(() => displayColumnTypes.value[0] ?? 'string')
-const valueColumnTypes = computed(() => displayColumnTypes.value.slice(1))
+const valueColumnType = computed(() => displayColumnTypes.value[1] ?? 'number')
+
+// Detect which axis is the value axis by checking for scaleType options
+const verticalIsValueAxis = computed(() =>
+  optionDefs.value.some(d => d.key === 'verticalScaleType'),
+)
 
 function shortenLabel(label: string): string {
   return label
@@ -94,11 +99,16 @@ function shortenLabel(label: string): string {
     .replace(/^./, c => c.toUpperCase())
 }
 
+function axisDataType(isHorizontal: boolean): string {
+  const isValueAxis = isHorizontal ? !verticalIsValueAxis.value : verticalIsValueAxis.value
+  return isValueAxis ? valueColumnType.value : labelColumnType.value
+}
+
 function resolveFormatType(def: ChartOptionDef, isHorizontal: boolean): ChartOptionDef {
   if (def.type !== 'numberFormat') {
     return def
   }
-  const colType = isHorizontal ? labelColumnType.value : valueColumnTypes.value[0] ?? 'number'
+  const colType = axisDataType(isHorizontal)
   if (colType === 'date') {
     return { ...def, type: 'dateFormat', label: def.label.replace(/number\s+format/i, 'Date format') }
   }
