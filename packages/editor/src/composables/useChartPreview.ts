@@ -88,8 +88,8 @@ export function resolveSortFromTransforms(scene: SceneOverride | null): string |
     return undefined
   }
   for (let i = scene.transforms.length - 1; i >= 0; i--) {
-    if (scene.transforms[i].type === 'sort' && scene.transforms[i].config?.direction) {
-      return scene.transforms[i].config.direction
+    if (scene.transforms[i].type === 'sort') {
+      return scene.transforms[i].config?.direction ?? 'ascending'
     }
   }
   return undefined
