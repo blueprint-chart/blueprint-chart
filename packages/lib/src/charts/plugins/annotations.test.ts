@@ -662,10 +662,6 @@ describe('createAnnotationPlugin', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     plugin1.postDraw!(makeChartStub(g) as any, undefined as any)
 
-    // Capture old elbow path
-    const oldLine = g.querySelector('g[data-annotation-id="elb-move"] .bc-annotation-line')
-    const oldD = oldLine!.getAttribute('d')!
-
     // Second render moves to B
     const plugin2 = createAnnotationPlugin(
       [{ kind: 'point', id: 'elb-move', target: 'B', text: 'Moved', showLine: true, lineStyle: 'elbow' }],
