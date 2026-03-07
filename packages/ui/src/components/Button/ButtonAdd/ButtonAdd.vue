@@ -33,7 +33,7 @@ defineEmits<{
   &.btn {
     width: 100%;
     padding: 0.5rem;
-    border: 1px dashed var(--bs-secondary-color);
+    border: 1px dashed var(--bs-border-color);
     border-radius: var(--bs-border-radius);
     font-size: 0.8125rem;
     transition: all 0.15s ease;
@@ -42,12 +42,13 @@ defineEmits<{
     --bs-btn-bg: transparent;
     --bs-btn-color: var(--bs-secondary-color);
     --bs-btn-active-bg: transparent;
-    --bs-btn-active-border-color: var(--bs-primary);
+    --bs-btn-active-color: var(--bs-body-color);
+    --bs-btn-active-border-color: var(--bs-body-color);
 
     &:hover,
     &:focus-visible {
-      border-color: var(--bs-primary);
-      color: var(--bs-primary);
+      border-color: var(--bs-secondary-color);
+      color: var(--bs-secondary-color);
       background: transparent;
     }
   }
