@@ -651,6 +651,77 @@ describe('createAnnotationPlugin', () => {
     expect(pathToX).not.toBeCloseTo(oldToX, 0)
   })
 
+  it('elbow move transition starts path at old elbow coordinates', () => {
+    const { x, y, data } = makeScales()
+
+    // First render with elbow annotation targeting A
+    const plugin1 = createAnnotationPlugin(
+      [{ kind: 'point', id: 'elb-move', target: 'A', text: 'Start', showLine: true, lineStyle: 'elbow' }],
+      { scaleX: x, scaleY: y, data, width: 200, height: 200 },
+    )
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    plugin1.postDraw!(makeChartStub(g) as any, undefined as any)
+
+    // Capture old elbow path
+    const oldLine = g.querySelector('g[data-annotation-id="elb-move"] .bc-annotation-line')
+    const oldD = oldLine!.getAttribute('d')!
+
+    // Second render moves to B
+    const plugin2 = createAnnotationPlugin(
+      [{ kind: 'point', id: 'elb-move', target: 'B', text: 'Moved', showLine: true, lineStyle: 'elbow' }],
+      { scaleX: x, scaleY: y, data, width: 200, height: 200, transition: true },
+    )
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    plugin2.postDraw!(makeChartStub(g) as any, undefined as any)
+
+    const line = g.querySelector('g[data-annotation-id="elb-move"] .bc-annotation-line')
+    expect(line).toBeTruthy()
+    // No stroke-dasharray draw animation on move
+    expect(line!.getAttribute('stroke-dasharray')).toBeNull()
+    // Path should start at old endpoint coordinates (tip), not the new ones
+    const currentD = line!.getAttribute('d')!
+    const newToX = parseFloat(line!.getAttribute('data-line-to-x')!)
+    // Extract the last coordinates from the elbow path (M ... L ... L tipX tipY)
+    const nums = currentD.match(/[\d.-]+/g)!.map(Number)
+    const pathTipX = nums[nums.length - 2]
+    // Old target A and new target B have different X positions
+    expect(pathTipX).not.toBeCloseTo(newToX, 0)
+  })
+
+  it('curve move transition starts path at old position', () => {
+    const { x, y, data } = makeScales()
+
+    // First render with curve annotation targeting A
+    const plugin1 = createAnnotationPlugin(
+      [{ kind: 'point', id: 'curve-move', target: 'A', text: 'Start', showLine: true, lineStyle: 'curve' }],
+      { scaleX: x, scaleY: y, data, width: 200, height: 200 },
+    )
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    plugin1.postDraw!(makeChartStub(g) as any, undefined as any)
+
+    // Second render moves to B
+    const plugin2 = createAnnotationPlugin(
+      [{ kind: 'point', id: 'curve-move', target: 'B', text: 'Moved', showLine: true, lineStyle: 'curve' }],
+      { scaleX: x, scaleY: y, data, width: 200, height: 200, transition: true },
+    )
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    plugin2.postDraw!(makeChartStub(g) as any, undefined as any)
+
+    const line = g.querySelector('g[data-annotation-id="curve-move"] .bc-annotation-line')
+    expect(line).toBeTruthy()
+    // No stroke-dasharray draw animation on move
+    expect(line!.getAttribute('stroke-dasharray')).toBeNull()
+    // The path d should start with old coordinates (M oldFromX oldFromY),
+    // not the new position — verifying transition starts from old state
+    const d = line!.getAttribute('d')!
+    const newToX = parseFloat(line!.getAttribute('data-line-to-x')!)
+    // Extract endpoint from the path (last two numbers)
+    const nums = d.match(/[\d.-]+/g)!.map(Number)
+    const pathEndX = nums[nums.length - 2]
+    // Old target A and new target B have different positions
+    expect(pathEndX).not.toBeCloseTo(newToX, 0)
+  })
+
   it('elbow line stores geometry data attributes for attrTween', () => {
     const { x, y, data } = makeScales()
 
