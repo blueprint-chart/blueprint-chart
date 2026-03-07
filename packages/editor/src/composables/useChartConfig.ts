@@ -2,6 +2,62 @@ import { reactive, toRefs, computed, type Ref, type WritableComputedRef } from '
 import type { AreaFillConfig, AnnotationConfig, SeriesOverride } from '@blueprint-chart/lib'
 import { useScenes, type SceneOverride } from './useScenes'
 
+export function deepEqual(a: unknown, b: unknown): boolean {
+  if (a === b) {
+    return true
+  }
+  if (a == null || b == null) {
+    return false
+  }
+  if (Array.isArray(a) && Array.isArray(b)) {
+    if (a.length !== b.length) {
+      return false
+    }
+    return a.every((v, i) => deepEqual(v, b[i]))
+  }
+  if (typeof a === 'object' && typeof b === 'object') {
+    const keysA = Object.keys(a as Record<string, unknown>)
+    const keysB = Object.keys(b as Record<string, unknown>)
+    if (keysA.length !== keysB.length) {
+      return false
+    }
+    return keysA.every(k =>
+      deepEqual((a as Record<string, unknown>)[k], (b as Record<string, unknown>)[k]),
+    )
+  }
+  return false
+}
+
+/**
+ * Compute the effective inherited value for a direct scene key.
+ * Walks prior scenes (like resolveScene) to find the last override,
+ * falling back to the base value.
+ */
+function inheritedDirectValue<T>(baseVal: T, sceneKey: DirectSceneKey, scenes: SceneOverride[], activeIndex: number): T {
+  for (let i = activeIndex - 1; i >= 0; i--) {
+    const s = scenes[i]
+    if (sceneKey in s && s[sceneKey] !== undefined) {
+      return s[sceneKey] as unknown as T
+    }
+  }
+  return baseVal
+}
+
+/**
+ * Compute the effective inherited value for a property key.
+ * Walks prior scenes to find the last property override,
+ * falling back to the base value.
+ */
+function inheritedPropValue<T extends string>(baseVal: T, propKey: string, scenes: SceneOverride[], activeIndex: number): T {
+  for (let i = activeIndex - 1; i >= 0; i--) {
+    const s = scenes[i]
+    if (s.properties && propKey in s.properties) {
+      return String(s.properties[propKey]) as T
+    }
+  }
+  return baseVal
+}
+
 export interface ChartHighlight {
   target: string
   color: string
@@ -89,9 +145,18 @@ function sceneDirectRef<T>(baseRef: Ref<T>, sceneKey: DirectSceneKey): WritableC
       return baseRef.value
     },
     set(val: T) {
-      const { activeIndex, activeScene, update } = useScenes()
+      const { activeIndex, activeScene, update, scenes: allScenes } = useScenes()
       if (activeIndex.value >= 0 && activeScene.value) {
-        update(activeIndex.value, { [sceneKey]: val } as Partial<SceneOverride>)
+        const inherited = inheritedDirectValue(baseRef.value, sceneKey, allScenes.value, activeIndex.value)
+        if (deepEqual(val, inherited)) {
+          // Value matches inherited — remove the override
+          const compacted = { ...activeScene.value }
+          delete (compacted as Record<string, unknown>)[sceneKey]
+          allScenes.value[activeIndex.value] = compacted
+        }
+        else {
+          update(activeIndex.value, { [sceneKey]: val } as Partial<SceneOverride>)
+        }
         return
       }
       baseRef.value = val
@@ -110,10 +175,24 @@ function scenePropRef<T extends string>(baseRef: Ref<T>, propKey: string): Writa
       return baseRef.value
     },
     set(val: T) {
-      const { activeIndex, activeScene, update } = useScenes()
+      const { activeIndex, activeScene, update, scenes: allScenes } = useScenes()
       if (activeIndex.value >= 0 && activeScene.value) {
-        const existing = activeScene.value.properties ?? {}
-        update(activeIndex.value, { properties: { ...existing, [propKey]: val } })
+        const inherited = inheritedPropValue(baseRef.value, propKey, allScenes.value, activeIndex.value)
+        if (val === inherited) {
+          // Value matches inherited — remove the property override
+          const existing = { ...activeScene.value.properties }
+          delete existing[propKey]
+          const props = Object.keys(existing).length > 0 ? existing : undefined
+          const compacted = { ...activeScene.value, properties: props }
+          if (!props) {
+            delete (compacted as Record<string, unknown>).properties
+          }
+          allScenes.value[activeIndex.value] = compacted
+        }
+        else {
+          const existing = activeScene.value.properties ?? {}
+          update(activeIndex.value, { properties: { ...existing, [propKey]: val } })
+        }
         return
       }
       baseRef.value = val
