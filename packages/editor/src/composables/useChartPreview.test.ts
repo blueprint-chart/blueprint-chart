@@ -405,6 +405,24 @@ describe('resolveSortFromTransforms', () => {
     ] })
     expect(resolveSortFromTransforms(resolved)).toBe('descending')
   })
+
+  it('resolves sort from inherited transforms in multi-scene scenario', () => {
+    // Simulates: Scene 1 has sort transform, Scene 2 only has highlight
+    const scenes = [
+      scene({
+        chartTypeOptions: { tooltips: true, crosshair: true },
+        highlights: [{ target: 'India', color: '#00d084', label: '' }],
+        transforms: [{ id: '0', type: 'sort', config: { columns: 'value', direction: 'ascending' } }],
+      }),
+      scene({
+        highlights: [{ target: 'India', color: '#9900ef', label: '' }],
+      }),
+    ]
+
+    const resolved = resolveScene(scenes, 1)!
+    expect(resolved.transforms).toBeDefined()
+    expect(resolveSortFromTransforms(resolved)).toBe('ascending')
+  })
 })
 
 describe('annotation filtering', () => {
