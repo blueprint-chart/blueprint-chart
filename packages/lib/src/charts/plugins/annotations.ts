@@ -395,10 +395,31 @@ export function renderConnectingLine(
       // End the arc slightly before the target, then add a straight stub
       // so the arrow marker points directly at the target instead of
       // following the arc tangent.
+      //
+      // Compute arc center to derive the tangent direction at the endpoint.
+      // For an SVG arc with large-arc=0, the center lies to one side of the
+      // chord.  The tangent at P2 is perpendicular to the radius (center→P2).
       const stub = Math.min(8, dist * 0.15)
-      const nx = dist > 0 ? dx / dist : 0
-      const ny = dist > 0 ? dy / dist : 0
-      const arcEnd = { x: to.x - nx * stub, y: to.y - ny * stub }
+      const halfChord = dist / 2
+      const h = halfChord < r ? Math.sqrt(r * r - halfChord * halfChord) : 0
+      const mx = (from.x + to.x) / 2
+      const my = (from.y + to.y) / 2
+      // Perpendicular to chord (rotated 90°)
+      const px = dist > 0 ? -(to.y - from.y) / dist : 0
+      const py = dist > 0 ? (to.x - from.x) / dist : 0
+      // Center: sweep=1 → center is to the right of chord; sweep=0 → left
+      const centerSign = sweep === 1 ? 1 : -1
+      const cx = mx + centerSign * h * px
+      const cy = my + centerSign * h * py
+      // Tangent at endpoint is perpendicular to radius (center→to),
+      // pointing in the arrival direction (toward to along the arc).
+      const rx = to.x - cx
+      const ry = to.y - cy
+      const rLen = Math.sqrt(rx * rx + ry * ry) || 1
+      // Tangent perpendicular: for sweep=1 (CW), tangent = (ry, -rx); sweep=0 (CCW), tangent = (-ry, rx)
+      const tx = sweep === 1 ? ry / rLen : -ry / rLen
+      const ty = sweep === 1 ? -rx / rLen : rx / rLen
+      const arcEnd = { x: to.x - tx * stub, y: to.y - ty * stub }
       d = `M ${from.x} ${from.y} A ${r} ${r} 0 0 ${sweep} ${arcEnd.x} ${arcEnd.y} L ${to.x} ${to.y}`
       break
     }
