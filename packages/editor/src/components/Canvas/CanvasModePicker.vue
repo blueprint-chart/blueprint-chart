@@ -74,7 +74,7 @@ function select(mode: CanvasMode) {
   display: flex;
   align-items: center;
   gap: 0.25rem;
-  padding: 0.25rem;
+  padding: 2px;
   border: none;
   background: none;
   cursor: pointer;
