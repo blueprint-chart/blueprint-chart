@@ -48,7 +48,7 @@ export function resolveScene(scenes: SceneOverride[], index: number): SceneOverr
     if (s.areaFills !== undefined) {
       resolved.areaFills = s.areaFills
     }
-    if (s.annotations !== undefined) {
+    if (s.annotations !== undefined && s.annotations.length > 0) {
       resolved.annotations = s.annotations
     }
     if (s.annotationVisibility) {
@@ -199,7 +199,7 @@ export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
   }
 
   watch(
-    [containerRef, config.chartType, config.title, config.data, config.sort, config.sortMode, config.description, config.byline, config.note, config.source, config.sourceUrl, config.selectedColumn, config.highlights, config.areaFills, config.annotations, config.seriesOverrides, config.layout, currentOptions, activeScene, theme],
+    [containerRef, config.chartType, config.title, config.data, config.sort, config.sortMode, config.description, config.byline, config.note, config.source, config.sourceUrl, config.selectedColumn, config.highlights, config.areaFills, config.annotations, config.seriesOverrides, config.layout, currentOptions, scenes, activeScene, theme],
     render,
     { immediate: true, deep: true },
   )
