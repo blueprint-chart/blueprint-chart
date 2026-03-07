@@ -86,6 +86,7 @@ const { currentOptions, optionDefs, setOption } = useChartTypeOptions()
 const { displayColumnTypes } = useDataTable()
 
 const labelColumnType = computed(() => displayColumnTypes.value[0] ?? 'string')
+const valueColumnTypes = computed(() => displayColumnTypes.value.slice(1))
 
 function shortenLabel(label: string): string {
   return label
@@ -97,14 +98,12 @@ function resolveFormatType(def: ChartOptionDef, isHorizontal: boolean): ChartOpt
   if (def.type !== 'numberFormat') {
     return def
   }
-  if (isHorizontal) {
-    const colType = labelColumnType.value
-    if (colType === 'date') {
-      return { ...def, type: 'dateFormat', label: def.label.replace(/number\s+format/i, 'Date format') }
-    }
-    if (colType === 'string') {
-      return { ...def, type: '__hidden' as ChartOptionDef['type'] }
-    }
+  const colType = isHorizontal ? labelColumnType.value : valueColumnTypes.value[0] ?? 'number'
+  if (colType === 'date') {
+    return { ...def, type: 'dateFormat', label: def.label.replace(/number\s+format/i, 'Date format') }
+  }
+  if (colType === 'string') {
+    return { ...def, type: '__hidden' as ChartOptionDef['type'] }
   }
   return def
 }
@@ -112,7 +111,8 @@ function resolveFormatType(def: ChartOptionDef, isHorizontal: boolean): ChartOpt
 const verticalDefs = computed(() =>
   optionDefs.value
     .filter(d => VERTICAL_KEYS.has(d.key))
-    .map(d => resolveFormatType({ ...d, label: shortenLabel(d.label) }, false)),
+    .map(d => resolveFormatType({ ...d, label: shortenLabel(d.label) }, false))
+    .filter(d => d.type !== '__hidden'),
 )
 
 const horizontalDefs = computed(() =>
