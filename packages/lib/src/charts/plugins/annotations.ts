@@ -1058,18 +1058,58 @@ function elbowPathFromCoords(
 // ---------------------------------------------------------------------------
 
 function applyDrawEntrance(lineEl: SVGElement, durationMs: number): void {
-  lineEl.setAttribute('stroke-dasharray', '1')
-  lineEl.setAttribute('stroke-dashoffset', '1')
+  const hasArrow = lineEl.hasAttribute('marker-end')
+  const geo = readLineGeometry(lineEl.parentElement!)
 
-  const sel = d3.select(lineEl)
-  sel.transition()
-    .duration(durationMs)
-    .ease(d3.easeCubicOut)
-    .attr('stroke-dashoffset', '0')
-    .on('end', () => {
-      lineEl.removeAttribute('stroke-dasharray')
-      lineEl.removeAttribute('stroke-dashoffset')
-    })
+  if (hasArrow && geo && (geo.style === 'direct' || geo.style === 'elbow')) {
+    // Arrow lines: grow the path so the arrowhead follows the tip.
+    // Start with a zero-length path at the from point, then tween to final.
+    const sel = d3.select(lineEl)
+    const finalD = lineEl.getAttribute('d')!
+    const startD = `M ${geo.fromX} ${geo.fromY} L ${geo.fromX} ${geo.fromY}`
+    sel.attr('d', startD)
+
+    if (geo.style === 'elbow') {
+      const endCoords = { tipX: geo.toX, tipY: geo.toY, calloutX: geo.fromX, calloutY: geo.fromY }
+      const startCoords = { tipX: geo.fromX, tipY: geo.fromY, calloutX: geo.fromX, calloutY: geo.fromY }
+      sel.transition()
+        .duration(durationMs)
+        .ease(d3.easeCubicOut)
+        .attrTween('d', () => {
+          const interp = d3.interpolateObject(startCoords, endCoords)
+          return (t: number) => {
+            const c = interp(t)
+            return elbowPathFromCoords(c.calloutX, c.calloutY, c.tipX, c.tipY)
+          }
+        })
+    }
+    else {
+      // Direct: interpolate endpoint from start to final
+      sel.transition()
+        .duration(durationMs)
+        .ease(d3.easeCubicOut)
+        .attrTween('d', () => {
+          const interpX = d3.interpolateNumber(geo.fromX, geo.toX)
+          const interpY = d3.interpolateNumber(geo.fromY, geo.toY)
+          return (t: number) => `M ${geo.fromX} ${geo.fromY} L ${interpX(t)} ${interpY(t)}`
+        })
+    }
+  }
+  else {
+    // No arrow: use stroke-dashoffset draw
+    lineEl.setAttribute('stroke-dasharray', '1')
+    lineEl.setAttribute('stroke-dashoffset', '1')
+
+    const sel = d3.select(lineEl)
+    sel.transition()
+      .duration(durationMs)
+      .ease(d3.easeCubicOut)
+      .attr('stroke-dashoffset', '0')
+      .on('end', () => {
+        lineEl.removeAttribute('stroke-dasharray')
+        lineEl.removeAttribute('stroke-dashoffset')
+      })
+  }
 }
 
 // ---------------------------------------------------------------------------
