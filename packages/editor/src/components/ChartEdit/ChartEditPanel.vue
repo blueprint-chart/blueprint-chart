@@ -37,6 +37,10 @@
         v-if="panelMode === 'floating'"
         :container-ref="canvasRef"
       />
+      <ChartEditToolbar
+        v-if="!isNarrow && panelMode === 'floating'"
+        class="chart-edit-panel__toolbar--floating"
+      />
     </div>
     <template v-if="isNarrow">
       <LayoutBottomDrawer v-model="drawerOpen">
@@ -58,7 +62,10 @@
       </LayoutBottomDrawer>
     </template>
     <template v-else>
-      <ChartEditDockedPanel :collapsed="panelMode !== 'docked'" />
+      <div class="chart-edit-panel__side">
+        <ChartEditToolbar class="chart-edit-panel__toolbar--docked" />
+        <ChartEditDockedPanel :collapsed="panelMode !== 'docked'" />
+      </div>
       <ChartEditIconRail />
     </template>
   </div>
@@ -78,6 +85,7 @@ import ChartEditDsl from './ChartEditDsl.vue'
 import ChartEditDockedPanel from './ChartEditDockedPanel.vue'
 import ChartEditIconRail from './ChartEditIconRail.vue'
 import ChartEditFloatingPanel from './ChartEditFloatingPanel.vue'
+import ChartEditToolbar from './ChartEditToolbar.vue'
 import CanvasDimensions from '@/components/Canvas/CanvasDimensions.vue'
 import CanvasModePicker from '@/components/Canvas/CanvasModePicker.vue'
 import EditorChartTypePicker from '@/components/Editor/EditorChartTypePicker.vue'
@@ -302,6 +310,29 @@ const canvasStyle = computed<CSSProperties>(() => ({
 
 .chart-edit-panel__drawer-body {
   padding: 0.5rem 0;
+}
+
+.chart-edit-panel__side {
+  display: flex;
+  flex-direction: column;
+  gap: var(--bc-tile-gap);
+  min-width: 0;
+}
+
+.chart-edit-panel__toolbar--docked {
+  padding: 0.25rem 0.5rem;
+}
+
+.chart-edit-panel__toolbar--floating {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  z-index: 5;
+  padding: 0.25rem 0.5rem;
+  background: var(--bc-tile-bg);
+  border-radius: var(--bc-tile-radius);
+  box-shadow: var(--bc-tile-shadow);
+  border: var(--bc-tile-border);
 }
 
 // Override UI-library background so panel matches the tile surface
