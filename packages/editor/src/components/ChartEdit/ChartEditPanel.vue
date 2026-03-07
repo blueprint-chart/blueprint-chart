@@ -62,13 +62,7 @@
       </LayoutBottomDrawer>
     </template>
     <template v-else>
-      <div class="chart-edit-panel__side">
-        <ChartEditToolbar
-          v-if="panelMode === 'docked'"
-          class="chart-edit-panel__toolbar--docked"
-        />
-        <ChartEditDockedPanel :collapsed="panelMode !== 'docked'" />
-      </div>
+      <ChartEditDockedPanel :collapsed="panelMode !== 'docked'" />
       <ChartEditIconRail />
     </template>
   </div>
@@ -313,21 +307,6 @@ const canvasStyle = computed<CSSProperties>(() => ({
 
 .chart-edit-panel__drawer-body {
   padding: 0.5rem 0;
-}
-
-.chart-edit-panel__side {
-  display: flex;
-  flex-direction: column;
-  gap: var(--bc-tile-gap);
-  min-width: 0;
-}
-
-.chart-edit-panel__toolbar--docked {
-  padding: 0.25rem 0.5rem;
-  background: var(--bc-tile-bg);
-  border-radius: var(--bc-tile-radius);
-  box-shadow: var(--bc-tile-shadow);
-  border: var(--bc-tile-border);
 }
 
 .chart-edit-panel__toolbar--floating {
