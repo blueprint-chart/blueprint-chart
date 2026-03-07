@@ -17,10 +17,12 @@ export function createCrosshairPlugin(options?: {
   style?: 'solid' | 'dashed' | 'dotted'
   color?: string
   dashArray?: string
+  orientation?: 'vertical' | 'horizontal'
 }): Plugin {
   const color = options?.color ?? '#999'
   const dashArray = options?.dashArray ?? styleToDash(options?.style)
   const direction = options?.direction ?? 'both'
+  const orientation = options?.orientation ?? 'vertical'
   const cleanups: (() => void)[] = []
 
   return {
@@ -77,8 +79,15 @@ export function createCrosshairPlugin(options?: {
             const x = parseFloat(sel.attr('x'))
             const bw = parseFloat(sel.attr('width'))
             const y = parseFloat(sel.attr('y'))
-            cx = x + bw / 2
-            cy = y
+            const bh = parseFloat(sel.attr('height'))
+            if (orientation === 'horizontal') {
+              cx = x + bw
+              cy = y + bh / 2
+            }
+            else {
+              cx = x + bw / 2
+              cy = y
+            }
           }
 
           if (vLine) {

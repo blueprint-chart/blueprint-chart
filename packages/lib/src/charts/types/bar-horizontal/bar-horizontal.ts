@@ -180,7 +180,7 @@ export function render(
   }
   if (options.crosshair) {
     chart.use(createCrosshairPlugin({
-      width, height, direction: options.crosshairDirection, style: options.crosshairStyle, color: options.crosshairColor }))
+      width, height, direction: options.crosshairDirection, style: options.crosshairStyle, color: options.crosshairColor, orientation: 'horizontal' }))
   }
   if (options.annotations?.length) {
     chart.use(createAnnotationPlugin(options.annotations, {
