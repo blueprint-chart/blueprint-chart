@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest'
+import type { AnnotationConfig, SeriesOverride } from '@blueprint-chart/lib'
 import { resolveScene } from './useChartPreview'
 import type { SceneOverride } from './useScenes'
+import type { TransformStep } from './useDataTransforms'
 
 function scene(overrides: Partial<SceneOverride> = {}): SceneOverride {
   return { id: Math.random().toString(36).slice(2), name: null, ...overrides }
@@ -224,11 +226,11 @@ describe('resolveScene', () => {
   })
 
   it('scene annotations override base annotations', () => {
-    const baseAnnotations = [{ id: 'a1', kind: 'point' as const, x: 1, y: 2 }]
-    const sceneAnnotations = [{ id: 'a2', kind: 'range' as const, x: 3, y: 4 }]
+    const baseAnnotations: AnnotationConfig[] = [{ id: 'a1', kind: 'point', target: 'A', text: 'p' }]
+    const sceneAnnotations: AnnotationConfig[] = [{ id: 'a2', kind: 'range', start: 0, end: 10 }]
     const scenes = [
-      scene({ annotations: baseAnnotations as any }),
-      scene({ annotations: sceneAnnotations as any }),
+      scene({ annotations: baseAnnotations }),
+      scene({ annotations: sceneAnnotations }),
     ]
     const result = resolveScene(scenes, 1)!
     expect(result.annotations).toEqual(sceneAnnotations)
@@ -252,8 +254,8 @@ describe('resolveScene', () => {
   })
 
   it('transforms from later scene replace earlier scene', () => {
-    const earlyTransforms = [{ type: 'filter', column: 'A', value: '1' }] as any
-    const lateTransforms = [{ type: 'sort', column: 'B', value: 'asc' }] as any
+    const earlyTransforms: TransformStep[] = [{ type: 'filter', column: 'A', value: '1' }]
+    const lateTransforms: TransformStep[] = [{ type: 'sort', column: 'B', value: 'asc' }]
     const scenes = [
       scene({ transforms: earlyTransforms }),
       scene({ transforms: lateTransforms }),
@@ -263,8 +265,8 @@ describe('resolveScene', () => {
   })
 
   it('seriesOverrides from later scene replace earlier scene', () => {
-    const earlyOverrides = [{ series: 'A', color: 'red' }] as any
-    const lateOverrides = [{ series: 'B', color: 'blue' }] as any
+    const earlyOverrides: SeriesOverride[] = [{ name: 'A', color: 'red' }]
+    const lateOverrides: SeriesOverride[] = [{ name: 'B', color: 'blue' }]
     const scenes = [
       scene({ seriesOverrides: earlyOverrides }),
       scene({ seriesOverrides: lateOverrides }),
@@ -276,10 +278,12 @@ describe('resolveScene', () => {
 
 describe('annotation filtering', () => {
   function filterAnnotations(
-    annotations: { id?: string; kind: string }[],
-    hiddenIds?: Set<string>
-  ): { id?: string; kind: string }[] {
-    if (!hiddenIds) return annotations
+    annotations: { id?: string, kind: string }[],
+    hiddenIds?: Set<string>,
+  ): { id?: string, kind: string }[] {
+    if (!hiddenIds) {
+      return annotations
+    }
     return annotations.filter(a => !a.id || !hiddenIds.has(a.id))
   }
 

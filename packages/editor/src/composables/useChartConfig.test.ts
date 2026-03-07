@@ -259,7 +259,7 @@ describe('useChartConfig', () => {
       const current = config.annotations.value
 
       // Modify text but keep ids
-      config.annotations.value = current.map((a) =>
+      config.annotations.value = current.map(a =>
         a.kind === 'point'
           ? { ...a, text: 'Updated First' }
           : { ...a, text: 'Updated Second' },
