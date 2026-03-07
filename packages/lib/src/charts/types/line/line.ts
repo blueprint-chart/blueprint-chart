@@ -9,7 +9,7 @@ import { renderHorizontalAxis, type AnyXScale } from '../../axis/horizontal-axis
 import { computeLinearDomain } from '../../scale-helpers'
 import { resolveCurve } from '../../curves'
 import { createValueLabelPlugin } from '../../plugins/value-labels'
-import { renderAnnotations } from '../../plugins/annotations'
+import { renderAnnotations, snapshotAnnotations, type AnnotationSnapshot } from '../../plugins/annotations'
 import { resolveBackgroundColor } from '../../contrast'
 import { setupProximityInteraction } from '../../plugins/proximity'
 import { renderLineSymbols } from '../../line-symbols'
@@ -182,6 +182,7 @@ export function render(
   let priorVAxis: Element | null = null
   let priorHAxis: Element | null = null
   let fadeOverlay: HTMLElement | null = null
+  let priorAnnotations: Map<string, AnnotationSnapshot> | undefined
   if (transition) {
     const cached = getCachedChart(container)
     if (cached) {
@@ -195,6 +196,12 @@ export function render(
     }
     else if (cached) {
       fadeOverlay = snapshotForFadeOut(container)
+    }
+    priorAnnotations = new Map()
+    for (const el of container.querySelectorAll('.bc-annotations, .bc-annotations-range')) {
+      for (const [k, v] of snapshotAnnotations(el)) {
+        priorAnnotations.set(k, v)
+      }
     }
     container.replaceChildren()
   }
@@ -266,7 +273,7 @@ export function render(
   chart.draw(lineData)
 
   if (options.annotations?.length) {
-    renderAnnotations(chartArea, options.annotations, { scaleX: xScale, scaleY: y, data: lineData, width, height, backgroundColor: resolveBackgroundColor(container), transition })
+    renderAnnotations(chartArea, options.annotations, { scaleX: xScale, scaleY: y, data: lineData, width, height, backgroundColor: resolveBackgroundColor(container), transition, priorAnnotations })
   }
 
   // Default dots are invisible; proximity interaction handles tooltips/crosshair

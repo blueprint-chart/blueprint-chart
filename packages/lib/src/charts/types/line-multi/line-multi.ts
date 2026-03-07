@@ -10,7 +10,7 @@ import { renderLegend } from '../../legend/legend'
 import { estimateLegendSize, estimateDirectLabelWidth } from '../../legend/legend-size'
 import { computeLinearDomain } from '../../scale-helpers'
 import { resolveCurve } from '../../curves'
-import { renderAnnotations } from '../../plugins/annotations'
+import { renderAnnotations, snapshotAnnotations, type AnnotationSnapshot } from '../../plugins/annotations'
 import { resolveBackgroundColor } from '../../contrast'
 import { setupProximityInteraction } from '../../plugins/proximity'
 import { renderLineSymbols } from '../../line-symbols'
@@ -215,6 +215,7 @@ export function render(
   let priorVAxis: Element | null = null
   let priorHAxis: Element | null = null
   let fadeOverlay: HTMLElement | null = null
+  let priorAnnotations: Map<string, AnnotationSnapshot> | undefined
   if (transition) {
     const cached = getCachedChart(container)
     if (cached) {
@@ -228,6 +229,12 @@ export function render(
     }
     else if (cached) {
       fadeOverlay = snapshotForFadeOut(container)
+    }
+    priorAnnotations = new Map()
+    for (const el of container.querySelectorAll('.bc-annotations, .bc-annotations-range')) {
+      for (const [k, v] of snapshotAnnotations(el)) {
+        priorAnnotations.set(k, v)
+      }
     }
     container.replaceChildren()
   }
@@ -381,7 +388,7 @@ export function render(
       label: l,
       value: series[0]?.values[i] ?? 0,
     }))
-    renderAnnotations(chartArea, options.annotations, { scaleX: xScale, scaleY: y, data: annotationData, width, height, backgroundColor: resolveBackgroundColor(container), transition })
+    renderAnnotations(chartArea, options.annotations, { scaleX: xScale, scaleY: y, data: annotationData, width, height, backgroundColor: resolveBackgroundColor(container), transition, priorAnnotations })
   }
 
   // Per-series value labels: render directly so we control which series gets them
