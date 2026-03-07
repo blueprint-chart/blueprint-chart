@@ -21,10 +21,33 @@ vi.mock('@blueprint-chart/ui', () => ({
     template: '<button class="btn-icon" @click="$emit(\'click\')"><slot /></button>',
     emits: ['click'],
   },
+  ButtonUndo: {
+    template: '<button class="btn-icon" @click="$emit(\'click\')"><slot /></button>',
+    props: ['disabled'],
+    emits: ['click'],
+  },
+  ButtonRedo: {
+    template: '<button class="btn-icon" @click="$emit(\'click\')"><slot /></button>',
+    props: ['disabled'],
+    emits: ['click'],
+  },
+  NavigationToggle: {
+    template: '<div class="navigation-toggle" />',
+    props: ['modelValue', 'options'],
+  },
 }))
 
 vi.mock('@/composables/usePanelDrag', () => ({
   usePanelDrag: vi.fn(() => ({ isDragging: false })),
+}))
+
+vi.mock('@/composables/useChartHistory', () => ({
+  useChartHistory: () => ({
+    canUndo: { value: false },
+    canRedo: { value: false },
+    undo: vi.fn(),
+    redo: vi.fn(),
+  }),
 }))
 
 vi.mock('@/composables/useChartConfig', () => ({
