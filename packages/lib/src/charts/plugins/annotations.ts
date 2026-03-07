@@ -1,6 +1,7 @@
 import * as d3 from 'd3'
 import type { D3Blueprint, Plugin } from 'd3-blueprint'
 import type { AnnotationConfig, AnnotationLineStyle, CompassDirection, RangeAnchor, StrokeStyle } from '../types'
+import { getDefaultTransitionMs } from '../motion'
 
 // ---------------------------------------------------------------------------
 // Context
@@ -14,6 +15,7 @@ export interface AnnotationContext {
   height: number
   backgroundColor?: string
   orientation?: 'horizontal'
+  transition?: boolean
 }
 
 // ---------------------------------------------------------------------------
@@ -588,6 +590,9 @@ function renderPointAnnotation(
   }
 
   const annG = g.append('g').attr('data-annotation-index', String(index))
+  if (ann.id) {
+    annG.attr('data-annotation-id', ann.id)
+  }
 
   // Compute anchor point on shape
   const lineConfig = ann as { showLine?: boolean, showArrow?: boolean, lineStyle?: AnnotationLineStyle, lineWeight?: number, lineTargetDistance?: number, showCircle?: boolean, circleSize?: number, anchorDirection?: CompassDirection, textOffsetX?: number, textOffsetY?: number }
@@ -708,6 +713,9 @@ function renderRangeAnnotation(
   }
 
   const annG = g.append('g').attr('data-annotation-index', String(index))
+  if (ann.id) {
+    annG.attr('data-annotation-id', ann.id)
+  }
   const rangeOrientation = ann.orientation ?? 'vertical'
 
   let x: number, y: number, w: number, h: number
@@ -840,6 +848,9 @@ function renderFreeAnnotation(
   }
 
   const annG = g.append('g').attr('data-annotation-index', String(index))
+  if (ann.id) {
+    annG.attr('data-annotation-id', ann.id)
+  }
 
   const px = resolvePosition(ann.x, ctx.width)
   const py = resolvePosition(ann.y, ctx.height)
@@ -882,6 +893,30 @@ export function renderAnnotations(
   ensureArrowMarker(svg)
 
   const base = d3.select(parent)
+
+  // Snapshot old annotation positions before clearing (for transitions)
+  let oldSnapshots: Map<string, AnnotationSnapshot> | undefined
+  if (ctx.transition) {
+    const existingContainer = parent.querySelector('.bc-annotations')
+    const existingRangeContainer = parent.querySelector('.bc-annotations-range')
+    if (existingContainer || existingRangeContainer) {
+      oldSnapshots = new Map()
+      if (existingContainer) {
+        for (const [k, v] of snapshotAnnotations(existingContainer)) {
+          oldSnapshots.set(k, v)
+        }
+      }
+      if (existingRangeContainer) {
+        for (const [k, v] of snapshotAnnotations(existingRangeContainer)) {
+          oldSnapshots.set(k, v)
+        }
+      }
+    }
+  }
+
+  // Remove old annotation containers after snapshotting
+  parent.querySelectorAll('.bc-annotations, .bc-annotations-range').forEach(el => el.remove())
+
   const rangeGroup = base.insert('g', ':first-child').attr('class', 'bc-annotations-range') as unknown as d3.Selection<SVGGElement, unknown, null, undefined>
   const g = base.append('g')
     .attr('class', 'bc-annotations')
@@ -905,7 +940,105 @@ export function renderAnnotations(
     }
   }
 
+  // Apply transitions if we have old snapshots
+  if (oldSnapshots && oldSnapshots.size > 0) {
+    const duration = getDefaultTransitionMs()
+    applyAnnotationTransitions(g.node()!, rangeGroup.node()!, oldSnapshots, duration)
+  }
+
   expandSvgToFitAnnotations(svg as SVGSVGElement | null)
+}
+
+// ---------------------------------------------------------------------------
+// Transition helpers
+// ---------------------------------------------------------------------------
+
+interface AnnotationSnapshot {
+  id: string
+  element: Element
+  rect: { x: number, y: number, width: number, height: number }
+}
+
+function snapshotAnnotations(container: Element): Map<string, AnnotationSnapshot> {
+  const map = new Map<string, AnnotationSnapshot>()
+  const groups = container.querySelectorAll('g[data-annotation-id]')
+  for (const el of groups) {
+    const id = el.getAttribute('data-annotation-id')!
+    try {
+      const rect = (el as SVGGraphicsElement).getBBox()
+      map.set(id, { id, element: el, rect: { x: rect.x, y: rect.y, width: rect.width, height: rect.height } })
+    }
+    catch {
+      // getBBox may fail in test environments; use zero rect
+      map.set(id, { id, element: el, rect: { x: 0, y: 0, width: 0, height: 0 } })
+    }
+  }
+  return map
+}
+
+function applyAnnotationTransitions(
+  container: Element,
+  rangeContainer: Element,
+  oldSnapshots: Map<string, AnnotationSnapshot>,
+  durationMs: number,
+): void {
+  if (durationMs <= 0) {
+    return
+  }
+
+  // Collect new annotation groups from both containers
+  const newGroups = [
+    ...container.querySelectorAll('g[data-annotation-id]'),
+    ...rangeContainer.querySelectorAll('g[data-annotation-id]'),
+  ]
+
+  const newIds = new Set<string>()
+  for (const el of newGroups) {
+    const id = el.getAttribute('data-annotation-id')!
+    newIds.add(id)
+
+    const old = oldSnapshots.get(id)
+    if (old) {
+      // Persistent annotation — apply FLIP translation
+      try {
+        const newRect = (el as SVGGraphicsElement).getBBox()
+        const dx = old.rect.x - newRect.x
+        const dy = old.rect.y - newRect.y
+        if (Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5) {
+          const g = el as SVGElement
+          g.style.transition = 'none'
+          g.setAttribute('transform', `translate(${dx}, ${dy})`)
+          // Force reflow
+          void g.getBoundingClientRect()
+          g.style.transition = `transform ${durationMs}ms ease`
+          g.setAttribute('transform', 'translate(0, 0)')
+        }
+      }
+      catch { /* getBBox may fail */ }
+    }
+    else {
+      // New annotation — fade in
+      const g = el as SVGElement
+      g.style.opacity = '0'
+      void g.getBoundingClientRect()
+      g.style.transition = `opacity ${durationMs}ms ease`
+      g.style.opacity = '1'
+    }
+  }
+
+  // Removed annotations — fade out old elements
+  for (const [id, snapshot] of oldSnapshots) {
+    if (!newIds.has(id)) {
+      // Re-insert the old element for fade-out
+      const clone = snapshot.element.cloneNode(true) as SVGElement
+      container.appendChild(clone)
+      clone.style.opacity = '1'
+      void clone.getBoundingClientRect()
+      clone.style.transition = `opacity ${durationMs}ms ease`
+      clone.style.opacity = '0'
+      setTimeout(() => clone.remove(), durationMs)
+    }
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -939,6 +1072,32 @@ export function createAnnotationPlugin(
         ? d3.select(parentNode) as unknown as d3.Selection<SVGElement, unknown, null, undefined>
         : base
 
+      // Snapshot old annotation positions before clearing (for transitions)
+      const targetEl = target.node() as Element
+      let oldSnapshots: Map<string, AnnotationSnapshot> | undefined
+      if (ctx.transition && targetEl) {
+        const existingContainer = targetEl.querySelector('.bc-annotations')
+        const existingRangeContainer = targetEl.querySelector('.bc-annotations-range')
+        if (existingContainer || existingRangeContainer) {
+          oldSnapshots = new Map()
+          if (existingContainer) {
+            for (const [k, v] of snapshotAnnotations(existingContainer)) {
+              oldSnapshots.set(k, v)
+            }
+          }
+          if (existingRangeContainer) {
+            for (const [k, v] of snapshotAnnotations(existingRangeContainer)) {
+              oldSnapshots.set(k, v)
+            }
+          }
+        }
+      }
+
+      // Remove old annotation containers after snapshotting
+      if (targetEl) {
+        targetEl.querySelectorAll('.bc-annotations, .bc-annotations-range').forEach(el => el.remove())
+      }
+
       // Range annotations render behind chart content
       const rangeGroup = target.insert('g', ':first-child').attr('class', 'bc-annotations-range') as unknown as d3.Selection<SVGGElement, unknown, null, undefined>
       // Point/free annotations render on top
@@ -962,6 +1121,12 @@ export function createAnnotationPlugin(
             renderFreeAnnotation(g, ann, ctx, i)
             break
         }
+      }
+
+      // Apply transitions if we have old snapshots
+      if (oldSnapshots && oldSnapshots.size > 0) {
+        const duration = getDefaultTransitionMs()
+        applyAnnotationTransitions(g.node()!, rangeGroup.node()!, oldSnapshots, duration)
       }
 
       // Expand SVG viewBox if annotations extend beyond chart bounds
