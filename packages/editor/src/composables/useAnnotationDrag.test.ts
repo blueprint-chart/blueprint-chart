@@ -20,11 +20,12 @@ function makeSvgContainer(annotations: { id?: string, index: number }[]) {
     text.setAttribute('y', '100')
     text.textContent = 'Label'
     // Stub getBBox (not available in jsdom)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ;(text as any).getBBox = () => ({ x: 80, y: 85, width: 40, height: 20 })
     g.appendChild(text)
     svg.appendChild(g)
   }
-  // Stub getScreenCTM
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ;(svg as any).getScreenCTM = () => ({ a: 1, d: 1 })
   container.appendChild(svg)
   return container
@@ -37,7 +38,10 @@ async function flush() {
 
 describe('useAnnotationDrag', () => {
   beforeEach(() => {
-    vi.spyOn(window, 'requestAnimationFrame').mockImplementation(cb => { cb(0); return 0 })
+    vi.spyOn(window, 'requestAnimationFrame').mockImplementation((cb) => {
+      cb(0)
+      return 0
+    })
   })
   afterEach(() => {
     vi.restoreAllMocks()
