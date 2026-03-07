@@ -416,9 +416,10 @@ export function renderConnectingLine(
       const rx = to.x - cx
       const ry = to.y - cy
       const rLen = Math.sqrt(rx * rx + ry * ry) || 1
-      // Tangent perpendicular: for sweep=1 (CW), tangent = (ry, -rx); sweep=0 (CCW), tangent = (-ry, rx)
-      const tx = sweep === 1 ? ry / rLen : -ry / rLen
-      const ty = sweep === 1 ? -rx / rLen : rx / rLen
+      // Tangent perpendicular to radius, in the arrival direction at the endpoint.
+      // For sweep=1 (CW arc), arrival tangent = (-ry, rx); sweep=0 (CCW), tangent = (ry, -rx)
+      const tx = sweep === 1 ? -ry / rLen : ry / rLen
+      const ty = sweep === 1 ? rx / rLen : -rx / rLen
       const arcEnd = { x: to.x - tx * stub, y: to.y - ty * stub }
       d = `M ${from.x} ${from.y} A ${r} ${r} 0 0 ${sweep} ${arcEnd.x} ${arcEnd.y} L ${to.x} ${to.y}`
       break
