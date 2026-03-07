@@ -440,6 +440,14 @@ export function renderConnectingLine(
     .attr('fill', 'none')
     .attr('stroke', lineColor)
     .attr('stroke-width', opts.lineWeight ?? 1)
+    .attr('pathLength', '1')
+    // Store geometry for transition tweening
+    .attr('data-line-style', style)
+    .attr('data-line-from-x', String(from.x))
+    .attr('data-line-from-y', String(from.y))
+    .attr('data-line-to-x', String(to.x))
+    .attr('data-line-to-y', String(to.y))
+    .attr('data-line-depart-vertical', String(opts.departVertical ?? false))
 
   if (opts.showArrow === true) {
     const svg = g.node()?.ownerSVGElement ?? null
@@ -969,10 +977,10 @@ export function renderAnnotations(
     }
   }
 
-  // Apply transitions if we have old snapshots
-  if (oldSnapshots && oldSnapshots.size > 0) {
+  // Apply transitions during scene changes
+  if (ctx.transition) {
     const duration = getDefaultTransitionMs()
-    applyAnnotationTransitions(g.node()!, rangeGroup.node()!, oldSnapshots, duration)
+    applyAnnotationTransitions(g.node()!, rangeGroup.node()!, oldSnapshots ?? new Map(), duration)
   }
 
   expandSvgToFitAnnotations(svg as SVGSVGElement | null)
@@ -982,10 +990,35 @@ export function renderAnnotations(
 // Transition helpers
 // ---------------------------------------------------------------------------
 
+export interface LineGeometry {
+  style: string
+  fromX: number
+  fromY: number
+  toX: number
+  toY: number
+  departVertical: boolean
+}
+
 export interface AnnotationSnapshot {
   id: string
   element: Element
   rect: { x: number, y: number, width: number, height: number }
+  line?: LineGeometry
+}
+
+function readLineGeometry(el: Element): LineGeometry | undefined {
+  const lineEl = el.querySelector('.bc-annotation-line')
+  if (!lineEl || !lineEl.hasAttribute('data-line-style')) {
+    return undefined
+  }
+  return {
+    style: lineEl.getAttribute('data-line-style')!,
+    fromX: parseFloat(lineEl.getAttribute('data-line-from-x') || '0'),
+    fromY: parseFloat(lineEl.getAttribute('data-line-from-y') || '0'),
+    toX: parseFloat(lineEl.getAttribute('data-line-to-x') || '0'),
+    toY: parseFloat(lineEl.getAttribute('data-line-to-y') || '0'),
+    departVertical: lineEl.getAttribute('data-line-depart-vertical') === 'true',
+  }
 }
 
 export function snapshotAnnotations(container: Element): Map<string, AnnotationSnapshot> {
@@ -993,17 +1026,125 @@ export function snapshotAnnotations(container: Element): Map<string, AnnotationS
   const groups = container.querySelectorAll('g[data-annotation-id]')
   for (const el of groups) {
     const id = el.getAttribute('data-annotation-id')!
+    const line = readLineGeometry(el)
     try {
       const rect = (el as SVGGraphicsElement).getBBox()
-      map.set(id, { id, element: el, rect: { x: rect.x, y: rect.y, width: rect.width, height: rect.height } })
+      map.set(id, { id, element: el, rect: { x: rect.x, y: rect.y, width: rect.width, height: rect.height }, line })
     }
     catch {
-      // getBBox may fail in test environments; use zero rect
-      map.set(id, { id, element: el, rect: { x: 0, y: 0, width: 0, height: 0 } })
+      map.set(id, { id, element: el, rect: { x: 0, y: 0, width: 0, height: 0 }, line })
     }
   }
   return map
 }
+
+// ---------------------------------------------------------------------------
+// Elbow path from interpolated coordinates
+// ---------------------------------------------------------------------------
+
+function elbowPathFromCoords(
+  calloutX: number,
+  calloutY: number,
+  tipX: number,
+  tipY: number,
+): string {
+  // Pivot midpoint: 45% from tip toward callout along X
+  const midX = tipX + 0.45 * (calloutX - tipX)
+  return `M ${calloutX} ${calloutY} L ${midX} ${calloutY} L ${tipX} ${tipY}`
+}
+
+// ---------------------------------------------------------------------------
+// Draw entrance for lines (stroke-dashoffset animation)
+// ---------------------------------------------------------------------------
+
+function applyDrawEntrance(lineEl: SVGElement, durationMs: number): void {
+  lineEl.setAttribute('stroke-dasharray', '1')
+  lineEl.setAttribute('stroke-dashoffset', '1')
+
+  const sel = d3.select(lineEl)
+  sel.transition()
+    .duration(durationMs)
+    .ease(d3.easeCubicOut)
+    .attr('stroke-dashoffset', '0')
+    .on('end', () => {
+      lineEl.removeAttribute('stroke-dasharray')
+      lineEl.removeAttribute('stroke-dashoffset')
+    })
+}
+
+// ---------------------------------------------------------------------------
+// Line move transition (tween path d attribute)
+// ---------------------------------------------------------------------------
+
+function applyLineMoveTransition(
+  lineEl: SVGElement,
+  oldLine: LineGeometry,
+  durationMs: number,
+): void {
+  const newLine = readLineGeometry(lineEl.parentElement!)
+  if (!newLine) {
+    return
+  }
+
+  const sel = d3.select(lineEl)
+
+  if (oldLine.style === 'elbow' && newLine.style === 'elbow') {
+    // Elbow: attrTween with interpolateObject over 4 coordinates
+    const oldCoords = { tipX: oldLine.toX, tipY: oldLine.toY, calloutX: oldLine.fromX, calloutY: oldLine.fromY }
+    const newCoords = { tipX: newLine.toX, tipY: newLine.toY, calloutX: newLine.fromX, calloutY: newLine.fromY }
+
+    // Set old path first
+    sel.attr('d', elbowPathFromCoords(oldCoords.calloutX, oldCoords.calloutY, oldCoords.tipX, oldCoords.tipY))
+
+    sel.transition()
+      .duration(durationMs)
+      .ease(d3.easeCubicInOut)
+      .attrTween('d', () => {
+        const interp = d3.interpolateObject(oldCoords, newCoords)
+        return (t: number) => {
+          const c = interp(t)
+          return elbowPathFromCoords(c.calloutX, c.calloutY, c.tipX, c.tipY)
+        }
+      })
+  }
+  else {
+    // Direct / curve: interpolate from/to coordinates and rebuild the path string
+    const oldFrom = { x: oldLine.fromX, y: oldLine.fromY }
+    const oldTo = { x: oldLine.toX, y: oldLine.toY }
+    const newFrom = { x: newLine.fromX, y: newLine.fromY }
+    const newTo = { x: newLine.toX, y: newLine.toY }
+
+    // Build old path and set it, then transition to new
+    const oldD = lineEl.getAttribute('d')!
+    // Store the final path d
+    const newD = sel.attr('d')
+
+    // Build interpolated path from old → new coordinates
+    sel.attr('d', oldD)
+    sel.transition()
+      .duration(durationMs)
+      .ease(d3.easeCubicInOut)
+      .attrTween('d', () => {
+        const interpFrom = d3.interpolateObject(oldFrom, newFrom)
+        const interpTo = d3.interpolateObject(oldTo, newTo)
+        return (t: number) => {
+          const f = interpFrom(t)
+          const tt = interpTo(t)
+          // For direct lines, just M→L; for curves, rebuild properly
+          if (newLine.style === 'direct' || oldLine.style === 'direct') {
+            return `M ${f.x} ${f.y} L ${tt.x} ${tt.y}`
+          }
+          // Fallback: string interpolation for curves
+          const i = d3.interpolateString(oldD, newD)
+          return i(t)
+        }
+      })
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Apply annotation transitions
+// ---------------------------------------------------------------------------
 
 function applyAnnotationTransitions(
   container: Element,
@@ -1028,37 +1169,55 @@ function applyAnnotationTransitions(
 
     const old = oldSnapshots.get(id)
     if (old) {
-      // Persistent annotation — apply FLIP translation
+      // Persistent annotation — move transition
+      const lineEl = el.querySelector('.bc-annotation-line') as SVGElement | null
+      if (lineEl && old.line) {
+        // Tween the line path
+        applyLineMoveTransition(lineEl, old.line, durationMs)
+      }
+
+      // FLIP translation for text and other elements
       try {
         const newRect = (el as SVGGraphicsElement).getBBox()
         const dx = old.rect.x - newRect.x
         const dy = old.rect.y - newRect.y
         if (Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5) {
-          const g = el as SVGElement
-          g.style.transition = 'none'
-          g.setAttribute('transform', `translate(${dx}, ${dy})`)
-          // Force reflow
-          void g.getBoundingClientRect()
-          g.style.transition = `transform ${durationMs}ms ease`
-          g.setAttribute('transform', 'translate(0, 0)')
+          // Translate non-line children (text, circle) via FLIP
+          const children = el.querySelectorAll('.bc-annotation-text, .bc-annotation-circle')
+          for (const child of children) {
+            const g = child as SVGElement
+            g.style.transition = 'none'
+            g.setAttribute('transform', `translate(${dx}, ${dy})`)
+            void g.getBoundingClientRect()
+            g.style.transition = `transform ${durationMs}ms ease`
+            g.setAttribute('transform', 'translate(0, 0)')
+          }
         }
       }
       catch { /* getBBox may fail */ }
     }
     else {
-      // New annotation — fade in
-      const g = el as SVGElement
-      g.style.opacity = '0'
-      void g.getBoundingClientRect()
-      g.style.transition = `opacity ${durationMs}ms ease`
-      g.style.opacity = '1'
+      // New annotation — draw entrance for lines, fade in for everything
+      const lineEl = el.querySelector('.bc-annotation-line') as SVGElement | null
+      if (lineEl) {
+        applyDrawEntrance(lineEl, durationMs)
+      }
+
+      // Fade in text and circle
+      const textAndCircle = el.querySelectorAll('.bc-annotation-text, .bc-annotation-circle')
+      for (const child of textAndCircle) {
+        const g = child as SVGElement
+        g.style.opacity = '0'
+        void g.getBoundingClientRect()
+        g.style.transition = `opacity ${durationMs}ms ease`
+        g.style.opacity = '1'
+      }
     }
   }
 
   // Removed annotations — fade out old elements
   for (const [id, snapshot] of oldSnapshots) {
     if (!newIds.has(id)) {
-      // Re-insert the old element for fade-out
       const clone = snapshot.element.cloneNode(true) as SVGElement
       container.appendChild(clone)
       clone.style.opacity = '1'
@@ -1158,10 +1317,10 @@ export function createAnnotationPlugin(
         }
       }
 
-      // Apply transitions if we have old snapshots
-      if (oldSnapshots && oldSnapshots.size > 0) {
+      // Apply transitions during scene changes
+      if (ctx.transition) {
         const duration = getDefaultTransitionMs()
-        applyAnnotationTransitions(g.node()!, rangeGroup.node()!, oldSnapshots, duration)
+        applyAnnotationTransitions(g.node()!, rangeGroup.node()!, oldSnapshots ?? new Map(), duration)
       }
 
       // Expand SVG viewBox if annotations extend beyond chart bounds
