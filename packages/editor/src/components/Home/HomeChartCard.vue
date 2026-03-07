@@ -1,10 +1,10 @@
 <template>
-  <div class="card mb-2">
-    <div
-      class="card-body d-flex align-items-start"
-      role="button"
-      @click="$emit('select')"
-    >
+  <div
+    class="chart-card"
+    role="button"
+    @click="$emit('select')"
+  >
+    <div class="chart-card__body d-flex align-items-start">
       <div
         v-if="thumbnail"
         class="flex-shrink-0 me-3 chart-thumbnail"
@@ -55,6 +55,24 @@ function formatDate(iso: string): string {
 </script>
 
 <style scoped>
+.chart-card {
+  background: var(--bc-tile-bg);
+  border-radius: var(--bc-tile-radius);
+  box-shadow: var(--bc-tile-shadow);
+  border: var(--bc-tile-border);
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+  cursor: pointer;
+}
+
+.chart-card:hover {
+  background: var(--bc-tile-bg-elevated);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.chart-card__body {
+  padding: 1rem;
+}
+
 .chart-thumbnail {
   width: 120px;
   flex-shrink: 0;

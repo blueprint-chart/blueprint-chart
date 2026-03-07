@@ -1,30 +1,31 @@
 <template>
-  <div
-    class="container py-4"
-    style="max-width: 720px;"
-  >
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <h4 class="mb-0">
-        Your Charts
-      </h4>
-      <HomeSampleDropdown @blank="handleBlank" />
-    </div>
+  <div class="home-page">
+    <div class="home-page__inner">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="mb-0">
+          Your Charts
+        </h4>
+        <HomeSampleDropdown @blank="handleBlank" />
+      </div>
 
-    <div
-      v-if="charts.length === 0"
-      class="text-muted text-center py-5"
-    >
-      No saved charts yet. Click <strong>New Chart</strong> above to get started.
-    </div>
+      <div
+        v-if="charts.length === 0"
+        class="text-muted text-center py-5"
+      >
+        No saved charts yet. Click <strong>New Chart</strong> above to get started.
+      </div>
 
-    <HomeChartCard
-      v-for="chart in charts"
-      :key="chart.id"
-      :chart="chart"
-      :thumbnail="thumbnails[chart.id]"
-      @select="router.push('/edit/' + chart.id)"
-      @delete="handleDelete(chart.id)"
-    />
+      <div class="home-page__grid">
+        <HomeChartCard
+          v-for="chart in charts"
+          :key="chart.id"
+          :chart="chart"
+          :thumbnail="thumbnails[chart.id]"
+          @select="router.push('/edit/' + chart.id)"
+          @delete="handleDelete(chart.id)"
+        />
+      </div>
+    </div>
   </div>
 </template>
 
@@ -87,3 +88,22 @@ function handleDelete(id: string) {
 
 onMounted(refresh)
 </script>
+
+<style scoped>
+.home-page {
+  background: var(--bc-void-bg);
+  min-height: 100vh;
+  padding: 2rem 1rem;
+}
+
+.home-page__inner {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.home-page__grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+</style>
