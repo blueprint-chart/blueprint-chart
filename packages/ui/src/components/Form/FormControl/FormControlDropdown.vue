@@ -10,38 +10,49 @@
     <BDropdown
       ref="dropdownRef"
       class="form-control-dropdown__toggle"
-      menu-class="form-control-dropdown-menu"
+      :menu-class="menuClass ?? 'form-control-dropdown-menu'"
       :class="dropdownClassList"
       :text="selectedOption?.label ?? placeholder ?? ''"
       :disabled="disabled"
       teleport-to="body"
       variant="outline-secondary"
+      :auto-close="autoClose"
       @show="matchMenuWidth"
       @shown="matchMenuWidth"
     >
-      <template
-        v-if="selectedOption?.icon"
-        #button-content
-      >
-        <span class="form-control-dropdown__toggle-content">
-          <component
-            :is="selectedOption.icon"
-            class="form-control-dropdown__toggle-icon"
-          />
-          {{ selectedOption.label }}
-        </span>
+      <template #button-content>
+        <slot name="button-content">
+          <span
+            v-if="selectedOption?.icon"
+            class="form-control-dropdown__toggle-content"
+          >
+            <component
+              :is="selectedOption.icon"
+              class="form-control-dropdown__toggle-icon"
+            />
+            {{ selectedOption.label }}
+          </span>
+          <template v-else>
+            {{ selectedOption?.label ?? placeholder ?? '' }}
+          </template>
+        </slot>
       </template>
-      <FormControlDropdownItem
-        v-for="option in resolvedOptions"
-        :key="option.value"
-        :label="option.label"
-        :description="option.description"
-        :visual="option.visual"
-        :icon="option.icon"
-        :active="option.value === model"
-        :light-label="lightLabel"
-        @select="selectOption(option.value)"
-      />
+      <slot
+        name="menu"
+        :hide="() => dropdownRef?.hide()"
+      >
+        <FormControlDropdownItem
+          v-for="option in resolvedOptions"
+          :key="option.value"
+          :label="option.label"
+          :description="option.description"
+          :visual="option.visual"
+          :icon="option.icon"
+          :active="option.value === model"
+          :light-label="lightLabel"
+          @select="selectOption(option.value)"
+        />
+      </slot>
     </BDropdown>
   </BFormGroup>
 </template>
@@ -71,6 +82,9 @@ const props = withDefaults(defineProps<{
   lightLabel?: boolean
   disabled?: boolean
   placeholder?: string
+  autoClose?: boolean | 'inside' | 'outside'
+  menuClass?: string
+  minMenuWidth?: number
 }>(), {
   label: undefined,
   id: undefined,
@@ -79,6 +93,9 @@ const props = withDefaults(defineProps<{
   lightLabel: false,
   disabled: false,
   placeholder: undefined,
+  autoClose: true,
+  menuClass: undefined,
+  minMenuWidth: 0,
 })
 
 const { entries } = useChildEntriesProvider(DropdownEntriesKey)
@@ -100,9 +117,9 @@ function matchMenuWidth() {
   }
   // Find the menu element by its id using a "-menu" suffix (added by Bootstrap's dropdown component)
   const menu = document.getElementById(`${id}-menu`)
-  // Set the menu's width to match the toggle's width
+  // Set the menu's width to match the toggle's width (or minMenuWidth if larger)
   if (menu) {
-    menu.style.width = `${elementBounding.width.value}px`
+    menu.style.width = `${Math.max(elementBounding.width.value, props.minMenuWidth)}px`
   }
 }
 
