@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import * as d3 from 'd3'
-import { createAnnotationPlugin, computeDirectionOffset, computeAnchorPoint, bboxEdgeToward, ensureArrowMarker, rotateDirectionForHorizontal, snapshotAnnotations } from './annotations'
+import { createAnnotationPlugin, computeDirectionOffset, computeAnchorPoint, bboxEdgeToward, ensureArrowMarker, rotateDirectionForHorizontal, snapshotAnnotations, renderConnectingLine } from './annotations'
 
 function makeChartStub(g: SVGGElement) {
   return { base: d3.select(g) } as unknown
@@ -454,6 +454,48 @@ describe('createAnnotationPlugin', () => {
     const edge = bboxEdgeToward(bbox, 50, 20)
     expect(edge.x).toBeCloseTo(50)
     expect(edge.y).toBeCloseTo(20)
+  })
+
+  // -----------------------------------------------------------------------
+  // Curved line arrow direction
+  // -----------------------------------------------------------------------
+
+  it('curve-right stub segment points toward the target, not along the chord', () => {
+    const annG = d3.select(g).append('g') as unknown as d3.Selection<SVGGElement, unknown, null, undefined>
+    // From text below-right, to target above-left (a common curve scenario)
+    const from = { x: 150, y: 150 }
+    const to = { x: 50, y: 20 }
+
+    renderConnectingLine(annG, from, to, 'curve-right', { showArrow: true })
+
+    const path = annG.select('.bc-annotation-line')
+    const d = path.attr('d')
+
+    // Extract the final L segment: "... L toX toY"
+    const lMatch = d.match(/L\s+([\d.-]+)\s+([\d.-]+)\s*$/)
+    expect(lMatch).toBeTruthy()
+    const endX = parseFloat(lMatch![1])
+    const endY = parseFloat(lMatch![2])
+
+    // The final L should arrive at the target
+    expect(endX).toBeCloseTo(to.x, 0)
+    expect(endY).toBeCloseTo(to.y, 0)
+
+    // Extract the arc endpoint (just before L): "A ... arcEndX arcEndY L ..."
+    const arcMatch = d.match(/A\s+[\d.-]+\s+[\d.-]+\s+[\d.-]+\s+[\d.-]+\s+[\d.-]+\s+([\d.-]+)\s+([\d.-]+)\s+L/)
+    expect(arcMatch).toBeTruthy()
+    const arcEndX = parseFloat(arcMatch![1])
+    const arcEndY = parseFloat(arcMatch![2])
+
+    // The stub direction (arcEnd→to) should NOT be parallel to the chord (from→to).
+    // Compute the angle difference between stub and chord.
+    const chordAngle = Math.atan2(to.y - from.y, to.x - from.x)
+    const stubAngle = Math.atan2(to.y - arcEndY, to.x - arcEndX)
+    const angleDiff = Math.abs(stubAngle - chordAngle)
+
+    // For a curved line, the stub should approach from a different angle than the chord.
+    // If the stub were along the chord (the bug), angleDiff would be ~0.
+    expect(angleDiff).toBeGreaterThan(0.1)
   })
 
   // -----------------------------------------------------------------------
