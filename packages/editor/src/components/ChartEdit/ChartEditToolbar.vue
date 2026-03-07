@@ -50,7 +50,7 @@ const viewModeOptions = [
     }
   }
 
-  .navigation-toggle {
+  .navigation-pill {
     margin-left: auto;
   }
 }
