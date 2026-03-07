@@ -71,4 +71,48 @@ describe('bar-vertical', () => {
     expect(barGroup).not.toBeNull()
     expect(barGroup!.querySelector('.bc-bar')).not.toBeNull()
   })
+
+  describe('value label transitions', () => {
+    it('preserves value labels during scene transition', () => {
+      render(container, data, { valueLabels: true })
+      const labelsBefore = container.querySelectorAll('.bc-value-label')
+      expect(labelsBefore.length).toBeGreaterThan(0)
+
+      render(container, data, {
+        valueLabels: true,
+        highlights: [{ target: 'A', color: '#ff0000' }],
+      }, true)
+
+      const labelsAfter = container.querySelectorAll('.bc-value-label')
+      expect(labelsAfter.length).toBe(labelsBefore.length)
+    })
+
+    it('value labels reflect new sort order after re-render', () => {
+      render(container, data, { valueLabels: true })
+      const textsBefore = Array.from(container.querySelectorAll('.bc-value-label'))
+        .map(el => el.textContent)
+
+      container.replaceChildren()
+      render(container, data, { valueLabels: true, sort: 'ascending' })
+
+      const textsAfter = Array.from(container.querySelectorAll('.bc-value-label'))
+        .map(el => el.textContent)
+
+      expect(textsAfter).toHaveLength(textsBefore.length)
+      expect(textsAfter).toEqual(['10', '20', '30'])
+    })
+
+    it('uses data-join for value labels during transition (not recreated from scratch)', () => {
+      render(container, data, { valueLabels: true })
+      const countBefore = container.querySelectorAll('.bc-value-label').length
+
+      render(container, data, {
+        valueLabels: true,
+        highlights: [{ target: 'B', color: '#ff0000' }],
+      }, true)
+
+      const countAfter = container.querySelectorAll('.bc-value-label').length
+      expect(countAfter).toBe(countBefore)
+    })
+  })
 })
