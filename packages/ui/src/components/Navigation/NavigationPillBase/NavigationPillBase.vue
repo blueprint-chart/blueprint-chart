@@ -108,7 +108,7 @@ function onSelect(item: NavigationPillItem) {
   display: flex;
   align-items: center;
   gap: 0;
-  background: var(--bs-border-color);
+  background: color-mix(in srgb, var(--bs-body-color) 8%, transparent);
   border-radius: 999px;
   padding: 0.125rem;
   position: relative;
