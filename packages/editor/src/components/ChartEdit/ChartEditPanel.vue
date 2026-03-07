@@ -321,6 +321,10 @@ const canvasStyle = computed<CSSProperties>(() => ({
 
 .chart-edit-panel__toolbar--docked {
   padding: 0.25rem 0.5rem;
+  background: var(--bc-tile-bg);
+  border-radius: var(--bc-tile-radius);
+  box-shadow: var(--bc-tile-shadow);
+  border: var(--bc-tile-border);
 }
 
 .chart-edit-panel__toolbar--floating {
@@ -329,10 +333,6 @@ const canvasStyle = computed<CSSProperties>(() => ({
   right: 0.75rem;
   z-index: 5;
   padding: 0.25rem 0.5rem;
-  background: var(--bc-tile-bg);
-  border-radius: var(--bc-tile-radius);
-  box-shadow: var(--bc-tile-shadow);
-  border: var(--bc-tile-border);
 }
 
 // Override UI-library background so panel matches the tile surface
