@@ -1,29 +1,22 @@
 <template>
-  <BFormGroup
-    ref="elementRef"
-    class="form-control-date-format"
+  <FormControlDropdown
+    :id="id"
+    v-model="model"
     :label="label"
-    :label-for="id"
+    :block="block"
+    :placeholder="'(automatic)'"
+    auto-close="outside"
+    menu-class="form-control-date-format-menu"
+    :min-menu-width="260"
   >
-    <BDropdown
-      ref="dropdownRef"
-      class="form-control-date-format__toggle"
-      :class="{ 'form-control-date-format__toggle--block': block }"
-      menu-class="form-control-date-format-menu"
-      :text="displayValue"
-      teleport-to="body"
-      variant="outline-secondary"
-      auto-close="outside"
-      @show="matchMenuWidth"
-      @shown="matchMenuWidth"
-    >
-      <template #button-content>
-        <span
-          class="form-control-date-format__trigger-text"
-          :class="{ 'text-secondary': !model }"
-        >{{ displayValue }}</span>
-      </template>
+    <template #button-content>
+      <span
+        class="form-control-date-format__trigger-text"
+        :class="{ 'text-secondary': !model }"
+      >{{ displayValue }}</span>
+    </template>
 
+    <template #menu="{ hide }">
       <div class="form-control-date-format__popover">
         <div class="form-control-date-format__list">
           <div
@@ -31,7 +24,7 @@
             :key="preset.fmt"
             class="form-control-date-format__item"
             :class="{ 'form-control-date-format__item--active': selectedPreset === preset.fmt }"
-            @click="selectPreset(preset.fmt)"
+            @click="selectPreset(preset.fmt, hide)"
           >
             <div class="form-control-date-format__item-body">
               <div class="form-control-date-format__item-label">
@@ -72,14 +65,14 @@
           </div>
         </div>
       </div>
-    </BDropdown>
-  </BFormGroup>
+    </template>
+  </FormControlDropdown>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, useTemplateRef, watch } from 'vue'
-import { useElementBounding } from '@vueuse/core'
+import { computed, ref, watch } from 'vue'
 import { timeFormat } from 'd3-time-format'
+import FormControlDropdown from './FormControlDropdown.vue'
 
 const model = defineModel<string>({ required: true })
 
@@ -123,23 +116,6 @@ const PRESETS: DatePreset[] = [
 
 const selectedPreset = ref('(automatic)')
 const customStr = ref('')
-
-const elementRef = useTemplateRef<HTMLElement>('elementRef')
-const elementBounding = useElementBounding(elementRef)
-const dropdownRef = useTemplateRef<{ hide: () => void, $el: HTMLElement }>('dropdownRef')
-
-function matchMenuWidth() {
-  const { id: toggleId = null } = dropdownRef.value?.$el?.querySelector('.dropdown-toggle') as HTMLElement | null ?? {}
-  if (!toggleId) {
-    return
-  }
-  const menu = document.getElementById(`${toggleId}-menu`)
-  if (menu) {
-    menu.style.width = `${Math.max(elementBounding.width.value, 260)}px`
-  }
-}
-
-watch(elementBounding.width, matchMenuWidth)
 
 function formatWithD3(d3Str: string, date: Date): string {
   // Handle quarter placeholder (not native to d3-time-format)
@@ -195,14 +171,14 @@ function presetToD3(fmt: string): string {
   return preset?.d3 ?? ''
 }
 
-function selectPreset(fmt: string) {
+function selectPreset(fmt: string, hide: () => void) {
   selectedPreset.value = fmt
   if (fmt === '(custom)') {
     // Keep dropdown open for custom input
     return
   }
   model.value = presetToD3(fmt)
-  dropdownRef.value?.hide()
+  hide()
 }
 
 function onCustomInput() {
@@ -239,18 +215,6 @@ watch(() => model.value, (val) => {
 </style>
 
 <style scoped lang="scss">
-.form-control-date-format__toggle--block {
-  width: 100%;
-
-  :deep(.dropdown-toggle) {
-    width: 100%;
-    display: inline-flex;
-    text-align: left;
-    align-items: center;
-    justify-content: space-between;
-  }
-}
-
 .form-control-date-format__trigger-text {
   overflow: hidden;
   text-overflow: ellipsis;
