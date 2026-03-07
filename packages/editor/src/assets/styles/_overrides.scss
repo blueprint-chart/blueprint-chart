@@ -29,19 +29,19 @@ $warning: #D4A63A;
 $danger: #C94044;
 
 // Borders — subtle translucent borders
-$border-color: rgba(0, 0, 0, 0.08);
-$border-color-dark: rgba(255, 255, 255, 0.08);
+$border-color: #e4e4e4;
+$border-color-dark: rgba(255, 255, 255, 0.06);
 $card-border-width: 0;
 
-// Surface hierarchy (body/panel > input/button > card/subsection)
-// Light: #ffffff > #ffffff > #f4f4f4
-// Dark:  #0e0e0e > #1c1c1c > #282828
-$body-bg:       #ffffff;
-$body-bg-dark:  #0e0e0e;
-$body-secondary-bg:       #ffffff;   // inputs, buttons (same as body)
-$body-secondary-bg-dark:  #1c1c1c;
-$body-tertiary-bg:        #f4f4f4;   // cards, subsections (recessed)
-$body-tertiary-bg-dark:   #282828;
+// Surface hierarchy (void > tile > elevated)
+// Light: #f3f3f4 > #ffffff > #f8f8fa
+// Dark:  #0a0a0a > #151518 > #1c1c20
+$body-bg:       #f3f3f4;
+$body-bg-dark:  #0a0a0a;
+$body-secondary-bg:       #ffffff;   // inputs, buttons
+$body-secondary-bg-dark:  #1c1c20;
+$body-tertiary-bg:        #f8f8fa;   // subsections
+$body-tertiary-bg-dark:   #1c1c20;
 
 // Links
 $link-color: $primary;
