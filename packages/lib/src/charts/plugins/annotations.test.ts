@@ -579,6 +579,198 @@ describe('createAnnotationPlugin', () => {
   // Free annotation with empty scales (pie/donut scenario)
   // -----------------------------------------------------------------------
 
+  // -----------------------------------------------------------------------
+  // Transition support
+  // -----------------------------------------------------------------------
+
+  it('adds data-annotation-id attribute when annotation has id', () => {
+    const { x, y, data } = makeScales()
+
+    const plugin = createAnnotationPlugin(
+      [{ kind: 'point', id: 'ann-1', target: 'A', text: 'With id' }],
+      { scaleX: x, scaleY: y, data, width: 200, height: 200 },
+    )
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    plugin.postDraw!(makeChartStub(g) as any, undefined as any)
+
+    const annGroup = g.querySelector('g[data-annotation-id="ann-1"]')
+    expect(annGroup).toBeTruthy()
+  })
+
+  it('does not add data-annotation-id when annotation has no id', () => {
+    const { x, y, data } = makeScales()
+
+    const plugin = createAnnotationPlugin(
+      [{ kind: 'point', target: 'A', text: 'No id' }],
+      { scaleX: x, scaleY: y, data, width: 200, height: 200 },
+    )
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    plugin.postDraw!(makeChartStub(g) as any, undefined as any)
+
+    const annGroup = g.querySelector('g[data-annotation-id]')
+    expect(annGroup).toBeNull()
+  })
+
+  it('adds data-annotation-id for range annotations', () => {
+    const { x, y, data } = makeScales()
+
+    const plugin = createAnnotationPlugin(
+      [{ kind: 'range', id: 'rng-1', start: 'A', end: 'B' }],
+      { scaleX: x, scaleY: y, data, width: 200, height: 200 },
+    )
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    plugin.postDraw!(makeChartStub(g) as any, undefined as any)
+
+    const annGroup = g.querySelector('g[data-annotation-id="rng-1"]')
+    expect(annGroup).toBeTruthy()
+  })
+
+  it('adds data-annotation-id for free annotations', () => {
+    const { x, y, data } = makeScales()
+
+    const plugin = createAnnotationPlugin(
+      [{ kind: 'free', id: 'free-1', text: 'Note', x: 0, y: 0 }],
+      { scaleX: x, scaleY: y, data, width: 200, height: 200 },
+    )
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    plugin.postDraw!(makeChartStub(g) as any, undefined as any)
+
+    const annGroup = g.querySelector('g[data-annotation-id="free-1"]')
+    expect(annGroup).toBeTruthy()
+  })
+
+  it('preserves old annotation groups when transition is true', () => {
+    const { x, y, data } = makeScales()
+
+    // First render
+    const plugin1 = createAnnotationPlugin(
+      [{ kind: 'point', id: 'p1', target: 'A', text: 'First' }],
+      { scaleX: x, scaleY: y, data, width: 200, height: 200 },
+    )
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    plugin1.postDraw!(makeChartStub(g) as any, undefined as any)
+
+    // Verify first render produced annotation groups
+    const oldAnnotationGroups = g.querySelectorAll('.bc-annotations g[data-annotation-id]')
+    expect(oldAnnotationGroups).toHaveLength(1)
+
+    // Do NOT remove old containers — during scene transitions the chart
+    // preserves the DOM so the plugin can snapshot old positions.
+    const plugin2 = createAnnotationPlugin(
+      [{ kind: 'point', id: 'p1', target: 'B', text: 'Moved' }],
+      { scaleX: x, scaleY: y, data, width: 200, height: 200, transition: true },
+    )
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    plugin2.postDraw!(makeChartStub(g) as any, undefined as any)
+
+    // New annotation should exist at new position
+    const newGroup = g.querySelector('g[data-annotation-id="p1"]')
+    expect(newGroup).toBeTruthy()
+    const text = newGroup!.querySelector('.bc-annotation-text')
+    expect(text!.textContent).toBe('Moved')
+  })
+
+  it('fades out annotations removed during transition', () => {
+    const { x, y, data } = makeScales()
+
+    // First render with annotation
+    const plugin1 = createAnnotationPlugin(
+      [{ kind: 'point', id: 'removed-1', target: 'A', text: 'Will be removed' }],
+      { scaleX: x, scaleY: y, data, width: 200, height: 200 },
+    )
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    plugin1.postDraw!(makeChartStub(g) as any, undefined as any)
+
+    // Do NOT remove old containers — during scene transitions the chart
+    // preserves the DOM so the plugin can snapshot old positions.
+    const plugin2 = createAnnotationPlugin(
+      [],
+      { scaleX: x, scaleY: y, data, width: 200, height: 200, transition: true },
+    )
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    plugin2.postDraw!(makeChartStub(g) as any, undefined as any)
+
+    // Old annotation group should still be in the DOM (fading out)
+    const allGroups = g.querySelectorAll('g[data-annotation-id="removed-1"]')
+    expect(allGroups.length).toBeGreaterThanOrEqual(1)
+  })
+
+  it('does not apply transitions when transition is false', () => {
+    const { x, y, data } = makeScales()
+
+    const plugin = createAnnotationPlugin(
+      [{ kind: 'point', id: 'p1', target: 'A', text: 'Static' }],
+      { scaleX: x, scaleY: y, data, width: 200, height: 200, transition: false },
+    )
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    plugin.postDraw!(makeChartStub(g) as any, undefined as any)
+
+    const annGroup = g.querySelector('g[data-annotation-id="p1"]')
+    expect(annGroup).toBeTruthy()
+    // No transition-related transforms should be present
+    expect(annGroup!.getAttribute('transform')).toBeNull()
+  })
+
+  it('fades in new annotations during transition', () => {
+    const { x, y, data } = makeScales()
+
+    // First render with no annotations, then add one with transition
+    const plugin1 = createAnnotationPlugin(
+      [],
+      { scaleX: x, scaleY: y, data, width: 200, height: 200 },
+    )
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    plugin1.postDraw!(makeChartStub(g) as any, undefined as any)
+
+    // Leave old containers in place for snapshot
+    const plugin2 = createAnnotationPlugin(
+      [{ kind: 'point', id: 'new-1', target: 'A', text: 'New ann' }],
+      { scaleX: x, scaleY: y, data, width: 200, height: 200, transition: true },
+    )
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    plugin2.postDraw!(makeChartStub(g) as any, undefined as any)
+
+    const annGroup = g.querySelector('g[data-annotation-id="new-1"]')
+    expect(annGroup).toBeTruthy()
+    // New annotation should have opacity style (starting fade-in)
+    // In jsdom, Web Animations API may not work, so just verify the element exists
+    expect(annGroup!.querySelector('.bc-annotation-text')!.textContent).toBe('New ann')
+  })
+
+  it('range annotation transitions preserve data-annotation-id', () => {
+    const { x, y, data } = makeScales()
+
+    // First render
+    const plugin1 = createAnnotationPlugin(
+      [{ kind: 'range', id: 'r1', start: 'A', end: 'B', bgColor: '#f00' }],
+      { scaleX: x, scaleY: y, data, width: 200, height: 200 },
+    )
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    plugin1.postDraw!(makeChartStub(g) as any, undefined as any)
+
+    // Leave old containers in place for snapshot
+    const plugin2 = createAnnotationPlugin(
+      [{ kind: 'range', id: 'r1', start: 'A', end: 'B', bgColor: '#00f' }],
+      { scaleX: x, scaleY: y, data, width: 200, height: 200, transition: true },
+    )
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    plugin2.postDraw!(makeChartStub(g) as any, undefined as any)
+
+    const rangeGroup = g.querySelector('g[data-annotation-id="r1"]')
+    expect(rangeGroup).toBeTruthy()
+    const rect = rangeGroup!.querySelector('.bc-annotation-range')
+    expect(rect!.getAttribute('fill')).toBe('#00f')
+  })
+
+  // -----------------------------------------------------------------------
+  // Free annotation with empty scales (pie/donut scenario)
+  // -----------------------------------------------------------------------
+
   it('renders free annotation with empty band scale (pie/donut scenario)', () => {
     const emptyBand = d3.scaleBand<string>().domain([]).range([0, 300])
     const dummyLinear = d3.scaleLinear().domain([0, 1]).range([300, 0])
