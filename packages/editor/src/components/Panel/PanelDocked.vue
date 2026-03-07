@@ -13,6 +13,12 @@
         <ButtonDetach @click="$emit('float')" />
         <ButtonClose @click="$emit('close')" />
       </template>
+      <template
+        v-if="$slots.toolbar"
+        #toolbar
+      >
+        <slot name="toolbar" />
+      </template>
       <slot />
       <template
         v-if="$slots.footer"
