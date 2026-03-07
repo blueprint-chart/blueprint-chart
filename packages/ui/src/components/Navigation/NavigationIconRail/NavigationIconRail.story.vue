@@ -65,5 +65,6 @@ import PhGear from '~icons/ph/gear'
   height: 400px;
   display: flex;
   justify-content: flex-end;
+  background: var(--bc-void-bg, #1a1a1a);
 }
 </style>
