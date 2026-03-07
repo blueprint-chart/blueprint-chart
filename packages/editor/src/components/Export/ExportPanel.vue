@@ -190,8 +190,6 @@ const canvasClassList = computed(() => ({
       var(--bc-canvas-grid-size) var(--bc-canvas-grid-size),
       var(--bc-canvas-grid-size) var(--bc-canvas-grid-size);
     background-position: var(--grid-offset-x, 0) var(--grid-offset-y, 0);
-    mask-image: linear-gradient(to bottom, black, transparent);
-    -webkit-mask-image: linear-gradient(to bottom, black, transparent);
   }
 
   &--auto,
@@ -204,17 +202,17 @@ const canvasClassList = computed(() => ({
 
   &--light,
   &--auto {
-    background: #f0f0f0;
+    background: #ffffff;
     --bc-canvas-dimension-color: rgba(0, 0, 0, 0.3);
   }
 
   &--dark {
-    background: #1a1a1a;
+    background: #151518;
     --bc-canvas-dimension-color: rgba(255, 255, 255, 0.3);
   }
 
   :global([data-bs-theme="dark"]) &--auto {
-    background: #1a1a1a;
+    background: #151518;
     --bc-canvas-dimension-color: rgba(255, 255, 255, 0.3);
   }
 }
