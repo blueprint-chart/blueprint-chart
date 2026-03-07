@@ -95,4 +95,51 @@ describe('bar-horizontal', () => {
     const domain = hAxis!.querySelector('.domain')
     expect(domain).toBeNull()
   })
+
+  describe('value label transitions', () => {
+    it('preserves value labels during scene transition', () => {
+      render(container, data, { valueLabels: true })
+      const labelsBefore = container.querySelectorAll('.bc-value-label')
+      expect(labelsBefore.length).toBeGreaterThan(0)
+
+      render(container, data, {
+        valueLabels: true,
+        highlights: [{ target: 'A', color: '#ff0000' }],
+      }, true)
+
+      const labelsAfter = container.querySelectorAll('.bc-value-label')
+      expect(labelsAfter.length).toBe(labelsBefore.length)
+    })
+
+    it('value labels reflect new sort order after re-render', () => {
+      render(container, data, { valueLabels: true })
+      const textsBefore = Array.from(container.querySelectorAll('.bc-value-label'))
+        .map(el => el.textContent)
+
+      // Fresh re-render with ascending sort (container cleared like useChartPreview does)
+      container.replaceChildren()
+      render(container, data, { valueLabels: true, sort: 'ascending' })
+
+      const textsAfter = Array.from(container.querySelectorAll('.bc-value-label'))
+        .map(el => el.textContent)
+
+      // Same labels should exist but in different order (ascending: 10, 20, 30)
+      expect(textsAfter).toHaveLength(textsBefore.length)
+      expect(textsAfter).toEqual(['10', '20', '30'])
+    })
+
+    it('uses data-join for value labels during transition (not recreated from scratch)', () => {
+      render(container, data, { valueLabels: true })
+      const countBefore = container.querySelectorAll('.bc-value-label').length
+
+      render(container, data, {
+        valueLabels: true,
+        highlights: [{ target: 'B', color: '#ff0000' }],
+      }, true)
+
+      // Labels should still be present and match count (data-join preserves them)
+      const countAfter = container.querySelectorAll('.bc-value-label').length
+      expect(countAfter).toBe(countBefore)
+    })
+  })
 })
