@@ -381,7 +381,7 @@ export function render(
       label: l,
       value: series[0]?.values[i] ?? 0,
     }))
-    renderAnnotations(chartArea, options.annotations, { scaleX: xScale, scaleY: y, data: annotationData, width, height, backgroundColor: resolveBackgroundColor(container) })
+    renderAnnotations(chartArea, options.annotations, { scaleX: xScale, scaleY: y, data: annotationData, width, height, backgroundColor: resolveBackgroundColor(container), transition })
   }
 
   // Per-series value labels: render directly so we control which series gets them

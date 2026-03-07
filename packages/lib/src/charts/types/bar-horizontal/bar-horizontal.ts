@@ -177,7 +177,7 @@ export function render(
   }
   if (options.annotations?.length) {
     chart.use(createAnnotationPlugin(options.annotations, {
-      scaleX: y, scaleY: x, data: barData, width, height, backgroundColor: resolveBackgroundColor(container), orientation: 'horizontal' }))
+      scaleX: y, scaleY: x, data: barData, width, height, backgroundColor: resolveBackgroundColor(container), orientation: 'horizontal', transition }))
   }
   chart.draw(barData)
   setCachedChart(container, { chartType: 'bar-horizontal' })

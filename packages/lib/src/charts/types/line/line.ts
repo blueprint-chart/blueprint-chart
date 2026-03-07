@@ -266,7 +266,7 @@ export function render(
   chart.draw(lineData)
 
   if (options.annotations?.length) {
-    renderAnnotations(chartArea, options.annotations, { scaleX: xScale, scaleY: y, data: lineData, width, height, backgroundColor: resolveBackgroundColor(container) })
+    renderAnnotations(chartArea, options.annotations, { scaleX: xScale, scaleY: y, data: lineData, width, height, backgroundColor: resolveBackgroundColor(container), transition })
   }
 
   // Default dots are invisible; proximity interaction handles tooltips/crosshair

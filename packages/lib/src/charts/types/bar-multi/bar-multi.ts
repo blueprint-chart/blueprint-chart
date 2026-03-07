@@ -249,7 +249,7 @@ export function render(
       label: l,
       value: Math.max(...series.map(s => s.values[i] ?? 0)),
     }))
-    chart.use(createAnnotationPlugin(options.annotations, { scaleX: x0, scaleY: y, data: annotationData, width, height, backgroundColor: resolveBackgroundColor(container) }))
+    chart.use(createAnnotationPlugin(options.annotations, { scaleX: x0, scaleY: y, data: annotationData, width, height, backgroundColor: resolveBackgroundColor(container), transition }))
   }
   chart.draw(flatData)
   setCachedChart(container, { chartType: 'bar-multi' })

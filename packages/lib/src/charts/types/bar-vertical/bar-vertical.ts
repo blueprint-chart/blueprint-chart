@@ -177,7 +177,7 @@ export function render(
   }
   if (options.annotations?.length) {
     chart.use(createAnnotationPlugin(options.annotations, {
-      scaleX: x, scaleY: y, data: barData, width, height, backgroundColor: resolveBackgroundColor(container) }))
+      scaleX: x, scaleY: y, data: barData, width, height, backgroundColor: resolveBackgroundColor(container), transition }))
   }
   chart.draw(barData)
   setCachedChart(container, { chartType: 'bar-vertical' })

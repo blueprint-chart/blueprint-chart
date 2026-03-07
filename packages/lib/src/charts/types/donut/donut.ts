@@ -232,6 +232,7 @@ export function renderArc(
         width,
         height,
         backgroundColor: resolveBackgroundColor(container),
+        transition,
       })
       annPlugin.postDraw!({ base: d3.select(chartArea) } as unknown as D3Blueprint, undefined as unknown as d3.PieArcDatum<number>[])
     }
