@@ -1061,7 +1061,7 @@ function applyDrawEntrance(lineEl: SVGElement, durationMs: number): void {
   const hasArrow = lineEl.hasAttribute('marker-end')
   const geo = readLineGeometry(lineEl.parentElement!)
 
-  if (hasArrow && geo && (geo.style === 'direct' || geo.style === 'elbow')) {
+  if (hasArrow && geo) {
     // Arrow lines: grow the path so the arrowhead follows the tip.
     // Start with a zero-length path at the from point, then tween to final.
     const sel = d3.select(lineEl)
@@ -1081,6 +1081,52 @@ function applyDrawEntrance(lineEl: SVGElement, durationMs: number): void {
             const c = interp(t)
             return elbowPathFromCoords(c.calloutX, c.calloutY, c.tipX, c.tipY)
           }
+        })
+    }
+    else if (geo.style === 'curve-left' || geo.style === 'curve-right') {
+      // Curve: grow arc parametrically so arrowhead traces the curve
+      const from = { x: geo.fromX, y: geo.fromY }
+      const to = { x: geo.toX, y: geo.toY }
+      const dx = to.x - from.x
+      const dy = to.y - from.y
+      const dist = Math.sqrt(dx * dx + dy * dy)
+      const r = dist * 0.8
+      const sweep = geo.style === 'curve-right' ? 1 : 0
+
+      // Compute arc center
+      const halfChord = dist / 2
+      const h = halfChord < r ? Math.sqrt(r * r - halfChord * halfChord) : 0
+      const midX = (from.x + to.x) / 2
+      const midY = (from.y + to.y) / 2
+      const perpX = dist > 0 ? -dy / dist : 0
+      const perpY = dist > 0 ? dx / dist : 0
+      const centerSign = sweep === 1 ? 1 : -1
+      const cx = midX + centerSign * h * perpX
+      const cy = midY + centerSign * h * perpY
+
+      // Start and end angles on the circle
+      const startAngle = Math.atan2(from.y - cy, from.x - cx)
+      const endAngle = Math.atan2(to.y - cy, to.x - cx)
+      let delta = endAngle - startAngle
+      // Normalize delta for sweep direction
+      if (sweep === 1 && delta <= 0) {
+        delta += 2 * Math.PI
+      }
+      if (sweep === 0 && delta >= 0) {
+        delta -= 2 * Math.PI
+      }
+
+      sel.transition()
+        .duration(durationMs)
+        .ease(d3.easeCubicOut)
+        .attrTween('d', () => (t: number) => {
+          if (t >= 0.98) {
+            return finalD
+          }
+          const angle = startAngle + t * delta
+          const px = cx + r * Math.cos(angle)
+          const py = cy + r * Math.sin(angle)
+          return `M ${from.x} ${from.y} A ${r} ${r} 0 0 ${sweep} ${px} ${py}`
         })
     }
     else {
