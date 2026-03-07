@@ -10,7 +10,7 @@ import { computeLinearDomain } from '../../scale-helpers'
 import { createValueLabelPlugin } from '../../plugins/value-labels'
 import { createTooltipPlugin } from '../../plugins/tooltip'
 import { createCrosshairPlugin } from '../../plugins/crosshair'
-import { createAnnotationPlugin } from '../../plugins/annotations'
+import { createAnnotationPlugin, snapshotAnnotations, type AnnotationSnapshot } from '../../plugins/annotations'
 import { resolveBackgroundColor } from '../../contrast'
 import { getDefaultTransitionMs, fadeIn, snapshotForFadeOut, commitFadeOut } from '../../motion'
 import { getCachedChart, setCachedChart } from '../../transition-cache'
@@ -85,6 +85,7 @@ export function render(
   let priorVAxis: Element | null = null
   let priorHAxis: Element | null = null
   let fadeOverlay: HTMLElement | null = null
+  let priorAnnotations: Map<string, AnnotationSnapshot> | undefined
   if (transition) {
     const cached = getCachedChart(container)
     if (cached) {
@@ -96,6 +97,13 @@ export function render(
     }
     else if (cached) {
       fadeOverlay = snapshotForFadeOut(container)
+    }
+    // Snapshot annotation positions before clearing
+    priorAnnotations = new Map()
+    for (const el of container.querySelectorAll('.bc-annotations, .bc-annotations-range')) {
+      for (const [k, v] of snapshotAnnotations(el)) {
+        priorAnnotations.set(k, v)
+      }
     }
     container.replaceChildren()
   }
@@ -177,7 +185,7 @@ export function render(
   }
   if (options.annotations?.length) {
     chart.use(createAnnotationPlugin(options.annotations, {
-      scaleX: x, scaleY: y, data: barData, width, height, backgroundColor: resolveBackgroundColor(container), transition }))
+      scaleX: x, scaleY: y, data: barData, width, height, backgroundColor: resolveBackgroundColor(container), transition, priorAnnotations }))
   }
   chart.draw(barData)
   setCachedChart(container, { chartType: 'bar-vertical' })

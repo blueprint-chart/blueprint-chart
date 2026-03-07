@@ -9,7 +9,7 @@ import { createCanvas } from '../../canvas/canvas'
 import { renderLegend } from '../../legend/legend'
 import { estimateLegendSize } from '../../legend/legend-size'
 import { createTooltipPlugin } from '../../plugins/tooltip'
-import { createAnnotationPlugin } from '../../plugins/annotations'
+import { createAnnotationPlugin, snapshotAnnotations, type AnnotationSnapshot } from '../../plugins/annotations'
 import { resolveBackgroundColor } from '../../contrast'
 import { renderArcLabels, renderInsideArcLabels, renderAutoArcLabels, estimateArcLabelMargins } from '../../plugins/arc-labels'
 import type { ArcLabelDatum } from '../../plugins/arc-labels'
@@ -82,6 +82,7 @@ export function renderArc(
   // Preserve existing arc elements for smooth D3 data-join transitions
   let priorArcs: Element[] = []
   let fadeOverlay: HTMLElement | null = null
+  let priorAnnotations: Map<string, AnnotationSnapshot> | undefined
   if (transition) {
     const cached = getCachedChart(container)
     const expectedType = innerRadiusRatio > 0 ? 'donut' : 'pie'
@@ -90,6 +91,12 @@ export function renderArc(
     }
     else if (cached) {
       fadeOverlay = snapshotForFadeOut(container)
+    }
+    priorAnnotations = new Map()
+    for (const el of container.querySelectorAll('.bc-annotations, .bc-annotations-range')) {
+      for (const [k, v] of snapshotAnnotations(el)) {
+        priorAnnotations.set(k, v)
+      }
     }
     container.replaceChildren()
   }
@@ -233,6 +240,7 @@ export function renderArc(
         height,
         backgroundColor: resolveBackgroundColor(container),
         transition,
+        priorAnnotations,
       })
       annPlugin.postDraw!({ base: d3.select(chartArea) } as unknown as D3Blueprint, undefined as unknown as d3.PieArcDatum<number>[])
     }
