@@ -58,6 +58,23 @@ describe('PanelDocked', () => {
     expect(w.find('.panel-docked__resize-handle').exists()).toBe(true)
   })
 
+  it('resize handle emits width updates on pointer drag', async () => {
+    const w = mount(PanelDocked, { props: { collapsed: false, title: 'Test', modelValue: 330 } })
+    const handle = w.find('.panel-docked__resize-handle')
+    const el = handle.element as HTMLElement
+    el.setPointerCapture = vi.fn()
+    el.removeEventListener = vi.fn()
+    await handle.trigger('pointerdown', { clientX: 500, pointerId: 1 })
+    // Simulate drag left by 50px → width should increase by 50
+    const move = new Event('pointermove') as Event & { clientX: number }
+    move.clientX = 450
+    el.dispatchEvent(move)
+    el.dispatchEvent(new Event('pointerup'))
+    const emitted = w.emitted('update:modelValue')
+    expect(emitted).toBeTruthy()
+    expect(emitted![emitted!.length - 1][0]).toBe(380)
+  })
+
   it('uses modelValue as initial width when provided', () => {
     const w = mount(PanelDocked, { props: { collapsed: false, title: 'Test', modelValue: 400 } })
     const style = w.find('.panel-docked').attributes('style')
