@@ -247,9 +247,5 @@ onBeforeRouteLeave(() => {
   display: flex;
   flex-grow: 1;
   overflow: auto;
-  background: var(--bc-tile-bg);
-  border-radius: var(--bc-tile-radius);
-  box-shadow: var(--bc-tile-shadow);
-  border: var(--bc-tile-border);
 }
 </style>

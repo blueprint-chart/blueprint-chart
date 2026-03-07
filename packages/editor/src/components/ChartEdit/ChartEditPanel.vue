@@ -168,7 +168,6 @@ const canvasStyle = computed<CSSProperties>(() => ({
   overflow: hidden;
   gap: var(--bc-tile-gap);
   background: var(--bc-void-bg);
-  padding: var(--bc-tile-gap);
 
   &--narrow {
     flex-direction: column;
