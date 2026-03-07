@@ -166,7 +166,11 @@ export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
 
     const highlights = scene?.highlights ?? config.highlights.value
     const areaFills = scene?.areaFills ?? config.areaFills.value
-    const rawAnnotations = scene?.annotations ?? config.annotations.value
+    // Base annotations are always the foundation; scene annotations are additions.
+    // Visibility directives (hide/show) control which annotations appear.
+    const baseAnnotations = config._base.annotations.value
+    const sceneAnnotations = scene?.annotations ?? []
+    const rawAnnotations = [...baseAnnotations, ...sceneAnnotations]
     const annotations = scene?.hiddenAnnotationIds
       ? rawAnnotations.filter(a => !a.id || !scene.hiddenAnnotationIds!.has(a.id))
       : rawAnnotations
