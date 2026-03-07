@@ -57,4 +57,19 @@ describe('labelPositionMargins', () => {
     const result = labelPositionMargins(800)
     expect(result.bottom).toBeUndefined()
   })
+
+  it('provides minimum right margin for last horizontal axis label when vDir is left', () => {
+    const result = labelPositionMargins(800, undefined, undefined, 'left')
+    expect(result.right).toBeGreaterThan(0)
+  })
+
+  it('provides minimum right margin by default (vDir defaults to left)', () => {
+    const result = labelPositionMargins(800)
+    expect(result.right).toBeGreaterThan(0)
+  })
+
+  it('sets right margin to 0 when horizontal axis is hidden', () => {
+    const result = labelPositionMargins(800, undefined, undefined, 'left', undefined, false)
+    expect(result.right).toBe(0)
+  })
 })
