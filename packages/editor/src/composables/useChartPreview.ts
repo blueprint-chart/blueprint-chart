@@ -79,6 +79,22 @@ export function resolveScene(scenes: SceneOverride[], index: number): SceneOverr
   return resolved
 }
 
+/**
+ * Extract sort direction from resolved scene transforms.
+ * Returns the direction from the last sort transform, or undefined if none.
+ */
+export function resolveSortFromTransforms(scene: SceneOverride | null): string | undefined {
+  if (!scene?.transforms?.length) {
+    return undefined
+  }
+  for (let i = scene.transforms.length - 1; i >= 0; i--) {
+    if (scene.transforms[i].type === 'sort' && scene.transforms[i].config?.direction) {
+      return scene.transforms[i].config.direction
+    }
+  }
+  return undefined
+}
+
 export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
   const config = useChartConfig()
   const { currentOptions } = useChartTypeOptions()
@@ -186,7 +202,7 @@ export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
         sourceUrl: config.sourceUrl.value || undefined,
         showCredit: config.layout.value.showCredit,
       },
-      sort: config.sort.value,
+      sort: resolveSortFromTransforms(scene) ?? config.sort.value,
       sortMode: config.sortMode.value !== 'none' ? config.sortMode.value : undefined,
       ...typeOpts,
       highlights: highlights.length > 0 ? highlights : undefined,

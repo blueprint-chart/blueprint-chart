@@ -32,7 +32,7 @@ import { useChartTypeOptions } from '@/composables/useChartTypeOptions'
 import { useDataTransforms, type TransformStep } from '@/composables/useDataTransforms'
 import { serializeTableData } from '@/composables/useDataTable'
 import { useScenes } from '@/composables/useScenes'
-import { resolveScene } from '@/composables/useChartPreview'
+import { resolveScene, resolveSortFromTransforms } from '@/composables/useChartPreview'
 import { generateThumbnail, renderThumbnailSvg } from '@/composables/useChartThumbnail'
 import type { ChartHighlight } from '@/composables/useChartConfig'
 import { parseData } from '@blueprint-chart/lib'
@@ -115,7 +115,8 @@ function generateSceneThumbnails() {
       : baseOptions.value
     const highlights = resolved?.highlights ?? base.highlights.value
     const seriesOverrides = resolved?.seriesOverrides ?? base.seriesOverrides.value
-    result[i + 1] = renderOne(chartType, dataStr, typeOpts, base.sort.value, highlights, seriesOverrides)
+    const sort = resolveSortFromTransforms(resolved) ?? base.sort.value
+    result[i + 1] = renderOne(chartType, dataStr, typeOpts, sort, highlights, seriesOverrides)
   }
 
   sceneThumbnails.value = result
