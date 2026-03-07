@@ -1200,13 +1200,11 @@ function applyLineMoveTransition(
     const newFrom = { x: newLine.fromX, y: newLine.fromY }
     const newTo = { x: newLine.toX, y: newLine.toY }
 
-    // Build old path and set it, then transition to new
-    const oldD = lineEl.getAttribute('d')!
-    // Store the final path d
-    const newD = sel.attr('d')
-
-    // Build interpolated path from old → new coordinates
+    // Save the final (new) path d, then set old path as starting point
+    const newD = lineEl.getAttribute('d')!
+    const oldD = `M ${oldFrom.x} ${oldFrom.y} L ${oldTo.x} ${oldTo.y}`
     sel.attr('d', oldD)
+
     sel.transition()
       .duration(durationMs)
       .ease(d3.easeCubicInOut)
@@ -1214,15 +1212,21 @@ function applyLineMoveTransition(
         const interpFrom = d3.interpolateObject(oldFrom, newFrom)
         const interpTo = d3.interpolateObject(oldTo, newTo)
         return (t: number) => {
+          if (t >= 0.98) {
+            return newD
+          }
           const f = interpFrom(t)
           const tt = interpTo(t)
-          // For direct lines, just M→L; for curves, rebuild properly
           if (newLine.style === 'direct' || oldLine.style === 'direct') {
             return `M ${f.x} ${f.y} L ${tt.x} ${tt.y}`
           }
-          // Fallback: string interpolation for curves
-          const i = d3.interpolateString(oldD, newD)
-          return i(t)
+          // Curve: rebuild arc with interpolated endpoints
+          const dx = tt.x - f.x
+          const dy = tt.y - f.y
+          const dist = Math.sqrt(dx * dx + dy * dy)
+          const r = dist * 0.8
+          const sweep = newLine.style === 'curve-right' ? 1 : 0
+          return `M ${f.x} ${f.y} A ${r} ${r} 0 0 ${sweep} ${tt.x} ${tt.y}`
         }
       })
   }
