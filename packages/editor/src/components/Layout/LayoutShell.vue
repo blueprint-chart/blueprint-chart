@@ -60,23 +60,6 @@
       <!-- Right: step controls (wizard) + theme toggle -->
       <div class="shell-navbar__right">
         <template v-if="mode === 'wizard'">
-          <template v-if="currentStep?.key === 'edit'">
-            <ButtonUndo
-              :disabled="!canUndo"
-              @click="undo"
-            />
-            <ButtonRedo
-              :disabled="!canRedo"
-              @click="redo"
-            />
-            <LayoutToolbarSeparator />
-            <NavigationToggle
-              v-model="viewModeModel"
-              :options="viewModeOptions"
-            />
-          </template>
-          <!-- Data / Export steps: no toolbar controls -->
-          <LayoutToolbarSeparator />
           <div
             ref="searchContainer"
             class="shell-navbar__search shell-navbar__search--compact"
@@ -134,13 +117,11 @@ import { ref, computed, watch } from 'vue'
 import { onClickOutside } from '@vueuse/core'
 import { useRoute, useRouter } from 'vue-router'
 import { BFormInput } from 'bootstrap-vue-next'
-import { ButtonIcon, NavigationStepper, NavigationToggle, LayoutToolbarSeparator, ButtonUndo, ButtonRedo } from '@blueprint-chart/ui'
+import { ButtonIcon, NavigationStepper } from '@blueprint-chart/ui'
 import { useTheme } from '@/composables/useTheme'
 import { useChartSession } from '@/composables/useChartSession'
 import { useNavbar } from '@/composables/useNavbar'
 import { useWizard } from '@/composables/useWizard'
-import { useEditorPanel } from '@/composables/useEditorPanel'
-import { useChartHistory } from '@/composables/useChartHistory'
 import { useDataTable } from '@/composables/useDataTable'
 import logoLight from '@/assets/images/blueprint-chart-logo.svg'
 import logoDark from '@/assets/images/blueprint-chart-logo-dark.svg'
@@ -158,9 +139,7 @@ const { listSavedCharts } = useChartSession()
 const { mode } = useNavbar()
 
 // Wizard composables (only active when mode === 'wizard')
-const { currentIndex, currentStep, steps } = useWizard()
-const { viewMode, setViewMode } = useEditorPanel()
-const { canUndo, canRedo, undo, redo } = useChartHistory()
+const { currentIndex, steps } = useWizard()
 const dataTable = useDataTable()
 
 const logoSrc = computed(() => theme.value === 'dark' ? logoDark : logoLight)
@@ -185,16 +164,6 @@ const stepIcons: Record<string, typeof IPhTable> = {
   export: IPhExport,
 }
 const stepLabels = steps.map(s => ({ label: s.label, icon: stepIcons[s.key] }))
-
-const viewModeModel = computed({
-  get: () => viewMode.value,
-  set: (v: string) => setViewMode(v as 'preview' | 'dsl'),
-})
-
-const viewModeOptions = [
-  { value: 'preview', text: 'Preview' },
-  { value: 'dsl', text: 'DSL' },
-]
 
 const disabledSteps = computed(() => {
   const hasParsed = dataTable.rows.value.length > 0
