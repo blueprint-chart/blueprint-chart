@@ -42,10 +42,10 @@ export function resolveScene(scenes: SceneOverride[], index: number): SceneOverr
         ? { ...resolved.chartTypeOptions, ...s.chartTypeOptions }
         : { ...s.chartTypeOptions }
     }
-    if (s.highlights !== undefined) {
+    if (s.highlights !== undefined && s.highlights.length > 0) {
       resolved.highlights = s.highlights
     }
-    if (s.areaFills !== undefined) {
+    if (s.areaFills !== undefined && s.areaFills.length > 0) {
       resolved.areaFills = s.areaFills
     }
     if (s.annotations !== undefined && s.annotations.length > 0) {
@@ -61,7 +61,7 @@ export function resolveScene(scenes: SceneOverride[], index: number): SceneOverr
         }
       }
     }
-    if (s.seriesOverrides !== undefined) {
+    if (s.seriesOverrides !== undefined && s.seriesOverrides.length > 0) {
       resolved.seriesOverrides = s.seriesOverrides
     }
     if (s.transforms !== undefined) {
