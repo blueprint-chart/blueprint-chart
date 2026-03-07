@@ -32,6 +32,7 @@ import { useChartTypeOptions } from '@/composables/useChartTypeOptions'
 import { useDataTransforms, type TransformStep } from '@/composables/useDataTransforms'
 import { serializeTableData } from '@/composables/useDataTable'
 import { useScenes } from '@/composables/useScenes'
+import { resolveScene } from '@/composables/useChartPreview'
 import { generateThumbnail, renderThumbnailSvg } from '@/composables/useChartThumbnail'
 import type { ChartHighlight } from '@/composables/useChartConfig'
 import { parseData } from '@blueprint-chart/lib'
@@ -96,24 +97,24 @@ function generateSceneThumbnails() {
 
   // Override scenes (timeline index 1+)
   for (let i = 0; i < scenes.value.length; i++) {
-    const scene = scenes.value[i]
-    const chartType = scene.chartType ?? base.chartType.value
+    const resolved = resolveScene(scenes.value, i)
+    const chartType = resolved?.chartType ?? base.chartType.value
     let dataStr: string
-    if (scene.data) {
-      dataStr = scene.data
+    if (resolved?.data) {
+      dataStr = resolved.data
     }
-    else if (scene.transforms?.length && dataTable.columns.value.length > 0) {
-      const result = transforms.applyStepList(scene.transforms, dataTable.columns.value, dataTable.rows.value, dataTable.columnTypes.value)
+    else if (resolved?.transforms?.length && dataTable.columns.value.length > 0) {
+      const result = transforms.applyStepList(resolved.transforms, dataTable.columns.value, dataTable.rows.value, dataTable.columnTypes.value)
       dataStr = serializeTableData(result.columns, result.rows)
     }
     else {
       dataStr = base.data.value
     }
-    const typeOpts = scene.chartTypeOptions
-      ? { ...baseOptions.value, ...scene.chartTypeOptions }
+    const typeOpts = resolved?.chartTypeOptions
+      ? { ...baseOptions.value, ...resolved.chartTypeOptions }
       : baseOptions.value
-    const highlights = scene.highlights ?? base.highlights.value
-    const seriesOverrides = scene.seriesOverrides ?? base.seriesOverrides.value
+    const highlights = resolved?.highlights ?? base.highlights.value
+    const seriesOverrides = resolved?.seriesOverrides ?? base.seriesOverrides.value
     result[i + 1] = renderOne(chartType, dataStr, typeOpts, base.sort.value, highlights, seriesOverrides)
   }
 
