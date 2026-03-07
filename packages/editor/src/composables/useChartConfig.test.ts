@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { useChartConfig } from './useChartConfig'
 import { useScenes } from './useScenes'
+import { resolveScene } from './useChartPreview'
 
 describe('useChartConfig', () => {
   beforeEach(() => {
@@ -294,6 +295,32 @@ describe('useChartConfig', () => {
       ])
       expect(config._base.annotations.value).toEqual([
         { kind: 'point', text: 'Base stays', target: 'A' },
+      ])
+    })
+  })
+
+  describe('annotation cascading across scenes', () => {
+    it('annotations from earlier scene are visible in later scene without annotation override', () => {
+      const config = useChartConfig()
+      const scenes = useScenes()
+
+      scenes.add()
+      scenes.update(0, {
+        annotations: [{ kind: 'point', id: 'p1', text: 'From scene 0', target: 'India' }],
+      })
+      scenes.add() // scene 1 has no annotations
+
+      // When scene 1 is active, sceneDirectRef falls back to base (empty)
+      // But resolveScene cascades annotations from scene 0
+      scenes.setActive(1)
+      // sceneDirectRef does NOT cascade — this is the known limitation
+      // The editor must use resolveScene for reading
+      expect(config.annotations.value).toEqual([])
+
+      // resolveScene DOES cascade
+      const resolved = resolveScene(scenes.scenes.value, 1)
+      expect(resolved?.annotations).toEqual([
+        { kind: 'point', id: 'p1', text: 'From scene 0', target: 'India' },
       ])
     })
   })
