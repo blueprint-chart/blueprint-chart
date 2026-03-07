@@ -110,7 +110,7 @@ export function render(
   const { body } = createFrame(container, options.frame)
   const containerWidth = body.getBoundingClientRect().width
   const vLabelW = estimateCategoryLabelWidth(data.labels)
-  const lpMargins = labelPositionMargins(containerWidth, options.verticalAxis?.labelPosition, options.horizontalAxis?.labelPosition, options.verticalAxis?.direction, vLabelW)
+  const lpMargins = labelPositionMargins(containerWidth, options.verticalAxis?.labelPosition, options.horizontalAxis?.labelPosition, options.verticalAxis?.direction, vLabelW, options.horizontalAxis?.showAxis)
   const { chartArea, width, height, margin } = createCanvas(body, lpMargins)
 
   const labels = sortLabels(data, options)

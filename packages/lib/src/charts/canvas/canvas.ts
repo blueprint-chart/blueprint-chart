@@ -141,6 +141,7 @@ export function labelPositionMargins(
   horizontalLabelPosition?: string,
   verticalDirection?: string,
   verticalLabelWidth?: number,
+  showHorizontalAxis?: boolean,
 ): Partial<Margin> {
   const overrides: Partial<Margin> = {}
   const labelW = verticalLabelWidth ?? 50
@@ -175,12 +176,17 @@ export function labelPositionMargins(
     overrides.top = 35
   }
 
-  const hPos = horizontalLabelPosition ?? 'auto'
-  const effectiveH = hPos === 'auto'
-    ? (containerWidth > 0 && containerWidth < AUTO_INSIDE_THRESHOLD ? 'inside' : 'outside')
-    : hPos
-  if (effectiveH === 'inside' || effectiveH === 'off') {
+  if (showHorizontalAxis === false) {
     overrides.bottom = 5
+  }
+  else {
+    const hPos = horizontalLabelPosition ?? 'auto'
+    const effectiveH = hPos === 'auto'
+      ? (containerWidth > 0 && containerWidth < AUTO_INSIDE_THRESHOLD ? 'inside' : 'outside')
+      : hPos
+    if (effectiveH === 'inside' || effectiveH === 'off') {
+      overrides.bottom = 5
+    }
   }
 
   return overrides
