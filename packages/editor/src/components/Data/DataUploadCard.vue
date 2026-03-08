@@ -144,6 +144,7 @@ const tabOptions = [
   min-height: calc(100vh - 200px);
   max-width: 640px;
   margin: 0 auto;
+  padding: 2rem 0;
 }
 
 .upload-card__title {
