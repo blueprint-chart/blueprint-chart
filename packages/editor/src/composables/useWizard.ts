@@ -1,4 +1,5 @@
-import { reactive, computed, toRefs } from 'vue'
+import { computed, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 
 export interface WizardStep {
   label: string
@@ -11,49 +12,99 @@ const steps: WizardStep[] = [
   { label: 'Export', key: 'export' },
 ]
 
-const state = reactive({
-  currentIndex: 0,
-  furthestIndex: 0,
-})
+function stepKeyFromRoute(path: string): string {
+  if (path.endsWith('/export')) {
+    return 'export'
+  }
+  if (path.endsWith('/data')) {
+    return 'data'
+  }
+  if (path.startsWith('/edit/')) {
+    return 'edit'
+  }
+  // /new defaults to data
+  return 'data'
+}
+
+export function stepPath(id: string, stepKey: string): string {
+  if (stepKey === 'edit') {
+    return `/edit/${id}`
+  }
+  return `/edit/${id}/${stepKey}`
+}
+
+// Hook called before advancing from the data step when no session exists yet.
+// WizardShell registers this to serialize data and create a session.
+const onCreateSession = ref<(() => string | null) | null>(null)
 
 export function useWizard() {
-  const currentStep = computed(() => steps[state.currentIndex])
-  const isFirst = computed(() => state.currentIndex === 0)
-  const isLast = computed(() => state.currentIndex === steps.length - 1)
+  const route = useRoute()
+  const router = useRouter()
+
+  const currentStep = computed(() => {
+    const key = stepKeyFromRoute(route?.path ?? '/new')
+    return steps.find(s => s.key === key) ?? steps[0]
+  })
+
+  const currentIndex = computed({
+    get: () => steps.indexOf(currentStep.value),
+    set: (index: number) => {
+      goTo(index)
+    },
+  })
+
+  const isFirst = computed(() => currentIndex.value === 0)
+  const isLast = computed(() => currentIndex.value === steps.length - 1)
+
+  function resolveId(): string | null {
+    const id = route?.params?.id as string | undefined
+    if (id) {
+      return id
+    }
+    // No session yet — try creating one via the registered hook
+    if (onCreateSession.value) {
+      return onCreateSession.value()
+    }
+    return null
+  }
+
+  function navigateTo(stepKey: string) {
+    const id = resolveId()
+    if (id && router) {
+      router.replace(stepPath(id, stepKey))
+    }
+  }
 
   function next() {
-    if (state.currentIndex < steps.length - 1) {
-      state.currentIndex++
-      if (state.currentIndex > state.furthestIndex) {
-        state.furthestIndex = state.currentIndex
-      }
+    const idx = currentIndex.value
+    if (idx < steps.length - 1) {
+      navigateTo(steps[idx + 1].key)
     }
   }
 
   function back() {
-    if (state.currentIndex > 0) {
-      state.currentIndex--
+    const idx = currentIndex.value
+    if (idx > 0) {
+      navigateTo(steps[idx - 1].key)
     }
   }
 
   function goTo(index: number) {
-    if (index >= 0 && index <= state.furthestIndex) {
-      state.currentIndex = index
+    if (index >= 0 && index < steps.length) {
+      navigateTo(steps[index].key)
     }
   }
 
   function reset() {
-    state.currentIndex = 0
-    state.furthestIndex = 0
+    // No-op — state is driven by the route
   }
 
-  function hydrate(snapshot: { currentIndex: number, furthestIndex: number }) {
-    state.currentIndex = snapshot.currentIndex
-    state.furthestIndex = snapshot.furthestIndex
+  function registerCreateSession(fn: () => string | null) {
+    onCreateSession.value = fn
   }
 
   return {
-    ...toRefs(state),
+    currentIndex,
     steps,
     currentStep,
     isFirst,
@@ -62,6 +113,6 @@ export function useWizard() {
     back,
     goTo,
     reset,
-    hydrate,
+    registerCreateSession,
   }
 }
