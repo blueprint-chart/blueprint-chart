@@ -4,7 +4,6 @@ import { useDataTable } from './useDataTable'
 import { useDataTransforms } from './useDataTransforms'
 import { useChartTypeOptions } from './useChartTypeOptions'
 import { useScenes } from './useScenes'
-import { useWizard } from './useWizard'
 import { useDslSync } from './useDslSync'
 import { useDslOutput } from './useDslOutput'
 import { parseDelimited } from './useDataParser'
@@ -12,11 +11,12 @@ import { deleteThumbnail } from './useChartThumbnail'
 import type { ChartSample } from '@blueprint-chart/lib'
 
 interface SessionMeta {
-  wizard: { currentIndex: number, furthestIndex: number }
   savedAt?: string
   rawInput?: string
   sourceLabel?: string
   sourceFormat?: string
+  // Legacy fields (ignored on load, not written on save)
+  wizard?: unknown
 }
 
 // Legacy payload shape for migration
@@ -28,7 +28,7 @@ interface LegacySessionPayload {
     [key: string]: unknown
   }
   dataTable?: { columns: string[], rows: string[][], rawInput: string }
-  wizard: { currentIndex: number, furthestIndex: number }
+  wizard?: unknown
   savedAt?: string
 }
 
@@ -70,7 +70,6 @@ export function useChartSession() {
   const transforms = useDataTransforms()
   const chartTypeOptions = useChartTypeOptions()
   const scenesComposable = useScenes()
-  const wizard = useWizard()
 
   function save() {
     if (!sessionId.value) {
@@ -80,10 +79,6 @@ export function useChartSession() {
     localStorage.setItem(storageKey(sessionId.value), dsl.value)
 
     const meta: SessionMeta = {
-      wizard: {
-        currentIndex: wizard.currentIndex.value,
-        furthestIndex: wizard.furthestIndex.value,
-      },
       savedAt: new Date().toISOString(),
     }
     if (dataTable.sourceFormat.value === 'delimited' && dataTable.rawInput.value) {
@@ -127,13 +122,6 @@ export function useChartSession() {
             dataTable.sourceLabel.value = meta.sourceLabel
           }
         }
-
-        const wizardState = meta.wizard
-        if (wizardState.furthestIndex > 2) {
-          wizardState.currentIndex = Math.max(0, wizardState.currentIndex - 1)
-          wizardState.furthestIndex = Math.max(0, wizardState.furthestIndex - 1)
-        }
-        wizard.hydrate(wizardState)
       }
 
       sessionId.value = id
@@ -150,12 +138,6 @@ export function useChartSession() {
       if (payload.dataTable) {
         dataTable.hydrate(payload.dataTable)
       }
-      const wizardState = payload.wizard
-      if (wizardState.furthestIndex > 2) {
-        wizardState.currentIndex = Math.max(0, wizardState.currentIndex - 1)
-        wizardState.furthestIndex = Math.max(0, wizardState.furthestIndex - 1)
-      }
-      wizard.hydrate(wizardState)
       sessionId.value = id
       return true
     }
@@ -170,7 +152,6 @@ export function useChartSession() {
     transforms.reset()
     chartTypeOptions.reset()
     scenesComposable.reset()
-    wizard.reset()
     sessionId.value = ''
   }
 
@@ -198,8 +179,6 @@ export function useChartSession() {
 
     const { applyDsl } = useDslSync()
     applyDsl(sample.dsl)
-
-    wizard.hydrate({ currentIndex: 1, furthestIndex: 1 })
   }
 
   function loadChart(id: string): boolean {
@@ -231,8 +210,6 @@ export function useChartSession() {
         transforms.steps,
         scenesComposable.scenes,
         scenesComposable.activeIndex,
-        wizard.currentIndex,
-        wizard.furthestIndex,
         () => chartTypeOptions.store,
       ],
       save,

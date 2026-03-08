@@ -5,7 +5,6 @@ import { useDataTable } from './useDataTable'
 import { useDataTransforms } from './useDataTransforms'
 import { useChartTypeOptions } from './useChartTypeOptions'
 import { useScenes } from './useScenes'
-import { useWizard } from './useWizard'
 
 describe('generateId', () => {
   it('returns an 11-character string', () => {
@@ -32,7 +31,6 @@ describe('useChartSession', () => {
     useDataTransforms().reset()
     useChartTypeOptions().reset()
     useScenes().reset()
-    useWizard().reset()
   })
 
   it('save stores raw DSL string in localStorage', () => {
@@ -59,7 +57,6 @@ describe('useChartSession', () => {
     const metaRaw = localStorage.getItem(`blueprint-chart:${session.sessionId.value}:meta`)
     expect(metaRaw).not.toBeNull()
     const meta = JSON.parse(metaRaw!)
-    expect(meta.wizard).toBeDefined()
     expect(meta.savedAt).toBeDefined()
   })
 
@@ -98,23 +95,6 @@ describe('useChartSession', () => {
     session.load(id)
     expect(table.columns.value).toEqual(['label', 'value'])
     expect(table.rows.value[0]).toEqual(['A', '10'])
-  })
-
-  it('save and load round-trip preserves wizard state', () => {
-    const session = useChartSession()
-    session.newChart()
-
-    const wizard = useWizard()
-    wizard.next()
-    wizard.next()
-    session.save()
-
-    const id = session.sessionId.value
-    wizard.reset()
-
-    session.load(id)
-    expect(wizard.currentIndex.value).toBe(2)
-    expect(wizard.furthestIndex.value).toBe(2)
   })
 
   it('save and load round-trip preserves scenes', () => {
@@ -191,14 +171,12 @@ describe('useChartSession', () => {
     const firstId = 'firstId0001'
     localStorage.setItem(`blueprint-chart:${firstId}`, 'chart line {\n  title = "First"\n}\n')
     localStorage.setItem(`blueprint-chart:${firstId}:meta`, JSON.stringify({
-      wizard: { currentIndex: 0, furthestIndex: 0 },
       savedAt: '2025-01-01T00:00:00.000Z',
     }))
 
     const secondId = 'secondId001'
     localStorage.setItem(`blueprint-chart:${secondId}`, 'chart donut {\n  title = "Second"\n  description = "A donut"\n}\n')
     localStorage.setItem(`blueprint-chart:${secondId}:meta`, JSON.stringify({
-      wizard: { currentIndex: 0, furthestIndex: 0 },
       savedAt: '2025-06-01T00:00:00.000Z',
     }))
 
