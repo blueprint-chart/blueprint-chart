@@ -50,6 +50,7 @@ vi.mock('@/composables/useWizard', () => ({
 
 vi.mock('@/composables/useDataParser', () => ({
   parseDelimited: vi.fn(() => ({ columns: ['A'], rows: [['1']], columnTypes: ['number'] })),
+  parseBpcData: vi.fn(() => ({ columns: ['label', 'value'], rows: [['A', '1']], columnTypes: ['string', 'number'] })),
 }))
 
 vi.mock('@/composables/useParseOptions', () => ({

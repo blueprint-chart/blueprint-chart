@@ -18,7 +18,6 @@ import { watch, onMounted } from 'vue'
 import { useEditorPanel } from '@/composables/useEditorPanel'
 import { useDataTable } from '@/composables/useDataTable'
 import { useDslSync } from '@/composables/useDslSync'
-import { useChartConfig } from '@/composables/useChartConfig'
 import { useChartSession } from '@/composables/useChartSession'
 import { useWizard } from '@/composables/useWizard'
 import { parseDelimited } from '@/composables/useDataParser'
@@ -30,7 +29,6 @@ import DataStructurePanel from './DataStructurePanel.vue'
 const { dataView, setDataView } = useEditorPanel()
 const dataTable = useDataTable()
 const { applyDsl } = useDslSync()
-const chartConfig = useChartConfig()
 const { loadSample } = useChartSession()
 const wizard = useWizard()
 const parseOptions = useParseOptions()
@@ -67,10 +65,7 @@ function onLoaded(content: string, label: string) {
 
 function onBpcLoaded(content: string, label: string) {
   applyDsl(content)
-  dataTable.rawInput.value = chartConfig.data.value
-  dataTable.sourceFormat.value = 'bpc'
   dataTable.sourceLabel.value = label || 'Blueprint file'
-  reparseData()
   wizard.hydrate({ currentIndex: 1, furthestIndex: 1 })
   setDataView('structure')
 }
