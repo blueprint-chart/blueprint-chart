@@ -1,32 +1,55 @@
 <template>
-  <div class="d-flex flex-column gap-3">
-    <EditorColorSection />
+  <div class="d-flex flex-column gap-4">
+    <SettingsSection
+      title="Colors"
+      :icon="IPhPalette"
+    >
+      <EditorColorSection />
+    </SettingsSection>
 
-    <template v-if="hasLine">
-      <hr>
+    <SettingsSection
+      v-if="hasLine"
+      title="Line Style"
+      :icon="IPhLineSegments"
+    >
       <EditorLineSection />
-    </template>
+    </SettingsSection>
 
-    <template v-if="hasLegend">
-      <hr>
+    <SettingsSection
+      v-if="hasLegend"
+      title="Legend"
+      :icon="IPhListBullets"
+    >
       <EditorLegendSection />
-    </template>
+    </SettingsSection>
 
-    <template v-if="hasSlice">
-      <hr>
+    <SettingsSection
+      v-if="hasSlice"
+      title="Slices"
+      :icon="IPhChartPieSlice"
+    >
       <EditorSliceSection />
-    </template>
+    </SettingsSection>
 
-    <template v-if="hasInteraction">
-      <hr>
+    <SettingsSection
+      v-if="hasInteraction"
+      title="Interactions"
+      :icon="IPhCursorClick"
+    >
       <EditorInteractionSection />
-    </template>
+    </SettingsSection>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { SettingsSection } from '@blueprint-chart/ui'
 import { useChartTypeOptions } from '@/composables/useChartTypeOptions'
+import IPhPalette from '~icons/ph/palette'
+import IPhLineSegments from '~icons/ph/line-segments'
+import IPhListBullets from '~icons/ph/list-bullets'
+import IPhChartPieSlice from '~icons/ph/chart-pie-slice'
+import IPhCursorClick from '~icons/ph/cursor-click'
 import EditorColorSection from './EditorColorSection.vue'
 import EditorLineSection from './EditorLineSection.vue'
 import EditorLegendSection from './EditorLegendSection.vue'
