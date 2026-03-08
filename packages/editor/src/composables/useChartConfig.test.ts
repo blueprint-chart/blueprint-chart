@@ -150,9 +150,9 @@ describe('useChartConfig', () => {
   })
 
   describe('layout player defaults', () => {
-    it('has playerType default of progress-bar', () => {
+    it('has playerType default of minimal-arrows', () => {
       const config = useChartConfig()
-      expect(config.layout.value.playerType).toBe('progress-bar')
+      expect(config.layout.value.playerType).toBe('minimal-arrows')
     })
 
     it('has playerPosition default of center', () => {
@@ -167,7 +167,7 @@ describe('useChartConfig', () => {
 
       // Reset restores default
       config.reset()
-      expect(config.layout.value.playerType).toBe('progress-bar')
+      expect(config.layout.value.playerType).toBe('minimal-arrows')
     })
   })
 

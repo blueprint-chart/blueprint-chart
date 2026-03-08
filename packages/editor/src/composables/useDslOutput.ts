@@ -82,6 +82,10 @@ export function useDslOutput() {
       }
     }
 
+    if (base.layout.value.playerType && base.layout.value.playerType !== 'minimal-arrows') {
+      output += `  player = "${base.layout.value.playerType}"\n`
+    }
+
     if (base.data.value) {
       output += '\n  data {\n'
       const lines = base.data.value
