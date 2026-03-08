@@ -297,28 +297,7 @@ export function render(
     : (options.directLabelling ? 'auto' : '')
   const dlAnchor = options.directLabelAnchor ?? 'middle'
 
-  function resolveBarDlMode(barHeight: number): 'inside' | 'outside' {
-    if (dlMode === 'inside') {
-      return 'inside'
-    }
-    if (dlMode === 'outside') {
-      return 'outside'
-    }
-    // auto: inside if tall enough
-    return barHeight > 20 ? 'inside' : 'outside'
-  }
-
-  function insideLabelY(barTop: number, barHeight: number, anchor: string): number {
-    if (anchor === 'start') {
-      return barTop + 12
-    }
-    if (anchor === 'end') {
-      return barTop + barHeight - 4
-    }
-    return barTop + barHeight / 2 // middle
-  }
-
-  // Resolve value label position independently from direct label mode
+  // Resolve value label position
   const vlPos = options.valueLabelPosition ?? 'auto'
   function resolveVlMode(barHeight: number): 'inside' | 'outside' {
     if (vlPos === 'inside') {
@@ -329,6 +308,31 @@ export function render(
     }
     // auto: outside by default
     return 'outside'
+  }
+
+  function resolveBarDlMode(barHeight: number): 'inside' | 'outside' {
+    if (dlMode === 'inside') {
+      return 'inside'
+    }
+    if (dlMode === 'outside') {
+      return 'outside'
+    }
+    // auto: match value label position when value labels are enabled
+    if (globalValueLabels) {
+      return resolveVlMode(barHeight)
+    }
+    // auto: outside by default
+    return 'outside'
+  }
+
+  function insideLabelY(barTop: number, barHeight: number, anchor: string): number {
+    if (anchor === 'start') {
+      return barTop + 12
+    }
+    if (anchor === 'end') {
+      return barTop + barHeight - 4
+    }
+    return barTop + barHeight / 2 // middle
   }
 
   // Per-series value labels
