@@ -286,21 +286,39 @@ const barHorizontalAxisOpts = axisOpts({ verticalGrid: 'none', horizontalGrid: '
 // Lines: value axis is vertical → horizontal dashed grid, no vertical grid, no vertical axis line
 const lineAxisOpts = axisOpts({ verticalGrid: 'dashed', horizontalGrid: 'none', showVerticalTicks: false, showHorizontalTicks: false, showVerticalAxis: false, valueAxis: 'vertical', horizontalRange: true })
 
+// Per-chart-type option overrides based on dataviz best practices (HANDBOOK.md)
+// Line charts: monotone interpolation is smooth and non-distorting (preferred over linear for general use)
+const lineInterpolationOpt: ChartOptionDef = { ...interpolationOpt, default: 'monotoneX' }
+// Line charts: vertical crosshair is standard for time-series data
+const lineCrosshairDirectionOpt: ChartOptionDef = { ...crosshairDirectionOpt, default: 'vertical' }
+// Multi-line: direct labeling preferred over legends ("label lines directly instead of using a legend")
+const lineMultiDirectLabellingOpt: ChartOptionDef = { ...directLabellingOpt, default: 'auto' }
+// Horizontal bars: value labels at end of bar are a best practice for readability
+const barHorizontalValueLabelsOpt: ChartOptionDef = { ...valueLabelsOpt, default: true }
+// Pie: display as percentage (pies show proportions), limit to 5 slices (not 6)
+const pieDisplayAsPercentageOpt: ChartOptionDef = { ...displayAsPercentageOpt, default: true }
+const pieSliceMaxOpt: ChartOptionDef = { ...sliceMaxOpt, default: '5' }
+// Donut: show total in center ("show a primary metric in the center when meaningful")
+const donutShowTotalOpt: ChartOptionDef = { ...showTotalOpt, default: true }
+
 // Register all chart types
 const crosshairOpts = [crosshairOpt, crosshairDirectionOpt, crosshairStyleOpt, crosshairColorOpt]
+const lineCrosshairOpts = [crosshairOpt, lineCrosshairDirectionOpt, crosshairStyleOpt, crosshairColorOpt]
 const barOpts = [valueLabelsOpt, valueLabelPositionOpt, tooltipsOpt, ...crosshairOpts]
+const barHorizontalOpts = [barHorizontalValueLabelsOpt, valueLabelPositionOpt, tooltipsOpt, ...crosshairOpts]
 const lineSymbolOpts = [lineSymbolsOpt, lineSymbolShapeOpt, lineSymbolShowOnOpt, lineSymbolStyleOpt, lineSymbolSizeOpt, lineSymbolOpacityOpt]
-const lineOpts = [valueLabelsOpt, valueLabelPositionOpt, tooltipsOpt, ...crosshairOpts, ...lineSymbolOpts]
+const lineOpts = [valueLabelsOpt, valueLabelPositionOpt, tooltipsOpt, ...lineCrosshairOpts, ...lineSymbolOpts]
+const pieArcOpts = [pieDisplayAsPercentageOpt, showTotalOpt, showLabelsOpt, showValuesOpt, pieSliceMaxOpt, sliceGroupLabelOpt]
+const donutArcOpts = [displayAsPercentageOpt, donutShowTotalOpt, showLabelsOpt, showValuesOpt, sliceMaxOpt, sliceGroupLabelOpt]
 
 registerChart('bar-vertical', barVertical, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, ...barVerticalAxisOpts, ...barOpts])
-registerChart('bar-horizontal', barHorizontal, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, ...barHorizontalAxisOpts, ...barOpts])
+registerChart('bar-horizontal', barHorizontal, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, ...barHorizontalAxisOpts, ...barHorizontalOpts])
 registerChart('bar-multi', barMulti, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, sortModeOpt, legendOpt, legendAnchorOpt, legendPositionOpt, directLabellingOpt, directLabelAnchorOpt, ...barVerticalAxisOpts, ...barOpts])
-registerChart('line', line, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, interpolationOpt, ...lineAxisOpts, ...lineOpts])
-registerChart('line-multi', lineMulti, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, interpolationOpt, sortModeOpt, legendOpt, legendAnchorOpt, legendPositionOpt, directLabellingOpt, ...lineAxisOpts, ...lineOpts])
-const arcOpts = [displayAsPercentageOpt, showTotalOpt, showLabelsOpt, showValuesOpt, sliceMaxOpt, sliceGroupLabelOpt]
-registerChart('donut', donut, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, legendOpt, legendAnchorOpt, legendPositionOpt, directLabellingOpt, tooltipsOpt, ...arcOpts])
-registerChart('pie', pie, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, legendOpt, legendAnchorOpt, legendPositionOpt, directLabellingOpt, tooltipsOpt, ...arcOpts])
+registerChart('line', line, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, lineInterpolationOpt, ...lineAxisOpts, ...lineOpts])
+registerChart('line-multi', lineMulti, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, lineInterpolationOpt, sortModeOpt, legendOpt, legendAnchorOpt, legendPositionOpt, lineMultiDirectLabellingOpt, ...lineAxisOpts, ...lineOpts])
+registerChart('donut', donut, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, legendOpt, legendAnchorOpt, legendPositionOpt, directLabellingOpt, tooltipsOpt, ...donutArcOpts])
+registerChart('pie', pie, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, legendOpt, legendAnchorOpt, legendPositionOpt, directLabellingOpt, tooltipsOpt, ...pieArcOpts])
 
 // Aliases share the same entry
 registerChart('vertical-bar', barVertical, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, ...barVerticalAxisOpts, ...barOpts])
-registerChart('horizontal-bar', barHorizontal, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, ...barHorizontalAxisOpts, ...barOpts])
+registerChart('horizontal-bar', barHorizontal, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, ...barHorizontalAxisOpts, ...barHorizontalOpts])
