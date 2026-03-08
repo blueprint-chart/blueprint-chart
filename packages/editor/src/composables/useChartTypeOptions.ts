@@ -17,10 +17,16 @@ function ensureDefaults(type: string): void {
     store[type] = {}
   }
   const defs = getChartOptions(type)
+  const current = store[type]!
   for (const def of defs) {
     const key = def.key as ChartTypeOptionKey
-    if (def.default !== undefined && !(key in store[type]!)) {
-      (store[type] as Partial<ChartTypeOptions>)[key] = def.default as ChartTypeOptions[typeof key]
+    if (def.default !== undefined && !(key in current)) {
+      // Don't seed a default palette when custom colors are already set —
+      // the palette would override the explicitly-provided colors.
+      if (key === 'colorPalette' && 'colors' in current && (current.colors as string[])?.length > 0) {
+        continue
+      }
+      (current as Partial<ChartTypeOptions>)[key] = def.default as ChartTypeOptions[typeof key]
     }
   }
 }

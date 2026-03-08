@@ -67,7 +67,7 @@ export function parseData(raw: string): ChartData {
 export function buildChartOptions(opts: Partial<ChartTypeOptions>, backgroundColor?: string): Partial<ChartOptions> {
   const result: Partial<ChartOptions> = {}
 
-  // Palette takes precedence over custom colors
+  // Palette takes precedence over custom colors when explicitly set
   const paletteColors = resolvePalette(opts.colorPalette)
   if (paletteColors) {
     result.colors = paletteColors
