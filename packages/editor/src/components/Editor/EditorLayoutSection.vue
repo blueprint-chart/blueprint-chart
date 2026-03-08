@@ -80,24 +80,6 @@
       v-model="showCredit"
       label="Show credit (recommended)"
     />
-
-    <template v-if="hasScenes">
-      <FormControlDropdown
-        id="layout-player-type"
-        v-model="playerType"
-        label="Scene player"
-        :options="playerTypeOptions"
-        block
-      />
-
-      <FormControlButtonGroup
-        v-if="playerType === 'dot-stepper' || playerType === 'minimal-arrows'"
-        v-model="playerPosition"
-        label="Player position"
-        :options="playerPositionOptions"
-        block
-      />
-    </template>
   </div>
 </template>
 
@@ -105,12 +87,8 @@
 import { computed } from 'vue'
 import { FormControlButtonGroup, FormControlSliderInput, FormControlDropdown, FormControlCheckbox } from '@blueprint-chart/ui'
 import { useChartConfig } from '@/composables/useChartConfig'
-import { useScenes } from '@/composables/useScenes'
 
 const { layout } = useChartConfig()
-const { scenes } = useScenes()
-
-const hasScenes = computed(() => scenes.value.length >= 1)
 
 const sizing = computed({
   get: () => layout.value.sizing,
@@ -178,26 +156,4 @@ const aspectRatioOptions = [
   { value: '9:16', label: '9:16' },
 ]
 
-const playerType = computed({
-  get: () => layout.value.playerType,
-  set: (v) => { layout.value.playerType = v },
-})
-
-const playerPosition = computed({
-  get: () => layout.value.playerPosition,
-  set: (v) => { layout.value.playerPosition = v },
-})
-
-const playerTypeOptions = [
-  { value: 'progress-bar', label: 'Progress Bar' },
-  { value: 'dot-stepper', label: 'Dot Stepper' },
-  { value: 'minimal-arrows', label: 'Minimal Arrows' },
-  { value: 'none', label: 'None' },
-]
-
-const playerPositionOptions = [
-  { value: 'left', text: 'Left' },
-  { value: 'center', text: 'Center' },
-  { value: 'right', text: 'Right' },
-]
 </script>
