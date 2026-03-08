@@ -27,11 +27,12 @@ describe('DataUploadSamples', () => {
     expect(cards[1].text()).toContain('Another Chart')
   })
 
-  it('displays row and col counts', () => {
+  it('displays row count and chart type label', () => {
     const w = mountSamples()
     const cards = w.findAll('.sample-card')
     expect(cards[0].text()).toContain('2 rows')
-    expect(cards[0].text()).toContain('2 cols')
+    expect(cards[0].text()).toContain('Columns')
+    expect(cards[1].text()).toContain('Line')
   })
 
   it('emits select with full ChartSample on click', async () => {
@@ -45,12 +46,9 @@ describe('DataUploadSamples', () => {
     expect(sample).toHaveProperty('dsl')
   })
 
-  it('renders an icon component for each card', () => {
+  it('renders a thumbnail for each card', () => {
     const w = mountSamples()
-    const icons = w.findAll('.sample-card__icon')
-    expect(icons.length).toBe(2)
-    icons.forEach((icon) => {
-      expect(icon.find('svg').exists() || icon.findComponent({ name: /^IPh/ }).exists()).toBe(true)
-    })
+    const thumbs = w.findAll('.sample-card__thumb')
+    expect(thumbs.length).toBe(2)
   })
 })
