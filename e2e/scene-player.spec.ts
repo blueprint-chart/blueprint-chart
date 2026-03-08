@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test'
 
 async function goToVisualizeStep(page) {
-  await page.goto('/new')
+  await page.goto('/#/new')
 
   const textarea = page.locator('textarea')
   await textarea.fill('Label,Value\nA,10\nB,20\nC,30')
@@ -68,14 +68,14 @@ test.describe('Scene Player', () => {
     await expect(page.locator('.scene-timeline-item').nth(1)).toHaveClass(/scene-timeline-item--active/)
   })
 
-  test('player type can be changed in Layout settings', async ({ page }) => {
+  test('player type can be changed in Appearance settings', async ({ page }) => {
     await goToVisualizeStep(page)
 
     await page.locator('.button-add').click()
     await page.waitForTimeout(500)
 
-    // Open Layout tab
-    await page.locator('[aria-label="Layout"]').click()
+    // Open Appearance tab
+    await page.locator('[aria-label="Appearance"]').click()
     await page.waitForTimeout(300)
 
     // Change player type to Dot Stepper
@@ -94,14 +94,14 @@ test.describe('Scene Player', () => {
     await page.locator('.button-add').click()
     await page.waitForTimeout(500)
 
-    // Open Layout tab
-    await page.locator('[aria-label="Layout"]').click()
+    // Open Appearance tab
+    await page.locator('[aria-label="Appearance"]').click()
     await page.waitForTimeout(300)
 
     // Change player type to None
     const playerDropdown = page.locator('.form-control-dropdown', { hasText: 'Scene player' })
     await playerDropdown.locator('.dropdown-toggle').click()
-    await page.locator('.form-control-dropdown-item__label', { hasText: 'None' }).click()
+    await page.locator('.dropdown-menu.show .form-control-dropdown-item__label', { hasText: 'None' }).click()
     await page.waitForTimeout(300)
 
     await expect(page.locator('.bc-frame [data-scene-player]')).toHaveCount(0)

@@ -15,7 +15,7 @@ function normalizeColor(color: string): string {
 
 // Helper: navigate to the Visualize step with sample data loaded
 async function goToVisualizeStep(page) {
-  await page.goto('/new')
+  await page.goto('/#/new')
 
   const textarea = page.locator('textarea')
   await textarea.fill('Label,Value\nA,10\nB,20\nC,30')
@@ -308,16 +308,16 @@ test.describe('Scene Timeline', () => {
       return null
     })
 
-    // Navigate to Export step to inspect DSL
+    // Navigate to Export step to inspect DSL via iframe embed URL
     await page.locator('.navigation-pill__option', { hasText: 'Export' }).click()
     await page.waitForTimeout(500)
 
-    // Find the DSL text - look for any element containing "chart bar-vertical"
-    const allText = await page.locator('body').innerText()
-    const dslMatch = allText.match(/chart bar-vertical \{[\s\S]*\}/)
-    expect(dslMatch).not.toBeNull()
+    // Extract DSL from the iframe bpc64 query param
+    const iframeCode = await page.locator('.export-embed-panel__pre code').innerText()
+    const bpc64Match = iframeCode.match(/bpc64=([^"&]+)/)
+    expect(bpc64Match).not.toBeNull()
+    const dslContent = Buffer.from(decodeURIComponent(bpc64Match![1]), 'base64').toString()
 
-    const dslContent = dslMatch![0]
     // Extract the scene block
     const sceneBlockMatch = dslContent.match(/scene\s*\{([\s\S]*?)\}/)
     expect(sceneBlockMatch).not.toBeNull()
@@ -442,7 +442,7 @@ test.describe('Scene Timeline', () => {
 
   test('scene transforms affect scene chart data', async ({ page }) => {
     // Use 4-column data so we can use multi-series and hide a column
-    await page.goto('/new')
+    await page.goto('/#/new')
     const textarea = page.locator('textarea')
     await textarea.fill('Label,Series A,Series B\nX,10,20\nY,30,40')
     await page.locator('button', { hasText: 'Load data' }).click()
@@ -489,8 +489,13 @@ test.describe('Scene Timeline', () => {
     await page.locator('.navigation-pill__option', { hasText: 'Export' }).click()
     await page.waitForTimeout(500)
 
-    const allText = await page.locator('body').innerText()
-    const sceneBlockMatch = allText.match(/scene\s*\{([\s\S]*?)\}/)
+    // Extract DSL from the iframe bpc64 query param
+    const iframeCode = await page.locator('.export-embed-panel__pre code').innerText()
+    const bpc64Match = iframeCode.match(/bpc64=([^"&]+)/)
+    expect(bpc64Match).not.toBeNull()
+    const dslContent = Buffer.from(decodeURIComponent(bpc64Match![1]), 'base64').toString()
+
+    const sceneBlockMatch = dslContent.match(/scene\s*\{([\s\S]*?)\}/)
     expect(sceneBlockMatch).not.toBeNull()
 
     // Scene should NOT have a data block — transforms are applied at render time

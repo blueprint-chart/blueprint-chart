@@ -40,7 +40,7 @@ const SCENE_WITH_SORT = 1
 const SCENE_INHERITS_SORT = 2
 
 async function loadBpcFile(page) {
-  await page.goto('/new')
+  await page.goto('/#/new')
   const tmpFile = path.join(os.tmpdir(), 'test-chart.bpc')
   fs.writeFileSync(tmpFile, BPC_CONTENT)
   await page.locator('button', { hasText: 'File' }).click()
