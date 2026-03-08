@@ -3,23 +3,33 @@ import { useChartConfig } from './useChartConfig'
 import { useDataTable } from './useDataTable'
 import { useDataTransforms } from './useDataTransforms'
 import { useChartTypeOptions } from './useChartTypeOptions'
-import { useScenes, type ScenesSnapshot } from './useScenes'
+import { useScenes } from './useScenes'
 import { useWizard } from './useWizard'
 import { useDslSync } from './useDslSync'
+import { useDslOutput } from './useDslOutput'
 import { parseDelimited } from './useDataParser'
 import { deleteThumbnail } from './useChartThumbnail'
-import type { ChartConfig } from './useChartConfig'
-import type { ChartTypeOptions } from './useChartTypeOptions'
-import type { ColumnType } from './useDataParser'
-import type { TransformStep } from './useDataTransforms'
 import type { ChartSample } from '@blueprint-chart/lib'
 
 interface SessionPayload {
-  chartConfig: ChartConfig
-  dataTable: { columns: string[], rows: string[][], rawInput: string, columnTypes?: ColumnType[] }
-  transforms?: TransformStep[]
-  chartTypeOptions: Record<string, Partial<ChartTypeOptions>>
-  scenes?: ScenesSnapshot
+  dsl: string
+  wizard: { currentIndex: number, furthestIndex: number }
+  savedAt?: string
+  /** Raw CSV/TSV input when data was loaded from delimited source (not BPC) */
+  rawInput?: string
+  sourceLabel?: string
+  sourceFormat?: string
+}
+
+// Legacy payload shape for migration
+interface LegacySessionPayload {
+  chartConfig: {
+    chartType: string
+    title: string
+    description: string
+    [key: string]: unknown
+  }
+  dataTable?: { columns: string[], rows: string[][], rawInput: string }
   wizard: { currentIndex: number, furthestIndex: number }
   savedAt?: string
 }
@@ -46,6 +56,10 @@ function storageKey(id: string): string {
   return `blueprint-chart:${id}`
 }
 
+function isLegacyPayload(payload: unknown): payload is LegacySessionPayload {
+  return typeof payload === 'object' && payload !== null && 'chartConfig' in payload && !('dsl' in payload)
+}
+
 const sessionId = ref('')
 
 export function useChartSession() {
@@ -60,39 +74,20 @@ export function useChartSession() {
     if (!sessionId.value) {
       return
     }
-    const base = chartConfig._base
+    const { dsl } = useDslOutput()
     const payload: SessionPayload = {
-      chartConfig: {
-        chartType: base.chartType.value,
-        title: base.title.value,
-        description: base.description.value,
-        byline: base.byline.value,
-        note: base.note.value,
-        source: base.source.value,
-        sourceUrl: base.sourceUrl.value,
-        sort: base.sort.value,
-        data: base.data.value,
-        selectedColumn: base.selectedColumn.value,
-        highlights: base.highlights.value,
-        areaFills: base.areaFills.value,
-        annotations: base.annotations.value,
-        seriesOverrides: base.seriesOverrides.value,
-        layout: base.layout.value,
-      },
-      dataTable: {
-        columns: dataTable.columns.value,
-        rows: dataTable.rows.value,
-        rawInput: dataTable.rawInput.value,
-        columnTypes: dataTable.columnTypes.value,
-      },
-      transforms: transforms.snapshot(),
-      chartTypeOptions: { ...chartTypeOptions.store },
-      scenes: scenesComposable.snapshot(),
+      dsl: dsl.value,
       wizard: {
         currentIndex: wizard.currentIndex.value,
         furthestIndex: wizard.furthestIndex.value,
       },
       savedAt: new Date().toISOString(),
+    }
+    // Preserve raw CSV/TSV input for non-BPC data sources
+    if (dataTable.sourceFormat.value === 'delimited' && dataTable.rawInput.value) {
+      payload.rawInput = dataTable.rawInput.value
+      payload.sourceLabel = dataTable.sourceLabel.value
+      payload.sourceFormat = 'delimited'
     }
     localStorage.setItem(storageKey(sessionId.value), JSON.stringify(payload))
   }
@@ -103,24 +98,51 @@ export function useChartSession() {
       return false
     }
     try {
-      const payload: SessionPayload = JSON.parse(raw)
-      chartConfig.hydrate(payload.chartConfig)
-      dataTable.hydrate(payload.dataTable)
-      if (payload.transforms?.length) {
-        transforms.hydrate(payload.transforms)
+      const parsed = JSON.parse(raw)
+
+      // Migrate legacy payloads: re-save as DSL on next auto-save
+      if (isLegacyPayload(parsed)) {
+        return loadLegacy(id, parsed)
       }
-      else {
-        transforms.reset()
+
+      const payload = parsed as SessionPayload
+      const { applyDsl } = useDslSync()
+      const result = applyDsl(payload.dsl)
+      if (!result.success) {
+        return false
       }
-      chartTypeOptions.hydrate(payload.chartTypeOptions)
-      if (payload.scenes) {
-        scenesComposable.hydrate(payload.scenes)
+
+      // Restore CSV/TSV raw input if it was a delimited source
+      if (payload.sourceFormat === 'delimited' && payload.rawInput) {
+        dataTable.rawInput.value = payload.rawInput
+        dataTable.sourceFormat.value = 'delimited'
+        if (payload.sourceLabel) {
+          dataTable.sourceLabel.value = payload.sourceLabel
+        }
       }
-      else {
-        scenesComposable.reset()
+
+      const wizardState = payload.wizard
+      if (wizardState.furthestIndex > 2) {
+        wizardState.currentIndex = Math.max(0, wizardState.currentIndex - 1)
+        wizardState.furthestIndex = Math.max(0, wizardState.furthestIndex - 1)
+      }
+      wizard.hydrate(wizardState)
+      sessionId.value = id
+      return true
+    }
+    catch {
+      return false
+    }
+  }
+
+  function loadLegacy(id: string, payload: LegacySessionPayload): boolean {
+    // Best-effort: hydrate config directly, then the next auto-save will store as DSL
+    try {
+      chartConfig.hydrate(payload.chartConfig as Parameters<typeof chartConfig.hydrate>[0])
+      if (payload.dataTable) {
+        dataTable.hydrate(payload.dataTable)
       }
       const wizardState = payload.wizard
-      // Migrate old 4-step indices (upload=0,check=1,edit=2,export=3) to 3-step (data=0,edit=1,export=2)
       if (wizardState.furthestIndex > 2) {
         wizardState.currentIndex = Math.max(0, wizardState.currentIndex - 1)
         wizardState.furthestIndex = Math.max(0, wizardState.furthestIndex - 1)
@@ -232,14 +254,30 @@ export function useChartSession() {
         continue
       }
       try {
-        const payload: SessionPayload = JSON.parse(raw)
-        charts.push({
-          id,
-          title: payload.chartConfig.title || '',
-          description: payload.chartConfig.description || '',
-          chartType: payload.chartConfig.chartType || '',
-          savedAt: payload.savedAt ?? null,
-        })
+        const payload = JSON.parse(raw)
+        if (isLegacyPayload(payload)) {
+          charts.push({
+            id,
+            title: payload.chartConfig.title || '',
+            description: payload.chartConfig.description || '',
+            chartType: payload.chartConfig.chartType || '',
+            savedAt: payload.savedAt ?? null,
+          })
+        }
+        else {
+          // Extract metadata from DSL string
+          const dsl = (payload as SessionPayload).dsl ?? ''
+          const titleMatch = dsl.match(/title\s*=\s*"([^"]*)"/)
+          const descMatch = dsl.match(/description\s*=\s*"([^"]*)"/)
+          const typeMatch = dsl.match(/^chart\s+(\S+)/)
+          charts.push({
+            id,
+            title: titleMatch?.[1] ?? '',
+            description: descMatch?.[1] ?? '',
+            chartType: typeMatch?.[1] ?? '',
+            savedAt: (payload as SessionPayload).savedAt ?? null,
+          })
+        }
       }
       catch {
         // skip corrupt entries
