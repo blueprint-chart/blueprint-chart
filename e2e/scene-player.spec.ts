@@ -27,21 +27,17 @@ test.describe('Scene Player', () => {
     await expect(player).toBeVisible()
   })
 
-  test('default player is progress bar with segments', async ({ page }) => {
+  test('default player is minimal arrows', async ({ page }) => {
     await goToVisualizeStep(page)
 
     await page.locator('.button-add').click()
     await page.waitForTimeout(500)
 
     const player = page.locator('.bc-frame [data-scene-player]')
-    await expect(player).toHaveClass(/bc-scene-player--progress-bar/)
-
-    // 2 scenes total (base + 1 override) = 2 segments
-    const segments = player.locator('.bc-scene-player__segment')
-    await expect(segments).toHaveCount(2)
+    await expect(player).toHaveClass(/bc-scene-player--minimal-arrows/)
   })
 
-  test('progress bar shows correct counter', async ({ page }) => {
+  test('minimal arrows shows correct counter', async ({ page }) => {
     await goToVisualizeStep(page)
 
     await page.locator('.button-add').click()
@@ -56,21 +52,20 @@ test.describe('Scene Player', () => {
     await expect(counter).toHaveText('1/2')
   })
 
-  test('clicking segment navigates to that scene', async ({ page }) => {
+  test('arrow buttons navigate between scenes', async ({ page }) => {
     await goToVisualizeStep(page)
 
     await page.locator('.button-add').click()
     await page.locator('.button-add').click()
     await page.waitForTimeout(500)
 
-    // Currently on Scene 3 (activeIndex=1, second override)
-    // Click first segment to go to base
-    const segments = page.locator('.bc-frame .bc-scene-player__segment')
-    await segments.first().click()
+    // Currently on Scene 3 (last added) — click prev arrow to go back
+    const prevBtn = page.locator('.bc-frame [aria-label="Previous scene"]')
+    await prevBtn.click()
     await page.waitForTimeout(300)
 
-    // Scene 1 (base) should be active in timeline
-    await expect(page.locator('.scene-timeline-item').first()).toHaveClass(/scene-timeline-item--active/)
+    // Scene 2 should be active in timeline
+    await expect(page.locator('.scene-timeline-item').nth(1)).toHaveClass(/scene-timeline-item--active/)
   })
 
   test('player type can be changed in Layout settings', async ({ page }) => {
@@ -152,12 +147,17 @@ test.describe('Scene Player', () => {
     await page.locator('.button-add').click()
     await page.waitForTimeout(300)
 
-    // Click through segments
-    const segments = page.locator('.bc-frame .bc-scene-player__segment')
-    await segments.first().click()
-    await page.waitForTimeout(200)
-    await segments.last().click()
-    await page.waitForTimeout(200)
+    // Navigate with arrow buttons
+    const prevBtn = page.locator('.bc-frame [aria-label="Previous scene"]')
+    const nextBtn = page.locator('.bc-frame [aria-label="Next scene"]')
+    if (await prevBtn.isVisible()) {
+      await prevBtn.click()
+      await page.waitForTimeout(200)
+    }
+    if (await nextBtn.isVisible()) {
+      await nextBtn.click()
+      await page.waitForTimeout(200)
+    }
 
     const realErrors = errors.filter(e => !e.includes('favicon'))
     expect(realErrors).toEqual([])
