@@ -507,6 +507,36 @@ describe('useDslOutput', () => {
       expect(dsl.value).toContain('note {')
     })
 
+    it('serializes non-default player type', () => {
+      const config = useChartConfig()
+      config.chartType.value = 'bar-vertical'
+      config._base.layout.value = { ...config._base.layout.value, playerType: 'progress-bar' }
+
+      const { dsl } = useDslOutput()
+      expect(dsl.value).toContain('player = "progress-bar"')
+    })
+
+    it('omits player when it is the default minimal-arrows', () => {
+      const config = useChartConfig()
+      config.chartType.value = 'bar-vertical'
+
+      const { dsl } = useDslOutput()
+      expect(dsl.value).not.toContain('player =')
+    })
+
+    it('player type round-trips through DSL', () => {
+      const { applyDsl } = useDslSync()
+      applyDsl(`chart bar-horizontal {
+  player = "dot-stepper"
+}`)
+
+      const config = useChartConfig()
+      expect(config.layout.value.playerType).toBe('dot-stepper')
+
+      const { dsl } = useDslOutput()
+      expect(dsl.value).toContain('player = "dot-stepper"')
+    })
+
     it('scene annotation round-trip through DSL', () => {
       const { applyDsl } = useDslSync()
       applyDsl(`chart line {

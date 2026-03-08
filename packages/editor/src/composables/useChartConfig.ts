@@ -98,7 +98,7 @@ export const layoutDefaults: ChartLayout = {
   padding: 24,
   transparentBackground: false,
   showCredit: true,
-  playerType: 'progress-bar',
+  playerType: 'minimal-arrows',
   playerPosition: 'center',
 }
 
