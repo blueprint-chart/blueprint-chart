@@ -299,7 +299,7 @@ export function render(
 
   // Resolve value label position
   const vlPos = options.valueLabelPosition ?? 'auto'
-  function resolveVlMode(barHeight: number): 'inside' | 'outside' {
+  function resolveVlMode(): 'inside' | 'outside' {
     if (vlPos === 'inside') {
       return 'inside'
     }
