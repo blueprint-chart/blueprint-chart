@@ -138,10 +138,10 @@ describe('createValueLabelPlugin', () => {
     expect(label.getAttribute('text-anchor')).toBe('start')
   })
 
-  it('places label inside negative horizontal bar on the left side', () => {
+  it('places label outside negative horizontal bar on the left side in auto mode', () => {
     const barG = document.createElementNS('http://www.w3.org/2000/svg', 'g')
     g.appendChild(barG)
-    // Wide negative bar (inside mode: width > 40)
+    // Wide negative bar — auto resolves to outside
     d3.select(barG).append('rect')
       .attr('class', 'bc-bar')
       .attr('x', 20).attr('y', 10).attr('width', 60).attr('height', 20)
@@ -153,15 +153,15 @@ describe('createValueLabelPlugin', () => {
 
     const label = g.querySelector('.bc-value-label')!
     const lx = parseFloat(label.getAttribute('x')!)
-    // Inside negative: left edge + 4 = 24
-    expect(lx).toBe(24)
-    expect(label.getAttribute('text-anchor')).toBe('start')
+    // Outside negative: left edge - 4 = 16
+    expect(lx).toBe(16)
+    expect(label.getAttribute('text-anchor')).toBe('end')
   })
 
-  it('centers label inside negative vertical bar', () => {
+  it('places label outside negative vertical bar in auto mode', () => {
     const barG = document.createElementNS('http://www.w3.org/2000/svg', 'g')
     g.appendChild(barG)
-    // Tall negative bar (inside mode: height > 20)
+    // Tall negative bar — auto resolves to outside
     d3.select(barG).append('rect')
       .attr('class', 'bc-bar')
       .attr('x', 10).attr('y', 100).attr('width', 50).attr('height', 60)
@@ -173,9 +173,9 @@ describe('createValueLabelPlugin', () => {
 
     const label = g.querySelector('.bc-value-label')!
     const ly = parseFloat(label.getAttribute('y')!)
-    // Inside: centered at 100 + 60/2 = 130
-    expect(ly).toBe(130)
-    expect(label.getAttribute('dominant-baseline')).toBe('central')
+    // Outside: below bar at 100 + 60 + 4 = 164
+    expect(ly).toBe(164)
+    expect(label.getAttribute('dominant-baseline')).toBe('hanging')
   })
 
   it('uses custom format', () => {

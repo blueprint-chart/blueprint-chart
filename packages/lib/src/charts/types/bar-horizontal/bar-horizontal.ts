@@ -209,7 +209,7 @@ function valueLabelAttrs(
   pos: 'inside' | 'outside' | 'auto',
 ) {
   const barW = Math.abs(x(d.value) - x(0))
-  const isInside = pos === 'inside' || (pos === 'auto' && barW > 40)
+  const isInside = pos === 'inside'
   const ty = (y(d.label) ?? 0) + y.bandwidth() / 2
   let tx: number, anchor: string
   if (d.value < 0) {

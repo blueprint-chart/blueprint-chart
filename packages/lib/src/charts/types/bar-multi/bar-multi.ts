@@ -327,8 +327,8 @@ export function render(
     if (vlPos === 'outside') {
       return 'outside'
     }
-    // auto: inside if tall enough
-    return barHeight > 20 ? 'inside' : 'outside'
+    // auto: outside by default
+    return 'outside'
   }
 
   // Per-series value labels
