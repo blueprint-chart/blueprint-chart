@@ -214,13 +214,25 @@ function valueLabelAttrs(
   let tx: number, anchor: string
   if (d.value < 0) {
     const barX = Math.min(x(0), x(d.value))
-    if (isInside) { tx = barX + 4; anchor = 'start' }
-    else { tx = barX - 4; anchor = 'end' }
+    if (isInside) {
+      tx = barX + 4
+      anchor = 'start'
+    }
+    else {
+      tx = barX - 4
+      anchor = 'end'
+    }
   }
   else {
     const barEnd = x(d.value)
-    if (isInside) { tx = barEnd - 4; anchor = 'end' }
-    else { tx = barEnd + 4; anchor = 'start' }
+    if (isInside) {
+      tx = barEnd - 4
+      anchor = 'end'
+    }
+    else {
+      tx = barEnd + 4
+      anchor = 'start'
+    }
   }
   return { tx, ty, anchor, isInside }
 }
