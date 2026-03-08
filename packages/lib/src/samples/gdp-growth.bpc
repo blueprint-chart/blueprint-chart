@@ -1,13 +1,10 @@
 chart line-multi {
-  title = "GDP Growth Rate"
+  title = "Germany stagnated while the US and China bounced back"
   description = "Annual percentage change in real GDP"
   source = "IMF World Economic Outlook"
   sourceUrl = "https://imf.org"
-  interpolation = "monotoneX"
   colorPalette = "SolLeWitt"
-  directLabelling = auto
   legend = false
-  verticalGridStyle = dashed
   tooltips = true
 
   annotation "2020" {

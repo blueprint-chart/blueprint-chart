@@ -1,5 +1,5 @@
 chart bar-vertical {
-  title = "Top Coffee Producing Countries"
+  title = "Brazil produces more coffee than the next three countries combined"
   description = "Million 60-kg bags, 2023/24 crop year"
   source = "International Coffee Organization"
   sourceUrl = "https://ico.org"

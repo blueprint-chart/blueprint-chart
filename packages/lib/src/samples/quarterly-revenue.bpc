@@ -1,5 +1,5 @@
 chart bar-multi {
-  title = "Quarterly Revenue by Segment"
+  title = "Software overtakes hardware as the top revenue driver"
   description = "USD billions"
   byline = "Pierre Romera"
   source = "Company filings"

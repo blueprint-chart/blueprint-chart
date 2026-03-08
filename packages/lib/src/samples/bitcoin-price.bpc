@@ -1,13 +1,11 @@
 chart line {
-  title = "Bitcoin Price History"
+  title = "Bitcoin surged past $90,000 in 2024"
   description = "USD, year-end closing price"
   source = "CoinGecko"
-  interpolation = "monotoneX"
   colors = "#f7931a"
   lineSymbols = true
   lineSymbolShowOn = "all"
   lineSymbolShape = "diamond"
-  verticalGridStyle = dashed
   verticalNumberFormat = ",.0f"
   tooltips = true
 

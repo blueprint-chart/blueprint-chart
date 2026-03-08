@@ -1,5 +1,5 @@
 chart bar-vertical {
-  title = "CO₂ Emissions by Country"
+  title = "China emits more CO₂ than the US and India combined"
   description = "Annual emissions in billion tonnes, 2023"
   source = "Global Carbon Project"
   sourceUrl = "https://globalcarbonproject.org"

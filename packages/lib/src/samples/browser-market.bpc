@@ -1,5 +1,5 @@
 chart donut {
-  title = "Desktop Browser Market Share"
+  title = "Chrome dominates with two-thirds of the desktop browser market"
   description = "Worldwide, January 2025"
   source = "StatCounter"
   sourceUrl = "https://gs.statcounter.com"

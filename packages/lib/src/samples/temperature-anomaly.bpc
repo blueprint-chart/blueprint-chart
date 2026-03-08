@@ -1,15 +1,13 @@
 chart line {
-  title = "Global Temperature Anomaly"
+  title = "2024 was the hottest year on record"
   description = "Deviation from the 1951–1980 average, in °C"
   source = "NASA GISS"
   sourceUrl = "https://data.giss.nasa.gov/gistemp/"
   note = "Smoothed five-year running mean of global land-ocean temperature index"
-  interpolation = "monotoneX"
   colors = "#e15759"
   lineSymbols = true
   lineSymbolShape = "circle"
   lineSymbolShowOn = "firstLast"
-  verticalGridStyle = dashed
   tooltips = true
 
   annotation "2024" {

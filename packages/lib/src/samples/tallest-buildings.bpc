@@ -1,5 +1,5 @@
 chart bar-vertical {
-  title = "Tallest Buildings in the World"
+  title = "Burj Khalifa still towers 150m above every rival"
   description = "Height in metres, as of 2025"
   source = "Council on Tall Buildings and Urban Habitat"
   colorPalette = "Imperator"

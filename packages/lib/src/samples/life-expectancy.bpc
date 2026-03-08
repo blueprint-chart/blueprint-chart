@@ -1,14 +1,18 @@
 chart bar-horizontal {
-  title = "Life Expectancy at Birth"
+  title = "Japan leads in life expectancy while the US lags behind"
   description = "Selected countries, years (2023)"
   source = "World Bank"
   sourceUrl = "https://data.worldbank.org"
   note = "Figures are estimates and may differ from national statistics"
   sort = descending
   colors = "#59a14f"
-  valueLabels = true
   horizontalLabelPosition = off
   horizontalGridStyle = none
+
+  highlight "United States" {
+    color = "#e15759"
+    label = "6 years behind Japan"
+  }
 
   data {
     "Japan" = 84.8

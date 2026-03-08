@@ -1,5 +1,5 @@
 chart bar-multi {
-  title = "Olympic Medal Count"
+  title = "USA tops Paris 2024 with 126 medals across all categories"
   description = "2024 Paris Summer Games — top six nations"
   source = "Olympics.com"
   sourceUrl = "https://olympics.com"

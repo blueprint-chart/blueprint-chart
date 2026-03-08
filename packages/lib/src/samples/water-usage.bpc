@@ -1,12 +1,10 @@
 chart pie {
-  title = "Global Freshwater Usage"
+  title = "Agriculture consumes 70% of the world's freshwater"
   description = "Share by sector, 2024"
   source = "FAO Aquastat"
   sourceUrl = "https://fao.org/aquastat"
   colorPalette = "MarcChagall"
   legendPosition = "right"
-  displayAsPercentage = true
-  showLabels = true
   tooltips = true
 
   data {

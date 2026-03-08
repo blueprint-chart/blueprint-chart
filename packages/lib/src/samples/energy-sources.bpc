@@ -1,5 +1,5 @@
 chart donut {
-  title = "Global Electricity Generation"
+  title = "Coal still generates a third of the world's electricity"
   description = "Share by source, 2024"
   source = "IEA"
   sourceUrl = "https://iea.org"
