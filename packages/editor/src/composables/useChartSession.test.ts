@@ -35,7 +35,7 @@ describe('useChartSession', () => {
     useWizard().reset()
   })
 
-  it('save stores DSL string in localStorage', () => {
+  it('save stores raw DSL string in localStorage', () => {
     const session = useChartSession()
     session.newChart()
 
@@ -45,12 +45,22 @@ describe('useChartSession', () => {
     session.save()
 
     const raw = localStorage.getItem(`blueprint-chart:${session.sessionId.value}`)
-    const payload = JSON.parse(raw!)
-    expect(payload.dsl).toBeDefined()
-    expect(payload.dsl).toContain('chart donut')
-    expect(payload.dsl).toContain('title = "Test Title"')
-    // Should NOT have legacy chartConfig shape
-    expect(payload.chartConfig).toBeUndefined()
+    expect(raw).toContain('chart donut')
+    expect(raw).toContain('title = "Test Title"')
+    // Should be raw DSL, not JSON
+    expect(raw!.trimStart().startsWith('chart')).toBe(true)
+  })
+
+  it('save stores metadata in separate :meta key', () => {
+    const session = useChartSession()
+    session.newChart()
+    session.save()
+
+    const metaRaw = localStorage.getItem(`blueprint-chart:${session.sessionId.value}:meta`)
+    expect(metaRaw).not.toBeNull()
+    const meta = JSON.parse(metaRaw!)
+    expect(meta.wizard).toBeDefined()
+    expect(meta.savedAt).toBeDefined()
   })
 
   it('save and load round-trip preserves chart config via DSL', () => {
@@ -63,9 +73,7 @@ describe('useChartSession', () => {
     session.save()
 
     const id = session.sessionId.value
-
     config.reset()
-    expect(config.title.value).toBe('')
 
     const loaded = session.load(id)
     expect(loaded).toBe(true)
@@ -83,13 +91,11 @@ describe('useChartSession', () => {
     session.save()
 
     const id = session.sessionId.value
-
     const table = useDataTable()
     table.reset()
     config.reset()
 
     session.load(id)
-    // applyDsl populates data table from BPC data
     expect(table.columns.value).toEqual(['label', 'value'])
     expect(table.rows.value[0]).toEqual(['A', '10'])
   })
@@ -167,15 +173,15 @@ describe('useChartSession', () => {
     expect(session.loadChart(id)).toBe(true)
   })
 
-  it('save includes savedAt timestamp', () => {
+  it('save includes savedAt timestamp in meta', () => {
     const session = useChartSession()
     session.newChart()
     session.save()
 
-    const raw = localStorage.getItem(`blueprint-chart:${session.sessionId.value}`)
-    const payload = JSON.parse(raw!)
-    expect(payload.savedAt).toBeDefined()
-    expect(new Date(payload.savedAt).getTime()).not.toBeNaN()
+    const metaRaw = localStorage.getItem(`blueprint-chart:${session.sessionId.value}:meta`)
+    const meta = JSON.parse(metaRaw!)
+    expect(meta.savedAt).toBeDefined()
+    expect(new Date(meta.savedAt).getTime()).not.toBeNaN()
   })
 
   it('listSavedCharts returns saved charts sorted by most recent', () => {
@@ -183,14 +189,15 @@ describe('useChartSession', () => {
     const session = useChartSession()
 
     const firstId = 'firstId0001'
-    localStorage.setItem(`blueprint-chart:${firstId}`, JSON.stringify({
-      dsl: 'chart line {\n  title = "First"\n}\n',
+    localStorage.setItem(`blueprint-chart:${firstId}`, 'chart line {\n  title = "First"\n}\n')
+    localStorage.setItem(`blueprint-chart:${firstId}:meta`, JSON.stringify({
       wizard: { currentIndex: 0, furthestIndex: 0 },
       savedAt: '2025-01-01T00:00:00.000Z',
     }))
+
     const secondId = 'secondId001'
-    localStorage.setItem(`blueprint-chart:${secondId}`, JSON.stringify({
-      dsl: 'chart donut {\n  title = "Second"\n  description = "A donut"\n}\n',
+    localStorage.setItem(`blueprint-chart:${secondId}`, 'chart donut {\n  title = "Second"\n  description = "A donut"\n}\n')
+    localStorage.setItem(`blueprint-chart:${secondId}:meta`, JSON.stringify({
       wizard: { currentIndex: 0, furthestIndex: 0 },
       savedAt: '2025-06-01T00:00:00.000Z',
     }))
@@ -215,18 +222,20 @@ describe('useChartSession', () => {
     expect(charts.find(c => c.id === 'other-key')).toBeUndefined()
   })
 
-  it('deleteChart removes chart from localStorage', () => {
+  it('deleteChart removes both DSL and meta keys', () => {
     const session = useChartSession()
     session.newChart()
     session.save()
     const id = session.sessionId.value
 
     expect(localStorage.getItem(`blueprint-chart:${id}`)).not.toBeNull()
+    expect(localStorage.getItem(`blueprint-chart:${id}:meta`)).not.toBeNull()
     session.deleteChart(id)
     expect(localStorage.getItem(`blueprint-chart:${id}`)).toBeNull()
+    expect(localStorage.getItem(`blueprint-chart:${id}:meta`)).toBeNull()
   })
 
-  it('loads legacy payload format and migrates on next save', () => {
+  it('loads legacy JSON payload and migrates on next save', () => {
     const legacyId = 'legacyId001'
     localStorage.setItem(`blueprint-chart:${legacyId}`, JSON.stringify({
       chartConfig: {
