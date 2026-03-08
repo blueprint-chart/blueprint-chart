@@ -1,6 +1,7 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHashHistory } from 'vue-router'
 import HomePage from '@/components/Home/HomePage.vue'
 import WizardShell from '@/components/Wizard/WizardShell.vue'
+import RenderPage from '@/components/Render/RenderPage.vue'
 import { useChartSession } from '@/composables/useChartSession'
 
 function loadSession(to: { params: { id: string } }) {
@@ -17,7 +18,7 @@ function loadSession(to: { params: { id: string } }) {
 }
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHashHistory(),
   routes: [
     {
       path: '/',
@@ -49,6 +50,11 @@ const router = createRouter({
       path: '/edit/:id/export',
       component: WizardShell,
       beforeEnter: loadSession,
+    },
+    {
+      path: '/render',
+      component: RenderPage,
+      meta: { bare: true },
     },
   ],
 })
