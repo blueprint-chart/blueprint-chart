@@ -216,12 +216,24 @@ function valueLabelAttrs(
   const anchor = 'middle'
   let ty: number, baseline: string
   if (d.value < 0) {
-    if (isInside) { ty = y(d.value) - barH / 2; baseline = 'central' }
-    else { ty = y(d.value) + 4; baseline = 'hanging' }
+    if (isInside) {
+      ty = y(d.value) - barH / 2
+      baseline = 'central'
+    }
+    else {
+      ty = y(d.value) + 4
+      baseline = 'hanging'
+    }
   }
   else {
-    if (isInside) { ty = y(d.value) + barH / 2; baseline = 'central' }
-    else { ty = y(d.value) - 4; baseline = 'auto' }
+    if (isInside) {
+      ty = y(d.value) + barH / 2
+      baseline = 'central'
+    }
+    else {
+      ty = y(d.value) - 4
+      baseline = 'auto'
+    }
   }
   return { tx, ty, anchor, baseline, isInside }
 }

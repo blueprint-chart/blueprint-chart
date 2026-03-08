@@ -21,7 +21,7 @@
 
 <script setup lang="ts">
 import { computed, ref, watch, onMounted, onUnmounted } from 'vue'
-import { onBeforeRouteLeave, useRoute, useRouter } from 'vue-router'
+import { onBeforeRouteLeave } from 'vue-router'
 import { useDebounceFn } from '@vueuse/core'
 import { useWizard } from '@/composables/useWizard'
 import { useNavbar } from '@/composables/useNavbar'
@@ -42,9 +42,7 @@ import DataPanel from '@/components/Data/DataPanel.vue'
 import ChartEditPanel from '@/components/ChartEdit/ChartEditPanel.vue'
 import ExportPanel from '@/components/Export/ExportPanel.vue'
 
-const route = useRoute()
-const router = useRouter()
-const { currentIndex, currentStep, registerCreateSession } = useWizard()
+const { currentStep, registerCreateSession } = useWizard()
 const { setMode, reset: resetNavbar } = useNavbar()
 const dataTable = useDataTable()
 const config = useChartConfig()
