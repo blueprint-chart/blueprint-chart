@@ -45,6 +45,7 @@
 import { computed } from 'vue'
 import { SettingsSection } from '@blueprint-chart/ui'
 import { useChartTypeOptions } from '@/composables/useChartTypeOptions'
+import { useScenes } from '@/composables/useScenes'
 import IPhPalette from '~icons/ph/palette'
 import IPhLineSegments from '~icons/ph/line-segments'
 import IPhListBullets from '~icons/ph/list-bullets'
@@ -57,6 +58,7 @@ import EditorSliceSection from './EditorSliceSection.vue'
 import EditorInteractionSection from './EditorInteractionSection.vue'
 
 const { availableOptionKeys } = useChartTypeOptions()
+const { scenes } = useScenes()
 
 const hasLine = computed(() =>
   availableOptionKeys.value.includes('interpolation')
@@ -68,8 +70,8 @@ const hasLegend = computed(() => availableOptionKeys.value.includes('legend'))
 const hasSlice = computed(() => availableOptionKeys.value.includes('displayAsPercentage'))
 
 const hasInteraction = computed(() =>
-  availableOptionKeys.value.includes('valueLabels')
-  || availableOptionKeys.value.includes('tooltips')
-  || availableOptionKeys.value.includes('crosshair'),
+  availableOptionKeys.value.includes('tooltips')
+  || availableOptionKeys.value.includes('crosshair')
+  || scenes.value.length >= 1,
 )
 </script>

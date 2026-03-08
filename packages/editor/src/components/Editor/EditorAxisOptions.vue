@@ -1,8 +1,30 @@
 <template>
   <div
-    v-if="verticalDefs.length > 0 || horizontalDefs.length > 0"
+    v-if="hasValueLabels || verticalDefs.length > 0 || horizontalDefs.length > 0"
     class="d-flex flex-column gap-4"
   >
+    <SettingsSection
+      v-if="hasValueLabels"
+      title="Value Labels"
+      :icon="IPhTextAa"
+    >
+      <div class="d-flex flex-column gap-2">
+        <FormControlCheckbox
+          :model-value="currentOptions.valueLabels ?? false"
+          label="Show value labels"
+          @update:model-value="(v) => setOption('valueLabels', v)"
+        />
+        <FormControlButtonGroup
+          v-if="currentOptions.valueLabels"
+          label="Position"
+          :model-value="currentOptions.valueLabelPosition ?? 'auto'"
+          :options="valueLabelPositionChoices"
+          block
+          @update:model-value="(v) => setOption('valueLabelPosition', v)"
+        />
+      </div>
+    </SettingsSection>
+
     <SettingsSection
       v-if="verticalDefs.length > 0"
       title="Vertical Axis"
@@ -61,6 +83,15 @@ import IPhArrowSquareIn from '~icons/ph/arrow-square-in'
 import IPhArrowSquareOut from '~icons/ph/arrow-square-out'
 import IPhChartLineUp from '~icons/ph/chart-line-up'
 import IPhWaveSine from '~icons/ph/wave-sine'
+import IPhTextAa from '~icons/ph/text-aa'
+
+const hasValueLabels = computed(() => availableOptionKeys.value.includes('valueLabels'))
+
+const valueLabelPositionChoices = [
+  { value: 'auto', text: 'Auto', icon: IPhMagicWand },
+  { value: 'outside', text: 'Outside', icon: IPhArrowSquareOut },
+  { value: 'inside', text: 'Inside', icon: IPhArrowSquareIn },
+]
 
 const VERTICAL_KEYS = new Set([
   'showVerticalAxis',
@@ -85,7 +116,7 @@ const HORIZONTAL_KEYS = new Set([
   'horizontalRangeMax',
 ])
 
-const { currentOptions, optionDefs, setOption } = useChartTypeOptions()
+const { currentOptions, optionDefs, availableOptionKeys, setOption } = useChartTypeOptions()
 const { displayColumnTypes } = useDataTable()
 
 const labelColumnType = computed(() => displayColumnTypes.value[0] ?? 'string')
