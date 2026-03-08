@@ -211,7 +211,7 @@ function valueLabelAttrs(
   pos: 'inside' | 'outside' | 'auto',
 ) {
   const barH = Math.abs(y(d.value) - y(0))
-  const isInside = pos === 'inside' || (pos === 'auto' && barH > 20)
+  const isInside = pos === 'inside'
   const tx = (x(d.label) ?? 0) + x.bandwidth() / 2
   const anchor = 'middle'
   let ty: number, baseline: string

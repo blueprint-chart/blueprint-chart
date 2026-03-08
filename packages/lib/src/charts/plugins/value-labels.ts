@@ -32,7 +32,7 @@ export function createValueLabelPlugin(options?: {
         let tx: number, ty: number, anchor: string, baseline: string, isInside: boolean
 
         if (orientation === 'horizontal') {
-          isInside = pos === 'inside' || (pos === 'auto' && w > 40)
+          isInside = pos === 'inside'
           ty = y + h / 2
           baseline = 'central'
 
@@ -61,7 +61,7 @@ export function createValueLabelPlugin(options?: {
           }
         }
         else {
-          isInside = pos === 'inside' || (pos === 'auto' && h > 20)
+          isInside = pos === 'inside'
           tx = x + w / 2
           anchor = 'middle'
 
