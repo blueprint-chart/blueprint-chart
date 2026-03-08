@@ -16,11 +16,11 @@ function stepKeyFromRoute(path: string): string {
   if (path.endsWith('/export')) {
     return 'export'
   }
+  if (path.endsWith('/visualize')) {
+    return 'edit'
+  }
   if (path.endsWith('/data')) {
     return 'data'
-  }
-  if (path.startsWith('/edit/')) {
-    return 'edit'
   }
   // /new defaults to data
   return 'data'
@@ -28,7 +28,7 @@ function stepKeyFromRoute(path: string): string {
 
 export function stepPath(id: string, stepKey: string): string {
   if (stepKey === 'edit') {
-    return `/edit/${id}`
+    return `/edit/${id}/visualize`
   }
   return `/edit/${id}/${stepKey}`
 }

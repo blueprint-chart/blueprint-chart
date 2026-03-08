@@ -23,8 +23,8 @@ describe('useWizard', () => {
     expect(currentStep.value.key).toBe('data')
   })
 
-  it('resolves edit step on /edit/:id', () => {
-    mockRoute.path = '/edit/abc123'
+  it('resolves edit step on /edit/:id/visualize', () => {
+    mockRoute.path = '/edit/abc123/visualize'
     mockRoute.params = { id: 'abc123' }
     const { currentIndex, currentStep } = useWizard()
     expect(currentIndex.value).toBe(1)
@@ -46,7 +46,7 @@ describe('useWizard', () => {
   })
 
   it('next() navigates to next step route', () => {
-    mockRoute.path = '/edit/abc123'
+    mockRoute.path = '/edit/abc123/visualize'
     mockRoute.params = { id: 'abc123' }
     const { next } = useWizard()
     next()
@@ -54,7 +54,7 @@ describe('useWizard', () => {
   })
 
   it('back() navigates to previous step route', () => {
-    mockRoute.path = '/edit/abc123'
+    mockRoute.path = '/edit/abc123/visualize'
     mockRoute.params = { id: 'abc123' }
     const { back } = useWizard()
     back()
@@ -77,7 +77,7 @@ describe('useWizard', () => {
   })
 
   it('goTo() navigates to the specified step', () => {
-    mockRoute.path = '/edit/abc123'
+    mockRoute.path = '/edit/abc123/visualize'
     mockRoute.params = { id: 'abc123' }
     const { goTo } = useWizard()
     goTo(2)
