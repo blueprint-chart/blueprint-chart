@@ -9,14 +9,10 @@
       @click="$emit('select', sample)"
       @keydown.enter="$emit('select', sample)"
     >
-      <div
-        class="sample-card__icon"
-        :style="{ background: sample.iconBg }"
-      >
+      <div class="sample-card__thumb">
         <component
-          :is="sample.icon"
-          width="16"
-          height="16"
+          :is="sample.thumb"
+          v-if="sample.thumb"
         />
       </div>
       <div class="sample-card__info">
@@ -24,12 +20,9 @@
           {{ sample.title }}
         </div>
         <div class="sample-card__meta">
-          {{ rowCount(sample) }} rows · {{ colCount(sample) }} cols
-          <span
-            v-if="sample.tag"
-            class="sample-card__tag"
-            :style="{ background: sample.tagBg, color: sample.tagColor }"
-          >{{ sample.tag }}</span>
+          {{ sample.typeLabel }}
+          <span class="sample-card__meta-sep">&middot;</span>
+          {{ rowCount(sample) }} rows
         </div>
       </div>
     </div>
@@ -40,35 +33,47 @@
 import { type Component, computed, markRaw } from 'vue'
 import { samples } from '@blueprint-chart/lib'
 import type { ChartSample } from '@blueprint-chart/lib'
-import IPhFileText from '~icons/ph/file-text'
-import IPhTrophy from '~icons/ph/trophy'
-import IPhChartLineUp from '~icons/ph/chart-line-up'
-import IPhUsers from '~icons/ph/users'
-import IPhChartBar from '~icons/ph/chart-bar'
+
+import BarVerticalThumb from '@/assets/chart-thumbnails/bar-vertical.bpc'
+import BarHorizontalThumb from '@/assets/chart-thumbnails/bar-horizontal.bpc'
+import BarMultiThumb from '@/assets/chart-thumbnails/bar-multi.bpc'
+import LineThumb from '@/assets/chart-thumbnails/line.bpc'
+import LineMultiThumb from '@/assets/chart-thumbnails/line-multi.bpc'
+import DonutThumb from '@/assets/chart-thumbnails/donut.bpc'
+import PieThumb from '@/assets/chart-thumbnails/pie.bpc'
 
 defineEmits<{ select: [sample: ChartSample] }>()
 
+const THUMB_MAP: Record<string, Component> = {
+  'bar-vertical': markRaw(BarVerticalThumb),
+  'bar-horizontal': markRaw(BarHorizontalThumb),
+  'bar-multi': markRaw(BarMultiThumb),
+  'line': markRaw(LineThumb),
+  'line-multi': markRaw(LineMultiThumb),
+  'donut': markRaw(DonutThumb),
+  'pie': markRaw(PieThumb),
+}
+
+const TYPE_LABELS: Record<string, string> = {
+  'bar-vertical': 'Columns',
+  'bar-horizontal': 'Bars',
+  'bar-multi': 'Grouped Columns',
+  'line': 'Line',
+  'line-multi': 'Lines',
+  'donut': 'Donut',
+  'pie': 'Pie',
+}
+
 interface SampleCard extends ChartSample {
-  icon: Component
-  iconBg: string
-  tag?: string
-  tagBg?: string
-  tagColor?: string
+  thumb: Component | undefined
+  typeLabel: string
 }
-
-const SAMPLE_META: Record<string, { icon: Component, iconBg: string, tag?: string, tagBg?: string, tagColor?: string }> = {
-  'olympic-medals': { icon: markRaw(IPhTrophy), iconBg: 'var(--bs-warning-bg-subtle)', tag: 'Categorical', tagBg: 'var(--bs-primary-bg-subtle)', tagColor: 'var(--bs-primary)' },
-  'monthly-revenue': { icon: markRaw(IPhChartLineUp), iconBg: 'var(--bs-success-bg-subtle)', tag: 'Time series', tagBg: 'var(--bs-info-bg-subtle)', tagColor: 'var(--bs-info-text-emphasis)' },
-  'population': { icon: markRaw(IPhUsers), iconBg: 'var(--bs-info-bg-subtle)', tag: 'Comparison', tagBg: 'var(--bs-success-bg-subtle)', tagColor: 'var(--bs-success-text-emphasis)' },
-  'survey-results': { icon: markRaw(IPhChartBar), iconBg: 'var(--bs-danger-bg-subtle)', tag: 'Categorical', tagBg: 'var(--bs-primary-bg-subtle)', tagColor: 'var(--bs-primary)' },
-}
-
-const DEFAULT_META = { icon: markRaw(IPhFileText), iconBg: 'var(--bs-tertiary-bg)' }
 
 const sampleCards = computed<SampleCard[]>(() =>
   samples.map(s => ({
     ...s,
-    ...(SAMPLE_META[s.id] ?? DEFAULT_META),
+    thumb: THUMB_MAP[s.chartType],
+    typeLabel: TYPE_LABELS[s.chartType] ?? s.chartType,
   })),
 )
 
@@ -76,17 +81,12 @@ function rowCount(sample: ChartSample): number {
   const lines = sample.tsvData.split('\n').filter(l => l.trim().length > 0)
   return Math.max(0, lines.length - 1)
 }
-
-function colCount(sample: ChartSample): number {
-  const firstLine = sample.tsvData.split('\n')[0] ?? ''
-  return firstLine.split('\t').length
-}
 </script>
 
 <style scoped lang="scss">
 .samples-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
   gap: 0.5rem;
   width: 100%;
   padding: 0.5rem;
@@ -96,7 +96,7 @@ function colCount(sample: ChartSample): number {
   display: flex;
   align-items: center;
   gap: 0.625rem;
-  padding: 0.625rem 0.75rem;
+  padding: 0.5rem 0.625rem;
   border: 1px solid var(--bs-border-color);
   border-radius: var(--bs-border-radius);
   cursor: pointer;
@@ -109,15 +109,23 @@ function colCount(sample: ChartSample): number {
   }
 }
 
-.sample-card__icon {
+.sample-card__thumb {
   width: 2rem;
   height: 2rem;
-  border-radius: 0.375rem;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: var(--bs-font-size-md);
-  flex-shrink: 0;
+  opacity: 0.7;
+
+  :deep(svg) {
+    width: 100%;
+    height: 100%;
+  }
+
+  .sample-card:hover & {
+    opacity: 1;
+  }
 }
 
 .sample-card__info {
@@ -137,17 +145,9 @@ function colCount(sample: ChartSample): number {
 .sample-card__meta {
   font-size: var(--bs-font-size-xs);
   color: var(--bs-secondary-color);
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
 }
 
-.sample-card__tag {
-  font-size: var(--bs-font-size-xs);
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  padding: 0.0625rem 0.3125rem;
-  border-radius: 0.1875rem;
+.sample-card__meta-sep {
+  margin: 0 0.125rem;
 }
 </style>
