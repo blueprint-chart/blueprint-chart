@@ -3,6 +3,8 @@ import type { PropertyNode, SeriesOverride, AnnotationConfig, PointAnnotationCon
 import { useChartConfig } from './useChartConfig'
 import { useChartTypeOptions, type ChartTypeOptions } from './useChartTypeOptions'
 import { useDataTransforms, type TransformType } from './useDataTransforms'
+import { useDataTable } from './useDataTable'
+import { parseBpcData } from './useDataParser'
 import { useScenes, type SceneOverride, type AnnotationVisibility } from './useScenes'
 
 function readPosition(properties: PropertyNode[], key: string): number | string | undefined {
@@ -60,6 +62,15 @@ export function useDslSync() {
       config.source.value = String(propMap.get('source') ?? '')
       config.sourceUrl.value = String(propMap.get('sourceUrl') ?? '')
 
+      const player = propMap.get('player')
+      const validPlayerTypes = ['progress-bar', 'dot-stepper', 'minimal-arrows', 'none']
+      if (player && validPlayerTypes.includes(String(player))) {
+        config.layout.value = { ...config.layout.value, playerType: String(player) as 'progress-bar' | 'dot-stepper' | 'minimal-arrows' | 'none' }
+      }
+      else {
+        config.layout.value = { ...config.layout.value, playerType: 'minimal-arrows' }
+      }
+
       const sort = propMap.get('sort')
       if (sort === 'ascending' || sort === 'descending') {
         config.sort.value = sort
@@ -68,7 +79,17 @@ export function useDslSync() {
         config.sort.value = 'none'
       }
 
-      config.data.value = ast.data ? dataEntriesToString(ast.data) : ''
+      const dataStr = ast.data ? dataEntriesToString(ast.data) : ''
+      config.data.value = dataStr
+
+      // Populate data table with parsed BPC data so scene transforms can reference columns
+      if (dataStr) {
+        const dataTable = useDataTable()
+        const parsed = parseBpcData(dataStr)
+        dataTable.loadParsed(parsed)
+        dataTable.rawInput.value = dataStr
+        dataTable.sourceFormat.value = 'bpc'
+      }
 
       store[ast.chartType] = extractChartTypeOptions(ast.chartType, ast.properties) as Partial<ChartTypeOptions>
 

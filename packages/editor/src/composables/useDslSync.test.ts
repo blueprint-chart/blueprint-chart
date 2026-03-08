@@ -1161,6 +1161,37 @@ describe('useDslSync', () => {
     })
   })
 
+  describe('player type', () => {
+    it('parses player type from DSL', () => {
+      const { applyDsl } = useDslSync()
+      applyDsl(`chart bar-horizontal {
+  player = "progress-bar"
+}`)
+
+      const config = useChartConfig()
+      expect(config.layout.value.playerType).toBe('progress-bar')
+    })
+
+    it('defaults to minimal-arrows when player not specified', () => {
+      const { applyDsl } = useDslSync()
+      applyDsl(`chart bar-horizontal {
+}`)
+
+      const config = useChartConfig()
+      expect(config.layout.value.playerType).toBe('minimal-arrows')
+    })
+
+    it('ignores invalid player type', () => {
+      const { applyDsl } = useDslSync()
+      applyDsl(`chart bar-horizontal {
+  player = "invalid-type"
+}`)
+
+      const config = useChartConfig()
+      expect(config.layout.value.playerType).toBe('minimal-arrows')
+    })
+  })
+
   describe('scene sort transform inheritance', () => {
     it('sort transform from scene 1 cascades to scene 2 via resolveScene', () => {
       const { applyDsl } = useDslSync()
