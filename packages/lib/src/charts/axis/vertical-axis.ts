@@ -32,8 +32,12 @@ class VerticalAxisChart extends D3Blueprint<AxisDatum[]> {
         'merge:transition': (sel: any) => {
           const scale = this.config('scale') as d3.AxisScale<string | d3.NumberValue>
           const direction = this.config('direction') as string
+          const showAxis = this.config('showAxis') as boolean
+          const showTicks = this.config('showTicks') as boolean
+          const labelPos = this.config('labelPosition') as string
+          const chartWidth = this.config('gridWidth') as number
           const axisFn = direction === 'right' ? d3.axisRight(scale) : d3.axisLeft(scale)
-          if (!this.config('showTicks')) {
+          if (!showTicks) {
             axisFn.tickSizeOuter(0)
           }
           const ticks = this.config('ticks') as number[] | null
@@ -46,6 +50,40 @@ class VerticalAxisChart extends D3Blueprint<AxisDatum[]> {
             axisFn.tickFormat(fmtFn as (d: string | d3.NumberValue) => string)
           }
           sel.duration(getDefaultTransitionMs()).call(axisFn)
+
+          // Hide axis domain line when showAxis is off
+          if (!showAxis) {
+            sel.select('.domain').attr('opacity', 0).on('end.domain', function (this: SVGElement) {
+              d3.select(this).remove()
+            })
+          }
+
+          // Reapply inside label positioning (D3 axisFn resets to defaults)
+          const AUTO_INSIDE_THRESHOLD = 400
+          const effective = labelPos === 'auto'
+            ? (chartWidth > 0 && chartWidth < AUTO_INSIDE_THRESHOLD ? 'inside' : 'outside')
+            : labelPos
+          if (effective === 'inside') {
+            const padding = showAxis ? 4 : 0
+            if (direction === 'right') {
+              sel.selectAll('.tick text')
+                .attr('x', -padding)
+                .attr('dy', '-0.4em')
+                .attr('text-anchor', 'end')
+            }
+            else {
+              sel.selectAll('.tick text')
+                .attr('x', padding)
+                .attr('dy', '-0.4em')
+                .attr('text-anchor', 'start')
+            }
+            if (!showTicks) {
+              sel.selectAll('.tick line').attr('opacity', 0)
+            }
+          }
+          else if (effective === 'off') {
+            sel.selectAll('.tick text').attr('opacity', 0)
+          }
         },
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         'exit': (sel: any) => {
