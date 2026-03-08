@@ -325,6 +325,22 @@ describe('bar-multi', () => {
     expect(texts).toContain('Product B')
   })
 
+  it('direct labels default to outside in auto mode', () => {
+    render(container, data, { directLabelling: 'auto' })
+    const directLabels = container.querySelectorAll('.bc-direct-label')
+    // Outside labels should NOT use 'central' baseline
+    const baselines = Array.from(directLabels).map(l => l.getAttribute('dominant-baseline'))
+    expect(baselines.every(b => b !== 'central')).toBe(true)
+  })
+
+  it('direct labels match value label position when both are enabled', () => {
+    render(container, data, { directLabelling: 'auto', valueLabels: true, valueLabelPosition: 'inside' })
+    const directLabels = container.querySelectorAll('.bc-direct-label')
+    // When value labels are inside, direct labels should also be inside (central baseline)
+    const baselines = Array.from(directLabels).map(l => l.getAttribute('dominant-baseline'))
+    expect(baselines.some(b => b === 'central')).toBe(true)
+  })
+
   // ── Axis options ─────────────────────────────────────────────────
 
   it('renders vertical axis by default', () => {
