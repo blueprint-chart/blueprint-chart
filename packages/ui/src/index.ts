@@ -48,6 +48,10 @@ export { default as DisplayContrastBadge } from './components/Display/DisplayCon
 export { default as SectionGroup } from './components/Section/SectionGroup/SectionGroup.vue'
 export { default as SectionTitle } from './components/Section/SectionTitle/SectionTitle.vue'
 export { default as SectionCard } from './components/Section/SectionCard/SectionCard.vue'
+export { default as SettingsSection } from './components/SettingsSection/SettingsSection.vue'
+export { default as SettingsSectionIcon } from './components/SettingsSection/SettingsSectionIcon.vue'
+export { default as SettingsSectionTitle } from './components/SettingsSection/SettingsSectionTitle.vue'
+export { default as SettingsSectionDescription } from './components/SettingsSection/SettingsSectionDescription.vue'
 
 export { default as ButtonAdd } from './components/Button/ButtonAdd/ButtonAdd.vue'
 export { default as ButtonClose } from './components/Button/ButtonClose/ButtonClose.vue'
