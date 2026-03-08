@@ -196,6 +196,15 @@ describe('bar-horizontal', () => {
     expect(anchors.every(a => a === 'end')).toBe(true)
   })
 
+  it('value labels default to outside in auto mode', () => {
+    render(container, data, { valueLabels: true })
+    const labels = container.querySelectorAll('.bc-value-label')
+    expect(labels).toHaveLength(3)
+    // Auto defaults to outside — positive values should have text-anchor start
+    const anchors = Array.from(labels).map(el => el.getAttribute('text-anchor'))
+    expect(anchors.every(a => a === 'start')).toBe(true)
+  })
+
   // ── Crosshair ────────────────────────────────────────────────────
 
   it('creates crosshair elements when enabled', () => {

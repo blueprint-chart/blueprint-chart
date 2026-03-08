@@ -210,14 +210,13 @@ describe('bar-vertical', () => {
     expect(baselines.every(b => b === 'auto')).toBe(true)
   })
 
-  it('value labels default to "auto" position', () => {
+  it('value labels default to outside in auto mode', () => {
     render(container, data, { valueLabels: true })
     const labels = container.querySelectorAll('.bc-value-label')
     expect(labels).toHaveLength(3)
-    // Auto chooses inside when bar height > 20, otherwise outside
-    // All labels should have a valid dominant-baseline attribute
+    // Auto defaults to outside — labels should NOT use 'central' baseline (that's inside)
     const baselines = Array.from(labels).map(l => l.getAttribute('dominant-baseline'))
-    expect(baselines.every(b => b !== null)).toBe(true)
+    expect(baselines.every(b => b === 'auto')).toBe(true)
   })
 
   // ── Clip path ────────────────────────────────────────────────────
