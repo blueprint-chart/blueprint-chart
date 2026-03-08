@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { parseDelimited, detectColumnTypes } from './useDataParser'
+import { parseDelimited, parseBpcData, detectColumnTypes } from './useDataParser'
 
 describe('parseDelimited', () => {
   it('returns empty for empty input', () => {
@@ -174,5 +174,42 @@ describe('detectColumnTypes', () => {
       ],
     )
     expect(types).toEqual(['date', 'number', 'number', 'number'])
+  })
+})
+
+describe('parseBpcData', () => {
+  it('returns empty for empty input', () => {
+    const result = parseBpcData('')
+    expect(result.columns).toEqual([])
+    expect(result.rows).toEqual([])
+  })
+
+  it('parses single-series key-value format', () => {
+    const result = parseBpcData('"China" = 1050\n"India" = 900\n"Brazil" = 186')
+    expect(result.columns).toEqual(['label', 'value'])
+    expect(result.rows).toEqual([
+      ['China', '1050'],
+      ['India', '900'],
+      ['Brazil', '186'],
+    ])
+    expect(result.columnTypes).toEqual(['string', 'number'])
+  })
+
+  it('parses percentage values', () => {
+    const result = parseBpcData('"Apples" = 42%\n"Bananas" = 58%')
+    expect(result.columns).toEqual(['label', 'value'])
+    expect(result.rows).toEqual([
+      ['Apples', '42'],
+      ['Bananas', '58'],
+    ])
+  })
+
+  it('parses multi-series format with _series header', () => {
+    const result = parseBpcData('_series = "Chrome,IE,Firefox"\n"2009-01" = "1.37,64.97,26.85"\n"2009-02" = "1.5,63.98,27.66"')
+    expect(result.columns).toEqual(['label', 'Chrome', 'IE', 'Firefox'])
+    expect(result.rows).toEqual([
+      ['2009-01', '1.37', '64.97', '26.85'],
+      ['2009-02', '1.5', '63.98', '27.66'],
+    ])
   })
 })

@@ -105,6 +105,39 @@ export interface ParseDelimitedOptions {
   trimWhitespace?: boolean
 }
 
+export function parseBpcData(raw: string): ParsedData {
+  const lines = raw.split('\n').map(l => l.trim()).filter(Boolean)
+  if (lines.length === 0) {
+    return { columns: [], rows: [], columnTypes: [] }
+  }
+
+  const seriesMatch = lines[0]?.match(/^_series\s*=\s*"(.+)"$/)
+  if (seriesMatch) {
+    const seriesNames = seriesMatch[1].split(',').map(s => s.trim())
+    const columns = ['label', ...seriesNames]
+    const rows: string[][] = []
+    for (let i = 1; i < lines.length; i++) {
+      const match = lines[i].match(/^"([^"]+)"\s*=\s*"([^"]*)"$/)
+      if (match) {
+        rows.push([match[1], ...match[2].split(',').map(v => v.trim())])
+      }
+    }
+    const columnTypes = detectColumnTypes(columns, rows)
+    return { columns, rows, columnTypes }
+  }
+
+  const columns = ['label', 'value']
+  const rows: string[][] = []
+  for (const line of lines) {
+    const match = line.match(/^"([^"]+)"\s*=\s*(.+)$/)
+    if (match) {
+      rows.push([match[1], match[2].replace(/%$/, '').trim()])
+    }
+  }
+  const columnTypes = detectColumnTypes(columns, rows)
+  return { columns, rows, columnTypes }
+}
+
 export function parseDelimited(raw: string, options?: ParseDelimitedOptions): ParsedData {
   const opts = options ?? {}
   const shouldTrim = opts.trimWhitespace !== false
