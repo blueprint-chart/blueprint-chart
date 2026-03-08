@@ -1,5 +1,5 @@
 <template>
-  <div class="d-flex flex-column gap-3">
+  <div class="d-flex flex-column gap-4">
     <EditorAnnotations
       ref="annotationsRef"
       :model-value="resolvedAnnotations"
@@ -13,14 +13,17 @@
       @toggle-visibility="handleToggleVisibility"
     />
 
-    <hr v-if="isMultiLine">
-
-    <EditorAreaFills
+    <SettingsSection
       v-if="isMultiLine"
-      :model-value="areaFills"
-      :series-names="seriesNames"
-      @update:model-value="(v) => areaFills = v"
-    />
+      title="Area Fills"
+      :icon="IPhDropHalf"
+    >
+      <EditorAreaFills
+        :model-value="areaFills"
+        :series-names="seriesNames"
+        @update:model-value="(v) => areaFills = v"
+      />
+    </SettingsSection>
   </div>
 </template>
 
@@ -34,6 +37,8 @@ import { useScenes } from '@/composables/useScenes'
 import { resolveScene } from '@/composables/useChartPreview'
 import { parseData } from '@blueprint-chart/lib'
 import type { AnnotationConfig } from '@blueprint-chart/lib'
+import { SettingsSection } from '@blueprint-chart/ui'
+import IPhDropHalf from '~icons/ph/drop-half'
 import EditorAnnotations from './EditorAnnotations.vue'
 import EditorAreaFills from './EditorAreaFills.vue'
 

@@ -3,29 +3,29 @@
     v-if="verticalDefs.length > 0 || horizontalDefs.length > 0"
     class="d-flex flex-column gap-4"
   >
-    <div v-if="verticalDefs.length > 0">
-      <h6 class="fw-bold mb-3">
-        Vertical Axis
-      </h6>
+    <SettingsSection
+      v-if="verticalDefs.length > 0"
+      title="Vertical Axis"
+      :icon="IPhArrowsVertical"
+    >
       <AxisGroup
         :defs="verticalDefs"
         :current-options="currentOptions"
         @update="(k, v) => setOption(k, v as any)"
       />
-    </div>
+    </SettingsSection>
 
-    <hr v-if="verticalDefs.length > 0 && horizontalDefs.length > 0">
-
-    <div v-if="horizontalDefs.length > 0">
-      <h6 class="fw-bold mb-3">
-        Horizontal Axis
-      </h6>
+    <SettingsSection
+      v-if="horizontalDefs.length > 0"
+      title="Horizontal Axis"
+      :icon="IPhArrowsHorizontal"
+    >
       <AxisGroup
         :defs="horizontalDefs"
         :current-options="currentOptions"
         @update="(k, v) => setOption(k, v as any)"
       />
-    </div>
+    </SettingsSection>
   </div>
   <p
     v-else
@@ -43,6 +43,7 @@ import {
   FormControlTextInput,
   FormControlNumberFormat,
   FormControlDateFormat,
+  SettingsSection,
 } from '@blueprint-chart/ui'
 import type { ChartOptionDef } from '@blueprint-chart/lib'
 import { useChartTypeOptions, type ChartTypeOptionKey } from '@/composables/useChartTypeOptions'
@@ -54,6 +55,8 @@ import IPhEyeSlash from '~icons/ph/eye-slash'
 import IPhAlignLeft from '~icons/ph/align-left'
 import IPhAlignRight from '~icons/ph/align-right'
 import IPhMagicWand from '~icons/ph/magic-wand'
+import IPhArrowsVertical from '~icons/ph/arrows-vertical'
+import IPhArrowsHorizontal from '~icons/ph/arrows-horizontal'
 import IPhArrowSquareIn from '~icons/ph/arrow-square-in'
 import IPhArrowSquareOut from '~icons/ph/arrow-square-out'
 import IPhChartLineUp from '~icons/ph/chart-line-up'

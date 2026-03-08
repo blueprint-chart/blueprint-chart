@@ -1,9 +1,5 @@
 <template>
   <div class="d-flex flex-column gap-3">
-    <h6 class="fw-bold mb-0">
-      Appearance
-    </h6>
-
     <FormControlColorInput
       id="bar-base-color"
       label="Base color"

@@ -1,13 +1,12 @@
 <template>
-  <div class="d-flex flex-column gap-3">
-    <h6 class="fw-bold mb-0">
-      Annotations
-    </h6>
-
+  <div class="d-flex flex-column gap-4">
     <!-- Point annotations -->
-    <template v-if="!isPieOrDonut">
+    <SettingsSection
+      v-if="!isPieOrDonut"
+      title="Points"
+      :icon="IPhMapPin"
+    >
       <div class="d-flex flex-column gap-2">
-        <small class="fw-semibold text-body-secondary">Points</small>
         <SectionCard
           v-for="{ ann, index } in pointAnnotations"
           :key="index"
@@ -39,12 +38,15 @@
         label="Add"
         @click="addPoint"
       />
-    </template>
+    </SettingsSection>
 
     <!-- Range annotations -->
-    <template v-if="!isPieOrDonut">
+    <SettingsSection
+      v-if="!isPieOrDonut"
+      title="Ranges"
+      :icon="IPhArrowsOutLineHorizontal"
+    >
       <div class="d-flex flex-column gap-2">
-        <small class="fw-semibold text-body-secondary">Ranges</small>
         <SectionCard
           v-for="{ ann, index } in rangeAnnotations"
           :key="index"
@@ -75,49 +77,56 @@
         label="Add"
         @click="addRange"
       />
-    </template>
+    </SettingsSection>
 
     <!-- Notes (free annotations) -->
-    <div class="d-flex flex-column gap-2">
-      <small class="fw-semibold text-body-secondary">Notes</small>
-      <SectionCard
-        v-for="{ ann, index } in freeAnnotations"
-        :key="index"
-      >
-        <template #header>
-          <EditorAnnotationHeader
-            :kind-label="kindLabel(ann)"
-            :summary="summaryText(ann)"
-            :collapsed="openIndex !== index"
-            :hidden="isHidden(ann)"
-            :can-toggle-visibility="canToggleVisibility"
-            @duplicate="duplicate(index)"
-            @remove="remove(index)"
-            @toggle-collapse="toggleCollapse(index)"
-            @toggle-visibility="toggleVisibility(ann)"
-          />
-        </template>
-        <template v-if="openIndex === index">
-          <EditorAnnotationFree
-            :annotation="ann"
-            :chart-width="chartWidth"
-            :chart-height="chartHeight"
-            @update:annotation="(v) => update(index, v)"
-          />
-        </template>
-      </SectionCard>
-    </div>
-    <ButtonAdd
-      label="Add"
-      @click="addFree"
-    />
+    <SettingsSection
+      title="Notes"
+      :icon="IPhNote"
+    >
+      <div class="d-flex flex-column gap-2">
+        <SectionCard
+          v-for="{ ann, index } in freeAnnotations"
+          :key="index"
+        >
+          <template #header>
+            <EditorAnnotationHeader
+              :kind-label="kindLabel(ann)"
+              :summary="summaryText(ann)"
+              :collapsed="openIndex !== index"
+              :hidden="isHidden(ann)"
+              :can-toggle-visibility="canToggleVisibility"
+              @duplicate="duplicate(index)"
+              @remove="remove(index)"
+              @toggle-collapse="toggleCollapse(index)"
+              @toggle-visibility="toggleVisibility(ann)"
+            />
+          </template>
+          <template v-if="openIndex === index">
+            <EditorAnnotationFree
+              :annotation="ann"
+              :chart-width="chartWidth"
+              :chart-height="chartHeight"
+              @update:annotation="(v) => update(index, v)"
+            />
+          </template>
+        </SectionCard>
+      </div>
+      <ButtonAdd
+        label="Add"
+        @click="addFree"
+      />
+    </SettingsSection>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import type { AnnotationConfig, PointAnnotationConfig, RangeAnnotationConfig, FreeAnnotationConfig } from '@blueprint-chart/lib'
-import { ButtonAdd, SectionCard } from '@blueprint-chart/ui'
+import { ButtonAdd, SectionCard, SettingsSection } from '@blueprint-chart/ui'
+import IPhMapPin from '~icons/ph/map-pin'
+import IPhArrowsOutLineHorizontal from '~icons/ph/arrows-out-line-horizontal'
+import IPhNote from '~icons/ph/note'
 import EditorAnnotationHeader from './EditorAnnotationHeader.vue'
 import EditorAnnotationPoint from './EditorAnnotationPoint.vue'
 import EditorAnnotationRange from './EditorAnnotationRange.vue'
