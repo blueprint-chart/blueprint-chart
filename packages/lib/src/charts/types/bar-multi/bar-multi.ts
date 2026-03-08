@@ -141,9 +141,11 @@ export function render(
   const vLabelW = estimateVerticalLabelWidth(allValues, options.verticalAxis?.range, options.verticalAxis?.numberFormat, options.verticalAxis?.scaleType)
   const lpMargins = labelPositionMargins(containerWidth, options.verticalAxis?.labelPosition, options.horizontalAxis?.labelPosition, options.verticalAxis?.direction, vLabelW)
 
+  const vLabelsInside = lpMargins.top != null
   const marginOverrides: Record<string, number> = { ...lpMargins }
   if (showLegend && legendPos === 'top') {
-    marginOverrides.top = (marginOverrides.top ?? 20) + legendH
+    const insideGap = vLabelsInside ? 15 : 0
+    marginOverrides.top = (marginOverrides.top ?? 20) + legendH + insideGap
   }
   if (showLegend && legendPos === 'bottom') {
     marginOverrides.bottom = (marginOverrides.bottom ?? 40) + legendH
@@ -438,7 +440,8 @@ export function render(
     let xPos = 0
     let yPos = 0
     if (legendPos === 'top') {
-      yPos = -(legendSize.height + 5)
+      const insideGap = vLabelsInside ? 15 : 0
+      yPos = -(legendSize.height + 5 + insideGap)
     }
     else if (legendPos === 'bottom') {
       yPos = height + 25
