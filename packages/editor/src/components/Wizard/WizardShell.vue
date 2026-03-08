@@ -21,7 +21,7 @@
 
 <script setup lang="ts">
 import { computed, ref, watch, onMounted, onUnmounted } from 'vue'
-import { onBeforeRouteLeave, useRouter } from 'vue-router'
+import { onBeforeRouteLeave, useRoute, useRouter } from 'vue-router'
 import { useDebounceFn } from '@vueuse/core'
 import { useWizard } from '@/composables/useWizard'
 import { useNavbar } from '@/composables/useNavbar'
@@ -42,8 +42,9 @@ import DataPanel from '@/components/Data/DataPanel.vue'
 import ChartEditPanel from '@/components/ChartEdit/ChartEditPanel.vue'
 import ExportPanel from '@/components/Export/ExportPanel.vue'
 
+const route = useRoute()
 const router = useRouter()
-const { currentIndex, currentStep } = useWizard()
+const { currentIndex, currentStep, registerCreateSession } = useWizard()
 const { setMode, reset: resetNavbar } = useNavbar()
 const dataTable = useDataTable()
 const config = useChartConfig()
@@ -209,24 +210,30 @@ onMounted(() => {
 })
 onUnmounted(() => resetNavbar())
 
-// Serialize data when navigating from data step to edit step
-watch(currentIndex, (newIndex, oldIndex) => {
-  if (oldIndex === 0 && newIndex === 1) {
-    // If a scene was active on the data step, save its transforms and restore base
-    if (activeIndex.value >= 0) {
-      scenesComposable.update(activeIndex.value, { transforms: transforms.snapshot() })
-      transforms.hydrate(baseTransforms.value)
-      scenesComposable.setActive(-1)
-    }
-    config._base.data.value = dataTable.serialize()
-    if (dataTable.columns.value.length > 2 && !config._base.chartType.value.includes('multi')) {
-      const hasDateLabels = dataTable.columnTypes.value[0] === 'date'
-      config._base.chartType.value = hasDateLabels ? 'line-multi' : 'bar-multi'
-    }
-    if (!sessionId.value) {
-      const id = createSession()
-      router.replace(`/edit/${id}`)
-    }
+// Serialize data when leaving the data step (before session creation or navigation)
+function prepareDataForEdit() {
+  if (activeIndex.value >= 0) {
+    scenesComposable.update(activeIndex.value, { transforms: transforms.snapshot() })
+    transforms.hydrate(baseTransforms.value)
+    scenesComposable.setActive(-1)
+  }
+  config._base.data.value = dataTable.serialize()
+  if (dataTable.columns.value.length > 2 && !config._base.chartType.value.includes('multi')) {
+    const hasDateLabels = dataTable.columnTypes.value[0] === 'date'
+    config._base.chartType.value = hasDateLabels ? 'line-multi' : 'bar-multi'
+  }
+}
+
+// Register hook for when wizard needs to create a session (advancing from /new)
+registerCreateSession(() => {
+  prepareDataForEdit()
+  return createSession()
+})
+
+// Also serialize data when navigating from data to edit within an existing session
+watch(() => currentStep.value.key, (newKey, oldKey) => {
+  if (oldKey === 'data' && newKey === 'edit' && sessionId.value) {
+    prepareDataForEdit()
   }
 })
 

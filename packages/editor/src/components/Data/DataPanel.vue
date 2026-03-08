@@ -30,7 +30,7 @@ const { dataView, setDataView } = useEditorPanel()
 const dataTable = useDataTable()
 const { applyDsl } = useDslSync()
 const { loadSample } = useChartSession()
-const wizard = useWizard()
+const { next } = useWizard()
 const parseOptions = useParseOptions()
 
 onMounted(() => {
@@ -66,13 +66,12 @@ function onLoaded(content: string, label: string) {
 function onBpcLoaded(content: string, label: string) {
   applyDsl(content)
   dataTable.sourceLabel.value = label || 'Blueprint file'
-  wizard.hydrate({ currentIndex: 1, furthestIndex: 1 })
-  setDataView('structure')
+  next()
 }
 
 function onSampleLoaded(sample: ChartSample) {
   loadSample(sample)
-  setDataView('structure')
+  next()
 }
 
 watch(

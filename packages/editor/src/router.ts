@@ -30,6 +30,30 @@ const router = createRouter({
         startAutoSave()
       },
     },
+    {
+      path: '/edit/:id/data',
+      component: WizardShell,
+      beforeEnter: (to) => {
+        const { loadChart, startAutoSave } = useChartSession()
+        const found = loadChart(to.params.id as string)
+        if (!found) {
+          return '/'
+        }
+        startAutoSave()
+      },
+    },
+    {
+      path: '/edit/:id/export',
+      component: WizardShell,
+      beforeEnter: (to) => {
+        const { loadChart, startAutoSave } = useChartSession()
+        const found = loadChart(to.params.id as string)
+        if (!found) {
+          return '/'
+        }
+        startAutoSave()
+      },
+    },
   ],
 })
 

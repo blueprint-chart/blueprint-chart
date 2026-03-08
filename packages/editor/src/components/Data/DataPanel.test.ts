@@ -6,7 +6,7 @@ import DataPanel from './DataPanel.vue'
 const mockSetDataView = vi.fn()
 const mockLoadParsed = vi.fn()
 const mockApplyDsl = vi.fn()
-const mockHydrate = vi.fn()
+const mockNext = vi.fn()
 const dataViewRef = ref('upload')
 const rawInputRef = ref('')
 
@@ -44,7 +44,7 @@ vi.mock('@/composables/useChartConfig', () => ({
 
 vi.mock('@/composables/useWizard', () => ({
   useWizard: () => ({
-    hydrate: mockHydrate,
+    next: mockNext,
   }),
 }))
 
