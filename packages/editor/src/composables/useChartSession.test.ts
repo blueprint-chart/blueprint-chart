@@ -2,7 +2,9 @@ import { describe, it, expect, beforeEach } from 'vitest'
 import { generateId, useChartSession } from './useChartSession'
 import { useChartConfig } from './useChartConfig'
 import { useDataTable } from './useDataTable'
+import { useDataTransforms } from './useDataTransforms'
 import { useChartTypeOptions } from './useChartTypeOptions'
+import { useScenes } from './useScenes'
 import { useWizard } from './useWizard'
 
 describe('generateId', () => {
@@ -27,11 +29,31 @@ describe('useChartSession', () => {
     localStorage.clear()
     useChartConfig().reset()
     useDataTable().reset()
+    useDataTransforms().reset()
     useChartTypeOptions().reset()
+    useScenes().reset()
     useWizard().reset()
   })
 
-  it('save and load round-trip preserves chart config', () => {
+  it('save stores DSL string in localStorage', () => {
+    const session = useChartSession()
+    session.newChart()
+
+    const config = useChartConfig()
+    config.title.value = 'Test Title'
+    config.chartType.value = 'donut'
+    session.save()
+
+    const raw = localStorage.getItem(`blueprint-chart:${session.sessionId.value}`)
+    const payload = JSON.parse(raw!)
+    expect(payload.dsl).toBeDefined()
+    expect(payload.dsl).toContain('chart donut')
+    expect(payload.dsl).toContain('title = "Test Title"')
+    // Should NOT have legacy chartConfig shape
+    expect(payload.chartConfig).toBeUndefined()
+  })
+
+  it('save and load round-trip preserves chart config via DSL', () => {
     const session = useChartSession()
     session.newChart()
 
@@ -42,7 +64,6 @@ describe('useChartSession', () => {
 
     const id = session.sessionId.value
 
-    // Reset and reload
     config.reset()
     expect(config.title.value).toBe('')
 
@@ -52,21 +73,25 @@ describe('useChartSession', () => {
     expect(config.chartType.value).toBe('donut')
   })
 
-  it('save and load round-trip preserves data table', () => {
+  it('save and load round-trip preserves data table from BPC', () => {
     const session = useChartSession()
     session.newChart()
 
-    const table = useDataTable()
-    table.hydrate({ columns: ['Name', 'Value'], rows: [['A', '1']], rawInput: 'A,1' })
+    const config = useChartConfig()
+    config.chartType.value = 'bar-horizontal'
+    config.data.value = '"A" = 10\n"B" = 20'
     session.save()
 
     const id = session.sessionId.value
+
+    const table = useDataTable()
     table.reset()
+    config.reset()
 
     session.load(id)
-    expect(table.columns.value).toEqual(['Name', 'Value'])
-    expect(table.rows.value).toEqual([['A', '1']])
-    expect(table.rawInput.value).toBe('A,1')
+    // applyDsl populates data table from BPC data
+    expect(table.columns.value).toEqual(['label', 'value'])
+    expect(table.rows.value[0]).toEqual(['A', '10'])
   })
 
   it('save and load round-trip preserves wizard state', () => {
@@ -86,20 +111,28 @@ describe('useChartSession', () => {
     expect(wizard.furthestIndex.value).toBe(2)
   })
 
-  it('save and load round-trip preserves chart type options', () => {
+  it('save and load round-trip preserves scenes', () => {
     const session = useChartSession()
     session.newChart()
 
-    const options = useChartTypeOptions()
-    options.setOption('legend', true)
+    const config = useChartConfig()
+    config.chartType.value = 'bar-horizontal'
+    config.data.value = '"A" = 10\n"B" = 20'
+
+    const scenes = useScenes()
+    scenes.add()
+    scenes.update(0, {
+      highlights: [{ target: 'A', color: '#ff0000', label: '' }],
+    })
     session.save()
 
     const id = session.sessionId.value
-    options.reset()
+    config.reset()
+    scenes.reset()
 
     session.load(id)
-    expect(options.store['bar-vertical']).toBeDefined()
-    expect(options.store['bar-vertical']?.legend).toBe(true)
+    expect(scenes.scenes.value).toHaveLength(1)
+    expect(scenes.scenes.value[0].highlights?.[0].color).toBe('#ff0000')
   })
 
   it('load returns false for unknown ID', () => {
@@ -151,17 +184,13 @@ describe('useChartSession', () => {
 
     const firstId = 'firstId0001'
     localStorage.setItem(`blueprint-chart:${firstId}`, JSON.stringify({
-      chartConfig: { chartType: 'line', title: 'First', description: '', byline: '', source: '', sourceUrl: '', sort: 'none', data: [], highlights: [] },
-      dataTable: { columns: [], rows: [], rawInput: '' },
-      chartTypeOptions: {},
+      dsl: 'chart line {\n  title = "First"\n}\n',
       wizard: { currentIndex: 0, furthestIndex: 0 },
       savedAt: '2025-01-01T00:00:00.000Z',
     }))
     const secondId = 'secondId001'
     localStorage.setItem(`blueprint-chart:${secondId}`, JSON.stringify({
-      chartConfig: { chartType: 'donut', title: 'Second', description: '', byline: '', source: '', sourceUrl: '', sort: 'none', data: [], highlights: [] },
-      dataTable: { columns: [], rows: [], rawInput: '' },
-      chartTypeOptions: {},
+      dsl: 'chart donut {\n  title = "Second"\n  description = "A donut"\n}\n',
       wizard: { currentIndex: 0, furthestIndex: 0 },
       savedAt: '2025-06-01T00:00:00.000Z',
     }))
@@ -195,5 +224,40 @@ describe('useChartSession', () => {
     expect(localStorage.getItem(`blueprint-chart:${id}`)).not.toBeNull()
     session.deleteChart(id)
     expect(localStorage.getItem(`blueprint-chart:${id}`)).toBeNull()
+  })
+
+  it('loads legacy payload format and migrates on next save', () => {
+    const legacyId = 'legacyId001'
+    localStorage.setItem(`blueprint-chart:${legacyId}`, JSON.stringify({
+      chartConfig: {
+        chartType: 'bar-horizontal',
+        title: 'Legacy Chart',
+        description: '',
+        byline: '',
+        note: '',
+        source: '',
+        sourceUrl: '',
+        sort: 'none',
+        data: '"A" = 10',
+        selectedColumn: null,
+        highlights: [],
+        areaFills: [],
+        annotations: [],
+        seriesOverrides: [],
+        layout: { playerType: 'minimal-arrows', playerPosition: 'center' },
+      },
+      dataTable: { columns: ['label', 'value'], rows: [['A', '10']], rawInput: '"A" = 10' },
+      chartTypeOptions: {},
+      wizard: { currentIndex: 1, furthestIndex: 1 },
+      savedAt: '2025-01-01T00:00:00.000Z',
+    }))
+
+    const session = useChartSession()
+    const loaded = session.load(legacyId)
+    expect(loaded).toBe(true)
+
+    const config = useChartConfig()
+    expect(config.title.value).toBe('Legacy Chart')
+    expect(config.chartType.value).toBe('bar-horizontal')
   })
 })
