@@ -117,7 +117,7 @@ const sourceLabel = computed(() => {
   }
   const prevScene = scenes.value[activeIndex.value - 1]
   const name = prevScene?.name
-  return `Data from ${name || `Scene ${activeIndex.value + 1}`}`
+  return `Data from ${name || `Scene ${activeIndex.value}`}`
 })
 
 const selectedStepId = ref('')
