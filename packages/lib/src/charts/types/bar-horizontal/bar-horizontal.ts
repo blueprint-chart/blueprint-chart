@@ -208,7 +208,6 @@ function valueLabelAttrs(
   y: d3.ScaleBand<string>,
   pos: 'inside' | 'outside' | 'auto',
 ) {
-  const barW = Math.abs(x(d.value) - x(0))
   const isInside = pos === 'inside'
   const ty = (y(d.label) ?? 0) + y.bandwidth() / 2
   let tx: number, anchor: string
