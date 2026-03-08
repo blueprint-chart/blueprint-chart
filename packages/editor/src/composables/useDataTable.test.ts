@@ -2,6 +2,10 @@ import { describe, it, expect, beforeEach } from 'vitest'
 import { useDataTable, serializeTableData } from './useDataTable'
 import { useScenes } from './useScenes'
 import { useDataTransforms } from './useDataTransforms'
+import { parseBpcData } from './useDataParser'
+import { useDslSync } from './useDslSync'
+import { useChartConfig } from './useChartConfig'
+import { useChartTypeOptions } from './useChartTypeOptions'
 
 describe('useDataTable', () => {
   beforeEach(() => {
@@ -187,6 +191,31 @@ describe('serializeTableData', () => {
       expect(displayRows.value[2][0]).toBe('China')
     })
 
+    it('applies inherited sort transform with BPC column names', () => {
+      const { loadParsed, displayRows } = useDataTable()
+      const scenes = useScenes()
+
+      // BPC key-value data produces columns ['label', 'value']
+      loadParsed({
+        columns: ['label', 'value'],
+        rows: [['China', '1050'], ['India', '900'], ['Brazil', '186']],
+        columnTypes: ['string', 'number'],
+      })
+
+      scenes.hydrate({
+        scenes: [
+          { id: '1', name: null, transforms: [{ id: '0', type: 'sort', config: { columns: 'value' } }] },
+          { id: '2', name: null },
+        ],
+        activeIndex: 1,
+      })
+
+      // Sort ascending (default) by value: Brazil(186), India(900), China(1050)
+      expect(displayRows.value[0][0]).toBe('Brazil')
+      expect(displayRows.value[1][0]).toBe('India')
+      expect(displayRows.value[2][0]).toBe('China')
+    })
+
     it('shows unsorted data when no scene is active', () => {
       const { loadParsed, displayRows } = useDataTable()
       const scenes = useScenes()
@@ -203,5 +232,72 @@ describe('serializeTableData', () => {
       expect(displayRows.value[1][0]).toBe('India')
       expect(displayRows.value[2][0]).toBe('Brazil')
     })
+  })
+})
+
+describe('BPC end-to-end: DSL → data table → scene sort', () => {
+  beforeEach(() => {
+    useDataTable().reset()
+    useScenes().reset()
+    useDataTransforms().reset()
+    useChartConfig().reset()
+    useChartTypeOptions().reset()
+  })
+
+  it('applyDsl populates data table with parsed BPC data', () => {
+    const { applyDsl } = useDslSync()
+    applyDsl(`chart bar-horizontal {
+  data {
+    "China" = 1050
+    "India" = 900
+    "Brazil" = 186
+  }
+}`)
+
+    const dt = useDataTable()
+    expect(dt.columns.value).toEqual(['label', 'value'])
+    expect(dt.columnTypes.value).toEqual(['string', 'number'])
+    expect(dt.rows.value[0]).toEqual(['China', '1050'])
+  })
+
+  it('sorts data table when scene has inherited sort transform', () => {
+    const { applyDsl } = useDslSync()
+    const result = applyDsl(`chart bar-horizontal {
+  data {
+    "China" = 1050
+    "India" = 900
+    "United States" = 312
+    "Indonesia" = 213
+    "Brazil" = 186
+    "Russia" = 130
+    "Japan" = 118
+    "Nigeria" = 110
+  }
+
+  scene {
+    transform sort {
+      columns = "value"
+    }
+  }
+
+  scene {
+    highlight "India" {
+      color = "#9900ef"
+    }
+  }
+}`)
+    expect(result.success).toBe(true)
+
+    // applyDsl now auto-populates data table with parsed BPC data
+    const dt = useDataTable()
+    expect(dt.columns.value).toEqual(['label', 'value'])
+
+    // Activate Scene 2 (index 1) — inherits sort from Scene 1
+    const scenes = useScenes()
+    scenes.setActive(1)
+
+    // Data table should show sorted ascending by value
+    expect(dt.displayRows.value[0][0]).toBe('Nigeria')
+    expect(dt.displayRows.value[7][0]).toBe('China')
   })
 })
