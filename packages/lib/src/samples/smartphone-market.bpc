@@ -1,5 +1,5 @@
 chart donut {
-  title = "Global Smartphone Market Share"
+  title = "Samsung leads smartphones but 'Others' hold the largest share"
   description = "Q4 2024, by shipment volume"
   source = "IDC"
   sourceUrl = "https://idc.com"
@@ -8,7 +8,6 @@ chart donut {
   legendPosition = "right"
   tooltips = true
   displayAsPercentage = true
-  showTotal = true
 
   data {
     "Samsung" = 22.4

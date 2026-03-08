@@ -1,13 +1,11 @@
 chart line {
-  title = "Global Mean Sea Level Rise"
+  title = "Sea levels have risen over 110mm since 1993"
   description = "Millimetres above 1993 baseline"
   source = "NASA Sea Level"
   sourceUrl = "https://sealevel.nasa.gov"
-  interpolation = "monotoneX"
   colorPalette = "Leucosternon"
   lineSymbols = true
   lineSymbolShowOn = "firstLast"
-  verticalGridStyle = dashed
   tooltips = true
 
   data {

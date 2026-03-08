@@ -1,12 +1,11 @@
 chart bar-horizontal {
-  title = "Most Spoken Languages"
+  title = "Mandarin has nearly twice as many native speakers as Spanish"
   description = "Number of native speakers worldwide, in millions"
   source = "Ethnologue"
   sourceUrl = "https://ethnologue.com"
   byline = "Pierre Romera"
   sort = descending
   colors = "#4e79a7"
-  valueLabels = true
   horizontalLabelPosition = off
   horizontalGridStyle = none
 

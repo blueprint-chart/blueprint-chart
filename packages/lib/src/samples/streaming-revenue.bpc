@@ -1,5 +1,5 @@
 chart bar-multi {
-  title = "Music Streaming Revenue"
+  title = "Spotify earns nearly three times Apple Music's revenue"
   description = "USD billions by platform"
   source = "IFPI / company reports"
   note = "Revenue figures are approximate annual estimates"

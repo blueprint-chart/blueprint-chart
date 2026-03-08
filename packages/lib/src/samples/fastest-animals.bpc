@@ -1,10 +1,9 @@
 chart bar-horizontal {
-  title = "Fastest Animals on Earth"
+  title = "The Peregrine Falcon dives three times faster than a cheetah"
   description = "Maximum recorded speed in km/h"
   source = "National Geographic"
   colorPalette = "Bright"
   sort = descending
-  valueLabels = true
   horizontalLabelPosition = off
   horizontalGridStyle = none
 

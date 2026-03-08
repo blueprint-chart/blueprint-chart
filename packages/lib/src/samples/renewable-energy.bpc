@@ -1,17 +1,13 @@
 chart line-multi {
-  title = "Renewable Energy Growth"
+  title = "Wind and solar are catching up to hydroelectric power"
   description = "Share of electricity generation by source (%)"
   source = "IEA"
   sourceUrl = "https://iea.org"
   note = "Wind and solar include both onshore and offshore installations"
-  interpolation = "monotoneX"
   colors = "#59a14f, #edc949, #4e79a7"
-  legendPosition = "top"
-  directLabelling = true
   legend = false
   lineSymbols = true
   lineSymbolShowOn = "last"
-  verticalGridStyle = dashed
   tooltips = true
 
   data {

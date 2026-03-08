@@ -1,13 +1,11 @@
 chart line-multi {
-  title = "Social Media Monthly Active Users"
+  title = "Facebook still leads with 3 billion users but growth has stalled"
   description = "Billions of users"
   source = "Company earnings reports"
-  interpolation = "monotoneX"
   colorPalette = "Camo873"
-  legendPosition = "top"
+  legend = false
   lineSymbols = true
   lineSymbolShowOn = "last"
-  verticalGridStyle = dashed
   tooltips = true
 
   data {

@@ -1,5 +1,5 @@
 chart bar-vertical {
-  title = "Letter Frequency in English"
+  title = "E is the most frequent letter in English"
   description = "How often each letter appears in typical English text"
   byline = "Pierre Romera"
   source = "Lewand, Cryptological Mathematics"

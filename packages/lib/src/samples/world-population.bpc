@@ -1,20 +1,17 @@
 chart pie {
-  title = "World Population by Continent"
+  title = "Asia is home to nearly 60% of the world's population"
   description = "Estimated share, 2024"
   source = "United Nations"
   sourceUrl = "https://population.un.org"
   colorPalette = "Klimt"
   legendPosition = "right"
   tooltips = true
-  displayAsPercentage = true
-  showLabels = true
 
   data {
     "Asia" = 59.4
     "Africa" = 18.3
     "Europe" = 9.3
     "Latin America" = 8.2
-    "North America" = 4.7
-    "Oceania" = 0.6
+    "North America" = 4.8
   }
 }

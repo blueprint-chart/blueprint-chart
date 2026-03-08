@@ -1,5 +1,5 @@
 chart bar-multi {
-  title = "Electric Vehicle Sales by Region"
+  title = "China's EV market is now triple the size of Europe's"
   description = "Million units sold"
   source = "IEA Global EV Outlook"
   sourceUrl = "https://iea.org"
