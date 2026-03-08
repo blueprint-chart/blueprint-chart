@@ -2,17 +2,17 @@ import { test, expect } from '@playwright/test'
 
 test.describe('smoke tests', () => {
   test('homepage loads', async ({ page }) => {
-    await page.goto('/')
+    await page.goto('/#/')
     await expect(page.locator('text=Blueprint Chart')).toBeVisible()
   })
 
   test('new chart wizard opens', async ({ page }) => {
-    await page.goto('/new')
+    await page.goto('/#/new')
     await expect(page.locator('textarea')).toBeVisible()
   })
 
   test('paste CSV and advance through wizard', async ({ page }) => {
-    await page.goto('/new')
+    await page.goto('/#/new')
 
     const textarea = page.locator('textarea')
     await textarea.fill('Label,Value\nA,10\nB,20\nC,30')
@@ -23,7 +23,7 @@ test.describe('smoke tests', () => {
   })
 
   test('editor tabs are accessible', async ({ page }) => {
-    await page.goto('/new')
+    await page.goto('/#/new')
 
     const textarea = page.locator('textarea')
     await textarea.fill('Label,Value\nA,10\nB,20\nC,30')
@@ -48,7 +48,7 @@ test.describe('smoke tests', () => {
       }
     })
 
-    await page.goto('/')
+    await page.goto('/#/')
     await page.waitForLoadState('networkidle')
 
     const realErrors = errors.filter(e => !e.includes('favicon'))
@@ -63,7 +63,7 @@ test.describe('smoke tests', () => {
       }
     })
 
-    await page.goto('/new')
+    await page.goto('/#/new')
     const textarea = page.locator('textarea')
     await textarea.fill('Label,Value\nA,10\nB,20\nC,30')
     await page.locator('button', { hasText: 'Load data' }).click()

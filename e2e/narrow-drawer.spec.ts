@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test'
 test.use({ viewport: { width: 600, height: 800 } })
 
 async function loadData(page) {
-  await page.goto('/new')
+  await page.goto('/#/new')
   const textarea = page.locator('textarea')
   await textarea.fill('Label,Value\nA,10\nB,20\nC,30')
   await page.locator('button', { hasText: 'Load data' }).click()
