@@ -94,7 +94,7 @@ const dataSourceLabel = computed(() => {
   // The data source for the current scene is the previous scene in the timeline
   const prevScene = scenes.value[activeIndex.value - 1]
   const name = prevScene?.name
-  return name || `Scene ${activeIndex.value + 1}`
+  return name || `Scene ${activeIndex.value}`
 })
 
 function replaceData() {
