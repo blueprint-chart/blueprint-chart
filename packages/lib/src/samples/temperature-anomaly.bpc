@@ -1,4 +1,5 @@
 chart line {
+  aspectRatio = "4:3"
   title = "2024 was the hottest year on record"
   description = "Deviation from the 1951–1980 average, in °C"
   source = "NASA GISS"
@@ -9,12 +10,6 @@ chart line {
   lineSymbolShape = "circle"
   lineSymbolShowOn = "firstLast"
   tooltips = true
-
-  annotation "2024" {
-    text = "Hottest year on record"
-    dy = -12
-    showArrow = true
-  }
 
   data {
     "1980" = 0.26

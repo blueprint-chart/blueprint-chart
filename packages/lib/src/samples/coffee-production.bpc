@@ -11,7 +11,7 @@ chart bar-vertical {
 
   highlight "Brazil" {
     color = "#a4432d"
-    label = "World leader"
+    label = "Produces more than the next three combined"
   }
 
   data {
@@ -21,7 +21,5 @@ chart bar-vertical {
     "Indonesia" = 9.9
     "Ethiopia" = 8.7
     "Honduras" = 6.3
-    "India" = 5.8
-    "Uganda" = 5.5
   }
 }
