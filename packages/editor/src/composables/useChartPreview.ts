@@ -201,6 +201,7 @@ export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
         source: config.source.value || undefined,
         sourceUrl: config.sourceUrl.value || undefined,
         showCredit: config.layout.value.showCredit,
+        padding: `${config.layout.value.padding}px`,
       },
       sort: resolveSortFromTransforms(scene) ?? config.sort.value,
       sortMode: config.sortMode.value !== 'none' ? config.sortMode.value : undefined,
