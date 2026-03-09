@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test'
 test.describe('smoke tests', () => {
   test('homepage loads', async ({ page }) => {
     await page.goto('/#/')
-    await expect(page.locator('text=Blueprint Chart')).toBeVisible()
+    await expect(page.locator('.bc-brand-gradient')).toBeVisible()
   })
 
   test('new chart wizard opens', async ({ page }) => {
