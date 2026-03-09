@@ -12,7 +12,7 @@ function loadSession(to: { params: { id: string } }) {
   }
   const found = loadChart(to.params.id as string)
   if (!found) {
-    return '/'
+    return '/charts'
   }
   startAutoSave()
 }
@@ -22,6 +22,10 @@ const router = createRouter({
   routes: [
     {
       path: '/',
+      component: () => import('@/components/Landing/LandingPage.vue'),
+    },
+    {
+      path: '/charts',
       component: HomePage,
     },
     {
