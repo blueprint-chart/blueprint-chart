@@ -37,6 +37,7 @@ export interface FrameOptions {
   sizing?: 'auto' | 'standard' | 'aspect-ratio'
   aspectRatio?: number
   showCredit?: boolean
+  padding?: string
 }
 
 export interface AreaFillConfig {

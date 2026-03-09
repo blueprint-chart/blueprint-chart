@@ -40,7 +40,7 @@ class FrameChart extends D3Blueprint<FrameData> {
     const footer = wrapper.append('div').attr('class', 'bc-frame-footer')
       .style('display', 'flex')
       .style('justify-content', 'space-between')
-      .style('align-items', 'baseline')
+      .style('align-items', 'center')
       .style('flex-wrap', 'wrap')
       .style('gap', '0.25rem 1rem')
     const footerLeft = footer.append('div').attr('class', 'bc-frame-footer-left')
@@ -48,6 +48,8 @@ class FrameChart extends D3Blueprint<FrameData> {
       .style('flex-wrap', 'wrap')
       .style('gap', '0.25rem 0.75rem')
     const footerRight = footer.append('div').attr('class', 'bc-frame-footer-right')
+      .style('display', 'flex')
+      .style('align-items', 'center')
 
     this.layer('headerItems', header, {
       dataBind: (sel, data) => sel.selectAll('.bc-frame-header-item').data(data.headerItems, (d: HeaderItem) => d.className),
@@ -241,6 +243,10 @@ export function createFrame(
   const body = wrapper.querySelector('.bc-frame-body') as HTMLElement
   const note = wrapper.querySelector('.bc-frame-note') as HTMLElement
   const footer = wrapper.querySelector('.bc-frame-footer') as HTMLElement
+
+  if (options.padding) {
+    wrapper.style.padding = options.padding
+  }
 
   if (options.note) {
     note.textContent = options.note
