@@ -13,9 +13,34 @@
         <span class="bc-brand-gradient fw-bold">Blueprint Chart</span>
       </router-link>
 
-      <!-- Center: search (home) or stepper (wizard) -->
+      <!-- Center: landing anchors, search (home), or stepper (wizard) -->
       <div
-        v-if="mode === 'home'"
+        v-if="isLanding"
+        class="shell-navbar__anchors"
+      >
+        <a
+          href="#features"
+          @click.prevent="scrollTo('features')"
+        >Features</a>
+        <a
+          href="#transforms"
+          @click.prevent="scrollTo('transforms')"
+        >Transforms</a>
+        <a
+          href="#bpc"
+          @click.prevent="scrollTo('bpc')"
+        >BPC Format</a>
+        <a
+          href="#stories"
+          @click.prevent="scrollTo('stories')"
+        >Stories</a>
+        <a
+          href="#open-source"
+          @click.prevent="scrollTo('open-source')"
+        >Open Source</a>
+      </div>
+      <div
+        v-else-if="mode === 'home'"
         ref="searchContainer"
         class="shell-navbar__search"
       >
@@ -57,8 +82,29 @@
         size="md"
       />
 
-      <!-- Right: step controls (wizard) + theme toggle -->
+      <!-- Right: landing CTA, step controls (wizard) + theme toggle -->
       <div class="shell-navbar__right">
+        <template v-if="isLanding && hasCharts">
+          <router-link
+            to="/charts"
+            class="shell-navbar__cta shell-navbar__cta--ghost"
+          >
+            My Charts
+          </router-link>
+          <router-link
+            to="/new"
+            class="shell-navbar__cta shell-navbar__cta--primary"
+          >
+            New
+          </router-link>
+        </template>
+        <router-link
+          v-else-if="isLanding"
+          to="/new"
+          class="shell-navbar__cta shell-navbar__cta--primary"
+        >
+          Get started
+        </router-link>
         <template v-if="mode === 'wizard'">
           <div
             ref="searchContainer"
@@ -137,6 +183,13 @@ const router = useRouter()
 const { theme, cycleTheme } = useTheme()
 const { listSavedCharts } = useChartSession()
 const { mode } = useNavbar()
+
+const isLanding = computed(() => route.path === '/')
+const hasCharts = computed(() => listSavedCharts().length > 0)
+
+function scrollTo(id: string) {
+  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
+}
 
 // Wizard composables (only active when mode === 'wizard')
 const { currentIndex, steps } = useWizard()
@@ -299,6 +352,64 @@ onClickOutside(searchContainer, () => {
     width: 100%;
     height: auto;
     display: block;
+  }
+}
+
+.shell-navbar__anchors {
+  display: flex;
+  align-items: center;
+  gap: 0;
+
+  a {
+    display: block;
+    padding: 0 1rem;
+    height: 2.75rem;
+    line-height: 2.75rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--bs-secondary-color);
+    text-decoration: none;
+    transition: color 0.15s;
+
+    &:hover {
+      color: var(--bs-body-color);
+    }
+  }
+}
+
+.shell-navbar__cta {
+  padding: 0.375rem 1rem;
+  border-radius: 5px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.15s;
+}
+
+.shell-navbar__cta--primary {
+  background: var(--bs-primary);
+  color: #fff;
+
+  &:hover {
+    filter: brightness(1.1);
+    color: #fff;
+  }
+}
+
+.shell-navbar__cta--ghost {
+  background: transparent;
+  color: var(--bs-secondary-color);
+  border: 1px solid var(--bs-border-color);
+
+  &:hover {
+    border-color: var(--bs-body-color);
+    color: var(--bs-body-color);
+  }
+}
+
+@media (max-width: 48rem) {
+  .shell-navbar__anchors {
+    display: none;
   }
 }
 </style>
