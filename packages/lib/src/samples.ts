@@ -3,6 +3,7 @@ import type { ChartNode, PropertyNode } from './dsl/types'
 
 import letterFrequencyBpc from './samples/letter-frequency.bpc?raw'
 import co2EmissionsBpc from './samples/co2-emissions.bpc?raw'
+import co2EmissionsStoryBpc from './samples/co2-emissions-story.bpc?raw'
 import spokenLanguagesBpc from './samples/spoken-languages.bpc?raw'
 import lifeExpectancyBpc from './samples/life-expectancy.bpc?raw'
 import quarterlyRevenueBpc from './samples/quarterly-revenue.bpc?raw'
@@ -106,6 +107,7 @@ export const samples: ChartSample[] = [
   // Bar Vertical
   buildSample('letter-frequency', letterFrequencyBpc),
   buildSample('co2-emissions', co2EmissionsBpc),
+  buildSample('co2-emissions-story', co2EmissionsStoryBpc),
   buildSample('coffee-production', coffeeProductionBpc),
   buildSample('tallest-buildings', tallestBuildingsBpc),
   // Bar Horizontal
