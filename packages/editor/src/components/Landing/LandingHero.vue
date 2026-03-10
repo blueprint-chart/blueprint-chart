@@ -100,7 +100,7 @@ const heroBpc = samples.find(s => s.id === 'co2-emissions')!.dsl
   color: var(--bs-body-color);
   margin-bottom: 1.5rem;
 
-  em {
+  :deep(em) {
     font-style: italic;
     color: var(--bs-primary);
   }

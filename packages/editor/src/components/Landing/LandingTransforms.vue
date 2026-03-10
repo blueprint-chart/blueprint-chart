@@ -32,6 +32,7 @@
                 <th
                   v-for="col in steps[activeStep].input[0]"
                   :key="col"
+                  class="transforms-demo__th"
                 >
                   {{ col }}
                 </th>
@@ -45,7 +46,8 @@
                 <td
                   v-for="(cell, ci) in row"
                   :key="ci"
-                  :class="{ 'transforms-demo__cell--highlight': steps[activeStep].highlightCol === steps[activeStep].input[0][ci] }"
+                  class="transforms-demo__td"
+                  :class="{ 'transforms-demo__td--highlight': steps[activeStep].highlightCol === steps[activeStep].input[0][ci] }"
                 >
                   {{ cell }}
                 </td>
@@ -78,6 +80,7 @@
                 <th
                   v-for="col in steps[activeStep].output[0]"
                   :key="col"
+                  class="transforms-demo__th"
                 >
                   {{ col }}
                 </th>
@@ -91,7 +94,8 @@
                 <td
                   v-for="(cell, ci) in row"
                   :key="ci"
-                  :class="{ 'transforms-demo__cell--highlight': steps[activeStep].outputHighlightCol === steps[activeStep].output[0][ci] }"
+                  class="transforms-demo__td"
+                  :class="{ 'transforms-demo__td--highlight': steps[activeStep].outputHighlightCol === steps[activeStep].output[0][ci] }"
                 >
                   {{ cell }}
                 </td>
@@ -105,7 +109,7 @@
       </div>
     </div>
 
-    <div class="transforms-cards">
+    <div class="transforms__cards">
       <div
         v-for="card in cards"
         :key="card.title"
@@ -426,29 +430,29 @@ const steps: Step[] = [
   width: 100%;
   border-collapse: collapse;
   font-size: 0.75rem;
+}
 
-  th {
-    padding: 0.3125rem 0.625rem;
-    text-align: left;
-    font-weight: 600;
-    font-size: 0.6875rem;
-    background: var(--bc-void-bg);
-    color: var(--bs-secondary-color);
-    border-bottom: 1px solid var(--bs-border-color);
-  }
+.transforms-demo__th {
+  padding: 0.3125rem 0.625rem;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.6875rem;
+  background: var(--bc-void-bg);
+  color: var(--bs-secondary-color);
+  border-bottom: 1px solid var(--bs-border-color);
+}
 
-  td {
-    padding: 0.3125rem 0.625rem;
-    border-bottom: 1px solid var(--bs-border-color);
-    color: var(--bs-secondary-color);
-  }
+.transforms-demo__td {
+  padding: 0.3125rem 0.625rem;
+  border-bottom: 1px solid var(--bs-border-color);
+  color: var(--bs-secondary-color);
 
-  tr:last-child td {
+  tr:last-child > & {
     border-bottom: none;
   }
 }
 
-.transforms-demo__cell--highlight {
+.transforms-demo__td--highlight {
   color: var(--bs-primary);
   font-weight: 600;
 }
@@ -462,7 +466,7 @@ const steps: Step[] = [
 }
 
 /* ─── Feature cards ─── */
-.transforms-cards {
+.transforms__cards {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 0.875rem;
@@ -573,13 +577,13 @@ const steps: Step[] = [
     &--right { order: 1; }
   }
 
-  .transforms-cards {
+  .transforms__cards {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (max-width: 33.75rem) {
-  .transforms-cards {
+  .transforms__cards {
     grid-template-columns: 1fr;
   }
 }

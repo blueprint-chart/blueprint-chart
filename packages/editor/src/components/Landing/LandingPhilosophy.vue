@@ -1,7 +1,7 @@
 <template>
   <LandingSection id="features">
-    <div class="philosophy-grid">
-      <div class="philosophy-chart-tile">
+    <div class="philosophy__grid">
+      <div class="philosophy__chart-tile">
         <LandingChartPreview :bpc="temperatureBpc" />
       </div>
       <div>
@@ -12,7 +12,7 @@
             guided by decades of data visualization research so your readers focus on the story, not the noise.
           </template>
         </LandingSectionHeader>
-        <div class="philosophy-points">
+        <div class="philosophy__points">
           <LandingBulletPoint
             v-for="point in points"
             :key="point.title"
@@ -52,7 +52,7 @@ const points = [
 </script>
 
 <style scoped>
-.philosophy-grid {
+.philosophy__grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 2.5rem;
@@ -60,13 +60,13 @@ const points = [
   overflow: hidden;
 }
 
-.philosophy-points {
+.philosophy__points {
   display: flex;
   flex-direction: column;
   gap: 0.875rem;
 }
 
-.philosophy-chart-tile {
+.philosophy__chart-tile {
   background: var(--bc-tile-bg);
   border: var(--bc-tile-border);
   border-radius: var(--bc-tile-radius);
@@ -75,7 +75,7 @@ const points = [
 }
 
 @media (max-width: 51.25rem) {
-  .philosophy-grid {
+  .philosophy__grid {
     grid-template-columns: 1fr;
   }
 }

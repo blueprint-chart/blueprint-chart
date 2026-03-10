@@ -62,7 +62,7 @@ test.describe('landing page layout', () => {
     await page.goto('/#/')
     await page.waitForTimeout(1000)
 
-    const codeBlock = page.locator('.format-code')
+    const codeBlock = page.locator('.format-pane__code')
     await expect(codeBlock).toBeVisible()
 
     const codeText = await codeBlock.textContent()

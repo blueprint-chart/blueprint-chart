@@ -1,10 +1,10 @@
 <template>
-  <div class="oss-wrapper">
+  <div class="oss">
     <LandingSection
       id="open-source"
       full
     >
-      <div class="oss-grid">
+      <div class="oss__grid">
         <div>
           <LandingSectionHeader label="Open source">
             Free forever.<br><em>No strings attached.</em>
@@ -13,11 +13,11 @@
               No paywalls, no watermarks, no data lock-in. You own your charts.
             </template>
           </LandingSectionHeader>
-          <p class="oss-detail">
+          <p class="oss__detail">
             Built by journalists, for journalists. Every feature is driven by real newsroom needs —
             from data desks to local reporters working alone.
           </p>
-          <div class="oss-badges">
+          <div class="oss__badges">
             <span class="oss-badge oss-badge--green">
               <AppIcon
                 :name="IPhScales"
@@ -34,7 +34,7 @@
             </span>
           </div>
         </div>
-        <div class="oss-stats">
+        <div class="oss__stats">
           <div
             v-for="stat in stats"
             :key="stat.label"
@@ -69,27 +69,27 @@ const stats = [
 </script>
 
 <style scoped>
-.oss-wrapper {
+.oss {
   background: var(--bc-void-bg);
   border-top: 1px solid var(--bs-border-color);
   border-bottom: 1px solid var(--bs-border-color);
 }
 
-.oss-grid {
+.oss__grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 3.75rem;
   align-items: center;
 }
 
-.oss-detail {
+.oss__detail {
   font-size: 0.875rem;
   color: var(--bs-secondary-color);
   line-height: 1.7;
   max-width: 30rem;
 }
 
-.oss-badges {
+.oss__badges {
   display: flex;
   gap: 0.625rem;
   margin-top: 1.5rem;
@@ -116,7 +116,7 @@ const stats = [
   color: #fff;
 }
 
-.oss-stats {
+.oss__stats {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--bc-tile-gap);
@@ -145,7 +145,7 @@ const stats = [
 }
 
 @media (max-width: 51.25rem) {
-  .oss-grid {
+  .oss__grid {
     grid-template-columns: 1fr;
   }
 }

@@ -1,6 +1,6 @@
 <template>
   <LandingSection id="stories">
-    <div class="scenes-grid">
+    <div class="scenes__grid">
       <div class="scenes-demo">
         <div
           ref="containerRef"
@@ -29,7 +29,7 @@
             The same chart morphs from overview to focus, from cause to consequence.
           </template>
         </LandingSectionHeader>
-        <div class="scenes-features">
+        <div class="scenes__features">
           <div
             v-for="feat in features"
             :key="feat.title"
@@ -178,14 +178,14 @@ const features: { icon: Component, title: string, description: string }[] = [
 </script>
 
 <style scoped lang="scss">
-.scenes-grid {
+.scenes__grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 2.5rem;
   align-items: start;
 }
 
-.scenes-features {
+.scenes__features {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
@@ -232,7 +232,7 @@ const features: { icon: Component, title: string, description: string }[] = [
 }
 
 @media (max-width: 51.25rem) {
-  .scenes-grid {
+  .scenes__grid {
     grid-template-columns: 1fr;
   }
 }

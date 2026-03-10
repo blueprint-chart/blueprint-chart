@@ -10,7 +10,7 @@
         and the broader dataviz research community.
       </template>
     </LandingSectionHeader>
-    <div class="practices-grid">
+    <div class="practices__grid">
       <LandingPracticeCard
         v-for="card in cards"
         :key="card.title"
@@ -76,20 +76,20 @@ const cards: { icon: Component, title: string, description: string, badge: strin
 </script>
 
 <style scoped>
-.practices-grid {
+.practices__grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1.25rem;
 }
 
 @media (max-width: 51.25rem) {
-  .practices-grid {
+  .practices__grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (max-width: 33.75rem) {
-  .practices-grid {
+  .practices__grid {
     grid-template-columns: 1fr;
   }
 }

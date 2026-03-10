@@ -11,8 +11,8 @@
         trivially diffable, and perfectly structured for AI-assisted chart generation.
       </template>
     </LandingSectionHeader>
-    <div class="format-grid">
-      <div class="format-pane-cell">
+    <div class="format__grid">
+      <div class="format__pane-cell">
         <div
           class="format-pane"
           data-bs-theme="dark"
@@ -24,13 +24,13 @@
             &nbsp; chart.bpc
           </div>
           <pre
-            class="format-code"
+            class="format-pane__code"
             v-html="highlightedBpc"
           />
         </div>
       </div>
       <div>
-        <div class="format-chart-tile">
+        <div class="format__chart-tile">
           <LandingChartPreview :bpc="bpcCode" />
         </div>
         <div class="format-ai-note">
@@ -42,7 +42,7 @@
             />
             <span class="format-ai-note__title">LLM-friendly by design</span>
           </div>
-          <p>
+          <p class="format-ai-note__text">
             BPC uses a simple block syntax. A language model can generate valid BPC
             from a plain description — and you can paste it straight into Blueprint Chart.
           </p>
@@ -74,14 +74,14 @@ const highlightedBpc = computed(() => highlightDsl(bpcCode))
 </script>
 
 <style scoped lang="scss">
-.format-grid {
+.format__grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 2rem;
   margin-top: 0.75rem;
 }
 
-.format-pane-cell {
+.format__pane-cell {
   position: relative;
   min-height: 0;
 }
@@ -122,7 +122,7 @@ const highlightedBpc = computed(() => highlightDsl(bpcCode))
 .format-dot--yellow { background: #f59e0b; }
 .format-dot--green { background: #22c55e; }
 
-.format-code {
+.format-pane__code {
   padding: 1.25rem 1rem;
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.75rem;
@@ -140,7 +140,7 @@ const highlightedBpc = computed(() => highlightDsl(bpcCode))
   flex-grow: 1;
 }
 
-.format-chart-tile {
+.format__chart-tile {
   background: transparent;
   border-radius: var(--bc-tile-radius);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -168,7 +168,7 @@ const highlightedBpc = computed(() => highlightDsl(bpcCode))
   font-weight: 700;
 }
 
-.format-ai-note p {
+.format-ai-note__text {
   font-size: 0.75rem;
   color: #9ca3af;
   line-height: 1.7;
@@ -176,11 +176,11 @@ const highlightedBpc = computed(() => highlightDsl(bpcCode))
 }
 
 @media (max-width: 51.25rem) {
-  .format-grid {
+  .format__grid {
     grid-template-columns: 1fr;
   }
 
-  .format-pane-cell {
+  .format__pane-cell {
     min-height: 24rem;
   }
 }

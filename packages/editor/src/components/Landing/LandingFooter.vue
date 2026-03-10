@@ -11,12 +11,16 @@
     <div class="landing-footer__links">
       Made for investigative journalism
       <span class="landing-footer__sep">&middot;</span>
-      <router-link to="/new">
+      <router-link
+        to="/new"
+        class="landing-footer__link"
+      >
         Editor
       </router-link>
       <span class="landing-footer__sep">&middot;</span>
       <a
         href="#open-source"
+        class="landing-footer__link"
         @click.prevent="scrollTo('open-source')"
       >Open Source</a>
     </div>
@@ -50,7 +54,7 @@ function scrollTo(id: string) {
   flex-wrap: wrap;
   gap: 1rem;
 
-  a {
+  .landing-footer__link {
     color: rgba(255, 255, 255, 0.7);
     text-decoration: none;
 
