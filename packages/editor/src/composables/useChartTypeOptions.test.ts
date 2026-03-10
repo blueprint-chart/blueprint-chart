@@ -237,7 +237,7 @@ describe('useChartTypeOptions', () => {
   describe('scene-aware chart type switch', () => {
     it('copies transitive options to scene when switching chart type on active scene', () => {
       const config = useChartConfig()
-      const { setOption, currentOptions, store } = useChartTypeOptions()
+      const { setOption, store } = useChartTypeOptions()
 
       // Set base colors on bar-vertical
       config.chartType.value = 'bar-vertical'
