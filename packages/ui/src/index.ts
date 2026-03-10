@@ -92,3 +92,4 @@ export { default as SceneTimelineItem } from './components/Scene/SceneTimelineIt
 export { default as ScenePlayerProgressBar } from './components/Scene/ScenePlayer/ScenePlayerProgressBar.vue'
 export { default as ScenePlayerDotStepper } from './components/Scene/ScenePlayer/ScenePlayerDotStepper.vue'
 export { default as ScenePlayerMinimalArrows } from './components/Scene/ScenePlayer/ScenePlayerMinimalArrows.vue'
+export { default as ScenePlayerButtons } from './components/Scene/ScenePlayer/ScenePlayerButtons.vue'

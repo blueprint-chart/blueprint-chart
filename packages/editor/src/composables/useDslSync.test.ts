@@ -1172,13 +1172,13 @@ describe('useDslSync', () => {
       expect(config.layout.value.playerType).toBe('progress-bar')
     })
 
-    it('defaults to minimal-arrows when player not specified', () => {
+    it('defaults to buttons when player not specified', () => {
       const { applyDsl } = useDslSync()
       applyDsl(`chart bar-horizontal {
 }`)
 
       const config = useChartConfig()
-      expect(config.layout.value.playerType).toBe('minimal-arrows')
+      expect(config.layout.value.playerType).toBe('buttons')
     })
 
     it('ignores invalid player type', () => {
@@ -1188,7 +1188,7 @@ describe('useDslSync', () => {
 }`)
 
       const config = useChartConfig()
-      expect(config.layout.value.playerType).toBe('minimal-arrows')
+      expect(config.layout.value.playerType).toBe('buttons')
     })
   })
 

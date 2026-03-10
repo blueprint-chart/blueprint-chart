@@ -49,7 +49,7 @@
       />
 
       <FormControlButtonGroup
-        v-if="playerType === 'dot-stepper' || playerType === 'minimal-arrows'"
+        v-if="playerType === 'buttons' || playerType === 'dot-stepper' || playerType === 'minimal-arrows'"
         v-model="playerPosition"
         label="Player position"
         :options="playerPositionOptions"
@@ -102,6 +102,7 @@ const playerPosition = computed({
 })
 
 const playerTypeOptions = [
+  { value: 'buttons', label: 'Buttons' },
   { value: 'progress-bar', label: 'Progress Bar' },
   { value: 'dot-stepper', label: 'Dot Stepper' },
   { value: 'minimal-arrows', label: 'Minimal Arrows' },

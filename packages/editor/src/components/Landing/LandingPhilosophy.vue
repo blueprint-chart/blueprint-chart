@@ -72,6 +72,7 @@ const points = [
   border-radius: var(--bc-tile-radius);
   box-shadow: var(--bc-tile-shadow);
   align-self: start;
+  overflow: hidden;
 }
 
 @media (max-width: 51.25rem) {

@@ -1,5 +1,5 @@
 import { parse, propertyMap, extractChartTypeOptions, extractSceneOverrides, dataEntriesToString, convertHighlights, convertAreaFills, convertAnnotations, convertSeriesOverrides } from '@blueprint-chart/lib'
-import { useChartConfig } from './useChartConfig'
+import { useChartConfig, type ChartLayout } from './useChartConfig'
 import { useChartTheme } from './useChartTheme'
 import { useChartTypeOptions, type ChartTypeOptions } from './useChartTypeOptions'
 import { useDataTransforms, type TransformType } from './useDataTransforms'
@@ -37,12 +37,12 @@ export function useDslSync() {
       chartTheme.value = theme ? String(theme) : 'blueprint'
 
       const player = propMap.get('player')
-      const validPlayerTypes = ['progress-bar', 'dot-stepper', 'minimal-arrows', 'none']
+      const validPlayerTypes = ['buttons', 'progress-bar', 'dot-stepper', 'minimal-arrows', 'none']
       if (player && validPlayerTypes.includes(String(player))) {
-        config.layout.value = { ...config.layout.value, playerType: String(player) as 'progress-bar' | 'dot-stepper' | 'minimal-arrows' | 'none' }
+        config.layout.value = { ...config.layout.value, playerType: String(player) as ChartLayout['playerType'] }
       }
       else {
-        config.layout.value = { ...config.layout.value, playerType: 'minimal-arrows' }
+        config.layout.value = { ...config.layout.value, playerType: 'buttons' }
       }
 
       const sort = propMap.get('sort')
