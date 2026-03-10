@@ -142,6 +142,15 @@ export function renderDsl(
     annotations: annotations.length > 0 ? annotations : undefined,
     seriesOverrides: seriesOverrides.length > 0 ? seriesOverrides : undefined,
   })
+
+  // Apply chart theme class to the rendered frame
+  const theme = getString('theme')
+  if (theme) {
+    const frameEl = container.querySelector('.bc-frame')
+    if (frameEl) {
+      frameEl.classList.add(`bc-theme-${theme}`)
+    }
+  }
 }
 
 /**
