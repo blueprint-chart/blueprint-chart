@@ -73,7 +73,7 @@ const navbarClass = computed(() => ({
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
   padding: 0.375rem 1rem;
-  min-height: 2.75rem;
+  min-height: 3.5rem;
   background: transparent;
   border: none;
   box-shadow: none;
