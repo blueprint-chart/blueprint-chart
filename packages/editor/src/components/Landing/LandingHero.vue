@@ -13,22 +13,17 @@
           Build beautiful, accessible charts with best practices built in — no design degree required.
         </p>
         <div class="landing-hero__actions">
-          <router-link
+          <ButtonIcon
             to="/charts"
-            class="landing-hero__btn landing-hero__btn--ghost"
-          >
-            My Charts
-          </router-link>
-          <router-link
+            label="My Charts"
+            variant="outline-primary"
+          />
+          <ButtonIcon
             to="/new"
-            class="landing-hero__btn landing-hero__btn--primary"
-          >
-            New
-            <AppIcon
-              :name="IPhArrowRight"
-              size="sm"
-            />
-          </router-link>
+            label="New"
+            variant="primary"
+            :icon-right="IPhArrowRight"
+          />
         </div>
         <div class="landing-hero__meta">
           <LandingBadge
@@ -46,7 +41,7 @@
 </template>
 
 <script setup lang="ts">
-import { AppIcon } from '@blueprint-chart/ui'
+import { ButtonIcon } from '@blueprint-chart/ui'
 import IPhArrowRight from '~icons/ph/arrow-right'
 import { samples } from '@blueprint-chart/lib'
 import LandingBadge from './LandingBadge.vue'
@@ -119,40 +114,6 @@ const heroBpc = samples.find(s => s.id === 'co2-emissions')!.dsl
   align-items: center;
   gap: 0.75rem;
   flex-wrap: wrap;
-}
-
-.landing-hero__btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.6875rem 1.625rem;
-  border-radius: var(--bc-tile-radius);
-  font-size: 0.875rem;
-  font-weight: 700;
-  text-decoration: none;
-  transition: all 0.15s;
-}
-
-.landing-hero__btn--primary {
-  background: var(--bs-primary);
-  color: #fff;
-
-  &:hover {
-    filter: brightness(1.1);
-    transform: translateY(-1px);
-    color: #fff;
-  }
-}
-
-.landing-hero__btn--ghost {
-  background: transparent;
-  color: var(--bs-secondary-color);
-  border: var(--bc-tile-border);
-
-  &:hover {
-    border-color: var(--bs-body-color);
-    color: var(--bs-body-color);
-  }
 }
 
 .landing-hero__meta {
