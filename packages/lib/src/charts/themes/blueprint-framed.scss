@@ -1,0 +1,19 @@
+// ============================================================================
+// Theme: Blueprint Framed
+// ============================================================================
+//
+// A variant of the default Blueprint theme that adds subtle visual separation
+// between the header, chart body, and footer using borders and a tinted
+// footer background.
+//
+// Only CSS custom properties are overridden — no new selectors or rules.
+// ============================================================================
+
+.bc-theme-blueprint-framed {
+  --bc-frame-header-padding: 0 0 0.75rem;
+  --bc-frame-header-border-bottom: 1px solid #e0e0e0;
+
+  --bc-frame-footer-padding: 0.625rem 0 0;
+  --bc-frame-footer-bg: #f8f8f8;
+  --bc-frame-footer-border-top: 1px solid #e0e0e0;
+}
