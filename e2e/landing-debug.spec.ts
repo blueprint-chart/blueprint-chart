@@ -60,16 +60,16 @@ test('debug landing page scroll and sections', async ({ page }) => {
   const heroH1 = page.locator('.landing-hero__h1')
   console.log('Hero h1 visible:', await heroH1.isVisible())
 
-  const philosophyGrid = page.locator('.philosophy-grid')
+  const philosophyGrid = page.locator('.philosophy__grid')
   console.log('Philosophy grid count:', await philosophyGrid.count())
 
-  const formatGrid = page.locator('.format-grid')
+  const formatGrid = page.locator('.format__grid')
   console.log('Format grid count:', await formatGrid.count())
 
-  const scenesGrid = page.locator('.scenes-grid')
+  const scenesGrid = page.locator('.scenes__grid')
   console.log('Scenes grid count:', await scenesGrid.count())
 
-  const practicesGrid = page.locator('.practices-grid')
+  const practicesGrid = page.locator('.practices__grid')
   console.log('Practices grid count:', await practicesGrid.count())
 
   const footer = page.locator('.landing-footer')

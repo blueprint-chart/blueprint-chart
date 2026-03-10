@@ -18,13 +18,13 @@ function mountFormat() {
 describe('LandingFormat', () => {
   it('renders BPC code block with actual BPC syntax', () => {
     const w = mountFormat()
-    expect(w.find('.format-code').exists()).toBe(true)
+    expect(w.find('.format-pane__code').exists()).toBe(true)
     expect(w.text()).toContain('chart bar-vertical')
   })
 
   it('renders chart preview tile', () => {
     const w = mountFormat()
-    expect(w.find('.format-chart-tile').exists()).toBe(true)
+    expect(w.find('.format__chart-tile').exists()).toBe(true)
   })
 
   it('renders AI note', () => {

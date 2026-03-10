@@ -1,6 +1,6 @@
 <template>
   <div class="landing-divider">
-    <hr>
+    <hr class="landing-divider__line">
   </div>
 </template>
 
@@ -11,7 +11,7 @@
   padding: 0 clamp(1rem, 5vw, 3.75rem);
 }
 
-hr {
+.landing-divider__line {
   border: none;
   border-top: 1px solid var(--bs-border-color);
   margin: 0;
