@@ -95,7 +95,7 @@ export const layoutDefaults: ChartLayout = {
   heightMode: 'auto',
   fixedHeight: 400,
   aspectRatio: '16:9',
-  padding: 24,
+  padding: 16,
   transparentBackground: false,
   showCredit: true,
   playerType: 'minimal-arrows',
