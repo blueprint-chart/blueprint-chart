@@ -1,5 +1,6 @@
 import { parse, propertyMap, extractChartTypeOptions, extractSceneOverrides, dataEntriesToString, convertHighlights, convertAreaFills, convertAnnotations, convertSeriesOverrides } from '@blueprint-chart/lib'
 import { useChartConfig } from './useChartConfig'
+import { useChartTheme } from './useChartTheme'
 import { useChartTypeOptions, type ChartTypeOptions } from './useChartTypeOptions'
 import { useDataTransforms, type TransformType } from './useDataTransforms'
 import { useDataTable } from './useDataTable'
@@ -10,6 +11,7 @@ const VALID_TRANSFORM_TYPES = new Set<TransformType>(['sort', 'filter', 'hide-co
 
 export function useDslSync() {
   const config = useChartConfig()
+  const { chartTheme } = useChartTheme()
   const { store } = useChartTypeOptions()
   const transforms = useDataTransforms()
   const scenesComposable = useScenes()
@@ -30,6 +32,9 @@ export function useDslSync() {
       config.byline.value = String(propMap.get('byline') ?? '')
       config.source.value = String(propMap.get('source') ?? '')
       config.sourceUrl.value = String(propMap.get('sourceUrl') ?? '')
+
+      const theme = propMap.get('theme')
+      chartTheme.value = theme ? String(theme) : 'blueprint'
 
       const player = propMap.get('player')
       const validPlayerTypes = ['progress-bar', 'dot-stepper', 'minimal-arrows', 'none']

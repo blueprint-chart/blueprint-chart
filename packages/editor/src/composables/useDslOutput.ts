@@ -1,5 +1,6 @@
 import { computed, ref } from 'vue'
 import { useChartConfig } from './useChartConfig'
+import { useChartTheme } from './useChartTheme'
 import { useChartTypeOptions } from './useChartTypeOptions'
 import { useDataTransforms } from './useDataTransforms'
 import { useScenes } from './useScenes'
@@ -35,6 +36,7 @@ function serializeMaxWidth(v: number | string): string {
 export function useDslOutput() {
   const config = useChartConfig()
   const base = config._base
+  const { chartTheme } = useChartTheme()
   const { baseOptions } = useChartTypeOptions()
   const { steps: transformSteps } = useDataTransforms()
   const { scenes } = useScenes()
@@ -58,6 +60,9 @@ export function useDslOutput() {
     }
     if (base.sourceUrl.value) {
       output += `  sourceUrl = "${base.sourceUrl.value}"\n`
+    }
+    if (chartTheme.value && chartTheme.value !== 'blueprint') {
+      output += `  theme = "${chartTheme.value}"\n`
     }
     const optionDefs = getChartOptions(base.chartType.value)
     const supportedKeys = optionDefs.map(d => d.key)
