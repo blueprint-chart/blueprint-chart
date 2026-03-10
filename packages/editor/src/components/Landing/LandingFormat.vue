@@ -62,6 +62,7 @@ import LandingSectionHeader from './LandingSectionHeader.vue'
 import LandingChartPreview from './LandingChartPreview.vue'
 
 const rawBpc = samples.find(s => s.id === 'coffee-production')!.dsl
+  .replace(/\{/, '{\n  theme = "blueprint-framed"')
 const bpcCode = rawBpc
   .split('\n')
   .filter(line => !/^\s*(colors|colorPalette)\s*=/.test(line))
