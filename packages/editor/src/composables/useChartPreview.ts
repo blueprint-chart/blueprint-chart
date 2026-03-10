@@ -6,6 +6,7 @@ import { useScenes, type SceneOverride } from './useScenes'
 import { useDataTable, serializeTableData } from './useDataTable'
 import { useDataTransforms } from './useDataTransforms'
 import { useTheme } from './useTheme'
+import { useChartTheme } from './useChartTheme'
 import { getChart, parseData, buildChartOptions, resolveBackgroundColor } from '@blueprint-chart/lib'
 
 function showPlaceholder(el: HTMLElement, message: string) {
@@ -102,6 +103,7 @@ export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
   const { columns, rows, columnTypes } = useDataTable()
   const { applyStepList } = useDataTransforms()
   const { theme } = useTheme()
+  const { chartTheme } = useChartTheme()
 
   // Track previous active scene ref to detect scene navigation.
   // Symbol sentinel distinguishes "never rendered" from "rendered with no scene (null)".
@@ -212,11 +214,23 @@ export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
       seriesOverrides: seriesOverrides.length > 0 ? seriesOverrides : undefined,
     }, isSceneTransition)
 
+    // Apply chart theme class to the .bc-frame element
+    const frame = containerRef.value.querySelector('.bc-frame')
+    if (frame) {
+      // Remove any existing theme classes
+      frame.classList.forEach((cls) => {
+        if (cls.startsWith('bc-theme-')) {
+          frame.classList.remove(cls)
+        }
+      })
+      frame.classList.add(`bc-theme-${chartTheme.value}`)
+    }
+
     prevActiveScene = rawScene
   }
 
   watch(
-    [containerRef, config.chartType, config.title, config.data, config.sort, config.sortMode, config.description, config.byline, config.note, config.source, config.sourceUrl, config.selectedColumn, config.highlights, config.areaFills, config.annotations, config.seriesOverrides, config.layout, currentOptions, scenes, activeScene, theme],
+    [containerRef, config.chartType, config.title, config.data, config.sort, config.sortMode, config.description, config.byline, config.note, config.source, config.sourceUrl, config.selectedColumn, config.highlights, config.areaFills, config.annotations, config.seriesOverrides, config.layout, currentOptions, scenes, activeScene, theme, chartTheme],
     render,
     { immediate: true, deep: true },
   )
