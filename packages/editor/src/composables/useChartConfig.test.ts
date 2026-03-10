@@ -155,9 +155,9 @@ describe('useChartConfig', () => {
       expect(config.layout.value.playerType).toBe('buttons')
     })
 
-    it('has playerPosition default of center', () => {
+    it('has playerPosition default of left', () => {
       const config = useChartConfig()
-      expect(config.layout.value.playerPosition).toBe('center')
+      expect(config.layout.value.playerPosition).toBe('left')
     })
 
     it('preserves playerType through hydrate', () => {
