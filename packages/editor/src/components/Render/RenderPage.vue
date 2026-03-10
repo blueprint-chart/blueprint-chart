@@ -99,7 +99,6 @@ onMounted(() => {
 
 .render-page__card {
   width: 100%;
-  padding: 24px;
   box-sizing: border-box;
 }
 </style>
