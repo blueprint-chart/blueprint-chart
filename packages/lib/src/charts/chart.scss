@@ -27,7 +27,7 @@
 // -- Header elements --------------------------------------------------------
 
 .bc-frame-header {
-  padding: var(--bc-frame-padding) var(--bc-frame-padding) var(--bc-frame-header-padding-bottom, 0);
+  padding: var(--bc-frame-padding) var(--bc-frame-padding) var(--bc-frame-header-padding-bottom, var(--bc-frame-padding));
   background: var(--bc-frame-header-bg, transparent);
   border-bottom: var(--bc-frame-header-border-bottom, none);
   margin-bottom: var(--bc-frame-header-margin-bottom, 0);
@@ -77,9 +77,8 @@
 .bc-frame-footer {
   --bc-frame-footer-gap: 0.25rem 1rem;
 
-  margin-top: 0.5rem;
   gap: var(--bc-frame-footer-gap);
-  padding: var(--bc-frame-footer-padding-top, 0) var(--bc-frame-padding) var(--bc-frame-padding);
+  padding: var(--bc-frame-footer-padding-top, var(--bc-frame-padding)) var(--bc-frame-padding) var(--bc-frame-padding);
   background: var(--bc-frame-footer-bg, transparent);
   border-top: var(--bc-frame-footer-border-top, none);
 }
