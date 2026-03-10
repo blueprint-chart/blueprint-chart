@@ -139,7 +139,7 @@ function findFrame() {
   if (!el) {
     return null
   }
-  return el.querySelector<HTMLElement>('.bc-frame')
+  return el.querySelector<HTMLElement>('.bc-frame-footer')
 }
 
 watch(containerRef, (el) => {
