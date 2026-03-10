@@ -91,7 +91,6 @@ function render() {
   }
   renderDsl(containerRef.value, bpc, {
     stripColors: true,
-    padding: '24px',
     sceneIndex: activeIndex.value >= 0 ? activeIndex.value : undefined,
   })
 }

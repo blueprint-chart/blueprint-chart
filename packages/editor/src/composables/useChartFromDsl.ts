@@ -130,7 +130,7 @@ export function renderDsl(
         sourceUrl: getString('sourceUrl'),
         byline: getString('byline'),
         note: getString('note'),
-        padding: String(pMap.get('padding') ?? '') || options?.padding || undefined,
+        padding: String(pMap.get('padding') ?? '') || options?.padding || '16px',
       }
 
   renderer(container, data, {
