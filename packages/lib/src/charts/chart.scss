@@ -27,7 +27,9 @@
 // -- Header elements --------------------------------------------------------
 
 .bc-frame-header {
-  // No extra styling needed; acts as a container for title/description.
+  padding: var(--bc-frame-header-padding, 0);
+  background: var(--bc-frame-header-bg, transparent);
+  border-bottom: var(--bc-frame-header-border-bottom, none);
 }
 
 .bc-frame-title {
@@ -76,6 +78,9 @@
 
   margin-top: 0.5rem;
   gap: var(--bc-frame-footer-gap);
+  padding: var(--bc-frame-footer-padding, 0);
+  background: var(--bc-frame-footer-bg, transparent);
+  border-top: var(--bc-frame-footer-border-top, none);
 }
 
 .bc-frame-footer-left {
@@ -403,6 +408,17 @@
 .bc-annotations-range {
   // Container group for range annotations (inserted first for z-order).
 }
+
+// ---------------------------------------------------------------------------
+// Error state (runtime embed)
+// ---------------------------------------------------------------------------
+
+// ---------------------------------------------------------------------------
+// Themes
+// ---------------------------------------------------------------------------
+
+@use "themes/blueprint";
+@use "themes/blueprint-framed";
 
 // ---------------------------------------------------------------------------
 // Error state (runtime embed)
