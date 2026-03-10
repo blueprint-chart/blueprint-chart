@@ -294,8 +294,12 @@ export function ensureArrowMarker(svg: SVGElement | null, color?: string): strin
     .attr('markerUnits', 'userSpaceOnUse')
     .attr('orient', 'auto')
     .append('path')
-    .attr('d', 'M 1 1 L 9 5 L 1 9 Z')
-    .attr('fill', safeColor)
+    .attr('d', 'M 1 1 L 9 5 L 1 9')
+    .attr('fill', 'none')
+    .attr('stroke', safeColor)
+    .attr('stroke-width', 1.5)
+    .attr('stroke-linecap', 'round')
+    .attr('stroke-linejoin', 'round')
 
   return id
 }
