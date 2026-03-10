@@ -3,7 +3,7 @@ import 'd3-transition'
 import { D3Blueprint } from 'd3-blueprint'
 import type { ChartData, ChartOptions } from '../../types'
 import { createFrame } from '../../frame/frame'
-import { createCanvas, labelPositionMargins, estimateCategoryLabelWidth } from '../../canvas/canvas'
+import { createCanvas, contentSize, labelPositionMargins, estimateCategoryLabelWidth } from '../../canvas/canvas'
 import { renderVerticalAxis } from '../../axis/vertical-axis'
 import { renderHorizontalAxis } from '../../axis/horizontal-axis'
 import { computeLinearDomain } from '../../scale-helpers'
@@ -109,7 +109,7 @@ export function render(
   }
 
   const { body } = createFrame(container, options.frame)
-  const containerWidth = body.getBoundingClientRect().width
+  const containerWidth = contentSize(body).width
   const vLabelW = estimateCategoryLabelWidth(data.labels)
   const lpMargins = labelPositionMargins(containerWidth, options.verticalAxis?.labelPosition, options.horizontalAxis?.labelPosition, options.verticalAxis?.direction, vLabelW, options.horizontalAxis?.showAxis)
   const { chartArea, width, height, margin } = createCanvas(body, lpMargins)

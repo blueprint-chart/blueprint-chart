@@ -3,7 +3,7 @@ import 'd3-transition'
 import { D3Blueprint } from 'd3-blueprint'
 import type { AreaFillConfig, ChartData, ChartOptions } from '../../types'
 import { createFrame } from '../../frame/frame'
-import { createCanvas, labelPositionMargins, estimateVerticalLabelWidth } from '../../canvas/canvas'
+import { createCanvas, contentSize, labelPositionMargins, estimateVerticalLabelWidth } from '../../canvas/canvas'
 import { renderVerticalAxis } from '../../axis/vertical-axis'
 import { renderHorizontalAxis, type AnyXScale } from '../../axis/horizontal-axis'
 import { renderLegend } from '../../legend/legend'
@@ -267,7 +267,7 @@ export function render(
 
   // Compute margin adjustments for legend and direct labels
   const showLegend = options.legend !== false && !options.directLabelling
-  const containerWidth = body.getBoundingClientRect().width
+  const containerWidth = contentSize(body).width
   const NARROW_THRESHOLD = 350
   const requestedLegendPos = options.legendPosition ?? 'top'
   const legendPos = (containerWidth > 0 && containerWidth < NARROW_THRESHOLD && (requestedLegendPos === 'left' || requestedLegendPos === 'right'))
