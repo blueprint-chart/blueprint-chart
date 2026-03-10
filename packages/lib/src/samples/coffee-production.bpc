@@ -4,22 +4,42 @@ chart bar-vertical {
   source = "International Coffee Organization"
   sourceUrl = "https://ico.org"
   colorPalette = "Harvey"
-  sort = descending
+  autoContrast = false
+  allowDarkMode = true
+  showVerticalAxis = false
+  verticalAxisDirection = "left"
+  showVerticalTicks = false
+  verticalLabelPosition = "off"
+  verticalGridStyle = "none"
+  verticalScaleType = "linear"
+  showHorizontalAxis = true
+  showHorizontalTicks = false
+  horizontalLabelPosition = "auto"
+  horizontalGridStyle = "none"
   valueLabels = true
-  verticalLabelPosition = off
-  verticalGridStyle = none
+  valueLabelPosition = "auto"
+  tooltips = false
+  crosshair = false
+  crosshairDirection = "both"
+  crosshairStyle = "dashed"
+  crosshairColor = "#999"
+
+  data {
+    "Brazil" = 66.4
+    "Vietnam" = 29
+    "Colombia" = 11.4
+    "Indonesia" = 9.9
+    "Ethiopia" = 8.7
+    "Honduras" = 6.3
+  }
 
   highlight "Brazil" {
     color = "#a4432d"
     label = "Produces more than the next three combined"
   }
 
-  data {
-    "Brazil" = 66.4
-    "Vietnam" = 29.0
-    "Colombia" = 11.4
-    "Indonesia" = 9.9
-    "Ethiopia" = 8.7
-    "Honduras" = 6.3
+  transform sort {
+    column = "value"
+    direction = descending
   }
 }
