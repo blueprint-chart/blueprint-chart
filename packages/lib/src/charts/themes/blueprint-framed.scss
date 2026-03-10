@@ -18,3 +18,10 @@
   --bc-frame-footer-border-top: 1px solid #e0e0e0;
   --bc-frame-footer-padding-top: 0.625rem;
 }
+
+[data-bs-theme="dark"] .bc-theme-blueprint-framed {
+  --bc-frame-header-border-bottom: 1px solid #333;
+
+  --bc-frame-footer-bg: #1c1c20;
+  --bc-frame-footer-border-top: 1px solid #333;
+}
