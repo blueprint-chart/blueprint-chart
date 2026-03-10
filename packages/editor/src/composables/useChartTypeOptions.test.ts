@@ -234,6 +234,60 @@ describe('useChartTypeOptions', () => {
     })
   })
 
+  describe('scene-aware chart type switch', () => {
+    it('copies transitive options to scene when switching chart type on active scene', () => {
+      const config = useChartConfig()
+      const { setOption, currentOptions, store } = useChartTypeOptions()
+
+      // Set base colors on bar-vertical
+      config.chartType.value = 'bar-vertical'
+      setOption('colors', ['#aaa', '#bbb'])
+
+      // Activate a scene and switch its chart type
+      const scenes = useScenes()
+      scenes.add()
+      scenes.setActive(0)
+
+      config.chartType.value = 'line'
+
+      // Scene should have the chart type override
+      expect(scenes.activeScene.value?.chartType).toBe('line')
+      // Colors should be carried over to scene chartTypeOptions
+      expect(scenes.activeScene.value?.chartTypeOptions?.colors).toEqual(['#aaa', '#bbb'])
+      // Base store for line should NOT have the colors (they went to scene)
+      expect(store['line']?.colors).toBeUndefined()
+    })
+
+    it('does not overwrite existing scene options on chart type switch', () => {
+      const config = useChartConfig()
+      const { setOption } = useChartTypeOptions()
+
+      config.chartType.value = 'bar-vertical'
+      setOption('colors', ['#old'])
+
+      const scenes = useScenes()
+      scenes.add()
+      scenes.setActive(0)
+      setOption('colors', ['#scene-custom'])
+
+      config.chartType.value = 'line'
+
+      // Scene already had colors, so they should not be overwritten
+      expect(scenes.activeScene.value?.chartTypeOptions?.colors).toEqual(['#scene-custom'])
+    })
+
+    it('copies transitive options to base store when no scene is active', () => {
+      const config = useChartConfig()
+      const { setOption, store } = useChartTypeOptions()
+
+      config.chartType.value = 'bar-vertical'
+      setOption('colors', ['#base'])
+
+      config.chartType.value = 'line'
+      expect(store['line']?.colors).toEqual(['#base'])
+    })
+  })
+
   describe('baseOptions', () => {
     it('always returns base store values regardless of active scene', () => {
       const { setOption, baseOptions } = useChartTypeOptions()
