@@ -417,8 +417,8 @@
 // Themes
 // ---------------------------------------------------------------------------
 
-@use "themes/blueprint";
-@use "themes/blueprint-framed";
+@import "themes/blueprint";
+@import "themes/blueprint-framed";
 
 // ---------------------------------------------------------------------------
 // Error state (runtime embed)
