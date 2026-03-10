@@ -14,7 +14,7 @@
             :total="sceneCount + 1"
             :current="currentScene"
             :playing="playing"
-            position="center"
+            position="left"
             @update:current="onSceneChange"
             @play="startPlayback"
             @pause="stopPlayback"
