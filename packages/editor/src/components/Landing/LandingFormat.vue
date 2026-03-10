@@ -86,6 +86,9 @@ const highlightedBpc = computed(() => highlightDsl(bpcCode))
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  // Don't let the code content stretch the grid row;
+  // the right column (chart + note) drives the height.
+  min-height: 0;
 }
 
 .format-pane__header {
