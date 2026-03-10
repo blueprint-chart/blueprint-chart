@@ -10,7 +10,7 @@
           v-if="playerTarget && sceneCount > 0"
           :to="playerTarget"
         >
-          <ScenePlayerMinimalArrows
+          <ScenePlayerButtons
             :total="sceneCount + 1"
             :current="currentScene"
             :playing="playing"
@@ -58,7 +58,7 @@
 <script setup lang="ts">
 import { ref, watch, onBeforeUnmount, type Component } from 'vue'
 import { useResizeObserver, useThrottleFn } from '@vueuse/core'
-import { AppIcon, ScenePlayerMinimalArrows } from '@blueprint-chart/ui'
+import { AppIcon, ScenePlayerButtons } from '@blueprint-chart/ui'
 import { samples } from '@blueprint-chart/lib'
 import IPhFilmSlate from '~icons/ph/film-slate'
 import IPhSparkle from '~icons/ph/sparkle'

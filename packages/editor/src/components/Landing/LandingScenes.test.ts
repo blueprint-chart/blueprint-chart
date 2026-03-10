@@ -9,7 +9,7 @@ function mountScenes() {
         LandingSection: { template: '<div><slot /></div>' },
         LandingSectionHeader: { template: '<div><slot /></div>' },
         AppIcon: { template: '<span />', props: ['name', 'size', 'variant'] },
-        ScenePlayerMinimalArrows: { template: '<div class="player-stub" />' },
+        ScenePlayerButtons: { template: '<div class="player-stub" />' },
         Teleport: { template: '<div><slot /></div>' },
       },
     },
