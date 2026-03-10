@@ -87,7 +87,7 @@ export function useDslOutput() {
       }
     }
 
-    if (base.layout.value.playerType && base.layout.value.playerType !== 'minimal-arrows') {
+    if (base.layout.value.playerType && base.layout.value.playerType !== 'buttons') {
       output += `  player = "${base.layout.value.playerType}"\n`
     }
 

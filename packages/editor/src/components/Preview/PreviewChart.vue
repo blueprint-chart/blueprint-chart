@@ -40,6 +40,7 @@ import { useChartConfig } from '@/composables/useChartConfig'
 import { useScenes } from '@/composables/useScenes'
 import { getCvdFilterId, createCvdSvgFilter, type CvdType } from '@blueprint-chart/lib'
 import {
+  ScenePlayerButtons,
   ScenePlayerProgressBar,
   ScenePlayerDotStepper,
   ScenePlayerMinimalArrows,
@@ -111,6 +112,7 @@ const { scenes, activeIndex, playing, setActive, startPlayback, stopPlayback } =
 const playerTarget = ref<HTMLElement | null>(null)
 
 const playerComponentMap: Record<string, Component> = {
+  'buttons': ScenePlayerButtons,
   'progress-bar': ScenePlayerProgressBar,
   'dot-stepper': ScenePlayerDotStepper,
   'minimal-arrows': ScenePlayerMinimalArrows,

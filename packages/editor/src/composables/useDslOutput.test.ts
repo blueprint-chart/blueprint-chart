@@ -516,7 +516,7 @@ describe('useDslOutput', () => {
       expect(dsl.value).toContain('player = "progress-bar"')
     })
 
-    it('omits player when it is the default minimal-arrows', () => {
+    it('omits player when it is the default buttons', () => {
       const config = useChartConfig()
       config.chartType.value = 'bar-vertical'
 

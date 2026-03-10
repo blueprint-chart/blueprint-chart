@@ -84,7 +84,7 @@ export interface ChartLayout {
   padding: number
   transparentBackground: boolean
   showCredit: boolean
-  playerType: 'progress-bar' | 'dot-stepper' | 'minimal-arrows' | 'none'
+  playerType: 'buttons' | 'progress-bar' | 'dot-stepper' | 'minimal-arrows' | 'none'
   playerPosition: 'left' | 'center' | 'right'
 }
 
@@ -98,7 +98,7 @@ export const layoutDefaults: ChartLayout = {
   padding: 16,
   transparentBackground: false,
   showCredit: true,
-  playerType: 'minimal-arrows',
+  playerType: 'buttons',
   playerPosition: 'center',
 }
 

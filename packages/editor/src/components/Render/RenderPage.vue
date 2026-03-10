@@ -8,7 +8,8 @@
       v-if="playerTarget && showPlayer"
       :to="playerTarget"
     >
-      <ScenePlayerMinimalArrows
+      <component
+        :is="playerComponent"
         :total="totalScenes"
         :current="currentScene"
         :playing="playing"
@@ -22,11 +23,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, watch, onMounted, onBeforeUnmount, type Component } from 'vue'
 import { useRoute } from 'vue-router'
-import { ScenePlayerMinimalArrows } from '@blueprint-chart/ui'
+import {
+  ScenePlayerButtons,
+  ScenePlayerProgressBar,
+  ScenePlayerDotStepper,
+  ScenePlayerMinimalArrows,
+} from '@blueprint-chart/ui'
 import { useDslSync } from '@/composables/useDslSync'
 import { useChartPreview } from '@/composables/useChartPreview'
+import { useChartConfig } from '@/composables/useChartConfig'
 import { useScenes } from '@/composables/useScenes'
 
 const route = useRoute()
@@ -35,7 +42,17 @@ const containerRef = ref<HTMLElement | null>(null)
 const { applyDsl } = useDslSync()
 useChartPreview(containerRef)
 
+const { layout } = useChartConfig()
 const { scenes, activeIndex, playing, setActive, startPlayback, stopPlayback } = useScenes()
+
+const playerComponentMap: Record<string, Component> = {
+  'buttons': ScenePlayerButtons,
+  'progress-bar': ScenePlayerProgressBar,
+  'dot-stepper': ScenePlayerDotStepper,
+  'minimal-arrows': ScenePlayerMinimalArrows,
+}
+
+const playerComponent = computed(() => playerComponentMap[layout.value.playerType] || ScenePlayerButtons)
 
 const totalScenes = computed(() => scenes.value.length + 1)
 const currentScene = computed(() => activeIndex.value + 2)

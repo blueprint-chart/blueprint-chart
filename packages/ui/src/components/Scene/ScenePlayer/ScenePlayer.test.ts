@@ -2,6 +2,7 @@ import { mount } from '@vue/test-utils'
 import ScenePlayerProgressBar from './ScenePlayerProgressBar.vue'
 import ScenePlayerDotStepper from './ScenePlayerDotStepper.vue'
 import ScenePlayerMinimalArrows from './ScenePlayerMinimalArrows.vue'
+import ScenePlayerButtons from './ScenePlayerButtons.vue'
 
 describe('ScenePlayerProgressBar', () => {
   it('renders correct number of segments', () => {
@@ -285,5 +286,73 @@ describe('ScenePlayerMinimalArrows', () => {
     const children = wrapper.find('.bc-scene-player--minimal-arrows').element.children
     expect(children[0].tagName).toBe('BUTTON')
     expect(children[children.length - 1].classList.contains('bc-scene-player__counter')).toBe(true)
+  })
+})
+
+describe('ScenePlayerButtons', () => {
+  it('shows counter text with spaces', () => {
+    const wrapper = mount(ScenePlayerButtons, {
+      props: { total: 4, current: 1 },
+    })
+    expect(wrapper.find('.bc-scene-player__counter').text()).toBe('1 / 4')
+  })
+
+  it('renders Back and Next buttons', () => {
+    const wrapper = mount(ScenePlayerButtons, {
+      props: { total: 4, current: 2 },
+    })
+    expect(wrapper.find('[aria-label="Previous scene"]').text()).toContain('Back')
+    expect(wrapper.find('[aria-label="Next scene"]').text()).toContain('Next')
+  })
+
+  it('disables Back button on first scene', () => {
+    const wrapper = mount(ScenePlayerButtons, {
+      props: { total: 3, current: 1 },
+    })
+    expect(wrapper.find('[aria-label="Previous scene"]').attributes('disabled')).toBeDefined()
+  })
+
+  it('disables Next button on last scene', () => {
+    const wrapper = mount(ScenePlayerButtons, {
+      props: { total: 3, current: 3 },
+    })
+    expect(wrapper.find('[aria-label="Next scene"]').attributes('disabled')).toBeDefined()
+  })
+
+  it('emits update:current on Back click', async () => {
+    const wrapper = mount(ScenePlayerButtons, {
+      props: { total: 3, current: 2 },
+    })
+    await wrapper.find('[aria-label="Previous scene"]').trigger('click')
+    expect(wrapper.emitted('update:current')?.[0]).toEqual([1])
+  })
+
+  it('emits update:current on Next click', async () => {
+    const wrapper = mount(ScenePlayerButtons, {
+      props: { total: 3, current: 1 },
+    })
+    await wrapper.find('[aria-label="Next scene"]').trigger('click')
+    expect(wrapper.emitted('update:current')?.[0]).toEqual([2])
+  })
+
+  it('has data-scene-player attribute', () => {
+    const wrapper = mount(ScenePlayerButtons, {
+      props: { total: 2, current: 1 },
+    })
+    expect(wrapper.find('[data-scene-player]').exists()).toBe(true)
+  })
+
+  it('applies position class', () => {
+    const wrapper = mount(ScenePlayerButtons, {
+      props: { total: 2, current: 1, position: 'center' },
+    })
+    expect(wrapper.find('.bc-scene-player--center').exists()).toBe(true)
+  })
+
+  it('defaults to left position', () => {
+    const wrapper = mount(ScenePlayerButtons, {
+      props: { total: 2, current: 1 },
+    })
+    expect(wrapper.find('.bc-scene-player--left').exists()).toBe(true)
   })
 })
