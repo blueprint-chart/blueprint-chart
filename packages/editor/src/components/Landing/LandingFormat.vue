@@ -12,14 +12,20 @@
       </template>
     </LandingSectionHeader>
     <div class="format-grid">
-      <div class="format-pane">
+      <div
+        class="format-pane"
+        data-bs-theme="dark"
+      >
         <div class="format-pane__header">
           <span class="format-dot format-dot--red" />
           <span class="format-dot format-dot--yellow" />
           <span class="format-dot format-dot--green" />
           &nbsp; chart.bpc
         </div>
-        <pre class="format-code">{{ bpcCode }}</pre>
+        <pre
+          class="format-code"
+          v-html="highlightedBpc"
+        />
       </div>
       <div>
         <div class="format-chart-tile">
@@ -45,9 +51,12 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { AppIcon } from '@blueprint-chart/ui'
 import IPhLightning from '~icons/ph/lightning'
 import { samples } from '@blueprint-chart/lib'
+import { highlightDsl } from '@/dsl-lang'
+import '@/dsl-lang/highlight.scss'
 import LandingSection from './LandingSection.vue'
 import LandingSectionHeader from './LandingSectionHeader.vue'
 import LandingChartPreview from './LandingChartPreview.vue'
@@ -57,6 +66,8 @@ const bpcCode = rawBpc
   .split('\n')
   .filter(line => !/^\s*(colors|colorPalette)\s*=/.test(line))
   .join('\n')
+
+const highlightedBpc = computed(() => highlightDsl(bpcCode))
 </script>
 
 <style scoped lang="scss">
