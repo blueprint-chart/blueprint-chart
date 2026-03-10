@@ -1,6 +1,13 @@
 <template>
   <div class="d-flex flex-column gap-4">
     <SettingsSection
+      title="Theme"
+      :icon="IPhPaintBrush"
+    >
+      <EditorThemeSection />
+    </SettingsSection>
+
+    <SettingsSection
       title="Colors"
       :icon="IPhPalette"
     >
@@ -51,6 +58,8 @@ import IPhLineSegments from '~icons/ph/line-segments'
 import IPhListBullets from '~icons/ph/list-bullets'
 import IPhChartPieSlice from '~icons/ph/chart-pie-slice'
 import IPhCursorClick from '~icons/ph/cursor-click'
+import IPhPaintBrush from '~icons/ph/paint-brush'
+import EditorThemeSection from './EditorThemeSection.vue'
 import EditorColorSection from './EditorColorSection.vue'
 import EditorLineSection from './EditorLineSection.vue'
 import EditorLegendSection from './EditorLegendSection.vue'
