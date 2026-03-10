@@ -169,6 +169,7 @@ const heroBpc = samples.find(s => s.id === 'co2-emissions')!.dsl
   border-radius: var(--bc-tile-radius);
   box-shadow: var(--bc-tile-shadow);
   align-self: center;
+  overflow: hidden;
 }
 
 @media (max-width: 51.25rem) {

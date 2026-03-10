@@ -57,6 +57,7 @@ const points = [
   grid-template-columns: 1fr 1fr;
   gap: 2.5rem;
   align-items: start;
+  overflow: hidden;
 }
 
 .philosophy-points {
