@@ -12,20 +12,22 @@
       </template>
     </LandingSectionHeader>
     <div class="format-grid">
-      <div
-        class="format-pane"
-        data-bs-theme="dark"
-      >
-        <div class="format-pane__header">
-          <span class="format-dot format-dot--red" />
-          <span class="format-dot format-dot--yellow" />
-          <span class="format-dot format-dot--green" />
-          &nbsp; chart.bpc
+      <div class="format-pane-cell">
+        <div
+          class="format-pane"
+          data-bs-theme="dark"
+        >
+          <div class="format-pane__header">
+            <span class="format-dot format-dot--red" />
+            <span class="format-dot format-dot--yellow" />
+            <span class="format-dot format-dot--green" />
+            &nbsp; chart.bpc
+          </div>
+          <pre
+            class="format-code"
+            v-html="highlightedBpc"
+          />
         </div>
-        <pre
-          class="format-code"
-          v-html="highlightedBpc"
-        />
       </div>
       <div>
         <div class="format-chart-tile">
@@ -79,16 +81,20 @@ const highlightedBpc = computed(() => highlightDsl(bpcCode))
   margin-top: 0.75rem;
 }
 
+.format-pane-cell {
+  position: relative;
+  min-height: 0;
+}
+
 .format-pane {
+  position: absolute;
+  inset: 0;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: var(--bc-tile-radius);
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  // Don't let the code content stretch the grid row;
-  // the right column (chart + note) drives the height.
-  min-height: 0;
 }
 
 .format-pane__header {
@@ -166,6 +172,10 @@ const highlightedBpc = computed(() => highlightDsl(bpcCode))
 @media (max-width: 51.25rem) {
   .format-grid {
     grid-template-columns: 1fr;
+  }
+
+  .format-pane-cell {
+    min-height: 24rem;
   }
 }
 </style>
