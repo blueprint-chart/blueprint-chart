@@ -76,7 +76,8 @@ defineEmits<{
   display: flex;
   align-items: center;
   gap: 0.375rem;
-  padding: 0.5rem 0 0.625rem;
+  padding: 0.25rem 0 0;
+  width: 100%;
 
   &.bc-scene-player--left {
     justify-content: flex-start;

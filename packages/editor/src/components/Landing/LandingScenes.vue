@@ -101,7 +101,7 @@ useResizeObserver(containerRef, throttledRender)
 
 // Find .bc-frame for teleport target
 function findFrame() {
-  return containerRef.value?.querySelector<HTMLElement>('.bc-frame') ?? null
+  return containerRef.value?.querySelector<HTMLElement>('.bc-frame-footer') ?? null
 }
 
 let observer: MutationObserver | null = null
