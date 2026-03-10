@@ -129,6 +129,12 @@ const highlightedBpc = computed(() => highlightDsl(bpcCode))
   line-height: 1.8;
   color: #e2e8f0;
   overflow: auto;
+  scrollbar-width: none;
+
+  &:hover,
+  &:active {
+    scrollbar-width: thin;
+  }
   white-space: pre;
   margin: 0;
   flex-grow: 1;
