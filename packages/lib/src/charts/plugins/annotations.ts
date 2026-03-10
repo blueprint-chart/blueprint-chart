@@ -673,19 +673,29 @@ function renderPointAnnotation(
       catch { /* getBBox can throw if not in DOM */ }
     }
 
-    // Offset line end from anchor along the anchor direction's outward normal
-    // so the gap stays aligned with the bar center rather than drifting along
-    // the diagonal line direction.
+    // Shorten the line end by lineTargetDistance, keeping the tip aligned
+    // with the anchor along the anchor-normal axis.  For N/S anchors this
+    // keeps the tip horizontally centered on the bar; for E/W it keeps it
+    // vertically centered.
     const ltd = lineConfig.showCircle
       ? (lineConfig.circleSize ?? 4) + (lineConfig.lineTargetDistance ?? 5)
       : (lineConfig.lineTargetDistance ?? 0)
     let toX = anchor.x
     let toY = anchor.y
     if (ltd > 0) {
-      const v = DIRECTION_VECTORS[anchorDir] ?? DIRECTION_VECTORS.N
-      // v points outward from the shape (e.g. N → dy=-1), so move along it
-      toX = anchor.x + v.dx * ltd
-      toY = anchor.y + v.dy * ltd
+      const dx = anchor.x - lineStart.x
+      const dy = anchor.y - lineStart.y
+      const len = Math.sqrt(dx * dx + dy * dy)
+      if (len > 0) {
+        // Shorten along the line direction
+        const rawToX = anchor.x - (dx / len) * ltd
+        const rawToY = anchor.y - (dy / len) * ltd
+        // Snap to anchor coordinate along the anchor-normal axis so the
+        // tip stays centered on the bar rather than drifting diagonally.
+        const v = DIRECTION_VECTORS[anchorDir] ?? DIRECTION_VECTORS.N
+        toX = Math.abs(v.dx) > 0.01 ? rawToX : anchor.x
+        toY = Math.abs(v.dy) > 0.01 ? rawToY : anchor.y
+      }
     }
 
     renderConnectingLine(annG, lineStart, { x: toX, y: toY }, lineConfig.lineStyle ?? 'direct', {
