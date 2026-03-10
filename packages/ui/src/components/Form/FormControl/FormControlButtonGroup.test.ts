@@ -30,7 +30,7 @@ describe('FormControlButtonGroup rendering', () => {
     })
     const buttons = wrapper.findAll('.form-control-button-group__buttons .btn')
     expect(buttons[1].classes()).toContain('btn-primary')
-    expect(buttons[0].classes()).toContain('btn-outline-secondary')
+    expect(buttons[0].classes()).toContain('btn-outline-primary')
   })
 
   it('emits update:modelValue on button click', async () => {
