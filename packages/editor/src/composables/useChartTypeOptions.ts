@@ -113,8 +113,26 @@ export function useChartTypeOptions() {
   watch(chartType, (newType, oldType) => {
     ensureDefaults(newType)
 
-    const oldEntry = store[oldType]
-    if (!oldEntry) {
+    const { activeIndex, activeScene, scenes: allScenes } = useScenes()
+    const isScene = activeIndex.value >= 0 && activeScene.value != null
+
+    // Resolve the effective old options: base + inherited scene overrides
+    let oldEffective: Partial<ChartTypeOptions>
+    if (isScene) {
+      let merged: Partial<ChartTypeOptions> = { ...(store[oldType] ?? {}) }
+      for (let i = 0; i <= activeIndex.value; i++) {
+        const sceneOpts = allScenes.value[i]?.chartTypeOptions
+        if (sceneOpts) {
+          merged = { ...merged, ...sceneOpts }
+        }
+      }
+      oldEffective = merged
+    }
+    else {
+      oldEffective = store[oldType] ?? {}
+    }
+
+    if (Object.keys(oldEffective).length === 0) {
       return
     }
 
@@ -123,15 +141,37 @@ export function useChartTypeOptions() {
       return
     }
 
+    // Resolve what the new type already has (base + scene)
+    const newBase = store[newType] ?? {}
+
     for (const key of supported) {
-      if (key in oldEntry && !(key in store[newType]!)) {
-        const val = oldEntry[key]
-        const target = store[newType] as Partial<ChartTypeOptions>
-        if (Array.isArray(val)) {
-          (target[key] as ChartTypeOptions[typeof key]) = [...val] as ChartTypeOptions[typeof key]
+      if (!(key in oldEffective)) {
+        continue
+      }
+
+      if (isScene) {
+        // Write to scene chartTypeOptions if the new type doesn't already have this key
+        const sceneOpts = activeScene.value!.chartTypeOptions ?? {}
+        if (!(key in sceneOpts) && !(key in newBase)) {
+          const val = oldEffective[key]
+          const copy = Array.isArray(val) ? [...val] : val
+          allScenes.value[activeIndex.value] = {
+            ...activeScene.value!,
+            chartTypeOptions: { ...sceneOpts, [key]: copy },
+          }
         }
-        else {
-          (target[key] as ChartTypeOptions[typeof key]) = val as ChartTypeOptions[typeof key]
+      }
+      else {
+        // Write to base store
+        if (!(key in newBase)) {
+          const val = oldEffective[key]
+          const target = store[newType] as Partial<ChartTypeOptions>
+          if (Array.isArray(val)) {
+            (target[key] as ChartTypeOptions[typeof key]) = [...val] as ChartTypeOptions[typeof key]
+          }
+          else {
+            (target[key] as ChartTypeOptions[typeof key]) = val as ChartTypeOptions[typeof key]
+          }
         }
       }
     }
