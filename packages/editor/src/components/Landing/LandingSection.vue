@@ -4,6 +4,7 @@
     class="landing-section"
     :class="{
       'landing-section--dark': dark,
+      'landing-section--full': full,
     }"
     :data-bs-theme="dark ? 'dark' : undefined"
   >
