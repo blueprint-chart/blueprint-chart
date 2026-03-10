@@ -460,9 +460,8 @@ describe('createAnnotationPlugin', () => {
   // Curved line arrow direction
   // -----------------------------------------------------------------------
 
-  it('curve-right stub segment points toward the target, not along the chord', () => {
+  it('curve path is a single smooth arc with no stub segment', () => {
     const annG = d3.select(g).append('g') as unknown as d3.Selection<SVGGElement, unknown, null, undefined>
-    // From text below-right, to target above-left (a common curve scenario)
     const from = { x: 150, y: 150 }
     const to = { x: 50, y: 20 }
 
@@ -471,37 +470,15 @@ describe('createAnnotationPlugin', () => {
     const path = annG.select('.bc-annotation-line')
     const d = path.attr('d')
 
-    // Extract the final L segment: "... L toX toY"
-    const lMatch = d.match(/L\s+([\d.-]+)\s+([\d.-]+)\s*$/)
-    expect(lMatch).toBeTruthy()
-    const endX = parseFloat(lMatch![1])
-    const endY = parseFloat(lMatch![2])
+    // Path should be a single arc: M ... A ... (no L segment)
+    expect(d).toMatch(/^M\s+[\d.-]+\s+[\d.-]+\s+A\s+/)
+    expect(d).not.toContain('L')
 
-    // The final L should arrive at the target
-    expect(endX).toBeCloseTo(to.x, 0)
-    expect(endY).toBeCloseTo(to.y, 0)
-
-    // Extract the arc endpoint (just before L): "A ... arcEndX arcEndY L ..."
-    const arcMatch = d.match(/A\s+[\d.-]+\s+[\d.-]+\s+[\d.-]+\s+[\d.-]+\s+[\d.-]+\s+([\d.-]+)\s+([\d.-]+)\s+L/)
+    // Arc should end at the target
+    const arcMatch = d.match(/A\s+[\d.-]+\s+[\d.-]+\s+[\d.-]+\s+[\d.-]+\s+[\d.-]+\s+([\d.-]+)\s+([\d.-]+)\s*$/)
     expect(arcMatch).toBeTruthy()
-    const arcEndX = parseFloat(arcMatch![1])
-    const arcEndY = parseFloat(arcMatch![2])
-
-    // The stub direction (arcEnd→to) should NOT be parallel to the chord (from→to).
-    // Compute the angle difference between stub and chord.
-    const chordAngle = Math.atan2(to.y - from.y, to.x - from.x)
-    const stubAngle = Math.atan2(to.y - arcEndY, to.x - arcEndX)
-    const angleDiff = Math.abs(stubAngle - chordAngle)
-
-    // For a curved line, the stub should approach from a different angle than the chord.
-    // If the stub were along the chord (the bug), angleDiff would be ~0.
-    expect(angleDiff).toBeGreaterThan(0.1)
-
-    // The arc endpoint should be close to but not past the target
-    // (stub approaches the target, arrow points toward it)
-    const stubDist = Math.sqrt((to.x - arcEndX) ** 2 + (to.y - arcEndY) ** 2)
-    expect(stubDist).toBeGreaterThan(1)
-    expect(stubDist).toBeLessThan(20)
+    expect(parseFloat(arcMatch![1])).toBeCloseTo(to.x, 0)
+    expect(parseFloat(arcMatch![2])).toBeCloseTo(to.y, 0)
   })
 
   // -----------------------------------------------------------------------
