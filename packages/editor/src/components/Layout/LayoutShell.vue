@@ -1,157 +1,79 @@
 <template>
   <div class="d-flex flex-column vh-100">
-    <nav class="shell-navbar">
-      <router-link
-        to="/"
-        class="navbar-brand text-decoration-none mb-0 d-flex align-items-center gap-2"
-      >
-        <img
-          :src="logoSrc"
-          alt="Blueprint Chart"
-          class="shell-navbar__logo"
-        >
-        <span class="bc-brand-gradient fw-bold">Blueprint Chart</span>
-      </router-link>
-
-      <!-- Center: landing anchors, search (home), or stepper (wizard) -->
-      <div
-        v-if="isLanding"
-        class="shell-navbar__anchors"
-      >
-        <a
-          href="#features"
-          @click.prevent="scrollTo('features')"
-        >Features</a>
-        <a
-          href="#transforms"
-          @click.prevent="scrollTo('transforms')"
-        >Transforms</a>
-        <a
-          href="#bpc"
-          @click.prevent="scrollTo('bpc')"
-        >BPC Format</a>
-        <a
-          href="#stories"
-          @click.prevent="scrollTo('stories')"
-        >Stories</a>
-        <a
-          href="#open-source"
-          @click.prevent="scrollTo('open-source')"
-        >Open Source</a>
-      </div>
-      <div
-        v-else-if="mode === 'home'"
-        ref="searchContainer"
-        class="shell-navbar__search"
-      >
-        <BFormInput
-          v-model="searchQuery"
-          size="sm"
-          placeholder="Search charts..."
-          @keydown.escape="searchQuery = ''"
-        />
+    <LayoutNavbar :transparent="true">
+      <template #center>
         <div
-          v-if="searchResults.length"
-          class="shell-navbar__dropdown"
+          v-if="isLanding"
+          class="shell-navbar__anchors"
         >
-          <button
-            v-for="chart in searchResults"
-            :key="chart.id"
-            class="shell-navbar__result"
-            @click="goToChart(chart.id)"
-          >
-            <div class="d-flex align-items-center gap-2">
-              <div
-                v-if="getThumbnail(chart.id)"
-                class="shell-navbar__result-thumb"
-                v-html="getThumbnail(chart.id)"
-              />
-              <div class="min-width-0 flex-grow-1">
-                <span class="fw-bold text-truncate d-block">{{ chart.title || 'Untitled' }}</span>
-                <span class="small text-body-secondary text-truncate d-block">{{ chart.description }}</span>
-              </div>
-            </div>
-          </button>
+          <a
+            href="#features"
+            @click.prevent="scrollTo('features')"
+          >Features</a>
+          <a
+            href="#transforms"
+            @click.prevent="scrollTo('transforms')"
+          >Transforms</a>
+          <a
+            href="#bpc"
+            @click.prevent="scrollTo('bpc')"
+          >BPC Format</a>
+          <a
+            href="#stories"
+            @click.prevent="scrollTo('stories')"
+          >Stories</a>
+          <a
+            href="#open-source"
+            @click.prevent="scrollTo('open-source')"
+          >Open Source</a>
         </div>
-      </div>
-      <NavigationStepper
-        v-else
-        v-model:current-step="currentIndex"
-        :steps="stepLabels"
-        :disabled-steps="disabledSteps"
-        size="md"
-      />
-
-      <!-- Right: landing CTA, step controls (wizard) + theme toggle -->
-      <div class="shell-navbar__right">
-        <template v-if="isLanding && hasCharts">
-          <router-link
-            to="/charts"
-            class="shell-navbar__cta shell-navbar__cta--ghost"
-          >
-            My Charts
-          </router-link>
-          <router-link
-            to="/new"
-            class="shell-navbar__cta shell-navbar__cta--primary"
-          >
-            New
-          </router-link>
-        </template>
-        <router-link
-          v-else-if="isLanding"
-          to="/new"
-          class="shell-navbar__cta shell-navbar__cta--primary"
-        >
-          Get started
-        </router-link>
-        <template v-if="mode === 'wizard'">
-          <div
-            ref="searchContainer"
-            class="shell-navbar__search shell-navbar__search--compact"
-          >
-            <BFormInput
-              v-model="searchQuery"
-              size="sm"
-              placeholder="Search charts..."
-              @keydown.escape="searchQuery = ''"
-            />
-            <div
-              v-if="searchResults.length"
-              class="shell-navbar__dropdown"
-            >
-              <button
-                v-for="chart in searchResults"
-                :key="chart.id"
-                class="shell-navbar__result"
-                @click="goToChart(chart.id)"
-              >
-                <div class="d-flex align-items-center gap-2">
-                  <div
-                    v-if="getThumbnail(chart.id)"
-                    class="shell-navbar__result-thumb"
-                    v-html="getThumbnail(chart.id)"
-                  />
-                  <div class="min-width-0 flex-grow-1">
-                    <span class="fw-bold text-truncate d-block">{{ chart.title || 'Untitled' }}</span>
-                    <span class="small text-body-secondary text-truncate d-block">{{ chart.description }}</span>
-                  </div>
-                </div>
-              </button>
-            </div>
-          </div>
-        </template>
-        <ButtonIcon
-          :icon-left="themeIcon"
-          label="Toggle theme"
-          hide-label
-          square
-          variant="outline-secondary"
-          size="sm"
-          @click="cycleTheme"
+        <NavigationStepper
+          v-else-if="mode === 'wizard'"
+          v-model:current-step="currentIndex"
+          :steps="stepLabels"
+          :disabled-steps="disabledSteps"
+          size="md"
         />
-      </div>
-    </nav>
+      </template>
+
+      <template #right>
+        <div
+          ref="searchContainer"
+          class="shell-navbar__search"
+          :class="{ 'shell-navbar__search--compact': mode === 'wizard' }"
+        >
+          <BFormInput
+            v-model="searchQuery"
+            size="sm"
+            placeholder="Search charts..."
+            @keydown.escape="searchQuery = ''"
+          />
+          <div
+            v-if="searchResults.length"
+            class="shell-navbar__dropdown"
+          >
+            <button
+              v-for="chart in searchResults"
+              :key="chart.id"
+              class="shell-navbar__result"
+              @click="goToChart(chart.id)"
+            >
+              <div class="d-flex align-items-center gap-2">
+                <div
+                  v-if="getThumbnail(chart.id)"
+                  class="shell-navbar__result-thumb"
+                  v-html="getThumbnail(chart.id)"
+                />
+                <div class="min-width-0 flex-grow-1">
+                  <span class="fw-bold text-truncate d-block">{{ chart.title || 'Untitled' }}</span>
+                  <span class="small text-body-secondary text-truncate d-block">{{ chart.description }}</span>
+                </div>
+              </div>
+            </button>
+          </div>
+        </div>
+      </template>
+    </LayoutNavbar>
     <div class="d-flex flex-grow-1 overflow-auto">
       <slot />
     </div>
@@ -159,33 +81,26 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, useTemplateRef, watch } from 'vue'
 import { onClickOutside } from '@vueuse/core'
 import { useRoute, useRouter } from 'vue-router'
 import { BFormInput } from 'bootstrap-vue-next'
-import { ButtonIcon, NavigationStepper } from '@blueprint-chart/ui'
-import { useTheme } from '@/composables/useTheme'
+import { NavigationStepper } from '@blueprint-chart/ui'
 import { useChartSession } from '@/composables/useChartSession'
 import { useNavbar } from '@/composables/useNavbar'
 import { useWizard } from '@/composables/useWizard'
 import { useDataTable } from '@/composables/useDataTable'
-import logoLight from '@/assets/images/blueprint-chart-logo.svg'
-import logoDark from '@/assets/images/blueprint-chart-logo-dark.svg'
-import IPhSun from '~icons/ph/sun'
-import IPhMoon from '~icons/ph/moon'
-import IPhCircleHalf from '~icons/ph/circle-half'
+import LayoutNavbar from '@/components/Layout/LayoutNavbar.vue'
 import IPhTable from '~icons/ph/table'
 import IPhChartBar from '~icons/ph/chart-bar'
 import IPhExport from '~icons/ph/export'
 
 const route = useRoute()
 const router = useRouter()
-const { theme, cycleTheme } = useTheme()
 const { listSavedCharts } = useChartSession()
 const { mode } = useNavbar()
 
 const isLanding = computed(() => route.path === '/')
-const hasCharts = computed(() => listSavedCharts().length > 0)
 
 function scrollTo(id: string) {
   document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
@@ -195,20 +110,8 @@ function scrollTo(id: string) {
 const { currentIndex, steps } = useWizard()
 const dataTable = useDataTable()
 
-const logoSrc = computed(() => theme.value === 'dark' ? logoDark : logoLight)
-
 const searchQuery = ref('')
-const searchContainer = ref<HTMLElement | null>(null)
-
-const themeIcon = computed(() => {
-  if (theme.value === 'light') {
-    return IPhSun
-  }
-  if (theme.value === 'dark') {
-    return IPhMoon
-  }
-  return IPhCircleHalf
-})
+const searchContainer = useTemplateRef<HTMLElement>('searchContainer')
 
 // Stepper configuration
 const stepIcons: Record<string, typeof IPhTable> = {
@@ -262,26 +165,6 @@ onClickOutside(searchContainer, () => {
 </script>
 
 <style scoped lang="scss">
-.shell-navbar {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-  padding: 0.375rem 1rem;
-  min-height: 2.75rem;
-  background: transparent;
-  border: none;
-  box-shadow: none;
-  flex-shrink: 0;
-  gap: 1rem;
-  position: relative;
-  z-index: 1060;
-}
-
-.shell-navbar__logo {
-  height: 1.5rem;
-  width: auto;
-}
-
 .shell-navbar__search {
   position: relative;
   width: 320px;
@@ -301,13 +184,6 @@ onClickOutside(searchContainer, () => {
 
 .shell-navbar__search--compact {
   width: 180px;
-}
-
-.shell-navbar__right {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 0.5rem;
 }
 
 .shell-navbar__dropdown {
@@ -374,36 +250,6 @@ onClickOutside(searchContainer, () => {
     &:hover {
       color: var(--bs-body-color);
     }
-  }
-}
-
-.shell-navbar__cta {
-  padding: 0.375rem 1rem;
-  border-radius: 5px;
-  font-size: 0.8125rem;
-  font-weight: 600;
-  text-decoration: none;
-  transition: all 0.15s;
-}
-
-.shell-navbar__cta--primary {
-  background: var(--bs-primary);
-  color: #fff;
-
-  &:hover {
-    filter: brightness(1.1);
-    color: #fff;
-  }
-}
-
-.shell-navbar__cta--ghost {
-  background: transparent;
-  color: var(--bs-secondary-color);
-  border: 1px solid var(--bs-border-color);
-
-  &:hover {
-    border-color: var(--bs-body-color);
-    color: var(--bs-body-color);
   }
 }
 
