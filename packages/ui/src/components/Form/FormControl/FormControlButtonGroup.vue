@@ -29,7 +29,7 @@
           :hide-tooltip="!opt.description"
           :tooltip-label="opt.description"
           :show-tooltip-force="!!opt.description"
-          :variant="model === opt.value ? 'primary' : 'outline-secondary'"
+          :variant="model === opt.value ? 'primary' : 'outline-primary'"
           :tabindex="overflowed ? -1 : undefined"
           @click="model = opt.value"
         >
