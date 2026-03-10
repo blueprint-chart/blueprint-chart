@@ -99,7 +99,7 @@ export const layoutDefaults: ChartLayout = {
   transparentBackground: false,
   showCredit: true,
   playerType: 'buttons',
-  playerPosition: 'center',
+  playerPosition: 'left',
 }
 
 export interface ChartConfig {
