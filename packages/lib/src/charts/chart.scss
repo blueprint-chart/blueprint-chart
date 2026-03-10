@@ -27,7 +27,7 @@
 // -- Header elements --------------------------------------------------------
 
 .bc-frame-header {
-  padding: var(--bc-frame-padding) var(--bc-frame-padding) 0;
+  padding: var(--bc-frame-padding) var(--bc-frame-padding) var(--bc-frame-header-padding-bottom, 0);
   background: var(--bc-frame-header-bg, transparent);
   border-bottom: var(--bc-frame-header-border-bottom, none);
   margin-bottom: var(--bc-frame-header-margin-bottom, 0);
