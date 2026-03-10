@@ -92,9 +92,9 @@ defineEmits<{
   gap: 4px;
   padding: 6px 14px;
   border-radius: 6px;
-  border: 1px solid var(--bc-scene-player-border, #e2e0db);
+  border: 1px solid var(--bc-scene-player-border, currentColor);
   background: none;
-  color: var(--bc-scene-player-muted, #9b9893);
+  color: var(--bc-scene-player-muted);
   font-size: 0.8125rem;
   font-weight: 500;
   cursor: pointer;
@@ -102,12 +102,13 @@ defineEmits<{
   line-height: 1.4;
 
   &:hover:not(:disabled) {
-    border-color: var(--bc-scene-player-border-hover, #6b6966);
-    color: var(--bc-scene-player-text, #1a1a1a);
+    border-color: var(--bc-scene-player-border-hover);
+    background: var(--bc-scene-player-background-hover, rgba(0, 0, 0, 0.04));
+    color: var(--bc-scene-player-text);
   }
 
   &--next {
-    color: var(--bc-scene-player-text, #1a1a1a);
+    color: var(--bc-scene-player-text);
     font-weight: 600;
   }
 
