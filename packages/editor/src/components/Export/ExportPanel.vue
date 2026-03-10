@@ -225,7 +225,6 @@ const canvasClassList = computed(() => ({
   border-radius: var(--bs-border-radius-sm);
   overflow: auto;
   box-shadow: var(--bs-card-box-shadow);
-  padding: 1.25rem 1.5rem;
 
   &--fixed {
     flex: none;

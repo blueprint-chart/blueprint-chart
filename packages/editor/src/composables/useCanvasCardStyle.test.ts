@@ -30,10 +30,10 @@ describe('parseAspectRatio', () => {
 })
 
 describe('useCanvasCardStyle', () => {
-  it('sets padding from layout', () => {
+  it('does not set padding on the card (frame sections handle padding)', () => {
     const layout = ref(makeLayout({ padding: 32 }))
     const { cardStyle } = useCanvasCardStyle(layout, 'card')
-    expect(cardStyle.value.padding).toBe('32px')
+    expect(cardStyle.value.padding).toBeUndefined()
   })
 
   it('applies fixed width', () => {

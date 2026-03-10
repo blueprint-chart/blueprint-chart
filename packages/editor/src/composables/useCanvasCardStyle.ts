@@ -25,9 +25,7 @@ export function useCanvasCardStyle(layout: Ref<ChartLayout>, classPrefix: string
 
   const cardStyle = computed<CSSProperties>(() => {
     const l = layout.value
-    const style: CSSProperties = {
-      padding: `${l.padding}px`,
-    }
+    const style: CSSProperties = {}
     if (l.sizing === 'fixed') {
       style.width = `${l.fixedWidth}px`
     }
