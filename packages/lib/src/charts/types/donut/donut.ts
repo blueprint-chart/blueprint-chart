@@ -5,7 +5,7 @@ import type { ChartData, ChartOptions } from '../../types'
 import { getDefaultTransitionMs, fadeIn, snapshotForFadeOut, commitFadeOut } from '../../motion'
 import { getCachedChart, setCachedChart } from '../../transition-cache'
 import { createFrame } from '../../frame/frame'
-import { createCanvas } from '../../canvas/canvas'
+import { createCanvas, contentSize } from '../../canvas/canvas'
 import { renderLegend } from '../../legend/legend'
 import { estimateLegendSize } from '../../legend/legend-size'
 import { createTooltipPlugin } from '../../plugins/tooltip'
@@ -148,7 +148,7 @@ export function renderArc(
 
   // Compute margin adjustments for legend
   const showLegend = options.legend !== false && !useDirectLabels
-  const containerWidth = body.getBoundingClientRect().width
+  const containerWidth = contentSize(body).width
   const NARROW_THRESHOLD = 350
   const requestedLegendPos = options.legendPosition ?? 'top'
   // On narrow containers, move side legends to top to preserve chart space
@@ -181,11 +181,11 @@ export function renderArc(
   // the radius from the raw container size, compute label margins, then create
   // the canvas with final margins.
   if (useDirectLabels) {
-    const containerRect = body.getBoundingClientRect()
+    const containerInner = contentSize(body)
     const defaultMargin = 20
-    const roughW = containerRect.width - 2 * defaultMargin
+    const roughW = containerInner.width - 2 * defaultMargin
     // Height may be 0 before the SVG is created; fall back to the default canvas height
-    const roughH = (containerRect.height > 0 ? containerRect.height : 400) - 2 * defaultMargin
+    const roughH = (containerInner.height > 0 ? containerInner.height : 400) - 2 * defaultMargin
     const roughRadius = Math.min(roughW, roughH) / 2
     const arcLabelMargins = estimateArcLabelMargins(labels, roughRadius)
     marginOverrides.left = (marginOverrides.left ?? defaultMargin) + arcLabelMargins.left

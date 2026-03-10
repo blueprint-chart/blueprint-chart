@@ -192,15 +192,27 @@ export function labelPositionMargins(
   return overrides
 }
 
+/**
+ * Return the inner content dimensions of an element (excluding CSS padding).
+ */
+export function contentSize(el: HTMLElement): { width: number, height: number } {
+  const rect = el.getBoundingClientRect()
+  const cs = getComputedStyle(el)
+  return {
+    width: rect.width - (parseFloat(cs.paddingLeft) || 0) - (parseFloat(cs.paddingRight) || 0),
+    height: rect.height - (parseFloat(cs.paddingTop) || 0) - (parseFloat(cs.paddingBottom) || 0),
+  }
+}
+
 export function createCanvas(
   body: HTMLElement,
   margin?: Partial<Margin>,
 ): CanvasElements {
   const m: Margin = { ...DEFAULT_MARGIN, ...margin }
 
-  const rect = body.getBoundingClientRect()
-  const totalWidth = rect.width > 0 ? rect.width : DEFAULT_WIDTH
-  const totalHeight = rect.height > 0 ? rect.height : DEFAULT_HEIGHT
+  const inner = contentSize(body)
+  const totalWidth = inner.width > 0 ? inner.width : DEFAULT_WIDTH
+  const totalHeight = inner.height > 0 ? inner.height : DEFAULT_HEIGHT
 
   const width = totalWidth - m.left - m.right
   const height = totalHeight - m.top - m.bottom
