@@ -69,6 +69,7 @@ import { renderDsl, parseDslSceneCount } from '@/composables/useChartFromDsl'
 import { useTheme } from '@/composables/useTheme'
 
 const bpc = samples.find(s => s.id === 'co2-emissions-story')!.dsl
+  .replace(/\{/, '{\n  theme = "blueprint-framed"')
 const sceneCount = parseDslSceneCount(bpc)
 
 const containerRef = ref<HTMLElement | null>(null)
