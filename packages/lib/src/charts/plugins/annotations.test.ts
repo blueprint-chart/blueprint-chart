@@ -754,40 +754,38 @@ describe('createAnnotationPlugin', () => {
     expect(rotateDirectionForHorizontal('center')).toBe('center')
   })
 
-  it('computes anchor point with horizontal orientation — swaps X/Y', () => {
+  it('computes anchor point with horizontal orientation — N is top edge', () => {
     // Horizontal bars: band scale on Y axis, linear scale on X axis
     const bandY = d3.scaleBand<string>().domain(['A', 'B']).range([0, 200]).padding(0.2)
     const linearX = d3.scaleLinear().domain([0, 100]).range([0, 200])
     const datum = { label: 'A', value: 50 }
 
-    // With horizontal orientation, 'N' (top of bar) becomes 'W' (left/zero side)
+    // Rect is in screen coords, so N = top edge (mid X, top Y)
     const anchor = computeAnchorPoint(datum, bandY, linearX, 'N', 'horizontal')
 
-    // bandY('A') gives the Y position, linearX(50) gives the X position for value
-    const barY = bandY('A')!
-    const barH = bandY.bandwidth()
-    const barLeft = linearX(0)
-
-    // 'N' rotates to 'W' → should be at left edge, mid Y
-    expect(anchor.x).toBeCloseTo(barLeft)
-    expect(anchor.y).toBeCloseTo(barY + barH / 2)
-  })
-
-  it('computes anchor point with horizontal orientation — E direction', () => {
-    const bandY = d3.scaleBand<string>().domain(['A', 'B']).range([0, 200]).padding(0.2)
-    const linearX = d3.scaleLinear().domain([0, 100]).range([0, 200])
-    const datum = { label: 'A', value: 80 }
-
-    // 'E' rotates to 'N' → top of bar, mid X
-    const anchor = computeAnchorPoint(datum, bandY, linearX, 'E', 'horizontal')
-
     const barY = bandY('A')!
     const barLeft = linearX(0)
-    const barRight = linearX(80)
+    const barRight = linearX(50)
     const midX = (barLeft + barRight) / 2
 
     expect(anchor.x).toBeCloseTo(midX)
     expect(anchor.y).toBeCloseTo(barY)
+  })
+
+  it('computes anchor point with horizontal orientation — E is value tip', () => {
+    const bandY = d3.scaleBand<string>().domain(['A', 'B']).range([0, 200]).padding(0.2)
+    const linearX = d3.scaleLinear().domain([0, 100]).range([0, 200])
+    const datum = { label: 'A', value: 80 }
+
+    // E = right edge of rect = value tip of horizontal bar
+    const anchor = computeAnchorPoint(datum, bandY, linearX, 'E', 'horizontal')
+
+    const barY = bandY('A')!
+    const barH = bandY.bandwidth()
+    const barRight = linearX(80)
+
+    expect(anchor.x).toBeCloseTo(barRight)
+    expect(anchor.y).toBeCloseTo(barY + barH / 2)
   })
 
   it('renders point annotation with horizontal orientation context', () => {

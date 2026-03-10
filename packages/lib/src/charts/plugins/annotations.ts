@@ -168,8 +168,10 @@ export function computeAnchorPoint(
     const zeroPos = scaleY(0)
 
     if (orientation === 'horizontal') {
-      const dir = rotateDirectionForHorizontal(anchorDirection)
-      return rectAnchorPoint(dir, { left: zeroPos, right: valPos, top: bandPos, bottom: bandPos + bandW })
+      // The rect is already in screen coordinates (left/right = value axis,
+      // top/bottom = band axis), so compass directions map directly without
+      // rotation — E = right end of bar (value tip), N = top edge, etc.
+      return rectAnchorPoint(anchorDirection, { left: zeroPos, right: valPos, top: bandPos, bottom: bandPos + bandW })
     }
 
     return rectAnchorPoint(anchorDirection, { left: bandPos, right: bandPos + bandW, top: valPos, bottom: zeroPos })
