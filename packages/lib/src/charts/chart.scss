@@ -27,9 +27,10 @@
 // -- Header elements --------------------------------------------------------
 
 .bc-frame-header {
-  padding: var(--bc-frame-header-padding, 0);
+  padding: var(--bc-frame-padding) var(--bc-frame-padding) 0;
   background: var(--bc-frame-header-bg, transparent);
   border-bottom: var(--bc-frame-header-border-bottom, none);
+  margin-bottom: var(--bc-frame-header-margin-bottom, 0);
 }
 
 .bc-frame-title {
@@ -55,7 +56,7 @@
 // -- Body -------------------------------------------------------------------
 
 .bc-frame-body {
-  // Sized by the consumer (canvas.ts sets width/height).
+  padding: 0 var(--bc-frame-padding);
 }
 
 // -- Note -------------------------------------------------------------------
@@ -68,7 +69,7 @@
   color: var(--bc-frame-note-color);
   font-size: var(--bc-frame-note-font-size);
   margin: 0;
-  padding: 0;
+  padding: 0 var(--bc-frame-padding);
 }
 
 // -- Footer -----------------------------------------------------------------
@@ -78,7 +79,7 @@
 
   margin-top: 0.5rem;
   gap: var(--bc-frame-footer-gap);
-  padding: var(--bc-frame-footer-padding, 0);
+  padding: var(--bc-frame-footer-padding-top, 0) var(--bc-frame-padding) var(--bc-frame-padding);
   background: var(--bc-frame-footer-bg, transparent);
   border-top: var(--bc-frame-footer-border-top, none);
 }

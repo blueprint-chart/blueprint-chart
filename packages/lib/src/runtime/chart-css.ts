@@ -4,8 +4,20 @@ export const CHART_CSS = `
 
 .bc-frame {
   --bc-frame-font-family: system-ui, -apple-system, sans-serif;
+  --bc-frame-padding: 0;
   --bc-text-color: #333;
   font-family: var(--bc-frame-font-family);
+}
+
+.bc-frame-header {
+  padding: var(--bc-frame-padding) var(--bc-frame-padding) 0;
+  background: var(--bc-frame-header-bg, transparent);
+  border-bottom: var(--bc-frame-header-border-bottom, none);
+  margin-bottom: var(--bc-frame-header-margin-bottom, 0);
+}
+
+.bc-frame-body {
+  padding: 0 var(--bc-frame-padding);
 }
 
 .bc-frame-title {
@@ -28,6 +40,9 @@ export const CHART_CSS = `
 .bc-frame-footer {
   margin-top: 0.5rem;
   gap: 0.25rem 1rem;
+  padding: var(--bc-frame-footer-padding-top, 0) var(--bc-frame-padding) var(--bc-frame-padding);
+  background: var(--bc-frame-footer-bg, transparent);
+  border-top: var(--bc-frame-footer-border-top, none);
 }
 
 .bc-frame-footer-left {
@@ -55,7 +70,7 @@ export const CHART_CSS = `
   color: var(--bc-frame-note-color);
   font-size: var(--bc-frame-note-font-size);
   margin: 0;
-  padding: 0;
+  padding: 0 var(--bc-frame-padding);
 }
 
 .bc-frame-byline,
@@ -148,6 +163,14 @@ export const CHART_CSS = `
   fill: none;
   stroke: #999;
   stroke-width: 1;
+}
+
+.bc-theme-blueprint-framed {
+  --bc-frame-header-border-bottom: 1px solid #e0e0e0;
+  --bc-frame-header-margin-bottom: 0.5rem;
+  --bc-frame-footer-bg: #f8f8f8;
+  --bc-frame-footer-border-top: 1px solid #e0e0e0;
+  --bc-frame-footer-padding-top: 0.625rem;
 }
 
 .blueprint-chart-error {

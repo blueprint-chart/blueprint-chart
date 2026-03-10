@@ -245,7 +245,7 @@ export function createFrame(
   const footer = wrapper.querySelector('.bc-frame-footer') as HTMLElement
 
   if (options.padding) {
-    wrapper.style.padding = options.padding
+    wrapper.style.setProperty('--bc-frame-padding', options.padding)
   }
 
   if (options.note) {
