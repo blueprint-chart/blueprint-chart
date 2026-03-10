@@ -8,6 +8,7 @@ export interface ChartThemeOption {
 
 const availableThemes: ChartThemeOption[] = [
   { value: 'blueprint', label: 'Blueprint', description: 'The default Blueprint Chart theme' },
+  { value: 'blueprint-framed', label: 'Blueprint Framed', description: 'Adds borders and a tinted footer' },
 ]
 
 const chartTheme = ref<string>('blueprint')
