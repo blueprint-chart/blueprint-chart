@@ -287,17 +287,15 @@ export function ensureArrowMarker(svg: SVGElement | null, color?: string): strin
   defs.append('marker')
     .attr('id', id)
     .attr('viewBox', '0 0 10 10')
-    .attr('refX', 7)
+    .attr('refX', 9)
     .attr('refY', 5)
-    .attr('markerWidth', 10)
-    .attr('markerHeight', 10)
-    .attr('markerUnits', 'strokeWidth')
-    .attr('orient', 'auto-start-reverse')
+    .attr('markerWidth', 8)
+    .attr('markerHeight', 8)
+    .attr('markerUnits', 'userSpaceOnUse')
+    .attr('orient', 'auto')
     .append('path')
-    .attr('d', 'M 0 1 L 7 5 L 0 9')
-    .attr('fill', 'none')
-    .attr('stroke', safeColor)
-    .attr('stroke-width', 1.5)
+    .attr('d', 'M 1 1 L 9 5 L 1 9 Z')
+    .attr('fill', safeColor)
 
   return id
 }
@@ -392,36 +390,7 @@ export function renderConnectingLine(
       const dist = Math.sqrt(dx * dx + dy * dy)
       const r = dist * 0.8
       const sweep = style === 'curve-right' ? 1 : 0
-      // End the arc slightly before the target, then add a straight stub
-      // so the arrow marker points directly at the target instead of
-      // following the arc tangent.
-      //
-      // Compute arc center to derive the tangent direction at the endpoint.
-      // For an SVG arc with large-arc=0, the center lies to one side of the
-      // chord.  The tangent at P2 is perpendicular to the radius (center→P2).
-      const stub = Math.min(8, dist * 0.15)
-      const halfChord = dist / 2
-      const h = halfChord < r ? Math.sqrt(r * r - halfChord * halfChord) : 0
-      const mx = (from.x + to.x) / 2
-      const my = (from.y + to.y) / 2
-      // Perpendicular to chord (rotated 90°)
-      const px = dist > 0 ? -(to.y - from.y) / dist : 0
-      const py = dist > 0 ? (to.x - from.x) / dist : 0
-      // Center: sweep=1 → center is to the right of chord; sweep=0 → left
-      const centerSign = sweep === 1 ? 1 : -1
-      const cx = mx + centerSign * h * px
-      const cy = my + centerSign * h * py
-      // Tangent at endpoint is perpendicular to radius (center→to),
-      // pointing in the arrival direction (toward to along the arc).
-      const rx = to.x - cx
-      const ry = to.y - cy
-      const rLen = Math.sqrt(rx * rx + ry * ry) || 1
-      // Tangent perpendicular to radius, in the arrival direction at the endpoint.
-      // For sweep=1 (CW arc), arrival tangent = (-ry, rx); sweep=0 (CCW), tangent = (ry, -rx)
-      const tx = sweep === 1 ? -ry / rLen : ry / rLen
-      const ty = sweep === 1 ? rx / rLen : -rx / rLen
-      const arcEnd = { x: to.x - tx * stub, y: to.y - ty * stub }
-      d = `M ${from.x} ${from.y} A ${r} ${r} 0 0 ${sweep} ${arcEnd.x} ${arcEnd.y} L ${to.x} ${to.y}`
+      d = `M ${from.x} ${from.y} A ${r} ${r} 0 0 ${sweep} ${to.x} ${to.y}`
       break
     }
     case 'elbow': {
@@ -687,22 +656,6 @@ function renderPointAnnotation(
   const isLegacy = legacyAnn.dx != null || legacyAnn.dy != null
   const showLine = isLegacy ? (lineConfig.showLine !== false) : (lineConfig.showLine === true)
   if (showLine) {
-    // Shorten line toward anchor by lineTargetDistance
-    const ltd = lineConfig.showCircle
-      ? (lineConfig.circleSize ?? 4) + (lineConfig.lineTargetDistance ?? 5)
-      : (lineConfig.lineTargetDistance ?? 0)
-    let toX = anchor.x
-    let toY = anchor.y
-    if (ltd > 0) {
-      const dx = anchor.x - tx
-      const dy = anchor.y - ty
-      const len = Math.sqrt(dx * dx + dy * dy)
-      if (len > 0) {
-        toX = anchor.x - (dx / len) * ltd
-        toY = anchor.y - (dy / len) * ltd
-      }
-    }
-
     // Compute line start from text bbox edge toward anchor
     let lineStart = { x: tx, y: ty }
     let departVertical = false
@@ -711,13 +664,28 @@ function renderPointAnnotation(
       try {
         const tBBox = textNode.getBBox()
         if (tBBox.width > 0 && tBBox.height > 0) {
-          lineStart = bboxEdgeToward(tBBox, toX, toY)
+          lineStart = bboxEdgeToward(tBBox, anchor.x, anchor.y)
           // N/S exit → vertical departure for elbow
           const bboxCx = tBBox.x + tBBox.width / 2
           departVertical = Math.abs(lineStart.x - bboxCx) < 1
         }
       }
       catch { /* getBBox can throw if not in DOM */ }
+    }
+
+    // Offset line end from anchor along the anchor direction's outward normal
+    // so the gap stays aligned with the bar center rather than drifting along
+    // the diagonal line direction.
+    const ltd = lineConfig.showCircle
+      ? (lineConfig.circleSize ?? 4) + (lineConfig.lineTargetDistance ?? 5)
+      : (lineConfig.lineTargetDistance ?? 0)
+    let toX = anchor.x
+    let toY = anchor.y
+    if (ltd > 0) {
+      const v = DIRECTION_VECTORS[anchorDir] ?? DIRECTION_VECTORS.N
+      // v points outward from the shape (e.g. N → dy=-1), so move along it
+      toX = anchor.x + v.dx * ltd
+      toY = anchor.y + v.dy * ltd
     }
 
     renderConnectingLine(annG, lineStart, { x: toX, y: toY }, lineConfig.lineStyle ?? 'direct', {
