@@ -6,7 +6,9 @@
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./charts.scss": "./src/charts/chart.scss",
+    "./src/charts/chart.scss": "./src/charts/chart.scss"
   },
   "scripts": {
     "generate:parser": "peggy --format es -o src/dsl/grammar.js src/dsl/grammar.peggy",
