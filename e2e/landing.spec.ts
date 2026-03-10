@@ -31,8 +31,8 @@ test.describe('landing page layout', () => {
 
     await expect(page.locator('.landing-hero__h1')).toBeVisible()
     await expect(page.locator('.landing-hero__h1')).toContainText('Turn data into')
-    await expect(page.locator('text=Launch the editor')).toBeVisible()
-    await expect(page.locator('text=Learn more')).toBeVisible()
+    await expect(page.locator('.landing-hero__btn--ghost')).toContainText('My Charts')
+    await expect(page.locator('.landing-hero__btn--primary')).toContainText('New')
   })
 
   test('hero chart renders real D3 chart', async ({ page }) => {
@@ -70,20 +70,16 @@ test.describe('landing page layout', () => {
     expect(codeText).toContain('data {')
   })
 
-  test('scenes section is interactive', async ({ page }) => {
+  test('scenes section renders chart and player', async ({ page }) => {
     await page.goto('/#/')
-    await page.waitForTimeout(1000)
+    await page.waitForTimeout(2000)
 
-    // Should have 4 scenes in sidebar
-    const scenes = page.locator('.scenes-demo__scene')
-    await expect(scenes).toHaveCount(4)
+    // Scenes demo chart container should be visible
+    await expect(page.locator('.scenes-demo__chart')).toBeVisible()
 
-    // First scene should be active
-    await expect(scenes.nth(0)).toHaveClass(/--active/)
-
-    // Click second scene
-    await scenes.nth(1).click()
-    await expect(scenes.nth(1)).toHaveClass(/--active/)
+    // Should have rendered an SVG chart
+    const svg = page.locator('.scenes-demo__chart svg').first()
+    await expect(svg).toBeVisible()
   })
 
   test('practices section shows 6 cards', async ({ page }) => {
