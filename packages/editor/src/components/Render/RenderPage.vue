@@ -13,7 +13,7 @@
         :total="totalScenes"
         :current="currentScene"
         :playing="playing"
-        position="center"
+        :position="layout.playerPosition"
         @update:current="onSceneChange"
         @play="startPlayback"
         @pause="stopPlayback"
