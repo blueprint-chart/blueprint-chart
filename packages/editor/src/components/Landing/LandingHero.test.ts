@@ -29,8 +29,8 @@ describe('LandingHero', () => {
 
   it('renders CTA buttons', () => {
     const w = mountHero()
-    expect(w.text()).toContain('Launch the editor')
-    expect(w.text()).toContain('Learn more')
+    expect(w.text()).toContain('My Charts')
+    expect(w.text()).toContain('New')
   })
 
   it('renders badges', () => {

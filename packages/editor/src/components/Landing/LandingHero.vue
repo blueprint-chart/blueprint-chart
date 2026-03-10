@@ -14,22 +14,21 @@
         </p>
         <div class="landing-hero__actions">
           <router-link
+            to="/charts"
+            class="landing-hero__btn landing-hero__btn--ghost"
+          >
+            My Charts
+          </router-link>
+          <router-link
             to="/new"
             class="landing-hero__btn landing-hero__btn--primary"
           >
-            Launch the editor
+            New
             <AppIcon
               :name="IPhArrowRight"
               size="sm"
             />
           </router-link>
-          <a
-            href="#features"
-            class="landing-hero__btn landing-hero__btn--ghost"
-            @click.prevent="scrollTo('features')"
-          >
-            Learn more
-          </a>
         </div>
         <div class="landing-hero__meta">
           <LandingBadge
@@ -55,10 +54,6 @@ import LandingChartPreview from './LandingChartPreview.vue'
 
 const badges = ['Free forever', 'No account required', 'MIT licensed']
 const heroBpc = samples.find(s => s.id === 'co2-emissions')!.dsl
-
-function scrollTo(id: string) {
-  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
-}
 </script>
 
 <style scoped lang="scss">
