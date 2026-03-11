@@ -205,6 +205,31 @@ describe('bar-horizontal', () => {
     expect(anchors.every(a => a === 'start')).toBe(true)
   })
 
+  it('outside value labels are not clipped by the SVG viewport', () => {
+    // Use data similar to co2-emissions-story where the largest value (11.9)
+    // produces a label that extends past the bar end
+    const wideData = { labels: ['China', 'US', 'India'], values: [11.9, 4.78, 2.88] }
+    render(container, wideData, { valueLabels: true, valueLabelPosition: 'outside' })
+
+    const svg = container.querySelector('svg')!
+    const labels = container.querySelectorAll('.bc-value-label')
+    expect(labels.length).toBe(3)
+
+    // The label for the largest bar is positioned outside (to the right).
+    // It must not be clipped by the SVG viewport or a clip-path.
+    // Verify the value label group is NOT inside the clipped group.
+    const clippedGroup = svg.querySelector('[clip-path]')
+    expect(clippedGroup).not.toBeNull()
+    const labelGroup = svg.querySelector('.bc-value-label-group')
+    expect(labelGroup).not.toBeNull()
+    expect(clippedGroup!.contains(labelGroup!)).toBe(false)
+
+    // The SVG must allow overflow so labels extending past the right margin are visible
+    const svgOverflow = svg.getAttribute('style') ?? ''
+    expect(svgOverflow).toContain('overflow')
+    expect(svgOverflow).toContain('visible')
+  })
+
   // ── Crosshair ────────────────────────────────────────────────────
 
   it('creates crosshair elements when enabled', () => {
