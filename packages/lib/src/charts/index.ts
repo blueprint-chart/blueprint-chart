@@ -33,6 +33,8 @@ export { parseData, buildChartOptions } from './chart-helpers'
 
 export { resolveSeriesColor, isSeriesHidden } from './series-helpers'
 
+export { computeStack, computeStack100 } from './stack-helpers'
+
 export { getDefaultTransitionMs, DEFAULT_TRANSITION_MS } from './motion'
 export { getCachedChart, setCachedChart, clearCachedChart } from './transition-cache'
 export type { CachedChart } from './transition-cache'
