@@ -22,6 +22,12 @@
           block
           @update:model-value="(v) => setOption('valueLabelPosition', v)"
         />
+        <FormControlCheckbox
+          v-if="currentOptions.valueLabels && hasSwapLabelValue"
+          :model-value="currentOptions.swapLabelValue ?? false"
+          label="Swap labels and values"
+          @update:model-value="(v) => setOption('swapLabelValue', v)"
+        />
       </div>
     </SettingsSection>
 
@@ -86,6 +92,7 @@ import IPhWaveSine from '~icons/ph/wave-sine'
 import IPhTextAa from '~icons/ph/text-aa'
 
 const hasValueLabels = computed(() => availableOptionKeys.value.includes('valueLabels'))
+const hasSwapLabelValue = computed(() => availableOptionKeys.value.includes('swapLabelValue'))
 
 const valueLabelPositionChoices = [
   { value: 'auto', text: 'Auto', icon: IPhMagicWand },

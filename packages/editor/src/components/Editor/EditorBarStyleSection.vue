@@ -1,13 +1,6 @@
 <template>
   <div class="d-flex flex-column gap-3">
     <FormControlCheckbox
-      v-if="hasSwapLabelValue"
-      :model-value="currentOptions.swapLabelValue ?? false"
-      label="Swap labels and values"
-      @update:model-value="(v) => setOption('swapLabelValue', v)"
-    />
-
-    <FormControlCheckbox
       v-if="hasBarBackground"
       :model-value="currentOptions.barBackground ?? false"
       label="Bar background"
@@ -30,7 +23,6 @@ import { FormControlCheckbox } from '@blueprint-chart/ui'
 
 const { currentOptions, availableOptionKeys, setOption } = useChartTypeOptions()
 
-const hasSwapLabelValue = computed(() => availableOptionKeys.value.includes('swapLabelValue'))
 const hasBarBackground = computed(() => availableOptionKeys.value.includes('barBackground'))
 const hasBarSeparators = computed(() => availableOptionKeys.value.includes('barSeparators'))
 </script>
