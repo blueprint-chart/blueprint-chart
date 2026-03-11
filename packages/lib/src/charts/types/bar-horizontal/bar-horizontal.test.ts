@@ -531,11 +531,11 @@ describe('bar-horizontal', () => {
     })
   })
 
-  // ── swapAxes ───────────────────────────────────────────────────
+  // ── showValues ───────────────────────────────────────────────────
 
-  describe('swapAxes', () => {
-    it('renders vertical bars when swapAxes is true', () => {
-      render(container, data, { swapAxes: true })
+  describe('showValues', () => {
+    it('renders vertical bars when showValues is true', () => {
+      render(container, data, { showValues: true })
       const bars = container.querySelectorAll('.bc-bar')
       expect(bars).toHaveLength(3)
       // Bars should have height varying by value (vertical orientation)
@@ -546,7 +546,7 @@ describe('bar-horizontal', () => {
       expect(new Set(widths).size).toBe(1)
     })
 
-    it('does not swap axes when swapAxes is not set', () => {
+    it('does not show values on axis when showValues is not set', () => {
       render(container, data)
       const bars = container.querySelectorAll('.bc-bar')
       // Normal horizontal bars: heights are all equal (band height), widths vary
@@ -556,8 +556,8 @@ describe('bar-horizontal', () => {
       expect(new Set(widths).size).toBeGreaterThan(1)
     })
 
-    it('barBackground works with swapAxes', () => {
-      render(container, data, { swapAxes: true, barBackground: true })
+    it('barBackground works with showValues', () => {
+      render(container, data, { showValues: true, barBackground: true })
       const bgs = container.querySelectorAll('.bc-bar-bg')
       expect(bgs).toHaveLength(3)
       // Background rects should span full chart height
@@ -567,8 +567,8 @@ describe('bar-horizontal', () => {
       expect(heights.every(h => h === chartHeight)).toBe(true)
     })
 
-    it('barSeparators works with swapAxes', () => {
-      render(container, data, { swapAxes: true, barSeparators: true })
+    it('barSeparators works with showValues', () => {
+      render(container, data, { showValues: true, barSeparators: true })
       const seps = container.querySelectorAll('.bc-bar-separator')
       expect(seps).toHaveLength(2)
       // Separators should be vertical lines (x1 === x2)

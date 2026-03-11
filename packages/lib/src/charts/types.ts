@@ -168,7 +168,6 @@ export interface ChartOptions {
   sliceGroupLabel?: string
   autoContrast?: boolean
   allowDarkMode?: boolean
-  swapAxes?: boolean
   barBackground?: boolean
   barSeparators?: boolean
   stackMode?: 'normal' | 'percent'
@@ -247,7 +246,6 @@ export interface ChartTypeOptions {
   autoContrast: boolean
   allowDarkMode: boolean
   sortMode: 'total' | 'within-groups' | 'none'
-  swapAxes: boolean
   barBackground: boolean
   barSeparators: boolean
   stackMode: string
