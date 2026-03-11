@@ -216,7 +216,9 @@ function prepareDataForEdit() {
     scenesComposable.setActive(-1)
   }
   config._base.data.value = dataTable.serialize()
-  if (dataTable.columns.value.length > 2 && !config._base.chartType.value.includes('multi')) {
+  const ct = config._base.chartType.value
+  const isMultiSeries = ct.includes('multi') || ct.includes('stacked')
+  if (dataTable.columns.value.length > 2 && !isMultiSeries) {
     const hasDateLabels = dataTable.columnTypes.value[0] === 'date'
     config._base.chartType.value = hasDateLabels ? 'line-multi' : 'bar-multi'
   }
