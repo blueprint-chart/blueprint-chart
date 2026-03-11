@@ -25,6 +25,7 @@ export interface AxisOptions {
   topPadding?: number
   width?: number
   zeroY?: number
+  tickFormat?: (label: string) => string
 }
 
 export interface FrameOptions {

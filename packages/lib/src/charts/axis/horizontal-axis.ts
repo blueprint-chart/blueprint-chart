@@ -107,6 +107,7 @@ class HorizontalAxisChart extends D3Blueprint<AxisDatum[]> {
     this.configDefine('labels', { defaultValue: [] as string[] })
     this.configDefine('labelPosition', { defaultValue: 'auto' })
     this.configDefine('zeroY', { defaultValue: null as number | null })
+    this.configDefine('tickFormat', { defaultValue: null as ((label: string) => string) | null })
 
     const g = this.base.append('g')
 
@@ -145,9 +146,15 @@ class HorizontalAxisChart extends D3Blueprint<AxisDatum[]> {
           }
           const fmt = this.config('numberFormat') as string | null
           const labels = this.config('labels') as string[]
-          const formatter = buildTickFormatter(fmt, labels)
-          if (formatter) {
-            axisFn.tickFormat(formatter)
+          const customTickFormat = this.config('tickFormat') as ((label: string) => string) | null
+          if (customTickFormat) {
+            axisFn.tickFormat(customTickFormat as (d: string | d3.NumberValue) => string)
+          }
+          else {
+            const formatter = buildTickFormatter(fmt, labels)
+            if (formatter) {
+              axisFn.tickFormat(formatter)
+            }
           }
           const translateY = position === 'above' ? 0 : height
           sel.attr('transform', `translate(0,${translateY})`)
@@ -207,9 +214,15 @@ class HorizontalAxisChart extends D3Blueprint<AxisDatum[]> {
 
           const fmt = this.config('numberFormat') as string | null
           const labels = this.config('labels') as string[]
-          const formatter = buildTickFormatter(fmt, labels)
-          if (formatter) {
-            axisFn.tickFormat(formatter)
+          const customTickFormat = this.config('tickFormat') as ((label: string) => string) | null
+          if (customTickFormat) {
+            axisFn.tickFormat(customTickFormat as (d: string | d3.NumberValue) => string)
+          }
+          else {
+            const formatter = buildTickFormatter(fmt, labels)
+            if (formatter) {
+              axisFn.tickFormat(formatter)
+            }
           }
 
           const translateY = position === 'above' ? 0 : height
@@ -329,6 +342,7 @@ export function renderHorizontalAxis(
     labels,
     labelPosition: options.labelPosition ?? 'auto',
     zeroY: options.zeroY ?? null,
+    tickFormat: options.tickFormat ?? null,
   })
   chart.draw([{ placeholder: true }])
   return chartArea.querySelector('.bc-axis-horizontal') as SVGGElement
