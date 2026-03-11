@@ -27,29 +27,29 @@ test.describe('Scene Player', () => {
     await expect(player).toBeVisible()
   })
 
-  test('default player is minimal arrows', async ({ page }) => {
+  test('default player is buttons', async ({ page }) => {
     await goToVisualizeStep(page)
 
     await page.locator('.button-add').click()
     await page.waitForTimeout(500)
 
     const player = page.locator('.bc-frame [data-scene-player]')
-    await expect(player).toHaveClass(/bc-scene-player--minimal-arrows/)
+    await expect(player).toHaveClass(/bc-scene-player--buttons/)
   })
 
-  test('minimal arrows shows correct counter', async ({ page }) => {
+  test('buttons player shows correct counter', async ({ page }) => {
     await goToVisualizeStep(page)
 
     await page.locator('.button-add').click()
     await page.waitForTimeout(500)
 
     const counter = page.locator('.bc-frame .bc-scene-player__counter')
-    await expect(counter).toHaveText('2/2')
+    await expect(counter).toHaveText('2 / 2')
 
     // Click Scene 1 (base)
     await page.locator('.scene-timeline-item').first().click()
     await page.waitForTimeout(300)
-    await expect(counter).toHaveText('1/2')
+    await expect(counter).toHaveText('1 / 2')
   })
 
   test('arrow buttons navigate between scenes', async ({ page }) => {
@@ -107,11 +107,19 @@ test.describe('Scene Player', () => {
     await expect(page.locator('.bc-frame [data-scene-player]')).toHaveCount(0)
   })
 
-  test('player has play button', async ({ page }) => {
+  test('minimal-arrows player has play button', async ({ page }) => {
     await goToVisualizeStep(page)
 
     await page.locator('.button-add').click()
     await page.waitForTimeout(500)
+
+    // Change player type to Minimal Arrows
+    await page.locator('[aria-label="Appearance"]').click()
+    await page.waitForTimeout(300)
+    const playerDropdown = page.locator('.form-control-dropdown', { hasText: 'Scene player' })
+    await playerDropdown.locator('.dropdown-toggle').click()
+    await page.locator('.form-control-dropdown-item__label', { hasText: 'Minimal Arrows' }).click()
+    await page.waitForTimeout(300)
 
     const playBtn = page.locator('.bc-frame .bc-scene-player__play-btn')
     await expect(playBtn).toBeVisible()

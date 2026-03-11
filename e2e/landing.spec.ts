@@ -31,8 +31,8 @@ test.describe('landing page layout', () => {
 
     await expect(page.locator('.landing-hero__h1')).toBeVisible()
     await expect(page.locator('.landing-hero__h1')).toContainText('Turn data into')
-    await expect(page.locator('.landing-hero__btn--ghost')).toContainText('My Charts')
-    await expect(page.locator('.landing-hero__btn--primary')).toContainText('New')
+    await expect(page.locator('.button-icon', { hasText: 'My Charts' })).toBeVisible()
+    await expect(page.locator('.button-icon', { hasText: 'New' })).toBeVisible()
   })
 
   test('hero chart renders real D3 chart', async ({ page }) => {
@@ -55,7 +55,7 @@ test.describe('landing page layout', () => {
     await expect(page.locator('text=Direct labels by default')).toBeVisible()
 
     // Chart tile should exist
-    await expect(page.locator('.philosophy-chart-tile')).toBeVisible()
+    await expect(page.locator('.philosophy__chart-tile')).toBeVisible()
   })
 
   test('BPC format section shows real BPC syntax', async ({ page }) => {
