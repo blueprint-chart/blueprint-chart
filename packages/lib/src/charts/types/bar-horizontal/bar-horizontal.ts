@@ -134,14 +134,23 @@ export function render(
 
   // Reserve extra margin for outside value labels
   const valueLabelPos = options.valueLabelPosition ?? 'auto'
+  const swapLabelValue = options.swapLabelValue === true
   if (options.valueLabels && valueLabelPos !== 'inside') {
-    const maxVal = Math.max(...data.values)
-    const minVal = Math.min(...data.values)
-    const rightLabelW = maxVal > 0 ? estimateValueLabelWidth(String(maxVal)) + VALUE_LABEL_GAP : 0
-    const leftLabelW = minVal < 0 ? estimateValueLabelWidth(String(minVal)) + VALUE_LABEL_GAP : 0
-    lpMargins.right = Math.max(lpMargins.right ?? 15, rightLabelW)
-    if (leftLabelW > 0) {
-      lpMargins.left = (lpMargins.left ?? 50) + leftLabelW
+    if (swapLabelValue) {
+      // Labels show category names — estimate width from the longest label
+      const longestLabel = data.labels.reduce((a, b) => a.length > b.length ? a : b, '')
+      const rightLabelW = estimateValueLabelWidth(longestLabel) + VALUE_LABEL_GAP
+      lpMargins.right = Math.max(lpMargins.right ?? 15, rightLabelW)
+    }
+    else {
+      const maxVal = Math.max(...data.values)
+      const minVal = Math.min(...data.values)
+      const rightLabelW = maxVal > 0 ? estimateValueLabelWidth(String(maxVal)) + VALUE_LABEL_GAP : 0
+      const leftLabelW = minVal < 0 ? estimateValueLabelWidth(String(minVal)) + VALUE_LABEL_GAP : 0
+      lpMargins.right = Math.max(lpMargins.right ?? 15, rightLabelW)
+      if (leftLabelW > 0) {
+        lpMargins.left = (lpMargins.left ?? 50) + leftLabelW
+      }
     }
   }
 
@@ -152,8 +161,6 @@ export function render(
     label: l,
     value: data.values[data.labels.indexOf(l)],
   }))
-
-  const swapLabelValue = options.swapLabelValue === true
 
   // Normal: x = scaleLinear (values), y = scaleBand (labels)
   const useLog = options.horizontalAxis?.scaleType === 'log'
@@ -167,28 +174,17 @@ export function render(
     .range([0, height])
     .padding(0.2)
 
-  if (swapLabelValue) {
-    // Horizontal axis: show labels at each bar's value position instead of numeric ticks
-    const labelMap = new Map(barData.map(d => [d.value, d.label]))
-    const hAxisOpts = {
-      ...options.horizontalAxis,
-      width,
-      ticks: barData.map(d => d.value),
-      tickFormat: (v: string) => labelMap.get(Number(v)) ?? v,
-    } as import('../../types').AxisOptions
-    renderHorizontalAxis(chartArea, x, height, hAxisOpts, priorHAxis)
-
-    // Vertical axis: show values instead of labels
+  renderHorizontalAxis(chartArea, x, height, { ...options.horizontalAxis, width }, priorHAxis)
+  if (swapLabelValue && options.valueLabels) {
+    // Category axis (vertical): show values instead of labels
     const valueMap = new Map(barData.map(d => [d.label, d.value]))
-    const vAxisOpts = {
+    renderVerticalAxis(chartArea, y, height, {
       ...options.verticalAxis,
       topPadding: margin.top,
       tickFormat: (label: string) => String(valueMap.get(label) ?? label),
-    } as import('../../types').AxisOptions
-    renderVerticalAxis(chartArea, y, height, vAxisOpts, priorVAxis)
+    } as import('../../types').AxisOptions, priorVAxis)
   }
   else {
-    renderHorizontalAxis(chartArea, x, height, { ...options.horizontalAxis, width }, priorHAxis)
     renderVerticalAxis(chartArea, y, height, { ...options.verticalAxis, topPadding: margin.top }, priorVAxis)
   }
 
@@ -275,6 +271,7 @@ export function render(
       colors: options.colors ?? DEFAULT_COLORS,
       transition,
       priorLabels,
+      swapLabelValue,
     })
   }
 
@@ -331,9 +328,11 @@ function renderValueLabels(
     colors: string[]
     transition: boolean
     priorLabels: Element[]
+    swapLabelValue?: boolean
   },
 ) {
   const pos = opts.position ?? 'auto'
+  const labelText = (d: BarDatum) => opts.swapLabelValue ? d.label : String(d.value)
 
   // Create a dedicated group for value labels so they sit above bars
   let labelGroup = parent.select<SVGGElement>('.bc-value-label-group')
@@ -371,7 +370,7 @@ function renderValueLabels(
         .attr('fill', a.isInside
           ? contrastTextColor(opts.highlights.get(d.label) ?? opts.colors[0])
           : 'currentColor')
-        .text(String(d.value))
+        .text(labelText(d))
     })
 
   // Merge — update all labels to new positions
@@ -380,7 +379,7 @@ function renderValueLabels(
     merged.each(function (d) {
       const a = valueLabelAttrs(d, x, y, pos)
       d3.select(this)
-        .text(String(d.value))
+        .text(labelText(d))
         .transition().duration(getDefaultTransitionMs())
         .attr('x', a.tx)
         .attr('y', a.ty)
@@ -400,7 +399,7 @@ function renderValueLabels(
         .attr('fill', a.isInside
           ? contrastTextColor(opts.highlights.get(d.label) ?? opts.colors[0])
           : 'currentColor')
-        .text(String(d.value))
+        .text(labelText(d))
     })
   }
 }
