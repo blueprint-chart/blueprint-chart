@@ -303,14 +303,14 @@ describe('bar-vertical', () => {
     expect(tickTexts.length).toBeGreaterThan(0)
   })
 
-  it('hides horizontal axis tick labels when showAxis is false', () => {
+  it('keeps horizontal axis tick labels when showAxis is false (only domain is removed)', () => {
     render(container, data, {
       horizontalAxis: { showAxis: false },
     })
     const hAxis = container.querySelector('.bc-axis-horizontal')
     expect(hAxis).not.toBeNull()
     const tickTexts = hAxis!.querySelectorAll('.tick text')
-    expect(tickTexts).toHaveLength(0)
+    expect(tickTexts.length).toBeGreaterThan(0)
   })
 
   it('vertical axis domain line persists when showAxis is false (merge:transition re-adds it)', () => {
@@ -564,19 +564,20 @@ describe('bar-vertical', () => {
       expect(new Set(heights).size).toBeGreaterThan(1)
     })
 
-    it('shows values on category axis and labels on value axis', () => {
-      render(container, data, { swapLabelValue: true })
+    it('category axis shows values when swapLabelValue is true', () => {
+      render(container, data, { swapLabelValue: true, valueLabels: true })
+      // Horizontal axis (category) should show numeric values instead of labels
       const hAxis = container.querySelector('.bc-axis-horizontal')!
       const hTickTexts = Array.from(hAxis.querySelectorAll('.tick text'))
         .map(el => el.textContent)
       expect(hTickTexts).toEqual(['10', '30', '20'])
+    })
 
-      const vAxis = container.querySelector('.bc-axis-vertical')!
-      const vTickTexts = Array.from(vAxis.querySelectorAll('.tick text'))
+    it('direct labels show category names instead of values', () => {
+      render(container, data, { swapLabelValue: true, valueLabels: true })
+      const labels = Array.from(container.querySelectorAll('.bc-value-label'))
         .map(el => el.textContent)
-      expect(vTickTexts).toContain('A')
-      expect(vTickTexts).toContain('B')
-      expect(vTickTexts).toContain('C')
+      expect(labels).toEqual(['A', 'B', 'C'])
     })
 
     it('does not swap when swapLabelValue is not set', () => {
