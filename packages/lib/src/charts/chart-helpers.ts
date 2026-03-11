@@ -217,6 +217,19 @@ export function buildChartOptions(opts: Partial<ChartTypeOptions>, backgroundCol
     result.sliceGroupLabel = opts.sliceGroupLabel
   }
 
+  if (opts.swapAxes !== undefined) {
+    result.swapAxes = opts.swapAxes
+  }
+  if (opts.barBackground !== undefined) {
+    result.barBackground = opts.barBackground
+  }
+  if (opts.barSeparators !== undefined) {
+    result.barSeparators = opts.barSeparators
+  }
+  if (opts.stackMode !== undefined) {
+    result.stackMode = opts.stackMode as 'normal' | 'percent'
+  }
+
   if (opts.lineSymbols) {
     result.lineSymbols = {
       symbol: (opts.lineSymbolShape as 'circle' | 'square' | 'diamond' | 'triangle' | 'triangleDown' | 'cross' | 'star') ?? 'circle',

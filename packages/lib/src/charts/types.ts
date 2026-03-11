@@ -168,6 +168,10 @@ export interface ChartOptions {
   sliceGroupLabel?: string
   autoContrast?: boolean
   allowDarkMode?: boolean
+  swapAxes?: boolean
+  barBackground?: boolean
+  barSeparators?: boolean
+  stackMode?: 'normal' | 'percent'
 }
 
 export type ChartRenderer = (
@@ -243,6 +247,10 @@ export interface ChartTypeOptions {
   autoContrast: boolean
   allowDarkMode: boolean
   sortMode: 'total' | 'within-groups' | 'none'
+  swapAxes: boolean
+  barBackground: boolean
+  barSeparators: boolean
+  stackMode: string
 }
 
 export type ChartTypeOptionKey = keyof ChartTypeOptions
