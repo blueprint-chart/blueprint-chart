@@ -494,4 +494,106 @@ describe('bar-vertical', () => {
     expect(heights[0]).toBe(0)
     expect(heights[1]).toBeGreaterThan(0)
   })
+
+  // ── barBackground ───────────────────────────────────────────────
+
+  describe('barBackground', () => {
+    it('renders background rects when barBackground is true', () => {
+      render(container, data, { barBackground: true })
+      const bgs = container.querySelectorAll('.bc-bar-bg')
+      expect(bgs).toHaveLength(3)
+    })
+
+    it('background rects span full chart height', () => {
+      render(container, data, { barBackground: true })
+      const clipRect = container.querySelector('clipPath rect')!
+      const chartHeight = Number(clipRect.getAttribute('height'))
+      const bgs = container.querySelectorAll('.bc-bar-bg')
+      const heights = Array.from(bgs).map(b => Number(b.getAttribute('height')))
+      expect(heights.every(h => h === chartHeight)).toBe(true)
+    })
+
+    it('does not render background rects when barBackground is not set', () => {
+      render(container, data)
+      const bgs = container.querySelectorAll('.bc-bar-bg')
+      expect(bgs).toHaveLength(0)
+    })
+  })
+
+  // ── barSeparators ──────────────────────────────────────────────
+
+  describe('barSeparators', () => {
+    it('renders separator lines when barSeparators is true', () => {
+      render(container, data, { barSeparators: true })
+      const seps = container.querySelectorAll('.bc-bar-separator')
+      expect(seps).toHaveLength(2) // n-1 for n=3 bars
+    })
+
+    it('separator lines are vertical', () => {
+      render(container, data, { barSeparators: true })
+      const seps = container.querySelectorAll('.bc-bar-separator')
+      Array.from(seps).forEach((sep) => {
+        expect(sep.getAttribute('x1')).toBe(sep.getAttribute('x2'))
+      })
+    })
+
+    it('does not render separators when barSeparators is not set', () => {
+      render(container, data)
+      const seps = container.querySelectorAll('.bc-bar-separator')
+      expect(seps).toHaveLength(0)
+    })
+
+    it('does not render separators for a single bar', () => {
+      render(container, { labels: ['A'], values: [10] }, { barSeparators: true })
+      const seps = container.querySelectorAll('.bc-bar-separator')
+      expect(seps).toHaveLength(0)
+    })
+  })
+
+  // ── swapAxes ───────────────────────────────────────────────────
+
+  describe('swapAxes', () => {
+    it('renders horizontal bars when swapAxes is true', () => {
+      render(container, data, { swapAxes: true })
+      const bars = container.querySelectorAll('.bc-bar')
+      expect(bars).toHaveLength(3)
+      // Bars should have width varying by value (horizontal orientation)
+      const widths = Array.from(bars).map(b => Number(b.getAttribute('width')))
+      expect(widths.some(w => w > 0)).toBe(true)
+      // Heights should all be the same (band height)
+      const heights = Array.from(bars).map(b => Number(b.getAttribute('height')))
+      expect(new Set(heights).size).toBe(1)
+    })
+
+    it('does not swap axes when swapAxes is not set', () => {
+      render(container, data)
+      const bars = container.querySelectorAll('.bc-bar')
+      // Normal vertical bars: widths are all equal (band width), heights vary
+      const widths = Array.from(bars).map(b => Number(b.getAttribute('width')))
+      expect(new Set(widths).size).toBe(1)
+      const heights = Array.from(bars).map(b => Number(b.getAttribute('height')))
+      expect(new Set(heights).size).toBeGreaterThan(1)
+    })
+
+    it('barBackground works with swapAxes', () => {
+      render(container, data, { swapAxes: true, barBackground: true })
+      const bgs = container.querySelectorAll('.bc-bar-bg')
+      expect(bgs).toHaveLength(3)
+      // Background rects should span full chart width
+      const clipRect = container.querySelector('clipPath rect')!
+      const chartWidth = Number(clipRect.getAttribute('width'))
+      const widths = Array.from(bgs).map(b => Number(b.getAttribute('width')))
+      expect(widths.every(w => w === chartWidth)).toBe(true)
+    })
+
+    it('barSeparators works with swapAxes', () => {
+      render(container, data, { swapAxes: true, barSeparators: true })
+      const seps = container.querySelectorAll('.bc-bar-separator')
+      expect(seps).toHaveLength(2)
+      // Separators should be horizontal lines (y1 === y2)
+      Array.from(seps).forEach((sep) => {
+        expect(sep.getAttribute('y1')).toBe(sep.getAttribute('y2'))
+      })
+    })
+  })
 })
