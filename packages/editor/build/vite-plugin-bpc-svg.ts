@@ -301,6 +301,101 @@ function renderPieOrDonut(data: ChartData, colors: string[], donut: boolean): st
   return `<svg viewBox="${CIRC_VB}" xmlns="http://www.w3.org/2000/svg">${paths}</svg>`
 }
 
+function renderArea(data: ChartData, colors: string[]): string {
+  if (data.kind !== 'single') {
+    return ''
+  }
+  const { labels, values } = data
+  const maxVal = Math.max(...values)
+  const minVal = Math.min(0, ...values)
+  const yScale = linearScale([minVal, maxVal], [32, 4])
+  const step = labels.length > 1 ? 44 / (labels.length - 1) : 0
+
+  const linePoints = values.map((v, i) => `${(2 + i * step).toFixed(2)},${yScale(v).toFixed(2)}`)
+  const areaPath = `M ${linePoints[0]} ${linePoints.slice(1).map(p => `L ${p}`).join(' ')} L ${(2 + (values.length - 1) * step).toFixed(2)},34 L 2,34 Z`
+  const polyPoints = linePoints.join(' ')
+
+  return `<svg viewBox="${RECT_VB}" xmlns="http://www.w3.org/2000/svg"><path d="${areaPath}" fill="${colors[0]}" opacity="0.3"/><polyline points="${polyPoints}" fill="none" stroke="${colors[0]}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+}
+
+function renderAreaStacked(data: ChartData, colors: string[]): string {
+  if (data.kind !== 'multi') {
+    return ''
+  }
+  const { labels, series } = data
+  const stacked: number[][] = series.map(() => labels.map(() => 0))
+  for (let li = 0; li < labels.length; li++) {
+    let cumulative = 0
+    for (let si = 0; si < series.length; si++) {
+      cumulative += series[si][li]
+      stacked[si][li] = cumulative
+    }
+  }
+  const maxVal = Math.max(...stacked[stacked.length - 1])
+  const yScale = linearScale([0, maxVal], [32, 4])
+  const step = labels.length > 1 ? 44 / (labels.length - 1) : 0
+
+  const areas: string[] = []
+  for (let si = series.length - 1; si >= 0; si--) {
+    const topPoints = labels.map((_, li) => `${(2 + li * step).toFixed(2)},${yScale(stacked[si][li]).toFixed(2)}`)
+    const bottomPoints = si === 0
+      ? labels.map((_, li) => `${(2 + li * step).toFixed(2)},34`).reverse()
+      : labels.map((_, li) => `${(2 + li * step).toFixed(2)},${yScale(stacked[si - 1][li]).toFixed(2)}`).reverse()
+    const d = `M ${topPoints[0]} ${topPoints.slice(1).map(p => `L ${p}`).join(' ')} ${bottomPoints.map(p => `L ${p}`).join(' ')} Z`
+    areas.push(`<path d="${d}" fill="${colors[si % colors.length]}" opacity="0.7"/>`)
+  }
+
+  return `<svg viewBox="${RECT_VB}" xmlns="http://www.w3.org/2000/svg">${areas.join('')}</svg>`
+}
+
+function renderColumnStacked(data: ChartData, colors: string[]): string {
+  if (data.kind !== 'multi') {
+    return ''
+  }
+  const { labels, series } = data
+  const totals = labels.map((_, li) => series.reduce((sum, s) => sum + s[li], 0))
+  const maxVal = Math.max(...totals)
+  const scale = linearScale([0, maxVal], [0, 30])
+  const { bandWidth, positions } = bandPositions(labels.length, [2, 46])
+
+  const rects: string[] = []
+  for (let li = 0; li < labels.length; li++) {
+    let cumHeight = 0
+    for (let si = 0; si < series.length; si++) {
+      const h = scale(series[si][li])
+      const y = 34 - cumHeight - h
+      rects.push(`<rect x="${positions[li].toFixed(2)}" y="${y.toFixed(2)}" width="${bandWidth.toFixed(2)}" height="${h.toFixed(2)}" fill="${colors[si % colors.length]}" rx="0.5"/>`)
+      cumHeight += h
+    }
+  }
+
+  return `<svg viewBox="${RECT_VB}" xmlns="http://www.w3.org/2000/svg">${rects.join('')}</svg>`
+}
+
+function renderBarStacked(data: ChartData, colors: string[]): string {
+  if (data.kind !== 'multi') {
+    return ''
+  }
+  const { labels, series } = data
+  const totals = labels.map((_, li) => series.reduce((sum, s) => sum + s[li], 0))
+  const maxVal = Math.max(...totals)
+  const scale = linearScale([0, maxVal], [0, 42])
+  const { bandWidth, positions } = bandPositions(labels.length, [2, 34])
+
+  const rects: string[] = []
+  for (let li = 0; li < labels.length; li++) {
+    let cumWidth = 0
+    for (let si = 0; si < series.length; si++) {
+      const w = scale(series[si][li])
+      const x = 2 + cumWidth
+      rects.push(`<rect x="${x.toFixed(2)}" y="${positions[li].toFixed(2)}" width="${w.toFixed(2)}" height="${bandWidth.toFixed(2)}" fill="${colors[si % colors.length]}" rx="0.5"/>`)
+      cumWidth += w
+    }
+  }
+
+  return `<svg viewBox="${RECT_VB}" xmlns="http://www.w3.org/2000/svg">${rects.join('')}</svg>`
+}
+
 function renderToSvg(chartType: string, data: ChartData, colors: string[]): string {
   switch (chartType) {
     case 'bar-vertical': return renderBarVertical(data, colors)
@@ -310,6 +405,10 @@ function renderToSvg(chartType: string, data: ChartData, colors: string[]): stri
     case 'line-multi': return renderLineMulti(data, colors)
     case 'pie': return renderPieOrDonut(data, colors, false)
     case 'donut': return renderPieOrDonut(data, colors, true)
+    case 'area': return renderArea(data, colors)
+    case 'area-stacked': return renderAreaStacked(data, colors)
+    case 'column-stacked': return renderColumnStacked(data, colors)
+    case 'bar-stacked': return renderBarStacked(data, colors)
     default: return ''
   }
 }
