@@ -15,6 +15,8 @@ import { getDefaultTransitionMs, fadeIn, snapshotForFadeOut, commitFadeOut } fro
 import { getCachedChart, setCachedChart } from '../../transition-cache'
 
 const DEFAULT_COLORS = ['#4e79a7']
+const VALUE_LABEL_FONT = '11px sans-serif'
+const VALUE_LABEL_GAP = 4
 
 interface BarDatum {
   label: string
@@ -73,6 +75,22 @@ class BarHorizontalChart extends D3Blueprint<BarDatum[]> {
   }
 }
 
+/**
+ * Estimate the pixel width of a value label string.
+ */
+function estimateValueLabelWidth(text: string): number {
+  try {
+    const canvas = document.createElement('canvas')
+    const ctx = canvas.getContext('2d')
+    if (ctx) {
+      ctx.font = VALUE_LABEL_FONT
+      return Math.ceil(ctx.measureText(text).width)
+    }
+  }
+  catch { /* fallback below */ }
+  return text.length * 6.5
+}
+
 export function render(
   container: HTMLElement,
   data: ChartData,
@@ -112,6 +130,20 @@ export function render(
   const containerWidth = contentSize(body).width
   const vLabelW = estimateCategoryLabelWidth(data.labels)
   const lpMargins = labelPositionMargins(containerWidth, options.verticalAxis?.labelPosition, options.horizontalAxis?.labelPosition, options.verticalAxis?.direction, vLabelW, options.horizontalAxis?.showAxis)
+
+  // Reserve extra margin for outside value labels
+  const valueLabelPos = options.valueLabelPosition ?? 'auto'
+  if (options.valueLabels && valueLabelPos !== 'inside') {
+    const maxVal = Math.max(...data.values)
+    const minVal = Math.min(...data.values)
+    const rightLabelW = maxVal > 0 ? estimateValueLabelWidth(String(maxVal)) + VALUE_LABEL_GAP : 0
+    const leftLabelW = minVal < 0 ? estimateValueLabelWidth(String(minVal)) + VALUE_LABEL_GAP : 0
+    lpMargins.right = Math.max(lpMargins.right ?? 15, rightLabelW)
+    if (leftLabelW > 0) {
+      lpMargins.left = (lpMargins.left ?? 50) + leftLabelW
+    }
+  }
+
   const { chartArea, width, height, margin } = createCanvas(body, lpMargins)
 
   const labels = sortLabels(data, options)
@@ -121,13 +153,7 @@ export function render(
   }))
 
   const useLog = options.horizontalAxis?.scaleType === 'log'
-  // eslint-disable-next-line prefer-const
-  let [domainMin, domainMax] = computeLinearDomain(barData.map(d => d.value), options.horizontalAxis?.range)
-  // Extend domain to leave room for value labels left of negative bars
-  if (options.valueLabels && domainMin < 0 && options.horizontalAxis?.range?.min == null) {
-    const span = domainMax - domainMin
-    domainMin -= span * 0.1
-  }
+  const [domainMin, domainMax] = computeLinearDomain(barData.map(d => d.value), options.horizontalAxis?.range)
   const x = useLog
     ? d3.scaleSymlog().domain([domainMin, domainMax]).nice().range([0, width])
     : d3.scaleLinear().domain([domainMin, domainMax]).nice().range([0, width])
@@ -185,15 +211,10 @@ export function render(
   chart.draw(barData)
 
   if (options.valueLabels) {
-    const pos = options.valueLabelPosition ?? 'auto'
-    if (pos !== 'inside') {
-      // Allow outside labels to extend beyond the SVG viewport
-      d3.select(svg).style('overflow', 'visible')
-    }
     // Render value labels in an unclipped group so outside labels aren't truncated
     const labelParent = d3.select(chartArea).append('g') as d3.Selection<SVGGElement, unknown, null, undefined>
     renderValueLabels(labelParent, barData, x, y, {
-      position: pos,
+      position: valueLabelPos,
       highlights,
       colors: options.colors ?? DEFAULT_COLORS,
       transition,
