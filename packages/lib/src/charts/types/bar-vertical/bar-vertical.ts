@@ -29,6 +29,7 @@ class BarVerticalChart extends D3Blueprint<BarDatum[]> {
     this.configDefine('height', { defaultValue: 0 })
     this.configDefine('colors', { defaultValue: DEFAULT_COLORS })
     this.configDefine('highlights', { defaultValue: new Map<string, string>() })
+    this.configDefine('swapAxes', { defaultValue: false })
 
     const g = this.base.append('g')
 
@@ -38,29 +39,53 @@ class BarVerticalChart extends D3Blueprint<BarDatum[]> {
       events: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         'enter': (sel: any) => {
-          const x = this.config('x') as d3.ScaleBand<string>
-          const y = this.config('y') as d3.ScaleLinear<number, number>
           const colors = this.config('colors') as string[]
           const highlights = this.config('highlights') as Map<string, string>
-          sel
-            .attr('x', (d: BarDatum) => x(d.label) ?? 0)
-            .attr('y', (d: BarDatum) => Math.min(y(0), y(d.value)))
-            .attr('width', x.bandwidth())
-            .attr('height', (d: BarDatum) => Math.abs(y(d.value) - y(0)))
-            .attr('fill', (d: BarDatum) => highlights.get(d.label) ?? colors[0])
+          if (this.config('swapAxes')) {
+            const bandScale = this.config('y') as d3.ScaleBand<string>
+            const valScale = this.config('x') as d3.ScaleLinear<number, number>
+            sel
+              .attr('x', (d: BarDatum) => Math.min(valScale(0), valScale(d.value)))
+              .attr('y', (d: BarDatum) => bandScale(d.label) ?? 0)
+              .attr('width', (d: BarDatum) => Math.abs(valScale(d.value) - valScale(0)))
+              .attr('height', bandScale.bandwidth())
+              .attr('fill', (d: BarDatum) => highlights.get(d.label) ?? colors[0])
+          }
+          else {
+            const x = this.config('x') as d3.ScaleBand<string>
+            const y = this.config('y') as d3.ScaleLinear<number, number>
+            sel
+              .attr('x', (d: BarDatum) => x(d.label) ?? 0)
+              .attr('y', (d: BarDatum) => Math.min(y(0), y(d.value)))
+              .attr('width', x.bandwidth())
+              .attr('height', (d: BarDatum) => Math.abs(y(d.value) - y(0)))
+              .attr('fill', (d: BarDatum) => highlights.get(d.label) ?? colors[0])
+          }
         },
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         'merge:transition': (sel: any) => {
-          const x = this.config('x') as d3.ScaleBand<string>
-          const y = this.config('y') as d3.ScaleLinear<number, number>
           const colors = this.config('colors') as string[]
           const highlights = this.config('highlights') as Map<string, string>
-          sel.duration(getDefaultTransitionMs())
-            .attr('x', (d: BarDatum) => x(d.label) ?? 0)
-            .attr('y', (d: BarDatum) => Math.min(y(0), y(d.value)))
-            .attr('width', x.bandwidth())
-            .attr('height', (d: BarDatum) => Math.abs(y(d.value) - y(0)))
-            .attr('fill', (d: BarDatum) => highlights.get(d.label) ?? colors[0])
+          if (this.config('swapAxes')) {
+            const bandScale = this.config('y') as d3.ScaleBand<string>
+            const valScale = this.config('x') as d3.ScaleLinear<number, number>
+            sel.duration(getDefaultTransitionMs())
+              .attr('x', (d: BarDatum) => Math.min(valScale(0), valScale(d.value)))
+              .attr('y', (d: BarDatum) => bandScale(d.label) ?? 0)
+              .attr('width', (d: BarDatum) => Math.abs(valScale(d.value) - valScale(0)))
+              .attr('height', bandScale.bandwidth())
+              .attr('fill', (d: BarDatum) => highlights.get(d.label) ?? colors[0])
+          }
+          else {
+            const x = this.config('x') as d3.ScaleBand<string>
+            const y = this.config('y') as d3.ScaleLinear<number, number>
+            sel.duration(getDefaultTransitionMs())
+              .attr('x', (d: BarDatum) => x(d.label) ?? 0)
+              .attr('y', (d: BarDatum) => Math.min(y(0), y(d.value)))
+              .attr('width', x.bandwidth())
+              .attr('height', (d: BarDatum) => Math.abs(y(d.value) - y(0)))
+              .attr('fill', (d: BarDatum) => highlights.get(d.label) ?? colors[0])
+          }
         },
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         'exit:transition': (sel: any) => {
@@ -121,33 +146,67 @@ export function render(
     value: data.values[data.labels.indexOf(l)],
   }))
 
-  const x = d3.scaleBand<string>()
-    .domain(labels)
-    .range([0, width])
-    .padding(0.2)
+  const swapped = options.swapAxes === true
 
-  const useLog = options.verticalAxis?.scaleType === 'log'
-  // eslint-disable-next-line prefer-const
-  let [domainMin, domainMax] = computeLinearDomain(barData.map(d => d.value), options.verticalAxis?.range)
-  // Extend domain to leave room for value labels below negative bars
-  if (options.valueLabels && domainMin < 0 && options.verticalAxis?.range?.min == null) {
-    const span = domainMax - domainMin
-    domainMin -= span * 0.1
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let x: any, y: any
+  let useLog = false
+
+  if (swapped) {
+    // Swapped: x = scaleLinear (values), y = scaleBand (labels)
+    useLog = options.horizontalAxis?.scaleType === 'log'
+    // eslint-disable-next-line prefer-const
+    let [domainMin, domainMax] = computeLinearDomain(barData.map(d => d.value), options.horizontalAxis?.range)
+    x = useLog
+      ? d3.scaleSymlog().domain([domainMin, domainMax]).nice().range([0, width])
+      : d3.scaleLinear().domain([domainMin, domainMax]).nice().range([0, width])
+    y = d3.scaleBand<string>()
+      .domain(labels)
+      .range([0, height])
+      .padding(0.2)
+
+    renderVerticalAxis(chartArea, y, height, { ...options.verticalAxis, topPadding: margin.top }, priorVAxis)
+    renderHorizontalAxis(chartArea, x, height, { ...options.horizontalAxis, width }, priorHAxis)
+
+    // Zero baseline when domain spans zero
+    if (!useLog && domainMin < 0 && domainMax > 0) {
+      d3.select(chartArea).append('line')
+        .attr('class', 'bc-zero-baseline')
+        .attr('x1', x(0)).attr('x2', x(0))
+        .attr('y1', 0).attr('y2', height)
+        .attr('stroke', '#666').attr('stroke-width', 1)
+    }
   }
-  const y = useLog
-    ? d3.scaleSymlog().domain([domainMin, domainMax]).nice().range([height, 0])
-    : d3.scaleLinear().domain([domainMin, domainMax]).nice().range([height, 0])
+  else {
+    // Normal: x = scaleBand (labels), y = scaleLinear (values)
+    x = d3.scaleBand<string>()
+      .domain(labels)
+      .range([0, width])
+      .padding(0.2)
 
-  renderVerticalAxis(chartArea, y, height, { ...options.verticalAxis, gridWidth: width, topPadding: margin.top }, priorVAxis)
-  renderHorizontalAxis(chartArea, x, height, { ...options.horizontalAxis, width }, priorHAxis)
+    useLog = options.verticalAxis?.scaleType === 'log'
+    // eslint-disable-next-line prefer-const
+    let [domainMin, domainMax] = computeLinearDomain(barData.map(d => d.value), options.verticalAxis?.range)
+    // Extend domain to leave room for value labels below negative bars
+    if (options.valueLabels && domainMin < 0 && options.verticalAxis?.range?.min == null) {
+      const span = domainMax - domainMin
+      domainMin -= span * 0.1
+    }
+    y = useLog
+      ? d3.scaleSymlog().domain([domainMin, domainMax]).nice().range([height, 0])
+      : d3.scaleLinear().domain([domainMin, domainMax]).nice().range([height, 0])
 
-  // Zero baseline when domain spans zero
-  if (!useLog && domainMin < 0 && domainMax > 0) {
-    d3.select(chartArea).append('line')
-      .attr('class', 'bc-zero-baseline')
-      .attr('x1', 0).attr('x2', width)
-      .attr('y1', y(0)).attr('y2', y(0))
-      .attr('stroke', '#666').attr('stroke-width', 1)
+    renderVerticalAxis(chartArea, y, height, { ...options.verticalAxis, gridWidth: width, topPadding: margin.top }, priorVAxis)
+    renderHorizontalAxis(chartArea, x, height, { ...options.horizontalAxis, width }, priorHAxis)
+
+    // Zero baseline when domain spans zero
+    if (!useLog && domainMin < 0 && domainMax > 0) {
+      d3.select(chartArea).append('line')
+        .attr('class', 'bc-zero-baseline')
+        .attr('x1', 0).attr('x2', width)
+        .attr('y1', y(0)).attr('y2', y(0))
+        .attr('stroke', '#666').attr('stroke-width', 1)
+    }
   }
 
   const highlights = new Map(
@@ -164,8 +223,67 @@ export function render(
     .append('rect').attr('width', width).attr('height', height)
   const clippedGroup = d3.select(chartArea).append('g').attr('clip-path', `url(#${clipId})`)
 
+  // Bar backgrounds — full-size rects behind each bar at low opacity
+  if (options.barBackground) {
+    const bgColor = (options.colors ?? DEFAULT_COLORS)[0]
+    if (swapped) {
+      clippedGroup.selectAll('.bc-bar-bg')
+        .data(barData, (d: BarDatum) => d.label)
+        .enter()
+        .append('rect')
+        .attr('class', 'bc-bar-bg')
+        .attr('x', 0)
+        .attr('y', (d: BarDatum) => y(d.label) ?? 0)
+        .attr('width', width)
+        .attr('height', y.bandwidth())
+        .attr('fill', bgColor)
+        .attr('opacity', 0.08)
+    }
+    else {
+      clippedGroup.selectAll('.bc-bar-bg')
+        .data(barData, (d: BarDatum) => d.label)
+        .enter()
+        .append('rect')
+        .attr('class', 'bc-bar-bg')
+        .attr('x', (d: BarDatum) => x(d.label) ?? 0)
+        .attr('y', 0)
+        .attr('width', x.bandwidth())
+        .attr('height', height)
+        .attr('fill', bgColor)
+        .attr('opacity', 0.08)
+    }
+  }
+
+  // Bar separators — lines between adjacent bands
+  if (options.barSeparators && barData.length > 1) {
+    if (swapped) {
+      const step = y.step()
+      for (let i = 1; i < barData.length; i++) {
+        const yPos = (y(barData[i - 1].label) ?? 0) + y.bandwidth() + (step - y.bandwidth()) / 2
+        clippedGroup.append('line')
+          .attr('class', 'bc-bar-separator')
+          .attr('x1', 0).attr('x2', width)
+          .attr('y1', yPos).attr('y2', yPos)
+          .attr('stroke', 'currentColor')
+          .attr('opacity', 0.15)
+      }
+    }
+    else {
+      const step = x.step()
+      for (let i = 1; i < barData.length; i++) {
+        const xPos = (x(barData[i - 1].label) ?? 0) + x.bandwidth() + (step - x.bandwidth()) / 2
+        clippedGroup.append('line')
+          .attr('class', 'bc-bar-separator')
+          .attr('x1', xPos).attr('x2', xPos)
+          .attr('y1', 0).attr('y2', height)
+          .attr('stroke', 'currentColor')
+          .attr('opacity', 0.15)
+      }
+    }
+  }
+
   const chart = new BarVerticalChart(clippedGroup)
-  chart.config({ x, y, width, height, colors: options.colors ?? DEFAULT_COLORS, highlights })
+  chart.config({ x, y, width, height, colors: options.colors ?? DEFAULT_COLORS, highlights, swapAxes: swapped })
 
   // Re-insert prior elements so D3 data-join finds them and triggers merge:transition
   if (priorBars.length > 0) {
