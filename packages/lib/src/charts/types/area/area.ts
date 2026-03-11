@@ -1,0 +1,321 @@
+import * as d3 from 'd3'
+import 'd3-transition'
+import { D3Blueprint } from 'd3-blueprint'
+import type { ChartData, ChartOptions } from '../../types'
+import { createFrame } from '../../frame/frame'
+import { createCanvas, contentSize, labelPositionMargins, estimateVerticalLabelWidth } from '../../canvas/canvas'
+import { renderVerticalAxis } from '../../axis/vertical-axis'
+import { renderHorizontalAxis, type AnyXScale } from '../../axis/horizontal-axis'
+import { computeLinearDomain } from '../../scale-helpers'
+import { resolveCurve } from '../../curves'
+import { createValueLabelPlugin } from '../../plugins/value-labels'
+import { renderAnnotations, snapshotAnnotations, type AnnotationSnapshot } from '../../plugins/annotations'
+import { resolveBackgroundColor } from '../../contrast'
+import { setupProximityInteraction } from '../../plugins/proximity'
+import { renderLineSymbols } from '../../line-symbols'
+import { getDefaultTransitionMs, fadeIn, snapshotForFadeOut, commitFadeOut } from '../../motion'
+import { getCachedChart, setCachedChart } from '../../transition-cache'
+
+const DEFAULT_COLOR = '#4e79a7'
+
+interface AreaDatum {
+  label: string
+  value: number
+}
+
+class AreaChart extends D3Blueprint<AreaDatum[]> {
+  initialize() {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    this.configDefine('xPos', { defaultValue: (d: AreaDatum, i: number) => 0 })
+    this.configDefine('y', { defaultValue: d3.scaleLinear() })
+    this.configDefine('color', { defaultValue: DEFAULT_COLOR })
+    this.configDefine('curve', { defaultValue: d3.curveMonotoneX })
+    this.configDefine('areaFillOpacity', { defaultValue: 0.25 })
+    this.configDefine('height', { defaultValue: 0 })
+
+    const areaGroup = this.base.append('g')
+    const lineGroup = this.base.append('g')
+    const dotsGroup = this.base.append('g')
+
+    this.layer('area', areaGroup, {
+      dataBind: (sel, data) => sel.selectAll('.bc-area').data([data]),
+      insert: sel => sel.append('path').attr('class', 'bc-area'),
+      events: {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        'enter': (sel: any) => {
+          const xPos = this.config('xPos') as (d: AreaDatum, i: number) => number
+          const y = this.config('y') as d3.ScaleLinear<number, number>
+          const color = this.config('color') as string
+          const curve = this.config('curve') as d3.CurveFactory
+          const h = this.config('height') as number
+          const opacity = this.config('areaFillOpacity') as number
+          const areaGen = d3.area<AreaDatum>()
+            .curve(curve)
+            .x((d, i) => xPos(d, i))
+            .y0(h)
+            .y1(d => y(d.value))
+          sel
+            .attr('fill', color)
+            .attr('opacity', opacity)
+            .attr('d', areaGen)
+        },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        'merge:transition': (sel: any) => {
+          const xPos = this.config('xPos') as (d: AreaDatum, i: number) => number
+          const y = this.config('y') as d3.ScaleLinear<number, number>
+          const color = this.config('color') as string
+          const curve = this.config('curve') as d3.CurveFactory
+          const h = this.config('height') as number
+          const opacity = this.config('areaFillOpacity') as number
+          const areaGen = d3.area<AreaDatum>()
+            .curve(curve)
+            .x((d, i) => xPos(d, i))
+            .y0(h)
+            .y1(d => y(d.value))
+          sel.duration(getDefaultTransitionMs())
+            .attr('fill', color)
+            .attr('opacity', opacity)
+            .attr('d', areaGen)
+        },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        'exit:transition': (sel: any) => {
+          sel.duration(getDefaultTransitionMs())
+            .attr('opacity', 0)
+            .remove()
+        },
+      },
+    })
+
+    this.layer('line', lineGroup, {
+      dataBind: (sel, data) => sel.selectAll('.bc-line').data([data]),
+      insert: sel => sel.append('path').attr('class', 'bc-line'),
+      events: {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        'enter': (sel: any) => {
+          const xPos = this.config('xPos') as (d: AreaDatum, i: number) => number
+          const y = this.config('y') as d3.ScaleLinear<number, number>
+          const color = this.config('color') as string
+          const curve = this.config('curve') as d3.CurveFactory
+          const lineGen = d3.line<AreaDatum>()
+            .curve(curve)
+            .x((d, i) => xPos(d, i))
+            .y(d => y(d.value))
+          sel
+            .attr('fill', 'none')
+            .attr('stroke', color)
+            .attr('stroke-width', 2)
+            .attr('d', lineGen)
+        },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        'merge:transition': (sel: any) => {
+          const xPos = this.config('xPos') as (d: AreaDatum, i: number) => number
+          const y = this.config('y') as d3.ScaleLinear<number, number>
+          const color = this.config('color') as string
+          const curve = this.config('curve') as d3.CurveFactory
+          const lineGen = d3.line<AreaDatum>()
+            .curve(curve)
+            .x((d, i) => xPos(d, i))
+            .y(d => y(d.value))
+          sel.duration(getDefaultTransitionMs())
+            .attr('fill', 'none')
+            .attr('stroke', color)
+            .attr('stroke-width', 2)
+            .attr('d', lineGen)
+        },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        'exit:transition': (sel: any) => {
+          sel.duration(getDefaultTransitionMs())
+            .attr('opacity', 0)
+            .remove()
+        },
+      },
+    })
+
+    this.layer('dots', dotsGroup, {
+      dataBind: (sel, data) => sel.selectAll('.bc-dot').data(data, (d: AreaDatum) => d.label),
+      insert: sel => sel.append('circle').attr('class', 'bc-dot'),
+      events: {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        'enter': (sel: any) => {
+          const xPos = this.config('xPos') as (d: AreaDatum, i: number) => number
+          const y = this.config('y') as d3.ScaleLinear<number, number>
+          const color = this.config('color') as string
+          sel
+            .attr('cx', (d: AreaDatum, i: number) => xPos(d, i))
+            .attr('cy', (d: AreaDatum) => y(d.value))
+            .attr('r', 3)
+            .attr('fill', color)
+        },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        'merge:transition': (sel: any) => {
+          const xPos = this.config('xPos') as (d: AreaDatum, i: number) => number
+          const y = this.config('y') as d3.ScaleLinear<number, number>
+          const color = this.config('color') as string
+          sel.duration(getDefaultTransitionMs())
+            .attr('cx', (d: AreaDatum, i: number) => xPos(d, i))
+            .attr('cy', (d: AreaDatum) => y(d.value))
+            .attr('r', 3)
+            .attr('fill', color)
+        },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        'exit:transition': (sel: any) => {
+          sel.duration(getDefaultTransitionMs())
+            .attr('opacity', 0)
+            .remove()
+        },
+      },
+    })
+  }
+}
+
+export function render(
+  container: HTMLElement,
+  data: ChartData,
+  options: ChartOptions = {},
+  transition = false,
+): void {
+  // Preserve existing data elements for smooth D3 data-join transitions
+  let priorAreas: Element[] = []
+  let priorLines: Element[] = []
+  let priorDots: Element[] = []
+  let priorVAxis: Element | null = null
+  let priorHAxis: Element | null = null
+  let fadeOverlay: HTMLElement | null = null
+  let priorAnnotations: Map<string, AnnotationSnapshot> | undefined
+  if (transition) {
+    const cached = getCachedChart(container)
+    if (cached) {
+      priorVAxis = container.querySelector('.bc-axis-vertical')
+      priorHAxis = container.querySelector('.bc-axis-horizontal')
+    }
+    if (cached?.chartType === 'area') {
+      priorAreas = Array.from(container.querySelectorAll('.bc-area'))
+      priorLines = Array.from(container.querySelectorAll('.bc-line'))
+      priorDots = Array.from(container.querySelectorAll('.bc-dot'))
+    }
+    else if (cached) {
+      fadeOverlay = snapshotForFadeOut(container)
+    }
+    priorAnnotations = new Map()
+    for (const el of container.querySelectorAll('.bc-annotations, .bc-annotations-range')) {
+      for (const [k, v] of snapshotAnnotations(el)) {
+        priorAnnotations.set(k, v)
+      }
+    }
+    container.replaceChildren()
+  }
+  const { body } = createFrame(container, options.frame)
+  const containerWidth = contentSize(body).width
+  const vLabelW = estimateVerticalLabelWidth(data.values, options.verticalAxis?.range, options.verticalAxis?.numberFormat, options.verticalAxis?.scaleType)
+  const lpMargins = labelPositionMargins(containerWidth, options.verticalAxis?.labelPosition, options.horizontalAxis?.labelPosition, options.verticalAxis?.direction, vLabelW)
+  const { chartArea, width, height, margin } = createCanvas(body, lpMargins)
+
+  const areaData: AreaDatum[] = data.labels.map((l, i) => ({
+    label: l,
+    value: data.values[i],
+  }))
+
+  const pointScale = d3.scalePoint<string>()
+    .domain(data.labels)
+    .range([0, width])
+    .padding(0.6)
+  const xScale: AnyXScale = pointScale
+  const xPos = (d: AreaDatum) => pointScale(d.label) ?? 0
+
+  const useLog = options.verticalAxis?.scaleType === 'log'
+  const [domainMin, domainMax] = computeLinearDomain(data.values, options.verticalAxis?.range)
+  const y = useLog
+    ? d3.scaleSymlog().domain([domainMin, domainMax]).nice().range([height, 0])
+    : d3.scaleLinear().domain([domainMin, domainMax]).nice().range([height, 0])
+
+  renderVerticalAxis(chartArea, y, height, { ...options.verticalAxis, gridWidth: width, topPadding: margin.top }, priorVAxis)
+
+  // When the vertical domain crosses zero, position the axis domain line at y=0
+  const yDomain = y.domain() as number[]
+  const zeroY = yDomain[0] < 0 && yDomain[1] > 0 ? (y(0) as number) : undefined
+  renderHorizontalAxis(chartArea, xScale, height, { ...options.horizontalAxis, width, zeroY }, priorHAxis)
+
+  // Clip chart content to the plot area so lines/areas/dots outside the domain are hidden
+  const clipId = `bc-clip-${Math.random().toString(36).slice(2, 8)}`
+  const svg = chartArea.ownerSVGElement!
+  const defs = d3.select(svg).select('defs').empty()
+    ? d3.select(svg).append('defs')
+    : d3.select(svg).select('defs')
+  defs.append('clipPath').attr('id', clipId)
+    .append('rect').attr('width', width).attr('height', height)
+  const clippedGroup = d3.select(chartArea).append('g').attr('clip-path', `url(#${clipId})`)
+  const clippedArea = clippedGroup.node() as SVGGElement
+
+  const color = options.colors?.[0] ?? DEFAULT_COLOR
+  const curve = resolveCurve(options.interpolation ?? 'monotoneX')
+
+  const symbolConfig = options.lineSymbols
+
+  const chart = new AreaChart(d3.select(clippedArea))
+  chart.config({ xPos, y, color, curve, areaFillOpacity: options.areaFillOpacity ?? 0.25, height })
+  // Re-insert prior elements so D3 data-join finds them and triggers merge:transition
+  if (priorLines.length > 0 || priorAreas.length > 0 || priorDots.length > 0) {
+    const groups = clippedArea.querySelectorAll(':scope > g')
+    if (groups[0]) {
+      priorAreas.forEach(el => groups[0].appendChild(el))
+    }
+    if (groups[1]) {
+      priorLines.forEach(el => groups[1].appendChild(el))
+    }
+    if (groups[2]) {
+      priorDots.forEach(el => groups[2].appendChild(el))
+    }
+  }
+  if (options.valueLabels) {
+    chart.use(createValueLabelPlugin({ position: options.valueLabelPosition, orientation: 'vertical' }))
+  }
+  chart.draw(areaData)
+
+  if (options.annotations?.length) {
+    renderAnnotations(chartArea, options.annotations, { scaleX: xScale, scaleY: y, data: areaData, width, height, backgroundColor: resolveBackgroundColor(container), transition, priorAnnotations })
+  }
+
+  // Default dots are invisible; proximity interaction handles tooltips/crosshair
+  d3.select(clippedArea).selectAll('.bc-dot')
+    .attr('fill-opacity', 0)
+    .attr('stroke-opacity', 0)
+    .attr('pointer-events', 'none')
+
+  if (options.tooltips || options.crosshair) {
+    const proximityPoints = areaData.map((d, i) => ({
+      cx: xPos(d, i),
+      cy: y(d.value) as number,
+      label: d.label,
+      value: d.value,
+      color,
+    }))
+    setupProximityInteraction(chartArea, {
+      width,
+      height,
+      points: proximityPoints,
+      tooltip: options.tooltips,
+      crosshair: options.crosshair,
+      crosshairDirection: options.crosshairDirection,
+      crosshairStyle: options.crosshairStyle,
+      crosshairColor: options.crosshairColor,
+    })
+  }
+
+  if (symbolConfig) {
+    const symbolPoints = areaData.map((d, i) => ({
+      cx: xPos(d, i),
+      cy: y(d.value) as number,
+      color,
+      index: i,
+    }))
+    const symbolsGroup = d3.select(chartArea).append('g').attr('class', 'bc-symbols')
+    renderLineSymbols(symbolsGroup as unknown as d3.Selection<SVGGElement, unknown, null, undefined>, symbolPoints, areaData.length, symbolConfig)
+  }
+
+  setCachedChart(container, { chartType: 'area' })
+
+  if (fadeOverlay) {
+    fadeIn(clippedGroup.node()!)
+    commitFadeOut(container, fadeOverlay)
+  }
+}
