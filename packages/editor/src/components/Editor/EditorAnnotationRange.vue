@@ -154,7 +154,7 @@
       />
 
       <FormControlDirectionPicker
-        :model-value="annotation.direction ?? 'N'"
+        :model-value="annotation.direction ?? 'center'"
         label="Direction"
         @update:model-value="(v: CompassDirection) => update('direction', v)"
       />
