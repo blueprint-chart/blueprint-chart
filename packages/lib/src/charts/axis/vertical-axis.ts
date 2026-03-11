@@ -21,6 +21,7 @@ class VerticalAxisChart extends D3Blueprint<AxisDatum[]> {
     this.configDefine('numberFormat', { defaultValue: null as string | null })
     this.configDefine('labelPosition', { defaultValue: 'auto' })
     this.configDefine('topPadding', { defaultValue: 0 })
+    this.configDefine('tickFormat', { defaultValue: null as ((label: string) => string) | null })
 
     const g = this.base.append('g')
 
@@ -44,10 +45,16 @@ class VerticalAxisChart extends D3Blueprint<AxisDatum[]> {
           if (ticks) {
             axisFn.tickValues(ticks as (string & d3.NumberValue)[])
           }
-          const fmt = this.config('numberFormat') as string | null
-          const fmtFn = fmt ? buildNumberFormatter(fmt) : null
-          if (fmtFn) {
-            axisFn.tickFormat(fmtFn as (d: string | d3.NumberValue) => string)
+          const customTickFormat = this.config('tickFormat') as ((label: string) => string) | null
+          if (customTickFormat) {
+            axisFn.tickFormat(customTickFormat as (d: string | d3.NumberValue) => string)
+          }
+          else {
+            const fmt = this.config('numberFormat') as string | null
+            const fmtFn = fmt ? buildNumberFormatter(fmt) : null
+            if (fmtFn) {
+              axisFn.tickFormat(fmtFn as (d: string | d3.NumberValue) => string)
+            }
           }
           sel.duration(getDefaultTransitionMs()).call(axisFn)
 
@@ -107,10 +114,16 @@ class VerticalAxisChart extends D3Blueprint<AxisDatum[]> {
             axisFn.tickValues(ticks as (string & d3.NumberValue)[])
           }
 
-          const fmt = this.config('numberFormat') as string | null
-          const fmtFn = fmt ? buildNumberFormatter(fmt) : null
-          if (fmtFn) {
-            axisFn.tickFormat(fmtFn as (d: string | d3.NumberValue) => string)
+          const customTickFormat = this.config('tickFormat') as ((label: string) => string) | null
+          if (customTickFormat) {
+            axisFn.tickFormat(customTickFormat as (d: string | d3.NumberValue) => string)
+          }
+          else {
+            const fmt = this.config('numberFormat') as string | null
+            const fmtFn = fmt ? buildNumberFormatter(fmt) : null
+            if (fmtFn) {
+              axisFn.tickFormat(fmtFn as (d: string | d3.NumberValue) => string)
+            }
           }
 
           sel.call(axisFn)
@@ -254,6 +267,7 @@ export function renderVerticalAxis(
     numberFormat: options.numberFormat ?? null,
     labelPosition: options.labelPosition ?? 'auto',
     topPadding: options.topPadding ?? 0,
+    tickFormat: options.tickFormat ?? null,
   })
   chart.draw([{ placeholder: true }])
 
