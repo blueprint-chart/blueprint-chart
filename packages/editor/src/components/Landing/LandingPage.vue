@@ -5,7 +5,6 @@
     <LandingPhilosophy />
     <LandingDivider />
     <LandingTransforms />
-    <LandingDivider />
     <LandingFormat />
     <LandingScenes />
     <LandingDivider />
