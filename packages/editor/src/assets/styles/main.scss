@@ -110,8 +110,9 @@
 }
 
 body {
-  background-color: var(--bs-body-bg);
-  color: var(--bs-body-color);
+  .btn-outline-primary {
+    --bs-btn-bg: rgba(var(--bs-primary-rgb), 0.1);
+  }
 }
 
 // Unified form-label style: match SectionTitle appearance
