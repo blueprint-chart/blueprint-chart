@@ -52,6 +52,15 @@ export function extractChartTypeOptions(
 export function dataEntriesToString(data: DataNode): string {
   return data.entries
     .map((e) => {
+      // Multi-value entries (new format)
+      if (e.values && e.values.length > 1) {
+        if (e.key === '_series') {
+          return `_series = "${e.values.join(',')}"`
+        }
+        const vals = e.values.join(',')
+        return `"${e.key}" = ${vals}`
+      }
+      // Legacy single-value entries
       const val = e.isPercentage ? `${e.value}%` : String(e.value)
       if (e.key === '_series') {
         return `_series = "${val}"`
