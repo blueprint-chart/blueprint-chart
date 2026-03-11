@@ -168,6 +168,7 @@ export interface ChartOptions {
   sliceGroupLabel?: string
   autoContrast?: boolean
   allowDarkMode?: boolean
+  swapLabelValue?: boolean
   barBackground?: boolean
   barSeparators?: boolean
   stackMode?: 'normal' | 'percent'
@@ -241,6 +242,7 @@ export interface ChartTypeOptions {
   showTotal: boolean
   showLabels: boolean
   showValues: boolean
+  swapLabelValue: boolean
   sliceMax: string
   sliceGroupLabel: string
   autoContrast: boolean
