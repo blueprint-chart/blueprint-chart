@@ -142,15 +142,31 @@ export function render(
     ? d3.scaleSymlog().domain([domainMin, domainMax]).nice().range([height, 0])
     : d3.scaleLinear().domain([domainMin, domainMax]).nice().range([height, 0])
 
-  renderVerticalAxis(chartArea, y, height, { ...options.verticalAxis, gridWidth: width, topPadding: margin.top }, priorVAxis)
-
-  // When swapLabelValue is true, pass a tickFormat that shows values instead of labels
-  const hAxisOpts = { ...options.horizontalAxis, width } as import('../../types').AxisOptions
   if (swapLabelValue) {
+    // Vertical axis: show labels at each bar's value position instead of numeric ticks
+    const labelMap = new Map(barData.map(d => [d.value, d.label]))
+    const vAxisOpts = {
+      ...options.verticalAxis,
+      gridWidth: width,
+      topPadding: margin.top,
+      ticks: barData.map(d => d.value),
+      tickFormat: (v: string) => labelMap.get(Number(v)) ?? v,
+    } as import('../../types').AxisOptions
+    renderVerticalAxis(chartArea, y, height, vAxisOpts, priorVAxis)
+
+    // Horizontal axis: show values instead of labels
     const valueMap = new Map(barData.map(d => [d.label, d.value]))
-    hAxisOpts.tickFormat = (label: string) => String(valueMap.get(label) ?? label)
+    const hAxisOpts = {
+      ...options.horizontalAxis,
+      width,
+      tickFormat: (label: string) => String(valueMap.get(label) ?? label),
+    } as import('../../types').AxisOptions
+    renderHorizontalAxis(chartArea, x, height, hAxisOpts, priorHAxis)
   }
-  renderHorizontalAxis(chartArea, x, height, hAxisOpts, priorHAxis)
+  else {
+    renderVerticalAxis(chartArea, y, height, { ...options.verticalAxis, gridWidth: width, topPadding: margin.top }, priorVAxis)
+    renderHorizontalAxis(chartArea, x, height, { ...options.horizontalAxis, width }, priorHAxis)
+  }
 
   // Zero baseline when domain spans zero
   if (!useLog && domainMin < 0 && domainMax > 0) {
