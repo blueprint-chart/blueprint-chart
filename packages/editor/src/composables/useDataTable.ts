@@ -40,7 +40,7 @@ export function serializeTableData(cols: string[], rows: string[][]): string {
   const lines = rows.map((row) => {
     const label = row[0] ?? ''
     const values = row.slice(1).map(v => v ?? '').join(',')
-    return `"${label}" = "${values}"`
+    return `"${label}" = ${values}`
   })
   return [header, ...lines].join('\n')
 }
