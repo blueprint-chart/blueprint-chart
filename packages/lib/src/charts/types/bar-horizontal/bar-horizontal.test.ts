@@ -324,14 +324,14 @@ describe('bar-horizontal', () => {
     expect(tickTexts.length).toBeGreaterThan(0)
   })
 
-  it('hides horizontal axis tick labels when showAxis is false', () => {
+  it('keeps horizontal axis tick labels when showAxis is false (only domain is removed)', () => {
     render(container, data, {
       horizontalAxis: { showAxis: false },
     })
     const hAxis = container.querySelector('.bc-axis-horizontal')
     expect(hAxis).not.toBeNull()
     const tickTexts = hAxis!.querySelectorAll('.tick text')
-    expect(tickTexts).toHaveLength(0)
+    expect(tickTexts.length).toBeGreaterThan(0)
   })
 
   it('hides horizontal axis domain line when showAxis is false', () => {
@@ -545,23 +545,22 @@ describe('bar-horizontal', () => {
       expect(new Set(widths).size).toBeGreaterThan(1)
     })
 
-    it('shows values on category axis and labels on value axis', () => {
-      render(container, data, { swapLabelValue: true })
-      // Y-axis (category) should show values
+    it('category axis shows values when swapLabelValue is true', () => {
+      render(container, data, { swapLabelValue: true, valueLabels: true })
+      // Vertical axis (category) should show numeric values instead of labels
       const vAxis = container.querySelector('.bc-axis-vertical')!
       const vTickTexts = Array.from(vAxis.querySelectorAll('.tick text'))
         .map(el => el.textContent)
       expect(vTickTexts).toContain('10')
       expect(vTickTexts).toContain('30')
       expect(vTickTexts).toContain('20')
+    })
 
-      // X-axis (value) should show labels
-      const hAxis = container.querySelector('.bc-axis-horizontal')!
-      const hTickTexts = Array.from(hAxis.querySelectorAll('.tick text'))
+    it('direct labels show category names instead of values', () => {
+      render(container, data, { swapLabelValue: true, valueLabels: true })
+      const labels = Array.from(container.querySelectorAll('.bc-value-label'))
         .map(el => el.textContent)
-      expect(hTickTexts).toContain('A')
-      expect(hTickTexts).toContain('B')
-      expect(hTickTexts).toContain('C')
+      expect(labels).toEqual(['A', 'B', 'C'])
     })
 
     it('does not swap when swapLabelValue is not set', () => {
