@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { getChart, getChartOptions, listCharts } from './registry'
 
 describe('chart registry', () => {
-  it('has all 7 chart types registered', () => {
+  it('has all 11 chart types registered', () => {
     const names = listCharts()
     expect(names).toContain('bar-vertical')
     expect(names).toContain('bar-horizontal')
@@ -11,6 +11,10 @@ describe('chart registry', () => {
     expect(names).toContain('line-multi')
     expect(names).toContain('donut')
     expect(names).toContain('pie')
+    expect(names).toContain('area')
+    expect(names).toContain('area-stacked')
+    expect(names).toContain('column-stacked')
+    expect(names).toContain('bar-stacked')
   })
 
   it('has aliases registered', () => {
@@ -29,7 +33,7 @@ describe('chart registry', () => {
 
   it('lists all registered names including aliases', () => {
     const names = listCharts()
-    expect(names).toHaveLength(9) // 7 types + 2 aliases
+    expect(names).toHaveLength(13) // 11 types + 2 aliases
   })
 })
 
