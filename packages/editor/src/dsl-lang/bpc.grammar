@@ -17,7 +17,9 @@ ChartMember {
 
 DataBlock { kw<"data"> "{" DataEntry* "}" }
 
-DataEntry { Property }
+DataEntry { PropertyKey Equals ValueList | Property }
+
+ValueList { PropertyValue ("," PropertyValue)+ }
 
 Highlight { kw<"highlight"> String "{" Property* "}" }
 
