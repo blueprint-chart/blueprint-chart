@@ -37,11 +37,11 @@ withDefaults(defineProps<{
 }
 
 .landing-section--dark {
-  background: #1a1a2e;
+  background: var(--bs-body-bg);
   color: var(--bs-body-color);
 }
 
 [data-bs-theme="dark"] .landing-section--dark {
-  background: #0e0e14;
+  background: var(--bc-tile-bg);
 }
 </style>
