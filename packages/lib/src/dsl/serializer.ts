@@ -19,10 +19,24 @@ function serializeProperty(prop: PropertyNode, indent: string): string {
   return `${indent}${key} = ${serializeValue(prop)}`
 }
 
+function serializeDataEntry(prop: PropertyNode, indent: string): string {
+  if (prop.values && prop.values.length > 1) {
+    const key = prop.key.startsWith('_') ? prop.key : `"${prop.key}"`
+    const vals = prop.values.map((v) => {
+      if (typeof v === 'number') {
+        return `${v}`
+      }
+      return `"${String(v).replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`
+    })
+    return `${indent}${key} = ${vals.join(',')}`
+  }
+  return serializeProperty(prop, indent)
+}
+
 function serializeData(data: DataNode, indent: string): string {
   const lines = [`${indent}data {`]
   for (const entry of data.entries) {
-    lines.push(serializeProperty(entry, `${indent}  `))
+    lines.push(serializeDataEntry(entry, `${indent}  `))
   }
   lines.push(`${indent}}`)
   return lines.join('\n')
