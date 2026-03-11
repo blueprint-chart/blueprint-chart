@@ -31,7 +31,7 @@ class BarHorizontalChart extends D3Blueprint<BarDatum[]> {
     this.configDefine('height', { defaultValue: 0 })
     this.configDefine('colors', { defaultValue: DEFAULT_COLORS })
     this.configDefine('highlights', { defaultValue: new Map<string, string>() })
-    this.configDefine('swapAxes', { defaultValue: false })
+    this.configDefine('showValues', { defaultValue: false })
 
     const g = this.base.append('g')
 
@@ -43,7 +43,7 @@ class BarHorizontalChart extends D3Blueprint<BarDatum[]> {
         'enter': (sel: any) => {
           const colors = this.config('colors') as string[]
           const highlights = this.config('highlights') as Map<string, string>
-          if (this.config('swapAxes')) {
+          if (this.config('showValues')) {
             const bandScale = this.config('x') as d3.ScaleBand<string>
             const valScale = this.config('y') as d3.ScaleLinear<number, number>
             sel
@@ -68,7 +68,7 @@ class BarHorizontalChart extends D3Blueprint<BarDatum[]> {
         'merge:transition': (sel: any) => {
           const colors = this.config('colors') as string[]
           const highlights = this.config('highlights') as Map<string, string>
-          if (this.config('swapAxes')) {
+          if (this.config('showValues')) {
             const bandScale = this.config('x') as d3.ScaleBand<string>
             const valScale = this.config('y') as d3.ScaleLinear<number, number>
             sel.duration(getDefaultTransitionMs())
@@ -177,13 +177,13 @@ export function render(
     value: data.values[data.labels.indexOf(l)],
   }))
 
-  const swapped = options.swapAxes === true
+  const showVals = options.showValues === true
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let x: any, y: any
   let useLog = false
 
-  if (swapped) {
+  if (showVals) {
     // Swapped: x = scaleBand (labels), y = scaleLinear (values)
     x = d3.scaleBand<string>()
       .domain(labels)
@@ -251,7 +251,7 @@ export function render(
   // Bar backgrounds — full-size rects behind each bar at low opacity
   if (options.barBackground) {
     const bgColor = (options.colors ?? DEFAULT_COLORS)[0]
-    if (swapped) {
+    if (showVals) {
       clippedGroup.selectAll('.bc-bar-bg')
         .data(barData, (d: BarDatum) => d.label)
         .enter()
@@ -281,7 +281,7 @@ export function render(
 
   // Bar separators — lines between adjacent bands
   if (options.barSeparators && barData.length > 1) {
-    if (swapped) {
+    if (showVals) {
       const step = x.step()
       for (let i = 1; i < barData.length; i++) {
         const xPos = (x(barData[i - 1].label) ?? 0) + x.bandwidth() + (step - x.bandwidth()) / 2
@@ -308,7 +308,7 @@ export function render(
   }
 
   const chart = new BarHorizontalChart(clippedGroup)
-  chart.config({ x, y, width, height, colors: options.colors ?? DEFAULT_COLORS, highlights, swapAxes: swapped })
+  chart.config({ x, y, width, height, colors: options.colors ?? DEFAULT_COLORS, highlights, showValues: showVals })
 
   // Re-insert prior elements so D3 data-join finds them and triggers merge:transition
   if (priorBars.length > 0) {

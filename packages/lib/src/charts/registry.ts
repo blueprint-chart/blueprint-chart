@@ -198,7 +198,7 @@ const sortModeOpt: ChartOptionDef = {
 
 const barBackgroundOpt: ChartOptionDef = { key: 'barBackground', type: 'boolean', label: 'Bar background', default: false }
 const barSeparatorsOpt: ChartOptionDef = { key: 'barSeparators', type: 'boolean', label: 'Bar separators', default: false }
-const swapAxesOpt: ChartOptionDef = { key: 'swapAxes', type: 'boolean', label: 'Swap axes', default: false }
+const showValuesOnAxisOpt: ChartOptionDef = { key: 'showValues', type: 'boolean', label: 'Show values on axis', default: false }
 const stackModeOpt: ChartOptionDef = {
   key: 'stackMode',
   type: 'select',
@@ -329,8 +329,8 @@ const lineOpts = [valueLabelsOpt, valueLabelPositionOpt, tooltipsOpt, ...lineCro
 const pieArcOpts = [pieDisplayAsPercentageOpt, showTotalOpt, showLabelsOpt, showValuesOpt, pieSliceMaxOpt, sliceGroupLabelOpt]
 const donutArcOpts = [displayAsPercentageOpt, donutShowTotalOpt, showLabelsOpt, showValuesOpt, sliceMaxOpt, sliceGroupLabelOpt]
 
-registerChart('bar-vertical', barVertical, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, swapAxesOpt, barBackgroundOpt, barSeparatorsOpt, ...barVerticalAxisOpts, ...barOpts])
-registerChart('bar-horizontal', barHorizontal, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, swapAxesOpt, barBackgroundOpt, barSeparatorsOpt, ...barHorizontalAxisOpts, ...barHorizontalOpts])
+registerChart('bar-vertical', barVertical, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, showValuesOnAxisOpt, barBackgroundOpt, barSeparatorsOpt, ...barVerticalAxisOpts, ...barOpts])
+registerChart('bar-horizontal', barHorizontal, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, showValuesOnAxisOpt, barBackgroundOpt, barSeparatorsOpt, ...barHorizontalAxisOpts, ...barHorizontalOpts])
 registerChart('bar-multi', barMulti, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, sortModeOpt, legendOpt, legendAnchorOpt, legendPositionOpt, directLabellingOpt, directLabelAnchorOpt, ...barVerticalAxisOpts, ...barOpts])
 registerChart('line', line, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, lineInterpolationOpt, ...lineAxisOpts, ...lineOpts])
 registerChart('line-multi', lineMulti, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, lineInterpolationOpt, sortModeOpt, legendOpt, legendAnchorOpt, legendPositionOpt, lineMultiDirectLabellingOpt, ...lineAxisOpts, ...lineOpts])
@@ -351,5 +351,5 @@ registerChart('column-stacked', columnStacked, [colorsOpt, paletteOpt, autoContr
 registerChart('bar-stacked', barStacked, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, stackModeOpt, sortModeOpt, legendOpt, legendAnchorOpt, legendPositionOpt, directLabellingOpt, directLabelAnchorOpt, ...barHorizontalAxisOpts, ...barHorizontalOpts])
 
 // Aliases share the same entry
-registerChart('vertical-bar', barVertical, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, swapAxesOpt, barBackgroundOpt, barSeparatorsOpt, ...barVerticalAxisOpts, ...barOpts])
-registerChart('horizontal-bar', barHorizontal, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, swapAxesOpt, barBackgroundOpt, barSeparatorsOpt, ...barHorizontalAxisOpts, ...barHorizontalOpts])
+registerChart('vertical-bar', barVertical, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, showValuesOnAxisOpt, barBackgroundOpt, barSeparatorsOpt, ...barVerticalAxisOpts, ...barOpts])
+registerChart('horizontal-bar', barHorizontal, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, showValuesOnAxisOpt, barBackgroundOpt, barSeparatorsOpt, ...barHorizontalAxisOpts, ...barHorizontalOpts])

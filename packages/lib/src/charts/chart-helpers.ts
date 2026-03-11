@@ -217,9 +217,6 @@ export function buildChartOptions(opts: Partial<ChartTypeOptions>, backgroundCol
     result.sliceGroupLabel = opts.sliceGroupLabel
   }
 
-  if (opts.swapAxes !== undefined) {
-    result.swapAxes = opts.swapAxes
-  }
   if (opts.barBackground !== undefined) {
     result.barBackground = opts.barBackground
   }
