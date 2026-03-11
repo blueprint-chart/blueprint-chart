@@ -33,7 +33,11 @@ export function parseData(raw: string): ChartData {
     const seriesValues: number[][] = seriesNames.map(() => [])
 
     for (let i = 1; i < lines.length; i++) {
-      const match = lines[i].match(/^"([^"]+)"\s*=\s*"([^"]*)"$/)
+      // New format: "Label" = 40,44,42
+      const matchNew = lines[i].match(/^"([^"]+)"\s*=\s*([^"]+)$/)
+      // Legacy format: "Label" = "40,44,42"
+      const matchOld = lines[i].match(/^"([^"]+)"\s*=\s*"([^"]*)"$/)
+      const match = matchOld ?? matchNew
       if (match) {
         labels.push(match[1])
         const vals = match[2].split(',')
