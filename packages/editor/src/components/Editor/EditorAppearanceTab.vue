@@ -25,7 +25,7 @@
     <SettingsSection
       v-if="hasBarStyle"
       title="Bar Style"
-      :icon="IPhRectangle"
+      :icon="barStyleIcon"
     >
       <EditorBarStyleSection />
     </SettingsSection>
@@ -67,6 +67,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { SettingsSection } from '@blueprint-chart/ui'
+import { useChartConfig } from '@/composables/useChartConfig'
 import { useChartTypeOptions } from '@/composables/useChartTypeOptions'
 import { useScenes } from '@/composables/useScenes'
 import IPhPalette from '~icons/ph/palette'
@@ -75,7 +76,8 @@ import IPhListBullets from '~icons/ph/list-bullets'
 import IPhChartPieSlice from '~icons/ph/chart-pie-slice'
 import IPhCursorClick from '~icons/ph/cursor-click'
 import IPhPaintBrush from '~icons/ph/paint-brush'
-import IPhRectangle from '~icons/ph/rectangle'
+import IPhChartBar from '~icons/ph/chart-bar'
+import IPhChartBarHorizontal from '~icons/ph/chart-bar-horizontal'
 import IPhStack from '~icons/ph/stack'
 import EditorThemeSection from './EditorThemeSection.vue'
 import EditorColorSection from './EditorColorSection.vue'
@@ -86,8 +88,15 @@ import EditorLegendSection from './EditorLegendSection.vue'
 import EditorSliceSection from './EditorSliceSection.vue'
 import EditorInteractionSection from './EditorInteractionSection.vue'
 
+const { chartType } = useChartConfig()
 const { availableOptionKeys } = useChartTypeOptions()
 const { scenes } = useScenes()
+
+const barStyleIcon = computed(() =>
+  chartType.value.includes('horizontal') || chartType.value === 'bar-stacked'
+    ? IPhChartBarHorizontal
+    : IPhChartBar,
+)
 
 const hasLine = computed(() =>
   availableOptionKeys.value.includes('interpolation')
@@ -97,7 +106,7 @@ const hasLine = computed(() =>
 const hasLegend = computed(() => availableOptionKeys.value.includes('legend'))
 
 const hasBarStyle = computed(() =>
-  availableOptionKeys.value.includes('swapAxes')
+  availableOptionKeys.value.includes('showValues')
   || availableOptionKeys.value.includes('barBackground')
   || availableOptionKeys.value.includes('barSeparators'),
 )

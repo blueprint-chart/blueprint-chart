@@ -1,10 +1,10 @@
 <template>
   <div class="d-flex flex-column gap-3">
     <FormControlCheckbox
-      v-if="hasSwapAxes"
-      :model-value="currentOptions.swapAxes ?? false"
-      label="Swap axes"
-      @update:model-value="(v) => setOption('swapAxes', v)"
+      v-if="hasShowValues"
+      :model-value="currentOptions.showValues ?? false"
+      label="Show values on axis"
+      @update:model-value="(v) => setOption('showValues', v)"
     />
 
     <FormControlCheckbox
@@ -30,7 +30,7 @@ import { FormControlCheckbox } from '@blueprint-chart/ui'
 
 const { currentOptions, availableOptionKeys, setOption } = useChartTypeOptions()
 
-const hasSwapAxes = computed(() => availableOptionKeys.value.includes('swapAxes'))
+const hasShowValues = computed(() => availableOptionKeys.value.includes('showValues'))
 const hasBarBackground = computed(() => availableOptionKeys.value.includes('barBackground'))
 const hasBarSeparators = computed(() => availableOptionKeys.value.includes('barSeparators'))
 </script>
