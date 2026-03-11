@@ -76,6 +76,7 @@ const containerRef = ref<HTMLElement | null>(null)
 const playerTarget = ref<HTMLElement | null>(null)
 const activeIndex = ref(-1)
 const playing = ref(false)
+const isSceneTransition = ref(false)
 let playbackTimer: ReturnType<typeof globalThis.setInterval> | null = null
 
 const currentScene = ref(activeIndex.value + 2)
@@ -92,7 +93,9 @@ function render() {
   renderDsl(containerRef.value, bpc, {
     stripColors: true,
     sceneIndex: activeIndex.value >= 0 ? activeIndex.value : undefined,
+    transition: isSceneTransition.value,
   })
+  isSceneTransition.value = false
 }
 
 const throttledRender = useThrottleFn(render, 150)
@@ -123,6 +126,7 @@ watch(containerRef, (el) => {
 }, { immediate: true })
 
 function onSceneChange(scene: number) {
+  isSceneTransition.value = true
   activeIndex.value = scene - 2
 }
 
@@ -131,9 +135,11 @@ function startPlayback() {
     return
   }
   playing.value = true
+  isSceneTransition.value = true
   activeIndex.value = -1
   playbackTimer = globalThis.setInterval(() => {
     if (activeIndex.value < sceneCount - 1) {
+      isSceneTransition.value = true
       activeIndex.value++
     }
     else {
