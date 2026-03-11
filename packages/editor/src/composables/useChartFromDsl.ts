@@ -28,6 +28,8 @@ export interface DslRenderOptions {
   padding?: string
   /** When set, render the scene at this index (0-based) instead of the base chart */
   sceneIndex?: number
+  /** When true, preserve existing DOM and use D3 transitions instead of full re-render */
+  transition?: boolean
 }
 
 /**
@@ -49,7 +51,9 @@ export function renderDsl(
   bpc: string,
   options?: DslRenderOptions,
 ): void {
-  container.replaceChildren()
+  if (!options?.transition) {
+    container.replaceChildren()
+  }
 
   if (!bpc) {
     return
@@ -141,7 +145,7 @@ export function renderDsl(
     areaFills: areaFills.length > 0 ? areaFills : undefined,
     annotations: annotations.length > 0 ? annotations : undefined,
     seriesOverrides: seriesOverrides.length > 0 ? seriesOverrides : undefined,
-  })
+  }, !!options?.transition)
 
   // Apply chart theme class to the rendered frame
   const theme = getString('theme')
