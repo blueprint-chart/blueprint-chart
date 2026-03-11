@@ -1,0 +1,20 @@
+chart area {
+  title = "Apple stock price in 2024"
+  description = "Monthly closing price in USD"
+  source = "Yahoo Finance"
+
+  data {
+    "Jan" = 185
+    "Feb" = 182
+    "Mar" = 171
+    "Apr" = 170
+    "May" = 192
+    "Jun" = 210
+    "Jul" = 222
+    "Aug" = 229
+    "Sep" = 233
+    "Oct" = 225
+    "Nov" = 237
+    "Dec" = 243
+  }
+}
