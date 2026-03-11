@@ -185,10 +185,15 @@ export function render(
   chart.draw(barData)
 
   if (options.valueLabels) {
+    const pos = options.valueLabelPosition ?? 'auto'
+    if (pos !== 'inside') {
+      // Allow outside labels to extend beyond the SVG viewport
+      d3.select(svg).style('overflow', 'visible')
+    }
     // Render value labels in an unclipped group so outside labels aren't truncated
     const labelParent = d3.select(chartArea).append('g') as d3.Selection<SVGGElement, unknown, null, undefined>
     renderValueLabels(labelParent, barData, x, y, {
-      position: options.valueLabelPosition,
+      position: pos,
       highlights,
       colors: options.colors ?? DEFAULT_COLORS,
       transition,
