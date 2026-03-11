@@ -545,26 +545,29 @@ describe('bar-horizontal', () => {
       expect(new Set(widths).size).toBeGreaterThan(1)
     })
 
-    it('Y-axis tick labels show values instead of category names', () => {
+    it('shows values on category axis and labels on value axis', () => {
       render(container, data, { swapLabelValue: true })
-      const vAxis = container.querySelector('.bc-axis-vertical')
-      expect(vAxis).not.toBeNull()
-      const tickTexts = Array.from(vAxis!.querySelectorAll('.tick text'))
+      // Y-axis (category) should show values
+      const vAxis = container.querySelector('.bc-axis-vertical')!
+      const vTickTexts = Array.from(vAxis.querySelectorAll('.tick text'))
         .map(el => el.textContent)
-      // Should contain numeric values, not category names
-      expect(tickTexts).toContain('10')
-      expect(tickTexts).toContain('30')
-      expect(tickTexts).toContain('20')
-      expect(tickTexts).not.toContain('A')
-      expect(tickTexts).not.toContain('B')
-      expect(tickTexts).not.toContain('C')
+      expect(vTickTexts).toContain('10')
+      expect(vTickTexts).toContain('30')
+      expect(vTickTexts).toContain('20')
+
+      // X-axis (value) should show labels
+      const hAxis = container.querySelector('.bc-axis-horizontal')!
+      const hTickTexts = Array.from(hAxis.querySelectorAll('.tick text'))
+        .map(el => el.textContent)
+      expect(hTickTexts).toContain('A')
+      expect(hTickTexts).toContain('B')
+      expect(hTickTexts).toContain('C')
     })
 
-    it('Y-axis shows category names when swapLabelValue is not set', () => {
+    it('does not swap when swapLabelValue is not set', () => {
       render(container, data)
-      const vAxis = container.querySelector('.bc-axis-vertical')
-      expect(vAxis).not.toBeNull()
-      const tickTexts = Array.from(vAxis!.querySelectorAll('.tick text'))
+      const vAxis = container.querySelector('.bc-axis-vertical')!
+      const tickTexts = Array.from(vAxis.querySelectorAll('.tick text'))
         .map(el => el.textContent)
       expect(tickTexts).toContain('A')
       expect(tickTexts).toContain('B')

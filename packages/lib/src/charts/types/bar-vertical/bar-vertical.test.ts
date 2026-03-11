@@ -564,20 +564,27 @@ describe('bar-vertical', () => {
       expect(new Set(heights).size).toBeGreaterThan(1)
     })
 
-    it('replaces category tick labels with numeric values', () => {
+    it('shows values on category axis and labels on value axis', () => {
       render(container, data, { swapLabelValue: true })
       const hAxis = container.querySelector('.bc-axis-horizontal')!
-      const tickTexts = Array.from(hAxis.querySelectorAll('.tick text'))
+      const hTickTexts = Array.from(hAxis.querySelectorAll('.tick text'))
         .map(el => el.textContent)
-      expect(tickTexts).toEqual(['10', '30', '20'])
+      expect(hTickTexts).toEqual(['10', '30', '20'])
+
+      const vAxis = container.querySelector('.bc-axis-vertical')!
+      const vTickTexts = Array.from(vAxis.querySelectorAll('.tick text'))
+        .map(el => el.textContent)
+      expect(vTickTexts).toContain('A')
+      expect(vTickTexts).toContain('B')
+      expect(vTickTexts).toContain('C')
     })
 
-    it('does not replace tick labels when swapLabelValue is not set', () => {
+    it('does not swap when swapLabelValue is not set', () => {
       render(container, data)
       const hAxis = container.querySelector('.bc-axis-horizontal')!
-      const tickTexts = Array.from(hAxis.querySelectorAll('.tick text'))
+      const hTickTexts = Array.from(hAxis.querySelectorAll('.tick text'))
         .map(el => el.textContent)
-      expect(tickTexts).toEqual(['A', 'B', 'C'])
+      expect(hTickTexts).toEqual(['A', 'B', 'C'])
     })
   })
 })

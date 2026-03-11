@@ -167,15 +167,30 @@ export function render(
     .range([0, height])
     .padding(0.2)
 
-  renderHorizontalAxis(chartArea, x, height, { ...options.horizontalAxis, width }, priorHAxis)
-
-  // When swapLabelValue is true, pass a tickFormat that shows values instead of labels
-  const vAxisOpts = { ...options.verticalAxis, topPadding: margin.top } as import('../../types').AxisOptions
   if (swapLabelValue) {
+    // Horizontal axis: show labels at each bar's value position instead of numeric ticks
+    const labelMap = new Map(barData.map(d => [d.value, d.label]))
+    const hAxisOpts = {
+      ...options.horizontalAxis,
+      width,
+      ticks: barData.map(d => d.value),
+      tickFormat: (v: string) => labelMap.get(Number(v)) ?? v,
+    } as import('../../types').AxisOptions
+    renderHorizontalAxis(chartArea, x, height, hAxisOpts, priorHAxis)
+
+    // Vertical axis: show values instead of labels
     const valueMap = new Map(barData.map(d => [d.label, d.value]))
-    vAxisOpts.tickFormat = (label: string) => String(valueMap.get(label) ?? label)
+    const vAxisOpts = {
+      ...options.verticalAxis,
+      topPadding: margin.top,
+      tickFormat: (label: string) => String(valueMap.get(label) ?? label),
+    } as import('../../types').AxisOptions
+    renderVerticalAxis(chartArea, y, height, vAxisOpts, priorVAxis)
   }
-  renderVerticalAxis(chartArea, y, height, vAxisOpts, priorVAxis)
+  else {
+    renderHorizontalAxis(chartArea, x, height, { ...options.horizontalAxis, width }, priorHAxis)
+    renderVerticalAxis(chartArea, y, height, { ...options.verticalAxis, topPadding: margin.top }, priorVAxis)
+  }
 
   // Zero baseline when domain spans zero
   if (!useLog && domainMin < 0 && domainMax > 0) {
