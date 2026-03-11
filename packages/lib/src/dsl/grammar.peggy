@@ -79,7 +79,12 @@ DataBlock
   { return { type: 'data', entries }; }
 
 DataEntry
-  = _ p:Property _ { return p; }
+  = _ key:PropertyKey _ "=" _ first:PropertyValue rest:("," _ v:PropertyValue { return v; })+ _
+  {
+    const all = [first, ...rest];
+    return { type: 'property', key, value: all[0].value, isPercentage: false, values: all.map(v => v.value) };
+  }
+  / _ p:Property _ { return p; }
 
 TabularDataEntry
   = _ label:TabularLabel "\t" _ value:PropertyValue _

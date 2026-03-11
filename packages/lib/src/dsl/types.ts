@@ -3,6 +3,7 @@ export interface PropertyNode {
   key: string
   value: string | number
   isPercentage: boolean
+  values?: (string | number)[]
 }
 
 export interface DataNode {
