@@ -106,7 +106,7 @@ const hasLine = computed(() =>
 const hasLegend = computed(() => availableOptionKeys.value.includes('legend'))
 
 const hasBarStyle = computed(() =>
-  availableOptionKeys.value.includes('showValues')
+  availableOptionKeys.value.includes('swapLabelValue')
   || availableOptionKeys.value.includes('barBackground')
   || availableOptionKeys.value.includes('barSeparators'),
 )
