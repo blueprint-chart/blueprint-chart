@@ -41,6 +41,10 @@ import LineThumb from '@/assets/chart-thumbnails/line.bpc'
 import LineMultiThumb from '@/assets/chart-thumbnails/line-multi.bpc'
 import DonutThumb from '@/assets/chart-thumbnails/donut.bpc'
 import PieThumb from '@/assets/chart-thumbnails/pie.bpc'
+import AreaThumb from '@/assets/chart-thumbnails/area.bpc'
+import AreaStackedThumb from '@/assets/chart-thumbnails/area-stacked.bpc'
+import ColumnStackedThumb from '@/assets/chart-thumbnails/column-stacked.bpc'
+import BarStackedThumb from '@/assets/chart-thumbnails/bar-stacked.bpc'
 
 defineEmits<{ select: [sample: ChartSample] }>()
 
@@ -52,6 +56,10 @@ const THUMB_MAP: Record<string, Component> = {
   'line-multi': markRaw(LineMultiThumb),
   'donut': markRaw(DonutThumb),
   'pie': markRaw(PieThumb),
+  'area': markRaw(AreaThumb),
+  'area-stacked': markRaw(AreaStackedThumb),
+  'column-stacked': markRaw(ColumnStackedThumb),
+  'bar-stacked': markRaw(BarStackedThumb),
 }
 
 const TYPE_LABELS: Record<string, string> = {
@@ -62,6 +70,10 @@ const TYPE_LABELS: Record<string, string> = {
   'line-multi': 'Lines',
   'donut': 'Donut',
   'pie': 'Pie',
+  'area': 'Area',
+  'area-stacked': 'Stacked Area',
+  'column-stacked': 'Stacked Columns',
+  'bar-stacked': 'Stacked Bars',
 }
 
 interface SampleCard extends ChartSample {
