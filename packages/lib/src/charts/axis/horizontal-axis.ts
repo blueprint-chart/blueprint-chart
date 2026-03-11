@@ -163,10 +163,7 @@ class HorizontalAxisChart extends D3Blueprint<AxisDatum[]> {
           if (!this.config('showAxis')) {
             const node = sel.node() as SVGGElement
             if (node) {
-              const g = d3.select(node)
-              g.select('.domain').remove()
-              g.selectAll('.tick text').remove()
-              g.selectAll('.tick line').remove()
+              d3.select(node).select('.domain').remove()
             }
           }
         },
@@ -229,10 +226,9 @@ class HorizontalAxisChart extends D3Blueprint<AxisDatum[]> {
           sel.attr('transform', `translate(0,${translateY})`)
           sel.call(axisFn)
 
-          if (!this.config('showAxis')) {
+          const showAxis = this.config('showAxis') as boolean
+          if (!showAxis) {
             sel.select('.domain').remove()
-            sel.selectAll('.tick text').remove()
-            sel.selectAll('.tick line').remove()
           }
           else {
             // Move the domain line to y=0 when the vertical domain crosses zero
@@ -241,25 +237,25 @@ class HorizontalAxisChart extends D3Blueprint<AxisDatum[]> {
               const offset = zeroY - (position === 'above' ? 0 : height)
               sel.select('.domain').attr('transform', `translate(0,${offset})`)
             }
+          }
 
-            if (!this.config('showTicks')) {
-              sel.selectAll('.tick line').remove()
-            }
+          if (!this.config('showTicks')) {
+            sel.selectAll('.tick line').remove()
+          }
 
-            // Resolve effective label position — auto switches to inside on narrow charts
-            const AUTO_INSIDE_THRESHOLD = 400
-            const effective = labelPos === 'auto'
-              ? (availableWidth > 0 && availableWidth < AUTO_INSIDE_THRESHOLD ? 'inside' : 'outside')
-              : labelPos
+          // Resolve effective label position — auto switches to inside on narrow charts
+          const AUTO_INSIDE_THRESHOLD = 400
+          const effective = labelPos === 'auto'
+            ? (availableWidth > 0 && availableWidth < AUTO_INSIDE_THRESHOLD ? 'inside' : 'outside')
+            : labelPos
 
-            if (effective === 'off') {
-              sel.selectAll('.tick text').remove()
-            }
-            else if (effective === 'inside') {
-              // Position labels just inside the chart area (above the axis line)
-              sel.selectAll('.tick text')
-                .attr('dy', '-0.6em')
-            }
+          if (effective === 'off') {
+            sel.selectAll('.tick text').remove()
+          }
+          else if (effective === 'inside') {
+            // Position labels just inside the chart area (above the axis line)
+            sel.selectAll('.tick text')
+              .attr('dy', '-0.6em')
           }
         },
       },
