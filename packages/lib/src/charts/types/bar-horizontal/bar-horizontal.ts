@@ -168,7 +168,14 @@ export function render(
     .padding(0.2)
 
   renderHorizontalAxis(chartArea, x, height, { ...options.horizontalAxis, width }, priorHAxis)
-  renderVerticalAxis(chartArea, y, height, { ...options.verticalAxis, topPadding: margin.top }, priorVAxis)
+
+  // When swapLabelValue is true, pass a tickFormat that shows values instead of labels
+  const vAxisOpts = { ...options.verticalAxis, topPadding: margin.top } as import('../../types').AxisOptions
+  if (swapLabelValue) {
+    const valueMap = new Map(barData.map(d => [d.label, d.value]))
+    vAxisOpts.tickFormat = (label: string) => String(valueMap.get(label) ?? label)
+  }
+  renderVerticalAxis(chartArea, y, height, vAxisOpts, priorVAxis)
 
   // Zero baseline when domain spans zero
   if (!useLog && domainMin < 0 && domainMax > 0) {
@@ -177,16 +184,6 @@ export function render(
       .attr('x1', x(0)).attr('x2', x(0))
       .attr('y1', 0).attr('y2', height)
       .attr('stroke', '#666').attr('stroke-width', 1)
-  }
-
-  // When swapLabelValue is true, replace category tick labels with numeric values
-  if (swapLabelValue) {
-    const valueMap = new Map(barData.map(d => [d.label, d.value]))
-    d3.select(chartArea).selectAll('.bc-axis-vertical .tick text')
-      .text(function () {
-        const label = d3.select(this).text()
-        return String(valueMap.get(label) ?? label)
-      })
   }
 
   const highlights = new Map(
