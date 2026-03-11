@@ -209,6 +209,9 @@ export function buildChartOptions(opts: Partial<ChartTypeOptions>, backgroundCol
   if (opts.showValues !== undefined) {
     result.showValues = opts.showValues
   }
+  if (opts.swapLabelValue !== undefined) {
+    result.swapLabelValue = opts.swapLabelValue
+  }
   const sliceMax = parseInt(opts.sliceMax ?? '', 10)
   if (!isNaN(sliceMax) && sliceMax > 0) {
     result.sliceMax = sliceMax

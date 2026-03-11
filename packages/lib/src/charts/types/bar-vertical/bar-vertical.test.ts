@@ -550,50 +550,34 @@ describe('bar-vertical', () => {
     })
   })
 
-  // ── showValues ───────────────────────────────────────────────────
+  // ── swapLabelValue ──────────────────────────────────────────────
 
-  describe('showValues', () => {
-    it('renders horizontal bars when showValues is true', () => {
-      render(container, data, { showValues: true })
+  describe('swapLabelValue', () => {
+    it('still renders vertical bars when swapLabelValue is true', () => {
+      render(container, data, { swapLabelValue: true })
       const bars = container.querySelectorAll('.bc-bar')
       expect(bars).toHaveLength(3)
-      // Bars should have width varying by value (horizontal orientation)
-      const widths = Array.from(bars).map(b => Number(b.getAttribute('width')))
-      expect(widths.some(w => w > 0)).toBe(true)
-      // Heights should all be the same (band height)
-      const heights = Array.from(bars).map(b => Number(b.getAttribute('height')))
-      expect(new Set(heights).size).toBe(1)
-    })
-
-    it('does not show values on axis when showValues is not set', () => {
-      render(container, data)
-      const bars = container.querySelectorAll('.bc-bar')
-      // Normal vertical bars: widths are all equal (band width), heights vary
+      // Vertical bars: widths are all equal (band width), heights vary
       const widths = Array.from(bars).map(b => Number(b.getAttribute('width')))
       expect(new Set(widths).size).toBe(1)
       const heights = Array.from(bars).map(b => Number(b.getAttribute('height')))
       expect(new Set(heights).size).toBeGreaterThan(1)
     })
 
-    it('barBackground works with showValues', () => {
-      render(container, data, { showValues: true, barBackground: true })
-      const bgs = container.querySelectorAll('.bc-bar-bg')
-      expect(bgs).toHaveLength(3)
-      // Background rects should span full chart width
-      const clipRect = container.querySelector('clipPath rect')!
-      const chartWidth = Number(clipRect.getAttribute('width'))
-      const widths = Array.from(bgs).map(b => Number(b.getAttribute('width')))
-      expect(widths.every(w => w === chartWidth)).toBe(true)
+    it('replaces category tick labels with numeric values', () => {
+      render(container, data, { swapLabelValue: true })
+      const hAxis = container.querySelector('.bc-axis-horizontal')!
+      const tickTexts = Array.from(hAxis.querySelectorAll('.tick text'))
+        .map(el => el.textContent)
+      expect(tickTexts).toEqual(['10', '30', '20'])
     })
 
-    it('barSeparators works with showValues', () => {
-      render(container, data, { showValues: true, barSeparators: true })
-      const seps = container.querySelectorAll('.bc-bar-separator')
-      expect(seps).toHaveLength(2)
-      // Separators should be horizontal lines (y1 === y2)
-      Array.from(seps).forEach((sep) => {
-        expect(sep.getAttribute('y1')).toBe(sep.getAttribute('y2'))
-      })
+    it('does not replace tick labels when swapLabelValue is not set', () => {
+      render(container, data)
+      const hAxis = container.querySelector('.bc-axis-horizontal')!
+      const tickTexts = Array.from(hAxis.querySelectorAll('.tick text'))
+        .map(el => el.textContent)
+      expect(tickTexts).toEqual(['A', 'B', 'C'])
     })
   })
 })
