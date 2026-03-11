@@ -30,6 +30,10 @@ import dietCompositionBpc from './samples/diet-composition.bpc?raw'
 import federalBudgetBpc from './samples/federal-budget.bpc?raw'
 import waterUsageBpc from './samples/water-usage.bpc?raw'
 import programmingLanguagesBpc from './samples/programming-languages.bpc?raw'
+import stockPriceAreaBpc from './samples/stock-price-area.bpc?raw'
+import energyMixStackedAreaBpc from './samples/energy-mix-stacked-area.bpc?raw'
+import quarterlyStackedColumnsBpc from './samples/quarterly-stacked-columns.bpc?raw'
+import populationStackedBarBpc from './samples/population-stacked-bar.bpc?raw'
 
 export interface ChartSample {
   id: string
@@ -140,4 +144,12 @@ export const samples: ChartSample[] = [
   buildSample('federal-budget', federalBudgetBpc),
   buildSample('water-usage', waterUsageBpc),
   buildSample('programming-languages', programmingLanguagesBpc),
+  // Area
+  buildSample('stock-price-area', stockPriceAreaBpc),
+  // Area Stacked
+  buildSample('energy-mix-stacked-area', energyMixStackedAreaBpc),
+  // Column Stacked
+  buildSample('quarterly-stacked-columns', quarterlyStackedColumnsBpc),
+  // Bar Stacked
+  buildSample('population-stacked-bar', populationStackedBarBpc),
 ]
