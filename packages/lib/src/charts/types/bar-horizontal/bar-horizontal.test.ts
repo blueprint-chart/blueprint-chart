@@ -205,29 +205,70 @@ describe('bar-horizontal', () => {
     expect(anchors.every(a => a === 'start')).toBe(true)
   })
 
-  it('outside value labels are not clipped by the SVG viewport', () => {
-    // Use data similar to co2-emissions-story where the largest value (11.9)
-    // produces a label that extends past the bar end
-    const wideData = { labels: ['China', 'US', 'India'], values: [11.9, 4.78, 2.88] }
-    render(container, wideData, { valueLabels: true, valueLabelPosition: 'outside' })
-
+  it('outside value labels are not inside the clip path', () => {
+    render(container, data, { valueLabels: true, valueLabelPosition: 'outside' })
     const svg = container.querySelector('svg')!
-    const labels = container.querySelectorAll('.bc-value-label')
-    expect(labels.length).toBe(3)
-
-    // The label for the largest bar is positioned outside (to the right).
-    // It must not be clipped by the SVG viewport or a clip-path.
-    // Verify the value label group is NOT inside the clipped group.
     const clippedGroup = svg.querySelector('[clip-path]')
-    expect(clippedGroup).not.toBeNull()
     const labelGroup = svg.querySelector('.bc-value-label-group')
+    expect(clippedGroup).not.toBeNull()
     expect(labelGroup).not.toBeNull()
     expect(clippedGroup!.contains(labelGroup!)).toBe(false)
+  })
 
-    // The SVG must allow overflow so labels extending past the right margin are visible
-    const svgOverflow = svg.getAttribute('style') ?? ''
-    expect(svgOverflow).toContain('overflow')
-    expect(svgOverflow).toContain('visible')
+  it('right margin increases to fit outside value labels', () => {
+    // Render without value labels to get baseline right margin
+    render(container, data)
+    const svgWithout = container.querySelector('svg')!
+    const svgW = Number(svgWithout.getAttribute('width'))
+    const chartAreaWithout = svgWithout.querySelector('g')!
+    const translateWithout = chartAreaWithout.getAttribute('transform')!
+    const leftMarginWithout = Number(translateWithout.match(/translate\(([^,]+),/)?.[1])
+
+    // Render with outside value labels
+    container.replaceChildren()
+    render(container, data, { valueLabels: true, valueLabelPosition: 'outside' })
+    const svgWith = container.querySelector('svg')!
+
+    // The chart area width = svgWidth - leftMargin - rightMargin
+    // With outside labels the chart area should be narrower (larger right margin)
+    const chartWidthWithout = svgW - leftMarginWithout - 15 // default right margin
+    // The clip rect width reveals the actual chart area width
+    const clipRect = svgWith.querySelector('clipPath rect')!
+    const clipW = Number(clipRect.getAttribute('width'))
+    expect(clipW).toBeLessThan(chartWidthWithout)
+  })
+
+  it('left margin increases for outside labels on negative values', () => {
+    const negData = { labels: ['A', 'B'], values: [-100, 50] }
+
+    // Without value labels
+    render(container, negData)
+    const clipWithout = container.querySelector('clipPath rect')!
+    const widthWithout = Number(clipWithout.getAttribute('width'))
+
+    // With outside value labels
+    container.replaceChildren()
+    render(container, negData, { valueLabels: true, valueLabelPosition: 'outside' })
+    const clipWith = container.querySelector('clipPath rect')!
+    const widthWith = Number(clipWith.getAttribute('width'))
+
+    // Chart area should be narrower to accommodate labels on both sides
+    expect(widthWith).toBeLessThan(widthWithout)
+  })
+
+  it('inside value labels do not increase margins', () => {
+    // Without value labels
+    render(container, data)
+    const clipWithout = container.querySelector('clipPath rect')!
+    const widthWithout = Number(clipWithout.getAttribute('width'))
+
+    // With inside value labels
+    container.replaceChildren()
+    render(container, data, { valueLabels: true, valueLabelPosition: 'inside' })
+    const clipWith = container.querySelector('clipPath rect')!
+    const widthWith = Number(clipWith.getAttribute('width'))
+
+    expect(widthWith).toBe(widthWithout)
   })
 
   // ── Crosshair ────────────────────────────────────────────────────
