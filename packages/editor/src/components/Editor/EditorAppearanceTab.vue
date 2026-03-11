@@ -23,6 +23,22 @@
     </SettingsSection>
 
     <SettingsSection
+      v-if="hasBarStyle"
+      title="Bar Style"
+      :icon="IPhRectangle"
+    >
+      <EditorBarStyleSection />
+    </SettingsSection>
+
+    <SettingsSection
+      v-if="hasStack"
+      title="Stacking"
+      :icon="IPhStack"
+    >
+      <EditorStackSection />
+    </SettingsSection>
+
+    <SettingsSection
       v-if="hasLegend"
       title="Legend"
       :icon="IPhListBullets"
@@ -59,9 +75,13 @@ import IPhListBullets from '~icons/ph/list-bullets'
 import IPhChartPieSlice from '~icons/ph/chart-pie-slice'
 import IPhCursorClick from '~icons/ph/cursor-click'
 import IPhPaintBrush from '~icons/ph/paint-brush'
+import IPhRectangle from '~icons/ph/rectangle'
+import IPhStack from '~icons/ph/stack'
 import EditorThemeSection from './EditorThemeSection.vue'
 import EditorColorSection from './EditorColorSection.vue'
 import EditorLineSection from './EditorLineSection.vue'
+import EditorBarStyleSection from './EditorBarStyleSection.vue'
+import EditorStackSection from './EditorStackSection.vue'
 import EditorLegendSection from './EditorLegendSection.vue'
 import EditorSliceSection from './EditorSliceSection.vue'
 import EditorInteractionSection from './EditorInteractionSection.vue'
@@ -75,6 +95,14 @@ const hasLine = computed(() =>
 )
 
 const hasLegend = computed(() => availableOptionKeys.value.includes('legend'))
+
+const hasBarStyle = computed(() =>
+  availableOptionKeys.value.includes('swapAxes')
+  || availableOptionKeys.value.includes('barBackground')
+  || availableOptionKeys.value.includes('barSeparators'),
+)
+
+const hasStack = computed(() => availableOptionKeys.value.includes('stackMode'))
 
 const hasSlice = computed(() => availableOptionKeys.value.includes('displayAsPercentage'))
 
