@@ -142,29 +142,17 @@ export function render(
     ? d3.scaleSymlog().domain([domainMin, domainMax]).nice().range([height, 0])
     : d3.scaleLinear().domain([domainMin, domainMax]).nice().range([height, 0])
 
-  if (swapLabelValue) {
-    // Vertical axis: show labels at each bar's value position instead of numeric ticks
-    const labelMap = new Map(barData.map(d => [d.value, d.label]))
-    const vAxisOpts = {
-      ...options.verticalAxis,
-      gridWidth: width,
-      topPadding: margin.top,
-      ticks: barData.map(d => d.value),
-      tickFormat: (v: string) => labelMap.get(Number(v)) ?? v,
-    } as import('../../types').AxisOptions
-    renderVerticalAxis(chartArea, y, height, vAxisOpts, priorVAxis)
-
-    // Horizontal axis: show values instead of labels
+  renderVerticalAxis(chartArea, y, height, { ...options.verticalAxis, gridWidth: width, topPadding: margin.top }, priorVAxis)
+  if (swapLabelValue && options.valueLabels) {
+    // Category axis (horizontal): show values instead of labels
     const valueMap = new Map(barData.map(d => [d.label, d.value]))
-    const hAxisOpts = {
+    renderHorizontalAxis(chartArea, x, height, {
       ...options.horizontalAxis,
       width,
       tickFormat: (label: string) => String(valueMap.get(label) ?? label),
-    } as import('../../types').AxisOptions
-    renderHorizontalAxis(chartArea, x, height, hAxisOpts, priorHAxis)
+    } as import('../../types').AxisOptions, priorHAxis)
   }
   else {
-    renderVerticalAxis(chartArea, y, height, { ...options.verticalAxis, gridWidth: width, topPadding: margin.top }, priorVAxis)
     renderHorizontalAxis(chartArea, x, height, { ...options.horizontalAxis, width }, priorHAxis)
   }
 
@@ -250,6 +238,7 @@ export function render(
       colors: options.colors ?? DEFAULT_COLORS,
       transition,
       priorLabels,
+      swapLabelValue,
     })
   }
 
@@ -306,9 +295,11 @@ function renderValueLabels(
     colors: string[]
     transition: boolean
     priorLabels: Element[]
+    swapLabelValue?: boolean
   },
 ) {
   const pos = opts.position ?? 'auto'
+  const labelText = (d: BarDatum) => opts.swapLabelValue ? d.label : String(d.value)
 
   let labelGroup = parent.select<SVGGElement>('.bc-value-label-group')
   if (labelGroup.empty()) {
@@ -342,7 +333,7 @@ function renderValueLabels(
         .attr('fill', a.isInside
           ? contrastTextColor(opts.highlights.get(d.label) ?? opts.colors[0])
           : 'currentColor')
-        .text(String(d.value))
+        .text(labelText(d))
     })
 
   const merged = enter.merge(join)
@@ -350,7 +341,7 @@ function renderValueLabels(
     merged.each(function (d) {
       const a = valueLabelAttrs(d, x, y, pos)
       d3.select(this)
-        .text(String(d.value))
+        .text(labelText(d))
         .transition().duration(getDefaultTransitionMs())
         .attr('x', a.tx)
         .attr('y', a.ty)
@@ -372,7 +363,7 @@ function renderValueLabels(
         .attr('fill', a.isInside
           ? contrastTextColor(opts.highlights.get(d.label) ?? opts.colors[0])
           : 'currentColor')
-        .text(String(d.value))
+        .text(labelText(d))
     })
   }
 }
