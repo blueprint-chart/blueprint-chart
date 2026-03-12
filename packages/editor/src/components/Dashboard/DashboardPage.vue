@@ -3,23 +3,23 @@
     class="dashboard-page"
     :class="pageClassList"
   >
-    <div class="dashboard-page__inner">
+    <div class="dashboard-page__gallery">
       <DashboardToolbar
         :chart-count="sortedCharts.length"
         :sort-value="sortValue"
-        :layout="layout"
+        :layout="viewLayout"
         @update:sort-value="sortValue = $event"
-        @update:layout="layout = $event"
+        @update:layout="viewLayout = $event"
       />
 
-      <GalleryGrid :layout="layout">
+      <GalleryGrid :layout="viewLayout">
         <GalleryCard
           v-for="chart in sortedCharts"
           :key="chart.id"
           :title="chart.title || 'Untitled'"
           :subtitle="chart.description"
           :selected="selectedId === chart.id"
-          :layout="layout"
+          :layout="viewLayout"
           @click="selectChart(chart.id)"
         >
           <template #thumb>
@@ -37,7 +37,7 @@
         </GalleryCard>
 
         <DashboardNewCard
-          :layout="layout"
+          :layout="viewLayout"
           @click="router.push('/new')"
         />
 
@@ -48,41 +48,73 @@
       </GalleryGrid>
     </div>
 
-    <DashboardDetailPanel
-      :open="panelOpen"
-      :title="selectedChart?.title || 'Untitled'"
-      :subtitle="selectedChart?.description"
-      :thumbnail-html="selectedId ? thumbnails[selectedId] : undefined"
-      :chart-type="selectedChart?.chartType || ''"
-      :saved-at="selectedChart?.savedAt ?? undefined"
-      :scene-count="0"
-      @close="closePanel"
-      @edit="editSelected"
-      @duplicate="duplicateSelected"
-      @delete="deleteSelected"
-    />
+    <template v-if="isNarrow">
+      <LayoutBottomDrawer v-model="drawerOpen">
+        <DashboardDetailContent
+          v-if="selectedChart"
+          :title="selectedChart.title || 'Untitled'"
+          :subtitle="selectedChart.description"
+          :thumbnail-html="selectedId ? thumbnails[selectedId] : undefined"
+          :chart-type="selectedChart.chartType"
+          :saved-at="selectedChart.savedAt ?? undefined"
+          @edit="editSelected"
+          @duplicate="duplicateSelected"
+          @delete="deleteSelected"
+        />
+      </LayoutBottomDrawer>
+    </template>
+    <template v-else>
+      <PanelDocked
+        :collapsed="!panelOpen"
+        title="Chart details"
+        :initial-width="380"
+        @close="closePanel"
+        @float="closePanel"
+      >
+        <DashboardDetailContent
+          v-if="selectedChart"
+          :title="selectedChart.title || 'Untitled'"
+          :subtitle="selectedChart.description"
+          :thumbnail-html="selectedId ? thumbnails[selectedId] : undefined"
+          :chart-type="selectedChart.chartType"
+          :saved-at="selectedChart.savedAt ?? undefined"
+          @edit="editSelected"
+          @duplicate="duplicateSelected"
+          @delete="deleteSelected"
+        />
+      </PanelDocked>
+    </template>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { GalleryCard, GalleryGrid, DisplayDate, FeedbackEmptyState } from '@blueprint-chart/ui'
+import {
+  GalleryCard,
+  GalleryGrid,
+  DisplayDate,
+  FeedbackEmptyState,
+  LayoutBottomDrawer,
+  useBreakpoint,
+} from '@blueprint-chart/ui'
 import { useChartSession, generateId } from '@/composables/useChartSession'
 import { getThumbnail, saveThumbnail, renderThumbnailFromPayload } from '@/composables/useChartThumbnail'
 import type { SavedChartSummary } from '@/composables/useChartSession'
+import PanelDocked from '@/components/Panel/PanelDocked.vue'
 import DashboardToolbar from './DashboardToolbar.vue'
-import DashboardDetailPanel from './DashboardDetailPanel.vue'
+import DashboardDetailContent from './DashboardDetailContent.vue'
 import DashboardNewCard from './DashboardNewCard.vue'
 
 const router = useRouter()
 const { listSavedCharts, deleteChart } = useChartSession()
+const { isNarrow } = useBreakpoint()
 
 const charts = ref<SavedChartSummary[]>([])
 const thumbnails = reactive<Record<string, string>>({})
 const selectedId = ref<string | null>(null)
 const sortValue = ref('date-desc')
-const layout = ref<'grid' | 'row'>('grid')
+const viewLayout = ref<'grid' | 'row'>('grid')
 
 const sortedCharts = computed(() => {
   const list = [...charts.value]
@@ -105,8 +137,17 @@ const selectedChart = computed(() =>
 const panelOpen = computed(() => selectedId.value !== null)
 
 const pageClassList = computed(() => ({
-  'dashboard-page--panel-open': panelOpen.value,
+  'dashboard-page--narrow': isNarrow.value,
 }))
+
+const drawerOpen = computed({
+  get: () => panelOpen.value,
+  set: (open) => {
+    if (!open) {
+      closePanel()
+    }
+  },
+})
 
 function refresh() {
   charts.value = listSavedCharts()
@@ -153,7 +194,6 @@ function editSelected() {
 }
 
 function duplicateSelected() {
-  // Duplicate by copying localStorage entry with new ID
   if (!selectedId.value) {
     return
   }
@@ -195,22 +235,44 @@ onMounted(() => {
   refresh()
   document.addEventListener('keydown', handleKeydown)
 })
+
+onUnmounted(() => {
+  document.removeEventListener('keydown', handleKeydown)
+})
 </script>
 
 <style scoped lang="scss">
 .dashboard-page {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  gap: var(--bc-tile-gap);
   background: var(--bc-void-bg);
-  min-height: 100%;
-  padding: 1.75rem 1.75rem 3.75rem;
-  transition: padding-right 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &--narrow {
+    flex-direction: column;
+    gap: 0;
+  }
 }
 
-.dashboard-page--panel-open {
-  padding-right: calc(380px + 1.75rem);
+.dashboard-page__gallery {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+  padding: 1.75rem;
+  background: var(--bc-tile-bg);
+  border-radius: var(--bc-tile-radius);
+  box-shadow: var(--bc-tile-shadow);
+  border: var(--bc-tile-border);
+
+  .dashboard-page--narrow & {
+    border-radius: 0;
+    border: none;
+    box-shadow: none;
+  }
 }
 
-.dashboard-page__inner {
-  max-width: 1200px;
-  margin: 0 auto;
+:deep(.layout-panel) {
+  background: var(--bc-tile-bg);
 }
 </style>
