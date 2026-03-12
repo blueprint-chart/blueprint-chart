@@ -16,7 +16,7 @@
       <div class="canvas-mode-picker__divider" />
       <div class="canvas-mode-picker__extra">
         <CanvasDimensionsToggle />
-        <span class="canvas-mode-picker__extra-label">Dims</span>
+        <span class="canvas-mode-picker__extra__label">Dims</span>
       </div>
     </template>
     <template v-else>
@@ -93,14 +93,14 @@ function select(mode: CanvasMode) {
     align-items: center;
     gap: 0.5rem;
     padding: 0.5rem;
-  }
 
-  &__extra-label {
-    font-size: var(--bs-font-size-xs);
-    font-weight: 500;
-    line-height: 1;
-    white-space: nowrap;
-    color: var(--bs-secondary-color);
+    &__label {
+      font-size: var(--bs-font-size-xs);
+      font-weight: 500;
+      line-height: 1;
+      white-space: nowrap;
+      color: var(--bs-secondary-color);
+    }
   }
 }
 </style>

@@ -28,18 +28,18 @@
           />
           <div
             v-if="searchResults.length"
-            class="shell-navbar__dropdown"
+            class="shell-navbar__search__dropdown"
           >
             <button
               v-for="chart in searchResults"
               :key="chart.id"
-              class="shell-navbar__result"
+              class="shell-navbar__search__result"
               @click="goToChart(chart.id)"
             >
               <div class="d-flex align-items-center gap-2">
                 <div
                   v-if="getThumbnail(chart.id)"
-                  class="shell-navbar__result-thumb"
+                  class="shell-navbar__search__result__thumb"
                   v-html="getThumbnail(chart.id)"
                 />
                 <div class="min-width-0 flex-grow-1">
@@ -162,50 +162,50 @@ onClickOutside(searchContainer, () => {
     &--compact {
       width: 180px;
     }
-  }
 
-  &__dropdown {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    z-index: 100;
-    background: var(--bc-tile-bg);
-    border: var(--bc-tile-border);
-    border-radius: var(--bc-tile-radius);
-    box-shadow: var(--bc-tile-shadow);
-    max-height: 320px;
-    overflow-y: auto;
-    margin-top: 0.25rem;
-  }
-
-  &__result {
-    display: block;
-    width: 100%;
-    padding: 0.5rem 0.75rem;
-    border: none;
-    background: none;
-    text-align: left;
-    cursor: pointer;
-    color: inherit;
-
-    &:hover {
-      background: var(--bs-tertiary-bg);
+    &__dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      background: var(--bc-tile-bg);
+      border: var(--bc-tile-border);
+      border-radius: var(--bc-tile-radius);
+      box-shadow: var(--bc-tile-shadow);
+      max-height: 320px;
+      overflow-y: auto;
+      margin-top: 0.25rem;
     }
 
-    & + & {
-      border-top: 1px solid var(--bs-border-color);
-    }
-  }
-
-  &__result-thumb {
-    width: 48px;
-    flex-shrink: 0;
-
-    :deep(svg) {
-      width: 100%;
-      height: auto;
+    &__result {
       display: block;
+      width: 100%;
+      padding: 0.5rem 0.75rem;
+      border: none;
+      background: none;
+      text-align: left;
+      cursor: pointer;
+      color: inherit;
+
+      &:hover {
+        background: var(--bs-tertiary-bg);
+      }
+
+      & + & {
+        border-top: 1px solid var(--bs-border-color);
+      }
+
+      &__thumb {
+        width: 48px;
+        flex-shrink: 0;
+
+        :deep(svg) {
+          width: 100%;
+          height: auto;
+          display: block;
+        }
+      }
     }
   }
 }

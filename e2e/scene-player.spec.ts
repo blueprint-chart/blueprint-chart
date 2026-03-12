@@ -81,7 +81,7 @@ test.describe('Scene Player', () => {
     // Change player type to Dot Stepper
     const playerDropdown = page.locator('.form-control-dropdown', { hasText: 'Scene player' })
     await playerDropdown.locator('.dropdown-toggle').click()
-    await page.locator('.form-control-dropdown-item__label', { hasText: 'Dot Stepper' }).click()
+    await page.locator('.form-control-dropdown-item__content__text__label', { hasText: 'Dot Stepper' }).click()
     await page.waitForTimeout(300)
 
     const player = page.locator('.bc-frame [data-scene-player]')
@@ -101,7 +101,7 @@ test.describe('Scene Player', () => {
     // Change player type to None
     const playerDropdown = page.locator('.form-control-dropdown', { hasText: 'Scene player' })
     await playerDropdown.locator('.dropdown-toggle').click()
-    await page.locator('.dropdown-menu.show .form-control-dropdown-item__label', { hasText: 'None' }).click()
+    await page.locator('.dropdown-menu.show .form-control-dropdown-item__content__text__label', { hasText: 'None' }).click()
     await page.waitForTimeout(300)
 
     await expect(page.locator('.bc-frame [data-scene-player]')).toHaveCount(0)
@@ -118,7 +118,7 @@ test.describe('Scene Player', () => {
     await page.waitForTimeout(300)
     const playerDropdown = page.locator('.form-control-dropdown', { hasText: 'Scene player' })
     await playerDropdown.locator('.dropdown-toggle').click()
-    await page.locator('.form-control-dropdown-item__label', { hasText: 'Minimal Arrows' }).click()
+    await page.locator('.form-control-dropdown-item__content__text__label', { hasText: 'Minimal Arrows' }).click()
     await page.waitForTimeout(300)
 
     const playBtn = page.locator('.bc-frame .bc-scene-player__play-btn')

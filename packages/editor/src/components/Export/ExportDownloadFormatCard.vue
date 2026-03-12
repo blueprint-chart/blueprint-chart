@@ -6,16 +6,16 @@
   >
     <div class="format-card__header">
       <span
-        class="format-card__icon"
+        class="format-card__header__icon"
         :style="{ background: iconBg, color: iconColor }"
       >
         <component :is="icon" />
       </span>
-      <div class="format-card__text">
-        <div class="format-card__label">
+      <div class="format-card__header__text">
+        <div class="format-card__header__text__label">
           {{ label }}
         </div>
-        <div class="format-card__desc">
+        <div class="format-card__header__text__desc">
           {{ description }}
         </div>
       </div>
@@ -80,37 +80,37 @@ defineEmits<{
     align-items: center;
     gap: 0.75rem;
     padding: 0.75rem;
-  }
 
-  &__icon {
-    width: 2rem;
-    height: 2rem;
-    border-radius: 0.375rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
+    &__icon {
+      width: 2rem;
+      height: 2rem;
+      border-radius: 0.375rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
 
-    :deep(svg) {
-      width: 1.125rem;
-      height: 1.125rem;
+      :deep(svg) {
+        width: 1.125rem;
+        height: 1.125rem;
+      }
     }
-  }
 
-  &__text {
-    flex: 1;
-    min-width: 0;
-  }
+    &__text {
+      flex: 1;
+      min-width: 0;
 
-  &__label {
-    font-size: var(--bs-font-size-sm);
-    font-weight: 600;
-    color: var(--bs-body-color);
-  }
+      &__label {
+        font-size: var(--bs-font-size-sm);
+        font-weight: 600;
+        color: var(--bs-body-color);
+      }
 
-  &__desc {
-    font-size: var(--bs-font-size-xs);
-    color: var(--bs-secondary-color);
+      &__desc {
+        font-size: var(--bs-font-size-xs);
+        color: var(--bs-secondary-color);
+      }
+    }
   }
 
   &__options {

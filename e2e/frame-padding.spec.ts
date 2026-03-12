@@ -188,7 +188,7 @@ test.describe('editor card padding', () => {
     await page.getByRole('button', { name: 'E is the most frequent letter' }).click()
     await page.waitForSelector('.bc-frame', { timeout: 10_000 })
 
-    const cardPadding = await page.locator('.chart-edit-panel__card').evaluate(
+    const cardPadding = await page.locator('.chart-edit-panel__canvas__card').evaluate(
       el => getComputedStyle(el).padding,
     )
     expect(cardPadding).toBe('0px')
