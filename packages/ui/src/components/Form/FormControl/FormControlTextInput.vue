@@ -9,12 +9,12 @@
         :id="id"
         :model-value="model"
         :placeholder="placeholder"
-        class="form-control-text-input__input"
+        class="form-control-text-input__row__input"
         @update:model-value="model = String($event)"
       />
       <small
         v-if="suffix"
-        class="form-control-text-input__suffix"
+        class="form-control-text-input__row__suffix"
       >{{ suffix }}</small>
     </div>
   </BFormGroup>
@@ -40,12 +40,12 @@ withDefaults(defineProps<{
     display: flex;
     align-items: center;
     gap: 0.5rem;
-  }
 
-  &__suffix {
-    white-space: nowrap;
-    color: var(--bs-secondary-color);
-    font-size: 0.75rem;
+    &__suffix {
+      white-space: nowrap;
+      color: var(--bs-secondary-color);
+      font-size: 0.75rem;
+    }
   }
 }
 </style>

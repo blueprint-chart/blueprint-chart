@@ -27,7 +27,7 @@
       <component
         :is="item.icon"
         v-if="item.icon"
-        class="navigation-pill__icon"
+        class="navigation-pill__option__icon"
       />
       {{ item.text }}
     </button>
@@ -166,12 +166,12 @@ function onSelect(item: NavigationPillItem) {
       cursor: not-allowed;
       pointer-events: none;
     }
-  }
 
-  &__icon {
-    width: 1em;
-    height: 1em;
-    flex-shrink: 0;
+    &__icon {
+      width: 1em;
+      height: 1em;
+      flex-shrink: 0;
+    }
   }
 
   &--md {

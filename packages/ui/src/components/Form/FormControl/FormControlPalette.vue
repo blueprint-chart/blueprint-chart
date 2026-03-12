@@ -16,7 +16,7 @@
     >
       <template #button-content>
         <span class="form-control-palette__preview pe-1">
-          <span class="form-control-palette__name flex-grow-1">
+          <span class="form-control-palette__preview__name flex-grow-1">
             {{ selectedPalette?.label ?? '' }}
           </span>
           <DisplayPalette
@@ -113,13 +113,13 @@ function selectPalette(value: string) {
     overflow: hidden;
     flex: 1;
     min-width: 0;
-  }
 
-  &__name {
-    font-weight: bold;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    &__name {
+      font-weight: bold;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
   }
 
   &__item {

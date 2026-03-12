@@ -30,10 +30,10 @@
         v-for="i in total"
         :key="i"
         type="button"
-        class="bc-scene-player__dot"
+        class="bc-scene-player__dots__dot"
         :class="{
-          'bc-scene-player__dot--active': i === current,
-          'bc-scene-player__dot--completed': i < current,
+          'bc-scene-player__dots__dot--active': i === current,
+          'bc-scene-player__dots__dot--completed': i < current,
         }"
         :aria-label="`Scene ${i} of ${total}`"
         :aria-current="i === current ? 'step' : undefined"
@@ -142,32 +142,32 @@ defineEmits<{
     display: flex;
     gap: 6px;
     align-items: center;
-  }
 
-  &__dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 4px;
-    border: none;
-    padding: 0;
-    cursor: pointer;
-    background: var(--bc-scene-player-track, #e2e0db);
-    opacity: 0.4;
-    transition: width 0.2s ease, background 0.2s ease, opacity 0.2s ease;
+    &__dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 4px;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      background: var(--bc-scene-player-track, #e2e0db);
+      opacity: 0.4;
+      transition: width 0.2s ease, background 0.2s ease, opacity 0.2s ease;
 
-    &--completed {
-      background: var(--bc-scene-player-accent, #2c5aa0);
-      opacity: 1;
-    }
+      &--completed {
+        background: var(--bc-scene-player-accent, #2c5aa0);
+        opacity: 1;
+      }
 
-    &--active {
-      width: 20px;
-      background: var(--bc-scene-player-accent, #2c5aa0);
-      opacity: 1;
-    }
+      &--active {
+        width: 20px;
+        background: var(--bc-scene-player-accent, #2c5aa0);
+        opacity: 1;
+      }
 
-    &:hover {
-      opacity: 0.8;
+      &:hover {
+        opacity: 0.8;
+      }
     }
   }
 }

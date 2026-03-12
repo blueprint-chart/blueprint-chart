@@ -20,7 +20,7 @@ describe('FormControlButtonGroup rendering', () => {
     const wrapper = mount(FormControlButtonGroup, {
       props: { modelValue: 'left', label: 'Align', options },
     })
-    const buttons = wrapper.findAll('.form-control-button-group__buttons .btn')
+    const buttons = wrapper.findAll('.form-control-button-group__container__buttons .btn')
     expect(buttons).toHaveLength(3)
   })
 
@@ -28,7 +28,7 @@ describe('FormControlButtonGroup rendering', () => {
     const wrapper = mount(FormControlButtonGroup, {
       props: { modelValue: 'center', label: 'Align', options },
     })
-    const buttons = wrapper.findAll('.form-control-button-group__buttons .btn')
+    const buttons = wrapper.findAll('.form-control-button-group__container__buttons .btn')
     expect(buttons[1].classes()).toContain('btn-primary')
     expect(buttons[0].classes()).toContain('btn-outline-primary')
   })
@@ -37,7 +37,7 @@ describe('FormControlButtonGroup rendering', () => {
     const wrapper = mount(FormControlButtonGroup, {
       props: { modelValue: 'left', label: 'Align', options },
     })
-    const buttons = wrapper.findAll('.form-control-button-group__buttons .btn')
+    const buttons = wrapper.findAll('.form-control-button-group__container__buttons .btn')
     await buttons[2].trigger('click')
     expect(wrapper.emitted('update:modelValue')?.[0]).toEqual(['right'])
   })
@@ -49,7 +49,7 @@ describe('FormControlButtonGroup block modifier', () => {
       props: { modelValue: 'left', label: 'Align', options, block: true },
     })
     expect(wrapper.find('.form-control-button-group__container--block').exists()).toBe(true)
-    expect(wrapper.find('.form-control-button-group__buttons--block').exists()).toBe(true)
+    expect(wrapper.find('.form-control-button-group__container__buttons--block').exists()).toBe(true)
   })
 
   it('does not apply block modifier by default', () => {
@@ -57,7 +57,7 @@ describe('FormControlButtonGroup block modifier', () => {
       props: { modelValue: 'left', label: 'Align', options },
     })
     expect(wrapper.find('.form-control-button-group__container--block').exists()).toBe(false)
-    expect(wrapper.find('.form-control-button-group__buttons--block').exists()).toBe(false)
+    expect(wrapper.find('.form-control-button-group__container__buttons--block').exists()).toBe(false)
   })
 
   it('renders section slot for selected value', () => {
@@ -86,21 +86,21 @@ describe('FormControlButtonGroup slot entry rendering', () => {
   it('renders buttons from slot entries', async () => {
     const wrapper = mountButtonGroupWithSlots('left')
     await nextTick()
-    const buttons = wrapper.findAll('.form-control-button-group__buttons .btn')
+    const buttons = wrapper.findAll('.form-control-button-group__container__buttons .btn')
     expect(buttons).toHaveLength(3)
   })
 
   it('applies primary variant to selected slot entry', async () => {
     const wrapper = mountButtonGroupWithSlots('center')
     await nextTick()
-    const buttons = wrapper.findAll('.form-control-button-group__buttons .btn')
+    const buttons = wrapper.findAll('.form-control-button-group__container__buttons .btn')
     expect(buttons[1].classes()).toContain('btn-primary')
   })
 
   it('emits update:modelValue on slot entry click', async () => {
     const wrapper = mountButtonGroupWithSlots('left')
     await nextTick()
-    const buttons = wrapper.findAll('.form-control-button-group__buttons .btn')
+    const buttons = wrapper.findAll('.form-control-button-group__container__buttons .btn')
     await buttons[2].trigger('click')
     expect(wrapper.emitted('update:modelValue')?.[0]).toEqual(['right'])
   })
@@ -121,7 +121,7 @@ describe('FormControlButtonGroup slot entry precedence', () => {
       },
     })
     await nextTick()
-    const buttons = wrapper.findAll('.form-control-button-group__buttons .btn')
+    const buttons = wrapper.findAll('.form-control-button-group__container__buttons .btn')
     expect(buttons).toHaveLength(1)
   })
 })

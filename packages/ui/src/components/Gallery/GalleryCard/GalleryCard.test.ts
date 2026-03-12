@@ -4,17 +4,17 @@ import GalleryCard from './GalleryCard.vue'
 describe('GalleryCard', () => {
   it('renders title', () => {
     const wrapper = mount(GalleryCard, { props: { title: 'My Chart' } })
-    expect(wrapper.find('.gallery-card__title').text()).toBe('My Chart')
+    expect(wrapper.find('.gallery-card__meta__title').text()).toBe('My Chart')
   })
 
   it('renders subtitle when provided', () => {
     const wrapper = mount(GalleryCard, { props: { title: 'My Chart', subtitle: 'Description' } })
-    expect(wrapper.find('.gallery-card__subtitle').text()).toBe('Description')
+    expect(wrapper.find('.gallery-card__meta__subtitle').text()).toBe('Description')
   })
 
   it('hides subtitle when not provided', () => {
     const wrapper = mount(GalleryCard, { props: { title: 'My Chart' } })
-    expect(wrapper.find('.gallery-card__subtitle').exists()).toBe(false)
+    expect(wrapper.find('.gallery-card__meta__subtitle').exists()).toBe(false)
   })
 
   it('applies selected class', () => {
@@ -43,7 +43,7 @@ describe('GalleryCard', () => {
     const wrapper = mount(GalleryCard, {
       props: { title: 'My Chart', thumbSrc: 'data:image/svg+xml;base64,abc' },
     })
-    const img = wrapper.find('.gallery-card__thumb-img')
+    const img = wrapper.find('.gallery-card__thumb__img')
     expect(img.exists()).toBe(true)
     expect(img.attributes('src')).toBe('data:image/svg+xml;base64,abc')
   })
@@ -52,7 +52,7 @@ describe('GalleryCard', () => {
     const wrapper = mount(GalleryCard, {
       props: { title: 'My Chart' },
     })
-    expect(wrapper.find('.gallery-card__thumb-img').exists()).toBe(false)
+    expect(wrapper.find('.gallery-card__thumb__img').exists()).toBe(false)
   })
 
   it('renders footer slot', () => {
@@ -60,11 +60,11 @@ describe('GalleryCard', () => {
       props: { title: 'My Chart' },
       slots: { footer: '<span>footer</span>' },
     })
-    expect(wrapper.find('.gallery-card__footer').text()).toBe('footer')
+    expect(wrapper.find('.gallery-card__meta__footer').text()).toBe('footer')
   })
 
   it('hides footer when slot is empty', () => {
     const wrapper = mount(GalleryCard, { props: { title: 'My Chart' } })
-    expect(wrapper.find('.gallery-card__footer').exists()).toBe(false)
+    expect(wrapper.find('.gallery-card__meta__footer').exists()).toBe(false)
   })
 })

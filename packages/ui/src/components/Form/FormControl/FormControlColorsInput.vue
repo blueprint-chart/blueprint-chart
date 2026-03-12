@@ -12,7 +12,7 @@
       >
         <button
           type="button"
-          class="form-control-colors-input__swatch-btn"
+          class="form-control-colors-input__tag__swatch-btn"
           @click="openPicker(idx, $event)"
         >
           <DisplayColorSwatch
@@ -20,10 +20,10 @@
             size="sm"
           />
         </button>
-        <span class="form-control-colors-input__hex">{{ color }}</span>
+        <span class="form-control-colors-input__tag__hex">{{ color }}</span>
         <button
           type="button"
-          class="form-control-colors-input__remove"
+          class="form-control-colors-input__tag__remove"
           :aria-label="`Remove ${color}`"
           @click="removeColor(idx)"
         >
@@ -112,35 +112,35 @@ function onPickerChange(color: string) {
     border: 1px solid var(--bs-border-color);
     background: var(--bs-tertiary-bg);
     line-height: 1;
-  }
 
-  &__swatch-btn {
-    background: none;
-    border: none;
-    padding: 0;
-    cursor: pointer;
-    line-height: 1;
-  }
+    &__swatch-btn {
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      line-height: 1;
+    }
 
-  &__hex {
-    font-family: var(--bs-font-monospace);
-    font-size: 0.75rem;
-    color: var(--bs-body-color);
-  }
+    &__hex {
+      font-family: var(--bs-font-monospace);
+      font-size: 0.75rem;
+      color: var(--bs-body-color);
+    }
 
-  &__remove {
-    background: none;
-    border: none;
-    padding: 0;
-    line-height: 1;
-    font-size: 0.875rem;
-    color: var(--bs-secondary-color);
-    cursor: pointer;
-    opacity: 0.6;
+    &__remove {
+      background: none;
+      border: none;
+      padding: 0;
+      line-height: 1;
+      font-size: 0.875rem;
+      color: var(--bs-secondary-color);
+      cursor: pointer;
+      opacity: 0.6;
 
-    &:hover {
-      opacity: 1;
-      color: var(--bs-danger);
+      &:hover {
+        opacity: 1;
+        color: var(--bs-danger);
+      }
     }
   }
 }
