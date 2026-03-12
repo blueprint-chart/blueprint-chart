@@ -89,7 +89,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, shallowRef, computed } from 'vue'
 import { useDataTable } from '@/composables/useDataTable'
 import { useDataTransforms, type TransformType } from '@/composables/useDataTransforms'
 import { useScenes } from '@/composables/useScenes'
@@ -120,7 +120,7 @@ const sourceLabel = computed(() => {
   return `Data from ${name || `Scene ${activeIndex.value}`}`
 })
 
-const selectedStepId = ref('')
+const selectedStepId = shallowRef('')
 const pristineSteps = ref(new Set<string>())
 
 const selectedStepIndex = computed(() => steps.value.findIndex(s => s.id === selectedStepId.value))
@@ -180,11 +180,11 @@ function onRemoveStep(id: string) {
 .pipeline {
   display: flex;
   flex-direction: column;
-}
 
-.pipeline__config-info {
-  font-size: var(--bs-font-size-sm);
-  color: var(--bs-secondary-color);
-  line-height: 1.5;
+  &__config-info {
+    font-size: var(--bs-font-size-sm);
+    color: var(--bs-secondary-color);
+    line-height: 1.5;
+  }
 }
 </style>

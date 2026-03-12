@@ -119,47 +119,47 @@ function rowCount(sample: ChartSample): number {
     border-color: var(--bs-primary-border-subtle);
     background: var(--bs-primary-bg-subtle);
   }
-}
 
-.sample-card__thumb {
-  width: 2rem;
-  height: 2rem;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0.7;
+  &__thumb {
+    width: 2rem;
+    height: 2rem;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.7;
 
-  :deep(svg) {
-    width: 100%;
-    height: 100%;
+    :deep(svg) {
+      width: 100%;
+      height: 100%;
+    }
+
+    .sample-card:hover & {
+      opacity: 1;
+    }
   }
 
-  .sample-card:hover & {
-    opacity: 1;
+  &__info {
+    flex: 1;
+    min-width: 0;
   }
-}
 
-.sample-card__info {
-  flex: 1;
-  min-width: 0;
-}
+  &__name {
+    font-size: var(--bs-font-size-sm);
+    font-weight: 600;
+    color: var(--bs-body-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 
-.sample-card__name {
-  font-size: var(--bs-font-size-sm);
-  font-weight: 600;
-  color: var(--bs-body-color);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
+  &__meta {
+    font-size: var(--bs-font-size-xs);
+    color: var(--bs-secondary-color);
+  }
 
-.sample-card__meta {
-  font-size: var(--bs-font-size-xs);
-  color: var(--bs-secondary-color);
-}
-
-.sample-card__meta-sep {
-  margin: 0 0.125rem;
+  &__meta-sep {
+    margin: 0 0.125rem;
+  }
 }
 </style>

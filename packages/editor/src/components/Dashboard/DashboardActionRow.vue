@@ -58,36 +58,36 @@ const actionClassList = computed(() => ({
   &:hover {
     background: var(--bs-tertiary-bg);
   }
-}
 
-.dashboard-action-row--danger {
-  &:hover {
-    border-color: var(--bs-danger);
-    background: color-mix(in srgb, var(--bs-danger) 5%, transparent);
+  &--danger {
+    &:hover {
+      border-color: var(--bs-danger);
+      background: color-mix(in srgb, var(--bs-danger) 5%, transparent);
+    }
+
+    .dashboard-action-row__icon,
+    .dashboard-action-row__label {
+      color: var(--bs-danger);
+    }
   }
 
-  .dashboard-action-row__icon,
-  .dashboard-action-row__label {
-    color: var(--bs-danger);
+  &__icon {
+    width: 0.875rem;
+    height: 0.875rem;
+    color: var(--bs-secondary-color);
+    flex-shrink: 0;
   }
-}
 
-.dashboard-action-row__icon {
-  width: 0.875rem;
-  height: 0.875rem;
-  color: var(--bs-secondary-color);
-  flex-shrink: 0;
-}
+  &__label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--bs-body-color);
+  }
 
-.dashboard-action-row__label {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--bs-body-color);
-}
-
-.dashboard-action-row__description {
-  font-size: 0.6875rem;
-  color: var(--bs-secondary-color);
-  margin-top: 0.0625rem;
+  &__description {
+    font-size: 0.6875rem;
+    color: var(--bs-secondary-color);
+    margin-top: 0.0625rem;
+  }
 }
 </style>

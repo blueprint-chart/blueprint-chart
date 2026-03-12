@@ -97,7 +97,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick } from 'vue'
+import { ref, shallowRef, nextTick } from 'vue'
 import { useDataTable } from '@/composables/useDataTable'
 import { serializeDelimited } from '@/composables/useDataParser'
 import DataUploadFileDrop from './DataUploadFileDrop.vue'
@@ -118,10 +118,10 @@ function getInitialPasteInput(): string {
   return rawInput.value
 }
 
-const activeTab = ref('paste')
-const pasteInput = ref(getInitialPasteInput())
+const activeTab = shallowRef('paste')
+const pasteInput = shallowRef(getInitialPasteInput())
 const pasteArea = ref<HTMLTextAreaElement | null>(null)
-const isDragOver = ref(false)
+const isDragOver = shallowRef(false)
 
 function onPaste(e: globalThis.ClipboardEvent) {
   const text = e.clipboardData?.getData('text/plain')
@@ -153,21 +153,116 @@ const tabOptions = [
   max-width: 640px;
   margin: 0 auto;
   padding: 2rem 0;
-}
 
-.upload-card__title {
-  font-size: var(--bs-font-size-lg);
-  font-weight: 700;
-  color: var(--bs-body-color);
-  margin-bottom: 0.25rem;
-  text-align: center;
-}
+  &__title {
+    font-size: var(--bs-font-size-lg);
+    font-weight: 700;
+    color: var(--bs-body-color);
+    margin-bottom: 0.25rem;
+    text-align: center;
+  }
 
-.upload-card__subtitle {
-  font-size: var(--bs-font-size-md);
-  color: var(--bs-secondary-color);
-  text-align: center;
-  margin-bottom: 1.75rem;
+  &__subtitle {
+    font-size: var(--bs-font-size-md);
+    color: var(--bs-secondary-color);
+    text-align: center;
+    margin-bottom: 1.75rem;
+  }
+
+  &__paste {
+    width: 100%;
+  }
+
+  &__paste-wrap {
+    position: relative;
+  }
+
+  &__paste-placeholder {
+    position: absolute;
+    inset: 0;
+    padding: 0.875rem 1rem;
+    font-family: var(--bs-font-monospace);
+    font-size: var(--bs-font-size-sm);
+    color: var(--bs-secondary-color);
+    opacity: 0.5;
+    pointer-events: none;
+    white-space: pre;
+    line-height: 1.6;
+  }
+
+  &__paste-area {
+    width: 100%;
+    min-height: 180px;
+    border: none;
+    padding: 0.875rem 1rem;
+    font-family: var(--bs-font-monospace);
+    font-size: var(--bs-font-size-sm);
+    resize: vertical;
+    outline: none;
+    color: var(--bs-body-color);
+    line-height: 1.6;
+    background: transparent;
+
+    &::placeholder {
+      color: var(--bs-secondary-color);
+      opacity: 0.5;
+    }
+  }
+
+  &__paste-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.375rem 0.75rem;
+    border-top: 1px solid var(--bs-border-color);
+    background: var(--bs-tertiary-bg);
+  }
+
+  &__paste-hint {
+    font-size: var(--bs-font-size-xs);
+    color: var(--bs-secondary-color);
+    display: flex;
+    align-items: center;
+    gap: 0.125rem;
+  }
+
+  &__kbd {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.25rem;
+    height: 1.25rem;
+    padding: 0 0.25rem;
+    background: var(--bs-body-bg);
+    border: 1px solid var(--bs-border-color);
+    border-radius: 0.1875rem;
+    font-size: var(--bs-font-size-xs);
+    font-weight: 600;
+    color: var(--bs-secondary-color);
+    margin: 0 0.0625rem;
+  }
+
+  &__paste-btn {
+    padding: 0.3125rem 0.75rem;
+    font-size: var(--bs-font-size-sm);
+    font-weight: 600;
+    color: #fff;
+    background: var(--bs-primary);
+    border: none;
+    border-radius: var(--bs-border-radius);
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s;
+
+    &:hover:not(:disabled) {
+      filter: brightness(0.9);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
 }
 
 // --- Input card container ---
@@ -193,158 +288,59 @@ const tabOptions = [
       0 4px 6px -1px rgba(0, 0, 0, 0.1);
     background: var(--bs-primary-bg-subtle);
   }
-}
 
-// --- Tabs ---
-
-.input-card__tabs {
-  display: flex;
-  border-bottom: 1px solid var(--bs-border-color);
-  background: var(--bs-tertiary-bg);
-}
-
-.input-card__tab {
-  flex: 1;
-  padding: 0.625rem 1rem;
-  font-family: inherit;
-  font-size: var(--bs-font-size-sm);
-  font-weight: 600;
-  color: var(--bs-secondary-color);
-  border: none;
-  background: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.375rem;
-  transition: all 0.15s;
-  position: relative;
-
-  &:hover {
-    color: var(--bs-body-color);
-    background: var(--bs-secondary-bg);
+  &__tabs {
+    display: flex;
+    border-bottom: 1px solid var(--bs-border-color);
+    background: var(--bs-tertiary-bg);
   }
 
-  &:not(:last-child) {
-    border-right: 1px solid var(--bs-border-color);
-  }
-
-  &--active {
-    color: var(--bs-primary);
-    background: var(--bs-body-bg);
-
-    &::after {
-      content: '';
-      position: absolute;
-      bottom: -1px;
-      left: 0.75rem;
-      right: 0.75rem;
-      height: 2px;
-      background: var(--bs-primary);
-      border-radius: 1px;
-    }
-  }
-
-  svg {
-    width: 0.9375rem;
-    height: 0.9375rem;
-  }
-}
-
-// --- Paste pane ---
-
-.upload-card__paste {
-  width: 100%;
-}
-
-.upload-card__paste-wrap {
-  position: relative;
-}
-
-.upload-card__paste-placeholder {
-  position: absolute;
-  inset: 0;
-  padding: 0.875rem 1rem;
-  font-family: var(--bs-font-monospace);
-  font-size: var(--bs-font-size-sm);
-  color: var(--bs-secondary-color);
-  opacity: 0.5;
-  pointer-events: none;
-  white-space: pre;
-  line-height: 1.6;
-}
-
-.upload-card__paste-area {
-  width: 100%;
-  min-height: 180px;
-  border: none;
-  padding: 0.875rem 1rem;
-  font-family: var(--bs-font-monospace);
-  font-size: var(--bs-font-size-sm);
-  resize: vertical;
-  outline: none;
-  color: var(--bs-body-color);
-  line-height: 1.6;
-  background: transparent;
-
-  &::placeholder {
+  &__tab {
+    flex: 1;
+    padding: 0.625rem 1rem;
+    font-family: inherit;
+    font-size: var(--bs-font-size-sm);
+    font-weight: 600;
     color: var(--bs-secondary-color);
-    opacity: 0.5;
-  }
-}
+    border: none;
+    background: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    transition: all 0.15s;
+    position: relative;
 
-.upload-card__paste-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.375rem 0.75rem;
-  border-top: 1px solid var(--bs-border-color);
-  background: var(--bs-tertiary-bg);
-}
+    &:hover {
+      color: var(--bs-body-color);
+      background: var(--bs-secondary-bg);
+    }
 
-.upload-card__paste-hint {
-  font-size: var(--bs-font-size-xs);
-  color: var(--bs-secondary-color);
-  display: flex;
-  align-items: center;
-  gap: 0.125rem;
-}
+    &:not(:last-child) {
+      border-right: 1px solid var(--bs-border-color);
+    }
 
-.upload-card__kbd {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 1.25rem;
-  height: 1.25rem;
-  padding: 0 0.25rem;
-  background: var(--bs-body-bg);
-  border: 1px solid var(--bs-border-color);
-  border-radius: 0.1875rem;
-  font-size: var(--bs-font-size-xs);
-  font-weight: 600;
-  color: var(--bs-secondary-color);
-  margin: 0 0.0625rem;
-}
+    &--active {
+      color: var(--bs-primary);
+      background: var(--bs-body-bg);
 
-.upload-card__paste-btn {
-  padding: 0.3125rem 0.75rem;
-  font-size: var(--bs-font-size-sm);
-  font-weight: 600;
-  color: #fff;
-  background: var(--bs-primary);
-  border: none;
-  border-radius: var(--bs-border-radius);
-  cursor: pointer;
-  font-family: inherit;
-  transition: background 0.15s;
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: -1px;
+        left: 0.75rem;
+        right: 0.75rem;
+        height: 2px;
+        background: var(--bs-primary);
+        border-radius: 1px;
+      }
+    }
 
-  &:hover:not(:disabled) {
-    filter: brightness(0.9);
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+    svg {
+      width: 0.9375rem;
+      height: 0.9375rem;
+    }
   }
 }
 </style>

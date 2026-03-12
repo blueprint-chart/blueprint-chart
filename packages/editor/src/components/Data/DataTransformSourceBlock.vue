@@ -43,23 +43,23 @@ withDefaults(defineProps<{
   font-size: var(--bs-font-size-sm);
   font-weight: 600;
   color: var(--bs-secondary-text-emphasis);
-}
 
-.source-block__icon {
-  width: 1.5rem;
-  height: 1.5rem;
-  border-radius: 0.25rem;
-  background: var(--bs-secondary-bg);
-  color: var(--bs-secondary-color);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+  &__icon {
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 0.25rem;
+    background: var(--bs-secondary-bg);
+    color: var(--bs-secondary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 
-.source-block__meta {
-  font-weight: 400;
-  color: var(--bs-secondary-color);
-  margin-left: auto;
-  font-size: var(--bs-font-size-xs);
+  &__meta {
+    font-weight: 400;
+    color: var(--bs-secondary-color);
+    margin-left: auto;
+    font-size: var(--bs-font-size-xs);
+  }
 }
 </style>

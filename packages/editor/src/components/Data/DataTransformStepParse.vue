@@ -38,7 +38,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, shallowRef, watch } from 'vue'
 import { FormControlDropdown, FormControlTextInput } from '@blueprint-chart/ui'
 import { useDataTransforms, type TransformStep, parseOperations } from '@/composables/useDataTransforms'
 
@@ -64,7 +64,7 @@ const currentOp = computed(() =>
   parseOperations.find(o => o.id === props.step.config.operation),
 )
 
-const selectedCategory = ref(currentOp.value?.category ?? 'type')
+const selectedCategory = shallowRef(currentOp.value?.category ?? 'type')
 
 watch(() => props.step.config.operation, (op) => {
   if (op) {

@@ -197,162 +197,161 @@ const description = computed(() => {
       box-shadow: 0 0 0 2px var(--bs-danger-bg-subtle);
     }
   }
-}
 
-.step-card__number {
-  width: 2rem;
-  min-width: 2rem;
-  background: var(--bs-tertiary-bg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: var(--bs-font-size-xs);
-  font-weight: 700;
-  color: var(--bs-secondary-color);
-  border-right: 1px solid var(--bs-border-color);
-
-  .step-card--active & {
-    background: var(--bs-primary-bg-subtle);
-    color: var(--bs-primary);
-  }
-
-  .step-card--error & {
-    background: var(--bs-danger-bg-subtle);
-    color: var(--bs-danger);
-  }
-}
-
-.step-card__body {
-  flex: 1;
-  min-width: 0;
-  padding: 0.5rem 0.75rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.step-card__icon {
-  width: 1.75rem;
-  height: 1.75rem;
-  border-radius: 0.3125rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  font-size: var(--bs-font-size-xs);
-  font-weight: 700;
-
-  :deep(svg) {
-    width: 1rem;
-    height: 1rem;
-  }
-
-  &--sort {
-    background: var(--bs-warning-bg-subtle);
-    color: var(--bs-warning-text-emphasis);
-  }
-
-  &--filter {
-    background: var(--bs-danger-bg-subtle);
-    color: var(--bs-danger-text-emphasis);
-  }
-
-  &--hide-columns {
-    background: var(--bs-secondary-bg);
-    color: var(--bs-secondary-text-emphasis);
-  }
-
-  &--transpose {
-    background: var(--bs-info-bg-subtle);
-    color: var(--bs-info-text-emphasis);
-  }
-
-  &--parse {
-    background: var(--bs-success-bg-subtle);
-    color: var(--bs-success-text-emphasis);
-  }
-
-  &--rename {
-    background: var(--bs-primary-bg-subtle);
-    color: var(--bs-primary-text-emphasis);
-  }
-
-  &--group {
-    background: hsl(270 90% 95%);
-    color: hsl(270 70% 50%);
-  }
-
-  &--computed {
-    background: var(--bs-info-bg-subtle);
-    color: var(--bs-info-text-emphasis);
-  }
-
-}
-
-.step-card__text {
-  flex: 1;
-  min-width: 0;
-}
-
-.step-card__name {
-  font-size: var(--bs-font-size-sm);
-  font-weight: 600;
-  color: var(--bs-body-color);
-}
-
-.step-card__desc {
-  font-size: var(--bs-font-size-xs);
-  color: var(--bs-secondary-color);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.step-card__desc--error {
-  color: var(--bs-danger);
-}
-
-.step-card__actions {
-  display: flex;
-  align-items: center;
-  gap: 0.125rem;
-  padding-right: 0.25rem;
-}
-
-.step-card__action {
-  width: 1.5rem;
-  height: 1.5rem;
-  border: none;
-  background: none;
-  border-radius: 0.25rem;
-  cursor: pointer;
-  color: var(--bs-secondary-color);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  transition: all 0.1s;
-
-  .step-card:hover & {
-    opacity: 1;
-  }
-
-  &:hover {
+  &__number {
+    width: 2rem;
+    min-width: 2rem;
     background: var(--bs-tertiary-bg);
-    color: var(--bs-secondary-text-emphasis);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--bs-font-size-xs);
+    font-weight: 700;
+    color: var(--bs-secondary-color);
+    border-right: 1px solid var(--bs-border-color);
+
+    .step-card--active & {
+      background: var(--bs-primary-bg-subtle);
+      color: var(--bs-primary);
+    }
+
+    .step-card--error & {
+      background: var(--bs-danger-bg-subtle);
+      color: var(--bs-danger);
+    }
   }
 
-  svg {
-    width: 0.875rem;
-    height: 0.875rem;
+  &__body {
+    flex: 1;
+    min-width: 0;
+    padding: 0.5rem 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
   }
-}
 
-.step-card__config {
-  width: 100%;
-  padding: 0.75rem;
-  border-top: 1px solid var(--bs-border-color);
-  background: var(--bs-tertiary-bg);
-  cursor: default;
+  &__icon {
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 0.3125rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: var(--bs-font-size-xs);
+    font-weight: 700;
+
+    :deep(svg) {
+      width: 1rem;
+      height: 1rem;
+    }
+
+    &--sort {
+      background: var(--bs-warning-bg-subtle);
+      color: var(--bs-warning-text-emphasis);
+    }
+
+    &--filter {
+      background: var(--bs-danger-bg-subtle);
+      color: var(--bs-danger-text-emphasis);
+    }
+
+    &--hide-columns {
+      background: var(--bs-secondary-bg);
+      color: var(--bs-secondary-text-emphasis);
+    }
+
+    &--transpose {
+      background: var(--bs-info-bg-subtle);
+      color: var(--bs-info-text-emphasis);
+    }
+
+    &--parse {
+      background: var(--bs-success-bg-subtle);
+      color: var(--bs-success-text-emphasis);
+    }
+
+    &--rename {
+      background: var(--bs-primary-bg-subtle);
+      color: var(--bs-primary-text-emphasis);
+    }
+
+    &--group {
+      background: hsl(270 90% 95%);
+      color: hsl(270 70% 50%);
+    }
+
+    &--computed {
+      background: var(--bs-info-bg-subtle);
+      color: var(--bs-info-text-emphasis);
+    }
+  }
+
+  &__text {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__name {
+    font-size: var(--bs-font-size-sm);
+    font-weight: 600;
+    color: var(--bs-body-color);
+  }
+
+  &__desc {
+    font-size: var(--bs-font-size-xs);
+    color: var(--bs-secondary-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    &--error {
+      color: var(--bs-danger);
+    }
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.125rem;
+    padding-right: 0.25rem;
+  }
+
+  &__action {
+    width: 1.5rem;
+    height: 1.5rem;
+    border: none;
+    background: none;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    color: var(--bs-secondary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: all 0.1s;
+
+    .step-card:hover & {
+      opacity: 1;
+    }
+
+    &:hover {
+      background: var(--bs-tertiary-bg);
+      color: var(--bs-secondary-text-emphasis);
+    }
+
+    svg {
+      width: 0.875rem;
+      height: 0.875rem;
+    }
+  }
+
+  &__config {
+    width: 100%;
+    padding: 0.75rem;
+    border-top: 1px solid var(--bs-border-color);
+    background: var(--bs-tertiary-bg);
+    cursor: default;
+  }
 }
 </style>

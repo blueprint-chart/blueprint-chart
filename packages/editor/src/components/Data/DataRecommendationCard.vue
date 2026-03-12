@@ -104,76 +104,76 @@ const fitnessLabel = computed(() => {
   & + & {
     margin-top: 0.625rem;
   }
-}
 
-.reco-card__preview {
-  height: 6rem;
-  background: var(--bs-tertiary-bg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-bottom: 1px solid var(--bs-border-color);
-  overflow: hidden;
+  &__preview {
+    height: 6rem;
+    background: var(--bs-tertiary-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-bottom: 1px solid var(--bs-border-color);
+    overflow: hidden;
 
-  .reco-card--best & {
-    background: var(--bs-success-bg-subtle);
-    border-bottom-color: var(--bs-success-bg-subtle);
+    .reco-card--best & {
+      background: var(--bs-success-bg-subtle);
+      border-bottom-color: var(--bs-success-bg-subtle);
+    }
   }
-}
 
-.reco-card__thumb-svg {
-  width: 100%;
-  height: 100%;
-  padding: 0.5rem;
-  opacity: 0.8;
-
-  :deep(svg) {
+  &__thumb-svg {
     width: 100%;
     height: 100%;
-    object-fit: contain;
-  }
-}
+    padding: 0.5rem;
+    opacity: 0.8;
 
-.reco-card__body {
-  padding: 0.5rem 0.625rem;
-}
-
-.reco-card__title {
-  font-size: var(--bs-font-size-sm);
-  font-weight: 700;
-  color: var(--bs-body-color);
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
-}
-
-.reco-card__reason {
-  font-size: var(--bs-font-size-xs);
-  color: var(--bs-secondary-color);
-  margin-top: 0.125rem;
-}
-
-.reco-card__badge {
-  font-size: var(--bs-font-size-xs);
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding: 0.0625rem 0.3125rem;
-  border-radius: 0.1875rem;
-
-  &--best {
-    background: var(--bs-success-bg-subtle);
-    color: var(--bs-success-text-emphasis);
+    :deep(svg) {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
   }
 
-  &--good {
-    background: var(--bs-primary-bg-subtle);
-    color: var(--bs-primary-text-emphasis);
+  &__body {
+    padding: 0.5rem 0.625rem;
   }
 
-  &--alt {
-    background: var(--bs-secondary-bg);
+  &__title {
+    font-size: var(--bs-font-size-sm);
+    font-weight: 700;
+    color: var(--bs-body-color);
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+  }
+
+  &__reason {
+    font-size: var(--bs-font-size-xs);
     color: var(--bs-secondary-color);
+    margin-top: 0.125rem;
+  }
+
+  &__badge {
+    font-size: var(--bs-font-size-xs);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.0625rem 0.3125rem;
+    border-radius: 0.1875rem;
+
+    &--best {
+      background: var(--bs-success-bg-subtle);
+      color: var(--bs-success-text-emphasis);
+    }
+
+    &--good {
+      background: var(--bs-primary-bg-subtle);
+      color: var(--bs-primary-text-emphasis);
+    }
+
+    &--alt {
+      background: var(--bs-secondary-bg);
+      color: var(--bs-secondary-color);
+    }
   }
 }
 </style>

@@ -59,24 +59,24 @@ const layoutItems = computed<NavigationPillItem[]>(() => [
   align-items: center;
   justify-content: space-between;
   margin-bottom: 1.5rem;
-}
 
-.dashboard-toolbar__title {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--bs-body-color);
-  margin-bottom: 0;
-}
+  &__title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--bs-body-color);
+    margin-bottom: 0;
+  }
 
-.dashboard-toolbar__count {
-  font-size: 0.75rem;
-  color: var(--bs-secondary-color);
-  margin-top: 0.125rem;
-}
+  &__count {
+    font-size: 0.75rem;
+    color: var(--bs-secondary-color);
+    margin-top: 0.125rem;
+  }
 
-.dashboard-toolbar__right {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  &__right {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
 }
 </style>

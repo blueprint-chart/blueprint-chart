@@ -133,39 +133,39 @@ const isEmpty = computed(() => displayRows.value.length === 0)
   :deep(.table-hover > tbody > tr:hover > *) {
     background: var(--bc-tile-bg-elevated, var(--bs-tertiary-bg));
   }
-}
 
-.data-check-table__row-num {
-  color: var(--bs-secondary-color);
-  text-align: center;
-  width: 3rem;
-  white-space: nowrap;
-  font-variant-numeric: tabular-nums;
-}
+  &__row-num {
+    color: var(--bs-secondary-color);
+    text-align: center;
+    width: 3rem;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
 
-.data-check-table__col-header {
-  cursor: pointer;
-  user-select: none;
-  white-space: nowrap;
-  vertical-align: bottom;
-}
+  &__col-header {
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+    vertical-align: bottom;
+  }
 
-.data-check-table__col-name {
-  font-weight: 600;
-}
+  &__col-name {
+    font-weight: 600;
+  }
 
-.data-check-table__col-type {
-  font-size: var(--bs-font-size-xs);
-  color: var(--bs-secondary-color);
-  font-weight: 400;
-}
+  &__col-type {
+    font-size: var(--bs-font-size-xs);
+    color: var(--bs-secondary-color);
+    font-weight: 400;
+  }
 
-.data-check-table__col--selected {
-  background: var(--bs-primary-bg-subtle) !important;
-}
+  &__col--selected {
+    background: var(--bs-primary-bg-subtle) !important;
+  }
 
-.data-check-table__cell--numeric {
-  text-align: right;
-  font-variant-numeric: tabular-nums;
+  &__cell--numeric {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
 }
 </style>

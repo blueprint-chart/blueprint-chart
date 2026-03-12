@@ -107,37 +107,36 @@ const benfordTooltip = computed(() => {
   font-size: var(--bs-font-size-sm);
   font-weight: 500;
   white-space: nowrap;
-}
 
-.data-insight-badge__icon {
-  font-size: var(--bs-font-size-xs);
-}
+  &__icon {
+    font-size: var(--bs-font-size-xs);
+  }
 
-.data-insight-badge--shape {
-  background: var(--bs-secondary-bg);
-  color: var(--bs-body-color);
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-}
+  &--shape {
+    background: var(--bs-secondary-bg);
+    color: var(--bs-body-color);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
 
-.data-insight-badge--quality-ok {
-  background: var(--bs-success-bg-subtle);
-  color: var(--bs-success-text-emphasis);
-}
+  &--quality-ok {
+    background: var(--bs-success-bg-subtle);
+    color: var(--bs-success-text-emphasis);
+  }
 
-.data-insight-badge--quality-warn {
-  background: var(--bs-warning-bg-subtle);
-  color: var(--bs-warning-text-emphasis);
-}
+  &--quality-warn {
+    background: var(--bs-warning-bg-subtle);
+    color: var(--bs-warning-text-emphasis);
+  }
 
-.data-insight-badge--benford-ok {
-  background: var(--bs-success-bg-subtle);
-  color: var(--bs-success-text-emphasis);
-}
+  &--benford-ok {
+    background: var(--bs-success-bg-subtle);
+    color: var(--bs-success-text-emphasis);
+  }
 
-.data-insight-badge--benford-warn {
-  background: var(--bs-warning-bg-subtle);
-  color: var(--bs-warning-text-emphasis);
+  &--benford-warn {
+    background: var(--bs-warning-bg-subtle);
+    color: var(--bs-warning-text-emphasis);
+  }
 }
-
 </style>

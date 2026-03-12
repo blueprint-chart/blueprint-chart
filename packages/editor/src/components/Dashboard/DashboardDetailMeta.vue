@@ -48,19 +48,21 @@ const formattedDate = computed(() => {
 </script>
 
 <style scoped lang="scss">
-.dashboard-detail-meta__title {
-  font-size: 0.625rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--bs-secondary-color);
-  margin-bottom: 0.625rem;
-}
+.dashboard-detail-meta {
+  &__title {
+    font-size: 0.625rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--bs-secondary-color);
+    margin-bottom: 0.625rem;
+  }
 
-.dashboard-detail-meta__grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.5rem;
-  margin-bottom: 0.25rem;
+  &__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+    margin-bottom: 0.25rem;
+  }
 }
 </style>

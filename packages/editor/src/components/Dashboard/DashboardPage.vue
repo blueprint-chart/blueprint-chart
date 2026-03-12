@@ -200,23 +200,23 @@ onUnmounted(() => {
     gap: 0;
     padding: 0;
   }
-}
 
-.dashboard-page__gallery {
-  flex: 1;
-  min-width: 0;
-  overflow-y: auto;
-  padding: 1.75rem;
-  background: var(--bc-tile-bg);
-  border-radius: var(--bc-tile-radius);
-  box-shadow: var(--bc-tile-shadow);
-  border: var(--bc-tile-border);
-  position: relative;
+  &__gallery {
+    flex: 1;
+    min-width: 0;
+    overflow-y: auto;
+    padding: 1.75rem;
+    background: var(--bc-tile-bg);
+    border-radius: var(--bc-tile-radius);
+    box-shadow: var(--bc-tile-shadow);
+    border: var(--bc-tile-border);
+    position: relative;
 
-  .dashboard-page--narrow & {
-    border-radius: 0;
-    border: none;
-    box-shadow: none;
+    .dashboard-page--narrow & {
+      border-radius: 0;
+      border: none;
+      box-shadow: none;
+    }
   }
 }
 

@@ -91,29 +91,29 @@ function dotClass(ct: ColumnType | undefined): string {
     background: var(--bs-success-bg-subtle);
     color: var(--bs-success-text-emphasis);
   }
-}
 
-.data-column-pill__type {
-  font-weight: 400;
-  opacity: 0.6;
-}
-
-.data-column-pill__dot {
-  width: 0.375rem;
-  height: 0.375rem;
-  border-radius: 50%;
-  flex-shrink: 0;
-
-  &--number {
-    background: var(--bs-primary);
+  &__type {
+    font-weight: 400;
+    opacity: 0.6;
   }
 
-  &--date {
-    background: var(--bs-success);
-  }
+  &__dot {
+    width: 0.375rem;
+    height: 0.375rem;
+    border-radius: 50%;
+    flex-shrink: 0;
 
-  &--string {
-    background: var(--bs-secondary-color);
+    &--number {
+      background: var(--bs-primary);
+    }
+
+    &--date {
+      background: var(--bs-success);
+    }
+
+    &--string {
+      background: var(--bs-secondary-color);
+    }
   }
 }
 </style>

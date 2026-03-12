@@ -21,18 +21,18 @@ import IPhCursorClick from '~icons/ph/cursor-click'
   gap: 0.75rem;
   padding: 2rem 1rem;
   text-align: center;
-}
 
-.dashboard-empty-state__icon {
-  width: 2rem;
-  height: 2rem;
-  color: var(--bs-secondary-color);
-  opacity: 0.5;
-}
+  &__icon {
+    width: 2rem;
+    height: 2rem;
+    color: var(--bs-secondary-color);
+    opacity: 0.5;
+  }
 
-.dashboard-empty-state__text {
-  font-size: 0.75rem;
-  color: var(--bs-secondary-color);
-  margin: 0;
+  &__text {
+    font-size: 0.75rem;
+    color: var(--bs-secondary-color);
+    margin: 0;
+  }
 }
 </style>
