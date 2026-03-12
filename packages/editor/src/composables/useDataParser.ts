@@ -111,9 +111,14 @@ export function parseBpcData(raw: string): ParsedData {
     return { columns: [], rows: [], columnTypes: [] }
   }
 
-  const seriesMatch = lines[0]?.match(/^_series\s*=\s*"(.+)"$/)
+  const seriesMatch = lines[0]?.match(/^_series\s*=\s*(.+)$/)
   if (seriesMatch) {
-    const seriesNames = seriesMatch[1].split(',').map(s => s.trim())
+    const raw = seriesMatch[1].trim()
+    // New format: _series = "A","B","C" — individually quoted names
+    // Legacy format: _series = "A,B,C" — single quoted string with commas
+    const seriesNames = raw.includes('","')
+      ? raw.split(',').map(s => s.trim().replace(/^"|"$/g, ''))
+      : raw.replace(/^"|"$/g, '').split(',').map(s => s.trim())
     const columns = ['label', ...seriesNames]
     const rows: string[][] = []
     for (let i = 1; i < lines.length; i++) {
