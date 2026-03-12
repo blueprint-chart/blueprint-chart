@@ -1,5 +1,5 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
-import HomePage from '@/components/Home/HomePage.vue'
+import DashboardPage from '@/components/Dashboard/DashboardPage.vue'
 import WizardShell from '@/components/Wizard/WizardShell.vue'
 import RenderPage from '@/components/Render/RenderPage.vue'
 import { useChartSession } from '@/composables/useChartSession'
@@ -26,7 +26,7 @@ const router = createRouter({
     },
     {
       path: '/charts',
-      component: HomePage,
+      component: DashboardPage,
     },
     {
       path: '/new',
