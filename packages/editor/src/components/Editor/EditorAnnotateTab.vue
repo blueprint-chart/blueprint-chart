@@ -28,7 +28,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch, nextTick, onMounted, onBeforeUnmount } from 'vue'
+import { computed, ref, shallowRef, watch, nextTick, onMounted, onBeforeUnmount } from 'vue'
 import { useChartConfig } from '@/composables/useChartConfig'
 import { usePreviewContainer } from '@/composables/usePreviewContainer'
 import { useEditorPanel } from '@/composables/useEditorPanel'
@@ -137,8 +137,8 @@ const selectedIndex = computed(() => annotationsRef.value?.openIndex ?? null)
 
 const { containerRef } = usePreviewContainer()
 
-const chartWidth = ref(600)
-const chartHeight = ref(400)
+const chartWidth = shallowRef(600)
+const chartHeight = shallowRef(400)
 
 function readChartDimensions() {
   const svg = containerRef.value?.querySelector('svg')

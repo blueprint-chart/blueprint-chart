@@ -249,13 +249,13 @@ onBeforeRouteLeave(() => {
   flex-grow: 1;
   overflow: hidden;
   gap: var(--bc-tile-gap);
-  padding: 0 var(--bc-tile-gap) var(--bc-tile-gap) ;
-}
+  padding: 0 var(--bc-tile-gap) var(--bc-tile-gap);
 
-.wizard-shell__content {
-  display: flex;
-  flex-grow: 1;
-  min-height: 0;
-  overflow: auto;
+  &__content {
+    display: flex;
+    flex-grow: 1;
+    min-height: 0;
+    overflow: auto;
+  }
 }
 </style>

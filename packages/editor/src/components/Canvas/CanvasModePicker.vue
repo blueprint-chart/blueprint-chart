@@ -31,7 +31,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { shallowRef } from 'vue'
 import { useEditorPanel } from '@/composables/useEditorPanel'
 import type { CanvasMode } from '@/composables/useEditorPanel'
 import CanvasModePickerOption from './CanvasModePickerOption.vue'
@@ -40,7 +40,7 @@ import CanvasDimensionsToggle from './CanvasDimensionsToggle.vue'
 
 const { canvasMode, setCanvasMode } = useEditorPanel()
 
-const expanded = ref(false)
+const expanded = shallowRef(false)
 
 const options: { value: CanvasMode, label: string }[] = [
   { value: 'blueprint', label: 'Blueprint' },
@@ -68,39 +68,39 @@ function select(mode: CanvasMode) {
   border-radius: 0.5rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   overflow: hidden;
-}
 
-.canvas-mode-picker__trigger {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  padding: 2px;
-  border: none;
-  background: none;
-  cursor: pointer;
-  color: var(--bs-body-color);
-}
+  &__trigger {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 2px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    color: var(--bs-body-color);
+  }
 
-.canvas-mode-picker__divider {
-  width: 1px;
-  align-self: stretch;
-  margin: 0.375rem 0;
-  background: var(--bs-border-color);
-}
+  &__divider {
+    width: 1px;
+    align-self: stretch;
+    margin: 0.375rem 0;
+    background: var(--bs-border-color);
+  }
 
-.canvas-mode-picker__extra {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem;
-}
+  &__extra {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+  }
 
-.canvas-mode-picker__extra-label {
-  font-size: var(--bs-font-size-xs);
-  font-weight: 500;
-  line-height: 1;
-  white-space: nowrap;
-  color: var(--bs-secondary-color);
+  &__extra-label {
+    font-size: var(--bs-font-size-xs);
+    font-weight: 500;
+    line-height: 1;
+    white-space: nowrap;
+    color: var(--bs-secondary-color);
+  }
 }
 </style>

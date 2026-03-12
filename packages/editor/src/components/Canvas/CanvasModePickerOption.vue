@@ -50,12 +50,12 @@ defineEmits<{
       outline-offset: 2px;
     }
   }
-}
 
-.canvas-mode-picker-option__label {
-  font-size: var(--bs-font-size-xs);
-  font-weight: 500;
-  line-height: 1;
-  white-space: nowrap;
+  &__label {
+    font-size: var(--bs-font-size-xs);
+    font-weight: 500;
+    line-height: 1;
+    white-space: nowrap;
+  }
 }
 </style>

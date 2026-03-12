@@ -70,29 +70,29 @@ watch(() => activeTabEl, scrollActiveTabIntoView)
     z-index: 1;
     background: var(--bc-tile-bg);
   }
-}
 
-.panel-tab-bar__tab {
-  font-family: inherit;
-  font-size: var(--bs-font-size-sm);
-  font-weight: 500;
-  padding: 0.5rem 0.75rem;
-  white-space: nowrap;
-  flex-shrink: 0;
-  border: none;
-  cursor: pointer;
-  background: transparent;
-  color: var(--bs-secondary-color);
-  border-bottom: 2px solid transparent;
-  transition: all 0.15s;
+  &__tab {
+    font-family: inherit;
+    font-size: var(--bs-font-size-sm);
+    font-weight: 500;
+    padding: 0.5rem 0.75rem;
+    white-space: nowrap;
+    flex-shrink: 0;
+    border: none;
+    cursor: pointer;
+    background: transparent;
+    color: var(--bs-secondary-color);
+    border-bottom: 2px solid transparent;
+    transition: all 0.15s;
 
-  &:hover {
-    color: var(--bs-body-color);
-  }
+    &:hover {
+      color: var(--bs-body-color);
+    }
 
-  &--active {
-    color: var(--bs-primary);
-    border-bottom-color: var(--bs-primary);
+    &--active {
+      color: var(--bs-primary);
+      border-bottom-color: var(--bs-primary);
+    }
   }
 }
 </style>

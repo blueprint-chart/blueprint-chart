@@ -70,7 +70,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, type CSSProperties } from 'vue'
+import { ref, shallowRef, computed, watch, type CSSProperties } from 'vue'
 import { useResizeObserver } from '@vueuse/core'
 import { LayoutBottomDrawer, useBreakpoint } from '@blueprint-chart/ui'
 import { useEditorPanel } from '@/composables/useEditorPanel'
@@ -111,8 +111,8 @@ const previewRef = ref<HTMLElement | null>(null)
 useChartPreview(previewRef)
 const { downloadSvg, downloadPng } = useImageExport(previewRef, cardRef)
 
-const gridOffsetX = ref(0)
-const gridOffsetY = ref(0)
+const gridOffsetX = shallowRef(0)
+const gridOffsetY = shallowRef(0)
 
 function updateGridOffset() {
   const card = cardRef.value
@@ -130,7 +130,7 @@ const canvasStyle = computed<CSSProperties>(() => ({
   '--grid-offset-y': `${gridOffsetY.value}px`,
 } as CSSProperties))
 
-const drawerOpen = ref(true)
+const drawerOpen = shallowRef(true)
 
 const tabs = [
   { key: 'embed', label: 'Embed' },
@@ -156,128 +156,128 @@ const canvasClassList = computed(() => ({
     padding: 0;
     gap: 0;
   }
-}
 
-.export-panel__canvas {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  padding: 2.5rem 3rem;
-  overflow: auto;
-  position: relative;
-  background: var(--bc-canvas-bg);
-  border-radius: var(--bc-tile-radius);
-  box-shadow: var(--bc-tile-shadow);
-  border: var(--bc-tile-border);
-
-  .export-panel--narrow & {
-    padding: 1rem;
-  }
-
-  &::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background-image:
-      linear-gradient(var(--bc-canvas-grid-color-major) 1px, transparent 1px),
-      linear-gradient(90deg, var(--bc-canvas-grid-color-major) 1px, transparent 1px),
-      linear-gradient(var(--bc-canvas-grid-color) 1px, transparent 1px),
-      linear-gradient(90deg, var(--bc-canvas-grid-color) 1px, transparent 1px);
-    background-size:
-      calc(var(--bc-canvas-grid-size) * 5) calc(var(--bc-canvas-grid-size) * 5),
-      calc(var(--bc-canvas-grid-size) * 5) calc(var(--bc-canvas-grid-size) * 5),
-      var(--bc-canvas-grid-size) var(--bc-canvas-grid-size),
-      var(--bc-canvas-grid-size) var(--bc-canvas-grid-size);
-    background-position: var(--grid-offset-x, 0) var(--grid-offset-y, 0);
-  }
-
-  &--auto,
-  &--light,
-  &--dark {
-    &::before {
-      display: none;
-    }
-  }
-
-  &--light,
-  &--auto {
-    background: #ffffff;
-    --bc-canvas-dimension-color: rgba(0, 0, 0, 0.3);
-  }
-
-  &--dark {
-    background: #151518;
-    --bc-canvas-dimension-color: rgba(255, 255, 255, 0.3);
-  }
-
-  :global([data-bs-theme="dark"]) &--auto {
-    background: #151518;
-    --bc-canvas-dimension-color: rgba(255, 255, 255, 0.3);
-  }
-}
-
-.export-panel__card {
-  position: relative;
-  z-index: 1;
-  background: var(--bs-card-bg);
-  border: 1px solid var(--bs-border-color);
-  border-radius: var(--bs-border-radius-sm);
-  overflow: auto;
-  box-shadow: var(--bs-card-box-shadow);
-
-  &--fixed {
-    flex: none;
-    margin: 0 auto;
-  }
-
-  &--max-width {
-    margin: 0 auto;
-    width: 100%;
-  }
-
-  &--transparent {
-    background: transparent;
-  }
-
-  &--constrained-height {
-    flex: none;
+  &__canvas {
+    flex: 1;
     display: flex;
     flex-direction: column;
+    padding: 2.5rem 3rem;
+    overflow: auto;
+    position: relative;
+    background: var(--bc-canvas-bg);
+    border-radius: var(--bc-tile-radius);
+    box-shadow: var(--bc-tile-shadow);
+    border: var(--bc-tile-border);
 
-    :deep(.w-100.h-100) {
-      flex: 1;
-      min-height: 0;
-      display: flex;
-      flex-direction: column;
+    .export-panel--narrow & {
+      padding: 1rem;
     }
 
-    :deep(.bc-frame) {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      min-height: 0;
+    &::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(var(--bc-canvas-grid-color-major) 1px, transparent 1px),
+        linear-gradient(90deg, var(--bc-canvas-grid-color-major) 1px, transparent 1px),
+        linear-gradient(var(--bc-canvas-grid-color) 1px, transparent 1px),
+        linear-gradient(90deg, var(--bc-canvas-grid-color) 1px, transparent 1px);
+      background-size:
+        calc(var(--bc-canvas-grid-size) * 5) calc(var(--bc-canvas-grid-size) * 5),
+        calc(var(--bc-canvas-grid-size) * 5) calc(var(--bc-canvas-grid-size) * 5),
+        var(--bc-canvas-grid-size) var(--bc-canvas-grid-size),
+        var(--bc-canvas-grid-size) var(--bc-canvas-grid-size);
+      background-position: var(--grid-offset-x, 0) var(--grid-offset-y, 0);
     }
 
-    :deep(.bc-frame-body) {
-      flex: 1;
-      min-height: 0;
+    &--auto,
+    &--light,
+    &--dark {
+      &::before {
+        display: none;
+      }
     }
 
-    :deep(.bc-frame-body svg) {
-      width: 100%;
-      height: 100%;
-      display: block;
+    &--light,
+    &--auto {
+      background: #ffffff;
+      --bc-canvas-dimension-color: rgba(0, 0, 0, 0.3);
+    }
+
+    &--dark {
+      background: #151518;
+      --bc-canvas-dimension-color: rgba(255, 255, 255, 0.3);
+    }
+
+    :global([data-bs-theme="dark"]) &--auto {
+      background: #151518;
+      --bc-canvas-dimension-color: rgba(255, 255, 255, 0.3);
     }
   }
-}
 
-.export-panel__preview {
-  min-height: 200px;
-}
+  &__card {
+    position: relative;
+    z-index: 1;
+    background: var(--bs-card-bg);
+    border: 1px solid var(--bs-border-color);
+    border-radius: var(--bs-border-radius-sm);
+    overflow: auto;
+    box-shadow: var(--bs-card-box-shadow);
 
-.export-panel__drawer-body {
-  padding: 0.75rem;
+    &--fixed {
+      flex: none;
+      margin: 0 auto;
+    }
+
+    &--max-width {
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    &--transparent {
+      background: transparent;
+    }
+
+    &--constrained-height {
+      flex: none;
+      display: flex;
+      flex-direction: column;
+
+      :deep(.w-100.h-100) {
+        flex: 1;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+      }
+
+      :deep(.bc-frame) {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+      }
+
+      :deep(.bc-frame-body) {
+        flex: 1;
+        min-height: 0;
+      }
+
+      :deep(.bc-frame-body svg) {
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+    }
+  }
+
+  &__preview {
+    min-height: 200px;
+  }
+
+  &__drawer-body {
+    padding: 0.75rem;
+  }
 }
 
 :deep(.layout-panel) {

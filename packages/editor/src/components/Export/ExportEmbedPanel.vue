@@ -70,54 +70,54 @@ const iframeSnippet = computed(() => {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-}
 
-.export-embed-panel__info {
-  font-size: var(--bs-font-size-sm);
-  color: var(--bs-secondary-color);
-  line-height: 1.5;
-}
-
-.export-embed-panel__code-block {
-  border: 1px solid var(--bs-border-color);
-  border-radius: var(--bs-border-radius);
-  overflow: hidden;
-}
-
-.export-embed-panel__header {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.75rem;
-  background: var(--bs-tertiary-bg);
-  border-bottom: 1px solid var(--bs-border-color);
-}
-
-.export-embed-panel__label {
-  flex: 1;
-  font-size: var(--bs-body-font-size);
-  font-weight: 600;
-  color: var(--bs-body-color);
-}
-
-.export-embed-panel__pre {
-  margin: 0;
-  padding: 0.75rem;
-  line-height: 1.5;
-  overflow-x: auto;
-  background: var(--bs-body-bg);
-  color: var(--bs-body-color);
-  white-space: pre;
-
-  code {
-    font-size: var(--bs-body-font-size-sm);
+  &__info {
+    font-size: var(--bs-font-size-sm);
+    color: var(--bs-secondary-color);
+    line-height: 1.5;
   }
-}
 
-.export-embed-panel__link {
-  font-size: var(--bs-font-size-sm);
-  color: var(--bs-link-color);
-  text-decoration: underline;
-  text-align: center;
+  &__code-block {
+    border: 1px solid var(--bs-border-color);
+    border-radius: var(--bs-border-radius);
+    overflow: hidden;
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background: var(--bs-tertiary-bg);
+    border-bottom: 1px solid var(--bs-border-color);
+  }
+
+  &__label {
+    flex: 1;
+    font-size: var(--bs-body-font-size);
+    font-weight: 600;
+    color: var(--bs-body-color);
+  }
+
+  &__pre {
+    margin: 0;
+    padding: 0.75rem;
+    line-height: 1.5;
+    overflow-x: auto;
+    background: var(--bs-body-bg);
+    color: var(--bs-body-color);
+    white-space: pre;
+
+    code {
+      font-size: var(--bs-body-font-size-sm);
+    }
+  }
+
+  &__link {
+    font-size: var(--bs-font-size-sm);
+    color: var(--bs-link-color);
+    text-decoration: underline;
+    text-align: center;
+  }
 }
 </style>
