@@ -107,19 +107,18 @@ const decimalOptions = [
   :deep(.dropdown-toggle) {
     font-weight: 400;
   }
-}
 
-.data-parse-settings__field {
-  margin-bottom: 0.875rem;
-}
+  &__field {
+    margin-bottom: 0.875rem;
+  }
 
-.data-parse-settings__label {
-  font-size: var(--bs-font-size-xs);
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--bs-secondary-color);
-  margin-bottom: 0.25rem;
+  &__label {
+    font-size: var(--bs-font-size-xs);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--bs-secondary-color);
+    margin-bottom: 0.25rem;
+  }
 }
-
 </style>

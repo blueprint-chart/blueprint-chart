@@ -33,14 +33,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { shallowRef } from 'vue'
 import { ButtonAdd } from '@blueprint-chart/ui'
 
 const emit = defineEmits<{
   add: [type: string]
 }>()
 
-const showMenu = ref(false)
+const showMenu = shallowRef(false)
 
 const options = [
   { value: 'sort', label: 'Sort', desc: 'Reorder rows by column values', disabled: false },
@@ -90,110 +90,109 @@ function onSelect(type: string) {
 <style scoped lang="scss">
 .add-wrap {
   position: relative;
-}
 
-.add-wrap__dropdown {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 100%;
-  background: var(--bs-body-bg);
-  border: 1px solid var(--bs-border-color);
-  border-radius: var(--bs-border-radius);
-  box-shadow: var(--bs-box-shadow);
-  z-index: 50;
-  margin-top: 0.25rem;
-}
-
-.add-wrap__dropdown-item {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.75rem;
-  cursor: pointer;
-  font-size: var(--bs-font-size-sm);
-  transition: background 0.1s;
-  border: none;
-  background: none;
-  width: 100%;
-  text-align: left;
-  color: var(--bs-body-color);
-  font-family: inherit;
-
-  &:hover:not(:disabled) {
-    background: var(--bs-tertiary-bg);
+  &__dropdown {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    background: var(--bs-body-bg);
+    border: 1px solid var(--bs-border-color);
+    border-radius: var(--bs-border-radius);
+    box-shadow: var(--bs-box-shadow);
+    z-index: 50;
+    margin-top: 0.25rem;
   }
 
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-}
+  &__dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    cursor: pointer;
+    font-size: var(--bs-font-size-sm);
+    transition: background 0.1s;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    color: var(--bs-body-color);
+    font-family: inherit;
 
-.add-wrap__dropdown-icon {
-  width: 1.5rem;
-  height: 1.5rem;
-  border-radius: 0.25rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: var(--bs-font-size-sm);
-  font-weight: 700;
-  flex-shrink: 0;
+    &:hover:not(:disabled) {
+      background: var(--bs-tertiary-bg);
+    }
 
-  &--sort {
-    background: var(--bs-warning-bg-subtle);
-    color: var(--bs-warning-text-emphasis);
-  }
-
-  &--filter {
-    background: var(--bs-danger-bg-subtle);
-    color: var(--bs-danger-text-emphasis);
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
   }
 
-  &--hide-columns {
-    background: var(--bs-secondary-bg);
-    color: var(--bs-secondary-text-emphasis);
+  &__dropdown-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 0.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--bs-font-size-sm);
+    font-weight: 700;
+    flex-shrink: 0;
+
+    &--sort {
+      background: var(--bs-warning-bg-subtle);
+      color: var(--bs-warning-text-emphasis);
+    }
+
+    &--filter {
+      background: var(--bs-danger-bg-subtle);
+      color: var(--bs-danger-text-emphasis);
+    }
+
+    &--hide-columns {
+      background: var(--bs-secondary-bg);
+      color: var(--bs-secondary-text-emphasis);
+    }
+
+    &--transpose {
+      background: var(--bs-info-bg-subtle);
+      color: var(--bs-info-text-emphasis);
+    }
+
+    &--parse {
+      background: var(--bs-success-bg-subtle);
+      color: var(--bs-success-text-emphasis);
+    }
+
+    &--rename {
+      background: var(--bs-primary-bg-subtle);
+      color: var(--bs-primary-text-emphasis);
+    }
+
+    &--group {
+      background: hsl(270 90% 95%);
+      color: hsl(270 70% 50%);
+    }
+
+    &--computed {
+      background: var(--bs-info-bg-subtle);
+      color: var(--bs-info-text-emphasis);
+    }
   }
 
-  &--transpose {
-    background: var(--bs-info-bg-subtle);
-    color: var(--bs-info-text-emphasis);
+  &__dropdown-text {
+    flex: 1;
   }
 
-  &--parse {
-    background: var(--bs-success-bg-subtle);
-    color: var(--bs-success-text-emphasis);
+  &__dropdown-name {
+    font-weight: 600;
+    color: var(--bs-body-color);
   }
 
-  &--rename {
-    background: var(--bs-primary-bg-subtle);
-    color: var(--bs-primary-text-emphasis);
+  &__dropdown-desc {
+    font-size: var(--bs-font-size-xs);
+    color: var(--bs-secondary-color);
   }
-
-  &--group {
-    background: hsl(270 90% 95%);
-    color: hsl(270 70% 50%);
-  }
-
-  &--computed {
-    background: var(--bs-info-bg-subtle);
-    color: var(--bs-info-text-emphasis);
-  }
-
-}
-
-.add-wrap__dropdown-text {
-  flex: 1;
-}
-
-.add-wrap__dropdown-name {
-  font-weight: 600;
-  color: var(--bs-body-color);
-}
-
-.add-wrap__dropdown-desc {
-  font-size: var(--bs-font-size-xs);
-  color: var(--bs-secondary-color);
 }
 </style>

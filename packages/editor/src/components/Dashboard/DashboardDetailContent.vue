@@ -60,14 +60,16 @@ defineEmits<{
 </script>
 
 <style scoped lang="scss">
-.dashboard-detail-content__subtitle {
-  font-size: 0.75rem;
-  color: var(--bs-secondary-color);
-  line-height: 1.5;
-  margin-bottom: 0.75rem;
-}
+.dashboard-detail-content {
+  &__subtitle {
+    font-size: 0.75rem;
+    color: var(--bs-secondary-color);
+    line-height: 1.5;
+    margin-bottom: 0.75rem;
+  }
 
-.dashboard-detail-content :deep(.btn) {
-  width: 100%;
+  :deep(.btn) {
+    width: 100%;
+  }
 }
 </style>

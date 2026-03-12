@@ -85,7 +85,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { shallowRef, computed, watch } from 'vue'
 import { FormControlDropdown } from '@blueprint-chart/ui'
 import { useEditorPanel } from '@/composables/useEditorPanel'
 import { useDataTable } from '@/composables/useDataTable'
@@ -94,7 +94,7 @@ import type { ColumnType } from '@/composables/useDataParser'
 const { selectedColumnIndex, selectColumn } = useEditorPanel()
 const { columns, rows, columnTypes, setColumnType } = useDataTable()
 
-const columnType = ref('string')
+const columnType = shallowRef('string')
 
 const typeOptions = [
   { value: 'string', label: 'String' },
@@ -171,78 +171,78 @@ const benfordDetection = computed(() => {
   display: flex;
   flex-direction: column;
   gap: 0;
-}
 
-.data-column-settings__picker {
-  padding-top: 0.25rem;
-}
-
-.data-column-settings__field {
-  margin-bottom: 0.875rem;
-}
-
-.data-column-settings__label {
-  font-size: var(--bs-font-size-xs);
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--bs-secondary-color);
-  margin-bottom: 0.25rem;
-}
-
-.data-column-settings__divider {
-  border: none;
-  border-top: 1px solid var(--bs-border-color-translucent);
-  margin: 1rem 0;
-}
-
-.data-column-settings__section {
-  margin-bottom: 1.25rem;
-}
-
-.data-column-settings__section-title {
-  font-size: var(--bs-font-size-xs);
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--bs-secondary-color);
-  margin-bottom: 0.5rem;
-}
-
-.data-column-settings__detections {
-  display: flex;
-  flex-direction: column;
-  gap: 0.375rem;
-}
-
-.data-column-settings__detection {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  padding: 0.1875rem 0.5rem;
-  border-radius: 0.25rem;
-  font-size: var(--bs-font-size-xs);
-  font-weight: 600;
-
-  svg {
-    width: 0.75rem;
-    height: 0.75rem;
-    flex-shrink: 0;
+  &__picker {
+    padding-top: 0.25rem;
   }
 
-  &--success {
-    background: var(--bs-success-bg-subtle);
-    color: var(--bs-success-text-emphasis);
+  &__field {
+    margin-bottom: 0.875rem;
   }
 
-  &--info {
-    background: var(--bs-primary-bg-subtle);
-    color: var(--bs-primary-text-emphasis);
+  &__label {
+    font-size: var(--bs-font-size-xs);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--bs-secondary-color);
+    margin-bottom: 0.25rem;
   }
 
-  &--warn {
-    background: var(--bs-warning-bg-subtle);
-    color: var(--bs-warning-text-emphasis);
+  &__divider {
+    border: none;
+    border-top: 1px solid var(--bs-border-color-translucent);
+    margin: 1rem 0;
+  }
+
+  &__section {
+    margin-bottom: 1.25rem;
+  }
+
+  &__section-title {
+    font-size: var(--bs-font-size-xs);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--bs-secondary-color);
+    margin-bottom: 0.5rem;
+  }
+
+  &__detections {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+  }
+
+  &__detection {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.1875rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: var(--bs-font-size-xs);
+    font-weight: 600;
+
+    svg {
+      width: 0.75rem;
+      height: 0.75rem;
+      flex-shrink: 0;
+    }
+
+    &--success {
+      background: var(--bs-success-bg-subtle);
+      color: var(--bs-success-text-emphasis);
+    }
+
+    &--info {
+      background: var(--bs-primary-bg-subtle);
+      color: var(--bs-primary-text-emphasis);
+    }
+
+    &--warn {
+      background: var(--bs-warning-bg-subtle);
+      color: var(--bs-warning-text-emphasis);
+    }
   }
 }
 </style>

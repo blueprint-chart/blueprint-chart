@@ -34,23 +34,23 @@ defineProps<{
   font-size: var(--bs-font-size-sm);
   font-weight: 600;
   color: var(--bs-success-text-emphasis);
-}
 
-.output-block__icon {
-  width: 1.5rem;
-  height: 1.5rem;
-  border-radius: 0.25rem;
-  background: var(--bs-success-bg-subtle);
-  color: var(--bs-success);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+  &__icon {
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 0.25rem;
+    background: var(--bs-success-bg-subtle);
+    color: var(--bs-success);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 
-.output-block__meta {
-  font-weight: 400;
-  color: var(--bs-success-text-emphasis);
-  margin-left: auto;
-  font-size: var(--bs-font-size-xs);
+  &__meta {
+    font-weight: 400;
+    color: var(--bs-success-text-emphasis);
+    margin-left: auto;
+    font-size: var(--bs-font-size-xs);
+  }
 }
 </style>

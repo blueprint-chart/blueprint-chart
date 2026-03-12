@@ -45,7 +45,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, shallowRef } from 'vue'
 
 const emit = defineEmits<{
   loaded: [content: string, filename: string]
@@ -54,7 +54,7 @@ const emit = defineEmits<{
 }>()
 
 const fileInput = ref<globalThis.HTMLInputElement | null>(null)
-const dragging = ref(false)
+const dragging = shallowRef(false)
 
 function setDragState(active: boolean) {
   dragging.value = active
@@ -115,70 +115,70 @@ function onFileSelect(e: globalThis.Event) {
   &:hover {
     background: var(--bs-tertiary-bg);
   }
-}
 
-.file-drop__icon {
-  width: 3rem;
-  height: 3rem;
-  border-radius: 0.75rem;
-  background: var(--bs-primary-bg-subtle);
-  color: var(--bs-primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 0.75rem;
-}
-
-.file-drop__title {
-  font-size: var(--bs-font-size-md);
-  font-weight: 600;
-  color: var(--bs-body-color);
-  margin-bottom: 0.125rem;
-}
-
-.file-drop__or {
-  font-size: var(--bs-font-size-sm);
-  color: var(--bs-secondary-color);
-  margin-bottom: 0.875rem;
-}
-
-.file-drop__btn {
-  padding: 0.4375rem 1.25rem;
-  font-size: var(--bs-font-size-sm);
-  font-weight: 600;
-  color: var(--bs-body-color);
-  background: var(--bs-body-bg);
-  border: 1px solid var(--bs-border-color);
-  border-radius: var(--bs-border-radius);
-  cursor: pointer;
-  font-family: inherit;
-  transition: all 0.15s;
-
-  &:hover {
-    border-color: var(--bs-primary);
-    color: var(--bs-primary);
+  &__icon {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 0.75rem;
     background: var(--bs-primary-bg-subtle);
+    color: var(--bs-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.75rem;
   }
-}
 
-.file-drop__formats {
-  display: flex;
-  gap: 0.375rem;
-  margin-top: 0.875rem;
-}
+  &__title {
+    font-size: var(--bs-font-size-md);
+    font-weight: 600;
+    color: var(--bs-body-color);
+    margin-bottom: 0.125rem;
+  }
 
-.file-drop__format-tag {
-  font-size: var(--bs-font-size-xs);
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding: 0.125rem 0.4375rem;
-  border-radius: 0.1875rem;
-  background: var(--bs-tertiary-bg);
-  color: var(--bs-secondary-color);
-}
+  &__or {
+    font-size: var(--bs-font-size-sm);
+    color: var(--bs-secondary-color);
+    margin-bottom: 0.875rem;
+  }
 
-.file-drop__input {
-  display: none;
+  &__btn {
+    padding: 0.4375rem 1.25rem;
+    font-size: var(--bs-font-size-sm);
+    font-weight: 600;
+    color: var(--bs-body-color);
+    background: var(--bs-body-bg);
+    border: 1px solid var(--bs-border-color);
+    border-radius: var(--bs-border-radius);
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+
+    &:hover {
+      border-color: var(--bs-primary);
+      color: var(--bs-primary);
+      background: var(--bs-primary-bg-subtle);
+    }
+  }
+
+  &__formats {
+    display: flex;
+    gap: 0.375rem;
+    margin-top: 0.875rem;
+  }
+
+  &__format-tag {
+    font-size: var(--bs-font-size-xs);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.125rem 0.4375rem;
+    border-radius: 0.1875rem;
+    background: var(--bs-tertiary-bg);
+    color: var(--bs-secondary-color);
+  }
+
+  &__input {
+    display: none;
+  }
 }
 </style>
