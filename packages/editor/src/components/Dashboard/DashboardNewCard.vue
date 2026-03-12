@@ -45,7 +45,7 @@ const cardClassList = computed(() => ({
   gap: 0.5rem;
   min-height: 236px;
   color: var(--bs-secondary-color);
-  transition: all 0.18s;
+  transition: color 0.18s, border-color 0.18s, background 0.18s;
   outline: none;
 
   &:hover {
