@@ -365,6 +365,44 @@ describe('serializer', () => {
     expect(ast2.scenes[0].annotationVisibility).toEqual(ast1.scenes[0].annotationVisibility)
   })
 
+  it('serializes multi-value data entries', () => {
+    const ast: ChartNode = {
+      type: 'chart',
+      chartType: 'bar-multi',
+      properties: [],
+      data: {
+        type: 'data',
+        entries: [
+          { type: 'property', key: '_series', value: 'Gold', isPercentage: false, values: ['Gold', 'Silver', 'Bronze'] },
+          { type: 'property', key: 'USA', value: 40, isPercentage: false, values: [40, 44, 42] },
+        ],
+      },
+      highlights: [],
+      areaFills: [],
+      annotations: [],
+      series: [],
+      scenes: [],
+      transforms: [],
+    }
+    const output = serialize(ast)
+    expect(output).toContain('_series = "Gold","Silver","Bronze"')
+    expect(output).toContain('"USA" = 40,44,42')
+  })
+
+  it('round-trips multi-value data entries', () => {
+    const dsl = `chart bar-multi {
+  data {
+    _series = "Gold","Silver","Bronze"
+    "USA" = 40,44,42
+    "China" = -2.8,3.2,18
+  }
+}`
+    const ast1 = parse(dsl)
+    const serialized = serialize(ast1)
+    const ast2 = parse(serialized)
+    expect(ast2).toEqual(ast1)
+  })
+
   describe('round-trip', () => {
     const SIMPLE_CHART = `chart horizontal-bar {
   title = "Couverture médiatique"
