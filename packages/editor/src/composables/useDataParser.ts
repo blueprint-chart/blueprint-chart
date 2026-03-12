@@ -147,6 +147,21 @@ export function parseBpcData(raw: string): ParsedData {
   return { columns, rows, columnTypes }
 }
 
+export function serializeDelimited(columns: string[], rows: string[][], delimiter: string = '\t'): string {
+  const escape = (cell: string) => {
+    if (delimiter === '\t') {
+      return cell
+    }
+    if (cell.includes(delimiter) || cell.includes('"') || cell.includes('\n')) {
+      return `"${cell.replace(/"/g, '""')}"`
+    }
+    return cell
+  }
+  const header = columns.map(escape).join(delimiter)
+  const body = rows.map(row => row.map(escape).join(delimiter))
+  return [header, ...body].join('\n')
+}
+
 export function parseDelimited(raw: string, options?: ParseDelimitedOptions): ParsedData {
   const opts = options ?? {}
   const shouldTrim = opts.trimWhitespace !== false
