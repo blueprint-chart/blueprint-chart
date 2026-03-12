@@ -2,33 +2,8 @@
   <div class="d-flex flex-column vh-100">
     <LayoutNavbar :transparent="true">
       <template #center>
-        <div
-          v-if="isLanding"
-          class="shell-navbar__anchors"
-        >
-          <a
-            href="#features"
-            @click.prevent="scrollTo('features')"
-          >Features</a>
-          <a
-            href="#transforms"
-            @click.prevent="scrollTo('transforms')"
-          >Transforms</a>
-          <a
-            href="#bpc"
-            @click.prevent="scrollTo('bpc')"
-          >BPC Format</a>
-          <a
-            href="#stories"
-            @click.prevent="scrollTo('stories')"
-          >Stories</a>
-          <a
-            href="#open-source"
-            @click.prevent="scrollTo('open-source')"
-          >Open Source</a>
-        </div>
         <NavigationStepper
-          v-else-if="mode === 'wizard'"
+          v-if="mode === 'wizard'"
           v-model:current-step="currentIndex"
           :steps="stepLabels"
           :disabled-steps="disabledSteps"
@@ -99,12 +74,6 @@ const route = useRoute()
 const router = useRouter()
 const { listSavedCharts } = useChartSession()
 const { mode } = useNavbar()
-
-const isLanding = computed(() => route.path === '/')
-
-function scrollTo(id: string) {
-  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
-}
 
 // Wizard composables (only active when mode === 'wizard')
 const { currentIndex, steps } = useWizard()
@@ -231,31 +200,4 @@ onClickOutside(searchContainer, () => {
   }
 }
 
-.shell-navbar__anchors {
-  display: flex;
-  align-items: center;
-  gap: 0;
-
-  a {
-    display: block;
-    padding: 0 1rem;
-    height: 2.75rem;
-    line-height: 2.75rem;
-    font-size: 0.8125rem;
-    font-weight: 500;
-    color: var(--bs-secondary-color);
-    text-decoration: none;
-    transition: color 0.15s;
-
-    &:hover {
-      color: var(--bs-body-color);
-    }
-  }
-}
-
-@media (max-width: 48rem) {
-  .shell-navbar__anchors {
-    display: none;
-  }
-}
 </style>

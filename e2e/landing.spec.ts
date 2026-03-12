@@ -14,17 +14,6 @@ test.describe('landing page layout', () => {
     await expect(page.locator('.landing-page')).toBeVisible()
   })
 
-  test('navbar shows anchor links on landing page', async ({ page }) => {
-    await page.goto('/#/')
-    await page.waitForTimeout(1000)
-
-    const anchors = page.locator('.shell-navbar__anchors a')
-    await expect(anchors).toHaveCount(5)
-    await expect(anchors.nth(0)).toContainText('Features')
-    await expect(anchors.nth(1)).toContainText('Transforms')
-    await expect(anchors.nth(2)).toContainText('BPC Format')
-  })
-
   test('hero section renders heading and CTA', async ({ page }) => {
     await page.goto('/#/')
     await page.waitForTimeout(1000)
@@ -138,16 +127,4 @@ test.describe('landing page layout', () => {
     expect(heroBox!.width).toBeGreaterThan(600)
   })
 
-  test('anchor navigation scrolls to sections', async ({ page }) => {
-    await page.goto('/#/')
-    await page.waitForTimeout(1000)
-
-    // Click "BPC Format" anchor
-    await page.locator('.shell-navbar__anchors a', { hasText: 'BPC Format' }).click()
-    await page.waitForTimeout(500)
-
-    // BPC section should be near the top of the viewport
-    const bpcSection = page.locator('#bpc')
-    await expect(bpcSection).toBeVisible()
-  })
 })
