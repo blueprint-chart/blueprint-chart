@@ -76,7 +76,7 @@ describe('useDataTable', () => {
       columnTypes: ['date', 'number', 'number', 'number'],
     })
     const result = serialize()
-    expect(result).toContain('_series = "Chrome,IE,Firefox"')
+    expect(result).toContain('_series = "Chrome","IE","Firefox"')
     expect(result).toContain('"2009-01" = 1.37,64.97,26.85')
     expect(result).toContain('"2009-02" = 1.5,63.98,27.66')
   })
@@ -148,7 +148,7 @@ describe('serializeTableData', () => {
       ['Date', 'X', 'Y'],
       [['Jan', '1', '2'], ['Feb', '3', '4']],
     )
-    expect(result).toContain('_series = "X,Y"')
+    expect(result).toContain('_series = "X","Y"')
     expect(result).toContain('"Jan" = 1,2')
     expect(result).toContain('"Feb" = 3,4')
   })
