@@ -13,18 +13,18 @@
         :min="min"
         :max="sliderMax"
         :step="step"
-        class="form-control-units-input__range"
+        class="form-control-units-input__row__range"
         @update:model-value="onNumericChange"
       />
-      <div class="form-control-units-input__group">
+      <div class="form-control-units-input__row__group">
         <BFormInput
           :model-value="numericPart"
-          class="form-control-units-input__number"
+          class="form-control-units-input__row__group__number"
           size="sm"
           @update:model-value="onNumericChange"
         />
         <BDropdown
-          class="form-control-units-input__dropdown"
+          class="form-control-units-input__row__group__dropdown"
           :text="unitPart"
           size="sm"
           variant="outline-secondary"
@@ -122,34 +122,34 @@ function onUnitSelect(newUnit: string) {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-  }
 
-  &__range {
-    flex-grow: 1;
-  }
-
-  &__group {
-    display: flex;
-    flex-grow: 1;
-
-    .form-control-units-input__number {
-      width: 4em;
+    &__range {
       flex-grow: 1;
-      border-top-right-radius: 0;
-      border-bottom-right-radius: 0;
     }
 
-    .form-control-units-input__dropdown {
-      :deep(.dropdown-toggle) {
-        border-top-left-radius: 0;
-        border-bottom-left-radius: 0;
-        border-left: 0;
-        height: 100%;
-        border-color: var(--bs-border-color);
+    &__group {
+      display: flex;
+      flex-grow: 1;
+
+      &__number {
+        width: 4em;
+        flex-grow: 1;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
       }
 
-      :deep(.dropdown-menu) {
-        --bs-dropdown-min-width: 0;
+      &__dropdown {
+        :deep(.dropdown-toggle) {
+          border-top-left-radius: 0;
+          border-bottom-left-radius: 0;
+          border-left: 0;
+          height: 100%;
+          border-color: var(--bs-border-color);
+        }
+
+        :deep(.dropdown-menu) {
+          --bs-dropdown-min-width: 0;
+        }
       }
     }
   }

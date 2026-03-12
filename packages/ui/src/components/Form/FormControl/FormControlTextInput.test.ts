@@ -13,7 +13,7 @@ describe('FormControlTextInput', () => {
     const wrapper = mount(FormControlTextInput, {
       props: { modelValue: '', label: 'Title', id: 'test-input' },
     })
-    const input = wrapper.find('.form-control-text-input__input')
+    const input = wrapper.find('.form-control-text-input__row__input')
     await input.setValue('hello')
     expect(wrapper.emitted('update:modelValue')?.[0]).toEqual(['hello'])
   })
@@ -22,7 +22,7 @@ describe('FormControlTextInput', () => {
     const wrapper = mount(FormControlTextInput, {
       props: { modelValue: '12', label: 'Width', id: 'test-input', suffix: 'px' },
     })
-    const suffix = wrapper.find('.form-control-text-input__suffix')
+    const suffix = wrapper.find('.form-control-text-input__row__suffix')
     expect(suffix.exists()).toBe(true)
     expect(suffix.text()).toBe('px')
   })

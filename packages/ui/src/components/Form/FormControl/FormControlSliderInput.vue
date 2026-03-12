@@ -12,19 +12,19 @@
         :min="min"
         :max="max"
         :step="step"
-        class="form-control-slider-input__range"
+        class="form-control-slider-input__row__range"
         @update:model-value="model = String($event)"
       />
       <BFormInput
         :model-value="model"
-        class="form-control-slider-input__number"
+        class="form-control-slider-input__row__number"
         size="sm"
         @update:model-value="model = String($event)"
       />
       <slot name="suffix">
         <small
           v-if="suffix"
-          class="form-control-slider-input__suffix"
+          class="form-control-slider-input__row__suffix"
         >{{ suffix }}</small>
       </slot>
     </div>
@@ -55,26 +55,26 @@ withDefaults(defineProps<{
     display: flex;
     align-items: center;
     gap: 0.5rem;
-  }
 
-  &__range {
-    flex-grow: 1;
+    &__range {
+      flex-grow: 1;
 
-    &::-webkit-slider-runnable-track {
-      background: var(--bs-border-color);
+      &::-webkit-slider-runnable-track {
+        background: var(--bs-border-color);
+      }
+
+      &::-moz-range-track {
+        background: var(--bs-border-color);
+      }
     }
 
-    &::-moz-range-track {
-      background: var(--bs-border-color);
+    &__number {
+      width: 4em;
     }
-  }
 
-  &__number {
-    width: 4em;
-  }
-
-  &__suffix {
-    white-space: nowrap;
+    &__suffix {
+      white-space: nowrap;
+    }
   }
 }
 </style>

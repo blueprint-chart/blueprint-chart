@@ -22,7 +22,7 @@
         @remove="$emit('remove', scene.index)"
       />
 
-      <div class="scene-timeline__add">
+      <div class="scene-timeline__items__add">
         <ButtonAdd @click="$emit('add')" />
       </div>
     </div>
@@ -78,17 +78,17 @@ defineEmits<{
     }
 
     scrollbar-width: none;
-  }
 
-  &__add {
-    width: 120px;
-    min-width: 120px;
-    flex-shrink: 0;
-    align-self: stretch;
+    &__add {
+      width: 120px;
+      min-width: 120px;
+      flex-shrink: 0;
+      align-self: stretch;
 
-    :deep(.button-add.btn) {
-      height: 100%;
-      border-radius: var(--bs-border-radius-lg);
+      :deep(.button-add.btn) {
+        height: 100%;
+        border-radius: var(--bs-border-radius-lg);
+      }
     }
   }
 }

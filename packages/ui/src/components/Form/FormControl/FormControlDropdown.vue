@@ -24,11 +24,11 @@
         <slot name="button-content">
           <span
             v-if="selectedOption?.icon"
-            class="form-control-dropdown__toggle-content"
+            class="form-control-dropdown__toggle__content"
           >
             <component
               :is="selectedOption.icon"
-              class="form-control-dropdown__toggle-icon"
+              class="form-control-dropdown__toggle__icon"
             />
             {{ selectedOption.label }}
           </span>
@@ -183,14 +183,14 @@ function selectOption(value: string) {
       }
     }
 
-    &-content {
+    &__content {
       display: inline-flex;
       align-items: center;
       gap: 0.25rem;
       margin-right: auto;
     }
 
-    &-icon {
+    &__icon {
       width: 1.25em;
       height: 1.25em;
       flex-shrink: 0;

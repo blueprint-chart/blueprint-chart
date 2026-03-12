@@ -14,7 +14,7 @@ describe('FormControlPalette', () => {
     const wrapper = mount(FormControlPalette, {
       props: { modelValue: 'cool', palettes },
     })
-    expect(wrapper.find('.form-control-palette__name').text()).toBe('Cool')
+    expect(wrapper.find('.form-control-palette__preview__name').text()).toBe('Cool')
   })
 
   it('renders selected palette swatches in preview', () => {
@@ -64,6 +64,6 @@ describe('FormControlPalette slot entry selection', () => {
       },
     })
     await nextTick()
-    expect(wrapper.find('.form-control-palette__name').text()).toBe('Cool')
+    expect(wrapper.find('.form-control-palette__preview__name').text()).toBe('Cool')
   })
 })

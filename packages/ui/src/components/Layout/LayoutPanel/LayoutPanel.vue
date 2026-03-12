@@ -1,12 +1,12 @@
 <template>
   <div class="layout-panel">
     <div class="layout-panel__header">
-      <h2 class="layout-panel__title">
+      <h2 class="layout-panel__header__title">
         {{ title }}
       </h2>
       <div
         v-if="$slots.actions"
-        class="layout-panel__actions"
+        class="layout-panel__header__actions"
       >
         <slot name="actions" />
       </div>
@@ -49,19 +49,19 @@ defineProps<{
     justify-content: space-between;
     padding: 0.75rem 1rem;
     flex-shrink: 0;
-  }
 
-  &__title {
-    font-size: 0.875rem;
-    font-weight: 600;
-    margin: 0;
-    color: var(--bs-body-color);
-  }
+    &__title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin: 0;
+      color: var(--bs-body-color);
+    }
 
-  &__actions {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
+    &__actions {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
   }
 
   &__toolbar {

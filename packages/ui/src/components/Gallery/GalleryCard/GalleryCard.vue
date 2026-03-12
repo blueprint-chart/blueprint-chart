@@ -16,22 +16,22 @@
         v-if="thumbSrc"
         :src="thumbSrc"
         alt=""
-        class="gallery-card__thumb-img"
+        class="gallery-card__thumb__img"
       >
     </div>
     <div class="gallery-card__meta">
-      <div class="gallery-card__title">
+      <div class="gallery-card__meta__title">
         {{ title }}
       </div>
       <div
         v-if="subtitle"
-        class="gallery-card__subtitle"
+        class="gallery-card__meta__subtitle"
       >
         {{ subtitle }}
       </div>
       <div
         v-if="$slots.footer"
-        class="gallery-card__footer"
+        class="gallery-card__meta__footer"
       >
         <slot name="footer" />
       </div>
@@ -98,7 +98,7 @@ const cardClassList = computed(() => ({
     padding: 0.875rem;
     overflow: hidden;
 
-    &-img {
+    &__img {
       width: 100%;
       height: 100%;
       object-fit: contain;
@@ -108,33 +108,33 @@ const cardClassList = computed(() => ({
 
   &__meta {
     padding: 0.8125rem 0.9375rem 0.9375rem;
-  }
 
-  &__title {
-    font-size: 0.8125rem;
-    font-weight: 700;
-    color: var(--bs-body-color);
-    line-height: 1.4;
-    margin-bottom: 0.1875rem;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
+    &__title {
+      font-size: 0.8125rem;
+      font-weight: 700;
+      color: var(--bs-body-color);
+      line-height: 1.4;
+      margin-bottom: 0.1875rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
 
-  &__subtitle {
-    font-size: 0.6875rem;
-    color: var(--bs-secondary-color);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    margin-bottom: 0.5625rem;
-  }
+    &__subtitle {
+      font-size: 0.6875rem;
+      color: var(--bs-secondary-color);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 0.5625rem;
+    }
 
-  &__footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    &__footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
   }
 
   // ─── Row layout ───
@@ -163,7 +163,7 @@ const cardClassList = computed(() => ({
       gap: 1rem;
     }
 
-    .gallery-card__title {
+    .gallery-card__meta__title {
       font-size: 0.8125rem;
       white-space: nowrap;
       overflow: hidden;
@@ -176,13 +176,13 @@ const cardClassList = computed(() => ({
       margin-bottom: 0;
     }
 
-    .gallery-card__subtitle {
+    .gallery-card__meta__subtitle {
       flex: 1;
       min-width: 0;
       margin-bottom: 0;
     }
 
-    .gallery-card__footer {
+    .gallery-card__meta__footer {
       flex-shrink: 0;
       gap: 0.625rem;
     }

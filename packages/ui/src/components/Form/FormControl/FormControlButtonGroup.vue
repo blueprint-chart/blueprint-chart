@@ -17,7 +17,7 @@
       :class="containerClassList"
     >
       <BButtonGroup
-        class="form-control-button-group__buttons"
+        class="form-control-button-group__container__buttons"
         :class="buttonsClassList"
       >
         <ButtonIcon
@@ -37,17 +37,17 @@
             v-if="opt.visual"
             #start
           >
-            <div class="form-control-button-group__visual bg-body rounded-1">
+            <div class="form-control-button-group__container__buttons__visual bg-body rounded-1">
               <component
                 :is="opt.visual"
                 v-if="typeof opt.visual !== 'string'"
-                class="form-control-button-group__visual-content"
+                class="form-control-button-group__container__buttons__visual__content"
               />
               <img
                 v-else
                 :src="opt.visual"
                 alt=""
-                class="form-control-button-group__visual-content"
+                class="form-control-button-group__container__buttons__visual__content"
               >
             </div>
           </template>
@@ -92,7 +92,7 @@ const containerClassList = computed(() => ({
 }))
 
 const buttonsClassList = computed(() => ({
-  'form-control-button-group__buttons--block': props.block,
+  'form-control-button-group__container__buttons--block': props.block,
 }))
 
 const dropdownOptions = computed(() =>
@@ -130,43 +130,43 @@ useResizeObserver(containerRef, checkOverflow)
     &--collapsed {
       height: 0;
     }
-  }
 
-  &__buttons {
-    &--block {
-      width: 100%;
+    &__buttons {
+      &--block {
+        width: 100%;
 
-      :deep(.btn) {
-        flex: 1;
+        :deep(.btn) {
+          flex: 1;
+          justify-content: center;
+        }
+      }
+
+      &:deep(.btn) {
         justify-content: center;
+        white-space: nowrap;
+
+        &:has(.form-control-button-group__container__buttons__visual) {
+          flex-direction: column;
+          gap: 0.25rem;
+          padding-block: 0.35rem;
+        }
+      }
+
+      &__visual {
+        width: 40px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+
+        &__content {
+          max-height: 100%;
+          max-width: 100%;
+          object-fit: contain;
+        }
       }
     }
-
-    &:deep(.btn) {
-      justify-content: center;
-      white-space: nowrap;
-
-      &:has(.form-control-button-group__visual) {
-        flex-direction: column;
-        gap: 0.25rem;
-        padding-block: 0.35rem;
-      }
-    }
-  }
-
-  &__visual {
-    width: 40px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-  }
-
-  &__visual-content {
-    max-height: 100%;
-    max-width: 100%;
-    object-fit: contain;
   }
 }
 </style>

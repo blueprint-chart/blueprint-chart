@@ -9,25 +9,25 @@ describe('ScenePlayerProgressBar', () => {
     const wrapper = mount(ScenePlayerProgressBar, {
       props: { total: 4, current: 1 },
     })
-    expect(wrapper.findAll('.bc-scene-player__segment')).toHaveLength(4)
+    expect(wrapper.findAll('.bc-scene-player__segments__segment')).toHaveLength(4)
   })
 
   it('marks active segment', () => {
     const wrapper = mount(ScenePlayerProgressBar, {
       props: { total: 3, current: 2 },
     })
-    const segments = wrapper.findAll('.bc-scene-player__segment')
-    expect(segments[0].classes()).toContain('bc-scene-player__segment--completed')
-    expect(segments[1].classes()).toContain('bc-scene-player__segment--active')
-    expect(segments[2].classes()).not.toContain('bc-scene-player__segment--active')
-    expect(segments[2].classes()).not.toContain('bc-scene-player__segment--completed')
+    const segments = wrapper.findAll('.bc-scene-player__segments__segment')
+    expect(segments[0].classes()).toContain('bc-scene-player__segments__segment--completed')
+    expect(segments[1].classes()).toContain('bc-scene-player__segments__segment--active')
+    expect(segments[2].classes()).not.toContain('bc-scene-player__segments__segment--active')
+    expect(segments[2].classes()).not.toContain('bc-scene-player__segments__segment--completed')
   })
 
   it('emits update:current on segment click', async () => {
     const wrapper = mount(ScenePlayerProgressBar, {
       props: { total: 3, current: 1 },
     })
-    await wrapper.findAll('.bc-scene-player__segment')[2].trigger('click')
+    await wrapper.findAll('.bc-scene-player__segments__segment')[2].trigger('click')
     expect(wrapper.emitted('update:current')?.[0]).toEqual([3])
   })
 
@@ -83,24 +83,24 @@ describe('ScenePlayerDotStepper', () => {
     const wrapper = mount(ScenePlayerDotStepper, {
       props: { total: 4, current: 1 },
     })
-    expect(wrapper.findAll('.bc-scene-player__dot')).toHaveLength(4)
+    expect(wrapper.findAll('.bc-scene-player__dots__dot')).toHaveLength(4)
   })
 
   it('highlights active dot', () => {
     const wrapper = mount(ScenePlayerDotStepper, {
       props: { total: 3, current: 2 },
     })
-    const dots = wrapper.findAll('.bc-scene-player__dot')
-    expect(dots[0].classes()).toContain('bc-scene-player__dot--completed')
-    expect(dots[1].classes()).toContain('bc-scene-player__dot--active')
-    expect(dots[2].classes()).not.toContain('bc-scene-player__dot--active')
+    const dots = wrapper.findAll('.bc-scene-player__dots__dot')
+    expect(dots[0].classes()).toContain('bc-scene-player__dots__dot--completed')
+    expect(dots[1].classes()).toContain('bc-scene-player__dots__dot--active')
+    expect(dots[2].classes()).not.toContain('bc-scene-player__dots__dot--active')
   })
 
   it('emits update:current on dot click', async () => {
     const wrapper = mount(ScenePlayerDotStepper, {
       props: { total: 3, current: 1 },
     })
-    await wrapper.findAll('.bc-scene-player__dot')[1].trigger('click')
+    await wrapper.findAll('.bc-scene-player__dots__dot')[1].trigger('click')
     expect(wrapper.emitted('update:current')?.[0]).toEqual([2])
   })
 

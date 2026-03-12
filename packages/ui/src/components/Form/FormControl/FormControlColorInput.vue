@@ -8,12 +8,12 @@
       <button
         ref="swatchRef"
         type="button"
-        class="form-control-color-input__swatch"
+        class="form-control-color-input__wrapper__swatch"
         :style="{ backgroundColor: model }"
       />
       <input
         :id="id"
-        class="form-control form-control-color-input__field"
+        class="form-control form-control-color-input__wrapper__field"
         :value="model"
         @input="onInput"
         @change="onChange"
@@ -63,24 +63,24 @@ function onChange(e: Event) {
     position: relative;
     display: flex;
     align-items: center;
-  }
 
-  &__swatch {
-    position: absolute;
-    left: 6px;
-    width: 22px;
-    height: 22px;
-    border-radius: 3px;
-    border: 1px solid var(--bs-border-color-translucent);
-    cursor: pointer;
-    padding: 0;
-    z-index: 1;
-  }
+    &__swatch {
+      position: absolute;
+      left: 6px;
+      width: 22px;
+      height: 22px;
+      border-radius: 3px;
+      border: 1px solid var(--bs-border-color-translucent);
+      cursor: pointer;
+      padding: 0;
+      z-index: 1;
+    }
 
-  &__field {
-    padding-left: 36px;
-    font-family: var(--bs-font-monospace);
-    font-size: 0.875rem;
+    &__field {
+      padding-left: 36px;
+      font-family: var(--bs-font-monospace);
+      font-size: 0.875rem;
+    }
   }
 }
 </style>

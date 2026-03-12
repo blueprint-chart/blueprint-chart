@@ -10,13 +10,13 @@
         class="layout-bottom-drawer__handle"
         @pointerdown="onPointerDown"
       >
-        <div class="layout-bottom-drawer__bar" />
+        <div class="layout-bottom-drawer__handle__bar" />
       </div>
       <div
         v-if="title"
         class="layout-bottom-drawer__header"
       >
-        <h2 class="layout-bottom-drawer__title">
+        <h2 class="layout-bottom-drawer__header__title">
           {{ title }}
         </h2>
       </div>
@@ -134,14 +134,14 @@ const drawerStyle = computed<CSSProperties>(() => ({
     &:active {
       cursor: grabbing;
     }
-  }
 
-  &__bar {
-    width: 2rem;
-    height: 0.25rem;
-    border-radius: var(--bs-border-radius-pill);
-    background: var(--bs-secondary-color);
-    opacity: 0.4;
+    &__bar {
+      width: 2rem;
+      height: 0.25rem;
+      border-radius: var(--bs-border-radius-pill);
+      background: var(--bs-secondary-color);
+      opacity: 0.4;
+    }
   }
 
   &__header {
@@ -149,13 +149,13 @@ const drawerStyle = computed<CSSProperties>(() => ({
     align-items: center;
     padding: 0 1rem 0.5rem;
     flex-shrink: 0;
-  }
 
-  &__title {
-    font-size: 0.875rem;
-    font-weight: 600;
-    margin: 0;
-    color: var(--bs-body-color);
+    &__title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin: 0;
+      color: var(--bs-body-color);
+    }
   }
 
   &__body {

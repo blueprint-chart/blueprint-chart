@@ -23,7 +23,7 @@ describe('LayoutBottomDrawer props', () => {
     const wrapper = mount(Drawer, {
       props: { modelValue: true, title: 'Settings' },
     })
-    expect(wrapper.find('.layout-bottom-drawer__title').text()).toBe('Settings')
+    expect(wrapper.find('.layout-bottom-drawer__header__title').text()).toBe('Settings')
   })
 
   it('applies custom maxHeight', () => {

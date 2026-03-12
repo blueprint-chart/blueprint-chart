@@ -5,7 +5,7 @@
         v-if="icon"
         :icon="icon"
       />
-      <div class="settings-section__header-text">
+      <div class="settings-section__header__text">
         <SettingsSectionTitle>
           {{ title }}
         </SettingsSectionTitle>

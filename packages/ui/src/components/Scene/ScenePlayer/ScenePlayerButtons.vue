@@ -7,8 +7,8 @@
     <div class="bc-scene-player__btn-group">
       <button
         type="button"
-        class="bc-scene-player__btn"
-        :class="{ 'bc-scene-player__btn--disabled': current <= 1 }"
+        class="bc-scene-player__btn-group__btn"
+        :class="{ 'bc-scene-player__btn-group__btn--disabled': current <= 1 }"
         :disabled="current <= 1"
         aria-label="Previous scene"
         @click="$emit('update:current', current - 1)"
@@ -19,8 +19,8 @@
       </button>
       <button
         type="button"
-        class="bc-scene-player__btn bc-scene-player__btn--next"
-        :class="{ 'bc-scene-player__btn--disabled': current >= total }"
+        class="bc-scene-player__btn-group__btn bc-scene-player__btn-group__btn--next"
+        :class="{ 'bc-scene-player__btn-group__btn--disabled': current >= total }"
         :disabled="current >= total"
         aria-label="Next scene"
         @click="$emit('update:current', current + 1)"
@@ -85,37 +85,37 @@ defineEmits<{
   &__btn-group {
     display: flex;
     gap: 6px;
-  }
 
-  &__btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 6px 14px;
-    border-radius: 6px;
-    border: 1px solid var(--bc-scene-player-border, currentColor);
-    background: none;
-    color: var(--bc-scene-player-muted);
-    font-size: 0.8125rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: border-color 0.15s, color 0.15s;
-    line-height: 1.4;
+    &__btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 6px 14px;
+      border-radius: 6px;
+      border: 1px solid var(--bc-scene-player-border, currentColor);
+      background: none;
+      color: var(--bc-scene-player-muted);
+      font-size: 0.8125rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s;
+      line-height: 1.4;
 
-    &:hover:not(:disabled) {
-      border-color: var(--bc-scene-player-border-hover);
-      background: var(--bc-scene-player-background-hover, rgba(0, 0, 0, 0.04));
-      color: var(--bc-scene-player-text);
-    }
+      &:hover:not(:disabled) {
+        border-color: var(--bc-scene-player-border-hover);
+        background: var(--bc-scene-player-background-hover, rgba(0, 0, 0, 0.04));
+        color: var(--bc-scene-player-text);
+      }
 
-    &--next {
-      color: var(--bc-scene-player-text);
-      font-weight: 600;
-    }
+      &--next {
+        color: var(--bc-scene-player-text);
+        font-weight: 600;
+      }
 
-    &--disabled {
-      opacity: 0.35;
-      cursor: default;
+      &--disabled {
+        opacity: 0.35;
+        cursor: default;
+      }
     }
   }
 
