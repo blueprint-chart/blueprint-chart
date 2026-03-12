@@ -43,7 +43,7 @@ onMounted(() => {
 })
 
 function reparseData() {
-  if (!dataTable.rawInput.value) {
+  if (!dataTable.rawInput.value || dataTable.sourceFormat.value !== 'delimited') {
     return
   }
   const parsed = parseDelimited(dataTable.rawInput.value, {

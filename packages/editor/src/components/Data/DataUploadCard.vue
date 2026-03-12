@@ -99,6 +99,7 @@
 <script setup lang="ts">
 import { ref, nextTick } from 'vue'
 import { useDataTable } from '@/composables/useDataTable'
+import { serializeDelimited } from '@/composables/useDataParser'
 import DataUploadFileDrop from './DataUploadFileDrop.vue'
 import DataUploadSamples from './DataUploadSamples.vue'
 
@@ -108,10 +109,17 @@ defineEmits<{
   sample: [sample: import('@blueprint-chart/lib').ChartSample]
 }>()
 
-const { rawInput } = useDataTable()
+const { rawInput, sourceFormat, columns, rows } = useDataTable()
+
+function getInitialPasteInput(): string {
+  if (sourceFormat?.value === 'bpc' && columns.value.length > 0) {
+    return serializeDelimited(columns.value, rows.value)
+  }
+  return rawInput.value
+}
 
 const activeTab = ref('paste')
-const pasteInput = ref(rawInput.value)
+const pasteInput = ref(getInitialPasteInput())
 const pasteArea = ref<HTMLTextAreaElement | null>(null)
 const isDragOver = ref(false)
 
