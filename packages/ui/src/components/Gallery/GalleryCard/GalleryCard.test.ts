@@ -39,12 +39,20 @@ describe('GalleryCard', () => {
     expect(wrapper.emitted('click')).toHaveLength(1)
   })
 
-  it('renders thumb slot', () => {
+  it('renders thumb image when thumbSrc is provided', () => {
+    const wrapper = mount(GalleryCard, {
+      props: { title: 'My Chart', thumbSrc: 'data:image/svg+xml;base64,abc' },
+    })
+    const img = wrapper.find('.gallery-card__thumb-img')
+    expect(img.exists()).toBe(true)
+    expect(img.attributes('src')).toBe('data:image/svg+xml;base64,abc')
+  })
+
+  it('hides thumb image when thumbSrc is not provided', () => {
     const wrapper = mount(GalleryCard, {
       props: { title: 'My Chart' },
-      slots: { thumb: '<svg data-test="thumb"></svg>' },
     })
-    expect(wrapper.find('[data-test="thumb"]').exists()).toBe(true)
+    expect(wrapper.find('.gallery-card__thumb-img').exists()).toBe(false)
   })
 
   it('renders footer slot', () => {
