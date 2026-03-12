@@ -1,7 +1,7 @@
 <template>
   <div
     class="dashboard-page"
-    :class="pageClassList"
+    :class="{ 'dashboard-page--narrow': isNarrow }"
   >
     <div
       ref="galleryRef"
@@ -15,45 +15,19 @@
         @update:layout="viewLayout = $event"
       />
 
-      <GalleryGrid :layout="viewLayout">
-        <GalleryCard
-          v-for="chart in sortedCharts"
-          :key="chart.id"
-          :title="chart.title || 'Untitled'"
-          :subtitle="chart.description"
-          :selected="selectedChartId === chart.id"
-          :layout="viewLayout"
-          @click="selectChart(chart.id)"
-        >
-          <template #thumb>
-            <div
-              v-if="thumbnails[chart.id]"
-              v-html="thumbnails[chart.id]"
-            />
-          </template>
-          <template #footer>
-            <DisplayDate
-              v-if="chart.savedAt"
-              :value="chart.savedAt"
-            />
-          </template>
-        </GalleryCard>
-
-        <DashboardNewCard
-          :layout="viewLayout"
-          @click="router.push('/new')"
-        />
-
-        <FeedbackEmptyState
-          v-if="sortedCharts.length === 0"
-          message="No saved charts yet. Create a new chart to get started."
-        />
-      </GalleryGrid>
+      <DashboardGallery
+        :charts="sortedCharts"
+        :thumbnails="thumbnails"
+        :selected-id="selectedChartId"
+        :layout="viewLayout"
+        @select="selectChart"
+        @new="router.push('/new')"
+      />
 
       <PanelFloating
         v-if="panelMode === 'floating' && !isNarrow"
         :container-ref="galleryRef"
-        title="Chart details"
+        :title="selectedChart ? (selectedChart.title || 'Untitled') : 'Chart details'"
         :position="floatingPosition"
         @dock="dock"
         @close="collapse"
@@ -62,9 +36,12 @@
           v-if="selectedChart"
           :title="selectedChart.title || 'Untitled'"
           :subtitle="selectedChart.description"
-          :thumbnail-html="selectedChartId ? thumbnails[selectedChartId] : undefined"
+          :preview-src="selectedChartId ? previews[selectedChartId] : undefined"
+          :force-light-theme="selectedChart ? !selectedChart.allowDarkMode : false"
           :chart-type="selectedChart.chartType"
           :saved-at="selectedChart.savedAt ?? undefined"
+          :scene-count="selectedChart.sceneCount"
+          :row-count="selectedChart.rowCount"
           @edit="editSelected"
           @duplicate="duplicateSelected"
           @delete="deleteSelected"
@@ -78,9 +55,12 @@
           v-if="selectedChart"
           :title="selectedChart.title || 'Untitled'"
           :subtitle="selectedChart.description"
-          :thumbnail-html="selectedChartId ? thumbnails[selectedChartId] : undefined"
+          :preview-src="selectedChartId ? previews[selectedChartId] : undefined"
+          :force-light-theme="selectedChart ? !selectedChart.allowDarkMode : false"
           :chart-type="selectedChart.chartType"
           :saved-at="selectedChart.savedAt ?? undefined"
+          :scene-count="selectedChart.sceneCount"
+          :row-count="selectedChart.rowCount"
           @edit="editSelected"
           @duplicate="duplicateSelected"
           @delete="deleteSelected"
@@ -90,8 +70,8 @@
     <template v-else>
       <PanelDocked
         v-model="dockedPanelWidth"
-        :collapsed="panelMode !== 'docked'"
-        title="Chart details"
+        :collapsed="false"
+        :title="selectedChart ? (selectedChart.title || 'Untitled') : 'Chart details'"
         @float="float"
         @close="collapse"
       >
@@ -99,41 +79,36 @@
           v-if="selectedChart"
           :title="selectedChart.title || 'Untitled'"
           :subtitle="selectedChart.description"
-          :thumbnail-html="selectedChartId ? thumbnails[selectedChartId] : undefined"
+          :preview-src="selectedChartId ? previews[selectedChartId] : undefined"
+          :force-light-theme="selectedChart ? !selectedChart.allowDarkMode : false"
           :chart-type="selectedChart.chartType"
           :saved-at="selectedChart.savedAt ?? undefined"
+          :scene-count="selectedChart.sceneCount"
+          :row-count="selectedChart.rowCount"
           @edit="editSelected"
           @duplicate="duplicateSelected"
           @delete="deleteSelected"
         />
+        <DashboardEmptyState v-else />
       </PanelDocked>
     </template>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted, onUnmounted, watch } from 'vue'
+import { shallowRef, computed, onMounted, onUnmounted, useTemplateRef, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import {
-  GalleryCard,
-  GalleryGrid,
-  DisplayDate,
-  FeedbackEmptyState,
-  LayoutBottomDrawer,
-  useBreakpoint,
-} from '@blueprint-chart/ui'
-import { useChartSession, generateId } from '@/composables/useChartSession'
-import { getThumbnail, saveThumbnail, renderThumbnailFromPayload } from '@/composables/useChartThumbnail'
+import { LayoutBottomDrawer, useBreakpoint } from '@blueprint-chart/ui'
 import { useDashboardPanel } from '@/composables/useDashboardPanel'
-import type { SavedChartSummary } from '@/composables/useChartSession'
+import { useDashboardGallery } from '@/composables/useDashboardGallery'
 import PanelDocked from '@/components/Panel/PanelDocked.vue'
 import PanelFloating from '@/components/Panel/PanelFloating.vue'
 import DashboardToolbar from './DashboardToolbar.vue'
+import DashboardGallery from './DashboardGallery.vue'
 import DashboardDetailContent from './DashboardDetailContent.vue'
-import DashboardNewCard from './DashboardNewCard.vue'
+import DashboardEmptyState from './DashboardEmptyState.vue'
 
 const router = useRouter()
-const { listSavedCharts, deleteChart } = useChartSession()
 const { isNarrow } = useBreakpoint()
 const {
   panelMode,
@@ -145,34 +120,19 @@ const {
   float,
   collapse,
 } = useDashboardPanel()
+const {
+  sortedCharts,
+  selectedChart,
+  thumbnails,
+  previews,
+  sortValue,
+  refresh,
+  duplicateChart,
+  removeChart,
+} = useDashboardGallery()
 
-const galleryRef = ref<HTMLElement | null>(null)
-const charts = ref<SavedChartSummary[]>([])
-const thumbnails = reactive<Record<string, string>>({})
-const sortValue = ref('date-desc')
-const viewLayout = ref<'grid' | 'row'>('grid')
-
-const sortedCharts = computed(() => {
-  const list = [...charts.value]
-  if (sortValue.value === 'date-desc') {
-    list.sort((a, b) => (b.savedAt ?? '').localeCompare(a.savedAt ?? ''))
-  }
-  else if (sortValue.value === 'date-asc') {
-    list.sort((a, b) => (a.savedAt ?? '').localeCompare(b.savedAt ?? ''))
-  }
-  else if (sortValue.value === 'name-asc') {
-    list.sort((a, b) => (a.title || '').localeCompare(b.title || ''))
-  }
-  return list
-})
-
-const selectedChart = computed(() =>
-  charts.value.find(c => c.id === selectedChartId.value) ?? null,
-)
-
-const pageClassList = computed(() => ({
-  'dashboard-page--narrow': isNarrow.value,
-}))
+const galleryRef = useTemplateRef<HTMLElement>('galleryRef')
+const viewLayout = shallowRef<'grid' | 'row'>('grid')
 
 const drawerOpen = computed({
   get: () => panelMode.value !== 'collapsed' && selectedChartId.value !== null,
@@ -189,36 +149,6 @@ watch(isNarrow, (narrow) => {
   }
 }, { immediate: true })
 
-function refresh() {
-  charts.value = listSavedCharts()
-  loadThumbnails()
-}
-
-function loadThumbnails() {
-  for (const chart of charts.value) {
-    const cached = getThumbnail(chart.id)
-    if (cached) {
-      thumbnails[chart.id] = cached
-      continue
-    }
-    const raw = localStorage.getItem(`blueprint-chart:${chart.id}`)
-    if (!raw) {
-      continue
-    }
-    try {
-      const payload = JSON.parse(raw)
-      const svg = renderThumbnailFromPayload(payload)
-      if (svg) {
-        saveThumbnail(chart.id, svg)
-        thumbnails[chart.id] = svg
-      }
-    }
-    catch {
-      // skip corrupt entries
-    }
-  }
-}
-
 function editSelected() {
   if (selectedChartId.value) {
     router.push(`/edit/${selectedChartId.value}`)
@@ -226,40 +156,23 @@ function editSelected() {
 }
 
 function duplicateSelected() {
-  if (!selectedChartId.value) {
-    return
+  if (selectedChartId.value) {
+    const newId = duplicateChart(selectedChartId.value)
+    if (newId) {
+      router.push(`/edit/${newId}`)
+    }
   }
-  const raw = localStorage.getItem(`blueprint-chart:${selectedChartId.value}`)
-  if (!raw) {
-    return
-  }
-  const newId = generateId()
-  localStorage.setItem(`blueprint-chart:${newId}`, raw)
-  const meta = localStorage.getItem(`blueprint-chart:${selectedChartId.value}:meta`)
-  if (meta) {
-    localStorage.setItem(`blueprint-chart:${newId}:meta`, meta)
-  }
-  const thumb = getThumbnail(selectedChartId.value)
-  if (thumb) {
-    saveThumbnail(newId, thumb)
-  }
-  refresh()
 }
 
 function deleteSelected() {
-  if (!selectedChartId.value) {
-    return
+  if (selectedChartId.value) {
+    removeChart(selectedChartId.value)
   }
-  const id = selectedChartId.value
-  collapse()
-  deleteChart(id)
-  delete thumbnails[id]
-  refresh()
 }
 
 function handleKeydown(e: globalThis.KeyboardEvent) {
   if (e.key === 'Escape') {
-    collapse()
+    selectedChartId.value = null
   }
 }
 
@@ -309,5 +222,9 @@ onUnmounted(() => {
 
 :deep(.layout-panel) {
   background: var(--bc-tile-bg);
+}
+
+:deep(.layout-panel__header) {
+  border-bottom: 1px solid var(--bs-border-color);
 }
 </style>
