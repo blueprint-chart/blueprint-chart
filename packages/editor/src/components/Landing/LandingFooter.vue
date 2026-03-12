@@ -54,7 +54,7 @@ function scrollTo(id: string) {
   flex-wrap: wrap;
   gap: 1rem;
 
-  .landing-footer__link {
+  &__link {
     color: rgba(255, 255, 255, 0.7);
     text-decoration: none;
 
@@ -62,23 +62,23 @@ function scrollTo(id: string) {
       color: #fff;
     }
   }
-}
 
-.landing-footer__brand {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.9);
-}
+  &__brand {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.9);
+  }
 
-.landing-footer__logo {
-  height: 1.25rem;
-  width: auto;
-  opacity: 0.8;
-}
+  &__logo {
+    height: 1.25rem;
+    width: auto;
+    opacity: 0.8;
+  }
 
-.landing-footer__sep {
-  margin: 0 0.25rem;
+  &__sep {
+    margin: 0 0.25rem;
+  }
 }
 </style>

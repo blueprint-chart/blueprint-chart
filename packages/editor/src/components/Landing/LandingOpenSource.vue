@@ -68,32 +68,38 @@ const stats = [
 ]
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .oss {
   background: var(--bc-void-bg);
   border-top: 1px solid var(--bs-border-color);
   border-bottom: 1px solid var(--bs-border-color);
-}
 
-.oss__grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 3.75rem;
-  align-items: center;
-}
+  &__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3.75rem;
+    align-items: center;
+  }
 
-.oss__detail {
-  font-size: 0.875rem;
-  color: var(--bs-secondary-color);
-  line-height: 1.7;
-  max-width: 30rem;
-}
+  &__detail {
+    font-size: 0.875rem;
+    color: var(--bs-secondary-color);
+    line-height: 1.7;
+    max-width: 30rem;
+  }
 
-.oss__badges {
-  display: flex;
-  gap: 0.625rem;
-  margin-top: 1.5rem;
-  flex-wrap: wrap;
+  &__badges {
+    display: flex;
+    gap: 0.625rem;
+    margin-top: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  &__stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--bc-tile-gap);
+  }
 }
 
 .oss-badge {
@@ -104,22 +110,16 @@ const stats = [
   border-radius: var(--bc-tile-radius);
   font-size: 0.75rem;
   font-weight: 700;
-}
 
-.oss-badge--green {
-  background: var(--bs-success);
-  color: #fff;
-}
+  &--green {
+    background: var(--bs-success);
+    color: #fff;
+  }
 
-.oss-badge--dark {
-  background: var(--bs-dark);
-  color: #fff;
-}
-
-.oss__stats {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--bc-tile-gap);
+  &--dark {
+    background: var(--bs-dark);
+    color: #fff;
+  }
 }
 
 .oss-stat {
@@ -128,25 +128,27 @@ const stats = [
   border-radius: var(--bc-tile-radius);
   box-shadow: var(--bc-tile-shadow);
   padding: 1.25rem;
-}
 
-.oss-stat__num {
-  font-family: 'DM Serif Display', serif;
-  font-size: 2.25rem;
-  font-weight: 400;
-  color: var(--bs-body-color);
-  line-height: 1;
-  margin-bottom: 0.25rem;
-}
+  &__num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2.25rem;
+    font-weight: 400;
+    color: var(--bs-body-color);
+    line-height: 1;
+    margin-bottom: 0.25rem;
+  }
 
-.oss-stat__label {
-  font-size: 0.75rem;
-  color: var(--bs-secondary-color);
+  &__label {
+    font-size: 0.75rem;
+    color: var(--bs-secondary-color);
+  }
 }
 
 @media (max-width: 51.25rem) {
-  .oss__grid {
-    grid-template-columns: 1fr;
+  .oss {
+    &__grid {
+      grid-template-columns: 1fr;
+    }
   }
 }
 </style>

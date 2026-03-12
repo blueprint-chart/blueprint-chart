@@ -74,16 +74,25 @@ const highlightedBpc = computed(() => highlightDsl(bpcCode))
 </script>
 
 <style scoped lang="scss">
-.format__grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
-  margin-top: 0.75rem;
-}
+.format {
+  &__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-top: 0.75rem;
+  }
 
-.format__pane-cell {
-  position: relative;
-  min-height: 0;
+  &__pane-cell {
+    position: relative;
+    min-height: 0;
+  }
+
+  &__chart-tile {
+    background: transparent;
+    border-radius: var(--bc-tile-radius);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+  }
 }
 
 .format-pane {
@@ -95,20 +104,38 @@ const highlightedBpc = computed(() => highlightDsl(bpcCode))
   overflow: hidden;
   display: flex;
   flex-direction: column;
-}
 
-.format-pane__header {
-  padding: 0.625rem 1rem;
-  background: rgba(255, 255, 255, 0.05);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
-  font-size: 0.6875rem;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.4);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
+  &__header {
+    padding: 0.625rem 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.4);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+  }
+
+  &__code {
+    padding: 1.25rem 1rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    line-height: 1.8;
+    color: #e2e8f0;
+    overflow: auto;
+    scrollbar-width: none;
+
+    &:hover,
+    &:active {
+      scrollbar-width: thin;
+    }
+    white-space: pre;
+    margin: 0;
+    flex-grow: 1;
+  }
 }
 
 .format-dot {
@@ -116,35 +143,10 @@ const highlightedBpc = computed(() => highlightDsl(bpcCode))
   height: 0.5rem;
   border-radius: 50%;
   display: inline-block;
-}
 
-.format-dot--red { background: #ef4444; }
-.format-dot--yellow { background: #f59e0b; }
-.format-dot--green { background: #22c55e; }
-
-.format-pane__code {
-  padding: 1.25rem 1rem;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.75rem;
-  line-height: 1.8;
-  color: #e2e8f0;
-  overflow: auto;
-  scrollbar-width: none;
-
-  &:hover,
-  &:active {
-    scrollbar-width: thin;
-  }
-  white-space: pre;
-  margin: 0;
-  flex-grow: 1;
-}
-
-.format__chart-tile {
-  background: transparent;
-  border-radius: var(--bc-tile-radius);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  overflow: hidden;
+  &--red { background: #ef4444; }
+  &--yellow { background: #f59e0b; }
+  &--green { background: #22c55e; }
 }
 
 .format-ai-note {
@@ -153,35 +155,37 @@ const highlightedBpc = computed(() => highlightDsl(bpcCode))
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: var(--bc-tile-radius);
-}
 
-.format-ai-note__header {
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
-  margin-bottom: 0.5rem;
-}
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    margin-bottom: 0.5rem;
+  }
 
-.format-ai-note__title {
-  font-size: 0.75rem;
-  color: #7aa7d4;
-  font-weight: 700;
-}
+  &__title {
+    font-size: 0.75rem;
+    color: #7aa7d4;
+    font-weight: 700;
+  }
 
-.format-ai-note__text {
-  font-size: 0.75rem;
-  color: #9ca3af;
-  line-height: 1.7;
-  margin: 0;
+  &__text {
+    font-size: 0.75rem;
+    color: #9ca3af;
+    line-height: 1.7;
+    margin: 0;
+  }
 }
 
 @media (max-width: 51.25rem) {
-  .format__grid {
-    grid-template-columns: 1fr;
-  }
+  .format {
+    &__grid {
+      grid-template-columns: 1fr;
+    }
 
-  .format__pane-cell {
-    min-height: 24rem;
+    &__pane-cell {
+      min-height: 24rem;
+    }
   }
 }
 </style>
