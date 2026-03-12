@@ -1,4 +1,5 @@
 chart area-stacked {
+  colorPalette = Blueprint
   data {
     _series = "X","Y"
     "A" = 4,3
