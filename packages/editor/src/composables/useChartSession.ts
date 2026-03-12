@@ -38,6 +38,9 @@ export interface SavedChartSummary {
   description: string
   chartType: string
   savedAt: string | null
+  sceneCount: number
+  rowCount: number
+  allowDarkMode: boolean
 }
 
 const CHARS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
@@ -244,6 +247,11 @@ export function useChartSession() {
               description: payload.chartConfig.description || '',
               chartType: payload.chartConfig.chartType || '',
               savedAt: payload.savedAt ?? null,
+              sceneCount: payload.chartConfig.scenes?.length ?? 0,
+              rowCount: payload.chartConfig.data
+                ? (payload.chartConfig.data as string).split('\n').filter((l: string) => l.trim()).length - 1
+                : 0,
+              allowDarkMode: payload.chartConfig.allowDarkMode ?? true,
             })
             continue
           }
@@ -253,6 +261,12 @@ export function useChartSession() {
         const titleMatch = raw.match(/title\s*=\s*"([^"]*)"/)
         const descMatch = raw.match(/description\s*=\s*"([^"]*)"/)
         const typeMatch = raw.match(/^chart\s+(\S+)/)
+        const sceneMatches = raw.match(/\bscene\s+"/g)
+        const dataBlock = raw.match(/data\s*\{([^}]*)\}/)
+        const dataRows = dataBlock
+          ? dataBlock[1].split('\n').filter(l => l.trim() && l.includes('=')).length
+          : 0
+        const darkModeMatch = raw.match(/allowDarkMode\s*=\s*(true|false)/)
         const metaRaw = localStorage.getItem(metaKey(id))
         const savedAt = metaRaw ? (JSON.parse(metaRaw) as SessionMeta).savedAt ?? null : null
         charts.push({
@@ -261,6 +275,9 @@ export function useChartSession() {
           description: descMatch?.[1] ?? '',
           chartType: typeMatch?.[1] ?? '',
           savedAt,
+          sceneCount: sceneMatches?.length ?? 0,
+          rowCount: dataRows,
+          allowDarkMode: darkModeMatch ? darkModeMatch[1] === 'true' : true,
         })
       }
       catch {
