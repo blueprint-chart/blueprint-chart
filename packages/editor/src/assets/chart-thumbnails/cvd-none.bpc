@@ -1,7 +1,8 @@
-chart bar-multi {
+chart bar-vertical {
   colors = "#2563A0,#D4A63A,#C94044"
   data {
-    _series = "A","B","C"
-    "1" = 15,12,18
+    "A" = 15
+    "B" = 12
+    "C" = 18
   }
 }
