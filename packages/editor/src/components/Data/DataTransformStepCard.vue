@@ -9,7 +9,7 @@
     </div>
     <div class="step-card__body">
       <span
-        class="step-card__icon"
+        class="step-card__body__icon"
         :class="iconClass"
       >
         <component
@@ -18,13 +18,13 @@
         />
         <span v-else>{{ iconFallback }}</span>
       </span>
-      <div class="step-card__text">
-        <div class="step-card__name">
+      <div class="step-card__body__text">
+        <div class="step-card__body__text__name">
           {{ label }}
         </div>
         <div
-          class="step-card__desc"
-          :class="{ 'step-card__desc--error': error }"
+          class="step-card__body__text__desc"
+          :class="{ 'step-card__body__text__desc--error': error }"
         >
           {{ error || description }}
         </div>
@@ -32,7 +32,7 @@
     </div>
     <div class="step-card__actions">
       <button
-        class="step-card__action"
+        class="step-card__actions__btn"
         aria-label="Remove step"
         @click.stop="$emit('delete')"
       >
@@ -78,14 +78,14 @@ defineEmits<{
 }>()
 
 const iconClassMap: Record<string, string> = {
-  'sort': 'step-card__icon--sort',
-  'filter': 'step-card__icon--filter',
-  'hide-columns': 'step-card__icon--hide-columns',
-  'transpose': 'step-card__icon--transpose',
-  'parse': 'step-card__icon--parse',
-  'rename': 'step-card__icon--rename',
-  'group-by': 'step-card__icon--group',
-  'computed': 'step-card__icon--computed',
+  'sort': 'step-card__body__icon--sort',
+  'filter': 'step-card__body__icon--filter',
+  'hide-columns': 'step-card__body__icon--hide-columns',
+  'transpose': 'step-card__body__icon--transpose',
+  'parse': 'step-card__body__icon--parse',
+  'rename': 'step-card__body__icon--rename',
+  'group-by': 'step-card__body__icon--group',
+  'computed': 'step-card__body__icon--computed',
 }
 
 const iconComponentMap: Record<string, Component> = {
@@ -228,85 +228,85 @@ const description = computed(() => {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-  }
 
-  &__icon {
-    width: 1.75rem;
-    height: 1.75rem;
-    border-radius: 0.3125rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    font-size: var(--bs-font-size-xs);
-    font-weight: 700;
+    &__icon {
+      width: 1.75rem;
+      height: 1.75rem;
+      border-radius: 0.3125rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: var(--bs-font-size-xs);
+      font-weight: 700;
 
-    :deep(svg) {
-      width: 1rem;
-      height: 1rem;
+      :deep(svg) {
+        width: 1rem;
+        height: 1rem;
+      }
+
+      &--sort {
+        background: var(--bs-warning-bg-subtle);
+        color: var(--bs-warning-text-emphasis);
+      }
+
+      &--filter {
+        background: var(--bs-danger-bg-subtle);
+        color: var(--bs-danger-text-emphasis);
+      }
+
+      &--hide-columns {
+        background: var(--bs-secondary-bg);
+        color: var(--bs-secondary-text-emphasis);
+      }
+
+      &--transpose {
+        background: var(--bs-info-bg-subtle);
+        color: var(--bs-info-text-emphasis);
+      }
+
+      &--parse {
+        background: var(--bs-success-bg-subtle);
+        color: var(--bs-success-text-emphasis);
+      }
+
+      &--rename {
+        background: var(--bs-primary-bg-subtle);
+        color: var(--bs-primary-text-emphasis);
+      }
+
+      &--group {
+        background: hsl(270 90% 95%);
+        color: hsl(270 70% 50%);
+      }
+
+      &--computed {
+        background: var(--bs-info-bg-subtle);
+        color: var(--bs-info-text-emphasis);
+      }
     }
 
-    &--sort {
-      background: var(--bs-warning-bg-subtle);
-      color: var(--bs-warning-text-emphasis);
-    }
+    &__text {
+      flex: 1;
+      min-width: 0;
 
-    &--filter {
-      background: var(--bs-danger-bg-subtle);
-      color: var(--bs-danger-text-emphasis);
-    }
+      &__name {
+        font-size: var(--bs-font-size-sm);
+        font-weight: 600;
+        color: var(--bs-body-color);
+      }
 
-    &--hide-columns {
-      background: var(--bs-secondary-bg);
-      color: var(--bs-secondary-text-emphasis);
-    }
+      &__desc {
+        font-size: var(--bs-font-size-xs);
+        color: var(--bs-secondary-color);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
 
-    &--transpose {
-      background: var(--bs-info-bg-subtle);
-      color: var(--bs-info-text-emphasis);
-    }
-
-    &--parse {
-      background: var(--bs-success-bg-subtle);
-      color: var(--bs-success-text-emphasis);
-    }
-
-    &--rename {
-      background: var(--bs-primary-bg-subtle);
-      color: var(--bs-primary-text-emphasis);
-    }
-
-    &--group {
-      background: hsl(270 90% 95%);
-      color: hsl(270 70% 50%);
-    }
-
-    &--computed {
-      background: var(--bs-info-bg-subtle);
-      color: var(--bs-info-text-emphasis);
-    }
-  }
-
-  &__text {
-    flex: 1;
-    min-width: 0;
-  }
-
-  &__name {
-    font-size: var(--bs-font-size-sm);
-    font-weight: 600;
-    color: var(--bs-body-color);
-  }
-
-  &__desc {
-    font-size: var(--bs-font-size-xs);
-    color: var(--bs-secondary-color);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-
-    &--error {
-      color: var(--bs-danger);
+        &--error {
+          color: var(--bs-danger);
+        }
+      }
     }
   }
 
@@ -315,34 +315,34 @@ const description = computed(() => {
     align-items: center;
     gap: 0.125rem;
     padding-right: 0.25rem;
-  }
 
-  &__action {
-    width: 1.5rem;
-    height: 1.5rem;
-    border: none;
-    background: none;
-    border-radius: 0.25rem;
-    cursor: pointer;
-    color: var(--bs-secondary-color);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    transition: all 0.1s;
+    &__btn {
+      width: 1.5rem;
+      height: 1.5rem;
+      border: none;
+      background: none;
+      border-radius: 0.25rem;
+      cursor: pointer;
+      color: var(--bs-secondary-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: all 0.1s;
 
-    .step-card:hover & {
-      opacity: 1;
-    }
+      .step-card:hover & {
+        opacity: 1;
+      }
 
-    &:hover {
-      background: var(--bs-tertiary-bg);
-      color: var(--bs-secondary-text-emphasis);
-    }
+      &:hover {
+        background: var(--bs-tertiary-bg);
+        color: var(--bs-secondary-text-emphasis);
+      }
 
-    svg {
-      width: 0.875rem;
-      height: 0.875rem;
+      svg {
+        width: 0.875rem;
+        height: 0.875rem;
+      }
     }
   }
 

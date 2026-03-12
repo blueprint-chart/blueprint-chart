@@ -23,7 +23,7 @@ function mountHero() {
 describe('LandingHero', () => {
   it('renders hero heading', () => {
     const w = mountHero()
-    expect(w.find('.landing-hero__h1').exists()).toBe(true)
+    expect(w.find('.landing-hero__inner__text__h1').exists()).toBe(true)
     expect(w.text()).toContain('Turn data into')
   })
 
@@ -35,12 +35,12 @@ describe('LandingHero', () => {
 
   it('renders badges', () => {
     const w = mountHero()
-    const meta = w.find('.landing-hero__meta')
+    const meta = w.find('.landing-hero__inner__text__meta')
     expect(meta.exists()).toBe(true)
   })
 
   it('renders chart preview', () => {
     const w = mountHero()
-    expect(w.find('.landing-hero__chart').exists()).toBe(true)
+    expect(w.find('.landing-hero__inner__chart').exists()).toBe(true)
   })
 })

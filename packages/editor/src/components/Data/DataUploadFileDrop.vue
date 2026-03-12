@@ -30,9 +30,9 @@
       Browse files
     </button>
     <div class="file-drop__formats">
-      <span class="file-drop__format-tag">.csv</span>
-      <span class="file-drop__format-tag">.tsv</span>
-      <span class="file-drop__format-tag">.bpc</span>
+      <span class="file-drop__formats__tag">.csv</span>
+      <span class="file-drop__formats__tag">.tsv</span>
+      <span class="file-drop__formats__tag">.bpc</span>
     </div>
     <input
       ref="fileInput"
@@ -164,17 +164,17 @@ function onFileSelect(e: globalThis.Event) {
     display: flex;
     gap: 0.375rem;
     margin-top: 0.875rem;
-  }
 
-  &__format-tag {
-    font-size: var(--bs-font-size-xs);
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    padding: 0.125rem 0.4375rem;
-    border-radius: 0.1875rem;
-    background: var(--bs-tertiary-bg);
-    color: var(--bs-secondary-color);
+    &__tag {
+      font-size: var(--bs-font-size-xs);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 0.125rem 0.4375rem;
+      border-radius: 0.1875rem;
+      background: var(--bs-tertiary-bg);
+      color: var(--bs-secondary-color);
+    }
   }
 
   &__input {

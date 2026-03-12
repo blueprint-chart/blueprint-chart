@@ -8,18 +8,18 @@
       <component
         :is="thumbComponent"
         v-if="thumbComponent"
-        class="reco-card__thumb-svg"
+        class="reco-card__preview__thumb-svg"
       />
     </div>
     <div class="reco-card__body">
-      <div class="reco-card__title">
+      <div class="reco-card__body__title">
         {{ label }}
         <span
-          class="reco-card__badge"
+          class="reco-card__body__title__badge"
           :class="badgeClass"
         >{{ fitnessLabel }}</span>
       </div>
-      <div class="reco-card__reason">
+      <div class="reco-card__body__reason">
         {{ reason }}
       </div>
     </div>
@@ -59,12 +59,12 @@ const thumbComponent = computed(() => THUMB_MAP[props.chartType])
 
 const badgeClass = computed(() => {
   if (props.fitness === 'best') {
-    return 'reco-card__badge--best'
+    return 'reco-card__body__title__badge--best'
   }
   if (props.fitness === 'good') {
-    return 'reco-card__badge--good'
+    return 'reco-card__body__title__badge--good'
   }
-  return 'reco-card__badge--alt'
+  return 'reco-card__body__title__badge--alt'
 })
 
 const fitnessLabel = computed(() => {
@@ -118,61 +118,61 @@ const fitnessLabel = computed(() => {
       background: var(--bs-success-bg-subtle);
       border-bottom-color: var(--bs-success-bg-subtle);
     }
-  }
 
-  &__thumb-svg {
-    width: 100%;
-    height: 100%;
-    padding: 0.5rem;
-    opacity: 0.8;
-
-    :deep(svg) {
+    &__thumb-svg {
       width: 100%;
       height: 100%;
-      object-fit: contain;
+      padding: 0.5rem;
+      opacity: 0.8;
+
+      :deep(svg) {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
     }
   }
 
   &__body {
     padding: 0.5rem 0.625rem;
-  }
 
-  &__title {
-    font-size: var(--bs-font-size-sm);
-    font-weight: 700;
-    color: var(--bs-body-color);
-    display: flex;
-    align-items: center;
-    gap: 0.375rem;
-  }
+    &__title {
+      font-size: var(--bs-font-size-sm);
+      font-weight: 700;
+      color: var(--bs-body-color);
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
 
-  &__reason {
-    font-size: var(--bs-font-size-xs);
-    color: var(--bs-secondary-color);
-    margin-top: 0.125rem;
-  }
+      &__badge {
+        font-size: var(--bs-font-size-xs);
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        padding: 0.0625rem 0.3125rem;
+        border-radius: 0.1875rem;
 
-  &__badge {
-    font-size: var(--bs-font-size-xs);
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    padding: 0.0625rem 0.3125rem;
-    border-radius: 0.1875rem;
+        &--best {
+          background: var(--bs-success-bg-subtle);
+          color: var(--bs-success-text-emphasis);
+        }
 
-    &--best {
-      background: var(--bs-success-bg-subtle);
-      color: var(--bs-success-text-emphasis);
+        &--good {
+          background: var(--bs-primary-bg-subtle);
+          color: var(--bs-primary-text-emphasis);
+        }
+
+        &--alt {
+          background: var(--bs-secondary-bg);
+          color: var(--bs-secondary-color);
+        }
+      }
     }
 
-    &--good {
-      background: var(--bs-primary-bg-subtle);
-      color: var(--bs-primary-text-emphasis);
-    }
-
-    &--alt {
-      background: var(--bs-secondary-bg);
+    &__reason {
+      font-size: var(--bs-font-size-xs);
       color: var(--bs-secondary-color);
+      margin-top: 0.125rem;
     }
   }
 }

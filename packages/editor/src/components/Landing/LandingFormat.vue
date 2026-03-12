@@ -12,7 +12,7 @@
       </template>
     </LandingSectionHeader>
     <div class="format__grid">
-      <div class="format__pane-cell">
+      <div class="format__grid__pane-cell">
         <div
           class="format-pane"
           data-bs-theme="dark"
@@ -30,7 +30,7 @@
         </div>
       </div>
       <div>
-        <div class="format__chart-tile">
+        <div class="format__grid__chart-tile">
           <LandingChartPreview :bpc="bpcCode" />
         </div>
         <div class="format-ai-note">
@@ -40,7 +40,7 @@
               size="sm"
               variant="warning"
             />
-            <span class="format-ai-note__title">LLM-friendly by design</span>
+            <span class="format-ai-note__header__title">LLM-friendly by design</span>
           </div>
           <p class="format-ai-note__text">
             BPC uses a simple block syntax. A language model can generate valid BPC
@@ -80,18 +80,18 @@ const highlightedBpc = computed(() => highlightDsl(bpcCode))
     grid-template-columns: 1fr 1fr;
     gap: 2rem;
     margin-top: 0.75rem;
-  }
 
-  &__pane-cell {
-    position: relative;
-    min-height: 0;
-  }
+    &__pane-cell {
+      position: relative;
+      min-height: 0;
+    }
 
-  &__chart-tile {
-    background: transparent;
-    border-radius: var(--bc-tile-radius);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    overflow: hidden;
+    &__chart-tile {
+      background: transparent;
+      border-radius: var(--bc-tile-radius);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      overflow: hidden;
+    }
   }
 }
 
@@ -161,12 +161,12 @@ const highlightedBpc = computed(() => highlightDsl(bpcCode))
     align-items: center;
     gap: 0.375rem;
     margin-bottom: 0.5rem;
-  }
 
-  &__title {
-    font-size: 0.75rem;
-    color: #7aa7d4;
-    font-weight: 700;
+    &__title {
+      font-size: 0.75rem;
+      color: #7aa7d4;
+      font-weight: 700;
+    }
   }
 
   &__text {
@@ -181,10 +181,10 @@ const highlightedBpc = computed(() => highlightDsl(bpcCode))
   .format {
     &__grid {
       grid-template-columns: 1fr;
-    }
 
-    &__pane-cell {
-      min-height: 24rem;
+      &__pane-cell {
+        min-height: 24rem;
+      }
     }
   }
 }

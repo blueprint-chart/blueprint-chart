@@ -2,7 +2,7 @@
   <div class="data-column-settings">
     <template v-if="selectedColumnIndex >= 0 && selectedColumnIndex < columns.length">
       <div class="data-column-settings__field">
-        <div class="data-column-settings__label">
+        <div class="data-column-settings__field__label">
           Type
         </div>
         <FormControlDropdown
@@ -17,11 +17,11 @@
       <hr class="data-column-settings__divider">
 
       <div class="data-column-settings__section">
-        <div class="data-column-settings__section-title">
+        <div class="data-column-settings__section__title">
           Detections
         </div>
-        <div class="data-column-settings__detections">
-          <span class="data-column-settings__detection data-column-settings__detection--success">
+        <div class="data-column-settings__section__detections">
+          <span class="data-column-settings__section__detections__item data-column-settings__section__detections__item--success">
             <svg
               viewBox="0 0 24 24"
               fill="none"
@@ -30,7 +30,7 @@
             ><path d="M20 6L9 17l-5-5" /></svg>
             {{ uniqueLabel }}
           </span>
-          <span class="data-column-settings__detection data-column-settings__detection--info">
+          <span class="data-column-settings__section__detections__item data-column-settings__section__detections__item--info">
             <svg
               viewBox="0 0 24 24"
               fill="none"
@@ -45,8 +45,8 @@
           </span>
           <span
             v-if="benfordDetection"
-            class="data-column-settings__detection"
-            :class="benfordDetection.pass ? 'data-column-settings__detection--success' : 'data-column-settings__detection--warn'"
+            class="data-column-settings__section__detections__item"
+            :class="benfordDetection.pass ? 'data-column-settings__section__detections__item--success' : 'data-column-settings__section__detections__item--warn'"
           >
             <svg
               viewBox="0 0 24 24"
@@ -69,7 +69,7 @@
       v-else
       class="data-column-settings__picker"
     >
-      <div class="data-column-settings__label">
+      <div class="data-column-settings__picker__label">
         Column
       </div>
       <FormControlDropdown
@@ -174,19 +174,28 @@ const benfordDetection = computed(() => {
 
   &__picker {
     padding-top: 0.25rem;
+
+    &__label {
+      font-size: var(--bs-font-size-xs);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--bs-secondary-color);
+      margin-bottom: 0.25rem;
+    }
   }
 
   &__field {
     margin-bottom: 0.875rem;
-  }
 
-  &__label {
-    font-size: var(--bs-font-size-xs);
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--bs-secondary-color);
-    margin-bottom: 0.25rem;
+    &__label {
+      font-size: var(--bs-font-size-xs);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--bs-secondary-color);
+      margin-bottom: 0.25rem;
+    }
   }
 
   &__divider {
@@ -197,51 +206,51 @@ const benfordDetection = computed(() => {
 
   &__section {
     margin-bottom: 1.25rem;
-  }
 
-  &__section-title {
-    font-size: var(--bs-font-size-xs);
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--bs-secondary-color);
-    margin-bottom: 0.5rem;
-  }
-
-  &__detections {
-    display: flex;
-    flex-direction: column;
-    gap: 0.375rem;
-  }
-
-  &__detection {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-    padding: 0.1875rem 0.5rem;
-    border-radius: 0.25rem;
-    font-size: var(--bs-font-size-xs);
-    font-weight: 600;
-
-    svg {
-      width: 0.75rem;
-      height: 0.75rem;
-      flex-shrink: 0;
+    &__title {
+      font-size: var(--bs-font-size-xs);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--bs-secondary-color);
+      margin-bottom: 0.5rem;
     }
 
-    &--success {
-      background: var(--bs-success-bg-subtle);
-      color: var(--bs-success-text-emphasis);
-    }
+    &__detections {
+      display: flex;
+      flex-direction: column;
+      gap: 0.375rem;
 
-    &--info {
-      background: var(--bs-primary-bg-subtle);
-      color: var(--bs-primary-text-emphasis);
-    }
+      &__item {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.1875rem 0.5rem;
+        border-radius: 0.25rem;
+        font-size: var(--bs-font-size-xs);
+        font-weight: 600;
 
-    &--warn {
-      background: var(--bs-warning-bg-subtle);
-      color: var(--bs-warning-text-emphasis);
+        svg {
+          width: 0.75rem;
+          height: 0.75rem;
+          flex-shrink: 0;
+        }
+
+        &--success {
+          background: var(--bs-success-bg-subtle);
+          color: var(--bs-success-text-emphasis);
+        }
+
+        &--info {
+          background: var(--bs-primary-bg-subtle);
+          color: var(--bs-primary-text-emphasis);
+        }
+
+        &--warn {
+          background: var(--bs-warning-bg-subtle);
+          color: var(--bs-warning-text-emphasis);
+        }
+      }
     }
   }
 }

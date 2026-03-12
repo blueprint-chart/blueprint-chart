@@ -1,12 +1,12 @@
 <template>
   <div class="group-by-step">
     <div class="group-by-step__field">
-      <label class="group-by-step__label">Group by</label>
-      <div class="group-by-step__columns">
+      <label class="group-by-step__field__label">Group by</label>
+      <div class="group-by-step__field__columns">
         <label
           v-for="col in columns"
           :key="col"
-          class="group-by-step__column"
+          class="group-by-step__field__columns__column"
         >
           <input
             type="checkbox"
@@ -21,10 +21,10 @@
       v-if="availableAggColumns.length > 0 || selectedGroupColumns.length > 0"
       class="group-by-step__field"
     >
-      <label class="group-by-step__label">Aggregates</label>
-      <div class="group-by-step__agg-list">
-        <div class="group-by-step__agg-row">
-          <label class="group-by-step__agg-check">
+      <label class="group-by-step__field__label">Aggregates</label>
+      <div class="group-by-step__field__agg-list">
+        <div class="group-by-step__field__agg-list__row">
+          <label class="group-by-step__field__agg-list__row__check">
             <input
               type="checkbox"
               :checked="hasCountAgg"
@@ -32,14 +32,14 @@
             >
             Row count
           </label>
-          <span class="group-by-step__agg-fn-label">count</span>
+          <span class="group-by-step__field__agg-list__row__fn-label">count</span>
         </div>
         <div
           v-for="col in availableAggColumns"
           :key="col"
-          class="group-by-step__agg-row"
+          class="group-by-step__field__agg-list__row"
         >
-          <label class="group-by-step__agg-check">
+          <label class="group-by-step__field__agg-list__row__check">
             <input
               type="checkbox"
               :checked="isAggEnabled(col)"
@@ -49,7 +49,7 @@
           </label>
           <select
             v-if="isAggEnabled(col)"
-            class="group-by-step__agg-fn"
+            class="group-by-step__field__agg-list__row__fn"
             :value="getAggFn(col)"
             @change="setAggFn(col, ($event.target as HTMLSelectElement).value)"
           >
@@ -197,89 +197,89 @@ function setAggFn(col: string, fn: string) {
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
-  }
 
-  &__label {
-    font-size: var(--bs-font-size-xs);
-    font-weight: 600;
-    color: var(--bs-secondary-color);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-
-  &__columns {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.25rem;
-  }
-
-  &__column {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    font-size: var(--bs-font-size-sm);
-    color: var(--bs-body-color);
-    cursor: pointer;
-    padding: 0.1875rem 0.5rem;
-    border: 1px solid var(--bs-border-color);
-    border-radius: var(--bs-border-radius);
-    background: var(--bs-body-bg);
-    transition: all 0.15s;
-
-    &:hover {
-      border-color: var(--bs-primary);
+    &__label {
+      font-size: var(--bs-font-size-xs);
+      font-weight: 600;
+      color: var(--bs-secondary-color);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
     }
 
-    &:has(input:checked) {
-      border-color: var(--bs-primary);
-      background: var(--bs-primary-bg-subtle);
-      color: var(--bs-primary);
+    &__columns {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.25rem;
+
+      &__column {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        font-size: var(--bs-font-size-sm);
+        color: var(--bs-body-color);
+        cursor: pointer;
+        padding: 0.1875rem 0.5rem;
+        border: 1px solid var(--bs-border-color);
+        border-radius: var(--bs-border-radius);
+        background: var(--bs-body-bg);
+        transition: all 0.15s;
+
+        &:hover {
+          border-color: var(--bs-primary);
+        }
+
+        &:has(input:checked) {
+          border-color: var(--bs-primary);
+          background: var(--bs-primary-bg-subtle);
+          color: var(--bs-primary);
+        }
+
+        input {
+          accent-color: var(--bs-primary);
+        }
+      }
     }
 
-    input {
-      accent-color: var(--bs-primary);
+    &__agg-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+
+      &__row {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: var(--bs-font-size-sm);
+
+        &__check {
+          display: flex;
+          align-items: center;
+          gap: 0.25rem;
+          cursor: pointer;
+          flex: 1;
+          min-width: 0;
+
+          input {
+            accent-color: var(--bs-primary);
+          }
+        }
+
+        &__fn {
+          font-size: var(--bs-font-size-sm);
+          padding: 0.125rem 0.375rem;
+          border: 1px solid var(--bs-border-color);
+          border-radius: var(--bs-border-radius);
+          background: var(--bs-body-bg);
+          color: var(--bs-body-color);
+        }
+
+        &__fn-label {
+          font-size: var(--bs-font-size-sm);
+          color: var(--bs-secondary-color);
+          font-style: italic;
+        }
+      }
     }
-  }
-
-  &__agg-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-  }
-
-  &__agg-row {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: var(--bs-font-size-sm);
-  }
-
-  &__agg-check {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    cursor: pointer;
-    flex: 1;
-    min-width: 0;
-
-    input {
-      accent-color: var(--bs-primary);
-    }
-  }
-
-  &__agg-fn {
-    font-size: var(--bs-font-size-sm);
-    padding: 0.125rem 0.375rem;
-    border: 1px solid var(--bs-border-color);
-    border-radius: var(--bs-border-radius);
-    background: var(--bs-body-bg);
-    color: var(--bs-body-color);
-  }
-
-  &__agg-fn-label {
-    font-size: var(--bs-font-size-sm);
-    color: var(--bs-secondary-color);
-    font-style: italic;
   }
 }
 </style>

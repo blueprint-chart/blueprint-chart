@@ -1,12 +1,12 @@
 <template>
   <div class="data-transform-step-sort">
     <div class="data-transform-step-sort__field">
-      <label class="data-transform-step-sort__label">Sort by</label>
-      <div class="data-transform-step-sort__columns">
+      <label class="data-transform-step-sort__field__label">Sort by</label>
+      <div class="data-transform-step-sort__field__columns">
         <label
           v-for="col in columns"
           :key="col"
-          class="data-transform-step-sort__column"
+          class="data-transform-step-sort__field__columns__column"
         >
           <input
             type="checkbox"
@@ -120,47 +120,47 @@ function onUpdate(key: string, value: string) {
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
-  }
 
-  &__label {
-    font-size: var(--bs-font-size-xs);
-    font-weight: 600;
-    color: var(--bs-secondary-color);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-
-  &__columns {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.25rem;
-  }
-
-  &__column {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    font-size: var(--bs-font-size-sm);
-    color: var(--bs-body-color);
-    cursor: pointer;
-    padding: 0.1875rem 0.5rem;
-    border: 1px solid var(--bs-border-color);
-    border-radius: var(--bs-border-radius);
-    background: var(--bs-body-bg);
-    transition: all 0.15s;
-
-    &:hover {
-      border-color: var(--bs-primary);
+    &__label {
+      font-size: var(--bs-font-size-xs);
+      font-weight: 600;
+      color: var(--bs-secondary-color);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
     }
 
-    &:has(input:checked) {
-      border-color: var(--bs-primary);
-      background: var(--bs-primary-bg-subtle);
-      color: var(--bs-primary);
-    }
+    &__columns {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.25rem;
 
-    input {
-      accent-color: var(--bs-primary);
+      &__column {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        font-size: var(--bs-font-size-sm);
+        color: var(--bs-body-color);
+        cursor: pointer;
+        padding: 0.1875rem 0.5rem;
+        border: 1px solid var(--bs-border-color);
+        border-radius: var(--bs-border-radius);
+        background: var(--bs-body-bg);
+        transition: all 0.15s;
+
+        &:hover {
+          border-color: var(--bs-primary);
+        }
+
+        &:has(input:checked) {
+          border-color: var(--bs-primary);
+          background: var(--bs-primary-bg-subtle);
+          color: var(--bs-primary);
+        }
+
+        input {
+          accent-color: var(--bs-primary);
+        }
+      }
     }
   }
 }
