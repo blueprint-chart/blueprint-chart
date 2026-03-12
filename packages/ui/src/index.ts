@@ -85,6 +85,9 @@ export { default as ListItemActions } from './components/List/ListItemActions/Li
 export { default as ListSelectPanel } from './components/List/ListSelectPanel/ListSelectPanel.vue'
 export { default as ListSeriesRow } from './components/List/ListSeriesRow/ListSeriesRow.vue'
 
+export { default as GalleryCard } from './components/Gallery/GalleryCard/GalleryCard.vue'
+export { default as GalleryGrid } from './components/Gallery/GalleryGrid/GalleryGrid.vue'
+
 export { default as SceneTimeline } from './components/Scene/SceneTimeline/SceneTimeline.vue'
 export { default as SceneTimelineControls } from './components/Scene/SceneTimeline/SceneTimelineControls.vue'
 export { default as SceneTimelineItem } from './components/Scene/SceneTimelineItem/SceneTimelineItem.vue'
