@@ -8,8 +8,16 @@
     @keydown.enter="$emit('click')"
     @keydown.space.prevent="$emit('click')"
   >
-    <div class="gallery-card__thumb">
-      <slot name="thumb" />
+    <div
+      class="gallery-card__thumb"
+      :data-bs-theme="forceLightThumb ? 'light' : undefined"
+    >
+      <img
+        v-if="thumbSrc"
+        :src="thumbSrc"
+        alt=""
+        class="gallery-card__thumb-img"
+      >
     </div>
     <div class="gallery-card__meta">
       <div class="gallery-card__title">
@@ -37,8 +45,10 @@ import { computed } from 'vue'
 const props = defineProps<{
   title: string
   subtitle?: string
+  thumbSrc?: string
   selected?: boolean
   layout?: 'grid' | 'row'
+  forceLightThumb?: boolean
 }>()
 
 defineEmits<{
@@ -88,11 +98,13 @@ const cardClassList = computed(() => ({
   justify-content: center;
   padding: 0.875rem;
   overflow: hidden;
+}
 
-  :deep(svg) {
-    width: 100%;
-    height: 100%;
-  }
+.gallery-card__thumb-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
 }
 
 .gallery-card__meta {
