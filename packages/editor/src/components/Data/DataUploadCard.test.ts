@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import DataUploadCard from './DataUploadCard.vue'
 
@@ -6,10 +6,15 @@ vi.mock('@blueprint-chart/lib', () => ({
   samples: [],
 }))
 
+const mockDataTable = {
+  rawInput: { value: '' },
+  sourceFormat: { value: 'delimited' as string },
+  columns: { value: [] as string[] },
+  rows: { value: [] as string[][] },
+}
+
 vi.mock('@/composables/useDataTable', () => ({
-  useDataTable: () => ({
-    rawInput: { value: '' },
-  }),
+  useDataTable: () => mockDataTable,
 }))
 
 const fakeSample = { id: 'test', title: 'Test', tsvData: 'a\tb\n1\t2', dsl: 'bar-vertical {}', chartType: 'bar-vertical', serializedData: '', description: '' }
@@ -26,6 +31,13 @@ function mountCard() {
 }
 
 describe('DataUploadCard', () => {
+  beforeEach(() => {
+    mockDataTable.rawInput.value = ''
+    mockDataTable.sourceFormat.value = 'delimited'
+    mockDataTable.columns.value = []
+    mockDataTable.rows.value = []
+  })
+
   it('renders heading', () => {
     const w = mountCard()
     expect(w.find('.upload-card__title').text()).toBe('Add your data')
@@ -46,6 +58,30 @@ describe('DataUploadCard', () => {
     const btn = w.find('.upload-card__paste-btn')
     expect(btn.exists()).toBe(true)
     expect((btn.element as HTMLButtonElement).disabled).toBe(true)
+  })
+
+  it('shows TSV instead of BPC when source format is bpc', () => {
+    mockDataTable.rawInput.value = '_series = "New York","Detroit"\n"2000" = 5,3.8'
+    mockDataTable.sourceFormat.value = 'bpc'
+    mockDataTable.columns.value = ['label', 'New York', 'Detroit']
+    mockDataTable.rows.value = [['2000', '5', '3.8']]
+
+    const w = mountCard()
+    const textarea = w.find('.upload-card__paste-area')
+    const value = (textarea.element as HTMLTextAreaElement).value
+    expect(value).not.toContain('=')
+    expect(value).toBe('label\tNew York\tDetroit\n2000\t5\t3.8')
+  })
+
+  it('shows raw input when source format is delimited', () => {
+    mockDataTable.rawInput.value = 'Name\tValue\nApples\t42'
+    mockDataTable.sourceFormat.value = 'delimited'
+    mockDataTable.columns.value = ['Name', 'Value']
+    mockDataTable.rows.value = [['Apples', '42']]
+
+    const w = mountCard()
+    const textarea = w.find('.upload-card__paste-area')
+    expect((textarea.element as HTMLTextAreaElement).value).toBe('Name\tValue\nApples\t42')
   })
 
   it('emits sample event when DataUploadSamples emits select', async () => {

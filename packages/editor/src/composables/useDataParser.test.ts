@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { parseDelimited, parseBpcData, detectColumnTypes } from './useDataParser'
+import { parseDelimited, parseBpcData, detectColumnTypes, serializeDelimited } from './useDataParser'
+import { parse, dataEntriesToString } from '@blueprint-chart/lib'
 
 describe('parseDelimited', () => {
   it('returns empty for empty input', () => {
@@ -174,6 +175,96 @@ describe('detectColumnTypes', () => {
       ],
     )
     expect(types).toEqual(['date', 'number', 'number', 'number'])
+  })
+})
+
+describe('serializeDelimited', () => {
+  it('serializes columns and rows to TSV', () => {
+    const result = serializeDelimited(['Name', 'Value'], [['Apples', '42'], ['Bananas', '58']])
+    expect(result).toBe('Name\tValue\nApples\t42\nBananas\t58')
+  })
+
+  it('serializes to CSV with comma delimiter', () => {
+    const result = serializeDelimited(['Name', 'Value'], [['Apples', '42']], ',')
+    expect(result).toBe('Name,Value\nApples,42')
+  })
+
+  it('quotes CSV cells containing the delimiter', () => {
+    const result = serializeDelimited(['Name', 'Value'], [['Hello, World', '42']], ',')
+    expect(result).toBe('Name,Value\n"Hello, World",42')
+  })
+
+  it('escapes double quotes in CSV cells', () => {
+    const result = serializeDelimited(['Name', 'Value'], [['Say "hi"', '42']], ',')
+    expect(result).toBe('Name,Value\n"Say ""hi""",42')
+  })
+
+  it('round-trips BPC single-series data to TSV without = signs', () => {
+    const bpc = '"China" = 1050\n"India" = 900\n"Brazil" = 186'
+    const parsed = parseBpcData(bpc)
+    const tsv = serializeDelimited(parsed.columns, parsed.rows)
+    expect(tsv).not.toContain('=')
+    expect(tsv).toBe('label\tvalue\nChina\t1050\nIndia\t900\nBrazil\t186')
+  })
+
+  it('round-trips BPC multi-series data to TSV without = signs', () => {
+    const bpc = '_series = "New York","Los Angeles","Chicago","Detroit"\n"2000" = 5,5.6,4.5,3.8\n"2002" = 7.3,7.5,6.8,7'
+    const parsed = parseBpcData(bpc)
+    const tsv = serializeDelimited(parsed.columns, parsed.rows)
+    expect(tsv).not.toContain('=')
+    expect(tsv).toBe('label\tNew York\tLos Angeles\tChicago\tDetroit\n2000\t5\t5.6\t4.5\t3.8\n2002\t7.3\t7.5\t6.8\t7')
+  })
+
+  it('round-trips BPC legacy format to TSV without = signs', () => {
+    const bpc = '_series = "Chrome,IE,Firefox"\n"2009-01" = "1.37,64.97,26.85"\n"2009-02" = "1.5,63.98,27.66"'
+    const parsed = parseBpcData(bpc)
+    const tsv = serializeDelimited(parsed.columns, parsed.rows)
+    expect(tsv).not.toContain('=')
+    expect(tsv).toBe('label\tChrome\tIE\tFirefox\n2009-01\t1.37\t64.97\t26.85\n2009-02\t1.5\t63.98\t27.66')
+  })
+
+  it('round-trips real BPC DSL data section to TSV without = signs', () => {
+    const dsl = `chart line-multi {
+  data {
+    _series = "New York","Los Angeles","Chicago","Detroit"
+    "2000" = 5.0,5.6,4.5,3.8
+    "2002" = 7.3,7.5,6.8,7.0
+  }
+}`
+    const ast = parse(dsl)
+    const dataStr = dataEntriesToString(ast.data!)
+
+    // Verify dataEntriesToString preserves multi-value entries
+    expect(dataStr).toContain('_series')
+    expect(dataStr).toContain('New York')
+    expect(dataStr).not.toMatch(/"2000" = 5\n/) // should NOT truncate to single value
+
+    const parsed = parseBpcData(dataStr)
+
+    // Verify parseBpcData produces correct columns/rows
+    expect(parsed.columns).toEqual(['label', 'New York', 'Los Angeles', 'Chicago', 'Detroit'])
+    expect(parsed.rows[0]).toHaveLength(5) // label + 4 values
+    expect(parsed.rows[0][0]).toBe('2000')
+    expect(parsed.rows[0]).not.toContain(expect.stringContaining('='))
+
+    const tsv = serializeDelimited(parsed.columns, parsed.rows)
+    expect(tsv).not.toContain('=')
+    const lines = tsv.split('\n')
+    expect(lines[0]).toBe('label\tNew York\tLos Angeles\tChicago\tDetroit')
+    expect(lines[1]).toBe('2000\t5\t5.6\t4.5\t3.8')
+    expect(lines[2]).toBe('2002\t7.3\t7.5\t6.8\t7')
+  })
+
+  it('shows that parseDelimited corrupts BPC data (= ends up in cells)', () => {
+    // This documents the corruption that happens when BPC text is fed to parseDelimited
+    const bpcText = '_series = "New York","Los Angeles","Chicago","Detroit"\n"2000" = 5,5.6,4.5,3.8'
+    const parsed = parseDelimited(bpcText)
+
+    // parseDelimited treats BPC as CSV: "2000" = 5 becomes a single cell "2000 = 5"
+    expect(parsed.rows[0][0]).toContain('=')
+
+    // This is the root cause: if reparseData() is called on BPC rawInput,
+    // the data table gets corrupted with = signs in cell values
   })
 })
 
