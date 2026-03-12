@@ -55,7 +55,7 @@ export function dataEntriesToString(data: DataNode): string {
       // Multi-value entries (new format)
       if (e.values && e.values.length > 1) {
         if (e.key === '_series') {
-          return `_series = "${e.values.join(',')}"`
+          return `_series = ${e.values.map(v => `"${v}"`).join(',')}`
         }
         const vals = e.values.join(',')
         return `"${e.key}" = ${vals}`
