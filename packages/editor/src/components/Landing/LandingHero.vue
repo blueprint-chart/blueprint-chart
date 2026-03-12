@@ -55,91 +55,93 @@ const heroBpc = samples.find(s => s.id === 'co2-emissions')!.dsl
 <style scoped lang="scss">
 .landing-hero {
   padding: 3.5rem clamp(1rem, 5vw, 3.75rem) 4rem;
-}
 
-.landing-hero__inner {
-  max-width: 70rem;
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 4rem;
-  align-items: center;
-}
-
-.landing-hero__eyebrow {
-  font-size: 0.6875rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--bs-primary);
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-
-  &::before {
-    content: '';
-    display: block;
-    width: 1.5rem;
-    height: 2px;
-    background: var(--bs-primary);
+  &__inner {
+    max-width: 70rem;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
   }
-}
 
-.landing-hero__h1 {
-  font-family: 'DM Serif Display', serif;
-  font-size: clamp(2.25rem, 4.5vw, 3.5rem);
-  font-weight: 400;
-  line-height: 1.08;
-  letter-spacing: -0.01em;
-  color: var(--bs-body-color);
-  margin-bottom: 1.5rem;
-
-  :deep(em) {
-    font-style: italic;
+  &__eyebrow {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
     color: var(--bs-primary);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+
+    &::before {
+      content: '';
+      display: block;
+      width: 1.5rem;
+      height: 2px;
+      background: var(--bs-primary);
+    }
   }
-}
 
-.landing-hero__sub {
-  font-size: 1.0625rem;
-  color: var(--bs-secondary-color);
-  line-height: 1.65;
-  max-width: 28.75rem;
-  margin-bottom: 2.25rem;
-}
+  &__h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2.25rem, 4.5vw, 3.5rem);
+    font-weight: 400;
+    line-height: 1.08;
+    letter-spacing: -0.01em;
+    color: var(--bs-body-color);
+    margin-bottom: 1.5rem;
 
-.landing-hero__actions {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-}
+    :deep(em) {
+      font-style: italic;
+      color: var(--bs-primary);
+    }
+  }
 
-.landing-hero__meta {
-  display: flex;
-  align-items: center;
-  gap: 1.25rem;
-  margin-top: 1.5rem;
-  flex-wrap: wrap;
-}
+  &__sub {
+    font-size: 1.0625rem;
+    color: var(--bs-secondary-color);
+    line-height: 1.65;
+    max-width: 28.75rem;
+    margin-bottom: 2.25rem;
+  }
 
-.landing-hero__chart {
-  background: var(--bc-tile-bg);
-  border: var(--bc-tile-border);
-  border-radius: var(--bc-tile-radius);
-  box-shadow: var(--bc-tile-shadow);
-  align-self: center;
-  overflow: hidden;
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  &__meta {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    margin-top: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  &__chart {
+    background: var(--bc-tile-bg);
+    border: var(--bc-tile-border);
+    border-radius: var(--bc-tile-radius);
+    box-shadow: var(--bc-tile-shadow);
+    align-self: center;
+    overflow: hidden;
+  }
 }
 
 @media (max-width: 51.25rem) {
-  .landing-hero__inner {
-    grid-template-columns: 1fr;
-  }
+  .landing-hero {
+    &__inner {
+      grid-template-columns: 1fr;
+    }
 
-  .landing-hero__chart {
-    display: none;
+    &__chart {
+      display: none;
+    }
   }
 }
 </style>

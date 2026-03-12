@@ -56,7 +56,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onBeforeUnmount, type Component } from 'vue'
+import { ref, shallowRef, watch, onBeforeUnmount, type Component } from 'vue'
 import { useResizeObserver, useThrottleFn } from '@vueuse/core'
 import { AppIcon, ScenePlayerButtons } from '@blueprint-chart/ui'
 import { samples } from '@blueprint-chart/lib'
@@ -74,12 +74,12 @@ const sceneCount = parseDslSceneCount(bpc)
 
 const containerRef = ref<HTMLElement | null>(null)
 const playerTarget = ref<HTMLElement | null>(null)
-const activeIndex = ref(-1)
-const playing = ref(false)
-const isSceneTransition = ref(false)
+const activeIndex = shallowRef(-1)
+const playing = shallowRef(false)
+const isSceneTransition = shallowRef(false)
 let playbackTimer: ReturnType<typeof globalThis.setInterval> | null = null
 
-const currentScene = ref(activeIndex.value + 2)
+const currentScene = shallowRef(activeIndex.value + 2)
 watch(activeIndex, (i) => {
   currentScene.value = i + 2
 })
@@ -184,17 +184,19 @@ const features: { icon: Component, title: string, description: string }[] = [
 </script>
 
 <style scoped lang="scss">
-.scenes__grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2.5rem;
-  align-items: start;
-}
+.scenes {
+  &__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2.5rem;
+    align-items: start;
+  }
 
-.scenes__features {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
+  &__features {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
 }
 
 .scenes-feature {
@@ -205,21 +207,21 @@ const features: { icon: Component, title: string, description: string }[] = [
   background: var(--bc-tile-bg);
   border: var(--bc-tile-border);
   border-radius: calc(var(--bc-tile-radius) - 2px);
-}
 
-.scenes-feature__icon {
-  margin-top: 0.0625rem;
-}
+  &__icon {
+    margin-top: 0.0625rem;
+  }
 
-.scenes-feature__title {
-  font-size: 0.8125rem;
-}
+  &__title {
+    font-size: 0.8125rem;
+  }
 
-.scenes-feature__desc {
-  font-size: 0.75rem;
-  color: var(--bs-secondary-color);
-  margin-top: 0.125rem;
-  line-height: 1.5;
+  &__desc {
+    font-size: 0.75rem;
+    color: var(--bs-secondary-color);
+    margin-top: 0.125rem;
+    line-height: 1.5;
+  }
 }
 
 .scenes-demo {
@@ -229,17 +231,19 @@ const features: { icon: Component, title: string, description: string }[] = [
   box-shadow: var(--bc-tile-shadow);
   overflow: hidden;
   min-height: 20rem;
-}
 
-.scenes-demo__chart {
-  min-height: 20rem;
-  width: 100%;
-  height: 100%;
+  &__chart {
+    min-height: 20rem;
+    width: 100%;
+    height: 100%;
+  }
 }
 
 @media (max-width: 51.25rem) {
-  .scenes__grid {
-    grid-template-columns: 1fr;
+  .scenes {
+    &__grid {
+      grid-template-columns: 1fr;
+    }
   }
 }
 </style>

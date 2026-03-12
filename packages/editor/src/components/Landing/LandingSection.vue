@@ -26,19 +26,19 @@ withDefaults(defineProps<{
 })
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .landing-section {
   padding: 4.5rem clamp(1rem, 5vw, 3.75rem);
-}
 
-.landing-section__inner {
-  max-width: 70rem;
-  margin: 0 auto;
-}
+  &__inner {
+    max-width: 70rem;
+    margin: 0 auto;
+  }
 
-.landing-section--dark {
-  background: var(--bs-body-bg);
-  color: var(--bs-body-color);
+  &--dark {
+    background: var(--bs-body-bg);
+    color: var(--bs-body-color);
+  }
 }
 
 [data-bs-theme="dark"] .landing-section--dark {

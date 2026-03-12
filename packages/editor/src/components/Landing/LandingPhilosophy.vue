@@ -51,33 +51,37 @@ const points = [
 ]
 </script>
 
-<style scoped>
-.philosophy__grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2.5rem;
-  align-items: start;
-  overflow: hidden;
-}
+<style scoped lang="scss">
+.philosophy {
+  &__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2.5rem;
+    align-items: start;
+    overflow: hidden;
+  }
 
-.philosophy__points {
-  display: flex;
-  flex-direction: column;
-  gap: 0.875rem;
-}
+  &__points {
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+  }
 
-.philosophy__chart-tile {
-  background: var(--bc-tile-bg);
-  border: var(--bc-tile-border);
-  border-radius: var(--bc-tile-radius);
-  box-shadow: var(--bc-tile-shadow);
-  align-self: start;
-  overflow: hidden;
+  &__chart-tile {
+    background: var(--bc-tile-bg);
+    border: var(--bc-tile-border);
+    border-radius: var(--bc-tile-radius);
+    box-shadow: var(--bc-tile-shadow);
+    align-self: start;
+    overflow: hidden;
+  }
 }
 
 @media (max-width: 51.25rem) {
-  .philosophy__grid {
-    grid-template-columns: 1fr;
+  .philosophy {
+    &__grid {
+      grid-template-columns: 1fr;
+    }
   }
 }
 </style>

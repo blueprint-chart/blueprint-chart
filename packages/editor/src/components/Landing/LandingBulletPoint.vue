@@ -17,29 +17,29 @@ defineProps<{
 }>()
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .bullet-point {
   display: flex;
   gap: 0.875rem;
   align-items: flex-start;
-}
 
-.bullet-point__dot {
-  min-width: 0.5rem;
-  height: 0.5rem;
-  background: var(--bs-primary);
-  border-radius: 50%;
-  margin-top: 0.4375rem;
-}
+  &__dot {
+    min-width: 0.5rem;
+    height: 0.5rem;
+    background: var(--bs-primary);
+    border-radius: 50%;
+    margin-top: 0.4375rem;
+  }
 
-.bullet-point__title {
-  font-size: 0.875rem;
-}
+  &__title {
+    font-size: 0.875rem;
+  }
 
-.bullet-point__desc {
-  font-size: 0.8125rem;
-  color: var(--bs-secondary-color);
-  margin-top: 0.125rem;
-  line-height: 1.6;
+  &__desc {
+    font-size: 0.8125rem;
+    color: var(--bs-secondary-color);
+    margin-top: 0.125rem;
+    line-height: 1.6;
+  }
 }
 </style>
