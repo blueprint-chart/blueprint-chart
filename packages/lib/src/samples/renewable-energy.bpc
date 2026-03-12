@@ -11,7 +11,7 @@ chart line-multi {
   tooltips = true
 
   data {
-    _series = "Hydro,Wind,Solar"
+    _series = "Hydro","Wind","Solar"
     "2010" = 16.0,1.6,0.3
     "2012" = 16.2,2.4,0.6
     "2014" = 16.3,3.3,1.1

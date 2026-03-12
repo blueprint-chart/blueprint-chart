@@ -9,7 +9,7 @@ chart bar-multi {
   tooltips = true
 
   data {
-    _series = "Spotify,Apple Music,Amazon Music"
+    _series = "Spotify","Apple Music","Amazon Music"
     "2021" = 11.4,4.1,2.3
     "2022" = 12.4,4.8,2.6
     "2023" = 14.3,5.4,3.0
