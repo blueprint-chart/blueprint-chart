@@ -15,12 +15,11 @@
       {{ subtitle }}
     </div>
 
-    <div class="dashboard-detail-content__preview">
-      <div
-        class="dashboard-detail-content__preview-inner"
-        v-html="thumbnailHtml"
-      />
-    </div>
+    <DashboardChartPreview
+      :title="title"
+      :subtitle="subtitle"
+      :thumbnail-html="thumbnailHtml"
+    />
 
     <div class="dashboard-detail-content__section-title">
       Details
@@ -60,6 +59,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { ButtonIcon } from '@blueprint-chart/ui'
+import DashboardChartPreview from './DashboardChartPreview.vue'
 import DashboardMetaChip from './DashboardMetaChip.vue'
 import DashboardActionRow from './DashboardActionRow.vue'
 import IPhPencilSimple from '~icons/ph/pencil-simple'
@@ -100,22 +100,9 @@ const formattedDate = computed(() => {
   margin-top: 0.75rem;
 }
 
-.dashboard-detail-content__preview {
-  background: var(--bs-tertiary-bg);
-  border: 1px solid var(--bs-border-color);
-  border-radius: var(--bs-border-radius);
-  padding: 0.875rem;
+.dashboard-detail-content :deep(.dashboard-chart-preview) {
   margin-top: 1rem;
   margin-bottom: 1rem;
-  overflow: hidden;
-}
-
-.dashboard-detail-content__preview-inner {
-  :deep(svg) {
-    width: 100%;
-    height: auto;
-    display: block;
-  }
 }
 
 .dashboard-detail-content__section-title {
