@@ -286,6 +286,33 @@ describe('parser', () => {
     })
   })
 
+  describe('multi-value data entries', () => {
+    it('parses comma-separated numeric values', () => {
+      const ast = parse('chart bar {\n  data {\n    "USA" = 40,44,42\n  }\n}')
+      expect(ast.data!.entries).toHaveLength(1)
+      expect(ast.data!.entries[0].key).toBe('USA')
+      expect(ast.data!.entries[0].values).toEqual([40, 44, 42])
+    })
+
+    it('parses comma-separated string values', () => {
+      const ast = parse('chart bar {\n  data {\n    _series = "Gold","Silver","Bronze"\n  }\n}')
+      expect(ast.data!.entries).toHaveLength(1)
+      expect(ast.data!.entries[0].key).toBe('_series')
+      expect(ast.data!.entries[0].values).toEqual(['Gold', 'Silver', 'Bronze'])
+    })
+
+    it('parses negative numbers in multi-value entries', () => {
+      const ast = parse('chart bar {\n  data {\n    "2020" = -2.8,2.2,-3.7\n  }\n}')
+      expect(ast.data!.entries[0].values).toEqual([-2.8, 2.2, -3.7])
+    })
+
+    it('still parses legacy quoted multi-value strings', () => {
+      const ast = parse('chart bar {\n  data {\n    "USA" = "40,44,42"\n  }\n}')
+      expect(ast.data!.entries[0].value).toBe('40,44,42')
+      expect(ast.data!.entries[0].values).toBeUndefined()
+    })
+  })
+
   describe('annotation visibility directives', () => {
     it('parses hide_annotation in scene', () => {
       const ast = parse('chart bar {\n  scene {\n    hide_annotation "abc"\n  }\n}')
