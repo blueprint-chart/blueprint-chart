@@ -60,7 +60,7 @@
 </template>
 
 <script setup lang="ts">
-import { type Component, computed, ref, useTemplateRef } from 'vue'
+import { type Component, computed, shallowRef, useTemplateRef } from 'vue'
 import { useResizeObserver } from '@vueuse/core'
 import ButtonIcon from '../../Button/ButtonIcon/ButtonIcon.vue'
 import FormControlDropdown from './FormControlDropdown.vue'
@@ -84,7 +84,7 @@ const resolvedOptions = computed(() =>
 )
 
 const containerRef = useTemplateRef<HTMLElement>('containerRef')
-const overflowed = ref(false)
+const overflowed = shallowRef(false)
 
 const containerClassList = computed(() => ({
   'form-control-button-group__container--block': props.block,

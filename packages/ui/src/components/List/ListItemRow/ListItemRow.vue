@@ -37,19 +37,19 @@ defineEmits<{
   border: 1px solid transparent;
   border-radius: var(--bs-border-radius);
   cursor: pointer;
-}
 
-.list-item-row--active {
-  border: 1px solid var(--bs-border-color);
-  border-radius: var(--bs-border-radius);
-  background: var(--bs-secondary-bg);
-}
+  &--active {
+    border: 1px solid var(--bs-border-color);
+    border-radius: var(--bs-border-radius);
+    background: var(--bs-secondary-bg);
+  }
 
-.list-item-row__label {
-  flex: 1;
-  font-size: 0.8125rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  &__label {
+    flex: 1;
+    font-size: 0.8125rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 }
 </style>

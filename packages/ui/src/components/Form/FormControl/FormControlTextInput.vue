@@ -35,15 +35,17 @@ withDefaults(defineProps<{
 </script>
 
 <style scoped lang="scss">
-.form-control-text-input__row {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
+.form-control-text-input {
+  &__row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
 
-.form-control-text-input__suffix {
-  white-space: nowrap;
-  color: var(--bs-secondary-color);
-  font-size: 0.75rem;
+  &__suffix {
+    white-space: nowrap;
+    color: var(--bs-secondary-color);
+    font-size: 0.75rem;
+  }
 }
 </style>

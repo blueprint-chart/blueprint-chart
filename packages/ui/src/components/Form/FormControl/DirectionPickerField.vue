@@ -61,39 +61,39 @@ const rectStyle = computed(() => {
   border-radius: 6px;
   position: relative;
   overflow: visible;
-}
 
-.direction-picker-field__crosshair-h,
-.direction-picker-field__crosshair-v {
-  position: absolute;
-  z-index: 1;
-  pointer-events: none;
-  background: var(--bs-primary);
-  opacity: 0.35;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-}
+  &__crosshair-h,
+  &__crosshair-v {
+    position: absolute;
+    z-index: 1;
+    pointer-events: none;
+    background: var(--bs-primary);
+    opacity: 0.35;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
 
-.direction-picker-field__crosshair-h {
-  height: 1px;
-  left: 0;
-  width: 100%;
-}
+  &__crosshair-h {
+    height: 1px;
+    left: 0;
+    width: 100%;
+  }
 
-.direction-picker-field__crosshair-v {
-  width: 1px;
-  top: 0;
-  height: 100%;
-}
+  &__crosshair-v {
+    width: 1px;
+    top: 0;
+    height: 100%;
+  }
 
-.direction-picker-field__rect {
-  position: absolute;
-  z-index: 2;
-  pointer-events: none;
-  background: transparent;
-  border: var(--rect-border) solid var(--bs-primary);
-  border-radius: var(--rect-radius);
-  width: var(--rect-w);
-  height: var(--rect-h);
-  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  &__rect {
+    position: absolute;
+    z-index: 2;
+    pointer-events: none;
+    background: transparent;
+    border: var(--rect-border) solid var(--bs-primary);
+    border-radius: var(--rect-radius);
+    width: var(--rect-w);
+    height: var(--rect-h);
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
 }
 </style>

@@ -69,46 +69,48 @@ const descriptionClassList = computed(() => ({
 </script>
 
 <style scoped>
-.form-control-dropdown-item__content {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 0.5rem;
-}
+.form-control-dropdown-item {
+  &__content {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+  }
 
-.form-control-dropdown-item__icon {
-  flex-shrink: 0;
-  width: 1.25em;
-  height: 1.25em;
-}
+  &__icon {
+    flex-shrink: 0;
+    width: 1.25em;
+    height: 1.25em;
+  }
 
-.form-control-dropdown-item__visual {
-  margin-left: auto;
-  width: 40px;
-  height: 40px;
-  flex-shrink: 0;
-}
+  &__visual {
+    margin-left: auto;
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
 
-.form-control-dropdown-item__visual-image {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+    &-image {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
 
-.form-control-dropdown-item__text {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
+  &__text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
 
-.form-control-dropdown-item__label--bold {
-  font-weight: bold;
-}
+  &__label--bold {
+    font-weight: bold;
+  }
 
-.form-control-dropdown-item__description {
-  white-space: normal;
+  &__description {
+    white-space: normal;
+  }
 }
 </style>

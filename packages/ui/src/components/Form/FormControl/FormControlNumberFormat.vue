@@ -145,7 +145,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref, watch } from 'vue'
+import { computed, reactive, shallowRef, watch } from 'vue'
 import FormControlDropdown from './FormControlDropdown.vue'
 import {
   configToD3,
@@ -195,7 +195,7 @@ const PRESETS: Preset[] = [
 ]
 
 const config = reactive<NumberFormatConfig>({ ...DEFAULT_CONFIG })
-const activePreset = ref<string | null>(null)
+const activePreset = shallowRef<string | null>(null)
 
 // Initialize config from model
 watch(() => model.value, (newVal) => {
@@ -252,224 +252,226 @@ const previewSamples = computed(() =>
 </style>
 
 <style scoped lang="scss">
-.form-control-number-format__trigger-text {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-family: var(--bs-font-monospace);
-}
-
-.form-control-number-format__popover {
-  font-size: 0.8125rem;
-}
-
-.form-control-number-format__preview {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  border-bottom: 1px solid var(--bs-border-color);
-}
-
-.form-control-number-format__preview-cell {
-  padding: 0.4rem 0.375rem;
-  text-align: center;
-  border-right: 1px solid var(--bs-border-color);
-
-  &:last-child {
-    border-right: none;
-  }
-}
-
-.form-control-number-format__preview-label {
-  font-size: 0.5625rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--bs-secondary-color);
-  margin-bottom: 0.125rem;
-}
-
-.form-control-number-format__preview-value {
-  font-family: var(--bs-font-monospace);
-  font-size: 0.8125rem;
-  font-weight: 500;
-
-  &--neg {
-    color: var(--bs-danger);
+.form-control-number-format {
+  &__trigger-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: var(--bs-font-monospace);
   }
 
-  &--zero {
+  &__popover {
+    font-size: 0.8125rem;
+  }
+
+  &__preview {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    border-bottom: 1px solid var(--bs-border-color);
+
+    &-cell {
+      padding: 0.4rem 0.375rem;
+      text-align: center;
+      border-right: 1px solid var(--bs-border-color);
+
+      &:last-child {
+        border-right: none;
+      }
+    }
+
+    &-label {
+      font-size: 0.5625rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--bs-secondary-color);
+      margin-bottom: 0.125rem;
+    }
+
+    &-value {
+      font-family: var(--bs-font-monospace);
+      font-size: 0.8125rem;
+      font-weight: 500;
+
+      &--neg {
+        color: var(--bs-danger);
+      }
+
+      &--zero {
+        color: var(--bs-secondary-color);
+      }
+    }
+  }
+
+  &__body {
+    padding: 0.625rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5625rem;
+  }
+
+  &__section-label {
+    font-size: 0.625rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
     color: var(--bs-secondary-color);
-  }
-}
-
-.form-control-number-format__body {
-  padding: 0.625rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5625rem;
-}
-
-.form-control-number-format__section-label {
-  font-size: 0.625rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--bs-secondary-color);
-  margin-bottom: 0.25rem;
-}
-
-.form-control-number-format__field-label {
-  font-size: 0.625rem;
-  color: var(--bs-secondary-color);
-  margin-bottom: 0.125rem;
-}
-
-.form-control-number-format__chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.25rem;
-}
-
-.form-control-number-format__chip {
-  font-family: var(--bs-font-monospace);
-  font-size: 0.6875rem;
-  padding: 0.125rem 0.5rem;
-  background: var(--bs-tertiary-bg);
-  border: 1px solid var(--bs-border-color);
-  border-radius: 4px;
-  color: var(--bs-secondary-color);
-  cursor: pointer;
-  transition: all 0.12s ease;
-  line-height: 1.6;
-
-  &:hover {
-    border-color: var(--bs-primary);
-    color: var(--bs-primary);
-    background: var(--bs-primary-bg-subtle);
+    margin-bottom: 0.25rem;
   }
 
-  &--active {
-    border-color: var(--bs-primary);
-    color: var(--bs-primary);
-    background: var(--bs-primary-bg-subtle);
-    font-weight: 500;
-  }
-}
-
-.form-control-number-format__sep {
-  margin: 0;
-  border: none;
-  border-top: 1px solid var(--bs-border-color);
-}
-
-.form-control-number-format__grid-2 {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.4375rem;
-}
-
-.form-control-number-format__input {
-  width: 100%;
-  height: 1.75rem;
-  padding: 0 0.5rem;
-  background: var(--bs-body-bg);
-  border: 1px solid var(--bs-border-color);
-  border-radius: var(--bs-border-radius);
-  font-family: var(--bs-font-monospace);
-  font-size: 0.75rem;
-  color: var(--bs-body-color);
-  outline: none;
-  transition: border-color 0.12s ease, box-shadow 0.12s ease;
-
-  &:focus {
-    border-color: var(--bs-primary);
-    box-shadow: 0 0 0 2px rgba(var(--bs-primary-rgb), 0.1);
-  }
-
-  &::placeholder {
+  &__field-label {
+    font-size: 0.625rem;
     color: var(--bs-secondary-color);
-    font-family: var(--bs-body-font-family);
-  }
-}
-
-.form-control-number-format__btn-group {
-  display: flex;
-  border: 1px solid var(--bs-border-color);
-  border-radius: var(--bs-border-radius);
-  overflow: hidden;
-  height: 1.75rem;
-}
-
-.form-control-number-format__btn {
-  flex: 1;
-  font-family: var(--bs-font-monospace);
-  font-size: 0.625rem;
-  padding: 0 0.125rem;
-  background: var(--bs-body-bg);
-  border: none;
-  border-right: 1px solid var(--bs-border-color);
-  color: var(--bs-secondary-color);
-  cursor: pointer;
-  transition: all 0.12s ease;
-  white-space: nowrap;
-
-  &:last-child {
-    border-right: none;
+    margin-bottom: 0.125rem;
   }
 
-  &:hover {
+  &__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
+
+  &__chip {
+    font-family: var(--bs-font-monospace);
+    font-size: 0.6875rem;
+    padding: 0.125rem 0.5rem;
     background: var(--bs-tertiary-bg);
+    border: 1px solid var(--bs-border-color);
+    border-radius: 4px;
+    color: var(--bs-secondary-color);
+    cursor: pointer;
+    transition: all 0.12s ease;
+    line-height: 1.6;
+
+    &:hover {
+      border-color: var(--bs-primary);
+      color: var(--bs-primary);
+      background: var(--bs-primary-bg-subtle);
+    }
+
+    &--active {
+      border-color: var(--bs-primary);
+      color: var(--bs-primary);
+      background: var(--bs-primary-bg-subtle);
+      font-weight: 500;
+    }
+  }
+
+  &__sep {
+    margin: 0;
+    border: none;
+    border-top: 1px solid var(--bs-border-color);
+  }
+
+  &__grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.4375rem;
+  }
+
+  &__input {
+    width: 100%;
+    height: 1.75rem;
+    padding: 0 0.5rem;
+    background: var(--bs-body-bg);
+    border: 1px solid var(--bs-border-color);
+    border-radius: var(--bs-border-radius);
+    font-family: var(--bs-font-monospace);
+    font-size: 0.75rem;
     color: var(--bs-body-color);
+    outline: none;
+    transition: border-color 0.12s ease, box-shadow 0.12s ease;
+
+    &:focus {
+      border-color: var(--bs-primary);
+      box-shadow: 0 0 0 2px rgba(var(--bs-primary-rgb), 0.1);
+    }
+
+    &::placeholder {
+      color: var(--bs-secondary-color);
+      font-family: var(--bs-body-font-family);
+    }
   }
 
-  &--active {
-    background: var(--bs-primary);
-    color: #fff;
-    font-weight: 500;
+  &__btn-group {
+    display: flex;
+    border: 1px solid var(--bs-border-color);
+    border-radius: var(--bs-border-radius);
+    overflow: hidden;
+    height: 1.75rem;
   }
-}
 
-.form-control-number-format__check-row {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  cursor: pointer;
-  font-size: 0.8125rem;
-}
+  &__btn {
+    flex: 1;
+    font-family: var(--bs-font-monospace);
+    font-size: 0.625rem;
+    padding: 0 0.125rem;
+    background: var(--bs-body-bg);
+    border: none;
+    border-right: 1px solid var(--bs-border-color);
+    color: var(--bs-secondary-color);
+    cursor: pointer;
+    transition: all 0.12s ease;
+    white-space: nowrap;
 
-.form-control-number-format__checkbox {
-  accent-color: var(--bs-primary);
-  width: 0.875rem;
-  height: 0.875rem;
-}
+    &:last-child {
+      border-right: none;
+    }
 
-.form-control-number-format__d3-row {
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
-  background: var(--bs-tertiary-bg);
-  border: 1px solid var(--bs-border-color);
-  border-radius: var(--bs-border-radius);
-  padding: 0.25rem 0.5rem;
-  height: 1.75rem;
-}
+    &:hover {
+      background: var(--bs-tertiary-bg);
+      color: var(--bs-body-color);
+    }
 
-.form-control-number-format__d3-label {
-  font-size: 0.5625rem;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--bs-secondary-color);
-  white-space: nowrap;
-}
+    &--active {
+      background: var(--bs-primary);
+      color: #fff;
+      font-weight: 500;
+    }
+  }
 
-.form-control-number-format__d3-value {
-  font-family: var(--bs-font-monospace);
-  font-size: 0.75rem;
-  color: var(--bs-primary);
-  flex: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  &__check-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    font-size: 0.8125rem;
+  }
+
+  &__checkbox {
+    accent-color: var(--bs-primary);
+    width: 0.875rem;
+    height: 0.875rem;
+  }
+
+  &__d3-row {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    background: var(--bs-tertiary-bg);
+    border: 1px solid var(--bs-border-color);
+    border-radius: var(--bs-border-radius);
+    padding: 0.25rem 0.5rem;
+    height: 1.75rem;
+  }
+
+  &__d3-label {
+    font-size: 0.5625rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--bs-secondary-color);
+    white-space: nowrap;
+  }
+
+  &__d3-value {
+    font-family: var(--bs-font-monospace);
+    font-size: 0.75rem;
+    color: var(--bs-primary);
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }
 </style>

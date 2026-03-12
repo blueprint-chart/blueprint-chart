@@ -26,10 +26,10 @@ const gridClassList = computed(() => ({
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 1rem;
-}
 
-.gallery-grid--row {
-  grid-template-columns: 1fr;
-  gap: 0.5rem;
+  &--row {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
 }
 </style>

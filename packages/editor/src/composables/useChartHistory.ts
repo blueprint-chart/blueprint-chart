@@ -1,4 +1,4 @@
-import { ref, computed, nextTick, watch, effectScope } from 'vue'
+import { shallowRef, computed, nextTick, watch, effectScope } from 'vue'
 import { useChartConfig, type ChartConfig, layoutDefaults } from './useChartConfig'
 import { useChartTypeOptions, type ChartTypeOptions } from './useChartTypeOptions'
 import { useChartSession } from './useChartSession'
@@ -17,8 +17,8 @@ interface SessionHistory {
 }
 
 const historyMap = new Map<string, SessionHistory>()
-const canUndo = ref(false)
-const canRedo = ref(false)
+const canUndo = shallowRef(false)
+const canRedo = shallowRef(false)
 let activeSessionId = ''
 let isRestoring = false
 let initialized = false

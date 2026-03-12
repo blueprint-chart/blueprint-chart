@@ -98,37 +98,37 @@ const nextIndex = computed(() => {
   align-items: center;
   gap: 0.25rem;
   flex-shrink: 0;
-}
 
-.scene-timeline-controls__nav-btn,
-.scene-timeline-controls__play-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border: 1px solid var(--bs-border-color);
-  border-radius: var(--bs-border-radius);
-  background: transparent;
-  cursor: pointer;
-  font-size: 0.875rem;
-  flex-shrink: 0;
-  color: var(--bs-body-color);
+  &__nav-btn,
+  &__play-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border: 1px solid var(--bs-border-color);
+    border-radius: var(--bs-border-radius);
+    background: transparent;
+    cursor: pointer;
+    font-size: 0.875rem;
+    flex-shrink: 0;
+    color: var(--bs-body-color);
 
-  &:hover:not(:disabled) {
-    background: var(--bs-tertiary-bg);
+    &:hover:not(:disabled) {
+      background: var(--bs-tertiary-bg);
+    }
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: default;
+    }
   }
 
-  &:disabled {
-    opacity: 0.4;
-    cursor: default;
+  &__counter {
+    font-size: 0.75rem;
+    color: var(--bs-secondary-color);
+    white-space: nowrap;
+    margin-left: 0.25rem;
   }
-}
-
-.scene-timeline-controls__counter {
-  font-size: 0.75rem;
-  color: var(--bs-secondary-color);
-  white-space: nowrap;
-  margin-left: 0.25rem;
 }
 </style>

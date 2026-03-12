@@ -1,6 +1,6 @@
-import { ref } from 'vue'
+import { shallowRef } from 'vue'
 
-const cvdMode = ref('')
+const cvdMode = shallowRef('')
 
 export function useCvdMode() {
   return { cvdMode }

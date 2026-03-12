@@ -74,15 +74,15 @@ const tooltipText = computed(() => {
     background-color: var(--bs-danger-bg-subtle);
     color: var(--bs-danger-text-emphasis);
   }
-}
 
-.display-contrast-badge__ratio {
-  font-weight: 500;
-  font-variant-numeric: tabular-nums;
-}
+  &__ratio {
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+  }
 
-.display-contrast-badge__info {
-  font-size: 0.75em;
-  opacity: 0.7;
+  &__info {
+    font-size: 0.75em;
+    opacity: 0.7;
+  }
 }
 </style>

@@ -42,45 +42,45 @@ defineProps<{
   flex: 1;
   min-height: 0;
   background: var(--bc-tile-bg, #ffffff);
-}
 
-.layout-panel__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.75rem 1rem;
-  flex-shrink: 0;
-}
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    flex-shrink: 0;
+  }
 
-.layout-panel__title {
-  font-size: 0.875rem;
-  font-weight: 600;
-  margin: 0;
-  color: var(--bs-body-color);
-}
+  &__title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin: 0;
+    color: var(--bs-body-color);
+  }
 
-.layout-panel__actions {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-}
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
 
-.layout-panel__toolbar {
-  flex-shrink: 0;
-  padding: 0.375rem 0.75rem;
-  background: var(--bc-tile-bg-elevated, var(--bs-tertiary-bg));
-  border-top: 1px solid var(--bs-border-color);
-  border-bottom: 1px solid var(--bs-border-color);
-}
+  &__toolbar {
+    flex-shrink: 0;
+    padding: 0.375rem 0.75rem;
+    background: var(--bc-tile-bg-elevated, var(--bs-tertiary-bg));
+    border-top: 1px solid var(--bs-border-color);
+    border-bottom: 1px solid var(--bs-border-color);
+  }
 
-.layout-panel__body {
-  flex: 1;
-  overflow-y: auto;
-  padding: 1rem;
-}
+  &__body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem;
+  }
 
-.layout-panel__footer {
-  flex-shrink: 0;
-  padding: 0.75rem 1rem;
+  &__footer {
+    flex-shrink: 0;
+    padding: 0.75rem 1rem;
+  }
 }
 </style>

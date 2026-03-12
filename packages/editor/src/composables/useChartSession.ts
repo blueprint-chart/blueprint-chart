@@ -1,4 +1,4 @@
-import { ref, watch } from 'vue'
+import { shallowRef, watch } from 'vue'
 import { useChartConfig } from './useChartConfig'
 import { useDataTable } from './useDataTable'
 import { useDataTransforms } from './useDataTransforms'
@@ -65,7 +65,7 @@ function isLegacyPayload(raw: string): boolean {
   return raw.trimStart().startsWith('{')
 }
 
-const sessionId = ref('')
+const sessionId = shallowRef('')
 
 export function useChartSession() {
   const chartConfig = useChartConfig()

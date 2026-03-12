@@ -72,101 +72,103 @@ defineEmits<{
 </script>
 
 <style scoped lang="scss">
-.bc-scene-player--dot-stepper {
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
-  padding: 0.25rem 0 0;
-  width: 100%;
+.bc-scene-player {
+  &--dot-stepper {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.25rem 0 0;
+    width: 100%;
 
-  &.bc-scene-player--left {
-    justify-content: flex-start;
+    &.bc-scene-player--left {
+      justify-content: flex-start;
+    }
+
+    &.bc-scene-player--center {
+      justify-content: center;
+    }
+
+    &.bc-scene-player--right {
+      justify-content: flex-end;
+    }
   }
 
-  &.bc-scene-player--center {
+  &__nav-btn {
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
     justify-content: center;
+    background: none;
+    border: 1px solid var(--bc-scene-player-border, #e2e0db);
+    color: var(--bc-scene-player-muted, #9b9893);
+    cursor: pointer;
+    flex-shrink: 0;
+    padding: 0;
+
+    &:hover:not(:disabled) {
+      border-color: var(--bc-scene-player-border-hover, #6b6966);
+      color: var(--bc-scene-player-text, #1a1a1a);
+    }
+
+    &:disabled {
+      opacity: 0.3;
+      cursor: default;
+    }
   }
 
-  &.bc-scene-player--right {
-    justify-content: flex-end;
-  }
-}
-
-.bc-scene-player__nav-btn {
-  width: 24px;
-  height: 24px;
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: none;
-  border: 1px solid var(--bc-scene-player-border, #e2e0db);
-  color: var(--bc-scene-player-muted, #9b9893);
-  cursor: pointer;
-  flex-shrink: 0;
-  padding: 0;
-
-  &:hover:not(:disabled) {
-    border-color: var(--bc-scene-player-border-hover, #6b6966);
-    color: var(--bc-scene-player-text, #1a1a1a);
-  }
-
-  &:disabled {
-    opacity: 0.3;
-    cursor: default;
-  }
-}
-
-.bc-scene-player__play-btn {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--bc-scene-player-accent, #2c5aa0);
-  border: none;
-  color: #fff;
-  cursor: pointer;
-  flex-shrink: 0;
-  padding: 0;
-  transition: background 0.15s ease;
-
-  &:hover {
-    background: var(--bc-scene-player-accent-hover, #1e4888);
-  }
-}
-
-.bc-scene-player__dots {
-  display: flex;
-  gap: 6px;
-  align-items: center;
-}
-
-.bc-scene-player__dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 4px;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  background: var(--bc-scene-player-track, #e2e0db);
-  opacity: 0.4;
-  transition: width 0.2s ease, background 0.2s ease, opacity 0.2s ease;
-
-  &--completed {
+  &__play-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     background: var(--bc-scene-player-accent, #2c5aa0);
-    opacity: 1;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    flex-shrink: 0;
+    padding: 0;
+    transition: background 0.15s ease;
+
+    &:hover {
+      background: var(--bc-scene-player-accent-hover, #1e4888);
+    }
   }
 
-  &--active {
-    width: 20px;
-    background: var(--bc-scene-player-accent, #2c5aa0);
-    opacity: 1;
+  &__dots {
+    display: flex;
+    gap: 6px;
+    align-items: center;
   }
 
-  &:hover {
-    opacity: 0.8;
+  &__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 4px;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    background: var(--bc-scene-player-track, #e2e0db);
+    opacity: 0.4;
+    transition: width 0.2s ease, background 0.2s ease, opacity 0.2s ease;
+
+    &--completed {
+      background: var(--bc-scene-player-accent, #2c5aa0);
+      opacity: 1;
+    }
+
+    &--active {
+      width: 20px;
+      background: var(--bc-scene-player-accent, #2c5aa0);
+      opacity: 1;
+    }
+
+    &:hover {
+      opacity: 0.8;
+    }
   }
 }
 </style>

@@ -58,27 +58,29 @@ function onChange(e: Event) {
 </script>
 
 <style scoped lang="scss">
-.form-control-color-input__wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
+.form-control-color-input {
+  &__wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
 
-.form-control-color-input__swatch {
-  position: absolute;
-  left: 6px;
-  width: 22px;
-  height: 22px;
-  border-radius: 3px;
-  border: 1px solid var(--bs-border-color-translucent);
-  cursor: pointer;
-  padding: 0;
-  z-index: 1;
-}
+  &__swatch {
+    position: absolute;
+    left: 6px;
+    width: 22px;
+    height: 22px;
+    border-radius: 3px;
+    border: 1px solid var(--bs-border-color-translucent);
+    cursor: pointer;
+    padding: 0;
+    z-index: 1;
+  }
 
-.form-control-color-input__field {
-  padding-left: 36px;
-  font-family: var(--bs-font-monospace);
-  font-size: 0.875rem;
+  &__field {
+    padding-left: 36px;
+    font-family: var(--bs-font-monospace);
+    font-size: 0.875rem;
+  }
 }
 </style>

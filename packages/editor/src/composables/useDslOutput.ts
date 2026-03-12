@@ -1,4 +1,4 @@
-import { computed, ref } from 'vue'
+import { computed, shallowRef } from 'vue'
 import { useChartConfig } from './useChartConfig'
 import { useChartTheme } from './useChartTheme'
 import { useChartTypeOptions } from './useChartTypeOptions'
@@ -41,7 +41,7 @@ export function useDslOutput() {
   const { steps: transformSteps } = useDataTransforms()
   const { scenes } = useScenes()
   const dataTable = useDataTable()
-  const compact = ref(false)
+  const compact = shallowRef(false)
 
   const dsl = computed(() => {
     let output = `chart ${base.chartType.value} {\n`

@@ -88,9 +88,9 @@ function onHueChange(h: number) {
       padding: 0;
     }
   }
-}
 
-.color-picker-popover__hue {
-  max-width: 100%;
+  &__hue {
+    max-width: 100%;
+  }
 }
 </style>

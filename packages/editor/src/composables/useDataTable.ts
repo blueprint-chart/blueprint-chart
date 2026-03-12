@@ -1,4 +1,4 @@
-import { reactive, ref, toRefs, computed } from 'vue'
+import { reactive, ref, shallowRef, toRefs, computed } from 'vue'
 import type { ColumnType, ParsedData } from './useDataParser'
 import { useDataTransforms } from './useDataTransforms'
 import { useScenes } from './useScenes'
@@ -21,7 +21,7 @@ const state = reactive<DataTableState>({
 })
 
 const sourceFormat = ref<SourceFormat>('delimited')
-const sourceLabel = ref('')
+const sourceLabel = shallowRef('')
 const loadedAt = ref<number | null>(null)
 
 export function serializeTableData(cols: string[], rows: string[][]): string {

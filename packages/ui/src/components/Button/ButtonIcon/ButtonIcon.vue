@@ -59,7 +59,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, inject, useTemplateRef, type Component } from 'vue'
+import { computed, shallowRef, inject, useTemplateRef, type Component } from 'vue'
 import type { TextColorVariant, ButtonVariant, PopoverPlacement, Size } from 'bootstrap-vue-next'
 import IPhCircleNotch from '~icons/ph/circle-notch'
 import AppIcon from '../../App/AppIcon/AppIcon.vue'
@@ -128,7 +128,7 @@ function click(name: 'icon-right') {
   emit(`click:${name}`)
 }
 
-const currentHover = ref(false)
+const currentHover = shallowRef(false)
 
 const buttonId = computed(() => props.id ?? `button-icon-${++_uid}`)
 

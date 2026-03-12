@@ -9,7 +9,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { shallowRef } from 'vue'
 import ButtonIcon from '../../Button/ButtonIcon/ButtonIcon.vue'
 import IPhCopy from '~icons/ph/copy'
 import IPhCheck from '~icons/ph/check'
@@ -25,7 +25,7 @@ const props = withDefaults(defineProps<{
   size: 'sm',
 })
 
-const copied = ref(false)
+const copied = shallowRef(false)
 let timer: ReturnType<typeof setTimeout> | undefined
 
 async function onCopy() {

@@ -67,82 +67,84 @@ defineEmits<{
 </script>
 
 <style scoped lang="scss">
-.bc-scene-player--minimal-arrows {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 0.25rem 0 0;
-  width: 100%;
+.bc-scene-player {
+  &--minimal-arrows {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 0.25rem 0 0;
+    width: 100%;
 
-  &.bc-scene-player--left {
-    justify-content: flex-start;
+    &.bc-scene-player--left {
+      justify-content: flex-start;
+    }
+
+    &.bc-scene-player--center {
+      justify-content: center;
+    }
+
+    &.bc-scene-player--right {
+      justify-content: flex-end;
+    }
   }
 
-  &.bc-scene-player--center {
+  &__nav-btn {
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
     justify-content: center;
+    background: none;
+    border: 1px solid var(--bc-scene-player-border, #e2e0db);
+    color: var(--bc-scene-player-muted, #9b9893);
+    cursor: pointer;
+    flex-shrink: 0;
+    padding: 0;
+
+    &:hover:not(:disabled) {
+      border-color: var(--bc-scene-player-border-hover, #6b6966);
+      color: var(--bc-scene-player-text, #1a1a1a);
+    }
+
+    &:disabled {
+      opacity: 0.3;
+      cursor: default;
+    }
   }
 
-  &.bc-scene-player--right {
-    justify-content: flex-end;
-  }
-}
+  &__play-btn {
+    width: 26px;
+    height: 26px;
+    border-radius: 7px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bc-scene-player-accent, #2c5aa0);
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    flex-shrink: 0;
+    padding: 0;
+    transition: background 0.15s ease;
 
-.bc-scene-player__nav-btn {
-  width: 24px;
-  height: 24px;
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: none;
-  border: 1px solid var(--bc-scene-player-border, #e2e0db);
-  color: var(--bc-scene-player-muted, #9b9893);
-  cursor: pointer;
-  flex-shrink: 0;
-  padding: 0;
-
-  &:hover:not(:disabled) {
-    border-color: var(--bc-scene-player-border-hover, #6b6966);
-    color: var(--bc-scene-player-text, #1a1a1a);
+    &:hover {
+      background: var(--bc-scene-player-accent-hover, #1e4888);
+    }
   }
 
-  &:disabled {
-    opacity: 0.3;
-    cursor: default;
-  }
-}
+  &__counter {
+    font-size: 0.6875rem;
+    font-weight: 500;
+    color: var(--bc-scene-player-muted, #9b9893);
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+    margin-right: 4px;
 
-.bc-scene-player__play-btn {
-  width: 26px;
-  height: 26px;
-  border-radius: 7px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--bc-scene-player-accent, #2c5aa0);
-  border: none;
-  color: #fff;
-  cursor: pointer;
-  flex-shrink: 0;
-  padding: 0;
-  transition: background 0.15s ease;
-
-  &:hover {
-    background: var(--bc-scene-player-accent-hover, #1e4888);
-  }
-}
-
-.bc-scene-player__counter {
-  font-size: 0.6875rem;
-  font-weight: 500;
-  color: var(--bc-scene-player-muted, #9b9893);
-  white-space: nowrap;
-  font-variant-numeric: tabular-nums;
-  margin-right: 4px;
-
-  &--end {
-    margin-right: 0;
-    margin-left: 4px;
+    &--end {
+      margin-right: 0;
+      margin-left: 4px;
+    }
   }
 }
 </style>
