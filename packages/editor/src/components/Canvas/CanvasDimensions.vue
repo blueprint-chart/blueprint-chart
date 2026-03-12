@@ -316,19 +316,19 @@ const heightLabel = computed(() => {
 <style scoped lang="scss">
 .canvas-dimensions {
   z-index: 2;
-}
 
-.canvas-dimensions__line {
-  line {
-    stroke: var(--bc-canvas-dimension-color);
-    stroke-width: 1;
-    shape-rendering: crispEdges;
-  }
+  &__line {
+    line {
+      stroke: var(--bc-canvas-dimension-color);
+      stroke-width: 1;
+      shape-rendering: crispEdges;
+    }
 
-  text {
-    fill: var(--bc-canvas-dimension-color);
-    font-size: var(--bs-font-size-xs);
-    font-family: inherit;
+    text {
+      fill: var(--bc-canvas-dimension-color);
+      font-size: var(--bs-font-size-xs);
+      font-family: inherit;
+    }
   }
 }
 </style>

@@ -46,7 +46,7 @@ import {
   ScenePlayerMinimalArrows,
 } from '@blueprint-chart/ui'
 
-const containerRef = ref(null)
+const containerRef = useTemplateRef<HTMLElement>('containerRef')
 useChartPreview(containerRef)
 
 const { containerRef: sharedContainerRef } = usePreviewContainer()

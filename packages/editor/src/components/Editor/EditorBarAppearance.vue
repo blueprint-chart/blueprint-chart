@@ -49,7 +49,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, shallowRef, computed } from 'vue'
 import type { ChartHighlight } from '@/composables/useChartConfig'
 import { BButton } from 'bootstrap-vue-next'
 import { FormControlColorInput, FormControlCheckbox, ListSelectPanel, DisplayColorSwatch, SectionCard } from '@blueprint-chart/ui'
@@ -66,7 +66,7 @@ const emit = defineEmits<{
 }>()
 
 const selectedArray = ref<string[]>([])
-const customizeEnabled = ref(props.highlights.length > 0)
+const customizeEnabled = shallowRef(props.highlights.length > 0)
 
 const highlightMap = computed(() => {
   const map = new Map<string, string>()

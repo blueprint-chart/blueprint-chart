@@ -108,14 +108,14 @@ onMounted(() => {
 })
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .render-page {
   min-height: 100vh;
   box-sizing: border-box;
-}
 
-.render-page__card {
-  width: 100%;
-  box-sizing: border-box;
+  &__card {
+    width: 100%;
+    box-sizing: border-box;
+  }
 }
 </style>

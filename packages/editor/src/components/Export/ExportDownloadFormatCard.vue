@@ -74,53 +74,53 @@ defineEmits<{
     border-color: var(--bs-primary);
     box-shadow: 0 0 0 2px var(--bs-primary-bg-subtle);
   }
-}
 
-.format-card__header {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem;
-}
-
-.format-card__icon {
-  width: 2rem;
-  height: 2rem;
-  border-radius: 0.375rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-
-  :deep(svg) {
-    width: 1.125rem;
-    height: 1.125rem;
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
   }
-}
 
-.format-card__text {
-  flex: 1;
-  min-width: 0;
-}
+  &__icon {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0.375rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
 
-.format-card__label {
-  font-size: var(--bs-font-size-sm);
-  font-weight: 600;
-  color: var(--bs-body-color);
-}
+    :deep(svg) {
+      width: 1.125rem;
+      height: 1.125rem;
+    }
+  }
 
-.format-card__desc {
-  font-size: var(--bs-font-size-xs);
-  color: var(--bs-secondary-color);
-}
+  &__text {
+    flex: 1;
+    min-width: 0;
+  }
 
-.format-card__options {
-  padding: 0.75rem;
-  border-top: 1px solid var(--bs-border-color);
-  background: var(--bs-tertiary-bg);
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  border-radius: 0 0 var(--bs-border-radius) var(--bs-border-radius);
+  &__label {
+    font-size: var(--bs-font-size-sm);
+    font-weight: 600;
+    color: var(--bs-body-color);
+  }
+
+  &__desc {
+    font-size: var(--bs-font-size-xs);
+    color: var(--bs-secondary-color);
+  }
+
+  &__options {
+    padding: 0.75rem;
+    border-top: 1px solid var(--bs-border-color);
+    background: var(--bs-tertiary-bg);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    border-radius: 0 0 var(--bs-border-radius) var(--bs-border-radius);
+  }
 }
 </style>

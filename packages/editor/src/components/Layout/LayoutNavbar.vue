@@ -81,29 +81,29 @@ const navbarClass = computed(() => ({
   gap: 1rem;
   position: relative;
   z-index: 1060;
-}
 
-.shell-navbar--opaque {
-  background: var(--bc-tile-bg);
-  border-bottom: var(--bc-tile-border);
-  box-shadow: var(--bc-tile-shadow);
-}
+  &--opaque {
+    background: var(--bc-tile-bg);
+    border-bottom: var(--bc-tile-border);
+    box-shadow: var(--bc-tile-shadow);
+  }
 
-.shell-navbar__logo {
-  height: 1.5rem;
-  width: auto;
-}
+  &__logo {
+    height: 1.5rem;
+    width: auto;
+  }
 
-.shell-navbar__center {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
+  &__center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 
-.shell-navbar__right {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 0.5rem;
+  &__right {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 0.5rem;
+  }
 }
 </style>

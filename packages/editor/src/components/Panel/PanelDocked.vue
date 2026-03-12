@@ -31,7 +31,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, shallowRef, watch } from 'vue'
 import { LayoutPanel, ButtonDetach, ButtonClose } from '@blueprint-chart/ui'
 
 const props = withDefaults(defineProps<{
@@ -52,14 +52,14 @@ const emit = defineEmits<{
 
 const MIN_WIDTH = 260
 const MAX_WIDTH = 660
-const panelWidth = ref(props.modelValue ?? props.initialWidth)
+const panelWidth = shallowRef(props.modelValue ?? props.initialWidth)
 
 watch(() => props.modelValue, (v) => {
   if (v !== undefined) {
     panelWidth.value = v
   }
 })
-const resizing = ref(false)
+const resizing = shallowRef(false)
 
 const panelClassList = computed(() => ({
   'panel-docked--collapsed': props.collapsed,
@@ -115,21 +115,21 @@ function onResizeStart(e: PointerEvent) {
     pointer-events: none;
     margin-left: calc(-1 * var(--bc-tile-gap, 8px));
   }
-}
 
-.panel-docked__resize-handle {
-  position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  width: 6px;
-  cursor: col-resize;
-  z-index: 10;
+  &__resize-handle {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 6px;
+    cursor: col-resize;
+    z-index: 10;
 
-  &:hover,
-  &:active {
-    background: var(--bs-primary);
-    opacity: 0.3;
+    &:hover,
+    &:active {
+      background: var(--bs-primary);
+      opacity: 0.3;
+    }
   }
 }
 </style>

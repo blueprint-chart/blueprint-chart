@@ -65,7 +65,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, type CSSProperties } from 'vue'
+import { ref, shallowRef, computed, watch, type CSSProperties } from 'vue'
 import { useResizeObserver } from '@vueuse/core'
 import { LayoutBottomDrawer, useBreakpoint } from '@blueprint-chart/ui'
 import { useEditorPanel } from '@/composables/useEditorPanel'
@@ -141,8 +141,8 @@ const canvasClassList = computed(() => ({
 const canvasRef = ref<HTMLElement | null>(null)
 const cardRef = ref<HTMLElement | null>(null)
 
-const gridOffsetX = ref(0)
-const gridOffsetY = ref(0)
+const gridOffsetX = shallowRef(0)
+const gridOffsetY = shallowRef(0)
 
 function updateGridOffset() {
   const card = cardRef.value
@@ -175,140 +175,140 @@ const canvasStyle = computed<CSSProperties>(() => ({
     padding: 0;
     gap: 0;
   }
-}
 
-.chart-edit-panel__canvas {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  padding: 2.5rem 3rem;
-  overflow: auto;
-  position: relative;
-  background: var(--bc-canvas-bg);
-  border-radius: var(--bc-tile-radius);
-  box-shadow: var(--bc-tile-shadow);
-  border: var(--bc-tile-border);
-
-  .chart-edit-panel--narrow & {
-    padding: 1rem;
-  }
-
-  &::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background-image:
-      linear-gradient(var(--bc-canvas-grid-color-major) 1px, transparent 1px),
-      linear-gradient(90deg, var(--bc-canvas-grid-color-major) 1px, transparent 1px),
-      linear-gradient(var(--bc-canvas-grid-color) 1px, transparent 1px),
-      linear-gradient(90deg, var(--bc-canvas-grid-color) 1px, transparent 1px);
-    background-size:
-      calc(var(--bc-canvas-grid-size) * 5) calc(var(--bc-canvas-grid-size) * 5),
-      calc(var(--bc-canvas-grid-size) * 5) calc(var(--bc-canvas-grid-size) * 5),
-      var(--bc-canvas-grid-size) var(--bc-canvas-grid-size),
-      var(--bc-canvas-grid-size) var(--bc-canvas-grid-size);
-    background-position: var(--grid-offset-x, 0) var(--grid-offset-y, 0);
-  }
-
-  // Plain canvas modes — hide grid, use flat background
-  &--auto,
-  &--light,
-  &--dark {
-    &::before {
-      display: none;
-    }
-  }
-
-  &--light,
-  &--auto {
-    background: #ffffff;
-    --bc-canvas-dimension-color: rgba(0, 0, 0, 0.3);
-  }
-
-  &--dark {
-    background: #151518;
-    --bc-canvas-dimension-color: rgba(255, 255, 255, 0.3);
-  }
-
-  :global([data-bs-theme="dark"]) &--auto {
-    background: #151518;
-    --bc-canvas-dimension-color: rgba(255, 255, 255, 0.3);
-  }
-
-  // DSL editor mode — fill the full canvas
-  &--dsl {
-    padding: 0;
-
-    &::before {
-      display: none;
-    }
-  }
-}
-
-.chart-edit-panel__card {
-  position: relative;
-  z-index: 1;
-  background: var(--bs-card-bg);
-  border: 1px solid var(--bs-border-color);
-  border-radius: var(--bs-border-radius-sm);
-  overflow: auto;
-  box-shadow: var(--bs-card-box-shadow);
-
-  &--fixed {
-    flex: none;
-    margin: 0 auto;
-  }
-
-  &--max-width {
-    margin: 0 auto;
-    width: 100%;
-  }
-
-  &--transparent {
-    background: transparent;
-  }
-
-  &--constrained-height {
-    flex: none;
+  &__canvas {
+    flex: 1;
     display: flex;
     flex-direction: column;
+    padding: 2.5rem 3rem;
+    overflow: auto;
+    position: relative;
+    background: var(--bc-canvas-bg);
+    border-radius: var(--bc-tile-radius);
+    box-shadow: var(--bc-tile-shadow);
+    border: var(--bc-tile-border);
 
-    :deep(.w-100.h-100) {
-      flex: 1;
-      min-height: 0;
-      display: flex;
-      flex-direction: column;
+    .chart-edit-panel--narrow & {
+      padding: 1rem;
     }
 
-    :deep(.bc-frame) {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      min-height: 0;
+    &::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(var(--bc-canvas-grid-color-major) 1px, transparent 1px),
+        linear-gradient(90deg, var(--bc-canvas-grid-color-major) 1px, transparent 1px),
+        linear-gradient(var(--bc-canvas-grid-color) 1px, transparent 1px),
+        linear-gradient(90deg, var(--bc-canvas-grid-color) 1px, transparent 1px);
+      background-size:
+        calc(var(--bc-canvas-grid-size) * 5) calc(var(--bc-canvas-grid-size) * 5),
+        calc(var(--bc-canvas-grid-size) * 5) calc(var(--bc-canvas-grid-size) * 5),
+        var(--bc-canvas-grid-size) var(--bc-canvas-grid-size),
+        var(--bc-canvas-grid-size) var(--bc-canvas-grid-size);
+      background-position: var(--grid-offset-x, 0) var(--grid-offset-y, 0);
     }
 
-    :deep(.bc-frame-body) {
-      flex: 1;
-      min-height: 0;
+    // Plain canvas modes — hide grid, use flat background
+    &--auto,
+    &--light,
+    &--dark {
+      &::before {
+        display: none;
+      }
     }
 
-    :deep(.bc-frame-body svg) {
-      width: 100%;
-      height: 100%;
-      display: block;
+    &--light,
+    &--auto {
+      background: #ffffff;
+      --bc-canvas-dimension-color: rgba(0, 0, 0, 0.3);
+    }
+
+    &--dark {
+      background: #151518;
+      --bc-canvas-dimension-color: rgba(255, 255, 255, 0.3);
+    }
+
+    :global([data-bs-theme="dark"]) &--auto {
+      background: #151518;
+      --bc-canvas-dimension-color: rgba(255, 255, 255, 0.3);
+    }
+
+    // DSL editor mode — fill the full canvas
+    &--dsl {
+      padding: 0;
+
+      &::before {
+        display: none;
+      }
     }
   }
-}
 
-.chart-edit-panel__dsl {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
+  &__card {
+    position: relative;
+    z-index: 1;
+    background: var(--bs-card-bg);
+    border: 1px solid var(--bs-border-color);
+    border-radius: var(--bs-border-radius-sm);
+    overflow: auto;
+    box-shadow: var(--bs-card-box-shadow);
 
-.chart-edit-panel__drawer-body {
-  padding: 0.5rem 0;
+    &--fixed {
+      flex: none;
+      margin: 0 auto;
+    }
+
+    &--max-width {
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    &--transparent {
+      background: transparent;
+    }
+
+    &--constrained-height {
+      flex: none;
+      display: flex;
+      flex-direction: column;
+
+      :deep(.w-100.h-100) {
+        flex: 1;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+      }
+
+      :deep(.bc-frame) {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+      }
+
+      :deep(.bc-frame-body) {
+        flex: 1;
+        min-height: 0;
+      }
+
+      :deep(.bc-frame-body svg) {
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+    }
+  }
+
+  &__dsl {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__drawer-body {
+    padding: 0.5rem 0;
+  }
 }
 
 // Override UI-library background so panel matches the tile surface
