@@ -4,7 +4,7 @@ chart area-stacked {
   source = "Our World in Data"
 
   data {
-    _series = "Coal,Oil,Gas,Renewables"
+    _series = "Coal","Oil","Gas","Renewables"
     "2000" = 25,36,21,18
     "2005" = 27,35,22,16
     "2010" = 29,33,23,15

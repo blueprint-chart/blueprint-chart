@@ -9,7 +9,7 @@ chart line-multi {
   tooltips = true
 
   data {
-    _series = "Facebook,YouTube,Instagram,TikTok"
+    _series = "Facebook","YouTube","Instagram","TikTok"
     "2019" = 2.41,2.00,1.00,0.50
     "2020" = 2.80,2.29,1.16,0.69
     "2021" = 2.91,2.56,1.39,1.00
