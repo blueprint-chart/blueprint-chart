@@ -11,7 +11,7 @@ function defaultPanelWidth() {
 }
 
 const state = reactive({
-  panelMode: 'collapsed' as DashboardPanelMode,
+  panelMode: 'docked' as DashboardPanelMode,
   dockedPanelWidth: defaultPanelWidth(),
   floatingPosition: { x: -1, y: 16 },
   selectedChartId: null as string | null,
@@ -37,7 +37,7 @@ export function useDashboardPanel() {
 
   function selectChart(id: string) {
     if (state.selectedChartId === id) {
-      collapse()
+      state.selectedChartId = null
       return
     }
     state.selectedChartId = id
