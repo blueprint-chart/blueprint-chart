@@ -2,7 +2,7 @@ chart bar-multi {
   colorPalette = Blueprint
   data {
     _series = "X,Y,Z"
-    "A" = "12,8,15"
-    "B" = "18,22,10"
+    "A" = 12,8,15
+    "B" = 18,22,10
   }
 }

@@ -4,11 +4,11 @@ chart bar-stacked {
   source = "UN Population Division"
 
   data {
-    _series = "0-14, 15-64, 65+"
-    "China" = "249, 987, 191"
-    "India" = "365, 948, 100"
-    "USA" = "60, 215, 58"
-    "Indonesia" = "66, 191, 18"
-    "Brazil" = "42, 150, 22"
+    _series = "0-14,15-64,65+"
+    "China" = 249,987,191
+    "India" = 365,948,100
+    "USA" = 60,215,58
+    "Indonesia" = 66,191,18
+    "Brazil" = 42,150,22
   }
 }
