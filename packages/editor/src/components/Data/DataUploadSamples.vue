@@ -16,12 +16,12 @@
         />
       </div>
       <div class="sample-card__info">
-        <div class="sample-card__name">
+        <div class="sample-card__info__name">
           {{ sample.title }}
         </div>
-        <div class="sample-card__meta">
+        <div class="sample-card__info__meta">
           {{ sample.typeLabel }}
-          <span class="sample-card__meta-sep">&middot;</span>
+          <span class="sample-card__info__meta__sep">&middot;</span>
           {{ rowCount(sample) }} rows
         </div>
       </div>
@@ -142,24 +142,24 @@ function rowCount(sample: ChartSample): number {
   &__info {
     flex: 1;
     min-width: 0;
-  }
 
-  &__name {
-    font-size: var(--bs-font-size-sm);
-    font-weight: 600;
-    color: var(--bs-body-color);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
+    &__name {
+      font-size: var(--bs-font-size-sm);
+      font-weight: 600;
+      color: var(--bs-body-color);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
 
-  &__meta {
-    font-size: var(--bs-font-size-xs);
-    color: var(--bs-secondary-color);
-  }
+    &__meta {
+      font-size: var(--bs-font-size-xs);
+      color: var(--bs-secondary-color);
 
-  &__meta-sep {
-    margin: 0 0.125rem;
+      &__sep {
+        margin: 0 0.125rem;
+      }
+    }
   }
 }
 </style>

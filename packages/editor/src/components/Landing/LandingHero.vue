@@ -1,18 +1,18 @@
 <template>
   <section class="landing-hero">
     <div class="landing-hero__inner">
-      <div class="landing-hero__text">
-        <div class="landing-hero__eyebrow">
+      <div class="landing-hero__inner__text">
+        <div class="landing-hero__inner__text__eyebrow">
           Data visualization for the editorial web
         </div>
-        <h1 class="landing-hero__h1">
+        <h1 class="landing-hero__inner__text__h1">
           Turn data into<br><em>compelling stories.</em>
         </h1>
-        <p class="landing-hero__sub">
+        <p class="landing-hero__inner__text__sub">
           Blueprint Chart is a free, open-source tool for journalists, researchers and analysts.
           Build beautiful, accessible charts with best practices built in — no design degree required.
         </p>
-        <div class="landing-hero__actions">
+        <div class="landing-hero__inner__text__actions">
           <ButtonIcon
             to="/charts"
             label="My Charts"
@@ -25,7 +25,7 @@
             :icon-right="IPhArrowRight"
           />
         </div>
-        <div class="landing-hero__meta">
+        <div class="landing-hero__inner__text__meta">
           <LandingBadge
             v-for="badge in badges"
             :key="badge"
@@ -33,7 +33,7 @@
           />
         </div>
       </div>
-      <div class="landing-hero__chart">
+      <div class="landing-hero__inner__chart">
         <LandingChartPreview :bpc="heroBpc" />
       </div>
     </div>
@@ -63,73 +63,75 @@ const heroBpc = samples.find(s => s.id === 'co2-emissions')!.dsl
     grid-template-columns: 1fr 1fr;
     gap: 4rem;
     align-items: center;
-  }
 
-  &__eyebrow {
-    font-size: 0.6875rem;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--bs-primary);
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
+    &__text {
+      &__eyebrow {
+        font-size: 0.6875rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--bs-primary);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
 
-    &::before {
-      content: '';
-      display: block;
-      width: 1.5rem;
-      height: 2px;
-      background: var(--bs-primary);
+        &::before {
+          content: '';
+          display: block;
+          width: 1.5rem;
+          height: 2px;
+          background: var(--bs-primary);
+        }
+      }
+
+      &__h1 {
+        font-family: 'DM Serif Display', serif;
+        font-size: clamp(2.25rem, 4.5vw, 3.5rem);
+        font-weight: 400;
+        line-height: 1.08;
+        letter-spacing: -0.01em;
+        color: var(--bs-body-color);
+        margin-bottom: 1.5rem;
+
+        :deep(em) {
+          font-style: italic;
+          color: var(--bs-primary);
+        }
+      }
+
+      &__sub {
+        font-size: 1.0625rem;
+        color: var(--bs-secondary-color);
+        line-height: 1.65;
+        max-width: 28.75rem;
+        margin-bottom: 2.25rem;
+      }
+
+      &__actions {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+      }
+
+      &__meta {
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+        margin-top: 1.5rem;
+        flex-wrap: wrap;
+      }
     }
-  }
 
-  &__h1 {
-    font-family: 'DM Serif Display', serif;
-    font-size: clamp(2.25rem, 4.5vw, 3.5rem);
-    font-weight: 400;
-    line-height: 1.08;
-    letter-spacing: -0.01em;
-    color: var(--bs-body-color);
-    margin-bottom: 1.5rem;
-
-    :deep(em) {
-      font-style: italic;
-      color: var(--bs-primary);
+    &__chart {
+      background: var(--bc-tile-bg);
+      border: var(--bc-tile-border);
+      border-radius: var(--bc-tile-radius);
+      box-shadow: var(--bc-tile-shadow);
+      align-self: center;
+      overflow: hidden;
     }
-  }
-
-  &__sub {
-    font-size: 1.0625rem;
-    color: var(--bs-secondary-color);
-    line-height: 1.65;
-    max-width: 28.75rem;
-    margin-bottom: 2.25rem;
-  }
-
-  &__actions {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    flex-wrap: wrap;
-  }
-
-  &__meta {
-    display: flex;
-    align-items: center;
-    gap: 1.25rem;
-    margin-top: 1.5rem;
-    flex-wrap: wrap;
-  }
-
-  &__chart {
-    background: var(--bc-tile-bg);
-    border: var(--bc-tile-border);
-    border-radius: var(--bc-tile-radius);
-    box-shadow: var(--bc-tile-shadow);
-    align-self: center;
-    overflow: hidden;
   }
 }
 
@@ -137,10 +139,10 @@ const heroBpc = samples.find(s => s.id === 'co2-emissions')!.dsl
   .landing-hero {
     &__inner {
       grid-template-columns: 1fr;
-    }
 
-    &__chart {
-      display: none;
+      &__chart {
+        display: none;
+      }
     }
   }
 }

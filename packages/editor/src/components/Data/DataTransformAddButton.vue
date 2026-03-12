@@ -11,19 +11,19 @@
       <button
         v-for="opt in options"
         :key="opt.value"
-        class="add-wrap__dropdown-item"
+        class="add-wrap__dropdown__item"
         :disabled="opt.disabled"
         @click="onSelect(opt.value)"
       >
         <span
-          class="add-wrap__dropdown-icon"
+          class="add-wrap__dropdown__item__icon"
           :class="iconClass(opt.value)"
         >{{ iconFallback(opt.value) }}</span>
-        <div class="add-wrap__dropdown-text">
-          <div class="add-wrap__dropdown-name">
+        <div class="add-wrap__dropdown__item__text">
+          <div class="add-wrap__dropdown__item__text__name">
             {{ opt.label }}
           </div>
-          <div class="add-wrap__dropdown-desc">
+          <div class="add-wrap__dropdown__item__text__desc">
             {{ opt.desc }}
           </div>
         </div>
@@ -55,14 +55,14 @@ const options = [
 
 function iconClass(type: string): string {
   const map: Record<string, string> = {
-    'sort': 'add-wrap__dropdown-icon--sort',
-    'filter': 'add-wrap__dropdown-icon--filter',
-    'hide-columns': 'add-wrap__dropdown-icon--hide-columns',
-    'transpose': 'add-wrap__dropdown-icon--transpose',
-    'parse': 'add-wrap__dropdown-icon--parse',
-    'rename': 'add-wrap__dropdown-icon--rename',
-    'group-by': 'add-wrap__dropdown-icon--group',
-    'computed': 'add-wrap__dropdown-icon--computed',
+    'sort': 'add-wrap__dropdown__item__icon--sort',
+    'filter': 'add-wrap__dropdown__item__icon--filter',
+    'hide-columns': 'add-wrap__dropdown__item__icon--hide-columns',
+    'transpose': 'add-wrap__dropdown__item__icon--transpose',
+    'parse': 'add-wrap__dropdown__item__icon--parse',
+    'rename': 'add-wrap__dropdown__item__icon--rename',
+    'group-by': 'add-wrap__dropdown__item__icon--group',
+    'computed': 'add-wrap__dropdown__item__icon--computed',
   }
   return map[type] ?? ''
 }
@@ -102,97 +102,97 @@ function onSelect(type: string) {
     box-shadow: var(--bs-box-shadow);
     z-index: 50;
     margin-top: 0.25rem;
-  }
 
-  &__dropdown-item {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 0.75rem;
-    cursor: pointer;
-    font-size: var(--bs-font-size-sm);
-    transition: background 0.1s;
-    border: none;
-    background: none;
-    width: 100%;
-    text-align: left;
-    color: var(--bs-body-color);
-    font-family: inherit;
+    &__item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      cursor: pointer;
+      font-size: var(--bs-font-size-sm);
+      transition: background 0.1s;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+      color: var(--bs-body-color);
+      font-family: inherit;
 
-    &:hover:not(:disabled) {
-      background: var(--bs-tertiary-bg);
+      &:hover:not(:disabled) {
+        background: var(--bs-tertiary-bg);
+      }
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      &__icon {
+        width: 1.5rem;
+        height: 1.5rem;
+        border-radius: 0.25rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: var(--bs-font-size-sm);
+        font-weight: 700;
+        flex-shrink: 0;
+
+        &--sort {
+          background: var(--bs-warning-bg-subtle);
+          color: var(--bs-warning-text-emphasis);
+        }
+
+        &--filter {
+          background: var(--bs-danger-bg-subtle);
+          color: var(--bs-danger-text-emphasis);
+        }
+
+        &--hide-columns {
+          background: var(--bs-secondary-bg);
+          color: var(--bs-secondary-text-emphasis);
+        }
+
+        &--transpose {
+          background: var(--bs-info-bg-subtle);
+          color: var(--bs-info-text-emphasis);
+        }
+
+        &--parse {
+          background: var(--bs-success-bg-subtle);
+          color: var(--bs-success-text-emphasis);
+        }
+
+        &--rename {
+          background: var(--bs-primary-bg-subtle);
+          color: var(--bs-primary-text-emphasis);
+        }
+
+        &--group {
+          background: hsl(270 90% 95%);
+          color: hsl(270 70% 50%);
+        }
+
+        &--computed {
+          background: var(--bs-info-bg-subtle);
+          color: var(--bs-info-text-emphasis);
+        }
+      }
+
+      &__text {
+        flex: 1;
+
+        &__name {
+          font-weight: 600;
+          color: var(--bs-body-color);
+        }
+
+        &__desc {
+          font-size: var(--bs-font-size-xs);
+          color: var(--bs-secondary-color);
+        }
+      }
     }
-
-    &:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-  }
-
-  &__dropdown-icon {
-    width: 1.5rem;
-    height: 1.5rem;
-    border-radius: 0.25rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: var(--bs-font-size-sm);
-    font-weight: 700;
-    flex-shrink: 0;
-
-    &--sort {
-      background: var(--bs-warning-bg-subtle);
-      color: var(--bs-warning-text-emphasis);
-    }
-
-    &--filter {
-      background: var(--bs-danger-bg-subtle);
-      color: var(--bs-danger-text-emphasis);
-    }
-
-    &--hide-columns {
-      background: var(--bs-secondary-bg);
-      color: var(--bs-secondary-text-emphasis);
-    }
-
-    &--transpose {
-      background: var(--bs-info-bg-subtle);
-      color: var(--bs-info-text-emphasis);
-    }
-
-    &--parse {
-      background: var(--bs-success-bg-subtle);
-      color: var(--bs-success-text-emphasis);
-    }
-
-    &--rename {
-      background: var(--bs-primary-bg-subtle);
-      color: var(--bs-primary-text-emphasis);
-    }
-
-    &--group {
-      background: hsl(270 90% 95%);
-      color: hsl(270 70% 50%);
-    }
-
-    &--computed {
-      background: var(--bs-info-bg-subtle);
-      color: var(--bs-info-text-emphasis);
-    }
-  }
-
-  &__dropdown-text {
-    flex: 1;
-  }
-
-  &__dropdown-name {
-    font-weight: 600;
-    color: var(--bs-body-color);
-  }
-
-  &__dropdown-desc {
-    font-size: var(--bs-font-size-xs);
-    color: var(--bs-secondary-color);
   }
 }
 </style>

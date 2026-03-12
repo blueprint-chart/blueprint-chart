@@ -8,7 +8,7 @@
     </BFormCheckbox>
 
     <div class="data-parse-settings__field">
-      <div class="data-parse-settings__label">
+      <div class="data-parse-settings__field__label">
         Delimiter
       </div>
       <FormControlDropdown
@@ -21,7 +21,7 @@
     </div>
 
     <div class="data-parse-settings__field">
-      <div class="data-parse-settings__label">
+      <div class="data-parse-settings__field__label">
         Decimal Separator
       </div>
       <FormControlDropdown
@@ -110,15 +110,15 @@ const decimalOptions = [
 
   &__field {
     margin-bottom: 0.875rem;
-  }
 
-  &__label {
-    font-size: var(--bs-font-size-xs);
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--bs-secondary-color);
-    margin-bottom: 0.25rem;
+    &__label {
+      font-size: var(--bs-font-size-xs);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--bs-secondary-color);
+      margin-bottom: 0.25rem;
+    }
   }
 }
 </style>

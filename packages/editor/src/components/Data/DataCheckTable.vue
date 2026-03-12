@@ -3,7 +3,7 @@
     v-if="isEmpty"
     class="data-check-empty"
   >
-    <IPhMagnifyingGlass class="data-check-empty-icon" />
+    <IPhMagnifyingGlass class="data-check-empty__icon" />
     <p>No rows match your filters</p>
   </div>
   <div
@@ -26,10 +26,10 @@
             :class="{ 'data-check-table__col--selected': ci === selectedColumnIndex }"
             @click="selectColumn(ci)"
           >
-            <div class="data-check-table__col-name">
+            <div class="data-check-table__col-header__name">
               {{ col }}
             </div>
-            <div class="data-check-table__col-type">
+            <div class="data-check-table__col-header__type">
               {{ displayColumnTypes[ci] ?? 'string' }}
             </div>
           </BTh>
@@ -85,7 +85,7 @@ const isEmpty = computed(() => displayRows.value.length === 0)
   border-radius: var(--bs-border-radius);
   text-align: center;
 
-  .data-check-empty-icon {
+  &__icon {
     font-size: 2rem;
     opacity: 0.5;
   }
@@ -147,16 +147,16 @@ const isEmpty = computed(() => displayRows.value.length === 0)
     user-select: none;
     white-space: nowrap;
     vertical-align: bottom;
-  }
 
-  &__col-name {
-    font-weight: 600;
-  }
+    &__name {
+      font-weight: 600;
+    }
 
-  &__col-type {
-    font-size: var(--bs-font-size-xs);
-    color: var(--bs-secondary-color);
-    font-weight: 400;
+    &__type {
+      font-size: var(--bs-font-size-xs);
+      color: var(--bs-secondary-color);
+      font-weight: 400;
+    }
   }
 
   &__col--selected {

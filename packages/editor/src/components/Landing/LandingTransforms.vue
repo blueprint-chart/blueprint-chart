@@ -17,22 +17,22 @@
           :class="{ 'transforms-demo__step--active': activeStep === i }"
           @click="activeStep = i"
         >
-          <span class="transforms-demo__step-num">{{ i + 1 }}</span>
-          <span class="transforms-demo__step-label">{{ step.label }}</span>
+          <span class="transforms-demo__step__num">{{ i + 1 }}</span>
+          <span class="transforms-demo__step__label">{{ step.label }}</span>
         </button>
       </div>
       <div class="transforms-demo__body">
-        <div class="transforms-demo__panel">
-          <div class="transforms-demo__panel-title">
+        <div class="transforms-demo__body__panel">
+          <div class="transforms-demo__body__panel__title">
             {{ steps[activeStep].inputTitle }}
           </div>
-          <table class="transforms-demo__table">
+          <table class="transforms-demo__body__panel__table">
             <thead>
               <tr>
                 <th
                   v-for="col in steps[activeStep].input[0]"
                   :key="col"
-                  class="transforms-demo__th"
+                  class="transforms-demo__body__panel__th"
                 >
                   {{ col }}
                 </th>
@@ -46,8 +46,8 @@
                 <td
                   v-for="(cell, ci) in row"
                   :key="ci"
-                  class="transforms-demo__td"
-                  :class="{ 'transforms-demo__td--highlight': steps[activeStep].highlightCol === steps[activeStep].input[0][ci] }"
+                  class="transforms-demo__body__panel__td"
+                  :class="{ 'transforms-demo__body__panel__td--highlight': steps[activeStep].highlightCol === steps[activeStep].input[0][ci] }"
                 >
                   {{ cell }}
                 </td>
@@ -55,32 +55,32 @@
             </tbody>
           </table>
         </div>
-        <div class="transforms-demo__flow">
+        <div class="transforms-demo__body__flow">
           <svg
             viewBox="0 0 80 10"
             preserveAspectRatio="none"
-            class="transforms-demo__flow-svg"
+            class="transforms-demo__body__flow__svg"
           >
             <path
               d="M0,5 C30,5 50,5 80,5"
-              class="transforms-demo__wire"
+              class="transforms-demo__body__flow__wire"
               vector-effect="non-scaling-stroke"
             />
           </svg>
-          <div class="transforms-demo__dot transforms-demo__dot--left" />
-          <div class="transforms-demo__dot transforms-demo__dot--right" />
+          <div class="transforms-demo__body__flow__dot transforms-demo__body__flow__dot--left" />
+          <div class="transforms-demo__body__flow__dot transforms-demo__body__flow__dot--right" />
         </div>
-        <div class="transforms-demo__panel">
-          <div class="transforms-demo__panel-title">
+        <div class="transforms-demo__body__panel">
+          <div class="transforms-demo__body__panel__title">
             {{ steps[activeStep].outputTitle }}
           </div>
-          <table class="transforms-demo__table">
+          <table class="transforms-demo__body__panel__table">
             <thead>
               <tr>
                 <th
                   v-for="col in steps[activeStep].output[0]"
                   :key="col"
-                  class="transforms-demo__th"
+                  class="transforms-demo__body__panel__th"
                 >
                   {{ col }}
                 </th>
@@ -94,15 +94,15 @@
                 <td
                   v-for="(cell, ci) in row"
                   :key="ci"
-                  class="transforms-demo__td"
-                  :class="{ 'transforms-demo__td--highlight': steps[activeStep].outputHighlightCol === steps[activeStep].output[0][ci] }"
+                  class="transforms-demo__body__panel__td"
+                  :class="{ 'transforms-demo__body__panel__td--highlight': steps[activeStep].outputHighlightCol === steps[activeStep].output[0][ci] }"
                 >
                   {{ cell }}
                 </td>
               </tr>
             </tbody>
           </table>
-          <p class="transforms-demo__note">
+          <p class="transforms-demo__body__panel__note">
             {{ steps[activeStep].note }}
           </p>
         </div>
@@ -330,36 +330,36 @@ const steps: Step[] = [
     &--active {
       background: var(--bs-primary-bg-subtle);
     }
-  }
 
-  &__step-num {
-    width: 1.375rem;
-    height: 1.375rem;
-    border-radius: 50%;
-    background: var(--bs-border-color);
-    color: var(--bs-secondary-color);
-    font-size: 0.6875rem;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    transition: all 0.15s;
+    &__num {
+      width: 1.375rem;
+      height: 1.375rem;
+      border-radius: 50%;
+      background: var(--bs-border-color);
+      color: var(--bs-secondary-color);
+      font-size: 0.6875rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.15s;
 
-    .transforms-demo__step--active & {
-      background: var(--bs-primary);
-      color: #fff;
+      .transforms-demo__step--active & {
+        background: var(--bs-primary);
+        color: #fff;
+      }
     }
-  }
 
-  &__step-label {
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: var(--bs-secondary-color);
-    white-space: nowrap;
+    &__label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--bs-secondary-color);
+      white-space: nowrap;
 
-    .transforms-demo__step--active & {
-      color: var(--bs-primary);
+      .transforms-demo__step--active & {
+        color: var(--bs-primary);
+      }
     }
   }
 
@@ -368,94 +368,94 @@ const steps: Step[] = [
     grid-template-columns: 1fr 4rem 1fr;
     align-items: center;
     padding: 0 1.25rem;
-  }
 
-  &__panel {
-    padding: 1rem 1.25rem;
-    border: 1px solid var(--bs-border-color);
-    border-radius: 0.5rem;
-    margin: 1rem 0;
-  }
+    &__panel {
+      padding: 1rem 1.25rem;
+      border: 1px solid var(--bs-border-color);
+      border-radius: 0.5rem;
+      margin: 1rem 0;
 
-  &__flow {
-    position: relative;
-    display: flex;
-    align-items: center;
-  }
+      &__title {
+        font-size: 0.6875rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        color: var(--bs-tertiary-color);
+        margin-bottom: 0.75rem;
+      }
 
-  &__flow-svg {
-    width: 100%;
-    height: 2px;
-  }
+      &__table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.75rem;
+      }
 
-  &__wire {
-    fill: none;
-    stroke: var(--bs-border-color);
-    stroke-width: 1.5;
-    stroke-dasharray: 5 4;
-    stroke-linecap: round;
-    animation: wire-flow 1s linear infinite;
-  }
+      &__th {
+        padding: 0.3125rem 0.625rem;
+        text-align: left;
+        font-weight: 600;
+        font-size: 0.6875rem;
+        background: var(--bc-void-bg);
+        color: var(--bs-secondary-color);
+        border-bottom: 1px solid var(--bs-border-color);
+      }
 
-  &__dot {
-    position: absolute;
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--bs-border-color);
-    top: 50%;
-    transform: translateY(-50%);
+      &__td {
+        padding: 0.3125rem 0.625rem;
+        border-bottom: 1px solid var(--bs-border-color);
+        color: var(--bs-secondary-color);
 
-    &--left { left: -4px; }
-    &--right { right: -4px; }
-  }
+        tr:last-child > & {
+          border-bottom: none;
+        }
 
-  &__panel-title {
-    font-size: 0.6875rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.07em;
-    color: var(--bs-tertiary-color);
-    margin-bottom: 0.75rem;
-  }
+        &--highlight {
+          color: var(--bs-primary);
+          font-weight: 600;
+        }
+      }
 
-  &__table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.75rem;
-  }
-
-  &__th {
-    padding: 0.3125rem 0.625rem;
-    text-align: left;
-    font-weight: 600;
-    font-size: 0.6875rem;
-    background: var(--bc-void-bg);
-    color: var(--bs-secondary-color);
-    border-bottom: 1px solid var(--bs-border-color);
-  }
-
-  &__td {
-    padding: 0.3125rem 0.625rem;
-    border-bottom: 1px solid var(--bs-border-color);
-    color: var(--bs-secondary-color);
-
-    tr:last-child > & {
-      border-bottom: none;
+      &__note {
+        font-size: 0.6875rem;
+        color: var(--bs-tertiary-color);
+        line-height: 1.6;
+        margin-top: 0.75rem;
+        margin-bottom: 0;
+      }
     }
 
-    &--highlight {
-      color: var(--bs-primary);
-      font-weight: 600;
-    }
-  }
+    &__flow {
+      position: relative;
+      display: flex;
+      align-items: center;
 
-  &__note {
-    font-size: 0.6875rem;
-    color: var(--bs-tertiary-color);
-    line-height: 1.6;
-    margin-top: 0.75rem;
-    margin-bottom: 0;
+      &__svg {
+        width: 100%;
+        height: 2px;
+      }
+
+      &__wire {
+        fill: none;
+        stroke: var(--bs-border-color);
+        stroke-width: 1.5;
+        stroke-dasharray: 5 4;
+        stroke-linecap: round;
+        animation: wire-flow 1s linear infinite;
+      }
+
+      &__dot {
+        position: absolute;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--bs-border-color);
+        top: 50%;
+        transform: translateY(-50%);
+
+        &--left { left: -4px; }
+        &--right { right: -4px; }
+      }
+    }
   }
 }
 
@@ -545,37 +545,37 @@ const steps: Step[] = [
   .transforms-demo {
     &__body {
       grid-template-columns: 1fr;
-    }
 
-    &__panel {
-      margin: 0;
-    }
+      &__panel {
+        margin: 0;
+      }
 
-    &__flow {
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      height: 2rem;
-      margin: -4px 0;
-      position: relative;
-      z-index: 1;
-      overflow: hidden;
-    }
+      &__flow {
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 2rem;
+        margin: -4px 0;
+        position: relative;
+        z-index: 1;
+        overflow: hidden;
 
-    &__flow-svg {
-      width: auto;
-      height: auto;
-      flex: 1;
-      transform: rotate(90deg);
-    }
+        &__svg {
+          width: auto;
+          height: auto;
+          flex: 1;
+          transform: rotate(90deg);
+        }
 
-    &__dot {
-      position: static;
-      transform: none;
-      flex-shrink: 0;
+        &__dot {
+          position: static;
+          transform: none;
+          flex-shrink: 0;
 
-      &--left { order: -1; }
-      &--right { order: 1; }
+          &--left { order: -1; }
+          &--right { order: 1; }
+        }
+      }
     }
   }
 

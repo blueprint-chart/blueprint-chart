@@ -4,23 +4,23 @@
       <img
         :src="logoSrc"
         alt="Blueprint Chart"
-        class="landing-footer__logo"
+        class="landing-footer__brand__logo"
       >
       Blueprint Chart
     </div>
-    <div class="landing-footer__links">
+    <div class="landing-footer__links__links">
       Made for investigative journalism
-      <span class="landing-footer__sep">&middot;</span>
+      <span class="landing-footer__links__links__sep">&middot;</span>
       <router-link
         to="/new"
-        class="landing-footer__link"
+        class="landing-footer__links__link"
       >
         Editor
       </router-link>
-      <span class="landing-footer__sep">&middot;</span>
+      <span class="landing-footer__links__links__sep">&middot;</span>
       <a
         href="#open-source"
-        class="landing-footer__link"
+        class="landing-footer__links__link"
         @click.prevent="scrollTo('open-source')"
       >Open Source</a>
     </div>
@@ -54,31 +54,33 @@ function scrollTo(id: string) {
   flex-wrap: wrap;
   gap: 1rem;
 
-  &__link {
-    color: rgba(255, 255, 255, 0.7);
-    text-decoration: none;
-
-    &:hover {
-      color: #fff;
-    }
-  }
-
   &__brand {
     display: flex;
     align-items: center;
     gap: 0.5rem;
     font-weight: 700;
     color: rgba(255, 255, 255, 0.9);
+
+    &__logo {
+      height: 1.25rem;
+      width: auto;
+      opacity: 0.8;
+    }
   }
 
-  &__logo {
-    height: 1.25rem;
-    width: auto;
-    opacity: 0.8;
-  }
+  &__links {
+    &__link {
+      color: rgba(255, 255, 255, 0.7);
+      text-decoration: none;
 
-  &__sep {
-    margin: 0 0.25rem;
+      &:hover {
+        color: #fff;
+      }
+    }
+
+    &__sep {
+      margin: 0 0.25rem;
+    }
   }
 }
 </style>

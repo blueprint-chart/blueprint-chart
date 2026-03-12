@@ -24,7 +24,7 @@ describe('LandingFormat', () => {
 
   it('renders chart preview tile', () => {
     const w = mountFormat()
-    expect(w.find('.format__chart-tile').exists()).toBe(true)
+    expect(w.find('.format__grid__chart-tile').exists()).toBe(true)
   })
 
   it('renders AI note', () => {

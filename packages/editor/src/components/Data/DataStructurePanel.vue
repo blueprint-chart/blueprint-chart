@@ -14,14 +14,14 @@
     >
       <div
         v-if="isSceneMode"
-        class="data-structure-panel__scene-banner"
+        class="data-structure-panel__main__scene-banner"
       >
         <strong>Scene override active.</strong>
         The table below shows the base data from {{ dataSourceLabel }}. Use transforms to shape the data for this scene without altering the original.
       </div>
       <div
         v-if="!isSceneMode"
-        class="data-structure-panel__pills-bar"
+        class="data-structure-panel__main__pills-bar"
       >
         <DataInsightBadges
           :columns="columns"
@@ -163,31 +163,31 @@ const panelClassList = computed(() => ({
     .data-structure-panel--narrow & {
       // keep tile styling on narrow screens
     }
-  }
 
-  &__pills-bar {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-    margin-bottom: 0.75rem;
+    &__pills-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.75rem;
 
-    .data-insight-badges {
-      flex: 1;
+      .data-insight-badges {
+        flex: 1;
+      }
     }
-  }
 
-  &__scene-banner {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 0.75rem;
-    margin-bottom: 0.75rem;
-    border-radius: var(--bs-border-radius);
-    background: var(--bs-info-bg-subtle);
-    color: var(--bs-info-text-emphasis);
-    font-size: 0.8125rem;
-    font-weight: 500;
+    &__scene-banner {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      margin-bottom: 0.75rem;
+      border-radius: var(--bs-border-radius);
+      background: var(--bs-info-bg-subtle);
+      color: var(--bs-info-text-emphasis);
+      font-size: 0.8125rem;
+      font-weight: 500;
+    }
   }
 
   &__drawer-body {

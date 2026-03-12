@@ -55,7 +55,7 @@ describe('DataUploadCard', () => {
 
   it('shows load button disabled when paste is empty', () => {
     const w = mountCard()
-    const btn = w.find('.upload-card__paste-btn')
+    const btn = w.find('.upload-card__paste__footer__btn')
     expect(btn.exists()).toBe(true)
     expect((btn.element as HTMLButtonElement).disabled).toBe(true)
   })
@@ -67,7 +67,7 @@ describe('DataUploadCard', () => {
     mockDataTable.rows.value = [['2000', '5', '3.8']]
 
     const w = mountCard()
-    const textarea = w.find('.upload-card__paste-area')
+    const textarea = w.find('.upload-card__paste__wrap__area')
     const value = (textarea.element as HTMLTextAreaElement).value
     expect(value).not.toContain('=')
     expect(value).toBe('label\tNew York\tDetroit\n2000\t5\t3.8')
@@ -80,7 +80,7 @@ describe('DataUploadCard', () => {
     mockDataTable.rows.value = [['Apples', '42']]
 
     const w = mountCard()
-    const textarea = w.find('.upload-card__paste-area')
+    const textarea = w.find('.upload-card__paste__wrap__area')
     expect((textarea.element as HTMLTextAreaElement).value).toBe('Name\tValue\nApples\t42')
   })
 
@@ -100,7 +100,7 @@ describe('DataUploadCard', () => {
       },
     })
     // Switch to samples tab
-    const tabs = w.findAll('.input-card__tab')
+    const tabs = w.findAll('.input-card__tabs__tab')
     await tabs[2].trigger('click')
     // Re-mount with samples visible — the stub auto-emits on setup
     await w.vm.$nextTick()

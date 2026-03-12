@@ -85,20 +85,20 @@ describe('DataColumnSettings', () => {
     selectedColumnIndex.value = 1
     const w = mountSettings()
     expect(w.find('.data-column-settings__field').exists()).toBe(true)
-    expect(w.find('.data-column-settings__detections').exists()).toBe(true)
+    expect(w.find('.data-column-settings__section__detections').exists()).toBe(true)
   })
 
   it('shows unique values detection for selected column', () => {
     selectedColumnIndex.value = 0
     const w = mountSettings()
-    const detections = w.findAll('.data-column-settings__detection')
+    const detections = w.findAll('.data-column-settings__section__detections__item')
     expect(detections[0].text()).toContain('unique values')
   })
 
   it('shows type detection for selected column', () => {
     selectedColumnIndex.value = 1
     const w = mountSettings()
-    const detections = w.findAll('.data-column-settings__detection')
+    const detections = w.findAll('.data-column-settings__section__detections__item')
     expect(detections[1].text()).toContain('Numeric measure detected')
   })
 })

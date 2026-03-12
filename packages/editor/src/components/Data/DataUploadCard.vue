@@ -14,8 +14,8 @@
         <button
           v-for="tab in tabOptions"
           :key="tab.value"
-          class="input-card__tab"
-          :class="{ 'input-card__tab--active': activeTab === tab.value }"
+          class="input-card__tabs__tab"
+          :class="{ 'input-card__tabs__tab--active': activeTab === tab.value }"
           @click="activeTab = tab.value"
         >
           <svg
@@ -58,10 +58,10 @@
         v-else-if="activeTab === 'paste'"
         class="upload-card__paste"
       >
-        <div class="upload-card__paste-wrap">
+        <div class="upload-card__paste__wrap">
           <div
             v-if="!pasteInput"
-            class="upload-card__paste-placeholder"
+            class="upload-card__paste__wrap__placeholder"
           >
             category&#9;Gold&#9;Silver&#9;Bronze<br>
             USA&#9;40&#9;44&#9;42<br>
@@ -70,17 +70,17 @@
           <textarea
             ref="pasteArea"
             v-model="pasteInput"
-            class="upload-card__paste-area"
+            class="upload-card__paste__wrap__area"
             spellcheck="false"
             @paste="onPaste"
           />
         </div>
-        <div class="upload-card__paste-footer">
-          <div class="upload-card__paste-hint">
-            <span class="upload-card__kbd">⌘</span><span class="upload-card__kbd">V</span> paste from spreadsheet
+        <div class="upload-card__paste__footer">
+          <div class="upload-card__paste__footer__hint">
+            <span class="upload-card__paste__footer__hint__kbd">⌘</span><span class="upload-card__paste__footer__hint__kbd">V</span> paste from spreadsheet
           </div>
           <button
-            class="upload-card__paste-btn"
+            class="upload-card__paste__footer__btn"
             :disabled="!pasteInput.trim()"
             @click="$emit('loaded', pasteInput, 'Pasted')"
           >
@@ -171,96 +171,96 @@ const tabOptions = [
 
   &__paste {
     width: 100%;
-  }
 
-  &__paste-wrap {
-    position: relative;
-  }
+    &__wrap {
+      position: relative;
 
-  &__paste-placeholder {
-    position: absolute;
-    inset: 0;
-    padding: 0.875rem 1rem;
-    font-family: var(--bs-font-monospace);
-    font-size: var(--bs-font-size-sm);
-    color: var(--bs-secondary-color);
-    opacity: 0.5;
-    pointer-events: none;
-    white-space: pre;
-    line-height: 1.6;
-  }
+      &__placeholder {
+        position: absolute;
+        inset: 0;
+        padding: 0.875rem 1rem;
+        font-family: var(--bs-font-monospace);
+        font-size: var(--bs-font-size-sm);
+        color: var(--bs-secondary-color);
+        opacity: 0.5;
+        pointer-events: none;
+        white-space: pre;
+        line-height: 1.6;
+      }
 
-  &__paste-area {
-    width: 100%;
-    min-height: 180px;
-    border: none;
-    padding: 0.875rem 1rem;
-    font-family: var(--bs-font-monospace);
-    font-size: var(--bs-font-size-sm);
-    resize: vertical;
-    outline: none;
-    color: var(--bs-body-color);
-    line-height: 1.6;
-    background: transparent;
+      &__area {
+        width: 100%;
+        min-height: 180px;
+        border: none;
+        padding: 0.875rem 1rem;
+        font-family: var(--bs-font-monospace);
+        font-size: var(--bs-font-size-sm);
+        resize: vertical;
+        outline: none;
+        color: var(--bs-body-color);
+        line-height: 1.6;
+        background: transparent;
 
-    &::placeholder {
-      color: var(--bs-secondary-color);
-      opacity: 0.5;
-    }
-  }
-
-  &__paste-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0.375rem 0.75rem;
-    border-top: 1px solid var(--bs-border-color);
-    background: var(--bs-tertiary-bg);
-  }
-
-  &__paste-hint {
-    font-size: var(--bs-font-size-xs);
-    color: var(--bs-secondary-color);
-    display: flex;
-    align-items: center;
-    gap: 0.125rem;
-  }
-
-  &__kbd {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 1.25rem;
-    height: 1.25rem;
-    padding: 0 0.25rem;
-    background: var(--bs-body-bg);
-    border: 1px solid var(--bs-border-color);
-    border-radius: 0.1875rem;
-    font-size: var(--bs-font-size-xs);
-    font-weight: 600;
-    color: var(--bs-secondary-color);
-    margin: 0 0.0625rem;
-  }
-
-  &__paste-btn {
-    padding: 0.3125rem 0.75rem;
-    font-size: var(--bs-font-size-sm);
-    font-weight: 600;
-    color: #fff;
-    background: var(--bs-primary);
-    border: none;
-    border-radius: var(--bs-border-radius);
-    cursor: pointer;
-    font-family: inherit;
-    transition: background 0.15s;
-
-    &:hover:not(:disabled) {
-      filter: brightness(0.9);
+        &::placeholder {
+          color: var(--bs-secondary-color);
+          opacity: 0.5;
+        }
+      }
     }
 
-    &:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
+    &__footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.375rem 0.75rem;
+      border-top: 1px solid var(--bs-border-color);
+      background: var(--bs-tertiary-bg);
+
+      &__hint {
+        font-size: var(--bs-font-size-xs);
+        color: var(--bs-secondary-color);
+        display: flex;
+        align-items: center;
+        gap: 0.125rem;
+
+        &__kbd {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          min-width: 1.25rem;
+          height: 1.25rem;
+          padding: 0 0.25rem;
+          background: var(--bs-body-bg);
+          border: 1px solid var(--bs-border-color);
+          border-radius: 0.1875rem;
+          font-size: var(--bs-font-size-xs);
+          font-weight: 600;
+          color: var(--bs-secondary-color);
+          margin: 0 0.0625rem;
+        }
+      }
+
+      &__btn {
+        padding: 0.3125rem 0.75rem;
+        font-size: var(--bs-font-size-sm);
+        font-weight: 600;
+        color: #fff;
+        background: var(--bs-primary);
+        border: none;
+        border-radius: var(--bs-border-radius);
+        cursor: pointer;
+        font-family: inherit;
+        transition: background 0.15s;
+
+        &:hover:not(:disabled) {
+          filter: brightness(0.9);
+        }
+
+        &:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+      }
     }
   }
 }
@@ -293,53 +293,53 @@ const tabOptions = [
     display: flex;
     border-bottom: 1px solid var(--bs-border-color);
     background: var(--bs-tertiary-bg);
-  }
 
-  &__tab {
-    flex: 1;
-    padding: 0.625rem 1rem;
-    font-family: inherit;
-    font-size: var(--bs-font-size-sm);
-    font-weight: 600;
-    color: var(--bs-secondary-color);
-    border: none;
-    background: none;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.375rem;
-    transition: all 0.15s;
-    position: relative;
+    &__tab {
+      flex: 1;
+      padding: 0.625rem 1rem;
+      font-family: inherit;
+      font-size: var(--bs-font-size-sm);
+      font-weight: 600;
+      color: var(--bs-secondary-color);
+      border: none;
+      background: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.375rem;
+      transition: all 0.15s;
+      position: relative;
 
-    &:hover {
-      color: var(--bs-body-color);
-      background: var(--bs-secondary-bg);
-    }
-
-    &:not(:last-child) {
-      border-right: 1px solid var(--bs-border-color);
-    }
-
-    &--active {
-      color: var(--bs-primary);
-      background: var(--bs-body-bg);
-
-      &::after {
-        content: '';
-        position: absolute;
-        bottom: -1px;
-        left: 0.75rem;
-        right: 0.75rem;
-        height: 2px;
-        background: var(--bs-primary);
-        border-radius: 1px;
+      &:hover {
+        color: var(--bs-body-color);
+        background: var(--bs-secondary-bg);
       }
-    }
 
-    svg {
-      width: 0.9375rem;
-      height: 0.9375rem;
+      &:not(:last-child) {
+        border-right: 1px solid var(--bs-border-color);
+      }
+
+      &--active {
+        color: var(--bs-primary);
+        background: var(--bs-body-bg);
+
+        &::after {
+          content: '';
+          position: absolute;
+          bottom: -1px;
+          left: 0.75rem;
+          right: 0.75rem;
+          height: 2px;
+          background: var(--bs-primary);
+          border-radius: 1px;
+        }
+      }
+
+      svg {
+        width: 0.9375rem;
+        height: 0.9375rem;
+      }
     }
   }
 }

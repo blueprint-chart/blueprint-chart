@@ -23,23 +23,23 @@ describe('DataRecommendationCard', () => {
 
   it('shows correct badge for best fitness', () => {
     const w = mountCard({ fitness: 'best' })
-    const badge = w.find('.reco-card__badge')
+    const badge = w.find('.reco-card__body__title__badge')
     expect(badge.text()).toBe('Best match')
-    expect(badge.classes()).toContain('reco-card__badge--best')
+    expect(badge.classes()).toContain('reco-card__body__title__badge--best')
   })
 
   it('shows correct badge for good fitness', () => {
     const w = mountCard({ fitness: 'good' })
-    const badge = w.find('.reco-card__badge')
+    const badge = w.find('.reco-card__body__title__badge')
     expect(badge.text()).toBe('Good fit')
-    expect(badge.classes()).toContain('reco-card__badge--good')
+    expect(badge.classes()).toContain('reco-card__body__title__badge--good')
   })
 
   it('shows correct badge for alternative fitness', () => {
     const w = mountCard({ fitness: 'alternative' })
-    const badge = w.find('.reco-card__badge')
+    const badge = w.find('.reco-card__body__title__badge')
     expect(badge.text()).toBe('Alternative')
-    expect(badge.classes()).toContain('reco-card__badge--alt')
+    expect(badge.classes()).toContain('reco-card__body__title__badge--alt')
   })
 
   it('emits select with chartType on click', async () => {

@@ -84,10 +84,10 @@ describe('DataCheckTable', () => {
     const w = mount(DataCheckTable)
     const headers = w.findAll('.data-check-table__col-header')
     expect(headers).toHaveLength(2)
-    expect(headers[0].find('.data-check-table__col-name').text()).toBe('Name')
-    expect(headers[0].find('.data-check-table__col-type').text()).toBe('string')
-    expect(headers[1].find('.data-check-table__col-name').text()).toBe('Value')
-    expect(headers[1].find('.data-check-table__col-type').text()).toBe('number')
+    expect(headers[0].find('.data-check-table__col-header__name').text()).toBe('Name')
+    expect(headers[0].find('.data-check-table__col-header__type').text()).toBe('string')
+    expect(headers[1].find('.data-check-table__col-header__name').text()).toBe('Value')
+    expect(headers[1].find('.data-check-table__col-header__type').text()).toBe('number')
   })
 
   it('renders data cells with correct values', () => {
