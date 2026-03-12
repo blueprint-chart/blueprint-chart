@@ -60,6 +60,7 @@ interface PropertyNode {
   type: 'property'
   key: string
   value: string | number
+  values?: (string | number)[]
   isPercentage: boolean
 }
 
@@ -95,13 +96,17 @@ function extractData(entries: PropertyNode[]): ChartData {
   }
 
   if (entries[0].key === '_series') {
-    const seriesNames = String(entries[0].value).split(',').map(s => s.trim())
+    const seriesNames = entries[0].values
+      ? entries[0].values.map(s => String(s).trim())
+      : String(entries[0].value).split(',').map(s => s.trim())
     const labels: string[] = []
     const series: number[][] = seriesNames.map(() => [])
 
     for (let i = 1; i < entries.length; i++) {
       labels.push(entries[i].key)
-      const vals = String(entries[i].value).split(',').map(s => Number(s.trim()))
+      const vals = entries[i].values
+        ? entries[i].values.map(v => Number(v))
+        : String(entries[i].value).split(',').map(s => Number(s.trim()))
       for (let j = 0; j < seriesNames.length; j++) {
         series[j].push(vals[j] ?? 0)
       }
@@ -121,7 +126,9 @@ function extractData(entries: PropertyNode[]): ChartData {
 function extractColors(chart: ChartNode): string[] {
   const colorsProp = chart.properties.find(p => p.key === 'colors')
   if (colorsProp) {
-    return String(colorsProp.value).split(',').map(c => c.trim())
+    return colorsProp.values
+      ? colorsProp.values.map(c => String(c).trim())
+      : String(colorsProp.value).split(',').map(c => c.trim())
   }
   const paletteProp = chart.properties.find(p => p.key === 'colorPalette')
   if (paletteProp) {
