@@ -1,8 +1,8 @@
 <template>
   <div class="export-embed-panel">
     <div class="export-embed-panel__code-block">
-      <div class="export-embed-panel__header">
-        <span class="export-embed-panel__label">Embed code</span>
+      <div class="export-embed-panel__code-block__header">
+        <span class="export-embed-panel__code-block__label">Embed code</span>
         <ActionCopyButton
           :text="iframeSnippet"
           label="Copy"
@@ -10,7 +10,7 @@
           size="sm"
         />
       </div>
-      <pre class="export-embed-panel__pre"><code>{{ iframeSnippet }}</code></pre>
+      <pre class="export-embed-panel__code-block__pre"><code>{{ iframeSnippet }}</code></pre>
     </div>
     <div class="export-embed-panel__info">
       Paste this iframe into your HTML page. The chart renders automatically.
@@ -81,35 +81,35 @@ const iframeSnippet = computed(() => {
     border: 1px solid var(--bs-border-color);
     border-radius: var(--bs-border-radius);
     overflow: hidden;
-  }
 
-  &__header {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 0.75rem;
-    background: var(--bs-tertiary-bg);
-    border-bottom: 1px solid var(--bs-border-color);
-  }
+    &__header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      background: var(--bs-tertiary-bg);
+      border-bottom: 1px solid var(--bs-border-color);
+    }
 
-  &__label {
-    flex: 1;
-    font-size: var(--bs-body-font-size);
-    font-weight: 600;
-    color: var(--bs-body-color);
-  }
+    &__label {
+      flex: 1;
+      font-size: var(--bs-body-font-size);
+      font-weight: 600;
+      color: var(--bs-body-color);
+    }
 
-  &__pre {
-    margin: 0;
-    padding: 0.75rem;
-    line-height: 1.5;
-    overflow-x: auto;
-    background: var(--bs-body-bg);
-    color: var(--bs-body-color);
-    white-space: pre;
+    &__pre {
+      margin: 0;
+      padding: 0.75rem;
+      line-height: 1.5;
+      overflow-x: auto;
+      background: var(--bs-body-bg);
+      color: var(--bs-body-color);
+      white-space: pre;
 
-    code {
-      font-size: var(--bs-body-font-size-sm);
+      code {
+        font-size: var(--bs-body-font-size-sm);
+      }
     }
   }
 

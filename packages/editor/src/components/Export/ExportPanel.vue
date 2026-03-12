@@ -15,13 +15,13 @@
     >
       <div
         ref="cardRef"
-        class="export-panel__card"
+        class="export-panel__canvas__card"
         :class="cardClass"
         :style="cardStyle"
       >
         <div
           ref="previewRef"
-          class="export-panel__preview w-100 h-100"
+          class="export-panel__canvas__preview w-100 h-100"
         />
       </div>
       <CanvasDimensions
@@ -103,7 +103,7 @@ watch(isNarrow, (narrow) => {
 }, { immediate: true })
 
 const { layout } = useChartConfig()
-const { cardClass, cardStyle } = useCanvasCardStyle(layout, 'export-panel__card')
+const { cardClass, cardStyle } = useCanvasCardStyle(layout, 'export-panel__canvas__card')
 
 const canvasRef = ref<HTMLElement | null>(null)
 const cardRef = ref<HTMLElement | null>(null)
@@ -214,9 +214,8 @@ const canvasClassList = computed(() => ({
       background: #151518;
       --bc-canvas-dimension-color: rgba(255, 255, 255, 0.3);
     }
-  }
 
-  &__card {
+    &__card {
     position: relative;
     z-index: 1;
     background: var(--bs-card-bg);
@@ -269,10 +268,11 @@ const canvasClassList = computed(() => ({
         display: block;
       }
     }
-  }
 
-  &__preview {
-    min-height: 200px;
+    &__preview {
+      min-height: 200px;
+    }
+  }
   }
 
   &__drawer-body {

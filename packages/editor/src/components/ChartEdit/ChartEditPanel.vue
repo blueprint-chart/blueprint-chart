@@ -16,7 +16,7 @@
       <div
         v-if="viewMode === 'preview'"
         ref="cardRef"
-        class="chart-edit-panel__card"
+        class="chart-edit-panel__canvas__card"
         :class="cardClass"
         :style="cardStyle"
       >
@@ -24,7 +24,7 @@
       </div>
       <ChartEditDsl
         v-else
-        class="chart-edit-panel__dsl"
+        class="chart-edit-panel__canvas__dsl"
       />
       <CanvasDimensions
         v-if="viewMode === 'preview' && showDimensions"
@@ -100,7 +100,7 @@ watch(isNarrow, (narrow) => {
 }, { immediate: true })
 const { chartType, layout } = useChartConfig()
 const { availableOptionKeys } = useChartTypeOptions()
-const { cardClass, cardStyle } = useCanvasCardStyle(layout, 'chart-edit-panel__card')
+const { cardClass, cardStyle } = useCanvasCardStyle(layout, 'chart-edit-panel__canvas__card')
 
 const hasAxisOptions = computed(() => availableOptionKeys.value.some(k => AXIS_KEYS.includes(k)))
 
@@ -243,67 +243,67 @@ const canvasStyle = computed<CSSProperties>(() => ({
         display: none;
       }
     }
-  }
 
-  &__card {
-    position: relative;
-    z-index: 1;
-    background: var(--bs-card-bg);
-    border: 1px solid var(--bs-border-color);
-    border-radius: var(--bs-border-radius-sm);
-    overflow: auto;
-    box-shadow: var(--bs-card-box-shadow);
+    &__card {
+      position: relative;
+      z-index: 1;
+      background: var(--bs-card-bg);
+      border: 1px solid var(--bs-border-color);
+      border-radius: var(--bs-border-radius-sm);
+      overflow: auto;
+      box-shadow: var(--bs-card-box-shadow);
 
-    &--fixed {
-      flex: none;
-      margin: 0 auto;
+      &--fixed {
+        flex: none;
+        margin: 0 auto;
+      }
+
+      &--max-width {
+        margin: 0 auto;
+        width: 100%;
+      }
+
+      &--transparent {
+        background: transparent;
+      }
+
+      &--constrained-height {
+        flex: none;
+        display: flex;
+        flex-direction: column;
+
+        :deep(.w-100.h-100) {
+          flex: 1;
+          min-height: 0;
+          display: flex;
+          flex-direction: column;
+        }
+
+        :deep(.bc-frame) {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          min-height: 0;
+        }
+
+        :deep(.bc-frame-body) {
+          flex: 1;
+          min-height: 0;
+        }
+
+        :deep(.bc-frame-body svg) {
+          width: 100%;
+          height: 100%;
+          display: block;
+        }
+      }
     }
 
-    &--max-width {
-      margin: 0 auto;
-      width: 100%;
-    }
-
-    &--transparent {
-      background: transparent;
-    }
-
-    &--constrained-height {
-      flex: none;
+    &__dsl {
+      flex: 1;
       display: flex;
       flex-direction: column;
-
-      :deep(.w-100.h-100) {
-        flex: 1;
-        min-height: 0;
-        display: flex;
-        flex-direction: column;
-      }
-
-      :deep(.bc-frame) {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        min-height: 0;
-      }
-
-      :deep(.bc-frame-body) {
-        flex: 1;
-        min-height: 0;
-      }
-
-      :deep(.bc-frame-body svg) {
-        width: 100%;
-        height: 100%;
-        display: block;
-      }
     }
-  }
-
-  &__dsl {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
   }
 
   &__drawer-body {

@@ -8,11 +8,11 @@
       ref="headerRef"
       class="panel-floating__header"
     >
-      <div class="panel-floating__title">
+      <div class="panel-floating__header__title">
         <ButtonDrag />
         {{ title }}
       </div>
-      <div class="panel-floating__actions">
+      <div class="panel-floating__header__actions">
         <ButtonDock @click="$emit('dock')" />
         <ButtonClose @click="$emit('close')" />
       </div>
@@ -109,20 +109,20 @@ const positionStyle = computed(() => ({
     &:active {
       cursor: grabbing;
     }
-  }
 
-  &__title {
-    font-size: var(--bs-font-size-sm);
-    font-weight: 600;
-    color: var(--bs-body-color);
-    display: flex;
-    align-items: center;
-    gap: 0.375rem;
-  }
+    &__title {
+      font-size: var(--bs-font-size-sm);
+      font-weight: 600;
+      color: var(--bs-body-color);
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+    }
 
-  &__actions {
-    display: flex;
-    gap: 0.25rem;
+    &__actions {
+      display: flex;
+      gap: 0.25rem;
+    }
   }
 
   &__toolbar {

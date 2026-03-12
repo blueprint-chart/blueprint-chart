@@ -77,7 +77,7 @@
       >
         <IconPhCheck />
         Safe
-        <IconPhInfo class="editor-color-section__cvd-info" />
+        <IconPhInfo class="editor-color-section__cvd-badge__info" />
         <BTooltip
           teleport-to="body"
           :target="cvdSafeBadgeRef"
@@ -94,7 +94,7 @@
         >
           <IconPhEye />
           {{ issue.shortLabel }}
-          <IconPhInfo class="editor-color-section__cvd-info" />
+          <IconPhInfo class="editor-color-section__cvd-badge__info" />
           <BTooltip
             teleport-to="body"
             :target="() => getCvdBadgeEl(issue.type)"
@@ -280,10 +280,10 @@ const paletteOptions = [
     background-color: var(--bs-warning-bg-subtle);
     color: var(--bs-warning-text-emphasis);
   }
-}
 
-.editor-color-section__cvd-info {
-  font-size: var(--bs-font-size-sm);
-  opacity: 0.7;
+  &__info {
+    font-size: var(--bs-font-size-sm);
+    opacity: 0.7;
+  }
 }
 </style>

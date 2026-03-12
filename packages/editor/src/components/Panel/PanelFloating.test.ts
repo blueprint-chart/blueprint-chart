@@ -25,7 +25,7 @@ describe('PanelFloating', () => {
     const w = mount(PanelFloating, {
       props: { containerRef: null, title: 'Columns', position: { x: 10, y: 20 } },
     })
-    expect(w.find('.panel-floating__title').text()).toContain('Columns')
+    expect(w.find('.panel-floating__header__title').text()).toContain('Columns')
   })
 
   it('renders slot content', () => {

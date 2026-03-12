@@ -18,8 +18,8 @@ test.describe('landing page layout', () => {
     await page.goto('/#/')
     await page.waitForTimeout(1000)
 
-    await expect(page.locator('.landing-hero__h1')).toBeVisible()
-    await expect(page.locator('.landing-hero__h1')).toContainText('Turn data into')
+    await expect(page.locator('.landing-hero__inner__text__h1')).toBeVisible()
+    await expect(page.locator('.landing-hero__inner__text__h1')).toContainText('Turn data into')
     await expect(page.locator('.button-icon', { hasText: 'My Charts' })).toBeVisible()
     await expect(page.locator('.button-icon', { hasText: 'New' })).toBeVisible()
   })
@@ -28,7 +28,7 @@ test.describe('landing page layout', () => {
     await page.goto('/#/')
     await page.waitForTimeout(2000)
 
-    const chartContainer = page.locator('.landing-hero__chart .landing-chart-preview')
+    const chartContainer = page.locator('.landing-hero__inner__chart .landing-chart-preview')
     await expect(chartContainer).toBeVisible()
 
     // D3 should have rendered SVG content

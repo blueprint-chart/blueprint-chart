@@ -247,7 +247,7 @@ test.describe('Scene Timeline', () => {
 
     // Change chart type to bar-horizontal ("Bars") while on Scene 2
     await toggleBtn.click()
-    await page.locator('.form-control-dropdown-item__label', { hasText: 'Bars' }).first().click()
+    await page.locator('.form-control-dropdown-item__content__text__label', { hasText: 'Bars' }).first().click()
     await page.waitForTimeout(500)
 
     // Verify dropdown now shows "Bars"
@@ -313,7 +313,7 @@ test.describe('Scene Timeline', () => {
     await page.waitForTimeout(500)
 
     // Extract DSL from the iframe bpc64 query param
-    const iframeCode = await page.locator('.export-embed-panel__pre code').innerText()
+    const iframeCode = await page.locator('.export-embed-panel__code-block__pre code').innerText()
     const bpc64Match = iframeCode.match(/bpc64=([^"&]+)/)
     expect(bpc64Match).not.toBeNull()
     const dslContent = Buffer.from(decodeURIComponent(bpc64Match![1]), 'base64').toString()
@@ -378,11 +378,11 @@ test.describe('Scene Timeline', () => {
     await expect(page.locator('.data-check-table')).toBeVisible()
 
     // Scene banner should be visible
-    await expect(page.locator('.data-structure-panel__scene-banner')).toBeVisible()
-    await expect(page.locator('.data-structure-panel__scene-banner')).toContainText('Scene override active')
+    await expect(page.locator('.data-structure-panel__main__scene-banner')).toBeVisible()
+    await expect(page.locator('.data-structure-panel__main__scene-banner')).toContainText('Scene override active')
 
     // Pills bar (replace data) should be hidden
-    await expect(page.locator('.data-structure-panel__pills-bar')).toHaveCount(0)
+    await expect(page.locator('.data-structure-panel__main__pills-bar')).toHaveCount(0)
 
     // Side panel / icon rail should still be visible
     await expect(page.locator('.navigation-icon-rail')).toBeVisible()
@@ -394,8 +394,8 @@ test.describe('Scene Timeline', () => {
     await page.locator('.scene-timeline-item').first().click()
     await page.waitForTimeout(300)
 
-    await expect(page.locator('.data-structure-panel__pills-bar')).toBeVisible()
-    await expect(page.locator('.data-structure-panel__scene-banner')).toHaveCount(0)
+    await expect(page.locator('.data-structure-panel__main__pills-bar')).toBeVisible()
+    await expect(page.locator('.data-structure-panel__main__scene-banner')).toHaveCount(0)
     // Parsing icon should be back
     await expect(page.locator('.navigation-icon-rail [aria-label="Parsing"]')).toBeVisible()
   })
@@ -472,7 +472,7 @@ test.describe('Scene Timeline', () => {
     await page.waitForTimeout(300)
 
     // Select "Transpose" from the dropdown
-    await page.locator('.add-wrap__dropdown-name', { hasText: 'Transpose' }).click()
+    await page.locator('.add-wrap__dropdown__item__text__name', { hasText: 'Transpose' }).click()
     await page.waitForTimeout(300)
 
     // Navigate to Visualize step
@@ -490,7 +490,7 @@ test.describe('Scene Timeline', () => {
     await page.waitForTimeout(500)
 
     // Extract DSL from the iframe bpc64 query param
-    const iframeCode = await page.locator('.export-embed-panel__pre code').innerText()
+    const iframeCode = await page.locator('.export-embed-panel__code-block__pre code').innerText()
     const bpc64Match = iframeCode.match(/bpc64=([^"&]+)/)
     expect(bpc64Match).not.toBeNull()
     const dslContent = Buffer.from(decodeURIComponent(bpc64Match![1]), 'base64').toString()
