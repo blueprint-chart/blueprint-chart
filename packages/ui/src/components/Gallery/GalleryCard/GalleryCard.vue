@@ -81,111 +81,111 @@ const cardClassList = computed(() => ({
   &:focus-visible {
     box-shadow: 0 0 0 2px var(--bs-primary);
   }
-}
 
-.gallery-card--selected {
-  border-color: var(--bs-primary);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--bs-primary) 15%, transparent), 0 4px 16px rgba(0, 0, 0, 0.08);
-  transform: translateY(-2px);
-}
-
-.gallery-card__thumb {
-  height: 152px;
-  background: var(--bs-tertiary-bg);
-  border-bottom: 1px solid var(--bs-border-color);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.875rem;
-  overflow: hidden;
-}
-
-.gallery-card__thumb-img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  display: block;
-}
-
-.gallery-card__meta {
-  padding: 0.8125rem 0.9375rem 0.9375rem;
-}
-
-.gallery-card__title {
-  font-size: 0.8125rem;
-  font-weight: 700;
-  color: var(--bs-body-color);
-  line-height: 1.4;
-  margin-bottom: 0.1875rem;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.gallery-card__subtitle {
-  font-size: 0.6875rem;
-  color: var(--bs-secondary-color);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  margin-bottom: 0.5625rem;
-}
-
-.gallery-card__footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-// ─── Row layout ───
-.gallery-card--row {
-  display: grid;
-  grid-template-columns: 96px 1fr;
-  border-radius: var(--bs-border-radius);
-
-  &:hover,
-  &.gallery-card--selected {
-    transform: none;
+  &--selected {
+    border-color: var(--bs-primary);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--bs-primary) 15%, transparent), 0 4px 16px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
   }
 
-  .gallery-card__thumb {
-    height: 72px;
-    border-bottom: none;
-    border-right: 1px solid var(--bs-border-color);
-    padding: 0.625rem;
-    flex-shrink: 0;
-  }
-
-  .gallery-card__meta {
-    padding: 0.625rem 0.875rem;
+  &__thumb {
+    height: 152px;
+    background: var(--bs-tertiary-bg);
+    border-bottom: 1px solid var(--bs-border-color);
     display: flex;
     align-items: center;
-    gap: 1rem;
+    justify-content: center;
+    padding: 0.875rem;
+    overflow: hidden;
+
+    &-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
   }
 
-  .gallery-card__title {
+  &__meta {
+    padding: 0.8125rem 0.9375rem 0.9375rem;
+  }
+
+  &__title {
     font-size: 0.8125rem;
+    font-weight: 700;
+    color: var(--bs-body-color);
+    line-height: 1.4;
+    margin-bottom: 0.1875rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  &__subtitle {
+    font-size: 0.6875rem;
+    color: var(--bs-secondary-color);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    -webkit-line-clamp: unset;
-    -webkit-box-orient: unset;
-    display: block;
-    flex: 1;
-    min-width: 0;
-    margin-bottom: 0;
+    margin-bottom: 0.5625rem;
   }
 
-  .gallery-card__subtitle {
-    flex: 1;
-    min-width: 0;
-    margin-bottom: 0;
+  &__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
   }
 
-  .gallery-card__footer {
-    flex-shrink: 0;
-    gap: 0.625rem;
+  // ─── Row layout ───
+  &--row {
+    display: grid;
+    grid-template-columns: 96px 1fr;
+    border-radius: var(--bs-border-radius);
+
+    &:hover,
+    &.gallery-card--selected {
+      transform: none;
+    }
+
+    .gallery-card__thumb {
+      height: 72px;
+      border-bottom: none;
+      border-right: 1px solid var(--bs-border-color);
+      padding: 0.625rem;
+      flex-shrink: 0;
+    }
+
+    .gallery-card__meta {
+      padding: 0.625rem 0.875rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .gallery-card__title {
+      font-size: 0.8125rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      -webkit-line-clamp: unset;
+      -webkit-box-orient: unset;
+      display: block;
+      flex: 1;
+      min-width: 0;
+      margin-bottom: 0;
+    }
+
+    .gallery-card__subtitle {
+      flex: 1;
+      min-width: 0;
+      margin-bottom: 0;
+    }
+
+    .gallery-card__footer {
+      flex-shrink: 0;
+      gap: 0.625rem;
+    }
   }
 }
 </style>

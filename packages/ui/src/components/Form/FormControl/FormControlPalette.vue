@@ -95,35 +95,37 @@ function selectPalette(value: string) {
 </script>
 
 <style scoped lang="scss">
-.form-control-palette__toggle {
-  width: 100%;
-
-  :deep(.dropdown-toggle) {
+.form-control-palette {
+  &__toggle {
     width: 100%;
-    text-align: left;
-    overflow: hidden;
+
+    :deep(.dropdown-toggle) {
+      width: 100%;
+      text-align: left;
+      overflow: hidden;
+    }
   }
-}
 
-.form-control-palette__preview {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  overflow: hidden;
-  flex: 1;
-  min-width: 0;
-}
+  &__preview {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    overflow: hidden;
+    flex: 1;
+    min-width: 0;
+  }
 
-.form-control-palette__name {
-  font-weight: bold;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
+  &__name {
+    font-weight: bold;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 
-.form-control-palette__item {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
 }
 </style>

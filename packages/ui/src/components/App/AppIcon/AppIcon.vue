@@ -15,7 +15,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch, type Component } from 'vue'
+import { computed, shallowRef, watch, type Component } from 'vue'
 import type { TextColorVariant } from 'bootstrap-vue-next'
 import type { IconSize } from '../../../types'
 
@@ -46,7 +46,7 @@ const props = withDefaults(defineProps<AppIconProps>(), {
   spinDuration: '1s',
 })
 
-const currentHover = ref(false)
+const currentHover = shallowRef(false)
 
 function syncHoverProp() {
   currentHover.value = props.hover

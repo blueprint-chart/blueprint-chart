@@ -1,4 +1,4 @@
-import { ref, computed } from 'vue'
+import { ref, shallowRef, computed } from 'vue'
 import type { ChartHighlight } from './useChartConfig'
 import type { ChartTypeOptions } from './useChartTypeOptions'
 import type { TransformStep } from './useDataTransforms'
@@ -43,8 +43,8 @@ function generateSceneId(): string {
 }
 
 const scenes = ref<SceneOverride[]>([])
-const activeIndex = ref(-1)
-const playing = ref(false)
+const activeIndex = shallowRef(-1)
+const playing = shallowRef(false)
 
 let playbackTimer: ReturnType<typeof setInterval> | null = null
 

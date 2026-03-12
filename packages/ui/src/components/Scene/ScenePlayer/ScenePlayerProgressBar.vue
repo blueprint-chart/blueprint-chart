@@ -52,74 +52,76 @@ defineEmits<{
 </script>
 
 <style scoped lang="scss">
-.bc-scene-player--progress-bar {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.25rem 0 0;
-  width: 100%;
-}
-
-.bc-scene-player__play-btn {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--bc-scene-player-accent, #2c5aa0);
-  border: none;
-  color: #fff;
-  cursor: pointer;
-  flex-shrink: 0;
-  padding: 0;
-  transition: background 0.15s ease;
-
-  &:hover {
-    background: var(--bc-scene-player-accent-hover, #1e4888);
+.bc-scene-player {
+  &--progress-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0 0;
+    width: 100%;
   }
-}
 
-.bc-scene-player__segments {
-  flex: 1;
-  display: flex;
-  gap: 3px;
-  align-items: center;
-}
-
-.bc-scene-player__segment {
-  flex: 1;
-  height: 4px;
-  border-radius: 2px;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  background: var(--bc-scene-player-track, #e2e0db);
-  opacity: 0.45;
-  transition: height 0.2s ease, background 0.2s ease, opacity 0.2s ease;
-
-  &--completed {
+  &__play-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     background: var(--bc-scene-player-accent, #2c5aa0);
-    opacity: 1;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    flex-shrink: 0;
+    padding: 0;
+    transition: background 0.15s ease;
+
+    &:hover {
+      background: var(--bc-scene-player-accent-hover, #1e4888);
+    }
   }
 
-  &--active {
-    height: 6px;
-    background: var(--bc-scene-player-accent, #2c5aa0);
-    opacity: 1;
+  &__segments {
+    flex: 1;
+    display: flex;
+    gap: 3px;
+    align-items: center;
   }
 
-  &:hover {
-    opacity: 0.8;
-  }
-}
+  &__segment {
+    flex: 1;
+    height: 4px;
+    border-radius: 2px;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    background: var(--bc-scene-player-track, #e2e0db);
+    opacity: 0.45;
+    transition: height 0.2s ease, background 0.2s ease, opacity 0.2s ease;
 
-.bc-scene-player__counter {
-  font-size: 0.6875rem;
-  font-weight: 500;
-  color: var(--bc-scene-player-muted, #9b9893);
-  white-space: nowrap;
-  font-variant-numeric: tabular-nums;
-  flex-shrink: 0;
+    &--completed {
+      background: var(--bc-scene-player-accent, #2c5aa0);
+      opacity: 1;
+    }
+
+    &--active {
+      height: 6px;
+      background: var(--bc-scene-player-accent, #2c5aa0);
+      opacity: 1;
+    }
+
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+
+  &__counter {
+    font-size: 0.6875rem;
+    font-weight: 500;
+    color: var(--bc-scene-player-muted, #9b9893);
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+    flex-shrink: 0;
+  }
 }
 </style>

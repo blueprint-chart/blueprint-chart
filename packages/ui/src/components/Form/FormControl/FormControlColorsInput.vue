@@ -48,7 +48,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, useTemplateRef } from 'vue'
+import { ref, shallowRef, useTemplateRef } from 'vue'
 import ButtonAdd from '../../Button/ButtonAdd/ButtonAdd.vue'
 import DisplayColorSwatch from '../../Display/DisplayColorSwatch/DisplayColorSwatch.vue'
 import FormControlColorInputPopover from './FormControlColorInputPopover.vue'
@@ -61,10 +61,10 @@ defineProps<{
 }>()
 
 const addBtnRef = useTemplateRef<InstanceType<typeof ButtonAdd>>('addBtnRef')
-const editingColor = ref('#4e79a7')
-const editingIndex = ref(-1)
+const editingColor = shallowRef('#4e79a7')
+const editingIndex = shallowRef(-1)
 const editingTarget = ref<HTMLElement | null>(null)
-const pickerOpen = ref(false)
+const pickerOpen = shallowRef(false)
 
 function openPicker(idx: number, event: MouseEvent) {
   editingIndex.value = idx
@@ -101,45 +101,47 @@ function onPickerChange(color: string) {
 </script>
 
 <style scoped lang="scss">
-.form-control-colors-input__tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  height: 26px;
-  padding: 0 0.25rem 0 0.35rem;
-  border-radius: 50rem;
-  border: 1px solid var(--bs-border-color);
-  background: var(--bs-tertiary-bg);
-  line-height: 1;
-}
+.form-control-colors-input {
+  &__tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    height: 26px;
+    padding: 0 0.25rem 0 0.35rem;
+    border-radius: 50rem;
+    border: 1px solid var(--bs-border-color);
+    background: var(--bs-tertiary-bg);
+    line-height: 1;
+  }
 
-.form-control-colors-input__swatch-btn {
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  line-height: 1;
-}
+  &__swatch-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    line-height: 1;
+  }
 
-.form-control-colors-input__hex {
-  font-family: var(--bs-font-monospace);
-  font-size: 0.75rem;
-  color: var(--bs-body-color);
-}
+  &__hex {
+    font-family: var(--bs-font-monospace);
+    font-size: 0.75rem;
+    color: var(--bs-body-color);
+  }
 
-.form-control-colors-input__remove {
-  background: none;
-  border: none;
-  padding: 0;
-  line-height: 1;
-  font-size: 0.875rem;
-  color: var(--bs-secondary-color);
-  cursor: pointer;
-  opacity: 0.6;
+  &__remove {
+    background: none;
+    border: none;
+    padding: 0;
+    line-height: 1;
+    font-size: 0.875rem;
+    color: var(--bs-secondary-color);
+    cursor: pointer;
+    opacity: 0.6;
 
-  &:hover {
-    opacity: 1;
-    color: var(--bs-danger);
+    &:hover {
+      opacity: 1;
+      color: var(--bs-danger);
+    }
   }
 }
 </style>

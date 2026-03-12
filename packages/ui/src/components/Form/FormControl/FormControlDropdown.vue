@@ -153,48 +153,52 @@ function selectOption(value: string) {
 </style>
 
 <style scoped lang="scss">
-.form-control-dropdown__toggle--block {
-  width: 100%;
+.form-control-dropdown {
+  &__toggle {
+    &--block {
+      width: 100%;
 
-  :deep(.dropdown-toggle) {
-    width: 100%;
-    display: inline-flex;
-    text-align: left;
-    align-items: center;
-    justify-content: space-between;
+      :deep(.dropdown-toggle) {
+        width: 100%;
+        display: inline-flex;
+        text-align: left;
+        align-items: center;
+        justify-content: space-between;
 
-    --bs-btn-border-color: var(--bs-border-color);
-    --bs-btn-color: var(--bs-body-color);
-    --bs-btn-bg: var(--bs-secondary-bg);
+        --bs-btn-border-color: var(--bs-border-color);
+        --bs-btn-color: var(--bs-body-color);
+        --bs-btn-bg: var(--bs-secondary-bg);
 
-    --bs-btn-hover-color: var(--bs-btn-color);
-    --bs-btn-hover-bg: var(--bs-btn-bg);
-    --bs-btn-hover-border-color: var(--bs-btn-border-color);
+        --bs-btn-hover-color: var(--bs-btn-color);
+        --bs-btn-hover-bg: var(--bs-btn-bg);
+        --bs-btn-hover-border-color: var(--bs-btn-border-color);
 
-    --bs-btn-active-color: var(--bs-btn-color);
-    --bs-btn-active-bg: var(--bs-btn-bg);
-    --bs-btn-active-border-color: #4B90CF; // $prussian-300
+        --bs-btn-active-color: var(--bs-btn-color);
+        --bs-btn-active-bg: var(--bs-btn-bg);
+        --bs-btn-active-border-color: #4B90CF; // $prussian-300
 
-    &.active, &:active, &.show {
-      box-shadow: 0 0 0 0.25rem rgba(#2563a0, 0.25); // $prussian-500
+        &.active, &:active, &.show {
+          box-shadow: 0 0 0 0.25rem rgba(#2563a0, 0.25); // $prussian-500
+        }
+      }
+    }
+
+    &-content {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      margin-right: auto;
+    }
+
+    &-icon {
+      width: 1.25em;
+      height: 1.25em;
+      flex-shrink: 0;
     }
   }
-}
 
-.form-control-dropdown--light-label :deep(label) {
-  font-weight: normal;
-}
-
-.form-control-dropdown__toggle-content {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  margin-right: auto;
-}
-
-.form-control-dropdown__toggle-icon {
-  width: 1.25em;
-  height: 1.25em;
-  flex-shrink: 0;
+  &--light-label :deep(label) {
+    font-weight: normal;
+  }
 }
 </style>

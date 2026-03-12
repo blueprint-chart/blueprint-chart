@@ -33,7 +33,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, type CSSProperties } from 'vue'
+import { computed, shallowRef, type CSSProperties } from 'vue'
 
 const DISMISS_THRESHOLD = 80
 
@@ -47,8 +47,8 @@ const props = withDefaults(defineProps<{
   maxHeight: '70vh',
 })
 
-const dragOffset = ref(0)
-const isDragging = ref(false)
+const dragOffset = shallowRef(0)
+const isDragging = shallowRef(false)
 
 const drawerClassList = computed(() => ({
   'layout-bottom-drawer--dragging': isDragging.value,
@@ -115,54 +115,54 @@ const drawerStyle = computed<CSSProperties>(() => ({
   &--dragging {
     transition: none;
   }
-}
 
-.layout-bottom-drawer__backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 1040;
-  background: rgba(0, 0, 0, 0.3);
-}
-
-.layout-bottom-drawer__handle {
-  display: flex;
-  justify-content: center;
-  padding: 0.5rem;
-  cursor: grab;
-  flex-shrink: 0;
-  touch-action: none;
-
-  &:active {
-    cursor: grabbing;
+  &__backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 1040;
+    background: rgba(0, 0, 0, 0.3);
   }
-}
 
-.layout-bottom-drawer__bar {
-  width: 2rem;
-  height: 0.25rem;
-  border-radius: var(--bs-border-radius-pill);
-  background: var(--bs-secondary-color);
-  opacity: 0.4;
-}
+  &__handle {
+    display: flex;
+    justify-content: center;
+    padding: 0.5rem;
+    cursor: grab;
+    flex-shrink: 0;
+    touch-action: none;
 
-.layout-bottom-drawer__header {
-  display: flex;
-  align-items: center;
-  padding: 0 1rem 0.5rem;
-  flex-shrink: 0;
-}
+    &:active {
+      cursor: grabbing;
+    }
+  }
 
-.layout-bottom-drawer__title {
-  font-size: 0.875rem;
-  font-weight: 600;
-  margin: 0;
-  color: var(--bs-body-color);
-}
+  &__bar {
+    width: 2rem;
+    height: 0.25rem;
+    border-radius: var(--bs-border-radius-pill);
+    background: var(--bs-secondary-color);
+    opacity: 0.4;
+  }
 
-.layout-bottom-drawer__body {
-  flex: 1;
-  overflow-y: auto;
-  padding: 0 1rem 0;
+  &__header {
+    display: flex;
+    align-items: center;
+    padding: 0 1rem 0.5rem;
+    flex-shrink: 0;
+  }
+
+  &__title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin: 0;
+    color: var(--bs-body-color);
+  }
+
+  &__body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 1rem 0;
+  }
 }
 
 .drawer-enter-active,

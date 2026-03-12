@@ -50,29 +50,31 @@ withDefaults(defineProps<{
 </script>
 
 <style scoped lang="scss">
-.form-control-slider-input__row {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.form-control-slider-input__range {
-  flex-grow: 1;
-
-  &::-webkit-slider-runnable-track {
-    background: var(--bs-border-color);
+.form-control-slider-input {
+  &__row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
   }
 
-  &::-moz-range-track {
-    background: var(--bs-border-color);
+  &__range {
+    flex-grow: 1;
+
+    &::-webkit-slider-runnable-track {
+      background: var(--bs-border-color);
+    }
+
+    &::-moz-range-track {
+      background: var(--bs-border-color);
+    }
   }
-}
 
-.form-control-slider-input__number {
-  width: 4em;
-}
+  &__number {
+    width: 4em;
+  }
 
-.form-control-slider-input__suffix {
-  white-space: nowrap;
+  &__suffix {
+    white-space: nowrap;
+  }
 }
 </style>

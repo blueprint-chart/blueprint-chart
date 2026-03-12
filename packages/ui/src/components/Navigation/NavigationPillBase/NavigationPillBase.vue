@@ -35,7 +35,7 @@
 </template>
 
 <script setup lang="ts">
-import { type Component, computed, nextTick, onMounted, ref, useTemplateRef, watch } from 'vue'
+import { type Component, computed, nextTick, onMounted, shallowRef, useTemplateRef, watch } from 'vue'
 
 export interface NavigationPillItem {
   key: string
@@ -60,9 +60,9 @@ const emit = defineEmits<{
 }>()
 
 const buttonRefs = useTemplateRef<Element[]>('buttonRefs')
-const bubbleX = ref(0)
-const bubbleW = ref(0)
-const ready = ref(false)
+const bubbleX = shallowRef(0)
+const bubbleW = shallowRef(0)
+const ready = shallowRef(false)
 
 const bubbleStyle = computed(() => ({
   transform: `translateX(${bubbleX.value}px)`,
@@ -112,81 +112,81 @@ function onSelect(item: NavigationPillItem) {
   border-radius: 999px;
   padding: 0.125rem;
   position: relative;
-}
 
-.navigation-pill__bubble {
-  position: absolute;
-  left: 0;
-  background: var(--bs-primary);
-  border-radius: 999px;
-  height: calc(100% - 0.25rem);
-  top: 0.125rem;
-  z-index: 0;
-  pointer-events: none;
-
-  &--ready {
-    transition: transform 0.2s ease, width 0.2s ease, opacity 0.15s ease;
-  }
-
-  &:not(&--ready) {
-    visibility: hidden;
-  }
-}
-
-.navigation-pill__option {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
-  background: none;
-  border: none;
-  padding: 0.25rem 0.75rem;
-  cursor: pointer;
-  color: var(--bs-body-color);
-  font-size: 0.8125rem;
-  border-radius: 999px;
-  transition: color 0.15s ease;
-  white-space: nowrap;
-
-  &:hover:not(:disabled):not(.navigation-pill__option--active) {
-    color: var(--bs-emphasis-color);
-  }
-
-  &--done {
-    color: var(--bs-body-color);
-  }
-
-  &--active {
-    color: var(--bs-white, #fff);
-    font-weight: 600;
-  }
-
-  &--disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
+  &__bubble {
+    position: absolute;
+    left: 0;
+    background: var(--bs-primary);
+    border-radius: 999px;
+    height: calc(100% - 0.25rem);
+    top: 0.125rem;
+    z-index: 0;
     pointer-events: none;
-  }
-}
 
-.navigation-pill__icon {
-  width: 1em;
-  height: 1em;
-  flex-shrink: 0;
-}
+    &--ready {
+      transition: transform 0.2s ease, width 0.2s ease, opacity 0.15s ease;
+    }
 
-.navigation-pill--md {
-  padding: 0.1875rem;
-
-  .navigation-pill__option {
-    padding: 0.375rem 1rem;
-    font-size: 0.875rem;
-    gap: 0.5rem;
+    &:not(&--ready) {
+      visibility: hidden;
+    }
   }
 
-  .navigation-pill__bubble {
-    height: calc(100% - 0.375rem);
-    top: 0.1875rem;
+  &__option {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    background: none;
+    border: none;
+    padding: 0.25rem 0.75rem;
+    cursor: pointer;
+    color: var(--bs-body-color);
+    font-size: 0.8125rem;
+    border-radius: 999px;
+    transition: color 0.15s ease;
+    white-space: nowrap;
+
+    &:hover:not(:disabled):not(.navigation-pill__option--active) {
+      color: var(--bs-emphasis-color);
+    }
+
+    &--done {
+      color: var(--bs-body-color);
+    }
+
+    &--active {
+      color: var(--bs-white, #fff);
+      font-weight: 600;
+    }
+
+    &--disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+  }
+
+  &__icon {
+    width: 1em;
+    height: 1em;
+    flex-shrink: 0;
+  }
+
+  &--md {
+    padding: 0.1875rem;
+
+    .navigation-pill__option {
+      padding: 0.375rem 1rem;
+      font-size: 0.875rem;
+      gap: 0.5rem;
+    }
+
+    .navigation-pill__bubble {
+      height: calc(100% - 0.375rem);
+      top: 0.1875rem;
+    }
   }
 }
 </style>

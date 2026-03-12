@@ -63,33 +63,33 @@ defineEmits<{
   border-radius: var(--bc-tile-radius);
   box-shadow: var(--bc-tile-shadow);
   border: var(--bc-tile-border);
-}
 
-.scene-timeline__items {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  overflow-x: auto;
-  flex: 1;
-  min-width: 0;
-  padding: 0.25rem 0;
+  &__items {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    overflow-x: auto;
+    flex: 1;
+    min-width: 0;
+    padding: 0.25rem 0;
 
-  &::-webkit-scrollbar {
-    display: none;
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
+    scrollbar-width: none;
   }
 
-  scrollbar-width: none;
-}
+  &__add {
+    width: 120px;
+    min-width: 120px;
+    flex-shrink: 0;
+    align-self: stretch;
 
-.scene-timeline__add {
-  width: 120px;
-  min-width: 120px;
-  flex-shrink: 0;
-  align-self: stretch;
-
-  :deep(.button-add.btn) {
-    height: 100%;
-    border-radius: var(--bs-border-radius-lg);
+    :deep(.button-add.btn) {
+      height: 100%;
+      border-radius: var(--bs-border-radius-lg);
+    }
   }
 }
 </style>

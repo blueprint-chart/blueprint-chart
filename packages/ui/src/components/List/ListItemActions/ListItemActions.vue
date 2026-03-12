@@ -46,12 +46,12 @@ defineEmits<{
 .list-item-actions {
   display: flex;
   gap: 0.5rem;
-}
 
-.list-item-actions__btn {
-  padding: 0;
-  font-size: 1rem;
-  line-height: 1;
-  text-decoration: none;
+  &__btn {
+    padding: 0;
+    font-size: 1rem;
+    line-height: 1;
+    text-decoration: none;
+  }
 }
 </style>

@@ -72,30 +72,35 @@ const sizeClass = computed(() => `direction-picker__anchor--${props.size}`)
 </script>
 
 <style scoped lang="scss">
-.direction-picker__anchor {
-  position: relative;
-  display: inline-block;
-}
+.direction-picker {
+  &__anchor {
+    position: relative;
+    display: inline-block;
 
-// --- Size tokens (consumed by child components via CSS inheritance) ---
-.direction-picker__anchor--xs {
-  :deep(.direction-picker-field) { width: 72px; height: 48px; }
-  --rect-w: 26px; --rect-h: 16px; --rect-pad: 6px; --rect-radius: 3px; --rect-border: 1.5px;
-  --handle-circle: 8px; --handle-pill-long: 16px; --handle-pill-short: 8px;
-}
-.direction-picker__anchor--sm {
-  :deep(.direction-picker-field) { width: 100px; height: 68px; }
-  --rect-w: 36px; --rect-h: 20px; --rect-pad: 6px; --rect-radius: 3px; --rect-border: 1.5px;
-  --handle-circle: 9px; --handle-pill-long: 18px; --handle-pill-short: 9px;
-}
-.direction-picker__anchor--md {
-  :deep(.direction-picker-field) { width: 140px; height: 96px; }
-  --rect-w: 48px; --rect-h: 24px; --rect-pad: 6px; --rect-radius: 4px; --rect-border: 2px;
-  --handle-circle: 10px; --handle-pill-long: 22px; --handle-pill-short: 10px;
-}
-.direction-picker__anchor--lg {
-  :deep(.direction-picker-field) { width: 180px; height: 120px; }
-  --rect-w: 60px; --rect-h: 30px; --rect-pad: 6px; --rect-radius: 4px; --rect-border: 2px;
-  --handle-circle: 12px; --handle-pill-long: 26px; --handle-pill-short: 12px;
+    // --- Size tokens (consumed by child components via CSS inheritance) ---
+    &--xs {
+      :deep(.direction-picker-field) { width: 72px; height: 48px; }
+      --rect-w: 26px; --rect-h: 16px; --rect-pad: 6px; --rect-radius: 3px; --rect-border: 1.5px;
+      --handle-circle: 8px; --handle-pill-long: 16px; --handle-pill-short: 8px;
+    }
+
+    &--sm {
+      :deep(.direction-picker-field) { width: 100px; height: 68px; }
+      --rect-w: 36px; --rect-h: 20px; --rect-pad: 6px; --rect-radius: 3px; --rect-border: 1.5px;
+      --handle-circle: 9px; --handle-pill-long: 18px; --handle-pill-short: 9px;
+    }
+
+    &--md {
+      :deep(.direction-picker-field) { width: 140px; height: 96px; }
+      --rect-w: 48px; --rect-h: 24px; --rect-pad: 6px; --rect-radius: 4px; --rect-border: 2px;
+      --handle-circle: 10px; --handle-pill-long: 22px; --handle-pill-short: 10px;
+    }
+
+    &--lg {
+      :deep(.direction-picker-field) { width: 180px; height: 120px; }
+      --rect-w: 60px; --rect-h: 30px; --rect-pad: 6px; --rect-radius: 4px; --rect-border: 2px;
+      --handle-circle: 12px; --handle-pill-long: 26px; --handle-pill-short: 12px;
+    }
+  }
 }
 </style>

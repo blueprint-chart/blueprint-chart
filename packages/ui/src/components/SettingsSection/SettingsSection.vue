@@ -46,18 +46,18 @@ withDefaults(defineProps<{
 <style scoped lang="scss">
 .settings-section {
   padding-bottom: 2rem;
-}
 
-.settings-section__header {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
 
-.settings-section__body {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  padding-top: 1rem;
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding-top: 1rem;
+  }
 }
 </style>
