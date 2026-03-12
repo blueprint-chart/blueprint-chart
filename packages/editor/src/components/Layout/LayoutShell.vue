@@ -1,5 +1,8 @@
 <template>
-  <div class="d-flex flex-column vh-100">
+  <div
+    class="d-flex flex-column"
+    :class="isLanding ? 'min-vh-100' : 'vh-100'"
+  >
     <LayoutNavbar :transparent="true">
       <template #center>
         <NavigationStepper
@@ -49,7 +52,10 @@
         </div>
       </template>
     </LayoutNavbar>
-    <div class="d-flex flex-grow-1 overflow-auto">
+    <div
+      class="d-flex flex-grow-1"
+      :class="{ 'overflow-auto': !isLanding }"
+    >
       <slot />
     </div>
   </div>
@@ -74,6 +80,8 @@ const route = useRoute()
 const router = useRouter()
 const { listSavedCharts } = useChartSession()
 const { mode } = useNavbar()
+
+const isLanding = computed(() => route.path === '/')
 
 // Wizard composables (only active when mode === 'wizard')
 const { currentIndex, steps } = useWizard()

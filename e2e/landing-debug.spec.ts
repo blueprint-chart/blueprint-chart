@@ -4,47 +4,40 @@ test('debug landing page scroll and sections', async ({ page }) => {
   await page.goto('/#/')
   await page.waitForTimeout(2000)
 
-  // Check the scrollable container
-  const scrollContainer = page.locator('.d-flex.flex-grow-1.overflow-auto')
-  const scrollHeight = await scrollContainer.evaluate(el => el.scrollHeight)
-  const clientHeight = await scrollContainer.evaluate(el => el.clientHeight)
-  console.log(`Scroll container: scrollHeight=${scrollHeight}, clientHeight=${clientHeight}`)
-
   // Check landing page dimensions
   const landingPage = page.locator('.landing-page')
   const lpBox = await landingPage.boundingBox()
   console.log(`Landing page box:`, lpBox)
 
   // Scroll down and take screenshots at intervals
-  const scrollEl = scrollContainer
-  await scrollEl.evaluate(el => el.scrollTop = 0)
+  await page.evaluate(() => window.scrollTo(0, 0))
   await page.screenshot({ path: 'test-results/landing-0.png' })
 
-  await scrollEl.evaluate(el => el.scrollTop = 800)
+  await page.evaluate(() => window.scrollTo(0, 800))
   await page.waitForTimeout(500)
   await page.screenshot({ path: 'test-results/landing-800.png' })
 
-  await scrollEl.evaluate(el => el.scrollTop = 1200)
+  await page.evaluate(() => window.scrollTo(0, 1200))
   await page.waitForTimeout(500)
   await page.screenshot({ path: 'test-results/landing-1200.png' })
 
-  await scrollEl.evaluate(el => el.scrollTop = 1600)
+  await page.evaluate(() => window.scrollTo(0, 1600))
   await page.waitForTimeout(500)
   await page.screenshot({ path: 'test-results/landing-1600.png' })
 
-  await scrollEl.evaluate(el => el.scrollTop = 2400)
+  await page.evaluate(() => window.scrollTo(0, 2400))
   await page.waitForTimeout(500)
   await page.screenshot({ path: 'test-results/landing-2400.png' })
 
-  await scrollEl.evaluate(el => el.scrollTop = 3200)
+  await page.evaluate(() => window.scrollTo(0, 3200))
   await page.waitForTimeout(500)
   await page.screenshot({ path: 'test-results/landing-3200.png' })
 
-  await scrollEl.evaluate(el => el.scrollTop = 4000)
+  await page.evaluate(() => window.scrollTo(0, 4000))
   await page.waitForTimeout(500)
   await page.screenshot({ path: 'test-results/landing-4000.png' })
 
-  await scrollEl.evaluate(el => el.scrollTop = 99999)
+  await page.evaluate(() => window.scrollTo(0, 99999))
   await page.waitForTimeout(500)
   await page.screenshot({ path: 'test-results/landing-bottom.png' })
 
