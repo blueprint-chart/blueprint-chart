@@ -1,9 +1,9 @@
 chart bar-stacked {
   data {
-    _series = "X, Y"
-    "A" = "4, 3"
-    "B" = "6, 5"
-    "C" = "5, 4"
-    "D" = "7, 6"
+    _series = "X,Y"
+    "A" = 4,3
+    "B" = 6,5
+    "C" = 5,4
+    "D" = 7,6
   }
 }
