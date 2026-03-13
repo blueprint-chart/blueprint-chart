@@ -26,7 +26,7 @@
         }"
         :aria-label="`Scene ${i} of ${total}`"
         :aria-current="i === current ? 'step' : undefined"
-        @click="$emit('update:current', i)"
+        @click="current = i"
       />
     </div>
     <span class="bc-scene-player__counter">{{ current }}/{{ total }}</span>
@@ -34,9 +34,10 @@
 </template>
 
 <script setup lang="ts">
+const current = defineModel<number>('current', { required: true })
+
 withDefaults(defineProps<{
   total: number
-  current: number
   playing?: boolean
   position?: 'left' | 'center' | 'right'
 }>(), {
@@ -45,7 +46,6 @@ withDefaults(defineProps<{
 })
 
 defineEmits<{
-  'update:current': [index: number]
   'play': []
   'pause': []
 }>()

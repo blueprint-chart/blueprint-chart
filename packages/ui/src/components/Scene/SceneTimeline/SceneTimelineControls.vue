@@ -5,7 +5,7 @@
       type="button"
       aria-label="Previous scene"
       :disabled="disabled"
-      @click="$emit('update:activeIndex', prevIndex)"
+      @click="activeIndex = prevIndex"
     >
       <AppIcon
         :name="PhCaretLeft"
@@ -29,7 +29,7 @@
       type="button"
       aria-label="Next scene"
       :disabled="disabled"
-      @click="$emit('update:activeIndex', nextIndex)"
+      @click="activeIndex = nextIndex"
     >
       <AppIcon
         :name="PhCaretRight"
@@ -53,17 +53,16 @@ import PhCaretLeft from '~icons/ph/caret-left'
 import PhCaretRight from '~icons/ph/caret-right'
 import AppIcon from '../../App/AppIcon/AppIcon.vue'
 
+const activeIndex = defineModel<number>('activeIndex', { default: -1 })
+
 const props = withDefaults(defineProps<{
   total: number
-  activeIndex?: number
   playing?: boolean
 }>(), {
-  activeIndex: -1,
   playing: false,
 })
 
 defineEmits<{
-  'update:activeIndex': [index: number]
   'play': []
   'pause': []
 }>()
@@ -71,24 +70,24 @@ defineEmits<{
 const disabled = computed(() => props.total === 0)
 
 const displayIndex = computed(() => {
-  if (props.activeIndex < 0) {
+  if (activeIndex.value < 0) {
     return 1
   }
-  return props.activeIndex + 1
+  return activeIndex.value + 1
 })
 
 const prevIndex = computed(() => {
   if (props.total === 0) {
     return 0
   }
-  return props.activeIndex <= 0 ? props.total - 1 : props.activeIndex - 1
+  return activeIndex.value <= 0 ? props.total - 1 : activeIndex.value - 1
 })
 
 const nextIndex = computed(() => {
   if (props.total === 0) {
     return 0
   }
-  return props.activeIndex >= props.total - 1 ? 0 : props.activeIndex + 1
+  return activeIndex.value >= props.total - 1 ? 0 : activeIndex.value + 1
 })
 </script>
 
