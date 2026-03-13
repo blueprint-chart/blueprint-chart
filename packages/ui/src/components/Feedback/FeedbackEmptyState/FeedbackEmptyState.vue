@@ -17,6 +17,6 @@ defineProps<{
   text-align: center;
   padding: 2rem 1rem;
   color: var(--bs-secondary-color);
-  font-size: 0.8125rem;
+  font-size: var(--bs-font-size-sm);
 }
 </style>

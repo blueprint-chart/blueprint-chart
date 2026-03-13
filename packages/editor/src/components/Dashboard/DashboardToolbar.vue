@@ -62,14 +62,14 @@ const layoutItems = computed<NavigationPillItem[]>(() => [
   margin-bottom: 1.5rem;
 
   &__title {
-    font-size: 1.25rem;
+    font-size: var(--bs-font-size-lg);
     font-weight: 700;
     color: var(--bs-body-color);
     margin-bottom: 0;
   }
 
   &__count {
-    font-size: 0.75rem;
+    font-size: var(--bs-font-size-sm);
     color: var(--bs-secondary-color);
     margin-top: 0.125rem;
   }

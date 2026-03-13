@@ -95,7 +95,7 @@ defineEmits<{
       border: 1px solid var(--bc-scene-player-border, currentColor);
       background: none;
       color: var(--bc-scene-player-muted);
-      font-size: 0.8125rem;
+      font-size: var(--bs-font-size-sm);
       font-weight: 500;
       cursor: pointer;
       transition: border-color 0.15s, color 0.15s;
@@ -120,7 +120,7 @@ defineEmits<{
   }
 
   &__counter {
-    font-size: 0.8125rem;
+    font-size: var(--bs-font-size-sm);
     font-weight: 500;
     color: var(--bc-scene-player-muted, #9b9893);
     white-space: nowrap;

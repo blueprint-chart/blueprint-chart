@@ -218,7 +218,7 @@ function setAggFn(col: string, fn: string) {
         font-size: var(--bs-font-size-sm);
         color: var(--bs-body-color);
         cursor: pointer;
-        padding: 0.1875rem 0.5rem;
+        padding: 0.25rem 0.5rem;
         border: 1px solid var(--bs-border-color);
         border-radius: var(--bs-border-radius);
         background: var(--bs-body-bg);

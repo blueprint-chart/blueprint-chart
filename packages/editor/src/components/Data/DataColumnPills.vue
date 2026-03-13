@@ -59,7 +59,7 @@ function dotClass(ct: ColumnType | undefined): string {
 .data-column-pill {
   display: inline-flex;
   align-items: center;
-  gap: 0.3125rem;
+  gap: 0.25rem;
   padding: 0.25rem 0.625rem;
   border-radius: 0.25rem;
   border: 1px solid transparent;

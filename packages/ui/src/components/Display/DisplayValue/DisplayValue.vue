@@ -33,10 +33,10 @@ const classList = computed(() => ({
   display: inline-flex;
   align-items: baseline;
   gap: 0.25rem;
-  font-size: 0.875rem;
+  font-size: var(--bs-font-size-md);
 
   &--sm {
-    font-size: 0.75rem;
+    font-size: var(--bs-font-size-sm);
   }
 
   &__text {

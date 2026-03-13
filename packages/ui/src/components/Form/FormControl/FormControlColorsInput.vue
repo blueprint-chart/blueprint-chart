@@ -125,7 +125,7 @@ const pickerColor = computed({
 
     &__hex {
       font-family: var(--bs-font-monospace);
-      font-size: 0.75rem;
+      font-size: var(--bs-font-size-sm);
       color: var(--bs-body-color);
     }
 
@@ -134,7 +134,7 @@ const pickerColor = computed({
       border: none;
       padding: 0;
       line-height: 1;
-      font-size: 0.875rem;
+      font-size: var(--bs-font-size-md);
       color: var(--bs-secondary-color);
       cursor: pointer;
       opacity: 0.6;

@@ -232,7 +232,7 @@ const description = computed(() => {
     &__icon {
       width: 1.75rem;
       height: 1.75rem;
-      border-radius: 0.3125rem;
+      border-radius: 0.25rem;
       display: flex;
       align-items: center;
       justify-content: center;

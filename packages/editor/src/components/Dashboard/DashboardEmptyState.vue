@@ -30,7 +30,7 @@ import IPhCursorClick from '~icons/ph/cursor-click'
   }
 
   &__text {
-    font-size: 0.75rem;
+    font-size: var(--bs-font-size-sm);
     color: var(--bs-secondary-color);
     margin: 0;
   }

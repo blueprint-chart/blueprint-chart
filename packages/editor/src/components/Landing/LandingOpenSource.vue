@@ -82,7 +82,7 @@ const stats = [
   }
 
   &__detail {
-    font-size: 0.875rem;
+    font-size: var(--bs-font-size-md);
     color: var(--bs-secondary-color);
     line-height: 1.7;
     max-width: 30rem;
@@ -108,7 +108,7 @@ const stats = [
   gap: 0.375rem;
   padding: 0.375rem 0.875rem;
   border-radius: var(--bc-tile-radius);
-  font-size: 0.75rem;
+  font-size: var(--bs-font-size-sm);
   font-weight: 700;
 
   &--green {
@@ -139,7 +139,7 @@ const stats = [
   }
 
   &__label {
-    font-size: 0.75rem;
+    font-size: var(--bs-font-size-sm);
     color: var(--bs-secondary-color);
   }
 }

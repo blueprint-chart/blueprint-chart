@@ -185,7 +185,7 @@ const panelClassList = computed(() => ({
       border-radius: var(--bs-border-radius);
       background: var(--bs-info-bg-subtle);
       color: var(--bs-info-text-emphasis);
-      font-size: 0.8125rem;
+      font-size: var(--bs-font-size-sm);
       font-weight: 500;
     }
   }

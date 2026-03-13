@@ -53,7 +53,7 @@ const formattedDate = computed(() => {
 <style scoped lang="scss">
 .dashboard-detail-meta {
   &__title {
-    font-size: 0.625rem;
+    font-size: var(--bs-font-size-xs);
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.08em;

@@ -116,7 +116,7 @@ defineEmits<{
   }
 
   &__counter {
-    font-size: 0.6875rem;
+    font-size: var(--bs-font-size-xs);
     font-weight: 500;
     color: var(--bc-scene-player-muted, #9b9893);
     white-space: nowrap;

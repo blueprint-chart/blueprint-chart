@@ -23,7 +23,7 @@ defineProps<{
   display: flex;
   align-items: center;
   gap: 0.375rem;
-  font-size: 0.75rem;
+  font-size: var(--bs-font-size-sm);
   color: var(--bs-secondary-color);
 }
 </style>

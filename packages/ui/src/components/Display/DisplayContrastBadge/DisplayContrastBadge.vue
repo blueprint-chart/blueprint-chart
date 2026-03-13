@@ -52,7 +52,7 @@ const tooltipText = computed(() => {
   align-items: center;
   gap: 0.25em;
   padding: 0.15em 0.45em;
-  font-size: 0.6875rem;
+  font-size: var(--bs-font-size-xs);
   font-weight: 700;
   line-height: 1;
   text-transform: uppercase;

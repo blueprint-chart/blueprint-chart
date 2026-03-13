@@ -30,7 +30,7 @@ withDefaults(defineProps<{
 <style scoped lang="scss">
 .landing-section-header {
   &__label {
-    font-size: 0.6875rem;
+    font-size: var(--bs-font-size-xs);
     font-weight: 700;
     letter-spacing: 0.1em;
     text-transform: uppercase;
@@ -40,7 +40,7 @@ withDefaults(defineProps<{
 
   &__title {
     font-family: 'DM Serif Display', serif;
-    font-size: clamp(1.625rem, 3vw, 2.375rem);
+    font-size: clamp(1.5rem, 3vw, 2.5rem);
     font-weight: 400;
     line-height: 1.15;
     letter-spacing: -0.01em;

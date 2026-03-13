@@ -109,7 +109,7 @@ const nextIndex = computed(() => {
     border-radius: var(--bs-border-radius);
     background: transparent;
     cursor: pointer;
-    font-size: 0.875rem;
+    font-size: var(--bs-font-size-md);
     flex-shrink: 0;
     color: var(--bs-body-color);
 
@@ -124,7 +124,7 @@ const nextIndex = computed(() => {
   }
 
   &__counter {
-    font-size: 0.75rem;
+    font-size: var(--bs-font-size-sm);
     color: var(--bs-secondary-color);
     white-space: nowrap;
     margin-left: 0.25rem;

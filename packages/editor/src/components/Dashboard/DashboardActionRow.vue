@@ -46,7 +46,7 @@ const actionClassList = computed(() => ({
   display: flex;
   align-items: center;
   gap: 0.625rem;
-  padding: 0.5625rem 0.75rem;
+  padding: 0.5rem 0.75rem;
   border-radius: var(--bs-border-radius);
   border: 1px solid var(--bs-border-color);
   background: var(--bc-tile-bg);
@@ -79,15 +79,15 @@ const actionClassList = computed(() => ({
   }
 
   &__label {
-    font-size: 0.75rem;
+    font-size: var(--bs-font-size-sm);
     font-weight: 600;
     color: var(--bs-body-color);
   }
 
   &__description {
-    font-size: 0.6875rem;
+    font-size: var(--bs-font-size-xs);
     color: var(--bs-secondary-color);
-    margin-top: 0.0625rem;
+    margin-top: 1px;
   }
 }
 </style>

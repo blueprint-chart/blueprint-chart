@@ -35,7 +35,7 @@ defineEmits<{
     padding: 0.5rem;
     border: 1px dashed var(--bs-border-color);
     border-radius: var(--bs-border-radius);
-    font-size: 0.8125rem;
+    font-size: var(--bs-font-size-sm);
     transition: all 0.15s ease;
     text-align: center;
 
@@ -58,7 +58,7 @@ defineEmits<{
     padding: 0 0.6rem;
     height: 26px;
     border-radius: 50rem;
-    font-size: 0.75rem;
+    font-size: var(--bs-font-size-sm);
   }
 }
 </style>

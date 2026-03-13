@@ -332,12 +332,12 @@ const steps: Step[] = [
     }
 
     &__num {
-      width: 1.375rem;
-      height: 1.375rem;
+      width: 1.5rem;
+      height: 1.5rem;
       border-radius: 50%;
       background: var(--bs-border-color);
       color: var(--bs-secondary-color);
-      font-size: 0.6875rem;
+      font-size: var(--bs-font-size-xs);
       font-weight: 700;
       display: flex;
       align-items: center;
@@ -352,7 +352,7 @@ const steps: Step[] = [
     }
 
     &__label {
-      font-size: 0.75rem;
+      font-size: var(--bs-font-size-sm);
       font-weight: 600;
       color: var(--bs-secondary-color);
       white-space: nowrap;
@@ -376,7 +376,7 @@ const steps: Step[] = [
       margin: 1rem 0;
 
       &__title {
-        font-size: 0.6875rem;
+        font-size: var(--bs-font-size-xs);
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.07em;
@@ -387,21 +387,21 @@ const steps: Step[] = [
       &__table {
         width: 100%;
         border-collapse: collapse;
-        font-size: 0.75rem;
+        font-size: var(--bs-font-size-sm);
       }
 
       &__th {
-        padding: 0.3125rem 0.625rem;
+        padding: 0.25rem 0.625rem;
         text-align: left;
         font-weight: 600;
-        font-size: 0.6875rem;
+        font-size: var(--bs-font-size-xs);
         background: var(--bc-void-bg);
         color: var(--bs-secondary-color);
         border-bottom: 1px solid var(--bs-border-color);
       }
 
       &__td {
-        padding: 0.3125rem 0.625rem;
+        padding: 0.25rem 0.625rem;
         border-bottom: 1px solid var(--bs-border-color);
         color: var(--bs-secondary-color);
 
@@ -416,7 +416,7 @@ const steps: Step[] = [
       }
 
       &__note {
-        font-size: 0.6875rem;
+        font-size: var(--bs-font-size-xs);
         color: var(--bs-tertiary-color);
         line-height: 1.6;
         margin-top: 0.75rem;
@@ -485,12 +485,12 @@ const steps: Step[] = [
   &__icon {
     width: 1.75rem;
     height: 1.75rem;
-    border-radius: 0.3125rem;
+    border-radius: 0.25rem;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    margin-top: 0.0625rem;
+    margin-top: 1px;
 
     &--sort {
       background: var(--bs-warning-bg-subtle);
@@ -529,12 +529,12 @@ const steps: Step[] = [
   }
 
   &__title {
-    font-size: 0.8125rem;
+    font-size: var(--bs-font-size-sm);
     display: block;
   }
 
   &__desc {
-    font-size: 0.6875rem;
+    font-size: var(--bs-font-size-xs);
     color: var(--bs-secondary-color);
     margin-top: 0.125rem;
     line-height: 1.5;

@@ -10,7 +10,7 @@
 <style scoped lang="scss">
 .settings-section-title {
   margin: 0;
-  font-size: 1.25rem;
+  font-size: var(--bs-font-size-lg);
   font-weight: 600;
   line-height: 1.3;
 }

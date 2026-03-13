@@ -109,7 +109,7 @@ const highlightedBpc = computed(() => highlightDsl(bpcCode))
     padding: 0.625rem 1rem;
     background: rgba(255, 255, 255, 0.05);
     border-bottom: 1px solid rgba(255, 255, 255, 0.07);
-    font-size: 0.6875rem;
+    font-size: var(--bs-font-size-xs);
     font-weight: 600;
     color: rgba(255, 255, 255, 0.4);
     letter-spacing: 0.06em;
@@ -122,7 +122,7 @@ const highlightedBpc = computed(() => highlightDsl(bpcCode))
   &__code {
     padding: 1.25rem 1rem;
     font-family: 'JetBrains Mono', monospace;
-    font-size: 0.75rem;
+    font-size: var(--bs-font-size-sm);
     line-height: 1.8;
     color: #e2e8f0;
     overflow: auto;
@@ -163,14 +163,14 @@ const highlightedBpc = computed(() => highlightDsl(bpcCode))
     margin-bottom: 0.5rem;
 
     &__title {
-      font-size: 0.75rem;
+      font-size: var(--bs-font-size-sm);
       color: #7aa7d4;
       font-weight: 700;
     }
   }
 
   &__text {
-    font-size: 0.75rem;
+    font-size: var(--bs-font-size-sm);
     color: #9ca3af;
     line-height: 1.7;
     margin: 0;

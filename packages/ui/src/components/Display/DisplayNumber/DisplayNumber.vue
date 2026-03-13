@@ -31,7 +31,7 @@ const formatted = computed(() => {
   align-items: baseline;
   gap: 0.25rem;
   font-family: var(--bs-font-monospace);
-  font-size: 0.875rem;
+  font-size: var(--bs-font-size-md);
   color: var(--bs-body-color);
 
   &__unit {
