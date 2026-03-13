@@ -83,6 +83,22 @@ describe('GalleryCard', () => {
     expect(wrapper.find('.gallery-card__thumb__actions').exists()).toBe(false)
   })
 
+  it('renders subtitle below title in row layout', () => {
+    const wrapper = mount(GalleryCard, {
+      props: { title: 'My Chart', subtitle: 'Description text', layout: 'row' },
+    })
+    const meta = wrapper.find('.gallery-card__meta')
+    const title = meta.find('.gallery-card__meta__title')
+    const subtitle = meta.find('.gallery-card__meta__subtitle')
+    expect(title.exists()).toBe(true)
+    expect(subtitle.exists()).toBe(true)
+    // In row mode, subtitle should come after title in DOM (stacked, not side-by-side)
+    const children = meta.element.children
+    const titleIdx = Array.from(children).indexOf(title.element)
+    const subtitleIdx = Array.from(children).indexOf(subtitle.element)
+    expect(subtitleIdx).toBeGreaterThan(titleIdx)
+  })
+
   it('actions click does not bubble to card click', async () => {
     const wrapper = mount(GalleryCard, {
       props: { title: 'My Chart' },
