@@ -1,7 +1,7 @@
 <template>
   <nav :class="navbarClass">
     <router-link
-      to="/"
+      to="/charts"
       class="navbar-brand text-decoration-none mb-0 d-flex align-items-center gap-2"
     >
       <img
