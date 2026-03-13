@@ -4,7 +4,7 @@ import type { AnnotationConfig } from '@blueprint-chart/lib'
 
 const LINE_PAD = 4
 
-function computeElbowPath(
+export function computeElbowPath(
   from: { x: number, y: number },
   to: { x: number, y: number },
   departVertical: boolean,
@@ -30,7 +30,7 @@ function computeElbowPath(
   return `M ${from.x} ${from.y} L ${midX} ${midY} L ${to.x} ${to.y}`
 }
 
-function buildPathD(
+export function buildPathD(
   from: { x: number, y: number },
   to: { x: number, y: number },
   style: string,
@@ -53,7 +53,7 @@ function buildPathD(
   }
 }
 
-function shortenToward(
+export function shortenToward(
   anchor: { x: number, y: number },
   from: { x: number, y: number },
   distance: number,
@@ -70,7 +70,7 @@ function shortenToward(
   }
 }
 
-function bboxEdgeToward(
+export function bboxEdgeToward(
   bbox: { x: number, y: number, width: number, height: number },
   targetX: number,
   targetY: number,
