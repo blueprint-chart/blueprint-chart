@@ -511,6 +511,68 @@ describe('line chart', () => {
     })
   })
 
+  // ── Edge padding ──────────────────────────────────────────────────
+
+  describe('edge padding', () => {
+    it('has edge padding by default (first point not at x=0)', () => {
+      render(container, data)
+      const dot = container.querySelector('.bc-dot')
+      const cx = parseFloat(dot?.getAttribute('cx') ?? '0')
+      // With default padding (0.6), first dot is offset from the left edge
+      expect(cx).toBeGreaterThan(0)
+    })
+
+    it('removes edge padding when edgePadding=false', () => {
+      render(container, data, { edgePadding: false })
+      const dot = container.querySelector('.bc-dot')
+      const cx = parseFloat(dot?.getAttribute('cx') ?? '-1')
+      // With no padding, first dot is at x=0
+      expect(cx).toBe(0)
+    })
+
+    it('last point is at the right edge when edgePadding=false', () => {
+      render(container, data, { edgePadding: false })
+      const dots = container.querySelectorAll('.bc-dot')
+      const lastCx = parseFloat(dots[dots.length - 1]?.getAttribute('cx') ?? '0')
+      // The last dot should be at the right edge of the chart area
+      expect(lastCx).toBeGreaterThan(0)
+    })
+  })
+
+  // ── Horizontal axis range ─────────────────────────────────────────
+
+  describe('horizontal axis range', () => {
+    const yearData = {
+      labels: ['2000', '2005', '2010', '2015', '2020'],
+      values: [10, 20, 30, 25, 15],
+    }
+
+    it('filters labels when horizontalAxis range min is set', () => {
+      render(container, yearData, { horizontalAxis: { range: { min: new Date('2010').getTime() } } })
+      const ticks = container.querySelectorAll('.bc-axis-horizontal .tick')
+      const tickLabels = Array.from(ticks).map(t => t.textContent?.trim())
+      expect(tickLabels).not.toContain('2000')
+      expect(tickLabels).not.toContain('2005')
+      expect(tickLabels).toContain('2010')
+    })
+
+    it('filters labels when horizontalAxis range max is set', () => {
+      render(container, yearData, { horizontalAxis: { range: { max: new Date('2010').getTime() } } })
+      const ticks = container.querySelectorAll('.bc-axis-horizontal .tick')
+      const tickLabels = Array.from(ticks).map(t => t.textContent?.trim())
+      expect(tickLabels).toContain('2000')
+      expect(tickLabels).toContain('2010')
+      expect(tickLabels).not.toContain('2015')
+      expect(tickLabels).not.toContain('2020')
+    })
+
+    it('renders fewer dots when range filters labels', () => {
+      render(container, yearData, { horizontalAxis: { range: { min: new Date('2010').getTime(), max: new Date('2020').getTime() } } })
+      const dots = container.querySelectorAll('.bc-dot')
+      expect(dots).toHaveLength(3) // 2010, 2015, 2020
+    })
+  })
+
   // ── Edge cases ───────────────────────────────────────────────────
 
   describe('edge cases', () => {

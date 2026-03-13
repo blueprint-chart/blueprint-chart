@@ -191,4 +191,14 @@ describe('buildChartOptions', () => {
     const result = buildChartOptions({ allowDarkMode: false })
     expect(result.allowDarkMode).toBe(false)
   })
+
+  it('maps edgePadding=false', () => {
+    const result = buildChartOptions({ edgePadding: false })
+    expect(result.edgePadding).toBe(false)
+  })
+
+  it('does not set edgePadding when not specified', () => {
+    const result = buildChartOptions({})
+    expect(result.edgePadding).toBeUndefined()
+  })
 })
