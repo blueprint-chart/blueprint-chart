@@ -158,14 +158,11 @@ import IFluentCurveRight from '~icons/fluent/arrow-hook-up-right-20-filled'
 import IFluentElbow from '~icons/fluent/arrow-turn-right-down-20-filled'
 
 const props = defineProps<{
-  annotation: PointAnnotationConfig
   labels: string[]
   chartWidth?: number
 }>()
 
-const emit = defineEmits<{
-  'update:annotation': [value: PointAnnotationConfig]
-}>()
+const annotation = defineModel<PointAnnotationConfig>('annotation', { required: true })
 
 const targetOptions = computed(() => props.labels.map(l => ({ value: l, text: l })))
 
@@ -187,14 +184,14 @@ function formatMaxWidth(v: number | string | undefined): string {
 }
 
 function update(key: string, value: unknown) {
-  const copy = { ...props.annotation }
+  const copy = { ...annotation.value }
   if (value === undefined) {
     delete (copy as Record<string, unknown>)[key]
   }
   else {
     (copy as Record<string, unknown>)[key] = value
   }
-  emit('update:annotation', copy as PointAnnotationConfig)
+  annotation.value = copy as PointAnnotationConfig
 }
 
 const textRef = ref<ComponentPublicInstance | null>(null)
