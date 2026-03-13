@@ -124,10 +124,12 @@ export function render(
   const overrides = options.seriesOverrides
 
   // Determine global label mode early so margin calculations account for direct labels
-  const globalLabelMode = options.directLabelling ? 'direct' : (options.legend !== false ? 'legend' : 'none')
+  // 'auto' defers to legend when legend is explicitly true; explicit true/truthy forces direct
+  const wantsDirect = options.directLabelling === true || (options.directLabelling === 'auto' && options.legend !== true) || (!!options.directLabelling && options.directLabelling !== 'auto')
+  const globalLabelMode = wantsDirect ? 'direct' : (options.legend !== false ? 'legend' : 'none')
 
   // Compute margin adjustments for legend
-  const showLegend = options.legend !== false && !options.directLabelling
+  const showLegend = options.legend !== false && !wantsDirect
   const containerWidth = contentSize(body).width
   const NARROW_THRESHOLD = 350
   const requestedLegendPos = options.legendPosition ?? 'top'

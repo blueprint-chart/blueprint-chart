@@ -133,7 +133,8 @@ export function renderArc(
   const dlMode = typeof options.directLabelling === 'string'
     ? options.directLabelling
     : (options.directLabelling ? 'auto' : '')
-  const useDirectLabels = !!dlMode
+  // 'auto' defers to legend when legend is explicitly true
+  const useDirectLabels = !!dlMode && !(dlMode === 'auto' && options.legend === true)
 
   // Build legend value suffixes when showValues is on and labels are shown as legend
   const showValuesInLegend = (options.showValues ?? true) && !useDirectLabels
