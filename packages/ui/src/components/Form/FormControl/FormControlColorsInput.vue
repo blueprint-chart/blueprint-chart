@@ -38,17 +38,16 @@
       />
     </div>
     <FormControlColorInputPopover
+      v-model="pickerColor"
       v-model:open="pickerOpen"
-      :model-value="editingColor"
       :target="editingTarget"
       manual
-      @update:model-value="onPickerChange"
     />
   </BFormGroup>
 </template>
 
 <script setup lang="ts">
-import { ref, shallowRef, useTemplateRef } from 'vue'
+import { computed, ref, shallowRef, useTemplateRef } from 'vue'
 import ButtonAdd from '../../Button/ButtonAdd/ButtonAdd.vue'
 import DisplayColorSwatch from '../../Display/DisplayColorSwatch/DisplayColorSwatch.vue'
 import FormControlColorInputPopover from './FormControlColorInputPopover.vue'
@@ -86,18 +85,21 @@ function removeColor(idx: number) {
   model.value = updated
 }
 
-function onPickerChange(color: string) {
-  editingColor.value = color
-  if (editingIndex.value >= 0 && editingIndex.value < model.value.length) {
-    const updated = [...model.value]
-    updated[editingIndex.value] = color
-    model.value = updated
-  }
-  else {
-    model.value = [...model.value, color]
-    pickerOpen.value = false
-  }
-}
+const pickerColor = computed({
+  get: () => editingColor.value,
+  set: (color: string) => {
+    editingColor.value = color
+    if (editingIndex.value >= 0 && editingIndex.value < model.value.length) {
+      const updated = [...model.value]
+      updated[editingIndex.value] = color
+      model.value = updated
+    }
+    else {
+      model.value = [...model.value, color]
+      pickerOpen.value = false
+    }
+  },
+})
 </script>
 
 <style scoped lang="scss">
