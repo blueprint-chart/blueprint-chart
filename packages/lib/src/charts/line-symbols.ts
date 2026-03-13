@@ -1,5 +1,7 @@
 import * as d3 from 'd3'
+import 'd3-transition'
 import type { LineSymbolConfig } from './types'
+import { getDefaultTransitionMs } from './motion'
 
 // d3.symbolTriangle2 is triangle-down in d3 v7+; fall back to a rotated triangle
 const symbolTriangleDown: d3.SymbolType = d3.symbolTriangle2 ?? d3.symbolTriangle
@@ -33,6 +35,7 @@ export function renderLineSymbols(
   points: { cx: number, cy: number, color: string, index: number }[],
   total: number,
   config: LineSymbolConfig,
+  transition = false,
 ): void {
   const symbol = config.symbol ?? 'circle'
   const showOn = config.showOn ?? 'firstLast'
@@ -45,11 +48,29 @@ export function renderLineSymbols(
 
   const visible = points.filter(p => shouldShowSymbol(p.index, total, showOn))
 
+  const duration = transition ? getDefaultTransitionMs() : 0
+
   if (symbol === 'circle') {
-    parent.selectAll('.bc-symbol')
+    const joined = parent.selectAll<SVGCircleElement, typeof visible[number]>('.bc-symbol')
       .data(visible)
-      .join('circle')
-      .attr('class', 'bc-symbol')
+      .join(
+        enter => enter.append('circle')
+          .attr('class', 'bc-symbol')
+          .attr('cx', d => d.cx)
+          .attr('cy', d => d.cy)
+          .attr('r', size)
+          .attr('fill', d => style === 'filled' ? d.color : hollowFill)
+          .attr('stroke', d => d.color)
+          .attr('stroke-width', style === 'hollow' ? 1.5 : 0)
+          .attr('opacity', opacity),
+        update => update,
+        exit => exit.remove(),
+      )
+
+    const target = transition
+      ? joined.transition().duration(duration)
+      : joined
+    target
       .attr('cx', d => d.cx)
       .attr('cy', d => d.cy)
       .attr('r', size)
@@ -63,10 +84,25 @@ export function renderLineSymbols(
     const area = Math.PI * size * size
     const pathGen = d3.symbol().type(symbolType).size(area)
 
-    parent.selectAll('.bc-symbol')
+    const joined = parent.selectAll<SVGPathElement, typeof visible[number]>('.bc-symbol')
       .data(visible)
-      .join('path')
-      .attr('class', 'bc-symbol')
+      .join(
+        enter => enter.append('path')
+          .attr('class', 'bc-symbol')
+          .attr('transform', d => `translate(${d.cx},${d.cy})`)
+          .attr('d', pathGen as unknown as string)
+          .attr('fill', d => style === 'filled' ? d.color : hollowFill)
+          .attr('stroke', d => d.color)
+          .attr('stroke-width', style === 'hollow' ? 1.5 : 0)
+          .attr('opacity', opacity),
+        update => update,
+        exit => exit.remove(),
+      )
+
+    const target = transition
+      ? joined.transition().duration(duration)
+      : joined
+    target
       .attr('transform', d => `translate(${d.cx},${d.cy})`)
       .attr('d', pathGen as unknown as string)
       .attr('fill', d => style === 'filled' ? d.color : hollowFill)

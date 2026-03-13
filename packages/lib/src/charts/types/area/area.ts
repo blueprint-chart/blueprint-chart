@@ -178,6 +178,7 @@ export function render(
   let priorAreas: Element[] = []
   let priorLines: Element[] = []
   let priorDots: Element[] = []
+  let priorSymbolsGroup: Element | null = null
   let priorVAxis: Element | null = null
   let priorHAxis: Element | null = null
   let fadeOverlay: HTMLElement | null = null
@@ -192,6 +193,7 @@ export function render(
       priorAreas = Array.from(container.querySelectorAll('.bc-area'))
       priorLines = Array.from(container.querySelectorAll('.bc-line'))
       priorDots = Array.from(container.querySelectorAll('.bc-dot'))
+      priorSymbolsGroup = container.querySelector('.bc-symbols')
     }
     else if (cached) {
       fadeOverlay = snapshotForFadeOut(container)
@@ -313,8 +315,15 @@ export function render(
       color,
       index: i,
     }))
-    const symbolsGroup = d3.select(chartArea).append('g').attr('class', 'bc-symbols')
-    renderLineSymbols(symbolsGroup as unknown as d3.Selection<SVGGElement, unknown, null, undefined>, symbolPoints, areaData.length, symbolConfig)
+    let symbolsGroup: d3.Selection<SVGGElement, unknown, null, undefined>
+    if (priorSymbolsGroup) {
+      chartArea.appendChild(priorSymbolsGroup)
+      symbolsGroup = d3.select(priorSymbolsGroup) as unknown as d3.Selection<SVGGElement, unknown, null, undefined>
+    }
+    else {
+      symbolsGroup = d3.select(chartArea).append('g').attr('class', 'bc-symbols') as unknown as d3.Selection<SVGGElement, unknown, null, undefined>
+    }
+    renderLineSymbols(symbolsGroup, symbolPoints, areaData.length, symbolConfig, transition)
   }
 
   setCachedChart(container, { chartType: 'area' })
