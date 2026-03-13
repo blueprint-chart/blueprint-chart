@@ -14,7 +14,10 @@
       </div>
       <div class="panel-floating__header__actions">
         <ButtonDock @click="$emit('dock')" />
-        <ButtonClose @click="$emit('close')" />
+        <ButtonClose
+          v-if="showClose"
+          @click="$emit('close')"
+        />
       </div>
     </div>
     <slot name="tabs" />
@@ -41,11 +44,14 @@ import { computed, onMounted, ref, toRef } from 'vue'
 import { ButtonDock, ButtonDrag, ButtonClose } from '@blueprint-chart/ui'
 import { usePanelDrag, type DragPosition } from '@/composables/usePanelDrag'
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   containerRef: HTMLElement | null
   title: string
   position: DragPosition
-}>()
+  showClose?: boolean
+}>(), {
+  showClose: true,
+})
 
 defineEmits<{
   dock: []

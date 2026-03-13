@@ -107,4 +107,19 @@ describe('PanelDocked', () => {
     const w = mount(PanelDocked, { props: { collapsed: false, title: 'Test' } })
     expect(w.find('.panel-footer').exists()).toBe(false)
   })
+
+  it('hides close button when showClose is false', () => {
+    const w = mount(PanelDocked, { props: { collapsed: false, title: 'Test', showClose: false } })
+    expect(w.find('.btn-close-stub').exists()).toBe(false)
+  })
+
+  it('shows close button by default', () => {
+    const w = mount(PanelDocked, { props: { collapsed: false, title: 'Test' } })
+    expect(w.find('.btn-close-stub').exists()).toBe(true)
+  })
+
+  it('shows close button when showClose is true', () => {
+    const w = mount(PanelDocked, { props: { collapsed: false, title: 'Test', showClose: true } })
+    expect(w.find('.btn-close-stub').exists()).toBe(true)
+  })
 })

@@ -29,6 +29,7 @@
         :container-ref="galleryRef"
         :title="selectedChart ? (selectedChart.title || 'Untitled') : 'Chart details'"
         :position="floatingPosition"
+        :show-close="false"
         @dock="dock"
         @close="collapse"
       >
@@ -50,7 +51,10 @@
     </div>
 
     <template v-if="isNarrow">
-      <LayoutBottomDrawer v-model="drawerOpen">
+      <LayoutBottomDrawer
+        v-model="drawerOpen"
+        :title="selectedChart ? (selectedChart.title || 'Untitled') : undefined"
+      >
         <DashboardDetailContent
           v-if="selectedChart"
           :title="selectedChart.title || 'Untitled'"
@@ -70,7 +74,8 @@
     <template v-else>
       <PanelDocked
         v-model="dockedPanelWidth"
-        :collapsed="false"
+        :collapsed="panelMode !== 'docked'"
+        :show-close="!!selectedChart"
         :title="selectedChart ? (selectedChart.title || 'Untitled') : 'Chart details'"
         @float="float"
         @close="collapse"
