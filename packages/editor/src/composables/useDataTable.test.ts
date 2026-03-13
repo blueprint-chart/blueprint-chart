@@ -153,6 +153,14 @@ describe('serializeTableData', () => {
     expect(result).toContain('"Feb" = 3,4')
   })
 
+  it('quotes non-numeric values like ISO dates', () => {
+    const result = serializeTableData(
+      ['Label', 'Date'],
+      [['USA', '2022-09-25'], ['China', '2022-10-01']],
+    )
+    expect(result).toBe('"USA" = "2022-09-25"\n"China" = "2022-10-01"')
+  })
+
   it('produces same output as useDataTable.serialize', () => {
     const { loadParsed, serialize } = useDataTable()
     loadParsed({

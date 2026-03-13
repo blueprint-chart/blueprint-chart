@@ -143,6 +143,18 @@ describe('dataEntriesToString', () => {
     const result = dataEntriesToString(data)
     expect(result).toBe('"Label" = "10,20,30"')
   })
+
+  it('quotes ISO date string values', () => {
+    const data: DataNode = {
+      type: 'data',
+      entries: [
+        prop('USA', '2022-09-25'),
+        prop('China', '2022-10-01'),
+      ],
+    }
+    const result = dataEntriesToString(data)
+    expect(result).toBe('"USA" = "2022-09-25"\n"China" = "2022-10-01"')
+  })
 })
 
 describe('convertHighlights', () => {
