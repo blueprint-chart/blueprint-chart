@@ -1,11 +1,11 @@
-import { defineComponent, h } from 'vue'
+import { defineComponent, h, markRaw } from 'vue'
 import { mount } from '@vue/test-utils'
 import SettingsSection from './SettingsSection.vue'
 import SettingsSectionIcon from './SettingsSectionIcon.vue'
 import SettingsSectionTitle from './SettingsSectionTitle.vue'
 import SettingsSectionDescription from './SettingsSectionDescription.vue'
 
-const StubIcon = defineComponent({ render: () => h('svg') })
+const StubIcon = markRaw(defineComponent({ render: () => h('svg') }))
 
 describe('SettingsSection', () => {
   it('renders title text', () => {

@@ -1,4 +1,4 @@
-import { watch, onUnmounted } from 'vue'
+import { watch, onScopeDispose } from 'vue'
 import type { Ref } from 'vue'
 import type { AnnotationConfig } from '@blueprint-chart/lib'
 
@@ -474,5 +474,5 @@ export function useAnnotationDrag(
     }
   }, { deep: true })
 
-  onUnmounted(removeOverlay)
+  onScopeDispose(removeOverlay)
 }

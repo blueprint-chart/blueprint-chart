@@ -69,6 +69,12 @@ vi.mock('@blueprint-chart/lib', () => ({
   samples: [],
 }))
 
+vi.mock('@/composables/useChartSession', () => ({
+  useChartSession: () => ({
+    loadSample: vi.fn(),
+  }),
+}))
+
 function mountPanel() {
   dataViewRef.value = 'upload'
   rawInputRef.value = ''

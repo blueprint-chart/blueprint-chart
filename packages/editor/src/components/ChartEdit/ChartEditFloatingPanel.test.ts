@@ -62,6 +62,25 @@ vi.mock('@/composables/useChartTypeOptions', () => ({
   }),
 }))
 
+vi.mock('@/composables/useWizard', () => ({
+  useWizard: () => ({
+    steps: [
+      { label: 'Data', key: 'data' },
+      { label: 'Visualize', key: 'edit' },
+      { label: 'Export', key: 'export' },
+    ],
+    currentIndex: { value: 1 },
+    currentStep: { value: { label: 'Visualize', key: 'edit' } },
+    isFirst: { value: false },
+    isLast: { value: false },
+    next: vi.fn(),
+    back: vi.fn(),
+    goTo: vi.fn(),
+    reset: vi.fn(),
+    registerCreateSession: vi.fn(),
+  }),
+}))
+
 vi.mock('@/components/Editor/EditorChartTypePicker.vue', () => ({
   default: { template: '<div class="type-picker" />' },
 }))

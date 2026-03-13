@@ -1,9 +1,16 @@
 import { describe, it, expect, vi } from 'vitest'
+import { ref } from 'vue'
 import { mount } from '@vue/test-utils'
 import LandingChartPreview from './LandingChartPreview.vue'
 
 vi.mock('@/composables/useTheme', () => ({
-  useTheme: () => ({ theme: { value: 'light' }, cycleTheme: vi.fn() }),
+  useTheme: () => ({ theme: ref('light'), cycleTheme: vi.fn() }),
+}))
+
+vi.mock('@/composables/useChartFromDsl', () => ({
+  useChartFromDsl: vi.fn(() => ({ applyDsl: vi.fn() })),
+  renderDsl: vi.fn(),
+  parseDslSceneCount: vi.fn(() => 0),
 }))
 
 describe('LandingChartPreview', () => {

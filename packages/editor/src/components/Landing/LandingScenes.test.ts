@@ -1,6 +1,16 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
+import { ref } from 'vue'
 import { mount } from '@vue/test-utils'
 import LandingScenes from './LandingScenes.vue'
+
+vi.mock('@/composables/useTheme', () => ({
+  useTheme: () => ({ theme: ref('light'), cycleTheme: vi.fn() }),
+}))
+
+vi.mock('@/composables/useChartFromDsl', () => ({
+  renderDsl: vi.fn(),
+  parseDslSceneCount: vi.fn(() => 2),
+}))
 
 function mountScenes() {
   return mount(LandingScenes, {
