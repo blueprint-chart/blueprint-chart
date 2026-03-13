@@ -93,6 +93,35 @@ Entry/root and route-view components must stay thin — app shell, layout, provi
 - Use provide/inject only for deep-tree dependencies (3+ layers); keep mutations in the provider and expose explicit actions.
 - Type component boundaries with `defineProps<T>`, `defineEmits<T>`, and `InjectionKey`.
 
+### `defineModel` for v-model bindings
+
+Always use the `defineModel()` macro instead of manually declaring a prop + emit pair for `v-model` bindings. This applies to the default model and all named models.
+
+```vue
+<!-- BAD — manual prop + emit -->
+<script setup lang="ts">
+const props = defineProps<{ modelValue: string, sort: string }>()
+const emit = defineEmits<{ 'update:modelValue': [value: string], 'update:sort': [value: string] }>()
+</script>
+<template>
+  <Child :model-value="props.modelValue" @update:model-value="emit('update:modelValue', $event)" />
+</template>
+
+<!-- GOOD — defineModel -->
+<script setup lang="ts">
+const modelValue = defineModel<string>({ required: true })
+const sort = defineModel<string>('sort', { required: true })
+</script>
+<template>
+  <Child v-model="modelValue" />
+</template>
+```
+
+Key rules:
+- Use `defineModel<T>()` for the default model, `defineModel<T>('name')` for named models.
+- The returned ref is two-way: reading gives the current value, writing emits the update event automatically.
+- Parent components should use `v-model` / `v-model:name` instead of `:prop` + `@update:prop`.
+
 ### Reactivity
 
 - Use `shallowRef()` instead of `ref()` for primitive values (string, number, boolean).
