@@ -76,6 +76,8 @@ const cardClassList = computed(() => ({
   box-shadow: var(--bc-tile-shadow);
   overflow: hidden;
   cursor: pointer;
+  display: flex;
+  flex-direction: column;
   transition: background 0.15s ease, box-shadow 0.2s ease, transform 0.2s ease, border-color 0.15s ease;
   outline: none;
 
@@ -131,6 +133,9 @@ const cardClassList = computed(() => ({
 
   &__meta {
     padding: 0.8125rem 0.9375rem 0.9375rem;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
 
     &__title {
       font-size: 0.8125rem;
@@ -157,6 +162,7 @@ const cardClassList = computed(() => ({
       display: flex;
       align-items: center;
       justify-content: space-between;
+      margin-top: auto;
     }
   }
 
