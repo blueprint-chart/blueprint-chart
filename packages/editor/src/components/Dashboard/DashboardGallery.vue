@@ -1,5 +1,10 @@
 <template>
   <GalleryGrid :layout="layout">
+    <DashboardNewCard
+      :layout="layout"
+      @click="$emit('new')"
+    />
+
     <DashboardChartCard
       v-for="chart in charts"
       :key="chart.id"
@@ -9,11 +14,6 @@
       :layout="layout"
       @select="$emit('select', $event)"
       @edit="$emit('edit', $event)"
-    />
-
-    <DashboardNewCard
-      :layout="layout"
-      @click="$emit('new')"
     />
 
     <FeedbackEmptyState
