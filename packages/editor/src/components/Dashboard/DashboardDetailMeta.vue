@@ -6,7 +6,7 @@
     <div class="dashboard-detail-meta__grid">
       <DashboardMetaChip
         label="Chart type"
-        :value="chartType"
+        :value="chartTypeLabel"
       />
       <DashboardMetaChip
         label="Last edited"
@@ -26,6 +26,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { getChartTypeLabel } from '@blueprint-chart/ui'
 import DashboardMetaChip from './DashboardMetaChip.vue'
 
 const props = defineProps<{
@@ -34,6 +35,8 @@ const props = defineProps<{
   sceneCount: number
   rowCount: number
 }>()
+
+const chartTypeLabel = computed(() => getChartTypeLabel(props.chartType))
 
 const formattedDate = computed(() => {
   if (!props.savedAt) {

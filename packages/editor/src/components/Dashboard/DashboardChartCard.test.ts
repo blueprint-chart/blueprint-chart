@@ -15,6 +15,10 @@ vi.mock('@blueprint-chart/ui', () => ({
     template: '<span class="display-date">{{ value }}</span>',
     props: ['value'],
   },
+  DisplayChartTypeBadge: {
+    template: '<span class="display-chart-type-badge">{{ chartType }}</span>',
+    props: ['chartType'],
+  },
   ButtonIcon: {
     template: '<button class="btn-icon" @click="$emit(\'click\')"></button>',
     props: ['iconLeft', 'label', 'hideLabel', 'square', 'variant', 'size'],
