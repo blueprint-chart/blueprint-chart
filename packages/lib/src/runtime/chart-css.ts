@@ -155,7 +155,6 @@ export const CHART_CSS = `
 .bc-crosshair {
   stroke: #999;
   stroke-width: 1;
-  stroke-dasharray: 4,3;
   pointer-events: none;
 }
 

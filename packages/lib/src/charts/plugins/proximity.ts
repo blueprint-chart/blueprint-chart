@@ -80,7 +80,7 @@ export function setupProximityInteraction(
     return () => {}
   }
 
-  const dashArray = crosshairStyle === 'solid' ? '' : crosshairStyle === 'dotted' ? '2,2' : '4,3'
+  const dashArray = crosshairStyle === 'solid' ? 'none' : crosshairStyle === 'dotted' ? '2,2' : '4,3'
 
   // Pre-compute sorted unique x-positions for bisection
   const xPositions = [...new Set(points.map(p => p.cx))].sort((a, b) => a - b)
@@ -114,7 +114,7 @@ export function setupProximityInteraction(
       .attr('y1', 0).attr('y2', height)
       .attr('stroke', crosshairColor)
       .attr('stroke-width', 1)
-      .attr('stroke-dasharray', dashArray)
+      .style('stroke-dasharray', dashArray)
       .attr('pointer-events', 'none')
       .style('display', 'none')
   }
@@ -124,7 +124,7 @@ export function setupProximityInteraction(
       .attr('x1', 0).attr('x2', width)
       .attr('stroke', crosshairColor)
       .attr('stroke-width', 1)
-      .attr('stroke-dasharray', dashArray)
+      .style('stroke-dasharray', dashArray)
       .attr('pointer-events', 'none')
       .style('display', 'none')
   }

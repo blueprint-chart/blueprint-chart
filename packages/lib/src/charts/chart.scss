@@ -350,11 +350,11 @@
 .bc-crosshair {
   --bc-crosshair-color: #999;
   --bc-crosshair-width: 1;
-  --bc-crosshair-dash: 4,3;
 
   stroke: var(--bc-crosshair-color);
   stroke-width: var(--bc-crosshair-width);
-  stroke-dasharray: var(--bc-crosshair-dash);
+  // stroke-dasharray is set via inline style by the crosshair/proximity plugins
+  // so that crosshairStyle ("solid", "dashed", "dotted") takes effect.
   pointer-events: none;
 }
 

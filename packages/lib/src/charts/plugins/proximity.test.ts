@@ -52,6 +52,31 @@ describe('setupProximityInteraction', () => {
     expect(g.querySelector('.bc-crosshair-v')).toBeNull()
   })
 
+  it('sets stroke-dasharray via style for solid crosshairStyle', () => {
+    setupProximityInteraction(g, { width: 400, height: 300, points, crosshair: true, crosshairStyle: 'solid' })
+
+    const vLine = g.querySelector('.bc-crosshair-v') as SVGLineElement
+    expect(vLine).not.toBeNull()
+    // style.strokeDasharray must override any CSS class default
+    expect(vLine.style.strokeDasharray).toBe('none')
+  })
+
+  it('sets stroke-dasharray via style for dotted crosshairStyle', () => {
+    setupProximityInteraction(g, { width: 400, height: 300, points, crosshair: true, crosshairStyle: 'dotted' })
+
+    const vLine = g.querySelector('.bc-crosshair-v') as SVGLineElement
+    expect(vLine).not.toBeNull()
+    expect(vLine.style.strokeDasharray).toBe('2,2')
+  })
+
+  it('sets stroke-dasharray via style for dashed crosshairStyle', () => {
+    setupProximityInteraction(g, { width: 400, height: 300, points, crosshair: true, crosshairStyle: 'dashed' })
+
+    const vLine = g.querySelector('.bc-crosshair-v') as SVGLineElement
+    expect(vLine).not.toBeNull()
+    expect(vLine.style.strokeDasharray).toBe('4,3')
+  })
+
   it('does nothing with empty points', () => {
     const cleanup = setupProximityInteraction(g, { width: 400, height: 300, points: [] })
     expect(g.querySelector('.bc-proximity-overlay')).toBeNull()
