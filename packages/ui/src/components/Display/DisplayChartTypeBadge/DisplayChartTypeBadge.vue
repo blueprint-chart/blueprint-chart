@@ -54,8 +54,6 @@ const icon = computed(() => ICON_MAP[props.chartType] ?? IPhChartBar)
   display: inline-flex;
   align-items: center;
   gap: 0.25em;
-  font-size: 0.6875rem;
-  font-weight: 600;
   white-space: nowrap;
 
   &__icon {
