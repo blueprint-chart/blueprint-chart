@@ -13,16 +13,13 @@ import { useChildEntriesProvider } from '../../../composables/useChildEntries'
 import { ToggleEntriesKey } from '../../../composables/injection-keys'
 import NavigationPillBase from '../NavigationPillBase/NavigationPillBase.vue'
 
+const model = defineModel<string>({ required: true })
+
 const props = withDefaults(defineProps<{
-  modelValue: string
   options?: { value: string, text: string, icon?: Component, disabled?: boolean }[]
 }>(), {
   options: () => [],
 })
-
-const emit = defineEmits<{
-  'update:modelValue': [value: string]
-}>()
 
 const { entries } = useChildEntriesProvider(ToggleEntriesKey)
 const resolvedOptions = computed(() =>
@@ -34,12 +31,12 @@ const pillItems = computed(() =>
     key: opt.value,
     text: opt.text,
     icon: opt.icon,
-    active: opt.value === props.modelValue,
+    active: opt.value === model.value,
     disabled: opt.disabled,
   })),
 )
 
 function onSelect(key: string) {
-  emit('update:modelValue', key)
+  model.value = key
 }
 </script>

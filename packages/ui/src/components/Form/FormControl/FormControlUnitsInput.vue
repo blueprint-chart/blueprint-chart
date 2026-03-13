@@ -47,10 +47,11 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
+const model = defineModel<string>({ required: true })
+
 const props = withDefaults(defineProps<{
   label: string
   id: string
-  modelValue: string
   units: string[]
   min?: string
   max?: string
@@ -65,10 +66,6 @@ const props = withDefaults(defineProps<{
   centerRelative: false,
 })
 
-const emit = defineEmits<{
-  'update:modelValue': [value: string]
-}>()
-
 function parseValue(value: string): { num: string, unit: string } {
   const match = value.match(/^(-?\d*\.?\d+)\s*(%|[a-z]+)?$/i)
   if (match) {
@@ -77,13 +74,13 @@ function parseValue(value: string): { num: string, unit: string } {
   return { num: '0', unit: props.units[0] }
 }
 
-const numericPart = computed(() => parseValue(props.modelValue).num)
-const unitPart = computed(() => parseValue(props.modelValue).unit)
+const numericPart = computed(() => parseValue(model.value).num)
+const unitPart = computed(() => parseValue(model.value).unit)
 
 const sliderMax = computed(() => unitPart.value === '%' ? '100' : props.max)
 
 function onNumericChange(v: string | number | null) {
-  emit('update:modelValue', `${String(v ?? '')}${unitPart.value}`)
+  model.value = `${String(v ?? '')}${unitPart.value}`
 }
 
 function onUnitSelect(newUnit: string) {
@@ -112,7 +109,7 @@ function onUnitSelect(newUnit: string) {
     }
   }
 
-  emit('update:modelValue', `${converted}${newUnit}`)
+  model.value = `${converted}${newUnit}`
 }
 </script>
 

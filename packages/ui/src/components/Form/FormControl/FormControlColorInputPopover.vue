@@ -11,10 +11,9 @@
   >
     <div ref="contentRef">
       <TwitterPicker
-        :model-value="modelValue"
+        v-model="model"
         triangle="hide"
         class="mb-3"
-        @update:model-value="$emit('update:modelValue', $event)"
       />
       <HueSlider
         :model-value="hue"
@@ -32,17 +31,14 @@ import { BPopover } from 'bootstrap-vue-next'
 import { TwitterPicker, HueSlider, tinycolor } from 'vue-color'
 import 'vue-color/style.css'
 
+const model = defineModel<string>({ required: true })
+
 const props = withDefaults(defineProps<{
-  modelValue: string
   target: HTMLElement | null
   manual?: boolean
 }>(), {
   manual: false,
 })
-
-const emit = defineEmits<{
-  'update:modelValue': [value: string]
-}>()
 
 const open = defineModel<boolean>('open', { default: false })
 const contentRef = useTemplateRef<HTMLElement>('contentRef')
@@ -59,13 +55,13 @@ onClickOutside(contentRef as any, () => {
 } as any)
 
 const hue = computed(() => {
-  const tc = tinycolor(props.modelValue)
+  const tc = tinycolor(model.value)
   return tc.toHsv().h
 })
 
 function onHueChange(h: number) {
   const hex = tinycolor({ h, s: 1, v: 1 }).toHexString()
-  emit('update:modelValue', hex)
+  model.value = hex
 }
 </script>
 
