@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { ref, nextTick } from 'vue'
+import { ref, nextTick, effectScope, type EffectScope } from 'vue'
 import type { AnnotationConfig } from '@blueprint-chart/lib'
 import { useAnnotationDrag } from './useAnnotationDrag'
 
@@ -37,13 +37,17 @@ async function flush() {
 }
 
 describe('useAnnotationDrag', () => {
+  let scope: EffectScope
+
   beforeEach(() => {
+    scope = effectScope()
     vi.spyOn(window, 'requestAnimationFrame').mockImplementation((cb) => {
       cb(0)
       return 0
     })
   })
   afterEach(() => {
+    scope.stop()
     vi.restoreAllMocks()
   })
 
@@ -66,7 +70,7 @@ describe('useAnnotationDrag', () => {
     const selectedIndex = ref<number | null>(null)
     const onUpdate = vi.fn()
 
-    useAnnotationDrag(containerRef, annotations, selectedIndex, onUpdate)
+    scope.run(() => useAnnotationDrag(containerRef, annotations, selectedIndex, onUpdate))
 
     // Select index 2 (China) — SVG has it at index 1 but with id "china"
     selectedIndex.value = 2
@@ -92,7 +96,7 @@ describe('useAnnotationDrag', () => {
     const selectedIndex = ref<number | null>(null)
     const onUpdate = vi.fn()
 
-    useAnnotationDrag(containerRef, annotations, selectedIndex, onUpdate)
+    scope.run(() => useAnnotationDrag(containerRef, annotations, selectedIndex, onUpdate))
 
     selectedIndex.value = 0
     await flush()
@@ -117,7 +121,7 @@ describe('useAnnotationDrag', () => {
     const selectedIndex = ref<number | null>(null)
     const onUpdate = vi.fn()
 
-    useAnnotationDrag(containerRef, annotations, selectedIndex, onUpdate)
+    scope.run(() => useAnnotationDrag(containerRef, annotations, selectedIndex, onUpdate))
 
     selectedIndex.value = 1
     await flush()
