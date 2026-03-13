@@ -1,6 +1,11 @@
 import { describe, it, expect, vi } from 'vitest'
+import { ref } from 'vue'
 import { mount } from '@vue/test-utils'
 import DashboardChartCard from './DashboardChartCard.vue'
+
+vi.mock('@/composables/useTheme', () => ({
+  useTheme: () => ({ resolvedTheme: ref('light'), theme: ref('light'), cycleTheme: () => {} }),
+}))
 
 vi.mock('@blueprint-chart/ui', () => ({
   GalleryCard: {
@@ -17,7 +22,7 @@ vi.mock('@blueprint-chart/ui', () => ({
   },
   DisplayChartTypeBadge: {
     template: '<span class="display-chart-type-badge">{{ chartType }}</span>',
-    props: ['chartType'],
+    props: ['chartType', 'theme'],
   },
   ButtonIcon: {
     template: '<button class="btn-icon" @click="$emit(\'click\')"></button>',
