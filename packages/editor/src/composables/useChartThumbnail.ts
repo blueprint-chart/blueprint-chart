@@ -11,8 +11,12 @@ export function svgToDataUrl(svg: string): string {
   return `data:image/svg+xml;base64,${globalThis.btoa(unescape(encodeURIComponent(svg)))}`
 }
 
-const THUMB_KEY = (id: string) => `blueprint-chart:${id}:thumbnail`
-const PREVIEW_KEY = (id: string) => `blueprint-chart:${id}:preview`
+function getResolvedTheme(): string {
+  return document.documentElement.getAttribute('data-bs-theme') ?? 'light'
+}
+
+const THUMB_KEY = (id: string) => `blueprint-chart:${id}:thumbnail:${getResolvedTheme()}`
+const PREVIEW_KEY = (id: string) => `blueprint-chart:${id}:preview:${getResolvedTheme()}`
 
 // ---------------------------------------------------------------------------
 // Offscreen helpers
@@ -260,7 +264,10 @@ export function saveThumbnail(id: string, svg: string): void {
 }
 
 export function deleteThumbnail(id: string): void {
-  localStorage.removeItem(THUMB_KEY(id))
+  localStorage.removeItem(`blueprint-chart:${id}:thumbnail:light`)
+  localStorage.removeItem(`blueprint-chart:${id}:thumbnail:dark`)
+  // Clean up legacy un-suffixed key
+  localStorage.removeItem(`blueprint-chart:${id}:thumbnail`)
 }
 
 export function getPreview(id: string): string | null {
@@ -272,7 +279,10 @@ export function savePreview(id: string, svg: string): void {
 }
 
 export function deletePreview(id: string): void {
-  localStorage.removeItem(PREVIEW_KEY(id))
+  localStorage.removeItem(`blueprint-chart:${id}:preview:light`)
+  localStorage.removeItem(`blueprint-chart:${id}:preview:dark`)
+  // Clean up legacy un-suffixed key
+  localStorage.removeItem(`blueprint-chart:${id}:preview`)
 }
 
 // ---------------------------------------------------------------------------
