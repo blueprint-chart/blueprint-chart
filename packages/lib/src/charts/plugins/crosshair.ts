@@ -3,7 +3,7 @@ import type { D3Blueprint, Plugin } from 'd3-blueprint'
 
 function styleToDash(style?: string): string {
   switch (style) {
-    case 'solid': return ''
+    case 'solid': return 'none'
     case 'dotted': return '2,2'
     case 'dashed':
     default: return '4,3'
@@ -44,7 +44,7 @@ export function createCrosshairPlugin(options?: {
             .attr('y1', 0).attr('y2', h)
             .attr('stroke', color)
             .attr('stroke-width', 1)
-            .attr('stroke-dasharray', dashArray)
+            .style('stroke-dasharray', dashArray)
             .attr('pointer-events', 'none')
             .style('display', 'none')
         : null
@@ -55,7 +55,7 @@ export function createCrosshairPlugin(options?: {
             .attr('x1', 0).attr('x2', w)
             .attr('stroke', color)
             .attr('stroke-width', 1)
-            .attr('stroke-dasharray', dashArray)
+            .style('stroke-dasharray', dashArray)
             .attr('pointer-events', 'none')
             .style('display', 'none')
         : null

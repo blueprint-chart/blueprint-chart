@@ -51,9 +51,55 @@ describe('createCrosshairPlugin', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     plugin.postDraw!(makeChartStub(g) as any, undefined as any)
 
-    const vLine = g.querySelector('.bc-crosshair-v')
+    const vLine = g.querySelector('.bc-crosshair-v') as SVGLineElement
     expect(vLine?.getAttribute('stroke')).toBe('#f00')
-    expect(vLine?.getAttribute('stroke-dasharray')).toBe('2,2')
+    expect(vLine.style.strokeDasharray).toBe('2,2')
+  })
+
+  it('sets stroke-dasharray via style for solid crosshairStyle', () => {
+    const dotG = document.createElementNS('http://www.w3.org/2000/svg', 'g')
+    g.appendChild(dotG)
+    d3.select(dotG).append('circle')
+      .attr('class', 'bc-dot')
+      .attr('cx', 50).attr('cy', 100).attr('r', 3)
+
+    const plugin = createCrosshairPlugin({ width: 400, height: 300, style: 'solid' })
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    plugin.postDraw!(makeChartStub(g) as any, undefined as any)
+
+    const vLine = g.querySelector('.bc-crosshair-v') as SVGLineElement
+    // style.strokeDasharray must override any CSS class default
+    expect(vLine.style.strokeDasharray).toBe('none')
+  })
+
+  it('sets stroke-dasharray via style for dotted crosshairStyle', () => {
+    const dotG = document.createElementNS('http://www.w3.org/2000/svg', 'g')
+    g.appendChild(dotG)
+    d3.select(dotG).append('circle')
+      .attr('class', 'bc-dot')
+      .attr('cx', 50).attr('cy', 100).attr('r', 3)
+
+    const plugin = createCrosshairPlugin({ width: 400, height: 300, style: 'dotted' })
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    plugin.postDraw!(makeChartStub(g) as any, undefined as any)
+
+    const vLine = g.querySelector('.bc-crosshair-v') as SVGLineElement
+    expect(vLine.style.strokeDasharray).toBe('2,2')
+  })
+
+  it('sets stroke-dasharray via style for dashed crosshairStyle', () => {
+    const dotG = document.createElementNS('http://www.w3.org/2000/svg', 'g')
+    g.appendChild(dotG)
+    d3.select(dotG).append('circle')
+      .attr('class', 'bc-dot')
+      .attr('cx', 50).attr('cy', 100).attr('r', 3)
+
+    const plugin = createCrosshairPlugin({ width: 400, height: 300, style: 'dashed' })
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    plugin.postDraw!(makeChartStub(g) as any, undefined as any)
+
+    const vLine = g.querySelector('.bc-crosshair-v') as SVGLineElement
+    expect(vLine.style.strokeDasharray).toBe('4,3')
   })
 
   it('positions crosshair at bar center for vertical bars (default)', () => {
