@@ -2,14 +2,13 @@
   <div class="d-flex flex-column gap-4">
     <EditorAnnotations
       ref="annotationsRef"
-      :model-value="resolvedAnnotations"
+      v-model="resolvedAnnotations"
       :labels="dataLabels"
       :chart-type="chartType"
       :chart-width="chartWidth"
       :chart-height="chartHeight"
       :hidden-annotation-ids="hiddenAnnotationIds"
       :can-toggle-visibility="isSceneActive"
-      @update:model-value="(v) => resolvedAnnotations = v"
       @toggle-visibility="handleToggleVisibility"
     />
 
@@ -19,9 +18,8 @@
       :icon="IPhDropHalf"
     >
       <EditorAreaFills
-        :model-value="areaFills"
+        v-model="areaFills"
         :series-names="seriesNames"
-        @update:model-value="(v) => areaFills = v"
       />
     </SettingsSection>
   </div>
