@@ -628,49 +628,7 @@ function renderAreaFills(
     const negColor = fill.negativeColor
 
     if (negColor) {
-      const id = `af-${fill.from}-${fill.to}-${Math.random().toString(36).slice(2, 8)}`
-
-      const areaGen = d3.area<number>()
-        .curve(fillCurve)
-        .x((_v, i) => xPos(i))
-
-      const defs = d3.select(chartArea.ownerSVGElement!).select('defs').empty()
-        ? d3.select(chartArea.ownerSVGElement!).append('defs')
-        : d3.select(chartArea.ownerSVGElement!).select('defs')
-
-      defs.append('clipPath').attr('id', `${id}-pos`)
-        .append('path')
-        .attr('d', d3.area<number>()
-          .curve(fillCurve)
-          .x((_v, i) => xPos(i))
-          .y0(-9999)
-          .y1((_v, i) => y(toSeries.values[i]))(fromSeries.values) ?? '')
-
-      defs.append('clipPath').attr('id', `${id}-neg`)
-        .append('path')
-        .attr('d', d3.area<number>()
-          .curve(fillCurve)
-          .x((_v, i) => xPos(i))
-          .y0(9999)
-          .y1((_v, i) => y(toSeries.values[i]))(fromSeries.values) ?? '')
-
-      const fullArea = areaGen
-        .y0((_v, i) => y(toSeries.values[i]))
-        .y1(v => y(v))(fromSeries.values) ?? ''
-
-      g.append('path')
-        .attr('class', 'bc-area-fill')
-        .attr('d', fullArea)
-        .attr('fill', color)
-        .attr('opacity', opacity)
-        .attr('clip-path', `url(#${id}-pos)`)
-
-      g.append('path')
-        .attr('class', 'bc-area-fill bc-area-fill-negative')
-        .attr('d', fullArea)
-        .attr('fill', negColor)
-        .attr('opacity', opacity)
-        .attr('clip-path', `url(#${id}-neg)`)
+      renderSplitAreaFill(g, fromSeries.values, toSeries.values, xPos, y, fillCurve, color, negColor, opacity)
     }
     else {
       const areaGen = d3.area<number>()
@@ -685,5 +643,147 @@ function renderAreaFills(
         .attr('fill', color)
         .attr('opacity', opacity)
     }
+  }
+}
+
+/** A point with x, fromY, toY used for building split area segments. */
+interface AreaPoint {
+  x: number
+  fromY: number
+  toY: number
+}
+
+/**
+ * Compute the x-coordinate where two line segments (from[i]→from[i+1]) and
+ * (to[i]→to[i+1]) cross, using linear interpolation in pixel space.
+ * Returns the fractional parameter t in [0,1] if they cross, or null.
+ */
+function findCrossingT(
+  fromY0: number, fromY1: number,
+  toY0: number, toY1: number,
+): number | null {
+  const d0 = fromY0 - toY0
+  const d1 = fromY1 - toY1
+  // If signs differ (or one is zero), the lines cross in this segment
+  if (d0 === 0 && d1 === 0) {
+    return null // coincident
+  }
+  if ((d0 > 0 && d1 > 0) || (d0 < 0 && d1 < 0)) {
+    return null // no crossing
+  }
+  // t where the difference is zero: d0 + t*(d1-d0) = 0  →  t = -d0/(d1-d0)
+  const denom = d1 - d0
+  if (denom === 0) {
+    return null
+  }
+  const t = -d0 / denom
+  if (t < 0 || t > 1) {
+    return null
+  }
+  return t
+}
+
+/**
+ * Render area fill between two series, splitting at intersection points so
+ * positive regions (from > to) and negative regions (from < to) get different colors.
+ */
+function renderSplitAreaFill(
+  g: d3.Selection<SVGGElement, unknown, null, undefined>,
+  fromValues: number[],
+  toValues: number[],
+  xPos: (i: number) => number,
+  y: d3.ScaleLinear<number, number>,
+  curve: d3.CurveFactory,
+  posColor: string,
+  negColor: string,
+  opacity: number,
+): void {
+  const n = fromValues.length
+  if (n === 0) {
+    return
+  }
+
+  // Build the list of points including intersection splits
+  // Each point: { x, fromY (pixel), toY (pixel) }
+  const points: AreaPoint[] = []
+  for (let i = 0; i < n; i++) {
+    const x = xPos(i)
+    const fY = y(fromValues[i]) as number
+    const tY = y(toValues[i]) as number
+    points.push({ x, fromY: fY, toY: tY })
+
+    if (i < n - 1) {
+      const fY1 = y(fromValues[i + 1]) as number
+      const tY1 = y(toValues[i + 1]) as number
+      const t = findCrossingT(fY, fY1, tY, tY1)
+      if (t !== null && t > 0 && t < 1) {
+        const cx = x + t * (xPos(i + 1) - x)
+        const cFromY = fY + t * (fY1 - fY)
+        const cToY = tY + t * (tY1 - tY)
+        points.push({ x: cx, fromY: cFromY, toY: cToY })
+      }
+    }
+  }
+
+  // Split points into segments at crossings (where fromY === toY)
+  // Each segment is a contiguous run where the sign of (fromY - toY) is constant
+  type Segment = { points: AreaPoint[], positive: boolean }
+  const segments: Segment[] = []
+  let current: AreaPoint[] = []
+  let currentSign: boolean | null = null // true = positive (from above = fromY < toY in SVG, but fromVal > toVal)
+
+  for (const pt of points) {
+    const diff = pt.fromY - pt.toY // negative in SVG means from is above (higher value)
+    const isPositive = diff < 0 // fromY < toY means from is higher on screen = from data value > to data value
+
+    if (currentSign === null) {
+      currentSign = diff === 0 ? null : isPositive
+      current.push(pt)
+    }
+    else if (diff === 0) {
+      // Crossing point: close current segment and start a new one
+      current.push(pt)
+      if (current.length >= 2) {
+        segments.push({ points: current, positive: currentSign })
+      }
+      current = [pt]
+      currentSign = null
+    }
+    else if (currentSign === isPositive) {
+      current.push(pt)
+    }
+    else {
+      // Sign changed without a crossing point (shouldn't happen given our intersection logic)
+      current.push(pt)
+      if (current.length >= 2) {
+        segments.push({ points: current, positive: currentSign })
+      }
+      current = [pt]
+      currentSign = isPositive
+    }
+  }
+  // Flush the last segment
+  if (current.length >= 2 && currentSign !== null) {
+    segments.push({ points: current, positive: currentSign })
+  }
+
+  // Render each segment as a separate path
+  for (const seg of segments) {
+    const pts = seg.points
+    // Build a closed polygon path: go along fromY, then back along toY
+    let d = `M${pts[0].x},${pts[0].fromY}`
+    for (let i = 1; i < pts.length; i++) {
+      d += `L${pts[i].x},${pts[i].fromY}`
+    }
+    for (let i = pts.length - 1; i >= 0; i--) {
+      d += `L${pts[i].x},${pts[i].toY}`
+    }
+    d += 'Z'
+
+    g.append('path')
+      .attr('class', `bc-area-fill ${seg.positive ? 'bc-area-fill-pos' : 'bc-area-fill-neg'}`)
+      .attr('d', d)
+      .attr('fill', seg.positive ? posColor : negColor)
+      .attr('opacity', opacity)
   }
 }

@@ -228,11 +228,138 @@ describe('line-multi chart', () => {
         negativeColor: '#ff0000',
       }],
     })
-    const fills = container.querySelectorAll('.bc-area-fill')
-    expect(fills.length).toBe(2)
-    const negFill = container.querySelector('.bc-area-fill-negative')
-    expect(negFill).not.toBeNull()
-    expect(negFill?.getAttribute('fill')).toBe('#ff0000')
+    // Should produce at least one positive or negative fill segment
+    const posFills = container.querySelectorAll('.bc-area-fill-pos')
+    const negFills = container.querySelectorAll('.bc-area-fill-neg')
+    expect(posFills.length + negFills.length).toBeGreaterThanOrEqual(1)
+
+    // Positive fills should use the positive color
+    posFills.forEach((el) => {
+      expect(el.getAttribute('fill')).toBe('#00ff00')
+    })
+    // Negative fills should use the negative color
+    negFills.forEach((el) => {
+      expect(el.getAttribute('fill')).toBe('#ff0000')
+    })
+  })
+
+  it('splits crossing lines into separate positive and negative path segments', () => {
+    // Series A: [10, 30, 10] — starts below B, crosses above, then crosses below
+    // Series B: [20, 20, 20] — flat line
+    // The two lines cross twice, creating 3 segments:
+    //   1) Jan→crossing: A < B (negative)
+    //   2) crossing→crossing: A > B (positive)
+    //   3) crossing→Mar: A < B (negative)
+    const crossingData = {
+      labels: ['Jan', 'Feb', 'Mar'],
+      values: [] as number[],
+      series: [
+        { name: 'Series A', values: [10, 30, 10] },
+        { name: 'Series B', values: [20, 20, 20] },
+      ],
+    }
+    render(container, crossingData, {
+      areaFills: [{
+        from: 'Series A',
+        to: 'Series B',
+        color: '#00ff00',
+        negativeColor: '#ff0000',
+      }],
+    })
+
+    // Should create separate path elements for positive and negative segments
+    // (not use clip-path approach which can fail in some browser contexts)
+    const posFills = container.querySelectorAll('.bc-area-fill-pos')
+    const negFills = container.querySelectorAll('.bc-area-fill-neg')
+
+    // 1 positive segment (middle region where A > B)
+    expect(posFills).toHaveLength(1)
+    // 2 negative segments (sides where A < B)
+    expect(negFills).toHaveLength(2)
+
+    // Positive fills use the positive color
+    posFills.forEach((el) => {
+      expect(el.getAttribute('fill')).toBe('#00ff00')
+    })
+
+    // Negative fills use the negative color
+    negFills.forEach((el) => {
+      expect(el.getAttribute('fill')).toBe('#ff0000')
+    })
+  })
+
+  it('renders a single positive segment when from is always above to', () => {
+    const noIntersection = {
+      labels: ['Jan', 'Feb', 'Mar'],
+      values: [] as number[],
+      series: [
+        { name: 'Series A', values: [30, 40, 35] },
+        { name: 'Series B', values: [10, 15, 12] },
+      ],
+    }
+    render(container, noIntersection, {
+      areaFills: [{
+        from: 'Series A',
+        to: 'Series B',
+        color: '#00ff00',
+        negativeColor: '#ff0000',
+      }],
+    })
+
+    const posFills = container.querySelectorAll('.bc-area-fill-pos')
+    const negFills = container.querySelectorAll('.bc-area-fill-neg')
+    expect(posFills).toHaveLength(1)
+    expect(negFills).toHaveLength(0)
+  })
+
+  it('renders a single negative segment when from is always below to', () => {
+    const noIntersection = {
+      labels: ['Jan', 'Feb', 'Mar'],
+      values: [] as number[],
+      series: [
+        { name: 'Series A', values: [10, 15, 12] },
+        { name: 'Series B', values: [30, 40, 35] },
+      ],
+    }
+    render(container, noIntersection, {
+      areaFills: [{
+        from: 'Series A',
+        to: 'Series B',
+        color: '#00ff00',
+        negativeColor: '#ff0000',
+      }],
+    })
+
+    const posFills = container.querySelectorAll('.bc-area-fill-pos')
+    const negFills = container.querySelectorAll('.bc-area-fill-neg')
+    expect(posFills).toHaveLength(0)
+    expect(negFills).toHaveLength(1)
+  })
+
+  it('handles exact crossing at a data point', () => {
+    // Lines touch at Feb (both 20), so there's no zero-width segment
+    const touchingData = {
+      labels: ['Jan', 'Feb', 'Mar'],
+      values: [] as number[],
+      series: [
+        { name: 'Series A', values: [10, 20, 30] },
+        { name: 'Series B', values: [20, 20, 10] },
+      ],
+    }
+    render(container, touchingData, {
+      areaFills: [{
+        from: 'Series A',
+        to: 'Series B',
+        color: '#00ff00',
+        negativeColor: '#ff0000',
+      }],
+    })
+
+    const posFills = container.querySelectorAll('.bc-area-fill-pos')
+    const negFills = container.querySelectorAll('.bc-area-fill-neg')
+    // Jan-Feb: A < B (negative), Feb-Mar: A > B (positive)
+    expect(posFills).toHaveLength(1)
+    expect(negFills).toHaveLength(1)
   })
 
   it('skips area fill when referenced series does not exist', () => {
