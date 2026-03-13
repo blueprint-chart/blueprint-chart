@@ -2,6 +2,7 @@ chart area {
   title = "Apple stock price in 2024"
   description = "Monthly closing price in USD"
   source = "Yahoo Finance"
+  edgePadding = false
 
   data {
     "Jan" = 185
