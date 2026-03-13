@@ -8,7 +8,7 @@ import { renderVerticalAxis } from '../../axis/vertical-axis'
 import { renderHorizontalAxis, type AnyXScale } from '../../axis/horizontal-axis'
 import { renderLegend } from '../../legend/legend'
 import { estimateLegendSize, estimateDirectLabelWidth } from '../../legend/legend-size'
-import { computeLinearDomain } from '../../scale-helpers'
+import { computeLinearDomain, filterLabelsByRange } from '../../scale-helpers'
 import { resolveCurve } from '../../curves'
 import { renderAnnotations, snapshotAnnotations, type AnnotationSnapshot } from '../../plugins/annotations'
 import { resolveBackgroundColor } from '../../contrast'
@@ -204,10 +204,11 @@ class LineMultiChart extends D3Blueprint<SeriesDatum[]> {
 
 export function render(
   container: HTMLElement,
-  data: ChartData,
+  inputData: ChartData,
   options: ChartOptions = {},
   transition = false,
 ): void {
+  let data = inputData
   // Preserve existing data elements for smooth D3 data-join transitions
   let priorAreas: Element[] = []
   let priorLines: Element[] = []
@@ -279,6 +280,12 @@ export function render(
   const legendSize = showLegend ? estimateLegendSize(seriesNames, legendPos, containerWidth) : { width: 0, height: 0 }
   const legendH = showLegend ? legendSize.height + 10 : 0
   const directLabelW = directLabelNames.length > 0 ? estimateDirectLabelWidth(directLabelNames) : 0
+  // Filter labels by horizontal axis range
+  const rangeIndices = filterLabelsByRange(data.labels, options.horizontalAxis?.range)
+  const filteredLabels = rangeIndices.map(i => data.labels[i])
+  series = series.map(s => ({ ...s, values: rangeIndices.map(i => s.values[i]) }))
+  data = { ...data, labels: filteredLabels, series }
+
   const allValues = series.flatMap(s => s.values)
   const vLabelW = estimateVerticalLabelWidth(allValues, options.verticalAxis?.range, options.verticalAxis?.numberFormat, options.verticalAxis?.scaleType)
   const lpMargins = labelPositionMargins(containerWidth, options.verticalAxis?.labelPosition, options.horizontalAxis?.labelPosition, options.verticalAxis?.direction, vLabelW)
@@ -309,7 +316,7 @@ export function render(
   const pointScale = d3.scalePoint<string>()
     .domain(data.labels)
     .range([0, width])
-    .padding(0.6)
+    .padding(options.edgePadding === false ? 0 : 0.6)
   const xScale: AnyXScale = pointScale
   const xPos = (i: number) => pointScale(data.labels[i]) ?? 0
 
