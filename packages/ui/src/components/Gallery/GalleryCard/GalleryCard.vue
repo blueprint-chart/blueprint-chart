@@ -181,12 +181,17 @@ const cardClassList = computed(() => ({
 
     .gallery-card__meta {
       padding: 0.625rem 0.875rem;
-      display: flex;
-      align-items: center;
-      gap: 1rem;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      grid-template-rows: auto auto;
+      align-content: center;
+      column-gap: 1rem;
+      min-width: 0;
     }
 
     .gallery-card__meta__title {
+      grid-column: 1;
+      grid-row: 1;
       font-size: 0.8125rem;
       white-space: nowrap;
       overflow: hidden;
@@ -194,18 +199,24 @@ const cardClassList = computed(() => ({
       -webkit-line-clamp: unset;
       -webkit-box-orient: unset;
       display: block;
-      flex: 1;
       min-width: 0;
       margin-bottom: 0;
     }
 
     .gallery-card__meta__subtitle {
-      flex: 1;
+      grid-column: 1;
+      grid-row: 2;
       min-width: 0;
       margin-bottom: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .gallery-card__meta__footer {
+      grid-column: 2;
+      grid-row: 1 / -1;
+      align-self: center;
       flex-shrink: 0;
       gap: 0.625rem;
     }
