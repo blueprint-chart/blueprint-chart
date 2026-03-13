@@ -113,15 +113,15 @@ import { computed } from 'vue'
 import type { AreaFillConfig } from '@blueprint-chart/lib'
 
 const props = defineProps<{
-  fill: AreaFillConfig
   id: number
   seriesNames: string[]
 }>()
 
-const emit = defineEmits<{
-  'update:fill': [value: AreaFillConfig]
+defineEmits<{
   'remove': []
 }>()
+
+const fill = defineModel<AreaFillConfig>('fill', { required: true })
 
 const seriesOptions = computed(() =>
   props.seriesNames.map(n => ({ value: n, text: n })),
@@ -137,13 +137,13 @@ const interpolationChoices = [
 ]
 
 function update(key: keyof AreaFillConfig, value: unknown) {
-  const copy = { ...props.fill }
+  const copy = { ...fill.value }
   if (value === undefined) {
     delete (copy as Record<string, unknown>)[key]
   }
   else {
     (copy as Record<string, unknown>)[key] = value
   }
-  emit('update:fill', copy)
+  fill.value = copy
 }
 </script>

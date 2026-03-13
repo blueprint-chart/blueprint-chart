@@ -7,10 +7,10 @@
     <button
       v-for="tab in tabs"
       :key="tab.key"
-      :ref="el => { if (tab.key === modelValue) activeTabEl = el as HTMLElement | null }"
+      :ref="el => { if (tab.key === model) activeTabEl = el as HTMLElement | null }"
       class="panel-tab-bar__tab"
-      :class="{ 'panel-tab-bar__tab--active': modelValue === tab.key }"
-      @click="$emit('update:modelValue', tab.key)"
+      :class="{ 'panel-tab-bar__tab--active': model === tab.key }"
+      @click="model = tab.key"
     >
       {{ tab.label }}
     </button>
@@ -27,15 +27,12 @@ export interface PanelTab {
 
 withDefaults(defineProps<{
   tabs: PanelTab[]
-  modelValue: string
   sticky?: boolean
 }>(), {
   sticky: false,
 })
 
-defineEmits<{
-  'update:modelValue': [tab: string]
-}>()
+const model = defineModel<string>({ required: true })
 
 const tabsRef = ref<HTMLElement | null>(null)
 let activeTabEl: HTMLElement | null = null

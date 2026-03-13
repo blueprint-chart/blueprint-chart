@@ -30,34 +30,31 @@ import type { AreaFillConfig } from '@blueprint-chart/lib'
 import EditorAreaFillItem from './EditorAreaFillItem.vue'
 
 const props = defineProps<{
-  modelValue: AreaFillConfig[]
   seriesNames: string[]
 }>()
 
-const emit = defineEmits<{
-  'update:modelValue': [value: AreaFillConfig[]]
-}>()
+const model = defineModel<AreaFillConfig[]>({ required: true })
 
-const fills = computed(() => props.modelValue)
+const fills = computed(() => model.value)
 
 function updateAt(index: number, value: AreaFillConfig) {
   const copy = [...fills.value]
   copy[index] = value
-  emit('update:modelValue', copy)
+  model.value = copy
 }
 
 function add() {
   const from = props.seriesNames[0] ?? ''
   const to = props.seriesNames[1] ?? props.seriesNames[0] ?? ''
-  emit('update:modelValue', [
+  model.value = [
     ...fills.value,
     { from, to, color: '#cccccc', opacity: 30, interpolation: 'linear' },
-  ])
+  ]
 }
 
 function remove(index: number) {
   const copy = [...fills.value]
   copy.splice(index, 1)
-  emit('update:modelValue', copy)
+  model.value = copy
 }
 </script>
