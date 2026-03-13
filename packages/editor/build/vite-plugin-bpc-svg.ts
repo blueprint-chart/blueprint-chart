@@ -56,7 +56,7 @@ function loadParser(): Promise<(input: string) => ChartNode> {
 // Types (inlined to avoid importing from lib)
 // ---------------------------------------------------------------------------
 
-interface PropertyNode {
+export interface PropertyNode {
   type: 'property'
   key: string
   value: string | number
@@ -64,11 +64,15 @@ interface PropertyNode {
   isPercentage: boolean
 }
 
-interface ChartNode {
+export interface ChartNode {
   type: 'chart'
   chartType: string
   properties: PropertyNode[]
   data: { type: 'data', entries: PropertyNode[] } | null
+}
+
+export interface ThumbnailOptions {
+  edgePadding: boolean
 }
 
 // ---------------------------------------------------------------------------
@@ -90,7 +94,13 @@ interface MultiSeriesData {
 
 type ChartData = SingleSeriesData | MultiSeriesData
 
-function extractData(entries: PropertyNode[]): ChartData {
+export function extractOptions(chart: ChartNode): ThumbnailOptions {
+  const edgePaddingProp = chart.properties.find(p => p.key === 'edgePadding')
+  const edgePadding = edgePaddingProp ? String(edgePaddingProp.value) !== 'false' : true
+  return { edgePadding }
+}
+
+export function extractData(entries: PropertyNode[]): ChartData {
   if (entries.length === 0) {
     return { kind: 'single', labels: [], values: [] }
   }
@@ -163,6 +173,18 @@ function bandPositions(count: number, range: [number, number], padding = 0.2) {
   }
 }
 
+function pointPositions(count: number, range: [number, number], padding: number): number[] {
+  const [r0, r1] = range
+  const width = r1 - r0
+  if (count <= 1) {
+    return [r0 + width / 2]
+  }
+  // Mimic d3.scalePoint().padding(p) — outer padding = p * step
+  const step = width / (count - 1 + padding * 2)
+  const offset = padding * step
+  return Array.from({ length: count }, (_, i) => r0 + offset + i * step)
+}
+
 // ---------------------------------------------------------------------------
 // SVG renderers
 // ---------------------------------------------------------------------------
@@ -230,7 +252,7 @@ function renderBarMulti(data: ChartData, colors: string[]): string {
   return `<svg viewBox="${RECT_VB}" xmlns="http://www.w3.org/2000/svg">${rects.join('')}</svg>`
 }
 
-function renderLine(data: ChartData, colors: string[]): string {
+function renderLine(data: ChartData, colors: string[], opts: ThumbnailOptions): string {
   if (data.kind !== 'single') {
     return ''
   }
@@ -238,14 +260,14 @@ function renderLine(data: ChartData, colors: string[]): string {
   const maxVal = Math.max(...values)
   const minVal = Math.min(...values)
   const yScale = linearScale([minVal, maxVal], [32, 4])
-  const step = labels.length > 1 ? 44 / (labels.length - 1) : 0
+  const xs = pointPositions(labels.length, [2, 46], opts.edgePadding ? 0.6 : 0)
 
-  const points = values.map((v, i) => `${(2 + i * step).toFixed(2)},${yScale(v).toFixed(2)}`).join(' ')
+  const points = values.map((v, i) => `${xs[i].toFixed(2)},${yScale(v).toFixed(2)}`).join(' ')
 
   return `<svg viewBox="${RECT_VB}" xmlns="http://www.w3.org/2000/svg"><polyline points="${points}" fill="none" stroke="${colors[0]}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`
 }
 
-function renderLineMulti(data: ChartData, colors: string[]): string {
+function renderLineMulti(data: ChartData, colors: string[], opts: ThumbnailOptions): string {
   if (data.kind !== 'multi') {
     return ''
   }
@@ -254,10 +276,10 @@ function renderLineMulti(data: ChartData, colors: string[]): string {
   const maxVal = Math.max(...allVals)
   const minVal = Math.min(...allVals)
   const yScale = linearScale([minVal, maxVal], [32, 4])
-  const step = labels.length > 1 ? 44 / (labels.length - 1) : 0
+  const xs = pointPositions(labels.length, [2, 46], opts.edgePadding ? 0.6 : 0)
 
   const lines = series.map((vals, si) => {
-    const points = vals.map((v, i) => `${(2 + i * step).toFixed(2)},${yScale(v).toFixed(2)}`).join(' ')
+    const points = vals.map((v, i) => `${xs[i].toFixed(2)},${yScale(v).toFixed(2)}`).join(' ')
     return `<polyline points="${points}" fill="none" stroke="${colors[si % colors.length]}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>`
   }).join('')
 
@@ -308,7 +330,7 @@ function renderPieOrDonut(data: ChartData, colors: string[], donut: boolean): st
   return `<svg viewBox="${CIRC_VB}" xmlns="http://www.w3.org/2000/svg">${paths}</svg>`
 }
 
-function renderArea(data: ChartData, colors: string[]): string {
+function renderArea(data: ChartData, colors: string[], opts: ThumbnailOptions): string {
   if (data.kind !== 'single') {
     return ''
   }
@@ -316,16 +338,16 @@ function renderArea(data: ChartData, colors: string[]): string {
   const maxVal = Math.max(...values)
   const minVal = Math.min(0, ...values)
   const yScale = linearScale([minVal, maxVal], [32, 4])
-  const step = labels.length > 1 ? 44 / (labels.length - 1) : 0
+  const xs = pointPositions(labels.length, [2, 46], opts.edgePadding ? 0.6 : 0)
 
-  const linePoints = values.map((v, i) => `${(2 + i * step).toFixed(2)},${yScale(v).toFixed(2)}`)
-  const areaPath = `M ${linePoints[0]} ${linePoints.slice(1).map(p => `L ${p}`).join(' ')} L ${(2 + (values.length - 1) * step).toFixed(2)},34 L 2,34 Z`
+  const linePoints = values.map((v, i) => `${xs[i].toFixed(2)},${yScale(v).toFixed(2)}`)
+  const areaPath = `M ${linePoints[0]} ${linePoints.slice(1).map(p => `L ${p}`).join(' ')} L ${xs[values.length - 1].toFixed(2)},34 L ${xs[0].toFixed(2)},34 Z`
   const polyPoints = linePoints.join(' ')
 
   return `<svg viewBox="${RECT_VB}" xmlns="http://www.w3.org/2000/svg"><path d="${areaPath}" fill="${colors[0]}" opacity="0.3"/><polyline points="${polyPoints}" fill="none" stroke="${colors[0]}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`
 }
 
-function renderAreaStacked(data: ChartData, colors: string[]): string {
+function renderAreaStacked(data: ChartData, colors: string[], opts: ThumbnailOptions): string {
   if (data.kind !== 'multi') {
     return ''
   }
@@ -340,14 +362,14 @@ function renderAreaStacked(data: ChartData, colors: string[]): string {
   }
   const maxVal = Math.max(...stacked[stacked.length - 1])
   const yScale = linearScale([0, maxVal], [32, 4])
-  const step = labels.length > 1 ? 44 / (labels.length - 1) : 0
+  const xs = pointPositions(labels.length, [2, 46], opts.edgePadding ? 0.6 : 0)
 
   const areas: string[] = []
   for (let si = series.length - 1; si >= 0; si--) {
-    const topPoints = labels.map((_, li) => `${(2 + li * step).toFixed(2)},${yScale(stacked[si][li]).toFixed(2)}`)
+    const topPoints = labels.map((_, li) => `${xs[li].toFixed(2)},${yScale(stacked[si][li]).toFixed(2)}`)
     const bottomPoints = si === 0
-      ? labels.map((_, li) => `${(2 + li * step).toFixed(2)},34`).reverse()
-      : labels.map((_, li) => `${(2 + li * step).toFixed(2)},${yScale(stacked[si - 1][li]).toFixed(2)}`).reverse()
+      ? labels.map((_, li) => `${xs[li].toFixed(2)},34`).reverse()
+      : labels.map((_, li) => `${xs[li].toFixed(2)},${yScale(stacked[si - 1][li]).toFixed(2)}`).reverse()
     const d = `M ${topPoints[0]} ${topPoints.slice(1).map(p => `L ${p}`).join(' ')} ${bottomPoints.map(p => `L ${p}`).join(' ')} Z`
     areas.push(`<path d="${d}" fill="${colors[si % colors.length]}" opacity="0.7"/>`)
   }
@@ -403,17 +425,17 @@ function renderBarStacked(data: ChartData, colors: string[]): string {
   return `<svg viewBox="${RECT_VB}" xmlns="http://www.w3.org/2000/svg">${rects.join('')}</svg>`
 }
 
-function renderToSvg(chartType: string, data: ChartData, colors: string[]): string {
+export function renderToSvg(chartType: string, data: ChartData, colors: string[], opts: ThumbnailOptions = { edgePadding: true }): string {
   switch (chartType) {
     case 'bar-vertical': return renderBarVertical(data, colors)
     case 'bar-horizontal': return renderBarHorizontal(data, colors)
     case 'bar-multi': return renderBarMulti(data, colors)
-    case 'line': return renderLine(data, colors)
-    case 'line-multi': return renderLineMulti(data, colors)
+    case 'line': return renderLine(data, colors, opts)
+    case 'line-multi': return renderLineMulti(data, colors, opts)
     case 'pie': return renderPieOrDonut(data, colors, false)
     case 'donut': return renderPieOrDonut(data, colors, true)
-    case 'area': return renderArea(data, colors)
-    case 'area-stacked': return renderAreaStacked(data, colors)
+    case 'area': return renderArea(data, colors, opts)
+    case 'area-stacked': return renderAreaStacked(data, colors, opts)
     case 'column-stacked': return renderColumnStacked(data, colors)
     case 'bar-stacked': return renderBarStacked(data, colors)
     default: return ''
@@ -439,7 +461,8 @@ export default function bpcSvgPlugin(): Plugin {
       const ast = parse(source)
       const data = extractData(ast.data?.entries ?? [])
       const colors = extractColors(ast)
-      const svg = renderToSvg(ast.chartType, data, colors)
+      const opts = extractOptions(ast)
+      const svg = renderToSvg(ast.chartType, data, colors, opts)
 
       // Escape backticks and backslashes for template literal
       const escaped = svg.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$/g, '\\$')
