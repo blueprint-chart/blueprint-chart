@@ -67,4 +67,28 @@ describe('GalleryCard', () => {
     const wrapper = mount(GalleryCard, { props: { title: 'My Chart' } })
     expect(wrapper.find('.gallery-card__meta__footer').exists()).toBe(false)
   })
+
+  it('renders actions slot inside thumb area', () => {
+    const wrapper = mount(GalleryCard, {
+      props: { title: 'My Chart' },
+      slots: { actions: '<button class="edit-btn">Edit</button>' },
+    })
+    const overlay = wrapper.find('.gallery-card__thumb__actions')
+    expect(overlay.exists()).toBe(true)
+    expect(overlay.find('.edit-btn').text()).toBe('Edit')
+  })
+
+  it('hides actions overlay when slot is empty', () => {
+    const wrapper = mount(GalleryCard, { props: { title: 'My Chart' } })
+    expect(wrapper.find('.gallery-card__thumb__actions').exists()).toBe(false)
+  })
+
+  it('actions click does not bubble to card click', async () => {
+    const wrapper = mount(GalleryCard, {
+      props: { title: 'My Chart' },
+      slots: { actions: '<button class="edit-btn">Edit</button>' },
+    })
+    await wrapper.find('.gallery-card__thumb__actions').trigger('click')
+    expect(wrapper.emitted('click')).toBeUndefined()
+  })
 })

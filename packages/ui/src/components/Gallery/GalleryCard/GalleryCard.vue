@@ -18,6 +18,13 @@
         alt=""
         class="gallery-card__thumb__img"
       >
+      <div
+        v-if="$slots.actions"
+        class="gallery-card__thumb__actions"
+        @click.stop
+      >
+        <slot name="actions" />
+      </div>
     </div>
     <div class="gallery-card__meta">
       <div class="gallery-card__meta__title">
@@ -97,12 +104,28 @@ const cardClassList = computed(() => ({
     justify-content: center;
     padding: 0.875rem;
     overflow: hidden;
+    position: relative;
 
     &__img {
       width: 100%;
       height: 100%;
       object-fit: contain;
       display: block;
+    }
+
+    &__actions {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      display: flex;
+      gap: 0.25rem;
+      opacity: 0;
+      transition: opacity 0.15s ease;
+
+      .gallery-card:hover &,
+      .gallery-card:focus-within & {
+        opacity: 1;
+      }
     }
   }
 
