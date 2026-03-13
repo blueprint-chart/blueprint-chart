@@ -293,6 +293,28 @@ describe('area-stacked chart', () => {
     expect(directLabels).toHaveLength(3)
   })
 
+  // ── Direct label collision avoidance ────────────────────────────
+
+  it('direct labels do not overlap when stacked series have similar midpoints', () => {
+    // When series have small values, their stacked midpoints are close together
+    const closeData = {
+      labels: ['Jan', 'Feb', 'Mar'],
+      values: [0, 0, 0],
+      series: [
+        { name: 'A', values: [1, 2, 1] },
+        { name: 'B', values: [1, 2, 1] },
+        { name: 'C', values: [1, 2, 1] },
+      ],
+    }
+    render(container, closeData, { directLabelling: true })
+    const labels = container.querySelectorAll('.bc-direct-label')
+    expect(labels).toHaveLength(3)
+    const ys = Array.from(labels).map(el => parseFloat(el.getAttribute('y')!)).sort((a, b) => a - b)
+    for (let i = 1; i < ys.length; i++) {
+      expect(ys[i] - ys[i - 1]).toBeGreaterThanOrEqual(1)
+    }
+  })
+
   // ── Edge cases ───────────────────────────────────────────────────
 
   it('handles empty series array gracefully', () => {

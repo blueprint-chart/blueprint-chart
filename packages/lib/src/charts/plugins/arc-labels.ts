@@ -25,7 +25,9 @@ const HORIZONTAL_SEG = 20
 /**
  * Deterministic 1D value spreading.
  * Pushes values apart so consecutive entries are at least `gap` apart,
- * clamped within [top, bottom].
+ * clamped within [top, bottom].  When the available space is too small
+ * for `(n-1) * gap`, the effective gap is reduced so labels are evenly
+ * distributed across the full range.
  */
 export function spreadLabels(naturalYs: number[], top: number, bottom: number, gap: number = LABEL_GAP): number[] {
   if (naturalYs.length === 0) {
@@ -35,12 +37,22 @@ export function spreadLabels(naturalYs: number[], top: number, bottom: number, g
     return [Math.max(top, Math.min(bottom, naturalYs[0]))]
   }
 
+  const n = naturalYs.length
+  const availableSpace = bottom - top
+  const requiredSpace = (n - 1) * gap
+
+  // When the available space cannot fit all labels at the requested gap,
+  // reduce the gap so labels are evenly distributed.
+  const effectiveGap = requiredSpace > availableSpace
+    ? Math.max(0, availableSpace / (n - 1))
+    : gap
+
   const ys = [...naturalYs]
 
   for (let iter = 0; iter < 10; iter++) {
     for (let i = 1; i < ys.length; i++) {
-      if (ys[i] - ys[i - 1] < gap) {
-        ys[i] = ys[i - 1] + gap
+      if (ys[i] - ys[i - 1] < effectiveGap) {
+        ys[i] = ys[i - 1] + effectiveGap
       }
     }
     if (ys[ys.length - 1] > bottom) {
@@ -48,8 +60,8 @@ export function spreadLabels(naturalYs: number[], top: number, bottom: number, g
     }
 
     for (let i = ys.length - 2; i >= 0; i--) {
-      if (ys[i + 1] - ys[i] < gap) {
-        ys[i] = ys[i + 1] - gap
+      if (ys[i + 1] - ys[i] < effectiveGap) {
+        ys[i] = ys[i + 1] - effectiveGap
       }
     }
     if (ys[0] < top) {

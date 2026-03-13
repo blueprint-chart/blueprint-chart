@@ -400,6 +400,45 @@ describe('line-multi chart', () => {
     expect(attrs).toContain('1')
   })
 
+  // ── Direct label collision avoidance ────────────────────────────
+
+  it('direct labels do not overlap when series end at the same value', () => {
+    const overlappingData = {
+      labels: ['Jan', 'Feb', 'Mar'],
+      values: [],
+      series: [
+        { name: 'Series A', values: [10, 20, 30] },
+        { name: 'Series B', values: [5, 15, 30] }, // same end value
+      ],
+    }
+    render(container, overlappingData, { directLabelling: true })
+    const labels = container.querySelectorAll('.bc-direct-label')
+    expect(labels).toHaveLength(2)
+    const ys = Array.from(labels).map(el => parseFloat(el.getAttribute('y')!))
+    // Labels at the same natural Y must be spread apart
+    expect(Math.abs(ys[0] - ys[1])).toBeGreaterThanOrEqual(1)
+  })
+
+  it('direct labels do not overlap with three series ending at similar values', () => {
+    const overlappingData = {
+      labels: ['Jan', 'Feb', 'Mar'],
+      values: [],
+      series: [
+        { name: 'Alpha', values: [10, 20, 50] },
+        { name: 'Beta', values: [15, 25, 51] },
+        { name: 'Gamma', values: [12, 22, 49] },
+      ],
+    }
+    render(container, overlappingData, { directLabelling: true })
+    const labels = container.querySelectorAll('.bc-direct-label')
+    expect(labels).toHaveLength(3)
+    const ys = Array.from(labels).map(el => parseFloat(el.getAttribute('y')!)).sort((a, b) => a - b)
+    // Each pair of adjacent labels must have a gap
+    for (let i = 1; i < ys.length; i++) {
+      expect(ys[i] - ys[i - 1]).toBeGreaterThanOrEqual(1)
+    }
+  })
+
   // ── Edge padding ───────────────────────────────────────────────
 
   it('removes edge padding when edgePadding=false', () => {

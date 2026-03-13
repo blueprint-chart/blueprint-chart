@@ -88,6 +88,41 @@ describe('spreadLabels', () => {
       expect(y).toBeLessThanOrEqual(157)
     })
   })
+
+  it('distributes labels evenly when space is insufficient for full gap', () => {
+    // 3 labels in space of 40px (need 2*28=56 but only have 40)
+    // Should reduce gap proportionally to fit, not leave uneven gaps
+    const result = spreadLabels([20, 20, 20], 0, 40)
+    expect(result).toHaveLength(3)
+    const gap1 = result[1] - result[0]
+    const gap2 = result[2] - result[1]
+    // Gaps should be equal (evenly distributed)
+    expect(Math.abs(gap1 - gap2)).toBeLessThan(0.01)
+    // Gaps should be positive (labels should not overlap)
+    expect(gap1).toBeGreaterThan(0)
+    // All within bounds
+    expect(result[0]).toBeGreaterThanOrEqual(0)
+    expect(result[2]).toBeLessThanOrEqual(40)
+  })
+
+  it('handles all labels at the same Y with a custom gap', () => {
+    // 4 labels all at y=100, gap=14, bounds [0, 300]
+    const result = spreadLabels([100, 100, 100, 100], 0, 300, 14)
+    expect(result).toHaveLength(4)
+    for (let i = 1; i < result.length; i++) {
+      expect(result[i] - result[i - 1]).toBeGreaterThanOrEqual(14 - 0.001)
+    }
+  })
+
+  it('all labels maintain strictly ascending order', () => {
+    // Edge case: labels very close to boundary
+    const result = spreadLabels([0, 0, 0], 0, 10)
+    expect(result).toHaveLength(3)
+    // Every label should be strictly greater than the previous
+    for (let i = 1; i < result.length; i++) {
+      expect(result[i]).toBeGreaterThan(result[i - 1])
+    }
+  })
 })
 
 function createSvgGroup(): d3.Selection<SVGGElement, unknown, null, undefined> {
