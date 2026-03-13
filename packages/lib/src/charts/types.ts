@@ -173,6 +173,7 @@ export interface ChartOptions {
   barBackground?: boolean
   barSeparators?: boolean
   stackMode?: 'normal' | 'percent'
+  edgePadding?: boolean
 }
 
 export type ChartRenderer = (
@@ -252,6 +253,7 @@ export interface ChartTypeOptions {
   barBackground: boolean
   barSeparators: boolean
   stackMode: string
+  edgePadding: boolean
 }
 
 export type ChartTypeOptionKey = keyof ChartTypeOptions
