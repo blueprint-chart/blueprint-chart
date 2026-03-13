@@ -415,6 +415,189 @@ describe('parser', () => {
     })
   })
 
+  describe('areafill block', () => {
+    it('parses areafill with two targets and properties', () => {
+      const ast = parse(`chart line-multi {
+  areafill "Revenue" "Cost" {
+    color = "#0000ff"
+    opacity = 0.3
+  }
+}`)
+      expect(ast.areaFills).toHaveLength(1)
+      expect(ast.areaFills[0]).toMatchObject({
+        type: 'areafill',
+        from: 'Revenue',
+        to: 'Cost',
+      })
+      expect(ast.areaFills[0].properties).toHaveLength(2)
+      expect(ast.areaFills[0].properties[0]).toMatchObject({ key: 'color', value: '#0000ff' })
+      expect(ast.areaFills[0].properties[1]).toMatchObject({ key: 'opacity', value: 0.3 })
+    })
+
+    it('parses multiple areafills', () => {
+      const ast = parse(`chart line-multi {
+  areafill "A" "B" { color = "#f00" }
+  areafill "C" "D" { color = "#0f0" }
+}`)
+      expect(ast.areaFills).toHaveLength(2)
+    })
+  })
+
+  describe('annotation types', () => {
+    it('parses point annotation with all properties', () => {
+      const ast = parse(`chart line {
+  annotation "Q3" {
+    id = "ann-1"
+    text = "Peak"
+    anchorDirection = NE
+    textOffsetX = 10
+    textOffsetY = -5
+    showLine = true
+  }
+}`)
+      expect(ast.annotations).toHaveLength(1)
+      expect(ast.annotations[0]).toMatchObject({ type: 'annotation', kind: 'point', target: 'Q3' })
+      expect(ast.annotations[0].properties).toHaveLength(6)
+    })
+
+    it('parses range annotation', () => {
+      const ast = parse(`chart line {
+  range {
+    start = 2
+    end = 5
+    orientation = vertical
+    bgColor = "#eee"
+  }
+}`)
+      expect(ast.annotations).toHaveLength(1)
+      expect(ast.annotations[0]).toMatchObject({ type: 'annotation', kind: 'range' })
+      expect(ast.annotations[0].properties).toHaveLength(4)
+    })
+
+    it('parses note (free) annotation', () => {
+      const ast = parse(`chart line {
+  note {
+    text = "Important"
+    x = 50%
+    y = 25%
+    textColor = "#333"
+  }
+}`)
+      expect(ast.annotations).toHaveLength(1)
+      expect(ast.annotations[0]).toMatchObject({ type: 'annotation', kind: 'free' })
+      expect(ast.annotations[0].properties).toHaveLength(4)
+      expect(ast.annotations[0].properties[1]).toMatchObject({ key: 'x', value: 50, isPercentage: true })
+    })
+
+    it('parses mixed annotation types', () => {
+      const ast = parse(`chart line {
+  annotation "X" { text = "point" }
+  range { start = 1 end = 3 }
+  note { text = "free" x = 0 y = 0 }
+}`)
+      expect(ast.annotations).toHaveLength(3)
+      expect(ast.annotations[0].kind).toBe('point')
+      expect(ast.annotations[1].kind).toBe('range')
+      expect(ast.annotations[2].kind).toBe('free')
+    })
+  })
+
+  describe('series block', () => {
+    it('parses series with multiple properties', () => {
+      const ast = parse(`chart line-multi {
+  series "Revenue" {
+    color = "#e15759"
+    lineWidth = 3
+    dash = dashed
+    interpolation = monotoneX
+  }
+}`)
+      expect(ast.series).toHaveLength(1)
+      expect(ast.series[0]).toMatchObject({ type: 'series', name: 'Revenue' })
+      expect(ast.series[0].properties).toHaveLength(4)
+    })
+
+    it('parses multiple series blocks', () => {
+      const ast = parse(`chart line-multi {
+  series "A" { color = "#f00" }
+  series "B" { color = "#0f0" }
+}`)
+      expect(ast.series).toHaveLength(2)
+      expect(ast.series[0].name).toBe('A')
+      expect(ast.series[1].name).toBe('B')
+    })
+  })
+
+  describe('transform block', () => {
+    it('parses transform at chart level', () => {
+      const ast = parse(`chart line {
+  transform rolling-average {
+    window = 7
+  }
+}`)
+      expect(ast.transforms).toHaveLength(1)
+      expect(ast.transforms[0]).toMatchObject({ type: 'transform', transformType: 'rolling-average' })
+      expect(ast.transforms[0].properties[0]).toMatchObject({ key: 'window', value: 7 })
+    })
+
+    it('parses multiple transforms', () => {
+      const ast = parse(`chart line {
+  transform rolling-average { window = 5 }
+  transform cumulative { enabled = true }
+}`)
+      expect(ast.transforms).toHaveLength(2)
+    })
+  })
+
+  describe('string edge cases', () => {
+    it('handles escaped quotes', () => {
+      const ast = parse('chart line { title = "say \\"hello\\"" }')
+      expect(ast.properties[0].value).toBe('say "hello"')
+    })
+
+    it('handles escaped backslash', () => {
+      const ast = parse('chart line { path = "C:\\\\Users" }')
+      expect(ast.properties[0].value).toBe('C:\\Users')
+    })
+
+    it('handles unicode', () => {
+      const ast = parse('chart line { title = "Année suivante" }')
+      expect(ast.properties[0].value).toBe('Année suivante')
+    })
+
+    it('handles newline escape', () => {
+      const ast = parse('chart line { text = "line1\\nline2" }')
+      expect(ast.properties[0].value).toBe('line1\nline2')
+    })
+
+    it('handles tab escape', () => {
+      const ast = parse('chart line { text = "col1\\tcol2" }')
+      expect(ast.properties[0].value).toBe('col1\tcol2')
+    })
+
+    it('handles empty string', () => {
+      const ast = parse('chart line { title = "" }')
+      expect(ast.properties[0].value).toBe('')
+    })
+  })
+
+  describe('negative numbers', () => {
+    it('parses negative integer', () => {
+      const ast = parse('chart line { min = -10 }')
+      expect(ast.properties[0].value).toBe(-10)
+    })
+
+    it('parses negative decimal', () => {
+      const ast = parse('chart line { min = -3.14 }')
+      expect(ast.properties[0].value).toBe(-3.14)
+    })
+
+    it('parses negative percentage', () => {
+      const ast = parse('chart bar { data { "Loss" = -25% } }')
+      expect(ast.data!.entries[0]).toMatchObject({ value: -25, isPercentage: true })
+    })
+  })
+
   describe('edge cases', () => {
     it('parses chart with no properties or blocks', () => {
       const ast = parse('chart bar {}')
@@ -449,6 +632,34 @@ describe('parser', () => {
       }`
       const ast = parse(input)
       expect(ast.highlights).toHaveLength(2)
+    })
+
+    it('handles identifier property values', () => {
+      const ast = parse('chart bar { sort = descending }')
+      expect(ast.properties[0].value).toBe('descending')
+    })
+
+    it('handles hash color as identifier', () => {
+      const ast = parse('chart bar { highlight "X" { color = #e53e3e } }')
+      expect(ast.highlights[0].properties[0].value).toBe('#e53e3e')
+    })
+
+    it('handles excessive whitespace', () => {
+      const ast = parse('  \n  chart   bar   {  \n  title   =   "test"  \n  }  \n  ')
+      expect(ast.chartType).toBe('bar')
+      expect(ast.properties[0].value).toBe('test')
+    })
+
+    it('throws on empty input', () => {
+      expect(() => parse('')).toThrow()
+    })
+
+    it('throws on missing chart keyword', () => {
+      expect(() => parse('foo {}')).toThrow()
+    })
+
+    it('throws on unterminated string', () => {
+      expect(() => parse('chart bar { title = "unclosed }')).toThrow()
     })
   })
 })

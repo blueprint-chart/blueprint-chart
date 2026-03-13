@@ -403,6 +403,258 @@ describe('serializer', () => {
     expect(ast2).toEqual(ast1)
   })
 
+  it('serializes areafill blocks', () => {
+    const ast: ChartNode = {
+      type: 'chart',
+      chartType: 'line-multi',
+      properties: [],
+      data: null,
+      highlights: [],
+      areaFills: [{
+        type: 'areafill',
+        from: 'Revenue',
+        to: 'Cost',
+        properties: [
+          { type: 'property', key: 'color', value: '#0000ff', isPercentage: false },
+          { type: 'property', key: 'opacity', value: 0.3, isPercentage: false },
+        ],
+      }],
+      annotations: [],
+      series: [],
+      scenes: [],
+      transforms: [],
+    }
+    const output = serialize(ast)
+    expect(output).toContain('  areafill "Revenue" "Cost" {')
+    expect(output).toContain('    color = "#0000ff"')
+    expect(output).toContain('    opacity = 0.3')
+  })
+
+  it('serializes range annotation', () => {
+    const ast: ChartNode = {
+      type: 'chart',
+      chartType: 'line',
+      properties: [],
+      data: null,
+      highlights: [],
+      areaFills: [],
+      annotations: [{
+        type: 'annotation',
+        kind: 'range',
+        properties: [
+          { type: 'property', key: 'start', value: 2, isPercentage: false },
+          { type: 'property', key: 'end', value: 5, isPercentage: false },
+        ],
+      }],
+      series: [],
+      scenes: [],
+      transforms: [],
+    }
+    const output = serialize(ast)
+    expect(output).toContain('  range {')
+    expect(output).toContain('    start = 2')
+    expect(output).toContain('    end = 5')
+  })
+
+  it('serializes note (free) annotation', () => {
+    const ast: ChartNode = {
+      type: 'chart',
+      chartType: 'line',
+      properties: [],
+      data: null,
+      highlights: [],
+      areaFills: [],
+      annotations: [{
+        type: 'annotation',
+        kind: 'free',
+        properties: [
+          { type: 'property', key: 'text', value: 'Important note', isPercentage: false },
+          { type: 'property', key: 'x', value: 50, isPercentage: true },
+          { type: 'property', key: 'y', value: 25, isPercentage: true },
+        ],
+      }],
+      series: [],
+      scenes: [],
+      transforms: [],
+    }
+    const output = serialize(ast)
+    expect(output).toContain('  note {')
+    expect(output).toContain('    x = 50%')
+    expect(output).toContain('    y = 25%')
+  })
+
+  it('serializes series blocks at chart level', () => {
+    const ast: ChartNode = {
+      type: 'chart',
+      chartType: 'line-multi',
+      properties: [],
+      data: null,
+      highlights: [],
+      areaFills: [],
+      annotations: [],
+      series: [
+        {
+          type: 'series',
+          name: 'Revenue',
+          properties: [
+            { type: 'property', key: 'color', value: '#e15759', isPercentage: false },
+            { type: 'property', key: 'lineWidth', value: 3, isPercentage: false },
+          ],
+        },
+      ],
+      scenes: [],
+      transforms: [],
+    }
+    const output = serialize(ast)
+    expect(output).toContain('  series "Revenue" {')
+    expect(output).toContain('    color = "#e15759"')
+    expect(output).toContain('    lineWidth = 3')
+  })
+
+  it('serializes transform blocks at chart level', () => {
+    const ast: ChartNode = {
+      type: 'chart',
+      chartType: 'line',
+      properties: [],
+      data: null,
+      highlights: [],
+      areaFills: [],
+      annotations: [],
+      series: [],
+      scenes: [],
+      transforms: [{
+        type: 'transform',
+        transformType: 'rolling-average',
+        properties: [
+          { type: 'property', key: 'window', value: 7, isPercentage: false },
+        ],
+      }],
+    }
+    const output = serialize(ast)
+    expect(output).toContain('  transform rolling-average {')
+    expect(output).toContain('    window = 7')
+  })
+
+  it('quotes string values containing special characters', () => {
+    const ast: ChartNode = {
+      type: 'chart',
+      chartType: 'bar',
+      properties: [
+        { type: 'property', key: 'title', value: 'Hello World', isPercentage: false },
+      ],
+      data: null,
+      highlights: [],
+      areaFills: [],
+      annotations: [],
+      series: [],
+      scenes: [],
+      transforms: [],
+    }
+    const output = serialize(ast)
+    expect(output).toContain('  title = "Hello World"')
+  })
+
+  it('does not quote simple identifier values', () => {
+    const ast: ChartNode = {
+      type: 'chart',
+      chartType: 'bar',
+      properties: [
+        { type: 'property', key: 'sort', value: 'descending', isPercentage: false },
+      ],
+      data: null,
+      highlights: [],
+      areaFills: [],
+      annotations: [],
+      series: [],
+      scenes: [],
+      transforms: [],
+    }
+    const output = serialize(ast)
+    expect(output).toContain('  sort = descending')
+  })
+
+  it('quotes hash color values', () => {
+    const ast: ChartNode = {
+      type: 'chart',
+      chartType: 'bar',
+      properties: [],
+      data: null,
+      highlights: [{
+        type: 'highlight',
+        target: 'X',
+        properties: [
+          { type: 'property', key: 'color', value: '#ff0000', isPercentage: false },
+        ],
+      }],
+      areaFills: [],
+      annotations: [],
+      series: [],
+      scenes: [],
+      transforms: [],
+    }
+    const output = serialize(ast)
+    expect(output).toContain('color = "#ff0000"')
+  })
+
+  it('escapes quotes and backslashes in values', () => {
+    const ast: ChartNode = {
+      type: 'chart',
+      chartType: 'bar',
+      properties: [
+        { type: 'property', key: 'title', value: 'say "hello"', isPercentage: false },
+        { type: 'property', key: 'path', value: 'C:\\Users', isPercentage: false },
+      ],
+      data: null,
+      highlights: [],
+      areaFills: [],
+      annotations: [],
+      series: [],
+      scenes: [],
+      transforms: [],
+    }
+    const output = serialize(ast)
+    expect(output).toContain('title = "say \\"hello\\""')
+    expect(output).toContain('path = "C:\\\\Users"')
+  })
+
+  it('serializes scene with areafill and annotations', () => {
+    const ast: ChartNode = {
+      type: 'chart',
+      chartType: 'line',
+      properties: [],
+      data: null,
+      highlights: [],
+      areaFills: [],
+      annotations: [],
+      series: [],
+      scenes: [{
+        type: 'scene',
+        name: 'Full',
+        properties: [],
+        data: null,
+        highlights: [],
+        areaFills: [{
+          type: 'areafill',
+          from: 'A',
+          to: 'B',
+          properties: [{ type: 'property', key: 'color', value: '#abc', isPercentage: false }],
+        }],
+        annotations: [
+          { type: 'annotation', kind: 'range', properties: [{ type: 'property', key: 'start', value: 1, isPercentage: false }] },
+          { type: 'annotation', kind: 'free', properties: [{ type: 'property', key: 'text', value: 'Note', isPercentage: false }] },
+        ],
+        annotationVisibility: [],
+        series: [],
+        transforms: [],
+      }],
+      transforms: [],
+    }
+    const output = serialize(ast)
+    expect(output).toContain('    areafill "A" "B" {')
+    expect(output).toContain('    range {')
+    expect(output).toContain('    note {')
+  })
+
   describe('round-trip', () => {
     const SIMPLE_CHART = `chart horizontal-bar {
   title = "Couverture médiatique"
@@ -473,6 +725,102 @@ describe('serializer', () => {
       const ast2 = parse(s1)
       const s2 = serialize(ast2)
       expect(s2).toBe(s1)
+    })
+
+    it('round-trips areafill blocks', () => {
+      const dsl = `chart line-multi {
+  areafill "Revenue" "Cost" {
+    color = "#0000ff"
+    opacity = 0.3
+  }
+}`
+      const ast1 = parse(dsl)
+      const serialized = serialize(ast1)
+      const ast2 = parse(serialized)
+      expect(ast2.areaFills).toEqual(ast1.areaFills)
+    })
+
+    it('round-trips all annotation types', () => {
+      const dsl = `chart line {
+  annotation "Q3" {
+    text = "Peak"
+    anchorDirection = NE
+  }
+  range {
+    start = 2
+    end = 5
+  }
+  note {
+    text = "Note"
+    x = 50%
+    y = 25%
+  }
+}`
+      const ast1 = parse(dsl)
+      const serialized = serialize(ast1)
+      const ast2 = parse(serialized)
+      expect(ast2.annotations).toEqual(ast1.annotations)
+    })
+
+    it('round-trips series and transforms', () => {
+      const dsl = `chart line-multi {
+  series "Revenue" {
+    color = "#e15759"
+    lineWidth = 3
+  }
+  transform rolling-average {
+    window = 7
+  }
+}`
+      const ast1 = parse(dsl)
+      const serialized = serialize(ast1)
+      const ast2 = parse(serialized)
+      expect(ast2.series).toEqual(ast1.series)
+      expect(ast2.transforms).toEqual(ast1.transforms)
+    })
+
+    it('round-trips a complex chart with all block types', () => {
+      const dsl = `chart line-multi {
+  title = "Full chart"
+  data {
+    _series = "A","B"
+    "2020" = 10,20
+  }
+  highlight "2020" {
+    color = "#e53e3e"
+  }
+  areafill "A" "B" {
+    color = "#0000ff"
+  }
+  annotation "2020" {
+    text = "Start"
+  }
+  range {
+    start = 0
+    end = 1
+  }
+  note {
+    text = "Note"
+    x = 50
+    y = 50
+  }
+  series "A" {
+    color = "#ff0000"
+  }
+  scene "First" {
+    title = "Scene one"
+    highlight "2020" {
+      color = "#00ff00"
+    }
+  }
+  transform rolling-average {
+    window = 3
+  }
+}`
+      const ast1 = parse(dsl)
+      const serialized = serialize(ast1)
+      const ast2 = parse(serialized)
+      expect(ast2).toEqual(ast1)
     })
   })
 })
