@@ -1,6 +1,87 @@
 import { describe, it, expect } from 'vitest'
-import { parseDelimited, parseBpcData, detectColumnTypes, serializeDelimited } from './useDataParser'
+import { parseDelimited, parseBpcData, detectColumnTypes, serializeDelimited, detectDelimiter, isDateValue, isNumberValue } from './useDataParser'
 import { parse, dataEntriesToString } from '@blueprint-chart/lib'
+
+describe('detectDelimiter', () => {
+  it('detects comma delimiter', () => {
+    expect(detectDelimiter('a,b,c\n1,2,3')).toBe(',')
+  })
+
+  it('detects tab delimiter', () => {
+    expect(detectDelimiter('a\tb\tc\n1\t2\t3')).toBe('\t')
+  })
+
+  it('prefers tab when counts are equal', () => {
+    expect(detectDelimiter('a\tb,c')).toBe('\t')
+  })
+
+  it('returns tab for empty input', () => {
+    expect(detectDelimiter('')).toBe('\t')
+  })
+})
+
+describe('isDateValue', () => {
+  it('recognizes YYYY-MM-DD', () => {
+    expect(isDateValue('2024-01-15')).toBe(true)
+  })
+
+  it('recognizes YYYY-MM', () => {
+    expect(isDateValue('2024-01')).toBe(true)
+  })
+
+  it('recognizes YYYY', () => {
+    expect(isDateValue('2024')).toBe(true)
+  })
+
+  it('recognizes MM/DD/YYYY', () => {
+    expect(isDateValue('1/15/2024')).toBe(true)
+  })
+
+  it('recognizes month name format', () => {
+    expect(isDateValue('Jan 15, 2024')).toBe(true)
+  })
+
+  it('recognizes YYYY/MM/DD', () => {
+    expect(isDateValue('2024/01/15')).toBe(true)
+  })
+
+  it('recognizes YYYY/MM', () => {
+    expect(isDateValue('2024/01')).toBe(true)
+  })
+
+  it('recognizes quarter format', () => {
+    expect(isDateValue('Q1 2024')).toBe(true)
+    expect(isDateValue('Q4 2023')).toBe(true)
+  })
+
+  it('rejects non-date strings', () => {
+    expect(isDateValue('hello')).toBe(false)
+    expect(isDateValue('')).toBe(false)
+    expect(isDateValue('Q5 2024')).toBe(false)
+  })
+})
+
+describe('isNumberValue', () => {
+  it('recognizes plain numbers', () => {
+    expect(isNumberValue('42')).toBe(true)
+    expect(isNumberValue('3.14')).toBe(true)
+    expect(isNumberValue('-7')).toBe(true)
+  })
+
+  it('recognizes numbers with currency symbols', () => {
+    expect(isNumberValue('$100')).toBe(true)
+    expect(isNumberValue('42%')).toBe(true)
+  })
+
+  it('recognizes numbers with commas', () => {
+    expect(isNumberValue('1,000')).toBe(true)
+  })
+
+  it('rejects non-numeric strings', () => {
+    expect(isNumberValue('hello')).toBe(false)
+    expect(isNumberValue('')).toBe(false)
+  })
+})
 
 describe('parseDelimited', () => {
   it('returns empty for empty input', () => {
