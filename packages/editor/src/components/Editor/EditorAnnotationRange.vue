@@ -171,13 +171,10 @@ import IPhAlignCenterHorizontal from '~icons/ph/align-center-horizontal'
 import IPhAlignRight from '~icons/ph/align-right'
 
 const props = defineProps<{
-  annotation: RangeAnnotationConfig
   labels: string[]
 }>()
 
-const emit = defineEmits<{
-  'update:annotation': [value: RangeAnnotationConfig]
-}>()
+const annotation = defineModel<RangeAnnotationConfig>('annotation', { required: true })
 
 const orientationOptions = [
   { value: 'vertical', text: 'Vertical' },
@@ -185,18 +182,18 @@ const orientationOptions = [
 ]
 
 const isDiscrete = computed(() =>
-  (props.annotation.orientation ?? 'vertical') === 'vertical' && props.labels.length > 0,
+  (annotation.value.orientation ?? 'vertical') === 'vertical' && props.labels.length > 0,
 )
 
 const labelOptions = computed(() => props.labels.map(l => ({ value: l, text: l })))
 
 function update(key: string, value: unknown) {
-  const copy = { ...props.annotation }
+  const copy = { ...annotation.value }
   if (value === undefined) {
     delete (copy as Record<string, unknown>)[key]
   }
   else { (copy as Record<string, unknown>)[key] = value }
-  emit('update:annotation', copy as RangeAnnotationConfig)
+  annotation.value = copy as RangeAnnotationConfig
 }
 
 const textRef = ref<ComponentPublicInstance | null>(null)

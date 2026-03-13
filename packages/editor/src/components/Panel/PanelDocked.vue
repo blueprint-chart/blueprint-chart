@@ -41,25 +41,24 @@ const props = withDefaults(defineProps<{
   collapsed: boolean
   title: string
   initialWidth?: number
-  modelValue?: number
   showClose?: boolean
 }>(), {
   initialWidth: 330,
-  modelValue: undefined,
   showClose: true,
 })
 
-const emit = defineEmits<{
+defineEmits<{
   'float': []
   'close': []
-  'update:modelValue': [width: number]
 }>()
+
+const model = defineModel<number>()
 
 const MIN_WIDTH = 260
 const MAX_WIDTH = 660
-const panelWidth = shallowRef(props.modelValue ?? props.initialWidth)
+const panelWidth = shallowRef(model.value ?? props.initialWidth)
 
-watch(() => props.modelValue, (v) => {
+watch(model, (v) => {
   if (v !== undefined) {
     panelWidth.value = v
   }
@@ -81,7 +80,7 @@ function onResizeStart(e: PointerEvent) {
   function onMove(ev: PointerEvent) {
     const delta = startX - ev.clientX
     panelWidth.value = Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, startWidth + delta))
-    emit('update:modelValue', panelWidth.value)
+    model.value = panelWidth.value
   }
 
   function onUp() {

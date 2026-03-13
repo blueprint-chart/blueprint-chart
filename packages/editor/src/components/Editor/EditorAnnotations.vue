@@ -133,7 +133,6 @@ import EditorAnnotationRange from './EditorAnnotationRange.vue'
 import EditorAnnotationFree from './EditorAnnotationFree.vue'
 
 const props = defineProps<{
-  modelValue: AnnotationConfig[]
   labels: string[]
   chartType?: string
   chartWidth?: number
@@ -143,11 +142,12 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  'update:modelValue': [value: AnnotationConfig[]]
   'toggle-visibility': [id: string, kind: 'point' | 'range' | 'free']
 }>()
 
-const annotations = computed(() => props.modelValue)
+const model = defineModel<AnnotationConfig[]>({ required: true })
+
+const annotations = computed(() => model.value)
 
 const CHARS = 'abcdefghijklmnopqrstuvwxyz0123456789'
 function generateId(): string {
@@ -220,13 +220,13 @@ function summaryText(ann: AnnotationConfig): string {
 function update(index: number, value: AnnotationConfig) {
   const copy = annotations.value.map(a => ({ ...a }))
   copy[index] = value
-  emit('update:modelValue', copy)
+  model.value = copy
 }
 
 function addPoint() {
   const ann: PointAnnotationConfig = { kind: 'point', id: generateId(), target: props.labels[0] ?? '', text: 'Enter an annotation', showLine: true, showArrow: true }
   const next = [...annotations.value, ann]
-  emit('update:modelValue', next)
+  model.value = next
   openIndex.value = next.length - 1
 }
 
@@ -239,27 +239,27 @@ function addRange() {
     end: hasLabels ? props.labels[props.labels.length - 1] : 100,
   }
   const next = [...annotations.value, ann]
-  emit('update:modelValue', next)
+  model.value = next
   openIndex.value = next.length - 1
 }
 
 function addFree() {
   const ann: FreeAnnotationConfig = { kind: 'free', id: generateId(), text: 'Enter an annotation', x: 0, y: 0 }
   const next = [...annotations.value, ann]
-  emit('update:modelValue', next)
+  model.value = next
   openIndex.value = next.length - 1
 }
 
 function duplicate(index: number) {
   const copy = [...annotations.value]
   copy.splice(index + 1, 0, { ...copy[index], id: generateId() })
-  emit('update:modelValue', copy)
+  model.value = copy
 }
 
 function remove(index: number) {
   const copy = [...annotations.value]
   copy.splice(index, 1)
-  emit('update:modelValue', copy)
+  model.value = copy
   if (openIndex.value === index) {
     openIndex.value = null
   }
