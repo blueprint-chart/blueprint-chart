@@ -6,7 +6,7 @@ export interface ParsedData {
   columnTypes: ColumnType[]
 }
 
-function detectDelimiter(raw: string): string {
+export function detectDelimiter(raw: string): string {
   const firstLine = raw.split('\n')[0] ?? ''
   const tabs = (firstLine.match(/\t/g) ?? []).length
   const commas = (firstLine.match(/,/g) ?? []).length
@@ -57,7 +57,7 @@ const DATE_PATTERNS = [
   /^Q[1-4]\s+\d{4}$/,
 ]
 
-function isDateValue(value: string): boolean {
+export function isDateValue(value: string): boolean {
   if (!value) {
     return false
   }
@@ -74,7 +74,7 @@ function isDateValue(value: string): boolean {
   return false
 }
 
-function isNumberValue(value: string): boolean {
+export function isNumberValue(value: string): boolean {
   if (!value) {
     return false
   }
