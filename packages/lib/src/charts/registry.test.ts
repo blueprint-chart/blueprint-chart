@@ -70,6 +70,18 @@ describe('registry', () => {
     expect(directLabel!.default).not.toBe('auto')
   })
 
+  it.each(['line', 'line-multi', 'area'])('%s does not have valueLabelPosition option', (chartType) => {
+    const options = getChartOptions(chartType)
+    const keys = options.map(o => o.key)
+    expect(keys).not.toContain('valueLabelPosition')
+  })
+
+  it.each(['bar-vertical', 'bar-horizontal', 'bar-multi'])('%s has valueLabelPosition option', (chartType) => {
+    const options = getChartOptions(chartType)
+    const keys = options.map(o => o.key)
+    expect(keys).toContain('valueLabelPosition')
+  })
+
   it('pie has displayAsPercentage defaulting to true', () => {
     const options = getChartOptions('pie')
     const opt = options.find(o => o.key === 'displayAsPercentage')
