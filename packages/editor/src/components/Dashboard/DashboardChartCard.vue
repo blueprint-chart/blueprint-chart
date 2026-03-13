@@ -21,6 +21,7 @@
       />
     </template>
     <template #footer>
+      <DisplayChartTypeBadge :chart-type="chart.chartType" />
       <DisplayDate
         v-if="chart.savedAt"
         :value="chart.savedAt"
@@ -31,7 +32,7 @@
 
 <script setup lang="ts">
 import IPhPencilSimple from '~icons/ph/pencil-simple'
-import { GalleryCard, DisplayDate, ButtonIcon } from '@blueprint-chart/ui'
+import { GalleryCard, DisplayDate, DisplayChartTypeBadge, ButtonIcon } from '@blueprint-chart/ui'
 import type { SavedChartSummary } from '@/composables/useChartSession'
 
 defineProps<{

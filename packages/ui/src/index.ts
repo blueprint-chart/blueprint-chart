@@ -44,6 +44,9 @@ export { default as DisplayDate } from './components/Display/DisplayDate/Display
 export { default as DisplayRange } from './components/Display/DisplayRange/DisplayRange.vue'
 export { default as DisplayNumber } from './components/Display/DisplayNumber/DisplayNumber.vue'
 export { default as DisplayContrastBadge } from './components/Display/DisplayContrastBadge/DisplayContrastBadge.vue'
+export { default as DisplayChartType } from './components/Display/DisplayChartType/DisplayChartType.vue'
+export { default as DisplayChartTypeBadge } from './components/Display/DisplayChartTypeBadge/DisplayChartTypeBadge.vue'
+export { getChartTypeLabel } from './components/Display/chartTypeLabels'
 
 export { default as SectionGroup } from './components/Section/SectionGroup/SectionGroup.vue'
 export { default as SectionTitle } from './components/Section/SectionTitle/SectionTitle.vue'
