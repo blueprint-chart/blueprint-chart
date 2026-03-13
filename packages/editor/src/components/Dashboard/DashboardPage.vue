@@ -76,7 +76,7 @@
       <PanelDocked
         v-model="dockedPanelWidth"
         :collapsed="panelMode !== 'docked'"
-        :show-close="!!selectedChart"
+        :show-close="false"
         :title="selectedChart ? (selectedChart.title || 'Untitled') : 'Chart details'"
         @float="float"
         @close="collapse"
