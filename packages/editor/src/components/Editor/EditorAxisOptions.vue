@@ -292,16 +292,20 @@ const AxisGroup: FunctionalComponent<{
       const maxDef = defs[i + 1]
       children.push(
         h('div', { class: 'd-flex gap-2', key: def.key }, [
-          h(AxisOption, {
-            def,
-            value: currentOptions[def.key as ChartTypeOptionKey],
-            onUpdate: (v: unknown) => emit('update', def.key as ChartTypeOptionKey, v),
-          }),
-          h(AxisOption, {
-            def: maxDef,
-            value: currentOptions[maxDef.key as ChartTypeOptionKey],
-            onUpdate: (v: unknown) => emit('update', maxDef.key as ChartTypeOptionKey, v),
-          }),
+          h('div', { class: 'flex-fill', style: 'min-width:0' }, [
+            h(AxisOption, {
+              def,
+              value: currentOptions[def.key as ChartTypeOptionKey],
+              onUpdate: (v: unknown) => emit('update', def.key as ChartTypeOptionKey, v),
+            }),
+          ]),
+          h('div', { class: 'flex-fill', style: 'min-width:0' }, [
+            h(AxisOption, {
+              def: maxDef,
+              value: currentOptions[maxDef.key as ChartTypeOptionKey],
+              onUpdate: (v: unknown) => emit('update', maxDef.key as ChartTypeOptionKey, v),
+            }),
+          ]),
         ]),
       )
       i += 2
