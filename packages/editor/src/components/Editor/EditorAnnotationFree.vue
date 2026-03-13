@@ -70,7 +70,7 @@ import { ref, onMounted, type ComponentPublicInstance } from 'vue'
 import type { FreeAnnotationConfig } from '@blueprint-chart/lib'
 import { FormControlColorInput, FormControlUnitsInput, FormControlCheckbox } from '@blueprint-chart/ui'
 
-const props = defineProps<{
+defineProps<{
   chartWidth?: number
   chartHeight?: number
 }>()

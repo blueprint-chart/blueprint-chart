@@ -66,8 +66,8 @@ withDefaults(defineProps<{
 })
 
 defineEmits<{
-  'play': []
-  'pause': []
+  play: []
+  pause: []
 }>()
 </script>
 

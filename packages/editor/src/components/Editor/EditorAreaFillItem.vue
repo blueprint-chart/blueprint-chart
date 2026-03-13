@@ -118,7 +118,7 @@ const props = defineProps<{
 }>()
 
 defineEmits<{
-  'remove': []
+  remove: []
 }>()
 
 const fill = defineModel<AreaFillConfig>('fill', { required: true })

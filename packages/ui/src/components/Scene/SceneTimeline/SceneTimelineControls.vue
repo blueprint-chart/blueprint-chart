@@ -63,8 +63,8 @@ const props = withDefaults(defineProps<{
 })
 
 defineEmits<{
-  'play': []
-  'pause': []
+  play: []
+  pause: []
 }>()
 
 const disabled = computed(() => props.total === 0)

@@ -43,10 +43,10 @@ withDefaults(defineProps<{
 })
 
 defineEmits<{
-  'add': []
-  'remove': [index: number]
-  'play': []
-  'pause': []
+  add: []
+  remove: [index: number]
+  play: []
+  pause: []
 }>()
 </script>
 
