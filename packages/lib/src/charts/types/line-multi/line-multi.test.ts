@@ -375,6 +375,14 @@ describe('line-multi chart', () => {
     expect(legendItems).toHaveLength(0)
   })
 
+  it('shows legend (not direct labels) when legend=true and directLabelling=auto', () => {
+    render(container, data, { legend: true, directLabelling: 'auto' })
+    const legendItems = container.querySelectorAll('.bc-legend-item')
+    expect(legendItems).toHaveLength(2)
+    const directLabels = container.querySelectorAll('.bc-direct-label')
+    expect(directLabels).toHaveLength(0)
+  })
+
   it('direct labels use series names as text', () => {
     render(container, data, { directLabelling: 'auto' })
     const labels = container.querySelectorAll('.bc-direct-label')

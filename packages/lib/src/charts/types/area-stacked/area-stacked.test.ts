@@ -238,6 +238,30 @@ describe('area-stacked chart', () => {
     expect(title?.textContent).toBe('Stacked Revenue')
   })
 
+  // ── Direct labelling vs legend ──────────────────────────────────
+
+  it('shows legend (not direct labels) when legend=true and directLabelling=auto', () => {
+    render(container, data, { legend: true, directLabelling: 'auto' })
+    const legend = container.querySelector('.bc-legend')
+    expect(legend).not.toBeNull()
+    const directLabels = container.querySelectorAll('.bc-direct-label')
+    expect(directLabels).toHaveLength(0)
+  })
+
+  it('shows direct labels when directLabelling=auto and legend is not explicitly true', () => {
+    render(container, data, { directLabelling: 'auto' })
+    const directLabels = container.querySelectorAll('.bc-direct-label')
+    expect(directLabels).toHaveLength(3)
+    const legend = container.querySelector('.bc-legend')
+    expect(legend).toBeNull()
+  })
+
+  it('shows direct labels when directLabelling is explicitly true even with legend=true', () => {
+    render(container, data, { legend: true, directLabelling: true })
+    const directLabels = container.querySelectorAll('.bc-direct-label')
+    expect(directLabels).toHaveLength(3)
+  })
+
   // ── Edge cases ───────────────────────────────────────────────────
 
   it('handles empty series array gracefully', () => {
