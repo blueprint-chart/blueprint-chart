@@ -213,6 +213,7 @@ export function render(
   let priorAreas: Element[] = []
   let priorLines: Element[] = []
   let priorDots: Element[] = []
+  let priorSymbolsGroups: Element[] = []
   let priorVAxis: Element | null = null
   let priorHAxis: Element | null = null
   let fadeOverlay: HTMLElement | null = null
@@ -227,6 +228,7 @@ export function render(
       priorAreas = Array.from(container.querySelectorAll('.bc-area'))
       priorLines = Array.from(container.querySelectorAll('.bc-line'))
       priorDots = Array.from(container.querySelectorAll('.bc-dot'))
+      priorSymbolsGroups = Array.from(container.querySelectorAll('.bc-symbols'))
     }
     else if (cached) {
       fadeOverlay = snapshotForFadeOut(container)
@@ -517,8 +519,16 @@ export function render(
       color: resolveSeriesColor(s.name, si, colors, overrides),
       index: li,
     }))
-    const symbolsGroup = d3.select(chartArea).append('g').attr('class', 'bc-symbols').attr('data-series', si)
-    renderLineSymbols(symbolsGroup as unknown as d3.Selection<SVGGElement, unknown, null, undefined>, symbolPoints, labelCount, perSeriesSymbolConfig)
+    const priorGroup = priorSymbolsGroups.find(el => el.getAttribute('data-series') === String(si))
+    let symbolsGroup: d3.Selection<SVGGElement, unknown, null, undefined>
+    if (priorGroup) {
+      chartArea.appendChild(priorGroup)
+      symbolsGroup = d3.select(priorGroup) as unknown as d3.Selection<SVGGElement, unknown, null, undefined>
+    }
+    else {
+      symbolsGroup = d3.select(chartArea).append('g').attr('class', 'bc-symbols').attr('data-series', si) as unknown as d3.Selection<SVGGElement, unknown, null, undefined>
+    }
+    renderLineSymbols(symbolsGroup, symbolPoints, labelCount, perSeriesSymbolConfig, transition)
   })
 
   // Direct labels: show for series with 'direct' label mode (global or per-series)
@@ -539,7 +549,8 @@ export function render(
   if (directLabelEntries.length > 0) {
     directLabelEntries.sort((a, b) => a.naturalY - b.naturalY)
     const naturalYs = directLabelEntries.map(e => e.naturalY)
-    const resolvedYs = spreadLabels(naturalYs, 0, height)
+    const DIRECT_LABEL_GAP = 14
+    const resolvedYs = spreadLabels(naturalYs, 0, height, DIRECT_LABEL_GAP)
     directLabelEntries.forEach((entry, i) => {
       d3.select(chartArea)
         .append('text')

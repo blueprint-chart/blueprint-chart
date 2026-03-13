@@ -394,7 +394,8 @@ export function render(
   if (directLabelEntries.length > 0) {
     directLabelEntries.sort((a, b) => a.naturalY - b.naturalY)
     const naturalYs = directLabelEntries.map(e => e.naturalY)
-    const resolvedYs = spreadLabels(naturalYs, 0, height)
+    const DIRECT_LABEL_GAP = 14
+    const resolvedYs = spreadLabels(naturalYs, 0, height, DIRECT_LABEL_GAP)
     directLabelEntries.forEach((entry, i) => {
       d3.select(chartArea)
         .append('text')
