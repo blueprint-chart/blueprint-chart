@@ -83,4 +83,69 @@ describe('renderLineSymbols', () => {
     expect(paths[0].tagName).toBe('path')
     expect(paths[0].getAttribute('d')).toBeTruthy()
   })
+
+  it('reuses existing circle elements on update with transition', () => {
+    const sel = d3.select(g) as unknown as d3.Selection<SVGGElement, unknown, null, undefined>
+    renderLineSymbols(sel, points, 3, { symbol: 'circle', showOn: 'all', size: 4 })
+
+    const originalElements = Array.from(g.querySelectorAll('.bc-symbol'))
+    expect(originalElements).toHaveLength(3)
+
+    // Update with new positions and transition=true
+    const updatedPoints = [
+      { cx: 20, cy: 90, color: '#4e79a7', index: 0 },
+      { cx: 60, cy: 70, color: '#4e79a7', index: 1 },
+      { cx: 100, cy: 50, color: '#4e79a7', index: 2 },
+    ]
+    renderLineSymbols(sel, updatedPoints, 3, { symbol: 'circle', showOn: 'all', size: 4 }, true)
+
+    const afterElements = Array.from(g.querySelectorAll('.bc-symbol'))
+    expect(afterElements).toHaveLength(3)
+    // Same DOM nodes should be reused (not replaced)
+    expect(afterElements[0]).toBe(originalElements[0])
+    expect(afterElements[1]).toBe(originalElements[1])
+    expect(afterElements[2]).toBe(originalElements[2])
+  })
+
+  it('reuses existing path elements on update with transition', () => {
+    const sel = d3.select(g) as unknown as d3.Selection<SVGGElement, unknown, null, undefined>
+    renderLineSymbols(sel, points, 3, { symbol: 'diamond', showOn: 'all', size: 4 })
+
+    const originalElements = Array.from(g.querySelectorAll('.bc-symbol'))
+    expect(originalElements).toHaveLength(3)
+
+    const updatedPoints = [
+      { cx: 20, cy: 90, color: '#4e79a7', index: 0 },
+      { cx: 60, cy: 70, color: '#4e79a7', index: 1 },
+      { cx: 100, cy: 50, color: '#4e79a7', index: 2 },
+    ]
+    renderLineSymbols(sel, updatedPoints, 3, { symbol: 'diamond', showOn: 'all', size: 4 }, true)
+
+    const afterElements = Array.from(g.querySelectorAll('.bc-symbol'))
+    expect(afterElements).toHaveLength(3)
+    // Same DOM nodes should be reused (not replaced)
+    expect(afterElements[0]).toBe(originalElements[0])
+    expect(afterElements[1]).toBe(originalElements[1])
+    expect(afterElements[2]).toBe(originalElements[2])
+  })
+
+  it('applies transition to updated circle positions', () => {
+    const sel = d3.select(g) as unknown as d3.Selection<SVGGElement, unknown, null, undefined>
+    renderLineSymbols(sel, points, 3, { symbol: 'circle', showOn: 'all', size: 4 })
+
+    const updatedPoints = [
+      { cx: 20, cy: 90, color: '#4e79a7', index: 0 },
+      { cx: 60, cy: 70, color: '#4e79a7', index: 1 },
+      { cx: 100, cy: 50, color: '#4e79a7', index: 2 },
+    ]
+    renderLineSymbols(sel, updatedPoints, 3, { symbol: 'circle', showOn: 'all', size: 4 }, true)
+
+    // With transition, d3 schedules the target values; the immediate attr may still
+    // be old. But we can verify a transition is scheduled on the elements.
+    const firstSymbol = g.querySelector('.bc-symbol')!
+    // d3 stores active transitions in __transition on the node
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const transitionState = (firstSymbol as any).__transition
+    expect(transitionState).toBeTruthy()
+  })
 })
