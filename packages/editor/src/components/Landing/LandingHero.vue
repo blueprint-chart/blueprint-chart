@@ -20,9 +20,9 @@
           />
           <ButtonIcon
             to="/new"
-            label="New"
+            label="New chart"
             variant="primary"
-            :icon-right="IPhArrowRight"
+            :icon-left="IPhPlus"
           />
         </div>
         <div class="landing-hero__inner__text__meta">
@@ -42,7 +42,7 @@
 
 <script setup lang="ts">
 import { ButtonIcon } from '@blueprint-chart/ui'
-import IPhArrowRight from '~icons/ph/arrow-right'
+import IPhPlus from '~icons/ph/plus'
 import { samples } from '@blueprint-chart/lib'
 import LandingBadge from './LandingBadge.vue'
 import LandingChartPreview from './LandingChartPreview.vue'
