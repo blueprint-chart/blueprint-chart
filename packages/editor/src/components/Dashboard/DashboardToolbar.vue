@@ -12,6 +12,7 @@
       <FormControlDropdown
         :model-value="sortValue"
         :options="sortOptions"
+        size="sm"
         @update:model-value="$emit('update:sortValue', $event)"
       />
       <NavigationPillBase

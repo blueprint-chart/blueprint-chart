@@ -5,11 +5,13 @@
     :class="classList"
     :label="label"
     :label-for="id"
+    :size="size"
   >
     <slot />
     <BDropdown
       ref="dropdownRef"
       class="form-control-dropdown__toggle"
+      :size="size"
       :menu-class="menuClass ?? 'form-control-dropdown-menu'"
       :class="dropdownClassList"
       :text="selectedOption?.label ?? placeholder ?? ''"
@@ -82,6 +84,7 @@ const props = withDefaults(defineProps<{
   lightLabel?: boolean
   disabled?: boolean
   placeholder?: string
+  size?: 'sm' | 'md' | 'lg'
   autoClose?: boolean | 'inside' | 'outside'
   menuClass?: string
   minMenuWidth?: number
@@ -93,6 +96,7 @@ const props = withDefaults(defineProps<{
   lightLabel: false,
   disabled: false,
   placeholder: undefined,
+  size: 'md',
   autoClose: true,
   menuClass: undefined,
   minMenuWidth: 0,
