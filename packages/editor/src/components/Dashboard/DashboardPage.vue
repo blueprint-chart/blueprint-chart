@@ -21,6 +21,7 @@
         :selected-id="selectedChartId"
         :layout="viewLayout"
         @select="selectChart"
+        @edit="(id: string) => router.push(`/edit/${id}`)"
         @new="router.push('/new')"
       />
 
