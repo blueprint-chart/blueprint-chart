@@ -6,7 +6,7 @@ import { createFrame } from '../../frame/frame'
 import { createCanvas, contentSize, labelPositionMargins, estimateVerticalLabelWidth } from '../../canvas/canvas'
 import { renderVerticalAxis } from '../../axis/vertical-axis'
 import { renderHorizontalAxis, type AnyXScale } from '../../axis/horizontal-axis'
-import { computeLinearDomain } from '../../scale-helpers'
+import { computeLinearDomain, filterLabelsByRange } from '../../scale-helpers'
 import { resolveCurve } from '../../curves'
 import { createValueLabelPlugin } from '../../plugins/value-labels'
 import { renderAnnotations, snapshotAnnotations, type AnnotationSnapshot } from '../../plugins/annotations'
@@ -210,20 +210,25 @@ export function render(
   const lpMargins = labelPositionMargins(containerWidth, options.verticalAxis?.labelPosition, options.horizontalAxis?.labelPosition, options.verticalAxis?.direction, vLabelW)
   const { chartArea, width, height, margin } = createCanvas(body, lpMargins)
 
-  const areaData: AreaDatum[] = data.labels.map((l, i) => ({
+  // Filter labels by horizontal axis range
+  const rangeIndices = filterLabelsByRange(data.labels, options.horizontalAxis?.range)
+  const filteredLabels = rangeIndices.map(i => data.labels[i])
+  const filteredValues = rangeIndices.map(i => data.values[i])
+
+  const areaData: AreaDatum[] = filteredLabels.map((l, i) => ({
     label: l,
-    value: data.values[i],
+    value: filteredValues[i],
   }))
 
   const pointScale = d3.scalePoint<string>()
-    .domain(data.labels)
+    .domain(filteredLabels)
     .range([0, width])
-    .padding(0.6)
+    .padding(options.edgePadding === false ? 0 : 0.6)
   const xScale: AnyXScale = pointScale
   const xPos = (d: AreaDatum) => pointScale(d.label) ?? 0
 
   const useLog = options.verticalAxis?.scaleType === 'log'
-  const [domainMin, domainMax] = computeLinearDomain(data.values, options.verticalAxis?.range)
+  const [domainMin, domainMax] = computeLinearDomain(filteredValues, options.verticalAxis?.range)
   const y = useLog
     ? d3.scaleSymlog().domain([domainMin, domainMax]).nice().range([height, 0])
     : d3.scaleLinear().domain([domainMin, domainMax]).nice().range([height, 0])

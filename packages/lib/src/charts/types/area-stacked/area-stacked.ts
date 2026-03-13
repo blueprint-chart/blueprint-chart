@@ -15,6 +15,7 @@ import { setupProximityInteraction } from '../../plugins/proximity'
 import { getDefaultTransitionMs, fadeIn, snapshotForFadeOut, commitFadeOut } from '../../motion'
 import { setCachedChart, getCachedChart } from '../../transition-cache'
 import { computeStack, computeStack100 } from '../../stack-helpers'
+import { filterLabelsByRange } from '../../scale-helpers'
 import { resolveSeriesColor, resolveSeriesInterpolation, isSeriesHidden, resolveSeriesLabelMode } from '../../series-helpers'
 import { spreadLabels } from '../../plugins/arc-labels'
 
@@ -144,10 +145,11 @@ class AreaStackedChart extends D3Blueprint<StackedAreaDatum[]> {
 
 export function render(
   container: HTMLElement,
-  data: ChartData,
+  inputData: ChartData,
   options: ChartOptions = {},
   transition = false,
 ): void {
+  let data = inputData
   // Preserve existing data elements for smooth D3 data-join transitions
   let priorAreas: Element[] = []
   let priorLines: Element[] = []
@@ -178,6 +180,14 @@ export function render(
   }
 
   const { body } = createFrame(container, options.frame)
+
+  // Filter labels by horizontal axis range
+  const rangeIndices = filterLabelsByRange(data.labels, options.horizontalAxis?.range)
+  if (rangeIndices.length < data.labels.length) {
+    const filteredLabels = rangeIndices.map(i => data.labels[i])
+    const filteredSeries = (data.series ?? []).map(s => ({ ...s, values: rangeIndices.map(i => s.values[i]) }))
+    data = { labels: filteredLabels, values: rangeIndices.map(i => data.values[i]), series: filteredSeries }
+  }
 
   const allSeries = data.series ?? []
   const series = allSeries.filter(s => !isSeriesHidden(s.name, options.seriesOverrides))
@@ -251,7 +261,7 @@ export function render(
   const pointScale = d3.scalePoint<string>()
     .domain(data.labels)
     .range([0, width])
-    .padding(0.6)
+    .padding(options.edgePadding === false ? 0 : 0.6)
   const xScale: AnyXScale = pointScale
   const xPos = (i: number) => pointScale(data.labels[i]) ?? 0
 
