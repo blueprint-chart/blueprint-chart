@@ -96,7 +96,7 @@ type ChartData = SingleSeriesData | MultiSeriesData
 
 export function extractOptions(chart: ChartNode): ThumbnailOptions {
   const edgePaddingProp = chart.properties.find(p => p.key === 'edgePadding')
-  const edgePadding = edgePaddingProp ? String(edgePaddingProp.value) !== 'false' : true
+  const edgePadding = edgePaddingProp ? String(edgePaddingProp.value) === 'true' : false
   return { edgePadding }
 }
 
@@ -425,7 +425,7 @@ function renderBarStacked(data: ChartData, colors: string[]): string {
   return `<svg viewBox="${RECT_VB}" xmlns="http://www.w3.org/2000/svg">${rects.join('')}</svg>`
 }
 
-export function renderToSvg(chartType: string, data: ChartData, colors: string[], opts: ThumbnailOptions = { edgePadding: true }): string {
+export function renderToSvg(chartType: string, data: ChartData, colors: string[], opts: ThumbnailOptions = { edgePadding: false }): string {
   switch (chartType) {
     case 'bar-vertical': return renderBarVertical(data, colors)
     case 'bar-horizontal': return renderBarHorizontal(data, colors)

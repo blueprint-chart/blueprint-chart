@@ -196,7 +196,7 @@ const sortModeOpt: ChartOptionDef = {
   ],
 }
 
-const edgePaddingOpt: ChartOptionDef = { key: 'edgePadding', type: 'boolean', label: 'Edge padding', default: true }
+const edgePaddingOpt: ChartOptionDef = { key: 'edgePadding', type: 'boolean', label: 'Edge padding', default: false }
 
 const barBackgroundOpt: ChartOptionDef = { key: 'barBackground', type: 'boolean', label: 'Bar background', default: false }
 const barSeparatorsOpt: ChartOptionDef = { key: 'barSeparators', type: 'boolean', label: 'Bar separators', default: false }

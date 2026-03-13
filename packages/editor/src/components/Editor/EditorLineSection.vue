@@ -15,7 +15,7 @@
 
     <FormControlCheckbox
       v-if="hasEdgePadding"
-      :model-value="currentOptions.edgePadding ?? true"
+      :model-value="currentOptions.edgePadding ?? false"
       label="Edge padding"
       @update:model-value="(v) => setOption('edgePadding', v)"
     />

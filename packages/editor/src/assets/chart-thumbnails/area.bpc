@@ -1,6 +1,6 @@
 chart area {
   colorPalette = Blueprint
-  edgePadding = false
+
   data {
     "A" = 3
     "B" = 7

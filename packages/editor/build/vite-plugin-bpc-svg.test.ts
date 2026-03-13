@@ -28,9 +28,9 @@ function parsePolylineXCoords(svg: string): number[] {
 }
 
 describe('extractOptions', () => {
-  it('defaults edgePadding to true when not specified', () => {
+  it('defaults edgePadding to false when not specified', () => {
     const chart: ChartNode = { type: 'chart', chartType: 'line', properties: [], data: null }
-    expect(extractOptions(chart)).toEqual({ edgePadding: true })
+    expect(extractOptions(chart)).toEqual({ edgePadding: false })
   })
 
   it('parses edgePadding = false', () => {
