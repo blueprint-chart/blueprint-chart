@@ -48,8 +48,8 @@ const props = withDefaults(defineProps<{
 })
 
 defineEmits<{
-  'float': []
-  'close': []
+  float: []
+  close: []
 }>()
 
 const model = defineModel<number>()
