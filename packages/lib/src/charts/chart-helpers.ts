@@ -239,6 +239,10 @@ export function buildChartOptions(opts: Partial<ChartTypeOptions>, backgroundCol
     result.stackMode = opts.stackMode as 'normal' | 'percent'
   }
 
+  if (opts.edgePadding !== undefined) {
+    result.edgePadding = opts.edgePadding
+  }
+
   if (opts.lineSymbols) {
     result.lineSymbols = {
       symbol: (opts.lineSymbolShape as 'circle' | 'square' | 'diamond' | 'triangle' | 'triangleDown' | 'cross' | 'star') ?? 'circle',

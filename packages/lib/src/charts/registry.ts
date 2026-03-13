@@ -196,6 +196,8 @@ const sortModeOpt: ChartOptionDef = {
   ],
 }
 
+const edgePaddingOpt: ChartOptionDef = { key: 'edgePadding', type: 'boolean', label: 'Edge padding', default: true }
+
 const barBackgroundOpt: ChartOptionDef = { key: 'barBackground', type: 'boolean', label: 'Bar background', default: false }
 const barSeparatorsOpt: ChartOptionDef = { key: 'barSeparators', type: 'boolean', label: 'Bar separators', default: false }
 const swapLabelValueOpt: ChartOptionDef = { key: 'swapLabelValue', type: 'boolean', label: 'Swap labels and values', default: false }
@@ -332,17 +334,17 @@ const donutArcOpts = [displayAsPercentageOpt, donutShowTotalOpt, showLabelsOpt, 
 registerChart('bar-vertical', barVertical, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, swapLabelValueOpt, barBackgroundOpt, barSeparatorsOpt, ...barVerticalAxisOpts, ...barOpts])
 registerChart('bar-horizontal', barHorizontal, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, swapLabelValueOpt, barBackgroundOpt, barSeparatorsOpt, ...barHorizontalAxisOpts, ...barHorizontalOpts])
 registerChart('bar-multi', barMulti, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, sortModeOpt, legendOpt, legendAnchorOpt, legendPositionOpt, directLabellingOpt, directLabelAnchorOpt, ...barVerticalAxisOpts, ...barOpts])
-registerChart('line', line, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, lineInterpolationOpt, ...lineAxisOpts, ...lineOpts])
-registerChart('line-multi', lineMulti, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, lineInterpolationOpt, sortModeOpt, legendOpt, legendAnchorOpt, legendPositionOpt, lineMultiDirectLabellingOpt, ...lineAxisOpts, ...lineOpts])
+registerChart('line', line, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, lineInterpolationOpt, edgePaddingOpt, ...lineAxisOpts, ...lineOpts])
+registerChart('line-multi', lineMulti, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, lineInterpolationOpt, edgePaddingOpt, sortModeOpt, legendOpt, legendAnchorOpt, legendPositionOpt, lineMultiDirectLabellingOpt, ...lineAxisOpts, ...lineOpts])
 registerChart('donut', donut, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, legendOpt, legendAnchorOpt, legendPositionOpt, directLabellingOpt, tooltipsOpt, ...donutArcOpts])
 registerChart('pie', pie, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, legendOpt, legendAnchorOpt, legendPositionOpt, directLabellingOpt, tooltipsOpt, ...pieArcOpts])
 
 // Area: same axis options as line, same interaction options
-registerChart('area', area, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, lineInterpolationOpt, ...lineAxisOpts, ...lineOpts])
+registerChart('area', area, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, lineInterpolationOpt, edgePaddingOpt, ...lineAxisOpts, ...lineOpts])
 
 // Stacked area: multi-series with legend + stack mode
 const areaStackedAxisOpts = axisOpts({ verticalGrid: 'dashed', horizontalGrid: 'none', showVerticalTicks: false, showHorizontalTicks: false, showVerticalAxis: false, valueAxis: 'vertical', horizontalRange: true })
-registerChart('area-stacked', areaStacked, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, lineInterpolationOpt, stackModeOpt, legendOpt, legendAnchorOpt, legendPositionOpt, directLabellingOpt, ...areaStackedAxisOpts, tooltipsOpt, ...lineCrosshairOpts])
+registerChart('area-stacked', areaStacked, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, lineInterpolationOpt, edgePaddingOpt, stackModeOpt, legendOpt, legendAnchorOpt, legendPositionOpt, directLabellingOpt, ...areaStackedAxisOpts, tooltipsOpt, ...lineCrosshairOpts])
 
 // Stacked column: vertical bars stacked
 registerChart('column-stacked', columnStacked, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, stackModeOpt, sortModeOpt, legendOpt, legendAnchorOpt, legendPositionOpt, directLabellingOpt, directLabelAnchorOpt, ...barVerticalAxisOpts, ...barOpts])
