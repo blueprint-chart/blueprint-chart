@@ -74,11 +74,27 @@ export function isDateValue(value: string): boolean {
   return false
 }
 
+/**
+ * Strip comparison/approximation prefixes (<, >, ≤, ≥, ~) from numeric values.
+ * Returns the cleaned string (e.g. "<1" → "1", "~50" → "50").
+ * Non-numeric strings are returned unchanged.
+ */
+export function cleanNumericValue(value: string): string {
+  const match = value.match(/^[<>≤≥~]\s*(.+)$/)
+  if (match) {
+    const inner = match[1].replace(/[,%$€£¥₹]/g, '').trim()
+    if (inner.length > 0 && !Number.isNaN(Number(inner))) {
+      return match[1].trim()
+    }
+  }
+  return value
+}
+
 export function isNumberValue(value: string): boolean {
   if (!value) {
     return false
   }
-  const cleaned = value.replace(/[,%$€£¥₹]/g, '').trim()
+  const cleaned = cleanNumericValue(value).replace(/[,%$€£¥₹]/g, '').trim()
   return cleaned.length > 0 && !Number.isNaN(Number(cleaned))
 }
 
@@ -203,6 +219,9 @@ export function parseDelimited(raw: string, options?: ParseDelimitedOptions): Pa
       return cell
     }))
   }
+
+  // Clean comparison/approximation prefixes (e.g. "<1" → "1", "~50" → "50")
+  rows = rows.map(r => r.map(cleanNumericValue))
 
   const columnTypes = detectColumnTypes(columns, rows)
 

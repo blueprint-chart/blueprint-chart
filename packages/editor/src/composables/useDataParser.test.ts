@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { parseDelimited, parseBpcData, detectColumnTypes, serializeDelimited, detectDelimiter, isDateValue, isNumberValue } from './useDataParser'
+import { parseDelimited, parseBpcData, detectColumnTypes, serializeDelimited, detectDelimiter, isDateValue, isNumberValue, cleanNumericValue } from './useDataParser'
 import { parse, dataEntriesToString } from '@blueprint-chart/lib'
 
 describe('detectDelimiter', () => {
@@ -77,9 +77,48 @@ describe('isNumberValue', () => {
     expect(isNumberValue('1,000')).toBe(true)
   })
 
+  it('recognizes values with comparison prefixes', () => {
+    expect(isNumberValue('<1')).toBe(true)
+    expect(isNumberValue('>100')).toBe(true)
+    expect(isNumberValue('≤0.5')).toBe(true)
+    expect(isNumberValue('≥10')).toBe(true)
+    expect(isNumberValue('~50')).toBe(true)
+  })
+
   it('rejects non-numeric strings', () => {
     expect(isNumberValue('hello')).toBe(false)
     expect(isNumberValue('')).toBe(false)
+  })
+})
+
+describe('cleanNumericValue', () => {
+  it('strips < prefix and returns the number', () => {
+    expect(cleanNumericValue('<1')).toBe('1')
+  })
+
+  it('strips > prefix', () => {
+    expect(cleanNumericValue('>100')).toBe('100')
+  })
+
+  it('strips ≤ prefix', () => {
+    expect(cleanNumericValue('≤0.5')).toBe('0.5')
+  })
+
+  it('strips ≥ prefix', () => {
+    expect(cleanNumericValue('≥10')).toBe('10')
+  })
+
+  it('strips ~ prefix', () => {
+    expect(cleanNumericValue('~50')).toBe('50')
+  })
+
+  it('returns plain numbers unchanged', () => {
+    expect(cleanNumericValue('42')).toBe('42')
+    expect(cleanNumericValue('-3.14')).toBe('-3.14')
+  })
+
+  it('returns non-numeric strings unchanged', () => {
+    expect(cleanNumericValue('hello')).toBe('hello')
   })
 })
 
@@ -161,6 +200,15 @@ describe('parseDelimited', () => {
     const result = parseDelimited(data, { decimalSeparator: ',' })
     expect(result.rows[0][1]).toBe('3.14')
     expect(result.rows[1][1]).toBe('2.72')
+  })
+
+  it('cleans comparison prefixes from numeric values', () => {
+    const csv = 'Term,Value\nChatGPT,<1\nAI,>50\nML,~25'
+    const result = parseDelimited(csv)
+    expect(result.rows[0][1]).toBe('1')
+    expect(result.rows[1][1]).toBe('50')
+    expect(result.rows[2][1]).toBe('25')
+    expect(result.columnTypes[1]).toBe('number')
   })
 
   it('detects column types in parsed result', () => {
