@@ -779,6 +779,19 @@ describe('serializer', () => {
       expect(ast2.transforms).toEqual(ast1.transforms)
     })
 
+    it('round-trips data with ISO date labels', () => {
+      const dsl = `chart line {
+  data {
+    "2022-09-25" = 42
+    "2022-10-01" = 55
+  }
+}`
+      const ast1 = parse(dsl)
+      const serialized = serialize(ast1)
+      const ast2 = parse(serialized)
+      expect(ast2).toEqual(ast1)
+    })
+
     it('round-trips a complex chart with all block types', () => {
       const dsl = `chart line-multi {
   title = "Full chart"

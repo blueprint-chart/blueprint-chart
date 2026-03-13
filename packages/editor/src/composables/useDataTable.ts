@@ -24,13 +24,20 @@ const sourceFormat = ref<SourceFormat>('delimited')
 const sourceLabel = shallowRef('')
 const loadedAt = ref<number | null>(null)
 
+function formatValue(v: string): string {
+  if (/^-?\d+(\.\d+)?%?$/.test(v)) {
+    return v
+  }
+  return `"${v.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`
+}
+
 export function serializeTableData(cols: string[], rows: string[][]): string {
   if (cols.length <= 2) {
     return rows
       .map((row) => {
         const label = row[0] ?? ''
         const value = row[1] ?? ''
-        return `"${label}" = ${value}`
+        return `"${label}" = ${formatValue(value)}`
       })
       .join('\n')
   }
@@ -39,7 +46,7 @@ export function serializeTableData(cols: string[], rows: string[][]): string {
   const header = `_series = ${seriesNames.map(n => `"${n}"`).join(',')}`
   const lines = rows.map((row) => {
     const label = row[0] ?? ''
-    const values = row.slice(1).map(v => v ?? '').join(',')
+    const values = row.slice(1).map(v => formatValue(v ?? '')).join(',')
     return `"${label}" = ${values}`
   })
   return [header, ...lines].join('\n')

@@ -49,6 +49,19 @@ export function extractChartTypeOptions(
  * Convert data entries from the AST back to the editor's raw data string format.
  * Preserves percentage syntax and _series metadata.
  */
+function needsQuoting(val: string): boolean {
+  if (/^-?\d+(\.\d+)?$/.test(val)) {
+    return false
+  }
+  if (/^-?\d+(\.\d+)?%$/.test(val)) {
+    return false
+  }
+  if (/^[a-zA-Z_][a-zA-Z0-9_-]*$/.test(val)) {
+    return false
+  }
+  return true
+}
+
 export function dataEntriesToString(data: DataNode): string {
   return data.entries
     .map((e) => {
@@ -65,7 +78,7 @@ export function dataEntriesToString(data: DataNode): string {
       if (e.key === '_series') {
         return `_series = "${val}"`
       }
-      if (typeof e.value === 'string' && e.value.includes(',')) {
+      if (typeof e.value === 'string' && needsQuoting(val)) {
         return `"${e.key}" = "${val}"`
       }
       return `"${e.key}" = ${val}`
