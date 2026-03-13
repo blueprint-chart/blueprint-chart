@@ -1,17 +1,5 @@
 <template>
-  <div class="d-flex flex-column gap-3">
-    <h6 class="fw-bold mb-0">
-      Fill areas
-    </h6>
-
-    <BButton
-      variant="outline-primary"
-      size="sm"
-      @click="add"
-    >
-      Add area fill
-    </BButton>
-
+  <div class="d-flex flex-column gap-2">
     <EditorAreaFillItem
       v-for="(fill, i) in fills"
       :id="i"
@@ -22,15 +10,23 @@
       @remove="remove(i)"
     />
   </div>
+  <ButtonAdd
+    label="Add"
+    @click="add"
+  />
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { AreaFillConfig } from '@blueprint-chart/lib'
+import type { AreaFillConfig, SeriesOverride } from '@blueprint-chart/lib'
+import { resolveSeriesInterpolation } from '@blueprint-chart/lib'
+import { ButtonAdd } from '@blueprint-chart/ui'
 import EditorAreaFillItem from './EditorAreaFillItem.vue'
 
 const props = defineProps<{
   seriesNames: string[]
+  seriesOverrides: SeriesOverride[]
+  globalInterpolation: string
 }>()
 
 const model = defineModel<AreaFillConfig[]>({ required: true })
@@ -46,9 +42,10 @@ function updateAt(index: number, value: AreaFillConfig) {
 function add() {
   const from = props.seriesNames[0] ?? ''
   const to = props.seriesNames[1] ?? props.seriesNames[0] ?? ''
+  const interpolation = resolveSeriesInterpolation(from, props.globalInterpolation, props.seriesOverrides)
   model.value = [
     ...fills.value,
-    { from, to, color: '#cccccc', opacity: 30, interpolation: 'linear' },
+    { from, to, color: '#cccccc', opacity: 30, interpolation },
   ]
 }
 
