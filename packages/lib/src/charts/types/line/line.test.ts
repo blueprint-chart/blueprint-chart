@@ -514,20 +514,20 @@ describe('line chart', () => {
   // ── Edge padding ──────────────────────────────────────────────────
 
   describe('edge padding', () => {
-    it('has edge padding by default (first point not at x=0)', () => {
+    it('has no edge padding by default (first point at x=0)', () => {
       render(container, data)
       const dot = container.querySelector('.bc-dot')
-      const cx = parseFloat(dot?.getAttribute('cx') ?? '0')
-      // With default padding (0.6), first dot is offset from the left edge
-      expect(cx).toBeGreaterThan(0)
+      const cx = parseFloat(dot?.getAttribute('cx') ?? '-1')
+      // Default is no padding, first dot at the left edge
+      expect(cx).toBe(0)
     })
 
-    it('removes edge padding when edgePadding=false', () => {
-      render(container, data, { edgePadding: false })
+    it('adds edge padding when edgePadding=true', () => {
+      render(container, data, { edgePadding: true })
       const dot = container.querySelector('.bc-dot')
-      const cx = parseFloat(dot?.getAttribute('cx') ?? '-1')
-      // With no padding, first dot is at x=0
-      expect(cx).toBe(0)
+      const cx = parseFloat(dot?.getAttribute('cx') ?? '0')
+      // With padding (0.6), first dot is offset from the left edge
+      expect(cx).toBeGreaterThan(0)
     })
 
     it('last point is at the right edge when edgePadding=false', () => {
