@@ -15,7 +15,7 @@ const label = computed(() => getChartTypeLabel(props.chartType))
 
 <style scoped lang="scss">
 .display-chart-type {
-  font-size: 0.8125rem;
+  font-size: var(--bs-font-size-sm);
   color: var(--bs-body-color);
 }
 </style>

@@ -46,7 +46,7 @@ defineEmits<{
 
   &__label {
     flex: 1;
-    font-size: 0.8125rem;
+    font-size: var(--bs-font-size-sm);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;

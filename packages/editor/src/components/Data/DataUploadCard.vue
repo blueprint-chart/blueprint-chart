@@ -232,16 +232,16 @@ const tabOptions = [
           padding: 0 0.25rem;
           background: var(--bs-body-bg);
           border: 1px solid var(--bs-border-color);
-          border-radius: 0.1875rem;
+          border-radius: 0.25rem;
           font-size: var(--bs-font-size-xs);
           font-weight: 600;
           color: var(--bs-secondary-color);
-          margin: 0 0.0625rem;
+          margin: 0 1px;
         }
       }
 
       &__btn {
-        padding: 0.3125rem 0.75rem;
+        padding: 0.25rem 0.75rem;
         font-size: var(--bs-font-size-sm);
         font-weight: 600;
         color: #fff;
@@ -337,8 +337,8 @@ const tabOptions = [
       }
 
       svg {
-        width: 0.9375rem;
-        height: 0.9375rem;
+        width: 1rem;
+        height: 1rem;
       }
     }
   }

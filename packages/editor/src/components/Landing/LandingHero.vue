@@ -66,7 +66,7 @@ const heroBpc = samples.find(s => s.id === 'co2-emissions')!.dsl
 
     &__text {
       &__eyebrow {
-        font-size: 0.6875rem;
+        font-size: var(--bs-font-size-xs);
         font-weight: 700;
         letter-spacing: 0.12em;
         text-transform: uppercase;
@@ -101,7 +101,7 @@ const heroBpc = samples.find(s => s.id === 'co2-emissions')!.dsl
       }
 
       &__sub {
-        font-size: 1.0625rem;
+        font-size: 1rem;
         color: var(--bs-secondary-color);
         line-height: 1.65;
         max-width: 28.75rem;

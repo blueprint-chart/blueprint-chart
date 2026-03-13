@@ -34,13 +34,13 @@ defineProps<{
   }
 
   &__label {
-    font-size: 0.625rem;
+    font-size: var(--bs-font-size-xs);
     color: var(--bs-secondary-color);
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     line-height: 1;
-    margin: -0.3125rem auto 0 auto;
+    margin: -0.25rem auto 0 auto;
     padding: 0 0.375rem;
     width: fit-content;
     text-shadow:

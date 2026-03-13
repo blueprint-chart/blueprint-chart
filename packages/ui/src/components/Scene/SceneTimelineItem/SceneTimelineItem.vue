@@ -88,7 +88,7 @@ defineEmits<{
     border-radius: 50%;
     background: var(--bs-danger, #dc3545);
     color: #fff;
-    font-size: 0.6875rem;
+    font-size: var(--bs-font-size-xs);
     line-height: 1;
     opacity: 0;
     transition: opacity 0.15s ease;
@@ -97,7 +97,7 @@ defineEmits<{
   }
 
   &__label {
-    font-size: 0.625rem;
+    font-size: var(--bs-font-size-xs);
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.04em;
@@ -120,7 +120,7 @@ defineEmits<{
   }
 
   &__name {
-    font-size: 0.6875rem;
+    font-size: var(--bs-font-size-xs);
     color: var(--bs-body-color);
     white-space: nowrap;
     overflow: hidden;

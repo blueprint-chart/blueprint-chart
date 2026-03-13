@@ -149,8 +149,8 @@ const fitnessLabel = computed(() => {
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.05em;
-        padding: 0.0625rem 0.3125rem;
-        border-radius: 0.1875rem;
+        padding: 1px 0.25rem;
+        border-radius: 0.25rem;
 
         &--best {
           background: var(--bs-success-bg-subtle);

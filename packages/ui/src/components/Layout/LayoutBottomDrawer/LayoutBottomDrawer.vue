@@ -151,7 +151,7 @@ const drawerStyle = computed<CSSProperties>(() => ({
     flex-shrink: 0;
 
     &__title {
-      font-size: 0.875rem;
+      font-size: var(--bs-font-size-md);
       font-weight: 600;
       margin: 0;
       color: var(--bs-body-color);

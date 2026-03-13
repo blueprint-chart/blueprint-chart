@@ -223,7 +223,7 @@ watch(() => model.value, (val) => {
   }
 
   &__popover {
-    font-size: 0.8125rem;
+    font-size: var(--bs-font-size-sm);
 
     &__list {
       display: flex;
@@ -258,25 +258,25 @@ watch(() => model.value, (val) => {
           min-width: 0;
 
           &__label {
-            font-size: 0.6875rem;
+            font-size: var(--bs-font-size-xs);
             font-weight: 600;
             color: var(--bs-body-color);
           }
 
           &__ticks {
             font-family: var(--bs-font-monospace);
-            font-size: 0.625rem;
+            font-size: var(--bs-font-size-xs);
             color: var(--bs-secondary-color);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            margin-top: 0.0625rem;
+            margin-top: 1px;
           }
         }
 
         &__check {
           color: var(--bs-primary);
-          font-size: 0.75rem;
+          font-size: var(--bs-font-size-sm);
           flex-shrink: 0;
         }
       }
@@ -287,7 +287,7 @@ watch(() => model.value, (val) => {
       border-top: 1px solid var(--bs-border-color);
 
       &__section-label {
-        font-size: 0.625rem;
+        font-size: var(--bs-font-size-xs);
         font-weight: 600;
         letter-spacing: 0.08em;
         text-transform: uppercase;
@@ -303,7 +303,7 @@ watch(() => model.value, (val) => {
         border: 1px solid var(--bs-border-color);
         border-radius: var(--bs-border-radius);
         font-family: var(--bs-font-monospace);
-        font-size: 0.75rem;
+        font-size: var(--bs-font-size-sm);
         color: var(--bs-body-color);
         outline: none;
         transition: border-color 0.12s ease, box-shadow 0.12s ease;
@@ -321,7 +321,7 @@ watch(() => model.value, (val) => {
 
       &__preview {
         margin-top: 0.375rem;
-        font-size: 0.6875rem;
+        font-size: var(--bs-font-size-xs);
         color: var(--bs-secondary-color);
 
         &__value {

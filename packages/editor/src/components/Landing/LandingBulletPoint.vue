@@ -28,15 +28,15 @@ defineProps<{
     height: 0.5rem;
     background: var(--bs-primary);
     border-radius: 50%;
-    margin-top: 0.4375rem;
+    margin-top: 0.5rem;
   }
 
   &__title {
-    font-size: 0.875rem;
+    font-size: var(--bs-font-size-md);
   }
 
   &__desc {
-    font-size: 0.8125rem;
+    font-size: var(--bs-font-size-sm);
     color: var(--bs-secondary-color);
     margin-top: 0.125rem;
     line-height: 1.6;

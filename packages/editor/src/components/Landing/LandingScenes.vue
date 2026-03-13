@@ -209,15 +209,15 @@ const features: { icon: Component, title: string, description: string }[] = [
   border-radius: calc(var(--bc-tile-radius) - 2px);
 
   &__icon {
-    margin-top: 0.0625rem;
+    margin-top: 1px;
   }
 
   &__title {
-    font-size: 0.8125rem;
+    font-size: var(--bs-font-size-sm);
   }
 
   &__desc {
-    font-size: 0.75rem;
+    font-size: var(--bs-font-size-sm);
     color: var(--bs-secondary-color);
     margin-top: 0.125rem;
     line-height: 1.5;

@@ -142,7 +142,7 @@ function onFileSelect(e: globalThis.Event) {
   }
 
   &__btn {
-    padding: 0.4375rem 1.25rem;
+    padding: 0.5rem 1.25rem;
     font-size: var(--bs-font-size-sm);
     font-weight: 600;
     color: var(--bs-body-color);
@@ -170,8 +170,8 @@ function onFileSelect(e: globalThis.Event) {
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.05em;
-      padding: 0.125rem 0.4375rem;
-      border-radius: 0.1875rem;
+      padding: 0.125rem 0.5rem;
+      border-radius: 0.25rem;
       background: var(--bs-tertiary-bg);
       color: var(--bs-secondary-color);
     }

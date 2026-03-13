@@ -20,17 +20,17 @@ defineProps<{
 .dashboard-meta-chip {
   background: var(--bs-tertiary-bg);
   border-radius: var(--bs-border-radius);
-  padding: 0.5625rem 0.6875rem;
+  padding: 0.5rem 0.75rem;
 
   &__label {
-    font-size: 0.625rem;
+    font-size: var(--bs-font-size-xs);
     color: var(--bs-secondary-color);
     font-weight: 500;
     margin-bottom: 0.125rem;
   }
 
   &__value {
-    font-size: 0.8125rem;
+    font-size: var(--bs-font-size-sm);
     font-weight: 700;
     color: var(--bs-body-color);
   }

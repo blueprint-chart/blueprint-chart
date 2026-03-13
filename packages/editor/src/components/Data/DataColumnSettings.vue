@@ -225,7 +225,7 @@ const benfordDetection = computed(() => {
         display: inline-flex;
         align-items: center;
         gap: 0.25rem;
-        padding: 0.1875rem 0.5rem;
+        padding: 0.25rem 0.5rem;
         border-radius: 0.25rem;
         font-size: var(--bs-font-size-xs);
         font-weight: 600;

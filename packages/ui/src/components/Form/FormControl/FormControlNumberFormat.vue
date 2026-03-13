@@ -261,7 +261,7 @@ const previewSamples = computed(() =>
   }
 
   &__popover {
-    font-size: 0.8125rem;
+    font-size: var(--bs-font-size-sm);
 
     &__preview {
       display: grid;
@@ -278,7 +278,7 @@ const previewSamples = computed(() =>
         }
 
         &__label {
-          font-size: 0.5625rem;
+          font-size: 0.5rem;
           font-weight: 600;
           letter-spacing: 0.1em;
           text-transform: uppercase;
@@ -288,7 +288,7 @@ const previewSamples = computed(() =>
 
         &__value {
           font-family: var(--bs-font-monospace);
-          font-size: 0.8125rem;
+          font-size: var(--bs-font-size-sm);
           font-weight: 500;
 
           &--neg {
@@ -306,10 +306,10 @@ const previewSamples = computed(() =>
       padding: 0.625rem;
       display: flex;
       flex-direction: column;
-      gap: 0.5625rem;
+      gap: 0.5rem;
 
       &__section-label {
-        font-size: 0.625rem;
+        font-size: var(--bs-font-size-xs);
         font-weight: 600;
         letter-spacing: 0.08em;
         text-transform: uppercase;
@@ -324,7 +324,7 @@ const previewSamples = computed(() =>
 
         &__chip {
           font-family: var(--bs-font-monospace);
-          font-size: 0.6875rem;
+          font-size: var(--bs-font-size-xs);
           padding: 0.125rem 0.5rem;
           background: var(--bs-tertiary-bg);
           border: 1px solid var(--bs-border-color);
@@ -358,10 +358,10 @@ const previewSamples = computed(() =>
       &__grid-2 {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 0.4375rem;
+        gap: 0.5rem;
 
         &__field-label {
-          font-size: 0.625rem;
+          font-size: var(--bs-font-size-xs);
           color: var(--bs-secondary-color);
           margin-bottom: 0.125rem;
         }
@@ -374,7 +374,7 @@ const previewSamples = computed(() =>
           border: 1px solid var(--bs-border-color);
           border-radius: var(--bs-border-radius);
           font-family: var(--bs-font-monospace);
-          font-size: 0.75rem;
+          font-size: var(--bs-font-size-sm);
           color: var(--bs-body-color);
           outline: none;
           transition: border-color 0.12s ease, box-shadow 0.12s ease;
@@ -401,7 +401,7 @@ const previewSamples = computed(() =>
         &__btn {
           flex: 1;
           font-family: var(--bs-font-monospace);
-          font-size: 0.625rem;
+          font-size: var(--bs-font-size-xs);
           padding: 0 0.125rem;
           background: var(--bs-body-bg);
           border: none;
@@ -433,7 +433,7 @@ const previewSamples = computed(() =>
         align-items: center;
         gap: 0.5rem;
         cursor: pointer;
-        font-size: 0.8125rem;
+        font-size: var(--bs-font-size-sm);
 
         &__checkbox {
           accent-color: var(--bs-primary);
@@ -453,7 +453,7 @@ const previewSamples = computed(() =>
         height: 1.75rem;
 
         &__label {
-          font-size: 0.5625rem;
+          font-size: 0.5rem;
           font-weight: 600;
           letter-spacing: 0.12em;
           text-transform: uppercase;
@@ -463,7 +463,7 @@ const previewSamples = computed(() =>
 
         &__value {
           font-family: var(--bs-font-monospace);
-          font-size: 0.75rem;
+          font-size: var(--bs-font-size-sm);
           color: var(--bs-primary);
           flex: 1;
           white-space: nowrap;

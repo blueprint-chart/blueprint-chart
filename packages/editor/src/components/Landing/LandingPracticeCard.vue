@@ -55,14 +55,14 @@ defineProps<{
   }
 
   &__title {
-    font-size: 0.875rem;
+    font-size: var(--bs-font-size-md);
     font-weight: 700;
     color: var(--bs-body-color);
     margin-bottom: 0.375rem;
   }
 
   &__desc {
-    font-size: 0.8125rem;
+    font-size: var(--bs-font-size-sm);
     color: var(--bs-secondary-color);
     line-height: 1.6;
     margin: 0;
@@ -72,11 +72,11 @@ defineProps<{
     display: inline-flex;
     align-items: center;
     margin-top: 0.625rem;
-    padding: 0.1875rem 0.5rem;
+    padding: 0.25rem 0.5rem;
     background: var(--bs-primary-bg-subtle);
     color: var(--bs-primary);
     border-radius: 0.25rem;
-    font-size: 0.6875rem;
+    font-size: var(--bs-font-size-xs);
     font-weight: 700;
   }
 }

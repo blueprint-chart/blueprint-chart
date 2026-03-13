@@ -31,7 +31,7 @@ defineProps<{
 
   &__name {
     flex: 1;
-    font-size: 0.8125rem;
+    font-size: var(--bs-font-size-sm);
     color: var(--bs-body-color);
     overflow: hidden;
     text-overflow: ellipsis;

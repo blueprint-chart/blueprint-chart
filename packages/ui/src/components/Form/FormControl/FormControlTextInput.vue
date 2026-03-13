@@ -44,7 +44,7 @@ withDefaults(defineProps<{
     &__suffix {
       white-space: nowrap;
       color: var(--bs-secondary-color);
-      font-size: 0.75rem;
+      font-size: var(--bs-font-size-sm);
     }
   }
 }

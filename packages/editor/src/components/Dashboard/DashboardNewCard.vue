@@ -67,8 +67,8 @@ const cardClassList = computed(() => ({
   }
 
   &__icon {
-    width: 1.625rem;
-    height: 1.625rem;
+    width: 1.5rem;
+    height: 1.5rem;
 
     .dashboard-new-card--row & {
       width: 1rem;
@@ -77,7 +77,7 @@ const cardClassList = computed(() => ({
   }
 
   &__label {
-    font-size: 0.8125rem;
+    font-size: var(--bs-font-size-sm);
     font-weight: 600;
   }
 }

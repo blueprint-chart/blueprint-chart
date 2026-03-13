@@ -132,17 +132,17 @@ const cardClassList = computed(() => ({
   }
 
   &__meta {
-    padding: 0.8125rem 0.9375rem 0.9375rem;
+    padding: 0.75rem 1rem 1rem;
     display: flex;
     flex-direction: column;
     flex: 1;
 
     &__title {
-      font-size: 0.8125rem;
+      font-size: var(--bs-font-size-sm);
       font-weight: 700;
       color: var(--bs-body-color);
       line-height: 1.4;
-      margin-bottom: 0.1875rem;
+      margin-bottom: 0.25rem;
       display: -webkit-box;
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
@@ -150,12 +150,12 @@ const cardClassList = computed(() => ({
     }
 
     &__subtitle {
-      font-size: 0.6875rem;
+      font-size: var(--bs-font-size-xs);
       color: var(--bs-secondary-color);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      margin-bottom: 0.5625rem;
+      margin-bottom: 0.5rem;
     }
 
     &__footer {
@@ -198,7 +198,7 @@ const cardClassList = computed(() => ({
     .gallery-card__meta__title {
       grid-column: 1;
       grid-row: 1;
-      font-size: 0.8125rem;
+      font-size: var(--bs-font-size-sm);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;

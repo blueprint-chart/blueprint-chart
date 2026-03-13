@@ -23,7 +23,7 @@ const classList = computed(() => ({
 
 <style scoped lang="scss">
 .section-title {
-  font-size: 0.625rem;
+  font-size: var(--bs-font-size-xs);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--bs-secondary-color);

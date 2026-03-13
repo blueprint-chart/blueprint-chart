@@ -20,7 +20,7 @@ defineProps<{
   color: var(--bs-secondary-color);
 
   :deep(.app-icon) {
-    font-size: 1.25rem;
+    font-size: var(--bs-font-size-lg);
   }
 }
 </style>

@@ -143,7 +143,7 @@ function onSelect(item: NavigationPillItem) {
     padding: 0.25rem 0.75rem;
     cursor: pointer;
     color: var(--bs-body-color);
-    font-size: 0.8125rem;
+    font-size: var(--bs-font-size-sm);
     border-radius: 999px;
     transition: color 0.15s ease;
     white-space: nowrap;
@@ -175,17 +175,17 @@ function onSelect(item: NavigationPillItem) {
   }
 
   &--md {
-    padding: 0.1875rem;
+    padding: 0.25rem;
 
     .navigation-pill__option {
       padding: 0.375rem 1rem;
-      font-size: 0.875rem;
+      font-size: var(--bs-font-size-md);
       gap: 0.5rem;
     }
 
     .navigation-pill__bubble {
       height: calc(100% - 0.375rem);
-      top: 0.1875rem;
+      top: 0.25rem;
     }
   }
 }
