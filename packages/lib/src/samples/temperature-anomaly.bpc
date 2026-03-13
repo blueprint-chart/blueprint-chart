@@ -18,7 +18,6 @@ chart line {
   horizontalLabelPosition = "auto"
   horizontalGridStyle = "none"
   valueLabels = false
-  valueLabelPosition = "auto"
   tooltips = true
   crosshair = false
   crosshairDirection = "vertical"

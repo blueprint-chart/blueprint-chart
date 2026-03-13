@@ -327,7 +327,7 @@ const lineCrosshairOpts = [crosshairOpt, lineCrosshairDirectionOpt, crosshairSty
 const barOpts = [valueLabelsOpt, valueLabelPositionOpt, tooltipsOpt, ...crosshairOpts]
 const barHorizontalOpts = [barHorizontalValueLabelsOpt, valueLabelPositionOpt, tooltipsOpt, ...crosshairOpts]
 const lineSymbolOpts = [lineSymbolsOpt, lineSymbolShapeOpt, lineSymbolShowOnOpt, lineSymbolStyleOpt, lineSymbolSizeOpt, lineSymbolOpacityOpt]
-const lineOpts = [valueLabelsOpt, valueLabelPositionOpt, tooltipsOpt, ...lineCrosshairOpts, ...lineSymbolOpts]
+const lineOpts = [valueLabelsOpt, tooltipsOpt, ...lineCrosshairOpts, ...lineSymbolOpts]
 const pieArcOpts = [pieDisplayAsPercentageOpt, showTotalOpt, showLabelsOpt, showValuesOpt, pieSliceMaxOpt, sliceGroupLabelOpt]
 const donutArcOpts = [displayAsPercentageOpt, donutShowTotalOpt, showLabelsOpt, showValuesOpt, sliceMaxOpt, sliceGroupLabelOpt]
 
