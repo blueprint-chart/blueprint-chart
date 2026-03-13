@@ -14,7 +14,7 @@
         label="Edit"
         hide-label
         square
-        variant="light"
+        variant="primary"
         size="sm"
         class="dashboard-chart-card__edit-btn"
         @click="$emit('edit', chart.id)"
