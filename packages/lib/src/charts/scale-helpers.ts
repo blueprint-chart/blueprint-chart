@@ -45,8 +45,25 @@ export function computeLinearDomain(
 ): [number, number] {
   const dataMin = Math.min(0, ...values)
   const dataMax = Math.max(0, ...values)
-  return [
-    range?.min ?? dataMin,
-    range?.max ?? dataMax,
-  ]
+  let lo = range?.min ?? dataMin
+  let hi = range?.max ?? dataMax
+
+  // Guard: swap inverted min/max
+  if (lo > hi) {
+    ;[lo, hi] = [hi, lo]
+  }
+
+  // Guard: ensure non-zero extent so d3 scales produce valid ticks
+  if (lo === hi) {
+    if (lo === 0) {
+      hi = 1
+    }
+    else {
+      const nudge = Math.abs(lo) * 0.1
+      lo = lo - nudge
+      hi = hi + nudge
+    }
+  }
+
+  return [lo, hi]
 }

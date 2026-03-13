@@ -468,6 +468,48 @@ describe('line chart', () => {
       const path = container.querySelector('.bc-line')
       expect(path?.getAttribute('d')).toBeTruthy()
     })
+
+    it('renders when custom min > max (inverted range)', () => {
+      render(container, data, { verticalAxis: { range: { min: 50, max: 5 } } })
+      const path = container.querySelector('.bc-line')
+      expect(path?.getAttribute('d')).toBeTruthy()
+      expect(path?.getAttribute('d')).not.toContain('NaN')
+    })
+
+    it('renders when custom min === max (zero extent)', () => {
+      render(container, data, { verticalAxis: { range: { min: 20, max: 20 } } })
+      const path = container.querySelector('.bc-line')
+      expect(path?.getAttribute('d')).toBeTruthy()
+      expect(path?.getAttribute('d')).not.toContain('NaN')
+    })
+
+    it('renders when custom min=0 and max=0', () => {
+      render(container, data, { verticalAxis: { range: { min: 0, max: 0 } } })
+      const path = container.querySelector('.bc-line')
+      expect(path?.getAttribute('d')).toBeTruthy()
+      expect(path?.getAttribute('d')).not.toContain('NaN')
+    })
+
+    it('renders when custom range excludes all data points', () => {
+      render(container, data, { verticalAxis: { range: { min: 100, max: 200 } } })
+      const path = container.querySelector('.bc-line')
+      expect(path?.getAttribute('d')).toBeTruthy()
+      expect(path?.getAttribute('d')).not.toContain('NaN')
+    })
+
+    it('renders with negative min and all positive data', () => {
+      render(container, data, { verticalAxis: { range: { min: -50 } } })
+      const path = container.querySelector('.bc-line')
+      expect(path?.getAttribute('d')).toBeTruthy()
+      expect(path?.getAttribute('d')).not.toContain('NaN')
+    })
+
+    it('renders with very large range vs small data', () => {
+      render(container, data, { verticalAxis: { range: { min: -1000000, max: 1000000 } } })
+      const path = container.querySelector('.bc-line')
+      expect(path?.getAttribute('d')).toBeTruthy()
+      expect(path?.getAttribute('d')).not.toContain('NaN')
+    })
   })
 
   // ── Transition / re-render ───────────────────────────────────────
