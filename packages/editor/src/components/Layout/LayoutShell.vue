@@ -12,13 +12,10 @@
           :disabled-steps="disabledSteps"
           size="md"
         />
-      </template>
-
-      <template #right>
         <div
+          v-else
           ref="searchContainer"
           class="shell-navbar__search"
-          :class="{ 'shell-navbar__search--compact': mode === 'wizard' }"
         >
           <BFormInput
             v-model="searchQuery"
@@ -51,6 +48,17 @@
           </div>
         </div>
       </template>
+
+      <template #right>
+        <ButtonIcon
+          :icon-left="IPhPlus"
+          label="New chart"
+          variant="primary"
+          size="sm"
+          tag="a"
+          href="#/new"
+        />
+      </template>
     </LayoutNavbar>
     <div
       class="d-flex flex-grow-1"
@@ -66,7 +74,7 @@ import { shallowRef, computed, useTemplateRef, watch } from 'vue'
 import { onClickOutside } from '@vueuse/core'
 import { useRoute, useRouter } from 'vue-router'
 import { BFormInput } from 'bootstrap-vue-next'
-import { NavigationStepper } from '@blueprint-chart/ui'
+import { NavigationStepper, ButtonIcon } from '@blueprint-chart/ui'
 import { useChartSession } from '@/composables/useChartSession'
 import { useNavbar } from '@/composables/useNavbar'
 import { useWizard } from '@/composables/useWizard'
@@ -75,6 +83,7 @@ import LayoutNavbar from '@/components/Layout/LayoutNavbar.vue'
 import IPhTable from '~icons/ph/table'
 import IPhChartBar from '~icons/ph/chart-bar'
 import IPhExport from '~icons/ph/export'
+import IPhPlus from '~icons/ph/plus'
 
 const route = useRoute()
 const router = useRouter()
@@ -157,10 +166,6 @@ onClickOutside(searchContainer, () => {
       &:focus {
         box-shadow: var(--bc-tile-shadow), 0 0 0 0.2rem rgba(37, 99, 160, 0.15);
       }
-    }
-
-    &--compact {
-      width: 180px;
     }
 
     &__dropdown {
