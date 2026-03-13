@@ -68,7 +68,7 @@ const descriptionClassList = computed(() => ({
 }))
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .form-control-dropdown-item {
   &__content {
     display: flex;
