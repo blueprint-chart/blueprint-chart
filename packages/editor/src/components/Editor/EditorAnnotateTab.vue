@@ -20,6 +20,8 @@
       <EditorAreaFills
         v-model="areaFills"
         :series-names="seriesNames"
+        :series-overrides="seriesOverrides"
+        :global-interpolation="globalInterpolation"
       />
     </SettingsSection>
   </div>
@@ -28,6 +30,7 @@
 <script setup lang="ts">
 import { computed, ref, shallowRef, watch, nextTick, onMounted, onBeforeUnmount } from 'vue'
 import { useChartConfig } from '@/composables/useChartConfig'
+import { useChartTypeOptions } from '@/composables/useChartTypeOptions'
 import { usePreviewContainer } from '@/composables/usePreviewContainer'
 import { useEditorPanel } from '@/composables/useEditorPanel'
 import { useAnnotationDrag } from '@/composables/useAnnotationDrag'
@@ -41,7 +44,9 @@ import EditorAnnotations from './EditorAnnotations.vue'
 import EditorAreaFills from './EditorAreaFills.vue'
 
 const config = useChartConfig()
-const { chartType, data, areaFills } = config
+const { chartType, data, areaFills, seriesOverrides } = config
+const { currentOptions } = useChartTypeOptions()
+const globalInterpolation = computed(() => (currentOptions.value.interpolation as string) ?? 'linear')
 const { pendingAnnotationIndex } = useEditorPanel()
 const { scenes, activeIndex, activeScene, update: updateScene } = useScenes()
 
