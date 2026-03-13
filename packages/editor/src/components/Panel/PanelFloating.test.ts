@@ -68,4 +68,18 @@ describe('PanelFloating', () => {
     await w.find('.btn-close-stub').trigger('click')
     expect(w.emitted('close')).toHaveLength(1)
   })
+
+  it('hides close button when showClose is false', () => {
+    const w = mount(PanelFloating, {
+      props: { containerRef: null, title: 'Test', position: { x: 0, y: 0 }, showClose: false },
+    })
+    expect(w.find('.btn-close-stub').exists()).toBe(false)
+  })
+
+  it('shows close button by default', () => {
+    const w = mount(PanelFloating, {
+      props: { containerRef: null, title: 'Test', position: { x: 0, y: 0 } },
+    })
+    expect(w.find('.btn-close-stub').exists()).toBe(true)
+  })
 })

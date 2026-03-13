@@ -11,7 +11,10 @@
     <LayoutPanel :title="title">
       <template #actions>
         <ButtonDetach @click="$emit('float')" />
-        <ButtonClose @click="$emit('close')" />
+        <ButtonClose
+          v-if="showClose"
+          @click="$emit('close')"
+        />
       </template>
       <template
         v-if="$slots.toolbar"
@@ -39,9 +42,11 @@ const props = withDefaults(defineProps<{
   title: string
   initialWidth?: number
   modelValue?: number
+  showClose?: boolean
 }>(), {
   initialWidth: 330,
   modelValue: undefined,
+  showClose: true,
 })
 
 const emit = defineEmits<{
