@@ -63,6 +63,13 @@ describe('registry', () => {
     expect(directLabel!.default).toBe('auto')
   })
 
+  it('area-stacked does not default directLabelling to auto', () => {
+    const options = getChartOptions('area-stacked')
+    const directLabel = options.find(o => o.key === 'directLabelling')
+    expect(directLabel).toBeDefined()
+    expect(directLabel!.default).not.toBe('auto')
+  })
+
   it('pie has displayAsPercentage defaulting to true', () => {
     const options = getChartOptions('pie')
     const opt = options.find(o => o.key === 'displayAsPercentage')
