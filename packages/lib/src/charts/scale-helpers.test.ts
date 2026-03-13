@@ -27,11 +27,60 @@ describe('computeLinearDomain', () => {
   })
 
   it('handles empty values', () => {
-    expect(computeLinearDomain([])).toEqual([0, 0])
+    const [lo, hi] = computeLinearDomain([])
+    expect(lo).toBe(0)
+    expect(hi).toBe(1)
   })
 
   it('handles all zeros', () => {
-    expect(computeLinearDomain([0, 0, 0])).toEqual([0, 0])
+    const [lo, hi] = computeLinearDomain([0, 0, 0])
+    expect(lo).toBe(0)
+    expect(hi).toBe(1)
+  })
+
+  // ── Edge cases: custom min/max ──────────────────────────────────
+
+  it('swaps inverted min/max (min > max)', () => {
+    const [lo, hi] = computeLinearDomain([5, 10], { min: 50, max: 10 })
+    expect(lo).toBe(10)
+    expect(hi).toBe(50)
+  })
+
+  it('produces a non-zero extent when min === max (custom)', () => {
+    const [lo, hi] = computeLinearDomain([5, 10], { min: 20, max: 20 })
+    expect(lo).toBeLessThan(hi)
+  })
+
+  it('produces a non-zero extent when min=0 and max=0', () => {
+    const [lo, hi] = computeLinearDomain([5, 10], { min: 0, max: 0 })
+    expect(lo).toBeLessThan(hi)
+  })
+
+  it('produces a non-zero extent for all-zero data without custom range', () => {
+    const [lo, hi] = computeLinearDomain([0, 0, 0])
+    expect(lo).toBeLessThan(hi)
+  })
+
+  it('produces a non-zero extent for empty values', () => {
+    const [lo, hi] = computeLinearDomain([])
+    expect(lo).toBeLessThan(hi)
+  })
+
+  it('produces a non-zero extent when single value equals custom min and max', () => {
+    const [lo, hi] = computeLinearDomain([5], { min: 5, max: 5 })
+    expect(lo).toBeLessThan(hi)
+  })
+
+  it('handles custom range that excludes all data points', () => {
+    const [lo, hi] = computeLinearDomain([1, 2, 3], { min: 100, max: 200 })
+    expect(lo).toBe(100)
+    expect(hi).toBe(200)
+  })
+
+  it('handles negative min with all positive data', () => {
+    const [lo, hi] = computeLinearDomain([5, 10, 15], { min: -50 })
+    expect(lo).toBe(-50)
+    expect(hi).toBe(15)
   })
 })
 
