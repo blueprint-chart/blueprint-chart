@@ -223,7 +223,7 @@ export function render(
   const pointScale = d3.scalePoint<string>()
     .domain(filteredLabels)
     .range([0, width])
-    .padding(options.edgePadding === false ? 0 : 0.6)
+    .padding(options.edgePadding ? 0.6 : 0)
   const xScale: AnyXScale = pointScale
   const xPos = (d: AreaDatum) => pointScale(d.label) ?? 0
 
