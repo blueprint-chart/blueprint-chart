@@ -60,19 +60,16 @@
 import { BButton } from 'bootstrap-vue-next'
 import ListItemRow from '../ListItemRow/ListItemRow.vue'
 
+const selected = defineModel<string[]>('selected', { required: true })
+
 const props = withDefaults(defineProps<{
   items: string[]
-  selected: string[]
   maxHeight?: string
   onItemClick?: (item: string, index: number, event: MouseEvent) => void
 }>(), {
   maxHeight: '220px',
   onItemClick: undefined,
 })
-
-const emit = defineEmits<{
-  'update:selected': [value: string[]]
-}>()
 
 function onClick(item: string, index: number, event: MouseEvent) {
   if (props.onItemClick) {
@@ -84,24 +81,24 @@ function onClick(item: string, index: number, event: MouseEvent) {
 }
 
 function toggleSelect(item: string) {
-  const idx = props.selected.indexOf(item)
+  const idx = selected.value.indexOf(item)
   if (idx >= 0) {
-    emit('update:selected', props.selected.filter(i => i !== item))
+    selected.value = selected.value.filter(i => i !== item)
   }
   else {
-    emit('update:selected', [...props.selected, item])
+    selected.value = [...selected.value, item]
   }
 }
 
 function selectAll() {
-  emit('update:selected', [...props.items])
+  selected.value = [...props.items]
 }
 
 function selectNone() {
-  emit('update:selected', [])
+  selected.value = []
 }
 
 function selectInvert() {
-  emit('update:selected', props.items.filter(i => !props.selected.includes(i)))
+  selected.value = props.items.filter(i => !selected.value.includes(i))
 }
 </script>

@@ -1,10 +1,9 @@
 <template>
   <div class="scene-timeline">
     <SceneTimelineControls
+      v-model:active-index="activeIndex"
       :total="scenes.length"
-      :active-index="activeIndex"
       :playing="playing"
-      @update:active-index="$emit('update:activeIndex', $event)"
       @play="$emit('play')"
       @pause="$emit('pause')"
     />
@@ -18,7 +17,7 @@
         :active="scene.index === activeIndex"
         :thumbnail="scene.thumbnail ?? null"
         :removable="scene.removable ?? true"
-        @select="$emit('update:activeIndex', scene.index)"
+        @select="activeIndex = scene.index"
         @remove="$emit('remove', scene.index)"
       />
 
@@ -34,17 +33,16 @@ import ButtonAdd from '../../Button/ButtonAdd/ButtonAdd.vue'
 import SceneTimelineItem from '../SceneTimelineItem/SceneTimelineItem.vue'
 import SceneTimelineControls from './SceneTimelineControls.vue'
 
+const activeIndex = defineModel<number>('activeIndex', { default: -1 })
+
 withDefaults(defineProps<{
   scenes: { name: string | null, index: number, thumbnail?: string | null, removable?: boolean }[]
-  activeIndex?: number
   playing?: boolean
 }>(), {
-  activeIndex: -1,
   playing: false,
 })
 
 defineEmits<{
-  'update:activeIndex': [index: number]
   'add': []
   'remove': [index: number]
   'play': []
