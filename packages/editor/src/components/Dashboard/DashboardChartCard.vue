@@ -21,7 +21,10 @@
       />
     </template>
     <template #footer>
-      <DisplayChartTypeBadge :chart-type="chart.chartType" />
+      <DisplayChartTypeBadge
+        :chart-type="chart.chartType"
+        :theme="resolvedTheme"
+      />
       <DisplayDate
         v-if="chart.savedAt"
         :value="chart.savedAt"
@@ -33,7 +36,10 @@
 <script setup lang="ts">
 import IPhPencilSimple from '~icons/ph/pencil-simple'
 import { GalleryCard, DisplayDate, DisplayChartTypeBadge, ButtonIcon } from '@blueprint-chart/ui'
+import { useTheme } from '@/composables/useTheme'
 import type { SavedChartSummary } from '@/composables/useChartSession'
+
+const { resolvedTheme } = useTheme()
 
 defineProps<{
   chart: SavedChartSummary
