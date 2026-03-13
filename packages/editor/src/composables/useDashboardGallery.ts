@@ -18,7 +18,7 @@ import type { SavedChartSummary } from '@/composables/useChartSession'
 export function useDashboardGallery() {
   const { listSavedCharts, deleteChart } = useChartSession()
   const { selectedChartId, collapse } = useDashboardPanel()
-  const { theme } = useTheme()
+  const { resolvedTheme } = useTheme()
 
   const charts = ref<SavedChartSummary[]>([])
   const thumbnails = reactive<Record<string, string>>({})
@@ -124,7 +124,7 @@ export function useDashboardGallery() {
     loadThumbnails()
   }
 
-  watch(theme, () => {
+  watch(resolvedTheme, () => {
     regenerateImages()
   })
 

@@ -1,4 +1,4 @@
-import { watch } from 'vue'
+import { computed, watch } from 'vue'
 import { useStorage, useMediaQuery } from '@vueuse/core'
 
 export type ThemeMode = 'light' | 'dark' | 'auto'
@@ -8,25 +8,18 @@ const STORAGE_KEY = 'blueprint-chart-theme'
 const theme = useStorage<ThemeMode>(STORAGE_KEY, 'light')
 const prefersDark = useMediaQuery('(prefers-color-scheme: dark)')
 
-function applyTheme(mode: ThemeMode): void {
-  let resolved: 'light' | 'dark' = 'light'
-  if (mode === 'dark') {
-    resolved = 'dark'
+const resolvedTheme = computed<'light' | 'dark'>(() => {
+  if (theme.value === 'dark') {
+    return 'dark'
   }
-  else if (mode === 'auto') {
-    resolved = prefersDark.value ? 'dark' : 'light'
-  }
-  document.documentElement.setAttribute('data-bs-theme', resolved)
-}
-
-watch(prefersDark, () => {
   if (theme.value === 'auto') {
-    applyTheme('auto')
+    return prefersDark.value ? 'dark' : 'light'
   }
+  return 'light'
 })
 
-watch(theme, (mode) => {
-  applyTheme(mode)
+watch(resolvedTheme, (resolved) => {
+  document.documentElement.setAttribute('data-bs-theme', resolved)
 }, { immediate: true })
 
 export function useTheme() {
@@ -36,5 +29,5 @@ export function useTheme() {
     theme.value = modes[(idx + 1) % modes.length]
   }
 
-  return { theme, cycleTheme }
+  return { theme, resolvedTheme, cycleTheme }
 }
