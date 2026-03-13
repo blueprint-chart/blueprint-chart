@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { computeLinearDomain } from './scale-helpers'
+import { computeLinearDomain, filterLabelsByRange } from './scale-helpers'
 
 describe('computeLinearDomain', () => {
   it('returns [0, max] for positive-only data', () => {
@@ -32,5 +32,49 @@ describe('computeLinearDomain', () => {
 
   it('handles all zeros', () => {
     expect(computeLinearDomain([0, 0, 0])).toEqual([0, 0])
+  })
+})
+
+describe('filterLabelsByRange', () => {
+  it('returns all indices when no range is provided', () => {
+    expect(filterLabelsByRange(['A', 'B', 'C'])).toEqual([0, 1, 2])
+  })
+
+  it('returns all indices when range is empty', () => {
+    expect(filterLabelsByRange(['A', 'B', 'C'], {})).toEqual([0, 1, 2])
+  })
+
+  it('filters year labels by min', () => {
+    const labels = ['2000', '2005', '2010', '2015', '2020']
+    const min = new Date('2010-01-01').getTime()
+    const indices = filterLabelsByRange(labels, { min })
+    expect(indices).toEqual([2, 3, 4])
+  })
+
+  it('filters year labels by max', () => {
+    const labels = ['2000', '2005', '2010', '2015', '2020']
+    const max = new Date('2010-01-01').getTime()
+    const indices = filterLabelsByRange(labels, { max })
+    expect(indices).toEqual([0, 1, 2])
+  })
+
+  it('filters year labels by min and max', () => {
+    const labels = ['2000', '2005', '2010', '2015', '2020']
+    const min = new Date('2005-01-01').getTime()
+    const max = new Date('2015-01-01').getTime()
+    const indices = filterLabelsByRange(labels, { min, max })
+    expect(indices).toEqual([1, 2, 3])
+  })
+
+  it('keeps non-numeric labels', () => {
+    const labels = ['Jan', 'Feb', 'Mar']
+    const indices = filterLabelsByRange(labels, { min: 0, max: 100 })
+    expect(indices).toEqual([0, 1, 2])
+  })
+
+  it('filters numeric labels', () => {
+    const labels = ['10', '20', '30', '40', '50']
+    const indices = filterLabelsByRange(labels, { min: 20, max: 40 })
+    expect(indices).toEqual([1, 2, 3])
   })
 })

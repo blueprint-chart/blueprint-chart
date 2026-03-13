@@ -400,6 +400,36 @@ describe('line-multi chart', () => {
     expect(attrs).toContain('1')
   })
 
+  // ── Edge padding ───────────────────────────────────────────────
+
+  it('removes edge padding when edgePadding=false', () => {
+    render(container, data, { edgePadding: false })
+    const lines = container.querySelectorAll('.bc-line')
+    // Lines should start at x=0 (no padding)
+    const d = lines[0]?.getAttribute('d') ?? ''
+    const firstMove = d.match(/^M([\d.]+)/)
+    expect(firstMove).not.toBeNull()
+    expect(parseFloat(firstMove![1])).toBe(0)
+  })
+
+  // ── Horizontal axis range ─────────────────────────────────────
+
+  it('filters labels by horizontal axis range', () => {
+    const yearData = {
+      labels: ['2000', '2005', '2010', '2015', '2020'],
+      values: [],
+      series: [
+        { name: 'A', values: [10, 20, 30, 25, 15] },
+        { name: 'B', values: [5, 15, 25, 20, 10] },
+      ],
+    }
+    render(container, yearData, { horizontalAxis: { range: { min: new Date('2010').getTime() } } })
+    const ticks = container.querySelectorAll('.bc-axis-horizontal .tick')
+    const tickLabels = Array.from(ticks).map(t => t.textContent?.trim())
+    expect(tickLabels).not.toContain('2000')
+    expect(tickLabels).toContain('2010')
+  })
+
   // ── Transition ──────────────────────────────────────────────────
 
   it('supports transition parameter on second render', () => {
