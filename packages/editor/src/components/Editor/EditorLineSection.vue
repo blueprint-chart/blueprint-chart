@@ -13,6 +13,13 @@
       />
     </BFormGroup>
 
+    <FormControlCheckbox
+      v-if="hasEdgePadding"
+      :model-value="currentOptions.edgePadding ?? true"
+      label="Edge padding"
+      @update:model-value="(v) => setOption('edgePadding', v)"
+    />
+
     <EditorLineSymbols v-if="hasLineSymbols" />
   </div>
 </template>
@@ -20,11 +27,13 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useChartTypeOptions } from '@/composables/useChartTypeOptions'
+import { FormControlCheckbox } from '@blueprint-chart/ui'
 import EditorLineSymbols from './EditorLineSymbols.vue'
 
 const { currentOptions, availableOptionKeys, setOption } = useChartTypeOptions()
 
 const hasInterpolation = computed(() => availableOptionKeys.value.includes('interpolation'))
+const hasEdgePadding = computed(() => availableOptionKeys.value.includes('edgePadding'))
 const hasLineSymbols = computed(() => availableOptionKeys.value.includes('lineSymbols'))
 
 const interpolationChoices = [
