@@ -17,8 +17,8 @@
         :pos="dir.pos"
         :label="dir.label"
         :shape="dir.shape"
-        :active="modelValue === dir.value"
-        @select="$emit('update:modelValue', dir.value)"
+        :active="model === dir.value"
+        @select="model = dir.value"
       />
     </div>
   </BFormGroup>
@@ -41,18 +41,15 @@ export interface DirEntry {
   y: number
 }
 
+const model = defineModel<CompassDirection>({ required: true })
+
 const props = withDefaults(
   defineProps<{
-    modelValue: CompassDirection
     label: string
     size?: 'xs' | 'sm' | 'md' | 'lg'
   }>(),
   { size: 'sm' },
 )
-
-defineEmits<{
-  'update:modelValue': [value: CompassDirection]
-}>()
 
 const directions: DirEntry[] = [
   { value: 'NW', pos: 'nw', label: 'Top left', shape: 'corner', x: 0, y: 0 },
@@ -66,7 +63,7 @@ const directions: DirEntry[] = [
   { value: 'SE', pos: 'se', label: 'Bottom right', shape: 'corner', x: 1, y: 1 },
 ]
 
-const activeDir = computed(() => directions.find(d => d.value === props.modelValue) ?? directions[4])
+const activeDir = computed(() => directions.find(d => d.value === model.value) ?? directions[4])
 
 const sizeClass = computed(() => `direction-picker__anchor--${props.size}`)
 </script>
