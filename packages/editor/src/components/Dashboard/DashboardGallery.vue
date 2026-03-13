@@ -8,6 +8,7 @@
       :selected="selectedId === chart.id"
       :layout="layout"
       @select="$emit('select', $event)"
+      @edit="$emit('edit', $event)"
     />
 
     <DashboardNewCard
@@ -37,6 +38,7 @@ defineProps<{
 
 defineEmits<{
   select: [id: string]
+  edit: [id: string]
   new: []
 }>()
 </script>
