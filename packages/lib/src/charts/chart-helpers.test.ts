@@ -154,6 +154,36 @@ describe('buildChartOptions', () => {
     expect(result.verticalAxis!.range).toEqual({ min: 0, max: 100 })
   })
 
+  it('parses vertical axis range with date strings', () => {
+    const result = buildChartOptions({
+      verticalRangeMin: '2010',
+      verticalRangeMax: '2020',
+    })
+    expect(result.verticalAxis).toBeDefined()
+    expect(result.verticalAxis!.range!.min).toBe(new Date('2010-01-01').getTime())
+    expect(result.verticalAxis!.range!.max).toBe(new Date('2020-01-01').getTime())
+  })
+
+  it('parses vertical axis range with full date strings', () => {
+    const result = buildChartOptions({
+      verticalRangeMin: '2015-06-01',
+      verticalRangeMax: '2020-12-31',
+    })
+    expect(result.verticalAxis).toBeDefined()
+    expect(result.verticalAxis!.range!.min).toBe(new Date('2015-06-01').getTime())
+    expect(result.verticalAxis!.range!.max).toBe(new Date('2020-12-31').getTime())
+  })
+
+  it('parses horizontal axis range with date strings', () => {
+    const result = buildChartOptions({
+      horizontalRangeMin: '2010',
+      horizontalRangeMax: '2020',
+    })
+    expect(result.horizontalAxis).toBeDefined()
+    expect(result.horizontalAxis!.range!.min).toBe(new Date('2010-01-01').getTime())
+    expect(result.horizontalAxis!.range!.max).toBe(new Date('2020-01-01').getTime())
+  })
+
   it('maps interpolation option', () => {
     const result = buildChartOptions({ interpolation: 'monotoneX' })
     expect(result.interpolation).toBe('monotoneX')

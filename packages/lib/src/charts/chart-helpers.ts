@@ -138,14 +138,14 @@ export function buildChartOptions(opts: Partial<ChartTypeOptions>, backgroundCol
     if (opts.verticalLabelPosition !== undefined) {
       result.verticalAxis.labelPosition = opts.verticalLabelPosition as 'auto' | 'inside' | 'outside' | 'off'
     }
-    const vMin = parseFloat(opts.verticalRangeMin ?? '')
-    const vMax = parseFloat(opts.verticalRangeMax ?? '')
-    if (!isNaN(vMin) || !isNaN(vMax)) {
+    const vMin = parseDateOrNumber(opts.verticalRangeMin ?? '')
+    const vMax = parseDateOrNumber(opts.verticalRangeMax ?? '')
+    if (vMin !== undefined || vMax !== undefined) {
       result.verticalAxis.range = {}
-      if (!isNaN(vMin)) {
+      if (vMin !== undefined) {
         result.verticalAxis.range.min = vMin
       }
-      if (!isNaN(vMax)) {
+      if (vMax !== undefined) {
         result.verticalAxis.range.max = vMax
       }
     }
