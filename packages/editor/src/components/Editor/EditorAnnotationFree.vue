@@ -71,14 +71,11 @@ import type { FreeAnnotationConfig } from '@blueprint-chart/lib'
 import { FormControlColorInput, FormControlUnitsInput, FormControlCheckbox } from '@blueprint-chart/ui'
 
 const props = defineProps<{
-  annotation: FreeAnnotationConfig
   chartWidth?: number
   chartHeight?: number
 }>()
 
-const emit = defineEmits<{
-  'update:annotation': [value: FreeAnnotationConfig]
-}>()
+const annotation = defineModel<FreeAnnotationConfig>('annotation', { required: true })
 
 function formatPosition(v: number | string): string {
   if (typeof v === 'number') {
@@ -100,14 +97,14 @@ function formatMaxWidth(v: number | string | undefined): string {
 }
 
 function update(key: string, value: unknown) {
-  const copy = { ...props.annotation }
+  const copy = { ...annotation.value }
   if (value === undefined) {
     delete (copy as Record<string, unknown>)[key]
   }
   else {
     (copy as Record<string, unknown>)[key] = value
   }
-  emit('update:annotation', copy as FreeAnnotationConfig)
+  annotation.value = copy as FreeAnnotationConfig
 }
 
 const textRef = ref<ComponentPublicInstance | null>(null)
