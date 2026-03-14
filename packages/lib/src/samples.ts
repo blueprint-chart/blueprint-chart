@@ -34,6 +34,7 @@ import stockPriceAreaBpc from './samples/stock-price-area.bpc?raw'
 import energyMixStackedAreaBpc from './samples/energy-mix-stacked-area.bpc?raw'
 import quarterlyStackedColumnsBpc from './samples/quarterly-stacked-columns.bpc?raw'
 import populationStackedBarBpc from './samples/population-stacked-bar.bpc?raw'
+import farmCompassBpc from './samples/farm-compass.bpc?raw'
 
 export interface ChartSample {
   id: string
@@ -152,4 +153,6 @@ export const samples: ChartSample[] = [
   buildSample('quarterly-stacked-columns', quarterlyStackedColumnsBpc),
   // Bar Stacked
   buildSample('population-stacked-bar', populationStackedBarBpc),
+  // Story (multi-scene)
+  buildSample('farm-compass', farmCompassBpc),
 ]
