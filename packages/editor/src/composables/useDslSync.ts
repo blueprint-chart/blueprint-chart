@@ -1,5 +1,5 @@
 import { parse, propertyMap, extractChartTypeOptions, extractSceneOverrides, dataEntriesToString, convertHighlights, convertAreaFills, convertAnnotations, convertSeriesOverrides } from '@blueprint-chart/lib'
-import { useChartConfig, type ChartLayout } from './useChartConfig'
+import { useChartConfig, layoutDefaults, type ChartLayout } from './useChartConfig'
 import { useChartTheme } from './useChartTheme'
 import { useChartTypeOptions, type ChartTypeOptions } from './useChartTypeOptions'
 import { useDataTransforms, type TransformType } from './useDataTransforms'
@@ -36,14 +36,69 @@ export function useDslSync() {
       const theme = propMap.get('theme')
       chartTheme.value = theme ? String(theme) : 'blueprint'
 
+      // Layout properties
+      const ly: Partial<ChartLayout> = {}
+
+      const sizing = propMap.get('sizing')
+      const validSizing = ['responsive', 'fixed', 'max-width'] as const
+      if (sizing && validSizing.includes(String(sizing) as typeof validSizing[number])) {
+        ly.sizing = String(sizing) as ChartLayout['sizing']
+      }
+
+      const fixedWidth = propMap.get('fixedWidth')
+      if (fixedWidth !== undefined) {
+        ly.fixedWidth = Number(fixedWidth)
+      }
+
+      const maxWidth = propMap.get('maxWidth')
+      if (maxWidth !== undefined) {
+        ly.maxWidth = Number(maxWidth)
+      }
+
+      const heightMode = propMap.get('heightMode')
+      const validHeightModes = ['auto', 'fixed', 'aspect-ratio'] as const
+      if (heightMode && validHeightModes.includes(String(heightMode) as typeof validHeightModes[number])) {
+        ly.heightMode = String(heightMode) as ChartLayout['heightMode']
+      }
+
+      const fixedHeight = propMap.get('fixedHeight')
+      if (fixedHeight !== undefined) {
+        ly.fixedHeight = Number(fixedHeight)
+      }
+
+      const aspectRatio = propMap.get('aspectRatio')
+      if (aspectRatio !== undefined) {
+        ly.aspectRatio = String(aspectRatio)
+      }
+
+      const padding = propMap.get('padding')
+      if (padding !== undefined) {
+        ly.padding = Number(padding)
+      }
+
+      const transparentBg = propMap.get('transparentBackground')
+      if (transparentBg !== undefined) {
+        ly.transparentBackground = transparentBg === true || transparentBg === 'true'
+      }
+
+      const showCredit = propMap.get('showCredit')
+      if (showCredit !== undefined) {
+        ly.showCredit = showCredit !== false && showCredit !== 'false'
+      }
+
       const player = propMap.get('player')
       const validPlayerTypes = ['buttons', 'progress-bar', 'dot-stepper', 'minimal-arrows', 'none']
       if (player && validPlayerTypes.includes(String(player))) {
-        config.layout.value = { ...config.layout.value, playerType: String(player) as ChartLayout['playerType'] }
+        ly.playerType = String(player) as ChartLayout['playerType']
       }
-      else {
-        config.layout.value = { ...config.layout.value, playerType: 'buttons' }
+
+      const playerPos = propMap.get('playerPosition')
+      const validPositions = ['left', 'center', 'right'] as const
+      if (playerPos && validPositions.includes(String(playerPos) as typeof validPositions[number])) {
+        ly.playerPosition = String(playerPos) as ChartLayout['playerPosition']
       }
+
+      config.layout.value = { ...layoutDefaults, ...ly }
 
       const sort = propMap.get('sort')
       if (sort === 'ascending' || sort === 'descending') {
@@ -145,6 +200,15 @@ export function useDslSync() {
                 t.properties.map(p => [p.key, String(p.value)]),
               ),
             }))
+          }
+          // Map scene-level properties (title, description, source, etc.)
+          const sceneProps = Object.fromEntries(
+            [...extracted.properties.entries()].filter(
+              ([k]) => !['type'].includes(k),
+            ),
+          ) as Record<string, string | number>
+          if (Object.keys(sceneProps).length > 0) {
+            scene.properties = sceneProps
           }
           return scene
         })
