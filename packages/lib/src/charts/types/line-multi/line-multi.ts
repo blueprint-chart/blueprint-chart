@@ -50,6 +50,7 @@ class LineMultiChart extends D3Blueprint<SeriesDatum[]> {
     this.configDefine('areaFillOpacity', { defaultValue: 0.2 })
     this.configDefine('height', { defaultValue: 0 })
     this.configDefine('dots', { defaultValue: [] as DotDatum[] })
+    this.configDefine('highlightTargets', { defaultValue: new Set<string>() })
 
     const areaGroup = this.base.append('g')
     const g = this.base.append('g')
@@ -119,11 +120,14 @@ class LineMultiChart extends D3Blueprint<SeriesDatum[]> {
           const xPos = this.config('xPos') as (i: number) => number
           const y = this.config('y') as d3.ScaleLinear<number, number>
           const colors = this.config('colors') as string[]
+          const hl = this.config('highlightTargets') as Set<string>
+          const hasHl = hl.size > 0
           sel
             .attr('data-series', (d: SeriesDatum) => d.colorIndex)
             .attr('fill', 'none')
             .attr('stroke', (d: SeriesDatum) => colors[d.colorIndex % colors.length])
             .attr('stroke-width', 2)
+            .attr('opacity', (d: SeriesDatum) => hasHl ? (hl.has(d.name) ? 1 : 0.3) : null)
             .attr('d', (d: SeriesDatum) => {
               const curve = this.config('curve') as d3.CurveFactory
               const lineGen = d3.line<number>()
@@ -138,11 +142,14 @@ class LineMultiChart extends D3Blueprint<SeriesDatum[]> {
           const xPos = this.config('xPos') as (i: number) => number
           const y = this.config('y') as d3.ScaleLinear<number, number>
           const colors = this.config('colors') as string[]
+          const hl = this.config('highlightTargets') as Set<string>
+          const hasHl = hl.size > 0
           sel.duration(getDefaultTransitionMs())
             .attr('data-series', (d: SeriesDatum) => d.colorIndex)
             .attr('fill', 'none')
             .attr('stroke', (d: SeriesDatum) => colors[d.colorIndex % colors.length])
             .attr('stroke-width', 2)
+            .attr('opacity', (d: SeriesDatum) => hasHl ? (hl.has(d.name) ? 1 : 0.3) : null)
             .attr('d', (d: SeriesDatum) => {
               const curve = this.config('curve') as d3.CurveFactory
               const lineGen = d3.line<number>()
@@ -377,8 +384,12 @@ export function render(
 
   const globalValueLabels = options.valueLabels ?? false
 
+  // Build highlight target set for dimming non-highlighted series
+  const highlightTargets = new Set((options.highlights ?? []).map(h => h.target))
+  const hasHighlights = highlightTargets.size > 0
+
   const chart = new LineMultiChart(d3.select(clippedArea))
-  chart.config({ xPos, y, colors, labels: data.labels, curve, areaFill: options.areaFill ?? false, areaFillOpacity: options.areaFillOpacity ?? 0.2, height, dots: dotData })
+  chart.config({ xPos, y, colors, labels: data.labels, curve, areaFill: options.areaFill ?? false, areaFillOpacity: options.areaFillOpacity ?? 0.2, height, dots: dotData, highlightTargets })
 
   // Re-insert prior elements so D3 data-join finds them and triggers merge:transition
   if (priorLines.length > 0 || priorAreas.length > 0 || priorDots.length > 0) {
@@ -422,41 +433,47 @@ export function render(
       .text(String(dot.value))
   })
 
-  // Apply per-series overrides to lines
-  if (overrides?.length) {
-    d3.select(clippedArea).selectAll('.bc-line').each(function (this: SVGPathElement, d: unknown) {
-      const datum = d as SeriesDatum
-      const seriesColor = resolveSeriesColor(datum.name, datum.colorIndex, colors, overrides)
-      const seriesWidth = resolveSeriesWidth(datum.name, overrides)
-      const seriesDash = resolveSeriesDash(datum.name, overrides)
-      const seriesInterp = resolveSeriesInterpolation(datum.name, options.interpolation ?? 'linear', overrides)
+  // Apply per-series overrides, colors, and highlight dimming to lines
+  d3.select(clippedArea).selectAll('.bc-line').each(function (this: SVGPathElement, d: unknown) {
+    const datum = d as SeriesDatum
+    const seriesColor = resolveSeriesColor(datum.name, datum.colorIndex, colors, overrides)
+    const seriesWidth = resolveSeriesWidth(datum.name, overrides)
+    const seriesDash = resolveSeriesDash(datum.name, overrides)
+    const seriesInterp = resolveSeriesInterpolation(datum.name, options.interpolation ?? 'linear', overrides)
 
-      const el = d3.select(this)
-      el.attr('stroke', seriesColor)
-        .attr('stroke-width', seriesWidth)
+    const el = d3.select(this)
+    el.attr('stroke', seriesColor)
+      .attr('stroke-width', seriesWidth)
 
-      if (seriesDash !== 'solid') {
-        el.attr('stroke-dasharray', DASH_MAP[seriesDash] ?? '')
-      }
+    if (hasHighlights) {
+      el.attr('opacity', highlightTargets.has(datum.name) ? 1 : 0.3)
+    }
 
-      // Re-generate path if interpolation differs from global
-      if (seriesInterp !== (options.interpolation ?? 'linear')) {
-        const perCurve = resolveCurve(seriesInterp)
-        const lineGen = d3.line<number>()
-          .curve(perCurve)
-          .x((_v, i) => xPos(i))
-          .y(v => y(v))
-        el.attr('d', lineGen(datum.values))
-      }
-    })
+    if (seriesDash !== 'solid') {
+      el.attr('stroke-dasharray', DASH_MAP[seriesDash] ?? '')
+    }
 
-    // Apply per-series colors to area fills
-    d3.select(clippedArea).selectAll('.bc-area').each(function (this: SVGPathElement, d: unknown) {
-      const datum = d as SeriesDatum
-      const seriesColor = resolveSeriesColor(datum.name, datum.colorIndex, colors, overrides)
-      d3.select(this).attr('fill', seriesColor)
-    })
-  }
+    // Re-generate path if interpolation differs from global
+    if (seriesInterp !== (options.interpolation ?? 'linear')) {
+      const perCurve = resolveCurve(seriesInterp)
+      const lineGen = d3.line<number>()
+        .curve(perCurve)
+        .x((_v, i) => xPos(i))
+        .y(v => y(v))
+      el.attr('d', lineGen(datum.values))
+    }
+  })
+
+  // Apply per-series colors and highlight dimming to area fills
+  d3.select(clippedArea).selectAll('.bc-area').each(function (this: SVGPathElement, d: unknown) {
+    const datum = d as SeriesDatum
+    const seriesColor = resolveSeriesColor(datum.name, datum.colorIndex, colors, overrides)
+    const el = d3.select(this)
+    el.attr('fill', seriesColor)
+    if (hasHighlights) {
+      el.attr('opacity', highlightTargets.has(datum.name) ? (options.areaFillOpacity ?? 0.2) : 0.1)
+    }
+  })
 
   // Default dots are invisible; proximity interaction handles tooltips/crosshair
   d3.select(clippedArea).selectAll('.bc-dot')
