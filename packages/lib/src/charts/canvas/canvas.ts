@@ -226,17 +226,15 @@ export function createCanvas(
   const svg = body.querySelector('svg') as SVGSVGElement
   const chartArea = svg.querySelector('g') as SVGGElement
 
-  // In constrained-height mode, the body's flex-allocated height may differ
-  // from the SVG's attribute height (computed before the scene player teleports
-  // into the footer). Use viewBox + preserveAspectRatio="none" so the SVG
-  // stretches to fill the body exactly — no gaps, no clipping.
-  const frame = body.closest('.bc-frame--constrained')
-  if (frame) {
+  // In constrained-height mode the body's flex-allocated height may shift
+  // slightly after the scene player teleports into the footer. Use viewBox +
+  // preserveAspectRatio="none" so the SVG stretches to fill the body exactly.
+  if (isConstrained) {
     svg.setAttribute('viewBox', `0 0 ${totalWidth} ${totalHeight}`)
-    // Anchor from bottom so the x-axis stays at a stable position when the
-    // body height changes (due to header text wrapping differently per scene).
-    // "slice" crops the top (legend area) rather than leaving gaps.
-    svg.setAttribute('preserveAspectRatio', 'xMidYMax slice')
+    svg.setAttribute('preserveAspectRatio', 'none')
+    // Remove intrinsic width/height so the SVG is sized purely by CSS.
+    svg.removeAttribute('width')
+    svg.removeAttribute('height')
     svg.style.width = '100%'
     svg.style.height = '100%'
     svg.style.display = 'block'
