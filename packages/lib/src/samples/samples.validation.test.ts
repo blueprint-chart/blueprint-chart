@@ -10,11 +10,16 @@ const bpcFiles = readdirSync(SAMPLES_DIR).filter(f => f.endsWith('.bpc'))
 
 const paletteNames = new Set(listPalettes().map(p => p.name))
 
-// Frame-level properties accepted by all chart types
+// Frame-level and layout properties accepted by all chart types
 const FRAME_KEYS = new Set([
   'title', 'description', 'byline', 'note',
   'source', 'sourceUrl',
-  'sort', 'sizing', 'aspectRatio', 'showCredit',
+  'sort', 'theme',
+  // Layout properties
+  'sizing', 'fixedWidth', 'maxWidth',
+  'heightMode', 'fixedHeight', 'aspectRatio',
+  'padding', 'transparentBackground', 'showCredit',
+  'player', 'playerPosition',
 ])
 
 describe('sample .bpc files', () => {
