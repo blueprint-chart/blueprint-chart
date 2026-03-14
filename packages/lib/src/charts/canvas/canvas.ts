@@ -213,15 +213,8 @@ export function createCanvas(
   const inner = contentSize(body)
   const totalWidth = inner.width > 0 ? inner.width : DEFAULT_WIDTH
 
-  // In constrained-height mode (bc-frame--constrained), use a fixed height
-  // for a consistent SVG coordinate system across scenes. The viewBox +
-  // preserveAspectRatio="none" stretches the content to fill the body,
-  // keeping the x-axis at a stable vertical position regardless of
-  // header/footer height changes between scenes.
   const isConstrained = body.closest('.bc-frame--constrained') != null
-  const totalHeight = isConstrained
-    ? DEFAULT_HEIGHT
-    : (inner.height > 0 ? inner.height : DEFAULT_HEIGHT)
+  const totalHeight = inner.height > 0 ? inner.height : DEFAULT_HEIGHT
 
   const width = totalWidth - m.left - m.right
   const height = totalHeight - m.top - m.bottom
