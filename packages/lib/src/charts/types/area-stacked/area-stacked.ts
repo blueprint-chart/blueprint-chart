@@ -37,6 +37,7 @@ class AreaStackedChart extends D3Blueprint<StackedAreaDatum[]> {
     this.configDefine('colors', { defaultValue: DEFAULT_COLORS })
     this.configDefine('curve', { defaultValue: d3.curveMonotoneX })
     this.configDefine('areaFillOpacity', { defaultValue: 0.85 })
+    this.configDefine('highlightTargets', { defaultValue: new Set<string>() })
 
     const areaGroup = this.base.append('g')
     const lineGroup = this.base.append('g')
@@ -51,10 +52,12 @@ class AreaStackedChart extends D3Blueprint<StackedAreaDatum[]> {
           const colors = this.config('colors') as string[]
           const curve = this.config('curve') as d3.CurveFactory
           const opacity = this.config('areaFillOpacity') as number
+          const hl = this.config('highlightTargets') as Set<string>
+          const hasHl = hl.size > 0
           sel
             .attr('data-series', (d: StackedAreaDatum) => d.colorIndex)
             .attr('fill', (d: StackedAreaDatum) => colors[d.colorIndex % colors.length])
-            .attr('opacity', opacity)
+            .attr('opacity', (d: StackedAreaDatum) => hasHl ? (hl.has(d.name) ? opacity : 0.3) : opacity)
             .attr('d', (d: StackedAreaDatum) => {
               const areaGen = d3.area<[number, number]>()
                 .curve(curve)
@@ -70,10 +73,12 @@ class AreaStackedChart extends D3Blueprint<StackedAreaDatum[]> {
           const colors = this.config('colors') as string[]
           const curve = this.config('curve') as d3.CurveFactory
           const opacity = this.config('areaFillOpacity') as number
+          const hl = this.config('highlightTargets') as Set<string>
+          const hasHl = hl.size > 0
           sel.duration(getDefaultTransitionMs())
             .attr('data-series', (d: StackedAreaDatum) => d.colorIndex)
             .attr('fill', (d: StackedAreaDatum) => colors[d.colorIndex % colors.length])
-            .attr('opacity', opacity)
+            .attr('opacity', (d: StackedAreaDatum) => hasHl ? (hl.has(d.name) ? opacity : 0.3) : opacity)
             .attr('d', (d: StackedAreaDatum) => {
               const areaGen = d3.area<[number, number]>()
                 .curve(curve)
@@ -101,11 +106,14 @@ class AreaStackedChart extends D3Blueprint<StackedAreaDatum[]> {
           const xPos = this.config('xPos') as (i: number) => number
           const colors = this.config('colors') as string[]
           const curve = this.config('curve') as d3.CurveFactory
+          const hl = this.config('highlightTargets') as Set<string>
+          const hasHl = hl.size > 0
           sel
             .attr('data-series', (d: StackedAreaDatum) => d.colorIndex)
             .attr('fill', 'none')
             .attr('stroke', (d: StackedAreaDatum) => colors[d.colorIndex % colors.length])
             .attr('stroke-width', 1)
+            .attr('opacity', (d: StackedAreaDatum) => hasHl ? (hl.has(d.name) ? 1 : 0.3) : null)
             .attr('d', (d: StackedAreaDatum) => {
               const lineGen = d3.line<[number, number]>()
                 .curve(curve)
@@ -119,11 +127,14 @@ class AreaStackedChart extends D3Blueprint<StackedAreaDatum[]> {
           const xPos = this.config('xPos') as (i: number) => number
           const colors = this.config('colors') as string[]
           const curve = this.config('curve') as d3.CurveFactory
+          const hl = this.config('highlightTargets') as Set<string>
+          const hasHl = hl.size > 0
           sel.duration(getDefaultTransitionMs())
             .attr('data-series', (d: StackedAreaDatum) => d.colorIndex)
             .attr('fill', 'none')
             .attr('stroke', (d: StackedAreaDatum) => colors[d.colorIndex % colors.length])
             .attr('stroke-width', 1)
+            .attr('opacity', (d: StackedAreaDatum) => hasHl ? (hl.has(d.name) ? 1 : 0.3) : null)
             .attr('d', (d: StackedAreaDatum) => {
               const lineGen = d3.line<[number, number]>()
                 .curve(curve)
@@ -294,8 +305,12 @@ export function render(
     }
   })
 
+  // Build highlight target set for dimming non-highlighted series
+  const highlightTargets = new Set((options.highlights ?? []).map(h => h.target))
+  const hasHighlights = highlightTargets.size > 0
+
   const chart = new AreaStackedChart(d3.select(clippedArea))
-  chart.config({ xPos, colors, curve, areaFillOpacity: options.areaFillOpacity ?? 0.85 })
+  chart.config({ xPos, colors, curve, areaFillOpacity: options.areaFillOpacity ?? 0.85, highlightTargets })
 
   // Re-insert prior elements so D3 data-join finds them and triggers merge:transition
   if (priorAreas.length > 0 || priorLines.length > 0) {
@@ -310,30 +325,35 @@ export function render(
 
   chart.draw(stackedAreaData)
 
-  // Apply per-series color overrides
-  if (overrides?.length) {
-    d3.select(clippedArea).selectAll('.bc-area').each(function (this: SVGPathElement, d: unknown) {
-      const datum = d as StackedAreaDatum
-      const seriesColor = resolveSeriesColor(datum.name, datum.colorIndex, colors, overrides)
-      d3.select(this).attr('fill', seriesColor)
-    })
+  // Apply per-series color overrides and highlight dimming
+  d3.select(clippedArea).selectAll('.bc-area').each(function (this: SVGPathElement, d: unknown) {
+    const datum = d as StackedAreaDatum
+    const seriesColor = resolveSeriesColor(datum.name, datum.colorIndex, colors, overrides)
+    const el = d3.select(this)
+    el.attr('fill', seriesColor)
+    if (hasHighlights) {
+      el.attr('opacity', highlightTargets.has(datum.name) ? (options.areaFillOpacity ?? 0.85) : 0.3)
+    }
+  })
 
-    d3.select(clippedArea).selectAll('.bc-line').each(function (this: SVGPathElement, d: unknown) {
-      const datum = d as StackedAreaDatum
-      const seriesColor = resolveSeriesColor(datum.name, datum.colorIndex, colors, overrides)
-      const seriesInterp = resolveSeriesInterpolation(datum.name, options.interpolation ?? 'monotoneX', overrides)
-      const el = d3.select(this)
-      el.attr('stroke', seriesColor)
-      if (seriesInterp !== (options.interpolation ?? 'monotoneX')) {
-        const perCurve = resolveCurve(seriesInterp)
-        const lineGen = d3.line<[number, number]>()
-          .curve(perCurve)
-          .x((_v, i) => xPos(i))
-          .y(p => p[1])
-        el.attr('d', lineGen(datum.points))
-      }
-    })
-  }
+  d3.select(clippedArea).selectAll('.bc-line').each(function (this: SVGPathElement, d: unknown) {
+    const datum = d as StackedAreaDatum
+    const seriesColor = resolveSeriesColor(datum.name, datum.colorIndex, colors, overrides)
+    const seriesInterp = resolveSeriesInterpolation(datum.name, options.interpolation ?? 'monotoneX', overrides)
+    const el = d3.select(this)
+    el.attr('stroke', seriesColor)
+    if (hasHighlights) {
+      el.attr('opacity', highlightTargets.has(datum.name) ? 1 : 0.3)
+    }
+    if (seriesInterp !== (options.interpolation ?? 'monotoneX')) {
+      const perCurve = resolveCurve(seriesInterp)
+      const lineGen = d3.line<[number, number]>()
+        .curve(perCurve)
+        .x((_v, i) => xPos(i))
+        .y(p => p[1])
+      el.attr('d', lineGen(datum.points))
+    }
+  })
 
   if (options.annotations?.length) {
     const annotationData = data.labels.map((l, i) => ({
