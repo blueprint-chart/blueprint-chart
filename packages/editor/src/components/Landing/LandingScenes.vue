@@ -68,8 +68,7 @@ import LandingSectionHeader from './LandingSectionHeader.vue'
 import { renderDsl, parseDslSceneCount } from '@/composables/useChartFromDsl'
 import { useTheme } from '@/composables/useTheme'
 
-const bpc = samples.find(s => s.id === 'co2-emissions-story')!.dsl
-  .replace(/\{/, '{\n  theme = "blueprint-framed"')
+const bpc = samples.find(s => s.id === 'farm-compass')!.dsl
 const sceneCount = parseDslSceneCount(bpc)
 
 const containerRef = ref<HTMLElement | null>(null)
@@ -230,13 +229,6 @@ const features: { icon: Component, title: string, description: string }[] = [
   border-radius: var(--bc-tile-radius);
   box-shadow: var(--bc-tile-shadow);
   overflow: hidden;
-  min-height: 20rem;
-
-  &__chart {
-    min-height: 20rem;
-    width: 100%;
-    height: 100%;
-  }
 }
 
 @media (max-width: 51.25rem) {
