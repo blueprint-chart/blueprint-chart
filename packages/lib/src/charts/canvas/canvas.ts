@@ -212,7 +212,16 @@ export function createCanvas(
 
   const inner = contentSize(body)
   const totalWidth = inner.width > 0 ? inner.width : DEFAULT_WIDTH
-  const totalHeight = inner.height > 0 ? inner.height : DEFAULT_HEIGHT
+
+  // In constrained-height mode (bc-frame--constrained), use a fixed height
+  // for a consistent SVG coordinate system across scenes. The viewBox +
+  // preserveAspectRatio="none" stretches the content to fill the body,
+  // keeping the x-axis at a stable vertical position regardless of
+  // header/footer height changes between scenes.
+  const isConstrained = body.closest('.bc-frame--constrained') != null
+  const totalHeight = isConstrained
+    ? DEFAULT_HEIGHT
+    : (inner.height > 0 ? inner.height : DEFAULT_HEIGHT)
 
   const width = totalWidth - m.left - m.right
   const height = totalHeight - m.top - m.bottom
@@ -223,6 +232,22 @@ export function createCanvas(
 
   const svg = body.querySelector('svg') as SVGSVGElement
   const chartArea = svg.querySelector('g') as SVGGElement
+
+  // In constrained-height mode, the body's flex-allocated height may differ
+  // from the SVG's attribute height (computed before the scene player teleports
+  // into the footer). Use viewBox + preserveAspectRatio="none" so the SVG
+  // stretches to fill the body exactly — no gaps, no clipping.
+  const frame = body.closest('.bc-frame--constrained')
+  if (frame) {
+    svg.setAttribute('viewBox', `0 0 ${totalWidth} ${totalHeight}`)
+    // Anchor from bottom so the x-axis stays at a stable position when the
+    // body height changes (due to header text wrapping differently per scene).
+    // "slice" crops the top (legend area) rather than leaving gaps.
+    svg.setAttribute('preserveAspectRatio', 'xMidYMax slice')
+    svg.style.width = '100%'
+    svg.style.height = '100%'
+    svg.style.display = 'block'
+  }
 
   return { svg, chartArea, width, height, margin: m }
 }
