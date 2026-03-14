@@ -1,4 +1,4 @@
-import { computed, shallowRef } from 'vue'
+import { shallowRef, toRaw, watchEffect } from 'vue'
 import { useChartConfig } from './useChartConfig'
 import { useChartTheme } from './useChartTheme'
 import { useChartTypeOptions } from './useChartTypeOptions'
@@ -43,7 +43,9 @@ export function useDslOutput() {
   const dataTable = useDataTable()
   const compact = shallowRef(false)
 
-  const dsl = computed(() => {
+  const dsl = shallowRef('')
+
+  function generateDsl(): string {
     let output = `chart ${base.chartType.value} {\n`
 
     if (base.title.value) {
@@ -87,8 +89,40 @@ export function useDslOutput() {
       }
     }
 
-    if (base.layout.value.playerType && base.layout.value.playerType !== 'buttons') {
-      output += `  player = "${base.layout.value.playerType}"\n`
+    // Layout properties — use toRaw to avoid deep reactive tracking
+    const ly = toRaw(base.layout.value)
+    if (ly.sizing !== 'max-width') {
+      output += `  sizing = "${ly.sizing}"\n`
+    }
+    if (ly.sizing === 'fixed' && ly.fixedWidth !== 600) {
+      output += `  fixedWidth = ${ly.fixedWidth}\n`
+    }
+    if (ly.sizing === 'max-width' && ly.maxWidth !== 660) {
+      output += `  maxWidth = ${serializeMaxWidth(ly.maxWidth)}\n`
+    }
+    if (ly.heightMode !== 'auto') {
+      output += `  heightMode = "${ly.heightMode}"\n`
+    }
+    if (ly.heightMode === 'fixed' && ly.fixedHeight !== 400) {
+      output += `  fixedHeight = ${ly.fixedHeight}\n`
+    }
+    if (ly.heightMode === 'aspect-ratio' && ly.aspectRatio !== '16:9') {
+      output += `  aspectRatio = "${ly.aspectRatio}"\n`
+    }
+    if (ly.padding !== 16) {
+      output += `  padding = ${ly.padding}\n`
+    }
+    if (ly.transparentBackground) {
+      output += `  transparentBackground = true\n`
+    }
+    if (!ly.showCredit) {
+      output += `  showCredit = false\n`
+    }
+    if (ly.playerType && ly.playerType !== 'buttons') {
+      output += `  player = "${ly.playerType}"\n`
+    }
+    if (ly.playerPosition !== 'left') {
+      output += `  playerPosition = "${ly.playerPosition}"\n`
     }
 
     if (base.data.value) {
@@ -392,7 +426,7 @@ export function useDslOutput() {
       output += `  }\n`
     }
 
-    for (const scene of scenes.value) {
+    for (const scene of toRaw(scenes.value)) {
       if (scene.name !== null) {
         output += `\n  scene "${scene.name}" {\n`
       }
@@ -626,7 +660,14 @@ export function useDslOutput() {
 
     output += '}\n'
     return output
-  })
+  }
 
-  return { dsl, compact }
+  // Use watchEffect with flush:'post' to update the reactive ref.
+  // This avoids recursive reactive updates when multiple components read the DSL
+  // and scene state simultaneously (e.g. ExportPanel + ExportEmbedPanel).
+  watchEffect(() => {
+    dsl.value = generateDsl()
+  }, { flush: 'post' })
+
+  return { dsl, compact, generateDsl }
 }
