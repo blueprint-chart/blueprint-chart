@@ -24,6 +24,25 @@
   font-family: var(--bc-frame-font-family);
 }
 
+// Constrained-height mode: when the frame's container has a definite height
+// (fixed or aspect-ratio), use flex layout so the body fills remaining space
+// after header and footer. The SVG scales via viewBox + CSS 100%.
+// preserveAspectRatio="xMinYMax meet" on the SVG (set by createCanvas when
+// the body is in constrained mode) anchors the x-axis at the bottom so it
+// stays stable when header text wraps differently between scenes.
+.bc-frame--constrained {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+
+  .bc-frame-body {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+}
+
 // -- Header elements --------------------------------------------------------
 
 .bc-frame-header {
