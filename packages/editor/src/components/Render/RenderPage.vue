@@ -3,6 +3,8 @@
     <div
       ref="containerRef"
       class="render-page__card"
+      :class="cardClass"
+      :style="cardStyle"
     />
     <Teleport
       v-if="playerTarget && showPlayer"
@@ -34,6 +36,7 @@ import {
 import { useDslSync } from '@/composables/useDslSync'
 import { useChartPreview } from '@/composables/useChartPreview'
 import { useChartConfig } from '@/composables/useChartConfig'
+import { useCanvasCardStyle } from '@/composables/useCanvasCardStyle'
 import { useScenes } from '@/composables/useScenes'
 
 const route = useRoute()
@@ -43,6 +46,7 @@ const { applyDsl } = useDslSync()
 useChartPreview(containerRef)
 
 const { layout } = useChartConfig()
+const { cardClass, cardStyle } = useCanvasCardStyle(layout, 'render-page__card')
 const { scenes, activeIndex, playing, setActive, startPlayback, stopPlayback } = useScenes()
 
 const playerComponentMap: Record<string, Component> = {
@@ -116,6 +120,25 @@ onMounted(() => {
   &__card {
     width: 100%;
     box-sizing: border-box;
+
+    &--fixed {
+      flex: none;
+      margin: 0 auto;
+    }
+
+    &--max-width {
+      margin: 0 auto;
+    }
+
+    &--transparent {
+      background: transparent;
+    }
+
+    &--constrained-height {
+      flex: none;
+      display: flex;
+      flex-direction: column;
+    }
   }
 }
 </style>
