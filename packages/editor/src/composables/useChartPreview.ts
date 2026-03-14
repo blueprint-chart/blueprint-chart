@@ -1,4 +1,4 @@
-import { watch, type Ref } from 'vue'
+import { watch, computed, type Ref } from 'vue'
 import { useResizeObserver, useThrottleFn } from '@vueuse/core'
 import { useChartConfig } from './useChartConfig'
 import { useChartTypeOptions } from './useChartTypeOptions'
@@ -45,6 +45,11 @@ export function resolveScene(scenes: SceneOverride[], index: number): SceneOverr
     }
     if (s.highlights !== undefined && s.highlights.length > 0) {
       resolved.highlights = s.highlights
+    }
+    else if (s.data !== undefined) {
+      // When a scene provides new data, clear inherited highlights
+      // since they likely target different series names
+      resolved.highlights = []
     }
     if (s.areaFills !== undefined && s.areaFills.length > 0) {
       resolved.areaFills = s.areaFills
@@ -109,8 +114,22 @@ export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
   // Symbol sentinel distinguishes "never rendered" from "rendered with no scene (null)".
   const UNSET = Symbol('unset')
   let prevActiveScene: unknown = UNSET
+  let rendering = false
 
   function render() {
+    if (!containerRef.value || rendering) {
+      return
+    }
+    rendering = true
+    try {
+      _render()
+    }
+    finally {
+      rendering = false
+    }
+  }
+
+  function _render() {
     if (!containerRef.value) {
       return
     }
@@ -123,11 +142,11 @@ export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
     // but not on the very first render or when other config properties changed.
     const isSceneTransition = prevActiveScene !== UNSET && rawScene !== prevActiveScene
 
-    // Skip clearing during scene transitions so render functions can
-    // extract existing data elements for smooth D3 data-join animations
-    if (!isSceneTransition) {
-      containerRef.value.replaceChildren()
-    }
+    // Always clear the container before rendering.
+    // Scene transitions pass the `transition` flag to the renderer so it can
+    // apply fade-in effects, but the DOM starts fresh to avoid layout corruption
+    // when frame properties (title, description, highlights) change between scenes.
+    containerRef.value.replaceChildren()
 
     let dataStr: string
     if (scene?.data !== undefined) {
@@ -194,14 +213,15 @@ export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
       : rawAnnotations
     const seriesOverrides = scene?.seriesOverrides ?? config.seriesOverrides.value
 
+    const sp = scene?.properties
     renderer(containerRef.value, data, {
       frame: {
-        title: config.title.value || undefined,
-        description: config.description.value || undefined,
+        title: (sp?.title as string | undefined) ?? (config.title.value || undefined),
+        description: (sp?.description as string | undefined) ?? (config.description.value || undefined),
         byline: config.byline.value || undefined,
         note: config.note.value || undefined,
-        source: config.source.value || undefined,
-        sourceUrl: config.sourceUrl.value || undefined,
+        source: (sp?.source as string | undefined) ?? (config.source.value || undefined),
+        sourceUrl: (sp?.sourceUrl as string | undefined) ?? (config.sourceUrl.value || undefined),
         showCredit: config.layout.value.showCredit,
         padding: `${config.layout.value.padding}px`,
       },
@@ -214,7 +234,7 @@ export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
       seriesOverrides: seriesOverrides.length > 0 ? seriesOverrides : undefined,
     }, isSceneTransition)
 
-    // Apply chart theme class to the .bc-frame element
+    // Apply chart theme and constrained-height classes to the .bc-frame element
     const frame = containerRef.value.querySelector('.bc-frame')
     if (frame) {
       // Remove any existing theme classes
@@ -224,19 +244,31 @@ export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
         }
       })
       frame.classList.add(`bc-theme-${chartTheme.value}`)
+
+      // Add constrained-height class when the layout uses fixed or aspect-ratio height
+      const hm = config.layout.value.heightMode
+      if (hm === 'fixed' || hm === 'aspect-ratio') {
+        frame.classList.add('bc-frame--constrained')
+      }
     }
 
     prevActiveScene = rawScene
   }
 
-  watch(
-    [containerRef, config.chartType, config.title, config.data, config.sort, config.sortMode, config.description, config.byline, config.note, config.source, config.sourceUrl, config.selectedColumn, config.highlights, config.areaFills, config.annotations, config.seriesOverrides, config.layout, currentOptions, scenes, activeScene, theme, chartTheme],
-    render,
-    { immediate: true, deep: true },
-  )
-
   const throttledRender = useThrottleFn(render, RESIZE_THROTTLE_MS)
   useResizeObserver(containerRef, throttledRender)
+
+  // Use a shallow comparison for most refs. Deep watch is needed for
+  // currentOptions and layout (objects where individual properties change).
+  // Use JSON.stringify to create a stable trigger for deep objects.
+  const layoutTrigger = computed(() => JSON.stringify(config.layout.value))
+  const optionsTrigger = computed(() => JSON.stringify(currentOptions.value))
+
+  watch(
+    [containerRef, config.chartType, config.title, config.data, config.sort, config.sortMode, config.description, config.byline, config.note, config.source, config.sourceUrl, config.selectedColumn, config.highlights, config.areaFills, config.annotations, config.seriesOverrides, layoutTrigger, optionsTrigger, scenes, activeScene, theme, chartTheme],
+    render,
+    { immediate: true },
+  )
 
   return { config }
 }
