@@ -210,10 +210,17 @@ export function createCanvas(
 ): CanvasElements {
   const m: Margin = { ...DEFAULT_MARGIN, ...margin }
 
+  const isConstrained = body.closest('.bc-frame--constrained') != null
+
+  // In constrained-height mode, tighten the top margin so the legend sits
+  // closer to the frame header — vertical space is scarce.
+  if (isConstrained && m.top > 10) {
+    m.top = Math.max(5, m.top - 15)
+  }
+
   const inner = contentSize(body)
   const totalWidth = inner.width > 0 ? inner.width : DEFAULT_WIDTH
 
-  const isConstrained = body.closest('.bc-frame--constrained') != null
   const totalHeight = inner.height > 0 ? inner.height : DEFAULT_HEIGHT
 
   const width = totalWidth - m.left - m.right
