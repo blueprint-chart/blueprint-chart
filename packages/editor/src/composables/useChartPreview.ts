@@ -114,6 +114,7 @@ export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
   // Symbol sentinel distinguishes "never rendered" from "rendered with no scene (null)".
   const UNSET = Symbol('unset')
   let prevActiveScene: unknown = UNSET
+  let prevChartType: string | null = null
   let rendering = false
 
   function render() {
@@ -142,11 +143,14 @@ export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
     // but not on the very first render or when other config properties changed.
     const isSceneTransition = prevActiveScene !== UNSET && rawScene !== prevActiveScene
 
-    // Always clear the container before rendering.
-    // Scene transitions pass the `transition` flag to the renderer so it can
-    // apply fade-in effects, but the DOM starts fresh to avoid layout corruption
-    // when frame properties (title, description, highlights) change between scenes.
-    containerRef.value.replaceChildren()
+    // For same-type scene transitions, keep the existing DOM so the renderer
+    // can capture prior data elements and perform smooth D3 data-join
+    // transitions.  Cross-type transitions (e.g. area-stacked → line) always
+    // clear the container to avoid duplicate frames from the fade overlay.
+    const isSameTypeTransition = isSceneTransition && prevChartType === chartType
+    if (!isSameTypeTransition) {
+      containerRef.value.replaceChildren()
+    }
 
     let dataStr: string
     if (scene?.data !== undefined) {
@@ -253,6 +257,7 @@ export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
     }
 
     prevActiveScene = rawScene
+    prevChartType = chartType
   }
 
   const throttledRender = useThrottleFn(render, RESIZE_THROTTLE_MS)
