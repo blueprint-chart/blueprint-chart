@@ -327,4 +327,39 @@ describe('area-stacked chart', () => {
     render(container, data)
     expect(container.querySelectorAll('.bc-area').length).toBe(3)
   })
+
+  // ── Highlights ───────────────────────────────────────────────────
+
+  it('dims non-highlighted series when highlights are present', () => {
+    render(container, data, {
+      highlights: [{ target: 'Product A', color: '#ff0000' }],
+    })
+    const areas = container.querySelectorAll('.bc-area')
+    expect(areas).toHaveLength(3)
+    // Product A is highlighted — should have full opacity
+    expect(areas[0].getAttribute('opacity')).toBe('0.85')
+    // Product B and C are not highlighted — should be dimmed
+    expect(areas[1].getAttribute('opacity')).toBe('0.3')
+    expect(areas[2].getAttribute('opacity')).toBe('0.3')
+  })
+
+  it('dims non-highlighted line edges when highlights are present', () => {
+    render(container, data, {
+      highlights: [{ target: 'Product B', color: '#00ff00' }],
+    })
+    const lines = container.querySelectorAll('.bc-line')
+    expect(lines).toHaveLength(3)
+    expect(lines[0].getAttribute('opacity')).toBe('0.3')
+    expect(lines[1].getAttribute('opacity')).toBe('1')
+    expect(lines[2].getAttribute('opacity')).toBe('0.3')
+  })
+
+  it('does not dim when no highlights are present', () => {
+    render(container, data)
+    const areas = container.querySelectorAll('.bc-area')
+    // All areas should have the default opacity (not 0.3)
+    for (const area of areas) {
+      expect(area.getAttribute('opacity')).toBe('0.85')
+    }
+  })
 })
