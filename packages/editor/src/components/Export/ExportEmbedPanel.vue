@@ -33,7 +33,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, toRaw } from 'vue'
 import { ActionCopyButton } from '@blueprint-chart/ui'
 import { useDslOutput } from '@/composables/useDslOutput'
 import { useChartConfig } from '@/composables/useChartConfig'
@@ -47,7 +47,7 @@ const renderUrl = computed(() => {
 })
 
 const iframeSnippet = computed(() => {
-  const l = layout.value
+  const l = toRaw(layout.value)
   const height = l.heightMode === 'fixed' ? l.fixedHeight : 400
   const parts: string[] = []
 
