@@ -579,8 +579,8 @@ describe('useDslSync', () => {
       expect(config.annotations.value).toHaveLength(1)
       expect(config.annotations.value[0].id).toBe('abc12')
 
-      const { dsl } = useDslOutput()
-      expect(dsl.value).toContain('id = "abc12"')
+      const { generateDsl } = useDslOutput()
+      expect(generateDsl()).toContain('id = "abc12"')
     })
   })
 
@@ -839,8 +839,8 @@ describe('useDslSync', () => {
 }`)
 
       // Serialize back to DSL
-      const { dsl } = useDslOutput()
-      const output = dsl.value
+      const { generateDsl } = useDslOutput()
+      const output = generateDsl()
 
       // Base annotation must be in the base section (before any scene block)
       const baseSection = output.split('scene {')[0]
@@ -955,8 +955,8 @@ describe('useDslSync', () => {
       expect(scenes.scenes.value[0].annotations![0].id).toBe('tha5f')
 
       // Serialize DSL while scene 1 is active
-      const { dsl } = useDslOutput()
-      const output = dsl.value
+      const { generateDsl } = useDslOutput()
+      const output = generateDsl()
 
       // Base annotation must survive
       expect(output).toContain('annotation "Japan"')

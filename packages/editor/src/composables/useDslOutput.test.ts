@@ -20,10 +20,10 @@ describe('useDslOutput', () => {
         { target: 'Q3', color: '#ff0000', label: 'Peak' },
       ]
 
-      const { dsl } = useDslOutput()
-      expect(dsl.value).toContain('highlight "Q3"')
-      expect(dsl.value).toContain('color = "#ff0000"')
-      expect(dsl.value).toContain('label = "Peak"')
+      const { generateDsl: dsl } = useDslOutput()
+      expect(dsl()).toContain('highlight "Q3"')
+      expect(dsl()).toContain('color = "#ff0000"')
+      expect(dsl()).toContain('label = "Peak"')
     })
 
     it('skips highlights without target', () => {
@@ -33,8 +33,8 @@ describe('useDslOutput', () => {
         { target: '', color: '#ff0000', label: '' },
       ]
 
-      const { dsl } = useDslOutput()
-      expect(dsl.value).not.toContain('highlight')
+      const { generateDsl: dsl } = useDslOutput()
+      expect(dsl()).not.toContain('highlight')
     })
   })
 
@@ -46,12 +46,12 @@ describe('useDslOutput', () => {
         { from: 'A', to: 'B', color: '#ff0000', negativeColor: '#0000ff', opacity: 0.5, interpolation: 'monotoneX' },
       ]
 
-      const { dsl } = useDslOutput()
-      expect(dsl.value).toContain('areafill "A" "B"')
-      expect(dsl.value).toContain('color = "#ff0000"')
-      expect(dsl.value).toContain('negativeColor = "#0000ff"')
-      expect(dsl.value).toContain('opacity = 0.5')
-      expect(dsl.value).toContain('interpolation = "monotoneX"')
+      const { generateDsl: dsl } = useDslOutput()
+      expect(dsl()).toContain('areafill "A" "B"')
+      expect(dsl()).toContain('color = "#ff0000"')
+      expect(dsl()).toContain('negativeColor = "#0000ff"')
+      expect(dsl()).toContain('opacity = 0.5')
+      expect(dsl()).toContain('interpolation = "monotoneX"')
     })
 
     it('skips area fills without from or to', () => {
@@ -61,8 +61,8 @@ describe('useDslOutput', () => {
         { from: '', to: 'B' },
       ]
 
-      const { dsl } = useDslOutput()
-      expect(dsl.value).not.toContain('areafill')
+      const { generateDsl: dsl } = useDslOutput()
+      expect(dsl()).not.toContain('areafill')
     })
   })
 
@@ -74,13 +74,13 @@ describe('useDslOutput', () => {
         { kind: 'point', target: '2024-Q1', text: 'Peak', showArrow: true, anchorDirection: 'NE', textOffsetX: 30, textOffsetY: -40 },
       ]
 
-      const { dsl } = useDslOutput()
-      expect(dsl.value).toContain('annotation "2024-Q1"')
-      expect(dsl.value).toContain('text = "Peak"')
-      expect(dsl.value).toContain('showArrow = true')
-      expect(dsl.value).toContain('anchorDirection = NE')
-      expect(dsl.value).toContain('textOffsetX = 30')
-      expect(dsl.value).toContain('textOffsetY = -40')
+      const { generateDsl: dsl } = useDslOutput()
+      expect(dsl()).toContain('annotation "2024-Q1"')
+      expect(dsl()).toContain('text = "Peak"')
+      expect(dsl()).toContain('showArrow = true')
+      expect(dsl()).toContain('anchorDirection = NE')
+      expect(dsl()).toContain('textOffsetX = 30')
+      expect(dsl()).toContain('textOffsetY = -40')
     })
 
     it('emits range annotation blocks', () => {
@@ -90,13 +90,13 @@ describe('useDslOutput', () => {
         { kind: 'range', start: 100, end: 200, orientation: 'vertical', bgColor: '#d3d3d3', bgOpacity: 15 },
       ]
 
-      const { dsl } = useDslOutput()
-      expect(dsl.value).toContain('range {')
-      expect(dsl.value).toContain('start = 100')
-      expect(dsl.value).toContain('end = 200')
-      expect(dsl.value).toContain('orientation = vertical')
-      expect(dsl.value).toContain('bgColor = "#d3d3d3"')
-      expect(dsl.value).toContain('bgOpacity = 15')
+      const { generateDsl: dsl } = useDslOutput()
+      expect(dsl()).toContain('range {')
+      expect(dsl()).toContain('start = 100')
+      expect(dsl()).toContain('end = 200')
+      expect(dsl()).toContain('orientation = vertical')
+      expect(dsl()).toContain('bgColor = "#d3d3d3"')
+      expect(dsl()).toContain('bgOpacity = 15')
     })
 
     it('emits free annotation (note) blocks', () => {
@@ -106,11 +106,11 @@ describe('useDslOutput', () => {
         { kind: 'free', text: 'Context', x: 50, y: 25 },
       ]
 
-      const { dsl } = useDslOutput()
-      expect(dsl.value).toContain('note {')
-      expect(dsl.value).toContain('text = "Context"')
-      expect(dsl.value).toContain('x = 50')
-      expect(dsl.value).toContain('y = 25')
+      const { generateDsl: dsl } = useDslOutput()
+      expect(dsl()).toContain('note {')
+      expect(dsl()).toContain('text = "Context"')
+      expect(dsl()).toContain('x = 50')
+      expect(dsl()).toContain('y = 25')
     })
 
     it('emits free annotation with px position', () => {
@@ -120,9 +120,9 @@ describe('useDslOutput', () => {
         { kind: 'free', text: 'Pixel', x: '120px', y: '80px' },
       ]
 
-      const { dsl } = useDslOutput()
-      expect(dsl.value).toContain('x = "120px"')
-      expect(dsl.value).toContain('y = "80px"')
+      const { generateDsl: dsl } = useDslOutput()
+      expect(dsl()).toContain('x = "120px"')
+      expect(dsl()).toContain('y = "80px"')
     })
 
     it('emits annotation id for point annotation', () => {
@@ -132,8 +132,8 @@ describe('useDslOutput', () => {
         { kind: 'point', target: '2024-Q1', text: 'Peak', id: 'abc12' },
       ]
 
-      const { dsl } = useDslOutput()
-      expect(dsl.value).toContain('id = "abc12"')
+      const { generateDsl: dsl } = useDslOutput()
+      expect(dsl()).toContain('id = "abc12"')
     })
 
     it('emits annotation id for range annotation', () => {
@@ -143,8 +143,8 @@ describe('useDslOutput', () => {
         { kind: 'range', start: 0, end: 100, id: 'rng01' },
       ]
 
-      const { dsl } = useDslOutput()
-      expect(dsl.value).toContain('id = "rng01"')
+      const { generateDsl: dsl } = useDslOutput()
+      expect(dsl()).toContain('id = "rng01"')
     })
 
     it('emits annotation id for free annotation (note)', () => {
@@ -154,8 +154,8 @@ describe('useDslOutput', () => {
         { kind: 'free', text: 'Note', x: 50, y: 50, id: 'nt001' },
       ]
 
-      const { dsl } = useDslOutput()
-      expect(dsl.value).toContain('id = "nt001"')
+      const { generateDsl: dsl } = useDslOutput()
+      expect(dsl()).toContain('id = "nt001"')
     })
 
     it('does not emit id when annotation has no id', () => {
@@ -165,8 +165,8 @@ describe('useDslOutput', () => {
         { kind: 'point', target: '2024-Q1', text: 'Peak' },
       ]
 
-      const { dsl } = useDslOutput()
-      expect(dsl.value).not.toContain('id = ')
+      const { generateDsl: dsl } = useDslOutput()
+      expect(dsl()).not.toContain('id = ')
     })
 
     it('skips point annotations without target', () => {
@@ -176,8 +176,8 @@ describe('useDslOutput', () => {
         { kind: 'point', target: '', text: 'Peak' },
       ]
 
-      const { dsl } = useDslOutput()
-      expect(dsl.value).not.toContain('annotation')
+      const { generateDsl: dsl } = useDslOutput()
+      expect(dsl()).not.toContain('annotation')
     })
   })
 
@@ -205,22 +205,22 @@ describe('useDslOutput', () => {
         },
       ]
 
-      const { dsl } = useDslOutput()
-      expect(dsl.value).toContain('series "Revenue"')
-      expect(dsl.value).toContain('color = "#ff0000"')
-      expect(dsl.value).toContain('lineWidth = 2')
-      expect(dsl.value).toContain('dash = "4,2"')
-      expect(dsl.value).toContain('interpolation = "monotoneX"')
-      expect(dsl.value).toContain('labelMode = "direct"')
-      expect(dsl.value).toContain('labelText = "Rev"')
-      expect(dsl.value).toContain('valueLabels = true')
-      expect(dsl.value).toContain('lineSymbols = true')
-      expect(dsl.value).toContain('hidden = false')
-      expect(dsl.value).toContain('symbolShape = "diamond"')
-      expect(dsl.value).toContain('symbolShowOn = "all"')
-      expect(dsl.value).toContain('symbolStyle = "hollow"')
-      expect(dsl.value).toContain('symbolSize = 5')
-      expect(dsl.value).toContain('symbolOpacity = 0.8')
+      const { generateDsl: dsl } = useDslOutput()
+      expect(dsl()).toContain('series "Revenue"')
+      expect(dsl()).toContain('color = "#ff0000"')
+      expect(dsl()).toContain('lineWidth = 2')
+      expect(dsl()).toContain('dash = "4,2"')
+      expect(dsl()).toContain('interpolation = "monotoneX"')
+      expect(dsl()).toContain('labelMode = "direct"')
+      expect(dsl()).toContain('labelText = "Rev"')
+      expect(dsl()).toContain('valueLabels = true')
+      expect(dsl()).toContain('lineSymbols = true')
+      expect(dsl()).toContain('hidden = false')
+      expect(dsl()).toContain('symbolShape = "diamond"')
+      expect(dsl()).toContain('symbolShowOn = "all"')
+      expect(dsl()).toContain('symbolStyle = "hollow"')
+      expect(dsl()).toContain('symbolSize = 5')
+      expect(dsl()).toContain('symbolOpacity = 0.8')
     })
 
     it('skips series without name', () => {
@@ -230,8 +230,8 @@ describe('useDslOutput', () => {
         { name: '', color: '#ff0000' },
       ]
 
-      const { dsl } = useDslOutput()
-      expect(dsl.value).not.toContain('series')
+      const { generateDsl: dsl } = useDslOutput()
+      expect(dsl()).not.toContain('series')
     })
 
     it('emits only set properties', () => {
@@ -241,11 +241,11 @@ describe('useDslOutput', () => {
         { name: 'Costs', color: '#00ff00' },
       ]
 
-      const { dsl } = useDslOutput()
-      expect(dsl.value).toContain('series "Costs"')
-      expect(dsl.value).toContain('color = "#00ff00"')
-      expect(dsl.value).not.toContain('lineWidth')
-      expect(dsl.value).not.toContain('dash = ')
+      const { generateDsl: dsl } = useDslOutput()
+      expect(dsl()).toContain('series "Costs"')
+      expect(dsl()).toContain('color = "#00ff00"')
+      expect(dsl()).not.toContain('lineWidth')
+      expect(dsl()).not.toContain('dash = ')
     })
   })
 
@@ -260,9 +260,9 @@ describe('useDslOutput', () => {
         chartTypeOptions: { colors: ['#ff0000', '#00ff00'] },
       })
 
-      const { dsl } = useDslOutput()
-      expect(dsl.value).toContain('scene {')
-      expect(dsl.value).toContain('colors = "#ff0000, #00ff00"')
+      const { generateDsl: dsl } = useDslOutput()
+      expect(dsl()).toContain('scene {')
+      expect(dsl()).toContain('colors = "#ff0000, #00ff00"')
     })
 
     it('serializes boolean scene chartTypeOptions', () => {
@@ -275,8 +275,8 @@ describe('useDslOutput', () => {
         chartTypeOptions: { showVerticalTicks: false },
       })
 
-      const { dsl } = useDslOutput()
-      expect(dsl.value).toContain('showVerticalTicks = false')
+      const { generateDsl: dsl } = useDslOutput()
+      expect(dsl()).toContain('showVerticalTicks = false')
     })
 
     it('serializes string scene chartTypeOptions', () => {
@@ -289,8 +289,8 @@ describe('useDslOutput', () => {
         chartTypeOptions: { colorPalette: 'viridis' },
       })
 
-      const { dsl } = useDslOutput()
-      expect(dsl.value).toContain('colorPalette = "viridis"')
+      const { generateDsl: dsl } = useDslOutput()
+      expect(dsl()).toContain('colorPalette = "viridis"')
     })
 
     it('scene chartType override serializes as type and preserves base chart type', () => {
@@ -305,11 +305,11 @@ describe('useDslOutput', () => {
       // Change chart type while scene is active → should go to scene override
       config.chartType.value = 'bar-horizontal'
 
-      const { dsl } = useDslOutput()
+      const { generateDsl: dsl } = useDslOutput()
       // Top-level must stay bar-vertical
-      expect(dsl.value).toMatch(/^chart bar-vertical \{/)
+      expect(dsl()).toMatch(/^chart bar-vertical \{/)
       // Scene block must contain type = bar-horizontal
-      const sceneBlock = dsl.value.split('scene {')[1]
+      const sceneBlock = dsl().split('scene {')[1]
       expect(sceneBlock).toContain('type = bar-horizontal')
     })
 
@@ -343,9 +343,9 @@ describe('useDslOutput', () => {
       expect(scenes.scenes.value[0].chartType).toBe('bar-horizontal')
 
       // Re-serialize and verify DSL output
-      const { dsl } = useDslOutput()
-      expect(dsl.value).toMatch(/^chart bar-vertical \{/)
-      const sceneBlock = dsl.value.split('scene {')[1]
+      const { generateDsl: dsl } = useDslOutput()
+      expect(dsl()).toMatch(/^chart bar-vertical \{/)
+      const sceneBlock = dsl().split('scene {')[1]
       expect(sceneBlock).toContain('type = bar-horizontal')
     })
 
@@ -361,8 +361,8 @@ describe('useDslOutput', () => {
       // Scene was just added — should have no data override
       expect(scenes.scenes.value[0].data).toBeUndefined()
 
-      const { dsl } = useDslOutput()
-      const sceneBlock = dsl.value.split('scene {')[1]
+      const { generateDsl: dsl } = useDslOutput()
+      const sceneBlock = dsl().split('scene {')[1]
       expect(sceneBlock).not.toContain('data {')
     })
 
@@ -378,8 +378,8 @@ describe('useDslOutput', () => {
         ],
       })
 
-      const { dsl } = useDslOutput()
-      expect(dsl.value).toContain('hide_annotation "abc12"')
+      const { generateDsl: dsl } = useDslOutput()
+      expect(dsl()).toContain('hide_annotation "abc12"')
     })
 
     it('serializes mixed hide and show directives in scene', () => {
@@ -396,10 +396,10 @@ describe('useDslOutput', () => {
         ],
       })
 
-      const { dsl } = useDslOutput()
-      expect(dsl.value).toContain('hide_annotation "abc12"')
-      expect(dsl.value).toContain('show_range "rng01"')
-      expect(dsl.value).toContain('hide_note "nt001"')
+      const { generateDsl: dsl } = useDslOutput()
+      expect(dsl()).toContain('hide_annotation "abc12"')
+      expect(dsl()).toContain('show_range "rng01"')
+      expect(dsl()).toContain('hide_note "nt001"')
     })
 
     it('does not leak scene values into base chart section', () => {
@@ -415,13 +415,13 @@ describe('useDslOutput', () => {
       })
       scenes.setActive(0)
 
-      const { dsl } = useDslOutput()
+      const { generateDsl: dsl } = useDslOutput()
       // Base section should show base title, not scene title
-      const lines = dsl.value.split('\n')
+      const lines = dsl().split('\n')
       const titleLine = lines.find(l => l.includes('title = ') && !l.includes('scene'))
       expect(titleLine).toContain('Base Title')
       // Base section should not have scene highlights
-      const baseSection = dsl.value.split('scene {')[0]
+      const baseSection = dsl().split('scene {')[0]
       expect(baseSection).not.toContain('highlight "A"')
     })
 
@@ -437,12 +437,12 @@ describe('useDslOutput', () => {
         ],
       })
 
-      const { dsl } = useDslOutput()
-      expect(dsl.value).toContain('scene {')
-      expect(dsl.value).toContain('annotation "2024-Q1"')
-      expect(dsl.value).toContain('id = "p1"')
-      expect(dsl.value).toContain('text = "Peak"')
-      expect(dsl.value).toContain('showArrow = true')
+      const { generateDsl: dsl } = useDslOutput()
+      expect(dsl()).toContain('scene {')
+      expect(dsl()).toContain('annotation "2024-Q1"')
+      expect(dsl()).toContain('id = "p1"')
+      expect(dsl()).toContain('text = "Peak"')
+      expect(dsl()).toContain('showArrow = true')
     })
 
     it('serializes range annotation in scene', () => {
@@ -457,13 +457,13 @@ describe('useDslOutput', () => {
         ],
       })
 
-      const { dsl } = useDslOutput()
-      expect(dsl.value).toContain('scene {')
-      expect(dsl.value).toContain('range {')
-      expect(dsl.value).toContain('id = "r1"')
-      expect(dsl.value).toContain('start = 10')
-      expect(dsl.value).toContain('end = 90')
-      expect(dsl.value).toContain('bgColor = "#ccc"')
+      const { generateDsl: dsl } = useDslOutput()
+      expect(dsl()).toContain('scene {')
+      expect(dsl()).toContain('range {')
+      expect(dsl()).toContain('id = "r1"')
+      expect(dsl()).toContain('start = 10')
+      expect(dsl()).toContain('end = 90')
+      expect(dsl()).toContain('bgColor = "#ccc"')
     })
 
     it('serializes free annotation (note) in scene', () => {
@@ -478,13 +478,13 @@ describe('useDslOutput', () => {
         ],
       })
 
-      const { dsl } = useDslOutput()
-      expect(dsl.value).toContain('scene {')
-      expect(dsl.value).toContain('note {')
-      expect(dsl.value).toContain('id = "n1"')
-      expect(dsl.value).toContain('text = "Note"')
-      expect(dsl.value).toContain('x = 50')
-      expect(dsl.value).toContain('y = 25')
+      const { generateDsl: dsl } = useDslOutput()
+      expect(dsl()).toContain('scene {')
+      expect(dsl()).toContain('note {')
+      expect(dsl()).toContain('id = "n1"')
+      expect(dsl()).toContain('text = "Note"')
+      expect(dsl()).toContain('x = 50')
+      expect(dsl()).toContain('y = 25')
     })
 
     it('serializes all annotation kinds in scene', () => {
@@ -501,10 +501,10 @@ describe('useDslOutput', () => {
         ],
       })
 
-      const { dsl } = useDslOutput()
-      expect(dsl.value).toContain('annotation "X"')
-      expect(dsl.value).toContain('range {')
-      expect(dsl.value).toContain('note {')
+      const { generateDsl: dsl } = useDslOutput()
+      expect(dsl()).toContain('annotation "X"')
+      expect(dsl()).toContain('range {')
+      expect(dsl()).toContain('note {')
     })
 
     it('serializes non-default player type', () => {
@@ -512,16 +512,16 @@ describe('useDslOutput', () => {
       config.chartType.value = 'bar-vertical'
       config._base.layout.value = { ...config._base.layout.value, playerType: 'progress-bar' }
 
-      const { dsl } = useDslOutput()
-      expect(dsl.value).toContain('player = "progress-bar"')
+      const { generateDsl: dsl } = useDslOutput()
+      expect(dsl()).toContain('player = "progress-bar"')
     })
 
     it('omits player when it is the default buttons', () => {
       const config = useChartConfig()
       config.chartType.value = 'bar-vertical'
 
-      const { dsl } = useDslOutput()
-      expect(dsl.value).not.toContain('player =')
+      const { generateDsl: dsl } = useDslOutput()
+      expect(dsl()).not.toContain('player =')
     })
 
     it('player type round-trips through DSL', () => {
@@ -533,8 +533,8 @@ describe('useDslOutput', () => {
       const config = useChartConfig()
       expect(config.layout.value.playerType).toBe('dot-stepper')
 
-      const { dsl } = useDslOutput()
-      expect(dsl.value).toContain('player = "dot-stepper"')
+      const { generateDsl: dsl } = useDslOutput()
+      expect(dsl()).toContain('player = "dot-stepper"')
     })
 
     it('scene annotation round-trip through DSL', () => {
@@ -560,20 +560,20 @@ describe('useDslOutput', () => {
   }
 }`)
 
-      const { dsl } = useDslOutput()
-      expect(dsl.value).toContain('annotation "X"')
-      expect(dsl.value).toContain('id = "p1"')
-      expect(dsl.value).toContain('text = "Hello"')
-      expect(dsl.value).toContain('showArrow = true')
-      expect(dsl.value).toContain('range {')
-      expect(dsl.value).toContain('id = "r1"')
-      expect(dsl.value).toContain('start = 10')
-      expect(dsl.value).toContain('end = 90')
-      expect(dsl.value).toContain('note {')
-      expect(dsl.value).toContain('id = "n1"')
-      expect(dsl.value).toContain('text = "Note"')
-      expect(dsl.value).toContain('x = 50')
-      expect(dsl.value).toContain('y = 25')
+      const { generateDsl: dsl } = useDslOutput()
+      expect(dsl()).toContain('annotation "X"')
+      expect(dsl()).toContain('id = "p1"')
+      expect(dsl()).toContain('text = "Hello"')
+      expect(dsl()).toContain('showArrow = true')
+      expect(dsl()).toContain('range {')
+      expect(dsl()).toContain('id = "r1"')
+      expect(dsl()).toContain('start = 10')
+      expect(dsl()).toContain('end = 90')
+      expect(dsl()).toContain('note {')
+      expect(dsl()).toContain('id = "n1"')
+      expect(dsl()).toContain('text = "Note"')
+      expect(dsl()).toContain('x = 50')
+      expect(dsl()).toContain('y = 25')
     })
 
     it('scene annotation with visibility directives round-trip', () => {
@@ -595,15 +595,15 @@ describe('useDslOutput', () => {
   }
 }`)
 
-      const { dsl } = useDslOutput()
+      const { generateDsl: dsl } = useDslOutput()
       // Base annotations should be present
-      expect(dsl.value).toContain('annotation "Base"')
-      expect(dsl.value).toContain('id = "base1"')
-      expect(dsl.value).toContain('range {')
-      expect(dsl.value).toContain('id = "rng01"')
+      expect(dsl()).toContain('annotation "Base"')
+      expect(dsl()).toContain('id = "base1"')
+      expect(dsl()).toContain('range {')
+      expect(dsl()).toContain('id = "rng01"')
       // Scene visibility directives should be present
-      expect(dsl.value).toContain('hide_annotation "base1"')
-      expect(dsl.value).toContain('show_range "rng01"')
+      expect(dsl()).toContain('hide_annotation "base1"')
+      expect(dsl()).toContain('show_range "rng01"')
     })
   })
 })
