@@ -30,6 +30,8 @@ export interface DslRenderOptions {
   sceneIndex?: number
   /** When true, preserve existing DOM and use D3 transitions instead of full re-render */
   transition?: boolean
+  /** When true, ignore BPC layout properties (heightMode, aspectRatio, sizing) */
+  ignoreLayout?: boolean
 }
 
 /**
@@ -67,14 +69,31 @@ export function renderDsl(
 
   const pMap = propertyMap(ast.properties)
 
-  // Apply aspect ratio from BPC property
+  // Apply constrained height mode from BPC properties (skip if ignoreLayout)
+  const heightMode = options?.ignoreLayout ? undefined : pMap.get('heightMode')
   const ratio = pMap.get('aspectRatio')
-  if (ratio) {
+  const fixedHeight = pMap.get('fixedHeight')
+
+  let hasConstrainedHeight = false
+  if (heightMode === 'aspect-ratio' && ratio) {
     const parts = String(ratio).split(':').map(Number)
     if (parts.length === 2 && parts[0] > 0 && parts[1] > 0) {
       container.style.aspectRatio = `${parts[0]} / ${parts[1]}`
       container.style.height = 'auto'
+      hasConstrainedHeight = true
     }
+  }
+  else if (heightMode === 'fixed' && fixedHeight) {
+    container.style.height = `${fixedHeight}px`
+    hasConstrainedHeight = true
+  }
+
+  // When height is constrained, set up flex layout so the frame body
+  // gets the remaining height after header and footer.
+  if (hasConstrainedHeight) {
+    container.style.display = 'flex'
+    container.style.flexDirection = 'column'
+    container.style.overflow = 'hidden'
   }
 
   // Resolve scene overrides when a scene index is specified
@@ -149,11 +168,15 @@ export function renderDsl(
 
   // Apply chart theme class to the rendered frame
   const theme = getString('theme')
-  if (theme) {
-    const frameEl = container.querySelector('.bc-frame')
-    if (frameEl) {
-      frameEl.classList.add(`bc-theme-${theme}`)
-    }
+  const frameEl = container.querySelector('.bc-frame') as HTMLElement | null
+  if (theme && frameEl) {
+    frameEl.classList.add(`bc-theme-${theme}`)
+  }
+
+  // When height is constrained, add the shared class that applies flex layout
+  // and SVG scaling via viewBox (defined in chart.scss).
+  if (hasConstrainedHeight && frameEl) {
+    frameEl.classList.add('bc-frame--constrained')
   }
 }
 
