@@ -278,24 +278,6 @@ const canvasStyle = computed<CSSProperties>(() => ({
           display: flex;
           flex-direction: column;
         }
-
-        :deep(.bc-frame) {
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          min-height: 0;
-        }
-
-        :deep(.bc-frame-body) {
-          flex: 1;
-          min-height: 0;
-        }
-
-        :deep(.bc-frame-body svg) {
-          width: 100%;
-          height: 100%;
-          display: block;
-        }
       }
     }
 

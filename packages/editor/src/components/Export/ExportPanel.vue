@@ -114,12 +114,20 @@ const { downloadSvg, downloadPng } = useImageExport(previewRef, cardRef)
 const gridOffsetX = shallowRef(0)
 const gridOffsetY = shallowRef(0)
 
+let gridRafId = 0
 function updateGridOffset() {
-  const card = cardRef.value
-  if (card) {
-    gridOffsetX.value = card.offsetLeft
-    gridOffsetY.value = card.offsetTop
-  }
+  globalThis.cancelAnimationFrame(gridRafId)
+  gridRafId = globalThis.requestAnimationFrame(() => {
+    const card = cardRef.value
+    if (card) {
+      const x = card.offsetLeft
+      const y = card.offsetTop
+      if (x !== gridOffsetX.value || y !== gridOffsetY.value) {
+        gridOffsetX.value = x
+        gridOffsetY.value = y
+      }
+    }
+  })
 }
 
 useResizeObserver(canvasRef, updateGridOffset)
@@ -248,24 +256,6 @@ const canvasClassList = computed(() => ({
         min-height: 0;
         display: flex;
         flex-direction: column;
-      }
-
-      :deep(.bc-frame) {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        min-height: 0;
-      }
-
-      :deep(.bc-frame-body) {
-        flex: 1;
-        min-height: 0;
-      }
-
-      :deep(.bc-frame-body svg) {
-        width: 100%;
-        height: 100%;
-        display: block;
       }
     }
 
