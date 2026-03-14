@@ -356,9 +356,10 @@ export function generateThumbnail() {
   }
 
   // Preview uses the DSL output for full-frame rendering
-  const { dsl } = useDslOutput()
-  if (dsl.value) {
-    const preview = renderPreviewFromDsl(dsl.value)
+  const { generateDsl } = useDslOutput()
+  const currentDsl = generateDsl()
+  if (currentDsl) {
+    const preview = renderPreviewFromDsl(currentDsl)
     if (preview) {
       savePreview(sessionId.value, preview)
     }

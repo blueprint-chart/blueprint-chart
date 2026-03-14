@@ -78,8 +78,8 @@ export function useChartSession() {
     if (!sessionId.value) {
       return
     }
-    const { dsl } = useDslOutput()
-    localStorage.setItem(storageKey(sessionId.value), dsl.value)
+    const { generateDsl } = useDslOutput()
+    localStorage.setItem(storageKey(sessionId.value), generateDsl())
 
     const meta: SessionMeta = {
       savedAt: new Date().toISOString(),
