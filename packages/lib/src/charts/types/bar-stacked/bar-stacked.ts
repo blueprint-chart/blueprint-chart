@@ -267,7 +267,9 @@ export function render(
     const datum = d as StackedBarDatum
     const seriesColor = resolveSeriesColor(datum.seriesName, datum.seriesIndex, colors, overrides)
     const seriesOpacity = resolveSeriesOpacity(datum.seriesName, overrides)
-    const el = d3.select(this)
+    const el = transition
+      ? d3.select(this).transition().duration(getDefaultTransitionMs())
+      : d3.select(this)
     el.attr('fill', seriesColor)
     if (seriesOpacity < 1) {
       el.attr('fill-opacity', seriesOpacity)

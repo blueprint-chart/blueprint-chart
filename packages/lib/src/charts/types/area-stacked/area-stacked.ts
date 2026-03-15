@@ -335,7 +335,9 @@ export function render(
   d3.select(clippedArea).selectAll('.bc-area').each(function (this: SVGPathElement, d: unknown) {
     const datum = d as StackedAreaDatum
     const seriesColor = resolveSeriesColor(datum.name, datum.colorIndex, colors, overrides)
-    const el = d3.select(this)
+    const el = transition
+      ? d3.select(this).transition().duration(getDefaultTransitionMs())
+      : d3.select(this)
     el.attr('fill', seriesColor)
     if (hasHighlights) {
       el.attr('opacity', highlightTargets.has(datum.name) ? (options.areaFillOpacity ?? 0.85) : 0.3)
@@ -346,7 +348,9 @@ export function render(
     const datum = d as StackedAreaDatum
     const seriesColor = resolveSeriesColor(datum.name, datum.colorIndex, colors, overrides)
     const seriesInterp = resolveSeriesInterpolation(datum.name, options.interpolation ?? 'monotoneX', overrides)
-    const el = d3.select(this)
+    const el = transition
+      ? d3.select(this).transition().duration(getDefaultTransitionMs())
+      : d3.select(this)
     el.attr('stroke', seriesColor)
     if (hasHighlights) {
       el.attr('opacity', highlightTargets.has(datum.name) ? 1 : 0.3)
