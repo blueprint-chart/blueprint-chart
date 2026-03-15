@@ -447,7 +447,9 @@ export function render(
     const seriesDash = resolveSeriesDash(datum.name, overrides)
     const seriesInterp = resolveSeriesInterpolation(datum.name, options.interpolation ?? 'linear', overrides)
 
-    const el = d3.select(this)
+    const el = transition
+      ? d3.select(this).transition().duration(getDefaultTransitionMs())
+      : d3.select(this)
     el.attr('stroke', seriesColor)
       .attr('stroke-width', seriesWidth)
 
@@ -456,7 +458,8 @@ export function render(
     }
 
     if (seriesDash !== 'solid') {
-      el.attr('stroke-dasharray', DASH_MAP[seriesDash] ?? '')
+      // Dash array can't be interpolated; apply immediately
+      d3.select(this).attr('stroke-dasharray', DASH_MAP[seriesDash] ?? '')
     }
 
     // Re-generate path if interpolation differs from global
@@ -474,7 +477,9 @@ export function render(
   d3.select(clippedArea).selectAll('.bc-area').each(function (this: SVGPathElement, d: unknown) {
     const datum = d as SeriesDatum
     const seriesColor = resolveSeriesColor(datum.name, datum.colorIndex, colors, overrides)
-    const el = d3.select(this)
+    const el = transition
+      ? d3.select(this).transition().duration(getDefaultTransitionMs())
+      : d3.select(this)
     el.attr('fill', seriesColor)
     if (hasHighlights) {
       el.attr('opacity', highlightTargets.has(datum.name) ? (options.areaFillOpacity ?? 0.2) : 0.1)
