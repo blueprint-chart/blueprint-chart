@@ -118,6 +118,13 @@ export function snapshotForFadeOut(container: HTMLElement, ms?: number): HTMLEle
     el.remove()
   })
 
+  // Rename .bc-frame in the overlay so selectors like `.bc-frame` only
+  // match the live chart, not the fading snapshot.
+  overlay.querySelectorAll('.bc-frame').forEach((el) => {
+    el.classList.remove('bc-frame')
+    el.classList.add('bc-frame--fade-snapshot')
+  })
+
   return overlay
 }
 
