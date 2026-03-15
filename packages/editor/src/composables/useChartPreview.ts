@@ -7,7 +7,7 @@ import { useDataTable, serializeTableData } from './useDataTable'
 import { useDataTransforms } from './useDataTransforms'
 import { useTheme } from './useTheme'
 import { useChartTheme } from './useChartTheme'
-import { getChart, parseData, buildChartOptions, resolveBackgroundColor } from '@blueprint-chart/lib'
+import { getChart, parseData, buildChartOptions, resolveBackgroundColor, snapshotForFadeOut, commitFadeOut, fadeIn } from '@blueprint-chart/lib'
 
 function showPlaceholder(el: HTMLElement, message: string) {
   el.replaceChildren()
@@ -114,6 +114,7 @@ export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
   // Symbol sentinel distinguishes "never rendered" from "rendered with no scene (null)".
   const UNSET = Symbol('unset')
   let prevActiveScene: unknown = UNSET
+  let prevChartType: string | null = null
   let rendering = false
 
   function render() {
@@ -141,12 +142,16 @@ export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
     // Transition when the active scene changed (base→scene, scene→scene, scene→base)
     // but not on the very first render or when other config properties changed.
     const isSceneTransition = prevActiveScene !== UNSET && rawScene !== prevActiveScene
+    const isCrossType = isSceneTransition && prevChartType !== null && prevChartType !== chartType
 
-    // For scene transitions, keep the existing DOM so the renderer can:
-    // - Same type: capture prior data elements for smooth D3 data-join transitions
-    // - Cross type: snapshot the old chart for a fade-out/fade-in transition
-    // Only clear the container for non-transition renders (config changes, first render).
-    if (!isSceneTransition) {
+    // For cross-type scene transitions, snapshot the old chart for fade-out
+    // before clearing.  Same-type transitions keep the DOM for D3 morphing.
+    let crossTypeFadeOverlay: HTMLElement | null = null
+    if (isCrossType) {
+      crossTypeFadeOverlay = snapshotForFadeOut(containerRef.value)
+      containerRef.value.replaceChildren()
+    }
+    else if (!isSceneTransition) {
       containerRef.value.replaceChildren()
     }
 
@@ -234,7 +239,16 @@ export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
       areaFills: areaFills.length > 0 ? areaFills : undefined,
       annotations: annotations.length > 0 ? annotations : undefined,
       seriesOverrides: seriesOverrides.length > 0 ? seriesOverrides : undefined,
-    }, isSceneTransition)
+    }, isSceneTransition && !isCrossType)
+
+    // Cross-type fade: fade in the new chart and fade out the snapshot overlay
+    if (crossTypeFadeOverlay && containerRef.value) {
+      const newFrame = containerRef.value.querySelector('.bc-frame')
+      if (newFrame) {
+        fadeIn(newFrame)
+      }
+      commitFadeOut(containerRef.value, crossTypeFadeOverlay)
+    }
 
     // Apply chart theme and constrained-height classes to the .bc-frame element
     const frame = containerRef.value.querySelector('.bc-frame')
@@ -255,6 +269,7 @@ export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
     }
 
     prevActiveScene = rawScene
+    prevChartType = chartType
   }
 
   const throttledRender = useThrottleFn(render, RESIZE_THROTTLE_MS)
