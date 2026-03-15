@@ -102,10 +102,16 @@ export class AxisService {
           group.setAttribute('transform', `translate(${dx},${dy})`)
           const duration = getDefaultTransitionMs()
           if (duration > 0) {
+            // Use attrTween with string interpolation to avoid D3's SVG
+            // transform parsing (which reads baseVal, unsupported in jsdom)
             d3.select(group)
               .transition()
               .duration(duration)
-              .attr('transform', 'translate(0,0)')
+              .attrTween('transform', () => {
+                const ix = d3.interpolateNumber(dx, 0)
+                const iy = d3.interpolateNumber(dy, 0)
+                return (t: number) => `translate(${ix(t)},${iy(t)})`
+              })
           }
           else {
             group.removeAttribute('transform')

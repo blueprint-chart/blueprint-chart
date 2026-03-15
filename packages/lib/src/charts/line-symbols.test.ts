@@ -1,6 +1,15 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeAll, afterAll, beforeEach, afterEach, vi } from 'vitest'
 import * as d3 from 'd3'
 import { shouldShowSymbol, renderLineSymbols } from './line-symbols'
+
+// Suppress D3 transition timers that hit jsdom's missing baseVal on SVG transforms
+const origMatchMedia = window.matchMedia
+beforeAll(() => {
+  window.matchMedia = vi.fn().mockReturnValue({ matches: true, addEventListener: vi.fn(), removeEventListener: vi.fn() })
+})
+afterAll(() => {
+  window.matchMedia = origMatchMedia
+})
 
 describe('shouldShowSymbol', () => {
   it('returns true for all when showOn is all', () => {
@@ -39,6 +48,11 @@ describe('renderLineSymbols', () => {
     g = document.createElementNS('http://www.w3.org/2000/svg', 'g')
     svg.appendChild(g)
     document.body.appendChild(svg)
+  })
+
+  afterEach(() => {
+    // Interrupt pending D3 transitions to prevent async baseVal errors in jsdom
+    d3.select(svg).selectAll('*').interrupt()
   })
 
   const points = [
