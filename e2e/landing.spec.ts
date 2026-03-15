@@ -21,7 +21,7 @@ test.describe('landing page layout', () => {
     await expect(page.locator('.landing-hero__inner__text__h1')).toBeVisible()
     await expect(page.locator('.landing-hero__inner__text__h1')).toContainText('Turn data into')
     await expect(page.locator('.button-icon', { hasText: 'My Charts' })).toBeVisible()
-    await expect(page.locator('.button-icon', { hasText: 'New' })).toBeVisible()
+    await expect(page.locator('.landing-hero .button-icon', { hasText: 'New chart' })).toBeVisible()
   })
 
   test('hero chart renders real D3 chart', async ({ page }) => {
