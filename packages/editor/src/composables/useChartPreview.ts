@@ -144,14 +144,17 @@ export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
     const isSceneTransition = prevActiveScene !== UNSET && rawScene !== prevActiveScene
     const isCrossType = isSceneTransition && prevChartType !== null && prevChartType !== chartType
 
-    // For cross-type scene transitions, snapshot the old chart for fade-out
-    // before clearing.  Same-type transitions keep the DOM for D3 morphing.
-    let crossTypeFadeOverlay: HTMLElement | null = null
-    if (isCrossType) {
-      crossTypeFadeOverlay = snapshotForFadeOut(containerRef.value)
-      containerRef.value.replaceChildren()
+    // For all scene transitions, snapshot the old chart for a fade-out overlay.
+    // Same-type transitions ALSO keep the DOM for D3 shape morphing;
+    // cross-type transitions clear the container and render fresh.
+    let fadeOverlay: HTMLElement | null = null
+    if (isSceneTransition) {
+      fadeOverlay = snapshotForFadeOut(containerRef.value)
+      if (isCrossType) {
+        containerRef.value.replaceChildren()
+      }
     }
-    else if (!isSceneTransition) {
+    else {
       containerRef.value.replaceChildren()
     }
 
@@ -241,13 +244,18 @@ export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
       seriesOverrides: seriesOverrides.length > 0 ? seriesOverrides : undefined,
     }, isSceneTransition && !isCrossType)
 
-    // Cross-type fade: fade in the new chart and fade out the snapshot overlay
-    if (crossTypeFadeOverlay && containerRef.value) {
-      const newFrame = containerRef.value.querySelector('.bc-frame')
-      if (newFrame) {
-        fadeIn(newFrame)
+    // Fade overlay: old chart fades out on top of the new one.
+    // For cross-type transitions, also fade in the new chart.
+    // For same-type transitions, the overlay provides a visual cue while
+    // D3 morphs the shapes underneath.
+    if (fadeOverlay && containerRef.value) {
+      if (isCrossType) {
+        const newFrame = containerRef.value.querySelector('.bc-frame')
+        if (newFrame) {
+          fadeIn(newFrame)
+        }
       }
-      commitFadeOut(containerRef.value, crossTypeFadeOverlay)
+      commitFadeOut(containerRef.value, fadeOverlay)
     }
 
     // Apply chart theme and constrained-height classes to the .bc-frame element
