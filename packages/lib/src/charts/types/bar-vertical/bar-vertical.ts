@@ -4,14 +4,13 @@ import { D3Blueprint } from 'd3-blueprint'
 import type { ChartData, ChartOptions } from '../../types'
 import { createFrame } from '../../frame/frame'
 import { createCanvas, contentSize, labelPositionMargins, estimateVerticalLabelWidth } from '../../canvas/canvas'
-import { renderVerticalAxis } from '../../axis/vertical-axis'
-import { renderHorizontalAxis } from '../../axis/horizontal-axis'
+import { AxisService } from '../../axis/axis-service'
 import { computeLinearDomain } from '../../scale-helpers'
 import { createTooltipPlugin } from '../../plugins/tooltip'
 import { createCrosshairPlugin } from '../../plugins/crosshair'
 import { createAnnotationPlugin, snapshotAnnotations, type AnnotationSnapshot } from '../../plugins/annotations'
 import { resolveBackgroundColor, contrastTextColor } from '../../contrast'
-import { getDefaultTransitionMs, fadeIn, snapshotForFadeOut, commitFadeOut } from '../../motion'
+import { getDefaultTransitionMs, fadeIn, snapshotForFadeOut, commitFadeOut, reinsertWithOffset } from '../../motion'
 import { getCachedChart, setCachedChart } from '../../transition-cache'
 
 const DEFAULT_COLORS = ['#4e79a7']
@@ -83,16 +82,14 @@ export function render(
   // Preserve existing data elements for smooth D3 data-join transitions
   let priorBars: Element[] = []
   let priorLabels: Element[] = []
-  let priorVAxis: Element | null = null
-  let priorHAxis: Element | null = null
   let fadeOverlay: HTMLElement | null = null
   let priorAnnotations: Map<string, AnnotationSnapshot> | undefined
+  let priorMargin: { top: number, left: number } | undefined
+  const axes = AxisService.for(container)
   if (transition) {
     const cached = getCachedChart(container)
-    if (cached) {
-      priorVAxis = container.querySelector('.bc-axis-vertical')
-      priorHAxis = container.querySelector('.bc-axis-horizontal')
-    }
+    priorMargin = cached?.margin
+    axes.detach()
     if (cached?.chartType === 'bar-vertical') {
       priorBars = Array.from(container.querySelectorAll('.bc-bar'))
       priorLabels = Array.from(container.querySelectorAll('.bc-value-label'))
@@ -115,6 +112,9 @@ export function render(
   const vLabelW = estimateVerticalLabelWidth(data.values, options.verticalAxis?.range, options.verticalAxis?.numberFormat, options.verticalAxis?.scaleType)
   const lpMargins = labelPositionMargins(containerWidth, options.verticalAxis?.labelPosition, options.horizontalAxis?.labelPosition, options.verticalAxis?.direction, vLabelW)
   const { chartArea, width, height, margin } = createCanvas(body, lpMargins)
+  const marginDelta = priorMargin
+    ? { dx: priorMargin.left - margin.left, dy: priorMargin.top - margin.top }
+    : undefined
 
   const labels = sortLabels(data, options)
   const barData: BarDatum[] = labels.map(l => ({
@@ -142,19 +142,21 @@ export function render(
     ? d3.scaleSymlog().domain([domainMin, domainMax]).nice().range([height, 0])
     : d3.scaleLinear().domain([domainMin, domainMax]).nice().range([height, 0])
 
-  renderVerticalAxis(chartArea, y, height, { ...options.verticalAxis, gridWidth: width, topPadding: margin.top }, priorVAxis)
-  if (swapLabelValue && options.valueLabels) {
-    // Category axis (horizontal): show values instead of labels
-    const valueMap = new Map(barData.map(d => [d.label, d.value]))
-    renderHorizontalAxis(chartArea, x, height, {
-      ...options.horizontalAxis,
-      width,
-      tickFormat: (label: string) => String(valueMap.get(label) ?? label),
-    } as import('../../types').AxisOptions, priorHAxis)
-  }
-  else {
-    renderHorizontalAxis(chartArea, x, height, { ...options.horizontalAxis, width }, priorHAxis)
-  }
+  axes.attach(chartArea, marginDelta)
+  const hAxisOpts = swapLabelValue && options.valueLabels
+    ? (() => {
+        const valueMap = new Map(barData.map(d => [d.label, d.value]))
+        return {
+          ...options.horizontalAxis,
+          width,
+          tickFormat: (label: string) => String(valueMap.get(label) ?? label),
+        }
+      })()
+    : { ...options.horizontalAxis, width }
+  axes.update({
+    vertical: { scale: y, height, options: { ...options.verticalAxis, gridWidth: width, topPadding: margin.top } },
+    horizontal: { scale: x, height, options: hAxisOpts },
+  })
 
   // Zero baseline when domain spans zero
   if (!useLog && domainMin < 0 && domainMax > 0) {
@@ -215,7 +217,7 @@ export function render(
   // Re-insert prior elements so D3 data-join finds them and triggers merge:transition
   if (priorBars.length > 0) {
     const layerG = clippedGroup.node()!.querySelector('g')!
-    priorBars.forEach(el => layerG.appendChild(el))
+    reinsertWithOffset(layerG, priorBars, marginDelta?.dx ?? 0, marginDelta?.dy ?? 0)
   }
 
   if (options.tooltips) {
@@ -242,7 +244,7 @@ export function render(
     })
   }
 
-  setCachedChart(container, { chartType: 'bar-vertical' })
+  setCachedChart(container, { chartType: 'bar-vertical', margin })
 
   if (fadeOverlay) {
     fadeIn(clippedGroup.node()!)

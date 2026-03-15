@@ -9,7 +9,7 @@ interface AxisDatum {
   placeholder: true
 }
 
-class VerticalAxisChart extends D3Blueprint<AxisDatum[]> {
+export class VerticalAxisChart extends D3Blueprint<AxisDatum[]> {
   initialize() {
     this.configDefine('scale', { defaultValue: d3.scaleLinear() })
     this.configDefine('direction', { defaultValue: 'left' })

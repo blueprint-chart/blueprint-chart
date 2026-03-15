@@ -4,8 +4,8 @@ import { D3Blueprint } from 'd3-blueprint'
 import type { AreaFillConfig, ChartData, ChartOptions } from '../../types'
 import { createFrame } from '../../frame/frame'
 import { createCanvas, contentSize, labelPositionMargins, estimateVerticalLabelWidth } from '../../canvas/canvas'
-import { renderVerticalAxis } from '../../axis/vertical-axis'
-import { renderHorizontalAxis, type AnyXScale } from '../../axis/horizontal-axis'
+import { AxisService } from '../../axis/axis-service'
+import type { AnyXScale } from '../../axis/horizontal-axis'
 import { renderLegend } from '../../legend/legend'
 import { estimateLegendSize, estimateDirectLabelWidth } from '../../legend/legend-size'
 import { computeLinearDomain, filterLabelsByRange } from '../../scale-helpers'
@@ -14,7 +14,7 @@ import { renderAnnotations, snapshotAnnotations, type AnnotationSnapshot } from 
 import { resolveBackgroundColor } from '../../contrast'
 import { setupProximityInteraction } from '../../plugins/proximity'
 import { renderLineSymbols } from '../../line-symbols'
-import { getDefaultTransitionMs, fadeIn, snapshotForFadeOut, commitFadeOut } from '../../motion'
+import { getDefaultTransitionMs, fadeIn, snapshotForFadeOut, commitFadeOut, reinsertWithOffset } from '../../motion'
 import { setCachedChart, getCachedChart } from '../../transition-cache'
 import { resolveSeriesColor, resolveSeriesDash, resolveSeriesWidth, resolveSeriesInterpolation, isSeriesHidden, resolveSeriesLabelMode, resolveSeriesValueLabels, resolveSeriesLineSymbols } from '../../series-helpers'
 import type { LineSymbolConfig } from '../../types'
@@ -221,16 +221,14 @@ export function render(
   let priorLines: Element[] = []
   let priorDots: Element[] = []
   let priorSymbolsGroups: Element[] = []
-  let priorVAxis: Element | null = null
-  let priorHAxis: Element | null = null
   let fadeOverlay: HTMLElement | null = null
   let priorAnnotations: Map<string, AnnotationSnapshot> | undefined
+  let priorMargin: { top: number, left: number } | undefined
+  const axes = AxisService.for(container)
   if (transition) {
     const cached = getCachedChart(container)
-    if (cached) {
-      priorVAxis = container.querySelector('.bc-axis-vertical')
-      priorHAxis = container.querySelector('.bc-axis-horizontal')
-    }
+    priorMargin = cached?.margin
+    axes.detach()
     if (cached?.chartType === 'line-multi') {
       priorAreas = Array.from(container.querySelectorAll('.bc-area'))
       priorLines = Array.from(container.querySelectorAll('.bc-line'))
@@ -319,6 +317,9 @@ export function render(
   }
 
   const { chartArea, width, height, margin } = createCanvas(body, marginOverrides)
+  const marginDelta = priorMargin
+    ? { dx: priorMargin.left - margin.left, dy: priorMargin.top - margin.top }
+    : undefined
 
   const [domainMin, domainMax] = computeLinearDomain(allValues, options.verticalAxis?.range)
 
@@ -334,12 +335,15 @@ export function render(
     ? d3.scaleSymlog().domain([domainMin, domainMax]).nice().range([height, 0])
     : d3.scaleLinear().domain([domainMin, domainMax]).nice().range([height, 0])
 
-  renderVerticalAxis(chartArea, y, height, { ...options.verticalAxis, gridWidth: width, topPadding: margin.top }, priorVAxis)
-
   // When the vertical domain crosses zero, position the axis domain line at y=0
   const yDomain = y.domain() as number[]
   const zeroY = yDomain[0] < 0 && yDomain[1] > 0 ? (y(0) as number) : undefined
-  renderHorizontalAxis(chartArea, xScale, height, { ...options.horizontalAxis, width, zeroY }, priorHAxis)
+
+  axes.attach(chartArea, marginDelta)
+  axes.update({
+    vertical: { scale: y, height, options: { ...options.verticalAxis, gridWidth: width, topPadding: margin.top } },
+    horizontal: { scale: xScale, height, options: { ...options.horizontalAxis, width, zeroY } },
+  })
 
   // Clip chart content to the plot area so lines/areas/dots outside the domain are hidden
   const clipId = `bc-clip-${Math.random().toString(36).slice(2, 8)}`
@@ -393,15 +397,17 @@ export function render(
 
   // Re-insert prior elements so D3 data-join finds them and triggers merge:transition
   if (priorLines.length > 0 || priorAreas.length > 0 || priorDots.length > 0) {
+    const dx = marginDelta?.dx ?? 0
+    const dy = marginDelta?.dy ?? 0
     const groups = clippedArea.querySelectorAll(':scope > g')
     if (groups[0]) {
-      priorAreas.forEach(el => groups[0].appendChild(el))
+      reinsertWithOffset(groups[0], priorAreas, dx, dy)
     }
     if (groups[1]) {
-      priorLines.forEach(el => groups[1].appendChild(el))
+      reinsertWithOffset(groups[1], priorLines, dx, dy)
     }
     if (groups[2]) {
-      priorDots.forEach(el => groups[2].appendChild(el))
+      reinsertWithOffset(groups[2], priorDots, dx, dy)
     }
   }
 
@@ -613,7 +619,7 @@ export function render(
     renderLegend(chartArea, legendSeriesNames, legendColors, yPos, legendPos, legendAnchor, width, height, xLegendPos)
   }
 
-  setCachedChart(container, { chartType: 'line-multi' })
+  setCachedChart(container, { chartType: 'line-multi', margin })
 
   if (fadeOverlay) {
     fadeIn(clippedGroup.node()!)

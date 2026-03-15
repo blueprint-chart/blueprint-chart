@@ -1,5 +1,8 @@
+import type { Margin } from './types'
+
 export interface CachedChart {
   chartType: string
+  margin?: Margin
 }
 
 const cache = new WeakMap<HTMLElement, CachedChart>()

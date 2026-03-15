@@ -1,3 +1,6 @@
+import * as d3 from 'd3'
+import 'd3-transition'
+
 /**
  * Returns 0 when the user prefers reduced motion, otherwise returns the input duration.
  */
@@ -15,6 +18,52 @@ export const DEFAULT_TRANSITION_MS = 500
  */
 export function getDefaultTransitionMs(): number {
   return getTransitionDuration(DEFAULT_TRANSITION_MS)
+}
+
+/**
+ * Reinsert prior elements into a parent, wrapping them in a compensating
+ * `<g translate(dx,dy)>` that transitions to identity over the default
+ * duration.  This corrects for chartArea origin shifts (e.g. when legend
+ * toggles change margins) so that prior elements don't visually jump.
+ *
+ * When dx/dy are both 0, elements are appended directly without a wrapper.
+ */
+export function reinsertWithOffset(
+  parent: Element,
+  elements: Element[],
+  dx: number,
+  dy: number,
+): void {
+  if (elements.length === 0) {
+    return
+  }
+  if (dx === 0 && dy === 0) {
+    elements.forEach(el => parent.appendChild(el))
+    return
+  }
+  const wrapper = document.createElementNS('http://www.w3.org/2000/svg', 'g')
+  wrapper.setAttribute('transform', `translate(${dx},${dy})`)
+  elements.forEach(el => wrapper.appendChild(el))
+  parent.appendChild(wrapper)
+  const duration = getDefaultTransitionMs()
+  if (duration > 0) {
+    d3.select(wrapper)
+      .transition()
+      .duration(duration)
+      .attr('transform', 'translate(0,0)')
+      .on('end', () => {
+        while (wrapper.firstChild) {
+          parent.appendChild(wrapper.firstChild)
+        }
+        wrapper.remove()
+      })
+  }
+  else {
+    while (wrapper.firstChild) {
+      parent.appendChild(wrapper.firstChild)
+    }
+    wrapper.remove()
+  }
 }
 
 /**
