@@ -4,8 +4,7 @@ import { D3Blueprint } from 'd3-blueprint'
 import type { ChartData, ChartOptions } from '../../types'
 import { createFrame } from '../../frame/frame'
 import { createCanvas, contentSize, labelPositionMargins, estimateVerticalLabelWidth } from '../../canvas/canvas'
-import { renderVerticalAxis } from '../../axis/vertical-axis'
-import { renderHorizontalAxis } from '../../axis/horizontal-axis'
+import { AxisService } from '../../axis/axis-service'
 import { renderLegend } from '../../legend/legend'
 import { estimateLegendSize } from '../../legend/legend-size'
 import { createAnnotationPlugin, snapshotAnnotations, type AnnotationSnapshot } from '../../plugins/annotations'
@@ -13,7 +12,7 @@ import { createTooltipPlugin } from '../../plugins/tooltip'
 import { createCrosshairPlugin } from '../../plugins/crosshair'
 import { resolveBackgroundColor } from '../../contrast'
 import { resolveSeriesColor, isSeriesHidden, resolveSeriesValueLabels, resolveSeriesOpacity } from '../../series-helpers'
-import { getDefaultTransitionMs, fadeIn, snapshotForFadeOut, commitFadeOut } from '../../motion'
+import { getDefaultTransitionMs, fadeIn, snapshotForFadeOut, commitFadeOut, reinsertWithOffset } from '../../motion'
 import { setCachedChart, getCachedChart } from '../../transition-cache'
 import { computeStack, computeStack100 } from '../../stack-helpers'
 
@@ -112,16 +111,14 @@ export function render(
 ): void {
   // Preserve existing data elements for smooth D3 data-join transitions
   let priorBars: Element[] = []
-  let priorVAxis: Element | null = null
-  let priorHAxis: Element | null = null
   let fadeOverlay: HTMLElement | null = null
   let priorAnnotations: Map<string, AnnotationSnapshot> | undefined
+  let priorMargin: { top: number, left: number } | undefined
+  const axes = AxisService.for(container)
   if (transition) {
     const cached = getCachedChart(container)
-    if (cached) {
-      priorVAxis = container.querySelector('.bc-axis-vertical')
-      priorHAxis = container.querySelector('.bc-axis-horizontal')
-    }
+    priorMargin = cached?.margin
+    axes.detach()
     if (cached?.chartType === 'column-stacked') {
       priorBars = Array.from(container.querySelectorAll('.bc-bar-stacked'))
     }
@@ -188,6 +185,9 @@ export function render(
     marginOverrides.right = (marginOverrides.right ?? 20) + legendSize.width + 10
   }
   const { chartArea, width, height, margin } = createCanvas(body, marginOverrides)
+  const marginDelta = priorMargin
+    ? { dx: priorMargin.left - margin.left, dy: priorMargin.top - margin.top }
+    : undefined
 
   // Sort labels by total when sortMode is 'total'
   let sortedLabels = data.labels
@@ -211,8 +211,11 @@ export function render(
     .nice()
     .range([height, 0])
 
-  renderVerticalAxis(chartArea, y, height, { ...options.verticalAxis, gridWidth: width, topPadding: margin.top }, priorVAxis)
-  renderHorizontalAxis(chartArea, x, height, { ...options.horizontalAxis, width }, priorHAxis)
+  axes.attach(chartArea, marginDelta)
+  axes.update({
+    vertical: { scale: y, height, options: { ...options.verticalAxis, gridWidth: width, topPadding: margin.top } },
+    horizontal: { scale: x, height, options: { ...options.horizontalAxis, width } },
+  })
 
   // Clip bars to the chart area
   const clipId = `bc-clip-${Math.random().toString(36).slice(2, 8)}`
@@ -235,7 +238,7 @@ export function render(
   // Re-insert prior elements so D3 data-join finds them and triggers merge:transition
   if (priorBars.length > 0) {
     const layerG = clippedGroup.node()!.querySelector('g')!
-    priorBars.forEach(el => layerG.appendChild(el))
+    reinsertWithOffset(layerG, priorBars, marginDelta?.dx ?? 0, marginDelta?.dy ?? 0)
   }
   if (options.tooltips) {
     chart.use(createTooltipPlugin())
@@ -252,7 +255,7 @@ export function render(
     chart.use(createAnnotationPlugin(options.annotations, { scaleX: x, scaleY: y, data: annotationData, width, height, backgroundColor: resolveBackgroundColor(container), transition, priorAnnotations }))
   }
   chart.draw(sortedFlatData)
-  setCachedChart(container, { chartType: 'column-stacked' })
+  setCachedChart(container, { chartType: 'column-stacked', margin })
 
   if (fadeOverlay) {
     fadeIn(clippedGroup.node()!)

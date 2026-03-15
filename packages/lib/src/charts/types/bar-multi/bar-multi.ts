@@ -4,8 +4,7 @@ import { D3Blueprint } from 'd3-blueprint'
 import type { ChartData, ChartOptions } from '../../types'
 import { createFrame } from '../../frame/frame'
 import { createCanvas, contentSize, labelPositionMargins, estimateVerticalLabelWidth } from '../../canvas/canvas'
-import { renderVerticalAxis } from '../../axis/vertical-axis'
-import { renderHorizontalAxis } from '../../axis/horizontal-axis'
+import { AxisService } from '../../axis/axis-service'
 import { renderLegend } from '../../legend/legend'
 import { estimateLegendSize } from '../../legend/legend-size'
 import { computeLinearDomain } from '../../scale-helpers'
@@ -14,7 +13,7 @@ import { createTooltipPlugin } from '../../plugins/tooltip'
 import { createCrosshairPlugin } from '../../plugins/crosshair'
 import { contrastTextColor, readableColor, resolveBackgroundColor } from '../../contrast'
 import { resolveSeriesColor, isSeriesHidden, resolveSeriesValueLabels, resolveSeriesOpacity, resolveSeriesLabelMode } from '../../series-helpers'
-import { getDefaultTransitionMs, fadeIn, snapshotForFadeOut, commitFadeOut } from '../../motion'
+import { getDefaultTransitionMs, fadeIn, snapshotForFadeOut, commitFadeOut, reinsertWithOffset } from '../../motion'
 import { setCachedChart, getCachedChart } from '../../transition-cache'
 
 const DEFAULT_COLORS = [
@@ -91,16 +90,14 @@ export function render(
 ): void {
   // Preserve existing data elements for smooth D3 data-join transitions
   let priorBars: Element[] = []
-  let priorVAxis: Element | null = null
-  let priorHAxis: Element | null = null
   let fadeOverlay: HTMLElement | null = null
   let priorAnnotations: Map<string, AnnotationSnapshot> | undefined
+  let priorMargin: { top: number, left: number } | undefined
+  const axes = AxisService.for(container)
   if (transition) {
     const cached = getCachedChart(container)
-    if (cached) {
-      priorVAxis = container.querySelector('.bc-axis-vertical')
-      priorHAxis = container.querySelector('.bc-axis-horizontal')
-    }
+    priorMargin = cached?.margin
+    axes.detach()
     if (cached?.chartType === 'bar-multi') {
       priorBars = Array.from(container.querySelectorAll('.bc-bar-multi'))
     }
@@ -159,6 +156,9 @@ export function render(
     marginOverrides.right = (marginOverrides.right ?? 20) + legendSize.width + 10
   }
   const { chartArea, width, height, margin } = createCanvas(body, marginOverrides)
+  const marginDelta = priorMargin
+    ? { dx: priorMargin.left - margin.left, dy: priorMargin.top - margin.top }
+    : undefined
   // eslint-disable-next-line prefer-const
   let [domainMin, domainMax] = computeLinearDomain(allValues, options.verticalAxis?.range)
   // Extend domain to leave room for value labels below negative bars
@@ -194,8 +194,11 @@ export function render(
     ? d3.scaleSymlog().domain([domainMin, domainMax]).nice().range([height, 0])
     : d3.scaleLinear().domain([domainMin, domainMax]).nice().range([height, 0])
 
-  renderVerticalAxis(chartArea, y, height, { ...options.verticalAxis, gridWidth: width, topPadding: margin.top }, priorVAxis)
-  renderHorizontalAxis(chartArea, x0, height, { ...options.horizontalAxis, width }, priorHAxis)
+  axes.attach(chartArea, marginDelta)
+  axes.update({
+    vertical: { scale: y, height, options: { ...options.verticalAxis, gridWidth: width, topPadding: margin.top } },
+    horizontal: { scale: x0, height, options: { ...options.horizontalAxis, width } },
+  })
 
   // Zero baseline when domain spans zero
   if (!useLog && domainMin < 0 && domainMax > 0) {
@@ -246,7 +249,7 @@ export function render(
   // Re-insert prior elements so D3 data-join finds them and triggers merge:transition
   if (priorBars.length > 0) {
     const layerG = clippedGroup.node()!.querySelector('g')!
-    priorBars.forEach(el => layerG.appendChild(el))
+    reinsertWithOffset(layerG, priorBars, marginDelta?.dx ?? 0, marginDelta?.dy ?? 0)
   }
   if (options.tooltips) {
     chart.use(createTooltipPlugin())
@@ -263,7 +266,7 @@ export function render(
     chart.use(createAnnotationPlugin(options.annotations, { scaleX: x0, scaleY: y, data: annotationData, width, height, backgroundColor: resolveBackgroundColor(container), transition, priorAnnotations }))
   }
   chart.draw(flatData)
-  setCachedChart(container, { chartType: 'bar-multi' })
+  setCachedChart(container, { chartType: 'bar-multi', margin })
 
   if (fadeOverlay) {
     fadeIn(clippedGroup.node()!)

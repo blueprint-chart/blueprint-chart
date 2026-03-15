@@ -93,7 +93,7 @@ function thinLabels(domain: string[], availableWidth: number): string[] {
   return thinned
 }
 
-class HorizontalAxisChart extends D3Blueprint<AxisDatum[]> {
+export class HorizontalAxisChart extends D3Blueprint<AxisDatum[]> {
   initialize() {
     this.configDefine('scale', { defaultValue: d3.scaleBand<string>() as AnyXScale })
     this.configDefine('height', { defaultValue: 0 })

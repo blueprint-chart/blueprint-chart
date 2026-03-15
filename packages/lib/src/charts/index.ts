@@ -24,6 +24,8 @@ export type { CanvasElements } from './canvas/canvas'
 
 export { renderVerticalAxis } from './axis/vertical-axis'
 export { renderHorizontalAxis } from './axis/horizontal-axis'
+export { AxisService } from './axis/axis-service'
+export type { AxisServiceConfig } from './axis/axis-service'
 
 export { renderLegend } from './legend/legend'
 
