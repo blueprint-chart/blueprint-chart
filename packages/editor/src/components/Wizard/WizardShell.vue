@@ -138,10 +138,23 @@ watch(
 // Scene 1 is virtual (base chart state, index -1 internally).
 // Override scenes map to indices 0..N-1 internally but display as Scene 2..N+1.
 // Timeline uses 0-based indices where 0 = Scene 1 (base).
+function resolveSceneTitle(index: number): string {
+  const baseTitle = config._base.title.value
+  if (index < 0) {
+    return baseTitle || '\u00A0'
+  }
+  const resolved = resolveScene(scenes.value, index)
+  const title = resolved?.properties?.title as string | undefined
+  if (title !== undefined) {
+    return title || '\u00A0'
+  }
+  return baseTitle || '\u00A0'
+}
+
 const timelineScenes = computed(() => {
-  const base = [{ name: config._base.title.value || 'Scene 1', index: 0, removable: false, thumbnail: sceneThumbnails.value[0] ?? null }]
+  const base = [{ name: resolveSceneTitle(-1), index: 0, removable: false, thumbnail: sceneThumbnails.value[0] ?? null }]
   const overrides = scenes.value.map((s, i) => ({
-    name: s.name || `Scene ${i + 2}`,
+    name: resolveSceneTitle(i),
     index: i + 1,
     removable: true,
     thumbnail: sceneThumbnails.value[i + 1] ?? null,
