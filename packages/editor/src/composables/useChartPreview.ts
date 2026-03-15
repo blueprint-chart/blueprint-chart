@@ -144,17 +144,15 @@ export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
     const isSceneTransition = prevActiveScene !== UNSET && rawScene !== prevActiveScene
     const isCrossType = isSceneTransition && prevChartType !== null && prevChartType !== chartType
 
-    // For all scene transitions, snapshot the old chart for a fade-out overlay.
-    // Same-type transitions ALSO keep the DOM for D3 shape morphing;
-    // cross-type transitions clear the container and render fresh.
+    // Cross-type scene transitions: snapshot the old chart for fade-out, then
+    // clear the container and render the new chart type fresh.
+    // Same-type transitions: keep the DOM so D3 can morph shapes and colors.
     let fadeOverlay: HTMLElement | null = null
-    if (isSceneTransition) {
+    if (isCrossType) {
       fadeOverlay = snapshotForFadeOut(containerRef.value)
-      if (isCrossType) {
-        containerRef.value.replaceChildren()
-      }
+      containerRef.value.replaceChildren()
     }
-    else {
+    else if (!isSceneTransition) {
       containerRef.value.replaceChildren()
     }
 
@@ -244,16 +242,11 @@ export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
       seriesOverrides: seriesOverrides.length > 0 ? seriesOverrides : undefined,
     }, isSceneTransition && !isCrossType)
 
-    // Fade overlay: old chart fades out on top of the new one.
-    // For cross-type transitions, also fade in the new chart.
-    // For same-type transitions, the overlay provides a visual cue while
-    // D3 morphs the shapes underneath.
+    // Cross-type fade: old chart fades out on top while new chart fades in
     if (fadeOverlay && containerRef.value) {
-      if (isCrossType) {
-        const newFrame = containerRef.value.querySelector('.bc-frame')
-        if (newFrame) {
-          fadeIn(newFrame)
-        }
+      const newFrame = containerRef.value.querySelector('.bc-frame')
+      if (newFrame) {
+        fadeIn(newFrame)
       }
       commitFadeOut(containerRef.value, fadeOverlay)
     }
