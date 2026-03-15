@@ -1,6 +1,15 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, beforeAll, afterAll, beforeEach, afterEach, vi } from 'vitest'
 import * as d3 from 'd3'
 import { AxisService } from './axis-service'
+
+// Suppress D3 transition timers that hit jsdom's missing baseVal on SVG transforms
+const origMatchMedia = window.matchMedia
+beforeAll(() => {
+  window.matchMedia = vi.fn().mockReturnValue({ matches: true, addEventListener: vi.fn(), removeEventListener: vi.fn() })
+})
+afterAll(() => {
+  window.matchMedia = origMatchMedia
+})
 
 describe('AxisService', () => {
   let container: HTMLElement
@@ -22,6 +31,9 @@ describe('AxisService', () => {
   })
 
   afterEach(() => {
+    // Interrupt all pending D3 transitions to prevent async tween callbacks
+    // that hit jsdom's missing SVG baseVal
+    d3.select(svg).selectAll('*').interrupt()
     AxisService.clear(container)
     document.body.removeChild(container)
   })
