@@ -139,9 +139,9 @@ watch(
 // Override scenes map to indices 0..N-1 internally but display as Scene 2..N+1.
 // Timeline uses 0-based indices where 0 = Scene 1 (base).
 const timelineScenes = computed(() => {
-  const base = [{ name: config._base.title.value || null, index: 0, removable: false, thumbnail: sceneThumbnails.value[0] ?? null }]
+  const base = [{ name: config._base.title.value || 'Scene 1', index: 0, removable: false, thumbnail: sceneThumbnails.value[0] ?? null }]
   const overrides = scenes.value.map((s, i) => ({
-    name: s.name,
+    name: s.name || `Scene ${i + 2}`,
     index: i + 1,
     removable: true,
     thumbnail: sceneThumbnails.value[i + 1] ?? null,
