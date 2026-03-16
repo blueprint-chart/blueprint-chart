@@ -1,6 +1,7 @@
 import { shallowRef, toRaw, watchEffect } from 'vue'
+import { storeToRefs } from 'pinia'
 import { useChartConfig } from './useChartConfig'
-import { useChartTheme } from './useChartTheme'
+import { useChartThemeStore } from './useChartTheme'
 import { useChartTypeOptions } from './useChartTypeOptions'
 import { useDataTransforms } from './useDataTransforms'
 import { useScenes } from './useScenes'
@@ -36,7 +37,7 @@ function serializeMaxWidth(v: number | string): string {
 export function useDslOutput() {
   const config = useChartConfig()
   const base = config._base
-  const { chartTheme } = useChartTheme()
+  const chartTheme = storeToRefs(useChartThemeStore()).chartTheme
   const { baseOptions } = useChartTypeOptions()
   const { steps: transformSteps } = useDataTransforms()
   const { scenes } = useScenes()
