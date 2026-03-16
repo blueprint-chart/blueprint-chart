@@ -242,6 +242,12 @@ export function buildChartOptions(opts: Partial<ChartTypeOptions>, backgroundCol
   if (opts.edgePadding !== undefined) {
     result.edgePadding = opts.edgePadding
   }
+  if (opts.waterfall !== undefined) {
+    result.waterfall = opts.waterfall
+  }
+  if (opts.waterfallTotal !== undefined) {
+    result.waterfallTotal = opts.waterfallTotal
+  }
 
   if (opts.lineSymbols) {
     result.lineSymbols = {

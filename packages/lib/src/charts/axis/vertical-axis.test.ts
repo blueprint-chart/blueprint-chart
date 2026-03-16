@@ -52,4 +52,24 @@ describe('renderVerticalAxis', () => {
     const gridLines = g.querySelectorAll('.bc-grid-line')
     expect(gridLines).toHaveLength(0)
   })
+
+  it('applies numberFormat to tick labels', () => {
+    const g = renderVerticalAxis(chartArea, scale, 300, { numberFormat: ',.0f' })
+    const tickTexts = Array.from(g.querySelectorAll('.tick text')).map(t => t.textContent)
+    // With ,.0f format, numbers should have comma separators and no decimals
+    // D3 default ticks for domain [0,100] are 0, 20, 40, 60, 80, 100
+    expect(tickTexts).toContain('0')
+    expect(tickTexts).toContain('100')
+    // Verify none have decimal points (,.0f removes them)
+    expect(tickTexts.every(t => !t!.includes('.'))).toBe(true)
+  })
+
+  it('applies prefix/suffix numberFormat via pipe syntax', () => {
+    scale = d3.scaleLinear().domain([0, 10000]).range([300, 0])
+    const g = renderVerticalAxis(chartArea, scale, 300, { numberFormat: '$|,.0f|' })
+    const tickTexts = Array.from(g.querySelectorAll('.tick text')).map(t => t.textContent)
+    // Should have dollar prefix and comma separators
+    expect(tickTexts.some(t => t!.startsWith('$'))).toBe(true)
+    expect(tickTexts.some(t => t!.includes(','))).toBe(true)
+  })
 })

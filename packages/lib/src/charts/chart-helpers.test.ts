@@ -135,6 +135,24 @@ describe('buildChartOptions', () => {
     expect(result.verticalAxis!.showAxis).toBe(false)
   })
 
+  it('passes verticalNumberFormat to verticalAxis.numberFormat', () => {
+    const result = buildChartOptions({
+      verticalNumberFormat: ',.0f',
+    })
+    expect(result.verticalAxis).toBeDefined()
+    expect(result.verticalAxis!.numberFormat).toBe(',.0f')
+  })
+
+  it('passes verticalNumberFormat alongside other axis options', () => {
+    const result = buildChartOptions({
+      showVerticalTicks: false,
+      verticalGridStyle: 'dashed',
+      showVerticalAxis: false,
+      verticalNumberFormat: '$|,.0f|M',
+    })
+    expect(result.verticalAxis!.numberFormat).toBe('$|,.0f|M')
+  })
+
   it('builds horizontal axis options', () => {
     const result = buildChartOptions({
       showHorizontalTicks: true,

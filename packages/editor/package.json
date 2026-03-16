@@ -23,9 +23,11 @@
     "@codemirror/view": "^6",
     "@lezer/highlight": "^1",
     "@lezer/lr": "^1",
+    "@vueuse/core": "^14.2.1",
     "bootstrap": "^5.3",
     "bootstrap-vue-next": "^0.27",
-    "@vueuse/core": "^14.2.1",
+    "pinia": "^3.0.4",
+    "pinia-plugin-persistedstate": "^4.7.1",
     "vue": "^3.5",
     "vue-router": "^4.6.4"
   },

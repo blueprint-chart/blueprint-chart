@@ -10,6 +10,7 @@ import { createTooltipPlugin } from '../../plugins/tooltip'
 import { createCrosshairPlugin } from '../../plugins/crosshair'
 import { createAnnotationPlugin, snapshotAnnotations, type AnnotationSnapshot } from '../../plugins/annotations'
 import { resolveBackgroundColor, contrastTextColor } from '../../contrast'
+import { buildNumberFormatter } from '../../format-helpers'
 import { getDefaultTransitionMs, fadeIn, snapshotForFadeOut, commitFadeOut, reinsertWithOffset } from '../../motion'
 import { getCachedChart, setCachedChart } from '../../transition-cache'
 
@@ -18,6 +19,14 @@ const DEFAULT_COLORS = ['#4e79a7']
 interface BarDatum {
   label: string
   value: number
+}
+
+interface WaterfallDatum {
+  label: string
+  value: number
+  y0: number
+  y1: number
+  isTotal: boolean
 }
 
 class BarVerticalChart extends D3Blueprint<BarDatum[]> {
@@ -123,16 +132,35 @@ export function render(
   }))
 
   const swapLabelValue = options.swapLabelValue === true
+  const isWaterfall = options.waterfall === true
+
+  // Build waterfall data (cumulative y0/y1) when enabled
+  const waterfallData: WaterfallDatum[] = []
+  if (isWaterfall) {
+    let cumulative = 0
+    for (const d of barData) {
+      const y0 = cumulative
+      cumulative += d.value
+      waterfallData.push({ label: d.label, value: d.value, y0, y1: cumulative, isTotal: false })
+    }
+    if (options.waterfallTotal) {
+      waterfallData.push({ label: 'Total', value: cumulative, y0: 0, y1: cumulative, isTotal: true })
+    }
+  }
 
   // Normal: x = scaleBand (labels), y = scaleLinear (values)
+  const allLabels = isWaterfall ? waterfallData.map(d => d.label) : labels
   const x = d3.scaleBand<string>()
-    .domain(labels)
+    .domain(allLabels)
     .range([0, width])
     .padding(0.2)
 
   const useLog = options.verticalAxis?.scaleType === 'log'
+  const domainValues = isWaterfall
+    ? waterfallData.flatMap(d => [d.y0, d.y1])
+    : barData.map(d => d.value)
   // eslint-disable-next-line prefer-const
-  let [domainMin, domainMax] = computeLinearDomain(barData.map(d => d.value), options.verticalAxis?.range)
+  let [domainMin, domainMax] = computeLinearDomain(domainValues, options.verticalAxis?.range)
   // Extend domain to leave room for value labels below negative bars
   if (options.valueLabels && domainMin < 0 && options.verticalAxis?.range?.min == null) {
     const span = domainMax - domainMin
@@ -143,7 +171,7 @@ export function render(
     : d3.scaleLinear().domain([domainMin, domainMax]).nice().range([height, 0])
 
   axes.attach(chartArea, marginDelta)
-  const hAxisOpts = swapLabelValue && options.valueLabels
+  const hAxisOpts = swapLabelValue && options.valueLabels && !isWaterfall
     ? (() => {
         const valueMap = new Map(barData.map(d => [d.label, d.value]))
         return {
@@ -184,24 +212,26 @@ export function render(
   // Bar backgrounds — full-size rects behind each bar at low opacity
   if (options.barBackground) {
     const bgColor = (options.colors ?? DEFAULT_COLORS)[0]
+    const bgLabels = isWaterfall ? allLabels : barData.map(d => d.label)
     clippedGroup.selectAll('.bc-bar-bg')
-      .data(barData, (d: BarDatum) => d.label)
+      .data(bgLabels, (d: string) => d)
       .enter()
       .append('rect')
       .attr('class', 'bc-bar-bg')
-      .attr('x', (d: BarDatum) => x(d.label) ?? 0)
+      .attr('x', (d: string) => x(d) ?? 0)
       .attr('y', 0)
       .attr('width', x.bandwidth())
       .attr('height', height)
       .attr('fill', bgColor)
-      .attr('opacity', 0.08)
+      .attr('opacity', 0.18)
   }
 
   // Bar separators — lines between adjacent bands
-  if (options.barSeparators && barData.length > 1) {
+  const sepLabels = isWaterfall ? allLabels : barData.map(d => d.label)
+  if (options.barSeparators && sepLabels.length > 1) {
     const step = x.step()
-    for (let i = 1; i < barData.length; i++) {
-      const xPos = (x(barData[i - 1].label) ?? 0) + x.bandwidth() + (step - x.bandwidth()) / 2
+    for (let i = 1; i < sepLabels.length; i++) {
+      const xPos = (x(sepLabels[i - 1]) ?? 0) + x.bandwidth() + (step - x.bandwidth()) / 2
       clippedGroup.append('line')
         .attr('class', 'bc-bar-separator')
         .attr('x1', xPos).attr('x2', xPos)
@@ -211,37 +241,108 @@ export function render(
     }
   }
 
-  const chart = new BarVerticalChart(clippedGroup)
-  chart.config({ x, y, width, height, colors: options.colors ?? DEFAULT_COLORS, highlights, swapLabelValue })
+  if (isWaterfall) {
+    // Waterfall mode: render bars with cumulative offsets directly
+    const colors = options.colors ?? DEFAULT_COLORS
+    const totalColor = '#333'
 
-  // Re-insert prior elements so D3 data-join finds them and triggers merge:transition
-  if (priorBars.length > 0) {
-    const layerG = clippedGroup.node()!.querySelector('g')!
-    reinsertWithOffset(layerG, priorBars, marginDelta?.dx ?? 0, marginDelta?.dy ?? 0)
-  }
+    // Connector lines between bars
+    for (let i = 0; i < waterfallData.length - 1; i++) {
+      const curr = waterfallData[i]
+      const next = waterfallData[i + 1]
+      if (next.isTotal) {
+        break
+      }
+      clippedGroup.append('line')
+        .attr('class', 'bc-waterfall-connector')
+        .attr('x1', (x(curr.label) ?? 0) + x.bandwidth())
+        .attr('x2', x(next.label) ?? 0)
+        .attr('y1', y(curr.y1))
+        .attr('y2', y(curr.y1))
+        .attr('stroke', 'currentColor')
+        .attr('stroke-dasharray', '2,2')
+        .attr('opacity', 0.3)
+    }
 
-  if (options.tooltips) {
-    chart.use(createTooltipPlugin())
-  }
-  if (options.crosshair) {
-    chart.use(createCrosshairPlugin({
-      width, height, direction: options.crosshairDirection, style: options.crosshairStyle, color: options.crosshairColor }))
-  }
-  if (options.annotations?.length) {
-    chart.use(createAnnotationPlugin(options.annotations, {
-      scaleX: x, scaleY: y, data: barData, width, height, backgroundColor: resolveBackgroundColor(container), transition, priorAnnotations }))
-  }
-  chart.draw(barData)
+    clippedGroup.selectAll('.bc-bar')
+      .data(waterfallData, (d: WaterfallDatum) => d.label)
+      .enter()
+      .append('rect')
+      .attr('class', 'bc-bar')
+      .attr('x', (d: WaterfallDatum) => x(d.label) ?? 0)
+      .attr('y', (d: WaterfallDatum) => Math.min(y(d.y0), y(d.y1)))
+      .attr('width', x.bandwidth())
+      .attr('height', (d: WaterfallDatum) => Math.abs(y(d.y0) - y(d.y1)))
+      .attr('fill', (d: WaterfallDatum) => {
+        if (d.isTotal) {
+          return totalColor
+        }
+        return highlights.get(d.label) ?? colors[0]
+      })
 
-  if (options.valueLabels) {
-    renderValueLabels(clippedGroup, barData, x, y, {
-      position: options.valueLabelPosition,
-      highlights,
-      colors: options.colors ?? DEFAULT_COLORS,
-      transition,
-      priorLabels,
-      swapLabelValue,
-    })
+    if (options.valueLabels) {
+      const pos = options.valueLabelPosition ?? 'auto'
+      const vFmt = buildNumberFormatter(options.verticalAxis?.numberFormat ?? '')
+      const formatValue = (v: number) => vFmt ? vFmt(v) : String(v)
+      clippedGroup.selectAll('.bc-value-label')
+        .data(waterfallData, (d: WaterfallDatum) => d.label)
+        .enter()
+        .append('text')
+        .attr('class', 'bc-value-label')
+        .attr('font-size', '11px')
+        .attr('x', (d: WaterfallDatum) => (x(d.label) ?? 0) + x.bandwidth() / 2)
+        .attr('y', (d: WaterfallDatum) => {
+          const top = Math.min(y(d.y0), y(d.y1))
+          const barH = Math.abs(y(d.y0) - y(d.y1))
+          if (pos === 'inside') {
+            return top + barH / 2
+          }
+          return top - 4
+        })
+        .attr('text-anchor', 'middle')
+        .attr('dominant-baseline', pos === 'inside' ? 'central' : 'auto')
+        .attr('fill', (d: WaterfallDatum) => {
+          if (pos === 'inside') {
+            return contrastTextColor(d.isTotal ? totalColor : highlights.get(d.label) ?? colors[0])
+          }
+          return 'currentColor'
+        })
+        .text((d: WaterfallDatum) => swapLabelValue ? d.label : formatValue(d.isTotal ? d.y1 : d.value))
+    }
+  }
+  else {
+    const chart = new BarVerticalChart(clippedGroup)
+    chart.config({ x, y, width, height, colors: options.colors ?? DEFAULT_COLORS, highlights, swapLabelValue })
+
+    // Re-insert prior elements so D3 data-join finds them and triggers merge:transition
+    if (priorBars.length > 0) {
+      const layerG = clippedGroup.node()!.querySelector('g')!
+      reinsertWithOffset(layerG, priorBars, marginDelta?.dx ?? 0, marginDelta?.dy ?? 0)
+    }
+
+    if (options.tooltips) {
+      chart.use(createTooltipPlugin())
+    }
+    if (options.crosshair) {
+      chart.use(createCrosshairPlugin({
+        width, height, direction: options.crosshairDirection, style: options.crosshairStyle, color: options.crosshairColor }))
+    }
+    if (options.annotations?.length) {
+      chart.use(createAnnotationPlugin(options.annotations, {
+        scaleX: x, scaleY: y, data: barData, width, height, backgroundColor: resolveBackgroundColor(container), transition, priorAnnotations }))
+    }
+    chart.draw(barData)
+
+    if (options.valueLabels) {
+      renderValueLabels(clippedGroup, barData, x, y, {
+        position: options.valueLabelPosition,
+        highlights,
+        colors: options.colors ?? DEFAULT_COLORS,
+        transition,
+        priorLabels,
+        swapLabelValue,
+      })
+    }
   }
 
   setCachedChart(container, { chartType: 'bar-vertical', margin })
