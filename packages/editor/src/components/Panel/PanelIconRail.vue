@@ -25,7 +25,7 @@
 <script setup lang="ts">
 import { computed, type Component } from 'vue'
 import { NavigationIconRail, ButtonIcon } from '@blueprint-chart/ui'
-import type { PanelMode } from '@/composables/useEditorPanel'
+import type { PanelMode } from '@/stores/editorPanel'
 import IPhArrowsOutSimple from '~icons/ph/arrows-out-simple'
 import IPhArrowsInSimple from '~icons/ph/arrows-in-simple'
 import IPhSidebarSimple from '~icons/ph/sidebar-simple'

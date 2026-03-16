@@ -56,7 +56,7 @@
 
 <script setup lang="ts">
 import { computed, type Component } from 'vue'
-import type { TransformStep } from '@/composables/useDataTransforms'
+import type { TransformStep } from '@/stores/dataTransforms'
 import IPhSortAscending from '~icons/ph/sort-ascending'
 import IPhFunnel from '~icons/ph/funnel'
 import IPhArrowsClockwise from '~icons/ph/arrows-clockwise'

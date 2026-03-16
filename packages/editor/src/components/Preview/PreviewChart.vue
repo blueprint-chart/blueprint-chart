@@ -32,12 +32,13 @@
 
 <script setup lang="ts">
 import { computed, ref, watch, onMounted, onBeforeUnmount, useTemplateRef, type Component } from 'vue'
+import { storeToRefs } from 'pinia'
 import { useChartPreview } from '@/composables/useChartPreview'
-import { useCvdMode } from '@/composables/useCvdMode'
-import { usePreviewContainer } from '@/composables/usePreviewContainer'
-import { useEditorPanel } from '@/composables/useEditorPanel'
-import { useChartConfig } from '@/composables/useChartConfig'
-import { useScenes } from '@/composables/useScenes'
+import { useCvdMode } from '@/stores/cvdMode'
+import { usePreviewContainer } from '@/stores/previewContainer'
+import { useEditorPanel } from '@/stores/editorPanel'
+import { useChartConfig } from '@/stores/chartConfig'
+import { useScenes } from '@/stores/scenes'
 import { getCvdFilterId, createCvdSvgFilter, type CvdType } from '@blueprint-chart/lib'
 import {
   ScenePlayerButtons,
@@ -83,7 +84,7 @@ onBeforeUnmount(() => {
   (containerRef.value as HTMLElement | null)?.removeEventListener('dblclick', onDblClick)
 })
 
-const { cvdMode } = useCvdMode()
+const { cvdMode } = storeToRefs(useCvdMode())
 const cvdDefsRef = useTemplateRef<SVGElement>('cvdDefsRef')
 
 watch([cvdMode, cvdDefsRef], ([mode, defs]) => {

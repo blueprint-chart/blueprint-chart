@@ -9,7 +9,7 @@
 
 <script setup lang="ts">
 import { FormControlDropdown } from '@blueprint-chart/ui'
-import { useChartTheme } from '@/composables/useChartTheme'
+import { useChartTheme } from '@/stores/chartTheme'
 
 const { chartTheme, availableThemes } = useChartTheme()
 </script>

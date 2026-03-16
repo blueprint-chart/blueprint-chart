@@ -50,7 +50,7 @@
 
 <script setup lang="ts">
 import { ref, shallowRef, computed } from 'vue'
-import type { ChartHighlight } from '@/composables/useChartConfig'
+import type { ChartHighlight } from '@/stores/chartConfig'
 import { BButton } from 'bootstrap-vue-next'
 import { FormControlColorInput, FormControlCheckbox, ListSelectPanel, DisplayColorSwatch, SectionCard } from '@blueprint-chart/ui'
 

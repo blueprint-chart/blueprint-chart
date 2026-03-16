@@ -24,7 +24,7 @@
 </template>
 
 <script setup lang="ts">
-import { useChartTypeOptions } from '@/composables/useChartTypeOptions'
+import { useChartTypeOptions } from '@/stores/chartTypeOptions'
 import { FormControlCheckbox } from '@blueprint-chart/ui'
 import EditorSymbolOptions from './EditorSymbolOptions.vue'
 

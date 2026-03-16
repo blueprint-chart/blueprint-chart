@@ -67,10 +67,11 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
+import { storeToRefs } from 'pinia'
 import { LayoutBottomDrawer, ButtonIcon, useBreakpoint } from '@blueprint-chart/ui'
-import { useDataTable } from '@/composables/useDataTable'
-import { useEditorPanel, type DataPanelTab } from '@/composables/useEditorPanel'
-import { useScenes } from '@/composables/useScenes'
+import { useDataTable } from '@/stores/dataTable'
+import { useEditorPanel, type DataPanelTab } from '@/stores/editorPanel'
+import { useScenes } from '@/stores/scenes'
 import IPhArrowsClockwise from '~icons/ph/arrows-clockwise'
 import PanelTabBar from '@/components/Panel/PanelTabBar.vue'
 import DataInsightBadges from './DataInsightBadges.vue'
@@ -84,7 +85,9 @@ import DataParseSettings from './DataParseSettings.vue'
 import DataRecommendations from './DataRecommendations.vue'
 
 const { columns, rows, columnTypes } = useDataTable()
-const { panelMode, dataPanelMode, dataPanelTab, openDataPanel, closeDataPanel, collapse, setDataView } = useEditorPanel()
+const editorPanel = useEditorPanel()
+const { panelMode, dataPanelMode, dataPanelTab } = storeToRefs(editorPanel)
+const { openDataPanel, closeDataPanel, collapse, setDataView } = editorPanel
 const { activeScene, activeIndex, scenes } = useScenes()
 const isSceneMode = computed(() => activeScene.value !== null)
 const dataSourceLabel = computed(() => {

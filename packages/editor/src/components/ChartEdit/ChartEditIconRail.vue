@@ -11,9 +11,10 @@
 
 <script setup lang="ts">
 import { computed, type Component } from 'vue'
-import { useEditorPanel } from '@/composables/useEditorPanel'
-import { useChartConfig } from '@/composables/useChartConfig'
-import { useChartTypeOptions } from '@/composables/useChartTypeOptions'
+import { storeToRefs } from 'pinia'
+import { useEditorPanel } from '@/stores/editorPanel'
+import { useChartConfig } from '@/stores/chartConfig'
+import { useChartTypeOptions } from '@/stores/chartTypeOptions'
 import PanelIconRail from '@/components/Panel/PanelIconRail.vue'
 import IPhChartBar from '~icons/ph/chart-bar'
 import IPhTextAa from '~icons/ph/text-aa'
@@ -29,7 +30,9 @@ defineProps<{
   horizontal?: boolean
 }>()
 
-const { activeTab, panelMode, toggleMode, selectTab } = useEditorPanel()
+const editorPanel = useEditorPanel()
+const { activeTab, panelMode } = storeToRefs(editorPanel)
+const { toggleMode, selectTab } = editorPanel
 const { chartType } = useChartConfig()
 const { availableOptionKeys } = useChartTypeOptions()
 

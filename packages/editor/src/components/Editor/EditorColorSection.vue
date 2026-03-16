@@ -118,9 +118,10 @@
 import { computed, markRaw, ref } from 'vue'
 import { BTooltip } from 'bootstrap-vue-next'
 import { FormControlColorsInput, FormControlPalette, FormControlCheckbox, DisplayContrastBadge, FormControlButtonGroup } from '@blueprint-chart/ui'
-import { useChartConfig } from '@/composables/useChartConfig'
-import { useChartTypeOptions } from '@/composables/useChartTypeOptions'
-import { useCvdMode } from '@/composables/useCvdMode'
+import { useChartConfig } from '@/stores/chartConfig'
+import { useChartTypeOptions } from '@/stores/chartTypeOptions'
+import { storeToRefs } from 'pinia'
+import { useCvdMode } from '@/stores/cvdMode'
 import { parseData, listPalettes, resolvePalette, wcagContrastRatio, wcagLevel, adjustColorsForBackground, checkCvdColors } from '@blueprint-chart/lib'
 import type { CvdType } from '@blueprint-chart/lib'
 import IconPhCheck from '~icons/ph/check'
@@ -134,7 +135,7 @@ import CvdTritanopiaThumb from '@/assets/chart-thumbnails/cvd-tritanopia.bpc'
 
 const { chartType, data, highlights } = useChartConfig()
 const { currentOptions, availableOptionKeys, setOption } = useChartTypeOptions()
-const { cvdMode } = useCvdMode()
+const { cvdMode } = storeToRefs(useCvdMode())
 
 const hasHighlights = computed(() =>
   ['bar-vertical', 'bar-horizontal', 'vertical-bar', 'horizontal-bar'].includes(chartType.value),

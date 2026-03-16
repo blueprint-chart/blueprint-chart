@@ -28,8 +28,8 @@
 <script setup lang="ts">
 import { computed, watch, markRaw } from 'vue'
 import { FormControlDropdown } from '@blueprint-chart/ui'
-import { useChartConfig } from '@/composables/useChartConfig'
-import { useDataTable } from '@/composables/useDataTable'
+import { useChartConfig } from '@/stores/chartConfig'
+import { useDataTable } from '@/stores/dataTable'
 
 import BarVerticalThumb from '@/assets/chart-thumbnails/bar-vertical.bpc'
 import BarHorizontalThumb from '@/assets/chart-thumbnails/bar-horizontal.bpc'

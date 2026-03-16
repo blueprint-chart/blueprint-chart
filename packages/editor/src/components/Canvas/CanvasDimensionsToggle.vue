@@ -10,10 +10,11 @@
 </template>
 
 <script setup lang="ts">
-import { useEditorPanel } from '@/composables/useEditorPanel'
+import { storeToRefs } from 'pinia'
+import { useEditorPanel } from '@/stores/editorPanel'
 import IPhRuler from '~icons/ph/ruler'
 
-const { showDimensions } = useEditorPanel()
+const { showDimensions } = storeToRefs(useEditorPanel())
 </script>
 
 <style scoped lang="scss">

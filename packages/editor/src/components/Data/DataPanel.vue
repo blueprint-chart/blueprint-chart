@@ -15,23 +15,26 @@
 
 <script setup lang="ts">
 import { watch, onMounted } from 'vue'
-import { useEditorPanel } from '@/composables/useEditorPanel'
-import { useDataTable } from '@/composables/useDataTable'
+import { storeToRefs } from 'pinia'
+import { useEditorPanel } from '@/stores/editorPanel'
+import { useDataTable } from '@/stores/dataTable'
 import { useDslSync } from '@/composables/useDslSync'
-import { useChartSession } from '@/composables/useChartSession'
-import { useWizard } from '@/composables/useWizard'
+import { useChartSession } from '@/stores/chartSession'
+import { useWizard } from '@/stores/wizard'
 import { parseDelimited } from '@/composables/useDataParser'
-import { useParseOptions } from '@/composables/useParseOptions'
+import { useParseOptions } from '@/stores/parseOptions'
 import type { ChartSample } from '@blueprint-chart/lib'
 import DataUploadCard from './DataUploadCard.vue'
 import DataStructurePanel from './DataStructurePanel.vue'
 
-const { dataView, setDataView } = useEditorPanel()
+const editorPanel = useEditorPanel()
+const { dataView } = storeToRefs(editorPanel)
+const { setDataView } = editorPanel
 const dataTable = useDataTable()
 const { applyDsl } = useDslSync()
 const { loadSample } = useChartSession()
 const { next } = useWizard()
-const parseOptions = useParseOptions()
+const parseOptions = storeToRefs(useParseOptions())
 
 onMounted(() => {
   if (dataTable.columns.value.length > 0) {

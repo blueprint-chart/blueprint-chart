@@ -30,8 +30,8 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useChartConfig } from '@/composables/useChartConfig'
-import { useChartTypeOptions } from '@/composables/useChartTypeOptions'
+import { useChartConfig } from '@/stores/chartConfig'
+import { useChartTypeOptions } from '@/stores/chartTypeOptions'
 import { parseData, buildChartOptions } from '@blueprint-chart/lib'
 import type { SeriesOverride } from '@blueprint-chart/lib'
 import { SectionCard } from '@blueprint-chart/ui'

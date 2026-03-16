@@ -61,12 +61,15 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { storeToRefs } from 'pinia'
 import { BTableSimple, BThead, BTbody, BTr, BTh, BTd } from 'bootstrap-vue-next'
-import { useDataTable } from '@/composables/useDataTable'
-import { useEditorPanel } from '@/composables/useEditorPanel'
+import { useDataTable } from '@/stores/dataTable'
+import { useEditorPanel } from '@/stores/editorPanel'
 import IPhMagnifyingGlass from '~icons/ph/magnifying-glass'
 
-const { selectColumn, selectedColumnIndex } = useEditorPanel()
+const editorPanel = useEditorPanel()
+const { selectedColumnIndex } = storeToRefs(editorPanel)
+const { selectColumn } = editorPanel
 const { displayColumns, displayRows, displayColumnTypes } = useDataTable()
 
 const isEmpty = computed(() => displayRows.value.length === 0)

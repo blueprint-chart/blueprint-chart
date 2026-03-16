@@ -66,13 +66,14 @@
 
 <script setup lang="ts">
 import { ref, shallowRef, computed, watch, type CSSProperties } from 'vue'
+import { storeToRefs } from 'pinia'
 import { useResizeObserver } from '@vueuse/core'
 import { LayoutBottomDrawer, useBreakpoint } from '@blueprint-chart/ui'
-import { useEditorPanel } from '@/composables/useEditorPanel'
+import { useEditorPanel } from '@/stores/editorPanel'
 import { useCanvasCardStyle } from '@/composables/useCanvasCardStyle'
 import PanelTabBar from '@/components/Panel/PanelTabBar.vue'
-import { useChartConfig } from '@/composables/useChartConfig'
-import { useChartTypeOptions } from '@/composables/useChartTypeOptions'
+import { useChartConfig } from '@/stores/chartConfig'
+import { useChartTypeOptions } from '@/stores/chartTypeOptions'
 import PreviewChart from '@/components/Preview/PreviewChart.vue'
 import ChartEditDsl from './ChartEditDsl.vue'
 import ChartEditDockedPanel from './ChartEditDockedPanel.vue'
@@ -90,7 +91,9 @@ import EditorAnnotateTab from '@/components/Editor/EditorAnnotateTab.vue'
 
 const AXIS_KEYS = ['showVerticalAxis', 'verticalAxisDirection', 'showVerticalTicks', 'verticalLabelPosition', 'verticalGridStyle', 'verticalNumberFormat', 'verticalScaleType', 'verticalRangeMin', 'verticalRangeMax', 'showHorizontalAxis', 'showHorizontalTicks', 'horizontalLabelPosition', 'horizontalGridStyle', 'horizontalNumberFormat', 'horizontalScaleType', 'horizontalRangeMin', 'horizontalRangeMax']
 
-const { panelMode, viewMode, activeTab, canvasMode, showDimensions, collapse, selectTab } = useEditorPanel()
+const editorPanel = useEditorPanel()
+const { panelMode, viewMode, activeTab, canvasMode, showDimensions } = storeToRefs(editorPanel)
+const { collapse, selectTab } = editorPanel
 const { isNarrow } = useBreakpoint()
 
 watch(isNarrow, (narrow) => {

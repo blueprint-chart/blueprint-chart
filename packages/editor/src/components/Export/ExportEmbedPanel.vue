@@ -36,7 +36,7 @@
 import { computed, toRaw } from 'vue'
 import { ActionCopyButton } from '@blueprint-chart/ui'
 import { useDslOutput } from '@/composables/useDslOutput'
-import { useChartConfig } from '@/composables/useChartConfig'
+import { useChartConfig } from '@/stores/chartConfig'
 
 const { dsl } = useDslOutput()
 const { layout } = useChartConfig()

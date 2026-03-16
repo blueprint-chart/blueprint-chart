@@ -29,12 +29,13 @@
 
 <script setup lang="ts">
 import { computed, ref, shallowRef, watch, nextTick, onMounted, onBeforeUnmount } from 'vue'
-import { useChartConfig } from '@/composables/useChartConfig'
-import { useChartTypeOptions } from '@/composables/useChartTypeOptions'
-import { usePreviewContainer } from '@/composables/usePreviewContainer'
-import { useEditorPanel } from '@/composables/useEditorPanel'
+import { storeToRefs } from 'pinia'
+import { useChartConfig } from '@/stores/chartConfig'
+import { useChartTypeOptions } from '@/stores/chartTypeOptions'
+import { usePreviewContainer } from '@/stores/previewContainer'
+import { useEditorPanel } from '@/stores/editorPanel'
 import { useAnnotationDrag } from '@/composables/useAnnotationDrag'
-import { useScenes } from '@/composables/useScenes'
+import { useScenes } from '@/stores/scenes'
 import { resolveScene } from '@/composables/useChartPreview'
 import { parseData } from '@blueprint-chart/lib'
 import type { AnnotationConfig } from '@blueprint-chart/lib'
@@ -47,7 +48,7 @@ const config = useChartConfig()
 const { chartType, data, areaFills, seriesOverrides } = config
 const { currentOptions } = useChartTypeOptions()
 const globalInterpolation = computed(() => (currentOptions.value.interpolation as string) ?? 'linear')
-const { pendingAnnotationIndex } = useEditorPanel()
+const { pendingAnnotationIndex } = storeToRefs(useEditorPanel())
 const { scenes, activeIndex, activeScene, update: updateScene } = useScenes()
 
 const isSceneActive = computed(() => activeIndex.value >= 0)

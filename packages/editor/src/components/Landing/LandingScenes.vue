@@ -66,7 +66,7 @@ import IPhCode from '~icons/ph/code'
 import LandingSection from './LandingSection.vue'
 import LandingSectionHeader from './LandingSectionHeader.vue'
 import { renderDsl, parseDslSceneCount } from '@/composables/useChartFromDsl'
-import { useTheme } from '@/composables/useTheme'
+import { useTheme } from '@/stores/theme'
 
 const bpc = samples.find(s => s.id === 'farm-compass')!.dsl
 const sceneCount = parseDslSceneCount(bpc)

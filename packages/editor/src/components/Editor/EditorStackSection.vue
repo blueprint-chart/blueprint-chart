@@ -15,7 +15,7 @@
 </template>
 
 <script setup lang="ts">
-import { useChartTypeOptions } from '@/composables/useChartTypeOptions'
+import { useChartTypeOptions } from '@/stores/chartTypeOptions'
 
 const { currentOptions, setOption } = useChartTypeOptions()
 

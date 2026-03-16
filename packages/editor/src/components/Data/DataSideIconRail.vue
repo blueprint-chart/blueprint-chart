@@ -11,7 +11,8 @@
 
 <script setup lang="ts">
 import { type Component } from 'vue'
-import { useEditorPanel, type DataPanelTab } from '@/composables/useEditorPanel'
+import { storeToRefs } from 'pinia'
+import { useEditorPanel, type DataPanelTab } from '@/stores/editorPanel'
 import PanelIconRail from '@/components/Panel/PanelIconRail.vue'
 import IPhColumns from '~icons/ph/columns'
 import IPhFlowArrow from '~icons/ph/flow-arrow'
@@ -27,7 +28,9 @@ const props = withDefaults(defineProps<{
   disabledTabs: () => [],
 })
 
-const { dataPanelTab, panelMode, openDataPanel, toggleMode } = useEditorPanel()
+const editorPanel = useEditorPanel()
+const { dataPanelTab, panelMode } = storeToRefs(editorPanel)
+const { openDataPanel, toggleMode } = editorPanel
 
 const allItems: { value: string, icon: Component, tooltip: string }[] = [
   { value: 'column', icon: IPhColumns, tooltip: 'Columns' },

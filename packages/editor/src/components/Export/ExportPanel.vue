@@ -71,12 +71,13 @@
 
 <script setup lang="ts">
 import { ref, shallowRef, computed, watch, type CSSProperties } from 'vue'
+import { storeToRefs } from 'pinia'
 import { useResizeObserver } from '@vueuse/core'
 import { LayoutBottomDrawer, useBreakpoint } from '@blueprint-chart/ui'
-import { useEditorPanel } from '@/composables/useEditorPanel'
+import { useEditorPanel } from '@/stores/editorPanel'
 import { useCanvasCardStyle } from '@/composables/useCanvasCardStyle'
-import { useExportPanel, type ExportTab } from '@/composables/useExportPanel'
-import { useChartConfig } from '@/composables/useChartConfig'
+import { useExportPanel, type ExportTab } from '@/stores/exportPanel'
+import { useChartConfig } from '@/stores/chartConfig'
 import { useChartPreview } from '@/composables/useChartPreview'
 import { useImageExport } from '@/composables/useImageExport'
 import PanelTabBar from '@/components/Panel/PanelTabBar.vue'
@@ -89,11 +90,15 @@ import ExportDownloadPanel from './ExportDownloadPanel.vue'
 import CanvasDimensions from '@/components/Canvas/CanvasDimensions.vue'
 import CanvasModePicker from '@/components/Canvas/CanvasModePicker.vue'
 
-const { canvasMode, showDimensions, panelMode, float, collapse, setViewMode } = useEditorPanel()
+const editorPanel = useEditorPanel()
+const { canvasMode, showDimensions, panelMode } = storeToRefs(editorPanel)
+const { float, collapse, setViewMode } = editorPanel
 
 // Export step always shows preview (no DSL toggle)
 setViewMode('preview')
-const { exportTab, setExportTab } = useExportPanel()
+const exportPanelStore = useExportPanel()
+const { exportTab } = storeToRefs(exportPanelStore)
+const { setExportTab } = exportPanelStore
 const { isNarrow } = useBreakpoint()
 
 watch(isNarrow, (narrow) => {

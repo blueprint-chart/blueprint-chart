@@ -36,8 +36,8 @@
 <script setup lang="ts">
 import IPhPencilSimple from '~icons/ph/pencil-simple'
 import { GalleryCard, DisplayDate, DisplayChartTypeBadge, ButtonIcon } from '@blueprint-chart/ui'
-import { useTheme } from '@/composables/useTheme'
-import type { SavedChartSummary } from '@/composables/useChartSession'
+import { useTheme } from '@/stores/theme'
+import type { SavedChartSummary } from '@/stores/chartSession'
 
 const { resolvedTheme } = useTheme()
 

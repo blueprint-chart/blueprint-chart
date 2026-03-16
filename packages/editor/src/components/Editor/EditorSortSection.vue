@@ -18,7 +18,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { FormControlButtonGroup } from '@blueprint-chart/ui'
-import { useChartConfig } from '@/composables/useChartConfig'
+import { useChartConfig } from '@/stores/chartConfig'
 import IPhEquals from '~icons/ph/equals'
 import IPhSortAscending from '~icons/ph/sort-ascending'
 import IPhSortDescending from '~icons/ph/sort-descending'

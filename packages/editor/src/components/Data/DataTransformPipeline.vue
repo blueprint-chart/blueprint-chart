@@ -90,9 +90,9 @@
 
 <script setup lang="ts">
 import { ref, shallowRef, computed } from 'vue'
-import { useDataTable } from '@/composables/useDataTable'
-import { useDataTransforms, type TransformType } from '@/composables/useDataTransforms'
-import { useScenes } from '@/composables/useScenes'
+import { useDataTable } from '@/stores/dataTable'
+import { useDataTransforms, type TransformType } from '@/stores/dataTransforms'
+import { useScenes } from '@/stores/scenes'
 import DataTransformSourceBlock from './DataTransformSourceBlock.vue'
 import DataTransformOutputBlock from './DataTransformOutputBlock.vue'
 import DataTransformStepCard from './DataTransformStepCard.vue'
