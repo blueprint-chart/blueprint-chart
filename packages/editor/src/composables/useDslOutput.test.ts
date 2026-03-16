@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest'
+import { createPinia, setActivePinia } from 'pinia'
 import { useChartConfig } from './useChartConfig'
 import { useDslOutput } from './useDslOutput'
 import { useChartTypeOptions } from './useChartTypeOptions'
@@ -7,6 +8,7 @@ import { useDslSync } from './useDslSync'
 
 describe('useDslOutput', () => {
   beforeEach(() => {
+    setActivePinia(createPinia())
     useScenes().reset()
     useChartConfig().reset()
     useChartTypeOptions().reset()

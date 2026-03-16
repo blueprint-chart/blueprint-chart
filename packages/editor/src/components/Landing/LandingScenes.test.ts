@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import { mount } from '@vue/test-utils'
 import LandingScenes from './LandingScenes.vue'
 
-vi.mock('@/composables/useTheme', () => ({
+vi.mock('@/stores/theme', () => ({
   useTheme: () => ({ theme: ref('light'), cycleTheme: vi.fn() }),
 }))
 

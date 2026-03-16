@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import { mount } from '@vue/test-utils'
 import DashboardChartCard from './DashboardChartCard.vue'
 
-vi.mock('@/composables/useTheme', () => ({
+vi.mock('@/stores/theme', () => ({
   useTheme: () => ({ resolvedTheme: ref('light'), theme: ref('light'), cycleTheme: () => {} }),
 }))
 

@@ -5,7 +5,7 @@ import CanvasDimensionsToggle from './CanvasDimensionsToggle.vue'
 
 const showDimensions = ref(true)
 
-vi.mock('@/composables/useEditorPanel', () => ({
+vi.mock('@/stores/editorPanel', () => ({
   useEditorPanel: () => ({
     showDimensions,
   }),

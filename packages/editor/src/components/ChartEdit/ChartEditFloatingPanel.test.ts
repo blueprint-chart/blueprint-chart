@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { setActivePinia, createPinia } from 'pinia'
 import ChartEditFloatingPanel from './ChartEditFloatingPanel.vue'
-import { useEditorPanel } from '@/composables/useEditorPanel'
+import { useEditorPanelStore as useEditorPanel } from '@/stores/editorPanel'
 
 vi.mock('@blueprint-chart/ui', () => ({
   ButtonIcon: {
@@ -41,7 +42,7 @@ vi.mock('@/composables/usePanelDrag', () => ({
   usePanelDrag: vi.fn(() => ({ isDragging: false })),
 }))
 
-vi.mock('@/composables/useChartHistory', () => ({
+vi.mock('@/stores/chartHistory', () => ({
   useChartHistory: () => ({
     canUndo: { value: false },
     canRedo: { value: false },
@@ -50,19 +51,19 @@ vi.mock('@/composables/useChartHistory', () => ({
   }),
 }))
 
-vi.mock('@/composables/useChartConfig', () => ({
+vi.mock('@/stores/chartConfig', () => ({
   useChartConfig: () => ({
     chartType: { value: 'line' },
   }),
 }))
 
-vi.mock('@/composables/useChartTypeOptions', () => ({
+vi.mock('@/stores/chartTypeOptions', () => ({
   useChartTypeOptions: () => ({
     availableOptionKeys: { value: ['showVerticalAxis'] },
   }),
 }))
 
-vi.mock('@/composables/useWizard', () => ({
+vi.mock('@/stores/wizard', () => ({
   useWizard: () => ({
     steps: [
       { label: 'Data', key: 'data' },
@@ -101,13 +102,18 @@ vi.mock('@/components/Editor/EditorAnnotateTab.vue', () => ({
 }))
 
 describe('ChartEditFloatingPanel', () => {
+  let pinia: ReturnType<typeof createPinia>
+
   beforeEach(() => {
+    pinia = createPinia()
+    setActivePinia(pinia)
     useEditorPanel().reset()
   })
 
   it('renders tab bar', () => {
     const w = mount(ChartEditFloatingPanel, {
       props: { containerRef: null },
+      global: { plugins: [pinia] },
     })
     const tabs = w.findAll('.panel-tab-bar__tab')
     // type, text, appearance, layout, axes, annotate (6 with axes)
@@ -118,6 +124,7 @@ describe('ChartEditFloatingPanel', () => {
     useEditorPanel().selectTab('text')
     const w = mount(ChartEditFloatingPanel, {
       props: { containerRef: null },
+      global: { plugins: [pinia] },
     })
     const activeTab = w.find('.panel-tab-bar__tab--active')
     expect(activeTab.text()).toBe('Text')
@@ -126,6 +133,7 @@ describe('ChartEditFloatingPanel', () => {
   it('renders dock and close buttons', () => {
     const w = mount(ChartEditFloatingPanel, {
       props: { containerRef: null },
+      global: { plugins: [pinia] },
     })
     const buttons = w.findAll('.btn-icon')
     // drag, dock, close + stepper footer buttons
@@ -133,10 +141,11 @@ describe('ChartEditFloatingPanel', () => {
   })
 
   it('position style reflects composable state', () => {
-    const { floatingPosition } = useEditorPanel()
-    floatingPosition.value = { x: 100, y: 50 }
+    const store = useEditorPanel()
+    store.floatingPosition = { x: 100, y: 50 }
     const w = mount(ChartEditFloatingPanel, {
       props: { containerRef: null },
+      global: { plugins: [pinia] },
     })
     const style = w.find('.panel-floating').attributes('style')
     expect(style).toContain('left: 100px')

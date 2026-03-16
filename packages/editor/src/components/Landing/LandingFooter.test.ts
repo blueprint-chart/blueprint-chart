@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import LandingFooter from './LandingFooter.vue'
 
-vi.mock('@/composables/useTheme', () => ({
+vi.mock('@/stores/theme', () => ({
   useTheme: () => ({ theme: { value: 'light' }, cycleTheme: vi.fn() }),
 }))
 

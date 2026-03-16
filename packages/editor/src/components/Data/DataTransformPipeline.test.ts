@@ -2,6 +2,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { ref, defineComponent } from 'vue'
+import { createPinia, setActivePinia } from 'pinia'
 import DataTransformPipeline from './DataTransformPipeline.vue'
 
 const columns = ref(['Name', 'Value'])
@@ -11,7 +12,7 @@ const columnTypes = ref(['string', 'number'])
 let stepIdCounter = 0
 const steps = ref<Array<{ id: string, type: string, config: Record<string, string> }>>([])
 
-vi.mock('@/composables/useDataTable', () => ({
+vi.mock('@/stores/dataTable', () => ({
   useDataTable: () => ({
     columns,
     rows,
@@ -19,7 +20,7 @@ vi.mock('@/composables/useDataTable', () => ({
   }),
 }))
 
-vi.mock('@/composables/useDataTransforms', () => ({
+vi.mock('@/stores/dataTransforms', () => ({
   useDataTransforms: () => ({
     steps,
     addStep: (type: string, config: Record<string, string> = {}) => {
@@ -69,6 +70,7 @@ const StepCardStub = defineComponent({
 function mountPipeline() {
   return mount(DataTransformPipeline, {
     global: {
+      plugins: [createPinia()],
       stubs: {
         DataTransformSourceBlock: { template: '<div />' },
         DataTransformOutputBlock: { template: '<div />' },
@@ -88,6 +90,7 @@ function mountPipeline() {
 
 describe('DataTransformPipeline', () => {
   beforeEach(() => {
+    setActivePinia(createPinia())
     stepIdCounter = 0
     steps.value = []
   })
