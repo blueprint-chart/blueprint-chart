@@ -16,14 +16,14 @@ const rows = ref([
 const columnTypes = ref(['string', 'number', 'number'])
 const setColumnType = vi.fn()
 
-vi.mock('@/composables/useEditorPanel', () => ({
+vi.mock('@/stores/editorPanel', () => ({
   useEditorPanel: () => ({
     selectedColumnIndex,
     selectColumn,
   }),
 }))
 
-vi.mock('@/composables/useDataTable', () => ({
+vi.mock('@/stores/dataTable', () => ({
   useDataTable: () => ({
     columns,
     rows,

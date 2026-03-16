@@ -8,7 +8,7 @@ const setCanvasMode = vi.fn((mode: string) => {
   canvasMode.value = mode
 })
 
-vi.mock('@/composables/useEditorPanel', () => ({
+vi.mock('@/stores/editorPanel', () => ({
   useEditorPanel: () => ({
     canvasMode,
     setCanvasMode,

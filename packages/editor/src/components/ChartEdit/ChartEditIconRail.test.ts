@@ -1,13 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { useEditorPanel } from '@/composables/useEditorPanel'
+import { setActivePinia, createPinia, storeToRefs } from 'pinia'
+import { useEditorPanelStore as useEditorPanel } from '@/stores/editorPanel'
 
-vi.mock('@/composables/useChartConfig', () => ({
+vi.mock('@/stores/chartConfig', () => ({
   useChartConfig: () => ({
     chartType: { value: 'line' },
   }),
 }))
 
-vi.mock('@/composables/useChartTypeOptions', () => ({
+vi.mock('@/stores/chartTypeOptions', () => ({
   useChartTypeOptions: () => ({
     availableOptionKeys: { value: ['showVerticalAxis', 'showHorizontalAxis'] },
   }),
@@ -15,29 +16,33 @@ vi.mock('@/composables/useChartTypeOptions', () => ({
 
 describe('ChartEditIconRail', () => {
   beforeEach(() => {
+    setActivePinia(createPinia())
     useEditorPanel().reset()
   })
 
   it('useEditorPanel activeTab syncs with selectTab', () => {
-    const { activeTab, selectTab } = useEditorPanel()
-    selectTab('text')
+    const store = useEditorPanel()
+    const { activeTab } = storeToRefs(store)
+    store.selectTab('text')
     expect(activeTab.value).toBe('text')
   })
 
   it('selectTab from collapsed opens panel', () => {
-    const { panelMode, collapse, selectTab } = useEditorPanel()
-    collapse()
+    const store = useEditorPanel()
+    const { panelMode } = storeToRefs(store)
+    store.collapse()
     expect(panelMode.value).toBe('collapsed')
-    selectTab('appearance')
+    store.selectTab('appearance')
     expect(panelMode.value).toBe('docked')
   })
 
   it('toggleMode cycles correctly', () => {
-    const { panelMode, toggleMode } = useEditorPanel()
+    const store = useEditorPanel()
+    const { panelMode } = storeToRefs(store)
     expect(panelMode.value).toBe('docked')
-    toggleMode()
+    store.toggleMode()
     expect(panelMode.value).toBe('floating')
-    toggleMode()
+    store.toggleMode()
     expect(panelMode.value).toBe('docked')
   })
 })

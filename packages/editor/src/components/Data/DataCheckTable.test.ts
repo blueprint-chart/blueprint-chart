@@ -6,7 +6,7 @@ import DataCheckTable from './DataCheckTable.vue'
 const mockSelectColumn = vi.fn()
 const mockSelectedColumnIndex = ref(-1)
 
-vi.mock('@/composables/useEditorPanel', () => ({
+vi.mock('@/stores/editorPanel', () => ({
   useEditorPanel: () => ({
     selectColumn: mockSelectColumn,
     selectedColumnIndex: mockSelectedColumnIndex,
@@ -17,7 +17,7 @@ const mockDisplayColumns = ref<string[]>([])
 const mockDisplayRows = ref<string[][]>([])
 const mockDisplayColumnTypes = ref<string[]>([])
 
-vi.mock('@/composables/useDataTable', () => ({
+vi.mock('@/stores/dataTable', () => ({
   useDataTable: () => ({
     displayColumns: mockDisplayColumns,
     displayRows: mockDisplayRows,

@@ -1,12 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { ref } from 'vue'
+import { createPinia, setActivePinia } from 'pinia'
 import DataStructurePanel from './DataStructurePanel.vue'
 
 const mockOpenDataPanel = vi.fn()
 const mockCollapseDataPanel = vi.fn()
 
-vi.mock('@/composables/useDataTable', () => ({
+vi.mock('@/stores/dataTable', () => ({
   useDataTable: () => ({
     columns: ref(['Name', 'Value']),
     rows: ref([['Apples', '42'], ['Bananas', '58']]),
@@ -15,7 +16,7 @@ vi.mock('@/composables/useDataTable', () => ({
   }),
 }))
 
-vi.mock('@/composables/useEditorPanel', () => ({
+vi.mock('@/stores/editorPanel', () => ({
   useEditorPanel: () => ({
     selectedColumnIndex: ref(-1),
     selectColumn: vi.fn(),
@@ -37,6 +38,7 @@ vi.mock('@blueprint-chart/ui', () => ({
 function mountPanel() {
   return mount(DataStructurePanel, {
     global: {
+      plugins: [createPinia()],
       stubs: {
         DataCheckTable: { template: '<div class="table-stub" />' },
         DataInsightBadges: { template: '<div class="badges-stub" />', props: ['columns', 'rows'] },
@@ -55,6 +57,7 @@ function mountPanel() {
 
 describe('DataStructurePanel', () => {
   beforeEach(() => {
+    setActivePinia(createPinia())
     mockOpenDataPanel.mockClear()
   })
 

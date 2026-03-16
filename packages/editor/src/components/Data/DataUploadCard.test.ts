@@ -13,7 +13,7 @@ const mockDataTable = {
   rows: { value: [] as string[][] },
 }
 
-vi.mock('@/composables/useDataTable', () => ({
+vi.mock('@/stores/dataTable', () => ({
   useDataTable: () => mockDataTable,
 }))
 

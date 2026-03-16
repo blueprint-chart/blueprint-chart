@@ -1,9 +1,11 @@
 import { describe, it, expect, beforeEach } from 'vitest'
+import { setActivePinia, createPinia } from 'pinia'
 import { useDataTable } from './useDataTable'
 import { useChartRecommendations } from './useChartRecommendations'
 
 describe('useChartRecommendations', () => {
   beforeEach(() => {
+    setActivePinia(createPinia())
     useDataTable().reset()
   })
 

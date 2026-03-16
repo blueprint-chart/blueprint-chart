@@ -2,11 +2,11 @@ import { describe, it, expect, vi } from 'vitest'
 import { shallowMount } from '@vue/test-utils'
 import LandingPage from './LandingPage.vue'
 
-vi.mock('@/composables/useTheme', () => ({
+vi.mock('@/stores/theme', () => ({
   useTheme: () => ({ theme: { value: 'light' }, cycleTheme: vi.fn() }),
 }))
 
-vi.mock('@/composables/useChartSession', () => ({
+vi.mock('@/stores/chartSession', () => ({
   useChartSession: () => ({
     listSavedCharts: () => [],
   }),

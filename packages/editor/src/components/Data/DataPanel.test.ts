@@ -10,7 +10,7 @@ const mockNext = vi.fn()
 const dataViewRef = ref('upload')
 const rawInputRef = ref('')
 
-vi.mock('@/composables/useEditorPanel', () => ({
+vi.mock('@/stores/editorPanel', () => ({
   useEditorPanel: () => ({
     dataView: dataViewRef,
     setDataView: mockSetDataView,
@@ -19,7 +19,7 @@ vi.mock('@/composables/useEditorPanel', () => ({
 
 const columnsRef = ref<string[]>([])
 
-vi.mock('@/composables/useDataTable', () => ({
+vi.mock('@/stores/dataTable', () => ({
   useDataTable: () => ({
     rawInput: rawInputRef,
     loadParsed: mockLoadParsed,
@@ -36,13 +36,13 @@ vi.mock('@/composables/useDslSync', () => ({
   }),
 }))
 
-vi.mock('@/composables/useChartConfig', () => ({
+vi.mock('@/stores/chartConfig', () => ({
   useChartConfig: () => ({
     data: ref(''),
   }),
 }))
 
-vi.mock('@/composables/useWizard', () => ({
+vi.mock('@/stores/wizard', () => ({
   useWizard: () => ({
     next: mockNext,
   }),
@@ -53,7 +53,7 @@ vi.mock('@/composables/useDataParser', () => ({
   parseBpcData: vi.fn(() => ({ columns: ['label', 'value'], rows: [['A', '1']], columnTypes: ['string', 'number'] })),
 }))
 
-vi.mock('@/composables/useParseOptions', () => ({
+vi.mock('@/stores/parseOptions', () => ({
   useParseOptions: () => ({
     firstRowIsHeader: ref(true),
     delimiter: ref('auto'),
@@ -69,7 +69,7 @@ vi.mock('@blueprint-chart/lib', () => ({
   samples: [],
 }))
 
-vi.mock('@/composables/useChartSession', () => ({
+vi.mock('@/stores/chartSession', () => ({
   useChartSession: () => ({
     loadSample: vi.fn(),
   }),
