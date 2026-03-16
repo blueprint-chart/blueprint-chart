@@ -67,9 +67,9 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { SettingsSection } from '@blueprint-chart/ui'
-import { useChartConfig } from '@/composables/useChartConfig'
-import { useChartTypeOptions } from '@/composables/useChartTypeOptions'
-import { useScenes } from '@/composables/useScenes'
+import { useChartConfig } from '@/stores/chartConfig'
+import { useChartTypeOptions } from '@/stores/chartTypeOptions'
+import { useScenes } from '@/stores/scenes'
 import IPhPalette from '~icons/ph/palette'
 import IPhLineSegments from '~icons/ph/line-segments'
 import IPhListBullets from '~icons/ph/list-bullets'

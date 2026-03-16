@@ -74,8 +74,8 @@ import {
   SettingsSection,
 } from '@blueprint-chart/ui'
 import type { ChartOptionDef } from '@blueprint-chart/lib'
-import { useChartTypeOptions, type ChartTypeOptionKey } from '@/composables/useChartTypeOptions'
-import { useDataTable } from '@/composables/useDataTable'
+import { useChartTypeOptions, type ChartTypeOptionKey } from '@/stores/chartTypeOptions'
+import { useDataTable } from '@/stores/dataTable'
 import IFluentLineSolid from '~icons/fluent/line-horizontal-1-20-filled'
 import IFluentLineDashed from '~icons/fluent/line-horizontal-1-dashes-20-filled'
 import IFluentLineDotted from '~icons/fluent/line-horizontal-1-dot-20-filled'

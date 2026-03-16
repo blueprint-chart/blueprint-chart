@@ -50,12 +50,15 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { storeToRefs } from 'pinia'
 import { BFormCheckbox } from 'bootstrap-vue-next'
 import { FormControlDropdown } from '@blueprint-chart/ui'
-import { useParseOptions } from '@/composables/useParseOptions'
-import { useDataTable } from '@/composables/useDataTable'
+import { useParseOptions } from '@/stores/parseOptions'
+import { useDataTable } from '@/stores/dataTable'
 
-const { firstRowIsHeader, delimiter: delimiterRef, decimalSeparator, treatEmptyAsNull, trimWhitespace, setOption } = useParseOptions()
+const parseOptionsStore = useParseOptions()
+const { firstRowIsHeader, delimiter: delimiterRef, decimalSeparator, treatEmptyAsNull, trimWhitespace } = storeToRefs(parseOptionsStore)
+const { setOption } = parseOptionsStore
 const { sourceFormat } = useDataTable()
 const delimiterDisabled = computed(() => sourceFormat.value !== 'delimited')
 

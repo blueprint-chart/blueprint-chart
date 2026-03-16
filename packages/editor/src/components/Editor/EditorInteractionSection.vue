@@ -61,9 +61,9 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useChartTypeOptions } from '@/composables/useChartTypeOptions'
-import { useChartConfig } from '@/composables/useChartConfig'
-import { useScenes } from '@/composables/useScenes'
+import { useChartTypeOptions } from '@/stores/chartTypeOptions'
+import { useChartConfig } from '@/stores/chartConfig'
+import { useScenes } from '@/stores/scenes'
 import { FormControlCheckbox, FormControlColorInput, FormControlButtonGroup, FormControlDropdown } from '@blueprint-chart/ui'
 import IPhArrowsOutCardinal from '~icons/ph/arrows-out-cardinal'
 import IPhArrowsVertical from '~icons/ph/arrows-vertical'

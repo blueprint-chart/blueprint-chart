@@ -74,7 +74,7 @@
 </template>
 
 <script setup lang="ts">
-import { useChartConfig } from '@/composables/useChartConfig'
+import { useChartConfig } from '@/stores/chartConfig'
 
 const { title, description, byline, note, source, sourceUrl } = useChartConfig()
 </script>

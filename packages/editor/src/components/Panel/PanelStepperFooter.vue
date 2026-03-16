@@ -25,7 +25,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { ButtonIcon } from '@blueprint-chart/ui'
-import { useWizard } from '@/composables/useWizard'
+import { useWizard } from '@/stores/wizard'
 import IPhCaretLeft from '~icons/ph/caret-left'
 import IPhCaretRight from '~icons/ph/caret-right'
 

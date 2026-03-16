@@ -208,7 +208,7 @@
 <script setup lang="ts">
 import { ref, computed, type CSSProperties } from 'vue'
 import { useResizeObserver } from '@vueuse/core'
-import type { ChartLayout } from '@/composables/useChartConfig'
+import type { ChartLayout } from '@/stores/chartConfig'
 
 const OFFSET = 20
 const SERIF = 3

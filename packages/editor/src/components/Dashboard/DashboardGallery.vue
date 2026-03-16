@@ -25,7 +25,7 @@
 
 <script setup lang="ts">
 import { GalleryGrid, FeedbackEmptyState } from '@blueprint-chart/ui'
-import type { SavedChartSummary } from '@/composables/useChartSession'
+import type { SavedChartSummary } from '@/stores/chartSession'
 import DashboardChartCard from './DashboardChartCard.vue'
 import DashboardNewCard from './DashboardNewCard.vue'
 

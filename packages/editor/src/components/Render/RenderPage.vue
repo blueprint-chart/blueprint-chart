@@ -35,9 +35,9 @@ import {
 } from '@blueprint-chart/ui'
 import { useDslSync } from '@/composables/useDslSync'
 import { useChartPreview } from '@/composables/useChartPreview'
-import { useChartConfig } from '@/composables/useChartConfig'
+import { useChartConfig } from '@/stores/chartConfig'
 import { useCanvasCardStyle } from '@/composables/useCanvasCardStyle'
-import { useScenes } from '@/composables/useScenes'
+import { useScenes } from '@/stores/scenes'
 
 const route = useRoute()
 const containerRef = ref<HTMLElement | null>(null)

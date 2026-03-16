@@ -18,7 +18,8 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useEditorPanel } from '@/composables/useEditorPanel'
+import { storeToRefs } from 'pinia'
+import { useEditorPanel } from '@/stores/editorPanel'
 import PanelFloating from '@/components/Panel/PanelFloating.vue'
 import DataColumnSettings from './DataColumnSettings.vue'
 import DataTransformPipeline from './DataTransformPipeline.vue'
@@ -30,7 +31,9 @@ defineProps<{
   containerRef: HTMLElement | null
 }>()
 
-const { dataPanelTab, floatingPosition, dock, collapse } = useEditorPanel()
+const editorPanel = useEditorPanel()
+const { dataPanelTab, floatingPosition } = storeToRefs(editorPanel)
+const { dock, collapse } = editorPanel
 
 const TAB_LABELS: Record<string, string> = {
   column: 'Column Settings',

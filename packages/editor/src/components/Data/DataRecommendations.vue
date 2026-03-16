@@ -25,7 +25,7 @@
 
 <script setup lang="ts">
 import { useChartRecommendations } from '@/composables/useChartRecommendations'
-import { useChartConfig } from '@/composables/useChartConfig'
+import { useChartConfig } from '@/stores/chartConfig'
 import DataRecommendationCard from './DataRecommendationCard.vue'
 
 const { recommendations, dataSummary } = useChartRecommendations()

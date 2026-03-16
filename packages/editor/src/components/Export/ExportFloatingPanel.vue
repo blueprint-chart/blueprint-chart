@@ -27,8 +27,9 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useEditorPanel } from '@/composables/useEditorPanel'
-import { useExportPanel, type ExportTab } from '@/composables/useExportPanel'
+import { storeToRefs } from 'pinia'
+import { useEditorPanel } from '@/stores/editorPanel'
+import { useExportPanel, type ExportTab } from '@/stores/exportPanel'
 import PanelFloating from '@/components/Panel/PanelFloating.vue'
 import PanelTabBar from '@/components/Panel/PanelTabBar.vue'
 import ExportEmbedPanel from './ExportEmbedPanel.vue'
@@ -44,8 +45,12 @@ defineEmits<{
   'download-svg': []
 }>()
 
-const { floatingPosition, dock, collapse } = useEditorPanel()
-const { exportTab, setExportTab } = useExportPanel()
+const editorPanel = useEditorPanel()
+const { floatingPosition } = storeToRefs(editorPanel)
+const { dock, collapse } = editorPanel
+const exportPanelStore = useExportPanel()
+const { exportTab } = storeToRefs(exportPanelStore)
+const { setExportTab } = exportPanelStore
 
 const tabs = [
   { key: 'embed', label: 'Embed' },

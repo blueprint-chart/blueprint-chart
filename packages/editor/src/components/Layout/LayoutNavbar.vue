@@ -34,7 +34,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { ButtonIcon } from '@blueprint-chart/ui'
-import { useTheme } from '@/composables/useTheme'
+import { useTheme } from '@/stores/theme'
 import logoLight from '@/assets/images/blueprint-chart-logo.svg'
 import logoDark from '@/assets/images/blueprint-chart-logo-dark.svg'
 import IPhSun from '~icons/ph/sun'

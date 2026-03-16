@@ -32,13 +32,16 @@
 
 <script setup lang="ts">
 import { shallowRef } from 'vue'
-import { useEditorPanel } from '@/composables/useEditorPanel'
-import type { CanvasMode } from '@/composables/useEditorPanel'
+import { storeToRefs } from 'pinia'
+import { useEditorPanel } from '@/stores/editorPanel'
+import type { CanvasMode } from '@/stores/editorPanel'
 import CanvasModePickerOption from './CanvasModePickerOption.vue'
 import CanvasModePickerOptionSwatch from './CanvasModePickerOptionSwatch.vue'
 import CanvasDimensionsToggle from './CanvasDimensionsToggle.vue'
 
-const { canvasMode, setCanvasMode } = useEditorPanel()
+const editorPanel = useEditorPanel()
+const { canvasMode } = storeToRefs(editorPanel)
+const { setCanvasMode } = editorPanel
 
 const expanded = shallowRef(false)
 

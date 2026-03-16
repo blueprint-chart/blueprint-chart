@@ -31,9 +31,10 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useEditorPanel } from '@/composables/useEditorPanel'
-import { useChartConfig } from '@/composables/useChartConfig'
-import { useChartTypeOptions } from '@/composables/useChartTypeOptions'
+import { storeToRefs } from 'pinia'
+import { useEditorPanel } from '@/stores/editorPanel'
+import { useChartConfig } from '@/stores/chartConfig'
+import { useChartTypeOptions } from '@/stores/chartTypeOptions'
 import PanelFloating from '@/components/Panel/PanelFloating.vue'
 import PanelTabBar from '@/components/Panel/PanelTabBar.vue'
 import EditorChartTypePicker from '@/components/Editor/EditorChartTypePicker.vue'
@@ -52,7 +53,9 @@ defineProps<{
   containerRef: HTMLElement | null
 }>()
 
-const { activeTab, floatingPosition, dock, collapse, selectTab } = useEditorPanel()
+const editorPanel = useEditorPanel()
+const { activeTab, floatingPosition } = storeToRefs(editorPanel)
+const { dock, collapse, selectTab } = editorPanel
 const { chartType } = useChartConfig()
 const { availableOptionKeys } = useChartTypeOptions()
 

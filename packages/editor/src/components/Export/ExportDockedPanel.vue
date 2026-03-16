@@ -20,8 +20,9 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useEditorPanel } from '@/composables/useEditorPanel'
-import { useExportPanel } from '@/composables/useExportPanel'
+import { storeToRefs } from 'pinia'
+import { useEditorPanel } from '@/stores/editorPanel'
+import { useExportPanel } from '@/stores/exportPanel'
 import PanelDocked from '@/components/Panel/PanelDocked.vue'
 import ExportEmbedPanel from './ExportEmbedPanel.vue'
 import ExportDownloadPanel from './ExportDownloadPanel.vue'
@@ -38,9 +39,9 @@ defineEmits<{
   'download-svg': []
 }>()
 
-const { dockedPanelWidth } = useEditorPanel()
+const { dockedPanelWidth } = storeToRefs(useEditorPanel())
 
-const { exportTab } = useExportPanel()
+const { exportTab } = storeToRefs(useExportPanel())
 
 const TAB_LABELS: Record<string, string> = {
   embed: 'Embed',

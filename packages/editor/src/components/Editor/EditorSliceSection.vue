@@ -54,7 +54,7 @@
 </template>
 
 <script setup lang="ts">
-import { useChartTypeOptions, type ChartTypeOptionKey } from '@/composables/useChartTypeOptions'
+import { useChartTypeOptions, type ChartTypeOptionKey } from '@/stores/chartTypeOptions'
 import { FormControlCheckbox, FormControlSliderInput } from '@blueprint-chart/ui'
 
 const { currentOptions, availableOptionKeys, setOption } = useChartTypeOptions()

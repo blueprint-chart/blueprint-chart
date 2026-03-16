@@ -74,7 +74,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useDataTransforms, type TransformStep } from '@/composables/useDataTransforms'
+import { useDataTransforms, type TransformStep } from '@/stores/dataTransforms'
 import type { ColumnType } from '@/composables/useDataParser'
 
 const props = defineProps<{
