@@ -174,6 +174,8 @@ export interface ChartOptions {
   barSeparators?: boolean
   stackMode?: 'normal' | 'percent'
   edgePadding?: boolean
+  waterfall?: boolean
+  waterfallTotal?: boolean
 }
 
 export type ChartRenderer = (
@@ -254,6 +256,8 @@ export interface ChartTypeOptions {
   barSeparators: boolean
   stackMode: string
   edgePadding: boolean
+  waterfall: boolean
+  waterfallTotal: boolean
 }
 
 export type ChartTypeOptionKey = keyof ChartTypeOptions

@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { render } from './bar-vertical'
+import { buildChartOptions } from '../../chart-helpers'
 
 describe('bar-vertical', () => {
   let container: HTMLElement
@@ -293,6 +294,50 @@ describe('bar-vertical', () => {
     expect(tickTexts.length).toBeGreaterThan(0)
   })
 
+  it('applies numberFormat to vertical axis tick labels', () => {
+    const bigData = { labels: ['A', 'B'], values: [5000, 10000] }
+    render(container, bigData, {
+      verticalAxis: { numberFormat: '$|,.0f|' },
+    })
+    const vAxis = container.querySelector('.bc-axis-vertical')
+    const tickTexts = Array.from(vAxis!.querySelectorAll('.tick text')).map(t => t.textContent)
+    // Should have dollar prefix and comma separators
+    expect(tickTexts.some(t => t!.startsWith('$'))).toBe(true)
+    expect(tickTexts.some(t => t!.includes(','))).toBe(true)
+  })
+
+  it('applies numberFormat via buildChartOptions (editor path)', () => {
+    const bigData = { labels: ['A', 'B'], values: [5000, 10000] }
+    const opts = buildChartOptions({
+      showVerticalAxis: false,
+      verticalGridStyle: 'dashed',
+      verticalNumberFormat: '$|,.0f|',
+    })
+    render(container, bigData, opts)
+    const vAxis = container.querySelector('.bc-axis-vertical')
+    const tickTexts = Array.from(vAxis!.querySelectorAll('.tick text')).map(t => t.textContent)
+    expect(tickTexts.some(t => t!.startsWith('$'))).toBe(true)
+  })
+
+  it('applies numberFormat on re-render after container clear (editor re-render path)', () => {
+    const bigData = { labels: ['A', 'B'], values: [5000, 10000] }
+    // First render without format
+    render(container, bigData)
+    // Clear container (simulates useChartPreview replaceChildren)
+    container.replaceChildren()
+    // Re-render with format
+    const opts = buildChartOptions({
+      showVerticalAxis: false,
+      verticalGridStyle: 'dashed',
+      verticalNumberFormat: ',.0f',
+    })
+    render(container, bigData, opts)
+    const vAxis = container.querySelector('.bc-axis-vertical')
+    const tickTexts = Array.from(vAxis!.querySelectorAll('.tick text')).map(t => t.textContent)
+    // With ,.0f, 10,000 should have commas
+    expect(tickTexts.some(t => t!.includes(','))).toBe(true)
+  })
+
   it('keeps vertical axis tick labels when showAxis is false (only domain is removed)', () => {
     render(container, data, {
       verticalAxis: { showAxis: false },
@@ -513,6 +558,13 @@ describe('bar-vertical', () => {
       expect(heights.every(h => h === chartHeight)).toBe(true)
     })
 
+    it('background rects have visible opacity', () => {
+      render(container, data, { barBackground: true })
+      const bgs = container.querySelectorAll('.bc-bar-bg')
+      const opacities = Array.from(bgs).map(b => Number(b.getAttribute('opacity')))
+      expect(opacities.every(o => o >= 0.15)).toBe(true)
+    })
+
     it('does not render background rects when barBackground is not set', () => {
       render(container, data)
       const bgs = container.querySelectorAll('.bc-bar-bg')
@@ -586,6 +638,108 @@ describe('bar-vertical', () => {
       const hTickTexts = Array.from(hAxis.querySelectorAll('.tick text'))
         .map(el => el.textContent)
       expect(hTickTexts).toEqual(['A', 'B', 'C'])
+    })
+  })
+
+  // ── Waterfall ────────────────────────────────────────────────────
+
+  describe('waterfall', () => {
+    const wfData = { labels: ['A', 'B', 'C'], values: [10, 20, 30] }
+
+    it('renders bars for each data point', () => {
+      render(container, wfData, { waterfall: true })
+      const bars = container.querySelectorAll('.bc-bar')
+      expect(bars).toHaveLength(3)
+    })
+
+    it('adds a total bar when waterfallTotal is true', () => {
+      render(container, wfData, { waterfall: true, waterfallTotal: true })
+      const bars = container.querySelectorAll('.bc-bar')
+      expect(bars).toHaveLength(4)
+    })
+
+    it('total bar label appears on horizontal axis', () => {
+      render(container, wfData, { waterfall: true, waterfallTotal: true })
+      const hAxis = container.querySelector('.bc-axis-horizontal')!
+      const ticks = Array.from(hAxis.querySelectorAll('.tick text')).map(t => t.textContent)
+      expect(ticks).toContain('Total')
+    })
+
+    it('renders connector lines between bars', () => {
+      render(container, wfData, { waterfall: true })
+      const connectors = container.querySelectorAll('.bc-waterfall-connector')
+      expect(connectors).toHaveLength(2) // n-1 connectors
+    })
+
+    it('does not render connectors before total bar', () => {
+      render(container, wfData, { waterfall: true, waterfallTotal: true })
+      const connectors = container.querySelectorAll('.bc-waterfall-connector')
+      expect(connectors).toHaveLength(2) // still n-1 for data bars, not to total
+    })
+
+    it('renders value labels with numberFormat', () => {
+      render(container, wfData, {
+        waterfall: true,
+        valueLabels: true,
+        verticalAxis: { numberFormat: '|,.0f|kg' },
+      })
+      const labels = Array.from(container.querySelectorAll('.bc-value-label'))
+        .map(el => el.textContent)
+      expect(labels).toEqual(['10kg', '20kg', '30kg'])
+    })
+
+    it('total value label uses numberFormat', () => {
+      render(container, wfData, {
+        waterfall: true,
+        waterfallTotal: true,
+        valueLabels: true,
+        verticalAxis: { numberFormat: '|,.0f|kg' },
+      })
+      const labels = Array.from(container.querySelectorAll('.bc-value-label'))
+        .map(el => el.textContent)
+      expect(labels).toHaveLength(4)
+      expect(labels[3]).toBe('60kg') // sum of 10+20+30
+    })
+
+    it('value labels fall back to plain numbers without numberFormat', () => {
+      render(container, wfData, {
+        waterfall: true,
+        valueLabels: true,
+      })
+      const labels = Array.from(container.querySelectorAll('.bc-value-label'))
+        .map(el => el.textContent)
+      expect(labels).toEqual(['10', '20', '30'])
+    })
+
+    it('bars are positioned cumulatively (not from zero)', () => {
+      render(container, wfData, { waterfall: true })
+      const bars = container.querySelectorAll('.bc-bar')
+      const ys = Array.from(bars).map(b => Number(b.getAttribute('y')))
+      // Each subsequent bar should have a lower y value (higher on screen)
+      expect(ys[1]).toBeLessThan(ys[0])
+      expect(ys[2]).toBeLessThan(ys[1])
+    })
+
+    it('total bar starts from zero', () => {
+      render(container, wfData, { waterfall: true, waterfallTotal: true })
+      const bars = container.querySelectorAll('.bc-bar')
+      const totalBar = bars[3]
+      const totalHeight = Number(totalBar.getAttribute('height'))
+      // Total bar should be taller than any individual bar
+      const otherHeights = Array.from(bars).slice(0, 3).map(b => Number(b.getAttribute('height')))
+      expect(totalHeight).toBeGreaterThan(Math.max(...otherHeights))
+    })
+
+    it('barBackground includes total bar', () => {
+      render(container, wfData, { waterfall: true, waterfallTotal: true, barBackground: true })
+      const bgs = container.querySelectorAll('.bc-bar-bg')
+      expect(bgs).toHaveLength(4) // 3 data + 1 total
+    })
+
+    it('barSeparators includes total bar', () => {
+      render(container, wfData, { waterfall: true, waterfallTotal: true, barSeparators: true })
+      const seps = container.querySelectorAll('.bc-bar-separator')
+      expect(seps).toHaveLength(3) // n-1 for 4 bars
     })
   })
 })

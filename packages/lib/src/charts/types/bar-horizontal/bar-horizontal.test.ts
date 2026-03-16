@@ -494,6 +494,13 @@ describe('bar-horizontal', () => {
       expect(widths.every(w => w === chartWidth)).toBe(true)
     })
 
+    it('background rects have visible opacity', () => {
+      render(container, data, { barBackground: true })
+      const bgs = container.querySelectorAll('.bc-bar-bg')
+      const opacities = Array.from(bgs).map(b => Number(b.getAttribute('opacity')))
+      expect(opacities.every(o => o >= 0.15)).toBe(true)
+    })
+
     it('does not render background rects when barBackground is not set', () => {
       render(container, data)
       const bgs = container.querySelectorAll('.bc-bar-bg')
@@ -592,6 +599,76 @@ describe('bar-horizontal', () => {
       Array.from(seps).forEach((sep) => {
         expect(sep.getAttribute('y1')).toBe(sep.getAttribute('y2'))
       })
+    })
+  })
+
+  // ── Waterfall ────────────────────────────────────────────────────
+
+  describe('waterfall', () => {
+    const wfData = { labels: ['A', 'B', 'C'], values: [10, 20, 30] }
+
+    it('renders bars for each data point', () => {
+      render(container, wfData, { waterfall: true })
+      const bars = container.querySelectorAll('.bc-bar')
+      expect(bars).toHaveLength(3)
+    })
+
+    it('adds a total bar when waterfallTotal is true', () => {
+      render(container, wfData, { waterfall: true, waterfallTotal: true })
+      const bars = container.querySelectorAll('.bc-bar')
+      expect(bars).toHaveLength(4)
+    })
+
+    it('renders connector lines between bars', () => {
+      render(container, wfData, { waterfall: true })
+      const connectors = container.querySelectorAll('.bc-waterfall-connector')
+      expect(connectors).toHaveLength(2)
+    })
+
+    it('renders value labels with numberFormat', () => {
+      render(container, wfData, {
+        waterfall: true,
+        valueLabels: true,
+        horizontalAxis: { numberFormat: '|,.0f|kg' },
+      })
+      const labels = Array.from(container.querySelectorAll('.bc-value-label'))
+        .map(el => el.textContent)
+      expect(labels).toEqual(['10kg', '20kg', '30kg'])
+    })
+
+    it('total value label uses numberFormat', () => {
+      render(container, wfData, {
+        waterfall: true,
+        waterfallTotal: true,
+        valueLabels: true,
+        horizontalAxis: { numberFormat: '|,.0f|kg' },
+      })
+      const labels = Array.from(container.querySelectorAll('.bc-value-label'))
+        .map(el => el.textContent)
+      expect(labels).toHaveLength(4)
+      expect(labels[3]).toBe('60kg')
+    })
+
+    it('value labels fall back to plain numbers without numberFormat', () => {
+      render(container, wfData, {
+        waterfall: true,
+        valueLabels: true,
+      })
+      const labels = Array.from(container.querySelectorAll('.bc-value-label'))
+        .map(el => el.textContent)
+      expect(labels).toEqual(['10', '20', '30'])
+    })
+
+    it('barBackground includes total bar', () => {
+      render(container, wfData, { waterfall: true, waterfallTotal: true, barBackground: true })
+      const bgs = container.querySelectorAll('.bc-bar-bg')
+      expect(bgs).toHaveLength(4)
+    })
+
+    it('barSeparators includes total bar', () => {
+      render(container, wfData, { waterfall: true, waterfallTotal: true, barSeparators: true })
+      const seps = container.querySelectorAll('.bc-bar-separator')
+      expect(seps).toHaveLength(3)
     })
   })
 })

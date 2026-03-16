@@ -13,6 +13,20 @@
       label="Bar separators"
       @update:model-value="(v) => setOption('barSeparators', v)"
     />
+
+    <FormControlCheckbox
+      v-if="hasWaterfall"
+      :model-value="currentOptions.waterfall ?? false"
+      label="Waterfall"
+      @update:model-value="(v) => setOption('waterfall', v)"
+    />
+
+    <FormControlCheckbox
+      v-if="hasWaterfallTotal && currentOptions.waterfall"
+      :model-value="currentOptions.waterfallTotal ?? false"
+      label="Waterfall total"
+      @update:model-value="(v) => setOption('waterfallTotal', v)"
+    />
   </div>
 </template>
 
@@ -25,4 +39,6 @@ const { currentOptions, availableOptionKeys, setOption } = useChartTypeOptions()
 
 const hasBarBackground = computed(() => availableOptionKeys.value.includes('barBackground'))
 const hasBarSeparators = computed(() => availableOptionKeys.value.includes('barSeparators'))
+const hasWaterfall = computed(() => availableOptionKeys.value.includes('waterfall'))
+const hasWaterfallTotal = computed(() => availableOptionKeys.value.includes('waterfallTotal'))
 </script>
