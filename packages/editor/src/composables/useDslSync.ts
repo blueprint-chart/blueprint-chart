@@ -1,8 +1,9 @@
+import { storeToRefs } from 'pinia'
 import { parse, propertyMap, extractChartTypeOptions, extractSceneOverrides, dataEntriesToString, convertHighlights, convertAreaFills, convertAnnotations, convertSeriesOverrides } from '@blueprint-chart/lib'
 import { useChartConfig, layoutDefaults, type ChartLayout } from './useChartConfig'
-import { useChartTheme } from './useChartTheme'
+import { useChartThemeStore } from './useChartTheme'
 import { useChartTypeOptions, type ChartTypeOptions } from './useChartTypeOptions'
-import { useDataTransforms, type TransformType } from './useDataTransforms'
+import { useDataTransforms, type TransformType } from '@/stores/dataTransforms'
 import { useDataTable } from './useDataTable'
 import { parseBpcData } from './useDataParser'
 import { useScenes, type SceneOverride, type AnnotationVisibility } from './useScenes'
@@ -11,7 +12,8 @@ const VALID_TRANSFORM_TYPES = new Set<TransformType>(['sort', 'filter', 'hide-co
 
 export function useDslSync() {
   const config = useChartConfig()
-  const { chartTheme } = useChartTheme()
+  const themeStore = useChartThemeStore()
+  const chartTheme = storeToRefs(themeStore).chartTheme
   const { store } = useChartTypeOptions()
   const transforms = useDataTransforms()
   const scenesComposable = useScenes()
