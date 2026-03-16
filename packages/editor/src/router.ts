@@ -2,7 +2,7 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 import DashboardPage from '@/components/Dashboard/DashboardPage.vue'
 import WizardShell from '@/components/Wizard/WizardShell.vue'
 import RenderPage from '@/components/Render/RenderPage.vue'
-import { useChartSession } from '@/composables/useChartSession'
+import { useChartSession } from '@/stores/chartSession'
 
 function loadSession(to: { params: { id: string } }) {
   const { sessionId, loadChart, startAutoSave } = useChartSession()
