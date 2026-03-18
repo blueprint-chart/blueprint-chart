@@ -34,7 +34,7 @@ import { serializeTableData } from '@/stores/dataTable'
 import { useScenes } from '@/stores/scenes'
 import { resolveScene, resolveSortFromTransforms } from '@/composables/useChartPreview'
 import { generateThumbnail, renderThumbnailSvg } from '@/composables/useChartThumbnail'
-import type { ChartHighlight } from '@/stores/chartConfig'
+import type { ChartColorize } from '@/stores/chartConfig'
 import { parseData } from '@blueprint-chart/lib'
 import type { SeriesOverride } from '@blueprint-chart/lib'
 import { SceneTimeline } from '@blueprint-chart/ui'
@@ -67,7 +67,7 @@ function renderOne(
   dataStr: string,
   typeOpts: object,
   sort: string,
-  highlights?: ChartHighlight[],
+  colorizes?: ChartColorize[],
   seriesOverrides?: SeriesOverride[],
 ): string | null {
   const data = parseData(dataStr)
@@ -79,7 +79,7 @@ function renderOne(
     delete data.series
   }
   return renderThumbnailSvg(chartType, data, typeOpts, sort as 'ascending' | 'descending' | 'none', {
-    highlights: highlights?.length ? highlights : undefined,
+    colorizes: colorizes?.length ? colorizes : undefined,
     seriesOverrides: seriesOverrides?.length ? seriesOverrides : undefined,
   })
 }
@@ -91,7 +91,7 @@ function generateSceneThumbnails() {
   // Base scene (timeline index 0)
   result[0] = renderOne(
     base.chartType.value, base.data.value, baseOptions.value, base.sort.value,
-    base.highlights.value, base.seriesOverrides.value,
+    base.colorizes.value, base.seriesOverrides.value,
   )
 
   // Override scenes (timeline index 1+)
@@ -112,10 +112,10 @@ function generateSceneThumbnails() {
     const typeOpts = resolved?.chartTypeOptions
       ? { ...baseOptions.value, ...resolved.chartTypeOptions }
       : baseOptions.value
-    const highlights = resolved?.highlights ?? base.highlights.value
+    const colorizes = resolved?.colorizes ?? base.colorizes.value
     const seriesOverrides = resolved?.seriesOverrides ?? base.seriesOverrides.value
     const sort = resolveSortFromTransforms(resolved) ?? base.sort.value
-    result[i + 1] = renderOne(chartType, dataStr, typeOpts, sort, highlights, seriesOverrides)
+    result[i + 1] = renderOne(chartType, dataStr, typeOpts, sort, colorizes, seriesOverrides)
   }
 
   sceneThumbnails.value = result
@@ -125,7 +125,7 @@ const debouncedGenerateThumbnails = useDebounceFn(generateSceneThumbnails, 300)
 
 watch(
   [() => scenes.value, config._base.chartType, config._base.data, config._base.sort,
-    config._base.highlights, config._base.seriesOverrides, config._base.selectedColumn,
+    config._base.colorizes, config._base.seriesOverrides, config._base.selectedColumn,
     baseOptions, currentStep],
   () => {
     if (currentStep.value.key === 'edit') {

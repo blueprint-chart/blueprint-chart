@@ -1,4 +1,4 @@
-import type { AnnotationNode, AnnotationVisibilityNode, AreaFillNode, ChartNode, DataNode, HighlightNode, PropertyNode, SceneNode, SeriesNode, TransformNode } from './types'
+import type { AnnotationNode, AnnotationVisibilityNode, AreaFillNode, ChartNode, DataNode, ColorizeNode, HighlightNode, PropertyNode, SceneNode, SeriesNode, TransformNode } from './types'
 import { getChartOptions } from '../charts/registry'
 
 function serializeValue(prop: PropertyNode): string {
@@ -42,13 +42,17 @@ function serializeData(data: DataNode, indent: string): string {
   return lines.join('\n')
 }
 
-function serializeHighlight(highlight: HighlightNode, indent: string): string {
-  const lines = [`${indent}highlight "${highlight.target}" {`]
-  for (const prop of highlight.properties) {
+function serializeColorize(colorize: ColorizeNode, indent: string): string {
+  const lines = [`${indent}colorize "${colorize.target}" {`]
+  for (const prop of colorize.properties) {
     lines.push(serializeProperty(prop, `${indent}  `))
   }
   lines.push(`${indent}}`)
   return lines.join('\n')
+}
+
+function serializeHighlight(highlight: HighlightNode, indent: string): string {
+  return `${indent}highlight "${highlight.target}"`
 }
 
 function serializeAreaFill(areaFill: AreaFillNode, indent: string): string {
@@ -112,7 +116,10 @@ function serializeScene(scene: SceneNode, indent: string): string {
   if (scene.data) {
     lines.push(serializeData(scene.data, `${indent}  `))
   }
-  for (const highlight of scene.highlights) {
+  for (const colorize of scene.colorizes) {
+    lines.push(serializeColorize(colorize, `${indent}  `))
+  }
+  for (const highlight of scene.highlights ?? []) {
     lines.push(serializeHighlight(highlight, `${indent}  `))
   }
   for (const areaFill of scene.areaFills ?? []) {
@@ -160,7 +167,10 @@ export function serialize(ast: ChartNode): string {
   if (ast.data) {
     lines.push(serializeData(ast.data, '  '))
   }
-  for (const highlight of ast.highlights) {
+  for (const colorize of ast.colorizes) {
+    lines.push(serializeColorize(colorize, '  '))
+  }
+  for (const highlight of ast.highlights ?? []) {
     lines.push(serializeHighlight(highlight, '  '))
   }
   for (const areaFill of ast.areaFills ?? []) {
@@ -192,7 +202,10 @@ export function compactSerialize(ast: ChartNode): string {
   if (ast.data) {
     lines.push(serializeData(ast.data, '  '))
   }
-  for (const highlight of ast.highlights) {
+  for (const colorize of ast.colorizes) {
+    lines.push(serializeColorize(colorize, '  '))
+  }
+  for (const highlight of ast.highlights ?? []) {
     lines.push(serializeHighlight(highlight, '  '))
   }
   for (const areaFill of ast.areaFills ?? []) {

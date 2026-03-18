@@ -1,5 +1,5 @@
 import { storeToRefs } from 'pinia'
-import { parse, propertyMap, extractChartTypeOptions, extractSceneOverrides, dataEntriesToString, convertHighlights, convertAreaFills, convertAnnotations, convertSeriesOverrides } from '@blueprint-chart/lib'
+import { parse, propertyMap, extractChartTypeOptions, extractSceneOverrides, dataEntriesToString, convertColorizes, convertHighlights, convertAreaFills, convertAnnotations, convertSeriesOverrides } from '@blueprint-chart/lib'
 import { useChartConfig, layoutDefaults, type ChartLayout } from './useChartConfig'
 import { useChartThemeStore } from './useChartTheme'
 import { useChartTypeOptions, type ChartTypeOptions } from './useChartTypeOptions'
@@ -124,6 +124,8 @@ export function useDslSync() {
 
       store[ast.chartType] = extractChartTypeOptions(ast.chartType, ast.properties) as Partial<ChartTypeOptions>
 
+      config.colorizes.value = ast.colorizes ? convertColorizes(ast.colorizes) : []
+
       config.highlights.value = ast.highlights ? convertHighlights(ast.highlights) : []
 
       config.areaFills.value = ast.areaFills ? convertAreaFills(ast.areaFills) : []
@@ -174,6 +176,9 @@ export function useDslSync() {
           }
           if (Object.keys(extracted.chartTypeOptions).length > 0) {
             scene.chartTypeOptions = extracted.chartTypeOptions as Partial<ChartTypeOptions>
+          }
+          if (extracted.colorizes.length > 0) {
+            scene.colorizes = convertColorizes(extracted.colorizes)
           }
           if (extracted.highlights.length > 0) {
             scene.highlights = convertHighlights(extracted.highlights)

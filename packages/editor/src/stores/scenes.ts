@@ -1,9 +1,9 @@
 import { ref, shallowRef, computed } from 'vue'
 import { defineStore, storeToRefs } from 'pinia'
-import type { ChartHighlight } from '@/stores/chartConfig'
+import type { ChartColorize } from '@/stores/chartConfig'
 import type { ChartTypeOptions } from '@/stores/chartTypeOptions'
 import type { TransformStep } from '@/stores/dataTransforms'
-import type { AreaFillConfig, AnnotationConfig, SeriesOverride } from '@blueprint-chart/lib'
+import type { AreaFillConfig, AnnotationConfig, SeriesOverride, HighlightConfig } from '@blueprint-chart/lib'
 
 export interface AnnotationVisibility {
   action: 'hide' | 'show'
@@ -18,7 +18,8 @@ export interface SceneOverride {
   properties?: Record<string, string | number>
   data?: string
   chartTypeOptions?: Partial<ChartTypeOptions>
-  highlights?: ChartHighlight[]
+  colorizes?: ChartColorize[]
+  highlights?: HighlightConfig[]
   areaFills?: AreaFillConfig[]
   annotations?: AnnotationConfig[]
   annotationVisibility?: AnnotationVisibility[]

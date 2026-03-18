@@ -1,6 +1,6 @@
 import { reactive, toRefs, computed, markRaw, type Ref, type WritableComputedRef, type ToRefs } from 'vue'
 import { defineStore, storeToRefs } from 'pinia'
-import type { AreaFillConfig, AnnotationConfig, SeriesOverride } from '@blueprint-chart/lib'
+import type { AreaFillConfig, AnnotationConfig, SeriesOverride, HighlightConfig } from '@blueprint-chart/lib'
 import { useScenes, type SceneOverride } from '@/stores/scenes'
 
 export function deepEqual(a: unknown, b: unknown): boolean {
@@ -69,7 +69,7 @@ function inheritedPropValue<T extends string>(baseVal: T, propKey: string, scene
   return baseVal
 }
 
-export interface ChartHighlight {
+export interface ChartColorize {
   target: string
   color: string
   label: string
@@ -115,7 +115,8 @@ export interface ChartConfig {
   sortMode: 'total' | 'within-groups' | 'none'
   data: string
   selectedColumn: string
-  highlights: ChartHighlight[]
+  colorizes: ChartColorize[]
+  highlights: HighlightConfig[]
   areaFills: AreaFillConfig[]
   annotations: AnnotationConfig[]
   seriesOverrides: SeriesOverride[]
@@ -134,6 +135,7 @@ const defaults: ChartConfig = {
   sortMode: 'none',
   data: '',
   selectedColumn: '',
+  colorizes: [],
   highlights: [],
   areaFills: [],
   annotations: [],
@@ -141,7 +143,7 @@ const defaults: ChartConfig = {
   layout: { ...layoutDefaults },
 }
 
-type DirectSceneKey = 'chartType' | 'data' | 'highlights' | 'areaFills' | 'annotations' | 'seriesOverrides'
+type DirectSceneKey = 'chartType' | 'data' | 'colorizes' | 'highlights' | 'areaFills' | 'annotations' | 'seriesOverrides'
 
 function sceneDirectRef<T>(baseRef: Ref<T>, sceneKey: DirectSceneKey): WritableComputedRef<T> {
   return computed({
@@ -221,6 +223,7 @@ export const useChartConfigStore = defineStore('chartConfig', () => {
 
   const chartType = sceneDirectRef(refs.chartType, 'chartType')
   const data = sceneDirectRef(refs.data, 'data')
+  const colorizes = sceneDirectRef(refs.colorizes, 'colorizes')
   const highlights = sceneDirectRef(refs.highlights, 'highlights')
   const areaFills = sceneDirectRef(refs.areaFills, 'areaFills')
   const annotations = sceneDirectRef(refs.annotations, 'annotations')
@@ -235,7 +238,7 @@ export const useChartConfigStore = defineStore('chartConfig', () => {
   const sortMode = scenePropRef(refs.sortMode, 'sortMode')
 
   function reset() {
-    Object.assign(state, { ...defaults, highlights: [], areaFills: [], annotations: [], seriesOverrides: [], layout: { ...layoutDefaults } })
+    Object.assign(state, { ...defaults, colorizes: [], highlights: [], areaFills: [], annotations: [], seriesOverrides: [], layout: { ...layoutDefaults } })
   }
 
   function hydrate(config: ChartConfig) {
@@ -246,6 +249,7 @@ export const useChartConfigStore = defineStore('chartConfig', () => {
     // Scene-aware refs
     chartType,
     data,
+    colorizes,
     highlights,
     areaFills,
     annotations,
@@ -275,7 +279,8 @@ export function useChartConfig() {
   return {
     chartType: refs.chartType as WritableComputedRef<string>,
     data: refs.data as WritableComputedRef<string>,
-    highlights: refs.highlights as WritableComputedRef<ChartHighlight[]>,
+    colorizes: refs.colorizes as WritableComputedRef<ChartColorize[]>,
+    highlights: refs.highlights as WritableComputedRef<HighlightConfig[]>,
     areaFills: refs.areaFills as WritableComputedRef<AreaFillConfig[]>,
     annotations: refs.annotations as WritableComputedRef<AnnotationConfig[]>,
     seriesOverrides: refs.seriesOverrides as WritableComputedRef<SeriesOverride[]>,

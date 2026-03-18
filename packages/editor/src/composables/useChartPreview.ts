@@ -43,13 +43,16 @@ export function resolveScene(scenes: SceneOverride[], index: number): SceneOverr
         ? { ...resolved.chartTypeOptions, ...s.chartTypeOptions }
         : { ...s.chartTypeOptions }
     }
-    if (s.highlights !== undefined && s.highlights.length > 0) {
-      resolved.highlights = s.highlights
+    if (s.colorizes !== undefined && s.colorizes.length > 0) {
+      resolved.colorizes = s.colorizes
     }
     else if (s.data !== undefined) {
-      // When a scene provides new data, clear inherited highlights
+      // When a scene provides new data, clear inherited colorizes
       // since they likely target different series names
-      resolved.highlights = []
+      resolved.colorizes = []
+    }
+    if (s.highlights !== undefined && s.highlights.length > 0) {
+      resolved.highlights = s.highlights
     }
     if (s.areaFills !== undefined && s.areaFills.length > 0) {
       resolved.areaFills = s.areaFills
@@ -209,6 +212,7 @@ export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
       : currentOptions.value
     const typeOpts = buildChartOptions(mergedOpts, bg)
 
+    const colorizes = scene?.colorizes ?? config.colorizes.value
     const highlights = scene?.highlights ?? config.highlights.value
     const areaFills = scene?.areaFills ?? config.areaFills.value
     // Base annotations are always the foundation; scene annotations are additions.
@@ -236,6 +240,7 @@ export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
       sort: resolveSortFromTransforms(scene) ?? config.sort.value,
       sortMode: config.sortMode.value !== 'none' ? config.sortMode.value : undefined,
       ...typeOpts,
+      colorizes: colorizes.length > 0 ? colorizes : undefined,
       highlights: highlights.length > 0 ? highlights : undefined,
       areaFills: areaFills.length > 0 ? areaFills : undefined,
       annotations: annotations.length > 0 ? annotations : undefined,
@@ -283,7 +288,7 @@ export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
   const optionsTrigger = computed(() => JSON.stringify(currentOptions.value))
 
   watch(
-    [containerRef, config.chartType, config.title, config.data, config.sort, config.sortMode, config.description, config.byline, config.note, config.source, config.sourceUrl, config.selectedColumn, config.highlights, config.areaFills, config.annotations, config.seriesOverrides, layoutTrigger, optionsTrigger, scenes, activeScene, theme, chartTheme],
+    [containerRef, config.chartType, config.title, config.data, config.sort, config.sortMode, config.description, config.byline, config.note, config.source, config.sourceUrl, config.selectedColumn, config.colorizes, config.highlights, config.areaFills, config.annotations, config.seriesOverrides, layoutTrigger, optionsTrigger, scenes, activeScene, theme, chartTheme],
     render,
     { immediate: true },
   )

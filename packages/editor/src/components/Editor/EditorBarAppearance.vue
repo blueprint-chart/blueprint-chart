@@ -36,7 +36,7 @@
           @update:model-value="applyColor"
         />
         <BButton
-          v-if="highlights.length > 0"
+          v-if="colorizes.length > 0"
           variant="outline-danger"
           size="sm"
           @click="resetAll"
@@ -50,41 +50,41 @@
 
 <script setup lang="ts">
 import { ref, shallowRef, computed } from 'vue'
-import type { ChartHighlight } from '@/stores/chartConfig'
+import type { ChartColorize } from '@/stores/chartConfig'
 import { BButton } from 'bootstrap-vue-next'
 import { FormControlColorInput, FormControlCheckbox, ListSelectPanel, DisplayColorSwatch, SectionCard } from '@blueprint-chart/ui'
 
 const props = defineProps<{
   labels: string[]
-  highlights: ChartHighlight[]
+  colorizes: ChartColorize[]
   baseColor: string
 }>()
 
 const emit = defineEmits<{
-  'update:highlights': [value: ChartHighlight[]]
+  'update:colorizes': [value: ChartColorize[]]
   'update:baseColor': [value: string]
 }>()
 
 const selectedArray = ref<string[]>([])
-const customizeEnabled = shallowRef(props.highlights.length > 0)
+const customizeEnabled = shallowRef(props.colorizes.length > 0)
 
-const highlightMap = computed(() => {
+const colorizeMap = computed(() => {
   const map = new Map<string, string>()
-  for (const h of props.highlights) {
+  for (const h of props.colorizes) {
     map.set(h.target, h.color)
   }
   return map
 })
 
 function colorForLabel(label: string): string {
-  return highlightMap.value.get(label) ?? props.baseColor
+  return colorizeMap.value.get(label) ?? props.baseColor
 }
 
 const pickerColor = computed(() => {
   if (selectedArray.value.length === 0) {
     return props.baseColor
   }
-  return highlightMap.value.get(selectedArray.value[0]) ?? props.baseColor
+  return colorizeMap.value.get(selectedArray.value[0]) ?? props.baseColor
 })
 
 function onItemClick(label: string, _index: number, event: MouseEvent) {
@@ -106,22 +106,22 @@ function onItemClick(label: string, _index: number, event: MouseEvent) {
 }
 
 function applyColor(color: string) {
-  const current = new Map(props.highlights.map(h => [h.target, h]))
+  const current = new Map(props.colorizes.map(h => [h.target, h]))
   for (const label of selectedArray.value) {
     current.set(label, { target: label, color, label: '' })
   }
-  emit('update:highlights', [...current.values()])
+  emit('update:colorizes', [...current.values()])
 }
 
 function resetAll() {
-  emit('update:highlights', [])
+  emit('update:colorizes', [])
   selectedArray.value = []
 }
 
 function onToggleCustomize(val: boolean) {
   customizeEnabled.value = val
   if (!val) {
-    emit('update:highlights', [])
+    emit('update:colorizes', [])
     selectedArray.value = []
   }
 }

@@ -69,20 +69,20 @@ describe('bar-vertical', () => {
     expect(title).toBeNull()
   })
 
-  // ── Highlights ───────────────────────────────────────────────────
+  // ── Colorizes ───────────────────────────────────────────────────
 
-  it('applies highlight colors', () => {
+  it('applies colorize colors', () => {
     render(container, data, {
-      highlights: [{ target: 'B', color: '#ff0000' }],
+      colorizes: [{ target: 'B', color: '#ff0000' }],
     })
     const bars = container.querySelectorAll('.bc-bar')
     const fills = Array.from(bars).map(b => b.getAttribute('fill'))
     expect(fills).toContain('#ff0000')
   })
 
-  it('applies highlight to multiple targets', () => {
+  it('applies colorize to multiple targets', () => {
     render(container, data, {
-      highlights: [
+      colorizes: [
         { target: 'A', color: '#ff0000' },
         { target: 'C', color: '#00ff00' },
       ],
@@ -93,16 +93,16 @@ describe('bar-vertical', () => {
     expect(fills).toContain('#00ff00')
   })
 
-  it('non-highlighted bars keep the default or custom color', () => {
+  it('non-colorized bars keep the default or custom color', () => {
     render(container, data, {
-      highlights: [{ target: 'B', color: '#ff0000' }],
+      colorizes: [{ target: 'B', color: '#ff0000' }],
     })
     const bars = container.querySelectorAll('.bc-bar')
     const fills = Array.from(bars).map(b => b.getAttribute('fill'))
-    // B is highlighted, A and C should use default color #4e79a7
-    const nonHighlighted = fills.filter(f => f !== '#ff0000')
-    expect(nonHighlighted.length).toBe(2)
-    expect(nonHighlighted.every(f => f === '#4e79a7')).toBe(true)
+    // B is colorized, A and C should use default color #4e79a7
+    const nonColorized = fills.filter(f => f !== '#ff0000')
+    expect(nonColorized.length).toBe(2)
+    expect(nonColorized.every(f => f === '#4e79a7')).toBe(true)
   })
 
   // ── Colors ───────────────────────────────────────────────────────
@@ -427,7 +427,7 @@ describe('bar-vertical', () => {
 
       render(container, data, {
         valueLabels: true,
-        highlights: [{ target: 'A', color: '#ff0000' }],
+        colorizes: [{ target: 'A', color: '#ff0000' }],
       }, true)
 
       const labelsAfter = container.querySelectorAll('.bc-value-label')
@@ -455,7 +455,7 @@ describe('bar-vertical', () => {
 
       render(container, data, {
         valueLabels: true,
-        highlights: [{ target: 'B', color: '#ff0000' }],
+        colorizes: [{ target: 'B', color: '#ff0000' }],
       }, true)
 
       const countAfter = container.querySelectorAll('.bc-value-label').length
@@ -740,6 +740,42 @@ describe('bar-vertical', () => {
       render(container, wfData, { waterfall: true, waterfallTotal: true, barSeparators: true })
       const seps = container.querySelectorAll('.bc-bar-separator')
       expect(seps).toHaveLength(3) // n-1 for 4 bars
+    })
+  })
+
+  // ── Highlight (dim) ──────────────────────────────────────────────
+
+  describe('highlight', () => {
+    it('dims non-highlighted bars', () => {
+      render(container, data, {
+        highlights: [{ target: 'B' }],
+      })
+      const bars = container.querySelectorAll('.bc-bar')
+      const opacities = Array.from(bars).map(b => b.getAttribute('opacity'))
+      // A and C should be dimmed, B should be full opacity
+      expect(opacities[0]).toBe('0.2')
+      expect(opacities[1]).toBe('1')
+      expect(opacities[2]).toBe('0.2')
+    })
+
+    it('does not dim when no highlights are present', () => {
+      render(container, data)
+      const bars = container.querySelectorAll('.bc-bar')
+      const opacities = Array.from(bars).map(b => b.getAttribute('opacity'))
+      expect(opacities.every(o => o === null)).toBe(true)
+    })
+
+    it('works alongside colorize', () => {
+      render(container, data, {
+        colorizes: [{ target: 'B', color: '#ff0000' }],
+        highlights: [{ target: 'B' }],
+      })
+      const bars = container.querySelectorAll('.bc-bar')
+      // B should have custom color and full opacity
+      expect(bars[1].getAttribute('fill')).toBe('#ff0000')
+      expect(bars[1].getAttribute('opacity')).toBe('1')
+      // Others should be dimmed
+      expect(bars[0].getAttribute('opacity')).toBe('0.2')
     })
   })
 })

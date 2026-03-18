@@ -11,10 +11,15 @@ export interface DataNode {
   entries: PropertyNode[]
 }
 
+export interface ColorizeNode {
+  type: 'colorize'
+  target: string
+  properties: PropertyNode[]
+}
+
 export interface HighlightNode {
   type: 'highlight'
   target: string
-  properties: PropertyNode[]
 }
 
 export interface AreaFillNode {
@@ -63,6 +68,7 @@ export interface SceneNode {
   name: string | null
   properties: PropertyNode[]
   data: DataNode | null
+  colorizes: ColorizeNode[]
   highlights: HighlightNode[]
   areaFills: AreaFillNode[]
   annotations: AnnotationNode[]
@@ -85,6 +91,7 @@ export interface ChartNode {
   chartType: string
   properties: PropertyNode[]
   data: DataNode | null
+  colorizes: ColorizeNode[]
   highlights: HighlightNode[]
   areaFills: AreaFillNode[]
   annotations: AnnotationNode[]

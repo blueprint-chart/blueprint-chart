@@ -110,7 +110,7 @@ describe('useChartSession', () => {
     const scenes = useScenes()
     scenes.add()
     scenes.update(0, {
-      highlights: [{ target: 'A', color: '#ff0000', label: '' }],
+      colorizes: [{ target: 'A', color: '#ff0000', label: '' }],
     })
     session.save()
 
@@ -120,7 +120,7 @@ describe('useChartSession', () => {
 
     session.load(id)
     expect(scenes.scenes.value).toHaveLength(1)
-    expect(scenes.scenes.value[0].highlights?.[0].color).toBe('#ff0000')
+    expect(scenes.scenes.value[0].colorizes?.[0].color).toBe('#ff0000')
   })
 
   it('load returns false for unknown ID', () => {
@@ -229,7 +229,7 @@ describe('useChartSession', () => {
         sort: 'none',
         data: '"A" = 10',
         selectedColumn: null,
-        highlights: [],
+        colorizes: [],
         areaFills: [],
         annotations: [],
         seriesOverrides: [],

@@ -9,7 +9,7 @@ chart bar-horizontal {
   horizontalLabelPosition = off
   horizontalGridStyle = none
 
-  highlight "United States" {
+  colorize "United States" {
     color = "#e15759"
     label = "6 years behind Japan"
   }

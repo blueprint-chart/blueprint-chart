@@ -9,31 +9,31 @@ function scene(overrides: Partial<SceneOverride> = {}): SceneOverride {
 }
 
 describe('resolveScene', () => {
-  it('inherits highlights from prior scene when current scene has none', () => {
+  it('inherits colorizes from prior scene when current scene has none', () => {
     const scenes = [
-      scene({ highlights: [{ target: 'India', color: '#00d084' }] }),
+      scene({ colorizes: [{ target: 'India', color: '#00d084' }] }),
       scene({}),
     ]
     const result = resolveScene(scenes, 1)!
-    expect(result.highlights).toEqual([{ target: 'India', color: '#00d084' }])
+    expect(result.colorizes).toEqual([{ target: 'India', color: '#00d084' }])
   })
 
-  it('inherits highlights from prior scene even when current scene has empty highlights array', () => {
+  it('inherits colorizes from prior scene even when current scene has empty colorizes array', () => {
     const scenes = [
-      scene({ highlights: [{ target: 'India', color: '#00d084' }] }),
-      scene({ highlights: [] }),
+      scene({ colorizes: [{ target: 'India', color: '#00d084' }] }),
+      scene({ colorizes: [] }),
     ]
     const result = resolveScene(scenes, 1)!
-    expect(result.highlights).toEqual([{ target: 'India', color: '#00d084' }])
+    expect(result.colorizes).toEqual([{ target: 'India', color: '#00d084' }])
   })
 
-  it('later scene with non-empty highlights replaces prior highlights', () => {
+  it('later scene with non-empty colorizes replaces prior colorizes', () => {
     const scenes = [
-      scene({ highlights: [{ target: 'India', color: '#00d084' }] }),
-      scene({ highlights: [{ target: 'China', color: '#ff0000' }] }),
+      scene({ colorizes: [{ target: 'India', color: '#00d084' }] }),
+      scene({ colorizes: [{ target: 'China', color: '#ff0000' }] }),
     ]
     const result = resolveScene(scenes, 1)!
-    expect(result.highlights).toEqual([{ target: 'China', color: '#ff0000' }])
+    expect(result.colorizes).toEqual([{ target: 'China', color: '#ff0000' }])
   })
 
   it('inherits seriesOverrides from prior scene when current has empty array', () => {
@@ -63,11 +63,11 @@ describe('resolveScene', () => {
   it('inherits chartType from a prior scene', () => {
     const scenes = [
       scene({ chartType: 'line' }),
-      scene({ highlights: [{ target: 'A', color: 'red' }] }),
+      scene({ colorizes: [{ target: 'A', color: 'red' }] }),
     ]
     const result = resolveScene(scenes, 1)!
     expect(result.chartType).toBe('line')
-    expect(result.highlights).toEqual([{ target: 'A', color: 'red' }])
+    expect(result.colorizes).toEqual([{ target: 'A', color: 'red' }])
   })
 
   it('later scene overrides chartType from earlier scene', () => {
@@ -156,13 +156,13 @@ describe('resolveScene', () => {
     expect(result.id).toBe(scenes[1].id)
   })
 
-  it('replaces (not merges) highlights from later scene', () => {
+  it('replaces (not merges) colorizes from later scene', () => {
     const scenes = [
-      scene({ highlights: [{ target: 'A', color: 'red' }] }),
-      scene({ highlights: [{ target: 'B', color: 'blue' }] }),
+      scene({ colorizes: [{ target: 'A', color: 'red' }] }),
+      scene({ colorizes: [{ target: 'B', color: 'blue' }] }),
     ]
     const result = resolveScene(scenes, 1)!
-    expect(result.highlights).toEqual([{ target: 'B', color: 'blue' }])
+    expect(result.colorizes).toEqual([{ target: 'B', color: 'blue' }])
   })
 
   it('hide_annotation in a scene populates hiddenAnnotationIds', () => {
@@ -407,15 +407,15 @@ describe('resolveSortFromTransforms', () => {
   })
 
   it('resolves sort from inherited transforms in multi-scene scenario', () => {
-    // Simulates: Scene 1 has sort transform, Scene 2 only has highlight
+    // Simulates: Scene 1 has sort transform, Scene 2 only has colorize
     const scenes = [
       scene({
         chartTypeOptions: { tooltips: true, crosshair: true },
-        highlights: [{ target: 'India', color: '#00d084', label: '' }],
+        colorizes: [{ target: 'India', color: '#00d084', label: '' }],
         transforms: [{ id: '0', type: 'sort', config: { columns: 'value', direction: 'ascending' } }],
       }),
       scene({
-        highlights: [{ target: 'India', color: '#9900ef', label: '' }],
+        colorizes: [{ target: 'India', color: '#9900ef', label: '' }],
       }),
     ]
 
@@ -437,7 +437,7 @@ describe('resolveSortFromTransforms', () => {
         transforms: [{ id: '0', type: 'sort', config: { columns: 'value' } }],
       }),
       scene({
-        highlights: [{ target: 'India', color: '#9900ef', label: '' }],
+        colorizes: [{ target: 'India', color: '#9900ef', label: '' }],
       }),
     ]
 
@@ -513,7 +513,7 @@ describe('annotation filtering', () => {
 
 describe('base + scene annotation merging', () => {
   // Reproduces the real scenario: base annotation on "Japan", scene 0 adds
-  // annotation on "India", scene 1 only has a highlight.
+  // annotation on "India", scene 1 only has a colorize.
   // All scenes must show base annotations alongside scene annotations.
 
   function mergeAnnotations(
@@ -552,7 +552,7 @@ describe('base + scene annotation merging', () => {
     // Scene 1 inherits scene 0 annotations via resolveScene cascading
     const scenes = [
       scene({ annotations: scene0Anns }),
-      scene({ highlights: [{ target: 'China', color: '#9900ef' }] }),
+      scene({ colorizes: [{ target: 'China', color: '#9900ef' }] }),
     ]
     const resolved = resolveScene(scenes, 1)!
     const cascadedSceneAnns = resolved.annotations ?? []
@@ -580,7 +580,7 @@ describe('base + scene annotation merging', () => {
   it('scene annotations do not duplicate base annotations', () => {
     // If a scene has no annotations of its own, only base should appear
     const scenes = [
-      scene({ highlights: [{ target: 'X', color: 'red' }] }),
+      scene({ colorizes: [{ target: 'X', color: 'red' }] }),
     ]
     const resolved = resolveScene(scenes, 0)!
     const result = mergeAnnotations(baseAnns, resolved.annotations ?? [])

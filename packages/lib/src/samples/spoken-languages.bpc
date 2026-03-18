@@ -9,7 +9,7 @@ chart bar-horizontal {
   horizontalLabelPosition = off
   horizontalGridStyle = none
 
-  highlight "Mandarin" {
+  colorize "Mandarin" {
     color = "#1b5299"
     label = "Nearly 1 billion"
   }

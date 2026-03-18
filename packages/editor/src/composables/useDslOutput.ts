@@ -136,11 +136,11 @@ export function useDslOutput() {
       output += '\n  }\n'
     }
 
-    for (const h of base.highlights.value) {
+    for (const h of base.colorizes.value) {
       if (!h.target) {
         continue
       }
-      output += `\n  highlight "${h.target}" {\n`
+      output += `\n  colorize "${h.target}" {\n`
       if (h.color) {
         output += `    color = "${
           h.color}"\n`
@@ -150,6 +150,13 @@ export function useDslOutput() {
           h.label}"\n`
       }
       output += `  }\n`
+    }
+
+    for (const hl of base.highlights.value) {
+      if (!hl.target) {
+        continue
+      }
+      output += `\n  highlight "${hl.target}"\n`
     }
 
     for (const af of base.areaFills.value) {
@@ -473,12 +480,12 @@ export function useDslOutput() {
         output += lines.map(l => `      ${l}`).join('\n')
         output += `\n    }\n`
       }
-      if (scene.highlights) {
-        for (const h of scene.highlights) {
+      if (scene.colorizes) {
+        for (const h of scene.colorizes) {
           if (!h.target) {
             continue
           }
-          output += `\n    highlight "${h.target}" {\n`
+          output += `\n    colorize "${h.target}" {\n`
           if (h.color) {
             output += `      color = "${h.color}"\n`
           }
@@ -486,6 +493,14 @@ export function useDslOutput() {
             output += `      label = "${h.label}"\n`
           }
           output += `    }\n`
+        }
+      }
+      if (scene.highlights) {
+        for (const hl of scene.highlights) {
+          if (!hl.target) {
+            continue
+          }
+          output += `\n    highlight "${hl.target}"\n`
         }
       }
       if (scene.areaFills) {

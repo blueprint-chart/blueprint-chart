@@ -1,1 +1,1 @@
-export { useChartConfig, useChartConfigStore, deepEqual, layoutDefaults, type ChartHighlight, type ChartLayout, type ChartConfig } from '@/stores/chartConfig'
+export { useChartConfig, useChartConfigStore, deepEqual, layoutDefaults, type ChartColorize, type ChartLayout, type ChartConfig } from '@/stores/chartConfig'

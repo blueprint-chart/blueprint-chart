@@ -3,6 +3,7 @@ function collectBody(members) {
   const result = {
     properties: [],
     data: null,
+    colorizes: [],
     highlights: [],
     areaFills: [],
     annotations: [],
@@ -14,6 +15,7 @@ function collectBody(members) {
     switch (m.type) {
       case 'property':  result.properties.push(m); break;
       case 'data':       result.data = m;           break;
+      case 'colorize':   result.colorizes.push(m);  break;
       case 'highlight':  result.highlights.push(m); break;
       case 'areafill':   result.areaFills.push(m);  break;
       case 'annotation': result.annotations.push(m);break;
@@ -29,6 +31,7 @@ function collectSceneBody(members) {
   const result = {
     properties: [],
     data: null,
+    colorizes: [],
     highlights: [],
     areaFills: [],
     annotations: [],
@@ -40,6 +43,7 @@ function collectSceneBody(members) {
     switch (m.type) {
       case 'property':  result.properties.push(m); break;
       case 'data':       result.data = m;           break;
+      case 'colorize':   result.colorizes.push(m);  break;
       case 'highlight':  result.highlights.push(m); break;
       case 'areafill':   result.areaFills.push(m);  break;
       case 'annotation': result.annotations.push(m);break;
@@ -61,6 +65,7 @@ Chart
       chartType,
       properties: body.properties,
       data: body.data,
+      colorizes: body.colorizes,
       highlights: body.highlights,
       areaFills: body.areaFills,
       annotations: body.annotations,
@@ -71,7 +76,7 @@ Chart
   }
 
 ChartMember
-  = _ m:(DataBlock / Highlight / AreaFill / RangeAnnotation / NoteAnnotation / Annotation / Series / Scene / Transform / Property) _
+  = _ m:(DataBlock / Colorize / Highlight / AreaFill / RangeAnnotation / NoteAnnotation / Annotation / Series / Scene / Transform / Property) _
   { return m; }
 
 DataBlock
@@ -93,9 +98,15 @@ TabularDataEntry
 TabularLabel
   = chars:$([^\t\n\r{}=]+) { return chars.trim(); }
 
+Colorize
+  = "colorize" __ target:String _ "{" _ props:BlockProperty* _ "}"
+  { return { type: 'colorize', target, properties: props }; }
+
 Highlight
   = "highlight" __ target:String _ "{" _ props:BlockProperty* _ "}"
-  { return { type: 'highlight', target, properties: props }; }
+  { return { type: 'colorize', target, properties: props }; }
+  / "highlight" __ target:String
+  { return { type: 'highlight', target }; }
 
 AreaFill
   = "areafill" __ from:String __ to:String _ "{" _ props:BlockProperty* _ "}"
@@ -126,6 +137,7 @@ Scene
       name: name ?? null,
       properties: body.properties,
       data: body.data,
+      colorizes: body.colorizes,
       highlights: body.highlights,
       areaFills: body.areaFills,
       annotations: body.annotations,
@@ -164,7 +176,7 @@ ShowNote
   { return { type: 'annotation-visibility', action: 'show', kind: 'free', id }; }
 
 SceneMember
-  = _ m:(DataBlock / Highlight / AreaFill / RangeAnnotation / NoteAnnotation / Annotation / HideAnnotation / HideRange / HideNote / ShowAnnotation / ShowRange / ShowNote / Series / Transform / Property) _
+  = _ m:(DataBlock / Colorize / Highlight / AreaFill / RangeAnnotation / NoteAnnotation / Annotation / HideAnnotation / HideRange / HideNote / ShowAnnotation / ShowRange / ShowNote / Series / Transform / Property) _
   { return m; }
 
 BlockProperty

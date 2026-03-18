@@ -202,6 +202,7 @@ export const useChartSessionStore = defineStore('chartSession', () => {
         chartConfig.sort,
         chartConfig.data,
         chartConfig.selectedColumn,
+        chartConfig.colorizes,
         chartConfig.highlights,
         chartConfig.areaFills,
         chartConfig.annotations,

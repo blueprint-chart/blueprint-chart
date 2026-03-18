@@ -10,15 +10,15 @@ The chart DSL is defined by a PEG grammar in `src/dsl/grammar.peggy` and compile
 
 ```
 Chart       = "chart" Identifier "{" ChartMember* "}"
-ChartMember = DataBlock | Highlight | AreaFill | Annotation | Series | Step | Property
+ChartMember = DataBlock | Colorize | AreaFill | Annotation | Series | Scene | Property
 
 DataBlock   = "data" "{" Property* "}"
-Highlight   = "highlight" String "{" Property* "}"
+Colorize    = "colorize" String "{" Property* "}"
 AreaFill    = "areafill" String String "{" Property* "}"
 Annotation  = "annotation" String "{" Property* "}"
 Series      = "series" String "{" Property* "}"
-Step        = "step" String "{" StepMember* "}"
-StepMember  = DataBlock | Highlight | AreaFill | Annotation | Property
+Scene       = "scene" String "{" SceneMember* "}"
+SceneMember = DataBlock | Colorize | AreaFill | Annotation | Property
 
 Property    = PropertyKey "=" PropertyValue
 PropertyKey = String | Identifier
@@ -42,14 +42,14 @@ chart horizontal-bar {
     "Asia" = 44%
   }
 
-  highlight "North America" {
+  colorize "North America" {
     color = "#e53e3e"
     label = "Leader"
   }
 
-  step "Focus" {
+  scene "Focus" {
     sort = ascending
-    highlight "Asia" {
+    colorize "Asia" {
       color = "#38a169"
     }
   }
@@ -60,14 +60,14 @@ chart horizontal-bar {
 
 | Node | Fields |
 |------|--------|
-| `ChartNode` | `chartType`, `properties`, `data`, `highlights`, `areaFills`, `annotations`, `series`, `steps` |
+| `ChartNode` | `chartType`, `properties`, `data`, `colorizes`, `areaFills`, `annotations`, `series`, `scenes` |
 | `PropertyNode` | `key`, `value`, `isPercentage` |
 | `DataNode` | `entries` (PropertyNode[]) |
-| `HighlightNode` | `target`, `properties` |
+| `ColorizeNode` | `target`, `properties` |
 | `AreaFillNode` | `from`, `to`, `properties` |
 | `AnnotationNode` | `target`, `properties` |
 | `SeriesNode` | `name`, `properties` |
-| `StepNode` | `name`, `properties`, `data`, `highlights`, `areaFills`, `annotations` |
+| `SceneNode` | `name`, `properties`, `data`, `colorizes`, `areaFills`, `annotations` |
 
 ## Regenerating the Parser
 

@@ -11,6 +11,7 @@ import {
   extractChartTypeOptions,
   extractSceneOverrides,
   dataEntriesToString,
+  convertColorizes,
   convertHighlights,
   convertAreaFills,
   convertAnnotations,
@@ -124,6 +125,9 @@ export function renderDsl(
   const bg = resolveBackgroundColor(container)
   const chartOpts = buildChartOptions(mergedTypeOpts, bg)
 
+  const colorizes = scene?.colorizes?.length
+    ? convertColorizes(scene.colorizes)
+    : convertColorizes(ast.colorizes)
   const highlights = scene?.highlights?.length
     ? convertHighlights(scene.highlights)
     : convertHighlights(ast.highlights)
@@ -160,6 +164,7 @@ export function renderDsl(
     frame,
     sort,
     ...chartOpts,
+    colorizes: colorizes.length > 0 ? colorizes : undefined,
     highlights: highlights.length > 0 ? highlights : undefined,
     areaFills: areaFills.length > 0 ? areaFills : undefined,
     annotations: annotations.length > 0 ? annotations : undefined,
