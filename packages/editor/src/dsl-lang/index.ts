@@ -8,6 +8,7 @@ const bpcParser = parser.configure({
     styleTags({
       'chart': t.keyword,
       'data': t.keyword,
+      'colorize': t.keyword,
       'highlight': t.keyword,
       'areafill': t.keyword,
       'annotation': t.keyword,

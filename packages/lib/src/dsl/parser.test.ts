@@ -12,7 +12,7 @@ const SIMPLE_CHART = `chart horizontal-bar {
     "LeMonde"    = 75.00%
   }
 
-  highlight "Guardian" {
+  colorize "Guardian" {
     color = "#e53e3e"
     label = "Leader"
   }
@@ -32,7 +32,7 @@ const CHART_WITH_SCENES = `chart horizontal-bar {
   scene "Le leader" {
     sort = descending
 
-    highlight "LeMonde" {
+    colorize "LeMonde" {
       color = "#e53e3e"
       label = "Leader"
     }
@@ -41,7 +41,7 @@ const CHART_WITH_SCENES = `chart horizontal-bar {
   scene "Le moins bon" {
     sort = ascending
 
-    highlight "Guardian" {
+    colorize "Guardian" {
       color = "#45a"
       label = "Le pire"
     }
@@ -102,12 +102,12 @@ describe('parser', () => {
       })
     })
 
-    it('parses highlight block', () => {
+    it('parses colorize block', () => {
       const ast = parse(SIMPLE_CHART)
-      expect(ast.highlights).toHaveLength(1)
-      expect(ast.highlights[0].target).toBe('Guardian')
-      expect(ast.highlights[0].properties).toHaveLength(2)
-      expect(ast.highlights[0].properties[0]).toEqual({
+      expect(ast.colorizes).toHaveLength(1)
+      expect(ast.colorizes[0].target).toBe('Guardian')
+      expect(ast.colorizes[0].properties).toHaveLength(2)
+      expect(ast.colorizes[0].properties[0]).toEqual({
         type: 'property',
         key: 'color',
         value: '#e53e3e',
@@ -141,12 +141,25 @@ describe('parser', () => {
       ])
     })
 
-    it('parses highlights inside scenes', () => {
+    it('parses colorizes inside scenes', () => {
       const ast = parse(CHART_WITH_SCENES)
+      expect(ast.scenes[0].colorizes).toHaveLength(1)
+      expect(ast.scenes[0].colorizes[0].target).toBe('LeMonde')
+      expect(ast.scenes[1].colorizes).toHaveLength(1)
+      expect(ast.scenes[1].colorizes[0].target).toBe('Guardian')
+    })
+
+    it('parses highlight block', () => {
+      const ast = parse('chart line {\n  highlight "China"\n}')
+      expect(ast.highlights).toHaveLength(1)
+      expect(ast.highlights[0].type).toBe('highlight')
+      expect(ast.highlights[0].target).toBe('China')
+    })
+
+    it('parses highlight inside scenes', () => {
+      const ast = parse('chart line {\n  scene "focus" {\n    highlight "China"\n  }\n}')
       expect(ast.scenes[0].highlights).toHaveLength(1)
-      expect(ast.scenes[0].highlights[0].target).toBe('LeMonde')
-      expect(ast.scenes[1].highlights).toHaveLength(1)
-      expect(ast.scenes[1].highlights[0].target).toBe('Guardian')
+      expect(ast.scenes[0].highlights[0].target).toBe('China')
     })
 
     it('parses data inside scenes', () => {
@@ -216,8 +229,8 @@ describe('parser', () => {
       expect(() => parse('chart bar { title = { } }')).toThrow(/Expected/)
     })
 
-    it('throws on missing highlight target', () => {
-      expect(() => parse('chart bar { highlight { } }')).toThrow(/Expected/)
+    it('throws on missing colorize target', () => {
+      expect(() => parse('chart bar { colorize { } }')).toThrow(/Expected/)
     })
 
     it('includes line and column in error', () => {
@@ -604,7 +617,7 @@ describe('parser', () => {
       expect(ast.chartType).toBe('bar')
       expect(ast.properties).toHaveLength(0)
       expect(ast.data).toBeNull()
-      expect(ast.highlights).toHaveLength(0)
+      expect(ast.colorizes).toHaveLength(0)
       expect(ast.scenes).toHaveLength(0)
     })
 
@@ -625,13 +638,13 @@ describe('parser', () => {
       expect(ast.properties[0].value).toBe('Hello World')
     })
 
-    it('parses multiple highlights', () => {
+    it('parses multiple colorizes', () => {
       const input = `chart bar {
-        highlight "A" { color = "#f00" }
-        highlight "B" { color = "#0f0" }
+        colorize "A" { color = "#f00" }
+        colorize "B" { color = "#0f0" }
       }`
       const ast = parse(input)
-      expect(ast.highlights).toHaveLength(2)
+      expect(ast.colorizes).toHaveLength(2)
     })
 
     it('handles identifier property values', () => {
@@ -640,8 +653,8 @@ describe('parser', () => {
     })
 
     it('handles hash color as identifier', () => {
-      const ast = parse('chart bar { highlight "X" { color = #e53e3e } }')
-      expect(ast.highlights[0].properties[0].value).toBe('#e53e3e')
+      const ast = parse('chart bar { colorize "X" { color = #e53e3e } }')
+      expect(ast.colorizes[0].properties[0].value).toBe('#e53e3e')
     })
 
     it('handles excessive whitespace', () => {
@@ -660,6 +673,16 @@ describe('parser', () => {
 
     it('throws on unterminated string', () => {
       expect(() => parse('chart bar { title = "unclosed }')).toThrow()
+    })
+  })
+
+  describe('backward compatibility', () => {
+    it('parses "highlight" keyword as colorize node', () => {
+      const ast = parse('chart bar {\n  highlight "X" {\n    color = "#ff0"\n  }\n}')
+      expect(ast.colorizes).toHaveLength(1)
+      expect(ast.colorizes[0].type).toBe('colorize')
+      expect(ast.colorizes[0].target).toBe('X')
+      expect(ast.colorizes[0].properties[0].value).toBe('#ff0')
     })
   })
 })

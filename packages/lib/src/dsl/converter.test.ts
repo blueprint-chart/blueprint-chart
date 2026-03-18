@@ -4,12 +4,12 @@ import {
   extractChartTypeOptions,
   dataEntriesToString,
   extractSceneOverrides,
-  convertHighlights,
+  convertColorizes,
   convertAreaFills,
   convertAnnotations,
   convertSeriesOverrides,
 } from './converter'
-import type { PropertyNode, DataNode, SceneNode, HighlightNode, AnnotationNode, AreaFillNode, SeriesNode } from './types'
+import type { PropertyNode, DataNode, SceneNode, ColorizeNode, AnnotationNode, AreaFillNode, SeriesNode } from './types'
 
 function prop(key: string, value: string | number, isPercentage = false): PropertyNode {
   return { type: 'property', key, value, isPercentage }
@@ -157,18 +157,18 @@ describe('dataEntriesToString', () => {
   })
 })
 
-describe('convertHighlights', () => {
+describe('convertColorizes', () => {
   it('converts empty array', () => {
-    expect(convertHighlights([])).toEqual([])
+    expect(convertColorizes([])).toEqual([])
   })
 
-  it('converts highlights with default color', () => {
-    const nodes: HighlightNode[] = [{
-      type: 'highlight',
+  it('converts colorizes with default color', () => {
+    const nodes: ColorizeNode[] = [{
+      type: 'colorize',
       target: 'Apple',
       properties: [],
     }]
-    const result = convertHighlights(nodes)
+    const result = convertColorizes(nodes)
     expect(result).toEqual([{
       target: 'Apple',
       color: '#e15759',
@@ -176,16 +176,16 @@ describe('convertHighlights', () => {
     }])
   })
 
-  it('converts highlights with custom color and label', () => {
-    const nodes: HighlightNode[] = [{
-      type: 'highlight',
+  it('converts colorizes with custom color and label', () => {
+    const nodes: ColorizeNode[] = [{
+      type: 'colorize',
       target: 'Revenue',
       properties: [
         prop('color', '#ff0000'),
         prop('label', 'Top performer'),
       ],
     }]
-    const result = convertHighlights(nodes)
+    const result = convertColorizes(nodes)
     expect(result).toEqual([{
       target: 'Revenue',
       color: '#ff0000',
@@ -193,12 +193,12 @@ describe('convertHighlights', () => {
     }])
   })
 
-  it('converts multiple highlights', () => {
-    const nodes: HighlightNode[] = [
-      { type: 'highlight', target: 'A', properties: [prop('color', '#f00')] },
-      { type: 'highlight', target: 'B', properties: [prop('color', '#0f0')] },
+  it('converts multiple colorizes', () => {
+    const nodes: ColorizeNode[] = [
+      { type: 'colorize', target: 'A', properties: [prop('color', '#f00')] },
+      { type: 'colorize', target: 'B', properties: [prop('color', '#0f0')] },
     ]
-    const result = convertHighlights(nodes)
+    const result = convertColorizes(nodes)
     expect(result).toHaveLength(2)
     expect(result[0].target).toBe('A')
     expect(result[1].target).toBe('B')
@@ -543,7 +543,7 @@ describe('extractSceneOverrides', () => {
       name: 'Overview',
       properties: [prop('title', 'Overview Chart')],
       data: null,
-      highlights: [],
+      colorizes: [],
       areaFills: [],
       annotations: [],
       annotationVisibility: [],
@@ -563,7 +563,7 @@ describe('extractSceneOverrides', () => {
       name: 'As Line',
       properties: [prop('type', 'line')],
       data: null,
-      highlights: [],
+      colorizes: [],
       areaFills: [],
       annotations: [],
       annotationVisibility: [],
@@ -583,8 +583,8 @@ describe('extractSceneOverrides', () => {
         type: 'data',
         entries: [prop('A', 10)],
       },
-      highlights: [{
-        type: 'highlight',
+      colorizes: [{
+        type: 'colorize',
         target: 'A',
         properties: [prop('color', '#f00')],
       }],
@@ -619,7 +619,7 @@ describe('extractSceneOverrides', () => {
     }
     const result = extractSceneOverrides(scene, 'bar-vertical')
     expect(result.data).not.toBeNull()
-    expect(result.highlights).toHaveLength(1)
+    expect(result.colorizes).toHaveLength(1)
     expect(result.areaFills).toHaveLength(1)
     expect(result.annotations).toHaveLength(1)
     expect(result.annotationVisibility).toHaveLength(1)
@@ -633,7 +633,7 @@ describe('extractSceneOverrides', () => {
       name: null,
       properties: [],
       data: null,
-      highlights: [],
+      colorizes: [],
       areaFills: [],
       annotations: [],
       annotationVisibility: [],

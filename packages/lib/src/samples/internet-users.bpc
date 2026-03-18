@@ -7,7 +7,7 @@ chart bar-horizontal {
   horizontalLabelPosition = off
   horizontalGridStyle = none
 
-  highlight "China" {
+  colorize "China" {
     color = "#1b5299"
     label = "Over 1 billion"
   }

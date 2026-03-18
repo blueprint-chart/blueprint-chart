@@ -6,6 +6,7 @@ export type {
   ChartTypeOptions,
   ChartTypeOptionKey,
   LineStyle,
+  ColorizeConfig,
   HighlightConfig,
   AxisOptions,
   FrameOptions,

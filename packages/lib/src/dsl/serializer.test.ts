@@ -10,7 +10,7 @@ describe('serializer', () => {
       chartType: 'bar',
       properties: [],
       data: null,
-      highlights: [],
+      colorizes: [],
       areaFills: [],
       annotations: [],
       series: [],
@@ -29,7 +29,7 @@ describe('serializer', () => {
         { type: 'property', key: 'sort', value: 'descending', isPercentage: false },
       ],
       data: null,
-      highlights: [],
+      colorizes: [],
       areaFills: [],
       annotations: [],
       series: [],
@@ -53,7 +53,7 @@ describe('serializer', () => {
           { type: 'property', key: 'count', value: 42, isPercentage: false },
         ],
       },
-      highlights: [],
+      colorizes: [],
       areaFills: [],
       annotations: [],
       series: [],
@@ -65,14 +65,14 @@ describe('serializer', () => {
     expect(output).toContain('    count = 42')
   })
 
-  it('serializes highlights', () => {
+  it('serializes colorizes', () => {
     const ast: ChartNode = {
       type: 'chart',
       chartType: 'bar',
       properties: [],
       data: null,
-      highlights: [{
-        type: 'highlight',
+      colorizes: [{
+        type: 'colorize',
         target: 'Guardian',
         properties: [
           { type: 'property', key: 'color', value: '#e53e3e', isPercentage: false },
@@ -86,7 +86,7 @@ describe('serializer', () => {
       transforms: [],
     }
     const output = serialize(ast)
-    expect(output).toContain('  highlight "Guardian" {')
+    expect(output).toContain('  colorize "Guardian" {')
     expect(output).toContain('    color = "#e53e3e"')
     expect(output).toContain('    label = Leader')
   })
@@ -97,7 +97,7 @@ describe('serializer', () => {
       chartType: 'bar',
       properties: [],
       data: null,
-      highlights: [],
+      colorizes: [],
       areaFills: [],
       annotations: [],
       series: [],
@@ -108,8 +108,8 @@ describe('serializer', () => {
           { type: 'property', key: 'sort', value: 'ascending', isPercentage: false },
         ],
         data: null,
-        highlights: [{
-          type: 'highlight',
+        colorizes: [{
+          type: 'colorize',
           target: 'X',
           properties: [
             { type: 'property', key: 'color', value: '#f00', isPercentage: false },
@@ -125,7 +125,7 @@ describe('serializer', () => {
     const output = serialize(ast)
     expect(output).toContain('  scene "Scene 1" {')
     expect(output).toContain('    sort = ascending')
-    expect(output).toContain('    highlight "X" {')
+    expect(output).toContain('    colorize "X" {')
     expect(output).toContain('      color = "#f00"')
   })
 
@@ -135,7 +135,7 @@ describe('serializer', () => {
       chartType: 'bar',
       properties: [],
       data: null,
-      highlights: [],
+      colorizes: [],
       areaFills: [],
       annotations: [],
       series: [],
@@ -146,7 +146,7 @@ describe('serializer', () => {
           { type: 'property', key: 'title', value: 'unnamed', isPercentage: false },
         ],
         data: null,
-        highlights: [],
+        colorizes: [],
         areaFills: [],
         annotations: [],
         series: [],
@@ -165,7 +165,7 @@ describe('serializer', () => {
       chartType: 'line',
       properties: [],
       data: null,
-      highlights: [],
+      colorizes: [],
       areaFills: [],
       annotations: [],
       series: [],
@@ -174,7 +174,7 @@ describe('serializer', () => {
         name: 'Overlay',
         properties: [],
         data: null,
-        highlights: [],
+        colorizes: [],
         areaFills: [],
         annotations: [],
         series: [{
@@ -208,7 +208,7 @@ describe('serializer', () => {
       chartType: 'bar',
       properties: [],
       data: null,
-      highlights: [],
+      colorizes: [],
       areaFills: [],
       annotations: [{
         type: 'annotation',
@@ -233,7 +233,7 @@ describe('serializer', () => {
       chartType: 'bar',
       properties: [],
       data: null,
-      highlights: [],
+      colorizes: [],
       areaFills: [],
       annotations: [],
       series: [],
@@ -242,7 +242,7 @@ describe('serializer', () => {
         name: null,
         properties: [],
         data: null,
-        highlights: [],
+        colorizes: [],
         areaFills: [],
         annotations: [],
         annotationVisibility: [
@@ -263,7 +263,7 @@ describe('serializer', () => {
       chartType: 'bar',
       properties: [],
       data: null,
-      highlights: [],
+      colorizes: [],
       areaFills: [],
       annotations: [],
       series: [],
@@ -272,7 +272,7 @@ describe('serializer', () => {
         name: null,
         properties: [],
         data: null,
-        highlights: [],
+        colorizes: [],
         areaFills: [],
         annotations: [],
         annotationVisibility: [
@@ -293,7 +293,7 @@ describe('serializer', () => {
       chartType: 'bar',
       properties: [],
       data: null,
-      highlights: [],
+      colorizes: [],
       areaFills: [],
       annotations: [],
       series: [],
@@ -302,7 +302,7 @@ describe('serializer', () => {
         name: null,
         properties: [],
         data: null,
-        highlights: [],
+        colorizes: [],
         areaFills: [],
         annotations: [],
         annotationVisibility: [
@@ -325,7 +325,7 @@ describe('serializer', () => {
       chartType: 'bar',
       properties: [],
       data: null,
-      highlights: [],
+      colorizes: [],
       areaFills: [],
       annotations: [],
       series: [],
@@ -334,7 +334,7 @@ describe('serializer', () => {
         name: null,
         properties: [],
         data: null,
-        highlights: [],
+        colorizes: [],
         areaFills: [],
         annotations: [],
         annotationVisibility: [
@@ -377,7 +377,7 @@ describe('serializer', () => {
           { type: 'property', key: 'USA', value: 40, isPercentage: false, values: [40, 44, 42] },
         ],
       },
-      highlights: [],
+      colorizes: [],
       areaFills: [],
       annotations: [],
       series: [],
@@ -409,7 +409,7 @@ describe('serializer', () => {
       chartType: 'line-multi',
       properties: [],
       data: null,
-      highlights: [],
+      colorizes: [],
       areaFills: [{
         type: 'areafill',
         from: 'Revenue',
@@ -436,7 +436,7 @@ describe('serializer', () => {
       chartType: 'line',
       properties: [],
       data: null,
-      highlights: [],
+      colorizes: [],
       areaFills: [],
       annotations: [{
         type: 'annotation',
@@ -462,7 +462,7 @@ describe('serializer', () => {
       chartType: 'line',
       properties: [],
       data: null,
-      highlights: [],
+      colorizes: [],
       areaFills: [],
       annotations: [{
         type: 'annotation',
@@ -489,7 +489,7 @@ describe('serializer', () => {
       chartType: 'line-multi',
       properties: [],
       data: null,
-      highlights: [],
+      colorizes: [],
       areaFills: [],
       annotations: [],
       series: [
@@ -517,7 +517,7 @@ describe('serializer', () => {
       chartType: 'line',
       properties: [],
       data: null,
-      highlights: [],
+      colorizes: [],
       areaFills: [],
       annotations: [],
       series: [],
@@ -543,7 +543,7 @@ describe('serializer', () => {
         { type: 'property', key: 'title', value: 'Hello World', isPercentage: false },
       ],
       data: null,
-      highlights: [],
+      colorizes: [],
       areaFills: [],
       annotations: [],
       series: [],
@@ -562,7 +562,7 @@ describe('serializer', () => {
         { type: 'property', key: 'sort', value: 'descending', isPercentage: false },
       ],
       data: null,
-      highlights: [],
+      colorizes: [],
       areaFills: [],
       annotations: [],
       series: [],
@@ -579,8 +579,8 @@ describe('serializer', () => {
       chartType: 'bar',
       properties: [],
       data: null,
-      highlights: [{
-        type: 'highlight',
+      colorizes: [{
+        type: 'colorize',
         target: 'X',
         properties: [
           { type: 'property', key: 'color', value: '#ff0000', isPercentage: false },
@@ -605,7 +605,7 @@ describe('serializer', () => {
         { type: 'property', key: 'path', value: 'C:\\Users', isPercentage: false },
       ],
       data: null,
-      highlights: [],
+      colorizes: [],
       areaFills: [],
       annotations: [],
       series: [],
@@ -623,7 +623,7 @@ describe('serializer', () => {
       chartType: 'line',
       properties: [],
       data: null,
-      highlights: [],
+      colorizes: [],
       areaFills: [],
       annotations: [],
       series: [],
@@ -632,7 +632,7 @@ describe('serializer', () => {
         name: 'Full',
         properties: [],
         data: null,
-        highlights: [],
+        colorizes: [],
         areaFills: [{
           type: 'areafill',
           from: 'A',
@@ -665,7 +665,7 @@ describe('serializer', () => {
     "Guardian" = 44.44%
     "LeMonde" = 75%
   }
-  highlight "Guardian" {
+  colorize "Guardian" {
     color = "#e53e3e"
     label = "Leader"
   }
@@ -689,14 +689,14 @@ describe('serializer', () => {
   }
   scene "Le leader" {
     sort = descending
-    highlight "LeMonde" {
+    colorize "LeMonde" {
       color = "#e53e3e"
       label = "Leader"
     }
   }
   scene "Le moins bon" {
     sort = ascending
-    highlight "Guardian" {
+    colorize "Guardian" {
       color = "#45a"
       label = "Le pire"
     }
@@ -799,7 +799,7 @@ describe('serializer', () => {
     _series = "A","B"
     "2020" = 10,20
   }
-  highlight "2020" {
+  colorize "2020" {
     color = "#e53e3e"
   }
   areafill "A" "B" {
@@ -822,7 +822,7 @@ describe('serializer', () => {
   }
   scene "First" {
     title = "Scene one"
-    highlight "2020" {
+    colorize "2020" {
       color = "#00ff00"
     }
   }

@@ -45,20 +45,20 @@ describe('useChartConfig', () => {
       scenes.setActive(0)
 
       const config = useChartConfig()
-      config.highlights.value = [{ target: 'A', color: '#f00', label: '' }]
+      config.colorizes.value = [{ target: 'A', color: '#f00', label: '' }]
 
-      expect(scenes.activeScene.value?.highlights).toEqual([
+      expect(scenes.activeScene.value?.colorizes).toEqual([
         { target: 'A', color: '#f00', label: '' },
       ])
       // Base should remain empty
-      expect(config._base.highlights.value).toEqual([])
+      expect(config._base.colorizes.value).toEqual([])
     })
 
     it('writes to base when no scene is active', () => {
       const config = useChartConfig()
-      config.highlights.value = [{ target: 'B', color: '#0f0', label: '' }]
+      config.colorizes.value = [{ target: 'B', color: '#0f0', label: '' }]
 
-      expect(config._base.highlights.value).toEqual([
+      expect(config._base.colorizes.value).toEqual([
         { target: 'B', color: '#0f0', label: '' },
       ])
     })
@@ -301,18 +301,18 @@ describe('useChartConfig', () => {
   })
 
   describe('scene cascading in editor refs', () => {
-    it('highlights from earlier scene are visible in later scene without override', () => {
+    it('colorizes from earlier scene are visible in later scene without override', () => {
       const config = useChartConfig()
       const scenes = useScenes()
 
       scenes.add()
       scenes.update(0, {
-        highlights: [{ target: 'India', color: '#00d084', label: '' }],
+        colorizes: [{ target: 'India', color: '#00d084', label: '' }],
       })
-      scenes.add() // scene 1 has no highlights
+      scenes.add() // scene 1 has no colorizes
 
       scenes.setActive(1)
-      expect(config.highlights.value).toEqual([
+      expect(config.colorizes.value).toEqual([
         { target: 'India', color: '#00d084', label: '' },
       ])
     })
@@ -365,15 +365,15 @@ describe('useChartConfig', () => {
 
       scenes.add()
       scenes.update(0, {
-        highlights: [{ target: 'India', color: '#00d084', label: '' }],
+        colorizes: [{ target: 'India', color: '#00d084', label: '' }],
       })
       scenes.add()
       scenes.update(1, {
-        highlights: [{ target: 'China', color: '#ff0000', label: '' }],
+        colorizes: [{ target: 'China', color: '#ff0000', label: '' }],
       })
 
       scenes.setActive(1)
-      expect(config.highlights.value).toEqual([
+      expect(config.colorizes.value).toEqual([
         { target: 'China', color: '#ff0000', label: '' },
       ])
     })
@@ -493,19 +493,19 @@ describe('useChartConfig', () => {
       expect(scenes.activeScene.value?.properties?.description).toBe('Scene Desc')
     })
 
-    it('removes highlights override when value matches base (empty array)', () => {
+    it('removes colorizes override when value matches base (empty array)', () => {
       const scenes = useScenes()
       scenes.add()
       scenes.setActive(0)
 
       const config = useChartConfig()
-      // Base has empty highlights
-      config.highlights.value = [{ target: 'A', color: '#f00', label: '' }]
-      expect(scenes.activeScene.value?.highlights).toBeDefined()
+      // Base has empty colorizes
+      config.colorizes.value = [{ target: 'A', color: '#f00', label: '' }]
+      expect(scenes.activeScene.value?.colorizes).toBeDefined()
 
       // Set back to empty — should compact
-      config.highlights.value = []
-      expect(scenes.activeScene.value?.highlights).toBeUndefined()
+      config.colorizes.value = []
+      expect(scenes.activeScene.value?.colorizes).toBeUndefined()
     })
 
     it('does not compact when value differs from base', () => {

@@ -328,11 +328,11 @@ describe('area-stacked chart', () => {
     expect(container.querySelectorAll('.bc-area').length).toBe(3)
   })
 
-  // ── Highlights ───────────────────────────────────────────────────
+  // ── Colorizes ───────────────────────────────────────────────────
 
   it('dims non-highlighted series when highlights are present', () => {
     render(container, data, {
-      highlights: [{ target: 'Product A', color: '#ff0000' }],
+      highlights: [{ target: 'Product A' }],
     })
     const areas = container.querySelectorAll('.bc-area')
     expect(areas).toHaveLength(3)
@@ -345,7 +345,7 @@ describe('area-stacked chart', () => {
 
   it('dims non-highlighted line edges when highlights are present', () => {
     render(container, data, {
-      highlights: [{ target: 'Product B', color: '#00ff00' }],
+      highlights: [{ target: 'Product B' }],
     })
     const lines = container.querySelectorAll('.bc-line')
     expect(lines).toHaveLength(3)

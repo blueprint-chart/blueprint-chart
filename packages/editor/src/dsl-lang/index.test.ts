@@ -33,11 +33,17 @@ describe('highlightDsl', () => {
   })
 
   it('highlights block keywords', () => {
-    const dsl = 'chart line {\ndata {\n}\nhighlight "A" {\n}\nseries "B" {\n}\n}'
+    const dsl = 'chart line {\ndata {\n}\ncolorize "A" {\n}\nseries "B" {\n}\n}'
     const html = highlightDsl(dsl)
     expect(html).toContain('<span class="tok-keyword">data</span>')
-    expect(html).toContain('<span class="tok-keyword">highlight</span>')
+    expect(html).toContain('<span class="tok-keyword">colorize</span>')
     expect(html).toContain('<span class="tok-keyword">series</span>')
+  })
+
+  it('highlights legacy highlight keyword for backward compat', () => {
+    const dsl = 'chart line {\nhighlight "A" {\n}\n}'
+    const html = highlightDsl(dsl)
+    expect(html).toContain('<span class="tok-keyword">highlight</span>')
   })
 
   it('highlights scene keyword', () => {

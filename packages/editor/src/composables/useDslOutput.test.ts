@@ -14,29 +14,29 @@ describe('useDslOutput', () => {
     useChartTypeOptions().reset()
   })
 
-  describe('highlight serialization', () => {
-    it('emits highlight blocks', () => {
+  describe('colorize serialization', () => {
+    it('emits colorize blocks', () => {
       const config = useChartConfig()
       config.chartType.value = 'bar-vertical'
-      config.highlights.value = [
+      config.colorizes.value = [
         { target: 'Q3', color: '#ff0000', label: 'Peak' },
       ]
 
       const { generateDsl: dsl } = useDslOutput()
-      expect(dsl()).toContain('highlight "Q3"')
+      expect(dsl()).toContain('colorize "Q3"')
       expect(dsl()).toContain('color = "#ff0000"')
       expect(dsl()).toContain('label = "Peak"')
     })
 
-    it('skips highlights without target', () => {
+    it('skips colorizes without target', () => {
       const config = useChartConfig()
       config.chartType.value = 'bar-vertical'
-      config.highlights.value = [
+      config.colorizes.value = [
         { target: '', color: '#ff0000', label: '' },
       ]
 
       const { generateDsl: dsl } = useDslOutput()
-      expect(dsl()).not.toContain('highlight')
+      expect(dsl()).not.toContain('colorize')
     })
   })
 
@@ -413,7 +413,7 @@ describe('useDslOutput', () => {
       scenes.add()
       scenes.update(0, {
         properties: { title: 'Scene Title' },
-        highlights: [{ target: 'A', color: '#f00', label: '' }],
+        colorizes: [{ target: 'A', color: '#f00', label: '' }],
       })
       scenes.setActive(0)
 
@@ -422,9 +422,9 @@ describe('useDslOutput', () => {
       const lines = dsl().split('\n')
       const titleLine = lines.find(l => l.includes('title = ') && !l.includes('scene'))
       expect(titleLine).toContain('Base Title')
-      // Base section should not have scene highlights
+      // Base section should not have scene colorizes
       const baseSection = dsl().split('scene {')[0]
-      expect(baseSection).not.toContain('highlight "A"')
+      expect(baseSection).not.toContain('colorize "A"')
     })
 
     it('serializes point annotation with id in scene', () => {

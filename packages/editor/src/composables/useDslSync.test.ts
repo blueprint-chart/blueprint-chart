@@ -102,10 +102,10 @@ describe('useDslSync', () => {
     expect(config.data.value).toContain('"Slice B" = 60%')
   })
 
-  it('applies highlights', () => {
+  it('applies colorizes', () => {
     const { applyDsl } = useDslSync()
     applyDsl(`chart bar-vertical {
-  highlight "Q3" {
+  colorize "Q3" {
     color = "#ff0000"
     label = "Peak"
   }
@@ -118,10 +118,10 @@ describe('useDslSync', () => {
 `)
 
     const config = useChartConfig()
-    expect(config.highlights.value).toHaveLength(1)
-    expect(config.highlights.value[0].target).toBe('Q3')
-    expect(config.highlights.value[0].color).toBe('#ff0000')
-    expect(config.highlights.value[0].label).toBe('Peak')
+    expect(config.colorizes.value).toHaveLength(1)
+    expect(config.colorizes.value[0].target).toBe('Q3')
+    expect(config.colorizes.value[0].color).toBe('#ff0000')
+    expect(config.colorizes.value[0].label).toBe('Peak')
   })
 
   describe('new boolean keys', () => {

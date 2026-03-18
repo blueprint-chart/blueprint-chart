@@ -5,7 +5,7 @@ import { useDslOutput } from './useDslOutput'
 import { getChart, parseData, buildChartOptions } from '@blueprint-chart/lib'
 import { renderDsl } from './useChartFromDsl'
 import type { ChartData, SeriesOverride } from '@blueprint-chart/lib'
-import type { ChartHighlight } from './useChartConfig'
+import type { ChartColorize } from './useChartConfig'
 
 export function svgToDataUrl(svg: string): string {
   return `data:image/svg+xml;base64,${globalThis.btoa(unescape(encodeURIComponent(svg)))}`
@@ -212,7 +212,7 @@ export function renderThumbnailSvg(
   data: ChartData,
   typeOpts: Partial<ChartTypeOptions>,
   sort: 'ascending' | 'descending' | 'none',
-  options?: { highlights?: ChartHighlight[], seriesOverrides?: SeriesOverride[] },
+  options?: { colorizes?: ChartColorize[], seriesOverrides?: SeriesOverride[] },
 ): string | null {
   const renderer = getChart(chartType)
   if (!renderer || data.labels.length === 0) {
@@ -224,7 +224,7 @@ export function renderThumbnailSvg(
     renderer(container, data, {
       sort,
       ...chartOpts,
-      highlights: options?.highlights,
+      colorizes: options?.colorizes,
       seriesOverrides: options?.seriesOverrides,
     })
     return extractSvg(container)
@@ -348,7 +348,7 @@ export function generateThumbnail() {
   }
 
   const svg = renderThumbnailSvg(config.chartType.value, data, currentOptions.value, config.sort.value, {
-    highlights: config.highlights.value.length > 0 ? config.highlights.value : undefined,
+    colorizes: config.colorizes.value.length > 0 ? config.colorizes.value : undefined,
     seriesOverrides: config.seriesOverrides.value.length > 0 ? config.seriesOverrides.value : undefined,
   })
   if (svg) {

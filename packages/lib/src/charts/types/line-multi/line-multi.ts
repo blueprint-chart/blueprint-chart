@@ -388,7 +388,7 @@ export function render(
 
   const globalValueLabels = options.valueLabels ?? false
 
-  // Build highlight target set for dimming non-highlighted series
+  // Build colorize target set for dimming non-targeted series
   const highlightTargets = new Set((options.highlights ?? []).map(h => h.target))
   const hasHighlights = highlightTargets.size > 0
 

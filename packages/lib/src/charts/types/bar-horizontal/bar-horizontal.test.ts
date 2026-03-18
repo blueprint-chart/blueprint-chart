@@ -80,20 +80,20 @@ describe('bar-horizontal', () => {
     expect(fills.every(f => f === '#4e79a7')).toBe(true)
   })
 
-  // ── Highlights ───────────────────────────────────────────────────
+  // ── Colorizes ───────────────────────────────────────────────────
 
-  it('applies highlight colors', () => {
+  it('applies colorize colors', () => {
     render(container, data, {
-      highlights: [{ target: 'A', color: '#00ff00' }],
+      colorizes: [{ target: 'A', color: '#00ff00' }],
     })
     const bars = container.querySelectorAll('.bc-bar')
     const fills = Array.from(bars).map(b => b.getAttribute('fill'))
     expect(fills).toContain('#00ff00')
   })
 
-  it('applies multiple highlights to different bars', () => {
+  it('applies multiple colorizes to different bars', () => {
     render(container, data, {
-      highlights: [
+      colorizes: [
         { target: 'A', color: '#00ff00' },
         { target: 'C', color: '#0000ff' },
       ],
@@ -104,14 +104,14 @@ describe('bar-horizontal', () => {
     expect(fills).toContain('#0000ff')
   })
 
-  it('highlight overrides custom color for targeted bar', () => {
+  it('colorize overrides custom color for targeted bar', () => {
     render(container, data, {
       colors: ['#ff0000'],
-      highlights: [{ target: 'B', color: '#00ff00' }],
+      colorizes: [{ target: 'B', color: '#00ff00' }],
     })
     const bars = container.querySelectorAll('.bc-bar')
     const fills = Array.from(bars).map(b => b.getAttribute('fill'))
-    // B should be highlighted, others should use custom color
+    // B should be colorized, others should use custom color
     expect(fills).toContain('#00ff00')
     expect(fills).toContain('#ff0000')
   })
@@ -437,7 +437,7 @@ describe('bar-horizontal', () => {
 
       render(container, data, {
         valueLabels: true,
-        highlights: [{ target: 'A', color: '#ff0000' }],
+        colorizes: [{ target: 'A', color: '#ff0000' }],
       }, true)
 
       const labelsAfter = container.querySelectorAll('.bc-value-label')
@@ -467,7 +467,7 @@ describe('bar-horizontal', () => {
 
       render(container, data, {
         valueLabels: true,
-        highlights: [{ target: 'B', color: '#ff0000' }],
+        colorizes: [{ target: 'B', color: '#ff0000' }],
       }, true)
 
       // Labels should still be present and match count (data-join preserves them)
@@ -669,6 +669,28 @@ describe('bar-horizontal', () => {
       render(container, wfData, { waterfall: true, waterfallTotal: true, barSeparators: true })
       const seps = container.querySelectorAll('.bc-bar-separator')
       expect(seps).toHaveLength(3)
+    })
+  })
+
+  // ── Highlight (dim) ──────────────────────────────────────────────
+
+  describe('highlight', () => {
+    it('dims non-highlighted bars', () => {
+      render(container, data, {
+        highlights: [{ target: 'B' }],
+      })
+      const bars = container.querySelectorAll('.bc-bar')
+      const opacities = Array.from(bars).map(b => b.getAttribute('opacity'))
+      expect(opacities[0]).toBe('0.2')
+      expect(opacities[1]).toBe('1')
+      expect(opacities[2]).toBe('0.2')
+    })
+
+    it('does not dim when no highlights are present', () => {
+      render(container, data)
+      const bars = container.querySelectorAll('.bc-bar')
+      const opacities = Array.from(bars).map(b => b.getAttribute('opacity'))
+      expect(opacities.every(o => o === null)).toBe(true)
     })
   })
 })

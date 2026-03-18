@@ -4,10 +4,14 @@ export interface ChartData {
   series?: { name: string, values: number[] }[]
 }
 
-export interface HighlightConfig {
+export interface ColorizeConfig {
   target: string
   color: string
   label?: string
+}
+
+export interface HighlightConfig {
+  target: string
 }
 
 export interface AxisOptions {
@@ -140,6 +144,7 @@ export interface ChartOptions {
   horizontalAxis?: AxisOptions
   sort?: 'ascending' | 'descending' | 'none'
   sortMode?: 'total' | 'within-groups' | 'none'
+  colorizes?: ColorizeConfig[]
   highlights?: HighlightConfig[]
   colors?: string[]
   interpolation?: string

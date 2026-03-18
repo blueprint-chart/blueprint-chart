@@ -33,7 +33,7 @@ chart bar-vertical {
     "Honduras" = 6.3
   }
 
-  highlight "Brazil" {
+  colorize "Brazil" {
     color = "#a4432d"
     label = "Produces more than the next three combined"
   }

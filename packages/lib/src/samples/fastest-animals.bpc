@@ -7,7 +7,7 @@ chart bar-horizontal {
   horizontalLabelPosition = off
   horizontalGridStyle = none
 
-  highlight "Peregrine Falcon" {
+  colorize "Peregrine Falcon" {
     color = "#d44d5c"
     label = "Dive speed"
   }

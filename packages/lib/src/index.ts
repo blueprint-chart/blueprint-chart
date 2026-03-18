@@ -7,6 +7,7 @@ export type {
   ChartTypeOptions,
   ChartTypeOptionKey,
   LineStyle,
+  ColorizeConfig,
   HighlightConfig,
   AxisOptions,
   FrameOptions,
@@ -51,8 +52,8 @@ export type { CvdType, CvdIssue } from './charts/colorblind'
 // DSL
 export { parse } from './dsl/parser'
 export { serialize, compactSerialize } from './dsl/serializer'
-export { propertyMap, extractChartTypeOptions, dataEntriesToString, extractSceneOverrides, convertHighlights, convertAreaFills, convertAnnotations, convertSeriesOverrides } from './dsl/converter'
-export type { AnnotationNode, AnnotationVisibilityNode, PointAnnotationNode, RangeAnnotationNode, FreeAnnotationNode, AreaFillNode, ChartNode, DataNode, HighlightNode, PropertyNode, SceneNode, SeriesNode, StepNode, TransformNode } from './dsl/types'
+export { propertyMap, extractChartTypeOptions, dataEntriesToString, extractSceneOverrides, convertColorizes, convertHighlights, convertAreaFills, convertAnnotations, convertSeriesOverrides } from './dsl/converter'
+export type { AnnotationNode, AnnotationVisibilityNode, PointAnnotationNode, RangeAnnotationNode, FreeAnnotationNode, AreaFillNode, ChartNode, DataNode, ColorizeNode, HighlightNode, PropertyNode, SceneNode, SeriesNode, StepNode, TransformNode } from './dsl/types'
 
 // Samples
 export { samples } from './samples'

@@ -1,11 +1,11 @@
 <template>
   <div class="d-flex flex-column gap-3">
     <EditorBarAppearance
-      v-if="hasHighlights"
+      v-if="hasColorizes"
       :labels="dataLabels"
-      :highlights="highlights"
+      :colorizes="colorizes"
       :base-color="baseColor"
-      @update:highlights="(v) => highlights = v"
+      @update:colorizes="(v) => colorizes = v"
       @update:base-color="onBaseColorChange"
     />
 
@@ -133,11 +133,11 @@ import CvdProtanopiaThumb from '@/assets/chart-thumbnails/cvd-protanopia.bpc'
 import CvdDeuteranopiaThumb from '@/assets/chart-thumbnails/cvd-deuteranopia.bpc'
 import CvdTritanopiaThumb from '@/assets/chart-thumbnails/cvd-tritanopia.bpc'
 
-const { chartType, data, highlights } = useChartConfig()
+const { chartType, data, colorizes } = useChartConfig()
 const { currentOptions, availableOptionKeys, setOption } = useChartTypeOptions()
 const { cvdMode } = storeToRefs(useCvdMode())
 
-const hasHighlights = computed(() =>
+const hasColorizes = computed(() =>
   ['bar-vertical', 'bar-horizontal', 'vertical-bar', 'horizontal-bar'].includes(chartType.value),
 )
 
@@ -166,8 +166,8 @@ function onBaseColorChange(color: string) {
 }
 
 const activeColors = computed<string[]>(() => {
-  if (hasHighlights.value) {
-    const highlightColors = highlights.value.map(h => h.color)
+  if (hasColorizes.value) {
+    const highlightColors = colorizes.value.map(h => h.color)
     const base = baseColor.value
     return highlightColors.length > 0 ? [base, ...highlightColors] : [base]
   }

@@ -38,7 +38,8 @@ class BarHorizontalChart extends D3Blueprint<BarDatum[]> {
     this.configDefine('width', { defaultValue: 0 })
     this.configDefine('height', { defaultValue: 0 })
     this.configDefine('colors', { defaultValue: DEFAULT_COLORS })
-    this.configDefine('highlights', { defaultValue: new Map<string, string>() })
+    this.configDefine('colorOverrides', { defaultValue: new Map<string, string>() })
+    this.configDefine('highlightTargets', { defaultValue: new Set<string>() })
     this.configDefine('swapLabelValue', { defaultValue: false })
 
     const g = this.base.append('g')
@@ -50,7 +51,9 @@ class BarHorizontalChart extends D3Blueprint<BarDatum[]> {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         'enter': (sel: any) => {
           const colors = this.config('colors') as string[]
-          const highlights = this.config('highlights') as Map<string, string>
+          const colorOverrides = this.config('colorOverrides') as Map<string, string>
+          const hl = this.config('highlightTargets') as Set<string>
+          const hasHl = hl.size > 0
           const x = this.config('x') as d3.ScaleLinear<number, number>
           const y = this.config('y') as d3.ScaleBand<string>
           sel
@@ -58,12 +61,15 @@ class BarHorizontalChart extends D3Blueprint<BarDatum[]> {
             .attr('y', (d: BarDatum) => y(d.label) ?? 0)
             .attr('width', (d: BarDatum) => Math.abs(x(d.value) - x(0)))
             .attr('height', y.bandwidth())
-            .attr('fill', (d: BarDatum) => highlights.get(d.label) ?? colors[0])
+            .attr('fill', (d: BarDatum) => colorOverrides.get(d.label) ?? colors[0])
+            .attr('opacity', (d: BarDatum) => hasHl ? (hl.has(d.label) ? 1 : 0.2) : null)
         },
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         'merge:transition': (sel: any) => {
           const colors = this.config('colors') as string[]
-          const highlights = this.config('highlights') as Map<string, string>
+          const colorOverrides = this.config('colorOverrides') as Map<string, string>
+          const hl = this.config('highlightTargets') as Set<string>
+          const hasHl = hl.size > 0
           const x = this.config('x') as d3.ScaleLinear<number, number>
           const y = this.config('y') as d3.ScaleBand<string>
           sel.duration(getDefaultTransitionMs())
@@ -71,7 +77,8 @@ class BarHorizontalChart extends D3Blueprint<BarDatum[]> {
             .attr('y', (d: BarDatum) => y(d.label) ?? 0)
             .attr('width', (d: BarDatum) => Math.abs(x(d.value) - x(0)))
             .attr('height', y.bandwidth())
-            .attr('fill', (d: BarDatum) => highlights.get(d.label) ?? colors[0])
+            .attr('fill', (d: BarDatum) => colorOverrides.get(d.label) ?? colors[0])
+            .attr('opacity', (d: BarDatum) => hasHl ? (hl.has(d.label) ? 1 : 0.2) : null)
         },
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         'exit:transition': (sel: any) => {
@@ -229,9 +236,10 @@ export function render(
       .attr('stroke', '#666').attr('stroke-width', 1)
   }
 
-  const highlights = new Map(
-    (options.highlights ?? []).map(h => [h.target, h.color]),
+  const colorOverrides = new Map(
+    (options.colorizes ?? []).map(h => [h.target, h.color]),
   )
+  const highlightTargets = new Set((options.highlights ?? []).map(h => h.target))
 
   // Clip bars to the chart area so they truncate at axis boundaries
   const clipId = `bc-clip-${Math.random().toString(36).slice(2, 8)}`
@@ -310,8 +318,9 @@ export function render(
         if (d.isTotal) {
           return totalColor
         }
-        return highlights.get(d.label) ?? colors[0]
+        return colorOverrides.get(d.label) ?? colors[0]
       })
+      .attr('opacity', (d: WaterfallDatum) => highlightTargets.size > 0 ? (highlightTargets.has(d.label) ? 1 : 0.2) : null)
 
     if (options.valueLabels) {
       const pos = valueLabelPos
@@ -336,7 +345,7 @@ export function render(
         .attr('text-anchor', pos === 'inside' ? 'end' : 'start')
         .attr('fill', (d: WaterfallDatum) => {
           if (pos === 'inside') {
-            return contrastTextColor(d.isTotal ? totalColor : highlights.get(d.label) ?? colors[0])
+            return contrastTextColor(d.isTotal ? totalColor : colorOverrides.get(d.label) ?? colors[0])
           }
           return 'currentColor'
         })
@@ -345,7 +354,7 @@ export function render(
   }
   else {
     const chart = new BarHorizontalChart(clippedGroup)
-    chart.config({ x, y, width, height, colors: options.colors ?? DEFAULT_COLORS, highlights, swapLabelValue })
+    chart.config({ x, y, width, height, colors: options.colors ?? DEFAULT_COLORS, colorOverrides, highlightTargets, swapLabelValue })
 
     // Re-insert prior elements so D3 data-join finds them and triggers merge:transition
     if (priorBars.length > 0) {
@@ -370,7 +379,7 @@ export function render(
       const labelParent = d3.select(chartArea).append('g') as d3.Selection<SVGGElement, unknown, null, undefined>
       renderValueLabels(labelParent, barData, x, y, {
         position: valueLabelPos,
-        highlights,
+        colorOverrides,
         colors: options.colors ?? DEFAULT_COLORS,
         transition,
         priorLabels,
@@ -428,7 +437,7 @@ function renderValueLabels(
   y: d3.ScaleBand<string>,
   opts: {
     position?: 'inside' | 'outside' | 'auto'
-    highlights: Map<string, string>
+    colorOverrides: Map<string, string>
     colors: string[]
     transition: boolean
     priorLabels: Element[]
@@ -472,7 +481,7 @@ function renderValueLabels(
         .attr('y', a.ty)
         .attr('text-anchor', a.anchor)
         .attr('fill', a.isInside
-          ? contrastTextColor(opts.highlights.get(d.label) ?? opts.colors[0])
+          ? contrastTextColor(opts.colorOverrides.get(d.label) ?? opts.colors[0])
           : 'currentColor')
         .text(labelText(d))
     })
@@ -489,7 +498,7 @@ function renderValueLabels(
         .attr('y', a.ty)
         .attr('text-anchor', a.anchor)
         .attr('fill', a.isInside
-          ? contrastTextColor(opts.highlights.get(d.label) ?? opts.colors[0])
+          ? contrastTextColor(opts.colorOverrides.get(d.label) ?? opts.colors[0])
           : 'currentColor')
     })
   }
@@ -501,7 +510,7 @@ function renderValueLabels(
         .attr('y', a.ty)
         .attr('text-anchor', a.anchor)
         .attr('fill', a.isInside
-          ? contrastTextColor(opts.highlights.get(d.label) ?? opts.colors[0])
+          ? contrastTextColor(opts.colorOverrides.get(d.label) ?? opts.colors[0])
           : 'currentColor')
         .text(labelText(d))
     })

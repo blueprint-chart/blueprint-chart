@@ -1,5 +1,5 @@
-import type { PropertyNode, DataNode, SceneNode, HighlightNode, AnnotationNode, SeriesNode, AreaFillNode } from './types'
-import type { HighlightConfig, AnnotationConfig, PointAnnotationConfig, RangeAnnotationConfig, FreeAnnotationConfig, AreaFillConfig, SeriesOverride } from '../charts/types'
+import type { PropertyNode, DataNode, SceneNode, ColorizeNode, HighlightNode, AnnotationNode, SeriesNode, AreaFillNode } from './types'
+import type { ColorizeConfig, HighlightConfig, AnnotationConfig, PointAnnotationConfig, RangeAnnotationConfig, FreeAnnotationConfig, AreaFillConfig, SeriesOverride } from '../charts/types'
 import { getChartOptions } from '../charts/registry'
 
 /**
@@ -99,6 +99,7 @@ export function extractSceneOverrides(
     properties: Map<string, string | number | boolean>
     data: DataNode | null
     chartTypeOptions: Record<string, unknown>
+    colorizes: SceneNode['colorizes']
     highlights: SceneNode['highlights']
     areaFills: SceneNode['areaFills']
     annotations: SceneNode['annotations']
@@ -116,6 +117,7 @@ export function extractSceneOverrides(
     properties: props,
     data: scene.data,
     chartTypeOptions: extractChartTypeOptions(effectiveType, scene.properties),
+    colorizes: scene.colorizes,
     highlights: scene.highlights,
     areaFills: scene.areaFills,
     annotations: scene.annotations,
@@ -155,14 +157,21 @@ function readMaxWidth(properties: PropertyNode[]): number | string | undefined {
 const toBool = (v: unknown) => v === 'true' || v === true
 
 /**
- * Convert AST highlight nodes to HighlightConfig objects.
+ * Convert AST highlight nodes to ColorizeConfig objects.
  */
-export function convertHighlights(nodes: HighlightNode[]): HighlightConfig[] {
+export function convertColorizes(nodes: ColorizeNode[]): ColorizeConfig[] {
   return nodes.map(h => ({
     target: h.target,
     color: readProp(h.properties, 'color') ?? '#e15759',
     label: readProp(h.properties, 'label'),
   }))
+}
+
+/**
+ * Convert AST highlight nodes to HighlightConfig objects.
+ */
+export function convertHighlights(nodes: HighlightNode[]): HighlightConfig[] {
+  return nodes.map(h => ({ target: h.target }))
 }
 
 /**

@@ -28,7 +28,7 @@ chart bar-vertical {
     "Germany" = 0.64
   }
 
-  highlight "China" {
+  colorize "China" {
     color = "#e15759"
     label = "Largest emitter"
   }

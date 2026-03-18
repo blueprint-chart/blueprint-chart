@@ -10,7 +10,7 @@ chart bar-vertical {
   verticalLabelPosition = off
   verticalGridStyle = none
 
-  highlight "E" {
+  colorize "E" {
     color = "#e15759"
     label = "Most frequent"
   }

@@ -4,7 +4,7 @@ ChartDecl { kw<"chart"> Identifier "{" ChartMember* "}" }
 
 ChartMember {
   DataBlock |
-  Highlight |
+  Colorize |
   AreaFill |
   RangeAnnotation |
   NoteAnnotation |
@@ -21,7 +21,7 @@ DataEntry { PropertyKey Equals ValueList | Property }
 
 ValueList { PropertyValue ("," PropertyValue)+ }
 
-Highlight { kw<"highlight"> String "{" Property* "}" }
+Colorize { (kw<"colorize"> | kw<"highlight">) String "{" Property* "}" }
 
 AreaFill { kw<"areafill"> String String "{" Property* "}" }
 
@@ -37,7 +37,7 @@ Scene { (kw<"scene"> | kw<"step">) String? "{" SceneMember* "}" }
 
 SceneMember {
   DataBlock |
-  Highlight |
+  Colorize |
   AreaFill |
   RangeAnnotation |
   NoteAnnotation |
