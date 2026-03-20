@@ -49,11 +49,12 @@
         <div class="chart-edit-panel__drawer-body">
           <EditorChartTypePicker v-if="activeTab === 'type'" />
           <EditorPropertyForm v-else-if="activeTab === 'text'" />
-          <EditorAppearanceTab v-else-if="activeTab === 'appearance'" />
-          <EditorLayoutTab v-else-if="activeTab === 'layout'" />
+          <EditorAppearanceTab v-else-if="activeTab === 'style'" />
           <EditorSeriesPanel v-else-if="activeTab === 'series'" />
           <EditorAxisOptions v-else-if="activeTab === 'axes'" />
+          <EditorLayoutTab v-else-if="activeTab === 'layout'" />
           <EditorAnnotateTab v-else-if="activeTab === 'annotate'" />
+          <EditorInteractionsTab v-else-if="activeTab === 'interactions'" />
         </div>
       </LayoutBottomDrawer>
     </template>
@@ -74,6 +75,7 @@ import { useCanvasCardStyle } from '@/composables/useCanvasCardStyle'
 import PanelTabBar from '@/components/Panel/PanelTabBar.vue'
 import { useChartConfig } from '@/stores/chartConfig'
 import { useChartTypeOptions } from '@/stores/chartTypeOptions'
+import { useScenes } from '@/stores/scenes'
 import PreviewChart from '@/components/Preview/PreviewChart.vue'
 import ChartEditDsl from './ChartEditDsl.vue'
 import ChartEditDockedPanel from './ChartEditDockedPanel.vue'
@@ -88,6 +90,7 @@ import EditorLayoutTab from '@/components/Editor/EditorLayoutTab.vue'
 import EditorSeriesPanel from '@/components/Editor/EditorSeriesPanel.vue'
 import EditorAxisOptions from '@/components/Editor/EditorAxisOptions.vue'
 import EditorAnnotateTab from '@/components/Editor/EditorAnnotateTab.vue'
+import EditorInteractionsTab from '@/components/Editor/EditorInteractionsTab.vue'
 
 const AXIS_KEYS = ['showVerticalAxis', 'verticalAxisDirection', 'showVerticalTicks', 'verticalLabelPosition', 'verticalGridStyle', 'verticalNumberFormat', 'verticalScaleType', 'verticalRangeMin', 'verticalRangeMax', 'showHorizontalAxis', 'showHorizontalTicks', 'horizontalLabelPosition', 'horizontalGridStyle', 'horizontalNumberFormat', 'horizontalScaleType', 'horizontalRangeMin', 'horizontalRangeMax']
 
@@ -103,6 +106,7 @@ watch(isNarrow, (narrow) => {
 }, { immediate: true })
 const { chartType, layout } = useChartConfig()
 const { availableOptionKeys } = useChartTypeOptions()
+const { scenes } = useScenes()
 const { cardClass, cardStyle } = useCanvasCardStyle(layout, 'chart-edit-panel__canvas__card')
 
 const hasAxisOptions = computed(() => availableOptionKeys.value.some(k => AXIS_KEYS.includes(k)))
@@ -116,12 +120,17 @@ const drawerOpen = computed({
   },
 })
 
+const hasInteraction = computed(() =>
+  availableOptionKeys.value.includes('tooltips')
+  || availableOptionKeys.value.includes('crosshair')
+  || scenes.value.length >= 1,
+)
+
 const tabs = computed(() => {
   const base: { key: string, label: string }[] = [
     { key: 'type', label: 'Type' },
     { key: 'text', label: 'Text' },
-    { key: 'appearance', label: 'Appearance' },
-    { key: 'layout', label: 'Layout' },
+    { key: 'style', label: 'Style' },
   ]
   if (['line-multi', 'bar-multi'].includes(chartType.value)) {
     base.push({ key: 'series', label: 'Series' })
@@ -129,7 +138,11 @@ const tabs = computed(() => {
   if (hasAxisOptions.value) {
     base.push({ key: 'axes', label: 'Axes' })
   }
+  base.push({ key: 'layout', label: 'Layout' })
   base.push({ key: 'annotate', label: 'Annotate' })
+  if (hasInteraction.value) {
+    base.push({ key: 'interactions', label: 'Interactions' })
+  }
   return base
 })
 const panelClassList = computed(() => ({

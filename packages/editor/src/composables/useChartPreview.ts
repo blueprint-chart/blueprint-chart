@@ -51,7 +51,9 @@ export function resolveScene(scenes: SceneOverride[], index: number): SceneOverr
       // since they likely target different series names
       resolved.colorizes = []
     }
-    if (s.highlights !== undefined && s.highlights.length > 0) {
+    // Highlights are ephemeral emphasis — only the current scene's
+    // highlights apply; they do not cascade from earlier scenes.
+    if (i === index) {
       resolved.highlights = s.highlights
     }
     if (s.areaFills !== undefined && s.areaFills.length > 0) {
@@ -213,7 +215,10 @@ export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
     const typeOpts = buildChartOptions(mergedOpts, bg)
 
     const colorizes = scene?.colorizes ?? config.colorizes.value
-    const highlights = scene?.highlights ?? config.highlights.value
+    // Highlights are ephemeral emphasis — only the current scene's highlights
+    // apply. Do not fall back to config.highlights (which inherits from prior
+    // scenes via sceneDirectRef).
+    const highlights = scene ? (scene.highlights ?? []) : config._base.highlights.value
     const areaFills = scene?.areaFills ?? config.areaFills.value
     // Base annotations are always the foundation; scene annotations are additions.
     // Visibility directives (hide/show) control which annotations appear.

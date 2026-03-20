@@ -231,6 +231,15 @@ export function createFrame(
   container: HTMLElement,
   options: FrameOptions = {},
 ): FrameElements {
+  // Before updating header content, lock the frame height and switch to
+  // flex-column layout so the body absorbs header size changes (e.g. title
+  // wrapping between scenes) instead of shifting the SVG chart vertically.
+  const existingWrapper = container.querySelector('.bc-frame') as HTMLElement | null
+  if (existingWrapper && existingWrapper.offsetHeight > 0) {
+    existingWrapper.style.height = `${existingWrapper.offsetHeight}px`
+    existingWrapper.classList.add('bc-frame--bottom-anchored')
+  }
+
   const chart = new FrameChart(d3.select(container))
   chart.draw({
     headerItems: buildHeaderItems(options),

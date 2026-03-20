@@ -11,11 +11,12 @@
     </template>
     <EditorChartTypePicker v-if="activeTab === 'type'" />
     <EditorPropertyForm v-else-if="activeTab === 'text'" />
-    <EditorAppearanceTab v-else-if="activeTab === 'appearance'" />
-    <EditorLayoutTab v-else-if="activeTab === 'layout'" />
+    <EditorAppearanceTab v-else-if="activeTab === 'style'" />
     <EditorSeriesPanel v-else-if="activeTab === 'series'" />
     <EditorAxisOptions v-else-if="activeTab === 'axes'" />
+    <EditorLayoutTab v-else-if="activeTab === 'layout'" />
     <EditorAnnotateTab v-else-if="activeTab === 'annotate'" />
+    <EditorInteractionsTab v-else-if="activeTab === 'interactions'" />
     <template #footer>
       <PanelStepperFooter />
     </template>
@@ -34,6 +35,7 @@ import EditorLayoutTab from '@/components/Editor/EditorLayoutTab.vue'
 import EditorSeriesPanel from '@/components/Editor/EditorSeriesPanel.vue'
 import EditorAxisOptions from '@/components/Editor/EditorAxisOptions.vue'
 import EditorAnnotateTab from '@/components/Editor/EditorAnnotateTab.vue'
+import EditorInteractionsTab from '@/components/Editor/EditorInteractionsTab.vue'
 import PanelStepperFooter from '@/components/Panel/PanelStepperFooter.vue'
 import ChartEditToolbar from './ChartEditToolbar.vue'
 
@@ -48,11 +50,12 @@ const { float, collapse } = editorPanel
 const TAB_LABELS: Record<string, string> = {
   type: 'Chart Type',
   text: 'Text',
-  appearance: 'Appearance',
+  style: 'Style',
   layout: 'Layout',
   series: 'Series',
   axes: 'Axes',
   annotate: 'Annotate',
+  interactions: 'Interactions',
 }
 
 const panelTitle = computed(() => TAB_LABELS[activeTab.value] ?? 'Panel')

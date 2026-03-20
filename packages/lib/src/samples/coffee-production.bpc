@@ -35,7 +35,6 @@ chart bar-vertical {
 
   colorize "Brazil" {
     color = "#a4432d"
-    label = "Produces more than the next three combined"
   }
 
   transform sort {

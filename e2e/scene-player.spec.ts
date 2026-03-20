@@ -68,14 +68,14 @@ test.describe('Scene Player', () => {
     await expect(page.locator('.scene-timeline-item').nth(1)).toHaveClass(/scene-timeline-item--active/)
   })
 
-  test('player type can be changed in Appearance settings', async ({ page }) => {
+  test('player type can be changed in Interactions settings', async ({ page }) => {
     await goToVisualizeStep(page)
 
     await page.locator('.button-add').click()
     await page.waitForTimeout(500)
 
-    // Open Appearance tab
-    await page.locator('[aria-label="Appearance"]').click()
+    // Open Interactions tab
+    await page.locator('[aria-label="Interactions"]').click()
     await page.waitForTimeout(300)
 
     // Change player type to Dot Stepper
@@ -94,8 +94,8 @@ test.describe('Scene Player', () => {
     await page.locator('.button-add').click()
     await page.waitForTimeout(500)
 
-    // Open Appearance tab
-    await page.locator('[aria-label="Appearance"]').click()
+    // Open Interactions tab
+    await page.locator('[aria-label="Interactions"]').click()
     await page.waitForTimeout(300)
 
     // Change player type to None
@@ -114,7 +114,7 @@ test.describe('Scene Player', () => {
     await page.waitForTimeout(500)
 
     // Change player type to Minimal Arrows
-    await page.locator('[aria-label="Appearance"]').click()
+    await page.locator('[aria-label="Interactions"]').click()
     await page.waitForTimeout(300)
     const playerDropdown = page.locator('.form-control-dropdown', { hasText: 'Scene player' })
     await playerDropdown.locator('.dropdown-toggle').click()

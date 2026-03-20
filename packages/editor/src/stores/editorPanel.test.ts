@@ -68,8 +68,8 @@ describe('useEditorPanel', () => {
 
   it('selectTab updates activeTab', () => {
     const store = useEditorPanel()
-    store.selectTab('appearance')
-    expect(store.activeTab).toBe('appearance')
+    store.selectTab('style')
+    expect(store.activeTab).toBe('style')
   })
 
   it('selectTab opens panel when collapsed (restores last open mode)', () => {
@@ -86,9 +86,9 @@ describe('useEditorPanel', () => {
     store.float()
     store.collapse()
     expect(store.panelMode).toBe('collapsed')
-    store.selectTab('appearance')
+    store.selectTab('style')
     expect(store.panelMode).toBe('floating')
-    expect(store.activeTab).toBe('appearance')
+    expect(store.activeTab).toBe('style')
   })
 
   it('selectTab does not change mode when docked', () => {

@@ -9,7 +9,6 @@ chart bar-horizontal {
 
   colorize "China" {
     color = "#1b5299"
-    label = "Over 1 billion"
   }
 
   data {

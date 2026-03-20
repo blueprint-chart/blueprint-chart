@@ -15,6 +15,7 @@ import { storeToRefs } from 'pinia'
 import { useEditorPanel } from '@/stores/editorPanel'
 import { useChartConfig } from '@/stores/chartConfig'
 import { useChartTypeOptions } from '@/stores/chartTypeOptions'
+import { useScenes } from '@/stores/scenes'
 import PanelIconRail from '@/components/Panel/PanelIconRail.vue'
 import IPhChartBar from '~icons/ph/chart-bar'
 import IPhTextAa from '~icons/ph/text-aa'
@@ -23,6 +24,7 @@ import IPhPuzzlePiece from '~icons/ph/puzzle-piece'
 import IPhWaves from '~icons/ph/waves'
 import IPhVectorTwo from '~icons/ph/vector-two'
 import IPhPushPin from '~icons/ph/push-pin'
+import IPhCursorClick from '~icons/ph/cursor-click'
 
 const AXIS_KEYS = ['showVerticalAxis', 'verticalAxisDirection', 'showVerticalTicks', 'verticalLabelPosition', 'verticalGridStyle', 'verticalNumberFormat', 'verticalScaleType', 'verticalRangeMin', 'verticalRangeMax', 'showHorizontalAxis', 'showHorizontalTicks', 'horizontalLabelPosition', 'horizontalGridStyle', 'horizontalNumberFormat', 'horizontalScaleType', 'horizontalRangeMin', 'horizontalRangeMax']
 
@@ -35,14 +37,21 @@ const { activeTab, panelMode } = storeToRefs(editorPanel)
 const { toggleMode, selectTab } = editorPanel
 const { chartType } = useChartConfig()
 const { availableOptionKeys } = useChartTypeOptions()
+const { scenes } = useScenes()
 
 const hasAxisOptions = computed(() => availableOptionKeys.value.some(k => AXIS_KEYS.includes(k)))
+
+const hasInteraction = computed(() =>
+  availableOptionKeys.value.includes('tooltips')
+  || availableOptionKeys.value.includes('crosshair')
+  || scenes.value.length >= 1,
+)
 
 const items = computed(() => {
   const base: { value: string, icon: Component, tooltip: string }[] = [
     { value: 'type', icon: IPhChartBar, tooltip: 'Chart Type' },
     { value: 'text', icon: IPhTextAa, tooltip: 'Text' },
-    { value: 'appearance', icon: IPhPalette, tooltip: 'Appearance' },
+    { value: 'style', icon: IPhPalette, tooltip: 'Style' },
   ]
   if (['line-multi', 'bar-multi'].includes(chartType.value)) {
     base.push({ value: 'series', icon: IPhWaves, tooltip: 'Series' })
@@ -50,8 +59,11 @@ const items = computed(() => {
   if (hasAxisOptions.value) {
     base.push({ value: 'axes', icon: IPhVectorTwo, tooltip: 'Axes' })
   }
-  base.push({ value: 'annotate', icon: IPhPushPin, tooltip: 'Annotate' })
   base.push({ value: 'layout', icon: IPhPuzzlePiece, tooltip: 'Layout' })
+  base.push({ value: 'annotate', icon: IPhPushPin, tooltip: 'Annotate' })
+  if (hasInteraction.value) {
+    base.push({ value: 'interactions', icon: IPhCursorClick, tooltip: 'Interactions' })
+  }
   return base
 })
 </script>

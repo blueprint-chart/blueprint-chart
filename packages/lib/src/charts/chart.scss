@@ -24,6 +24,20 @@
   font-family: var(--bc-frame-font-family);
 }
 
+// Bottom-anchored mode: applied when the frame has a locked height (e.g.
+// during scene transitions) so header height changes don't shift the SVG.
+// The body fills remaining space — when the header grows, the body shrinks
+// from the top and the chart stays anchored to the bottom.
+.bc-frame--bottom-anchored {
+  display: flex;
+  flex-direction: column;
+
+  .bc-frame-body {
+    flex: 1;
+    min-height: 0;
+  }
+}
+
 // Constrained-height mode: when the frame's container has a definite height
 // (fixed or aspect-ratio), use flex layout so the body fills remaining space
 // after header and footer. The SVG scales via viewBox + CSS 100%.

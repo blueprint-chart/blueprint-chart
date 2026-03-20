@@ -9,7 +9,6 @@ chart bar-horizontal {
 
   colorize "Peregrine Falcon" {
     color = "#d44d5c"
-    label = "Dive speed"
   }
 
   data {

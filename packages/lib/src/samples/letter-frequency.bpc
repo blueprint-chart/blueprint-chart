@@ -12,7 +12,6 @@ chart bar-vertical {
 
   colorize "E" {
     color = "#e15759"
-    label = "Most frequent"
   }
 
   data {

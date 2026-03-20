@@ -32,18 +32,14 @@ chart area-stacked {
     title = "Indirect subsidies were cut under WTO pressure"
     description = "Subsidies tied to specific crops fell foul of World Trade Organization rules"
 
-    colorize "Indirect subsidies" {
-      label = "Tied to crops grown"
-    }
+    highlight "Indirect subsidies"
   }
 
   scene "Direct subsidies dominate" {
     title = "Direct per-hectare payments now dominate"
     description = "The larger the fields, the more money farmers receive"
 
-    colorize "Direct subsidies" {
-      label = "Lump sum per hectare"
-    }
+    highlight "Direct subsidies"
   }
 
   scene "Bulgaria: subsidies explode" {
@@ -70,9 +66,7 @@ chart area-stacked {
       "2015" = 213,677
     }
 
-    colorize "Direct subsidies" {
-      label = "85% of total"
-    }
+    highlight "Direct subsidies"
   }
 
   scene "Bulgarian farms grew" {
@@ -138,18 +132,14 @@ chart area-stacked {
       "2015" = 144,2986,785
     }
 
-    colorize "Cash crops" {
-      label = "5x growth"
-    }
+    highlight "Cash crops"
   }
 
   scene "Vegetables collapsed" {
     title = "Vegetable production fell by a factor of four"
     description = "A traditional Bulgarian cultivation shrank as subsidies favoured large fields"
 
-    colorize "Vegetables" {
-      label = "Down 69%"
-    }
+    highlight "Vegetables"
   }
 
   scene "Every vegetable declined" {
@@ -203,8 +193,6 @@ chart area-stacked {
       "2016" = 2457,6741
     }
 
-    colorize "Non-salaried workers" {
-      label = "12.2M to 6.7M"
-    }
+    highlight "Non-salaried workers"
   }
 }
