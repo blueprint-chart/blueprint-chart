@@ -32,7 +32,7 @@ describe('ChartEditIconRail', () => {
     const { panelMode } = storeToRefs(store)
     store.collapse()
     expect(panelMode.value).toBe('collapsed')
-    store.selectTab('appearance')
+    store.selectTab('style')
     expect(panelMode.value).toBe('docked')
   })
 

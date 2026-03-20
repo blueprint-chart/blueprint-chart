@@ -194,7 +194,7 @@ test.describe('Scene Timeline', () => {
     await goToVisualizeStep(page)
 
     // Open Appearance tab via icon rail button
-    await page.locator('[aria-label="Appearance"]').click()
+    await page.locator('[aria-label="Style"]').click()
 
     // Wait for the base color input to appear
     const baseColorInput = page.locator('#bar-base-color')

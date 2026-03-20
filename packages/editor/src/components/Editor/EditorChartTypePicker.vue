@@ -23,12 +23,27 @@
       :options="columnChoices"
     />
   </BFormGroup>
+
+  <BFormGroup
+    v-if="hasStack"
+    label="Stack mode"
+    label-for="opt-stack-mode"
+    class="mt-3"
+  >
+    <BFormSelect
+      id="opt-stack-mode"
+      :model-value="currentOptions.stackMode ?? 'normal'"
+      :options="stackModeChoices"
+      @update:model-value="(v) => setOption('stackMode', v)"
+    />
+  </BFormGroup>
 </template>
 
 <script setup lang="ts">
 import { computed, watch, markRaw } from 'vue'
 import { FormControlDropdown } from '@blueprint-chart/ui'
 import { useChartConfig } from '@/stores/chartConfig'
+import { useChartTypeOptions } from '@/stores/chartTypeOptions'
 import { useDataTable } from '@/stores/dataTable'
 
 import BarVerticalThumb from '@/assets/chart-thumbnails/bar-vertical.bpc'
@@ -44,7 +59,15 @@ import DonutThumb from '@/assets/chart-thumbnails/donut.bpc'
 import PieThumb from '@/assets/chart-thumbnails/pie.bpc'
 
 const { chartType, selectedColumn } = useChartConfig()
+const { currentOptions, availableOptionKeys, setOption } = useChartTypeOptions()
 const dataTable = useDataTable()
+
+const hasStack = computed(() => availableOptionKeys.value.includes('stackMode'))
+
+const stackModeChoices = [
+  { value: 'normal', text: 'Normal' },
+  { value: 'percent', text: 'Percentage (100%)' },
+]
 
 const chartTypeOptions = [
   { value: 'bar-vertical', label: 'Columns', description: 'Compare values across categories', visual: markRaw(BarVerticalThumb) },

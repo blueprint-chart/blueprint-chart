@@ -11,7 +11,6 @@ chart bar-horizontal {
 
   colorize "Mandarin" {
     color = "#1b5299"
-    label = "Nearly 1 billion"
   }
 
   data {

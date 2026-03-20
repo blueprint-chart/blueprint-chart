@@ -31,35 +31,11 @@
     </SettingsSection>
 
     <SettingsSection
-      v-if="hasStack"
-      title="Stacking"
-      :icon="IPhStack"
-    >
-      <EditorStackSection />
-    </SettingsSection>
-
-    <SettingsSection
-      v-if="hasLegend"
-      title="Legend"
-      :icon="IPhListBullets"
-    >
-      <EditorLegendSection />
-    </SettingsSection>
-
-    <SettingsSection
       v-if="hasSlice"
       title="Slices"
       :icon="IPhChartPieSlice"
     >
       <EditorSliceSection />
-    </SettingsSection>
-
-    <SettingsSection
-      v-if="hasInteraction"
-      title="Interactions"
-      :icon="IPhCursorClick"
-    >
-      <EditorInteractionSection />
     </SettingsSection>
   </div>
 </template>
@@ -69,28 +45,20 @@ import { computed } from 'vue'
 import { SettingsSection } from '@blueprint-chart/ui'
 import { useChartConfig } from '@/stores/chartConfig'
 import { useChartTypeOptions } from '@/stores/chartTypeOptions'
-import { useScenes } from '@/stores/scenes'
 import IPhPalette from '~icons/ph/palette'
 import IPhLineSegments from '~icons/ph/line-segments'
-import IPhListBullets from '~icons/ph/list-bullets'
 import IPhChartPieSlice from '~icons/ph/chart-pie-slice'
-import IPhCursorClick from '~icons/ph/cursor-click'
 import IPhPaintBrush from '~icons/ph/paint-brush'
 import IPhChartBar from '~icons/ph/chart-bar'
 import IPhChartBarHorizontal from '~icons/ph/chart-bar-horizontal'
-import IPhStack from '~icons/ph/stack'
 import EditorThemeSection from './EditorThemeSection.vue'
 import EditorColorSection from './EditorColorSection.vue'
 import EditorLineSection from './EditorLineSection.vue'
 import EditorBarStyleSection from './EditorBarStyleSection.vue'
-import EditorStackSection from './EditorStackSection.vue'
-import EditorLegendSection from './EditorLegendSection.vue'
 import EditorSliceSection from './EditorSliceSection.vue'
-import EditorInteractionSection from './EditorInteractionSection.vue'
 
 const { chartType } = useChartConfig()
 const { availableOptionKeys } = useChartTypeOptions()
-const { scenes } = useScenes()
 
 const barStyleIcon = computed(() =>
   chartType.value.includes('horizontal') || chartType.value === 'bar-stacked'
@@ -103,20 +71,10 @@ const hasLine = computed(() =>
   || availableOptionKeys.value.includes('lineSymbols'),
 )
 
-const hasLegend = computed(() => availableOptionKeys.value.includes('legend'))
-
 const hasBarStyle = computed(() =>
   availableOptionKeys.value.includes('barBackground')
   || availableOptionKeys.value.includes('barSeparators'),
 )
 
-const hasStack = computed(() => availableOptionKeys.value.includes('stackMode'))
-
 const hasSlice = computed(() => availableOptionKeys.value.includes('displayAsPercentage'))
-
-const hasInteraction = computed(() =>
-  availableOptionKeys.value.includes('tooltips')
-  || availableOptionKeys.value.includes('crosshair')
-  || scenes.value.length >= 1,
-)
 </script>

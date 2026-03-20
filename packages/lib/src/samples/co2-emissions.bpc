@@ -30,7 +30,6 @@ chart bar-vertical {
 
   colorize "China" {
     color = "#e15759"
-    label = "Largest emitter"
   }
 
   annotation "India" {

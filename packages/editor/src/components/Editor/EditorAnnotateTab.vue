@@ -1,5 +1,13 @@
 <template>
   <div class="d-flex flex-column gap-4">
+    <SettingsSection
+      v-if="hasHighlight"
+      title="Highlight"
+      :icon="IPhHighlighterCircle"
+    >
+      <EditorHighlightSection />
+    </SettingsSection>
+
     <EditorAnnotations
       ref="annotationsRef"
       v-model="resolvedAnnotations"
@@ -41,8 +49,10 @@ import { parseData } from '@blueprint-chart/lib'
 import type { AnnotationConfig } from '@blueprint-chart/lib'
 import { SettingsSection } from '@blueprint-chart/ui'
 import IPhDropHalf from '~icons/ph/drop-half'
+import IPhHighlighterCircle from '~icons/ph/highlighter-circle'
 import EditorAnnotations from './EditorAnnotations.vue'
 import EditorAreaFills from './EditorAreaFills.vue'
+import EditorHighlightSection from './EditorHighlightSection.vue'
 
 const config = useChartConfig()
 const { chartType, data, areaFills, seriesOverrides } = config
@@ -52,6 +62,9 @@ const { pendingAnnotationIndex } = storeToRefs(useEditorPanel())
 const { scenes, activeIndex, activeScene, update: updateScene } = useScenes()
 
 const isSceneActive = computed(() => activeIndex.value >= 0)
+
+const HIGHLIGHT_TYPES = ['bar-vertical', 'bar-horizontal', 'line-multi', 'area-stacked']
+const hasHighlight = computed(() => HIGHLIGHT_TYPES.includes(chartType.value))
 
 // Base annotations are always the foundation; scene annotations are additions.
 // resolveScene cascades scene annotations across scenes 0..N, then we merge

@@ -32,7 +32,7 @@ test.describe('smoke tests', () => {
 
     await expect(page.locator('.bc-frame-body svg')).toBeVisible()
 
-    for (const tab of ['Text', 'Appearance', 'Layout', 'Axes', 'Annotate']) {
+    for (const tab of ['Text', 'Style', 'Layout', 'Axes', 'Annotate']) {
       const tabButton = page.locator(`[title="${tab}"], [aria-label="${tab}"]`).first()
       if (await tabButton.isVisible()) {
         await tabButton.click()
