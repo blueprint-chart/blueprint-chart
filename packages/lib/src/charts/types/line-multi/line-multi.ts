@@ -3,7 +3,7 @@ import 'd3-transition'
 import { D3Blueprint } from 'd3-blueprint'
 import type { AreaFillConfig, ChartData, ChartOptions } from '../../types'
 import { createFrame } from '../../frame/frame'
-import { createCanvas, contentSize, labelPositionMargins, estimateVerticalLabelWidth } from '../../canvas/canvas'
+import { createCanvas, contentSize, labelPositionMargins, estimateVerticalLabelWidth, computeMarginDelta } from '../../canvas/canvas'
 import { AxisService } from '../../axis/axis-service'
 import type { AnyXScale } from '../../axis/horizontal-axis'
 import { renderLegend } from '../../legend/legend'
@@ -317,9 +317,7 @@ export function render(
   }
 
   const { chartArea, width, height, margin } = createCanvas(body, marginOverrides)
-  const marginDelta = priorMargin
-    ? { dx: priorMargin.left - margin.left, dy: priorMargin.top - margin.top }
-    : undefined
+  const marginDelta = computeMarginDelta(priorMargin, margin)
 
   const [domainMin, domainMax] = computeLinearDomain(allValues, options.verticalAxis?.range)
 

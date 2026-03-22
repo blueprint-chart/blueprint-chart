@@ -118,6 +118,14 @@ export function snapshotForFadeOut(container: HTMLElement, ms?: number): HTMLEle
     el.remove()
   })
 
+  // Strip footer and note clones — the footer contains teleported UI (e.g.
+  // scene player buttons) that must not appear twice during the fade. The
+  // cloned frame loses its constrained-mode positioning so the footer would
+  // render in normal flow (below the description) instead of at the bottom.
+  overlay.querySelectorAll('.bc-frame-footer, .bc-frame-note').forEach((el) => {
+    el.remove()
+  })
+
   // Rename .bc-frame in the overlay so selectors like `.bc-frame` only
   // match the live chart, not the fading snapshot.
   overlay.querySelectorAll('.bc-frame').forEach((el) => {

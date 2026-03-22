@@ -231,15 +231,6 @@ export function createFrame(
   container: HTMLElement,
   options: FrameOptions = {},
 ): FrameElements {
-  // Before updating header content, lock the frame height and switch to
-  // flex-column layout so the body absorbs header size changes (e.g. title
-  // wrapping between scenes) instead of shifting the SVG chart vertically.
-  const existingWrapper = container.querySelector('.bc-frame') as HTMLElement | null
-  if (existingWrapper && existingWrapper.offsetHeight > 0) {
-    existingWrapper.style.height = `${existingWrapper.offsetHeight}px`
-    existingWrapper.classList.add('bc-frame--bottom-anchored')
-  }
-
   const chart = new FrameChart(d3.select(container))
   chart.draw({
     headerItems: buildHeaderItems(options),
@@ -265,14 +256,39 @@ export function createFrame(
   }
 
   // Auto-detect constrained-height mode: if the container has an explicit
-  // aspect-ratio or is a flex column, apply the constrained class so the
-  // body fills the remaining space. This must happen before createCanvas.
+  // aspect-ratio or is a flex column, apply the constrained class.
+  // In constrained mode the body spans the full frame (position: absolute;
+  // inset: 0) so its size never changes. We store header/footer heights on
+  // the body so createCanvas can add them to the chart margins — this keeps
+  // chart content below the header and above the footer without affecting
+  // the SVG element size.
   if (container.isConnected) {
     const cs = getComputedStyle(container)
     const hasAspect = cs.aspectRatio && cs.aspectRatio !== 'auto' && cs.aspectRatio !== ''
     const isFlexCol = cs.display === 'flex' && cs.flexDirection === 'column'
     if (hasAspect || isFlexCol) {
+      // Measure BEFORE adding constrained class — elements are still in
+      // normal flow with the correct container width.
+      const headerH = header.offsetHeight
+      const footerH = footer.offsetHeight
+      const noteH = note.style.display !== 'none' ? note.offsetHeight : 0
       wrapper.classList.add('bc-frame--constrained')
+      // Store measurements so createCanvas can add them to chart margins.
+      // Use the MAX of current and previous heights so the chart area
+      // size stays constant across scenes. This prevents y-scale range
+      // changes that cause D3 transition artifacts.
+      type Ext = HTMLElement & { __bcHeaderH?: number, __bcFooterH?: number }
+      const prevHeaderH = (container as Ext).__bcHeaderH ?? 0
+      const prevFooterH = (container as Ext).__bcFooterH ?? 0
+      const effectiveHeaderH = Math.max(headerH, prevHeaderH)
+      const effectiveFooterH = Math.max(footerH + noteH, prevFooterH)
+      body.dataset.headerH = String(effectiveHeaderH)
+      body.dataset.footerH = String(effectiveFooterH)
+      ;(container as Ext).__bcHeaderH = effectiveHeaderH
+      // Re-measure actual footer height after paint for next render
+      requestAnimationFrame(() => {
+        (container as Ext).__bcFooterH = Math.max(footer.offsetHeight + noteH, effectiveFooterH)
+      })
     }
   }
 

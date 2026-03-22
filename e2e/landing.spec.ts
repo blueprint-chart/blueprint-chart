@@ -71,6 +71,33 @@ test.describe('landing page layout', () => {
     await expect(svg).toBeVisible()
   })
 
+  test('scenes transition smoothly with detached frame reuse', async ({ page }) => {
+    await page.goto('/#/')
+    await page.waitForTimeout(2000)
+
+    const container = page.locator('.scenes-demo__chart')
+    await expect(container).toBeVisible()
+
+    const nextBtn = page.locator('.scenes-demo [aria-label="Next scene"]')
+
+    // Navigate to scene 1
+    await nextBtn.click()
+    await page.waitForTimeout(800)
+    const titleBefore = await container.locator('.bc-frame-title').textContent()
+
+    // Navigate to scene 2
+    await nextBtn.click()
+    await page.waitForTimeout(800)
+    const titleAfter = await container.locator('.bc-frame-title').textContent()
+
+    // Title should have changed (frame was updated, not rebuilt)
+    expect(titleAfter).not.toBe(titleBefore)
+
+    // Chart should still be visible with SVG
+    const svg = container.locator('svg').first()
+    await expect(svg).toBeVisible()
+  })
+
   test('practices section shows 6 cards', async ({ page }) => {
     await page.goto('/#/')
     await page.waitForTimeout(1000)

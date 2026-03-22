@@ -150,6 +150,37 @@ describe('snapshotForFadeOut', () => {
     container.appendChild(document.createElement('span'))
     expect(snapshotForFadeOut(container)).toBeNull()
   })
+
+  it('strips bc-frame-footer and bc-frame-note from overlay to prevent duplicate teleported UI', () => {
+    vi.stubGlobal('window', {
+      matchMedia: vi.fn().mockReturnValue({ matches: false }),
+    })
+    const container = document.createElement('div')
+    const frame = document.createElement('div')
+    frame.className = 'bc-frame'
+    const header = document.createElement('div')
+    header.className = 'bc-frame-header'
+    header.textContent = 'Title'
+    const footer = document.createElement('div')
+    footer.className = 'bc-frame-footer'
+    footer.textContent = 'Blueprint Chart'
+    const note = document.createElement('p')
+    note.className = 'bc-frame-note'
+    note.textContent = 'Source: X'
+    frame.appendChild(header)
+    frame.appendChild(footer)
+    frame.appendChild(note)
+    container.appendChild(frame)
+
+    const overlay = snapshotForFadeOut(container)
+
+    expect(overlay).not.toBeNull()
+    // Header should be preserved in overlay
+    expect(overlay!.querySelector('.bc-frame-header')).not.toBeNull()
+    // Footer and note must be stripped so teleported player buttons don't appear twice
+    expect(overlay!.querySelector('.bc-frame-footer')).toBeNull()
+    expect(overlay!.querySelector('.bc-frame-note')).toBeNull()
+  })
 })
 
 describe('commitFadeOut', () => {
