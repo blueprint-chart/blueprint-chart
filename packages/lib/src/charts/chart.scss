@@ -24,36 +24,51 @@
   font-family: var(--bc-frame-font-family);
 }
 
-// Bottom-anchored mode: applied when the frame has a locked height (e.g.
-// during scene transitions) so header height changes don't shift the SVG.
-// The body fills remaining space — when the header grows, the body shrinks
-// from the top and the chart stays anchored to the bottom.
-.bc-frame--bottom-anchored {
-  display: flex;
-  flex-direction: column;
-
-  .bc-frame-body {
-    flex: 1;
-    min-height: 0;
-  }
-}
-
 // Constrained-height mode: when the frame's container has a definite height
-// (fixed or aspect-ratio), use flex layout so the body fills remaining space
-// after header and footer. The SVG scales via viewBox + CSS 100%.
-// preserveAspectRatio="none" on the SVG (set by createCanvas when the body
-// is in constrained mode) stretches the chart to fill the body exactly so
-// there are no gaps or cropping regardless of container aspect ratio.
+// (fixed or aspect-ratio).
+//
+// The body (SVG container) is positioned absolutely over the full frame so
+// its dimensions never change between scenes. Header and footer float on
+// top via z-index with flex layout pushing footer to the bottom.
+// The chart content inside the SVG uses extra margins (set by createCanvas
+// from data-header-h / data-footer-h) to avoid overlapping header/footer.
+// When the header height changes, only the chart margins change — smoothly
+// animated by D3 transitions. The SVG itself is perfectly stable.
 .bc-frame--constrained {
   flex: 1;
-  display: flex;
-  flex-direction: column;
+  position: relative;
   min-height: 0;
+  overflow: hidden;
+
+  .bc-frame-header {
+    position: relative;
+    z-index: 1;
+    // Opaque background so the header covers SVG content behind it.
+    // Uses the card/container background or white as fallback.
+    background: var(--bc-frame-header-bg, var(--bs-card-bg, #fff));
+  }
 
   .bc-frame-body {
-    flex: 1;
-    min-height: 0;
+    position: absolute;
+    inset: 0;
+    z-index: 0;
     overflow: hidden;
+  }
+
+  .bc-frame-note {
+    position: absolute;
+    bottom: var(--bc-footer-h, 0);
+    left: 0;
+    right: 0;
+    z-index: 1;
+  }
+
+  .bc-frame-footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1;
   }
 }
 

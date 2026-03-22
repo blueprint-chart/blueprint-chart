@@ -3,7 +3,7 @@ import 'd3-transition'
 import { D3Blueprint } from 'd3-blueprint'
 import type { ChartData, ChartOptions } from '../../types'
 import { createFrame } from '../../frame/frame'
-import { createCanvas, contentSize, labelPositionMargins, estimateCategoryLabelWidth } from '../../canvas/canvas'
+import { createCanvas, contentSize, labelPositionMargins, estimateCategoryLabelWidth, computeMarginDelta } from '../../canvas/canvas'
 import { AxisService } from '../../axis/axis-service'
 import { computeLinearDomain } from '../../scale-helpers'
 import { createTooltipPlugin } from '../../plugins/tooltip'
@@ -168,9 +168,7 @@ export function render(
   }
 
   const { chartArea, width, height, margin } = createCanvas(body, lpMargins)
-  const marginDelta = priorMargin
-    ? { dx: priorMargin.left - margin.left, dy: priorMargin.top - margin.top }
-    : undefined
+  const marginDelta = computeMarginDelta(priorMargin, margin)
 
   const labels = sortLabels(data, options)
   const barData: BarDatum[] = labels.map(l => ({

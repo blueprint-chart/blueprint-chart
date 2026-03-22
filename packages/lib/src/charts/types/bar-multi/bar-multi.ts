@@ -3,7 +3,7 @@ import 'd3-transition'
 import { D3Blueprint } from 'd3-blueprint'
 import type { ChartData, ChartOptions } from '../../types'
 import { createFrame } from '../../frame/frame'
-import { createCanvas, contentSize, labelPositionMargins, estimateVerticalLabelWidth } from '../../canvas/canvas'
+import { createCanvas, contentSize, labelPositionMargins, estimateVerticalLabelWidth, computeMarginDelta } from '../../canvas/canvas'
 import { AxisService } from '../../axis/axis-service'
 import { renderLegend } from '../../legend/legend'
 import { estimateLegendSize } from '../../legend/legend-size'
@@ -156,9 +156,7 @@ export function render(
     marginOverrides.right = (marginOverrides.right ?? 20) + legendSize.width + 10
   }
   const { chartArea, width, height, margin } = createCanvas(body, marginOverrides)
-  const marginDelta = priorMargin
-    ? { dx: priorMargin.left - margin.left, dy: priorMargin.top - margin.top }
-    : undefined
+  const marginDelta = computeMarginDelta(priorMargin, margin)
   // eslint-disable-next-line prefer-const
   let [domainMin, domainMax] = computeLinearDomain(allValues, options.verticalAxis?.range)
   // Extend domain to leave room for value labels below negative bars

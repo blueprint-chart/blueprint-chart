@@ -12,6 +12,27 @@ export interface CanvasElements {
   margin: Margin
 }
 
+/**
+ * Compute the margin delta between a prior cached margin and the current one.
+ * In constrained mode, uses `stableTop` (renderer-only margin, excluding
+ * headerH) so the dy doesn't include header height changes. This prevents
+ * axes from sliding vertically when the header wraps differently.
+ */
+export function computeMarginDelta(
+  priorMargin: Margin | undefined,
+  currentMargin: Margin,
+): { dx: number, dy: number } | undefined {
+  if (!priorMargin) {
+    return undefined
+  }
+  const priorTop = (priorMargin as Margin & { stableTop?: number }).stableTop ?? priorMargin.top
+  const currentTop = (currentMargin as Margin & { stableTop?: number }).stableTop ?? currentMargin.top
+  return {
+    dx: priorMargin.left - currentMargin.left,
+    dy: priorTop - currentTop,
+  }
+}
+
 const DEFAULT_MARGIN: Margin = {
   top: 20,
   right: 20,
@@ -212,10 +233,25 @@ export function createCanvas(
 
   const isConstrained = body.closest('.bc-frame--constrained') != null
 
-  // In constrained-height mode, tighten the top margin so the legend sits
-  // closer to the frame header — vertical space is scarce.
-  if (isConstrained && m.top > 10) {
-    m.top = Math.max(5, m.top - 15)
+  // In constrained mode the body fills the full frame (inset: 0). The SVG
+  // size never changes between scenes.
+  //
+  // m.top uses the MAX header height ever seen so the chart area height
+  // stays constant across scene transitions (prevents y-scale distortion
+  // during D3 transitions). The header floats on top with an opaque
+  // background, and the chart content always starts below it.
+  if (isConstrained) {
+    const headerH = parseFloat(body.dataset.headerH || '0')
+    const footerH = parseFloat(body.dataset.footerH || '0')
+    // Tighten the renderer's top margin (legend etc.), then add headerH.
+    const rendererTop = m.top > 10 ? Math.max(5, m.top - 15) : m.top
+    m.top = headerH + rendererTop
+    m.bottom += footerH
+    // Store the renderer-only top margin (excluding headerH) so renderers
+    // can compute a stable marginDelta.dy that doesn't include the variable
+    // header height. This prevents axes from sliding vertically when the
+    // header changes between scenes.
+    ;(m as Margin & { stableTop?: number }).stableTop = rendererTop
   }
 
   const inner = contentSize(body)
