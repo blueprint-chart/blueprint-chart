@@ -1,7 +1,7 @@
 import * as d3 from 'd3'
 import type { D3Blueprint, Plugin } from 'd3-blueprint'
 import type { AnnotationConfig, AnnotationLineStyle, CompassDirection, RangeAnchor, StrokeStyle } from '../types'
-import { getDefaultTransitionMs } from '../motion'
+import { getTransitionDuration, DEFAULT_TRANSITION_MS } from '../motion'
 
 // ---------------------------------------------------------------------------
 // Context
@@ -963,7 +963,7 @@ export function renderAnnotations(
 
   // Apply transitions during scene changes
   if (ctx.transition) {
-    const duration = getDefaultTransitionMs()
+    const duration = getTransitionDuration(DEFAULT_TRANSITION_MS)
     applyAnnotationTransitions(g.node()!, rangeGroup.node()!, oldSnapshots ?? new Map(), duration)
   }
 
@@ -1393,7 +1393,7 @@ export function createAnnotationPlugin(
 
       // Apply transitions during scene changes
       if (ctx.transition) {
-        const duration = getDefaultTransitionMs()
+        const duration = getTransitionDuration(DEFAULT_TRANSITION_MS)
         applyAnnotationTransitions(g.node()!, rangeGroup.node()!, oldSnapshots ?? new Map(), duration)
       }
 

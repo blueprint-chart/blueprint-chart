@@ -14,10 +14,25 @@ export function getTransitionDuration(ms: number): number {
 export const DEFAULT_TRANSITION_MS = 500
 
 /**
- * Returns the default scene transition duration, respecting `prefers-reduced-motion`.
+ * Module-level flag: 0 = no transition (initial render), DEFAULT_TRANSITION_MS = scene transition.
+ * Set via setRenderTransition() at the start of each renderer's render() function.
+ */
+let _transitionMs = 0
+
+/**
+ * Call at the start of each render() function to control whether transitions play.
+ * Pass `true` for scene transitions, `false` (default) for initial / non-scene renders.
+ */
+export function setRenderTransition(enabled: boolean): void {
+  _transitionMs = enabled ? DEFAULT_TRANSITION_MS : 0
+}
+
+/**
+ * Returns the current scene transition duration, respecting `prefers-reduced-motion`.
+ * Returns 0 when not in a scene transition (i.e. setRenderTransition(false) was last called).
  */
 export function getDefaultTransitionMs(): number {
-  return getTransitionDuration(DEFAULT_TRANSITION_MS)
+  return getTransitionDuration(_transitionMs)
 }
 
 /**

@@ -248,6 +248,10 @@ export function createFrame(
     wrapper.style.setProperty('--bc-frame-padding', options.padding)
   }
 
+  if (options.transparentBackground) {
+    wrapper.style.setProperty('--bc-frame-bg', 'transparent')
+  }
+
   if (options.note) {
     note.textContent = options.note
   }

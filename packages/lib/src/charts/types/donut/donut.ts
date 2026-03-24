@@ -2,7 +2,7 @@ import * as d3 from 'd3'
 import 'd3-transition'
 import { D3Blueprint } from 'd3-blueprint'
 import type { ChartData, ChartOptions } from '../../types'
-import { getDefaultTransitionMs, fadeIn, snapshotForFadeOut, commitFadeOut } from '../../motion'
+import { getDefaultTransitionMs, setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut } from '../../motion'
 import { getCachedChart, setCachedChart } from '../../transition-cache'
 import { createFrame } from '../../frame/frame'
 import { createCanvas, contentSize } from '../../canvas/canvas'
@@ -79,6 +79,7 @@ export function renderArc(
   innerRadiusRatio: number,
   transition = false,
 ): void {
+  setRenderTransition(transition)
   // Preserve existing arc elements for smooth D3 data-join transitions
   let priorArcs: Element[] = []
   let fadeOverlay: HTMLElement | null = null

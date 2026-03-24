@@ -11,7 +11,7 @@ import { createCrosshairPlugin } from '../../plugins/crosshair'
 import { createAnnotationPlugin, snapshotAnnotations, type AnnotationSnapshot } from '../../plugins/annotations'
 import { resolveBackgroundColor, contrastTextColor } from '../../contrast'
 import { buildNumberFormatter } from '../../format-helpers'
-import { getDefaultTransitionMs, fadeIn, snapshotForFadeOut, commitFadeOut, reinsertWithOffset } from '../../motion'
+import { getDefaultTransitionMs, setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut, reinsertWithOffset } from '../../motion'
 import { getCachedChart, setCachedChart } from '../../transition-cache'
 
 const DEFAULT_COLORS = ['#4e79a7']
@@ -95,6 +95,7 @@ export function render(
   options: ChartOptions = {},
   transition = false,
 ): void {
+  setRenderTransition(transition)
   // Preserve existing data elements for smooth D3 data-join transitions
   let priorBars: Element[] = []
   let priorLabels: Element[] = []

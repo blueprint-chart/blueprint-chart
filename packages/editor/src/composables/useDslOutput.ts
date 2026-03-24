@@ -44,8 +44,6 @@ export function useDslOutput() {
   const dataTable = useDataTable()
   const compact = shallowRef(false)
 
-  const dsl = shallowRef('')
-
   function generateDsl(): string {
     let output = `chart ${base.chartType.value} {\n`
 
@@ -678,9 +676,11 @@ export function useDslOutput() {
     return output
   }
 
-  // Use watchEffect with flush:'post' to update the reactive ref.
-  // This avoids recursive reactive updates when multiple components read the DSL
-  // and scene state simultaneously (e.g. ExportPanel + ExportEmbedPanel).
+  // Initialize synchronously so the first render has the correct value,
+  // then keep it updated via watchEffect. flush:'post' prevents recursive
+  // updates when multiple components (ExportPanel + ExportEmbedPanel) read
+  // the DSL and scene state simultaneously during the same render cycle.
+  const dsl = shallowRef('')
   watchEffect(() => {
     dsl.value = generateDsl()
   }, { flush: 'post' })

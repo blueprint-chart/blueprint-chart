@@ -14,7 +14,7 @@ import { renderAnnotations, snapshotAnnotations, type AnnotationSnapshot } from 
 import { resolveBackgroundColor } from '../../contrast'
 import { setupProximityInteraction } from '../../plugins/proximity'
 import { renderLineSymbols } from '../../line-symbols'
-import { getDefaultTransitionMs, fadeIn, snapshotForFadeOut, commitFadeOut, reinsertWithOffset } from '../../motion'
+import { getDefaultTransitionMs, setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut, reinsertWithOffset } from '../../motion'
 import { setCachedChart, getCachedChart } from '../../transition-cache'
 import { resolveSeriesColor, resolveSeriesDash, resolveSeriesWidth, resolveSeriesInterpolation, isSeriesHidden, resolveSeriesLabelMode, resolveSeriesValueLabels, resolveSeriesLineSymbols } from '../../series-helpers'
 import type { LineSymbolConfig } from '../../types'
@@ -215,6 +215,7 @@ export function render(
   options: ChartOptions = {},
   transition = false,
 ): void {
+  setRenderTransition(transition)
   let data = inputData
   // Preserve existing data elements for smooth D3 data-join transitions
   let priorAreas: Element[] = []

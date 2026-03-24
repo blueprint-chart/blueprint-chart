@@ -148,6 +148,7 @@ export function renderDsl(
 
   const getString = (key: string) => String(sPMap?.get(key) ?? pMap.get(key) ?? '') || undefined
 
+  const transparentBg = pMap.get('transparentBackground')
   const frame = options?.thumbnail
     ? undefined
     : {
@@ -158,6 +159,7 @@ export function renderDsl(
         byline: getString('byline'),
         note: getString('note'),
         padding: String(pMap.get('padding') ?? '') || options?.padding || '16px',
+        transparentBackground: transparentBg === true || transparentBg === 'true' || undefined,
       }
 
   renderer(container, data, {

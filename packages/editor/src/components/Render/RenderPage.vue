@@ -103,7 +103,9 @@ onMounted(() => {
     return
   }
   try {
-    const dsl = globalThis.atob(bpc64)
+    const binary = globalThis.atob(bpc64)
+    const bytes = Uint8Array.from(binary, c => c.charCodeAt(0))
+    const dsl = new TextDecoder().decode(bytes)
     applyDsl(dsl)
   }
   catch {
@@ -116,6 +118,7 @@ onMounted(() => {
 .render-page {
   min-height: 100vh;
   box-sizing: border-box;
+  background: var(--bs-card-bg);
 
   &__card {
     width: 100%;

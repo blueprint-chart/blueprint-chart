@@ -20,8 +20,10 @@
 .bc-frame {
   --bc-frame-font-family: system-ui, -apple-system, sans-serif;
   --bc-frame-padding: 0;
+  --bc-frame-bg: var(--bs-card-bg, #fff);
 
   font-family: var(--bc-frame-font-family);
+  background: var(--bc-frame-bg);
 }
 
 // Constrained-height mode: when the frame's container has a definite height
