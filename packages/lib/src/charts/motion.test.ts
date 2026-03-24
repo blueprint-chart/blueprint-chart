@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, afterEach } from 'vitest'
-import { getTransitionDuration, getDefaultTransitionMs, DEFAULT_TRANSITION_MS, fadeIn, snapshotForFadeOut, commitFadeOut } from './motion'
+import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest'
+import { getTransitionDuration, getDefaultTransitionMs, setRenderTransition, DEFAULT_TRANSITION_MS, fadeIn, snapshotForFadeOut, commitFadeOut } from './motion'
 
 describe('getTransitionDuration', () => {
   afterEach(() => {
@@ -43,21 +43,35 @@ describe('DEFAULT_TRANSITION_MS', () => {
 })
 
 describe('getDefaultTransitionMs', () => {
-  afterEach(() => {
-    vi.restoreAllMocks()
+  beforeEach(() => {
+    setRenderTransition(false)
   })
 
-  it('returns 500 when no motion preference is set', () => {
+  afterEach(() => {
+    vi.restoreAllMocks()
+    setRenderTransition(false)
+  })
+
+  it('returns 0 by default (no active scene transition)', () => {
     vi.stubGlobal('window', {
       matchMedia: vi.fn().mockReturnValue({ matches: false }),
     })
+    expect(getDefaultTransitionMs()).toBe(0)
+  })
+
+  it('returns 500 after setRenderTransition(true) when no motion preference is set', () => {
+    vi.stubGlobal('window', {
+      matchMedia: vi.fn().mockReturnValue({ matches: false }),
+    })
+    setRenderTransition(true)
     expect(getDefaultTransitionMs()).toBe(500)
   })
 
-  it('returns 0 when prefers-reduced-motion: reduce is active', () => {
+  it('returns 0 after setRenderTransition(true) when prefers-reduced-motion: reduce is active', () => {
     vi.stubGlobal('window', {
       matchMedia: vi.fn().mockReturnValue({ matches: true }),
     })
+    setRenderTransition(true)
     expect(getDefaultTransitionMs()).toBe(0)
   })
 })

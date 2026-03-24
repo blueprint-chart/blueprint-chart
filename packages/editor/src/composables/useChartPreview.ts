@@ -241,6 +241,7 @@ export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
         sourceUrl: (sp?.sourceUrl as string | undefined) ?? (config.sourceUrl.value || undefined),
         showCredit: config.layout.value.showCredit,
         padding: `${config.layout.value.padding}px`,
+        transparentBackground: config.layout.value.transparentBackground || undefined,
       },
       sort: resolveSortFromTransforms(scene) ?? config.sort.value,
       sortMode: config.sortMode.value !== 'none' ? config.sortMode.value : undefined,

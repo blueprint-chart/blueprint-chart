@@ -43,6 +43,7 @@ export interface FrameOptions {
   aspectRatio?: number
   showCredit?: boolean
   padding?: string
+  transparentBackground?: boolean
 }
 
 export interface AreaFillConfig {

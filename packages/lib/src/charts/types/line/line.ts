@@ -13,7 +13,7 @@ import { renderAnnotations, snapshotAnnotations, type AnnotationSnapshot } from 
 import { resolveBackgroundColor } from '../../contrast'
 import { setupProximityInteraction } from '../../plugins/proximity'
 import { renderLineSymbols } from '../../line-symbols'
-import { getDefaultTransitionMs, fadeIn, snapshotForFadeOut, commitFadeOut, reinsertWithOffset } from '../../motion'
+import { getDefaultTransitionMs, setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut, reinsertWithOffset } from '../../motion'
 import { getCachedChart, setCachedChart } from '../../transition-cache'
 
 const DEFAULT_COLOR = '#4e79a7'
@@ -175,6 +175,7 @@ export function render(
   options: ChartOptions = {},
   transition = false,
 ): void {
+  setRenderTransition(transition)
   // Preserve existing data elements for smooth D3 data-join transitions
   let priorAreas: Element[] = []
   let priorLines: Element[] = []

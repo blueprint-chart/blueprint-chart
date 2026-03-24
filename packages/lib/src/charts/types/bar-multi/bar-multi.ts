@@ -13,7 +13,7 @@ import { createTooltipPlugin } from '../../plugins/tooltip'
 import { createCrosshairPlugin } from '../../plugins/crosshair'
 import { contrastTextColor, readableColor, resolveBackgroundColor } from '../../contrast'
 import { resolveSeriesColor, isSeriesHidden, resolveSeriesValueLabels, resolveSeriesOpacity, resolveSeriesLabelMode } from '../../series-helpers'
-import { getDefaultTransitionMs, fadeIn, snapshotForFadeOut, commitFadeOut, reinsertWithOffset } from '../../motion'
+import { getDefaultTransitionMs, setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut, reinsertWithOffset } from '../../motion'
 import { setCachedChart, getCachedChart } from '../../transition-cache'
 
 const DEFAULT_COLORS = [
@@ -88,6 +88,7 @@ export function render(
   options: ChartOptions = {},
   transition = false,
 ): void {
+  setRenderTransition(transition)
   // Preserve existing data elements for smooth D3 data-join transitions
   let priorBars: Element[] = []
   let fadeOverlay: HTMLElement | null = null

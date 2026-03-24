@@ -38,11 +38,22 @@ import { ActionCopyButton } from '@blueprint-chart/ui'
 import { useDslOutput } from '@/composables/useDslOutput'
 import { useChartConfig } from '@/stores/chartConfig'
 
-const { dsl } = useDslOutput()
+const { dsl, generateDsl } = useDslOutput()
 const { layout } = useChartConfig()
 
+// btoa only handles Latin-1 (code points 0–255). Encode as UTF-8 bytes first
+// so multi-byte characters (e.g. em-dash U+2014) don't throw InvalidCharacterError.
+function toBase64(str: string): string {
+  const bytes = new TextEncoder().encode(str)
+  let binary = ''
+  for (const byte of bytes) {
+    binary += String.fromCharCode(byte)
+  }
+  return globalThis.btoa(binary)
+}
+
 const renderUrl = computed(() => {
-  const bpc64 = globalThis.btoa(dsl.value)
+  const bpc64 = toBase64(dsl.value || generateDsl())
   return `${window.location.origin}${window.location.pathname}#/render?bpc64=${encodeURIComponent(bpc64)}`
 })
 

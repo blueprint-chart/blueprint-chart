@@ -14,7 +14,7 @@ export function useDslSync() {
   const config = useChartConfig()
   const themeStore = useChartThemeStore()
   const chartTheme = storeToRefs(themeStore).chartTheme
-  const { store } = useChartTypeOptions()
+  const { store, ensureDefaults } = useChartTypeOptions()
   const transforms = useDataTransforms()
   const scenesComposable = useScenes()
 
@@ -123,6 +123,9 @@ export function useDslSync() {
       }
 
       store[ast.chartType] = extractChartTypeOptions(ast.chartType, ast.properties) as Partial<ChartTypeOptions>
+      // Populate any defaults not present in the DSL so that baseOptions/currentOptions
+      // computeds remain pure readers — no side-effects inside a computed getter.
+      ensureDefaults(ast.chartType)
 
       config.colorizes.value = ast.colorizes ? convertColorizes(ast.colorizes) : []
 

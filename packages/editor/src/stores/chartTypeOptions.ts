@@ -12,33 +12,51 @@ export function getOptionDefs(chartType: string): ChartOptionDef[] {
   return getChartOptions(chartType)
 }
 
+// Non-reactive defaults cache — populated lazily per chart type.
+// Keeping defaults here (outside the reactive Pinia store) ensures that
+// baseOptions / currentOptions computed getters never write to reactive
+// state during evaluation, which would trigger recursive Vue updates.
+const defaultsCache: Record<string, Partial<ChartTypeOptions>> = Object.create(null)
+
+function getDefaults(type: string): Partial<ChartTypeOptions> {
+  if (!defaultsCache[type]) {
+    const cache: Partial<ChartTypeOptions> = {}
+    for (const def of getChartOptions(type)) {
+      if (def.default !== undefined) {
+        (cache as Record<string, unknown>)[def.key] = def.default
+      }
+    }
+    defaultsCache[type] = cache
+  }
+  return defaultsCache[type]
+}
+
 export const useChartTypeOptionsStore = defineStore('chartTypeOptions', () => {
+  // Reactive store contains explicit overrides only (no defaults).
+  // Defaults are merged in by the computed getters via getDefaults().
   const store = reactive<Record<string, Partial<ChartTypeOptions>>>({})
 
   function ensureDefaults(type: string): void {
+    // Prime the non-reactive defaults cache for this type.
+    getDefaults(type)
+    // Ensure a store entry exists so callers can write into it.
     if (!store[type]) {
       store[type] = {}
-    }
-    const defs = getChartOptions(type)
-    const current = store[type]!
-    for (const def of defs) {
-      const key = def.key as ChartTypeOptionKey
-      if (def.default !== undefined && !(key in current)) {
-        // Don't seed a default palette when custom colors are already set —
-        // the palette would override the explicitly-provided colors.
-        if (key === 'colorPalette' && 'colors' in current && (current.colors as string[])?.length > 0) {
-          continue
-        }
-        (current as Partial<ChartTypeOptions>)[key] = def.default as ChartTypeOptions[typeof key]
-      }
     }
   }
 
   const { chartType, _base } = useChartConfig()
 
   const currentOptions = computed(() => {
-    ensureDefaults(chartType.value)
-    const base = store[chartType.value] ?? {}
+    // Pure read: merge non-reactive defaults with explicit reactive overrides.
+    // No writes to reactive state here — prevents recursive update cycles.
+    const defaults = getDefaults(chartType.value)
+    const explicit = store[chartType.value] ?? {}
+    // Don't let a default colorPalette appear when colors are explicitly set —
+    // the renderer should use explicit colors, not the palette default.
+    const base = (explicit.colors as string[] | undefined)?.length
+      ? { ...defaults, colorPalette: undefined, ...explicit }
+      : { ...defaults, ...explicit }
     const { activeScene, activeIndex, scenes: allScenes } = useScenes()
     if (activeIndex.value >= 0) {
       // Merge inherited options from prior scenes, then own overrides
@@ -58,9 +76,11 @@ export const useChartTypeOptionsStore = defineStore('chartTypeOptions', () => {
   })
 
   const baseOptions = computed(() => {
-    const baseType = _base.chartType.value
-    ensureDefaults(baseType)
-    return store[baseType] ?? {}
+    const defaults = getDefaults(_base.chartType.value)
+    const explicit = store[_base.chartType.value] ?? {}
+    return (explicit.colors as string[] | undefined)?.length
+      ? { ...defaults, colorPalette: undefined, ...explicit }
+      : { ...defaults, ...explicit }
   })
 
   const optionDefs = computed(() => getChartOptions(chartType.value))
@@ -72,7 +92,9 @@ export const useChartTypeOptionsStore = defineStore('chartTypeOptions', () => {
   function setOption<K extends ChartTypeOptionKey>(key: K, value: ChartTypeOptions[K]) {
     const { activeIndex, activeScene, scenes: allScenes } = useScenes()
     if (activeIndex.value >= 0 && activeScene.value) {
-      // Compute the inherited value: walk prior scenes, then fall back to base
+      // Compute the inherited value: walk prior scenes, then fall back to explicit base.
+      // Intentionally uses explicit store only (not defaults) so that setting a value
+      // equal to the default is still treated as an explicit scene override.
       const base = store[chartType.value] ?? {}
       let inherited: unknown = base[key]
       for (let i = activeIndex.value - 1; i >= 0; i--) {
@@ -118,7 +140,7 @@ export const useChartTypeOptionsStore = defineStore('chartTypeOptions', () => {
     const { activeIndex, activeScene, scenes: allScenes } = useScenes()
     const isScene = activeIndex.value >= 0 && activeScene.value != null
 
-    // Resolve the effective old options: base + inherited scene overrides
+    // Resolve the effective old options: explicit base + inherited scene overrides
     let oldEffective: Partial<ChartTypeOptions>
     if (isScene) {
       let merged: Partial<ChartTypeOptions> = { ...(store[oldType] ?? {}) }
@@ -198,6 +220,7 @@ export const useChartTypeOptionsStore = defineStore('chartTypeOptions', () => {
     availableOptionKeys,
     optionDefs,
     setOption,
+    ensureDefaults,
     reset,
     hydrate,
     store,
@@ -213,6 +236,7 @@ export function useChartTypeOptions() {
     availableOptionKeys,
     optionDefs,
     setOption: piniaStore.setOption,
+    ensureDefaults: piniaStore.ensureDefaults,
     reset: piniaStore.reset,
     hydrate: piniaStore.hydrate,
     store: piniaStore.store,

@@ -12,7 +12,7 @@ import { resolveCurve } from '../../curves'
 import { renderAnnotations, snapshotAnnotations, type AnnotationSnapshot } from '../../plugins/annotations'
 import { resolveBackgroundColor } from '../../contrast'
 import { setupProximityInteraction } from '../../plugins/proximity'
-import { getDefaultTransitionMs, fadeIn, snapshotForFadeOut, commitFadeOut, reinsertWithOffset } from '../../motion'
+import { getDefaultTransitionMs, setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut, reinsertWithOffset } from '../../motion'
 import { setCachedChart, getCachedChart } from '../../transition-cache'
 import { computeStack, computeStack100 } from '../../stack-helpers'
 import { filterLabelsByRange } from '../../scale-helpers'
@@ -160,6 +160,7 @@ export function render(
   options: ChartOptions = {},
   transition = false,
 ): void {
+  setRenderTransition(transition)
   let data = inputData
   // Preserve existing data elements for smooth D3 data-join transitions
   let priorAreas: Element[] = []
