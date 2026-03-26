@@ -31,6 +31,18 @@ function getDefaults(type: string): Partial<ChartTypeOptions> {
   return defaultsCache[type]
 }
 
+// Merge non-reactive defaults with explicit overrides.
+// Suppresses a default colorPalette when explicit colors are set — the renderer
+// should use explicit colors, not the palette default.
+function mergeWithDefaults(
+  defaults: Partial<ChartTypeOptions>,
+  explicit: Partial<ChartTypeOptions>,
+): Partial<ChartTypeOptions> {
+  return (explicit.colors as string[] | undefined)?.length
+    ? { ...defaults, colorPalette: undefined, ...explicit }
+    : { ...defaults, ...explicit }
+}
+
 export const useChartTypeOptionsStore = defineStore('chartTypeOptions', () => {
   // Reactive store contains explicit overrides only (no defaults).
   // Defaults are merged in by the computed getters via getDefaults().
@@ -52,11 +64,7 @@ export const useChartTypeOptionsStore = defineStore('chartTypeOptions', () => {
     // No writes to reactive state here — prevents recursive update cycles.
     const defaults = getDefaults(chartType.value)
     const explicit = store[chartType.value] ?? {}
-    // Don't let a default colorPalette appear when colors are explicitly set —
-    // the renderer should use explicit colors, not the palette default.
-    const base = (explicit.colors as string[] | undefined)?.length
-      ? { ...defaults, colorPalette: undefined, ...explicit }
-      : { ...defaults, ...explicit }
+    const base = mergeWithDefaults(defaults, explicit)
     const { activeScene, activeIndex, scenes: allScenes } = useScenes()
     if (activeIndex.value >= 0) {
       // Merge inherited options from prior scenes, then own overrides
@@ -78,9 +86,7 @@ export const useChartTypeOptionsStore = defineStore('chartTypeOptions', () => {
   const baseOptions = computed(() => {
     const defaults = getDefaults(_base.chartType.value)
     const explicit = store[_base.chartType.value] ?? {}
-    return (explicit.colors as string[] | undefined)?.length
-      ? { ...defaults, colorPalette: undefined, ...explicit }
-      : { ...defaults, ...explicit }
+    return mergeWithDefaults(defaults, explicit)
   })
 
   const optionDefs = computed(() => getChartOptions(chartType.value))
