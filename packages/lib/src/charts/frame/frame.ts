@@ -298,21 +298,3 @@ export function createFrame(
 
   return { wrapper, header, body, footer }
 }
-
-/**
- * Measure header and footer heights and set CSS custom properties on the frame
- * so the absolutely-positioned body fills the remaining space.
- * Call this after rendering and after any DOM change that affects header/footer size
- * (e.g. scene player teleport into footer).
- */
-export function updateConstrainedLayout(frame: HTMLElement): void {
-  const header = frame.querySelector('.bc-frame-header') as HTMLElement | null
-  const footer = frame.querySelector('.bc-frame-footer') as HTMLElement | null
-  const note = frame.querySelector('.bc-frame-note') as HTMLElement | null
-
-  const topH = header ? header.offsetHeight : 0
-  const bottomH = (footer ? footer.offsetHeight : 0) + (note && note.style.display !== 'none' ? note.offsetHeight : 0)
-
-  frame.style.setProperty('--bc-body-top', `${topH}px`)
-  frame.style.setProperty('--bc-body-bottom', `${bottomH}px`)
-}
