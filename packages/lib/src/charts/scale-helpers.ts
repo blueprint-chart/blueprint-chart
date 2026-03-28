@@ -1,14 +1,4 @@
-import { parseDate } from './date-parse'
-
-/** Parse a label string to a numeric value for range comparison (epoch ms for dates, plain number otherwise). */
-function labelToNumeric(label: string): number | undefined {
-  const d = parseDate(label)
-  if (d) {
-    return d.getTime()
-  }
-  const n = parseFloat(label)
-  return isNaN(n) ? undefined : n
-}
+import { parseDateOrNumber } from './date-parse'
 
 /**
  * Filter chart labels (and corresponding data) by a horizontal axis range.
@@ -23,7 +13,7 @@ export function filterLabelsByRange(
   }
   const indices: number[] = []
   for (let i = 0; i < labels.length; i++) {
-    const numeric = labelToNumeric(labels[i])
+    const numeric = parseDateOrNumber(labels[i])
     if (numeric === undefined) {
       indices.push(i) // Keep non-numeric labels
       continue

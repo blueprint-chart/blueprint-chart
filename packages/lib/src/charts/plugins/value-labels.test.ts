@@ -1,10 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import * as d3 from 'd3'
 import { createValueLabelPlugin } from './value-labels'
-
-function makeChartStub(g: SVGGElement) {
-  return { base: d3.select(g) } as unknown
-}
+import { makeChartStub } from './test-helpers'
 
 describe('createValueLabelPlugin', () => {
   let svg: SVGSVGElement

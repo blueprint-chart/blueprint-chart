@@ -1,0 +1,131 @@
+import * as d3 from 'd3'
+import type { AnnotationConfig } from '../../types'
+import { DIRECTION_VECTORS } from './direction-helpers'
+import { resolveMaxWidth } from './position-helpers'
+import type { AnnotationContext } from './context'
+import { resolveXPosition, resolveYPosition, renderAnnotationText } from './shared'
+
+// ---------------------------------------------------------------------------
+// Range annotation renderer
+// ---------------------------------------------------------------------------
+
+export function renderRangeAnnotation(
+  g: d3.Selection<SVGGElement, unknown, null, undefined>,
+  ann: AnnotationConfig,
+  ctx: AnnotationContext,
+  index: number,
+  labelGroup?: d3.Selection<SVGGElement, unknown, null, undefined>,
+): void {
+  if (ann.kind !== 'range') {
+    return
+  }
+
+  const annG = g.append('g').attr('data-annotation-index', String(index))
+  if (ann.id) {
+    annG.attr('data-annotation-id', ann.id)
+  }
+  const rangeOrientation = ann.orientation ?? 'vertical'
+
+  let x: number, y: number, w: number, h: number
+
+  if (ctx.orientation === 'horizontal') {
+    if (rangeOrientation === 'vertical') {
+      const y1 = resolveXPosition(ann.start, ctx.scaleX, ann.startAnchor)
+      const y2 = resolveXPosition(ann.end, ctx.scaleX, ann.endAnchor)
+      y = Math.min(y1, y2)
+      h = Math.abs(y2 - y1)
+      x = 0
+      w = ctx.width
+    }
+    else {
+      const x1 = resolveYPosition(ann.start, ctx.scaleY)
+      const x2 = resolveYPosition(ann.end, ctx.scaleY)
+      x = Math.min(x1, x2)
+      w = Math.abs(x2 - x1)
+      y = 0
+      h = ctx.height
+    }
+  }
+  else if (rangeOrientation === 'vertical') {
+    const x1 = resolveXPosition(ann.start, ctx.scaleX, ann.startAnchor)
+    const x2 = resolveXPosition(ann.end, ctx.scaleX, ann.endAnchor)
+    x = Math.min(x1, x2)
+    w = Math.abs(x2 - x1)
+    y = 0
+    h = ctx.height
+  }
+  else {
+    const y1 = resolveYPosition(ann.start, ctx.scaleY)
+    const y2 = resolveYPosition(ann.end, ctx.scaleY)
+    y = Math.min(y1, y2)
+    h = Math.abs(y2 - y1)
+    x = 0
+    w = ctx.width
+  }
+
+  annG.append('rect')
+    .attr('class', 'bc-annotation-range')
+    .attr('x', x)
+    .attr('y', y)
+    .attr('width', w)
+    .attr('height', h)
+    .attr('fill', ann.bgColor ?? '#ccc')
+    .attr('opacity', (ann.bgOpacity ?? 20) / 100)
+
+  if (ann.text) {
+    const bandWidth = rangeOrientation === 'vertical' ? w : h
+    const rangeMaxWidth = resolveMaxWidth(ann.maxWidth, ctx.width) ?? Math.max(bandWidth, 50)
+
+    const dir = ann.direction ?? 'center'
+    const pad = 4
+
+    const v = DIRECTION_VECTORS[dir] ?? DIRECTION_VECTORS.center
+    const nx = 0.5 + v.dx * 0.5
+    const ny = 0.5 + v.dy * 0.5
+
+    const textX = Math.max(pad, Math.min(x + w * nx, ctx.width - pad))
+
+    let textAnchor = 'middle'
+    if (nx < 0.25) {
+      textAnchor = 'start'
+    }
+    else if (nx > 0.75) {
+      textAnchor = 'end'
+    }
+
+    const fontSize = 12
+    const textY = y + pad + fontSize
+
+    const textTarget = labelGroup
+      ? labelGroup.append('g').attr('data-annotation-index', String(index))
+      : annG
+
+    renderAnnotationText(textTarget, ann.text, textX, textY, {
+      textColor: ann.textColor,
+      maxWidth: rangeMaxWidth,
+      textAnchor,
+      backgroundColor: ctx.backgroundColor,
+      textOutline: ann.textOutline,
+    })
+
+    if (ny > 0.25) {
+      const textEl = textTarget.select('.bc-annotation-text').node() as SVGTextElement | null
+      if (textEl) {
+        try {
+          const tBBox = textEl.getBBox()
+          let dy = 0
+          if (ny > 0.75) {
+            dy = (y + h - pad) - (tBBox.y + tBBox.height)
+          }
+          else {
+            dy = (y + h / 2) - (tBBox.y + tBBox.height / 2)
+          }
+          if (Math.abs(dy) > 0.5) {
+            textEl.setAttribute('transform', `translate(0, ${dy})`)
+          }
+        }
+        catch { /* getBBox can throw if not in DOM */ }
+      }
+    }
+  }
+}
