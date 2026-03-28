@@ -65,6 +65,27 @@ export function parseDate(s: string): Date | null {
   return null
 }
 
+/**
+ * Parse a string as a date (returning epoch ms) or as a plain number.
+ * Date strings take precedence so that e.g. "2020" becomes epoch ms for
+ * Jan 1 2020 rather than the number 2020.
+ */
+export function parseDateOrNumber(s: string): number | undefined {
+  const trimmed = s.trim()
+  if (!trimmed) {
+    return undefined
+  }
+  const d = parseDate(trimmed)
+  if (d) {
+    return d.getTime()
+  }
+  const n = parseFloat(trimmed)
+  if (!isNaN(n)) {
+    return n
+  }
+  return undefined
+}
+
 export function detectDates(labels: string[]): { dates: Date[], granularity: DateGranularity } | null {
   if (labels.length === 0) {
     return null
