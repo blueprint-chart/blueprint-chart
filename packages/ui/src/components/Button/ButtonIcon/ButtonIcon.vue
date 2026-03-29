@@ -1,6 +1,6 @@
 <template>
   <BButton
-    v-bind="(buttonProps as any)"
+    v-bind="buttonProps"
     :id="buttonId"
     ref="element"
     class="button-icon"
@@ -60,7 +60,7 @@
 
 <script setup lang="ts">
 import { computed, shallowRef, inject, useTemplateRef, type Component } from 'vue'
-import type { TextColorVariant, ButtonVariant, PopoverPlacement, Size } from 'bootstrap-vue-next'
+import type { TextColorVariant, ButtonVariant, PopoverPlacement, Size, BButtonProps } from 'bootstrap-vue-next'
 import IPhCircleNotch from '~icons/ph/circle-notch'
 import AppIcon from '../../App/AppIcon/AppIcon.vue'
 import ButtonIconCounter from '../ButtonIconCounter/ButtonIconCounter.vue'
@@ -163,14 +163,13 @@ const hasTooltip = computed(() => {
   return !!tooltipText.value && !props.hideTooltip && (props.showTooltipForce || props.hideLabel)
 })
 
-const buttonProps = computed(() => ({
-  block: props.block,
+const buttonProps = computed((): Pick<BButtonProps, 'pill' | 'pressed' | 'size' | 'tag' | 'type' | 'variant'> => ({
   pill: props.pill,
   pressed: props.pressed,
-  size: props.size ?? injectedSize,
+  size: (props.size ?? injectedSize) as Size,
   tag: props.tag,
   type: props.type,
-  variant: props.variant ?? injectedVariant,
+  variant: (props.variant ?? injectedVariant) as ButtonVariant | null,
 }))
 </script>
 

@@ -26,7 +26,7 @@
 
 <script setup lang="ts">
 import { computed, useTemplateRef } from 'vue'
-import { onClickOutside } from '@vueuse/core'
+import { onClickOutside, type OnClickOutsideOptions } from '@vueuse/core'
 import { BPopover } from 'bootstrap-vue-next'
 import { TwitterPicker, HueSlider, tinycolor } from 'vue-color'
 import 'vue-color/style.css'
@@ -43,16 +43,15 @@ const props = withDefaults(defineProps<{
 const open = defineModel<boolean>('open', { default: false })
 const contentRef = useTemplateRef<HTMLElement>('contentRef')
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-onClickOutside(contentRef as any, () => {
+const clickOutsideOptions: OnClickOutsideOptions = {
+  detectIframe: true,
+  ignore: [() => props.target],
+}
+onClickOutside(contentRef, () => {
   if (props.manual) {
     open.value = false
   }
-}, {
-  detectIframe: true,
-  ignore: [() => props.target],
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-} as any)
+}, clickOutsideOptions)
 
 const hue = computed(() => {
   const tc = tinycolor(model.value)

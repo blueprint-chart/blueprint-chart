@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { TextColorVariant } from 'bootstrap-vue-next'
+import type { TextColorVariant, ColorVariant } from 'bootstrap-vue-next'
 
 export interface ButtonIconCounterProps {
   counter?: number | null
@@ -15,7 +15,7 @@ withDefaults(defineProps<ButtonIconCounterProps>(), {
 <template>
   <BBadge
     v-if="counter != null"
-    :variant="(variant as any)"
+    :variant="(variant as ColorVariant)"
     class="button-icon-counter text-nowrap"
     pill
   >
