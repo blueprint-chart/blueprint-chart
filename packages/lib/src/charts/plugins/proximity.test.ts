@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { setupProximityInteraction } from './proximity'
 
 describe('setupProximityInteraction', () => {
@@ -9,10 +9,20 @@ describe('setupProximityInteraction', () => {
     while (document.body.firstChild) {
       document.body.removeChild(document.body.firstChild)
     }
+    const existing = document.getElementById('bc-tooltip-styles')
+    if (existing) existing.remove()
     svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
     g = document.createElementNS('http://www.w3.org/2000/svg', 'g')
     svg.appendChild(g)
     document.body.appendChild(svg)
+  })
+
+  afterEach(() => {
+    while (document.body.firstChild) {
+      document.body.removeChild(document.body.firstChild)
+    }
+    const existing = document.getElementById('bc-tooltip-styles')
+    if (existing) existing.remove()
   })
 
   const points = [
@@ -20,6 +30,8 @@ describe('setupProximityInteraction', () => {
     { cx: 150, cy: 80, label: 'B', value: 20, color: '#4e79a7' },
     { cx: 250, cy: 60, label: 'C', value: 30, color: '#4e79a7' },
   ]
+
+  // ── Element creation ─────────────────────────────────────────────
 
   it('creates overlay rect and highlight dot', () => {
     setupProximityInteraction(g, { width: 400, height: 300, points })
@@ -42,6 +54,22 @@ describe('setupProximityInteraction', () => {
     expect(g.querySelector('.bc-crosshair-h')).toBeNull()
   })
 
+  it('creates only vertical crosshair when direction is vertical', () => {
+    setupProximityInteraction(g, { width: 400, height: 300, points, crosshair: true, crosshairDirection: 'vertical' })
+
+    expect(g.querySelector('.bc-crosshair-v')).not.toBeNull()
+    expect(g.querySelector('.bc-crosshair-h')).toBeNull()
+  })
+
+  it('creates only horizontal crosshair when direction is horizontal', () => {
+    setupProximityInteraction(g, { width: 400, height: 300, points, crosshair: true, crosshairDirection: 'horizontal' })
+
+    expect(g.querySelector('.bc-crosshair-v')).toBeNull()
+    expect(g.querySelector('.bc-crosshair-h')).not.toBeNull()
+  })
+
+  // ── Cleanup ──────────────────────────────────────────────────────
+
   it('returns cleanup function that removes elements', () => {
     const cleanup = setupProximityInteraction(g, { width: 400, height: 300, points, crosshair: true })
 
@@ -52,12 +80,21 @@ describe('setupProximityInteraction', () => {
     expect(g.querySelector('.bc-crosshair-v')).toBeNull()
   })
 
+  it('cleanup removes tooltip from document body', () => {
+    const cleanup = setupProximityInteraction(g, { width: 400, height: 300, points, tooltip: true })
+
+    expect(document.querySelector('.bc-tooltip')).not.toBeNull()
+    cleanup()
+    expect(document.querySelector('.bc-tooltip')).toBeNull()
+  })
+
+  // ── Crosshair styles ─────────────────────────────────────────────
+
   it('sets stroke-dasharray via style for solid crosshairStyle', () => {
     setupProximityInteraction(g, { width: 400, height: 300, points, crosshair: true, crosshairStyle: 'solid' })
 
     const vLine = g.querySelector('.bc-crosshair-v') as SVGLineElement
     expect(vLine).not.toBeNull()
-    // style.strokeDasharray must override any CSS class default
     expect(vLine.style.strokeDasharray).toBe('none')
   })
 
@@ -77,9 +114,112 @@ describe('setupProximityInteraction', () => {
     expect(vLine.style.strokeDasharray).toBe('4,3')
   })
 
+  // ── Empty dataset ────────────────────────────────────────────────
+
   it('does nothing with empty points', () => {
     const cleanup = setupProximityInteraction(g, { width: 400, height: 300, points: [] })
     expect(g.querySelector('.bc-proximity-overlay')).toBeNull()
+    cleanup()
+  })
+
+  // ── Single point ─────────────────────────────────────────────────
+
+  it('works with a single data point', () => {
+    const single = [{ cx: 200, cy: 150, label: 'Solo', value: 42, color: '#333' }]
+    const cleanup = setupProximityInteraction(g, { width: 400, height: 300, points: single })
+
+    expect(g.querySelector('.bc-proximity-overlay')).not.toBeNull()
+    expect(g.querySelector('.bc-proximity-dot')).not.toBeNull()
+    cleanup()
+  })
+
+  // ── Tooltip ──────────────────────────────────────────────────────
+
+  it('creates tooltip div when tooltip is enabled (default)', () => {
+    const cleanup = setupProximityInteraction(g, { width: 400, height: 300, points })
+    expect(document.querySelector('.bc-tooltip')).not.toBeNull()
+    cleanup()
+  })
+
+  it('does not create tooltip div when tooltip is false', () => {
+    const cleanup = setupProximityInteraction(g, { width: 400, height: 300, points, tooltip: false })
+    expect(document.querySelector('.bc-tooltip')).toBeNull()
+    cleanup()
+  })
+
+  it('injects tooltip styles into document head', () => {
+    const cleanup = setupProximityInteraction(g, { width: 400, height: 300, points, tooltip: true })
+    expect(document.getElementById('bc-tooltip-styles')).not.toBeNull()
+    cleanup()
+  })
+
+  // ── Mousemove / mouseleave ───────────────────────────────────────
+
+  it('hides highlight dot on mouseleave', () => {
+    const cleanup = setupProximityInteraction(g, { width: 400, height: 300, points, tooltip: false })
+
+    const overlay = g.querySelector('.bc-proximity-overlay')!
+    overlay.dispatchEvent(new MouseEvent('mousemove', { clientX: 100, clientY: 100 }))
+    overlay.dispatchEvent(new MouseEvent('mouseleave'))
+
+    const dot = g.querySelector('.bc-proximity-dot') as SVGCircleElement
+    expect(dot.style.display).toBe('none')
+    cleanup()
+  })
+
+  it('hides crosshair lines on mouseleave', () => {
+    const cleanup = setupProximityInteraction(g, {
+      width: 400, height: 300, points, tooltip: false, crosshair: true,
+    })
+
+    const overlay = g.querySelector('.bc-proximity-overlay')!
+    overlay.dispatchEvent(new MouseEvent('mousemove', { clientX: 100, clientY: 100 }))
+    overlay.dispatchEvent(new MouseEvent('mouseleave'))
+
+    expect((g.querySelector('.bc-crosshair-v') as SVGLineElement).style.display).toBe('none')
+    expect((g.querySelector('.bc-crosshair-h') as SVGLineElement).style.display).toBe('none')
+    cleanup()
+  })
+
+  it('hides tooltip on mouseleave', () => {
+    const cleanup = setupProximityInteraction(g, { width: 400, height: 300, points, tooltip: true })
+
+    const overlay = g.querySelector('.bc-proximity-overlay')!
+    overlay.dispatchEvent(new MouseEvent('mousemove', { clientX: 100, clientY: 100 }))
+    overlay.dispatchEvent(new MouseEvent('mouseleave'))
+
+    const tooltip = document.querySelector('.bc-tooltip') as HTMLDivElement
+    expect(tooltip.style.display).toBe('none')
+    cleanup()
+  })
+
+  // ── Insertion order ──────────────────────────────────────────────
+
+  it('inserts elements before .bc-annotations when present', () => {
+    const annG = document.createElementNS('http://www.w3.org/2000/svg', 'g')
+    annG.setAttribute('class', 'bc-annotations')
+    g.appendChild(annG)
+
+    const cleanup = setupProximityInteraction(g, { width: 400, height: 300, points, tooltip: false })
+
+    const children = Array.from(g.children)
+    const overlayIdx = children.findIndex(el => el.classList.contains('bc-proximity-overlay'))
+    const annIdx = children.findIndex(el => el.classList.contains('bc-annotations'))
+    expect(overlayIdx).toBeLessThan(annIdx)
+    cleanup()
+  })
+
+  // ── Multiple points at same x (y-nearest) ───────────────────────
+
+  it('handles multiple points at the same x-position', () => {
+    const stacked = [
+      { cx: 100, cy: 50, label: 'Top', value: 10, color: '#f00' },
+      { cx: 100, cy: 150, label: 'Mid', value: 20, color: '#0f0' },
+      { cx: 100, cy: 250, label: 'Bot', value: 30, color: '#00f' },
+    ]
+    const cleanup = setupProximityInteraction(g, { width: 400, height: 300, points: stacked, tooltip: false })
+
+    expect(g.querySelector('.bc-proximity-overlay')).not.toBeNull()
     cleanup()
   })
 })
