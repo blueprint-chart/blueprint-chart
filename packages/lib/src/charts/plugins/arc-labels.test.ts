@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { JSDOM } from 'jsdom'
 import * as d3 from 'd3'
-import { estimateArcLabelMargins, spreadLabels, renderInsideArcLabels, renderAutoArcLabels } from './arc-labels'
+import { estimateArcLabelMargins, spreadLabels, renderArcLabels, renderInsideArcLabels, renderAutoArcLabels } from './arc-labels'
 import type { ArcLabelDatum } from './arc-labels'
 
 describe('estimateArcLabelMargins', () => {
@@ -147,6 +147,114 @@ function makePieData(values: number[], labels: string[]): ArcLabelDatum[] {
     color: colors[i % colors.length],
   }))
 }
+
+describe('renderArcLabels', () => {
+  it('renders polylines and text elements for each datum', () => {
+    const g = createSvgGroup()
+    const data = makePieData([50, 50], ['Right', 'Left'])
+    renderArcLabels(g, data, { outerRadius: 100, chartWidth: 400, chartHeight: 300 })
+
+    const lines = g.selectAll('.bc-arc-label-line')
+    expect(lines.size()).toBe(2)
+    const texts = g.selectAll('.bc-arc-direct-label')
+    expect(texts.size()).toBe(2)
+  })
+
+  it('uses text-anchor "start" for right-side labels (midAngle < π)', () => {
+    const g = createSvgGroup()
+    // midAngle ≈ 0.785 (< π) → right side
+    const data: ArcLabelDatum[] = [{
+      label: 'Right', value: 25, startAngle: 0, endAngle: Math.PI / 2,
+      color: '#4e79a7',
+    }]
+    renderArcLabels(g, data, { outerRadius: 100, chartWidth: 400, chartHeight: 300 })
+
+    const text = g.select('.bc-arc-direct-label')
+    expect(text.attr('text-anchor')).toBe('start')
+  })
+
+  it('uses text-anchor "end" for left-side labels (midAngle > π)', () => {
+    const g = createSvgGroup()
+    // midAngle ≈ 4.71 (> π) → left side
+    const data: ArcLabelDatum[] = [{
+      label: 'Left', value: 25, startAngle: Math.PI * 1.25, endAngle: Math.PI * 1.75,
+      color: '#e15759',
+    }]
+    renderArcLabels(g, data, { outerRadius: 100, chartWidth: 400, chartHeight: 300 })
+
+    const text = g.select('.bc-arc-direct-label')
+    expect(text.attr('text-anchor')).toBe('end')
+  })
+
+  it('renders nothing for empty data', () => {
+    const g = createSvgGroup()
+    renderArcLabels(g, [], { outerRadius: 100, chartWidth: 400, chartHeight: 300 })
+    expect(g.selectAll('.bc-arc-direct-label').size()).toBe(0)
+  })
+
+  it('skips datum when both showLabel and showValue are false', () => {
+    const g = createSvgGroup()
+    const data: ArcLabelDatum[] = [{
+      label: 'Hidden', value: 50, startAngle: 0, endAngle: Math.PI / 2,
+      color: '#4e79a7', showLabel: false, showValue: false,
+    }]
+    renderArcLabels(g, data, { outerRadius: 100, chartWidth: 400, chartHeight: 300 })
+    expect(g.selectAll('.bc-arc-direct-label').size()).toBe(0)
+    expect(g.selectAll('.bc-arc-label-line').size()).toBe(0)
+  })
+
+  it('renders percentage text when displayAsPercentage is true', () => {
+    const g = createSvgGroup()
+    const data: ArcLabelDatum[] = [{
+      label: 'Pct', value: 30, startAngle: 0, endAngle: 1,
+      color: '#4e79a7', displayAsPercentage: true, percentage: 30,
+    }]
+    renderArcLabels(g, data, { outerRadius: 100, chartWidth: 400, chartHeight: 300 })
+
+    const el = g.node()!
+    const tspans = el.querySelectorAll('tspan')
+    const texts = Array.from(tspans).map(t => t.textContent)
+    expect(texts).toContain('30%')
+  })
+
+  it('renders only value tspan when showLabel is false', () => {
+    const g = createSvgGroup()
+    const data: ArcLabelDatum[] = [{
+      label: 'NoLabel', value: 42, startAngle: 0, endAngle: 1,
+      color: '#4e79a7', showLabel: false, showValue: true,
+    }]
+    renderArcLabels(g, data, { outerRadius: 100, chartWidth: 400, chartHeight: 300 })
+
+    const el = g.node()!
+    const tspans = el.querySelectorAll('tspan')
+    expect(tspans).toHaveLength(1)
+    expect(tspans[0].textContent).toBe('42')
+  })
+
+  it('renders only label tspan when showValue is false', () => {
+    const g = createSvgGroup()
+    const data: ArcLabelDatum[] = [{
+      label: 'OnlyLabel', value: 42, startAngle: 0, endAngle: 1,
+      color: '#4e79a7', showLabel: true, showValue: false,
+    }]
+    renderArcLabels(g, data, { outerRadius: 100, chartWidth: 400, chartHeight: 300 })
+
+    const el = g.node()!
+    const tspans = el.querySelectorAll('tspan')
+    expect(tspans).toHaveLength(1)
+    expect(tspans[0].textContent).toBe('OnlyLabel')
+  })
+
+  it('distributes labels on both sides for full pie data', () => {
+    const g = createSvgGroup()
+    const data = makePieData([30, 20, 25, 25], ['A', 'B', 'C', 'D'])
+    renderArcLabels(g, data, { outerRadius: 100, chartWidth: 400, chartHeight: 300 })
+
+    // Should create two bc-arc-labels groups (left and right)
+    const groups = g.selectAll('.bc-arc-labels')
+    expect(groups.size()).toBe(2)
+  })
+})
 
 describe('renderInsideArcLabels', () => {
   it('creates text elements at centroids for large slices', () => {

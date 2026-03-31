@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { parse } from './parser'
-import { serialize } from './serializer'
+import { serialize, compactSerialize } from './serializer'
 import type { ChartNode } from './types'
 
 describe('serializer', () => {
@@ -834,6 +834,156 @@ describe('serializer', () => {
       const serialized = serialize(ast1)
       const ast2 = parse(serialized)
       expect(ast2).toEqual(ast1)
+    })
+  })
+
+  // ── Highlight serialization ──────────────────────────────────────
+
+  it('serializes highlight blocks', () => {
+    const ast: ChartNode = {
+      type: 'chart',
+      chartType: 'bar',
+      properties: [],
+      data: null,
+      colorizes: [],
+      highlights: [{ type: 'highlight', target: 'Apple' }],
+      areaFills: [],
+      annotations: [],
+      series: [],
+      scenes: [],
+      transforms: [],
+    }
+    const output = serialize(ast)
+    expect(output).toContain('  highlight "Apple"')
+  })
+
+  it('serializes highlight in scene', () => {
+    const ast: ChartNode = {
+      type: 'chart',
+      chartType: 'bar',
+      properties: [],
+      data: null,
+      colorizes: [],
+      areaFills: [],
+      annotations: [],
+      series: [],
+      scenes: [{
+        type: 'scene',
+        name: 'Focus',
+        properties: [],
+        data: null,
+        colorizes: [],
+        highlights: [{ type: 'highlight', target: 'Banana' }],
+        areaFills: [],
+        annotations: [],
+        annotationVisibility: [],
+        series: [],
+        transforms: [],
+      }],
+      transforms: [],
+    }
+    const output = serialize(ast)
+    expect(output).toContain('    highlight "Banana"')
+  })
+
+  it('round-trips highlights through parse and serialize', () => {
+    const dsl = `chart bar {
+  highlight "Apple"
+  scene "Focus" {
+    highlight "Banana"
+  }
+}`
+    const ast1 = parse(dsl)
+    const serialized = serialize(ast1)
+    const ast2 = parse(serialized)
+    expect(ast2).toEqual(ast1)
+  })
+
+  // ── compactSerialize ─────────────────────────────────────────────
+
+  describe('compactSerialize', () => {
+    it('omits properties matching their registry default', () => {
+      const withDefault: ChartNode = {
+        type: 'chart',
+        chartType: 'bar-vertical',
+        properties: [
+          { type: 'property', key: 'sort', value: 'descending', isPercentage: false },
+          { type: 'property', key: 'title', value: 'Custom Title', isPercentage: false },
+        ],
+        data: null,
+        colorizes: [],
+        areaFills: [],
+        annotations: [],
+        series: [],
+        scenes: [],
+        transforms: [],
+      }
+      const full = serialize(withDefault)
+      const compact = compactSerialize(withDefault)
+      // compact should be shorter or equal (never longer) than full
+      expect(compact.length).toBeLessThanOrEqual(full.length)
+      // title has no default, must always be present
+      expect(compact).toContain('title = "Custom Title"')
+    })
+
+    it('includes non-default property values', () => {
+      const ast: ChartNode = {
+        type: 'chart',
+        chartType: 'bar-vertical',
+        properties: [
+          { type: 'property', key: 'sort', value: 'descending', isPercentage: false },
+        ],
+        data: null,
+        colorizes: [],
+        areaFills: [],
+        annotations: [],
+        series: [],
+        scenes: [],
+        transforms: [],
+      }
+      const output = compactSerialize(ast)
+      expect(output).toContain('sort = descending')
+    })
+
+    it('still serializes data, colorizes, and other blocks', () => {
+      const ast: ChartNode = {
+        type: 'chart',
+        chartType: 'bar-vertical',
+        properties: [],
+        data: {
+          type: 'data',
+          entries: [{ type: 'property', key: 'A', value: 10, isPercentage: false }],
+        },
+        colorizes: [{
+          type: 'colorize',
+          target: 'A',
+          properties: [{ type: 'property', key: 'color', value: '#f00', isPercentage: false }],
+        }],
+        areaFills: [],
+        annotations: [],
+        series: [],
+        scenes: [],
+        transforms: [],
+      }
+      const output = compactSerialize(ast)
+      expect(output).toContain('data {')
+      expect(output).toContain('colorize "A" {')
+    })
+
+    it('produces valid output for minimal chart', () => {
+      const ast: ChartNode = {
+        type: 'chart',
+        chartType: 'line',
+        properties: [],
+        data: null,
+        colorizes: [],
+        areaFills: [],
+        annotations: [],
+        series: [],
+        scenes: [],
+        transforms: [],
+      }
+      expect(compactSerialize(ast)).toBe('chart line {\n}')
     })
   })
 })
