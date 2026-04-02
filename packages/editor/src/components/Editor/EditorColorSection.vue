@@ -122,12 +122,13 @@ import { useChartConfig } from '@/stores/chartConfig'
 import { useChartTypeOptions } from '@/stores/chartTypeOptions'
 import { storeToRefs } from 'pinia'
 import { useCvdMode } from '@/stores/cvdMode'
-import { parseData, listPalettes, resolvePalette, wcagContrastRatio, wcagLevel, adjustColorsForBackground, checkCvdColors } from '@blueprint-chart/lib'
+import { parseData, listPalettes, resolvePalette } from '@blueprint-chart/lib'
 import type { CvdType } from '@blueprint-chart/lib'
 import IconPhCheck from '~icons/ph/check'
 import IconPhEye from '~icons/ph/eye'
 import IconPhInfo from '~icons/ph/info'
 import EditorBarAppearance from './EditorBarAppearance.vue'
+import { useColorAccessibility } from './useColorAccessibility'
 import CvdNoneThumb from '@/assets/chart-thumbnails/cvd-none.bpc'
 import CvdProtanopiaThumb from '@/assets/chart-thumbnails/cvd-protanopia.bpc'
 import CvdDeuteranopiaThumb from '@/assets/chart-thumbnails/cvd-deuteranopia.bpc'
@@ -174,41 +175,11 @@ const activeColors = computed<string[]>(() => {
   return resolvedColors.value
 })
 
-const LIGHT_BG = '#ffffff'
-const DARK_BG = '#1a1a1a'
-
-function computeContrast(colors: string[], bg: string, autoContrast: boolean) {
-  const adjusted = autoContrast ? adjustColorsForBackground(colors, bg) : colors
-  const ratios = adjusted.map(c => wcagContrastRatio(c, bg))
-  const minRatio = Math.min(...ratios)
-  return { level: wcagLevel(minRatio), ratio: `${minRatio.toFixed(1)}:1` }
-}
-
-const lightContrastInfo = computed(() => {
-  const raw = activeColors.value
-  if (raw.length === 0) {
-    return null
-  }
-  return computeContrast(raw, LIGHT_BG, !!currentOptions.value.autoContrast)
-})
-
-const darkContrastInfo = computed(() => {
-  const raw = activeColors.value
-  if (raw.length === 0) {
-    return null
-  }
-  const allowDark = currentOptions.value.allowDarkMode ?? true
-  if (!allowDark) {
-    return null
-  }
-  return computeContrast(raw, DARK_BG, !!currentOptions.value.autoContrast)
-})
-
-const CVD_SHORT_LABELS: Record<CvdType, string> = {
-  protanopia: 'Protan',
-  deuteranopia: 'Deutan',
-  tritanopia: 'Tritan',
-}
+const { lightContrastInfo, darkContrastInfo, cvdInfo } = useColorAccessibility(
+  activeColors,
+  () => !!currentOptions.value.autoContrast,
+  () => currentOptions.value.allowDarkMode ?? true,
+)
 
 const cvdSafeBadgeRef = ref<HTMLElement>()
 const cvdBadgeRefs = ref<HTMLElement[]>([])
@@ -217,26 +188,6 @@ function getCvdBadgeEl(type: CvdType): HTMLElement | undefined {
   const idx = cvdInfo.value?.issues.findIndex(i => i.type === type) ?? -1
   return idx >= 0 ? cvdBadgeRefs.value[idx] : undefined
 }
-
-const cvdInfo = computed(() => {
-  const colors = activeColors.value
-  if (colors.length === 0) {
-    return null
-  }
-  const issues = colors.length >= 2 ? checkCvdColors(colors) : []
-  if (issues.length === 0) {
-    return {
-      safe: true as const, issues: [] }
-  }
-  return {
-    safe: false as const,
-    issues: issues.map(i => ({
-      type: i.type,
-      shortLabel: CVD_SHORT_LABELS[i.type],
-      tooltip: `${i.label}: ${i.pairs.length} color ${i.pairs.length === 1 ? 'pair' : 'pairs'} may be hard to distinguish.`,
-    })),
-  }
-})
 
 const cvdOptions = [
   { value: '', text: 'None', description: 'Normal color vision', visual: markRaw(CvdNoneThumb) },
