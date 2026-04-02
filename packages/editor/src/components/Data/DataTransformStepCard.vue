@@ -55,15 +55,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, type Component } from 'vue'
+import { computed } from 'vue'
 import type { TransformStep } from '@/stores/dataTransforms'
-import IPhSortAscending from '~icons/ph/sort-ascending'
-import IPhFunnel from '~icons/ph/funnel'
-import IPhArrowsClockwise from '~icons/ph/arrows-clockwise'
-import IPhEyeSlash from '~icons/ph/eye-slash'
-import IPhWrench from '~icons/ph/wrench'
-import IPhPencilSimple from '~icons/ph/pencil-simple'
-import IPhStack from '~icons/ph/stack'
+import { stepMeta } from './transformStepIcons'
 
 const props = defineProps<{
   step: TransformStep
@@ -77,53 +71,11 @@ defineEmits<{
   delete: []
 }>()
 
-const iconClassMap: Record<string, string> = {
-  'sort': 'step-card__body__icon--sort',
-  'filter': 'step-card__body__icon--filter',
-  'hide-columns': 'step-card__body__icon--hide-columns',
-  'transpose': 'step-card__body__icon--transpose',
-  'parse': 'step-card__body__icon--parse',
-  'rename': 'step-card__body__icon--rename',
-  'group-by': 'step-card__body__icon--group',
-  'computed': 'step-card__body__icon--computed',
-}
-
-const iconComponentMap: Record<string, Component> = {
-  'sort': IPhSortAscending,
-  'filter': IPhFunnel,
-  'hide-columns': IPhEyeSlash,
-  'transpose': IPhArrowsClockwise,
-  'parse': IPhWrench,
-  'rename': IPhPencilSimple,
-  'group-by': IPhStack,
-}
-
-const iconFallbackMap: Record<string, string> = {
-  'sort': 'S',
-  'filter': 'F',
-  'hide-columns': 'H',
-  'transpose': 'T',
-  'parse': 'P',
-  'rename': 'R',
-  'group-by': 'G',
-  'computed': 'C',
-}
-
-const labelMap: Record<string, string> = {
-  'sort': 'Sort',
-  'filter': 'Filter',
-  'hide-columns': 'Hide Columns',
-  'transpose': 'Transpose',
-  'parse': 'Parse',
-  'rename': 'Rename',
-  'group-by': 'Group By',
-  'computed': 'Computed',
-}
-
-const iconClass = computed(() => iconClassMap[props.step.type] ?? '')
-const iconComponent = computed(() => iconComponentMap[props.step.type] ?? null)
-const iconFallback = computed(() => iconFallbackMap[props.step.type] ?? '?')
-const label = computed(() => labelMap[props.step.type] ?? props.step.type)
+const meta = computed(() => stepMeta[props.step.type])
+const iconClass = computed(() => meta.value.iconClass)
+const iconComponent = computed(() => meta.value.iconComponent ?? null)
+const iconFallback = computed(() => meta.value.fallback)
+const label = computed(() => meta.value.label)
 
 const description = computed(() => {
   const { step } = props
