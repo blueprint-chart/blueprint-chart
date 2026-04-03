@@ -35,7 +35,7 @@
       :model-value="(currentOptions.sliceMax as string) ?? '6'"
       min="2"
       max="20"
-      @update:model-value="(v) => setOption('sliceMax', v as any)"
+      @update:model-value="(v) => setOption('sliceMax', String(v))"
     />
 
     <BFormGroup
@@ -47,7 +47,7 @@
         id="opt-sliceGroupLabel"
         :model-value="(currentOptions.sliceGroupLabel as string) ?? 'Others'"
         placeholder="Others"
-        @update:model-value="(v: string) => setOption('sliceGroupLabel', v as any)"
+        @update:model-value="(v: string) => setOption('sliceGroupLabel', v)"
       />
     </BFormGroup>
   </div>
