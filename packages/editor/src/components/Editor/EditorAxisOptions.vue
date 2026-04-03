@@ -39,7 +39,7 @@
       <AxisGroup
         :defs="verticalDefs"
         :current-options="currentOptions"
-        @update="(k, v) => setOption(k, v as any)"
+        @update="setOption"
       />
     </SettingsSection>
 
@@ -51,7 +51,7 @@
       <AxisGroup
         :defs="horizontalDefs"
         :current-options="currentOptions"
-        @update="(k, v) => setOption(k, v as any)"
+        @update="setOption"
       />
     </SettingsSection>
   </div>
@@ -74,7 +74,7 @@ import {
   SettingsSection,
 } from '@blueprint-chart/ui'
 import type { ChartOptionDef } from '@blueprint-chart/lib'
-import { useChartTypeOptions, type ChartTypeOptionKey } from '@/stores/chartTypeOptions'
+import { useChartTypeOptions, type ChartTypeOptionKey, type ChartTypeOptions } from '@/stores/chartTypeOptions'
 import { useDataTable } from '@/stores/dataTable'
 import IFluentLineSolid from '~icons/fluent/line-horizontal-1-20-filled'
 import IFluentLineDashed from '~icons/fluent/line-horizontal-1-dashes-20-filled'
@@ -123,7 +123,14 @@ const HORIZONTAL_KEYS = new Set([
   'horizontalRangeMax',
 ])
 
-const { currentOptions, optionDefs, availableOptionKeys, setOption } = useChartTypeOptions()
+const { currentOptions, optionDefs, availableOptionKeys, setOption: _setOption } = useChartTypeOptions()
+
+// Wrapper for dynamic key/value pairs emitted by AxisGroup — the generic
+// setOption<K> requires a paired key-value type that cannot be statically
+// verified when the key is a runtime ChartTypeOptionKey.
+function setOption(key: ChartTypeOptionKey, value: ChartTypeOptions[ChartTypeOptionKey]) {
+  _setOption(key, value as ChartTypeOptions[typeof key])
+}
 const { displayColumnTypes } = useDataTable()
 
 const labelColumnType = computed(() => displayColumnTypes.value[0] ?? 'string')
