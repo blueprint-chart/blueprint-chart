@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
+import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
 import { BootstrapVueNextResolver } from 'bootstrap-vue-next'
 import Icons from 'unplugin-icons/vite'
@@ -8,7 +9,14 @@ import IconsResolver from 'unplugin-icons/resolver'
 export default defineConfig({
   plugins: [
     vue(),
+    AutoImport({
+      imports: ['vue', '@vueuse/core', 'vitest'],
+      dirs: ['src/composables'],
+      dts: 'auto-imports.d.ts',
+      eslintrc: { enabled: true, filepath: 'auto-imports.eslintrc.json' },
+    }),
     Components({
+      dirs: ['src/components'],
       resolvers: [
         BootstrapVueNextResolver(),
         IconsResolver({
@@ -16,6 +24,7 @@ export default defineConfig({
           enabledCollections: ['ph'],
         }),
       ],
+      dts: 'components.d.ts',
     }),
     Icons({
       compiler: 'vue3',
