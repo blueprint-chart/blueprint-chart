@@ -1,4 +1,4 @@
-import type { TransformResult } from '../useDataTransforms'
+import type { TransformResult } from '@/stores/dataTransforms'
 
 function matchesCondition(value: string, condition: string, target: string): boolean {
   if (!target && condition !== 'equals' && condition !== 'not-equals') {

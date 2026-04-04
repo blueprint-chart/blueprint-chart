@@ -1,4 +1,4 @@
-import type { TransformResult } from '../useDataTransforms'
+import type { TransformResult } from '@/stores/dataTransforms'
 
 export function applyRename(data: TransformResult, config: Record<string, string>): TransformResult {
   const colIndex = data.columns.indexOf(config.column)

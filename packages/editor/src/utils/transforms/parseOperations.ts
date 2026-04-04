@@ -1,4 +1,4 @@
-import type { ColumnType } from '../useDataParser'
+import type { ColumnType } from '../data/parser'
 
 export interface ParseOperation {
   id: string
