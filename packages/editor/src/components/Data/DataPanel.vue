@@ -14,18 +14,12 @@
 </template>
 
 <script setup lang="ts">
-import { watch, onMounted } from 'vue'
-import { storeToRefs } from 'pinia'
 import { useEditorPanel } from '@/stores/editorPanel'
 import { useDataTable } from '@/stores/dataTable'
-import { useDslSync } from '@/composables/useDslSync'
 import { useChartSession } from '@/stores/chartSession'
 import { useWizard } from '@/stores/wizard'
-import { parseDelimited } from '@/composables/useDataParser'
 import { useParseOptions } from '@/stores/parseOptions'
 import type { ChartSample } from '@blueprint-chart/lib'
-import DataUploadCard from './DataUploadCard.vue'
-import DataStructurePanel from './DataStructurePanel.vue'
 
 const editorPanel = useEditorPanel()
 const { dataView } = storeToRefs(editorPanel)

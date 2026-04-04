@@ -115,19 +115,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed, markRaw, ref } from 'vue'
 import { BTooltip } from 'bootstrap-vue-next'
 import { FormControlColorsInput, FormControlPalette, FormControlCheckbox, DisplayContrastBadge, FormControlButtonGroup } from '@blueprint-chart/ui'
 import { useChartConfig } from '@/stores/chartConfig'
 import { useChartTypeOptions } from '@/stores/chartTypeOptions'
-import { storeToRefs } from 'pinia'
 import { useCvdMode } from '@/stores/cvdMode'
 import { parseData, listPalettes, resolvePalette } from '@blueprint-chart/lib'
 import type { CvdType } from '@blueprint-chart/lib'
 import IconPhCheck from '~icons/ph/check'
 import IconPhEye from '~icons/ph/eye'
 import IconPhInfo from '~icons/ph/info'
-import EditorBarAppearance from './EditorBarAppearance.vue'
 import { useColorAccessibility } from './useColorAccessibility'
 import CvdNoneThumb from '@/assets/chart-thumbnails/cvd-none.bpc'
 import CvdProtanopiaThumb from '@/assets/chart-thumbnails/cvd-protanopia.bpc'

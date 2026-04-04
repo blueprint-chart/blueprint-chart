@@ -22,7 +22,6 @@
 </template>
 
 <script setup lang="ts">
-import DashboardActionRow from './DashboardActionRow.vue'
 import IPhCopy from '~icons/ph/copy'
 import IPhTrash from '~icons/ph/trash'
 

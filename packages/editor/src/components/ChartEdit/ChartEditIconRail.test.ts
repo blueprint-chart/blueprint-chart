@@ -1,5 +1,3 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { setActivePinia, createPinia, storeToRefs } from 'pinia'
 import { useEditorPanelStore as useEditorPanel } from '@/stores/editorPanel'
 
 vi.mock('@/stores/chartConfig', () => ({

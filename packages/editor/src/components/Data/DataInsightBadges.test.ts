@@ -1,4 +1,3 @@
-import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
 import DataInsightBadges from './DataInsightBadges.vue'
 import type { ColumnType } from '@/composables/useDataParser'

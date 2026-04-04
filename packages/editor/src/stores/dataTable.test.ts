@@ -1,8 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest'
-import { createPinia, setActivePinia } from 'pinia'
 import { useDataTable, serializeTableData } from './dataTable'
-import { useScenes } from '@/composables/useScenes'
-import { useDataTransforms } from '@/composables/useDataTransforms'
 
 // BPC end-to-end tests temporarily excluded — useDslSync depends on
 // useChartTheme which has an incomplete barrel from a prior migration.

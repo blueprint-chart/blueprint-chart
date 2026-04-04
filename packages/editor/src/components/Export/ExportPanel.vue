@@ -70,25 +70,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, shallowRef, computed, watch, type CSSProperties } from 'vue'
-import { storeToRefs } from 'pinia'
-import { useResizeObserver } from '@vueuse/core'
+import type { CSSProperties } from 'vue'
 import { LayoutBottomDrawer, useBreakpoint } from '@blueprint-chart/ui'
 import { useEditorPanel } from '@/stores/editorPanel'
-import { useCanvasCardStyle } from '@/composables/useCanvasCardStyle'
 import { useExportPanel, type ExportTab } from '@/stores/exportPanel'
 import { useChartConfig } from '@/stores/chartConfig'
-import { useChartPreview } from '@/composables/useChartPreview'
-import { useImageExport } from '@/composables/useImageExport'
-import PanelTabBar from '@/components/Panel/PanelTabBar.vue'
-import ExportIconRail from './ExportIconRail.vue'
-import ExportDockedPanel from './ExportDockedPanel.vue'
-import ExportFloatingPanel from './ExportFloatingPanel.vue'
-import ExportEmbedPanel from './ExportEmbedPanel.vue'
-import ExportDownloadPanel from './ExportDownloadPanel.vue'
-
-import CanvasDimensions from '@/components/Canvas/CanvasDimensions.vue'
-import CanvasModePicker from '@/components/Canvas/CanvasModePicker.vue'
 
 const editorPanel = useEditorPanel()
 const { canvasMode, showDimensions, panelMode } = storeToRefs(editorPanel)

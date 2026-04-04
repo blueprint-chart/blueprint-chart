@@ -6,8 +6,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref, toRef } from 'vue'
-import { useChartFromDsl } from '@/composables/useChartFromDsl'
 
 const props = defineProps<{
   bpc: string

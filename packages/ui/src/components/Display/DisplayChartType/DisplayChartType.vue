@@ -3,8 +3,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { getChartTypeLabel } from '../chartTypeLabels'
+import { getChartTypeLabel } from '../../../utils/chartType'
 
 const props = defineProps<{
   chartType: string

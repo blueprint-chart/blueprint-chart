@@ -5,5 +5,4 @@
 </template>
 
 <script setup lang="ts">
-import EditorInteractionSection from './EditorInteractionSection.vue'
 </script>

@@ -136,7 +136,7 @@
 </template>
 
 <script setup lang="ts">
-import { shallowRef, type Component } from 'vue'
+import type { Component } from 'vue'
 import { AppIcon } from '@blueprint-chart/ui'
 import IPhSortAscending from '~icons/ph/sort-ascending'
 import IPhFunnel from '~icons/ph/funnel'
@@ -145,8 +145,6 @@ import IPhWrench from '~icons/ph/wrench'
 import IPhPencilSimple from '~icons/ph/pencil-simple'
 import IPhEyeSlash from '~icons/ph/eye-slash'
 import IPhArrowsClockwise from '~icons/ph/arrows-clockwise'
-import LandingSection from './LandingSection.vue'
-import LandingSectionHeader from './LandingSectionHeader.vue'
 
 const activeStep = shallowRef(0)
 

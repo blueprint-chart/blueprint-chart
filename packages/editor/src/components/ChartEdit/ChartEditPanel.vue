@@ -66,31 +66,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, shallowRef, computed, watch, type CSSProperties } from 'vue'
-import { storeToRefs } from 'pinia'
-import { useResizeObserver } from '@vueuse/core'
+import type { CSSProperties } from 'vue'
 import { LayoutBottomDrawer, useBreakpoint } from '@blueprint-chart/ui'
 import { useEditorPanel } from '@/stores/editorPanel'
-import { useCanvasCardStyle } from '@/composables/useCanvasCardStyle'
-import PanelTabBar from '@/components/Panel/PanelTabBar.vue'
 import { useChartConfig } from '@/stores/chartConfig'
 import { useChartTypeOptions } from '@/stores/chartTypeOptions'
 import { useScenes } from '@/stores/scenes'
-import PreviewChart from '@/components/Preview/PreviewChart.vue'
-import ChartEditDsl from './ChartEditDsl.vue'
-import ChartEditDockedPanel from './ChartEditDockedPanel.vue'
-import ChartEditIconRail from './ChartEditIconRail.vue'
-import ChartEditFloatingPanel from './ChartEditFloatingPanel.vue'
-import CanvasDimensions from '@/components/Canvas/CanvasDimensions.vue'
-import CanvasModePicker from '@/components/Canvas/CanvasModePicker.vue'
-import EditorChartTypePicker from '@/components/Editor/EditorChartTypePicker.vue'
-import EditorPropertyForm from '@/components/Editor/EditorPropertyForm.vue'
-import EditorAppearanceTab from '@/components/Editor/EditorAppearanceTab.vue'
-import EditorLayoutTab from '@/components/Editor/EditorLayoutTab.vue'
-import EditorSeriesPanel from '@/components/Editor/EditorSeriesPanel.vue'
-import EditorAxisOptions from '@/components/Editor/EditorAxisOptions.vue'
-import EditorAnnotateTab from '@/components/Editor/EditorAnnotateTab.vue'
-import EditorInteractionsTab from '@/components/Editor/EditorInteractionsTab.vue'
 
 const AXIS_KEYS = ['showVerticalAxis', 'verticalAxisDirection', 'showVerticalTicks', 'verticalLabelPosition', 'verticalGridStyle', 'verticalNumberFormat', 'verticalScaleType', 'verticalRangeMin', 'verticalRangeMax', 'showHorizontalAxis', 'showHorizontalTicks', 'horizontalLabelPosition', 'horizontalGridStyle', 'horizontalNumberFormat', 'horizontalScaleType', 'horizontalRangeMin', 'horizontalRangeMax']
 

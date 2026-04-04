@@ -27,10 +27,6 @@
 
 <script setup lang="ts">
 import { samples } from '@blueprint-chart/lib'
-import LandingSection from './LandingSection.vue'
-import LandingSectionHeader from './LandingSectionHeader.vue'
-import LandingBulletPoint from './LandingBulletPoint.vue'
-import LandingChartPreview from './LandingChartPreview.vue'
 
 const temperatureBpc = samples.find(s => s.id === 'temperature-anomaly')!.dsl
   .replace(/\{/, '{\n  theme = "blueprint-framed"')

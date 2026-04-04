@@ -33,7 +33,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, shallowRef, type CSSProperties } from 'vue'
+import type { CSSProperties } from 'vue'
 
 const DISMISS_THRESHOLD = 80
 

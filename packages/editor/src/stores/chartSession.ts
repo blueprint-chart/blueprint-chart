@@ -1,5 +1,3 @@
-import { shallowRef, watch } from 'vue'
-import { defineStore, storeToRefs } from 'pinia'
 import { useChartConfig } from '@/stores/chartConfig'
 import { useDataTable } from '@/stores/dataTable'
 import { useDataTransforms } from '@/stores/dataTransforms'

@@ -85,12 +85,9 @@
 </template>
 
 <script setup lang="ts">
-import { shallowRef, computed, watch } from 'vue'
-import { storeToRefs } from 'pinia'
 import { FormControlDropdown } from '@blueprint-chart/ui'
 import { useEditorPanel } from '@/stores/editorPanel'
 import { useDataTable } from '@/stores/dataTable'
-import { checkBenford } from '@/composables/useBenfordCheck'
 import type { ColumnType } from '@/composables/useDataParser'
 const editorPanel = useEditorPanel()
 const { selectedColumnIndex } = storeToRefs(editorPanel)

@@ -33,9 +33,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, toRaw } from 'vue'
 import { ActionCopyButton } from '@blueprint-chart/ui'
-import { useDslOutput } from '@/composables/useDslOutput'
 import { useChartConfig } from '@/stores/chartConfig'
 
 const { dsl, generateDsl } = useDslOutput()

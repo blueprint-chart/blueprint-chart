@@ -60,7 +60,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
 import { useChartTypeOptions } from '@/stores/chartTypeOptions'
 import { useChartConfig } from '@/stores/chartConfig'
 import { useScenes } from '@/stores/scenes'

@@ -84,7 +84,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
 import { FormControlButtonGroup, FormControlSliderInput, FormControlDropdown, FormControlCheckbox } from '@blueprint-chart/ui'
 import { useChartConfig } from '@/stores/chartConfig'
 

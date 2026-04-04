@@ -1,4 +1,3 @@
-import { storeToRefs } from 'pinia'
 import { parse, propertyMap, extractChartTypeOptions, extractSceneOverrides, dataEntriesToString, convertColorizes, convertHighlights, convertAreaFills, convertAnnotations, convertSeriesOverrides } from '@blueprint-chart/lib'
 import { useChartConfig, layoutDefaults, type ChartLayout } from './useChartConfig'
 import { useChartThemeStore } from './useChartTheme'

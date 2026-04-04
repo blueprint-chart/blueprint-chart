@@ -16,7 +16,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
 import { FormControlButtonGroup } from '@blueprint-chart/ui'
 import { useChartConfig } from '@/stores/chartConfig'
 import IPhEquals from '~icons/ph/equals'

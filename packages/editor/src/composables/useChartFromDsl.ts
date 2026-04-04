@@ -1,5 +1,4 @@
-import { ref, watch, isRef, type Ref, type ComputedRef } from 'vue'
-import { useResizeObserver, useThrottleFn } from '@vueuse/core'
+import type { Ref, ComputedRef } from 'vue'
 import { useTheme } from './useTheme'
 import {
   parse,

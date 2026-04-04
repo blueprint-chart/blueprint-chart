@@ -29,9 +29,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, useTemplateRef } from 'vue'
 import { BTooltip } from 'bootstrap-vue-next'
-import { checkBenford } from '@/composables/useBenfordCheck'
 import type { ColumnType } from '@/composables/useDataParser'
 
 const props = defineProps<{

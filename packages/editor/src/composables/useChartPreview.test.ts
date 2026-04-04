@@ -1,4 +1,3 @@
-import { describe, it, expect } from 'vitest'
 import type { AnnotationConfig, SeriesOverride } from '@blueprint-chart/lib'
 import { resolveScene, resolveSortFromTransforms } from './useChartPreview'
 import type { SceneOverride } from './useScenes'

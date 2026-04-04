@@ -1,5 +1,3 @@
-import { ref, shallowRef, computed } from 'vue'
-import { defineStore, storeToRefs } from 'pinia'
 import type { ChartColorize } from '@/stores/chartConfig'
 import type { ChartTypeOptions } from '@/stores/chartTypeOptions'
 import type { TransformStep } from '@/stores/dataTransforms'

@@ -10,10 +10,7 @@
 </template>
 
 <script setup lang="ts">
-import { type Component, computed } from 'vue'
-import { useChildEntriesProvider } from '../../../composables/useChildEntries'
-import { StepperEntriesKey } from '../../../composables/injection-keys'
-import NavigationPillBase from '../NavigationPillBase/NavigationPillBase.vue'
+import type { Component } from 'vue'
 
 const currentStepModel = defineModel<number>('currentStep', { required: true })
 

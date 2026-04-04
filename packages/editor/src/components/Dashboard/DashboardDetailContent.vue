@@ -36,9 +36,6 @@
 
 <script setup lang="ts">
 import { ButtonIcon } from '@blueprint-chart/ui'
-import DashboardDetailPreview from './DashboardDetailPreview.vue'
-import DashboardDetailMeta from './DashboardDetailMeta.vue'
-import DashboardDetailActions from './DashboardDetailActions.vue'
 import IPhPencilSimple from '~icons/ph/pencil-simple'
 
 defineProps<{

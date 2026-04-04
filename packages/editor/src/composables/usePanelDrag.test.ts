@@ -1,5 +1,3 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { ref } from 'vue'
 import { usePanelDrag, type DragPosition } from './usePanelDrag'
 
 vi.mock('@vueuse/core', () => ({

@@ -1,6 +1,3 @@
-import { reactive, toRefs } from 'vue'
-import { defineStore, storeToRefs } from 'pinia'
-
 export interface ParseOptions {
   firstRowIsHeader: boolean
   delimiter: 'auto' | ',' | '\t' | ';' | '|'

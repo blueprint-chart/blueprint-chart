@@ -1,5 +1,4 @@
 import { mount } from '@vue/test-utils'
-import { h, nextTick } from 'vue'
 import Stepper from './NavigationStepper.vue'
 import StepperStep from './NavigationStepperStep.vue'
 

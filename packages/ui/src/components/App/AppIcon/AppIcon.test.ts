@@ -1,5 +1,4 @@
 import { shallowMount } from '@vue/test-utils'
-import { defineComponent, h } from 'vue'
 import AppIcon from './AppIcon.vue'
 
 const MockIcon = defineComponent({

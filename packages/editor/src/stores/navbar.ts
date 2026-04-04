@@ -1,6 +1,3 @@
-import { ref } from 'vue'
-import { defineStore, storeToRefs } from 'pinia'
-
 export type NavbarMode = 'home' | 'wizard'
 
 export const useNavbarStore = defineStore('navbar', () => {

@@ -10,13 +10,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, type Component } from 'vue'
-import { storeToRefs } from 'pinia'
+import type { Component } from 'vue'
 import { useEditorPanel } from '@/stores/editorPanel'
 import { useChartConfig } from '@/stores/chartConfig'
 import { useChartTypeOptions } from '@/stores/chartTypeOptions'
 import { useScenes } from '@/stores/scenes'
-import PanelIconRail from '@/components/Panel/PanelIconRail.vue'
 import IPhChartBar from '~icons/ph/chart-bar'
 import IPhTextAa from '~icons/ph/text-aa'
 import IPhPalette from '~icons/ph/palette'

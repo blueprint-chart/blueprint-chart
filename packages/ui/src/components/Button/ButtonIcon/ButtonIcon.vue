@@ -59,11 +59,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, shallowRef, inject, useTemplateRef, type Component } from 'vue'
+import type { Component } from 'vue'
 import type { TextColorVariant, ButtonVariant, PopoverPlacement, Size, BButtonProps } from 'bootstrap-vue-next'
 import IPhCircleNotch from '~icons/ph/circle-notch'
-import AppIcon from '../../App/AppIcon/AppIcon.vue'
-import ButtonIconCounter from '../ButtonIconCounter/ButtonIconCounter.vue'
 
 let _uid = 0
 

@@ -1,4 +1,3 @@
-import { shallowRef, ref, reactive, computed, watch } from 'vue'
 import { useChartSession, generateId } from '@/composables/useChartSession'
 import {
   getThumbnail,

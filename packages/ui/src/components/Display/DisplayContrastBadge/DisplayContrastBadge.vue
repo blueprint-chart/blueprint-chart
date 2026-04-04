@@ -17,7 +17,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed, useTemplateRef } from 'vue'
 import { BTooltip } from 'bootstrap-vue-next'
 import IconPhInfo from '~icons/ph/info'
 

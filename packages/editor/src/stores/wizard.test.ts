@@ -1,6 +1,3 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { setActivePinia, createPinia } from 'pinia'
-
 const mockRoute = { path: '/new', params: {} as Record<string, string> }
 const mockReplace = vi.fn()
 

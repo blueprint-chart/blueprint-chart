@@ -1,5 +1,3 @@
-import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
-import { setActivePinia, createPinia } from 'pinia'
 import type { AnnotationConfig } from '@blueprint-chart/lib'
 import { useScenes } from './scenes'
 

@@ -20,9 +20,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch, onMounted, onUnmounted } from 'vue'
 import { onBeforeRouteLeave } from 'vue-router'
-import { useDebounceFn } from '@vueuse/core'
 import { useWizard } from '@/stores/wizard'
 import { useNavbar } from '@/stores/navbar'
 import { useDataTable } from '@/stores/dataTable'
@@ -32,15 +30,10 @@ import { useChartTypeOptions } from '@/stores/chartTypeOptions'
 import { useDataTransforms, type TransformStep } from '@/stores/dataTransforms'
 import { serializeTableData } from '@/stores/dataTable'
 import { useScenes } from '@/stores/scenes'
-import { resolveScene, resolveSortFromTransforms } from '@/composables/useChartPreview'
-import { generateThumbnail, renderThumbnailSvg } from '@/composables/useChartThumbnail'
 import type { ChartColorize } from '@/stores/chartConfig'
 import { parseData } from '@blueprint-chart/lib'
 import type { SeriesOverride } from '@blueprint-chart/lib'
 import { SceneTimeline } from '@blueprint-chart/ui'
-import DataPanel from '@/components/Data/DataPanel.vue'
-import ChartEditPanel from '@/components/ChartEdit/ChartEditPanel.vue'
-import ExportPanel from '@/components/Export/ExportPanel.vue'
 
 const { currentStep, registerCreateSession } = useWizard()
 const { setMode, reset: resetNavbar } = useNavbar()

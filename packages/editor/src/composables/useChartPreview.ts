@@ -1,5 +1,4 @@
-import { watch, computed, type Ref } from 'vue'
-import { useResizeObserver, useThrottleFn } from '@vueuse/core'
+import type { Ref } from 'vue'
 import { useChartConfig } from './useChartConfig'
 import { useChartTypeOptions } from './useChartTypeOptions'
 import { useScenes, type SceneOverride } from './useScenes'

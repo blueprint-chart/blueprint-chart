@@ -19,14 +19,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { storeToRefs } from 'pinia'
 import { useEditorPanel } from '@/stores/editorPanel'
 import { useExportPanel } from '@/stores/exportPanel'
-import PanelDocked from '@/components/Panel/PanelDocked.vue'
-import ExportEmbedPanel from './ExportEmbedPanel.vue'
-import ExportDownloadPanel from './ExportDownloadPanel.vue'
-import PanelStepperFooter from '@/components/Panel/PanelStepperFooter.vue'
 
 defineProps<{
   collapsed: boolean

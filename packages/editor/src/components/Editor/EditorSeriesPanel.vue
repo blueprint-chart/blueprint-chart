@@ -29,14 +29,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
 import { useChartConfig } from '@/stores/chartConfig'
 import { useChartTypeOptions } from '@/stores/chartTypeOptions'
 import { parseData, buildChartOptions } from '@blueprint-chart/lib'
 import type { SeriesOverride } from '@blueprint-chart/lib'
 import { SectionCard } from '@blueprint-chart/ui'
-import EditorSeriesList from './EditorSeriesList.vue'
-import EditorSeriesOptions from './EditorSeriesOptions.vue'
 
 const { chartType, data, seriesOverrides } = useChartConfig()
 const { currentOptions } = useChartTypeOptions()

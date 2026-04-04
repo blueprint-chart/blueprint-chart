@@ -56,16 +56,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, shallowRef, watch, onBeforeUnmount, type Component } from 'vue'
-import { useResizeObserver, useThrottleFn } from '@vueuse/core'
+import type { Component } from 'vue'
 import { AppIcon, ScenePlayerButtons } from '@blueprint-chart/ui'
 import { samples } from '@blueprint-chart/lib'
 import IPhFilmSlate from '~icons/ph/film-slate'
 import IPhSparkle from '~icons/ph/sparkle'
 import IPhCode from '~icons/ph/code'
-import LandingSection from './LandingSection.vue'
-import LandingSectionHeader from './LandingSectionHeader.vue'
-import { renderDsl, parseDslSceneCount } from '@/composables/useChartFromDsl'
 import { useTheme } from '@/stores/theme'
 
 const bpc = samples.find(s => s.id === 'farm-compass')!.dsl

@@ -1,7 +1,4 @@
-import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { createPinia, setActivePinia } from 'pinia'
-import { nextTick } from 'vue'
 import { useChartConfig } from '@/stores/chartConfig'
 import { useChartTypeOptionsStore } from '@/stores/chartTypeOptions'
 

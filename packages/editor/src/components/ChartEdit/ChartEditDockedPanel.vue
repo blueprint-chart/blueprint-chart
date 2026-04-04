@@ -24,20 +24,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { storeToRefs } from 'pinia'
 import { useEditorPanel } from '@/stores/editorPanel'
-import PanelDocked from '@/components/Panel/PanelDocked.vue'
-import EditorChartTypePicker from '@/components/Editor/EditorChartTypePicker.vue'
-import EditorPropertyForm from '@/components/Editor/EditorPropertyForm.vue'
-import EditorAppearanceTab from '@/components/Editor/EditorAppearanceTab.vue'
-import EditorLayoutTab from '@/components/Editor/EditorLayoutTab.vue'
-import EditorSeriesPanel from '@/components/Editor/EditorSeriesPanel.vue'
-import EditorAxisOptions from '@/components/Editor/EditorAxisOptions.vue'
-import EditorAnnotateTab from '@/components/Editor/EditorAnnotateTab.vue'
-import EditorInteractionsTab from '@/components/Editor/EditorInteractionsTab.vue'
-import PanelStepperFooter from '@/components/Panel/PanelStepperFooter.vue'
-import ChartEditToolbar from './ChartEditToolbar.vue'
 
 defineProps<{
   collapsed: boolean

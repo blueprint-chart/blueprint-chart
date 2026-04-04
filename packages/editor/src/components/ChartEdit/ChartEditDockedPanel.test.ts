@@ -1,6 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { setActivePinia, createPinia } from 'pinia'
 import ChartEditDockedPanel from './ChartEditDockedPanel.vue'
 import { useEditorPanelStore as useEditorPanel } from '@/stores/editorPanel'
 

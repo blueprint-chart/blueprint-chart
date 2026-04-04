@@ -1,6 +1,4 @@
-import { describe, it, expect, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { markRaw } from 'vue'
 import PanelIconRail from './PanelIconRail.vue'
 
 vi.mock('@blueprint-chart/ui', () => ({

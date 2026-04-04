@@ -40,9 +40,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, toRef } from 'vue'
 import { ButtonDock, ButtonDrag, ButtonClose } from '@blueprint-chart/ui'
-import { usePanelDrag, type DragPosition } from '@/composables/usePanelDrag'
+import type { DragPosition } from '@/composables/usePanelDrag'
 
 const props = withDefaults(defineProps<{
   containerRef: HTMLElement | null

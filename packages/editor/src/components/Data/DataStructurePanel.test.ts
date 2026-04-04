@@ -1,7 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { ref } from 'vue'
-import { createPinia, setActivePinia } from 'pinia'
 import DataStructurePanel from './DataStructurePanel.vue'
 
 const mockOpenDataPanel = vi.fn()

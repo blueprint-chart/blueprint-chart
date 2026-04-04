@@ -35,7 +35,7 @@
 </template>
 
 <script setup lang="ts">
-import { type Component, computed, nextTick, onMounted, shallowRef, useTemplateRef, watch } from 'vue'
+import type { Component } from 'vue'
 
 export interface NavigationPillItem {
   key: string

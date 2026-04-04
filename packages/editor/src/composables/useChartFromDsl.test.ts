@@ -1,4 +1,3 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { parseDslSceneCount, renderDsl } from './useChartFromDsl'
 import * as lib from '@blueprint-chart/lib'
 

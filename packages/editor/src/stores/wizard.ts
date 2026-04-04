@@ -1,4 +1,3 @@
-import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 export interface WizardStep {

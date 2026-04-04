@@ -31,9 +31,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch, onMounted, onBeforeUnmount, useTemplateRef, type Component } from 'vue'
-import { storeToRefs } from 'pinia'
-import { useChartPreview } from '@/composables/useChartPreview'
+import type { Component } from 'vue'
 import { useCvdMode } from '@/stores/cvdMode'
 import { usePreviewContainer } from '@/stores/previewContainer'
 import { useEditorPanel } from '@/stores/editorPanel'

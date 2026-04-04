@@ -1,6 +1,4 @@
-import { describe, it, expect, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { nextTick } from 'vue'
 import EditorAreaFills from './EditorAreaFills.vue'
 import type { AreaFillConfig } from '@blueprint-chart/lib'
 

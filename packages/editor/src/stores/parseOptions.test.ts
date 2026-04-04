@@ -1,5 +1,3 @@
-import { describe, it, expect, beforeEach } from 'vitest'
-import { setActivePinia, createPinia, storeToRefs } from 'pinia'
 import { useParseOptionsStore as useParseOptions } from './parseOptions'
 
 describe('useParseOptions', () => {

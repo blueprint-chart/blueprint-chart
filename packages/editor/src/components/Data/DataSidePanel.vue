@@ -17,15 +17,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { storeToRefs } from 'pinia'
 import { useEditorPanel } from '@/stores/editorPanel'
-import PanelDocked from '@/components/Panel/PanelDocked.vue'
-import DataColumnSettings from './DataColumnSettings.vue'
-import DataTransformPipeline from './DataTransformPipeline.vue'
-import DataParseSettings from './DataParseSettings.vue'
-import DataRecommendations from './DataRecommendations.vue'
-import PanelStepperFooter from '@/components/Panel/PanelStepperFooter.vue'
 
 defineProps<{
   collapsed: boolean

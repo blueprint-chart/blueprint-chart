@@ -1,5 +1,3 @@
-import { reactive, ref, shallowRef, toRefs, computed } from 'vue'
-import { defineStore, storeToRefs } from 'pinia'
 import type { ColumnType, ParsedData } from '@/composables/useDataParser'
 import { useDataTransforms } from '@/composables/useDataTransforms'
 import { useScenes } from '@/composables/useScenes'

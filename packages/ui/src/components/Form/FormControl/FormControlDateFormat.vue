@@ -70,8 +70,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed, shallowRef, watch } from 'vue'
-import FormControlDropdown from './FormControlDropdown.vue'
 import {
   PRESETS,
   tickPreview,
@@ -79,7 +77,7 @@ import {
   buildCustomPreview,
   buildDisplayValue,
   resolvePresetState,
-} from './formControlDateFormatHelpers'
+} from '../../../utils/dateFormat'
 
 const model = defineModel<string>({ required: true })
 

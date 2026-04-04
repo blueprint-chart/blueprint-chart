@@ -145,8 +145,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, shallowRef, watch } from 'vue'
-import FormControlDropdown from './FormControlDropdown.vue'
 import {
   configToD3,
   configToModel,
@@ -154,7 +152,7 @@ import {
   formatSample as formatSampleFn,
   DEFAULT_CONFIG,
   type NumberFormatConfig,
-} from './number-format'
+} from '../../../utils/numberFormat'
 
 const model = defineModel<string>({ required: true })
 

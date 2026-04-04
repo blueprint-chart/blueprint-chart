@@ -25,7 +25,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
 import { FormControlDropdown, NavigationPillBase } from '@blueprint-chart/ui'
 import type { NavigationPillItem, FormControlDropdownOption } from '@blueprint-chart/ui'
 import IPhSquaresFour from '~icons/ph/squares-four'

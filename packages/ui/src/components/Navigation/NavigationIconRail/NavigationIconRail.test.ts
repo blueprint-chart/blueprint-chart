@@ -1,5 +1,4 @@
 import { mount } from '@vue/test-utils'
-import { defineComponent, h, markRaw, nextTick } from 'vue'
 import IconRail from './NavigationIconRail.vue'
 import IconRailEntry from './NavigationIconRailEntry.vue'
 

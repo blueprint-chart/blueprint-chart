@@ -1,4 +1,4 @@
-import { computed, type CSSProperties, type Ref } from 'vue'
+import type { CSSProperties, Ref } from 'vue'
 import type { ChartLayout } from './useChartConfig'
 
 export function parseAspectRatio(ratio: string): number | undefined {

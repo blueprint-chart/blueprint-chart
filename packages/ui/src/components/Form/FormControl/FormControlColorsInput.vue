@@ -47,10 +47,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, shallowRef, useTemplateRef } from 'vue'
 import ButtonAdd from '../../Button/ButtonAdd/ButtonAdd.vue'
-import DisplayColorSwatch from '../../Display/DisplayColorSwatch/DisplayColorSwatch.vue'
-import FormControlColorInputPopover from './FormControlColorInputPopover.vue'
 
 const model = defineModel<string[]>({ required: true })
 

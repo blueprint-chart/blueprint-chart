@@ -30,10 +30,7 @@
 </template>
 
 <script setup lang="ts">
-import { type Component, computed } from 'vue'
-import ButtonIcon from '../../Button/ButtonIcon/ButtonIcon.vue'
-import { useChildEntriesProvider } from '../../../composables/useChildEntries'
-import { IconRailEntriesKey } from '../../../composables/injection-keys'
+import type { Component } from 'vue'
 
 const model = defineModel<string>({ required: true })
 

@@ -10,7 +10,6 @@
 </template>
 
 <script setup lang="ts">
-import { storeToRefs } from 'pinia'
 import { useEditorPanel } from '@/stores/editorPanel'
 import IPhRuler from '~icons/ph/ruler'
 
