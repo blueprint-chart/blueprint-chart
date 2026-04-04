@@ -1,6 +1,5 @@
-import { describe, it, expect, vi, afterEach } from 'vitest'
-import { shallowRef } from 'vue'
-import { exportSvg, useImageExport } from './useImageExport'
+import { exportSvg } from '@/utils/export/image'
+import { useImageExport } from './useImageExport'
 
 afterEach(() => {
   vi.restoreAllMocks()

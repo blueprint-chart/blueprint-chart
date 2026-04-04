@@ -1,4 +1,3 @@
-import { describe, it, expect } from 'vitest'
 import { parseDelimited, parseBpcData, detectColumnTypes, serializeDelimited, detectDelimiter, isDateValue, isNumberValue, cleanNumericValue } from './useDataParser'
 import { parse, dataEntriesToString } from '@blueprint-chart/lib'
 

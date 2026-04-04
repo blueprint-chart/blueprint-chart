@@ -1,5 +1,3 @@
-import { shallowRef, toRaw, watchEffect } from 'vue'
-import { storeToRefs } from 'pinia'
 import { useChartConfig } from './useChartConfig'
 import { useChartThemeStore } from './useChartTheme'
 import { useChartTypeOptions } from './useChartTypeOptions'
@@ -8,31 +6,7 @@ import { useScenes } from './useScenes'
 import { useDataTable } from './useDataTable'
 import { getChartOptions } from '@blueprint-chart/lib'
 import type { RangeAnnotationConfig, FreeAnnotationConfig } from '@blueprint-chart/lib'
-
-function serializePosition(v: number | string): string {
-  if (typeof v === 'number') {
-    return String(v)
-  }
-  const str = String(v)
-  if (str.endsWith('%')) {
-    return String(parseFloat(str))
-  }
-  // "150px" → quoted string
-  return `"${str}"`
-}
-
-function serializeMaxWidth(v: number | string): string {
-  if (typeof v === 'number') {
-    return String(v)
-  }
-  const str = String(v)
-  if (str.endsWith('%')) {
-    return `"${
-      str}"`
-  }
-  // "150px" → bare number
-  return String(parseFloat(str))
-}
+import { serializePosition, serializeMaxWidth } from '@/utils/dsl/output'
 
 export function useDslOutput() {
   const config = useChartConfig()
