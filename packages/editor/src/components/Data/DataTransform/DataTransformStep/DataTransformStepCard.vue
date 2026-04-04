@@ -55,9 +55,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
 import type { TransformStep } from '@/stores/dataTransforms'
-import { stepMeta } from './transformStepIcons'
+import { stepMeta } from '../transformStepIcons'
 
 const props = defineProps<{
   step: TransformStep

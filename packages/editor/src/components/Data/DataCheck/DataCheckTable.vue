@@ -60,8 +60,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { storeToRefs } from 'pinia'
 import { BTableSimple, BThead, BTbody, BTr, BTh, BTd } from 'bootstrap-vue-next'
 import { useDataTable } from '@/stores/dataTable'
 import { useEditorPanel } from '@/stores/editorPanel'

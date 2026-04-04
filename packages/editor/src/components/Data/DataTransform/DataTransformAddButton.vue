@@ -33,7 +33,6 @@
 </template>
 
 <script setup lang="ts">
-import { shallowRef } from 'vue'
 import { ButtonAdd } from '@blueprint-chart/ui'
 
 const emit = defineEmits<{

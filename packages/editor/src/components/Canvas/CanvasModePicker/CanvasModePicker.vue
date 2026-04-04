@@ -31,13 +31,8 @@
 </template>
 
 <script setup lang="ts">
-import { shallowRef } from 'vue'
-import { storeToRefs } from 'pinia'
 import { useEditorPanel } from '@/stores/editorPanel'
 import type { CanvasMode } from '@/stores/editorPanel'
-import CanvasModePickerOption from './CanvasModePickerOption.vue'
-import CanvasModePickerOptionSwatch from './CanvasModePickerOptionSwatch.vue'
-import CanvasDimensionsToggle from './CanvasDimensionsToggle.vue'
 
 const editorPanel = useEditorPanel()
 const { canvasMode } = storeToRefs(editorPanel)

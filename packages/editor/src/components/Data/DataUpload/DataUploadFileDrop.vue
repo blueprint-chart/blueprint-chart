@@ -45,7 +45,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref, shallowRef } from 'vue'
 
 const emit = defineEmits<{
   loaded: [content: string, filename: string]
