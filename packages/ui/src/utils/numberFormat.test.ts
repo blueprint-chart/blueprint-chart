@@ -1,5 +1,5 @@
 import { format as d3Format } from 'd3-format'
-import { configToD3, configToModel, parseModelString, formatSample, DEFAULT_CONFIG, type NumberFormatConfig } from './number-format'
+import { configToD3, configToModel, parseModelString, formatSample, DEFAULT_CONFIG, type NumberFormatConfig } from './numberFormat'
 
 describe('configToD3', () => {
   it('produces a valid d3-format string for the default config', () => {

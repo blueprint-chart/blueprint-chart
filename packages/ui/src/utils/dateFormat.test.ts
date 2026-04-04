@@ -1,4 +1,3 @@
-import { describe, expect, it } from 'vitest'
 import {
   PRESETS,
   formatWithD3,
@@ -7,7 +6,7 @@ import {
   buildCustomPreview,
   buildDisplayValue,
   resolvePresetState,
-} from './formControlDateFormatHelpers'
+} from './dateFormat'
 
 describe('formatWithD3', () => {
   it('formats a date with a standard d3 format string', () => {
