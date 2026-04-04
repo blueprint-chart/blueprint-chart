@@ -25,23 +25,31 @@ export function useColorAccessibility(
 ) {
   const lightContrastInfo = computed(() => {
     const raw = toValue(activeColors)
-    if (raw.length === 0) return null
+    if (raw.length === 0) {
+      return null
+    }
     return computeContrast(raw, LIGHT_BG, toValue(autoContrast))
   })
 
   const darkContrastInfo = computed(() => {
     const raw = toValue(activeColors)
-    if (raw.length === 0) return null
-    if (!toValue(allowDarkMode)) return null
+    if (raw.length === 0) {
+      return null
+    }
+    if (!toValue(allowDarkMode)) {
+      return null
+    }
     return computeContrast(raw, DARK_BG, toValue(autoContrast))
   })
 
   const cvdInfo = computed(() => {
     const colors = toValue(activeColors)
-    if (colors.length === 0) return null
+    if (colors.length === 0) {
+      return null
+    }
     const issues = colors.length >= 2 ? checkCvdColors(colors) : []
     if (issues.length === 0) {
-      return { safe: true as const, issues: [] as { type: CvdType; shortLabel: string; tooltip: string }[] }
+      return { safe: true as const, issues: [] as { type: CvdType, shortLabel: string, tooltip: string }[] }
     }
     return {
       safe: false as const,

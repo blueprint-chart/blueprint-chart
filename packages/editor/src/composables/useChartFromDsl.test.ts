@@ -25,7 +25,9 @@ vi.mock('@blueprint-chart/lib', () => ({
     }
   }),
   parseData: vi.fn((dataStr: string) => {
-    if (!dataStr) return { labels: [], values: [] }
+    if (!dataStr) {
+      return { labels: [], values: [] }
+    }
     return { labels: ['A', 'B'], values: [10, 20] }
   }),
   buildChartOptions: vi.fn((opts: Record<string, unknown>) => ({ ...opts })),
@@ -33,7 +35,9 @@ vi.mock('@blueprint-chart/lib', () => ({
   resolveBackgroundColor: vi.fn(() => '#ffffff'),
   propertyMap: vi.fn((props: { key: string, value: unknown }[]) => {
     const map = new Map<string, unknown>()
-    for (const p of props) map.set(p.key, p.value)
+    for (const p of props) {
+      map.set(p.key, p.value)
+    }
     return map
   }),
   extractChartTypeOptions: vi.fn(() => ({})),

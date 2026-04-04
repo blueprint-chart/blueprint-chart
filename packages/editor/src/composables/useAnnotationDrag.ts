@@ -1,8 +1,6 @@
 import { watch, onScopeDispose } from 'vue'
 import type { Ref } from 'vue'
 import type { AnnotationConfig } from '@blueprint-chart/lib'
-import { computeElbowPath, buildPathD, shortenToward, bboxEdgeToward } from '@/utils/geometry'
-
 export { computeElbowPath, buildPathD, shortenToward, bboxEdgeToward } from '@/utils/geometry'
 
 export function useAnnotationDrag(
