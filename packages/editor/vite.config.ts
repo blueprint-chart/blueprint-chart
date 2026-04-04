@@ -14,7 +14,7 @@ export default defineConfig({
     vue(),
     AutoImport({
       imports: ['vue', '@vueuse/core', 'pinia', 'vitest'],
-      dirs: ['src/composables'],
+      dirs: ['src/composables', '../ui/src/composables'],
       dts: 'auto-imports.d.ts',
       eslintrc: { enabled: true, filepath: 'auto-imports.eslintrc.json' },
     }),

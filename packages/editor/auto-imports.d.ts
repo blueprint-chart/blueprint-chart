@@ -6,8 +6,14 @@
 // biome-ignore lint: disable
 export {}
 declare global {
+  const ButtonGroupEntriesKey: typeof import('../ui/src/composables/injection-keys').ButtonGroupEntriesKey
+  const DropdownEntriesKey: typeof import('../ui/src/composables/injection-keys').DropdownEntriesKey
   const EffectScope: typeof import('vue').EffectScope
+  const IconRailEntriesKey: typeof import('../ui/src/composables/injection-keys').IconRailEntriesKey
   const NULL_VALUE: typeof import('./src/composables/useDataTransforms').NULL_VALUE
+  const PaletteEntriesKey: typeof import('../ui/src/composables/injection-keys').PaletteEntriesKey
+  const StepperEntriesKey: typeof import('../ui/src/composables/injection-keys').StepperEntriesKey
+  const ToggleEntriesKey: typeof import('../ui/src/composables/injection-keys').ToggleEntriesKey
   const acceptHMRUpdate: typeof import('pinia').acceptHMRUpdate
   const afterAll: typeof import('vitest').afterAll
   const afterEach: typeof import('vitest').afterEach
@@ -197,6 +203,7 @@ declare global {
   const useBase64: typeof import('@vueuse/core').useBase64
   const useBattery: typeof import('@vueuse/core').useBattery
   const useBluetooth: typeof import('@vueuse/core').useBluetooth
+  const useBreakpoint: typeof import('../ui/src/composables/useBreakpoint').useBreakpoint
   const useBreakpoints: typeof import('@vueuse/core').useBreakpoints
   const useBroadcastChannel: typeof import('@vueuse/core').useBroadcastChannel
   const useBrowserLocation: typeof import('@vueuse/core').useBrowserLocation
@@ -215,6 +222,8 @@ declare global {
   const useChartThemeStore: typeof import('./src/composables/useChartTheme').useChartThemeStore
   const useChartTypeOptions: typeof import('./src/composables/useChartTypeOptions').useChartTypeOptions
   const useChartTypeOptionsStore: typeof import('./src/composables/useChartTypeOptions').useChartTypeOptionsStore
+  const useChildEntriesProvider: typeof import('../ui/src/composables/useChildEntries').useChildEntriesProvider
+  const useChildEntry: typeof import('../ui/src/composables/useChildEntries').useChildEntry
   const useClipboard: typeof import('@vueuse/core').useClipboard
   const useClipboardItems: typeof import('@vueuse/core').useClipboardItems
   const useCloned: typeof import('@vueuse/core').useCloned
@@ -418,4 +427,7 @@ declare global {
   // @ts-ignore
   export type { DragPosition } from './src/composables/usePanelDrag'
   import('./src/composables/usePanelDrag')
+  // @ts-ignore
+  export type { ChildEntriesContext } from '../ui/src/composables/useChildEntries'
+  import('../ui/src/composables/useChildEntries')
 }
