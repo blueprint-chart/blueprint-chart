@@ -2,6 +2,14 @@ import js from '@eslint/js'
 import vue from 'eslint-plugin-vue'
 import stylistic from '@stylistic/eslint-plugin'
 import tseslint from 'typescript-eslint'
+import { createRequire } from 'node:module'
+
+const require = createRequire(import.meta.url)
+const uiAutoImports = require('./packages/ui/auto-imports.eslintrc.json')
+const editorAutoImports = require('./packages/editor/auto-imports.eslintrc.json')
+const autoImportGlobals = Object.fromEntries(
+  Object.keys({ ...uiAutoImports.globals, ...editorAutoImports.globals }).map(k => [k, 'readonly']),
+)
 
 export default [
   js.configs.recommended,
@@ -19,6 +27,7 @@ export default [
   {
     languageOptions: {
       globals: {
+        ...autoImportGlobals,
         window: 'readonly',
         document: 'readonly',
         localStorage: 'readonly',
