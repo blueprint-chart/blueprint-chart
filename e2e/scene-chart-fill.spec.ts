@@ -1,14 +1,13 @@
-import { test, expect, firefox } from '@playwright/test'
+import { test, expect } from '@playwright/test'
 
 /**
  * The chart area height (viewBox minus top/bottom margins) must stay
  * constant across same-type scene transitions. If it changes, the
  * y-scale range changes and D3 transitions produce distorted paths.
  */
-test('chart area height is constant across same-type scenes', async () => {
-  const browser = await firefox.launch()
-  const page = await browser.newPage({ viewport: { width: 1560, height: 900 } })
-  await page.goto('http://localhost:5555/#/')
+test('chart area height is constant across same-type scenes', async ({ page }) => {
+  await page.setViewportSize({ width: 1560, height: 900 })
+  await page.goto('/#/')
   await page.waitForTimeout(3000)
 
   const container = page.locator('.scenes-demo__chart')
@@ -50,8 +49,6 @@ test('chart area height is constant across same-type scenes', async () => {
   // from the top while the bottom stays anchored.
   expect(scenes[0].viewBoxH).toBe(scenes[1].viewBoxH)
   expect(scenes[1].viewBoxH).toBe(scenes[2].viewBoxH)
-
-  await browser.close()
 })
 
 /**
@@ -60,10 +57,9 @@ test('chart area height is constant across same-type scenes', async () => {
  * clipped at the top — the highest data point should be visible within
  * the chart area, not cut off by the header overlay.
  */
-test('scene 6 (Production rose) chart is not clipped at top', async () => {
-  const browser = await firefox.launch()
-  const page = await browser.newPage({ viewport: { width: 1560, height: 900 } })
-  await page.goto('http://localhost:5555/#/')
+test('scene 6 (Production rose) chart is not clipped at top', async ({ page }) => {
+  await page.setViewportSize({ width: 1560, height: 900 })
+  await page.goto('/#/')
   await page.waitForTimeout(3000)
 
   const container = page.locator('.scenes-demo__chart')
@@ -132,6 +128,4 @@ test('scene 6 (Production rose) chart is not clipped at top', async () => {
   expect(result.highestPointPx,
     'highest chart point must be below header bottom (not clipped)')
     .toBeGreaterThanOrEqual(result.headerBottom - 5) // 5px tolerance
-
-  await browser.close()
 })
