@@ -296,7 +296,11 @@ export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
   watch(
     [containerRef, config.chartType, config.title, config.data, config.sort, config.sortMode, config.description, config.byline, config.note, config.source, config.sourceUrl, config.selectedColumn, config.colorizes, config.highlights, config.areaFills, config.annotations, config.seriesOverrides, layoutTrigger, optionsTrigger, scenes, activeScene, theme, chartTheme],
     render,
-    { immediate: true },
+    // flush: 'post' ensures Vue has applied the container's style/class bindings
+    // (aspect-ratio, flex-direction) before we read them via getComputedStyle.
+    // With 'pre' (the default), frame.ts could see stale CSS and fail to detect
+    // constrained-height mode on the first render after a layout change.
+    { immediate: true, flush: 'post' },
   )
 
   return { config }
