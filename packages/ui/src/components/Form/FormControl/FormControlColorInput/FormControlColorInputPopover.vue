@@ -25,8 +25,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, useTemplateRef } from 'vue'
-import { onClickOutside, type OnClickOutsideOptions } from '@vueuse/core'
+import type { OnClickOutsideOptions } from '@vueuse/core'
 import { BPopover } from 'bootstrap-vue-next'
 import { TwitterPicker, HueSlider, tinycolor } from 'vue-color'
 import 'vue-color/style.css'

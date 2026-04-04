@@ -45,10 +45,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed, useTemplateRef } from 'vue'
-import DisplayPalette from '../../Display/DisplayPalette/DisplayPalette.vue'
-import { useChildEntriesProvider } from '../../../composables/useChildEntries'
-import { PaletteEntriesKey } from '../../../composables/injection-keys'
 
 const model = defineModel<string>({ required: true })
 

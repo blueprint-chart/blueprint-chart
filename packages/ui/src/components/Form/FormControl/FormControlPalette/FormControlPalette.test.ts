@@ -1,5 +1,4 @@
 import { mount } from '@vue/test-utils'
-import { h, nextTick } from 'vue'
 import FormControlPalette from './FormControlPalette.vue'
 import FormControlPaletteEntry from './FormControlPaletteEntry.vue'
 

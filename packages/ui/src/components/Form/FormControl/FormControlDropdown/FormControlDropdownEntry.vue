@@ -3,9 +3,7 @@
 </template>
 
 <script setup lang="ts">
-import { type Component, defineComponent, markRaw, useSlots } from 'vue'
-import { useChildEntry } from '../../../composables/useChildEntries'
-import { DropdownEntriesKey } from '../../../composables/injection-keys'
+import type { Component } from 'vue'
 
 const props = defineProps<{
   value: string

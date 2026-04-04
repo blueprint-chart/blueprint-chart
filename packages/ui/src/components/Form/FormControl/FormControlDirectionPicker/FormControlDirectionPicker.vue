@@ -7,11 +7,11 @@
       class="direction-picker__anchor"
       :class="sizeClass"
     >
-      <DirectionPickerField
+      <FormControlDirectionPickerField
         :x="activeDir.x"
         :y="activeDir.y"
       />
-      <DirectionPickerHandle
+      <FormControlDirectionPickerHandle
         v-for="dir in directions"
         :key="dir.value"
         :pos="dir.pos"
@@ -25,9 +25,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import DirectionPickerField from './DirectionPickerField.vue'
-import DirectionPickerHandle from './DirectionPickerHandle.vue'
 
 type CompassDirection = 'NW' | 'N' | 'NE' | 'E' | 'SE' | 'S' | 'SW' | 'W' | 'center'
 type HandleShape = 'corner' | 'edge-h' | 'edge-v' | 'center'
