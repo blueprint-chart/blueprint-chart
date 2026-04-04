@@ -60,11 +60,7 @@
 </template>
 
 <script setup lang="ts">
-import { type Component, computed, useTemplateRef, watch } from 'vue'
-import { useElementBounding } from '@vueuse/core'
-import FormControlDropdownItem from './FormControlDropdownItem.vue'
-import { useChildEntriesProvider } from '../../../composables/useChildEntries'
-import { DropdownEntriesKey } from '../../../composables/injection-keys'
+import type { Component } from 'vue'
 
 export interface FormControlDropdownOption {
   value: string

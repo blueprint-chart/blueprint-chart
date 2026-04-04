@@ -3,8 +3,6 @@
 </template>
 
 <script setup lang="ts">
-import { useChildEntry } from '../../../composables/useChildEntries'
-import { PaletteEntriesKey } from '../../../composables/injection-keys'
 
 const props = defineProps<{
   value: string

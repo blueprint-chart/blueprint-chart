@@ -60,12 +60,7 @@
 </template>
 
 <script setup lang="ts">
-import { type Component, computed, shallowRef, useTemplateRef } from 'vue'
-import { useResizeObserver } from '@vueuse/core'
-import ButtonIcon from '../../Button/ButtonIcon/ButtonIcon.vue'
-import FormControlDropdown from './FormControlDropdown.vue'
-import { useChildEntriesProvider } from '../../../composables/useChildEntries'
-import { ButtonGroupEntriesKey } from '../../../composables/injection-keys'
+import type { Component } from 'vue'
 
 const model = defineModel<string>({ required: true })
 

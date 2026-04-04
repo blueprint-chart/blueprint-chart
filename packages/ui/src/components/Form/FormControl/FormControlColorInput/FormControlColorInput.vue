@@ -27,8 +27,6 @@
 </template>
 
 <script setup lang="ts">
-import { useTemplateRef } from 'vue'
-import FormControlColorInputPopover from './FormControlColorInputPopover.vue'
 
 const model = defineModel<string>({ required: true })
 

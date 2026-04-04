@@ -43,7 +43,7 @@
 </template>
 
 <script setup lang="ts">
-import { type Component, computed } from 'vue'
+import type { Component } from 'vue'
 
 const props = defineProps<{
   label: string

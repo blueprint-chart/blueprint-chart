@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils'
 import FormControlDirectionPicker from './FormControlDirectionPicker.vue'
-import DirectionPickerHandle from './DirectionPickerHandle.vue'
-import DirectionPickerField from './DirectionPickerField.vue'
+import DirectionPickerHandle from './FormControlDirectionPickerHandle.vue'
+import DirectionPickerField from './FormControlDirectionPickerField.vue'
 
 function mountPicker(modelValue = 'N' as string, size?: string) {
   return mount(FormControlDirectionPicker, {
