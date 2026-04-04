@@ -26,15 +26,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { storeToRefs } from 'pinia'
 import { useEditorPanel } from '@/stores/editorPanel'
 import { useExportPanel, type ExportTab } from '@/stores/exportPanel'
-import PanelFloating from '@/components/Panel/PanelFloating.vue'
-import PanelTabBar from '@/components/Panel/PanelTabBar.vue'
-import ExportEmbedPanel from './ExportEmbedPanel.vue'
-import ExportDownloadPanel from './ExportDownloadPanel.vue'
-import PanelStepperFooter from '@/components/Panel/PanelStepperFooter.vue'
 
 defineProps<{
   containerRef: HTMLElement | null

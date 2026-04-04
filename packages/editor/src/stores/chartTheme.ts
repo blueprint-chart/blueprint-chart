@@ -1,6 +1,3 @@
-import { ref } from 'vue'
-import { defineStore, storeToRefs } from 'pinia'
-
 export interface ChartThemeOption {
   value: string
   label: string

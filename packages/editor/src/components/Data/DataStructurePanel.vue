@@ -66,23 +66,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
-import { storeToRefs } from 'pinia'
 import { LayoutBottomDrawer, ButtonIcon, useBreakpoint } from '@blueprint-chart/ui'
 import { useDataTable } from '@/stores/dataTable'
 import { useEditorPanel, type DataPanelTab } from '@/stores/editorPanel'
 import { useScenes } from '@/stores/scenes'
 import IPhArrowsClockwise from '~icons/ph/arrows-clockwise'
-import PanelTabBar from '@/components/Panel/PanelTabBar.vue'
-import DataInsightBadges from './DataInsightBadges.vue'
-import DataCheckTable from './DataCheckTable.vue'
-import DataSideIconRail from './DataSideIconRail.vue'
-import DataSidePanel from './DataSidePanel.vue'
-import DataFloatingPanel from './DataFloatingPanel.vue'
-import DataColumnSettings from './DataColumnSettings.vue'
-import DataTransformPipeline from './DataTransformPipeline.vue'
-import DataParseSettings from './DataParseSettings.vue'
-import DataRecommendations from './DataRecommendations.vue'
 
 const { columns, rows, columnTypes } = useDataTable()
 const editorPanel = useEditorPanel()

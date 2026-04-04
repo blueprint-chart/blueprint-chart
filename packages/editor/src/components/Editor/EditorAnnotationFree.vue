@@ -66,7 +66,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, type ComponentPublicInstance } from 'vue'
+import type { ComponentPublicInstance } from 'vue'
 import type { FreeAnnotationConfig } from '@blueprint-chart/lib'
 import { FormControlColorInput, FormControlUnitsInput, FormControlCheckbox } from '@blueprint-chart/ui'
 

@@ -1,5 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { ref, nextTick, effectScope, type EffectScope } from 'vue'
+import type { EffectScope } from 'vue'
 import type { AnnotationConfig } from '@blueprint-chart/lib'
 import { useAnnotationDrag, computeElbowPath, buildPathD, shortenToward, bboxEdgeToward } from './useAnnotationDrag'
 

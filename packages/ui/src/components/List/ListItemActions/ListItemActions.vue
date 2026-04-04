@@ -25,7 +25,6 @@
 
 <script setup lang="ts">
 import IPhTrash from '~icons/ph/trash'
-import AppIcon from '../../App/AppIcon/AppIcon.vue'
 
 withDefaults(
   defineProps<{

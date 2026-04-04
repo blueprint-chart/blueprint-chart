@@ -1,7 +1,3 @@
-import { ref, computed, watch } from 'vue'
-import { useMediaQuery } from '@vueuse/core'
-import { defineStore, storeToRefs } from 'pinia'
-
 export type ThemeMode = 'light' | 'dark' | 'auto'
 
 export const useThemeStore = defineStore('theme', () => {

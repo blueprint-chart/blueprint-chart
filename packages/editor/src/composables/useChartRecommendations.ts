@@ -1,4 +1,3 @@
-import { computed } from 'vue'
 import { useDataTable } from './useDataTable'
 
 export interface ChartRecommendation {

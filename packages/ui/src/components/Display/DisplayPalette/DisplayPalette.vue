@@ -11,7 +11,6 @@
 </template>
 
 <script setup lang="ts">
-import DisplayColorSwatch from '../DisplayColorSwatch/DisplayColorSwatch.vue'
 
 defineProps<{
   colors: string[]

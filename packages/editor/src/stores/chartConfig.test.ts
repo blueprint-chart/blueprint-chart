@@ -1,5 +1,3 @@
-import { describe, it, expect, beforeEach } from 'vitest'
-import { setActivePinia, createPinia } from 'pinia'
 import { useChartConfig } from './chartConfig'
 import { useScenes } from './scenes'
 

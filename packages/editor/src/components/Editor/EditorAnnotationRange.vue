@@ -163,7 +163,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted, type ComponentPublicInstance } from 'vue'
+import type { ComponentPublicInstance } from 'vue'
 import type { RangeAnnotationConfig, CompassDirection } from '@blueprint-chart/lib'
 import { FormControlColorInput, FormControlSliderInput, FormControlDirectionPicker, FormControlDropdown, FormControlDropdownEntry } from '@blueprint-chart/ui'
 import IPhAlignLeft from '~icons/ph/align-left'

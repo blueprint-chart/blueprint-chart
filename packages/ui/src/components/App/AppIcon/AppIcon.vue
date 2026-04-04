@@ -15,7 +15,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, shallowRef, watch, type Component } from 'vue'
+import type { Component } from 'vue'
 import type { TextColorVariant } from 'bootstrap-vue-next'
 import type { IconSize } from '../../../types'
 

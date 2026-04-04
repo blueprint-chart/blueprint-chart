@@ -1,5 +1,3 @@
-import { describe, it, expect, beforeEach } from 'vitest'
-import { setActivePinia, createPinia } from 'pinia'
 import { useNavbarStore } from './navbar'
 
 describe('useNavbarStore', () => {

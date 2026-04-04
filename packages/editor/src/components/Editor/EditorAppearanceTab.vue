@@ -41,7 +41,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
 import { SettingsSection } from '@blueprint-chart/ui'
 import { useChartConfig } from '@/stores/chartConfig'
 import { useChartTypeOptions } from '@/stores/chartTypeOptions'
@@ -51,11 +50,6 @@ import IPhChartPieSlice from '~icons/ph/chart-pie-slice'
 import IPhPaintBrush from '~icons/ph/paint-brush'
 import IPhChartBar from '~icons/ph/chart-bar'
 import IPhChartBarHorizontal from '~icons/ph/chart-bar-horizontal'
-import EditorThemeSection from './EditorThemeSection.vue'
-import EditorColorSection from './EditorColorSection.vue'
-import EditorLineSection from './EditorLineSection.vue'
-import EditorBarStyleSection from './EditorBarStyleSection.vue'
-import EditorSliceSection from './EditorSliceSection.vue'
 
 const { chartType } = useChartConfig()
 const { availableOptionKeys } = useChartTypeOptions()

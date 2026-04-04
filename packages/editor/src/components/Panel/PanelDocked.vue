@@ -34,7 +34,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed, shallowRef, watch } from 'vue'
 import { LayoutPanel, ButtonDetach, ButtonClose } from '@blueprint-chart/ui'
 
 const props = withDefaults(defineProps<{

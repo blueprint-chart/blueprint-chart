@@ -1,5 +1,3 @@
-import { describe, it, expect } from 'vitest'
-import { ref } from 'vue'
 import { parseAspectRatio, useCanvasCardStyle } from './useCanvasCardStyle'
 import { layoutDefaults, type ChartLayout } from './useChartConfig'
 

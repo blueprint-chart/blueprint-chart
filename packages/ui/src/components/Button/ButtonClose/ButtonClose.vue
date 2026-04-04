@@ -13,7 +13,6 @@
 
 <script setup lang="ts">
 import IPhX from '~icons/ph/x'
-import ButtonIcon from '../ButtonIcon/ButtonIcon.vue'
 
 defineEmits<{
   click: []

@@ -1,4 +1,3 @@
-import { describe, it, expect } from 'vitest'
 import { computeElbowPath, buildPathD, shortenToward, bboxEdgeToward, LINE_PAD } from './geometry'
 
 describe('computeElbowPath', () => {

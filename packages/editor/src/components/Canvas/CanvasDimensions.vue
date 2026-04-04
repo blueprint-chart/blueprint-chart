@@ -206,8 +206,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, type CSSProperties } from 'vue'
-import { useResizeObserver } from '@vueuse/core'
+import type { CSSProperties } from 'vue'
 import type { ChartLayout } from '@/stores/chartConfig'
 
 const OFFSET = 20

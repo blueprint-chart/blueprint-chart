@@ -8,10 +8,7 @@
 </template>
 
 <script setup lang="ts">
-import { type Component, computed } from 'vue'
-import { useChildEntriesProvider } from '../../../composables/useChildEntries'
-import { ToggleEntriesKey } from '../../../composables/injection-keys'
-import NavigationPillBase from '../NavigationPillBase/NavigationPillBase.vue'
+import type { Component } from 'vue'
 
 const model = defineModel<string>({ required: true })
 

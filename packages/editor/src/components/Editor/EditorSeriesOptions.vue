@@ -102,10 +102,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
 import type { SeriesOverride } from '@blueprint-chart/lib'
 import { FormControlColorInput, FormControlButtonGroup, FormControlCheckbox, FormControlSliderInput } from '@blueprint-chart/ui'
-import EditorSymbolOptions from './EditorSymbolOptions.vue'
 
 const props = defineProps<{
   selected: string[]

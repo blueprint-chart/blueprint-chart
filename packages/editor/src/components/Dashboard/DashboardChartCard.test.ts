@@ -1,5 +1,3 @@
-import { describe, it, expect, vi } from 'vitest'
-import { ref } from 'vue'
 import { mount } from '@vue/test-utils'
 import DashboardChartCard from './DashboardChartCard.vue'
 

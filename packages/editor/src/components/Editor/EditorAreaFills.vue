@@ -17,11 +17,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
 import type { AreaFillConfig, SeriesOverride } from '@blueprint-chart/lib'
 import { resolveSeriesInterpolation } from '@blueprint-chart/lib'
 import { ButtonAdd } from '@blueprint-chart/ui'
-import EditorAreaFillItem from './EditorAreaFillItem.vue'
 
 const props = defineProps<{
   seriesNames: string[]

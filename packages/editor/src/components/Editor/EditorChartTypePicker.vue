@@ -40,7 +40,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed, watch, markRaw } from 'vue'
 import { FormControlDropdown } from '@blueprint-chart/ui'
 import { useChartConfig } from '@/stores/chartConfig'
 import { useChartTypeOptions } from '@/stores/chartTypeOptions'

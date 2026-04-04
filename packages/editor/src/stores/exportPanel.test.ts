@@ -1,5 +1,3 @@
-import { describe, it, expect, beforeEach } from 'vitest'
-import { setActivePinia, createPinia } from 'pinia'
 import { useExportPanelStore as useExportPanel } from './exportPanel'
 
 describe('useExportPanel', () => {

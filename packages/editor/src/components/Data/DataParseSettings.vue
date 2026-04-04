@@ -49,8 +49,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { storeToRefs } from 'pinia'
 import { BFormCheckbox } from 'bootstrap-vue-next'
 import { FormControlDropdown } from '@blueprint-chart/ui'
 import { useParseOptions } from '@/stores/parseOptions'

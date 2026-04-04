@@ -57,8 +57,6 @@
 import { AppIcon } from '@blueprint-chart/ui'
 import IPhScales from '~icons/ph/scales'
 import IPhGithubLogo from '~icons/ph/github-logo'
-import LandingSection from './LandingSection.vue'
-import LandingSectionHeader from './LandingSectionHeader.vue'
 
 const stats = [
   { value: 'MIT', label: 'Open source license' },

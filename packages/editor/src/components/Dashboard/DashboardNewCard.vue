@@ -14,7 +14,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
 import IconPhPlus from '~icons/ph/plus'
 
 const props = withDefaults(defineProps<{

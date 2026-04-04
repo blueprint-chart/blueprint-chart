@@ -1,4 +1,3 @@
-import { defineComponent, h, markRaw } from 'vue'
 import { mount } from '@vue/test-utils'
 import SettingsSection from './SettingsSection.vue'
 import SettingsSectionIcon from './SettingsSectionIcon.vue'

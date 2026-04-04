@@ -13,14 +13,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
 import { BBadge } from 'bootstrap-vue-next'
 import IPhChartBar from '~icons/ph/chart-bar'
 import IPhChartBarHorizontal from '~icons/ph/chart-bar-horizontal'
 import IPhChartLineUp from '~icons/ph/chart-line-up'
 import IPhChartPieSlice from '~icons/ph/chart-pie-slice'
 import IPhChartDonut from '~icons/ph/chart-donut'
-import { getChartTypeLabel } from '../chartTypeLabels'
+import { getChartTypeLabel } from '../../../utils/chartType'
 
 const props = withDefaults(defineProps<{
   chartType: string

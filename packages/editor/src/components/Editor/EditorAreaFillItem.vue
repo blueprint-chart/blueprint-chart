@@ -109,7 +109,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
 import type { AreaFillConfig } from '@blueprint-chart/lib'
 
 const props = defineProps<{

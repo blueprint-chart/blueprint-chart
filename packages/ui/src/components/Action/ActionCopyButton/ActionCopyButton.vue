@@ -9,8 +9,6 @@
 </template>
 
 <script setup lang="ts">
-import { shallowRef } from 'vue'
-import ButtonIcon from '../../Button/ButtonIcon/ButtonIcon.vue'
 import IPhCopy from '~icons/ph/copy'
 import IPhCheck from '~icons/ph/check'
 

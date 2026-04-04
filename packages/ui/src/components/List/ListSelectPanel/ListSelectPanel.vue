@@ -58,7 +58,6 @@
 
 <script setup lang="ts">
 import { BButton } from 'bootstrap-vue-next'
-import ListItemRow from '../ListItemRow/ListItemRow.vue'
 
 const selected = defineModel<string[]>('selected', { required: true })
 

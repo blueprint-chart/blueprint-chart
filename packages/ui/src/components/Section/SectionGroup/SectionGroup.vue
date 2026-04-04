@@ -10,7 +10,6 @@
 </template>
 
 <script setup lang="ts">
-import SectionTitle from '../SectionTitle/SectionTitle.vue'
 
 withDefaults(defineProps<{
   title: string

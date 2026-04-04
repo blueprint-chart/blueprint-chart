@@ -13,7 +13,6 @@
 
 <script setup lang="ts">
 import PhPlus from '~icons/ph/plus'
-import ButtonIcon from '../ButtonIcon/ButtonIcon.vue'
 
 withDefaults(defineProps<{
   label?: string

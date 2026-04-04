@@ -13,7 +13,6 @@
 
 <script setup lang="ts">
 import IPhDotsNine from '~icons/ph/dots-nine'
-import ButtonIcon from '../ButtonIcon/ButtonIcon.vue'
 </script>
 
 <style scoped lang="scss">

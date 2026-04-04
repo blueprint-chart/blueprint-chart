@@ -102,17 +102,8 @@
 </template>
 
 <script setup lang="ts">
-import { shallowRef, computed, onMounted, onUnmounted, useTemplateRef, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { LayoutBottomDrawer, useBreakpoint } from '@blueprint-chart/ui'
-import { useDashboardPanel } from '@/composables/useDashboardPanel'
-import { useDashboardGallery } from '@/composables/useDashboardGallery'
-import PanelDocked from '@/components/Panel/PanelDocked.vue'
-import PanelFloating from '@/components/Panel/PanelFloating.vue'
-import DashboardToolbar from './DashboardToolbar.vue'
-import DashboardGallery from './DashboardGallery.vue'
-import DashboardDetailContent from './DashboardDetailContent.vue'
-import DashboardEmptyState from './DashboardEmptyState.vue'
 
 const router = useRouter()
 const { isNarrow } = useBreakpoint()

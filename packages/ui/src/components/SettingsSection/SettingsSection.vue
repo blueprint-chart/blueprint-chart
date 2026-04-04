@@ -29,9 +29,6 @@
 
 <script setup lang="ts">
 import type { Component } from 'vue'
-import SettingsSectionIcon from './SettingsSectionIcon.vue'
-import SettingsSectionTitle from './SettingsSectionTitle.vue'
-import SettingsSectionDescription from './SettingsSectionDescription.vue'
 
 withDefaults(defineProps<{
   title: string

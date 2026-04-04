@@ -29,9 +29,6 @@
 </template>
 
 <script setup lang="ts">
-import ButtonAdd from '../../Button/ButtonAdd/ButtonAdd.vue'
-import SceneTimelineItem from '../SceneTimelineItem/SceneTimelineItem.vue'
-import SceneTimelineControls from './SceneTimelineControls.vue'
 
 const activeIndex = defineModel<number>('activeIndex', { default: -1 })
 

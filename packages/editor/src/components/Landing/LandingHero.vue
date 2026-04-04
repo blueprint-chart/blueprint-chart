@@ -44,8 +44,6 @@
 import { ButtonIcon } from '@blueprint-chart/ui'
 import IPhPlus from '~icons/ph/plus'
 import { samples } from '@blueprint-chart/lib'
-import LandingBadge from './LandingBadge.vue'
-import LandingChartPreview from './LandingChartPreview.vue'
 
 const badges = ['Free forever', 'No account required', 'MIT licensed']
 const heroBpc = samples.find(s => s.id === 'co2-emissions')!.dsl

@@ -25,9 +25,6 @@
 
 <script setup lang="ts">
 import type { Component } from 'vue'
-import LandingSection from './LandingSection.vue'
-import LandingSectionHeader from './LandingSectionHeader.vue'
-import LandingPracticeCard from './LandingPracticeCard.vue'
 import IPhArrowLineDown from '~icons/ph/arrow-line-down'
 import IPhPalette from '~icons/ph/palette'
 import IPhDevices from '~icons/ph/devices'

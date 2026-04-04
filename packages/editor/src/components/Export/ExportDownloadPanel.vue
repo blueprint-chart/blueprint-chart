@@ -67,11 +67,8 @@
 
 <script setup lang="ts">
 import { FormControlSliderInput } from '@blueprint-chart/ui'
-import { storeToRefs } from 'pinia'
+import { triggerDownload } from '@/utils/export/image'
 import { useExportPanel } from '@/stores/exportPanel'
-import { useDslOutput } from '@/composables/useDslOutput'
-import { triggerDownload } from '@/composables/useImageExport'
-import ExportDownloadFormatCard from './ExportDownloadFormatCard.vue'
 import IPhImage from '~icons/ph/image'
 import IPhFileCode from '~icons/ph/file-code'
 import IPhFileText from '~icons/ph/file-text'

@@ -1,6 +1,3 @@
-import { describe, it, expect, beforeEach } from 'vitest'
-import { setActivePinia, createPinia } from 'pinia'
-
 // useChartHistory is tightly coupled to provide/inject (useChartConfig,
 // useChartTypeOptions, useChartSession).  Instead of testing the composable
 // directly we test the pure helper logic that drives it: pushState, undo,

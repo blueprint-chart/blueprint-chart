@@ -121,16 +121,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
 import type { AnnotationConfig, PointAnnotationConfig, RangeAnnotationConfig, FreeAnnotationConfig } from '@blueprint-chart/lib'
 import { ButtonAdd, SectionCard, SettingsSection } from '@blueprint-chart/ui'
 import IPhMapPin from '~icons/ph/map-pin'
 import IPhArrowsOutLineHorizontal from '~icons/ph/arrows-out-line-horizontal'
 import IPhNote from '~icons/ph/note'
-import EditorAnnotationHeader from './EditorAnnotationHeader.vue'
-import EditorAnnotationPoint from './EditorAnnotationPoint.vue'
-import EditorAnnotationRange from './EditorAnnotationRange.vue'
-import EditorAnnotationFree from './EditorAnnotationFree.vue'
 
 const props = defineProps<{
   labels: string[]

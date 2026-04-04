@@ -1,4 +1,3 @@
-import { describe, expect, it } from 'vitest'
 import { shallowMount } from '@vue/test-utils'
 import ScenePlayerMinimalArrows from './ScenePlayerMinimalArrows.vue'
 

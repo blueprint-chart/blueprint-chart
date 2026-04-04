@@ -1,5 +1,3 @@
-import { computed, reactive, watch } from 'vue'
-import { defineStore, storeToRefs } from 'pinia'
 import { useChartConfig, deepEqual } from '@/stores/chartConfig'
 import { useScenes } from '@/stores/scenes'
 import { getChartOptions } from '@blueprint-chart/lib'

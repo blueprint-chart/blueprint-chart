@@ -1,6 +1,3 @@
-import { ref } from 'vue'
-import { defineStore, storeToRefs } from 'pinia'
-
 export type DashboardPanelMode = 'docked' | 'floating' | 'collapsed'
 
 const PANEL_MIN_WIDTH = 260

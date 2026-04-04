@@ -13,7 +13,6 @@
 
 <script setup lang="ts">
 import IPhArrowClockwise from '~icons/ph/arrow-clockwise'
-import ButtonIcon from '../ButtonIcon/ButtonIcon.vue'
 
 withDefaults(defineProps<{
   disabled?: boolean

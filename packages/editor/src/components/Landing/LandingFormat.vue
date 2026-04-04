@@ -53,15 +53,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
 import { AppIcon } from '@blueprint-chart/ui'
 import IPhLightning from '~icons/ph/lightning'
 import { samples } from '@blueprint-chart/lib'
 import { highlightDsl } from '@/dsl-lang'
 import '@/dsl-lang/highlight.scss'
-import LandingSection from './LandingSection.vue'
-import LandingSectionHeader from './LandingSectionHeader.vue'
-import LandingChartPreview from './LandingChartPreview.vue'
 
 const rawBpc = samples.find(s => s.id === 'coffee-production')!.dsl
   .replace(/\{/, '{\n  theme = "blueprint-framed"')

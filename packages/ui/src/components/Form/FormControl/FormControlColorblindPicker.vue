@@ -9,7 +9,6 @@
 </template>
 
 <script setup lang="ts">
-import FormControlDropdown from './FormControlDropdown.vue'
 
 defineProps<{
   label?: string

@@ -25,9 +25,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
 import { getChartTypeLabel } from '@blueprint-chart/ui'
-import DashboardMetaChip from './DashboardMetaChip.vue'
 
 const props = defineProps<{
   chartType: string

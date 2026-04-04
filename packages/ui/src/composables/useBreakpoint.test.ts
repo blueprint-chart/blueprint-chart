@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils'
-import { defineComponent, h, nextTick, type Ref } from 'vue'
+import type { Ref } from 'vue'
 import { useBreakpoint } from './useBreakpoint'
 
 function createMockMatchMedia(matches: boolean) {

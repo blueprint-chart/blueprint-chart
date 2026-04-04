@@ -46,12 +46,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
 import PhPlayFill from '~icons/ph/play-fill'
 import PhPauseFill from '~icons/ph/pause-fill'
 import PhCaretLeft from '~icons/ph/caret-left'
 import PhCaretRight from '~icons/ph/caret-right'
-import AppIcon from '../../App/AppIcon/AppIcon.vue'
 
 const activeIndex = defineModel<number>('activeIndex', { default: -1 })
 

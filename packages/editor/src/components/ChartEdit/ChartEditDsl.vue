@@ -14,12 +14,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch } from 'vue'
 import { EditorView, keymap } from '@codemirror/view'
 import { EditorState } from '@codemirror/state'
 import { defaultKeymap, history, historyKeymap } from '@codemirror/commands'
-import { useDslOutput } from '@/composables/useDslOutput'
-import { useDslSync } from '@/composables/useDslSync'
 import { bpcLanguage, bpcHighlighter } from '@/dsl-lang'
 import '@/dsl-lang/highlight.scss'
 

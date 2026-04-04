@@ -1,6 +1,3 @@
-import { shallowRef } from 'vue'
-import { defineStore, storeToRefs } from 'pinia'
-
 export const useCvdModeStore = defineStore('cvdMode', () => {
   const cvdMode = shallowRef('')
 

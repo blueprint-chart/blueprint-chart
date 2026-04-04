@@ -16,8 +16,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { storeToRefs } from 'pinia'
 import { ButtonUndo, ButtonRedo, NavigationToggle } from '@blueprint-chart/ui'
 import { useEditorPanel } from '@/stores/editorPanel'
 import { useChartHistory } from '@/stores/chartHistory'

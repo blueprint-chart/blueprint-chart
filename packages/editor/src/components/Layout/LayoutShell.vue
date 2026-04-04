@@ -70,9 +70,6 @@
 </template>
 
 <script setup lang="ts">
-import { shallowRef, computed, useTemplateRef, watch } from 'vue'
-import { storeToRefs } from 'pinia'
-import { onClickOutside } from '@vueuse/core'
 import { useRoute, useRouter } from 'vue-router'
 import { BFormInput } from 'bootstrap-vue-next'
 import { NavigationStepper, ButtonIcon } from '@blueprint-chart/ui'
@@ -80,7 +77,6 @@ import { useChartSession } from '@/stores/chartSession'
 import { useNavbar } from '@/stores/navbar'
 import { useWizard } from '@/stores/wizard'
 import { useDataTable } from '@/stores/dataTable'
-import LayoutNavbar from '@/components/Layout/LayoutNavbar.vue'
 import IPhTable from '~icons/ph/table'
 import IPhChartBar from '~icons/ph/chart-bar'
 import IPhExport from '~icons/ph/export'

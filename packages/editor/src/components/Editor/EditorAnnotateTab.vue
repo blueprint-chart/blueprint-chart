@@ -36,23 +36,17 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, shallowRef, watch, nextTick, onMounted, onBeforeUnmount } from 'vue'
-import { storeToRefs } from 'pinia'
 import { useChartConfig } from '@/stores/chartConfig'
 import { useChartTypeOptions } from '@/stores/chartTypeOptions'
 import { usePreviewContainer } from '@/stores/previewContainer'
 import { useEditorPanel } from '@/stores/editorPanel'
-import { useAnnotationDrag } from '@/composables/useAnnotationDrag'
 import { useScenes } from '@/stores/scenes'
-import { resolveScene } from '@/composables/useChartPreview'
 import { parseData } from '@blueprint-chart/lib'
 import type { AnnotationConfig } from '@blueprint-chart/lib'
 import { SettingsSection } from '@blueprint-chart/ui'
 import IPhDropHalf from '~icons/ph/drop-half'
 import IPhHighlighterCircle from '~icons/ph/highlighter-circle'
 import EditorAnnotations from './EditorAnnotations.vue'
-import EditorAreaFills from './EditorAreaFills.vue'
-import EditorHighlightSection from './EditorHighlightSection.vue'
 
 const config = useChartConfig()
 const { chartType, data, areaFills, seriesOverrides } = config

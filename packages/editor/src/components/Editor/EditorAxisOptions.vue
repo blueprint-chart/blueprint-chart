@@ -64,7 +64,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, h, type Component, type FunctionalComponent } from 'vue'
+import type { Component, FunctionalComponent } from 'vue'
 import {
   FormControlButtonGroup,
   FormControlCheckbox,

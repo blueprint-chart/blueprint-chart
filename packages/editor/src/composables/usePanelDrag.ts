@@ -1,5 +1,4 @@
 import { type Ref } from 'vue'
-import { useEventListener } from '@vueuse/core'
 
 export interface DragPosition {
   x: number

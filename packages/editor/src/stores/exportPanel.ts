@@ -1,6 +1,3 @@
-import { ref } from 'vue'
-import { defineStore, storeToRefs } from 'pinia'
-
 export type ExportTab = 'embed' | 'download'
 export type DownloadFormat = 'png' | 'svg' | 'bpc'
 

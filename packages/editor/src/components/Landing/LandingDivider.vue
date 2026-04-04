@@ -4,6 +4,10 @@
   </div>
 </template>
 
+<script setup lang="ts">
+defineOptions({ name: 'LandingDivider' })
+</script>
+
 <style scoped lang="scss">
 .landing-divider {
   max-width: 70rem;

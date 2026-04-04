@@ -1,4 +1,3 @@
-import { describe, it, expect, vi } from 'vitest'
 import { mount, type VueWrapper } from '@vue/test-utils'
 import CanvasDimensions from './CanvasDimensions.vue'
 import type { ChartLayout } from '@/stores/chartConfig'

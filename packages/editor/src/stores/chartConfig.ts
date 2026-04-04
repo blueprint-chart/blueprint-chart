@@ -1,5 +1,4 @@
-import { reactive, toRefs, computed, markRaw, type Ref, type WritableComputedRef, type ToRefs } from 'vue'
-import { defineStore, storeToRefs } from 'pinia'
+import type { Ref, WritableComputedRef, ToRefs } from 'vue'
 import type { AreaFillConfig, AnnotationConfig, SeriesOverride, HighlightConfig } from '@blueprint-chart/lib'
 import { useScenes, type SceneOverride } from '@/stores/scenes'
 

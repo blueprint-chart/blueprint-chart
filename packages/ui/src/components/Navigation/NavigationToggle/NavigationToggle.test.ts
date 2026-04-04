@@ -1,5 +1,4 @@
 import { mount } from '@vue/test-utils'
-import { h, nextTick } from 'vue'
 import Toggle from './NavigationToggle.vue'
 import ToggleOption from './NavigationToggleOption.vue'
 

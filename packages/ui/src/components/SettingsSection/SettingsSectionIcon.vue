@@ -6,7 +6,6 @@
 
 <script setup lang="ts">
 import type { Component } from 'vue'
-import AppIcon from '../App/AppIcon/AppIcon.vue'
 
 defineProps<{
   icon: Component

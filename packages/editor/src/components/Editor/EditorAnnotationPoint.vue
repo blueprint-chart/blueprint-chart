@@ -149,7 +149,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted, type ComponentPublicInstance } from 'vue'
+import type { ComponentPublicInstance } from 'vue'
 import type { PointAnnotationConfig, CompassDirection } from '@blueprint-chart/lib'
 import { FormControlColorInput, FormControlUnitsInput, FormControlDirectionPicker, FormControlCheckbox, FormControlButtonGroup, FormControlButtonGroupEntry } from '@blueprint-chart/ui'
 import IFluentLine from '~icons/fluent/line-horizontal-1-20-filled'

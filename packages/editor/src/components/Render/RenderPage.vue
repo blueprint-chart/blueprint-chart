@@ -25,7 +25,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onBeforeUnmount, type Component } from 'vue'
+import type { Component } from 'vue'
 import { useRoute } from 'vue-router'
 import {
   ScenePlayerButtons,
@@ -33,10 +33,7 @@ import {
   ScenePlayerDotStepper,
   ScenePlayerMinimalArrows,
 } from '@blueprint-chart/ui'
-import { useDslSync } from '@/composables/useDslSync'
-import { useChartPreview } from '@/composables/useChartPreview'
 import { useChartConfig } from '@/stores/chartConfig'
-import { useCanvasCardStyle } from '@/composables/useCanvasCardStyle'
 import { useScenes } from '@/stores/scenes'
 
 const route = useRoute()

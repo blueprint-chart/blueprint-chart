@@ -31,24 +31,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { storeToRefs } from 'pinia'
 import { useEditorPanel } from '@/stores/editorPanel'
 import { useChartConfig } from '@/stores/chartConfig'
 import { useChartTypeOptions } from '@/stores/chartTypeOptions'
 import { useScenes } from '@/stores/scenes'
-import PanelFloating from '@/components/Panel/PanelFloating.vue'
-import PanelTabBar from '@/components/Panel/PanelTabBar.vue'
-import EditorChartTypePicker from '@/components/Editor/EditorChartTypePicker.vue'
-import EditorPropertyForm from '@/components/Editor/EditorPropertyForm.vue'
-import EditorAppearanceTab from '@/components/Editor/EditorAppearanceTab.vue'
-import EditorLayoutTab from '@/components/Editor/EditorLayoutTab.vue'
-import EditorSeriesPanel from '@/components/Editor/EditorSeriesPanel.vue'
-import EditorAxisOptions from '@/components/Editor/EditorAxisOptions.vue'
-import EditorAnnotateTab from '@/components/Editor/EditorAnnotateTab.vue'
-import EditorInteractionsTab from '@/components/Editor/EditorInteractionsTab.vue'
-import PanelStepperFooter from '@/components/Panel/PanelStepperFooter.vue'
-import ChartEditToolbar from './ChartEditToolbar.vue'
 
 const AXIS_KEYS = ['showVerticalAxis', 'verticalAxisDirection', 'showVerticalTicks', 'verticalLabelPosition', 'verticalGridStyle', 'verticalNumberFormat', 'verticalScaleType', 'verticalRangeMin', 'verticalRangeMax', 'showHorizontalAxis', 'showHorizontalTicks', 'horizontalLabelPosition', 'horizontalGridStyle', 'horizontalNumberFormat', 'horizontalScaleType', 'horizontalRangeMin', 'horizontalRangeMax']
 

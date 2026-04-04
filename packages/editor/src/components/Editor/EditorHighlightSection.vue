@@ -16,7 +16,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed, shallowRef } from 'vue'
 import type { HighlightConfig } from '@blueprint-chart/lib'
 import { parseData } from '@blueprint-chart/lib'
 import { useChartConfig } from '@/stores/chartConfig'

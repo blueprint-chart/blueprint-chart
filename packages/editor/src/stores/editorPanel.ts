@@ -1,6 +1,3 @@
-import { ref } from 'vue'
-import { defineStore, storeToRefs } from 'pinia'
-
 export type PanelMode = 'docked' | 'floating' | 'collapsed'
 export type ViewMode = 'preview' | 'dsl'
 export type CanvasMode = 'blueprint' | 'auto' | 'light' | 'dark'

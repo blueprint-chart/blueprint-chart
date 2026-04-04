@@ -13,7 +13,6 @@
 
 <script setup lang="ts">
 import IPhArrowsOutSimple from '~icons/ph/arrows-out-simple'
-import ButtonIcon from '../ButtonIcon/ButtonIcon.vue'
 
 defineEmits<{
   click: []

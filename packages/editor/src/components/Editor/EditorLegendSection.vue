@@ -48,7 +48,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
 import { useChartTypeOptions } from '@/stores/chartTypeOptions'
 import { FormControlButtonGroup } from '@blueprint-chart/ui'
 import IPhList from '~icons/ph/list'

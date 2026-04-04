@@ -1,5 +1,3 @@
-import { shallowRef, computed, nextTick, watch, effectScope } from 'vue'
-import { defineStore, storeToRefs } from 'pinia'
 import { useChartConfig, type ChartConfig, layoutDefaults } from '@/stores/chartConfig'
 import { useChartTypeOptions, type ChartTypeOptions } from '@/stores/chartTypeOptions'
 import { useChartSession } from '@/stores/chartSession'

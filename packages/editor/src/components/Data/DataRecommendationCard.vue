@@ -27,7 +27,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, markRaw, type Component } from 'vue'
+import type { Component } from 'vue'
 import BarVerticalThumb from '@/assets/chart-thumbnails/bar-vertical.bpc'
 import BarHorizontalThumb from '@/assets/chart-thumbnails/bar-horizontal.bpc'
 import BarMultiThumb from '@/assets/chart-thumbnails/bar-multi.bpc'

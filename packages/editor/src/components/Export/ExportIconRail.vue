@@ -11,8 +11,6 @@
 
 <script setup lang="ts">
 import type { Component } from 'vue'
-import { storeToRefs } from 'pinia'
-import PanelIconRail from '@/components/Panel/PanelIconRail.vue'
 import { useEditorPanel } from '@/stores/editorPanel'
 import { useExportPanel, type ExportTab } from '@/stores/exportPanel'
 import IPhCode from '~icons/ph/code'
