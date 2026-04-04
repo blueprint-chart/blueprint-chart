@@ -10,7 +10,9 @@ describe('setupProximityInteraction', () => {
       document.body.removeChild(document.body.firstChild)
     }
     const existing = document.getElementById('bc-tooltip-styles')
-    if (existing) existing.remove()
+    if (existing) {
+      existing.remove()
+    }
     svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
     g = document.createElementNS('http://www.w3.org/2000/svg', 'g')
     svg.appendChild(g)
@@ -22,7 +24,9 @@ describe('setupProximityInteraction', () => {
       document.body.removeChild(document.body.firstChild)
     }
     const existing = document.getElementById('bc-tooltip-styles')
-    if (existing) existing.remove()
+    if (existing) {
+      existing.remove()
+    }
   })
 
   const points = [

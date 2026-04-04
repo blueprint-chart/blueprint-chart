@@ -25,7 +25,6 @@ export function computeElbowPath(
   to: { x: number, y: number },
   departVertical: boolean,
 ): string {
-
   if (departVertical) {
     const vSign = to.y >= from.y ? 1 : -1
     const dy = Math.abs(to.y - from.y)
