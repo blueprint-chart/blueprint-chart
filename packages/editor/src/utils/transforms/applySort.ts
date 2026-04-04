@@ -1,4 +1,4 @@
-import type { TransformResult } from '../useDataTransforms'
+import type { TransformResult } from '@/stores/dataTransforms'
 import { compareValues, parseNumeric, resolveColumns } from './shared'
 
 export function applySort(data: TransformResult, config: Record<string, string>): TransformResult {

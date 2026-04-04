@@ -1,4 +1,4 @@
-import type { ColumnType } from '../useDataParser'
+import type { ColumnType } from '../data/parser'
 
 export function parseNumeric(v: string): number {
   return Number(v.replace(/[,%$€£¥₹]/g, '').trim()) || 0

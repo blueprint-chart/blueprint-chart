@@ -1,6 +1,5 @@
-import { describe, it, expect } from 'vitest'
 import { applyParse, NULL_VALUE } from './applyParse'
-import type { TransformResult } from '../useDataTransforms'
+import type { TransformResult } from '@/stores/dataTransforms'
 
 function makeData(columns: string[], rows: string[][], columnTypes: string[]): TransformResult {
   return { columns, rows, columnTypes: columnTypes as TransformResult['columnTypes'] }
