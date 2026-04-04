@@ -30,7 +30,7 @@
 </template>
 
 <script setup lang="ts">
-import { type Component, computed, markRaw } from 'vue'
+import type { Component } from 'vue'
 import { samples } from '@blueprint-chart/lib'
 import type { ChartSample } from '@blueprint-chart/lib'
 

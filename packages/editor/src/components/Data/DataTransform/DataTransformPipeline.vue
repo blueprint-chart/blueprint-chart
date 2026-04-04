@@ -89,21 +89,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, shallowRef, computed } from 'vue'
 import { useDataTable } from '@/stores/dataTable'
 import { useDataTransforms, type TransformType } from '@/stores/dataTransforms'
 import { useScenes } from '@/stores/scenes'
-import DataTransformSourceBlock from './DataTransformSourceBlock.vue'
-import DataTransformOutputBlock from './DataTransformOutputBlock.vue'
-import DataTransformStepCard from './DataTransformStepCard.vue'
-import DataTransformAddButton from './DataTransformAddButton.vue'
-import DataTransformConnector from './DataTransformConnector.vue'
-import DataTransformStepSort from './DataTransformStepSort.vue'
-import DataTransformStepFilter from './DataTransformStepFilter.vue'
-import DataTransformStepHideColumns from './DataTransformStepHideColumns.vue'
-import DataTransformStepParse from './DataTransformStepParse.vue'
-import DataTransformStepRename from './DataTransformStepRename.vue'
-import DataTransformStepGroupBy from './DataTransformStepGroupBy.vue'
 
 const { columns, rows, columnTypes } = useDataTable()
 const { steps, addStep, removeStep, applyTransforms, getColumnsAtStep, validateStep } = useDataTransforms()

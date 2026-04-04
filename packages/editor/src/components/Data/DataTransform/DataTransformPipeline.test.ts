@@ -1,8 +1,5 @@
 /* eslint-disable vue/one-component-per-file */
-import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { ref, defineComponent } from 'vue'
-import { createPinia, setActivePinia } from 'pinia'
 import DataTransformPipeline from './DataTransformPipeline.vue'
 
 const columns = ref(['Name', 'Value'])

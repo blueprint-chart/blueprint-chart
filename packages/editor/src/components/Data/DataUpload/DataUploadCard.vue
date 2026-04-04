@@ -97,11 +97,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, shallowRef, nextTick } from 'vue'
 import { useDataTable } from '@/stores/dataTable'
-import { serializeDelimited } from '@/composables/useDataParser'
-import DataUploadFileDrop from './DataUploadFileDrop.vue'
-import DataUploadSamples from './DataUploadSamples.vue'
 
 defineEmits<{
   loaded: [content: string, sourceLabel: string]

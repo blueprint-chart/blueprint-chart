@@ -12,7 +12,6 @@
 
 <script setup lang="ts">
 import type { CanvasMode } from '@/stores/editorPanel'
-import CanvasModePickerOptionSwatch from './CanvasModePickerOptionSwatch.vue'
 
 defineProps<{
   mode: CanvasMode

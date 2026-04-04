@@ -1,6 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { ref } from 'vue'
 import DataCheckTable from './DataCheckTable.vue'
 
 const mockSelectColumn = vi.fn()

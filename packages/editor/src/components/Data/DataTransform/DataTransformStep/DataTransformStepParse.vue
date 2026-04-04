@@ -38,7 +38,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed, shallowRef, watch } from 'vue'
 import { FormControlDropdown, FormControlTextInput } from '@blueprint-chart/ui'
 import { useDataTransforms, type TransformStep, parseOperations } from '@/stores/dataTransforms'
 
