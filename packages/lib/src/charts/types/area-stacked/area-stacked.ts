@@ -222,17 +222,41 @@ export function render(
   const legendAnchor = options.legendAnchor ?? 'start'
   // Compute domain and margins before estimating legend size,
   // so we can use the actual chart-area width for wrapping estimation.
-  const stackMode = options.stackMode ?? 'normal'
-  const isPercent = stackMode === 'percent'
-  const filteredData: ChartData = { labels: data.labels, values: data.values, series }
+  const isStacked = options.stacked !== false
+  const isPercent = options.stackPercent === true || options.stackMode === 'percent'
+  const areaSortMode = options.areaSortMode ?? 'none'
+  const showAreaLines = options.areaLines !== false
+
+  // Sort series by total if requested
+  const sortedSeries = [...series]
+  if (areaSortMode !== 'none') {
+    const totals = new Map(sortedSeries.map(s => [s.name, s.values.reduce((a, b) => a + b, 0)]))
+    sortedSeries.sort((a, b) => {
+      const diff = (totals.get(a.name) ?? 0) - (totals.get(b.name) ?? 0)
+      return areaSortMode === 'ascending' ? diff : -diff
+    })
+  }
+
+  const filteredData: ChartData = { labels: data.labels, values: data.values, series: sortedSeries }
   const stackedSeries = isPercent ? computeStack100(filteredData) : computeStack(filteredData)
 
-  // Domain for stacked values
+  // Domain for stacked/unstacked values
   let domainMax = 0
-  for (const s of stackedSeries) {
-    for (const point of s) {
-      if (point[1] > domainMax) {
-        domainMax = point[1]
+  if (isStacked) {
+    for (const s of stackedSeries) {
+      for (const point of s) {
+        if (point[1] > domainMax) {
+          domainMax = point[1]
+        }
+      }
+    }
+  }
+  else {
+    for (const s of sortedSeries) {
+      for (const v of s.values) {
+        if (v > domainMax) {
+          domainMax = v
+        }
       }
     }
   }
@@ -303,7 +327,15 @@ export function render(
   // Convert d3 stack series to StackedAreaDatum[]
   const stackedAreaData: StackedAreaDatum[] = stackedSeries.map((s) => {
     const seriesIdx = allSeries.findIndex(a => a.name === s.key)
-    const points: [number, number][] = Array.from(s).map(point => [y(point[0]) as number, y(point[1]) as number])
+    let points: [number, number][]
+    if (isStacked) {
+      points = Array.from(s).map(point => [y(point[0]) as number, y(point[1]) as number])
+    }
+    else {
+      // Unstacked: each area from y=0 to its own value
+      const rawSeries = sortedSeries.find(rs => rs.name === s.key)
+      points = (rawSeries?.values ?? []).map(v => [y(0) as number, y(v) as number])
+    }
     return {
       name: s.key,
       points,
@@ -315,8 +347,9 @@ export function render(
   const highlightTargets = new Set((options.highlights ?? []).map(h => h.target))
   const hasHighlights = highlightTargets.size > 0
 
+  const resolvedOpacity = options.areaFillOpacity != null ? options.areaFillOpacity : 0.85
   const chart = new AreaStackedChart(d3.select(clippedArea))
-  chart.config({ xPos, colors, curve, areaFillOpacity: options.areaFillOpacity ?? 0.85, highlightTargets })
+  chart.config({ xPos, colors, curve, areaFillOpacity: resolvedOpacity, highlightTargets })
 
   // Re-insert prior elements so D3 data-join finds them and triggers merge:transition
   if (priorAreas.length > 0 || priorLines.length > 0) {
@@ -342,9 +375,13 @@ export function render(
       : d3.select(this)
     el.attr('fill', seriesColor)
     if (hasHighlights) {
-      el.attr('opacity', highlightTargets.has(datum.name) ? (options.areaFillOpacity ?? 0.85) : 0.3)
+      el.attr('opacity', highlightTargets.has(datum.name) ? resolvedOpacity : 0.3)
     }
   })
+
+  if (!showAreaLines) {
+    d3.select(clippedArea).selectAll('.bc-line').attr('display', 'none')
+  }
 
   d3.select(clippedArea).selectAll('.bc-line').each(function (this: SVGPathElement, d: unknown) {
     const datum = d as StackedAreaDatum

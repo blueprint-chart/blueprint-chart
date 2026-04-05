@@ -286,6 +286,22 @@ export function buildChartOptions(opts: Partial<ChartTypeOptions>, backgroundCol
   if (opts.stackMode !== undefined) {
     result.stackMode = opts.stackMode as 'normal' | 'percent'
   }
+  if (opts.stacked !== undefined) {
+    result.stacked = opts.stacked
+  }
+  if (opts.stackPercent !== undefined) {
+    result.stackPercent = opts.stackPercent
+  }
+  if (opts.areaSortMode !== undefined) {
+    result.areaSortMode = opts.areaSortMode
+  }
+  if (opts.areaLines !== undefined) {
+    result.areaLines = opts.areaLines
+  }
+  const areaFillOpacity = parseFloat(opts.areaFillOpacity ?? '')
+  if (!isNaN(areaFillOpacity)) {
+    result.areaFillOpacity = areaFillOpacity
+  }
 
   if (opts.edgePadding !== undefined) {
     result.edgePadding = opts.edgePadding

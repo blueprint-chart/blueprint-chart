@@ -157,6 +157,10 @@ export interface ChartOptions {
   areaFill?: boolean
   areaFillOpacity?: number
   areaFills?: AreaFillConfig[]
+  stacked?: boolean
+  stackPercent?: boolean
+  areaSortMode?: string
+  areaLines?: boolean
   valueLabels?: boolean
   valueLabelPosition?: 'inside' | 'outside' | 'auto'
   tooltips?: boolean
@@ -261,6 +265,11 @@ export interface ChartTypeOptions {
   barBackground: boolean
   barSeparators: boolean
   stackMode: string
+  stacked: boolean
+  stackPercent: boolean
+  areaSortMode: string
+  areaLines: boolean
+  areaFillOpacity: string
   edgePadding: boolean
   waterfall: boolean
   waterfallTotal: boolean

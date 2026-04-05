@@ -37,6 +37,14 @@
     >
       <EditorSliceSection />
     </SettingsSection>
+
+    <SettingsSection
+      v-if="hasArea"
+      title="Areas"
+      :icon="IPhChartLine"
+    >
+      <EditorAreaSection />
+    </SettingsSection>
   </div>
 </template>
 
@@ -50,6 +58,7 @@ import IPhChartPieSlice from '~icons/ph/chart-pie-slice'
 import IPhPaintBrush from '~icons/ph/paint-brush'
 import IPhChartBar from '~icons/ph/chart-bar'
 import IPhChartBarHorizontal from '~icons/ph/chart-bar-horizontal'
+import IPhChartLine from '~icons/ph/chart-line'
 
 const { chartType } = useChartConfig()
 const { availableOptionKeys } = useChartTypeOptions()
@@ -60,10 +69,13 @@ const barStyleIcon = computed(() =>
     : IPhChartBar,
 )
 
-const hasLine = computed(() =>
-  availableOptionKeys.value.includes('interpolation')
-  || availableOptionKeys.value.includes('lineSymbols'),
+const hasArea = computed(() => availableOptionKeys.value.includes('stacked'))
+
+const hasLineOptions = computed(() =>
+  availableOptionKeys.value.includes('interpolation') || availableOptionKeys.value.includes('lineSymbols'),
 )
+
+const hasLine = computed(() => !hasArea.value && hasLineOptions.value)
 
 const hasBarStyle = computed(() =>
   availableOptionKeys.value.includes('barBackground')

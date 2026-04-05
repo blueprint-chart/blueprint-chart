@@ -77,7 +77,7 @@ const chartTypeOptions = [
   { value: 'line', label: 'Line', description: 'Show trends over time', visual: markRaw(LineThumb) },
   { value: 'line-multi', label: 'Lines', description: 'Compare trends across series', visual: markRaw(LineMultiThumb) },
   { value: 'area', label: 'Area', description: 'Show magnitude over time', visual: markRaw(AreaThumb) },
-  { value: 'area-stacked', label: 'Stacked Area', description: 'Show composition over time', visual: markRaw(AreaStackedThumb) },
+  { value: 'area-stacked', label: 'Areas', description: 'Compare and stack multiple area series', visual: markRaw(AreaStackedThumb) },
   { value: 'donut', label: 'Donut', description: 'Show proportions with a center space', visual: markRaw(DonutThumb) },
   { value: 'pie', label: 'Pie', description: 'Show parts of a whole', visual: markRaw(PieThumb) },
 ]

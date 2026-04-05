@@ -70,6 +70,46 @@ describe('registry', () => {
     expect(directLabel!.default).not.toBe('auto')
   })
 
+  it('area-stacked has stacked option defaulting to true', () => {
+    const options = getChartOptions('area-stacked')
+    const opt = options.find(o => o.key === 'stacked')
+    expect(opt).toBeDefined()
+    expect(opt!.default).toBe(true)
+  })
+
+  it('area-stacked has stackPercent option defaulting to false', () => {
+    const options = getChartOptions('area-stacked')
+    const opt = options.find(o => o.key === 'stackPercent')
+    expect(opt).toBeDefined()
+    expect(opt!.default).toBe(false)
+  })
+
+  it('area-stacked has areaLines option defaulting to true', () => {
+    const options = getChartOptions('area-stacked')
+    const opt = options.find(o => o.key === 'areaLines')
+    expect(opt).toBeDefined()
+    expect(opt!.default).toBe(true)
+  })
+
+  it('area-stacked has areaSortMode option defaulting to none', () => {
+    const options = getChartOptions('area-stacked')
+    const opt = options.find(o => o.key === 'areaSortMode')
+    expect(opt).toBeDefined()
+    expect(opt!.default).toBe('none')
+  })
+
+  it('area-stacked has areaFillOpacity option', () => {
+    const options = getChartOptions('area-stacked')
+    const opt = options.find(o => o.key === 'areaFillOpacity')
+    expect(opt).toBeDefined()
+  })
+
+  it('area-stacked does not have stackMode option', () => {
+    const options = getChartOptions('area-stacked')
+    const keys = options.map(o => o.key)
+    expect(keys).not.toContain('stackMode')
+  })
+
   it.each(['line', 'line-multi', 'area'])('%s does not have valueLabelPosition option', (chartType) => {
     const options = getChartOptions(chartType)
     const keys = options.map(o => o.key)

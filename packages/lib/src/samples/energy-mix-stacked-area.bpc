@@ -2,7 +2,9 @@ chart area-stacked {
   title = "Global energy mix shift"
   description = "Share of primary energy by source"
   source = "Our World in Data"
-
+  stackPercent = true
+  areaSortMode = descending
+  areaFillOpacity = 0.85
 
   data {
     _series = "Coal","Oil","Gas","Renewables"
