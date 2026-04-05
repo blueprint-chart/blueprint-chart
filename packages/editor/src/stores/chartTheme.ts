@@ -10,7 +10,7 @@ export const chartThemeOptions: ChartThemeOption[] = [
 ]
 
 export const useChartThemeStore = defineStore('chartTheme', () => {
-  const chartTheme = ref<string>('blueprint')
+  const chartTheme = shallowRef<string>('blueprint')
 
   function reset() {
     chartTheme.value = 'blueprint'

@@ -1,7 +1,7 @@
 import type { ColumnType, ParsedData } from '@/composables/useDataParser'
 import { useDataTransforms } from '@/composables/useDataTransforms'
 import { useScenes } from '@/composables/useScenes'
-import { resolveScene } from '@/composables/useChartPreview'
+import { resolveScene } from '@/utils/scenes'
 
 export type SourceFormat = 'delimited' | 'bpc'
 
@@ -48,9 +48,9 @@ export const useDataTableStore = defineStore('dataTable', () => {
     columnTypes: [],
   })
 
-  const sourceFormat = ref<SourceFormat>('delimited')
+  const sourceFormat = shallowRef<SourceFormat>('delimited')
   const sourceLabel = shallowRef('')
-  const loadedAt = ref<number | null>(null)
+  const loadedAt = shallowRef<number | null>(null)
 
   const { steps, applyTransforms, applyStepList } = useDataTransforms()
   const { activeIndex, scenes } = useScenes()

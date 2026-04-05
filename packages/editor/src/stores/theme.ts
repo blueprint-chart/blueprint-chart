@@ -1,7 +1,7 @@
 export type ThemeMode = 'light' | 'dark' | 'auto'
 
 export const useThemeStore = defineStore('theme', () => {
-  const theme = ref<ThemeMode>('light')
+  const theme = shallowRef<ThemeMode>('light')
   const prefersDark = useMediaQuery('(prefers-color-scheme: dark)')
 
   const resolvedTheme = computed<'light' | 'dark'>(() => {
