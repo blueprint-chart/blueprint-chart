@@ -38,8 +38,8 @@
       />
     </div>
     <FormControlColorInputPopover
-      :model-value="editingColor"
       v-model:open="pickerOpen"
+      :model-value="editingColor"
       :target="editingTarget"
       manual
       @update:model-value="onPickerColorChange"
