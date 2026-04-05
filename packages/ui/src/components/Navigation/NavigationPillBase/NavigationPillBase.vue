@@ -29,7 +29,7 @@
         v-if="item.icon"
         class="navigation-pill__option__icon"
       />
-      {{ item.text }}
+      <span class="navigation-pill__option__label">{{ item.text }}</span>
     </button>
   </nav>
 </template>
@@ -171,6 +171,16 @@ function onSelect(item: NavigationPillItem) {
       width: 1em;
       height: 1em;
       flex-shrink: 0;
+    }
+  }
+
+  @media (max-width: 575.98px) {
+    &__option {
+      padding: 0.25rem 0.5rem;
+
+      &:has(.navigation-pill__option__icon) .navigation-pill__option__label {
+        display: none;
+      }
     }
   }
 
