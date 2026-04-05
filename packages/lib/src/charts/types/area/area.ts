@@ -189,16 +189,16 @@ export function render(
     priorMargin = cached?.margin
     axes.detach()
     if (cached?.chartType === 'area') {
-      priorAreas = Array.from(container.querySelectorAll('.bc-area'))
-      priorLines = Array.from(container.querySelectorAll('.bc-line'))
-      priorDots = Array.from(container.querySelectorAll('.bc-dot'))
-      priorSymbolsGroup = container.querySelector('.bc-symbols')
+      priorAreas = Array.from(container.querySelectorAll('.bc-frame .bc-area'))
+      priorLines = Array.from(container.querySelectorAll('.bc-frame .bc-line'))
+      priorDots = Array.from(container.querySelectorAll('.bc-frame .bc-dot'))
+      priorSymbolsGroup = container.querySelector('.bc-frame .bc-symbols')
     }
     else if (cached) {
       fadeOverlay = snapshotForFadeOut(container)
     }
     priorAnnotations = new Map()
-    for (const el of container.querySelectorAll('.bc-annotations, .bc-annotations-range')) {
+    for (const el of container.querySelectorAll('.bc-frame .bc-annotations, .bc-frame .bc-annotations-range')) {
       for (const [k, v] of snapshotAnnotations(el)) {
         priorAnnotations.set(k, v)
       }

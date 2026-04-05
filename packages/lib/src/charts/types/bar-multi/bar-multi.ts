@@ -100,13 +100,13 @@ export function render(
     priorMargin = cached?.margin
     axes.detach()
     if (cached?.chartType === 'bar-multi') {
-      priorBars = Array.from(container.querySelectorAll('.bc-bar-multi'))
+      priorBars = Array.from(container.querySelectorAll('.bc-frame .bc-bar-multi'))
     }
     else if (cached) {
       fadeOverlay = snapshotForFadeOut(container)
     }
     priorAnnotations = new Map()
-    for (const el of container.querySelectorAll('.bc-annotations, .bc-annotations-range')) {
+    for (const el of container.querySelectorAll('.bc-frame .bc-annotations, .bc-frame .bc-annotations-range')) {
       for (const [k, v] of snapshotAnnotations(el)) {
         priorAnnotations.set(k, v)
       }

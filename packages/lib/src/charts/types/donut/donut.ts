@@ -88,13 +88,13 @@ export function renderArc(
     const cached = getCachedChart(container)
     const expectedType = innerRadiusRatio > 0 ? 'donut' : 'pie'
     if (cached?.chartType === expectedType) {
-      priorArcs = Array.from(container.querySelectorAll('.bc-arc'))
+      priorArcs = Array.from(container.querySelectorAll('.bc-frame .bc-arc'))
     }
     else if (cached) {
       fadeOverlay = snapshotForFadeOut(container)
     }
     priorAnnotations = new Map()
-    for (const el of container.querySelectorAll('.bc-annotations, .bc-annotations-range')) {
+    for (const el of container.querySelectorAll('.bc-frame .bc-annotations, .bc-frame .bc-annotations-range')) {
       for (const [k, v] of snapshotAnnotations(el)) {
         priorAnnotations.set(k, v)
       }
