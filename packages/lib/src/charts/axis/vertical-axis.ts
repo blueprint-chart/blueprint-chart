@@ -9,6 +9,8 @@ interface AxisDatum {
   placeholder: true
 }
 
+const MIN_LABEL_HEIGHT_SPACING = 30
+
 export class VerticalAxisChart extends D3Blueprint<AxisDatum[]> {
   initialize() {
     this.configDefine('scale', { defaultValue: d3.scaleLinear() })
@@ -17,6 +19,7 @@ export class VerticalAxisChart extends D3Blueprint<AxisDatum[]> {
     this.configDefine('showTicks', { defaultValue: false })
     this.configDefine('gridStyle', { defaultValue: 'dashed' })
     this.configDefine('gridWidth', { defaultValue: 0 })
+    this.configDefine('height', { defaultValue: 0 })
     this.configDefine('ticks', { defaultValue: null as number[] | null })
     this.configDefine('numberFormat', { defaultValue: null as string | null })
     this.configDefine('labelPosition', { defaultValue: 'auto' })
@@ -37,6 +40,7 @@ export class VerticalAxisChart extends D3Blueprint<AxisDatum[]> {
           const showTicks = this.config('showTicks') as boolean
           const labelPos = this.config('labelPosition') as string
           const chartWidth = this.config('gridWidth') as number
+          const availableHeight = this.config('height') as number
           const axisFn = direction === 'right' ? d3.axisRight(scale) : d3.axisLeft(scale)
           if (!showTicks) {
             axisFn.tickSizeOuter(0)
@@ -44,6 +48,10 @@ export class VerticalAxisChart extends D3Blueprint<AxisDatum[]> {
           const ticks = this.config('ticks') as number[] | null
           if (ticks) {
             axisFn.tickValues(ticks as (string & d3.NumberValue)[])
+          }
+          else if (availableHeight > 0) {
+            const maxTicks = Math.max(2, Math.floor(availableHeight / MIN_LABEL_HEIGHT_SPACING))
+            axisFn.ticks(maxTicks)
           }
           const customTickFormat = this.config('tickFormat') as ((label: string) => string) | null
           if (customTickFormat) {
@@ -112,6 +120,7 @@ export class VerticalAxisChart extends D3Blueprint<AxisDatum[]> {
           const direction = this.config('direction') as string
           const labelPos = this.config('labelPosition') as string
           const chartWidth = this.config('gridWidth') as number
+          const availableHeight = this.config('height') as number
           const topPadding = this.config('topPadding') as number
           const axisFn = direction === 'right' ? d3.axisRight(scale) : d3.axisLeft(scale)
 
@@ -122,6 +131,10 @@ export class VerticalAxisChart extends D3Blueprint<AxisDatum[]> {
           const ticks = this.config('ticks') as number[] | null
           if (ticks) {
             axisFn.tickValues(ticks as (string & d3.NumberValue)[])
+          }
+          else if (availableHeight > 0) {
+            const maxTicks = Math.max(2, Math.floor(availableHeight / MIN_LABEL_HEIGHT_SPACING))
+            axisFn.ticks(maxTicks)
           }
 
           const customTickFormat = this.config('tickFormat') as ((label: string) => string) | null
@@ -250,7 +263,7 @@ function applyGridLines(g: SVGGElement, style: string, width: number): void {
 export function renderVerticalAxis(
   chartArea: SVGGElement,
   scale: d3.ScaleLinear<number, number> | d3.ScaleLogarithmic<number, number> | d3.ScaleBand<string>,
-  _height: number,
+  height: number,
   options: AxisOptions = {},
   priorAxisElement?: Element | null,
 ): SVGGElement {
@@ -273,6 +286,7 @@ export function renderVerticalAxis(
     showTicks: options.showTicks ?? false,
     gridStyle: options.gridStyle ?? 'dashed',
     gridWidth: options.gridWidth ?? 0,
+    height,
     ticks: options.ticks ?? null,
     numberFormat: options.numberFormat ?? null,
     labelPosition: options.labelPosition ?? 'auto',

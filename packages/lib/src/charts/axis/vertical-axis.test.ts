@@ -72,4 +72,46 @@ describe('renderVerticalAxis', () => {
     expect(tickTexts.some(t => t!.startsWith('$'))).toBe(true)
     expect(tickTexts.some(t => t!.includes(','))).toBe(true)
   })
+
+  it('limits ticks based on height: fewer ticks at small height than at large height', () => {
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+    const areaShort = document.createElementNS('http://www.w3.org/2000/svg', 'g') as SVGGElement
+    svg.appendChild(areaShort)
+    document.body.appendChild(svg)
+
+    const scaleTall = d3.scaleLinear().domain([0, 100]).range([300, 0])
+    const scaleShort = d3.scaleLinear().domain([0, 100]).range([60, 0])
+    const gTall = renderVerticalAxis(chartArea, scaleTall, 300)
+    const gShort = renderVerticalAxis(areaShort, scaleShort, 60)
+    const ticksTall = gTall.querySelectorAll('.tick').length
+    const ticksShort = gShort.querySelectorAll('.tick').length
+    // Small height should produce fewer ticks than large height
+    expect(ticksShort).toBeLessThan(ticksTall)
+  })
+
+  it('does not limit ticks when height is 0', () => {
+    // height=0 → no constraint applied, D3 picks defaults
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+    const areaUnconstrained = document.createElementNS('http://www.w3.org/2000/svg', 'g') as SVGGElement
+    svg.appendChild(areaUnconstrained)
+    document.body.appendChild(svg)
+
+    const scaleConstrained = d3.scaleLinear().domain([0, 100]).range([60, 0])
+    const scaleUnconstrained = d3.scaleLinear().domain([0, 100]).range([300, 0])
+    const gConstrained = renderVerticalAxis(chartArea, scaleConstrained, 60)
+    const gUnconstrained = renderVerticalAxis(areaUnconstrained, scaleUnconstrained, 0)
+    const ticksConstrained = gConstrained.querySelectorAll('.tick').length
+    const ticksUnconstrained = gUnconstrained.querySelectorAll('.tick').length
+    expect(ticksConstrained).toBeLessThanOrEqual(ticksUnconstrained)
+  })
+
+  it('respects explicit ticks over height-based limiting', () => {
+    scale = d3.scaleLinear().domain([0, 100]).range([60, 0])
+    const explicitTicks = [0, 25, 50, 75, 100]
+    const g = renderVerticalAxis(chartArea, scale, 60, { ticks: explicitTicks })
+    const tickTexts = Array.from(g.querySelectorAll('.tick text')).map(t => t.textContent)
+    expect(tickTexts).toContain('0')
+    expect(tickTexts).toContain('100')
+    expect(tickTexts.length).toBe(explicitTicks.length)
+  })
 })
