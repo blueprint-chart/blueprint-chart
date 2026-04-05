@@ -358,14 +358,14 @@ describe('bar-vertical', () => {
     expect(tickTexts.length).toBeGreaterThan(0)
   })
 
-  it('vertical axis domain line persists when showAxis is false (merge:transition re-adds it)', () => {
+  it('removes vertical axis domain line when showAxis is false', () => {
     render(container, data, {
       verticalAxis: { showAxis: false },
     })
     const vAxis = container.querySelector('.bc-axis-vertical')
     expect(vAxis).not.toBeNull()
     const domain = vAxis!.querySelector('.domain')
-    expect(domain).not.toBeNull()
+    expect(domain).toBeNull()
   })
 
   it('hides horizontal axis domain line when showAxis is false', () => {

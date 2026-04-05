@@ -283,6 +283,23 @@ test.describe('grid lines', () => {
 // Axes
 // ---------------------------------------------------------------------------
 
+const LINE_MONTHLY_BPC = `chart line {
+  data {
+    "2024-01" = 10
+    "2024-02" = 12
+    "2024-03" = 9
+    "2024-04" = 14
+    "2024-05" = 11
+    "2024-06" = 13
+    "2024-07" = 15
+    "2024-08" = 10
+    "2024-09" = 12
+    "2024-10" = 11
+    "2024-11" = 14
+    "2024-12" = 16
+  }
+}`
+
 test.describe('axes', () => {
   test('axis tick text is visible', async ({ page }) => {
     await gotoChart(page, SAMPLES.barMulti.bpc)
@@ -299,6 +316,31 @@ test.describe('axes', () => {
     expect(fill).not.toBe('none')
     expect(fill).not.toBe('rgba(0, 0, 0, 0)')
   })
+
+  for (const viewportWidth of [800, 500, 350]) {
+    test(`x-axis labels do not overlap at ${viewportWidth}px viewport`, async ({ page }) => {
+      await page.setViewportSize({ width: viewportWidth, height: 500 })
+      await gotoChart(page, LINE_MONTHLY_BPC)
+
+      // Collect bounding rects of all horizontal axis tick labels
+      const rects = await page.locator('.bc-axis-horizontal .tick text').evaluateAll(
+        els => els.map(el => {
+          const r = el.getBoundingClientRect()
+          return { left: r.left, right: r.right }
+        }),
+      )
+
+      expect(rects.length).toBeGreaterThan(0)
+
+      // Sort by left edge and verify no consecutive pair overlaps
+      rects.sort((a, b) => a.left - b.left)
+      for (let i = 0; i < rects.length - 1; i++) {
+        expect(rects[i].right).toBeLessThanOrEqual(
+          rects[i + 1].left + 2, // 2px tolerance for sub-pixel rounding
+        )
+      }
+    })
+  }
 })
 
 // ---------------------------------------------------------------------------
