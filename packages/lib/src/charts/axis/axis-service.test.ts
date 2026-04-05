@@ -299,6 +299,39 @@ describe('AxisService', () => {
     expect(newChartArea.querySelector('.bc-axis-vertical')).not.toBeNull()
   })
 
+  it('clears stale tick elements on re-attach to prevent ghost ticks', () => {
+    const axes = AxisService.for(container)
+    axes.attach(chartArea)
+
+    const yScale = d3.scaleLinear().domain([0, 100]).range([300, 0])
+    // Wide scale: all labels shown
+    const xScale = d3.scaleBand<string>().domain(['A', 'B', 'C', 'D', 'E']).range([0, 500])
+    axes.update({
+      vertical: { scale: yScale, height: 300, options: { gridWidth: 500 } },
+      horizontal: { scale: xScale, height: 300, options: { width: 500 } },
+    })
+
+    const ticksBefore = chartArea.querySelectorAll('.tick').length
+    expect(ticksBefore).toBeGreaterThan(0)
+
+    // Simulate re-render (e.g. resize): detach + new chartArea + attach
+    axes.detach()
+    const newChartArea = makeChartArea()
+    axes.attach(newChartArea)
+
+    // Before update(), tick elements must have been cleared to prevent ghost marks
+    const ticksAfterAttach = newChartArea.querySelectorAll('.tick').length
+    expect(ticksAfterAttach).toBe(0)
+
+    // After update(), new ticks are re-created
+    axes.update({
+      vertical: { scale: yScale, height: 300, options: { gridWidth: 500 } },
+      horizontal: { scale: xScale, height: 300, options: { width: 500 } },
+    })
+    const ticksAfterUpdate = newChartArea.querySelectorAll('.tick').length
+    expect(ticksAfterUpdate).toBeGreaterThan(0)
+  })
+
   it('strips grid lines on detach to avoid stale DOM', () => {
     const axes = AxisService.for(container)
     axes.attach(chartArea)

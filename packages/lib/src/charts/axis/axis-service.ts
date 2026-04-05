@@ -91,6 +91,13 @@ export class AxisService {
       this.initialized = true
     }
     else {
+      // Interrupt any pending D3 transitions and remove stale tick elements before
+      // reinserting, to prevent ghost tick marks when tickValues change on resize
+      // or between scene transitions.
+      for (const group of [this.vGroup!, this.hGroup!]) {
+        d3.select(group).selectAll<SVGGElement, unknown>('.tick').interrupt().remove()
+      }
+
       // Reinsert existing groups into the new chartArea
       chartArea.appendChild(this.vGroup!)
       chartArea.appendChild(this.hGroup!)

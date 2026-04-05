@@ -56,40 +56,50 @@ export class VerticalAxisChart extends D3Blueprint<AxisDatum[]> {
               axisFn.tickFormat(fmtFn as (d: string | d3.NumberValue) => string)
             }
           }
-          sel.duration(getDefaultTransitionMs()).call(axisFn)
+          const ms = getDefaultTransitionMs()
+          const axisNode = sel.node() as SVGGElement | null
 
-          // Hide axis domain line when showAxis is off
-          if (!showAxis) {
-            sel.select('.domain').attr('opacity', 0).on('end.domain', function (this: SVGElement) {
-              d3.select(this).remove()
-            })
-          }
-
-          // Reapply inside label positioning (D3 axisFn resets to defaults)
-          const AUTO_INSIDE_THRESHOLD = 400
-          const effective = labelPos === 'auto'
-            ? (chartWidth > 0 && chartWidth < AUTO_INSIDE_THRESHOLD ? 'inside' : 'outside')
-            : labelPos
-          if (effective === 'inside') {
-            const padding = showAxis ? 4 : 0
-            if (direction === 'right') {
-              sel.selectAll('.tick text')
-                .attr('x', -padding)
-                .attr('dy', '-0.4em')
-                .attr('text-anchor', 'end')
+          if (axisNode) {
+            // Use a plain synchronous selection for ms=0 so text/tick updates are
+            // applied immediately (D3 transitions defer even 0-duration tweens).
+            if (ms > 0) {
+              sel.duration(ms).call(axisFn)
             }
             else {
-              sel.selectAll('.tick text')
-                .attr('x', padding)
-                .attr('dy', '-0.4em')
-                .attr('text-anchor', 'start')
+              d3.select(axisNode).call(axisFn)
             }
-            if (!showTicks) {
-              sel.selectAll('.tick line').attr('opacity', 0)
+
+            // Hide axis domain line when showAxis is off
+            if (!showAxis) {
+              d3.select(axisNode).select('.domain').remove()
             }
-          }
-          else if (effective === 'off') {
-            sel.selectAll('.tick text').attr('opacity', 0)
+
+            // Reapply inside label positioning (D3 axisFn resets to defaults)
+            const AUTO_INSIDE_THRESHOLD = 400
+            const effective = labelPos === 'auto'
+              ? (chartWidth > 0 && chartWidth < AUTO_INSIDE_THRESHOLD ? 'inside' : 'outside')
+              : labelPos
+            if (effective === 'inside') {
+              const padding = showAxis ? 4 : 0
+              if (direction === 'right') {
+                d3.select(axisNode).selectAll('.tick text')
+                  .attr('x', -padding)
+                  .attr('dy', '-0.4em')
+                  .attr('text-anchor', 'end')
+              }
+              else {
+                d3.select(axisNode).selectAll('.tick text')
+                  .attr('x', padding)
+                  .attr('dy', '-0.4em')
+                  .attr('text-anchor', 'start')
+              }
+              if (!showTicks) {
+                d3.select(axisNode).selectAll('.tick line').attr('opacity', 0)
+              }
+            }
+            else if (effective === 'off') {
+              d3.select(axisNode).selectAll('.tick text').attr('opacity', 0)
+            }
           }
         },
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
