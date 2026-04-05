@@ -11,7 +11,7 @@ const props = defineProps<{
   bpc: string
 }>()
 
-const containerRef = ref<HTMLElement | null>(null)
+const containerRef = useTemplateRef<HTMLElement>('containerRef')
 
 useChartFromDsl(containerRef, toRef(props, 'bpc'), { stripColors: true })
 </script>

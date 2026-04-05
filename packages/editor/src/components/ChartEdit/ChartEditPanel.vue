@@ -135,8 +135,8 @@ const canvasClassList = computed(() => ({
   'chart-edit-panel__canvas--dsl': viewMode.value !== 'preview',
 }))
 
-const canvasRef = ref<HTMLElement | null>(null)
-const cardRef = ref<HTMLElement | null>(null)
+const canvasRef = useTemplateRef<HTMLElement>('canvasRef')
+const cardRef = useTemplateRef<HTMLElement>('cardRef')
 
 const gridOffsetX = shallowRef(0)
 const gridOffsetY = shallowRef(0)
@@ -290,8 +290,4 @@ const canvasStyle = computed<CSSProperties>(() => ({
   }
 }
 
-// Override UI-library background so panel matches the tile surface
-:deep(.layout-panel) {
-  background: var(--bc-tile-bg);
-}
 </style>

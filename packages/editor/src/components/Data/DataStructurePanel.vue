@@ -99,7 +99,7 @@ watch(isNarrow, (narrow) => {
   }
 }, { immediate: true })
 
-const mainRef = ref<HTMLElement | null>(null)
+const mainRef = useTemplateRef<HTMLElement>('mainRef')
 
 const allTabs = [
   { key: 'column' as DataPanelTab, label: 'Columns' },
@@ -186,7 +186,4 @@ const panelClassList = computed(() => ({
   }
 }
 
-:deep(.layout-panel) {
-  background: var(--bc-tile-bg);
-}
 </style>

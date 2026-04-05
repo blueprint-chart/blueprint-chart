@@ -37,7 +37,7 @@ import { useChartConfig } from '@/stores/chartConfig'
 import { useScenes } from '@/stores/scenes'
 
 const route = useRoute()
-const containerRef = ref<HTMLElement | null>(null)
+const containerRef = useTemplateRef<HTMLElement>('containerRef')
 
 const { applyDsl } = useDslSync()
 useChartPreview(containerRef)

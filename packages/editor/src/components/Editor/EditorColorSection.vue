@@ -178,8 +178,8 @@ const { lightContrastInfo, darkContrastInfo, cvdInfo } = useColorAccessibility(
   () => currentOptions.value.allowDarkMode ?? true,
 )
 
-const cvdSafeBadgeRef = ref<HTMLElement>()
-const cvdBadgeRefs = ref<HTMLElement[]>([])
+const cvdSafeBadgeRef = useTemplateRef<HTMLElement>('cvdSafeBadgeRef')
+const cvdBadgeRefs = useTemplateRef<HTMLElement[]>('cvdBadgeRefs')
 
 function getCvdBadgeEl(type: CvdType): HTMLElement | undefined {
   const idx = cvdInfo.value?.issues.findIndex(i => i.type === type) ?? -1
