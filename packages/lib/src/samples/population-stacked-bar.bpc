@@ -2,6 +2,8 @@ chart bar-stacked {
   title = "Population by age group"
   description = "Millions of people, 2023"
   source = "UN Population Division"
+  horizontalGridStyle = none
+  horizontalLabelPosition = off
 
   data {
     _series = "0-14","15-64","65+"

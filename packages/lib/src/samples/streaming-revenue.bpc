@@ -6,6 +6,8 @@ chart bar-multi {
   colorPalette = "Deelite"
   legendPosition = "top"
   valueLabels = true
+  verticalGridStyle = none
+  verticalLabelPosition = off
   tooltips = true
 
   data {

@@ -6,6 +6,8 @@ chart bar-multi {
   colors = "#eeca3b, #c0c0c0, #cd7f32"
   legendPosition = "top"
   valueLabels = true
+  verticalGridStyle = none
+  verticalLabelPosition = off
   sort = descending
 
   data {
