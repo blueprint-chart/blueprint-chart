@@ -220,11 +220,8 @@ export function render(
     ? 'top'
     : requestedLegendPos
   const legendAnchor = options.legendAnchor ?? 'start'
-  const legendSize = showLegend ? estimateLegendSize(seriesNames, legendPos, containerWidth) : { width: 0, height: 0 }
-  const legendH = showLegend ? legendSize.height + 10 : 0
-  const directLabelW = directLabelNames.length > 0 ? estimateDirectLabelWidth(directLabelNames) : 0
-
-  // Compute stacked data to determine domain
+  // Compute domain and margins before estimating legend size,
+  // so we can use the actual chart-area width for wrapping estimation.
   const stackMode = options.stackMode ?? 'normal'
   const isPercent = stackMode === 'percent'
   const filteredData: ChartData = { labels: data.labels, values: data.values, series }
@@ -246,8 +243,14 @@ export function render(
   const allValues = [0, domainMax]
   const vLabelW = estimateVerticalLabelWidth(allValues, options.verticalAxis?.range, options.verticalAxis?.numberFormat, options.verticalAxis?.scaleType)
   const lpMargins = labelPositionMargins(containerWidth, options.verticalAxis?.labelPosition, options.horizontalAxis?.labelPosition, options.verticalAxis?.direction, vLabelW)
+  const directLabelW = directLabelNames.length > 0 ? estimateDirectLabelWidth(directLabelNames) : 0
 
+  // Estimate legend size using the actual chart-area width so wrapping matches rendering.
+  // Left/right margins are fixed at this point (they don't depend on legend height).
   const vLabelsInside = lpMargins.top != null
+  const legendAvailableWidth = Math.max(0, containerWidth - (lpMargins.left ?? 50) - (lpMargins.right ?? 20) - directLabelW)
+  const legendSize = showLegend ? estimateLegendSize(seriesNames, legendPos, legendAvailableWidth) : { width: 0, height: 0 }
+  const legendH = showLegend ? legendSize.height + 10 : 0
   const marginOverrides: Record<string, number> = { ...lpMargins }
   if (showLegend && legendPos === 'top') {
     const insideGap = vLabelsInside ? 15 : 0

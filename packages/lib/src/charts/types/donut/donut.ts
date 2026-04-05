@@ -161,7 +161,9 @@ export function renderArc(
   const legendSizeLabels = legendSuffixes.length > 0
     ? labels.map((l, i) => `${l} ${legendSuffixes[i]}`)
     : labels
-  const legendSize = showLegend ? estimateLegendSize(legendSizeLabels, legendPos, containerWidth) : { width: 0, height: 0 }
+  // Estimate using the chart-area width (container minus default left/right margins)
+  const legendAvailableWidth = Math.max(0, containerWidth - 50 - 20)
+  const legendSize = showLegend ? estimateLegendSize(legendSizeLabels, legendPos, legendAvailableWidth) : { width: 0, height: 0 }
   const legendH = showLegend ? legendSize.height + 10 : 0
 
   const marginOverrides: Record<string, number> = {}
