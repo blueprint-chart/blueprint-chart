@@ -217,10 +217,6 @@ onUnmounted(() => {
   }
 }
 
-:deep(.layout-panel) {
-  background: var(--bc-tile-bg);
-}
-
 :deep(.layout-panel__header) {
   border-bottom: 1px solid var(--bs-border-color);
 }
