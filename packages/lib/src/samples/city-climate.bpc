@@ -1,0 +1,16 @@
+chart bar-split {
+  title = "Average temperatures by city"
+  description = "Mean monthly temperature (°C), NOAA 30-year climate normals 1991–2020"
+  source = "NOAA"
+  valueLabels = true
+
+  data {
+    _series = "Winter (Jan)","Spring (Apr)","Summer (Jul)"
+    "Miami"       = 20,26,29
+    "Los Angeles" = 14,17,23
+    "Phoenix"     = 13,24,37
+    "Seattle"     = 5,10,19
+    "New York"    = 1,12,25
+    "Chicago"     = -4,10,24
+  }
+}

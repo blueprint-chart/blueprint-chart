@@ -63,7 +63,7 @@ const tabs = computed(() => {
     { key: 'text', label: 'Text' },
     { key: 'style', label: 'Style' },
   ]
-  if (['line-multi', 'bar-multi'].includes(chartType.value)) {
+  if (['line-multi', 'bar-multi', 'bar-split'].includes(chartType.value)) {
     base.push({ key: 'series', label: 'Series' })
   }
   if (hasAxisOptions.value) {

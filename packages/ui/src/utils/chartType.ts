@@ -4,6 +4,7 @@ export const CHART_TYPE_LABELS: Record<string, string> = {
   'bar-multi': 'Grouped Columns',
   'column-stacked': 'Stacked Columns',
   'bar-stacked': 'Stacked Bars',
+  'bar-split': 'Split Bars',
   'line': 'Line',
   'line-multi': 'Lines',
   'area': 'Area',

@@ -35,6 +35,9 @@ import energyMixStackedAreaBpc from './samples/energy-mix-stacked-area.bpc?raw'
 import quarterlyStackedColumnsBpc from './samples/quarterly-stacked-columns.bpc?raw'
 import populationStackedBarBpc from './samples/population-stacked-bar.bpc?raw'
 import farmCompassBpc from './samples/farm-compass.bpc?raw'
+import electionPollsBpc from './samples/election-polls.bpc?raw'
+import cityClimateBpc from './samples/city-climate.bpc?raw'
+import pisaScoresBpc from './samples/pisa-scores.bpc?raw'
 
 export interface ChartSample {
   id: string
@@ -153,6 +156,10 @@ export const samples: ChartSample[] = [
   buildSample('quarterly-stacked-columns', quarterlyStackedColumnsBpc),
   // Bar Stacked
   buildSample('population-stacked-bar', populationStackedBarBpc),
+  // Bar Split
+  buildSample('election-polls', electionPollsBpc),
+  buildSample('city-climate', cityClimateBpc),
+  buildSample('pisa-scores', pisaScoresBpc),
   // Story (multi-scene)
   buildSample('farm-compass', farmCompassBpc),
 ]

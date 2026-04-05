@@ -51,7 +51,7 @@ const items = computed(() => {
     { value: 'text', icon: IPhTextAa, tooltip: 'Text' },
     { value: 'style', icon: IPhPalette, tooltip: 'Style' },
   ]
-  if (['line-multi', 'bar-multi'].includes(chartType.value)) {
+  if (['line-multi', 'bar-multi', 'bar-split'].includes(chartType.value)) {
     base.push({ value: 'series', icon: IPhWaves, tooltip: 'Series' })
   }
   if (hasAxisOptions.value) {

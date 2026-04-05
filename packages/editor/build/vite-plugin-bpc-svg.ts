@@ -401,6 +401,32 @@ function renderColumnStacked(data: ChartData, colors: string[]): string {
   return `<svg viewBox="${RECT_VB}" xmlns="http://www.w3.org/2000/svg">${rects.join('')}</svg>`
 }
 
+function renderBarSplit(data: ChartData, colors: string[]): string {
+  if (data.kind !== 'multi') {
+    return ''
+  }
+  const { labels, series } = data
+  const n = series.length
+  const gap = 2
+  const leftMargin = 2
+  const totalWidth = 48 - leftMargin * 2
+  const panelWidth = (totalWidth - (n - 1) * gap) / n
+  const maxVal = Math.max(...series.flat())
+  const scale = linearScale([0, maxVal], [0, panelWidth])
+  const { bandWidth, positions } = bandPositions(labels.length, [2, 34])
+
+  const rects: string[] = []
+  for (let si = 0; si < n; si++) {
+    const xOffset = leftMargin + si * (panelWidth + gap)
+    for (let li = 0; li < labels.length; li++) {
+      const w = scale(series[si][li])
+      rects.push(`<rect x="${xOffset.toFixed(2)}" y="${positions[li].toFixed(2)}" width="${w.toFixed(2)}" height="${bandWidth.toFixed(2)}" fill="${colors[si % colors.length]}" rx="0.5"/>`)
+    }
+  }
+
+  return `<svg viewBox="${RECT_VB}" xmlns="http://www.w3.org/2000/svg">${rects.join('')}</svg>`
+}
+
 function renderBarStacked(data: ChartData, colors: string[]): string {
   if (data.kind !== 'multi') {
     return ''
@@ -438,6 +464,7 @@ export function renderToSvg(chartType: string, data: ChartData, colors: string[]
     case 'area-stacked': return renderAreaStacked(data, colors, opts)
     case 'column-stacked': return renderColumnStacked(data, colors)
     case 'bar-stacked': return renderBarStacked(data, colors)
+    case 'bar-split': return renderBarSplit(data, colors)
     default: return ''
   }
 }

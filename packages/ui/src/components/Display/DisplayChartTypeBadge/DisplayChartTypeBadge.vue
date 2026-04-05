@@ -37,6 +37,7 @@ const ICON_MAP: Record<string, object> = {
   'bar-multi': IPhChartBar,
   'column-stacked': IPhChartBar,
   'bar-stacked': IPhChartBarHorizontal,
+  'bar-split': IPhChartBarHorizontal,
   'line': IPhChartLineUp,
   'line-multi': IPhChartLineUp,
   'area': IPhChartLineUp,

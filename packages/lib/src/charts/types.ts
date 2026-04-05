@@ -186,6 +186,7 @@ export interface ChartOptions {
   edgePadding?: boolean
   waterfall?: boolean
   waterfallTotal?: boolean
+  sharedScale?: boolean
 }
 
 export type ChartRenderer = (
@@ -273,6 +274,7 @@ export interface ChartTypeOptions {
   edgePadding: boolean
   waterfall: boolean
   waterfallTotal: boolean
+  sharedScale: boolean
 }
 
 export type ChartTypeOptionKey = keyof ChartTypeOptions
