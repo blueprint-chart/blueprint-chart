@@ -152,9 +152,6 @@ export function render(
     ? 'top'
     : requestedLegendPos
   const legendAnchor = options.legendAnchor ?? 'start'
-  const legendSize = showLegend ? estimateLegendSize(seriesNames, legendPos, containerWidth) : { width: 0, height: 0 }
-  const legendH = showLegend ? legendSize.height + 10 : 0
-
   // Build filtered data for stacking
   const filteredData: ChartData = { labels: data.labels, values: data.values, series }
 
@@ -171,6 +168,9 @@ export function render(
   const lpMargins = labelPositionMargins(containerWidth, options.verticalAxis?.labelPosition, options.horizontalAxis?.labelPosition, options.verticalAxis?.direction, vLabelW)
 
   const vLabelsInside = lpMargins.top != null
+  const legendAvailableWidth = Math.max(0, containerWidth - (lpMargins.left ?? 50) - (lpMargins.right ?? 20))
+  const legendSize = showLegend ? estimateLegendSize(seriesNames, legendPos, legendAvailableWidth) : { width: 0, height: 0 }
+  const legendH = showLegend ? legendSize.height + 10 : 0
   const marginOverrides: Record<string, number> = { ...lpMargins }
   if (showLegend && legendPos === 'top') {
     const insideGap = vLabelsInside ? 15 : 0

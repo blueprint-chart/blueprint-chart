@@ -285,9 +285,6 @@ export function render(
     ? 'top'
     : requestedLegendPos
   const legendAnchor = options.legendAnchor ?? 'start'
-  const legendSize = showLegend ? estimateLegendSize(seriesNames, legendPos, containerWidth) : { width: 0, height: 0 }
-  const legendH = showLegend ? legendSize.height + 10 : 0
-  const directLabelW = directLabelNames.length > 0 ? estimateDirectLabelWidth(directLabelNames) : 0
   // Filter labels by horizontal axis range
   const rangeIndices = filterLabelsByRange(data.labels, options.horizontalAxis?.range)
   const filteredLabels = rangeIndices.map(i => data.labels[i])
@@ -297,8 +294,12 @@ export function render(
   const allValues = series.flatMap(s => s.values)
   const vLabelW = estimateVerticalLabelWidth(allValues, options.verticalAxis?.range, options.verticalAxis?.numberFormat, options.verticalAxis?.scaleType)
   const lpMargins = labelPositionMargins(containerWidth, options.verticalAxis?.labelPosition, options.horizontalAxis?.labelPosition, options.verticalAxis?.direction, vLabelW)
+  const directLabelW = directLabelNames.length > 0 ? estimateDirectLabelWidth(directLabelNames) : 0
 
   const vLabelsInside = lpMargins.top != null
+  const legendAvailableWidth = Math.max(0, containerWidth - (lpMargins.left ?? 50) - (lpMargins.right ?? 20) - directLabelW)
+  const legendSize = showLegend ? estimateLegendSize(seriesNames, legendPos, legendAvailableWidth) : { width: 0, height: 0 }
+  const legendH = showLegend ? legendSize.height + 10 : 0
   const marginOverrides: Record<string, number> = { ...lpMargins }
   if (showLegend && legendPos === 'top') {
     const insideGap = vLabelsInside ? 15 : 0
