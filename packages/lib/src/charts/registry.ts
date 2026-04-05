@@ -11,6 +11,7 @@ import { render as area } from './types/area/area'
 import { render as areaStacked } from './types/area-stacked/area-stacked'
 import { render as columnStacked } from './types/column-stacked/column-stacked'
 import { render as barStacked } from './types/bar-stacked/bar-stacked'
+import { render as barSplit } from './types/bar-split/bar-split'
 
 interface ChartRegistryEntry {
   renderer: ChartRenderer
@@ -214,6 +215,7 @@ const stackModeOpt: ChartOptionDef = {
   ],
 }
 
+const sharedScaleOpt: ChartOptionDef = { key: 'sharedScale', type: 'boolean', label: 'Shared scale', default: false }
 const displayAsPercentageOpt: ChartOptionDef = { key: 'displayAsPercentage', type: 'boolean', label: 'Display as percentage', default: false }
 const showTotalOpt: ChartOptionDef = { key: 'showTotal', type: 'boolean', label: 'Show total', default: false }
 const showLabelsOpt: ChartOptionDef = { key: 'showLabels', type: 'boolean', label: 'Show labels', default: true }
@@ -369,6 +371,9 @@ registerChart('column-stacked', columnStacked, [colorsOpt, paletteOpt, autoContr
 
 // Stacked bar: horizontal bars stacked
 registerChart('bar-stacked', barStacked, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, stackModeOpt, sortModeOpt, legendOpt, legendAnchorOpt, legendPositionOpt, directLabellingOpt, directLabelAnchorOpt, ...barHorizontalAxisOpts, ...barHorizontalOpts])
+
+// Split bars: each series rendered as its own panel of horizontal bars
+registerChart('bar-split', barSplit, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, sharedScaleOpt, sortModeOpt, legendOpt, legendAnchorOpt, legendPositionOpt, ...barHorizontalAxisOpts, barHorizontalValueLabelsOpt, valueLabelPositionOpt, tooltipsOpt, ...crosshairOpts])
 
 // Aliases share the same entry
 registerChart('vertical-bar', barVertical, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, swapLabelValueOpt, barBackgroundOpt, barSeparatorsOpt, waterfallOpt, waterfallTotalOpt, ...barVerticalAxisOpts, ...barOpts])

@@ -1,0 +1,11 @@
+chart bar-split {
+  valueLabels = true
+
+  data {
+    _series = "A","B","C"
+    "Alpha" = 29,32,27
+    "Beta"  = 22,25,20
+    "Gamma" = 14,16,12
+    "Delta" = 10,12,8
+  }
+}

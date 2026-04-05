@@ -45,6 +45,7 @@ import AreaThumb from '@/assets/chart-thumbnails/area.bpc'
 import AreaStackedThumb from '@/assets/chart-thumbnails/area-stacked.bpc'
 import ColumnStackedThumb from '@/assets/chart-thumbnails/column-stacked.bpc'
 import BarStackedThumb from '@/assets/chart-thumbnails/bar-stacked.bpc'
+import BarSplitThumb from '@/assets/chart-thumbnails/bar-split.bpc'
 
 defineEmits<{ select: [sample: ChartSample] }>()
 
@@ -60,6 +61,7 @@ const THUMB_MAP: Record<string, Component> = {
   'area-stacked': markRaw(AreaStackedThumb),
   'column-stacked': markRaw(ColumnStackedThumb),
   'bar-stacked': markRaw(BarStackedThumb),
+  'bar-split': markRaw(BarSplitThumb),
 }
 
 const TYPE_LABELS: Record<string, string> = {
@@ -74,6 +76,7 @@ const TYPE_LABELS: Record<string, string> = {
   'area-stacked': 'Stacked Area',
   'column-stacked': 'Stacked Columns',
   'bar-stacked': 'Stacked Bars',
+  'bar-split': 'Split Bars',
 }
 
 interface SampleCard extends ChartSample {

@@ -1,0 +1,17 @@
+chart bar-split {
+  title = "Election polls"
+  description = "How Germany would vote in the September 2021 federal election, according to polling in the previous June"
+  source = "FG Wahlen"
+  note = "Margin of error at 10%: +/- 2 percentage points; at 40%: +/- 3 percentage points"
+  valueLabels = true
+
+  data {
+    _series = "Poll","High","Low"
+    "CDU/CSU" = 29,32,27
+    "Greens"  = 22,25,20
+    "SPD"     = 14,16,12
+    "AfD"     = 10,12,8
+    "FDP"     = 10,12,8
+    "Left"    = 7,9,5
+  }
+}

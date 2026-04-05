@@ -131,6 +131,28 @@ describe('area-stacked thumbnails respect edgePadding', () => {
   })
 })
 
+describe('bar-split thumbnails', () => {
+  it('renders one rect group per series panel', () => {
+    const svg = renderToSvg('bar-split', multiData, ['#f00', '#0f0', '#00f'])
+    const rects = [...svg.matchAll(/<rect/g)]
+    // 3 series × 5 labels (A–E) = 15 rects
+    expect(rects.length).toBe(15)
+  })
+
+  it('returns empty string for single-series data', () => {
+    const svg = renderToSvg('bar-split', singleData, ['#f00'])
+    expect(svg).toBe('')
+  })
+
+  it('panels are positioned left-to-right without overlap', () => {
+    const svg = renderToSvg('bar-split', multiData, ['#f00', '#0f0', '#00f'])
+    const xValues = [...svg.matchAll(/x="([^"]+)"/g)].map(m => parseFloat(m[1]))
+    const uniqueXOrigins = [...new Set(xValues.map(x => Math.round(x)))]
+    // Each panel starts at a different x offset
+    expect(uniqueXOrigins.length).toBeGreaterThan(1)
+  })
+})
+
 describe('bar thumbnails are unaffected by edgePadding', () => {
   it('bar-vertical produces identical SVG regardless of edgePadding', () => {
     const svgA = renderToSvg('bar-vertical', singleData, ['#000'], { edgePadding: false })

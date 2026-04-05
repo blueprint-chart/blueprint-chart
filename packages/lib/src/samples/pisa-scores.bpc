@@ -1,0 +1,17 @@
+chart bar-split {
+  title = "PISA 2022 — top performers"
+  description = "Mean scores in Mathematics, Reading, and Science for 15-year-olds"
+  source = "OECD PISA 2022"
+  valueLabels = true
+  sharedScale = true
+
+  data {
+    _series = "Mathematics","Reading","Science"
+    "Singapore" = 575,543,561
+    "Japan"     = 536,516,547
+    "Korea"     = 527,515,528
+    "Estonia"   = 510,511,526
+    "Canada"    = 497,507,515
+    "Australia" = 487,498,507
+  }
+}
