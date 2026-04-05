@@ -9,7 +9,7 @@
         alt="Blueprint Chart"
         class="shell-navbar__logo"
       >
-      <span class="bc-brand-gradient fw-bold">Blueprint Chart</span>
+      <span class="bc-brand-gradient fw-bold d-none d-sm-inline">Blueprint Chart</span>
     </router-link>
 
     <div class="shell-navbar__center">
@@ -69,7 +69,7 @@ const navbarClass = computed(() => ({
 <style scoped lang="scss">
 .shell-navbar {
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
   padding: 0.375rem 1rem;
   min-height: 3.5rem;
@@ -79,7 +79,7 @@ const navbarClass = computed(() => ({
   flex-shrink: 0;
   gap: 1rem;
   position: relative;
-  z-index: 1060;
+  z-index: 1030;
 
   &--opaque {
     background: var(--bc-tile-bg);
@@ -92,10 +92,15 @@ const navbarClass = computed(() => ({
     width: auto;
   }
 
+  @media (min-width: 576px) {
+    grid-template-columns: 1fr auto 1fr;
+  }
+
   &__center {
     display: flex;
     justify-content: center;
     align-items: center;
+    min-width: 0;
   }
 
   &__right {
