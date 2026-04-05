@@ -111,7 +111,7 @@ function setupLegendHighlight(chartArea: SVGGElement): void {
     seriesEls.each(function () {
       const el = d3.select(this)
       const isCurrent = el.attr('data-series') === idx
-      el.transition().duration(150).style('opacity', isCurrent ? null : DIM_OPACITY)
+      el.transition().duration(150).style('opacity', isCurrent ? 1 : DIM_OPACITY)
     })
   }
 
