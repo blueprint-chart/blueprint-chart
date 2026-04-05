@@ -23,7 +23,7 @@ import '@/dsl-lang/highlight.scss'
 const { dsl } = useDslOutput()
 const { applyDsl } = useDslSync()
 
-const editorEl = ref<HTMLElement>()
+const editorEl = useTemplateRef<HTMLElement>('editorEl')
 const error = ref<string>()
 let view: EditorView | undefined
 let updatingFromExternal = false

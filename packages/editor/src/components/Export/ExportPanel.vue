@@ -96,9 +96,9 @@ watch(isNarrow, (narrow) => {
 const { layout } = useChartConfig()
 const { cardClass, cardStyle } = useCanvasCardStyle(layout, 'export-panel__canvas__card')
 
-const canvasRef = ref<HTMLElement | null>(null)
-const cardRef = ref<HTMLElement | null>(null)
-const previewRef = ref<HTMLElement | null>(null)
+const canvasRef = useTemplateRef<HTMLElement>('canvasRef')
+const cardRef = useTemplateRef<HTMLElement>('cardRef')
+const previewRef = useTemplateRef<HTMLElement>('previewRef')
 useChartPreview(previewRef)
 const { downloadSvg, downloadPng } = useImageExport(previewRef, cardRef)
 
@@ -261,7 +261,4 @@ const canvasClassList = computed(() => ({
   }
 }
 
-:deep(.layout-panel) {
-  background: var(--bc-tile-bg);
-}
 </style>

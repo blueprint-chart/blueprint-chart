@@ -33,7 +33,7 @@ withDefaults(defineProps<{
 
 const model = defineModel<string>({ required: true })
 
-const tabsRef = ref<HTMLElement | null>(null)
+const tabsRef = useTemplateRef<HTMLElement>('tabsRef')
 let activeTabEl: HTMLElement | null = null
 
 function scrollActiveTabIntoView() {

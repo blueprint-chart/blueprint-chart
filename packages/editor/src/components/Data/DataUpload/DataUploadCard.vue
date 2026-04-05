@@ -116,7 +116,7 @@ function getInitialPasteInput(): string {
 
 const activeTab = shallowRef('paste')
 const pasteInput = shallowRef(getInitialPasteInput())
-const pasteArea = ref<HTMLTextAreaElement | null>(null)
+const pasteArea = useTemplateRef<HTMLTextAreaElement>('pasteArea')
 const isDragOver = shallowRef(false)
 
 function onPaste(e: globalThis.ClipboardEvent) {

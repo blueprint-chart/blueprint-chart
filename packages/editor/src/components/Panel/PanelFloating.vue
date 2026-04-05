@@ -57,8 +57,8 @@ defineEmits<{
   close: []
 }>()
 
-const headerRef = ref<HTMLElement | null>(null)
-const panelRef = ref<HTMLElement | null>(null)
+const headerRef = useTemplateRef<HTMLElement>('headerRef')
+const panelRef = useTemplateRef<HTMLElement>('panelRef')
 const containerRefLocal = computed(() => props.containerRef)
 
 // Position is a shared reactive object from useEditorPanel module state.

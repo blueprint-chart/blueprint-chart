@@ -67,7 +67,7 @@ import { useTheme } from '@/stores/theme'
 const bpc = samples.find(s => s.id === 'farm-compass')!.dsl
 const sceneCount = parseDslSceneCount(bpc)
 
-const containerRef = ref<HTMLElement | null>(null)
+const containerRef = useTemplateRef<HTMLElement>('containerRef')
 const playerTarget = ref<HTMLElement | null>(null)
 const activeIndex = shallowRef(-1)
 const playing = shallowRef(false)
