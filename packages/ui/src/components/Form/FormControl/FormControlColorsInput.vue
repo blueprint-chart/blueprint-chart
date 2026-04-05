@@ -38,10 +38,11 @@
       />
     </div>
     <FormControlColorInputPopover
-      v-model="pickerColor"
+      :model-value="editingColor"
       v-model:open="pickerOpen"
       :target="editingTarget"
       manual
+      @update:model-value="onPickerColorChange"
     />
   </BFormGroup>
 </template>
@@ -82,21 +83,18 @@ function removeColor(idx: number) {
   model.value = updated
 }
 
-const pickerColor = computed({
-  get: () => editingColor.value,
-  set: (color: string) => {
-    editingColor.value = color
-    if (editingIndex.value >= 0 && editingIndex.value < model.value.length) {
-      const updated = [...model.value]
-      updated[editingIndex.value] = color
-      model.value = updated
-    }
-    else {
-      model.value = [...model.value, color]
-      pickerOpen.value = false
-    }
-  },
-})
+function onPickerColorChange(color: string) {
+  editingColor.value = color
+  if (editingIndex.value >= 0 && editingIndex.value < model.value.length) {
+    const updated = [...model.value]
+    updated[editingIndex.value] = color
+    model.value = updated
+  }
+  else {
+    model.value = [...model.value, color]
+    pickerOpen.value = false
+  }
+}
 </script>
 
 <style scoped lang="scss">

@@ -13,21 +13,21 @@ function defaultPanelWidth() {
 }
 
 export const useEditorPanelStore = defineStore('editorPanel', () => {
-  const panelMode = ref<PanelMode>('docked')
-  const activeTab = ref('type')
-  const viewMode = ref<ViewMode>('preview')
-  const canvasMode = ref<CanvasMode>('blueprint')
-  const showDimensions = ref(true)
-  const floatingPosition = ref({ x: -1, y: 16 })
-  const floatingSize = ref({ width: 340, height: 500 })
-  const pendingAnnotationIndex = ref<number | string | null>(null)
-  const dataView = ref<DataView>('upload')
-  const dataPanelMode = ref<PanelMode>('docked')
-  const dataPanelTab = ref<DataPanelTab | ''>('')
-  const dataPanelOpen = ref(false)
-  const dataFloatingPosition = ref({ x: -1, y: 16 })
-  const selectedColumnIndex = ref(-1)
-  const dockedPanelWidth = ref(defaultPanelWidth())
+  const panelMode = shallowRef<PanelMode>('docked')
+  const activeTab = shallowRef('type')
+  const viewMode = shallowRef<ViewMode>('preview')
+  const canvasMode = shallowRef<CanvasMode>('blueprint')
+  const showDimensions = shallowRef(true)
+  const floatingPosition = ref({ x: -1, y: 16 }) // object mutated in place by usePanelDrag
+  const floatingSize = shallowRef({ width: 340, height: 500 })
+  const pendingAnnotationIndex = shallowRef<number | string | null>(null)
+  const dataView = shallowRef<DataView>('upload')
+  const dataPanelMode = shallowRef<PanelMode>('docked')
+  const dataPanelTab = shallowRef<DataPanelTab | ''>('')
+  const dataPanelOpen = shallowRef(false)
+  const dataFloatingPosition = ref({ x: -1, y: 16 }) // object mutated in place by usePanelDrag
+  const selectedColumnIndex = shallowRef(-1)
+  const dockedPanelWidth = shallowRef(defaultPanelWidth())
 
   let lastOpenMode: 'docked' | 'floating' = 'docked'
   let lastDataOpenMode: 'docked' | 'floating' = 'docked'

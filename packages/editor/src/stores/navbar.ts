@@ -1,7 +1,7 @@
 export type NavbarMode = 'home' | 'wizard'
 
 export const useNavbarStore = defineStore('navbar', () => {
-  const mode = ref<NavbarMode>('home')
+  const mode = shallowRef<NavbarMode>('home')
 
   function setMode(value: NavbarMode) {
     mode.value = value

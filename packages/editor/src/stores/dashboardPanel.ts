@@ -9,10 +9,10 @@ function defaultPanelWidth() {
 }
 
 export const useDashboardPanelStore = defineStore('dashboardPanel', () => {
-  const panelMode = ref<DashboardPanelMode>('docked')
-  const dockedPanelWidth = ref(defaultPanelWidth())
-  const floatingPosition = ref({ x: -1, y: 16 })
-  const selectedChartId = ref<string | null>(null)
+  const panelMode = shallowRef<DashboardPanelMode>('docked')
+  const dockedPanelWidth = shallowRef(defaultPanelWidth())
+  const floatingPosition = ref({ x: -1, y: 16 }) // object mutated in place by usePanelDrag
+  const selectedChartId = shallowRef<string | null>(null)
 
   let lastOpenMode: 'docked' | 'floating' = 'docked'
 
