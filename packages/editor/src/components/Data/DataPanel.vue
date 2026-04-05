@@ -102,10 +102,6 @@ watch(
     max-width: none;
     gap: var(--bc-tile-gap);
 
-    // Match ChartEditPanel: ensure layout panel matches the tile surface
-    :deep(.layout-panel) {
-      background: var(--bc-tile-bg);
-    }
   }
 }
 </style>

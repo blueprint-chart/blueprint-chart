@@ -35,9 +35,9 @@
             >
               <div class="d-flex align-items-center gap-2">
                 <div
-                  v-if="getThumbnail(chart.id)"
+                  v-if="searchThumbnails[chart.id]"
                   class="shell-navbar__search__result__thumb"
-                  v-html="getThumbnail(chart.id)"
+                  v-html="searchThumbnails[chart.id]"
                 />
                 <div class="min-width-0 flex-grow-1">
                   <span class="fw-bold text-truncate d-block">{{ chart.title || 'Untitled' }}</span>
@@ -125,9 +125,13 @@ const searchResults = computed(() => {
   )
 })
 
-function getThumbnail(id: string): string | null {
-  return localStorage.getItem(`blueprint-chart:${id}:thumbnail`)
-}
+const searchThumbnails = computed(() => {
+  const map: Record<string, string | null> = {}
+  for (const chart of searchResults.value) {
+    map[chart.id] = localStorage.getItem(`blueprint-chart:${chart.id}:thumbnail`)
+  }
+  return map
+})
 
 function goToChart(id: string) {
   searchQuery.value = ''
