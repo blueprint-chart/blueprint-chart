@@ -190,16 +190,13 @@ export class HorizontalAxisChart extends D3Blueprint<AxisDatum[]> {
               d3.select(axisNode).selectAll('.tick line').remove()
             }
 
-            const AUTO_INSIDE_THRESHOLD = 400
-            const effective = labelPos === 'auto'
-              ? (availableWidth > 0 && availableWidth < AUTO_INSIDE_THRESHOLD ? 'inside' : 'outside')
-              : labelPos
+            const effective = labelPos === 'auto' ? 'outside' : labelPos
 
             if (effective === 'off') {
               d3.select(axisNode).selectAll('.tick text').remove()
             }
             else if (effective === 'inside') {
-              d3.select(axisNode).selectAll('.tick text').attr('dy', '-0.6em')
+              d3.select(axisNode).selectAll('.tick text').attr('y', 0).attr('dy', '-0.6em')
             }
           }
         },
@@ -279,11 +276,7 @@ export class HorizontalAxisChart extends D3Blueprint<AxisDatum[]> {
             sel.selectAll('.tick line').remove()
           }
 
-          // Resolve effective label position — auto switches to inside on narrow charts
-          const AUTO_INSIDE_THRESHOLD = 400
-          const effective = labelPos === 'auto'
-            ? (availableWidth > 0 && availableWidth < AUTO_INSIDE_THRESHOLD ? 'inside' : 'outside')
-            : labelPos
+          const effective = labelPos === 'auto' ? 'outside' : labelPos
 
           if (effective === 'off') {
             sel.selectAll('.tick text').remove()
@@ -291,6 +284,7 @@ export class HorizontalAxisChart extends D3Blueprint<AxisDatum[]> {
           else if (effective === 'inside') {
             // Position labels just inside the chart area (above the axis line)
             sel.selectAll('.tick text')
+              .attr('y', 0)
               .attr('dy', '-0.6em')
           }
         },

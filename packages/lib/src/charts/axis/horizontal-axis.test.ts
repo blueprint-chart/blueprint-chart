@@ -97,6 +97,36 @@ describe('HorizontalAxisChart merge:transition feature parity', () => {
     expect(tickTexts).toHaveLength(0)
   })
 
+  it('keeps labels below the axis on narrow widths when labelPosition is auto', () => {
+    const chart = new HorizontalAxisChart(d3.select(chartArea))
+    chart.config({ scale, height: 300, width: 200, labels: ['A', 'B', 'C'], labelPosition: 'auto' })
+    chart.draw([{ placeholder: true }])
+    chart.draw([{ placeholder: true }])
+
+    const axisEl = chartArea.querySelector('.bc-axis-horizontal')!
+    const tickTexts = axisEl.querySelectorAll('.tick text')
+    expect(tickTexts.length).toBeGreaterThan(0)
+    tickTexts.forEach((t) => {
+      // dy should not be the inside value; y=0 with dy=-0.6em would put labels above axis
+      const dy = t.getAttribute('dy')
+      expect(dy).not.toBe('-0.6em')
+    })
+  })
+
+  it('positions labels inside on enter render when labelPosition is inside', () => {
+    const chart = new HorizontalAxisChart(d3.select(chartArea))
+    chart.config({ scale, height: 300, width: 300, labels: ['A', 'B', 'C'], labelPosition: 'inside' })
+    chart.draw([{ placeholder: true }])
+
+    const axisEl = chartArea.querySelector('.bc-axis-horizontal')!
+    const tickTexts = axisEl.querySelectorAll('.tick text')
+    expect(tickTexts.length).toBeGreaterThan(0)
+    tickTexts.forEach((t) => {
+      expect(t.getAttribute('y')).toBe('0')
+      expect(t.getAttribute('dy')).toBe('-0.6em')
+    })
+  })
+
   it('positions labels inside on merge render when labelPosition is inside', () => {
     const chart = new HorizontalAxisChart(d3.select(chartArea))
     chart.config({ scale, height: 300, width: 300, labels: ['A', 'B', 'C'], labelPosition: 'inside' })
@@ -107,6 +137,7 @@ describe('HorizontalAxisChart merge:transition feature parity', () => {
     const tickTexts = axisEl.querySelectorAll('.tick text')
     expect(tickTexts.length).toBeGreaterThan(0)
     tickTexts.forEach((t) => {
+      expect(t.getAttribute('y')).toBe('0')
       expect(t.getAttribute('dy')).toBe('-0.6em')
     })
   })
