@@ -27,7 +27,7 @@ describe('DisplayChartType', () => {
       'line': 'Line',
       'line-multi': 'Lines',
       'area': 'Area',
-      'area-stacked': 'Stacked Area',
+      'area-stacked': 'Areas',
       'donut': 'Donut',
       'pie': 'Pie',
     }

@@ -315,6 +315,129 @@ describe('area-stacked chart', () => {
     }
   })
 
+  // ── Unstacked mode ───────────────────────────────────────────────
+
+  it('renders areas from y=0 when stacked=false', () => {
+    render(container, data, { stacked: false })
+    const areas = container.querySelectorAll('.bc-area')
+    expect(areas).toHaveLength(3)
+    areas.forEach(area => expect(area.getAttribute('d')).toBeTruthy())
+  })
+
+  it('unstacked areas have different paths than stacked areas', () => {
+    render(container, data)
+    const stackedPaths = Array.from(container.querySelectorAll('.bc-area')).map(a => a.getAttribute('d'))
+
+    const container2 = document.createElement('div')
+    document.body.appendChild(container2)
+    render(container2, data, { stacked: false })
+    const unstackedPaths = Array.from(container2.querySelectorAll('.bc-area')).map(a => a.getAttribute('d'))
+
+    const anyDifference = stackedPaths.some((p, i) => p !== unstackedPaths[i])
+    expect(anyDifference).toBe(true)
+  })
+
+  // ── stackPercent option ──────────────────────────────────────────
+
+  it('renders in percent mode when stackPercent=true', () => {
+    render(container, data, { stackPercent: true })
+    const areas = container.querySelectorAll('.bc-area')
+    expect(areas).toHaveLength(3)
+  })
+
+  it('stackPercent=true produces different paths than normal stacking', () => {
+    render(container, data)
+    const normalPaths = Array.from(container.querySelectorAll('.bc-area')).map(a => a.getAttribute('d'))
+
+    const container2 = document.createElement('div')
+    document.body.appendChild(container2)
+    render(container2, data, { stackPercent: true })
+    const percentPaths = Array.from(container2.querySelectorAll('.bc-area')).map(a => a.getAttribute('d'))
+
+    const anyDifference = normalPaths.some((p, i) => p !== percentPaths[i])
+    expect(anyDifference).toBe(true)
+  })
+
+  it('stackPercent=true and stackMode=percent produce equivalent results', () => {
+    const container2 = document.createElement('div')
+    document.body.appendChild(container2)
+    render(container, data, { stackPercent: true })
+    render(container2, data, { stackMode: 'percent' })
+
+    const pathsA = Array.from(container.querySelectorAll('.bc-area')).map(a => a.getAttribute('d'))
+    const pathsB = Array.from(container2.querySelectorAll('.bc-area')).map(a => a.getAttribute('d'))
+    expect(pathsA).toEqual(pathsB)
+  })
+
+  // ── Sort areas ───────────────────────────────────────────────────
+
+  it('areaSortMode=none keeps original series order', () => {
+    render(container, data, { areaSortMode: 'none' })
+    const areas = container.querySelectorAll('.bc-area')
+    // Default colors map to original series order
+    expect(areas[0].getAttribute('fill')).toBe('#4e79a7') // Product A (index 0)
+    expect(areas[1].getAttribute('fill')).toBe('#f28e2b') // Product B (index 1)
+    expect(areas[2].getAttribute('fill')).toBe('#e15759') // Product C (index 2)
+  })
+
+  it('areaSortMode=ascending places smallest-total series at bottom of stack', () => {
+    // Totals: Product A=45, Product B=23, Product C=22
+    // Ascending: C (22) first (bottom), B (23), A (45) last (top)
+    // Colors derive from original series index: A=#4e79a7, B=#f28e2b, C=#e15759
+    render(container, data, { areaSortMode: 'ascending' })
+    const areas = container.querySelectorAll('.bc-area')
+    expect(areas).toHaveLength(3)
+    // Bottom area should be Product C (smallest total, index 2 → #e15759)
+    expect(areas[0].getAttribute('fill')).toBe('#e15759')
+    // Top area should be Product A (largest total, index 0 → #4e79a7)
+    expect(areas[2].getAttribute('fill')).toBe('#4e79a7')
+  })
+
+  it('areaSortMode=descending places largest-total series at bottom of stack', () => {
+    // Descending: A (45) first (bottom), B (23), C (22) last (top)
+    render(container, data, { areaSortMode: 'descending' })
+    const areas = container.querySelectorAll('.bc-area')
+    expect(areas).toHaveLength(3)
+    // Bottom area should be Product A (largest total, index 0 → #4e79a7)
+    expect(areas[0].getAttribute('fill')).toBe('#4e79a7')
+    // Top area should be Product C (smallest total, index 2 → #e15759)
+    expect(areas[2].getAttribute('fill')).toBe('#e15759')
+  })
+
+  it('ascending and descending sort produce different stacking paths', () => {
+    render(container, data, { areaSortMode: 'ascending' })
+    const ascPaths = Array.from(container.querySelectorAll('.bc-area')).map(a => a.getAttribute('d'))
+
+    const container2 = document.createElement('div')
+    document.body.appendChild(container2)
+    render(container2, data, { areaSortMode: 'descending' })
+    const descPaths = Array.from(container2.querySelectorAll('.bc-area')).map(a => a.getAttribute('d'))
+
+    // Paths should differ because the stacking order is reversed
+    const anyDifference = ascPaths.some((p, i) => p !== descPaths[i])
+    expect(anyDifference).toBe(true)
+  })
+
+  // ── Area lines ───────────────────────────────────────────────────
+
+  it('hides line edges when areaLines=false', () => {
+    render(container, data, { areaLines: false })
+    const lines = container.querySelectorAll('.bc-line')
+    lines.forEach(line => expect(line.getAttribute('display')).toBe('none'))
+  })
+
+  it('shows line edges by default (areaLines unset)', () => {
+    render(container, data)
+    const lines = container.querySelectorAll('.bc-line')
+    lines.forEach(line => expect(line.getAttribute('display')).toBeNull())
+  })
+
+  it('shows line edges when areaLines=true', () => {
+    render(container, data, { areaLines: true })
+    const lines = container.querySelectorAll('.bc-line')
+    lines.forEach(line => expect(line.getAttribute('display')).toBeNull())
+  })
+
   // ── Edge cases ───────────────────────────────────────────────────
 
   it('handles empty series array gracefully', () => {

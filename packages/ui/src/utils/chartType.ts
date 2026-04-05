@@ -7,7 +7,7 @@ export const CHART_TYPE_LABELS: Record<string, string> = {
   'line': 'Line',
   'line-multi': 'Lines',
   'area': 'Area',
-  'area-stacked': 'Stacked Area',
+  'area-stacked': 'Areas',
   'donut': 'Donut',
   'pie': 'Pie',
 }

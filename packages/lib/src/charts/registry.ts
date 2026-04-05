@@ -221,6 +221,22 @@ const showValuesOpt: ChartOptionDef = { key: 'showValues', type: 'boolean', labe
 const sliceMaxOpt: ChartOptionDef = { key: 'sliceMax', type: 'text', label: 'Max slices', default: '6' }
 const sliceGroupLabelOpt: ChartOptionDef = { key: 'sliceGroupLabel', type: 'text', label: 'Group label', default: 'Others', placeholder: 'Others' }
 
+const areaFillOpacityOpt: ChartOptionDef = { key: 'areaFillOpacity', type: 'text', label: 'Opacity', default: '0.85', placeholder: '0.85' }
+const stackedOpt: ChartOptionDef = { key: 'stacked', type: 'boolean', label: 'Stack areas', default: true }
+const stackPercentOpt: ChartOptionDef = { key: 'stackPercent', type: 'boolean', label: 'Stack to 100%', default: false }
+const areaLinesOpt: ChartOptionDef = { key: 'areaLines', type: 'boolean', label: 'Separate areas with lines', default: true }
+const areaSortModeOpt: ChartOptionDef = {
+  key: 'areaSortMode',
+  type: 'select',
+  label: 'Sort areas',
+  default: 'none',
+  choices: [
+    { value: 'none', text: 'Keep order' },
+    { value: 'ascending', text: 'Smallest first' },
+    { value: 'descending', text: 'Largest first' },
+  ],
+}
+
 const interpolationOpt: ChartOptionDef = {
   key: 'interpolation',
   type: 'select',
@@ -344,9 +360,9 @@ registerChart('pie', pie, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkMode
 // Area: same axis options as line, same interaction options
 registerChart('area', area, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, lineInterpolationOpt, edgePaddingOpt, ...lineAxisOpts, ...lineOpts])
 
-// Stacked area: multi-series with legend + stack mode
+// Areas (multi-series with optional stacking)
 const areaStackedAxisOpts = axisOpts({ verticalGrid: 'dashed', horizontalGrid: 'none', showVerticalTicks: false, showHorizontalTicks: false, showVerticalAxis: false, valueAxis: 'vertical', horizontalRange: true })
-registerChart('area-stacked', areaStacked, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, lineInterpolationOpt, edgePaddingOpt, stackModeOpt, legendOpt, legendAnchorOpt, legendPositionOpt, directLabellingOpt, ...areaStackedAxisOpts, tooltipsOpt, ...lineCrosshairOpts])
+registerChart('area-stacked', areaStacked, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, areaFillOpacityOpt, lineInterpolationOpt, edgePaddingOpt, areaSortModeOpt, stackedOpt, stackPercentOpt, areaLinesOpt, legendOpt, legendAnchorOpt, legendPositionOpt, directLabellingOpt, ...areaStackedAxisOpts, tooltipsOpt, ...lineCrosshairOpts])
 
 // Stacked column: vertical bars stacked
 registerChart('column-stacked', columnStacked, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, stackModeOpt, sortModeOpt, legendOpt, legendAnchorOpt, legendPositionOpt, directLabellingOpt, directLabelAnchorOpt, ...barVerticalAxisOpts, ...barOpts])
