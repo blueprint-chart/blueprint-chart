@@ -1,7 +1,7 @@
 import type { Ref } from 'vue'
 import { useChartConfig } from './useChartConfig'
 import { useChartTypeOptions } from './useChartTypeOptions'
-import { useScenes, type SceneOverride } from './useScenes'
+import { useScenes } from './useScenes'
 import { useDataTable, serializeTableData } from './useDataTable'
 import { useDataTransforms } from './useDataTransforms'
 import { useTheme } from './useTheme'
