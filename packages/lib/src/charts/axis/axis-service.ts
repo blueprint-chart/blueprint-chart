@@ -177,6 +177,7 @@ export class AxisService {
       showTicks: opts.showTicks ?? false,
       gridStyle: opts.gridStyle ?? 'dashed',
       gridWidth: opts.gridWidth ?? 0,
+      height: cfg.height,
       ticks: opts.ticks ?? null,
       numberFormat: opts.numberFormat ?? null,
       labelPosition: opts.labelPosition ?? 'auto',
