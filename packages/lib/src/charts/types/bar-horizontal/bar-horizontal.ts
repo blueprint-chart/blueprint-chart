@@ -126,14 +126,14 @@ export function render(
     priorMargin = cached?.margin
     axes.detach()
     if (cached?.chartType === 'bar-horizontal') {
-      priorBars = Array.from(container.querySelectorAll('.bc-bar'))
-      priorLabels = Array.from(container.querySelectorAll('.bc-value-label'))
+      priorBars = Array.from(container.querySelectorAll('.bc-frame .bc-bar'))
+      priorLabels = Array.from(container.querySelectorAll('.bc-frame .bc-value-label'))
     }
     else if (cached) {
       fadeOverlay = snapshotForFadeOut(container)
     }
     priorAnnotations = new Map()
-    for (const el of container.querySelectorAll('.bc-annotations, .bc-annotations-range')) {
+    for (const el of container.querySelectorAll('.bc-frame .bc-annotations, .bc-frame .bc-annotations-range')) {
       for (const [k, v] of snapshotAnnotations(el)) {
         priorAnnotations.set(k, v)
       }
