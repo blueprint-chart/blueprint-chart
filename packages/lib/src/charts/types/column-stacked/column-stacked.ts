@@ -287,6 +287,7 @@ export function render(
     const cy = y(datum.y0) - (y(datum.y0) - y(datum.y1)) / 2
     vlGroup.append('text')
       .attr('class', 'bc-value-label')
+      .attr('data-series', datum.seriesIndex)
       .attr('x', cx)
       .attr('y', cy)
       .attr('text-anchor', 'middle')

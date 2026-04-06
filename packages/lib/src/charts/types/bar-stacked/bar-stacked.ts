@@ -352,38 +352,13 @@ export function render(
     const placeOutside = valueLabelPos === ValueLabelPosition.Outside
       || (valueLabelPos === ValueLabelPosition.Auto && !fitsInside && isLastInRow)
 
-    if (placeOutside) {
-      if (valueLabelPos === ValueLabelPosition.Inside) {
-        return
-      }
-      const labelStartX = x(datum.y1) + 4
-      const prevEnd = labelEndByRow.get(datum.label) ?? 0
-      if (labelStartX < prevEnd) {
-        return
-      }
-      // Skip if the label overflows past the next segment's right edge
-      const nextWidth = nextSegWidthPx.get(datum.label + '\0' + datum.seriesName)
-      if (nextWidth !== undefined && estimatedLabelWidth + 4 > nextWidth) {
-        return
-      }
-      labelEndByRow.set(datum.label, labelStartX + estimatedLabelWidth)
-      vlGroup.append('text')
-        .attr('class', 'bc-value-label')
-        .attr('x', labelStartX)
-        .attr('y', cy)
-        .attr('text-anchor', 'start')
-        .attr('dominant-baseline', 'central')
-        .attr('font-size', '11px')
-        .attr('fill', 'currentColor')
-        .text(labelText)
-    }
-    else {
-      if (!fitsInside) {
-        return
-      }
+    // Helper: create a hidden label inside the segment (revealed on legend highlight)
+    const appendHiddenLabel = () => {
       const cx = x(datum.y0) + segmentWidth / 2
       vlGroup.append('text')
         .attr('class', 'bc-value-label')
+        .attr('data-series', datum.seriesIndex)
+        .attr('opacity', 0)
         .attr('x', cx)
         .attr('y', cy)
         .attr('text-anchor', 'middle')
@@ -391,6 +366,53 @@ export function render(
         .attr('font-size', '11px')
         .attr('fill', contrastTextColor(seriesColor))
         .text(labelText)
+    }
+
+    if (placeOutside) {
+      if (valueLabelPos === ValueLabelPosition.Inside) {
+        appendHiddenLabel()
+      }
+      else {
+        const labelStartX = x(datum.y1) + 4
+        const prevEnd = labelEndByRow.get(datum.label) ?? 0
+        const nextWidth = nextSegWidthPx.get(datum.label + '\0' + datum.seriesName)
+        const overlaps = labelStartX < prevEnd
+        const overflows = nextWidth !== undefined && estimatedLabelWidth + 4 > nextWidth
+        if (overlaps || overflows) {
+          appendHiddenLabel()
+        }
+        else {
+          labelEndByRow.set(datum.label, labelStartX + estimatedLabelWidth)
+          vlGroup.append('text')
+            .attr('class', 'bc-value-label')
+            .attr('data-series', datum.seriesIndex)
+            .attr('x', labelStartX)
+            .attr('y', cy)
+            .attr('text-anchor', 'start')
+            .attr('dominant-baseline', 'central')
+            .attr('font-size', '11px')
+            .attr('fill', 'currentColor')
+            .text(labelText)
+        }
+      }
+    }
+    else {
+      if (!fitsInside) {
+        appendHiddenLabel()
+      }
+      else {
+        const cx = x(datum.y0) + segmentWidth / 2
+        vlGroup.append('text')
+          .attr('class', 'bc-value-label')
+          .attr('data-series', datum.seriesIndex)
+          .attr('x', cx)
+          .attr('y', cy)
+          .attr('text-anchor', 'middle')
+          .attr('dominant-baseline', 'central')
+          .attr('font-size', '11px')
+          .attr('fill', contrastTextColor(seriesColor))
+          .text(labelText)
+      }
     }
   })
 

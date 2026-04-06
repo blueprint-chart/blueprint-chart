@@ -197,8 +197,11 @@ describe('bar-stacked', () => {
     }
     render(container, skewedData, { valueLabels: true, valueLabelPosition: ValueLabelPosition.Inside })
     const labels = container.querySelectorAll('.bc-value-label')
-    expect(labels).toHaveLength(1)
-    expect(labels[0].textContent).toBe('999')
+    // Both labels exist but the narrow one is hidden via opacity attribute
+    expect(labels).toHaveLength(2)
+    const visible = Array.from(labels).filter(l => l.getAttribute('opacity') !== '0')
+    expect(visible).toHaveLength(1)
+    expect(visible[0].textContent).toBe('999')
   })
 
   it('outside position places labels at right edge of segment', () => {
@@ -211,8 +214,8 @@ describe('bar-stacked', () => {
     }
   })
 
-  it('outside position skips labels that overflow past the next segment', () => {
-    // A's label "50" sits on B (narrow, ~10px) → overflows → hidden
+  it('outside position hides labels that overflow past the next segment', () => {
+    // A's label "50" sits on B (narrow, ~10px) → overflows → hidden via opacity
     // B's label "10" sits on C (wide) → fits → shown
     // C is last → always shown
     const overflowData = {
@@ -226,11 +229,12 @@ describe('bar-stacked', () => {
     }
     render(container, overflowData, { valueLabels: true, valueLabelPosition: ValueLabelPosition.Outside })
     const labels = container.querySelectorAll('.bc-value-label')
-    const texts = Array.from(labels).map(l => l.textContent)
-    // A's label overflows into the narrow B segment → hidden
-    expect(texts).not.toContain('50')
-    expect(texts).toContain('10')
-    expect(texts).toContain('940')
+    const visible = Array.from(labels).filter(l => l.getAttribute('opacity') !== '0')
+    const visibleTexts = visible.map(l => l.textContent)
+    // A's label overflows → hidden via opacity attribute
+    expect(visibleTexts).not.toContain('50')
+    expect(visibleTexts).toContain('10')
+    expect(visibleTexts).toContain('940')
   })
 
   it('uses contrast text color for inside value labels', () => {
@@ -273,11 +277,12 @@ describe('bar-stacked', () => {
     }
     render(container, threeSegData, { valueLabels: true })
     const labels = container.querySelectorAll('.bc-value-label')
-    const texts = Array.from(labels).map(l => l.textContent)
-    // A and C fit inside; B is narrow inner segment → hidden (not moved outside)
-    expect(texts).toContain('100')
-    expect(texts).not.toContain('1')
-    expect(labels).toHaveLength(2)
+    const visible = Array.from(labels).filter(l => l.getAttribute('opacity') !== '0')
+    const visibleTexts = visible.map(l => l.textContent)
+    // A and C fit inside; B is narrow inner segment → hidden via opacity
+    expect(visibleTexts).toContain('100')
+    expect(visibleTexts).not.toContain('1')
+    expect(visible).toHaveLength(2)
   })
 
   // ── Transition ───────────────────────────────────────────────────

@@ -324,6 +324,7 @@ export function render(
 
     vlGroup.append('text')
       .attr('class', 'bc-value-label')
+      .attr('data-series', datum.seriesIndex)
       .attr('x', tx)
       .attr('y', cy)
       .attr('text-anchor', anchor)
