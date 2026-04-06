@@ -242,7 +242,7 @@ export function render(
   }
 
   if (options.tooltips) {
-    chart.use(createTooltipPlugin())
+    chart.use(createTooltipPlugin({ numberFormat: options.verticalAxis?.numberFormat }))
   }
   if (options.crosshair) {
     chart.use(createCrosshairPlugin({

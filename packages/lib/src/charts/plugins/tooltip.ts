@@ -1,6 +1,7 @@
 import * as d3 from 'd3'
 import { computePosition, flip, offset, shift } from '@floating-ui/dom'
 import type { D3Blueprint, Plugin } from 'd3-blueprint'
+import { buildNumberFormatter } from '../format-helpers'
 
 const TOOLTIP_CLASS = 'bc-tooltip'
 
@@ -28,32 +29,38 @@ function ensureStyles(): void {
   document.head.appendChild(style)
 }
 
-function defaultFormat(d: unknown): string {
-  if (d && typeof d === 'object') {
-    // d3.PieArcDatum
-    if ('data' in d && typeof (d as { data: unknown }).data === 'number') {
-      return String((d as { data: number }).data)
+export function makeDefaultFormat(numberFormat?: string): (d: unknown) => string {
+  const fmtFn = numberFormat ? buildNumberFormatter(numberFormat) : null
+  const fmtValue = (v: unknown) => typeof v === 'number' && fmtFn ? fmtFn(v) : String(v)
+
+  return (d: unknown): string => {
+    if (d && typeof d === 'object') {
+      // d3.PieArcDatum
+      if ('data' in d && typeof (d as { data: unknown }).data === 'number') {
+        return fmtValue((d as { data: number }).data)
+      }
+      // Bar/line datum with label + value
+      const obj = d as Record<string, unknown>
+      if ('label' in obj && 'value' in obj) {
+        return `${obj.label}: ${fmtValue(obj.value)}`
+      }
+      // Multi-bar datum
+      if ('series' in obj && 'value' in obj) {
+        return `${obj.series}: ${fmtValue(obj.value)}`
+      }
+      if ('value' in obj) {
+        return fmtValue(obj.value)
+      }
     }
-    // Bar/line datum with label + value
-    const obj = d as Record<string, unknown>
-    if ('label' in obj && 'value' in obj) {
-      return `${obj.label}: ${obj.value}`
-    }
-    // Multi-bar datum
-    if ('series' in obj && 'value' in obj) {
-      return `${obj.series}: ${obj.value}`
-    }
-    if ('value' in obj) {
-      return String(obj.value)
-    }
+    return String(d)
   }
-  return String(d)
 }
 
 export function createTooltipPlugin(options?: {
   format?: (datum: unknown) => string
+  numberFormat?: string
 }): Plugin {
-  const fmt = options?.format ?? defaultFormat
+  const fmt = options?.format ?? makeDefaultFormat(options?.numberFormat)
   let tooltipEl: HTMLDivElement | null = null
   const cleanups: (() => void)[] = []
 

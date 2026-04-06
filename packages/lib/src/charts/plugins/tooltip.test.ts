@@ -1,5 +1,47 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { createTooltipPlugin } from './tooltip'
+import { createTooltipPlugin, makeDefaultFormat } from './tooltip'
+
+describe('makeDefaultFormat', () => {
+  it('formats value with numberFormat for label+value datum', () => {
+    const fmt = makeDefaultFormat(',.0f')
+    expect(fmt({ label: 'A', value: 1234 })).toBe('A: 1,234')
+  })
+
+  it('formats value with numberFormat for series+value datum', () => {
+    const fmt = makeDefaultFormat(',.0f')
+    expect(fmt({ series: 'S1', value: 1234 })).toBe('S1: 1,234')
+  })
+
+  it('formats value with pipe-delimited numberFormat', () => {
+    const fmt = makeDefaultFormat('$|,.0f|')
+    expect(fmt({ label: 'A', value: 1234 })).toBe('A: $1,234')
+  })
+
+  it('formats value with suffix via pipe syntax', () => {
+    const fmt = makeDefaultFormat('|.1f|%')
+    expect(fmt({ label: 'Jan 2023', value: 6.4 })).toBe('Jan 2023: 6.4%')
+  })
+
+  it('formats pie arc datum with numberFormat', () => {
+    const fmt = makeDefaultFormat(',.0f')
+    expect(fmt({ data: 5000 })).toBe('5,000')
+  })
+
+  it('formats value-only datum with numberFormat', () => {
+    const fmt = makeDefaultFormat(',.0f')
+    expect(fmt({ value: 9999 })).toBe('9,999')
+  })
+
+  it('falls back to String() without numberFormat', () => {
+    const fmt = makeDefaultFormat()
+    expect(fmt({ label: 'A', value: 1234 })).toBe('A: 1234')
+  })
+
+  it('falls back to String() for non-numeric values', () => {
+    const fmt = makeDefaultFormat(',.0f')
+    expect(fmt({ label: 'A', value: 'text' })).toBe('A: text')
+  })
+})
 
 describe('createTooltipPlugin', () => {
   beforeEach(() => {

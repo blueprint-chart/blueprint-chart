@@ -439,6 +439,7 @@ export function render(
       crosshairDirection: options.crosshairDirection,
       crosshairStyle: options.crosshairStyle,
       crosshairColor: options.crosshairColor,
+      numberFormat: options.verticalAxis?.numberFormat,
     })
   }
 
