@@ -64,7 +64,7 @@ const { chartType } = useChartConfig()
 const { availableOptionKeys } = useChartTypeOptions()
 
 const barStyleIcon = computed(() =>
-  chartType.value.includes('horizontal') || chartType.value === 'bar-stacked'
+  chartType.value.includes('horizontal') || chartType.value === 'bar-stacked' || chartType.value === 'bar-split' || chartType.value === 'bar-grouped'
     ? IPhChartBarHorizontal
     : IPhChartBar,
 )
@@ -79,7 +79,8 @@ const hasLine = computed(() => !hasArea.value && hasLineOptions.value)
 
 const hasBarStyle = computed(() =>
   availableOptionKeys.value.includes('barBackground')
-  || availableOptionKeys.value.includes('barSeparators'),
+  || availableOptionKeys.value.includes('barSeparators')
+  || availableOptionKeys.value.includes('categoryLabelLine'),
 )
 
 const hasSlice = computed(() => availableOptionKeys.value.includes('displayAsPercentage'))

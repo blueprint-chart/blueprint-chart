@@ -249,4 +249,19 @@ describe('buildChartOptions', () => {
     const result = buildChartOptions({})
     expect(result.edgePadding).toBeUndefined()
   })
+
+  it('forwards categoryLabelLine when true', () => {
+    const result = buildChartOptions({ categoryLabelLine: true })
+    expect(result.categoryLabelLine).toBe(true)
+  })
+
+  it('forwards categoryLabelLine when false', () => {
+    const result = buildChartOptions({ categoryLabelLine: false })
+    expect(result.categoryLabelLine).toBe(false)
+  })
+
+  it('does not set categoryLabelLine when not specified', () => {
+    const result = buildChartOptions({})
+    expect(result.categoryLabelLine).toBeUndefined()
+  })
 })

@@ -55,6 +55,7 @@ import AreaStackedThumb from '@/assets/chart-thumbnails/area-stacked.bpc'
 import ColumnStackedThumb from '@/assets/chart-thumbnails/column-stacked.bpc'
 import BarStackedThumb from '@/assets/chart-thumbnails/bar-stacked.bpc'
 import BarSplitThumb from '@/assets/chart-thumbnails/bar-split.bpc'
+import BarGroupedThumb from '@/assets/chart-thumbnails/bar-grouped.bpc'
 import DonutThumb from '@/assets/chart-thumbnails/donut.bpc'
 import PieThumb from '@/assets/chart-thumbnails/pie.bpc'
 
@@ -76,6 +77,7 @@ const chartTypeOptions = [
   { value: 'column-stacked', label: 'Stacked Columns', description: 'Compare stacked totals', visual: markRaw(ColumnStackedThumb) },
   { value: 'bar-stacked', label: 'Stacked Bars', description: 'Compare stacked totals horizontally', visual: markRaw(BarStackedThumb) },
   { value: 'bar-split', label: 'Split Bars', description: 'Compare multiple metrics in separate bar panels', visual: markRaw(BarSplitThumb) },
+  { value: 'bar-grouped', label: 'Grouped Bars', description: 'Compare multiple series side by side horizontally', visual: markRaw(BarGroupedThumb) },
   { value: 'line', label: 'Line', description: 'Show trends over time', visual: markRaw(LineThumb) },
   { value: 'line-multi', label: 'Lines', description: 'Compare trends across series', visual: markRaw(LineMultiThumb) },
   { value: 'area', label: 'Area', description: 'Show magnitude over time', visual: markRaw(AreaThumb) },

@@ -1,0 +1,15 @@
+chart bar-grouped {
+  title = "Renewable energy capacity by region and technology, 2022"
+  description = "Installed capacity in gigawatts (GW)"
+  source = "IRENA"
+  valueLabels = true
+
+  data {
+    _series = "Solar","Wind","Hydro"
+    "Asia Pacific"  = 680,540,840
+    "Europe"        = 250,300,200
+    "North America" = 200,180,190
+    "Latin America" = 30,50,200
+    "Africa"        = 15,10,40
+  }
+}

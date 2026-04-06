@@ -21,6 +21,8 @@ const DEFAULT_COLORS = [
   '#59a14f', '#edc948', '#b07aa1', '#ff9da7',
 ]
 
+const CATEGORY_LABEL_HEIGHT = 13
+
 interface StackedBarDatum {
   label: string
   seriesName: string
@@ -35,6 +37,7 @@ class BarStackedChart extends D3Blueprint<StackedBarDatum[]> {
     this.configDefine('x', { defaultValue: d3.scaleLinear() })
     this.configDefine('y', { defaultValue: d3.scaleBand<string>() })
     this.configDefine('colors', { defaultValue: DEFAULT_COLORS })
+    this.configDefine('categoryLabelOffset', { defaultValue: 0 })
 
     const g = this.base.append('g')
 
@@ -47,12 +50,13 @@ class BarStackedChart extends D3Blueprint<StackedBarDatum[]> {
           const x = this.config('x') as d3.ScaleLinear<number, number>
           const y = this.config('y') as d3.ScaleBand<string>
           const colors = this.config('colors') as string[]
+          const labelOffset = this.config('categoryLabelOffset') as number
           sel
             .attr('data-series', (d: StackedBarDatum) => d.seriesIndex)
             .attr('x', (d: StackedBarDatum) => x(d.y0))
-            .attr('y', (d: StackedBarDatum) => y(d.label) ?? 0)
+            .attr('y', (d: StackedBarDatum) => (y(d.label) ?? 0) + labelOffset)
             .attr('width', (d: StackedBarDatum) => x(d.y1) - x(d.y0))
-            .attr('height', y.bandwidth())
+            .attr('height', Math.max(0, y.bandwidth() - labelOffset))
             .attr('fill', (d: StackedBarDatum) => colors[d.seriesIndex % colors.length])
         },
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -60,12 +64,13 @@ class BarStackedChart extends D3Blueprint<StackedBarDatum[]> {
           const x = this.config('x') as d3.ScaleLinear<number, number>
           const y = this.config('y') as d3.ScaleBand<string>
           const colors = this.config('colors') as string[]
+          const labelOffset = this.config('categoryLabelOffset') as number
           sel.duration(getDefaultTransitionMs())
             .attr('data-series', (d: StackedBarDatum) => d.seriesIndex)
             .attr('x', (d: StackedBarDatum) => x(d.y0))
-            .attr('y', (d: StackedBarDatum) => y(d.label) ?? 0)
+            .attr('y', (d: StackedBarDatum) => (y(d.label) ?? 0) + labelOffset)
             .attr('width', (d: StackedBarDatum) => x(d.y1) - x(d.y0))
-            .attr('height', y.bandwidth())
+            .attr('height', Math.max(0, y.bandwidth() - labelOffset))
             .attr('fill', (d: StackedBarDatum) => colors[d.seriesIndex % colors.length])
         },
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -163,8 +168,10 @@ export function render(
     ? 100
     : d3.max(flatData, d => d.y1) ?? 0
 
+  const useCategoryLabelLine = options.categoryLabelLine === true
   const vLabelW = estimateCategoryLabelWidth(data.labels)
-  const lpMargins = labelPositionMargins(containerWidth, options.verticalAxis?.labelPosition, options.horizontalAxis?.labelPosition, options.verticalAxis?.direction, vLabelW, options.horizontalAxis?.showAxis)
+  const effectiveVLabelPosition = useCategoryLabelLine ? 'off' : options.verticalAxis?.labelPosition
+  const lpMargins = labelPositionMargins(containerWidth, effectiveVLabelPosition, options.horizontalAxis?.labelPosition, options.verticalAxis?.direction, vLabelW, options.horizontalAxis?.showAxis)
 
   const vLabelsInside = lpMargins.top != null
   const legendAvailableWidth = Math.max(0, containerWidth - (lpMargins.left ?? 50) - (lpMargins.right ?? 20))
@@ -212,7 +219,15 @@ export function render(
   axes.attach(chartArea, marginDelta)
   axes.update({
     horizontal: { scale: x, height, options: { ...options.horizontalAxis, width } },
-    vertical: { scale: y, height, options: { ...options.verticalAxis, topPadding: margin.top } },
+    vertical: {
+      scale: y,
+      height,
+      options: {
+        ...options.verticalAxis,
+        labelPosition: useCategoryLabelLine ? 'off' : options.verticalAxis?.labelPosition,
+        topPadding: margin.top,
+      },
+    },
     order: 'horizontal-first',
   })
 
@@ -231,8 +246,9 @@ export function render(
     ? flatData
     : sortedLabels.flatMap(label => flatData.filter(d => d.label === label))
 
+  const categoryLabelOffset = useCategoryLabelLine ? CATEGORY_LABEL_HEIGHT : 0
   const chart = new BarStackedChart(clippedGroup)
-  chart.config({ x, y, colors })
+  chart.config({ x, y, colors, categoryLabelOffset })
 
   // Re-insert prior elements so D3 data-join finds them and triggers merge:transition
   if (priorBars.length > 0) {
@@ -275,6 +291,24 @@ export function render(
     }
   })
 
+  // Category labels on separate line
+  if (useCategoryLabelLine) {
+    const categoryLabelGroup = d3.select(chartArea).append('g').attr('class', 'bc-category-labels')
+    for (const label of sortedLabels) {
+      const groupTop = y(label) ?? 0
+      categoryLabelGroup.append('text')
+        .attr('class', 'bc-category-label')
+        .attr('x', 2)
+        .attr('y', groupTop + CATEGORY_LABEL_HEIGHT / 2)
+        .attr('text-anchor', 'start')
+        .attr('dominant-baseline', 'central')
+        .attr('font-size', '10px')
+        .attr('font-weight', '600')
+        .attr('fill', 'currentColor')
+        .text(label)
+    }
+  }
+
   // Value labels
   const globalValueLabels = options.valueLabels ?? false
   const vlGroup = d3.select(chartArea).append('g').attr('class', 'bc-value-labels')
@@ -283,7 +317,7 @@ export function render(
       return
     }
     const cx = x(datum.y0) + (x(datum.y1) - x(datum.y0)) / 2
-    const cy = (y(datum.label) ?? 0) + y.bandwidth() / 2
+    const cy = (y(datum.label) ?? 0) + categoryLabelOffset + (y.bandwidth() - categoryLabelOffset) / 2
     vlGroup.append('text')
       .attr('class', 'bc-value-label')
       .attr('x', cx)

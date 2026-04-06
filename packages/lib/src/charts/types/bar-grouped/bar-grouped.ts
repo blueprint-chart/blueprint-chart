@@ -19,58 +19,58 @@ const DEFAULT_COLORS = [
   '#59a14f', '#edc948', '#b07aa1', '#ff9da7',
 ]
 
-const PANEL_GAP = 16
-const PANEL_HEADER_HEIGHT = 20
 const CATEGORY_LABEL_HEIGHT = 13
 
-interface SplitBarDatum {
+interface GroupedBarDatum {
   label: string
   seriesName: string
   seriesIndex: number
   value: number
-  /** Absolute x position of the bar's left edge within the chart area */
-  xPos: number
-  /** Pixel width of the bar */
-  barWidth: number
 }
 
-class BarSplitChart extends D3Blueprint<SplitBarDatum[]> {
+class BarGroupedChart extends D3Blueprint<GroupedBarDatum[]> {
   initialize() {
-    this.configDefine('y', { defaultValue: d3.scaleBand<string>() })
+    this.configDefine('x', { defaultValue: d3.scaleLinear() })
+    this.configDefine('y0', { defaultValue: d3.scaleBand<string>() })
+    this.configDefine('y1', { defaultValue: d3.scaleBand<string>() })
     this.configDefine('colors', { defaultValue: DEFAULT_COLORS })
     this.configDefine('categoryLabelOffset', { defaultValue: 0 })
 
     const g = this.base.append('g')
 
     this.layer('bars', g, {
-      dataBind: (sel, data) => sel.selectAll('.bc-bar-split').data(data, (d: SplitBarDatum) => d.label + '\0' + d.seriesName),
-      insert: sel => sel.append('rect').attr('class', 'bc-bar bc-bar-split'),
+      dataBind: (sel, data) => sel.selectAll('.bc-bar-grouped').data(data, (d: GroupedBarDatum) => d.label + '\0' + d.seriesName),
+      insert: sel => sel.append('rect').attr('class', 'bc-bar bc-bar-grouped'),
       events: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         'enter': (sel: any) => {
-          const y = this.config('y') as d3.ScaleBand<string>
+          const x = this.config('x') as d3.ScaleLinear<number, number>
+          const y0 = this.config('y0') as d3.ScaleBand<string>
+          const y1 = this.config('y1') as d3.ScaleBand<string>
           const colors = this.config('colors') as string[]
           const labelOffset = this.config('categoryLabelOffset') as number
           sel
-            .attr('data-series', (d: SplitBarDatum) => d.seriesIndex)
-            .attr('x', (d: SplitBarDatum) => d.xPos)
-            .attr('y', (d: SplitBarDatum) => (y(d.label) ?? 0) + labelOffset)
-            .attr('width', (d: SplitBarDatum) => d.barWidth)
-            .attr('height', Math.max(0, y.bandwidth() - labelOffset))
-            .attr('fill', (d: SplitBarDatum) => colors[d.seriesIndex % colors.length])
+            .attr('data-series', (d: GroupedBarDatum) => d.seriesIndex)
+            .attr('x', x(0))
+            .attr('y', (d: GroupedBarDatum) => (y0(d.label) ?? 0) + labelOffset + (y1(d.seriesName) ?? 0))
+            .attr('width', (d: GroupedBarDatum) => Math.max(0, x(d.value) - x(0)))
+            .attr('height', y1.bandwidth())
+            .attr('fill', (d: GroupedBarDatum) => colors[d.seriesIndex % colors.length])
         },
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         'merge:transition': (sel: any) => {
-          const y = this.config('y') as d3.ScaleBand<string>
+          const x = this.config('x') as d3.ScaleLinear<number, number>
+          const y0 = this.config('y0') as d3.ScaleBand<string>
+          const y1 = this.config('y1') as d3.ScaleBand<string>
           const colors = this.config('colors') as string[]
           const labelOffset = this.config('categoryLabelOffset') as number
           sel.duration(getDefaultTransitionMs())
-            .attr('data-series', (d: SplitBarDatum) => d.seriesIndex)
-            .attr('x', (d: SplitBarDatum) => d.xPos)
-            .attr('y', (d: SplitBarDatum) => (y(d.label) ?? 0) + labelOffset)
-            .attr('width', (d: SplitBarDatum) => d.barWidth)
-            .attr('height', Math.max(0, y.bandwidth() - labelOffset))
-            .attr('fill', (d: SplitBarDatum) => colors[d.seriesIndex % colors.length])
+            .attr('data-series', (d: GroupedBarDatum) => d.seriesIndex)
+            .attr('x', x(0))
+            .attr('y', (d: GroupedBarDatum) => (y0(d.label) ?? 0) + labelOffset + (y1(d.seriesName) ?? 0))
+            .attr('width', (d: GroupedBarDatum) => Math.max(0, x(d.value) - x(0)))
+            .attr('height', y1.bandwidth())
+            .attr('fill', (d: GroupedBarDatum) => colors[d.seriesIndex % colors.length])
         },
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         'exit:transition': (sel: any) => {
@@ -81,72 +81,6 @@ class BarSplitChart extends D3Blueprint<SplitBarDatum[]> {
       },
     })
   }
-}
-
-interface PanelLayout {
-  seriesName: string
-  seriesIndex: number
-  xOffset: number
-  panelWidth: number
-  xScale: d3.ScaleLinear<number, number>
-}
-
-function computePanels(
-  series: { name: string, values: number[] }[],
-  allSeries: { name: string, values: number[] }[],
-  totalWidth: number,
-  sharedScale: boolean,
-): PanelLayout[] {
-  const n = series.length
-  if (n === 0) {
-    return []
-  }
-  const panelWidth = Math.max(0, (totalWidth - (n - 1) * PANEL_GAP) / n)
-  const globalMax = sharedScale ? (d3.max(series.flatMap(s => s.values)) ?? 0) : 0
-
-  return series.map((s, i) => {
-    const panelMax = sharedScale ? globalMax : (d3.max(s.values) ?? 0)
-    const xScale = d3.scaleLinear()
-      .domain([0, panelMax])
-      .nice()
-      .range([0, panelWidth])
-    return {
-      seriesName: s.name,
-      seriesIndex: allSeries.findIndex(as => as.name === s.name),
-      xOffset: i * (panelWidth + PANEL_GAP),
-      panelWidth,
-      xScale,
-    }
-  })
-}
-
-function buildFlatData(
-  panels: PanelLayout[],
-  sortedLabels: string[],
-  originalLabels: string[],
-  allSeries: { name: string, values: number[] }[],
-): SplitBarDatum[] {
-  const result: SplitBarDatum[] = []
-  for (const panel of panels) {
-    const s = allSeries.find(as => as.name === panel.seriesName)
-    if (!s) {
-      continue
-    }
-    for (const label of sortedLabels) {
-      const li = originalLabels.indexOf(label)
-      const value = li >= 0 ? (s.values[li] ?? 0) : 0
-      const barWidth = Math.max(0, panel.xScale(value) - panel.xScale(0))
-      result.push({
-        label,
-        seriesName: panel.seriesName,
-        seriesIndex: panel.seriesIndex,
-        value,
-        xPos: panel.xOffset,
-        barWidth,
-      })
-    }
-  }
-  return result
 }
 
 export function render(
@@ -166,8 +100,8 @@ export function render(
     const cached = getCachedChart(container)
     priorMargin = cached?.margin
     axes.detach()
-    if (cached?.chartType === 'bar-split') {
-      priorBars = Array.from(container.querySelectorAll('.bc-frame .bc-bar-split'))
+    if (cached?.chartType === 'bar-grouped') {
+      priorBars = Array.from(container.querySelectorAll('.bc-frame .bc-bar-grouped'))
     }
     else if (cached) {
       fadeOverlay = snapshotForFadeOut(container)
@@ -204,9 +138,6 @@ export function render(
     options.horizontalAxis?.showAxis,
   )
 
-  // Reserve space for panel headers above the chart area
-  lpMargins.top = (lpMargins.top ?? 20) + PANEL_HEADER_HEIGHT
-
   const legendAvailableWidth = Math.max(0, containerWidth - (lpMargins.left ?? 50) - (lpMargins.right ?? 20))
   const legendSize = showLegend ? estimateLegendSize(seriesNames, legendPos, legendAvailableWidth) : { width: 0, height: 0 }
   const legendH = showLegend ? legendSize.height + 10 : 0
@@ -239,18 +170,32 @@ export function render(
     sortedLabels = totals.map(t => t.label)
   }
 
-  const y = d3.scaleBand<string>()
+  const y0 = d3.scaleBand<string>()
     .domain(sortedLabels)
     .range([0, height])
-    .padding(0.2)
+    .paddingInner(0.2)
+    .paddingOuter(0.05)
 
   const categoryLabelOffset = useCategoryLabelLine ? CATEGORY_LABEL_HEIGHT : 0
+  const barAreaHeight = Math.max(0, y0.bandwidth() - categoryLabelOffset)
 
-  // Vertical axis only (category labels on the left)
+  const y1 = d3.scaleBand<string>()
+    .domain(seriesNames)
+    .range([0, barAreaHeight])
+    .padding(0.05)
+
+  const maxValue = d3.max(series.flatMap(s => s.values)) ?? 0
+
+  const x = d3.scaleLinear()
+    .domain([0, maxValue])
+    .nice()
+    .range([0, width])
+
+  // Vertical (category) axis
   axes.attach(chartArea, marginDelta)
   axes.update({
     vertical: {
-      scale: y,
+      scale: y0,
       height,
       options: {
         ...options.verticalAxis,
@@ -258,11 +203,9 @@ export function render(
         topPadding: margin.top,
       },
     },
+    horizontal: { scale: x, height, options: { ...options.horizontalAxis, width } },
     order: 'horizontal-first',
   })
-
-  const sharedScale = options.sharedScale === true
-  const panels = computePanels(series, allSeries, width, sharedScale)
 
   // Clip group for bars
   const clipId = `bc-clip-${Math.random().toString(36).slice(2, 8)}`
@@ -274,25 +217,23 @@ export function render(
     .append('rect').attr('width', width).attr('height', height)
   const clippedGroup = d3.select(chartArea).append('g').attr('clip-path', `url(#${clipId})`)
 
-  // Panel headers — series names centered above each panel
-  const headerGroup = d3.select(chartArea).append('g').attr('class', 'bc-split-headers')
-  for (const panel of panels) {
-    headerGroup.append('text')
-      .attr('class', 'bc-split-header')
-      .attr('x', panel.xOffset + panel.panelWidth / 2)
-      .attr('y', -PANEL_HEADER_HEIGHT / 2)
-      .attr('text-anchor', 'middle')
-      .attr('dominant-baseline', 'central')
-      .attr('font-size', '11px')
-      .attr('font-weight', '600')
-      .attr('fill', 'currentColor')
-      .text(panel.seriesName)
+  // Build flat data: one datum per (label, series) pair
+  const flatData: GroupedBarDatum[] = []
+  for (const label of sortedLabels) {
+    const li = data.labels.indexOf(label)
+    for (const s of series) {
+      const si = allSeries.findIndex(as => as.name === s.name)
+      flatData.push({
+        label,
+        seriesName: s.name,
+        seriesIndex: si,
+        value: li >= 0 ? (s.values[li] ?? 0) : 0,
+      })
+    }
   }
 
-  const flatData = buildFlatData(panels, sortedLabels, data.labels, allSeries)
-
-  const chart = new BarSplitChart(clippedGroup)
-  chart.config({ y, colors, categoryLabelOffset })
+  const chart = new BarGroupedChart(clippedGroup)
+  chart.config({ x, y0, y1, colors, categoryLabelOffset })
 
   if (priorBars.length > 0) {
     const layerG = clippedGroup.node()!.querySelector('g')!
@@ -309,7 +250,7 @@ export function render(
   }
 
   chart.draw(flatData)
-  setCachedChart(container, { chartType: 'bar-split', margin })
+  setCachedChart(container, { chartType: 'bar-grouped', margin })
 
   if (fadeOverlay) {
     fadeIn(clippedGroup.node()!)
@@ -317,8 +258,8 @@ export function render(
   }
 
   // Apply per-series color and opacity overrides
-  d3.select(chartArea).selectAll('.bc-bar-split').each(function (this: SVGRectElement, d: unknown) {
-    const datum = d as SplitBarDatum
+  d3.select(chartArea).selectAll('.bc-bar-grouped').each(function (this: SVGRectElement, d: unknown) {
+    const datum = d as GroupedBarDatum
     const seriesColor = resolveSeriesColor(datum.seriesName, datum.seriesIndex, colors, overrides)
     const seriesOpacity = resolveSeriesOpacity(datum.seriesName, overrides)
     const el = transition
@@ -332,10 +273,10 @@ export function render(
 
   // Category labels on separate line
   if (useCategoryLabelLine) {
-    const categoryLabelGroup = d3.select(chartArea).append('g').attr('class', 'bc-category-labels')
+    const labelGroup = d3.select(chartArea).append('g').attr('class', 'bc-category-labels')
     for (const label of sortedLabels) {
-      const groupTop = y(label) ?? 0
-      categoryLabelGroup.append('text')
+      const groupTop = y0(label) ?? 0
+      labelGroup.append('text')
         .attr('class', 'bc-category-label')
         .attr('x', 2)
         .attr('y', groupTop + CATEGORY_LABEL_HEIGHT / 2)
@@ -348,7 +289,7 @@ export function render(
     }
   }
 
-  // Value labels (default true — the primary way to read values in split bars)
+  // Value labels (default true for grouped bars)
   const globalValueLabels = options.valueLabels ?? true
   const valueLabelPos = options.valueLabelPosition ?? 'auto'
   const vlGroup = d3.select(chartArea).append('g').attr('class', 'bc-value-labels')
@@ -357,18 +298,14 @@ export function render(
     if (!resolveSeriesValueLabels(datum.seriesName, globalValueLabels, overrides)) {
       return
     }
-    const panel = panels.find(p => p.seriesName === datum.seriesName)
-    if (!panel) {
-      return
-    }
 
     const seriesColor = resolveSeriesColor(datum.seriesName, datum.seriesIndex, colors, overrides)
-    const barRight = datum.xPos + datum.barWidth
-    const barHeight = Math.max(0, y.bandwidth() - categoryLabelOffset)
-    const cy = (y(datum.label) ?? 0) + categoryLabelOffset + barHeight / 2
+    const barWidth = Math.max(0, x(datum.value) - x(0))
+    const barRight = x(0) + barWidth
+    const cy = (y0(datum.label) ?? 0) + categoryLabelOffset + (y1(datum.seriesName) ?? 0) + y1.bandwidth() / 2
 
     const isInside = valueLabelPos === 'inside'
-      || (valueLabelPos === 'auto' && datum.barWidth > 30)
+      || (valueLabelPos === 'auto' && barWidth > 30)
 
     let tx: number
     let anchor: string
@@ -379,17 +316,8 @@ export function render(
       fill = contrastTextColor(seriesColor)
     }
     else {
-      const outsideX = barRight + 4
-      const panelRight = panel.xOffset + panel.panelWidth
-      if (outsideX + 20 > panelRight) {
-        // Not enough room outside — render before bar start
-        tx = datum.xPos - 4
-        anchor = 'end'
-      }
-      else {
-        tx = outsideX
-        anchor = 'start'
-      }
+      tx = barRight + 4
+      anchor = 'start'
       fill = 'currentColor'
     }
 
@@ -414,7 +342,7 @@ export function render(
     let xPos = 0
     let yPos = 0
     if (legendPos === 'top') {
-      yPos = -(legendSize.height + 5 + PANEL_HEADER_HEIGHT)
+      yPos = -(legendSize.height + 5)
     }
     else if (legendPos === 'bottom') {
       yPos = height + 25

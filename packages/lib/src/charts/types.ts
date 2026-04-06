@@ -187,6 +187,7 @@ export interface ChartOptions {
   waterfall?: boolean
   waterfallTotal?: boolean
   sharedScale?: boolean
+  categoryLabelLine?: boolean
 }
 
 export type ChartRenderer = (
@@ -275,6 +276,7 @@ export interface ChartTypeOptions {
   waterfall: boolean
   waterfallTotal: boolean
   sharedScale: boolean
+  categoryLabelLine: boolean
 }
 
 export type ChartTypeOptionKey = keyof ChartTypeOptions
