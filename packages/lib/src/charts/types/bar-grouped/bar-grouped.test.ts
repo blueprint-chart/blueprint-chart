@@ -260,6 +260,48 @@ describe('bar-grouped', () => {
     expect(unique.size).toBe(3)
   })
 
+  // ── barBackground ──────────────────────────────────────────────
+
+  describe('barBackground', () => {
+    it('renders background rects when barBackground is true', () => {
+      render(container, data, { barBackground: true })
+      const bgs = container.querySelectorAll('.bc-bar-bg')
+      expect(bgs).toHaveLength(3)
+    })
+
+    it('background rects span full chart width', () => {
+      render(container, data, { barBackground: true })
+      const clipRect = container.querySelector('clipPath rect')!
+      const chartWidth = Number(clipRect.getAttribute('width'))
+      const bgs = container.querySelectorAll('.bc-bar-bg')
+      const widths = Array.from(bgs).map(b => Number(b.getAttribute('width')))
+      expect(widths.every(w => w === chartWidth)).toBe(true)
+    })
+
+    it('background rects have visible opacity', () => {
+      render(container, data, { barBackground: true })
+      const bgs = container.querySelectorAll('.bc-bar-bg')
+      const opacities = Array.from(bgs).map(b => Number(b.getAttribute('opacity')))
+      expect(opacities.every(o => o >= 0.15)).toBe(true)
+    })
+
+    it('does not render background rects when barBackground is not set', () => {
+      render(container, data)
+      const bgs = container.querySelectorAll('.bc-bar-bg')
+      expect(bgs).toHaveLength(0)
+    })
+
+    it('works with categoryLabelLine', () => {
+      render(container, data, { barBackground: true, categoryLabelLine: true })
+      const bgs = container.querySelectorAll('.bc-bar-bg')
+      expect(bgs).toHaveLength(3)
+      const clipRect = container.querySelector('clipPath rect')!
+      const chartWidth = Number(clipRect.getAttribute('width'))
+      const widths = Array.from(bgs).map(b => Number(b.getAttribute('width')))
+      expect(widths.every(w => w === chartWidth)).toBe(true)
+    })
+  })
+
   // ── Frame options ────────────────────────────────────────────────
 
   it('renders title when provided', () => {
