@@ -16,6 +16,7 @@ import { getCachedChart, setCachedChart } from '../../transition-cache'
 import { SortDirection, ValueLabelPosition } from '../../../enums'
 
 const DEFAULT_COLORS = ['#4e79a7']
+const CATEGORY_LABEL_HEIGHT = 13
 
 interface BarDatum {
   label: string
@@ -127,9 +128,13 @@ export function render(
 
   const { body } = createFrame(container, options.frame)
   const containerWidth = contentSize(body).width
+  const useCategoryLabelLine = options.categoryLabelLine === true
   const vLabelW = estimateVerticalLabelWidth(data.values, options.verticalAxis?.range, options.verticalAxis?.numberFormat, options.verticalAxis?.scaleType)
-  const lpMargins = labelPositionMargins(containerWidth, options.verticalAxis?.labelPosition, options.horizontalAxis?.labelPosition, options.verticalAxis?.direction, vLabelW)
+  const effectiveHLabelPosition = useCategoryLabelLine ? 'off' : options.horizontalAxis?.labelPosition
+  const lpMargins = labelPositionMargins(containerWidth, options.verticalAxis?.labelPosition, effectiveHLabelPosition, options.verticalAxis?.direction, vLabelW)
   const { chartArea, width, height, margin } = createCanvas(body, lpMargins)
+  const categoryLabelOffset = useCategoryLabelLine ? CATEGORY_LABEL_HEIGHT : 0
+  const barAreaHeight = height - categoryLabelOffset
   const marginDelta = computeMarginDelta(priorMargin, margin)
 
   const labels = sortLabels(data, options)
@@ -174,11 +179,11 @@ export function render(
     domainMin -= span * 0.1
   }
   const y = useLog
-    ? d3.scaleSymlog().domain([domainMin, domainMax]).nice().range([height, 0])
-    : d3.scaleLinear().domain([domainMin, domainMax]).nice().range([height, 0])
+    ? d3.scaleSymlog().domain([domainMin, domainMax]).nice().range([barAreaHeight, 0])
+    : d3.scaleLinear().domain([domainMin, domainMax]).nice().range([barAreaHeight, 0])
 
   axes.attach(chartArea, marginDelta)
-  const hAxisOpts = swapLabelValue && options.valueLabels && !isWaterfall
+  const hAxisBase = swapLabelValue && options.valueLabels && !isWaterfall
     ? (() => {
         const valueMap = new Map(barData.map(d => [d.label, d.value]))
         return {
@@ -188,6 +193,7 @@ export function render(
         }
       })()
     : { ...options.horizontalAxis, width }
+  const hAxisOpts = useCategoryLabelLine ? { ...hAxisBase, labelPosition: 'off' as string } : hAxisBase
   axes.update({
     vertical: { scale: y, height, options: { ...options.verticalAxis, gridWidth: width, topPadding: margin.top } },
     horizontal: { scale: x, height, options: hAxisOpts },
@@ -214,7 +220,7 @@ export function render(
     ? d3.select(svg).append('defs')
     : d3.select(svg).select('defs')
   defs.append('clipPath').attr('id', clipId)
-    .append('rect').attr('width', width).attr('height', height)
+    .append('rect').attr('width', width).attr('height', barAreaHeight)
   const clippedGroup = d3.select(chartArea).append('g').attr('clip-path', `url(#${clipId})`)
 
   // Bar backgrounds — full-size rects behind each bar at low opacity
@@ -229,7 +235,7 @@ export function render(
       .attr('x', (d: string) => x(d) ?? 0)
       .attr('y', 0)
       .attr('width', x.bandwidth())
-      .attr('height', height)
+      .attr('height', barAreaHeight)
       .attr('fill', bgColor)
       .attr('opacity', 0.18)
   }
@@ -243,7 +249,7 @@ export function render(
       clippedGroup.append('line')
         .attr('class', 'bc-bar-separator')
         .attr('x1', xPos).attr('x2', xPos)
-        .attr('y1', 0).attr('y2', height)
+        .attr('y1', 0).attr('y2', barAreaHeight)
         .attr('stroke', 'currentColor')
         .attr('opacity', 0.15)
     }
@@ -337,11 +343,11 @@ export function render(
     }
     if (options.crosshair) {
       chart.use(createCrosshairPlugin({
-        width, height, direction: options.crosshairDirection, style: options.crosshairStyle, color: options.crosshairColor }))
+        width, height: barAreaHeight, direction: options.crosshairDirection, style: options.crosshairStyle, color: options.crosshairColor }))
     }
     if (options.annotations?.length) {
       chart.use(createAnnotationPlugin(options.annotations, {
-        scaleX: x, scaleY: y, data: barData, width, height, backgroundColor: resolveBackgroundColor(container), transition, priorAnnotations }))
+        scaleX: x, scaleY: y, data: barData, width, height: barAreaHeight, backgroundColor: resolveBackgroundColor(container), transition, priorAnnotations }))
     }
     chart.draw(barData)
 
@@ -354,6 +360,23 @@ export function render(
         priorLabels,
         swapLabelValue,
       })
+    }
+  }
+
+  // Category labels on separate line
+  if (useCategoryLabelLine) {
+    const labelGroup = d3.select(chartArea).append('g').attr('class', 'bc-category-labels')
+    for (const label of allLabels) {
+      labelGroup.append('text')
+        .attr('class', 'bc-category-label')
+        .attr('x', (x(label) ?? 0) + x.bandwidth() / 2)
+        .attr('y', barAreaHeight + CATEGORY_LABEL_HEIGHT / 2)
+        .attr('text-anchor', 'middle')
+        .attr('dominant-baseline', 'central')
+        .attr('font-size', '10px')
+        .attr('font-weight', '600')
+        .attr('fill', 'currentColor')
+        .text(label)
     }
   }
 
