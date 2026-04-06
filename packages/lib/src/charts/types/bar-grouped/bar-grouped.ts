@@ -234,6 +234,20 @@ export function render(
       .attr('opacity', 0.18)
   }
 
+  // Bar separators — lines between adjacent category groups
+  if (options.barSeparators && sortedLabels.length > 1) {
+    const step = y0.step()
+    for (let i = 1; i < sortedLabels.length; i++) {
+      const yPos = (y0(sortedLabels[i - 1]) ?? 0) + y0.bandwidth() + (step - y0.bandwidth()) / 2
+      clippedGroup.append('line')
+        .attr('class', 'bc-bar-separator')
+        .attr('x1', 0).attr('x2', width)
+        .attr('y1', yPos).attr('y2', yPos)
+        .attr('stroke', 'currentColor')
+        .attr('opacity', 0.15)
+    }
+  }
+
   // Build flat data: one datum per (label, series) pair
   const flatData: GroupedBarDatum[] = []
   for (const label of sortedLabels) {

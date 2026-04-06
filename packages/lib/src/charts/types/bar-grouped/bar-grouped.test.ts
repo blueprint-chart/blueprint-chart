@@ -302,6 +302,53 @@ describe('bar-grouped', () => {
     })
   })
 
+  // ── barSeparators ──────────────────────────────────────────────
+
+  describe('barSeparators', () => {
+    it('renders separator lines when barSeparators is true', () => {
+      render(container, data, { barSeparators: true })
+      const seps = container.querySelectorAll('.bc-bar-separator')
+      // 3 labels → 2 separators
+      expect(seps).toHaveLength(2)
+    })
+
+    it('separator lines are horizontal', () => {
+      render(container, data, { barSeparators: true })
+      const seps = container.querySelectorAll('.bc-bar-separator')
+      for (const sep of seps) {
+        expect(sep.getAttribute('y1')).toBe(sep.getAttribute('y2'))
+      }
+    })
+
+    it('separator lines span full chart width', () => {
+      render(container, data, { barSeparators: true })
+      const clipRect = container.querySelector('clipPath rect')!
+      const chartWidth = Number(clipRect.getAttribute('width'))
+      const seps = container.querySelectorAll('.bc-bar-separator')
+      for (const sep of seps) {
+        expect(Number(sep.getAttribute('x1'))).toBe(0)
+        expect(Number(sep.getAttribute('x2'))).toBe(chartWidth)
+      }
+    })
+
+    it('does not render separators when barSeparators is not set', () => {
+      render(container, data)
+      const seps = container.querySelectorAll('.bc-bar-separator')
+      expect(seps).toHaveLength(0)
+    })
+
+    it('does not render separators for a single label', () => {
+      const singleLabel = {
+        labels: ['USA'],
+        values: [],
+        series: [{ name: 'Solar', values: [200] }],
+      }
+      render(container, singleLabel, { barSeparators: true })
+      const seps = container.querySelectorAll('.bc-bar-separator')
+      expect(seps).toHaveLength(0)
+    })
+  })
+
   // ── Frame options ────────────────────────────────────────────────
 
   it('renders title when provided', () => {
