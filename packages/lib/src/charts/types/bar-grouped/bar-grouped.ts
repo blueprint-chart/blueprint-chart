@@ -218,6 +218,22 @@ export function render(
     .append('rect').attr('width', width).attr('height', height)
   const clippedGroup = d3.select(chartArea).append('g').attr('clip-path', `url(#${clipId})`)
 
+  // Bar backgrounds — full-size rects behind each category group at low opacity
+  if (options.barBackground) {
+    const bgColor = (options.colors ?? DEFAULT_COLORS)[0]
+    clippedGroup.selectAll('.bc-bar-bg')
+      .data(sortedLabels, (d: string) => d)
+      .enter()
+      .append('rect')
+      .attr('class', 'bc-bar-bg')
+      .attr('x', 0)
+      .attr('y', (d: string) => (y0(d) ?? 0) + categoryLabelOffset)
+      .attr('width', width)
+      .attr('height', y0.bandwidth() - categoryLabelOffset)
+      .attr('fill', bgColor)
+      .attr('opacity', 0.18)
+  }
+
   // Build flat data: one datum per (label, series) pair
   const flatData: GroupedBarDatum[] = []
   for (const label of sortedLabels) {
