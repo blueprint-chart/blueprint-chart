@@ -169,7 +169,7 @@ export function renderArc(
 
   const marginOverrides: Record<string, number> = {}
   if (showLegend && legendPos === 'top') {
-    marginOverrides.top = 20 + legendH
+    marginOverrides.top = legendH
   }
   if (showLegend && legendPos === 'bottom') {
     marginOverrides.bottom = 40 + legendH

@@ -303,7 +303,7 @@ export function render(
   const marginOverrides: Record<string, number> = { ...lpMargins }
   if (showLegend && legendPos === 'top') {
     const insideGap = vLabelsInside ? 15 : 0
-    marginOverrides.top = (marginOverrides.top ?? 20) + legendH + insideGap
+    marginOverrides.top = legendH + insideGap
   }
   if (showLegend && legendPos === 'bottom') {
     marginOverrides.bottom = (marginOverrides.bottom ?? 40) + legendH
