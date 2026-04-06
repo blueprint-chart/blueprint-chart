@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { render } from './bar-stacked'
-import { StackMode } from '../../../enums'
+import { StackMode, ValueLabelPosition } from '../../../enums'
 
 describe('bar-stacked', () => {
   let container: HTMLElement
@@ -159,16 +159,125 @@ describe('bar-stacked', () => {
 
   // ── Value labels ─────────────────────────────────────────────────
 
-  it('renders value labels when valueLabels is true', () => {
+  it('does not render value labels by default', () => {
+    render(container, data)
+    const labels = container.querySelectorAll('.bc-value-label')
+    expect(labels).toHaveLength(0)
+  })
+
+  it('renders value labels when segments are wide enough', () => {
     render(container, data, { valueLabels: true })
     const labels = container.querySelectorAll('.bc-value-label')
     expect(labels).toHaveLength(4)
   })
 
-  it('does not render value labels by default', () => {
-    render(container, data)
+  it('auto position moves labels outside when segment is too narrow', () => {
+    const skewedData = {
+      labels: ['Row'],
+      values: [],
+      series: [
+        { name: 'Big', values: [999] },
+        { name: 'Tiny', values: [1] },
+      ],
+    }
+    render(container, skewedData, { valueLabels: true })
     const labels = container.querySelectorAll('.bc-value-label')
-    expect(labels).toHaveLength(0)
+    // Both labels shown: Big inside, Tiny moved outside
+    expect(labels).toHaveLength(2)
+  })
+
+  it('inside position hides labels when segment is too narrow', () => {
+    const skewedData = {
+      labels: ['Row'],
+      values: [],
+      series: [
+        { name: 'Big', values: [999] },
+        { name: 'Tiny', values: [1] },
+      ],
+    }
+    render(container, skewedData, { valueLabels: true, valueLabelPosition: ValueLabelPosition.Inside })
+    const labels = container.querySelectorAll('.bc-value-label')
+    expect(labels).toHaveLength(1)
+    expect(labels[0].textContent).toBe('999')
+  })
+
+  it('outside position places labels at right edge of segment', () => {
+    render(container, data, { valueLabels: true, valueLabelPosition: ValueLabelPosition.Outside })
+    const labels = container.querySelectorAll('.bc-value-label')
+    expect(labels).toHaveLength(4)
+    for (const label of labels) {
+      expect(label.getAttribute('text-anchor')).toBe('start')
+      expect(label.getAttribute('fill')).toBe('currentColor')
+    }
+  })
+
+  it('outside position skips labels that overflow past the next segment', () => {
+    // A's label "50" sits on B (narrow, ~10px) → overflows → hidden
+    // B's label "10" sits on C (wide) → fits → shown
+    // C is last → always shown
+    const overflowData = {
+      labels: ['Row'],
+      values: [],
+      series: [
+        { name: 'A', values: [50] },
+        { name: 'B', values: [10] },
+        { name: 'C', values: [940] },
+      ],
+    }
+    render(container, overflowData, { valueLabels: true, valueLabelPosition: ValueLabelPosition.Outside })
+    const labels = container.querySelectorAll('.bc-value-label')
+    const texts = Array.from(labels).map(l => l.textContent)
+    // A's label overflows into the narrow B segment → hidden
+    expect(texts).not.toContain('50')
+    expect(texts).toContain('10')
+    expect(texts).toContain('940')
+  })
+
+  it('uses contrast text color for inside value labels', () => {
+    render(container, data, { valueLabels: true, colors: ['#000000', '#ffffff'] })
+    const labels = container.querySelectorAll('.bc-value-label')
+    expect(labels.length).toBeGreaterThan(0)
+    for (const label of labels) {
+      // Inside labels use contrast color, not currentColor
+      expect(label.getAttribute('fill')).not.toBe('currentColor')
+    }
+  })
+
+  it('auto position uses contrast color for inside labels and currentColor for outside', () => {
+    const skewedData = {
+      labels: ['Row'],
+      values: [],
+      series: [
+        { name: 'Big', values: [999] },
+        { name: 'Tiny', values: [1] },
+      ],
+    }
+    render(container, skewedData, { valueLabels: true, colors: ['#000000', '#ff0000'] })
+    const labels = container.querySelectorAll('.bc-value-label')
+    expect(labels).toHaveLength(2)
+    const fills = Array.from(labels).map(l => l.getAttribute('fill'))
+    // One inside (contrast) and one outside (currentColor)
+    expect(fills).toContain('currentColor')
+    expect(fills.filter(f => f !== 'currentColor')).toHaveLength(1)
+  })
+
+  it('auto position hides narrow inner segments to avoid overlap', () => {
+    const threeSegData = {
+      labels: ['Row'],
+      values: [],
+      series: [
+        { name: 'A', values: [100] },
+        { name: 'B', values: [1] },
+        { name: 'C', values: [100] },
+      ],
+    }
+    render(container, threeSegData, { valueLabels: true })
+    const labels = container.querySelectorAll('.bc-value-label')
+    const texts = Array.from(labels).map(l => l.textContent)
+    // A and C fit inside; B is narrow inner segment → hidden (not moved outside)
+    expect(texts).toContain('100')
+    expect(texts).not.toContain('1')
+    expect(labels).toHaveLength(2)
   })
 
   // ── Transition ───────────────────────────────────────────────────

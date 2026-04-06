@@ -12,10 +12,11 @@ import { createTooltipPlugin } from '../../plugins/tooltip'
 import { createCrosshairPlugin } from '../../plugins/crosshair'
 import { resolveBackgroundColor } from '../../contrast'
 import { resolveSeriesColor, isSeriesHidden, resolveSeriesValueLabels, resolveSeriesOpacity } from '../../series-helpers'
+import { contrastTextColor } from '../../contrast'
 import { getDefaultTransitionMs, setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut, reinsertWithOffset } from '../../motion'
 import { setCachedChart, getCachedChart } from '../../transition-cache'
 import { computeStack, computeStack100 } from '../../stack-helpers'
-import { StackMode, Orientation } from '../../../enums'
+import { StackMode, Orientation, ValueLabelPosition } from '../../../enums'
 
 const DEFAULT_COLORS = [
   '#4e79a7', '#f28e2b', '#e15759', '#76b7b2',
@@ -312,22 +313,85 @@ export function render(
 
   // Value labels
   const globalValueLabels = options.valueLabels ?? false
+  const valueLabelPos = options.valueLabelPosition ?? ValueLabelPosition.Auto
+
+  // Pre-compute per-row segment info for label placement decisions.
+  const lastSegmentKeys = new Set<string>()
+  const nextSegWidthPx = new Map<string, number>()
+  for (const label of sortedLabels) {
+    const rowData = sortedFlatData
+      .filter(d => d.label === label)
+      .sort((a, b) => a.y1 - b.y1)
+    if (rowData.length > 0) {
+      const last = rowData[rowData.length - 1]
+      lastSegmentKeys.add(last.label + '\0' + last.seriesName)
+      for (let i = 0; i < rowData.length - 1; i++) {
+        const key = rowData[i].label + '\0' + rowData[i].seriesName
+        nextSegWidthPx.set(key, x(rowData[i + 1].y1) - x(rowData[i].y1))
+      }
+    }
+  }
+
+  // Track the rightmost label extent per row to prevent outside-label overlap
+  const labelEndByRow = new Map<string, number>()
+
   const vlGroup = d3.select(chartArea).append('g').attr('class', 'bc-value-labels')
   sortedFlatData.forEach((datum) => {
     if (!resolveSeriesValueLabels(datum.seriesName, globalValueLabels, overrides)) {
       return
     }
-    const cx = x(datum.y0) + (x(datum.y1) - x(datum.y0)) / 2
+
+    const labelText = isPercent ? `${Math.round(datum.value)}%` : String(Math.round(datum.value * 100) / 100)
+    const segmentWidth = x(datum.y1) - x(datum.y0)
+    const estimatedLabelWidth = labelText.length * 6.5 + 8
+    const fitsInside = segmentWidth >= estimatedLabelWidth
     const cy = (y(datum.label) ?? 0) + categoryLabelOffset + (y.bandwidth() - categoryLabelOffset) / 2
-    vlGroup.append('text')
-      .attr('class', 'bc-value-label')
-      .attr('x', cx)
-      .attr('y', cy)
-      .attr('text-anchor', 'middle')
-      .attr('dominant-baseline', 'central')
-      .attr('font-size', '11px')
-      .attr('fill', 'currentColor')
-      .text(isPercent ? `${Math.round(datum.value)}%` : String(Math.round(datum.value * 100) / 100))
+    const seriesColor = resolveSeriesColor(datum.seriesName, datum.seriesIndex, colors, overrides)
+    const isLastInRow = lastSegmentKeys.has(datum.label + '\0' + datum.seriesName)
+
+    const placeOutside = valueLabelPos === ValueLabelPosition.Outside
+      || (valueLabelPos === ValueLabelPosition.Auto && !fitsInside && isLastInRow)
+
+    if (placeOutside) {
+      if (valueLabelPos === ValueLabelPosition.Inside) {
+        return
+      }
+      const labelStartX = x(datum.y1) + 4
+      const prevEnd = labelEndByRow.get(datum.label) ?? 0
+      if (labelStartX < prevEnd) {
+        return
+      }
+      // Skip if the label overflows past the next segment's right edge
+      const nextWidth = nextSegWidthPx.get(datum.label + '\0' + datum.seriesName)
+      if (nextWidth !== undefined && estimatedLabelWidth + 4 > nextWidth) {
+        return
+      }
+      labelEndByRow.set(datum.label, labelStartX + estimatedLabelWidth)
+      vlGroup.append('text')
+        .attr('class', 'bc-value-label')
+        .attr('x', labelStartX)
+        .attr('y', cy)
+        .attr('text-anchor', 'start')
+        .attr('dominant-baseline', 'central')
+        .attr('font-size', '11px')
+        .attr('fill', 'currentColor')
+        .text(labelText)
+    }
+    else {
+      if (!fitsInside) {
+        return
+      }
+      const cx = x(datum.y0) + segmentWidth / 2
+      vlGroup.append('text')
+        .attr('class', 'bc-value-label')
+        .attr('x', cx)
+        .attr('y', cy)
+        .attr('text-anchor', 'middle')
+        .attr('dominant-baseline', 'central')
+        .attr('font-size', '11px')
+        .attr('fill', contrastTextColor(seriesColor))
+        .text(labelText)
+    }
   })
 
   // Legend
