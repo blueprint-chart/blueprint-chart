@@ -386,6 +386,45 @@ describe('bar-vertical', () => {
     expect(domain).toBeNull()
   })
 
+  // ── categoryLabelLine ────────────────────────────────────────────
+
+  it('renders category label text elements when categoryLabelLine=true', () => {
+    render(container, data, { categoryLabelLine: true })
+    const labels = container.querySelectorAll('.bc-category-label')
+    expect(labels).toHaveLength(3)
+    const texts = Array.from(labels).map(l => l.textContent)
+    expect(texts).toContain('A')
+    expect(texts).toContain('B')
+    expect(texts).toContain('C')
+  })
+
+  it('does not render category label text elements when categoryLabelLine=false', () => {
+    render(container, data, { categoryLabelLine: false })
+    const labels = container.querySelectorAll('.bc-category-label')
+    expect(labels).toHaveLength(0)
+  })
+
+  it('does not render category label text elements by default', () => {
+    render(container, data)
+    const labels = container.querySelectorAll('.bc-category-label')
+    expect(labels).toHaveLength(0)
+  })
+
+  it('hides horizontal axis tick labels when categoryLabelLine=true', () => {
+    render(container, data, { categoryLabelLine: true })
+    const hAxis = container.querySelector('.bc-axis-horizontal')!
+    const tickTexts = hAxis.querySelectorAll('.tick text')
+    expect(tickTexts).toHaveLength(0)
+  })
+
+  it('category label texts are positioned at distinct x values', () => {
+    render(container, data, { categoryLabelLine: true })
+    const labels = container.querySelectorAll('.bc-category-label')
+    const xs = Array.from(labels).map(l => parseFloat(l.getAttribute('x') ?? '0'))
+    const unique = new Set(xs.map(v => Math.round(v)))
+    expect(unique.size).toBe(3)
+  })
+
   // ── Transition ───────────────────────────────────────────────────
 
   it('supports transition parameter on second render', () => {

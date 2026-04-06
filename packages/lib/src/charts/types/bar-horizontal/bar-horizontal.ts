@@ -16,6 +16,7 @@ import { getCachedChart, setCachedChart } from '../../transition-cache'
 import { SortDirection, ValueLabelPosition, Orientation } from '../../../enums'
 
 const DEFAULT_COLORS = ['#4e79a7']
+const CATEGORY_LABEL_HEIGHT = 13
 const VALUE_LABEL_FONT = '11px sans-serif'
 const VALUE_LABEL_GAP = 4
 
@@ -42,6 +43,7 @@ class BarHorizontalChart extends D3Blueprint<BarDatum[]> {
     this.configDefine('colorOverrides', { defaultValue: new Map<string, string>() })
     this.configDefine('highlightTargets', { defaultValue: new Set<string>() })
     this.configDefine('swapLabelValue', { defaultValue: false })
+    this.configDefine('categoryLabelOffset', { defaultValue: 0 })
 
     const g = this.base.append('g')
 
@@ -57,11 +59,12 @@ class BarHorizontalChart extends D3Blueprint<BarDatum[]> {
           const hasHl = hl.size > 0
           const x = this.config('x') as d3.ScaleLinear<number, number>
           const y = this.config('y') as d3.ScaleBand<string>
+          const catOffset = this.config('categoryLabelOffset') as number
           sel
             .attr('x', (d: BarDatum) => Math.min(x(0), x(d.value)))
-            .attr('y', (d: BarDatum) => y(d.label) ?? 0)
+            .attr('y', (d: BarDatum) => (y(d.label) ?? 0) + catOffset)
             .attr('width', (d: BarDatum) => Math.abs(x(d.value) - x(0)))
-            .attr('height', y.bandwidth())
+            .attr('height', y.bandwidth() - catOffset)
             .attr('fill', (d: BarDatum) => colorOverrides.get(d.label) ?? colors[0])
             .attr('opacity', (d: BarDatum) => hasHl ? (hl.has(d.label) ? 1 : 0.2) : null)
         },
@@ -73,11 +76,12 @@ class BarHorizontalChart extends D3Blueprint<BarDatum[]> {
           const hasHl = hl.size > 0
           const x = this.config('x') as d3.ScaleLinear<number, number>
           const y = this.config('y') as d3.ScaleBand<string>
+          const catOffset = this.config('categoryLabelOffset') as number
           sel.duration(getDefaultTransitionMs())
             .attr('x', (d: BarDatum) => Math.min(x(0), x(d.value)))
-            .attr('y', (d: BarDatum) => y(d.label) ?? 0)
+            .attr('y', (d: BarDatum) => (y(d.label) ?? 0) + catOffset)
             .attr('width', (d: BarDatum) => Math.abs(x(d.value) - x(0)))
-            .attr('height', y.bandwidth())
+            .attr('height', y.bandwidth() - catOffset)
             .attr('fill', (d: BarDatum) => colorOverrides.get(d.label) ?? colors[0])
             .attr('opacity', (d: BarDatum) => hasHl ? (hl.has(d.label) ? 1 : 0.2) : null)
         },
@@ -144,8 +148,10 @@ export function render(
 
   const { body } = createFrame(container, options.frame)
   const containerWidth = contentSize(body).width
+  const useCategoryLabelLine = options.categoryLabelLine === true
   const vLabelW = estimateCategoryLabelWidth(data.labels)
-  const lpMargins = labelPositionMargins(containerWidth, options.verticalAxis?.labelPosition, options.horizontalAxis?.labelPosition, options.verticalAxis?.direction, vLabelW, options.horizontalAxis?.showAxis)
+  const effectiveVLabelPosition = useCategoryLabelLine ? 'off' : options.verticalAxis?.labelPosition
+  const lpMargins = labelPositionMargins(containerWidth, effectiveVLabelPosition, options.horizontalAxis?.labelPosition, options.verticalAxis?.direction, vLabelW, options.horizontalAxis?.showAxis)
 
   // Reserve extra margin for outside value labels
   const valueLabelPos = options.valueLabelPosition ?? ValueLabelPosition.Auto
@@ -170,6 +176,7 @@ export function render(
   }
 
   const { chartArea, width, height, margin } = createCanvas(body, lpMargins)
+  const categoryLabelOffset = useCategoryLabelLine ? CATEGORY_LABEL_HEIGHT : 0
   const marginDelta = computeMarginDelta(priorMargin, margin)
 
   const labels = sortLabels(data, options)
@@ -210,7 +217,7 @@ export function render(
     .range([0, height])
     .padding(0.2)
 
-  const vAxisOpts = swapLabelValue && options.valueLabels && !isWaterfall
+  const vAxisBase = swapLabelValue && options.valueLabels && !isWaterfall
     ? (() => {
         const valueMap = new Map(barData.map(d => [d.label, d.value]))
         return {
@@ -220,6 +227,7 @@ export function render(
         }
       })()
     : { ...options.verticalAxis, topPadding: margin.top }
+  const vAxisOpts = useCategoryLabelLine ? { ...vAxisBase, labelPosition: 'off' as string } : vAxisBase
   axes.attach(chartArea, marginDelta)
   axes.update({
     horizontal: { scale: x, height, options: { ...options.horizontalAxis, width } },
@@ -261,9 +269,9 @@ export function render(
       .append('rect')
       .attr('class', 'bc-bar-bg')
       .attr('x', 0)
-      .attr('y', (d: string) => y(d) ?? 0)
+      .attr('y', (d: string) => (y(d) ?? 0) + categoryLabelOffset)
       .attr('width', width)
-      .attr('height', y.bandwidth())
+      .attr('height', y.bandwidth() - categoryLabelOffset)
       .attr('fill', bgColor)
       .attr('opacity', 0.18)
   }
@@ -299,7 +307,7 @@ export function render(
         .attr('x1', x(curr.x1))
         .attr('x2', x(curr.x1))
         .attr('y1', (y(curr.label) ?? 0) + y.bandwidth())
-        .attr('y2', y(next.label) ?? 0)
+        .attr('y2', (y(next.label) ?? 0) + categoryLabelOffset)
         .attr('stroke', 'currentColor')
         .attr('stroke-dasharray', '2,2')
         .attr('opacity', 0.3)
@@ -311,9 +319,9 @@ export function render(
       .append('rect')
       .attr('class', 'bc-bar')
       .attr('x', (d: WaterfallDatum) => Math.min(x(d.x0), x(d.x1)))
-      .attr('y', (d: WaterfallDatum) => y(d.label) ?? 0)
+      .attr('y', (d: WaterfallDatum) => (y(d.label) ?? 0) + categoryLabelOffset)
       .attr('width', (d: WaterfallDatum) => Math.abs(x(d.x1) - x(d.x0)))
-      .attr('height', y.bandwidth())
+      .attr('height', y.bandwidth() - categoryLabelOffset)
       .attr('fill', (d: WaterfallDatum) => {
         if (d.isTotal) {
           return totalColor
@@ -334,7 +342,7 @@ export function render(
         .attr('class', 'bc-value-label')
         .attr('font-size', '11px')
         .attr('dominant-baseline', 'central')
-        .attr('y', (d: WaterfallDatum) => (y(d.label) ?? 0) + y.bandwidth() / 2)
+        .attr('y', (d: WaterfallDatum) => (y(d.label) ?? 0) + categoryLabelOffset + (y.bandwidth() - categoryLabelOffset) / 2)
         .attr('x', (d: WaterfallDatum) => {
           const right = Math.max(x(d.x0), x(d.x1))
           if (pos === ValueLabelPosition.Inside) {
@@ -354,7 +362,7 @@ export function render(
   }
   else {
     const chart = new BarHorizontalChart(clippedGroup)
-    chart.config({ x, y, width, height, colors: options.colors ?? DEFAULT_COLORS, colorOverrides, highlightTargets, swapLabelValue })
+    chart.config({ x, y, width, height, colors: options.colors ?? DEFAULT_COLORS, colorOverrides, highlightTargets, swapLabelValue, categoryLabelOffset })
 
     // Re-insert prior elements so D3 data-join finds them and triggers merge:transition
     if (priorBars.length > 0) {
@@ -384,7 +392,26 @@ export function render(
         transition,
         priorLabels,
         swapLabelValue,
+        categoryLabelOffset,
       })
+    }
+  }
+
+  // Category labels on separate line
+  if (useCategoryLabelLine) {
+    const labelGroup = d3.select(chartArea).append('g').attr('class', 'bc-category-labels')
+    for (const label of allLabels) {
+      const groupTop = y(label) ?? 0
+      labelGroup.append('text')
+        .attr('class', 'bc-category-label')
+        .attr('x', 2)
+        .attr('y', groupTop + CATEGORY_LABEL_HEIGHT / 2)
+        .attr('text-anchor', 'start')
+        .attr('dominant-baseline', 'central')
+        .attr('font-size', '10px')
+        .attr('font-weight', '600')
+        .attr('fill', 'currentColor')
+        .text(label)
     }
   }
 
@@ -401,9 +428,10 @@ function valueLabelAttrs(
   x: d3.ScaleLinear<number, number> | d3.ScaleSymLog,
   y: d3.ScaleBand<string>,
   pos: ValueLabelPosition,
+  catOffset = 0,
 ) {
   const isInside = pos === ValueLabelPosition.Inside
-  const ty = (y(d.label) ?? 0) + y.bandwidth() / 2
+  const ty = (y(d.label) ?? 0) + catOffset + (y.bandwidth() - catOffset) / 2
   let tx: number, anchor: string
   if (d.value < 0) {
     const barX = Math.min(x(0), x(d.value))
@@ -442,9 +470,11 @@ function renderValueLabels(
     transition: boolean
     priorLabels: Element[]
     swapLabelValue?: boolean
+    categoryLabelOffset?: number
   },
 ) {
   const pos = opts.position ?? ValueLabelPosition.Auto
+  const catOffset = opts.categoryLabelOffset ?? 0
   const labelText = (d: BarDatum) => opts.swapLabelValue ? d.label : String(d.value)
 
   // Create a dedicated group for value labels so they sit above bars
@@ -475,7 +505,7 @@ function renderValueLabels(
     .attr('font-size', '11px')
     .attr('dominant-baseline', 'central')
     .each(function (d) {
-      const a = valueLabelAttrs(d, x, y, pos)
+      const a = valueLabelAttrs(d, x, y, pos, catOffset)
       d3.select(this)
         .attr('x', a.tx)
         .attr('y', a.ty)
@@ -490,7 +520,7 @@ function renderValueLabels(
   const merged = enter.merge(join)
   if (opts.transition) {
     merged.each(function (d) {
-      const a = valueLabelAttrs(d, x, y, pos)
+      const a = valueLabelAttrs(d, x, y, pos, catOffset)
       d3.select(this)
         .text(labelText(d))
         .transition().duration(getDefaultTransitionMs())
@@ -504,7 +534,7 @@ function renderValueLabels(
   }
   else {
     merged.each(function (d) {
-      const a = valueLabelAttrs(d, x, y, pos)
+      const a = valueLabelAttrs(d, x, y, pos, catOffset)
       d3.select(this)
         .attr('x', a.tx)
         .attr('y', a.ty)

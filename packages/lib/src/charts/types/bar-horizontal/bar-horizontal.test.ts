@@ -376,6 +376,46 @@ describe('bar-horizontal', () => {
     expect(tickTexts.length).toBeGreaterThan(0)
   })
 
+  // ── categoryLabelLine ────────────────────────────────────────────
+
+  it('renders category label text elements when categoryLabelLine=true', () => {
+    render(container, data, { categoryLabelLine: true })
+    const labels = container.querySelectorAll('.bc-category-label')
+    expect(labels).toHaveLength(3)
+    const texts = Array.from(labels).map(l => l.textContent)
+    expect(texts).toContain('A')
+    expect(texts).toContain('B')
+    expect(texts).toContain('C')
+  })
+
+  it('does not render category label text elements when categoryLabelLine=false', () => {
+    render(container, data, { categoryLabelLine: false })
+    const labels = container.querySelectorAll('.bc-category-label')
+    expect(labels).toHaveLength(0)
+  })
+
+  it('does not render category label text elements by default', () => {
+    render(container, data)
+    const labels = container.querySelectorAll('.bc-category-label')
+    expect(labels).toHaveLength(0)
+  })
+
+  it('hides vertical axis tick labels when categoryLabelLine=true', () => {
+    render(container, data, { categoryLabelLine: true })
+    const vAxis = container.querySelector('.bc-axis-vertical')!
+    const tickTexts = vAxis.querySelectorAll('.tick text')
+    expect(tickTexts).toHaveLength(0)
+  })
+
+  it('category label texts are offset from each group top', () => {
+    render(container, data, { categoryLabelLine: true })
+    const labels = container.querySelectorAll('.bc-category-label')
+    const ys = Array.from(labels).map(l => parseFloat(l.getAttribute('y') ?? '0'))
+    expect(ys.every(y => y >= 0)).toBe(true)
+    const unique = new Set(ys.map(y => Math.round(y)))
+    expect(unique.size).toBe(3)
+  })
+
   // ── Transition ───────────────────────────────────────────────────
 
   it('supports transition parameter on second render', () => {
