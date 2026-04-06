@@ -1,6 +1,28 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
-import { setupProximityInteraction } from './proximity'
+import { setupProximityInteraction, makeDefaultFormat } from './proximity'
 import { CrosshairDirection, CrosshairStyle } from '../../enums'
+
+describe('makeDefaultFormat (proximity)', () => {
+  it('formats value with numberFormat for single-series point', () => {
+    const fmt = makeDefaultFormat(',.0f')
+    expect(fmt({ cx: 0, cy: 0, label: 'Jan', value: 1234, color: '#000' })).toBe('Jan: 1,234')
+  })
+
+  it('formats value with numberFormat for multi-series point', () => {
+    const fmt = makeDefaultFormat(',.0f')
+    expect(fmt({ cx: 0, cy: 0, label: 'Jan', value: 1234, series: 'GDP', color: '#000' })).toBe('GDP – Jan: 1,234')
+  })
+
+  it('formats with pipe-delimited suffix', () => {
+    const fmt = makeDefaultFormat('|.1f|%')
+    expect(fmt({ cx: 0, cy: 0, label: 'Jan 2023', value: 6.4, color: '#000' })).toBe('Jan 2023: 6.4%')
+  })
+
+  it('falls back to String() without numberFormat', () => {
+    const fmt = makeDefaultFormat()
+    expect(fmt({ cx: 0, cy: 0, label: 'Jan', value: 1234, color: '#000' })).toBe('Jan: 1234')
+  })
+})
 
 describe('setupProximityInteraction', () => {
   let svg: SVGSVGElement

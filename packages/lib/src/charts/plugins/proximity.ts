@@ -1,6 +1,7 @@
 import * as d3 from 'd3'
 import { computePosition, flip, offset, shift } from '@floating-ui/dom'
 import { CrosshairDirection, CrosshairStyle } from '../../enums'
+import { buildNumberFormatter } from '../format-helpers'
 
 const TOOLTIP_CLASS = 'bc-tooltip'
 
@@ -47,13 +48,19 @@ export interface ProximityOptions {
   crosshairStyle?: 'solid' | 'dashed' | 'dotted'
   crosshairColor?: string
   format?: (point: ProximityPoint) => string
+  numberFormat?: string
 }
 
-function defaultFormat(p: ProximityPoint): string {
-  if (p.series) {
-    return `${p.series} – ${p.label}: ${p.value}`
+export function makeDefaultFormat(numberFormat?: string): (p: ProximityPoint) => string {
+  const fmtFn = numberFormat ? buildNumberFormatter(numberFormat) : null
+  const fmtValue = (v: number) => fmtFn ? fmtFn(v) : String(v)
+
+  return (p: ProximityPoint): string => {
+    if (p.series) {
+      return `${p.series} – ${p.label}: ${fmtValue(p.value)}`
+    }
+    return `${p.label}: ${fmtValue(p.value)}`
   }
-  return `${p.label}: ${p.value}`
 }
 
 /**
@@ -74,7 +81,7 @@ export function setupProximityInteraction(
     crosshairDirection = CrosshairDirection.Both,
     crosshairStyle = CrosshairStyle.Dashed,
     crosshairColor = '#999',
-    format = defaultFormat,
+    format = makeDefaultFormat(options.numberFormat),
   } = options
 
   if (points.length === 0) {

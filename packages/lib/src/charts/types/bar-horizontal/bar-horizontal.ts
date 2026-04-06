@@ -362,7 +362,7 @@ export function render(
       reinsertWithOffset(layerG, priorBars, marginDelta?.dx ?? 0, marginDelta?.dy ?? 0)
     }
     if (options.tooltips) {
-      chart.use(createTooltipPlugin())
+      chart.use(createTooltipPlugin({ numberFormat: options.horizontalAxis?.numberFormat }))
     }
     if (options.crosshair) {
       chart.use(createCrosshairPlugin({
