@@ -114,4 +114,14 @@ describe('renderVerticalAxis', () => {
     expect(tickTexts).toContain('100')
     expect(tickTexts.length).toBe(explicitTicks.length)
   })
+
+  it('hides tick lines on re-render when showTicks is false and labelPosition is off', () => {
+    const opts = { showTicks: false, showAxis: false, labelPosition: 'off' as const }
+    const g = renderVerticalAxis(chartArea, scale, 300, opts)
+    // Re-render with prior element (exercises merge:transition path)
+    const g2 = renderVerticalAxis(chartArea, scale, 300, opts, g)
+    const visibleTickLines = Array.from(g2.querySelectorAll('.tick line'))
+      .filter(el => el.getAttribute('opacity') !== '0')
+    expect(visibleTickLines).toHaveLength(0)
+  })
 })

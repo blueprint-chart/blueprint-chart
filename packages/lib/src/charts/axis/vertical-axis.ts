@@ -83,6 +83,11 @@ export class VerticalAxisChart extends D3Blueprint<AxisDatum[]> {
               d3.select(axisNode).select('.domain').remove()
             }
 
+            // Hide tick lines when showTicks is off (must run for all label positions)
+            if (!showTicks) {
+              d3.select(axisNode).selectAll('.tick line').attr('opacity', 0)
+            }
+
             // Reapply inside label positioning (D3 axisFn resets to defaults)
             const AUTO_INSIDE_THRESHOLD = 400
             const effective = labelPos === LabelPosition.Auto
@@ -101,9 +106,6 @@ export class VerticalAxisChart extends D3Blueprint<AxisDatum[]> {
                   .attr('x', padding)
                   .attr('dy', '-0.4em')
                   .attr('text-anchor', 'start')
-              }
-              if (!showTicks) {
-                d3.select(axisNode).selectAll('.tick line').attr('opacity', 0)
               }
             }
             else if (effective === LabelPosition.Off) {
