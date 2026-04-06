@@ -145,7 +145,7 @@ export function render(
 
   const marginOverrides: Record<string, number> = { ...lpMargins }
   if (showLegend && legendPos === 'top') {
-    marginOverrides.top = (marginOverrides.top ?? 20) + legendH
+    marginOverrides.top = legendH
   }
   if (showLegend && legendPos === 'bottom') {
     marginOverrides.bottom = (marginOverrides.bottom ?? 40) + legendH
