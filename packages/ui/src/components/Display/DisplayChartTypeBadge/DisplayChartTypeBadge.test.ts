@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils'
+import { ChartType } from '../../../enums'
 import DisplayChartTypeBadge from './DisplayChartTypeBadge.vue'
 
 vi.mock('~icons/ph/chart-bar', () => ({ default: { render: () => null } }))
@@ -11,23 +12,23 @@ const stubs = { BBadge: { template: '<span class="badge"><slot /></span>', props
 
 describe('DisplayChartTypeBadge', () => {
   it('renders human-readable label', () => {
-    const wrapper = mount(DisplayChartTypeBadge, { props: { chartType: 'line' }, global: { stubs } })
+    const wrapper = mount(DisplayChartTypeBadge, { props: { chartType: ChartType.Line }, global: { stubs } })
     expect(wrapper.text()).toBe('Line')
   })
 
   it('applies badge class', () => {
-    const wrapper = mount(DisplayChartTypeBadge, { props: { chartType: 'pie' }, global: { stubs } })
+    const wrapper = mount(DisplayChartTypeBadge, { props: { chartType: ChartType.Pie }, global: { stubs } })
     expect(wrapper.find('.display-chart-type-badge').exists()).toBe(true)
   })
 
   it('uses light variant by default', () => {
-    const wrapper = mount(DisplayChartTypeBadge, { props: { chartType: 'line' }, global: { stubs } })
+    const wrapper = mount(DisplayChartTypeBadge, { props: { chartType: ChartType.Line }, global: { stubs } })
     const badge = wrapper.findComponent(stubs.BBadge)
     expect(badge.props('variant')).toBe('light')
   })
 
   it('uses dark variant when theme is dark', () => {
-    const wrapper = mount(DisplayChartTypeBadge, { props: { chartType: 'line', theme: 'dark' as const }, global: { stubs } })
+    const wrapper = mount(DisplayChartTypeBadge, { props: { chartType: ChartType.Line, theme: 'dark' as const }, global: { stubs } })
     const badge = wrapper.findComponent(stubs.BBadge)
     expect(badge.props('variant')).toBe('dark')
   })

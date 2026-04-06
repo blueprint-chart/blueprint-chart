@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { parseData, buildChartOptions } from './chart-helpers'
+import { Anchor, GridStyle, Interpolation, LegendPosition, StackMode, SymbolShape, SymbolShowOn, SymbolStyle } from '../enums'
 
 describe('parseData', () => {
   it('parses single-series CSV data', () => {
@@ -108,9 +109,9 @@ describe('buildChartOptions', () => {
   })
 
   it('maps legendPosition and legendAnchor', () => {
-    const result = buildChartOptions({ legendPosition: 'bottom', legendAnchor: 'end' })
-    expect(result.legendPosition).toBe('bottom')
-    expect(result.legendAnchor).toBe('end')
+    const result = buildChartOptions({ legendPosition: LegendPosition.Bottom, legendAnchor: Anchor.End })
+    expect(result.legendPosition).toBe(LegendPosition.Bottom)
+    expect(result.legendAnchor).toBe(Anchor.End)
   })
 
   it('parses sliceMax as integer', () => {
@@ -126,12 +127,12 @@ describe('buildChartOptions', () => {
   it('builds vertical axis options', () => {
     const result = buildChartOptions({
       showVerticalTicks: true,
-      verticalGridStyle: 'dashed',
+      verticalGridStyle: GridStyle.Dashed,
       showVerticalAxis: false,
     })
     expect(result.verticalAxis).toBeDefined()
     expect(result.verticalAxis!.showTicks).toBe(true)
-    expect(result.verticalAxis!.gridStyle).toBe('dashed')
+    expect(result.verticalAxis!.gridStyle).toBe(GridStyle.Dashed)
     expect(result.verticalAxis!.showAxis).toBe(false)
   })
 
@@ -146,7 +147,7 @@ describe('buildChartOptions', () => {
   it('passes verticalNumberFormat alongside other axis options', () => {
     const result = buildChartOptions({
       showVerticalTicks: false,
-      verticalGridStyle: 'dashed',
+      verticalGridStyle: GridStyle.Dashed,
       showVerticalAxis: false,
       verticalNumberFormat: '$|,.0f|M',
     })
@@ -156,11 +157,11 @@ describe('buildChartOptions', () => {
   it('builds horizontal axis options', () => {
     const result = buildChartOptions({
       showHorizontalTicks: true,
-      horizontalGridStyle: 'dotted',
+      horizontalGridStyle: GridStyle.Dotted,
     })
     expect(result.horizontalAxis).toBeDefined()
     expect(result.horizontalAxis!.showTicks).toBe(true)
-    expect(result.horizontalAxis!.gridStyle).toBe('dotted')
+    expect(result.horizontalAxis!.gridStyle).toBe(GridStyle.Dotted)
   })
 
   it('parses vertical axis range', () => {
@@ -203,28 +204,28 @@ describe('buildChartOptions', () => {
   })
 
   it('maps interpolation option', () => {
-    const result = buildChartOptions({ interpolation: 'monotoneX' })
-    expect(result.interpolation).toBe('monotoneX')
+    const result = buildChartOptions({ interpolation: Interpolation.MonotoneX })
+    expect(result.interpolation).toBe(Interpolation.MonotoneX)
   })
 
   it('maps stackMode option', () => {
-    const result = buildChartOptions({ stackMode: 'percent' })
-    expect(result.stackMode).toBe('percent')
+    const result = buildChartOptions({ stackMode: StackMode.Percent })
+    expect(result.stackMode).toBe(StackMode.Percent)
   })
 
   it('builds lineSymbols config when enabled', () => {
     const result = buildChartOptions({
       lineSymbols: true,
-      lineSymbolShape: 'diamond',
-      lineSymbolShowOn: 'all',
-      lineSymbolStyle: 'hollow',
+      lineSymbolShape: SymbolShape.Diamond,
+      lineSymbolShowOn: SymbolShowOn.All,
+      lineSymbolStyle: SymbolStyle.Hollow,
       lineSymbolSize: '5',
       lineSymbolOpacity: '0.8',
     })
     expect(result.lineSymbols).toEqual({
-      symbol: 'diamond',
-      showOn: 'all',
-      style: 'hollow',
+      symbol: SymbolShape.Diamond,
+      showOn: SymbolShowOn.All,
+      style: SymbolStyle.Hollow,
       size: 5,
       opacity: 0.8,
     })

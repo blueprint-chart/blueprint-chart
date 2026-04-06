@@ -32,7 +32,7 @@ import { serializeTableData } from '@/stores/dataTable'
 import { useScenes } from '@/stores/scenes'
 import { resolveScene, resolveSortFromTransforms } from '@/utils/scenes'
 import type { ChartColorize } from '@/stores/chartConfig'
-import { parseData } from '@blueprint-chart/lib'
+import { ChartType, SortDirection, parseData } from '@blueprint-chart/lib'
 import type { SeriesOverride } from '@blueprint-chart/lib'
 import { SceneTimeline } from '@blueprint-chart/ui'
 
@@ -54,7 +54,7 @@ function addScene() {
 
 // --- Scene thumbnail generation ---
 const sceneThumbnails = ref<Record<number, string | null>>({})
-const singleSeriesTypes = ['bar-vertical', 'bar-horizontal', 'line', 'vertical-bar', 'horizontal-bar']
+const singleSeriesTypes: string[] = [ChartType.BarVertical, ChartType.BarHorizontal, ChartType.Line, ChartType.VerticalBar, ChartType.HorizontalBar]
 
 function renderOne(
   chartType: string,
@@ -72,7 +72,7 @@ function renderOne(
     }
     delete data.series
   }
-  return renderThumbnailSvg(chartType, data, typeOpts, sort as 'ascending' | 'descending' | 'none', {
+  return renderThumbnailSvg(chartType, data, typeOpts, sort as SortDirection, {
     colorizes: colorizes?.length ? colorizes : undefined,
     seriesOverrides: seriesOverrides?.length ? seriesOverrides : undefined,
   })
@@ -224,10 +224,10 @@ function prepareDataForEdit() {
   }
   config._base.data.value = dataTable.serialize()
   const ct = config._base.chartType.value
-  const isMultiSeries = ct.includes('multi') || ct.includes('stacked') || ct === 'bar-split' || ct === 'bar-grouped'
+  const isMultiSeries = ct.includes('multi') || ct.includes('stacked') || ct === ChartType.BarSplit || ct === ChartType.BarGrouped
   if (dataTable.columns.value.length > 2 && !isMultiSeries) {
     const hasDateLabels = dataTable.columnTypes.value[0] === 'date'
-    config._base.chartType.value = hasDateLabels ? 'line-multi' : 'bar-multi'
+    config._base.chartType.value = hasDateLabels ? ChartType.LineMulti : ChartType.BarMulti
   }
 }
 

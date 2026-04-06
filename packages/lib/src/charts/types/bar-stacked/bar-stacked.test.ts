@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { render } from './bar-stacked'
+import { StackMode } from '../../../enums'
 
 describe('bar-stacked', () => {
   let container: HTMLElement
@@ -84,13 +85,13 @@ describe('bar-stacked', () => {
   // ── Percent mode ─────────────────────────────────────────────────
 
   it('renders in percent mode when stackMode is percent', () => {
-    render(container, data, { stackMode: 'percent' })
+    render(container, data, { stackMode: StackMode.Percent })
     const bars = container.querySelectorAll('.bc-bar-stacked')
     expect(bars).toHaveLength(4)
   })
 
   it('percent mode stacks total to full chart width', () => {
-    render(container, data, { stackMode: 'percent' })
+    render(container, data, { stackMode: StackMode.Percent })
     const bars = container.querySelectorAll('.bc-bar-stacked')
     // Group by y position
     const groups = new Map<string, number>()

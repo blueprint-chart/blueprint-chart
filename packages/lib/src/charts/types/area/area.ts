@@ -15,6 +15,7 @@ import { setupProximityInteraction } from '../../plugins/proximity'
 import { renderLineSymbols } from '../../line-symbols'
 import { getDefaultTransitionMs, setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut, reinsertWithOffset } from '../../motion'
 import { getCachedChart, setCachedChart } from '../../transition-cache'
+import { Orientation } from '../../../enums'
 
 const DEFAULT_COLOR = '#4e79a7'
 
@@ -279,7 +280,7 @@ export function render(
     }
   }
   if (options.valueLabels) {
-    chart.use(createValueLabelPlugin({ position: options.valueLabelPosition, orientation: 'vertical' }))
+    chart.use(createValueLabelPlugin({ position: options.valueLabelPosition, orientation: Orientation.Vertical }))
   }
   chart.draw(areaData)
 

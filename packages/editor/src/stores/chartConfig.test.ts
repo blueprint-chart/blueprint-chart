@@ -1,3 +1,4 @@
+import { ChartType } from '@blueprint-chart/lib'
 import { useChartConfig } from './chartConfig'
 import { useScenes } from './scenes'
 
@@ -11,19 +12,19 @@ describe('useChartConfig', () => {
   describe('scene-aware direct refs', () => {
     it('reads base value when no scene is active', () => {
       const config = useChartConfig()
-      config._base.chartType.value = 'line'
-      expect(config.chartType.value).toBe('line')
+      config._base.chartType.value = ChartType.Line
+      expect(config.chartType.value).toBe(ChartType.Line)
     })
 
     it('reads scene value when scene overrides the key', () => {
       const scenes = useScenes()
       scenes.add()
-      scenes.update(0, { chartType: 'donut' })
+      scenes.update(0, { chartType: ChartType.Donut })
       scenes.setActive(0)
 
       const config = useChartConfig()
-      config._base.chartType.value = 'bar-vertical'
-      expect(config.chartType.value).toBe('donut')
+      config._base.chartType.value = ChartType.BarVertical
+      expect(config.chartType.value).toBe(ChartType.Donut)
     })
 
     it('falls back to base when scene does not override the key', () => {
@@ -32,9 +33,9 @@ describe('useChartConfig', () => {
       scenes.setActive(0)
 
       const config = useChartConfig()
-      config._base.chartType.value = 'bar-vertical'
+      config._base.chartType.value = ChartType.BarVertical
       // Scene has no chartType override
-      expect(config.chartType.value).toBe('bar-vertical')
+      expect(config.chartType.value).toBe(ChartType.BarVertical)
     })
 
     it('writes to scene override when scene is active', () => {
@@ -335,13 +336,13 @@ describe('useChartConfig', () => {
       const config = useChartConfig()
       const scenes = useScenes()
 
-      config._base.chartType.value = 'bar-vertical'
+      config._base.chartType.value = ChartType.BarVertical
       scenes.add()
-      scenes.update(0, { chartType: 'line' })
+      scenes.update(0, { chartType: ChartType.Line })
       scenes.add()
 
       scenes.setActive(1)
-      expect(config.chartType.value).toBe('line')
+      expect(config.chartType.value).toBe(ChartType.Line)
     })
 
     it('property from earlier scene cascades to later scene', () => {
@@ -380,12 +381,12 @@ describe('useChartConfig', () => {
       const config = useChartConfig()
       const scenes = useScenes()
 
-      config._base.chartType.value = 'bar-vertical'
+      config._base.chartType.value = ChartType.BarVertical
       scenes.add()
       scenes.add()
 
       scenes.setActive(1)
-      expect(config.chartType.value).toBe('bar-vertical')
+      expect(config.chartType.value).toBe(ChartType.BarVertical)
     })
 
     it('data from earlier scene cascades to later scene', () => {
@@ -406,14 +407,14 @@ describe('useChartConfig', () => {
     it('always reads base values regardless of active scene', () => {
       const scenes = useScenes()
       scenes.add()
-      scenes.update(0, { chartType: 'donut', properties: { title: 'Override' } })
+      scenes.update(0, { chartType: ChartType.Donut, properties: { title: 'Override' } })
       scenes.setActive(0)
 
       const config = useChartConfig()
-      config._base.chartType.value = 'bar-vertical'
+      config._base.chartType.value = ChartType.BarVertical
       config._base.title.value = 'Base'
 
-      expect(config._base.chartType.value).toBe('bar-vertical')
+      expect(config._base.chartType.value).toBe(ChartType.BarVertical)
       expect(config._base.title.value).toBe('Base')
     })
 
@@ -436,12 +437,12 @@ describe('useChartConfig', () => {
       scenes.setActive(0)
 
       const config = useChartConfig()
-      config._base.chartType.value = 'bar-vertical'
-      config.chartType.value = 'line'
-      expect(scenes.activeScene.value?.chartType).toBe('line')
+      config._base.chartType.value = ChartType.BarVertical
+      config.chartType.value = ChartType.Line
+      expect(scenes.activeScene.value?.chartType).toBe(ChartType.Line)
 
       // Set back to base value — override should be removed
-      config.chartType.value = 'bar-vertical'
+      config.chartType.value = ChartType.BarVertical
       expect(scenes.activeScene.value?.chartType).toBeUndefined()
     })
 
@@ -512,26 +513,26 @@ describe('useChartConfig', () => {
       scenes.setActive(0)
 
       const config = useChartConfig()
-      config._base.chartType.value = 'bar-vertical'
-      config.chartType.value = 'line'
-      expect(scenes.activeScene.value?.chartType).toBe('line')
+      config._base.chartType.value = ChartType.BarVertical
+      config.chartType.value = ChartType.Line
+      expect(scenes.activeScene.value?.chartType).toBe(ChartType.Line)
     })
 
     it('compacts direct ref considering inherited value from prior scene', () => {
       const scenes = useScenes()
       scenes.add()
-      scenes.update(0, { chartType: 'line' })
+      scenes.update(0, { chartType: ChartType.Line })
       scenes.add()
       scenes.setActive(1)
 
       const config = useChartConfig()
-      config._base.chartType.value = 'bar-vertical'
+      config._base.chartType.value = ChartType.BarVertical
       // Scene 1 overrides to 'donut'
-      config.chartType.value = 'donut'
-      expect(scenes.scenes.value[1].chartType).toBe('donut')
+      config.chartType.value = ChartType.Donut
+      expect(scenes.scenes.value[1].chartType).toBe(ChartType.Donut)
 
       // Set to the value inherited from scene 0 ('line') — should compact
-      config.chartType.value = 'line'
+      config.chartType.value = ChartType.Line
       expect(scenes.scenes.value[1].chartType).toBeUndefined()
     })
 

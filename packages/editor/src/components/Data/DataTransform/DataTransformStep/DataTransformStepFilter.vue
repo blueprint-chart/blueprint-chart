@@ -9,7 +9,7 @@
       @update:model-value="onUpdate('column', $event)"
     />
     <FormControlDropdown
-      :model-value="step.config.condition ?? 'equals'"
+      :model-value="step.config.condition ?? FilterCondition.Equals"
       label="Condition"
       :options="conditionOptions"
       block
@@ -27,6 +27,7 @@
 
 <script setup lang="ts">
 import { FormControlDropdown, FormControlTextInput } from '@blueprint-chart/ui'
+import { FilterCondition } from '@/enums'
 import { useDataTransforms, type TransformStep } from '@/stores/dataTransforms'
 
 const props = defineProps<{
@@ -41,11 +42,11 @@ const columnOptions = computed(() =>
 )
 
 const conditionOptions = [
-  { value: 'equals', label: 'Equals' },
-  { value: 'not-equals', label: 'Not equals' },
-  { value: 'contains', label: 'Contains' },
-  { value: 'greater-than', label: 'Greater than' },
-  { value: 'less-than', label: 'Less than' },
+  { value: FilterCondition.Equals, label: 'Equals' },
+  { value: FilterCondition.NotEquals, label: 'Not equals' },
+  { value: FilterCondition.Contains, label: 'Contains' },
+  { value: FilterCondition.GreaterThan, label: 'Greater than' },
+  { value: FilterCondition.LessThan, label: 'Less than' },
 ]
 
 function onUpdate(key: string, value: string) {

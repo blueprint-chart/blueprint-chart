@@ -1,5 +1,6 @@
 import * as d3 from 'd3'
 import { computePosition, flip, offset, shift } from '@floating-ui/dom'
+import { CrosshairDirection, CrosshairStyle } from '../../enums'
 
 const TOOLTIP_CLASS = 'bc-tooltip'
 
@@ -70,8 +71,8 @@ export function setupProximityInteraction(
     points,
     tooltip = true,
     crosshair = false,
-    crosshairDirection = 'both',
-    crosshairStyle = 'dashed',
+    crosshairDirection = CrosshairDirection.Both,
+    crosshairStyle = CrosshairStyle.Dashed,
     crosshairColor = '#999',
     format = defaultFormat,
   } = options
@@ -80,7 +81,7 @@ export function setupProximityInteraction(
     return () => {}
   }
 
-  const dashArray = crosshairStyle === 'solid' ? 'none' : crosshairStyle === 'dotted' ? '2,2' : '4,3'
+  const dashArray = crosshairStyle === CrosshairStyle.Solid ? 'none' : crosshairStyle === CrosshairStyle.Dotted ? '2,2' : '4,3'
 
   // Pre-compute sorted unique x-positions for bisection
   const xPositions = [...new Set(points.map(p => p.cx))].sort((a, b) => a - b)
@@ -104,8 +105,8 @@ export function setupProximityInteraction(
     (hasAnn ? g.insert(tag, annSel) : g.append(tag)) as unknown as d3.Selection<T, unknown, null, undefined>
 
   // Crosshair lines
-  const showV = crosshair && (crosshairDirection === 'both' || crosshairDirection === 'vertical')
-  const showH = crosshair && (crosshairDirection === 'both' || crosshairDirection === 'horizontal')
+  const showV = crosshair && (crosshairDirection === CrosshairDirection.Both || crosshairDirection === CrosshairDirection.Vertical)
+  const showH = crosshair && (crosshairDirection === CrosshairDirection.Both || crosshairDirection === CrosshairDirection.Horizontal)
   let vLine: d3.Selection<SVGLineElement, unknown, null, undefined> | null = null
   let hLine: d3.Selection<SVGLineElement, unknown, null, undefined> | null = null
   if (showV) {

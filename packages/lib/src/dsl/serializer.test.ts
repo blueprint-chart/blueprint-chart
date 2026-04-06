@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { DslNodeType, AnnotationKind, AnnotationAction, ChartType } from '../enums'
 import { parse } from './parser'
 import { serialize, compactSerialize } from './serializer'
 import type { ChartNode } from './types'
@@ -6,7 +7,7 @@ import type { ChartNode } from './types'
 describe('serializer', () => {
   it('serializes a minimal chart', () => {
     const ast: ChartNode = {
-      type: 'chart',
+      type: DslNodeType.Chart,
       chartType: 'bar',
       properties: [],
       data: null,
@@ -22,11 +23,11 @@ describe('serializer', () => {
 
   it('serializes properties', () => {
     const ast: ChartNode = {
-      type: 'chart',
+      type: DslNodeType.Chart,
       chartType: 'bar',
       properties: [
-        { type: 'property', key: 'title', value: 'Hello', isPercentage: false },
-        { type: 'property', key: 'sort', value: 'descending', isPercentage: false },
+        { type: DslNodeType.Property, key: 'title', value: 'Hello', isPercentage: false },
+        { type: DslNodeType.Property, key: 'sort', value: 'descending', isPercentage: false },
       ],
       data: null,
       colorizes: [],
@@ -43,14 +44,14 @@ describe('serializer', () => {
 
   it('serializes data with percentages', () => {
     const ast: ChartNode = {
-      type: 'chart',
+      type: DslNodeType.Chart,
       chartType: 'bar',
       properties: [],
       data: {
-        type: 'data',
+        type: DslNodeType.Data,
         entries: [
-          { type: 'property', key: 'Item A', value: 50, isPercentage: true },
-          { type: 'property', key: 'count', value: 42, isPercentage: false },
+          { type: DslNodeType.Property, key: 'Item A', value: 50, isPercentage: true },
+          { type: DslNodeType.Property, key: 'count', value: 42, isPercentage: false },
         ],
       },
       colorizes: [],
@@ -67,16 +68,16 @@ describe('serializer', () => {
 
   it('serializes colorizes', () => {
     const ast: ChartNode = {
-      type: 'chart',
+      type: DslNodeType.Chart,
       chartType: 'bar',
       properties: [],
       data: null,
       colorizes: [{
-        type: 'colorize',
+        type: DslNodeType.Colorize,
         target: 'Guardian',
         properties: [
-          { type: 'property', key: 'color', value: '#e53e3e', isPercentage: false },
-          { type: 'property', key: 'label', value: 'Leader', isPercentage: false },
+          { type: DslNodeType.Property, key: 'color', value: '#e53e3e', isPercentage: false },
+          { type: DslNodeType.Property, key: 'label', value: 'Leader', isPercentage: false },
         ],
       }],
       areaFills: [],
@@ -93,7 +94,7 @@ describe('serializer', () => {
 
   it('serializes scenes', () => {
     const ast: ChartNode = {
-      type: 'chart',
+      type: DslNodeType.Chart,
       chartType: 'bar',
       properties: [],
       data: null,
@@ -102,17 +103,17 @@ describe('serializer', () => {
       annotations: [],
       series: [],
       scenes: [{
-        type: 'scene',
+        type: DslNodeType.Scene,
         name: 'Scene 1',
         properties: [
-          { type: 'property', key: 'sort', value: 'ascending', isPercentage: false },
+          { type: DslNodeType.Property, key: 'sort', value: 'ascending', isPercentage: false },
         ],
         data: null,
         colorizes: [{
-          type: 'colorize',
+          type: DslNodeType.Colorize,
           target: 'X',
           properties: [
-            { type: 'property', key: 'color', value: '#f00', isPercentage: false },
+            { type: DslNodeType.Property, key: 'color', value: '#f00', isPercentage: false },
           ],
         }],
         areaFills: [],
@@ -131,7 +132,7 @@ describe('serializer', () => {
 
   it('serializes scene with null name', () => {
     const ast: ChartNode = {
-      type: 'chart',
+      type: DslNodeType.Chart,
       chartType: 'bar',
       properties: [],
       data: null,
@@ -140,10 +141,10 @@ describe('serializer', () => {
       annotations: [],
       series: [],
       scenes: [{
-        type: 'scene',
+        type: DslNodeType.Scene,
         name: null,
         properties: [
-          { type: 'property', key: 'title', value: 'unnamed', isPercentage: false },
+          { type: DslNodeType.Property, key: 'title', value: 'unnamed', isPercentage: false },
         ],
         data: null,
         colorizes: [],
@@ -161,8 +162,8 @@ describe('serializer', () => {
 
   it('serializes scene with series and transforms', () => {
     const ast: ChartNode = {
-      type: 'chart',
-      chartType: 'line',
+      type: DslNodeType.Chart,
+      chartType: ChartType.Line,
       properties: [],
       data: null,
       colorizes: [],
@@ -170,7 +171,7 @@ describe('serializer', () => {
       annotations: [],
       series: [],
       scenes: [{
-        type: 'scene',
+        type: DslNodeType.Scene,
         name: 'Overlay',
         properties: [],
         data: null,
@@ -178,17 +179,17 @@ describe('serializer', () => {
         areaFills: [],
         annotations: [],
         series: [{
-          type: 'series',
+          type: DslNodeType.Series,
           name: 'Revenue',
           properties: [
-            { type: 'property', key: 'color', value: '#00f', isPercentage: false },
+            { type: DslNodeType.Property, key: 'color', value: '#00f', isPercentage: false },
           ],
         }],
         transforms: [{
-          type: 'transform',
+          type: DslNodeType.Transform,
           transformType: 'cumulative',
           properties: [
-            { type: 'property', key: 'enabled', value: 'true', isPercentage: false },
+            { type: DslNodeType.Property, key: 'enabled', value: 'true', isPercentage: false },
           ],
         }],
       }],
@@ -204,19 +205,19 @@ describe('serializer', () => {
 
   it('serializes annotation with id property', () => {
     const ast: ChartNode = {
-      type: 'chart',
+      type: DslNodeType.Chart,
       chartType: 'bar',
       properties: [],
       data: null,
       colorizes: [],
       areaFills: [],
       annotations: [{
-        type: 'annotation',
-        kind: 'point',
+        type: DslNodeType.Annotation,
+        kind: AnnotationKind.Point,
         target: 'X',
         properties: [
-          { type: 'property', key: 'id', value: 'abc', isPercentage: false },
-          { type: 'property', key: 'label', value: 'My point', isPercentage: false },
+          { type: DslNodeType.Property, key: 'id', value: 'abc', isPercentage: false },
+          { type: DslNodeType.Property, key: 'label', value: 'My point', isPercentage: false },
         ],
       }],
       series: [],
@@ -229,7 +230,7 @@ describe('serializer', () => {
 
   it('serializes hide_annotation in scene', () => {
     const ast: ChartNode = {
-      type: 'chart',
+      type: DslNodeType.Chart,
       chartType: 'bar',
       properties: [],
       data: null,
@@ -238,7 +239,7 @@ describe('serializer', () => {
       annotations: [],
       series: [],
       scenes: [{
-        type: 'scene',
+        type: DslNodeType.Scene,
         name: null,
         properties: [],
         data: null,
@@ -246,7 +247,7 @@ describe('serializer', () => {
         areaFills: [],
         annotations: [],
         annotationVisibility: [
-          { type: 'annotation-visibility', action: 'hide', kind: 'point', id: 'abc' },
+          { type: DslNodeType.AnnotationVisibility, action: AnnotationAction.Hide, kind: AnnotationKind.Point, id: 'abc' },
         ],
         series: [],
         transforms: [],
@@ -259,7 +260,7 @@ describe('serializer', () => {
 
   it('serializes show_annotation in scene', () => {
     const ast: ChartNode = {
-      type: 'chart',
+      type: DslNodeType.Chart,
       chartType: 'bar',
       properties: [],
       data: null,
@@ -268,7 +269,7 @@ describe('serializer', () => {
       annotations: [],
       series: [],
       scenes: [{
-        type: 'scene',
+        type: DslNodeType.Scene,
         name: null,
         properties: [],
         data: null,
@@ -276,7 +277,7 @@ describe('serializer', () => {
         areaFills: [],
         annotations: [],
         annotationVisibility: [
-          { type: 'annotation-visibility', action: 'show', kind: 'point', id: 'xyz' },
+          { type: DslNodeType.AnnotationVisibility, action: AnnotationAction.Show, kind: AnnotationKind.Point, id: 'xyz' },
         ],
         series: [],
         transforms: [],
@@ -289,7 +290,7 @@ describe('serializer', () => {
 
   it('serializes hide_range and show_range in scene', () => {
     const ast: ChartNode = {
-      type: 'chart',
+      type: DslNodeType.Chart,
       chartType: 'bar',
       properties: [],
       data: null,
@@ -298,7 +299,7 @@ describe('serializer', () => {
       annotations: [],
       series: [],
       scenes: [{
-        type: 'scene',
+        type: DslNodeType.Scene,
         name: null,
         properties: [],
         data: null,
@@ -306,8 +307,8 @@ describe('serializer', () => {
         areaFills: [],
         annotations: [],
         annotationVisibility: [
-          { type: 'annotation-visibility', action: 'hide', kind: 'range', id: 'r1' },
-          { type: 'annotation-visibility', action: 'show', kind: 'range', id: 'r2' },
+          { type: DslNodeType.AnnotationVisibility, action: AnnotationAction.Hide, kind: AnnotationKind.Range, id: 'r1' },
+          { type: DslNodeType.AnnotationVisibility, action: AnnotationAction.Show, kind: AnnotationKind.Range, id: 'r2' },
         ],
         series: [],
         transforms: [],
@@ -321,7 +322,7 @@ describe('serializer', () => {
 
   it('serializes hide_note and show_note in scene', () => {
     const ast: ChartNode = {
-      type: 'chart',
+      type: DslNodeType.Chart,
       chartType: 'bar',
       properties: [],
       data: null,
@@ -330,7 +331,7 @@ describe('serializer', () => {
       annotations: [],
       series: [],
       scenes: [{
-        type: 'scene',
+        type: DslNodeType.Scene,
         name: null,
         properties: [],
         data: null,
@@ -338,8 +339,8 @@ describe('serializer', () => {
         areaFills: [],
         annotations: [],
         annotationVisibility: [
-          { type: 'annotation-visibility', action: 'hide', kind: 'free', id: 'n1' },
-          { type: 'annotation-visibility', action: 'show', kind: 'free', id: 'n2' },
+          { type: DslNodeType.AnnotationVisibility, action: AnnotationAction.Hide, kind: AnnotationKind.Free, id: 'n1' },
+          { type: DslNodeType.AnnotationVisibility, action: AnnotationAction.Show, kind: AnnotationKind.Free, id: 'n2' },
         ],
         series: [],
         transforms: [],
@@ -367,14 +368,14 @@ describe('serializer', () => {
 
   it('serializes multi-value data entries', () => {
     const ast: ChartNode = {
-      type: 'chart',
-      chartType: 'bar-multi',
+      type: DslNodeType.Chart,
+      chartType: ChartType.BarMulti,
       properties: [],
       data: {
-        type: 'data',
+        type: DslNodeType.Data,
         entries: [
-          { type: 'property', key: '_series', value: 'Gold', isPercentage: false, values: ['Gold', 'Silver', 'Bronze'] },
-          { type: 'property', key: 'USA', value: 40, isPercentage: false, values: [40, 44, 42] },
+          { type: DslNodeType.Property, key: '_series', value: 'Gold', isPercentage: false, values: ['Gold', 'Silver', 'Bronze'] },
+          { type: DslNodeType.Property, key: 'USA', value: 40, isPercentage: false, values: [40, 44, 42] },
         ],
       },
       colorizes: [],
@@ -405,18 +406,18 @@ describe('serializer', () => {
 
   it('serializes areafill blocks', () => {
     const ast: ChartNode = {
-      type: 'chart',
-      chartType: 'line-multi',
+      type: DslNodeType.Chart,
+      chartType: ChartType.LineMulti,
       properties: [],
       data: null,
       colorizes: [],
       areaFills: [{
-        type: 'areafill',
+        type: DslNodeType.AreaFill,
         from: 'Revenue',
         to: 'Cost',
         properties: [
-          { type: 'property', key: 'color', value: '#0000ff', isPercentage: false },
-          { type: 'property', key: 'opacity', value: 0.3, isPercentage: false },
+          { type: DslNodeType.Property, key: 'color', value: '#0000ff', isPercentage: false },
+          { type: DslNodeType.Property, key: 'opacity', value: 0.3, isPercentage: false },
         ],
       }],
       annotations: [],
@@ -432,18 +433,18 @@ describe('serializer', () => {
 
   it('serializes range annotation', () => {
     const ast: ChartNode = {
-      type: 'chart',
-      chartType: 'line',
+      type: DslNodeType.Chart,
+      chartType: ChartType.Line,
       properties: [],
       data: null,
       colorizes: [],
       areaFills: [],
       annotations: [{
-        type: 'annotation',
-        kind: 'range',
+        type: DslNodeType.Annotation,
+        kind: AnnotationKind.Range,
         properties: [
-          { type: 'property', key: 'start', value: 2, isPercentage: false },
-          { type: 'property', key: 'end', value: 5, isPercentage: false },
+          { type: DslNodeType.Property, key: 'start', value: 2, isPercentage: false },
+          { type: DslNodeType.Property, key: 'end', value: 5, isPercentage: false },
         ],
       }],
       series: [],
@@ -458,19 +459,19 @@ describe('serializer', () => {
 
   it('serializes note (free) annotation', () => {
     const ast: ChartNode = {
-      type: 'chart',
-      chartType: 'line',
+      type: DslNodeType.Chart,
+      chartType: ChartType.Line,
       properties: [],
       data: null,
       colorizes: [],
       areaFills: [],
       annotations: [{
-        type: 'annotation',
-        kind: 'free',
+        type: DslNodeType.Annotation,
+        kind: AnnotationKind.Free,
         properties: [
-          { type: 'property', key: 'text', value: 'Important note', isPercentage: false },
-          { type: 'property', key: 'x', value: 50, isPercentage: true },
-          { type: 'property', key: 'y', value: 25, isPercentage: true },
+          { type: DslNodeType.Property, key: 'text', value: 'Important note', isPercentage: false },
+          { type: DslNodeType.Property, key: 'x', value: 50, isPercentage: true },
+          { type: DslNodeType.Property, key: 'y', value: 25, isPercentage: true },
         ],
       }],
       series: [],
@@ -485,8 +486,8 @@ describe('serializer', () => {
 
   it('serializes series blocks at chart level', () => {
     const ast: ChartNode = {
-      type: 'chart',
-      chartType: 'line-multi',
+      type: DslNodeType.Chart,
+      chartType: ChartType.LineMulti,
       properties: [],
       data: null,
       colorizes: [],
@@ -494,11 +495,11 @@ describe('serializer', () => {
       annotations: [],
       series: [
         {
-          type: 'series',
+          type: DslNodeType.Series,
           name: 'Revenue',
           properties: [
-            { type: 'property', key: 'color', value: '#e15759', isPercentage: false },
-            { type: 'property', key: 'lineWidth', value: 3, isPercentage: false },
+            { type: DslNodeType.Property, key: 'color', value: '#e15759', isPercentage: false },
+            { type: DslNodeType.Property, key: 'lineWidth', value: 3, isPercentage: false },
           ],
         },
       ],
@@ -513,8 +514,8 @@ describe('serializer', () => {
 
   it('serializes transform blocks at chart level', () => {
     const ast: ChartNode = {
-      type: 'chart',
-      chartType: 'line',
+      type: DslNodeType.Chart,
+      chartType: ChartType.Line,
       properties: [],
       data: null,
       colorizes: [],
@@ -523,10 +524,10 @@ describe('serializer', () => {
       series: [],
       scenes: [],
       transforms: [{
-        type: 'transform',
+        type: DslNodeType.Transform,
         transformType: 'rolling-average',
         properties: [
-          { type: 'property', key: 'window', value: 7, isPercentage: false },
+          { type: DslNodeType.Property, key: 'window', value: 7, isPercentage: false },
         ],
       }],
     }
@@ -537,10 +538,10 @@ describe('serializer', () => {
 
   it('quotes string values containing special characters', () => {
     const ast: ChartNode = {
-      type: 'chart',
+      type: DslNodeType.Chart,
       chartType: 'bar',
       properties: [
-        { type: 'property', key: 'title', value: 'Hello World', isPercentage: false },
+        { type: DslNodeType.Property, key: 'title', value: 'Hello World', isPercentage: false },
       ],
       data: null,
       colorizes: [],
@@ -556,10 +557,10 @@ describe('serializer', () => {
 
   it('does not quote simple identifier values', () => {
     const ast: ChartNode = {
-      type: 'chart',
+      type: DslNodeType.Chart,
       chartType: 'bar',
       properties: [
-        { type: 'property', key: 'sort', value: 'descending', isPercentage: false },
+        { type: DslNodeType.Property, key: 'sort', value: 'descending', isPercentage: false },
       ],
       data: null,
       colorizes: [],
@@ -575,15 +576,15 @@ describe('serializer', () => {
 
   it('quotes hash color values', () => {
     const ast: ChartNode = {
-      type: 'chart',
+      type: DslNodeType.Chart,
       chartType: 'bar',
       properties: [],
       data: null,
       colorizes: [{
-        type: 'colorize',
+        type: DslNodeType.Colorize,
         target: 'X',
         properties: [
-          { type: 'property', key: 'color', value: '#ff0000', isPercentage: false },
+          { type: DslNodeType.Property, key: 'color', value: '#ff0000', isPercentage: false },
         ],
       }],
       areaFills: [],
@@ -598,11 +599,11 @@ describe('serializer', () => {
 
   it('escapes quotes and backslashes in values', () => {
     const ast: ChartNode = {
-      type: 'chart',
+      type: DslNodeType.Chart,
       chartType: 'bar',
       properties: [
-        { type: 'property', key: 'title', value: 'say "hello"', isPercentage: false },
-        { type: 'property', key: 'path', value: 'C:\\Users', isPercentage: false },
+        { type: DslNodeType.Property, key: 'title', value: 'say "hello"', isPercentage: false },
+        { type: DslNodeType.Property, key: 'path', value: 'C:\\Users', isPercentage: false },
       ],
       data: null,
       colorizes: [],
@@ -619,8 +620,8 @@ describe('serializer', () => {
 
   it('serializes scene with areafill and annotations', () => {
     const ast: ChartNode = {
-      type: 'chart',
-      chartType: 'line',
+      type: DslNodeType.Chart,
+      chartType: ChartType.Line,
       properties: [],
       data: null,
       colorizes: [],
@@ -628,20 +629,20 @@ describe('serializer', () => {
       annotations: [],
       series: [],
       scenes: [{
-        type: 'scene',
+        type: DslNodeType.Scene,
         name: 'Full',
         properties: [],
         data: null,
         colorizes: [],
         areaFills: [{
-          type: 'areafill',
+          type: DslNodeType.AreaFill,
           from: 'A',
           to: 'B',
-          properties: [{ type: 'property', key: 'color', value: '#abc', isPercentage: false }],
+          properties: [{ type: DslNodeType.Property, key: 'color', value: '#abc', isPercentage: false }],
         }],
         annotations: [
-          { type: 'annotation', kind: 'range', properties: [{ type: 'property', key: 'start', value: 1, isPercentage: false }] },
-          { type: 'annotation', kind: 'free', properties: [{ type: 'property', key: 'text', value: 'Note', isPercentage: false }] },
+          { type: DslNodeType.Annotation, kind: AnnotationKind.Range, properties: [{ type: DslNodeType.Property, key: 'start', value: 1, isPercentage: false }] },
+          { type: DslNodeType.Annotation, kind: AnnotationKind.Free, properties: [{ type: DslNodeType.Property, key: 'text', value: 'Note', isPercentage: false }] },
         ],
         annotationVisibility: [],
         series: [],
@@ -841,12 +842,12 @@ describe('serializer', () => {
 
   it('serializes highlight blocks', () => {
     const ast: ChartNode = {
-      type: 'chart',
+      type: DslNodeType.Chart,
       chartType: 'bar',
       properties: [],
       data: null,
       colorizes: [],
-      highlights: [{ type: 'highlight', target: 'Apple' }],
+      highlights: [{ type: DslNodeType.Highlight, target: 'Apple' }],
       areaFills: [],
       annotations: [],
       series: [],
@@ -859,7 +860,7 @@ describe('serializer', () => {
 
   it('serializes highlight in scene', () => {
     const ast: ChartNode = {
-      type: 'chart',
+      type: DslNodeType.Chart,
       chartType: 'bar',
       properties: [],
       data: null,
@@ -868,12 +869,12 @@ describe('serializer', () => {
       annotations: [],
       series: [],
       scenes: [{
-        type: 'scene',
+        type: DslNodeType.Scene,
         name: 'Focus',
         properties: [],
         data: null,
         colorizes: [],
-        highlights: [{ type: 'highlight', target: 'Banana' }],
+        highlights: [{ type: DslNodeType.Highlight, target: 'Banana' }],
         areaFills: [],
         annotations: [],
         annotationVisibility: [],
@@ -904,11 +905,11 @@ describe('serializer', () => {
   describe('compactSerialize', () => {
     it('omits properties matching their registry default', () => {
       const withDefault: ChartNode = {
-        type: 'chart',
-        chartType: 'bar-vertical',
+        type: DslNodeType.Chart,
+        chartType: ChartType.BarVertical,
         properties: [
-          { type: 'property', key: 'sort', value: 'descending', isPercentage: false },
-          { type: 'property', key: 'title', value: 'Custom Title', isPercentage: false },
+          { type: DslNodeType.Property, key: 'sort', value: 'descending', isPercentage: false },
+          { type: DslNodeType.Property, key: 'title', value: 'Custom Title', isPercentage: false },
         ],
         data: null,
         colorizes: [],
@@ -928,10 +929,10 @@ describe('serializer', () => {
 
     it('includes non-default property values', () => {
       const ast: ChartNode = {
-        type: 'chart',
-        chartType: 'bar-vertical',
+        type: DslNodeType.Chart,
+        chartType: ChartType.BarVertical,
         properties: [
-          { type: 'property', key: 'sort', value: 'descending', isPercentage: false },
+          { type: DslNodeType.Property, key: 'sort', value: 'descending', isPercentage: false },
         ],
         data: null,
         colorizes: [],
@@ -947,17 +948,17 @@ describe('serializer', () => {
 
     it('still serializes data, colorizes, and other blocks', () => {
       const ast: ChartNode = {
-        type: 'chart',
-        chartType: 'bar-vertical',
+        type: DslNodeType.Chart,
+        chartType: ChartType.BarVertical,
         properties: [],
         data: {
-          type: 'data',
-          entries: [{ type: 'property', key: 'A', value: 10, isPercentage: false }],
+          type: DslNodeType.Data,
+          entries: [{ type: DslNodeType.Property, key: 'A', value: 10, isPercentage: false }],
         },
         colorizes: [{
-          type: 'colorize',
+          type: DslNodeType.Colorize,
           target: 'A',
-          properties: [{ type: 'property', key: 'color', value: '#f00', isPercentage: false }],
+          properties: [{ type: DslNodeType.Property, key: 'color', value: '#f00', isPercentage: false }],
         }],
         areaFills: [],
         annotations: [],
@@ -972,8 +973,8 @@ describe('serializer', () => {
 
     it('produces valid output for minimal chart', () => {
       const ast: ChartNode = {
-        type: 'chart',
-        chartType: 'line',
+        type: DslNodeType.Chart,
+        chartType: ChartType.Line,
         properties: [],
         data: null,
         colorizes: [],

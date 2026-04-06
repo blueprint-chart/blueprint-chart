@@ -2,6 +2,7 @@ import { resolvePalette } from './palettes'
 import { adjustColorsForBackground } from './contrast'
 import type { ChartData, ChartOptions, ChartTypeOptions } from './types'
 import { parseDateOrNumber } from './date-parse'
+import { AxisDirection, LabelPosition, LegendPosition, Anchor, ValueLabelPosition, CrosshairDirection, CrosshairStyle, StackMode, SymbolShape, SymbolShowOn, SymbolStyle } from '../enums'
 
 export function parseData(raw: string): ChartData {
   const lines = raw.split('\n').map(l => l.trim()).filter(Boolean)
@@ -85,16 +86,16 @@ function buildLegendOptions(opts: Partial<ChartTypeOptions>): Partial<ChartOptio
     partial.legend = opts.legend
   }
   if (opts.legendPosition !== undefined) {
-    partial.legendPosition = opts.legendPosition as 'top' | 'bottom' | 'left' | 'right'
+    partial.legendPosition = opts.legendPosition as LegendPosition
   }
   if (opts.legendAnchor !== undefined) {
-    partial.legendAnchor = opts.legendAnchor as 'start' | 'middle' | 'end'
+    partial.legendAnchor = opts.legendAnchor as Anchor
   }
   if (opts.directLabelling !== undefined) {
     partial.directLabelling = opts.directLabelling
   }
   if (opts.directLabelAnchor !== undefined) {
-    partial.directLabelAnchor = opts.directLabelAnchor as 'start' | 'middle' | 'end'
+    partial.directLabelAnchor = opts.directLabelAnchor as Anchor
   }
 
   return partial
@@ -121,7 +122,7 @@ function buildVerticalAxisOptions(opts: Partial<ChartTypeOptions>): Partial<Char
     axis.showTicks = opts.showVerticalTicks
   }
   if (opts.verticalAxisDirection !== undefined) {
-    axis.direction = opts.verticalAxisDirection as 'left' | 'right'
+    axis.direction = opts.verticalAxisDirection as AxisDirection
   }
   if (opts.verticalGridStyle !== undefined) {
     axis.gridStyle = opts.verticalGridStyle
@@ -136,7 +137,7 @@ function buildVerticalAxisOptions(opts: Partial<ChartTypeOptions>): Partial<Char
     axis.scaleType = opts.verticalScaleType
   }
   if (opts.verticalLabelPosition !== undefined) {
-    axis.labelPosition = opts.verticalLabelPosition as 'auto' | 'inside' | 'outside' | 'off'
+    axis.labelPosition = opts.verticalLabelPosition as LabelPosition
   }
 
   const vMin = parseDateOrNumber(opts.verticalRangeMin ?? '')
@@ -186,7 +187,7 @@ function buildHorizontalAxisOptions(opts: Partial<ChartTypeOptions>): Partial<Ch
     axis.scaleType = opts.horizontalScaleType
   }
   if (opts.horizontalLabelPosition !== undefined) {
-    axis.labelPosition = opts.horizontalLabelPosition as 'auto' | 'inside' | 'outside' | 'off'
+    axis.labelPosition = opts.horizontalLabelPosition as LabelPosition
   }
 
   const hMin = parseDateOrNumber(opts.horizontalRangeMin ?? '')
@@ -210,9 +211,9 @@ function buildLineSymbolOptions(opts: Partial<ChartTypeOptions>): Partial<ChartO
   }
   return {
     lineSymbols: {
-      symbol: (opts.lineSymbolShape as 'circle' | 'square' | 'diamond' | 'triangle' | 'triangleDown' | 'cross' | 'star') ?? 'circle',
-      showOn: (opts.lineSymbolShowOn as 'all' | 'first' | 'last' | 'firstLast') ?? 'firstLast',
-      style: (opts.lineSymbolStyle as 'filled' | 'hollow') ?? 'filled',
+      symbol: (opts.lineSymbolShape as SymbolShape) ?? SymbolShape.Circle,
+      showOn: (opts.lineSymbolShowOn as SymbolShowOn) ?? SymbolShowOn.FirstLast,
+      style: (opts.lineSymbolStyle as SymbolStyle) ?? SymbolStyle.Filled,
       size: parseFloat(opts.lineSymbolSize ?? '3.5') || 3.5,
       opacity: parseFloat(opts.lineSymbolOpacity ?? '1') || 1,
     },
@@ -236,7 +237,7 @@ export function buildChartOptions(opts: Partial<ChartTypeOptions>, backgroundCol
     result.valueLabels = opts.valueLabels
   }
   if (opts.valueLabelPosition !== undefined) {
-    result.valueLabelPosition = opts.valueLabelPosition as 'inside' | 'outside' | 'auto'
+    result.valueLabelPosition = opts.valueLabelPosition as ValueLabelPosition
   }
   if (opts.tooltips !== undefined) {
     result.tooltips = opts.tooltips
@@ -245,10 +246,10 @@ export function buildChartOptions(opts: Partial<ChartTypeOptions>, backgroundCol
     result.crosshair = opts.crosshair
   }
   if (opts.crosshairDirection) {
-    result.crosshairDirection = opts.crosshairDirection as 'both' | 'vertical' | 'horizontal'
+    result.crosshairDirection = opts.crosshairDirection as CrosshairDirection
   }
   if (opts.crosshairStyle) {
-    result.crosshairStyle = opts.crosshairStyle as 'solid' | 'dashed' | 'dotted'
+    result.crosshairStyle = opts.crosshairStyle as CrosshairStyle
   }
   if (opts.crosshairColor) {
     result.crosshairColor = opts.crosshairColor
@@ -284,7 +285,7 @@ export function buildChartOptions(opts: Partial<ChartTypeOptions>, backgroundCol
     result.barSeparators = opts.barSeparators
   }
   if (opts.stackMode !== undefined) {
-    result.stackMode = opts.stackMode as 'normal' | 'percent'
+    result.stackMode = opts.stackMode as StackMode
   }
   if (opts.stacked !== undefined) {
     result.stacked = opts.stacked

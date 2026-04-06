@@ -13,6 +13,7 @@ import { resolveBackgroundColor, contrastTextColor } from '../../contrast'
 import { buildNumberFormatter } from '../../format-helpers'
 import { getDefaultTransitionMs, setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut, reinsertWithOffset } from '../../motion'
 import { getCachedChart, setCachedChart } from '../../transition-cache'
+import { SortDirection, ValueLabelPosition, Orientation } from '../../../enums'
 
 const DEFAULT_COLORS = ['#4e79a7']
 const VALUE_LABEL_FONT = '11px sans-serif'
@@ -147,9 +148,9 @@ export function render(
   const lpMargins = labelPositionMargins(containerWidth, options.verticalAxis?.labelPosition, options.horizontalAxis?.labelPosition, options.verticalAxis?.direction, vLabelW, options.horizontalAxis?.showAxis)
 
   // Reserve extra margin for outside value labels
-  const valueLabelPos = options.valueLabelPosition ?? 'auto'
+  const valueLabelPos = options.valueLabelPosition ?? ValueLabelPosition.Auto
   const swapLabelValue = options.swapLabelValue === true
-  if (options.valueLabels && valueLabelPos !== 'inside') {
+  if (options.valueLabels && valueLabelPos !== ValueLabelPosition.Inside) {
     if (swapLabelValue) {
       // Labels show category names — estimate width from the longest label
       const longestLabel = data.labels.reduce((a, b) => a.length > b.length ? a : b, '')
@@ -336,14 +337,14 @@ export function render(
         .attr('y', (d: WaterfallDatum) => (y(d.label) ?? 0) + y.bandwidth() / 2)
         .attr('x', (d: WaterfallDatum) => {
           const right = Math.max(x(d.x0), x(d.x1))
-          if (pos === 'inside') {
+          if (pos === ValueLabelPosition.Inside) {
             return right - 4
           }
           return right + 4
         })
-        .attr('text-anchor', pos === 'inside' ? 'end' : 'start')
+        .attr('text-anchor', pos === ValueLabelPosition.Inside ? 'end' : 'start')
         .attr('fill', (d: WaterfallDatum) => {
-          if (pos === 'inside') {
+          if (pos === ValueLabelPosition.Inside) {
             return contrastTextColor(d.isTotal ? totalColor : colorOverrides.get(d.label) ?? colors[0])
           }
           return 'currentColor'
@@ -365,11 +366,11 @@ export function render(
     }
     if (options.crosshair) {
       chart.use(createCrosshairPlugin({
-        width, height, direction: options.crosshairDirection, style: options.crosshairStyle, color: options.crosshairColor, orientation: 'horizontal' }))
+        width, height, direction: options.crosshairDirection, style: options.crosshairStyle, color: options.crosshairColor, orientation: Orientation.Horizontal }))
     }
     if (options.annotations?.length) {
       chart.use(createAnnotationPlugin(options.annotations, {
-        scaleX: y, scaleY: x, data: barData, width, height, backgroundColor: resolveBackgroundColor(container), orientation: 'horizontal', transition, priorAnnotations }))
+        scaleX: y, scaleY: x, data: barData, width, height, backgroundColor: resolveBackgroundColor(container), orientation: Orientation.Horizontal, transition, priorAnnotations }))
     }
     chart.draw(barData)
 
@@ -399,9 +400,9 @@ function valueLabelAttrs(
   d: BarDatum,
   x: d3.ScaleLinear<number, number> | d3.ScaleSymLog,
   y: d3.ScaleBand<string>,
-  pos: 'inside' | 'outside' | 'auto',
+  pos: ValueLabelPosition,
 ) {
-  const isInside = pos === 'inside'
+  const isInside = pos === ValueLabelPosition.Inside
   const ty = (y(d.label) ?? 0) + y.bandwidth() / 2
   let tx: number, anchor: string
   if (d.value < 0) {
@@ -435,7 +436,7 @@ function renderValueLabels(
   x: d3.ScaleLinear<number, number> | d3.ScaleSymLog,
   y: d3.ScaleBand<string>,
   opts: {
-    position?: 'inside' | 'outside' | 'auto'
+    position?: ValueLabelPosition
     colorOverrides: Map<string, string>
     colors: string[]
     transition: boolean
@@ -443,7 +444,7 @@ function renderValueLabels(
     swapLabelValue?: boolean
   },
 ) {
-  const pos = opts.position ?? 'auto'
+  const pos = opts.position ?? ValueLabelPosition.Auto
   const labelText = (d: BarDatum) => opts.swapLabelValue ? d.label : String(d.value)
 
   // Create a dedicated group for value labels so they sit above bars
@@ -518,10 +519,10 @@ function renderValueLabels(
 
 function sortLabels(data: ChartData, options: ChartOptions): string[] {
   const paired = data.labels.map((l, i) => ({ label: l, value: data.values[i] }))
-  if (options.sort === 'ascending') {
+  if (options.sort === SortDirection.Ascending) {
     paired.sort((a, b) => a.value - b.value)
   }
-  else if (options.sort === 'descending') {
+  else if (options.sort === SortDirection.Descending) {
     paired.sort((a, b) => b.value - a.value)
   }
   return paired.map(p => p.label)

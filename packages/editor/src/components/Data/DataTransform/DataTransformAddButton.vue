@@ -34,6 +34,7 @@
 
 <script setup lang="ts">
 import { ButtonAdd } from '@blueprint-chart/ui'
+import { TransformType } from '@/enums'
 
 const emit = defineEmits<{
   add: [type: string]
@@ -42,40 +43,40 @@ const emit = defineEmits<{
 const showMenu = shallowRef(false)
 
 const options = [
-  { value: 'sort', label: 'Sort', desc: 'Reorder rows by column values', disabled: false },
-  { value: 'filter', label: 'Filter', desc: 'Keep or exclude rows by condition', disabled: false },
-  { value: 'hide-columns', label: 'Hide Columns', desc: 'Remove columns from output', disabled: false },
-  { value: 'transpose', label: 'Transpose', desc: 'Swap rows and columns', disabled: false },
-  { value: 'parse', label: 'Parse', desc: 'Transform column values', disabled: false },
-  { value: 'rename', label: 'Rename Column', desc: 'Change a column name', disabled: false },
-  { value: 'group-by', label: 'Group By', desc: 'Aggregate rows by column values', disabled: false },
-  { value: 'computed', label: 'Computed Column', desc: 'Derive new column (coming soon)', disabled: true },
+  { value: TransformType.Sort, label: 'Sort', desc: 'Reorder rows by column values', disabled: false },
+  { value: TransformType.Filter, label: 'Filter', desc: 'Keep or exclude rows by condition', disabled: false },
+  { value: TransformType.HideColumns, label: 'Hide Columns', desc: 'Remove columns from output', disabled: false },
+  { value: TransformType.Transpose, label: 'Transpose', desc: 'Swap rows and columns', disabled: false },
+  { value: TransformType.Parse, label: 'Parse', desc: 'Transform column values', disabled: false },
+  { value: TransformType.Rename, label: 'Rename Column', desc: 'Change a column name', disabled: false },
+  { value: TransformType.GroupBy, label: 'Group By', desc: 'Aggregate rows by column values', disabled: false },
+  { value: TransformType.Computed, label: 'Computed Column', desc: 'Derive new column (coming soon)', disabled: true },
 ]
 
 function iconClass(type: string): string {
   const map: Record<string, string> = {
-    'sort': 'add-wrap__dropdown__item__icon--sort',
-    'filter': 'add-wrap__dropdown__item__icon--filter',
-    'hide-columns': 'add-wrap__dropdown__item__icon--hide-columns',
-    'transpose': 'add-wrap__dropdown__item__icon--transpose',
-    'parse': 'add-wrap__dropdown__item__icon--parse',
-    'rename': 'add-wrap__dropdown__item__icon--rename',
-    'group-by': 'add-wrap__dropdown__item__icon--group',
-    'computed': 'add-wrap__dropdown__item__icon--computed',
+    [TransformType.Sort]: 'add-wrap__dropdown__item__icon--sort',
+    [TransformType.Filter]: 'add-wrap__dropdown__item__icon--filter',
+    [TransformType.HideColumns]: 'add-wrap__dropdown__item__icon--hide-columns',
+    [TransformType.Transpose]: 'add-wrap__dropdown__item__icon--transpose',
+    [TransformType.Parse]: 'add-wrap__dropdown__item__icon--parse',
+    [TransformType.Rename]: 'add-wrap__dropdown__item__icon--rename',
+    [TransformType.GroupBy]: 'add-wrap__dropdown__item__icon--group',
+    [TransformType.Computed]: 'add-wrap__dropdown__item__icon--computed',
   }
   return map[type] ?? ''
 }
 
 function iconFallback(type: string): string {
   const map: Record<string, string> = {
-    'sort': 'S',
-    'filter': 'F',
-    'hide-columns': 'H',
-    'transpose': 'T',
-    'parse': 'P',
-    'rename': 'R',
-    'group-by': 'G',
-    'computed': 'C',
+    [TransformType.Sort]: 'S',
+    [TransformType.Filter]: 'F',
+    [TransformType.HideColumns]: 'H',
+    [TransformType.Transpose]: 'T',
+    [TransformType.Parse]: 'P',
+    [TransformType.Rename]: 'R',
+    [TransformType.GroupBy]: 'G',
+    [TransformType.Computed]: 'C',
   }
   return map[type] ?? '?'
 }

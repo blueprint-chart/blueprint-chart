@@ -42,7 +42,7 @@ import { usePreviewContainer } from '@/stores/previewContainer'
 import { useEditorPanel } from '@/stores/editorPanel'
 import { useScenes } from '@/stores/scenes'
 import { resolveScene } from '@/utils/scenes'
-import { parseData } from '@blueprint-chart/lib'
+import { ChartType, parseData } from '@blueprint-chart/lib'
 import type { AnnotationConfig } from '@blueprint-chart/lib'
 import { SettingsSection } from '@blueprint-chart/ui'
 import IPhDropHalf from '~icons/ph/drop-half'
@@ -58,7 +58,7 @@ const { scenes, activeIndex, activeScene, update: updateScene } = useScenes()
 
 const isSceneActive = computed(() => activeIndex.value >= 0)
 
-const HIGHLIGHT_TYPES = ['bar-vertical', 'bar-horizontal', 'line-multi', 'area-stacked']
+const HIGHLIGHT_TYPES: string[] = [ChartType.BarVertical, ChartType.BarHorizontal, ChartType.LineMulti, ChartType.AreaStacked]
 const hasHighlight = computed(() => HIGHLIGHT_TYPES.includes(chartType.value))
 
 // Base annotations are always the foundation; scene annotations are additions.
@@ -138,7 +138,7 @@ function handleToggleVisibility(id: string, kind: 'point' | 'range' | 'free') {
   }
 }
 
-const isMultiLine = computed(() => chartType.value === 'line-multi')
+const isMultiLine = computed(() => chartType.value === ChartType.LineMulti)
 
 const parsed = computed(() => parseData(data.value))
 const dataLabels = computed(() => parsed.value.labels)

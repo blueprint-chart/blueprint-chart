@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { render } from './donut'
+import { SortDirection } from '../../../enums'
 
 describe('donut chart', () => {
   let container: HTMLElement
@@ -197,7 +198,7 @@ describe('donut chart', () => {
   // ── Sort ──────────────────────────────────────────────────────────
 
   it('sorts arcs in descending order', () => {
-    render(container, data, { sort: 'descending' })
+    render(container, data, { sort: SortDirection.Descending })
     const legendItems = container.querySelectorAll('.bc-legend-item')
     const labels = Array.from(legendItems).map((el) => {
       // The first tspan or direct text content is the label
@@ -211,7 +212,7 @@ describe('donut chart', () => {
   })
 
   it('sorts arcs in ascending order', () => {
-    render(container, data, { sort: 'ascending' })
+    render(container, data, { sort: SortDirection.Ascending })
     const legendItems = container.querySelectorAll('.bc-legend-item')
     const labels = Array.from(legendItems).map((el) => {
       const tspan = el.querySelector('tspan')

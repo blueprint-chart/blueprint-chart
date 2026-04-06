@@ -1,11 +1,12 @@
 import * as d3 from 'd3'
 import type { D3Blueprint, Plugin } from 'd3-blueprint'
+import { CrosshairDirection, CrosshairStyle, Orientation } from '../../enums'
 
 function styleToDash(style?: string): string {
   switch (style) {
-    case 'solid': return 'none'
-    case 'dotted': return '2,2'
-    case 'dashed':
+    case CrosshairStyle.Solid: return 'none'
+    case CrosshairStyle.Dotted: return '2,2'
+    case CrosshairStyle.Dashed:
     default: return '4,3'
   }
 }
@@ -21,8 +22,8 @@ export function createCrosshairPlugin(options?: {
 }): Plugin {
   const color = options?.color ?? '#999'
   const dashArray = options?.dashArray ?? styleToDash(options?.style)
-  const direction = options?.direction ?? 'both'
-  const orientation = options?.orientation ?? 'vertical'
+  const direction = options?.direction ?? CrosshairDirection.Both
+  const orientation = options?.orientation ?? Orientation.Vertical
   const cleanups: (() => void)[] = []
 
   return {
@@ -35,8 +36,8 @@ export function createCrosshairPlugin(options?: {
       const w = options?.width ?? 0
       const h = options?.height ?? 0
 
-      const showV = direction === 'both' || direction === 'vertical'
-      const showH = direction === 'both' || direction === 'horizontal'
+      const showV = direction === CrosshairDirection.Both || direction === CrosshairDirection.Vertical
+      const showH = direction === CrosshairDirection.Both || direction === CrosshairDirection.Horizontal
 
       const vLine = showV
         ? base.append('line')
@@ -80,7 +81,7 @@ export function createCrosshairPlugin(options?: {
             const bw = parseFloat(sel.attr('width'))
             const y = parseFloat(sel.attr('y'))
             const bh = parseFloat(sel.attr('height'))
-            if (orientation === 'horizontal') {
+            if (orientation === Orientation.Horizontal) {
               cx = x + bw
               cy = y + bh / 2
             }

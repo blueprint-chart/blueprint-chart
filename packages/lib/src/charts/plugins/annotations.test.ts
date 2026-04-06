@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest'
 import * as d3 from 'd3'
 import { createAnnotationPlugin, computeDirectionOffset, computeAnchorPoint, bboxEdgeToward, ensureArrowMarker, rotateDirectionForHorizontal, snapshotAnnotations, renderConnectingLine } from './annotations'
 import { makeChartStub } from './test-helpers'
+import { AnnotationKind, AnnotationLineStyle, CompassDirection, Orientation, StrokeStyle } from '../../enums'
 
 describe('createAnnotationPlugin', () => {
   let svg: SVGSVGElement
@@ -32,7 +33,7 @@ describe('createAnnotationPlugin', () => {
     const { x, y, data } = makeScales()
 
     const plugin = createAnnotationPlugin(
-      [{ kind: 'point', target: 'A', text: 'Note here', anchorDirection: 'NW', textOffsetX: -42, textOffsetY: -42, showLine: true }],
+      [{ kind: AnnotationKind.Point, target: 'A', text: 'Note here', anchorDirection: CompassDirection.NW, textOffsetX: -42, textOffsetY: -42, showLine: true }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200 },
     )
 
@@ -51,7 +52,7 @@ describe('createAnnotationPlugin', () => {
     const { x, y, data } = makeScales()
 
     const plugin = createAnnotationPlugin(
-      [{ kind: 'point', target: 'A', text: 'With circle', showCircle: true, circleSize: 6, circleStyle: 'dashed' }],
+      [{ kind: AnnotationKind.Point, target: 'A', text: 'With circle', showCircle: true, circleSize: 6, circleStyle: StrokeStyle.Dashed }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200 },
     )
 
@@ -68,7 +69,7 @@ describe('createAnnotationPlugin', () => {
     const { x, y } = makeScales()
 
     const plugin = createAnnotationPlugin(
-      [{ kind: 'point', target: 'Z', text: 'Missing' }],
+      [{ kind: AnnotationKind.Point, target: 'Z', text: 'Missing' }],
       { scaleX: x, scaleY: y, data: [{ label: 'A', value: 50 }], width: 200, height: 200 },
     )
 
@@ -82,7 +83,7 @@ describe('createAnnotationPlugin', () => {
     const { x, y, data } = makeScales()
 
     const plugin = createAnnotationPlugin(
-      [{ kind: 'point', target: 'A', text: 'No arrow', showArrow: false }],
+      [{ kind: AnnotationKind.Point, target: 'A', text: 'No arrow', showArrow: false }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200 },
     )
 
@@ -101,7 +102,7 @@ describe('createAnnotationPlugin', () => {
     const { x, y, data } = makeScales()
 
     const plugin = createAnnotationPlugin(
-      [{ kind: 'range', start: 'A', end: 'B', bgColor: '#ff0000', bgOpacity: 30 }],
+      [{ kind: AnnotationKind.Range, start: 'A', end: 'B', bgColor: '#ff0000', bgOpacity: 30 }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200 },
     )
 
@@ -121,7 +122,7 @@ describe('createAnnotationPlugin', () => {
     const { x, y, data } = makeScales()
 
     const plugin = createAnnotationPlugin(
-      [{ kind: 'range', start: 'A', end: 'B', text: 'Range label' }],
+      [{ kind: AnnotationKind.Range, start: 'A', end: 'B', text: 'Range label' }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200 },
     )
 
@@ -137,7 +138,7 @@ describe('createAnnotationPlugin', () => {
     const { x, y, data } = makeScales()
 
     const plugin = createAnnotationPlugin(
-      [{ kind: 'range', orientation: 'horizontal', start: 20, end: 80 }],
+      [{ kind: AnnotationKind.Range, orientation: Orientation.Horizontal, start: 20, end: 80 }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200 },
     )
 
@@ -158,7 +159,7 @@ describe('createAnnotationPlugin', () => {
     const { x, y, data } = makeScales()
 
     const plugin = createAnnotationPlugin(
-      [{ kind: 'free', text: 'Free note', x: 0, y: 0 }],
+      [{ kind: AnnotationKind.Free, text: 'Free note', x: 0, y: 0 }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200 },
     )
 
@@ -178,7 +179,7 @@ describe('createAnnotationPlugin', () => {
     const { x, y, data } = makeScales()
 
     const plugin = createAnnotationPlugin(
-      [{ kind: 'free', text: 'Pixel note', x: '80px', y: '60px' }],
+      [{ kind: AnnotationKind.Free, text: 'Pixel note', x: '80px', y: '60px' }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200 },
     )
 
@@ -196,19 +197,19 @@ describe('createAnnotationPlugin', () => {
   // -----------------------------------------------------------------------
 
   it('computes correct direction offsets', () => {
-    const n = computeDirectionOffset('N', 100)
+    const n = computeDirectionOffset(CompassDirection.N, 100)
     expect(n.dx).toBeCloseTo(0)
     expect(n.dy).toBeCloseTo(-100)
 
-    const se = computeDirectionOffset('SE', 100)
+    const se = computeDirectionOffset(CompassDirection.SE, 100)
     expect(se.dx).toBeCloseTo(70.7, 0)
     expect(se.dy).toBeCloseTo(70.7, 0)
 
-    const w = computeDirectionOffset('W', 50)
+    const w = computeDirectionOffset(CompassDirection.W, 50)
     expect(w.dx).toBeCloseTo(-50)
     expect(w.dy).toBeCloseTo(0)
 
-    const center = computeDirectionOffset('center', 100)
+    const center = computeDirectionOffset(CompassDirection.Center, 100)
     expect(center.dx).toBe(0)
     expect(center.dy).toBe(0)
   })
@@ -221,7 +222,7 @@ describe('createAnnotationPlugin', () => {
     const { x, y, data } = makeScales()
 
     const plugin = createAnnotationPlugin(
-      [{ kind: 'point', target: 'A', text: 'Direct', lineStyle: 'direct', showLine: true }],
+      [{ kind: AnnotationKind.Point, target: 'A', text: 'Direct', lineStyle: AnnotationLineStyle.Direct, showLine: true }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200 },
     )
 
@@ -238,7 +239,7 @@ describe('createAnnotationPlugin', () => {
     const { x, y, data } = makeScales()
 
     const plugin = createAnnotationPlugin(
-      [{ kind: 'point', target: 'A', text: 'Curved', lineStyle: 'curve-left', showLine: true }],
+      [{ kind: AnnotationKind.Point, target: 'A', text: 'Curved', lineStyle: AnnotationLineStyle.CurveLeft, showLine: true }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200 },
     )
 
@@ -255,7 +256,7 @@ describe('createAnnotationPlugin', () => {
     const { x, y, data } = makeScales()
 
     const plugin = createAnnotationPlugin(
-      [{ kind: 'point', target: 'A', text: 'Elbow', lineStyle: 'elbow', showLine: true }],
+      [{ kind: AnnotationKind.Point, target: 'A', text: 'Elbow', lineStyle: AnnotationLineStyle.Elbow, showLine: true }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200 },
     )
 
@@ -278,7 +279,7 @@ describe('createAnnotationPlugin', () => {
     const { x, y, data } = makeScales()
 
     const plugin = createAnnotationPlugin(
-      [{ kind: 'point', target: 'A', text: 'Outlined' }],
+      [{ kind: AnnotationKind.Point, target: 'A', text: 'Outlined' }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200 },
     )
 
@@ -349,7 +350,7 @@ describe('createAnnotationPlugin', () => {
     const { x, y, data } = makeScales()
 
     const plugin = createAnnotationPlugin(
-      [{ kind: 'point', target: 'A', text: 'Arrow test' }],
+      [{ kind: AnnotationKind.Point, target: 'A', text: 'Arrow test' }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200 },
     )
 
@@ -376,7 +377,7 @@ describe('createAnnotationPlugin', () => {
     const { x, y } = makeScales()
     const datum = { label: 'A', value: 50 }
 
-    const anchor = computeAnchorPoint(datum, x, y, 'NE')
+    const anchor = computeAnchorPoint(datum, x, y, CompassDirection.NE)
     const barX = x('A')!
     const barW = x.bandwidth()
     const barTop = y(50)
@@ -389,7 +390,7 @@ describe('createAnnotationPlugin', () => {
     const { x, y } = makeScales()
     const datum = { label: 'A', value: 50 }
 
-    const anchor = computeAnchorPoint(datum, x, y, 'center')
+    const anchor = computeAnchorPoint(datum, x, y, CompassDirection.Center)
     const barX = x('A')!
     const barW = x.bandwidth()
     const barTop = y(50)
@@ -462,7 +463,7 @@ describe('createAnnotationPlugin', () => {
     const from = { x: 150, y: 150 }
     const to = { x: 50, y: 20 }
 
-    renderConnectingLine(annG, from, to, 'curve-right', { showArrow: true })
+    renderConnectingLine(annG, from, to, AnnotationLineStyle.CurveRight, { showArrow: true })
 
     const path = annG.select('.bc-annotation-line')
     const d = path.attr('d')
@@ -486,7 +487,7 @@ describe('createAnnotationPlugin', () => {
     const { x, y, data } = makeScales()
 
     const plugin = createAnnotationPlugin(
-      [{ kind: 'point', id: 'p1', target: 'A', text: 'Test', showLine: true }],
+      [{ kind: AnnotationKind.Point, id: 'p1', target: 'A', text: 'Test', showLine: true }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200 },
     )
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -515,7 +516,7 @@ describe('createAnnotationPlugin', () => {
 
     // Second render adds annotation with line — should get draw entrance
     const plugin2 = createAnnotationPlugin(
-      [{ kind: 'point', id: 'new-line', target: 'A', text: 'Draw me', showLine: true }],
+      [{ kind: AnnotationKind.Point, id: 'new-line', target: 'A', text: 'Draw me', showLine: true }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200, transition: true },
     )
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -540,7 +541,7 @@ describe('createAnnotationPlugin', () => {
 
     // Second render adds annotation with arrow line
     const plugin2 = createAnnotationPlugin(
-      [{ kind: 'point', id: 'arrow-draw', target: 'A', text: 'Arrow', showLine: true, showArrow: true }],
+      [{ kind: AnnotationKind.Point, id: 'arrow-draw', target: 'A', text: 'Arrow', showLine: true, showArrow: true }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200, transition: true },
     )
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -569,7 +570,7 @@ describe('createAnnotationPlugin', () => {
     plugin1.postDraw!(makeChartStub(g) as any, undefined as any)
 
     const plugin2 = createAnnotationPlugin(
-      [{ kind: 'point', id: 'curve-arrow', target: 'A', text: 'Curve', showLine: true, showArrow: true, lineStyle: 'curve-right' }],
+      [{ kind: AnnotationKind.Point, id: 'curve-arrow', target: 'A', text: 'Curve', showLine: true, showArrow: true, lineStyle: AnnotationLineStyle.CurveRight }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200, transition: true },
     )
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -591,7 +592,7 @@ describe('createAnnotationPlugin', () => {
 
     // First render with annotation
     const plugin1 = createAnnotationPlugin(
-      [{ kind: 'point', id: 'p-move', target: 'A', text: 'Start', showLine: true }],
+      [{ kind: AnnotationKind.Point, id: 'p-move', target: 'A', text: 'Start', showLine: true }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200 },
     )
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -599,7 +600,7 @@ describe('createAnnotationPlugin', () => {
 
     // Second render moves annotation — should NOT get draw entrance
     const plugin2 = createAnnotationPlugin(
-      [{ kind: 'point', id: 'p-move', target: 'B', text: 'Moved', showLine: true }],
+      [{ kind: AnnotationKind.Point, id: 'p-move', target: 'B', text: 'Moved', showLine: true }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200, transition: true },
     )
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -630,7 +631,7 @@ describe('createAnnotationPlugin', () => {
 
     // First render with elbow annotation targeting A
     const plugin1 = createAnnotationPlugin(
-      [{ kind: 'point', id: 'elb-move', target: 'A', text: 'Start', showLine: true, lineStyle: 'elbow' }],
+      [{ kind: AnnotationKind.Point, id: 'elb-move', target: 'A', text: 'Start', showLine: true, lineStyle: AnnotationLineStyle.Elbow }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200 },
     )
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -638,7 +639,7 @@ describe('createAnnotationPlugin', () => {
 
     // Second render moves to B
     const plugin2 = createAnnotationPlugin(
-      [{ kind: 'point', id: 'elb-move', target: 'B', text: 'Moved', showLine: true, lineStyle: 'elbow' }],
+      [{ kind: AnnotationKind.Point, id: 'elb-move', target: 'B', text: 'Moved', showLine: true, lineStyle: AnnotationLineStyle.Elbow }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200, transition: true },
     )
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -663,7 +664,7 @@ describe('createAnnotationPlugin', () => {
 
     // First render with curve annotation targeting A
     const plugin1 = createAnnotationPlugin(
-      [{ kind: 'point', id: 'curve-move', target: 'A', text: 'Start', showLine: true, lineStyle: 'curve' }],
+      [{ kind: AnnotationKind.Point, id: 'curve-move', target: 'A', text: 'Start', showLine: true, lineStyle: 'curve' }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200 },
     )
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -671,7 +672,7 @@ describe('createAnnotationPlugin', () => {
 
     // Second render moves to B
     const plugin2 = createAnnotationPlugin(
-      [{ kind: 'point', id: 'curve-move', target: 'B', text: 'Moved', showLine: true, lineStyle: 'curve' }],
+      [{ kind: AnnotationKind.Point, id: 'curve-move', target: 'B', text: 'Moved', showLine: true, lineStyle: 'curve' }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200, transition: true },
     )
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -696,7 +697,7 @@ describe('createAnnotationPlugin', () => {
     const { x, y, data } = makeScales()
 
     const plugin = createAnnotationPlugin(
-      [{ kind: 'point', id: 'elb-1', target: 'A', text: 'Elbow', showLine: true, lineStyle: 'elbow' }],
+      [{ kind: AnnotationKind.Point, id: 'elb-1', target: 'A', text: 'Elbow', showLine: true, lineStyle: AnnotationLineStyle.Elbow }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200 },
     )
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -704,7 +705,7 @@ describe('createAnnotationPlugin', () => {
 
     const line = g.querySelector('g[data-annotation-id="elb-1"] .bc-annotation-line')
     expect(line).toBeTruthy()
-    expect(line!.getAttribute('data-line-style')).toBe('elbow')
+    expect(line!.getAttribute('data-line-style')).toBe(AnnotationLineStyle.Elbow)
     expect(line!.hasAttribute('data-line-from-x')).toBe(true)
     expect(line!.hasAttribute('data-line-from-y')).toBe(true)
     expect(line!.hasAttribute('data-line-to-x')).toBe(true)
@@ -720,8 +721,8 @@ describe('createAnnotationPlugin', () => {
 
     const plugin = createAnnotationPlugin(
       [
-        { kind: 'point', target: 'A', text: 'First' },
-        { kind: 'point', target: 'B', text: 'Second' },
+        { kind: AnnotationKind.Point, target: 'A', text: 'First' },
+        { kind: AnnotationKind.Point, target: 'B', text: 'Second' },
       ],
       { scaleX: x, scaleY: y, data, width: 200, height: 200 },
     )
@@ -740,15 +741,15 @@ describe('createAnnotationPlugin', () => {
   // -----------------------------------------------------------------------
 
   it('rotates compass directions for horizontal orientation', () => {
-    expect(rotateDirectionForHorizontal('N')).toBe('W')
-    expect(rotateDirectionForHorizontal('E')).toBe('N')
-    expect(rotateDirectionForHorizontal('S')).toBe('E')
-    expect(rotateDirectionForHorizontal('W')).toBe('S')
-    expect(rotateDirectionForHorizontal('NE')).toBe('NW')
-    expect(rotateDirectionForHorizontal('SE')).toBe('NE')
-    expect(rotateDirectionForHorizontal('SW')).toBe('SE')
-    expect(rotateDirectionForHorizontal('NW')).toBe('SW')
-    expect(rotateDirectionForHorizontal('center')).toBe('center')
+    expect(rotateDirectionForHorizontal(CompassDirection.N)).toBe(CompassDirection.W)
+    expect(rotateDirectionForHorizontal(CompassDirection.E)).toBe(CompassDirection.N)
+    expect(rotateDirectionForHorizontal(CompassDirection.S)).toBe(CompassDirection.E)
+    expect(rotateDirectionForHorizontal(CompassDirection.W)).toBe(CompassDirection.S)
+    expect(rotateDirectionForHorizontal(CompassDirection.NE)).toBe(CompassDirection.NW)
+    expect(rotateDirectionForHorizontal(CompassDirection.SE)).toBe(CompassDirection.NE)
+    expect(rotateDirectionForHorizontal(CompassDirection.SW)).toBe(CompassDirection.SE)
+    expect(rotateDirectionForHorizontal(CompassDirection.NW)).toBe(CompassDirection.SW)
+    expect(rotateDirectionForHorizontal(CompassDirection.Center)).toBe(CompassDirection.Center)
   })
 
   it('computes anchor point with horizontal orientation — N is top edge', () => {
@@ -758,7 +759,7 @@ describe('createAnnotationPlugin', () => {
     const datum = { label: 'A', value: 50 }
 
     // Rect is in screen coords, so N = top edge (mid X, top Y)
-    const anchor = computeAnchorPoint(datum, bandY, linearX, 'N', 'horizontal')
+    const anchor = computeAnchorPoint(datum, bandY, linearX, CompassDirection.N, Orientation.Horizontal)
 
     const barY = bandY('A')!
     const barLeft = linearX(0)
@@ -775,7 +776,7 @@ describe('createAnnotationPlugin', () => {
     const datum = { label: 'A', value: 80 }
 
     // E = right edge of rect = value tip of horizontal bar
-    const anchor = computeAnchorPoint(datum, bandY, linearX, 'E', 'horizontal')
+    const anchor = computeAnchorPoint(datum, bandY, linearX, CompassDirection.E, Orientation.Horizontal)
 
     const barY = bandY('A')!
     const barH = bandY.bandwidth()
@@ -791,8 +792,8 @@ describe('createAnnotationPlugin', () => {
     const data = [{ label: 'A', value: 50 }, { label: 'B', value: 80 }]
 
     const plugin = createAnnotationPlugin(
-      [{ kind: 'point', target: 'A', text: 'Horizontal note', anchorDirection: 'N', textOffsetX: 20, textOffsetY: -20 }],
-      { scaleX: bandY, scaleY: linearX, data, width: 200, height: 200, orientation: 'horizontal' },
+      [{ kind: AnnotationKind.Point, target: 'A', text: 'Horizontal note', anchorDirection: CompassDirection.N, textOffsetX: 20, textOffsetY: -20 }],
+      { scaleX: bandY, scaleY: linearX, data, width: 200, height: 200, orientation: Orientation.Horizontal },
     )
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -817,13 +818,13 @@ describe('createAnnotationPlugin', () => {
 
     // If we use max values (correct), the anchor should be within the chart area
     const dataWithMax = [{ label: 'A', value: 30 }, { label: 'B', value: 50 }]
-    const anchor = computeAnchorPoint(dataWithMax[0], x, y, 'N')
+    const anchor = computeAnchorPoint(dataWithMax[0], x, y, CompassDirection.N)
     expect(anchor.y).toBeGreaterThanOrEqual(0) // within chart
     expect(anchor.y).toBeLessThanOrEqual(200)
 
     // If sum were used (e.g. 80 for series [30, 50]), it would exceed the y domain
     const dataBadSum = [{ label: 'A', value: 80 }]
-    const badAnchor = computeAnchorPoint(dataBadSum[0], x, y, 'N')
+    const badAnchor = computeAnchorPoint(dataBadSum[0], x, y, CompassDirection.N)
     // value 80 on domain [0,50] maps to negative y → above chart
     expect(badAnchor.y).toBeLessThan(0)
   })
@@ -840,7 +841,7 @@ describe('createAnnotationPlugin', () => {
     const { x, y, data } = makeScales()
 
     const plugin = createAnnotationPlugin(
-      [{ kind: 'point', id: 'ann-1', target: 'A', text: 'With id' }],
+      [{ kind: AnnotationKind.Point, id: 'ann-1', target: 'A', text: 'With id' }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200 },
     )
 
@@ -855,7 +856,7 @@ describe('createAnnotationPlugin', () => {
     const { x, y, data } = makeScales()
 
     const plugin = createAnnotationPlugin(
-      [{ kind: 'point', target: 'A', text: 'No id' }],
+      [{ kind: AnnotationKind.Point, target: 'A', text: 'No id' }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200 },
     )
 
@@ -870,7 +871,7 @@ describe('createAnnotationPlugin', () => {
     const { x, y, data } = makeScales()
 
     const plugin = createAnnotationPlugin(
-      [{ kind: 'range', id: 'rng-1', start: 'A', end: 'B' }],
+      [{ kind: AnnotationKind.Range, id: 'rng-1', start: 'A', end: 'B' }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200 },
     )
 
@@ -885,7 +886,7 @@ describe('createAnnotationPlugin', () => {
     const { x, y, data } = makeScales()
 
     const plugin = createAnnotationPlugin(
-      [{ kind: 'free', id: 'free-1', text: 'Note', x: 0, y: 0 }],
+      [{ kind: AnnotationKind.Free, id: 'free-1', text: 'Note', x: 0, y: 0 }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200 },
     )
 
@@ -901,7 +902,7 @@ describe('createAnnotationPlugin', () => {
 
     // First render
     const plugin1 = createAnnotationPlugin(
-      [{ kind: 'point', id: 'p1', target: 'A', text: 'First' }],
+      [{ kind: AnnotationKind.Point, id: 'p1', target: 'A', text: 'First' }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200 },
     )
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -914,7 +915,7 @@ describe('createAnnotationPlugin', () => {
     // Do NOT remove old containers — during scene transitions the chart
     // preserves the DOM so the plugin can snapshot old positions.
     const plugin2 = createAnnotationPlugin(
-      [{ kind: 'point', id: 'p1', target: 'B', text: 'Moved' }],
+      [{ kind: AnnotationKind.Point, id: 'p1', target: 'B', text: 'Moved' }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200, transition: true },
     )
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -932,7 +933,7 @@ describe('createAnnotationPlugin', () => {
 
     // First render with annotation
     const plugin1 = createAnnotationPlugin(
-      [{ kind: 'point', id: 'removed-1', target: 'A', text: 'Will be removed' }],
+      [{ kind: AnnotationKind.Point, id: 'removed-1', target: 'A', text: 'Will be removed' }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200 },
     )
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -956,7 +957,7 @@ describe('createAnnotationPlugin', () => {
     const { x, y, data } = makeScales()
 
     const plugin = createAnnotationPlugin(
-      [{ kind: 'point', id: 'p1', target: 'A', text: 'Static' }],
+      [{ kind: AnnotationKind.Point, id: 'p1', target: 'A', text: 'Static' }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200, transition: false },
     )
 
@@ -982,7 +983,7 @@ describe('createAnnotationPlugin', () => {
 
     // Leave old containers in place for snapshot
     const plugin2 = createAnnotationPlugin(
-      [{ kind: 'point', id: 'new-1', target: 'A', text: 'New ann' }],
+      [{ kind: AnnotationKind.Point, id: 'new-1', target: 'A', text: 'New ann' }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200, transition: true },
     )
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1000,7 +1001,7 @@ describe('createAnnotationPlugin', () => {
 
     // First render
     const plugin1 = createAnnotationPlugin(
-      [{ kind: 'range', id: 'r1', start: 'A', end: 'B', bgColor: '#f00' }],
+      [{ kind: AnnotationKind.Range, id: 'r1', start: 'A', end: 'B', bgColor: '#f00' }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200 },
     )
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1008,7 +1009,7 @@ describe('createAnnotationPlugin', () => {
 
     // Leave old containers in place for snapshot
     const plugin2 = createAnnotationPlugin(
-      [{ kind: 'range', id: 'r1', start: 'A', end: 'B', bgColor: '#00f' }],
+      [{ kind: AnnotationKind.Range, id: 'r1', start: 'A', end: 'B', bgColor: '#00f' }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200, transition: true },
     )
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1029,7 +1030,7 @@ describe('createAnnotationPlugin', () => {
 
     // First render
     const plugin1 = createAnnotationPlugin(
-      [{ kind: 'point', id: 'p1', target: 'A', text: 'Before' }],
+      [{ kind: AnnotationKind.Point, id: 'p1', target: 'A', text: 'Before' }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200 },
     )
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1049,7 +1050,7 @@ describe('createAnnotationPlugin', () => {
 
     // Second render with priorAnnotations
     const plugin2 = createAnnotationPlugin(
-      [{ kind: 'point', id: 'p1', target: 'B', text: 'After' }],
+      [{ kind: AnnotationKind.Point, id: 'p1', target: 'B', text: 'After' }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200, transition: true, priorAnnotations: prior },
     )
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1065,7 +1066,7 @@ describe('createAnnotationPlugin', () => {
 
     // First render
     const plugin1 = createAnnotationPlugin(
-      [{ kind: 'point', id: 'gone-1', target: 'A', text: 'Will go' }],
+      [{ kind: AnnotationKind.Point, id: 'gone-1', target: 'A', text: 'Will go' }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200 },
     )
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1110,7 +1111,7 @@ describe('createAnnotationPlugin', () => {
 
     // Second render adds annotation — should fade in
     const plugin2 = createAnnotationPlugin(
-      [{ kind: 'free', id: 'f1', text: 'Appeared', x: 0, y: 0 }],
+      [{ kind: AnnotationKind.Free, id: 'f1', text: 'Appeared', x: 0, y: 0 }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200, transition: true, priorAnnotations: prior },
     )
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1130,7 +1131,7 @@ describe('createAnnotationPlugin', () => {
     const dummyLinear = d3.scaleLinear().domain([0, 1]).range([300, 0])
 
     const plugin = createAnnotationPlugin(
-      [{ kind: 'free', text: 'Pie note', x: 0, y: -25 }],
+      [{ kind: AnnotationKind.Free, text: 'Pie note', x: 0, y: -25 }],
       { scaleX: emptyBand, scaleY: dummyLinear, data: [], width: 300, height: 300 },
     )
 

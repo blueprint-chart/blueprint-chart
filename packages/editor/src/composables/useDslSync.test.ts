@@ -1,4 +1,6 @@
 import type { RangeAnnotationConfig, FreeAnnotationConfig } from '@blueprint-chart/lib'
+import { ChartType, SortDirection } from '@blueprint-chart/lib'
+import { TransformType } from '@/enums'
 import { useChartConfig } from './useChartConfig'
 import { useDslSync } from './useDslSync'
 import { useChartTypeOptions } from './useChartTypeOptions'
@@ -31,7 +33,7 @@ describe('useDslSync', () => {
     expect(result.success).toBe(true)
 
     const config = useChartConfig()
-    expect(config.chartType.value).toBe('bar-horizontal')
+    expect(config.chartType.value).toBe(ChartType.BarHorizontal)
     expect(config.title.value).toBe('Revenue')
     expect(config.description.value).toBe('Quarterly revenue')
     expect(config.source.value).toBe('Finance dept')
@@ -47,19 +49,19 @@ describe('useDslSync', () => {
 `)
 
     const config = useChartConfig()
-    expect(config.sort.value).toBe('ascending')
+    expect(config.sort.value).toBe(SortDirection.Ascending)
   })
 
   it('resets sort to none when not present', () => {
     const config = useChartConfig()
-    config.sort.value = 'descending'
+    config.sort.value = SortDirection.Descending
 
     const { applyDsl } = useDslSync()
     applyDsl(`chart bar-vertical {
 }
 `)
 
-    expect(config.sort.value).toBe('none')
+    expect(config.sort.value).toBe(SortDirection.None)
   })
 
   it('clears fields not present in DSL', () => {
@@ -1228,8 +1230,8 @@ describe('useDslSync', () => {
 
       // Scene 1 should have the sort transform
       expect(scenes.scenes.value[0].transforms).toHaveLength(1)
-      expect(scenes.scenes.value[0].transforms![0].type).toBe('sort')
-      expect(scenes.scenes.value[0].transforms![0].config.direction).toBe('ascending')
+      expect(scenes.scenes.value[0].transforms![0].type).toBe(TransformType.Sort)
+      expect(scenes.scenes.value[0].transforms![0].config.direction).toBe(SortDirection.Ascending)
 
       // Scene 2 should NOT have its own transforms
       expect(scenes.scenes.value[1].transforms).toBeUndefined()
@@ -1238,10 +1240,10 @@ describe('useDslSync', () => {
       const resolved = resolveScene(scenes.scenes.value, 1)!
       expect(resolved.transforms).toBeDefined()
       expect(resolved.transforms).toHaveLength(1)
-      expect(resolved.transforms![0].type).toBe('sort')
+      expect(resolved.transforms![0].type).toBe(TransformType.Sort)
 
       // resolveSortFromTransforms should extract 'ascending'
-      expect(resolveSortFromTransforms(resolved)).toBe('ascending')
+      expect(resolveSortFromTransforms(resolved)).toBe(SortDirection.Ascending)
     })
 
     it('base sort is none when sort only exists as scene transform', () => {
@@ -1261,7 +1263,7 @@ describe('useDslSync', () => {
 
       const config = useChartConfig()
       // Base sort should be 'none' since sort is only in scene transform
-      expect(config.sort.value).toBe('none')
+      expect(config.sort.value).toBe(SortDirection.None)
     })
 
     it('sort transform without direction defaults to ascending and cascades', () => {
@@ -1302,7 +1304,7 @@ describe('useDslSync', () => {
       const scenes = useScenes()
       // Scene 1 has the sort transform (no direction property)
       expect(scenes.scenes.value[0].transforms).toHaveLength(1)
-      expect(scenes.scenes.value[0].transforms![0].type).toBe('sort')
+      expect(scenes.scenes.value[0].transforms![0].type).toBe(TransformType.Sort)
       expect(scenes.scenes.value[0].transforms![0].config.direction).toBeUndefined()
 
       // Scene 2 inherits transforms via resolveScene
@@ -1310,7 +1312,7 @@ describe('useDslSync', () => {
       expect(resolved.transforms).toHaveLength(1)
 
       // resolveSortFromTransforms defaults to 'ascending' when no direction
-      expect(resolveSortFromTransforms(resolved)).toBe('ascending')
+      expect(resolveSortFromTransforms(resolved)).toBe(SortDirection.Ascending)
     })
   })
 })

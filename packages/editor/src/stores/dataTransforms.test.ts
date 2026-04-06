@@ -1,3 +1,4 @@
+import { TransformType, FilterCondition } from '@/enums'
 import { useDataTransforms } from './dataTransforms'
 
 describe('useDataTransforms: state management', () => {
@@ -12,25 +13,25 @@ describe('useDataTransforms: state management', () => {
 
   it('adds a step', () => {
     const { steps, addStep } = useDataTransforms()
-    addStep('sort', { column: 'Name', direction: 'ascending' })
+    addStep(TransformType.Sort, { column: 'Name', direction: 'ascending' })
     expect(steps.value.length).toBe(1)
-    expect(steps.value[0].type).toBe('sort')
+    expect(steps.value[0].type).toBe(TransformType.Sort)
     expect(steps.value[0].config.column).toBe('Name')
   })
 
   it('removes a step', () => {
     const { steps, addStep, removeStep } = useDataTransforms()
-    addStep('sort', { column: 'A' })
-    addStep('filter', { column: 'B' })
+    addStep(TransformType.Sort, { column: 'A' })
+    addStep(TransformType.Filter, { column: 'B' })
     const id = steps.value[0].id
     removeStep(id)
     expect(steps.value.length).toBe(1)
-    expect(steps.value[0].type).toBe('filter')
+    expect(steps.value[0].type).toBe(TransformType.Filter)
   })
 
   it('updates a step config', () => {
     const { steps, addStep, updateStep } = useDataTransforms()
-    addStep('sort', { column: 'A', direction: 'ascending' })
+    addStep(TransformType.Sort, { column: 'A', direction: 'ascending' })
     updateStep(steps.value[0].id, { column: 'B', direction: 'descending' })
     expect(steps.value[0].config.column).toBe('B')
     expect(steps.value[0].config.direction).toBe('descending')
@@ -38,9 +39,9 @@ describe('useDataTransforms: state management', () => {
 
   it('moves a step to a new index', () => {
     const { steps, addStep, moveStep } = useDataTransforms()
-    addStep('sort', { column: 'A' })
-    addStep('filter', { column: 'B' })
-    addStep('sort', { column: 'C' })
+    addStep(TransformType.Sort, { column: 'A' })
+    addStep(TransformType.Filter, { column: 'B' })
+    addStep(TransformType.Sort, { column: 'C' })
     const id = steps.value[2].id
     moveStep(id, 0)
     expect(steps.value[0].config.column).toBe('C')
@@ -49,14 +50,14 @@ describe('useDataTransforms: state management', () => {
 
   it('addStep returns the step id', () => {
     const { addStep } = useDataTransforms()
-    const id = addStep('sort', { column: 'A' })
+    const id = addStep(TransformType.Sort, { column: 'A' })
     expect(typeof id).toBe('string')
     expect(id.length).toBeGreaterThan(0)
   })
 
   it('resets state', () => {
     const { steps, addStep, reset } = useDataTransforms()
-    addStep('sort', { column: 'A' })
+    addStep(TransformType.Sort, { column: 'A' })
     reset()
     expect(steps.value).toEqual([])
   })
@@ -69,8 +70,8 @@ describe('useDataTransforms: pipeline', () => {
 
   it('applies multiple transforms in order', () => {
     const { addStep, applyTransforms } = useDataTransforms()
-    addStep('filter', { column: 'Value', condition: 'greater-than', value: '20' })
-    addStep('sort', { column: 'Value', direction: 'ascending' })
+    addStep(TransformType.Filter, { column: 'Value', condition: FilterCondition.GreaterThan, value: '20' })
+    addStep(TransformType.Sort, { column: 'Value', direction: 'ascending' })
     const result = applyTransforms(
       ['Name', 'Value'],
       [['C', '50'], ['A', '10'], ['B', '30']],
@@ -83,8 +84,8 @@ describe('useDataTransforms: pipeline', () => {
 
   it('rename works in pipeline with sort', () => {
     const { addStep, applyTransforms } = useDataTransforms()
-    addStep('rename', { column: 'Name', newName: 'Fruit' })
-    addStep('sort', { column: 'Value', direction: 'ascending' })
+    addStep(TransformType.Rename, { column: 'Name', newName: 'Fruit' })
+    addStep(TransformType.Sort, { column: 'Value', direction: 'ascending' })
     const result = applyTransforms(
       ['Name', 'Value'],
       [['Bananas', '58'], ['Apples', '10']],
@@ -96,8 +97,8 @@ describe('useDataTransforms: pipeline', () => {
 
   it('filter before group-by', () => {
     const { addStep, applyTransforms } = useDataTransforms()
-    addStep('filter', { column: 'Country', condition: 'not-equals', value: 'UK' })
-    addStep('group-by', { groupColumns: 'Country', aggregates: 'Revenue:sum' })
+    addStep(TransformType.Filter, { column: 'Country', condition: FilterCondition.NotEquals, value: 'UK' })
+    addStep(TransformType.GroupBy, { groupColumns: 'Country', aggregates: 'Revenue:sum' })
     const result = applyTransforms(
       ['Country', 'Revenue'],
       [['US', '100'], ['UK', '50'], ['US', '200'], ['UK', '30']],
@@ -116,13 +117,13 @@ describe('validateStep', () => {
 
   it('returns null for valid parse step', () => {
     const { validateStep } = useDataTransforms()
-    const step = { id: '1', type: 'parse' as const, config: { column: 'V', operation: 'round', decimals: '2' } }
+    const step = { id: '1', type: TransformType.Parse, config: { column: 'V', operation: 'round', decimals: '2' } }
     expect(validateStep(step, ['V'], ['number'])).toBeNull()
   })
 
   it('returns error for incompatible parse operation', () => {
     const { validateStep } = useDataTransforms()
-    const step = { id: '1', type: 'parse' as const, config: { column: 'V', operation: 'round' } }
+    const step = { id: '1', type: TransformType.Parse, config: { column: 'V', operation: 'round' } }
     const error = validateStep(step, ['V'], ['string'])
     expect(error).toContain('Round')
     expect(error).toContain('number')
@@ -131,49 +132,49 @@ describe('validateStep', () => {
 
   it('returns error when column not found', () => {
     const { validateStep } = useDataTransforms()
-    const step = { id: '1', type: 'parse' as const, config: { column: 'Missing', operation: 'trim' } }
+    const step = { id: '1', type: TransformType.Parse, config: { column: 'Missing', operation: 'trim' } }
     expect(validateStep(step, ['V'], ['string'])).toContain('not found')
   })
 
   it('returns error for filter without column', () => {
     const { validateStep } = useDataTransforms()
-    const step = { id: '1', type: 'filter' as const, config: {} }
+    const step = { id: '1', type: TransformType.Filter, config: {} }
     expect(validateStep(step, ['V'], ['string'])).toContain('No column')
   })
 
   it('returns error for sort without column', () => {
     const { validateStep } = useDataTransforms()
-    const step = { id: '1', type: 'sort' as const, config: {} }
+    const step = { id: '1', type: TransformType.Sort, config: {} }
     expect(validateStep(step, ['V'], ['string'])).toContain('No column')
   })
 
   it('returns null for valid sort step', () => {
     const { validateStep } = useDataTransforms()
-    const step = { id: '1', type: 'sort' as const, config: { column: 'V', direction: 'ascending' } }
+    const step = { id: '1', type: TransformType.Sort, config: { column: 'V', direction: 'ascending' } }
     expect(validateStep(step, ['V'], ['number'])).toBeNull()
   })
 
   it('returns error for group-by without group columns', () => {
     const { validateStep } = useDataTransforms()
-    const step = { id: '1', type: 'group-by' as const, config: { aggregates: 'Revenue:sum' } }
+    const step = { id: '1', type: TransformType.GroupBy, config: { aggregates: 'Revenue:sum' } }
     expect(validateStep(step, ['Revenue'], ['number'])).toContain('No group columns')
   })
 
   it('returns error for group-by without aggregates', () => {
     const { validateStep } = useDataTransforms()
-    const step = { id: '1', type: 'group-by' as const, config: { groupColumns: 'Country' } }
+    const step = { id: '1', type: TransformType.GroupBy, config: { groupColumns: 'Country' } }
     expect(validateStep(step, ['Country'], ['string'])).toContain('No aggregates')
   })
 
   it('returns null for transpose (no validation needed)', () => {
     const { validateStep } = useDataTransforms()
-    const step = { id: '1', type: 'transpose' as const, config: {} }
+    const step = { id: '1', type: TransformType.Transpose, config: {} }
     expect(validateStep(step, ['V'], ['string'])).toBeNull()
   })
 
   it('returns null for type conversion on any column type', () => {
     const { validateStep } = useDataTransforms()
-    const step = { id: '1', type: 'parse' as const, config: { column: 'V', operation: 'to-number' } }
+    const step = { id: '1', type: TransformType.Parse, config: { column: 'V', operation: 'to-number' } }
     expect(validateStep(step, ['V'], ['string'])).toBeNull()
     expect(validateStep(step, ['V'], ['date'])).toBeNull()
     expect(validateStep(step, ['V'], ['number'])).toBeNull()
@@ -181,7 +182,7 @@ describe('validateStep', () => {
 
   it('returns error for date operation on string column', () => {
     const { validateStep } = useDataTransforms()
-    const step = { id: '1', type: 'parse' as const, config: { column: 'V', operation: 'extract-year' } }
+    const step = { id: '1', type: TransformType.Parse, config: { column: 'V', operation: 'extract-year' } }
     const error = validateStep(step, ['V'], ['string'])
     expect(error).toContain('date')
     expect(error).toContain('string')
@@ -189,7 +190,7 @@ describe('validateStep', () => {
 
   it('returns null for string operation on number column (coerced)', () => {
     const { validateStep } = useDataTransforms()
-    const step = { id: '1', type: 'parse' as const, config: { column: 'V', operation: 'trim' } }
+    const step = { id: '1', type: TransformType.Parse, config: { column: 'V', operation: 'trim' } }
     expect(validateStep(step, ['V'], ['number'])).toBeNull()
   })
 })
@@ -201,11 +202,11 @@ describe('applyStepList', () => {
 
   it('applies steps without mutating singleton state', () => {
     const t = useDataTransforms()
-    t.addStep('sort', { column: 'Name', direction: 'ascending' })
+    t.addStep(TransformType.Sort, { column: 'Name', direction: 'ascending' })
     expect(t.steps.value.length).toBe(1)
 
     const filterSteps = [
-      { id: '99', type: 'filter' as const, config: { column: 'Name', condition: 'equals', value: 'A' } },
+      { id: '99', type: TransformType.Filter, config: { column: 'Name', condition: FilterCondition.Equals, value: 'A' } },
     ]
     const result = t.applyStepList(
       filterSteps,
@@ -217,14 +218,14 @@ describe('applyStepList', () => {
     expect(result.rows.length).toBe(2)
     expect(result.rows.every(r => r[0] === 'A')).toBe(true)
     expect(t.steps.value.length).toBe(1)
-    expect(t.steps.value[0].type).toBe('sort')
+    expect(t.steps.value[0].type).toBe(TransformType.Sort)
   })
 
   it('applies multiple steps in order', () => {
     const { applyStepList } = useDataTransforms()
     const steps = [
-      { id: '1', type: 'sort' as const, config: { column: 'Val', direction: 'descending' } },
-      { id: '2', type: 'filter' as const, config: { column: 'Val', condition: 'greater-than', value: '5' } },
+      { id: '1', type: TransformType.Sort, config: { column: 'Val', direction: 'descending' } },
+      { id: '2', type: TransformType.Filter, config: { column: 'Val', condition: FilterCondition.GreaterThan, value: '5' } },
     ]
     const result = applyStepList(
       steps,

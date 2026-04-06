@@ -1,5 +1,6 @@
 /* eslint-disable vue/one-component-per-file */
 import { mount } from '@vue/test-utils'
+import { TransformType } from '@/enums'
 import DataTransformPipeline from './DataTransformPipeline.vue'
 
 const columns = ref(['Name', 'Value'])
@@ -31,7 +32,7 @@ vi.mock('@/stores/dataTransforms', () => ({
     applyTransforms: () => ({ columns: columns.value, rows: rows.value, columnTypes: columnTypes.value }),
     getColumnsAtStep: () => ({ columns: columns.value, columnTypes: columnTypes.value }),
     validateStep: (step: { type: string, config: Record<string, string> }) => {
-      if (step.type === 'filter' && !step.config.column) {
+      if (step.type === TransformType.Filter && !step.config.column) {
         return 'No column selected'
       }
       if (step.type === 'group-by' && !step.config.groupColumns) {
@@ -161,7 +162,7 @@ describe('DataTransformPipeline', () => {
 
   it('shows error immediately for steps not added through UI', async () => {
     // Pre-populate steps (e.g. loaded from saved state)
-    steps.value = [{ id: '99', type: 'filter', config: {} }]
+    steps.value = [{ id: '99', type: TransformType.Filter, config: {} }]
     stepIdCounter = 99
 
     const w = mountPipeline()

@@ -1,4 +1,4 @@
-export type { IconSize } from './types'
+export { IconSize, ChartType } from './enums'
 export { useChildEntriesProvider, useChildEntry } from './composables/useChildEntries'
 export type { ChildEntriesContext } from './composables/useChildEntries'
 export {

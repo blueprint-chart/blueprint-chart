@@ -1,7 +1,7 @@
+import { ChartType, getChartOptions } from '@blueprint-chart/lib'
 import { useChartConfig } from '@/stores/chartConfig'
 import { useChartTypeOptions } from './chartTypeOptions'
 import { useScenes } from './scenes'
-import { getChartOptions } from '@blueprint-chart/lib'
 
 describe('useChartTypeOptions', () => {
   beforeEach(() => {
@@ -13,7 +13,7 @@ describe('useChartTypeOptions', () => {
 
   it('returns registry defaults for a fresh type', () => {
     const { currentOptions } = useChartTypeOptions()
-    const defs = getChartOptions('bar-vertical')
+    const defs = getChartOptions(ChartType.BarVertical)
     const expected: Record<string, unknown> = {}
     for (const def of defs) {
       if (def.default !== undefined) {
@@ -33,16 +33,16 @@ describe('useChartTypeOptions', () => {
     const config = useChartConfig()
     const { setOption, currentOptions } = useChartTypeOptions()
 
-    config.chartType.value = 'bar-vertical'
+    config.chartType.value = ChartType.BarVertical
     setOption('showVerticalTicks', false)
 
-    config.chartType.value = 'donut'
+    config.chartType.value = ChartType.Donut
     setOption('legend', false)
 
-    config.chartType.value = 'bar-vertical'
+    config.chartType.value = ChartType.BarVertical
     expect(currentOptions.value.showVerticalTicks).toBe(false)
 
-    config.chartType.value = 'donut'
+    config.chartType.value = ChartType.Donut
     expect(currentOptions.value.legend).toBe(false)
   })
 
@@ -50,10 +50,10 @@ describe('useChartTypeOptions', () => {
     const config = useChartConfig()
     const { setOption, currentOptions } = useChartTypeOptions()
 
-    config.chartType.value = 'bar-vertical'
+    config.chartType.value = ChartType.BarVertical
     setOption('colors', ['#aaa', '#bbb'])
 
-    config.chartType.value = 'line'
+    config.chartType.value = ChartType.Line
     expect(currentOptions.value.colors).toEqual(['#aaa', '#bbb'])
   })
 
@@ -61,13 +61,13 @@ describe('useChartTypeOptions', () => {
     const config = useChartConfig()
     const { setOption, currentOptions } = useChartTypeOptions()
 
-    config.chartType.value = 'line'
+    config.chartType.value = ChartType.Line
     setOption('colors', ['#111'])
 
-    config.chartType.value = 'bar-vertical'
+    config.chartType.value = ChartType.BarVertical
     setOption('colors', ['#222'])
 
-    config.chartType.value = 'line'
+    config.chartType.value = ChartType.Line
     // line already had colors stored, so bar-vertical's colors should not overwrite
     expect(currentOptions.value.colors).toEqual(['#111'])
   })
@@ -76,11 +76,11 @@ describe('useChartTypeOptions', () => {
     const config = useChartConfig()
     const { setOption, currentOptions } = useChartTypeOptions()
 
-    config.chartType.value = 'bar-multi'
+    config.chartType.value = ChartType.BarMulti
     setOption('legend', true)
     setOption('showVerticalTicks', false)
 
-    config.chartType.value = 'donut'
+    config.chartType.value = ChartType.Donut
     // legend is supported on donut
     expect(currentOptions.value.legend).toBe(true)
     // showVerticalTicks is NOT supported on donut
@@ -91,25 +91,25 @@ describe('useChartTypeOptions', () => {
     const config = useChartConfig()
     const { setOption, store } = useChartTypeOptions()
 
-    config.chartType.value = 'bar-vertical'
+    config.chartType.value = ChartType.BarVertical
     setOption('colors', ['#aaa'])
 
-    config.chartType.value = 'line'
+    config.chartType.value = ChartType.Line
     // Mutating line's colors should not affect bar-vertical's
-    store['line']!.colors!.push('#bbb')
-    expect(store['bar-vertical']!.colors).toEqual(['#aaa'])
+    store[ChartType.Line]!.colors!.push('#bbb')
+    expect(store[ChartType.BarVertical]!.colors).toEqual(['#aaa'])
   })
 
   it('returns correct availableOptionKeys per type from registry', () => {
     const config = useChartConfig()
     const { availableOptionKeys } = useChartTypeOptions()
 
-    config.chartType.value = 'donut'
-    const donutKeys = getChartOptions('donut').map(d => d.key)
+    config.chartType.value = ChartType.Donut
+    const donutKeys = getChartOptions(ChartType.Donut).map(d => d.key)
     expect(availableOptionKeys.value).toEqual(donutKeys)
 
-    config.chartType.value = 'bar-vertical'
-    const barKeys = getChartOptions('bar-vertical').map(d => d.key)
+    config.chartType.value = ChartType.BarVertical
+    const barKeys = getChartOptions(ChartType.BarVertical).map(d => d.key)
     expect(availableOptionKeys.value).toEqual(barKeys)
   })
 
@@ -120,7 +120,7 @@ describe('useChartTypeOptions', () => {
 
     reset()
     // After reset, accessing currentOptions re-seeds registry defaults
-    const defs = getChartOptions('bar-vertical')
+    const defs = getChartOptions(ChartType.BarVertical)
     const expected: Record<string, unknown> = {}
     for (const def of defs) {
       if (def.default !== undefined) {
@@ -151,13 +151,13 @@ describe('useChartTypeOptions', () => {
       setOption('colors', ['#ff0000'])
 
       // Base store should not have the scene color
-      expect(store['bar-vertical']?.colors).not.toEqual(['#ff0000'])
+      expect(store[ChartType.BarVertical]?.colors).not.toEqual(['#ff0000'])
     })
 
     it('writes to base store when no scene is active', () => {
       const { setOption, store } = useChartTypeOptions()
       setOption('colors', ['#00ff00'])
-      expect(store['bar-vertical']?.colors).toEqual(['#00ff00'])
+      expect(store[ChartType.BarVertical]?.colors).toEqual(['#00ff00'])
     })
 
     it('accumulates multiple scene option writes', () => {
@@ -240,7 +240,7 @@ describe('useChartTypeOptions', () => {
       const { setOption, store } = useChartTypeOptions()
 
       // Set base colors on bar-vertical
-      config.chartType.value = 'bar-vertical'
+      config.chartType.value = ChartType.BarVertical
       setOption('colors', ['#aaa', '#bbb'])
 
       // Activate a scene and switch its chart type
@@ -248,21 +248,21 @@ describe('useChartTypeOptions', () => {
       scenes.add()
       scenes.setActive(0)
 
-      config.chartType.value = 'line'
+      config.chartType.value = ChartType.Line
 
       // Scene should have the chart type override
-      expect(scenes.activeScene.value?.chartType).toBe('line')
+      expect(scenes.activeScene.value?.chartType).toBe(ChartType.Line)
       // Colors should be carried over to scene chartTypeOptions
       expect(scenes.activeScene.value?.chartTypeOptions?.colors).toEqual(['#aaa', '#bbb'])
       // Base store for line should NOT have the colors (they went to scene)
-      expect(store['line']?.colors).toBeUndefined()
+      expect(store[ChartType.Line]?.colors).toBeUndefined()
     })
 
     it('does not overwrite existing scene options on chart type switch', () => {
       const config = useChartConfig()
       const { setOption } = useChartTypeOptions()
 
-      config.chartType.value = 'bar-vertical'
+      config.chartType.value = ChartType.BarVertical
       setOption('colors', ['#old'])
 
       const scenes = useScenes()
@@ -270,7 +270,7 @@ describe('useChartTypeOptions', () => {
       scenes.setActive(0)
       setOption('colors', ['#scene-custom'])
 
-      config.chartType.value = 'line'
+      config.chartType.value = ChartType.Line
 
       // Scene already had colors, so they should not be overwritten
       expect(scenes.activeScene.value?.chartTypeOptions?.colors).toEqual(['#scene-custom'])
@@ -280,11 +280,11 @@ describe('useChartTypeOptions', () => {
       const config = useChartConfig()
       const { setOption, store } = useChartTypeOptions()
 
-      config.chartType.value = 'bar-vertical'
+      config.chartType.value = ChartType.BarVertical
       setOption('colors', ['#base'])
 
-      config.chartType.value = 'line'
-      expect(store['line']?.colors).toEqual(['#base'])
+      config.chartType.value = ChartType.Line
+      expect(store[ChartType.Line]?.colors).toEqual(['#base'])
     })
   })
 

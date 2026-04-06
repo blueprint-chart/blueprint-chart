@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { setupProximityInteraction } from './proximity'
+import { CrosshairDirection, CrosshairStyle } from '../../enums'
 
 describe('setupProximityInteraction', () => {
   let svg: SVGSVGElement
@@ -59,14 +60,14 @@ describe('setupProximityInteraction', () => {
   })
 
   it('creates only vertical crosshair when direction is vertical', () => {
-    setupProximityInteraction(g, { width: 400, height: 300, points, crosshair: true, crosshairDirection: 'vertical' })
+    setupProximityInteraction(g, { width: 400, height: 300, points, crosshair: true, crosshairDirection: CrosshairDirection.Vertical })
 
     expect(g.querySelector('.bc-crosshair-v')).not.toBeNull()
     expect(g.querySelector('.bc-crosshair-h')).toBeNull()
   })
 
   it('creates only horizontal crosshair when direction is horizontal', () => {
-    setupProximityInteraction(g, { width: 400, height: 300, points, crosshair: true, crosshairDirection: 'horizontal' })
+    setupProximityInteraction(g, { width: 400, height: 300, points, crosshair: true, crosshairDirection: CrosshairDirection.Horizontal })
 
     expect(g.querySelector('.bc-crosshair-v')).toBeNull()
     expect(g.querySelector('.bc-crosshair-h')).not.toBeNull()
@@ -95,7 +96,7 @@ describe('setupProximityInteraction', () => {
   // ── Crosshair styles ─────────────────────────────────────────────
 
   it('sets stroke-dasharray via style for solid crosshairStyle', () => {
-    setupProximityInteraction(g, { width: 400, height: 300, points, crosshair: true, crosshairStyle: 'solid' })
+    setupProximityInteraction(g, { width: 400, height: 300, points, crosshair: true, crosshairStyle: CrosshairStyle.Solid })
 
     const vLine = g.querySelector('.bc-crosshair-v') as SVGLineElement
     expect(vLine).not.toBeNull()
@@ -103,7 +104,7 @@ describe('setupProximityInteraction', () => {
   })
 
   it('sets stroke-dasharray via style for dotted crosshairStyle', () => {
-    setupProximityInteraction(g, { width: 400, height: 300, points, crosshair: true, crosshairStyle: 'dotted' })
+    setupProximityInteraction(g, { width: 400, height: 300, points, crosshair: true, crosshairStyle: CrosshairStyle.Dotted })
 
     const vLine = g.querySelector('.bc-crosshair-v') as SVGLineElement
     expect(vLine).not.toBeNull()
@@ -111,7 +112,7 @@ describe('setupProximityInteraction', () => {
   })
 
   it('sets stroke-dasharray via style for dashed crosshairStyle', () => {
-    setupProximityInteraction(g, { width: 400, height: 300, points, crosshair: true, crosshairStyle: 'dashed' })
+    setupProximityInteraction(g, { width: 400, height: 300, points, crosshair: true, crosshairStyle: CrosshairStyle.Dashed })
 
     const vLine = g.querySelector('.bc-crosshair-v') as SVGLineElement
     expect(vLine).not.toBeNull()

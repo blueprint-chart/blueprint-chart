@@ -1,5 +1,6 @@
 import type { AnnotationNode, AnnotationVisibilityNode, AreaFillNode, ChartNode, DataNode, ColorizeNode, HighlightNode, PropertyNode, SceneNode, SeriesNode, TransformNode } from './types'
 import { getChartOptions } from '../charts/registry'
+import { AnnotationKind } from '../enums'
 
 function serializeValue(prop: PropertyNode): string {
   if (typeof prop.value === 'number') {
@@ -65,8 +66,8 @@ function serializeAreaFill(areaFill: AreaFillNode, indent: string): string {
 }
 
 function serializeAnnotation(annotation: AnnotationNode, indent: string): string {
-  const kind = annotation.kind ?? 'point'
-  if (kind === 'range') {
+  const kind = annotation.kind ?? AnnotationKind.Point
+  if (kind === AnnotationKind.Range) {
     const lines = [`${indent}range {`]
     for (const prop of annotation.properties) {
       lines.push(serializeProperty(prop, `${indent}  `))
@@ -74,7 +75,7 @@ function serializeAnnotation(annotation: AnnotationNode, indent: string): string
     lines.push(`${indent}}`)
     return lines.join('\n')
   }
-  if (kind === 'free') {
+  if (kind === AnnotationKind.Free) {
     const lines = [`${indent}note {`]
     for (const prop of annotation.properties) {
       lines.push(serializeProperty(prop, `${indent}  `))
@@ -93,7 +94,7 @@ function serializeAnnotation(annotation: AnnotationNode, indent: string): string
 }
 
 function serializeAnnotationVisibility(node: AnnotationVisibilityNode, indent: string): string {
-  const kindMap = { point: 'annotation', range: 'range', free: 'note' }
+  const kindMap = { [AnnotationKind.Point]: 'annotation', [AnnotationKind.Range]: 'range', [AnnotationKind.Free]: 'note' }
   const keyword = `${node.action}_${kindMap[node.kind]}`
   return `${indent}${keyword} "${node.id}"`
 }

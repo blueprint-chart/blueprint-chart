@@ -1,1 +1,1 @@
-export type IconSize = '2xs' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl'
+export { IconSize } from './enums'

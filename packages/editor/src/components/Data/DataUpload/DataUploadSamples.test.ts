@@ -1,12 +1,16 @@
 import { mount } from '@vue/test-utils'
 import DataUploadSamples from './DataUploadSamples.vue'
 
-vi.mock('@blueprint-chart/lib', () => ({
-  samples: [
-    { id: 'test-1', title: 'Test Chart', chartType: 'bar-vertical', tsvData: 'label\tvalue\nA\t1\nB\t2', serializedData: '', dsl: '', description: '' },
-    { id: 'test-2', title: 'Another Chart', chartType: 'line', tsvData: 'x\ty\n1\t10\n2\t20\n3\t30', serializedData: '', dsl: '', description: '' },
-  ],
-}))
+vi.mock('@blueprint-chart/lib', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@blueprint-chart/lib')>()
+  return {
+    ...actual,
+    samples: [
+      { id: 'test-1', title: 'Test Chart', chartType: actual.ChartType.BarVertical, tsvData: 'label\tvalue\nA\t1\nB\t2', serializedData: '', dsl: '', description: '' },
+      { id: 'test-2', title: 'Another Chart', chartType: actual.ChartType.Line, tsvData: 'x\ty\n1\t10\n2\t20\n3\t30', serializedData: '', dsl: '', description: '' },
+    ],
+  }
+})
 
 function mountSamples() {
   return mount(DataUploadSamples)

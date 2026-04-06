@@ -1,3 +1,4 @@
+import { ChartType } from '@blueprint-chart/lib'
 import { generateId, useChartSession } from './chartSession'
 import { useChartConfig } from '@/stores/chartConfig'
 import { useDataTable } from '@/stores/dataTable'
@@ -39,7 +40,7 @@ describe('useChartSession', () => {
 
     const config = useChartConfig()
     config.title.value = 'Test Title'
-    config.chartType.value = 'donut'
+    config.chartType.value = ChartType.Donut
     session.save()
 
     const raw = localStorage.getItem(`blueprint-chart:${session.sessionId.value}`)
@@ -66,7 +67,7 @@ describe('useChartSession', () => {
 
     const config = useChartConfig()
     config.title.value = 'Test Title'
-    config.chartType.value = 'donut'
+    config.chartType.value = ChartType.Donut
     session.save()
 
     const id = session.sessionId.value
@@ -75,7 +76,7 @@ describe('useChartSession', () => {
     const loaded = session.load(id)
     expect(loaded).toBe(true)
     expect(config.title.value).toBe('Test Title')
-    expect(config.chartType.value).toBe('donut')
+    expect(config.chartType.value).toBe(ChartType.Donut)
   })
 
   it('save and load round-trip preserves data table from BPC', () => {
@@ -83,7 +84,7 @@ describe('useChartSession', () => {
     session.newChart()
 
     const config = useChartConfig()
-    config.chartType.value = 'bar-horizontal'
+    config.chartType.value = ChartType.BarHorizontal
     config.data.value = '"A" = 10\n"B" = 20'
     session.save()
 
@@ -102,7 +103,7 @@ describe('useChartSession', () => {
     session.newChart()
 
     const config = useChartConfig()
-    config.chartType.value = 'bar-horizontal'
+    config.chartType.value = ChartType.BarHorizontal
     config.data.value = '"A" = 10\n"B" = 20'
 
     const scenes = useScenes()
@@ -184,7 +185,7 @@ describe('useChartSession', () => {
     expect(charts).toHaveLength(2)
     expect(charts[0].id).toBe(secondId)
     expect(charts[0].title).toBe('Second')
-    expect(charts[0].chartType).toBe('donut')
+    expect(charts[0].chartType).toBe(ChartType.Donut)
     expect(charts[1].id).toBe(firstId)
     expect(charts[1].title).toBe('First')
   })
@@ -217,7 +218,7 @@ describe('useChartSession', () => {
     const legacyId = 'legacyId001'
     localStorage.setItem(`blueprint-chart:${legacyId}`, JSON.stringify({
       chartConfig: {
-        chartType: 'bar-horizontal',
+        chartType: ChartType.BarHorizontal,
         title: 'Legacy Chart',
         description: '',
         byline: '',
@@ -245,6 +246,6 @@ describe('useChartSession', () => {
 
     const config = useChartConfig()
     expect(config.title.value).toBe('Legacy Chart')
-    expect(config.chartType.value).toBe('bar-horizontal')
+    expect(config.chartType.value).toBe(ChartType.BarHorizontal)
   })
 })

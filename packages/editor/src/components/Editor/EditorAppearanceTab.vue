@@ -50,6 +50,7 @@
 
 <script setup lang="ts">
 import { SettingsSection } from '@blueprint-chart/ui'
+import { ChartType } from '@blueprint-chart/lib'
 import { useChartConfig } from '@/stores/chartConfig'
 import { useChartTypeOptions } from '@/stores/chartTypeOptions'
 import IPhPalette from '~icons/ph/palette'
@@ -64,7 +65,7 @@ const { chartType } = useChartConfig()
 const { availableOptionKeys } = useChartTypeOptions()
 
 const barStyleIcon = computed(() =>
-  chartType.value.includes('horizontal') || chartType.value === 'bar-stacked' || chartType.value === 'bar-split' || chartType.value === 'bar-grouped'
+  chartType.value.includes('horizontal') || chartType.value === ChartType.BarStacked || chartType.value === ChartType.BarSplit || chartType.value === ChartType.BarGrouped
     ? IPhChartBarHorizontal
     : IPhChartBar,
 )

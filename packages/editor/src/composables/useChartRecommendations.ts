@@ -1,3 +1,4 @@
+import { ChartType } from '@blueprint-chart/lib'
 import { useDataTable } from './useDataTable'
 
 export interface ChartRecommendation {
@@ -8,13 +9,13 @@ export interface ChartRecommendation {
 }
 
 const CHART_LABELS: Record<string, string> = {
-  'bar-vertical': 'Vertical Bar Chart',
-  'bar-horizontal': 'Horizontal Bar Chart',
-  'bar-multi': 'Grouped Bar Chart',
-  'line': 'Line Chart',
-  'line-multi': 'Multi-Line Chart',
-  'pie': 'Pie Chart',
-  'donut': 'Donut Chart',
+  [ChartType.BarVertical]: 'Vertical Bar Chart',
+  [ChartType.BarHorizontal]: 'Horizontal Bar Chart',
+  [ChartType.BarMulti]: 'Grouped Bar Chart',
+  [ChartType.Line]: 'Line Chart',
+  [ChartType.LineMulti]: 'Multi-Line Chart',
+  [ChartType.Pie]: 'Pie Chart',
+  [ChartType.Donut]: 'Donut Chart',
 }
 
 export function useChartRecommendations() {
@@ -57,31 +58,31 @@ export function useChartRecommendations() {
     // 1 date + N numbers → line charts
     if (dates === 1 && numbers >= 1) {
       if (numbers === 1) {
-        rec('line', 'best', '1 date + 1 numeric column — ideal for trend')
-        rec('bar-vertical', 'alternative', 'Can also show as bars')
+        rec(ChartType.Line, 'best', '1 date + 1 numeric column — ideal for trend')
+        rec(ChartType.BarVertical, 'alternative', 'Can also show as bars')
       }
       else {
-        rec('line-multi', 'best', `1 date + ${numbers} numeric columns — compare trends`)
-        rec('bar-multi', 'alternative', 'Can also show as grouped bars')
+        rec(ChartType.LineMulti, 'best', `1 date + ${numbers} numeric columns — compare trends`)
+        rec(ChartType.BarMulti, 'alternative', 'Can also show as grouped bars')
       }
     }
     // 1 string + 1 number
     else if (strings === 1 && numbers === 1) {
-      rec('bar-vertical', 'best', '1 categorical + 1 numeric — classic bar chart')
-      rec('bar-horizontal', 'good', 'Horizontal bars work well for long labels')
+      rec(ChartType.BarVertical, 'best', '1 categorical + 1 numeric — classic bar chart')
+      rec(ChartType.BarHorizontal, 'good', 'Horizontal bars work well for long labels')
       if (rowCount <= 8) {
-        rec('donut', 'good', `${rowCount} items — suitable for part-of-whole`)
-        rec('pie', 'alternative', 'Pie chart for part-of-whole')
+        rec(ChartType.Donut, 'good', `${rowCount} items — suitable for part-of-whole`)
+        rec(ChartType.Pie, 'alternative', 'Pie chart for part-of-whole')
       }
     }
     // 1 string + N numbers
     else if (strings === 1 && numbers > 1) {
-      rec('bar-multi', 'best', `1 categorical + ${numbers} numeric columns — compare groups`)
-      rec('line-multi', 'good', 'Can also show as multi-line chart')
+      rec(ChartType.BarMulti, 'best', `1 categorical + ${numbers} numeric columns — compare groups`)
+      rec(ChartType.LineMulti, 'good', 'Can also show as multi-line chart')
     }
     // Fallback
     else if (numbers >= 1 && (strings >= 1 || dates >= 1)) {
-      rec('bar-vertical', 'good', 'Default bar chart recommendation')
+      rec(ChartType.BarVertical, 'good', 'Default bar chart recommendation')
     }
 
     return result

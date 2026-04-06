@@ -1,6 +1,7 @@
 import type { PropertyNode, DataNode, SceneNode, ColorizeNode, HighlightNode, AnnotationNode, SeriesNode, AreaFillNode } from './types'
 import type { ColorizeConfig, HighlightConfig, AnnotationConfig, PointAnnotationConfig, RangeAnnotationConfig, FreeAnnotationConfig, AreaFillConfig, SeriesOverride } from '../charts/types'
 import { getChartOptions } from '../charts/registry'
+import { AnnotationKind, ChartOptionType, Orientation, RangeAnchor } from '../enums'
 
 /**
  * Convert an array of AST property nodes into a key→value map.
@@ -31,10 +32,10 @@ export function extractChartTypeOptions(
       continue
     }
 
-    if (def.type === 'colors') {
+    if (def.type === ChartOptionType.Colors) {
       opts[def.key] = String(raw).split(',').map(s => s.trim()).filter(Boolean)
     }
-    else if (def.type === 'boolean') {
+    else if (def.type === ChartOptionType.Boolean) {
       opts[def.key] = raw === 'true' || raw === true
     }
     else {
@@ -197,11 +198,11 @@ export function convertAreaFills(nodes: AreaFillNode[]): AreaFillConfig[] {
 export function convertAnnotations(nodes: AnnotationNode[]): AnnotationConfig[] {
   return nodes.map((a): AnnotationConfig => {
     const aProps = propertyMap(a.properties)
-    const kind = a.kind ?? 'point'
+    const kind = a.kind ?? AnnotationKind.Point
 
-    if (kind === 'range') {
+    if (kind === AnnotationKind.Range) {
       const result: RangeAnnotationConfig = {
-        kind: 'range',
+        kind: AnnotationKind.Range,
         start: aProps.has('start') ? (isNaN(Number(aProps.get('start'))) ? String(aProps.get('start')) : Number(aProps.get('start'))) : 0,
         end: aProps.has('end') ? (isNaN(Number(aProps.get('end'))) ? String(aProps.get('end')) : Number(aProps.get('end'))) : 0,
       }
@@ -209,13 +210,13 @@ export function convertAnnotations(nodes: AnnotationNode[]): AnnotationConfig[] 
         result.id = String(aProps.get('id'))
       }
       if (aProps.has('orientation')) {
-        result.orientation = String(aProps.get('orientation')) as 'vertical' | 'horizontal'
+        result.orientation = String(aProps.get('orientation')) as Orientation
       }
       if (aProps.has('startAnchor')) {
-        result.startAnchor = String(aProps.get('startAnchor')) as 'start' | 'center' | 'end'
+        result.startAnchor = String(aProps.get('startAnchor')) as RangeAnchor
       }
       if (aProps.has('endAnchor')) {
-        result.endAnchor = String(aProps.get('endAnchor')) as 'start' | 'center' | 'end'
+        result.endAnchor = String(aProps.get('endAnchor')) as RangeAnchor
       }
       if (aProps.has('bgColor')) {
         result.bgColor = String(aProps.get('bgColor'))
@@ -235,9 +236,9 @@ export function convertAnnotations(nodes: AnnotationNode[]): AnnotationConfig[] 
       return result
     }
 
-    if (kind === 'free') {
+    if (kind === AnnotationKind.Free) {
       const result: FreeAnnotationConfig = {
-        kind: 'free',
+        kind: AnnotationKind.Free,
         text: String(aProps.get('text') ?? ''),
         x: readPosition(a.properties, 'x') ?? 0,
         y: readPosition(a.properties, 'y') ?? 0,
@@ -261,7 +262,7 @@ export function convertAnnotations(nodes: AnnotationNode[]): AnnotationConfig[] 
     // point (default)
     const target = 'target' in a ? a.target : ''
     const result: PointAnnotationConfig = {
-      kind: 'point',
+      kind: AnnotationKind.Point,
       target,
       text: String(aProps.get('text') ?? ''),
     }

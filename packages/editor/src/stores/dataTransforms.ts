@@ -7,12 +7,13 @@ import { applyTranspose } from '../utils/transforms/applyTranspose'
 import { applyRename } from '../utils/transforms/applyRename'
 import { applyGroupBy } from '../utils/transforms/applyGroupBy'
 import { isTypeCompatible, parseOperationMap } from '../utils/transforms/parseOperations'
+import { TransformType } from '../enums'
 
 export type { ParseOperation } from '../utils/transforms/parseOperations'
 export { parseOperations } from '../utils/transforms/parseOperations'
 export { NULL_VALUE } from '../utils/transforms/applyParse'
 
-export type TransformType = 'sort' | 'filter' | 'hide-columns' | 'transpose' | 'parse' | 'rename' | 'group-by' | 'computed'
+export { TransformType }
 
 export interface TransformStep {
   id: string
@@ -63,25 +64,25 @@ export const useDataTransformsStore = defineStore('dataTransforms', () => {
     let result: TransformResult = { columns: [...columns], rows: rows.map(r => [...r]), columnTypes: [...columnTypes] }
     for (const step of stepList) {
       switch (step.type) {
-        case 'sort':
+        case TransformType.Sort:
           result = applySort(result, step.config)
           break
-        case 'filter':
+        case TransformType.Filter:
           result = applyFilter(result, step.config)
           break
-        case 'hide-columns':
+        case TransformType.HideColumns:
           result = applyHideColumns(result, step.config)
           break
-        case 'transpose':
+        case TransformType.Transpose:
           result = applyTranspose(result)
           break
-        case 'parse':
+        case TransformType.Parse:
           result = applyParse(result, step.config)
           break
-        case 'rename':
+        case TransformType.Rename:
           result = applyRename(result, step.config)
           break
-        case 'group-by':
+        case TransformType.GroupBy:
           result = applyGroupBy(result, step.config)
           break
         // computed is not yet implemented
@@ -106,7 +107,7 @@ export const useDataTransformsStore = defineStore('dataTransforms', () => {
       return `Column "${config.column}" not found`
     }
 
-    if (step.type === 'parse' && config.column && config.operation) {
+    if (step.type === TransformType.Parse && config.column && config.operation) {
       const colIndex = columns.indexOf(config.column)
       if (colIndex >= 0 && !isTypeCompatible(config.operation, columnTypes[colIndex])) {
         const op = parseOperationMap.get(config.operation)
@@ -114,7 +115,7 @@ export const useDataTransformsStore = defineStore('dataTransforms', () => {
       }
     }
 
-    if (step.type === 'rename') {
+    if (step.type === TransformType.Rename) {
       if (!config.column) {
         return 'No column selected'
       }
@@ -124,15 +125,15 @@ export const useDataTransformsStore = defineStore('dataTransforms', () => {
       return null
     }
 
-    if (step.type === 'filter' && !config.column) {
+    if (step.type === TransformType.Filter && !config.column) {
       return 'No column selected'
     }
 
-    if (step.type === 'sort' && !config.column && !config.columns) {
+    if (step.type === TransformType.Sort && !config.column && !config.columns) {
       return 'No column selected'
     }
 
-    if (step.type === 'group-by') {
+    if (step.type === TransformType.GroupBy) {
       if (!config.groupColumns) {
         return 'No group columns selected'
       }

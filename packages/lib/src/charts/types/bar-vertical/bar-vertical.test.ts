@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { render } from './bar-vertical'
 import { buildChartOptions } from '../../chart-helpers'
+import { SortDirection, ValueLabelPosition, GridStyle } from '../../../enums'
 
 describe('bar-vertical', () => {
   let container: HTMLElement
@@ -127,7 +128,7 @@ describe('bar-vertical', () => {
   // ── Sort ─────────────────────────────────────────────────────────
 
   it('sorts bars in descending order', () => {
-    render(container, data, { sort: 'descending' })
+    render(container, data, { sort: SortDirection.Descending })
     const bars = container.querySelectorAll('.bc-bar')
     const heights = Array.from(bars).map(b => Number(b.getAttribute('height')))
     expect(heights[0]).toBeGreaterThanOrEqual(heights[1])
@@ -135,7 +136,7 @@ describe('bar-vertical', () => {
   })
 
   it('sorts bars in ascending order', () => {
-    render(container, data, { sort: 'ascending' })
+    render(container, data, { sort: SortDirection.Ascending })
     const bars = container.querySelectorAll('.bc-bar')
     const heights = Array.from(bars).map(b => Number(b.getAttribute('height')))
     expect(heights[0]).toBeLessThanOrEqual(heights[1])
@@ -173,14 +174,14 @@ describe('bar-vertical', () => {
   })
 
   it('value labels respect ascending sort order', () => {
-    render(container, data, { valueLabels: true, sort: 'ascending' })
+    render(container, data, { valueLabels: true, sort: SortDirection.Ascending })
     const texts = Array.from(container.querySelectorAll('.bc-value-label'))
       .map(el => el.textContent)
     expect(texts).toEqual(['10', '20', '30'])
   })
 
   it('value labels respect descending sort order', () => {
-    render(container, data, { valueLabels: true, sort: 'descending' })
+    render(container, data, { valueLabels: true, sort: SortDirection.Descending })
     const texts = Array.from(container.querySelectorAll('.bc-value-label'))
       .map(el => el.textContent)
     expect(texts).toEqual(['30', '20', '10'])
@@ -194,7 +195,7 @@ describe('bar-vertical', () => {
   })
 
   it('value labels support "inside" position', () => {
-    render(container, data, { valueLabels: true, valueLabelPosition: 'inside' })
+    render(container, data, { valueLabels: true, valueLabelPosition: ValueLabelPosition.Inside })
     const labels = container.querySelectorAll('.bc-value-label')
     expect(labels).toHaveLength(3)
     // Inside labels use 'central' dominant-baseline
@@ -203,7 +204,7 @@ describe('bar-vertical', () => {
   })
 
   it('value labels support "outside" position', () => {
-    render(container, data, { valueLabels: true, valueLabelPosition: 'outside' })
+    render(container, data, { valueLabels: true, valueLabelPosition: ValueLabelPosition.Outside })
     const labels = container.querySelectorAll('.bc-value-label')
     expect(labels).toHaveLength(3)
     // Outside labels for positive values use 'auto' dominant-baseline
@@ -310,7 +311,7 @@ describe('bar-vertical', () => {
     const bigData = { labels: ['A', 'B'], values: [5000, 10000] }
     const opts = buildChartOptions({
       showVerticalAxis: false,
-      verticalGridStyle: 'dashed',
+      verticalGridStyle: GridStyle.Dashed,
       verticalNumberFormat: '$|,.0f|',
     })
     render(container, bigData, opts)
@@ -328,7 +329,7 @@ describe('bar-vertical', () => {
     // Re-render with format
     const opts = buildChartOptions({
       showVerticalAxis: false,
-      verticalGridStyle: 'dashed',
+      verticalGridStyle: GridStyle.Dashed,
       verticalNumberFormat: ',.0f',
     })
     render(container, bigData, opts)
@@ -440,7 +441,7 @@ describe('bar-vertical', () => {
         .map(el => el.textContent)
 
       container.replaceChildren()
-      render(container, data, { valueLabels: true, sort: 'ascending' })
+      render(container, data, { valueLabels: true, sort: SortDirection.Ascending })
 
       const textsAfter = Array.from(container.querySelectorAll('.bc-value-label'))
         .map(el => el.textContent)

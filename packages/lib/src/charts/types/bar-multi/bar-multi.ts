@@ -15,6 +15,7 @@ import { contrastTextColor, readableColor, resolveBackgroundColor } from '../../
 import { resolveSeriesColor, isSeriesHidden, resolveSeriesValueLabels, resolveSeriesOpacity, resolveSeriesLabelMode } from '../../series-helpers'
 import { getDefaultTransitionMs, setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut, reinsertWithOffset } from '../../motion'
 import { setCachedChart, getCachedChart } from '../../transition-cache'
+import { ValueLabelPosition, DirectLabelMode } from '../../../enums'
 
 const DEFAULT_COLORS = [
   '#4e79a7', '#f28e2b', '#e15759', '#76b7b2',
@@ -301,35 +302,35 @@ export function render(
   // Parse direct label sub-mode
   const dlMode = typeof options.directLabelling === 'string'
     ? options.directLabelling
-    : (options.directLabelling ? 'auto' : '')
+    : (options.directLabelling ? DirectLabelMode.Auto : DirectLabelMode.Off)
   const dlAnchor = options.directLabelAnchor ?? 'middle'
 
   // Resolve value label position
-  const vlPos = options.valueLabelPosition ?? 'auto'
-  function resolveVlMode(): 'inside' | 'outside' {
-    if (vlPos === 'inside') {
-      return 'inside'
+  const vlPos = options.valueLabelPosition ?? ValueLabelPosition.Auto
+  function resolveVlMode(): ValueLabelPosition.Inside | ValueLabelPosition.Outside {
+    if (vlPos === ValueLabelPosition.Inside) {
+      return ValueLabelPosition.Inside
     }
-    if (vlPos === 'outside') {
-      return 'outside'
+    if (vlPos === ValueLabelPosition.Outside) {
+      return ValueLabelPosition.Outside
     }
     // auto: outside by default
-    return 'outside'
+    return ValueLabelPosition.Outside
   }
 
-  function resolveBarDlMode(barHeight: number): 'inside' | 'outside' {
-    if (dlMode === 'inside') {
-      return 'inside'
+  function resolveBarDlMode(barHeight: number): ValueLabelPosition.Inside | ValueLabelPosition.Outside {
+    if (dlMode === DirectLabelMode.Inside) {
+      return ValueLabelPosition.Inside
     }
-    if (dlMode === 'outside') {
-      return 'outside'
+    if (dlMode === DirectLabelMode.Outside) {
+      return ValueLabelPosition.Outside
     }
     // auto: match value label position when value labels are enabled
     if (globalValueLabels) {
       return resolveVlMode(barHeight)
     }
     // auto: outside by default
-    return 'outside'
+    return ValueLabelPosition.Outside
   }
 
   function insideLabelY(barTop: number, barHeight: number, anchor: string): number {
@@ -359,12 +360,12 @@ export function render(
     let cy: number
     let fill: string
     let baseline: string
-    if (vlMode === 'inside') {
+    if (vlMode === ValueLabelPosition.Inside) {
       const barColor = resolveSeriesColor(datum.seriesName, datum.seriesIndex, colors, overrides)
       fill = contrastTextColor(barColor)
       baseline = 'central'
       // When direct labels are also inside, offset below the direct label
-      const dlIsInside = hasDl && resolveBarDlMode(barHeight) === 'inside'
+      const dlIsInside = hasDl && resolveBarDlMode(barHeight) === ValueLabelPosition.Inside
       if (dlIsInside) {
         const dlY = insideLabelY(barTop, barHeight, dlAnchor)
         cy = dlY + 14
@@ -377,13 +378,13 @@ export function render(
       fill = 'currentColor'
       if (isNegative) {
         // Place below the bar for negative values
-        const dlIsOutside = hasDl && resolveBarDlMode(barHeight) === 'outside'
+        const dlIsOutside = hasDl && resolveBarDlMode(barHeight) === ValueLabelPosition.Outside
         cy = dlIsOutside ? barBottom + 16 : barBottom + 4
         baseline = 'hanging'
       }
       else {
         // Place above the bar for positive values
-        const dlIsOutside = hasDl && resolveBarDlMode(barHeight) === 'outside'
+        const dlIsOutside = hasDl && resolveBarDlMode(barHeight) === ValueLabelPosition.Outside
         cy = dlIsOutside ? barTop - 16 : barTop - 4
         baseline = 'auto'
       }
@@ -421,7 +422,7 @@ export function render(
       .attr('font-size', '10px')
       .text(labelText)
 
-    if (mode === 'inside') {
+    if (mode === ValueLabelPosition.Inside) {
       const ly = insideLabelY(barTop, barHeight, dlAnchor)
       labelEl
         .attr('y', ly)

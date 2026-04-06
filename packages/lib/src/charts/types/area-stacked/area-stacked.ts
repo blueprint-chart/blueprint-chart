@@ -18,6 +18,7 @@ import { computeStack, computeStack100 } from '../../stack-helpers'
 import { filterLabelsByRange } from '../../scale-helpers'
 import { resolveSeriesColor, resolveSeriesInterpolation, isSeriesHidden, resolveSeriesLabelMode } from '../../series-helpers'
 import { spreadLabels } from '../../plugins/arc-labels'
+import { StackMode, SortDirection } from '../../../enums'
 
 const DEFAULT_COLORS = [
   '#4e79a7', '#f28e2b', '#e15759', '#76b7b2',
@@ -223,17 +224,17 @@ export function render(
   // Compute domain and margins before estimating legend size,
   // so we can use the actual chart-area width for wrapping estimation.
   const isStacked = options.stacked !== false
-  const isPercent = options.stackPercent === true || options.stackMode === 'percent'
-  const areaSortMode = options.areaSortMode ?? 'none'
+  const isPercent = options.stackPercent === true || options.stackMode === StackMode.Percent
+  const areaSortMode = options.areaSortMode ?? SortDirection.None
   const showAreaLines = options.areaLines !== false
 
   // Sort series by total if requested
   const sortedSeries = [...series]
-  if (areaSortMode !== 'none') {
+  if (areaSortMode !== SortDirection.None) {
     const totals = new Map(sortedSeries.map(s => [s.name, s.values.reduce((a, b) => a + b, 0)]))
     sortedSeries.sort((a, b) => {
       const diff = (totals.get(a.name) ?? 0) - (totals.get(b.name) ?? 0)
-      return areaSortMode === 'ascending' ? diff : -diff
+      return areaSortMode === SortDirection.Ascending ? diff : -diff
     })
   }
 

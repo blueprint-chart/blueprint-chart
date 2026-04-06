@@ -121,6 +121,7 @@
 </template>
 
 <script setup lang="ts">
+import { ChartType, AnnotationKind } from '@blueprint-chart/lib'
 import type { AnnotationConfig, PointAnnotationConfig, RangeAnnotationConfig, FreeAnnotationConfig } from '@blueprint-chart/lib'
 import { ButtonAdd, SectionCard, SettingsSection } from '@blueprint-chart/ui'
 import IPhMapPin from '~icons/ph/map-pin'
@@ -153,7 +154,7 @@ function generateId(): string {
   return id
 }
 
-const isPieOrDonut = computed(() => props.chartType === 'pie' || props.chartType === 'donut')
+const isPieOrDonut = computed(() => props.chartType === ChartType.Pie || props.chartType === ChartType.Donut)
 
 const openIndex = ref<number | null>(null)
 
@@ -166,19 +167,19 @@ defineExpose({ openIndex })
 const pointAnnotations = computed(() =>
   annotations.value
     .map((ann, index) => ({ ann, index }))
-    .filter(({ ann }) => ann.kind === 'point'),
+    .filter(({ ann }) => ann.kind === AnnotationKind.Point),
 )
 
 const rangeAnnotations = computed(() =>
   annotations.value
     .map((ann, index) => ({ ann, index }))
-    .filter(({ ann }) => ann.kind === 'range'),
+    .filter(({ ann }) => ann.kind === AnnotationKind.Range),
 )
 
 const freeAnnotations = computed(() =>
   annotations.value
     .map((ann, index) => ({ ann, index }))
-    .filter(({ ann }) => ann.kind === 'free'),
+    .filter(({ ann }) => ann.kind === AnnotationKind.Free),
 )
 
 function isHidden(ann: AnnotationConfig): boolean {
@@ -192,20 +193,20 @@ function toggleVisibility(ann: AnnotationConfig) {
 }
 
 function kindLabel(ann: AnnotationConfig): string {
-  if (ann.kind === 'point') {
+  if (ann.kind === AnnotationKind.Point) {
     return 'Point'
   }
-  if (ann.kind === 'range') {
+  if (ann.kind === AnnotationKind.Range) {
     return 'Range'
   }
   return 'Note'
 }
 
 function summaryText(ann: AnnotationConfig): string {
-  if (ann.kind === 'point') {
+  if (ann.kind === AnnotationKind.Point) {
     return ann.text || ann.target || 'Empty'
   }
-  if (ann.kind === 'range') {
+  if (ann.kind === AnnotationKind.Range) {
     return ann.text || `${ann.start} - ${
       ann.end}`
   }
@@ -219,7 +220,7 @@ function update(index: number, value: AnnotationConfig) {
 }
 
 function addPoint() {
-  const ann: PointAnnotationConfig = { kind: 'point', id: generateId(), target: props.labels[0] ?? '', text: 'Enter an annotation', showLine: true, showArrow: true }
+  const ann: PointAnnotationConfig = { kind: AnnotationKind.Point, id: generateId(), target: props.labels[0] ?? '', text: 'Enter an annotation', showLine: true, showArrow: true }
   const next = [...annotations.value, ann]
   model.value = next
   openIndex.value = next.length - 1
@@ -228,7 +229,7 @@ function addPoint() {
 function addRange() {
   const hasLabels = props.labels.length > 0
   const ann: RangeAnnotationConfig = {
-    kind: 'range',
+    kind: AnnotationKind.Range,
     id: generateId(),
     start: hasLabels ? props.labels[0] : 0,
     end: hasLabels ? props.labels[props.labels.length - 1] : 100,
@@ -239,7 +240,7 @@ function addRange() {
 }
 
 function addFree() {
-  const ann: FreeAnnotationConfig = { kind: 'free', id: generateId(), text: 'Enter an annotation', x: 0, y: 0 }
+  const ann: FreeAnnotationConfig = { kind: AnnotationKind.Free, id: generateId(), text: 'Enter an annotation', x: 0, y: 0 }
   const next = [...annotations.value, ann]
   model.value = next
   openIndex.value = next.length - 1

@@ -120,7 +120,7 @@ import { FormControlColorsInput, FormControlPalette, FormControlCheckbox, Displa
 import { useChartConfig } from '@/stores/chartConfig'
 import { useChartTypeOptions } from '@/stores/chartTypeOptions'
 import { useCvdMode } from '@/stores/cvdMode'
-import { parseData, listPalettes, resolvePalette } from '@blueprint-chart/lib'
+import { ChartType, parseData, listPalettes, resolvePalette } from '@blueprint-chart/lib'
 import type { CvdType } from '@blueprint-chart/lib'
 import IconPhCheck from '~icons/ph/check'
 import IconPhEye from '~icons/ph/eye'
@@ -136,7 +136,7 @@ const { currentOptions, availableOptionKeys, setOption } = useChartTypeOptions()
 const { cvdMode } = storeToRefs(useCvdMode())
 
 const hasColorizes = computed(() =>
-  ['bar-vertical', 'bar-horizontal', 'vertical-bar', 'horizontal-bar'].includes(chartType.value),
+  ([ChartType.BarVertical, ChartType.BarHorizontal, ChartType.VerticalBar, ChartType.HorizontalBar] as string[]).includes(chartType.value),
 )
 
 const hasColors = computed(() => availableOptionKeys.value.includes('colors'))

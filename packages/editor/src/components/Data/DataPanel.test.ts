@@ -63,9 +63,13 @@ vi.mock('@/stores/parseOptions', () => ({
   }),
 }))
 
-vi.mock('@blueprint-chart/lib', () => ({
-  samples: [],
-}))
+vi.mock('@blueprint-chart/lib', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@blueprint-chart/lib')>()
+  return {
+    ...actual,
+    samples: [],
+  }
+})
 
 vi.mock('@/stores/chartSession', () => ({
   useChartSession: () => ({

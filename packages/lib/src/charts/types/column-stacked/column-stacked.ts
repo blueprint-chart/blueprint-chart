@@ -15,6 +15,7 @@ import { resolveSeriesColor, isSeriesHidden, resolveSeriesValueLabels, resolveSe
 import { getDefaultTransitionMs, setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut, reinsertWithOffset } from '../../motion'
 import { setCachedChart, getCachedChart } from '../../transition-cache'
 import { computeStack, computeStack100 } from '../../stack-helpers'
+import { StackMode } from '../../../enums'
 
 const DEFAULT_COLORS = [
   '#4e79a7', '#f28e2b', '#e15759', '#76b7b2',
@@ -155,7 +156,7 @@ export function render(
   // Build filtered data for stacking
   const filteredData: ChartData = { labels: data.labels, values: data.values, series }
 
-  const isPercent = options.stackMode === 'percent'
+  const isPercent = options.stackMode === StackMode.Percent
   const stacked = isPercent ? computeStack100(filteredData) : computeStack(filteredData)
   const flatData = flattenStack(stacked, data.labels, allSeries)
 

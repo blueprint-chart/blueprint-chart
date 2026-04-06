@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { DslNodeType, AnnotationKind, AnnotationAction } from '../enums'
 import { parse } from './parser'
 
 const SIMPLE_CHART = `chart horizontal-bar {
@@ -63,7 +64,7 @@ describe('parser', () => {
   describe('simple chart', () => {
     it('parses the chart type', () => {
       const ast = parse(SIMPLE_CHART)
-      expect(ast.type).toBe('chart')
+      expect(ast.type).toBe(DslNodeType.Chart)
       expect(ast.chartType).toBe('horizontal-bar')
     })
 
@@ -71,13 +72,13 @@ describe('parser', () => {
       const ast = parse(SIMPLE_CHART)
       expect(ast.properties).toHaveLength(2)
       expect(ast.properties[0]).toEqual({
-        type: 'property',
+        type: DslNodeType.Property,
         key: 'title',
         value: 'Couverture médiatique',
         isPercentage: false,
       })
       expect(ast.properties[1]).toEqual({
-        type: 'property',
+        type: DslNodeType.Property,
         key: 'sort',
         value: 'descending',
         isPercentage: false,
@@ -89,13 +90,13 @@ describe('parser', () => {
       expect(ast.data).not.toBeNull()
       expect(ast.data!.entries).toHaveLength(4)
       expect(ast.data!.entries[0]).toEqual({
-        type: 'property',
+        type: DslNodeType.Property,
         key: '20 Minutes',
         value: 61.11,
         isPercentage: true,
       })
       expect(ast.data!.entries[3]).toEqual({
-        type: 'property',
+        type: DslNodeType.Property,
         key: 'LeMonde',
         value: 75,
         isPercentage: true,
@@ -108,7 +109,7 @@ describe('parser', () => {
       expect(ast.colorizes[0].target).toBe('Guardian')
       expect(ast.colorizes[0].properties).toHaveLength(2)
       expect(ast.colorizes[0].properties[0]).toEqual({
-        type: 'property',
+        type: DslNodeType.Property,
         key: 'color',
         value: '#e53e3e',
         isPercentage: false,
@@ -137,7 +138,7 @@ describe('parser', () => {
     it('parses scene properties', () => {
       const ast = parse(CHART_WITH_SCENES)
       expect(ast.scenes[0].properties).toEqual([
-        { type: 'property', key: 'sort', value: 'descending', isPercentage: false },
+        { type: DslNodeType.Property, key: 'sort', value: 'descending', isPercentage: false },
       ])
     })
 
@@ -152,7 +153,7 @@ describe('parser', () => {
     it('parses highlight block', () => {
       const ast = parse('chart line {\n  highlight "China"\n}')
       expect(ast.highlights).toHaveLength(1)
-      expect(ast.highlights[0].type).toBe('highlight')
+      expect(ast.highlights[0].type).toBe(DslNodeType.Highlight)
       expect(ast.highlights[0].target).toBe('China')
     })
 
@@ -167,7 +168,7 @@ describe('parser', () => {
       expect(ast.scenes[2].data).not.toBeNull()
       expect(ast.scenes[2].data!.entries).toHaveLength(4)
       expect(ast.scenes[2].data!.entries[0]).toEqual({
-        type: 'property',
+        type: DslNodeType.Property,
         key: '20 Minutes',
         value: 51,
         isPercentage: true,
@@ -203,7 +204,7 @@ describe('parser', () => {
     it('accepts backward-compatible "step" keyword', () => {
       const ast = parse('chart bar {\n  step "Old" {\n    title = "compat"\n  }\n}')
       expect(ast.scenes).toHaveLength(1)
-      expect(ast.scenes[0].type).toBe('scene')
+      expect(ast.scenes[0].type).toBe(DslNodeType.Scene)
       expect(ast.scenes[0].name).toBe('Old')
     })
   })
@@ -250,13 +251,13 @@ describe('parser', () => {
       expect(ast.data).not.toBeNull()
       expect(ast.data!.entries).toHaveLength(2)
       expect(ast.data!.entries[0]).toEqual({
-        type: 'property',
+        type: DslNodeType.Property,
         key: 'Apple',
         value: 42,
         isPercentage: false,
       })
       expect(ast.data!.entries[1]).toEqual({
-        type: 'property',
+        type: DslNodeType.Property,
         key: 'Banana',
         value: 58,
         isPercentage: false,
@@ -266,7 +267,7 @@ describe('parser', () => {
     it('parses tab-separated percentage values', () => {
       const ast = parse('chart bar {\n  data {\n    Sales\t75%\n  }\n}')
       expect(ast.data!.entries[0]).toEqual({
-        type: 'property',
+        type: DslNodeType.Property,
         key: 'Sales',
         value: 75,
         isPercentage: true,
@@ -282,7 +283,7 @@ describe('parser', () => {
     it('parses tab-separated string values', () => {
       const ast = parse('chart bar {\n  data {\n    Item\t"hello world"\n  }\n}')
       expect(ast.data!.entries[0]).toEqual({
-        type: 'property',
+        type: DslNodeType.Property,
         key: 'Item',
         value: 'hello world',
         isPercentage: false,
@@ -331,9 +332,9 @@ describe('parser', () => {
       const ast = parse('chart bar {\n  scene {\n    hide_annotation "abc"\n  }\n}')
       expect(ast.scenes[0].annotationVisibility).toHaveLength(1)
       expect(ast.scenes[0].annotationVisibility[0]).toEqual({
-        type: 'annotation-visibility',
-        action: 'hide',
-        kind: 'point',
+        type: DslNodeType.AnnotationVisibility,
+        action: AnnotationAction.Hide,
+        kind: AnnotationKind.Point,
         id: 'abc',
       })
     })
@@ -342,9 +343,9 @@ describe('parser', () => {
       const ast = parse('chart bar {\n  scene {\n    show_annotation "abc"\n  }\n}')
       expect(ast.scenes[0].annotationVisibility).toHaveLength(1)
       expect(ast.scenes[0].annotationVisibility[0]).toEqual({
-        type: 'annotation-visibility',
-        action: 'show',
-        kind: 'point',
+        type: DslNodeType.AnnotationVisibility,
+        action: AnnotationAction.Show,
+        kind: AnnotationKind.Point,
         id: 'abc',
       })
     })
@@ -353,9 +354,9 @@ describe('parser', () => {
       const ast = parse('chart bar {\n  scene {\n    hide_range "r1"\n  }\n}')
       expect(ast.scenes[0].annotationVisibility).toHaveLength(1)
       expect(ast.scenes[0].annotationVisibility[0]).toEqual({
-        type: 'annotation-visibility',
-        action: 'hide',
-        kind: 'range',
+        type: DslNodeType.AnnotationVisibility,
+        action: AnnotationAction.Hide,
+        kind: AnnotationKind.Range,
         id: 'r1',
       })
     })
@@ -364,9 +365,9 @@ describe('parser', () => {
       const ast = parse('chart bar {\n  scene {\n    show_range "r1"\n  }\n}')
       expect(ast.scenes[0].annotationVisibility).toHaveLength(1)
       expect(ast.scenes[0].annotationVisibility[0]).toEqual({
-        type: 'annotation-visibility',
-        action: 'show',
-        kind: 'range',
+        type: DslNodeType.AnnotationVisibility,
+        action: AnnotationAction.Show,
+        kind: AnnotationKind.Range,
         id: 'r1',
       })
     })
@@ -375,9 +376,9 @@ describe('parser', () => {
       const ast = parse('chart bar {\n  scene {\n    hide_note "n1"\n  }\n}')
       expect(ast.scenes[0].annotationVisibility).toHaveLength(1)
       expect(ast.scenes[0].annotationVisibility[0]).toEqual({
-        type: 'annotation-visibility',
-        action: 'hide',
-        kind: 'free',
+        type: DslNodeType.AnnotationVisibility,
+        action: AnnotationAction.Hide,
+        kind: AnnotationKind.Free,
         id: 'n1',
       })
     })
@@ -386,9 +387,9 @@ describe('parser', () => {
       const ast = parse('chart bar {\n  scene {\n    show_note "n1"\n  }\n}')
       expect(ast.scenes[0].annotationVisibility).toHaveLength(1)
       expect(ast.scenes[0].annotationVisibility[0]).toEqual({
-        type: 'annotation-visibility',
-        action: 'show',
-        kind: 'free',
+        type: DslNodeType.AnnotationVisibility,
+        action: AnnotationAction.Show,
+        kind: AnnotationKind.Free,
         id: 'n1',
       })
     })
@@ -397,21 +398,21 @@ describe('parser', () => {
       const ast = parse('chart bar {\n  scene {\n    hide_annotation "a1"\n    show_range "r1"\n    hide_note "n1"\n  }\n}')
       expect(ast.scenes[0].annotationVisibility).toHaveLength(3)
       expect(ast.scenes[0].annotationVisibility[0]).toEqual({
-        type: 'annotation-visibility',
-        action: 'hide',
-        kind: 'point',
+        type: DslNodeType.AnnotationVisibility,
+        action: AnnotationAction.Hide,
+        kind: AnnotationKind.Point,
         id: 'a1',
       })
       expect(ast.scenes[0].annotationVisibility[1]).toEqual({
-        type: 'annotation-visibility',
-        action: 'show',
-        kind: 'range',
+        type: DslNodeType.AnnotationVisibility,
+        action: AnnotationAction.Show,
+        kind: AnnotationKind.Range,
         id: 'r1',
       })
       expect(ast.scenes[0].annotationVisibility[2]).toEqual({
-        type: 'annotation-visibility',
-        action: 'hide',
-        kind: 'free',
+        type: DslNodeType.AnnotationVisibility,
+        action: AnnotationAction.Hide,
+        kind: AnnotationKind.Free,
         id: 'n1',
       })
     })
@@ -420,7 +421,7 @@ describe('parser', () => {
       const ast = parse('chart bar {\n  annotation "X" {\n    id = "abc"\n  }\n}')
       expect(ast.annotations).toHaveLength(1)
       expect(ast.annotations[0].properties).toContainEqual({
-        type: 'property',
+        type: DslNodeType.Property,
         key: 'id',
         value: 'abc',
         isPercentage: false,
@@ -438,7 +439,7 @@ describe('parser', () => {
 }`)
       expect(ast.areaFills).toHaveLength(1)
       expect(ast.areaFills[0]).toMatchObject({
-        type: 'areafill',
+        type: DslNodeType.AreaFill,
         from: 'Revenue',
         to: 'Cost',
       })
@@ -469,7 +470,7 @@ describe('parser', () => {
   }
 }`)
       expect(ast.annotations).toHaveLength(1)
-      expect(ast.annotations[0]).toMatchObject({ type: 'annotation', kind: 'point', target: 'Q3' })
+      expect(ast.annotations[0]).toMatchObject({ type: DslNodeType.Annotation, kind: AnnotationKind.Point, target: 'Q3' })
       expect(ast.annotations[0].properties).toHaveLength(6)
     })
 
@@ -483,7 +484,7 @@ describe('parser', () => {
   }
 }`)
       expect(ast.annotations).toHaveLength(1)
-      expect(ast.annotations[0]).toMatchObject({ type: 'annotation', kind: 'range' })
+      expect(ast.annotations[0]).toMatchObject({ type: DslNodeType.Annotation, kind: AnnotationKind.Range })
       expect(ast.annotations[0].properties).toHaveLength(4)
     })
 
@@ -497,7 +498,7 @@ describe('parser', () => {
   }
 }`)
       expect(ast.annotations).toHaveLength(1)
-      expect(ast.annotations[0]).toMatchObject({ type: 'annotation', kind: 'free' })
+      expect(ast.annotations[0]).toMatchObject({ type: DslNodeType.Annotation, kind: AnnotationKind.Free })
       expect(ast.annotations[0].properties).toHaveLength(4)
       expect(ast.annotations[0].properties[1]).toMatchObject({ key: 'x', value: 50, isPercentage: true })
     })
@@ -509,9 +510,9 @@ describe('parser', () => {
   note { text = "free" x = 0 y = 0 }
 }`)
       expect(ast.annotations).toHaveLength(3)
-      expect(ast.annotations[0].kind).toBe('point')
-      expect(ast.annotations[1].kind).toBe('range')
-      expect(ast.annotations[2].kind).toBe('free')
+      expect(ast.annotations[0].kind).toBe(AnnotationKind.Point)
+      expect(ast.annotations[1].kind).toBe(AnnotationKind.Range)
+      expect(ast.annotations[2].kind).toBe(AnnotationKind.Free)
     })
   })
 
@@ -526,7 +527,7 @@ describe('parser', () => {
   }
 }`)
       expect(ast.series).toHaveLength(1)
-      expect(ast.series[0]).toMatchObject({ type: 'series', name: 'Revenue' })
+      expect(ast.series[0]).toMatchObject({ type: DslNodeType.Series, name: 'Revenue' })
       expect(ast.series[0].properties).toHaveLength(4)
     })
 
@@ -549,7 +550,7 @@ describe('parser', () => {
   }
 }`)
       expect(ast.transforms).toHaveLength(1)
-      expect(ast.transforms[0]).toMatchObject({ type: 'transform', transformType: 'rolling-average' })
+      expect(ast.transforms[0]).toMatchObject({ type: DslNodeType.Transform, transformType: 'rolling-average' })
       expect(ast.transforms[0].properties[0]).toMatchObject({ key: 'window', value: 7 })
     })
 
@@ -680,7 +681,7 @@ describe('parser', () => {
     it('parses "highlight" keyword as colorize node', () => {
       const ast = parse('chart bar {\n  highlight "X" {\n    color = "#ff0"\n  }\n}')
       expect(ast.colorizes).toHaveLength(1)
-      expect(ast.colorizes[0].type).toBe('colorize')
+      expect(ast.colorizes[0].type).toBe(DslNodeType.Colorize)
       expect(ast.colorizes[0].target).toBe('X')
       expect(ast.colorizes[0].properties[0].value).toBe('#ff0')
     })

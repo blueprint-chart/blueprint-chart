@@ -1,3 +1,4 @@
+import { SortDirection } from '@blueprint-chart/lib'
 import { applySort } from './applySort'
 import type { TransformResult } from '@/stores/dataTransforms'
 
@@ -9,7 +10,7 @@ describe('applySort', () => {
   it('sorts ascending by numeric column', () => {
     const result = applySort(
       make(['Name', 'Value'], [['Bananas', '58'], ['Apples', '10'], ['Cherries', '30']], ['string', 'number']),
-      { column: 'Value', direction: 'ascending' },
+      { column: 'Value', direction: SortDirection.Ascending },
     )
     expect(result.rows[0][0]).toBe('Apples')
     expect(result.rows[1][0]).toBe('Cherries')
@@ -19,7 +20,7 @@ describe('applySort', () => {
   it('sorts descending', () => {
     const result = applySort(
       make(['Name', 'Value'], [['Bananas', '58'], ['Apples', '10'], ['Cherries', '30']], ['string', 'number']),
-      { column: 'Value', direction: 'descending' },
+      { column: 'Value', direction: SortDirection.Descending },
     )
     expect(result.rows[0][0]).toBe('Bananas')
     expect(result.rows[2][0]).toBe('Apples')
@@ -28,7 +29,7 @@ describe('applySort', () => {
   it('sorts date type columns', () => {
     const result = applySort(
       make(['Date', 'Value'], [['2024-03-15', '10'], ['2024-01-01', '20'], ['2024-02-10', '30']], ['date', 'number']),
-      { column: 'Date', direction: 'ascending' },
+      { column: 'Date', direction: SortDirection.Ascending },
     )
     expect(result.rows[0][0]).toBe('2024-01-01')
     expect(result.rows[1][0]).toBe('2024-02-10')
@@ -37,7 +38,7 @@ describe('applySort', () => {
 
   it('ignores unknown column', () => {
     const data = make(['Name', 'Value'], [['A', '1'], ['B', '2']], ['string', 'number'])
-    const result = applySort(data, { column: 'Unknown', direction: 'ascending' })
+    const result = applySort(data, { column: 'Unknown', direction: SortDirection.Ascending })
     expect(result.rows.length).toBe(2)
   })
 

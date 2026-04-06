@@ -13,6 +13,7 @@ import { getDefaultTransitionMs, setRenderTransition, fadeIn, snapshotForFadeOut
 import { setCachedChart, getCachedChart } from '../../transition-cache'
 import { createTooltipPlugin } from '../../plugins/tooltip'
 import { createCrosshairPlugin } from '../../plugins/crosshair'
+import { Orientation, ValueLabelPosition } from '../../../enums'
 
 const DEFAULT_COLORS = [
   '#4e79a7', '#f28e2b', '#e15759', '#76b7b2',
@@ -304,7 +305,7 @@ export function render(
   }
   if (options.crosshair) {
     chart.use(createCrosshairPlugin({
-      width, height, direction: options.crosshairDirection, style: options.crosshairStyle, color: options.crosshairColor, orientation: 'horizontal',
+      width, height, direction: options.crosshairDirection, style: options.crosshairStyle, color: options.crosshairColor, orientation: Orientation.Horizontal,
     }))
   }
 
@@ -350,7 +351,7 @@ export function render(
 
   // Value labels (default true — the primary way to read values in split bars)
   const globalValueLabels = options.valueLabels ?? true
-  const valueLabelPos = options.valueLabelPosition ?? 'auto'
+  const valueLabelPos = options.valueLabelPosition ?? ValueLabelPosition.Auto
   const vlGroup = d3.select(chartArea).append('g').attr('class', 'bc-value-labels')
 
   flatData.forEach((datum) => {
@@ -367,8 +368,8 @@ export function render(
     const barHeight = Math.max(0, y.bandwidth() - categoryLabelOffset)
     const cy = (y(datum.label) ?? 0) + categoryLabelOffset + barHeight / 2
 
-    const isInside = valueLabelPos === 'inside'
-      || (valueLabelPos === 'auto' && datum.barWidth > 30)
+    const isInside = valueLabelPos === ValueLabelPosition.Inside
+      || (valueLabelPos === ValueLabelPosition.Auto && datum.barWidth > 30)
 
     let tx: number
     let anchor: string

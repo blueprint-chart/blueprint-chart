@@ -1,4 +1,5 @@
 import type { Ref } from 'vue'
+import { ChartType } from '@blueprint-chart/lib'
 import { useChartConfig } from './useChartConfig'
 import { useChartTypeOptions } from './useChartTypeOptions'
 import { useScenes } from './useScenes'
@@ -91,7 +92,7 @@ export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
     }
     const data = parseData(dataStr)
 
-    const singleSeriesTypes = ['bar-vertical', 'bar-horizontal', 'line', 'vertical-bar', 'horizontal-bar']
+    const singleSeriesTypes = [ChartType.BarVertical, ChartType.BarHorizontal, ChartType.Line, ChartType.VerticalBar, ChartType.HorizontalBar]
     if (data.series && data.series.length > 0 && singleSeriesTypes.includes(chartType)) {
       const colName = config.selectedColumn.value
       const match = data.series.find(s => s.name === colName)

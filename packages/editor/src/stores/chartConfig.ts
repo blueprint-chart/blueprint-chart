@@ -1,5 +1,6 @@
 import type { Ref, WritableComputedRef, ToRefs } from 'vue'
 import type { AreaFillConfig, AnnotationConfig, SeriesOverride, HighlightConfig } from '@blueprint-chart/lib'
+import { ChartType, SortDirection } from '@blueprint-chart/lib'
 import { useScenes, type SceneOverride } from '@/stores/scenes'
 
 export function deepEqual(a: unknown, b: unknown): boolean {
@@ -110,7 +111,7 @@ export interface ChartConfig {
   source: string
   sourceUrl: string
   note: string
-  sort: 'ascending' | 'descending' | 'none'
+  sort: SortDirection
   sortMode: 'total' | 'within-groups' | 'none'
   data: string
   selectedColumn: string
@@ -123,14 +124,14 @@ export interface ChartConfig {
 }
 
 const defaults: ChartConfig = {
-  chartType: 'bar-vertical',
+  chartType: ChartType.BarVertical,
   title: '',
   description: '',
   byline: '',
   source: '',
   sourceUrl: '',
   note: '',
-  sort: 'none',
+  sort: SortDirection.None,
   sortMode: 'none',
   data: '',
   selectedColumn: '',
@@ -289,7 +290,7 @@ export function useChartConfig() {
     source: refs.source as WritableComputedRef<string>,
     sourceUrl: refs.sourceUrl as WritableComputedRef<string>,
     note: refs.note as WritableComputedRef<string>,
-    sort: refs.sort as WritableComputedRef<'ascending' | 'descending' | 'none'>,
+    sort: refs.sort as WritableComputedRef<SortDirection>,
     sortMode: refs.sortMode as WritableComputedRef<'total' | 'within-groups' | 'none'>,
     layout: refs.layout,
     selectedColumn: refs.selectedColumn,

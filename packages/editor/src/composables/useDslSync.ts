@@ -1,13 +1,14 @@
-import { parse, propertyMap, extractChartTypeOptions, extractSceneOverrides, dataEntriesToString, convertColorizes, convertHighlights, convertAreaFills, convertAnnotations, convertSeriesOverrides } from '@blueprint-chart/lib'
+import { parse, propertyMap, extractChartTypeOptions, extractSceneOverrides, dataEntriesToString, convertColorizes, convertHighlights, convertAreaFills, convertAnnotations, convertSeriesOverrides, SortDirection } from '@blueprint-chart/lib'
 import { useChartConfig, layoutDefaults, type ChartLayout } from './useChartConfig'
 import { useChartThemeStore } from './useChartTheme'
 import { useChartTypeOptions, type ChartTypeOptions } from './useChartTypeOptions'
-import { useDataTransforms, type TransformType } from '@/stores/dataTransforms'
+import { TransformType } from '../enums'
+import { useDataTransforms } from '@/stores/dataTransforms'
 import { useDataTable } from './useDataTable'
 import { parseBpcData } from './useDataParser'
 import { useScenes, type SceneOverride, type AnnotationVisibility } from './useScenes'
 
-const VALID_TRANSFORM_TYPES = new Set<TransformType>(['sort', 'filter', 'hide-columns', 'transpose', 'parse', 'group-by', 'computed', 'pivot'])
+const VALID_TRANSFORM_TYPES = new Set<TransformType | string>([TransformType.Sort, TransformType.Filter, TransformType.HideColumns, TransformType.Transpose, TransformType.Parse, TransformType.GroupBy, TransformType.Computed, 'pivot'])
 
 export function useDslSync() {
   const config = useChartConfig()
@@ -102,11 +103,11 @@ export function useDslSync() {
       config.layout.value = { ...layoutDefaults, ...ly }
 
       const sort = propMap.get('sort')
-      if (sort === 'ascending' || sort === 'descending') {
-        config.sort.value = sort
+      if (sort === SortDirection.Ascending || sort === SortDirection.Descending) {
+        config.sort.value = sort as SortDirection
       }
       else {
-        config.sort.value = 'none'
+        config.sort.value = SortDirection.None
       }
 
       const dataStr = ast.data ? dataEntriesToString(ast.data) : ''
@@ -149,10 +150,10 @@ export function useDslSync() {
           }
 
           // Last sort transform with direction drives config.sort for the chart renderer
-          if (t.transformType === 'sort' && props.has('direction')) {
+          if (t.transformType === TransformType.Sort && props.has('direction')) {
             const dir = String(props.get('direction'))
-            if (dir === 'ascending' || dir === 'descending') {
-              config.sort.value = dir
+            if (dir === SortDirection.Ascending || dir === SortDirection.Descending) {
+              config.sort.value = dir as SortDirection
             }
           }
 

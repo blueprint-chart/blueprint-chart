@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { render } from './bar-horizontal'
+import { SortDirection, ValueLabelPosition } from '../../../enums'
 
 describe('bar-horizontal', () => {
   let container: HTMLElement
@@ -119,7 +120,7 @@ describe('bar-horizontal', () => {
   // ── Sort ─────────────────────────────────────────────────────────
 
   it('sorts bars ascending by value', () => {
-    render(container, data, { sort: 'ascending' })
+    render(container, data, { sort: SortDirection.Ascending })
     const bars = container.querySelectorAll('.bc-bar')
     const widths = Array.from(bars).map(b => Number(b.getAttribute('width')))
     // Ascending: widths should be in non-decreasing order (top to bottom)
@@ -129,7 +130,7 @@ describe('bar-horizontal', () => {
   })
 
   it('sorts bars descending by value', () => {
-    render(container, data, { sort: 'descending' })
+    render(container, data, { sort: SortDirection.Descending })
     const bars = container.querySelectorAll('.bc-bar')
     const widths = Array.from(bars).map(b => Number(b.getAttribute('width')))
     // Descending: widths should be in non-increasing order (top to bottom)
@@ -179,7 +180,7 @@ describe('bar-horizontal', () => {
   // ── Value label positions ────────────────────────────────────────
 
   it('supports valueLabelPosition outside', () => {
-    render(container, data, { valueLabels: true, valueLabelPosition: 'outside' })
+    render(container, data, { valueLabels: true, valueLabelPosition: ValueLabelPosition.Outside })
     const labels = container.querySelectorAll('.bc-value-label')
     expect(labels).toHaveLength(3)
     // Outside labels for positive values should have text-anchor start
@@ -188,7 +189,7 @@ describe('bar-horizontal', () => {
   })
 
   it('supports valueLabelPosition inside', () => {
-    render(container, data, { valueLabels: true, valueLabelPosition: 'inside' })
+    render(container, data, { valueLabels: true, valueLabelPosition: ValueLabelPosition.Inside })
     const labels = container.querySelectorAll('.bc-value-label')
     expect(labels).toHaveLength(3)
     // Inside labels for positive values should have text-anchor end
@@ -206,7 +207,7 @@ describe('bar-horizontal', () => {
   })
 
   it('outside value labels are not inside the clip path', () => {
-    render(container, data, { valueLabels: true, valueLabelPosition: 'outside' })
+    render(container, data, { valueLabels: true, valueLabelPosition: ValueLabelPosition.Outside })
     const svg = container.querySelector('svg')!
     const clippedGroup = svg.querySelector('[clip-path]')
     const labelGroup = svg.querySelector('.bc-value-label-group')
@@ -226,7 +227,7 @@ describe('bar-horizontal', () => {
 
     // Render with outside value labels
     container.replaceChildren()
-    render(container, data, { valueLabels: true, valueLabelPosition: 'outside' })
+    render(container, data, { valueLabels: true, valueLabelPosition: ValueLabelPosition.Outside })
     const svgWith = container.querySelector('svg')!
 
     // The chart area width = svgWidth - leftMargin - rightMargin
@@ -248,7 +249,7 @@ describe('bar-horizontal', () => {
 
     // With outside value labels
     container.replaceChildren()
-    render(container, negData, { valueLabels: true, valueLabelPosition: 'outside' })
+    render(container, negData, { valueLabels: true, valueLabelPosition: ValueLabelPosition.Outside })
     const clipWith = container.querySelector('clipPath rect')!
     const widthWith = Number(clipWith.getAttribute('width'))
 
@@ -264,7 +265,7 @@ describe('bar-horizontal', () => {
 
     // With inside value labels
     container.replaceChildren()
-    render(container, data, { valueLabels: true, valueLabelPosition: 'inside' })
+    render(container, data, { valueLabels: true, valueLabelPosition: ValueLabelPosition.Inside })
     const clipWith = container.querySelector('clipPath rect')!
     const widthWith = Number(clipWith.getAttribute('width'))
 
@@ -451,7 +452,7 @@ describe('bar-horizontal', () => {
 
       // Fresh re-render with ascending sort (container cleared like useChartPreview does)
       container.replaceChildren()
-      render(container, data, { valueLabels: true, sort: 'ascending' })
+      render(container, data, { valueLabels: true, sort: SortDirection.Ascending })
 
       const textsAfter = Array.from(container.querySelectorAll('.bc-value-label'))
         .map(el => el.textContent)

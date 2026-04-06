@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { render } from './bar-multi'
+import { ValueLabelPosition, DirectLabelMode } from '../../../enums'
 
 describe('bar-multi', () => {
   let container: HTMLElement
@@ -305,20 +306,20 @@ describe('bar-multi', () => {
   // ── Direct labelling ─────────────────────────────────────────────
 
   it('renders direct labels when directLabelling is auto', () => {
-    render(container, data, { directLabelling: 'auto' })
+    render(container, data, { directLabelling: DirectLabelMode.Auto })
     const directLabels = container.querySelectorAll('.bc-direct-label')
     // One direct label per bar = 4 (2 labels x 2 series)
     expect(directLabels).toHaveLength(4)
   })
 
   it('hides legend when directLabelling is enabled', () => {
-    render(container, data, { directLabelling: 'auto' })
+    render(container, data, { directLabelling: DirectLabelMode.Auto })
     const legend = container.querySelector('.bc-legend')
     expect(legend).toBeNull()
   })
 
   it('direct labels contain series names', () => {
-    render(container, data, { directLabelling: 'auto' })
+    render(container, data, { directLabelling: DirectLabelMode.Auto })
     const directLabels = container.querySelectorAll('.bc-direct-label')
     const texts = Array.from(directLabels).map(l => l.textContent)
     expect(texts).toContain('Product A')
@@ -326,7 +327,7 @@ describe('bar-multi', () => {
   })
 
   it('direct labels default to outside in auto mode', () => {
-    render(container, data, { directLabelling: 'auto' })
+    render(container, data, { directLabelling: DirectLabelMode.Auto })
     const directLabels = container.querySelectorAll('.bc-direct-label')
     // Outside labels should NOT use 'central' baseline
     const baselines = Array.from(directLabels).map(l => l.getAttribute('dominant-baseline'))
@@ -334,7 +335,7 @@ describe('bar-multi', () => {
   })
 
   it('direct labels match value label position when both are enabled', () => {
-    render(container, data, { directLabelling: 'auto', valueLabels: true, valueLabelPosition: 'inside' })
+    render(container, data, { directLabelling: DirectLabelMode.Auto, valueLabels: true, valueLabelPosition: ValueLabelPosition.Inside })
     const directLabels = container.querySelectorAll('.bc-direct-label')
     // When value labels are inside, direct labels should also be inside (central baseline)
     const baselines = Array.from(directLabels).map(l => l.getAttribute('dominant-baseline'))

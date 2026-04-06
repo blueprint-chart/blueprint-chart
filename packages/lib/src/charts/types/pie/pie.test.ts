@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { render } from './pie'
+import { SortDirection } from '../../../enums'
 
 describe('pie chart', () => {
   let container: HTMLElement
@@ -225,7 +226,7 @@ describe('pie chart', () => {
       labels: ['Small', 'Large', 'Medium'],
       values: [10, 50, 30],
     }
-    render(container, unsorted, { sort: 'descending', colors: ['#aaa', '#bbb', '#ccc'] })
+    render(container, unsorted, { sort: SortDirection.Descending, colors: ['#aaa', '#bbb', '#ccc'] })
     const arcs = container.querySelectorAll('.bc-arc')
     // After descending sort: Large(50), Medium(30), Small(10)
     // The first arc should get the first color
@@ -244,7 +245,7 @@ describe('pie chart', () => {
       labels: ['Small', 'Large', 'Medium'],
       values: [10, 50, 30],
     }
-    render(container, unsorted, { sort: 'ascending' })
+    render(container, unsorted, { sort: SortDirection.Ascending })
     const legendItems = container.querySelectorAll('.bc-legend-item')
     const legendTexts = Array.from(legendItems).map(el => el.textContent)
     expect(legendTexts[0]).toContain('Small')
@@ -322,7 +323,7 @@ describe('pie chart', () => {
       labels: ['A', 'B', 'C', 'D', 'E'],
       values: [5, 40, 10, 30, 15],
     }
-    render(container, manyData, { sort: 'descending', sliceMax: 3 })
+    render(container, manyData, { sort: SortDirection.Descending, sliceMax: 3 })
     // After descending sort: B(40), D(30), E(15), C(10), A(5)
     // sliceMax=3: keep first 2 + Others = B(40), D(30), Others(30)
     const arcs = container.querySelectorAll('.bc-arc')

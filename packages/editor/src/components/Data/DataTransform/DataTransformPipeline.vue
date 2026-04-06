@@ -25,39 +25,39 @@
         @delete="onRemoveStep(step.id)"
       >
         <DataTransformStepSort
-          v-if="step.type === 'sort'"
+          v-if="step.type === TransformType.Sort"
           :step="step"
           :columns="columnsAtStep"
           :column-types="columnTypesAtStep"
         />
         <DataTransformStepFilter
-          v-else-if="step.type === 'filter'"
+          v-else-if="step.type === TransformType.Filter"
           :step="step"
           :columns="columnsAtStep"
         />
         <DataTransformStepHideColumns
-          v-else-if="step.type === 'hide-columns'"
+          v-else-if="step.type === TransformType.HideColumns"
           :step="step"
           :columns="columnsAtStep"
         />
         <DataTransformStepParse
-          v-else-if="step.type === 'parse'"
+          v-else-if="step.type === TransformType.Parse"
           :step="step"
           :columns="columnsAtStep"
         />
         <DataTransformStepRename
-          v-else-if="step.type === 'rename'"
+          v-else-if="step.type === TransformType.Rename"
           :step="step"
           :columns="columnsAtStep"
         />
         <DataTransformStepGroupBy
-          v-else-if="step.type === 'group-by'"
+          v-else-if="step.type === TransformType.GroupBy"
           :step="step"
           :columns="columnsAtStep"
           :column-types="columnTypesAtStep"
         />
         <div
-          v-else-if="step.type === 'transpose'"
+          v-else-if="step.type === TransformType.Transpose"
           class="pipeline__config-info"
         >
           Transpose swaps rows and columns. The first column values become headers and column headers become the first column.
@@ -90,7 +90,8 @@
 
 <script setup lang="ts">
 import { useDataTable } from '@/stores/dataTable'
-import { useDataTransforms, type TransformType } from '@/stores/dataTransforms'
+import { TransformType } from '@/enums'
+import { useDataTransforms } from '@/stores/dataTransforms'
 import { useScenes } from '@/stores/scenes'
 
 const { columns, rows, columnTypes } = useDataTable()

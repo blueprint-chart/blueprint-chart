@@ -1,3 +1,5 @@
+import { SortDirection } from '@blueprint-chart/lib'
+import { TransformType } from '../enums'
 import type { SceneOverride } from '@/composables/useScenes'
 
 /**
@@ -80,8 +82,8 @@ export function resolveSortFromTransforms(scene: SceneOverride | null): string |
     return undefined
   }
   for (let i = scene.transforms.length - 1; i >= 0; i--) {
-    if (scene.transforms[i].type === 'sort') {
-      return scene.transforms[i].config?.direction ?? 'ascending'
+    if (scene.transforms[i].type === TransformType.Sort) {
+      return scene.transforms[i].config?.direction ?? SortDirection.Ascending
     }
   }
   return undefined

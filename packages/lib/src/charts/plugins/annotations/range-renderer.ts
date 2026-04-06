@@ -1,5 +1,6 @@
 import * as d3 from 'd3'
 import type { AnnotationConfig } from '../../types'
+import { AnnotationKind, Orientation } from '../../../enums'
 import { DIRECTION_VECTORS } from './direction-helpers'
 import { resolveMaxWidth } from './position-helpers'
 import type { AnnotationContext } from './context'
@@ -16,7 +17,7 @@ export function renderRangeAnnotation(
   index: number,
   labelGroup?: d3.Selection<SVGGElement, unknown, null, undefined>,
 ): void {
-  if (ann.kind !== 'range') {
+  if (ann.kind !== AnnotationKind.Range) {
     return
   }
 
@@ -24,12 +25,12 @@ export function renderRangeAnnotation(
   if (ann.id) {
     annG.attr('data-annotation-id', ann.id)
   }
-  const rangeOrientation = ann.orientation ?? 'vertical'
+  const rangeOrientation = ann.orientation ?? Orientation.Vertical
 
   let x: number, y: number, w: number, h: number
 
-  if (ctx.orientation === 'horizontal') {
-    if (rangeOrientation === 'vertical') {
+  if (ctx.orientation === Orientation.Horizontal) {
+    if (rangeOrientation === Orientation.Vertical) {
       const y1 = resolveXPosition(ann.start, ctx.scaleX, ann.startAnchor)
       const y2 = resolveXPosition(ann.end, ctx.scaleX, ann.endAnchor)
       y = Math.min(y1, y2)
@@ -46,7 +47,7 @@ export function renderRangeAnnotation(
       h = ctx.height
     }
   }
-  else if (rangeOrientation === 'vertical') {
+  else if (rangeOrientation === Orientation.Vertical) {
     const x1 = resolveXPosition(ann.start, ctx.scaleX, ann.startAnchor)
     const x2 = resolveXPosition(ann.end, ctx.scaleX, ann.endAnchor)
     x = Math.min(x1, x2)
@@ -73,7 +74,7 @@ export function renderRangeAnnotation(
     .attr('opacity', (ann.bgOpacity ?? 20) / 100)
 
   if (ann.text) {
-    const bandWidth = rangeOrientation === 'vertical' ? w : h
+    const bandWidth = rangeOrientation === Orientation.Vertical ? w : h
     const rangeMaxWidth = resolveMaxWidth(ann.maxWidth, ctx.width) ?? Math.max(bandWidth, 50)
 
     const dir = ann.direction ?? 'center'

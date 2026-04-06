@@ -17,7 +17,7 @@
 
 <script setup lang="ts">
 import type { HighlightConfig } from '@blueprint-chart/lib'
-import { parseData } from '@blueprint-chart/lib'
+import { ChartType, parseData } from '@blueprint-chart/lib'
 import { useChartConfig } from '@/stores/chartConfig'
 import { FormControlCheckbox, ListSelectPanel } from '@blueprint-chart/ui'
 
@@ -26,7 +26,7 @@ const { chartType, data, highlights } = useChartConfig()
 const parsed = computed(() => parseData(data.value))
 
 const isMultiSeries = computed(() =>
-  ['line-multi', 'area-stacked'].includes(chartType.value),
+  ([ChartType.LineMulti, ChartType.AreaStacked] as string[]).includes(chartType.value),
 )
 
 const targetLabels = computed(() =>
