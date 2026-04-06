@@ -1,0 +1,11 @@
+chart bar-grouped {
+  valueLabels = true
+
+  data {
+    _series = "A","B","C"
+    "Alpha" = 29,22,14
+    "Beta"  = 32,25,16
+    "Gamma" = 27,20,12
+    "Delta" = 12,8,5
+  }
+}

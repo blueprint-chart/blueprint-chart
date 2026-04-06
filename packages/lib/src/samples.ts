@@ -38,6 +38,7 @@ import farmCompassBpc from './samples/farm-compass.bpc?raw'
 import electionPollsBpc from './samples/election-polls.bpc?raw'
 import cityClimateBpc from './samples/city-climate.bpc?raw'
 import pisaScoresBpc from './samples/pisa-scores.bpc?raw'
+import renewableCapacityBpc from './samples/renewable-capacity.bpc?raw'
 
 export interface ChartSample {
   id: string
@@ -160,6 +161,8 @@ export const samples: ChartSample[] = [
   buildSample('election-polls', electionPollsBpc),
   buildSample('city-climate', cityClimateBpc),
   buildSample('pisa-scores', pisaScoresBpc),
+  // Bar Grouped
+  buildSample('renewable-capacity', renewableCapacityBpc),
   // Story (multi-scene)
   buildSample('farm-compass', farmCompassBpc),
 ]

@@ -224,7 +224,7 @@ function prepareDataForEdit() {
   }
   config._base.data.value = dataTable.serialize()
   const ct = config._base.chartType.value
-  const isMultiSeries = ct.includes('multi') || ct.includes('stacked') || ct === 'bar-split'
+  const isMultiSeries = ct.includes('multi') || ct.includes('stacked') || ct === 'bar-split' || ct === 'bar-grouped'
   if (dataTable.columns.value.length > 2 && !isMultiSeries) {
     const hasDateLabels = dataTable.columnTypes.value[0] === 'date'
     config._base.chartType.value = hasDateLabels ? 'line-multi' : 'bar-multi'

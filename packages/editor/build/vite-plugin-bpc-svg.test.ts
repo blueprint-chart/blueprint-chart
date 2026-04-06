@@ -153,6 +153,35 @@ describe('bar-split thumbnails', () => {
   })
 })
 
+describe('bar-grouped thumbnails', () => {
+  it('renders one rect per series per label', () => {
+    const svg = renderToSvg('bar-grouped', multiData, ['#f00', '#0f0', '#00f'])
+    const rects = [...svg.matchAll(/<rect/g)]
+    // 3 series × 5 labels (A–E) = 15 rects
+    expect(rects.length).toBe(15)
+  })
+
+  it('returns empty string for single-series data', () => {
+    const svg = renderToSvg('bar-grouped', singleData, ['#f00'])
+    expect(svg).toBe('')
+  })
+
+  it('bars within each group use distinct y positions', () => {
+    const svg = renderToSvg('bar-grouped', multiData, ['#f00', '#0f0', '#00f'])
+    const yValues = [...svg.matchAll(/y="([^"]+)"/g)].map(m => parseFloat(m[1]))
+    const uniqueYs = new Set(yValues.map(y => Math.round(y)))
+    // 3 series × 5 groups = 15 rects, all y positions should differ within groups
+    expect(uniqueYs.size).toBeGreaterThan(5)
+  })
+
+  it('uses series colors', () => {
+    const svg = renderToSvg('bar-grouped', multiData, ['#f00', '#0f0', '#00f'])
+    expect(svg).toContain('#f00')
+    expect(svg).toContain('#0f0')
+    expect(svg).toContain('#00f')
+  })
+})
+
 describe('bar thumbnails are unaffected by edgePadding', () => {
   it('bar-vertical produces identical SVG regardless of edgePadding', () => {
     const svgA = renderToSvg('bar-vertical', singleData, ['#000'], { edgePadding: false })

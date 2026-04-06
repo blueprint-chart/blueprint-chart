@@ -427,6 +427,30 @@ function renderBarSplit(data: ChartData, colors: string[]): string {
   return `<svg viewBox="${RECT_VB}" xmlns="http://www.w3.org/2000/svg">${rects.join('')}</svg>`
 }
 
+function renderBarGrouped(data: ChartData, colors: string[]): string {
+  if (data.kind !== 'multi') {
+    return ''
+  }
+  const { labels, series } = data
+  const allVals = series.flat()
+  const maxVal = Math.max(...allVals)
+  const scale = linearScale([0, maxVal], [0, 42])
+  const seriesCount = series.length
+  const { bandWidth: groupHeight, positions: groupPositions } = bandPositions(labels.length, [2, 34], 0.15)
+  const barHeight = groupHeight / seriesCount
+
+  const rects: string[] = []
+  for (let li = 0; li < labels.length; li++) {
+    for (let si = 0; si < seriesCount; si++) {
+      const w = scale(series[si][li])
+      const y = groupPositions[li] + si * barHeight
+      rects.push(`<rect x="2" y="${y.toFixed(2)}" width="${w.toFixed(2)}" height="${(barHeight * 0.9).toFixed(2)}" fill="${colors[si % colors.length]}" rx="0.5"/>`)
+    }
+  }
+
+  return `<svg viewBox="${RECT_VB}" xmlns="http://www.w3.org/2000/svg">${rects.join('')}</svg>`
+}
+
 function renderBarStacked(data: ChartData, colors: string[]): string {
   if (data.kind !== 'multi') {
     return ''
@@ -465,6 +489,7 @@ export function renderToSvg(chartType: string, data: ChartData, colors: string[]
     case 'column-stacked': return renderColumnStacked(data, colors)
     case 'bar-stacked': return renderBarStacked(data, colors)
     case 'bar-split': return renderBarSplit(data, colors)
+    case 'bar-grouped': return renderBarGrouped(data, colors)
     default: return ''
   }
 }

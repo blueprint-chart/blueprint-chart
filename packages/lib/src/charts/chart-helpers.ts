@@ -312,6 +312,9 @@ export function buildChartOptions(opts: Partial<ChartTypeOptions>, backgroundCol
   if (opts.waterfallTotal !== undefined) {
     result.waterfallTotal = opts.waterfallTotal
   }
+  if (opts.categoryLabelLine !== undefined) {
+    result.categoryLabelLine = opts.categoryLabelLine
+  }
 
   return result
 }

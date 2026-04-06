@@ -38,6 +38,7 @@ const ICON_MAP: Record<string, object> = {
   'column-stacked': IPhChartBar,
   'bar-stacked': IPhChartBarHorizontal,
   'bar-split': IPhChartBarHorizontal,
+  'bar-grouped': IPhChartBarHorizontal,
   'line': IPhChartLineUp,
   'line-multi': IPhChartLineUp,
   'area': IPhChartLineUp,
