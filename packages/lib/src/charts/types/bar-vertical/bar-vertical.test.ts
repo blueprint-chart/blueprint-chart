@@ -194,6 +194,13 @@ describe('bar-vertical', () => {
     expect(group!.querySelectorAll('.bc-value-label')).toHaveLength(3)
   })
 
+  it('value labels are not inside the clipped group', () => {
+    render(container, data, { valueLabels: true })
+    const clipPath = container.querySelector('clipPath')!
+    const clippedGroup = container.querySelector(`[clip-path="url(#${clipPath.id})"]`)!
+    expect(clippedGroup.querySelector('.bc-value-label')).toBeNull()
+  })
+
   it('value labels support "inside" position', () => {
     render(container, data, { valueLabels: true, valueLabelPosition: ValueLabelPosition.Inside })
     const labels = container.querySelectorAll('.bc-value-label')

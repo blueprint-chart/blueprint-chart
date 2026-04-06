@@ -249,6 +249,9 @@ export function render(
     }
   }
 
+  // Unclipped group for value labels so they are never truncated at chart edges
+  const unclippedGroup = d3.select(chartArea).append('g')
+
   if (isWaterfall) {
     // Waterfall mode: render bars with cumulative offsets directly
     const colors = options.colors ?? DEFAULT_COLORS
@@ -293,7 +296,7 @@ export function render(
       const pos = options.valueLabelPosition ?? ValueLabelPosition.Auto
       const vFmt = buildNumberFormatter(options.verticalAxis?.numberFormat ?? '')
       const formatValue = (v: number) => vFmt ? vFmt(v) : String(v)
-      clippedGroup.selectAll('.bc-value-label')
+      unclippedGroup.selectAll('.bc-value-label')
         .data(waterfallData, (d: WaterfallDatum) => d.label)
         .enter()
         .append('text')
@@ -343,7 +346,7 @@ export function render(
     chart.draw(barData)
 
     if (options.valueLabels) {
-      renderValueLabels(clippedGroup, barData, x, y, {
+      renderValueLabels(unclippedGroup, barData, x, y, {
         position: options.valueLabelPosition,
         colorOverrides,
         colors: options.colors ?? DEFAULT_COLORS,
