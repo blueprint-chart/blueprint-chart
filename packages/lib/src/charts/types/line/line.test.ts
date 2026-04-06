@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { render } from './line'
+import { CrosshairDirection } from '../../../enums'
 
 describe('line chart', () => {
   let container: HTMLElement
@@ -296,13 +297,13 @@ describe('line chart', () => {
     })
 
     it('creates only vertical crosshair when direction=vertical', () => {
-      render(container, data, { crosshair: true, crosshairDirection: 'vertical' })
+      render(container, data, { crosshair: true, crosshairDirection: CrosshairDirection.Vertical })
       expect(container.querySelector('.bc-crosshair-v')).not.toBeNull()
       expect(container.querySelector('.bc-crosshair-h')).toBeNull()
     })
 
     it('creates only horizontal crosshair when direction=horizontal', () => {
-      render(container, data, { crosshair: true, crosshairDirection: 'horizontal' })
+      render(container, data, { crosshair: true, crosshairDirection: CrosshairDirection.Horizontal })
       expect(container.querySelector('.bc-crosshair-v')).toBeNull()
       expect(container.querySelector('.bc-crosshair-h')).not.toBeNull()
     })

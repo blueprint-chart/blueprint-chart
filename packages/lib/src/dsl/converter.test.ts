@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { DslNodeType, AnnotationKind, AnnotationAction, ChartType } from '../enums'
 import {
   propertyMap,
   extractChartTypeOptions,
@@ -12,7 +13,7 @@ import {
 import type { PropertyNode, DataNode, SceneNode, ColorizeNode, AnnotationNode, AreaFillNode, SeriesNode } from './types'
 
 function prop(key: string, value: string | number, isPercentage = false): PropertyNode {
-  return { type: 'property', key, value, isPercentage }
+  return { type: DslNodeType.Property, key, value, isPercentage }
 }
 
 describe('propertyMap', () => {
@@ -43,7 +44,7 @@ describe('propertyMap', () => {
 
 describe('extractChartTypeOptions', () => {
   it('extracts boolean options correctly', () => {
-    const opts = extractChartTypeOptions('bar-vertical', [
+    const opts = extractChartTypeOptions(ChartType.BarVertical, [
       prop('valueLabels', 'true'),
       prop('tooltips', 'false'),
     ])
@@ -52,28 +53,28 @@ describe('extractChartTypeOptions', () => {
   })
 
   it('extracts string options correctly', () => {
-    const opts = extractChartTypeOptions('line', [
+    const opts = extractChartTypeOptions(ChartType.Line, [
       prop('interpolation', 'monotoneX'),
     ])
     expect(opts.interpolation).toBe('monotoneX')
   })
 
   it('extracts colors option as array', () => {
-    const opts = extractChartTypeOptions('bar-vertical', [
+    const opts = extractChartTypeOptions(ChartType.BarVertical, [
       prop('colors', '#ff0000,#00ff00,#0000ff'),
     ])
     expect(opts.colors).toEqual(['#ff0000', '#00ff00', '#0000ff'])
   })
 
   it('ignores properties not in chart options registry', () => {
-    const opts = extractChartTypeOptions('bar-vertical', [
+    const opts = extractChartTypeOptions(ChartType.BarVertical, [
       prop('nonExistentOption', 'value'),
     ])
     expect(opts).toEqual({})
   })
 
   it('skips undefined values', () => {
-    const opts = extractChartTypeOptions('bar-vertical', [])
+    const opts = extractChartTypeOptions(ChartType.BarVertical, [])
     expect(opts).toEqual({})
   })
 
@@ -88,7 +89,7 @@ describe('extractChartTypeOptions', () => {
 describe('dataEntriesToString', () => {
   it('converts single-value entries', () => {
     const data: DataNode = {
-      type: 'data',
+      type: DslNodeType.Data,
       entries: [
         prop('Apple', 42),
         prop('Banana', 17),
@@ -100,7 +101,7 @@ describe('dataEntriesToString', () => {
 
   it('preserves percentage syntax', () => {
     const data: DataNode = {
-      type: 'data',
+      type: DslNodeType.Data,
       entries: [
         prop('Firefox', 61.11, true),
       ],
@@ -111,7 +112,7 @@ describe('dataEntriesToString', () => {
 
   it('handles _series metadata key', () => {
     const data: DataNode = {
-      type: 'data',
+      type: DslNodeType.Data,
       entries: [
         prop('_series', 'Revenue'),
       ],
@@ -122,10 +123,10 @@ describe('dataEntriesToString', () => {
 
   it('converts multi-value entries', () => {
     const data: DataNode = {
-      type: 'data',
+      type: DslNodeType.Data,
       entries: [
-        { type: 'property', key: '_series', value: 'Gold', isPercentage: false, values: ['Gold', 'Silver'] },
-        { type: 'property', key: 'USA', value: 40, isPercentage: false, values: [40, 44] },
+        { type: DslNodeType.Property, key: '_series', value: 'Gold', isPercentage: false, values: ['Gold', 'Silver'] },
+        { type: DslNodeType.Property, key: 'USA', value: 40, isPercentage: false, values: [40, 44] },
       ],
     }
     const result = dataEntriesToString(data)
@@ -135,7 +136,7 @@ describe('dataEntriesToString', () => {
 
   it('handles string values with commas in legacy format', () => {
     const data: DataNode = {
-      type: 'data',
+      type: DslNodeType.Data,
       entries: [
         prop('Label', '10,20,30'),
       ],
@@ -146,7 +147,7 @@ describe('dataEntriesToString', () => {
 
   it('quotes ISO date string values', () => {
     const data: DataNode = {
-      type: 'data',
+      type: DslNodeType.Data,
       entries: [
         prop('USA', '2022-09-25'),
         prop('China', '2022-10-01'),
@@ -164,7 +165,7 @@ describe('convertColorizes', () => {
 
   it('converts colorizes with default color', () => {
     const nodes: ColorizeNode[] = [{
-      type: 'colorize',
+      type: DslNodeType.Colorize,
       target: 'Apple',
       properties: [],
     }]
@@ -178,7 +179,7 @@ describe('convertColorizes', () => {
 
   it('converts colorizes with custom color and label', () => {
     const nodes: ColorizeNode[] = [{
-      type: 'colorize',
+      type: DslNodeType.Colorize,
       target: 'Revenue',
       properties: [
         prop('color', '#ff0000'),
@@ -195,8 +196,8 @@ describe('convertColorizes', () => {
 
   it('converts multiple colorizes', () => {
     const nodes: ColorizeNode[] = [
-      { type: 'colorize', target: 'A', properties: [prop('color', '#f00')] },
-      { type: 'colorize', target: 'B', properties: [prop('color', '#0f0')] },
+      { type: DslNodeType.Colorize, target: 'A', properties: [prop('color', '#f00')] },
+      { type: DslNodeType.Colorize, target: 'B', properties: [prop('color', '#0f0')] },
     ]
     const result = convertColorizes(nodes)
     expect(result).toHaveLength(2)
@@ -212,7 +213,7 @@ describe('convertAreaFills', () => {
 
   it('converts areafill with all properties', () => {
     const nodes: AreaFillNode[] = [{
-      type: 'areafill',
+      type: DslNodeType.AreaFill,
       from: 'Revenue',
       to: 'Cost',
       properties: [
@@ -235,7 +236,7 @@ describe('convertAreaFills', () => {
 
   it('omits undefined optional properties', () => {
     const nodes: AreaFillNode[] = [{
-      type: 'areafill',
+      type: DslNodeType.AreaFill,
       from: 'A',
       to: 'B',
       properties: [],
@@ -254,15 +255,15 @@ describe('convertAnnotations', () => {
 
   it('converts point annotation with minimal properties', () => {
     const nodes: AnnotationNode[] = [{
-      type: 'annotation',
-      kind: 'point',
+      type: DslNodeType.Annotation,
+      kind: AnnotationKind.Point,
       target: 'Q3',
       properties: [prop('text', 'Peak quarter')],
     }]
     const result = convertAnnotations(nodes)
     expect(result).toHaveLength(1)
     expect(result[0]).toMatchObject({
-      kind: 'point',
+      kind: AnnotationKind.Point,
       target: 'Q3',
       text: 'Peak quarter',
     })
@@ -270,8 +271,8 @@ describe('convertAnnotations', () => {
 
   it('converts point annotation with all optional properties', () => {
     const nodes: AnnotationNode[] = [{
-      type: 'annotation',
-      kind: 'point',
+      type: DslNodeType.Annotation,
+      kind: AnnotationKind.Point,
       target: 'X',
       properties: [
         prop('id', 'ann-1'),
@@ -290,13 +291,13 @@ describe('convertAnnotations', () => {
         prop('circleStyle', 'dashed'),
         prop('circleColor', '#ff0000'),
         prop('textOutline', 'true'),
-        { type: 'property', key: 'maxWidth', value: 120, isPercentage: false },
+        { type: DslNodeType.Property, key: 'maxWidth', value: 120, isPercentage: false },
       ],
     }]
     const result = convertAnnotations(nodes)
     const ann = result[0]
-    expect(ann.kind).toBe('point')
-    if (ann.kind === 'point') {
+    expect(ann.kind).toBe(AnnotationKind.Point)
+    if (ann.kind === AnnotationKind.Point) {
       expect(ann.id).toBe('ann-1')
       expect(ann.textColor).toBe('#333')
       expect(ann.anchorDirection).toBe('NE')
@@ -318,8 +319,8 @@ describe('convertAnnotations', () => {
 
   it('converts range annotation', () => {
     const nodes: AnnotationNode[] = [{
-      type: 'annotation',
-      kind: 'range',
+      type: DslNodeType.Annotation,
+      kind: AnnotationKind.Range,
       properties: [
         prop('start', 2),
         prop('end', 5),
@@ -334,7 +335,7 @@ describe('convertAnnotations', () => {
     }]
     const result = convertAnnotations(nodes)
     expect(result[0]).toMatchObject({
-      kind: 'range',
+      kind: AnnotationKind.Range,
       start: 2,
       end: 5,
       orientation: 'vertical',
@@ -349,8 +350,8 @@ describe('convertAnnotations', () => {
 
   it('converts range annotation with string start/end', () => {
     const nodes: AnnotationNode[] = [{
-      type: 'annotation',
-      kind: 'range',
+      type: DslNodeType.Annotation,
+      kind: AnnotationKind.Range,
       properties: [
         prop('start', 'Jan'),
         prop('end', 'Mar'),
@@ -358,7 +359,7 @@ describe('convertAnnotations', () => {
     }]
     const result = convertAnnotations(nodes)
     expect(result[0]).toMatchObject({
-      kind: 'range',
+      kind: AnnotationKind.Range,
       start: 'Jan',
       end: 'Mar',
     })
@@ -366,8 +367,8 @@ describe('convertAnnotations', () => {
 
   it('converts range annotation with anchor properties', () => {
     const nodes: AnnotationNode[] = [{
-      type: 'annotation',
-      kind: 'range',
+      type: DslNodeType.Annotation,
+      kind: AnnotationKind.Range,
       properties: [
         prop('start', 0),
         prop('end', 10),
@@ -376,7 +377,7 @@ describe('convertAnnotations', () => {
       ],
     }]
     const result = convertAnnotations(nodes)
-    if (result[0].kind === 'range') {
+    if (result[0].kind === AnnotationKind.Range) {
       expect(result[0].startAnchor).toBe('center')
       expect(result[0].endAnchor).toBe('end')
     }
@@ -384,12 +385,12 @@ describe('convertAnnotations', () => {
 
   it('defaults range start/end to 0 when missing', () => {
     const nodes: AnnotationNode[] = [{
-      type: 'annotation',
-      kind: 'range',
+      type: DslNodeType.Annotation,
+      kind: AnnotationKind.Range,
       properties: [],
     }]
     const result = convertAnnotations(nodes)
-    if (result[0].kind === 'range') {
+    if (result[0].kind === AnnotationKind.Range) {
       expect(result[0].start).toBe(0)
       expect(result[0].end).toBe(0)
     }
@@ -397,12 +398,12 @@ describe('convertAnnotations', () => {
 
   it('converts free annotation', () => {
     const nodes: AnnotationNode[] = [{
-      type: 'annotation',
-      kind: 'free',
+      type: DslNodeType.Annotation,
+      kind: AnnotationKind.Free,
       properties: [
         prop('text', 'Important note'),
-        { type: 'property', key: 'x', value: 50, isPercentage: true },
-        { type: 'property', key: 'y', value: 25, isPercentage: true },
+        { type: DslNodeType.Property, key: 'x', value: 50, isPercentage: true },
+        { type: DslNodeType.Property, key: 'y', value: 25, isPercentage: true },
         prop('id', 'n1'),
         prop('textColor', '#666'),
         prop('textOutline', 'true'),
@@ -410,7 +411,7 @@ describe('convertAnnotations', () => {
     }]
     const result = convertAnnotations(nodes)
     expect(result[0]).toMatchObject({
-      kind: 'free',
+      kind: AnnotationKind.Free,
       text: 'Important note',
       x: 50,
       y: 25,
@@ -422,49 +423,49 @@ describe('convertAnnotations', () => {
 
   it('converts free annotation maxWidth with percentage', () => {
     const nodes: AnnotationNode[] = [{
-      type: 'annotation',
-      kind: 'free',
+      type: DslNodeType.Annotation,
+      kind: AnnotationKind.Free,
       properties: [
         prop('text', 'Note'),
         prop('x', 0),
         prop('y', 0),
-        { type: 'property', key: 'maxWidth', value: 50, isPercentage: true },
+        { type: DslNodeType.Property, key: 'maxWidth', value: 50, isPercentage: true },
       ],
     }]
     const result = convertAnnotations(nodes)
-    if (result[0].kind === 'free') {
+    if (result[0].kind === AnnotationKind.Free) {
       expect(result[0].maxWidth).toBe('50%')
     }
   })
 
   it('converts free annotation maxWidth without percentage', () => {
     const nodes: AnnotationNode[] = [{
-      type: 'annotation',
-      kind: 'free',
+      type: DslNodeType.Annotation,
+      kind: AnnotationKind.Free,
       properties: [
         prop('text', 'Note'),
         prop('x', 0),
         prop('y', 0),
-        { type: 'property', key: 'maxWidth', value: 200, isPercentage: false },
+        { type: DslNodeType.Property, key: 'maxWidth', value: 200, isPercentage: false },
       ],
     }]
     const result = convertAnnotations(nodes)
-    if (result[0].kind === 'free') {
+    if (result[0].kind === AnnotationKind.Free) {
       expect(result[0].maxWidth).toBe(200)
     }
   })
 
   it('converts mixed annotation types', () => {
     const nodes: AnnotationNode[] = [
-      { type: 'annotation', kind: 'point', target: 'X', properties: [prop('text', 'pt')] },
-      { type: 'annotation', kind: 'range', properties: [prop('start', 1), prop('end', 2)] },
-      { type: 'annotation', kind: 'free', properties: [prop('text', 'free'), prop('x', 10), prop('y', 20)] },
+      { type: DslNodeType.Annotation, kind: AnnotationKind.Point, target: 'X', properties: [prop('text', 'pt')] },
+      { type: DslNodeType.Annotation, kind: AnnotationKind.Range, properties: [prop('start', 1), prop('end', 2)] },
+      { type: DslNodeType.Annotation, kind: AnnotationKind.Free, properties: [prop('text', 'free'), prop('x', 10), prop('y', 20)] },
     ]
     const result = convertAnnotations(nodes)
     expect(result).toHaveLength(3)
-    expect(result[0].kind).toBe('point')
-    expect(result[1].kind).toBe('range')
-    expect(result[2].kind).toBe('free')
+    expect(result[0].kind).toBe(AnnotationKind.Point)
+    expect(result[1].kind).toBe(AnnotationKind.Range)
+    expect(result[2].kind).toBe(AnnotationKind.Free)
   })
 })
 
@@ -475,7 +476,7 @@ describe('convertSeriesOverrides', () => {
 
   it('converts series with name only', () => {
     const nodes: SeriesNode[] = [{
-      type: 'series',
+      type: DslNodeType.Series,
       name: 'Revenue',
       properties: [],
     }]
@@ -485,7 +486,7 @@ describe('convertSeriesOverrides', () => {
 
   it('converts series with all properties', () => {
     const nodes: SeriesNode[] = [{
-      type: 'series',
+      type: DslNodeType.Series,
       name: 'Revenue',
       properties: [
         prop('color', '#e15759'),
@@ -526,8 +527,8 @@ describe('convertSeriesOverrides', () => {
 
   it('converts multiple series', () => {
     const nodes: SeriesNode[] = [
-      { type: 'series', name: 'A', properties: [prop('color', '#f00')] },
-      { type: 'series', name: 'B', properties: [prop('color', '#0f0')] },
+      { type: DslNodeType.Series, name: 'A', properties: [prop('color', '#f00')] },
+      { type: DslNodeType.Series, name: 'B', properties: [prop('color', '#0f0')] },
     ]
     const result = convertSeriesOverrides(nodes)
     expect(result).toHaveLength(2)
@@ -539,7 +540,7 @@ describe('convertSeriesOverrides', () => {
 describe('extractSceneOverrides', () => {
   it('extracts basic scene overrides', () => {
     const scene: SceneNode = {
-      type: 'scene',
+      type: DslNodeType.Scene,
       name: 'Overview',
       properties: [prop('title', 'Overview Chart')],
       data: null,
@@ -550,7 +551,7 @@ describe('extractSceneOverrides', () => {
       series: [],
       transforms: [],
     }
-    const result = extractSceneOverrides(scene, 'bar-vertical')
+    const result = extractSceneOverrides(scene, ChartType.BarVertical)
     expect(result.name).toBe('Overview')
     expect(result.properties.get('title')).toBe('Overview Chart')
     expect(result.data).toBeNull()
@@ -559,9 +560,9 @@ describe('extractSceneOverrides', () => {
 
   it('extracts chart type override from scene', () => {
     const scene: SceneNode = {
-      type: 'scene',
+      type: DslNodeType.Scene,
       name: 'As Line',
-      properties: [prop('type', 'line')],
+      properties: [prop('type', ChartType.Line)],
       data: null,
       colorizes: [],
       areaFills: [],
@@ -570,54 +571,54 @@ describe('extractSceneOverrides', () => {
       series: [],
       transforms: [],
     }
-    const result = extractSceneOverrides(scene, 'bar-vertical')
-    expect(result.chartType).toBe('line')
+    const result = extractSceneOverrides(scene, ChartType.BarVertical)
+    expect(result.chartType).toBe(ChartType.Line)
   })
 
   it('passes through nested blocks', () => {
     const scene: SceneNode = {
-      type: 'scene',
+      type: DslNodeType.Scene,
       name: 'Full',
       properties: [],
       data: {
-        type: 'data',
+        type: DslNodeType.Data,
         entries: [prop('A', 10)],
       },
       colorizes: [{
-        type: 'colorize',
+        type: DslNodeType.Colorize,
         target: 'A',
         properties: [prop('color', '#f00')],
       }],
       areaFills: [{
-        type: 'areafill',
+        type: DslNodeType.AreaFill,
         from: 'A',
         to: 'B',
         properties: [],
       }],
       annotations: [{
-        type: 'annotation',
-        kind: 'point',
+        type: DslNodeType.Annotation,
+        kind: AnnotationKind.Point,
         target: 'A',
         properties: [prop('text', 'note')],
       }],
       annotationVisibility: [{
-        type: 'annotation-visibility',
-        action: 'hide',
-        kind: 'point',
+        type: DslNodeType.AnnotationVisibility,
+        action: AnnotationAction.Hide,
+        kind: AnnotationKind.Point,
         id: 'ann1',
       }],
       series: [{
-        type: 'series',
+        type: DslNodeType.Series,
         name: 'A',
         properties: [prop('color', '#0f0')],
       }],
       transforms: [{
-        type: 'transform',
+        type: DslNodeType.Transform,
         transformType: 'cumulative',
         properties: [],
       }],
     }
-    const result = extractSceneOverrides(scene, 'bar-vertical')
+    const result = extractSceneOverrides(scene, ChartType.BarVertical)
     expect(result.data).not.toBeNull()
     expect(result.colorizes).toHaveLength(1)
     expect(result.areaFills).toHaveLength(1)
@@ -629,7 +630,7 @@ describe('extractSceneOverrides', () => {
 
   it('returns null name for unnamed scene', () => {
     const scene: SceneNode = {
-      type: 'scene',
+      type: DslNodeType.Scene,
       name: null,
       properties: [],
       data: null,
@@ -640,7 +641,7 @@ describe('extractSceneOverrides', () => {
       series: [],
       transforms: [],
     }
-    const result = extractSceneOverrides(scene, 'bar-vertical')
+    const result = extractSceneOverrides(scene, ChartType.BarVertical)
     expect(result.name).toBeNull()
   })
 })

@@ -56,6 +56,8 @@
 
 <script setup lang="ts">
 import type { TransformStep } from '@/stores/dataTransforms'
+import { TransformType, FilterCondition } from '@/enums'
+import { SortDirection } from '@blueprint-chart/lib'
 import { stepMeta } from '../transformStepIcons'
 
 const props = defineProps<{
@@ -78,26 +80,26 @@ const label = computed(() => meta.value.label)
 
 const description = computed(() => {
   const { step } = props
-  if (step.type === 'sort' && step.config.column) {
-    return `${step.config.column} ${step.config.direction ?? 'ascending'}`
+  if (step.type === TransformType.Sort && step.config.column) {
+    return `${step.config.column} ${step.config.direction ?? SortDirection.Ascending}`
   }
-  if (step.type === 'filter' && step.config.column) {
-    return `${step.config.column} ${step.config.condition ?? 'equals'} ${step.config.value ?? ''}`
+  if (step.type === TransformType.Filter && step.config.column) {
+    return `${step.config.column} ${step.config.condition ?? FilterCondition.Equals} ${step.config.value ?? ''}`
   }
-  if (step.type === 'hide-columns') {
+  if (step.type === TransformType.HideColumns) {
     const cols = step.config.columns ? step.config.columns.split(',').map(c => c.trim()).filter(Boolean) : []
     return cols.length > 0 ? `Hiding ${cols.join(', ')}` : 'Configure...'
   }
-  if (step.type === 'transpose') {
+  if (step.type === TransformType.Transpose) {
     return 'Swap rows \u2194 columns'
   }
-  if (step.type === 'parse' && step.config.column && step.config.operation) {
+  if (step.type === TransformType.Parse && step.config.column && step.config.operation) {
     return `${step.config.column} → ${step.config.operation}`
   }
-  if (step.type === 'rename' && step.config.column && step.config.newName) {
+  if (step.type === TransformType.Rename && step.config.column && step.config.newName) {
     return `${step.config.column} → ${step.config.newName}`
   }
-  if (step.type === 'group-by' && step.config.groupColumns && step.config.aggregates) {
+  if (step.type === TransformType.GroupBy && step.config.groupColumns && step.config.aggregates) {
     const groups = step.config.groupColumns.split(',').map(c => c.trim()).filter(Boolean).join(', ')
     const aggs = step.config.aggregates.split(',').map((a) => {
       const sep = a.lastIndexOf(':')

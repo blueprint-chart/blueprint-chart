@@ -1,10 +1,11 @@
+import { ChartType } from '@blueprint-chart/lib'
 import { mount } from '@vue/test-utils'
 import DataRecommendationCard from './DataRecommendationCard.vue'
 
 function mountCard(props = {}) {
   return mount(DataRecommendationCard, {
     props: {
-      chartType: 'bar-vertical',
+      chartType: ChartType.BarVertical,
       label: 'Vertical Bar Chart',
       fitness: 'best' as const,
       reason: '1 categorical + 1 numeric',
@@ -44,6 +45,6 @@ describe('DataRecommendationCard', () => {
   it('emits select with chartType on click', async () => {
     const w = mountCard()
     await w.find('.reco-card').trigger('click')
-    expect(w.emitted('select')).toEqual([['bar-vertical']])
+    expect(w.emitted('select')).toEqual([[ChartType.BarVertical]])
   })
 })

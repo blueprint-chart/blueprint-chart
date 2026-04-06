@@ -1,3 +1,43 @@
+import type {
+  AxisDirection,
+  ScaleType,
+  GridStyle,
+  LabelPosition,
+  TickPosition,
+  FrameSizing,
+  AnnotationKind,
+  Orientation,
+  SymbolShape,
+  SymbolShowOn,
+  SymbolStyle,
+  SortDirection,
+  SortMode,
+  LegendPosition,
+  Anchor,
+  ValueLabelPosition,
+  CrosshairDirection,
+  CrosshairStyle,
+  StackMode,
+  ChartOptionType,
+} from '../enums'
+
+import type {
+  CompassDirection,
+  AnnotationLineStyle,
+  StrokeStyle,
+  RangeAnchor,
+  LineStyle,
+} from '../enums'
+
+// Re-export enums that were previously exported as type aliases from this module
+export {
+  CompassDirection,
+  AnnotationLineStyle,
+  StrokeStyle,
+  RangeAnchor,
+  LineStyle,
+} from '../enums'
+
 export interface ChartData {
   labels: string[]
   values: number[]
@@ -15,17 +55,17 @@ export interface HighlightConfig {
 }
 
 export interface AxisOptions {
-  direction?: 'left' | 'right'
-  scaleType?: 'linear' | 'log'
+  direction?: AxisDirection
+  scaleType?: ScaleType
   range?: { min?: number, max?: number }
   ticks?: number[]
   showAxis?: boolean
   showTicks?: boolean
-  gridStyle?: 'solid' | 'dashed' | 'dotted' | 'none'
+  gridStyle?: GridStyle
   gridWidth?: number
   numberFormat?: string
-  tickPosition?: 'above' | 'below'
-  labelPosition?: 'auto' | 'inside' | 'outside' | 'off'
+  tickPosition?: TickPosition
+  labelPosition?: LabelPosition
   topPadding?: number
   width?: number
   zeroY?: number
@@ -39,7 +79,7 @@ export interface FrameOptions {
   note?: string
   source?: string
   sourceUrl?: string
-  sizing?: 'auto' | 'standard' | 'aspect-ratio'
+  sizing?: FrameSizing
   aspectRatio?: number
   showCredit?: boolean
   padding?: string
@@ -55,19 +95,7 @@ export interface AreaFillConfig {
   interpolation?: string
 }
 
-export type CompassDirection = 'NW' | 'N' | 'NE' | 'E' | 'SE' | 'S' | 'SW' | 'W' | 'center'
-export type AnnotationLineStyle = 'direct' | 'curve-left' | 'curve-right' | 'elbow'
-export type StrokeStyle = 'solid' | 'dotted' | 'dashed'
-
-interface AnnotationBase {
-  id?: string
-  text?: string
-  textColor?: string
-  textOutline?: boolean
-  maxWidth?: number | string
-}
-
-interface AnnotationLineConfig {
+export interface AnnotationLineConfig {
   anchorDirection?: CompassDirection
   textOffsetX?: number
   textOffsetY?: number
@@ -82,17 +110,23 @@ interface AnnotationLineConfig {
   circleColor?: string
 }
 
+interface AnnotationBase {
+  id?: string
+  text?: string
+  textColor?: string
+  textOutline?: boolean
+  maxWidth?: number | string
+}
+
 export interface PointAnnotationConfig extends AnnotationBase, AnnotationLineConfig {
-  kind: 'point'
+  kind: AnnotationKind.Point
   text: string
   target: string
 }
 
-export type RangeAnchor = 'start' | 'center' | 'end'
-
 export interface RangeAnnotationConfig extends AnnotationBase {
-  kind: 'range'
-  orientation?: 'vertical' | 'horizontal'
+  kind: AnnotationKind.Range
+  orientation?: Orientation
   direction?: CompassDirection
   start: number | string
   end: number | string
@@ -103,7 +137,7 @@ export interface RangeAnnotationConfig extends AnnotationBase {
 }
 
 export interface FreeAnnotationConfig extends AnnotationBase {
-  kind: 'free'
+  kind: AnnotationKind.Free
   text: string
   x: number | string
   y: number | string
@@ -112,9 +146,9 @@ export interface FreeAnnotationConfig extends AnnotationBase {
 export type AnnotationConfig = PointAnnotationConfig | RangeAnnotationConfig | FreeAnnotationConfig
 
 export interface LineSymbolConfig {
-  symbol?: 'circle' | 'square' | 'diamond' | 'triangle' | 'triangleDown' | 'cross' | 'star'
-  showOn?: 'all' | 'first' | 'last' | 'firstLast'
-  style?: 'filled' | 'hollow'
+  symbol?: SymbolShape
+  showOn?: SymbolShowOn
+  style?: SymbolStyle
   size?: number
   opacity?: number
 }
@@ -143,17 +177,17 @@ export interface ChartOptions {
   frame?: FrameOptions
   verticalAxis?: AxisOptions
   horizontalAxis?: AxisOptions
-  sort?: 'ascending' | 'descending' | 'none'
-  sortMode?: 'total' | 'within-groups' | 'none'
+  sort?: SortDirection
+  sortMode?: SortMode
   colorizes?: ColorizeConfig[]
   highlights?: HighlightConfig[]
   colors?: string[]
   interpolation?: string
   legend?: boolean
-  legendPosition?: 'top' | 'bottom' | 'left' | 'right'
-  legendAnchor?: 'start' | 'middle' | 'end'
+  legendPosition?: LegendPosition
+  legendAnchor?: Anchor
   directLabelling?: string | boolean
-  directLabelAnchor?: 'start' | 'middle' | 'end'
+  directLabelAnchor?: Anchor
   areaFill?: boolean
   areaFillOpacity?: number
   areaFills?: AreaFillConfig[]
@@ -162,11 +196,11 @@ export interface ChartOptions {
   areaSortMode?: string
   areaLines?: boolean
   valueLabels?: boolean
-  valueLabelPosition?: 'inside' | 'outside' | 'auto'
+  valueLabelPosition?: ValueLabelPosition
   tooltips?: boolean
   crosshair?: boolean
-  crosshairDirection?: 'both' | 'vertical' | 'horizontal'
-  crosshairStyle?: 'solid' | 'dashed' | 'dotted'
+  crosshairDirection?: CrosshairDirection
+  crosshairStyle?: CrosshairStyle
   crosshairColor?: string
   lineSymbols?: LineSymbolConfig
   annotations?: AnnotationConfig[]
@@ -182,7 +216,7 @@ export interface ChartOptions {
   swapLabelValue?: boolean
   barBackground?: boolean
   barSeparators?: boolean
-  stackMode?: 'normal' | 'percent'
+  stackMode?: StackMode
   edgePadding?: boolean
   waterfall?: boolean
   waterfallTotal?: boolean
@@ -199,7 +233,7 @@ export type ChartRenderer = (
 
 export interface ChartOptionDef {
   key: string
-  type: 'colors' | 'boolean' | 'select' | 'text' | 'numberFormat' | 'dateFormat'
+  type: ChartOptionType
   label: string
   default?: unknown
   choices?: { value: string, text: string }[]
@@ -212,8 +246,6 @@ export interface Margin {
   bottom: number
   left: number
 }
-
-export type LineStyle = 'solid' | 'dashed' | 'dotted' | 'none'
 
 export interface ChartTypeOptions {
   colors: string[]
@@ -233,8 +265,8 @@ export interface ChartTypeOptions {
   showHorizontalTicks: boolean
   horizontalGridStyle: LineStyle
   horizontalNumberFormat: string
-  verticalScaleType: 'linear' | 'log'
-  horizontalScaleType: 'linear' | 'log'
+  verticalScaleType: ScaleType
+  horizontalScaleType: ScaleType
   verticalLabelPosition: string
   verticalRangeMin: string
   verticalRangeMax: string
@@ -263,7 +295,7 @@ export interface ChartTypeOptions {
   sliceGroupLabel: string
   autoContrast: boolean
   allowDarkMode: boolean
-  sortMode: 'total' | 'within-groups' | 'none'
+  sortMode: SortMode
   barBackground: boolean
   barSeparators: boolean
   stackMode: string

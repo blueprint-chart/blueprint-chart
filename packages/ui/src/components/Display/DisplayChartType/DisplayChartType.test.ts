@@ -1,9 +1,10 @@
 import { mount } from '@vue/test-utils'
+import { ChartType } from '../../../enums'
 import DisplayChartType from './DisplayChartType.vue'
 
 describe('DisplayChartType', () => {
   it('renders human-readable label for known chart type', () => {
-    const wrapper = mount(DisplayChartType, { props: { chartType: 'bar-vertical' } })
+    const wrapper = mount(DisplayChartType, { props: { chartType: ChartType.BarVertical } })
     expect(wrapper.text()).toBe('Columns')
   })
 
@@ -13,23 +14,23 @@ describe('DisplayChartType', () => {
   })
 
   it('applies display-chart-type class', () => {
-    const wrapper = mount(DisplayChartType, { props: { chartType: 'line' } })
+    const wrapper = mount(DisplayChartType, { props: { chartType: ChartType.Line } })
     expect(wrapper.classes()).toContain('display-chart-type')
   })
 
   it('renders label for each known chart type', () => {
     const expected: Record<string, string> = {
-      'bar-vertical': 'Columns',
-      'bar-horizontal': 'Bars',
-      'bar-multi': 'Grouped Columns',
-      'column-stacked': 'Stacked Columns',
-      'bar-stacked': 'Stacked Bars',
-      'line': 'Line',
-      'line-multi': 'Lines',
-      'area': 'Area',
-      'area-stacked': 'Areas',
-      'donut': 'Donut',
-      'pie': 'Pie',
+      [ChartType.BarVertical]: 'Columns',
+      [ChartType.BarHorizontal]: 'Bars',
+      [ChartType.BarMulti]: 'Grouped Columns',
+      [ChartType.ColumnStacked]: 'Stacked Columns',
+      [ChartType.BarStacked]: 'Stacked Bars',
+      [ChartType.Line]: 'Line',
+      [ChartType.LineMulti]: 'Lines',
+      [ChartType.Area]: 'Area',
+      [ChartType.AreaStacked]: 'Areas',
+      [ChartType.Donut]: 'Donut',
+      [ChartType.Pie]: 'Pie',
     }
     for (const [type, label] of Object.entries(expected)) {
       const wrapper = mount(DisplayChartType, { props: { chartType: type } })

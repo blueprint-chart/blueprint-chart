@@ -2,6 +2,7 @@ import { useChartConfig } from './useChartConfig'
 import { useChartTypeOptions, type ChartTypeOptions } from './useChartTypeOptions'
 import { useChartSession } from './useChartSession'
 import { useDslOutput } from './useDslOutput'
+import { ChartType, SortDirection } from '@blueprint-chart/lib'
 import { getChart, parseData, buildChartOptions } from '@blueprint-chart/lib'
 import { renderDsl } from './useChartFromDsl'
 import type { ChartData, SeriesOverride } from '@blueprint-chart/lib'
@@ -211,7 +212,7 @@ export function renderThumbnailSvg(
   chartType: string,
   data: ChartData,
   typeOpts: Partial<ChartTypeOptions>,
-  sort: 'ascending' | 'descending' | 'none',
+  sort: SortDirection,
   options?: { colorizes?: ChartColorize[], seriesOverrides?: SeriesOverride[] },
 ): string | null {
   const renderer = getChart(chartType)
@@ -303,7 +304,7 @@ export function renderThumbnailFromStorage(raw: string): string | null {
   }
   const { chartConfig, chartTypeOptions } = payload
   const data = parseData(chartConfig.data)
-  const singleSeriesTypes = ['bar-vertical', 'bar-horizontal', 'line', 'vertical-bar', 'horizontal-bar']
+  const singleSeriesTypes: string[] = [ChartType.BarVertical, ChartType.BarHorizontal, ChartType.Line, ChartType.VerticalBar, ChartType.HorizontalBar]
   if (data.series && data.series.length > 0 && singleSeriesTypes.includes(chartConfig.chartType)) {
     const match = data.series.find((s: { name: string }) => s.name === chartConfig.selectedColumn)
     if (match) {
@@ -338,7 +339,7 @@ export function generateThumbnail() {
   }
 
   const data = parseData(config.data.value)
-  const singleSeriesTypes = ['bar-vertical', 'bar-horizontal', 'line', 'vertical-bar', 'horizontal-bar']
+  const singleSeriesTypes: string[] = [ChartType.BarVertical, ChartType.BarHorizontal, ChartType.Line, ChartType.VerticalBar, ChartType.HorizontalBar]
   if (data.series && data.series.length > 0 && singleSeriesTypes.includes(config.chartType.value)) {
     const match = data.series.find(s => s.name === config.selectedColumn.value)
     if (match) {

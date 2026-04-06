@@ -1,9 +1,14 @@
+import { ChartType } from '@blueprint-chart/lib'
 import { mount } from '@vue/test-utils'
 import DataUploadCard from './DataUploadCard.vue'
 
-vi.mock('@blueprint-chart/lib', () => ({
-  samples: [],
-}))
+vi.mock('@blueprint-chart/lib', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@blueprint-chart/lib')>()
+  return {
+    ...actual,
+    samples: [],
+  }
+})
 
 const mockDataTable = {
   rawInput: { value: '' },
@@ -16,7 +21,7 @@ vi.mock('@/stores/dataTable', () => ({
   useDataTable: () => mockDataTable,
 }))
 
-const fakeSample = { id: 'test', title: 'Test', tsvData: 'a\tb\n1\t2', dsl: 'bar-vertical {}', chartType: 'bar-vertical', serializedData: '', description: '' }
+const fakeSample = { id: 'test', title: 'Test', tsvData: 'a\tb\n1\t2', dsl: 'bar-vertical {}', chartType: ChartType.BarVertical, serializedData: '', description: '' }
 
 function mountCard() {
   return mount(DataUploadCard, {

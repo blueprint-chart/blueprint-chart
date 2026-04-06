@@ -1,4 +1,6 @@
 import type { AnnotationConfig, SeriesOverride } from '@blueprint-chart/lib'
+import { ChartType, SortDirection } from '@blueprint-chart/lib'
+import { TransformType } from '@/enums'
 import { resolveScene, resolveSortFromTransforms } from './useChartPreview'
 import type { SceneOverride } from './useScenes'
 import type { TransformStep } from './useDataTransforms'
@@ -54,28 +56,28 @@ describe('resolveScene', () => {
   })
 
   it('returns the scene itself when it is the only one', () => {
-    const s = scene({ chartType: 'line' })
+    const s = scene({ chartType: ChartType.Line })
     const result = resolveScene([s], 0)!
-    expect(result.chartType).toBe('line')
+    expect(result.chartType).toBe(ChartType.Line)
   })
 
   it('inherits chartType from a prior scene', () => {
     const scenes = [
-      scene({ chartType: 'line' }),
+      scene({ chartType: ChartType.Line }),
       scene({ colorizes: [{ target: 'A', color: 'red' }] }),
     ]
     const result = resolveScene(scenes, 1)!
-    expect(result.chartType).toBe('line')
+    expect(result.chartType).toBe(ChartType.Line)
     expect(result.colorizes).toEqual([{ target: 'A', color: 'red' }])
   })
 
   it('later scene overrides chartType from earlier scene', () => {
     const scenes = [
-      scene({ chartType: 'line' }),
-      scene({ chartType: 'bar-vertical' }),
+      scene({ chartType: ChartType.Line }),
+      scene({ chartType: ChartType.BarVertical }),
     ]
     const result = resolveScene(scenes, 1)!
-    expect(result.chartType).toBe('bar-vertical')
+    expect(result.chartType).toBe(ChartType.BarVertical)
   })
 
   it('deep-merges chartTypeOptions across scenes', () => {
@@ -90,11 +92,11 @@ describe('resolveScene', () => {
   it('inherits data from prior scene', () => {
     const scenes = [
       scene({ data: 'A,1\nB,2' }),
-      scene({ chartType: 'line' }),
+      scene({ chartType: ChartType.Line }),
     ]
     const result = resolveScene(scenes, 1)!
     expect(result.data).toBe('A,1\nB,2')
-    expect(result.chartType).toBe('line')
+    expect(result.chartType).toBe(ChartType.Line)
   })
 
   it('data cascades through multiple scenes', () => {
@@ -128,21 +130,21 @@ describe('resolveScene', () => {
 
   it('inherits sort transform from prior scene', () => {
     const scenes = [
-      scene({ transforms: [{ id: '0', type: 'sort', config: { columns: 'value', direction: 'ascending' } }] }),
+      scene({ transforms: [{ id: '0', type: TransformType.Sort, config: { columns: 'value', direction: SortDirection.Ascending } }] }),
       scene({}),
     ]
     const result = resolveScene(scenes, 1)!
-    expect(result.transforms).toEqual([{ id: '0', type: 'sort', config: { columns: 'value', direction: 'ascending' } }])
+    expect(result.transforms).toEqual([{ id: '0', type: TransformType.Sort, config: { columns: 'value', direction: SortDirection.Ascending } }])
   })
 
   it('does not inherit from scenes after the active index', () => {
     const scenes = [
-      scene({ chartType: 'line' }),
+      scene({ chartType: ChartType.Line }),
       scene({}),
-      scene({ chartType: 'donut' }),
+      scene({ chartType: ChartType.Donut }),
     ]
     const result = resolveScene(scenes, 1)!
-    expect(result.chartType).toBe('line')
+    expect(result.chartType).toBe(ChartType.Line)
   })
 
   it('preserves id and name from the active scene', () => {
@@ -211,8 +213,8 @@ describe('resolveScene', () => {
 
   it('hiddenAnnotationIds is undefined when no visibility directives exist', () => {
     const scenes = [
-      scene({ chartType: 'line' }),
-      scene({ chartType: 'bar-vertical' }),
+      scene({ chartType: ChartType.Line }),
+      scene({ chartType: ChartType.BarVertical }),
     ]
     const result = resolveScene(scenes, 1)!
     expect(result.hiddenAnnotationIds).toBeUndefined()
@@ -312,7 +314,7 @@ describe('resolveScene', () => {
 
   it('resolved scene without annotations field returns undefined annotations', () => {
     const scenes = [
-      scene({ chartType: 'line' }),
+      scene({ chartType: ChartType.Line }),
     ]
     const result = resolveScene(scenes, 0)!
     expect(result.annotations).toBeUndefined()
@@ -328,8 +330,8 @@ describe('resolveScene', () => {
   })
 
   it('transforms from later scene replace earlier scene', () => {
-    const earlyTransforms: TransformStep[] = [{ type: 'filter', column: 'A', value: '1' }]
-    const lateTransforms: TransformStep[] = [{ type: 'sort', column: 'B', value: 'asc' }]
+    const earlyTransforms: TransformStep[] = [{ type: TransformType.Filter, column: 'A', value: '1' }]
+    const lateTransforms: TransformStep[] = [{ type: TransformType.Sort, column: 'B', value: 'asc' }]
     const scenes = [
       scene({ transforms: earlyTransforms }),
       scene({ transforms: lateTransforms }),
@@ -380,12 +382,12 @@ describe('resolveScene', () => {
 
 describe('resolveSortFromTransforms', () => {
   it('extracts sort direction from resolved transforms', () => {
-    const resolved = scene({ transforms: [{ id: '0', type: 'sort', config: { columns: 'value', direction: 'ascending' } }] })
-    expect(resolveSortFromTransforms(resolved)).toBe('ascending')
+    const resolved = scene({ transforms: [{ id: '0', type: TransformType.Sort, config: { columns: 'value', direction: SortDirection.Ascending } }] })
+    expect(resolveSortFromTransforms(resolved)).toBe(SortDirection.Ascending)
   })
 
   it('returns undefined when no sort transform', () => {
-    const resolved = scene({ transforms: [{ id: '0', type: 'filter', config: { column: 'A', value: '1' } }] })
+    const resolved = scene({ transforms: [{ id: '0', type: TransformType.Filter, config: { column: 'A', value: '1' } }] })
     expect(resolveSortFromTransforms(resolved)).toBeUndefined()
   })
 
@@ -399,10 +401,10 @@ describe('resolveSortFromTransforms', () => {
 
   it('uses last sort transform when multiple exist', () => {
     const resolved = scene({ transforms: [
-      { id: '0', type: 'sort', config: { columns: 'value', direction: 'ascending' } },
-      { id: '1', type: 'sort', config: { columns: 'value', direction: 'descending' } },
+      { id: '0', type: TransformType.Sort, config: { columns: 'value', direction: SortDirection.Ascending } },
+      { id: '1', type: TransformType.Sort, config: { columns: 'value', direction: SortDirection.Descending } },
     ] })
-    expect(resolveSortFromTransforms(resolved)).toBe('descending')
+    expect(resolveSortFromTransforms(resolved)).toBe(SortDirection.Descending)
   })
 
   it('resolves sort from inherited transforms in multi-scene scenario', () => {
@@ -411,7 +413,7 @@ describe('resolveSortFromTransforms', () => {
       scene({
         chartTypeOptions: { tooltips: true, crosshair: true },
         colorizes: [{ target: 'India', color: '#00d084', label: '' }],
-        transforms: [{ id: '0', type: 'sort', config: { columns: 'value', direction: 'ascending' } }],
+        transforms: [{ id: '0', type: TransformType.Sort, config: { columns: 'value', direction: SortDirection.Ascending } }],
       }),
       scene({
         colorizes: [{ target: 'India', color: '#9900ef', label: '' }],
@@ -420,20 +422,20 @@ describe('resolveSortFromTransforms', () => {
 
     const resolved = resolveScene(scenes, 1)!
     expect(resolved.transforms).toBeDefined()
-    expect(resolveSortFromTransforms(resolved)).toBe('ascending')
+    expect(resolveSortFromTransforms(resolved)).toBe(SortDirection.Ascending)
   })
 
   it('defaults to ascending when sort transform has no direction', () => {
     const resolved = scene({ transforms: [
-      { id: '0', type: 'sort', config: { columns: 'value' } },
+      { id: '0', type: TransformType.Sort, config: { columns: 'value' } },
     ] })
-    expect(resolveSortFromTransforms(resolved)).toBe('ascending')
+    expect(resolveSortFromTransforms(resolved)).toBe(SortDirection.Ascending)
   })
 
   it('defaults to ascending for inherited sort transform without direction', () => {
     const scenes = [
       scene({
-        transforms: [{ id: '0', type: 'sort', config: { columns: 'value' } }],
+        transforms: [{ id: '0', type: TransformType.Sort, config: { columns: 'value' } }],
       }),
       scene({
         colorizes: [{ target: 'India', color: '#9900ef', label: '' }],
@@ -441,7 +443,7 @@ describe('resolveSortFromTransforms', () => {
     ]
 
     const resolved = resolveScene(scenes, 1)!
-    expect(resolveSortFromTransforms(resolved)).toBe('ascending')
+    expect(resolveSortFromTransforms(resolved)).toBe(SortDirection.Ascending)
   })
 })
 

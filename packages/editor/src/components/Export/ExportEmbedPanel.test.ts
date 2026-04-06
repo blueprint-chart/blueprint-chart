@@ -1,3 +1,4 @@
+import { ChartType } from '@blueprint-chart/lib'
 import { mount } from '@vue/test-utils'
 import { useChartConfig } from '@/stores/chartConfig'
 import { useChartTypeOptionsStore } from '@/stores/chartTypeOptions'
@@ -22,7 +23,7 @@ describe('ExportEmbedPanel', () => {
     useChartConfig().reset()
     useChartTypeOptionsStore().reset()
     const config = useChartConfig()
-    config.chartType.value = 'bar-vertical'
+    config.chartType.value = ChartType.BarVertical
     config.data.value = 'Label,Value\nA,10\nB,20'
     config.title.value = 'Test chart'
   })

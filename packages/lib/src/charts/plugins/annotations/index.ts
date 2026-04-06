@@ -1,6 +1,7 @@
 import * as d3 from 'd3'
 import type { D3Blueprint, Plugin } from 'd3-blueprint'
 import type { AnnotationConfig } from '../../types'
+import { AnnotationKind, AnnotationLineStyle } from '../../../enums'
 import { getTransitionDuration, DEFAULT_TRANSITION_MS } from '../../motion'
 import type { AnnotationContext } from './context'
 import { snapshotAnnotations, readLineGeometry } from './snapshots'
@@ -52,7 +53,7 @@ function applyDrawEntrance(lineEl: SVGElement, durationMs: number): void {
     const startD = `M ${geo.fromX} ${geo.fromY} L ${geo.fromX} ${geo.fromY}`
     sel.attr('d', startD)
 
-    if (geo.style === 'elbow') {
+    if (geo.style === AnnotationLineStyle.Elbow) {
       const endCoords = { tipX: geo.toX, tipY: geo.toY, calloutX: geo.fromX, calloutY: geo.fromY }
       const startCoords = { tipX: geo.fromX, tipY: geo.fromY, calloutX: geo.fromX, calloutY: geo.fromY }
       sel.transition()
@@ -66,14 +67,14 @@ function applyDrawEntrance(lineEl: SVGElement, durationMs: number): void {
           }
         })
     }
-    else if (geo.style === 'curve-left' || geo.style === 'curve-right') {
+    else if (geo.style === AnnotationLineStyle.CurveLeft || geo.style === AnnotationLineStyle.CurveRight) {
       const from = { x: geo.fromX, y: geo.fromY }
       const to = { x: geo.toX, y: geo.toY }
       const dx = to.x - from.x
       const dy = to.y - from.y
       const dist = Math.sqrt(dx * dx + dy * dy)
       const r = dist * 0.8
-      const sweep = geo.style === 'curve-right' ? 1 : 0
+      const sweep = geo.style === AnnotationLineStyle.CurveRight ? 1 : 0
 
       const halfChord = dist / 2
       const h = halfChord < r ? Math.sqrt(r * r - halfChord * halfChord) : 0
@@ -151,7 +152,7 @@ function applyLineMoveTransition(
 
   const sel = d3.select(lineEl)
 
-  if (oldLine.style === 'elbow' && newLine.style === 'elbow') {
+  if (oldLine.style === AnnotationLineStyle.Elbow && newLine.style === AnnotationLineStyle.Elbow) {
     const oldCoords = { tipX: oldLine.toX, tipY: oldLine.toY, calloutX: oldLine.fromX, calloutY: oldLine.fromY }
     const newCoords = { tipX: newLine.toX, tipY: newLine.toY, calloutX: newLine.fromX, calloutY: newLine.fromY }
 
@@ -190,14 +191,14 @@ function applyLineMoveTransition(
           }
           const f = interpFrom(t)
           const tt = interpTo(t)
-          if (newLine.style === 'direct' || oldLine.style === 'direct') {
+          if (newLine.style === AnnotationLineStyle.Direct || oldLine.style === AnnotationLineStyle.Direct) {
             return `M ${f.x} ${f.y} L ${tt.x} ${tt.y}`
           }
           const dx = tt.x - f.x
           const dy = tt.y - f.y
           const dist = Math.sqrt(dx * dx + dy * dy)
           const r = dist * 0.8
-          const sweep = newLine.style === 'curve-right' ? 1 : 0
+          const sweep = newLine.style === AnnotationLineStyle.CurveRight ? 1 : 0
           return `M ${f.x} ${f.y} A ${r} ${r} 0 0 ${sweep} ${tt.x} ${tt.y}`
         }
       })
@@ -372,16 +373,16 @@ export function renderAnnotations(
 
   for (let i = 0; i < annotations.length; i++) {
     const ann = annotations[i]
-    const kind = ann.kind ?? 'point'
+    const kind = ann.kind ?? AnnotationKind.Point
 
     switch (kind) {
-      case 'point':
+      case AnnotationKind.Point:
         renderPointAnnotation(g, ann, ctx, i)
         break
-      case 'range':
+      case AnnotationKind.Range:
         renderRangeAnnotation(rangeGroup, ann, ctx, i, g)
         break
-      case 'free':
+      case AnnotationKind.Free:
         renderFreeAnnotation(g, ann, ctx, i)
         break
     }
@@ -460,16 +461,16 @@ export function createAnnotationPlugin(
 
       for (let i = 0; i < annotations.length; i++) {
         const ann = annotations[i]
-        const kind = ann.kind ?? 'point'
+        const kind = ann.kind ?? AnnotationKind.Point
 
         switch (kind) {
-          case 'point':
+          case AnnotationKind.Point:
             renderPointAnnotation(g, ann, ctx, i)
             break
-          case 'range':
+          case AnnotationKind.Range:
             renderRangeAnnotation(rangeGroup, ann, ctx, i, g)
             break
-          case 'free':
+          case AnnotationKind.Free:
             renderFreeAnnotation(g, ann, ctx, i)
             break
         }

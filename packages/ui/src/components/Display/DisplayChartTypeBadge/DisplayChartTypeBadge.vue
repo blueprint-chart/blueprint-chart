@@ -19,6 +19,7 @@ import IPhChartBarHorizontal from '~icons/ph/chart-bar-horizontal'
 import IPhChartLineUp from '~icons/ph/chart-line-up'
 import IPhChartPieSlice from '~icons/ph/chart-pie-slice'
 import IPhChartDonut from '~icons/ph/chart-donut'
+import { ChartType } from '../../../enums'
 import { getChartTypeLabel } from '../../../utils/chartType'
 
 const props = withDefaults(defineProps<{
@@ -31,23 +32,23 @@ const props = withDefaults(defineProps<{
 const label = computed(() => getChartTypeLabel(props.chartType))
 const badgeVariant = computed(() => props.theme === 'dark' ? 'dark' : 'light')
 
-const ICON_MAP: Record<string, object> = {
-  'bar-vertical': IPhChartBar,
-  'bar-horizontal': IPhChartBarHorizontal,
-  'bar-multi': IPhChartBar,
-  'column-stacked': IPhChartBar,
-  'bar-stacked': IPhChartBarHorizontal,
-  'bar-split': IPhChartBarHorizontal,
-  'bar-grouped': IPhChartBarHorizontal,
-  'line': IPhChartLineUp,
-  'line-multi': IPhChartLineUp,
-  'area': IPhChartLineUp,
-  'area-stacked': IPhChartLineUp,
-  'donut': IPhChartDonut,
-  'pie': IPhChartPieSlice,
+const ICON_MAP: Partial<Record<ChartType, object>> = {
+  [ChartType.BarVertical]: IPhChartBar,
+  [ChartType.BarHorizontal]: IPhChartBarHorizontal,
+  [ChartType.BarMulti]: IPhChartBar,
+  [ChartType.ColumnStacked]: IPhChartBar,
+  [ChartType.BarStacked]: IPhChartBarHorizontal,
+  [ChartType.BarSplit]: IPhChartBarHorizontal,
+  [ChartType.BarGrouped]: IPhChartBarHorizontal,
+  [ChartType.Line]: IPhChartLineUp,
+  [ChartType.LineMulti]: IPhChartLineUp,
+  [ChartType.Area]: IPhChartLineUp,
+  [ChartType.AreaStacked]: IPhChartLineUp,
+  [ChartType.Donut]: IPhChartDonut,
+  [ChartType.Pie]: IPhChartPieSlice,
 }
 
-const icon = computed(() => ICON_MAP[props.chartType] ?? IPhChartBar)
+const icon = computed(() => ICON_MAP[props.chartType as ChartType] ?? IPhChartBar)
 </script>
 
 <style scoped lang="scss">

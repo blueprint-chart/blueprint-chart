@@ -31,7 +31,7 @@
 
 <script setup lang="ts">
 import type { Component } from 'vue'
-import { samples } from '@blueprint-chart/lib'
+import { ChartType, samples } from '@blueprint-chart/lib'
 import type { ChartSample } from '@blueprint-chart/lib'
 
 import BarVerticalThumb from '@/assets/chart-thumbnails/bar-vertical.bpc'
@@ -51,35 +51,35 @@ import BarGroupedThumb from '@/assets/chart-thumbnails/bar-grouped.bpc'
 defineEmits<{ select: [sample: ChartSample] }>()
 
 const THUMB_MAP: Record<string, Component> = {
-  'bar-vertical': markRaw(BarVerticalThumb),
-  'bar-horizontal': markRaw(BarHorizontalThumb),
-  'bar-multi': markRaw(BarMultiThumb),
-  'line': markRaw(LineThumb),
-  'line-multi': markRaw(LineMultiThumb),
-  'donut': markRaw(DonutThumb),
-  'pie': markRaw(PieThumb),
-  'area': markRaw(AreaThumb),
-  'area-stacked': markRaw(AreaStackedThumb),
-  'column-stacked': markRaw(ColumnStackedThumb),
-  'bar-stacked': markRaw(BarStackedThumb),
-  'bar-split': markRaw(BarSplitThumb),
-  'bar-grouped': markRaw(BarGroupedThumb),
+  [ChartType.BarVertical]: markRaw(BarVerticalThumb),
+  [ChartType.BarHorizontal]: markRaw(BarHorizontalThumb),
+  [ChartType.BarMulti]: markRaw(BarMultiThumb),
+  [ChartType.Line]: markRaw(LineThumb),
+  [ChartType.LineMulti]: markRaw(LineMultiThumb),
+  [ChartType.Donut]: markRaw(DonutThumb),
+  [ChartType.Pie]: markRaw(PieThumb),
+  [ChartType.Area]: markRaw(AreaThumb),
+  [ChartType.AreaStacked]: markRaw(AreaStackedThumb),
+  [ChartType.ColumnStacked]: markRaw(ColumnStackedThumb),
+  [ChartType.BarStacked]: markRaw(BarStackedThumb),
+  [ChartType.BarSplit]: markRaw(BarSplitThumb),
+  [ChartType.BarGrouped]: markRaw(BarGroupedThumb),
 }
 
 const TYPE_LABELS: Record<string, string> = {
-  'bar-vertical': 'Columns',
-  'bar-horizontal': 'Bars',
-  'bar-multi': 'Grouped Columns',
-  'line': 'Line',
-  'line-multi': 'Lines',
-  'donut': 'Donut',
-  'pie': 'Pie',
-  'area': 'Area',
-  'area-stacked': 'Stacked Area',
-  'column-stacked': 'Stacked Columns',
-  'bar-stacked': 'Stacked Bars',
-  'bar-split': 'Split Bars',
-  'bar-grouped': 'Grouped Bars',
+  [ChartType.BarVertical]: 'Columns',
+  [ChartType.BarHorizontal]: 'Bars',
+  [ChartType.BarMulti]: 'Grouped Columns',
+  [ChartType.Line]: 'Line',
+  [ChartType.LineMulti]: 'Lines',
+  [ChartType.Donut]: 'Donut',
+  [ChartType.Pie]: 'Pie',
+  [ChartType.Area]: 'Area',
+  [ChartType.AreaStacked]: 'Stacked Area',
+  [ChartType.ColumnStacked]: 'Stacked Columns',
+  [ChartType.BarStacked]: 'Stacked Bars',
+  [ChartType.BarSplit]: 'Split Bars',
+  [ChartType.BarGrouped]: 'Grouped Bars',
 }
 
 interface SampleCard extends ChartSample {

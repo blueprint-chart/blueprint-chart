@@ -4,8 +4,9 @@ import { useChartTypeOptions } from './useChartTypeOptions'
 import { useDataTransforms } from './useDataTransforms'
 import { useScenes } from './useScenes'
 import { useDataTable } from './useDataTable'
-import { getChartOptions } from '@blueprint-chart/lib'
+import { getChartOptions, AnnotationKind, SortDirection } from '@blueprint-chart/lib'
 import type { RangeAnnotationConfig, FreeAnnotationConfig } from '@blueprint-chart/lib'
+import { TransformType } from '../enums'
 import { serializePosition, serializeMaxWidth } from '@/utils/dsl/output'
 
 export function useDslOutput() {
@@ -156,8 +157,8 @@ export function useDslOutput() {
     }
 
     for (const a of base.annotations.value) {
-      const kind = a.kind ?? 'point'
-      if (kind === 'point') {
+      const kind = a.kind ?? AnnotationKind.Point
+      if (kind === AnnotationKind.Point) {
         if (!('target' in a) || !a.target) {
           continue
         }
@@ -231,7 +232,7 @@ export function useDslOutput() {
         }
         output += `  }\n`
       }
-      else if (kind === 'range') {
+      else if (kind === AnnotationKind.Range) {
         const ra = a as RangeAnnotationConfig
         output += `\n  range {\n`
         if (ra.id) {
@@ -283,7 +284,7 @@ export function useDslOutput() {
         }
         output += `  }\n`
       }
-      else if (kind === 'free') {
+      else if (kind === AnnotationKind.Free) {
         const fa = a as FreeAnnotationConfig
         output += `\n  note {\n`
         if (fa.id) {
@@ -327,10 +328,10 @@ export function useDslOutput() {
       output += `  }\n`
     }
 
-    if (base.sort.value !== 'none') {
+    if (base.sort.value !== SortDirection.None) {
       const cols = dataTable.displayColumns.value
       const valueCols = cols.length > 2 ? cols.slice(1) : cols.length > 1 ? [cols[1]] : [cols[0] ?? '']
-      output += `\n  transform sort {\n`
+      output += `\n  transform ${TransformType.Sort} {\n`
       if (valueCols.length > 1) {
         output += `    columns = "${valueCols.join(',')}"\n`
         output += `    operation = sum\n`
@@ -489,8 +490,8 @@ export function useDslOutput() {
       }
       if (scene.annotations) {
         for (const a of scene.annotations) {
-          const kind = a.kind ?? 'point'
-          if (kind === 'point') {
+          const kind = a.kind ?? AnnotationKind.Point
+          if (kind === AnnotationKind.Point) {
             if (!('target' in a) || !a.target) {
               continue
             }
@@ -548,7 +549,7 @@ export function useDslOutput() {
             }
             output += `    }\n`
           }
-          else if (kind === 'range') {
+          else if (kind === AnnotationKind.Range) {
             const ra = a as import('@blueprint-chart/lib').RangeAnnotationConfig
             output += `\n    range {\n`
             if (ra.id) {
@@ -586,7 +587,7 @@ export function useDslOutput() {
             }
             output += `    }\n`
           }
-          else if (kind === 'free') {
+          else if (kind === AnnotationKind.Free) {
             const fa = a as import('@blueprint-chart/lib').FreeAnnotationConfig
             output += `\n    note {\n`
             if (fa.id) {
@@ -615,7 +616,7 @@ export function useDslOutput() {
         }
       }
       if (scene.annotationVisibility) {
-        const kindMap = { point: 'annotation', range: 'range', free: 'note' } as const
+        const kindMap = { [AnnotationKind.Point]: 'annotation', [AnnotationKind.Range]: 'range', [AnnotationKind.Free]: 'note' } as const
         for (const v of scene.annotationVisibility) {
           output += `    ${v.action}_${kindMap[v.kind]} "${v.id}"\n`
         }

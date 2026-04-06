@@ -13,6 +13,7 @@ import { resolveBackgroundColor, contrastTextColor } from '../../contrast'
 import { buildNumberFormatter } from '../../format-helpers'
 import { getDefaultTransitionMs, setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut, reinsertWithOffset } from '../../motion'
 import { getCachedChart, setCachedChart } from '../../transition-cache'
+import { SortDirection, ValueLabelPosition } from '../../../enums'
 
 const DEFAULT_COLORS = ['#4e79a7']
 
@@ -289,7 +290,7 @@ export function render(
       .attr('opacity', (d: WaterfallDatum) => highlightTargets.size > 0 ? (highlightTargets.has(d.label) ? 1 : 0.2) : null)
 
     if (options.valueLabels) {
-      const pos = options.valueLabelPosition ?? 'auto'
+      const pos = options.valueLabelPosition ?? ValueLabelPosition.Auto
       const vFmt = buildNumberFormatter(options.verticalAxis?.numberFormat ?? '')
       const formatValue = (v: number) => vFmt ? vFmt(v) : String(v)
       clippedGroup.selectAll('.bc-value-label')
@@ -302,15 +303,15 @@ export function render(
         .attr('y', (d: WaterfallDatum) => {
           const top = Math.min(y(d.y0), y(d.y1))
           const barH = Math.abs(y(d.y0) - y(d.y1))
-          if (pos === 'inside') {
+          if (pos === ValueLabelPosition.Inside) {
             return top + barH / 2
           }
           return top - 4
         })
         .attr('text-anchor', 'middle')
-        .attr('dominant-baseline', pos === 'inside' ? 'central' : 'auto')
+        .attr('dominant-baseline', pos === ValueLabelPosition.Inside ? 'central' : 'auto')
         .attr('fill', (d: WaterfallDatum) => {
-          if (pos === 'inside') {
+          if (pos === ValueLabelPosition.Inside) {
             return contrastTextColor(d.isTotal ? totalColor : colorOverrides.get(d.label) ?? colors[0])
           }
           return 'currentColor'
@@ -365,10 +366,10 @@ function valueLabelAttrs(
   d: BarDatum,
   x: d3.ScaleBand<string>,
   y: d3.ScaleLinear<number, number> | d3.ScaleSymLog,
-  pos: 'inside' | 'outside' | 'auto',
+  pos: ValueLabelPosition,
 ) {
   const barH = Math.abs(y(d.value) - y(0))
-  const isInside = pos === 'inside'
+  const isInside = pos === ValueLabelPosition.Inside
   const tx = (x(d.label) ?? 0) + x.bandwidth() / 2
   const anchor = 'middle'
   let ty: number, baseline: string
@@ -401,7 +402,7 @@ function renderValueLabels(
   x: d3.ScaleBand<string>,
   y: d3.ScaleLinear<number, number> | d3.ScaleSymLog,
   opts: {
-    position?: 'inside' | 'outside' | 'auto'
+    position?: ValueLabelPosition
     colorOverrides: Map<string, string>
     colors: string[]
     transition: boolean
@@ -409,7 +410,7 @@ function renderValueLabels(
     swapLabelValue?: boolean
   },
 ) {
-  const pos = opts.position ?? 'auto'
+  const pos = opts.position ?? ValueLabelPosition.Auto
   const labelText = (d: BarDatum) => opts.swapLabelValue ? d.label : String(d.value)
 
   let labelGroup = parent.select<SVGGElement>('.bc-value-label-group')
@@ -481,10 +482,10 @@ function renderValueLabels(
 
 function sortLabels(data: ChartData, options: ChartOptions): string[] {
   const paired = data.labels.map((l, i) => ({ label: l, value: data.values[i] }))
-  if (options.sort === 'ascending') {
+  if (options.sort === SortDirection.Ascending) {
     paired.sort((a, b) => a.value - b.value)
   }
-  else if (options.sort === 'descending') {
+  else if (options.sort === SortDirection.Descending) {
     paired.sort((a, b) => b.value - a.value)
   }
   return paired.map(p => p.label)

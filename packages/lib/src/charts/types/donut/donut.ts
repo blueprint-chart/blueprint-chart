@@ -4,6 +4,7 @@ import { D3Blueprint } from 'd3-blueprint'
 import type { ChartData, ChartOptions } from '../../types'
 import { getDefaultTransitionMs, setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut } from '../../motion'
 import { getCachedChart, setCachedChart } from '../../transition-cache'
+import { SortDirection, DirectLabelMode } from '../../../enums'
 import { createFrame } from '../../frame/frame'
 import { createCanvas, contentSize } from '../../canvas/canvas'
 import { renderLegend } from '../../legend/legend'
@@ -107,9 +108,9 @@ export function renderArc(
   // Sort data
   let labels = [...data.labels]
   let values = [...data.values]
-  if (options.sort === 'ascending' || options.sort === 'descending') {
+  if (options.sort === SortDirection.Ascending || options.sort === SortDirection.Descending) {
     const pairs = labels.map((l, i) => ({ label: l, value: values[i] }))
-    pairs.sort((a, b) => options.sort === 'ascending' ? a.value - b.value : b.value - a.value)
+    pairs.sort((a, b) => options.sort === SortDirection.Ascending ? a.value - b.value : b.value - a.value)
     labels = pairs.map(p => p.label)
     values = pairs.map(p => p.value)
   }
@@ -133,9 +134,9 @@ export function renderArc(
   const colors = options.colors ?? DEFAULT_COLORS
   const dlMode = typeof options.directLabelling === 'string'
     ? options.directLabelling
-    : (options.directLabelling ? 'auto' : '')
+    : (options.directLabelling ? DirectLabelMode.Auto : DirectLabelMode.Off)
   // 'auto' defers to legend when legend is explicitly true
-  const useDirectLabels = !!dlMode && !(dlMode === 'auto' && options.legend === true)
+  const useDirectLabels = !!dlMode && !(dlMode === DirectLabelMode.Auto && options.legend === true)
 
   // Build legend value suffixes when showValues is on and labels are shown as legend
   const showValuesInLegend = (options.showValues ?? true) && !useDirectLabels
@@ -265,10 +266,10 @@ export function renderArc(
     const labelParent = centerGroup as unknown as d3.Selection<SVGGElement, unknown, null, undefined>
     const bgColor = resolveBackgroundColor(container)
     const labelOpts = { outerRadius: radius, innerRadius, chartWidth: width, chartHeight: height, bgColor }
-    if (dlMode === 'inside') {
+    if (dlMode === DirectLabelMode.Inside) {
       renderInsideArcLabels(labelParent, arcLabelData, labelOpts)
     }
-    else if (dlMode === 'auto') {
+    else if (dlMode === DirectLabelMode.Auto) {
       renderAutoArcLabels(labelParent, arcLabelData, labelOpts)
     }
     else {

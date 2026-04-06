@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { render } from './line-multi'
+import { LabelPosition } from '../../../enums'
 
 describe('line-multi chart', () => {
   let container: HTMLElement
@@ -656,7 +657,7 @@ describe('line-multi chart', () => {
   })
 
   it('accepts horizontal axis with labelPosition', () => {
-    render(container, data, { horizontalAxis: { labelPosition: 'inside' } })
+    render(container, data, { horizontalAxis: { labelPosition: LabelPosition.Inside } })
     const axis = container.querySelector('.bc-axis-horizontal')
     expect(axis).not.toBeNull()
   })

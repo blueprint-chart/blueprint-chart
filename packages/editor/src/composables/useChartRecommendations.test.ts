@@ -1,3 +1,4 @@
+import { ChartType } from '@blueprint-chart/lib'
 import { useDataTable } from './useDataTable'
 import { useChartRecommendations } from './useChartRecommendations'
 
@@ -22,7 +23,7 @@ describe('useChartRecommendations', () => {
     })
     const { recommendations, dataSummary } = useChartRecommendations()
     expect(recommendations.value.length).toBeGreaterThan(0)
-    expect(recommendations.value[0].chartType).toBe('bar-vertical')
+    expect(recommendations.value[0].chartType).toBe(ChartType.BarVertical)
     expect(recommendations.value[0].fitness).toBe('best')
     expect(dataSummary.value).toContain('1 categorical')
     expect(dataSummary.value).toContain('1 numeric')
@@ -36,7 +37,7 @@ describe('useChartRecommendations', () => {
       columnTypes: ['date', 'number'],
     })
     const { recommendations } = useChartRecommendations()
-    expect(recommendations.value[0].chartType).toBe('line')
+    expect(recommendations.value[0].chartType).toBe(ChartType.Line)
     expect(recommendations.value[0].fitness).toBe('best')
   })
 
@@ -48,7 +49,7 @@ describe('useChartRecommendations', () => {
       columnTypes: ['string', 'number', 'number', 'number'],
     })
     const { recommendations } = useChartRecommendations()
-    expect(recommendations.value[0].chartType).toBe('bar-multi')
+    expect(recommendations.value[0].chartType).toBe(ChartType.BarMulti)
     expect(recommendations.value[0].fitness).toBe('best')
   })
 
@@ -60,7 +61,7 @@ describe('useChartRecommendations', () => {
       columnTypes: ['date', 'number', 'number'],
     })
     const { recommendations } = useChartRecommendations()
-    expect(recommendations.value[0].chartType).toBe('line-multi')
+    expect(recommendations.value[0].chartType).toBe(ChartType.LineMulti)
   })
 
   it('includes donut for small datasets with 1 string + 1 number', () => {
@@ -72,6 +73,6 @@ describe('useChartRecommendations', () => {
     })
     const { recommendations } = useChartRecommendations()
     const types = recommendations.value.map(r => r.chartType)
-    expect(types).toContain('donut')
+    expect(types).toContain(ChartType.Donut)
   })
 })

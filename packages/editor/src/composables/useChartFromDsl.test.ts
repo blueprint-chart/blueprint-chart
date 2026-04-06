@@ -1,64 +1,69 @@
+import { ChartType } from '@blueprint-chart/lib'
 import { parseDslSceneCount, renderDsl } from './useChartFromDsl'
 import * as lib from '@blueprint-chart/lib'
 
 const mockRenderer = vi.fn()
 
 // Mock @blueprint-chart/lib — we test the orchestration logic, not the chart renderer
-vi.mock('@blueprint-chart/lib', () => ({
-  parse: vi.fn((bpc: string) => {
-    const hasScene = bpc.includes('scene')
-    return {
-      chartType: 'bar-vertical',
-      data: [{ label: 'A', values: [10] }, { label: 'B', values: [20] }],
-      properties: bpc.includes('title:')
-        ? [{ key: 'title', value: 'Test Title' }]
-        : [],
-      scenes: hasScene
-        ? [{ properties: [{ key: 'title', value: 'Scene 1' }], data: null, chartType: null }]
-        : [],
+vi.mock('@blueprint-chart/lib', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@blueprint-chart/lib')>()
+  return {
+    ...actual,
+    parse: vi.fn((bpc: string) => {
+      const hasScene = bpc.includes('scene')
+      return {
+        chartType: ChartType.BarVertical,
+        data: [{ label: 'A', values: [10] }, { label: 'B', values: [20] }],
+        properties: bpc.includes('title:')
+          ? [{ key: 'title', value: 'Test Title' }]
+          : [],
+        scenes: hasScene
+          ? [{ properties: [{ key: 'title', value: 'Scene 1' }], data: null, chartType: null }]
+          : [],
+        colorizes: [],
+        highlights: [],
+        areaFills: [],
+        annotations: [],
+        series: [],
+      }
+    }),
+    parseData: vi.fn((dataStr: string) => {
+      if (!dataStr) {
+        return { labels: [], values: [] }
+      }
+      return { labels: ['A', 'B'], values: [10, 20] }
+    }),
+    buildChartOptions: vi.fn((opts: Record<string, unknown>) => ({ ...opts })),
+    getChart: vi.fn(() => mockRenderer),
+    resolveBackgroundColor: vi.fn(() => '#ffffff'),
+    propertyMap: vi.fn((props: { key: string, value: unknown }[]) => {
+      const map = new Map<string, unknown>()
+      for (const p of props) {
+        map.set(p.key, p.value)
+      }
+      return map
+    }),
+    extractChartTypeOptions: vi.fn(() => ({})),
+    extractSceneOverrides: vi.fn(() => ({
+      chartType: null,
+      data: null,
+      properties: new Map(),
+      chartTypeOptions: null,
       colorizes: [],
       highlights: [],
       areaFills: [],
       annotations: [],
+      seriesOverrides: [],
       series: [],
-    }
-  }),
-  parseData: vi.fn((dataStr: string) => {
-    if (!dataStr) {
-      return { labels: [], values: [] }
-    }
-    return { labels: ['A', 'B'], values: [10, 20] }
-  }),
-  buildChartOptions: vi.fn((opts: Record<string, unknown>) => ({ ...opts })),
-  getChart: vi.fn(() => mockRenderer),
-  resolveBackgroundColor: vi.fn(() => '#ffffff'),
-  propertyMap: vi.fn((props: { key: string, value: unknown }[]) => {
-    const map = new Map<string, unknown>()
-    for (const p of props) {
-      map.set(p.key, p.value)
-    }
-    return map
-  }),
-  extractChartTypeOptions: vi.fn(() => ({})),
-  extractSceneOverrides: vi.fn(() => ({
-    chartType: null,
-    data: null,
-    properties: new Map(),
-    chartTypeOptions: null,
-    colorizes: [],
-    highlights: [],
-    areaFills: [],
-    annotations: [],
-    seriesOverrides: [],
-    series: [],
-  })),
-  dataEntriesToString: vi.fn((data: unknown) => data ? 'A\t10\nB\t20' : ''),
-  convertColorizes: vi.fn(() => []),
-  convertHighlights: vi.fn(() => []),
-  convertAreaFills: vi.fn(() => []),
-  convertAnnotations: vi.fn(() => []),
-  convertSeriesOverrides: vi.fn(() => []),
-}))
+    })),
+    dataEntriesToString: vi.fn((data: unknown) => data ? 'A\t10\nB\t20' : ''),
+    convertColorizes: vi.fn(() => []),
+    convertHighlights: vi.fn(() => []),
+    convertAreaFills: vi.fn(() => []),
+    convertAnnotations: vi.fn(() => []),
+    convertSeriesOverrides: vi.fn(() => []),
+  }
+})
 
 const mockedLib = vi.mocked(lib)
 
@@ -126,7 +131,7 @@ describe('renderDsl', () => {
 
   it('strips colors when stripColors option is set', () => {
     mockedLib.parse.mockReturnValueOnce({
-      chartType: 'bar-vertical',
+      chartType: ChartType.BarVertical,
       data: [{ label: 'A', values: [10] }],
       properties: [
         { key: 'colors', value: 'red,blue' },

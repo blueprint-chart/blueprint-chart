@@ -1,3 +1,4 @@
+import { ChartType } from '@blueprint-chart/lib'
 import { useChartConfig } from './useChartConfig'
 import { useDslOutput } from './useDslOutput'
 import { useChartTypeOptions } from './useChartTypeOptions'
@@ -15,7 +16,7 @@ describe('useDslOutput', () => {
   describe('colorize serialization', () => {
     it('emits colorize blocks', () => {
       const config = useChartConfig()
-      config.chartType.value = 'bar-vertical'
+      config.chartType.value = ChartType.BarVertical
       config.colorizes.value = [
         { target: 'Q3', color: '#ff0000', label: 'Peak' },
       ]
@@ -28,7 +29,7 @@ describe('useDslOutput', () => {
 
     it('skips colorizes without target', () => {
       const config = useChartConfig()
-      config.chartType.value = 'bar-vertical'
+      config.chartType.value = ChartType.BarVertical
       config.colorizes.value = [
         { target: '', color: '#ff0000', label: '' },
       ]
@@ -41,7 +42,7 @@ describe('useDslOutput', () => {
   describe('area fill serialization', () => {
     it('emits areafill blocks', () => {
       const config = useChartConfig()
-      config.chartType.value = 'line'
+      config.chartType.value = ChartType.Line
       config.areaFills.value = [
         { from: 'A', to: 'B', color: '#ff0000', negativeColor: '#0000ff', opacity: 0.5, interpolation: 'monotoneX' },
       ]
@@ -56,7 +57,7 @@ describe('useDslOutput', () => {
 
     it('skips area fills without from or to', () => {
       const config = useChartConfig()
-      config.chartType.value = 'line'
+      config.chartType.value = ChartType.Line
       config.areaFills.value = [
         { from: '', to: 'B' },
       ]
@@ -69,7 +70,7 @@ describe('useDslOutput', () => {
   describe('annotation serialization', () => {
     it('emits point annotation blocks', () => {
       const config = useChartConfig()
-      config.chartType.value = 'line'
+      config.chartType.value = ChartType.Line
       config.annotations.value = [
         { kind: 'point', target: '2024-Q1', text: 'Peak', showArrow: true, anchorDirection: 'NE', textOffsetX: 30, textOffsetY: -40 },
       ]
@@ -85,7 +86,7 @@ describe('useDslOutput', () => {
 
     it('emits range annotation blocks', () => {
       const config = useChartConfig()
-      config.chartType.value = 'line'
+      config.chartType.value = ChartType.Line
       config.annotations.value = [
         { kind: 'range', start: 100, end: 200, orientation: 'vertical', bgColor: '#d3d3d3', bgOpacity: 15 },
       ]
@@ -101,7 +102,7 @@ describe('useDslOutput', () => {
 
     it('emits free annotation (note) blocks', () => {
       const config = useChartConfig()
-      config.chartType.value = 'line'
+      config.chartType.value = ChartType.Line
       config.annotations.value = [
         { kind: 'free', text: 'Context', x: 50, y: 25 },
       ]
@@ -115,7 +116,7 @@ describe('useDslOutput', () => {
 
     it('emits free annotation with px position', () => {
       const config = useChartConfig()
-      config.chartType.value = 'line'
+      config.chartType.value = ChartType.Line
       config.annotations.value = [
         { kind: 'free', text: 'Pixel', x: '120px', y: '80px' },
       ]
@@ -127,7 +128,7 @@ describe('useDslOutput', () => {
 
     it('emits annotation id for point annotation', () => {
       const config = useChartConfig()
-      config.chartType.value = 'line'
+      config.chartType.value = ChartType.Line
       config.annotations.value = [
         { kind: 'point', target: '2024-Q1', text: 'Peak', id: 'abc12' },
       ]
@@ -138,7 +139,7 @@ describe('useDslOutput', () => {
 
     it('emits annotation id for range annotation', () => {
       const config = useChartConfig()
-      config.chartType.value = 'line'
+      config.chartType.value = ChartType.Line
       config.annotations.value = [
         { kind: 'range', start: 0, end: 100, id: 'rng01' },
       ]
@@ -149,7 +150,7 @@ describe('useDslOutput', () => {
 
     it('emits annotation id for free annotation (note)', () => {
       const config = useChartConfig()
-      config.chartType.value = 'line'
+      config.chartType.value = ChartType.Line
       config.annotations.value = [
         { kind: 'free', text: 'Note', x: 50, y: 50, id: 'nt001' },
       ]
@@ -160,7 +161,7 @@ describe('useDslOutput', () => {
 
     it('does not emit id when annotation has no id', () => {
       const config = useChartConfig()
-      config.chartType.value = 'line'
+      config.chartType.value = ChartType.Line
       config.annotations.value = [
         { kind: 'point', target: '2024-Q1', text: 'Peak' },
       ]
@@ -171,7 +172,7 @@ describe('useDslOutput', () => {
 
     it('skips point annotations without target', () => {
       const config = useChartConfig()
-      config.chartType.value = 'line'
+      config.chartType.value = ChartType.Line
       config.annotations.value = [
         { kind: 'point', target: '', text: 'Peak' },
       ]
@@ -184,7 +185,7 @@ describe('useDslOutput', () => {
   describe('series override serialization', () => {
     it('emits series blocks with all properties', () => {
       const config = useChartConfig()
-      config.chartType.value = 'line-multi'
+      config.chartType.value = ChartType.LineMulti
       config.seriesOverrides.value = [
         {
           name: 'Revenue',
@@ -225,7 +226,7 @@ describe('useDslOutput', () => {
 
     it('skips series without name', () => {
       const config = useChartConfig()
-      config.chartType.value = 'line-multi'
+      config.chartType.value = ChartType.LineMulti
       config.seriesOverrides.value = [
         { name: '', color: '#ff0000' },
       ]
@@ -236,7 +237,7 @@ describe('useDslOutput', () => {
 
     it('emits only set properties', () => {
       const config = useChartConfig()
-      config.chartType.value = 'line-multi'
+      config.chartType.value = ChartType.LineMulti
       config.seriesOverrides.value = [
         { name: 'Costs', color: '#00ff00' },
       ]
@@ -252,7 +253,7 @@ describe('useDslOutput', () => {
   describe('scene serialization', () => {
     it('serializes scene chartTypeOptions', () => {
       const config = useChartConfig()
-      config.chartType.value = 'bar-vertical'
+      config.chartType.value = ChartType.BarVertical
 
       const scenes = useScenes()
       scenes.add()
@@ -267,7 +268,7 @@ describe('useDslOutput', () => {
 
     it('serializes boolean scene chartTypeOptions', () => {
       const config = useChartConfig()
-      config.chartType.value = 'bar-vertical'
+      config.chartType.value = ChartType.BarVertical
 
       const scenes = useScenes()
       scenes.add()
@@ -281,7 +282,7 @@ describe('useDslOutput', () => {
 
     it('serializes string scene chartTypeOptions', () => {
       const config = useChartConfig()
-      config.chartType.value = 'bar-vertical'
+      config.chartType.value = ChartType.BarVertical
 
       const scenes = useScenes()
       scenes.add()
@@ -295,7 +296,7 @@ describe('useDslOutput', () => {
 
     it('scene chartType override serializes as type and preserves base chart type', () => {
       const config = useChartConfig()
-      config.chartType.value = 'bar-vertical'
+      config.chartType.value = ChartType.BarVertical
       config.data.value = 'Label,Value\nA,10\nB,20\nC,30'
 
       const scenes = useScenes()
@@ -303,7 +304,7 @@ describe('useDslOutput', () => {
       scenes.setActive(0)
 
       // Change chart type while scene is active → should go to scene override
-      config.chartType.value = 'bar-horizontal'
+      config.chartType.value = ChartType.BarHorizontal
 
       const { generateDsl: dsl } = useDslOutput()
       // Top-level must stay bar-vertical
@@ -336,11 +337,11 @@ describe('useDslOutput', () => {
 
       // Verify internal state: base chartType is bar-vertical, scene has bar-horizontal
       const config = useChartConfig()
-      expect(config._base.chartType.value).toBe('bar-vertical')
+      expect(config._base.chartType.value).toBe(ChartType.BarVertical)
 
       const scenes = useScenes()
       expect(scenes.scenes.value).toHaveLength(1)
-      expect(scenes.scenes.value[0].chartType).toBe('bar-horizontal')
+      expect(scenes.scenes.value[0].chartType).toBe(ChartType.BarHorizontal)
 
       // Re-serialize and verify DSL output
       const { generateDsl: dsl } = useDslOutput()
@@ -351,7 +352,7 @@ describe('useDslOutput', () => {
 
     it('new scene does not get a data block from base data', () => {
       const config = useChartConfig()
-      config.chartType.value = 'bar-vertical'
+      config.chartType.value = ChartType.BarVertical
       config.data.value = 'Label,Value\nA,10\nB,20\nC,30'
 
       const scenes = useScenes()
@@ -368,7 +369,7 @@ describe('useDslOutput', () => {
 
     it('serializes scene annotation visibility directives', () => {
       const config = useChartConfig()
-      config.chartType.value = 'line'
+      config.chartType.value = ChartType.Line
 
       const scenes = useScenes()
       scenes.add()
@@ -384,7 +385,7 @@ describe('useDslOutput', () => {
 
     it('serializes mixed hide and show directives in scene', () => {
       const config = useChartConfig()
-      config.chartType.value = 'line'
+      config.chartType.value = ChartType.Line
 
       const scenes = useScenes()
       scenes.add()
@@ -404,7 +405,7 @@ describe('useDslOutput', () => {
 
     it('does not leak scene values into base chart section', () => {
       const config = useChartConfig()
-      config.chartType.value = 'bar-vertical'
+      config.chartType.value = ChartType.BarVertical
       config.title.value = 'Base Title'
 
       const scenes = useScenes()
@@ -427,7 +428,7 @@ describe('useDslOutput', () => {
 
     it('serializes point annotation with id in scene', () => {
       const config = useChartConfig()
-      config.chartType.value = 'line'
+      config.chartType.value = ChartType.Line
 
       const scenes = useScenes()
       scenes.add()
@@ -447,7 +448,7 @@ describe('useDslOutput', () => {
 
     it('serializes range annotation in scene', () => {
       const config = useChartConfig()
-      config.chartType.value = 'line'
+      config.chartType.value = ChartType.Line
 
       const scenes = useScenes()
       scenes.add()
@@ -468,7 +469,7 @@ describe('useDslOutput', () => {
 
     it('serializes free annotation (note) in scene', () => {
       const config = useChartConfig()
-      config.chartType.value = 'line'
+      config.chartType.value = ChartType.Line
 
       const scenes = useScenes()
       scenes.add()
@@ -489,7 +490,7 @@ describe('useDslOutput', () => {
 
     it('serializes all annotation kinds in scene', () => {
       const config = useChartConfig()
-      config.chartType.value = 'line'
+      config.chartType.value = ChartType.Line
 
       const scenes = useScenes()
       scenes.add()
@@ -509,7 +510,7 @@ describe('useDslOutput', () => {
 
     it('serializes non-default player type', () => {
       const config = useChartConfig()
-      config.chartType.value = 'bar-vertical'
+      config.chartType.value = ChartType.BarVertical
       config._base.layout.value = { ...config._base.layout.value, playerType: 'progress-bar' }
 
       const { generateDsl: dsl } = useDslOutput()
@@ -518,7 +519,7 @@ describe('useDslOutput', () => {
 
     it('omits player when it is the default buttons', () => {
       const config = useChartConfig()
-      config.chartType.value = 'bar-vertical'
+      config.chartType.value = ChartType.BarVertical
 
       const { generateDsl: dsl } = useDslOutput()
       expect(dsl()).not.toContain('player =')

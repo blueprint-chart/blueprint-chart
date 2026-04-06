@@ -1,5 +1,6 @@
 import * as d3 from 'd3'
 import type { D3Blueprint, Plugin } from 'd3-blueprint'
+import { ValueLabelPosition, Orientation } from '../../enums'
 import { contrastTextColor } from '../contrast'
 
 export function createValueLabelPlugin(options?: {
@@ -7,8 +8,8 @@ export function createValueLabelPlugin(options?: {
   format?: string
   orientation?: 'vertical' | 'horizontal'
 }): Plugin {
-  const pos = options?.position ?? 'auto'
-  const orientation = options?.orientation ?? 'vertical'
+  const pos = options?.position ?? ValueLabelPosition.Auto
+  const orientation = options?.orientation ?? Orientation.Vertical
   const fmt = options?.format ? d3.format(options.format) : (v: number) => String(v)
 
   return {
@@ -31,8 +32,8 @@ export function createValueLabelPlugin(options?: {
 
         let tx: number, ty: number, anchor: string, baseline: string, isInside: boolean
 
-        if (orientation === 'horizontal') {
-          isInside = pos === 'inside'
+        if (orientation === Orientation.Horizontal) {
+          isInside = pos === ValueLabelPosition.Inside
           ty = y + h / 2
           baseline = 'central'
 
@@ -61,7 +62,7 @@ export function createValueLabelPlugin(options?: {
           }
         }
         else {
-          isInside = pos === 'inside'
+          isInside = pos === ValueLabelPosition.Inside
           tx = x + w / 2
           anchor = 'middle'
 

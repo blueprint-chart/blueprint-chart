@@ -1,5 +1,6 @@
 import * as d3 from 'd3'
-import type { AnnotationLineStyle, CompassDirection, RangeAnchor, StrokeStyle } from '../../types'
+import type { CompassDirection, RangeAnchor } from '../../types'
+import { StrokeStyle, AnnotationLineStyle } from '../../../enums'
 import type { AnnotationContext } from './context'
 import { DIRECTION_VECTORS, RECT_ANCHOR } from './direction-helpers'
 
@@ -185,8 +186,8 @@ export function ensureArrowMarker(svg: SVGElement | null, color?: string): strin
 
 function strokeDashForStyle(style: StrokeStyle): string {
   switch (style) {
-    case 'dotted': return '2,3'
-    case 'dashed': return '5,4'
+    case StrokeStyle.Dotted: return '2,3'
+    case StrokeStyle.Dashed: return '5,4'
     default: return ''
   }
 }
@@ -210,7 +211,7 @@ export function renderTargetCircle(
     .attr('stroke', opts.color ?? '#666')
     .attr('stroke-width', 1.5)
 
-  const dash = strokeDashForStyle(opts.style ?? 'solid')
+  const dash = strokeDashForStyle(opts.style ?? StrokeStyle.Solid)
   if (dash) {
     circle.attr('stroke-dasharray', dash)
   }
@@ -250,7 +251,7 @@ export function renderConnectingLine(
   g: d3.Selection<SVGGElement, unknown, null, undefined>,
   from: { x: number, y: number },
   to: { x: number, y: number },
-  style: AnnotationLineStyle = 'direct',
+  style: AnnotationLineStyle = AnnotationLineStyle.Direct,
   opts: {
     showArrow?: boolean
     lineWeight?: number
@@ -261,17 +262,17 @@ export function renderConnectingLine(
   let d: string
 
   switch (style) {
-    case 'curve-left':
-    case 'curve-right': {
+    case AnnotationLineStyle.CurveLeft:
+    case AnnotationLineStyle.CurveRight: {
       const dx = to.x - from.x
       const dy = to.y - from.y
       const dist = Math.sqrt(dx * dx + dy * dy)
       const r = dist * 0.8
-      const sweep = style === 'curve-right' ? 1 : 0
+      const sweep = style === AnnotationLineStyle.CurveRight ? 1 : 0
       d = `M ${from.x} ${from.y} A ${r} ${r} 0 0 ${sweep} ${to.x} ${to.y}`
       break
     }
-    case 'elbow': {
+    case AnnotationLineStyle.Elbow: {
       d = computeElbowPath(from, to, opts.departVertical ?? false)
       break
     }

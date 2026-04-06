@@ -26,7 +26,7 @@
       @update:model-value="onUpdate('operation', $event)"
     />
     <FormControlButtonGroup
-      :model-value="step.config.direction ?? 'ascending'"
+      :model-value="step.config.direction ?? SortDirection.Ascending"
       label="Direction"
       :options="directionOptions"
       block
@@ -37,6 +37,7 @@
 
 <script setup lang="ts">
 import { FormControlButtonGroup } from '@blueprint-chart/ui'
+import { SortDirection } from '@blueprint-chart/lib'
 import { useDataTransforms, type TransformStep } from '@/stores/dataTransforms'
 import type { ColumnType } from '@/composables/useDataParser'
 
@@ -100,8 +101,8 @@ const operationOptions = [
 ]
 
 const directionOptions = [
-  { value: 'ascending', text: 'Ascending' },
-  { value: 'descending', text: 'Descending' },
+  { value: SortDirection.Ascending, text: 'Ascending' },
+  { value: SortDirection.Descending, text: 'Descending' },
 ]
 
 function onUpdate(key: string, value: string) {

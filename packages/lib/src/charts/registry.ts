@@ -1,4 +1,25 @@
 import type { ChartOptionDef, ChartRenderer } from './types'
+import {
+  ChartType,
+  ChartOptionType,
+  GridStyle,
+  LegendPosition,
+  Anchor,
+  DirectLabelMode,
+  ValueLabelPosition,
+  CrosshairDirection,
+  CrosshairStyle,
+  SymbolShape,
+  SymbolShowOn,
+  SymbolStyle,
+  SortMode,
+  StackMode,
+  SortDirection,
+  Interpolation,
+  ScaleType,
+  LabelPosition,
+  AxisDirection,
+} from '../enums'
 import { listPalettes } from './palettes'
 import { render as barVertical } from './types/bar-vertical/bar-vertical'
 import { render as barHorizontal } from './types/bar-horizontal/bar-horizontal'
@@ -39,16 +60,16 @@ export function listCharts(): string[] {
 
 // Shared option definitions
 const GRID_STYLE_CHOICES = [
-  { value: 'solid', text: 'Solid' },
-  { value: 'dashed', text: 'Dashed' },
-  { value: 'dotted', text: 'Dotted' },
-  { value: 'none', text: 'None' },
+  { value: GridStyle.Solid, text: 'Solid' },
+  { value: GridStyle.Dashed, text: 'Dashed' },
+  { value: GridStyle.Dotted, text: 'Dotted' },
+  { value: GridStyle.None, text: 'None' },
 ]
 
-const colorsOpt: ChartOptionDef = { key: 'colors', type: 'colors', label: 'Colors' }
+const colorsOpt: ChartOptionDef = { key: 'colors', type: ChartOptionType.Colors, label: 'Colors' }
 const paletteOpt: ChartOptionDef = {
   key: 'colorPalette',
-  type: 'select',
+  type: ChartOptionType.Select,
   label: 'Color palette',
   default: 'Blueprint',
   choices: [
@@ -56,205 +77,205 @@ const paletteOpt: ChartOptionDef = {
     ...listPalettes().map(p => ({ value: p.name, text: p.label })),
   ],
 }
-const autoContrastOpt: ChartOptionDef = { key: 'autoContrast', type: 'boolean', label: 'Auto-adjust contrast', default: false }
-const allowDarkModeOpt: ChartOptionDef = { key: 'allowDarkMode', type: 'boolean', label: 'Allow dark mode', default: true }
-const legendOpt: ChartOptionDef = { key: 'legend', type: 'boolean', label: 'Show legend', default: true }
+const autoContrastOpt: ChartOptionDef = { key: 'autoContrast', type: ChartOptionType.Boolean, label: 'Auto-adjust contrast', default: false }
+const allowDarkModeOpt: ChartOptionDef = { key: 'allowDarkMode', type: ChartOptionType.Boolean, label: 'Allow dark mode', default: true }
+const legendOpt: ChartOptionDef = { key: 'legend', type: ChartOptionType.Boolean, label: 'Show legend', default: true }
 
 const legendPositionOpt: ChartOptionDef = {
   key: 'legendPosition',
-  type: 'select',
+  type: ChartOptionType.Select,
   label: 'Legend position',
-  default: 'top',
+  default: LegendPosition.Top,
   choices: [
-    { value: 'top', text: 'Top' },
-    { value: 'bottom', text: 'Bottom' },
-    { value: 'left', text: 'Left' },
-    { value: 'right', text: 'Right' },
+    { value: LegendPosition.Top, text: 'Top' },
+    { value: LegendPosition.Bottom, text: 'Bottom' },
+    { value: LegendPosition.Left, text: 'Left' },
+    { value: LegendPosition.Right, text: 'Right' },
   ],
 }
 
 const legendAnchorOpt: ChartOptionDef = {
   key: 'legendAnchor',
-  type: 'select',
+  type: ChartOptionType.Select,
   label: 'Legend anchor',
-  default: 'start',
+  default: Anchor.Start,
   choices: [
-    { value: 'start', text: 'Start' },
-    { value: 'middle', text: 'Middle' },
-    { value: 'end', text: 'End' },
+    { value: Anchor.Start, text: 'Start' },
+    { value: Anchor.Middle, text: 'Middle' },
+    { value: Anchor.End, text: 'End' },
   ],
 }
 
 const directLabellingOpt: ChartOptionDef = {
   key: 'directLabelling',
-  type: 'select',
+  type: ChartOptionType.Select,
   label: 'Direct labelling',
-  default: '',
+  default: DirectLabelMode.Off,
   choices: [
-    { value: '', text: 'Off' },
-    { value: 'auto', text: 'Auto' },
-    { value: 'outside', text: 'Outside' },
-    { value: 'inside', text: 'Inside' },
+    { value: DirectLabelMode.Off, text: 'Off' },
+    { value: DirectLabelMode.Auto, text: 'Auto' },
+    { value: DirectLabelMode.Outside, text: 'Outside' },
+    { value: DirectLabelMode.Inside, text: 'Inside' },
   ],
 }
 const directLabelAnchorOpt: ChartOptionDef = {
   key: 'directLabelAnchor',
-  type: 'select',
+  type: ChartOptionType.Select,
   label: 'Label anchor',
-  default: 'middle',
+  default: Anchor.Middle,
   choices: [
-    { value: 'start', text: 'Start' },
-    { value: 'middle', text: 'Middle' },
-    { value: 'end', text: 'End' },
+    { value: Anchor.Start, text: 'Start' },
+    { value: Anchor.Middle, text: 'Middle' },
+    { value: Anchor.End, text: 'End' },
   ],
 }
-const valueLabelsOpt: ChartOptionDef = { key: 'valueLabels', type: 'boolean', label: 'Value labels', default: false }
+const valueLabelsOpt: ChartOptionDef = { key: 'valueLabels', type: ChartOptionType.Boolean, label: 'Value labels', default: false }
 const valueLabelPositionOpt: ChartOptionDef = {
   key: 'valueLabelPosition',
-  type: 'select',
+  type: ChartOptionType.Select,
   label: 'Label position',
-  default: 'auto',
+  default: ValueLabelPosition.Auto,
   choices: [
-    { value: 'auto', text: 'Auto' },
-    { value: 'outside', text: 'Outside' },
-    { value: 'inside', text: 'Inside' },
+    { value: ValueLabelPosition.Auto, text: 'Auto' },
+    { value: ValueLabelPosition.Outside, text: 'Outside' },
+    { value: ValueLabelPosition.Inside, text: 'Inside' },
   ],
 }
-const tooltipsOpt: ChartOptionDef = { key: 'tooltips', type: 'boolean', label: 'Tooltips', default: false }
-const crosshairOpt: ChartOptionDef = { key: 'crosshair', type: 'boolean', label: 'Crosshair', default: false }
+const tooltipsOpt: ChartOptionDef = { key: 'tooltips', type: ChartOptionType.Boolean, label: 'Tooltips', default: false }
+const crosshairOpt: ChartOptionDef = { key: 'crosshair', type: ChartOptionType.Boolean, label: 'Crosshair', default: false }
 const crosshairDirectionOpt: ChartOptionDef = {
   key: 'crosshairDirection',
-  type: 'select',
+  type: ChartOptionType.Select,
   label: 'Crosshair direction',
-  default: 'both',
+  default: CrosshairDirection.Both,
   choices: [
-    { value: 'both', text: 'Both' },
-    { value: 'vertical', text: 'Vertical' },
-    { value: 'horizontal', text: 'Horizontal' },
+    { value: CrosshairDirection.Both, text: 'Both' },
+    { value: CrosshairDirection.Vertical, text: 'Vertical' },
+    { value: CrosshairDirection.Horizontal, text: 'Horizontal' },
   ],
 }
 const crosshairStyleOpt: ChartOptionDef = {
   key: 'crosshairStyle',
-  type: 'select',
+  type: ChartOptionType.Select,
   label: 'Crosshair style',
-  default: 'dashed',
+  default: CrosshairStyle.Dashed,
   choices: [
-    { value: 'solid', text: 'Solid' },
-    { value: 'dashed', text: 'Dashed' },
-    { value: 'dotted', text: 'Dotted' },
+    { value: CrosshairStyle.Solid, text: 'Solid' },
+    { value: CrosshairStyle.Dashed, text: 'Dashed' },
+    { value: CrosshairStyle.Dotted, text: 'Dotted' },
   ],
 }
-const crosshairColorOpt: ChartOptionDef = { key: 'crosshairColor', type: 'text', label: 'Crosshair color', default: '#999', placeholder: '#999' }
-const lineSymbolsOpt: ChartOptionDef = { key: 'lineSymbols', type: 'boolean', label: 'Show line symbols', default: false }
+const crosshairColorOpt: ChartOptionDef = { key: 'crosshairColor', type: ChartOptionType.Text, label: 'Crosshair color', default: '#999', placeholder: '#999' }
+const lineSymbolsOpt: ChartOptionDef = { key: 'lineSymbols', type: ChartOptionType.Boolean, label: 'Show line symbols', default: false }
 const lineSymbolShapeOpt: ChartOptionDef = {
   key: 'lineSymbolShape',
-  type: 'select',
+  type: ChartOptionType.Select,
   label: 'Symbol',
-  default: 'circle',
+  default: SymbolShape.Circle,
   choices: [
-    { value: 'circle', text: 'Circle' },
-    { value: 'square', text: 'Square' },
-    { value: 'diamond', text: 'Diamond' },
-    { value: 'triangle', text: 'Triangle Up' },
-    { value: 'triangleDown', text: 'Triangle Down' },
-    { value: 'cross', text: 'Cross' },
-    { value: 'star', text: 'Star' },
+    { value: SymbolShape.Circle, text: 'Circle' },
+    { value: SymbolShape.Square, text: 'Square' },
+    { value: SymbolShape.Diamond, text: 'Diamond' },
+    { value: SymbolShape.Triangle, text: 'Triangle Up' },
+    { value: SymbolShape.TriangleDown, text: 'Triangle Down' },
+    { value: SymbolShape.Cross, text: 'Cross' },
+    { value: SymbolShape.Star, text: 'Star' },
   ],
 }
 const lineSymbolShowOnOpt: ChartOptionDef = {
   key: 'lineSymbolShowOn',
-  type: 'select',
+  type: ChartOptionType.Select,
   label: 'Show on',
-  default: 'firstLast',
+  default: SymbolShowOn.FirstLast,
   choices: [
-    { value: 'firstLast', text: 'First & Last' },
-    { value: 'first', text: 'First' },
-    { value: 'last', text: 'Last' },
-    { value: 'all', text: 'All' },
+    { value: SymbolShowOn.FirstLast, text: 'First & Last' },
+    { value: SymbolShowOn.First, text: 'First' },
+    { value: SymbolShowOn.Last, text: 'Last' },
+    { value: SymbolShowOn.All, text: 'All' },
   ],
 }
 const lineSymbolStyleOpt: ChartOptionDef = {
   key: 'lineSymbolStyle',
-  type: 'select',
+  type: ChartOptionType.Select,
   label: 'Style',
-  default: 'filled',
+  default: SymbolStyle.Filled,
   choices: [
-    { value: 'filled', text: 'Filled' },
-    { value: 'hollow', text: 'Hollow' },
+    { value: SymbolStyle.Filled, text: 'Filled' },
+    { value: SymbolStyle.Hollow, text: 'Hollow' },
   ],
 }
-const lineSymbolSizeOpt: ChartOptionDef = { key: 'lineSymbolSize', type: 'text', label: 'Size', default: '3.5', placeholder: '3.5' }
-const lineSymbolOpacityOpt: ChartOptionDef = { key: 'lineSymbolOpacity', type: 'text', label: 'Opacity', default: '1', placeholder: '1' }
+const lineSymbolSizeOpt: ChartOptionDef = { key: 'lineSymbolSize', type: ChartOptionType.Text, label: 'Size', default: '3.5', placeholder: '3.5' }
+const lineSymbolOpacityOpt: ChartOptionDef = { key: 'lineSymbolOpacity', type: ChartOptionType.Text, label: 'Opacity', default: '1', placeholder: '1' }
 
 const sortModeOpt: ChartOptionDef = {
   key: 'sortMode',
-  type: 'select',
+  type: ChartOptionType.Select,
   label: 'Sort mode',
-  default: 'none',
+  default: SortMode.None,
   choices: [
-    { value: 'none', text: 'None' },
-    { value: 'total', text: 'By total' },
-    { value: 'within-groups', text: 'Within groups' },
+    { value: SortMode.None, text: 'None' },
+    { value: SortMode.Total, text: 'By total' },
+    { value: SortMode.WithinGroups, text: 'Within groups' },
   ],
 }
 
-const edgePaddingOpt: ChartOptionDef = { key: 'edgePadding', type: 'boolean', label: 'Edge padding', default: false }
-const waterfallOpt: ChartOptionDef = { key: 'waterfall', type: 'boolean', label: 'Waterfall', default: false }
-const waterfallTotalOpt: ChartOptionDef = { key: 'waterfallTotal', type: 'boolean', label: 'Waterfall total', default: false }
+const edgePaddingOpt: ChartOptionDef = { key: 'edgePadding', type: ChartOptionType.Boolean, label: 'Edge padding', default: false }
+const waterfallOpt: ChartOptionDef = { key: 'waterfall', type: ChartOptionType.Boolean, label: 'Waterfall', default: false }
+const waterfallTotalOpt: ChartOptionDef = { key: 'waterfallTotal', type: ChartOptionType.Boolean, label: 'Waterfall total', default: false }
 
-const barBackgroundOpt: ChartOptionDef = { key: 'barBackground', type: 'boolean', label: 'Bar background', default: false }
-const barSeparatorsOpt: ChartOptionDef = { key: 'barSeparators', type: 'boolean', label: 'Bar separators', default: false }
-const swapLabelValueOpt: ChartOptionDef = { key: 'swapLabelValue', type: 'boolean', label: 'Swap labels and values', default: false }
+const barBackgroundOpt: ChartOptionDef = { key: 'barBackground', type: ChartOptionType.Boolean, label: 'Bar background', default: false }
+const barSeparatorsOpt: ChartOptionDef = { key: 'barSeparators', type: ChartOptionType.Boolean, label: 'Bar separators', default: false }
+const swapLabelValueOpt: ChartOptionDef = { key: 'swapLabelValue', type: ChartOptionType.Boolean, label: 'Swap labels and values', default: false }
 const stackModeOpt: ChartOptionDef = {
   key: 'stackMode',
-  type: 'select',
+  type: ChartOptionType.Select,
   label: 'Stack mode',
-  default: 'normal',
+  default: StackMode.Normal,
   choices: [
-    { value: 'normal', text: 'Normal' },
-    { value: 'percent', text: 'Percentage (100%)' },
+    { value: StackMode.Normal, text: 'Normal' },
+    { value: StackMode.Percent, text: 'Percentage (100%)' },
   ],
 }
 
-const sharedScaleOpt: ChartOptionDef = { key: 'sharedScale', type: 'boolean', label: 'Shared scale', default: false }
-const categoryLabelLineOpt: ChartOptionDef = { key: 'categoryLabelLine', type: 'boolean', label: 'Labels on separate line', default: false }
-const displayAsPercentageOpt: ChartOptionDef = { key: 'displayAsPercentage', type: 'boolean', label: 'Display as percentage', default: false }
-const showTotalOpt: ChartOptionDef = { key: 'showTotal', type: 'boolean', label: 'Show total', default: false }
-const showLabelsOpt: ChartOptionDef = { key: 'showLabels', type: 'boolean', label: 'Show labels', default: true }
-const showValuesOpt: ChartOptionDef = { key: 'showValues', type: 'boolean', label: 'Show values', default: true }
-const sliceMaxOpt: ChartOptionDef = { key: 'sliceMax', type: 'text', label: 'Max slices', default: '6' }
-const sliceGroupLabelOpt: ChartOptionDef = { key: 'sliceGroupLabel', type: 'text', label: 'Group label', default: 'Others', placeholder: 'Others' }
+const sharedScaleOpt: ChartOptionDef = { key: 'sharedScale', type: ChartOptionType.Boolean, label: 'Shared scale', default: false }
+const categoryLabelLineOpt: ChartOptionDef = { key: 'categoryLabelLine', type: ChartOptionType.Boolean, label: 'Labels on separate line', default: false }
+const displayAsPercentageOpt: ChartOptionDef = { key: 'displayAsPercentage', type: ChartOptionType.Boolean, label: 'Display as percentage', default: false }
+const showTotalOpt: ChartOptionDef = { key: 'showTotal', type: ChartOptionType.Boolean, label: 'Show total', default: false }
+const showLabelsOpt: ChartOptionDef = { key: 'showLabels', type: ChartOptionType.Boolean, label: 'Show labels', default: true }
+const showValuesOpt: ChartOptionDef = { key: 'showValues', type: ChartOptionType.Boolean, label: 'Show values', default: true }
+const sliceMaxOpt: ChartOptionDef = { key: 'sliceMax', type: ChartOptionType.Text, label: 'Max slices', default: '6' }
+const sliceGroupLabelOpt: ChartOptionDef = { key: 'sliceGroupLabel', type: ChartOptionType.Text, label: 'Group label', default: 'Others', placeholder: 'Others' }
 
-const areaFillOpacityOpt: ChartOptionDef = { key: 'areaFillOpacity', type: 'text', label: 'Opacity', default: '0.85', placeholder: '0.85' }
-const stackedOpt: ChartOptionDef = { key: 'stacked', type: 'boolean', label: 'Stack areas', default: true }
-const stackPercentOpt: ChartOptionDef = { key: 'stackPercent', type: 'boolean', label: 'Stack to 100%', default: false }
-const areaLinesOpt: ChartOptionDef = { key: 'areaLines', type: 'boolean', label: 'Separate areas with lines', default: true }
+const areaFillOpacityOpt: ChartOptionDef = { key: 'areaFillOpacity', type: ChartOptionType.Text, label: 'Opacity', default: '0.85', placeholder: '0.85' }
+const stackedOpt: ChartOptionDef = { key: 'stacked', type: ChartOptionType.Boolean, label: 'Stack areas', default: true }
+const stackPercentOpt: ChartOptionDef = { key: 'stackPercent', type: ChartOptionType.Boolean, label: 'Stack to 100%', default: false }
+const areaLinesOpt: ChartOptionDef = { key: 'areaLines', type: ChartOptionType.Boolean, label: 'Separate areas with lines', default: true }
 const areaSortModeOpt: ChartOptionDef = {
   key: 'areaSortMode',
-  type: 'select',
+  type: ChartOptionType.Select,
   label: 'Sort areas',
-  default: 'none',
+  default: SortDirection.None,
   choices: [
-    { value: 'none', text: 'Keep order' },
-    { value: 'ascending', text: 'Smallest first' },
-    { value: 'descending', text: 'Largest first' },
+    { value: SortDirection.None, text: 'Keep order' },
+    { value: SortDirection.Ascending, text: 'Smallest first' },
+    { value: SortDirection.Descending, text: 'Largest first' },
   ],
 }
 
 const interpolationOpt: ChartOptionDef = {
   key: 'interpolation',
-  type: 'select',
+  type: ChartOptionType.Select,
   label: 'Line interpolation',
-  default: 'linear',
+  default: Interpolation.Linear,
   choices: [
-    { value: 'linear', text: 'Linear' },
-    { value: 'monotoneX', text: 'Monotone' },
-    { value: 'step', text: 'Step' },
-    { value: 'stepBefore', text: 'Step (before)' },
-    { value: 'stepAfter', text: 'Step (after)' },
-    { value: 'basis', text: 'Basis' },
-    { value: 'cardinal', text: 'Cardinal' },
-    { value: 'catmullRom', text: 'Catmull-Rom' },
+    { value: Interpolation.Linear, text: 'Linear' },
+    { value: Interpolation.MonotoneX, text: 'Monotone' },
+    { value: Interpolation.Step, text: 'Step' },
+    { value: Interpolation.StepBefore, text: 'Step (before)' },
+    { value: Interpolation.StepAfter, text: 'Step (after)' },
+    { value: Interpolation.Basis, text: 'Basis' },
+    { value: Interpolation.Cardinal, text: 'Cardinal' },
+    { value: Interpolation.CatmullRom, text: 'Catmull-Rom' },
   ],
 }
 
@@ -264,20 +285,20 @@ const interpolationOpt: ChartOptionDef = {
 // - Line / line multi: horizontal grid lines (dashed), no vertical grid
 
 const SCALE_TYPE_CHOICES = [
-  { value: 'linear', text: 'Linear' },
-  { value: 'log', text: 'Logarithmic' },
+  { value: ScaleType.Linear, text: 'Linear' },
+  { value: ScaleType.Log, text: 'Logarithmic' },
 ]
 
 const LABEL_POSITION_CHOICES = [
-  { value: 'auto', text: 'Auto' },
-  { value: 'inside', text: 'Inside' },
-  { value: 'outside', text: 'Outside' },
-  { value: 'off', text: 'Off' },
+  { value: LabelPosition.Auto, text: 'Auto' },
+  { value: LabelPosition.Inside, text: 'Inside' },
+  { value: LabelPosition.Outside, text: 'Outside' },
+  { value: LabelPosition.Off, text: 'Off' },
 ]
 
 function axisOpts(defaults: {
-  verticalGrid: string
-  horizontalGrid: string
+  verticalGrid: GridStyle
+  horizontalGrid: GridStyle
   showVerticalTicks: boolean
   showHorizontalTicks: boolean
   showVerticalAxis?: boolean
@@ -285,56 +306,56 @@ function axisOpts(defaults: {
   horizontalRange?: boolean
 }): ChartOptionDef[] {
   return [
-    { key: 'showVerticalAxis', type: 'boolean', label: 'Show vertical axis', default: defaults.showVerticalAxis ?? true },
-    { key: 'verticalAxisDirection', type: 'select', label: 'Vertical axis side', default: 'left', choices: [{ value: 'left', text: 'Left' }, { value: 'right', text: 'Right' }] },
-    { key: 'showVerticalTicks', type: 'boolean', label: 'Show vertical ticks', default: defaults.showVerticalTicks },
-    { key: 'verticalLabelPosition', type: 'select', label: 'Vertical labels', default: 'auto', choices: LABEL_POSITION_CHOICES },
-    { key: 'verticalGridStyle', type: 'select', label: 'Vertical grid style', default: defaults.verticalGrid, choices: GRID_STYLE_CHOICES },
-    { key: 'verticalNumberFormat', type: 'numberFormat', label: 'Vertical number format' },
+    { key: 'showVerticalAxis', type: ChartOptionType.Boolean, label: 'Show vertical axis', default: defaults.showVerticalAxis ?? true },
+    { key: 'verticalAxisDirection', type: ChartOptionType.Select, label: 'Vertical axis side', default: AxisDirection.Left, choices: [{ value: AxisDirection.Left, text: 'Left' }, { value: AxisDirection.Right, text: 'Right' }] },
+    { key: 'showVerticalTicks', type: ChartOptionType.Boolean, label: 'Show vertical ticks', default: defaults.showVerticalTicks },
+    { key: 'verticalLabelPosition', type: ChartOptionType.Select, label: 'Vertical labels', default: LabelPosition.Auto, choices: LABEL_POSITION_CHOICES },
+    { key: 'verticalGridStyle', type: ChartOptionType.Select, label: 'Vertical grid style', default: defaults.verticalGrid, choices: GRID_STYLE_CHOICES },
+    { key: 'verticalNumberFormat', type: ChartOptionType.NumberFormat, label: 'Vertical number format' },
     ...(defaults.valueAxis === 'vertical'
       ? [
-          { key: 'verticalScaleType', type: 'select' as const, label: 'Vertical scale', default: 'linear', choices: SCALE_TYPE_CHOICES },
-          { key: 'verticalRangeMin', type: 'text' as const, label: 'Vertical min', placeholder: 'auto' },
-          { key: 'verticalRangeMax', type: 'text' as const, label: 'Vertical max', placeholder: 'auto' },
+          { key: 'verticalScaleType', type: ChartOptionType.Select as const, label: 'Vertical scale', default: ScaleType.Linear, choices: SCALE_TYPE_CHOICES },
+          { key: 'verticalRangeMin', type: ChartOptionType.Text as const, label: 'Vertical min', placeholder: 'auto' },
+          { key: 'verticalRangeMax', type: ChartOptionType.Text as const, label: 'Vertical max', placeholder: 'auto' },
         ]
       : []),
-    { key: 'showHorizontalAxis', type: 'boolean', label: 'Show horizontal axis', default: true },
-    { key: 'showHorizontalTicks', type: 'boolean', label: 'Show horizontal ticks', default: defaults.showHorizontalTicks },
-    { key: 'horizontalLabelPosition', type: 'select', label: 'Horizontal labels', default: 'auto', choices: LABEL_POSITION_CHOICES },
-    { key: 'horizontalGridStyle', type: 'select', label: 'Horizontal grid style', default: defaults.horizontalGrid, choices: GRID_STYLE_CHOICES },
-    { key: 'horizontalNumberFormat', type: 'numberFormat', label: 'Horizontal number format' },
+    { key: 'showHorizontalAxis', type: ChartOptionType.Boolean, label: 'Show horizontal axis', default: true },
+    { key: 'showHorizontalTicks', type: ChartOptionType.Boolean, label: 'Show horizontal ticks', default: defaults.showHorizontalTicks },
+    { key: 'horizontalLabelPosition', type: ChartOptionType.Select, label: 'Horizontal labels', default: LabelPosition.Auto, choices: LABEL_POSITION_CHOICES },
+    { key: 'horizontalGridStyle', type: ChartOptionType.Select, label: 'Horizontal grid style', default: defaults.horizontalGrid, choices: GRID_STYLE_CHOICES },
+    { key: 'horizontalNumberFormat', type: ChartOptionType.NumberFormat, label: 'Horizontal number format' },
     ...(defaults.valueAxis === 'horizontal'
       ? [
-          { key: 'horizontalScaleType', type: 'select' as const, label: 'Horizontal scale', default: 'linear', choices: SCALE_TYPE_CHOICES },
-          { key: 'horizontalRangeMin', type: 'text' as const, label: 'Horizontal min', placeholder: 'auto' },
-          { key: 'horizontalRangeMax', type: 'text' as const, label: 'Horizontal max', placeholder: 'auto' },
+          { key: 'horizontalScaleType', type: ChartOptionType.Select as const, label: 'Horizontal scale', default: ScaleType.Linear, choices: SCALE_TYPE_CHOICES },
+          { key: 'horizontalRangeMin', type: ChartOptionType.Text as const, label: 'Horizontal min', placeholder: 'auto' },
+          { key: 'horizontalRangeMax', type: ChartOptionType.Text as const, label: 'Horizontal max', placeholder: 'auto' },
         ]
       : []),
     ...(defaults.horizontalRange
       ? [
-          { key: 'horizontalRangeMin', type: 'text' as const, label: 'Horizontal min', placeholder: 'auto' },
-          { key: 'horizontalRangeMax', type: 'text' as const, label: 'Horizontal max', placeholder: 'auto' },
+          { key: 'horizontalRangeMin', type: ChartOptionType.Text as const, label: 'Horizontal min', placeholder: 'auto' },
+          { key: 'horizontalRangeMax', type: ChartOptionType.Text as const, label: 'Horizontal max', placeholder: 'auto' },
         ]
       : []),
   ]
 }
 
 // Vertical bars: value axis is vertical → horizontal dashed grid, no vertical grid, no ticks on category axis, no vertical axis line
-const barVerticalAxisOpts = axisOpts({ verticalGrid: 'dashed', horizontalGrid: 'none', showVerticalTicks: false, showHorizontalTicks: false, showVerticalAxis: false, valueAxis: 'vertical' })
+const barVerticalAxisOpts = axisOpts({ verticalGrid: GridStyle.Dashed, horizontalGrid: GridStyle.None, showVerticalTicks: false, showHorizontalTicks: false, showVerticalAxis: false, valueAxis: 'vertical' })
 
 // Horizontal bars: value axis is horizontal → vertical dashed grid, no horizontal grid, no ticks on category axis
-const barHorizontalAxisOpts = axisOpts({ verticalGrid: 'none', horizontalGrid: 'dashed', showVerticalTicks: false, showHorizontalTicks: false, valueAxis: 'horizontal' })
+const barHorizontalAxisOpts = axisOpts({ verticalGrid: GridStyle.None, horizontalGrid: GridStyle.Dashed, showVerticalTicks: false, showHorizontalTicks: false, valueAxis: 'horizontal' })
 
 // Lines: value axis is vertical → horizontal dashed grid, no vertical grid, no vertical axis line
-const lineAxisOpts = axisOpts({ verticalGrid: 'dashed', horizontalGrid: 'none', showVerticalTicks: false, showHorizontalTicks: false, showVerticalAxis: false, valueAxis: 'vertical', horizontalRange: true })
+const lineAxisOpts = axisOpts({ verticalGrid: GridStyle.Dashed, horizontalGrid: GridStyle.None, showVerticalTicks: false, showHorizontalTicks: false, showVerticalAxis: false, valueAxis: 'vertical', horizontalRange: true })
 
 // Per-chart-type option overrides based on dataviz best practices (HANDBOOK.md)
 // Line charts: monotone interpolation is smooth and non-distorting (preferred over linear for general use)
-const lineInterpolationOpt: ChartOptionDef = { ...interpolationOpt, default: 'monotoneX' }
+const lineInterpolationOpt: ChartOptionDef = { ...interpolationOpt, default: Interpolation.MonotoneX }
 // Line charts: vertical crosshair is standard for time-series data
-const lineCrosshairDirectionOpt: ChartOptionDef = { ...crosshairDirectionOpt, default: 'vertical' }
+const lineCrosshairDirectionOpt: ChartOptionDef = { ...crosshairDirectionOpt, default: CrosshairDirection.Vertical }
 // Multi-line: direct labeling preferred over legends ("label lines directly instead of using a legend")
-const lineMultiDirectLabellingOpt: ChartOptionDef = { ...directLabellingOpt, default: 'auto' }
+const lineMultiDirectLabellingOpt: ChartOptionDef = { ...directLabellingOpt, default: DirectLabelMode.Auto }
 // Horizontal bars: value labels at end of bar are a best practice for readability
 const barHorizontalValueLabelsOpt: ChartOptionDef = { ...valueLabelsOpt, default: true }
 // Pie: display as percentage (pies show proportions), limit to 5 slices (not 6)
@@ -353,33 +374,33 @@ const lineOpts = [valueLabelsOpt, tooltipsOpt, ...lineCrosshairOpts, ...lineSymb
 const pieArcOpts = [pieDisplayAsPercentageOpt, showTotalOpt, showLabelsOpt, showValuesOpt, pieSliceMaxOpt, sliceGroupLabelOpt]
 const donutArcOpts = [displayAsPercentageOpt, donutShowTotalOpt, showLabelsOpt, showValuesOpt, sliceMaxOpt, sliceGroupLabelOpt]
 
-registerChart('bar-vertical', barVertical, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, swapLabelValueOpt, barBackgroundOpt, barSeparatorsOpt, waterfallOpt, waterfallTotalOpt, ...barVerticalAxisOpts, ...barOpts])
-registerChart('bar-horizontal', barHorizontal, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, swapLabelValueOpt, barBackgroundOpt, barSeparatorsOpt, waterfallOpt, waterfallTotalOpt, ...barHorizontalAxisOpts, ...barHorizontalOpts])
-registerChart('bar-multi', barMulti, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, sortModeOpt, legendOpt, legendAnchorOpt, legendPositionOpt, directLabellingOpt, directLabelAnchorOpt, ...barVerticalAxisOpts, ...barOpts])
-registerChart('line', line, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, lineInterpolationOpt, edgePaddingOpt, ...lineAxisOpts, ...lineOpts])
-registerChart('line-multi', lineMulti, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, lineInterpolationOpt, edgePaddingOpt, sortModeOpt, legendOpt, legendAnchorOpt, legendPositionOpt, lineMultiDirectLabellingOpt, ...lineAxisOpts, ...lineOpts])
-registerChart('donut', donut, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, legendOpt, legendAnchorOpt, legendPositionOpt, directLabellingOpt, tooltipsOpt, ...donutArcOpts])
-registerChart('pie', pie, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, legendOpt, legendAnchorOpt, legendPositionOpt, directLabellingOpt, tooltipsOpt, ...pieArcOpts])
+registerChart(ChartType.BarVertical, barVertical, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, swapLabelValueOpt, barBackgroundOpt, barSeparatorsOpt, waterfallOpt, waterfallTotalOpt, ...barVerticalAxisOpts, ...barOpts])
+registerChart(ChartType.BarHorizontal, barHorizontal, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, swapLabelValueOpt, barBackgroundOpt, barSeparatorsOpt, waterfallOpt, waterfallTotalOpt, ...barHorizontalAxisOpts, ...barHorizontalOpts])
+registerChart(ChartType.BarMulti, barMulti, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, sortModeOpt, legendOpt, legendAnchorOpt, legendPositionOpt, directLabellingOpt, directLabelAnchorOpt, ...barVerticalAxisOpts, ...barOpts])
+registerChart(ChartType.Line, line, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, lineInterpolationOpt, edgePaddingOpt, ...lineAxisOpts, ...lineOpts])
+registerChart(ChartType.LineMulti, lineMulti, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, lineInterpolationOpt, edgePaddingOpt, sortModeOpt, legendOpt, legendAnchorOpt, legendPositionOpt, lineMultiDirectLabellingOpt, ...lineAxisOpts, ...lineOpts])
+registerChart(ChartType.Donut, donut, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, legendOpt, legendAnchorOpt, legendPositionOpt, directLabellingOpt, tooltipsOpt, ...donutArcOpts])
+registerChart(ChartType.Pie, pie, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, legendOpt, legendAnchorOpt, legendPositionOpt, directLabellingOpt, tooltipsOpt, ...pieArcOpts])
 
 // Area: same axis options as line, same interaction options
-registerChart('area', area, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, lineInterpolationOpt, edgePaddingOpt, ...lineAxisOpts, ...lineOpts])
+registerChart(ChartType.Area, area, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, lineInterpolationOpt, edgePaddingOpt, ...lineAxisOpts, ...lineOpts])
 
 // Areas (multi-series with optional stacking)
-const areaStackedAxisOpts = axisOpts({ verticalGrid: 'dashed', horizontalGrid: 'none', showVerticalTicks: false, showHorizontalTicks: false, showVerticalAxis: false, valueAxis: 'vertical', horizontalRange: true })
-registerChart('area-stacked', areaStacked, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, areaFillOpacityOpt, lineInterpolationOpt, edgePaddingOpt, areaSortModeOpt, stackedOpt, stackPercentOpt, areaLinesOpt, legendOpt, legendAnchorOpt, legendPositionOpt, directLabellingOpt, ...areaStackedAxisOpts, tooltipsOpt, ...lineCrosshairOpts])
+const areaStackedAxisOpts = axisOpts({ verticalGrid: GridStyle.Dashed, horizontalGrid: GridStyle.None, showVerticalTicks: false, showHorizontalTicks: false, showVerticalAxis: false, valueAxis: 'vertical', horizontalRange: true })
+registerChart(ChartType.AreaStacked, areaStacked, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, areaFillOpacityOpt, lineInterpolationOpt, edgePaddingOpt, areaSortModeOpt, stackedOpt, stackPercentOpt, areaLinesOpt, legendOpt, legendAnchorOpt, legendPositionOpt, directLabellingOpt, ...areaStackedAxisOpts, tooltipsOpt, ...lineCrosshairOpts])
 
 // Stacked column: vertical bars stacked
-registerChart('column-stacked', columnStacked, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, stackModeOpt, sortModeOpt, legendOpt, legendAnchorOpt, legendPositionOpt, directLabellingOpt, directLabelAnchorOpt, ...barVerticalAxisOpts, ...barOpts])
+registerChart(ChartType.ColumnStacked, columnStacked, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, stackModeOpt, sortModeOpt, legendOpt, legendAnchorOpt, legendPositionOpt, directLabellingOpt, directLabelAnchorOpt, ...barVerticalAxisOpts, ...barOpts])
 
 // Stacked bar: horizontal bars stacked
-registerChart('bar-stacked', barStacked, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, stackModeOpt, sortModeOpt, legendOpt, legendAnchorOpt, legendPositionOpt, directLabellingOpt, directLabelAnchorOpt, categoryLabelLineOpt, ...barHorizontalAxisOpts, ...barHorizontalOpts])
+registerChart(ChartType.BarStacked, barStacked, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, stackModeOpt, sortModeOpt, legendOpt, legendAnchorOpt, legendPositionOpt, directLabellingOpt, directLabelAnchorOpt, categoryLabelLineOpt, ...barHorizontalAxisOpts, ...barHorizontalOpts])
 
 // Split bars: each series rendered as its own panel of horizontal bars
-registerChart('bar-split', barSplit, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, sharedScaleOpt, sortModeOpt, legendOpt, legendAnchorOpt, legendPositionOpt, categoryLabelLineOpt, ...barHorizontalAxisOpts, barHorizontalValueLabelsOpt, valueLabelPositionOpt, tooltipsOpt, ...crosshairOpts])
+registerChart(ChartType.BarSplit, barSplit, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, sharedScaleOpt, sortModeOpt, legendOpt, legendAnchorOpt, legendPositionOpt, categoryLabelLineOpt, ...barHorizontalAxisOpts, barHorizontalValueLabelsOpt, valueLabelPositionOpt, tooltipsOpt, ...crosshairOpts])
 
 // Grouped bars: each category rendered as a group of horizontal bars, one per series
-registerChart('bar-grouped', barGrouped, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, sortModeOpt, legendOpt, legendAnchorOpt, legendPositionOpt, categoryLabelLineOpt, ...barHorizontalAxisOpts, barHorizontalValueLabelsOpt, valueLabelPositionOpt, tooltipsOpt, ...crosshairOpts])
+registerChart(ChartType.BarGrouped, barGrouped, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, sortModeOpt, legendOpt, legendAnchorOpt, legendPositionOpt, categoryLabelLineOpt, ...barHorizontalAxisOpts, barHorizontalValueLabelsOpt, valueLabelPositionOpt, tooltipsOpt, ...crosshairOpts])
 
 // Aliases share the same entry
-registerChart('vertical-bar', barVertical, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, swapLabelValueOpt, barBackgroundOpt, barSeparatorsOpt, waterfallOpt, waterfallTotalOpt, ...barVerticalAxisOpts, ...barOpts])
-registerChart('horizontal-bar', barHorizontal, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, swapLabelValueOpt, barBackgroundOpt, barSeparatorsOpt, waterfallOpt, waterfallTotalOpt, ...barHorizontalAxisOpts, ...barHorizontalOpts])
+registerChart(ChartType.VerticalBar, barVertical, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, swapLabelValueOpt, barBackgroundOpt, barSeparatorsOpt, waterfallOpt, waterfallTotalOpt, ...barVerticalAxisOpts, ...barOpts])
+registerChart(ChartType.HorizontalBar, barHorizontal, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, swapLabelValueOpt, barBackgroundOpt, barSeparatorsOpt, waterfallOpt, waterfallTotalOpt, ...barHorizontalAxisOpts, ...barHorizontalOpts])

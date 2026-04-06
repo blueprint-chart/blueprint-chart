@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { render } from './area-stacked'
+import { StackMode, SortDirection } from '../../../enums'
 
 describe('area-stacked chart', () => {
   let container: HTMLElement
@@ -92,7 +93,7 @@ describe('area-stacked chart', () => {
   // ── Percent mode ─────────────────────────────────────────────────
 
   it('renders in percent mode when stackMode=percent', () => {
-    render(container, data, { stackMode: 'percent' })
+    render(container, data, { stackMode: StackMode.Percent })
     const areas = container.querySelectorAll('.bc-area')
     expect(areas).toHaveLength(3)
   })
@@ -103,7 +104,7 @@ describe('area-stacked chart', () => {
 
     const container2 = document.createElement('div')
     document.body.appendChild(container2)
-    render(container2, data, { stackMode: 'percent' })
+    render(container2, data, { stackMode: StackMode.Percent })
     const percentPaths = Array.from(container2.querySelectorAll('.bc-area')).map(a => a.getAttribute('d'))
 
     // At least one path should differ between normal and percent mode
@@ -362,7 +363,7 @@ describe('area-stacked chart', () => {
     const container2 = document.createElement('div')
     document.body.appendChild(container2)
     render(container, data, { stackPercent: true })
-    render(container2, data, { stackMode: 'percent' })
+    render(container2, data, { stackMode: StackMode.Percent })
 
     const pathsA = Array.from(container.querySelectorAll('.bc-area')).map(a => a.getAttribute('d'))
     const pathsB = Array.from(container2.querySelectorAll('.bc-area')).map(a => a.getAttribute('d'))
@@ -372,7 +373,7 @@ describe('area-stacked chart', () => {
   // ── Sort areas ───────────────────────────────────────────────────
 
   it('areaSortMode=none keeps original series order', () => {
-    render(container, data, { areaSortMode: 'none' })
+    render(container, data, { areaSortMode: SortDirection.None })
     const areas = container.querySelectorAll('.bc-area')
     // Default colors map to original series order
     expect(areas[0].getAttribute('fill')).toBe('#4e79a7') // Product A (index 0)
@@ -384,7 +385,7 @@ describe('area-stacked chart', () => {
     // Totals: Product A=45, Product B=23, Product C=22
     // Ascending: C (22) first (bottom), B (23), A (45) last (top)
     // Colors derive from original series index: A=#4e79a7, B=#f28e2b, C=#e15759
-    render(container, data, { areaSortMode: 'ascending' })
+    render(container, data, { areaSortMode: SortDirection.Ascending })
     const areas = container.querySelectorAll('.bc-area')
     expect(areas).toHaveLength(3)
     // Bottom area should be Product C (smallest total, index 2 → #e15759)
@@ -395,7 +396,7 @@ describe('area-stacked chart', () => {
 
   it('areaSortMode=descending places largest-total series at bottom of stack', () => {
     // Descending: A (45) first (bottom), B (23), C (22) last (top)
-    render(container, data, { areaSortMode: 'descending' })
+    render(container, data, { areaSortMode: SortDirection.Descending })
     const areas = container.querySelectorAll('.bc-area')
     expect(areas).toHaveLength(3)
     // Bottom area should be Product A (largest total, index 0 → #4e79a7)
@@ -405,12 +406,12 @@ describe('area-stacked chart', () => {
   })
 
   it('ascending and descending sort produce different stacking paths', () => {
-    render(container, data, { areaSortMode: 'ascending' })
+    render(container, data, { areaSortMode: SortDirection.Ascending })
     const ascPaths = Array.from(container.querySelectorAll('.bc-area')).map(a => a.getAttribute('d'))
 
     const container2 = document.createElement('div')
     document.body.appendChild(container2)
-    render(container2, data, { areaSortMode: 'descending' })
+    render(container2, data, { areaSortMode: SortDirection.Descending })
     const descPaths = Array.from(container2.querySelectorAll('.bc-area')).map(a => a.getAttribute('d'))
 
     // Paths should differ because the stacking order is reversed

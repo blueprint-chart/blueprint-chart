@@ -1,4 +1,5 @@
 import type { TransformResult } from '@/stores/dataTransforms'
+import { SortDirection } from '@blueprint-chart/lib'
 import { compareValues, parseNumeric, resolveColumns } from './shared'
 
 export function applySort(data: TransformResult, config: Record<string, string>): TransformResult {
@@ -12,7 +13,7 @@ export function applySort(data: TransformResult, config: Record<string, string>)
     return data
   }
 
-  const dir = config.direction === 'descending' ? -1 : 1
+  const dir = config.direction === SortDirection.Descending ? -1 : 1
   const operation = config.operation // 'sum' | 'avg' | undefined
 
   if (operation && colIndices.length > 1) {

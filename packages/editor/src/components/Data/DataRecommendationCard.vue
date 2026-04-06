@@ -28,6 +28,7 @@
 
 <script setup lang="ts">
 import type { Component } from 'vue'
+import { ChartType } from '@blueprint-chart/lib'
 import BarVerticalThumb from '@/assets/chart-thumbnails/bar-vertical.bpc'
 import BarHorizontalThumb from '@/assets/chart-thumbnails/bar-horizontal.bpc'
 import BarMultiThumb from '@/assets/chart-thumbnails/bar-multi.bpc'
@@ -37,13 +38,13 @@ import DonutThumb from '@/assets/chart-thumbnails/donut.bpc'
 import PieThumb from '@/assets/chart-thumbnails/pie.bpc'
 
 const THUMB_MAP: Record<string, Component> = {
-  'bar-vertical': markRaw(BarVerticalThumb),
-  'bar-horizontal': markRaw(BarHorizontalThumb),
-  'bar-multi': markRaw(BarMultiThumb),
-  'line': markRaw(LineThumb),
-  'line-multi': markRaw(LineMultiThumb),
-  'donut': markRaw(DonutThumb),
-  'pie': markRaw(PieThumb),
+  [ChartType.BarVertical]: markRaw(BarVerticalThumb),
+  [ChartType.BarHorizontal]: markRaw(BarHorizontalThumb),
+  [ChartType.BarMulti]: markRaw(BarMultiThumb),
+  [ChartType.Line]: markRaw(LineThumb),
+  [ChartType.LineMulti]: markRaw(LineMultiThumb),
+  [ChartType.Donut]: markRaw(DonutThumb),
+  [ChartType.Pie]: markRaw(PieThumb),
 }
 
 const props = defineProps<{

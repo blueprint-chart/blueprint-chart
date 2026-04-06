@@ -1,6 +1,7 @@
 import * as d3 from 'd3'
 import 'd3-transition'
 import type { LineSymbolConfig } from './types'
+import { SymbolShape, SymbolShowOn, SymbolStyle } from '../enums'
 import { getDefaultTransitionMs } from './motion'
 
 // d3.symbolTriangle2 is triangle-down in d3 v7+; fall back to a rotated triangle
@@ -22,10 +23,10 @@ export function shouldShowSymbol(
   showOn: LineSymbolConfig['showOn'],
 ): boolean {
   switch (showOn) {
-    case 'first': return index === 0
-    case 'last': return index === total - 1
-    case 'firstLast': return index === 0 || index === total - 1
-    case 'all':
+    case SymbolShowOn.First: return index === 0
+    case SymbolShowOn.Last: return index === total - 1
+    case SymbolShowOn.FirstLast: return index === 0 || index === total - 1
+    case SymbolShowOn.All:
     default: return true
   }
 }
@@ -37,9 +38,9 @@ export function renderLineSymbols(
   config: LineSymbolConfig,
   transition = false,
 ): void {
-  const symbol = config.symbol ?? 'circle'
-  const showOn = config.showOn ?? 'firstLast'
-  const style = config.style ?? 'filled'
+  const symbol = config.symbol ?? SymbolShape.Circle
+  const showOn = config.showOn ?? SymbolShowOn.FirstLast
+  const style = config.style ?? SymbolStyle.Filled
   const size = config.size ?? 3.5
   const opacity = config.opacity ?? 1
 
@@ -50,7 +51,7 @@ export function renderLineSymbols(
 
   const duration = transition ? getDefaultTransitionMs() : 0
 
-  if (symbol === 'circle') {
+  if (symbol === SymbolShape.Circle) {
     const joined = parent.selectAll<SVGCircleElement, typeof visible[number]>('.bc-symbol')
       .data(visible)
       .join(
@@ -59,9 +60,9 @@ export function renderLineSymbols(
           .attr('cx', d => d.cx)
           .attr('cy', d => d.cy)
           .attr('r', size)
-          .attr('fill', d => style === 'filled' ? d.color : hollowFill)
+          .attr('fill', d => style === SymbolStyle.Filled ? d.color : hollowFill)
           .attr('stroke', d => d.color)
-          .attr('stroke-width', style === 'hollow' ? 1.5 : 0)
+          .attr('stroke-width', style === SymbolStyle.Hollow ? 1.5 : 0)
           .attr('opacity', opacity),
         update => update,
         exit => exit.remove(),
@@ -74,9 +75,9 @@ export function renderLineSymbols(
       .attr('cx', d => d.cx)
       .attr('cy', d => d.cy)
       .attr('r', size)
-      .attr('fill', d => style === 'filled' ? d.color : hollowFill)
+      .attr('fill', d => style === SymbolStyle.Filled ? d.color : hollowFill)
       .attr('stroke', d => d.color)
-      .attr('stroke-width', style === 'hollow' ? 1.5 : 0)
+      .attr('stroke-width', style === SymbolStyle.Hollow ? 1.5 : 0)
       .attr('opacity', opacity)
   }
   else {
@@ -91,9 +92,9 @@ export function renderLineSymbols(
           .attr('class', 'bc-symbol')
           .attr('transform', d => `translate(${d.cx},${d.cy})`)
           .attr('d', pathGen as unknown as string)
-          .attr('fill', d => style === 'filled' ? d.color : hollowFill)
+          .attr('fill', d => style === SymbolStyle.Filled ? d.color : hollowFill)
           .attr('stroke', d => d.color)
-          .attr('stroke-width', style === 'hollow' ? 1.5 : 0)
+          .attr('stroke-width', style === SymbolStyle.Hollow ? 1.5 : 0)
           .attr('opacity', opacity),
         update => update,
         exit => exit.remove(),
@@ -105,9 +106,9 @@ export function renderLineSymbols(
     target
       .attr('transform', d => `translate(${d.cx},${d.cy})`)
       .attr('d', pathGen as unknown as string)
-      .attr('fill', d => style === 'filled' ? d.color : hollowFill)
+      .attr('fill', d => style === SymbolStyle.Filled ? d.color : hollowFill)
       .attr('stroke', d => d.color)
-      .attr('stroke-width', style === 'hollow' ? 1.5 : 0)
+      .attr('stroke-width', style === SymbolStyle.Hollow ? 1.5 : 0)
       .attr('opacity', opacity)
   }
 }

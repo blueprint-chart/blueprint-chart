@@ -1,4 +1,5 @@
 import type { Ref, ComputedRef } from 'vue'
+import { SortDirection } from '@blueprint-chart/lib'
 import { useTheme } from './useTheme'
 import {
   parse,
@@ -143,7 +144,7 @@ export function renderDsl(
   const sPMap = scene?.properties
   const sortVal = sPMap?.get('sort') ?? pMap.get('sort')
   const sortStr = sortVal ? String(sortVal) : undefined
-  const sort = sortStr === 'ascending' || sortStr === 'descending' ? sortStr : undefined
+  const sort = sortStr === SortDirection.Ascending || sortStr === SortDirection.Descending ? sortStr : undefined
 
   const getString = (key: string) => String(sPMap?.get(key) ?? pMap.get(key) ?? '') || undefined
 
