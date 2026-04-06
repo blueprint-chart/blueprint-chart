@@ -105,13 +105,16 @@ function setupLegendHighlight(chartArea: SVGGElement): void {
       item.transition().duration(150).style('opacity', isCurrent ? 1 : DIM_OPACITY)
     })
 
-    // Dim other series elements in the chart
+    // Dim other series elements in the chart; fully hide non-highlighted labels.
+    // Highlighted labels get opacity 1 via inline style, which also reveals
+    // labels hidden for lack of space (they use the opacity SVG attribute).
     const seriesEls = d3.select(chartArea).selectAll<SVGElement, unknown>('[data-series]')
       .filter(function () { return !this.closest('.bc-legend') })
     seriesEls.each(function () {
       const el = d3.select(this)
       const isCurrent = el.attr('data-series') === idx
-      el.transition().duration(150).style('opacity', isCurrent ? 1 : DIM_OPACITY)
+      const isLabel = this.classList.contains('bc-direct-label') || this.classList.contains('bc-value-label')
+      el.transition().duration(150).style('opacity', isCurrent ? 1 : (isLabel ? 0 : DIM_OPACITY))
     })
   }
 

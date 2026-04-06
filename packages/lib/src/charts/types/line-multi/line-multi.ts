@@ -431,6 +431,7 @@ export function render(
     const cy = y(dot.value) as number
     vlGroup.append('text')
       .attr('class', 'bc-value-label')
+      .attr('data-series', dot.colorIndex)
       .attr('x', cx)
       .attr('y', cy - 8)
       .attr('text-anchor', 'middle')
