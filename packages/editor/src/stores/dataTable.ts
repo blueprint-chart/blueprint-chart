@@ -1,4 +1,5 @@
 import type { ColumnType, ParsedData } from '@/composables/useDataParser'
+import { parseBpcData } from '@/composables/useDataParser'
 import { useDataTransforms } from '@/composables/useDataTransforms'
 import { useScenes } from '@/composables/useScenes'
 import { resolveScene } from '@/utils/scenes'
@@ -56,6 +57,14 @@ export const useDataTableStore = defineStore('dataTable', () => {
   const { activeIndex, scenes } = useScenes()
 
   const displayData = computed(() => {
+    // When a scene provides custom data, display that instead of the base dataset
+    if (activeIndex.value >= 0) {
+      const resolved = resolveScene(scenes.value, activeIndex.value)
+      if (resolved?.data) {
+        return parseBpcData(resolved.data)
+      }
+    }
+
     let result = { columns: state.columns, rows: state.rows, columnTypes: state.columnTypes }
     if (steps.value.length > 0) {
       result = applyTransforms(state.columns, state.rows, state.columnTypes)

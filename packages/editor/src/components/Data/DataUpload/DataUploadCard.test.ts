@@ -10,15 +10,46 @@ vi.mock('@blueprint-chart/lib', async (importOriginal) => {
   }
 })
 
+const columnsRef = ref<string[]>([])
+const rowsRef = ref<string[][]>([])
+const displayColumnsRef = ref<string[]>([])
+const displayRowsRef = ref<string[][]>([])
 const mockDataTable = {
   rawInput: { value: '' },
   sourceFormat: { value: 'delimited' as string },
-  columns: { value: [] as string[] },
-  rows: { value: [] as string[][] },
+  columns: columnsRef,
+  rows: rowsRef,
+  displayColumns: displayColumnsRef,
+  displayRows: displayRowsRef,
 }
 
 vi.mock('@/stores/dataTable', () => ({
   useDataTable: () => mockDataTable,
+}))
+
+const activeIndexRef = ref(-1)
+const scenesRef = ref<{ id: string, data?: string }[]>([])
+
+vi.mock('@/stores/scenes', () => ({
+  useScenes: () => ({
+    activeIndex: activeIndexRef,
+    scenes: scenesRef,
+  }),
+}))
+
+vi.mock('@/utils/scenes', () => ({
+  resolveScene: (scenes: { data?: string }[], index: number) => {
+    if (index < 0 || index >= scenes.length) {
+      return null
+    }
+    const resolved: { data?: string } = {}
+    for (let i = 0; i <= index; i++) {
+      if (scenes[i]?.data !== undefined) {
+        resolved.data = scenes[i].data
+      }
+    }
+    return resolved
+  },
 }))
 
 const fakeSample = { id: 'test', title: 'Test', tsvData: 'a\tb\n1\t2', dsl: 'bar-vertical {}', chartType: ChartType.BarVertical, serializedData: '', description: '' }
@@ -38,8 +69,12 @@ describe('DataUploadCard', () => {
   beforeEach(() => {
     mockDataTable.rawInput.value = ''
     mockDataTable.sourceFormat.value = 'delimited'
-    mockDataTable.columns.value = []
-    mockDataTable.rows.value = []
+    columnsRef.value = []
+    rowsRef.value = []
+    displayColumnsRef.value = []
+    displayRowsRef.value = []
+    activeIndexRef.value = -1
+    scenesRef.value = []
   })
 
   it('renders heading', () => {
@@ -67,8 +102,8 @@ describe('DataUploadCard', () => {
   it('shows TSV instead of BPC when source format is bpc', () => {
     mockDataTable.rawInput.value = '_series = "New York","Detroit"\n"2000" = 5,3.8'
     mockDataTable.sourceFormat.value = 'bpc'
-    mockDataTable.columns.value = ['label', 'New York', 'Detroit']
-    mockDataTable.rows.value = [['2000', '5', '3.8']]
+    columnsRef.value = ['label', 'New York', 'Detroit']
+    rowsRef.value = [['2000', '5', '3.8']]
 
     const w = mountCard()
     const textarea = w.find('.upload-card__paste__wrap__area')
@@ -80,12 +115,48 @@ describe('DataUploadCard', () => {
   it('shows raw input when source format is delimited', () => {
     mockDataTable.rawInput.value = 'Name\tValue\nApples\t42'
     mockDataTable.sourceFormat.value = 'delimited'
-    mockDataTable.columns.value = ['Name', 'Value']
-    mockDataTable.rows.value = [['Apples', '42']]
+    columnsRef.value = ['Name', 'Value']
+    rowsRef.value = [['Apples', '42']]
 
     const w = mountCard()
     const textarea = w.find('.upload-card__paste__wrap__area')
     expect((textarea.element as HTMLTextAreaElement).value).toBe('Name\tValue\nApples\t42')
+  })
+
+  it('shows back button when data is already loaded', () => {
+    columnsRef.value = ['Name', 'Value']
+    const w = mountCard()
+    expect(w.find('.upload-card__back').exists()).toBe(true)
+  })
+
+  it('hides back button when no data is loaded', () => {
+    const w = mountCard()
+    expect(w.find('.upload-card__back').exists()).toBe(false)
+  })
+
+  it('shows scene display data in paste area when scene has custom data', () => {
+    mockDataTable.rawInput.value = 'Name\tValue\nApples\t42'
+    columnsRef.value = ['Name', 'Value']
+    rowsRef.value = [['Apples', '42']]
+    // Scene provides different data — displayColumns/displayRows reflect scene data
+    displayColumnsRef.value = ['label', 'X', 'Y']
+    displayRowsRef.value = [['2020', '5', '10'], ['2021', '8', '12']]
+    // Set up scene with custom data so hasSceneData() returns true
+    scenesRef.value = [{ id: '1', data: '"X" = 5\n"Y" = 10' }]
+    activeIndexRef.value = 0
+
+    const w = mountCard()
+    const textarea = w.find('.upload-card__paste__wrap__area')
+    const value = (textarea.element as HTMLTextAreaElement).value
+    expect(value).toContain('label\tX\tY')
+    expect(value).toContain('2020\t5\t10')
+  })
+
+  it('emits cancel when back button is clicked', async () => {
+    columnsRef.value = ['Name', 'Value']
+    const w = mountCard()
+    await w.find('.upload-card__back').trigger('click')
+    expect(w.emitted('cancel')).toBeTruthy()
   })
 
   it('emits sample event when DataUploadSamples emits select', async () => {
