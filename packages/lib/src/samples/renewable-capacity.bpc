@@ -1,7 +1,8 @@
 chart bar-grouped {
-  title = "Renewable energy capacity by region and technology, 2022"
+  title = "Asia Pacific holds more renewable capacity than all other regions combined"
   description = "Installed capacity in gigawatts (GW)"
   source = "IRENA"
+  sourceUrl = "https://www.irena.org"
   valueLabels = true
 
   data {

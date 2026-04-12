@@ -1,6 +1,6 @@
 chart donut {
-  title = "Samsung leads smartphones but 'Others' hold the largest share"
-  description = "Q4 2024, by shipment volume"
+  title = "Apple and Samsung are neck-and-neck but 'Others' hold the largest share"
+  description = "Global shipments, full year 2024"
   source = "IDC"
   sourceUrl = "https://idc.com"
   note = "Market share based on unit shipments, not revenue"
@@ -10,11 +10,11 @@ chart donut {
   displayAsPercentage = true
 
   data {
-    "Samsung" = 22.4
-    "Apple" = 17.3
-    "Xiaomi" = 12.8
-    "OPPO" = 9.5
-    "vivo" = 8.6
-    "Others" = 29.4
+    "Samsung" = 18.0
+    "Apple" = 18.7
+    "Xiaomi" = 14.3
+    "OPPO" = 8.0
+    "vivo" = 7.6
+    "Others" = 33.4
   }
 }

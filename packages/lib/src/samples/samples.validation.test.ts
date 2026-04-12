@@ -54,6 +54,31 @@ describe('sample .bpc files', () => {
         expect(invalid, `invalid keys: ${invalid.join(', ')}`).toEqual([])
       })
 
+      it('has a declarative title (≥ 30 chars)', () => {
+        const title = ast.properties.find(p => p.key === 'title')
+        expect(title, 'missing "title" property').toBeDefined()
+        const value = String(title!.value)
+        expect(
+          value.length,
+          `title too short (${value.length} chars): "${value}" — use a declarative takeaway`,
+        ).toBeGreaterThanOrEqual(30)
+      })
+
+      it('has a source and sourceUrl', () => {
+        const source = ast.properties.find(p => p.key === 'source')
+        expect(source, 'missing "source" property').toBeDefined()
+
+        const FICTIONAL_SAMPLES = new Set([
+          'quarterly-revenue.bpc',
+          'quarterly-stacked-columns.bpc',
+        ])
+
+        if (!FICTIONAL_SAMPLES.has(file)) {
+          const sourceUrl = ast.properties.find(p => p.key === 'sourceUrl')
+          expect(sourceUrl, 'missing "sourceUrl" property').toBeDefined()
+        }
+      })
+
       it('uses a valid colorPalette (if specified)', () => {
         const paletteProp = ast.properties.find(p => p.key === 'colorPalette')
         if (!paletteProp) {

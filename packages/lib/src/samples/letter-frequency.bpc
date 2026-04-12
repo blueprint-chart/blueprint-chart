@@ -3,6 +3,7 @@ chart bar-vertical {
   description = "How often each letter appears in typical English text"
   byline = "Pierre Romera"
   source = "Lewand, Cryptological Mathematics"
+  sourceUrl = "https://en.wikipedia.org/wiki/Letter_frequency"
   note = "Based on analysis of 40,000 words from English prose"
   colorPalette = "London"
   sort = descending

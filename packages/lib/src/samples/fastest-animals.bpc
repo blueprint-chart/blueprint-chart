@@ -2,6 +2,7 @@ chart bar-horizontal {
   title = "The Peregrine Falcon dives three times faster than a cheetah"
   description = "Maximum recorded speed in km/h"
   source = "National Geographic"
+  sourceUrl = "https://www.nationalgeographic.com"
   colorPalette = "Bright"
   sort = descending
   horizontalLabelPosition = off

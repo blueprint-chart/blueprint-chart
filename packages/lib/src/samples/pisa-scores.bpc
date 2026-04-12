@@ -1,7 +1,8 @@
 chart bar-split {
-  title = "PISA 2022 — top performers"
+  title = "Singapore leads the world in all three PISA 2022 subjects"
   description = "Mean scores in Mathematics, Reading, and Science for 15-year-olds"
   source = "OECD PISA 2022"
+  sourceUrl = "https://www.oecd.org/pisa/"
   valueLabels = true
   sharedScale = true
 

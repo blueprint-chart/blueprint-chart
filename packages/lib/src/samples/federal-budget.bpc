@@ -1,6 +1,6 @@
 chart pie {
   title = "Social Security is the single largest federal expense"
-  description = "Major categories, FY 2024"
+  description = "Share of federal spending by major category, FY 2024"
   source = "Congressional Budget Office"
   sourceUrl = "https://cbo.gov"
   colorPalette = "Sunset"

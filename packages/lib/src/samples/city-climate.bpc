@@ -1,7 +1,8 @@
 chart bar-split {
-  title = "Average temperatures by city"
+  title = "Phoenix summers hit 37 °C while Chicago winters drop below zero"
   description = "Mean monthly temperature (°C), NOAA 30-year climate normals 1991–2020"
   source = "NOAA"
+  sourceUrl = "https://www.ncei.noaa.gov/products/land-based-station/us-climate-normals"
   valueLabels = true
 
   data {
