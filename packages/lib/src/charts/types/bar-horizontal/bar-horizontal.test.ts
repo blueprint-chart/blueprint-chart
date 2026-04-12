@@ -713,6 +713,78 @@ describe('bar-horizontal', () => {
     })
   })
 
+  // ── Narrow width (auto categoryLabelLine) ───────────────────────
+
+  describe('narrow container auto categoryLabelLine', () => {
+    let rectSpy: ReturnType<typeof vi.spyOn>
+
+    function setContainerWidth(w: number) {
+      rectSpy = vi.spyOn(Element.prototype, 'getBoundingClientRect').mockReturnValue({
+        width: w, height: 400, x: 0, y: 0, top: 0, left: 0, bottom: 400, right: w, toJSON: () => ({}),
+      })
+    }
+
+    afterEach(() => {
+      rectSpy?.mockRestore()
+    })
+
+    it('renders category labels above bars on narrow width', () => {
+      setContainerWidth(300)
+      render(container, data)
+      const labels = container.querySelectorAll('.bc-category-label')
+      expect(labels).toHaveLength(3)
+      const texts = Array.from(labels).map(l => l.textContent)
+      expect(texts).toContain('A')
+      expect(texts).toContain('B')
+      expect(texts).toContain('C')
+    })
+
+    it('hides vertical axis tick labels on narrow width', () => {
+      setContainerWidth(300)
+      render(container, data)
+      const vAxis = container.querySelector('.bc-axis-vertical')!
+      const tickTexts = vAxis.querySelectorAll('.tick text')
+      expect(tickTexts).toHaveLength(0)
+    })
+
+    it('hides vertical axis domain line on narrow width', () => {
+      setContainerWidth(300)
+      render(container, data)
+      const vAxis = container.querySelector('.bc-axis-vertical')!
+      expect(vAxis.querySelector('.domain')).toBeNull()
+    })
+
+    it('does not auto-enable categoryLabelLine on wide containers', () => {
+      setContainerWidth(500)
+      render(container, data)
+      const labels = container.querySelectorAll('.bc-category-label')
+      expect(labels).toHaveLength(0)
+    })
+
+    it('auto-enables on narrow width even when labelPosition is off', () => {
+      setContainerWidth(300)
+      render(container, data, { verticalAxis: { labelPosition: 'off' } })
+      const labels = container.querySelectorAll('.bc-category-label')
+      expect(labels).toHaveLength(3)
+    })
+
+    it('respects explicit verticalAxis.labelPosition=outside on narrow width', () => {
+      setContainerWidth(300)
+      render(container, data, { verticalAxis: { labelPosition: 'outside' } })
+      // Only 'outside' prevents auto categoryLabelLine
+      const labels = container.querySelectorAll('.bc-category-label')
+      expect(labels).toHaveLength(0)
+    })
+
+    it('overrides categoryLabelLine=false on narrow width', () => {
+      setContainerWidth(300)
+      render(container, data, { categoryLabelLine: false })
+      // Auto-narrow takes priority so labels remain visible
+      const labels = container.querySelectorAll('.bc-category-label')
+      expect(labels).toHaveLength(3)
+    })
+  })
+
   // ── Highlight (dim) ──────────────────────────────────────────────
 
   describe('highlight', () => {

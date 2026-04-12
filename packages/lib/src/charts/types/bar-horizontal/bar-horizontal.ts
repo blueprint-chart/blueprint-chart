@@ -148,7 +148,14 @@ export function render(
 
   const { body } = createFrame(container, options.frame)
   const containerWidth = contentSize(body).width
-  const useCategoryLabelLine = options.categoryLabelLine === true
+  // On narrow containers, category labels on the vertical axis get hidden
+  // behind bars when positioned "inside" or are explicitly "off".
+  // Auto-switch to categoryLabelLine so labels render above each bar.
+  // Only skip when the user explicitly chose "outside".
+  const autoNarrow = containerWidth > 0
+    && containerWidth < 400
+    && options.verticalAxis?.labelPosition !== 'outside'
+  const useCategoryLabelLine = options.categoryLabelLine === true || autoNarrow
   const vLabelW = estimateCategoryLabelWidth(data.labels)
   const effectiveVLabelPosition = useCategoryLabelLine ? 'off' : options.verticalAxis?.labelPosition
   const lpMargins = labelPositionMargins(containerWidth, effectiveVLabelPosition, options.horizontalAxis?.labelPosition, options.verticalAxis?.direction, vLabelW, options.horizontalAxis?.showAxis)
@@ -227,7 +234,9 @@ export function render(
         }
       })()
     : { ...options.verticalAxis, topPadding: margin.top }
-  const vAxisOpts = useCategoryLabelLine ? { ...vAxisBase, labelPosition: 'off' as string } : vAxisBase
+  const vAxisOpts = useCategoryLabelLine
+    ? { ...vAxisBase, labelPosition: 'off' as string, ...(autoNarrow ? { showAxis: false } : {}) }
+    : vAxisBase
   axes.attach(chartArea, marginDelta)
   axes.update({
     horizontal: { scale: x, height, options: { ...options.horizontalAxis, width } },
