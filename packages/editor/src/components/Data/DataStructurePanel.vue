@@ -12,18 +12,16 @@
       ref="mainRef"
       class="data-structure-panel__main"
     >
-      <div
-        v-if="isSceneMode"
-        class="data-structure-panel__main__scene-banner"
-      >
-        <strong>Scene override active.</strong>
-        The table below shows the base data from {{ dataSourceLabel }}. Use transforms to shape the data for this scene without altering the original.
-      </div>
-      <div
-        v-if="!isSceneMode"
-        class="data-structure-panel__main__pills-bar"
-      >
+      <div class="data-structure-panel__main__pills-bar">
+        <div
+          v-if="isSceneMode"
+          class="data-structure-panel__main__scene-banner"
+        >
+          <strong>{{ sceneBannerTitle }}</strong>
+          {{ sceneBannerDetail }}
+        </div>
         <DataInsightBadges
+          v-else
           :columns="columns"
           :rows="rows"
           :column-types="columnTypes"
@@ -71,6 +69,7 @@ import { useDataTable } from '@/stores/dataTable'
 import { useEditorPanel, type DataPanelTab } from '@/stores/editorPanel'
 import { useScenes } from '@/stores/scenes'
 import IPhArrowsClockwise from '~icons/ph/arrows-clockwise'
+import { findDataSourceSceneIndex } from '@/utils/scenes'
 
 const { columns, rows, columnTypes } = useDataTable()
 const editorPanel = useEditorPanel()
@@ -78,14 +77,31 @@ const { panelMode, dataPanelMode, dataPanelTab } = storeToRefs(editorPanel)
 const { openDataPanel, closeDataPanel, collapse, setDataView } = editorPanel
 const { activeScene, activeIndex, scenes } = useScenes()
 const isSceneMode = computed(() => activeScene.value !== null)
-const dataSourceLabel = computed(() => {
-  if (activeIndex.value <= 0) {
-    return 'Scene 1'
+
+const dataSourceIdx = computed(() => findDataSourceSceneIndex(scenes.value, activeIndex.value))
+
+const sceneBannerTitle = computed(() => {
+  const srcIdx = dataSourceIdx.value
+  if (srcIdx === activeIndex.value) {
+    return 'Custom data on this scene.'
   }
-  // The data source for the current scene is the previous scene in the timeline
-  const prevScene = scenes.value[activeIndex.value - 1]
-  const name = prevScene?.name
-  return name || `Scene ${activeIndex.value}`
+  if (srcIdx >= 0) {
+    const srcScene = scenes.value[srcIdx]
+    const label = srcScene?.name || `Scene ${srcIdx + 1}`
+    return `Data inherited from ${label}.`
+  }
+  return 'Scene override active.'
+})
+
+const sceneBannerDetail = computed(() => {
+  const srcIdx = dataSourceIdx.value
+  if (srcIdx === activeIndex.value) {
+    return 'This scene uses its own data, independent of the base dataset.'
+  }
+  if (srcIdx >= 0) {
+    return 'Replace data to set different data for this scene.'
+  }
+  return 'The table below shows the base data. Replace data to set custom data for this scene.'
 })
 
 function replaceData() {
@@ -168,11 +184,11 @@ const panelClassList = computed(() => ({
     }
 
     &__scene-banner {
+      flex: 1;
       display: flex;
       align-items: center;
       gap: 0.5rem;
       padding: 0.5rem 0.75rem;
-      margin-bottom: 0.75rem;
       border-radius: var(--bs-border-radius);
       background: var(--bs-info-bg-subtle);
       color: var(--bs-info-text-emphasis);

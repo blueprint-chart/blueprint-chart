@@ -6,6 +6,13 @@
     <p class="upload-card__subtitle">
       Drop a file, paste from a spreadsheet, or pick a sample dataset
     </p>
+    <button
+      v-if="columns.length > 0"
+      class="upload-card__back"
+      @click="$emit('cancel')"
+    >
+      &larr; Back to table
+    </button>
     <div
       class="input-card"
       :class="{ 'input-card--drag-over': isDragOver }"
@@ -98,16 +105,32 @@
 
 <script setup lang="ts">
 import { useDataTable } from '@/stores/dataTable'
+import { useScenes } from '@/stores/scenes'
+import { resolveScene } from '@/utils/scenes'
 
 defineEmits<{
   loaded: [content: string, sourceLabel: string]
   bpc: [content: string, sourceLabel: string]
   sample: [sample: import('@blueprint-chart/lib').ChartSample]
+  cancel: []
 }>()
 
-const { rawInput, sourceFormat, columns, rows } = useDataTable()
+const { rawInput, sourceFormat, columns, rows, displayColumns, displayRows } = useDataTable()
+const { activeIndex, scenes } = useScenes()
+
+function hasSceneData(): boolean {
+  if (activeIndex.value < 0) {
+    return false
+  }
+  const resolved = resolveScene(scenes.value, activeIndex.value)
+  return !!resolved?.data
+}
 
 function getInitialPasteInput(): string {
+  // When a scene provides custom data, show that data as TSV
+  if (hasSceneData()) {
+    return serializeDelimited(displayColumns.value, displayRows.value)
+  }
   if (sourceFormat?.value === 'bpc' && columns.value.length > 0) {
     return serializeDelimited(columns.value, rows.value)
   }
@@ -163,6 +186,26 @@ const tabOptions = [
     color: var(--bs-secondary-color);
     text-align: center;
     margin-bottom: 1.75rem;
+  }
+
+  &__back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-bottom: 1rem;
+    padding: 0;
+    font-family: inherit;
+    font-size: var(--bs-font-size-sm);
+    font-weight: 500;
+    color: var(--bs-primary);
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.15s;
+
+    &:hover {
+      opacity: 0.8;
+    }
   }
 
   &__paste {

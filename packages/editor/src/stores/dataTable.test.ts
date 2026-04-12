@@ -245,6 +245,71 @@ describe('serializeTableData', () => {
       expect(displayRows.value[1][0]).toBe('India')
       expect(displayRows.value[2][0]).toBe('Brazil')
     })
+
+    it('shows scene custom data instead of base data when scene has data property', () => {
+      const { loadParsed, displayColumns, displayRows } = useDataTable()
+      const scenes = useScenes()
+
+      loadParsed({
+        columns: ['Name', 'Value'],
+        rows: [['Apples', '42'], ['Bananas', '58']],
+        columnTypes: ['string', 'number'],
+      })
+
+      scenes.hydrate({
+        scenes: [
+          { id: '1', name: null, data: '"X" = 5\n"Y" = 10' },
+        ],
+        activeIndex: 0,
+      })
+
+      expect(displayColumns.value).toEqual(['label', 'value'])
+      expect(displayRows.value).toEqual([['X', '5'], ['Y', '10']])
+    })
+
+    it('inherits custom data from prior scene', () => {
+      const { loadParsed, displayColumns, displayRows } = useDataTable()
+      const scenes = useScenes()
+
+      loadParsed({
+        columns: ['Name', 'Value'],
+        rows: [['Apples', '42']],
+        columnTypes: ['string', 'number'],
+      })
+
+      scenes.hydrate({
+        scenes: [
+          { id: '1', name: null, data: '"X" = 5\n"Y" = 10' },
+          { id: '2', name: null },
+        ],
+        activeIndex: 1,
+      })
+
+      // Scene 2 inherits data from Scene 1
+      expect(displayColumns.value).toEqual(['label', 'value'])
+      expect(displayRows.value).toEqual([['X', '5'], ['Y', '10']])
+    })
+
+    it('falls back to base data when scene has no custom data', () => {
+      const { loadParsed, displayColumns, displayRows } = useDataTable()
+      const scenes = useScenes()
+
+      loadParsed({
+        columns: ['Name', 'Value'],
+        rows: [['Apples', '42']],
+        columnTypes: ['string', 'number'],
+      })
+
+      scenes.hydrate({
+        scenes: [
+          { id: '1', name: null },
+        ],
+        activeIndex: 0,
+      })
+
+      expect(displayColumns.value).toEqual(['Name', 'Value'])
+      expect(displayRows.value).toEqual([['Apples', '42']])
+    })
   })
 })
 

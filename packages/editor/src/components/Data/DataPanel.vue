@@ -8,6 +8,7 @@
       @loaded="onLoaded"
       @bpc="onBpcLoaded"
       @sample="onSampleLoaded"
+      @cancel="setDataView('structure')"
     />
     <DataStructurePanel v-else />
   </div>
@@ -15,10 +16,11 @@
 
 <script setup lang="ts">
 import { useEditorPanel } from '@/stores/editorPanel'
-import { useDataTable } from '@/stores/dataTable'
+import { useDataTable, serializeTableData } from '@/stores/dataTable'
 import { useChartSession } from '@/stores/chartSession'
 import { useWizard } from '@/stores/wizard'
 import { useParseOptions } from '@/stores/parseOptions'
+import { useScenes } from '@/stores/scenes'
 import type { ChartSample } from '@blueprint-chart/lib'
 
 const editorPanel = useEditorPanel()
@@ -29,6 +31,8 @@ const { applyDsl } = useDslSync()
 const { loadSample } = useChartSession()
 const { next } = useWizard()
 const parseOptions = storeToRefs(useParseOptions())
+const { activeScene, activeIndex, update: updateScene } = useScenes()
+const isSceneMode = computed(() => activeScene.value !== null)
 
 onMounted(() => {
   if (dataTable.columns.value.length > 0) {
@@ -53,6 +57,18 @@ function reparseData() {
 }
 
 function onLoaded(content: string, label: string) {
+  if (isSceneMode.value && activeIndex.value >= 0) {
+    const parsed = parseDelimited(content, {
+      firstRowIsHeader: parseOptions.firstRowIsHeader.value,
+      delimiter: parseOptions.delimiter.value,
+      decimalSeparator: parseOptions.decimalSeparator.value,
+      trimWhitespace: parseOptions.trimWhitespace.value,
+    })
+    const dslData = serializeTableData(parsed.columns, parsed.rows)
+    updateScene(activeIndex.value, { data: dslData })
+    setDataView('structure')
+    return
+  }
   dataTable.rawInput.value = content
   dataTable.sourceFormat.value = 'delimited'
   dataTable.sourceLabel.value = label || 'Pasted'
@@ -67,6 +83,11 @@ function onBpcLoaded(content: string, label: string) {
 }
 
 function onSampleLoaded(sample: ChartSample) {
+  if (isSceneMode.value && activeIndex.value >= 0) {
+    updateScene(activeIndex.value, { data: sample.serializedData })
+    setDataView('structure')
+    return
+  }
   loadSample(sample)
   next()
 }

@@ -74,6 +74,22 @@ export function resolveScene(scenes: SceneOverride[], index: number): SceneOverr
 }
 
 /**
+ * Find the index of the scene that provides data for scene at `index`.
+ * Returns -1 if no scene in the chain defines custom data (base data is used).
+ */
+export function findDataSourceSceneIndex(scenes: SceneOverride[], index: number): number {
+  if (index < 0 || index >= scenes.length) {
+    return -1
+  }
+  for (let i = index; i >= 0; i--) {
+    if (scenes[i]?.data !== undefined) {
+      return i
+    }
+  }
+  return -1
+}
+
+/**
  * Extract sort direction from resolved scene transforms.
  * Returns the direction from the last sort transform, or undefined if none.
  */
