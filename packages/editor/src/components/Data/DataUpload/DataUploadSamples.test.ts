@@ -1,13 +1,22 @@
+import { nextTick } from 'vue'
 import { mount } from '@vue/test-utils'
 import DataUploadSamples from './DataUploadSamples.vue'
+
+const FAKE_SVG = '<svg xmlns="http://www.w3.org/2000/svg"></svg>'
+const FAKE_DATA_URL = 'data:image/svg+xml;base64,abc'
+
+vi.mock('@/composables/useChartThumbnail', () => ({
+  renderThumbnailFromDsl: vi.fn((dsl: string) => (dsl ? FAKE_SVG : null)),
+  svgToDataUrl: vi.fn(() => FAKE_DATA_URL),
+}))
 
 vi.mock('@blueprint-chart/lib', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@blueprint-chart/lib')>()
   return {
     ...actual,
     samples: [
-      { id: 'test-1', title: 'Test Chart', chartType: actual.ChartType.BarVertical, tsvData: 'label\tvalue\nA\t1\nB\t2', serializedData: '', dsl: '', description: '' },
-      { id: 'test-2', title: 'Another Chart', chartType: actual.ChartType.Line, tsvData: 'x\ty\n1\t10\n2\t20\n3\t30', serializedData: '', dsl: '', description: '' },
+      { id: 'test-1', title: 'Test Chart', chartType: actual.ChartType.BarVertical, tsvData: 'label\tvalue\nA\t1\nB\t2', serializedData: '', dsl: 'chart bar-vertical {}', description: '' },
+      { id: 'test-2', title: 'Another Chart', chartType: actual.ChartType.Line, tsvData: 'x\ty\n1\t10\n2\t20\n3\t30', serializedData: '', dsl: 'chart line {}', description: '' },
     ],
   }
 })
@@ -49,9 +58,20 @@ describe('DataUploadSamples', () => {
     expect(sample).toHaveProperty('dsl')
   })
 
-  it('renders a thumbnail for each card', () => {
+  it('renders chart thumbnail images after mount', async () => {
     const w = mountSamples()
-    const thumbs = w.findAll('.sample-card__thumb')
-    expect(thumbs.length).toBe(2)
+    await nextTick()
+    const images = w.findAll('.sample-card__thumb__img')
+    expect(images.length).toBe(2)
+    expect(images[0].attributes('src')).toBe(FAKE_DATA_URL)
+    expect(images[1].attributes('src')).toBe(FAKE_DATA_URL)
+  })
+
+  it('sets alt text on thumbnail images', async () => {
+    const w = mountSamples()
+    await nextTick()
+    const images = w.findAll('.sample-card__thumb__img')
+    expect(images[0].attributes('alt')).toBe('Test Chart')
+    expect(images[1].attributes('alt')).toBe('Another Chart')
   })
 })
