@@ -1,70 +1,9 @@
-<template>
-  <div class="samples-grid">
-    <div
-      v-for="sample in sampleCards"
-      :key="sample.id"
-      class="sample-card"
-      role="button"
-      tabindex="0"
-      @click="$emit('select', sample)"
-      @keydown.enter="$emit('select', sample)"
-    >
-      <div class="sample-card__thumb">
-        <component
-          :is="sample.thumb"
-          v-if="sample.thumb"
-        />
-      </div>
-      <div class="sample-card__info">
-        <div class="sample-card__info__name">
-          {{ sample.title }}
-        </div>
-        <div class="sample-card__info__meta">
-          {{ sample.typeLabel }}
-          <span class="sample-card__info__meta__sep">&middot;</span>
-          {{ rowCount(sample) }} rows
-        </div>
-      </div>
-    </div>
-  </div>
-</template>
-
 <script setup lang="ts">
-import type { Component } from 'vue'
 import { ChartType, samples } from '@blueprint-chart/lib'
 import type { ChartSample } from '@blueprint-chart/lib'
-
-import BarVerticalThumb from '@/assets/chart-thumbnails/bar-vertical.bpc'
-import BarHorizontalThumb from '@/assets/chart-thumbnails/bar-horizontal.bpc'
-import BarMultiThumb from '@/assets/chart-thumbnails/bar-multi.bpc'
-import LineThumb from '@/assets/chart-thumbnails/line.bpc'
-import LineMultiThumb from '@/assets/chart-thumbnails/line-multi.bpc'
-import DonutThumb from '@/assets/chart-thumbnails/donut.bpc'
-import PieThumb from '@/assets/chart-thumbnails/pie.bpc'
-import AreaThumb from '@/assets/chart-thumbnails/area.bpc'
-import AreaStackedThumb from '@/assets/chart-thumbnails/area-stacked.bpc'
-import ColumnStackedThumb from '@/assets/chart-thumbnails/column-stacked.bpc'
-import BarStackedThumb from '@/assets/chart-thumbnails/bar-stacked.bpc'
-import BarSplitThumb from '@/assets/chart-thumbnails/bar-split.bpc'
-import BarGroupedThumb from '@/assets/chart-thumbnails/bar-grouped.bpc'
+import { renderThumbnailFromDsl, svgToDataUrl } from '@/composables/useChartThumbnail'
 
 defineEmits<{ select: [sample: ChartSample] }>()
-
-const THUMB_MAP: Record<string, Component> = {
-  [ChartType.BarVertical]: markRaw(BarVerticalThumb),
-  [ChartType.BarHorizontal]: markRaw(BarHorizontalThumb),
-  [ChartType.BarMulti]: markRaw(BarMultiThumb),
-  [ChartType.Line]: markRaw(LineThumb),
-  [ChartType.LineMulti]: markRaw(LineMultiThumb),
-  [ChartType.Donut]: markRaw(DonutThumb),
-  [ChartType.Pie]: markRaw(PieThumb),
-  [ChartType.Area]: markRaw(AreaThumb),
-  [ChartType.AreaStacked]: markRaw(AreaStackedThumb),
-  [ChartType.ColumnStacked]: markRaw(ColumnStackedThumb),
-  [ChartType.BarStacked]: markRaw(BarStackedThumb),
-  [ChartType.BarSplit]: markRaw(BarSplitThumb),
-  [ChartType.BarGrouped]: markRaw(BarGroupedThumb),
-}
 
 const TYPE_LABELS: Record<string, string> = {
   [ChartType.BarVertical]: 'Columns',
@@ -82,29 +21,77 @@ const TYPE_LABELS: Record<string, string> = {
   [ChartType.BarGrouped]: 'Grouped Bars',
 }
 
-interface SampleCard extends ChartSample {
-  thumb: Component | undefined
-  typeLabel: string
+function rowCount(tsvData: string): number {
+  const lines = tsvData.split('\n').filter(l => l.trim().length > 0)
+  return Math.max(0, lines.length - 1)
 }
+
+interface SampleCard extends ChartSample {
+  typeLabel: string
+  rowCount: number
+  thumbSrc: string | undefined
+}
+
+const thumbDataUrls = reactive(new Map<string, string>())
 
 const sampleCards = computed<SampleCard[]>(() =>
   samples.map(s => ({
     ...s,
-    thumb: THUMB_MAP[s.chartType],
     typeLabel: TYPE_LABELS[s.chartType] ?? s.chartType,
+    rowCount: rowCount(s.tsvData),
+    thumbSrc: thumbDataUrls.get(s.id),
   })),
 )
 
-function rowCount(sample: ChartSample): number {
-  const lines = sample.tsvData.split('\n').filter(l => l.trim().length > 0)
-  return Math.max(0, lines.length - 1)
-}
+onMounted(() => {
+  for (const sample of samples) {
+    if (sample.dsl) {
+      const svg = renderThumbnailFromDsl(sample.dsl)
+      if (svg) {
+        thumbDataUrls.set(sample.id, svgToDataUrl(svg))
+      }
+    }
+  }
+})
 </script>
+
+<template>
+  <div class="samples-grid">
+    <div
+      v-for="sample in sampleCards"
+      :key="sample.id"
+      class="sample-card"
+      role="button"
+      tabindex="0"
+      @click="$emit('select', sample)"
+      @keydown.enter="$emit('select', sample)"
+    >
+      <div class="sample-card__thumb">
+        <img
+          v-if="sample.thumbSrc"
+          class="sample-card__thumb__img"
+          :src="sample.thumbSrc"
+          :alt="sample.title"
+        >
+      </div>
+      <div class="sample-card__info">
+        <div class="sample-card__info__name">
+          {{ sample.title }}
+        </div>
+        <div class="sample-card__info__meta">
+          {{ sample.typeLabel }}
+          <span class="sample-card__info__meta__sep">&middot;</span>
+          {{ sample.rowCount }} rows
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
 
 <style scoped lang="scss">
 .samples-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
   gap: 0.5rem;
   width: 100%;
   padding: 0.5rem;
@@ -112,14 +99,13 @@ function rowCount(sample: ChartSample): number {
 
 .sample-card {
   display: flex;
-  align-items: center;
-  gap: 0.625rem;
-  padding: 0.5rem 0.625rem;
+  flex-direction: column;
   border: 1px solid var(--bs-border-color);
   border-radius: var(--bs-border-radius);
   cursor: pointer;
   transition: all 0.15s;
   background: var(--bs-body-bg);
+  overflow: hidden;
 
   &:hover {
     border-color: var(--bs-primary-border-subtle);
@@ -127,27 +113,22 @@ function rowCount(sample: ChartSample): number {
   }
 
   &__thumb {
-    width: 2rem;
-    height: 2rem;
-    flex-shrink: 0;
+    aspect-ratio: 3 / 2;
+    overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
-    opacity: 0.7;
+    background: var(--bs-tertiary-bg);
 
-    :deep(svg) {
+    &__img {
       width: 100%;
       height: 100%;
-    }
-
-    .sample-card:hover & {
-      opacity: 1;
+      object-fit: contain;
     }
   }
 
   &__info {
-    flex: 1;
-    min-width: 0;
+    padding: 0.375rem 0.5rem;
 
     &__name {
       font-size: var(--bs-font-size-sm);
