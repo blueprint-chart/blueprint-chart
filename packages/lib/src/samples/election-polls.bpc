@@ -1,7 +1,8 @@
 chart bar-split {
-  title = "Election polls"
+  title = "CDU/CSU led German polls at 29 % ahead of the 2021 election"
   description = "How Germany would vote in the September 2021 federal election, according to polling in the previous June"
   source = "FG Wahlen"
+  sourceUrl = "https://www.forschungsgruppe.de"
   note = "Margin of error at 10%: +/- 2 percentage points; at 40%: +/- 3 percentage points"
   valueLabels = true
 

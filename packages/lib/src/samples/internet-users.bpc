@@ -2,6 +2,7 @@ chart bar-horizontal {
   title = "China and India account for half the world's internet users"
   description = "Millions of users, 2024"
   source = "ITU / World Bank"
+  sourceUrl = "https://data.worldbank.org"
   colorPalette = "Enara"
   sort = descending
   horizontalLabelPosition = off

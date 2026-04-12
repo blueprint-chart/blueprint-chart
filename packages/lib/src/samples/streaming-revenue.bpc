@@ -2,6 +2,7 @@ chart bar-multi {
   title = "Spotify earns nearly three times Apple Music's revenue"
   description = "USD billions by platform"
   source = "IFPI / company reports"
+  sourceUrl = "https://www.ifpi.org"
   note = "Revenue figures are approximate annual estimates"
   colorPalette = "Deelite"
   legendPosition = "top"

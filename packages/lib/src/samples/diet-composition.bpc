@@ -2,6 +2,7 @@ chart donut {
   title = "Carbs make up half of the average American's calories"
   description = "Share of daily caloric intake by macronutrient"
   source = "USDA Dietary Guidelines 2025"
+  sourceUrl = "https://www.dietaryguidelines.gov"
   colorPalette = "PabloPicasso"
   legendPosition = "right"
   displayAsPercentage = true

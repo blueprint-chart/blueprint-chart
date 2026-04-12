@@ -1,7 +1,8 @@
 chart area-stacked {
-  title = "Global energy mix shift"
-  description = "Share of primary energy by source"
+  title = "Renewables rose from 18 % to 23 % of global energy since 2000"
+  description = "Share of primary energy by source, 2000–2023"
   source = "Our World in Data"
+  sourceUrl = "https://ourworldindata.org/energy-mix"
   stackPercent = true
   areaSortMode = descending
   areaFillOpacity = 0.85

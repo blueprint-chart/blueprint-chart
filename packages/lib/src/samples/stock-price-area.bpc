@@ -1,11 +1,12 @@
 chart area {
-  title = "Apple stock price in 2024"
+  title = "Apple stock climbed 36 % through 2024"
   description = "Monthly closing price in USD"
   source = "Yahoo Finance"
+  sourceUrl = "https://finance.yahoo.com"
 
 
   data {
-    "Jan" = 185
+    "Jan" = 183
     "Feb" = 182
     "Mar" = 171
     "Apr" = 170
@@ -16,6 +17,6 @@ chart area {
     "Sep" = 233
     "Oct" = 225
     "Nov" = 237
-    "Dec" = 243
+    "Dec" = 249
   }
 }

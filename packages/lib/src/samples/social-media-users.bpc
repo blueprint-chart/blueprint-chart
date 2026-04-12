@@ -2,6 +2,7 @@ chart line-multi {
   title = "Facebook still leads with 3 billion users but growth has stalled"
   description = "Billions of users"
   source = "Company earnings reports"
+  sourceUrl = "https://datareportal.com"
   colorPalette = "Camo873"
   legend = false
   lineSymbols = true

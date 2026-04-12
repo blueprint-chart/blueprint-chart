@@ -1,7 +1,8 @@
 chart bar-stacked {
-  title = "Population by age group"
+  title = "India's working-age population now surpasses China's"
   description = "Millions of people, 2023"
   source = "UN Population Division"
+  sourceUrl = "https://population.un.org"
   horizontalGridStyle = none
   horizontalLabelPosition = off
 
