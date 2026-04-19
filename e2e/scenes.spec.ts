@@ -377,12 +377,10 @@ test.describe('Scene Timeline', () => {
     // Table should be visible
     await expect(page.locator('.data-check-table')).toBeVisible()
 
-    // Scene banner should be visible
+    // Scene banner replaces the insight badges
     await expect(page.locator('.data-structure-panel__main__scene-banner')).toBeVisible()
     await expect(page.locator('.data-structure-panel__main__scene-banner')).toContainText('Scene override active')
-
-    // Pills bar (replace data) should be hidden
-    await expect(page.locator('.data-structure-panel__main__pills-bar')).toHaveCount(0)
+    await expect(page.locator('.data-insight-badges')).toHaveCount(0)
 
     // Side panel / icon rail should still be visible
     await expect(page.locator('.navigation-icon-rail')).toBeVisible()
@@ -390,11 +388,11 @@ test.describe('Scene Timeline', () => {
     // Parsing icon should not be in the rail
     await expect(page.locator('.navigation-icon-rail [aria-label="Parsing"]')).toHaveCount(0)
 
-    // Switch back to Scene 1 (base) — full UI should return
+    // Switch back to Scene 1 (base) — banner goes away, badges return
     await page.locator('.scene-timeline-item').first().click()
     await page.waitForTimeout(300)
 
-    await expect(page.locator('.data-structure-panel__main__pills-bar')).toBeVisible()
+    await expect(page.locator('.data-insight-badges')).toBeVisible()
     await expect(page.locator('.data-structure-panel__main__scene-banner')).toHaveCount(0)
     // Parsing icon should be back
     await expect(page.locator('.navigation-icon-rail [aria-label="Parsing"]')).toBeVisible()
