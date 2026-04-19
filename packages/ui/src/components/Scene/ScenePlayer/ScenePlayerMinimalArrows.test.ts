@@ -80,28 +80,36 @@ describe('ScenePlayerMinimalArrows navigation buttons', () => {
     expect(nextBtn.attributes('disabled')).toBeUndefined()
   })
 
-  it('emits update:current decremented on previous click', async () => {
+  it('emits previous on previous click', async () => {
     const wrapper = factory({ current: 3, total: 5 })
     await wrapper.find('button[aria-label="Previous scene"]').trigger('click')
-    expect(wrapper.emitted('update:current')![0]).toEqual([2])
+    expect(wrapper.emitted('previous')).toHaveLength(1)
+    expect(wrapper.emitted('update:current')).toBeUndefined()
   })
 
-  it('emits update:current incremented on next click', async () => {
+  it('emits next on next click', async () => {
     const wrapper = factory({ current: 3, total: 5 })
     await wrapper.find('button[aria-label="Next scene"]').trigger('click')
-    expect(wrapper.emitted('update:current')![0]).toEqual([4])
+    expect(wrapper.emitted('next')).toHaveLength(1)
+    expect(wrapper.emitted('update:current')).toBeUndefined()
   })
 
-  it('wraps to last scene on previous when at first with wrap', async () => {
-    const wrapper = factory({ current: 1, total: 5, wrap: true })
-    await wrapper.find('button[aria-label="Previous scene"]').trigger('click')
-    expect(wrapper.emitted('update:current')![0]).toEqual([5])
+  it('emits a previous event per click even within a single event-loop turn', () => {
+    const wrapper = factory({ current: 5, total: 5 })
+    const prev = wrapper.find('button[aria-label="Previous scene"]')
+    for (let i = 0; i < 4; i++) {
+      prev.trigger('click')
+    }
+    expect(wrapper.emitted('previous')).toHaveLength(4)
   })
 
-  it('wraps to first scene on next when at last with wrap', async () => {
-    const wrapper = factory({ current: 5, total: 5, wrap: true })
-    await wrapper.find('button[aria-label="Next scene"]').trigger('click')
-    expect(wrapper.emitted('update:current')![0]).toEqual([1])
+  it('emits a next event per click even within a single event-loop turn', () => {
+    const wrapper = factory({ current: 1, total: 5 })
+    const next = wrapper.find('button[aria-label="Next scene"]')
+    for (let i = 0; i < 4; i++) {
+      next.trigger('click')
+    }
+    expect(wrapper.emitted('next')).toHaveLength(4)
   })
 })
 
