@@ -91,6 +91,16 @@ export const useScenesStore = defineStore('scenes', () => {
     }
   }
 
+  // Intent-based navigation reads activeIndex synchronously, so rapid
+  // bursts of clicks accumulate correctly (one scene per click).
+  function nextScene() {
+    setActive(activeIndex.value + 1)
+  }
+
+  function previousScene() {
+    setActive(activeIndex.value - 1)
+  }
+
   function reorder(from: number, to: number) {
     if (from < 0 || from >= scenes.value.length || to < 0 || to >= scenes.value.length) {
       return
@@ -164,6 +174,8 @@ export const useScenesStore = defineStore('scenes', () => {
     remove,
     update,
     setActive,
+    nextScene,
+    previousScene,
     reorder,
     startPlayback,
     stopPlayback,
@@ -185,6 +197,8 @@ export function useScenes() {
     remove: store.remove,
     update: store.update,
     setActive: store.setActive,
+    nextScene: store.nextScene,
+    previousScene: store.previousScene,
     reorder: store.reorder,
     startPlayback: store.startPlayback,
     stopPlayback: store.stopPlayback,
