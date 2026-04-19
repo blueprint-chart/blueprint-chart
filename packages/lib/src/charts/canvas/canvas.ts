@@ -243,8 +243,10 @@ export function createCanvas(
   if (isConstrained) {
     const headerH = parseFloat(body.dataset.headerH || '0')
     const footerH = parseFloat(body.dataset.footerH || '0')
-    // Tighten the renderer's top margin (legend etc.), then add headerH.
-    const rendererTop = m.top > 10 ? Math.max(5, m.top - 15) : m.top
+    // Header overlays the top of the SVG with an opaque background, so the
+    // renderer's full top margin (legend + gap) must sit below headerH for
+    // content to remain visible. Respect m.top as requested; don't tighten.
+    const rendererTop = m.top
     m.top = headerH + rendererTop
     m.bottom += footerH
     // Store the renderer-only top margin (excluding headerH) so renderers
