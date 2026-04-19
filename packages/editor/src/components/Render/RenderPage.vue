@@ -17,8 +17,8 @@
         :playing="playing"
         :position="layout.playerPosition"
         @update:current="onSceneChange"
-        @previous="onPrevious"
-        @next="onNext"
+        @previous="previousScene"
+        @next="nextScene"
         @play="startPlayback"
         @pause="stopPlayback"
       />
@@ -46,7 +46,7 @@ useChartPreview(containerRef)
 
 const { layout } = useChartConfig()
 const { cardClass, cardStyle } = useCanvasCardStyle(layout, 'render-page__card')
-const { scenes, activeIndex, playing, setActive, startPlayback, stopPlayback } = useScenes()
+const { scenes, activeIndex, playing, setActive, nextScene, previousScene, startPlayback, stopPlayback } = useScenes()
 
 const playerComponentMap: Record<string, Component> = {
   'buttons': ScenePlayerButtons,
@@ -63,20 +63,6 @@ const showPlayer = computed(() => scenes.value.length >= 1)
 
 function onSceneChange(scene: number) {
   setActive(scene - 2)
-}
-
-// Intent-based nav reads the store's latest activeIndex synchronously,
-// so rapid bursts of clicks accumulate correctly (one scene per click).
-function onPrevious() {
-  if (activeIndex.value > -1) {
-    setActive(activeIndex.value - 1)
-  }
-}
-
-function onNext() {
-  if (activeIndex.value < scenes.value.length - 1) {
-    setActive(activeIndex.value + 1)
-  }
 }
 
 const playerTarget = ref<HTMLElement | null>(null)

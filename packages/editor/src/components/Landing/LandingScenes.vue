@@ -127,8 +127,6 @@ function onSceneChange(scene: number) {
   activeIndex.value = scene - 2
 }
 
-// Intent-based nav reads the latest activeIndex synchronously so rapid
-// bursts of clicks accumulate correctly (one scene per click).
 function onPrevious() {
   if (activeIndex.value > -1) {
     isSceneTransition.value = true

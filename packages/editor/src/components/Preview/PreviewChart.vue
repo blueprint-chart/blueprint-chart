@@ -15,8 +15,8 @@
       :playing="playing"
       :position="layout.playerPosition"
       @update:current="onSceneChange"
-      @previous="onPrevious"
-      @next="onNext"
+      @previous="previousScene"
+      @next="nextScene"
       @play="startPlayback"
       @pause="stopPlayback"
     />
@@ -108,7 +108,7 @@ const cvdFilterStyle = computed(() => {
 
 // Scene player
 const { layout } = useChartConfig()
-const { scenes, activeIndex, playing, setActive, startPlayback, stopPlayback } = useScenes()
+const { scenes, activeIndex, playing, setActive, nextScene, previousScene, startPlayback, stopPlayback } = useScenes()
 
 const playerTarget = ref<HTMLElement | null>(null)
 
@@ -132,20 +132,6 @@ const showPlayer = computed(() =>
 function onSceneChange(scene: number) {
   // scene is 1-based: 1 = base, 2 = first override, etc.
   setActive(scene - 2)
-}
-
-// Intent-based nav reads the store's latest activeIndex synchronously,
-// so rapid bursts of clicks accumulate correctly (one scene per click).
-function onPrevious() {
-  if (activeIndex.value > -1) {
-    setActive(activeIndex.value - 1)
-  }
-}
-
-function onNext() {
-  if (activeIndex.value < scenes.value.length - 1) {
-    setActive(activeIndex.value + 1)
-  }
 }
 
 // Observe the container for .bc-frame appearing
