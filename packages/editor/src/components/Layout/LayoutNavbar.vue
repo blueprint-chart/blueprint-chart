@@ -79,7 +79,7 @@ const navbarClass = computed(() => ({
   flex-shrink: 0;
   gap: 1rem;
   position: relative;
-  z-index: 1030;
+  z-index: 1060;
 
   &--opaque {
     background: var(--bc-tile-bg);
