@@ -120,20 +120,31 @@ describe('ScenePlayerDotStepper', () => {
     expect(nextBtn.attributes('disabled')).toBeDefined()
   })
 
-  it('emits update:current on prev click', async () => {
+  it('emits previous on prev click', async () => {
     const wrapper = mount(ScenePlayerDotStepper, {
       props: { total: 3, current: 2 },
     })
     await wrapper.find('[aria-label="Previous scene"]').trigger('click')
-    expect(wrapper.emitted('update:current')?.[0]).toEqual([1])
+    expect(wrapper.emitted('previous')).toHaveLength(1)
   })
 
-  it('emits update:current on next click', async () => {
+  it('emits next on next click', async () => {
     const wrapper = mount(ScenePlayerDotStepper, {
       props: { total: 3, current: 1 },
     })
     await wrapper.find('[aria-label="Next scene"]').trigger('click')
-    expect(wrapper.emitted('update:current')?.[0]).toEqual([2])
+    expect(wrapper.emitted('next')).toHaveLength(1)
+  })
+
+  it('emits one next event per click even within a single event-loop turn', () => {
+    const wrapper = mount(ScenePlayerDotStepper, {
+      props: { total: 10, current: 1 },
+    })
+    const nextBtn = wrapper.find('[aria-label="Next scene"]')
+    for (let i = 0; i < 9; i++) {
+      nextBtn.trigger('click')
+    }
+    expect(wrapper.emitted('next')).toHaveLength(9)
   })
 
   it('applies position class', () => {
@@ -191,20 +202,20 @@ describe('ScenePlayerMinimalArrows', () => {
     expect(nextBtn.attributes('disabled')).toBeDefined()
   })
 
-  it('emits update:current on prev click', async () => {
+  it('emits previous on prev click', async () => {
     const wrapper = mount(ScenePlayerMinimalArrows, {
       props: { total: 3, current: 2 },
     })
     await wrapper.find('[aria-label="Previous scene"]').trigger('click')
-    expect(wrapper.emitted('update:current')?.[0]).toEqual([1])
+    expect(wrapper.emitted('previous')).toHaveLength(1)
   })
 
-  it('emits update:current on next click', async () => {
+  it('emits next on next click', async () => {
     const wrapper = mount(ScenePlayerMinimalArrows, {
       props: { total: 3, current: 1 },
     })
     await wrapper.find('[aria-label="Next scene"]').trigger('click')
-    expect(wrapper.emitted('update:current')?.[0]).toEqual([2])
+    expect(wrapper.emitted('next')).toHaveLength(1)
   })
 
   it('applies position class', () => {
@@ -237,20 +248,22 @@ describe('ScenePlayerMinimalArrows', () => {
     expect(wrapper.emitted('pause')).toHaveLength(1)
   })
 
-  it('wrap: prev on first scene emits total', async () => {
+  it('wrap: prev on first scene emits previous (wrap is parent-resolved)', async () => {
     const wrapper = mount(ScenePlayerMinimalArrows, {
       props: { total: 5, current: 1, wrap: true },
     })
     await wrapper.find('[aria-label="Previous scene"]').trigger('click')
-    expect(wrapper.emitted('update:current')?.[0]).toEqual([5])
+    expect(wrapper.emitted('previous')).toHaveLength(1)
+    expect(wrapper.emitted('update:current')).toBeUndefined()
   })
 
-  it('wrap: next on last scene emits 1', async () => {
+  it('wrap: next on last scene emits next (wrap is parent-resolved)', async () => {
     const wrapper = mount(ScenePlayerMinimalArrows, {
       props: { total: 5, current: 5, wrap: true },
     })
     await wrapper.find('[aria-label="Next scene"]').trigger('click')
-    expect(wrapper.emitted('update:current')?.[0]).toEqual([1])
+    expect(wrapper.emitted('next')).toHaveLength(1)
+    expect(wrapper.emitted('update:current')).toBeUndefined()
   })
 
   it('wrap: prev and next are never disabled', () => {
@@ -319,20 +332,35 @@ describe('ScenePlayerButtons', () => {
     expect(wrapper.find('[aria-label="Next scene"]').attributes('disabled')).toBeDefined()
   })
 
-  it('emits update:current on Back click', async () => {
+  it('emits previous on Back click', async () => {
     const wrapper = mount(ScenePlayerButtons, {
       props: { total: 3, current: 2 },
     })
     await wrapper.find('[aria-label="Previous scene"]').trigger('click')
-    expect(wrapper.emitted('update:current')?.[0]).toEqual([1])
+    expect(wrapper.emitted('previous')).toHaveLength(1)
   })
 
-  it('emits update:current on Next click', async () => {
+  it('emits next on Next click', async () => {
     const wrapper = mount(ScenePlayerButtons, {
       props: { total: 3, current: 1 },
     })
     await wrapper.find('[aria-label="Next scene"]').trigger('click')
-    expect(wrapper.emitted('update:current')?.[0]).toEqual([2])
+    expect(wrapper.emitted('next')).toHaveLength(1)
+  })
+
+  it('emits a next event per click even within a single event-loop turn', () => {
+    // Regression: before the fix, rapid synchronous clicks all emitted
+    // the same value because defineModel does not optimistically update
+    // its local value when the parent attaches an @update:current handler.
+    // Now the child emits an intent event — one per click, always.
+    const wrapper = mount(ScenePlayerButtons, {
+      props: { total: 10, current: 1 },
+    })
+    const nextBtn = wrapper.find('[aria-label="Next scene"]')
+    for (let i = 0; i < 9; i++) {
+      nextBtn.trigger('click')
+    }
+    expect(wrapper.emitted('next')).toHaveLength(9)
   })
 
   it('has data-scene-player attribute', () => {

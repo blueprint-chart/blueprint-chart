@@ -301,6 +301,68 @@ test.describe('Farm Compass — rapid navigation', () => {
     const lines = page.locator('.bc-line')
     expect(await lines.count()).toBeGreaterThanOrEqual(2)
   })
+
+  test('stress: burst-clicking next never mixes chart types in final state', async ({ page }) => {
+    await gotoFarmCompass(page)
+    await page.waitForTimeout(500)
+
+    // Fire 9 clicks back-to-back in the page without any awaits between them.
+    // This is the worst case the scheduler can see — every click happens
+    // within a single event loop turn.
+    await page.evaluate(() => {
+      const btn = document.querySelector('[aria-label="Next scene"]') as HTMLElement | null
+      if (!btn) throw new Error('Next button missing')
+      for (let i = 0; i < 9; i++) btn.click()
+    })
+
+    // Wait past the D3 transition duration (500ms) plus a generous margin.
+    await page.waitForTimeout(2000)
+
+    // Final scene (#10) is line-multi: "Seasonal farm workers vanished"
+    await expect(page.locator('.bc-frame-title')).toContainText('Seasonal farm workers')
+
+    // Exactly one live frame in the DOM.
+    expect(await page.locator('.bc-frame').count()).toBe(1)
+
+    // No leftover elements from earlier chart types.
+    expect(await page.locator('.bc-area').count()).toBe(0)
+    expect(await page.locator('.bc-bar').count()).toBe(0)
+
+    // line-multi should render both salaried + non-salaried lines.
+    expect(await page.locator('.bc-line').count()).toBeGreaterThanOrEqual(2)
+  })
+
+  test('stress: alternating next/prev bursts leave a consistent single chart', async ({ page }) => {
+    await gotoFarmCompass(page)
+    await page.waitForTimeout(500)
+
+    // Navigate to a middle scene first so both next/prev buttons are enabled,
+    // then alternate direction bursts within a single tick to prove that
+    // handlers read the store atomically on each click.
+    await goToScene(page, 5) // Scene 6 (line/area territory)
+    await page.waitForTimeout(500)
+
+    await page.evaluate(() => {
+      const next = document.querySelector('[aria-label="Next scene"]') as HTMLElement | null
+      const prev = document.querySelector('[aria-label="Previous scene"]') as HTMLElement | null
+      if (!next || !prev) throw new Error('Player buttons missing')
+      // Net effect: +3 -2 +1 = +2 → scene 8
+      for (let i = 0; i < 3; i++) next.click()
+      for (let i = 0; i < 2; i++) prev.click()
+      for (let i = 0; i < 1; i++) next.click()
+    })
+
+    await page.waitForTimeout(2000)
+
+    // Starting scene was 6, net +2 = scene 8 = "Vegetables collapsed"
+    const counter = page.locator('.bc-scene-player__counter')
+    await expect(counter).toContainText('8 / 10')
+    await expect(page.locator('.bc-frame-title')).toContainText('Vegetable')
+
+    // Exactly one frame, no leftover bars.
+    expect(await page.locator('.bc-frame').count()).toBe(1)
+    expect(await page.locator('.bc-bar').count()).toBe(0)
+  })
 })
 
 // ---------------------------------------------------------------------------

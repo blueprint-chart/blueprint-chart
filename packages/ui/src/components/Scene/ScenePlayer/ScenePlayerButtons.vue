@@ -11,7 +11,7 @@
         :class="{ 'bc-scene-player__btn-group__btn--disabled': current <= 1 }"
         :disabled="current <= 1"
         aria-label="Previous scene"
-        @click.stop="current = current - 1"
+        @click.stop="$emit('previous')"
       >
         <!-- eslint-disable-next-line vue/max-attributes-per-line -->
         <svg width="8" height="12" viewBox="0 0 8 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 1.5L1.5 6l4 4.5" /></svg>
@@ -23,7 +23,7 @@
         :class="{ 'bc-scene-player__btn-group__btn--disabled': current >= total }"
         :disabled="current >= total"
         aria-label="Next scene"
-        @click.stop="current = current + 1"
+        @click.stop="$emit('next')"
       >
         Next
         <!-- eslint-disable-next-line vue/max-attributes-per-line -->
@@ -49,6 +49,8 @@ withDefaults(defineProps<{
 defineEmits<{
   play: []
   pause: []
+  previous: []
+  next: []
 }>()
 </script>
 

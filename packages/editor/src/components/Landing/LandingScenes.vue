@@ -16,6 +16,8 @@
             :playing="playing"
             position="left"
             @update:current="onSceneChange"
+            @previous="onPrevious"
+            @next="onNext"
             @play="startPlayback"
             @pause="stopPlayback"
           />
@@ -123,6 +125,22 @@ watch(containerRef, (el) => {
 function onSceneChange(scene: number) {
   isSceneTransition.value = true
   activeIndex.value = scene - 2
+}
+
+// Intent-based nav reads the latest activeIndex synchronously so rapid
+// bursts of clicks accumulate correctly (one scene per click).
+function onPrevious() {
+  if (activeIndex.value > -1) {
+    isSceneTransition.value = true
+    activeIndex.value = activeIndex.value - 1
+  }
+}
+
+function onNext() {
+  if (activeIndex.value < sceneCount - 1) {
+    isSceneTransition.value = true
+    activeIndex.value = activeIndex.value + 1
+  }
 }
 
 function startPlayback() {
