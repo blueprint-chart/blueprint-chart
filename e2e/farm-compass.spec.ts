@@ -315,7 +315,9 @@ test.describe('Farm Compass — rapid navigation', () => {
       for (let i = 0; i < 9; i++) btn.click()
     })
 
-    // Wait past the D3 transition duration (500ms) plus a generous margin.
+    // Wait past the D3 transition duration (500ms) plus a generous margin —
+    // burst transitions overlap, so frame count oscillates; a fixed wait
+    // past the last transition is the only reliable settle signal.
     await page.waitForTimeout(2000)
 
     // Final scene (#10) is line-multi: "Seasonal farm workers vanished"
