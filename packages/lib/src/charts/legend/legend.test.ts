@@ -35,6 +35,49 @@ describe('renderLegend', () => {
     const rect = g.querySelector('rect')
     expect(rect?.getAttribute('fill')).toBe('#4e79a7')
   })
+
+  describe('frame alignment', () => {
+    // Legend item width formula: 16 (swatch+gap) + len*7 (text) + 12 (trailing gap)
+    // "A" → 16 + 7 + 12 = 35
+
+    it('aligns horizontal legend start-anchor flush with frame left edge', () => {
+      const g = renderLegend(
+        chartArea, ['A'], undefined, -10, 'top', 'start', 400, 300, 0, [], { left: 50, right: 20 },
+      )
+      expect(g.getAttribute('transform')).toBe('translate(-50,-10)')
+    })
+
+    it('aligns horizontal legend end-anchor flush with frame right edge', () => {
+      const g = renderLegend(
+        chartArea, ['A'], undefined, -10, 'top', 'end', 400, 300, 0, [], { left: 50, right: 20 },
+      )
+      // tx = chartWidth + right - legendWidth = 400 + 20 - 35 = 385
+      expect(g.getAttribute('transform')).toBe('translate(385,-10)')
+    })
+
+    it('centers horizontal legend middle-anchor within the extended frame', () => {
+      const g = renderLegend(
+        chartArea, ['A'], undefined, -10, 'top', 'middle', 400, 300, 0, [], { left: 50, right: 20 },
+      )
+      // tx = -left + (chartWidth + left + right - legendWidth)/2 = -50 + (400 + 70 - 35)/2 = -50 + 217.5 = 167.5
+      expect(g.getAttribute('transform')).toBe('translate(167.5,-10)')
+    })
+
+    it('falls back to chart alignment when no frameInset is provided', () => {
+      const g = renderLegend(
+        chartArea, ['A'], undefined, -10, 'top', 'start', 400, 300, 0, [],
+      )
+      expect(g.getAttribute('transform')).toBe('translate(0,-10)')
+    })
+
+    it('does not shift vertical legends horizontally', () => {
+      const g = renderLegend(
+        chartArea, ['A'], undefined, 0, 'left', 'start', 400, 300, -50, [], { left: 50, right: 20 },
+      )
+      // vertical layout: tx stays at xOffset (-50), unaffected by frameInset
+      expect(g.getAttribute('transform')).toBe('translate(-50,0)')
+    })
+  })
 })
 
 describe('setupLegendHighlight (via renderLegend)', () => {

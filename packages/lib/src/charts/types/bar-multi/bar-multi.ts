@@ -465,6 +465,6 @@ export function render(
     else if (legendPos === 'right') {
       xPos = width + 10
     }
-    renderLegend(chartArea, legendSeriesNames, legendColors, yPos, legendPos, legendAnchor, width, height, xPos)
+    renderLegend(chartArea, legendSeriesNames, legendColors, yPos, legendPos, legendAnchor, width, height, xPos, [], { left: margin.left, right: margin.right })
   }
 }

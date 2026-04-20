@@ -161,6 +161,7 @@ export function renderLegend(
   chartHeight: number = 0,
   xOffset: number = 0,
   valueSuffixes: string[] = [],
+  frameInset: { left?: number, right?: number } = {},
 ): SVGGElement {
   const layout = (position === 'left' || position === 'right') ? 'vertical' : 'horizontal'
   const chart = new LegendChart(d3.select(chartArea))
@@ -202,14 +203,19 @@ export function renderLegend(
       legendHeight = labels.length * 20
     }
 
+    const insetLeft = frameInset.left ?? 0
+    const insetRight = frameInset.right ?? 0
     let tx = xOffset
     let ty = yOffset
     if (layout === 'horizontal') {
       if (anchor === 'middle') {
-        tx += (chartWidth - legendWidth) / 2
+        tx += -insetLeft + (chartWidth + insetLeft + insetRight - legendWidth) / 2
       }
       else if (anchor === 'end') {
-        tx += chartWidth - legendWidth
+        tx += chartWidth + insetRight - legendWidth
+      }
+      else {
+        tx += -insetLeft
       }
     }
     else {
