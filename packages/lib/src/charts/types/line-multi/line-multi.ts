@@ -623,7 +623,7 @@ export function render(
     else if (legendPos === 'right') {
       xLegendPos = width + 10
     }
-    renderLegend(chartArea, legendSeriesNames, legendColors, yPos, legendPos, legendAnchor, width, height, xLegendPos)
+    renderLegend(chartArea, legendSeriesNames, legendColors, yPos, legendPos, legendAnchor, width, height, xLegendPos, [], { left: margin.left, right: margin.right })
   }
 
   setCachedChart(container, { chartType: 'line-multi', margin })

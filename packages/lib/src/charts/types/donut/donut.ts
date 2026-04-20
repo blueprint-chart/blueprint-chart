@@ -199,7 +199,7 @@ export function renderArc(
     marginOverrides.bottom = (marginOverrides.bottom ?? defaultMargin) + arcLabelMargins.bottom
   }
 
-  const { chartArea, width, height } = createCanvas(body, marginOverrides)
+  const { chartArea, width, height, margin } = createCanvas(body, marginOverrides)
 
   const radius = Math.min(width, height) / 2
   const innerRadius = radius * innerRadiusRatio
@@ -313,7 +313,7 @@ export function renderArc(
     else if (legendPos === 'right') {
       xPos = width + 10
     }
-    renderLegend(chartArea, labels, colors, yPos, legendPos, legendAnchor, width, height, xPos, legendSuffixes)
+    renderLegend(chartArea, labels, colors, yPos, legendPos, legendAnchor, width, height, xPos, legendSuffixes, { left: margin.left, right: margin.right })
   }
 
   setCachedChart(container, { chartType: innerRadiusRatio > 0 ? 'donut' : 'pie' })
