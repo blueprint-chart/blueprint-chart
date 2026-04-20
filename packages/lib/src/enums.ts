@@ -49,6 +49,12 @@ export enum LabelPosition {
   Off = 'off',
 }
 
+export enum LabelRotation {
+  Auto = 'auto',
+  Horizontal = 'horizontal',
+  Vertical = 'vertical',
+}
+
 export enum TickPosition {
   Above = 'above',
   Below = 'below',

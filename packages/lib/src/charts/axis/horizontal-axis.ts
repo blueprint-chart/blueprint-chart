@@ -14,6 +14,62 @@ const MIN_LABEL_SPACING = 60
 // Approximate px per character for SVG axis text (sans-serif ~11–12 px font size).
 // Calibrated against Chromium rendering: "Jan 2024" (8 chars) measures ~88 px.
 const AVG_CHAR_WIDTH_PX = 10
+// When labels are rotated 90°, each line occupies roughly this many px horizontally
+// (text line-height plus padding). Much tighter than horizontal spacing.
+const ROTATED_LABEL_SPACING_PX = 12
+// Extra padding above/below rotated labels for the tick mark and breathing room.
+const ROTATED_LABEL_PADDING_PX = 12
+// Default max wrap lines for auto line-breaking of multi-word labels.
+// Higher values keep labels upright (readable) more often; rotation is a last resort.
+const MAX_WRAP_LINES = 3
+// Approximate vertical space per wrap line (matches the 1em tspan dy).
+const WRAP_LINE_HEIGHT_PX = 14
+// Padding below the axis line before the first wrap line starts.
+const WRAP_LABEL_PADDING_PX = 10
+
+/**
+ * Wrap a label across multiple lines by splitting on whitespace so each line
+ * fits within `maxWidthPx`. Returns `null` when it cannot be made to fit —
+ * either because a single word exceeds the width or the content requires more
+ * than `maxLines`. Used to avoid rotating labels when wrapping suffices.
+ */
+function wrapLabel(label: string, maxWidthPx: number, maxLines: number = MAX_WRAP_LINES): string[] | null {
+  if (label === '') {
+    return ['']
+  }
+  if (label.length * AVG_CHAR_WIDTH_PX <= maxWidthPx) {
+    return [label]
+  }
+  const words = label.split(/\s+/).filter(Boolean)
+  if (words.length === 0) {
+    return null
+  }
+  const lines: string[] = []
+  let current = ''
+  for (const word of words) {
+    if (word.length * AVG_CHAR_WIDTH_PX > maxWidthPx) {
+      return null
+    }
+    const candidate = current ? `${current} ${word}` : word
+    if (candidate.length * AVG_CHAR_WIDTH_PX <= maxWidthPx) {
+      current = candidate
+    }
+    else {
+      lines.push(current)
+      current = word
+      if (lines.length >= maxLines) {
+        return null
+      }
+    }
+  }
+  if (current) {
+    lines.push(current)
+  }
+  if (lines.length > maxLines) {
+    return null
+  }
+  return lines
+}
 
 const AUTO_DATE_FORMATS: Record<string, string> = {
   year: '%Y',
@@ -76,16 +132,34 @@ function buildTickFormatter(
   return null
 }
 
-function thinLabels(domain: string[], availableWidth: number): string[] {
+function maxFormattedLabelWidth(
+  domain: string[],
+  formatter: ((d: string | d3.NumberValue) => string) | null,
+): number {
+  let max = 0
+  for (const l of domain) {
+    const text = formatter ? formatter(l) : l
+    const w = text.length * AVG_CHAR_WIDTH_PX
+    if (w > max) {
+      max = w
+    }
+  }
+  return max
+}
+
+function thinLabels(
+  domain: string[],
+  availableWidth: number,
+  formatter?: ((d: string | d3.NumberValue) => string) | null,
+): string[] {
   if (domain.length <= 1) {
     return domain
   }
-  // Estimate the rendered width of the longest domain label. A 20% inflate
-  // factor accounts for date formatters expanding raw values (e.g. "2024-01"
-  // → "Jan 2024"), plus a fixed 8 px inter-label gap.
-  const maxLen = domain.reduce((m, l) => Math.max(m, l.length), 0)
-  const estLabelWidth = Math.ceil(maxLen * AVG_CHAR_WIDTH_PX * 1.2)
-  const minSpacing = Math.max(MIN_LABEL_SPACING, estLabelWidth + 8)
+  const maxWidth = formatter
+    ? maxFormattedLabelWidth(domain, formatter)
+    : domain.reduce((m, l) => Math.max(m, l.length), 0) * AVG_CHAR_WIDTH_PX
+  // 8 px of inter-label breathing room.
+  const minSpacing = Math.max(MIN_LABEL_SPACING, Math.ceil(maxWidth) + 8)
   const maxLabels = Math.max(2, Math.floor(availableWidth / minSpacing))
   if (domain.length <= maxLabels) {
     return domain
@@ -98,6 +172,208 @@ function thinLabels(domain: string[], availableWidth: number): string[] {
     result.push(last)
   }
   return result
+}
+
+/**
+ * Decide whether horizontal tick labels should be rotated 90° to avoid overlap.
+ * Applies only to ordinal (band/point) scales — time/linear scales thin instead.
+ *
+ * - `labelRotation='vertical'` → always rotates (when domain has ≥2 entries).
+ * - `labelRotation='horizontal'` → never rotates.
+ * - `labelRotation='auto'` → rotates when the longest formatted label exceeds
+ *   the per-tick band step.
+ */
+function willRotateLabels(
+  domain: string[],
+  availableWidth: number,
+  labelRotation: string,
+  formatter?: ((d: string | d3.NumberValue) => string) | null,
+): boolean {
+  if (domain.length <= 1 || availableWidth <= 0) {
+    return false
+  }
+  if (labelRotation === 'horizontal') {
+    return false
+  }
+  if (labelRotation === 'vertical') {
+    return true
+  }
+  // 'auto'
+  const maxWidth = maxFormattedLabelWidth(domain, formatter ?? null)
+  const perTickWidth = availableWidth / domain.length
+  return maxWidth > perTickWidth
+}
+
+/**
+ * Thinning when labels are rotated — spacing is line-height, not label width.
+ */
+function thinRotatedLabels(domain: string[], availableWidth: number): string[] {
+  if (domain.length <= 1) {
+    return domain
+  }
+  const maxLabels = Math.max(2, Math.floor(availableWidth / ROTATED_LABEL_SPACING_PX))
+  if (domain.length <= maxLabels) {
+    return domain
+  }
+  const step = Math.ceil(domain.length / maxLabels)
+  const result = domain.filter((_, i) => i % step === 0)
+  const last = domain[domain.length - 1]
+  if (result[result.length - 1] !== last) {
+    result.push(last)
+  }
+  return result
+}
+
+/**
+ * Estimate the pixel height needed below the chart for x-axis labels when
+ * rotated 90°. Returns 0 for empty label lists.
+ */
+function estimateRotatedAxisHeight(
+  labels: string[],
+  formatter?: ((d: string | d3.NumberValue) => string) | null,
+): number {
+  if (labels.length === 0) {
+    return 0
+  }
+  const maxWidth = maxFormattedLabelWidth(labels, formatter ?? null)
+  return Math.ceil(maxWidth) + ROTATED_LABEL_PADDING_PX
+}
+
+/**
+ * Estimate the pixel height needed below the chart for wrapped labels.
+ * Returns 0 when no label needs more than one line.
+ */
+function estimateWrappedAxisHeight(wrappedLines: string[][]): number {
+  let maxLines = 1
+  for (const lines of wrappedLines) {
+    if (lines.length > maxLines) {
+      maxLines = lines.length
+    }
+  }
+  if (maxLines <= 1) {
+    return 0
+  }
+  return maxLines * WRAP_LINE_HEIGHT_PX + WRAP_LABEL_PADDING_PX
+}
+
+/**
+ * Resolve the bottom margin needed for the x-axis, accounting for rotation.
+ * Returns the rotated height when rotation will apply and it exceeds
+ * `defaultBottom`; otherwise undefined (caller keeps its default).
+ *
+ * Chart types call this before `createCanvas` so the canvas reserves enough
+ * space for rotated labels to render within the SVG bounds.
+ */
+function resolveHorizontalAxisBottom(
+  labels: string[],
+  availableWidth: number,
+  options: {
+    labelRotation?: string
+    numberFormat?: string | null
+    labelPosition?: string
+    tickFormat?: ((label: string) => string) | null
+  } = {},
+  defaultBottom = 40,
+): number | undefined {
+  if (labels.length === 0 || availableWidth <= 0) {
+    return undefined
+  }
+  // Hidden/inside labels don't need bottom padding — callers already override.
+  if (options.labelPosition === 'off' || options.labelPosition === 'inside') {
+    return undefined
+  }
+  const tickFormatter: ((d: string | d3.NumberValue) => string) | null = options.tickFormat
+    ? (options.tickFormat as (d: string | d3.NumberValue) => string)
+    : buildTickFormatter(options.numberFormat ?? null, labels)
+  const labelRotation = options.labelRotation ?? 'auto'
+
+  if (labels.length > 1) {
+    const perTick = availableWidth / labels.length
+    const maxLabelWidth = maxFormattedLabelWidth(labels, tickFormatter)
+    const overflows = maxLabelWidth > perTick
+
+    if (labelRotation !== 'vertical' && overflows) {
+      // Wrap is preferred over rotation when it can fit.
+      const wrapped = tryWrapAll(labels, perTick, tickFormatter)
+      if (wrapped) {
+        const wrappedH = estimateWrappedAxisHeight(Array.from(wrapped.values()))
+        return wrappedH > defaultBottom ? wrappedH : undefined
+      }
+    }
+  }
+
+  const rotate = willRotateLabels(labels, availableWidth, labelRotation, tickFormatter)
+  if (!rotate) {
+    return undefined
+  }
+  const rotatedH = estimateRotatedAxisHeight(labels, tickFormatter)
+  return rotatedH > defaultBottom ? rotatedH : undefined
+}
+
+/**
+ * Attempt to wrap every domain label to fit within `perTickWidth`. Returns a
+ * Map keyed by the domain value (what d3-axis binds to each tick's datum),
+ * to the wrapped lines. Keying by datum survives d3 transitions that animate
+ * text content while `applyWrappedTickLabels` runs synchronously after.
+ * Returns `null` when any label cannot be wrapped to fit, or when no label
+ * actually needed wrapping (caller should fall back to the non-wrap path).
+ */
+function tryWrapAll(
+  domain: string[],
+  perTickWidth: number,
+  formatter: ((d: string | d3.NumberValue) => string) | null,
+): Map<string, string[]> | null {
+  const map = new Map<string, string[]>()
+  let anySplit = false
+  for (const d of domain) {
+    const text = formatter ? formatter(d) : d
+    const wrapped = wrapLabel(text, perTickWidth)
+    if (wrapped === null) {
+      return null
+    }
+    map.set(d, wrapped)
+    if (wrapped.length > 1) {
+      anySplit = true
+    }
+  }
+  return anySplit ? map : null
+}
+
+/**
+ * Replace each tick's single `<text>` content with stacked `<tspan>` lines
+ * per the wrap map. Lookup is by the tick's bound datum (d3-axis binds each
+ * tick's `__data__` to the domain value), which is stable across re-renders
+ * even while a transition is animating the text content. Ticks whose wrap
+ * entry is absent or single-line are untouched.
+ */
+function applyWrappedTickLabels(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  target: any,
+  wrapLinesByDatum: Map<string, string[]>,
+): void {
+  target.selectAll<SVGGElement, unknown>('.tick').each(function (this: SVGGElement) {
+    const tickSel = d3.select(this)
+    const datum = tickSel.datum() as unknown
+    const key = datum instanceof Date ? datum.toISOString() : String(datum)
+    const lines = wrapLinesByDatum.get(key)
+    if (!lines || lines.length <= 1) {
+      return
+    }
+    const textEl = tickSel.select<SVGTextElement>('text')
+    if (textEl.empty()) {
+      return
+    }
+    // Clear parent `dy` (d3 sets it to 0.71em by default). With tspans, carrying
+    // a parent dy can position the first line above the axis baseline in some
+    // browsers. We re-apply the baseline offset to the first tspan explicitly.
+    textEl.attr('dy', null).text(null)
+    lines.forEach((line, i) => {
+      textEl.append('tspan')
+        .attr('x', 0)
+        .attr('dy', i === 0 ? '0.71em' : '1em')
+        .text(line)
+    })
+  })
 }
 
 export class HorizontalAxisChart extends D3Blueprint<AxisDatum[]> {
@@ -113,6 +389,7 @@ export class HorizontalAxisChart extends D3Blueprint<AxisDatum[]> {
     this.configDefine('width', { defaultValue: 0 })
     this.configDefine('labels', { defaultValue: [] as string[] })
     this.configDefine('labelPosition', { defaultValue: 'auto' })
+    this.configDefine('labelRotation', { defaultValue: 'auto' })
     this.configDefine('zeroY', { defaultValue: null as number | null })
     this.configDefine('tickFormat', { defaultValue: null as ((label: string) => string) | null })
 
@@ -124,81 +401,7 @@ export class HorizontalAxisChart extends D3Blueprint<AxisDatum[]> {
       events: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         'merge:transition': (sel: any) => {
-          const scale = this.config('scale') as d3.AxisScale<string | d3.NumberValue>
-          const position = this.config('tickPosition') as string
-          const height = this.config('height') as number
-          const labelPos = this.config('labelPosition') as string
-          const availableWidth = this.config('width') as number
-          const axisFn = position === 'above'
-            ? d3.axisTop(scale)
-            : d3.axisBottom(scale)
-          if (!this.config('showTicks')) {
-            axisFn.tickSizeOuter(0)
-          }
-          let ticks = this.config('ticks') as (string & d3.NumberValue)[] | null
-          const rawScale = this.config('scale') as AnyXScale
-          if (!ticks && availableWidth > 0) {
-            if (isOrdinalScale(rawScale)) {
-              const domain = rawScale.domain()
-              const thinned = thinLabels(domain, availableWidth)
-              if (thinned.length < domain.length) {
-                ticks = thinned as (string & d3.NumberValue)[]
-              }
-            }
-            else {
-              const maxTicks = Math.max(2, Math.floor(availableWidth / MIN_LABEL_SPACING))
-              axisFn.ticks(maxTicks)
-            }
-          }
-          if (ticks) {
-            axisFn.tickValues(ticks)
-          }
-          const fmt = this.config('numberFormat') as string | null
-          const labels = this.config('labels') as string[]
-          const customTickFormat = this.config('tickFormat') as ((label: string) => string) | null
-          if (customTickFormat) {
-            axisFn.tickFormat(customTickFormat as (d: string | d3.NumberValue) => string)
-          }
-          else {
-            const formatter = buildTickFormatter(fmt, labels)
-            if (formatter) {
-              axisFn.tickFormat(formatter)
-            }
-          }
-          const translateY = position === 'above' ? 0 : height
-          const ms = getDefaultTransitionMs()
-          const axisNode = sel.node() as SVGGElement | null
-
-          if (axisNode) {
-            // Use a plain synchronous selection for ms=0 so text/tick updates are
-            // applied immediately (D3 transitions defer even 0-duration tweens).
-            if (ms > 0) {
-              sel.attr('transform', `translate(0,${translateY})`)
-              sel.duration(ms).call(axisFn)
-            }
-            else {
-              d3.select(axisNode)
-                .attr('transform', `translate(0,${translateY})`)
-                .call(axisFn)
-            }
-
-            if (!this.config('showAxis')) {
-              d3.select(axisNode).select('.domain').remove()
-            }
-
-            if (!this.config('showTicks')) {
-              d3.select(axisNode).selectAll('.tick line').remove()
-            }
-
-            const effective = labelPos === 'auto' ? 'outside' : labelPos
-
-            if (effective === 'off') {
-              d3.select(axisNode).selectAll('.tick text').remove()
-            }
-            else if (effective === 'inside') {
-              d3.select(axisNode).selectAll('.tick text').attr('y', 0).attr('dy', '-0.6em')
-            }
-          }
+          this.applyAxis(sel, 'merge')
         },
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         'exit': (sel: any) => {
@@ -206,90 +409,166 @@ export class HorizontalAxisChart extends D3Blueprint<AxisDatum[]> {
         },
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         'enter': (sel: any) => {
-          const scale = this.config('scale') as d3.AxisScale<string | d3.NumberValue>
-          const position = this.config('tickPosition') as string
-          const labelPos = this.config('labelPosition') as string
-          const height = this.config('height') as number
-          const availableWidth = this.config('width') as number
-
-          const axisFn = position === 'above'
-            ? d3.axisTop(scale)
-            : d3.axisBottom(scale)
-
-          if (!this.config('showTicks')) {
-            axisFn.tickSizeOuter(0)
-          }
-
-          let ticks = this.config('ticks') as (string & d3.NumberValue)[] | null
-
-          const rawScale = this.config('scale') as AnyXScale
-          if (!ticks && availableWidth > 0) {
-            if (isOrdinalScale(rawScale)) {
-              const domain = rawScale.domain()
-              const thinned = thinLabels(domain, availableWidth)
-              if (thinned.length < domain.length) {
-                ticks = thinned as (string & d3.NumberValue)[]
-              }
-            }
-            else {
-              // For time/linear scales, limit tick count based on available width
-              const maxTicks = Math.max(2, Math.floor(availableWidth / MIN_LABEL_SPACING))
-              axisFn.ticks(maxTicks)
-            }
-          }
-
-          if (ticks) {
-            axisFn.tickValues(ticks)
-          }
-
-          const fmt = this.config('numberFormat') as string | null
-          const labels = this.config('labels') as string[]
-          const customTickFormat = this.config('tickFormat') as ((label: string) => string) | null
-          if (customTickFormat) {
-            axisFn.tickFormat(customTickFormat as (d: string | d3.NumberValue) => string)
-          }
-          else {
-            const formatter = buildTickFormatter(fmt, labels)
-            if (formatter) {
-              axisFn.tickFormat(formatter)
-            }
-          }
-
-          const translateY = position === 'above' ? 0 : height
-          sel.attr('transform', `translate(0,${translateY})`)
-          sel.call(axisFn)
-
-          const showAxis = this.config('showAxis') as boolean
-          if (!showAxis) {
-            sel.select('.domain').remove()
-          }
-          else {
-            // Move the domain line to y=0 when the vertical domain crosses zero
-            const zeroY = this.config('zeroY') as number | null
-            if (zeroY != null) {
-              const offset = zeroY - (position === 'above' ? 0 : height)
-              sel.select('.domain').attr('transform', `translate(0,${offset})`)
-            }
-          }
-
-          if (!this.config('showTicks')) {
-            sel.selectAll('.tick line').remove()
-          }
-
-          const effective = labelPos === 'auto' ? 'outside' : labelPos
-
-          if (effective === 'off') {
-            sel.selectAll('.tick text').remove()
-          }
-          else if (effective === 'inside') {
-            // Position labels just inside the chart area (above the axis line)
-            sel.selectAll('.tick text')
-              .attr('y', 0)
-              .attr('dy', '-0.6em')
-          }
+          this.applyAxis(sel, 'enter')
         },
       },
     })
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private applyAxis(sel: any, phase: 'enter' | 'merge'): void {
+    const scale = this.config('scale') as d3.AxisScale<string | d3.NumberValue>
+    const rawScale = this.config('scale') as AnyXScale
+    const position = this.config('tickPosition') as string
+    const height = this.config('height') as number
+    const labelPos = this.config('labelPosition') as string
+    const labelRotation = this.config('labelRotation') as string
+    const availableWidth = this.config('width') as number
+    const fmt = this.config('numberFormat') as string | null
+    const labels = this.config('labels') as string[]
+    const customTickFormat = this.config('tickFormat') as ((label: string) => string) | null
+
+    const axisFn = position === 'above'
+      ? d3.axisTop(scale)
+      : d3.axisBottom(scale)
+    if (!this.config('showTicks')) {
+      axisFn.tickSizeOuter(0)
+    }
+
+    // Resolve tick formatter first so rotation/thinning can measure formatted width.
+    const tickFormatter: ((d: string | d3.NumberValue) => string) | null = customTickFormat
+      ? (customTickFormat as (d: string | d3.NumberValue) => string)
+      : buildTickFormatter(fmt, labels)
+    if (tickFormatter) {
+      axisFn.tickFormat(tickFormatter)
+    }
+
+    // Rotation only applies to ordinal scales (discrete series). Time/linear
+    // scales continue to use the existing thinning strategy. For ordinal
+    // labels that overflow their per-tick width, try line-wrapping on
+    // whitespace first; only rotate when wrapping can't make them fit.
+    const ordinal = isOrdinalScale(rawScale)
+    let wrapLinesByText: Map<string, string[]> | null = null
+    let shouldRotate = false
+
+    if (ordinal) {
+      const domain = rawScale.domain()
+      if (domain.length > 1 && availableWidth > 0) {
+        const perTickWidth = availableWidth / domain.length
+        const maxLabelWidth = maxFormattedLabelWidth(domain, tickFormatter)
+        const overflows = maxLabelWidth > perTickWidth
+
+        if (labelRotation === 'vertical') {
+          shouldRotate = true
+        }
+        else if (overflows) {
+          wrapLinesByText = tryWrapAll(domain, perTickWidth, tickFormatter)
+          if (!wrapLinesByText && labelRotation === 'auto') {
+            shouldRotate = true
+          }
+        }
+      }
+    }
+
+    let ticks = this.config('ticks') as (string & d3.NumberValue)[] | null
+    if (!ticks && availableWidth > 0) {
+      if (ordinal) {
+        const domain = rawScale.domain()
+        let thinned: string[]
+        if (wrapLinesByText) {
+          // Wrapping preserves every label — no thinning needed.
+          thinned = domain
+        }
+        else if (shouldRotate) {
+          thinned = thinRotatedLabels(domain, availableWidth)
+        }
+        else {
+          thinned = thinLabels(domain, availableWidth, tickFormatter)
+        }
+        if (thinned.length < domain.length) {
+          ticks = thinned as (string & d3.NumberValue)[]
+        }
+      }
+      else {
+        const maxTicks = Math.max(2, Math.floor(availableWidth / MIN_LABEL_SPACING))
+        axisFn.ticks(maxTicks)
+      }
+    }
+    if (ticks) {
+      axisFn.tickValues(ticks)
+    }
+
+    const translateY = position === 'above' ? 0 : height
+    const axisNode = sel.node() as SVGGElement | null
+
+    if (phase === 'merge') {
+      const ms = getDefaultTransitionMs()
+      if (!axisNode) {
+        return
+      }
+      if (ms > 0) {
+        sel.attr('transform', `translate(0,${translateY})`)
+        sel.duration(ms).call(axisFn)
+      }
+      else {
+        d3.select(axisNode)
+          .attr('transform', `translate(0,${translateY})`)
+          .call(axisFn)
+      }
+    }
+    else {
+      sel.attr('transform', `translate(0,${translateY})`)
+      sel.call(axisFn)
+    }
+
+    const target = phase === 'merge'
+      ? (axisNode ? d3.select(axisNode) : sel)
+      : sel
+
+    if (!this.config('showAxis')) {
+      target.select('.domain').remove()
+    }
+    else if (phase === 'enter') {
+      // Move the domain line to y=0 when the vertical domain crosses zero
+      const zeroY = this.config('zeroY') as number | null
+      if (zeroY != null) {
+        const offset = zeroY - (position === 'above' ? 0 : height)
+        target.select('.domain').attr('transform', `translate(0,${offset})`)
+      }
+    }
+
+    if (!this.config('showTicks')) {
+      target.selectAll('.tick line').remove()
+    }
+
+    const effective = labelPos === 'auto' ? 'outside' : labelPos
+
+    if (effective === 'off') {
+      target.selectAll('.tick text').remove()
+    }
+    else if (effective === 'inside') {
+      target.selectAll('.tick text').attr('y', 0).attr('dy', '-0.6em')
+    }
+
+    if (shouldRotate && effective !== 'off') {
+      // Rotate labels 90° counter-clockwise. End-anchor places the text flush
+      // against the tick line; slight x/y nudge clears the tick mark.
+      target.selectAll('.tick text')
+        .attr('transform', 'rotate(-90)')
+        .attr('text-anchor', 'end')
+        .attr('x', position === 'above' ? 9 : -9)
+        .attr('y', 0)
+        .attr('dy', '0.32em')
+    }
+    else {
+      // Ensure a previously-rotated axis resets cleanly on rerender.
+      target.selectAll('.tick text')
+        .attr('transform', null)
+    }
+
+    if (wrapLinesByText && effective !== 'off') {
+      applyWrappedTickLabels(target, wrapLinesByText)
+    }
   }
 
   postDraw() {
@@ -367,6 +646,7 @@ export function renderHorizontalAxis(
     width: options.width ?? 0,
     labels,
     labelPosition: options.labelPosition ?? 'auto',
+    labelRotation: options.labelRotation ?? 'auto',
     zeroY: options.zeroY ?? null,
     tickFormat: options.tickFormat ?? null,
   })
@@ -374,5 +654,13 @@ export function renderHorizontalAxis(
   return chartArea.querySelector('.bc-axis-horizontal') as SVGGElement
 }
 
-export { thinLabels, buildTickFormatter, detectDates }
+export {
+  thinLabels,
+  buildTickFormatter,
+  detectDates,
+  willRotateLabels,
+  estimateRotatedAxisHeight,
+  resolveHorizontalAxisBottom,
+  wrapLabel,
+}
 export type { AnyXScale, DateGranularity }

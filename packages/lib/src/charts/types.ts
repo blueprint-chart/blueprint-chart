@@ -3,6 +3,7 @@ import type {
   ScaleType,
   GridStyle,
   LabelPosition,
+  LabelRotation,
   TickPosition,
   FrameSizing,
   AnnotationKind,
@@ -66,6 +67,7 @@ export interface AxisOptions {
   numberFormat?: string
   tickPosition?: TickPosition
   labelPosition?: LabelPosition
+  labelRotation?: LabelRotation
   topPadding?: number
   width?: number
   zeroY?: number
@@ -271,6 +273,7 @@ export interface ChartTypeOptions {
   verticalRangeMin: string
   verticalRangeMax: string
   horizontalLabelPosition: string
+  horizontalLabelRotation: string
   horizontalRangeMin: string
   horizontalRangeMax: string
   valueLabels: boolean

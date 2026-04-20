@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { render } from './column-stacked'
-import { StackMode } from '../../../enums'
+import { StackMode, LabelRotation } from '../../../enums'
 
 describe('column-stacked', () => {
   let container: HTMLElement
@@ -298,5 +298,85 @@ describe('column-stacked', () => {
     expect(bars).toHaveLength(6)
     const items = container.querySelectorAll('.bc-legend-item')
     expect(items).toHaveLength(3)
+  })
+
+  // ── X-axis label rotation ────────────────────────────────────────
+
+  describe('x-axis label rotation', () => {
+    let rectSpy: ReturnType<typeof vi.spyOn>
+
+    function setContainerWidth(w: number) {
+      rectSpy = vi.spyOn(Element.prototype, 'getBoundingClientRect').mockReturnValue({
+        width: w, height: 400, x: 0, y: 0, top: 0, left: 0, bottom: 400, right: w, toJSON: () => ({}),
+      })
+    }
+
+    afterEach(() => {
+      rectSpy?.mockRestore()
+    })
+
+    it('rotates x-axis labels when labels do not fit horizontally', () => {
+      setContainerWidth(500)
+      const manyLabels = {
+        labels: Array.from({ length: 20 }, (_, i) => `Category ${i + 1}`),
+        values: [],
+        series: [
+          { name: 'A', values: Array.from({ length: 20 }, () => 10) },
+          { name: 'B', values: Array.from({ length: 20 }, () => 15) },
+        ],
+      }
+      render(container, manyLabels)
+      const hAxis = container.querySelector('.bc-axis-horizontal')!
+      const texts = hAxis.querySelectorAll('.tick text')
+      expect(texts.length).toBeGreaterThan(10)
+      texts.forEach((t) => {
+        expect(t.getAttribute('transform')).toBe('rotate(-90)')
+      })
+    })
+
+    it('does not rotate labels when they fit horizontally', () => {
+      setContainerWidth(500)
+      render(container, data)
+      const hAxis = container.querySelector('.bc-axis-horizontal')!
+      hAxis.querySelectorAll('.tick text').forEach((t) => {
+        expect(t.getAttribute('transform')).toBeNull()
+      })
+    })
+
+    it('wraps multi-word labels across lines instead of rotating when wrap fits', () => {
+      setContainerWidth(800)
+      const multiWord = {
+        labels: Array.from({ length: 6 }, (_, i) => `Column Label ${i + 1}`),
+        values: [],
+        series: [
+          { name: 'A', values: Array.from({ length: 6 }, () => 10) },
+          { name: 'B', values: Array.from({ length: 6 }, () => 15) },
+        ],
+      }
+      render(container, multiWord)
+      const hAxis = container.querySelector('.bc-axis-horizontal')!
+      const texts = hAxis.querySelectorAll('.tick text')
+      expect(texts.length).toBe(6)
+      texts.forEach((t) => {
+        expect(t.getAttribute('transform')).toBeNull()
+        expect(t.querySelectorAll('tspan').length).toBeGreaterThanOrEqual(2)
+      })
+    })
+
+    it('honours horizontalAxis.labelRotation="horizontal" override (thins instead)', () => {
+      setContainerWidth(500)
+      const manyLabels = {
+        labels: Array.from({ length: 20 }, (_, i) => `Category ${i + 1}`),
+        values: [],
+        series: [
+          { name: 'A', values: Array.from({ length: 20 }, () => 10) },
+        ],
+      }
+      render(container, manyLabels, { horizontalAxis: { labelRotation: LabelRotation.Horizontal } })
+      const hAxis = container.querySelector('.bc-axis-horizontal')!
+      hAxis.querySelectorAll('.tick text').forEach((t) => {
+        expect(t.getAttribute('transform')).toBeNull()
+      })
+    })
   })
 })

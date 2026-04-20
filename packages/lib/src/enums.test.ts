@@ -5,6 +5,7 @@ import {
   ScaleType,
   GridStyle,
   LabelPosition,
+  LabelRotation,
   TickPosition,
   FrameSizing,
   CompassDirection,
@@ -100,6 +101,17 @@ describe('LabelPosition', () => {
     expect(LabelPosition.Inside).toBe('inside')
     expect(LabelPosition.Outside).toBe('outside')
     expect(LabelPosition.Off).toBe('off')
+  })
+})
+
+describe('LabelRotation', () => {
+  it('has 3 members', () => {
+    expect(enumValues(LabelRotation)).toHaveLength(3)
+  })
+  it('values match', () => {
+    expect(LabelRotation.Auto).toBe('auto')
+    expect(LabelRotation.Horizontal).toBe('horizontal')
+    expect(LabelRotation.Vertical).toBe('vertical')
   })
 })
 

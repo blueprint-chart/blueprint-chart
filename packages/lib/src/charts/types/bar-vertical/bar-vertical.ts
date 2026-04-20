@@ -4,6 +4,7 @@ import { D3Blueprint } from 'd3-blueprint'
 import type { ChartData, ChartOptions } from '../../types'
 import { createFrame } from '../../frame/frame'
 import { createCanvas, contentSize, labelPositionMargins, estimateVerticalLabelWidth, computeMarginDelta } from '../../canvas/canvas'
+import { resolveHorizontalAxisBottom } from '../../axis/horizontal-axis'
 import { AxisService } from '../../axis/axis-service'
 import { computeLinearDomain } from '../../scale-helpers'
 import { createTooltipPlugin } from '../../plugins/tooltip'
@@ -132,6 +133,13 @@ export function render(
   const vLabelW = estimateVerticalLabelWidth(data.values, options.verticalAxis?.range, options.verticalAxis?.numberFormat, options.verticalAxis?.scaleType)
   const effectiveHLabelPosition = useCategoryLabelLine ? 'off' : options.horizontalAxis?.labelPosition
   const lpMargins = labelPositionMargins(containerWidth, options.verticalAxis?.labelPosition, effectiveHLabelPosition, options.verticalAxis?.direction, vLabelW)
+  if (!useCategoryLabelLine) {
+    const availableX = Math.max(0, containerWidth - (lpMargins.left ?? 50) - (lpMargins.right ?? 20))
+    const rotatedBottom = resolveHorizontalAxisBottom(data.labels, availableX, options.horizontalAxis)
+    if (rotatedBottom !== undefined) {
+      lpMargins.bottom = rotatedBottom
+    }
+  }
   const { chartArea, width, height, margin } = createCanvas(body, lpMargins)
   const categoryLabelOffset = useCategoryLabelLine ? CATEGORY_LABEL_HEIGHT : 0
   const barAreaHeight = height - categoryLabelOffset

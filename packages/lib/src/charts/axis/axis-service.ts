@@ -226,6 +226,7 @@ export class AxisService {
       width: opts.width ?? 0,
       labels,
       labelPosition: opts.labelPosition ?? 'auto',
+      labelRotation: opts.labelRotation ?? 'auto',
       zeroY: opts.zeroY ?? null,
       tickFormat: opts.tickFormat ?? null,
     })
