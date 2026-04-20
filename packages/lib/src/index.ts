@@ -5,6 +5,7 @@ export {
   ScaleType,
   GridStyle,
   LabelPosition,
+  LabelRotation,
   TickPosition,
   FrameSizing,
   CompassDirection,

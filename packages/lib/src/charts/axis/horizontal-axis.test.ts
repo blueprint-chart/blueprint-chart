@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import * as d3 from 'd3'
-import { HorizontalAxisChart, renderHorizontalAxis, thinLabels, buildTickFormatter, detectDates } from './horizontal-axis'
+import { HorizontalAxisChart, renderHorizontalAxis, thinLabels, buildTickFormatter, detectDates, willRotateLabels, estimateRotatedAxisHeight, resolveHorizontalAxisBottom, wrapLabel } from './horizontal-axis'
+import { LabelRotation } from '../../enums'
 
 describe('renderHorizontalAxis', () => {
   let chartArea: SVGGElement
@@ -45,7 +46,22 @@ describe('renderHorizontalAxis', () => {
     })
   })
 
-  it('auto-thins labels when width is provided and domain is large', () => {
+  it('auto-thins labels when width is provided and domain is large (horizontal locked)', () => {
+    const months = Array.from({ length: 120 }, (_, i) => {
+      const y = 2009 + Math.floor(i / 12)
+      const m = String((i % 12) + 1).padStart(2, '0')
+      return `${y}-${m}`
+    })
+    const largeScale = d3.scaleBand<string>().domain(months).range([0, 600]).padding(0.1)
+    // Force horizontal so thinning (not rotation) is exercised
+    const g = renderHorizontalAxis(chartArea, largeScale, 300, { width: 600, labelRotation: LabelRotation.Horizontal })
+    const ticks = g.querySelectorAll('.tick')
+    expect(ticks.length).toBeLessThan(months.length)
+    expect(ticks.length).toBeGreaterThan(0)
+    expect(ticks.length).toBeLessThanOrEqual(11)
+  })
+
+  it('auto-rotates many ordinal labels instead of thinning them away', () => {
     const months = Array.from({ length: 120 }, (_, i) => {
       const y = 2009 + Math.floor(i / 12)
       const m = String((i % 12) + 1).padStart(2, '0')
@@ -53,10 +69,12 @@ describe('renderHorizontalAxis', () => {
     })
     const largeScale = d3.scaleBand<string>().domain(months).range([0, 600]).padding(0.1)
     const g = renderHorizontalAxis(chartArea, largeScale, 300, { width: 600 })
-    const ticks = g.querySelectorAll('.tick')
-    expect(ticks.length).toBeLessThan(months.length)
-    expect(ticks.length).toBeGreaterThan(0)
-    expect(ticks.length).toBeLessThanOrEqual(11)
+    const texts = g.querySelectorAll('.tick text')
+    // With rotation on, far more labels survive than with horizontal thinning (≤11)
+    expect(texts.length).toBeGreaterThan(11)
+    texts.forEach((t) => {
+      expect(t.getAttribute('transform')).toBe('rotate(-90)')
+    })
   })
 })
 
@@ -140,6 +158,375 @@ describe('HorizontalAxisChart merge:transition feature parity', () => {
       expect(t.getAttribute('y')).toBe('0')
       expect(t.getAttribute('dy')).toBe('-0.6em')
     })
+  })
+})
+
+describe('HorizontalAxisChart label rotation', () => {
+  let chartArea: SVGGElement
+
+  beforeEach(() => {
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+    chartArea = document.createElementNS('http://www.w3.org/2000/svg', 'g') as SVGGElement
+    svg.appendChild(chartArea)
+    document.body.appendChild(svg)
+  })
+
+  function renderOrdinal(opts: {
+    domain: string[]
+    width: number
+    labelRotation?: string
+  }): SVGElement {
+    const scale = d3.scaleBand<string>()
+      .domain(opts.domain)
+      .range([0, opts.width])
+      .padding(0.1)
+    const chart = new HorizontalAxisChart(d3.select(chartArea))
+    chart.config({
+      scale,
+      height: 300,
+      width: opts.width,
+      labels: opts.domain,
+      labelRotation: opts.labelRotation ?? 'auto',
+    })
+    chart.draw([{ placeholder: true }])
+    return chartArea.querySelector('.bc-axis-horizontal')!
+  }
+
+  it('does not rotate when labels fit horizontally (auto)', () => {
+    // Short labels, plenty of space — no rotation needed
+    const axis = renderOrdinal({ domain: ['A', 'B', 'C'], width: 600 })
+    axis.querySelectorAll('.tick text').forEach((t) => {
+      expect(t.getAttribute('transform')).toBeNull()
+    })
+  })
+
+  it('rotates labels 90° when labels do not fit horizontally (auto)', () => {
+    // 24 labels in 400px → ~17px per tick, labels wider than that
+    const domain = Array.from({ length: 24 }, (_, i) => `Category ${i + 1}`)
+    const axis = renderOrdinal({ domain, width: 400 })
+    const ticks = axis.querySelectorAll('.tick text')
+    expect(ticks.length).toBeGreaterThan(0)
+    ticks.forEach((t) => {
+      expect(t.getAttribute('transform')).toBe('rotate(-90)')
+      expect(t.getAttribute('text-anchor')).toBe('end')
+    })
+  })
+
+  it('shows every label (no thinning) when rotation is active', () => {
+    const domain = Array.from({ length: 24 }, (_, i) => `Category ${i + 1}`)
+    const axis = renderOrdinal({ domain, width: 400 })
+    const ticks = axis.querySelectorAll('.tick')
+    // All 24 labels should be rendered since rotation gives them room
+    expect(ticks.length).toBe(24)
+  })
+
+  it('forces rotation when labelRotation is "vertical"', () => {
+    const axis = renderOrdinal({ domain: ['A', 'B', 'C'], width: 900, labelRotation: 'vertical' })
+    axis.querySelectorAll('.tick text').forEach((t) => {
+      expect(t.getAttribute('transform')).toBe('rotate(-90)')
+    })
+  })
+
+  it('never rotates when labelRotation is "horizontal" (thins instead)', () => {
+    const domain = Array.from({ length: 24 }, (_, i) => `Category ${i + 1}`)
+    const axis = renderOrdinal({ domain, width: 400, labelRotation: 'horizontal' })
+    const texts = axis.querySelectorAll('.tick text')
+    texts.forEach((t) => {
+      expect(t.getAttribute('transform')).toBeNull()
+    })
+    // Thinning applied because horizontal locked
+    const allTicks = axis.querySelectorAll('.tick')
+    expect(allTicks.length).toBeLessThan(domain.length)
+  })
+
+  it('keeps rotation across rerenders (merge:transition path)', () => {
+    const scale = d3.scaleBand<string>()
+      .domain(Array.from({ length: 24 }, (_, i) => `Category ${i + 1}`))
+      .range([0, 400])
+      .padding(0.1)
+    const chart = new HorizontalAxisChart(d3.select(chartArea))
+    chart.config({ scale, height: 300, width: 400, labels: scale.domain(), labelRotation: 'auto' })
+    chart.draw([{ placeholder: true }])
+    chart.draw([{ placeholder: true }])
+    const axis = chartArea.querySelector('.bc-axis-horizontal')!
+    axis.querySelectorAll('.tick text').forEach((t) => {
+      expect(t.getAttribute('transform')).toBe('rotate(-90)')
+    })
+  })
+
+  it('wraps multi-word labels instead of rotating when wrap fits (auto)', () => {
+    // 6 labels at 600 px → 100 px per tick. "Column Label N" ≈ 140 px overflows,
+    // but each word ≤ 60 px fits. Should wrap instead of rotate.
+    const domain = Array.from({ length: 6 }, (_, i) => `Column Label ${i + 1}`)
+    const axis = renderOrdinal({ domain, width: 600 })
+    const texts = axis.querySelectorAll('.tick text')
+    expect(texts.length).toBe(6)
+    texts.forEach((t) => {
+      expect(t.getAttribute('transform')).toBeNull()
+      expect(t.querySelectorAll('tspan').length).toBeGreaterThanOrEqual(2)
+    })
+  })
+
+  it('wraps each tspan with correct dy so first line sits on the axis baseline', () => {
+    // First tspan must be at the default text baseline (matches single-line labels).
+    // Parent text `dy` is cleared so tspan dy is absolute from `y`.
+    const domain = Array.from({ length: 6 }, (_, i) => `Column Label ${i + 1}`)
+    const axis = renderOrdinal({ domain, width: 600 })
+    const wrapped = Array.from(axis.querySelectorAll('.tick text'))
+      .find(t => t.querySelectorAll('tspan').length >= 2) as SVGTextElement
+    expect(wrapped).toBeDefined()
+    // Parent text should have its default dy cleared; first tspan takes over positioning
+    expect(wrapped.getAttribute('dy')).toBeNull()
+    const tspans = wrapped.querySelectorAll('tspan')
+    expect(tspans[0].getAttribute('dy')).toBe('0.71em')
+    expect(tspans[0].getAttribute('x')).toBe('0')
+    // Subsequent lines step down by 1em
+    for (let i = 1; i < tspans.length; i++) {
+      expect(tspans[i].getAttribute('dy')).toBe('1em')
+      expect(tspans[i].getAttribute('x')).toBe('0')
+    }
+  })
+
+  it('uses up to 3 wrap lines before giving up (avoids premature rotation)', () => {
+    // 3-word label at a width where 2 lines would fail but 3 lines succeed.
+    // "AAA BBB CCC" → 11 chars × 10 = 110 px per label.
+    // 5 labels at 250 px → 50 px per tick. Each word = 30 px fits. Whole = 110 overflows.
+    // 2 lines: best packing "AAA BBB" (70 > 50) ... fails. 3 lines: ["AAA","BBB","CCC"].
+    const domain = Array.from({ length: 5 }, (_, i) => `AAA BBB CCC${i}`)
+    const axis = renderOrdinal({ domain, width: 250 })
+    const texts = axis.querySelectorAll('.tick text')
+    texts.forEach((t) => {
+      expect(t.getAttribute('transform')).toBeNull()
+      expect(t.querySelectorAll('tspan').length).toBeGreaterThanOrEqual(3)
+    })
+  })
+
+  it('rotates when single-word labels cannot wrap (auto)', () => {
+    // "Supercalifragilistic" is one word, 20 chars ≈ 200 px, per-tick ≈ 20 px.
+    // Cannot wrap; must rotate.
+    const domain = Array.from({ length: 24 }, (_, i) => `Supercalifragilistic${i}`)
+    const axis = renderOrdinal({ domain, width: 480 })
+    axis.querySelectorAll('.tick text').forEach((t) => {
+      expect(t.getAttribute('transform')).toBe('rotate(-90)')
+      expect(t.querySelectorAll('tspan').length).toBe(0)
+    })
+  })
+
+  it('rotates when wrap would exceed max lines (e.g., long word in tight per-tick)', () => {
+    // 24 labels × "Group N" at 600 px → 25 px per tick.
+    // "Group" = 50 px > 25 → wrap returns null → falls back to rotate.
+    const domain = Array.from({ length: 24 }, (_, i) => `Group ${i + 1}`)
+    const axis = renderOrdinal({ domain, width: 600 })
+    axis.querySelectorAll('.tick text').forEach((t) => {
+      expect(t.getAttribute('transform')).toBe('rotate(-90)')
+    })
+  })
+
+  it('still wraps under labelRotation=horizontal override when wrap fits', () => {
+    // Horizontal forbids rotation but allows wrapping (still a horizontal layout)
+    const domain = Array.from({ length: 6 }, (_, i) => `Column Label ${i + 1}`)
+    const axis = renderOrdinal({ domain, width: 600, labelRotation: 'horizontal' })
+    const texts = axis.querySelectorAll('.tick text')
+    texts.forEach((t) => {
+      expect(t.getAttribute('transform')).toBeNull()
+    })
+    const withTspans = Array.from(texts).filter(t => t.querySelectorAll('tspan').length >= 2)
+    expect(withTspans.length).toBeGreaterThan(0)
+  })
+
+  it('does not wrap when labelRotation=vertical (rotates directly)', () => {
+    const domain = Array.from({ length: 6 }, (_, i) => `Column Label ${i + 1}`)
+    const axis = renderOrdinal({ domain, width: 600, labelRotation: 'vertical' })
+    axis.querySelectorAll('.tick text').forEach((t) => {
+      expect(t.getAttribute('transform')).toBe('rotate(-90)')
+      expect(t.querySelectorAll('tspan').length).toBe(0)
+    })
+  })
+
+  it('keeps wrap across rerenders (merge:transition path)', () => {
+    const domain = Array.from({ length: 6 }, (_, i) => `Column Label ${i + 1}`)
+    const scale = d3.scaleBand<string>().domain(domain).range([0, 600]).padding(0.1)
+    const chart = new HorizontalAxisChart(d3.select(chartArea))
+    chart.config({ scale, height: 300, width: 600, labels: domain, labelRotation: 'auto' })
+    chart.draw([{ placeholder: true }])
+    chart.draw([{ placeholder: true }])
+    const axis = chartArea.querySelector('.bc-axis-horizontal')!
+    const texts = axis.querySelectorAll('.tick text')
+    texts.forEach((t) => {
+      expect(t.getAttribute('transform')).toBeNull()
+      expect(t.querySelectorAll('tspan').length).toBeGreaterThanOrEqual(2)
+    })
+  })
+
+  it('does not rotate time scales even when labels would overlap', () => {
+    // Time/linear scale → thinning only, no rotation (per design)
+    const scale = d3.scaleTime()
+      .domain([new Date(2020, 0, 1), new Date(2024, 11, 31)])
+      .range([0, 300])
+    const chart = new HorizontalAxisChart(d3.select(chartArea))
+    chart.config({ scale, height: 300, width: 300, labels: [], labelRotation: 'auto' })
+    chart.draw([{ placeholder: true }])
+    const axis = chartArea.querySelector('.bc-axis-horizontal')!
+    axis.querySelectorAll('.tick text').forEach((t) => {
+      expect(t.getAttribute('transform')).toBeNull()
+    })
+  })
+})
+
+describe('wrapLabel', () => {
+  it('returns the label as a single line when it already fits', () => {
+    // "Hello" ≈ 5×10 = 50 px, maxWidth 100 → fits
+    expect(wrapLabel('Hello', 100)).toEqual(['Hello'])
+  })
+
+  it('splits multi-word labels across lines when whole label does not fit', () => {
+    // "Hello World" ≈ 110 px, doesn't fit in 80px; split → ['Hello', 'World']
+    expect(wrapLabel('Hello World', 80)).toEqual(['Hello', 'World'])
+  })
+
+  it('packs short words together greedily', () => {
+    // "A B C D" ≈ 70 px fits in 100 → no split
+    // "A B C D E" ≈ 90 px fits in 100 → no split
+    expect(wrapLabel('A B C D E', 100)).toEqual(['A B C D E'])
+  })
+
+  it('returns null when a single word exceeds max width', () => {
+    // "Supercalifragilistic" = 20 chars × 10 = 200 px, won't fit in 100
+    expect(wrapLabel('Supercalifragilistic', 100)).toBeNull()
+  })
+
+  it('returns null when content requires more than maxLines', () => {
+    // 4 words, each ~30 px, maxWidth 40 → each on own line → 4 lines > 2
+    expect(wrapLabel('aa bb cc dd', 30, 2)).toBeNull()
+  })
+
+  it('defaults to 3 lines (rotation should be a last resort)', () => {
+    // Without explicit maxLines, default allows up to 3 lines.
+    expect(wrapLabel('aa bb cc', 30)).toEqual(['aa', 'bb', 'cc'])
+  })
+
+  it('respects a custom maxLines of 3', () => {
+    expect(wrapLabel('aa bb cc', 30, 3)).toEqual(['aa', 'bb', 'cc'])
+  })
+
+  it('returns single empty line for empty input', () => {
+    expect(wrapLabel('', 100)).toEqual([''])
+  })
+})
+
+describe('willRotateLabels', () => {
+  it('returns false when all labels fit within per-tick width', () => {
+    // 3 short labels, 600px → 200px per tick, labels ~10px
+    expect(willRotateLabels(['A', 'B', 'C'], 600, 'auto')).toBe(false)
+  })
+
+  it('returns true when labels exceed per-tick width', () => {
+    // 24 labels, 400px → ~17px per tick, labels much wider
+    const domain = Array.from({ length: 24 }, (_, i) => `Category ${i + 1}`)
+    expect(willRotateLabels(domain, 400, 'auto')).toBe(true)
+  })
+
+  it('returns false when domain has ≤1 element', () => {
+    expect(willRotateLabels([], 100, 'auto')).toBe(false)
+    expect(willRotateLabels(['only'], 100, 'auto')).toBe(false)
+  })
+
+  it('respects labelRotation=horizontal override', () => {
+    const domain = Array.from({ length: 24 }, (_, i) => `Category ${i + 1}`)
+    expect(willRotateLabels(domain, 400, 'horizontal')).toBe(false)
+  })
+
+  it('respects labelRotation=vertical override', () => {
+    expect(willRotateLabels(['A', 'B', 'C'], 900, 'vertical')).toBe(true)
+  })
+
+  it('considers formatted label width via formatter', () => {
+    // Raw 4 chars (fits in 100px step), formatted to 12 chars (doesn\'t fit)
+    const domain = ['2024-01', '2024-02', '2024-03', '2024-04']
+    const formatter = (s: string) => `January ${s.slice(0, 4)}`
+    // 4 labels × 80px tick, raw fits, formatted ~130px → should rotate
+    expect(willRotateLabels(domain, 320, 'auto', formatter)).toBe(true)
+    // Without formatter, short raw labels fit
+    expect(willRotateLabels(domain, 320, 'auto')).toBe(false)
+  })
+})
+
+describe('resolveHorizontalAxisBottom', () => {
+  it('returns undefined when rotation is not triggered (auto, labels fit)', () => {
+    expect(resolveHorizontalAxisBottom(['A', 'B', 'C'], 600)).toBeUndefined()
+  })
+
+  it('returns rotated height when rotation triggers', () => {
+    const labels = Array.from({ length: 24 }, (_, i) => `Category ${i + 1}`)
+    const result = resolveHorizontalAxisBottom(labels, 400)
+    expect(result).toBeGreaterThan(40)
+  })
+
+  it('returns undefined when labelPosition is "off"', () => {
+    const labels = Array.from({ length: 24 }, (_, i) => `Category ${i + 1}`)
+    expect(resolveHorizontalAxisBottom(labels, 400, { labelPosition: 'off' })).toBeUndefined()
+  })
+
+  it('returns undefined when labelPosition is "inside"', () => {
+    const labels = Array.from({ length: 24 }, (_, i) => `Category ${i + 1}`)
+    expect(resolveHorizontalAxisBottom(labels, 400, { labelPosition: 'inside' })).toBeUndefined()
+  })
+
+  it('returns undefined for empty labels', () => {
+    expect(resolveHorizontalAxisBottom([], 400)).toBeUndefined()
+  })
+
+  it('returns undefined when labelRotation is explicitly horizontal', () => {
+    const labels = Array.from({ length: 24 }, (_, i) => `Category ${i + 1}`)
+    expect(resolveHorizontalAxisBottom(labels, 400, { labelRotation: 'horizontal' })).toBeUndefined()
+  })
+
+  it('uses tickFormat when measuring rotated height', () => {
+    const labels = ['1', '2', '3', '4']
+    const result = resolveHorizontalAxisBottom(
+      labels,
+      400,
+      { labelRotation: 'vertical', tickFormat: (l: string) => `Prefix-${l}-long-suffix` },
+    )
+    expect(result).toBeGreaterThan(80)
+  })
+
+  it('returns extended height for wrap when wrap would apply (no rotation)', () => {
+    // Multi-word labels that wrap (no rotation). 3-word label at 600 px / 6 = 100 px
+    // per tick → "Column Label N" wraps to 2 lines. Default bottom 20 is too tight;
+    // must extend to fit wrapped lines.
+    const labels = Array.from({ length: 6 }, (_, i) => `Column Label ${i + 1}`)
+    const result = resolveHorizontalAxisBottom(labels, 600, {}, 20)
+    expect(result).toBeDefined()
+    expect(result!).toBeGreaterThan(20)
+    // Wrap height (~2 lines × 14 + padding) is much less than rotated height
+    expect(result!).toBeLessThan(80)
+  })
+
+  it('returns undefined when wrap fits within default bottom', () => {
+    // Default bottom 60 is ample for 2-line wrap (~34 px) — no extension needed
+    const labels = Array.from({ length: 6 }, (_, i) => `Column Label ${i + 1}`)
+    expect(resolveHorizontalAxisBottom(labels, 600, {}, 60)).toBeUndefined()
+  })
+})
+
+describe('estimateRotatedAxisHeight', () => {
+  it('returns height based on longest label when rotated', () => {
+    const labels = ['A', 'Longer label', 'Mid']
+    const h = estimateRotatedAxisHeight(labels)
+    // "Longer label" ≈ 12 chars × 7px ≈ 84px + tick/pad
+    expect(h).toBeGreaterThan(80)
+  })
+
+  it('returns 0 for empty labels', () => {
+    expect(estimateRotatedAxisHeight([])).toBe(0)
+  })
+
+  it('applies formatter before measuring', () => {
+    const labels = ['2024-01', '2024-02']
+    const short = estimateRotatedAxisHeight(labels)
+    const expanded = estimateRotatedAxisHeight(labels, s => `January ${s.slice(0, 4)}`)
+    expect(expanded).toBeGreaterThan(short)
   })
 })
 

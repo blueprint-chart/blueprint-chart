@@ -2,7 +2,7 @@ import { resolvePalette } from './palettes'
 import { adjustColorsForBackground } from './contrast'
 import type { ChartData, ChartOptions, ChartTypeOptions } from './types'
 import { parseDateOrNumber } from './date-parse'
-import { AxisDirection, LabelPosition, LegendPosition, Anchor, ValueLabelPosition, CrosshairDirection, CrosshairStyle, StackMode, SymbolShape, SymbolShowOn, SymbolStyle } from '../enums'
+import { AxisDirection, LabelPosition, LabelRotation, LegendPosition, Anchor, ValueLabelPosition, CrosshairDirection, CrosshairStyle, StackMode, SymbolShape, SymbolShowOn, SymbolStyle } from '../enums'
 
 export function parseData(raw: string): ChartData {
   const lines = raw.split('\n').map(l => l.trim()).filter(Boolean)
@@ -162,6 +162,7 @@ function buildHorizontalAxisOptions(opts: Partial<ChartTypeOptions>): Partial<Ch
     || opts.showHorizontalAxis !== undefined
     || opts.horizontalScaleType !== undefined
     || opts.horizontalLabelPosition !== undefined
+    || opts.horizontalLabelRotation !== undefined
     || opts.horizontalRangeMin
     || opts.horizontalRangeMax
 
@@ -188,6 +189,9 @@ function buildHorizontalAxisOptions(opts: Partial<ChartTypeOptions>): Partial<Ch
   }
   if (opts.horizontalLabelPosition !== undefined) {
     axis.labelPosition = opts.horizontalLabelPosition as LabelPosition
+  }
+  if (opts.horizontalLabelRotation !== undefined) {
+    axis.labelRotation = opts.horizontalLabelRotation as LabelRotation
   }
 
   const hMin = parseDateOrNumber(opts.horizontalRangeMin ?? '')
