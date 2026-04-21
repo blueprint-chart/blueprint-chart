@@ -158,8 +158,9 @@ function thinLabels(
   const maxWidth = formatter
     ? maxFormattedLabelWidth(domain, formatter)
     : domain.reduce((m, l) => Math.max(m, l.length), 0) * AVG_CHAR_WIDTH_PX
-  // 8 px of inter-label breathing room.
-  const minSpacing = Math.max(MIN_LABEL_SPACING, Math.ceil(maxWidth) + 8)
+  // Spacing is driven by the longest formatted label plus a small gap. We keep
+  // a modest absolute floor so short labels still have visual separation.
+  const minSpacing = Math.max(16, Math.ceil(maxWidth) + 8)
   const maxLabels = Math.max(2, Math.floor(availableWidth / minSpacing))
   if (domain.length <= maxLabels) {
     return domain
