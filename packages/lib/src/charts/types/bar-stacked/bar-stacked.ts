@@ -16,6 +16,7 @@ import { contrastTextColor } from '../../contrast'
 import { getDefaultTransitionMs, setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut, reinsertWithOffset } from '../../motion'
 import { setCachedChart, getCachedChart } from '../../transition-cache'
 import { computeStack, computeStack100 } from '../../stack-helpers'
+import { resolveBarGapPadding } from '../../scale-helpers'
 import { StackMode, Orientation, ValueLabelPosition } from '../../../enums'
 
 const DEFAULT_COLORS = [
@@ -216,7 +217,7 @@ export function render(
   const y = d3.scaleBand<string>()
     .domain(sortedLabels)
     .range([0, height])
-    .padding(0.2)
+    .padding(resolveBarGapPadding(options.barGap))
 
   axes.attach(chartArea, marginDelta)
   axes.update({

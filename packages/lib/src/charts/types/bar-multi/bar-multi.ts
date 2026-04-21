@@ -8,7 +8,7 @@ import { resolveHorizontalAxisBottom } from '../../axis/horizontal-axis'
 import { AxisService } from '../../axis/axis-service'
 import { renderLegend } from '../../legend/legend'
 import { estimateLegendSize } from '../../legend/legend-size'
-import { computeLinearDomain } from '../../scale-helpers'
+import { computeLinearDomain, resolveBarGapPadding } from '../../scale-helpers'
 import { createAnnotationPlugin, snapshotAnnotations, type AnnotationSnapshot } from '../../plugins/annotations'
 import { createTooltipPlugin } from '../../plugins/tooltip'
 import { createCrosshairPlugin } from '../../plugins/crosshair'
@@ -191,7 +191,7 @@ export function render(
   const x0 = d3.scaleBand<string>()
     .domain(sortedLabels)
     .range([0, width])
-    .padding(0.2)
+    .padding(resolveBarGapPadding(options.barGap))
 
   const x1 = d3.scaleBand<string>()
     .domain(seriesNames)

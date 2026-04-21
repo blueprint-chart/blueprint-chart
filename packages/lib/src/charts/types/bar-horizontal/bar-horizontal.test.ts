@@ -1165,6 +1165,69 @@ describe('bar-horizontal', () => {
     })
   })
 
+  // ── barGap ───────────────────────────────────────────────────────
+
+  describe('barGap', () => {
+    function measure() {
+      const bars = Array.from(container.querySelectorAll('.bc-bar'))
+      const ys = bars.map(b => Number(b.getAttribute('y')))
+      const heights = bars.map(b => Number(b.getAttribute('height')))
+      return { bars, ys, heights }
+    }
+
+    it('renders adjacent bars flush when barGap=0', () => {
+      render(container, data, { barGap: 0 })
+      const { bars, ys, heights } = measure()
+      expect(bars).toHaveLength(3)
+      // Adjacent horizontal bars should share an edge on the y-axis (no gap)
+      expect(ys[1] - (ys[0] + heights[0])).toBeCloseTo(0, 5)
+      expect(ys[2] - (ys[1] + heights[1])).toBeCloseTo(0, 5)
+    })
+
+    it('produces a gap equal to 50% of bar height when barGap=50', () => {
+      render(container, data, { barGap: 50 })
+      const { ys, heights } = measure()
+      const gap = ys[1] - (ys[0] + heights[0])
+      expect(heights[0]).toBeGreaterThan(0)
+      expect(gap).toBeGreaterThan(0)
+      expect(gap / heights[0]).toBeCloseTo(0.5, 5)
+    })
+
+    it('produces a gap equal to 100% of bar height when barGap=100', () => {
+      render(container, data, { barGap: 100 })
+      const { ys, heights } = measure()
+      const gap = ys[1] - (ys[0] + heights[0])
+      expect(gap / heights[0]).toBeCloseTo(1, 5)
+    })
+
+    it('yields predictable bar heights and gaps for a known chart height', () => {
+      // barGap=50 → paddingInner=1/3; with 3 categories the scaleBand range H
+      // splits into step=H/(3+1/3), bandwidth=step*(2/3), gap=step*(1/3).
+      render(container, data, { barGap: 50 })
+      const clipRect = container.querySelector('clipPath rect')!
+      const chartH = Number(clipRect.getAttribute('height'))
+      expect(chartH).toBeGreaterThan(0)
+      const expectedStep = chartH / (3 + 1 / 3)
+      const expectedBandwidth = expectedStep * (2 / 3)
+      const expectedGap = expectedStep * (1 / 3)
+
+      const { ys, heights } = measure()
+      expect(heights[0]).toBeCloseTo(expectedBandwidth, 3)
+      expect(heights[1]).toBeCloseTo(expectedBandwidth, 3)
+      expect(heights[2]).toBeCloseTo(expectedBandwidth, 3)
+      expect(ys[1] - (ys[0] + heights[0])).toBeCloseTo(expectedGap, 3)
+      expect(ys[2] - (ys[1] + heights[1])).toBeCloseTo(expectedGap, 3)
+    })
+
+    it('falls back to the default gap when barGap is omitted', () => {
+      render(container, data)
+      const { ys, heights } = measure()
+      const gap = ys[1] - (ys[0] + heights[0])
+      // Default is 60% of bar height (DEFAULT_BAR_GAP=60 → paddingInner=60/160)
+      expect(gap / heights[0]).toBeCloseTo(60 / 100, 5)
+    })
+  })
+
   // ── Highlight (dim) ──────────────────────────────────────────────
 
   describe('highlight', () => {

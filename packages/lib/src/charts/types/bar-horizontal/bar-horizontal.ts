@@ -5,7 +5,7 @@ import type { ChartData, ChartOptions } from '../../types'
 import { createFrame } from '../../frame/frame'
 import { createCanvas, contentSize, labelPositionMargins, estimateCategoryLabelWidth, computeMarginDelta } from '../../canvas/canvas'
 import { AxisService } from '../../axis/axis-service'
-import { computeLinearDomain } from '../../scale-helpers'
+import { computeLinearDomain, resolveBarGapPadding } from '../../scale-helpers'
 import { createTooltipPlugin } from '../../plugins/tooltip'
 import { createCrosshairPlugin } from '../../plugins/crosshair'
 import { createAnnotationPlugin, snapshotAnnotations, type AnnotationSnapshot } from '../../plugins/annotations'
@@ -222,7 +222,7 @@ export function render(
   const y = d3.scaleBand<string>()
     .domain(allLabels)
     .range([0, height])
-    .padding(0.2)
+    .padding(resolveBarGapPadding(options.barGap))
 
   const vAxisBase = swapLabelValue && options.valueLabels && !isWaterfall
     ? (() => {

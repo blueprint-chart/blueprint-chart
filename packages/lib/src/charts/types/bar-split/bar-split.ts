@@ -13,6 +13,7 @@ import { getDefaultTransitionMs, setRenderTransition, fadeIn, snapshotForFadeOut
 import { setCachedChart, getCachedChart } from '../../transition-cache'
 import { createTooltipPlugin } from '../../plugins/tooltip'
 import { createCrosshairPlugin } from '../../plugins/crosshair'
+import { resolveBarGapPadding } from '../../scale-helpers'
 import { Orientation, ValueLabelPosition } from '../../../enums'
 
 const DEFAULT_COLORS = [
@@ -243,7 +244,7 @@ export function render(
   const y = d3.scaleBand<string>()
     .domain(sortedLabels)
     .range([0, height])
-    .padding(0.2)
+    .padding(resolveBarGapPadding(options.barGap))
 
   const categoryLabelOffset = useCategoryLabelLine ? CATEGORY_LABEL_HEIGHT : 0
 

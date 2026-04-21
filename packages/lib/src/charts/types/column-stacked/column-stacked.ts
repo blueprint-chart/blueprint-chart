@@ -16,6 +16,7 @@ import { resolveSeriesColor, isSeriesHidden, resolveSeriesValueLabels, resolveSe
 import { getDefaultTransitionMs, setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut, reinsertWithOffset } from '../../motion'
 import { setCachedChart, getCachedChart } from '../../transition-cache'
 import { computeStack, computeStack100 } from '../../stack-helpers'
+import { resolveBarGapPadding } from '../../scale-helpers'
 import { StackMode } from '../../../enums'
 
 const DEFAULT_COLORS = [
@@ -212,7 +213,7 @@ export function render(
   const x = d3.scaleBand<string>()
     .domain(sortedLabels)
     .range([0, width])
-    .padding(0.2)
+    .padding(resolveBarGapPadding(options.barGap))
 
   const y = d3.scaleLinear()
     .domain([0, maxStackedValue])

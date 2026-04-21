@@ -29,6 +29,20 @@ export function filterLabelsByRange(
   return indices
 }
 
+export const DEFAULT_BAR_GAP = 60
+
+/**
+ * Convert a barGap (percentage of bar size) to a d3 scaleBand paddingInner value.
+ * 0 = no gap, 100 = gap equals one bar width. Out-of-range values are clamped
+ * to [0, 100]; non-finite or undefined values fall back to DEFAULT_BAR_GAP.
+ */
+export function resolveBarGapPadding(barGap?: number): number {
+  const g = Number.isFinite(barGap)
+    ? Math.max(0, Math.min(100, barGap as number))
+    : DEFAULT_BAR_GAP
+  return g / (g + 100)
+}
+
 export function computeLinearDomain(
   values: number[],
   range?: { min?: number, max?: number },

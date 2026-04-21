@@ -1218,6 +1218,69 @@ describe('bar-vertical', () => {
     })
   })
 
+  // ── barGap ───────────────────────────────────────────────────────
+
+  describe('barGap', () => {
+    function measure() {
+      const bars = Array.from(container.querySelectorAll('.bc-bar'))
+      const xs = bars.map(b => Number(b.getAttribute('x')))
+      const widths = bars.map(b => Number(b.getAttribute('width')))
+      return { bars, xs, widths }
+    }
+
+    it('renders adjacent columns flush when barGap=0', () => {
+      render(container, data, { barGap: 0 })
+      const { bars, xs, widths } = measure()
+      expect(bars).toHaveLength(3)
+      // Adjacent columns should share an edge (no inter-category gap)
+      expect(xs[1] - (xs[0] + widths[0])).toBeCloseTo(0, 5)
+      expect(xs[2] - (xs[1] + widths[1])).toBeCloseTo(0, 5)
+    })
+
+    it('produces a gap equal to 50% of column width when barGap=50', () => {
+      render(container, data, { barGap: 50 })
+      const { xs, widths } = measure()
+      const gap = xs[1] - (xs[0] + widths[0])
+      expect(widths[0]).toBeGreaterThan(0)
+      expect(gap).toBeGreaterThan(0)
+      expect(gap / widths[0]).toBeCloseTo(0.5, 5)
+    })
+
+    it('produces a gap equal to 100% of column width when barGap=100', () => {
+      render(container, data, { barGap: 100 })
+      const { xs, widths } = measure()
+      const gap = xs[1] - (xs[0] + widths[0])
+      expect(gap / widths[0]).toBeCloseTo(1, 5)
+    })
+
+    it('yields predictable column widths and gaps for a known chart width', () => {
+      // barGap=50 → paddingInner=1/3; with 3 categories the scaleBand range W
+      // splits into step=W/(3+1/3), bandwidth=step*(2/3), gap=step*(1/3).
+      render(container, data, { barGap: 50 })
+      const clipRect = container.querySelector('clipPath rect')!
+      const chartW = Number(clipRect.getAttribute('width'))
+      expect(chartW).toBeGreaterThan(0)
+      const expectedStep = chartW / (3 + 1 / 3)
+      const expectedBandwidth = expectedStep * (2 / 3)
+      const expectedGap = expectedStep * (1 / 3)
+
+      const { xs, widths } = measure()
+      expect(widths[0]).toBeCloseTo(expectedBandwidth, 3)
+      expect(widths[1]).toBeCloseTo(expectedBandwidth, 3)
+      expect(widths[2]).toBeCloseTo(expectedBandwidth, 3)
+      expect(xs[1] - (xs[0] + widths[0])).toBeCloseTo(expectedGap, 3)
+      expect(xs[2] - (xs[1] + widths[1])).toBeCloseTo(expectedGap, 3)
+    })
+
+    it('falls back to the default gap when barGap is omitted', () => {
+      render(container, data)
+      const { xs, widths } = measure()
+      const gap = xs[1] - (xs[0] + widths[0])
+      // Default is 60% of bar width (DEFAULT_BAR_GAP=60 → paddingInner=60/160)
+      expect(gap / widths[0]).toBeCloseTo(60 / 100, 5)
+    })
+  })
+
   // ── X-axis label rotation ────────────────────────────────────────
 
   describe('x-axis label rotation', () => {
