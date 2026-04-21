@@ -218,6 +218,8 @@ export interface ChartOptions {
   swapLabelValue?: boolean
   barBackground?: boolean
   barSeparators?: boolean
+  connectedColumns?: boolean
+  connectionsOpacity?: number
   stackMode?: StackMode
   edgePadding?: boolean
   waterfall?: boolean
@@ -301,6 +303,8 @@ export interface ChartTypeOptions {
   sortMode: SortMode
   barBackground: boolean
   barSeparators: boolean
+  connectedColumns: boolean
+  connectionsOpacity: string
   stackMode: string
   stacked: boolean
   stackPercent: boolean

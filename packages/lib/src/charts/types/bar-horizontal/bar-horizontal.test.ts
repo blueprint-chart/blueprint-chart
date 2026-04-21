@@ -785,6 +785,386 @@ describe('bar-horizontal', () => {
     })
   })
 
+  // ── connectedColumns ───────────────────────────────────────────
+
+  describe('connectedColumns', () => {
+    function parsePoints(el: Element): { x: number, y: number }[] {
+      const raw = el.getAttribute('points') ?? ''
+      return raw.trim().split(/\s+/).map((p) => {
+        const [xs, ys] = p.split(',')
+        return { x: parseFloat(xs), y: parseFloat(ys) }
+      })
+    }
+
+    it('renders n-1 connection polygons when connectedColumns is true', () => {
+      render(container, data, { connectedColumns: true })
+      const conns = container.querySelectorAll('.bc-bar-connection')
+      expect(conns).toHaveLength(2)
+    })
+
+    it('does not render connections when connectedColumns is not set', () => {
+      render(container, data)
+      const conns = container.querySelectorAll('.bc-bar-connection')
+      expect(conns).toHaveLength(0)
+    })
+
+    it('does not render connections for a single bar', () => {
+      render(container, { labels: ['Only'], values: [10] }, { connectedColumns: true })
+      const conns = container.querySelectorAll('.bc-bar-connection')
+      expect(conns).toHaveLength(0)
+    })
+
+    it('uses default opacity 0.15 when connectionsOpacity is not set', () => {
+      render(container, data, { connectedColumns: true })
+      const conn = container.querySelector('.bc-bar-connection')!
+      expect(Number(conn.getAttribute('opacity'))).toBe(0.15)
+    })
+
+    it('applies custom connectionsOpacity', () => {
+      render(container, data, { connectedColumns: true, connectionsOpacity: 0.4 })
+      const conn = container.querySelector('.bc-bar-connection')!
+      expect(Number(conn.getAttribute('opacity'))).toBe(0.4)
+    })
+
+    it('uses the base bar color for the fill', () => {
+      render(container, data, {
+        connectedColumns: true,
+        colors: ['#ff0000', '#00ff00'],
+      })
+      const fills = Array.from(container.querySelectorAll('.bc-bar-connection'))
+        .map(c => c.getAttribute('fill'))
+      expect(fills.every(f => f === '#ff0000')).toBe(true)
+    })
+
+    it('disables pointer events on connection polygons', () => {
+      render(container, data, { connectedColumns: true })
+      const conns = container.querySelectorAll('.bc-bar-connection')
+      Array.from(conns).forEach((c) => {
+        expect(c.getAttribute('pointer-events')).toBe('none')
+      })
+    })
+
+    it('renders connections below bars in document (z) order', () => {
+      render(container, data, { connectedColumns: true })
+      const conn = container.querySelector('.bc-bar-connection')!
+      const bar = container.querySelector('.bc-bar')!
+      // DOCUMENT_POSITION_FOLLOWING means `bar` follows `conn` → conn paints first.
+      expect(conn.compareDocumentPosition(bar) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    })
+
+    it('skips connection when the top bar value is 0', () => {
+      render(container, { labels: ['A', 'B', 'C'], values: [0, 20, 30] }, { connectedColumns: true })
+      const conns = container.querySelectorAll('.bc-bar-connection')
+      // A=0 kills A→B; B→C remains.
+      expect(conns).toHaveLength(1)
+    })
+
+    it('skips connection when the bottom bar value is 0', () => {
+      render(container, { labels: ['A', 'B', 'C'], values: [10, 20, 0] }, { connectedColumns: true })
+      const conns = container.querySelectorAll('.bc-bar-connection')
+      // C=0 kills B→C; A→B remains.
+      expect(conns).toHaveLength(1)
+    })
+
+    describe('waterfall', () => {
+      const wfData = { labels: ['A', 'B', 'C'], values: [10, 20, 30] }
+
+      it('renders n-1 connection polygons for non-total waterfall bars', () => {
+        render(container, wfData, { waterfall: true, connectedColumns: true })
+        const conns = container.querySelectorAll('.bc-bar-connection')
+        expect(conns).toHaveLength(2)
+      })
+
+      it('skips the connection adjacent to the Total bar', () => {
+        render(container, wfData, {
+          waterfall: true,
+          waterfallTotal: true,
+          connectedColumns: true,
+        })
+        const conns = container.querySelectorAll('.bc-bar-connection')
+        // Connections: A→B, B→C. C→Total is skipped because next bar is total.
+        expect(conns).toHaveLength(2)
+      })
+
+      it('skips connections when either value is 0', () => {
+        render(container, { labels: ['A', 'B', 'C'], values: [10, 0, 30] }, {
+          waterfall: true,
+          connectedColumns: true,
+        })
+        const conns = container.querySelectorAll('.bc-bar-connection')
+        // A→B (B=0) and B→C (B=0) both dropped.
+        expect(conns).toHaveLength(0)
+      })
+
+      it('skips connections when either value is NaN', () => {
+        render(container, { labels: ['A', 'B', 'C'], values: [10, Number.NaN, 30] }, {
+          waterfall: true,
+          connectedColumns: true,
+        })
+        const conns = container.querySelectorAll('.bc-bar-connection')
+        expect(conns).toHaveLength(0)
+      })
+
+      it('polygon connects bar value-tips and follows each bar origin', () => {
+        render(container, wfData, { waterfall: true, connectedColumns: true })
+        const bars = container.querySelectorAll('.bc-bar')
+        const conn = container.querySelector('.bc-bar-connection')!
+        const pts = parsePoints(conn)
+
+        // Bar A: x0=0, x1=10. Bar B: x0=10, x1=30.
+        const barA = bars[0], barB = bars[1]
+        const xAOrigin = Number(barA.getAttribute('x'))
+        const xAEnd = xAOrigin + Number(barA.getAttribute('width'))
+        const xBOrigin = Number(barB.getAttribute('x'))
+        const xBEnd = xBOrigin + Number(barB.getAttribute('width'))
+        const yATop = Number(barA.getAttribute('y'))
+        const yABottom = yATop + Number(barA.getAttribute('height'))
+        const yBTop = Number(barB.getAttribute('y'))
+
+        // Points: [currEnd/currBottom, nextEnd/nextTop, nextOrigin/nextTop, currOrigin/currBottom]
+        expect(pts[0].x).toBeCloseTo(xAEnd, 5)
+        expect(pts[0].y).toBeCloseTo(yABottom, 5)
+        expect(pts[1].x).toBeCloseTo(xBEnd, 5)
+        expect(pts[1].y).toBeCloseTo(yBTop, 5)
+        expect(pts[2].x).toBeCloseTo(xBOrigin, 5)
+        expect(pts[2].y).toBeCloseTo(yBTop, 5)
+        expect(pts[3].x).toBeCloseTo(xAOrigin, 5)
+        expect(pts[3].y).toBeCloseTo(yABottom, 5)
+      })
+
+      it('polygon is bounded to inter-bar gap height (does not overdraw bars)', () => {
+        render(container, wfData, { waterfall: true, connectedColumns: true })
+        const bars = container.querySelectorAll('.bc-bar')
+        const conn = container.querySelector('.bc-bar-connection')!
+        const pts = parsePoints(conn)
+        const ys = pts.map(p => p.y)
+        const barA = bars[0], barB = bars[1]
+        const yABottom = Number(barA.getAttribute('y')) + Number(barA.getAttribute('height'))
+        const yBTop = Number(barB.getAttribute('y'))
+        // SVG y grows downward: bar A's bottom (smaller y) is above bar B's top (larger y).
+        expect(Math.min(...ys)).toBeCloseTo(yABottom, 5)
+        expect(Math.max(...ys)).toBeCloseTo(yBTop, 5)
+      })
+
+      it('uses a solid fill when adjacent waterfall bars share the same color', () => {
+        render(container, wfData, { waterfall: true, connectedColumns: true })
+        const conns = container.querySelectorAll('.bc-bar-connection')
+        Array.from(conns).forEach((c) => {
+          const fill = c.getAttribute('fill') ?? ''
+          expect(fill.startsWith('url(')).toBe(false)
+        })
+      })
+
+      it('uses a url(#...) gradient fill when adjacent waterfall bars have different colors', () => {
+        render(container, wfData, {
+          waterfall: true,
+          connectedColumns: true,
+          colorizes: [{ target: 'B', color: '#ff0000' }],
+        })
+        const conns = container.querySelectorAll('.bc-bar-connection')
+        expect(conns[0].getAttribute('fill')).toMatch(/^url\(#.+\)$/)
+        expect(conns[1].getAttribute('fill')).toMatch(/^url\(#.+\)$/)
+      })
+
+      it('connections render below bars in document (z) order', () => {
+        render(container, wfData, { waterfall: true, connectedColumns: true })
+        const conn = container.querySelector('.bc-bar-connection')!
+        const bar = container.querySelector('.bc-bar')!
+        expect(conn.compareDocumentPosition(bar) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+      })
+
+      it('disables pointer events on waterfall connection polygons', () => {
+        render(container, wfData, { waterfall: true, connectedColumns: true })
+        const conns = container.querySelectorAll('.bc-bar-connection')
+        Array.from(conns).forEach((c) => {
+          expect(c.getAttribute('pointer-events')).toBe('none')
+        })
+      })
+    })
+
+    describe('color gradients', () => {
+      it('uses solid fill (no gradient) when adjacent bars share the same color', () => {
+        render(container, data, { connectedColumns: true })
+        const conns = container.querySelectorAll('.bc-bar-connection')
+        Array.from(conns).forEach((c) => {
+          const fill = c.getAttribute('fill') ?? ''
+          expect(fill.startsWith('url(')).toBe(false)
+        })
+      })
+
+      it('uses a url(#...) gradient fill when adjacent bars have different colors', () => {
+        render(container, data, {
+          connectedColumns: true,
+          colorizes: [{ target: 'B', color: '#ff0000' }],
+        })
+        const conns = container.querySelectorAll('.bc-bar-connection')
+        expect(conns[0].getAttribute('fill')).toMatch(/^url\(#.+\)$/)
+        expect(conns[1].getAttribute('fill')).toMatch(/^url\(#.+\)$/)
+      })
+
+      it('does not register a gradient when adjacent colors match', () => {
+        render(container, data, { connectedColumns: true })
+        const grads = container.querySelectorAll('defs linearGradient')
+        expect(grads).toHaveLength(0)
+      })
+
+      it('registers one <linearGradient> per differing-color connection', () => {
+        render(container, data, {
+          connectedColumns: true,
+          colorizes: [{ target: 'B', color: '#ff0000' }],
+        })
+        const grads = container.querySelectorAll('defs linearGradient')
+        expect(grads).toHaveLength(2)
+      })
+
+      it('gradient stops use top bar color (0%) then bottom bar color (100%)', () => {
+        render(container, data, {
+          connectedColumns: true,
+          colorizes: [
+            { target: 'A', color: '#ff0000' },
+            { target: 'B', color: '#00ff00' },
+          ],
+        })
+        const conns = container.querySelectorAll('.bc-bar-connection')
+        // A→B connection: top=red (A is first / topmost band), bottom=green
+        const fillRef = conns[0].getAttribute('fill')!
+        const id = fillRef.slice(fillRef.indexOf('#') + 1, -1)
+        const grad = container.querySelector(`#${id}`)!
+        const stops = grad.querySelectorAll('stop')
+        expect(stops).toHaveLength(2)
+        expect(stops[0].getAttribute('offset')).toBe('0%')
+        expect(stops[0].getAttribute('stop-color')).toBe('#ff0000')
+        expect(stops[1].getAttribute('offset')).toBe('100%')
+        expect(stops[1].getAttribute('stop-color')).toBe('#00ff00')
+      })
+
+      it('gradient direction is vertical (top→bottom)', () => {
+        render(container, data, {
+          connectedColumns: true,
+          colorizes: [{ target: 'B', color: '#ff0000' }],
+        })
+        const grad = container.querySelector('defs linearGradient')!
+        expect(grad.getAttribute('x1')).toBe('0%')
+        expect(grad.getAttribute('x2')).toBe('0%')
+        expect(grad.getAttribute('y1')).toBe('0%')
+        expect(grad.getAttribute('y2')).toBe('100%')
+      })
+
+      it('gradient IDs are unique across connection pairs', () => {
+        render(container, data, {
+          connectedColumns: true,
+          colorizes: [
+            { target: 'A', color: '#ff0000' },
+            { target: 'B', color: '#00ff00' },
+            { target: 'C', color: '#0000ff' },
+          ],
+        })
+        const ids = Array.from(container.querySelectorAll('defs linearGradient'))
+          .map(g => g.getAttribute('id'))
+        expect(new Set(ids).size).toBe(ids.length)
+        expect(ids.length).toBe(2)
+      })
+
+      it('gradient IDs do not collide across chart instances', () => {
+        const containerA = document.createElement('div')
+        const containerB = document.createElement('div')
+        document.body.appendChild(containerA)
+        document.body.appendChild(containerB)
+        render(containerA, data, {
+          connectedColumns: true,
+          colorizes: [{ target: 'B', color: '#ff0000' }],
+        })
+        render(containerB, data, {
+          connectedColumns: true,
+          colorizes: [{ target: 'B', color: '#ff0000' }],
+        })
+        const idsA = Array.from(containerA.querySelectorAll('defs linearGradient')).map(g => g.id)
+        const idsB = Array.from(containerB.querySelectorAll('defs linearGradient')).map(g => g.id)
+        const overlap = idsA.filter(id => idsB.includes(id))
+        expect(overlap).toHaveLength(0)
+      })
+    })
+
+    describe('geometry', () => {
+      it('y coordinates span from bottom of curr bar to top of next bar', () => {
+        render(container, { labels: ['A', 'B'], values: [10, 20] }, { connectedColumns: true })
+        const conn = container.querySelector('.bc-bar-connection')!
+        const pts = parsePoints(conn)
+        expect(pts).toHaveLength(4)
+
+        const bars = container.querySelectorAll('.bc-bar')
+        const yA = Number(bars[0].getAttribute('y'))
+        const hA = Number(bars[0].getAttribute('height'))
+        const yB = Number(bars[1].getAttribute('y'))
+
+        // Points: [currBottomRight, nextTopRight, nextTopLeft, currBottomLeft]
+        expect(pts[0].y).toBeCloseTo(yA + hA)
+        expect(pts[1].y).toBeCloseTo(yB)
+        expect(pts[2].y).toBeCloseTo(yB)
+        expect(pts[3].y).toBeCloseTo(yA + hA)
+      })
+
+      it('ascending: right edge slopes with bar rights, left edge sits at baseline', () => {
+        render(container, { labels: ['A', 'B'], values: [10, 30] }, { connectedColumns: true })
+        const conn = container.querySelector('.bc-bar-connection')!
+        const pts = parsePoints(conn)
+
+        const bars = container.querySelectorAll('.bc-bar')
+        const xRightA = Number(bars[0].getAttribute('x')) + Number(bars[0].getAttribute('width'))
+        const xRightB = Number(bars[1].getAttribute('x')) + Number(bars[1].getAttribute('width'))
+        const baseline = Number(bars[0].getAttribute('x')) // x(0) for positive bars
+
+        expect(xRightA).toBeLessThan(xRightB) // shorter bar has smaller right x
+        expect(pts[0].x).toBeCloseTo(xRightA) // curr bottom-right (shorter)
+        expect(pts[1].x).toBeCloseTo(xRightB) // next top-right (longer)
+        expect(pts[2].x).toBeCloseTo(baseline) // next top-left at baseline
+        expect(pts[3].x).toBeCloseTo(baseline) // curr bottom-left at baseline
+      })
+
+      it('descending: right edge slopes with bar rights, left edge sits at baseline', () => {
+        render(container, { labels: ['A', 'B'], values: [30, 10] }, { connectedColumns: true })
+        const conn = container.querySelector('.bc-bar-connection')!
+        const pts = parsePoints(conn)
+
+        const bars = container.querySelectorAll('.bc-bar')
+        const xRightA = Number(bars[0].getAttribute('x')) + Number(bars[0].getAttribute('width'))
+        const xRightB = Number(bars[1].getAttribute('x')) + Number(bars[1].getAttribute('width'))
+        const baseline = Number(bars[0].getAttribute('x'))
+
+        expect(xRightB).toBeLessThan(xRightA)
+        expect(pts[0].x).toBeCloseTo(xRightA) // curr bottom-right (longer)
+        expect(pts[1].x).toBeCloseTo(xRightB) // next top-right (shorter)
+        expect(pts[2].x).toBeCloseTo(baseline) // left at baseline
+        expect(pts[3].x).toBeCloseTo(baseline)
+      })
+
+      it('flat: polygon is a rectangle from bar rights back to baseline', () => {
+        render(container, { labels: ['A', 'B'], values: [20, 20] }, { connectedColumns: true })
+        const conn = container.querySelector('.bc-bar-connection')!
+        const pts = parsePoints(conn)
+
+        expect(pts).toHaveLength(4)
+
+        const bars = container.querySelectorAll('.bc-bar')
+        const xRightA = Number(bars[0].getAttribute('x')) + Number(bars[0].getAttribute('width'))
+        const baseline = Number(bars[0].getAttribute('x'))
+
+        expect(pts[0].x).toBeCloseTo(xRightA) // curr bottom-right
+        expect(pts[1].x).toBeCloseTo(xRightA) // next top-right (equal)
+        expect(pts[2].x).toBeCloseTo(baseline) // next top-left
+        expect(pts[3].x).toBeCloseTo(baseline) // curr bottom-left
+
+        const uniqueKeys = new Set(pts.map(p => `${Math.round(p.x * 1000)},${Math.round(p.y * 1000)}`))
+        expect(uniqueKeys.size).toBe(4)
+
+        const width = Math.abs(pts[0].x - pts[3].x)
+        const height = Math.abs(pts[1].y - pts[0].y)
+        expect(width).toBeGreaterThan(0)
+        expect(height).toBeGreaterThan(0)
+      })
+    })
+  })
+
   // ── Highlight (dim) ──────────────────────────────────────────────
 
   describe('highlight', () => {

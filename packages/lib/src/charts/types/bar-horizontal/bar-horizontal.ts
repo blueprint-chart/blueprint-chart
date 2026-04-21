@@ -259,7 +259,8 @@ export function render(
   const highlightTargets = new Set((options.highlights ?? []).map(h => h.target))
 
   // Clip bars to the chart area so they truncate at axis boundaries
-  const clipId = `bc-clip-${Math.random().toString(36).slice(2, 8)}`
+  const idSuffix = Math.random().toString(36).slice(2, 8)
+  const clipId = `bc-clip-${idSuffix}`
   const svg = chartArea.ownerSVGElement!
   const defs = d3.select(svg).select('defs').empty()
     ? d3.select(svg).append('defs')
@@ -300,9 +301,104 @@ export function render(
     }
   }
 
+  // Connection areas between adjacent horizontal bars — filled polygon spanning
+  // the right-edges of adjacent bars, appended to clippedGroup before the bars
+  // so they stay below in z-order.
+  if (!isWaterfall && options.connectedColumns && barData.length > 1) {
+    const connColors = options.colors ?? DEFAULT_COLORS
+    const connOpacity = options.connectionsOpacity ?? 0.15
+    for (let i = 0; i < barData.length - 1; i++) {
+      const curr = barData[i]
+      const next = barData[i + 1]
+      if (
+        curr.value == null || next.value == null
+        || Number.isNaN(curr.value) || Number.isNaN(next.value)
+        || curr.value === 0 || next.value === 0
+      ) {
+        continue
+      }
+      const yCurrBottom = (y(curr.label) ?? 0) + y.bandwidth()
+      const yNextTop = (y(next.label) ?? 0) + categoryLabelOffset
+      const xCurrRight = Math.max(x(0), x(curr.value))
+      const xNextRight = Math.max(x(0), x(next.value))
+      const xLeft = x(0)
+      const fillTop = colorOverrides.get(curr.label) ?? connColors[0]
+      const fillBottom = colorOverrides.get(next.label) ?? connColors[0]
+      let fillAttr: string
+      if (fillTop === fillBottom) {
+        fillAttr = fillTop
+      }
+      else {
+        const gradId = `bc-conn-grad-${idSuffix}-${i}`
+        const grad = defs.append('linearGradient')
+          .attr('id', gradId)
+          .attr('x1', '0%').attr('x2', '0%')
+          .attr('y1', '0%').attr('y2', '100%')
+        grad.append('stop').attr('offset', '0%').attr('stop-color', fillTop)
+        grad.append('stop').attr('offset', '100%').attr('stop-color', fillBottom)
+        fillAttr = `url(#${gradId})`
+      }
+      clippedGroup.append('polygon')
+        .attr('class', 'bc-bar-connection')
+        .attr('points', `${xCurrRight},${yCurrBottom} ${xNextRight},${yNextTop} ${xLeft},${yNextTop} ${xLeft},${yCurrBottom}`)
+        .attr('fill', fillAttr)
+        .attr('opacity', connOpacity)
+        .attr('pointer-events', 'none')
+    }
+  }
+
   if (isWaterfall) {
     const colors = options.colors ?? DEFAULT_COLORS
     const totalColor = '#333'
+
+    // Connection areas between adjacent waterfall bars — appended before
+    // connector lines & bars so they paint below in z-order.
+    if (options.connectedColumns && waterfallData.length > 1) {
+      const connColors = options.colors ?? DEFAULT_COLORS
+      const connOpacity = options.connectionsOpacity ?? 0.15
+      for (let i = 0; i < waterfallData.length - 1; i++) {
+        const curr = waterfallData[i]
+        const next = waterfallData[i + 1]
+        if (next.isTotal) {
+          continue
+        }
+        if (
+          curr.value == null || next.value == null
+          || Number.isNaN(curr.value) || Number.isNaN(next.value)
+          || curr.value === 0 || next.value === 0
+        ) {
+          continue
+        }
+        const yCurrBottom = (y(curr.label) ?? 0) + y.bandwidth()
+        const yNextTop = (y(next.label) ?? 0) + categoryLabelOffset
+        const xCurrEnd = x(curr.x1)
+        const xNextEnd = x(next.x1)
+        const xCurrOrigin = x(curr.x0)
+        const xNextOrigin = x(next.x0)
+        const fillTop = colorOverrides.get(curr.label) ?? connColors[0]
+        const fillBottom = colorOverrides.get(next.label) ?? connColors[0]
+        let fillAttr: string
+        if (fillTop === fillBottom) {
+          fillAttr = fillTop
+        }
+        else {
+          const gradId = `bc-conn-grad-${idSuffix}-${i}`
+          const grad = defs.append('linearGradient')
+            .attr('id', gradId)
+            .attr('x1', '0%').attr('x2', '0%')
+            .attr('y1', '0%').attr('y2', '100%')
+          grad.append('stop').attr('offset', '0%').attr('stop-color', fillTop)
+          grad.append('stop').attr('offset', '100%').attr('stop-color', fillBottom)
+          fillAttr = `url(#${gradId})`
+        }
+        clippedGroup.append('polygon')
+          .attr('class', 'bc-bar-connection')
+          .attr('points', `${xCurrEnd},${yCurrBottom} ${xNextEnd},${yNextTop} ${xNextOrigin},${yNextTop} ${xCurrOrigin},${yCurrBottom}`)
+          .attr('fill', fillAttr)
+          .attr('opacity', connOpacity)
+          .attr('pointer-events', 'none')
+      }
+    }
 
     // Connector lines between bars
     for (let i = 0; i < waterfallData.length - 1; i++) {
