@@ -1,45 +1,20 @@
 import { useDashboardPanelStore as useDashboardPanel } from './dashboardPanel'
+import { usePanelStore } from './panel'
 
 describe('useDashboardPanel', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
   })
 
-  it('starts with default state', () => {
+  it('starts with no chart selected', () => {
     const store = useDashboardPanel()
-    expect(store.panelMode).toBe('docked')
-    expect(store.selectedChartId).toBeNull()
-    expect(store.floatingPosition).toEqual({ x: -1, y: 16 })
-  })
-
-  it('docks the panel', () => {
-    const store = useDashboardPanel()
-    store.float()
-    store.dock()
-    expect(store.panelMode).toBe('docked')
-  })
-
-  it('floats the panel', () => {
-    const store = useDashboardPanel()
-    store.float()
-    expect(store.panelMode).toBe('floating')
-  })
-
-  it('collapses the panel and clears selection', () => {
-    const store = useDashboardPanel()
-    store.selectChart('abc')
-    store.collapse()
-    expect(store.panelMode).toBe('collapsed')
     expect(store.selectedChartId).toBeNull()
   })
 
-  it('selects a chart and restores last open mode from collapsed', () => {
+  it('selects a chart', () => {
     const store = useDashboardPanel()
-    store.float()
-    store.collapse()
     store.selectChart('abc')
     expect(store.selectedChartId).toBe('abc')
-    expect(store.panelMode).toBe('floating')
   })
 
   it('toggles selection when selecting the same chart', () => {
@@ -50,21 +25,18 @@ describe('useDashboardPanel', () => {
     expect(store.selectedChartId).toBeNull()
   })
 
-  it('resets to defaults', () => {
+  it('switches selection to a different chart', () => {
     const store = useDashboardPanel()
-    store.float()
     store.selectChart('abc')
-    store.reset()
-    expect(store.panelMode).toBe('collapsed')
-    expect(store.selectedChartId).toBeNull()
-    expect(store.floatingPosition).toEqual({ x: -1, y: 16 })
+    store.selectChart('xyz')
+    expect(store.selectedChartId).toBe('xyz')
   })
 
-  it('restores docked mode by default after collapse', () => {
+  it('reset() clears the selected chart', () => {
     const store = useDashboardPanel()
-    store.collapse()
-    store.selectChart('xyz')
-    expect(store.panelMode).toBe('docked')
+    store.selectChart('abc')
+    store.reset()
+    expect(store.selectedChartId).toBeNull()
   })
 
   it('shares state across calls', () => {
@@ -72,5 +44,34 @@ describe('useDashboardPanel', () => {
     const b = useDashboardPanel()
     a.selectChart('abc')
     expect(b.selectedChartId).toBe('abc')
+  })
+
+  it('selectChart opens the shared panel when chrome is closed', () => {
+    const panel = usePanelStore()
+    const store = useDashboardPanel()
+    panel.float()
+    panel.close()
+    // After close(), lastDesktopMode is 'closed' → open() falls back to 'docked'.
+    store.selectChart('abc')
+    expect(panel.mode).toBe('docked')
+    expect(store.selectedChartId).toBe('abc')
+  })
+
+  it('selectChart leaves an already-open panel unchanged', () => {
+    const panel = usePanelStore()
+    const store = useDashboardPanel()
+    panel.float()
+    store.selectChart('abc')
+    expect(panel.mode).toBe('floating')
+  })
+
+  it('deselecting a chart does not touch the panel chrome', () => {
+    const panel = usePanelStore()
+    const store = useDashboardPanel()
+    panel.float()
+    store.selectChart('abc')
+    store.selectChart('abc')
+    expect(store.selectedChartId).toBeNull()
+    expect(panel.mode).toBe('floating')
   })
 })
