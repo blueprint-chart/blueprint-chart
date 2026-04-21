@@ -1,5 +1,6 @@
 import { mount } from '@vue/test-utils'
 import PanelIconRail from './PanelIconRail.vue'
+import { usePanelStore } from '@/stores/panel'
 
 vi.mock('@blueprint-chart/ui', () => ({
   NavigationIconRail: {
@@ -22,37 +23,46 @@ const items = [
 ]
 
 describe('PanelIconRail', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+  })
+
   it('renders toggle button with correct label when docked', () => {
+    usePanelStore().$patch({ mode: 'docked' })
     const w = mount(PanelIconRail, {
-      props: { activeTab: 'a', panelMode: 'docked', items },
+      props: { activeTab: 'a', items },
     })
     expect(w.find('.btn-toggle').text()).toBe('Detach panel')
   })
 
   it('renders toggle button with correct label when floating', () => {
+    usePanelStore().$patch({ mode: 'floating' })
     const w = mount(PanelIconRail, {
-      props: { activeTab: 'a', panelMode: 'floating', items },
+      props: { activeTab: 'a', items },
     })
     expect(w.find('.btn-toggle').text()).toBe('Dock panel')
   })
 
-  it('renders toggle button with correct label when collapsed', () => {
+  it('renders toggle button with correct label when closed', () => {
+    usePanelStore().$patch({ mode: 'closed' })
     const w = mount(PanelIconRail, {
-      props: { activeTab: 'a', panelMode: 'collapsed', items },
+      props: { activeTab: 'a', items },
     })
     expect(w.find('.btn-toggle').text()).toBe('Open panel')
   })
 
   it('hides toggle button when horizontal', () => {
+    usePanelStore().$patch({ mode: 'docked' })
     const w = mount(PanelIconRail, {
-      props: { activeTab: 'a', panelMode: 'docked', items, horizontal: true },
+      props: { activeTab: 'a', items, horizontal: true },
     })
     expect(w.find('.btn-toggle').exists()).toBe(false)
   })
 
   it('emits toggle-mode when toggle button is clicked', async () => {
+    usePanelStore().$patch({ mode: 'docked' })
     const w = mount(PanelIconRail, {
-      props: { activeTab: 'a', panelMode: 'docked', items },
+      props: { activeTab: 'a', items },
     })
     await w.find('.btn-toggle').trigger('click')
     expect(w.emitted('toggle-mode')).toHaveLength(1)

@@ -24,23 +24,4 @@ describe('ChartEditIconRail', () => {
     store.selectTab('text')
     expect(activeTab.value).toBe('text')
   })
-
-  it('selectTab from collapsed opens panel', () => {
-    const store = useEditorPanel()
-    const { panelMode } = storeToRefs(store)
-    store.collapse()
-    expect(panelMode.value).toBe('collapsed')
-    store.selectTab('style')
-    expect(panelMode.value).toBe('docked')
-  })
-
-  it('toggleMode cycles correctly', () => {
-    const store = useEditorPanel()
-    const { panelMode } = storeToRefs(store)
-    expect(panelMode.value).toBe('docked')
-    store.toggleMode()
-    expect(panelMode.value).toBe('floating')
-    store.toggleMode()
-    expect(panelMode.value).toBe('docked')
-  })
 })

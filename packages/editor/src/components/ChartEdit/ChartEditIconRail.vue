@@ -2,7 +2,6 @@
   <PanelIconRail
     :horizontal="horizontal"
     :active-tab="activeTab"
-    :panel-mode="panelMode"
     :items="items"
     @select="selectTab"
     @toggle-mode="toggleMode"
@@ -12,6 +11,7 @@
 <script setup lang="ts">
 import type { Component } from 'vue'
 import { useEditorPanel } from '@/stores/editorPanel'
+import { usePanel } from '@/stores/panel'
 import { useChartConfig } from '@/stores/chartConfig'
 import { useChartTypeOptions } from '@/stores/chartTypeOptions'
 import { useScenes } from '@/stores/scenes'
@@ -31,8 +31,9 @@ defineProps<{
 }>()
 
 const editorPanel = useEditorPanel()
-const { activeTab, panelMode } = storeToRefs(editorPanel)
-const { toggleMode, selectTab } = editorPanel
+const { activeTab } = storeToRefs(editorPanel)
+const { selectTab } = editorPanel
+const { toggleMode } = usePanel()
 const { chartType } = useChartConfig()
 const { availableOptionKeys } = useChartTypeOptions()
 const { scenes } = useScenes()
