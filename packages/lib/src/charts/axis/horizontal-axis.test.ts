@@ -539,10 +539,10 @@ describe('thinLabels', () => {
   it('thins labels when there are too many', () => {
     const labels = Array.from({ length: 100 }, (_, i) => `L${i}`)
     const result = thinLabels(labels, 300)
-    // 300px / 60px = 5 max labels → step = ceil(100/5) = 20 → indices 0,20,40,60,80 + last (L99)
-    expect(result.length).toBeLessThanOrEqual(6)
-    expect(result.length).toBeGreaterThanOrEqual(2)
-    // First and last labels are always included
+    // Labels up to 3 chars (~30 px) → minSpacing 38 → maxLabels floor(300/38)=7
+    // → step ceil(100/7)=15 → indices 0,15,30,45,60,75,90 + L99 = 8.
+    expect(result.length).toBeLessThanOrEqual(10)
+    expect(result.length).toBeGreaterThan(5)
     expect(result[0]).toBe('L0')
     expect(result[result.length - 1]).toBe('L99')
   })
@@ -577,16 +577,28 @@ describe('thinLabels', () => {
     // The last label is always included so the data range endpoint is visible
   })
 
+  it('shows all single-char labels when they fit naturally per-tick', () => {
+    // Letter-frequency sample: 10 single-char labels at a modest width.
+    // Each label is ~10 px, so all 10 fit in ~200 px. The thinning floor
+    // should be driven by label width, not an unrelated absolute minimum
+    // that decimates labels even when the axis has ample room.
+    const labels = ['E', 'T', 'A', 'O', 'I', 'N', 'S', 'H', 'R', 'D']
+    expect(thinLabels(labels, 500)).toEqual(labels)
+    expect(thinLabels(labels, 300)).toEqual(labels)
+    expect(thinLabels(labels, 200)).toEqual(labels)
+  })
+
   it('produces progressively coarser steps as width shrinks', () => {
     const labels = Array.from({ length: 12 }, (_, i) => `M${i}`)
-    // 720px → maxLabels=12 → all fit (no thinning)
+    // maxWidth ~30 → minSpacing 38.
+    // 720px → maxLabels floor(720/38)=18 → all fit.
     expect(thinLabels(labels, 720)).toEqual(labels)
-    // 360px → maxLabels=6 → step=2 → M0,M2,M4,M6,M8,M10 + last=M11
+    // 360px → maxLabels floor(360/38)=9 → step=2 → M0,M2,…,M10 + M11
     expect(thinLabels(labels, 360)).toEqual(['M0', 'M2', 'M4', 'M6', 'M8', 'M10', 'M11'])
-    // 240px → maxLabels=4 → step=3 → M0,M3,M6,M9 + last=M11
-    expect(thinLabels(labels, 240)).toEqual(['M0', 'M3', 'M6', 'M9', 'M11'])
-    // 180px → maxLabels=3 → step=4 → M0,M4,M8 + last=M11
-    expect(thinLabels(labels, 180)).toEqual(['M0', 'M4', 'M8', 'M11'])
+    // 240px → maxLabels floor(240/38)=6 → step=2 → same as 360
+    expect(thinLabels(labels, 240)).toEqual(['M0', 'M2', 'M4', 'M6', 'M8', 'M10', 'M11'])
+    // 180px → maxLabels floor(180/38)=4 → step=3 → M0,M3,M6,M9 + M11
+    expect(thinLabels(labels, 180)).toEqual(['M0', 'M3', 'M6', 'M9', 'M11'])
   })
 })
 
