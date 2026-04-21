@@ -87,6 +87,8 @@ const router = useRouter()
 const { listSavedCharts } = useChartSession()
 const { mode } = storeToRefs(useNavbar())
 
+usePanelBreakpointSync()
+
 const isLanding = computed(() => route.path === '/')
 
 // Wizard composables (only active when mode === 'wizard')

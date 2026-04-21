@@ -25,15 +25,14 @@
 <script setup lang="ts">
 import type { Component } from 'vue'
 import { NavigationIconRail, ButtonIcon } from '@blueprint-chart/ui'
-import type { PanelMode } from '@/stores/editorPanel'
+import { usePanel } from '@/stores/panel'
 import IPhArrowsOutSimple from '~icons/ph/arrows-out-simple'
 import IPhArrowsInSimple from '~icons/ph/arrows-in-simple'
 import IPhSidebarSimple from '~icons/ph/sidebar-simple'
 
-const props = defineProps<{
+defineProps<{
   horizontal?: boolean
   activeTab: string
-  panelMode: PanelMode
   items: { value: string, icon: Component, tooltip: string }[]
 }>()
 
@@ -42,21 +41,23 @@ defineEmits<{
   'toggle-mode': []
 }>()
 
+const { mode: panelMode } = usePanel()
+
 const toggleIcon = computed(() => {
-  if (props.panelMode === 'collapsed') {
+  if (panelMode.value === 'closed') {
     return IPhSidebarSimple
   }
-  if (props.panelMode === 'floating') {
+  if (panelMode.value === 'floating') {
     return IPhArrowsInSimple
   }
   return IPhArrowsOutSimple
 })
 
 const toggleLabel = computed(() => {
-  if (props.panelMode === 'collapsed') {
+  if (panelMode.value === 'closed') {
     return 'Open panel'
   }
-  if (props.panelMode === 'floating') {
+  if (panelMode.value === 'floating') {
     return 'Dock panel'
   }
   return 'Detach panel'

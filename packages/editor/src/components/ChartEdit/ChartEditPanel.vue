@@ -33,42 +33,54 @@
         :layout="layout"
       />
       <CanvasModePicker v-if="viewMode === 'preview'" />
-      <ChartEditFloatingPanel
-        v-if="panelMode === 'floating'"
-        :container-ref="canvasRef"
-      />
     </div>
-    <template v-if="isNarrow">
-      <LayoutBottomDrawer v-model="drawerOpen">
+    <PanelShell
+      v-model:drawer-open="drawerOpen"
+      :title="panelTitle"
+      :container-ref="canvasRef"
+      @close="selectTab('')"
+    >
+      <template
+        v-if="panelMode !== 'docked'"
+        #tabs
+      >
         <PanelTabBar
           :tabs="tabs"
           :model-value="activeTab"
           sticky
           @update:model-value="selectTab"
         />
-        <div class="chart-edit-panel__drawer-body">
-          <EditorChartTypePicker v-if="activeTab === 'type'" />
-          <EditorPropertyForm v-else-if="activeTab === 'text'" />
-          <EditorAppearanceTab v-else-if="activeTab === 'style'" />
-          <EditorSeriesPanel v-else-if="activeTab === 'series'" />
-          <EditorAxisOptions v-else-if="activeTab === 'axes'" />
-          <EditorLayoutTab v-else-if="activeTab === 'layout'" />
-          <EditorAnnotateTab v-else-if="activeTab === 'annotate'" />
-          <EditorInteractionsTab v-else-if="activeTab === 'interactions'" />
-        </div>
-      </LayoutBottomDrawer>
-    </template>
-    <template v-else>
-      <ChartEditDockedPanel :collapsed="panelMode !== 'docked'" />
-      <ChartEditIconRail />
-    </template>
+      </template>
+      <template
+        v-if="panelMode !== 'drawer'"
+        #header
+      >
+        <ChartEditToolbar />
+      </template>
+      <EditorChartTypePicker v-if="activeTab === 'type'" />
+      <EditorPropertyForm v-else-if="activeTab === 'text'" />
+      <EditorAppearanceTab v-else-if="activeTab === 'style'" />
+      <EditorSeriesPanel v-else-if="activeTab === 'series'" />
+      <EditorAxisOptions v-else-if="activeTab === 'axes'" />
+      <EditorLayoutTab v-else-if="activeTab === 'layout'" />
+      <EditorAnnotateTab v-else-if="activeTab === 'annotate'" />
+      <EditorInteractionsTab v-else-if="activeTab === 'interactions'" />
+      <template
+        v-if="panelMode !== 'drawer'"
+        #footer
+      >
+        <PanelStepperFooter />
+      </template>
+    </PanelShell>
+    <ChartEditIconRail v-if="!isNarrow" />
   </div>
 </template>
 
 <script setup lang="ts">
 import type { CSSProperties } from 'vue'
-import { LayoutBottomDrawer, useBreakpoint } from '@blueprint-chart/ui'
+import { useBreakpoint } from '@blueprint-chart/ui'
 import { useEditorPanel } from '@/stores/editorPanel'
+import { usePanel } from '@/stores/panel'
 import { useChartConfig } from '@/stores/chartConfig'
 import { useChartTypeOptions } from '@/stores/chartTypeOptions'
 import { useScenes } from '@/stores/scenes'
@@ -76,15 +88,11 @@ import { useScenes } from '@/stores/scenes'
 const AXIS_KEYS = ['showVerticalAxis', 'verticalAxisDirection', 'showVerticalTicks', 'verticalLabelPosition', 'verticalGridStyle', 'verticalNumberFormat', 'verticalScaleType', 'verticalRangeMin', 'verticalRangeMax', 'showHorizontalAxis', 'showHorizontalTicks', 'horizontalLabelPosition', 'horizontalGridStyle', 'horizontalNumberFormat', 'horizontalScaleType', 'horizontalRangeMin', 'horizontalRangeMax']
 
 const editorPanel = useEditorPanel()
-const { panelMode, viewMode, activeTab, canvasMode, showDimensions } = storeToRefs(editorPanel)
-const { collapse, selectTab } = editorPanel
+const { viewMode, activeTab, canvasMode, showDimensions } = storeToRefs(editorPanel)
+const { selectTab } = editorPanel
+const { mode: panelMode } = usePanel()
 const { isNarrow } = useBreakpoint()
 
-watch(isNarrow, (narrow) => {
-  if (narrow && panelMode.value !== 'collapsed') {
-    collapse()
-  }
-}, { immediate: true })
 const { chartType, layout } = useChartConfig()
 const { availableOptionKeys } = useChartTypeOptions()
 const { scenes } = useScenes()
@@ -93,10 +101,10 @@ const { cardClass, cardStyle } = useCanvasCardStyle(layout, 'chart-edit-panel__c
 const hasAxisOptions = computed(() => availableOptionKeys.value.some(k => AXIS_KEYS.includes(k)))
 
 const drawerOpen = computed({
-  get: () => isNarrow.value && panelMode.value !== 'collapsed' && !!activeTab.value,
+  get: () => !!activeTab.value,
   set: (open) => {
     if (!open) {
-      collapse()
+      selectTab('')
     }
   },
 })
@@ -134,6 +142,19 @@ const canvasClassList = computed(() => ({
   [`chart-edit-panel__canvas--${canvasMode.value}`]: canvasMode.value !== 'blueprint',
   'chart-edit-panel__canvas--dsl': viewMode.value !== 'preview',
 }))
+
+const TAB_LABELS: Record<string, string> = {
+  type: 'Chart Type',
+  text: 'Text',
+  style: 'Style',
+  layout: 'Layout',
+  series: 'Series',
+  axes: 'Axes',
+  annotate: 'Annotate',
+  interactions: 'Interactions',
+}
+
+const panelTitle = computed(() => TAB_LABELS[activeTab.value] ?? 'Panel')
 
 const canvasRef = useTemplateRef<HTMLElement>('canvasRef')
 const cardRef = useTemplateRef<HTMLElement>('cardRef')
