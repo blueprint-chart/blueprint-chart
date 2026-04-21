@@ -31,54 +31,52 @@
         :layout="layout"
       />
       <CanvasModePicker />
-      <ExportFloatingPanel
-        v-if="!isNarrow && panelMode === 'floating'"
-        :container-ref="canvasRef"
-        @download-png="downloadPng"
-        @download-svg="downloadSvg"
-      />
     </div>
-    <template v-if="isNarrow">
-      <LayoutBottomDrawer v-model="drawerOpen">
+    <PanelShell
+      v-model:drawer-open="drawerOpen"
+      :title="panelTitle"
+      :container-ref="canvasRef"
+    >
+      <template
+        v-if="panelMode !== 'docked'"
+        #tabs
+      >
         <PanelTabBar
           :tabs="tabs"
           :model-value="exportTab"
           sticky
           @update:model-value="setExportTab($event as ExportTab)"
         />
-        <div class="export-panel__drawer-body">
-          <ExportEmbedPanel v-if="exportTab === 'embed'" />
-          <ExportDownloadPanel
-            v-else
-            @download-png="downloadPng"
-            @download-svg="downloadSvg"
-          />
-        </div>
-      </LayoutBottomDrawer>
-    </template>
-    <template v-else>
-      <ExportDockedPanel
-        :collapsed="panelMode !== 'docked'"
-        @float="float"
-        @close="collapse"
+      </template>
+      <ExportEmbedPanel v-if="exportTab === 'embed'" />
+      <ExportDownloadPanel
+        v-else-if="exportTab === 'download'"
         @download-png="downloadPng"
         @download-svg="downloadSvg"
       />
-      <ExportIconRail />
-    </template>
+      <template
+        v-if="panelMode !== 'drawer'"
+        #footer
+      >
+        <PanelStepperFooter />
+      </template>
+    </PanelShell>
+    <ExportIconRail v-if="!isNarrow" />
   </div>
 </template>
 
 <script setup lang="ts">
 import type { CSSProperties } from 'vue'
-import { LayoutBottomDrawer, useBreakpoint } from '@blueprint-chart/ui'
+import { useBreakpoint } from '@blueprint-chart/ui'
 import { useEditorPanel } from '@/stores/editorPanel'
+import { usePanel } from '@/stores/panel'
 import { useExportPanel, type ExportTab } from '@/stores/exportPanel'
 import { useChartConfig } from '@/stores/chartConfig'
 
 const editorPanel = useEditorPanel()
-const { canvasMode, showDimensions, panelMode } = storeToRefs(editorPanel)
-const { float, collapse, setViewMode } = editorPanel
+const { canvasMode, showDimensions } = storeToRefs(editorPanel)
+const { setViewMode } = editorPanel
+const { mode: panelMode } = usePanel()
 
 // Export step always shows preview (no DSL toggle)
 setViewMode('preview')
@@ -86,12 +84,6 @@ const exportPanelStore = useExportPanel()
 const { exportTab } = storeToRefs(exportPanelStore)
 const { setExportTab } = exportPanelStore
 const { isNarrow } = useBreakpoint()
-
-watch(isNarrow, (narrow) => {
-  if (narrow && panelMode.value !== 'collapsed') {
-    collapse()
-  }
-}, { immediate: true })
 
 const { layout } = useChartConfig()
 const { cardClass, cardStyle } = useCanvasCardStyle(layout, 'export-panel__canvas__card')
@@ -135,6 +127,13 @@ const tabs = [
   { key: 'embed', label: 'Embed' },
   { key: 'download', label: 'Download' },
 ]
+
+const TAB_LABELS: Record<string, string> = {
+  embed: 'Embed',
+  download: 'Download',
+}
+
+const panelTitle = computed(() => TAB_LABELS[exportTab.value] ?? 'Export')
 
 const canvasClassList = computed(() => ({
   [`export-panel__canvas--${canvasMode.value}`]: canvasMode.value !== 'blueprint',

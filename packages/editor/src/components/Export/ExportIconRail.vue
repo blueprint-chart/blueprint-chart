@@ -2,7 +2,6 @@
   <PanelIconRail
     :horizontal="horizontal"
     :active-tab="exportTab"
-    :panel-mode="panelMode"
     :items="items"
     @select="onSelect"
     @toggle-mode="toggleMode"
@@ -11,7 +10,7 @@
 
 <script setup lang="ts">
 import type { Component } from 'vue'
-import { useEditorPanel } from '@/stores/editorPanel'
+import { usePanel } from '@/stores/panel'
 import { useExportPanel, type ExportTab } from '@/stores/exportPanel'
 import IPhCode from '~icons/ph/code'
 import IPhDownloadSimple from '~icons/ph/download-simple'
@@ -20,9 +19,7 @@ defineProps<{
   horizontal?: boolean
 }>()
 
-const editorPanel = useEditorPanel()
-const { panelMode } = storeToRefs(editorPanel)
-const { toggleMode } = editorPanel
+const { mode: panelMode, toggleMode } = usePanel()
 const exportPanelStore = useExportPanel()
 const { exportTab } = storeToRefs(exportPanelStore)
 const { setExportTab } = exportPanelStore
@@ -34,7 +31,7 @@ const items: { value: string, icon: Component, tooltip: string }[] = [
 
 function onSelect(tab: string | number) {
   setExportTab(tab as ExportTab)
-  if (panelMode.value === 'collapsed') {
+  if (panelMode.value === 'closed') {
     toggleMode()
   }
 }
