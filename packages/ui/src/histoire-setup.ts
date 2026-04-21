@@ -1,6 +1,7 @@
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue-next/dist/bootstrap-vue-next.css'
 import 'vue-color/style.css'
+import '@blueprint-chart/lib/charts.scss'
 import { createBootstrap } from 'bootstrap-vue-next'
 
 function syncBsTheme() {
