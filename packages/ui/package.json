@@ -25,6 +25,7 @@
     "vue-color": "^3.3.3"
   },
   "devDependencies": {
+    "@blueprint-chart/lib": "workspace:*",
     "@histoire/plugin-vue": "^0.17",
     "@iconify-json/ph": "^1.2.2",
     "@types/d3-format": "^3.0.4",
