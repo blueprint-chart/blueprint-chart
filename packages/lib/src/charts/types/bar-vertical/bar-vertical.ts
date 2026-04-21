@@ -6,7 +6,7 @@ import { createFrame } from '../../frame/frame'
 import { createCanvas, contentSize, labelPositionMargins, estimateVerticalLabelWidth, computeMarginDelta } from '../../canvas/canvas'
 import { resolveHorizontalAxisBottom } from '../../axis/horizontal-axis'
 import { AxisService } from '../../axis/axis-service'
-import { computeLinearDomain } from '../../scale-helpers'
+import { computeLinearDomain, resolveBarGapPadding } from '../../scale-helpers'
 import { createTooltipPlugin } from '../../plugins/tooltip'
 import { createCrosshairPlugin } from '../../plugins/crosshair'
 import { createAnnotationPlugin, snapshotAnnotations, type AnnotationSnapshot } from '../../plugins/annotations'
@@ -173,7 +173,7 @@ export function render(
   const x = d3.scaleBand<string>()
     .domain(allLabels)
     .range([0, width])
-    .padding(0.2)
+    .padding(resolveBarGapPadding(options.barGap))
 
   const useLog = options.verticalAxis?.scaleType === 'log'
   const domainValues = isWaterfall

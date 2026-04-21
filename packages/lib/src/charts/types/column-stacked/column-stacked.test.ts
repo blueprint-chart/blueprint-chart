@@ -379,4 +379,35 @@ describe('column-stacked', () => {
       })
     })
   })
+
+  // ── barGap ───────────────────────────────────────────────────────
+
+  describe('barGap', () => {
+    // Stacked columns share the same x/width per label; one rect per stack is
+    // enough to reason about column geometry.
+    function columnExtents(): { xs: number[], widths: number[] } {
+      const bars = Array.from(container.querySelectorAll('.bc-bar-stacked'))
+      const byLabel = new Map<number, { x: number, w: number }>()
+      for (const b of bars) {
+        const x = Number(b.getAttribute('x'))
+        byLabel.set(x, { x, w: Number(b.getAttribute('width')) })
+      }
+      const ordered = [...byLabel.values()].sort((a, b) => a.x - b.x)
+      return { xs: ordered.map(o => o.x), widths: ordered.map(o => o.w) }
+    }
+
+    it('renders adjacent stacked columns flush when barGap=0', () => {
+      render(container, data, { barGap: 0, legend: false })
+      const { xs, widths } = columnExtents()
+      expect(xs).toHaveLength(2)
+      expect(xs[1] - (xs[0] + widths[0])).toBeCloseTo(0, 5)
+    })
+
+    it('produces a gap equal to 50% of column width when barGap=50', () => {
+      render(container, data, { barGap: 50, legend: false })
+      const { xs, widths } = columnExtents()
+      const gap = xs[1] - (xs[0] + widths[0])
+      expect(gap / widths[0]).toBeCloseTo(0.5, 5)
+    })
+  })
 })

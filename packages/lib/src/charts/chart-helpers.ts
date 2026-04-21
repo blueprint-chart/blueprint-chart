@@ -288,6 +288,10 @@ export function buildChartOptions(opts: Partial<ChartTypeOptions>, backgroundCol
   if (opts.barSeparators !== undefined) {
     result.barSeparators = opts.barSeparators
   }
+  const barGap = parseFloat(opts.barGap ?? '')
+  if (!isNaN(barGap)) {
+    result.barGap = Math.max(0, Math.min(100, barGap))
+  }
   if (opts.connectedColumns !== undefined) {
     result.connectedColumns = opts.connectedColumns
   }

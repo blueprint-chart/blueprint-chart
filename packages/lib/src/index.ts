@@ -70,6 +70,7 @@ export { renderLegend } from './charts/legend/legend'
 export { registerChart, getChart, getChartOptions, listCharts } from './charts/registry'
 
 export { parseData, buildChartOptions } from './charts/chart-helpers'
+export { resolveBarGapPadding, DEFAULT_BAR_GAP } from './charts/scale-helpers'
 export { resolvePalette, listPalettes } from './charts/palettes'
 export type { PaletteEntry } from './charts/palettes'
 

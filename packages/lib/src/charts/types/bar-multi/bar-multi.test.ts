@@ -545,4 +545,65 @@ describe('bar-multi', () => {
       })
     })
   })
+
+  // ── barGap ───────────────────────────────────────────────────────
+
+  describe('barGap', () => {
+    // With 2 labels × 2 series, sorting bars by x cleanly partitions them into
+    // [Q1 group, Q2 group]; each group of 2 sits next to each other.
+    function groupExtents(groupIndex: 0 | 1): { left: number, right: number, bars: { x: number, w: number }[] } {
+      const all = Array.from(container.querySelectorAll('.bc-bar-multi'))
+        .map(b => ({ x: Number(b.getAttribute('x')), w: Number(b.getAttribute('width')) }))
+        .sort((a, b) => a.x - b.x)
+      const perGroup = all.length / 2
+      const slice = all.slice(groupIndex * perGroup, (groupIndex + 1) * perGroup)
+      return {
+        left: slice[0].x,
+        right: slice[slice.length - 1].x + slice[slice.length - 1].w,
+        bars: slice,
+      }
+    }
+
+    it('inter-category gap responds to barGap', () => {
+      render(container, data, { barGap: 0, legend: false })
+      const tightGroupW = groupExtents(0).right - groupExtents(0).left
+      const tightGap = groupExtents(1).left - groupExtents(0).right
+
+      container.replaceChildren()
+      render(container, data, { barGap: 100, legend: false })
+      const wideGroupW = groupExtents(0).right - groupExtents(0).left
+      const wideGap = groupExtents(1).left - groupExtents(0).right
+
+      // Wider barGap means narrower groups and larger gaps between categories.
+      expect(wideGroupW).toBeLessThan(tightGroupW)
+      expect(wideGap).toBeGreaterThan(tightGap)
+      // At barGap=0 the outer paddingInner is 0; any residual gap between
+      // groups is purely from the x1 scale's own 0.05 padding (≪ group width).
+      expect(tightGap / tightGroupW).toBeLessThan(0.1)
+      // At barGap=100 the outer gap matches one group's width (± the small
+      // contribution from x1's 0.05 inner padding, ~5% of a group).
+      expect(wideGap / wideGroupW).toBeGreaterThan(0.9)
+      expect(wideGap / wideGroupW).toBeLessThan(1.15)
+    })
+
+    it('intra-group spacing keeps its default regardless of barGap', () => {
+      function intraGroupRatio(): number {
+        const inner = groupExtents(0).bars.sort((a, b) => a.x - b.x)
+        const innerGap = inner[1].x - (inner[0].x + inner[0].w)
+        return innerGap / inner[0].w
+      }
+
+      render(container, data, { barGap: 0, legend: false })
+      const ratioTight = intraGroupRatio()
+
+      container.replaceChildren()
+      render(container, data, { barGap: 100, legend: false })
+      const ratioWide = intraGroupRatio()
+
+      // Default inner .padding(0.05) on x1 → gap/bandwidth = 0.05 / 0.95
+      const expected = 0.05 / 0.95
+      expect(ratioTight).toBeCloseTo(expected, 5)
+      expect(ratioWide).toBeCloseTo(expected, 5)
+    })
+  })
 })

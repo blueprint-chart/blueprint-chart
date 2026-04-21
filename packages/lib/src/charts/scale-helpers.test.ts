@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { computeLinearDomain, filterLabelsByRange } from './scale-helpers'
+import { computeLinearDomain, filterLabelsByRange, resolveBarGapPadding, DEFAULT_BAR_GAP } from './scale-helpers'
 
 describe('computeLinearDomain', () => {
   it('returns [0, max] for positive-only data', () => {
@@ -125,5 +125,39 @@ describe('filterLabelsByRange', () => {
     const labels = ['10', '20', '30', '40', '50']
     const indices = filterLabelsByRange(labels, { min: 20, max: 40 })
     expect(indices).toEqual([1, 2, 3])
+  })
+})
+
+describe('resolveBarGapPadding', () => {
+  it('defaults to DEFAULT_BAR_GAP (60) when barGap is undefined', () => {
+    expect(DEFAULT_BAR_GAP).toBe(60)
+    expect(resolveBarGapPadding()).toBeCloseTo(60 / 160, 10)
+    expect(resolveBarGapPadding(undefined)).toBeCloseTo(60 / 160, 10)
+  })
+
+  it('returns 0 when barGap is 0 (no gap)', () => {
+    expect(resolveBarGapPadding(0)).toBe(0)
+  })
+
+  it('returns 0.5 when barGap is 100 (gap equals bar width)', () => {
+    expect(resolveBarGapPadding(100)).toBeCloseTo(0.5, 10)
+  })
+
+  it('returns the correct padding for an intermediate value (50)', () => {
+    // barGap = 50 → gap = 50% of bar, paddingInner = 50 / 150 = 1/3
+    expect(resolveBarGapPadding(50)).toBeCloseTo(50 / 150, 10)
+  })
+
+  it('clamps values below 0 up to 0', () => {
+    expect(resolveBarGapPadding(-25)).toBe(0)
+  })
+
+  it('clamps values above 100 down to 100', () => {
+    expect(resolveBarGapPadding(200)).toBeCloseTo(0.5, 10)
+  })
+
+  it('falls back to default for non-finite values', () => {
+    expect(resolveBarGapPadding(NaN)).toBeCloseTo(60 / 160, 10)
+    expect(resolveBarGapPadding(Infinity)).toBeCloseTo(60 / 160, 10)
   })
 })
