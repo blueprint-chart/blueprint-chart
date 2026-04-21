@@ -47,6 +47,69 @@ describe('EditorBarStyleSection', () => {
     })
   })
 
+  describe('barGap', () => {
+    it('renders the slider when the option is available', () => {
+      availableOptionKeys.value = ['barGap']
+      const w = mount(EditorBarStyleSection)
+      expect(w.find('[data-id="opt-bar-gap"]').exists()).toBe(true)
+    })
+
+    it('does not render when the option is absent', () => {
+      availableOptionKeys.value = ['barBackground']
+      const w = mount(EditorBarStyleSection)
+      expect(w.find('[data-id="opt-bar-gap"]').exists()).toBe(false)
+    })
+
+    it('uses 0–100 range, step 1, and a percent suffix', () => {
+      availableOptionKeys.value = ['barGap']
+      const w = mount(EditorBarStyleSection)
+      const slider = w.find('[data-id="opt-bar-gap"]')
+      expect(slider.attributes('data-min')).toBe('0')
+      expect(slider.attributes('data-max')).toBe('100')
+      expect(slider.attributes('data-step')).toBe('1')
+      expect(slider.attributes('data-suffix')).toBe('%')
+    })
+
+    it('defaults to 60 when barGap is unset', () => {
+      availableOptionKeys.value = ['barGap']
+      const w = mount(EditorBarStyleSection)
+      const slider = w.find('[data-id="opt-bar-gap"]')
+      expect((slider.element as HTMLInputElement).value).toBe('60')
+    })
+
+    it('reflects the stored value on the slider', () => {
+      availableOptionKeys.value = ['barGap']
+      currentOptions.value = { barGap: '42' }
+      const w = mount(EditorBarStyleSection)
+      const slider = w.find('[data-id="opt-bar-gap"]')
+      expect((slider.element as HTMLInputElement).value).toBe('42')
+    })
+
+    it('calls setOption with the updated value when the slider changes', async () => {
+      availableOptionKeys.value = ['barGap']
+      const w = mount(EditorBarStyleSection)
+      const slider = w.find('[data-id="opt-bar-gap"]')
+      await slider.setValue('75')
+      expect(mockSetOption).toHaveBeenCalledWith('barGap', '75')
+    })
+
+    it('clamps display value to [0, 100] when the stored value is out of range', () => {
+      availableOptionKeys.value = ['barGap']
+      currentOptions.value = { barGap: '250' }
+      const w = mount(EditorBarStyleSection)
+      const slider = w.find('[data-id="opt-bar-gap"]')
+      expect((slider.element as HTMLInputElement).value).toBe('100')
+    })
+
+    it('clamps stored value to [0, 100] when the slider emits out-of-range input', async () => {
+      availableOptionKeys.value = ['barGap']
+      const w = mount(EditorBarStyleSection)
+      const slider = w.find('[data-id="opt-bar-gap"]')
+      await slider.setValue('-30')
+      expect(mockSetOption).toHaveBeenCalledWith('barGap', '0')
+    })
+  })
+
   describe('connectedColumns', () => {
     it('renders the toggle when the option is available', () => {
       availableOptionKeys.value = ['connectedColumns']

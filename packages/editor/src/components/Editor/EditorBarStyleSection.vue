@@ -14,6 +14,18 @@
       @update:model-value="(v) => setOption('barSeparators', v)"
     />
 
+    <FormControlSliderInput
+      v-if="hasBarGap"
+      id="opt-bar-gap"
+      :model-value="barGapValue"
+      label="Bar gap"
+      min="0"
+      max="100"
+      step="1"
+      suffix="%"
+      @update:model-value="onBarGapChange"
+    />
+
     <FormControlCheckbox
       v-if="hasConnectedColumns"
       :model-value="currentOptions.connectedColumns ?? false"
@@ -59,15 +71,33 @@
 <script setup lang="ts">
 import { useChartTypeOptions } from '@/stores/chartTypeOptions'
 import { FormControlCheckbox, FormControlSliderInput } from '@blueprint-chart/ui'
+import { DEFAULT_BAR_GAP } from '@blueprint-chart/lib'
 
 const { currentOptions, availableOptionKeys, setOption } = useChartTypeOptions()
 
 const hasBarBackground = computed(() => availableOptionKeys.value.includes('barBackground'))
 const hasBarSeparators = computed(() => availableOptionKeys.value.includes('barSeparators'))
+const hasBarGap = computed(() => availableOptionKeys.value.includes('barGap'))
 const hasConnectedColumns = computed(() => availableOptionKeys.value.includes('connectedColumns'))
 const hasWaterfall = computed(() => availableOptionKeys.value.includes('waterfall'))
 const hasWaterfallTotal = computed(() => availableOptionKeys.value.includes('waterfallTotal'))
 const hasCategoryLabelLine = computed(() => availableOptionKeys.value.includes('categoryLabelLine'))
+
+function clampBarGap(value: number): number {
+  return Math.max(0, Math.min(100, value))
+}
+
+const barGapValue = computed(() => {
+  const parsed = parseFloat(currentOptions.value.barGap ?? '')
+  const safe = isNaN(parsed) ? DEFAULT_BAR_GAP : parsed
+  return String(clampBarGap(safe))
+})
+
+function onBarGapChange(value: string): void {
+  const parsed = parseFloat(value)
+  const safe = isNaN(parsed) ? DEFAULT_BAR_GAP : parsed
+  setOption('barGap', String(clampBarGap(safe)))
+}
 
 // Opacity is stored in `connectionsOpacity` as a 0–1 decimal string (e.g. "0.15")
 // but the slider displays 0–100 with a "%" suffix. These helpers translate between
