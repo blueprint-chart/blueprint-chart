@@ -200,6 +200,68 @@ describe('useDslSync', () => {
     })
   })
 
+  describe('barGap persistence', () => {
+    it('parses barGap from DSL', () => {
+      const { applyDsl } = useDslSync()
+      applyDsl(`chart bar-vertical {
+  barGap = "25"
+}`)
+      const { currentOptions } = useChartTypeOptions()
+      expect(currentOptions.value.barGap).toBe('25')
+    })
+
+    it('falls back to default barGap (60) when DSL omits barGap', () => {
+      const { applyDsl } = useDslSync()
+      applyDsl(`chart bar-vertical {
+  title = "no-gap chart"
+}`)
+      const { currentOptions } = useChartTypeOptions()
+      expect(currentOptions.value.barGap).toBe('60')
+    })
+
+    it('serializes an explicit barGap into the DSL output', () => {
+      const { applyDsl } = useDslSync()
+      applyDsl(`chart bar-vertical {
+  barGap = "42"
+}`)
+      const { generateDsl } = useDslOutput()
+      expect(generateDsl()).toContain('barGap = "42"')
+    })
+
+    it('round-trips barGap through parse → serialize → parse', () => {
+      const { applyDsl } = useDslSync()
+      applyDsl(`chart bar-horizontal {
+  barGap = "77"
+}`)
+
+      const { generateDsl } = useDslOutput()
+      const output = generateDsl()
+      expect(output).toContain('barGap = "77"')
+
+      const result = applyDsl(output)
+      expect(result.success).toBe(true)
+
+      const { currentOptions } = useChartTypeOptions()
+      expect(currentOptions.value.barGap).toBe('77')
+    })
+
+    it('round-trips default barGap (60) when DSL input omits it', () => {
+      const { applyDsl } = useDslSync()
+      applyDsl(`chart bar-vertical {
+  title = "legacy chart"
+}`)
+
+      const { generateDsl } = useDslOutput()
+      const output = generateDsl()
+
+      const result = applyDsl(output)
+      expect(result.success).toBe(true)
+
+      const { currentOptions } = useChartTypeOptions()
+      expect(currentOptions.value.barGap).toBe('60')
+    })
+  })
+
   describe('number keys', () => {
     it('parses lineSymbolSize as string', () => {
       const { applyDsl } = useDslSync()

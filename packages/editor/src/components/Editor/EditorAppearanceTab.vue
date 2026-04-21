@@ -81,6 +81,7 @@ const hasLine = computed(() => !hasArea.value && hasLineOptions.value)
 const hasBarStyle = computed(() =>
   availableOptionKeys.value.includes('barBackground')
   || availableOptionKeys.value.includes('barSeparators')
+  || availableOptionKeys.value.includes('barGap')
   || availableOptionKeys.value.includes('connectedColumns')
   || availableOptionKeys.value.includes('categoryLabelLine'),
 )
