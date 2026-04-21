@@ -1,0 +1,434 @@
+import { createApp } from 'vue'
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
+import { usePanel, usePanelStore } from './panel'
+
+function createPersistingPinia() {
+  const pinia = createPinia()
+  pinia.use(piniaPluginPersistedstate)
+  // Pinia v3 only activates plugins once mounted on a Vue app.
+  createApp({}).use(pinia)
+  setActivePinia(pinia)
+  return pinia
+}
+
+describe('usePanelStore', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+  })
+
+  it('has sensible defaults', () => {
+    const store = usePanelStore()
+    expect(store.mode).toBe('docked')
+    expect(store.lastDesktopMode).toBe('docked')
+    expect(store.floatingPosition).toEqual({ x: -1, y: 16 })
+    expect(store.floatingSize).toEqual({ width: 340, height: 500 })
+    const expected = Math.min(660, Math.max(260, Math.floor(window.innerWidth * 0.35)))
+    expect(store.dockedWidth).toBe(expected)
+  })
+
+  it('dock() sets mode to docked and records lastDesktopMode', () => {
+    const store = usePanelStore()
+    store.float()
+    expect(store.mode).toBe('floating')
+    store.dock()
+    expect(store.mode).toBe('docked')
+    expect(store.lastDesktopMode).toBe('docked')
+  })
+
+  it('float() sets mode to floating and records lastDesktopMode', () => {
+    const store = usePanelStore()
+    store.float()
+    expect(store.mode).toBe('floating')
+    expect(store.lastDesktopMode).toBe('floating')
+  })
+
+  it('close() sets mode to closed and records lastDesktopMode', () => {
+    const store = usePanelStore()
+    store.close()
+    expect(store.mode).toBe('closed')
+    expect(store.lastDesktopMode).toBe('closed')
+  })
+
+  it('openDrawer() captures previous desktop mode', () => {
+    const store = usePanelStore()
+    store.float()
+    store.openDrawer()
+    expect(store.mode).toBe('drawer')
+    expect(store.lastDesktopMode).toBe('floating')
+  })
+
+  it('openDrawer() keeps lastDesktopMode stable when already in drawer', () => {
+    const store = usePanelStore()
+    store.float()
+    store.openDrawer()
+    // Calling openDrawer again should not overwrite lastDesktopMode to 'drawer'.
+    store.openDrawer()
+    expect(store.mode).toBe('drawer')
+    expect(store.lastDesktopMode).toBe('floating')
+  })
+
+  it('closeDrawer() restores the last desktop mode', () => {
+    const store = usePanelStore()
+    store.float()
+    store.openDrawer()
+    store.closeDrawer()
+    expect(store.mode).toBe('floating')
+  })
+
+  it('closeDrawer() restores closed mode if that was the last desktop state', () => {
+    const store = usePanelStore()
+    store.close()
+    store.openDrawer()
+    store.closeDrawer()
+    expect(store.mode).toBe('closed')
+  })
+
+  it('open() from closed restores the last desktop mode', () => {
+    const store = usePanelStore()
+    store.float()
+    store.close()
+    // close() wrote lastDesktopMode = 'closed', so open() falls back to docked.
+    store.open()
+    expect(store.mode).toBe('docked')
+    expect(store.lastDesktopMode).toBe('docked')
+  })
+
+  it('open() restores a meaningful lastDesktopMode when one was remembered', () => {
+    const store = usePanelStore()
+    store.float()
+    // Manually set lastDesktopMode to 'floating' without re-running close().
+    store.$patch({ mode: 'closed', lastDesktopMode: 'floating' })
+    store.open()
+    expect(store.mode).toBe('floating')
+    expect(store.lastDesktopMode).toBe('floating')
+  })
+
+  it('open() is a no-op when not closed', () => {
+    const store = usePanelStore()
+    store.float()
+    store.open()
+    expect(store.mode).toBe('floating')
+    store.dock()
+    store.open()
+    expect(store.mode).toBe('docked')
+    store.openDrawer()
+    store.open()
+    expect(store.mode).toBe('drawer')
+  })
+
+  it('toggleMode cycles docked → floating → docked', () => {
+    const store = usePanelStore()
+    expect(store.mode).toBe('docked')
+    store.toggleMode()
+    expect(store.mode).toBe('floating')
+    store.toggleMode()
+    expect(store.mode).toBe('docked')
+  })
+
+  it('toggleMode from closed reopens to last desktop mode (floating)', () => {
+    const store = usePanelStore()
+    store.float()
+    store.close()
+    store.toggleMode()
+    // lastDesktopMode was overwritten to 'closed' by close(), so the
+    // restoration defaults to docked per the safe-fallback rule.
+    expect(store.mode).toBe('docked')
+    expect(store.lastDesktopMode).toBe('docked')
+  })
+
+  it('toggleMode from closed defaults to docked when lastDesktopMode is closed', () => {
+    const store = usePanelStore()
+    store.close()
+    expect(store.lastDesktopMode).toBe('closed')
+    store.toggleMode()
+    expect(store.mode).toBe('docked')
+    expect(store.lastDesktopMode).toBe('docked')
+  })
+
+  it('toggleMode is a no-op in drawer mode', () => {
+    const store = usePanelStore()
+    store.openDrawer()
+    store.toggleMode()
+    expect(store.mode).toBe('drawer')
+  })
+
+  it('setDockedWidth clamps to the valid range', () => {
+    const store = usePanelStore()
+    store.setDockedWidth(400)
+    expect(store.dockedWidth).toBe(400)
+    store.setDockedWidth(100)
+    expect(store.dockedWidth).toBe(260)
+    store.setDockedWidth(9999)
+    expect(store.dockedWidth).toBe(660)
+  })
+
+  it('is a singleton across calls', () => {
+    const a = usePanelStore()
+    const b = usePanelStore()
+    a.float()
+    expect(b.mode).toBe('floating')
+  })
+})
+
+describe('usePanel composable', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+  })
+
+  it('exposes reactive refs and actions', () => {
+    const panel = usePanel()
+    expect(panel.mode.value).toBe('docked')
+    panel.float()
+    expect(panel.mode.value).toBe('floating')
+    expect(panel.lastDesktopMode.value).toBe('floating')
+    panel.setDockedWidth(420)
+    expect(panel.dockedWidth.value).toBe(420)
+  })
+
+  it('exposes narrow flag defaulting to false', () => {
+    const panel = usePanel()
+    expect(panel.narrow.value).toBe(false)
+  })
+})
+
+describe('usePanelStore breakpoint sync', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+  })
+
+  it('initBreakpoint(true) on initial narrow forces drawer and preserves lastDesktopMode', () => {
+    const store = usePanelStore()
+    // Simulate rehydrated persisted state.
+    store.$patch({ mode: 'floating', lastDesktopMode: 'floating' })
+
+    store.initBreakpoint(true)
+
+    expect(store.mode).toBe('drawer')
+    expect(store.lastDesktopMode).toBe('floating')
+    expect(store.narrow).toBe(true)
+  })
+
+  it('initBreakpoint(false) on initial wide leaves state unchanged', () => {
+    const store = usePanelStore()
+    store.$patch({ mode: 'floating', lastDesktopMode: 'floating' })
+
+    store.initBreakpoint(false)
+
+    expect(store.mode).toBe('floating')
+    expect(store.lastDesktopMode).toBe('floating')
+    expect(store.narrow).toBe(false)
+  })
+
+  it('initBreakpoint(true) preserves lastDesktopMode even when persisted mode is already drawer', () => {
+    const store = usePanelStore()
+    store.$patch({ mode: 'drawer', lastDesktopMode: 'floating' })
+
+    store.initBreakpoint(true)
+
+    expect(store.mode).toBe('drawer')
+    expect(store.lastDesktopMode).toBe('floating')
+  })
+
+  it('syncBreakpoint handles wide→narrow: saves current mode to lastDesktopMode and sets drawer', () => {
+    const store = usePanelStore()
+    store.float()
+    store.initBreakpoint(false)
+    expect(store.mode).toBe('floating')
+
+    store.syncBreakpoint(true)
+
+    expect(store.mode).toBe('drawer')
+    expect(store.lastDesktopMode).toBe('floating')
+    expect(store.narrow).toBe(true)
+  })
+
+  it('syncBreakpoint handles narrow→wide: restores mode from lastDesktopMode', () => {
+    const store = usePanelStore()
+    store.float()
+    store.initBreakpoint(false)
+    store.syncBreakpoint(true)
+    expect(store.mode).toBe('drawer')
+
+    store.syncBreakpoint(false)
+
+    expect(store.mode).toBe('floating')
+    expect(store.narrow).toBe(false)
+  })
+
+  it('syncBreakpoint is a no-op when value matches current narrow state', () => {
+    const store = usePanelStore()
+    store.float()
+    store.initBreakpoint(true)
+    // mode was 'floating' when init → forced to 'drawer', lastDesktopMode stays 'floating'
+    expect(store.mode).toBe('drawer')
+    expect(store.lastDesktopMode).toBe('floating')
+
+    // Second narrow call should not overwrite lastDesktopMode with 'drawer'.
+    store.syncBreakpoint(true)
+
+    expect(store.mode).toBe('drawer')
+    expect(store.lastDesktopMode).toBe('floating')
+  })
+
+  it('while narrow, dock() does not update lastDesktopMode (override semantics)', () => {
+    const store = usePanelStore()
+    store.float()
+    store.initBreakpoint(false)
+    store.syncBreakpoint(true)
+    // Precondition: lastDesktopMode is 'floating' from the wide→narrow transition.
+    expect(store.lastDesktopMode).toBe('floating')
+
+    store.dock()
+
+    expect(store.mode).toBe('docked')
+    expect(store.lastDesktopMode).toBe('floating')
+  })
+
+  it('while narrow, float() does not update lastDesktopMode (override semantics)', () => {
+    const store = usePanelStore()
+    store.dock()
+    store.initBreakpoint(false)
+    store.syncBreakpoint(true)
+    expect(store.lastDesktopMode).toBe('docked')
+
+    store.float()
+
+    expect(store.mode).toBe('floating')
+    expect(store.lastDesktopMode).toBe('docked')
+  })
+
+  it('while narrow, close() does not update lastDesktopMode (override semantics)', () => {
+    const store = usePanelStore()
+    store.float()
+    store.initBreakpoint(false)
+    store.syncBreakpoint(true)
+    expect(store.lastDesktopMode).toBe('floating')
+
+    store.close()
+
+    expect(store.mode).toBe('closed')
+    expect(store.lastDesktopMode).toBe('floating')
+  })
+
+  it('narrow→wide restores the pre-narrow mode even after overrides', () => {
+    const store = usePanelStore()
+    store.float()
+    store.initBreakpoint(false)
+    store.syncBreakpoint(true)
+    // Override while narrow.
+    store.dock()
+    expect(store.mode).toBe('docked')
+    expect(store.lastDesktopMode).toBe('floating')
+
+    store.syncBreakpoint(false)
+
+    expect(store.mode).toBe('floating')
+  })
+})
+
+describe('usePanelStore persistence', () => {
+  beforeEach(() => {
+    localStorage.clear()
+    createPersistingPinia()
+  })
+
+  it('persists mode, dockedWidth, and lastDesktopMode to localStorage', async () => {
+    const store = usePanelStore()
+    store.float()
+    store.setDockedWidth(420)
+    await nextTick()
+
+    const raw = localStorage.getItem('blueprint-chart:panel')
+    expect(raw).not.toBeNull()
+    const parsed = JSON.parse(raw!)
+    expect(parsed).toMatchObject({
+      mode: 'floating',
+      dockedWidth: 420,
+      lastDesktopMode: 'floating',
+    })
+  })
+
+  it('does not persist floatingPosition or floatingSize', async () => {
+    const store = usePanelStore()
+    store.floatingPosition = { x: 123, y: 456 }
+    store.floatingSize = { width: 500, height: 700 }
+    await nextTick()
+
+    const raw = localStorage.getItem('blueprint-chart:panel')
+    expect(raw).not.toBeNull()
+    const parsed = JSON.parse(raw!)
+    expect(parsed).not.toHaveProperty('floatingPosition')
+    expect(parsed).not.toHaveProperty('floatingSize')
+  })
+
+  it('rehydrates persisted state on a fresh pinia instance', () => {
+    localStorage.setItem(
+      'blueprint-chart:panel',
+      JSON.stringify({
+        mode: 'floating',
+        dockedWidth: 512,
+        lastDesktopMode: 'floating',
+      }),
+    )
+
+    createPersistingPinia()
+
+    const store = usePanelStore()
+    expect(store.mode).toBe('floating')
+    expect(store.dockedWidth).toBe(512)
+    expect(store.lastDesktopMode).toBe('floating')
+    // Non-persisted fields fall back to their defaults.
+    expect(store.floatingPosition).toEqual({ x: -1, y: 16 })
+    expect(store.floatingSize).toEqual({ width: 340, height: 500 })
+  })
+
+  it('falls back to sensible defaults when no persisted state exists', () => {
+    // localStorage is cleared in beforeEach — simulate a first-ever load.
+    expect(localStorage.getItem('blueprint-chart:panel')).toBeNull()
+
+    const store = usePanelStore()
+
+    expect(store.mode).toBe('docked')
+    expect(store.lastDesktopMode).toBe('docked')
+    const expected = Math.min(660, Math.max(260, Math.floor(window.innerWidth * 0.35)))
+    expect(store.dockedWidth).toBe(expected)
+  })
+})
+
+describe('usePanelStore hydration coercion', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+  })
+
+  it('initBreakpoint(false) coerces a persisted drawer mode to lastDesktopMode', () => {
+    const store = usePanelStore()
+    // Simulate rehydration from localStorage with a narrow session's drawer
+    // snapshot and a remembered desktop mode.
+    store.$patch({ mode: 'drawer', lastDesktopMode: 'floating' })
+
+    store.initBreakpoint(false)
+
+    expect(store.mode).toBe('floating')
+    expect(store.lastDesktopMode).toBe('floating')
+    expect(store.narrow).toBe(false)
+  })
+
+  it('initBreakpoint(false) coerces drawer to docked when lastDesktopMode is at its default', () => {
+    const store = usePanelStore()
+    // No lastDesktopMode ever set — stays at the initial 'docked' default.
+    store.$patch({ mode: 'drawer' })
+
+    store.initBreakpoint(false)
+
+    expect(store.mode).toBe('docked')
+  })
+
+  it('initBreakpoint(false) leaves mode alone when persisted mode is not drawer', () => {
+    const store = usePanelStore()
+    store.$patch({ mode: 'floating', lastDesktopMode: 'floating' })
+
+    store.initBreakpoint(false)
+
+    expect(store.mode).toBe('floating')
+  })
+})

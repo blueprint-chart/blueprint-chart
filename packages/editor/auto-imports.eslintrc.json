@@ -325,6 +325,7 @@
     "useOffsetPagination": true,
     "useOnline": true,
     "usePageLeave": true,
+    "usePanelBreakpointSync": true,
     "usePanelDrag": true,
     "useParallax": true,
     "useParentElement": true,
