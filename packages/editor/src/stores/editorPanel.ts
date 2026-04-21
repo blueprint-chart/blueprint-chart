@@ -1,72 +1,21 @@
-export type PanelMode = 'docked' | 'floating' | 'collapsed'
 export type ViewMode = 'preview' | 'dsl'
 export type CanvasMode = 'blueprint' | 'auto' | 'light' | 'dark'
 export type DataView = 'upload' | 'structure'
 export type DataPanelTab = 'column' | 'transforms' | 'parsing' | 'reco'
 
-const PANEL_MIN_WIDTH = 260
-const PANEL_MAX_WIDTH = 660
-
-function defaultPanelWidth() {
-  const available = Math.floor(window.innerWidth * 0.35)
-  return Math.min(PANEL_MAX_WIDTH, Math.max(PANEL_MIN_WIDTH, available))
-}
-
 export const useEditorPanelStore = defineStore('editorPanel', () => {
-  const panelMode = shallowRef<PanelMode>('docked')
   const activeTab = shallowRef('type')
   const viewMode = shallowRef<ViewMode>('preview')
   const canvasMode = shallowRef<CanvasMode>('blueprint')
   const showDimensions = shallowRef(true)
-  const floatingPosition = ref({ x: -1, y: 16 }) // object mutated in place by usePanelDrag
-  const floatingSize = shallowRef({ width: 340, height: 500 })
   const pendingAnnotationIndex = shallowRef<number | string | null>(null)
   const dataView = shallowRef<DataView>('upload')
-  const dataPanelMode = shallowRef<PanelMode>('docked')
   const dataPanelTab = shallowRef<DataPanelTab | ''>('')
   const dataPanelOpen = shallowRef(false)
-  const dataFloatingPosition = ref({ x: -1, y: 16 }) // object mutated in place by usePanelDrag
   const selectedColumnIndex = shallowRef(-1)
-  const dockedPanelWidth = shallowRef(defaultPanelWidth())
-
-  let lastOpenMode: 'docked' | 'floating' = 'docked'
-  let lastDataOpenMode: 'docked' | 'floating' = 'docked'
-
-  function dock() {
-    lastOpenMode = 'docked'
-    panelMode.value = 'docked'
-  }
-
-  function float() {
-    lastOpenMode = 'floating'
-    panelMode.value = 'floating'
-  }
-
-  function collapse() {
-    panelMode.value = 'collapsed'
-    activeTab.value = ''
-  }
-
-  function toggleMode() {
-    if (panelMode.value === 'docked') {
-      float()
-    }
-    else if (panelMode.value === 'floating') {
-      dock()
-    }
-    else {
-      panelMode.value = lastOpenMode
-      if (!activeTab.value) {
-        activeTab.value = 'type'
-      }
-    }
-  }
 
   function selectTab(tab: string) {
     activeTab.value = tab
-    if (panelMode.value === 'collapsed') {
-      panelMode.value = lastOpenMode
-    }
   }
 
   function selectAnnotation(index: number | string) {
@@ -93,30 +42,12 @@ export const useEditorPanelStore = defineStore('editorPanel', () => {
     dataPanelTab.value = tab
   }
 
-  function dockDataPanel() {
-    lastDataOpenMode = 'docked'
-    dataPanelMode.value = 'docked'
-  }
-
-  function floatDataPanel() {
-    lastDataOpenMode = 'floating'
-    dataPanelMode.value = 'floating'
-  }
-
-  function collapseDataPanel() {
-    dataPanelMode.value = 'collapsed'
-  }
-
   function openDataPanel(tab: DataPanelTab) {
     dataPanelTab.value = tab
     dataPanelOpen.value = true
-    if (dataPanelMode.value === 'collapsed') {
-      dataPanelMode.value = lastDataOpenMode
-    }
   }
 
   function closeDataPanel() {
-    dataPanelMode.value = 'collapsed'
     dataPanelOpen.value = false
     dataPanelTab.value = '' as DataPanelTab
   }
@@ -135,54 +66,33 @@ export const useEditorPanelStore = defineStore('editorPanel', () => {
   }
 
   function reset() {
-    panelMode.value = 'docked'
     activeTab.value = 'type'
     viewMode.value = 'preview'
     canvasMode.value = 'blueprint'
     showDimensions.value = true
-    floatingPosition.value = { x: -1, y: 16 }
-    floatingSize.value = { width: 340, height: 500 }
     pendingAnnotationIndex.value = null
     dataView.value = 'upload'
-    dataPanelMode.value = 'docked'
     dataPanelTab.value = '' as DataPanelTab
     dataPanelOpen.value = false
-    dataFloatingPosition.value = { x: -1, y: 16 }
     selectedColumnIndex.value = -1
-    dockedPanelWidth.value = defaultPanelWidth()
-    lastOpenMode = 'docked'
-    lastDataOpenMode = 'docked'
   }
 
   return {
-    panelMode,
     activeTab,
     viewMode,
     canvasMode,
     showDimensions,
-    floatingPosition,
-    floatingSize,
     pendingAnnotationIndex,
     dataView,
-    dataPanelMode,
     dataPanelTab,
     dataPanelOpen,
-    dataFloatingPosition,
     selectedColumnIndex,
-    dockedPanelWidth,
-    dock,
-    float,
-    collapse,
-    toggleMode,
     selectTab,
     selectAnnotation,
     setViewMode,
     setCanvasMode,
     setDataView,
     setDataPanelTab,
-    dockDataPanel,
-    floatDataPanel,
-    collapseDataPanel,
     openDataPanel,
     closeDataPanel,
     toggleDataPanel,
@@ -194,51 +104,32 @@ export const useEditorPanelStore = defineStore('editorPanel', () => {
 export function useEditorPanel() {
   const store = useEditorPanelStore()
   const {
-    panelMode,
     activeTab,
     viewMode,
     canvasMode,
     showDimensions,
-    floatingPosition,
-    floatingSize,
     pendingAnnotationIndex,
     dataView,
-    dataPanelMode,
     dataPanelTab,
     dataPanelOpen,
-    dataFloatingPosition,
     selectedColumnIndex,
-    dockedPanelWidth,
   } = storeToRefs(store)
   return {
-    panelMode,
     activeTab,
     viewMode,
     canvasMode,
     showDimensions,
-    floatingPosition,
-    floatingSize,
     pendingAnnotationIndex,
     dataView,
-    dataPanelMode,
     dataPanelTab,
     dataPanelOpen,
-    dataFloatingPosition,
     selectedColumnIndex,
-    dockedPanelWidth,
-    dock: store.dock,
-    float: store.float,
-    collapse: store.collapse,
-    toggleMode: store.toggleMode,
     selectTab: store.selectTab,
     selectAnnotation: store.selectAnnotation,
     setViewMode: store.setViewMode,
     setCanvasMode: store.setCanvasMode,
     setDataView: store.setDataView,
     setDataPanelTab: store.setDataPanelTab,
-    dockDataPanel: store.dockDataPanel,
-    floatDataPanel: store.floatDataPanel,
-    collapseDataPanel: store.collapseDataPanel,
     openDataPanel: store.openDataPanel,
     closeDataPanel: store.closeDataPanel,
     toggleDataPanel: store.toggleDataPanel,
