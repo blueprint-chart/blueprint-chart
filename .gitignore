@@ -5,6 +5,7 @@ components.d.ts
 .playwright-mcp
 .claude
 .ralph-tui
+./tasks
 
 # Generated parsers
 packages/lib/src/dsl/grammar.js
