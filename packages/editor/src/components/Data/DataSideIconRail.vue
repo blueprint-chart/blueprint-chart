@@ -2,7 +2,6 @@
   <PanelIconRail
     :horizontal="horizontal"
     :active-tab="dataPanelTab"
-    :panel-mode="panelMode"
     :items="items"
     @select="onSelect"
     @toggle-mode="onToggleMode"
@@ -12,6 +11,7 @@
 <script setup lang="ts">
 import { type Component } from 'vue'
 import { useEditorPanel, type DataPanelTab } from '@/stores/editorPanel'
+import { usePanel } from '@/stores/panel'
 import IPhColumns from '~icons/ph/columns'
 import IPhFlowArrow from '~icons/ph/flow-arrow'
 import IPhFileText from '~icons/ph/file-text'
@@ -25,8 +25,9 @@ const props = withDefaults(defineProps<{
 })
 
 const editorPanel = useEditorPanel()
-const { dataPanelTab, panelMode } = storeToRefs(editorPanel)
-const { openDataPanel, toggleMode } = editorPanel
+const { dataPanelTab } = storeToRefs(editorPanel)
+const { openDataPanel } = editorPanel
+const { mode: panelMode, toggleMode } = usePanel()
 
 const allItems: { value: string, icon: Component, tooltip: string }[] = [
   { value: 'column', icon: IPhColumns, tooltip: 'Columns' },
@@ -44,7 +45,7 @@ function onSelect(tab: string | number) {
 }
 
 function onToggleMode() {
-  if (panelMode.value === 'collapsed') {
+  if (panelMode.value === 'closed') {
     openDataPanel(dataPanelTab.value || 'column')
   }
   toggleMode()

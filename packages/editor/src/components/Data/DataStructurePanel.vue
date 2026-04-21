@@ -35,46 +35,57 @@
         />
       </div>
       <DataCheckTable />
-      <DataFloatingPanel
-        v-if="panelMode === 'floating' && dataPanelMode !== 'collapsed'"
-        :container-ref="mainRef"
-      />
     </div>
-    <template v-if="isNarrow">
-      <LayoutBottomDrawer v-model="drawerOpen">
+    <PanelShell
+      v-if="dataPanelOpen"
+      v-model:drawer-open="drawerOpen"
+      :title="panelTitle"
+      :container-ref="mainRef"
+      @close="closeDataPanel"
+    >
+      <template
+        v-if="panelMode !== 'docked'"
+        #tabs
+      >
         <PanelTabBar
           :tabs="activeTabs"
           :model-value="dataPanelTab"
           sticky
           @update:model-value="openDataPanel($event as DataPanelTab)"
         />
-        <div class="data-structure-panel__drawer-body">
-          <DataColumnSettings v-if="dataPanelTab === 'column'" />
-          <DataTransformPipeline v-else-if="dataPanelTab === 'transforms'" />
-          <DataParseSettings v-else-if="dataPanelTab === 'parsing'" />
-          <DataRecommendations v-else-if="dataPanelTab === 'reco'" />
-        </div>
-      </LayoutBottomDrawer>
-    </template>
-    <template v-else>
-      <DataSidePanel :collapsed="panelMode !== 'docked' || dataPanelMode === 'collapsed'" />
-      <DataSideIconRail :disabled-tabs="sceneDisabledTabs" />
-    </template>
+      </template>
+      <DataColumnSettings v-if="dataPanelTab === 'column'" />
+      <DataTransformPipeline v-else-if="dataPanelTab === 'transforms'" />
+      <DataParseSettings v-else-if="dataPanelTab === 'parsing'" />
+      <DataRecommendations v-else-if="dataPanelTab === 'reco'" />
+      <template
+        v-if="panelMode !== 'drawer'"
+        #footer
+      >
+        <PanelStepperFooter />
+      </template>
+    </PanelShell>
+    <DataSideIconRail
+      v-if="!isNarrow"
+      :disabled-tabs="sceneDisabledTabs"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { LayoutBottomDrawer, ButtonIcon, useBreakpoint } from '@blueprint-chart/ui'
+import { ButtonIcon, useBreakpoint } from '@blueprint-chart/ui'
 import { useDataTable } from '@/stores/dataTable'
 import { useEditorPanel, type DataPanelTab } from '@/stores/editorPanel'
+import { usePanel } from '@/stores/panel'
 import { useScenes } from '@/stores/scenes'
 import IPhArrowsClockwise from '~icons/ph/arrows-clockwise'
 import { findDataSourceSceneIndex } from '@/utils/scenes'
 
 const { columns, rows, columnTypes } = useDataTable()
 const editorPanel = useEditorPanel()
-const { panelMode, dataPanelMode, dataPanelTab } = storeToRefs(editorPanel)
-const { openDataPanel, closeDataPanel, collapse, setDataView } = editorPanel
+const { dataPanelOpen, dataPanelTab } = storeToRefs(editorPanel)
+const { openDataPanel, closeDataPanel, setDataView } = editorPanel
+const { mode: panelMode } = usePanel()
 const { activeScene, activeIndex, scenes } = useScenes()
 const isSceneMode = computed(() => activeScene.value !== null)
 
@@ -109,12 +120,6 @@ function replaceData() {
 }
 const { isNarrow } = useBreakpoint()
 
-watch(isNarrow, (narrow) => {
-  if (narrow && dataPanelMode.value !== 'collapsed') {
-    closeDataPanel()
-  }
-}, { immediate: true })
-
 const mainRef = useTemplateRef<HTMLElement>('mainRef')
 
 const allTabs = [
@@ -131,13 +136,22 @@ const activeTabs = computed(() =>
 )
 
 const drawerOpen = computed({
-  get: () => isNarrow.value && dataPanelMode.value !== 'collapsed' && !!dataPanelTab.value,
+  get: () => !!dataPanelTab.value,
   set: (open) => {
     if (!open) {
-      collapse()
+      closeDataPanel()
     }
   },
 })
+
+const TAB_LABELS: Record<string, string> = {
+  column: 'Column Settings',
+  transforms: 'Transforms',
+  parsing: 'Parsing',
+  reco: 'Recommendations',
+}
+
+const panelTitle = computed(() => TAB_LABELS[dataPanelTab.value] ?? 'Panel')
 
 const panelClassList = computed(() => ({
   'data-structure-panel--narrow': isNarrow.value,

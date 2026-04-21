@@ -3,7 +3,7 @@ import DataStructurePanel from './DataStructurePanel.vue'
 import { useScenesStore } from '@/stores/scenes'
 
 const mockOpenDataPanel = vi.fn()
-const mockCollapseDataPanel = vi.fn()
+const mockCloseDataPanel = vi.fn()
 
 vi.mock('@/stores/dataTable', () => ({
   useDataTable: () => ({
@@ -18,12 +18,26 @@ vi.mock('@/stores/editorPanel', () => ({
   useEditorPanel: () => ({
     selectedColumnIndex: ref(-1),
     selectColumn: vi.fn(),
-    dataPanelMode: ref('docked'),
     dataPanelTab: ref('column'),
     dataPanelOpen: ref(true),
     openDataPanel: mockOpenDataPanel,
-    collapseDataPanel: mockCollapseDataPanel,
+    closeDataPanel: mockCloseDataPanel,
     setDataView: vi.fn(),
+  }),
+}))
+
+vi.mock('@/stores/panel', () => ({
+  usePanel: () => ({
+    mode: ref('docked'),
+    close: vi.fn(),
+  }),
+  usePanelStore: () => ({
+    mode: ref('docked'),
+    dockedWidth: ref(330),
+    floatingPosition: ref({ x: 16, y: 16 }),
+    dock: vi.fn(),
+    float: vi.fn(),
+    close: vi.fn(),
   }),
 }))
 
@@ -33,22 +47,24 @@ vi.mock('@blueprint-chart/ui', () => ({
   useBreakpoint: () => ({ isNarrow: ref(false) }),
 }))
 
+const commonStubs = {
+  DataCheckTable: { template: '<div class="table-stub" />' },
+  DataInsightBadges: { template: '<div class="badges-stub" />', props: ['columns', 'rows'] },
+  DataSideIconRail: { template: '<div class="icon-rail-stub" />', props: ['horizontal'] },
+  PanelShell: { template: '<div class="panel-shell-stub"><slot /></div>', props: ['title', 'containerRef', 'showClose', 'drawerOpen'] },
+  DataColumnSettings: { template: '<div class="column-settings-stub" />' },
+  DataTransformPipeline: { template: '<div class="transforms-stub" />' },
+  DataParseSettings: { template: '<div class="parse-settings-stub" />' },
+  DataRecommendations: { template: '<div class="reco-stub" />' },
+  PanelTabBar: { template: '<div class="tab-bar-stub" />', props: ['tabs', 'modelValue', 'sticky'] },
+  PanelStepperFooter: { template: '<div class="stepper-footer-stub" />' },
+}
+
 function mountPanel() {
   return mount(DataStructurePanel, {
     global: {
       plugins: [createPinia()],
-      stubs: {
-        DataCheckTable: { template: '<div class="table-stub" />' },
-        DataInsightBadges: { template: '<div class="badges-stub" />', props: ['columns', 'rows'] },
-        DataSideIconRail: { template: '<div class="icon-rail-stub" />', props: ['horizontal'] },
-        DataSidePanel: { template: '<div class="side-panel-stub" />', props: ['collapsed'] },
-        DataFloatingPanel: { template: '<div class="floating-panel-stub" />', props: ['containerRef'] },
-        DataColumnSettings: { template: '<div class="column-settings-stub" />' },
-        DataTransformPipeline: { template: '<div class="transforms-stub" />' },
-        DataParseSettings: { template: '<div class="parse-settings-stub" />' },
-        DataRecommendations: { template: '<div class="reco-stub" />' },
-        PanelTabBar: { template: '<div class="tab-bar-stub" />', props: ['tabs', 'modelValue', 'sticky'] },
-      },
+      stubs: commonStubs,
     },
   })
 }
@@ -74,9 +90,9 @@ describe('DataStructurePanel', () => {
     expect(w.find('.icon-rail-stub').exists()).toBe(true)
   })
 
-  it('renders side panel on desktop', () => {
+  it('renders panel shell on desktop', () => {
     const w = mountPanel()
-    expect(w.find('.side-panel-stub').exists()).toBe(true)
+    expect(w.find('.panel-shell-stub').exists()).toBe(true)
   })
 
   it('always renders the replace data button', () => {
@@ -101,18 +117,7 @@ describe('DataStructurePanel', () => {
       return mount(DataStructurePanel, {
         global: {
           plugins: [pinia],
-          stubs: {
-            DataCheckTable: { template: '<div class="table-stub" />' },
-            DataInsightBadges: { template: '<div class="badges-stub" />', props: ['columns', 'rows'] },
-            DataSideIconRail: { template: '<div class="icon-rail-stub" />', props: ['horizontal'] },
-            DataSidePanel: { template: '<div class="side-panel-stub" />', props: ['collapsed'] },
-            DataFloatingPanel: { template: '<div class="floating-panel-stub" />', props: ['containerRef'] },
-            DataColumnSettings: { template: '<div class="column-settings-stub" />' },
-            DataTransformPipeline: { template: '<div class="transforms-stub" />' },
-            DataParseSettings: { template: '<div class="parse-settings-stub" />' },
-            DataRecommendations: { template: '<div class="reco-stub" />' },
-            PanelTabBar: { template: '<div class="tab-bar-stub" />', props: ['tabs', 'modelValue', 'sticky'] },
-          },
+          stubs: commonStubs,
         },
       })
     }
