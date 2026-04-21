@@ -24,99 +24,48 @@
         @edit="(id: string) => router.push(`/edit/${id}`)"
         @new="router.push('/new')"
       />
-
-      <PanelFloating
-        v-if="panelMode === 'floating' && !isNarrow"
-        :container-ref="galleryRef"
-        :title="selectedChart ? (selectedChart.title || 'Untitled') : 'Chart details'"
-        :position="floatingPosition"
-        :show-close="false"
-        @dock="dock"
-        @close="collapse"
-      >
-        <DashboardDetailContent
-          v-if="selectedChart"
-          :title="selectedChart.title || 'Untitled'"
-          :subtitle="selectedChart.description"
-          :preview-src="selectedChartId ? previews[selectedChartId] : undefined"
-          :force-light-theme="selectedChart ? !selectedChart.allowDarkMode : false"
-          :chart-type="selectedChart.chartType"
-          :saved-at="selectedChart.savedAt ?? undefined"
-          :scene-count="selectedChart.sceneCount"
-          :row-count="selectedChart.rowCount"
-          @edit="editSelected"
-          @duplicate="duplicateSelected"
-          @delete="deleteSelected"
-        />
-      </PanelFloating>
     </div>
 
-    <template v-if="isNarrow">
-      <LayoutBottomDrawer
-        v-model="drawerOpen"
-        :title="selectedChart ? (selectedChart.title || 'Untitled') : undefined"
-      >
-        <DashboardDetailContent
-          v-if="selectedChart"
-          :title="selectedChart.title || 'Untitled'"
-          :subtitle="selectedChart.description"
-          :preview-src="selectedChartId ? previews[selectedChartId] : undefined"
-          :force-light-theme="selectedChart ? !selectedChart.allowDarkMode : false"
-          :chart-type="selectedChart.chartType"
-          :saved-at="selectedChart.savedAt ?? undefined"
-          :scene-count="selectedChart.sceneCount"
-          :row-count="selectedChart.rowCount"
-          @edit="editSelected"
-          @duplicate="duplicateSelected"
-          @delete="deleteSelected"
-        />
-      </LayoutBottomDrawer>
-    </template>
-    <template v-else>
-      <PanelDocked
-        v-model="dockedPanelWidth"
-        :collapsed="panelMode !== 'docked'"
-        :show-close="false"
-        :title="selectedChart ? (selectedChart.title || 'Untitled') : 'Chart details'"
-        @float="float"
-        @close="collapse"
-      >
-        <DashboardDetailContent
-          v-if="selectedChart"
-          :title="selectedChart.title || 'Untitled'"
-          :subtitle="selectedChart.description"
-          :preview-src="selectedChartId ? previews[selectedChartId] : undefined"
-          :force-light-theme="selectedChart ? !selectedChart.allowDarkMode : false"
-          :chart-type="selectedChart.chartType"
-          :saved-at="selectedChart.savedAt ?? undefined"
-          :scene-count="selectedChart.sceneCount"
-          :row-count="selectedChart.rowCount"
-          @edit="editSelected"
-          @duplicate="duplicateSelected"
-          @delete="deleteSelected"
-        />
-        <DashboardEmptyState v-else />
-      </PanelDocked>
-    </template>
+    <PanelShell
+      v-model:drawer-open="drawerOpen"
+      :title="panelTitle"
+      :container-ref="galleryRef"
+      :show-close="false"
+      @close="onClose"
+    >
+      <DashboardDetailContent
+        v-if="selectedChart"
+        :title="selectedChart.title || 'Untitled'"
+        :subtitle="selectedChart.description"
+        :preview-src="selectedChartId ? previews[selectedChartId] : undefined"
+        :force-light-theme="selectedChart ? !selectedChart.allowDarkMode : false"
+        :chart-type="selectedChart.chartType"
+        :saved-at="selectedChart.savedAt ?? undefined"
+        :scene-count="selectedChart.sceneCount"
+        :row-count="selectedChart.rowCount"
+        @edit="editSelected"
+        @duplicate="duplicateSelected"
+        @delete="deleteSelected"
+      />
+      <DashboardEmptyState
+        v-else-if="mode === 'docked'"
+      />
+    </PanelShell>
   </div>
 </template>
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import { LayoutBottomDrawer, useBreakpoint } from '@blueprint-chart/ui'
+import { useBreakpoint } from '@blueprint-chart/ui'
+import { usePanelStore } from '@/stores/panel'
 
 const router = useRouter()
 const { isNarrow } = useBreakpoint()
 const {
-  panelMode,
   selectedChartId,
-  dockedPanelWidth,
-  floatingPosition,
   selectChart,
-  dock,
-  float,
-  collapse,
 } = useDashboardPanel()
+const { mode } = storeToRefs(usePanelStore())
 const {
   sortedCharts,
   selectedChart,
@@ -131,20 +80,22 @@ const {
 const galleryRef = useTemplateRef<HTMLElement>('galleryRef')
 const viewLayout = shallowRef<'grid' | 'row'>('grid')
 
+const panelTitle = computed(() =>
+  selectedChart.value ? (selectedChart.value.title || 'Untitled') : 'Chart details',
+)
+
+function onClose() {
+  selectedChartId.value = null
+}
+
 const drawerOpen = computed({
-  get: () => panelMode.value !== 'collapsed' && selectedChartId.value !== null,
+  get: () => selectedChartId.value !== null,
   set: (open) => {
     if (!open) {
-      collapse()
+      selectedChartId.value = null
     }
   },
 })
-
-watch(isNarrow, (narrow) => {
-  if (narrow && panelMode.value !== 'collapsed') {
-    collapse()
-  }
-}, { immediate: true })
 
 function editSelected() {
   if (selectedChartId.value) {

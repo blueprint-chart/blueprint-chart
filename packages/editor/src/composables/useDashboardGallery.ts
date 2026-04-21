@@ -16,7 +16,7 @@ import type { SavedChartSummary } from '@/composables/useChartSession'
 
 export function useDashboardGallery() {
   const { listSavedCharts, deleteChart } = useChartSession()
-  const { selectedChartId, collapse } = useDashboardPanel()
+  const { selectedChartId } = useDashboardPanel()
   const { resolvedTheme } = useTheme()
 
   const charts = ref<SavedChartSummary[]>([])
@@ -106,7 +106,7 @@ export function useDashboardGallery() {
   }
 
   function removeChart(id: string) {
-    collapse()
+    selectedChartId.value = null
     deleteChart(id)
     delete thumbnails[id]
     delete previews[id]
