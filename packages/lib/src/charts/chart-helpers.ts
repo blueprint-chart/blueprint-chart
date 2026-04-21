@@ -288,6 +288,13 @@ export function buildChartOptions(opts: Partial<ChartTypeOptions>, backgroundCol
   if (opts.barSeparators !== undefined) {
     result.barSeparators = opts.barSeparators
   }
+  if (opts.connectedColumns !== undefined) {
+    result.connectedColumns = opts.connectedColumns
+  }
+  const connectionsOpacity = parseFloat(opts.connectionsOpacity ?? '')
+  if (!isNaN(connectionsOpacity)) {
+    result.connectionsOpacity = Math.max(0, Math.min(1, connectionsOpacity))
+  }
   if (opts.stackMode !== undefined) {
     result.stackMode = opts.stackMode as StackMode
   }

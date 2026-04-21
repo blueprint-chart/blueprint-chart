@@ -265,4 +265,44 @@ describe('buildChartOptions', () => {
     const result = buildChartOptions({})
     expect(result.categoryLabelLine).toBeUndefined()
   })
+
+  it('passes through connectedColumns when true', () => {
+    const result = buildChartOptions({ connectedColumns: true })
+    expect(result.connectedColumns).toBe(true)
+  })
+
+  it('passes through connectedColumns when false', () => {
+    const result = buildChartOptions({ connectedColumns: false })
+    expect(result.connectedColumns).toBe(false)
+  })
+
+  it('does not set connectedColumns when not specified', () => {
+    const result = buildChartOptions({})
+    expect(result.connectedColumns).toBeUndefined()
+  })
+
+  it('parses connectionsOpacity as float', () => {
+    const result = buildChartOptions({ connectionsOpacity: '0.42' })
+    expect(result.connectionsOpacity).toBe(0.42)
+  })
+
+  it('clamps connectionsOpacity above 1 down to 1', () => {
+    const result = buildChartOptions({ connectionsOpacity: '2.5' })
+    expect(result.connectionsOpacity).toBe(1)
+  })
+
+  it('clamps connectionsOpacity below 0 up to 0', () => {
+    const result = buildChartOptions({ connectionsOpacity: '-0.3' })
+    expect(result.connectionsOpacity).toBe(0)
+  })
+
+  it('ignores non-numeric connectionsOpacity', () => {
+    const result = buildChartOptions({ connectionsOpacity: 'abc' })
+    expect(result.connectionsOpacity).toBeUndefined()
+  })
+
+  it('does not set connectionsOpacity when not specified', () => {
+    const result = buildChartOptions({})
+    expect(result.connectionsOpacity).toBeUndefined()
+  })
 })
