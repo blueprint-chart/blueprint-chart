@@ -109,6 +109,17 @@ const drawerOpen = computed({
   },
 })
 
+// In narrow/drawer mode the panel is rendered as a bottom drawer with a
+// full-viewport backdrop. Because activeTab defaults to 'type' (sensible for
+// the docked desktop panel), the drawer would open on mount and cover the
+// icon rail. Clear activeTab whenever we enter drawer mode so the drawer is
+// closed until the user explicitly picks a tab from the rail.
+watch(panelMode, (mode) => {
+  if (mode === 'drawer' && activeTab.value) {
+    selectTab('')
+  }
+}, { immediate: true })
+
 const hasInteraction = computed(() =>
   availableOptionKeys.value.includes('tooltips')
   || availableOptionKeys.value.includes('crosshair')
