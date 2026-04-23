@@ -510,7 +510,7 @@ describe('bar-multi', () => {
     })
 
     it('wraps multi-word labels across lines instead of rotating when wrap fits', () => {
-      setContainerWidth(800)
+      setContainerWidth(500)
       const multiWord = {
         labels: Array.from({ length: 6 }, (_, i) => `Column Label ${i + 1}`),
         values: [],
