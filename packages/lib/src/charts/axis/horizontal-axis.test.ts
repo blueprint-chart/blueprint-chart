@@ -61,7 +61,21 @@ describe('renderHorizontalAxis', () => {
     expect(ticks.length).toBeLessThanOrEqual(11)
   })
 
-  it('auto-rotates many ordinal labels instead of thinning them away', () => {
+  it('auto-rotates many discrete ordinal labels instead of thinning them away', () => {
+    const categories = Array.from({ length: 40 }, (_, i) => `Category ${i + 1}`)
+    const largeScale = d3.scaleBand<string>().domain(categories).range([0, 600]).padding(0.1)
+    const g = renderHorizontalAxis(chartArea, largeScale, 300, { width: 600 })
+    const texts = g.querySelectorAll('.tick text')
+    // With rotation on, far more labels survive than with horizontal thinning.
+    expect(texts.length).toBeGreaterThan(11)
+    texts.forEach((t) => {
+      expect(t.getAttribute('transform')).toBe('rotate(-90)')
+    })
+  })
+
+  it('auto-thins (does not rotate) date-like ordinal labels — continuous series', () => {
+    // Date-parseable labels on an ordinal scale are treated as continuous:
+    // rotation is suppressed, labels are thinned instead.
     const months = Array.from({ length: 120 }, (_, i) => {
       const y = 2009 + Math.floor(i / 12)
       const m = String((i % 12) + 1).padStart(2, '0')
@@ -70,10 +84,10 @@ describe('renderHorizontalAxis', () => {
     const largeScale = d3.scaleBand<string>().domain(months).range([0, 600]).padding(0.1)
     const g = renderHorizontalAxis(chartArea, largeScale, 300, { width: 600 })
     const texts = g.querySelectorAll('.tick text')
-    // With rotation on, far more labels survive than with horizontal thinning (≤11)
-    expect(texts.length).toBeGreaterThan(11)
+    expect(texts.length).toBeGreaterThan(0)
+    expect(texts.length).toBeLessThan(months.length)
     texts.forEach((t) => {
-      expect(t.getAttribute('transform')).toBe('rotate(-90)')
+      expect(t.getAttribute('transform')).toBeNull()
     })
   })
 })
@@ -358,6 +372,50 @@ describe('HorizontalAxisChart label rotation', () => {
     })
   })
 
+  it('keeps every discrete label when they fit — no thinning on bar/column charts', () => {
+    // 10 short discrete labels on a modest-width chart. They fit per-tick and
+    // should all render (no thinning). Dropping a bar's label is never OK.
+    const domain = ['Apple', 'Pear', 'Kiwi', 'Plum', 'Date', 'Fig', 'Lime', 'Mango', 'Grape', 'Peach']
+    const axis = renderOrdinal({ domain, width: 500 })
+    const ticks = axis.querySelectorAll('.tick')
+    expect(ticks.length).toBe(domain.length)
+    axis.querySelectorAll('.tick text').forEach((t) => {
+      expect(t.getAttribute('transform')).toBeNull()
+    })
+  })
+
+  it('does not rotate date-like ordinal labels on auto (continuous series)', () => {
+    // Ordinal scale whose domain parses as dates → continuous → thin, not rotate.
+    const domain = Array.from({ length: 120 }, (_, i) => {
+      const y = 2009 + Math.floor(i / 12)
+      const m = String((i % 12) + 1).padStart(2, '0')
+      return `${y}-${m}`
+    })
+    const axis = renderOrdinal({ domain, width: 600 })
+    const texts = axis.querySelectorAll('.tick text')
+    expect(texts.length).toBeGreaterThan(0)
+    texts.forEach((t) => {
+      expect(t.getAttribute('transform')).toBeNull()
+    })
+    // Thinning applied because rotation is suppressed for continuous series.
+    expect(texts.length).toBeLessThan(domain.length)
+  })
+
+  it('still rotates date-like ordinal labels when labelRotation=vertical', () => {
+    // Explicit user override wins over the continuous-domain heuristic.
+    const domain = Array.from({ length: 120 }, (_, i) => {
+      const y = 2009 + Math.floor(i / 12)
+      const m = String((i % 12) + 1).padStart(2, '0')
+      return `${y}-${m}`
+    })
+    const axis = renderOrdinal({ domain, width: 600, labelRotation: 'vertical' })
+    const texts = axis.querySelectorAll('.tick text')
+    expect(texts.length).toBeGreaterThan(0)
+    texts.forEach((t) => {
+      expect(t.getAttribute('transform')).toBe('rotate(-90)')
+    })
+  })
+
   it('does not rotate time scales even when labels would overlap', () => {
     // Time/linear scale → thinning only, no rotation (per design)
     const scale = d3.scaleTime()
@@ -440,11 +498,28 @@ describe('willRotateLabels', () => {
     expect(willRotateLabels(['A', 'B', 'C'], 900, 'vertical')).toBe(true)
   })
 
+  it('returns false for date-like labels on auto (continuous series)', () => {
+    // Year-month labels parse as dates → thin, don't rotate, even when they
+    // would otherwise overflow their per-tick width.
+    const domain = Array.from({ length: 120 }, (_, i) => {
+      const y = 2009 + Math.floor(i / 12)
+      const m = String((i % 12) + 1).padStart(2, '0')
+      return `${y}-${m}`
+    })
+    expect(willRotateLabels(domain, 400, 'auto')).toBe(false)
+  })
+
+  it('still returns true for date-like labels when labelRotation=vertical', () => {
+    const domain = ['2020', '2021', '2022', '2023']
+    expect(willRotateLabels(domain, 900, 'vertical')).toBe(true)
+  })
+
   it('considers formatted label width via formatter', () => {
-    // Raw 4 chars (fits in 100px step), formatted to 12 chars (doesn\'t fit)
-    const domain = ['2024-01', '2024-02', '2024-03', '2024-04']
-    const formatter = (s: string) => `January ${s.slice(0, 4)}`
-    // 4 labels × 80px tick, raw fits, formatted ~130px → should rotate
+    // Non-date labels so the continuous-series guard doesn't short-circuit.
+    // Raw 2 chars (fits in 80px step), formatted to ~15 chars (doesn't fit).
+    const domain = ['Q1', 'Q2', 'Q3', 'Q4']
+    const formatter = (s: string) => `Prefix-${s}-suffix`
+    // 4 labels × 80px tick, raw fits, formatted ~150px → should rotate
     expect(willRotateLabels(domain, 320, 'auto', formatter)).toBe(true)
     // Without formatter, short raw labels fit
     expect(willRotateLabels(domain, 320, 'auto')).toBe(false)
@@ -474,6 +549,22 @@ describe('resolveHorizontalAxisBottom', () => {
 
   it('returns undefined for empty labels', () => {
     expect(resolveHorizontalAxisBottom([], 400)).toBeUndefined()
+  })
+
+  it('returns undefined for date-like labels on auto — no bottom padding needed', () => {
+    // Continuous series → thin only, so no extra bottom margin is reserved.
+    const labels = Array.from({ length: 120 }, (_, i) => {
+      const y = 2009 + Math.floor(i / 12)
+      const m = String((i % 12) + 1).padStart(2, '0')
+      return `${y}-${m}`
+    })
+    expect(resolveHorizontalAxisBottom(labels, 400)).toBeUndefined()
+  })
+
+  it('reserves rotated height for date-like labels when labelRotation=vertical', () => {
+    const labels = Array.from({ length: 12 }, (_, i) => `2024-${String(i + 1).padStart(2, '0')}`)
+    const result = resolveHorizontalAxisBottom(labels, 400, { labelRotation: 'vertical' })
+    expect(result).toBeGreaterThan(40)
   })
 
   it('returns undefined when labelRotation is explicitly horizontal', () => {

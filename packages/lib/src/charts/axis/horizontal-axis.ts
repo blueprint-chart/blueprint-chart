@@ -14,6 +14,11 @@ const MIN_LABEL_SPACING = 60
 // Approximate px per character for SVG axis text (sans-serif ~11–12 px font size).
 // Calibrated against Chromium rendering: "Jan 2024" (8 chars) measures ~88 px.
 const AVG_CHAR_WIDTH_PX = 10
+// Labels may visually extend slightly past their per-tick step without being
+// unreadable — the char-width estimate is also a loose upper bound. Treat a
+// label as "fitting" when it's within this multiple of the per-tick width so
+// we don't rotate or wrap on marginal overflow.
+const LABEL_FIT_TOLERANCE = 1.3
 // When labels are rotated 90°, each line occupies roughly this many px horizontally
 // (text line-height plus padding). Much tighter than horizontal spacing.
 const ROTATED_LABEL_SPACING_PX = 12
@@ -179,10 +184,14 @@ function thinLabels(
  * Decide whether horizontal tick labels should be rotated 90° to avoid overlap.
  * Applies only to ordinal (band/point) scales — time/linear scales thin instead.
  *
+ * Ordinal domains of date-parseable labels (e.g. `"2024-01", "2024-02"…`) are
+ * treated as continuous: auto mode thins them rather than rotating. An explicit
+ * `labelRotation='vertical'` still forces rotation so the user override wins.
+ *
  * - `labelRotation='vertical'` → always rotates (when domain has ≥2 entries).
  * - `labelRotation='horizontal'` → never rotates.
  * - `labelRotation='auto'` → rotates when the longest formatted label exceeds
- *   the per-tick band step.
+ *   the per-tick band step and the domain is discrete (non-date).
  */
 function willRotateLabels(
   domain: string[],
@@ -199,10 +208,13 @@ function willRotateLabels(
   if (labelRotation === 'vertical') {
     return true
   }
-  // 'auto'
+  // 'auto' — continuous (date-like) domains thin instead of rotating.
+  if (detectDates(domain)) {
+    return false
+  }
   const maxWidth = maxFormattedLabelWidth(domain, formatter ?? null)
   const perTickWidth = availableWidth / domain.length
-  return maxWidth > perTickWidth
+  return maxWidth > perTickWidth * LABEL_FIT_TOLERANCE
 }
 
 /**
@@ -287,15 +299,23 @@ function resolveHorizontalAxisBottom(
     ? (options.tickFormat as (d: string | d3.NumberValue) => string)
     : buildTickFormatter(options.numberFormat ?? null, labels)
   const labelRotation = options.labelRotation ?? 'auto'
+  // Continuous (date-like) domains thin instead of wrapping or rotating, so
+  // they need no extra bottom padding. An explicit `vertical` override still
+  // rotates and falls through to the rotated-height path below.
+  const continuous = labelRotation !== 'vertical' && detectDates(labels) !== null
 
-  if (labels.length > 1) {
+  if (!continuous && labels.length > 1) {
     const perTick = availableWidth / labels.length
+    const fitWidth = perTick * LABEL_FIT_TOLERANCE
     const maxLabelWidth = maxFormattedLabelWidth(labels, tickFormatter)
-    const overflows = maxLabelWidth > perTick
+    const overflows = maxLabelWidth > fitWidth
 
     if (labelRotation !== 'vertical' && overflows) {
-      // Wrap is preferred over rotation when it can fit.
-      const wrapped = tryWrapAll(labels, perTick, tickFormatter)
+      // Wrap is preferred over rotation when it can fit. Wrap against
+      // `fitWidth` (not the strict step) so single words that only marginally
+      // overflow are accepted as one line instead of failing wrap and falling
+      // through to rotation.
+      const wrapped = tryWrapAll(labels, fitWidth, tickFormatter)
       if (wrapped) {
         const wrappedH = estimateWrappedAxisHeight(Array.from(wrapped.values()))
         return wrappedH > defaultBottom ? wrappedH : undefined
@@ -445,27 +465,40 @@ export class HorizontalAxisChart extends D3Blueprint<AxisDatum[]> {
     }
 
     // Rotation only applies to ordinal scales (discrete series). Time/linear
-    // scales continue to use the existing thinning strategy. For ordinal
-    // labels that overflow their per-tick width, try line-wrapping on
-    // whitespace first; only rotate when wrapping can't make them fit.
+    // scales continue to use the existing thinning strategy. Ordinal domains
+    // whose labels parse as dates are treated as continuous — auto mode thins
+    // them instead of rotating; only an explicit `vertical` override rotates.
+    // For truly discrete labels that overflow their per-tick width, try
+    // line-wrapping on whitespace first; only rotate when wrapping can't fit.
+    // Discrete labels that fit (or wrap cleanly) are NEVER thinned: dropping
+    // a bar's label makes the bar unreadable. Thinning applies only to
+    // continuous (date-like) domains and to an explicit `horizontal` override
+    // where the user has locked out rotation and wrapping can't rescue overflow.
     const ordinal = isOrdinalScale(rawScale)
+    const domain = ordinal ? rawScale.domain() : []
+    const continuous = ordinal && labelRotation !== 'vertical' && detectDates(domain) !== null
     let wrapLinesByText: Map<string, string[]> | null = null
     let shouldRotate = false
+    let shouldThinHorizontal = continuous
 
-    if (ordinal) {
-      const domain = rawScale.domain()
-      if (domain.length > 1 && availableWidth > 0) {
-        const perTickWidth = availableWidth / domain.length
-        const maxLabelWidth = maxFormattedLabelWidth(domain, tickFormatter)
-        const overflows = maxLabelWidth > perTickWidth
+    if (ordinal && !continuous && domain.length > 1 && availableWidth > 0) {
+      const perTickWidth = availableWidth / domain.length
+      const fitWidth = perTickWidth * LABEL_FIT_TOLERANCE
+      const maxLabelWidth = maxFormattedLabelWidth(domain, tickFormatter)
+      const overflows = maxLabelWidth > fitWidth
 
-        if (labelRotation === 'vertical') {
-          shouldRotate = true
-        }
-        else if (overflows) {
-          wrapLinesByText = tryWrapAll(domain, perTickWidth, tickFormatter)
-          if (!wrapLinesByText && labelRotation === 'auto') {
+      if (labelRotation === 'vertical') {
+        shouldRotate = true
+      }
+      else if (overflows) {
+        wrapLinesByText = tryWrapAll(domain, fitWidth, tickFormatter)
+        if (!wrapLinesByText) {
+          if (labelRotation === 'auto') {
             shouldRotate = true
+          }
+          else {
+            // `horizontal` override — can't rotate, can't wrap, so thin.
+            shouldThinHorizontal = true
           }
         }
       }
@@ -474,7 +507,6 @@ export class HorizontalAxisChart extends D3Blueprint<AxisDatum[]> {
     let ticks = this.config('ticks') as (string & d3.NumberValue)[] | null
     if (!ticks && availableWidth > 0) {
       if (ordinal) {
-        const domain = rawScale.domain()
         let thinned: string[]
         if (wrapLinesByText) {
           // Wrapping preserves every label — no thinning needed.
@@ -483,8 +515,12 @@ export class HorizontalAxisChart extends D3Blueprint<AxisDatum[]> {
         else if (shouldRotate) {
           thinned = thinRotatedLabels(domain, availableWidth)
         }
-        else {
+        else if (shouldThinHorizontal) {
           thinned = thinLabels(domain, availableWidth, tickFormatter)
+        }
+        else {
+          // Discrete ordinal labels that fit — show every one.
+          thinned = domain
         }
         if (thinned.length < domain.length) {
           ticks = thinned as (string & d3.NumberValue)[]
