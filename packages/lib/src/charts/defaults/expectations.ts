@@ -1,4 +1,4 @@
-import { ChartType, DirectLabelMode, GridStyle, LabelRotation, ScaleType } from '../../enums'
+import { ChartType, DirectLabelMode, GridStyle, Interpolation, LabelRotation, ScaleType, SortDirection, SortMode, StackMode } from '../../enums'
 import { Concern } from './types'
 import type { Matrix } from './types'
 
@@ -33,6 +33,13 @@ const RULE_HANDBOOK_LINE = 'wiki/concepts/handbook-chart-types.md § Line Chart'
 const RULE_HANDBOOK_AREA = 'wiki/concepts/handbook-chart-types.md § Area Chart'
 const RULE_CROSSHAIR_PATTERNS = 'wiki/concepts/tooltips-and-interaction.md § Crosshair patterns'
 const RULE_TOOLTIPS_HIDDEN = 'wiki/concepts/tooltips-and-interaction.md § Tooltip content'
+const RULE_INTERPOLATION_MONOTONE = 'wiki/concepts/handbook-chart-types.md § Line Chart'
+const RULE_ACCESSIBILITY_MULTIPLE_ENCODING = 'wiki/concepts/handbook-accessibility.md § Multiple encoding'
+const RULE_BAR_SPACING = 'wiki/concepts/handbook-chart-types.md § Bar Chart (Vertical)'
+const RULE_DONUT_CENTER = 'wiki/concepts/handbook-chart-types.md § Donut Chart'
+const RULE_PIE_PERCENTAGE = 'wiki/concepts/handbook-chart-types.md § Pie Chart'
+const RULE_STACKING_VARIANTS = 'wiki/concepts/handbook-chart-types.md § Stacked Bar Chart'
+const RULE_SORT_DESCENDING = 'wiki/concepts/handbook-chart-types.md § Bar Chart (Vertical)'
 
 // ---------------------------------------------------------------------------
 
@@ -1092,11 +1099,341 @@ export const MATRIX: Matrix = {
       rule: RULE_TOOLTIPS_HIDDEN,
     },
   },
-  [Concern.LineInterpolation]: {},
-  [Concern.LineSymbols]: {},
-  [Concern.BarLayout]: {},
-  [Concern.PieDonutLayout]: {},
-  [Concern.Stacking]: {},
-  [Concern.Sort]: {},
+  // =========================================================================
+  // Concern: LineInterpolation
+  // Primary verdict on 'interpolation'.
+  // Applies only to Line, LineMulti, Area, AreaStacked — all registered with
+  // lineInterpolationOpt (default MonotoneX). All other chart types use no
+  // interpolation option and are na.
+  // Wiki: monotone is the preferred general default (smooth, non-distorting).
+  // =========================================================================
+  [Concern.LineInterpolation]: {
+    // vertical bar — no interpolation; not a line/area chart
+    [ChartType.BarVertical]: { status: 'na', reason: 'not a line or area chart; interpolation does not apply' },
+    // horizontal bar — not a line/area chart
+    [ChartType.BarHorizontal]: { status: 'na', reason: 'not a line or area chart; interpolation does not apply' },
+    // multi-series vertical bar — not a line/area chart
+    [ChartType.BarMulti]: { status: 'na', reason: 'not a line or area chart; interpolation does not apply' },
+    // stacked horizontal bar — not a line/area chart
+    [ChartType.BarStacked]: { status: 'na', reason: 'not a line or area chart; interpolation does not apply' },
+    // split bar — not a line/area chart
+    [ChartType.BarSplit]: { status: 'na', reason: 'not a line or area chart; interpolation does not apply' },
+    // grouped horizontal bars — not a line/area chart
+    [ChartType.BarGrouped]: { status: 'na', reason: 'not a line or area chart; interpolation does not apply' },
+    // stacked column — not a line/area chart
+    [ChartType.ColumnStacked]: { status: 'na', reason: 'not a line or area chart; interpolation does not apply' },
+    // single-series line; lineInterpolationOpt sets default=MonotoneX; wiki says monotone is preferred → asserted
+    [ChartType.Line]: {
+      status: 'asserted',
+      optionKey: 'interpolation',
+      target: Interpolation.MonotoneX,
+      rule: RULE_INTERPOLATION_MONOTONE,
+    },
+    // multi-series line; same lineInterpolationOpt → asserted
+    [ChartType.LineMulti]: {
+      status: 'asserted',
+      optionKey: 'interpolation',
+      target: Interpolation.MonotoneX,
+      rule: RULE_INTERPOLATION_MONOTONE,
+    },
+    // single-series area; lineInterpolationOpt sets default=MonotoneX; wiki does not explicitly cover area
+    // but monotone is the registered default and is safe — asserted as consistent with the line rule
+    [ChartType.Area]: {
+      status: 'asserted',
+      optionKey: 'interpolation',
+      target: Interpolation.MonotoneX,
+      rule: RULE_INTERPOLATION_MONOTONE,
+    },
+    // stacked area; lineInterpolationOpt sets default=MonotoneX; same reasoning as Area → asserted
+    [ChartType.AreaStacked]: {
+      status: 'asserted',
+      optionKey: 'interpolation',
+      target: Interpolation.MonotoneX,
+      rule: RULE_INTERPOLATION_MONOTONE,
+    },
+    // donut — polar chart; no interpolation
+    [ChartType.Donut]: { status: 'na', reason: 'polar chart; interpolation does not apply' },
+    // pie — polar chart; no interpolation
+    [ChartType.Pie]: { status: 'na', reason: 'polar chart; interpolation does not apply' },
+  },
+
+  // =========================================================================
+  // Concern: LineSymbols
+  // Primary verdict on 'lineSymbols' (default false).
+  // Applies to Line, LineMulti, Area — all include ...lineSymbolOpts.
+  // AreaStacked registers ...lineCrosshairOpts but NOT ...lineOpts / ...lineSymbolOpts → na.
+  // Wiki: accessibility rule argues for symbols as a second encoding channel.
+  // For multi-line the argument is strongest; for single-series line/area the wiki
+  // is less explicit. lineSymbolShape/ShowOn/Style/Size/Opacity defaults are secondary.
+  // =========================================================================
+  [Concern.LineSymbols]: {
+    // vertical bar — no line symbol options registered
+    [ChartType.BarVertical]: { status: 'na', reason: 'not a line or area chart; lineSymbols option is not registered' },
+    // horizontal bar — no line symbol options registered
+    [ChartType.BarHorizontal]: { status: 'na', reason: 'not a line or area chart; lineSymbols option is not registered' },
+    // multi-series bar — no line symbol options registered
+    [ChartType.BarMulti]: { status: 'na', reason: 'not a line or area chart; lineSymbols option is not registered' },
+    // stacked horizontal bar — no line symbol options registered
+    [ChartType.BarStacked]: { status: 'na', reason: 'not a line or area chart; lineSymbols option is not registered' },
+    // split bar — no line symbol options registered
+    [ChartType.BarSplit]: { status: 'na', reason: 'not a line or area chart; lineSymbols option is not registered' },
+    // grouped horizontal bars — no line symbol options registered
+    [ChartType.BarGrouped]: { status: 'na', reason: 'not a line or area chart; lineSymbols option is not registered' },
+    // stacked column — no line symbol options registered
+    [ChartType.ColumnStacked]: { status: 'na', reason: 'not a line or area chart; lineSymbols option is not registered' },
+    // single-series line; lineSymbols=false; wiki accessibility rule implies symbols on for multi-encoding
+    // but wiki is silent on a mandatory on default for single-series line charts
+    [ChartType.Line]: {
+      status: 'open',
+      optionKey: 'lineSymbols',
+      current: false,
+      notes: 'Wiki accessibility rule recommends symbols as a second encoding channel but does not prescribe a mandatory default for single-series line. lineSymbolShape=Circle, lineSymbolShowOn=FirstLast, lineSymbolStyle=Filled, lineSymbolSize=3.5 are secondary defaults with no direct wiki mandate.',
+    },
+    // multi-series line; lineSymbols=false; wiki says use symbols/patterns to add a second encoding channel
+    // especially for multi-series charts where CVD distinguishability matters most
+    [ChartType.LineMulti]: {
+      status: 'todo',
+      optionKey: 'lineSymbols',
+      current: false,
+      target: true,
+      rule: RULE_ACCESSIBILITY_MULTIPLE_ENCODING,
+      notes: 'Wiki accessibility rule: never encode in a single channel; combine color + shape for multi-line. lineSymbols=false does not satisfy the multi-encoding requirement. lineSymbolShape=Circle and lineSymbolStyle=Filled are reasonable secondary defaults; lineSymbolShowOn=FirstLast limits visual noise.',
+    },
+    // single-series area; lineSymbols=false; same wiki gap as single-series line
+    [ChartType.Area]: {
+      status: 'open',
+      optionKey: 'lineSymbols',
+      current: false,
+      notes: 'Wiki accessibility rule applies but is less explicit for single-series area charts. No wiki rule found prescribing a mandatory default. Secondary options (shape, showOn, style, size) have no direct wiki citation.',
+    },
+    // stacked area; lineSymbolOpts are NOT registered for area-stacked (it uses lineCrosshairOpts only)
+    [ChartType.AreaStacked]: { status: 'na', reason: 'lineSymbols and related options are not registered for area-stacked; chart uses lineCrosshairOpts only' },
+    // donut — polar chart; no line symbols
+    [ChartType.Donut]: { status: 'na', reason: 'polar chart; lineSymbols option is not registered' },
+    // pie — polar chart; no line symbols
+    [ChartType.Pie]: { status: 'na', reason: 'polar chart; lineSymbols option is not registered' },
+  },
+
+  // =========================================================================
+  // Concern: BarLayout
+  // Primary verdict on 'barGap' (default String(DEFAULT_BAR_GAP) = '60').
+  // barGapOpt is registered only for BarVertical and BarHorizontal; all other
+  // chart types (including BarMulti, BarStacked, BarGrouped, ColumnStacked) do
+  // not register barGapOpt → na for those.
+  // Wiki: 30–50% spacing between bars. DEFAULT_BAR_GAP=60 maps to ~37.5% of the
+  // total band width (60/(160) ≈ 0.375) — within the prescribed range → asserted.
+  // Secondary bar options (barBackground, barSeparators, connectedColumns,
+  // waterfall, edgePadding) default to false; wiki does not prescribe their defaults.
+  // =========================================================================
+  [Concern.BarLayout]: {
+    // vertical bar; barGap='60' → ~37.5% spacing, within wiki's 30–50% range → asserted
+    [ChartType.BarVertical]: {
+      status: 'asserted',
+      optionKey: 'barGap',
+      target: '60',
+      rule: RULE_BAR_SPACING,
+    },
+    // horizontal bar; barGap='60' → same reasoning → asserted
+    [ChartType.BarHorizontal]: {
+      status: 'asserted',
+      optionKey: 'barGap',
+      target: '60',
+      rule: RULE_BAR_SPACING,
+    },
+    // multi-series bar; barGapOpt is not registered for this chart type
+    [ChartType.BarMulti]: { status: 'na', reason: 'barGap option is not registered for bar-multi; group spacing is handled differently' },
+    // stacked horizontal bar; barGapOpt is not registered (uses barHorizontalAxisOpts/barHorizontalOpts)
+    [ChartType.BarStacked]: { status: 'na', reason: 'barGap option is not registered for bar-stacked; stacked bars share a fixed band' },
+    // split bar; barGapOpt is not registered
+    [ChartType.BarSplit]: { status: 'na', reason: 'barGap option is not registered for bar-split; each panel has its own fixed layout' },
+    // grouped horizontal bars; barGapOpt is not registered
+    [ChartType.BarGrouped]: { status: 'na', reason: 'barGap option is not registered for bar-grouped; within-group spacing is not user-configurable' },
+    // stacked column; barGapOpt is not registered
+    [ChartType.ColumnStacked]: { status: 'na', reason: 'barGap option is not registered for column-stacked; stacked columns share a fixed band' },
+    // line charts — not bar charts; no barGap
+    [ChartType.Line]: { status: 'na', reason: 'not a bar chart; barGap option is not registered' },
+    [ChartType.LineMulti]: { status: 'na', reason: 'not a bar chart; barGap option is not registered' },
+    [ChartType.Area]: { status: 'na', reason: 'not a bar chart; barGap option is not registered' },
+    [ChartType.AreaStacked]: { status: 'na', reason: 'not a bar chart; barGap option is not registered' },
+    [ChartType.Donut]: { status: 'na', reason: 'polar chart; barGap option is not registered' },
+    [ChartType.Pie]: { status: 'na', reason: 'polar chart; barGap option is not registered' },
+  },
+
+  // =========================================================================
+  // Concern: PieDonutLayout
+  // Applies only to Pie and Donut. All other 11 chart types → na.
+  // Primary verdict:
+  //   Donut → 'showTotal' (default true via donutShowTotalOpt); wiki says "show
+  //     a primary metric in the center" → asserted.
+  //   Pie → 'displayAsPercentage' (default true via pieDisplayAsPercentageOpt);
+  //     wiki says pie shows proportions → asserted.
+  // Secondary options:
+  //   sliceMax: donut=6 (sliceMaxOpt), pie=5 (pieSliceMaxOpt). Wiki says 5–6 slices max.
+  //   showLabels/showValues: default true for both → asserted (wiki: direct labelling).
+  //   displayAsPercentage: donut=false (open — wiki says donut can show absolute total).
+  //   sliceGroupLabel: default 'Others' — no wiki prescription.
+  // =========================================================================
+  [Concern.PieDonutLayout]: {
+    // vertical bar — not a pie/donut chart
+    [ChartType.BarVertical]: { status: 'na', reason: 'not a pie or donut chart; pie/donut layout options do not apply' },
+    [ChartType.BarHorizontal]: { status: 'na', reason: 'not a pie or donut chart; pie/donut layout options do not apply' },
+    [ChartType.BarMulti]: { status: 'na', reason: 'not a pie or donut chart; pie/donut layout options do not apply' },
+    [ChartType.BarStacked]: { status: 'na', reason: 'not a pie or donut chart; pie/donut layout options do not apply' },
+    [ChartType.BarSplit]: { status: 'na', reason: 'not a pie or donut chart; pie/donut layout options do not apply' },
+    [ChartType.BarGrouped]: { status: 'na', reason: 'not a pie or donut chart; pie/donut layout options do not apply' },
+    [ChartType.ColumnStacked]: { status: 'na', reason: 'not a pie or donut chart; pie/donut layout options do not apply' },
+    [ChartType.Line]: { status: 'na', reason: 'not a pie or donut chart; pie/donut layout options do not apply' },
+    [ChartType.LineMulti]: { status: 'na', reason: 'not a pie or donut chart; pie/donut layout options do not apply' },
+    [ChartType.Area]: { status: 'na', reason: 'not a pie or donut chart; pie/donut layout options do not apply' },
+    [ChartType.AreaStacked]: { status: 'na', reason: 'not a pie or donut chart; pie/donut layout options do not apply' },
+    // donut; showTotal=true via donutShowTotalOpt; wiki says "show total or primary metric in center" → asserted
+    // displayAsPercentage=false (donutArcOpts uses base displayAsPercentageOpt); wiki does not require % for donut
+    // (donut typically shows a center total which is absolute); sliceMax=6 is within wiki's 5–6 range
+    [ChartType.Donut]: {
+      status: 'asserted',
+      optionKey: 'showTotal',
+      target: true,
+      rule: RULE_DONUT_CENTER,
+    },
+    // pie; displayAsPercentage=true via pieDisplayAsPercentageOpt; wiki says pie shows proportions → asserted
+    // sliceMax=5 via pieSliceMaxOpt; wiki says ~5–6 slices max, 5 is within range → asserted as primary
+    // showLabels=true, showValues=true are secondary; wiki says "label each slice directly"
+    [ChartType.Pie]: {
+      status: 'asserted',
+      optionKey: 'displayAsPercentage',
+      target: true,
+      rule: RULE_PIE_PERCENTAGE,
+    },
+  },
+
+  // =========================================================================
+  // Concern: Stacking
+  // Applies to ColumnStacked (stackModeOpt), BarStacked (stackModeOpt),
+  // AreaStacked (stacked + stackPercent). All others → na.
+  // Wiki: describes both absolute and normalized variants but does NOT prescribe
+  // which is the default. stackMode=Normal (absolute) is the current default for
+  // column/bar-stacked. stacked=true (areas are stacked) and stackPercent=false
+  // (not normalized) are the area-stacked defaults.
+  // =========================================================================
+  [Concern.Stacking]: {
+    [ChartType.BarVertical]: { status: 'na', reason: 'not a stacked chart type; stacking options are not registered' },
+    [ChartType.BarHorizontal]: { status: 'na', reason: 'not a stacked chart type; stacking options are not registered' },
+    [ChartType.BarMulti]: { status: 'na', reason: 'not a stacked chart type; stacking options are not registered' },
+    // stacked horizontal bar; stackMode=StackMode.Normal (absolute); wiki describes both variants
+    // without prescribing a default → open; Normal is a defensible default
+    [ChartType.BarStacked]: {
+      status: 'open',
+      optionKey: 'stackMode',
+      current: StackMode.Normal,
+      notes: 'Wiki describes absolute and 100% normalized stacking as both valid variants for stacked bar charts without naming a default. StackMode.Normal (absolute values) is the current default; it is appropriate when totals matter but the wiki does not explicitly prescribe it over Percent.',
+    },
+    [ChartType.BarSplit]: { status: 'na', reason: 'not a stacked chart type; stacking options are not registered' },
+    [ChartType.BarGrouped]: { status: 'na', reason: 'not a stacked chart type; stacking options are not registered' },
+    // stacked column; stackMode=StackMode.Normal; same wiki gap as BarStacked → open
+    [ChartType.ColumnStacked]: {
+      status: 'open',
+      optionKey: 'stackMode',
+      current: StackMode.Normal,
+      notes: 'Wiki describes absolute and 100% normalized stacking as both valid variants for column-stacked charts without naming a default. StackMode.Normal is the current default; defensible but not wiki-mandated.',
+    },
+    [ChartType.Line]: { status: 'na', reason: 'not a stacked chart type; stacking options are not registered' },
+    [ChartType.LineMulti]: { status: 'na', reason: 'not a stacked chart type; stacking options are not registered' },
+    [ChartType.Area]: { status: 'na', reason: 'not a stacked chart type; stacking options are not registered' },
+    // stacked area; stacked=true (stacking is the chart's defining characteristic → asserted);
+    // stackPercent=false (absolute default; wiki does not prescribe normalized as default → open)
+    [ChartType.AreaStacked]: {
+      status: 'asserted',
+      optionKey: 'stacked',
+      target: true,
+      rule: RULE_STACKING_VARIANTS,
+    },
+    [ChartType.Donut]: { status: 'na', reason: 'polar chart; stacking options are not registered' },
+    [ChartType.Pie]: { status: 'na', reason: 'polar chart; stacking options are not registered' },
+  },
+
+  // =========================================================================
+  // Concern: Sort
+  // Primary verdict on 'sortMode' (default SortMode.None) where registered, or
+  // 'areaSortMode' (default SortDirection.None) for area-stacked.
+  // Charts with sortModeOpt: BarMulti, ColumnStacked, BarStacked, BarSplit,
+  //   BarGrouped, LineMulti.
+  // Charts with areaSortModeOpt: AreaStacked.
+  // No sort option registered for: BarVertical, BarHorizontal, Line, Area,
+  //   Donut, Pie → na.
+  // Wiki: bar should sort descending by value unless natural category order;
+  //       wiki is silent on sort for multi-series/stacked/split/line charts.
+  // =========================================================================
+  [Concern.Sort]: {
+    // vertical bar — sortModeOpt is not registered for this chart type
+    [ChartType.BarVertical]: { status: 'na', reason: 'sortMode option is not registered for bar-vertical; single-series sort is handled by input data order' },
+    // horizontal bar — sortModeOpt is not registered
+    [ChartType.BarHorizontal]: { status: 'na', reason: 'sortMode option is not registered for bar-horizontal; single-series sort is handled by input data order' },
+    // multi-series bar; sortMode=SortMode.None; wiki says sort bars descending unless natural order
+    [ChartType.BarMulti]: {
+      status: 'todo',
+      optionKey: 'sortMode',
+      current: SortMode.None,
+      target: SortMode.Total,
+      rule: RULE_SORT_DESCENDING,
+      notes: 'Wiki says sort bars by value (descending) unless there is a natural category order. SortMode.None preserves input order which may be non-semantic. SortMode.Total (by group total descending) is the closest available mode matching the wiki prescription. Caveat: temporal data has a natural order that should override this; chart authors must be able to opt out.',
+    },
+    // stacked horizontal bar; sortMode=SortMode.None; wiki says sort horizontal bars by value
+    // but also prescribes consistent segment ordering within stacks — sort by total conflicts
+    // with consistent ordering requirement → open
+    [ChartType.BarStacked]: {
+      status: 'open',
+      optionKey: 'sortMode',
+      current: SortMode.None,
+      notes: 'Wiki says horizontal bars should sort by value (largest at top) but also mandates consistent segment ordering. Sorting by total while keeping segment order consistent is technically feasible but the interaction is not prescribed. Wiki does not explicitly state SortMode.None vs SortMode.Total for stacked variants.',
+    },
+    // split bar; sortMode=SortMode.None; wiki is silent on split bar sort → open
+    [ChartType.BarSplit]: {
+      status: 'open',
+      optionKey: 'sortMode',
+      current: SortMode.None,
+      notes: 'Wiki does not cover split bar charts. SortMode.None (input order) is the conservative default. No wiki rule found prescribing a sort default for split bar panels.',
+    },
+    // grouped horizontal bars; sortMode=SortMode.None; wiki says sort horizontal bars by value → todo
+    [ChartType.BarGrouped]: {
+      status: 'todo',
+      optionKey: 'sortMode',
+      current: SortMode.None,
+      target: SortMode.Total,
+      rule: RULE_HANDBOOK_BAR_HORIZONTAL,
+      notes: 'Wiki says sort horizontal bars by value (largest at top). SortMode.Total sorts categories by their total, which corresponds to the wiki prescription for grouped horizontal bar rankings.',
+    },
+    // stacked column; sortMode=SortMode.None; wiki prescribes consistent segment ordering
+    // for stacked charts rather than sort by value → open
+    [ChartType.ColumnStacked]: {
+      status: 'open',
+      optionKey: 'sortMode',
+      current: SortMode.None,
+      notes: 'Wiki says use consistent segment ordering across all bars but does not prescribe a category sort for column-stacked. SortMode.None (input order) is defensible. No explicit wiki rule prescribing a sort default for stacked column categories.',
+    },
+    // single-series line — sortModeOpt is not registered for this chart type
+    [ChartType.Line]: { status: 'na', reason: 'sortMode option is not registered for line; time-series order is defined by the data' },
+    // multi-series line; sortMode=SortMode.None; wiki is silent on line chart sort → open
+    [ChartType.LineMulti]: {
+      status: 'open',
+      optionKey: 'sortMode',
+      current: SortMode.None,
+      notes: 'Wiki does not prescribe a sort default for multi-series line charts; time-series data has a natural temporal order. SortMode.None (input order) is correct for temporal data. No wiki rule found.',
+    },
+    // single-series area — sortModeOpt is not registered
+    [ChartType.Area]: { status: 'na', reason: 'sortMode option is not registered for area; time-series order is defined by the data' },
+    // stacked area; areaSortMode=SortDirection.None; wiki says most important series at bottom
+    // but does not prescribe a sort direction for re-ordering series → open
+    [ChartType.AreaStacked]: {
+      status: 'open',
+      optionKey: 'areaSortMode',
+      current: SortDirection.None,
+      notes: 'Wiki says position the most important series at the bottom (stable baseline) for stacked area, but this is an authoring guideline rather than a chart default. SortDirection.None (input order preserved) lets authors explicitly place the key series first. No wiki rule prescribes an automatic sort direction default.',
+    },
+    // donut — sortMode is not registered; slice ordering is handled by PieDonutLayout
+    [ChartType.Donut]: { status: 'na', reason: 'sortMode option is not registered for donut; slice ordering is part of PieDonutLayout concern' },
+    // pie — sortMode is not registered; slice ordering is handled by PieDonutLayout
+    [ChartType.Pie]: { status: 'na', reason: 'sortMode option is not registered for pie; slice ordering is part of PieDonutLayout concern' },
+  },
+
   [Concern.RendererConstants]: {},
 }
