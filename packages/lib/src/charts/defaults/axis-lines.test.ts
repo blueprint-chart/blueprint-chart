@@ -10,7 +10,9 @@ describe(`Concern: ${Concern.AxisLines}`, () => {
     if (cell.status === 'asserted') {
       // Renderer-constant cells use a different shape; skip them here.
       // (renderer-constants.test.ts handles those.)
-      if ('kind' in cell && cell.kind === 'rendererConstant') continue
+      if ('kind' in cell && cell.kind === 'rendererConstant') {
+        continue
+      }
       test(`${chart} default ${cell.optionKey} = ${JSON.stringify(cell.target)}`, () => {
         expectDefault(chart as ChartType, cell.optionKey, cell.target, cell.rule)
       })

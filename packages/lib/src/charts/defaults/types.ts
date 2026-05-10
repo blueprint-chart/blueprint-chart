@@ -51,10 +51,10 @@ export const AUDITED_CHART_TYPES: readonly ChartType[] = [
 
 export interface AssertedCell {
   status: 'asserted'
-  kind?: never  // discriminator: AssertedRendererCell will have kind: 'rendererConstant'
-  optionKey: string  // key in registry.ts ChartOptionDef list
+  kind?: never // discriminator: AssertedRendererCell will have kind: 'rendererConstant'
+  optionKey: string // key in registry.ts ChartOptionDef list
   target: unknown
-  rule: string  // citation, e.g. 'wiki/concepts/labels-and-legends.md § Direct labeling is preferred'
+  rule: string // citation, e.g. 'wiki/concepts/labels-and-legends.md § Direct labeling is preferred'
 }
 
 // Renderer-internal constants (e.g. DEFAULT_COLOR, DEFAULT_COLORS) are not
@@ -63,8 +63,8 @@ export interface AssertedCell {
 export interface AssertedRendererCell {
   status: 'asserted'
   kind: 'rendererConstant'
-  importPath: string  // e.g. '../types/line/line'
-  exportName: string  // e.g. 'DEFAULT_COLOR'
+  importPath: string // e.g. '../types/line/line'
+  exportName: string // e.g. 'DEFAULT_COLOR'
   target: unknown
   rule: string
 }
@@ -72,22 +72,22 @@ export interface AssertedRendererCell {
 export interface TodoCell {
   status: 'todo'
   optionKey: string
-  current: unknown  // value as registered today
-  target: unknown   // value the audit will move to in phase 4
+  current: unknown // value as registered today
+  target: unknown // value the audit will move to in phase 4
   rule: string
   notes?: string
 }
 
 export interface NaCell {
   status: 'na'
-  reason: string  // why the concern doesn't apply to this chart type
+  reason: string // why the concern doesn't apply to this chart type
 }
 
 export interface OpenCell {
   status: 'open'
   optionKey?: string
   current?: unknown
-  notes: string  // why no wiki rule fits / what's missing
+  notes: string // why no wiki rule fits / what's missing
 }
 
 export type Cell = AssertedCell | AssertedRendererCell | TodoCell | NaCell | OpenCell
