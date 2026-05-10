@@ -1108,15 +1108,13 @@ export const MATRIX: Matrix = {
       current: false,
       notes: 'Wiki accessibility rule recommends symbols as a second encoding channel but does not prescribe a mandatory default for single-series line. lineSymbolShape=Circle, lineSymbolShowOn=FirstLast, lineSymbolStyle=Filled, lineSymbolSize=3.5 are secondary defaults with no direct wiki mandate.',
     },
-    // multi-series line; lineSymbols=false; wiki says use symbols/patterns to add a second encoding channel
+    // multi-series line; lineSymbols=true; wiki says use symbols/patterns to add a second encoding channel
     // especially for multi-series charts where CVD distinguishability matters most
     [ChartType.LineMulti]: {
-      status: 'todo',
+      status: 'asserted',
       optionKey: 'lineSymbols',
-      current: false,
       target: true,
       rule: RULE_ACCESSIBILITY_MULTIPLE_ENCODING,
-      notes: 'Wiki accessibility rule: never encode in a single channel; combine color + shape for multi-line. lineSymbols=false does not satisfy the multi-encoding requirement. lineSymbolShape=Circle and lineSymbolStyle=Filled are reasonable secondary defaults; lineSymbolShowOn=FirstLast limits visual noise.',
     },
     // single-series area; lineSymbols=false; same wiki gap as single-series line
     [ChartType.Area]: {
