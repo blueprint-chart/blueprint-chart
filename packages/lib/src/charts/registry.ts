@@ -361,7 +361,9 @@ const barHorizontalAxisOpts = axisOpts({ verticalGrid: GridStyle.None, horizonta
 // Lines: value axis is vertical → horizontal dashed grid, no vertical grid, no vertical axis line
 const lineAxisOpts = axisOpts({ verticalGrid: GridStyle.Dashed, horizontalGrid: GridStyle.None, showVerticalTicks: false, showHorizontalTicks: false, showVerticalAxis: false, valueAxis: 'vertical', horizontalRange: true })
 
-// Per-chart-type option overrides based on dataviz best practices (HANDBOOK.md)
+// Per-chart-type option overrides based on dataviz best practices.
+// Defaults are audited against the project wiki; see docs/superpowers/specs/2026-05-10-chart-defaults-audit-design.md
+// and packages/lib/src/charts/defaults/expectations.ts for the per-cell verdicts.
 // Line charts: monotone interpolation is smooth and non-distorting (preferred over linear for general use)
 const lineInterpolationOpt: ChartOptionDef = { ...interpolationOpt, default: Interpolation.MonotoneX }
 // Line charts: vertical crosshair is standard for time-series data
