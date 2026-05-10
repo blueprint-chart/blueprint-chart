@@ -40,6 +40,7 @@ const RULE_DONUT_CENTER = 'wiki/concepts/handbook-chart-types.md § Donut Chart'
 const RULE_PIE_PERCENTAGE = 'wiki/concepts/handbook-chart-types.md § Pie Chart'
 const RULE_STACKING_VARIANTS = 'wiki/concepts/handbook-chart-types.md § Stacked Bar Chart'
 const RULE_SORT_DESCENDING = 'wiki/concepts/handbook-chart-types.md § Bar Chart (Vertical)'
+const RULE_CVD_SAFE_PALETTE = 'wiki/concepts/handbook-color-and-palettes.md § Key rules'
 
 // ---------------------------------------------------------------------------
 
@@ -1435,5 +1436,123 @@ export const MATRIX: Matrix = {
     [ChartType.Pie]: { status: 'na', reason: 'sortMode option is not registered for pie; slice ordering is part of PieDonutLayout concern' },
   },
 
-  [Concern.RendererConstants]: {},
+  // =========================================================================
+  // Concern: RendererConstants
+  // Module-local DEFAULT_COLOR / DEFAULT_COLORS constants in each chart-type
+  // file. These are not registered option keys — they are renderer-internal
+  // fallbacks used when no colors option is supplied at call time.
+  //
+  // All 12 colour-bearing chart types share the same Tableau-10 derived
+  // palette (#4e79a7 … #ff9da7). This palette is CVD-safe (blue–orange lead,
+  // varying lightness, no rainbow), satisfying the wiki's key-rules citation.
+  //
+  // Single-series charts (Line, Area) carry a scalar DEFAULT_COLOR equal to
+  // the first palette entry. BarVertical and BarHorizontal carry a
+  // single-element array DEFAULT_COLORS for API consistency.
+  //
+  // Pie has no module-local default-color constant; it delegates colour
+  // assignment to the shared arc palette mechanism and is therefore N/A.
+  // =========================================================================
+  [Concern.RendererConstants]: {
+    [ChartType.Line]: {
+      status: 'asserted',
+      kind: 'rendererConstant',
+      importPath: '../types/line/line',
+      exportName: 'DEFAULT_COLOR',
+      target: '#4e79a7',
+      rule: RULE_CVD_SAFE_PALETTE,
+    },
+    [ChartType.Area]: {
+      status: 'asserted',
+      kind: 'rendererConstant',
+      importPath: '../types/area/area',
+      exportName: 'DEFAULT_COLOR',
+      target: '#4e79a7',
+      rule: RULE_CVD_SAFE_PALETTE,
+    },
+    [ChartType.BarVertical]: {
+      status: 'asserted',
+      kind: 'rendererConstant',
+      importPath: '../types/bar-vertical/bar-vertical',
+      exportName: 'DEFAULT_COLORS',
+      target: ['#4e79a7'],
+      rule: RULE_CVD_SAFE_PALETTE,
+    },
+    [ChartType.BarHorizontal]: {
+      status: 'asserted',
+      kind: 'rendererConstant',
+      importPath: '../types/bar-horizontal/bar-horizontal',
+      exportName: 'DEFAULT_COLORS',
+      target: ['#4e79a7'],
+      rule: RULE_CVD_SAFE_PALETTE,
+    },
+    [ChartType.BarMulti]: {
+      status: 'asserted',
+      kind: 'rendererConstant',
+      importPath: '../types/bar-multi/bar-multi',
+      exportName: 'DEFAULT_COLORS',
+      target: ['#4e79a7', '#f28e2b', '#e15759', '#76b7b2', '#59a14f', '#edc948', '#b07aa1', '#ff9da7'],
+      rule: RULE_CVD_SAFE_PALETTE,
+    },
+    [ChartType.BarGrouped]: {
+      status: 'asserted',
+      kind: 'rendererConstant',
+      importPath: '../types/bar-grouped/bar-grouped',
+      exportName: 'DEFAULT_COLORS',
+      target: ['#4e79a7', '#f28e2b', '#e15759', '#76b7b2', '#59a14f', '#edc948', '#b07aa1', '#ff9da7'],
+      rule: RULE_CVD_SAFE_PALETTE,
+    },
+    [ChartType.BarSplit]: {
+      status: 'asserted',
+      kind: 'rendererConstant',
+      importPath: '../types/bar-split/bar-split',
+      exportName: 'DEFAULT_COLORS',
+      target: ['#4e79a7', '#f28e2b', '#e15759', '#76b7b2', '#59a14f', '#edc948', '#b07aa1', '#ff9da7'],
+      rule: RULE_CVD_SAFE_PALETTE,
+    },
+    [ChartType.BarStacked]: {
+      status: 'asserted',
+      kind: 'rendererConstant',
+      importPath: '../types/bar-stacked/bar-stacked',
+      exportName: 'DEFAULT_COLORS',
+      target: ['#4e79a7', '#f28e2b', '#e15759', '#76b7b2', '#59a14f', '#edc948', '#b07aa1', '#ff9da7'],
+      rule: RULE_CVD_SAFE_PALETTE,
+    },
+    [ChartType.ColumnStacked]: {
+      status: 'asserted',
+      kind: 'rendererConstant',
+      importPath: '../types/column-stacked/column-stacked',
+      exportName: 'DEFAULT_COLORS',
+      target: ['#4e79a7', '#f28e2b', '#e15759', '#76b7b2', '#59a14f', '#edc948', '#b07aa1', '#ff9da7'],
+      rule: RULE_CVD_SAFE_PALETTE,
+    },
+    [ChartType.LineMulti]: {
+      status: 'asserted',
+      kind: 'rendererConstant',
+      importPath: '../types/line-multi/line-multi',
+      exportName: 'DEFAULT_COLORS',
+      target: ['#4e79a7', '#f28e2b', '#e15759', '#76b7b2', '#59a14f', '#edc948', '#b07aa1', '#ff9da7'],
+      rule: RULE_CVD_SAFE_PALETTE,
+    },
+    [ChartType.AreaStacked]: {
+      status: 'asserted',
+      kind: 'rendererConstant',
+      importPath: '../types/area-stacked/area-stacked',
+      exportName: 'DEFAULT_COLORS',
+      target: ['#4e79a7', '#f28e2b', '#e15759', '#76b7b2', '#59a14f', '#edc948', '#b07aa1', '#ff9da7'],
+      rule: RULE_CVD_SAFE_PALETTE,
+    },
+    [ChartType.Donut]: {
+      status: 'asserted',
+      kind: 'rendererConstant',
+      importPath: '../types/donut/donut',
+      exportName: 'DEFAULT_COLORS',
+      target: ['#4e79a7', '#f28e2b', '#e15759', '#76b7b2', '#59a14f', '#edc948', '#b07aa1', '#ff9da7'],
+      rule: RULE_CVD_SAFE_PALETTE,
+    },
+    [ChartType.Pie]: {
+      status: 'na',
+      reason: 'no module-local default-color constant; pie delegates color assignment to the shared arc palette mechanism',
+    },
+  },
 }

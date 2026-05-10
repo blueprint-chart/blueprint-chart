@@ -57,6 +57,18 @@ export interface AssertedCell {
   rule: string  // citation, e.g. 'wiki/concepts/labels-and-legends.md § Direct labeling is preferred'
 }
 
+// Renderer-internal constants (e.g. DEFAULT_COLOR, DEFAULT_COLORS) are not
+// registered option keys — they live directly in the chart type module.
+// This cell variant records their import path, export name, and expected value.
+export interface AssertedRendererCell {
+  status: 'asserted'
+  kind: 'rendererConstant'
+  importPath: string  // e.g. '../types/line/line'
+  exportName: string  // e.g. 'DEFAULT_COLOR'
+  target: unknown
+  rule: string
+}
+
 export interface TodoCell {
   status: 'todo'
   optionKey: string
@@ -78,7 +90,7 @@ export interface OpenCell {
   notes: string  // why no wiki rule fits / what's missing
 }
 
-export type Cell = AssertedCell | TodoCell | NaCell | OpenCell
+export type Cell = AssertedCell | AssertedRendererCell | TodoCell | NaCell | OpenCell
 
 // Per-concern map: ChartType → Cell
 export type ConcernMatrix = Partial<Record<ChartType, Cell>>
