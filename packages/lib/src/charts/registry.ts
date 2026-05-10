@@ -333,7 +333,7 @@ function axisOpts(defaults: {
     { key: 'showHorizontalAxis', type: ChartOptionType.Boolean, label: 'Show horizontal axis', default: true },
     { key: 'showHorizontalTicks', type: ChartOptionType.Boolean, label: 'Show horizontal ticks', default: defaults.showHorizontalTicks },
     { key: 'horizontalLabelPosition', type: ChartOptionType.Select, label: 'Horizontal labels', default: LabelPosition.Auto, choices: LABEL_POSITION_CHOICES },
-    { key: 'horizontalLabelRotation', type: ChartOptionType.Select, label: 'Horizontal label rotation', default: LabelRotation.Auto, choices: LABEL_ROTATION_CHOICES },
+    { key: 'horizontalLabelRotation', type: ChartOptionType.Select, label: 'Horizontal label rotation', default: LabelRotation.Horizontal, choices: LABEL_ROTATION_CHOICES },
     { key: 'horizontalGridStyle', type: ChartOptionType.Select, label: 'Horizontal grid style', default: defaults.horizontalGrid, choices: GRID_STYLE_CHOICES },
     { key: 'horizontalNumberFormat', type: ChartOptionType.NumberFormat, label: 'Horizontal number format' },
     ...(defaults.valueAxis === 'horizontal'
