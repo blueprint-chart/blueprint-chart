@@ -281,104 +281,71 @@ export const MATRIX: Matrix = {
   // Concern does not apply to pie/donut (no axes)
   // =========================================================================
   [Concern.AxisLabels]: {
-    // vertical bar; horizontalLabelRotation=Auto may allow rotation; wiki says never rotate
     [ChartType.BarVertical]: {
-      status: 'todo',
+      status: 'asserted',
       optionKey: 'horizontalLabelRotation',
-      current: LabelRotation.Auto,
       target: LabelRotation.Horizontal,
       rule: RULE_NEVER_ROTATE,
-      notes: 'Wiki says never rotate axis labels; fix is to abbreviate or switch to horizontal bars. Auto mode may trigger rotation on long category labels — default should be Horizontal to enforce the no-rotation rule. verticalLabelPosition and horizontalLabelPosition both default to Auto (show when they fit); wiki prescribes label presence but not a specific LabelPosition enum value.',
     },
-    // horizontal bar; horizontalLabelRotation=Auto; wiki says never rotate
     [ChartType.BarHorizontal]: {
-      status: 'todo',
+      status: 'asserted',
       optionKey: 'horizontalLabelRotation',
-      current: LabelRotation.Auto,
       target: LabelRotation.Horizontal,
       rule: RULE_NEVER_ROTATE,
-      notes: 'Wiki says never rotate axis labels; horizontal bars are already the wiki-recommended fix for long category names, so rotation default of Horizontal is appropriate here too.',
     },
-    // multi-series vertical bar; same rotation issue
     [ChartType.BarMulti]: {
-      status: 'todo',
+      status: 'asserted',
       optionKey: 'horizontalLabelRotation',
-      current: LabelRotation.Auto,
       target: LabelRotation.Horizontal,
       rule: RULE_NEVER_ROTATE,
-      notes: 'Wiki says never rotate axis labels; Auto default may trigger rotation. Target is Horizontal.',
     },
-    // stacked horizontal bar; same rotation issue
     [ChartType.BarStacked]: {
-      status: 'todo',
+      status: 'asserted',
       optionKey: 'horizontalLabelRotation',
-      current: LabelRotation.Auto,
       target: LabelRotation.Horizontal,
       rule: RULE_NEVER_ROTATE,
-      notes: 'Wiki says never rotate axis labels; Auto default may trigger rotation. Target is Horizontal.',
     },
-    // split bar panels; same rotation issue
     [ChartType.BarSplit]: {
-      status: 'todo',
+      status: 'asserted',
       optionKey: 'horizontalLabelRotation',
-      current: LabelRotation.Auto,
       target: LabelRotation.Horizontal,
       rule: RULE_NEVER_ROTATE,
-      notes: 'Wiki says never rotate axis labels; Auto default may trigger rotation. Target is Horizontal.',
     },
-    // grouped horizontal bars; same rotation issue
     [ChartType.BarGrouped]: {
-      status: 'todo',
+      status: 'asserted',
       optionKey: 'horizontalLabelRotation',
-      current: LabelRotation.Auto,
       target: LabelRotation.Horizontal,
       rule: RULE_NEVER_ROTATE,
-      notes: 'Wiki says never rotate axis labels; Auto default may trigger rotation. Target is Horizontal.',
     },
-    // stacked column; same rotation issue
     [ChartType.ColumnStacked]: {
-      status: 'todo',
+      status: 'asserted',
       optionKey: 'horizontalLabelRotation',
-      current: LabelRotation.Auto,
       target: LabelRotation.Horizontal,
       rule: RULE_NEVER_ROTATE,
-      notes: 'Wiki says never rotate axis labels; Auto default may trigger rotation. Target is Horizontal.',
     },
-    // single-series line; same rotation issue
     [ChartType.Line]: {
-      status: 'todo',
+      status: 'asserted',
       optionKey: 'horizontalLabelRotation',
-      current: LabelRotation.Auto,
       target: LabelRotation.Horizontal,
       rule: RULE_NEVER_ROTATE,
-      notes: 'Wiki says never rotate axis labels. Target is Horizontal. verticalLabelPosition and horizontalLabelPosition both default to Auto; wiki is silent on the LabelPosition enum value.',
     },
-    // multi-series line; same rotation issue
     [ChartType.LineMulti]: {
-      status: 'todo',
+      status: 'asserted',
       optionKey: 'horizontalLabelRotation',
-      current: LabelRotation.Auto,
       target: LabelRotation.Horizontal,
       rule: RULE_NEVER_ROTATE,
-      notes: 'Wiki says never rotate axis labels. Target is Horizontal.',
     },
-    // single-series area; same rotation issue
     [ChartType.Area]: {
-      status: 'todo',
+      status: 'asserted',
       optionKey: 'horizontalLabelRotation',
-      current: LabelRotation.Auto,
       target: LabelRotation.Horizontal,
       rule: RULE_NEVER_ROTATE,
-      notes: 'Wiki says never rotate axis labels. Target is Horizontal.',
     },
-    // stacked area; same rotation issue
     [ChartType.AreaStacked]: {
-      status: 'todo',
+      status: 'asserted',
       optionKey: 'horizontalLabelRotation',
-      current: LabelRotation.Auto,
       target: LabelRotation.Horizontal,
       rule: RULE_NEVER_ROTATE,
-      notes: 'Wiki says never rotate axis labels. Target is Horizontal.',
     },
     // donut; no axes registered
     [ChartType.Donut]: { status: 'na', reason: 'donut is a polar chart with no Cartesian axes' },
