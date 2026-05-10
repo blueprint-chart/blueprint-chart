@@ -17,7 +17,7 @@ import { getDefaultTransitionMs, setRenderTransition, fadeIn, snapshotForFadeOut
 import { getCachedChart, setCachedChart } from '../../transition-cache'
 import { Orientation } from '../../../enums'
 
-const DEFAULT_COLOR = '#4e79a7'
+export const DEFAULT_COLOR = '#4e79a7'
 
 interface LineDatum {
   label: string
