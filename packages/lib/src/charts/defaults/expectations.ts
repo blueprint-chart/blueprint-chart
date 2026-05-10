@@ -31,6 +31,8 @@ const RULE_TICKS_SUBTLE = 'wiki/concepts/axes-and-grid-lines.md § Tick marks'
 const RULE_AXIS_ZERO_BAR = 'wiki/concepts/axes-and-grid-lines.md § Baseline rules'
 const RULE_HANDBOOK_LINE = 'wiki/concepts/handbook-chart-types.md § Line Chart'
 const RULE_HANDBOOK_AREA = 'wiki/concepts/handbook-chart-types.md § Area Chart'
+const RULE_CROSSHAIR_PATTERNS = 'wiki/concepts/tooltips-and-interaction.md § Crosshair patterns'
+const RULE_TOOLTIPS_HIDDEN = 'wiki/concepts/tooltips-and-interaction.md § Tooltip content'
 
 // ---------------------------------------------------------------------------
 
@@ -784,9 +786,312 @@ export const MATRIX: Matrix = {
     // pie; polar chart — no scale range concern
     [ChartType.Pie]: { status: 'na', reason: 'pie is a polar chart with no Cartesian axes; scale range concern does not apply' },
   },
-  [Concern.ColorPalette]: {},
-  [Concern.Crosshair]: {},
-  [Concern.Tooltips]: {},
+  // =========================================================================
+  // Concern: ColorPalette
+  // Primary verdict on 'colorPalette' (default 'Blueprint' per paletteOpt).
+  // All 13 chart types register paletteOpt / colorsOpt so no chart is 'na'.
+  // Wiki prescribes CVD-safe, max-7, no-rainbow, perceptually-uniform palettes
+  // but does NOT name a specific palette identifier — the 'Blueprint' default
+  // can only be checked against properties, not a prescribed name.
+  // autoContrast (default false) and allowDarkMode (default true) are secondary.
+  // =========================================================================
+  [Concern.ColorPalette]: {
+    // vertical bar; colorPalette='Blueprint'; wiki says CVD-safe categorical palette by default
+    [ChartType.BarVertical]: {
+      status: 'open',
+      optionKey: 'colorPalette',
+      current: 'Blueprint',
+      notes: 'Wiki prescribes a CVD-safe, max-7, no-rainbow, perceptually-uniform categorical palette but does not name a specific identifier. The "Blueprint" palette cannot be evaluated without inspecting its color values against CVD and grayscale distinguishability criteria. autoContrast=false and allowDarkMode=true are secondary; wiki notes dark mode may need slightly increased saturation (allowDarkMode=true is appropriate). No wiki rule names a target identifier.',
+    },
+    // horizontal bar; same as vertical bar
+    [ChartType.BarHorizontal]: {
+      status: 'open',
+      optionKey: 'colorPalette',
+      current: 'Blueprint',
+      notes: 'Same as barVertical: wiki prescribes palette properties (CVD-safe, max 7, no rainbow) but does not name a specific default palette. autoContrast=false, allowDarkMode=true are secondary and consistent with wiki guidance.',
+    },
+    // multi-series bar; wiki prescribes categorical palette for multi-series bar
+    [ChartType.BarMulti]: {
+      status: 'open',
+      optionKey: 'colorPalette',
+      current: 'Blueprint',
+      notes: 'Multi-series bar is the primary use case for the categorical palette. Wiki: max 7 colors before confusion, blue-orange safest for CVD, grey to de-emphasize. Blueprint palette must be verified against these properties; no identifier prescribed.',
+    },
+    // stacked horizontal bar; same categorical palette concern
+    [ChartType.BarStacked]: {
+      status: 'open',
+      optionKey: 'colorPalette',
+      current: 'Blueprint',
+      notes: 'Stacked bar is a categorical multi-series chart. Wiki requires CVD-safe categorical palette. No specific identifier named by wiki.',
+    },
+    // split bar panels; same categorical palette concern
+    [ChartType.BarSplit]: {
+      status: 'open',
+      optionKey: 'colorPalette',
+      current: 'Blueprint',
+      notes: 'Split bar renders each series in its own panel. Wiki requires categorical palette; no specific identifier named.',
+    },
+    // grouped horizontal bars; same categorical palette concern
+    [ChartType.BarGrouped]: {
+      status: 'open',
+      optionKey: 'colorPalette',
+      current: 'Blueprint',
+      notes: 'Grouped bar is a multi-series categorical chart. Wiki: max 7 colors, CVD-safe. No palette identifier prescribed.',
+    },
+    // stacked column; same as stacked bar
+    [ChartType.ColumnStacked]: {
+      status: 'open',
+      optionKey: 'colorPalette',
+      current: 'Blueprint',
+      notes: 'Stacked column is categorical multi-series. Wiki requires CVD-safe categorical palette; no specific identifier named.',
+    },
+    // single-series line; categorical palette still applies; single color drawn from first slot
+    [ChartType.Line]: {
+      status: 'open',
+      optionKey: 'colorPalette',
+      current: 'Blueprint',
+      notes: 'Single-series line uses the first color of the categorical palette. Wiki: "start with grey" principle suggests the first palette slot should be a meaningful, non-grey color for single-series use. No identifier prescribed by wiki.',
+    },
+    // multi-series line; categorical palette, wiki says max 7 and CVD-safe
+    [ChartType.LineMulti]: {
+      status: 'open',
+      optionKey: 'colorPalette',
+      current: 'Blueprint',
+      notes: 'Multi-line uses categorical palette. Wiki: max 7 colors, blue-orange as safest combination for two-series charts, CVD-safe. No specific identifier named.',
+    },
+    // single-series area; same as single-series line
+    [ChartType.Area]: {
+      status: 'open',
+      optionKey: 'colorPalette',
+      current: 'Blueprint',
+      notes: 'Single-series area uses the first color of the categorical palette. Same palette property requirements as line; no identifier prescribed.',
+    },
+    // stacked area; categorical palette, same requirements
+    [ChartType.AreaStacked]: {
+      status: 'open',
+      optionKey: 'colorPalette',
+      current: 'Blueprint',
+      notes: 'Stacked area uses categorical palette for multiple series. Wiki: max 7 colors, CVD-safe, no rainbow. No identifier named.',
+    },
+    // donut; categorical palette for slices
+    [ChartType.Donut]: {
+      status: 'open',
+      optionKey: 'colorPalette',
+      current: 'Blueprint',
+      notes: 'Donut slices use categorical palette. Wiki: max 7 slices, highlight key slice with saturated color and grey the rest. autoContrast=false; wiki does not prescribe contrast-adjustment default. No palette identifier named by wiki.',
+    },
+    // pie; categorical palette for slices
+    [ChartType.Pie]: {
+      status: 'open',
+      optionKey: 'colorPalette',
+      current: 'Blueprint',
+      notes: 'Pie slices use categorical palette. Wiki: max 7 slices (pie slice max in registry is 5 per pieSliceMaxOpt), highlight key slice and grey the rest. No palette identifier named by wiki.',
+    },
+  },
+
+  // =========================================================================
+  // Concern: Crosshair
+  // Primary verdict on 'crosshair' (default false).
+  // Cartesian charts: all audited types except donut and pie register crosshairOpts
+  //   or lineCrosshairOpts. Donut/Pie have no crosshair option → 'na'.
+  // Wiki: vertical crosshair is standard for time-series line/area; bar charts
+  //   are not mentioned. Current default is false for all chart types.
+  // Secondary: crosshairDirection (Both for bar family, Vertical for line/area
+  //   via lineCrosshairDirectionOpt), crosshairStyle=Dashed (matches wiki), crosshairColor='#999'.
+  // =========================================================================
+  [Concern.Crosshair]: {
+    // vertical bar; crosshair=false; wiki is silent on whether bar charts should have a crosshair
+    [ChartType.BarVertical]: {
+      status: 'open',
+      optionKey: 'crosshair',
+      current: false,
+      notes: 'Wiki mentions crosshair only for time-series line/area and scatter; no rule found for vertical bar. crosshairDirection defaults to Both (neither direction is prescribed). crosshairStyle=Dashed and crosshairColor=#999 match the wiki prescription for subtle/dashed/grey. Current off default is reasonable but wiki does not mandate it.',
+    },
+    // horizontal bar; same wiki gap as vertical bar
+    [ChartType.BarHorizontal]: {
+      status: 'open',
+      optionKey: 'crosshair',
+      current: false,
+      notes: 'Wiki does not mention crosshair for horizontal bar charts. crosshairDirection=Both is unspecified by wiki. crosshairStyle=Dashed, crosshairColor=#999 match wiki styling prescription. No wiki rule found for on/off default.',
+    },
+    // multi-series bar; wiki silent on bar crosshair
+    [ChartType.BarMulti]: {
+      status: 'open',
+      optionKey: 'crosshair',
+      current: false,
+      notes: 'Wiki does not prescribe crosshair behavior for multi-series vertical bar. No wiki rule found for on/off default.',
+    },
+    // stacked horizontal bar; wiki silent
+    [ChartType.BarStacked]: {
+      status: 'open',
+      optionKey: 'crosshair',
+      current: false,
+      notes: 'Wiki does not prescribe crosshair behavior for stacked horizontal bar. No wiki rule found.',
+    },
+    // split bar; wiki silent
+    [ChartType.BarSplit]: {
+      status: 'open',
+      optionKey: 'crosshair',
+      current: false,
+      notes: 'Wiki does not prescribe crosshair behavior for split bar panels. No wiki rule found.',
+    },
+    // grouped horizontal bars; wiki silent
+    [ChartType.BarGrouped]: {
+      status: 'open',
+      optionKey: 'crosshair',
+      current: false,
+      notes: 'Wiki does not prescribe crosshair behavior for grouped horizontal bars. No wiki rule found.',
+    },
+    // stacked column; wiki silent on bar crosshair
+    [ChartType.ColumnStacked]: {
+      status: 'open',
+      optionKey: 'crosshair',
+      current: false,
+      notes: 'Wiki does not prescribe crosshair behavior for stacked column. No wiki rule found.',
+    },
+    // single-series line; crosshair=false; wiki says vertical crosshair is standard for time-series
+    [ChartType.Line]: {
+      status: 'todo',
+      optionKey: 'crosshair',
+      current: false,
+      target: true,
+      rule: RULE_CROSSHAIR_PATTERNS,
+      notes: 'Wiki says vertical crosshair is standard for time-series line charts and is often combined with a tooltip. crosshairDirection is overridden to Vertical via lineCrosshairDirectionOpt — direction is already correct. crosshairStyle=Dashed and crosshairColor=#999 match the wiki prescription for subtle/dashed/grey styling. The on/off default (false) does not match the wiki implication that crosshair should be active for time-series line.',
+    },
+    // multi-series line; same wiki rule applies — vertical crosshair standard for line charts
+    [ChartType.LineMulti]: {
+      status: 'todo',
+      optionKey: 'crosshair',
+      current: false,
+      target: true,
+      rule: RULE_CROSSHAIR_PATTERNS,
+      notes: 'Same as line: wiki prescribes vertical crosshair for time-series line charts. crosshairDirection=Vertical via lineCrosshairDirectionOpt is already correct. crosshair=false does not match the wiki prescription.',
+    },
+    // single-series area; wiki says vertical crosshair for time-series area charts
+    [ChartType.Area]: {
+      status: 'todo',
+      optionKey: 'crosshair',
+      current: false,
+      target: true,
+      rule: RULE_CROSSHAIR_PATTERNS,
+      notes: 'Wiki says vertical crosshair is standard for time-series line/area. crosshairDirection=Vertical via lineCrosshairDirectionOpt is already correct. crosshair=false does not match the wiki prescription for area charts.',
+    },
+    // stacked area; same as area — wiki prescribes vertical crosshair for time-series area
+    [ChartType.AreaStacked]: {
+      status: 'todo',
+      optionKey: 'crosshair',
+      current: false,
+      target: true,
+      rule: RULE_CROSSHAIR_PATTERNS,
+      notes: 'Same as area: wiki prescribes vertical crosshair for stacked area time-series charts. crosshairDirection=Vertical via lineCrosshairOpts is already correct. crosshair=false does not match the wiki prescription.',
+    },
+    // donut; no crosshair option registered
+    [ChartType.Donut]: { status: 'na', reason: 'donut is a polar chart; crosshair option is not registered for this chart type' },
+    // pie; no crosshair option registered
+    [ChartType.Pie]: { status: 'na', reason: 'pie is a polar chart; crosshair option is not registered for this chart type' },
+  },
+
+  // =========================================================================
+  // Concern: Tooltips
+  // Primary verdict on 'tooltips' (default false across all chart types).
+  // All 13 audited chart types register tooltipsOpt → all are in scope (no 'na').
+  // Wiki: "Tooltips are hidden by default" — the current false default matches.
+  // Secondary: tooltip content, positioning, keyboard accessibility are design
+  // constraints once tooltips are enabled; they do not affect the on/off default.
+  // =========================================================================
+  [Concern.Tooltips]: {
+    // vertical bar; tooltips=false; wiki says "hidden by default" → asserted
+    [ChartType.BarVertical]: {
+      status: 'asserted',
+      optionKey: 'tooltips',
+      target: false,
+      rule: RULE_TOOLTIPS_HIDDEN,
+    },
+    // horizontal bar; tooltips=false → asserted
+    [ChartType.BarHorizontal]: {
+      status: 'asserted',
+      optionKey: 'tooltips',
+      target: false,
+      rule: RULE_TOOLTIPS_HIDDEN,
+    },
+    // multi-series bar; tooltips=false → asserted
+    [ChartType.BarMulti]: {
+      status: 'asserted',
+      optionKey: 'tooltips',
+      target: false,
+      rule: RULE_TOOLTIPS_HIDDEN,
+    },
+    // stacked horizontal bar; tooltips=false → asserted
+    [ChartType.BarStacked]: {
+      status: 'asserted',
+      optionKey: 'tooltips',
+      target: false,
+      rule: RULE_TOOLTIPS_HIDDEN,
+    },
+    // split bar; tooltips=false → asserted
+    [ChartType.BarSplit]: {
+      status: 'asserted',
+      optionKey: 'tooltips',
+      target: false,
+      rule: RULE_TOOLTIPS_HIDDEN,
+    },
+    // grouped horizontal bars; tooltips=false → asserted
+    [ChartType.BarGrouped]: {
+      status: 'asserted',
+      optionKey: 'tooltips',
+      target: false,
+      rule: RULE_TOOLTIPS_HIDDEN,
+    },
+    // stacked column; tooltips=false → asserted
+    [ChartType.ColumnStacked]: {
+      status: 'asserted',
+      optionKey: 'tooltips',
+      target: false,
+      rule: RULE_TOOLTIPS_HIDDEN,
+    },
+    // single-series line; tooltips=false → asserted
+    [ChartType.Line]: {
+      status: 'asserted',
+      optionKey: 'tooltips',
+      target: false,
+      rule: RULE_TOOLTIPS_HIDDEN,
+    },
+    // multi-series line; tooltips=false → asserted
+    [ChartType.LineMulti]: {
+      status: 'asserted',
+      optionKey: 'tooltips',
+      target: false,
+      rule: RULE_TOOLTIPS_HIDDEN,
+    },
+    // single-series area; tooltips=false → asserted
+    [ChartType.Area]: {
+      status: 'asserted',
+      optionKey: 'tooltips',
+      target: false,
+      rule: RULE_TOOLTIPS_HIDDEN,
+    },
+    // stacked area; tooltips=false → asserted
+    [ChartType.AreaStacked]: {
+      status: 'asserted',
+      optionKey: 'tooltips',
+      target: false,
+      rule: RULE_TOOLTIPS_HIDDEN,
+    },
+    // donut; tooltips=false → asserted (donut registers tooltipsOpt directly)
+    [ChartType.Donut]: {
+      status: 'asserted',
+      optionKey: 'tooltips',
+      target: false,
+      rule: RULE_TOOLTIPS_HIDDEN,
+    },
+    // pie; tooltips=false → asserted (pie registers tooltipsOpt directly)
+    [ChartType.Pie]: {
+      status: 'asserted',
+      optionKey: 'tooltips',
+      target: false,
+      rule: RULE_TOOLTIPS_HIDDEN,
+    },
+  },
   [Concern.LineInterpolation]: {},
   [Concern.LineSymbols]: {},
   [Concern.BarLayout]: {},
