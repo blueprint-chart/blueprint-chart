@@ -377,6 +377,8 @@ const areaAxisOpts = axisOpts({ verticalGrid: GridStyle.Dashed, horizontalGrid: 
 const lineInterpolationOpt: ChartOptionDef = { ...interpolationOpt, default: Interpolation.MonotoneX }
 // Line charts: vertical crosshair is standard for time-series data
 const lineCrosshairDirectionOpt: ChartOptionDef = { ...crosshairDirectionOpt, default: CrosshairDirection.Vertical }
+// Line/area family: crosshair on by default ("vertical crosshair is standard for time-series").
+const lineCrosshairToggleOpt: ChartOptionDef = { ...crosshairOpt, default: true }
 // Horizontal bars: value labels at end of bar are a best practice for readability
 const barHorizontalValueLabelsOpt: ChartOptionDef = { ...valueLabelsOpt, default: true }
 // Pie: display as percentage (pies show proportions), limit to 5 slices (not 6)
@@ -396,7 +398,7 @@ const legendOffOpt: ChartOptionDef = { ...legendOpt, default: false }
 
 // Register all chart types
 const crosshairOpts = [crosshairOpt, crosshairDirectionOpt, crosshairStyleOpt, crosshairColorOpt]
-const lineCrosshairOpts = [crosshairOpt, lineCrosshairDirectionOpt, crosshairStyleOpt, crosshairColorOpt]
+const lineCrosshairOpts = [lineCrosshairToggleOpt, lineCrosshairDirectionOpt, crosshairStyleOpt, crosshairColorOpt]
 const barOpts = [valueLabelsOpt, valueLabelPositionOpt, tooltipsOpt, ...crosshairOpts]
 const barHorizontalOpts = [barHorizontalValueLabelsOpt, valueLabelPositionOpt, tooltipsOpt, ...crosshairOpts]
 const lineSymbolOpts = [lineSymbolsOpt, lineSymbolShapeOpt, lineSymbolShowOnOpt, lineSymbolStyleOpt, lineSymbolSizeOpt, lineSymbolOpacityOpt]
