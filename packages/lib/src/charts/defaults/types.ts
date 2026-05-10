@@ -1,4 +1,4 @@
-import type { ChartType } from '../../enums'
+import { ChartType } from '../../enums'
 
 export const Concern = {
   DirectLabelling: 'directLabelling',
@@ -26,21 +26,20 @@ export const ALL_CONCERNS: readonly Concern[] = Object.values(Concern)
 
 // ChartTypes the audit covers. Aliases (VerticalBar, HorizontalBar) inherit
 // their target's defaults and are not separately tested.
-import { ChartType as CT } from '../../enums'
 export const AUDITED_CHART_TYPES: readonly ChartType[] = [
-  CT.BarVertical,
-  CT.BarHorizontal,
-  CT.BarMulti,
-  CT.BarStacked,
-  CT.BarSplit,
-  CT.BarGrouped,
-  CT.ColumnStacked,
-  CT.Line,
-  CT.LineMulti,
-  CT.Area,
-  CT.AreaStacked,
-  CT.Donut,
-  CT.Pie,
+  ChartType.BarVertical,
+  ChartType.BarHorizontal,
+  ChartType.BarMulti,
+  ChartType.BarStacked,
+  ChartType.BarSplit,
+  ChartType.BarGrouped,
+  ChartType.ColumnStacked,
+  ChartType.Line,
+  ChartType.LineMulti,
+  ChartType.Area,
+  ChartType.AreaStacked,
+  ChartType.Donut,
+  ChartType.Pie,
 ]
 
 // Status of an audit cell. Mirrors the spec's verdict workflow:
@@ -49,10 +48,10 @@ export const AUDITED_CHART_TYPES: readonly ChartType[] = [
 //                 Use the optional `notes` field on TodoCell to document ambiguity rationale.
 //   - 'na':       concern doesn't apply to this chart type
 //   - 'open':     wiki has no rule on this cell; flagged for follow-up
-export type CellStatus = 'asserted' | 'todo' | 'na' | 'open'
 
 export interface AssertedCell {
   status: 'asserted'
+  kind?: never  // discriminator: AssertedRendererCell will have kind: 'rendererConstant'
   optionKey: string  // key in registry.ts ChartOptionDef list
   target: unknown
   rule: string  // citation, e.g. 'wiki/concepts/labels-and-legends.md § Direct labeling is preferred'
