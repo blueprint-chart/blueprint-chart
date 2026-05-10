@@ -54,14 +54,12 @@ export const MATRIX: Matrix = {
     [ChartType.BarVertical]: { status: 'na', reason: 'single-series vertical bar; directLabelling is not registered for this chart type' },
     // single-series; directLabelling option is not registered for this chart
     [ChartType.BarHorizontal]: { status: 'na', reason: 'single-series horizontal bar; directLabelling is not registered for this chart type' },
-    // multi-series bar; current default Off, wiki says direct labels preferred over legend
+    // multi-series bar; default Auto; wiki says direct labels preferred over legend → asserted
     [ChartType.BarMulti]: {
-      status: 'todo',
+      status: 'asserted',
       optionKey: 'directLabelling',
-      current: DirectLabelMode.Off,
       target: DirectLabelMode.Auto,
       rule: RULE_DIRECT_LABEL_PREFERRED,
-      notes: 'Wiki says direct labelling is preferred over legend for multi-series bar charts; default should be Auto rather than Off.',
     },
     // stacked horizontal bar; wiki is silent on whether labels on individual segments are practical for stacking
     [ChartType.BarStacked]: {
@@ -99,23 +97,19 @@ export const MATRIX: Matrix = {
       current: DirectLabelMode.Off,
       notes: 'Wiki warns stacking makes individual segment labels hard to place but does not prescribe a default for stacked area; no wiki rule found.',
     },
-    // donut; registered but default Off; wiki says "label each slice directly" → should be Auto
+    // donut; default Auto; wiki says "label each slice directly" → asserted
     [ChartType.Donut]: {
-      status: 'todo',
+      status: 'asserted',
       optionKey: 'directLabelling',
-      current: DirectLabelMode.Off,
       target: DirectLabelMode.Auto,
       rule: RULE_DIRECT_LABEL_PREFERRED,
-      notes: 'Wiki says direct labelling is preferred and labels each slice directly; donut center metric exists so Auto (inside-capable) is the appropriate target.',
     },
-    // pie; registered but default Off; wiki says "label each slice directly" → should be Auto
+    // pie; default Auto; wiki says "label each slice directly" → asserted
     [ChartType.Pie]: {
-      status: 'todo',
+      status: 'asserted',
       optionKey: 'directLabelling',
-      current: DirectLabelMode.Off,
       target: DirectLabelMode.Auto,
       rule: RULE_DIRECT_LABEL_PREFERRED,
-      notes: 'Wiki says direct labelling is preferred for pie charts; Auto lets the renderer place labels inside large slices and outside small ones.',
     },
   },
 
@@ -128,14 +122,12 @@ export const MATRIX: Matrix = {
     [ChartType.BarVertical]: { status: 'na', reason: 'single-series vertical bar; legend option is not registered' },
     // single-series; legend option is not registered for this chart
     [ChartType.BarHorizontal]: { status: 'na', reason: 'single-series horizontal bar; legend option is not registered' },
-    // multi-series bar; current default true; wiki says legend is a fallback not the primary default
+    // multi-series bar; default false; wiki says legend is a fallback not the primary default → asserted
     [ChartType.BarMulti]: {
-      status: 'todo',
+      status: 'asserted',
       optionKey: 'legend',
-      current: true,
       target: false,
       rule: RULE_WHEN_TO_USE_LEGENDS,
-      notes: 'Wiki says use a legend only when direct labels would overlap or are impractical; prefer direct labelling as the default; legend should default to false.',
     },
     // stacked horizontal bar; current default true; legend is reasonable fallback for stacked since direct labels are hard
     [ChartType.BarStacked]: {
@@ -175,14 +167,12 @@ export const MATRIX: Matrix = {
     },
     // single-series; legend option is not registered for this chart
     [ChartType.Line]: { status: 'na', reason: 'single-series line; legend option is not registered' },
-    // multi-line; current default true; wiki says prefer direct end-of-line labels over a legend
+    // multi-line; default false; wiki says prefer direct end-of-line labels over a legend → asserted
     [ChartType.LineMulti]: {
-      status: 'todo',
+      status: 'asserted',
       optionKey: 'legend',
-      current: true,
       target: false,
       rule: RULE_WHEN_TO_USE_LEGENDS,
-      notes: 'Wiki says label lines directly instead of using a legend; since directLabelling defaults to Auto for line-multi, legend should default to false.',
     },
     // single-series; legend option is not registered for this chart
     [ChartType.Area]: { status: 'na', reason: 'single-series area; legend option is not registered' },
@@ -195,23 +185,19 @@ export const MATRIX: Matrix = {
       rule: RULE_WHEN_TO_USE_LEGENDS,
       notes: 'Wiki says legend is a fallback; for stacked area direct labelling is ambiguous but the default should still lean toward no legend.',
     },
-    // donut; current default true; wiki says direct slice labels are the default
+    // donut; default false; wiki says direct slice labels are the default → asserted
     [ChartType.Donut]: {
-      status: 'todo',
+      status: 'asserted',
       optionKey: 'legend',
-      current: true,
       target: false,
       rule: RULE_WHEN_TO_USE_LEGENDS,
-      notes: 'Wiki says label each slice directly; a legend is the fallback, not the primary default; donut should default to false.',
     },
-    // pie; current default true; wiki says direct slice labels are the default
+    // pie; default false; wiki says direct slice labels are the default → asserted
     [ChartType.Pie]: {
-      status: 'todo',
+      status: 'asserted',
       optionKey: 'legend',
-      current: true,
       target: false,
       rule: RULE_WHEN_TO_USE_LEGENDS,
-      notes: 'Wiki says label each slice directly; a legend is the fallback, not the primary default; pie should default to false.',
     },
   },
 
