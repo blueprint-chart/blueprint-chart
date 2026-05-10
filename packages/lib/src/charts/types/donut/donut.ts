@@ -15,7 +15,7 @@ import { resolveBackgroundColor } from '../../contrast'
 import { renderArcLabels, renderInsideArcLabels, renderAutoArcLabels, estimateArcLabelMargins } from '../../plugins/arc-labels'
 import type { ArcLabelDatum } from '../../plugins/arc-labels'
 
-const DEFAULT_COLORS = [
+export const DEFAULT_COLORS = [
   '#4e79a7', '#f28e2b', '#e15759', '#76b7b2',
   '#59a14f', '#edc948', '#b07aa1', '#ff9da7',
 ]

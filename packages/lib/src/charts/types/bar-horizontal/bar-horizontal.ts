@@ -15,7 +15,7 @@ import { getDefaultTransitionMs, setRenderTransition, fadeIn, snapshotForFadeOut
 import { getCachedChart, setCachedChart } from '../../transition-cache'
 import { SortDirection, ValueLabelPosition, Orientation } from '../../../enums'
 
-const DEFAULT_COLORS = ['#4e79a7']
+export const DEFAULT_COLORS = ['#4e79a7']
 const CATEGORY_LABEL_HEIGHT = 13
 const VALUE_LABEL_FONT = '11px sans-serif'
 const VALUE_LABEL_GAP = 4
