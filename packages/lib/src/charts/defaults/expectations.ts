@@ -638,68 +638,54 @@ export const MATRIX: Matrix = {
   // Scale type defaults to ScaleType.Linear wherever registered — wiki says log is opt-in.
   // =========================================================================
   [Concern.AxisScaleRange]: {
-    // vertical bar; verticalScaleType=Linear (asserted); verticalRangeMin has no default → todo (must be 0)
+    // vertical bar; verticalRangeMin default=0 → asserted
     [ChartType.BarVertical]: {
-      status: 'todo',
+      status: 'asserted',
       optionKey: 'verticalRangeMin',
-      current: undefined,
       target: 0,
       rule: RULE_AXIS_ZERO_BAR,
-      notes: 'Wiki mandates bar charts start at zero ("the bar length encodes the value"). verticalRangeMin has no default (placeholder auto) — must be set to 0. verticalScaleType=ScaleType.Linear is correctly asserted by the scale option.',
     },
-    // horizontal bar; horizontalScaleType=Linear (asserted); horizontalRangeMin has no default → todo (must be 0)
+    // horizontal bar; horizontalRangeMin default=0 → asserted
     [ChartType.BarHorizontal]: {
-      status: 'todo',
+      status: 'asserted',
       optionKey: 'horizontalRangeMin',
-      current: undefined,
       target: 0,
       rule: RULE_AXIS_ZERO_BAR,
-      notes: 'Wiki mandates horizontal bar charts start at zero. horizontalRangeMin has no default (placeholder auto) — must be set to 0. horizontalScaleType=ScaleType.Linear is correctly registered.',
     },
-    // multi-series vertical bar; same as barVertical → todo
+    // multi-series vertical bar; verticalRangeMin default=0 → asserted
     [ChartType.BarMulti]: {
-      status: 'todo',
+      status: 'asserted',
       optionKey: 'verticalRangeMin',
-      current: undefined,
       target: 0,
       rule: RULE_AXIS_ZERO_BAR,
-      notes: 'Same as barVertical: wiki mandates zero-based axis for bar charts. verticalRangeMin has no default.',
     },
-    // stacked horizontal bar; horizontalRangeMin has no default → todo (must be 0)
+    // stacked horizontal bar; horizontalRangeMin default=0 → asserted
     [ChartType.BarStacked]: {
-      status: 'todo',
+      status: 'asserted',
       optionKey: 'horizontalRangeMin',
-      current: undefined,
       target: 0,
       rule: RULE_AXIS_ZERO_BAR,
-      notes: 'Wiki mandates bar charts start at zero ("start axes at zero for area / bar charts"). horizontalRangeMin has no default — must be 0.',
     },
-    // split bar; horizontalRangeMin has no default → todo (must be 0)
+    // split bar; horizontalRangeMin default=0 → asserted
     [ChartType.BarSplit]: {
-      status: 'todo',
+      status: 'asserted',
       optionKey: 'horizontalRangeMin',
-      current: undefined,
       target: 0,
       rule: RULE_AXIS_ZERO_BAR,
-      notes: 'Wiki mandates bar charts start at zero. horizontalRangeMin has no default. Wiki does not cover split bar explicitly but the zero-baseline rule applies to the bar-encoding family.',
     },
-    // grouped horizontal bars; horizontalRangeMin has no default → todo (must be 0)
+    // grouped horizontal bars; horizontalRangeMin default=0 → asserted
     [ChartType.BarGrouped]: {
-      status: 'todo',
+      status: 'asserted',
       optionKey: 'horizontalRangeMin',
-      current: undefined,
       target: 0,
       rule: RULE_AXIS_ZERO_BAR,
-      notes: 'Same as BarStacked: wiki mandates zero-based axis for bar charts. horizontalRangeMin has no default.',
     },
-    // stacked column; verticalRangeMin has no default → todo (must be 0)
+    // stacked column; verticalRangeMin default=0 → asserted
     [ChartType.ColumnStacked]: {
-      status: 'todo',
+      status: 'asserted',
       optionKey: 'verticalRangeMin',
-      current: undefined,
       target: 0,
       rule: RULE_AXIS_ZERO_BAR,
-      notes: 'Wiki mandates stacked bar/column charts start at zero. verticalRangeMin has no default.',
     },
     // single-series line; verticalRangeMin has no default (auto) → asserted (auto is correct per wiki)
     [ChartType.Line]: {
@@ -715,23 +701,19 @@ export const MATRIX: Matrix = {
       target: ScaleType.Linear,
       rule: RULE_HANDBOOK_LINE,
     },
-    // single-series area; verticalRangeMin has no default → todo (must be 0)
+    // single-series area; verticalRangeMin default=0 → asserted
     [ChartType.Area]: {
-      status: 'todo',
+      status: 'asserted',
       optionKey: 'verticalRangeMin',
-      current: undefined,
       target: 0,
       rule: RULE_HANDBOOK_AREA,
-      notes: 'Wiki says "the y-axis must start at zero — the filled area encodes magnitude". verticalRangeMin has no default (placeholder auto) — must be set to 0.',
     },
-    // stacked area; verticalRangeMin has no default → todo (must be 0)
+    // stacked area; verticalRangeMin default=0 → asserted
     [ChartType.AreaStacked]: {
-      status: 'todo',
+      status: 'asserted',
       optionKey: 'verticalRangeMin',
-      current: undefined,
       target: 0,
       rule: RULE_AXIS_ZERO_BAR,
-      notes: 'Wiki mandates area charts start at zero ("start axes at zero for area / bar charts"). verticalRangeMin has no default.',
     },
     // donut; polar chart — no scale range concern
     [ChartType.Donut]: { status: 'na', reason: 'donut is a polar chart with no Cartesian axes; scale range concern does not apply' },

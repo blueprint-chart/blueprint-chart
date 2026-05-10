@@ -315,6 +315,7 @@ function axisOpts(defaults: {
   showVerticalAxis?: boolean
   valueAxis?: 'vertical' | 'horizontal'
   horizontalRange?: boolean
+  valueAxisZeroBaseline?: boolean
 }): ChartOptionDef[] {
   return [
     { key: 'showVerticalAxis', type: ChartOptionType.Boolean, label: 'Show vertical axis', default: defaults.showVerticalAxis ?? true },
@@ -326,7 +327,9 @@ function axisOpts(defaults: {
     ...(defaults.valueAxis === 'vertical'
       ? [
           { key: 'verticalScaleType', type: ChartOptionType.Select as const, label: 'Vertical scale', default: ScaleType.Linear, choices: SCALE_TYPE_CHOICES },
-          { key: 'verticalRangeMin', type: ChartOptionType.Text as const, label: 'Vertical min', placeholder: 'auto' },
+          defaults.valueAxisZeroBaseline
+            ? { key: 'verticalRangeMin', type: ChartOptionType.Text as const, label: 'Vertical min', default: 0, placeholder: 'auto' }
+            : { key: 'verticalRangeMin', type: ChartOptionType.Text as const, label: 'Vertical min', placeholder: 'auto' },
           { key: 'verticalRangeMax', type: ChartOptionType.Text as const, label: 'Vertical max', placeholder: 'auto' },
         ]
       : []),
@@ -339,7 +342,9 @@ function axisOpts(defaults: {
     ...(defaults.valueAxis === 'horizontal'
       ? [
           { key: 'horizontalScaleType', type: ChartOptionType.Select as const, label: 'Horizontal scale', default: ScaleType.Linear, choices: SCALE_TYPE_CHOICES },
-          { key: 'horizontalRangeMin', type: ChartOptionType.Text as const, label: 'Horizontal min', placeholder: 'auto' },
+          defaults.valueAxisZeroBaseline
+            ? { key: 'horizontalRangeMin', type: ChartOptionType.Text as const, label: 'Horizontal min', default: 0, placeholder: 'auto' }
+            : { key: 'horizontalRangeMin', type: ChartOptionType.Text as const, label: 'Horizontal min', placeholder: 'auto' },
           { key: 'horizontalRangeMax', type: ChartOptionType.Text as const, label: 'Horizontal max', placeholder: 'auto' },
         ]
       : []),
@@ -353,13 +358,17 @@ function axisOpts(defaults: {
 }
 
 // Vertical bars: value axis is vertical → horizontal dashed grid, no vertical grid, no ticks on category axis, no vertical axis line
-const barVerticalAxisOpts = axisOpts({ verticalGrid: GridStyle.Dashed, horizontalGrid: GridStyle.None, showVerticalTicks: false, showHorizontalTicks: false, showVerticalAxis: false, valueAxis: 'vertical' })
+const barVerticalAxisOpts = axisOpts({ verticalGrid: GridStyle.Dashed, horizontalGrid: GridStyle.None, showVerticalTicks: false, showHorizontalTicks: false, showVerticalAxis: false, valueAxis: 'vertical', valueAxisZeroBaseline: true })
 
 // Horizontal bars: value axis is horizontal → vertical dashed grid, no horizontal grid, no ticks on category axis
-const barHorizontalAxisOpts = axisOpts({ verticalGrid: GridStyle.None, horizontalGrid: GridStyle.Dashed, showVerticalTicks: false, showHorizontalTicks: false, valueAxis: 'horizontal' })
+const barHorizontalAxisOpts = axisOpts({ verticalGrid: GridStyle.None, horizontalGrid: GridStyle.Dashed, showVerticalTicks: false, showHorizontalTicks: false, valueAxis: 'horizontal', valueAxisZeroBaseline: true })
 
 // Lines: value axis is vertical → horizontal dashed grid, no vertical grid, no vertical axis line
 const lineAxisOpts = axisOpts({ verticalGrid: GridStyle.Dashed, horizontalGrid: GridStyle.None, showVerticalTicks: false, showHorizontalTicks: false, showVerticalAxis: false, valueAxis: 'vertical', horizontalRange: true })
+
+// Area: same axis layout as line but with value-axis zero baseline per wiki
+// (area charts fill from baseline; misleading without zero).
+const areaAxisOpts = axisOpts({ verticalGrid: GridStyle.Dashed, horizontalGrid: GridStyle.None, showVerticalTicks: false, showHorizontalTicks: false, showVerticalAxis: false, valueAxis: 'vertical', horizontalRange: true, valueAxisZeroBaseline: true })
 
 // Per-chart-type option overrides based on dataviz best practices.
 // Defaults are audited against the project wiki; see docs/superpowers/specs/2026-05-10-chart-defaults-audit-design.md
@@ -403,11 +412,11 @@ registerChart(ChartType.LineMulti, lineMulti, [colorsOpt, paletteOpt, autoContra
 registerChart(ChartType.Donut, donut, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, legendOffOpt, legendAnchorOpt, legendPositionOpt, autoDirectLabellingOpt, tooltipsOpt, ...donutArcOpts])
 registerChart(ChartType.Pie, pie, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, legendOffOpt, legendAnchorOpt, legendPositionOpt, autoDirectLabellingOpt, tooltipsOpt, ...pieArcOpts])
 
-// Area: same axis options as line, same interaction options
-registerChart(ChartType.Area, area, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, lineInterpolationOpt, edgePaddingOpt, ...lineAxisOpts, ...lineOpts])
+// Area: same axis layout as line but with value-axis zero baseline (areaAxisOpts), same interaction options
+registerChart(ChartType.Area, area, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, lineInterpolationOpt, edgePaddingOpt, ...areaAxisOpts, ...lineOpts])
 
 // Areas (multi-series with optional stacking)
-const areaStackedAxisOpts = axisOpts({ verticalGrid: GridStyle.Dashed, horizontalGrid: GridStyle.None, showVerticalTicks: false, showHorizontalTicks: false, showVerticalAxis: false, valueAxis: 'vertical', horizontalRange: true })
+const areaStackedAxisOpts = axisOpts({ verticalGrid: GridStyle.Dashed, horizontalGrid: GridStyle.None, showVerticalTicks: false, showHorizontalTicks: false, showVerticalAxis: false, valueAxis: 'vertical', horizontalRange: true, valueAxisZeroBaseline: true })
 registerChart(ChartType.AreaStacked, areaStacked, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, areaFillOpacityOpt, lineInterpolationOpt, edgePaddingOpt, areaSortModeOpt, stackedOpt, stackPercentOpt, areaLinesOpt, legendOpt, legendAnchorOpt, legendPositionOpt, directLabellingOpt, ...areaStackedAxisOpts, tooltipsOpt, ...lineCrosshairOpts])
 
 // Stacked column: vertical bars stacked
