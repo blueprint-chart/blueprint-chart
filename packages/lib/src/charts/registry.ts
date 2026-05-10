@@ -368,8 +368,6 @@ const lineAxisOpts = axisOpts({ verticalGrid: GridStyle.Dashed, horizontalGrid: 
 const lineInterpolationOpt: ChartOptionDef = { ...interpolationOpt, default: Interpolation.MonotoneX }
 // Line charts: vertical crosshair is standard for time-series data
 const lineCrosshairDirectionOpt: ChartOptionDef = { ...crosshairDirectionOpt, default: CrosshairDirection.Vertical }
-// Multi-line: direct labeling preferred over legends ("label lines directly instead of using a legend")
-const lineMultiDirectLabellingOpt: ChartOptionDef = { ...directLabellingOpt, default: DirectLabelMode.Auto }
 // Horizontal bars: value labels at end of bar are a best practice for readability
 const barHorizontalValueLabelsOpt: ChartOptionDef = { ...valueLabelsOpt, default: true }
 // Pie: display as percentage (pies show proportions), limit to 5 slices (not 6)
@@ -377,6 +375,15 @@ const pieDisplayAsPercentageOpt: ChartOptionDef = { ...displayAsPercentageOpt, d
 const pieSliceMaxOpt: ChartOptionDef = { ...sliceMaxOpt, default: '5' }
 // Donut: show total in center ("show a primary metric in the center when meaningful")
 const donutShowTotalOpt: ChartOptionDef = { ...showTotalOpt, default: true }
+
+// Direct labelling default Auto for multi-series charts where the wiki prescribes
+// "label each series directly" (multi-series bar, donut, pie). Combined with legendOffOpt
+// since the wiki treats legend as a fallback only.
+const autoDirectLabellingOpt: ChartOptionDef = { ...directLabellingOpt, default: DirectLabelMode.Auto }
+
+// Legend default false for charts where direct labelling carries series identification.
+// Wiki: "Direct labeling beats legends wherever possible."
+const legendOffOpt: ChartOptionDef = { ...legendOpt, default: false }
 
 // Register all chart types
 const crosshairOpts = [crosshairOpt, crosshairDirectionOpt, crosshairStyleOpt, crosshairColorOpt]
@@ -390,11 +397,11 @@ const donutArcOpts = [displayAsPercentageOpt, donutShowTotalOpt, showLabelsOpt, 
 
 registerChart(ChartType.BarVertical, barVertical, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, swapLabelValueOpt, barBackgroundOpt, barSeparatorsOpt, barGapOpt, connectedColumnsOpt, connectionsOpacityOpt, waterfallOpt, waterfallTotalOpt, categoryLabelLineOpt, ...barVerticalAxisOpts, ...barOpts])
 registerChart(ChartType.BarHorizontal, barHorizontal, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, swapLabelValueOpt, barBackgroundOpt, barSeparatorsOpt, barGapOpt, connectedColumnsOpt, connectionsOpacityOpt, waterfallOpt, waterfallTotalOpt, categoryLabelLineOpt, ...barHorizontalAxisOpts, ...barHorizontalOpts])
-registerChart(ChartType.BarMulti, barMulti, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, sortModeOpt, legendOpt, legendAnchorOpt, legendPositionOpt, directLabellingOpt, directLabelAnchorOpt, ...barVerticalAxisOpts, ...barOpts])
+registerChart(ChartType.BarMulti, barMulti, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, sortModeOpt, legendOffOpt, legendAnchorOpt, legendPositionOpt, autoDirectLabellingOpt, directLabelAnchorOpt, ...barVerticalAxisOpts, ...barOpts])
 registerChart(ChartType.Line, line, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, lineInterpolationOpt, edgePaddingOpt, ...lineAxisOpts, ...lineOpts])
-registerChart(ChartType.LineMulti, lineMulti, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, lineInterpolationOpt, edgePaddingOpt, sortModeOpt, legendOpt, legendAnchorOpt, legendPositionOpt, lineMultiDirectLabellingOpt, ...lineAxisOpts, ...lineOpts])
-registerChart(ChartType.Donut, donut, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, legendOpt, legendAnchorOpt, legendPositionOpt, directLabellingOpt, tooltipsOpt, ...donutArcOpts])
-registerChart(ChartType.Pie, pie, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, legendOpt, legendAnchorOpt, legendPositionOpt, directLabellingOpt, tooltipsOpt, ...pieArcOpts])
+registerChart(ChartType.LineMulti, lineMulti, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, lineInterpolationOpt, edgePaddingOpt, sortModeOpt, legendOffOpt, legendAnchorOpt, legendPositionOpt, autoDirectLabellingOpt, ...lineAxisOpts, ...lineOpts])
+registerChart(ChartType.Donut, donut, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, legendOffOpt, legendAnchorOpt, legendPositionOpt, autoDirectLabellingOpt, tooltipsOpt, ...donutArcOpts])
+registerChart(ChartType.Pie, pie, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, legendOffOpt, legendAnchorOpt, legendPositionOpt, autoDirectLabellingOpt, tooltipsOpt, ...pieArcOpts])
 
 // Area: same axis options as line, same interaction options
 registerChart(ChartType.Area, area, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, lineInterpolationOpt, edgePaddingOpt, ...lineAxisOpts, ...lineOpts])
