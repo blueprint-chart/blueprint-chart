@@ -885,39 +885,31 @@ export const MATRIX: Matrix = {
     },
     // single-series line; crosshair=false; wiki says vertical crosshair is standard for time-series
     [ChartType.Line]: {
-      status: 'todo',
+      status: 'asserted',
       optionKey: 'crosshair',
-      current: false,
       target: true,
       rule: RULE_CROSSHAIR_PATTERNS,
-      notes: 'Wiki says vertical crosshair is standard for time-series line charts and is often combined with a tooltip. crosshairDirection is overridden to Vertical via lineCrosshairDirectionOpt — direction is already correct. crosshairStyle=Dashed and crosshairColor=#999 match the wiki prescription for subtle/dashed/grey styling. The on/off default (false) does not match the wiki implication that crosshair should be active for time-series line.',
     },
     // multi-series line; same wiki rule applies — vertical crosshair standard for line charts
     [ChartType.LineMulti]: {
-      status: 'todo',
+      status: 'asserted',
       optionKey: 'crosshair',
-      current: false,
       target: true,
       rule: RULE_CROSSHAIR_PATTERNS,
-      notes: 'Same as line: wiki prescribes vertical crosshair for time-series line charts. crosshairDirection=Vertical via lineCrosshairDirectionOpt is already correct. crosshair=false does not match the wiki prescription.',
     },
     // single-series area; wiki says vertical crosshair for time-series area charts
     [ChartType.Area]: {
-      status: 'todo',
+      status: 'asserted',
       optionKey: 'crosshair',
-      current: false,
       target: true,
       rule: RULE_CROSSHAIR_PATTERNS,
-      notes: 'Wiki says vertical crosshair is standard for time-series line/area. crosshairDirection=Vertical via lineCrosshairDirectionOpt is already correct. crosshair=false does not match the wiki prescription for area charts.',
     },
     // stacked area; same as area — wiki prescribes vertical crosshair for time-series area
     [ChartType.AreaStacked]: {
-      status: 'todo',
+      status: 'asserted',
       optionKey: 'crosshair',
-      current: false,
       target: true,
       rule: RULE_CROSSHAIR_PATTERNS,
-      notes: 'Same as area: wiki prescribes vertical crosshair for stacked area time-series charts. crosshairDirection=Vertical via lineCrosshairOpts is already correct. crosshair=false does not match the wiki prescription.',
     },
     // donut; no crosshair option registered
     [ChartType.Donut]: { status: 'na', reason: 'donut is a polar chart; crosshair option is not registered for this chart type' },
