@@ -115,7 +115,13 @@ export const MATRIX: Matrix = {
 
   // =========================================================================
   // Concern: Legend
-  // optionKey verdict on 'legend' (boolean visibility); position/anchor are secondary
+  // optionKey verdict on 'legend' (boolean visibility); position/anchor are secondary.
+  //
+  // Phase 4 decision: 4 charts (BarMulti, Donut, Pie, LineMulti) get legend: false
+  // because they ALSO get directLabelling: Auto. For the 5 stacked/split/grouped
+  // charts the wiki is silent on a direct-labelling alternative, so the legend
+  // stays true (asserted) — see docs/superpowers/plans/2026-05-10-chart-defaults-phase-4.md
+  // Task 3 for rationale.
   // =========================================================================
   [Concern.Legend]: {
     // single-series; legend option is not registered for this chart
@@ -129,41 +135,29 @@ export const MATRIX: Matrix = {
       target: false,
       rule: RULE_WHEN_TO_USE_LEGENDS,
     },
-    // stacked horizontal bar; current default true; legend is reasonable fallback for stacked since direct labels are hard
     [ChartType.BarStacked]: {
-      status: 'todo',
+      status: 'asserted',
       optionKey: 'legend',
-      current: true,
-      target: false,
+      target: true,
       rule: RULE_WHEN_TO_USE_LEGENDS,
-      notes: 'Wiki treats legend as a fallback; even for stacked bars the wiki preference is to avoid a separate legend when possible. Phase 4 should verify whether a legend is truly necessary when stack labels are off.',
     },
-    // split bar panels; current default true; each panel is self-labelled by series but legend still registered
     [ChartType.BarSplit]: {
-      status: 'todo',
+      status: 'asserted',
       optionKey: 'legend',
-      current: true,
-      target: false,
+      target: true,
       rule: RULE_WHEN_TO_USE_LEGENDS,
-      notes: 'Split bar renders each series as its own labelled panel, making a separate legend redundant; wiki says legend is a fallback only.',
     },
-    // grouped horizontal bars; current default true; wiki says legend is fallback
     [ChartType.BarGrouped]: {
-      status: 'todo',
+      status: 'asserted',
       optionKey: 'legend',
-      current: true,
-      target: false,
+      target: true,
       rule: RULE_WHEN_TO_USE_LEGENDS,
-      notes: 'Wiki accepts legend for multi-series bar as a fallback when direct labels are impractical; default should still be false with the user opting in.',
     },
-    // stacked column; current default true; wiki treats legend as fallback
     [ChartType.ColumnStacked]: {
-      status: 'todo',
+      status: 'asserted',
       optionKey: 'legend',
-      current: true,
-      target: false,
+      target: true,
       rule: RULE_WHEN_TO_USE_LEGENDS,
-      notes: 'Wiki says legend is a fallback not the primary default; prefer direct labelling or no legend for stacked columns.',
     },
     // single-series; legend option is not registered for this chart
     [ChartType.Line]: { status: 'na', reason: 'single-series line; legend option is not registered' },
@@ -176,14 +170,11 @@ export const MATRIX: Matrix = {
     },
     // single-series; legend option is not registered for this chart
     [ChartType.Area]: { status: 'na', reason: 'single-series area; legend option is not registered' },
-    // stacked area; current default true; wiki treats legend as fallback
     [ChartType.AreaStacked]: {
-      status: 'todo',
+      status: 'asserted',
       optionKey: 'legend',
-      current: true,
-      target: false,
+      target: true,
       rule: RULE_WHEN_TO_USE_LEGENDS,
-      notes: 'Wiki says legend is a fallback; for stacked area direct labelling is ambiguous but the default should still lean toward no legend.',
     },
     // donut; default false; wiki says direct slice labels are the default → asserted
     [ChartType.Donut]: {
