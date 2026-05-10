@@ -381,6 +381,8 @@ const lineCrosshairDirectionOpt: ChartOptionDef = { ...crosshairDirectionOpt, de
 const lineCrosshairToggleOpt: ChartOptionDef = { ...crosshairOpt, default: true }
 // Multi-line: symbols on by default ("combine color + shape for CVD distinguishability").
 const lineMultiLineSymbolsOpt: ChartOptionDef = { ...lineSymbolsOpt, default: true }
+// Multi-series and grouped bars: sort by total descending ("sort horizontal bars by value").
+const sortByTotalOpt: ChartOptionDef = { ...sortModeOpt, default: SortMode.Total }
 // Horizontal bars: value labels at end of bar are a best practice for readability
 const barHorizontalValueLabelsOpt: ChartOptionDef = { ...valueLabelsOpt, default: true }
 // Pie: display as percentage (pies show proportions), limit to 5 slices (not 6)
@@ -414,7 +416,7 @@ const donutArcOpts = [displayAsPercentageOpt, donutShowTotalOpt, showLabelsOpt, 
 
 registerChart(ChartType.BarVertical, barVertical, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, swapLabelValueOpt, barBackgroundOpt, barSeparatorsOpt, barGapOpt, connectedColumnsOpt, connectionsOpacityOpt, waterfallOpt, waterfallTotalOpt, categoryLabelLineOpt, ...barVerticalAxisOpts, ...barOpts])
 registerChart(ChartType.BarHorizontal, barHorizontal, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, swapLabelValueOpt, barBackgroundOpt, barSeparatorsOpt, barGapOpt, connectedColumnsOpt, connectionsOpacityOpt, waterfallOpt, waterfallTotalOpt, categoryLabelLineOpt, ...barHorizontalAxisOpts, ...barHorizontalOpts])
-registerChart(ChartType.BarMulti, barMulti, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, sortModeOpt, legendOffOpt, legendAnchorOpt, legendPositionOpt, autoDirectLabellingOpt, directLabelAnchorOpt, ...barVerticalAxisOpts, ...barOpts])
+registerChart(ChartType.BarMulti, barMulti, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, sortByTotalOpt, legendOffOpt, legendAnchorOpt, legendPositionOpt, autoDirectLabellingOpt, directLabelAnchorOpt, ...barVerticalAxisOpts, ...barOpts])
 registerChart(ChartType.Line, line, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, lineInterpolationOpt, edgePaddingOpt, ...lineAxisOpts, ...lineOpts])
 registerChart(ChartType.LineMulti, lineMulti, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, lineInterpolationOpt, edgePaddingOpt, sortModeOpt, legendOffOpt, legendAnchorOpt, legendPositionOpt, autoDirectLabellingOpt, ...lineAxisOpts, ...lineMultiOpts])
 registerChart(ChartType.Donut, donut, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, legendOffOpt, legendAnchorOpt, legendPositionOpt, autoDirectLabellingOpt, tooltipsOpt, ...donutArcOpts])
@@ -437,7 +439,7 @@ registerChart(ChartType.BarStacked, barStacked, [colorsOpt, paletteOpt, autoCont
 registerChart(ChartType.BarSplit, barSplit, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, sharedScaleOpt, sortModeOpt, legendOpt, legendAnchorOpt, legendPositionOpt, categoryLabelLineOpt, ...barHorizontalAxisOpts, barHorizontalValueLabelsOpt, valueLabelPositionOpt, tooltipsOpt, ...crosshairOpts])
 
 // Grouped bars: each category rendered as a group of horizontal bars, one per series
-registerChart(ChartType.BarGrouped, barGrouped, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, sortModeOpt, legendOpt, legendAnchorOpt, legendPositionOpt, barBackgroundOpt, barSeparatorsOpt, categoryLabelLineOpt, ...barHorizontalAxisOpts, barHorizontalValueLabelsOpt, valueLabelPositionOpt, tooltipsOpt, ...crosshairOpts])
+registerChart(ChartType.BarGrouped, barGrouped, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, sortByTotalOpt, legendOpt, legendAnchorOpt, legendPositionOpt, barBackgroundOpt, barSeparatorsOpt, categoryLabelLineOpt, ...barHorizontalAxisOpts, barHorizontalValueLabelsOpt, valueLabelPositionOpt, tooltipsOpt, ...crosshairOpts])
 
 // Aliases share the same entry
 registerChart(ChartType.VerticalBar, barVertical, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, swapLabelValueOpt, barBackgroundOpt, barSeparatorsOpt, barGapOpt, connectedColumnsOpt, connectionsOpacityOpt, waterfallOpt, waterfallTotalOpt, categoryLabelLineOpt, ...barVerticalAxisOpts, ...barOpts])

@@ -1285,14 +1285,12 @@ export const MATRIX: Matrix = {
     [ChartType.BarVertical]: { status: 'na', reason: 'sortMode option is not registered for bar-vertical; single-series sort is handled by input data order' },
     // horizontal bar — sortModeOpt is not registered
     [ChartType.BarHorizontal]: { status: 'na', reason: 'sortMode option is not registered for bar-horizontal; single-series sort is handled by input data order' },
-    // multi-series bar; sortMode=SortMode.None; wiki says sort bars descending unless natural order
+    // multi-series bar; sortMode=SortMode.Total; wiki says sort bars descending unless natural order
     [ChartType.BarMulti]: {
-      status: 'todo',
+      status: 'asserted',
       optionKey: 'sortMode',
-      current: SortMode.None,
       target: SortMode.Total,
       rule: RULE_SORT_DESCENDING,
-      notes: 'Wiki says sort bars by value (descending) unless there is a natural category order. SortMode.None preserves input order which may be non-semantic. SortMode.Total (by group total descending) is the closest available mode matching the wiki prescription. Caveat: temporal data has a natural order that should override this; chart authors must be able to opt out.',
     },
     // stacked horizontal bar; sortMode=SortMode.None; wiki says sort horizontal bars by value
     // but also prescribes consistent segment ordering within stacks — sort by total conflicts
@@ -1310,14 +1308,12 @@ export const MATRIX: Matrix = {
       current: SortMode.None,
       notes: 'Wiki does not cover split bar charts. SortMode.None (input order) is the conservative default. No wiki rule found prescribing a sort default for split bar panels.',
     },
-    // grouped horizontal bars; sortMode=SortMode.None; wiki says sort horizontal bars by value → todo
+    // grouped horizontal bars; sortMode=SortMode.Total; wiki says sort horizontal bars by value
     [ChartType.BarGrouped]: {
-      status: 'todo',
+      status: 'asserted',
       optionKey: 'sortMode',
-      current: SortMode.None,
       target: SortMode.Total,
       rule: RULE_HANDBOOK_BAR_HORIZONTAL,
-      notes: 'Wiki says sort horizontal bars by value (largest at top). SortMode.Total sorts categories by their total, which corresponds to the wiki prescription for grouped horizontal bar rankings.',
     },
     // stacked column; sortMode=SortMode.None; wiki prescribes consistent segment ordering
     // for stacked charts rather than sort by value → open
