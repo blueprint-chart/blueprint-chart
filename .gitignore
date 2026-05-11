@@ -5,6 +5,8 @@ components.d.ts
 .playwright-mcp
 .claude
 .ralph-tui
+.superpowers/
+docs/superpowers/
 /tasks/
 
 # Generated parsers
