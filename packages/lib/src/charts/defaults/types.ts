@@ -55,6 +55,7 @@ export interface AssertedCell {
   optionKey: string // key in registry.ts ChartOptionDef list
   target: unknown
   rule: string // citation, e.g. 'wiki/concepts/labels-and-legends.md § Direct labeling is preferred'
+  notes?: string // optional rationale, especially for cells where the wiki was silent but a reasonable default is accepted
 }
 
 // Renderer-internal constants (e.g. DEFAULT_COLOR, DEFAULT_COLORS) are not

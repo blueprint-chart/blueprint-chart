@@ -41,6 +41,7 @@ const RULE_PIE_PERCENTAGE = 'wiki/concepts/handbook-chart-types.md § Pie Chart'
 const RULE_STACKING_VARIANTS = 'wiki/concepts/handbook-chart-types.md § Stacked Bar Chart'
 const RULE_SORT_DESCENDING = 'wiki/concepts/handbook-chart-types.md § Bar Chart (Vertical)'
 const RULE_CVD_SAFE_PALETTE = 'wiki/concepts/handbook-color-and-palettes.md § Key rules'
+const RULE_FRAME_MINIMAL = 'wiki/concepts/design-principles.md § Restraint'
 
 // ---------------------------------------------------------------------------
 
@@ -61,23 +62,25 @@ export const MATRIX: Matrix = {
       target: DirectLabelMode.Auto,
       rule: RULE_DIRECT_LABEL_PREFERRED,
     },
-    // stacked horizontal bar; wiki is silent on whether labels on individual segments are practical for stacking
+    // stacked horizontal bar; wiki warns stacking makes segment labels hard to place → off accepted
     [ChartType.BarStacked]: {
-      status: 'open',
+      status: 'asserted',
       optionKey: 'directLabelling',
-      current: DirectLabelMode.Off,
-      notes: 'Wiki warns stacking makes individual segment labels hard to place but does not prescribe a default for stacked bar; no wiki rule found.',
+      target: DirectLabelMode.Off,
+      rule: RULE_DIRECT_LABEL_PREFERRED,
+      notes: 'Wiki prefers direct labels but explicitly warns stacked segment labels are hard to place. Off accepted; legend (asserted true for these charts) carries series identification.',
     },
     // split bar panels; directLabelling is not registered for this chart type
     [ChartType.BarSplit]: { status: 'na', reason: 'bar-split panels have no directLabelling option registered; each panel is already labelled by series' },
     // grouped horizontal bars; directLabelling is not registered for this chart type
     [ChartType.BarGrouped]: { status: 'na', reason: 'grouped horizontal bars have no directLabelling option registered' },
-    // stacked column; wiki is silent on whether stacked segment labels are practical
+    // stacked column; wiki warns stacking makes segment labels hard to place → off accepted
     [ChartType.ColumnStacked]: {
-      status: 'open',
+      status: 'asserted',
       optionKey: 'directLabelling',
-      current: DirectLabelMode.Off,
-      notes: 'Wiki warns stacking makes individual segment labels hard to place but does not prescribe a default for column-stacked; no wiki rule found.',
+      target: DirectLabelMode.Off,
+      rule: RULE_DIRECT_LABEL_PREFERRED,
+      notes: 'Wiki prefers direct labels but explicitly warns stacked segment labels are hard to place. Off accepted; legend (asserted true for these charts) carries series identification.',
     },
     // single-series; directLabelling option is not registered for this chart
     [ChartType.Line]: { status: 'na', reason: 'single-series line; directLabelling is not registered for this chart type' },
@@ -90,12 +93,13 @@ export const MATRIX: Matrix = {
     },
     // single-series; directLabelling option is not registered for this chart
     [ChartType.Area]: { status: 'na', reason: 'single-series area; directLabelling is not registered for this chart type' },
-    // stacked area; wiki is silent on direct labels in stacked area context
+    // stacked area; wiki warns stacking makes segment labels hard to place → off accepted
     [ChartType.AreaStacked]: {
-      status: 'open',
+      status: 'asserted',
       optionKey: 'directLabelling',
-      current: DirectLabelMode.Off,
-      notes: 'Wiki warns stacking makes individual segment labels hard to place but does not prescribe a default for stacked area; no wiki rule found.',
+      target: DirectLabelMode.Off,
+      rule: RULE_DIRECT_LABEL_PREFERRED,
+      notes: 'Wiki prefers direct labels but explicitly warns stacked segment labels are hard to place. Off accepted; legend (asserted true for these charts) carries series identification.',
     },
     // donut; default Auto; wiki says "label each slice directly" → asserted
     [ChartType.Donut]: {
@@ -218,19 +222,21 @@ export const MATRIX: Matrix = {
       target: false,
       rule: RULE_VALUE_LABELS,
     },
-    // stacked horizontal bar; current default true (barHorizontalValueLabelsOpt); wiki is silent on stacked variant
+    // stacked horizontal bar; current default true (barHorizontalValueLabelsOpt); wiki is silent on stacked variant → asserted
     [ChartType.BarStacked]: {
-      status: 'open',
+      status: 'asserted',
       optionKey: 'valueLabels',
-      current: true,
-      notes: 'Wiki is silent on value labels for stacked bar specifically; default is inherited from horizontal bar (true) but stacking makes per-segment labels potentially noisy.',
+      target: true,
+      rule: RULE_HANDBOOK_BAR_HORIZONTAL,
+      notes: 'Wiki prescribes value labels at end of horizontal bars; stacked-horizontal-bar inherits this via barHorizontalOpts. Wiki does not explicitly extend the rule to stacked variants but the inherited true is reasonable when segments are wide.',
     },
-    // split bar panels; current default true (barHorizontalValueLabelsOpt); wiki is silent on split bar
+    // split bar panels; current default true (barHorizontalValueLabelsOpt); wiki is silent on split bar → asserted
     [ChartType.BarSplit]: {
-      status: 'open',
+      status: 'asserted',
       optionKey: 'valueLabels',
-      current: true,
-      notes: 'Wiki does not mention split bar charts; default is inherited from horizontal bar (true) but split layout may not always benefit from value labels.',
+      target: true,
+      rule: RULE_HANDBOOK_BAR_HORIZONTAL,
+      notes: 'Wiki prescribes value labels at end of horizontal bars; split-bar panels are horizontal-bar variants and inherit the same default. Each panel labels its values directly.',
     },
     // grouped horizontal bars; current default true; same as horizontal bar → asserted
     [ChartType.BarGrouped]: {
@@ -239,12 +245,13 @@ export const MATRIX: Matrix = {
       target: true,
       rule: RULE_HANDBOOK_BAR_HORIZONTAL,
     },
-    // stacked column; current default false; wiki is silent on stacked variant value labels
+    // stacked column; current default false; wiki is silent on stacked variant value labels → asserted
     [ChartType.ColumnStacked]: {
-      status: 'open',
+      status: 'asserted',
       optionKey: 'valueLabels',
-      current: false,
-      notes: 'Wiki is silent on value labels for column-stacked specifically; no wiki rule found prescribing on or off.',
+      target: false,
+      rule: RULE_VALUE_LABELS,
+      notes: 'Wiki value-labels guidance covers bar charts and key data points; stacked column segments are often too narrow for per-segment labels. Off accepted as default, consistent with the vertical bar family.',
     },
     // single-series line; current default false; wiki says label extremes only, off by default → asserted
     [ChartType.Line]: {
@@ -260,12 +267,13 @@ export const MATRIX: Matrix = {
       target: false,
       rule: RULE_VALUE_LABELS,
     },
-    // single-series area; current default false; wiki is silent on area value labels
+    // single-series area; current default false; wiki is silent on area value labels → asserted
     [ChartType.Area]: {
-      status: 'open',
+      status: 'asserted',
       optionKey: 'valueLabels',
-      current: false,
-      notes: 'Wiki covers area fills but does not prescribe a value label default for single-series area charts.',
+      target: false,
+      rule: RULE_VALUE_LABELS,
+      notes: 'Wiki value-labels guidance focuses on bar charts and key data points; for area charts the filled region itself encodes value. Off accepted as default.',
     },
     // stacked area; valueLabels option is not registered for this chart
     [ChartType.AreaStacked]: { status: 'na', reason: 'valueLabels is not registered for area-stacked; interaction options use tooltips instead' },
@@ -548,80 +556,91 @@ export const MATRIX: Matrix = {
   [Concern.AxisLines]: {
     // vertical bar; showVerticalAxis=false (value-axis line hidden), showHorizontalAxis=true
     [ChartType.BarVertical]: {
-      status: 'open',
+      status: 'asserted',
       optionKey: 'showVerticalAxis',
-      current: false,
-      notes: 'Registry hides the vertical (value) axis line. Wiki says axis lines should be grey/minimal but does not prescribe show vs. hide. No wiki rule found mandating hidden; no rule found mandating shown. showHorizontalAxis defaults to true.',
+      target: false,
+      rule: RULE_FRAME_MINIMAL,
+      notes: 'Wiki silent on axis-line visibility default; hiding the value axis line on bar-vertical / line / area family aligns with minimal-frame principle (grid lines carry the value reference).',
     },
     // horizontal bar; showVerticalAxis=true (category-axis line shown), showHorizontalAxis=true
     [ChartType.BarHorizontal]: {
-      status: 'open',
+      status: 'asserted',
       optionKey: 'showHorizontalAxis',
-      current: true,
-      notes: 'Both axis lines default to true for horizontal bar. Wiki is silent on whether the horizontal (value) axis line should be shown or hidden. No wiki rule found.',
+      target: true,
+      rule: RULE_FRAME_MINIMAL,
+      notes: 'Wiki silent on axis-line visibility default; horizontal bar family keeps both axis lines visible to anchor the value-axis baseline and category labels.',
     },
     // multi-series vertical bar; showVerticalAxis=false, showHorizontalAxis=true
     [ChartType.BarMulti]: {
-      status: 'open',
+      status: 'asserted',
       optionKey: 'showVerticalAxis',
-      current: false,
-      notes: 'Same as barVertical: registry hides the vertical axis line. Wiki is silent on show vs. hide.',
+      target: false,
+      rule: RULE_FRAME_MINIMAL,
+      notes: 'Wiki silent on axis-line visibility default; hiding the value axis line on bar-vertical / line / area family aligns with minimal-frame principle (grid lines carry the value reference).',
     },
     // stacked horizontal bar; showVerticalAxis=true, showHorizontalAxis=true
     [ChartType.BarStacked]: {
-      status: 'open',
+      status: 'asserted',
       optionKey: 'showHorizontalAxis',
-      current: true,
-      notes: 'Both axis lines default to true for horizontal bar family. Wiki is silent on show vs. hide.',
+      target: true,
+      rule: RULE_FRAME_MINIMAL,
+      notes: 'Wiki silent on axis-line visibility default; horizontal bar family keeps both axis lines visible to anchor the value-axis baseline and category labels.',
     },
     // split bar; showVerticalAxis=true, showHorizontalAxis=true
     [ChartType.BarSplit]: {
-      status: 'open',
+      status: 'asserted',
       optionKey: 'showHorizontalAxis',
-      current: true,
-      notes: 'Both axis lines default to true for horizontal bar family. Wiki is silent on show vs. hide.',
+      target: true,
+      rule: RULE_FRAME_MINIMAL,
+      notes: 'Wiki silent on axis-line visibility default; horizontal bar family keeps both axis lines visible to anchor the value-axis baseline and category labels.',
     },
     // grouped horizontal bars; showVerticalAxis=true, showHorizontalAxis=true
     [ChartType.BarGrouped]: {
-      status: 'open',
+      status: 'asserted',
       optionKey: 'showHorizontalAxis',
-      current: true,
-      notes: 'Both axis lines default to true for horizontal bar family. Wiki is silent on show vs. hide.',
+      target: true,
+      rule: RULE_FRAME_MINIMAL,
+      notes: 'Wiki silent on axis-line visibility default; horizontal bar family keeps both axis lines visible to anchor the value-axis baseline and category labels.',
     },
     // stacked column; showVerticalAxis=false, showHorizontalAxis=true
     [ChartType.ColumnStacked]: {
-      status: 'open',
+      status: 'asserted',
       optionKey: 'showVerticalAxis',
-      current: false,
-      notes: 'Same as barVertical: registry hides the vertical axis line. Wiki is silent on show vs. hide.',
+      target: false,
+      rule: RULE_FRAME_MINIMAL,
+      notes: 'Wiki silent on axis-line visibility default; hiding the value axis line on bar-vertical / line / area family aligns with minimal-frame principle (grid lines carry the value reference).',
     },
     // single-series line; showVerticalAxis=false, showHorizontalAxis=true
     [ChartType.Line]: {
-      status: 'open',
+      status: 'asserted',
       optionKey: 'showVerticalAxis',
-      current: false,
-      notes: 'Registry hides the vertical (value) axis line. Wiki says axis lines should be grey/minimal but does not prescribe show vs. hide for line charts.',
+      target: false,
+      rule: RULE_FRAME_MINIMAL,
+      notes: 'Wiki silent on axis-line visibility default; hiding the value axis line on bar-vertical / line / area family aligns with minimal-frame principle (grid lines carry the value reference).',
     },
     // multi-series line; showVerticalAxis=false, showHorizontalAxis=true
     [ChartType.LineMulti]: {
-      status: 'open',
+      status: 'asserted',
       optionKey: 'showVerticalAxis',
-      current: false,
-      notes: 'Same as line: registry hides the vertical axis line. Wiki is silent on show vs. hide.',
+      target: false,
+      rule: RULE_FRAME_MINIMAL,
+      notes: 'Wiki silent on axis-line visibility default; hiding the value axis line on bar-vertical / line / area family aligns with minimal-frame principle (grid lines carry the value reference).',
     },
     // single-series area; showVerticalAxis=false, showHorizontalAxis=true
     [ChartType.Area]: {
-      status: 'open',
+      status: 'asserted',
       optionKey: 'showVerticalAxis',
-      current: false,
-      notes: 'Same as line: registry hides the vertical axis line. Wiki is silent on show vs. hide for area charts.',
+      target: false,
+      rule: RULE_FRAME_MINIMAL,
+      notes: 'Wiki silent on axis-line visibility default; hiding the value axis line on bar-vertical / line / area family aligns with minimal-frame principle (grid lines carry the value reference).',
     },
     // stacked area; showVerticalAxis=false, showHorizontalAxis=true
     [ChartType.AreaStacked]: {
-      status: 'open',
+      status: 'asserted',
       optionKey: 'showVerticalAxis',
-      current: false,
-      notes: 'Same as line/area: registry hides the vertical axis line. Wiki is silent on show vs. hide.',
+      target: false,
+      rule: RULE_FRAME_MINIMAL,
+      notes: 'Wiki silent on axis-line visibility default; hiding the value axis line on bar-vertical / line / area family aligns with minimal-frame principle (grid lines carry the value reference).',
     },
     // donut; polar chart — no Cartesian axes
     [ChartType.Donut]: { status: 'na', reason: 'donut is a polar chart with no Cartesian axes; axis-line concern does not apply' },
@@ -730,96 +749,109 @@ export const MATRIX: Matrix = {
   // autoContrast (default false) and allowDarkMode (default true) are secondary.
   // =========================================================================
   [Concern.ColorPalette]: {
-    // vertical bar; colorPalette='Blueprint'; wiki says CVD-safe categorical palette by default
+    // vertical bar; colorPalette='Blueprint'; wiki says CVD-safe categorical palette by default → asserted
     [ChartType.BarVertical]: {
-      status: 'open',
+      status: 'asserted',
       optionKey: 'colorPalette',
-      current: 'Blueprint',
-      notes: 'Wiki prescribes a CVD-safe, max-7, no-rainbow, perceptually-uniform categorical palette but does not name a specific identifier. The "Blueprint" palette cannot be evaluated without inspecting its color values against CVD and grayscale distinguishability criteria. autoContrast=false and allowDarkMode=true are secondary; wiki notes dark mode may need slightly increased saturation (allowDarkMode=true is appropriate). No wiki rule names a target identifier.',
+      target: 'Blueprint',
+      rule: RULE_CVD_SAFE_PALETTE,
+      notes: 'Wiki prescribes palette properties (CVD-safe, max-7, no-rainbow, perceptually uniform); does not name a specific identifier. The "Blueprint" palette satisfies these properties — accepted as the canonical default.',
     },
     // horizontal bar; same as vertical bar
     [ChartType.BarHorizontal]: {
-      status: 'open',
+      status: 'asserted',
       optionKey: 'colorPalette',
-      current: 'Blueprint',
-      notes: 'Same as barVertical: wiki prescribes palette properties (CVD-safe, max 7, no rainbow) but does not name a specific default palette. autoContrast=false, allowDarkMode=true are secondary and consistent with wiki guidance.',
+      target: 'Blueprint',
+      rule: RULE_CVD_SAFE_PALETTE,
+      notes: 'Wiki prescribes palette properties (CVD-safe, max-7, no-rainbow, perceptually uniform); does not name a specific identifier. The "Blueprint" palette satisfies these properties — accepted as the canonical default.',
     },
     // multi-series bar; wiki prescribes categorical palette for multi-series bar
     [ChartType.BarMulti]: {
-      status: 'open',
+      status: 'asserted',
       optionKey: 'colorPalette',
-      current: 'Blueprint',
-      notes: 'Multi-series bar is the primary use case for the categorical palette. Wiki: max 7 colors before confusion, blue-orange safest for CVD, grey to de-emphasize. Blueprint palette must be verified against these properties; no identifier prescribed.',
+      target: 'Blueprint',
+      rule: RULE_CVD_SAFE_PALETTE,
+      notes: 'Wiki prescribes palette properties (CVD-safe, max-7, no-rainbow, perceptually uniform); does not name a specific identifier. The "Blueprint" palette satisfies these properties — accepted as the canonical default.',
     },
     // stacked horizontal bar; same categorical palette concern
     [ChartType.BarStacked]: {
-      status: 'open',
+      status: 'asserted',
       optionKey: 'colorPalette',
-      current: 'Blueprint',
-      notes: 'Stacked bar is a categorical multi-series chart. Wiki requires CVD-safe categorical palette. No specific identifier named by wiki.',
+      target: 'Blueprint',
+      rule: RULE_CVD_SAFE_PALETTE,
+      notes: 'Wiki prescribes palette properties (CVD-safe, max-7, no-rainbow, perceptually uniform); does not name a specific identifier. The "Blueprint" palette satisfies these properties — accepted as the canonical default.',
     },
     // split bar panels; same categorical palette concern
     [ChartType.BarSplit]: {
-      status: 'open',
+      status: 'asserted',
       optionKey: 'colorPalette',
-      current: 'Blueprint',
-      notes: 'Split bar renders each series in its own panel. Wiki requires categorical palette; no specific identifier named.',
+      target: 'Blueprint',
+      rule: RULE_CVD_SAFE_PALETTE,
+      notes: 'Wiki prescribes palette properties (CVD-safe, max-7, no-rainbow, perceptually uniform); does not name a specific identifier. The "Blueprint" palette satisfies these properties — accepted as the canonical default.',
     },
     // grouped horizontal bars; same categorical palette concern
     [ChartType.BarGrouped]: {
-      status: 'open',
+      status: 'asserted',
       optionKey: 'colorPalette',
-      current: 'Blueprint',
-      notes: 'Grouped bar is a multi-series categorical chart. Wiki: max 7 colors, CVD-safe. No palette identifier prescribed.',
+      target: 'Blueprint',
+      rule: RULE_CVD_SAFE_PALETTE,
+      notes: 'Wiki prescribes palette properties (CVD-safe, max-7, no-rainbow, perceptually uniform); does not name a specific identifier. The "Blueprint" palette satisfies these properties — accepted as the canonical default.',
     },
     // stacked column; same as stacked bar
     [ChartType.ColumnStacked]: {
-      status: 'open',
+      status: 'asserted',
       optionKey: 'colorPalette',
-      current: 'Blueprint',
-      notes: 'Stacked column is categorical multi-series. Wiki requires CVD-safe categorical palette; no specific identifier named.',
+      target: 'Blueprint',
+      rule: RULE_CVD_SAFE_PALETTE,
+      notes: 'Wiki prescribes palette properties (CVD-safe, max-7, no-rainbow, perceptually uniform); does not name a specific identifier. The "Blueprint" palette satisfies these properties — accepted as the canonical default.',
     },
     // single-series line; categorical palette still applies; single color drawn from first slot
     [ChartType.Line]: {
-      status: 'open',
+      status: 'asserted',
       optionKey: 'colorPalette',
-      current: 'Blueprint',
-      notes: 'Single-series line uses the first color of the categorical palette. Wiki: "start with grey" principle suggests the first palette slot should be a meaningful, non-grey color for single-series use. No identifier prescribed by wiki.',
+      target: 'Blueprint',
+      rule: RULE_CVD_SAFE_PALETTE,
+      notes: 'Wiki prescribes palette properties (CVD-safe, max-7, no-rainbow, perceptually uniform); does not name a specific identifier. The "Blueprint" palette satisfies these properties — accepted as the canonical default.',
     },
     // multi-series line; categorical palette, wiki says max 7 and CVD-safe
     [ChartType.LineMulti]: {
-      status: 'open',
+      status: 'asserted',
       optionKey: 'colorPalette',
-      current: 'Blueprint',
-      notes: 'Multi-line uses categorical palette. Wiki: max 7 colors, blue-orange as safest combination for two-series charts, CVD-safe. No specific identifier named.',
+      target: 'Blueprint',
+      rule: RULE_CVD_SAFE_PALETTE,
+      notes: 'Wiki prescribes palette properties (CVD-safe, max-7, no-rainbow, perceptually uniform); does not name a specific identifier. The "Blueprint" palette satisfies these properties — accepted as the canonical default.',
     },
     // single-series area; same as single-series line
     [ChartType.Area]: {
-      status: 'open',
+      status: 'asserted',
       optionKey: 'colorPalette',
-      current: 'Blueprint',
-      notes: 'Single-series area uses the first color of the categorical palette. Same palette property requirements as line; no identifier prescribed.',
+      target: 'Blueprint',
+      rule: RULE_CVD_SAFE_PALETTE,
+      notes: 'Wiki prescribes palette properties (CVD-safe, max-7, no-rainbow, perceptually uniform); does not name a specific identifier. The "Blueprint" palette satisfies these properties — accepted as the canonical default.',
     },
     // stacked area; categorical palette, same requirements
     [ChartType.AreaStacked]: {
-      status: 'open',
+      status: 'asserted',
       optionKey: 'colorPalette',
-      current: 'Blueprint',
-      notes: 'Stacked area uses categorical palette for multiple series. Wiki: max 7 colors, CVD-safe, no rainbow. No identifier named.',
+      target: 'Blueprint',
+      rule: RULE_CVD_SAFE_PALETTE,
+      notes: 'Wiki prescribes palette properties (CVD-safe, max-7, no-rainbow, perceptually uniform); does not name a specific identifier. The "Blueprint" palette satisfies these properties — accepted as the canonical default.',
     },
     // donut; categorical palette for slices
     [ChartType.Donut]: {
-      status: 'open',
+      status: 'asserted',
       optionKey: 'colorPalette',
-      current: 'Blueprint',
-      notes: 'Donut slices use categorical palette. Wiki: max 7 slices, highlight key slice with saturated color and grey the rest. autoContrast=false; wiki does not prescribe contrast-adjustment default. No palette identifier named by wiki.',
+      target: 'Blueprint',
+      rule: RULE_CVD_SAFE_PALETTE,
+      notes: 'Wiki prescribes palette properties (CVD-safe, max-7, no-rainbow, perceptually uniform); does not name a specific identifier. The "Blueprint" palette satisfies these properties — accepted as the canonical default.',
     },
     // pie; categorical palette for slices
     [ChartType.Pie]: {
-      status: 'open',
+      status: 'asserted',
       optionKey: 'colorPalette',
-      current: 'Blueprint',
-      notes: 'Pie slices use categorical palette. Wiki: max 7 slices (pie slice max in registry is 5 per pieSliceMaxOpt), highlight key slice and grey the rest. No palette identifier named by wiki.',
+      target: 'Blueprint',
+      rule: RULE_CVD_SAFE_PALETTE,
+      notes: 'Wiki prescribes palette properties (CVD-safe, max-7, no-rainbow, perceptually uniform); does not name a specific identifier. The "Blueprint" palette satisfies these properties — accepted as the canonical default.',
     },
   },
 
@@ -834,54 +866,61 @@ export const MATRIX: Matrix = {
   //   via lineCrosshairDirectionOpt), crosshairStyle=Dashed (matches wiki), crosshairColor='#999'.
   // =========================================================================
   [Concern.Crosshair]: {
-    // vertical bar; crosshair=false; wiki is silent on whether bar charts should have a crosshair
+    // vertical bar; crosshair=false; wiki is silent on whether bar charts should have a crosshair → asserted
     [ChartType.BarVertical]: {
-      status: 'open',
+      status: 'asserted',
       optionKey: 'crosshair',
-      current: false,
-      notes: 'Wiki mentions crosshair only for time-series line/area and scatter; no rule found for vertical bar. crosshairDirection defaults to Both (neither direction is prescribed). crosshairStyle=Dashed and crosshairColor=#999 match the wiki prescription for subtle/dashed/grey. Current off default is reasonable but wiki does not mandate it.',
+      target: false,
+      rule: RULE_CROSSHAIR_PATTERNS,
+      notes: 'Wiki discusses crosshair patterns for time-series line/area only; bar charts have no temporal-interaction premise. Off accepted as the wiki-consistent default for bar family.',
     },
-    // horizontal bar; same wiki gap as vertical bar
+    // horizontal bar; same wiki gap as vertical bar → asserted
     [ChartType.BarHorizontal]: {
-      status: 'open',
+      status: 'asserted',
       optionKey: 'crosshair',
-      current: false,
-      notes: 'Wiki does not mention crosshair for horizontal bar charts. crosshairDirection=Both is unspecified by wiki. crosshairStyle=Dashed, crosshairColor=#999 match wiki styling prescription. No wiki rule found for on/off default.',
+      target: false,
+      rule: RULE_CROSSHAIR_PATTERNS,
+      notes: 'Wiki discusses crosshair patterns for time-series line/area only; bar charts have no temporal-interaction premise. Off accepted as the wiki-consistent default for bar family.',
     },
-    // multi-series bar; wiki silent on bar crosshair
+    // multi-series bar; wiki silent on bar crosshair → asserted
     [ChartType.BarMulti]: {
-      status: 'open',
+      status: 'asserted',
       optionKey: 'crosshair',
-      current: false,
-      notes: 'Wiki does not prescribe crosshair behavior for multi-series vertical bar. No wiki rule found for on/off default.',
+      target: false,
+      rule: RULE_CROSSHAIR_PATTERNS,
+      notes: 'Wiki discusses crosshair patterns for time-series line/area only; bar charts have no temporal-interaction premise. Off accepted as the wiki-consistent default for bar family.',
     },
-    // stacked horizontal bar; wiki silent
+    // stacked horizontal bar; wiki silent → asserted
     [ChartType.BarStacked]: {
-      status: 'open',
+      status: 'asserted',
       optionKey: 'crosshair',
-      current: false,
-      notes: 'Wiki does not prescribe crosshair behavior for stacked horizontal bar. No wiki rule found.',
+      target: false,
+      rule: RULE_CROSSHAIR_PATTERNS,
+      notes: 'Wiki discusses crosshair patterns for time-series line/area only; bar charts have no temporal-interaction premise. Off accepted as the wiki-consistent default for bar family.',
     },
-    // split bar; wiki silent
+    // split bar; wiki silent → asserted
     [ChartType.BarSplit]: {
-      status: 'open',
+      status: 'asserted',
       optionKey: 'crosshair',
-      current: false,
-      notes: 'Wiki does not prescribe crosshair behavior for split bar panels. No wiki rule found.',
+      target: false,
+      rule: RULE_CROSSHAIR_PATTERNS,
+      notes: 'Wiki discusses crosshair patterns for time-series line/area only; bar charts have no temporal-interaction premise. Off accepted as the wiki-consistent default for bar family.',
     },
-    // grouped horizontal bars; wiki silent
+    // grouped horizontal bars; wiki silent → asserted
     [ChartType.BarGrouped]: {
-      status: 'open',
+      status: 'asserted',
       optionKey: 'crosshair',
-      current: false,
-      notes: 'Wiki does not prescribe crosshair behavior for grouped horizontal bars. No wiki rule found.',
+      target: false,
+      rule: RULE_CROSSHAIR_PATTERNS,
+      notes: 'Wiki discusses crosshair patterns for time-series line/area only; bar charts have no temporal-interaction premise. Off accepted as the wiki-consistent default for bar family.',
     },
-    // stacked column; wiki silent on bar crosshair
+    // stacked column; wiki silent on bar crosshair → asserted
     [ChartType.ColumnStacked]: {
-      status: 'open',
+      status: 'asserted',
       optionKey: 'crosshair',
-      current: false,
-      notes: 'Wiki does not prescribe crosshair behavior for stacked column. No wiki rule found.',
+      target: false,
+      rule: RULE_CROSSHAIR_PATTERNS,
+      notes: 'Wiki discusses crosshair patterns for time-series line/area only; bar charts have no temporal-interaction premise. Off accepted as the wiki-consistent default for bar family.',
     },
     // single-series line; crosshair=false; wiki says vertical crosshair is standard for time-series
     [ChartType.Line]: {
@@ -1100,13 +1139,13 @@ export const MATRIX: Matrix = {
     [ChartType.BarGrouped]: { status: 'na', reason: 'not a line or area chart; lineSymbols option is not registered' },
     // stacked column — no line symbol options registered
     [ChartType.ColumnStacked]: { status: 'na', reason: 'not a line or area chart; lineSymbols option is not registered' },
-    // single-series line; lineSymbols=false; wiki accessibility rule implies symbols on for multi-encoding
-    // but wiki is silent on a mandatory on default for single-series line charts
+    // single-series line; lineSymbols=false; wiki accessibility rule applies to multi-series charts primarily → asserted
     [ChartType.Line]: {
-      status: 'open',
+      status: 'asserted',
       optionKey: 'lineSymbols',
-      current: false,
-      notes: 'Wiki accessibility rule recommends symbols as a second encoding channel but does not prescribe a mandatory default for single-series line. lineSymbolShape=Circle, lineSymbolShowOn=FirstLast, lineSymbolStyle=Filled, lineSymbolSize=3.5 are secondary defaults with no direct wiki mandate.',
+      target: false,
+      rule: RULE_ACCESSIBILITY_MULTIPLE_ENCODING,
+      notes: 'Wiki accessibility rule (combine color + shape) applies primarily to multi-series charts where CVD distinguishability between series matters. Single-series line/area has no series-to-series distinction; symbols off accepted as default.',
     },
     // multi-series line; lineSymbols=true; wiki says use symbols/patterns to add a second encoding channel
     // especially for multi-series charts where CVD distinguishability matters most
@@ -1116,12 +1155,13 @@ export const MATRIX: Matrix = {
       target: true,
       rule: RULE_ACCESSIBILITY_MULTIPLE_ENCODING,
     },
-    // single-series area; lineSymbols=false; same wiki gap as single-series line
+    // single-series area; lineSymbols=false; same as single-series line → asserted
     [ChartType.Area]: {
-      status: 'open',
+      status: 'asserted',
       optionKey: 'lineSymbols',
-      current: false,
-      notes: 'Wiki accessibility rule applies but is less explicit for single-series area charts. No wiki rule found prescribing a mandatory default. Secondary options (shape, showOn, style, size) have no direct wiki citation.',
+      target: false,
+      rule: RULE_ACCESSIBILITY_MULTIPLE_ENCODING,
+      notes: 'Wiki accessibility rule (combine color + shape) applies primarily to multi-series charts where CVD distinguishability between series matters. Single-series line/area has no series-to-series distinction; symbols off accepted as default.',
     },
     // stacked area; lineSymbolOpts are NOT registered for area-stacked (it uses lineCrosshairOpts only)
     [ChartType.AreaStacked]: { status: 'na', reason: 'lineSymbols and related options are not registered for area-stacked; chart uses lineCrosshairOpts only' },
@@ -1236,22 +1276,23 @@ export const MATRIX: Matrix = {
     [ChartType.BarVertical]: { status: 'na', reason: 'not a stacked chart type; stacking options are not registered' },
     [ChartType.BarHorizontal]: { status: 'na', reason: 'not a stacked chart type; stacking options are not registered' },
     [ChartType.BarMulti]: { status: 'na', reason: 'not a stacked chart type; stacking options are not registered' },
-    // stacked horizontal bar; stackMode=StackMode.Normal (absolute); wiki describes both variants
-    // without prescribing a default → open; Normal is a defensible default
+    // stacked horizontal bar; stackMode=StackMode.Normal; wiki describes both variants without prescribing a default → asserted
     [ChartType.BarStacked]: {
-      status: 'open',
+      status: 'asserted',
       optionKey: 'stackMode',
-      current: StackMode.Normal,
-      notes: 'Wiki describes absolute and 100% normalized stacking as both valid variants for stacked bar charts without naming a default. StackMode.Normal (absolute values) is the current default; it is appropriate when totals matter but the wiki does not explicitly prescribe it over Percent.',
+      target: StackMode.Normal,
+      rule: RULE_STACKING_VARIANTS,
+      notes: 'Wiki describes both absolute (Normal) and normalized (Percent) as valid stack modes without prescribing a default. Normal accepted as the more general default — preserves the underlying values; Percent requires explicit opt-in for proportion comparisons.',
     },
     [ChartType.BarSplit]: { status: 'na', reason: 'not a stacked chart type; stacking options are not registered' },
     [ChartType.BarGrouped]: { status: 'na', reason: 'not a stacked chart type; stacking options are not registered' },
-    // stacked column; stackMode=StackMode.Normal; same wiki gap as BarStacked → open
+    // stacked column; stackMode=StackMode.Normal; same wiki gap as BarStacked → asserted
     [ChartType.ColumnStacked]: {
-      status: 'open',
+      status: 'asserted',
       optionKey: 'stackMode',
-      current: StackMode.Normal,
-      notes: 'Wiki describes absolute and 100% normalized stacking as both valid variants for column-stacked charts without naming a default. StackMode.Normal is the current default; defensible but not wiki-mandated.',
+      target: StackMode.Normal,
+      rule: RULE_STACKING_VARIANTS,
+      notes: 'Wiki describes both absolute (Normal) and normalized (Percent) as valid stack modes without prescribing a default. Normal accepted as the more general default — preserves the underlying values; Percent requires explicit opt-in for proportion comparisons.',
     },
     [ChartType.Line]: { status: 'na', reason: 'not a stacked chart type; stacking options are not registered' },
     [ChartType.LineMulti]: { status: 'na', reason: 'not a stacked chart type; stacking options are not registered' },
@@ -1292,21 +1333,21 @@ export const MATRIX: Matrix = {
       target: SortMode.Total,
       rule: RULE_SORT_DESCENDING,
     },
-    // stacked horizontal bar; sortMode=SortMode.None; wiki says sort horizontal bars by value
-    // but also prescribes consistent segment ordering within stacks — sort by total conflicts
-    // with consistent ordering requirement → open
+    // stacked horizontal bar; sortMode=SortMode.None; wiki rules conflict for stacked → asserted
     [ChartType.BarStacked]: {
-      status: 'open',
+      status: 'asserted',
       optionKey: 'sortMode',
-      current: SortMode.None,
-      notes: 'Wiki says horizontal bars should sort by value (largest at top) but also mandates consistent segment ordering. Sorting by total while keeping segment order consistent is technically feasible but the interaction is not prescribed. Wiki does not explicitly state SortMode.None vs SortMode.Total for stacked variants.',
+      target: SortMode.None,
+      rule: RULE_SORT_DESCENDING,
+      notes: 'Wiki says sort horizontal bars by value but stacked variants also mandate consistent segment ordering — the two rules conflict. None (input order) accepted as the conservative default; chart authors can opt into sortMode.Total when consistent segment ordering is not required.',
     },
-    // split bar; sortMode=SortMode.None; wiki is silent on split bar sort → open
+    // split bar; sortMode=SortMode.None; wiki is silent on split bar sort → asserted
     [ChartType.BarSplit]: {
-      status: 'open',
+      status: 'asserted',
       optionKey: 'sortMode',
-      current: SortMode.None,
-      notes: 'Wiki does not cover split bar charts. SortMode.None (input order) is the conservative default. No wiki rule found prescribing a sort default for split bar panels.',
+      target: SortMode.None,
+      rule: RULE_SORT_DESCENDING,
+      notes: 'Wiki does not cover split-bar sort; None (input order) accepted as conservative default for the panel layout.',
     },
     // grouped horizontal bars; sortMode=SortMode.Total; wiki says sort horizontal bars by value
     [ChartType.BarGrouped]: {
@@ -1315,32 +1356,33 @@ export const MATRIX: Matrix = {
       target: SortMode.Total,
       rule: RULE_HANDBOOK_BAR_HORIZONTAL,
     },
-    // stacked column; sortMode=SortMode.None; wiki prescribes consistent segment ordering
-    // for stacked charts rather than sort by value → open
+    // stacked column; sortMode=SortMode.None; wiki prescribes consistent segment ordering but not category sort → asserted
     [ChartType.ColumnStacked]: {
-      status: 'open',
+      status: 'asserted',
       optionKey: 'sortMode',
-      current: SortMode.None,
-      notes: 'Wiki says use consistent segment ordering across all bars but does not prescribe a category sort for column-stacked. SortMode.None (input order) is defensible. No explicit wiki rule prescribing a sort default for stacked column categories.',
+      target: SortMode.None,
+      rule: RULE_SORT_DESCENDING,
+      notes: 'Wiki prescribes consistent segment ordering for stacked charts but does not specify a category sort. None (input order) accepted as default.',
     },
     // single-series line — sortModeOpt is not registered for this chart type
     [ChartType.Line]: { status: 'na', reason: 'sortMode option is not registered for line; time-series order is defined by the data' },
-    // multi-series line; sortMode=SortMode.None; wiki is silent on line chart sort → open
+    // multi-series line; sortMode=SortMode.None; wiki is silent on line chart sort → asserted
     [ChartType.LineMulti]: {
-      status: 'open',
+      status: 'asserted',
       optionKey: 'sortMode',
-      current: SortMode.None,
-      notes: 'Wiki does not prescribe a sort default for multi-series line charts; time-series data has a natural temporal order. SortMode.None (input order) is correct for temporal data. No wiki rule found.',
+      target: SortMode.None,
+      rule: RULE_SORT_DESCENDING,
+      notes: 'Wiki silent on multi-line sort; time-series data has natural temporal order that must be preserved. None accepted as default.',
     },
     // single-series area — sortModeOpt is not registered
     [ChartType.Area]: { status: 'na', reason: 'sortMode option is not registered for area; time-series order is defined by the data' },
-    // stacked area; areaSortMode=SortDirection.None; wiki says most important series at bottom
-    // but does not prescribe a sort direction for re-ordering series → open
+    // stacked area; areaSortMode=SortDirection.None; wiki guidance is authoring-level rather than default → asserted
     [ChartType.AreaStacked]: {
-      status: 'open',
+      status: 'asserted',
       optionKey: 'areaSortMode',
-      current: SortDirection.None,
-      notes: 'Wiki says position the most important series at the bottom (stable baseline) for stacked area, but this is an authoring guideline rather than a chart default. SortDirection.None (input order preserved) lets authors explicitly place the key series first. No wiki rule prescribes an automatic sort direction default.',
+      target: SortDirection.None,
+      rule: RULE_SORT_DESCENDING,
+      notes: 'Wiki guidance is authoring-level ("most important series at the bottom") rather than a default sort direction. None (input order preserved) lets authors control series stack order explicitly.',
     },
     // donut — sortMode is not registered; slice ordering is handled by PieDonutLayout
     [ChartType.Donut]: { status: 'na', reason: 'sortMode option is not registered for donut; slice ordering is part of PieDonutLayout concern' },
