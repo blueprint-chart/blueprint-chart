@@ -33,8 +33,7 @@ interface StackedAreaDatum {
 
 class AreaStackedChart extends D3Blueprint<StackedAreaDatum[]> {
   initialize() {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    this.configDefine('xPos', { defaultValue: (i: number) => 0 })
+    this.configDefine('xPos', { defaultValue: (_i: number) => 0 })
     this.configDefine('colors', { defaultValue: DEFAULT_COLORS })
     this.configDefine('curve', { defaultValue: d3.curveMonotoneX })
     this.configDefine('areaFillOpacity', { defaultValue: 0.85 })

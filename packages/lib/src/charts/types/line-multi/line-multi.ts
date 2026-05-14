@@ -40,8 +40,7 @@ interface DotDatum {
 
 class LineMultiChart extends D3Blueprint<SeriesDatum[]> {
   initialize() {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    this.configDefine('xPos', { defaultValue: (i: number) => 0 })
+    this.configDefine('xPos', { defaultValue: (_i: number) => 0 })
     this.configDefine('y', { defaultValue: d3.scaleLinear() })
     this.configDefine('colors', { defaultValue: DEFAULT_COLORS })
     this.configDefine('labels', { defaultValue: [] as string[] })
@@ -639,7 +638,7 @@ function renderAreaFills(
   fills: AreaFillConfig[],
   series: { name: string, values: number[] }[],
   xPos: (i: number) => number,
-  labelCount: number,
+  _labelCount: number,
   y: d3.ScaleLinear<number, number>,
   curve: d3.CurveFactory,
 ): void {
@@ -723,7 +722,7 @@ function renderSplitAreaFill(
   toValues: number[],
   xPos: (i: number) => number,
   y: d3.ScaleLinear<number, number>,
-  curve: d3.CurveFactory,
+  _curve: d3.CurveFactory,
   posColor: string,
   negColor: string,
   opacity: number,

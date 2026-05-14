@@ -26,8 +26,7 @@ interface AreaDatum {
 
 class AreaChart extends D3Blueprint<AreaDatum[]> {
   initialize() {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    this.configDefine('xPos', { defaultValue: (d: AreaDatum, i: number) => 0 })
+    this.configDefine('xPos', { defaultValue: (_d: AreaDatum, _i: number) => 0 })
     this.configDefine('y', { defaultValue: d3.scaleLinear() })
     this.configDefine('color', { defaultValue: DEFAULT_COLOR })
     this.configDefine('curve', { defaultValue: d3.curveMonotoneX })

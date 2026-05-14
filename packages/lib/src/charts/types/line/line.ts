@@ -26,8 +26,7 @@ interface LineDatum {
 
 class LineChart extends D3Blueprint<LineDatum[]> {
   initialize() {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    this.configDefine('xPos', { defaultValue: (d: LineDatum, i: number) => 0 })
+    this.configDefine('xPos', { defaultValue: (_d: LineDatum, _i: number) => 0 })
     this.configDefine('y', { defaultValue: d3.scaleLinear() })
     this.configDefine('color', { defaultValue: DEFAULT_COLOR })
     this.configDefine('curve', { defaultValue: d3.curveLinear })
