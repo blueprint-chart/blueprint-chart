@@ -10,19 +10,20 @@ npm install @blueprint-chart/lib
 
 ## Quick start
 
-```ts
-import { renderDsl } from '@blueprint-chart/lib'
-import '@blueprint-chart/lib/charts.scss'
+The simplest way to render a chart is the IIFE runtime, which auto-scans the document for embedded chart definitions and renders each one inline (inside a sandboxed iframe inserted before the script tag):
 
-renderDsl(document.querySelector('#chart'), `
+```html
+<script src="https://unpkg.com/@blueprint-chart/lib/dist/lib/lib.iife.js"></script>
+
+<script type="application/blueprint-chart">
   chart MyChart {
     data { values = "[[0,1],[1,4],[2,2]]" }
     series "line" { color = "steelblue" }
   }
-`)
+</script>
 ```
 
-See the [project README](https://github.com/blueprint-chart/blueprint-chart#readme) for full DSL documentation.
+For programmatic use in an ES module project, the lib exposes the underlying primitives: `parse` (DSL → AST), `buildChartOptions` (AST → render options), `createFrame`/`createCanvas`, and the chart registry (`registerChart`, `getChart`). See [src/index.ts](https://github.com/blueprint-chart/blueprint-chart/blob/main/packages/lib/src/index.ts) for the full public API.
 
 ## DSL Grammar
 

@@ -18,7 +18,7 @@ export default defineConfig({
       fileName: 'index',
     },
     rollupOptions: {
-      external: ['d3', 'd3-blueprint', 'chroma-js', 'dayjs', '@floating-ui/dom'],
+      external: ['d3', 'd3-blueprint', 'd3-transition', 'chroma-js', 'dayjs', '@floating-ui/dom'],
     },
   },
   test: {
