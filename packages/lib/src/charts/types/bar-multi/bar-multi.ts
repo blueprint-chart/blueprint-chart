@@ -42,7 +42,7 @@ class BarMultiChart extends D3Blueprint<MultiBarDatum[]> {
     const g = this.base.append('g')
 
     this.layer('bars', g, {
-      dataBind: (sel, data) => sel.selectAll('.bc-bar-multi').data(data, (d: MultiBarDatum) => d.label + '\0' + d.seriesName),
+      dataBind: (sel, data) => sel.selectAll<Element, MultiBarDatum>('.bc-bar-multi').data(data, d => d.label + '\0' + d.seriesName),
       insert: sel => sel.append('rect').attr('class', 'bc-bar bc-bar-multi'),
       events: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -283,7 +283,7 @@ export function render(
   }
 
   // Apply per-series color and opacity overrides to bars
-  d3.select(chartArea).selectAll('.bc-bar-multi').each(function (this: SVGRectElement, d: unknown) {
+  d3.select(chartArea).selectAll<SVGRectElement, unknown>('.bc-bar-multi').each(function (d) {
     const datum = d as MultiBarDatum
     const seriesColor = resolveSeriesColor(datum.seriesName, datum.seriesIndex, colors, overrides)
     const seriesOpacity = resolveSeriesOpacity(datum.seriesName, overrides)
@@ -326,7 +326,7 @@ export function render(
     return ValueLabelPosition.Outside
   }
 
-  function resolveBarDlMode(barHeight: number): ValueLabelPosition.Inside | ValueLabelPosition.Outside {
+  function resolveBarDlMode(_barHeight: number): ValueLabelPosition.Inside | ValueLabelPosition.Outside {
     if (dlMode === DirectLabelMode.Inside) {
       return ValueLabelPosition.Inside
     }
@@ -335,7 +335,7 @@ export function render(
     }
     // auto: match value label position when value labels are enabled
     if (globalValueLabels) {
-      return resolveVlMode(barHeight)
+      return resolveVlMode()
     }
     // auto: outside by default
     return ValueLabelPosition.Outside
@@ -360,7 +360,7 @@ export function render(
     const cx = (x0(datum.label) ?? 0) + (x1(datum.series) ?? 0) + x1.bandwidth() / 2
     const barTop = Math.min(y(0), y(datum.value))
     const barHeight = Math.abs(y(datum.value) - y(0))
-    const vlMode = resolveVlMode(barHeight)
+    const vlMode = resolveVlMode()
     const hasDl = hasAnyDirectLabels && directLabelSet.has(datum.seriesName)
 
     const isNegative = datum.value < 0

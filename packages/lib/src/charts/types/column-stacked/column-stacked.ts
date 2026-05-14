@@ -42,7 +42,7 @@ class ColumnStackedChart extends D3Blueprint<StackedBarDatum[]> {
     const g = this.base.append('g')
 
     this.layer('bars', g, {
-      dataBind: (sel, data) => sel.selectAll('.bc-bar-stacked').data(data, (d: StackedBarDatum) => d.label + '\0' + d.seriesName),
+      dataBind: (sel, data) => sel.selectAll<Element, StackedBarDatum>('.bc-bar-stacked').data(data, d => d.label + '\0' + d.seriesName),
       insert: sel => sel.append('rect').attr('class', 'bc-bar bc-bar-stacked'),
       events: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -272,7 +272,7 @@ export function render(
   }
 
   // Apply per-series color and opacity overrides to bars
-  d3.select(chartArea).selectAll('.bc-bar-stacked').each(function (this: SVGRectElement, d: unknown) {
+  d3.select(chartArea).selectAll<SVGRectElement, unknown>('.bc-bar-stacked').each(function (d) {
     const datum = d as StackedBarDatum
     const seriesColor = resolveSeriesColor(datum.seriesName, datum.seriesIndex, colors, overrides)
     const seriesOpacity = resolveSeriesOpacity(datum.seriesName, overrides)
