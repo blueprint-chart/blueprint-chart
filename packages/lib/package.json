@@ -1,14 +1,33 @@
 {
   "name": "@blueprint-chart/lib",
   "version": "0.1.0",
-  "private": true,
+  "description": "DSL-driven charting library built on D3. Define charts as text, render them anywhere.",
+  "keywords": ["chart", "charts", "charting", "d3", "dsl", "visualization", "data-visualization"],
+  "license": "MIT",
+  "author": "pirhoo",
+  "homepage": "https://github.com/blueprint-chart/blueprint-chart#readme",
+  "bugs": { "url": "https://github.com/blueprint-chart/blueprint-chart/issues" },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/blueprint-chart/blueprint-chart.git",
+    "directory": "packages/lib"
+  },
   "type": "module",
-  "main": "./src/index.ts",
-  "types": "./src/index.ts",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
-    ".": "./src/index.ts",
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
     "./charts.scss": "./src/charts/chart.scss",
     "./src/charts/chart.scss": "./src/charts/chart.scss"
+  },
+  "files": ["dist", "src/charts/chart.scss", "README.md", "LICENSE"],
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
   },
   "scripts": {
     "generate:parser": "peggy --format es -o src/dsl/grammar.js src/dsl/grammar.peggy",
@@ -32,6 +51,7 @@
     "jsdom": "^26",
     "typescript": "^5.7",
     "vite": "^6",
+    "vite-plugin-dts": "^5.0.0",
     "vitest": "^3"
   }
 }

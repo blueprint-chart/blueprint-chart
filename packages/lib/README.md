@@ -2,6 +2,28 @@
 
 Core library for Blueprint Chart — a DSL-driven charting engine built on D3.
 
+## Install
+
+```bash
+npm install @blueprint-chart/lib
+```
+
+## Quick start
+
+```ts
+import { renderDsl } from '@blueprint-chart/lib'
+import '@blueprint-chart/lib/charts.scss'
+
+renderDsl(document.querySelector('#chart'), `
+  chart MyChart {
+    data { values = "[[0,1],[1,4],[2,2]]" }
+    series "line" { color = "steelblue" }
+  }
+`)
+```
+
+See the [project README](https://github.com/blueprint-chart/blueprint-chart#readme) for full DSL documentation.
+
 ## DSL Grammar
 
 The chart DSL is defined by a PEG grammar in `src/dsl/grammar.peggy` and compiled to `src/dsl/grammar.js` using [Peggy](https://peggyjs.org/).
