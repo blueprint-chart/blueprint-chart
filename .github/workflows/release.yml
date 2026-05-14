@@ -75,6 +75,16 @@ jobs:
       - run: make lint
       - run: make test
       - run: make build
+      - name: Upload package dists
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: |
+            packages/lib/dist
+            packages/ui/dist
+            packages/editor/dist
+          if-no-files-found: error
+          retention-days: 1
 
   publish-npm:
     name: Publish to NPM
@@ -91,7 +101,10 @@ jobs:
           cache: pnpm
           registry-url: 'https://registry.npmjs.org'
       - run: make install
-      - run: make build
+      - name: Download package dists
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
       - name: pnpm publish (dry run)
         if: github.event_name == 'workflow_dispatch' && inputs.dry_run
         run: pnpm -r publish --access public --no-git-checks --provenance --dry-run
@@ -109,15 +122,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
+      - name: Download package dists
+        uses: actions/download-artifact@v4
         with:
-          version: ${{ env.PNPM_VERSION }}
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: pnpm
-      - run: make install
-      - run: make build-editor
+          name: dist
       - name: Mint installation token
         id: app-token
         uses: actions/create-github-app-token@v1
