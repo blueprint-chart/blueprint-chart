@@ -43,7 +43,7 @@ class AreaStackedChart extends D3Blueprint<StackedAreaDatum[]> {
     const lineGroup = this.base.append('g')
 
     this.layer('stacked-areas', areaGroup, {
-      dataBind: (sel, data) => sel.selectAll('.bc-area').data(data, (d: StackedAreaDatum) => d.name),
+      dataBind: (sel, data) => sel.selectAll<Element, StackedAreaDatum>('.bc-area').data(data, d => d.name),
       insert: sel => sel.append('path').attr('class', 'bc-area'),
       events: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -98,7 +98,7 @@ class AreaStackedChart extends D3Blueprint<StackedAreaDatum[]> {
     })
 
     this.layer('line-edges', lineGroup, {
-      dataBind: (sel, data) => sel.selectAll('.bc-line').data(data, (d: StackedAreaDatum) => d.name),
+      dataBind: (sel, data) => sel.selectAll<Element, StackedAreaDatum>('.bc-line').data(data, d => d.name),
       insert: sel => sel.append('path').attr('class', 'bc-line'),
       events: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -367,7 +367,7 @@ export function render(
   chart.draw(stackedAreaData)
 
   // Apply per-series color overrides and highlight dimming
-  d3.select(clippedArea).selectAll('.bc-area').each(function (this: SVGPathElement, d: unknown) {
+  d3.select(clippedArea).selectAll<SVGPathElement, unknown>('.bc-area').each(function (d) {
     const datum = d as StackedAreaDatum
     const seriesColor = resolveSeriesColor(datum.name, datum.colorIndex, colors, overrides)
     const el = transition
@@ -383,7 +383,7 @@ export function render(
     d3.select(clippedArea).selectAll('.bc-line').attr('display', 'none')
   }
 
-  d3.select(clippedArea).selectAll('.bc-line').each(function (this: SVGPathElement, d: unknown) {
+  d3.select(clippedArea).selectAll<SVGPathElement, unknown>('.bc-line').each(function (d) {
     const datum = d as StackedAreaDatum
     const seriesColor = resolveSeriesColor(datum.name, datum.colorIndex, colors, overrides)
     const seriesInterp = resolveSeriesInterpolation(datum.name, options.interpolation ?? 'monotoneX', overrides)

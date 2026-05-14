@@ -132,7 +132,7 @@ class AreaChart extends D3Blueprint<AreaDatum[]> {
     })
 
     this.layer('dots', dotsGroup, {
-      dataBind: (sel, data) => sel.selectAll('.bc-dot').data(data, (d: AreaDatum) => d.label),
+      dataBind: (sel, data) => sel.selectAll<Element, AreaDatum>('.bc-dot').data(data, d => d.label),
       insert: sel => sel.append('circle').attr('class', 'bc-dot'),
       events: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -294,8 +294,8 @@ export function render(
     .attr('pointer-events', 'none')
 
   if (options.tooltips || options.crosshair) {
-    const proximityPoints = areaData.map((d, i) => ({
-      cx: xPos(d, i),
+    const proximityPoints = areaData.map(d => ({
+      cx: xPos(d),
       cy: y(d.value) as number,
       label: d.label,
       value: d.value,
@@ -316,7 +316,7 @@ export function render(
 
   if (symbolConfig) {
     const symbolPoints = areaData.map((d, i) => ({
-      cx: xPos(d, i),
+      cx: xPos(d),
       cy: y(d.value) as number,
       color,
       index: i,

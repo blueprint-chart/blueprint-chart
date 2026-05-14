@@ -52,7 +52,7 @@ class FrameChart extends D3Blueprint<FrameData> {
       .style('align-items', 'center')
 
     this.layer('headerItems', header, {
-      dataBind: (sel, data) => sel.selectAll('.bc-frame-header-item').data(data.headerItems, (d: HeaderItem) => d.className),
+      dataBind: (sel, data) => sel.selectAll<HTMLElement, HeaderItem>('.bc-frame-header-item').data(data.headerItems, d => d.className),
       insert: (sel) => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         return sel.append((d: any) => document.createElement(d.tag))
@@ -78,7 +78,7 @@ class FrameChart extends D3Blueprint<FrameData> {
     })
 
     this.layer('footerLeftItems', footerLeft, {
-      dataBind: (sel, data) => sel.selectAll('.bc-frame-footer-item').data(data.footerLeftItems, (d: FooterItem) => d.className),
+      dataBind: (sel, data) => sel.selectAll<Element, FooterItem>('.bc-frame-footer-item').data(data.footerLeftItems, d => d.className),
       insert: (sel) => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         return sel.append((d: any) => document.createElement(d.tag))
@@ -140,7 +140,7 @@ class FrameChart extends D3Blueprint<FrameData> {
     })
 
     this.layer('footerRightItems', footerRight, {
-      dataBind: (sel, data) => sel.selectAll('.bc-frame-footer-item').data(data.footerRightItems, (d: FooterItem) => d.className),
+      dataBind: (sel, data) => sel.selectAll<Element, FooterItem>('.bc-frame-footer-item').data(data.footerRightItems, d => d.className),
       insert: (sel) => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         return sel.append((d: any) => document.createElement(d.tag))

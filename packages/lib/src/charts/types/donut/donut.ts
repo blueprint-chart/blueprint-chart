@@ -31,7 +31,7 @@ class ArcChart extends D3Blueprint<d3.PieArcDatum<number>[]> {
     this.layer('arcs', g, {
       dataBind: (sel, data) => {
         const labels = this.config('labels') as string[]
-        return sel.selectAll('.bc-arc').data(data, (_d: d3.PieArcDatum<number>, i: number) => labels[i])
+        return sel.selectAll<Element, d3.PieArcDatum<number>>('.bc-arc').data(data, (_d, i) => labels[i])
       },
       insert: sel => sel.append('path').attr('class', 'bc-arc'),
       events: {
