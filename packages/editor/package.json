@@ -1,8 +1,23 @@
 {
   "name": "@blueprint-chart/editor",
   "version": "0.1.0",
-  "private": true,
+  "description": "Blueprint Chart editor — static site bundle. Self-host or use the live version at https://blueprint-chart.github.io.",
+  "keywords": ["blueprint-chart", "editor", "chart-editor"],
+  "license": "MIT",
+  "author": "pirhoo",
+  "homepage": "https://blueprint-chart.github.io",
+  "bugs": { "url": "https://github.com/blueprint-chart/blueprint-chart/issues" },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/blueprint-chart/blueprint-chart.git",
+    "directory": "packages/editor"
+  },
   "type": "module",
+  "files": ["dist", "README.md", "LICENSE"],
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "scripts": {
     "build:grammar": "node src/dsl-lang/build.mjs",
     "predev": "node src/dsl-lang/build.mjs",
