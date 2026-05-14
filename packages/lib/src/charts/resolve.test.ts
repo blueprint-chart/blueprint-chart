@@ -54,3 +54,11 @@ describe('resolveChartTypeOptions', () => {
     expect(resolved).toEqual({ verticalGridStyle: GridStyle.Solid })
   })
 })
+
+describe('barrel export', () => {
+  it('is re-exported from @blueprint-chart/lib', async () => {
+    const lib = await import('../index')
+    expect(typeof lib.resolveChartTypeOptions).toBe('function')
+    expect(typeof lib.getChartTypeDefaults).toBe('function')
+  })
+})
