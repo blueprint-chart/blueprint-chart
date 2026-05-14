@@ -1,0 +1,154 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run: skip actual NPM publish and Pages push"
+        type: boolean
+        default: true
+      tag:
+        description: "Tag to verify against (only used for workflow_dispatch)"
+        type: string
+        required: false
+
+permissions:
+  contents: read
+  id-token: write   # required for npm OIDC trusted publishing
+
+env:
+  NODE_VERSION: '22'
+  PNPM_VERSION: '10'
+
+jobs:
+  verify:
+    name: Verify versions match tag
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.resolve.outputs.tag }}
+      version: ${{ steps.resolve.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - id: resolve
+        run: |
+          if [ "${{ github.event_name }}" = "release" ]; then
+            TAG="${{ github.event.release.tag_name }}"
+          else
+            TAG="${{ inputs.tag }}"
+            if [ -z "$TAG" ]; then
+              VER=$(node -p "require('./packages/lib/package.json').version")
+              TAG="v$VER"
+            fi
+          fi
+          VERSION="${TAG#v}"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Resolved TAG=$TAG VERSION=$VERSION"
+      - run: node scripts/verify-release-versions.mjs "${{ steps.resolve.outputs.tag }}"
+
+  ci:
+    name: Build, lint, test
+    needs: [verify]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - run: make install
+      - run: make lint
+      - run: make test
+      - run: make build
+
+  publish-npm:
+    name: Publish to NPM
+    needs: [verify, ci]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+          registry-url: 'https://registry.npmjs.org'
+      - run: make install
+      - run: make build
+      - name: pnpm publish (dry run)
+        if: github.event_name == 'workflow_dispatch' && inputs.dry_run
+        run: pnpm -r publish --access public --no-git-checks --provenance --dry-run
+      - name: pnpm publish
+        if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && !inputs.dry_run)
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: pnpm -r publish --access public --no-git-checks --provenance
+
+  deploy-pages:
+    name: Deploy editor to GitHub Pages
+    needs: [verify, ci]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - run: make install
+      - run: make build-editor
+      - name: Mint installation token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.BLUEPRINT_BOT_APP_ID }}
+          private-key: ${{ secrets.BLUEPRINT_BOT_PRIVATE_KEY }}
+          owner: blueprint-chart
+          repositories: blueprint-chart.github.io
+      - name: Checkout Pages repo
+        uses: actions/checkout@v4
+        with:
+          repository: blueprint-chart/blueprint-chart.github.io
+          token: ${{ steps.app-token.outputs.token }}
+          path: pages
+      - name: Replace Pages repo contents with editor dist
+        run: |
+          set -euo pipefail
+          find pages -mindepth 1 -maxdepth 1 ! -name '.git' -exec rm -rf {} +
+          cp -R packages/editor/dist/. pages/
+          ls -la pages/
+      - name: Commit and push
+        if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && !inputs.dry_run)
+        working-directory: pages
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          set -euo pipefail
+          git config user.name "blueprint-chart-bot[bot]"
+          git config user.email "blueprint-chart-bot[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to deploy."
+            exit 0
+          fi
+          TAG="${{ needs.verify.outputs.tag }}"
+          git commit -m "chore: deploy editor $TAG"
+          git push origin HEAD:main
+      - name: Dry-run notice
+        if: github.event_name == 'workflow_dispatch' && inputs.dry_run
+        working-directory: pages
+        run: |
+          echo "Dry run: skipping git push. Pending changes:"
+          git status --short
