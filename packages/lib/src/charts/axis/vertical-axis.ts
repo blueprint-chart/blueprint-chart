@@ -1,7 +1,6 @@
 import * as d3 from 'd3'
 import 'd3-transition'
 import { D3Blueprint } from 'd3-blueprint'
-import { widen } from '../d3-types'
 import type { AxisOptions } from '../types'
 import { AxisDirection, GridStyle, LabelPosition } from '../../enums'
 import { getDefaultTransitionMs } from '../motion'
@@ -28,11 +27,11 @@ export class VerticalAxisChart extends D3Blueprint<AxisDatum[]> {
     this.configDefine('topPadding', { defaultValue: 0 })
     this.configDefine('tickFormat', { defaultValue: null as ((label: string) => string) | null })
 
-    const g = widen(this.base.append('g'))
+    const g = this.base.append('g')
 
     this.layer('axis', g, {
-      dataBind: (sel, data) => widen(sel.selectAll('.bc-axis-vertical').data(data)),
-      insert: sel => widen(sel.append('g').attr('class', 'bc-axis bc-axis-vertical')),
+      dataBind: (sel, data) => sel.selectAll('.bc-axis-vertical').data(data),
+      insert: sel => sel.append('g').attr('class', 'bc-axis bc-axis-vertical'),
       events: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         'merge:transition': (sel: any) => {
@@ -272,7 +271,7 @@ export function renderVerticalAxis(
   priorAxisElement?: Element | null,
 ): SVGGElement {
   const direction = options.direction ?? AxisDirection.Left
-  const chart = new VerticalAxisChart(widen(d3.select(chartArea)))
+  const chart = new VerticalAxisChart(d3.select(chartArea))
 
   // Re-insert prior axis element for D3 data-join transition
   if (priorAxisElement) {

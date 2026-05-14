@@ -1,7 +1,6 @@
 import * as d3 from 'd3'
 import 'd3-transition'
 import { D3Blueprint } from 'd3-blueprint'
-import { widen } from '../../d3-types'
 import type { ChartData, ChartOptions } from '../../types'
 import { createFrame } from '../../frame/frame'
 import { createCanvas, contentSize, labelPositionMargins, estimateVerticalLabelWidth, computeMarginDelta } from '../../canvas/canvas'
@@ -35,13 +34,13 @@ class LineChart extends D3Blueprint<LineDatum[]> {
     this.configDefine('areaFillOpacity', { defaultValue: 0.2 })
     this.configDefine('height', { defaultValue: 0 })
 
-    const areaGroup = widen(this.base.append('g'))
-    const lineGroup = widen(this.base.append('g'))
-    const dotsGroup = widen(this.base.append('g'))
+    const areaGroup = this.base.append('g')
+    const lineGroup = this.base.append('g')
+    const dotsGroup = this.base.append('g')
 
     this.layer('area', areaGroup, {
-      dataBind: (sel, data) => widen(sel.selectAll('.bc-area').data(this.config('areaFill') ? [data] : [])),
-      insert: sel => widen(sel.append('path').attr('class', 'bc-area')),
+      dataBind: (sel, data) => sel.selectAll('.bc-area').data(this.config('areaFill') ? [data] : []),
+      insert: sel => sel.append('path').attr('class', 'bc-area'),
       events: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         'enter': (sel: any) => {
@@ -89,8 +88,8 @@ class LineChart extends D3Blueprint<LineDatum[]> {
     })
 
     this.layer('line', lineGroup, {
-      dataBind: (sel, data) => widen(sel.selectAll('.bc-line').data([data])),
-      insert: sel => widen(sel.append('path').attr('class', 'bc-line')),
+      dataBind: (sel, data) => sel.selectAll('.bc-line').data([data]),
+      insert: sel => sel.append('path').attr('class', 'bc-line'),
       events: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         'enter': (sel: any) => {
@@ -134,8 +133,8 @@ class LineChart extends D3Blueprint<LineDatum[]> {
     })
 
     this.layer('dots', dotsGroup, {
-      dataBind: (sel, data) => widen(sel.selectAll('.bc-dot').data(data, (d: LineDatum) => d.label)),
-      insert: sel => widen(sel.append('circle').attr('class', 'bc-dot')),
+      dataBind: (sel, data) => sel.selectAll('.bc-dot').data(data, (d: LineDatum) => d.label),
+      insert: sel => sel.append('circle').attr('class', 'bc-dot'),
       events: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         'enter': (sel: any) => {
@@ -263,7 +262,7 @@ export function render(
 
   const symbolConfig = options.lineSymbols
 
-  const chart = new LineChart(widen(d3.select(clippedArea)))
+  const chart = new LineChart(d3.select(clippedArea))
   chart.config({ xPos, y, color, curve, areaFill: options.areaFill ?? false, areaFillOpacity: options.areaFillOpacity ?? 0.2, height })
   // Re-insert prior elements so D3 data-join finds them and triggers merge:transition
   if (priorLines.length > 0 || priorAreas.length > 0 || priorDots.length > 0) {

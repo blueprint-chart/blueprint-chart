@@ -1,7 +1,6 @@
 import * as d3 from 'd3'
 import 'd3-transition'
 import { D3Blueprint } from 'd3-blueprint'
-import { widen } from '../../d3-types'
 import type { ChartData, ChartOptions } from '../../types'
 import { createFrame } from '../../frame/frame'
 import { createCanvas, contentSize, labelPositionMargins, estimateCategoryLabelWidth, computeMarginDelta } from '../../canvas/canvas'
@@ -43,11 +42,11 @@ class BarSplitChart extends D3Blueprint<SplitBarDatum[]> {
     this.configDefine('colors', { defaultValue: DEFAULT_COLORS })
     this.configDefine('categoryLabelOffset', { defaultValue: 0 })
 
-    const g = widen(this.base.append('g'))
+    const g = this.base.append('g')
 
     this.layer('bars', g, {
-      dataBind: (sel, data) => widen(sel.selectAll('.bc-bar-split').data(data, (d: SplitBarDatum) => d.label + '\0' + d.seriesName)),
-      insert: sel => widen(sel.append('rect').attr('class', 'bc-bar bc-bar-split')),
+      dataBind: (sel, data) => sel.selectAll('.bc-bar-split').data(data, (d: SplitBarDatum) => d.label + '\0' + d.seriesName),
+      insert: sel => sel.append('rect').attr('class', 'bc-bar bc-bar-split'),
       events: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         'enter': (sel: any) => {
@@ -294,7 +293,7 @@ export function render(
 
   const flatData = buildFlatData(panels, sortedLabels, data.labels, allSeries)
 
-  const chart = new BarSplitChart(widen(clippedGroup))
+  const chart = new BarSplitChart(clippedGroup)
   chart.config({ y, colors, categoryLabelOffset })
 
   if (priorBars.length > 0) {
