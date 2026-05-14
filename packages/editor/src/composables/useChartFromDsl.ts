@@ -16,6 +16,7 @@ import {
   convertAreaFills,
   convertAnnotations,
   convertSeriesOverrides,
+  resolveChartTypeOptions,
 } from '@blueprint-chart/lib'
 
 const RESIZE_THROTTLE_MS = 150
@@ -119,9 +120,11 @@ export function renderDsl(
     return
   }
 
+  const baseTypeOpts = extractChartTypeOptions(chartType, ast.properties)
+  const resolvedBase = resolveChartTypeOptions(chartType, baseTypeOpts)
   const mergedTypeOpts = scene?.chartTypeOptions
-    ? { ...extractChartTypeOptions(chartType, ast.properties), ...scene.chartTypeOptions }
-    : extractChartTypeOptions(chartType, ast.properties)
+    ? { ...resolvedBase, ...scene.chartTypeOptions }
+    : resolvedBase
   const bg = resolveBackgroundColor(container)
   const chartOpts = buildChartOptions(mergedTypeOpts, bg)
 
