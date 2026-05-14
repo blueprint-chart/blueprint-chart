@@ -400,16 +400,16 @@ export function renderAnnotations(
 // Plugin factory
 // ---------------------------------------------------------------------------
 
-export function createAnnotationPlugin(
+export function createAnnotationPlugin<TData = unknown>(
   annotations: AnnotationConfig[],
   ctx: AnnotationContext,
-): Plugin {
+): Plugin<TData> {
   return {
     name: 'annotations',
 
     install() {},
 
-    postDraw(chart: D3Blueprint) {
+    postDraw(chart: D3Blueprint<TData>) {
       const base = (chart as unknown as { base: d3.Selection<SVGElement, unknown, null, undefined> }).base
 
       const svg = base.node()?.ownerSVGElement ?? base.node()
