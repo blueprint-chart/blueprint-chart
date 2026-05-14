@@ -35,12 +35,15 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
       - id: resolve
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          INPUT_TAG: ${{ inputs.tag }}
         run: |
           set -euo pipefail
           if [ "${{ github.event_name }}" = "release" ]; then
-            TAG="${{ github.event.release.tag_name }}"
+            TAG="$RELEASE_TAG"
           else
-            TAG="${{ inputs.tag }}"
+            TAG="$INPUT_TAG"
             if [ -z "$TAG" ]; then
               VER=$(node -p "require('./packages/lib/package.json').version")
               TAG="v$VER"
@@ -50,7 +53,10 @@ jobs:
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "Resolved TAG=$TAG VERSION=$VERSION"
-      - run: node scripts/verify-release-versions.mjs "${{ steps.resolve.outputs.tag }}"
+      - name: Verify package versions match tag
+        env:
+          RESOLVED_TAG: ${{ steps.resolve.outputs.tag }}
+        run: node scripts/verify-release-versions.mjs "$RESOLVED_TAG"
 
   ci:
     name: Build, lint, test
@@ -138,6 +144,7 @@ jobs:
         working-directory: pages
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          DEPLOY_TAG: ${{ needs.verify.outputs.tag }}
         run: |
           set -euo pipefail
           git config user.name "blueprint-chart-bot[bot]"
@@ -147,8 +154,7 @@ jobs:
             echo "No changes to deploy."
             exit 0
           fi
-          TAG="${{ needs.verify.outputs.tag }}"
-          git commit -m "chore: deploy editor $TAG"
+          git commit -m "chore: deploy editor $DEPLOY_TAG"
           git push origin HEAD:main
       - name: Dry-run notice
         if: github.event_name == 'workflow_dispatch' && inputs.dry_run

@@ -46,6 +46,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
+      // TODO: remove this alias once Components({ dirs: [...] }) no longer scans '../ui/src/components' — see Task 3 code review.
       '@blueprint-chart/ui': fileURLToPath(new URL('../ui/src/index.ts', import.meta.url)),
     },
   },
