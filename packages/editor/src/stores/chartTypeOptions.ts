@@ -1,6 +1,6 @@
 import { useChartConfig, deepEqual } from '@/stores/chartConfig'
 import { useScenes } from '@/stores/scenes'
-import { getChartOptions } from '@blueprint-chart/lib'
+import { getChartOptions, getChartTypeDefaults, resolveChartTypeOptions } from '@blueprint-chart/lib'
 import type { ChartOptionDef, ChartTypeOptions, ChartTypeOptionKey } from '@blueprint-chart/lib'
 
 export type { LineStyle, ChartTypeOptions, ChartTypeOptionKey } from '@blueprint-chart/lib'
@@ -10,45 +10,14 @@ export function getOptionDefs(chartType: string): ChartOptionDef[] {
   return getChartOptions(chartType)
 }
 
-// Non-reactive defaults cache — populated lazily per chart type.
-// Keeping defaults here (outside the reactive Pinia store) ensures that
-// baseOptions / currentOptions computed getters never write to reactive
-// state during evaluation, which would trigger recursive Vue updates.
-const defaultsCache: Record<string, Partial<ChartTypeOptions>> = Object.create(null)
-
-function getDefaults(type: string): Partial<ChartTypeOptions> {
-  if (!defaultsCache[type]) {
-    const cache: Partial<ChartTypeOptions> = {}
-    for (const def of getChartOptions(type)) {
-      if (def.default !== undefined) {
-        (cache as Record<string, unknown>)[def.key] = def.default
-      }
-    }
-    defaultsCache[type] = cache
-  }
-  return defaultsCache[type]
-}
-
-// Merge non-reactive defaults with explicit overrides.
-// Suppresses a default colorPalette when explicit colors are set — the renderer
-// should use explicit colors, not the palette default.
-function mergeWithDefaults(
-  defaults: Partial<ChartTypeOptions>,
-  explicit: Partial<ChartTypeOptions>,
-): Partial<ChartTypeOptions> {
-  return (explicit.colors as string[] | undefined)?.length
-    ? { ...defaults, colorPalette: undefined, ...explicit }
-    : { ...defaults, ...explicit }
-}
-
 export const useChartTypeOptionsStore = defineStore('chartTypeOptions', () => {
   // Reactive store contains explicit overrides only (no defaults).
-  // Defaults are merged in by the computed getters via getDefaults().
+  // Defaults are merged in by the computed getters via resolveChartTypeOptions().
   const store = reactive<Record<string, Partial<ChartTypeOptions>>>({})
 
   function ensureDefaults(type: string): void {
     // Prime the non-reactive defaults cache for this type.
-    getDefaults(type)
+    getChartTypeDefaults(type)
     // Ensure a store entry exists so callers can write into it.
     if (!store[type]) {
       store[type] = {}
@@ -60,9 +29,8 @@ export const useChartTypeOptionsStore = defineStore('chartTypeOptions', () => {
   const currentOptions = computed(() => {
     // Pure read: merge non-reactive defaults with explicit reactive overrides.
     // No writes to reactive state here — prevents recursive update cycles.
-    const defaults = getDefaults(chartType.value)
     const explicit = store[chartType.value] ?? {}
-    const base = mergeWithDefaults(defaults, explicit)
+    const base = resolveChartTypeOptions(chartType.value, explicit)
     const { activeScene, activeIndex, scenes: allScenes } = useScenes()
     if (activeIndex.value >= 0) {
       // Merge inherited options from prior scenes, then own overrides
@@ -82,9 +50,8 @@ export const useChartTypeOptionsStore = defineStore('chartTypeOptions', () => {
   })
 
   const baseOptions = computed(() => {
-    const defaults = getDefaults(_base.chartType.value)
     const explicit = store[_base.chartType.value] ?? {}
-    return mergeWithDefaults(defaults, explicit)
+    return resolveChartTypeOptions(_base.chartType.value, explicit)
   })
 
   const optionDefs = computed(() => getChartOptions(chartType.value))
