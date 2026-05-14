@@ -36,12 +36,12 @@
     "story:preview": "histoire preview"
   },
   "peerDependencies": {
+    "@vueuse/core": "^14.2.1",
     "bootstrap": "^5.3",
     "bootstrap-vue-next": "^0.27",
     "vue": "^3.5"
   },
   "dependencies": {
-    "@vueuse/core": "^14.2.1",
     "d3-format": "^3.1.2",
     "d3-time-format": "^4.1.0",
     "vue-color": "^3.3.3"
@@ -54,6 +54,7 @@
     "@types/d3-time-format": "^4.0.3",
     "@vitejs/plugin-vue": "^5",
     "@vue/test-utils": "^2",
+    "@vueuse/core": "^14.2.1",
     "bootstrap": "^5.3",
     "bootstrap-vue-next": "^0.27",
     "histoire": "^0.17",

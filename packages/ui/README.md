@@ -5,10 +5,10 @@ Vue 3 component library for Blueprint Chart editors and apps. Built on Bootstrap
 ## Install
 
 ```bash
-npm install @blueprint-chart/ui vue bootstrap bootstrap-vue-next
+npm install @blueprint-chart/ui vue bootstrap bootstrap-vue-next @vueuse/core
 ```
 
-Vue, Bootstrap, and BootstrapVueNext are peer dependencies — your app supplies them.
+Vue, Bootstrap, BootstrapVueNext, and @vueuse/core are peer dependencies — your app supplies them.
 
 ## Usage
 

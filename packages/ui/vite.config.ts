@@ -17,10 +17,9 @@ export default defineConfig({
       insertTypesEntry: true,
       rollupTypes: false,
       tsconfigPath: './tsconfig.json',
-      skipDiagnostics: true,
     }),
     AutoImport({
-      imports: ['vue', '@vueuse/core', 'vitest'],
+      imports: ['vue', '@vueuse/core'],
       dirs: ['src/composables'],
       dts: 'auto-imports.d.ts',
       eslintrc: { enabled: true, filepath: 'auto-imports.eslintrc.json' },
@@ -53,7 +52,7 @@ export default defineConfig({
       fileName: 'index',
     },
     rollupOptions: {
-      external: ['vue', 'bootstrap', 'bootstrap-vue-next', '@vueuse/core', 'vue-color'],
+      external: ['vue', 'bootstrap', 'bootstrap-vue-next', '@vueuse/core'],
     },
   },
 })
