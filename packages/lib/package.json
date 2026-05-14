@@ -1,12 +1,22 @@
 {
   "name": "@blueprint-chart/lib",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "DSL-driven charting library built on D3. Define charts as text, render them anywhere.",
-  "keywords": ["chart", "charts", "charting", "d3", "dsl", "visualization", "data-visualization"],
+  "keywords": [
+    "chart",
+    "charts",
+    "charting",
+    "d3",
+    "dsl",
+    "visualization",
+    "data-visualization"
+  ],
   "license": "MIT",
   "author": "pirhoo",
   "homepage": "https://github.com/blueprint-chart/blueprint-chart#readme",
-  "bugs": { "url": "https://github.com/blueprint-chart/blueprint-chart/issues" },
+  "bugs": {
+    "url": "https://github.com/blueprint-chart/blueprint-chart/issues"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/blueprint-chart/blueprint-chart.git",
@@ -25,7 +35,12 @@
     "./charts.scss": "./src/charts/chart.scss",
     "./src/charts/chart.scss": "./src/charts/chart.scss"
   },
-  "files": ["dist", "src/charts/chart.scss", "README.md", "LICENSE"],
+  "files": [
+    "dist",
+    "src/charts/chart.scss",
+    "README.md",
+    "LICENSE"
+  ],
   "publishConfig": {
     "access": "public",
     "provenance": true
