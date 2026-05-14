@@ -44,6 +44,11 @@ vi.mock('@blueprint-chart/lib', async (importOriginal) => {
       return map
     }),
     extractChartTypeOptions: vi.fn(() => ({})),
+    resolveChartTypeOptions: vi.fn((_chartType: string, explicit: Record<string, unknown>) => ({
+      verticalGridStyle: 'dashed',
+      horizontalGridStyle: 'none',
+      ...explicit,
+    })),
     extractSceneOverrides: vi.fn(() => ({
       chartType: null,
       data: null,
@@ -205,5 +210,16 @@ describe('renderDsl', () => {
 
   it('does not throw for malformed DSL', () => {
     expect(() => renderDsl(container, '???invalid???')).not.toThrow()
+  })
+
+  it('resolves chart-type defaults before building chart options', () => {
+    renderDsl(container, 'bar-vertical\nA\t10')
+    expect(mockedLib.resolveChartTypeOptions).toHaveBeenCalledTimes(1)
+    // buildChartOptions must receive the resolved object (defaults merged in)
+    const buildCalls = mockedLib.buildChartOptions.mock.calls
+    expect(buildCalls.length).toBeGreaterThan(0)
+    const passedOpts = buildCalls[0][0] as Record<string, unknown>
+    expect(passedOpts.verticalGridStyle).toBe('dashed')
+    expect(passedOpts.horizontalGridStyle).toBe('none')
   })
 })
