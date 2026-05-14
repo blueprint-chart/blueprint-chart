@@ -48,7 +48,7 @@ export class VerticalAxisChart extends D3Blueprint<AxisDatum[]> {
           }
           const ticks = this.config('ticks') as number[] | null
           if (ticks) {
-            axisFn.tickValues(ticks as (string & d3.NumberValue)[])
+            axisFn.tickValues(ticks as unknown as (string & d3.NumberValue)[])
           }
           else if (availableHeight > 0) {
             const maxTicks = Math.max(2, Math.floor(availableHeight / MIN_LABEL_HEIGHT_SPACING))
@@ -133,7 +133,7 @@ export class VerticalAxisChart extends D3Blueprint<AxisDatum[]> {
 
           const ticks = this.config('ticks') as number[] | null
           if (ticks) {
-            axisFn.tickValues(ticks as (string & d3.NumberValue)[])
+            axisFn.tickValues(ticks as unknown as (string & d3.NumberValue)[])
           }
           else if (availableHeight > 0) {
             const maxTicks = Math.max(2, Math.floor(availableHeight / MIN_LABEL_HEIGHT_SPACING))

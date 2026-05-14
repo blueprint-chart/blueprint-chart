@@ -68,9 +68,9 @@ export function renderLineSymbols(
         exit => exit.remove(),
       )
 
-    const target = transition
+    const target = (transition
       ? joined.transition().duration(duration)
-      : joined
+      : joined) as d3.Selection<SVGCircleElement, typeof visible[number], SVGGElement, unknown>
     target
       .attr('cx', d => d.cx)
       .attr('cy', d => d.cy)
@@ -100,9 +100,9 @@ export function renderLineSymbols(
         exit => exit.remove(),
       )
 
-    const target = transition
+    const target = (transition
       ? joined.transition().duration(duration)
-      : joined
+      : joined) as d3.Selection<SVGPathElement, typeof visible[number], SVGGElement, unknown>
     target
       .attr('transform', d => `translate(${d.cx},${d.cy})`)
       .attr('d', pathGen as unknown as string)
