@@ -46,6 +46,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
+      '@blueprint-chart/ui': fileURLToPath(new URL('../ui/src/index.ts', import.meta.url)),
     },
   },
   server: {
