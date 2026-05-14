@@ -14,7 +14,7 @@ import { resolveBackgroundColor, contrastTextColor } from '../../contrast'
 import { buildNumberFormatter } from '../../format-helpers'
 import { getDefaultTransitionMs, setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut, reinsertWithOffset } from '../../motion'
 import { getCachedChart, setCachedChart } from '../../transition-cache'
-import { SortDirection, ValueLabelPosition } from '../../../enums'
+import { SortDirection, ValueLabelPosition, LabelPosition } from '../../../enums'
 
 export const DEFAULT_COLORS = ['#4e79a7']
 const CATEGORY_LABEL_HEIGHT = 13
@@ -46,7 +46,7 @@ class BarVerticalChart extends D3Blueprint<BarDatum[]> {
     const g = this.base.append('g')
 
     this.layer('bars', g, {
-      dataBind: (sel, data) => sel.selectAll('.bc-bar').data(data, (d: BarDatum) => d.label),
+      dataBind: (sel, data) => sel.selectAll<Element, BarDatum>('.bc-bar').data(data, d => d.label),
       insert: sel => sel.append('rect').attr('class', 'bc-bar'),
       events: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -131,7 +131,7 @@ export function render(
   const containerWidth = contentSize(body).width
   const useCategoryLabelLine = options.categoryLabelLine === true
   const vLabelW = estimateVerticalLabelWidth(data.values, options.verticalAxis?.range, options.verticalAxis?.numberFormat, options.verticalAxis?.scaleType)
-  const effectiveHLabelPosition = useCategoryLabelLine ? 'off' : options.horizontalAxis?.labelPosition
+  const effectiveHLabelPosition = useCategoryLabelLine ? LabelPosition.Off : options.horizontalAxis?.labelPosition
   const lpMargins = labelPositionMargins(containerWidth, options.verticalAxis?.labelPosition, effectiveHLabelPosition, options.verticalAxis?.direction, vLabelW)
   if (!useCategoryLabelLine) {
     const availableX = Math.max(0, containerWidth - (lpMargins.left ?? 50) - (lpMargins.right ?? 20))
@@ -201,7 +201,7 @@ export function render(
         }
       })()
     : { ...options.horizontalAxis, width }
-  const hAxisOpts = useCategoryLabelLine ? { ...hAxisBase, labelPosition: 'off' as string } : hAxisBase
+  const hAxisOpts = useCategoryLabelLine ? { ...hAxisBase, labelPosition: LabelPosition.Off } : hAxisBase
   axes.update({
     vertical: { scale: y, height, options: { ...options.verticalAxis, gridWidth: width, topPadding: margin.top } },
     horizontal: { scale: x, height, options: hAxisOpts },
@@ -236,8 +236,8 @@ export function render(
   if (options.barBackground) {
     const bgColor = (options.colors ?? DEFAULT_COLORS)[0]
     const bgLabels = isWaterfall ? allLabels : barData.map(d => d.label)
-    clippedGroup.selectAll('.bc-bar-bg')
-      .data(bgLabels, (d: string) => d)
+    clippedGroup.selectAll<Element, string>('.bc-bar-bg')
+      .data(bgLabels, d => d)
       .enter()
       .append('rect')
       .attr('class', 'bc-bar-bg')
@@ -384,8 +384,8 @@ export function render(
         .attr('opacity', 0.3)
     }
 
-    clippedGroup.selectAll('.bc-bar')
-      .data(waterfallData, (d: WaterfallDatum) => d.label)
+    clippedGroup.selectAll<Element, WaterfallDatum>('.bc-bar')
+      .data(waterfallData, d => d.label)
       .enter()
       .append('rect')
       .attr('class', 'bc-bar')
@@ -405,8 +405,8 @@ export function render(
       const pos = options.valueLabelPosition ?? ValueLabelPosition.Auto
       const vFmt = buildNumberFormatter(options.verticalAxis?.numberFormat ?? '')
       const formatValue = (v: number) => vFmt ? vFmt(v) : String(v)
-      unclippedGroup.selectAll('.bc-value-label')
-        .data(waterfallData, (d: WaterfallDatum) => d.label)
+      unclippedGroup.selectAll<Element, WaterfallDatum>('.bc-value-label')
+        .data(waterfallData, d => d.label)
         .enter()
         .append('text')
         .attr('class', 'bc-value-label')
@@ -494,7 +494,7 @@ export function render(
 function valueLabelAttrs(
   d: BarDatum,
   x: d3.ScaleBand<string>,
-  y: d3.ScaleLinear<number, number> | d3.ScaleSymLog,
+  y: d3.ScaleLinear<number, number> | d3.ScaleSymLog<number, number>,
   pos: ValueLabelPosition,
 ) {
   const barH = Math.abs(y(d.value) - y(0))
@@ -529,7 +529,7 @@ function renderValueLabels(
   parent: d3.Selection<SVGGElement, unknown, null, undefined>,
   barData: BarDatum[],
   x: d3.ScaleBand<string>,
-  y: d3.ScaleLinear<number, number> | d3.ScaleSymLog,
+  y: d3.ScaleLinear<number, number> | d3.ScaleSymLog<number, number>,
   opts: {
     position?: ValueLabelPosition
     colorOverrides: Map<string, string>

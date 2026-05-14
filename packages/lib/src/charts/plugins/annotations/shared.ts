@@ -1,5 +1,6 @@
 import * as d3 from 'd3'
-import type { CompassDirection, RangeAnchor } from '../../types'
+import { RangeAnchor } from '../../types'
+import type { CompassDirection } from '../../types'
 import { StrokeStyle, AnnotationLineStyle } from '../../../enums'
 import type { AnnotationContext } from './context'
 import { DIRECTION_VECTORS, RECT_ANCHOR } from './direction-helpers'
@@ -54,7 +55,7 @@ function rectAnchorPoint(
 export function computeAnchorPoint(
   datum: { label: string, value: number },
   scaleX: AnnotationContext['scaleX'],
-  scaleY: d3.ScaleLinear<number, number>,
+  scaleY: d3.ScaleLinear<number, number> | d3.ScaleSymLog<number, number>,
   anchorDirection: CompassDirection,
   orientation?: 'horizontal',
 ): { x: number, y: number } {
@@ -395,7 +396,7 @@ function wrapText(
 export function resolveXPosition(
   value: number | string,
   scaleX: AnnotationContext['scaleX'],
-  anchor: RangeAnchor = 'center',
+  anchor: RangeAnchor = RangeAnchor.Center,
 ): number {
   if ('bandwidth' in scaleX) {
     const band = scaleX as d3.ScaleBand<string>
@@ -429,7 +430,7 @@ export function resolveXPosition(
 
 export function resolveYPosition(
   value: number | string,
-  scaleY: d3.ScaleLinear<number, number>,
+  scaleY: d3.ScaleLinear<number, number> | d3.ScaleSymLog<number, number>,
 ): number {
   return scaleY(Number(value))
 }

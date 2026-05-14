@@ -1,5 +1,6 @@
 import * as d3 from 'd3'
-import type { AnnotationConfig, AnnotationLineStyle, CompassDirection, StrokeStyle } from '../../types'
+import { CompassDirection, AnnotationLineStyle } from '../../types'
+import type { AnnotationConfig, StrokeStyle } from '../../types'
 import { DIRECTION_VECTORS, computeDirectionOffset } from './direction-helpers'
 import { resolveMaxWidth } from './position-helpers'
 import type { AnnotationContext } from './context'
@@ -33,7 +34,7 @@ function inferTextAnchorFromOffset(offsetX: number): string {
 function datumCenter(
   datum: { label: string, value: number },
   scaleX: AnnotationContext['scaleX'],
-  scaleY: d3.ScaleLinear<number, number>,
+  scaleY: d3.ScaleLinear<number, number> | d3.ScaleSymLog<number, number>,
 ): { x: number, y: number } {
   if ('bandwidth' in scaleX) {
     const band = scaleX as d3.ScaleBand<string>
@@ -68,12 +69,12 @@ export function renderPointAnnotation(
   }
 
   const lineConfig = ann as { showLine?: boolean, showArrow?: boolean, lineStyle?: AnnotationLineStyle, lineWeight?: number, lineTargetDistance?: number, showCircle?: boolean, circleSize?: number, anchorDirection?: CompassDirection, textOffsetX?: number, textOffsetY?: number }
-  const anchorDir = lineConfig.anchorDirection ?? 'N'
+  const anchorDir = lineConfig.anchorDirection ?? CompassDirection.N
   const anchor = computeAnchorPoint(datum, ctx.scaleX, ctx.scaleY, anchorDir, ctx.orientation)
 
   let tx: number
   let ty: number
-  const legacyAnn = ann as Record<string, unknown>
+  const legacyAnn = ann as unknown as Record<string, unknown>
 
   if (legacyAnn.dx != null || legacyAnn.dy != null) {
     const { x: cx, y: cy } = datumCenter(datum, ctx.scaleX, ctx.scaleY)
@@ -93,7 +94,7 @@ export function renderPointAnnotation(
     ty = anchor.y + (lineConfig.textOffsetY ?? -42)
   }
 
-  const lineColor = (ann as Record<string, unknown>).circleColor as string | undefined ?? '#666'
+  const lineColor = (ann as unknown as Record<string, unknown>).circleColor as string | undefined ?? '#666'
 
   const circleConfig = ann as { showCircle?: boolean, circleSize?: number, circleStyle?: StrokeStyle }
   if (circleConfig.showCircle) {
@@ -152,7 +153,7 @@ export function renderPointAnnotation(
       }
     }
 
-    renderConnectingLine(annG, lineStart, { x: toX, y: toY }, lineConfig.lineStyle ?? 'direct', {
+    renderConnectingLine(annG, lineStart, { x: toX, y: toY }, lineConfig.lineStyle ?? AnnotationLineStyle.Direct, {
       showArrow: lineConfig.showArrow,
       lineWeight: lineConfig.lineWeight,
       color: lineColor,

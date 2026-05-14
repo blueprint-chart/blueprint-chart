@@ -27,7 +27,6 @@ import type {
   AnnotationLineStyle,
   StrokeStyle,
   RangeAnchor,
-  LineStyle,
 } from '../enums'
 
 // Re-export enums that were previously exported as type aliases from this module
@@ -264,11 +263,11 @@ export interface ChartTypeOptions {
   showVerticalAxis: boolean
   verticalAxisDirection: string
   showVerticalTicks: boolean
-  verticalGridStyle: LineStyle
+  verticalGridStyle: GridStyle
   verticalNumberFormat: string
   showHorizontalAxis: boolean
   showHorizontalTicks: boolean
-  horizontalGridStyle: LineStyle
+  horizontalGridStyle: GridStyle
   horizontalNumberFormat: string
   verticalScaleType: ScaleType
   horizontalScaleType: ScaleType
