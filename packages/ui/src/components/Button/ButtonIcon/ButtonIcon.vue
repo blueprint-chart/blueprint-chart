@@ -60,7 +60,7 @@
 
 <script setup lang="ts">
 import type { Component } from 'vue'
-import type { TextColorVariant, ButtonVariant, PopoverPlacement, Size, BButtonProps } from 'bootstrap-vue-next'
+import type { TextColorVariant, ButtonVariant, PopoverPlacement, Size, BButtonProps, ButtonType } from 'bootstrap-vue-next'
 import IPhCircleNotch from '~icons/ph/circle-notch'
 
 let _uid = 0
@@ -90,7 +90,7 @@ export interface ButtonIconProps {
   pill?: boolean
   pressed?: boolean
   tag?: string
-  type?: string
+  type?: ButtonType
   loading?: boolean
   loadingDuration?: string
   loadingText?: string
