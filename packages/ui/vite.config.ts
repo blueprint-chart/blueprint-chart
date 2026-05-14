@@ -37,6 +37,7 @@ export default defineConfig({
   css: {
     preprocessorOptions: {
       scss: {
+        api: 'modern',
         silenceDeprecations: ['color-functions', 'global-builtin', 'import', 'if-function'],
       },
     },
@@ -53,6 +54,19 @@ export default defineConfig({
     },
     rollupOptions: {
       external: ['vue', 'bootstrap', 'bootstrap-vue-next', '@vueuse/core'],
+      onwarn(warning, defaultHandler) {
+        // Vue SFC compiler emits an unused `resolveComponent` import for some
+        // <script setup> components whose tags are fully resolved at compile
+        // time (e.g. via unplugin-vue-components). Suppress that specific noise.
+        if (
+          warning.code === 'UNUSED_EXTERNAL_IMPORT'
+          && warning.exporter === 'vue'
+          && /\bresolveComponent\b/.test(warning.message)
+        ) {
+          return
+        }
+        defaultHandler(warning)
+      },
     },
   },
 })

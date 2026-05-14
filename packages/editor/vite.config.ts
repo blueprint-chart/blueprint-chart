@@ -39,6 +39,7 @@ export default defineConfig({
   css: {
     preprocessorOptions: {
       scss: {
+        api: 'modern',
         silenceDeprecations: ['color-functions', 'global-builtin', 'import', 'if-function'],
       },
     },
@@ -53,6 +54,9 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     port: 5555,
+  },
+  build: {
+    chunkSizeWarningLimit: 1500,
   },
   test: {
     environment: 'jsdom',
