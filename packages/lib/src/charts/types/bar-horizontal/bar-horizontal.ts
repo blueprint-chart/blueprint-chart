@@ -13,7 +13,7 @@ import { resolveBackgroundColor, contrastTextColor } from '../../contrast'
 import { buildNumberFormatter } from '../../format-helpers'
 import { getDefaultTransitionMs, setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut, reinsertWithOffset } from '../../motion'
 import { getCachedChart, setCachedChart } from '../../transition-cache'
-import { SortDirection, ValueLabelPosition, Orientation } from '../../../enums'
+import { SortDirection, ValueLabelPosition, Orientation, LabelPosition } from '../../../enums'
 
 export const DEFAULT_COLORS = ['#4e79a7']
 const CATEGORY_LABEL_HEIGHT = 13
@@ -48,7 +48,7 @@ class BarHorizontalChart extends D3Blueprint<BarDatum[]> {
     const g = this.base.append('g')
 
     this.layer('bars', g, {
-      dataBind: (sel, data) => sel.selectAll('.bc-bar').data(data, (d: BarDatum) => d.label),
+      dataBind: (sel, data) => sel.selectAll<Element, BarDatum>('.bc-bar').data(data, d => d.label),
       insert: sel => sel.append('rect').attr('class', 'bc-bar'),
       events: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -157,7 +157,7 @@ export function render(
     && options.verticalAxis?.labelPosition !== 'outside'
   const useCategoryLabelLine = options.categoryLabelLine === true || autoNarrow
   const vLabelW = estimateCategoryLabelWidth(data.labels)
-  const effectiveVLabelPosition = useCategoryLabelLine ? 'off' : options.verticalAxis?.labelPosition
+  const effectiveVLabelPosition = useCategoryLabelLine ? LabelPosition.Off : options.verticalAxis?.labelPosition
   const lpMargins = labelPositionMargins(containerWidth, effectiveVLabelPosition, options.horizontalAxis?.labelPosition, options.verticalAxis?.direction, vLabelW, options.horizontalAxis?.showAxis)
 
   // Reserve extra margin for outside value labels
@@ -235,7 +235,7 @@ export function render(
       })()
     : { ...options.verticalAxis, topPadding: margin.top }
   const vAxisOpts = useCategoryLabelLine
-    ? { ...vAxisBase, labelPosition: 'off' as string, ...(autoNarrow ? { showAxis: false } : {}) }
+    ? { ...vAxisBase, labelPosition: LabelPosition.Off, ...(autoNarrow ? { showAxis: false } : {}) }
     : vAxisBase
   axes.attach(chartArea, marginDelta)
   axes.update({
@@ -273,8 +273,8 @@ export function render(
   if (options.barBackground) {
     const bgColor = (options.colors ?? DEFAULT_COLORS)[0]
     const bgLabels = isWaterfall ? allLabels : barData.map(d => d.label)
-    clippedGroup.selectAll('.bc-bar-bg')
-      .data(bgLabels, (d: string) => d)
+    clippedGroup.selectAll<Element, string>('.bc-bar-bg')
+      .data(bgLabels, d => d)
       .enter()
       .append('rect')
       .attr('class', 'bc-bar-bg')
@@ -418,8 +418,8 @@ export function render(
         .attr('opacity', 0.3)
     }
 
-    clippedGroup.selectAll('.bc-bar')
-      .data(waterfallData, (d: WaterfallDatum) => d.label)
+    clippedGroup.selectAll<Element, WaterfallDatum>('.bc-bar')
+      .data(waterfallData, d => d.label)
       .enter()
       .append('rect')
       .attr('class', 'bc-bar')
@@ -440,8 +440,8 @@ export function render(
       const hFmt = buildNumberFormatter(options.horizontalAxis?.numberFormat ?? '')
       const formatValue = (v: number) => hFmt ? hFmt(v) : String(v)
       const labelParent = d3.select(chartArea).append('g') as d3.Selection<SVGGElement, unknown, null, undefined>
-      labelParent.selectAll('.bc-value-label')
-        .data(waterfallData, (d: WaterfallDatum) => d.label)
+      labelParent.selectAll<Element, WaterfallDatum>('.bc-value-label')
+        .data(waterfallData, d => d.label)
         .enter()
         .append('text')
         .attr('class', 'bc-value-label')
@@ -530,7 +530,7 @@ export function render(
 
 function valueLabelAttrs(
   d: BarDatum,
-  x: d3.ScaleLinear<number, number> | d3.ScaleSymLog,
+  x: d3.ScaleLinear<number, number> | d3.ScaleSymLog<number, number>,
   y: d3.ScaleBand<string>,
   pos: ValueLabelPosition,
   catOffset = 0,
@@ -566,7 +566,7 @@ function valueLabelAttrs(
 function renderValueLabels(
   parent: d3.Selection<SVGGElement, unknown, null, undefined>,
   barData: BarDatum[],
-  x: d3.ScaleLinear<number, number> | d3.ScaleSymLog,
+  x: d3.ScaleLinear<number, number> | d3.ScaleSymLog<number, number>,
   y: d3.ScaleBand<string>,
   opts: {
     position?: ValueLabelPosition

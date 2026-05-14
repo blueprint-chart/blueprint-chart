@@ -17,7 +17,7 @@ import { getDefaultTransitionMs, setRenderTransition, fadeIn, snapshotForFadeOut
 import { setCachedChart, getCachedChart } from '../../transition-cache'
 import { computeStack, computeStack100 } from '../../stack-helpers'
 import { resolveBarGapPadding } from '../../scale-helpers'
-import { StackMode, Orientation, ValueLabelPosition } from '../../../enums'
+import { StackMode, Orientation, ValueLabelPosition, LabelPosition } from '../../../enums'
 
 export const DEFAULT_COLORS = [
   '#4e79a7', '#f28e2b', '#e15759', '#76b7b2',
@@ -45,7 +45,7 @@ class BarStackedChart extends D3Blueprint<StackedBarDatum[]> {
     const g = this.base.append('g')
 
     this.layer('bars', g, {
-      dataBind: (sel, data) => sel.selectAll('.bc-bar-stacked').data(data, (d: StackedBarDatum) => d.label + '\0' + d.seriesName),
+      dataBind: (sel, data) => sel.selectAll<Element, StackedBarDatum>('.bc-bar-stacked').data(data, d => d.label + '\0' + d.seriesName),
       insert: sel => sel.append('rect').attr('class', 'bc-bar bc-bar-stacked'),
       events: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -173,7 +173,7 @@ export function render(
 
   const useCategoryLabelLine = options.categoryLabelLine === true
   const vLabelW = estimateCategoryLabelWidth(data.labels)
-  const effectiveVLabelPosition = useCategoryLabelLine ? 'off' : options.verticalAxis?.labelPosition
+  const effectiveVLabelPosition = useCategoryLabelLine ? LabelPosition.Off : options.verticalAxis?.labelPosition
   const lpMargins = labelPositionMargins(containerWidth, effectiveVLabelPosition, options.horizontalAxis?.labelPosition, options.verticalAxis?.direction, vLabelW, options.horizontalAxis?.showAxis)
 
   const vLabelsInside = lpMargins.top != null
@@ -227,7 +227,7 @@ export function render(
       height,
       options: {
         ...options.verticalAxis,
-        labelPosition: useCategoryLabelLine ? 'off' : options.verticalAxis?.labelPosition,
+        labelPosition: useCategoryLabelLine ? LabelPosition.Off : options.verticalAxis?.labelPosition,
         topPadding: margin.top,
       },
     },
@@ -281,7 +281,7 @@ export function render(
   }
 
   // Apply per-series color and opacity overrides to bars
-  d3.select(chartArea).selectAll('.bc-bar-stacked').each(function (this: SVGRectElement, d: unknown) {
+  d3.select(chartArea).selectAll<SVGRectElement, unknown>('.bc-bar-stacked').each(function (d) {
     const datum = d as StackedBarDatum
     const seriesColor = resolveSeriesColor(datum.seriesName, datum.seriesIndex, colors, overrides)
     const seriesOpacity = resolveSeriesOpacity(datum.seriesName, overrides)
@@ -370,7 +370,8 @@ export function render(
     }
 
     if (placeOutside) {
-      if (valueLabelPos === ValueLabelPosition.Inside) {
+      // `placeOutside` already excludes Inside; this branch is defensive for future logic changes.
+      if ((valueLabelPos as ValueLabelPosition) === ValueLabelPosition.Inside) {
         appendHiddenLabel()
       }
       else {

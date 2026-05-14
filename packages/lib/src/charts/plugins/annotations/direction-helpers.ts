@@ -1,4 +1,4 @@
-import type { CompassDirection } from '../../types'
+import { CompassDirection } from '../../types'
 
 // ---------------------------------------------------------------------------
 // Direction vector helpers
@@ -29,15 +29,15 @@ export const RECT_ANCHOR: Record<CompassDirection, { nx: number, ny: number }> =
 }
 
 const HORIZONTAL_DIRECTION_MAP: Record<CompassDirection, CompassDirection> = {
-  N: 'W',
-  NE: 'NW',
-  E: 'N',
-  SE: 'NE',
-  S: 'E',
-  SW: 'SE',
-  W: 'S',
-  NW: 'SW',
-  center: 'center',
+  [CompassDirection.N]: CompassDirection.W,
+  [CompassDirection.NE]: CompassDirection.NW,
+  [CompassDirection.E]: CompassDirection.N,
+  [CompassDirection.SE]: CompassDirection.NE,
+  [CompassDirection.S]: CompassDirection.E,
+  [CompassDirection.SW]: CompassDirection.SE,
+  [CompassDirection.W]: CompassDirection.S,
+  [CompassDirection.NW]: CompassDirection.SW,
+  [CompassDirection.Center]: CompassDirection.Center,
 }
 
 export function computeDirectionOffset(

@@ -18,6 +18,7 @@ import { getDefaultTransitionMs, setRenderTransition, fadeIn, snapshotForFadeOut
 import { setCachedChart, getCachedChart } from '../../transition-cache'
 import { resolveSeriesColor, resolveSeriesDash, resolveSeriesWidth, resolveSeriesInterpolation, isSeriesHidden, resolveSeriesLabelMode, resolveSeriesValueLabels, resolveSeriesLineSymbols } from '../../series-helpers'
 import type { LineSymbolConfig } from '../../types'
+import { SymbolShape, SymbolShowOn, SymbolStyle } from '../../../enums'
 import { spreadLabels } from '../../plugins/arc-labels'
 
 export const DEFAULT_COLORS = [
@@ -56,7 +57,7 @@ class LineMultiChart extends D3Blueprint<SeriesDatum[]> {
     const dotsGroup = this.base.append('g')
 
     this.layer('areas', areaGroup, {
-      dataBind: (sel, data) => sel.selectAll('.bc-area').data(this.config('areaFill') ? data : [], (d: SeriesDatum) => d.name),
+      dataBind: (sel, data) => sel.selectAll<Element, SeriesDatum>('.bc-area').data(this.config('areaFill') ? data : [], d => d.name),
       insert: sel => sel.append('path').attr('class', 'bc-area'),
       events: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -111,7 +112,7 @@ class LineMultiChart extends D3Blueprint<SeriesDatum[]> {
     })
 
     this.layer('lines', g, {
-      dataBind: (sel, data) => sel.selectAll('.bc-line').data(data, (d: SeriesDatum) => d.name),
+      dataBind: (sel, data) => sel.selectAll<Element, SeriesDatum>('.bc-line').data(data, d => d.name),
       insert: sel => sel.append('path').attr('class', 'bc-line'),
       events: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -168,7 +169,7 @@ class LineMultiChart extends D3Blueprint<SeriesDatum[]> {
     })
 
     this.layer('dots', dotsGroup, {
-      dataBind: sel => sel.selectAll('.bc-dot').data(this.config('dots') as DotDatum[], (d: DotDatum) => d.label + '\0' + d.series),
+      dataBind: sel => sel.selectAll<Element, DotDatum>('.bc-dot').data(this.config('dots') as DotDatum[], d => d.label + '\0' + d.series),
       insert: sel => sel.append('circle').attr('class', 'bc-dot'),
       events: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -440,16 +441,16 @@ export function render(
   })
 
   // Apply per-series overrides, colors, and highlight dimming to lines
-  d3.select(clippedArea).selectAll('.bc-line').each(function (this: SVGPathElement, d: unknown) {
+  d3.select(clippedArea).selectAll<SVGPathElement, unknown>('.bc-line').each(function (d) {
     const datum = d as SeriesDatum
     const seriesColor = resolveSeriesColor(datum.name, datum.colorIndex, colors, overrides)
     const seriesWidth = resolveSeriesWidth(datum.name, overrides)
     const seriesDash = resolveSeriesDash(datum.name, overrides)
     const seriesInterp = resolveSeriesInterpolation(datum.name, options.interpolation ?? 'linear', overrides)
 
-    const el = transition
+    const el = (transition
       ? d3.select(this).transition().duration(getDefaultTransitionMs())
-      : d3.select(this)
+      : d3.select(this)) as d3.Selection<SVGPathElement, unknown, null, undefined>
     el.attr('stroke', seriesColor)
       .attr('stroke-width', seriesWidth)
 
@@ -474,7 +475,7 @@ export function render(
   })
 
   // Apply per-series colors and highlight dimming to area fills
-  d3.select(clippedArea).selectAll('.bc-area').each(function (this: SVGPathElement, d: unknown) {
+  d3.select(clippedArea).selectAll<SVGPathElement, unknown>('.bc-area').each(function (d) {
     const datum = d as SeriesDatum
     const seriesColor = resolveSeriesColor(datum.name, datum.colorIndex, colors, overrides)
     const el = transition
@@ -535,9 +536,9 @@ export function render(
     }
 
     const perSeriesSymbolConfig: LineSymbolConfig = {
-      symbol: (resolved.symbolShape as LineSymbolConfig['symbol']) ?? symbolConfig?.symbol ?? 'circle',
-      showOn: (resolved.symbolShowOn as LineSymbolConfig['showOn']) ?? symbolConfig?.showOn ?? 'firstLast',
-      style: (resolved.symbolStyle as LineSymbolConfig['style']) ?? symbolConfig?.style ?? 'filled',
+      symbol: (resolved.symbolShape as LineSymbolConfig['symbol']) ?? symbolConfig?.symbol ?? SymbolShape.Circle,
+      showOn: (resolved.symbolShowOn as LineSymbolConfig['showOn']) ?? symbolConfig?.showOn ?? SymbolShowOn.FirstLast,
+      style: (resolved.symbolStyle as LineSymbolConfig['style']) ?? symbolConfig?.style ?? SymbolStyle.Filled,
       size: resolved.symbolSize ?? symbolConfig?.size ?? 3.5,
       opacity: resolved.symbolOpacity ?? symbolConfig?.opacity ?? 1,
     }
@@ -639,7 +640,7 @@ function renderAreaFills(
   series: { name: string, values: number[] }[],
   xPos: (i: number) => number,
   _labelCount: number,
-  y: d3.ScaleLinear<number, number>,
+  y: d3.ScaleLinear<number, number> | d3.ScaleSymLog<number, number>,
   curve: d3.CurveFactory,
 ): void {
   const g = d3.select(chartArea).append('g').attr('class', 'bc-area-fills')
@@ -721,7 +722,7 @@ function renderSplitAreaFill(
   fromValues: number[],
   toValues: number[],
   xPos: (i: number) => number,
-  y: d3.ScaleLinear<number, number>,
+  y: d3.ScaleLinear<number, number> | d3.ScaleSymLog<number, number>,
   _curve: d3.CurveFactory,
   posColor: string,
   negColor: string,
