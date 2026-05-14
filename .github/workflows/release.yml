@@ -36,6 +36,7 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
       - id: resolve
         run: |
+          set -euo pipefail
           if [ "${{ github.event_name }}" = "release" ]; then
             TAG="${{ github.event.release.tag_name }}"
           else
@@ -90,6 +91,8 @@ jobs:
         run: pnpm -r publish --access public --no-git-checks --provenance --dry-run
       - name: pnpm publish
         if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && !inputs.dry_run)
+        # NPM_TOKEN is a bootstrap fallback — unused once OIDC Trusted Publisher
+        # is configured per package on npmjs.com. Safe to delete the secret afterward.
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: pnpm -r publish --access public --no-git-checks --provenance
@@ -123,6 +126,7 @@ jobs:
           repository: blueprint-chart/blueprint-chart.github.io
           token: ${{ steps.app-token.outputs.token }}
           path: pages
+          fetch-depth: 1
       - name: Replace Pages repo contents with editor dist
         run: |
           set -euo pipefail
