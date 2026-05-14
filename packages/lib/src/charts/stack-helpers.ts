@@ -20,7 +20,7 @@ export function computeStack(data: ChartData): d3.Series<Record<string, number>,
   const seriesNames = series.map(s => s.name)
 
   // Build tabular data: one row per label, columns for each series
-  const rows = data.labels.map((label, i) => {
+  const rows = data.labels.map((_label, i) => {
     const row: Record<string, number> = { _index: i }
     series.forEach((s) => {
       row[s.name] = s.values[i] ?? 0
@@ -48,7 +48,7 @@ export function computeStack100(data: ChartData): d3.Series<Record<string, numbe
 
   const seriesNames = series.map(s => s.name)
 
-  const rows = data.labels.map((label, i) => {
+  const rows = data.labels.map((_label, i) => {
     const row: Record<string, number> = { _index: i }
     const total = series.reduce((sum, s) => sum + Math.abs(s.values[i] ?? 0), 0)
     series.forEach((s) => {

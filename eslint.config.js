@@ -54,6 +54,7 @@ export default [
       'curly': ['error', 'all'],
       'vue/no-v-html': 'off',
       '@stylistic/comma-dangle': ['error', 'always-multiline'],
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' }],
     },
   },
   {
