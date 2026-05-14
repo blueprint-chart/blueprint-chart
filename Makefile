@@ -25,7 +25,7 @@ build-lib: ## Build lib package (ES + IIFE runtime)
 build-ui: ## Build ui package
 	pnpm --filter @blueprint-chart/ui build
 
-build-editor: ## Build editor for production
+build-editor: build-lib build-ui ## Build editor for production
 	pnpm --filter @blueprint-chart/editor build
 
 build-parser: ## Generate Peggy DSL grammar (packages/lib)
