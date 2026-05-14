@@ -3,5 +3,5 @@
   "compilerOptions": {
     "types": ["vitest/globals", "unplugin-icons/types/vue"]
   },
-  "include": ["src/**/*.ts", "src/**/*.vue"]
+  "include": ["auto-imports.d.ts", "src/**/*.ts", "src/**/*.vue"]
 }
