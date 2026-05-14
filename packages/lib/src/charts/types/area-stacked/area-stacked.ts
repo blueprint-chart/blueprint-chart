@@ -1,6 +1,7 @@
 import * as d3 from 'd3'
 import 'd3-transition'
 import { D3Blueprint } from 'd3-blueprint'
+import { widen } from '../../d3-types'
 import type { ChartData, ChartOptions } from '../../types'
 import { createFrame } from '../../frame/frame'
 import { createCanvas, contentSize, labelPositionMargins, estimateVerticalLabelWidth, computeMarginDelta } from '../../canvas/canvas'
@@ -39,12 +40,12 @@ class AreaStackedChart extends D3Blueprint<StackedAreaDatum[]> {
     this.configDefine('areaFillOpacity', { defaultValue: 0.85 })
     this.configDefine('highlightTargets', { defaultValue: new Set<string>() })
 
-    const areaGroup = this.base.append('g')
-    const lineGroup = this.base.append('g')
+    const areaGroup = widen(this.base.append('g'))
+    const lineGroup = widen(this.base.append('g'))
 
     this.layer('stacked-areas', areaGroup, {
-      dataBind: (sel, data) => sel.selectAll('.bc-area').data(data, (d: StackedAreaDatum) => d.name),
-      insert: sel => sel.append('path').attr('class', 'bc-area'),
+      dataBind: (sel, data) => widen(sel.selectAll('.bc-area').data(data, (d: StackedAreaDatum) => d.name)),
+      insert: sel => widen(sel.append('path').attr('class', 'bc-area')),
       events: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         'enter': (sel: any) => {
@@ -98,8 +99,8 @@ class AreaStackedChart extends D3Blueprint<StackedAreaDatum[]> {
     })
 
     this.layer('line-edges', lineGroup, {
-      dataBind: (sel, data) => sel.selectAll('.bc-line').data(data, (d: StackedAreaDatum) => d.name),
-      insert: sel => sel.append('path').attr('class', 'bc-line'),
+      dataBind: (sel, data) => widen(sel.selectAll('.bc-line').data(data, (d: StackedAreaDatum) => d.name)),
+      insert: sel => widen(sel.append('path').attr('class', 'bc-line')),
       events: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         'enter': (sel: any) => {
@@ -348,7 +349,7 @@ export function render(
   const hasHighlights = highlightTargets.size > 0
 
   const resolvedOpacity = options.areaFillOpacity != null ? options.areaFillOpacity : 0.85
-  const chart = new AreaStackedChart(d3.select(clippedArea))
+  const chart = new AreaStackedChart(widen(d3.select(clippedArea)))
   chart.config({ xPos, colors, curve, areaFillOpacity: resolvedOpacity, highlightTargets })
 
   // Re-insert prior elements so D3 data-join finds them and triggers merge:transition

@@ -1,6 +1,7 @@
 import * as d3 from 'd3'
 import 'd3-transition'
 import { D3Blueprint } from 'd3-blueprint'
+import { widen } from '../../d3-types'
 import type { ChartData, ChartOptions } from '../../types'
 import { getDefaultTransitionMs, setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut } from '../../motion'
 import { getCachedChart, setCachedChart } from '../../transition-cache'
@@ -26,14 +27,14 @@ class ArcChart extends D3Blueprint<d3.PieArcDatum<number>[]> {
     this.configDefine('colorScale', { defaultValue: d3.scaleOrdinal<string>() })
     this.configDefine('labels', { defaultValue: [] as string[] })
 
-    const g = this.base.append('g')
+    const g = widen(this.base.append('g'))
 
     this.layer('arcs', g, {
       dataBind: (sel, data) => {
         const labels = this.config('labels') as string[]
-        return sel.selectAll('.bc-arc').data(data, (_d: d3.PieArcDatum<number>, i: number) => labels[i])
+        return widen(sel.selectAll('.bc-arc').data(data, (_d: d3.PieArcDatum<number>, i: number) => labels[i]))
       },
-      insert: sel => sel.append('path').attr('class', 'bc-arc'),
+      insert: sel => widen(sel.append('path').attr('class', 'bc-arc')),
       events: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         'enter': (sel: any) => {
@@ -218,7 +219,7 @@ export function renderArc(
 
   const pieData = pie(values)
 
-  const chart = new ArcChart(centerGroup)
+  const chart = new ArcChart(widen(centerGroup))
   chart.config({ arc: arcGen, colorScale, labels })
 
   // Re-insert prior arc elements so D3 data-join finds them and triggers merge:transition

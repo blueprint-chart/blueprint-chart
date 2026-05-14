@@ -1,6 +1,7 @@
 import * as d3 from 'd3'
 import 'd3-transition'
 import { D3Blueprint } from 'd3-blueprint'
+import { widen } from '../d3-types'
 import type { Margin } from '../types'
 import { buildNumberFormatter } from '../format-helpers'
 
@@ -49,8 +50,8 @@ class CanvasChart extends D3Blueprint<Margin[]> {
     this.configDefine('totalHeight', { defaultValue: DEFAULT_HEIGHT })
 
     this.layer('svg', this.base, {
-      dataBind: (sel, data) => sel.selectAll('svg').data(data),
-      insert: sel => sel.append('svg'),
+      dataBind: (sel, data) => widen(sel.selectAll('svg').data(data)),
+      insert: sel => widen(sel.append('svg')),
       events: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         enter: (sel: any) => {
@@ -261,7 +262,7 @@ export function createCanvas(
   const width = totalWidth - m.left - m.right
   const height = totalHeight - m.top - m.bottom
 
-  const chart = new CanvasChart(d3.select(body))
+  const chart = new CanvasChart(widen(d3.select(body)))
   chart.config({ totalWidth, totalHeight })
   chart.draw([m])
 

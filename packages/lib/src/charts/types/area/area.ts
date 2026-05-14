@@ -13,6 +13,7 @@ import { renderAnnotations, snapshotAnnotations, type AnnotationSnapshot } from 
 import { resolveBackgroundColor } from '../../contrast'
 import { setupProximityInteraction } from '../../plugins/proximity'
 import { renderLineSymbols } from '../../line-symbols'
+import { widen } from '../../d3-types'
 import { getDefaultTransitionMs, setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut, reinsertWithOffset } from '../../motion'
 import { getCachedChart, setCachedChart } from '../../transition-cache'
 import { Orientation } from '../../../enums'
@@ -33,13 +34,13 @@ class AreaChart extends D3Blueprint<AreaDatum[]> {
     this.configDefine('areaFillOpacity', { defaultValue: 0.25 })
     this.configDefine('height', { defaultValue: 0 })
 
-    const areaGroup = this.base.append('g')
-    const lineGroup = this.base.append('g')
-    const dotsGroup = this.base.append('g')
+    const areaGroup = widen(this.base.append('g'))
+    const lineGroup = widen(this.base.append('g'))
+    const dotsGroup = widen(this.base.append('g'))
 
     this.layer('area', areaGroup, {
-      dataBind: (sel, data) => sel.selectAll('.bc-area').data([data]),
-      insert: sel => sel.append('path').attr('class', 'bc-area'),
+      dataBind: (sel, data) => widen(sel.selectAll('.bc-area').data([data])),
+      insert: sel => widen(sel.append('path').attr('class', 'bc-area')),
       events: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         'enter': (sel: any) => {
@@ -87,8 +88,8 @@ class AreaChart extends D3Blueprint<AreaDatum[]> {
     })
 
     this.layer('line', lineGroup, {
-      dataBind: (sel, data) => sel.selectAll('.bc-line').data([data]),
-      insert: sel => sel.append('path').attr('class', 'bc-line'),
+      dataBind: (sel, data) => widen(sel.selectAll('.bc-line').data([data])),
+      insert: sel => widen(sel.append('path').attr('class', 'bc-line')),
       events: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         'enter': (sel: any) => {
@@ -132,8 +133,8 @@ class AreaChart extends D3Blueprint<AreaDatum[]> {
     })
 
     this.layer('dots', dotsGroup, {
-      dataBind: (sel, data) => sel.selectAll('.bc-dot').data(data, (d: AreaDatum) => d.label),
-      insert: sel => sel.append('circle').attr('class', 'bc-dot'),
+      dataBind: (sel, data) => widen(sel.selectAll('.bc-dot').data(data, (d: AreaDatum) => d.label)),
+      insert: sel => widen(sel.append('circle').attr('class', 'bc-dot')),
       events: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         'enter': (sel: any) => {
@@ -261,7 +262,7 @@ export function render(
 
   const symbolConfig = options.lineSymbols
 
-  const chart = new AreaChart(d3.select(clippedArea))
+  const chart = new AreaChart(widen(d3.select(clippedArea)))
   chart.config({ xPos, y, color, curve, areaFillOpacity: options.areaFillOpacity ?? 0.25, height })
   // Re-insert prior elements so D3 data-join finds them and triggers merge:transition
   if (priorLines.length > 0 || priorAreas.length > 0 || priorDots.length > 0) {

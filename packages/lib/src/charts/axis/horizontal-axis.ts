@@ -1,6 +1,7 @@
 import * as d3 from 'd3'
 import 'd3-transition'
 import { D3Blueprint } from 'd3-blueprint'
+import { widen } from '../d3-types'
 import type { AxisOptions } from '../types'
 import { detectDates, type DateGranularity } from '../date-parse'
 import { getDefaultTransitionMs } from '../motion'
@@ -414,11 +415,11 @@ export class HorizontalAxisChart extends D3Blueprint<AxisDatum[]> {
     this.configDefine('zeroY', { defaultValue: null as number | null })
     this.configDefine('tickFormat', { defaultValue: null as ((label: string) => string) | null })
 
-    const g = this.base.append('g')
+    const g = widen(this.base.append('g'))
 
     this.layer('axis', g, {
-      dataBind: (sel, data) => sel.selectAll('.bc-axis-horizontal').data(data),
-      insert: sel => sel.append('g').attr('class', 'bc-axis bc-axis-horizontal'),
+      dataBind: (sel, data) => widen(sel.selectAll('.bc-axis-horizontal').data(data)),
+      insert: sel => widen(sel.append('g').attr('class', 'bc-axis bc-axis-horizontal')),
       events: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         'merge:transition': (sel: any) => {
@@ -655,7 +656,7 @@ export function renderHorizontalAxis(
   options: AxisOptions = {},
   priorAxisElement?: Element | null,
 ): SVGGElement {
-  const chart = new HorizontalAxisChart(d3.select(chartArea))
+  const chart = new HorizontalAxisChart(widen(d3.select(chartArea)))
 
   // Re-insert prior axis element for D3 data-join transition
   if (priorAxisElement) {
