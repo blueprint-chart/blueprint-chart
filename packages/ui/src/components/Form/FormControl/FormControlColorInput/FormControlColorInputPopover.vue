@@ -44,7 +44,7 @@ const contentRef = useTemplateRef<HTMLElement>('contentRef')
 
 const clickOutsideOptions: OnClickOutsideOptions = {
   detectIframe: true,
-  ignore: [() => props.target],
+  ignore: () => [props.target],
 }
 onClickOutside(contentRef, () => {
   if (props.manual) {

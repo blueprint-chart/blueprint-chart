@@ -23,5 +23,5 @@ export const StepperEntriesKey: InjectionKey<
 > = Symbol('StepperEntries')
 
 export const ToggleEntriesKey: InjectionKey<
-  ChildEntriesContext<{ value: string, text: string, icon?: Component }>
+  ChildEntriesContext<{ value: string, text: string, icon?: Component, disabled?: boolean }>
 > = Symbol('ToggleEntries')
