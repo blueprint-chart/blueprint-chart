@@ -328,7 +328,7 @@ function axisOpts(defaults: {
       ? [
           { key: 'verticalScaleType', type: ChartOptionType.Select as const, label: 'Vertical scale', default: ScaleType.Linear, choices: SCALE_TYPE_CHOICES },
           defaults.valueAxisZeroBaseline
-            ? { key: 'verticalRangeMin', type: ChartOptionType.Text as const, label: 'Vertical min', default: 0, placeholder: 'auto' }
+            ? { key: 'verticalRangeMin', type: ChartOptionType.Text as const, label: 'Vertical min', default: '0', placeholder: 'auto' }
             : { key: 'verticalRangeMin', type: ChartOptionType.Text as const, label: 'Vertical min', placeholder: 'auto' },
           { key: 'verticalRangeMax', type: ChartOptionType.Text as const, label: 'Vertical max', placeholder: 'auto' },
         ]
@@ -343,7 +343,7 @@ function axisOpts(defaults: {
       ? [
           { key: 'horizontalScaleType', type: ChartOptionType.Select as const, label: 'Horizontal scale', default: ScaleType.Linear, choices: SCALE_TYPE_CHOICES },
           defaults.valueAxisZeroBaseline
-            ? { key: 'horizontalRangeMin', type: ChartOptionType.Text as const, label: 'Horizontal min', default: 0, placeholder: 'auto' }
+            ? { key: 'horizontalRangeMin', type: ChartOptionType.Text as const, label: 'Horizontal min', default: '0', placeholder: 'auto' }
             : { key: 'horizontalRangeMin', type: ChartOptionType.Text as const, label: 'Horizontal min', placeholder: 'auto' },
           { key: 'horizontalRangeMax', type: ChartOptionType.Text as const, label: 'Horizontal max', placeholder: 'auto' },
         ]
