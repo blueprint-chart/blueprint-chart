@@ -1,6 +1,5 @@
 import * as d3 from 'd3'
 import 'd3-transition'
-import { widen } from '../d3-types'
 import { VerticalAxisChart } from './vertical-axis'
 import { HorizontalAxisChart, type AnyXScale } from './horizontal-axis'
 import type { AxisOptions } from '../types'
@@ -86,8 +85,8 @@ export class AxisService {
       chartArea.appendChild(this.vGroup)
       chartArea.appendChild(this.hGroup)
 
-      this.vChart = new VerticalAxisChart(widen(d3.select(this.vGroup)))
-      this.hChart = new HorizontalAxisChart(widen(d3.select(this.hGroup)))
+      this.vChart = new VerticalAxisChart(d3.select(this.vGroup))
+      this.hChart = new HorizontalAxisChart(d3.select(this.hGroup))
 
       this.initialized = true
     }

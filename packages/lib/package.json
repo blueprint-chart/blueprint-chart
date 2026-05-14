@@ -56,15 +56,15 @@
     "@floating-ui/dom": "^1.7.5",
     "chroma-js": "^3.2.0",
     "d3": "^7",
-    "d3-blueprint": "^0.1.5",
+    "d3-blueprint": "^0.1.7",
     "d3-transition": "^3",
     "dayjs": "^1.11.19"
   },
   "devDependencies": {
-    "peggy": "^4",
     "@types/chroma-js": "^3.1.2",
     "@types/d3": "^7",
     "jsdom": "^26",
+    "peggy": "^4",
     "typescript": "^5.7",
     "vite": "^6",
     "vite-plugin-dts": "^5.0.0",

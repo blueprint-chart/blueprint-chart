@@ -1,7 +1,6 @@
 import * as d3 from 'd3'
 import 'd3-transition'
 import { D3Blueprint } from 'd3-blueprint'
-import { widen } from '../../d3-types'
 import type { ChartData, ChartOptions } from '../../types'
 import { createFrame } from '../../frame/frame'
 import { createCanvas, contentSize, labelPositionMargins, estimateVerticalLabelWidth, computeMarginDelta } from '../../canvas/canvas'
@@ -40,11 +39,11 @@ class ColumnStackedChart extends D3Blueprint<StackedBarDatum[]> {
     this.configDefine('y', { defaultValue: d3.scaleLinear() })
     this.configDefine('colors', { defaultValue: DEFAULT_COLORS })
 
-    const g = widen(this.base.append('g'))
+    const g = this.base.append('g')
 
     this.layer('bars', g, {
-      dataBind: (sel, data) => widen(sel.selectAll('.bc-bar-stacked').data(data, (d: StackedBarDatum) => d.label + '\0' + d.seriesName)),
-      insert: sel => widen(sel.append('rect').attr('class', 'bc-bar bc-bar-stacked')),
+      dataBind: (sel, data) => sel.selectAll('.bc-bar-stacked').data(data, (d: StackedBarDatum) => d.label + '\0' + d.seriesName),
+      insert: sel => sel.append('rect').attr('class', 'bc-bar bc-bar-stacked'),
       events: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         'enter': (sel: any) => {
@@ -242,7 +241,7 @@ export function render(
     ? flatData
     : sortedLabels.flatMap(label => flatData.filter(d => d.label === label))
 
-  const chart = new ColumnStackedChart(widen(clippedGroup))
+  const chart = new ColumnStackedChart(clippedGroup)
   chart.config({ x, y, colors })
 
   // Re-insert prior elements so D3 data-join finds them and triggers merge:transition

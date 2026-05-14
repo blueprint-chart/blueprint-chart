@@ -1,7 +1,6 @@
 import * as d3 from 'd3'
 import 'd3-transition'
 import { D3Blueprint } from 'd3-blueprint'
-import { widen } from '../d3-types'
 import { getTransitionDuration } from '../motion'
 
 const DEFAULT_COLORS = [
@@ -20,11 +19,11 @@ class LegendChart extends D3Blueprint<string[]> {
     this.configDefine('valueSuffixes', { defaultValue: [] as string[] })
     this.configDefine('maxWidth', { defaultValue: 0 })
 
-    const g = widen(this.base.append('g').attr('class', 'bc-legend'))
+    const g = this.base.append('g').attr('class', 'bc-legend')
 
     this.layer('items', g, {
-      dataBind: (sel, data) => widen(sel.selectAll('.bc-legend-item').data(data)),
-      insert: sel => widen(sel.append('g').attr('class', 'bc-legend-item')),
+      dataBind: (sel, data) => sel.selectAll('.bc-legend-item').data(data),
+      insert: sel => sel.append('g').attr('class', 'bc-legend-item'),
       events: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         enter: (sel: any) => {
@@ -165,7 +164,7 @@ export function renderLegend(
   frameInset: { left?: number, right?: number } = {},
 ): SVGGElement {
   const layout = (position === 'left' || position === 'right') ? 'vertical' : 'horizontal'
-  const chart = new LegendChart(widen(d3.select(chartArea)))
+  const chart = new LegendChart(d3.select(chartArea))
   chart.config({ colors, yOffset, layout, valueSuffixes, maxWidth: chartWidth })
   chart.draw(labels)
 

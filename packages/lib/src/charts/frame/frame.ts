@@ -1,7 +1,6 @@
 import * as d3 from 'd3'
 import 'd3-transition'
 import { D3Blueprint } from 'd3-blueprint'
-import { widen } from '../d3-types'
 import type { FrameOptions } from '../types'
 
 export interface FrameElements {
@@ -34,29 +33,29 @@ interface FrameData {
 
 class FrameChart extends D3Blueprint<FrameData> {
   initialize() {
-    const wrapper = widen(this.base.append('div').attr('class', 'bc-frame'))
-    const header = widen(wrapper.append('div').attr('class', 'bc-frame-header'))
+    const wrapper = this.base.append('div').attr('class', 'bc-frame')
+    const header = wrapper.append('div').attr('class', 'bc-frame-header')
     wrapper.append('div').attr('class', 'bc-frame-body')
     wrapper.append('p').attr('class', 'bc-frame-note')
-    const footer = widen(wrapper.append('div').attr('class', 'bc-frame-footer')
+    const footer = wrapper.append('div').attr('class', 'bc-frame-footer')
       .style('display', 'flex')
       .style('justify-content', 'space-between')
       .style('align-items', 'center')
       .style('flex-wrap', 'wrap')
-      .style('gap', '0.25rem 1rem'))
-    const footerLeft = widen(footer.append('div').attr('class', 'bc-frame-footer-left')
+      .style('gap', '0.25rem 1rem')
+    const footerLeft = footer.append('div').attr('class', 'bc-frame-footer-left')
       .style('display', 'flex')
       .style('flex-wrap', 'wrap')
-      .style('gap', '0.25rem 0.75rem'))
-    const footerRight = widen(footer.append('div').attr('class', 'bc-frame-footer-right')
+      .style('gap', '0.25rem 0.75rem')
+    const footerRight = footer.append('div').attr('class', 'bc-frame-footer-right')
       .style('display', 'flex')
-      .style('align-items', 'center'))
+      .style('align-items', 'center')
 
     this.layer('headerItems', header, {
-      dataBind: (sel, data) => widen(sel.selectAll('.bc-frame-header-item').data(data.headerItems, (d: HeaderItem) => d.className)),
+      dataBind: (sel, data) => sel.selectAll('.bc-frame-header-item').data(data.headerItems, (d: HeaderItem) => d.className),
       insert: (sel) => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        return widen(sel.append((d: any) => document.createElement(d.tag)))
+        return sel.append((d: any) => document.createElement(d.tag))
       },
       events: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -79,10 +78,10 @@ class FrameChart extends D3Blueprint<FrameData> {
     })
 
     this.layer('footerLeftItems', footerLeft, {
-      dataBind: (sel, data) => widen(sel.selectAll('.bc-frame-footer-item').data(data.footerLeftItems, (d: FooterItem) => d.className)),
+      dataBind: (sel, data) => sel.selectAll('.bc-frame-footer-item').data(data.footerLeftItems, (d: FooterItem) => d.className),
       insert: (sel) => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        return widen(sel.append((d: any) => document.createElement(d.tag)))
+        return sel.append((d: any) => document.createElement(d.tag))
       },
       events: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -141,10 +140,10 @@ class FrameChart extends D3Blueprint<FrameData> {
     })
 
     this.layer('footerRightItems', footerRight, {
-      dataBind: (sel, data) => widen(sel.selectAll('.bc-frame-footer-item').data(data.footerRightItems, (d: FooterItem) => d.className)),
+      dataBind: (sel, data) => sel.selectAll('.bc-frame-footer-item').data(data.footerRightItems, (d: FooterItem) => d.className),
       insert: (sel) => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        return widen(sel.append((d: any) => document.createElement(d.tag)))
+        return sel.append((d: any) => document.createElement(d.tag))
       },
       events: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -232,7 +231,7 @@ export function createFrame(
   container: HTMLElement,
   options: FrameOptions = {},
 ): FrameElements {
-  const chart = new FrameChart(widen(d3.select(container)))
+  const chart = new FrameChart(d3.select(container))
   chart.draw({
     headerItems: buildHeaderItems(options),
     footerLeftItems: buildFooterLeftItems(options),
