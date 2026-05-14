@@ -35,6 +35,7 @@ const SAMPLES = {
     bpc: `chart bar-multi {
   title = "Revenue by Segment"
   colors = "#e15759,#4e79a7,#f28e2b"
+  legend = true
 
   data {
     _series = "HW,SW,SV"
