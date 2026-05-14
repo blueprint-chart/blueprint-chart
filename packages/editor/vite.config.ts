@@ -13,7 +13,7 @@ export default defineConfig({
     bpcSvg(),
     vue(),
     AutoImport({
-      imports: ['vue', '@vueuse/core', 'pinia', 'vitest'],
+      imports: ['vue', '@vueuse/core', 'pinia'],
       dirs: ['src/composables', '../ui/src/composables'],
       dts: 'auto-imports.d.ts',
       eslintrc: { enabled: true, filepath: 'auto-imports.eslintrc.json' },
