@@ -11,7 +11,7 @@ function isOrdinalScale(scale: AnyXScale): scale is d3.ScaleBand<string> | d3.Sc
 
 export interface AxisServiceConfig {
   vertical?: {
-    scale: d3.ScaleLinear<number, number> | d3.ScaleLogarithmic<number, number> | d3.ScaleBand<string>
+    scale: d3.ScaleLinear<number, number> | d3.ScaleLogarithmic<number, number> | d3.ScaleSymLog<number, number> | d3.ScaleBand<string>
     height: number
     options: AxisOptions
   }

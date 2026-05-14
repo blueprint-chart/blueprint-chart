@@ -83,7 +83,7 @@ const AUTO_DATE_FORMATS: Record<string, string> = {
   datetime: '%b %-d, %Y %H:%M',
 }
 
-type AnyXScale = d3.ScaleBand<string> | d3.ScalePoint<string> | d3.ScaleLinear<number, number> | d3.ScaleTime<number, number>
+type AnyXScale = d3.ScaleBand<string> | d3.ScalePoint<string> | d3.ScaleLinear<number, number> | d3.ScaleSymLog<number, number> | d3.ScaleTime<number, number>
 
 function isOrdinalScale(scale: AnyXScale): scale is d3.ScaleBand<string> | d3.ScalePoint<string> {
   return typeof (scale as d3.ScaleBand<string>).step === 'function'
@@ -372,7 +372,7 @@ function applyWrappedTickLabels(
   target: any,
   wrapLinesByDatum: Map<string, string[]>,
 ): void {
-  target.selectAll<SVGGElement, unknown>('.tick').each(function (this: SVGGElement) {
+  target.selectAll('.tick').each(function (this: SVGGElement) {
     const tickSel = d3.select(this)
     const datum = tickSel.datum() as unknown
     const key = datum instanceof Date ? datum.toISOString() : String(datum)
