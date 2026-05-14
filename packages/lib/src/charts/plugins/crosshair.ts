@@ -11,7 +11,7 @@ function styleToDash(style?: string): string {
   }
 }
 
-export function createCrosshairPlugin(options?: {
+export function createCrosshairPlugin<TData = unknown>(options?: {
   width?: number
   height?: number
   direction?: 'both' | 'vertical' | 'horizontal'
@@ -19,7 +19,7 @@ export function createCrosshairPlugin(options?: {
   color?: string
   dashArray?: string
   orientation?: 'vertical' | 'horizontal'
-}): Plugin {
+}): Plugin<TData> {
   const color = options?.color ?? '#999'
   const dashArray = options?.dashArray ?? styleToDash(options?.style)
   const direction = options?.direction ?? CrosshairDirection.Both
@@ -31,7 +31,7 @@ export function createCrosshairPlugin(options?: {
 
     install() {},
 
-    postDraw(chart: D3Blueprint) {
+    postDraw(chart: D3Blueprint<TData>) {
       const base = (chart as unknown as { base: d3.Selection<SVGElement, unknown, null, undefined> }).base
       const w = options?.width ?? 0
       const h = options?.height ?? 0

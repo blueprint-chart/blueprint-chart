@@ -56,10 +56,10 @@ export function makeDefaultFormat(numberFormat?: string): (d: unknown) => string
   }
 }
 
-export function createTooltipPlugin(options?: {
+export function createTooltipPlugin<TData = unknown>(options?: {
   format?: (datum: unknown) => string
   numberFormat?: string
-}): Plugin {
+}): Plugin<TData> {
   const fmt = options?.format ?? makeDefaultFormat(options?.numberFormat)
   let tooltipEl: HTMLDivElement | null = null
   const cleanups: (() => void)[] = []
@@ -74,7 +74,7 @@ export function createTooltipPlugin(options?: {
       document.body.appendChild(tooltipEl)
     },
 
-    postDraw(chart: D3Blueprint) {
+    postDraw(chart: D3Blueprint<TData>) {
       const base = (chart as unknown as { base: d3.Selection<SVGElement, unknown, null, undefined> }).base
 
       const targets = base.selectAll<SVGElement, unknown>('.bc-bar, .bc-dot, .bc-arc')

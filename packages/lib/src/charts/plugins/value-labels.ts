@@ -3,11 +3,11 @@ import type { D3Blueprint, Plugin } from 'd3-blueprint'
 import { ValueLabelPosition, Orientation } from '../../enums'
 import { contrastTextColor } from '../contrast'
 
-export function createValueLabelPlugin(options?: {
+export function createValueLabelPlugin<TData = unknown>(options?: {
   position?: 'inside' | 'outside' | 'auto'
   format?: string
   orientation?: 'vertical' | 'horizontal'
-}): Plugin {
+}): Plugin<TData> {
   const pos = options?.position ?? ValueLabelPosition.Auto
   const orientation = options?.orientation ?? Orientation.Vertical
   const fmt = options?.format ? d3.format(options.format) : (v: number) => String(v)
@@ -17,7 +17,7 @@ export function createValueLabelPlugin(options?: {
 
     install() {},
 
-    postDraw(chart: D3Blueprint) {
+    postDraw(chart: D3Blueprint<TData>) {
       // Access the base selection from the chart instance
       const base = (chart as unknown as { base: d3.Selection<SVGElement, unknown, null, undefined> }).base
 
