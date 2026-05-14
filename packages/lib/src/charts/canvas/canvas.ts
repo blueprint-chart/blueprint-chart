@@ -20,7 +20,7 @@ export interface CanvasElements {
  * axes from sliding vertically when the header wraps differently.
  */
 export function computeMarginDelta(
-  priorMargin: Margin | undefined,
+  priorMargin: Pick<Margin, 'top' | 'left'> | undefined,
   currentMargin: Margin,
 ): { dx: number, dy: number } | undefined {
   if (!priorMargin) {
