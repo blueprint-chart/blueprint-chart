@@ -1,6 +1,7 @@
 import * as d3 from 'd3'
 import 'd3-transition'
 import { D3Blueprint } from 'd3-blueprint'
+import { widen } from '../../d3-types'
 import type { AreaFillConfig, ChartData, ChartOptions } from '../../types'
 import { createFrame } from '../../frame/frame'
 import { createCanvas, contentSize, labelPositionMargins, estimateVerticalLabelWidth, computeMarginDelta } from '../../canvas/canvas'
@@ -51,13 +52,13 @@ class LineMultiChart extends D3Blueprint<SeriesDatum[]> {
     this.configDefine('dots', { defaultValue: [] as DotDatum[] })
     this.configDefine('highlightTargets', { defaultValue: new Set<string>() })
 
-    const areaGroup = this.base.append('g')
-    const g = this.base.append('g')
-    const dotsGroup = this.base.append('g')
+    const areaGroup = widen(this.base.append('g'))
+    const g = widen(this.base.append('g'))
+    const dotsGroup = widen(this.base.append('g'))
 
     this.layer('areas', areaGroup, {
-      dataBind: (sel, data) => sel.selectAll('.bc-area').data(this.config('areaFill') ? data : [], (d: SeriesDatum) => d.name),
-      insert: sel => sel.append('path').attr('class', 'bc-area'),
+      dataBind: (sel, data) => widen(sel.selectAll('.bc-area').data(this.config('areaFill') ? data : [], (d: SeriesDatum) => d.name)),
+      insert: sel => widen(sel.append('path').attr('class', 'bc-area')),
       events: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         'enter': (sel: any) => {
@@ -111,8 +112,8 @@ class LineMultiChart extends D3Blueprint<SeriesDatum[]> {
     })
 
     this.layer('lines', g, {
-      dataBind: (sel, data) => sel.selectAll('.bc-line').data(data, (d: SeriesDatum) => d.name),
-      insert: sel => sel.append('path').attr('class', 'bc-line'),
+      dataBind: (sel, data) => widen(sel.selectAll('.bc-line').data(data, (d: SeriesDatum) => d.name)),
+      insert: sel => widen(sel.append('path').attr('class', 'bc-line')),
       events: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         'enter': (sel: any) => {
@@ -168,8 +169,8 @@ class LineMultiChart extends D3Blueprint<SeriesDatum[]> {
     })
 
     this.layer('dots', dotsGroup, {
-      dataBind: sel => sel.selectAll('.bc-dot').data(this.config('dots') as DotDatum[], (d: DotDatum) => d.label + '\0' + d.series),
-      insert: sel => sel.append('circle').attr('class', 'bc-dot'),
+      dataBind: sel => widen(sel.selectAll('.bc-dot').data(this.config('dots') as DotDatum[], (d: DotDatum) => d.label + '\0' + d.series)),
+      insert: sel => widen(sel.append('circle').attr('class', 'bc-dot')),
       events: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         'enter': (sel: any) => {
@@ -391,7 +392,7 @@ export function render(
   const highlightTargets = new Set((options.highlights ?? []).map(h => h.target))
   const hasHighlights = highlightTargets.size > 0
 
-  const chart = new LineMultiChart(d3.select(clippedArea))
+  const chart = new LineMultiChart(widen(d3.select(clippedArea)))
   chart.config({ xPos, y, colors, labels: data.labels, curve, areaFill: options.areaFill ?? false, areaFillOpacity: options.areaFillOpacity ?? 0.2, height, dots: dotData, highlightTargets })
 
   // Re-insert prior elements so D3 data-join finds them and triggers merge:transition
