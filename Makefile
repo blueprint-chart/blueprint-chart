@@ -83,7 +83,7 @@ _release-bump:
 	node scripts/verify-release-versions.mjs "v$$NEW_VERSION"; \
 	git add packages/*/package.json; \
 	git commit -m "chore(release): v$$NEW_VERSION"; \
-	git tag "v$$NEW_VERSION"; \
+	git tag -a "v$$NEW_VERSION" -m "v$$NEW_VERSION"; \
 	echo ""; \
 	echo "Tagged v$$NEW_VERSION."; \
 	echo "Next:"; \
