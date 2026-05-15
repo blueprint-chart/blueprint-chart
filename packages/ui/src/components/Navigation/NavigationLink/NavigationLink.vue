@@ -1,34 +1,3 @@
-<template>
-  <router-link
-    :to="to"
-    custom
-  >
-    <template #default="{ navigate, href, isActive }">
-      <a
-        :href="href"
-        :class="rootClass(isActive)"
-        :aria-current="(isActive || active) ? 'page' : undefined"
-        @click="navigate"
-      >
-        <span class="navigation-link__label">{{ label }}</span>
-        <svg
-          v-if="external"
-          class="navigation-link__external-icon"
-          viewBox="0 0 12 12"
-          aria-hidden="true"
-        >
-          <path
-            d="M4 2 L10 2 L10 8 M10 2 L4 8"
-            stroke="currentColor"
-            fill="none"
-            stroke-width="1.3"
-          />
-        </svg>
-      </a>
-    </template>
-  </router-link>
-</template>
-
 <script setup lang="ts">
 import type { RouteLocationRaw } from 'vue-router'
 
@@ -49,6 +18,29 @@ function rootClass(routerActive: boolean) {
   }
 }
 </script>
+
+<template>
+  <router-link
+    :to="to"
+    custom
+  >
+    <template #default="{ navigate, href, isActive }">
+      <a
+        :href="href"
+        :class="rootClass(isActive)"
+        :aria-current="(isActive || active) ? 'page' : undefined"
+        @click="navigate"
+      >
+        <span class="navigation-link__label">{{ label }}</span>
+        <IconPhArrowSquareOut
+          v-if="external"
+          class="navigation-link__external-icon"
+          aria-hidden="true"
+        />
+      </a>
+    </template>
+  </router-link>
+</template>
 
 <style scoped lang="scss">
 .navigation-link {
