@@ -66,6 +66,7 @@ function isLegacyPayload(raw: string): boolean {
 
 export const useChartSessionStore = defineStore('chartSession', () => {
   const sessionId = shallowRef('')
+  const lastSavedAt = shallowRef<string | null>(null)
 
   const chartConfig = useChartConfig()
   const dataTable = useDataTable()
@@ -89,6 +90,7 @@ export const useChartSessionStore = defineStore('chartSession', () => {
       meta.sourceFormat = 'delimited'
     }
     localStorage.setItem(metaKey(sessionId.value), JSON.stringify(meta))
+    lastSavedAt.value = meta.savedAt!
   }
 
   function load(id: string): boolean {
@@ -114,19 +116,21 @@ export const useChartSessionStore = defineStore('chartSession', () => {
 
       // Load sidecar metadata
       const metaRaw = localStorage.getItem(metaKey(id))
+      let loadedMeta: SessionMeta | undefined
       if (metaRaw) {
-        const meta: SessionMeta = JSON.parse(metaRaw)
+        loadedMeta = JSON.parse(metaRaw) as SessionMeta
 
-        if (meta.sourceFormat === 'delimited' && meta.rawInput) {
-          dataTable.rawInput.value = meta.rawInput
+        if (loadedMeta.sourceFormat === 'delimited' && loadedMeta.rawInput) {
+          dataTable.rawInput.value = loadedMeta.rawInput
           dataTable.sourceFormat.value = 'delimited'
-          if (meta.sourceLabel) {
-            dataTable.sourceLabel.value = meta.sourceLabel
+          if (loadedMeta.sourceLabel) {
+            dataTable.sourceLabel.value = loadedMeta.sourceLabel
           }
         }
       }
 
       sessionId.value = id
+      lastSavedAt.value = (loadedMeta?.savedAt as string | undefined) ?? null
       return true
     }
     catch {
@@ -159,6 +163,7 @@ export const useChartSessionStore = defineStore('chartSession', () => {
 
   function prepareNew() {
     resetAll()
+    lastSavedAt.value = null
   }
 
   function createSession(): string {
@@ -307,6 +312,7 @@ export const useChartSessionStore = defineStore('chartSession', () => {
 
   return {
     sessionId,
+    lastSavedAt,
     save,
     load,
     prepareNew,
@@ -322,9 +328,10 @@ export const useChartSessionStore = defineStore('chartSession', () => {
 
 export function useChartSession() {
   const store = useChartSessionStore()
-  const { sessionId } = storeToRefs(store)
+  const { sessionId, lastSavedAt } = storeToRefs(store)
   return {
     sessionId,
+    lastSavedAt,
     save: store.save,
     load: store.load,
     prepareNew: store.prepareNew,
