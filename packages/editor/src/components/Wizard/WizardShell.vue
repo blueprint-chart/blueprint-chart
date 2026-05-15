@@ -1,28 +1,6 @@
-<template>
-  <div class="wizard-shell">
-    <div class="wizard-shell__content">
-      <DataPanel v-if="currentStep.key === 'data'" />
-      <ChartEditPanel v-else-if="currentStep.key === 'edit'" />
-      <ExportPanel v-else-if="currentStep.key === 'export'" />
-    </div>
-    <SceneTimeline
-      v-if="showTimeline"
-      :scenes="timelineScenes"
-      :active-index="timelineActiveIndex"
-      :playing="playing"
-      @update:active-index="onTimelineSelect"
-      @add="addScene"
-      @remove="onTimelineRemove"
-      @play="startPlayback"
-      @pause="stopPlayback"
-    />
-  </div>
-</template>
-
 <script setup lang="ts">
 import { onBeforeRouteLeave } from 'vue-router'
 import { useWizard } from '@/stores/wizard'
-import { useNavbar } from '@/stores/navbar'
 import { useDataTable } from '@/stores/dataTable'
 import { useChartConfig } from '@/stores/chartConfig'
 import { useChartSession } from '@/stores/chartSession'
@@ -34,18 +12,43 @@ import { resolveScene, resolveSortFromTransforms } from '@/utils/scenes'
 import type { ChartColorize } from '@/stores/chartConfig'
 import { ChartType, SortDirection, parseData } from '@blueprint-chart/lib'
 import type { SeriesOverride } from '@blueprint-chart/lib'
-import { SceneTimeline } from '@blueprint-chart/ui'
+import { NavigationStepper, SceneTimeline, ButtonIcon } from '@blueprint-chart/ui'
+import LayoutPageHeader from '@/components/Layout/LayoutPageHeader.vue'
+import IPhTable from '~icons/ph/table'
+import IPhChartBar from '~icons/ph/chart-bar'
+import IPhExport from '~icons/ph/export'
+import IPhArrowLeft from '~icons/ph/arrow-left'
 
-const { currentStep, registerCreateSession } = useWizard()
-const { setMode, reset: resetNavbar } = useNavbar()
+const { currentStep, currentIndex, steps, registerCreateSession } = useWizard()
 const dataTable = useDataTable()
 const config = useChartConfig()
-const { sessionId, createSession } = useChartSession()
+const { sessionId, createSession, lastSavedAt } = useChartSession()
 const scenesComposable = useScenes()
 const { scenes, activeIndex, playing, startPlayback, stopPlayback } = scenesComposable
 const { baseOptions } = useChartTypeOptions()
 const transforms = useDataTransforms()
 const baseTransforms = ref<TransformStep[]>([])
+
+const chartTitle = computed(() => config._base.title.value || 'Untitled chart')
+
+const savedAtDate = computed(() => lastSavedAt.value ? new Date(lastSavedAt.value) : null)
+const savedAgo = useTimeAgo(savedAtDate)
+const savedLabel = computed(() => lastSavedAt.value ? `saved ${savedAgo.value}` : null)
+
+const stepIcons: Record<string, typeof IPhTable> = {
+  data: IPhTable,
+  edit: IPhChartBar,
+  export: IPhExport,
+}
+const stepLabels = steps.map(s => ({ label: s.label, icon: stepIcons[s.key] }))
+
+const disabledSteps = computed(() => {
+  const hasParsed = dataTable.rows.value.length > 0
+  if (!hasParsed) {
+    return [1, 2]
+  }
+  return []
+})
 
 function addScene() {
   scenesComposable.add()
@@ -135,14 +138,14 @@ watch(
 function resolveSceneTitle(index: number): string {
   const baseTitle = config._base.title.value
   if (index < 0) {
-    return baseTitle || '\u00A0'
+    return baseTitle || ' '
   }
   const resolved = resolveScene(scenes.value, index)
   const title = resolved?.properties?.title as string | undefined
   if (title !== undefined) {
-    return title || '\u00A0'
+    return title || ' '
   }
-  return baseTitle || '\u00A0'
+  return baseTitle || ' '
 }
 
 const timelineScenes = computed(() => {
@@ -207,13 +210,11 @@ watch(activeIndex, (newVal, oldVal) => {
 })
 
 onMounted(() => {
-  setMode('wizard')
   // Generate thumbnails on mount for reload/direct navigation to edit step
   if (currentStep.value.key === 'edit' && config._base.data.value) {
     generateSceneThumbnails()
   }
 })
-onUnmounted(() => resetNavbar())
 
 // Serialize data when leaving the data step (before session creation or navigation)
 function prepareDataForEdit() {
@@ -249,6 +250,62 @@ onBeforeRouteLeave(() => {
 })
 </script>
 
+<template>
+  <div class="wizard-shell">
+    <LayoutPageHeader>
+      <template #start>
+        <ButtonIcon
+          :icon-left="IPhArrowLeft"
+          label="Back to My Charts"
+          hide-label
+          square
+          variant="outline-secondary"
+          size="sm"
+          tag="a"
+          href="#/charts"
+        />
+        <h1 class="wizard-shell__title">
+          {{ chartTitle }}
+        </h1>
+        <span
+          v-if="savedLabel"
+          class="wizard-shell__saved"
+          role="status"
+          aria-live="polite"
+        >
+          <span class="wizard-shell__saved__dot" />
+          {{ savedLabel }}
+        </span>
+      </template>
+      <template #end>
+        <NavigationStepper
+          v-model:current-step="currentIndex"
+          :steps="stepLabels"
+          :disabled-steps="disabledSteps"
+          size="sm"
+        />
+      </template>
+    </LayoutPageHeader>
+
+    <div class="wizard-shell__content">
+      <DataPanel v-if="currentStep.key === 'data'" />
+      <ChartEditPanel v-else-if="currentStep.key === 'edit'" />
+      <ExportPanel v-else-if="currentStep.key === 'export'" />
+    </div>
+    <SceneTimeline
+      v-if="showTimeline"
+      :scenes="timelineScenes"
+      :active-index="timelineActiveIndex"
+      :playing="playing"
+      @update:active-index="onTimelineSelect"
+      @add="addScene"
+      @remove="onTimelineRemove"
+      @play="startPlayback"
+      @pause="stopPlayback"
+    />
+  </div>
+</template>
+
 <style scoped lang="scss">
 .wizard-shell {
   display: flex;
@@ -263,6 +320,34 @@ onBeforeRouteLeave(() => {
     flex-grow: 1;
     min-height: 0;
     overflow: auto;
+  }
+
+  &__title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--bs-body-color);
+    margin: 0;
+    line-height: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 16rem;
+  }
+
+  &__saved {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: var(--bs-font-monospace);
+    font-size: 0.6875rem;
+    color: var(--bs-secondary-color);
+
+    &__dot {
+      width: 6px;
+      height: 6px;
+      background: var(--bs-success);
+      border-radius: 50%;
+    }
   }
 }
 </style>
