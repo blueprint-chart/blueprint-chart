@@ -261,7 +261,7 @@ onBeforeRouteLeave(() => {
           {{ savedLabel }}
         </span>
       </template>
-      <template #end>
+      <template #center>
         <NavigationStepperTabs
           v-model:current-step="currentIndex"
           :steps="stepLabels"

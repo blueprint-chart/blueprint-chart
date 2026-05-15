@@ -3,6 +3,9 @@
     <div class="layout-page-header__start">
       <slot name="start" />
     </div>
+    <div class="layout-page-header__center">
+      <slot name="center" />
+    </div>
     <div class="layout-page-header__end">
       <slot name="end" />
     </div>
@@ -11,9 +14,12 @@
 
 <style scoped lang="scss">
 .layout-page-header {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
+  // Three named grid areas so the center slot is anchored to the header's
+  // horizontal midpoint while start/end stay locked to their own columns
+  // even when the center slot is empty and hidden.
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  grid-template-areas: 'start center end';
   gap: 0.75rem;
   min-height: 3.5rem;
   padding: 0 1.25rem;
@@ -22,29 +28,48 @@
   flex-shrink: 0;
 
   &__start {
+    grid-area: start;
     display: flex;
     align-items: center;
     gap: 0.75rem;
     min-width: 0;
   }
 
-  &__end {
+  &__center {
+    grid-area: center;
     display: flex;
     align-items: center;
-    align-self: stretch;
-    gap: 0.5rem;
-    margin-left: auto;
+    justify-content: center;
+    min-width: 0;
+
+    &:empty {
+      display: none;
+    }
   }
 
-  @media (max-width: 767.98px) {
-    flex-direction: column;
-    align-items: stretch;
+  &__end {
+    grid-area: end;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    min-width: 0;
+  }
+
+  // Stack the three slots vertically on tablets and below where there is
+  // not enough horizontal room for centered content next to the title.
+  @media (max-width: 991.98px) {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      'start'
+      'center'
+      'end';
     padding: 0;
 
     &__start,
+    &__center,
     &__end {
       width: 100%;
-      margin-left: 0;
       padding: 0 1rem;
       min-height: 3rem;
     }
@@ -53,10 +78,18 @@
       padding-top: 0.5rem;
     }
 
+    &__center {
+      border-top: var(--bc-tile-border);
+      justify-content: center;
+    }
+
     &__end {
       padding-bottom: 0;
       border-top: var(--bc-tile-border);
-      justify-content: flex-end;
+
+      &:empty {
+        display: none;
+      }
     }
   }
 }
