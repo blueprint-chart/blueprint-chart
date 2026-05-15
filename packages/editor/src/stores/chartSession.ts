@@ -81,8 +81,9 @@ export const useChartSessionStore = defineStore('chartSession', () => {
     const { generateDsl } = useDslOutput()
     localStorage.setItem(storageKey(sessionId.value), generateDsl())
 
+    const now = new Date().toISOString()
     const meta: SessionMeta = {
-      savedAt: new Date().toISOString(),
+      savedAt: now,
     }
     if (dataTable.sourceFormat.value === 'delimited' && dataTable.rawInput.value) {
       meta.rawInput = dataTable.rawInput.value
@@ -90,7 +91,7 @@ export const useChartSessionStore = defineStore('chartSession', () => {
       meta.sourceFormat = 'delimited'
     }
     localStorage.setItem(metaKey(sessionId.value), JSON.stringify(meta))
-    lastSavedAt.value = meta.savedAt!
+    lastSavedAt.value = now
   }
 
   function load(id: string): boolean {
