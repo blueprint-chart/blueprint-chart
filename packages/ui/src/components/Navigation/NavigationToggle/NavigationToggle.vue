@@ -1,6 +1,7 @@
 <template>
   <NavigationPillBase
     :items="pillItems"
+    :size="size"
     @select="onSelect"
   >
     <slot />
@@ -14,8 +15,10 @@ const model = defineModel<string>({ required: true })
 
 const props = withDefaults(defineProps<{
   options?: { value: string, text: string, icon?: Component, disabled?: boolean }[]
+  size?: 'sm' | 'md'
 }>(), {
   options: () => [],
+  size: 'md',
 })
 
 const { entries } = useChildEntriesProvider(ToggleEntriesKey)

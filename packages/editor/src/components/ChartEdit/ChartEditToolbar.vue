@@ -11,6 +11,7 @@
     <NavigationToggle
       v-model="viewModeModel"
       :options="viewModeOptions"
+      size="sm"
     />
   </div>
 </template>
