@@ -1,61 +1,3 @@
-<template>
-  <div class="dashboard-page-wrapper d-flex flex-column flex-grow-1">
-    <DashboardToolbar
-      :chart-count="sortedCharts.length"
-      :sort-value="sortValue"
-      :layout="viewLayout"
-      @update:sort-value="sortValue = $event"
-      @update:layout="viewLayout = $event"
-      @new="router.push('/new')"
-    />
-    <div
-      class="dashboard-page"
-      :class="{ 'dashboard-page--narrow': isNarrow }"
-    >
-      <div
-        ref="galleryRef"
-        class="dashboard-page__gallery"
-      >
-        <DashboardGallery
-          :charts="sortedCharts"
-          :thumbnails="thumbnails"
-          :selected-id="selectedChartId"
-          :layout="viewLayout"
-          @select="selectChart"
-          @edit="(id: string) => router.push(`/edit/${id}`)"
-          @new="router.push('/new')"
-        />
-      </div>
-
-      <PanelShell
-        v-model:drawer-open="drawerOpen"
-        :title="panelTitle"
-        :container-ref="galleryRef"
-        :show-close="false"
-        @close="onClose"
-      >
-        <DashboardDetailContent
-          v-if="selectedChart"
-          :title="selectedChart.title || 'Untitled'"
-          :subtitle="selectedChart.description"
-          :preview-src="selectedChartId ? previews[selectedChartId] : undefined"
-          :force-light-theme="selectedChart ? !selectedChart.allowDarkMode : false"
-          :chart-type="selectedChart.chartType"
-          :saved-at="selectedChart.savedAt ?? undefined"
-          :scene-count="selectedChart.sceneCount"
-          :row-count="selectedChart.rowCount"
-          @edit="editSelected"
-          @duplicate="duplicateSelected"
-          @delete="deleteSelected"
-        />
-        <DashboardEmptyState
-          v-else-if="mode === 'docked'"
-        />
-      </PanelShell>
-    </div>
-  </div>
-</template>
-
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
 import { useBreakpoint } from '@blueprint-chart/ui'
@@ -135,6 +77,64 @@ onUnmounted(() => {
   document.removeEventListener('keydown', handleKeydown)
 })
 </script>
+
+<template>
+  <div class="dashboard-page-wrapper d-flex flex-column flex-grow-1">
+    <DashboardToolbar
+      :chart-count="sortedCharts.length"
+      :sort-value="sortValue"
+      :layout="viewLayout"
+      @update:sort-value="sortValue = $event"
+      @update:layout="viewLayout = $event"
+      @new="router.push('/new')"
+    />
+    <div
+      class="dashboard-page"
+      :class="{ 'dashboard-page--narrow': isNarrow }"
+    >
+      <div
+        ref="galleryRef"
+        class="dashboard-page__gallery"
+      >
+        <DashboardGallery
+          :charts="sortedCharts"
+          :thumbnails="thumbnails"
+          :selected-id="selectedChartId"
+          :layout="viewLayout"
+          @select="selectChart"
+          @edit="(id: string) => router.push(`/edit/${id}`)"
+          @new="router.push('/new')"
+        />
+      </div>
+
+      <PanelShell
+        v-model:drawer-open="drawerOpen"
+        :title="panelTitle"
+        :container-ref="galleryRef"
+        :show-close="false"
+        @close="onClose"
+      >
+        <DashboardDetailContent
+          v-if="selectedChart"
+          :title="selectedChart.title || 'Untitled'"
+          :subtitle="selectedChart.description"
+          :preview-src="selectedChartId ? previews[selectedChartId] : undefined"
+          :force-light-theme="selectedChart ? !selectedChart.allowDarkMode : false"
+          :chart-type="selectedChart.chartType"
+          :saved-at="selectedChart.savedAt ?? undefined"
+          :scene-count="selectedChart.sceneCount"
+          :row-count="selectedChart.rowCount"
+          @edit="editSelected"
+          @duplicate="duplicateSelected"
+          @delete="deleteSelected"
+        />
+        <DashboardEmptyState
+          v-else-if="mode === 'docked'"
+        />
+      </PanelShell>
+    </div>
+  </div>
+</template>
 
 <style scoped lang="scss">
 .dashboard-page {
