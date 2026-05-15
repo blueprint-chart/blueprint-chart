@@ -318,6 +318,7 @@ declare global {
   const useParseOptions: typeof import('./src/composables/useParseOptions').useParseOptions
   const usePerformanceObserver: typeof import('@vueuse/core').usePerformanceObserver
   const usePermission: typeof import('@vueuse/core').usePermission
+  const usePlatformShortcut: typeof import('./src/composables/usePlatformShortcut').usePlatformShortcut
   const usePointer: typeof import('@vueuse/core').usePointer
   const usePointerLock: typeof import('@vueuse/core').usePointerLock
   const usePointerSwipe: typeof import('@vueuse/core').usePointerSwipe
@@ -428,6 +429,9 @@ declare global {
   // @ts-ignore
   export type { DragPosition } from './src/composables/usePanelDrag'
   import('./src/composables/usePanelDrag')
+  // @ts-ignore
+  export type { PlatformShortcut } from './src/composables/usePlatformShortcut'
+  import('./src/composables/usePlatformShortcut')
   // @ts-ignore
   export type { ChildEntriesContext } from '../ui/src/composables/useChildEntries'
   import('../ui/src/composables/useChildEntries')
