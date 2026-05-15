@@ -326,6 +326,18 @@ onBeforeRouteLeave(() => {
     border-radius: 50%;
   }
 
+  @media (max-width: 767.98px) {
+    &__header :deep(.navigation-stepper-tabs) {
+      width: 100%;
+    }
+
+    &__header :deep(.navigation-stepper-tabs__step) {
+      flex: 1;
+      padding: 0 0.5rem;
+      justify-content: center;
+    }
+  }
+
   &__title {
     font-size: 1rem;
     font-weight: 600;
