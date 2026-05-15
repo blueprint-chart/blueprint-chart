@@ -9,10 +9,10 @@ vi.mock('bootstrap-vue-next', async (importOriginal) => {
     ...actual,
     BModal: {
       props: ['modelValue'],
-      emits: ['update:modelValue', 'show'],
+      emits: ['update:modelValue', 'shown'],
       mounted(this: { modelValue: boolean, $emit: (event: string) => void }) {
         if (this.modelValue) {
-          this.$emit('show')
+          this.$emit('shown')
         }
       },
       template: '<div class="modal-stub"><slot v-if="modelValue" /></div>',
