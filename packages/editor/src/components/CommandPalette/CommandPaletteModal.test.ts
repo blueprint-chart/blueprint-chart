@@ -10,6 +10,11 @@ vi.mock('bootstrap-vue-next', async (importOriginal) => {
     BModal: {
       props: ['modelValue'],
       emits: ['update:modelValue', 'show'],
+      mounted(this: { modelValue: boolean, $emit: (event: string) => void }) {
+        if (this.modelValue) {
+          this.$emit('show')
+        }
+      },
       template: '<div class="modal-stub"><slot v-if="modelValue" /></div>',
     },
   }
@@ -106,5 +111,13 @@ describe('CommandPaletteModal', () => {
     await wrapper.find('input[aria-label="Search charts"]').setValue('xyznomatch')
     await flushPromises()
     expect(wrapper.text()).toContain('No charts match')
+  })
+
+  it('focuses the input when the modal shows', async () => {
+    const wrapper = mountModal(true)
+    await flushPromises()
+    await nextTick()
+    const input = wrapper.find('input[aria-label="Search charts"]').element as HTMLInputElement
+    expect(document.activeElement).toBe(input)
   })
 })

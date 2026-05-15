@@ -119,12 +119,14 @@ function resultClass(index: number) {
         v-if="results.length > 0"
         class="command-palette-modal__results"
         role="listbox"
+        aria-label="Chart results"
       >
-        <button
+        <div
           v-for="(chart, index) in results"
           :key="chart.id"
           :class="resultClass(index)"
           role="option"
+          tabindex="-1"
           :aria-selected="index === selectedIndex"
           @click="goTo(chart.id)"
           @mousemove="selectedIndex = index"
@@ -138,7 +140,7 @@ function resultClass(index: number) {
             <span class="command-palette-modal__title">{{ chart.title || 'Untitled' }}</span>
             <span class="command-palette-modal__desc">{{ chart.description }}</span>
           </div>
-        </button>
+        </div>
       </div>
       <div
         v-else-if="query.trim()"
@@ -152,33 +154,29 @@ function resultClass(index: number) {
 
 <style scoped lang="scss">
 .command-palette-modal {
-  &__body {
-    padding: 0;
-  }
-
   &__input-row {
     display: flex;
     align-items: center;
     gap: 0.5rem;
     padding: 0.75rem 1rem;
     border-bottom: 1px solid var(--bs-border-color);
+
+    :deep(.form-control) {
+      background: transparent;
+      border: none;
+      box-shadow: none;
+
+      &:focus {
+        background: transparent;
+        border: none;
+        box-shadow: none;
+      }
+    }
   }
 
   &__icon {
     flex-shrink: 0;
     color: var(--bs-secondary-color);
-  }
-
-  :deep(.form-control.command-palette-modal__input) {
-    background: transparent;
-    border: none;
-    box-shadow: none;
-
-    &:focus {
-      background: transparent;
-      border: none;
-      box-shadow: none;
-    }
   }
 
   &__results {
@@ -208,6 +206,7 @@ function resultClass(index: number) {
     width: 3rem;
     flex-shrink: 0;
 
+    // Thumbnail svg is injected via v-html and has no class we control
     :deep(svg) {
       width: 100%;
       height: auto;
