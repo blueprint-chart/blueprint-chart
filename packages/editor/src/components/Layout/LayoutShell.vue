@@ -10,6 +10,9 @@ const isLanding = computed(() => route.path === '/')
 const paletteOpen = shallowRef(false)
 const shortcut = usePlatformShortcut('k')
 
+const rootClass = computed(() => isLanding.value ? 'min-vh-100' : 'vh-100')
+const contentClass = computed(() => ({ 'overflow-auto': !isLanding.value }))
+
 useEventListener(document, 'keydown', (event: globalThis.KeyboardEvent) => {
   if (shortcut.matches(event)) {
     event.preventDefault()
@@ -21,7 +24,7 @@ useEventListener(document, 'keydown', (event: globalThis.KeyboardEvent) => {
 <template>
   <div
     class="layout-shell d-flex flex-column"
-    :class="isLanding ? 'min-vh-100' : 'vh-100'"
+    :class="rootClass"
   >
     <LayoutNavbar
       transparent
@@ -29,7 +32,7 @@ useEventListener(document, 'keydown', (event: globalThis.KeyboardEvent) => {
     />
     <div
       class="layout-shell__content d-flex flex-grow-1"
-      :class="{ 'overflow-auto': !isLanding }"
+      :class="contentClass"
     >
       <slot />
     </div>

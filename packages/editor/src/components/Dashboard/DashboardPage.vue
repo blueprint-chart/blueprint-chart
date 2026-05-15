@@ -24,6 +24,11 @@ const {
 const galleryRef = useTemplateRef<HTMLElement>('galleryRef')
 const viewLayout = shallowRef<'grid' | 'row'>('grid')
 
+const pageClass = computed(() => ({
+  'dashboard-page': true,
+  'dashboard-page--narrow': isNarrow.value,
+}))
+
 const panelTitle = computed(() =>
   selectedChart.value ? (selectedChart.value.title || 'Untitled') : 'Chart details',
 )
@@ -88,10 +93,7 @@ onUnmounted(() => {
       @update:layout="viewLayout = $event"
       @new="router.push('/new')"
     />
-    <div
-      class="dashboard-page"
-      :class="{ 'dashboard-page--narrow': isNarrow }"
-    >
+    <div :class="pageClass">
       <div
         ref="galleryRef"
         class="dashboard-page__gallery"
