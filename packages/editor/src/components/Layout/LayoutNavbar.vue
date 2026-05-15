@@ -42,7 +42,10 @@ const navbarClass = computed(() => ({
 </script>
 
 <template>
-  <nav :class="navbarClass">
+  <nav
+    :class="navbarClass"
+    aria-label="Main navigation"
+  >
     <router-link
       to="/"
       class="layout-navbar__brand"

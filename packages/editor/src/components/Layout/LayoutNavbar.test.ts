@@ -41,4 +41,9 @@ describe('LayoutNavbar', () => {
     await wrapper.find('.navigation-search-pill').trigger('click')
     expect(wrapper.emitted('searchClick')).toHaveLength(1)
   })
+
+  it('labels the nav landmark for screen readers', () => {
+    const wrapper = mountNavbar()
+    expect(wrapper.find('nav').attributes('aria-label')).toBe('Main navigation')
+  })
 })
