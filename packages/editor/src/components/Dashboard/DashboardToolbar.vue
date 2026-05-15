@@ -31,7 +31,7 @@ const layoutItems = computed<NavigationPillItem[]>(() => [
 </script>
 
 <template>
-  <LayoutPageHeader>
+  <LayoutPageHeader class="dashboard-toolbar">
     <template #start>
       <h1 class="dashboard-toolbar__title">
         My Charts
