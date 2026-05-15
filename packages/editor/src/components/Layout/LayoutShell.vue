@@ -26,10 +26,7 @@ useEventListener(document, 'keydown', (event: globalThis.KeyboardEvent) => {
     class="layout-shell d-flex flex-column"
     :class="rootClass"
   >
-    <LayoutNavbar
-      transparent
-      @search-click="paletteOpen = true"
-    />
+    <LayoutNavbar @search-click="paletteOpen = true" />
     <div
       class="layout-shell__content d-flex flex-grow-1"
       :class="contentClass"
