@@ -59,6 +59,7 @@
   "devDependencies": {
     "@iconify-json/ph": "^1",
     "@lezer/generator": "^1",
+    "@pinia/testing": "^1.0.3",
     "@vitejs/plugin-vue": "^5",
     "@vue/test-utils": "^2",
     "jsdom": "^26",
