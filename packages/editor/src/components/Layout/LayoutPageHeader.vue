@@ -23,7 +23,7 @@ const hasNamedSlots = computed(() => Boolean(slots.start || slots.end))
   flex-direction: row;
   align-items: center;
   gap: 0.75rem;
-  height: 3.5rem;
+  min-height: 3.5rem;
   padding: 0 1.25rem;
   background: var(--bc-tile-bg);
   border-bottom: var(--bc-tile-border);
@@ -42,6 +42,30 @@ const hasNamedSlots = computed(() => Boolean(slots.start || slots.end))
     align-self: stretch;
     gap: 0.5rem;
     margin-left: auto;
+  }
+
+  @media (max-width: 767.98px) {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0;
+
+    &__start,
+    &__end {
+      width: 100%;
+      margin-left: 0;
+      padding: 0 1rem;
+      min-height: 3rem;
+    }
+
+    &__start {
+      padding-top: 0.5rem;
+    }
+
+    &__end {
+      padding-bottom: 0;
+      border-top: var(--bc-tile-border);
+      justify-content: flex-end;
+    }
   }
 }
 </style>
