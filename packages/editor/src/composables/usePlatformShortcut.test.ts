@@ -4,6 +4,14 @@ function fakeKeydown(init: Partial<KeyboardEvent>): KeyboardEvent {
   return new KeyboardEvent('keydown', init as KeyboardEventInit)
 }
 
+const originalPlatform = navigator.platform
+afterAll(() => {
+  Object.defineProperty(navigator, 'platform', {
+    configurable: true,
+    get: () => originalPlatform,
+  })
+})
+
 describe('usePlatformShortcut on mac', () => {
   beforeEach(() => {
     Object.defineProperty(navigator, 'platform', {
@@ -20,9 +28,9 @@ describe('usePlatformShortcut on mac', () => {
 
   it('matches Meta+K events', () => {
     const s = usePlatformShortcut('k')
-    expect(s.matches(fakeKeydown({ key: 'k', metaKey: true }))).toBe(true)
-    expect(s.matches(fakeKeydown({ key: 'k', ctrlKey: true }))).toBe(false)
-    expect(s.matches(fakeKeydown({ key: 'k' }))).toBe(false)
+    expect(s.matches(fakeKeydown({ key: 'k', metaKey: true, ctrlKey: false }))).toBe(true)
+    expect(s.matches(fakeKeydown({ key: 'k', metaKey: false, ctrlKey: true }))).toBe(false)
+    expect(s.matches(fakeKeydown({ key: 'k', metaKey: false, ctrlKey: false }))).toBe(false)
   })
 })
 
@@ -42,7 +50,8 @@ describe('usePlatformShortcut on non-mac', () => {
 
   it('matches Ctrl+K events', () => {
     const s = usePlatformShortcut('k')
-    expect(s.matches(fakeKeydown({ key: 'k', ctrlKey: true }))).toBe(true)
-    expect(s.matches(fakeKeydown({ key: 'k', metaKey: true }))).toBe(false)
+    expect(s.matches(fakeKeydown({ key: 'k', ctrlKey: true, metaKey: false }))).toBe(true)
+    expect(s.matches(fakeKeydown({ key: 'k', ctrlKey: false, metaKey: true }))).toBe(false)
+    expect(s.matches(fakeKeydown({ key: 'j', ctrlKey: true, metaKey: false }))).toBe(false)
   })
 })
