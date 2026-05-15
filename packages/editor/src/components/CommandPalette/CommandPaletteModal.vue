@@ -51,8 +51,8 @@ watch(open, (value) => {
   }
 })
 
-function onShow() {
-  nextTick(() => inputRef.value?.focus())
+function onShown() {
+  inputRef.value?.focus()
 }
 
 function moveSelection(delta: number) {
@@ -95,11 +95,12 @@ function resultClass(index: number) {
     v-model="open"
     size="lg"
     centered
-    hide-header
-    hide-footer
+    no-header
+    no-footer
+    :autofocus="false"
     body-class="command-palette-modal__body"
     no-close-on-esc
-    @show="onShow"
+    @shown="onShown"
   >
     <div class="command-palette-modal">
       <div class="command-palette-modal__input-row">
@@ -109,6 +110,7 @@ function resultClass(index: number) {
           v-model="query"
           aria-label="Search charts"
           placeholder="Search charts…"
+          autofocus
           @keydown.escape.prevent="open = false"
           @keydown.down.prevent="moveSelection(1)"
           @keydown.up.prevent="moveSelection(-1)"
