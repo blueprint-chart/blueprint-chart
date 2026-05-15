@@ -79,6 +79,7 @@ export { default as NavigationPillBase } from './components/Navigation/Navigatio
 export type { NavigationPillItem } from './components/Navigation/NavigationPillBase/NavigationPillBase.vue'
 export { default as NavigationStepper } from './components/Navigation/NavigationStepper/NavigationStepper.vue'
 export { default as NavigationStepperStep } from './components/Navigation/NavigationStepper/NavigationStepperStep.vue'
+export { default as NavigationStepperTabs } from './components/Navigation/NavigationStepperTabs/NavigationStepperTabs.vue'
 export { default as NavigationToggle } from './components/Navigation/NavigationToggle/NavigationToggle.vue'
 export { default as NavigationToggleOption } from './components/Navigation/NavigationToggle/NavigationToggleOption.vue'
 export { default as NavigationIconRail } from './components/Navigation/NavigationIconRail/NavigationIconRail.vue'
