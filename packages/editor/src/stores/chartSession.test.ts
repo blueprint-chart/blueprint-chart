@@ -214,6 +214,32 @@ describe('useChartSession', () => {
     expect(localStorage.getItem(`blueprint-chart:${id}:meta`)).toBeNull()
   })
 
+  it('lastSavedAt starts as null for a fresh store', () => {
+    const session = useChartSession()
+    expect(session.lastSavedAt.value).toBeNull()
+  })
+
+  it('lastSavedAt is a non-empty ISO timestamp after save()', () => {
+    const session = useChartSession()
+    session.newChart()
+    session.save()
+
+    expect(session.lastSavedAt.value).not.toBeNull()
+    expect(typeof session.lastSavedAt.value).toBe('string')
+    expect(session.lastSavedAt.value!.length).toBeGreaterThan(0)
+    expect(new Date(session.lastSavedAt.value!).getTime()).not.toBeNaN()
+  })
+
+  it('lastSavedAt resets to null after prepareNew()', () => {
+    const session = useChartSession()
+    session.newChart()
+    session.save()
+    expect(session.lastSavedAt.value).not.toBeNull()
+
+    session.prepareNew()
+    expect(session.lastSavedAt.value).toBeNull()
+  })
+
   it('loads legacy JSON payload and migrates on next save', () => {
     const legacyId = 'legacyId001'
     localStorage.setItem(`blueprint-chart:${legacyId}`, JSON.stringify({

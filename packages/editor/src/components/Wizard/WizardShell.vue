@@ -31,9 +31,9 @@ const baseTransforms = ref<TransformStep[]>([])
 
 const chartTitle = computed(() => config._base.title.value || 'Untitled chart')
 
-const savedAtDate = computed(() => lastSavedAt.value ? new Date(lastSavedAt.value) : null)
+const savedAtDate = computed<Date | ''>(() => lastSavedAt.value ? new Date(lastSavedAt.value) : '')
 const savedAgo = useTimeAgo(savedAtDate)
-const savedLabel = computed(() => lastSavedAt.value ? `saved ${savedAgo.value}` : null)
+const savedLabel = computed(() => savedAtDate.value ? `saved ${savedAgo.value}` : null)
 
 const stepIcons: Record<string, typeof IPhTable> = {
   data: IPhTable,
