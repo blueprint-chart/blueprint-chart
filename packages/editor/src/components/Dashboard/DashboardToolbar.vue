@@ -41,16 +41,16 @@ const layoutItems = computed<NavigationPillItem[]>(() => [
       </span>
     </template>
     <template #end>
+      <NavigationPillBase
+        :items="layoutItems"
+        aria-label="View layout"
+        @select="$emit('update:layout', $event as 'grid' | 'row')"
+      />
       <FormControlDropdown
         :model-value="sortValue"
         :options="sortOptions"
         size="sm"
         @update:model-value="$emit('update:sortValue', $event)"
-      />
-      <NavigationPillBase
-        :items="layoutItems"
-        aria-label="View layout"
-        @select="$emit('update:layout', $event as 'grid' | 'row')"
       />
       <ButtonIcon
         :icon-left="IPhPlus"
