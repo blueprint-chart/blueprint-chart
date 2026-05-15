@@ -1,34 +1,10 @@
-<template>
-  <div class="dashboard-toolbar">
-    <div>
-      <h4 class="dashboard-toolbar__title">
-        Your Charts
-      </h4>
-      <div class="dashboard-toolbar__count">
-        {{ chartCount }} {{ chartCount === 1 ? 'chart' : 'charts' }}
-      </div>
-    </div>
-    <div class="dashboard-toolbar__right">
-      <FormControlDropdown
-        :model-value="sortValue"
-        :options="sortOptions"
-        size="sm"
-        @update:model-value="$emit('update:sortValue', $event)"
-      />
-      <NavigationPillBase
-        :items="layoutItems"
-        aria-label="View layout"
-        @select="$emit('update:layout', $event)"
-      />
-    </div>
-  </div>
-</template>
-
 <script setup lang="ts">
-import { FormControlDropdown, NavigationPillBase } from '@blueprint-chart/ui'
+import { ButtonIcon, FormControlDropdown, NavigationPillBase } from '@blueprint-chart/ui'
 import type { NavigationPillItem, FormControlDropdownOption } from '@blueprint-chart/ui'
+import LayoutPageHeader from '@/components/Layout/LayoutPageHeader.vue'
 import IPhSquaresFour from '~icons/ph/squares-four'
 import IPhRows from '~icons/ph/rows'
+import IPhPlus from '~icons/ph/plus'
 
 const props = defineProps<{
   chartCount: number
@@ -39,12 +15,13 @@ const props = defineProps<{
 defineEmits<{
   'update:sortValue': [value: string]
   'update:layout': [value: 'grid' | 'row']
+  'new': []
 }>()
 
 const sortOptions: FormControlDropdownOption[] = [
   { value: 'date-desc', label: 'Last edited' },
   { value: 'date-asc', label: 'Oldest first' },
-  { value: 'name-asc', label: 'Name A\u2013Z' },
+  { value: 'name-asc', label: 'Name A–Z' },
 ]
 
 const layoutItems = computed<NavigationPillItem[]>(() => [
@@ -53,30 +30,52 @@ const layoutItems = computed<NavigationPillItem[]>(() => [
 ])
 </script>
 
+<template>
+  <LayoutPageHeader>
+    <template #start>
+      <h1 class="dashboard-toolbar__title">
+        My Charts
+      </h1>
+      <span class="dashboard-toolbar__count">
+        {{ chartCount }} {{ chartCount === 1 ? 'chart' : 'charts' }}
+      </span>
+    </template>
+    <template #end>
+      <FormControlDropdown
+        :model-value="sortValue"
+        :options="sortOptions"
+        size="sm"
+        @update:model-value="$emit('update:sortValue', $event)"
+      />
+      <NavigationPillBase
+        :items="layoutItems"
+        aria-label="View layout"
+        @select="$emit('update:layout', $event as 'grid' | 'row')"
+      />
+      <ButtonIcon
+        :icon-left="IPhPlus"
+        label="New chart"
+        variant="primary"
+        size="sm"
+        @click="$emit('new')"
+      />
+    </template>
+  </LayoutPageHeader>
+</template>
+
 <style scoped lang="scss">
 .dashboard-toolbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1.5rem;
-
   &__title {
-    font-size: var(--bs-font-size-lg);
-    font-weight: 700;
+    font-size: 1.125rem;
+    font-weight: 600;
     color: var(--bs-body-color);
-    margin-bottom: 0;
+    margin: 0;
+    line-height: 1;
   }
 
   &__count {
-    font-size: var(--bs-font-size-sm);
+    font-size: 0.8125rem;
     color: var(--bs-secondary-color);
-    margin-top: 0.125rem;
-  }
-
-  &__right {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
   }
 }
 </style>
