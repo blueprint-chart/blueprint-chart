@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { ButtonIcon, NavigationLink, NavigationSearchPill, useBreakpoint } from '@blueprint-chart/ui'
-import { useTheme } from '@/stores/theme'
+import { useTheme, type ThemeMode } from '@/stores/theme'
 import { usePlatformShortcut } from '@/composables/usePlatformShortcut'
 import logoLight from '@/assets/images/blueprint-chart-logo.svg'
 import logoDark from '@/assets/images/blueprint-chart-logo-dark.svg'
@@ -15,18 +15,20 @@ const { theme, cycleTheme } = useTheme()
 const { isNarrow } = useBreakpoint()
 const shortcut = usePlatformShortcut('k')
 
-const logoSrc = computed(() => theme.value === 'dark' ? logoDark : logoLight)
+const logoByTheme: Record<ThemeMode, string> = {
+  light: logoLight,
+  dark: logoDark,
+  auto: logoLight,
+}
 
-const themeIcon = computed(() => {
-  if (theme.value === 'light') {
-    return IPhSun
-  }
-  if (theme.value === 'dark') {
-    return IPhMoon
-  }
-  return IPhCircleHalf
-})
+const iconByTheme: Record<ThemeMode, typeof IPhSun> = {
+  light: IPhSun,
+  dark: IPhMoon,
+  auto: IPhCircleHalf,
+}
 
+const logoSrc = computed(() => logoByTheme[theme.value])
+const themeIcon = computed(() => iconByTheme[theme.value])
 const searchPlaceholder = computed(() => isNarrow.value ? 'Search…' : 'Search charts…')
 </script>
 
