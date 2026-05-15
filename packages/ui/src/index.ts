@@ -83,6 +83,7 @@ export { default as NavigationToggle } from './components/Navigation/NavigationT
 export { default as NavigationToggleOption } from './components/Navigation/NavigationToggle/NavigationToggleOption.vue'
 export { default as NavigationIconRail } from './components/Navigation/NavigationIconRail/NavigationIconRail.vue'
 export { default as NavigationIconRailEntry } from './components/Navigation/NavigationIconRail/NavigationIconRailEntry.vue'
+export { default as NavigationLink } from './components/Navigation/NavigationLink/NavigationLink.vue'
 
 export { default as ListItemRow } from './components/List/ListItemRow/ListItemRow.vue'
 export { default as ListItemActions } from './components/List/ListItemActions/ListItemActions.vue'
