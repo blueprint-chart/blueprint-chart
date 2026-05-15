@@ -1,7 +1,7 @@
 <template>
   <nav
     class="navigation-pill"
-    :class="{ 'navigation-pill--md': size === 'md' }"
+    :class="sizeClass"
     :aria-label="ariaLabel"
   >
     <slot />
@@ -49,15 +49,21 @@ export interface NavigationPillItem {
 const props = withDefaults(defineProps<{
   items: NavigationPillItem[]
   ariaLabel?: string
+  /**
+   * Size of the pill nav. Default `md` matches `.btn` height,
+   * `sm` matches `.btn-sm` height.
+   */
   size?: 'sm' | 'md'
 }>(), {
   ariaLabel: undefined,
-  size: 'sm',
+  size: 'md',
 })
 
 const emit = defineEmits<{
   select: [key: string]
 }>()
+
+const sizeClass = computed(() => `navigation-pill--${props.size}`)
 
 const buttonRefs = useTemplateRef<Element[]>('buttonRefs')
 const bubbleX = shallowRef(0)
@@ -105,21 +111,46 @@ function onSelect(item: NavigationPillItem) {
 
 <style scoped lang="scss">
 .navigation-pill {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 0;
   background: color-mix(in srgb, var(--bs-body-color) 8%, transparent);
   border-radius: 999px;
-  padding: 0.125rem;
   position: relative;
+
+  // Matches Bootstrap `.btn` computed height (padding-y 0.375rem, font-size 1rem,
+  // line-height 1.5, 1px border each side -> 2.375rem).
+  &--md {
+    --pill-padding: 0.25rem;
+    --pill-option-padding-y: 0.1875rem;
+    --pill-option-padding-x: 0.75rem;
+    --pill-option-font-size: 1rem;
+    --pill-option-gap: 0.5rem;
+
+    padding: var(--pill-padding);
+    min-height: 2.375rem;
+  }
+
+  // Matches Bootstrap `.btn-sm` computed height (padding-y 0.25rem,
+  // font-size 0.875rem, line-height 1.5, 1px border each side -> 1.9375rem).
+  &--sm {
+    --pill-padding: 0.125rem;
+    --pill-option-padding-y: 0.1875rem;
+    --pill-option-padding-x: 0.5rem;
+    --pill-option-font-size: 0.875rem;
+    --pill-option-gap: 0.375rem;
+
+    padding: var(--pill-padding);
+    min-height: 1.9375rem;
+  }
 
   &__bubble {
     position: absolute;
     left: 0;
+    top: var(--pill-padding);
+    height: calc(100% - var(--pill-padding) * 2);
     background: var(--bs-primary);
     border-radius: 999px;
-    height: calc(100% - 0.25rem);
-    top: 0.125rem;
     z-index: 0;
     pointer-events: none;
 
@@ -137,13 +168,14 @@ function onSelect(item: NavigationPillItem) {
     z-index: 1;
     display: flex;
     align-items: center;
-    gap: 0.375rem;
+    gap: var(--pill-option-gap);
     background: none;
     border: none;
-    padding: 0.25rem 0.75rem;
+    padding: var(--pill-option-padding-y) var(--pill-option-padding-x);
     cursor: pointer;
     color: var(--bs-body-color);
-    font-size: var(--bs-font-size-sm);
+    font-size: var(--pill-option-font-size);
+    line-height: 1.5;
     border-radius: 999px;
     transition: color 0.15s ease;
     white-space: nowrap;
@@ -176,26 +208,12 @@ function onSelect(item: NavigationPillItem) {
 
   @media (max-width: 575.98px) {
     &__option {
-      padding: 0.25rem 0.5rem;
+      padding-left: 0.5rem;
+      padding-right: 0.5rem;
 
       &:has(.navigation-pill__option__icon) .navigation-pill__option__label {
         display: none;
       }
-    }
-  }
-
-  &--md {
-    padding: 0.25rem;
-
-    .navigation-pill__option {
-      padding: 0.375rem 1rem;
-      font-size: var(--bs-font-size-md);
-      gap: 0.5rem;
-    }
-
-    .navigation-pill__bubble {
-      height: calc(100% - 0.375rem);
-      top: 0.25rem;
     }
   }
 }
