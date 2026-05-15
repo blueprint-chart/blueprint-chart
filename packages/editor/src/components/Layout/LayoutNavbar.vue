@@ -9,12 +9,6 @@ import IPhSun from '~icons/ph/sun'
 import IPhMoon from '~icons/ph/moon'
 import IPhCircleHalf from '~icons/ph/circle-half'
 
-const props = withDefaults(defineProps<{
-  transparent?: boolean
-}>(), {
-  transparent: true,
-})
-
 defineEmits<{ searchClick: [] }>()
 
 const { theme, cycleTheme } = useTheme()
@@ -34,16 +28,11 @@ const themeIcon = computed(() => {
 })
 
 const searchPlaceholder = computed(() => isNarrow.value ? 'Search…' : 'Search charts…')
-
-const navbarClass = computed(() => ({
-  'layout-navbar': true,
-  'layout-navbar--opaque': !props.transparent,
-}))
 </script>
 
 <template>
   <nav
-    :class="navbarClass"
+    class="layout-navbar"
     aria-label="Main navigation"
   >
     <router-link
@@ -100,17 +89,11 @@ const navbarClass = computed(() => ({
   gap: 0.75rem;
   padding: 0.375rem 1rem;
   min-height: 3.5rem;
-  background: transparent;
-  border: none;
+  background: var(--bc-tile-bg);
+  border-bottom: var(--bc-tile-border);
   position: relative;
-  z-index: 1060;
+  z-index: 1040;
   flex-shrink: 0;
-
-  &--opaque {
-    background: var(--bc-tile-bg);
-    border-bottom: var(--bc-tile-border);
-    box-shadow: var(--bc-tile-shadow);
-  }
 
   &__brand {
     display: flex;
