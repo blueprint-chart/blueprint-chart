@@ -51,7 +51,7 @@ graph TD
 ## Installation
 
 ```bash
-git clone <repo-url> blueprint-chart
+git clone git@github.com:blueprint-chart/blueprint-chart.git blueprint-chart
 cd blueprint-chart
 make install
 ```
