@@ -39,6 +39,7 @@ const hasNamedSlots = computed(() => Boolean(slots.start || slots.end))
   &__end {
     display: flex;
     align-items: center;
+    align-self: stretch;
     gap: 0.5rem;
     margin-left: auto;
   }

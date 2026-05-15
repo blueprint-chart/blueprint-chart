@@ -12,11 +12,8 @@ import { resolveScene, resolveSortFromTransforms } from '@/utils/scenes'
 import type { ChartColorize } from '@/stores/chartConfig'
 import { ChartType, SortDirection, parseData } from '@blueprint-chart/lib'
 import type { SeriesOverride } from '@blueprint-chart/lib'
-import { NavigationStepper, SceneTimeline, ButtonIcon } from '@blueprint-chart/ui'
+import { NavigationStepperTabs, SceneTimeline, ButtonIcon } from '@blueprint-chart/ui'
 import LayoutPageHeader from '@/components/Layout/LayoutPageHeader.vue'
-import IPhTable from '~icons/ph/table'
-import IPhChartBar from '~icons/ph/chart-bar'
-import IPhExport from '~icons/ph/export'
 import IPhArrowLeft from '~icons/ph/arrow-left'
 
 const { currentStep, currentIndex, steps, registerCreateSession } = useWizard()
@@ -35,12 +32,7 @@ const savedAtDate = computed<Date | ''>(() => lastSavedAt.value ? new Date(lastS
 const savedAgo = useTimeAgo(savedAtDate)
 const savedLabel = computed(() => savedAtDate.value ? `saved ${savedAgo.value}` : null)
 
-const stepIcons: Record<string, typeof IPhTable> = {
-  data: IPhTable,
-  edit: IPhChartBar,
-  export: IPhExport,
-}
-const stepLabels = steps.map(s => ({ label: s.label, icon: stepIcons[s.key] }))
+const stepLabels = steps.map(s => ({ label: s.label, key: s.key }))
 
 const disabledSteps = computed(() => {
   const hasParsed = dataTable.rows.value.length > 0
@@ -252,13 +244,13 @@ onBeforeRouteLeave(() => {
 
 <template>
   <div class="wizard-shell">
-    <LayoutPageHeader>
+    <LayoutPageHeader class="wizard-shell__header">
       <template #start>
         <ButtonIcon
+          class="wizard-shell__back"
           :icon-left="IPhArrowLeft"
           label="Back to My Charts"
           hide-label
-          square
           variant="outline-secondary"
           size="sm"
           tag="a"
@@ -278,31 +270,32 @@ onBeforeRouteLeave(() => {
         </span>
       </template>
       <template #end>
-        <NavigationStepper
+        <NavigationStepperTabs
           v-model:current-step="currentIndex"
           :steps="stepLabels"
           :disabled-steps="disabledSteps"
-          size="sm"
         />
       </template>
     </LayoutPageHeader>
 
-    <div class="wizard-shell__content">
-      <DataPanel v-if="currentStep.key === 'data'" />
-      <ChartEditPanel v-else-if="currentStep.key === 'edit'" />
-      <ExportPanel v-else-if="currentStep.key === 'export'" />
+    <div class="wizard-shell__main">
+      <div class="wizard-shell__content">
+        <DataPanel v-if="currentStep.key === 'data'" />
+        <ChartEditPanel v-else-if="currentStep.key === 'edit'" />
+        <ExportPanel v-else-if="currentStep.key === 'export'" />
+      </div>
+      <SceneTimeline
+        v-if="showTimeline"
+        :scenes="timelineScenes"
+        :active-index="timelineActiveIndex"
+        :playing="playing"
+        @update:active-index="onTimelineSelect"
+        @add="addScene"
+        @remove="onTimelineRemove"
+        @play="startPlayback"
+        @pause="stopPlayback"
+      />
     </div>
-    <SceneTimeline
-      v-if="showTimeline"
-      :scenes="timelineScenes"
-      :active-index="timelineActiveIndex"
-      :playing="playing"
-      @update:active-index="onTimelineSelect"
-      @add="addScene"
-      @remove="onTimelineRemove"
-      @play="startPlayback"
-      @pause="stopPlayback"
-    />
   </div>
 </template>
 
@@ -312,14 +305,25 @@ onBeforeRouteLeave(() => {
   flex-direction: column;
   flex-grow: 1;
   overflow: hidden;
-  gap: var(--bc-tile-gap);
-  padding: 0 var(--bc-tile-gap) var(--bc-tile-gap);
+
+  &__main {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    min-height: 0;
+    gap: var(--bc-tile-gap);
+    padding: var(--bc-tile-gap);
+  }
 
   &__content {
     display: flex;
     flex-grow: 1;
     min-height: 0;
     overflow: auto;
+  }
+
+  &__back :deep(.button-icon) {
+    border-radius: 50%;
   }
 
   &__title {
@@ -331,7 +335,7 @@ onBeforeRouteLeave(() => {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 16rem;
+    min-width: 0;
   }
 
   &__saved {
@@ -341,6 +345,7 @@ onBeforeRouteLeave(() => {
     font-family: var(--bs-font-monospace);
     font-size: 0.6875rem;
     color: var(--bs-secondary-color);
+    flex-shrink: 0;
 
     &__dot {
       width: 6px;
