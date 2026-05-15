@@ -24,7 +24,7 @@ useEventListener(document, 'keydown', (event: globalThis.KeyboardEvent) => {
     :class="isLanding ? 'min-vh-100' : 'vh-100'"
   >
     <LayoutNavbar
-      :transparent="true"
+      transparent
       @search-click="paletteOpen = true"
     />
     <div
