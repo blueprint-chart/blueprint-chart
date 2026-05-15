@@ -1,19 +1,11 @@
-<script setup lang="ts">
-const slots = useSlots()
-const hasNamedSlots = computed(() => Boolean(slots.start || slots.end))
-</script>
-
 <template>
   <div class="layout-page-header">
-    <template v-if="hasNamedSlots">
-      <div class="layout-page-header__start">
-        <slot name="start" />
-      </div>
-      <div class="layout-page-header__end">
-        <slot name="end" />
-      </div>
-    </template>
-    <slot v-else />
+    <div class="layout-page-header__start">
+      <slot name="start" />
+    </div>
+    <div class="layout-page-header__end">
+      <slot name="end" />
+    </div>
   </div>
 </template>
 

@@ -13,15 +13,8 @@ describe('LayoutPageHeader', () => {
     expect(html.indexOf('START')).toBeLessThan(html.indexOf('END'))
   })
 
-  it('renders default slot when start/end are omitted', () => {
-    const wrapper = mount(LayoutPageHeader, {
-      slots: { default: '<span class="d">FULL</span>' },
-    })
-    expect(wrapper.find('.d').exists()).toBe(true)
-  })
-
   it('applies the BEM root class', () => {
-    const wrapper = mount(LayoutPageHeader, { slots: { default: '<span />' } })
+    const wrapper = mount(LayoutPageHeader)
     expect(wrapper.classes()).toContain('layout-page-header')
   })
 
