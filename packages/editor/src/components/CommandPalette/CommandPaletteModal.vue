@@ -3,6 +3,7 @@ import { BFormInput, BModal } from 'bootstrap-vue-next'
 import { useRouter, useRoute } from 'vue-router'
 import IconPhMagnifyingGlass from '~icons/ph/magnifying-glass'
 import { useChartSession, type SavedChartSummary } from '@/stores/chartSession'
+import { getThumbnail, svgToDataUrl } from '@/composables/useChartThumbnail'
 
 const open = defineModel<boolean>('open', { required: true })
 
@@ -10,11 +11,11 @@ const router = useRouter()
 const route = useRoute()
 const { listSavedCharts } = useChartSession()
 
-const query = shallowRef('')
-const selectedIndex = shallowRef(0)
+const query = ref('')
+const selectedIndex = ref(0)
 const inputRef = useTemplateRef<{ focus: () => void } | null>('inputRef')
 
-const charts = computed<SavedChartSummary[]>(() => listSavedCharts())
+const charts = ref<SavedChartSummary[]>([])
 
 const results = computed<SavedChartSummary[]>(() => {
   const q = query.value.trim().toLowerCase()
@@ -26,10 +27,13 @@ const results = computed<SavedChartSummary[]>(() => {
   )
 })
 
-const thumbnails = computed<Record<string, string | null>>(() => {
-  const map: Record<string, string | null> = {}
-  for (const chart of results.value) {
-    map[chart.id] = localStorage.getItem(`blueprint-chart:${chart.id}:thumbnail`)
+const thumbnails = computed<Record<string, string>>(() => {
+  const map: Record<string, string> = {}
+  for (const chart of charts.value) {
+    const svg = getThumbnail(chart.id)
+    if (svg) {
+      map[chart.id] = svgToDataUrl(svg)
+    }
   }
   return map
 })
@@ -45,11 +49,14 @@ watch(() => route.path, () => {
 })
 
 watch(open, (value) => {
-  if (!value) {
+  if (value) {
+    charts.value = listSavedCharts()
+  }
+  else {
     query.value = ''
     selectedIndex.value = 0
   }
-})
+}, { immediate: true })
 
 function onShown() {
   inputRef.value?.focus()
@@ -133,11 +140,12 @@ function resultClass(index: number) {
           @click="goTo(chart.id)"
           @mousemove="selectedIndex = index"
         >
-          <div
+          <img
             v-if="thumbnails[chart.id]"
+            :src="thumbnails[chart.id]"
             class="command-palette-modal__thumb"
-            v-html="thumbnails[chart.id]"
-          />
+            alt=""
+          >
           <div class="command-palette-modal__meta">
             <span class="command-palette-modal__title">{{ chart.title || 'Untitled' }}</span>
             <span class="command-palette-modal__desc">{{ chart.description }}</span>
@@ -206,14 +214,9 @@ function resultClass(index: number) {
 
   &__thumb {
     width: 3rem;
+    height: auto;
     flex-shrink: 0;
-
-    // Thumbnail svg is injected via v-html and has no class we control
-    :deep(svg) {
-      width: 100%;
-      height: auto;
-      display: block;
-    }
+    display: block;
   }
 
   &__meta {
