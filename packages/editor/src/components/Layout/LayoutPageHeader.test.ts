@@ -24,4 +24,13 @@ describe('LayoutPageHeader', () => {
     const wrapper = mount(LayoutPageHeader, { slots: { default: '<span />' } })
     expect(wrapper.classes()).toContain('layout-page-header')
   })
+
+  it('renders the __start wrapper even when only #start is provided', () => {
+    const wrapper = mount(LayoutPageHeader, {
+      slots: { start: '<span class="s">START</span>' },
+    })
+    expect(wrapper.find('.layout-page-header__start').exists()).toBe(true)
+    expect(wrapper.find('.layout-page-header__end').exists()).toBe(true)
+    expect(wrapper.find('.s').exists()).toBe(true)
+  })
 })

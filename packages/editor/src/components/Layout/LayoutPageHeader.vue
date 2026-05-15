@@ -1,8 +1,11 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+const slots = useSlots()
+const hasNamedSlots = computed(() => Boolean(slots.start || slots.end))
+</script>
 
 <template>
   <div class="layout-page-header">
-    <template v-if="$slots.start || $slots.end">
+    <template v-if="hasNamedSlots">
       <div class="layout-page-header__start">
         <slot name="start" />
       </div>
@@ -10,9 +13,7 @@
         <slot name="end" />
       </div>
     </template>
-    <template v-else>
-      <slot />
-    </template>
+    <slot v-else />
   </div>
 </template>
 
