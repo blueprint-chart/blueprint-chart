@@ -8,7 +8,8 @@ import { test, expect } from '@playwright/test'
 test('chart area height is constant across same-type scenes', async ({ page }) => {
   await page.setViewportSize({ width: 1560, height: 900 })
   await page.goto('/#/')
-  await page.waitForTimeout(3000)
+  // Wait for the chart container and SVG to be ready before measuring
+  await expect(page.locator('.scenes-demo__chart .bc-frame-body svg').first()).toBeVisible()
 
   const container = page.locator('.scenes-demo__chart')
   const nextBtn = page.locator('.scenes-demo [aria-label="Next scene"]')
@@ -40,7 +41,6 @@ test('chart area height is constant across same-type scenes', async ({ page }) =
     }
     const m = await getChartMetrics()
     scenes.push(m)
-    console.log(`Scene ${i}:`, JSON.stringify(m))
   }
 
   // viewBoxH and m.bottom are constant → the chart bottom position
@@ -60,7 +60,8 @@ test('chart area height is constant across same-type scenes', async ({ page }) =
 test('scene 6 (Production rose) chart is not clipped at top', async ({ page }) => {
   await page.setViewportSize({ width: 1560, height: 900 })
   await page.goto('/#/')
-  await page.waitForTimeout(3000)
+  // Wait for the chart container and SVG to be ready before measuring
+  await expect(page.locator('.scenes-demo__chart .bc-frame-body svg').first()).toBeVisible()
 
   const container = page.locator('.scenes-demo__chart')
   const nextBtn = page.locator('.scenes-demo [aria-label="Next scene"]')
@@ -72,8 +73,6 @@ test('scene 6 (Production rose) chart is not clipped at top', async ({ page }) =
   }
   // Wait for D3 transitions to settle
   await page.waitForTimeout(1000)
-
-  await page.locator('.scenes-demo').screenshot({ path: 'test-results/scene6.png' })
 
   const result = await container.evaluate(el => {
     const frame = el.querySelector('.bc-frame') as HTMLElement
@@ -120,8 +119,6 @@ test('scene 6 (Production rose) chart is not clipped at top', async ({ page }) =
       title: header.querySelector('.bc-frame-title')?.textContent?.substring(0, 50),
     }
   })
-
-  console.log('Scene 6:', JSON.stringify(result))
 
   // The highest data point must be visible — its pixel position must be
   // BELOW the header bottom (not hidden behind the header overlay).

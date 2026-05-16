@@ -17,27 +17,22 @@ test('export embed code has non-empty bpc64 and no recursive update errors', asy
   const textarea = page.locator('textarea')
   await textarea.fill('Label,Value\nA,10\nB,20\nC,30')
   await page.locator('button', { hasText: 'Load data' }).click()
-  await page.locator('.navigation-pill__option', { hasText: 'Visualize' }).click()
+  await page.locator('.navigation-stepper-tabs__step', { hasText: 'Visualize' }).click()
   await expect(page.locator('.bc-frame-body svg')).toBeVisible()
 
   // Navigate to the Export step
-  await page.locator('.navigation-pill__option', { hasText: 'Export' }).click()
-  await page.waitForTimeout(800)
-
-  await page.screenshot({ path: 'test-results/export-embed-panel.png' })
+  await page.locator('.navigation-stepper-tabs__step', { hasText: 'Export' }).click()
 
   // The Embed tab should be visible or already active
   const embedTab = page.locator('[title="Embed"], [aria-label="Embed"]').first()
   if (await embedTab.isVisible()) {
     await embedTab.click()
-    await page.waitForTimeout(500)
   }
 
   // Find the embed code containing bpc64
   const codeEl = page.locator('code, pre').filter({ hasText: 'bpc64' }).first()
   await expect(codeEl).toBeVisible({ timeout: 5000 })
   const embedCode = await codeEl.textContent()
-  console.log('Embed code:', embedCode?.substring(0, 200))
 
   // bpc64 must not be empty
   expect(embedCode).toContain('bpc64=')
