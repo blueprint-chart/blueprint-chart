@@ -144,7 +144,7 @@ onUnmounted(() => {
   flex: 1;
   overflow: hidden;
   gap: var(--bc-tile-gap);
-  padding: var(--bc-tile-gap) 0 var(--bc-tile-gap) var(--bc-tile-gap);
+  padding: var(--bc-tile-gap) 0 0;
   background: var(--bc-void-bg);
 
   &--narrow {
