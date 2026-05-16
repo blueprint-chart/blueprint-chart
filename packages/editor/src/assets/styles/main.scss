@@ -170,6 +170,21 @@ body {
   box-shadow: var(--bc-focus-ring);
 }
 
+// Display face — DM Serif Display.
+// Apply via class to: landing hero h1, editor page title, dashboard
+// card titles, modal/empty-state headlines, panel section titles.
+// NEVER apply to `.bc-frame-*` (chart frames stay sans/neutral).
+.bc-display {
+  font-family: "DM Serif Display", Georgia, "Times New Roman", serif;
+  font-weight: 400;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+}
+
+.bc-display--italic {
+  font-style: italic;
+}
+
 .bc-frame-title {
   font-size: var(--bs-font-size-lg);
 }
