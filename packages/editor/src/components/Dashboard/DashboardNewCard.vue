@@ -62,7 +62,7 @@ const cardClassList = computed(() => ({
     flex-direction: row;
     gap: 0.5rem;
     padding: 0 1.25rem;
-    border-radius: var(--bs-border-radius);
+    border-radius: var(--bc-tile-radius-sm);
   }
 
   &__icon {
