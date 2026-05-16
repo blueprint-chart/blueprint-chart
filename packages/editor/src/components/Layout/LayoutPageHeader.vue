@@ -23,8 +23,8 @@
   gap: 0.75rem;
   min-height: 3.5rem;
   padding: 0 1.25rem;
-  background: var(--bc-tile-bg);
-  border-bottom: var(--bc-tile-border);
+  background: var(--bc-tile-bg-elevated);
+  border-radius: 0 0 var(--bc-tile-radius) var(--bc-tile-radius);
   flex-shrink: 0;
   // Stay clickable above the bottom-drawer backdrop (z-index 1040).
   position: relative;
