@@ -276,11 +276,10 @@ const canvasStyle = computed<CSSProperties>(() => ({
     &__card {
       position: relative;
       z-index: 1;
-      background: var(--bs-card-bg);
-      border: 1px solid var(--bs-border-color);
-      border-radius: var(--bs-border-radius-sm);
+      background: var(--bc-tile-bg);
+      border-radius: var(--bc-tile-radius-sm);
       overflow: auto;
-      box-shadow: var(--bs-card-box-shadow);
+      box-shadow: var(--bc-tile-shadow);
 
       &--fixed {
         flex: none;

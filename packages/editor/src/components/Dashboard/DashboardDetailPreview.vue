@@ -21,9 +21,8 @@ defineProps<{
 
 <style scoped lang="scss">
 .dashboard-detail-preview {
-  background: var(--bs-tertiary-bg);
-  border: 1px solid var(--bs-border-color);
-  border-radius: var(--bs-border-radius);
+  background: var(--bc-tile-bg-elevated);
+  border-radius: var(--bc-tile-radius-sm);
   margin-top: 1rem;
   margin-bottom: 1rem;
   height: min(300px, 30vh);
@@ -37,9 +36,7 @@ defineProps<{
     max-height: 100%;
     object-fit: contain;
     display: block;
-    border: 1px solid var(--bs-border-color);
-    border-radius: var(--bs-border-radius);
-    box-shadow: var(--bs-box-shadow-sm);
+    border-radius: var(--bc-tile-radius-xs);
   }
 }
 </style>

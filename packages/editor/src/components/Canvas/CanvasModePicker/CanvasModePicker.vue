@@ -61,10 +61,10 @@ function select(mode: CanvasMode) {
   z-index: 10;
   display: flex;
   align-items: stretch;
-  background: var(--bs-body-bg);
-  border: 1px solid var(--bs-border-color);
-  border-radius: 0.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  background: var(--bc-tile-bg);
+  border: var(--bc-tile-border);
+  border-radius: var(--bc-tile-radius-sm);
+  box-shadow: var(--bc-tile-shadow);
   overflow: hidden;
 
   &__trigger {
