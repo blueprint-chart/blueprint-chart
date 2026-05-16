@@ -70,6 +70,15 @@
 
   // Navbar / toolbar
   --bs-navbar-bg: transparent;
+
+  // Motion
+  --bc-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --bc-duration-fast: 100ms;
+  --bc-duration-base: 150ms;
+  --bc-duration-slow: 250ms;
+
+  // Focus
+  --bc-focus-ring: 0 0 0 2px rgba(37, 99, 160, 0.4);
 }
 
 // When [data-bs-theme="light"] is applied to a nested element (e.g. the preview
@@ -153,6 +162,14 @@ body {
 
 // Chart frame styles are in @blueprint-chart/lib/src/charts/chart.scss.
 // Editor-specific overrides that integrate with Bootstrap variables:
+
+// Apply via class on any interactive element that should adopt the
+// app-wide focus treatment.
+.bc-focus-visible:focus-visible {
+  outline: none;
+  box-shadow: var(--bc-focus-ring);
+}
+
 .bc-frame-title {
   font-size: var(--bs-font-size-lg);
 }
@@ -198,4 +215,12 @@ body {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   animation: bc-brand-shift 20s ease infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root, [data-bs-theme="light"], [data-bs-theme="dark"] {
+    --bc-duration-fast: 0ms;
+    --bc-duration-base: 0ms;
+    --bc-duration-slow: 0ms;
+  }
 }
