@@ -92,7 +92,8 @@ const searchPlaceholder = computed(() => isNarrow.value ? 'Search…' : 'Search 
   padding: 0.375rem 1rem;
   min-height: 3.5rem;
   background: var(--bc-tile-bg);
-  border-bottom: var(--bc-tile-border);
+  border-radius: var(--bc-tile-radius) var(--bc-tile-radius) var(--bc-navbar-bottom-radius) var(--bc-navbar-bottom-radius);
+  box-shadow: var(--bc-tile-shadow);
   position: relative;
   z-index: 1040;
   flex-shrink: 0;
