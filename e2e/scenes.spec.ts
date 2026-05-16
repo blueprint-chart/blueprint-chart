@@ -22,7 +22,7 @@ async function goToVisualizeStep(page) {
   await page.locator('button', { hasText: 'Load data' }).click()
 
   // Use the stepper nav button (not the toolbar button)
-  await page.locator('.navigation-pill__option', { hasText: 'Visualize' }).click()
+  await page.locator('.navigation-stepper-tabs__step', { hasText: 'Visualize' }).click()
   await expect(page.locator('.bc-frame-body svg')).toBeVisible()
 }
 
@@ -117,22 +117,18 @@ test.describe('Scene Timeline', () => {
 
     // Switch to Scene 1 (base)
     await page.locator('.scene-timeline-item').first().click()
-    await page.waitForTimeout(500)
     await expect(page.locator('.bc-frame-body svg')).toBeVisible()
 
     // Switch to Scene 2
     await page.locator('.scene-timeline-item').nth(1).click()
-    await page.waitForTimeout(500)
     await expect(page.locator('.bc-frame-body svg')).toBeVisible()
 
     // Switch to Scene 3
     await page.locator('.scene-timeline-item').nth(2).click()
-    await page.waitForTimeout(500)
     await expect(page.locator('.bc-frame-body svg')).toBeVisible()
 
     // Back to Scene 1
     await page.locator('.scene-timeline-item').first().click()
-    await page.waitForTimeout(500)
     await expect(page.locator('.bc-frame-body svg')).toBeVisible()
 
     const realErrors = errors.filter(e => !e.includes('favicon'))
@@ -203,32 +199,27 @@ test.describe('Scene Timeline', () => {
     // Set base color to a known value
     await baseColorInput.fill('#9900ef')
     await baseColorInput.press('Tab')
-    await page.waitForTimeout(500)
 
     // Verify the bar uses the new base color
-    const baseFill = await page.locator('.bc-frame-body rect').first().getAttribute('fill')
-    expect(normalizeColor(baseFill ?? '')).toBe(normalizeColor('#9900ef'))
+    const firstRect = page.locator('.bc-frame-body rect').first()
+    await expect.poll(() => firstRect.getAttribute('fill').then(c => normalizeColor(c ?? ''))).toBe(normalizeColor('#9900ef'))
 
     // Add Scene 2
     await page.locator('.button-add').click()
-    await page.waitForTimeout(300)
+    await expect(page.locator('.scene-timeline-item')).toHaveCount(2)
 
     // Change base color to a different value on Scene 2
     await baseColorInput.fill('#0693e3')
     await baseColorInput.press('Tab')
-    await page.waitForTimeout(500)
 
     // Verify Scene 2 bars use the new color
-    const scene2Fill = await page.locator('.bc-frame-body rect').first().getAttribute('fill')
-    expect(normalizeColor(scene2Fill ?? '')).toBe(normalizeColor('#0693e3'))
+    await expect.poll(() => firstRect.getAttribute('fill').then(c => normalizeColor(c ?? ''))).toBe(normalizeColor('#0693e3'))
 
     // Switch to Scene 1 (base)
     await page.locator('.scene-timeline-item').first().click()
-    await page.waitForTimeout(500)
 
     // Verify Scene 1 bars still use the original color (#9900ef)
-    const scene1Fill = await page.locator('.bc-frame-body rect').first().getAttribute('fill')
-    expect(normalizeColor(scene1Fill ?? '')).toBe(normalizeColor('#9900ef'))
+    await expect.poll(() => firstRect.getAttribute('fill').then(c => normalizeColor(c ?? ''))).toBe(normalizeColor('#9900ef'))
   })
 
   test('scene chart type override persists through reload', async ({ page }) => {
@@ -243,12 +234,11 @@ test.describe('Scene Timeline', () => {
 
     // Add Scene 2
     await page.locator('.button-add').click()
-    await page.waitForTimeout(300)
+    await expect(page.locator('.scene-timeline-item')).toHaveCount(2)
 
     // Change chart type to bar-horizontal ("Bars") while on Scene 2
     await toggleBtn.click()
     await page.locator('.form-control-dropdown-item__content__text__label', { hasText: 'Bars' }).first().click()
-    await page.waitForTimeout(500)
 
     // Verify dropdown now shows "Bars"
     await expect(toggleBtn).toContainText('Bars')
@@ -258,11 +248,11 @@ test.describe('Scene Timeline', () => {
 
     // Reload the page
     await page.goto(url)
-    await page.waitForTimeout(1000)
 
     // Navigate to Visualize step
-    await page.locator('.navigation-pill__option', { hasText: 'Visualize' }).click()
-    await expect(page.locator('.bc-frame-body svg')).toBeVisible()
+    await page.locator('.navigation-stepper-tabs__step', { hasText: 'Visualize' }).click()
+    // Wait for the live frame (not the fade-snapshot used during scene transitions)
+    await expect(page.locator('.bc-frame:not(.bc-frame--fade-snapshot) .bc-frame-body svg')).toBeVisible()
 
     // Verify Scene 2 still exists
     const items = page.locator('.scene-timeline-item')
@@ -270,7 +260,6 @@ test.describe('Scene Timeline', () => {
 
     // Click Scene 1 and open Chart Type tab
     await page.locator('.scene-timeline-item').first().click()
-    await page.waitForTimeout(500)
     await page.locator('[aria-label="Chart Type"]').click()
 
     // Scene 1 (base) should still be "Columns" (bar-vertical)
@@ -278,7 +267,6 @@ test.describe('Scene Timeline', () => {
 
     // Click Scene 2 and verify it shows "Bars" (bar-horizontal)
     await page.locator('.scene-timeline-item').nth(1).click()
-    await page.waitForTimeout(500)
     await expect(toggleBtn).toContainText('Bars')
   })
 
@@ -287,33 +275,21 @@ test.describe('Scene Timeline', () => {
 
     // Add Scene 2 (it becomes active)
     await page.locator('.button-add').click()
-    await page.waitForTimeout(300)
+    await expect(page.locator('.scene-timeline-item')).toHaveCount(2)
 
     // Navigate back to Data step then forward to Visualize
     // This triggers the watch in WizardShell that serializes data
-    await page.locator('.navigation-pill__option', { hasText: 'Data' }).click()
-    await page.waitForTimeout(300)
-    await page.locator('.navigation-pill__option', { hasText: 'Visualize' }).click()
+    await page.locator('.navigation-stepper-tabs__step', { hasText: 'Data' }).click()
+    await page.locator('.navigation-stepper-tabs__step', { hasText: 'Visualize' }).click()
     await expect(page.locator('.bc-frame-body svg')).toBeVisible()
-    await page.waitForTimeout(300)
-
-    // Check scenes state: Scene 2 should NOT have a data override
-    const hasSceneData = await page.evaluate(() => {
-      // Access the scenes composable state from the app
-      const el = document.querySelector('.bc-frame-body')
-      if (!el) {
-        return 'no-chart'
-      }
-      // Check the DSL output for scene data block
-      return null
-    })
 
     // Navigate to Export step to inspect DSL via iframe embed URL
-    await page.locator('.navigation-pill__option', { hasText: 'Export' }).click()
-    await page.waitForTimeout(500)
+    await page.locator('.navigation-stepper-tabs__step', { hasText: 'Export' }).click()
+    const codeBlock = page.locator('.export-embed-panel__code-block__pre code')
+    await expect(codeBlock).toBeVisible()
 
     // Extract DSL from the iframe bpc64 query param
-    const iframeCode = await page.locator('.export-embed-panel__code-block__pre code').innerText()
+    const iframeCode = await codeBlock.innerText()
     const bpc64Match = iframeCode.match(/bpc64=([^"&]+)/)
     expect(bpc64Match).not.toBeNull()
     const dslContent = Buffer.from(decodeURIComponent(bpc64Match![1]), 'base64').toString()
@@ -335,7 +311,6 @@ test.describe('Scene Timeline', () => {
 
     // Add Scene 2
     await page.locator('.button-add').click()
-    await page.waitForTimeout(500)
 
     // Both scenes should have thumbnails
     const items = page.locator('.scene-timeline-item')
@@ -351,8 +326,7 @@ test.describe('Scene Timeline', () => {
     await expect(page.locator('.scene-timeline-item')).toHaveCount(2)
 
     // Navigate back to Data step
-    await page.locator('.navigation-pill__option', { hasText: 'Data' }).click()
-    await page.waitForTimeout(300)
+    await page.locator('.navigation-stepper-tabs__step', { hasText: 'Data' }).click()
 
     // Timeline should be visible on Data step
     await expect(page.locator('.scene-timeline')).toBeVisible()
@@ -364,15 +338,12 @@ test.describe('Scene Timeline', () => {
 
     // Add a scene
     await page.locator('.button-add').click()
-    await page.waitForTimeout(300)
 
     // Navigate back to Data step
-    await page.locator('.navigation-pill__option', { hasText: 'Data' }).click()
-    await page.waitForTimeout(300)
+    await page.locator('.navigation-stepper-tabs__step', { hasText: 'Data' }).click()
 
     // Select Scene 2 (non-base)
     await page.locator('.scene-timeline-item').nth(1).click()
-    await page.waitForTimeout(300)
 
     // Table should be visible
     await expect(page.locator('.data-check-table')).toBeVisible()
@@ -390,7 +361,6 @@ test.describe('Scene Timeline', () => {
 
     // Switch back to Scene 1 (base) — banner goes away, badges return
     await page.locator('.scene-timeline-item').first().click()
-    await page.waitForTimeout(300)
 
     await expect(page.locator('.data-insight-badges')).toBeVisible()
     await expect(page.locator('.data-structure-panel__main__scene-banner')).toHaveCount(0)
@@ -403,38 +373,30 @@ test.describe('Scene Timeline', () => {
 
     // Add a scene
     await page.locator('.button-add').click()
-    await page.waitForTimeout(300)
 
     // Navigate back to Data step
-    await page.locator('.navigation-pill__option', { hasText: 'Data' }).click()
-    await page.waitForTimeout(300)
+    await page.locator('.navigation-stepper-tabs__step', { hasText: 'Data' }).click()
 
     // Select Scene 2
     await page.locator('.scene-timeline-item').nth(1).click()
-    await page.waitForTimeout(300)
 
     // Open transforms panel via icon rail
     await page.locator('[aria-label="Transforms"]').click()
-    await page.waitForTimeout(300)
 
     // Add a transform step on Scene 2
     const addBtn = page.locator('[data-testid="transform-pipeline"] .button-add, [data-testid="transform-pipeline"] [aria-label="Add transform"]').first()
     if (await addBtn.isVisible()) {
       await addBtn.click()
-      await page.waitForTimeout(300)
     }
 
     // Switch to Scene 1 (base)
     await page.locator('.scene-timeline-item').first().click()
-    await page.waitForTimeout(300)
 
     // Switch back to Scene 2
     await page.locator('.scene-timeline-item').nth(1).click()
-    await page.waitForTimeout(300)
 
     // Open transforms panel again and verify pipeline is still shown
     await page.locator('[aria-label="Transforms"]').click()
-    await page.waitForTimeout(300)
     await expect(page.locator('[data-testid="transform-pipeline"]')).toBeVisible()
   })
 
@@ -446,49 +408,42 @@ test.describe('Scene Timeline', () => {
     await page.locator('button', { hasText: 'Load data' }).click()
 
     // Go to Visualize
-    await page.locator('.navigation-pill__option', { hasText: 'Visualize' }).click()
+    await page.locator('.navigation-stepper-tabs__step', { hasText: 'Visualize' }).click()
     await expect(page.locator('.bc-frame-body svg')).toBeVisible()
 
     // Add Scene 2
     await page.locator('.button-add').click()
-    await page.waitForTimeout(300)
 
     // Navigate back to Data step
-    await page.locator('.navigation-pill__option', { hasText: 'Data' }).click()
-    await page.waitForTimeout(300)
+    await page.locator('.navigation-stepper-tabs__step', { hasText: 'Data' }).click()
 
     // Select Scene 2
     await page.locator('.scene-timeline-item').nth(1).click()
-    await page.waitForTimeout(300)
 
     // Open transforms panel and add a Transpose transform (no config needed)
     await page.locator('[aria-label="Transforms"]').click()
-    await page.waitForTimeout(300)
 
     const addBtn = page.locator('[data-testid="transform-pipeline"] .button-add').first()
     await addBtn.click()
-    await page.waitForTimeout(300)
 
     // Select "Transpose" from the dropdown
     await page.locator('.add-wrap__dropdown__item__text__name', { hasText: 'Transpose' }).click()
-    await page.waitForTimeout(300)
 
     // Navigate to Visualize step
-    await page.locator('.navigation-pill__option', { hasText: 'Visualize' }).click()
+    await page.locator('.navigation-stepper-tabs__step', { hasText: 'Visualize' }).click()
     await expect(page.locator('.bc-frame-body svg')).toBeVisible()
-    await page.waitForTimeout(500)
 
     // Switch to Scene 2 — chart should render with transposed data
     await page.locator('.scene-timeline-item').nth(1).click()
-    await page.waitForTimeout(500)
     await expect(page.locator('.bc-frame-body svg')).toBeVisible()
 
     // Get DSL output to verify scene does NOT bake a data block
-    await page.locator('.navigation-pill__option', { hasText: 'Export' }).click()
-    await page.waitForTimeout(500)
+    await page.locator('.navigation-stepper-tabs__step', { hasText: 'Export' }).click()
+    const codeBlock = page.locator('.export-embed-panel__code-block__pre code')
+    await expect(codeBlock).toBeVisible()
 
     // Extract DSL from the iframe bpc64 query param
-    const iframeCode = await page.locator('.export-embed-panel__code-block__pre code').innerText()
+    const iframeCode = await codeBlock.innerText()
     const bpc64Match = iframeCode.match(/bpc64=([^"&]+)/)
     expect(bpc64Match).not.toBeNull()
     const dslContent = Buffer.from(decodeURIComponent(bpc64Match![1]), 'base64').toString()
@@ -516,17 +471,17 @@ test.describe('Scene Timeline', () => {
 
     // Switch between scenes
     await page.locator('.scene-timeline-item').first().click()
-    await page.waitForTimeout(200)
+    await expect(page.locator('.scene-timeline-item').first()).toHaveClass(/scene-timeline-item--active/)
     await page.locator('.scene-timeline-item').nth(1).click()
-    await page.waitForTimeout(200)
+    await expect(page.locator('.scene-timeline-item').nth(1)).toHaveClass(/scene-timeline-item--active/)
     await page.locator('.scene-timeline-item').nth(2).click()
-    await page.waitForTimeout(200)
+    await expect(page.locator('.scene-timeline-item').nth(2)).toHaveClass(/scene-timeline-item--active/)
 
     // Remove a scene
     const scene3 = page.locator('.scene-timeline-item').nth(2)
     await scene3.hover()
     await scene3.locator('.scene-timeline-item__remove').click()
-    await page.waitForTimeout(200)
+    await expect(page.locator('.scene-timeline-item')).toHaveCount(2)
 
     const realErrors = errors.filter(e => !e.includes('favicon'))
     expect(realErrors).toEqual([])
