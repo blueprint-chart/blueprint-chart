@@ -36,9 +36,12 @@
   --bc-tile-bg: #ffffff;
   --bc-tile-bg-elevated: #f8f8fa;
   --bc-tile-radius: 12px;
+  --bc-tile-radius-sm: 8px;
+  --bc-tile-radius-xs: 6px;
   --bc-tile-gap: 8px;
   --bc-tile-shadow: 0;
   --bc-tile-border: 1px solid var(--bs-border-color);
+  --bc-navbar-bottom-radius: var(--bc-tile-radius);
 
   // Elevated surfaces
   --bs-card-bg: var(--bc-tile-bg);
@@ -79,6 +82,8 @@
   --bc-tile-bg: #151518;
   --bc-tile-bg-elevated: #1c1c20;
   --bc-tile-radius: 12px;
+  --bc-tile-radius-sm: 8px;
+  --bc-tile-radius-xs: 6px;
   --bc-tile-gap: 8px;
   --bc-tile-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
   --bc-tile-border: 1px solid var(--bs-border-color);
