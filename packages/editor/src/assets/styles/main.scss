@@ -6,11 +6,14 @@
 
 :root,
 [data-bs-theme="light"] {
-  // Type scale
-  --bs-font-size-xs: 0.6875rem;
-  --bs-font-size-sm: 0.75rem;
-  --bs-font-size-md: 0.875rem;
-  --bs-font-size-lg: 1.25rem;
+  // Type scale (Linear-tuned)
+  --bs-font-size-xs: 0.6875rem;   // 11px — form labels, eyebrows
+  --bs-font-size-sm: 0.75rem;     // 12px — body small, nav items
+  --bs-font-size-md: 0.875rem;    // 14px — body
+  --bs-font-size-lg: 1.0625rem;   // 17px — panel section titles (display)
+  --bs-font-size-xl: 1.5rem;      // 24px — editor page title (display)
+  --bs-font-size-2xl: 2rem;       // 32px — dashboard page title (display)
+  --bs-font-size-hero: 4rem;      // 64px — landing hero h1 (display)
 
   // Syntax highlighting (DSL editor + embed code)
   --bc-syn-keyword: #2563A0;
@@ -25,26 +28,43 @@
   --bc-brand-1: #5b6abf;
   --bc-brand-2: #3c8dbc;
 
-  // Blueprint canvas
+  // Blueprint canvas (preserved — brand-locked, same in both modes)
   --bc-canvas-bg: #244a7c;
   --bc-canvas-grid-color: rgba(255, 255, 255, 0.06);
   --bc-canvas-grid-color-major: rgba(255, 255, 255, 0.15);
   --bc-canvas-grid-size: 20px;
   --bc-canvas-dimension-color: rgba(255, 255, 255, 0.55);
 
-  // Tile / surface system
-  --bc-void-bg: #f3f3f4;
-  --bc-tile-bg: #ffffff;
-  --bc-tile-bg-elevated: #f8f8fa;
-  --bc-tile-radius: 12px;
-  --bc-tile-radius-sm: 8px;
-  --bc-tile-radius-xs: 6px;
+  // Surface system (NEW two-tone)
+  --bc-chrome-bg: #ffffff;             // sidebar, topbar, scene timeline
+  --bc-content-bg: #fafafa;            // main content area
+  --bc-tile-bg: #ffffff;               // content cards, modals
+  --bc-tile-bg-elevated: #f5f5f7;      // inset inputs, hover wash
+  --bc-canvas-glow: none;              // light mode skips the wash
+
+  // Hairlines
+  --bc-hairline: rgba(0, 0, 0, 0.08);
+  --bc-hairline-strong: rgba(0, 0, 0, 0.14);
+
+  // Radii (Linear-tight scale)
+  --bc-radius-pill: 999px;
+  --bc-radius-xs: 4px;
+  --bc-radius-sm: 6px;
+  --bc-radius-md: 8px;
+  --bc-radius-lg: 12px;
+
+  // Legacy aliases — DO NOT REMOVE. Existing components reference these.
+  // Each new token has a same-or-similar legacy counterpart.
+  --bc-void-bg: var(--bc-content-bg);
+  --bc-tile-radius: var(--bc-radius-md);
+  --bc-tile-radius-sm: var(--bc-radius-sm);
+  --bc-tile-radius-xs: var(--bc-radius-xs);
   --bc-tile-gap: 8px;
   --bc-tile-shadow: 0;
-  --bc-tile-border: 1px solid var(--bs-border-color);
-  --bc-navbar-bottom-radius: var(--bc-tile-radius);
+  --bc-tile-border: 1px solid var(--bc-hairline);
+  --bc-navbar-bottom-radius: var(--bc-radius-md);
 
-  // Elevated surfaces
+  // Elevated surfaces — Bootstrap card variables
   --bs-card-bg: var(--bc-tile-bg);
   --bs-card-box-shadow: var(--bc-tile-shadow);
 
@@ -61,7 +81,7 @@
 }
 
 [data-bs-theme="dark"] {
-  // Syntax highlighting (DSL editor + embed code)
+  // Syntax highlighting
   --bc-syn-keyword: #6CA6D6;
   --bc-syn-string: #6BBF8B;
   --bc-syn-number: #D4A63A;
@@ -73,30 +93,29 @@
   --bc-grid-color: #444;
   --bc-text-color: #aaa;
 
-  --bc-canvas-bg: #0c0c0c;
+  // Canvas (preserved, identical to light)
+  --bc-canvas-bg: #244a7c;
   --bc-canvas-grid-color: rgba(255, 255, 255, 0.04);
   --bc-canvas-grid-color-major: rgba(255, 255, 255, 0.10);
   --bc-canvas-dimension-color: rgba(255, 255, 255, 0.4);
 
-  // Tile / surface system
-  --bc-void-bg: #0a0a0a;
-  --bc-tile-bg: #151518;
-  --bc-tile-bg-elevated: #1c1c20;
-  --bc-tile-radius: 12px;
-  --bc-tile-radius-sm: 8px;
-  --bc-tile-radius-xs: 6px;
-  --bc-tile-gap: 8px;
+  // Surface system — two-tone Linear
+  --bc-chrome-bg: #08090a;             // sidebar, topbar, scene timeline
+  --bc-content-bg: #101112;            // main content area
+  --bc-tile-bg: #101112;               // content cards, modals
+  --bc-tile-bg-elevated: #16161b;      // inset inputs, hover wash
+  --bc-canvas-glow: radial-gradient(ellipse at top, rgba(37, 99, 160, 0.04), transparent 60%);
+
+  // Hairlines
+  --bc-hairline: rgba(255, 255, 255, 0.06);
+  --bc-hairline-strong: rgba(255, 255, 255, 0.12);
+
+  // Legacy aliases
+  --bc-void-bg: var(--bc-content-bg);
   --bc-tile-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
-  --bc-tile-border: 1px solid var(--bs-border-color);
+  --bc-tile-border: 1px solid var(--bc-hairline);
 
-  // Elevated surfaces
-  --bs-card-bg: var(--bc-tile-bg);
-  --bs-card-box-shadow: var(--bc-tile-shadow);
-
-  // Navbar / toolbar
-  --bs-navbar-bg: transparent;
-
-  // Bootstrap compiles $input-bg as a static value; override for dark mode
+  // Bootstrap form-control dark-mode background override
   .form-control,
   .form-select {
     background-color: var(--bs-secondary-bg);
