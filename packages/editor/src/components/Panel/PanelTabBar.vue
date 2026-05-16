@@ -50,9 +50,8 @@ watch(() => activeTabEl, scrollActiveTabIntoView)
 <style scoped lang="scss">
 .panel-tab-bar {
   display: flex;
-  gap: 0;
-  padding: 0 0.875rem;
-  border-bottom: 1px solid var(--bs-border-color-translucent);
+  gap: 0.125rem;
+  padding: 0.375rem 0.625rem;
   overflow-x: auto;
   scrollbar-width: none;
 
@@ -71,23 +70,26 @@ watch(() => activeTabEl, scrollActiveTabIntoView)
     font-family: inherit;
     font-size: var(--bs-font-size-sm);
     font-weight: 500;
-    padding: 0.5rem 0.75rem;
+    padding: 0.375rem 0.625rem;
     white-space: nowrap;
     flex-shrink: 0;
     border: none;
     cursor: pointer;
     background: transparent;
     color: var(--bs-secondary-color);
-    border-bottom: 2px solid transparent;
-    transition: all 0.15s;
+    border-radius: var(--bc-tile-radius-xs);
+    transition: background-color 0.15s, color 0.15s, font-weight 0.15s;
 
     &:hover {
       color: var(--bs-body-color);
+      background: var(--bc-tile-bg-elevated);
     }
 
-    &--active {
-      color: var(--bs-primary);
-      border-bottom-color: var(--bs-primary);
+    &--active,
+    &--active:hover {
+      background: var(--bc-tile-bg-elevated);
+      color: var(--bs-body-color);
+      font-weight: 600;
     }
   }
 }
