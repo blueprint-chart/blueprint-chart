@@ -1,0 +1,11 @@
+// Self-hosted webfaces. Loaded once at app bootstrap via main.scss.
+// DM Serif Display — display face (landing hero, app page headlines,
+// dashboard card titles, panel section titles). Italic for emphasis.
+// Geist Sans — body/UI text. Variable font.
+// Geist Mono — DSL editor, embed code, chart-type badges, time deltas.
+
+@import "@fontsource/dm-serif-display/400.css";
+@import "@fontsource/dm-serif-display/400-italic.css";
+
+@import "@fontsource-variable/geist/index.css";
+@import "@fontsource-variable/geist-mono/index.css";
