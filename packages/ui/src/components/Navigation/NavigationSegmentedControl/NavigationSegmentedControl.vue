@@ -4,6 +4,7 @@
     :class="sizeClass"
     :aria-label="ariaLabel"
   >
+    <slot />
     <button
       v-for="item in items"
       :key="item.key"
