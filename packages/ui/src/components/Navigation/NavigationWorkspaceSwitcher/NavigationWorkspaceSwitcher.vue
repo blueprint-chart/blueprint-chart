@@ -1,9 +1,14 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   name: string
-}>()
+  logoSrc?: string
+  hideName?: boolean
+}>(), {
+  logoSrc: undefined,
+  hideName: false,
+})
 
 defineEmits<{ click: [] }>()
 
@@ -14,13 +19,24 @@ const initial = computed(() => props.name.trim().charAt(0).toUpperCase())
   <button
     type="button"
     class="navigation-workspace-switcher"
+    :aria-label="name"
     @click="$emit('click')"
   >
+    <img
+      v-if="logoSrc"
+      :src="logoSrc"
+      :alt="name"
+      class="navigation-workspace-switcher__logo"
+    >
     <span
+      v-else
       class="navigation-workspace-switcher__badge"
       aria-hidden="true"
     >{{ initial }}</span>
-    <span class="navigation-workspace-switcher__name">{{ name }}</span>
+    <span
+      v-if="!hideName"
+      class="navigation-workspace-switcher__name"
+    >{{ name }}</span>
   </button>
 </template>
 
@@ -63,6 +79,14 @@ const initial = computed(() => props.name.trim().charAt(0).toUpperCase())
   font-family: "DM Serif Display", Georgia, serif;
   font-size: 0.75rem;
   font-weight: 400;
+}
+
+.navigation-workspace-switcher__logo {
+  height: 1.25rem;
+  width: auto;
+  display: block;
+  object-fit: contain;
+  flex-shrink: 0;
 }
 
 .navigation-workspace-switcher__name {

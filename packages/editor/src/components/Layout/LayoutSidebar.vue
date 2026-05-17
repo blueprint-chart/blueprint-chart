@@ -8,21 +8,30 @@ import {
   NavigationWorkspaceSwitcher,
 } from '@blueprint-chart/ui'
 import { useDashboardGallery } from '@/composables/useDashboardGallery'
+import { useTheme } from '@/stores/theme'
+import logoLight from '@/assets/images/blueprint-chart-logo.svg'
+import logoDark from '@/assets/images/blueprint-chart-logo-dark.svg'
 import IPhHouse from '~icons/ph/house'
 import IPhSquaresFour from '~icons/ph/squares-four'
 
 const route = useRoute()
 const { sortedCharts } = useDashboardGallery()
+const { resolvedTheme } = useTheme()
 
 const recent = computed(() => sortedCharts.value.slice(0, 5))
 const isHome = computed(() => route.path === '/')
 const isCharts = computed(() => route.path.startsWith('/charts'))
+const logoSrc = computed(() => resolvedTheme.value === 'dark' ? logoDark : logoLight)
 </script>
 
 <template>
   <NavigationSidebar aria-label="Workspace navigation">
     <template #header>
-      <NavigationWorkspaceSwitcher name="Blueprint" />
+      <NavigationWorkspaceSwitcher
+        name="Blueprint"
+        :logo-src="logoSrc"
+        :hide-name="true"
+      />
     </template>
 
     <NavigationSidebarGroup eyebrow="Workspace">
