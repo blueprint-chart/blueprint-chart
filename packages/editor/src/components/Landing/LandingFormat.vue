@@ -36,13 +36,13 @@ const portabilityCards: PortabilityCard[] = [
     icon: IPhCloudSlash,
     tag: 'A',
     title: 'No backend',
-    description: 'The renderer runs in the browser. Self-host the editor anywhere — including a USB stick.',
+    description: 'The renderer runs in the browser. Self-host the editor anywhere, including a USB stick.',
   },
   {
     icon: IPhDatabase,
     tag: 'B',
     title: 'Data stays local',
-    description: 'Your CSV never touches a server. The base64 payload is the data — it travels with the iframe.',
+    description: 'Your CSV never touches a server. The base64 payload is the data. It travels with the iframe.',
   },
   {
     icon: IPhArrowsOut,
@@ -56,10 +56,10 @@ const portabilityCards: PortabilityCard[] = [
 <template>
   <LandingSection id="format">
     <LandingSectionHeader label="04 / One portable file">
-      BPC — a chart you<br><em>can hold in your hand.</em>
+      BPC: a chart you<br><em>can hold in your hand.</em>
       <template #lead>
         Blueprint charts are plain-text in, self-contained iframe out. No backend renders them.
-        Your data never leaves the browser. One file is the chart, the data, and the embed —
+        Your data never leaves the browser. One file is the chart, the data, and the embed,
         together.
       </template>
     </LandingSectionHeader>
@@ -123,7 +123,7 @@ const portabilityCards: PortabilityCard[] = [
         size="xs"
         variant="warning"
       />
-      Plain-text BPC is also an excellent target for LLMs — a model can generate valid BPC
+      Plain-text BPC is also an excellent target for LLMs: a model can generate valid BPC
       from a description and you can paste it straight into the editor.
     </p>
   </LandingSection>

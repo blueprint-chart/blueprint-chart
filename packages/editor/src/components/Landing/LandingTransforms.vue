@@ -115,7 +115,7 @@ const steps: Step[] = [
       ['France', '4.35'],
     ],
     outputHighlightCol: 'co2 (avg)',
-    note: 'Sorted by CO₂ descending — highest emitter first. Ready for the chart.',
+    note: 'Sorted by CO₂ descending, highest emitter first. Ready for the chart.',
   },
   {
     label: 'Rename',
@@ -147,7 +147,7 @@ const steps: Step[] = [
     <LandingSectionHeader label="03 / Data pipeline">
       Reshape your data<br><em>before you chart it.</em>
       <template #lead>
-        Raw data rarely fits a chart out of the box. Blueprint's pipeline lets you sort, filter, group, parse and reshape — all without leaving the editor, all replayable from your BPC source.
+        Raw data rarely fits a chart out of the box. Blueprint's pipeline lets you sort, filter, group, parse and reshape, all without leaving the editor, all replayable from your BPC source.
       </template>
     </LandingSectionHeader>
 
