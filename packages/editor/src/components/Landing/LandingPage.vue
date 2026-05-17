@@ -1,23 +1,26 @@
+<script setup lang="ts">
+import LandingTopNav from './LandingTopNav.vue'
+import LandingHero from './LandingHero.vue'
+import LandingValuePropStrip from './LandingValuePropStrip.vue'
+import LandingDefaults from './LandingDefaults.vue'
+import LandingTransforms from './LandingTransforms.vue'
+import LandingFormat from './LandingFormat.vue'
+import LandingScenes from './LandingScenes.vue'
+import LandingFooter from './LandingFooter.vue'
+</script>
+
 <template>
   <div class="landing-page">
     <LandingTopNav />
     <LandingHero />
-    <LandingDivider />
-    <LandingPhilosophy />
-    <LandingDivider />
+    <LandingValuePropStrip />
+    <LandingDefaults />
     <LandingTransforms />
     <LandingFormat />
     <LandingScenes />
-    <LandingDivider />
-    <LandingPractices />
-    <LandingOpenSource />
     <LandingFooter />
   </div>
 </template>
-
-<script setup lang="ts">
-import LandingTopNav from './LandingTopNav.vue'
-</script>
 
 <style scoped>
 .landing-page {
