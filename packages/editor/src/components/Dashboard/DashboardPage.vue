@@ -143,14 +143,10 @@ onUnmounted(() => {
   display: flex;
   flex: 1;
   overflow: hidden;
-  gap: var(--bc-tile-gap);
-  padding: var(--bc-tile-gap) 0 0;
-  background: var(--bc-void-bg);
+  background: var(--bc-content-bg);
 
   &--narrow {
     flex-direction: column;
-    gap: 0;
-    padding: 0;
   }
 
   &__gallery {
@@ -158,21 +154,16 @@ onUnmounted(() => {
     min-width: 0;
     overflow-y: auto;
     padding: 1.75rem;
-    background: var(--bc-tile-bg);
-    border-radius: var(--bc-tile-radius);
-    box-shadow: var(--bc-tile-shadow);
-    border: var(--bc-tile-border);
+    background: transparent;
     position: relative;
 
     .dashboard-page--narrow & {
-      border-radius: 0;
-      border: none;
-      box-shadow: none;
+      padding: 1rem;
     }
   }
 }
 
 :deep(.layout-panel__header) {
-  border-bottom: 1px solid var(--bs-border-color);
+  border-bottom: 1px solid var(--bc-hairline);
 }
 </style>

@@ -196,13 +196,10 @@ const canvasStyle = computed<CSSProperties>(() => ({
   display: flex;
   flex: 1;
   overflow: hidden;
-  gap: var(--bc-tile-gap);
-  background: var(--bc-void-bg);
+  background: var(--bc-content-bg);
 
   &--narrow {
     flex-direction: column;
-    padding: 0;
-    gap: 0;
   }
 
   &__canvas {
@@ -213,9 +210,6 @@ const canvasStyle = computed<CSSProperties>(() => ({
     overflow: auto;
     position: relative;
     background: var(--bc-canvas-bg);
-    border-radius: var(--bc-tile-radius);
-    box-shadow: var(--bc-tile-shadow);
-    border: var(--bc-tile-border);
 
     .chart-edit-panel--narrow & {
       padding: 1rem;
@@ -277,9 +271,8 @@ const canvasStyle = computed<CSSProperties>(() => ({
       position: relative;
       z-index: 1;
       background: var(--bc-tile-bg);
-      border-radius: var(--bc-tile-radius-sm);
+      border-radius: var(--bc-radius-sm);
       overflow: auto;
-      box-shadow: var(--bc-tile-shadow);
 
       &--fixed {
         flex: none;
