@@ -27,7 +27,10 @@
       </div>
     </div>
     <div class="gallery-card__meta">
-      <div class="gallery-card__meta__title">
+      <div
+        class="gallery-card__meta__title"
+        :class="{ 'bc-display': serifTitle }"
+      >
         {{ title }}
       </div>
       <div
@@ -55,6 +58,7 @@ const props = defineProps<{
   selected?: boolean
   layout?: 'grid' | 'row'
   forceLightThumb?: boolean
+  serifTitle?: boolean
 }>()
 
 defineEmits<{
