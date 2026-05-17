@@ -13,14 +13,11 @@
 
 <style scoped lang="scss">
 .layout-scene-timeline {
-  height: 3.125rem;
   background: var(--bc-chrome-bg);
   border-top: 1px solid var(--bc-hairline);
   display: flex;
-  align-items: center;
-  gap: 0.375rem;
-  padding: 0 0.875rem;
+  align-items: stretch;
   flex-shrink: 0;
-  overflow-x: auto;
+  overflow-x: hidden;
 }
 </style>

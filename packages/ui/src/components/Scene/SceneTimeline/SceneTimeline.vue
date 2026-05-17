@@ -50,18 +50,16 @@ defineEmits<{
 <style scoped lang="scss">
 .scene-timeline {
   display: flex;
-  align-items: center;
+  align-items: stretch;
   gap: 0.75rem;
   padding: 0.5rem 1rem;
   min-height: 96px;
-  background: var(--bc-tile-bg);
-  border-radius: var(--bc-tile-radius);
-  box-shadow: var(--bc-tile-shadow);
-  border: var(--bc-tile-border);
+  background: transparent;
+  width: 100%;
 
   &__items {
     display: flex;
-    align-items: center;
+    align-items: stretch;
     gap: 0.5rem;
     overflow-x: auto;
     flex: 1;
@@ -82,7 +80,7 @@ defineEmits<{
 
       :deep(.button-add.btn) {
         height: 100%;
-        border-radius: var(--bs-border-radius-lg);
+        border-radius: var(--bc-radius-md);
       }
     }
   }
