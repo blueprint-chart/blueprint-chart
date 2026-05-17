@@ -32,7 +32,7 @@ defineProps<{
 
 <style scoped lang="scss">
 .landing-default-card {
-  background: var(--bc-content-bg);
+  background: var(--bc-tile-bg);
   border: 1px solid var(--bc-hairline);
   border-radius: var(--bc-radius-md);
   padding: 1rem 1rem 0.875rem;
@@ -50,7 +50,7 @@ defineProps<{
       width: 1.375rem;
       height: 1.375rem;
       border-radius: var(--bc-radius-sm);
-      background: rgba(75, 144, 207, 0.16);
+      background: var(--bs-info-bg-subtle);
       color: var(--bs-info);
       display: inline-flex;
       align-items: center;
