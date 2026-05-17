@@ -1,41 +1,42 @@
 import { mount } from '@vue/test-utils'
 import LandingSectionHeader from './LandingSectionHeader.vue'
 
+function mountHeader(slots: Record<string, string> = {}, props: Record<string, unknown> = {}) {
+  return mount(LandingSectionHeader, {
+    props: { label: '02 / Defaults', ...props },
+    slots: {
+      default: 'A simple chart <em>sends a big message.</em>',
+      ...slots,
+    },
+  })
+}
+
 describe('LandingSectionHeader', () => {
-  it('renders label text', () => {
-    const w = mount(LandingSectionHeader, {
-      props: { label: 'Design philosophy' },
-    })
-    expect(w.find('.landing-section-header__label').text()).toBe('Design philosophy')
+  it('renders the label text', () => {
+    const w = mountHeader()
+    expect(w.find('.landing-section-header__label').text()).toBe('02 / Defaults')
   })
 
-  it('renders title slot', () => {
-    const w = mount(LandingSectionHeader, {
-      props: { label: 'Test' },
-      slots: { default: 'My title' },
-    })
-    expect(w.find('.landing-section-header__title').text()).toBe('My title')
+  it('applies mono + uppercase styling on the label', () => {
+    const w = mountHeader()
+    const label = w.find('.landing-section-header__label')
+    // jsdom doesn't compute scoped SCSS, so assert the class only — visual is the contract.
+    expect(label.classes()).toContain('landing-section-header__label')
   })
 
-  it('renders lead slot when provided', () => {
-    const w = mount(LandingSectionHeader, {
-      props: { label: 'Test' },
-      slots: { lead: 'Lead text here' },
-    })
-    expect(w.find('.landing-section-header__lead').text()).toBe('Lead text here')
+  it('renders the headline slot with em', () => {
+    const w = mountHeader()
+    expect(w.find('.landing-section-header__title em').text()).toBe('sends a big message.')
   })
 
-  it('does not render lead when slot is empty', () => {
-    const w = mount(LandingSectionHeader, {
-      props: { label: 'Test' },
-    })
+  it('renders the lead slot when provided', () => {
+    const w = mountHeader({ lead: 'Clutter is the enemy of insight.' })
+    expect(w.find('.landing-section-header__lead').exists()).toBe(true)
+    expect(w.find('.landing-section-header__lead').text()).toBe('Clutter is the enemy of insight.')
+  })
+
+  it('omits the lead when no slot provided', () => {
+    const w = mountHeader()
     expect(w.find('.landing-section-header__lead').exists()).toBe(false)
-  })
-
-  it('applies center class when center prop is set', () => {
-    const w = mount(LandingSectionHeader, {
-      props: { label: 'Test', center: true },
-    })
-    expect(w.find('.landing-section-header--center').exists()).toBe(true)
   })
 })

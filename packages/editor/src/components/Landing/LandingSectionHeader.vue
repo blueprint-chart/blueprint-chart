@@ -30,12 +30,13 @@ withDefaults(defineProps<{
 <style scoped lang="scss">
 .landing-section-header {
   &__label {
+    font-family: "Geist Mono", ui-monospace, "JetBrains Mono", monospace;
     font-size: var(--bs-font-size-xs);
-    font-weight: 700;
-    letter-spacing: 0.1em;
+    font-weight: 500;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: var(--bs-primary);
-    margin-bottom: 0.5rem;
+    color: var(--bs-tertiary-color);
+    margin-bottom: 0.625rem;
   }
 
   &__title {
