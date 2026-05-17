@@ -32,21 +32,19 @@ defineProps<{
 <style scoped lang="scss">
 .practice-card {
   background: var(--bc-tile-bg);
-  border: var(--bc-tile-border);
-  border-radius: var(--bc-tile-radius);
-  box-shadow: var(--bc-tile-shadow);
+  border: 1px solid var(--bc-hairline);
+  border-radius: var(--bc-radius-md);
   padding: 1.25rem;
-  transition: box-shadow 0.2s, transform 0.2s;
+  transition: transform 0.2s;
 
   &:hover {
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
     transform: translateY(-2px);
   }
 
   &__icon {
     width: 2.25rem;
     height: 2.25rem;
-    border-radius: calc(var(--bc-tile-radius) - 4px);
+    border-radius: calc(var(--bc-radius-md) - 4px);
     background: var(--bs-primary-bg-subtle);
     display: flex;
     align-items: center;

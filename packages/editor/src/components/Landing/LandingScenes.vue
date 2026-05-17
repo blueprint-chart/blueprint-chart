@@ -216,8 +216,8 @@ const features: { icon: Component, title: string, description: string }[] = [
   align-items: flex-start;
   padding: 0.75rem 1rem;
   background: var(--bc-tile-bg);
-  border: var(--bc-tile-border);
-  border-radius: calc(var(--bc-tile-radius) - 2px);
+  border: 1px solid var(--bc-hairline);
+  border-radius: calc(var(--bc-radius-md) - 2px);
 
   &__icon {
     margin-top: 1px;
@@ -237,9 +237,8 @@ const features: { icon: Component, title: string, description: string }[] = [
 
 .scenes-demo {
   background: var(--bc-tile-bg);
-  border: var(--bc-tile-border);
-  border-radius: var(--bc-tile-radius);
-  box-shadow: var(--bc-tile-shadow);
+  border: 1px solid var(--bc-hairline);
+  border-radius: var(--bc-radius-md);
   overflow: hidden;
 }
 

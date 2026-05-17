@@ -293,9 +293,8 @@ const steps: Step[] = [
 <style scoped lang="scss">
 .transforms-demo {
   background: var(--bc-tile-bg);
-  border: var(--bc-tile-border);
-  border-radius: var(--bc-tile-radius);
-  box-shadow: var(--bc-tile-shadow);
+  border: 1px solid var(--bc-hairline);
+  border-radius: var(--bc-radius-md);
   overflow: hidden;
 
   &__steps {
@@ -310,7 +309,7 @@ const steps: Step[] = [
     padding: 0.625rem 1rem;
     border: none;
     border-right: 1px solid var(--bs-border-color);
-    background: var(--bc-void-bg);
+    background: var(--bc-content-bg);
     cursor: pointer;
     transition: background 0.15s;
     display: flex;
@@ -393,7 +392,7 @@ const steps: Step[] = [
         text-align: left;
         font-weight: 600;
         font-size: var(--bs-font-size-xs);
-        background: var(--bc-void-bg);
+        background: var(--bc-content-bg);
         color: var(--bs-secondary-color);
         border-bottom: 1px solid var(--bs-border-color);
       }
@@ -477,8 +476,8 @@ const steps: Step[] = [
   align-items: flex-start;
   padding: 0.875rem 1rem;
   background: var(--bc-tile-bg);
-  border: var(--bc-tile-border);
-  border-radius: calc(var(--bc-tile-radius) - 2px);
+  border: 1px solid var(--bc-hairline);
+  border-radius: calc(var(--bc-radius-md) - 2px);
 
   &__icon {
     width: 1.75rem;

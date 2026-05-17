@@ -1,5 +1,6 @@
 <template>
   <div class="landing-page">
+    <LandingTopNav />
     <LandingHero />
     <LandingDivider />
     <LandingPhilosophy />
@@ -15,6 +16,7 @@
 </template>
 
 <script setup lang="ts">
+import LandingTopNav from './LandingTopNav.vue'
 </script>
 
 <style scoped>
