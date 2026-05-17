@@ -6,7 +6,6 @@ export {
   DropdownEntriesKey,
   PaletteEntriesKey,
   IconRailEntriesKey,
-  StepperEntriesKey,
   ToggleEntriesKey,
 } from './composables/injection-keys'
 export { useBreakpoint } from './composables/useBreakpoint'
@@ -77,8 +76,6 @@ export { default as LayoutToolbarSeparator } from './components/Layout/LayoutToo
 
 export { default as NavigationSegmentedControl } from './components/Navigation/NavigationSegmentedControl/NavigationSegmentedControl.vue'
 export type { NavigationSegmentedControlItem } from './components/Navigation/NavigationSegmentedControl/NavigationSegmentedControl.vue'
-export { default as NavigationStepper } from './components/Navigation/NavigationStepper/NavigationStepper.vue'
-export { default as NavigationStepperStep } from './components/Navigation/NavigationStepper/NavigationStepperStep.vue'
 export { default as NavigationStepperTabs } from './components/Navigation/NavigationStepperTabs/NavigationStepperTabs.vue'
 export { default as NavigationStepperChevron } from './components/Navigation/NavigationStepperChevron/NavigationStepperChevron.vue'
 export { default as NavigationToggle } from './components/Navigation/NavigationToggle/NavigationToggle.vue'

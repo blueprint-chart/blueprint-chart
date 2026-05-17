@@ -30,7 +30,6 @@
     "ShallowRef": true,
     "Slot": true,
     "Slots": true,
-    "StepperEntriesKey": true,
     "ToggleEntriesKey": true,
     "VNode": true,
     "WritableComputedRef": true,

@@ -18,10 +18,6 @@ export const IconRailEntriesKey: InjectionKey<
   ChildEntriesContext<{ value: string, icon: Component, tooltip: string }>
 > = Symbol('IconRailEntries')
 
-export const StepperEntriesKey: InjectionKey<
-  ChildEntriesContext<{ label: string }>
-> = Symbol('StepperEntries')
-
 export const ToggleEntriesKey: InjectionKey<
   ChildEntriesContext<{ value: string, text: string, icon?: Component, disabled?: boolean }>
 > = Symbol('ToggleEntries')
