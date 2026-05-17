@@ -7,33 +7,26 @@
             class="landing-hero__inner__text__eyebrow__dot"
             aria-hidden="true"
           />
-          Data visualization for the editorial web
+          For journalists &amp; researchers
         </div>
         <h1 class="landing-hero__inner__text__h1">
-          Turn data into<br><em>compelling stories.</em>
+          Charts that<br><em>tell the truth.</em>
         </h1>
         <p class="landing-hero__inner__text__sub">
-          Blueprint Chart is a free, open-source tool for journalists, researchers and analysts.
-          Build beautiful, accessible charts with best practices built in — no design degree required.
+          A free, open-source charting tool built on decades of dataviz research.
+          Best practices baked in — axes start at zero, labels sit next to data, palettes pass CVD.
         </p>
         <div class="landing-hero__inner__text__actions">
           <ButtonIcon
             to="/charts"
-            label="My Charts"
-            variant="outline-primary"
+            label="My charts"
+            variant="outline-secondary"
           />
           <ButtonIcon
             to="/new"
             label="New chart"
             variant="primary"
             :icon-left="IPhPlus"
-          />
-        </div>
-        <div class="landing-hero__inner__text__meta">
-          <LandingBadge
-            v-for="badge in badges"
-            :key="badge"
-            :label="badge"
           />
         </div>
       </div>
@@ -49,9 +42,11 @@ import { ButtonIcon } from '@blueprint-chart/ui'
 import IPhPlus from '~icons/ph/plus'
 import { samples } from '@blueprint-chart/lib'
 
-const badges = ['Free forever', 'No account required', 'MIT licensed']
-const heroBpc = samples.find(s => s.id === 'co2-emissions')!.dsl
-  .replace(/\{/, '{\n  theme = "blueprint-framed"')
+const sample = samples.find(s => s.id === 'coffee-production')
+if (!sample) {
+  throw new Error('Missing coffee-production sample — see LandingHero.vue')
+}
+const heroBpc = sample.dsl.replace(/\{/, '{\n  theme = "blueprint-framed"')
 </script>
 
 <style scoped lang="scss">
@@ -120,14 +115,6 @@ const heroBpc = samples.find(s => s.id === 'co2-emissions')!.dsl
         gap: 0.75rem;
         flex-wrap: wrap;
       }
-
-      &__meta {
-        display: flex;
-        align-items: center;
-        gap: 1.25rem;
-        margin-top: 1.5rem;
-        flex-wrap: wrap;
-      }
     }
 
     &__chart {
@@ -143,11 +130,16 @@ const heroBpc = samples.find(s => s.id === 'co2-emissions')!.dsl
 
 @media (max-width: 51.25rem) {
   .landing-hero {
+    padding: 2.5rem 1rem 3rem;
+
     &__inner {
       grid-template-columns: 1fr;
+      gap: 2.25rem;
 
       &__chart {
-        display: none;
+        // Reversed from previous: show the chart on mobile, stacked below text.
+        display: block;
+        max-height: 60vh;
       }
     }
   }
