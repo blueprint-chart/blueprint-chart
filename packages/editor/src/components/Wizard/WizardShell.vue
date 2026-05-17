@@ -12,10 +12,9 @@ import { resolveScene, resolveSortFromTransforms } from '@/utils/scenes'
 import type { ChartColorize } from '@/stores/chartConfig'
 import { ChartType, SortDirection, parseData } from '@blueprint-chart/lib'
 import type { SeriesOverride } from '@blueprint-chart/lib'
-import { NavigationStepperChevron, SceneTimeline, ButtonIcon } from '@blueprint-chart/ui'
+import { NavigationStepperChevron, SceneTimeline } from '@blueprint-chart/ui'
 import LayoutPageHeader from '@/components/Layout/LayoutPageHeader.vue'
 import LayoutSceneTimeline from '@/components/Layout/LayoutSceneTimeline.vue'
-import IPhArrowLeft from '~icons/ph/arrow-left'
 
 const { currentStep, currentIndex, steps, registerCreateSession } = useWizard()
 const dataTable = useDataTable()
@@ -239,16 +238,6 @@ onBeforeRouteLeave(() => {
   <div class="wizard-shell">
     <LayoutPageHeader class="wizard-shell__header">
       <template #start>
-        <ButtonIcon
-          class="wizard-shell__back"
-          :icon-left="IPhArrowLeft"
-          label="Back to My Charts"
-          hide-label
-          variant="outline-secondary"
-          size="sm"
-          tag="a"
-          href="#/charts"
-        />
         <h1 class="wizard-shell__title bc-display">
           {{ chartTitle }}
         </h1>
