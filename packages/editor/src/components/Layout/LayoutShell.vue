@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, shallowRef, useSlots } from 'vue'
+import { computed, shallowRef } from 'vue'
 import { useRoute } from 'vue-router'
 import { useEventListener } from '@vueuse/core'
 import LayoutNavbar from '@/components/Layout/LayoutNavbar.vue'
@@ -15,9 +15,6 @@ const isLanding = computed(() => route.path === '/')
 
 const paletteOpen = shallowRef(false)
 const shortcut = usePlatformShortcut('k')
-
-const slots = useSlots()
-const hasTimeline = computed(() => !!slots.timeline)
 
 useEventListener(document, 'keydown', (event: globalThis.KeyboardEvent) => {
   if (shortcut.matches(event)) {
@@ -37,11 +34,12 @@ useEventListener(document, 'keydown', (event: globalThis.KeyboardEvent) => {
     <CommandPaletteModal v-model:open="paletteOpen" />
   </div>
 
-  <!-- All other (non-bare) routes use the unified app shell. -->
+  <!-- All other (non-bare) routes use the unified app shell. The scene
+       timeline, when present, lives inside the route's main content
+       (e.g. WizardShell), wrapped in LayoutSceneTimeline. -->
   <div
     v-else
     class="layout-shell layout-shell--app"
-    :class="{ 'layout-shell--with-timeline': hasTimeline }"
   >
     <aside class="layout-shell__sidebar">
       <LayoutSidebar />
@@ -52,12 +50,6 @@ useEventListener(document, 'keydown', (event: globalThis.KeyboardEvent) => {
     <main class="layout-shell__main">
       <slot />
     </main>
-    <div
-      v-if="hasTimeline"
-      class="layout-shell__timeline"
-    >
-      <slot name="timeline" />
-    </div>
     <CommandPaletteModal v-model:open="paletteOpen" />
   </div>
 </template>
@@ -83,14 +75,6 @@ useEventListener(document, 'keydown', (event: globalThis.KeyboardEvent) => {
   overflow: hidden;
 }
 
-.layout-shell--app.layout-shell--with-timeline {
-  grid-template-rows: 2.5rem 1fr 3.125rem;
-  grid-template-areas:
-    'sidebar topbar'
-    'sidebar main'
-    'sidebar timeline';
-}
-
 .layout-shell__sidebar {
   grid-area: sidebar;
   min-height: 0;
@@ -110,10 +94,5 @@ useEventListener(document, 'keydown', (event: globalThis.KeyboardEvent) => {
   min-height: 0;
   display: flex;
   flex-direction: column;
-}
-
-.layout-shell__timeline {
-  grid-area: timeline;
-  min-width: 0;
 }
 </style>
