@@ -12,38 +12,30 @@ function mountNavbar() {
 }
 
 describe('LayoutNavbar', () => {
-  it('renders the Home and My Charts nav links', () => {
+  it('renders the workspace switcher with the Blueprint name', () => {
     const wrapper = mountNavbar()
-    const links = wrapper.findAll('.navigation-link')
-    expect(links).toHaveLength(2)
-    expect(links[0].text()).toContain('Home')
-    expect(links[1].text()).toContain('My Charts')
+    expect(wrapper.text()).toContain('Blueprint')
   })
 
-  it('renders the search pill', () => {
+  it('renders the ⌘K command bar', () => {
     const wrapper = mountNavbar()
-    expect(wrapper.find('.navigation-search-pill').exists()).toBe(true)
+    expect(wrapper.find('.navigation-command-bar').exists()).toBe(true)
   })
 
-  it('does not render an avatar', () => {
+  it('emits searchClick when the command bar is pressed', async () => {
     const wrapper = mountNavbar()
-    expect(wrapper.find('.avatar').exists()).toBe(false)
-    expect(wrapper.find('[data-testid="avatar"]').exists()).toBe(false)
-  })
-
-  it('does not render a "New chart" button', () => {
-    const wrapper = mountNavbar()
-    expect(wrapper.text()).not.toContain('New chart')
-  })
-
-  it('emits searchClick when the pill is clicked', async () => {
-    const wrapper = mountNavbar()
-    await wrapper.find('.navigation-search-pill').trigger('click')
+    await wrapper.find('.navigation-command-bar').trigger('click')
     expect(wrapper.emitted('searchClick')).toHaveLength(1)
   })
 
-  it('labels the nav landmark for screen readers', () => {
+  it('labels the topbar landmark for screen readers', () => {
     const wrapper = mountNavbar()
-    expect(wrapper.find('nav').attributes('aria-label')).toBe('Main navigation')
+    expect(wrapper.find('header').attributes('role')).toBe('banner')
+  })
+
+  it('no longer renders Home or My Charts nav links (moved to sidebar)', () => {
+    const wrapper = mountNavbar()
+    const links = wrapper.findAll('.navigation-link')
+    expect(links.length).toBe(0)
   })
 })
