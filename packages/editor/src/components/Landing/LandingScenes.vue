@@ -238,16 +238,13 @@ const features: { icon: Component, title: string, description: string }[] = [
 }
 
 @media (max-width: 51.25rem) {
+  // Mobile: chart sits above features (features get order:1; chart stays at default order 0)
   .scenes__grid {
     grid-template-columns: 1fr;
 
     &__features {
       order: 1;
     }
-  }
-
-  .scenes-demo {
-    order: 0; // chart goes above the cards on mobile
   }
 }
 </style>

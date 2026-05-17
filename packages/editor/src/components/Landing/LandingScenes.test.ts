@@ -1,8 +1,9 @@
+import { shallowRef } from 'vue'
 import { mount, flushPromises } from '@vue/test-utils'
 import LandingScenes from './LandingScenes.vue'
 
 vi.mock('@/stores/theme', () => ({
-  useTheme: () => ({ theme: { value: 'light' } }),
+  useTheme: () => ({ theme: shallowRef('light') }),
 }))
 
 vi.mock('@/composables/useChartFromDsl', () => ({
