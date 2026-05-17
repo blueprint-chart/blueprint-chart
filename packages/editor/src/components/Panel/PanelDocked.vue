@@ -101,10 +101,8 @@ function onResizeStart(e: PointerEvent) {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  background: var(--bc-tile-bg, var(--bs-body-bg));
-  border-radius: var(--bc-tile-radius, 12px);
-  box-shadow: var(--bc-tile-shadow, var(--bs-box-shadow));
-  border: var(--bc-tile-border, none);
+  background: var(--bc-content-bg);
+  border-left: 1px solid var(--bc-hairline);
   transition: width 0.3s ease, max-width 0.3s ease, opacity 0.2s ease;
 
   &.panel-docked--resizing {
