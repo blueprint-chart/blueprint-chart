@@ -12,7 +12,7 @@ import { resolveScene, resolveSortFromTransforms } from '@/utils/scenes'
 import type { ChartColorize } from '@/stores/chartConfig'
 import { ChartType, SortDirection, parseData } from '@blueprint-chart/lib'
 import type { SeriesOverride } from '@blueprint-chart/lib'
-import { NavigationStepperTabs, SceneTimeline, ButtonIcon } from '@blueprint-chart/ui'
+import { NavigationStepperChevron, SceneTimeline, ButtonIcon } from '@blueprint-chart/ui'
 import LayoutPageHeader from '@/components/Layout/LayoutPageHeader.vue'
 import LayoutSceneTimeline from '@/components/Layout/LayoutSceneTimeline.vue'
 import IPhArrowLeft from '~icons/ph/arrow-left'
@@ -263,7 +263,7 @@ onBeforeRouteLeave(() => {
         </span>
       </template>
       <template #center>
-        <NavigationStepperTabs
+        <NavigationStepperChevron
           v-model:current-step="currentIndex"
           :steps="stepLabels"
           :disabled-steps="disabledSteps"
