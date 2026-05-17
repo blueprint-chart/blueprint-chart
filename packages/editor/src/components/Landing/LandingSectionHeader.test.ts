@@ -17,7 +17,7 @@ describe('LandingSectionHeader', () => {
     expect(w.find('.landing-section-header__label').text()).toBe('02 / Defaults')
   })
 
-  it('applies mono + uppercase styling on the label', () => {
+  it('label element carries the BEM class', () => {
     const w = mountHeader()
     const label = w.find('.landing-section-header__label')
     // jsdom doesn't compute scoped SCSS, so assert the class only — visual is the contract.
@@ -38,5 +38,10 @@ describe('LandingSectionHeader', () => {
   it('omits the lead when no slot provided', () => {
     const w = mountHeader()
     expect(w.find('.landing-section-header__lead').exists()).toBe(false)
+  })
+
+  it('applies the center class when the center prop is true', () => {
+    const w = mountHeader({}, { center: true })
+    expect(w.find('.landing-section-header--center').exists()).toBe(true)
   })
 })
