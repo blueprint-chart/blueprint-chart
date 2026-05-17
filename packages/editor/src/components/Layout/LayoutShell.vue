@@ -67,7 +67,7 @@ useEventListener(document, 'keydown', (event: globalThis.KeyboardEvent) => {
 .layout-shell--app {
   display: grid;
   grid-template-columns: 13.75rem 1fr;
-  grid-template-rows: 2.5rem 1fr;
+  grid-template-rows: 2.75rem 1fr;
   grid-template-areas:
     'sidebar topbar'
     'sidebar main';

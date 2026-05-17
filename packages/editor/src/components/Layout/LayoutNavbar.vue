@@ -106,8 +106,8 @@ const crumbs = computed<Crumb[]>(() => {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  height: 2.5rem;
-  padding: 0 0.875rem;
+  height: 2.75rem;
+  padding: 0 1.25rem;
   background: var(--bc-chrome-bg);
   border-bottom: 1px solid var(--bc-hairline);
   flex-shrink: 0;
