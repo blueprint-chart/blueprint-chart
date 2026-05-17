@@ -68,7 +68,7 @@ const stats = [
 
 <style scoped lang="scss">
 .oss {
-  background: var(--bc-void-bg);
+  background: var(--bc-content-bg);
   border-top: 1px solid var(--bs-border-color);
   border-bottom: 1px solid var(--bs-border-color);
 
@@ -105,7 +105,7 @@ const stats = [
   align-items: center;
   gap: 0.375rem;
   padding: 0.375rem 0.875rem;
-  border-radius: var(--bc-tile-radius);
+  border-radius: var(--bc-radius-md);
   font-size: var(--bs-font-size-sm);
   font-weight: 700;
 
@@ -122,9 +122,8 @@ const stats = [
 
 .oss-stat {
   background: var(--bc-tile-bg);
-  border: var(--bc-tile-border);
-  border-radius: var(--bc-tile-radius);
-  box-shadow: var(--bc-tile-shadow);
+  border: 1px solid var(--bc-hairline);
+  border-radius: var(--bc-radius-md);
   padding: 1.25rem;
 
   &__num {

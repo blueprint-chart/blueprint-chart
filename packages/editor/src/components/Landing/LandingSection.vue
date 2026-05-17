@@ -42,6 +42,6 @@ withDefaults(defineProps<{
 }
 
 [data-bs-theme="dark"] .landing-section--dark {
-  background: var(--bc-tile-bg);
+  background: var(--bc-content-bg);
 }
 </style>

@@ -65,9 +65,8 @@ const points = [
 
   &__chart-tile {
     background: var(--bc-tile-bg);
-    border: var(--bc-tile-border);
-    border-radius: var(--bc-tile-radius);
-    box-shadow: var(--bc-tile-shadow);
+    border: 1px solid var(--bc-hairline);
+    border-radius: var(--bc-radius-md);
     align-self: start;
     overflow: hidden;
   }
