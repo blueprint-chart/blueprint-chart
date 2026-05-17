@@ -1,59 +1,3 @@
-<template>
-  <LandingSection id="scenes">
-    <LandingSectionHeader label="05 / Scenes & storytelling">
-      Guide your reader<br><em>through the data.</em>
-      <template #lead>
-        Create a sequence of scenes — each one a step in your narrative.
-        The same chart morphs from overview to focus, from cause to consequence. Press play, or step through.
-      </template>
-    </LandingSectionHeader>
-    <div class="scenes__grid">
-      <div class="scenes__grid__features">
-        <div
-          v-for="feat in features"
-          :key="feat.title"
-          class="scenes-feature"
-        >
-          <span class="scenes-feature__icon">
-            <AppIcon
-              :name="feat.icon"
-              size="sm"
-              variant="primary"
-            />
-          </span>
-          <div>
-            <strong class="scenes-feature__title">{{ feat.title }}</strong>
-            <p class="scenes-feature__desc">
-              {{ feat.description }}
-            </p>
-          </div>
-        </div>
-      </div>
-      <div
-        ref="containerRef"
-        class="scenes-demo"
-      >
-        <Teleport
-          v-if="playerTarget && sceneCount > 0"
-          :to="playerTarget"
-        >
-          <ScenePlayerButtons
-            :total="sceneCount + 1"
-            :current="currentScene"
-            :playing="playing"
-            position="left"
-            @update:current="onSceneChange"
-            @previous="onPrevious"
-            @next="onNext"
-            @play="startPlayback"
-            @pause="stopPlayback"
-          />
-        </Teleport>
-      </div>
-    </div>
-  </LandingSection>
-</template>
-
 <script setup lang="ts">
 import type { Component } from 'vue'
 import { AppIcon, ScenePlayerButtons } from '@blueprint-chart/ui'
@@ -63,7 +7,11 @@ import IPhSparkle from '~icons/ph/sparkle'
 import IPhCode from '~icons/ph/code'
 import { useTheme } from '@/stores/theme'
 
-const bpc = samples.find(s => s.id === 'farm-compass')!.dsl
+const sample = samples.find(s => s.id === 'farm-compass')
+if (!sample) {
+  throw new Error('Missing farm-compass sample — see LandingScenes.vue')
+}
+const bpc = sample.dsl
 const sceneCount = parseDslSceneCount(bpc)
 
 const containerRef = useTemplateRef<HTMLElement>('containerRef')
@@ -190,6 +138,65 @@ const features: { icon: Component, title: string, description: string }[] = [
   },
 ]
 </script>
+
+<template>
+  <LandingSection
+    id="scenes"
+    surface="content"
+  >
+    <LandingSectionHeader label="05 / Scenes & storytelling">
+      Guide your reader<br><em>through the data.</em>
+      <template #lead>
+        Create a sequence of scenes — each one a step in your narrative.
+        The same chart morphs from overview to focus, from cause to consequence. Press play, or step through.
+      </template>
+    </LandingSectionHeader>
+    <div class="scenes__grid">
+      <div class="scenes__grid__features">
+        <div
+          v-for="feat in features"
+          :key="feat.title"
+          class="scenes-feature"
+        >
+          <span class="scenes-feature__icon">
+            <AppIcon
+              :name="feat.icon"
+              size="sm"
+              variant="primary"
+            />
+          </span>
+          <div>
+            <strong class="scenes-feature__title">{{ feat.title }}</strong>
+            <p class="scenes-feature__desc">
+              {{ feat.description }}
+            </p>
+          </div>
+        </div>
+      </div>
+      <div
+        ref="containerRef"
+        class="scenes-demo"
+      >
+        <Teleport
+          v-if="playerTarget && sceneCount > 0"
+          :to="playerTarget"
+        >
+          <ScenePlayerButtons
+            :total="sceneCount + 1"
+            :current="currentScene"
+            :playing="playing"
+            position="left"
+            @update:current="onSceneChange"
+            @previous="onPrevious"
+            @next="onNext"
+            @play="startPlayback"
+            @pause="stopPlayback"
+          />
+        </Teleport>
+      </div>
+    </div>
+  </LandingSection>
+</template>
 
 <style scoped lang="scss">
 .scenes__grid {

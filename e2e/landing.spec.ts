@@ -90,7 +90,7 @@ for (const v of VIEWPORTS) {
 
     test('topnav adapts to viewport', async ({ page }) => {
       const links = page.locator('.landing-topnav__link')
-      if (v.size.width >= 820) {
+      if (v.size.width > 820) {
         await expect(links).toHaveCount(4)
         await expect(links.first()).toBeVisible()
       }
@@ -99,6 +99,10 @@ for (const v of VIEWPORTS) {
         if (await links.count()) {
           await expect(links.first()).toBeHidden()
         }
+      }
+      if (v.size.width < 600) {
+        await expect(page.locator('.landing-topnav__cta-secondary')).toBeHidden()
+        await expect(page.locator('.landing-topnav__github')).toBeHidden()
       }
     })
 
