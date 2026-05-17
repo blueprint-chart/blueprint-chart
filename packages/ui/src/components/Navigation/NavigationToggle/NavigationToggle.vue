@@ -1,15 +1,17 @@
 <template>
-  <NavigationPillBase
-    :items="pillItems"
+  <NavigationSegmentedControl
+    :items="segmentedItems"
     :size="size"
     @select="onSelect"
   >
     <slot />
-  </NavigationPillBase>
+  </NavigationSegmentedControl>
 </template>
 
 <script setup lang="ts">
 import type { Component } from 'vue'
+import NavigationSegmentedControl from '../NavigationSegmentedControl/NavigationSegmentedControl.vue'
+import type { NavigationSegmentedControlItem } from '../NavigationSegmentedControl/NavigationSegmentedControl.vue'
 
 const model = defineModel<string>({ required: true })
 
@@ -26,7 +28,7 @@ const resolvedOptions = computed(() =>
   entries.value.length > 0 ? entries.value : props.options,
 )
 
-const pillItems = computed(() =>
+const segmentedItems = computed<NavigationSegmentedControlItem[]>(() =>
   resolvedOptions.value.map(opt => ({
     key: opt.value,
     text: opt.text,
