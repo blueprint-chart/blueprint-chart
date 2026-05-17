@@ -11,8 +11,13 @@ const router = useRouter()
 const { resolvedTheme } = useTheme()
 const logoSrc = computed(() => resolvedTheme.value === 'dark' ? logoDark : logoLight)
 
-function goCharts() { router.push('/charts') }
-function goNew() { router.push('/new') }
+function goCharts() {
+  router.push('/charts')
+}
+
+function goNew() {
+  router.push('/new')
+}
 </script>
 
 <template>
@@ -38,10 +43,22 @@ function goNew() { router.push('/new') }
         class="landing-topnav__links"
         aria-label="Sections"
       >
-        <a href="#philosophy" class="landing-topnav__link">Philosophy</a>
-        <a href="#scenes" class="landing-topnav__link">Scenes</a>
-        <a href="#practices" class="landing-topnav__link">Practices</a>
-        <a href="#open-source" class="landing-topnav__link">Open source</a>
+        <a
+          href="#philosophy"
+          class="landing-topnav__link"
+        >Philosophy</a>
+        <a
+          href="#scenes"
+          class="landing-topnav__link"
+        >Scenes</a>
+        <a
+          href="#practices"
+          class="landing-topnav__link"
+        >Practices</a>
+        <a
+          href="#open-source"
+          class="landing-topnav__link"
+        >Open source</a>
       </nav>
 
       <div class="landing-topnav__spacer" />
