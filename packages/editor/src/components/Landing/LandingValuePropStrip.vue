@@ -8,19 +8,23 @@ const cells = [
 </script>
 
 <template>
-  <div
+  <section
     class="landing-value-prop-strip"
     aria-label="Why Blueprint Chart"
   >
-    <div
+    <dl
       v-for="cell in cells"
       :key="cell.label"
       class="landing-value-prop-strip__cell"
     >
-      <span class="landing-value-prop-strip__cell__label">{{ cell.label }}</span>
-      <span class="landing-value-prop-strip__cell__value">{{ cell.value }}</span>
-    </div>
-  </div>
+      <dt class="landing-value-prop-strip__cell__label">
+        {{ cell.label }}
+      </dt>
+      <dd class="landing-value-prop-strip__cell__value">
+        {{ cell.value }}
+      </dd>
+    </dl>
+  </section>
 </template>
 
 <style scoped lang="scss">
@@ -32,6 +36,7 @@ const cells = [
   grid-template-columns: repeat(4, 1fr);
 
   &__cell {
+    margin: 0;
     padding: 1rem 1.25rem;
     display: flex;
     flex-direction: column;
@@ -44,13 +49,14 @@ const cells = [
 
     &__label {
       font-family: "Geist Mono", ui-monospace, monospace;
-      font-size: 0.6875rem;
+      font-size: var(--bs-font-size-xs);
       letter-spacing: 0.08em;
       text-transform: uppercase;
       color: var(--bs-tertiary-color);
     }
 
     &__value {
+      margin-inline-start: 0;
       font-size: var(--bs-font-size-md);
       font-weight: 500;
       color: var(--bs-body-color);
