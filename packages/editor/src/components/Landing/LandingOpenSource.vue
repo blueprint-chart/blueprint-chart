@@ -96,7 +96,7 @@ const stats = [
   &__stats {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: var(--bc-tile-gap);
+    gap: 8px;
   }
 }
 

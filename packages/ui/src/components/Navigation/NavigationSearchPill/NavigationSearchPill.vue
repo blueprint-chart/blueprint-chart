@@ -54,7 +54,7 @@ const rootClass = computed(() => ({
   width: 13.75rem;
   padding: 0 0.75rem;
   border-radius: 999px;
-  border: 1px solid var(--bc-tile-border, var(--bs-border-color));
+  border: 1px solid var(--bs-border-color);
   background: var(--bc-tile-bg, var(--bs-tertiary-bg));
   color: var(--bs-secondary-color);
   font-size: 0.875rem;
@@ -90,7 +90,7 @@ const rootClass = computed(() => ({
     font-family: var(--bs-font-monospace);
     font-size: 0.75rem;
     padding: 0.0625rem 0.3125rem;
-    border: 1px solid var(--bc-tile-border, var(--bs-border-color));
+    border: 1px solid var(--bs-border-color);
     border-radius: 0.25rem;
     background: var(--bs-body-bg);
     color: var(--bs-secondary-color);

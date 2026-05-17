@@ -60,19 +60,10 @@
   --bc-radius-md: 8px;
   --bc-radius-lg: 12px;
 
-  // Legacy aliases — DO NOT REMOVE. Existing components reference these.
-  // Each new token has a same-or-similar legacy counterpart.
-  --bc-void-bg: var(--bc-content-bg);
-  --bc-tile-radius: var(--bc-radius-md);
-  --bc-tile-radius-sm: var(--bc-radius-sm);
-  --bc-tile-radius-xs: var(--bc-radius-xs);
-  --bc-tile-gap: 8px;
-  --bc-tile-shadow: 0;
-  --bc-tile-border: 1px solid var(--bc-hairline);
 
   // Elevated surfaces — Bootstrap card variables
   --bs-card-bg: var(--bc-tile-bg);
-  --bs-card-box-shadow: var(--bc-tile-shadow);
+  --bs-card-box-shadow: none;
 
   // Navbar / toolbar
   --bs-navbar-bg: transparent;
@@ -142,10 +133,6 @@
     0 8px 24px rgba(0, 0, 0, 0.4),
     0 1px 2px rgba(0, 0, 0, 0.3);
 
-  // Legacy aliases
-  --bc-void-bg: var(--bc-content-bg);
-  --bc-tile-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
-  --bc-tile-border: 1px solid var(--bc-hairline);
 
   // Bootstrap form-control dark-mode background override
   .form-control,
