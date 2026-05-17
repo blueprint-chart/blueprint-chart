@@ -1,8 +1,13 @@
+import { shallowRef } from 'vue'
 import { mount } from '@vue/test-utils'
 import LandingTopNav from './LandingTopNav.vue'
 
 vi.mock('@/stores/theme', () => ({
-  useTheme: () => ({ resolvedTheme: { value: 'light' } }),
+  useTheme: () => ({
+    theme: shallowRef('light'),
+    resolvedTheme: shallowRef('light'),
+    cycleTheme: vi.fn(),
+  }),
 }))
 
 vi.mock('vue-router', () => ({
@@ -14,7 +19,7 @@ function mountNav() {
     global: {
       stubs: {
         'router-link': { template: '<a><slot /></a>', props: ['to'] },
-        'ButtonIcon': { template: '<button class="btn-stub" :data-label="label"><slot /></button>', props: ['label', 'variant', 'size', 'iconRight'] },
+        'ButtonIcon': { template: '<button class="btn-stub" :data-label="label"><slot /></button>', props: ['label', 'variant', 'size', 'iconRight', 'iconLeft', 'hideLabel', 'square'] },
         'AppIcon': { template: '<span />', props: ['name', 'size'] },
       },
     },
@@ -45,5 +50,11 @@ describe('LandingTopNav', () => {
     const labels = w.findAll('.btn-stub').map(n => n.attributes('data-label'))
     expect(labels).toContain('My charts')
     expect(labels).toContain('New chart')
+  })
+
+  it('renders the theme toggle button', () => {
+    const w = mountNav()
+    const labels = w.findAll('.btn-stub').map(n => n.attributes('data-label'))
+    expect(labels).toContain('Toggle theme')
   })
 })

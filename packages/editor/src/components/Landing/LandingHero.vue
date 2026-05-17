@@ -19,7 +19,7 @@ const heroBpc = sample.dsl.replace(/\{/, '{\n  theme = "blueprint-framed"')
             class="landing-hero__inner__text__eyebrow__dot"
             aria-hidden="true"
           />
-          For journalists &amp; researchers
+          Editorial data visualization
         </div>
         <h1 class="landing-hero__inner__text__h1">
           Charts that<br><em>tell the truth.</em>
@@ -121,7 +121,7 @@ const heroBpc = sample.dsl.replace(/\{/, '{\n  theme = "blueprint-framed"')
       background: var(--bc-tile-bg);
       border: 1px solid var(--bc-hairline);
       border-radius: var(--bc-radius-lg);
-      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.32);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
       align-self: center;
       overflow: hidden;
     }

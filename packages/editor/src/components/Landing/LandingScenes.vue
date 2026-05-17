@@ -173,10 +173,11 @@ const features: { icon: Component, title: string, description: string }[] = [
           </div>
         </div>
       </div>
-      <div
-        ref="containerRef"
-        class="scenes-demo"
-      >
+      <div class="scenes-demo">
+        <div
+          ref="containerRef"
+          class="scenes-demo__chart"
+        />
         <Teleport
           v-if="playerTarget && sceneCount > 0"
           :to="playerTarget"

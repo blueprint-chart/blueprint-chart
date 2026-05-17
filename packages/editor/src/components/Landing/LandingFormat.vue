@@ -94,7 +94,7 @@ const portabilityCards: PortabilityCard[] = [
               size="xs"
               variant="success"
             />
-            <span class="landing-format__browser__url__bar__host">blueprint.chart/embed</span>
+            <span class="landing-format__browser__url__bar__host">blueprintchart.com/embed</span>
             <span class="landing-format__browser__url__bar__fragment landing-format__browser__url__bar__fragment--long">#{{ base64FragmentLong }}</span>
             <span class="landing-format__browser__url__bar__fragment landing-format__browser__url__bar__fragment--short">#{{ base64FragmentShort }}</span>
           </span>
@@ -193,6 +193,7 @@ const portabilityCards: PortabilityCard[] = [
   }
 
   &__browser {
+    align-self: flex-start;
     border: 1px solid var(--bc-hairline);
     border-radius: var(--bc-radius-md);
     overflow: hidden;
@@ -234,7 +235,10 @@ const portabilityCards: PortabilityCard[] = [
         gap: 0.375rem;
         min-width: 0;
 
-        &__host { color: var(--bs-body-color); }
+        &__host {
+          color: var(--bs-body-color);
+          white-space: nowrap;
+        }
         &__fragment {
           color: var(--bs-tertiary-color);
           overflow: hidden;

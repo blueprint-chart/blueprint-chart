@@ -2,15 +2,25 @@
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { AppIcon, ButtonIcon } from '@blueprint-chart/ui'
-import { useTheme } from '@/stores/theme'
+import { useTheme, type ThemeMode } from '@/stores/theme'
 import logoLight from '@/assets/images/blueprint-chart-logo.svg'
 import logoDark from '@/assets/images/blueprint-chart-logo-dark.svg'
-import IPhArrowRight from '~icons/ph/arrow-right'
+import IPhPlus from '~icons/ph/plus'
 import IPhGithubLogo from '~icons/ph/github-logo'
+import IPhSun from '~icons/ph/sun'
+import IPhMoon from '~icons/ph/moon'
+import IPhCircleHalf from '~icons/ph/circle-half'
 
 const router = useRouter()
-const { resolvedTheme } = useTheme()
+const { theme, resolvedTheme, cycleTheme } = useTheme()
 const logoSrc = computed(() => resolvedTheme.value === 'dark' ? logoDark : logoLight)
+
+const iconByTheme: Record<ThemeMode, typeof IPhSun> = {
+  light: IPhSun,
+  dark: IPhMoon,
+  auto: IPhCircleHalf,
+}
+const themeIcon = computed(() => iconByTheme[theme.value])
 
 function goCharts() {
   router.push('/charts')
@@ -65,8 +75,17 @@ function goNew() {
       <div class="landing-topnav__spacer" />
 
       <div class="landing-topnav__actions">
+        <ButtonIcon
+          :icon-left="themeIcon"
+          label="Toggle theme"
+          hide-label
+          square
+          variant="outline-secondary"
+          size="sm"
+          @click="cycleTheme"
+        />
         <a
-          class="landing-topnav__github"
+          class="btn btn-sm btn-outline-secondary landing-topnav__github"
           href="https://github.com/blueprint-chart/blueprint-chart"
           target="_blank"
           rel="noopener noreferrer"
@@ -89,7 +108,7 @@ function goNew() {
           label="New chart"
           variant="primary"
           size="sm"
-          :icon-right="IPhArrowRight"
+          :icon-left="IPhPlus"
           @click="goNew"
         />
       </div>
@@ -105,6 +124,7 @@ function goNew() {
   background: color-mix(in srgb, var(--bc-chrome-bg) 85%, transparent);
   backdrop-filter: saturate(150%) blur(10px);
   border-bottom: 1px solid var(--bc-hairline);
+  padding: 0.75rem clamp(1rem, 5vw, 3.75rem);
 }
 
 .landing-topnav__inner {
@@ -113,7 +133,6 @@ function goNew() {
   display: flex;
   align-items: center;
   gap: 1.5rem;
-  padding: 0.75rem clamp(1rem, 5vw, 3.75rem);
 }
 
 .landing-topnav__brand {
@@ -170,19 +189,6 @@ function goNew() {
   display: inline-flex;
   align-items: center;
   gap: 0.375rem;
-  padding: 0.3125rem 0.625rem;
-  border: 1px solid var(--bc-hairline);
-  border-radius: var(--bc-radius-sm);
-  background: var(--bc-wash-input);
-  color: var(--bs-body-color);
-  font-size: var(--bs-font-size-sm);
-  text-decoration: none;
-  transition: background var(--bc-duration-base) var(--bc-ease);
-
-  &:hover {
-    background: var(--bc-wash-input-hover);
-    color: var(--bs-body-color);
-  }
 }
 
 @media (max-width: 51.25rem) {
