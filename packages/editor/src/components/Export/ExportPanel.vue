@@ -146,13 +146,10 @@ const canvasClassList = computed(() => ({
   display: flex;
   flex: 1;
   overflow: hidden;
-  gap: var(--bc-tile-gap);
-  background: var(--bc-void-bg);
+  background: var(--bc-content-bg);
 
   &--narrow {
     flex-direction: column;
-    padding: 0;
-    gap: 0;
   }
 
   &__canvas {
@@ -163,9 +160,6 @@ const canvasClassList = computed(() => ({
     overflow: auto;
     position: relative;
     background: var(--bc-canvas-bg);
-    border-radius: var(--bc-tile-radius);
-    box-shadow: var(--bc-tile-shadow);
-    border: var(--bc-tile-border);
 
     .export-panel--narrow & {
       padding: 1rem;
