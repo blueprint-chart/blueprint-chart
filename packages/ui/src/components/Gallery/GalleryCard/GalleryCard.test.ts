@@ -107,4 +107,18 @@ describe('GalleryCard', () => {
     await wrapper.find('.gallery-card__thumb__actions').trigger('click')
     expect(wrapper.emitted('click')).toBeUndefined()
   })
+
+  it('applies the bc-display class to the title when serifTitle is true', () => {
+    const wrapper = mount(GalleryCard, {
+      props: { title: 'Offshore flows', serifTitle: true, layout: 'grid' },
+    })
+    expect(wrapper.find('.gallery-card__meta__title').classes()).toContain('bc-display')
+  })
+
+  it('does not apply bc-display when serifTitle is false (default)', () => {
+    const wrapper = mount(GalleryCard, {
+      props: { title: 'Offshore flows', layout: 'grid' },
+    })
+    expect(wrapper.find('.gallery-card__meta__title').classes()).not.toContain('bc-display')
+  })
 })
