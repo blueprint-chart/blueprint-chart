@@ -67,7 +67,7 @@ function goNew() {
       <div class="landing-topnav__actions">
         <a
           class="landing-topnav__github"
-          href="https://github.com/anthropics/blueprint-chart"
+          href="https://github.com/blueprint-chart/blueprint-chart"
           target="_blank"
           rel="noopener noreferrer"
         >
