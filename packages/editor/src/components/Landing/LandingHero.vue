@@ -19,14 +19,15 @@ const heroBpc = sample.dsl.replace(/\{/, '{\n  theme = "blueprint-framed"')
             class="landing-hero__inner__text__eyebrow__dot"
             aria-hidden="true"
           />
-          Editorial data visualization
+          Built in the newsroom
         </div>
         <h1 class="landing-hero__inner__text__h1">
-          Charts that<br><em>tell the truth.</em>
+          Great stories,<br><em>great data viz.</em>
         </h1>
         <p class="landing-hero__inner__text__sub">
-          A free, open-source charting tool built on decades of dataviz research.
-          Best practices baked in — axes start at zero, labels sit next to data, palettes pass CVD.
+          A modern data viz platform for editorial work. Author your chart in a compact DSL,
+          sequence it across named scenes that play back like a narrative, and let opinionated
+          defaults handle the craft.
         </p>
         <div class="landing-hero__inner__text__actions">
           <ButtonIcon
