@@ -158,6 +158,23 @@ body {
   .btn-outline-primary {
     --bs-btn-bg: rgba(var(--bs-primary-rgb), 0.1);
   }
+
+  // Secondary buttons adopt the same chrome as the segmented-control track:
+  // subtle wash background + hairline border. Hover lifts to the firmer wash.
+  .btn-secondary {
+    --bs-btn-color: var(--bs-body-color);
+    --bs-btn-bg: var(--bc-wash-soft);
+    --bs-btn-border-color: var(--bc-hairline);
+    --bs-btn-hover-color: var(--bs-body-color);
+    --bs-btn-hover-bg: var(--bc-wash-firm);
+    --bs-btn-hover-border-color: var(--bc-hairline-strong);
+    --bs-btn-active-color: var(--bs-body-color);
+    --bs-btn-active-bg: var(--bc-wash-firm);
+    --bs-btn-active-border-color: var(--bc-hairline-strong);
+    --bs-btn-disabled-color: var(--bs-secondary-color);
+    --bs-btn-disabled-bg: var(--bc-wash-soft);
+    --bs-btn-disabled-border-color: var(--bc-hairline);
+  }
 }
 
 // Unified form-label style: match SectionTitle appearance
