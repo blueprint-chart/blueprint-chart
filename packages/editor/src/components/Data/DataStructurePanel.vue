@@ -163,7 +163,7 @@ const panelClassList = computed(() => ({
   display: flex;
   flex: 1;
   overflow: hidden;
-  gap: var(--bc-tile-gap);
+  gap: 8px;
 
   &--narrow {
     flex-direction: column;
@@ -176,14 +176,6 @@ const panelClassList = computed(() => ({
     overflow: auto;
     padding: 1.25rem;
     position: relative;
-    background: var(--bc-tile-bg);
-    border-radius: var(--bc-tile-radius);
-    box-shadow: var(--bc-tile-shadow);
-    border: var(--bc-tile-border);
-
-    .data-structure-panel--narrow & {
-      // keep tile styling on narrow screens
-    }
 
     &__pills-bar {
       display: flex;
