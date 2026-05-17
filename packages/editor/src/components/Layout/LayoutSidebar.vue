@@ -28,9 +28,8 @@ const logoSrc = computed(() => resolvedTheme.value === 'dark' ? logoDark : logoL
   <NavigationSidebar aria-label="Workspace navigation">
     <template #header>
       <NavigationWorkspaceSwitcher
-        name="Blueprint"
+        name="Blueprint Chart"
         :logo-src="logoSrc"
-        :hide-name="true"
       />
     </template>
 
