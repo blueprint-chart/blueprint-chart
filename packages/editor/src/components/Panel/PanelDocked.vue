@@ -114,7 +114,7 @@ function onResizeStart(e: PointerEvent) {
     max-width: 0;
     opacity: 0;
     pointer-events: none;
-    margin-left: calc(-1 * var(--bc-tile-gap, 8px));
+    margin-left: calc(-1 * 8px);
   }
 
   &__resize-handle {
