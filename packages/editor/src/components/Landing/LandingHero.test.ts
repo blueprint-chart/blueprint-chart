@@ -1,18 +1,14 @@
 import { mount } from '@vue/test-utils'
 import LandingHero from './LandingHero.vue'
 
-const RouterLinkStub = {
-  template: '<a><slot /></a>',
-  props: ['to'],
-}
+const RouterLinkStub = { template: '<a><slot /></a>', props: ['to'] }
 
 function mountHero() {
   return mount(LandingHero, {
     global: {
       stubs: {
         'router-link': RouterLinkStub,
-        'LandingBadge': { template: '<span><slot /></span>', props: ['label'] },
-        'LandingChartPreview': { template: '<div class="chart-stub" />' },
+        'LandingChartPreview': { template: '<div class="chart-stub" />', props: ['bpc'] },
         'AppIcon': { template: '<span />', props: ['name', 'size', 'variant'] },
       },
     },
@@ -20,25 +16,29 @@ function mountHero() {
 }
 
 describe('LandingHero', () => {
-  it('renders hero heading', () => {
+  it('renders the new headline', () => {
     const w = mountHero()
-    expect(w.find('.landing-hero__inner__text__h1').exists()).toBe(true)
-    expect(w.text()).toContain('Turn data into')
+    expect(w.find('.landing-hero__inner__text__h1').text()).toContain('Charts that')
+    expect(w.find('.landing-hero__inner__text__h1').text()).toContain('tell the truth')
+  })
+
+  it('renders the eyebrow for journalists & researchers', () => {
+    const w = mountHero()
+    expect(w.find('.landing-hero__inner__text__eyebrow').text()).toContain('For journalists & researchers')
   })
 
   it('renders CTA buttons', () => {
     const w = mountHero()
-    expect(w.text()).toContain('My Charts')
-    expect(w.text()).toContain('New')
+    expect(w.text()).toContain('My charts')
+    expect(w.text()).toContain('New chart')
   })
 
-  it('renders badges', () => {
+  it('does NOT render a badges row', () => {
     const w = mountHero()
-    const meta = w.find('.landing-hero__inner__text__meta')
-    expect(meta.exists()).toBe(true)
+    expect(w.find('.landing-hero__inner__text__meta').exists()).toBe(false)
   })
 
-  it('renders chart preview', () => {
+  it('renders the chart preview', () => {
     const w = mountHero()
     expect(w.find('.landing-hero__inner__chart').exists()).toBe(true)
   })
