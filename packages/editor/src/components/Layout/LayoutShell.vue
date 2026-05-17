@@ -73,11 +73,26 @@ useEventListener(document, 'keydown', (event: globalThis.KeyboardEvent) => {
     'sidebar main';
   height: 100vh;
   overflow: hidden;
+
+  // Narrow viewports: collapse to single column, hide sidebar.
+  // The topbar's breadcrumb keeps the user oriented.
+  @media (max-width: 47.99rem) {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      'topbar'
+      'main';
+  }
 }
 
 .layout-shell__sidebar {
   grid-area: sidebar;
   min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+
+  @media (max-width: 47.99rem) {
+    display: none;
+  }
 }
 
 .layout-shell__topbar {
