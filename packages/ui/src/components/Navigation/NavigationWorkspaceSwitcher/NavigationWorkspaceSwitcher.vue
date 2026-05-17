@@ -56,9 +56,7 @@ const initial = computed(() => props.name.trim().charAt(0).toUpperCase())
   transition: background var(--bc-duration-base) var(--bc-ease);
 
   &:hover {
-    background: rgba(255, 255, 255, 0.04);
-
-    [data-bs-theme="light"] & { background: rgba(0, 0, 0, 0.04); }
+    background: var(--bc-wash-soft);
   }
 
   &:focus-visible {
