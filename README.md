@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://blueprint-chart.github.io" align="center">
+  <a href="https://blueprintchart.com" align="center">
     <img src="https://raw.githubusercontent.com/blueprint-chart/blueprint-chart/main/packages/editor/src/assets/images/blueprint-chart-logo.svg" width="120" alt="blueprint-chart">
   </a>
 </p>
@@ -13,7 +13,7 @@
 | **Latest version** | [![Latest version](https://img.shields.io/github/v/release/blueprint-chart/blueprint-chart?style=flat-square&color=success)](https://github.com/blueprint-chart/blueprint-chart/releases/latest) |
 |   **Release date** | [![Release date](https://img.shields.io/github/release-date/blueprint-chart/blueprint-chart?style=flat-square&color=success)](https://github.com/blueprint-chart/blueprint-chart/releases/latest) |
 |    **Open issues** | [![Open issues](https://img.shields.io/github/issues/blueprint-chart/blueprint-chart?style=flat-square&color=success)](https://github.com/blueprint-chart/blueprint-chart/issues/) |
-|  **Websites** | [![Editor](https://img.shields.io/badge/Editor-2563A0?style=flat-square)](https://blueprint-chart.github.io) |
+|  **Websites** | [![Editor](https://img.shields.io/badge/Editor-2563A0?style=flat-square)](https://blueprintchart.com) |
 
 </div>
 
