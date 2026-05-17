@@ -16,7 +16,7 @@ defineOptions({ name: 'LandingDivider' })
 
   &__line {
     border: none;
-    border-top: 1px solid var(--bs-border-color);
+    border-top: 1px solid var(--bc-hairline);
     margin: 0;
   }
 }

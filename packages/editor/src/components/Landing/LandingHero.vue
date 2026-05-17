@@ -3,6 +3,10 @@
     <div class="landing-hero__inner">
       <div class="landing-hero__inner__text">
         <div class="landing-hero__inner__text__eyebrow">
+          <span
+            class="landing-hero__inner__text__eyebrow__dot"
+            aria-hidden="true"
+          />
           Data visualization for the editorial web
         </div>
         <h1 class="landing-hero__inner__text__h1">
@@ -64,37 +68,41 @@ const heroBpc = samples.find(s => s.id === 'co2-emissions')!.dsl
 
     &__text {
       &__eyebrow {
-        font-size: var(--bs-font-size-xs);
-        font-weight: 700;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-        color: var(--bs-primary);
-        display: flex;
+        display: inline-flex;
         align-items: center;
         gap: 0.5rem;
-        margin-bottom: 1rem;
+        padding: 0.25rem 0.75rem 0.25rem 0.5rem;
+        background: rgba(37, 99, 160, 0.12);
+        border: 1px solid rgba(37, 99, 160, 0.25);
+        border-radius: var(--bc-radius-pill);
+        font-size: var(--bs-font-size-xs);
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--bs-info);
+        margin-bottom: 1.25rem;
 
-        &::before {
-          content: '';
-          display: block;
-          width: 1.5rem;
-          height: 2px;
-          background: var(--bs-primary);
+        &__dot {
+          width: 0.4375rem;
+          height: 0.4375rem;
+          border-radius: 50%;
+          background: var(--bs-info);
+          box-shadow: 0 0 0 4px rgba(122, 176, 226, 0.18);
         }
       }
 
       &__h1 {
-        font-family: 'DM Serif Display', serif;
-        font-size: clamp(2.25rem, 4.5vw, 3.5rem);
+        font-size: clamp(2.25rem, 4.5vw, 4rem);
         font-weight: 400;
-        line-height: 1.08;
-        letter-spacing: -0.01em;
+        line-height: 1.05;
+        letter-spacing: -0.015em;
         color: var(--bs-body-color);
         margin-bottom: 1.5rem;
+        font-family: "DM Serif Display", Georgia, "Times New Roman", serif;
 
         :deep(em) {
           font-style: italic;
-          color: var(--bs-primary);
+          color: var(--bs-info);
         }
       }
 
@@ -124,9 +132,9 @@ const heroBpc = samples.find(s => s.id === 'co2-emissions')!.dsl
 
     &__chart {
       background: var(--bc-tile-bg);
-      border: var(--bc-tile-border);
-      border-radius: var(--bc-tile-radius);
-      box-shadow: var(--bc-tile-shadow);
+      border: 1px solid var(--bc-hairline);
+      border-radius: var(--bc-radius-lg);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.32);
       align-self: center;
       overflow: hidden;
     }
