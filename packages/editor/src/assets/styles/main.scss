@@ -159,6 +159,17 @@ body {
     --bs-btn-bg: rgba(var(--bs-primary-rgb), 0.1);
   }
 
+  // `bootstrap-vue-next` adds a non-standard `.btn-md` class to its dropdown
+  // toggle. Bootstrap defines no rule for `.btn-md`, so the cascade *should*
+  // fall back to `.btn` defaults — but the BFormGroup `<fieldset size="md">`
+  // wrapper around BDropdown shifts the rendered size in the editor. Pin the
+  // toggle to the same `.btn` token chain ButtonIcon uses.
+  .dropdown-toggle {
+    font-size: var(--bs-btn-font-size);
+    line-height: var(--bs-btn-line-height);
+    padding: var(--bs-btn-padding-y) var(--bs-btn-padding-x);
+  }
+
   // Secondary buttons (filled and outline variants both) adopt the same chrome
   // as the segmented-control track: subtle wash background + hairline border.
   // Hover lifts to the firmer wash.
