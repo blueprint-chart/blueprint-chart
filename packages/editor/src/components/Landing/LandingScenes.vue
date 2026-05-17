@@ -124,12 +124,12 @@ const features: { icon: Component, title: string, description: string }[] = [
   {
     icon: IPhFilmSlate,
     title: 'Sequential scenes',
-    description: 'Each scene mutates the chart — highlight, filter, zoom, reorder, or change type entirely.',
+    description: 'Each scene mutates the chart: highlight, filter, zoom, reorder, or change type entirely.',
   },
   {
     icon: IPhSparkle,
     title: 'Smooth animated transitions',
-    description: 'D3-powered morphing between states — bars grow, lines redraw, highlights pulse.',
+    description: 'D3-powered morphing between states: bars grow, lines redraw, highlights pulse.',
   },
   {
     icon: IPhCode,
@@ -147,7 +147,7 @@ const features: { icon: Component, title: string, description: string }[] = [
     <LandingSectionHeader label="05 / Scenes & storytelling">
       Guide your reader<br><em>through the data.</em>
       <template #lead>
-        Create a sequence of scenes — each one a step in your narrative.
+        Create a sequence of scenes, each one a step in your narrative.
         The same chart morphs from overview to focus, from cause to consequence. Press play, or step through.
       </template>
     </LandingSectionHeader>
