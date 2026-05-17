@@ -33,7 +33,7 @@ const layoutItems = computed<NavigationPillItem[]>(() => [
 <template>
   <LayoutPageHeader class="dashboard-toolbar">
     <template #start>
-      <h1 class="dashboard-toolbar__title">
+      <h1 class="dashboard-toolbar__title bc-display">
         My Charts
       </h1>
       <span class="dashboard-toolbar__count">
@@ -66,8 +66,7 @@ const layoutItems = computed<NavigationPillItem[]>(() => [
 <style scoped lang="scss">
 .dashboard-toolbar {
   &__title {
-    font-size: 1.125rem;
-    font-weight: 600;
+    font-size: var(--bs-font-size-2xl);
     color: var(--bs-body-color);
     margin: 0;
     line-height: 1;
