@@ -140,7 +140,10 @@ const steps: Step[] = [
 </script>
 
 <template>
-  <LandingSection id="transforms">
+  <LandingSection
+    id="transforms"
+    surface="content"
+  >
     <LandingSectionHeader label="03 / Data pipeline">
       Reshape your data<br><em>before you chart it.</em>
       <template #lead>
