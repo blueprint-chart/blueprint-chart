@@ -1,10 +1,10 @@
 # @blueprint-chart/editor
 
-Static-site bundle of the Blueprint Chart editor. Use it self-hosted or via the live version at [blueprint-chart.github.io](https://blueprint-chart.github.io).
+Static-site bundle of the Blueprint Chart editor. Use it self-hosted or via the live version at [blueprintchart.com](https://blueprintchart.com).
 
 ## Live version
 
-[https://blueprint-chart.github.io](https://blueprint-chart.github.io)
+[https://blueprintchart.com](https://blueprintchart.com)
 
 ## Self-host
 

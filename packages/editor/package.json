@@ -1,7 +1,7 @@
 {
   "name": "@blueprint-chart/editor",
   "version": "0.1.5",
-  "description": "Blueprint Chart editor — static site bundle. Self-host or use the live version at https://blueprint-chart.github.io.",
+  "description": "Blueprint Chart editor — static site bundle. Self-host or use the live version at https://blueprintchart.com.",
   "keywords": [
     "blueprint-chart",
     "editor",
@@ -9,7 +9,7 @@
   ],
   "license": "MIT",
   "author": "pirhoo",
-  "homepage": "https://blueprint-chart.github.io",
+  "homepage": "https://blueprintchart.com",
   "bugs": {
     "url": "https://github.com/blueprint-chart/blueprint-chart/issues"
   },
