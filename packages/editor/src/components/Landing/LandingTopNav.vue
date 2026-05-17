@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { ButtonIcon } from '@blueprint-chart/ui'
+import { AppIcon, ButtonIcon } from '@blueprint-chart/ui'
 import { useTheme } from '@/stores/theme'
 import logoLight from '@/assets/images/blueprint-chart-logo.svg'
 import logoDark from '@/assets/images/blueprint-chart-logo-dark.svg'
 import IPhArrowRight from '~icons/ph/arrow-right'
+import IPhGithubLogo from '~icons/ph/github-logo'
 
 const router = useRouter()
 const { resolvedTheme } = useTheme()
@@ -44,32 +45,46 @@ function goNew() {
         aria-label="Sections"
       >
         <a
-          href="#philosophy"
+          href="#defaults"
           class="landing-topnav__link"
-        >Philosophy</a>
+        >Defaults</a>
+        <a
+          href="#transforms"
+          class="landing-topnav__link"
+        >Transforms</a>
+        <a
+          href="#format"
+          class="landing-topnav__link"
+        >Format</a>
         <a
           href="#scenes"
           class="landing-topnav__link"
         >Scenes</a>
-        <a
-          href="#practices"
-          class="landing-topnav__link"
-        >Practices</a>
-        <a
-          href="#open-source"
-          class="landing-topnav__link"
-        >Open source</a>
       </nav>
 
       <div class="landing-topnav__spacer" />
 
       <div class="landing-topnav__actions">
-        <ButtonIcon
-          label="My Charts"
-          variant="outline-secondary"
-          size="sm"
-          @click="goCharts"
-        />
+        <a
+          class="landing-topnav__github"
+          href="https://github.com/anthropics/blueprint-chart"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <AppIcon
+            :name="IPhGithubLogo"
+            size="xs"
+          />
+          GitHub
+        </a>
+        <span class="landing-topnav__cta-secondary">
+          <ButtonIcon
+            label="My charts"
+            variant="outline-secondary"
+            size="sm"
+            @click="goCharts"
+          />
+        </span>
         <ButtonIcon
           label="New chart"
           variant="primary"
@@ -151,7 +166,32 @@ function goNew() {
   gap: 0.5rem;
 }
 
+.landing-topnav__github {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.3125rem 0.625rem;
+  border: 1px solid var(--bc-hairline);
+  border-radius: var(--bc-radius-sm);
+  background: var(--bc-wash-input);
+  color: var(--bs-body-color);
+  font-size: var(--bs-font-size-sm);
+  text-decoration: none;
+  transition: background var(--bc-duration-base) var(--bc-ease);
+
+  &:hover {
+    background: var(--bc-wash-input-hover);
+    color: var(--bs-body-color);
+  }
+}
+
 @media (max-width: 51.25rem) {
   .landing-topnav__links { display: none; }
+}
+
+@media (max-width: 37.5rem) {
+  .landing-topnav__brand-name { display: none; }
+  .landing-topnav__github { display: none; }
+  .landing-topnav__cta-secondary { display: none; }
 }
 </style>
