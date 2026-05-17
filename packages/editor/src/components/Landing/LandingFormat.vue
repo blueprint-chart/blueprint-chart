@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { Component } from 'vue'
-import { computed } from 'vue'
 import { samples } from '@blueprint-chart/lib'
 import IPhLock from '~icons/ph/lock'
 import IPhLightning from '~icons/ph/lightning'
@@ -20,9 +19,9 @@ if (!sample) {
   throw new Error('Missing temperature-anomaly sample — see LandingFormat.vue')
 }
 const bpc = sample.dsl.replace(/\{/, '{\n  theme = "blueprint-framed"')
-const highlighted = computed(() => highlightDsl(bpc))
+const highlighted = highlightDsl(bpc)
 
-const base64FragmentLong = 'eyJ0eXBlIjoibGluZSIsImRhdGEiOlt7IngiOiIxOTgwIix7InkiOj...'
+const base64FragmentLong = 'eyJ0eXBlIjoibGluZSIsImRhdGEiOlt7IngiOiIxOTgwIix7InkiOj'
 const base64FragmentShort = 'eyJ0...'
 
 interface PortabilityCard {
@@ -72,7 +71,7 @@ const portabilityCards: PortabilityCard[] = [
       >
         <div class="landing-format__pane__head">
           <span class="landing-format__pane__head__dots">
-            <i /><i /><i />
+            <span /><span /><span />
           </span>
           chart.bpc
         </div>
@@ -83,8 +82,12 @@ const portabilityCards: PortabilityCard[] = [
       </div>
 
       <div class="landing-format__browser">
-        <div class="landing-format__browser__url">
-          <span class="landing-format__browser__url__dots"><i /><i /><i /></span>
+        <span class="visually-hidden">Example embed URL</span>
+        <div
+          class="landing-format__browser__url"
+          aria-hidden="true"
+        >
+          <span class="landing-format__browser__url__dots"><span /><span /><span /></span>
           <span class="landing-format__browser__url__bar">
             <AppIcon
               :name="IPhLock"
@@ -160,7 +163,7 @@ const portabilityCards: PortabilityCard[] = [
         display: inline-flex;
         gap: 0.1875rem;
 
-        i {
+        span {
           width: 0.4375rem;
           height: 0.4375rem;
           border-radius: 50%;
@@ -179,8 +182,13 @@ const portabilityCards: PortabilityCard[] = [
       color: var(--bs-body-color);
       margin: 0;
       overflow: auto;
-      scrollbar-width: thin;
+      scrollbar-width: none;
       white-space: pre;
+
+      &:hover,
+      &:active {
+        scrollbar-width: thin;
+      }
     }
   }
 
@@ -203,7 +211,7 @@ const portabilityCards: PortabilityCard[] = [
         display: inline-flex;
         gap: 0.25rem;
 
-        i {
+        span {
           width: 0.5rem;
           height: 0.5rem;
           border-radius: 50%;
