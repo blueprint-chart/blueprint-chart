@@ -159,9 +159,11 @@ body {
     --bs-btn-bg: rgba(var(--bs-primary-rgb), 0.1);
   }
 
-  // Secondary buttons adopt the same chrome as the segmented-control track:
-  // subtle wash background + hairline border. Hover lifts to the firmer wash.
-  .btn-secondary {
+  // Secondary buttons (filled and outline variants both) adopt the same chrome
+  // as the segmented-control track: subtle wash background + hairline border.
+  // Hover lifts to the firmer wash.
+  .btn-secondary,
+  .btn-outline-secondary {
     --bs-btn-color: var(--bs-body-color);
     --bs-btn-bg: var(--bc-wash-soft);
     --bs-btn-border-color: var(--bc-hairline);
