@@ -70,21 +70,22 @@ function onSelect(item: NavigationSegmentedControlItem) {
   border: 1px solid var(--bc-hairline);
   border-radius: var(--bc-radius-sm);
 
-  // Match Bootstrap `.btn` computed height: padding-y 0.375rem + font-size 1rem
-  // × line-height 1.5 + 1px border each side → 2.375rem (38 px).
+  // Match Bootstrap `.btn` computed height with the project's Linear-tight
+  // overrides (see `_overrides.scss`): $btn-padding-y 0.3125rem + $btn-font-size
+  // 0.8125rem × line-height 1.5 + 1px border each side → ~32 px (2rem).
   &--md {
     --segmented-padding: 2px;
-    --segmented-option-padding-y: calc(0.375rem - 2px);
+    --segmented-option-padding-y: calc(0.3125rem - 2px);
     --segmented-option-padding-x: 0.75rem;
-    --segmented-option-font-size: 1rem;
-    --segmented-option-gap: 0.5rem;
+    --segmented-option-font-size: 0.8125rem;
+    --segmented-option-gap: 0.375rem;
 
     padding: var(--segmented-padding);
-    min-height: 2.375rem;
+    min-height: 2rem;
   }
 
-  // Match Bootstrap `.btn-sm` computed height: padding-y 0.25rem + font-size
-  // 0.875rem × line-height 1.5 + 1px border each side → 1.9375rem (31 px).
+  // Match Bootstrap `.btn-sm` (Bootstrap defaults — no project override):
+  // padding-y 0.25rem + font 0.875rem × line-height 1.5 + border → ~31 px.
   &--sm {
     --segmented-padding: 2px;
     --segmented-option-padding-y: calc(0.25rem - 2px);
@@ -116,9 +117,11 @@ function onSelect(item: NavigationSegmentedControlItem) {
       color: var(--bs-body-color);
     }
 
+    // Active option: filled with the brand primary for clear emphasis.
+    // White text reads on both light- and dark-mode Prussian (#2563A0).
     &--active {
-      background: var(--bc-wash-firm);
-      color: var(--bs-body-color);
+      background: var(--bs-primary);
+      color: var(--bs-white, #fff);
       font-weight: 500;
     }
 
