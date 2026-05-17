@@ -91,10 +91,10 @@ const positionStyle = computed(() => ({
   position: absolute;
   width: 340px;
   min-width: 260px;
-  background: var(--bc-tile-bg, var(--bs-body-bg));
-  border-radius: var(--bc-tile-radius, 12px);
-  box-shadow: var(--bc-tile-shadow, var(--bs-box-shadow));
-  border: var(--bc-tile-border, none);
+  background: var(--bc-tile-bg);
+  border-radius: var(--bc-radius-md);
+  box-shadow: var(--bc-shadow-overlay);
+  border: 1px solid var(--bc-hairline);
   display: flex;
   flex-direction: column;
   max-height: calc(100% - 40px);
@@ -109,7 +109,7 @@ const positionStyle = computed(() => ({
     padding: 0.625rem 0.875rem;
     cursor: grab;
     user-select: none;
-    border-radius: var(--bc-tile-radius, 12px) var(--bc-tile-radius, 12px) 0 0;
+    border-radius: var(--bc-radius-md) var(--bc-radius-md) 0 0;
 
     &:active {
       cursor: grabbing;
