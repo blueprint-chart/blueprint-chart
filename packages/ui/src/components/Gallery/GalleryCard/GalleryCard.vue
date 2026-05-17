@@ -74,30 +74,28 @@ const cardClassList = computed(() => ({
 <style scoped lang="scss">
 .gallery-card {
   background: var(--bc-tile-bg);
-  border: var(--bc-tile-border);
-  border-radius: var(--bc-tile-radius);
-  box-shadow: var(--bc-tile-shadow);
+  border: 1px solid var(--bc-hairline);
+  border-radius: var(--bc-radius-md);
   overflow: hidden;
   cursor: pointer;
   display: flex;
   flex-direction: column;
-  transition: background 0.15s ease, box-shadow 0.2s ease, transform 0.2s ease, border-color 0.15s ease;
+  transition: border-color var(--bc-duration-base) var(--bc-ease),
+              transform var(--bc-duration-base) var(--bc-ease);
   outline: none;
 
   &:hover {
-    background: var(--bc-tile-bg-elevated);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-    transform: translateY(-2px);
+    border-color: var(--bc-hairline-strong);
+    transform: translateY(-1px);
   }
 
   &:focus-visible {
-    box-shadow: 0 0 0 2px var(--bs-primary);
+    box-shadow: var(--bc-focus-ring);
   }
 
   &--selected {
-    border-color: var(--bs-primary);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--bs-primary) 15%, transparent), 0 4px 16px rgba(0, 0, 0, 0.08);
-    transform: translateY(-2px);
+    border-color: rgba(37, 99, 160, 0.6);
+    box-shadow: 0 0 0 1px rgba(37, 99, 160, 0.4);
   }
 
   &__thumb {
