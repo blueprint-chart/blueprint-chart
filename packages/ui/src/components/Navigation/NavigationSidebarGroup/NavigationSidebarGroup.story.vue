@@ -9,19 +9,36 @@ import IPhCopy from '~icons/ph/copy'
   <Story title="Navigation/NavigationSidebarGroup">
     <Variant title="With eyebrow">
       <NavigationSidebarGroup eyebrow="Workspace">
-        <NavigationSidebarItem to="/" label="Home">
-          <template #icon><IPhSquaresFour /></template>
+        <NavigationSidebarItem
+          to="/"
+          label="Home"
+        >
+          <template #icon>
+            <IPhSquaresFour />
+          </template>
         </NavigationSidebarItem>
-        <NavigationSidebarItem to="/charts" label="My Charts" :active="true">
-          <template #icon><IPhCopy /></template>
+        <NavigationSidebarItem
+          to="/charts"
+          label="My Charts"
+          :active="true"
+        >
+          <template #icon>
+            <IPhCopy />
+          </template>
         </NavigationSidebarItem>
       </NavigationSidebarGroup>
     </Variant>
 
     <Variant title="Without eyebrow">
       <NavigationSidebarGroup>
-        <NavigationSidebarItem to="/" label="Home" />
-        <NavigationSidebarItem to="/charts" label="My Charts" />
+        <NavigationSidebarItem
+          to="/"
+          label="Home"
+        />
+        <NavigationSidebarItem
+          to="/charts"
+          label="My Charts"
+        />
       </NavigationSidebarGroup>
     </Variant>
   </Story>
