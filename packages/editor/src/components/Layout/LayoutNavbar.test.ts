@@ -1,41 +1,48 @@
 import { mount, RouterLinkStub } from '@vue/test-utils'
 import { createTestingPinia } from '@pinia/testing'
+import { createRouter, createMemoryHistory } from 'vue-router'
 import LayoutNavbar from './LayoutNavbar.vue'
 
-function mountNavbar() {
+async function mountNavbar(initialPath = '/charts') {
+  const router = createRouter({
+    history: createMemoryHistory(),
+    routes: [
+      { path: '/charts', component: { template: '<div />' } },
+      { path: '/edit/:id', component: { template: '<div />' } },
+      { path: '/new', component: { template: '<div />' } },
+    ],
+  })
+  await router.push(initialPath)
+  await router.isReady()
   return mount(LayoutNavbar, {
     global: {
       stubs: { 'router-link': RouterLinkStub },
-      plugins: [createTestingPinia({ createSpy: vi.fn })],
+      plugins: [createTestingPinia({ createSpy: vi.fn }), router],
     },
   })
 }
 
 describe('LayoutNavbar', () => {
-  it('renders the workspace switcher with the Blueprint name', () => {
-    const wrapper = mountNavbar()
-    expect(wrapper.text()).toContain('Blueprint')
-  })
-
-  it('renders the ⌘K command bar', () => {
-    const wrapper = mountNavbar()
+  it('renders the ⌘K command bar', async () => {
+    const wrapper = await mountNavbar()
     expect(wrapper.find('.navigation-command-bar').exists()).toBe(true)
   })
 
   it('emits searchClick when the command bar is pressed', async () => {
-    const wrapper = mountNavbar()
+    const wrapper = await mountNavbar()
     await wrapper.find('.navigation-command-bar').trigger('click')
     expect(wrapper.emitted('searchClick')).toHaveLength(1)
   })
 
-  it('labels the topbar landmark for screen readers', () => {
-    const wrapper = mountNavbar()
-    expect(wrapper.find('header').attributes('role')).toBe('banner')
+  it('does not render the workspace switcher (sidebar owns workspace identity)', async () => {
+    const wrapper = await mountNavbar()
+    expect(wrapper.find('.navigation-workspace-switcher').exists()).toBe(false)
   })
 
-  it('no longer renders Home or My Charts nav links (moved to sidebar)', () => {
-    const wrapper = mountNavbar()
-    const links = wrapper.findAll('.navigation-link')
-    expect(links.length).toBe(0)
+  it('renders a Breadcrumb landmark on app routes', async () => {
+    const wrapper = await mountNavbar('/charts')
+    const crumbs = wrapper.find('nav[aria-label="Breadcrumb"]')
+    expect(crumbs.exists()).toBe(true)
+    expect(crumbs.text()).toContain('My Charts')
   })
 })
