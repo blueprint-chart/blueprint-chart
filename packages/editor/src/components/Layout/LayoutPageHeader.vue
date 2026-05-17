@@ -23,8 +23,8 @@
   gap: 0.75rem;
   min-height: 3.5rem;
   padding: 0 1.25rem;
-  background: var(--bc-tile-bg-elevated);
-  border-radius: 0 0 var(--bc-tile-radius) var(--bc-tile-radius);
+  background: transparent;
+  border-bottom: 1px solid var(--bc-hairline);
   flex-shrink: 0;
   // Stay clickable above the bottom-drawer backdrop (z-index 1040).
   position: relative;
@@ -82,13 +82,13 @@
     }
 
     &__center {
-      border-top: var(--bc-tile-border);
+      border-top: 1px solid var(--bc-hairline);
       justify-content: center;
     }
 
     &__end {
       padding-bottom: 0;
-      border-top: var(--bc-tile-border);
+      border-top: 1px solid var(--bc-hairline);
 
       &:empty {
         display: none;

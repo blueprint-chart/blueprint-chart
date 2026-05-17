@@ -27,7 +27,9 @@ withDefaults(defineProps<{
 .navigation-sidebar {
   display: flex;
   flex-direction: column;
-  width: 13.75rem;                // 220px
+  width: 100%;
+  height: 100%;
+  min-height: 0;
   background: var(--bc-chrome-bg);
   border-right: 1px solid var(--bc-hairline);
   padding: 0.75rem 0.375rem;       // 12px / 6px
