@@ -113,7 +113,7 @@ watch(
   max-width: 960px;
   margin: 0 auto;
   width: 100%;
-  background: var(--bc-void-bg);
+  background: var(--bc-content-bg);
 
   // Structure view — full-bleed flex layout matching ChartEditPanel
   &--structure {
@@ -121,7 +121,7 @@ watch(
     flex: 1;
     overflow: hidden;
     max-width: none;
-    gap: var(--bc-tile-gap);
+    gap: 8px;
 
   }
 }
