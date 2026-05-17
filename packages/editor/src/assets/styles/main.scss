@@ -42,6 +42,13 @@
   --bc-tile-bg-elevated: #f5f5f7;      // inset inputs, hover wash
   --bc-canvas-glow: none;              // light mode skips the wash
 
+  // Interactive wash — translucent overlays for hover / active / kbd.
+  // Defined here per-theme so components don't need inline theme selectors.
+  --bc-wash-soft: rgba(0, 0, 0, 0.04);
+  --bc-wash-firm: rgba(0, 0, 0, 0.06);
+  --bc-wash-input: rgba(0, 0, 0, 0.03);
+  --bc-wash-input-hover: rgba(0, 0, 0, 0.05);
+
   // Hairlines
   --bc-hairline: rgba(0, 0, 0, 0.08);
   --bc-hairline-strong: rgba(0, 0, 0, 0.14);
@@ -113,6 +120,12 @@
   --bc-tile-bg: #101112;               // content cards, modals
   --bc-tile-bg-elevated: #16161b;      // inset inputs, hover wash
   --bc-canvas-glow: radial-gradient(ellipse at top, rgba(37, 99, 160, 0.04), transparent 60%);
+
+  // Interactive wash overrides — translucent overlays calibrated for dark.
+  --bc-wash-soft: rgba(255, 255, 255, 0.03);
+  --bc-wash-firm: rgba(255, 255, 255, 0.07);
+  --bc-wash-input: rgba(255, 255, 255, 0.03);
+  --bc-wash-input-hover: rgba(255, 255, 255, 0.05);
 
   // Hairlines
   --bc-hairline: rgba(255, 255, 255, 0.06);
@@ -212,23 +225,6 @@ body {
   > :not(:first-child)::before {
     color: var(--bs-secondary-color, #888);
   }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  @keyframes bc-brand-shift {
-    0%, 100% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-  }
-}
-
-.bc-brand-gradient {
-  font-weight: 600;
-  background: linear-gradient(-45deg, var(--bc-brand-1), var(--bc-brand-2), var(--bc-brand-1));
-  background-size: 200% 200%;
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: bc-brand-shift 20s ease infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
