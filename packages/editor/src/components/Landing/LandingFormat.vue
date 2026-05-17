@@ -1,185 +1,305 @@
+<script setup lang="ts">
+import type { Component } from 'vue'
+import { computed } from 'vue'
+import { samples } from '@blueprint-chart/lib'
+import IPhLock from '~icons/ph/lock'
+import IPhLightning from '~icons/ph/lightning'
+import IPhCloudSlash from '~icons/ph/cloud-slash'
+import IPhDatabase from '~icons/ph/database'
+import IPhArrowsOut from '~icons/ph/arrows-out'
+import { AppIcon } from '@blueprint-chart/ui'
+import { highlightDsl } from '@/dsl-lang'
+import '@/dsl-lang/highlight.scss'
+import LandingSection from './LandingSection.vue'
+import LandingSectionHeader from './LandingSectionHeader.vue'
+import LandingChartPreview from './LandingChartPreview.vue'
+import LandingDefaultCard from './LandingDefaultCard.vue'
+
+const sample = samples.find(s => s.id === 'temperature-anomaly')
+if (!sample) {
+  throw new Error('Missing temperature-anomaly sample — see LandingFormat.vue')
+}
+const bpc = sample.dsl.replace(/\{/, '{\n  theme = "blueprint-framed"')
+const highlighted = computed(() => highlightDsl(bpc))
+
+const base64FragmentLong = 'eyJ0eXBlIjoibGluZSIsImRhdGEiOlt7IngiOiIxOTgwIix7InkiOj...'
+const base64FragmentShort = 'eyJ0...'
+
+interface PortabilityCard {
+  icon: Component
+  tag: 'A' | 'B' | 'C'
+  title: string
+  description: string
+}
+
+const portabilityCards: PortabilityCard[] = [
+  {
+    icon: IPhCloudSlash,
+    tag: 'A',
+    title: 'No backend',
+    description: 'The renderer runs in the browser. Self-host the editor anywhere — including a USB stick.',
+  },
+  {
+    icon: IPhDatabase,
+    tag: 'B',
+    title: 'Data stays local',
+    description: 'Your CSV never touches a server. The base64 payload is the data — it travels with the iframe.',
+  },
+  {
+    icon: IPhArrowsOut,
+    tag: 'C',
+    title: 'One string ships',
+    description: 'The entire chart fits in a URL fragment. One copy-paste embeds it on any CMS.',
+  },
+]
+</script>
+
 <template>
-  <LandingSection
-    id="bpc"
-    dark
-    full
-  >
-    <LandingSectionHeader label="BPC — Blueprint Chart Format">
-      Designed for humans<br><em>and LLMs alike.</em>
+  <LandingSection id="format">
+    <LandingSectionHeader label="04 / One portable file">
+      BPC — a chart you<br><em>can hold in your hand.</em>
       <template #lead>
-        BPC is a minimal, plain-text format to describe charts. It's readable at a glance,
-        trivially diffable, and perfectly structured for AI-assisted chart generation.
+        Blueprint charts are plain-text in, self-contained iframe out. No backend renders them.
+        Your data never leaves the browser. One file is the chart, the data, and the embed —
+        together.
       </template>
     </LandingSectionHeader>
-    <div class="format__grid">
-      <div class="format__grid__pane-cell">
-        <div
-          class="format-pane"
-          data-bs-theme="dark"
-        >
-          <div class="format-pane__header">
-            <span class="format-dot format-dot--red" />
-            <span class="format-dot format-dot--yellow" />
-            <span class="format-dot format-dot--green" />
-            &nbsp; chart.bpc
-          </div>
-          <pre
-            class="format-pane__code"
-            v-html="highlightedBpc"
-          />
+
+    <div class="landing-format__grid">
+      <div
+        class="landing-format__pane"
+        data-bs-theme="dark"
+      >
+        <div class="landing-format__pane__head">
+          <span class="landing-format__pane__head__dots">
+            <i /><i /><i />
+          </span>
+          chart.bpc
         </div>
+        <pre
+          class="landing-format__pane__code"
+          v-html="highlighted"
+        />
       </div>
-      <div>
-        <div class="format__grid__chart-tile">
-          <LandingChartPreview :bpc="bpcCode" />
-        </div>
-        <div class="format-ai-note">
-          <div class="format-ai-note__header">
+
+      <div class="landing-format__browser">
+        <div class="landing-format__browser__url">
+          <span class="landing-format__browser__url__dots"><i /><i /><i /></span>
+          <span class="landing-format__browser__url__bar">
             <AppIcon
-              :name="IPhLightning"
-              size="sm"
-              variant="warning"
+              :name="IPhLock"
+              size="xs"
+              variant="success"
             />
-            <span class="format-ai-note__header__title">LLM-friendly by design</span>
-          </div>
-          <p class="format-ai-note__text">
-            BPC uses a simple block syntax. A language model can generate valid BPC
-            from a plain description — and you can paste it straight into Blueprint Chart.
-          </p>
+            <span class="landing-format__browser__url__bar__host">blueprint.chart/embed</span>
+            <span class="landing-format__browser__url__bar__fragment landing-format__browser__url__bar__fragment--long">#{{ base64FragmentLong }}</span>
+            <span class="landing-format__browser__url__bar__fragment landing-format__browser__url__bar__fragment--short">#{{ base64FragmentShort }}</span>
+          </span>
+        </div>
+        <div class="landing-format__browser__chart">
+          <LandingChartPreview :bpc="bpc" />
         </div>
       </div>
     </div>
+
+    <div class="landing-format__cards">
+      <LandingDefaultCard
+        v-for="card in portabilityCards"
+        :key="card.tag"
+        :icon="card.icon"
+        :tag="card.tag"
+        :title="card.title"
+        :description="card.description"
+      />
+    </div>
+
+    <p class="landing-format__footnote">
+      <span class="landing-format__footnote__label">FYI</span>
+      <AppIcon
+        :name="IPhLightning"
+        size="xs"
+        variant="warning"
+      />
+      Plain-text BPC is also an excellent target for LLMs — a model can generate valid BPC
+      from a description and you can paste it straight into the editor.
+    </p>
   </LandingSection>
 </template>
 
-<script setup lang="ts">
-import { AppIcon } from '@blueprint-chart/ui'
-import IPhLightning from '~icons/ph/lightning'
-import { samples } from '@blueprint-chart/lib'
-import { highlightDsl } from '@/dsl-lang'
-import '@/dsl-lang/highlight.scss'
-
-const rawBpc = samples.find(s => s.id === 'coffee-production')!.dsl
-  .replace(/\{/, '{\n  theme = "blueprint-framed"')
-const bpcCode = rawBpc
-  .split('\n')
-  .filter(line => !/^\s*(colors|colorPalette)\s*=/.test(line))
-  .join('\n')
-
-const highlightedBpc = computed(() => highlightDsl(bpcCode))
-</script>
-
 <style scoped lang="scss">
-.format {
+.landing-format {
   &__grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 2rem;
-    margin-top: 0.75rem;
+    gap: 1rem;
+    align-items: stretch;
+  }
 
-    &__pane-cell {
-      position: relative;
+  &__pane {
+    background: var(--bc-content-bg);
+    border: 1px solid var(--bc-hairline);
+    border-radius: var(--bc-radius-md);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+
+    &__head {
+      padding: 0.5rem 0.875rem;
+      background: var(--bc-chrome-bg);
+      border-bottom: 1px solid var(--bc-hairline);
+      font-family: "Geist Mono", ui-monospace, monospace;
+      font-size: var(--bs-font-size-xs);
+      letter-spacing: 0.06em;
+      color: var(--bs-tertiary-color);
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+
+      &__dots {
+        display: inline-flex;
+        gap: 0.1875rem;
+
+        i {
+          width: 0.4375rem;
+          height: 0.4375rem;
+          border-radius: 50%;
+          background: var(--bs-tertiary-color);
+          opacity: 0.35;
+        }
+      }
+    }
+
+    &__code {
+      flex: 1;
+      padding: 1rem 1.125rem;
+      font-family: "Geist Mono", ui-monospace, monospace;
+      font-size: var(--bs-font-size-sm);
+      line-height: 1.75;
+      color: var(--bs-body-color);
+      margin: 0;
+      overflow: auto;
+      scrollbar-width: thin;
+      white-space: pre;
+    }
+  }
+
+  &__browser {
+    border: 1px solid var(--bc-hairline);
+    border-radius: var(--bc-radius-md);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+
+    &__url {
+      padding: 0.5rem 0.75rem;
+      background: var(--bc-content-bg);
+      border-bottom: 1px solid var(--bc-hairline);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+
+      &__dots {
+        display: inline-flex;
+        gap: 0.25rem;
+
+        i {
+          width: 0.5rem;
+          height: 0.5rem;
+          border-radius: 50%;
+          background: var(--bs-tertiary-color);
+          opacity: 0.4;
+        }
+      }
+
+      &__bar {
+        flex: 1;
+        padding: 0.1875rem 0.625rem;
+        background: var(--bc-tile-bg);
+        border: 1px solid var(--bc-hairline);
+        border-radius: var(--bc-radius-xs);
+        font-family: "Geist Mono", ui-monospace, monospace;
+        font-size: var(--bs-font-size-xs);
+        color: var(--bs-secondary-color);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        min-width: 0;
+
+        &__host { color: var(--bs-body-color); }
+        &__fragment {
+          color: var(--bs-tertiary-color);
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+
+          &--short { display: none; }
+        }
+      }
+    }
+
+    &__chart {
+      flex: 1;
       min-height: 0;
     }
-
-    &__chart-tile {
-      background: transparent;
-      border-radius: var(--bc-radius-md);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      overflow: hidden;
-    }
   }
-}
 
-.format-pane {
-  position: absolute;
-  inset: 0;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: var(--bc-radius-md);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
+  &__cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.625rem;
+    margin-top: 1.5rem;
+  }
 
-  &__header {
-    padding: 0.625rem 1rem;
-    background: rgba(255, 255, 255, 0.05);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
-    font-size: var(--bs-font-size-xs);
-    font-weight: 600;
-    color: rgba(255, 255, 255, 0.4);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    display: flex;
+  &__footnote {
+    display: inline-flex;
     align-items: center;
-    gap: 0.375rem;
-  }
-
-  &__code {
-    padding: 1.25rem 1rem;
-    font-family: 'JetBrains Mono', monospace;
+    gap: 0.5rem;
+    margin-top: 1.25rem;
+    padding: 0.5rem 0.875rem;
+    border: 1px solid var(--bc-hairline);
+    border-radius: var(--bc-radius-pill);
     font-size: var(--bs-font-size-sm);
-    line-height: 1.8;
-    color: #e2e8f0;
-    overflow: auto;
-    scrollbar-width: none;
+    color: var(--bs-secondary-color);
 
-    &:hover,
-    &:active {
-      scrollbar-width: thin;
+    &__label {
+      font-family: "Geist Mono", ui-monospace, monospace;
+      font-size: var(--bs-font-size-xs);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--bs-tertiary-color);
     }
-    white-space: pre;
-    margin: 0;
-    flex-grow: 1;
-  }
-}
-
-.format-dot {
-  width: 0.5rem;
-  height: 0.5rem;
-  border-radius: 50%;
-  display: inline-block;
-
-  &--red { background: #ef4444; }
-  &--yellow { background: #f59e0b; }
-  &--green { background: #22c55e; }
-}
-
-.format-ai-note {
-  margin-top: 1rem;
-  padding: 1rem;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: var(--bc-radius-md);
-
-  &__header {
-    display: flex;
-    align-items: center;
-    gap: 0.375rem;
-    margin-bottom: 0.5rem;
-
-    &__title {
-      font-size: var(--bs-font-size-sm);
-      color: #7aa7d4;
-      font-weight: 700;
-    }
-  }
-
-  &__text {
-    font-size: var(--bs-font-size-sm);
-    color: #9ca3af;
-    line-height: 1.7;
-    margin: 0;
   }
 }
 
 @media (max-width: 51.25rem) {
-  .format {
+  .landing-format {
     &__grid {
       grid-template-columns: 1fr;
+    }
 
-      &__pane-cell {
-        min-height: 24rem;
+    &__pane {
+      &__code {
+        max-height: 18rem;
+      }
+    }
+
+    &__cards {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+
+@media (max-width: 33.75rem) {
+  .landing-format {
+    &__browser {
+      &__url {
+        &__bar {
+          &__fragment {
+            &--long { display: none; }
+            &--short { display: inline; }
+          }
+        }
       }
     }
   }
