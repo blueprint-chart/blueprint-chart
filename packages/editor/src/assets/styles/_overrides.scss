@@ -59,11 +59,19 @@ $link-hover-color: $prussian-600;
 $link-color-dark: $prussian-300;
 $link-hover-color-dark: $prussian-100;
 
-// Forms
+// Forms — Linear-tight density (controls ~32px tall instead of Bootstrap's 38px)
 $input-bg: $body-secondary-bg;
 $input-focus-border-color: $prussian-300;
+$input-padding-y: 0.3125rem;        // 5px
+$input-padding-x: 0.625rem;         // 10px
+$input-line-height: 1.4;
+$input-btn-padding-y: 0.3125rem;
+$input-btn-padding-x: 0.625rem;
 $form-check-input-checked-bg-color: $primary;
 $form-check-input-checked-border-color: $primary;
+$btn-padding-y: 0.3125rem;
+$btn-padding-x: 0.75rem;
+$btn-font-size: 0.8125rem;          // 13px
 
 // Focus ring
 $focus-ring-color: rgba($primary, 0.25);
