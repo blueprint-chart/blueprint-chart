@@ -22,11 +22,12 @@ const classList = computed(() => ({
 
 <style scoped lang="scss">
 .section-title {
-  font-size: var(--bs-font-size-xs);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--bs-secondary-color);
-  font-weight: 600;
+  font-family: "DM Serif Display", Georgia, "Times New Roman", serif;
+  font-size: var(--bs-font-size-lg);
+  font-weight: 400;
+  letter-spacing: -0.005em;
+  line-height: 1.15;
+  color: var(--bs-body-color);
   padding-top: 0.75rem;
   margin: 0;
 
