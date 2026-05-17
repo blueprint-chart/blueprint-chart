@@ -19,7 +19,7 @@ defineProps<{
 <style scoped lang="scss">
 .dashboard-meta-chip {
   background: var(--bc-tile-bg-elevated);
-  border-radius: var(--bc-tile-radius-xs);
+  border-radius: var(--bc-radius-xs);
   padding: 0.5rem 0.75rem;
 
   &__label {
