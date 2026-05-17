@@ -1,126 +1,3 @@
-<template>
-  <LandingSection id="transforms">
-    <LandingSectionHeader label="03 / Data pipeline">
-      Reshape your data<br><em>before you chart it.</em>
-      <template #lead>
-        Raw data rarely fits a chart out of the box. Blueprint's pipeline lets you sort, filter, group, parse and reshape — all without leaving the editor, all replayable from your BPC source.
-      </template>
-    </LandingSectionHeader>
-
-    <div class="transforms-demo">
-      <div class="transforms-demo__steps">
-        <button
-          v-for="(step, i) in steps"
-          :key="i"
-          class="transforms-demo__step"
-          :class="{ 'transforms-demo__step--active': activeStep === i }"
-          @click="activeStep = i"
-        >
-          <span class="transforms-demo__step__num">{{ i + 1 }}</span>
-          <span class="transforms-demo__step__label">{{ step.label }}</span>
-        </button>
-      </div>
-      <div class="transforms-demo__body">
-        <div class="transforms-demo__body__panel">
-          <div class="transforms-demo__body__panel__title">
-            {{ steps[activeStep].inputTitle }}
-          </div>
-          <table class="transforms-demo__body__panel__table">
-            <thead>
-              <tr>
-                <th
-                  v-for="col in steps[activeStep].input[0]"
-                  :key="col"
-                  class="transforms-demo__body__panel__th"
-                >
-                  {{ col }}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr
-                v-for="(row, ri) in steps[activeStep].input.slice(1)"
-                :key="ri"
-              >
-                <td
-                  v-for="(cell, ci) in row"
-                  :key="ci"
-                  class="transforms-demo__body__panel__td"
-                  :class="{ 'transforms-demo__body__panel__td--highlight': steps[activeStep].highlightCol === steps[activeStep].input[0][ci] }"
-                >
-                  {{ cell }}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="transforms-demo__body__flow">
-          <svg
-            viewBox="0 0 80 10"
-            preserveAspectRatio="none"
-            class="transforms-demo__body__flow__svg"
-          >
-            <path
-              d="M0,5 C30,5 50,5 80,5"
-              class="transforms-demo__body__flow__wire"
-              vector-effect="non-scaling-stroke"
-            />
-          </svg>
-          <div class="transforms-demo__body__flow__dot transforms-demo__body__flow__dot--left" />
-          <div class="transforms-demo__body__flow__dot transforms-demo__body__flow__dot--right" />
-        </div>
-        <div class="transforms-demo__body__panel">
-          <div class="transforms-demo__body__panel__title">
-            {{ steps[activeStep].outputTitle }}
-          </div>
-          <table class="transforms-demo__body__panel__table">
-            <thead>
-              <tr>
-                <th
-                  v-for="col in steps[activeStep].output[0]"
-                  :key="col"
-                  class="transforms-demo__body__panel__th"
-                >
-                  {{ col }}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr
-                v-for="(row, ri) in steps[activeStep].output.slice(1)"
-                :key="ri"
-              >
-                <td
-                  v-for="(cell, ci) in row"
-                  :key="ci"
-                  class="transforms-demo__body__panel__td"
-                  :class="{ 'transforms-demo__body__panel__td--highlight': steps[activeStep].outputHighlightCol === steps[activeStep].output[0][ci] }"
-                >
-                  {{ cell }}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          <p class="transforms-demo__body__panel__note">
-            {{ steps[activeStep].note }}
-          </p>
-        </div>
-      </div>
-    </div>
-
-    <div class="landing-transforms__cards">
-      <LandingDefaultCard
-        v-for="card in cards"
-        :key="card.tag"
-        :icon="card.icon"
-        :tag="card.tag"
-        :title="card.title"
-        :description="card.description"
-      />
-    </div>
-  </LandingSection>
-</template>
-
 <script setup lang="ts">
 import type { Component } from 'vue'
 import IPhFunction from '~icons/ph/function'
@@ -262,6 +139,129 @@ const steps: Step[] = [
 ]
 </script>
 
+<template>
+  <LandingSection id="transforms">
+    <LandingSectionHeader label="03 / Data pipeline">
+      Reshape your data<br><em>before you chart it.</em>
+      <template #lead>
+        Raw data rarely fits a chart out of the box. Blueprint's pipeline lets you sort, filter, group, parse and reshape — all without leaving the editor, all replayable from your BPC source.
+      </template>
+    </LandingSectionHeader>
+
+    <div class="transforms-demo">
+      <div class="transforms-demo__steps">
+        <button
+          v-for="(step, i) in steps"
+          :key="i"
+          class="transforms-demo__step"
+          :class="{ 'transforms-demo__step--active': activeStep === i }"
+          @click="activeStep = i"
+        >
+          <span class="transforms-demo__step__num">{{ i + 1 }}</span>
+          <span class="transforms-demo__step__label">{{ step.label }}</span>
+        </button>
+      </div>
+      <div class="transforms-demo__body">
+        <div class="transforms-demo__body__panel">
+          <div class="transforms-demo__body__panel__title">
+            {{ steps[activeStep].inputTitle }}
+          </div>
+          <table class="transforms-demo__body__panel__table">
+            <thead>
+              <tr>
+                <th
+                  v-for="col in steps[activeStep].input[0]"
+                  :key="col"
+                  class="transforms-demo__body__panel__th"
+                >
+                  {{ col }}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                v-for="(row, ri) in steps[activeStep].input.slice(1)"
+                :key="ri"
+              >
+                <td
+                  v-for="(cell, ci) in row"
+                  :key="ci"
+                  class="transforms-demo__body__panel__td"
+                  :class="{ 'transforms-demo__body__panel__td--highlight': steps[activeStep].highlightCol === steps[activeStep].input[0][ci] }"
+                >
+                  {{ cell }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="transforms-demo__body__flow">
+          <svg
+            viewBox="0 0 80 10"
+            preserveAspectRatio="none"
+            class="transforms-demo__body__flow__svg"
+          >
+            <path
+              d="M0,5 C30,5 50,5 80,5"
+              class="transforms-demo__body__flow__wire"
+              vector-effect="non-scaling-stroke"
+            />
+          </svg>
+          <div class="transforms-demo__body__flow__dot transforms-demo__body__flow__dot--left" />
+          <div class="transforms-demo__body__flow__dot transforms-demo__body__flow__dot--right" />
+        </div>
+        <div class="transforms-demo__body__panel">
+          <div class="transforms-demo__body__panel__title">
+            {{ steps[activeStep].outputTitle }}
+          </div>
+          <table class="transforms-demo__body__panel__table">
+            <thead>
+              <tr>
+                <th
+                  v-for="col in steps[activeStep].output[0]"
+                  :key="col"
+                  class="transforms-demo__body__panel__th"
+                >
+                  {{ col }}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                v-for="(row, ri) in steps[activeStep].output.slice(1)"
+                :key="ri"
+              >
+                <td
+                  v-for="(cell, ci) in row"
+                  :key="ci"
+                  class="transforms-demo__body__panel__td"
+                  :class="{ 'transforms-demo__body__panel__td--highlight': steps[activeStep].outputHighlightCol === steps[activeStep].output[0][ci] }"
+                >
+                  {{ cell }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <p class="transforms-demo__body__panel__note">
+            {{ steps[activeStep].note }}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="landing-transforms__cards">
+      <LandingDefaultCard
+        v-for="card in cards"
+        :key="card.tag"
+        :icon="card.icon"
+        :tag="card.tag"
+        :title="card.title"
+        :description="card.description"
+      />
+    </div>
+  </LandingSection>
+</template>
+
 <style scoped lang="scss">
 .transforms-demo {
   background: var(--bc-tile-bg);
@@ -293,7 +293,7 @@ const steps: Step[] = [
     }
 
     &:hover {
-      background: var(--bs-tertiary-bg);
+      background: var(--bc-wash-soft);
     }
 
     &--active {

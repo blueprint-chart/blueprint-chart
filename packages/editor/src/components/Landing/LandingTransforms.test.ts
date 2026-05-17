@@ -14,7 +14,6 @@ function mountTransforms() {
           template: '<div class="default-card-stub" :data-title="title" :data-tag="tag" />',
           props: ['icon', 'tag', 'title', 'description'],
         },
-        AppIcon: { template: '<span />' },
       },
     },
   })
