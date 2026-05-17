@@ -77,7 +77,7 @@ watch(() => activeTabEl, scrollActiveTabIntoView)
     cursor: pointer;
     background: transparent;
     color: var(--bs-secondary-color);
-    border-radius: var(--bc-tile-radius-xs);
+    border-radius: var(--bc-radius-xs);
     transition: background-color 0.15s, color 0.15s, font-weight 0.15s;
 
     &:hover {
