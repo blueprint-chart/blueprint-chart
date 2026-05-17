@@ -34,7 +34,9 @@ defineEmits<{ click: [] }>()
   align-items: center;
   gap: 0.5rem;
   min-width: 14rem;
-  height: 1.75rem;
+  // Match Bootstrap `.btn-sm` height (0.875rem × 1.5 + 0.25rem × 2 + 2px)
+  // so it aligns with adjacent sm icon buttons in toolbars.
+  height: 1.9375rem;
   padding: 0 0.625rem;
   background: var(--bc-wash-input);
   border: 1px solid var(--bc-hairline);
