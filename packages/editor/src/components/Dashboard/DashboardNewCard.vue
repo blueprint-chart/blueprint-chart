@@ -34,8 +34,8 @@ const cardClassList = computed(() => ({
 <style scoped lang="scss">
 .dashboard-new-card {
   background: var(--bc-tile-bg);
-  border: 2px dashed var(--bs-border-color);
-  border-radius: var(--bc-tile-radius);
+  border: 1px dashed var(--bc-hairline-strong);
+  border-radius: var(--bc-radius-md);
   cursor: pointer;
   display: flex;
   flex-direction: column;
@@ -44,7 +44,9 @@ const cardClassList = computed(() => ({
   gap: 0.5rem;
   min-height: 236px;
   color: var(--bs-secondary-color);
-  transition: color 0.18s, border-color 0.18s, background 0.18s;
+  transition: color var(--bc-duration-base) var(--bc-ease),
+              border-color var(--bc-duration-base) var(--bc-ease),
+              background var(--bc-duration-base) var(--bc-ease);
   outline: none;
 
   &:hover {
@@ -54,7 +56,7 @@ const cardClassList = computed(() => ({
   }
 
   &:focus-visible {
-    box-shadow: 0 0 0 2px var(--bs-primary);
+    box-shadow: var(--bc-focus-ring);
   }
 
   &--row {
@@ -62,7 +64,7 @@ const cardClassList = computed(() => ({
     flex-direction: row;
     gap: 0.5rem;
     padding: 0 1.25rem;
-    border-radius: var(--bc-tile-radius-sm);
+    border-radius: var(--bc-radius-sm);
   }
 
   &__icon {

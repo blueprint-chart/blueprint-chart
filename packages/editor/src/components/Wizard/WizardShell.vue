@@ -305,8 +305,6 @@ onBeforeRouteLeave(() => {
     flex-direction: column;
     flex-grow: 1;
     min-height: 0;
-    gap: var(--bc-tile-gap);
-    padding: var(--bc-tile-gap) 0 0;
   }
 
   &__content {
