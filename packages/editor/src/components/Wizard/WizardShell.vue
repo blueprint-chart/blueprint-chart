@@ -14,6 +14,7 @@ import { ChartType, SortDirection, parseData } from '@blueprint-chart/lib'
 import type { SeriesOverride } from '@blueprint-chart/lib'
 import { NavigationStepperTabs, SceneTimeline, ButtonIcon } from '@blueprint-chart/ui'
 import LayoutPageHeader from '@/components/Layout/LayoutPageHeader.vue'
+import LayoutSceneTimeline from '@/components/Layout/LayoutSceneTimeline.vue'
 import IPhArrowLeft from '~icons/ph/arrow-left'
 
 const { currentStep, currentIndex, steps, registerCreateSession } = useWizard()
@@ -248,7 +249,7 @@ onBeforeRouteLeave(() => {
           tag="a"
           href="#/charts"
         />
-        <h1 class="wizard-shell__title">
+        <h1 class="wizard-shell__title bc-display">
           {{ chartTitle }}
         </h1>
         <span
@@ -276,17 +277,18 @@ onBeforeRouteLeave(() => {
         <ChartEditPanel v-else-if="currentStep.key === 'edit'" />
         <ExportPanel v-else-if="currentStep.key === 'export'" />
       </div>
-      <SceneTimeline
-        v-if="showTimeline"
-        :scenes="timelineScenes"
-        :active-index="timelineActiveIndex"
-        :playing="playing"
-        @update:active-index="onTimelineSelect"
-        @add="addScene"
-        @remove="onTimelineRemove"
-        @play="startPlayback"
-        @pause="stopPlayback"
-      />
+      <LayoutSceneTimeline v-if="showTimeline">
+        <SceneTimeline
+          :scenes="timelineScenes"
+          :active-index="timelineActiveIndex"
+          :playing="playing"
+          @update:active-index="onTimelineSelect"
+          @add="addScene"
+          @remove="onTimelineRemove"
+          @play="startPlayback"
+          @pause="stopPlayback"
+        />
+      </LayoutSceneTimeline>
     </div>
   </div>
 </template>
@@ -331,11 +333,10 @@ onBeforeRouteLeave(() => {
   }
 
   &__title {
-    font-size: 1rem;
-    font-weight: 600;
+    font-size: var(--bs-font-size-xl);
     color: var(--bs-body-color);
     margin: 0;
-    line-height: 1;
+    line-height: 1.05;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
