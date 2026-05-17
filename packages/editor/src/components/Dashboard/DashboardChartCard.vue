@@ -6,6 +6,7 @@
     :selected="selected"
     :layout="layout"
     :force-light-thumb="!chart.allowDarkMode"
+    :serif-title="true"
     @click="$emit('select', chart.id)"
   >
     <template #actions>
