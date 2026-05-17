@@ -49,14 +49,12 @@ const layoutItems = computed<NavigationSegmentedControlItem[]>(() => [
       <FormControlDropdown
         :model-value="sortValue"
         :options="sortOptions"
-        size="sm"
         @update:model-value="$emit('update:sortValue', $event)"
       />
       <ButtonIcon
         :icon-left="IPhPlus"
         label="New chart"
         variant="primary"
-        size="sm"
         @click="$emit('new')"
       />
     </template>
