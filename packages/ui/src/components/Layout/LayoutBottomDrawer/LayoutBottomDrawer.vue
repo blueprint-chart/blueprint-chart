@@ -104,10 +104,10 @@ const drawerStyle = computed<CSSProperties>(() => ({
   z-index: 1050;
   display: flex;
   flex-direction: column;
-  background: var(--bc-tile-bg, var(--bs-body-bg));
-  border-radius: var(--bc-tile-radius, 12px) var(--bc-tile-radius, 12px) 0 0;
-  box-shadow: var(--bc-tile-shadow, 0 -0.25rem 1rem rgba(0, 0, 0, 0.15));
-  border: var(--bc-tile-border, none);
+  background: var(--bc-tile-bg);
+  border-radius: var(--bc-radius-md) var(--bc-radius-md) 0 0;
+  box-shadow: var(--bc-shadow-overlay);
+  border: 1px solid var(--bc-hairline);
   overflow: hidden;
   transition: transform 0.25s ease;
   will-change: transform;
