@@ -1,3 +1,15 @@
+<script setup lang="ts">
+import { ButtonIcon } from '@blueprint-chart/ui'
+import IPhPlus from '~icons/ph/plus'
+import { samples } from '@blueprint-chart/lib'
+
+const sample = samples.find(s => s.id === 'coffee-production')
+if (!sample) {
+  throw new Error('Missing coffee-production sample — see LandingHero.vue')
+}
+const heroBpc = sample.dsl.replace(/\{/, '{\n  theme = "blueprint-framed"')
+</script>
+
 <template>
   <section class="landing-hero">
     <div class="landing-hero__inner">
@@ -36,18 +48,6 @@
     </div>
   </section>
 </template>
-
-<script setup lang="ts">
-import { ButtonIcon } from '@blueprint-chart/ui'
-import IPhPlus from '~icons/ph/plus'
-import { samples } from '@blueprint-chart/lib'
-
-const sample = samples.find(s => s.id === 'coffee-production')
-if (!sample) {
-  throw new Error('Missing coffee-production sample — see LandingHero.vue')
-}
-const heroBpc = sample.dsl.replace(/\{/, '{\n  theme = "blueprint-framed"')
-</script>
 
 <style scoped lang="scss">
 .landing-hero {
@@ -140,6 +140,7 @@ const heroBpc = sample.dsl.replace(/\{/, '{\n  theme = "blueprint-framed"')
         // Reversed from previous: show the chart on mobile, stacked below text.
         display: block;
         max-height: 60vh;
+        overflow: hidden;
       }
     }
   }
