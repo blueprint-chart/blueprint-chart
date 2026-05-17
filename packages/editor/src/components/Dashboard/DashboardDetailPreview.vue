@@ -22,7 +22,7 @@ defineProps<{
 <style scoped lang="scss">
 .dashboard-detail-preview {
   background: var(--bc-tile-bg-elevated);
-  border-radius: var(--bc-tile-radius-sm);
+  border-radius: var(--bc-radius-sm);
   margin-top: 1rem;
   margin-bottom: 1rem;
   height: min(300px, 30vh);
@@ -36,7 +36,7 @@ defineProps<{
     max-height: 100%;
     object-fit: contain;
     display: block;
-    border-radius: var(--bc-tile-radius-xs);
+    border-radius: var(--bc-radius-xs);
   }
 }
 </style>
