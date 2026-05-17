@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ButtonIcon, FormControlDropdown, NavigationPillBase } from '@blueprint-chart/ui'
-import type { NavigationPillItem, FormControlDropdownOption } from '@blueprint-chart/ui'
+import { ButtonIcon, FormControlDropdown, NavigationSegmentedControl } from '@blueprint-chart/ui'
+import type { NavigationSegmentedControlItem, FormControlDropdownOption } from '@blueprint-chart/ui'
 import LayoutPageHeader from '@/components/Layout/LayoutPageHeader.vue'
 import IPhSquaresFour from '~icons/ph/squares-four'
 import IPhRows from '~icons/ph/rows'
@@ -24,7 +24,7 @@ const sortOptions: FormControlDropdownOption[] = [
   { value: 'name-asc', label: 'Name A–Z' },
 ]
 
-const layoutItems = computed<NavigationPillItem[]>(() => [
+const layoutItems = computed<NavigationSegmentedControlItem[]>(() => [
   { key: 'grid', text: 'Grid', icon: IPhSquaresFour, active: props.layout === 'grid' },
   { key: 'row', text: 'List', icon: IPhRows, active: props.layout === 'row' },
 ])
@@ -41,7 +41,7 @@ const layoutItems = computed<NavigationPillItem[]>(() => [
       </span>
     </template>
     <template #end>
-      <NavigationPillBase
+      <NavigationSegmentedControl
         :items="layoutItems"
         aria-label="View layout"
         @select="$emit('update:layout', $event as 'grid' | 'row')"
