@@ -1,11 +1,38 @@
 <template>
-  <LandingSection id="stories">
+  <LandingSection id="scenes">
+    <LandingSectionHeader label="05 / Scenes & storytelling">
+      Guide your reader<br><em>through the data.</em>
+      <template #lead>
+        Create a sequence of scenes — each one a step in your narrative.
+        The same chart morphs from overview to focus, from cause to consequence. Press play, or step through.
+      </template>
+    </LandingSectionHeader>
     <div class="scenes__grid">
-      <div class="scenes-demo">
+      <div class="scenes__grid__features">
         <div
-          ref="containerRef"
-          class="scenes-demo__chart"
-        />
+          v-for="feat in features"
+          :key="feat.title"
+          class="scenes-feature"
+        >
+          <span class="scenes-feature__icon">
+            <AppIcon
+              :name="feat.icon"
+              size="sm"
+              variant="primary"
+            />
+          </span>
+          <div>
+            <strong class="scenes-feature__title">{{ feat.title }}</strong>
+            <p class="scenes-feature__desc">
+              {{ feat.description }}
+            </p>
+          </div>
+        </div>
+      </div>
+      <div
+        ref="containerRef"
+        class="scenes-demo"
+      >
         <Teleport
           v-if="playerTarget && sceneCount > 0"
           :to="playerTarget"
@@ -22,36 +49,6 @@
             @pause="stopPlayback"
           />
         </Teleport>
-      </div>
-      <div>
-        <LandingSectionHeader label="Scenes & storytelling">
-          Guide your reader<br><em>through the data.</em>
-          <template #lead>
-            Create a sequence of scenes — each a step in your narrative.
-            The same chart morphs from overview to focus, from cause to consequence.
-          </template>
-        </LandingSectionHeader>
-        <div class="scenes__features">
-          <div
-            v-for="feat in features"
-            :key="feat.title"
-            class="scenes-feature"
-          >
-            <span class="scenes-feature__icon">
-              <AppIcon
-                :name="feat.icon"
-                size="sm"
-                variant="primary"
-              />
-            </span>
-            <div>
-              <strong class="scenes-feature__title">{{ feat.title }}</strong>
-              <p class="scenes-feature__desc">
-                {{ feat.description }}
-              </p>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   </LandingSection>
@@ -195,19 +192,17 @@ const features: { icon: Component, title: string, description: string }[] = [
 </script>
 
 <style scoped lang="scss">
-.scenes {
-  &__grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2.5rem;
-    align-items: start;
-  }
+.scenes__grid {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 2.5rem;
+  align-items: start;
+}
 
-  &__features {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-  }
+.scenes__grid__features {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
 .scenes-feature {
@@ -243,10 +238,16 @@ const features: { icon: Component, title: string, description: string }[] = [
 }
 
 @media (max-width: 51.25rem) {
-  .scenes {
-    &__grid {
-      grid-template-columns: 1fr;
+  .scenes__grid {
+    grid-template-columns: 1fr;
+
+    &__features {
+      order: 1;
     }
+  }
+
+  .scenes-demo {
+    order: 0; // chart goes above the cards on mobile
   }
 }
 </style>

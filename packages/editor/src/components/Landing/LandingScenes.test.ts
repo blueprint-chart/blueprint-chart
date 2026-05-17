@@ -1,8 +1,8 @@
-import { mount } from '@vue/test-utils'
+import { mount, flushPromises } from '@vue/test-utils'
 import LandingScenes from './LandingScenes.vue'
 
 vi.mock('@/stores/theme', () => ({
-  useTheme: () => ({ theme: ref('light'), cycleTheme: vi.fn() }),
+  useTheme: () => ({ theme: { value: 'light' } }),
 }))
 
 vi.mock('@/composables/useChartFromDsl', () => ({
@@ -14,10 +14,13 @@ function mountScenes() {
   return mount(LandingScenes, {
     global: {
       stubs: {
-        LandingSection: { template: '<div><slot /></div>' },
-        LandingSectionHeader: { template: '<div><slot /></div>' },
-        AppIcon: { template: '<span />', props: ['name', 'size', 'variant'] },
-        ScenePlayerButtons: { template: '<div class="player-stub" />' },
+        LandingSection: { template: '<section :id="id"><slot /></section>', props: ['id'] },
+        LandingSectionHeader: {
+          template: '<header><div class="header-label">{{ label }}</div><slot /><slot name="lead" /></header>',
+          props: ['label'],
+        },
+        AppIcon: { template: '<span />' },
+        ScenePlayerButtons: { template: '<div class="scene-player-stub" />' },
         Teleport: { template: '<div><slot /></div>' },
       },
     },
@@ -25,19 +28,31 @@ function mountScenes() {
 }
 
 describe('LandingScenes', () => {
-  it('renders chart container', () => {
+  it('mounts at the scenes anchor', async () => {
     const w = mountScenes()
-    expect(w.find('.scenes-demo__chart').exists()).toBe(true)
+    await flushPromises()
+    expect(w.find('section').attributes('id')).toBe('scenes')
   })
 
-  it('renders feature descriptions', () => {
+  it('uses the 05 / Scenes & storytelling eyebrow', async () => {
     const w = mountScenes()
-    const features = w.findAll('.scenes-feature')
-    expect(features.length).toBe(3)
+    await flushPromises()
+    expect(w.find('.header-label').text()).toBe('05 / Scenes & storytelling')
   })
 
-  it('renders scenes demo wrapper', () => {
+  it('renders 3 feature rows', async () => {
     const w = mountScenes()
-    expect(w.find('.scenes-demo').exists()).toBe(true)
+    await flushPromises()
+    expect(w.findAll('.scenes-feature')).toHaveLength(3)
+  })
+
+  it('renders the chart container after the features in DOM order', async () => {
+    const w = mountScenes()
+    await flushPromises()
+    // The flipped grid places features first in the DOM (left column),
+    // chart second (right column). Test ensures we didn't accidentally swap.
+    const children = w.find('.scenes__grid').element.children
+    expect(children[0].classList.contains('scenes__grid__features')).toBe(true)
+    expect(children[1].classList.contains('scenes-demo')).toBe(true)
   })
 })
