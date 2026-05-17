@@ -54,22 +54,30 @@ function goNew() {
         class="landing-topnav__links"
         aria-label="Sections"
       >
-        <a
-          href="#defaults"
+        <router-link
+          :to="{ hash: '#defaults' }"
           class="landing-topnav__link"
-        >Defaults</a>
-        <a
-          href="#transforms"
+        >
+          Defaults
+        </router-link>
+        <router-link
+          :to="{ hash: '#transforms' }"
           class="landing-topnav__link"
-        >Transforms</a>
-        <a
-          href="#format"
+        >
+          Transforms
+        </router-link>
+        <router-link
+          :to="{ hash: '#format' }"
           class="landing-topnav__link"
-        >Format</a>
-        <a
-          href="#scenes"
+        >
+          Format
+        </router-link>
+        <router-link
+          :to="{ hash: '#scenes' }"
           class="landing-topnav__link"
-        >Scenes</a>
+        >
+          Scenes
+        </router-link>
       </nav>
 
       <div class="landing-topnav__spacer" />

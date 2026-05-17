@@ -19,6 +19,18 @@ function loadSession(to: { params: { id: string } }) {
 
 const router = createRouter({
   history: createWebHashHistory(),
+  scrollBehavior(to, _from, savedPosition) {
+    // Restore position on browser back/forward
+    if (savedPosition) {
+      return savedPosition
+    }
+    // Smooth-scroll to in-page anchor (e.g. landing section links)
+    if (to.hash) {
+      return { el: to.hash, behavior: 'smooth' }
+    }
+    // Default: scroll to top on every route change
+    return { top: 0 }
+  },
   routes: [
     {
       path: '/',
