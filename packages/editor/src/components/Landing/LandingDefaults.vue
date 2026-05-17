@@ -104,7 +104,7 @@ const cards: Card[] = [
     &__chart {
       background: var(--bc-tile-bg);
       border: 1px solid var(--bc-hairline);
-      border-radius: var(--bc-radius-md);
+      border-radius: var(--bc-radius-lg);
       overflow: hidden;
       align-self: stretch;
     }
