@@ -4,6 +4,7 @@ dist/
 components.d.ts
 .playwright-mcp
 .claude
+.claude-flow
 .ralph-tui
 .superpowers/
 docs/superpowers/
