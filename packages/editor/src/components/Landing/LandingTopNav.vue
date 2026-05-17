@@ -83,15 +83,6 @@ function goNew() {
       <div class="landing-topnav__spacer" />
 
       <div class="landing-topnav__actions">
-        <ButtonIcon
-          :icon-left="themeIcon"
-          label="Toggle theme"
-          hide-label
-          square
-          variant="outline-secondary"
-          size="sm"
-          @click="cycleTheme"
-        />
         <a
           class="btn btn-sm btn-outline-secondary landing-topnav__github"
           href="https://github.com/blueprint-chart/blueprint-chart"
@@ -118,6 +109,15 @@ function goNew() {
           size="sm"
           :icon-left="IPhPlus"
           @click="goNew"
+        />
+        <ButtonIcon
+          :icon-left="themeIcon"
+          label="Toggle theme"
+          hide-label
+          square
+          variant="outline-secondary"
+          size="sm"
+          @click="cycleTheme"
         />
       </div>
     </div>
