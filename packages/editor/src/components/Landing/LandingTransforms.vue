@@ -1,10 +1,9 @@
 <template>
   <LandingSection id="transforms">
-    <LandingSectionHeader label="Data pipeline">
-      Transform your data<br><em>before you chart it.</em>
+    <LandingSectionHeader label="03 / Data pipeline">
+      Reshape your data<br><em>before you chart it.</em>
       <template #lead>
-        Raw data rarely fits a chart out of the box. Blueprint Chart's built-in pipeline
-        lets you sort, filter, group and reshape — all without leaving the editor.
+        Raw data rarely fits a chart out of the box. Blueprint's pipeline lets you sort, filter, group, parse and reshape — all without leaving the editor, all replayable from your BPC source.
       </template>
     </LandingSectionHeader>
 
@@ -109,87 +108,60 @@
       </div>
     </div>
 
-    <div class="transforms__cards">
-      <div
+    <div class="landing-transforms__cards">
+      <LandingDefaultCard
         v-for="card in cards"
-        :key="card.title"
-        class="transforms-card"
-      >
-        <span
-          class="transforms-card__icon"
-          :class="card.colorClass"
-        >
-          <AppIcon
-            :name="card.icon"
-            size="sm"
-          />
-        </span>
-        <div>
-          <strong class="transforms-card__title">{{ card.title }}</strong>
-          <p class="transforms-card__desc">
-            {{ card.description }}
-          </p>
-        </div>
-      </div>
+        :key="card.tag"
+        :icon="card.icon"
+        :tag="card.tag"
+        :title="card.title"
+        :description="card.description"
+      />
     </div>
   </LandingSection>
 </template>
 
 <script setup lang="ts">
 import type { Component } from 'vue'
-import { AppIcon } from '@blueprint-chart/ui'
-import IPhSortAscending from '~icons/ph/sort-ascending'
-import IPhFunnel from '~icons/ph/funnel'
-import IPhStack from '~icons/ph/stack'
+import IPhFunction from '~icons/ph/function'
 import IPhWrench from '~icons/ph/wrench'
 import IPhPencilSimple from '~icons/ph/pencil-simple'
-import IPhEyeSlash from '~icons/ph/eye-slash'
 import IPhArrowsClockwise from '~icons/ph/arrows-clockwise'
+import LandingDefaultCard from './LandingDefaultCard.vue'
 
 const activeStep = shallowRef(0)
 
-const cards: { icon: Component, title: string, description: string, colorClass: string }[] = [
+interface Card {
+  icon: Component
+  tag: string
+  title: string
+  description: string
+}
+
+const cards: Card[] = [
   {
-    icon: IPhSortAscending,
-    title: 'Sort',
-    description: 'Multi-column sort with direction control. Ascending, descending, or by aggregation.',
-    colorClass: 'transforms-card__icon--sort',
-  },
-  {
-    icon: IPhFunnel,
-    title: 'Filter',
-    description: 'Keep or remove rows by condition — equals, not-equals, contains, greater-than, less-than.',
-    colorClass: 'transforms-card__icon--filter',
-  },
-  {
-    icon: IPhStack,
-    title: 'Group & aggregate',
-    description: 'Group rows by any column, then aggregate with SUM, AVG, MIN, MAX or COUNT.',
-    colorClass: 'transforms-card__icon--group',
+    icon: IPhFunction,
+    tag: 'SORT · FILTER · GROUP',
+    title: 'Core operations',
+    description: 'Multi-column sort, conditional filter, group-with-aggregate (sum / avg / min / max / count).',
   },
   {
     icon: IPhWrench,
-    title: 'Parse',
-    description: '29 operations — type conversions, string transforms, date extraction, numeric normalization.',
-    colorClass: 'transforms-card__icon--parse',
+    tag: '29 OPERATIONS',
+    title: 'Parse & reshape',
+    description: 'Type conversions, string transforms, date extraction, numeric normalisation.',
   },
   {
     icon: IPhPencilSimple,
-    title: 'Rename',
-    description: 'Clean up column names for readable axis labels and chart titles.',
-    colorClass: 'transforms-card__icon--rename',
-  },
-  {
-    icon: IPhEyeSlash,
-    title: 'Hide columns',
-    description: 'Remove columns from the chart without deleting them from your data.',
-    colorClass: 'transforms-card__icon--hide',
+    tag: 'RENAME · HIDE',
+    title: 'Chart-ready labels',
+    description: 'Clean column names for axis labels. Hide columns without deleting your data.',
   },
   {
     icon: IPhArrowsClockwise,
-    title: 'Transpose',
-    description: 'Swap rows and columns. First column values become headers.',
-    colorClass: 'transforms-card__icon--transpose',
+    tag: 'TRANSPOSE',
+    title: 'Pivot',
+    description: 'Swap rows and columns. First-column values become headers.',
   },
 ]
 
@@ -300,7 +272,7 @@ const steps: Step[] = [
   &__steps {
     display: flex;
     overflow-x: auto;
-    border-bottom: 1px solid var(--bs-border-color);
+    border-bottom: 1px solid var(--bc-hairline);
   }
 
   &__step {
@@ -308,7 +280,7 @@ const steps: Step[] = [
     min-width: 0;
     padding: 0.625rem 1rem;
     border: none;
-    border-right: 1px solid var(--bs-border-color);
+    border-right: 1px solid var(--bc-hairline);
     background: var(--bc-content-bg);
     cursor: pointer;
     transition: background 0.15s;
@@ -325,14 +297,14 @@ const steps: Step[] = [
     }
 
     &--active {
-      background: var(--bs-primary-bg-subtle);
+      background: var(--bc-wash-firm);
     }
 
     &__num {
       width: 1.5rem;
       height: 1.5rem;
       border-radius: 50%;
-      background: var(--bs-border-color);
+      background: var(--bc-hairline);
       color: var(--bs-secondary-color);
       font-size: var(--bs-font-size-xs);
       font-weight: 700;
@@ -368,7 +340,7 @@ const steps: Step[] = [
 
     &__panel {
       padding: 1rem 1.25rem;
-      border: 1px solid var(--bs-border-color);
+      border: 1px solid var(--bc-hairline);
       border-radius: 0.5rem;
       margin: 1rem 0;
 
@@ -394,12 +366,12 @@ const steps: Step[] = [
         font-size: var(--bs-font-size-xs);
         background: var(--bc-content-bg);
         color: var(--bs-secondary-color);
-        border-bottom: 1px solid var(--bs-border-color);
+        border-bottom: 1px solid var(--bc-hairline);
       }
 
       &__td {
         padding: 0.25rem 0.625rem;
-        border-bottom: 1px solid var(--bs-border-color);
+        border-bottom: 1px solid var(--bc-hairline);
         color: var(--bs-secondary-color);
 
         tr:last-child > & {
@@ -433,7 +405,7 @@ const steps: Step[] = [
 
       &__wire {
         fill: none;
-        stroke: var(--bs-border-color);
+        stroke: var(--bc-hairline);
         stroke-width: 1.5;
         stroke-dasharray: 5 4;
         stroke-linecap: round;
@@ -445,7 +417,7 @@ const steps: Step[] = [
         width: 6px;
         height: 6px;
         border-radius: 50%;
-        background: var(--bs-border-color);
+        background: var(--bc-hairline);
         top: 50%;
         transform: translateY(-50%);
 
@@ -462,79 +434,12 @@ const steps: Step[] = [
   }
 }
 
-/* ─── Feature cards ─── */
-.transforms__cards {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 0.875rem;
-  margin-top: 1.75rem;
-}
-
-.transforms-card {
-  display: flex;
-  gap: 0.625rem;
-  align-items: flex-start;
-  padding: 0.875rem 1rem;
-  background: var(--bc-tile-bg);
-  border: 1px solid var(--bc-hairline);
-  border-radius: calc(var(--bc-radius-md) - 2px);
-
-  &__icon {
-    width: 1.75rem;
-    height: 1.75rem;
-    border-radius: 0.25rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    margin-top: 1px;
-
-    &--sort {
-      background: var(--bs-warning-bg-subtle);
-      color: var(--bs-warning-text-emphasis);
-    }
-
-    &--filter {
-      background: var(--bs-danger-bg-subtle);
-      color: var(--bs-danger-text-emphasis);
-    }
-
-    &--group {
-      background: hsl(270 90% 95%);
-      color: hsl(270 70% 50%);
-    }
-
-    &--parse {
-      background: var(--bs-success-bg-subtle);
-      color: var(--bs-success-text-emphasis);
-    }
-
-    &--rename {
-      background: var(--bs-primary-bg-subtle);
-      color: var(--bs-primary-text-emphasis);
-    }
-
-    &--hide {
-      background: var(--bs-secondary-bg);
-      color: var(--bs-secondary-text-emphasis);
-    }
-
-    &--transpose {
-      background: var(--bs-info-bg-subtle);
-      color: var(--bs-info-text-emphasis);
-    }
-  }
-
-  &__title {
-    font-size: var(--bs-font-size-sm);
-    display: block;
-  }
-
-  &__desc {
-    font-size: var(--bs-font-size-xs);
-    color: var(--bs-secondary-color);
-    margin-top: 0.125rem;
-    line-height: 1.5;
+.landing-transforms {
+  &__cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.875rem;
+    margin-top: 1.75rem;
   }
 }
 
@@ -576,14 +481,18 @@ const steps: Step[] = [
     }
   }
 
-  .transforms__cards {
-    grid-template-columns: repeat(2, 1fr);
+  .landing-transforms {
+    &__cards {
+      grid-template-columns: repeat(2, 1fr);
+    }
   }
 }
 
 @media (max-width: 33.75rem) {
-  .transforms__cards {
-    grid-template-columns: 1fr;
+  .landing-transforms {
+    &__cards {
+      grid-template-columns: 1fr;
+    }
   }
 }
 </style>
