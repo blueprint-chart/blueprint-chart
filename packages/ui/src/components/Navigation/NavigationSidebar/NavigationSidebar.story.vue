@@ -14,16 +14,33 @@ import IPhCopy from '~icons/ph/copy'
           <strong>Blueprint</strong>
         </template>
         <NavigationSidebarGroup eyebrow="Workspace">
-          <NavigationSidebarItem to="/" label="Home">
-            <template #icon><IPhSquaresFour /></template>
+          <NavigationSidebarItem
+            to="/"
+            label="Home"
+          >
+            <template #icon>
+              <IPhSquaresFour />
+            </template>
           </NavigationSidebarItem>
-          <NavigationSidebarItem to="/charts" label="My Charts" :active="true">
-            <template #icon><IPhCopy /></template>
+          <NavigationSidebarItem
+            to="/charts"
+            label="My Charts"
+            :active="true"
+          >
+            <template #icon>
+              <IPhCopy />
+            </template>
           </NavigationSidebarItem>
         </NavigationSidebarGroup>
         <NavigationSidebarGroup eyebrow="Recent">
-          <NavigationSidebarItem to="/charts/offshore-flows" label="Offshore flows" />
-          <NavigationSidebarItem to="/charts/asylum-decisions" label="Asylum decisions" />
+          <NavigationSidebarItem
+            to="/charts/offshore-flows"
+            label="Offshore flows"
+          />
+          <NavigationSidebarItem
+            to="/charts/asylum-decisions"
+            label="Asylum decisions"
+          />
         </NavigationSidebarGroup>
       </NavigationSidebar>
     </Variant>

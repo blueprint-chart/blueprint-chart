@@ -8,6 +8,7 @@ const props = withDefaults(defineProps<{
   count?: number
 }>(), {
   active: false,
+  count: undefined,
 })
 
 // Combine explicit active prop with router's own active detection so that

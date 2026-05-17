@@ -9,7 +9,9 @@ defineProps<{
     <div
       v-if="eyebrow"
       class="navigation-sidebar-group__eyebrow"
-    >{{ eyebrow }}</div>
+    >
+      {{ eyebrow }}
+    </div>
     <div class="navigation-sidebar-group__items">
       <slot />
     </div>
