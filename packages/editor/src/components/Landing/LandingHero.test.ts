@@ -22,9 +22,9 @@ describe('LandingHero', () => {
     expect(w.find('.landing-hero__inner__text__h1').text()).toContain('tell the truth')
   })
 
-  it('renders the eyebrow for journalists & researchers', () => {
+  it('renders the eyebrow', () => {
     const w = mountHero()
-    expect(w.find('.landing-hero__inner__text__eyebrow').text()).toContain('For journalists & researchers')
+    expect(w.find('.landing-hero__inner__text__eyebrow').text()).toContain('Editorial data visualization')
   })
 
   it('renders CTA buttons', () => {

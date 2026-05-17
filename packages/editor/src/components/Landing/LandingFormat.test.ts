@@ -40,7 +40,7 @@ describe('LandingFormat', () => {
   it('renders the browser-frame URL pill', () => {
     const w = mountFormat()
     expect(w.find('.landing-format__browser__url').exists()).toBe(true)
-    expect(w.find('.landing-format__browser__url').text()).toContain('blueprint.chart/embed')
+    expect(w.find('.landing-format__browser__url').text()).toContain('blueprintchart.com/embed')
   })
 
   it('renders the chart inside the browser frame', () => {
