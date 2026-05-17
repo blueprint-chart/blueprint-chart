@@ -66,23 +66,15 @@ function rootClass(routerActive: boolean) {
               color var(--bc-duration-base) var(--bc-ease);
 
   &:hover {
-    background: rgba(255, 255, 255, 0.03);
+    background: var(--bc-wash-soft);
     color: var(--bs-body-color);
     text-decoration: none;
-
-    [data-bs-theme="light"] & {
-      background: rgba(0, 0, 0, 0.04);
-    }
   }
 
   &--active {
-    background: rgba(255, 255, 255, 0.07);
+    background: var(--bc-wash-firm);
     color: var(--bs-body-color);
     font-weight: 500;
-
-    [data-bs-theme="light"] & {
-      background: rgba(0, 0, 0, 0.06);
-    }
   }
 
   &__icon {

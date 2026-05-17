@@ -36,7 +36,7 @@ defineEmits<{ click: [] }>()
   min-width: 14rem;
   height: 1.75rem;
   padding: 0 0.625rem;
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--bc-wash-input);
   border: 1px solid var(--bc-hairline);
   border-radius: var(--bc-radius-sm);
   color: var(--bs-tertiary-color);
@@ -45,15 +45,9 @@ defineEmits<{ click: [] }>()
   transition: background var(--bc-duration-base) var(--bc-ease),
               border-color var(--bc-duration-base) var(--bc-ease);
 
-  [data-bs-theme="light"] & {
-    background: rgba(0, 0, 0, 0.03);
-  }
-
   &:hover {
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--bc-wash-input-hover);
     border-color: var(--bc-hairline-strong);
-
-    [data-bs-theme="light"] & { background: rgba(0, 0, 0, 0.05); }
   }
 
   &:focus-visible {
@@ -77,12 +71,8 @@ defineEmits<{ click: [] }>()
   margin-left: auto;
   font-family: var(--bs-font-monospace, "Geist Mono", ui-monospace, monospace);
   font-size: 0.625rem;
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--bc-wash-firm);
   padding: 1px 5px;
   border-radius: 3px;
-
-  [data-bs-theme="light"] & {
-    background: rgba(0, 0, 0, 0.06);
-  }
 }
 </style>
