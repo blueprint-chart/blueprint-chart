@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { ButtonIcon, NavigationLink, NavigationSearchPill, useBreakpoint } from '@blueprint-chart/ui'
+import {
+  ButtonIcon,
+  NavigationCommandBar,
+  NavigationWorkspaceSwitcher,
+  useBreakpoint,
+} from '@blueprint-chart/ui'
 import { useTheme, type ThemeMode } from '@/stores/theme'
 import { usePlatformShortcut } from '@/composables/usePlatformShortcut'
-import logoLight from '@/assets/images/blueprint-chart-logo.svg'
-import logoDark from '@/assets/images/blueprint-chart-logo-dark.svg'
 import IPhSun from '~icons/ph/sun'
 import IPhMoon from '~icons/ph/moon'
 import IPhCircleHalf from '~icons/ph/circle-half'
@@ -15,59 +18,28 @@ const { theme, cycleTheme } = useTheme()
 const { isNarrow } = useBreakpoint()
 const shortcut = usePlatformShortcut('k')
 
-const logoByTheme: Record<ThemeMode, string> = {
-  light: logoLight,
-  dark: logoDark,
-  auto: logoLight,
-}
-
 const iconByTheme: Record<ThemeMode, typeof IPhSun> = {
   light: IPhSun,
   dark: IPhMoon,
   auto: IPhCircleHalf,
 }
 
-const logoSrc = computed(() => logoByTheme[theme.value])
 const themeIcon = computed(() => iconByTheme[theme.value])
-const searchPlaceholder = computed(() => isNarrow.value ? 'Search…' : 'Search charts…')
+const placeholder = computed(() => isNarrow.value ? 'Search…' : 'Search or jump to…')
 </script>
 
 <template>
-  <nav
+  <header
     class="layout-navbar"
-    aria-label="Main navigation"
+    role="banner"
   >
-    <router-link
-      to="/"
-      class="layout-navbar__brand"
-    >
-      <img
-        :src="logoSrc"
-        alt="Blueprint Chart"
-        class="layout-navbar__brand__logo"
-      >
-      <span class="layout-navbar__brand__name bc-brand-gradient">Blueprint Chart</span>
-    </router-link>
-
-    <div class="layout-navbar__nav">
-      <NavigationLink
-        to="/"
-        label="Home"
-      />
-      <NavigationLink
-        to="/charts"
-        label="My Charts"
-      />
-    </div>
+    <NavigationWorkspaceSwitcher name="Blueprint" />
 
     <div class="layout-navbar__spacer" />
 
-    <NavigationSearchPill
-      :placeholder="searchPlaceholder"
+    <NavigationCommandBar
+      :placeholder="placeholder"
       :shortcut-label="shortcut.keyLabel"
-      :shortcut-keys="shortcut.keys"
-      :compact="isNarrow"
-      aria-label="Open chart search"
       class="layout-navbar__search"
       @click="$emit('searchClick')"
     />
@@ -81,66 +53,21 @@ const searchPlaceholder = computed(() => isNarrow.value ? 'Search…' : 'Search 
       size="sm"
       @click="cycleTheme"
     />
-  </nav>
+  </header>
 </template>
 
 <style scoped lang="scss">
 .layout-navbar {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.375rem 1rem;
-  min-height: 3.5rem;
-  background: var(--bc-tile-bg);
-  border-radius: var(--bc-tile-radius) var(--bc-tile-radius) var(--bc-navbar-bottom-radius) var(--bc-navbar-bottom-radius);
-  box-shadow: var(--bc-tile-shadow);
-  position: relative;
-  z-index: 1040;
+  gap: 0.5rem;
+  height: 2.5rem;
+  padding: 0 0.875rem;
+  background: var(--bc-chrome-bg);
+  border-bottom: 1px solid var(--bc-hairline);
   flex-shrink: 0;
-
-  &__brand {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    text-decoration: none;
-    color: var(--bs-body-color);
-
-    &__logo {
-      height: 1.5rem;
-      width: auto;
-    }
-
-    &__name {
-      font-weight: 600;
-      font-size: 0.9375rem;
-      letter-spacing: -0.005em;
-      display: none;
-
-      @media (min-width: 576px) {
-        display: inline;
-      }
-    }
-  }
-
-  &__nav {
-    display: none;
-    align-items: center;
-    gap: 0.125rem;
-    padding-left: 0.5rem;
-    border-left: 1px solid var(--bs-border-color);
-    margin-left: 0.25rem;
-
-    @media (min-width: 576px) {
-      display: flex;
-    }
-  }
-
-  &__spacer {
-    flex: 1;
-  }
-
-  &__search {
-    flex-shrink: 0;
-  }
+  z-index: 1040;
 }
+
+.layout-navbar__spacer { flex: 1; }
 </style>
