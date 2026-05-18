@@ -314,6 +314,7 @@
     "useOnline": true,
     "usePageLeave": true,
     "usePanelBreakpointSync": true,
+    "usePanelCanvasSync": true,
     "usePanelDrag": true,
     "useParallax": true,
     "useParentElement": true,

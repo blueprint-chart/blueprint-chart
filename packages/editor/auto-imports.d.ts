@@ -312,6 +312,7 @@ declare global {
   const useOnline: typeof import('@vueuse/core').useOnline
   const usePageLeave: typeof import('@vueuse/core').usePageLeave
   const usePanelBreakpointSync: typeof import('./src/composables/usePanelBreakpointSync').usePanelBreakpointSync
+  const usePanelCanvasSync: typeof import('./src/composables/usePanelCanvasSync').usePanelCanvasSync
   const usePanelDrag: typeof import('./src/composables/usePanelDrag').usePanelDrag
   const useParallax: typeof import('@vueuse/core').useParallax
   const useParentElement: typeof import('@vueuse/core').useParentElement
