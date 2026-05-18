@@ -1,6 +1,18 @@
-import { mount } from '@vue/test-utils'
+import { mount, type VueWrapper } from '@vue/test-utils'
 import PanelShell from './PanelShell.vue'
-import { usePanelStore } from '@/stores/panel'
+import { usePanelStore, MIN_CANVAS_WIDTH } from '@/stores/panel'
+
+// Mocked useElementSize lets tests drive canvas width directly.
+// Once PanelShell calls usePanelCanvasSync (which calls useElementSize),
+// every test in this file goes through this mock.
+const elementWidth = ref(1000)
+vi.mock('@vueuse/core', async () => {
+  const actual = await vi.importActual<typeof import('@vueuse/core')>('@vueuse/core')
+  return {
+    ...actual,
+    useElementSize: () => ({ width: elementWidth, height: ref(800) }),
+  }
+})
 
 vi.mock('@blueprint-chart/ui', () => ({
   LayoutPanel: {
@@ -33,9 +45,20 @@ vi.mock('@/composables/usePanelDrag', () => ({
   usePanelDrag: vi.fn(() => ({ isDragging: false })),
 }))
 
+// Module-scoped wrapper so afterEach can unmount it. Without unmount, orphan
+// watchers from previous tests keep firing on the shared elementWidth ref and
+// clobber the active Pinia instance, causing inter-test pollution.
+let wrapper: VueWrapper | null = null
+
 describe('PanelShell', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
+    elementWidth.value = 1000
+  })
+
+  afterEach(() => {
+    wrapper?.unmount()
+    wrapper = null
   })
 
   describe('mode === "closed"', () => {
@@ -233,6 +256,49 @@ describe('PanelShell', () => {
       panel.close()
       await nextTick()
       expect(w.find('.panel-docked').exists()).toBe(false)
+    })
+  })
+
+  describe('canvas-sync', () => {
+    it('passes canvasWidth from useElementSize down to PanelDocked', async () => {
+      elementWidth.value = 800
+      const store = usePanelStore()
+      store.dock()
+      const container = document.createElement('div')
+      wrapper = mount(PanelShell, {
+        props: { title: 'Panel', containerRef: container },
+      })
+      await nextTick()
+      const style = wrapper.find('.panel-docked').attributes('style')
+      expect(style).toMatch(/width: \d+px/)
+      const widthMatch = style?.match(/width: (\d+)px/)
+      const renderedWidth = widthMatch ? parseInt(widthMatch[1], 10) : 0
+      expect(renderedWidth).toBeLessThanOrEqual(800 - MIN_CANVAS_WIDTH)
+    })
+
+    it('docks an open floating panel when canvas crosses the cramped threshold', async () => {
+      elementWidth.value = 1000
+      const store = usePanelStore()
+      store.float()
+      const container = document.createElement('div')
+      container.appendChild(document.createElement('div'))
+
+      wrapper = mount(PanelShell, {
+        props: { title: 'Panel', containerRef: container },
+        attachTo: container,
+      })
+      await nextTick()
+      expect(store.mode).toBe('floating')
+
+      elementWidth.value = 500
+      // Two ticks: first lets PanelShell's flush:'sync' watcher run dock()
+      // (capturing lastDesktopMode='docked'), second lets the composable's
+      // queued syncCramped watcher flip mode to 'closed'.
+      await nextTick()
+      await nextTick()
+
+      expect(store.mode).toBe('closed')
+      expect(store.lastDesktopMode).toBe('docked')
     })
   })
 })
