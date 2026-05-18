@@ -51,8 +51,8 @@ describe('usePanelCanvasSync', () => {
     expect(store.mode).toBe('docked')
   })
 
-  it('initial cramped canvas (< 580): forces closed', async () => {
-    elementWidth.value = 500
+  it('initial cramped canvas (< 480): forces closed', async () => {
+    elementWidth.value = 400
     const store = usePanelStore()
     store.$patch({ mode: 'floating', lastDesktopMode: 'floating' })
 
@@ -64,15 +64,15 @@ describe('usePanelCanvasSync', () => {
     expect(store.lastDesktopMode).toBe('floating')
   })
 
-  it('threshold boundary at 580: cramped is false at 580, true at 579', async () => {
-    elementWidth.value = 580
+  it('threshold boundary at 480: cramped is false at 480, true at 479', async () => {
+    elementWidth.value = 480
     const store = usePanelStore()
 
     mountSync()
     await nextTick()
     expect(store.cramped).toBe(false)
 
-    elementWidth.value = 579
+    elementWidth.value = 479
     await nextTick()
     expect(store.cramped).toBe(true)
   })
