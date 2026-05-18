@@ -120,11 +120,6 @@ function onResizeStart(e: PointerEvent) {
   flex-direction: column;
   background: var(--bc-content-bg);
   border-left: 1px solid var(--bc-hairline);
-  transition: width 0.3s ease, max-width 0.3s ease, opacity 0.2s ease;
-
-  &.panel-docked--resizing {
-    transition: none;
-  }
 
   &.panel-docked--collapsed {
     width: 0 !important;
