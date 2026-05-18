@@ -395,19 +395,26 @@ export function render(
   const chart = new LineMultiChart(d3.select(clippedArea))
   chart.config({ xPos, y, colors, labels: data.labels, curve, areaFill: options.areaFill ?? false, areaFillOpacity: options.areaFillOpacity ?? 0.2, height, dots: dotData, highlightTargets })
 
+  // Drop priors whose series no longer exists in the new scene so they vanish
+  // immediately instead of lingering through the exit transition.
+  const nextSeriesNames = new Set(seriesData.map(s => s.name))
+  const keptPriorAreas = priorAreas.filter(el => nextSeriesNames.has((el as { __data__?: SeriesDatum }).__data__?.name ?? ''))
+  const keptPriorLines = priorLines.filter(el => nextSeriesNames.has((el as { __data__?: SeriesDatum }).__data__?.name ?? ''))
+  const keptPriorDots = priorDots.filter(el => nextSeriesNames.has((el as { __data__?: DotDatum }).__data__?.series ?? ''))
+
   // Re-insert prior elements so D3 data-join finds them and triggers merge:transition
-  if (priorLines.length > 0 || priorAreas.length > 0 || priorDots.length > 0) {
+  if (keptPriorLines.length > 0 || keptPriorAreas.length > 0 || keptPriorDots.length > 0) {
     const dx = marginDelta?.dx ?? 0
     const dy = marginDelta?.dy ?? 0
     const groups = clippedArea.querySelectorAll(':scope > g')
     if (groups[0]) {
-      reinsertWithOffset(groups[0], priorAreas, dx, dy)
+      reinsertWithOffset(groups[0], keptPriorAreas, dx, dy)
     }
     if (groups[1]) {
-      reinsertWithOffset(groups[1], priorLines, dx, dy)
+      reinsertWithOffset(groups[1], keptPriorLines, dx, dy)
     }
     if (groups[2]) {
-      reinsertWithOffset(groups[2], priorDots, dx, dy)
+      reinsertWithOffset(groups[2], keptPriorDots, dx, dy)
     }
   }
 
