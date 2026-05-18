@@ -1,4 +1,5 @@
 import { defineConfig } from 'vitepress'
+import { installBpcFence } from './theme/markdown/bpc-fence'
 
 export default defineConfig({
   title: 'Blueprint Chart',
@@ -12,6 +13,9 @@ export default defineConfig({
   markdown: {
     languageAlias: {
       bpc: 'kotlin',
+    },
+    config(md) {
+      installBpcFence(md)
     },
   },
 

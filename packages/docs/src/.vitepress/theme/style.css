@@ -237,3 +237,142 @@
 :focus-visible {
   outline-color: rgba(37, 99, 160, 0.45);
 }
+
+/* ============================================================================
+ * BpcBlock — Code/Preview tab switcher around ```bpc fences
+ * ----------------------------------------------------------------------------
+ * Wraps the default VitePress code block in a tabbed shell with a live
+ * preview pane and an "Open in editor" round-trip link.
+ * ========================================================================== */
+.bpc-block {
+  margin: 16px 0;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--vp-c-bg);
+}
+
+.bpc-block__tabs {
+  display: flex;
+  gap: 4px;
+  padding: 6px 8px;
+  background: var(--vp-c-bg-soft);
+  border-bottom: 1px solid var(--vp-c-divider);
+}
+
+.bpc-block__tab {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-family: var(--vp-font-family-base);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: 0.01em;
+  color: var(--vp-c-text-2);
+  cursor: pointer;
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.bpc-block__tab:hover:not(:disabled) {
+  color: var(--vp-c-text-1);
+}
+
+.bpc-block__tab.is-active {
+  background: var(--vp-c-bg);
+  color: var(--vp-c-text-1);
+  box-shadow: 0 0 0 1px var(--vp-c-divider);
+}
+
+.bpc-block__tab:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.bpc-block__body {
+  position: relative;
+}
+
+/* Strip the default VP code-block margin so it nests cleanly inside the shell. */
+.bpc-block__code > div[class*='language-'] {
+  margin: 0;
+  border-radius: 0;
+}
+
+.bpc-block__preview {
+  background: var(--vp-c-bg-soft);
+  padding: 16px;
+  min-height: 360px;
+  contain: layout paint;
+}
+
+.bpc-preview {
+  position: relative;
+  width: 100%;
+  min-height: 328px;
+}
+
+.bpc-preview__container {
+  width: 100%;
+  min-height: 328px;
+}
+
+.bpc-preview__error {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  font-size: 13px;
+  color: var(--vp-c-text-3);
+  text-align: center;
+}
+
+.bpc-block__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 8px 12px;
+  border-top: 1px solid var(--vp-c-divider);
+  background: var(--vp-c-bg-soft);
+  font-size: 12px;
+}
+
+.bpc-block__caption {
+  color: var(--vp-c-text-3);
+  font-family: var(--vp-font-family-mono);
+  font-size: 11px;
+}
+
+.bpc-block__editor-link {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--vp-c-brand-1);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.15s ease;
+}
+
+.bpc-block__editor-link:hover {
+  color: var(--vp-c-brand-2);
+}
+
+.bpc-block__editor-link__glyph {
+  transition: transform 0.15s ease;
+}
+
+.bpc-block__editor-link:hover .bpc-block__editor-link__glyph {
+  transform: translateX(2px);
+}
+
+/* Code-only fallback: when parse fails, hide the tab bar entirely.
+ * The code block plus the (already-hidden) footer remain visible. */
+.bpc-block--code-only .bpc-block__tabs {
+  display: none;
+}
