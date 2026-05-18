@@ -1,0 +1,28 @@
+{
+  "name": "@blueprint-chart/docs",
+  "version": "0.1.7",
+  "description": "Public documentation site for Blueprint Chart — guides, BPC DSL spec, and lib API reference.",
+  "license": "MIT",
+  "author": "pirhoo",
+  "homepage": "https://docs.blueprintchart.com",
+  "bugs": {
+    "url": "https://github.com/blueprint-chart/blueprint-chart/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/blueprint-chart/blueprint-chart.git",
+    "directory": "packages/docs"
+  },
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "vitepress dev src --port 4455",
+    "build": "vitepress build src",
+    "preview": "vitepress preview src --port 4455"
+  },
+  "devDependencies": {
+    "typescript": "^5.7",
+    "vitepress": "^1.5.0",
+    "vue": "^3.5"
+  }
+}

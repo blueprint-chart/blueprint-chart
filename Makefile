@@ -1,4 +1,4 @@
-.PHONY: help install dev dev-story build build-lib build-ui build-editor build-story preview preview-story lint lint-fix test test-lib test-editor test-watch test-e2e build-parser clean release release-patch release-minor release-major _release-bump
+.PHONY: help install dev dev-story dev-docs build build-lib build-ui build-editor build-story build-docs preview preview-story preview-docs lint lint-fix test test-lib test-editor test-watch test-e2e build-parser clean release release-patch release-minor release-major _release-bump
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}'
@@ -13,11 +13,17 @@ dev: ## Start editor dev server (port 5555)
 dev-story: ## Start Histoire dev server (UI component stories)
 	pnpm --filter @blueprint-chart/ui story:dev
 
+dev-docs: ## Start VitePress dev server (docs site, port 4455)
+	pnpm --filter @blueprint-chart/docs dev
+
 build: ## Build all packages
 	pnpm -r build
 
 build-story: ## Build Histoire static site
 	pnpm --filter @blueprint-chart/ui story:build
+
+build-docs: ## Build the VitePress docs site
+	pnpm --filter @blueprint-chart/docs build
 
 build-lib: ## Build lib package (ES + IIFE runtime)
 	pnpm --filter @blueprint-chart/lib build
@@ -36,6 +42,9 @@ preview: ## Preview the production editor build
 
 preview-story: ## Preview the built Histoire site
 	pnpm --filter @blueprint-chart/ui story:preview
+
+preview-docs: ## Preview the built VitePress docs site
+	pnpm --filter @blueprint-chart/docs preview
 
 lint: ## Run ESLint across all packages
 	pnpm lint
