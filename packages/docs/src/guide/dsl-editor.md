@@ -19,26 +19,43 @@ chart line {
   title = "2024 was the hottest year on record"
   description = "Deviation from the 1951–1980 average, in °C"
   source = "NASA GISS"
+  sourceUrl = "https://data.giss.nasa.gov/gistemp/"
   colors = "#e15759"
+  autoContrast = false
+  allowDarkMode = true
   interpolation = "monotoneX"
   lineSymbols = true
+  lineSymbolShape = "circle"
+  lineSymbolShowOn = "firstLast"
 
   data {
     "1980" = 0.26
+    "1985" = 0.12
     "1990" = 0.45
+    "1995" = 0.45
     "2000" = 0.42
+    "2005" = 0.68
     "2010" = 0.72
+    "2015" = 0.9
     "2020" = 1.02
     "2024" = 1.29
   }
 
   annotation "2015" {
-    text = "Paris Agreement"
+    id = "2o3cx"
+    text = "2015 Paris Agreement to limit global warming to 1.5°C "
+    maxWidth = 224
     showLine = true
+    lineStyle = curve-right
     showArrow = true
+    showCircle = true
   }
 }
 ```
+
+::: tip From the sample library
+This is `packages/lib/src/samples/temperature-anomaly.bpc` — a good stress test for the highlighter because it mixes every common token class: keywords (`chart`, `data`, `annotation`), identifiers (`autoContrast`, `lineSymbolShape`), strings, numbers, enum values (`monotoneX`, `firstLast`, `curve-right`), and booleans. The fold ranges align with each top-level block.
+:::
 
 Line comments use `//` and stop at end-of-line. There are no block comments.
 
@@ -98,12 +115,34 @@ For a docs page, a "view source" tab, or a tooltip preview, `highlightDsl(code)`
 ```ts
 import { highlightDsl } from '@/dsl-lang'
 
-const html = highlightDsl(`chart line {
-  data { "2022" = 16547 }
+const html = highlightDsl(`chart line-multi {
+  title = "Germany stagnated while the US and China bounced back"
+  description = "Annual percentage change in real GDP"
+  source = "IMF World Economic Outlook"
+  colorPalette = "SolLeWitt"
+  legend = false
+  tooltips = true
+
+  annotation "2020" {
+    text = "COVID-19 recession"
+    dy = -10
+    showArrow = true
+  }
+
+  data {
+    _series = "United States","China","Germany"
+    "2018" = 2.9,6.7,1.0
+    "2020" = -2.8,2.2,-3.7
+    "2024" = 2.8,5.0,-0.2
+  }
 }`)
 
 document.querySelector('#preview')!.innerHTML = html
 ```
+
+::: tip From the sample library
+The DSL string is trimmed from `packages/lib/src/samples/gdp-growth.bpc` (full sample has the 2018–2024 yearly series). Good stress-case for the highlighter — multi-series data, palette name, a negative number, an annotation block.
+:::
 
 This skips the editor surface entirely and is the right tool when the user shouldn't be able to type.
 

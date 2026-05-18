@@ -15,21 +15,30 @@ Color is the second most powerful encoding after position — and the easiest to
 Pick a palette by name in a `.bpc` document:
 
 ```bpc
-chart bar-multi {
-  title = "Software overtakes hardware as the top revenue driver"
-  description = "USD billions"
-  colorPalette = "Egypt"
-  legendPosition = "top"
+chart donut {
+  title = "Chrome dominates with two-thirds of the desktop browser market"
+  description = "Worldwide, January 2025"
+  source = "StatCounter"
+  sourceUrl = "https://gs.statcounter.com"
+  colorPalette = "Heep"
+  legendPosition = "right"
+  tooltips = true
+  displayAsPercentage = true
 
   data {
-    _series = "Hardware","Software","Services"
-    "Q1 2024" = 14.2,9.8,7.4
-    "Q2 2024" = 13.8,11.0,8.1
-    "Q3 2024" = 15.5,12.1,8.9
-    "Q4 2024" = 18.9,13.4,10.2
+    "Chrome" = 65.7
+    "Edge" = 13.1
+    "Safari" = 8.9
+    "Firefox" = 6.3
+    "Opera" = 3.1
+    "Others" = 2.9
   }
 }
 ```
+
+::: tip From the sample library
+This is `packages/lib/src/samples/browser-market.bpc` — a donut chart driven entirely by the named `Heep` palette. Each slice picks up the next colour from the resolved palette array.
+:::
 
 Or pull the colours into TypeScript:
 
@@ -57,43 +66,65 @@ The library uses [chroma-js](https://gka.github.io/chroma.js/) under the hood fo
 
 ## Recipes
 
-### Use a palette in a chart
+### Use a hand-picked colour
 
-The `colorPalette` property accepts any registered palette `name`. For a one-off override on a single series, drop `colors = "<hex>"` (single value) or `colors = "#a","#b","#c"` (per-series list):
+The `colorPalette` property accepts any registered palette `name`. For a one-off brand-coloured chart, drop `colors = "<hex>"` (single value) and skip the palette entirely:
 
 ```bpc
 chart line {
-  title = "2024 was the hottest year on record"
-  description = "Deviation from the 1951–1980 average, in °C"
-  colors = "#e15759"
+  title = "Bitcoin surged past $90,000 in 2024"
+  description = "USD, year-end closing price"
+  source = "CoinGecko"
+  colors = "#f7931a"
+  lineSymbols = true
+  lineSymbolShowOn = "all"
+  lineSymbolShape = "diamond"
 
   data {
-    "1980" = 0.26
-    "2000" = 0.42
-    "2024" = 1.29
+    "2016" = 963
+    "2020" = 28949
+    "2022" = 16547
+    "2024" = 93429
   }
 }
 ```
+
+::: tip From the sample library
+This is `packages/lib/src/samples/bitcoin-price.bpc` — Bitcoin orange (`#f7931a`) hard-coded as the single series colour, so the chart matches the brand regardless of the active palette.
+:::
+
+For multi-series charts, pass a comma-separated list (`colors = "#a","#b","#c"`) — `medal-count.bpc` does exactly this with gold, silver, and bronze for the Olympic ranking.
 
 ### Override a single category
 
-`colorize "<name>"` re-paints one entry without disturbing the rest of the palette:
+`colorize "<name>"` re-paints one entry without disturbing the rest of the palette. `letter-frequency.bpc` uses it to make the winning entry pop in red against the named `London` palette:
 
 ```bpc
 chart bar-vertical {
-  title = "China emits more CO₂ than the US and India combined"
+  title = "E is the most frequent letter in English"
+  description = "How often each letter appears in typical English text"
+  colorPalette = "London"
+  sort = descending
+  valueLabels = true
 
-  data {
-    "China" = 11.9
-    "United States" = 4.78
-    "India" = 2.88
+  colorize "E" {
+    color = "#e15759"
   }
 
-  colorize "China" {
-    color = "#e15759"
+  data {
+    "E" = 12.70
+    "T" = 9.06
+    "A" = 8.17
+    "O" = 7.51
+    "I" = 6.97
+    "N" = 6.75
   }
 }
 ```
+
+::: tip From the sample library
+This is `packages/lib/src/samples/letter-frequency.bpc` — every other bar takes its colour from `London`; only `E` is overridden, drawing the eye to the headline finding.
+:::
 
 ### Auto-tune the palette to the frame background
 
