@@ -13,8 +13,8 @@ test.describe('landing page layout', () => {
 
   test('hero shows new headline + CTAs', async ({ page }) => {
     await expect(page.locator('.landing-hero__inner__text__h1')).toBeVisible()
-    await expect(page.locator('.landing-hero__inner__text__h1')).toContainText('Charts that')
-    await expect(page.locator('.landing-hero__inner__text__h1')).toContainText('tell the truth')
+    await expect(page.locator('.landing-hero__inner__text__h1')).toContainText('Great stories')
+    await expect(page.locator('.landing-hero__inner__text__h1')).toContainText('great data viz')
     await expect(page.locator('.button-icon', { hasText: 'My charts' }).first()).toBeVisible()
     await expect(page.locator('.button-icon', { hasText: 'New chart' }).first()).toBeVisible()
   })
@@ -49,7 +49,7 @@ test.describe('landing page layout', () => {
     const codeText = await codeBlock.textContent()
     expect(codeText).toContain('chart line')
     expect(codeText).toContain('data {')
-    await expect(page.locator('.landing-format__browser__url')).toContainText('blueprint.chart/embed')
+    await expect(page.locator('.landing-format__browser__url')).toContainText('blueprintchart.com/embed')
     await expect(page.locator('.landing-format__cards .landing-default-card')).toHaveCount(3)
     await expect(page.locator('.landing-format__footnote')).toContainText('FYI')
   })

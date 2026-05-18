@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test'
 test.describe('smoke tests', () => {
   test('homepage loads', async ({ page }) => {
     await page.goto('/#/')
-    await expect(page.locator('.bc-brand-gradient')).toBeVisible()
+    await expect(page.locator('.landing-hero__inner__text__h1')).toBeVisible()
   })
 
   test('new chart wizard opens', async ({ page }) => {
@@ -18,7 +18,7 @@ test.describe('smoke tests', () => {
     await textarea.fill('Label,Value\nA,10\nB,20\nC,30')
     await page.locator('button', { hasText: 'Load data' }).click()
 
-    await page.locator('.navigation-stepper-tabs__step', { hasText: 'Visualize' }).click()
+    await page.locator('.navigation-stepper-chevron__step', { hasText: 'Visualize' }).click()
     await expect(page.locator('.bc-frame-body svg')).toBeVisible()
   })
 
@@ -28,7 +28,7 @@ test.describe('smoke tests', () => {
     const textarea = page.locator('textarea')
     await textarea.fill('Label,Value\nA,10\nB,20\nC,30')
     await page.locator('button', { hasText: 'Load data' }).click()
-    await page.locator('.navigation-stepper-tabs__step', { hasText: 'Visualize' }).click()
+    await page.locator('.navigation-stepper-chevron__step', { hasText: 'Visualize' }).click()
 
     await expect(page.locator('.bc-frame-body svg')).toBeVisible()
 
@@ -67,7 +67,7 @@ test.describe('smoke tests', () => {
     const textarea = page.locator('textarea')
     await textarea.fill('Label,Value\nA,10\nB,20\nC,30')
     await page.locator('button', { hasText: 'Load data' }).click()
-    await page.locator('.navigation-stepper-tabs__step', { hasText: 'Visualize' }).click()
+    await page.locator('.navigation-stepper-chevron__step', { hasText: 'Visualize' }).click()
     await expect(page.locator('.bc-frame-body svg')).toBeVisible()
 
     const realErrors = errors.filter(e => !e.includes('favicon'))
