@@ -63,6 +63,42 @@ Unanimously across all sources: **avoid 3D charts entirely**. Tilted surfaces cr
 
 No 3D bar charts. No 3D pie charts. No extruded columns. No perspective shading.
 
+## Worked example: start with grey, then highlight one thing
+
+```bpc
+chart bar-vertical {
+  title = "Brazil produces more coffee than the next three countries combined"
+  description = "Million 60-kg bags, 2023/24 crop year"
+  source = "International Coffee Organization"
+  colorPalette = "Harvey"
+  valueLabels = true
+  verticalGridStyle = "none"
+  horizontalGridStyle = "none"
+
+  data {
+    "Brazil" = 66.4
+    "Vietnam" = 29
+    "Colombia" = 11.4
+    "Indonesia" = 9.9
+    "Ethiopia" = 8.7
+    "Honduras" = 6.3
+  }
+
+  colorize "Brazil" {
+    color = "#a4432d"
+  }
+
+  transform sort {
+    column = "value"
+    direction = descending
+  }
+}
+```
+
+::: info From `packages/lib/src/samples/coffee-production.bpc`
+Five bars stay in muted neutrals; the `colorize "Brazil"` block lifts the one bar the title is about. `valueLabels = true` removes the need for a y-axis altogether — direct labels carry the precise numbers, and gridlines drop out entirely. Restraint, purposefulness, and "start with grey" applied in a single chart.
+:::
+
 ## How Blueprint Chart applies these principles
 
 These principles drive the project's visual defaults: grey axis lines, minimal grid, flat geometry, direct labeling where possible, and brand tokens that nudge toward restraint. The renderer leans toward removal — every default exists because it earns its place.

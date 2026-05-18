@@ -61,6 +61,57 @@ If you have fewer than 5 numbers to present, a table often communicates more eff
 To display "revenue this quarter vs. last quarter, and year-over-year growth" — that is three numbers. A small table beats any chart.
 :::
 
+## Worked example: two stories, two chart types
+
+The same dataset rarely fits every story. The two samples below answer different questions about different shapes of data — and each picks the simplest form that works.
+
+**Trend over time → line chart:**
+
+```bpc
+chart line {
+  title = "Bitcoin surged past $90,000 in 2024"
+  description = "USD, year-end closing price"
+  source = "CoinGecko"
+  colors = "#f7931a"
+
+  data {
+    "2016" = 963
+    "2020" = 28949
+    "2021" = 46306
+    "2022" = 16547
+    "2024" = 93429
+  }
+}
+```
+
+::: info From `packages/lib/src/samples/bitcoin-price.bpc`
+Position over time is what the reader needs — a line uses x-position for the date and y-position for the value. A bar chart of the same data would force length comparisons that obscure the trend.
+:::
+
+**Part-to-whole → donut chart:**
+
+```bpc
+chart donut {
+  title = "Chrome dominates with two-thirds of the desktop browser market"
+  description = "Worldwide, January 2025"
+  source = "StatCounter"
+  displayAsPercentage = true
+
+  data {
+    "Chrome" = 65.7
+    "Edge" = 13.1
+    "Safari" = 8.9
+    "Firefox" = 6.3
+    "Opera" = 3.1
+    "Others" = 2.9
+  }
+}
+```
+
+::: info From `packages/lib/src/samples/browser-market.bpc`
+Six categories summing to 100 % — the question is "how big a slice does Chrome own?" A donut answers it directly; a line chart cannot.
+:::
+
 ## See also
 
 - [Design Principles](/handbook/design-principles)

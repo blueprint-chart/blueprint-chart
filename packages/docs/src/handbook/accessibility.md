@@ -72,6 +72,35 @@ wcagContrastRatio('#2563A0', '#ffffff')   // 5.13 — passes WCAG AA for normal 
 checkCvdColors(['#2563A0', '#F26A1F'])    // safe across deuteranopia / protanopia / tritanopia
 ```
 
+## Worked example: lightness variation beats hue variation
+
+```bpc
+chart bar-vertical {
+  title = "Brazil produces more coffee than the next three countries combined"
+  colorPalette = "Harvey"
+  valueLabels = true
+
+  data {
+    "Brazil" = 66.4
+    "Vietnam" = 29
+    "Colombia" = 11.4
+    "Indonesia" = 9.9
+  }
+
+  colorize "Brazil" {
+    color = "#a4432d"
+  }
+}
+```
+
+::: info From `packages/lib/src/samples/coffee-production.bpc`
+Coffee uses two encodings for the highlighted bar: a distinct hue (`#a4432d` red-brown vs. the muted Harvey palette) and clear *lightness* contrast against its neighbours. Convert the chart to greyscale and Brazil still reads as the darkest bar — the second encoding (lightness) carries the story even when CVD removes the first (hue). Compare with `valueLabels = true`, which adds a *third* encoding (the literal number).
+:::
+
+## Palette catalogue and CVD utilities
+
+Blueprint Chart ships 50+ palettes in `packages/lib/src/charts/palettes.ts`; each one is interpolated through HCL so adjacent colours vary in lightness as well as hue. The CVD simulation and validation helpers live in `packages/lib/src/charts/colorblind.ts`. Together they power the editor's live accessibility checks — any palette referenced by `colorPalette = "<name>"` in a `.bpc` file is run through `checkCvdColors` automatically.
+
 ## See also
 
 - [Color & Palettes](/handbook/color)

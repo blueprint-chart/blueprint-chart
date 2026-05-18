@@ -58,6 +58,57 @@ Labeling every point on a dense line chart creates visual noise. Label extremes 
 
 Blueprint Chart exposes a legend renderer with placement, orientation, and wrapping options. Direct labels are available for line, bar, and pie-family charts; the renderer falls back to legends on narrow layouts automatically. See the [API reference](/api/) for `renderLegend` and the per-chart label options.
 
+## Worked example: value labels replace the axis
+
+```bpc
+chart bar-vertical {
+  title = "E is the most frequent letter in English"
+  description = "How often each letter appears in typical English text"
+  sort = descending
+  valueLabels = true
+  verticalLabelPosition = off
+  verticalGridStyle = none
+
+  data {
+    "E" = 12.70
+    "T" = 9.06
+    "A" = 8.17
+    "O" = 7.51
+    "I" = 6.97
+  }
+}
+```
+
+::: info From `packages/lib/src/samples/letter-frequency.bpc`
+`valueLabels = true` puts the precise number at the end of every bar, so the y-axis label position can be set to `off` and the gridlines removed entirely. Direct labelling replaces both the legend and the axis labels — a clean application of the data-ink rule.
+:::
+
+## Worked example: legend at the top, direct value labels at the bar end
+
+```bpc
+chart bar-multi {
+  title = "USA tops Paris 2024 with 126 medals across all categories"
+  description = "2024 Paris Summer Games — top six nations"
+  colors = "#eeca3b, #c0c0c0, #cd7f32"
+  legendPosition = "top"
+  valueLabels = true
+  verticalGridStyle = none
+  verticalLabelPosition = off
+  sort = descending
+
+  data {
+    _series = "Gold","Silver","Bronze"
+    "USA" = 40,44,42
+    "China" = 38,32,18
+    "Japan" = 27,14,17
+  }
+}
+```
+
+::: info From `packages/lib/src/samples/medal-count.bpc`
+A multi-series bar chart needs a legend to map the three hues to Gold / Silver / Bronze — placed at the top so the eye reaches it before scanning the bars. Inside each bar, `valueLabels = true` prints the exact count, eliminating the need to read against a vertical scale.
+:::
+
 ## See also
 
 - [Typography](/handbook/typography)

@@ -65,6 +65,49 @@ Blueprint Chart's `AxisOptions` exposes scale type (linear / log), tick count, t
 
 See the [API reference](/api/) for the public options that toggle grid lines, tick density, and baseline zero.
 
+## Worked example: number format on the axis
+
+```bpc
+chart line {
+  title = "Bitcoin surged past $90,000 in 2024"
+  description = "USD, year-end closing price"
+  source = "CoinGecko"
+  colors = "#f7931a"
+  verticalNumberFormat = ",.0f"
+  lineSymbols = true
+
+  data {
+    "2016" = 963
+    "2020" = 28949
+    "2021" = 46306
+    "2024" = 93429
+  }
+}
+```
+
+::: info From `packages/lib/src/samples/bitcoin-price.bpc`
+`verticalNumberFormat = ",.0f"` uses a D3 format string to add thousands separators and drop decimals — so the axis shows `93,429` instead of `93429.00`. The same formatter feeds the tooltip and any direct value labels, so identical values render identically in every slot.
+:::
+
+## Worked example: gridlines that whisper
+
+```bpc
+chart line {
+  title = "2024 was the hottest year on record"
+  colors = "#e15759"
+  showVerticalAxis = false
+  showVerticalTicks = false
+  verticalGridStyle = "dashed"
+  showHorizontalAxis = true
+  showHorizontalTicks = false
+  horizontalGridStyle = "none"
+}
+```
+
+::: info From `packages/lib/src/samples/temperature-anomaly.bpc`
+The vertical axis line and ticks are off; only dashed horizontal gridlines remain as reference. The horizontal axis stays visible but loses its ticks. Net result: gridlines whisper, the line speaks.
+:::
+
 ## See also
 
 - [Labels & Legends](/handbook/labels)

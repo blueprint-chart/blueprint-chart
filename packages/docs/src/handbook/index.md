@@ -29,6 +29,41 @@ Every page in this handbook orbits the same set of principles:
 
 If you read only one page, read [Design Principles](/handbook/design-principles). Everything else is the application of those rules to a specific surface of the chart.
 
+## One chart that uses every principle
+
+```bpc
+chart line {
+  title = "2024 was the hottest year on record"
+  description = "Deviation from the 1951–1980 average, in °C"
+  source = "NASA GISS"
+  colors = "#e15759"
+  interpolation = "monotoneX"
+  showVerticalAxis = false
+  verticalGridStyle = "dashed"
+  horizontalGridStyle = "none"
+  lineSymbols = true
+  lineSymbolShowOn = "firstLast"
+
+  data {
+    "1980" = 0.26
+    "2000" = 0.42
+    "2015" = 0.9
+    "2024" = 1.29
+  }
+
+  annotation "2015" {
+    text = "2015 Paris Agreement to limit global warming to 1.5°C"
+    showLine = true
+    lineStyle = curve-right
+    showArrow = true
+  }
+}
+```
+
+::: info From `packages/lib/src/samples/temperature-anomaly.bpc`
+A takeaway title states the insight; a single red hue carries meaning; gridlines whisper; an annotation points the reader at the moment that matters. Each principle on every page traces back to a chart like this one.
+:::
+
 ## Where to start
 
 | If you want to... | Read |

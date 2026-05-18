@@ -65,6 +65,31 @@ chart bar-vertical {
 }
 ```
 
+## Worked example: every frame slot, none wasted
+
+```bpc
+chart line {
+  title = "US inflation peaked at 9.1% before retreating to near 3%"
+  description = "Consumer Price Index, year-over-year change (%)"
+  source = "Bureau of Labor Statistics"
+  sourceUrl = "https://bls.gov/cpi/"
+  byline = "Pierre Romera"
+  note = "All items, seasonally adjusted, urban consumers"
+  colors = "#f28e2b"
+
+  data {
+    "Jan 2021" = 1.4
+    "Jun 2022" = 9.1
+    "Jan 2023" = 6.4
+    "Jan 2025" = 3.0
+  }
+}
+```
+
+::: info From `packages/lib/src/samples/inflation-rate.bpc`
+A declarative title carries the insight (`"…peaked at 9.1% before retreating to near 3%"`), `description` fixes the unit and time period, `note` confines the methodology footnote to the bottom, `source` plus `sourceUrl` form the attribution pair, and `byline` is the credit slot. Each field maps one-to-one onto `FrameOptions`.
+:::
+
 ## See also
 
 - [Typography](/handbook/typography)
