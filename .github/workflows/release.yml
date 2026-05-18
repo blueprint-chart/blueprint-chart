@@ -155,7 +155,7 @@ jobs:
         run: pnpm -r publish --access public --no-git-checks --provenance
 
   deploy-pages:
-    name: Deploy editor to GitHub Pages
+    name: Deploy editor to blueprintchart.com
     needs: [verify, lint, test, build]
     runs-on: ubuntu-latest
     steps:
