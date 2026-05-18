@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { computed, shallowRef } from 'vue'
+import { computed, ref, shallowRef, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useEventListener } from '@vueuse/core'
+import { useBreakpoint } from '@blueprint-chart/ui'
 import LayoutNavbar from '@/components/Layout/LayoutNavbar.vue'
 import LayoutSidebar from '@/components/Layout/LayoutSidebar.vue'
 import CommandPaletteModal from '@/components/CommandPalette/CommandPaletteModal.vue'
@@ -15,6 +16,21 @@ const isLanding = computed(() => route.path === '/')
 
 const paletteOpen = shallowRef(false)
 const shortcut = usePlatformShortcut('k')
+
+const { isNarrow } = useBreakpoint('md')
+const sidebarOpen = ref(false)
+
+// Auto-close offcanvas on navigation.
+watch(() => route.fullPath, () => {
+  sidebarOpen.value = false
+})
+
+// Reset offcanvas state when transitioning to wide (offcanvas unmounts there).
+watch(isNarrow, (narrow) => {
+  if (!narrow) {
+    sidebarOpen.value = false
+  }
+})
 
 useEventListener(document, 'keydown', (event: globalThis.KeyboardEvent) => {
   if (shortcut.matches(event)) {
@@ -34,9 +50,7 @@ useEventListener(document, 'keydown', (event: globalThis.KeyboardEvent) => {
     <CommandPaletteModal v-model:open="paletteOpen" />
   </div>
 
-  <!-- All other (non-bare) routes use the unified app shell. The scene
-       timeline, when present, lives inside the route's main content
-       (e.g. WizardShell), wrapped in LayoutSceneTimeline. -->
+  <!-- All other (non-bare) routes use the unified app shell. -->
   <div
     v-else
     class="layout-shell layout-shell--app"
@@ -45,11 +59,28 @@ useEventListener(document, 'keydown', (event: globalThis.KeyboardEvent) => {
       <LayoutSidebar />
     </aside>
     <div class="layout-shell__topbar">
-      <LayoutNavbar @search-click="paletteOpen = true" />
+      <LayoutNavbar
+        :sidebar-open="sidebarOpen"
+        @search-click="paletteOpen = true"
+        @toggle-sidebar="sidebarOpen = !sidebarOpen"
+      />
     </div>
     <main class="layout-shell__main">
       <slot />
     </main>
+
+    <BOffcanvas
+      v-if="isNarrow"
+      id="layout-sidebar-offcanvas"
+      v-model="sidebarOpen"
+      placement="start"
+      no-header
+      aria-label="Workspace navigation"
+      class="layout-shell__sidebar-offcanvas"
+    >
+      <LayoutSidebar />
+    </BOffcanvas>
+
     <CommandPaletteModal v-model:open="paletteOpen" />
   </div>
 </template>
