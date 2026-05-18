@@ -98,7 +98,7 @@ git clone git@github.com:blueprint-chart/blueprint-chart.git
 cd blueprint-chart
 make install
 make dev          # editor at http://localhost:5555
-make dev-docs     # these docs at http://localhost:4455
+make dev-docs     # these docs at http://localhost:4445
 ```
 
 ## Next steps
