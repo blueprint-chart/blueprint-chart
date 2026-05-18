@@ -14,3 +14,4 @@ docs/superpowers/
 packages/lib/src/dsl/grammar.js
 packages/editor/src/dsl-lang/bpc-parser.js
 test-results
+playwright-report
