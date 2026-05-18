@@ -45,7 +45,6 @@ chart area-stacked {
 }
 ```
 
-[View in the editor →](https://blueprintchart.com)
 
 ## Common pitfalls
 
