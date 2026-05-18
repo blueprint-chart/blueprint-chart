@@ -1,3 +1,4 @@
+/* eslint-disable vue/one-component-per-file */
 import { mount } from '@vue/test-utils'
 import type { Ref } from 'vue'
 import { useBreakpoint } from './useBreakpoint'
