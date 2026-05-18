@@ -4,6 +4,7 @@ import { useRoute } from 'vue-router'
 import {
   ButtonIcon,
   NavigationCommandBar,
+  NavigationWorkspaceSwitcher,
   useBreakpoint,
 } from '@blueprint-chart/ui'
 import { useChartConfig } from '@/stores/chartConfig'
@@ -12,12 +13,16 @@ import { usePlatformShortcut } from '@/composables/usePlatformShortcut'
 import IPhSun from '~icons/ph/sun'
 import IPhMoon from '~icons/ph/moon'
 import IPhCircleHalf from '~icons/ph/circle-half'
+import IPhList from '~icons/ph/list'
+import logoLight from '@/assets/images/blueprint-chart-logo.svg'
+import logoDark from '@/assets/images/blueprint-chart-logo-dark.svg'
 
-defineEmits<{ searchClick: [] }>()
+defineProps<{ sidebarOpen?: boolean }>()
+defineEmits<{ searchClick: [], toggleSidebar: [] }>()
 
 const route = useRoute()
 const config = useChartConfig()
-const { theme, cycleTheme } = useTheme()
+const { theme, cycleTheme, resolvedTheme } = useTheme()
 const { isNarrow } = useBreakpoint()
 const shortcut = usePlatformShortcut('k')
 
@@ -29,6 +34,7 @@ const iconByTheme: Record<ThemeMode, typeof IPhSun> = {
 
 const themeIcon = computed(() => iconByTheme[theme.value])
 const placeholder = computed(() => isNarrow.value ? 'Search…' : 'Search or jump to…')
+const logoSrc = computed(() => resolvedTheme.value === 'dark' ? logoDark : logoLight)
 
 // Route-derived breadcrumb. The sidebar already owns workspace identity;
 // the topbar surfaces the current location.
@@ -51,6 +57,27 @@ const crumbs = computed<Crumb[]>(() => {
 
 <template>
   <header class="layout-navbar">
+    <div class="layout-navbar__lead d-md-none">
+      <ButtonIcon
+        :icon-left="IPhList"
+        label="Open navigation"
+        hide-label
+        square
+        size="sm"
+        variant="outline-secondary"
+        aria-haspopup="dialog"
+        :aria-expanded="sidebarOpen ? 'true' : 'false'"
+        aria-controls="layout-sidebar-offcanvas"
+        @click="$emit('toggleSidebar')"
+      />
+      <NavigationWorkspaceSwitcher
+        name="Blueprint Chart"
+        :logo-src="logoSrc"
+        hide-name
+        to="/"
+      />
+    </div>
+
     <nav
       v-if="crumbs.length"
       class="layout-navbar__crumbs"
@@ -115,6 +142,13 @@ const crumbs = computed<Crumb[]>(() => {
 }
 
 .layout-navbar__spacer { flex: 1; }
+
+.layout-navbar__lead {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
 
 .layout-navbar__crumbs {
   display: inline-flex;
