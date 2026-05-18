@@ -86,6 +86,21 @@ useEventListener(document, 'keydown', (event: globalThis.KeyboardEvent) => {
 </template>
 
 <style scoped lang="scss">
+@use "bootstrap/scss/mixins/breakpoints" as bsbp;
+
+// Bootstrap 5.3's _variables.scss has @import-style internal dependencies that
+// don't resolve cleanly under @use, so we declare $grid-breakpoints locally.
+// Values mirror node_modules/bootstrap/scss/_variables.scss (and the JS-side
+// BOOTSTRAP_BREAKPOINTS in @blueprint-chart/ui — keep these aligned).
+$grid-breakpoints: (
+  xs: 0,
+  sm: 576px,
+  md: 768px,
+  lg: 992px,
+  xl: 1200px,
+  xxl: 1400px,
+);
+
 .layout-shell {
   background: var(--bc-content-bg);
 }
@@ -106,8 +121,8 @@ useEventListener(document, 'keydown', (event: globalThis.KeyboardEvent) => {
   overflow: hidden;
 
   // Narrow viewports: collapse to single column, hide sidebar.
-  // The topbar's breadcrumb keeps the user oriented.
-  @media (max-width: 47.99rem) {
+  // The sidebar is reachable via the offcanvas (LayoutNavbar hamburger).
+  @include bsbp.media-breakpoint-down(md, $grid-breakpoints) {
     grid-template-columns: 1fr;
     grid-template-areas:
       'topbar'
@@ -121,7 +136,7 @@ useEventListener(document, 'keydown', (event: globalThis.KeyboardEvent) => {
   min-width: 0;
   overflow: hidden;
 
-  @media (max-width: 47.99rem) {
+  @include bsbp.media-breakpoint-down(md, $grid-breakpoints) {
     display: none;
   }
 }
