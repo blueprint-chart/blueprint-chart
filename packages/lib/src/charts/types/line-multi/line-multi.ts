@@ -556,16 +556,26 @@ export function render(
       color: resolveSeriesColor(s.name, si, colors, overrides),
       index: li,
     }))
-    const priorGroup = priorSymbolsGroups.find(el => el.getAttribute('data-series') === String(si))
+    // Match prior symbol groups by series name so symbols stay slaved to their
+    // line — matching by si would carry an old series' symbols onto a different
+    // series in the new scene, making them appear to fly across the chart.
+    const priorGroup = priorSymbolsGroups.find(el => el.getAttribute('data-series-name') === s.name)
     let symbolsGroup: d3.Selection<SVGGElement, unknown, null, undefined>
+    let hasPrior = false
     if (priorGroup) {
       chartArea.appendChild(priorGroup)
       symbolsGroup = d3.select(priorGroup) as unknown as d3.Selection<SVGGElement, unknown, null, undefined>
+      hasPrior = true
     }
     else {
-      symbolsGroup = d3.select(chartArea).append('g').attr('class', 'bc-symbols').attr('data-series', si) as unknown as d3.Selection<SVGGElement, unknown, null, undefined>
+      symbolsGroup = d3.select(chartArea).append('g').attr('class', 'bc-symbols')
+        .attr('data-series', si)
+        .attr('data-series-name', s.name) as unknown as d3.Selection<SVGGElement, unknown, null, undefined>
     }
-    renderLineSymbols(symbolsGroup, symbolPoints, labelCount, perSeriesSymbolConfig, transition)
+    // Without a matching prior group there is no source position to transition
+    // from; rendering without transition lets the new symbols snap into place
+    // rather than drift across the chart.
+    renderLineSymbols(symbolsGroup, symbolPoints, labelCount, perSeriesSymbolConfig, transition && hasPrior)
   })
 
   // Direct labels: show for series with 'direct' label mode (global or per-series)
