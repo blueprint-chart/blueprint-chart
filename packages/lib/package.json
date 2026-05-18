@@ -1,6 +1,6 @@
 {
   "name": "@blueprint-chart/lib",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "DSL-driven charting library built on D3. Define charts as text, render them anywhere.",
   "keywords": [
     "chart",
