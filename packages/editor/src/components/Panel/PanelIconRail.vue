@@ -3,7 +3,7 @@
     :model-value="activeTab"
     :items="items"
     :horizontal="horizontal"
-    @update:model-value="$emit('select', $event)"
+    @update:model-value="onSelect"
   >
     <template
       v-if="!horizontal"
@@ -36,12 +36,23 @@ defineProps<{
   items: { value: string, icon: Component, tooltip: string }[]
 }>()
 
-defineEmits<{
+const emit = defineEmits<{
   'select': [tab: string | number]
   'toggle-mode': []
 }>()
 
-const { mode: panelMode } = usePanel()
+const { mode: panelMode, open } = usePanel()
+
+// Selecting a rail entry while the panel is closed should restore it to the
+// last desktop mode (docked/floating). In drawer mode, the consumer's
+// drawerOpen v-model is already derived from activeTab/dataPanelTab, so
+// setting the tab via `select` will reopen the drawer naturally.
+function onSelect(tab: string | number) {
+  if (panelMode.value === 'closed') {
+    open()
+  }
+  emit('select', tab)
+}
 
 const toggleIcon = computed(() => {
   if (panelMode.value === 'closed') {
