@@ -1,15 +1,31 @@
 <script setup lang="ts">
 import type { RouteLocationRaw } from 'vue-router'
+import IPhArrowSquareOut from '~icons/ph/arrow-square-out'
 
+// Exactly one of `to` (internal route) or `href` (external URL) must be set.
+// An external `href` renders as a plain anchor with `target=_blank` and a
+// trailing arrow-square-out indicator; an internal `to` goes through the router.
 const props = withDefaults(defineProps<{
-  to: RouteLocationRaw
+  to?: RouteLocationRaw
+  href?: string
   label: string
   active?: boolean
   count?: number
 }>(), {
+  to: undefined,
+  href: undefined,
   active: false,
   count: undefined,
 })
+
+const isExternal = computed(() => props.href !== undefined)
+
+if (props.to === undefined && props.href === undefined) {
+  throw new Error('NavigationSidebarItem requires either `to` or `href`.')
+}
+if (props.to !== undefined && props.href !== undefined) {
+  throw new Error('NavigationSidebarItem accepts `to` or `href`, not both.')
+}
 
 // Combine explicit active prop with router's own active detection so that
 // both programmatic highlighting and route matching drive the modifier class.
@@ -22,13 +38,32 @@ function rootClass(routerActive: boolean) {
 </script>
 
 <template>
+  <a
+    v-if="isExternal"
+    :href="href"
+    :class="rootClass(false)"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    <span class="navigation-sidebar-item__icon">
+      <slot name="icon" />
+    </span>
+    <span class="navigation-sidebar-item__label">{{ label }}</span>
+    <span
+      class="navigation-sidebar-item__external"
+      aria-hidden="true"
+    >
+      <IPhArrowSquareOut />
+    </span>
+  </a>
   <router-link
-    :to="to"
+    v-else
+    :to="to!"
     custom
   >
-    <template #default="{ navigate, href, isActive }">
+    <template #default="{ navigate, href: routerHref, isActive }">
       <a
-        :href="href"
+        :href="routerHref"
         :class="rootClass(isActive)"
         :aria-current="(isActive || active) ? 'page' : undefined"
         @click="navigate"
@@ -105,6 +140,23 @@ function rootClass(routerActive: boolean) {
     font-size: var(--bs-font-size-xs, 0.75rem);
     color: var(--bs-secondary-color);
     margin-left: auto;
+  }
+
+  &__external {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-left: auto;
+    width: 0.75rem;
+    height: 0.75rem;
+    color: var(--bs-tertiary-color);
+    opacity: 0.65;
+    transition: opacity var(--bc-duration-base) var(--bc-ease);
+
+    .navigation-sidebar-item:hover & {
+      opacity: 1;
+    }
   }
 }
 </style>
