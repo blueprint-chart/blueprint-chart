@@ -52,7 +52,6 @@ chart bar-vertical {
 }
 ```
 
-[View in the editor →](https://blueprintchart.com)
 
 ## Common pitfalls
 

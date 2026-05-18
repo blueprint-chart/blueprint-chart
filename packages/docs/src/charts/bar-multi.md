@@ -45,7 +45,6 @@ chart bar-multi {
 }
 ```
 
-[View in the editor →](https://blueprintchart.com)
 
 ## Common pitfalls
 
