@@ -156,4 +156,9 @@ $grid-breakpoints: (
   display: flex;
   flex-direction: column;
 }
+
+// Let LayoutSidebar own its own padding — the offcanvas wrapper should be flush.
+.layout-shell__sidebar-offcanvas :deep(.offcanvas-body) {
+  padding: 0;
+}
 </style>
