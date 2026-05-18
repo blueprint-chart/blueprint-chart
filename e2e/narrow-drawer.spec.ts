@@ -11,7 +11,7 @@ async function loadData(page) {
 
 async function goToVisualizeStep(page) {
   await loadData(page)
-  await page.locator('.navigation-stepper-tabs__step', { hasText: 'Visualize' }).click()
+  await page.locator('.navigation-stepper-chevron__step', { hasText: 'Visualize' }).click()
   await expect(page.locator('.bc-frame-body svg')).toBeVisible()
 }
 
@@ -19,7 +19,7 @@ test.describe('Narrow viewport - bottom drawer', () => {
   test('step 1: navbar is not blocked by drawer backdrop on data step', async ({ page }) => {
     await loadData(page)
 
-    const stepper = page.locator('.navigation-stepper-tabs__step', { hasText: 'Visualize' })
+    const stepper = page.locator('.navigation-stepper-chevron__step', { hasText: 'Visualize' })
     await expect(stepper).toBeVisible()
     await stepper.click({ timeout: 5000 })
     await expect(page.locator('.bc-frame-body svg')).toBeVisible()
@@ -53,7 +53,7 @@ test.describe('Narrow viewport - bottom drawer', () => {
     await expect(page.locator('.layout-bottom-drawer')).toBeVisible()
 
     // The navbar stepper must still be clickable even with drawer open
-    const dataStep = page.locator('.navigation-stepper-tabs__step', { hasText: 'Data' })
+    const dataStep = page.locator('.navigation-stepper-chevron__step', { hasText: 'Data' })
     await dataStep.click({ timeout: 5000 })
     await expect(page.locator('.data-check-table, textarea')).toBeVisible({ timeout: 5000 })
   })
