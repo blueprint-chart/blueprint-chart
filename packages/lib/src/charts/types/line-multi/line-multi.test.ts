@@ -620,6 +620,31 @@ describe('line-multi chart', () => {
     expect(lines).toHaveLength(2)
   })
 
+  it('drops priors whose series no longer exists in the next scene', () => {
+    render(container, {
+      labels: ['2001', '2002', '2003'],
+      values: [],
+      series: [
+        { name: 'Cabbages', values: [100, 79, 100] },
+        { name: 'Tomatoes', values: [100, 90, 157] },
+      ],
+    })
+    expect(container.querySelectorAll('.bc-line')).toHaveLength(2)
+
+    render(container, {
+      labels: ['2000', '2001', '2002'],
+      values: [],
+      series: [
+        { name: 'Salaried workers', values: [2678, 2598, 2658] },
+        { name: 'Non-salaried workers', values: [12194, 11586, 10795] },
+      ],
+    }, {}, true)
+
+    const remaining = Array.from(container.querySelectorAll<SVGPathElement>('.bc-line'))
+    const names = remaining.map(l => (l as unknown as { __data__?: { name?: string } }).__data__?.name)
+    expect(names).toEqual(['Salaried workers', 'Non-salaried workers'])
+  })
+
   // ── Axis options ────────────────────────────────────────────────
 
   it('renders vertical axis by default', () => {
