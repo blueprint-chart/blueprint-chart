@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { BBadge } from 'bootstrap-vue-next'
 import { ButtonIcon } from '@blueprint-chart/ui'
 import IPhPlus from '~icons/ph/plus'
 import { samples } from '@blueprint-chart/lib'
@@ -14,13 +15,17 @@ const heroBpc = sample.dsl.replace(/\{/, '{\n  theme = "blueprint-framed"')
   <section class="landing-hero">
     <div class="landing-hero__inner">
       <div class="landing-hero__inner__text">
-        <div class="landing-hero__inner__text__eyebrow">
+        <BBadge
+          variant="info"
+          pill
+          class="landing-hero__inner__text__eyebrow"
+        >
           <span
             class="landing-hero__inner__text__eyebrow__dot"
             aria-hidden="true"
           />
           Built in the newsroom
-        </div>
+        </BBadge>
         <h1 class="landing-hero__inner__text__h1">
           Great stories,<br><em>great data viz.</em>
         </h1>
@@ -64,18 +69,6 @@ const heroBpc = sample.dsl.replace(/\{/, '{\n  theme = "blueprint-framed"')
 
     &__text {
       &__eyebrow {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.25rem 0.75rem 0.25rem 0.5rem;
-        background: rgba(37, 99, 160, 0.12);
-        border: 1px solid rgba(37, 99, 160, 0.25);
-        border-radius: var(--bc-radius-pill);
-        font-size: var(--bs-font-size-xs);
-        font-weight: 600;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-        color: var(--bs-info);
         margin-bottom: 1.25rem;
 
         &__dot {
@@ -83,7 +76,7 @@ const heroBpc = sample.dsl.replace(/\{/, '{\n  theme = "blueprint-framed"')
           height: 0.4375rem;
           border-radius: 50%;
           background: var(--bs-info);
-          box-shadow: 0 0 0 4px rgba(122, 176, 226, 0.18);
+          box-shadow: 0 0 0 4px rgba(var(--bs-info-rgb), 0.18);
         }
       }
 
