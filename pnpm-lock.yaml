@@ -38,6 +38,15 @@ importers:
 
   packages/docs:
     devDependencies:
+      '@fontsource-variable/geist':
+        specifier: ^5.2.8
+        version: 5.2.8
+      '@fontsource-variable/geist-mono':
+        specifier: ^5.2.7
+        version: 5.2.7
+      '@fontsource/dm-serif-display':
+        specifier: ^5.2.8
+        version: 5.2.8
       typescript:
         specifier: ^5.7
         version: 5.9.3
