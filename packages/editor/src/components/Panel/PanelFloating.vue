@@ -65,14 +65,37 @@ const containerRefLocal = computed(() => props.containerRef)
 // usePanelDrag mutates position.x/.y directly — this is intentional.
 const position = toRef(props, 'position')
 
+const MARGIN = 16
+
+// Clamp x/y so the panel stays fully visible inside the container. Called on
+// mount and whenever the container resizes — without this, the position (kept
+// in module state across mode/window changes) can leave the panel off-screen
+// after a window shrink or a docked→floating toggle.
+function clampPosition() {
+  const container = props.containerRef
+  if (!container) {
+    return
+  }
+  // `|| 340` (not `??`) because offsetWidth is 0 until the element has been
+  // laid out and 0 is not a sensible panel width.
+  const panelWidth = panelRef.value?.offsetWidth || 340
+  const panelHeight = panelRef.value?.offsetHeight || 400
+  const maxX = Math.max(MARGIN, container.clientWidth - panelWidth - MARGIN)
+  const maxY = Math.max(MARGIN, container.clientHeight - panelHeight - MARGIN)
+  position.value.x = Math.min(Math.max(MARGIN, position.value.x), maxX)
+  position.value.y = Math.min(Math.max(MARGIN, position.value.y), maxY)
+}
+
 onMounted(() => {
   if (position.value.x < 0 && props.containerRef) {
-    const panelWidth = panelRef.value?.offsetWidth ?? 340
-    const margin = 16
-    position.value.x = props.containerRef.clientWidth - panelWidth - margin
-    position.value.y = Math.max(margin, position.value.y)
+    const panelWidth = panelRef.value?.offsetWidth || 340
+    position.value.x = props.containerRef.clientWidth - panelWidth - MARGIN
+    position.value.y = Math.max(MARGIN, position.value.y)
   }
+  clampPosition()
 })
+
+useResizeObserver(containerRefLocal, clampPosition)
 
 usePanelDrag(
   headerRef,
