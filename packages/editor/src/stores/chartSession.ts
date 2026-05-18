@@ -7,7 +7,7 @@ import { useDslSync } from '@/composables/useDslSync'
 import { useDslOutput } from '@/composables/useDslOutput'
 import { parseDelimited } from '@/composables/useDataParser'
 import { deleteThumbnail } from '@/composables/useChartThumbnail'
-import type { ChartSample } from '@blueprint-chart/lib'
+import { parse, type ChartSample } from '@blueprint-chart/lib'
 
 interface SessionMeta {
   savedAt?: string
@@ -193,6 +193,40 @@ export const useChartSessionStore = defineStore('chartSession', () => {
     return load(id)
   }
 
+  /**
+   * Create a fresh session and populate it from a BPC DSL string.
+   *
+   * Validates the source via `parse()` before mutating any store state.
+   * Returns the new sessionId on success, or `null` if the input is empty
+   * or fails to parse — in which case no session is created.
+   */
+  function createFromDsl(dsl: string): string | null {
+    if (!dsl) {
+      return null
+    }
+    try {
+      // Validate up-front so a parse failure leaves stores untouched.
+      parse(dsl)
+    }
+    catch {
+      return null
+    }
+
+    resetAll()
+    const { applyDsl } = useDslSync()
+    const result = applyDsl(dsl)
+    if (!result.success) {
+      // Defensive: applyDsl re-parses internally; if it fails here, roll back.
+      resetAll()
+      return null
+    }
+
+    sessionId.value = generateId()
+    save()
+    startAutoSave()
+    return sessionId.value
+  }
+
   function startAutoSave() {
     watch(
       [
@@ -321,6 +355,7 @@ export const useChartSessionStore = defineStore('chartSession', () => {
     newChart,
     loadSample,
     loadChart,
+    createFromDsl,
     startAutoSave,
     listSavedCharts,
     deleteChart,
@@ -340,6 +375,7 @@ export function useChartSession() {
     newChart: store.newChart,
     loadSample: store.loadSample,
     loadChart: store.loadChart,
+    createFromDsl: store.createFromDsl,
     startAutoSave: store.startAutoSave,
     listSavedCharts: store.listSavedCharts,
     deleteChart: store.deleteChart,
