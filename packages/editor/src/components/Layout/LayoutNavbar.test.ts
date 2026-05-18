@@ -34,9 +34,11 @@ describe('LayoutNavbar', () => {
     expect(wrapper.emitted('searchClick')).toHaveLength(1)
   })
 
-  it('does not render the workspace switcher (sidebar owns workspace identity)', async () => {
+  it('renders the workspace switcher only in the leading cluster (sidebar owns primary identity)', async () => {
     const wrapper = await mountNavbar()
-    expect(wrapper.find('.navigation-workspace-switcher').exists()).toBe(false)
+    // The switcher is present in the leading cluster (hamburger area), not at root level outside it
+    const lead = wrapper.find('.layout-navbar__lead')
+    expect(lead.find('.navigation-workspace-switcher').exists()).toBe(true)
   })
 
   it('renders a Breadcrumb landmark on app routes', async () => {
@@ -44,5 +46,47 @@ describe('LayoutNavbar', () => {
     const crumbs = wrapper.find('nav[aria-label="Breadcrumb"]')
     expect(crumbs.exists()).toBe(true)
     expect(crumbs.text()).toContain('My Charts')
+  })
+
+  it('renders the leading cluster (hamburger + workspace switcher) with d-md-none', async () => {
+    const wrapper = await mountNavbar()
+    const lead = wrapper.find('.layout-navbar__lead')
+    expect(lead.exists()).toBe(true)
+    expect(lead.classes()).toContain('d-md-none')
+  })
+
+  it('renders the workspace switcher with hide-name in the leading cluster', async () => {
+    const wrapper = await mountNavbar()
+    const lead = wrapper.find('.layout-navbar__lead')
+    const switcher = lead.find('.navigation-workspace-switcher')
+    expect(switcher.exists()).toBe(true)
+    // hide-name should suppress the wordmark inside the cluster
+    expect(switcher.find('.navigation-workspace-switcher__name').exists()).toBe(false)
+  })
+
+  it('emits toggleSidebar when the hamburger is clicked', async () => {
+    const wrapper = await mountNavbar()
+    const btn = wrapper.find('.layout-navbar__lead button[aria-label="Open navigation"]')
+    expect(btn.exists()).toBe(true)
+    await btn.trigger('click')
+    expect(wrapper.emitted('toggleSidebar')).toHaveLength(1)
+  })
+
+  it('reflects sidebarOpen via aria-expanded on the hamburger', async () => {
+    const router = createRouter({
+      history: createMemoryHistory(),
+      routes: [{ path: '/charts', component: { template: '<div />' } }],
+    })
+    await router.push('/charts')
+    await router.isReady()
+    const wrapper = mount(LayoutNavbar, {
+      props: { sidebarOpen: true },
+      global: {
+        stubs: { 'router-link': RouterLinkStub },
+        plugins: [createTestingPinia({ createSpy: vi.fn }), router],
+      },
+    })
+    const btn = wrapper.find('.layout-navbar__lead button[aria-label="Open navigation"]')
+    expect(btn.attributes('aria-expanded')).toBe('true')
   })
 })
