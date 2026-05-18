@@ -49,7 +49,7 @@ test.describe('landing page layout', () => {
     const codeText = await codeBlock.textContent()
     expect(codeText).toContain('chart line')
     expect(codeText).toContain('data {')
-    await expect(page.locator('.landing-format__browser__url')).toContainText('blueprintchart.com/embed')
+    await expect(page.locator('.landing-format__browser__url')).toContainText('blueprintchart.com/#/render?bpc64=')
     await expect(page.locator('.landing-format__cards .landing-default-card')).toHaveCount(3)
     await expect(page.locator('.landing-format__footnote')).toContainText('FYI')
   })

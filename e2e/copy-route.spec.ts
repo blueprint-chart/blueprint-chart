@@ -14,14 +14,14 @@ function urlSafeB64Encode(input: string): string {
   return b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
 }
 
-const BITCOIN_SAMPLE = readFileSync(
-  resolve(__dirname, '../packages/lib/src/samples/bitcoin-price.bpc'),
+const STOCK_SAMPLE = readFileSync(
+  resolve(__dirname, '../packages/lib/src/samples/stock-price-area.bpc'),
   'utf-8',
 )
 
 test.describe('/#/copy/:base64 deep-link', () => {
   test('decodes a BPC payload, hydrates a session, and lands on /edit/<id>/visualize', async ({ page }) => {
-    const encoded = urlSafeB64Encode(BITCOIN_SAMPLE)
+    const encoded = urlSafeB64Encode(STOCK_SAMPLE)
     await page.goto(`/#/copy/${encoded}`)
 
     // URL should settle on /#/edit/<sessionId>/visualize.
@@ -29,7 +29,7 @@ test.describe('/#/copy/:base64 deep-link', () => {
     expect(page.url()).toMatch(/#\/edit\/[a-zA-Z0-9]{11}\/visualize$/)
 
     // The hydrated chart's title should be rendered.
-    await expect(page.locator('text=Bitcoin surged past $90,000 in 2024').first()).toBeVisible()
+    await expect(page.locator('text=Apple stock climbed 36 % through 2024').first()).toBeVisible()
   })
 
   test('redirects to homepage when payload is not valid base64', async ({ page }) => {
