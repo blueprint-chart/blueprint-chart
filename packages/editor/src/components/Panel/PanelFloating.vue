@@ -91,6 +91,7 @@ const positionStyle = computed(() => ({
   position: absolute;
   width: 340px;
   min-width: 260px;
+  max-width: calc(100% - 32px);
   background: var(--bc-tile-bg);
   border-radius: var(--bc-radius-md);
   box-shadow: var(--bc-shadow-overlay);
