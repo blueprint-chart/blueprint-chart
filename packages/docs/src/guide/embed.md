@@ -10,23 +10,39 @@ Charts render in-page (or in a sandboxed `srcdoc` iframe). Data never leaves the
 
 The simplest path. Load the standalone runtime once per page, then add one `<script type="application/blueprint-chart">` per chart.
 
-```html{1,3-12}
+```html
 <script src="https://unpkg.com/@blueprint-chart/lib/dist/lib/lib.iife.js"></script>
 
 <script type="application/blueprint-chart">
-  chart bar-vertical {
-    title = "Renewables overtook coal in 2024"
-    description = "Global electricity mix, %"
+  chart line-multi {
+    title = "Wind and solar are catching up to hydroelectric power"
+    description = "Share of electricity generation by source (%)"
+    source = "IEA"
+    sourceUrl = "https://iea.org"
+    colors = "#59a14f, #edc949, #4e79a7"
+    legend = false
+    lineSymbols = true
+    lineSymbolShowOn = "last"
+    tooltips = true
 
     data {
-      "Coal"        = 21
-      "Gas"         = 30
-      "Renewables"  = 35
-      "Nuclear"     = 14
+      _series = "Hydro","Wind","Solar"
+      "2010" = 16.0,1.6,0.3
+      "2012" = 16.2,2.4,0.6
+      "2014" = 16.3,3.3,1.1
+      "2016" = 16.4,4.0,1.5
+      "2018" = 15.8,4.8,2.4
+      "2020" = 16.8,6.2,3.7
+      "2022" = 15.0,7.8,4.5
+      "2024" = 14.8,9.5,6.2
     }
   }
 </script>
 ```
+
+::: tip From the sample library
+This is `packages/lib/src/samples/renewable-energy.bpc` — a multi-series line with explicit per-series colours and a single trailing symbol on the last datapoint of each series. Pasted verbatim into a page, it renders to a self-contained iframe with no extra wiring.
+:::
 
 The runtime auto-runs on `DOMContentLoaded`, finds every chart script tag, and replaces it with a sandboxed iframe (`sandbox="allow-scripts"`) sized via `postMessage` to match the rendered chart.
 
@@ -96,6 +112,82 @@ cp node_modules/@blueprint-chart/lib/dist/lib/lib.iife.js public/vendor/
 ```html
 <script src="/vendor/lib.iife.js"></script>
 ```
+
+## Real-world embeds
+
+Two end-to-end examples drawn straight from the lib's sample library — paste either snippet into an HTML page that already loads `lib.iife.js` and the runtime does the rest.
+
+### Donut: share of energy by source
+
+```html
+<script type="application/blueprint-chart">
+  chart donut {
+    title = "Coal still generates a third of the world's electricity"
+    description = "Share by source, 2024"
+    source = "IEA"
+    sourceUrl = "https://iea.org"
+    colors = "#76b7b2, #4e79a7, #59a14f, #f28e2b, #edc949, #e15759, #b07aa1"
+    legendPosition = "right"
+    tooltips = true
+    displayAsPercentage = true
+
+    data {
+      "Coal" = 34.2
+      "Natural Gas" = 22.1
+      "Hydro" = 14.8
+      "Nuclear" = 9.4
+      "Wind" = 9.5
+      "Solar" = 6.2
+      "Other" = 3.8
+    }
+  }
+</script>
+```
+
+::: tip From the sample library
+This is `packages/lib/src/samples/energy-sources.bpc` — a donut chart with an explicit categorical palette, right-anchored legend, and percentage display.
+:::
+
+### Line: a single-series time series with an annotation
+
+```html
+<script type="application/blueprint-chart">
+  chart line {
+    title = "US inflation peaked at 9.1% before retreating to near 3%"
+    description = "Consumer Price Index, year-over-year change (%)"
+    source = "Bureau of Labor Statistics"
+    sourceUrl = "https://bls.gov/cpi/"
+    colors = "#f28e2b"
+    lineSymbols = true
+    lineSymbolShape = "circle"
+    lineSymbolShowOn = "all"
+    verticalNumberFormat = ".1f"
+    tooltips = true
+
+    annotation "Jun 2022" {
+      text = "Peak: 9.1%"
+      dy = -12
+      showArrow = true
+    }
+
+    data {
+      "Jan 2021" = 1.4
+      "Jun 2021" = 5.4
+      "Jan 2022" = 7.5
+      "Jun 2022" = 9.1
+      "Jan 2023" = 6.4
+      "Jun 2023" = 3.0
+      "Jan 2024" = 3.1
+      "Jun 2024" = 3.0
+      "Jan 2025" = 3.0
+    }
+  }
+</script>
+```
+
+::: tip From the sample library
+This is `packages/lib/src/samples/inflation-rate.bpc` — a single-series line with circular symbols on every datapoint, a pinned annotation on the peak, and a one-decimal vertical number format.
+:::
 
 ## Security model
 

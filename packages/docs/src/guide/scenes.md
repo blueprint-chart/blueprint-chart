@@ -19,8 +19,13 @@ chart bar-horizontal {
   title = "Five nations produce 80% of global CO₂"
   description = "Annual emissions in billion tonnes, 2023"
   source = "Global Carbon Project"
+  sourceUrl = "https://globalcarbonproject.org"
   sort = descending
   valueLabels = true
+  horizontalGridStyle = none
+  showVerticalAxis = true
+  showVerticalTicks = false
+  verticalGridStyle = none
 
   data {
     "China" = 11.90
@@ -50,6 +55,10 @@ chart bar-horizontal {
 }
 ```
 
+::: tip From the sample library
+This is `packages/lib/src/samples/co2-emissions-story.bpc` verbatim — three scenes, each one re-titling the chart and shifting the highlight to a new country. The base data stays the same; only the framing changes.
+:::
+
 Open this in the editor to see the scene timeline appear automatically; embed it on a page and readers get a Previous / Next nav.
 
 ## How it works
@@ -72,37 +81,72 @@ The pipeline that runs per scene is the same eleven-step sequence documented in 
 The short-form `highlight "<name>"` is the workhorse. Drop one per scene and the rest of the chart greys out:
 
 ```bpc
-scene "Focus France" {
-  highlight "France"
+scene "China spotlight" {
+  title = "China emits more than the US and India combined"
+
+  highlight "China"
 }
 
-scene "Focus Germany" {
-  highlight "Germany"
+scene "India rising" {
+  title = "India surpassed the EU in 2023"
+
+  highlight "India"
 }
 ```
+
+::: tip From the sample library
+Two adjacent scenes from `packages/lib/src/samples/co2-emissions-story.bpc`. Each scene retitles the chart and shifts the spotlight without touching the base data.
+:::
 
 ### Replace data wholesale in a scene
 
-Any scene can carry its own `data` block, which **replaces** the base data for that scene's render. Useful for "before vs after" beats:
+Any scene can carry its own `data` block, which **replaces** the base data for that scene's render. The Bulgaria scene from `farm-compass` drops the EU-wide aggregate in favour of a country-specific time series, and keeps the same `area-stacked` chart type:
 
 ```bpc
-chart bar-vertical {
-  title = "Renewables overtook coal"
+scene "Bulgaria: subsidies explode" {
+  title = "Subsidies to Bulgarian farmers, million euros"
+  description = "85% of Bulgarian subsidies are direct payments — the highest share among new members"
 
   data {
-    "Coal" = 32
-    "Renewables" = 18
+    _series = "Indirect subsidies","Direct subsidies"
+    "2000" = 0,5
+    "2004" = 0,67
+    "2007" = 59,250
+    "2010" = 79,466
+    "2013" = 132,852
+    "2015" = 213,677
   }
 
-  scene "2024" {
-    title = "By 2024, renewables took the lead"
-    data {
-      "Coal" = 21
-      "Renewables" = 35
-    }
+  highlight "Direct subsidies"
+}
+```
+
+::: tip From the sample library
+Trimmed scene from `packages/lib/src/samples/farm-compass.bpc` (full sample has the 2000–2015 yearly series). The scene swaps data and keeps the parent chart's `area-stacked` type.
+:::
+
+### Switch chart type mid-story
+
+A scene can override the chart type with `type =`. The same `farm-compass` story leaves the parent `area-stacked` chart and pivots to a `line` for the "farms grew" beat, then back to an `area-stacked` later on:
+
+```bpc
+scene "Bulgarian farms grew" {
+  title = "Average farm size in Bulgaria quadrupled"
+  description = "Average farm size in hectares"
+  type = line
+
+  data {
+    "2005" = 5
+    "2007" = 6
+    "2010" = 12
+    "2013" = 18
   }
 }
 ```
+
+::: tip From the sample library
+Scene #5 of `packages/lib/src/samples/farm-compass.bpc`. The story changes chart type three times across nine scenes — `area-stacked` → `line` → `area` → `area-stacked` → bar — all from one document.
+:::
 
 ### Hide an annotation in a later scene
 

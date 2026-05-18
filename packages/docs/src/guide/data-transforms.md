@@ -41,6 +41,10 @@ chart bar-vertical {
 }
 ```
 
+::: tip From the sample library
+This is `packages/lib/src/samples/coffee-production.bpc` — the only sample currently shipping with a `transform` block. The data is authored in arbitrary order on disk; `transform sort` flips it to descending before the bar-vertical renderer reads it.
+:::
+
 In the editor, the same pipeline is built interactively in the Data panel — each step appears as a card, can be reordered by drag, and is re-applied on every keystroke.
 
 ## How it works
@@ -85,7 +89,9 @@ transform sort {
 }
 ```
 
-In the editor, drop a Sort step into the pipeline and pick a column. The chart re-renders on the next tick.
+::: tip From the sample library
+Excerpted from `packages/lib/src/samples/coffee-production.bpc` (also the [quickstart](#quickstart) above). Drop a Sort step into the editor's Data panel and pick a column — it serialises to this same `transform sort` block on save.
+:::
 
 ### Filter rows by a condition
 
@@ -99,16 +105,36 @@ In the editor, drop a Sort step into the pipeline and pick a column. The chart r
 | `greater-than` | Numeric `>`; currency symbols and commas in the cell are stripped. |
 | `less-than` | Numeric `<`; same stripping. |
 
+The serialised form pairs a condition with a target column and value:
+
+```bpc
+transform filter {
+  column = "year"
+  condition = greater-than
+  value = "2000"
+}
+```
+
+::: warning No sample uses `transform filter` today
+The block above is synthesized from `packages/editor/src/utils/transforms/applyFilter.ts` rather than copied from a `.bpc` file — none of the 38 shipped samples filter their data on render. Treat the syntax as canonical (it round-trips through the editor) but expect to author it by hand for now.
+:::
+
 If the target value is empty for any condition other than `equals` / `not-equals`, the filter is a no-op (the row is kept).
 
 ### Group rows and aggregate
 
 `GroupBy` collapses rows that share one or more group columns and folds the rest with an aggregate function. The `aggregates` config field is a comma-separated list of `column:fn` pairs — `fn` is one of `sum`, `avg`, `min`, `max`, `count`. For `count` the `column` is ignored.
 
+```bpc
+transform group-by {
+  groupColumns = "country"
+  aggregates   = "exports:sum,population:avg,exports:count"
+}
 ```
-groupColumns = "country"
-aggregates   = "exports:sum,population:avg,exports:count"
-```
+
+::: warning No sample uses `transform group-by` today
+Synthesized from `packages/editor/src/utils/transforms/applyGroupBy.ts` and `packages/editor/src/enums.ts` (`TransformType.GroupBy = 'group-by'`). Build the step in the editor's Data panel and copy the serialised output if you want a verified starting point.
+:::
 
 ### Use the pipeline outside the editor
 

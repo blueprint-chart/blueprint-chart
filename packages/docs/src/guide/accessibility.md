@@ -77,6 +77,42 @@ if (cvdIssues.length > 0) {
 }
 ```
 
+### Audit a sample chart's hand-picked colours
+
+The medal-count sample uses three hand-picked metallic colours — gold, silver, bronze. The same three colours are exactly the case where CVD audit matters: under deuteranopia, yellow and white-grey can pull close on the L* axis. Drop the inline `colors` list straight into the audit:
+
+```bpc
+chart bar-multi {
+  title = "USA tops Paris 2024 with 126 medals across all categories"
+  colors = "#eeca3b, #c0c0c0, #cd7f32"
+  legendPosition = "top"
+
+  data {
+    _series = "Gold","Silver","Bronze"
+    "USA" = 40,44,42
+    "China" = 38,32,18
+  }
+}
+```
+
+::: tip From the sample library
+Trimmed from `packages/lib/src/samples/medal-count.bpc` (the full sample lists the top six nations). The three hand-picked hex colours are the audit input — none of them resolve through `resolvePalette()`, so pull them straight from the DSL string.
+:::
+
+```ts
+import { checkCvdColors, wcagContrastRatio } from '@blueprint-chart/lib'
+
+const medalColors = ['#eeca3b', '#c0c0c0', '#cd7f32']
+
+const cvdIssues = checkCvdColors(medalColors)
+const onLight = medalColors.map((c) => wcagContrastRatio(c, '#ffffff'))
+// Silver (#c0c0c0) clears 1.6:1 on white — under WCAG AA it would fail for
+// thin marks. Pair it with a label or border, or substitute a CVD-safe
+// palette like `Blueprint` if you're not committed to medal colours.
+```
+
+The sample ships these colours because the semantic mapping (gold = 1st, bronze = 3rd) is part of the story. When that semantic mapping isn't worth defending, swap to a CVD-checked named palette via `colorPalette = "<name>"` instead.
+
 ### Build a CVD-safe palette from scratch
 
 `checkCvdColors` returns the pairs that need attention. The cheapest fix is usually to vary lightness — keep the hues, but pull adjacent entries further apart on the L* axis. `adjustColorsForBackground` does exactly that for the WCAG dimension; you can apply it before running `checkCvdColors` to compress the failure surface:
