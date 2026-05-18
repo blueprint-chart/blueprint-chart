@@ -645,6 +645,31 @@ describe('line-multi chart', () => {
     expect(names).toEqual(['Salaried workers', 'Non-salaried workers'])
   })
 
+  it('matches prior symbol groups by series name across transitions', () => {
+    render(container, {
+      labels: ['2001', '2002', '2003'],
+      values: [],
+      series: [
+        { name: 'Cabbages', values: [100, 79, 100] },
+        { name: 'Tomatoes', values: [100, 90, 157] },
+      ],
+    }, { lineSymbols: { symbol: 'circle', showOn: 'all' } })
+    expect(container.querySelectorAll('.bc-symbols')).toHaveLength(2)
+
+    render(container, {
+      labels: ['2000', '2001', '2002'],
+      values: [],
+      series: [
+        { name: 'Salaried workers', values: [2678, 2598, 2658] },
+        { name: 'Non-salaried workers', values: [12194, 11586, 10795] },
+      ],
+    }, { lineSymbols: { symbol: 'circle', showOn: 'all' } }, true)
+
+    const groups = Array.from(container.querySelectorAll('.bc-symbols'))
+    const groupNames = groups.map(g => g.getAttribute('data-series-name'))
+    expect(groupNames).toEqual(['Salaried workers', 'Non-salaried workers'])
+  })
+
   // ── Axis options ────────────────────────────────────────────────
 
   it('renders vertical axis by default', () => {
