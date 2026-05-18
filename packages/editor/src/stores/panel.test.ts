@@ -189,6 +189,11 @@ describe('usePanel composable', () => {
     const panel = usePanel()
     expect(panel.narrow.value).toBe(false)
   })
+
+  it('exposes cramped flag defaulting to false', () => {
+    const panel = usePanel()
+    expect(panel.cramped.value).toBe(false)
+  })
 })
 
 describe('usePanelStore breakpoint sync', () => {
@@ -430,5 +435,122 @@ describe('usePanelStore hydration coercion', () => {
     store.initBreakpoint(false)
 
     expect(store.mode).toBe('floating')
+  })
+})
+
+describe('usePanelStore canvas sync', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+  })
+
+  it('exposes cramped flag defaulting to false', () => {
+    const store = usePanelStore()
+    expect(store.cramped).toBe(false)
+  })
+
+  it('initCramped(true) on initial cramped forces closed and preserves lastDesktopMode', () => {
+    const store = usePanelStore()
+    store.$patch({ mode: 'floating', lastDesktopMode: 'floating' })
+
+    store.initCramped(true)
+
+    expect(store.mode).toBe('closed')
+    expect(store.lastDesktopMode).toBe('floating')
+    expect(store.cramped).toBe(true)
+  })
+
+  it('initCramped(false) on initial wide leaves state unchanged', () => {
+    const store = usePanelStore()
+    store.$patch({ mode: 'docked', lastDesktopMode: 'docked' })
+
+    store.initCramped(false)
+
+    expect(store.mode).toBe('docked')
+    expect(store.lastDesktopMode).toBe('docked')
+    expect(store.cramped).toBe(false)
+  })
+
+  it('initCramped(true) does not change mode when already drawer (narrow wins)', () => {
+    const store = usePanelStore()
+    store.$patch({ mode: 'drawer', lastDesktopMode: 'floating' })
+
+    store.initCramped(true)
+
+    expect(store.mode).toBe('drawer')
+    expect(store.lastDesktopMode).toBe('floating')
+  })
+
+  it('syncCramped wide→cramped: saves current mode and sets closed', () => {
+    const store = usePanelStore()
+    store.float()
+    expect(store.mode).toBe('floating')
+
+    store.syncCramped(true)
+
+    expect(store.mode).toBe('closed')
+    expect(store.lastDesktopMode).toBe('floating')
+    expect(store.cramped).toBe(true)
+  })
+
+  it('syncCramped cramped→wide: restores mode from lastDesktopMode', () => {
+    const store = usePanelStore()
+    store.float()
+    store.syncCramped(true)
+    expect(store.mode).toBe('closed')
+
+    store.syncCramped(false)
+
+    expect(store.mode).toBe('floating')
+    expect(store.cramped).toBe(false)
+  })
+
+  it('syncCramped is a no-op when value matches current cramped state', () => {
+    const store = usePanelStore()
+    store.float()
+    store.syncCramped(true)
+    expect(store.mode).toBe('closed')
+    expect(store.lastDesktopMode).toBe('floating')
+
+    store.syncCramped(true)
+
+    expect(store.mode).toBe('closed')
+    expect(store.lastDesktopMode).toBe('floating')
+  })
+
+  it('user-closed while cramped stays closed when uncramped', () => {
+    const store = usePanelStore()
+    store.dock()
+    store.syncCramped(true)
+    expect(store.mode).toBe('closed')
+    expect(store.lastDesktopMode).toBe('docked')
+
+    // User clicks close while cramped — close() updates lastDesktopMode
+    // because narrow is false (cramped is a different axis).
+    store.close()
+    expect(store.lastDesktopMode).toBe('closed')
+
+    store.syncCramped(false)
+
+    expect(store.mode).toBe('closed')
+    expect(store.cramped).toBe(false)
+  })
+
+  it('while narrow, syncCramped only updates the flag and does not change mode', () => {
+    const store = usePanelStore()
+    store.float()
+    store.syncBreakpoint(true)
+    expect(store.mode).toBe('drawer')
+    expect(store.lastDesktopMode).toBe('floating')
+
+    store.syncCramped(true)
+
+    expect(store.mode).toBe('drawer')
+    expect(store.lastDesktopMode).toBe('floating')
+    expect(store.cramped).toBe(true)
+  })
+
+  it('exports CRAMPED_THRESHOLD as PANEL_MIN_WIDTH + MIN_CANVAS_WIDTH', async () => {
+    const { CRAMPED_THRESHOLD, MIN_CANVAS_WIDTH } = await import('./panel')
+    expect(CRAMPED_THRESHOLD).toBe(MIN_CANVAS_WIDTH + 260)
   })
 })
