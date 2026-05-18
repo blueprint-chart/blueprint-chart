@@ -23,13 +23,13 @@ describe('createCanvas', () => {
   it('creates a chart area group with margin transform', () => {
     const { chartArea } = createCanvas(body)
     expect(chartArea.tagName).toBe('g')
-    expect(chartArea.getAttribute('transform')).toBe('translate(50,20)')
+    expect(chartArea.getAttribute('transform')).toBe('translate(50,12)')
   })
 
   it('calculates inner dimensions from default margin', () => {
     const { width, height } = createCanvas(body)
     expect(width).toBe(600 - 50 - 20)
-    expect(height).toBe(400 - 20 - 40)
+    expect(height).toBe(400 - 12 - 24)
   })
 
   it('applies custom margin', () => {
@@ -37,7 +37,7 @@ describe('createCanvas', () => {
     expect(margin.left).toBe(100)
     expect(margin.top).toBe(30)
     expect(margin.right).toBe(20)
-    expect(margin.bottom).toBe(40)
+    expect(margin.bottom).toBe(24)
     expect(chartArea.getAttribute('transform')).toBe('translate(100,30)')
   })
 })
