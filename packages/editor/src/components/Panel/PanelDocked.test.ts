@@ -121,4 +121,66 @@ describe('PanelDocked', () => {
     const w = mount(PanelDocked, { props: { collapsed: false, title: 'Test', showClose: true } })
     expect(w.find('.btn-close-stub').exists()).toBe(true)
   })
+
+  it('clamps rendered width when canvasWidth would leave less than min canvas', () => {
+    // stored = 500, canvas = 700, minCanvas = 320 → effective = 700 - 320 = 380
+    const w = mount(PanelDocked, {
+      props: { collapsed: false, title: 'Test', modelValue: 500, canvasWidth: 700 },
+    })
+    const style = w.find('.panel-docked').attributes('style')
+    expect(style).toContain('width: 380px')
+  })
+
+  it('uses stored width unchanged when canvas has plenty of room', () => {
+    const w = mount(PanelDocked, {
+      props: { collapsed: false, title: 'Test', modelValue: 400, canvasWidth: 2000 },
+    })
+    const style = w.find('.panel-docked').attributes('style')
+    expect(style).toContain('width: 400px')
+  })
+
+  it('does not mutate modelValue when canvasWidth would clamp the display', async () => {
+    const w = mount(PanelDocked, {
+      props: { collapsed: false, title: 'Test', modelValue: 500, canvasWidth: 700 },
+    })
+    await nextTick()
+    expect(w.emitted('update:modelValue')).toBeUndefined()
+  })
+
+  it('clamps the resize handle drag ceiling to canvas-aware max', async () => {
+    const w = mount(PanelDocked, {
+      props: { collapsed: false, title: 'Test', modelValue: 300, canvasWidth: 800 },
+    })
+    const handle = w.find('.panel-docked__resize-handle')
+    const el = handle.element as HTMLElement
+    el.setPointerCapture = vi.fn()
+    el.removeEventListener = vi.fn()
+    await handle.trigger('pointerdown', { clientX: 500, pointerId: 1 })
+    // Drag left by 1000px — would request width=1300 if unclamped.
+    // Effective max = min(660, 800 - 320) = 480
+    const move = new Event('pointermove') as Event & { clientX: number }
+    move.clientX = -500
+    el.dispatchEvent(move)
+    el.dispatchEvent(new Event('pointerup'))
+    const emitted = w.emitted('update:modelValue')
+    expect(emitted).toBeTruthy()
+    expect(emitted![emitted!.length - 1][0]).toBe(480)
+  })
+
+  it('uses static MAX_WIDTH when canvasWidth is undefined (back-compat)', async () => {
+    const w = mount(PanelDocked, {
+      props: { collapsed: false, title: 'Test', modelValue: 300 },
+    })
+    const handle = w.find('.panel-docked__resize-handle')
+    const el = handle.element as HTMLElement
+    el.setPointerCapture = vi.fn()
+    el.removeEventListener = vi.fn()
+    await handle.trigger('pointerdown', { clientX: 500, pointerId: 1 })
+    const move = new Event('pointermove') as Event & { clientX: number }
+    move.clientX = -500 // Request 1300 → clamped to 660 (MAX_WIDTH).
+    el.dispatchEvent(move)
+    el.dispatchEvent(new Event('pointerup'))
+    const emitted = w.emitted('update:modelValue')
+    expect(emitted![emitted!.length - 1][0]).toBe(660)
+  })
 })

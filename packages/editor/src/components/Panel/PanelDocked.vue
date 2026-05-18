@@ -2,7 +2,7 @@
   <div
     class="panel-docked"
     :class="panelClassList"
-    :style="{ width: !collapsed ? `${panelWidth}px` : undefined }"
+    :style="{ width: !collapsed ? `${effectiveWidth}px` : undefined }"
   >
     <div
       class="panel-docked__resize-handle"
@@ -35,15 +35,18 @@
 
 <script setup lang="ts">
 import { LayoutPanel, ButtonDetach, ButtonClose } from '@blueprint-chart/ui'
+import { MIN_CANVAS_WIDTH } from '@/stores/panel'
 
 const props = withDefaults(defineProps<{
   collapsed: boolean
   title: string
   initialWidth?: number
   showClose?: boolean
+  canvasWidth?: number
 }>(), {
   initialWidth: 330,
   showClose: true,
+  canvasWidth: undefined,
 })
 
 defineEmits<{
@@ -69,6 +72,20 @@ const panelClassList = computed(() => ({
   'panel-docked--resizing': resizing.value,
 }))
 
+const effectiveMax = computed(() => {
+  if (props.canvasWidth === undefined || props.canvasWidth <= 0) {
+    return MAX_WIDTH
+  }
+  return Math.min(MAX_WIDTH, props.canvasWidth - MIN_CANVAS_WIDTH)
+})
+
+// Stored preference (panelWidth) is clamped only at display time — modelValue
+// is never mutated by canvas changes, so a narrower window doesn't erase the
+// user's preferred width. It returns intact when the window grows back.
+const effectiveWidth = computed(() => {
+  return Math.max(MIN_WIDTH, Math.min(panelWidth.value, effectiveMax.value))
+})
+
 function onResizeStart(e: PointerEvent) {
   const startX = e.clientX
   const startWidth = panelWidth.value
@@ -78,7 +95,7 @@ function onResizeStart(e: PointerEvent) {
 
   function onMove(ev: PointerEvent) {
     const delta = startX - ev.clientX
-    panelWidth.value = Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, startWidth + delta))
+    panelWidth.value = Math.min(effectiveMax.value, Math.max(MIN_WIDTH, startWidth + delta))
     model.value = panelWidth.value
   }
 
