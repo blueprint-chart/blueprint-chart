@@ -210,6 +210,36 @@ body {
   box-shadow: var(--bc-focus-ring);
 }
 
+// Soft, capsule-style status badges — replace Bootstrap's default solid fill
+// so BBadge variants read as eyebrow / meta markers rather than loud alerts.
+// Inline-flex with a gap lets callers drop a leading dot or icon as slot
+// content and have it align with the label.
+.badge.text-bg-info,
+.badge.text-bg-success {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.75rem;
+  font-size: var(--bs-font-size-xs);
+  font-weight: 600;
+  border-width: 1px;
+  border-style: solid;
+}
+
+.badge.text-bg-info {
+  background-color: rgba(var(--bs-info-rgb), 0.12) !important;
+  border-color: rgba(var(--bs-info-rgb), 0.25);
+  color: var(--bs-info) !important;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.badge.text-bg-success {
+  background-color: rgba(var(--bs-success-rgb), 0.12) !important;
+  border-color: rgba(var(--bs-success-rgb), 0.25);
+  color: var(--bs-success) !important;
+}
+
 // Display face — DM Serif Display.
 // Apply via class to: landing hero h1, editor page title, dashboard
 // card titles, modal/empty-state headlines, panel section titles.
