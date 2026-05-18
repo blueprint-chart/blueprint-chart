@@ -255,6 +255,12 @@ body {
   }
 }
 
+// BOffcanvas teleports to <body>, escaping LayoutShell's scoped styles. Apply
+// the padding override here so LayoutSidebar can own its own padding inside.
+.layout-shell__sidebar-offcanvas .offcanvas-body {
+  padding: 0;
+}
+
 @media (prefers-reduced-motion: reduce) {
   :root, [data-bs-theme="light"], [data-bs-theme="dark"] {
     --bc-duration-fast: 0ms;
