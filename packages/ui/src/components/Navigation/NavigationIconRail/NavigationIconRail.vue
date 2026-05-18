@@ -64,7 +64,7 @@ function buttonClassList(value: string) {
   width: 48px;
   padding: 0.5rem 0;
   background: transparent;
-  border-left: none;
+  border-left: 1px solid var(--bc-hairline);
   gap: 0.25rem;
 
   &__button {
