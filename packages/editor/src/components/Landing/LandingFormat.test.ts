@@ -40,7 +40,17 @@ describe('LandingFormat', () => {
   it('renders the browser-frame URL pill', () => {
     const w = mountFormat()
     expect(w.find('.landing-format__browser__url').exists()).toBe(true)
-    expect(w.find('.landing-format__browser__url').text()).toContain('blueprintchart.com/embed')
+    expect(w.find('.landing-format__browser__url').text()).toContain('blueprintchart.com/#/render?bpc64=')
+  })
+
+  it('URL bar links to the actual render route', () => {
+    const w = mountFormat()
+    const bar = w.find('.landing-format__browser__url__bar')
+    expect(bar.element.tagName.toLowerCase()).toBe('a')
+    const href = bar.attributes('href') ?? ''
+    expect(href).toContain('#/render?bpc64=')
+    expect(bar.attributes('target')).toBe('_blank')
+    expect(bar.attributes('rel')).toBe('noopener')
   })
 
   it('renders the chart inside the browser frame', () => {
