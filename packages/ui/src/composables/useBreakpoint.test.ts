@@ -52,4 +52,76 @@ describe('useBreakpoint', () => {
     await nextTick()
     expect(isNarrowRef.value).toBe(false)
   })
+
+  it('accepts \'md\' and uses 768 - 1 px as the breakpoint', () => {
+    const calls: string[] = []
+    const original = window.matchMedia
+    window.matchMedia = ((q: string) => {
+      calls.push(q)
+      return {
+        matches: false,
+        addEventListener: () => {},
+        removeEventListener: () => {},
+      }
+    }) as typeof window.matchMedia
+
+    const Comp = defineComponent({
+      setup() {
+        useBreakpoint('md')
+        return () => h('div')
+      },
+    })
+    mount(Comp)
+    window.matchMedia = original
+
+    expect(calls).toContain('(max-width: 767px)')
+  })
+
+  it('accepts \'lg\' and uses 992 - 1 px as the breakpoint', () => {
+    const calls: string[] = []
+    const original = window.matchMedia
+    window.matchMedia = ((q: string) => {
+      calls.push(q)
+      return {
+        matches: false,
+        addEventListener: () => {},
+        removeEventListener: () => {},
+      }
+    }) as typeof window.matchMedia
+
+    const Comp = defineComponent({
+      setup() {
+        useBreakpoint('lg')
+        return () => h('div')
+      },
+    })
+    mount(Comp)
+    window.matchMedia = original
+
+    expect(calls).toContain('(max-width: 991px)')
+  })
+
+  it('still accepts a numeric maxWidth (backwards-compatible)', () => {
+    const calls: string[] = []
+    const original = window.matchMedia
+    window.matchMedia = ((q: string) => {
+      calls.push(q)
+      return {
+        matches: false,
+        addEventListener: () => {},
+        removeEventListener: () => {},
+      }
+    }) as typeof window.matchMedia
+
+    const Comp = defineComponent({
+      setup() {
+        useBreakpoint(900)
+        return () => h('div')
+      },
+    })
+    mount(Comp)
+    window.matchMedia = original
+
+    expect(calls).toContain('(max-width: 899px)')
+  })
 })
