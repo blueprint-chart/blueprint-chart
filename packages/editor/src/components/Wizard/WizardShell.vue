@@ -12,6 +12,7 @@ import { resolveScene, resolveSortFromTransforms } from '@/utils/scenes'
 import type { ChartColorize } from '@/stores/chartConfig'
 import { ChartType, SortDirection, parseData } from '@blueprint-chart/lib'
 import type { SeriesOverride } from '@blueprint-chart/lib'
+import { BBadge } from 'bootstrap-vue-next'
 import { NavigationStepperChevron, SceneTimeline } from '@blueprint-chart/ui'
 import LayoutPageHeader from '@/components/Layout/LayoutPageHeader.vue'
 import LayoutSceneTimeline from '@/components/Layout/LayoutSceneTimeline.vue'
@@ -241,15 +242,17 @@ onBeforeRouteLeave(() => {
         <h1 class="wizard-shell__title bc-display">
           {{ chartTitle }}
         </h1>
-        <span
+        <BBadge
           v-if="savedLabel"
+          variant="success"
+          pill
           class="wizard-shell__saved"
           role="status"
           aria-live="polite"
         >
           <span class="wizard-shell__saved__dot" />
           {{ savedLabel }}
-        </span>
+        </BBadge>
       </template>
       <template #center>
         <NavigationStepperChevron
@@ -331,12 +334,6 @@ onBeforeRouteLeave(() => {
   }
 
   &__saved {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    font-family: var(--bs-font-monospace);
-    font-size: 0.6875rem;
-    color: var(--bs-secondary-color);
     flex-shrink: 0;
 
     &__dot {
@@ -344,6 +341,7 @@ onBeforeRouteLeave(() => {
       height: 6px;
       background: var(--bs-success);
       border-radius: 50%;
+      box-shadow: 0 0 0 4px rgba(var(--bs-success-rgb), 0.18);
     }
   }
 }
