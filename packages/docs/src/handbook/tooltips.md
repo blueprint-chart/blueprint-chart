@@ -59,6 +59,37 @@ Blueprint Chart's interaction layer is declarative. Crosshair direction and styl
 
 See the [API reference](/api/) for the tooltip options exposed to consumers.
 
+## Worked example: tooltips plus a dashed vertical crosshair
+
+```bpc
+chart line-multi {
+  title = "Detroit's unemployment hit 16% during the Great Recession"
+  description = "Percent of labour force, 2000–2014"
+  source = "Bureau of Labor Statistics"
+  legend = false
+  tooltips = true
+  crosshair = true
+  crosshairStyle = "dashed"
+
+  annotation "2009" {
+    text = "Great Recession peak"
+    dy = -10
+    showArrow = true
+  }
+
+  data {
+    _series = "New York","Los Angeles","Chicago","Detroit"
+    "2000" = 5.0,5.6,4.5,3.8
+    "2009" = 9.5,12.4,11.2,16.2
+    "2014" = 6.5,8.0,7.1,8.2
+  }
+}
+```
+
+::: info From `packages/lib/src/samples/unemployment-rates.bpc`
+The annotation carries the headline (`"Great Recession peak"`) so the chart stands on its own. `tooltips = true` plus `crosshair = true` then layer progressive disclosure on top: hover anywhere on the x-axis and a dashed vertical line aligns the cursor with all four series at once, while the tooltip shows the four percentages for that year. The essential story is never trapped behind a hover.
+:::
+
 ## See also
 
 - [Accessibility](/handbook/accessibility)

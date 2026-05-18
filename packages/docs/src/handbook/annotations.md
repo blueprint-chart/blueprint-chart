@@ -71,6 +71,70 @@ chart line {
 
 See the [BPC DSL Specification](/spec/dsl) for the full annotation grammar.
 
+## Worked example: a point annotation tied to a peak
+
+```bpc
+chart line {
+  title = "Bitcoin surged past $90,000 in 2024"
+  description = "USD, year-end closing price"
+  source = "CoinGecko"
+  colors = "#f7931a"
+
+  data {
+    "2020" = 28949
+    "2021" = 46306
+    "2022" = 16547
+    "2024" = 93429
+  }
+
+  annotation "2021" {
+    text = "All-time high cycle"
+    dy = -12
+    showArrow = true
+  }
+}
+```
+
+::: info From `packages/lib/src/samples/bitcoin-price.bpc`
+The annotation is keyed by the same x-value the data uses (`"2021"`), placed `-12` pixels above the point and connected with `showArrow`. One annotation, one observation — the chart stays under the 3–4 annotation ceiling and the label sits in the negative space above the data, not on top of the line.
+:::
+
+## Worked example: a callout with curved leader line
+
+```bpc
+chart bar-vertical {
+  title = "China emits more CO₂ than the US and India combined"
+  description = "Annual emissions in billion tonnes, 2023"
+  colors = "#abb8c3"
+  valueLabels = true
+
+  data {
+    "China" = 11.9
+    "United States" = 4.78
+    "India" = 2.88
+    "Russia" = 1.78
+  }
+
+  colorize "China" {
+    color = "#e15759"
+  }
+
+  annotation "India" {
+    text = "Surpassed EU in 2023"
+    showLine = true
+    anchorDirection = N
+    textOffsetX = 66
+    textOffsetY = -41
+    lineStyle = curve-left
+    showArrow = true
+  }
+}
+```
+
+::: info From `packages/lib/src/samples/co2-emissions.bpc`
+A callout adds the *why* alongside the data ("Surpassed EU in 2023") — a sentence that the bar height alone cannot communicate. `lineStyle = curve-left` plus the text offsets keep the label well clear of the bars; `anchorDirection = N` attaches the leader line to the top of the "India" bar.
+:::
+
 ## See also
 
 - [Frame Elements](/handbook/frame-elements)

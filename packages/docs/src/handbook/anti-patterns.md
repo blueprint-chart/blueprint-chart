@@ -43,6 +43,34 @@ See [Labels & Legends](/handbook/labels) for direct-labeling technique and [Anno
 - Don't obscure sample size (**box plots hide it**; add individual points for small N)
 - **Tables are valid** — sometimes better than charts for conveying precise values
 
+## Worked example: a shared baseline instead of three deceptive single-bar charts
+
+A frequent anti-pattern is splitting a comparison across three charts with different y-axis ranges — each one tuned to "look interesting" in isolation. The honest alternative is one chart with a shared scale, so identical bar lengths mean identical values:
+
+```bpc
+chart bar-split {
+  title = "Singapore leads the world in all three PISA 2022 subjects"
+  description = "Mean scores in Mathematics, Reading, and Science for 15-year-olds"
+  source = "OECD PISA 2022"
+  valueLabels = true
+  sharedScale = true
+
+  data {
+    _series = "Mathematics","Reading","Science"
+    "Singapore" = 575,543,561
+    "Japan"     = 536,516,547
+    "Korea"     = 527,515,528
+    "Estonia"   = 510,511,526
+    "Canada"    = 497,507,515
+    "Australia" = 487,498,507
+  }
+}
+```
+
+::: tip Done right
+`sharedScale = true` forces every panel onto the same baseline-zero axis, so the eye can compare Mathematics directly against Reading directly against Science. `valueLabels = true` then exposes the exact number, removing any temptation to truncate the axis for visual drama. This is the corrective pattern for the "truncated y-axis", "dual y-axes", and "missing context" rows above. From `packages/lib/src/samples/pisa-scores.bpc`.
+:::
+
 ## The meta-rule
 
 ::: tip

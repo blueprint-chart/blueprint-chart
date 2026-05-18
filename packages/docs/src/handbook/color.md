@@ -85,6 +85,54 @@ chart line {
 }
 ```
 
+## Worked example: a named palette for distinct categories
+
+```bpc
+chart donut {
+  title = "Chrome dominates with two-thirds of the desktop browser market"
+  description = "Worldwide, January 2025"
+  source = "StatCounter"
+  colorPalette = "Heep"
+  displayAsPercentage = true
+
+  data {
+    "Chrome" = 65.7
+    "Edge" = 13.1
+    "Safari" = 8.9
+    "Firefox" = 6.3
+    "Opera" = 3.1
+    "Others" = 2.9
+  }
+}
+```
+
+::: info From `packages/lib/src/samples/browser-market.bpc`
+Six unordered categories, so a categorical palette ("Heep") is the right tool — its hues vary in lightness, which means the donut survives a grayscale conversion. The rule "maximum 7 categorical colors" is exactly at the limit here.
+:::
+
+## Worked example: one accent hue, everything else grey
+
+```bpc
+chart line {
+  title = "2024 was the hottest year on record"
+  description = "Deviation from the 1951–1980 average, in °C"
+  colors = "#e15759"
+  verticalGridStyle = "dashed"
+  horizontalGridStyle = "none"
+
+  data {
+    "1980" = 0.26
+    "2000" = 0.42
+    "2015" = 0.9
+    "2024" = 1.29
+  }
+}
+```
+
+::: info From `packages/lib/src/samples/temperature-anomaly.bpc`
+A single red hue carries semantic weight (warming) while the dashed horizontal grid stays neutral. This is technique 3 from the "Reducing color usage" list: highlight one series, grey everything else.
+:::
+
 ## See also
 
 - [Accessibility](/handbook/accessibility)

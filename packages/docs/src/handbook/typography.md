@@ -59,6 +59,32 @@ The renderer defaults to a sans-serif with tabular figures for axis ticks and da
 }
 ```
 
+## Worked example: a short title doing the work
+
+```bpc
+chart bar-vertical {
+  title = "E is the most frequent letter in English"
+  description = "How often each letter appears in typical English text"
+  source = "Lewand, Cryptological Mathematics"
+  note = "Based on analysis of 40,000 words from English prose"
+  valueLabels = true
+  verticalLabelPosition = off
+  verticalGridStyle = none
+
+  data {
+    "E" = 12.70
+    "T" = 9.06
+    "A" = 8.17
+    "O" = 7.51
+    "I" = 6.97
+  }
+}
+```
+
+::: info From `packages/lib/src/samples/letter-frequency.bpc`
+Title under 50 characters, description under 70, single-letter axis labels — no rotation needed. The chart frame stays typographically neutral so the value labels (`12.70`, `9.06`…) sit at the same medium size as the axis ticks. Type hierarchy is collapsed to the minimum.
+:::
+
 ## See also
 
 - [Frame Elements](/handbook/frame-elements)
