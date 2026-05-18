@@ -13,6 +13,8 @@ import logoLight from '@/assets/images/blueprint-chart-logo.svg'
 import logoDark from '@/assets/images/blueprint-chart-logo-dark.svg'
 import IPhHouse from '~icons/ph/house'
 import IPhSquaresFour from '~icons/ph/squares-four'
+import IPhGithubLogo from '~icons/ph/github-logo'
+import IPhBookOpen from '~icons/ph/book-open'
 
 const route = useRoute()
 const { sortedCharts } = useDashboardGallery()
@@ -69,6 +71,25 @@ const logoSrc = computed(() => resolvedTheme.value === 'dark' ? logoDark : logoL
         :to="`/edit/${chart.id}`"
         :label="chart.title || 'Untitled'"
       />
+    </NavigationSidebarGroup>
+
+    <NavigationSidebarGroup eyebrow="Resources">
+      <NavigationSidebarItem
+        href="https://docs.blueprintchart.com"
+        label="Documentation"
+      >
+        <template #icon>
+          <IPhBookOpen />
+        </template>
+      </NavigationSidebarItem>
+      <NavigationSidebarItem
+        href="https://github.com/blueprint-chart/blueprint-chart"
+        label="GitHub"
+      >
+        <template #icon>
+          <IPhGithubLogo />
+        </template>
+      </NavigationSidebarItem>
     </NavigationSidebarGroup>
   </NavigationSidebar>
 </template>
