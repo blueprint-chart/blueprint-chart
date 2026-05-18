@@ -207,7 +207,7 @@ export function render(
   )
 
   // Reserve space for panel headers above the chart area
-  lpMargins.top = (lpMargins.top ?? 20) + PANEL_HEADER_HEIGHT
+  lpMargins.top = (lpMargins.top ?? 12) + PANEL_HEADER_HEIGHT
 
   const legendAvailableWidth = Math.max(0, containerWidth - (lpMargins.left ?? 50) - (lpMargins.right ?? 20))
   const legendSize = showLegend ? estimateLegendSize(seriesNames, legendPos, legendAvailableWidth) : { width: 0, height: 0 }
@@ -218,7 +218,7 @@ export function render(
     marginOverrides.top = legendH + PANEL_HEADER_HEIGHT
   }
   if (showLegend && legendPos === 'bottom') {
-    marginOverrides.bottom = (marginOverrides.bottom ?? 40) + legendH
+    marginOverrides.bottom = (marginOverrides.bottom ?? 24) + legendH
   }
   if (showLegend && legendPos === 'left') {
     marginOverrides.left = (marginOverrides.left ?? 50) + legendSize.width + 10

@@ -281,7 +281,7 @@ export function render(
     marginOverrides.top = legendH + insideGap
   }
   if (showLegend && legendPos === 'bottom') {
-    marginOverrides.bottom = (marginOverrides.bottom ?? 40) + legendH
+    marginOverrides.bottom = (marginOverrides.bottom ?? 24) + legendH
   }
   if (showLegend && legendPos === 'left') {
     marginOverrides.left = (marginOverrides.left ?? 50) + legendSize.width + 10

@@ -286,7 +286,7 @@ function resolveHorizontalAxisBottom(
     labelPosition?: string
     tickFormat?: ((label: string) => string) | null
   } = {},
-  defaultBottom = 40,
+  defaultBottom = 24,
 ): number | undefined {
   if (labels.length === 0 || availableWidth <= 0) {
     return undefined

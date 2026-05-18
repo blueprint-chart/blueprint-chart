@@ -172,7 +172,7 @@ export function renderArc(
     marginOverrides.top = legendH
   }
   if (showLegend && legendPos === 'bottom') {
-    marginOverrides.bottom = 40 + legendH
+    marginOverrides.bottom = 24 + legendH
   }
   if (showLegend && legendPos === 'left') {
     marginOverrides.left = 50 + legendSize.width + 10

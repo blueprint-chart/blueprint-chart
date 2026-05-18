@@ -34,9 +34,9 @@ export function computeMarginDelta(
 }
 
 const DEFAULT_MARGIN: Margin = {
-  top: 20,
+  top: 12,
   right: 20,
-  bottom: 40,
+  bottom: 24,
   left: 50,
 }
 
