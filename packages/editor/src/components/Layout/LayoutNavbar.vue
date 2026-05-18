@@ -57,7 +57,7 @@ const crumbs = computed<Crumb[]>(() => {
 
 <template>
   <header class="layout-navbar">
-    <div class="layout-navbar__lead d-md-none">
+    <div class="layout-navbar__lead d-xl-none">
       <ButtonIcon
         :icon-left="IPhList"
         label="Open navigation"

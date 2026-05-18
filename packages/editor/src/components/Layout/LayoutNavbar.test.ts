@@ -48,11 +48,11 @@ describe('LayoutNavbar', () => {
     expect(crumbs.text()).toContain('My Charts')
   })
 
-  it('renders the leading cluster (hamburger + workspace switcher) with d-md-none', async () => {
+  it('renders the leading cluster (hamburger + workspace switcher) with d-xl-none', async () => {
     const wrapper = await mountNavbar()
     const lead = wrapper.find('.layout-navbar__lead')
     expect(lead.exists()).toBe(true)
-    expect(lead.classes()).toContain('d-md-none')
+    expect(lead.classes()).toContain('d-xl-none')
   })
 
   it('renders the workspace switcher with hide-name in the leading cluster', async () => {
