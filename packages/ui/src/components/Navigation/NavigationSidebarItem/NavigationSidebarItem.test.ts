@@ -46,4 +46,45 @@ describe('NavigationSidebarItem', () => {
     })
     expect(wrapper.find('.custom-icon').exists()).toBe(true)
   })
+
+  it('renders an external anchor when href is provided (no router-link)', () => {
+    const wrapper = mount(NavigationSidebarItem, {
+      props: { href: 'https://example.com', label: 'External' },
+      global: { stubs },
+    })
+    expect(wrapper.findComponent(RouterLinkStub).exists()).toBe(false)
+    const anchor = wrapper.get('a.navigation-sidebar-item')
+    expect(anchor.attributes('href')).toBe('https://example.com')
+    expect(anchor.attributes('target')).toBe('_blank')
+    expect(anchor.attributes('rel')).toBe('noopener noreferrer')
+  })
+
+  it('renders the external indicator only when href is provided', () => {
+    const internal = mount(NavigationSidebarItem, {
+      props: { to: '/', label: 'Home' },
+      global: { stubs },
+    })
+    expect(internal.find('.navigation-sidebar-item__external').exists()).toBe(false)
+
+    const external = mount(NavigationSidebarItem, {
+      props: { href: 'https://example.com', label: 'External' },
+      global: { stubs },
+    })
+    expect(external.find('.navigation-sidebar-item__external').exists()).toBe(true)
+  })
+
+  it('throws when neither to nor href is provided', () => {
+    expect(() => mount(NavigationSidebarItem, {
+      // @ts-expect-error — intentionally invalid: both props omitted
+      props: { label: 'Nothing' },
+      global: { stubs },
+    })).toThrow(/either `to` or `href`/)
+  })
+
+  it('throws when both to and href are provided', () => {
+    expect(() => mount(NavigationSidebarItem, {
+      props: { to: '/', href: 'https://example.com', label: 'Both' },
+      global: { stubs },
+    })).toThrow(/`to` or `href`, not both/)
+  })
 })
