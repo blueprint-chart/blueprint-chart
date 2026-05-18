@@ -146,6 +146,7 @@ chart area-stacked {
     title = "Bulgarian vegetable production collapsed across the board"
     description = "Production volume indexed to 2001 = 100"
     type = line-multi
+    lineSymbols = false
 
     data {
       _series = "Cabbages","Tomatoes","Watermelons","Carrots","Onions","Garlic","Strawberries"
@@ -171,6 +172,7 @@ chart area-stacked {
     title = "Seasonal farm workers vanished while salaried jobs held steady"
     description = "EU agricultural employment, thousands of full-time equivalents"
     type = line-multi
+    lineSymbols = false
 
     data {
       _series = "Salaried workers","Non-salaried workers"
