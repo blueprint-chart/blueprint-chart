@@ -67,6 +67,7 @@
       'start'
       'center'
       'end';
+    gap: 0;
     padding: 0;
 
     &__start,
