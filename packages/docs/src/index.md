@@ -60,7 +60,7 @@ features:
 
   - icon: ⚡
     title: Standalone runtime
-    details: Drop a `<script type="application/blueprint-chart">` tag on any page. No framework, no build step required.
+    details: Drop one script tag on any page and Blueprint Chart auto-mounts every embedded chart. No framework, no build step required.
     link: /guide/embed
     linkText: See embedding
 
