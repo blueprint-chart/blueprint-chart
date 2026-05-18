@@ -215,11 +215,9 @@ jobs:
     needs: [verify, lint, test, build]
     runs-on: ubuntu-latest
     # Requires:
-    #   - A Pages repo at blueprint-chart/blueprint-chart-docs (Pages → "Deploy from branch: main")
+    #   - A Pages repo at blueprint-chart/docs.blueprintchart.com (Pages → "Deploy from branch: main")
     #   - The BLUEPRINT_BOT GitHub App granted access to that repo
-    #   - DNS: CNAME `docs.blueprintchart.com` → `blueprintchart.com`
-    # Until those are in place, this job will fail; gate via a repo variable if needed.
-    if: vars.DEPLOY_DOCS == 'true' || github.event_name == 'workflow_dispatch'
+    #   - DNS: CNAME `docs.blueprintchart.com` → `blueprint-chart.github.io`
     steps:
       - uses: actions/checkout@v4
       - name: Download docs dist
@@ -234,11 +232,11 @@ jobs:
           app-id: ${{ secrets.BLUEPRINT_BOT_APP_ID }}
           private-key: ${{ secrets.BLUEPRINT_BOT_PRIVATE_KEY }}
           owner: blueprint-chart
-          repositories: blueprint-chart-docs
+          repositories: docs.blueprintchart.com
       - name: Checkout docs Pages repo
         uses: actions/checkout@v4
         with:
-          repository: blueprint-chart/blueprint-chart-docs
+          repository: blueprint-chart/docs.blueprintchart.com
           token: ${{ steps.app-token.outputs.token }}
           path: pages-docs
           fetch-depth: 1
