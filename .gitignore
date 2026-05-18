@@ -15,3 +15,6 @@ packages/lib/src/dsl/grammar.js
 packages/editor/src/dsl-lang/bpc-parser.js
 test-results
 playwright-report
+
+# VitePress build cache
+packages/docs/src/.vitepress/cache
