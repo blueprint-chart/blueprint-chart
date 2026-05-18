@@ -27,11 +27,14 @@ const logoSrc = computed(() => resolvedTheme.value === 'dark' ? logoDark : logoL
 <template>
   <NavigationSidebar aria-label="Workspace navigation">
     <template #header>
-      <NavigationWorkspaceSwitcher
-        name="Blueprint Chart"
-        :logo-src="logoSrc"
-        to="/"
-      />
+      <div class="layout-sidebar__header">
+        <NavigationWorkspaceSwitcher
+          name="Blueprint Chart"
+          :logo-src="logoSrc"
+          to="/"
+        />
+        <slot name="trailing" />
+      </div>
     </template>
 
     <NavigationSidebarGroup eyebrow="Workspace">
@@ -69,3 +72,13 @@ const logoSrc = computed(() => resolvedTheme.value === 'dark' ? logoDark : logoL
     </NavigationSidebarGroup>
   </NavigationSidebar>
 </template>
+
+<style scoped lang="scss">
+.layout-sidebar__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  width: 100%;
+}
+</style>
