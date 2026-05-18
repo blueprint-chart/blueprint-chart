@@ -5,13 +5,11 @@ chart bar-horizontal {
   sourceUrl = "https://ethnologue.com"
   byline = "Pierre Romera"
   sort = descending
-  colors = "#4e79a7"
+  colorPalette = "Blueprint"
   horizontalLabelPosition = off
   horizontalGridStyle = none
 
-  colorize "Mandarin" {
-    color = "#1b5299"
-  }
+  highlight "Mandarin"
 
   data {
     "Mandarin" = 920

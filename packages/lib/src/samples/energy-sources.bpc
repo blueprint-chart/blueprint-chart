@@ -5,7 +5,7 @@ chart donut {
   sourceUrl = "https://iea.org"
   byline = "Pierre Romera"
   note = "Percentages may not sum to 100 due to rounding"
-  colors = "#76b7b2, #4e79a7, #59a14f, #f28e2b, #edc949, #e15759, #b07aa1"
+  colorPalette = "Bright"
   legendPosition = "right"
   tooltips = true
   displayAsPercentage = true

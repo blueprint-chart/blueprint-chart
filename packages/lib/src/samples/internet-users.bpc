@@ -8,9 +8,7 @@ chart bar-horizontal {
   horizontalLabelPosition = off
   horizontalGridStyle = none
 
-  colorize "China" {
-    color = "#1b5299"
-  }
+  highlight "China"
 
   data {
     "China" = 1050

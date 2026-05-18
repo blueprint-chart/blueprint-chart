@@ -5,7 +5,7 @@ chart line {
   sourceUrl = "https://bls.gov/cpi/"
   byline = "Pierre Romera"
   note = "All items, seasonally adjusted, urban consumers"
-  colors = "#f28e2b"
+  colorPalette = "Blueprint"
   lineSymbols = true
   lineSymbolShape = "circle"
   lineSymbolShowOn = "all"

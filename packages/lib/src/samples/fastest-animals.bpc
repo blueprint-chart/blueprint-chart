@@ -8,9 +8,7 @@ chart bar-horizontal {
   horizontalLabelPosition = off
   horizontalGridStyle = none
 
-  colorize "Peregrine Falcon" {
-    color = "#d44d5c"
-  }
+  highlight "Peregrine Falcon"
 
   data {
     "Peregrine Falcon" = 389

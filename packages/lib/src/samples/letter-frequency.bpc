@@ -11,9 +11,7 @@ chart bar-vertical {
   verticalLabelPosition = off
   verticalGridStyle = none
 
-  colorize "E" {
-    color = "#e15759"
-  }
+  highlight "E"
 
   data {
     "E" = 12.70

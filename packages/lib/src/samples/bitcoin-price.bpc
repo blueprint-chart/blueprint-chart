@@ -3,7 +3,7 @@ chart line {
   description = "USD, year-end closing price"
   source = "CoinGecko"
   sourceUrl = "https://www.coingecko.com"
-  colors = "#f7931a"
+  colorPalette = "Blueprint"
   lineSymbols = true
   lineSymbolShowOn = "all"
   lineSymbolShape = "diamond"
