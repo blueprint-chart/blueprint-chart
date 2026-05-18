@@ -5,13 +5,11 @@ chart bar-horizontal {
   sourceUrl = "https://data.worldbank.org"
   note = "Figures are estimates and may differ from national statistics"
   sort = descending
-  colors = "#59a14f"
+  colorPalette = "Blueprint"
   horizontalLabelPosition = off
   horizontalGridStyle = none
 
-  colorize "United States" {
-    color = "#e15759"
-  }
+  highlight "United States"
 
   data {
     "Japan" = 84.8

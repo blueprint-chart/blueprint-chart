@@ -3,7 +3,7 @@ chart line {
   description = "Deviation from the 1951–1980 average, in °C"
   source = "NASA GISS"
   sourceUrl = "https://data.giss.nasa.gov/gistemp/"
-  colors = "#e15759"
+  colorPalette = "Blueprint"
   autoContrast = false
   allowDarkMode = true
   interpolation = "monotoneX"

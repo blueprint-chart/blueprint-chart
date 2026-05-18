@@ -33,9 +33,7 @@ chart bar-vertical {
     "Honduras" = 6.3
   }
 
-  colorize "Brazil" {
-    color = "#a4432d"
-  }
+  highlight "Brazil"
 
   transform sort {
     column = "value"

@@ -3,7 +3,7 @@ chart bar-vertical {
   description = "Annual emissions in billion tonnes, 2023"
   source = "Global Carbon Project"
   sourceUrl = "https://globalcarbonproject.org"
-  colors = "#abb8c3"
+  colorPalette = "Blueprint"
   autoContrast = false
   allowDarkMode = true
   showVerticalAxis = false
@@ -28,9 +28,7 @@ chart bar-vertical {
     "Germany" = 0.64
   }
 
-  colorize "China" {
-    color = "#e15759"
-  }
+  highlight "China"
 
   annotation "India" {
     text = "Surpassed EU in 2023"

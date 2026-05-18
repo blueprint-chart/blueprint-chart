@@ -4,7 +4,7 @@ chart line-multi {
   source = "IEA"
   sourceUrl = "https://iea.org"
   note = "Wind and solar include both onshore and offshore installations"
-  colors = "#59a14f, #edc949, #4e79a7"
+  colorPalette = "Blueprint"
   legend = false
   lineSymbols = true
   lineSymbolShowOn = "last"
