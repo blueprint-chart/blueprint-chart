@@ -6,11 +6,17 @@ import { usePanelStore, MIN_CANVAS_WIDTH } from '@/stores/panel'
 // Once PanelShell calls usePanelCanvasSync (which calls useElementSize),
 // every test in this file goes through this mock.
 const elementWidth = ref(1000)
+// Track the last element passed to useElementSize so structural tests can
+// assert that PanelShell observes parentElement instead of containerRef itself.
+let lastUseElementSizeTarget: unknown = undefined
 vi.mock('@vueuse/core', async () => {
   const actual = await vi.importActual<typeof import('@vueuse/core')>('@vueuse/core')
   return {
     ...actual,
-    useElementSize: () => ({ width: elementWidth, height: ref(800) }),
+    useElementSize: (target: unknown) => {
+      lastUseElementSizeTarget = target
+      return { width: elementWidth, height: ref(800) }
+    },
   }
 })
 
@@ -264,7 +270,10 @@ describe('PanelShell', () => {
       elementWidth.value = 800
       const store = usePanelStore()
       store.dock()
+      const parent = document.createElement('div')
       const container = document.createElement('div')
+      parent.appendChild(container)
+      document.body.appendChild(parent)
       wrapper = mount(PanelShell, {
         props: { title: 'Panel', containerRef: container },
       })
@@ -274,18 +283,21 @@ describe('PanelShell', () => {
       const widthMatch = style?.match(/width: (\d+)px/)
       const renderedWidth = widthMatch ? parseInt(widthMatch[1], 10) : 0
       expect(renderedWidth).toBeLessThanOrEqual(800 - MIN_CANVAS_WIDTH)
+      parent.remove()
     })
 
     it('docks an open floating panel when canvas crosses the cramped threshold', async () => {
       elementWidth.value = 1000
       const store = usePanelStore()
       store.float()
+      const parent = document.createElement('div')
       const container = document.createElement('div')
-      container.appendChild(document.createElement('div'))
+      parent.appendChild(container)
+      document.body.appendChild(parent)
 
       wrapper = mount(PanelShell, {
         props: { title: 'Panel', containerRef: container },
-        attachTo: container,
+        attachTo: parent,
       })
       await nextTick()
       expect(store.mode).toBe('floating')
@@ -299,6 +311,36 @@ describe('PanelShell', () => {
 
       expect(store.mode).toBe('closed')
       expect(store.lastDesktopMode).toBe('docked')
+      parent.remove()
+    })
+
+    it('observes containerRef.parentElement (stable container), not containerRef itself', async () => {
+      // Structural test: verifies the fix is in place — PanelShell must pass
+      // the parent element to useElementSize, not the canvas ref directly.
+      // Without this, a flex-shrinking canvas creates a reactive feedback loop
+      // (oscillation) as described in the cramped-oscillation bug.
+      const store = usePanelStore()
+      store.dock()
+      const parent = document.createElement('div')
+      const container = document.createElement('div')
+      parent.appendChild(container)
+      document.body.appendChild(parent)
+
+      lastUseElementSizeTarget = undefined
+      wrapper = mount(PanelShell, {
+        props: { title: 'Panel', containerRef: container },
+      })
+      await nextTick()
+
+      // Resolve the getter/ref that was passed to useElementSize and verify
+      // it points to the parent element, not the container (canvas) element.
+      const resolved = typeof lastUseElementSizeTarget === 'function'
+        ? (lastUseElementSizeTarget as () => unknown)()
+        : (lastUseElementSizeTarget as { value?: unknown } | null)?.value ?? lastUseElementSizeTarget
+      expect(resolved).toBe(parent)
+      expect(resolved).not.toBe(container)
+
+      parent.remove()
     })
   })
 })

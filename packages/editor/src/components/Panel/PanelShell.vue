@@ -95,8 +95,13 @@ const panelStore = usePanelStore()
 const { mode, dockedWidth, floatingPosition } = storeToRefs(panelStore)
 const { dock, float, close } = panelStore
 
-const containerRefLocal = computed(() => props.containerRef)
-const { canvasWidth } = usePanelCanvasSync(containerRefLocal)
+// Observe the parent of the canvas (the stable flex container), not the
+// canvas itself. The canvas is a flex sibling of PanelDocked that shrinks
+// when the panel appears — observing it directly creates a reactive feedback
+// loop: panel opens → canvas shrinks → cramped → panel closes → canvas grows
+// → uncramped → panel opens → … (infinite oscillation).
+const sizingTarget = computed(() => props.containerRef?.parentElement ?? null)
+const { canvasWidth } = usePanelCanvasSync(sizingTarget)
 
 // Intercept the cramped transition while floating: dock first so that
 // syncCramped (called by usePanelCanvasSync's internal watcher) sees
