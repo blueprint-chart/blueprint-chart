@@ -38,6 +38,9 @@ importers:
 
   packages/docs:
     devDependencies:
+      '@blueprint-chart/lib':
+        specifier: workspace:*
+        version: link:../lib
       '@fontsource-variable/geist':
         specifier: ^5.2.8
         version: 5.2.8
