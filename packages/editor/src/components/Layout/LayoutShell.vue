@@ -17,7 +17,7 @@ const isLanding = computed(() => route.path === '/')
 const paletteOpen = shallowRef(false)
 const shortcut = usePlatformShortcut('k')
 
-const { isNarrow } = useBreakpoint('md')
+const { isNarrow } = useBreakpoint('xl')
 const sidebarOpen = ref(false)
 
 // Auto-close offcanvas on navigation.
@@ -122,7 +122,7 @@ $grid-breakpoints: (
 
   // Narrow viewports: collapse to single column, hide sidebar.
   // The sidebar is reachable via the offcanvas (LayoutNavbar hamburger).
-  @include bsbp.media-breakpoint-down(md, $grid-breakpoints) {
+  @include bsbp.media-breakpoint-down(xl, $grid-breakpoints) {
     grid-template-columns: 1fr;
     grid-template-areas:
       'topbar'
@@ -136,7 +136,7 @@ $grid-breakpoints: (
   min-width: 0;
   overflow: hidden;
 
-  @include bsbp.media-breakpoint-down(md, $grid-breakpoints) {
+  @include bsbp.media-breakpoint-down(xl, $grid-breakpoints) {
     display: none;
   }
 }
