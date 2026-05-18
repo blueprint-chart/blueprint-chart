@@ -27,7 +27,7 @@ Releases are unified across the three packages (`lib`, `ui`, `editor`) — one t
    - `verify` confirms the three `package.json` versions match the tag
    - `ci` runs lint + test + build
    - `publish-npm` publishes all three packages with provenance
-   - `deploy-pages` pushes `packages/editor/dist/` to `blueprint-chart/blueprint-chart.github.io`
+   - `deploy-pages` pushes `packages/editor/dist/` to `blueprint-chart/blueprintchart.com`
 
 ## Dry run
 
