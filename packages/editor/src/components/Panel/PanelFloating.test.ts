@@ -81,4 +81,24 @@ describe('PanelFloating', () => {
     })
     expect(w.find('.btn-close-stub').exists()).toBe(true)
   })
+
+  it('does not apply an inline max-width that would override the CSS clamp', () => {
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const w = mount(PanelFloating, {
+      props: {
+        containerRef: container,
+        title: 'Test',
+        position: { x: 100, y: 100 },
+      },
+      attachTo: container,
+    })
+    const el = w.find('.panel-floating').element as HTMLElement
+    // The scoped stylesheet sets max-width via SCSS; here we just guard that
+    // no inline style is overriding it. The CSS rule itself is covered via
+    // visual/manual QA — jsdom does not resolve calc() against parent bounds.
+    expect(el.style.maxWidth).toBe('')
+    w.unmount()
+    container.remove()
+  })
 })
