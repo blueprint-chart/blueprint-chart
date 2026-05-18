@@ -29,14 +29,30 @@ features:
   - icon: 🎬
     title: Scenes — same chart, different states
     details: Every chart can define multiple scenes that play back as an animated narrative. Built for explanatory journalism.
+    link: /guide/scenes
+    linkText: Explore scenes
 
   - icon: 🔒
     title: Static-first, data-sovereign
     details: Charts render entirely in the browser. No backend required to author, host, or embed. Your data never leaves the page.
 
+  - icon: 📊
+    title: 13 chart types
+    details: Bar, line, area, column, pie, and donut families — each tuned for a specific story shape.
+    link: /charts/
+    linkText: Browse the catalogue
+
   - icon: 🎨
-    title: 13 chart types, 50+ palettes
-    details: Bar, line, area, column, pie, donut families — with WCAG-aware contrast checks and color-vision-deficiency safe palettes.
+    title: 50+ palettes, CVD-safe
+    details: Curated palettes with WCAG-aware contrast and color-vision-deficiency checks built into the library.
+    link: /guide/palettes
+    linkText: Choose a palette
+
+  - icon: 📖
+    title: Opinionated dataviz handbook
+    details: Design principles, anti-patterns, frame elements, typography, and accessibility — the rules behind every chart.
+    link: /handbook/
+    linkText: Read the handbook
 
   - icon: 🧩
     title: Three composable packages
