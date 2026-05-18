@@ -123,12 +123,12 @@ describe('PanelDocked', () => {
   })
 
   it('clamps rendered width when canvasWidth would leave less than min canvas', () => {
-    // stored = 500, canvas = 700, minCanvas = 320 → effective = 700 - 320 = 380
+    // stored = 500, canvas = 700, minCanvas = 220 → effective = 700 - 220 = 480
     const w = mount(PanelDocked, {
       props: { collapsed: false, title: 'Test', modelValue: 500, canvasWidth: 700 },
     })
     const style = w.find('.panel-docked').attributes('style')
-    expect(style).toContain('width: 380px')
+    expect(style).toContain('width: 480px')
   })
 
   it('uses stored width unchanged when canvas has plenty of room', () => {
@@ -157,14 +157,14 @@ describe('PanelDocked', () => {
     el.removeEventListener = vi.fn()
     await handle.trigger('pointerdown', { clientX: 500, pointerId: 1 })
     // Drag left by 1000px — would request width=1300 if unclamped.
-    // Effective max = min(660, 800 - 320) = 480
+    // Effective max = min(660, 800 - 220) = 580
     const move = new Event('pointermove') as Event & { clientX: number }
     move.clientX = -500
     el.dispatchEvent(move)
     el.dispatchEvent(new Event('pointerup'))
     const emitted = w.emitted('update:modelValue')
     expect(emitted).toBeTruthy()
-    expect(emitted![emitted!.length - 1][0]).toBe(480)
+    expect(emitted![emitted!.length - 1][0]).toBe(580)
   })
 
   it('uses static MAX_WIDTH when canvasWidth is undefined (back-compat)', async () => {

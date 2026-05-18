@@ -302,7 +302,7 @@ describe('PanelShell', () => {
       await nextTick()
       expect(store.mode).toBe('floating')
 
-      elementWidth.value = 500
+      elementWidth.value = 400
       // Two ticks: first lets PanelShell's flush:'sync' watcher run dock()
       // (capturing lastDesktopMode='docked'), second lets the composable's
       // queued syncCramped watcher flip mode to 'closed'.

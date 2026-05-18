@@ -3,7 +3,7 @@ export type DesktopPanelMode = 'docked' | 'floating' | 'closed'
 
 const PANEL_MIN_WIDTH = 260
 const PANEL_MAX_WIDTH = 660
-export const MIN_CANVAS_WIDTH = 320
+export const MIN_CANVAS_WIDTH = 220
 export const CRAMPED_THRESHOLD = PANEL_MIN_WIDTH + MIN_CANVAS_WIDTH
 
 function defaultDockedWidth() {
