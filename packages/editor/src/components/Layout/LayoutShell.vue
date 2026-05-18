@@ -2,7 +2,7 @@
 import { computed, ref, shallowRef, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useEventListener } from '@vueuse/core'
-import { useBreakpoint } from '@blueprint-chart/ui'
+import { ButtonClose, useBreakpoint } from '@blueprint-chart/ui'
 import LayoutNavbar from '@/components/Layout/LayoutNavbar.vue'
 import LayoutSidebar from '@/components/Layout/LayoutSidebar.vue'
 import CommandPaletteModal from '@/components/CommandPalette/CommandPaletteModal.vue'
@@ -78,7 +78,11 @@ useEventListener(document, 'keydown', (event: globalThis.KeyboardEvent) => {
       aria-label="Workspace navigation"
       class="layout-shell__sidebar-offcanvas"
     >
-      <LayoutSidebar />
+      <LayoutSidebar>
+        <template #trailing>
+          <ButtonClose @click="sidebarOpen = false" />
+        </template>
+      </LayoutSidebar>
     </BOffcanvas>
 
     <CommandPaletteModal v-model:open="paletteOpen" />

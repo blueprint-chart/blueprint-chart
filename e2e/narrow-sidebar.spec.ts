@@ -65,6 +65,17 @@ test.describe('Narrow viewport - sidebar offcanvas', () => {
     await expect(page).toHaveURL(/#\/$/)
     await expect(page.locator('#layout-sidebar-offcanvas')).toBeHidden()
   })
+
+  test('clicking the in-sidebar close button closes the offcanvas', async ({ page }) => {
+    await page.goto('/#/charts')
+    await page.locator('.layout-navbar__lead button[aria-label="Open navigation"]').click()
+    const offcanvas = page.locator('#layout-sidebar-offcanvas')
+    await expect(offcanvas).toBeVisible()
+
+    // Close button lives in the LayoutSidebar header alongside the workspace switcher.
+    await offcanvas.locator('button[aria-label="Close"]').click()
+    await expect(offcanvas).toBeHidden()
+  })
 })
 
 test.describe('Wide viewport regression', () => {
@@ -72,7 +83,7 @@ test.describe('Wide viewport regression', () => {
 
   test('hamburger and topbar logo are hidden at wide', async ({ page }) => {
     await page.goto('/#/charts')
-    // .layout-navbar__lead exists in the DOM but is hidden by Bootstrap's d-md-none utility.
+    // .layout-navbar__lead exists in the DOM but is hidden by Bootstrap's d-xl-none utility.
     await expect(page.locator('.layout-navbar__lead')).toBeHidden()
   })
 
