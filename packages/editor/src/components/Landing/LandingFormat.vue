@@ -21,6 +21,22 @@ if (!sample) {
 const bpc = sample.dsl.replace(/\{/, '{\n  theme = "blueprint-framed"')
 const highlighted = highlightDsl(bpc)
 
+// Mirrors ExportEmbedPanel's toBase64 — btoa() only handles Latin-1, so encode
+// as UTF-8 bytes first to avoid InvalidCharacterError on multi-byte content.
+function toBase64(str: string): string {
+  const bytes = new TextEncoder().encode(str)
+  let binary = ''
+  for (const byte of bytes) {
+    binary += String.fromCharCode(byte)
+  }
+  return globalThis.btoa(binary)
+}
+
+const bpc64 = toBase64(bpc)
+const renderUrl = typeof window !== 'undefined'
+  ? `${window.location.origin}${window.location.pathname}#/render?bpc64=${encodeURIComponent(bpc64)}`
+  : '#'
+
 const base64FragmentLong = 'eyJ0eXBlIjoibGluZSIsImRhdGEiOlt7IngiOiIxOTgwIix7InkiOj'
 const base64FragmentShort = 'eyJ0...'
 
@@ -88,16 +104,22 @@ const portabilityCards: PortabilityCard[] = [
           aria-hidden="true"
         >
           <span class="landing-format__browser__url__dots"><span /><span /><span /></span>
-          <span class="landing-format__browser__url__bar">
+          <a
+            :href="renderUrl"
+            target="_blank"
+            rel="noopener"
+            aria-label="Open this chart embed in a new tab"
+            class="landing-format__browser__url__bar"
+          >
             <AppIcon
               :name="IPhLock"
               size="xs"
               variant="success"
             />
-            <span class="landing-format__browser__url__bar__host">blueprintchart.com/embed</span>
-            <span class="landing-format__browser__url__bar__fragment landing-format__browser__url__bar__fragment--long">#{{ base64FragmentLong }}</span>
-            <span class="landing-format__browser__url__bar__fragment landing-format__browser__url__bar__fragment--short">#{{ base64FragmentShort }}</span>
-          </span>
+            <span class="landing-format__browser__url__bar__host">blueprintchart.com/#/render?bpc64=</span>
+            <span class="landing-format__browser__url__bar__fragment landing-format__browser__url__bar__fragment--long">{{ base64FragmentLong }}</span>
+            <span class="landing-format__browser__url__bar__fragment landing-format__browser__url__bar__fragment--short">{{ base64FragmentShort }}</span>
+          </a>
         </div>
         <div class="landing-format__browser__chart">
           <LandingChartPreview :bpc="bpc" />
@@ -234,6 +256,18 @@ const portabilityCards: PortabilityCard[] = [
         align-items: center;
         gap: 0.375rem;
         min-width: 0;
+        text-decoration: none;
+        transition: border-color var(--bc-duration-fast) var(--bc-ease);
+
+        &:hover,
+        &:focus-visible {
+          border-color: var(--bc-hairline-strong);
+        }
+
+        &:focus-visible {
+          outline: none;
+          box-shadow: var(--bc-focus-ring);
+        }
 
         &__host {
           color: var(--bs-body-color);
