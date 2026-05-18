@@ -4,7 +4,8 @@ import { usePanelStore } from '@/stores/panel'
 
 vi.mock('@blueprint-chart/ui', () => ({
   NavigationIconRail: {
-    template: '<div class="icon-rail"><slot name="footer" /></div>',
+    name: 'NavigationIconRail',
+    template: '<div class="icon-rail"><button v-for="i in items" :key="i.value" class="rail-item" :data-value="i.value" @click="$emit(\'update:modelValue\', i.value)" /><slot name="footer" /></div>',
     props: ['modelValue', 'items', 'horizontal'],
     emits: ['update:modelValue'],
   },
@@ -66,5 +67,27 @@ describe('PanelIconRail', () => {
     })
     await w.find('.btn-toggle').trigger('click')
     expect(w.emitted('toggle-mode')).toHaveLength(1)
+  })
+
+  it('opens the panel and emits select when clicked while closed', async () => {
+    const store = usePanelStore()
+    store.$patch({ mode: 'closed', lastDesktopMode: 'docked' })
+    const w = mount(PanelIconRail, {
+      props: { activeTab: '', items },
+    })
+    await w.find('.rail-item[data-value="b"]').trigger('click')
+    expect(store.mode).toBe('docked')
+    expect(w.emitted('select')).toEqual([['b']])
+  })
+
+  it('does not change mode when clicking while panel is already open', async () => {
+    const store = usePanelStore()
+    store.$patch({ mode: 'floating', lastDesktopMode: 'floating' })
+    const w = mount(PanelIconRail, {
+      props: { activeTab: 'a', items },
+    })
+    await w.find('.rail-item[data-value="b"]').trigger('click')
+    expect(store.mode).toBe('floating')
+    expect(w.emitted('select')).toEqual([['b']])
   })
 })
