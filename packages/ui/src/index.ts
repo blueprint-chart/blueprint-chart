@@ -9,6 +9,8 @@ export {
   ToggleEntriesKey,
 } from './composables/injection-keys'
 export { useBreakpoint } from './composables/useBreakpoint'
+export { BOOTSTRAP_BREAKPOINTS } from './utils/bootstrapBreakpoints'
+export type { BootstrapBreakpoint } from './utils/bootstrapBreakpoints'
 
 export { default as ActionCopyButton } from './components/Action/ActionCopyButton/ActionCopyButton.vue'
 
