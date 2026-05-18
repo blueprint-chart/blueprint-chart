@@ -2,6 +2,16 @@ import { defineConfig } from 'vitepress'
 import { installBpcFence } from './theme/markdown/bpc-fence'
 
 export default defineConfig({
+  vite: {
+    css: {
+      preprocessorOptions: {
+        scss: {
+          api: 'modern-compiler',
+        },
+      },
+    },
+  },
+
   title: 'Blueprint Chart',
   titleTemplate: ':title — Blueprint Chart',
   description:
