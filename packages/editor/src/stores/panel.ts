@@ -3,6 +3,8 @@ export type DesktopPanelMode = 'docked' | 'floating' | 'closed'
 
 const PANEL_MIN_WIDTH = 260
 const PANEL_MAX_WIDTH = 660
+export const MIN_CANVAS_WIDTH = 320
+export const CRAMPED_THRESHOLD = PANEL_MIN_WIDTH + MIN_CANVAS_WIDTH
 
 function defaultDockedWidth() {
   const available = Math.floor(window.innerWidth * 0.35)
@@ -20,6 +22,10 @@ export const usePanelStore = defineStore('panel', () => {
   // While narrow, desktop-mode actions keep lastDesktopMode locked so that a
   // narrow→wide transition restores the pre-narrow desktop mode.
   const narrow = shallowRef(false)
+  // Tracks whether the canvas (the layout main area) is too narrow to hold
+  // even the smallest panel plus a usable canvas floor. Not persisted — always
+  // re-derived from a ResizeObserver via usePanelCanvasSync().
+  const cramped = shallowRef(false)
 
   function dock() {
     mode.value = 'docked'
@@ -127,6 +133,41 @@ export const usePanelStore = defineStore('panel', () => {
     }
   }
 
+  // Applies the initial cramped snapshot (e.g. on app mount). If cramped and
+  // mode is not already 'closed' or 'drawer' (drawer means narrow already
+  // owns mode), forces mode to 'closed'. lastDesktopMode is preserved because
+  // the persisted mode it captures is exactly the desktop preference we want
+  // to restore when the window grows back. Mirrors initBreakpoint.
+  function initCramped(isCramped: boolean) {
+    cramped.value = isCramped
+    if (isCramped && mode.value !== 'closed' && mode.value !== 'drawer') {
+      mode.value = 'closed'
+    }
+  }
+
+  // Applies a viewport-canvas transition. wide→cramped captures the current
+  // mode into lastDesktopMode (unless already closed/drawer) and sets closed.
+  // cramped→wide restores mode from lastDesktopMode. While narrow, only the
+  // flag is updated — the narrow axis owns mode-switching.
+  function syncCramped(isCramped: boolean) {
+    if (cramped.value === isCramped) {
+      return
+    }
+    cramped.value = isCramped
+    if (narrow.value) {
+      return
+    }
+    if (isCramped) {
+      if (mode.value !== 'closed' && mode.value !== 'drawer') {
+        lastDesktopMode.value = mode.value as DesktopPanelMode
+      }
+      mode.value = 'closed'
+    }
+    else if (mode.value === 'closed') {
+      mode.value = lastDesktopMode.value
+    }
+  }
+
   return {
     mode,
     dockedWidth,
@@ -134,6 +175,7 @@ export const usePanelStore = defineStore('panel', () => {
     floatingSize,
     lastDesktopMode,
     narrow,
+    cramped,
     dock,
     float,
     close,
@@ -144,6 +186,8 @@ export const usePanelStore = defineStore('panel', () => {
     setDockedWidth,
     initBreakpoint,
     syncBreakpoint,
+    initCramped,
+    syncCramped,
   }
 }, {
   // floatingPosition and floatingSize are intentionally excluded from
@@ -166,6 +210,7 @@ export function usePanel() {
     floatingSize,
     lastDesktopMode,
     narrow,
+    cramped,
   } = storeToRefs(store)
   return {
     mode,
@@ -174,6 +219,7 @@ export function usePanel() {
     floatingSize,
     lastDesktopMode,
     narrow,
+    cramped,
     dock: store.dock,
     float: store.float,
     close: store.close,
@@ -184,5 +230,7 @@ export function usePanel() {
     setDockedWidth: store.setDockedWidth,
     initBreakpoint: store.initBreakpoint,
     syncBreakpoint: store.syncBreakpoint,
+    initCramped: store.initCramped,
+    syncCramped: store.syncCramped,
   }
 }
