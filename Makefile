@@ -13,7 +13,7 @@ dev: ## Start editor dev server (port 5555)
 dev-story: ## Start Histoire dev server (UI component stories)
 	pnpm --filter @blueprint-chart/ui story:dev
 
-dev-docs: ## Start VitePress dev server (docs site, port 4455)
+dev-docs: ## Start VitePress dev server (docs site, 0.0.0.0:4445)
 	pnpm --filter @blueprint-chart/docs dev
 
 build: ## Build all packages
