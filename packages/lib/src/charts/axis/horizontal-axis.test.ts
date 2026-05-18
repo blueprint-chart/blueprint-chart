@@ -241,16 +241,31 @@ describe('HorizontalAxisChart label rotation', () => {
     })
   })
 
-  it('never rotates when labelRotation is "horizontal" (thins instead)', () => {
+  it('never thins discrete labels when labelRotation is "horizontal" (allows overlap)', () => {
+    // Each label identifies a bar/category — dropping one makes that bar
+    // unreadable. With the explicit `horizontal` override and wrap failing,
+    // we keep every label and let them visibly overlap rather than disappear.
     const domain = Array.from({ length: 24 }, (_, i) => `Category ${i + 1}`)
     const axis = renderOrdinal({ domain, width: 400, labelRotation: 'horizontal' })
     const texts = axis.querySelectorAll('.tick text')
     texts.forEach((t) => {
       expect(t.getAttribute('transform')).toBeNull()
     })
-    // Thinning applied because horizontal locked
     const allTicks = axis.querySelectorAll('.tick')
-    expect(allTicks.length).toBeLessThan(domain.length)
+    expect(allTicks.length).toBe(domain.length)
+  })
+
+  it('never thins discrete rotated labels even at extreme densities', () => {
+    // 100 categories in 300px → per-tick 3px, rotated labels would heavily
+    // overlap. Every label must still render — dropping bar identities is
+    // worse than visual overlap, which is at least an honest signal.
+    const domain = Array.from({ length: 100 }, (_, i) => `Category ${i + 1}`)
+    const axis = renderOrdinal({ domain, width: 300 })
+    const ticks = axis.querySelectorAll('.tick')
+    expect(ticks.length).toBe(domain.length)
+    axis.querySelectorAll('.tick text').forEach((t) => {
+      expect(t.getAttribute('transform')).toBe('rotate(-90)')
+    })
   })
 
   it('keeps rotation across rerenders (merge:transition path)', () => {

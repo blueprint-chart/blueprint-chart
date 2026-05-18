@@ -19,9 +19,6 @@ const AVG_CHAR_WIDTH_PX = 10
 // label as "fitting" when it's within this multiple of the per-tick width so
 // we don't rotate or wrap on marginal overflow.
 const LABEL_FIT_TOLERANCE = 1.3
-// When labels are rotated 90°, each line occupies roughly this many px horizontally
-// (text line-height plus padding). Much tighter than horizontal spacing.
-const ROTATED_LABEL_SPACING_PX = 12
 // Extra padding above/below rotated labels for the tick mark and breathing room.
 const ROTATED_LABEL_PADDING_PX = 12
 // Default max wrap lines for auto line-breaking of multi-word labels.
@@ -215,26 +212,6 @@ function willRotateLabels(
   const maxWidth = maxFormattedLabelWidth(domain, formatter ?? null)
   const perTickWidth = availableWidth / domain.length
   return maxWidth > perTickWidth * LABEL_FIT_TOLERANCE
-}
-
-/**
- * Thinning when labels are rotated — spacing is line-height, not label width.
- */
-function thinRotatedLabels(domain: string[], availableWidth: number): string[] {
-  if (domain.length <= 1) {
-    return domain
-  }
-  const maxLabels = Math.max(2, Math.floor(availableWidth / ROTATED_LABEL_SPACING_PX))
-  if (domain.length <= maxLabels) {
-    return domain
-  }
-  const step = Math.ceil(domain.length / maxLabels)
-  const result = domain.filter((_, i) => i % step === 0)
-  const last = domain[domain.length - 1]
-  if (result[result.length - 1] !== last) {
-    result.push(last)
-  }
-  return result
 }
 
 /**
@@ -470,16 +447,16 @@ export class HorizontalAxisChart extends D3Blueprint<AxisDatum[]> {
     // them instead of rotating; only an explicit `vertical` override rotates.
     // For truly discrete labels that overflow their per-tick width, try
     // line-wrapping on whitespace first; only rotate when wrapping can't fit.
-    // Discrete labels that fit (or wrap cleanly) are NEVER thinned: dropping
-    // a bar's label makes the bar unreadable. Thinning applies only to
-    // continuous (date-like) domains and to an explicit `horizontal` override
-    // where the user has locked out rotation and wrapping can't rescue overflow.
+    // Discrete labels are NEVER thinned: each label identifies a bar/category,
+    // so dropping one makes that bar unreadable. At extreme densities labels
+    // are allowed to overlap (visibly broken, but honest) rather than silently
+    // disappearing. Thinning applies only to continuous (date-like) domains
+    // where each label is a position on a continuous axis, not a category id.
     const ordinal = isOrdinalScale(rawScale)
     const domain = ordinal ? rawScale.domain() : []
     const continuous = ordinal && labelRotation !== 'vertical' && detectDates(domain) !== null
     let wrapLinesByText: Map<string, string[]> | null = null
     let shouldRotate = false
-    let shouldThinHorizontal = continuous
 
     if (ordinal && !continuous && domain.length > 1 && availableWidth > 0) {
       const perTickWidth = availableWidth / domain.length
@@ -492,38 +469,26 @@ export class HorizontalAxisChart extends D3Blueprint<AxisDatum[]> {
       }
       else if (overflows) {
         wrapLinesByText = tryWrapAll(domain, fitWidth, tickFormatter)
-        if (!wrapLinesByText) {
-          if (labelRotation === 'auto') {
-            shouldRotate = true
-          }
-          else {
-            // `horizontal` override — can't rotate, can't wrap, so thin.
-            shouldThinHorizontal = true
-          }
+        if (!wrapLinesByText && labelRotation === 'auto') {
+          shouldRotate = true
         }
+        // `horizontal` override + can't wrap → labels stay horizontal and may
+        // visibly overlap. We do NOT thin: the user opted into horizontal
+        // layout, and silently dropping bar labels is worse than overlap.
       }
     }
 
     let ticks = this.config('ticks') as (string & d3.NumberValue)[] | null
     if (!ticks && availableWidth > 0) {
       if (ordinal) {
-        let thinned: string[]
-        if (wrapLinesByText) {
-          // Wrapping preserves every label — no thinning needed.
-          thinned = domain
-        }
-        else if (shouldRotate) {
-          thinned = thinRotatedLabels(domain, availableWidth)
-        }
-        else if (shouldThinHorizontal) {
-          thinned = thinLabels(domain, availableWidth, tickFormatter)
-        }
-        else {
-          // Discrete ordinal labels that fit — show every one.
-          thinned = domain
-        }
-        if (thinned.length < domain.length) {
-          ticks = thinned as (string & d3.NumberValue)[]
+        // Continuous (date-like) domains thin to avoid clutter — each label
+        // is a position on a continuous axis, not a category identity.
+        // Discrete domains always show every label.
+        if (continuous) {
+          const thinned = thinLabels(domain, availableWidth, tickFormatter)
+          if (thinned.length < domain.length) {
+            ticks = thinned as (string & d3.NumberValue)[]
+          }
         }
       }
       else {
