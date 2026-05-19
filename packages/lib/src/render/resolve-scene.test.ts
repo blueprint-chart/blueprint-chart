@@ -93,7 +93,7 @@ describe('resolveScene', () => {
         type: DslNodeType.Scene, name: null, properties: [],
         data: { type: DslNodeType.Data, entries: [
           { type: DslNodeType.Property, key: 'x', value: '1', isPercentage: false },
-        ]},
+        ] },
         colorizes: [], highlights: [], areaFills: [], annotations: [], annotationVisibility: [], series: [], transforms: [],
       }],
     })

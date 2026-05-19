@@ -6,7 +6,7 @@ describe('renderBpc samples parity', () => {
   beforeAll(() => {
     // jsdom does not implement SVGElement.getBBox. The annotation plugin calls
     // it directly; stub at prototype level so all sample charts can render.
-    ;(window.SVGElement as any).prototype.getBBox = () => ({ x: 0, y: 0, width: 0, height: 0 })
+    ;(window.SVGElement.prototype as unknown as { getBBox: () => DOMRect }).getBBox = () => ({ x: 0, y: 0, width: 0, height: 0 }) as DOMRect
   })
 
   let container: HTMLElement
