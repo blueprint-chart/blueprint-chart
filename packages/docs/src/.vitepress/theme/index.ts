@@ -15,6 +15,10 @@ import '@fontsource-variable/geist/index.css'
 import '@fontsource-variable/geist-mono/index.css'
 import '@fontsource/dm-serif-display/400.css'
 
+// Shared design tokens (--bs-* / --bc-* CSS custom properties).
+// Must load before `./style.css` so the VP-token aliases bridge cleanly.
+import '@blueprint-chart/ui/styles/tokens.css'
+
 import './style.css'
 
 // Standalone chart CSS shipped by @blueprint-chart/lib — class names match
