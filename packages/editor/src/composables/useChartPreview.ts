@@ -7,7 +7,7 @@ import { useDataTable, serializeTableData } from './useDataTable'
 import { useDataTransforms } from './useDataTransforms'
 import { useTheme } from './useTheme'
 import { useChartTheme } from './useChartTheme'
-import { getChart, parseData, buildChartOptions, resolveBackgroundColor, snapshotForFadeOut, commitFadeOut, fadeIn } from '@blueprint-chart/lib'
+import { parseData, renderChart } from '@blueprint-chart/lib'
 import { resolveScene, resolveSortFromTransforms } from '@/utils/scenes'
 
 export { resolveScene, resolveSortFromTransforms }
@@ -35,7 +35,6 @@ export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
   // Symbol sentinel distinguishes "never rendered" from "rendered with no scene (null)".
   const UNSET = Symbol('unset')
   let prevActiveScene: unknown = UNSET
-  let prevChartType: string | null = null
   let rendering = false
 
   function render() {
@@ -60,30 +59,12 @@ export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
     const scene = resolveScene(scenes.value, activeIndex.value)
     const chartType = scene?.chartType ?? config.chartType.value
 
-    // Transition when the active scene changed (base→scene, scene→scene, scene→base)
-    // but not on the very first render or when other config properties changed.
-    const isSceneTransition = prevActiveScene !== UNSET && rawScene !== prevActiveScene
-    const isCrossType = isSceneTransition && prevChartType !== null && prevChartType !== chartType
-
-    // Cross-type scene transitions: snapshot the old chart for fade-out, then
-    // clear the container and render the new chart type fresh.
-    // Same-type transitions: keep the DOM so D3 can morph shapes and colors.
-    let fadeOverlay: HTMLElement | null = null
-    if (isCrossType) {
-      fadeOverlay = snapshotForFadeOut(containerRef.value)
-      containerRef.value.replaceChildren()
-    }
-    else if (!isSceneTransition) {
-      containerRef.value.replaceChildren()
-    }
-
+    // Pre-resolve data: scene data > transforms > base config
     let dataStr: string
     if (scene?.data !== undefined) {
-      // Scene provides data (cascaded from resolveScene, may be inherited from prior scene)
       dataStr = scene.data
     }
     else if (scene?.transforms?.length && columns.value.length > 0) {
-      // Apply scene transforms to raw table data
       const result = applyStepList(scene.transforms, columns.value, rows.value, columnTypes.value)
       dataStr = serializeTableData(result.columns, result.rows)
     }
@@ -92,10 +73,10 @@ export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
     }
     const data = parseData(dataStr)
 
+    // Single-series flattening (editor-specific shaping)
     const singleSeriesTypes = [ChartType.BarVertical, ChartType.BarHorizontal, ChartType.Line, ChartType.VerticalBar, ChartType.HorizontalBar]
     if (data.series && data.series.length > 0 && singleSeriesTypes.includes(chartType)) {
-      const colName = config.selectedColumn.value
-      const match = data.series.find(s => s.name === colName)
+      const match = data.series.find(s => s.name === config.selectedColumn.value)
       if (match) {
         data.values = match.values
       }
@@ -107,12 +88,7 @@ export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
       return
     }
 
-    const renderer = getChart(chartType)
-    if (!renderer) {
-      showPlaceholder(containerRef.value, `Unknown chart type: ${chartType}`)
-      return
-    }
-
+    // allowDarkMode → flip the parent card data-bs-theme when needed
     const allowDark = currentOptions.value.allowDarkMode ?? true
     const card = containerRef.value.parentElement
     if (card) {
@@ -124,20 +100,18 @@ export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
       }
     }
 
-    const bg = resolveBackgroundColor(containerRef.value)
+    // Detect scene change for transition flag; lib handles cross-type fade itself.
+    const isSceneTransition = prevActiveScene !== UNSET && rawScene !== prevActiveScene
+
+    // Build ChartDefinition with the pre-resolved active scene baked in.
+    // We pass NO scenes array — the editor pre-resolves the active scene above.
     const mergedOpts = scene?.chartTypeOptions
       ? { ...currentOptions.value, ...scene.chartTypeOptions }
       : currentOptions.value
-    const typeOpts = buildChartOptions(mergedOpts, bg)
 
     const colorizes = scene?.colorizes ?? config.colorizes.value
-    // Highlights are ephemeral emphasis — only the current scene's highlights
-    // apply. Do not fall back to config.highlights (which inherits from prior
-    // scenes via sceneDirectRef).
     const highlights = scene ? (scene.highlights ?? []) : config._base.highlights.value
     const areaFills = scene?.areaFills ?? config.areaFills.value
-    // Base annotations are always the foundation; scene annotations are additions.
-    // Visibility directives (hide/show) control which annotations appear.
     const baseAnnotations = config._base.annotations.value
     const sceneAnnotations = scene?.annotations ?? []
     const rawAnnotations = [...baseAnnotations, ...sceneAnnotations]
@@ -147,57 +121,39 @@ export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
     const seriesOverrides = scene?.seriesOverrides ?? config.seriesOverrides.value
 
     const sp = scene?.properties
-    renderer(containerRef.value, data, {
-      frame: {
-        title: (sp?.title as string | undefined) ?? (config.title.value || undefined),
-        description: (sp?.description as string | undefined) ?? (config.description.value || undefined),
-        byline: config.byline.value || undefined,
-        note: config.note.value || undefined,
-        source: (sp?.source as string | undefined) ?? (config.source.value || undefined),
-        sourceUrl: (sp?.sourceUrl as string | undefined) ?? (config.sourceUrl.value || undefined),
-        showCredit: config.layout.value.showCredit,
-        padding: `${config.layout.value.padding}px`,
-        transparentBackground: config.layout.value.transparentBackground || undefined,
-      },
+    const frame = {
+      title: (sp?.title as string | undefined) ?? (config.title.value || undefined),
+      description: (sp?.description as string | undefined) ?? (config.description.value || undefined),
+      byline: config.byline.value || undefined,
+      note: config.note.value || undefined,
+      source: (sp?.source as string | undefined) ?? (config.source.value || undefined),
+      sourceUrl: (sp?.sourceUrl as string | undefined) ?? (config.sourceUrl.value || undefined),
+      showCredit: config.layout.value.showCredit,
+      padding: `${config.layout.value.padding}px`,
+      transparentBackground: config.layout.value.transparentBackground || undefined,
+    }
+
+    renderChart(containerRef.value, {
+      chartType,
+      data,
+      options: mergedOpts,
+      frame,
+      colorizes,
+      highlights,
+      areaFills,
+      annotations,
+      seriesOverrides,
       sort: resolveSortFromTransforms(scene) ?? config.sort.value,
       sortMode: config.sortMode.value !== 'none' ? config.sortMode.value : undefined,
-      ...typeOpts,
-      colorizes: colorizes.length > 0 ? colorizes : undefined,
-      highlights: highlights.length > 0 ? highlights : undefined,
-      areaFills: areaFills.length > 0 ? areaFills : undefined,
-      annotations: annotations.length > 0 ? annotations : undefined,
-      seriesOverrides: seriesOverrides.length > 0 ? seriesOverrides : undefined,
-    }, isSceneTransition && !isCrossType)
-
-    // Cross-type fade: old chart fades out on top while new chart fades in
-    if (fadeOverlay && containerRef.value) {
-      const newFrame = containerRef.value.querySelector('.bc-frame')
-      if (newFrame) {
-        fadeIn(newFrame)
-      }
-      commitFadeOut(containerRef.value, fadeOverlay)
-    }
-
-    // Apply chart theme and constrained-height classes to the .bc-frame element
-    const frame = containerRef.value.querySelector('.bc-frame')
-    if (frame) {
-      // Remove any existing theme classes
-      frame.classList.forEach((cls) => {
-        if (cls.startsWith('bc-theme-')) {
-          frame.classList.remove(cls)
-        }
-      })
-      frame.classList.add(`bc-theme-${chartTheme.value}`)
-
-      // Add constrained-height class when the layout uses fixed or aspect-ratio height
-      const hm = config.layout.value.heightMode
-      if (hm === 'fixed' || hm === 'aspect-ratio') {
-        frame.classList.add('bc-frame--constrained')
-      }
-    }
+      theme: chartTheme.value,
+    }, {
+      transition: isSceneTransition,
+      // Layout is driven by reactive layout config on the container element, not BPC properties.
+      // Bypass lib's BPC-property-based layout pass so we don't re-apply.
+      ignoreLayout: true,
+    })
 
     prevActiveScene = rawScene
-    prevChartType = chartType
   }
 
   const throttledRender = useThrottleFn(render, RESIZE_THROTTLE_MS)
