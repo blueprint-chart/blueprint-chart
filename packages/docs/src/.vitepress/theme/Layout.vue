@@ -25,8 +25,7 @@ function goEditor() {
 </script>
 
 <template>
-  <ClientOnly>
-    <NavigationMarketingBar v-if="isHome" class="docs-nav docs-nav--marketing">
+  <NavigationMarketingBar v-if="isHome" class="docs-nav docs-nav--marketing">
       <template #brand>
         <a href="/" class="docs-brand">
           <img src="/logo.svg" alt="" class="docs-brand__logo">
@@ -78,7 +77,6 @@ function goEditor() {
         </button>
       </template>
     </NavigationDocsBar>
-  </ClientOnly>
 
   <Layout />
 </template>
