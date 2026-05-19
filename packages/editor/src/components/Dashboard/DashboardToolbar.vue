@@ -34,7 +34,7 @@ const layoutItems = computed<NavigationSegmentedControlItem[]>(() => [
 <template>
   <LayoutPageHeader class="dashboard-toolbar">
     <template #start>
-      <LayoutBreadcrumb class="dashboard-toolbar__breadcrumb" />
+      <LayoutBreadcrumb />
       <span class="dashboard-toolbar__count">
         {{ chartCount }} {{ chartCount === 1 ? 'chart' : 'charts' }}
       </span>
