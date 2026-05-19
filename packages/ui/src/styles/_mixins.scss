@@ -1,5 +1,5 @@
 @use 'sass:math';
-@use 'variables' as *;
+@use 'tokens' as *;
 
 @mixin app-icon-size($font-size, $scale: 1) {
   font-size: calc(#{$scale} * #{math.div($font-size, $app-icon-size-scale-base) * 1em});
