@@ -1,5 +1,6 @@
 import * as d3 from 'd3'
 import 'd3-transition'
+import chroma from 'chroma-js'
 import { D3Blueprint } from 'd3-blueprint'
 import type { ChartData, ChartOptions } from '../../types'
 import { getDefaultTransitionMs, setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut } from '../../motion'
@@ -131,7 +132,14 @@ export function renderArc(
   const total = values.reduce((a, b) => a + b, 0)
   const percentages = values.map(v => total > 0 ? (v / total) * 100 : 0)
 
-  const colors = options.colors ?? DEFAULT_COLORS
+  // When the supplied palette has fewer entries than slices, d3.scaleOrdinal
+  // recycles colors and two distinct categories end up identical (e.g. the 4-color
+  // Heep palette over 6 browsers paints Chrome and Opera the same blue). Interpolate
+  // through chroma so every slice gets a distinct color.
+  const rawColors = options.colors ?? DEFAULT_COLORS
+  const colors = rawColors.length < labels.length && rawColors.length >= 2
+    ? chroma.scale(rawColors).mode('lch').colors(labels.length)
+    : rawColors
   const dlMode = typeof options.directLabelling === 'string'
     ? options.directLabelling
     : (options.directLabelling ? DirectLabelMode.Auto : DirectLabelMode.Off)
@@ -277,9 +285,11 @@ export function renderArc(
     }
   }
 
-  // Center total (only for donut — innerRadiusRatio > 0)
-  if (options.showTotal && innerRadiusRatio > 0) {
-    const totalText = options.displayAsPercentage ? '100%' : String(total)
+  // Center total (only for donut — innerRadiusRatio > 0).
+  // Suppressed when displayAsPercentage is on: the center would always read "Total 100%",
+  // which is trivially true for a donut and adds no information.
+  if (options.showTotal && innerRadiusRatio > 0 && !options.displayAsPercentage) {
+    const totalText = String(total)
     centerGroup.append('text')
       .attr('class', 'bc-arc-total-label')
       .attr('text-anchor', 'middle')
