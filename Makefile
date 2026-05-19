@@ -13,7 +13,7 @@ dev: ## Start editor dev server (port 5555)
 dev-story: ## Start Histoire dev server (UI component stories)
 	pnpm --filter @blueprint-chart/ui story:dev
 
-dev-docs: ## Start VitePress dev server (docs site, 0.0.0.0:4445)
+dev-docs: build-ui ## Start VitePress dev server (docs site, 0.0.0.0:4445)
 	pnpm --filter @blueprint-chart/docs dev
 
 build: ## Build all packages
@@ -22,7 +22,7 @@ build: ## Build all packages
 build-story: ## Build Histoire static site
 	pnpm --filter @blueprint-chart/ui story:build
 
-build-docs: ## Build the VitePress docs site
+build-docs: build-ui ## Build the VitePress docs site
 	pnpm --filter @blueprint-chart/docs build
 
 build-lib: ## Build lib package (ES + IIFE runtime)
