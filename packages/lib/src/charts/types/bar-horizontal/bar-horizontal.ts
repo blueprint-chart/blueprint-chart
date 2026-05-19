@@ -66,7 +66,7 @@ class BarHorizontalChart extends D3Blueprint<BarDatum[]> {
             .attr('width', (d: BarDatum) => Math.abs(x(d.value) - x(0)))
             .attr('height', y.bandwidth() - catOffset)
             .attr('fill', (d: BarDatum) => colorOverrides.get(d.label) ?? colors[0])
-            .attr('opacity', (d: BarDatum) => hasHl ? (hl.has(d.label) ? 1 : 0.2) : null)
+            .attr('opacity', (d: BarDatum) => hasHl ? (hl.has(d.label) ? 1 : 0.35) : null)
         },
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         'merge:transition': (sel: any) => {
@@ -83,7 +83,7 @@ class BarHorizontalChart extends D3Blueprint<BarDatum[]> {
             .attr('width', (d: BarDatum) => Math.abs(x(d.value) - x(0)))
             .attr('height', y.bandwidth() - catOffset)
             .attr('fill', (d: BarDatum) => colorOverrides.get(d.label) ?? colors[0])
-            .attr('opacity', (d: BarDatum) => hasHl ? (hl.has(d.label) ? 1 : 0.2) : null)
+            .attr('opacity', (d: BarDatum) => hasHl ? (hl.has(d.label) ? 1 : 0.35) : null)
         },
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         'exit:transition': (sel: any) => {
@@ -433,7 +433,7 @@ export function render(
         }
         return colorOverrides.get(d.label) ?? colors[0]
       })
-      .attr('opacity', (d: WaterfallDatum) => highlightTargets.size > 0 ? (highlightTargets.has(d.label) ? 1 : 0.2) : null)
+      .attr('opacity', (d: WaterfallDatum) => highlightTargets.size > 0 ? (highlightTargets.has(d.label) ? 1 : 0.35) : null)
 
     if (options.valueLabels) {
       const pos = valueLabelPos

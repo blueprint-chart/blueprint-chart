@@ -1237,9 +1237,9 @@ describe('bar-horizontal', () => {
       })
       const bars = container.querySelectorAll('.bc-bar')
       const opacities = Array.from(bars).map(b => b.getAttribute('opacity'))
-      expect(opacities[0]).toBe('0.2')
+      expect(opacities[0]).toBe('0.35')
       expect(opacities[1]).toBe('1')
-      expect(opacities[2]).toBe('0.2')
+      expect(opacities[2]).toBe('0.35')
     })
 
     it('does not dim when no highlights are present', () => {

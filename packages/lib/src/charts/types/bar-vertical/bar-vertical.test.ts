@@ -1192,9 +1192,9 @@ describe('bar-vertical', () => {
       const bars = container.querySelectorAll('.bc-bar')
       const opacities = Array.from(bars).map(b => b.getAttribute('opacity'))
       // A and C should be dimmed, B should be full opacity
-      expect(opacities[0]).toBe('0.2')
+      expect(opacities[0]).toBe('0.35')
       expect(opacities[1]).toBe('1')
-      expect(opacities[2]).toBe('0.2')
+      expect(opacities[2]).toBe('0.35')
     })
 
     it('does not dim when no highlights are present', () => {
@@ -1214,7 +1214,7 @@ describe('bar-vertical', () => {
       expect(bars[1].getAttribute('fill')).toBe('#ff0000')
       expect(bars[1].getAttribute('opacity')).toBe('1')
       // Others should be dimmed
-      expect(bars[0].getAttribute('opacity')).toBe('0.2')
+      expect(bars[0].getAttribute('opacity')).toBe('0.35')
     })
   })
 

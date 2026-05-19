@@ -63,7 +63,7 @@ class BarVerticalChart extends D3Blueprint<BarDatum[]> {
             .attr('width', x.bandwidth())
             .attr('height', (d: BarDatum) => Math.abs(y(d.value) - y(0)))
             .attr('fill', (d: BarDatum) => colorOverrides.get(d.label) ?? colors[0])
-            .attr('opacity', (d: BarDatum) => hasHl ? (hl.has(d.label) ? 1 : 0.2) : null)
+            .attr('opacity', (d: BarDatum) => hasHl ? (hl.has(d.label) ? 1 : 0.35) : null)
         },
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         'merge:transition': (sel: any) => {
@@ -79,7 +79,7 @@ class BarVerticalChart extends D3Blueprint<BarDatum[]> {
             .attr('width', x.bandwidth())
             .attr('height', (d: BarDatum) => Math.abs(y(d.value) - y(0)))
             .attr('fill', (d: BarDatum) => colorOverrides.get(d.label) ?? colors[0])
-            .attr('opacity', (d: BarDatum) => hasHl ? (hl.has(d.label) ? 1 : 0.2) : null)
+            .attr('opacity', (d: BarDatum) => hasHl ? (hl.has(d.label) ? 1 : 0.35) : null)
         },
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         'exit:transition': (sel: any) => {
