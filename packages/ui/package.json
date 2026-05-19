@@ -30,7 +30,9 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "default": "./dist/index.js"
-    }
+    },
+    "./styles/tokens.css": "./dist/styles/tokens.css",
+    "./styles/tokens.scss": "./src/styles/tokens.scss"
   },
   "files": [
     "dist",
@@ -73,6 +75,7 @@
     "bootstrap-vue-next": "^0.27",
     "histoire": "^0.17",
     "jsdom": "^26",
+    "sass": "^1.99.0",
     "typescript": "^5.7",
     "unplugin-auto-import": "^21.0.0",
     "unplugin-icons": "^22.5.0",
