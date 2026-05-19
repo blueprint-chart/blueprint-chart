@@ -39,7 +39,7 @@ const classList = computed(() => {
 
 <style lang="scss" scoped>
 @use '../../../styles/mixins' as *;
-@use '../../../styles/variables' as *;
+@use '../../../styles/tokens' as *;
 
 .app-icon-layers {
   display: inline-block;

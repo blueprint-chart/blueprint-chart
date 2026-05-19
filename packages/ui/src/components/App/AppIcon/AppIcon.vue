@@ -110,7 +110,7 @@ const classList = computed(() => {
 
 <style lang="scss" scoped>
 @use '../../../styles/mixins' as *;
-@use '../../../styles/variables' as *;
+@use '../../../styles/tokens' as *;
 
 @keyframes app-icon-spin {
   from { transform: rotate(0deg); }

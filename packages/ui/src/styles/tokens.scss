@@ -1,0 +1,209 @@
+// packages/ui/src/styles/tokens.scss
+// Canonical design tokens for Blueprint Chart.
+//
+// Two layers:
+//   1. SCSS layer    — primitives consumed at compile time (Bootstrap config,
+//                       mixins, internal ui SCSS). All `!default` so consumers
+//                       can override before importing.
+//   2. CSS variables — primitives consumed at runtime (themes, dark mode).
+//
+// Consumed by:
+//   - @blueprint-chart/editor — `@use "@blueprint-chart/ui/styles/tokens.scss" as *;`
+//   - @blueprint-chart/docs   — compiled `tokens.css` (only the :root blocks survive)
+//
+// Chart-canvas typography (.bc-frame-*) is intentionally not defined here —
+// chart frames are part of the rendered output, not the editor chrome.
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 1. SCSS layer
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Font stacks (Bootstrap picks these up before its own theme compiles)
+$font-family-sans-serif: "Geist Sans", "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif !default;
+$font-family-monospace:  "Geist Mono", ui-monospace, "JetBrains Mono", "SFMono-Regular", Menlo, monospace !default;
+$font-family-base:       $font-family-sans-serif !default;
+$font-family-code:       $font-family-monospace !default;
+$headings-font-family:   $font-family-sans-serif !default;
+
+// Brand scale — Prussian Blue
+$prussian-900: #0A1E3D !default;
+$prussian-700: #102E55 !default;
+$prussian-600: #163A65 !default;
+$prussian-500: #2563A0 !default; // primary
+$prussian-300: #4B90CF !default;
+$prussian-100: #A3C9E8 !default;
+$prussian-50:  #E1EEF7 !default;
+
+// Theme color aliases (Bootstrap reads these)
+$primary: $prussian-500 !default;
+$success: #2D8659 !default;
+$info:    $prussian-300 !default;
+$warning: #D4A63A !default;
+$danger:  #C94044 !default;
+
+// Borders
+$border-color:      #dcdce0 !default;
+$border-color-dark: #33323e !default;
+
+// Surface hierarchy (void > tile > elevated)
+$body-bg:                 #f3f3f4 !default;
+$body-bg-dark:            #0a0a0a !default;
+$body-secondary-bg:       #ffffff !default;
+$body-secondary-bg-dark:  #1c1c20 !default;
+$body-tertiary-bg:        #f8f8fa !default;
+$body-tertiary-bg-dark:   #1c1c20 !default;
+
+// Links
+$link-color:            $primary !default;
+$link-hover-color:      $prussian-600 !default;
+$link-color-dark:       $prussian-300 !default;
+$link-hover-color-dark: $prussian-100 !default;
+
+// Focus ring
+$focus-ring-color: rgba($primary, 0.25) !default;
+
+// Code text
+$code-color: $prussian-600 !default;
+
+// Bootstrap SCSS font-size primitive (Bootstrap uses this name)
+$font-size-xs: 0.6875rem !default;
+
+// Icon size scale (was in _variables.scss)
+$app-icon-size-scale-base: 20 !default;
+$app-icon-size-scale-2xs: 12 !default;
+$app-icon-size-scale-xs:  14 !default;
+$app-icon-size-scale-sm:  16 !default;
+$app-icon-size-scale-md:  $app-icon-size-scale-base !default;
+$app-icon-size-scale-lg:  24 !default;
+$app-icon-size-scale-xl:  32 !default;
+$app-icon-size-scale-2xl: 40 !default;
+
+$app-icon-sizes: (
+  "2xs": $app-icon-size-scale-2xs,
+  "xs":  $app-icon-size-scale-xs,
+  "sm":  $app-icon-size-scale-sm,
+  "md":  $app-icon-size-scale-md,
+  "lg":  $app-icon-size-scale-lg,
+  "xl":  $app-icon-size-scale-xl,
+  "2xl": $app-icon-size-scale-2xl,
+) !default;
+
+// Spacers
+$spacer-xs: 0.25rem !default;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 2. CSS custom properties — runtime
+// ─────────────────────────────────────────────────────────────────────────────
+
+:root,
+[data-bs-theme="light"] {
+  --bs-font-size-xs: 0.6875rem;
+  --bs-font-size-sm: 0.75rem;
+  --bs-font-size-md: 0.875rem;
+  --bs-font-size-lg: 1.0625rem;
+  --bs-font-size-xl: 1.5rem;
+  --bs-font-size-2xl: 2rem;
+  --bs-font-size-hero: 4rem;
+
+  --bc-syn-keyword: #2563A0;
+  --bc-syn-string: #2D8659;
+  --bc-syn-number: #8B5E00;
+  --bc-syn-identifier: #555;
+  --bc-syn-punct: #888;
+  --bc-syn-comment: #999;
+  --bc-axis-color: #333;
+  --bc-grid-color: #e0e0e0;
+  --bc-text-color: #555;
+  --bc-brand-1: #5b6abf;
+  --bc-brand-2: #3c8dbc;
+
+  --bc-canvas-bg: #244a7c;
+  --bc-canvas-grid-color: rgba(255, 255, 255, 0.06);
+  --bc-canvas-grid-color-major: rgba(255, 255, 255, 0.15);
+  --bc-canvas-grid-size: 20px;
+  --bc-canvas-dimension-color: rgba(255, 255, 255, 0.55);
+
+  --bc-chrome-bg: #ffffff;
+  --bc-content-bg: #fafafa;
+  --bc-tile-bg: #ffffff;
+  --bc-tile-bg-elevated: #f5f5f7;
+  --bc-canvas-glow: none;
+
+  --bc-wash-soft: rgba(0, 0, 0, 0.04);
+  --bc-wash-firm: rgba(0, 0, 0, 0.06);
+  --bc-wash-input: rgba(0, 0, 0, 0.03);
+  --bc-wash-input-hover: rgba(0, 0, 0, 0.05);
+
+  --bc-hairline: rgba(0, 0, 0, 0.08);
+  --bc-hairline-strong: rgba(0, 0, 0, 0.14);
+
+  --bc-radius-pill: 999px;
+  --bc-radius-xs: 4px;
+  --bc-radius-sm: 6px;
+  --bc-radius-md: 8px;
+  --bc-radius-lg: 12px;
+
+  --bs-card-bg: var(--bc-tile-bg);
+  --bs-card-box-shadow: none;
+  --bs-navbar-bg: transparent;
+
+  --bc-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --bc-duration-fast: 100ms;
+  --bc-duration-base: 150ms;
+  --bc-duration-slow: 250ms;
+
+  --bc-focus-ring: 0 0 0 2px rgba(37, 99, 160, 0.4);
+
+  --bc-shadow-overlay:
+    0 8px 24px rgba(0, 0, 0, 0.08),
+    0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+[data-bs-theme="dark"] [data-bs-theme="light"] {
+  color: var(--bs-body-color);
+  background-color: var(--bs-card-bg);
+}
+
+[data-bs-theme="dark"] {
+  --bc-syn-keyword: #6CA6D6;
+  --bc-syn-string: #6BBF8B;
+  --bc-syn-number: #D4A63A;
+  --bc-syn-identifier: #b0b0b0;
+  --bc-syn-punct: #777;
+  --bc-syn-comment: #666;
+
+  --bc-axis-color: #ccc;
+  --bc-grid-color: #444;
+  --bc-text-color: #aaa;
+
+  --bc-canvas-bg: #244a7c;
+  --bc-canvas-grid-color: rgba(255, 255, 255, 0.04);
+  --bc-canvas-grid-color-major: rgba(255, 255, 255, 0.10);
+  --bc-canvas-dimension-color: rgba(255, 255, 255, 0.4);
+
+  --bc-chrome-bg: #08090a;
+  --bc-content-bg: #101112;
+  --bc-tile-bg: #101112;
+  --bc-tile-bg-elevated: #16161b;
+  --bc-canvas-glow: radial-gradient(ellipse at top, rgba(37, 99, 160, 0.04), transparent 60%);
+
+  --bc-wash-soft: rgba(255, 255, 255, 0.03);
+  --bc-wash-firm: rgba(255, 255, 255, 0.07);
+  --bc-wash-input: rgba(255, 255, 255, 0.03);
+  --bc-wash-input-hover: rgba(255, 255, 255, 0.05);
+
+  --bc-hairline: rgba(255, 255, 255, 0.06);
+  --bc-hairline-strong: rgba(255, 255, 255, 0.12);
+
+  --bc-shadow-overlay:
+    0 8px 24px rgba(0, 0, 0, 0.4),
+    0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root, [data-bs-theme="light"], [data-bs-theme="dark"] {
+    --bc-duration-fast: 0ms;
+    --bc-duration-base: 0ms;
+    --bc-duration-slow: 0ms;
+  }
+}

@@ -172,7 +172,7 @@ const buttonProps = computed((): Pick<BButtonProps, 'pill' | 'pressed' | 'size' 
 </script>
 
 <style lang="scss" scoped>
-@use '../../../styles/variables' as *;
+@use '../../../styles/tokens' as *;
 
 .button-icon {
   &:deep(.app-icon) {
