@@ -4,7 +4,7 @@ import { parse, renderBpc, type RenderOptions } from '@blueprint-chart/lib'
 
 const RESIZE_THROTTLE_MS = 150
 
-export interface DslRenderOptions extends RenderOptions {}
+export type DslRenderOptions = RenderOptions
 
 export function parseDslSceneCount(bpc: string): number {
   if (!bpc) {
