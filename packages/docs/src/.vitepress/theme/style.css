@@ -1,64 +1,35 @@
-/* ============================================================================
- * Blueprint Chart — VitePress brand overlay
- * ----------------------------------------------------------------------------
- * Aligns VitePress's default theme with the editor design system:
- *   - Prussian-Blue brand scale (#0A1E3D → #E1EEF7)
- *   - Geist Variable for body/UI + Geist Mono for code
- *   - DM Serif Display reserved for hero/display headlines
- *   - Two-tone surfaces (chrome vs content) matching `--bc-*` tokens
- *   - Hairline dividers, soft washes, subtle elevation
- *
- * VitePress exposes well-documented CSS variables; we override only what's
- * needed to re-skin without forking layout. Layout untouched.
- * ========================================================================== */
+/* Bridge VitePress's internal --vp-c-* variables to the shared --bc-* / --bs-* tokens.
+ * Tokens themselves live in @blueprint-chart/ui/styles/tokens.css. */
 
 :root {
   color-scheme: light dark;
 
-  /* --------------------------------------------------------------------------
-   * Brand — Prussian-Blue scale (light defaults)
-   * brand-1 = primary text / accent at rest
-   * brand-2 = hover state
-   * brand-3 = active / pressed
-   * brand-soft = tinted background (chips, custom-block tints)
-   * ------------------------------------------------------------------------ */
+  /* Brand */
   --vp-c-brand-1: #2563A0;
   --vp-c-brand-2: #163A65;
   --vp-c-brand-3: #102E55;
   --vp-c-brand-soft: #E1EEF7;
-
-  /* Legacy aliases still referenced by some VP internals */
   --vp-c-brand: var(--vp-c-brand-1);
   --vp-c-brand-light: #4B90CF;
   --vp-c-brand-lighter: #A3C9E8;
   --vp-c-brand-dark: var(--vp-c-brand-2);
   --vp-c-brand-darker: var(--vp-c-brand-3);
 
-  /* --------------------------------------------------------------------------
-   * Surfaces — Linear-tight two-tone palette
-   * default = content
-   * alt     = page chrome / hero
-   * elv     = elevated (cards, code blocks)
-   * soft    = subtle inset
-   * ------------------------------------------------------------------------ */
-  --vp-c-bg: #ffffff;
-  --vp-c-bg-alt: #fafafa;
-  --vp-c-bg-elv: #f5f5f7;
-  --vp-c-bg-soft: #fafafa;
+  /* Surfaces — bridge to shared --bc-* tokens */
+  --vp-c-bg: var(--bc-tile-bg);
+  --vp-c-bg-alt: var(--bc-content-bg);
+  --vp-c-bg-elv: var(--bc-tile-bg-elevated);
+  --vp-c-bg-soft: var(--bc-content-bg);
 
-  /* Text */
   --vp-c-text-1: #101112;
   --vp-c-text-2: rgba(16, 17, 18, 0.72);
   --vp-c-text-3: rgba(16, 17, 18, 0.48);
 
-  /* Dividers + borders — hairline tokens from the editor */
-  --vp-c-divider: rgba(0, 0, 0, 0.08);
-  --vp-c-gutter: rgba(0, 0, 0, 0.08);
-  --vp-c-border: rgba(0, 0, 0, 0.08);
+  --vp-c-divider: var(--bc-hairline);
+  --vp-c-gutter: var(--bc-hairline);
+  --vp-c-border: var(--bc-hairline);
 
-  /* --------------------------------------------------------------------------
-   * Typography
-   * ------------------------------------------------------------------------ */
+  /* Fonts */
   --vp-font-family-base:
     'Geist Variable', 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto,
     'Helvetica Neue', sans-serif;
@@ -66,9 +37,7 @@
     'Geist Mono Variable', ui-monospace, 'JetBrains Mono', 'SFMono-Regular',
     Menlo, Consolas, monospace;
 
-  /* --------------------------------------------------------------------------
-   * Buttons — brand pill matches the editor's `.btn-primary`
-   * ------------------------------------------------------------------------ */
+  /* Buttons — keep brand pill */
   --vp-button-brand-bg: var(--vp-c-brand-1);
   --vp-button-brand-hover-bg: var(--vp-c-brand-2);
   --vp-button-brand-active-bg: var(--vp-c-brand-3);
@@ -79,15 +48,10 @@
   --vp-button-brand-hover-text: #ffffff;
   --vp-button-brand-active-text: #ffffff;
 
-  /* --------------------------------------------------------------------------
-   * Home hero — gradient name + radial glow plate
-   * ------------------------------------------------------------------------ */
+  /* Hero gradient — keep as-is */
   --vp-home-hero-name-color: transparent;
   --vp-home-hero-name-background: linear-gradient(
-    120deg,
-    #102E55 0%,
-    #2563A0 45%,
-    #4B90CF 100%
+    120deg, #102E55 0%, #2563A0 45%, #4B90CF 100%
   );
   --vp-home-hero-image-background-image: radial-gradient(
     ellipse at center,
@@ -97,83 +61,63 @@
   );
   --vp-home-hero-image-filter: blur(56px);
 
-  /* --------------------------------------------------------------------------
-   * Code blocks — adopt the elevated surface
-   * ------------------------------------------------------------------------ */
-  --vp-code-block-bg: var(--vp-c-bg-elv);
+  /* Code blocks */
+  --vp-code-block-bg: var(--bc-tile-bg-elevated);
   --vp-code-line-highlight-color: rgba(37, 99, 160, 0.08);
 
-  /* --------------------------------------------------------------------------
-   * Custom blocks — semantic colors from the editor
-   *   tip     = primary (Prussian 500)
-   *   info    = light brand (Prussian 300)
-   *   warning = ochre  (#D4A63A)
-   *   danger  = red    (#C94044)
-   *   note    = neutral
-   * ------------------------------------------------------------------------ */
+  /* Custom block colors — keep editorial palette */
   --vp-custom-block-tip-border: transparent;
   --vp-custom-block-tip-text: var(--vp-c-brand-2);
   --vp-custom-block-tip-bg: var(--vp-c-brand-soft);
   --vp-custom-block-tip-code-bg: rgba(37, 99, 160, 0.12);
-
   --vp-custom-block-info-border: transparent;
   --vp-custom-block-info-text: var(--vp-c-text-1);
   --vp-custom-block-info-bg: rgba(75, 144, 207, 0.10);
   --vp-custom-block-info-code-bg: rgba(75, 144, 207, 0.16);
-
   --vp-custom-block-warning-border: transparent;
   --vp-custom-block-warning-text: #8B5E00;
   --vp-custom-block-warning-bg: rgba(212, 166, 58, 0.14);
   --vp-custom-block-warning-code-bg: rgba(212, 166, 58, 0.22);
-
   --vp-custom-block-danger-border: transparent;
   --vp-custom-block-danger-text: #8A2B2F;
   --vp-custom-block-danger-bg: rgba(201, 64, 68, 0.10);
   --vp-custom-block-danger-code-bg: rgba(201, 64, 68, 0.18);
 
-  /* Subtle highlight when scrolling to a section */
   --vp-c-default-soft: rgba(0, 0, 0, 0.04);
   --vp-c-tip-1: var(--vp-c-brand-1);
   --vp-c-tip-soft: var(--vp-c-brand-soft);
 }
 
-/* ============================================================================
- * Dark mode — VitePress applies `.dark` on <html>
- * ========================================================================== */
 .dark {
   --vp-c-brand-1: #4B90CF;
   --vp-c-brand-2: #A3C9E8;
   --vp-c-brand-3: #E1EEF7;
   --vp-c-brand-soft: #102E55;
-
   --vp-c-brand: var(--vp-c-brand-1);
   --vp-c-brand-light: #A3C9E8;
   --vp-c-brand-lighter: #E1EEF7;
   --vp-c-brand-dark: #2563A0;
   --vp-c-brand-darker: #163A65;
 
-  --vp-c-bg: #101112;
-  --vp-c-bg-alt: #08090a;
-  --vp-c-bg-elv: #16161b;
+  --vp-c-bg: var(--bc-tile-bg);
+  --vp-c-bg-alt: var(--bc-chrome-bg);
+  --vp-c-bg-elv: var(--bc-tile-bg-elevated);
   --vp-c-bg-soft: #0f1011;
 
   --vp-c-text-1: rgba(255, 255, 255, 0.92);
   --vp-c-text-2: rgba(255, 255, 255, 0.68);
   --vp-c-text-3: rgba(255, 255, 255, 0.44);
 
-  --vp-c-divider: rgba(255, 255, 255, 0.06);
-  --vp-c-gutter: rgba(255, 255, 255, 0.06);
-  --vp-c-border: rgba(255, 255, 255, 0.08);
+  --vp-c-divider: var(--bc-hairline);
+  --vp-c-gutter: var(--bc-hairline);
+  --vp-c-border: var(--bc-hairline-strong);
 
   --vp-button-brand-text: #08090a;
   --vp-button-brand-hover-text: #08090a;
   --vp-button-brand-active-text: #08090a;
 
   --vp-home-hero-name-background: linear-gradient(
-    120deg,
-    #A3C9E8 0%,
-    #4B90CF 50%,
-    #2563A0 100%
+    120deg, #A3C9E8 0%, #4B90CF 50%, #2563A0 100%
   );
   --vp-home-hero-image-background-image: radial-gradient(
     ellipse at center,
@@ -189,15 +133,12 @@
   --vp-custom-block-tip-text: var(--vp-c-brand-2);
   --vp-custom-block-tip-bg: rgba(37, 99, 160, 0.20);
   --vp-custom-block-tip-code-bg: rgba(75, 144, 207, 0.20);
-
   --vp-custom-block-info-text: rgba(255, 255, 255, 0.86);
   --vp-custom-block-info-bg: rgba(75, 144, 207, 0.14);
   --vp-custom-block-info-code-bg: rgba(75, 144, 207, 0.22);
-
   --vp-custom-block-warning-text: #E2BF6A;
   --vp-custom-block-warning-bg: rgba(212, 166, 58, 0.14);
   --vp-custom-block-warning-code-bg: rgba(212, 166, 58, 0.20);
-
   --vp-custom-block-danger-text: #E8888B;
   --vp-custom-block-danger-bg: rgba(201, 64, 68, 0.16);
   --vp-custom-block-danger-code-bg: rgba(201, 64, 68, 0.24);
@@ -205,20 +146,8 @@
   --vp-c-default-soft: rgba(255, 255, 255, 0.05);
 }
 
-/* ============================================================================
- * Display face — DM Serif Display utility
- * Apply via class to hero headlines, marketing display text. NEVER applied
- * to chart frames (typography invariant in the design system).
- * ========================================================================== */
-.vp-display {
-  font-family: 'DM Serif Display', Georgia, 'Times New Roman', serif;
-  font-weight: 400;
-  line-height: 1.05;
-  letter-spacing: -0.01em;
-}
-
-/* Apply DM Serif Display to the home hero name (the gradient brand wordmark).
- * Tightens letter-spacing slightly to compensate for the serif's natural width. */
+/* Display utility — kept (used by hero) */
+.vp-display,
 .VPHero .name,
 .VPHero .text {
   font-family: 'DM Serif Display', Georgia, 'Times New Roman', serif;
@@ -227,23 +156,16 @@
   line-height: 1.05;
 }
 
-/* Keep the small tagline below the hero in sans for legibility. */
 .VPHero .tagline {
   font-family: var(--vp-font-family-base);
   font-weight: 400;
 }
 
-/* Soften the default focus ring to match the editor's `--bc-focus-ring`. */
 :focus-visible {
   outline-color: rgba(37, 99, 160, 0.45);
 }
 
-/* ============================================================================
- * BpcBlock — Code/Preview tab switcher around ```bpc fences
- * ----------------------------------------------------------------------------
- * Wraps the default VitePress code block in a tabbed shell with a live
- * preview pane and an "Open in editor" round-trip link.
- * ========================================================================== */
+/* BpcBlock — code/preview tab switcher styles (component-level, kept) */
 .bpc-block {
   margin: 16px 0;
   border: 1px solid var(--vp-c-divider);
@@ -276,26 +198,16 @@
   transition: color 0.15s ease, background-color 0.15s ease;
 }
 
-.bpc-block__tab:hover:not(:disabled) {
-  color: var(--vp-c-text-1);
-}
-
+.bpc-block__tab:hover:not(:disabled) { color: var(--vp-c-text-1); }
 .bpc-block__tab.is-active {
   background: var(--vp-c-bg);
   color: var(--vp-c-text-1);
   box-shadow: 0 0 0 1px var(--vp-c-divider);
 }
+.bpc-block__tab:disabled { opacity: 0.45; cursor: not-allowed; }
 
-.bpc-block__tab:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
+.bpc-block__body { position: relative; }
 
-.bpc-block__body {
-  position: relative;
-}
-
-/* Strip the default VP code-block margin so it nests cleanly inside the shell. */
 .bpc-block__code > div[class*='language-'] {
   margin: 0;
   border-radius: 0;
@@ -359,20 +271,12 @@
   transition: color 0.15s ease;
 }
 
-.bpc-block__editor-link:hover {
-  color: var(--vp-c-brand-2);
-}
+.bpc-block__editor-link:hover { color: var(--vp-c-brand-2); }
 
-.bpc-block__editor-link__glyph {
-  transition: transform 0.15s ease;
-}
+.bpc-block__editor-link__glyph { transition: transform 0.15s ease; }
 
 .bpc-block__editor-link:hover .bpc-block__editor-link__glyph {
   transform: translateX(2px);
 }
 
-/* Code-only fallback: when parse fails, hide the tab bar entirely.
- * The code block plus the (already-hidden) footer remain visible. */
-.bpc-block--code-only .bpc-block__tabs {
-  display: none;
-}
+.bpc-block--code-only .bpc-block__tabs { display: none; }
