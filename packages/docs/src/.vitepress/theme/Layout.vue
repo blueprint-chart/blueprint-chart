@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { computed, watchEffect } from 'vue'
+import { computed, ref, onMounted, watchEffect } from 'vue'
 import DefaultTheme from 'vitepress/theme'
 import { useData } from 'vitepress'
-import { NavigationMarketingBar, NavigationDocsBar } from '@blueprint-chart/ui'
+import { NavigationMarketingBar, NavigationDocsBar, NavigationCommandBar } from '@blueprint-chart/ui'
 
 const { Layout } = DefaultTheme
 const { frontmatter, isDark } = useData()
@@ -28,6 +28,15 @@ function toggleTheme() {
   // the .dark class on <html> and persists to localStorage.
   isDark.value = !isDark.value
 }
+
+// `⌘ K` on Mac, `Ctrl K` elsewhere. Resolved client-side after mount so SSR
+// renders a sensible default without prejudging the platform.
+const shortcutLabel = ref('⌘ K')
+onMounted(() => {
+  if (typeof navigator === 'undefined') return
+  const isMac = /Mac|iPhone|iPod|iPad/i.test(navigator.platform)
+  shortcutLabel.value = isMac ? '⌘ K' : 'Ctrl K'
+})
 
 function openSearch() {
   // VitePress's local search listens for ⌘/Ctrl+K globally. The trigger
@@ -61,21 +70,12 @@ function openSearch() {
       <a href="/api/">API</a>
     </template>
     <template #actions>
-      <button
-        class="docs-btn-outline docs-btn-outline--square"
-        type="button"
-        aria-label="Search docs"
+      <NavigationCommandBar
+        class="docs-search"
+        placeholder="Search docs…"
+        :shortcut-label="shortcutLabel"
         @click="openSearch"
-      >
-        <svg
-          class="docs-btn-outline__icon"
-          viewBox="0 0 256 256"
-          aria-hidden="true"
-        ><path
-          fill="currentColor"
-          d="M229.66 218.34l-50.07-50.06a88.11 88.11 0 1 0-11.31 11.31l50.06 50.07a8 8 0 0 0 11.32-11.32ZM40 112a72 72 0 1 1 72 72 72.08 72.08 0 0 1-72-72Z"
-        /></svg>
-      </button>
+      />
       <a
         class="docs-btn-outline docs-github"
         href="https://github.com/blueprint-chart/blueprint-chart"
@@ -134,21 +134,12 @@ function openSearch() {
       </a>
     </template>
     <template #actions>
-      <button
-        class="docs-btn-outline docs-btn-outline--sm docs-btn-outline--square"
-        type="button"
-        aria-label="Search docs"
+      <NavigationCommandBar
+        class="docs-search docs-search--slim"
+        placeholder="Search docs…"
+        :shortcut-label="shortcutLabel"
         @click="openSearch"
-      >
-        <svg
-          class="docs-btn-outline__icon"
-          viewBox="0 0 256 256"
-          aria-hidden="true"
-        ><path
-          fill="currentColor"
-          d="M229.66 218.34l-50.07-50.06a88.11 88.11 0 1 0-11.31 11.31l50.06 50.07a8 8 0 0 0 11.32-11.32ZM40 112a72 72 0 1 1 72 72 72.08 72.08 0 0 1-72-72Z"
-        /></svg>
-      </button>
+      />
       <a
         class="docs-btn-outline docs-btn-outline--sm docs-github"
         href="https://github.com/blueprint-chart/blueprint-chart"
