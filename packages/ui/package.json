@@ -32,7 +32,8 @@
       "default": "./dist/index.js"
     },
     "./styles/tokens.css": "./dist/styles/tokens.css",
-    "./styles/tokens.scss": "./dist/styles/tokens.scss"
+    "./styles/tokens.scss": "./dist/styles/tokens.scss",
+    "./style.css": "./dist/style.css"
   },
   "files": [
     "dist",
