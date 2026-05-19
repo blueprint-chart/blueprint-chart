@@ -229,13 +229,18 @@ function buildFooterRightItems(options: FrameOptions): FooterItem[] {
 
 export function createFrame(
   container: HTMLElement,
-  options: FrameOptions = {},
+  options?: FrameOptions | null,
 ): FrameElements {
+  // null = explicitly frameless: render chart content directly into container
+  if (options === null) {
+    return { wrapper: container, header: container, body: container, footer: container }
+  }
+  const resolvedOptions: FrameOptions = options ?? {}
   const chart = new FrameChart(d3.select(container))
   chart.draw({
-    headerItems: buildHeaderItems(options),
-    footerLeftItems: buildFooterLeftItems(options),
-    footerRightItems: buildFooterRightItems(options),
+    headerItems: buildHeaderItems(resolvedOptions),
+    footerLeftItems: buildFooterLeftItems(resolvedOptions),
+    footerRightItems: buildFooterRightItems(resolvedOptions),
   })
 
   const wrapper = container.querySelector('.bc-frame') as HTMLElement
@@ -244,16 +249,16 @@ export function createFrame(
   const note = wrapper.querySelector('.bc-frame-note') as HTMLElement
   const footer = wrapper.querySelector('.bc-frame-footer') as HTMLElement
 
-  if (options.padding) {
-    wrapper.style.setProperty('--bc-frame-padding', options.padding)
+  if (resolvedOptions.padding) {
+    wrapper.style.setProperty('--bc-frame-padding', resolvedOptions.padding)
   }
 
-  if (options.transparentBackground) {
+  if (resolvedOptions.transparentBackground) {
     wrapper.style.setProperty('--bc-frame-bg', 'transparent')
   }
 
-  if (options.note) {
-    note.textContent = options.note
+  if (resolvedOptions.note) {
+    note.textContent = resolvedOptions.note
   }
   else {
     note.style.display = 'none'

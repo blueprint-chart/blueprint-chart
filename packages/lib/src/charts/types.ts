@@ -175,7 +175,7 @@ export interface SeriesOverride {
 }
 
 export interface ChartOptions {
-  frame?: FrameOptions
+  frame?: FrameOptions | null
   verticalAxis?: AxisOptions
   horizontalAxis?: AxisOptions
   sort?: SortDirection
