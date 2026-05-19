@@ -10,6 +10,9 @@ import { mkdir, copyFile, readdir, writeFile } from 'node:fs/promises'
 import { resolve, join } from 'node:path'
 import * as sass from 'sass'
 
+// Produces dist/styles/*.css for CSS-only consumers (e.g. VitePress in @blueprint-chart/docs)
+// that cannot process SCSS. Also copies the .scss source files so SCSS consumers
+// (the editor) can @use them directly.
 function viteCopyStyles() {
   return {
     name: 'blueprint-chart-copy-styles',
@@ -20,7 +23,7 @@ function viteCopyStyles() {
       await mkdir(outDir, { recursive: true })
       const entries = await readdir(srcDir)
       for (const entry of entries) {
-        if (entry.endsWith('.scss')) {
+        if (entry.endsWith('.scss') && !entry.startsWith('_')) {
           await copyFile(join(srcDir, entry), join(outDir, entry))
           const css = sass.compile(join(srcDir, entry), { style: 'compressed' }).css
           const cssName = entry.replace(/\.scss$/, '.css')
