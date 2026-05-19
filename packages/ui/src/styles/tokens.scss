@@ -100,13 +100,13 @@ $spacer-xs: 0.25rem !default;
 
 :root,
 [data-bs-theme="light"] {
-  --bs-font-size-xs: 0.6875rem;
-  --bs-font-size-sm: 0.75rem;
-  --bs-font-size-md: 0.875rem;
-  --bs-font-size-lg: 1.0625rem;
-  --bs-font-size-xl: 1.5rem;
-  --bs-font-size-2xl: 2rem;
-  --bs-font-size-hero: 4rem;
+  --bs-font-size-xs: 0.75rem;    // 12px — uppercase eyebrow labels, badge text
+  --bs-font-size-sm: 0.875rem;   // 14px — sub-body, DSL code
+  --bs-font-size-md: 1rem;       // 16px — body, UI, nav, breadcrumbs
+  --bs-font-size-lg: 1.25rem;    // 20px — panel section titles
+  --bs-font-size-xl: 1.875rem;   // 30px — page title (h1)
+  --bs-font-size-2xl: 2.375rem;  // 38px — dashboard title
+  --bs-font-size-hero: 4rem;     // 64px — landing hero h1 (unchanged)
 
   --bc-syn-keyword: #2563A0;
   --bc-syn-string: #2D8659;
