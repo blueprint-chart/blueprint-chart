@@ -125,10 +125,10 @@ describe('donut chart', () => {
     expect(totalValue).toBeNull()
   })
 
-  it('shows 100% as total when showTotal and displayAsPercentage are both true', () => {
+  it('suppresses center total when displayAsPercentage is true (would always read 100%)', () => {
     render(container, data, { showTotal: true, displayAsPercentage: true })
     const totalValue = container.querySelector('.bc-arc-total-value')
-    expect(totalValue?.textContent).toBe('100%')
+    expect(totalValue).toBeNull()
   })
 
   // ── Show/hide labels ──────────────────────────────────────────────
