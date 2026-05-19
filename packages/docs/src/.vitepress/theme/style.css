@@ -86,6 +86,12 @@
   --vp-c-default-soft: rgba(0, 0, 0, 0.04);
   --vp-c-tip-1: var(--vp-c-brand-1);
   --vp-c-tip-soft: var(--vp-c-brand-soft);
+
+  /* Bridge text-color vars so components designed against --bs-body-color
+   * (e.g. NavigationMarketingBar :slotted(a)) work in the docs context. */
+  --bs-body-color: var(--vp-c-text-1);
+  --bs-secondary-color: var(--vp-c-text-2);
+  --bs-tertiary-color: var(--vp-c-text-3);
 }
 
 .dark {
@@ -144,6 +150,12 @@
   --vp-custom-block-danger-code-bg: rgba(201, 64, 68, 0.24);
 
   --vp-c-default-soft: rgba(255, 255, 255, 0.05);
+
+  /* Bridge text-color vars so components designed against --bs-body-color
+   * (e.g. NavigationMarketingBar :slotted(a)) work in the docs context. */
+  --bs-body-color: var(--vp-c-text-1);
+  --bs-secondary-color: var(--vp-c-text-2);
+  --bs-tertiary-color: var(--vp-c-text-3);
 }
 
 /* Display utility — kept (used by hero) */
