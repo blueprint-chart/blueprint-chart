@@ -44,15 +44,16 @@ export function renderChart(
   const chartOpts = buildChartOptions(state.options, bg)
 
   // Frame: thumbnail mode strips frame entirely (null = frameless).
-  // When a frame definition exists, always produce a frame with padding default.
-  // When no frame is defined, pass null so createFrame skips DOM creation.
-  let frame: FrameOptions | null | undefined
-  if (options.thumbnail || !state.frame) {
+  // Otherwise: always produce a frame with at least padding so the .bc-frame
+  // element exists for theme class application and consistent styling, even
+  // for BPCs that set no title/description/etc.
+  let frame: FrameOptions | null
+  if (options.thumbnail) {
     frame = null
   }
   else {
-    const padding = state.frame.padding ?? options.padding ?? '16px'
-    frame = { ...state.frame, padding }
+    const padding = state.frame?.padding ?? options.padding ?? '16px'
+    frame = { ...(state.frame ?? {}), padding }
   }
 
   renderer(container, state.data, {
