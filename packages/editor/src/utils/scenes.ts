@@ -6,6 +6,10 @@ import type { SceneOverride } from '@/composables/useScenes'
  * Fold scenes 0..index into a single resolved override.
  * Each field uses "last scene that defined it" semantics, so scene N
  * inherits anything set by scenes 0..N-1 that it doesn't override itself.
+ *
+ * Note: this operates on the editor's in-memory SceneOverride shape and is
+ * used for assembling editor render args. The canonical scene-resolution
+ * logic for DSL-shaped scenes lives in @blueprint-chart/lib `resolveScene`.
  */
 export function resolveScene(scenes: SceneOverride[], index: number): SceneOverride | null {
   if (index < 0 || index >= scenes.length) {
