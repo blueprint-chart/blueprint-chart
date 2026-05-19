@@ -53,9 +53,18 @@ importers:
       '@fontsource/dm-serif-display':
         specifier: ^5.2.8
         version: 5.2.8
+      '@iconify-json/ph':
+        specifier: ^1.2.2
+        version: 1.2.2
+      '@vueuse/core':
+        specifier: ^14.2.1
+        version: 14.2.1(vue@3.5.29(typescript@5.9.3))
       typescript:
         specifier: ^5.7
         version: 5.9.3
+      unplugin-icons:
+        specifier: ^23.0.1
+        version: 23.0.1(@vue/compiler-sfc@3.5.29)
       vitepress:
         specifier: ^1.5.0
         version: 1.6.4(@algolia/client-search@5.52.1)(@types/node@25.3.0)(postcss@8.5.6)(sass-embedded@1.97.3)(sass@1.99.0)(search-insights@2.17.3)(typescript@5.9.3)
@@ -2734,6 +2743,9 @@ packages:
   nwsapi@2.2.23:
     resolution: {integrity: sha512-7wfH4sLbt4M0gCDzGE6vzQBo0bfTKjU7Sfpqy/7gs1qBfYz2vEJH6vXcBKpO3+6Yu1telwd0t9HpyOoLEQQbIQ==}
 
+  obug@2.1.1:
+    resolution: {integrity: sha512-uTqF9MuPraAQ+IsnPf366RG4cP9RtUi7MLO1N3KEc+wb0a6yKpeL0lmk2IB1jY5KHPAlTc6T/JRdC/YqxHNwkQ==}
+
   on-finished@2.3.0:
     resolution: {integrity: sha512-ikqdkGAAyf/X/gPhXGvfgAytDZtDbr+bkNUJ0N9h5MI/dmdgCs3l6hoHrcUv41sRKew3jIwrp4qQDXiK99Utww==}
     engines: {node: '>= 0.8'}
@@ -3426,6 +3438,23 @@ packages:
       vue-template-compiler:
         optional: true
       vue-template-es2015-compiler:
+        optional: true
+
+  unplugin-icons@23.0.1:
+    resolution: {integrity: sha512-rv0XEJepajKzDLvRUWASM8K+8+/CCfZn2jtogXqg6RIp7kpatRc/aFrVJn8ANQA09e++lPEEv9yX8cC9enc+QQ==}
+    peerDependencies:
+      '@svgr/core': '>=7.0.0'
+      '@svgx/core': ^1.0.1
+      '@vue/compiler-sfc': ^3.0.2
+      svelte: ^3.0.0 || ^4.0.0 || ^5.0.0
+    peerDependenciesMeta:
+      '@svgr/core':
+        optional: true
+      '@svgx/core':
+        optional: true
+      '@vue/compiler-sfc':
+        optional: true
+      svelte:
         optional: true
 
   unplugin-utils@0.2.5:
@@ -6361,6 +6390,8 @@ snapshots:
 
   nwsapi@2.2.23: {}
 
+  obug@2.1.1: {}
+
   on-finished@2.3.0:
     dependencies:
       ee-first: 1.1.1
@@ -7015,6 +7046,16 @@ snapshots:
       '@vue/compiler-sfc': 3.5.29
     transitivePeerDependencies:
       - supports-color
+
+  unplugin-icons@23.0.1(@vue/compiler-sfc@3.5.29):
+    dependencies:
+      '@antfu/install-pkg': 1.1.0
+      '@iconify/utils': 3.1.0
+      local-pkg: 1.1.2
+      obug: 2.1.1
+      unplugin: 2.3.11
+    optionalDependencies:
+      '@vue/compiler-sfc': 3.5.29
 
   unplugin-utils@0.2.5:
     dependencies:
