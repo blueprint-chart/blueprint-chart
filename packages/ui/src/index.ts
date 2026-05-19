@@ -85,6 +85,7 @@ export { default as NavigationCommandBar } from './components/Navigation/Navigat
 export { default as NavigationIconRail } from './components/Navigation/NavigationIconRail/NavigationIconRail.vue'
 export { default as NavigationIconRailEntry } from './components/Navigation/NavigationIconRail/NavigationIconRailEntry.vue'
 export { default as NavigationLink } from './components/Navigation/NavigationLink/NavigationLink.vue'
+export { default as NavigationMarketingBar } from './components/Navigation/NavigationMarketingBar/NavigationMarketingBar.vue'
 export { default as NavigationSearchPill } from './components/Navigation/NavigationSearchPill/NavigationSearchPill.vue'
 export { default as NavigationSidebar } from './components/Navigation/NavigationSidebar/NavigationSidebar.vue'
 export { default as NavigationSidebarGroup } from './components/Navigation/NavigationSidebarGroup/NavigationSidebarGroup.vue'
