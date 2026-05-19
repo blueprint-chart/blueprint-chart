@@ -7,18 +7,49 @@
 @import "bootstrap/scss/bootstrap";
 @import "bootstrap-vue-next/dist/bootstrap-vue-next.css";
 
-// Body-level Bootstrap-button overrides (editor-specific, not tokens)
+// Dark-mode form-control surfaces — Bootstrap doesn't auto-darken these to match
+// our two-tone surface system. Must sit AFTER the bootstrap import so the
+// runtime cascade wins.
+[data-bs-theme="dark"] {
+  .form-control,
+  .form-select {
+    background-color: var(--bs-secondary-bg);
+  }
+
+  .form-range::-webkit-slider-runnable-track {
+    background-color: #444;
+  }
+
+  .form-range::-moz-range-track {
+    background-color: #444;
+  }
+
+  .form-check-input {
+    background-color: var(--bs-tertiary-bg);
+    border-color: var(--bs-border-color);
+  }
+}
+
+// Body-level Bootstrap component overrides (editor-specific, not tokens)
 body {
   .btn-outline-primary {
     --bs-btn-bg: rgba(var(--bs-primary-rgb), 0.1);
   }
 
+  // bootstrap-vue-next adds a non-standard .btn-md class to its dropdown
+  // toggle. Bootstrap defines no rule for .btn-md, so the cascade should
+  // fall back to .btn defaults — but the BFormGroup <fieldset size="md">
+  // wrapper shifts the rendered size. Pin the toggle to the same .btn
+  // token chain ButtonIcon uses.
   .dropdown-toggle {
     font-size: var(--bs-btn-font-size);
     line-height: var(--bs-btn-line-height);
     padding: var(--bs-btn-padding-y) var(--bs-btn-padding-x);
   }
 
+  // Secondary buttons (filled + outline) adopt the same chrome as the
+  // segmented-control track: subtle wash + hairline border. Hover lifts
+  // to the firmer wash.
   .btn-secondary,
   .btn-outline-secondary {
     --bs-btn-color: var(--bs-body-color);
@@ -36,6 +67,8 @@ body {
   }
 }
 
+// Unified form-label style. Scoped to #app so teleported popovers
+// (color picker etc.) are not affected.
 #app .form-label {
   font-size: var(--bs-font-size-xs);
   text-transform: uppercase;
@@ -75,6 +108,10 @@ body {
   color: var(--bs-success) !important;
 }
 
+// Display face — DM Serif Display.
+// Apply via class to: landing hero h1, editor page title, dashboard
+// card titles, modal/empty-state headlines, panel section titles.
+// NEVER apply to .bc-frame-* (chart frames stay sans/neutral).
 .bc-display {
   font-family: "DM Serif Display", Georgia, "Times New Roman", serif;
   font-weight: 400;
@@ -88,7 +125,7 @@ body {
 
 .bc-frame-title       { font-size: var(--bs-font-size-lg); }
 .bc-frame-description { font-size: var(--bs-font-size-md); }
-.bc-frame-note        { color: var(--bs-body-color, #888);     font-size: var(--bs-font-size-sm); }
+.bc-frame-note        { color: var(--bs-body-color, #888); font-size: var(--bs-font-size-sm); }
 .bc-frame-byline,
 .bc-frame-source      { color: var(--bs-secondary-color, #888); font-size: var(--bs-font-size-sm); }
 .bc-frame-credit      { color: var(--bs-secondary-color, #666); font-size: var(--bs-font-size-sm); }
@@ -103,5 +140,9 @@ body {
   padding: 0;
 }
 
+// LayoutNavbar (1040) and LayoutPageHeader (1045) sit at Bootstrap's
+// offcanvas z-index range, so without this lift they punch through the
+// workspace sidebar's backdrop. Promote the sidebar offcanvas to the
+// modal range so page chrome stays under the overlay when it's open.
 .offcanvas-backdrop      { z-index: 1050; }
 .layout-shell__sidebar-offcanvas { z-index: 1055; }
