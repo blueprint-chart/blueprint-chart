@@ -104,7 +104,6 @@ class LineChart extends D3Blueprint<LineDatum[]> {
           sel
             .attr('fill', 'none')
             .attr('stroke', color)
-            .attr('stroke-width', 2)
             .attr('d', lineGen)
         },
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -120,7 +119,6 @@ class LineChart extends D3Blueprint<LineDatum[]> {
           sel.duration(getDefaultTransitionMs())
             .attr('fill', 'none')
             .attr('stroke', color)
-            .attr('stroke-width', 2)
             .attr('d', lineGen)
         },
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -246,14 +244,20 @@ export function render(
     horizontal: { scale: xScale, height, options: { ...options.horizontalAxis, width, zeroY } },
   })
 
-  // Clip chart content to the plot area so lines/areas/dots outside the domain are hidden
+  // Clip chart content to the plot area so lines/areas/dots outside the domain are hidden.
+  // Inflate by 1px on each side so the stroke isn't half-clipped where data sits on
+  // the plot edges (edgePadding=false places the first/last points at x=0 and x=width).
   const clipId = `bc-clip-${Math.random().toString(36).slice(2, 8)}`
   const svg = chartArea.ownerSVGElement!
   const defs = d3.select(svg).select('defs').empty()
     ? d3.select(svg).append('defs')
     : d3.select(svg).select('defs')
   defs.append('clipPath').attr('id', clipId)
-    .append('rect').attr('width', width).attr('height', height)
+    .append('rect')
+    .attr('x', -1)
+    .attr('y', -1)
+    .attr('width', width + 2)
+    .attr('height', height + 2)
   const clippedGroup = d3.select(chartArea).append('g').attr('clip-path', `url(#${clipId})`)
   const clippedArea = clippedGroup.node() as SVGGElement
 

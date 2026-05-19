@@ -62,10 +62,11 @@ describe('line chart', () => {
     expect(path?.getAttribute('fill')).toBe('none')
   })
 
-  it('sets stroke-width=2 on the line path', () => {
+  it('does not set inline stroke-width (handled by .bc-line CSS via --bc-line-stroke-width)', () => {
     render(container, data)
     const path = container.querySelector('.bc-line')
-    expect(path?.getAttribute('stroke-width')).toBe('2')
+    expect(path?.getAttribute('stroke-width')).toBeNull()
+    expect(path?.classList.contains('bc-line')).toBe(true)
   })
 
   it('dots are invisible by default (fill-opacity 0)', () => {
