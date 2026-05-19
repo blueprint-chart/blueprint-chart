@@ -19,6 +19,12 @@ import '@fontsource/dm-serif-display/400.css'
 // Must load before `./style.css` so the VP-token aliases bridge cleanly.
 import '@blueprint-chart/ui/styles/tokens.css'
 
+// Compiled component styles from @blueprint-chart/ui (scoped CSS for
+// NavigationMarketingBar / NavigationDocsBar etc., which Layout.vue renders).
+// Vite's library build emits these to dist/style.css; consumers must import
+// the bundle explicitly since it isn't auto-pulled via the JS entry.
+import '@blueprint-chart/ui/style.css'
+
 import './style.css'
 
 // Standalone chart CSS shipped by @blueprint-chart/lib — class names match
