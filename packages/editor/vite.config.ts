@@ -47,8 +47,10 @@ export default defineConfig({
   resolve: {
     alias: [
       { find: '@', replacement: fileURLToPath(new URL('./src', import.meta.url)) },
-      // TODO: remove this alias once Components({ dirs: [...] }) no longer scans '../ui/src/components' — see Task 3 code review.
-      { find: '@blueprint-chart/ui', replacement: fileURLToPath(new URL('../ui/src/index.ts', import.meta.url)) },
+      // Exact-match alias so subpath imports like `@blueprint-chart/ui/styles/tokens.scss`
+      // continue to resolve through the package's exports map instead of being
+      // incorrectly rewritten to `src/index.ts/<subpath>`.
+      { find: /^@blueprint-chart\/ui$/, replacement: fileURLToPath(new URL('../ui/src/index.ts', import.meta.url)) },
       // Resolve lib to source so `make dev` picks up edits via HMR without
       // a manual `make build-lib` round-trip. Exact match only — subpath
       // imports (e.g. `@blueprint-chart/lib/charts.scss`) must keep resolving

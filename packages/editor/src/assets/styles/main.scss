@@ -1,178 +1,24 @@
+// Tokens come first so $primary, $prussian-*, $font-family-*, $body-bg, etc.
+// are in scope before _overrides.scss and bootstrap consume them.
+@use "@blueprint-chart/ui/styles/tokens.scss" as *;
 @use "@blueprint-chart/lib/charts.scss";
 @import "./fonts";
 @import "./overrides";
 @import "bootstrap/scss/bootstrap";
 @import "bootstrap-vue-next/dist/bootstrap-vue-next.css";
 
-:root,
-[data-bs-theme="light"] {
-  // Type scale (Linear-tuned)
-  --bs-font-size-xs: 0.6875rem;   // 11px — form labels, eyebrows
-  --bs-font-size-sm: 0.75rem;     // 12px — body small, nav items
-  --bs-font-size-md: 0.875rem;    // 14px — body
-  --bs-font-size-lg: 1.0625rem;   // 17px — panel section titles (display)
-  --bs-font-size-xl: 1.5rem;      // 24px — editor page title (display)
-  --bs-font-size-2xl: 2rem;       // 32px — dashboard page title (display)
-  --bs-font-size-hero: 4rem;      // 64px — landing hero h1 (display)
-
-  // Syntax highlighting (DSL editor + embed code)
-  --bc-syn-keyword: #2563A0;
-  --bc-syn-string: #2D8659;
-  --bc-syn-number: #8B5E00;
-  --bc-syn-identifier: #555;
-  --bc-syn-punct: #888;
-  --bc-syn-comment: #999;
-  --bc-axis-color: #333;
-  --bc-grid-color: #e0e0e0;
-  --bc-text-color: #555;
-  --bc-brand-1: #5b6abf;
-  --bc-brand-2: #3c8dbc;
-
-  // Blueprint canvas (preserved — brand-locked, same in both modes)
-  --bc-canvas-bg: #244a7c;
-  --bc-canvas-grid-color: rgba(255, 255, 255, 0.06);
-  --bc-canvas-grid-color-major: rgba(255, 255, 255, 0.15);
-  --bc-canvas-grid-size: 20px;
-  --bc-canvas-dimension-color: rgba(255, 255, 255, 0.55);
-
-  // Surface system (NEW two-tone)
-  --bc-chrome-bg: #ffffff;             // sidebar, topbar, scene timeline
-  --bc-content-bg: #fafafa;            // main content area
-  --bc-tile-bg: #ffffff;               // content cards, modals
-  --bc-tile-bg-elevated: #f5f5f7;      // inset inputs, hover wash
-  --bc-canvas-glow: none;              // light mode skips the wash
-
-  // Interactive wash — translucent overlays for hover / active / kbd.
-  // Defined here per-theme so components don't need inline theme selectors.
-  --bc-wash-soft: rgba(0, 0, 0, 0.04);
-  --bc-wash-firm: rgba(0, 0, 0, 0.06);
-  --bc-wash-input: rgba(0, 0, 0, 0.03);
-  --bc-wash-input-hover: rgba(0, 0, 0, 0.05);
-
-  // Hairlines
-  --bc-hairline: rgba(0, 0, 0, 0.08);
-  --bc-hairline-strong: rgba(0, 0, 0, 0.14);
-
-  // Radii (Linear-tight scale)
-  --bc-radius-pill: 999px;
-  --bc-radius-xs: 4px;
-  --bc-radius-sm: 6px;
-  --bc-radius-md: 8px;
-  --bc-radius-lg: 12px;
-
-
-  // Elevated surfaces — Bootstrap card variables
-  --bs-card-bg: var(--bc-tile-bg);
-  --bs-card-box-shadow: none;
-
-  // Navbar / toolbar
-  --bs-navbar-bg: transparent;
-
-  // Motion
-  --bc-ease: cubic-bezier(0.4, 0, 0.2, 1);
-  --bc-duration-fast: 100ms;
-  --bc-duration-base: 150ms;
-  --bc-duration-slow: 250ms;
-
-  // Focus
-  --bc-focus-ring: 0 0 0 2px rgba(37, 99, 160, 0.4);
-
-  // Overlay shadow — for floating panels / popovers / drawers only.
-  // Two-layer recipe: ambient depth + sharp 1 px definition.
-  --bc-shadow-overlay:
-    0 8px 24px rgba(0, 0, 0, 0.08),
-    0 1px 2px rgba(0, 0, 0, 0.04);
-}
-
-// When [data-bs-theme="light"] is applied to a nested element (e.g. the preview
-// card when dark mode is disallowed), propagate the light color + background so
-// inherited text/currentColor inside SVGs also switch to the light palette.
-[data-bs-theme="dark"] [data-bs-theme="light"] {
-  color: var(--bs-body-color);
-  background-color: var(--bs-card-bg);
-}
-
-[data-bs-theme="dark"] {
-  // Syntax highlighting
-  --bc-syn-keyword: #6CA6D6;
-  --bc-syn-string: #6BBF8B;
-  --bc-syn-number: #D4A63A;
-  --bc-syn-identifier: #b0b0b0;
-  --bc-syn-punct: #777;
-  --bc-syn-comment: #666;
-
-  --bc-axis-color: #ccc;
-  --bc-grid-color: #444;
-  --bc-text-color: #aaa;
-
-  // Canvas (preserved, identical to light)
-  --bc-canvas-bg: #244a7c;
-  --bc-canvas-grid-color: rgba(255, 255, 255, 0.04);
-  --bc-canvas-grid-color-major: rgba(255, 255, 255, 0.10);
-  --bc-canvas-dimension-color: rgba(255, 255, 255, 0.4);
-
-  // Surface system — two-tone Linear
-  --bc-chrome-bg: #08090a;             // sidebar, topbar, scene timeline
-  --bc-content-bg: #101112;            // main content area
-  --bc-tile-bg: #101112;               // content cards, modals
-  --bc-tile-bg-elevated: #16161b;      // inset inputs, hover wash
-  --bc-canvas-glow: radial-gradient(ellipse at top, rgba(37, 99, 160, 0.04), transparent 60%);
-
-  // Interactive wash overrides — translucent overlays calibrated for dark.
-  --bc-wash-soft: rgba(255, 255, 255, 0.03);
-  --bc-wash-firm: rgba(255, 255, 255, 0.07);
-  --bc-wash-input: rgba(255, 255, 255, 0.03);
-  --bc-wash-input-hover: rgba(255, 255, 255, 0.05);
-
-  // Hairlines
-  --bc-hairline: rgba(255, 255, 255, 0.06);
-  --bc-hairline-strong: rgba(255, 255, 255, 0.12);
-
-  // Overlay shadow — dark variant
-  --bc-shadow-overlay:
-    0 8px 24px rgba(0, 0, 0, 0.4),
-    0 1px 2px rgba(0, 0, 0, 0.3);
-
-
-  // Bootstrap form-control dark-mode background override
-  .form-control,
-  .form-select {
-    background-color: var(--bs-secondary-bg);
-  }
-
-  .form-range::-webkit-slider-runnable-track {
-    background-color: #444;
-  }
-
-  .form-range::-moz-range-track {
-    background-color: #444;
-  }
-
-  .form-check-input {
-    background-color: var(--bs-tertiary-bg);
-    border-color: var(--bs-border-color);
-  }
-}
-
+// Body-level Bootstrap-button overrides (editor-specific, not tokens)
 body {
   .btn-outline-primary {
     --bs-btn-bg: rgba(var(--bs-primary-rgb), 0.1);
   }
 
-  // `bootstrap-vue-next` adds a non-standard `.btn-md` class to its dropdown
-  // toggle. Bootstrap defines no rule for `.btn-md`, so the cascade *should*
-  // fall back to `.btn` defaults — but the BFormGroup `<fieldset size="md">`
-  // wrapper around BDropdown shifts the rendered size in the editor. Pin the
-  // toggle to the same `.btn` token chain ButtonIcon uses.
   .dropdown-toggle {
     font-size: var(--bs-btn-font-size);
     line-height: var(--bs-btn-line-height);
     padding: var(--bs-btn-padding-y) var(--bs-btn-padding-x);
   }
 
-  // Secondary buttons (filled and outline variants both) adopt the same chrome
-  // as the segmented-control track: subtle wash background + hairline border.
-  // Hover lifts to the firmer wash.
   .btn-secondary,
   .btn-outline-secondary {
     --bs-btn-color: var(--bs-body-color);
@@ -190,8 +36,6 @@ body {
   }
 }
 
-// Unified form-label style: match SectionTitle appearance
-// Scoped to #app so teleported popovers (color picker etc.) are not affected
 #app .form-label {
   font-size: var(--bs-font-size-xs);
   text-transform: uppercase;
@@ -200,20 +44,11 @@ body {
   font-weight: 600;
 }
 
-// Chart frame styles are in @blueprint-chart/lib/src/charts/chart.scss.
-// Editor-specific overrides that integrate with Bootstrap variables:
-
-// Apply via class on any interactive element that should adopt the
-// app-wide focus treatment.
 .bc-focus-visible:focus-visible {
   outline: none;
   box-shadow: var(--bc-focus-ring);
 }
 
-// Soft, capsule-style status badges — replace Bootstrap's default solid fill
-// so BBadge variants read as eyebrow / meta markers rather than loud alerts.
-// Inline-flex with a gap lets callers drop a leading dot or icon as slot
-// content and have it align with the label.
 .badge.text-bg-info,
 .badge.text-bg-success {
   display: inline-flex;
@@ -240,10 +75,6 @@ body {
   color: var(--bs-success) !important;
 }
 
-// Display face — DM Serif Display.
-// Apply via class to: landing hero h1, editor page title, dashboard
-// card titles, modal/empty-state headlines, panel section titles.
-// NEVER apply to `.bc-frame-*` (chart frames stay sans/neutral).
 .bc-display {
   font-family: "DM Serif Display", Georgia, "Times New Roman", serif;
   font-weight: 400;
@@ -255,29 +86,12 @@ body {
   font-style: italic;
 }
 
-.bc-frame-title {
-  font-size: var(--bs-font-size-lg);
-}
-
-.bc-frame-description {
-  font-size: var(--bs-font-size-md);
-}
-
-.bc-frame-note {
-  color: var(--bs-body-color, #888);
-  font-size: var(--bs-font-size-sm);
-}
-
+.bc-frame-title       { font-size: var(--bs-font-size-lg); }
+.bc-frame-description { font-size: var(--bs-font-size-md); }
+.bc-frame-note        { color: var(--bs-body-color, #888);     font-size: var(--bs-font-size-sm); }
 .bc-frame-byline,
-.bc-frame-source {
-  color: var(--bs-secondary-color, #888);
-  font-size: var(--bs-font-size-sm);
-}
-
-.bc-frame-credit {
-  color: var(--bs-secondary-color, #666);
-  font-size: var(--bs-font-size-sm);
-}
+.bc-frame-source      { color: var(--bs-secondary-color, #888); font-size: var(--bs-font-size-sm); }
+.bc-frame-credit      { color: var(--bs-secondary-color, #666); font-size: var(--bs-font-size-sm); }
 
 .bc-frame-footer-left {
   > :not(:first-child)::before {
@@ -285,28 +99,9 @@ body {
   }
 }
 
-// BOffcanvas teleports to <body>, escaping LayoutShell's scoped styles. Apply
-// the padding override here so LayoutSidebar can own its own padding inside.
 .layout-shell__sidebar-offcanvas .offcanvas-body {
   padding: 0;
 }
 
-// LayoutNavbar (1040) and LayoutPageHeader (1045) sit at Bootstrap's offcanvas
-// z-index range, so without this lift they punch through the workspace
-// sidebar's backdrop. Promote the sidebar offcanvas to the modal range so
-// page chrome stays under the overlay when it's open.
-.offcanvas-backdrop {
-  z-index: 1050;
-}
-
-.layout-shell__sidebar-offcanvas {
-  z-index: 1055;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  :root, [data-bs-theme="light"], [data-bs-theme="dark"] {
-    --bc-duration-fast: 0ms;
-    --bc-duration-base: 0ms;
-    --bc-duration-slow: 0ms;
-  }
-}
+.offcanvas-backdrop      { z-index: 1050; }
+.layout-shell__sidebar-offcanvas { z-index: 1055; }

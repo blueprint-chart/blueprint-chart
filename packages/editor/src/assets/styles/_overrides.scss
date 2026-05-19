@@ -1,88 +1,52 @@
 // ============================================================================
-// Blueprint Chart — Bootstrap 5.3 Theme
-// Palette: Prussian Blue (Saturated)
-// ============================================================================
-//
-// Minimal overrides — Bootstrap derives emphasis, subtle, and border
-// variants automatically via tint-color() / shade-color().
-//
-// Usage:
-//   @import "settings";
-//   @import "bootstrap/scss/bootstrap";
-//
+// Editor-specific Bootstrap component overrides.
+// Design primitives (colors, font stacks, surface bgs, focus ring, etc.) live
+// in @blueprint-chart/ui/styles/tokens.scss and are already in scope here
+// because main.scss imports tokens with `@use ... as *` before this file.
 // ============================================================================
 
-// Font stacks — must come BEFORE bootstrap/scss/bootstrap imports the
-// theme so it picks these up when compiling `$font-family-base`.
-$font-family-sans-serif: "Geist Sans", "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
-$font-family-monospace:  "Geist Mono", ui-monospace, "JetBrains Mono", "SFMono-Regular", Menlo, monospace;
-$font-family-base:       $font-family-sans-serif;
-$font-family-code:       $font-family-monospace;
-$headings-font-family:   $font-family-sans-serif; // default; serif applied per-class
-
-// Brand scale
-$prussian-900: #0A1E3D;
-$prussian-700: #102E55;
-$prussian-600: #163A65;
-$prussian-500: #2563A0; // primary
-$prussian-300: #4B90CF;
-$prussian-100: #A3C9E8;
-$prussian-50: #E1EEF7;
-
-// Theme colors
-$primary: $prussian-500;
-$success: #2D8659;
-$info: $prussian-300;
-$warning: #D4A63A;
-$danger: #C94044;
-
-// Borders — subtle translucent borders
-$border-color: #dcdce0;
-$border-color-dark: #33323e;
-$card-border-width: 0;
-
-// Surface hierarchy (void > tile > elevated)
-// Light: #f3f3f4 > #ffffff > #f8f8fa
-// Dark:  #0a0a0a > #151518 > #1c1c20
-$body-bg:       #f3f3f4;
-$body-bg-dark:  #0a0a0a;
-$body-secondary-bg:       #ffffff;   // inputs, buttons
-$body-secondary-bg-dark:  #1c1c20;
-$body-tertiary-bg:        #f8f8fa;   // subsections
-$body-tertiary-bg-dark:   #1c1c20;
-
-// Links
-$link-color: $primary;
-$link-hover-color: $prussian-600;
-
-// Dark mode links
-$link-color-dark: $prussian-300;
-$link-hover-color-dark: $prussian-100;
+// Borders / cards
+$card-border-width: 0 !default;
 
 // Forms — Linear-tight density (controls ~32px tall instead of Bootstrap's 38px)
-$input-bg: $body-secondary-bg;
-$input-focus-border-color: $prussian-300;
-$input-padding-y: 0.3125rem;        // 5px
-$input-padding-x: 0.625rem;         // 10px
-$input-line-height: 1.4;
-$input-btn-padding-y: 0.3125rem;
-$input-btn-padding-x: 0.625rem;
-$form-check-input-checked-bg-color: $primary;
-$form-check-input-checked-border-color: $primary;
-$btn-padding-y: 0.3125rem;
-$btn-padding-x: 0.75rem;
-$btn-font-size: 0.8125rem;          // 13px
+$input-bg:                  $body-secondary-bg !default;
+$input-focus-border-color:  $prussian-300 !default;
+$input-padding-y:           0.3125rem !default;
+$input-padding-x:           0.625rem !default;
+$input-line-height:         1.4 !default;
+$input-btn-padding-y:       0.3125rem !default;
+$input-btn-padding-x:       0.625rem !default;
+$form-check-input-checked-bg-color:     $primary !default;
+$form-check-input-checked-border-color: $primary !default;
 
-// Focus ring
-$focus-ring-color: rgba($primary, 0.25);
+// Buttons
+$btn-padding-y: 0.3125rem !default;
+$btn-padding-x: 0.75rem !default;
+$btn-font-size: 0.8125rem !default;
 
 // Tables
-$table-cell-padding-y: 0.5rem;
-$table-cell-padding-x: 1rem;
-$table-border-color: $border-color;
+$table-cell-padding-y: 0.5rem !default;
+$table-cell-padding-x: 1rem !default;
+$table-border-color:   $border-color !default;
 
-// Font sizes
-$font-size-xs: 0.6875rem;
+// Dark-mode form-control surfaces (Bootstrap doesn't auto-darken these to match
+// our two-tone surface system — explicit override needed).
+[data-bs-theme="dark"] {
+  .form-control,
+  .form-select {
+    background-color: var(--bs-secondary-bg);
+  }
 
-// Code
-$code-color: $prussian-600;
+  .form-range::-webkit-slider-runnable-track {
+    background-color: #444;
+  }
+
+  .form-range::-moz-range-track {
+    background-color: #444;
+  }
+
+  .form-check-input {
+    background-color: var(--bs-tertiary-bg);
+    border-color: var(--bs-border-color);
+  }
+}
