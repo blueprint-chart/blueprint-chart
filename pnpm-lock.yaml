@@ -41,6 +41,9 @@ importers:
       '@blueprint-chart/lib':
         specifier: workspace:*
         version: link:../lib
+      '@blueprint-chart/ui':
+        specifier: workspace:*
+        version: link:../ui
       '@fontsource-variable/geist':
         specifier: ^5.2.8
         version: 5.2.8
