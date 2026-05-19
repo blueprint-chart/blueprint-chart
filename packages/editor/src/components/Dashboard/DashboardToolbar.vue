@@ -2,6 +2,7 @@
 import { ButtonIcon, FormControlDropdown, NavigationSegmentedControl } from '@blueprint-chart/ui'
 import type { NavigationSegmentedControlItem, FormControlDropdownOption } from '@blueprint-chart/ui'
 import LayoutPageHeader from '@/components/Layout/LayoutPageHeader.vue'
+import LayoutBreadcrumb from '@/components/Layout/LayoutBreadcrumb.vue'
 import IPhSquaresFour from '~icons/ph/squares-four'
 import IPhRows from '~icons/ph/rows'
 import IPhPlus from '~icons/ph/plus'
@@ -33,9 +34,7 @@ const layoutItems = computed<NavigationSegmentedControlItem[]>(() => [
 <template>
   <LayoutPageHeader class="dashboard-toolbar">
     <template #start>
-      <h1 class="dashboard-toolbar__title bc-display">
-        My Charts
-      </h1>
+      <LayoutBreadcrumb class="dashboard-toolbar__breadcrumb" />
       <span class="dashboard-toolbar__count">
         {{ chartCount }} {{ chartCount === 1 ? 'chart' : 'charts' }}
       </span>
@@ -63,13 +62,6 @@ const layoutItems = computed<NavigationSegmentedControlItem[]>(() => [
 
 <style scoped lang="scss">
 .dashboard-toolbar {
-  &__title {
-    font-size: var(--bs-font-size-2xl);
-    color: var(--bs-body-color);
-    margin: 0;
-    line-height: 1;
-  }
-
   &__count {
     font-size: 0.8125rem;
     color: var(--bs-secondary-color);
