@@ -71,7 +71,7 @@ function goEditor() {
           aria-label="GitHub"
         >⌂</a>
       </template>
-      <template #cta>
+      <template #cta-primary>
         <button class="btn btn-primary btn-sm docs-cta" @click="goEditor">
           Open editor ↗
         </button>

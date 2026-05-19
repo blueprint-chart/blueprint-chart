@@ -2,7 +2,7 @@
 defineSlots<{
   brand?: () => unknown
   actions?: () => unknown
-  cta?: () => unknown
+  'cta-primary'?: () => unknown
 }>()
 </script>
 
@@ -19,10 +19,10 @@ defineSlots<{
       <slot name="actions" />
     </div>
     <div
-      v-if="$slots.cta"
-      class="navigation-docs-bar__cta"
+      v-if="$slots['cta-primary']"
+      class="navigation-docs-bar__cta-primary"
     >
-      <slot name="cta" />
+      <slot name="cta-primary" />
     </div>
   </header>
 </template>
@@ -53,7 +53,7 @@ defineSlots<{
 .navigation-docs-bar__spacer { flex: 1; }
 
 .navigation-docs-bar__actions,
-.navigation-docs-bar__cta {
+.navigation-docs-bar__cta-primary {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
