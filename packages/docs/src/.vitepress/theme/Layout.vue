@@ -28,6 +28,21 @@ function toggleTheme() {
   // the .dark class on <html> and persists to localStorage.
   isDark.value = !isDark.value
 }
+
+function openSearch() {
+  // VitePress's local search listens for ⌘/Ctrl+K globally. The trigger
+  // components are internal (not exported from `vitepress/theme`), so we
+  // simulate the keyboard shortcut to open the same dialog the user would
+  // hit with the keystroke.
+  if (typeof document === 'undefined') return
+  document.dispatchEvent(new KeyboardEvent('keydown', {
+    key: 'k',
+    code: 'KeyK',
+    metaKey: true,
+    ctrlKey: true,
+    bubbles: true,
+  }))
+}
 </script>
 
 <template>
@@ -46,6 +61,21 @@ function toggleTheme() {
       <a href="/api/">API</a>
     </template>
     <template #actions>
+      <button
+        class="docs-btn-outline docs-btn-outline--square"
+        type="button"
+        aria-label="Search docs"
+        @click="openSearch"
+      >
+        <svg
+          class="docs-btn-outline__icon"
+          viewBox="0 0 256 256"
+          aria-hidden="true"
+        ><path
+          fill="currentColor"
+          d="M229.66 218.34l-50.07-50.06a88.11 88.11 0 1 0-11.31 11.31l50.06 50.07a8 8 0 0 0 11.32-11.32ZM40 112a72 72 0 1 1 72 72 72.08 72.08 0 0 1-72-72Z"
+        /></svg>
+      </button>
       <a
         class="docs-btn-outline docs-github"
         href="https://github.com/blueprint-chart/blueprint-chart"
@@ -104,6 +134,21 @@ function toggleTheme() {
       </a>
     </template>
     <template #actions>
+      <button
+        class="docs-btn-outline docs-btn-outline--sm docs-btn-outline--square"
+        type="button"
+        aria-label="Search docs"
+        @click="openSearch"
+      >
+        <svg
+          class="docs-btn-outline__icon"
+          viewBox="0 0 256 256"
+          aria-hidden="true"
+        ><path
+          fill="currentColor"
+          d="M229.66 218.34l-50.07-50.06a88.11 88.11 0 1 0-11.31 11.31l50.06 50.07a8 8 0 0 0 11.32-11.32ZM40 112a72 72 0 1 1 72 72 72.08 72.08 0 0 1-72-72Z"
+        /></svg>
+      </button>
       <a
         class="docs-btn-outline docs-btn-outline--sm docs-github"
         href="https://github.com/blueprint-chart/blueprint-chart"
