@@ -1,11 +1,9 @@
 import { useChartConfig } from './useChartConfig'
-import { useChartTypeOptions, type ChartTypeOptions } from './useChartTypeOptions'
+import { useChartTypeOptions } from './useChartTypeOptions'
 import { useChartSession } from './useChartSession'
 import { useDslOutput } from './useDslOutput'
-import { ChartType, SortDirection } from '@blueprint-chart/lib'
-import { getChart, parseData, buildChartOptions } from '@blueprint-chart/lib'
-import { renderDsl } from './useChartFromDsl'
-import type { ChartData, SeriesOverride } from '@blueprint-chart/lib'
+import { ChartType, SortDirection, parseData, renderBpc, renderChart } from '@blueprint-chart/lib'
+import type { ChartData, ChartTypeOptions, SeriesOverride } from '@blueprint-chart/lib'
 import type { ChartColorize } from './useChartConfig'
 
 export function svgToDataUrl(svg: string): string {
@@ -203,7 +201,7 @@ function shouldForceLightTheme(dsl: string): boolean {
 export function renderThumbnailFromDsl(dsl: string): string | null {
   const forceLight = shouldForceLightTheme(dsl)
   return withOffscreen('__bc_thumb', THUMB_W, THUMB_H, THUMB_CSS, (container) => {
-    renderDsl(container, dsl, { thumbnail: true })
+    renderBpc(container, dsl, { thumbnail: true })
     return extractSvg(container)
   }, { forceLightTheme: forceLight })
 }
@@ -215,19 +213,18 @@ export function renderThumbnailSvg(
   sort: SortDirection,
   options?: { colorizes?: ChartColorize[], seriesOverrides?: SeriesOverride[] },
 ): string | null {
-  const renderer = getChart(chartType)
-  if (!renderer || data.labels.length === 0) {
+  if (data.labels.length === 0) {
     return null
   }
-
   return withOffscreen('__bc_thumb', THUMB_W, THUMB_H, THUMB_CSS, (container) => {
-    const chartOpts = buildChartOptions(typeOpts)
-    renderer(container, data, {
+    renderChart(container, {
+      chartType,
+      data,
+      options: typeOpts,
       sort,
-      ...chartOpts,
       colorizes: options?.colorizes,
       seriesOverrides: options?.seriesOverrides,
-    })
+    }, { thumbnail: true })
     return extractSvg(container)
   })
 }
@@ -247,7 +244,7 @@ const PREVIEW_CSS = [
 export function renderPreviewFromDsl(dsl: string): string | null {
   const forceLight = shouldForceLightTheme(dsl)
   return withOffscreen('__bc_preview', PREVIEW_W, null, PREVIEW_CSS, (container) => {
-    renderDsl(container, dsl, { padding: '12px' })
+    renderBpc(container, dsl, { padding: '12px' })
     return captureFrameAsSvg(container)
   }, { forceLightTheme: forceLight })
 }
