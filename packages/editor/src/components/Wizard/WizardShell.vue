@@ -238,7 +238,7 @@ onBeforeRouteLeave(() => {
   <div class="wizard-shell">
     <LayoutPageHeader class="wizard-shell__header">
       <template #start>
-        <LayoutBreadcrumb class="wizard-shell__breadcrumb" />
+        <LayoutBreadcrumb />
         <BBadge
           v-if="savedLabel"
           variant="success"
