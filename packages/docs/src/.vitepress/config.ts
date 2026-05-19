@@ -1,8 +1,10 @@
 import { defineConfig } from 'vitepress'
+import Icons from 'unplugin-icons/vite'
 import { installBpcFence } from './theme/markdown/bpc-fence'
 
 export default defineConfig({
   vite: {
+    plugins: [Icons({ compiler: 'vue3' })],
     css: {
       preprocessorOptions: {
         scss: {
