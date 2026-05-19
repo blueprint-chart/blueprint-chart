@@ -11,8 +11,11 @@
 //   - @blueprint-chart/editor — `@use "@blueprint-chart/ui/styles/tokens.scss" as *;`
 //   - @blueprint-chart/docs   — compiled `tokens.css` (only the :root blocks survive)
 //
-// Chart-canvas typography (.bc-frame-*) is intentionally not defined here —
-// chart frames are part of the rendered output, not the editor chrome.
+// Chart-canvas frame text (.bc-frame-*) is intentionally not defined here —
+// those CSS rules live alongside the chart renderer in @blueprint-chart/lib.
+// Syntax-highlight tokens (--bc-syn-*) and chart-rendering primitives
+// (--bc-axis-color, --bc-grid-color, --bc-text-color) ARE included because
+// they must respond to the editor theme.
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 1. SCSS layer
@@ -68,7 +71,7 @@ $code-color: $prussian-600 !default;
 // Bootstrap SCSS font-size primitive (Bootstrap uses this name)
 $font-size-xs: 0.6875rem !default;
 
-// Icon size scale (was in _variables.scss)
+// Icon size scale — consumed by AppIcon/AppIconLayers via _mixins.scss
 $app-icon-size-scale-base: 20 !default;
 $app-icon-size-scale-2xs: 12 !default;
 $app-icon-size-scale-xs:  14 !default;
@@ -159,6 +162,10 @@ $spacer-xs: 0.25rem !default;
     0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
+// When [data-bs-theme="light"] is applied to a nested element (e.g. the
+// preview card when dark mode is disallowed), propagate the light color +
+// background so inherited text/currentColor inside SVGs also switch to the
+// light palette.
 [data-bs-theme="dark"] [data-bs-theme="light"] {
   color: var(--bs-body-color);
   background-color: var(--bs-card-bg);
