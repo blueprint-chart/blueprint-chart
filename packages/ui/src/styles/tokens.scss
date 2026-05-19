@@ -171,7 +171,13 @@ $spacer-xs: 0.25rem !default;
   background-color: var(--bs-card-bg);
 }
 
-[data-bs-theme="dark"] {
+// `.dark` is the dark-mode flag VitePress (and Tailwind-style projects) toggle
+// on <html>. Aliasing it to `[data-bs-theme="dark"]` lets the same shared token
+// set serve both consumer conventions — the editor toggles `data-bs-theme`, the
+// docs site toggles `.dark`. Keeping both selectors in one rule avoids
+// duplicating the dark palette.
+[data-bs-theme="dark"],
+.dark {
   --bc-syn-keyword: #6CA6D6;
   --bc-syn-string: #6BBF8B;
   --bc-syn-number: #D4A63A;
@@ -208,7 +214,7 @@ $spacer-xs: 0.25rem !default;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  :root, [data-bs-theme="light"], [data-bs-theme="dark"] {
+  :root, [data-bs-theme="light"], [data-bs-theme="dark"], .dark {
     --bc-duration-fast: 0ms;
     --bc-duration-base: 0ms;
     --bc-duration-slow: 0ms;
