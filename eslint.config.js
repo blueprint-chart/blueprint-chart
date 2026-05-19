@@ -58,6 +58,6 @@ export default [
     },
   },
   {
-    ignores: ['**/dist/**', '**/node_modules/**', '.claude/**', 'packages/lib/src/dsl/grammar.js', 'packages/editor/src/dsl-lang/bpc-parser.js', 'e2e/**', 'playwright.config.ts', 'packages/docs/src/.vitepress/cache/**'],
+    ignores: ['**/dist/**', '**/node_modules/**', '.claude/**', '.review/**', 'packages/lib/src/dsl/grammar.js', 'packages/editor/src/dsl-lang/bpc-parser.js', 'e2e/**', 'playwright.config.ts', 'packages/docs/src/.vitepress/cache/**'],
   },
 ]
