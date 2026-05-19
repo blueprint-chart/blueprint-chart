@@ -25,10 +25,12 @@ import './style.css'
 // the DOM produced by the chart renderers (.bc-frame, .bc-frame-body, …).
 import '@blueprint-chart/lib/charts.scss'
 
+import Layout from './Layout.vue'
 import BpcBlock from './components/BpcBlock.vue'
 
 export default {
   extends: DefaultTheme,
+  Layout,
   enhanceApp({ app }: { app: App }) {
     app.component('BpcBlock', BpcBlock)
   },
