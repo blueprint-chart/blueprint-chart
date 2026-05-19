@@ -200,14 +200,13 @@ export function labelPositionMargins(
   if (showHorizontalAxis === false) {
     overrides.bottom = 5
   }
-  else {
-    const hPos = horizontalLabelPosition ?? 'auto'
-    const effectiveH = hPos === 'auto'
-      ? (containerWidth > 0 && containerWidth < AUTO_INSIDE_THRESHOLD ? 'inside' : 'outside')
-      : hPos
-    if (effectiveH === 'inside' || effectiveH === 'off') {
-      overrides.bottom = 5
-    }
+  else if (horizontalLabelPosition === 'inside' || horizontalLabelPosition === 'off') {
+    // Only collapse the bottom margin when the user explicitly opts in. Category
+    // labels on a band scale ('auto') always render outside the chart area —
+    // pushing them inside would overlap with the bars themselves. Reserving the
+    // default 24px keeps them visible at narrow widths instead of clipping
+    // against the SVG bottom edge.
+    overrides.bottom = 5
   }
 
   return overrides
