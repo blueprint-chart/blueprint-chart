@@ -265,7 +265,12 @@ export function render(
   }
 
   const allValues = [0, domainMax]
-  const vLabelW = estimateVerticalLabelWidth(allValues, options.verticalAxis?.range, options.verticalAxis?.numberFormat, options.verticalAxis?.scaleType)
+  // Resolve the effective y-axis numberFormat early so the margin estimator and
+  // the axis itself agree on the rendered string width (matters when isPercent
+  // injects a "%" suffix — without this the topmost "100%" tick gets clipped).
+  const effectiveYNumberFormat = options.verticalAxis?.numberFormat
+    ?? (isPercent ? '|d|%' : undefined)
+  const vLabelW = estimateVerticalLabelWidth(allValues, options.verticalAxis?.range, effectiveYNumberFormat, options.verticalAxis?.scaleType)
   const lpMargins = labelPositionMargins(containerWidth, options.verticalAxis?.labelPosition, options.horizontalAxis?.labelPosition, options.verticalAxis?.direction, vLabelW)
   const directLabelW = directLabelNames.length > 0 ? estimateDirectLabelWidth(directLabelNames) : 0
 
@@ -306,8 +311,14 @@ export function render(
   const y = d3.scaleLinear().domain([0, domainMax]).nice().range([height, 0])
 
   axes.attach(chartArea, marginDelta)
+  // When stackPercent is on, default the y-axis to show "%" so readers know the
+  // domain is normalized. User-supplied numberFormat still wins.
   axes.update({
-    vertical: { scale: y, height, options: { ...options.verticalAxis, gridWidth: width, topPadding: margin.top } },
+    vertical: {
+      scale: y,
+      height,
+      options: { ...options.verticalAxis, numberFormat: effectiveYNumberFormat, gridWidth: width, topPadding: margin.top },
+    },
     horizontal: { scale: xScale, height, options: { ...options.horizontalAxis, width } },
   })
 
