@@ -1,8 +1,10 @@
 // ============================================================================
-// Editor-specific Bootstrap component overrides.
+// Editor-specific Bootstrap SCSS variable overrides.
 // Design primitives (colors, font stacks, surface bgs, focus ring, etc.) live
 // in @blueprint-chart/ui/styles/tokens.scss and are already in scope here
 // because main.scss imports tokens with `@use ... as *` before this file.
+// This file produces no CSS output — only `!default` variable overrides that
+// Bootstrap consumes when it's imported next.
 // ============================================================================
 
 // Borders / cards
@@ -28,25 +30,3 @@ $btn-font-size: 0.8125rem !default;
 $table-cell-padding-y: 0.5rem !default;
 $table-cell-padding-x: 1rem !default;
 $table-border-color:   $border-color !default;
-
-// Dark-mode form-control surfaces (Bootstrap doesn't auto-darken these to match
-// our two-tone surface system — explicit override needed).
-[data-bs-theme="dark"] {
-  .form-control,
-  .form-select {
-    background-color: var(--bs-secondary-bg);
-  }
-
-  .form-range::-webkit-slider-runnable-track {
-    background-color: #444;
-  }
-
-  .form-range::-moz-range-track {
-    background-color: #444;
-  }
-
-  .form-check-input {
-    background-color: var(--bs-tertiary-bg);
-    border-color: var(--bs-border-color);
-  }
-}
