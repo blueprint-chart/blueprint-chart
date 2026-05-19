@@ -40,8 +40,10 @@ describe('renderChart', () => {
   })
 
   it('clears container on non-transition render', () => {
-    container.appendChild(document.createElement('span'))
+    const sentinel = document.createElement('span')
+    sentinel.id = 'sentinel'
+    container.appendChild(sentinel)
     renderChart(container, baseDef())
-    expect(container.querySelector('span')).toBeNull()
+    expect(container.querySelector('#sentinel')).toBeNull()
   })
 })
