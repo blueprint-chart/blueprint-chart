@@ -77,7 +77,7 @@ export function renderArcLabels(
   data: ArcLabelDatum[],
   opts: { outerRadius: number, chartWidth: number, chartHeight: number, fontSize?: number, bgColor?: string },
 ): void {
-  const { outerRadius, fontSize = 11, bgColor = '#fff' } = opts
+  const { outerRadius, fontSize = 12, bgColor = '#fff' } = opts
 
   const anchorR = outerRadius + 2
   const stubR = anchorR + STUB_LENGTH
@@ -147,8 +147,9 @@ export function renderArcLabels(
         .attr('class', 'bc-arc-label-line')
         .attr('points', `${arcX},${arcY} ${stubX},${stubY} ${hEndX},${stubY}`)
         .attr('fill', 'none')
-        .attr('stroke', '#999')
+        .attr('stroke', 'var(--bc-text-color, #999)')
         .attr('stroke-width', 1)
+        .attr('opacity', 0.5)
 
       const textX = hEndX + xSign * 4
       const text = g.append('text')
@@ -174,7 +175,7 @@ export function renderArcLabels(
         text.append('tspan')
           .attr('x', textX)
           .attr('dy', showLabel ? '1.2em' : '0.35em')
-          .attr('fill', '#666')
+          .attr('fill', 'var(--bc-text-color, #666)')
           .text(valueText)
       }
     })
@@ -192,7 +193,7 @@ export function renderInsideArcLabels(
   data: ArcLabelDatum[],
   opts: { outerRadius: number, innerRadius?: number, chartWidth: number, chartHeight: number, fontSize?: number },
 ): void {
-  const { outerRadius, innerRadius = 0, fontSize = 11 } = opts
+  const { outerRadius, innerRadius = 0, fontSize = 12 } = opts
   const centroidR = (innerRadius + outerRadius) / 2
 
   const g = parent.append('g').attr('class', 'bc-arc-labels-inside')
@@ -251,7 +252,7 @@ export function renderAutoArcLabels(
   data: ArcLabelDatum[],
   opts: { outerRadius: number, innerRadius?: number, chartWidth: number, chartHeight: number, fontSize?: number, bgColor?: string },
 ): void {
-  const { outerRadius, innerRadius = 0, fontSize = 11, bgColor } = opts
+  const { outerRadius, innerRadius = 0, fontSize = 12, bgColor } = opts
   const centroidR = (innerRadius + outerRadius) / 2
 
   const insideData: ArcLabelDatum[] = []
