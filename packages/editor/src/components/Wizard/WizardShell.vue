@@ -15,6 +15,7 @@ import type { SeriesOverride } from '@blueprint-chart/lib'
 import { BBadge } from 'bootstrap-vue-next'
 import { NavigationStepperChevron, SceneTimeline } from '@blueprint-chart/ui'
 import LayoutPageHeader from '@/components/Layout/LayoutPageHeader.vue'
+import LayoutBreadcrumb from '@/components/Layout/LayoutBreadcrumb.vue'
 import LayoutSceneTimeline from '@/components/Layout/LayoutSceneTimeline.vue'
 
 const { currentStep, currentIndex, steps, registerCreateSession } = useWizard()
@@ -26,8 +27,6 @@ const { scenes, activeIndex, playing, startPlayback, stopPlayback } = scenesComp
 const { baseOptions } = useChartTypeOptions()
 const transforms = useDataTransforms()
 const baseTransforms = ref<TransformStep[]>([])
-
-const chartTitle = computed(() => config._base.title.value || 'Untitled chart')
 
 const savedAtDate = computed<Date | ''>(() => lastSavedAt.value ? new Date(lastSavedAt.value) : '')
 const savedAgo = useTimeAgo(savedAtDate)
@@ -239,9 +238,7 @@ onBeforeRouteLeave(() => {
   <div class="wizard-shell">
     <LayoutPageHeader class="wizard-shell__header">
       <template #start>
-        <h1 class="wizard-shell__title bc-display">
-          {{ chartTitle }}
-        </h1>
+        <LayoutBreadcrumb class="wizard-shell__breadcrumb" />
         <BBadge
           v-if="savedLabel"
           variant="success"
@@ -320,17 +317,6 @@ onBeforeRouteLeave(() => {
       padding: 0 0.5rem;
       justify-content: center;
     }
-  }
-
-  &__title {
-    font-size: var(--bs-font-size-xl);
-    color: var(--bs-body-color);
-    margin: 0;
-    line-height: 1.05;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    min-width: 0;
   }
 
   &__saved {
