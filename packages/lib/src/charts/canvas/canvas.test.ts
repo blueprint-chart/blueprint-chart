@@ -72,4 +72,23 @@ describe('labelPositionMargins', () => {
     const result = labelPositionMargins(800, undefined, undefined, 'left', undefined, false)
     expect(result.right).toBe(0)
   })
+
+  it('keeps default bottom margin for "auto" horizontal labels even on narrow charts', () => {
+    // Regression: previously narrow charts (< 400px) auto-switched horizontal
+    // labels to "inside" and collapsed bottom margin to 5px, which caused the
+    // axis (which still renders labels outside) to clip them against the SVG
+    // bottom edge. Category labels never go inside automatically anymore.
+    const result = labelPositionMargins(300)
+    expect(result.bottom).toBeUndefined()
+  })
+
+  it('collapses bottom margin when horizontal labels are explicitly "inside"', () => {
+    const result = labelPositionMargins(800, undefined, 'inside')
+    expect(result.bottom).toBe(5)
+  })
+
+  it('collapses bottom margin when horizontal labels are "off"', () => {
+    const result = labelPositionMargins(800, undefined, 'off')
+    expect(result.bottom).toBe(5)
+  })
 })
