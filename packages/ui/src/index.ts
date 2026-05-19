@@ -82,6 +82,7 @@ export { default as NavigationStepperChevron } from './components/Navigation/Nav
 export { default as NavigationToggle } from './components/Navigation/NavigationToggle/NavigationToggle.vue'
 export { default as NavigationToggleOption } from './components/Navigation/NavigationToggle/NavigationToggleOption.vue'
 export { default as NavigationCommandBar } from './components/Navigation/NavigationCommandBar/NavigationCommandBar.vue'
+export { default as NavigationDocsBar } from './components/Navigation/NavigationDocsBar/NavigationDocsBar.vue'
 export { default as NavigationIconRail } from './components/Navigation/NavigationIconRail/NavigationIconRail.vue'
 export { default as NavigationIconRailEntry } from './components/Navigation/NavigationIconRail/NavigationIconRailEntry.vue'
 export { default as NavigationLink } from './components/Navigation/NavigationLink/NavigationLink.vue'
