@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, watchEffect } from 'vue'
 import DefaultTheme from 'vitepress/theme'
 import { useData } from 'vitepress'
 import { NavigationMarketingBar, NavigationDocsBar } from '@blueprint-chart/ui'
@@ -8,6 +8,14 @@ const { Layout } = DefaultTheme
 const { frontmatter } = useData()
 
 const isHome = computed(() => frontmatter.value.layout === 'home')
+
+watchEffect(() => {
+  if (typeof document === 'undefined') return
+  document.documentElement.style.setProperty(
+    '--vp-nav-height',
+    isHome.value ? '60px' : '44px',
+  )
+})
 
 function goEditor() {
   if (typeof window !== 'undefined') {
@@ -78,16 +86,6 @@ function goEditor() {
 <style>
 /* Global — not scoped — so it reaches VP's own elements. */
 .VPNav { display: none !important; }
-
-/* Compensate for the suppressed VP nav: VP applies top padding via
- * --vp-nav-height. We re-purpose that variable so our own nav reserves
- * the right amount of layout space. */
-:root {
-  --vp-nav-height: 60px;
-}
-:root:not(.is-home) {
-  --vp-nav-height: 44px;
-}
 
 .docs-nav {
   position: sticky;
