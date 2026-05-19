@@ -6,6 +6,30 @@ import Components from 'unplugin-vue-components/vite'
 import { BootstrapVueNextResolver } from 'bootstrap-vue-next'
 import Icons from 'unplugin-icons/vite'
 import IconsResolver from 'unplugin-icons/resolver'
+import { mkdir, copyFile, readdir, writeFile } from 'node:fs/promises'
+import { resolve, join } from 'node:path'
+import * as sass from 'sass'
+
+function viteCopyStyles() {
+  return {
+    name: 'blueprint-chart-copy-styles',
+    apply: 'build' as const,
+    async closeBundle() {
+      const srcDir = resolve(__dirname, 'src/styles')
+      const outDir = resolve(__dirname, 'dist/styles')
+      await mkdir(outDir, { recursive: true })
+      const entries = await readdir(srcDir)
+      for (const entry of entries) {
+        if (entry.endsWith('.scss')) {
+          await copyFile(join(srcDir, entry), join(outDir, entry))
+          const css = sass.compile(join(srcDir, entry), { style: 'compressed' }).css
+          const cssName = entry.replace(/\.scss$/, '.css')
+          await writeFile(join(outDir, cssName), css)
+        }
+      }
+    },
+  }
+}
 
 export default defineConfig({
   plugins: [
@@ -33,6 +57,7 @@ export default defineConfig({
       dts: 'components.d.ts',
     }),
     Icons({ compiler: 'vue3' }),
+    viteCopyStyles(),
   ],
   css: {
     preprocessorOptions: {
