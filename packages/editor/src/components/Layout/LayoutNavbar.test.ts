@@ -41,11 +41,20 @@ describe('LayoutNavbar', () => {
     expect(lead.find('.navigation-workspace-switcher').exists()).toBe(true)
   })
 
-  it('renders a Breadcrumb landmark on app routes', async () => {
+  it('does not render a Breadcrumb landmark (moved to contextual header)', async () => {
     const wrapper = await mountNavbar('/charts')
-    const crumbs = wrapper.find('nav[aria-label="Breadcrumb"]')
-    expect(crumbs.exists()).toBe(true)
-    expect(crumbs.text()).toContain('My Charts')
+    expect(wrapper.find('nav[aria-label="Breadcrumb"]').exists()).toBe(false)
+  })
+
+  it('renders the command bar to the left of the theme toggle', async () => {
+    const wrapper = await mountNavbar('/charts')
+    const header = wrapper.find('header.layout-navbar')
+    const html = header.html()
+    const searchIdx = html.indexOf('navigation-command-bar')
+    const themeIdx = html.indexOf('aria-label="Toggle theme"')
+    expect(searchIdx).toBeGreaterThan(-1)
+    expect(themeIdx).toBeGreaterThan(-1)
+    expect(searchIdx).toBeLessThan(themeIdx)
   })
 
   it('renders the leading cluster (hamburger + workspace switcher) with d-xl-none', async () => {
