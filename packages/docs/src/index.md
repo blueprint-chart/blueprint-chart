@@ -6,7 +6,7 @@ hero:
   text: Charts as text. Stories as scenes.
   tagline: A DSL-driven interactive charting library and Vue 3 editor for newsroom storytelling — composable, accessible, static-first.
   image:
-    src: /hero.svg
+    src: /logo.svg
     alt: Blueprint Chart
   actions:
     - theme: brand
