@@ -91,3 +91,7 @@ export type { AnnotationNode, AnnotationVisibilityNode, PointAnnotationNode, Ran
 // Samples
 export { samples } from './samples'
 export type { ChartSample } from './samples'
+
+// Unified render API
+export { renderBpc, renderChart, astToDefinition, resolveScene } from './render'
+export type { ChartDefinition, RenderOptions, ResolvedChartState } from './render'
