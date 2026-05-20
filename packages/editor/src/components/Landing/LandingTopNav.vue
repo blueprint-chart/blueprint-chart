@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useMediaQuery } from '@vueuse/core'
 import {
   AppIcon,
   ButtonIcon,
@@ -18,6 +19,10 @@ import IPhCircleHalf from '~icons/ph/circle-half'
 const { theme, resolvedTheme, cycleTheme } = useTheme()
 const shortcut = usePlatformShortcut('k')
 const logoSrc = computed(() => resolvedTheme.value === 'dark' ? logoDark : logoLight)
+
+// Matches the existing `@media (max-width: 37.5rem)` CSS threshold below so
+// the JS-driven `:collapsed` switches at the same width as the CSS hides.
+const isNarrow = useMediaQuery('(max-width: 37.5rem)')
 
 const iconByTheme: Record<ThemeMode, typeof IPhSun> = {
   light: IPhSun,
@@ -79,6 +84,7 @@ function openSearch() {
       <NavigationCommandBar
         placeholder="Search or jump to…"
         :shortcut-label="shortcut.keyLabel"
+        :collapsed="isNarrow"
         @click="openSearch"
       />
       <a
@@ -113,6 +119,7 @@ function openSearch() {
   gap: 0.5rem;
   color: var(--bs-body-color);
   text-decoration: none;
+  white-space: nowrap;
 
   &:hover { color: var(--bs-body-color); }
 }
@@ -131,10 +138,12 @@ function openSearch() {
   display: inline-flex;
   align-items: center;
   gap: 0.375rem;
+  white-space: nowrap;
 }
 
+// Brand wordmark stays visible at every width (the search collapses + GitHub
+// drops out instead, matching LayoutNavbar's narrow behavior).
 @media (max-width: 37.5rem) {
-  .landing-topnav__brand-name { display: none; }
   .landing-topnav__github { display: none; }
 }
 </style>
