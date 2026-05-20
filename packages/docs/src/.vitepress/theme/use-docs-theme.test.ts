@@ -39,14 +39,26 @@ describe('useDocsTheme', () => {
     expect(theme.value).toBe('auto')
   })
 
-  it('reads the persisted preference from localStorage["bc-theme"]', () => {
-    localStorage.setItem('bc-theme', 'dark')
+  it('reads the persisted preference from localStorage["bc-theme"] (editor JSON-wrap format)', () => {
+    localStorage.setItem('bc-theme', JSON.stringify({ theme: 'dark' }))
     const { theme } = useDocsTheme()
     expect(theme.value).toBe('dark')
   })
 
+  it('falls back to "auto" when storage is malformed', () => {
+    localStorage.setItem('bc-theme', 'not-json{{{')
+    const { theme } = useDocsTheme()
+    expect(theme.value).toBe('auto')
+  })
+
+  it('falls back to "auto" when storage holds an unknown mode', () => {
+    localStorage.setItem('bc-theme', JSON.stringify({ theme: 'midnight' }))
+    const { theme } = useDocsTheme()
+    expect(theme.value).toBe('auto')
+  })
+
   it('cycles light -> dark -> auto -> light', () => {
-    localStorage.setItem('bc-theme', 'light')
+    localStorage.setItem('bc-theme', JSON.stringify({ theme: 'light' }))
     const { theme, cycleTheme } = useDocsTheme()
     expect(theme.value).toBe('light')
     cycleTheme()
@@ -57,11 +69,18 @@ describe('useDocsTheme', () => {
     expect(theme.value).toBe('light')
   })
 
-  it('persists the chosen theme', () => {
+  it('persists the chosen theme in the editor-compatible JSON-wrap shape', () => {
     const { cycleTheme } = useDocsTheme()
     // auto -> light
     cycleTheme()
-    expect(localStorage.getItem('bc-theme')).toBe('light')
+    expect(localStorage.getItem('bc-theme')).toBe(JSON.stringify({ theme: 'light' }))
+  })
+
+  it('persists when theme is mutated directly (not just via cycleTheme)', async () => {
+    const { theme } = useDocsTheme()
+    theme.value = 'dark'
+    await nextTick()
+    expect(localStorage.getItem('bc-theme')).toBe(JSON.stringify({ theme: 'dark' }))
   })
 
   it('resolvedTheme follows system preference when theme is "auto"', () => {
@@ -72,13 +91,13 @@ describe('useDocsTheme', () => {
 
   it('resolvedTheme honors an explicit "light" choice regardless of system', () => {
     setMatchMedia(true)
-    localStorage.setItem('bc-theme', 'light')
+    localStorage.setItem('bc-theme', JSON.stringify({ theme: 'light' }))
     const { resolvedTheme } = useDocsTheme()
     expect(resolvedTheme.value).toBe('light')
   })
 
   it('writes data-bs-theme on <html> and isDark for VitePress when resolvedTheme changes', async () => {
-    localStorage.setItem('bc-theme', 'dark')
+    localStorage.setItem('bc-theme', JSON.stringify({ theme: 'dark' }))
     useDocsTheme()
     await nextTick()
     expect(document.documentElement.getAttribute('data-bs-theme')).toBe('dark')

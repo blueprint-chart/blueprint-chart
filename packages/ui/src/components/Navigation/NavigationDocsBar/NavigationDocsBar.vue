@@ -9,7 +9,10 @@ defineSlots<{
 
 <template>
   <header class="navigation-docs-bar" aria-label="Docs navigation">
-    <div class="navigation-docs-bar__brand">
+    <div
+      v-if="$slots.brand"
+      class="navigation-docs-bar__brand"
+    >
       <slot name="brand" />
     </div>
     <div
