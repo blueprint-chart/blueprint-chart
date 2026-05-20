@@ -123,11 +123,6 @@ function openSidebar() {
         <component :is="themeIcon" class="docs-btn-outline__icon" aria-hidden="true" />
       </button>
     </template>
-    <template #cta-primary>
-      <button class="docs-btn-primary" type="button" @click="goEditor">
-        Open editor <span aria-hidden="true">↗</span>
-      </button>
-    </template>
   </NavigationMarketingBar>
 
   <NavigationDocsBar v-else class="docs-nav docs-nav--slim">
