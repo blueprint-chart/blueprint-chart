@@ -32,13 +32,14 @@ withDefaults(defineProps<{
   min-height: 0;
   background: var(--bc-chrome-bg);
   border-right: 1px solid var(--bc-hairline);
-  padding: 0.75rem 0.375rem;       // 12px / 6px
+  padding: 0.5rem 0.375rem 0.75rem; // 8px top, 6px sides, 12px bottom
   gap: 0.875rem;                    // 14px between groups
   overflow-y: auto;
 }
 
 .navigation-sidebar__header {
-  padding: 0.25rem 0.5rem 0.375rem;
+  padding: 0 0.5rem 0.375rem;       // top 0 so the workspace switcher
+                                    // aligns vertically with the navbar row
 }
 
 .navigation-sidebar__body {
