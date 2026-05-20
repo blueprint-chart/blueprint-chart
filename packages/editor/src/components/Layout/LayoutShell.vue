@@ -116,7 +116,7 @@ $grid-breakpoints: (
 
 .layout-shell--app {
   display: grid;
-  grid-template-columns: 13.75rem 1fr;
+  grid-template-columns: 17rem 1fr; // 272px — matches VP's --vp-sidebar-width
   grid-template-rows: 2.75rem 1fr;
   grid-template-areas:
     'sidebar topbar'
