@@ -93,7 +93,7 @@ function rootClass(routerActive: boolean) {
   padding: 0.3125rem 0.5rem;
   border-radius: var(--bc-radius-sm);
   color: var(--bs-secondary-color);
-  font-size: var(--bs-font-size-md, 1rem);
+  font-size: var(--bs-font-size-sm, 0.875rem);
   font-weight: 400;
   text-decoration: none;
   cursor: pointer;
