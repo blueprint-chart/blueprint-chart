@@ -35,11 +35,12 @@ export function useCurrentSection() {
 
   const current = computed<DocsSection | null>(() => {
     const relative = (page.value as { relativePath?: string }).relativePath ?? ''
-    // VitePress uses ".md" paths; normalize to "/segment/segment" so we can
-    // match against `activeMatch` regexes that are written for URL paths.
-    const path = '/' + relative.replace(/\.md$/, '').replace(/\/index$/, '/')
+    // VitePress's relativePath is ".md"-suffixed (e.g. "guide/scenes.md");
+    // strip the suffix and prepend "/" so `activeMatch` regexes — written
+    // for URL paths — can match.
+    const path = '/' + relative.replace(/\.md$/, '')
     return (
-      sections.value.find((section) =>
+      sections.value.find(section =>
         new RegExp(section.activeMatch).test(path),
       ) ?? null
     )

@@ -2,8 +2,15 @@ import { describe, expect, it, vi } from 'vitest'
 
 // VitePress is not present in unit tests; stub `useData` per the pattern
 // established in use-docs-theme.test.ts.
-const themeRef = { value: { nav: [] as any[] } }
-const pageRef = { value: { relativePath: '' as string } }
+interface FakeNavEntry {
+  text: string
+  link: string
+  activeMatch?: string
+  target?: string
+}
+
+const themeRef: { value: { nav?: FakeNavEntry[] } } = { value: { nav: [] } }
+const pageRef: { value: { relativePath: string } } = { value: { relativePath: '' } }
 vi.mock('vitepress', () => ({
   useData: () => ({ theme: themeRef, page: pageRef }),
 }))
@@ -26,7 +33,7 @@ describe('useCurrentSection', () => {
 
     const { sections } = useCurrentSection()
     expect(sections.value).toHaveLength(5)
-    expect(sections.value.map((s) => s.text)).toEqual([
+    expect(sections.value.map(s => s.text)).toEqual([
       'Guide', 'Charts', 'Handbook', 'DSL Spec', 'API',
     ])
   })
@@ -47,7 +54,7 @@ describe('useCurrentSection', () => {
     expect(current.value?.text).toBe('DSL Spec')
   })
 
-  it('matches "charts/index.md" to Charts (trailing slash in activeMatch)', () => {
+  it('matches "charts/index.md" to the Charts section', () => {
     themeRef.value = { nav: FIVE_SECTIONS }
     pageRef.value = { relativePath: 'charts/index.md' }
 
@@ -72,7 +79,7 @@ describe('useCurrentSection', () => {
   })
 
   it('handles missing nav gracefully (returns empty sections, null current)', () => {
-    themeRef.value = { nav: undefined as any }
+    themeRef.value = { nav: undefined }
     pageRef.value = { relativePath: 'guide/getting-started.md' }
 
     const { sections, current } = useCurrentSection()
