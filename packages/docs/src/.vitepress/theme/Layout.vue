@@ -280,6 +280,14 @@ function openSidebar() {
   .docs-nav--slim { left: var(--vp-sidebar-width, 272px); }
 }
 
+/* Reserve space for the fixed nav on narrow viewports. VPContent only adds
+ * padding-top at >=960px (its own scoped rule); below that it would slide
+ * under our fixed docs-nav. We restore the offset so the nav stays sticky
+ * at the top without obscuring page content. */
+@media (max-width: 959.98px) {
+  .VPContent { padding-top: var(--vp-nav-height); }
+}
+
 /* Narrow viewports: search jumps after the spacer but BEFORE the cta slots —
  * lands on the right of the navbar, immediately followed by Open editor +
  * GitHub + theme. Wide viewports keep the natural DOM order (search on the
