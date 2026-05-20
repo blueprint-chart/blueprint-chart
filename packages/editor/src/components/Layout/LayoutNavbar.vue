@@ -56,14 +56,15 @@ const logoSrc = computed(() => resolvedTheme.value === 'dark' ? logoDark : logoL
       />
     </div>
 
+    <div class="layout-navbar__spacer" />
+
     <NavigationCommandBar
       :placeholder="placeholder"
       :shortcut-label="shortcut.keyLabel"
+      :collapsed="isNarrow"
       class="layout-navbar__search"
       @click="$emit('searchClick')"
     />
-
-    <div class="layout-navbar__spacer" />
 
     <ButtonIcon
       :icon-left="themeIcon"
