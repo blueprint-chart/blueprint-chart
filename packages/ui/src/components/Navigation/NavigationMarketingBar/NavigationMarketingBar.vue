@@ -69,7 +69,7 @@ defineSlots<{
   margin: 0 auto;
   display: flex;
   align-items: center;
-  gap: 1.25rem;
+  gap: 0.5rem;
   height: 3.75rem; // 60px
 }
 
@@ -86,7 +86,7 @@ defineSlots<{
   display: inline-flex;
   align-items: center;
   gap: 1.25rem;
-  margin-left: 0.25rem;
+  margin-left: 1rem;
   font-size: var(--bs-font-size-md);
 
   :slotted(a) {
