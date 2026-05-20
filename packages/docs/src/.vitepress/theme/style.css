@@ -368,13 +368,14 @@
 
 /* Brand block — fill the nav-height row at the sidebar top so it vertically
  * aligns with the NavigationDocsBar to its right (editor parity). Overrides
- * Layout.vue's `padding: 0 1.5rem 1rem` and natural-height layout. Mirror
- * the editor's NavigationWorkspaceSwitcher: 1.25rem logo + line-height: 1
- * for crisp baseline alignment with the navbar content row. */
+ * Layout.vue's `padding: 0 1.5rem 1rem` and natural-height layout. Bump the
+ * logo to 1.25rem (editor parity, set in the following rule) and let the
+ * brand text inherit VP's body line-height (24px absolute) so its baseline
+ * aligns with NavigationCommandBar in the navbar — both vertically centered
+ * against the same inherited line-box. */
 .VPSidebar .docs-sidebar-brand {
   height: var(--vp-nav-height, 44px);
   padding: 0 8px;
-  line-height: 1;
 }
 .VPSidebar .docs-sidebar-brand__logo {
   height: 1.25rem;
