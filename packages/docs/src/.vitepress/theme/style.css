@@ -292,3 +292,72 @@
 }
 
 .bpc-block--code-only .bpc-block__tabs { display: none; }
+
+/* Sidebar — editor parity.
+ * Overlay rules target real VitePress markup with selectors specific enough
+ * to beat scoped-CSS rules in VPSidebar.vue / VPSidebarGroup.vue /
+ * VPSidebarItem.vue. Uses shared --bc-* / --bs-* tokens; dark mode flips
+ * automatically via tokens.scss. */
+
+/* Container — hairline right border (no padding fight). */
+.VPSidebar {
+  border-right: 1px solid var(--bc-hairline);
+}
+
+/* Group spacing — remove VP's between-group top border + padding; 14px gap. */
+.VPSidebar .group + .group {
+  border-top: none;
+  padding-top: 0;
+  margin-top: 14px;
+}
+.VPSidebar .group .VPSidebarItem.level-0 {
+  padding-bottom: 0;
+}
+
+/* Group eyebrow — turn level-0 .text into a 9px uppercase tracked label. */
+.VPSidebar .group .VPSidebarItem.level-0 > .item > .text {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--bs-tertiary-color);
+  line-height: 1.4;
+  padding: 6px 8px 4px;
+}
+
+/* Items — pill on hover. */
+.VPSidebar .VPSidebarItem .item > .link {
+  border-radius: var(--bc-radius-sm);
+  transition: background var(--bc-duration-base) var(--bc-ease);
+}
+.VPSidebar .VPSidebarItem .item > .link:hover {
+  background: var(--bc-wash-soft);
+}
+
+/* Active item — filled pill, body-color text via local --vp-c-brand-1 redef,
+ * weight 500. Redefining the variable inside the active link's scope makes
+ * VP's `.text { color: var(--vp-c-brand-1) }` resolve to body color without
+ * fighting (0,7,0) specificity on .text itself. */
+.VPSidebar .VPSidebarItem.is-active > .item > .link {
+  background: var(--bc-wash-firm);
+  --vp-c-brand-1: var(--bs-body-color);
+}
+.VPSidebar .VPSidebarItem.is-active > .item > .link > .text {
+  font-weight: 500;
+}
+
+/* Drop VP's left vertical indicator. */
+.VPSidebar .VPSidebarItem .item > .indicator {
+  display: none;
+}
+
+/* Caret — quiet affordance. */
+.VPSidebar .VPSidebarItem > .item > .caret {
+  opacity: 0.5;
+  color: var(--bs-tertiary-color);
+}
+
+/* Brand block — align with sidebar geometry. */
+.VPSidebar .docs-sidebar-brand {
+  padding: 4px 8px 6px;
+}
