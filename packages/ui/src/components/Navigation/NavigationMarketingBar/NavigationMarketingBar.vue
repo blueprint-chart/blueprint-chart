@@ -59,6 +59,7 @@ defineSlots<{
   z-index: 100;
   background: color-mix(in srgb, var(--bc-chrome-bg) 85%, transparent);
   backdrop-filter: saturate(150%) blur(10px);
+  -webkit-backdrop-filter: saturate(150%) blur(10px);
   border-bottom: 1px solid var(--bc-hairline);
   padding: 0 clamp(1rem, 5vw, 3.75rem);
 }
