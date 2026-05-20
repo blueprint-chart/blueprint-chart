@@ -2,11 +2,14 @@
 
 Blueprint Chart is published as three packages on NPM. Pick the one that matches what you're building.
 
-| Package | When to use it |
-| --- | --- |
-| [`@blueprint-chart/lib`](https://www.npmjs.com/package/@blueprint-chart/lib) | Pure TypeScript chart engine — render charts from data + options or from a `.bpc` source. No Vue. |
-| [`@blueprint-chart/ui`](https://www.npmjs.com/package/@blueprint-chart/ui) | Vue 3 component library — forms, panels, navigation, scene timeline, layout primitives. |
-| [`@blueprint-chart/editor`](https://www.npmjs.com/package/@blueprint-chart/editor) | The full SPA — runs on top of `lib` + `ui`. Deployed at [blueprintchart.com](https://blueprintchart.com). |
+<table>
+<thead><tr><th>Package</th><th>When to use it</th></tr></thead>
+<tbody>
+<tr><td nowrap><a href="https://www.npmjs.com/package/@blueprint-chart/lib"><code>@blueprint-chart/lib</code></a></td><td>Pure TypeScript chart engine — render charts from data + options or from a <code>.bpc</code> source. No Vue.</td></tr>
+<tr><td nowrap><a href="https://www.npmjs.com/package/@blueprint-chart/ui"><code>@blueprint-chart/ui</code></a></td><td>Vue 3 component library — forms, panels, navigation, scene timeline, layout primitives.</td></tr>
+<tr><td nowrap><a href="https://www.npmjs.com/package/@blueprint-chart/editor"><code>@blueprint-chart/editor</code></a></td><td>The full SPA — runs on top of <code>lib</code> + <code>ui</code>. Deployed at <a href="https://blueprintchart.com">blueprintchart.com</a>.</td></tr>
+</tbody>
+</table>
 
 ## Install
 
