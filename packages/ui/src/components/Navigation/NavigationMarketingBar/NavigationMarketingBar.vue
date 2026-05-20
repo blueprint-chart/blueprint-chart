@@ -1,8 +1,8 @@
 <script setup lang="ts">
 defineSlots<{
-  brand?: () => unknown
-  menu?: () => unknown
-  actions?: () => unknown
+  'brand'?: () => unknown
+  'menu'?: () => unknown
+  'actions'?: () => unknown
   'cta-secondary'?: () => unknown
   'cta-primary'?: () => unknown
 }>()

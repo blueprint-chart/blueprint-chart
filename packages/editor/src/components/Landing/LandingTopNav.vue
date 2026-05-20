@@ -30,7 +30,7 @@ function openSearch() {
   // LayoutShell registers a global ⌘/Ctrl+K listener that opens the command
   // palette. Synthesize the same keystroke so the click path matches the
   // shortcut path exactly.
-  if (typeof document === 'undefined') return
+  if (typeof document === 'undefined') { return }
   document.dispatchEvent(new KeyboardEvent('keydown', {
     key: 'k',
     code: 'KeyK',
@@ -44,17 +44,33 @@ function openSearch() {
 <template>
   <NavigationMarketingBar>
     <template #brand>
-      <router-link to="/" class="landing-topnav__brand" aria-label="Blueprint Chart home">
-        <img :src="logoSrc" alt="" class="landing-topnav__brand-logo">
+      <router-link
+        to="/"
+        class="landing-topnav__brand"
+        aria-label="Blueprint Chart home"
+      >
+        <img
+          :src="logoSrc"
+          alt=""
+          class="landing-topnav__brand-logo"
+        >
         <span class="landing-topnav__brand-name">Blueprint Chart</span>
       </router-link>
     </template>
 
     <template #menu>
-      <router-link :to="{ hash: '#defaults' }">Defaults</router-link>
-      <router-link :to="{ hash: '#transforms' }">Transforms</router-link>
-      <router-link :to="{ hash: '#format' }">Format</router-link>
-      <router-link :to="{ hash: '#scenes' }">Scenes</router-link>
+      <router-link :to="{ hash: '#defaults' }">
+        Defaults
+      </router-link>
+      <router-link :to="{ hash: '#transforms' }">
+        Transforms
+      </router-link>
+      <router-link :to="{ hash: '#format' }">
+        Format
+      </router-link>
+      <router-link :to="{ hash: '#scenes' }">
+        Scenes
+      </router-link>
     </template>
 
     <template #actions>
@@ -69,7 +85,10 @@ function openSearch() {
         target="_blank"
         rel="noopener noreferrer"
       >
-        <AppIcon :name="IPhGithubLogo" size="xs" />
+        <AppIcon
+          :name="IPhGithubLogo"
+          size="xs"
+        />
         GitHub
       </a>
       <ButtonIcon
