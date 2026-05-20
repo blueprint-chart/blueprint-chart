@@ -116,7 +116,7 @@ Round-trip identity is guaranteed for any value the grammar accepts — `parse(s
 
 ## See it in action
 
-Every snippet on this page is taken verbatim from a runnable sample in `packages/lib/src/samples/`. The corresponding chart-type pages document the option surface and render live previews:
+Every snippet across these DSL pages is taken verbatim from a runnable sample in `packages/lib/src/samples/`. The corresponding chart-type pages document the option surface and render live previews:
 
 | Feature shown | Sample file | Chart-type page |
 | --- | --- | --- |
@@ -128,7 +128,7 @@ Every snippet on this page is taken verbatim from a runnable sample in `packages
 | Scenes overriding chart `type` | `farm-compass.bpc` | [Area stacked](/charts/area-stacked) |
 | `transform sort` | `coffee-production.bpc` | [Bar vertical](/charts/bar-vertical) |
 
-## Next
+## Next steps
 
 The rest of the DSL specification is split across three chapter pages:
 
