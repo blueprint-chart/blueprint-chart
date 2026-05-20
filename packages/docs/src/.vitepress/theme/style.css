@@ -366,19 +366,31 @@
   color: var(--bs-tertiary-color);
 }
 
-/* Brand block — align with sidebar geometry. */
+/* Brand block — fill the nav-height row at the sidebar top so it vertically
+ * aligns with the NavigationDocsBar to its right (editor parity). Overrides
+ * Layout.vue's `padding: 0 1.5rem 1rem` and lets the row height drive the
+ * vertical centering. */
 .VPSidebar .docs-sidebar-brand {
-  padding: 4px 8px 6px;
+  height: var(--vp-nav-height, 44px);
+  padding: 0 8px;
+}
+
+/* Container padding — tighter horizontal (6px, editor parity) and no top
+ * offset so the brand block fills the nav-height row instead of sitting
+ * below VP's 44px padding-top. padding-bottom (96px) from VP's base rule
+ * remains untouched (sufficient scroll room). */
+.VPSidebar.VPSidebar.VPSidebar {
+  padding-top: 0;
+  padding-left: 6px;
+  padding-right: 6px;
 }
 
 /* Pin sidebar to the page's left edge at >=1440px — override VP's
- * centered-layout rule. Tripled `.VPSidebar.VPSidebar.VPSidebar` (0,3,0)
- * cleanly beats VP's scoped `.VPSidebar[data-v-...]` (0,2,0) regardless of
- * dev / prod CSS injection order (a (0,2,0) tie won in production but lost
- * with Vite HMR in dev). */
+ * centered-layout `width: calc(...)`. The padding-left override above
+ * (0,3,0) already wins everywhere, including ≥1440px, so we only need
+ * to handle width here. */
 @media (min-width: 1440px) {
   .VPSidebar.VPSidebar.VPSidebar {
-    padding-left: 32px;
     width: var(--vp-sidebar-width);
   }
 }
