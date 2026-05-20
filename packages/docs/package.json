@@ -1,6 +1,6 @@
 {
   "name": "@blueprint-chart/docs",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "description": "Public documentation site for Blueprint Chart — guides, BPC DSL spec, and lib API reference.",
   "license": "MIT",
   "author": "pirhoo",
