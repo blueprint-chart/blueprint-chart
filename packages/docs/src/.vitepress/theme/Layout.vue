@@ -6,7 +6,10 @@ import {
   NavigationMarketingBar,
   NavigationDocsBar,
   NavigationCommandBar,
+  NavigationSectionTabs,
+  NavigationSectionDropdown,
 } from '@blueprint-chart/ui'
+import { useCurrentSection } from './use-current-section'
 import { useDocsTheme, type DocsThemeMode } from './use-docs-theme'
 import IPhSun from '~icons/ph/sun'
 import IPhMoon from '~icons/ph/moon'
@@ -83,6 +86,7 @@ function openSearch() {
 }
 
 const isNarrow = useMediaQuery('(max-width: 959.98px)')
+const { sections, current } = useCurrentSection()
 
 function openSidebar() {
   if (typeof document === 'undefined') {
@@ -162,32 +166,37 @@ function openSidebar() {
     v-else
     class="docs-nav docs-nav--slim"
   >
-    <template
-      v-if="isNarrow"
-      #brand
-    >
-      <button
-        class="docs-btn-outline docs-btn-outline--sm docs-btn-outline--square"
-        type="button"
-        aria-label="Open navigation"
-        @click="openSidebar"
-      >
-        <IPhList
-          class="docs-btn-outline__icon"
-          aria-hidden="true"
-        />
-      </button>
-      <a
-        href="/"
-        class="docs-brand docs-brand--slim"
-      >
-        <img
-          :src="logoSrc"
-          alt=""
-          class="docs-brand__logo docs-brand__logo--slim"
+    <template #brand>
+      <template v-if="isNarrow">
+        <button
+          class="docs-btn-outline docs-btn-outline--sm docs-btn-outline--square"
+          type="button"
+          aria-label="Open navigation"
+          @click="openSidebar"
         >
-        <span class="docs-brand__name">Blueprint Chart</span>
-      </a>
+          <IPhList
+            class="docs-btn-outline__icon"
+            aria-hidden="true"
+          />
+        </button>
+        <a
+          href="/"
+          class="docs-brand docs-brand--slim"
+        >
+          <img
+            :src="logoSrc"
+            alt=""
+            class="docs-brand__logo docs-brand__logo--slim"
+          >
+          <span class="docs-brand__name">Blueprint Chart</span>
+        </a>
+      </template>
+      <NavigationSectionTabs
+        v-else
+        :sections="sections"
+        :active-link="current?.link"
+        class="docs-section-tabs"
+      />
     </template>
     <template #actions>
       <NavigationCommandBar
@@ -209,7 +218,7 @@ function openSidebar() {
     </template>
     <template #cta-secondary>
       <a
-        class="docs-btn-outline docs-btn-outline--sm docs-github"
+        class="docs-btn-outline docs-btn-outline--sm docs-btn-outline--square docs-github"
         href="https://github.com/blueprint-chart/blueprint-chart"
         target="_blank"
         rel="noopener noreferrer"
@@ -219,7 +228,6 @@ function openSidebar() {
           class="docs-btn-outline__icon"
           aria-hidden="true"
         />
-        GitHub
       </a>
       <button
         class="docs-btn-outline docs-btn-outline--sm docs-btn-outline--square"
@@ -253,6 +261,12 @@ function openSidebar() {
         >
         <span class="docs-sidebar-brand__name">Blueprint Chart</span>
       </a>
+      <NavigationSectionDropdown
+        class="docs-sidebar-switcher"
+        :sections="sections"
+        :active-link="current?.link"
+        trigger-label="Switch section"
+      />
     </template>
   </Layout>
 </template>
@@ -303,6 +317,26 @@ function openSidebar() {
   .docs-nav .docs-btn-outline.docs-github { display: none; }
 }
 
+/* Wide viewports: search on the LEFT (.navigation-docs-bar__actions),
+ * NavigationSectionTabs in the CENTER (.navigation-docs-bar__brand), CTAs
+ * on the RIGHT. Default DOM order is brand → actions → spacer → cta-primary
+ * → cta-secondary. Using `order` we shuffle to:
+ *   actions(0) → spacer(1) → brand(2) → cta-primary(3) → cta-secondary(4).
+ *
+ * NavigationDocsBar renders one spacer between actions and cta-primary; we
+ * re-use it as the left flexible gap, and rely on `margin-left: auto` on
+ * cta-primary to create the right flexible gap. */
+@media (min-width: 960px) {
+  .docs-nav.docs-nav--slim .navigation-docs-bar__actions { order: 0; }
+  .docs-nav.docs-nav--slim .navigation-docs-bar__spacer { order: 1; }
+  .docs-nav.docs-nav--slim .navigation-docs-bar__brand { order: 2; }
+  .docs-nav.docs-nav--slim .navigation-docs-bar__cta-primary {
+    order: 3;
+    margin-left: auto;
+  }
+  .docs-nav.docs-nav--slim .navigation-docs-bar__cta-secondary { order: 4; }
+}
+
 /* Brand block injected at the top of the VitePress sidebar. */
 .docs-sidebar-brand {
   display: flex;
@@ -320,6 +354,12 @@ function openSidebar() {
   height: 1.125rem;
   width: auto;
   display: block;
+}
+
+/* Section switcher injected below the brand. Same horizontal padding as
+ * .docs-sidebar-brand so the trigger button aligns with the brand row. */
+.docs-sidebar-switcher {
+  margin: 0 1.5rem 1rem;
 }
 </style>
 
