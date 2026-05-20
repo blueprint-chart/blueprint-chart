@@ -275,11 +275,14 @@ function openSidebar() {
   .docs-nav--slim { left: var(--vp-sidebar-width, 272px); }
 }
 
-/* Narrow viewports: push the search (in #actions) to the right by giving its
- * wrapper a higher flex order than the spacer / cta slots. Wide viewports
- * keep the natural DOM order with search on the left. */
+/* Narrow viewports: search jumps after the spacer but BEFORE the cta slots —
+ * lands on the right of the navbar, immediately followed by Open editor +
+ * GitHub + theme. Wide viewports keep the natural DOM order (search on the
+ * left). Specificity 0,3,0 beats NavigationDocsBar's scoped (0,2,0). */
 @media (max-width: 959.98px) {
-  .docs-nav .navigation-docs-bar__actions { order: 5; }
+  .docs-nav.docs-nav--slim .navigation-docs-bar__actions { order: 1; }
+  .docs-nav.docs-nav--slim .navigation-docs-bar__cta-primary { order: 2; }
+  .docs-nav.docs-nav--slim .navigation-docs-bar__cta-secondary { order: 3; }
 }
 
 /* Brand block injected at the top of the VitePress sidebar. */
