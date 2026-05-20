@@ -288,6 +288,9 @@ function openSidebar() {
   .docs-nav.docs-nav--slim .navigation-docs-bar__actions { order: 1; }
   .docs-nav.docs-nav--slim .navigation-docs-bar__cta-primary { order: 2; }
   .docs-nav.docs-nav--slim .navigation-docs-bar__cta-secondary { order: 3; }
+
+  /* GitHub link drops out at narrow widths to make room for search + theme. */
+  .docs-nav .docs-github { display: none; }
 }
 
 /* Brand block injected at the top of the VitePress sidebar. */
@@ -350,6 +353,7 @@ function openSidebar() {
   font-size: var(--bs-font-size-sm);
   font-weight: 500;
   text-decoration: none;
+  white-space: nowrap;
   cursor: pointer;
   transition:
     background var(--bc-duration-base, 150ms) var(--bc-ease, ease),
@@ -396,6 +400,7 @@ function openSidebar() {
   font-family: var(--vp-font-family-base);
   font-size: var(--bs-font-size-sm);
   font-weight: 600;
+  white-space: nowrap;
   cursor: pointer;
   text-decoration: none;
   transition:
