@@ -6,8 +6,7 @@ const SECTIONS = [
   { text: 'Guide', link: '/guide/getting-started' },
   { text: 'Charts', link: '/charts/' },
   { text: 'Handbook', link: '/handbook/' },
-  { text: 'DSL Spec', link: '/spec/dsl' },
-  { text: 'API', link: '/api/' },
+  { text: 'Reference', link: '/reference/' },
 ]
 
 describe('NavigationSectionDropdown', () => {
@@ -51,9 +50,9 @@ describe('NavigationSectionDropdown', () => {
     })
     await wrapper.find('button').trigger('click')
     const items = wrapper.findAll('a[role="menuitem"]')
-    expect(items).toHaveLength(5)
+    expect(items).toHaveLength(4)
     expect(items[0].attributes('href')).toBe('/guide/getting-started')
-    expect(items[3].attributes('href')).toBe('/spec/dsl')
+    expect(items[3].attributes('href')).toBe('/reference/')
   })
 
   it('marks the active item with aria-current="page"', async () => {

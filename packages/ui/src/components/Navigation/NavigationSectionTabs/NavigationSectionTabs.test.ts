@@ -5,8 +5,7 @@ const SECTIONS = [
   { text: 'Guide', link: '/guide/getting-started' },
   { text: 'Charts', link: '/charts/' },
   { text: 'Handbook', link: '/handbook/' },
-  { text: 'DSL Spec', link: '/spec/dsl' },
-  { text: 'API', link: '/api/' },
+  { text: 'Reference', link: '/reference/' },
 ]
 
 describe('NavigationSectionTabs', () => {
@@ -15,9 +14,9 @@ describe('NavigationSectionTabs', () => {
       props: { sections: SECTIONS },
     })
     const tabs = wrapper.findAll('a')
-    expect(tabs).toHaveLength(5)
+    expect(tabs).toHaveLength(4)
     expect(tabs.map(t => t.text())).toEqual([
-      'Guide', 'Charts', 'Handbook', 'DSL Spec', 'API',
+      'Guide', 'Charts', 'Handbook', 'Reference',
     ])
   })
 
@@ -27,7 +26,7 @@ describe('NavigationSectionTabs', () => {
     })
     const tabs = wrapper.findAll('a')
     expect(tabs[0].attributes('href')).toBe('/guide/getting-started')
-    expect(tabs[3].attributes('href')).toBe('/spec/dsl')
+    expect(tabs[3].attributes('href')).toBe('/reference/')
   })
 
   it('marks the tab whose link matches activeLink as active', () => {
