@@ -41,7 +41,7 @@ withDefaults(defineProps<{
   display: inline-flex;
   align-items: center;
   padding: 0.25rem 0.6rem;
-  border-radius: var(--bc-tile-radius-xs);
+  border-radius: var(--bc-radius-xs);
   font-size: var(--bs-font-size-sm);
   font-weight: 500;
   color: rgba(var(--bs-body-color-rgb), 0.65);
