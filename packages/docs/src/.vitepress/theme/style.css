@@ -325,10 +325,17 @@
   padding: 6px 8px 4px;
 }
 
-/* Items — pill on hover. */
+/* Items — pill padding + radius + hover wash.
+ * Override VP's `.text { padding: 4px 0; line-height: 24px }` to 0/1.4 so the
+ * pill padding controls the rhythm instead of the doubled .link + .text. */
 .VPSidebar .VPSidebarItem .item > .link {
+  padding: 5px 8px;
   border-radius: var(--bc-radius-sm);
   transition: background var(--bc-duration-base) var(--bc-ease);
+}
+.VPSidebar .VPSidebarItem .item > .link > .text {
+  padding: 0;
+  line-height: 1.4;
 }
 .VPSidebar .VPSidebarItem .item > .link:hover {
   background: var(--bc-wash-soft);
@@ -360,4 +367,15 @@
 /* Brand block — align with sidebar geometry. */
 .VPSidebar .docs-sidebar-brand {
   padding: 4px 8px 6px;
+}
+
+/* Pin sidebar to the page's left edge at >=1440px — override VP's
+ * centered-layout rule. The doubled `.VPSidebar.VPSidebar` (specificity 0,2,0)
+ * ties VP's scoped `.VPSidebar[data-v-...]` (0,2,0); source order breaks
+ * the tie in our favor (style.css is injected after VP's component styles). */
+@media (min-width: 1440px) {
+  .VPSidebar.VPSidebar {
+    padding-left: 32px;
+    width: var(--vp-sidebar-width);
+  }
 }
