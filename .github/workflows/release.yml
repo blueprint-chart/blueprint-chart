@@ -19,7 +19,7 @@ permissions:
   id-token: write   # required for npm OIDC trusted publishing
 
 env:
-  NODE_VERSION: '22'
+  NODE_VERSION: '24'
   PNPM_VERSION: '10'
 
 jobs:
@@ -143,8 +143,6 @@ jobs:
         with:
           name: dist
           path: packages
-      - name: Ensure npm supports OIDC Trusted Publishing
-        run: npm install -g npm@latest
       - name: npm publish (dry run)
         if: github.event_name == 'workflow_dispatch' && inputs.dry_run
         run: |
