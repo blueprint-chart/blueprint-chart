@@ -33,12 +33,17 @@ vi.mock('@/stores/panel', () => ({
   }),
   usePanelStore: () => ({
     mode: ref('docked'),
-    dockedWidth: ref(330),
+    dockedWidth: ref(0.22),
     floatingPosition: ref({ x: 16, y: 16 }),
     dock: vi.fn(),
     float: vi.fn(),
     close: vi.fn(),
   }),
+  MIN_CANVAS_WIDTH: 220,
+  PANEL_MIN_WIDTH: 260,
+  PANEL_MAX_WIDTH: 660,
+  CRAMPED_THRESHOLD: 480,
+  DEFAULT_DOCKED_WIDTH_FRACTION: 0.22,
 }))
 
 vi.mock('@blueprint-chart/ui', () => ({

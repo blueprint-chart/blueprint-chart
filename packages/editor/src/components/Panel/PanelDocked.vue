@@ -34,9 +34,13 @@
 </template>
 
 <script setup lang="ts">
+import { useWindowSize } from '@vueuse/core'
 import { LayoutPanel, ButtonDetach, ButtonClose } from '@blueprint-chart/ui'
-import { MIN_CANVAS_WIDTH } from '@/stores/panel'
+import { MIN_CANVAS_WIDTH, PANEL_MIN_WIDTH, PANEL_MAX_WIDTH, DEFAULT_DOCKED_WIDTH_FRACTION } from '@/stores/panel'
 
+// `modelValue` and `initialWidth` are viewport-relative fractions (0..1).
+// The fraction is what stays in storage; pixels are derived at render time
+// so the panel reflows proportionally when the window resizes.
 const props = withDefaults(defineProps<{
   collapsed: boolean
   title: string
@@ -44,7 +48,7 @@ const props = withDefaults(defineProps<{
   showClose?: boolean
   canvasWidth?: number
 }>(), {
-  initialWidth: 330,
+  initialWidth: DEFAULT_DOCKED_WIDTH_FRACTION,
   showClose: true,
   canvasWidth: undefined,
 })
@@ -56,16 +60,16 @@ defineEmits<{
 
 const model = defineModel<number>()
 
-const MIN_WIDTH = 260
-const MAX_WIDTH = 660
-const panelWidth = shallowRef(model.value ?? props.initialWidth)
+const panelFraction = shallowRef(model.value ?? props.initialWidth)
 
 watch(model, (v) => {
   if (v !== undefined) {
-    panelWidth.value = v
+    panelFraction.value = v
   }
 })
 const resizing = shallowRef(false)
+
+const { width: viewportWidth } = useWindowSize()
 
 const panelClassList = computed(() => ({
   'panel-docked--collapsed': props.collapsed,
@@ -74,29 +78,34 @@ const panelClassList = computed(() => ({
 
 const effectiveMax = computed(() => {
   if (props.canvasWidth === undefined || props.canvasWidth <= 0) {
-    return MAX_WIDTH
+    return PANEL_MAX_WIDTH
   }
-  return Math.min(MAX_WIDTH, props.canvasWidth - MIN_CANVAS_WIDTH)
+  return Math.min(PANEL_MAX_WIDTH, props.canvasWidth - MIN_CANVAS_WIDTH)
 })
 
-// Stored preference (panelWidth) is clamped only at display time — modelValue
-// is never mutated by canvas changes, so a narrower window doesn't erase the
-// user's preferred width. It returns intact when the window grows back.
+// Stored preference (panelFraction) is clamped only at display time — the
+// model value is never mutated by canvas changes, so a narrower window
+// doesn't erase the user's preferred fraction. It returns intact when the
+// window grows back.
 const effectiveWidth = computed(() => {
-  return Math.max(MIN_WIDTH, Math.min(panelWidth.value, effectiveMax.value))
+  const requested = panelFraction.value * viewportWidth.value
+  return Math.max(PANEL_MIN_WIDTH, Math.min(requested, effectiveMax.value))
 })
 
 function onResizeStart(e: PointerEvent) {
   const startX = e.clientX
-  const startWidth = panelWidth.value
+  const startWidthPx = panelFraction.value * viewportWidth.value
   const target = e.currentTarget as HTMLElement
   target.setPointerCapture(e.pointerId)
   resizing.value = true
 
   function onMove(ev: PointerEvent) {
     const delta = startX - ev.clientX
-    panelWidth.value = Math.min(effectiveMax.value, Math.max(MIN_WIDTH, startWidth + delta))
-    model.value = panelWidth.value
+    const requestedPx = startWidthPx + delta
+    const clampedPx = Math.min(effectiveMax.value, Math.max(PANEL_MIN_WIDTH, requestedPx))
+    const vw = viewportWidth.value || window.innerWidth
+    panelFraction.value = vw > 0 ? clampedPx / vw : panelFraction.value
+    model.value = panelFraction.value
   }
 
   function onUp() {

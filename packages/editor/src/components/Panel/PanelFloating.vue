@@ -112,7 +112,10 @@ const positionStyle = computed(() => ({
 <style scoped lang="scss">
 .panel-floating {
   position: absolute;
-  width: 340px;
+  // Default width as a viewport fraction (matches DEFAULT_DOCKED_WIDTH_FRACTION
+  // in stores/panel.ts). User drags via native `resize: both` override this
+  // with inline pixels, same as before.
+  width: 22vw;
   min-width: 260px;
   max-width: calc(100% - 32px);
   background: var(--bc-tile-bg);
