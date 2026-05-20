@@ -188,6 +188,15 @@ function openSidebar() {
         <span class="docs-brand__name">Blueprint Chart</span>
       </a>
     </template>
+    <template #actions>
+      <NavigationCommandBar
+        class="docs-search docs-search--slim"
+        placeholder="Search docs…"
+        :shortcut-label="shortcutLabel"
+        :collapsed="isNarrow"
+        @click="openSearch"
+      />
+    </template>
     <template #cta-primary>
       <button
         class="docs-btn-primary docs-btn-primary--sm"
@@ -198,13 +207,6 @@ function openSidebar() {
       </button>
     </template>
     <template #cta-secondary>
-      <NavigationCommandBar
-        class="docs-search docs-search--slim"
-        placeholder="Search docs…"
-        :shortcut-label="shortcutLabel"
-        :collapsed="isNarrow"
-        @click="openSearch"
-      />
       <a
         class="docs-btn-outline docs-btn-outline--sm docs-github"
         href="https://github.com/blueprint-chart/blueprint-chart"
@@ -271,6 +273,13 @@ function openSidebar() {
 /* At wide viewports the inner slim nav starts where the sidebar ends. */
 @media (min-width: 960px) {
   .docs-nav--slim { left: var(--vp-sidebar-width, 272px); }
+}
+
+/* Narrow viewports: push the search (in #actions) to the right by giving its
+ * wrapper a higher flex order than the spacer / cta slots. Wide viewports
+ * keep the natural DOM order with search on the left. */
+@media (max-width: 959.98px) {
+  .docs-nav .navigation-docs-bar__actions { order: 5; }
 }
 
 /* Brand block injected at the top of the VitePress sidebar. */
