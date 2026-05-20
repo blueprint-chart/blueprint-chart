@@ -316,7 +316,9 @@
   padding-bottom: 0;
 }
 
-/* Group eyebrow — turn level-0 .text into a 9px uppercase tracked label. */
+/* Group eyebrow — turn level-0 .text into a 9px uppercase tracked label.
+ * `align-self: center` so the eyebrow vertically centers in the flex row
+ * next to the (taller) collapse caret instead of stretching to fill it. */
 .VPSidebar .group .VPSidebarItem.level-0 > .item > .text {
   font-size: 9px;
   font-weight: 600;
@@ -325,6 +327,7 @@
   color: var(--bs-tertiary-color);
   line-height: 1.4;
   padding: 6px 8px 4px;
+  align-self: center;
 }
 
 /* Items — pill padding + radius + hover wash.
