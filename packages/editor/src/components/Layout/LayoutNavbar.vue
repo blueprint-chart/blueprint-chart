@@ -56,8 +56,6 @@ const logoSrc = computed(() => resolvedTheme.value === 'dark' ? logoDark : logoL
       />
     </div>
 
-    <div class="layout-navbar__spacer" />
-
     <NavigationCommandBar
       :placeholder="placeholder"
       :shortcut-label="shortcut.keyLabel"
@@ -66,6 +64,8 @@ const logoSrc = computed(() => resolvedTheme.value === 'dark' ? logoDark : logoL
       @click="$emit('searchClick')"
     />
 
+    <div class="layout-navbar__spacer" />
+
     <ButtonIcon
       :icon-left="themeIcon"
       label="Toggle theme"
@@ -73,12 +73,27 @@ const logoSrc = computed(() => resolvedTheme.value === 'dark' ? logoDark : logoL
       square
       variant="outline-secondary"
       size="sm"
+      class="layout-navbar__theme"
       @click="cycleTheme"
     />
   </header>
 </template>
 
 <style scoped lang="scss">
+@use "bootstrap/scss/mixins/breakpoints" as bsbp;
+
+// Bootstrap 5.3's _variables.scss has @import-style internal dependencies that
+// don't resolve cleanly under @use, so declare $grid-breakpoints locally.
+// Values mirror node_modules/bootstrap/scss/_variables.scss.
+$grid-breakpoints: (
+  xs: 0,
+  sm: 576px,
+  md: 768px,
+  lg: 992px,
+  xl: 1200px,
+  xxl: 1400px,
+);
+
 .layout-navbar {
   display: flex;
   align-items: center;
@@ -100,6 +115,14 @@ const logoSrc = computed(() => resolvedTheme.value === 'dark' ? logoDark : logoL
   align-items: center;
   gap: 0.5rem;
   flex-shrink: 0;
+}
+
+// Narrow viewports: search jumps after the spacer so it sits on the right
+// next to the theme toggle. Wide viewports keep the natural DOM order
+// (search on the left).
+@include bsbp.media-breakpoint-down(xl, $grid-breakpoints) {
+  .layout-navbar__search { order: 1; }
+  .layout-navbar__theme { order: 2; }
 }
 
 </style>
