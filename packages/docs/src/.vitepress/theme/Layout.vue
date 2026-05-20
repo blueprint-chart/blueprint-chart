@@ -22,7 +22,7 @@ const { theme, resolvedTheme, cycleTheme } = useDocsTheme()
 const isHome = computed(() => frontmatter.value.layout === 'home')
 
 watchEffect(() => {
-  if (typeof document === 'undefined') return
+  if (typeof document === 'undefined') { return }
   document.documentElement.style.setProperty(
     '--vp-nav-height',
     isHome.value ? '60px' : '44px',
@@ -37,8 +37,8 @@ const iconByTheme: Record<DocsThemeMode, typeof IPhSun> = {
 const themeIcon = computed(() => iconByTheme[theme.value])
 
 const themeLabel = computed(() => {
-  if (theme.value === 'light') return 'Switch to dark theme'
-  if (theme.value === 'dark') return 'Switch to auto theme'
+  if (theme.value === 'light') { return 'Switch to dark theme' }
+  if (theme.value === 'dark') { return 'Switch to auto theme' }
   return 'Switch to light theme'
 })
 
@@ -54,13 +54,13 @@ function goEditor() {
 
 const shortcutLabel = ref('⌘ K')
 onMounted(() => {
-  if (typeof navigator === 'undefined') return
+  if (typeof navigator === 'undefined') { return }
   const isMac = /Mac|iPhone|iPod|iPad/i.test(navigator.platform)
   shortcutLabel.value = isMac ? '⌘ K' : 'Ctrl K'
 })
 
 function openSearch() {
-  if (typeof document === 'undefined') return
+  if (typeof document === 'undefined') { return }
   document.dispatchEvent(new KeyboardEvent('keydown', {
     key: 'k',
     code: 'KeyK',
@@ -73,7 +73,7 @@ function openSearch() {
 const isNarrow = useMediaQuery('(max-width: 959.98px)')
 
 function openSidebar() {
-  if (typeof document === 'undefined') return
+  if (typeof document === 'undefined') { return }
   // VitePress's own .VPNav is hidden globally by our Layout, but its hamburger
   // is still in the DOM and still wired to VP's offcanvas state. Click it to
   // toggle the sidebar without reaching into VP internals.
@@ -83,10 +83,20 @@ function openSidebar() {
 </script>
 
 <template>
-  <NavigationMarketingBar v-if="isHome" class="docs-nav docs-nav--marketing">
+  <NavigationMarketingBar
+    v-if="isHome"
+    class="docs-nav docs-nav--marketing"
+  >
     <template #brand>
-      <a href="/" class="docs-brand">
-        <img :src="logoSrc" alt="" class="docs-brand__logo">
+      <a
+        href="/"
+        class="docs-brand"
+      >
+        <img
+          :src="logoSrc"
+          alt=""
+          class="docs-brand__logo"
+        >
         <span class="docs-brand__name">Blueprint Chart</span>
       </a>
     </template>
@@ -111,7 +121,10 @@ function openSidebar() {
         rel="noopener noreferrer"
         aria-label="GitHub repository"
       >
-        <IPhGithubLogo class="docs-btn-outline__icon" aria-hidden="true" />
+        <IPhGithubLogo
+          class="docs-btn-outline__icon"
+          aria-hidden="true"
+        />
         GitHub
       </a>
       <button
@@ -120,12 +133,19 @@ function openSidebar() {
         :aria-label="themeLabel"
         @click="cycleTheme"
       >
-        <component :is="themeIcon" class="docs-btn-outline__icon" aria-hidden="true" />
+        <component
+          :is="themeIcon"
+          class="docs-btn-outline__icon"
+          aria-hidden="true"
+        />
       </button>
     </template>
   </NavigationMarketingBar>
 
-  <NavigationDocsBar v-else class="docs-nav docs-nav--slim">
+  <NavigationDocsBar
+    v-else
+    class="docs-nav docs-nav--slim"
+  >
     <template
       v-if="isNarrow"
       #brand
@@ -136,10 +156,20 @@ function openSidebar() {
         aria-label="Open navigation"
         @click="openSidebar"
       >
-        <IPhList class="docs-btn-outline__icon" aria-hidden="true" />
+        <IPhList
+          class="docs-btn-outline__icon"
+          aria-hidden="true"
+        />
       </button>
-      <a href="/" class="docs-brand docs-brand--slim">
-        <img :src="logoSrc" alt="" class="docs-brand__logo docs-brand__logo--slim">
+      <a
+        href="/"
+        class="docs-brand docs-brand--slim"
+      >
+        <img
+          :src="logoSrc"
+          alt=""
+          class="docs-brand__logo docs-brand__logo--slim"
+        >
         <span class="docs-brand__name">Blueprint Chart</span>
       </a>
     </template>
@@ -152,7 +182,11 @@ function openSidebar() {
       />
     </template>
     <template #cta-primary>
-      <button class="docs-btn-primary docs-btn-primary--sm" type="button" @click="goEditor">
+      <button
+        class="docs-btn-primary docs-btn-primary--sm"
+        type="button"
+        @click="goEditor"
+      >
         Open editor <span aria-hidden="true">↗</span>
       </button>
     </template>
@@ -164,7 +198,10 @@ function openSidebar() {
         rel="noopener noreferrer"
         aria-label="GitHub repository"
       >
-        <IPhGithubLogo class="docs-btn-outline__icon" aria-hidden="true" />
+        <IPhGithubLogo
+          class="docs-btn-outline__icon"
+          aria-hidden="true"
+        />
         GitHub
       </a>
       <button
@@ -173,7 +210,11 @@ function openSidebar() {
         :aria-label="themeLabel"
         @click="cycleTheme"
       >
-        <component :is="themeIcon" class="docs-btn-outline__icon" aria-hidden="true" />
+        <component
+          :is="themeIcon"
+          class="docs-btn-outline__icon"
+          aria-hidden="true"
+        />
       </button>
     </template>
   </NavigationDocsBar>
@@ -183,8 +224,16 @@ function openSidebar() {
       v-if="!isHome"
       #sidebar-nav-before
     >
-      <a href="/" class="docs-sidebar-brand" aria-label="Blueprint Chart home">
-        <img :src="logoSrc" alt="" class="docs-sidebar-brand__logo">
+      <a
+        href="/"
+        class="docs-sidebar-brand"
+        aria-label="Blueprint Chart home"
+      >
+        <img
+          :src="logoSrc"
+          alt=""
+          class="docs-sidebar-brand__logo"
+        >
         <span class="docs-sidebar-brand__name">Blueprint Chart</span>
       </a>
     </template>

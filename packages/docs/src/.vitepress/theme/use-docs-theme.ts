@@ -21,8 +21,9 @@ export function useDocsTheme() {
       read: (raw: string) => {
         try {
           const parsed = JSON.parse(raw)
-          if (parsed && isMode(parsed.theme)) return parsed.theme
-        } catch { /* fall through */ }
+          if (parsed && isMode(parsed.theme)) { return parsed.theme }
+        }
+        catch { /* fall through */ }
         return 'auto'
       },
       write: (v: DocsThemeMode) => JSON.stringify({ theme: v }),
@@ -31,13 +32,13 @@ export function useDocsTheme() {
 
   const theme = ref<DocsThemeMode>(stored.value)
   watch(theme, (next) => { stored.value = next }, { flush: 'sync' })
-  watch(stored, (next) => { if (next !== theme.value) theme.value = next })
+  watch(stored, (next) => { if (next !== theme.value) { theme.value = next } })
 
   const prefersDark = useMediaQuery('(prefers-color-scheme: dark)')
 
   const resolvedTheme = computed<'light' | 'dark'>(() => {
-    if (theme.value === 'dark') return 'dark'
-    if (theme.value === 'auto') return prefersDark.value ? 'dark' : 'light'
+    if (theme.value === 'dark') { return 'dark' }
+    if (theme.value === 'auto') { return prefersDark.value ? 'dark' : 'light' }
     return 'light'
   })
 

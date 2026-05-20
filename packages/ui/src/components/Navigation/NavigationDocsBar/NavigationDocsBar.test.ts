@@ -5,8 +5,8 @@ describe('NavigationDocsBar', () => {
   it('renders brand, actions, cta-primary, and cta-secondary slots', () => {
     const wrapper = mount(NavigationDocsBar, {
       slots: {
-        brand: '<span class="t-brand">Brand</span>',
-        actions: '<button class="t-action">A</button>',
+        'brand': '<span class="t-brand">Brand</span>',
+        'actions': '<button class="t-action">A</button>',
         'cta-primary': '<a class="t-cta-primary">Editor</a>',
         'cta-secondary': '<div class="t-cta-secondary">gh+theme</div>',
       },
@@ -25,8 +25,8 @@ describe('NavigationDocsBar', () => {
   it('orders brand, actions, cta-primary, cta-secondary in the DOM (spacer between actions and cta-primary)', () => {
     const wrapper = mount(NavigationDocsBar, {
       slots: {
-        brand: '<span class="t-brand">Brand</span>',
-        actions: '<button class="t-action">A</button>',
+        'brand': '<span class="t-brand">Brand</span>',
+        'actions': '<button class="t-action">A</button>',
         'cta-primary': '<a class="t-cta-primary">Editor</a>',
         'cta-secondary': '<div class="t-cta-secondary">gh+theme</div>',
       },

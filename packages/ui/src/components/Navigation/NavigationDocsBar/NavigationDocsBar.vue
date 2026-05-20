@@ -1,14 +1,17 @@
 <script setup lang="ts">
 defineSlots<{
-  brand?: () => unknown
-  actions?: () => unknown
+  'brand'?: () => unknown
+  'actions'?: () => unknown
   'cta-primary'?: () => unknown
   'cta-secondary'?: () => unknown
 }>()
 </script>
 
 <template>
-  <header class="navigation-docs-bar" aria-label="Docs navigation">
+  <header
+    class="navigation-docs-bar"
+    aria-label="Docs navigation"
+  >
     <div
       v-if="$slots.brand"
       class="navigation-docs-bar__brand"
