@@ -82,8 +82,7 @@ export default defineConfig({
       { text: 'Guide', link: '/guide/getting-started', activeMatch: '^/guide/' },
       { text: 'Charts', link: '/charts/', activeMatch: '^/charts/' },
       { text: 'Handbook', link: '/handbook/', activeMatch: '^/handbook/' },
-      { text: 'DSL Spec', link: '/spec/dsl', activeMatch: '^/spec/' },
-      { text: 'API', link: '/api/', activeMatch: '^/api/' },
+      { text: 'Reference', link: '/reference/', activeMatch: '^/reference/' },
       {
         text: 'Editor',
         link: 'https://blueprintchart.com',
@@ -192,20 +191,22 @@ export default defineConfig({
         },
       ],
 
-      '/spec/': [
+      '/reference/': [
         {
           text: 'BPC DSL',
+          collapsed: false,
           items: [
-            { text: 'Language Specification', link: '/spec/dsl' },
+            { text: 'Overview', link: '/reference/dsl/' },
+            { text: 'Properties & data', link: '/reference/dsl/properties' },
+            { text: 'Annotations', link: '/reference/dsl/annotations' },
+            { text: 'Scenes & transforms', link: '/reference/dsl/scenes-and-transforms' },
           ],
         },
-      ],
-
-      '/api/': [
         {
           text: 'API Reference',
+          collapsed: false,
           items: [
-            { text: 'Overview', link: '/api/' },
+            { text: 'Overview', link: '/reference/api/' },
           ],
         },
       ],

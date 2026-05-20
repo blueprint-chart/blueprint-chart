@@ -122,8 +122,7 @@ function openSidebar() {
       <a href="/guide/getting-started">Guide</a>
       <a href="/charts/">Charts</a>
       <a href="/handbook/">Handbook</a>
-      <a href="/spec/dsl">DSL Spec</a>
-      <a href="/api/">API</a>
+      <a href="/reference/">Reference</a>
     </template>
     <template #actions>
       <NavigationCommandBar
