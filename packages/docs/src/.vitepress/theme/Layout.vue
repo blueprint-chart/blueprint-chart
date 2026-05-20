@@ -126,6 +126,7 @@ function openSidebar() {
         class="docs-search"
         placeholder="Search docs…"
         :shortcut-label="shortcutLabel"
+        :collapsed="isNarrow"
         @click="openSearch"
       />
       <a
@@ -187,14 +188,6 @@ function openSidebar() {
         <span class="docs-brand__name">Blueprint Chart</span>
       </a>
     </template>
-    <template #actions>
-      <NavigationCommandBar
-        class="docs-search docs-search--slim"
-        placeholder="Search docs…"
-        :shortcut-label="shortcutLabel"
-        @click="openSearch"
-      />
-    </template>
     <template #cta-primary>
       <button
         class="docs-btn-primary docs-btn-primary--sm"
@@ -205,6 +198,13 @@ function openSidebar() {
       </button>
     </template>
     <template #cta-secondary>
+      <NavigationCommandBar
+        class="docs-search docs-search--slim"
+        placeholder="Search docs…"
+        :shortcut-label="shortcutLabel"
+        :collapsed="isNarrow"
+        @click="openSearch"
+      />
       <a
         class="docs-btn-outline docs-btn-outline--sm docs-github"
         href="https://github.com/blueprint-chart/blueprint-chart"
