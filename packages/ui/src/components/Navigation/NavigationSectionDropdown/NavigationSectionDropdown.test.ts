@@ -66,18 +66,41 @@ describe('NavigationSectionDropdown', () => {
     expect(items[0].attributes('aria-current')).toBeUndefined()
   })
 
-  it('closes the panel when Escape is pressed', async () => {
+  it('closes the panel and returns focus to the trigger when Escape is pressed', async () => {
     const wrapper = mount(NavigationSectionDropdown, {
       props: { sections: SECTIONS, activeLink: '/guide/getting-started' },
       attachTo: document.body,
     })
+    const trigger = wrapper.find('button').element as HTMLButtonElement
     await wrapper.find('button').trigger('click')
     expect(wrapper.find('menu').exists()).toBe(true)
 
-    await wrapper.find('menu').trigger('keydown', { key: 'Escape' })
+    // Move focus away from the trigger first so we can prove focus returns to it.
+    trigger.blur()
+    document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
     await nextTick()
+
     expect(wrapper.find('menu').exists()).toBe(false)
     expect(wrapper.find('button').attributes('aria-expanded')).toBe('false')
+    expect(document.activeElement).toBe(trigger)
+
+    wrapper.unmount()
+  })
+
+  it('Escape works when focus is on the trigger (not inside the panel)', async () => {
+    const wrapper = mount(NavigationSectionDropdown, {
+      props: { sections: SECTIONS, activeLink: '/guide/getting-started' },
+      attachTo: document.body,
+    })
+    const trigger = wrapper.find('button').element as HTMLButtonElement
+    await wrapper.find('button').trigger('click')
+    trigger.focus()
+    expect(document.activeElement).toBe(trigger)
+
+    document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+    await nextTick()
+
+    expect(wrapper.find('menu').exists()).toBe(false)
 
     wrapper.unmount()
   })
