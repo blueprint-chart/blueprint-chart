@@ -88,11 +88,12 @@ function openSidebar() {
   if (typeof document === 'undefined') {
     return
   }
-  // VitePress's own .VPNav is hidden globally by our Layout, but its hamburger
-  // is still in the DOM and still wired to VP's offcanvas state. Click it to
-  // toggle the sidebar without reaching into VP internals.
-  const hamburger = document.querySelector<HTMLElement>('.VPNavBarHamburger')
-  hamburger?.click()
+  // VPLocalNav renders a `.menu` button whose click handler ultimately flips
+  // VP's `isSidebarOpen` ref (shared with VPSidebar). VPLocalNav is hidden
+  // visually by our Layout overrides; the click event still fires on a
+  // `display: none` element, which is enough to toggle the sidebar.
+  const menuBtn = document.querySelector<HTMLElement>('.VPLocalNav .menu')
+  menuBtn?.click()
 }
 </script>
 
@@ -257,8 +258,12 @@ function openSidebar() {
 </template>
 
 <style>
-/* Global — not scoped — so it reaches VP's own elements. */
-.VPNav { display: none !important; }
+/* Global — not scoped — so it reaches VP's own elements.
+ * VPNav and VPLocalNav are both hidden visually; our own NavigationDocsBar
+ * is the only visible top chrome. VPLocalNav's `.menu` button stays in the
+ * DOM so we can dispatch a synthetic click to open the sidebar. */
+.VPNav,
+.VPLocalNav { display: none !important; }
 
 /* Fixed-position nav matches VP's default behavior — page content already
  * reserves --vp-nav-height of padding-top. */
