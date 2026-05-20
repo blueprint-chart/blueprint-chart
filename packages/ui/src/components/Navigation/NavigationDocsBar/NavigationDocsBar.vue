@@ -49,7 +49,6 @@ defineSlots<{
   -webkit-backdrop-filter: saturate(150%) blur(10px);
   border-bottom: 1px solid var(--bc-hairline);
   flex-shrink: 0;
-  z-index: 1040;
   font-size: var(--bs-font-size-sm);
 }
 
