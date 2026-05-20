@@ -89,19 +89,16 @@ for (const v of VIEWPORTS) {
     })
 
     test('topnav adapts to viewport', async ({ page }) => {
-      const links = page.locator('.landing-topnav__link')
+      const links = page.locator('.navigation-marketing-bar__menu a')
+      await expect(links).toHaveCount(4)
       if (v.size.width > 820) {
-        await expect(links).toHaveCount(4)
         await expect(links.first()).toBeVisible()
       }
       else {
-        // Anchors are hidden under the 51.25rem breakpoint.
-        if (await links.count()) {
-          await expect(links.first()).toBeHidden()
-        }
+        // Anchors are hidden under the 51.25rem breakpoint via the menu container.
+        await expect(links.first()).toBeHidden()
       }
       if (v.size.width < 600) {
-        await expect(page.locator('.landing-topnav__cta-secondary')).toBeHidden()
         await expect(page.locator('.landing-topnav__github')).toBeHidden()
       }
     })
