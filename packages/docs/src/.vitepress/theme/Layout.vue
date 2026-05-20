@@ -75,13 +75,9 @@ function openSearch() {
   if (typeof document === 'undefined') {
     return
   }
-  document.dispatchEvent(new KeyboardEvent('keydown', {
-    key: 'k',
-    code: 'KeyK',
-    metaKey: true,
-    ctrlKey: true,
-    bubbles: true,
-  }))
+  // VPNavBarSearch renders `#local-search > button`; clicking it sets
+  // `showSearch = true` directly — no keyboard-event indirection.
+  document.querySelector<HTMLElement>('#local-search button')?.click()
 }
 
 const isNarrow = useMediaQuery('(max-width: 959.98px)')
