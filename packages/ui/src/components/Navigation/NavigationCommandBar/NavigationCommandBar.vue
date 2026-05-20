@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import IPhMagnifyingGlass from '~icons/ph/magnifying-glass'
 
-defineProps<{
+withDefaults(defineProps<{
   placeholder: string
   shortcutLabel: string
-}>()
+  collapsed?: boolean
+}>(), {
+  collapsed: false,
+})
 
 defineEmits<{ click: [] }>()
 </script>
@@ -13,6 +16,7 @@ defineEmits<{ click: [] }>()
   <button
     type="button"
     class="navigation-command-bar"
+    :class="{ 'navigation-command-bar--collapsed': collapsed }"
     :aria-label="placeholder"
     @click="$emit('click')"
   >
@@ -20,9 +24,12 @@ defineEmits<{ click: [] }>()
       class="navigation-command-bar__icon"
       aria-hidden="true"
     />
-    <span class="navigation-command-bar__placeholder">{{ placeholder }}</span>
     <span
-      v-if="shortcutLabel"
+      v-if="!collapsed"
+      class="navigation-command-bar__placeholder"
+    >{{ placeholder }}</span>
+    <span
+      v-if="shortcutLabel && !collapsed"
       class="navigation-command-bar__kbd"
     >{{ shortcutLabel }}</span>
   </button>
@@ -55,6 +62,15 @@ defineEmits<{ click: [] }>()
   &:focus-visible {
     outline: none;
     box-shadow: var(--bc-focus-ring);
+  }
+
+  // Collapsed: icon-only square button for narrow viewports.
+  &--collapsed {
+    min-width: 0;
+    width: 1.9375rem;
+    padding: 0;
+    justify-content: center;
+    gap: 0;
   }
 }
 
