@@ -358,10 +358,12 @@ function openSidebar() {
   display: block;
 }
 
-/* Section switcher injected below the brand. Same horizontal padding as
- * .docs-sidebar-brand so the trigger button aligns with the brand row. */
+/* Section switcher — matches sidebar item width (no horizontal margin so it
+ * spans the same column as VPSidebarItem pills, sized by .VPSidebar's
+ * `padding-left/right: 0.375rem`). More breathing room above the brand,
+ * tight to the first group below. */
 .docs-sidebar-switcher {
-  margin: 0 1.5rem 1rem;
+  margin: 1rem 0 0.25rem;
 }
 </style>
 
