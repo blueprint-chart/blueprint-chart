@@ -84,7 +84,7 @@ const renderer = getChart(ast.chartType) // → ChartRenderer
 renderer.render({ data, options, container })
 ```
 
-See the [API reference](/api/) for the full surface area, including frame/canvas/legend primitives and the chart-type registry.
+See the [API reference](/reference/api/) for the full surface area, including frame/canvas/legend primitives and the chart-type registry.
 
 ## Static-site integrations
 

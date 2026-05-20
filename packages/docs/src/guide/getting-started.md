@@ -76,7 +76,7 @@ const options = buildChartOptions(ast)
 This is `packages/lib/src/samples/bitcoin-price.bpc` — a single-series line chart with a fixed-colour brand override (`colors = "#f7931a"`), diamond symbols on every datapoint, and a pinned annotation marking the 2021 peak.
 :::
 
-From here you wire the `data` and `options` into the renderer of your choice — `@blueprint-chart/lib` exposes the building blocks (`createFrame`, `createCanvas`, `renderLegend`, `renderHorizontalAxis`, `renderVerticalAxis`) plus a chart-type registry (`registerChart` / `getChart`). See [the API reference](/api/).
+From here you wire the `data` and `options` into the renderer of your choice — `@blueprint-chart/lib` exposes the building blocks (`createFrame`, `createCanvas`, `renderLegend`, `renderHorizontalAxis`, `renderVerticalAxis`) plus a chart-type registry (`registerChart` / `getChart`). See [the API reference](/reference/api/).
 
 ## Drop a chart into any page
 
@@ -154,6 +154,6 @@ The lib ships ~40 ready-to-run `.bpc` files under `packages/lib/src/samples/`. T
 
 ## Next steps
 
-- [BPC DSL specification](/spec/dsl) — the full language reference.
+- [BPC DSL specification](/reference/dsl/) — the full language reference.
 - [Embedding charts](/guide/embed) — embed flows, CMS integrations, runtime details.
-- [API reference](/api/) — every exported symbol from `@blueprint-chart/lib`.
+- [API reference](/reference/api/) — every exported symbol from `@blueprint-chart/lib`.

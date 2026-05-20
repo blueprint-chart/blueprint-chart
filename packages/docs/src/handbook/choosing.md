@@ -117,4 +117,4 @@ Six categories summing to 100 % — the question is "how big a slice does Chrome
 - [Design Principles](/handbook/design-principles)
 - [Anti-Patterns](/handbook/anti-patterns)
 - [Frame Elements](/handbook/frame-elements)
-- [BPC DSL Specification](/spec/dsl)
+- [BPC DSL Specification](/reference/dsl/)

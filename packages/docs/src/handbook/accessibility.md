@@ -63,7 +63,7 @@ Blueprint Chart ships a concrete accessibility toolkit:
 - `simulateCvdColor` — applies deuteranopia / protanopia / tritanopia simulation
 - `checkCvdColors` — validates that a palette is safe across CVD types
 
-These power the editor's live accessibility checks and the palette pickers in the UI. See the [API reference](/api/) for the full helper surface.
+These power the editor's live accessibility checks and the palette pickers in the UI. See the [API reference](/reference/api/) for the full helper surface.
 
 ```ts
 import { wcagContrastRatio, checkCvdColors } from '@blueprint-chart/lib'

@@ -203,5 +203,5 @@ For the accessibility helpers (`wcagContrastRatio`, `wcagLevel`, `checkCvdColors
 
 - [Accessibility](/guide/accessibility) — WCAG and CVD utilities.
 - [Colour handbook](/handbook/color) — palette theory and reduction techniques.
-- [BPC DSL — Color directives](/spec/dsl#color-directives) for `colorize`, `highlight`, `areafill`.
-- [API reference](/api/#palettes) for the full export list.
+- [BPC DSL — Color directives](/reference/dsl/annotations#color-directives) for `colorize`, `highlight`, `areafill`.
+- [API reference](/reference/api/#palettes) for the full export list.

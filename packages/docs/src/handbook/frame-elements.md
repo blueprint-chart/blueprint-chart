@@ -45,7 +45,7 @@ A **description** (or subtitle) sits near the top and tells the reader what they
 
 ## How Blueprint Chart applies the frame
 
-Blueprint Chart's `FrameOptions` matches this hierarchy almost one-to-one: title, description, note, source, and credit are all first-class frame fields. The frame layer is independent of the chart layer, so the same frame can wrap any chart type without changing the type's internals. See the [API reference](/api/) for `createFrame` and the frame options.
+Blueprint Chart's `FrameOptions` matches this hierarchy almost one-to-one: title, description, note, source, and credit are all first-class frame fields. The frame layer is independent of the chart layer, so the same frame can wrap any chart type without changing the type's internals. See the [API reference](/reference/api/) for `createFrame` and the frame options.
 
 A minimal BPC source illustrates the structure:
 
@@ -95,4 +95,4 @@ A declarative title carries the insight (`"…peaked at 9.1% before retreating t
 - [Typography](/handbook/typography)
 - [Annotations](/handbook/annotations)
 - [Design Principles](/handbook/design-principles)
-- [BPC DSL Specification](/spec/dsl)
+- [BPC DSL Specification](/reference/dsl/)

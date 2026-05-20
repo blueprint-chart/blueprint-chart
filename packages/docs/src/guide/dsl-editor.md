@@ -200,7 +200,7 @@ The DSL editor entry points live in `@blueprint-chart/editor`, not in `@blueprin
 | `serialize(ast)` | AST → BPC text (pretty-printed). |
 | `compactSerialize(ast)` | AST → BPC text (whitespace-minimised). |
 | `propertyMap` | Catalogue of recognised property keys per chart type. |
-| `ChartNode`, `PropertyNode`, `DataNode`, … | AST node types — see [the API reference](/api/#dsl). |
+| `ChartNode`, `PropertyNode`, `DataNode`, … | AST node types — see [the API reference](/reference/api/#dsl). |
 
 From the editor side:
 
@@ -212,7 +212,7 @@ From the editor side:
 
 ## See also
 
-- [BPC DSL specification](/spec/dsl) — the canonical language reference.
+- [BPC DSL specification](/reference/dsl/) — the canonical language reference.
 - [Scenes guide](/guide/scenes) — scene syntax inside the DSL.
 - [Data transforms guide](/guide/data-transforms) — transforms inside the DSL.
-- [API reference](/api/#dsl) for the lib's `parse` / `serialize` / converter helpers.
+- [API reference](/reference/api/#dsl) for the lib's `parse` / `serialize` / converter helpers.

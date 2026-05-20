@@ -186,6 +186,6 @@ The `editor` half (used internally by the editor app):
 
 ## See also
 
-- [BPC DSL — Transforms](/spec/dsl#transforms) for the source-level grammar.
+- [BPC DSL — Transforms](/reference/dsl/scenes-and-transforms#transforms) for the source-level grammar.
 - [Scenes guide](/guide/scenes) — scenes can replace a chart's data wholesale; transforms operate before that swap.
-- [API reference](/api/#dsl) for `TransformNode` and the converter helpers.
+- [API reference](/reference/api/#dsl) for `TransformNode` and the converter helpers.

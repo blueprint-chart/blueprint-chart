@@ -63,7 +63,7 @@ A trend that looks alarming at 3:1 can look flat at 3:4. When showing rate of ch
 
 Blueprint Chart's `AxisOptions` exposes scale type (linear / log), tick count, tick format, and baseline behavior. D3 scales drive the tick layout, and a shared number formatter is used by the axis, tooltip, and direct labels so the same value is rendered identically wherever it appears.
 
-See the [API reference](/api/) for the public options that toggle grid lines, tick density, and baseline zero.
+See the [API reference](/reference/api/) for the public options that toggle grid lines, tick density, and baseline zero.
 
 ## Worked example: number format on the axis
 

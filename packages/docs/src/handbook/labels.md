@@ -56,7 +56,7 @@ Labeling every point on a dense line chart creates visual noise. Label extremes 
 
 ## How Blueprint Chart applies labels
 
-Blueprint Chart exposes a legend renderer with placement, orientation, and wrapping options. Direct labels are available for line, bar, and pie-family charts; the renderer falls back to legends on narrow layouts automatically. See the [API reference](/api/) for `renderLegend` and the per-chart label options.
+Blueprint Chart exposes a legend renderer with placement, orientation, and wrapping options. Direct labels are available for line, bar, and pie-family charts; the renderer falls back to legends on narrow layouts automatically. See the [API reference](/reference/api/) for `renderLegend` and the per-chart label options.
 
 ## Worked example: value labels replace the axis
 

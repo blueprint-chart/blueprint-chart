@@ -214,10 +214,10 @@ DSL converter helpers (also exported from `@blueprint-chart/lib`):
 | `extractSceneOverrides(ast)` | Pull each scene's merged `ChartData` / `ChartOptions` from a parsed AST. |
 | `SceneNode` (type) | AST node for a `scene` block. |
 
-See the full list in the [API reference](/api/).
+See the full list in the [API reference](/reference/api/).
 
 ## See also
 
-- [BPC DSL — Scenes](/spec/dsl#scenes) for the source-level grammar.
+- [BPC DSL — Scenes](/reference/dsl/scenes-and-transforms#scenes) for the source-level grammar.
 - [Embedding charts](/guide/embed) for how to drop a scenes-driven chart on a page.
-- [API reference](/api/#runtime-entrypoint) for the runtime entry-point symbols.
+- [API reference](/reference/api/#runtime-entrypoint) for the runtime entry-point symbols.
