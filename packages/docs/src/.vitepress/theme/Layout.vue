@@ -6,7 +6,6 @@ import {
   NavigationMarketingBar,
   NavigationDocsBar,
   NavigationCommandBar,
-  NavigationSectionTabs,
   NavigationSectionDropdown,
 } from '@blueprint-chart/ui'
 import { useCurrentSection } from './use-current-section'
@@ -166,37 +165,32 @@ function openSidebar() {
     v-else
     class="docs-nav docs-nav--slim"
   >
-    <template #brand>
-      <template v-if="isNarrow">
-        <button
-          class="docs-btn-outline docs-btn-outline--sm docs-btn-outline--square"
-          type="button"
-          aria-label="Open navigation"
-          @click="openSidebar"
+    <template
+      v-if="isNarrow"
+      #brand
+    >
+      <button
+        class="docs-btn-outline docs-btn-outline--sm docs-btn-outline--square"
+        type="button"
+        aria-label="Open navigation"
+        @click="openSidebar"
+      >
+        <IPhList
+          class="docs-btn-outline__icon"
+          aria-hidden="true"
+        />
+      </button>
+      <a
+        href="/"
+        class="docs-brand docs-brand--slim"
+      >
+        <img
+          :src="logoSrc"
+          alt=""
+          class="docs-brand__logo docs-brand__logo--slim"
         >
-          <IPhList
-            class="docs-btn-outline__icon"
-            aria-hidden="true"
-          />
-        </button>
-        <a
-          href="/"
-          class="docs-brand docs-brand--slim"
-        >
-          <img
-            :src="logoSrc"
-            alt=""
-            class="docs-brand__logo docs-brand__logo--slim"
-          >
-          <span class="docs-brand__name">Blueprint Chart</span>
-        </a>
-      </template>
-      <NavigationSectionTabs
-        v-else
-        :sections="sections"
-        :active-link="current?.link"
-        class="docs-section-tabs"
-      />
+        <span class="docs-brand__name">Blueprint Chart</span>
+      </a>
     </template>
     <template #actions>
       <NavigationCommandBar
@@ -315,28 +309,6 @@ function openSidebar() {
    * Chain `.docs-btn-outline.docs-github` (0,3,0) so we beat the scoped
    * `.docs-btn-outline[data-v-...] { display: inline-flex }` (0,2,0). */
   .docs-nav .docs-btn-outline.docs-github { display: none; }
-}
-
-/* Wide viewports: search on the LEFT (.navigation-docs-bar__actions),
- * NavigationSectionTabs in the CENTER (.navigation-docs-bar__brand), CTAs
- * on the RIGHT. Default DOM order is brand → actions → spacer → cta-primary
- * → cta-secondary. Using `order` we shuffle to:
- *   actions(0) → spacer(1) → brand(2) → cta-primary(3) → cta-secondary(4).
- *
- * The brand gets `margin: 0 auto`: per CSS Flexbox §9.2 auto margins absorb
- * free space before flex-grow, so the two auto margins each take half the
- * slack and visually center the tabs. The inherited `__spacer { flex: 1 }`
- * is harmlessly overridden — there is no free space left for flex-grow
- * after the auto margins claim it. */
-@media (min-width: 960px) {
-  .docs-nav.docs-nav--slim .navigation-docs-bar__actions { order: 0; }
-  .docs-nav.docs-nav--slim .navigation-docs-bar__spacer { order: 1; }
-  .docs-nav.docs-nav--slim .navigation-docs-bar__brand {
-    order: 2;
-    margin: 0 auto;
-  }
-  .docs-nav.docs-nav--slim .navigation-docs-bar__cta-primary { order: 3; }
-  .docs-nav.docs-nav--slim .navigation-docs-bar__cta-secondary { order: 4; }
 }
 
 /* Brand block injected at the top of the VitePress sidebar. */
