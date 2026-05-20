@@ -5,8 +5,7 @@ const SECTIONS = [
   { text: 'Guide', link: '/guide/getting-started' },
   { text: 'Charts', link: '/charts/' },
   { text: 'Handbook', link: '/handbook/' },
-  { text: 'DSL Spec', link: '/spec/dsl' },
-  { text: 'API', link: '/api/' },
+  { text: 'Reference', link: '/reference/' },
 ]
 </script>
 
@@ -21,11 +20,11 @@ const SECTIONS = [
       </div>
     </Variant>
 
-    <Variant title="DSL Spec active">
+    <Variant title="Reference active">
       <div style="width: 220px;">
         <NavigationSectionDropdown
           :sections="SECTIONS"
-          active-link="/spec/dsl"
+          active-link="/reference/"
         />
       </div>
     </Variant>
