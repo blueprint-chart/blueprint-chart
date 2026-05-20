@@ -93,6 +93,7 @@ useEventListener(document, 'mousedown', (event: MouseEvent) => {
         class="navigation-section-dropdown__item"
         :class="{ 'navigation-section-dropdown__item--active': s.link === activeLink }"
         :aria-current="s.link === activeLink ? 'page' : undefined"
+        @click="close"
       >{{ s.text }}</a>
     </menu>
   </div>

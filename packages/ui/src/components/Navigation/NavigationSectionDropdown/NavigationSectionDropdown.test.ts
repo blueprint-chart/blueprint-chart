@@ -120,6 +120,24 @@ describe('NavigationSectionDropdown', () => {
     wrapper.unmount()
   })
 
+  it('closes the panel when a menuitem is selected', async () => {
+    const wrapper = mount(NavigationSectionDropdown, {
+      props: { sections: SECTIONS, activeLink: '/guide/getting-started' },
+      attachTo: document.body,
+    })
+    await wrapper.find('button').trigger('click')
+    expect(wrapper.find('menu').exists()).toBe(true)
+
+    // Prevent the test runner from following the link; we only care about
+    // the close behaviour.
+    const items = wrapper.findAll('a[role="menuitem"]')
+    await items[1].trigger('click', { preventDefault: true })
+
+    expect(wrapper.find('menu').exists()).toBe(false)
+
+    wrapper.unmount()
+  })
+
   it('clicking the trigger a second time closes the panel', async () => {
     const wrapper = mount(NavigationSectionDropdown, {
       props: { sections: SECTIONS, activeLink: '/guide/getting-started' },
