@@ -289,8 +289,10 @@ function openSidebar() {
   .docs-nav.docs-nav--slim .navigation-docs-bar__cta-primary { order: 2; }
   .docs-nav.docs-nav--slim .navigation-docs-bar__cta-secondary { order: 3; }
 
-  /* GitHub link drops out at narrow widths to make room for search + theme. */
-  .docs-nav .docs-github { display: none; }
+  /* GitHub link drops out at narrow widths to make room for search + theme.
+   * Chain `.docs-btn-outline.docs-github` (0,3,0) so we beat the scoped
+   * `.docs-btn-outline[data-v-...] { display: inline-flex }` (0,2,0). */
+  .docs-nav .docs-btn-outline.docs-github { display: none; }
 }
 
 /* Brand block injected at the top of the VitePress sidebar. */
