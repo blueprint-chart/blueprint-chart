@@ -23,7 +23,7 @@ features:
   - icon: 📝
     title: A text format for charts
     details: Describe a chart in a compact, declarative `.bpc` DSL. Parse, serialize, and round-trip safely with the Peggy-based grammar.
-    link: /spec/dsl
+    link: /reference/dsl/
     linkText: Read the spec
 
   - icon: 🎬

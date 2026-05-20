@@ -57,7 +57,7 @@ Tooltips are hidden by default. If information is essential to the chart's headl
 
 Blueprint Chart's interaction layer is declarative. Crosshair direction and style enums configure axis-aligned crosshairs; tooltips are produced from the same scale and accessor layer used to render the chart, so the numbers always match. Tooltip positioning respects the viewport and flips sides automatically when the cursor approaches the chart edge.
 
-See the [API reference](/api/) for the tooltip options exposed to consumers.
+See the [API reference](/reference/api/) for the tooltip options exposed to consumers.
 
 ## Worked example: tooltips plus a dashed vertical crosshair
 

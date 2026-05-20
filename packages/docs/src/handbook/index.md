@@ -82,7 +82,7 @@ A takeaway title states the insight; a single red hue carries meaning; gridlines
 
 ## How this connects to Blueprint Chart
 
-Blueprint Chart is the tool we built to make these principles the path of least resistance: grey defaults, baseline-zero where it matters, CVD-aware palettes, direct labeling, and a frame model that mirrors the hierarchy described here. The handbook is editorial; the [Guide](/guide/getting-started), [DSL Spec](/spec/dsl), and [API Reference](/api/) are how you put it into practice.
+Blueprint Chart is the tool we built to make these principles the path of least resistance: grey defaults, baseline-zero where it matters, CVD-aware palettes, direct labeling, and a frame model that mirrors the hierarchy described here. The handbook is editorial; the [Guide](/guide/getting-started), [DSL Spec](/reference/dsl/), and [API Reference](/reference/api/) are how you put it into practice.
 
 ## See also
 

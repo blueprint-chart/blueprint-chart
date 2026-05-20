@@ -69,7 +69,7 @@ chart line {
 }
 ```
 
-See the [BPC DSL Specification](/spec/dsl) for the full annotation grammar.
+See the [BPC DSL Specification](/reference/dsl/annotations) for the full annotation grammar.
 
 ## Worked example: a point annotation tied to a peak
 
@@ -140,4 +140,4 @@ A callout adds the *why* alongside the data ("Surpassed EU in 2023") — a sente
 - [Frame Elements](/handbook/frame-elements)
 - [Labels & Legends](/handbook/labels)
 - [Design Principles](/handbook/design-principles)
-- [BPC DSL Specification](/spec/dsl)
+- [BPC DSL Specification](/reference/dsl/annotations)

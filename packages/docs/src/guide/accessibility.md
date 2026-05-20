@@ -186,11 +186,11 @@ Exported from `@blueprint-chart/lib`:
 | `CvdType` (type) | `'protanopia' \| 'deuteranopia' \| 'tritanopia'`. |
 | `CvdIssue` (type) | `{ type, label, pairs: { a, b, deltaE }[] }`. |
 
-See [the API reference](/api/#color-and-accessibility) for the full export list.
+See [the API reference](/reference/api/#color-and-accessibility) for the full export list.
 
 ## See also
 
 - [Accessibility handbook](/handbook/accessibility) — CVD, contrast, alt text, keyboard, multi-channel encoding.
 - [Palettes guide](/guide/palettes) — picking and overriding palettes.
 - [Colour handbook](/handbook/color) — the lightness-variance and blue-orange rules.
-- [BPC DSL — Properties](/spec/dsl#properties) for `autoContrast`.
+- [BPC DSL — Properties](/reference/dsl/properties#properties) for `autoContrast`.
