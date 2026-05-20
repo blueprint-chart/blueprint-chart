@@ -212,7 +212,7 @@ function openSidebar() {
     </template>
     <template #cta-secondary>
       <a
-        class="docs-btn-outline docs-btn-outline--sm docs-btn-outline--square docs-github"
+        class="docs-btn-outline docs-btn-outline--sm docs-github"
         href="https://github.com/blueprint-chart/blueprint-chart"
         target="_blank"
         rel="noopener noreferrer"
@@ -222,6 +222,7 @@ function openSidebar() {
           class="docs-btn-outline__icon"
           aria-hidden="true"
         />
+        GitHub
       </a>
       <button
         class="docs-btn-outline docs-btn-outline--sm docs-btn-outline--square"
