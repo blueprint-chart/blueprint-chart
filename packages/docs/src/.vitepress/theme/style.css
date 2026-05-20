@@ -31,7 +31,7 @@
 
   /* Fonts */
   --vp-font-family-base:
-    'Geist Variable', 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto,
+    'Geist Sans', 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto,
     'Helvetica Neue', sans-serif;
   --vp-font-family-mono:
     'Geist Mono Variable', ui-monospace, 'JetBrains Mono', 'SFMono-Regular',
