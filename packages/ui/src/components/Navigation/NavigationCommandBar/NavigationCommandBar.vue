@@ -73,6 +73,9 @@ defineEmits<{ click: [] }>()
   margin-left: auto;
   font-family: var(--bs-font-monospace, "Geist Mono", ui-monospace, monospace);
   font-size: 0.625rem;
+  // Pinned explicitly so docs (which inherits VitePress's 24px absolute
+  // body line-height) renders the chip at the same height as the editor.
+  line-height: 1.5;
   background: var(--bc-wash-firm);
   padding: 1px 5px;
   border-radius: 3px;
