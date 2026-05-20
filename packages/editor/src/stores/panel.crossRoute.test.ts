@@ -85,19 +85,20 @@ describe('panel store: cross-route consistency', () => {
   it('dockedWidth set on one route is identical on the other two', async () => {
     const { wrapper, router } = await mountAt('/visualize')
 
-    usePanelStore().setDockedWidth(420)
+    // dockedWidth is a viewport fraction (0..1) — see stores/panel.ts.
+    usePanelStore().setDockedWidth(0.42)
     await flushPromises()
-    expect(wrapper.get('[data-test="docked-width"]').text()).toBe('420')
+    expect(wrapper.get('[data-test="docked-width"]').text()).toBe('0.42')
 
     await router.push('/data')
     await flushPromises()
     expect(wrapper.get('[data-test="route-data"]').exists()).toBe(true)
-    expect(wrapper.get('[data-test="docked-width"]').text()).toBe('420')
+    expect(wrapper.get('[data-test="docked-width"]').text()).toBe('0.42')
 
     await router.push('/export')
     await flushPromises()
     expect(wrapper.get('[data-test="route-export"]').exists()).toBe(true)
-    expect(wrapper.get('[data-test="docked-width"]').text()).toBe('420')
+    expect(wrapper.get('[data-test="docked-width"]').text()).toBe('0.42')
   })
 
   it('close() on one route leaves the panel closed on all three', async () => {

@@ -1,6 +1,12 @@
 import { mount } from '@vue/test-utils'
 import PanelDocked from './PanelDocked.vue'
 
+// PanelDocked stores width as a viewport fraction (0..1) and renders pixels
+// at display time. jsdom's default window width is 1024 — pin it explicitly
+// so test expectations are deterministic regardless of harness defaults.
+const VIEWPORT_WIDTH = 1024
+Object.defineProperty(window, 'innerWidth', { configurable: true, value: VIEWPORT_WIDTH })
+
 vi.mock('@blueprint-chart/ui', () => ({
   LayoutPanel: {
     template: '<div class="panel"><div class="title">{{ title }}</div><slot name="actions" /><slot /><div v-if="$slots.footer" class="panel-footer"><slot name="footer" /></div></div>',
@@ -57,8 +63,12 @@ describe('PanelDocked', () => {
     expect(w.find('.panel-docked__resize-handle').exists()).toBe(true)
   })
 
-  it('resize handle emits width updates on pointer drag', async () => {
-    const w = mount(PanelDocked, { props: { collapsed: false, title: 'Test', modelValue: 330 } })
+  it('resize handle emits fraction updates on pointer drag', async () => {
+    // modelValue is a viewport fraction. Start at 330/VIEWPORT_WIDTH so the
+    // starting pixel width is 330px, then drag left 50px → 380px → fraction
+    // = 380 / VIEWPORT_WIDTH.
+    const startFraction = 330 / VIEWPORT_WIDTH
+    const w = mount(PanelDocked, { props: { collapsed: false, title: 'Test', modelValue: startFraction } })
     const handle = w.find('.panel-docked__resize-handle')
     const el = handle.element as HTMLElement
     el.setPointerCapture = vi.fn()
@@ -71,25 +81,26 @@ describe('PanelDocked', () => {
     el.dispatchEvent(new Event('pointerup'))
     const emitted = w.emitted('update:modelValue')
     expect(emitted).toBeTruthy()
-    expect(emitted![emitted!.length - 1][0]).toBe(380)
+    expect(emitted![emitted!.length - 1][0]).toBe(380 / VIEWPORT_WIDTH)
   })
 
-  it('uses modelValue as initial width when provided', () => {
-    const w = mount(PanelDocked, { props: { collapsed: false, title: 'Test', modelValue: 400 } })
+  it('renders modelValue fraction as pixels of the viewport', () => {
+    // 400 / 1024 ≈ 0.39 → 0.39 * 1024 = ~400px
+    const w = mount(PanelDocked, { props: { collapsed: false, title: 'Test', modelValue: 400 / VIEWPORT_WIDTH } })
     const style = w.find('.panel-docked').attributes('style')
     expect(style).toContain('width: 400px')
   })
 
-  it('uses initialWidth when modelValue is not provided', () => {
-    const w = mount(PanelDocked, { props: { collapsed: false, title: 'Test', initialWidth: 300 } })
+  it('uses initialWidth fraction when modelValue is not provided', () => {
+    const w = mount(PanelDocked, { props: { collapsed: false, title: 'Test', initialWidth: 300 / VIEWPORT_WIDTH } })
     const style = w.find('.panel-docked').attributes('style')
     expect(style).toContain('width: 300px')
   })
 
   it('syncs width when modelValue prop changes', async () => {
-    const w = mount(PanelDocked, { props: { collapsed: false, title: 'Test', modelValue: 340 } })
+    const w = mount(PanelDocked, { props: { collapsed: false, title: 'Test', modelValue: 340 / VIEWPORT_WIDTH } })
     expect(w.find('.panel-docked').attributes('style')).toContain('width: 340px')
-    await w.setProps({ modelValue: 420 })
+    await w.setProps({ modelValue: 420 / VIEWPORT_WIDTH })
     expect(w.find('.panel-docked').attributes('style')).toContain('width: 420px')
   })
 
@@ -123,9 +134,9 @@ describe('PanelDocked', () => {
   })
 
   it('clamps rendered width when canvasWidth would leave less than min canvas', () => {
-    // stored = 500, canvas = 700, minCanvas = 220 → effective = 700 - 220 = 480
+    // fraction → 500px requested, canvas = 700, minCanvas = 220 → effective = 700 - 220 = 480
     const w = mount(PanelDocked, {
-      props: { collapsed: false, title: 'Test', modelValue: 500, canvasWidth: 700 },
+      props: { collapsed: false, title: 'Test', modelValue: 500 / VIEWPORT_WIDTH, canvasWidth: 700 },
     })
     const style = w.find('.panel-docked').attributes('style')
     expect(style).toContain('width: 480px')
@@ -133,7 +144,7 @@ describe('PanelDocked', () => {
 
   it('uses stored width unchanged when canvas has plenty of room', () => {
     const w = mount(PanelDocked, {
-      props: { collapsed: false, title: 'Test', modelValue: 400, canvasWidth: 2000 },
+      props: { collapsed: false, title: 'Test', modelValue: 400 / VIEWPORT_WIDTH, canvasWidth: 2000 },
     })
     const style = w.find('.panel-docked').attributes('style')
     expect(style).toContain('width: 400px')
@@ -141,7 +152,7 @@ describe('PanelDocked', () => {
 
   it('does not mutate modelValue when canvasWidth would clamp the display', async () => {
     const w = mount(PanelDocked, {
-      props: { collapsed: false, title: 'Test', modelValue: 500, canvasWidth: 700 },
+      props: { collapsed: false, title: 'Test', modelValue: 500 / VIEWPORT_WIDTH, canvasWidth: 700 },
     })
     await nextTick()
     expect(w.emitted('update:modelValue')).toBeUndefined()
@@ -149,7 +160,7 @@ describe('PanelDocked', () => {
 
   it('clamps the resize handle drag ceiling to canvas-aware max', async () => {
     const w = mount(PanelDocked, {
-      props: { collapsed: false, title: 'Test', modelValue: 300, canvasWidth: 800 },
+      props: { collapsed: false, title: 'Test', modelValue: 300 / VIEWPORT_WIDTH, canvasWidth: 800 },
     })
     const handle = w.find('.panel-docked__resize-handle')
     const el = handle.element as HTMLElement
@@ -164,12 +175,12 @@ describe('PanelDocked', () => {
     el.dispatchEvent(new Event('pointerup'))
     const emitted = w.emitted('update:modelValue')
     expect(emitted).toBeTruthy()
-    expect(emitted![emitted!.length - 1][0]).toBe(580)
+    expect(emitted![emitted!.length - 1][0]).toBe(580 / VIEWPORT_WIDTH)
   })
 
   it('uses static MAX_WIDTH when canvasWidth is undefined (back-compat)', async () => {
     const w = mount(PanelDocked, {
-      props: { collapsed: false, title: 'Test', modelValue: 300 },
+      props: { collapsed: false, title: 'Test', modelValue: 300 / VIEWPORT_WIDTH },
     })
     const handle = w.find('.panel-docked__resize-handle')
     const el = handle.element as HTMLElement
@@ -177,10 +188,10 @@ describe('PanelDocked', () => {
     el.removeEventListener = vi.fn()
     await handle.trigger('pointerdown', { clientX: 500, pointerId: 1 })
     const move = new Event('pointermove') as Event & { clientX: number }
-    move.clientX = -500 // Request 1300 → clamped to 660 (MAX_WIDTH).
+    move.clientX = -500 // Request 1300 → clamped to 660 (PANEL_MAX_WIDTH).
     el.dispatchEvent(move)
     el.dispatchEvent(new Event('pointerup'))
     const emitted = w.emitted('update:modelValue')
-    expect(emitted![emitted!.length - 1][0]).toBe(660)
+    expect(emitted![emitted!.length - 1][0]).toBe(660 / VIEWPORT_WIDTH)
   })
 })

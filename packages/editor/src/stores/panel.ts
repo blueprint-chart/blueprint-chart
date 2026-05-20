@@ -1,19 +1,18 @@
 export type PanelMode = 'docked' | 'floating' | 'closed' | 'drawer'
 export type DesktopPanelMode = 'docked' | 'floating' | 'closed'
 
-const PANEL_MIN_WIDTH = 260
-const PANEL_MAX_WIDTH = 660
+export const PANEL_MIN_WIDTH = 260
+export const PANEL_MAX_WIDTH = 660
 export const MIN_CANVAS_WIDTH = 220
 export const CRAMPED_THRESHOLD = PANEL_MIN_WIDTH + MIN_CANVAS_WIDTH
-
-function defaultDockedWidth() {
-  const available = Math.floor(window.innerWidth * 0.35)
-  return Math.min(PANEL_MAX_WIDTH, Math.max(PANEL_MIN_WIDTH, available))
-}
+// Default panel width as a fraction of viewport width. Stored as a fraction
+// (not pixels) so the panel reflows proportionally when the window resizes;
+// pixel min/max clamping is applied at render time in PanelDocked.
+export const DEFAULT_DOCKED_WIDTH_FRACTION = 0.22
 
 export const usePanelStore = defineStore('panel', () => {
   const mode = shallowRef<PanelMode>('docked')
-  const dockedWidth = shallowRef<number>(defaultDockedWidth())
+  const dockedWidth = shallowRef<number>(DEFAULT_DOCKED_WIDTH_FRACTION)
   const floatingPosition = ref({ x: -1, y: 16 })
   const floatingSize = shallowRef({ width: 340, height: 500 })
   const lastDesktopMode = shallowRef<DesktopPanelMode>('docked')
@@ -91,8 +90,16 @@ export const usePanelStore = defineStore('panel', () => {
     }
   }
 
+  // Accepts a viewport-relative fraction in (0..1]. Values <= 0 fall back
+  // to the default. Pixel min/max are not enforced here — render-time code
+  // (PanelDocked) clamps against MIN/MAX/canvas to keep the stored fraction
+  // intact across window resizes.
   function setDockedWidth(next: number) {
-    dockedWidth.value = Math.min(PANEL_MAX_WIDTH, Math.max(PANEL_MIN_WIDTH, next))
+    if (!Number.isFinite(next) || next <= 0) {
+      dockedWidth.value = DEFAULT_DOCKED_WIDTH_FRACTION
+      return
+    }
+    dockedWidth.value = Math.min(1, next)
   }
 
   // Applies the initial breakpoint snapshot (e.g. on app mount). If narrow,
@@ -196,7 +203,10 @@ export const usePanelStore = defineStore('panel', () => {
   // floating panel off-screen on the next load. Resetting them to defaults
   // each session keeps the panel predictably reachable.
   persist: {
-    key: 'blueprint-chart:panel',
+    // v2: dockedWidth is now a viewport fraction (0..1), not pixels.
+    // Bumping the key invalidates any v1 pixel value that would otherwise
+    // rehydrate as an out-of-range fraction.
+    key: 'blueprint-chart:panel:v2',
     pick: ['mode', 'dockedWidth', 'lastDesktopMode'],
   },
 })
