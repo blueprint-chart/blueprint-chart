@@ -15,6 +15,8 @@ import IPhGithubLogo from '~icons/ph/github-logo'
 import IPhList from '~icons/ph/list'
 import { useMediaQuery } from '@vueuse/core'
 
+defineOptions({ name: 'DocsLayout' })
+
 const { Layout } = DefaultTheme
 const { frontmatter } = useData()
 const { theme, resolvedTheme, cycleTheme } = useDocsTheme()
@@ -22,7 +24,9 @@ const { theme, resolvedTheme, cycleTheme } = useDocsTheme()
 const isHome = computed(() => frontmatter.value.layout === 'home')
 
 watchEffect(() => {
-  if (typeof document === 'undefined') { return }
+  if (typeof document === 'undefined') {
+    return
+  }
   document.documentElement.style.setProperty(
     '--vp-nav-height',
     isHome.value ? '60px' : '44px',
@@ -37,8 +41,12 @@ const iconByTheme: Record<DocsThemeMode, typeof IPhSun> = {
 const themeIcon = computed(() => iconByTheme[theme.value])
 
 const themeLabel = computed(() => {
-  if (theme.value === 'light') { return 'Switch to dark theme' }
-  if (theme.value === 'dark') { return 'Switch to auto theme' }
+  if (theme.value === 'light') {
+    return 'Switch to dark theme'
+  }
+  if (theme.value === 'dark') {
+    return 'Switch to auto theme'
+  }
   return 'Switch to light theme'
 })
 
@@ -54,13 +62,17 @@ function goEditor() {
 
 const shortcutLabel = ref('⌘ K')
 onMounted(() => {
-  if (typeof navigator === 'undefined') { return }
+  if (typeof navigator === 'undefined') {
+    return
+  }
   const isMac = /Mac|iPhone|iPod|iPad/i.test(navigator.platform)
   shortcutLabel.value = isMac ? '⌘ K' : 'Ctrl K'
 })
 
 function openSearch() {
-  if (typeof document === 'undefined') { return }
+  if (typeof document === 'undefined') {
+    return
+  }
   document.dispatchEvent(new KeyboardEvent('keydown', {
     key: 'k',
     code: 'KeyK',
@@ -73,7 +85,9 @@ function openSearch() {
 const isNarrow = useMediaQuery('(max-width: 959.98px)')
 
 function openSidebar() {
-  if (typeof document === 'undefined') { return }
+  if (typeof document === 'undefined') {
+    return
+  }
   // VitePress's own .VPNav is hidden globally by our Layout, but its hamburger
   // is still in the DOM and still wired to VP's offcanvas state. Click it to
   // toggle the sidebar without reaching into VP internals.

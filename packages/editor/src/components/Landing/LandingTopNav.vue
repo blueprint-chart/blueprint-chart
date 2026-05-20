@@ -30,7 +30,9 @@ function openSearch() {
   // LayoutShell registers a global ⌘/Ctrl+K listener that opens the command
   // palette. Synthesize the same keystroke so the click path matches the
   // shortcut path exactly.
-  if (typeof document === 'undefined') { return }
+  if (typeof document === 'undefined') {
+    return
+  }
   document.dispatchEvent(new KeyboardEvent('keydown', {
     key: 'k',
     code: 'KeyK',

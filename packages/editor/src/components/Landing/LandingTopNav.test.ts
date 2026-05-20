@@ -1,6 +1,5 @@
 import { shallowRef } from 'vue'
 import { mount } from '@vue/test-utils'
-import { NavigationMarketingBar } from '@blueprint-chart/ui'
 import LandingTopNav from './LandingTopNav.vue'
 
 vi.mock('@/stores/theme', () => ({
@@ -73,7 +72,9 @@ describe('LandingTopNav', () => {
   it('clicking the search pill dispatches a ⌘/Ctrl+K keydown', async () => {
     const w = mountNav()
     let captured: KeyboardEvent | null = null
-    const handler = (ev: Event) => { captured = ev as KeyboardEvent }
+    const handler = (ev: Event) => {
+      captured = ev as KeyboardEvent
+    }
     document.addEventListener('keydown', handler)
     await w.find('.ncb-stub').trigger('click')
     document.removeEventListener('keydown', handler)
