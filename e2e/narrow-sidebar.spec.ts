@@ -15,9 +15,8 @@ test.describe('Narrow viewport - sidebar offcanvas', () => {
     const lead = page.locator('.layout-navbar__lead')
     await expect(lead).toBeVisible()
     await expect(lead.locator('button[aria-label="Open navigation"]')).toBeVisible()
-    // Logo is the icon-only variant — name span must not be present in the leading cluster.
-    await expect(lead.locator('.navigation-workspace-switcher__name')).toHaveCount(0)
     await expect(lead.locator('.navigation-workspace-switcher__logo')).toBeVisible()
+    await expect(lead.locator('.navigation-workspace-switcher__name')).toHaveText('Blueprint Chart')
     await expect(page.locator('nav[aria-label="Breadcrumb"]')).toBeVisible()
   })
 
