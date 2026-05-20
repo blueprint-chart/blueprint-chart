@@ -8,6 +8,7 @@ components.d.ts
 .ralph-tui
 .swarm/
 .superpowers/
+.review/
 docs/superpowers/
 /tasks/
 
