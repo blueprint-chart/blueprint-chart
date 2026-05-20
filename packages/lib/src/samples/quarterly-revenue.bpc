@@ -4,7 +4,6 @@ chart bar-multi {
   byline = "Pierre Romera"
   source = "Company filings"
   note = "Figures are illustrative and do not represent actual company data"
-  legendPosition = "top"
   tooltips = true
   colorPalette = "Egypt"
 

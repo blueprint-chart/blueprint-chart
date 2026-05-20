@@ -3,21 +3,9 @@ chart bar-vertical {
   description = "Annual emissions in billion tonnes, 2023"
   source = "Global Carbon Project"
   sourceUrl = "https://globalcarbonproject.org"
-  colorPalette = "Blueprint"
-  autoContrast = false
-  allowDarkMode = true
-  showVerticalAxis = false
-  verticalAxisDirection = "left"
-  showVerticalTicks = false
   verticalLabelPosition = "off"
   verticalGridStyle = "none"
-  verticalScaleType = "linear"
-  showHorizontalAxis = true
-  showHorizontalTicks = false
-  horizontalLabelPosition = "auto"
-  horizontalGridStyle = "none"
   valueLabels = true
-  valueLabelPosition = "auto"
 
   data {
     "China" = 11.9

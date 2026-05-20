@@ -5,10 +5,7 @@ chart line-multi {
   sourceUrl = "https://bls.gov"
   note = "Not seasonally adjusted. Metro area definitions may vary across years."
   colorPalette = "Maya"
-  legend = false
   tooltips = true
-  crosshair = true
-  crosshairStyle = "dashed"
 
   annotation "2009" {
     text = "Great Recession peak"

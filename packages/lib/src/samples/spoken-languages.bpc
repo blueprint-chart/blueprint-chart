@@ -5,7 +5,6 @@ chart bar-horizontal {
   sourceUrl = "https://ethnologue.com"
   byline = "Pierre Romera"
   sort = descending
-  colorPalette = "Blueprint"
   horizontalLabelPosition = off
   horizontalGridStyle = none
 

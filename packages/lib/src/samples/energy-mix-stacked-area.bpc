@@ -5,7 +5,6 @@ chart area-stacked {
   sourceUrl = "https://ourworldindata.org/energy-mix"
   stackPercent = true
   areaSortMode = descending
-  areaFillOpacity = 0.85
 
   data {
     _series = "Coal","Oil","Gas","Renewables"

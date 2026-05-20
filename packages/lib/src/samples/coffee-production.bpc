@@ -4,25 +4,9 @@ chart bar-vertical {
   source = "International Coffee Organization"
   sourceUrl = "https://ico.org"
   colorPalette = "Harvey"
-  autoContrast = false
-  allowDarkMode = true
-  showVerticalAxis = false
-  verticalAxisDirection = "left"
-  showVerticalTicks = false
   verticalLabelPosition = "off"
   verticalGridStyle = "none"
-  verticalScaleType = "linear"
-  showHorizontalAxis = true
-  showHorizontalTicks = false
-  horizontalLabelPosition = "auto"
-  horizontalGridStyle = "none"
   valueLabels = true
-  valueLabelPosition = "auto"
-  tooltips = false
-  crosshair = false
-  crosshairDirection = "both"
-  crosshairStyle = "dashed"
-  crosshairColor = "#999"
 
   data {
     "Brazil" = 66.4

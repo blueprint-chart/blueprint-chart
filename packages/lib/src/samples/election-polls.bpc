@@ -4,7 +4,6 @@ chart bar-split {
   source = "FG Wahlen"
   sourceUrl = "https://www.forschungsgruppe.de"
   note = "Margin of error at 10%: +/- 2 percentage points; at 40%: +/- 3 percentage points"
-  valueLabels = true
 
   data {
     _series = "Poll","High","Low"

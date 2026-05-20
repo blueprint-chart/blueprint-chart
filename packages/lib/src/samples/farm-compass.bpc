@@ -3,7 +3,6 @@ chart area-stacked {
   description = "Agricultural subsidies to post-socialist EU members, million euros"
   source = "Eurostat"
   sourceUrl = "https://ec.europa.eu/eurostat"
-  verticalRangeMin = 0
   interpolation = "linear"
   heightMode = "aspect-ratio"
   aspectRatio = "1:1"
