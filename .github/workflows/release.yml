@@ -143,16 +143,20 @@ jobs:
         with:
           name: dist
           path: packages
-      - name: pnpm publish (dry run)
+      - name: Ensure npm supports OIDC Trusted Publishing
+        run: npm install -g npm@latest
+      - name: npm publish (dry run)
         if: github.event_name == 'workflow_dispatch' && inputs.dry_run
-        run: pnpm -r publish --access public --no-git-checks --provenance --dry-run
-      - name: pnpm publish
+        run: |
+          for pkg in packages/lib packages/ui packages/editor; do
+            (cd "$pkg" && npm publish --access public --provenance --dry-run)
+          done
+      - name: npm publish
         if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && !inputs.dry_run)
-        # NPM_TOKEN is a bootstrap fallback — unused once OIDC Trusted Publisher
-        # is configured per package on npmjs.com. Safe to delete the secret afterward.
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: pnpm -r publish --access public --no-git-checks --provenance
+        run: |
+          for pkg in packages/lib packages/ui packages/editor; do
+            (cd "$pkg" && npm publish --access public --provenance)
+          done
 
   deploy-pages:
     name: Deploy editor to blueprintchart.com
