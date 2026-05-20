@@ -36,11 +36,14 @@ graph TD
 
 ## Packages
 
-| Package | Role |
-| --- | --- |
-| [`@blueprint-chart/lib`](https://www.npmjs.com/package/@blueprint-chart/lib)       | Pure TypeScript + D3 chart engine and Peggy DSL parser. Ships an ESM entry and a standalone IIFE runtime for framework-free embeds. |
-| [`@blueprint-chart/ui`](https://www.npmjs.com/package/@blueprint-chart/ui)         | Vue 3 component library (~109 components: forms, panels, navigation, scene timeline, layout). Bootstrap + BootstrapVueNext, with Histoire stories. |
-| [`@blueprint-chart/editor`](https://www.npmjs.com/package/@blueprint-chart/editor) | Vue 3 SPA composing `lib` + `ui` into the authoring experience: live CodeMirror 6 DSL editor, Pinia stores, scene playback, export. |
+<table>
+<thead><tr><th>Package</th><th>Role</th></tr></thead>
+<tbody>
+<tr><td nowrap><a href="https://www.npmjs.com/package/@blueprint-chart/lib"><code>@blueprint-chart/lib</code></a></td><td>Pure TypeScript + D3 chart engine and Peggy DSL parser. Ships an ESM entry and a standalone IIFE runtime for framework-free embeds.</td></tr>
+<tr><td nowrap><a href="https://www.npmjs.com/package/@blueprint-chart/ui"><code>@blueprint-chart/ui</code></a></td><td>Vue 3 component library (~109 components: forms, panels, navigation, scene timeline, layout). Bootstrap + BootstrapVueNext, with Histoire stories.</td></tr>
+<tr><td nowrap><a href="https://www.npmjs.com/package/@blueprint-chart/editor"><code>@blueprint-chart/editor</code></a></td><td>Vue 3 SPA composing <code>lib</code> + <code>ui</code> into the authoring experience: live CodeMirror 6 DSL editor, Pinia stores, scene playback, export.</td></tr>
+</tbody>
+</table>
 
 ## Prerequisites
 
