@@ -143,18 +143,12 @@ jobs:
         with:
           name: dist
           path: packages
-      - name: npm publish (dry run)
+      - name: pnpm publish (dry run)
         if: github.event_name == 'workflow_dispatch' && inputs.dry_run
-        run: |
-          for pkg in packages/lib packages/ui packages/editor; do
-            (cd "$pkg" && npm publish --access public --provenance --dry-run)
-          done
-      - name: npm publish
+        run: pnpm -r publish --access public --no-git-checks --provenance --dry-run
+      - name: pnpm publish
         if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && !inputs.dry_run)
-        run: |
-          for pkg in packages/lib packages/ui packages/editor; do
-            (cd "$pkg" && npm publish --access public --provenance)
-          done
+        run: pnpm -r publish --access public --no-git-checks --provenance
 
   deploy-pages:
     name: Deploy editor to blueprintchart.com
