@@ -70,9 +70,6 @@ function goNew() {
         size="sm"
         @click="cycleTheme"
       />
-    </template>
-
-    <template #cta-secondary>
       <ButtonIcon
         label="My charts"
         variant="outline-secondary"
