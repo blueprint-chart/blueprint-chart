@@ -11,8 +11,8 @@ vi.mock('@/stores/theme', () => ({
   }),
 }))
 
-vi.mock('vue-router', () => ({
-  useRouter: () => ({ push: vi.fn() }),
+vi.mock('@/composables/usePlatformShortcut', () => ({
+  usePlatformShortcut: () => ({ keyLabel: '⌘ K', matches: () => false }),
 }))
 
 function mountNav() {
@@ -22,6 +22,11 @@ function mountNav() {
         'router-link': { template: '<a><slot /></a>', props: ['to'] },
         'ButtonIcon': { template: '<button class="btn-stub" :data-label="label"><slot /></button>', props: ['label', 'variant', 'size', 'iconRight', 'iconLeft', 'hideLabel', 'square'] },
         'AppIcon': { template: '<span />', props: ['name', 'size'] },
+        'NavigationCommandBar': {
+          template: '<button class="ncb-stub" :data-placeholder="placeholder" @click="$emit(\'click\')"><slot /></button>',
+          props: ['placeholder', 'shortcutLabel'],
+          emits: ['click'],
+        },
         'NavigationMarketingBar': {
           template: `
             <header class="nmb-stub">
@@ -51,23 +56,31 @@ describe('LandingTopNav', () => {
     expect(menuLabels).toEqual(['Defaults', 'Transforms', 'Format', 'Scenes'])
   })
 
-  it('renders the GitHub pill', () => {
+  it('renders search, GitHub, and theme toggle inside actions, in that order', () => {
     const w = mountNav()
-    expect(w.find('.landing-topnav__github').exists()).toBe(true)
-    expect(w.find('.landing-topnav__github').text()).toContain('GitHub')
+    const actions = w.find('.nmb-stub__actions').html()
+    expect(actions.indexOf('ncb-stub')).toBeLessThan(actions.indexOf('landing-topnav__github'))
+    expect(actions.indexOf('landing-topnav__github')).toBeLessThan(actions.indexOf('data-label="Toggle theme"'))
   })
 
-  it('renders the My charts and New chart buttons', () => {
+  it('does not render My charts or New chart buttons', () => {
     const w = mountNav()
     const labels = w.findAll('.btn-stub').map(n => n.attributes('data-label'))
-    expect(labels).toContain('My charts')
-    expect(labels).toContain('New chart')
+    expect(labels).not.toContain('My charts')
+    expect(labels).not.toContain('New chart')
   })
 
-  it('renders the theme toggle button', () => {
+  it('clicking the search pill dispatches a ⌘/Ctrl+K keydown', async () => {
     const w = mountNav()
-    const labels = w.findAll('.btn-stub').map(n => n.attributes('data-label'))
-    expect(labels).toContain('Toggle theme')
+    let captured: KeyboardEvent | null = null
+    const handler = (ev: Event) => { captured = ev as KeyboardEvent }
+    document.addEventListener('keydown', handler)
+    await w.find('.ncb-stub').trigger('click')
+    document.removeEventListener('keydown', handler)
+    expect(captured).not.toBeNull()
+    expect(captured!.key).toBe('k')
+    expect(captured!.metaKey).toBe(true)
+    expect(captured!.ctrlKey).toBe(true)
   })
 
   it('uses NavigationMarketingBar as its root chrome', () => {

@@ -1,22 +1,22 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useRouter } from 'vue-router'
 import {
   AppIcon,
   ButtonIcon,
+  NavigationCommandBar,
   NavigationMarketingBar,
 } from '@blueprint-chart/ui'
 import { useTheme, type ThemeMode } from '@/stores/theme'
+import { usePlatformShortcut } from '@/composables/usePlatformShortcut'
 import logoLight from '@/assets/images/blueprint-chart-logo.svg'
 import logoDark from '@/assets/images/blueprint-chart-logo-dark.svg'
-import IPhPlus from '~icons/ph/plus'
 import IPhGithubLogo from '~icons/ph/github-logo'
 import IPhSun from '~icons/ph/sun'
 import IPhMoon from '~icons/ph/moon'
 import IPhCircleHalf from '~icons/ph/circle-half'
 
-const router = useRouter()
 const { theme, resolvedTheme, cycleTheme } = useTheme()
+const shortcut = usePlatformShortcut('k')
 const logoSrc = computed(() => resolvedTheme.value === 'dark' ? logoDark : logoLight)
 
 const iconByTheme: Record<ThemeMode, typeof IPhSun> = {
@@ -26,12 +26,18 @@ const iconByTheme: Record<ThemeMode, typeof IPhSun> = {
 }
 const themeIcon = computed(() => iconByTheme[theme.value])
 
-function goCharts() {
-  router.push('/charts')
-}
-
-function goNew() {
-  router.push('/new')
+function openSearch() {
+  // LayoutShell registers a global ⌘/Ctrl+K listener that opens the command
+  // palette. Synthesize the same keystroke so the click path matches the
+  // shortcut path exactly.
+  if (typeof document === 'undefined') return
+  document.dispatchEvent(new KeyboardEvent('keydown', {
+    key: 'k',
+    code: 'KeyK',
+    metaKey: true,
+    ctrlKey: true,
+    bubbles: true,
+  }))
 }
 </script>
 
@@ -52,6 +58,11 @@ function goNew() {
     </template>
 
     <template #actions>
+      <NavigationCommandBar
+        placeholder="Search or jump to…"
+        :shortcut-label="shortcut.keyLabel"
+        @click="openSearch"
+      />
       <a
         class="btn btn-sm btn-outline-secondary landing-topnav__github"
         href="https://github.com/blueprint-chart/blueprint-chart"
@@ -69,22 +80,6 @@ function goNew() {
         variant="outline-secondary"
         size="sm"
         @click="cycleTheme"
-      />
-      <ButtonIcon
-        label="My charts"
-        variant="outline-secondary"
-        size="sm"
-        @click="goCharts"
-      />
-    </template>
-
-    <template #cta-primary>
-      <ButtonIcon
-        label="New chart"
-        variant="primary"
-        size="sm"
-        :icon-left="IPhPlus"
-        @click="goNew"
       />
     </template>
   </NavigationMarketingBar>
