@@ -3,32 +3,9 @@ chart line {
   description = "Deviation from the 1951–1980 average, in °C"
   source = "NASA GISS"
   sourceUrl = "https://data.giss.nasa.gov/gistemp/"
-  colorPalette = "Blueprint"
-  autoContrast = false
-  allowDarkMode = true
-  interpolation = "monotoneX"
-  showVerticalAxis = false
-  verticalAxisDirection = "left"
-  showVerticalTicks = false
-  verticalLabelPosition = "auto"
-  verticalGridStyle = "dashed"
-  verticalScaleType = "linear"
-  showHorizontalAxis = true
-  showHorizontalTicks = false
-  horizontalLabelPosition = "auto"
-  horizontalGridStyle = "none"
-  valueLabels = false
   tooltips = true
   crosshair = false
-  crosshairDirection = "vertical"
-  crosshairStyle = "dashed"
-  crosshairColor = "#999"
   lineSymbols = true
-  lineSymbolShape = "circle"
-  lineSymbolShowOn = "firstLast"
-  lineSymbolStyle = "filled"
-  lineSymbolSize = "3.5"
-  lineSymbolOpacity = "1"
 
   data {
     "1980" = 0.26
