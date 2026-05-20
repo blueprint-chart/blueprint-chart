@@ -304,8 +304,10 @@
   border-right: 1px solid var(--bc-hairline);
 }
 
-/* Group spacing — remove VP's between-group top border + padding; 14px gap. */
-.VPSidebar .group + .group {
+/* Group spacing — remove VP's between-group top border + padding; 14px gap.
+ * Chain `> .nav >` to beat VP's scoped `.group + .group[data-v-...]` (0,3,0)
+ * regardless of dev / prod CSS injection order. */
+.VPSidebar > .nav > .group + .group {
   border-top: none;
   padding-top: 0;
   margin-top: 14px;
@@ -370,11 +372,12 @@
 }
 
 /* Pin sidebar to the page's left edge at >=1440px — override VP's
- * centered-layout rule. The doubled `.VPSidebar.VPSidebar` (specificity 0,2,0)
- * ties VP's scoped `.VPSidebar[data-v-...]` (0,2,0); source order breaks
- * the tie in our favor (style.css is injected after VP's component styles). */
+ * centered-layout rule. Tripled `.VPSidebar.VPSidebar.VPSidebar` (0,3,0)
+ * cleanly beats VP's scoped `.VPSidebar[data-v-...]` (0,2,0) regardless of
+ * dev / prod CSS injection order (a (0,2,0) tie won in production but lost
+ * with Vite HMR in dev). */
 @media (min-width: 1440px) {
-  .VPSidebar.VPSidebar {
+  .VPSidebar.VPSidebar.VPSidebar {
     padding-left: 32px;
     width: var(--vp-sidebar-width);
   }
