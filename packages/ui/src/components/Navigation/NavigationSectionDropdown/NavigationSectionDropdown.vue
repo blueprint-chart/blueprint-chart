@@ -18,6 +18,7 @@ const props = withDefaults(defineProps<{
 
 const open = ref(false)
 const root = ref<HTMLElement | null>(null)
+const triggerRef = ref<HTMLElement | null>(null)
 
 const activeText = computed(() => {
   const found = props.sections.find(section => section.link === props.activeLink)
@@ -32,12 +33,19 @@ function close() {
   open.value = false
 }
 
-function onKeydown(event: KeyboardEvent) {
+// Document-level Escape handler — needed because the panel `<menu>` is
+// not focusable; if the user opens via click (focus on the trigger) and
+// presses Escape, the keydown would never reach the panel itself.
+useEventListener(document, 'keydown', (event: KeyboardEvent) => {
+  if (!open.value) {
+    return
+  }
   if (event.key === 'Escape') {
     event.preventDefault()
-    close()
+    open.value = false
+    triggerRef.value?.focus()
   }
-}
+})
 
 // Outside-click handler — `mousedown` (not `click`) so the panel closes
 // before any link inside it activates a navigation.
@@ -58,6 +66,7 @@ useEventListener(document, 'mousedown', (event: MouseEvent) => {
     class="navigation-section-dropdown"
   >
     <button
+      ref="triggerRef"
       type="button"
       class="navigation-section-dropdown__trigger"
       :aria-expanded="open ? 'true' : 'false'"
@@ -75,7 +84,6 @@ useEventListener(document, 'mousedown', (event: MouseEvent) => {
       v-if="open"
       class="navigation-section-dropdown__panel"
       role="menu"
-      @keydown="onKeydown"
     >
       <a
         v-for="s in sections"
