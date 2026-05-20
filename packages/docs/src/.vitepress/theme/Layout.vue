@@ -305,6 +305,7 @@ function openSidebar() {
   text-decoration: none;
   font-weight: 600;
   font-size: var(--bs-font-size-sm);
+  white-space: nowrap;
 }
 .docs-sidebar-brand:hover { color: var(--bs-body-color); text-decoration: none; }
 .docs-sidebar-brand__logo {
@@ -321,6 +322,7 @@ function openSidebar() {
   gap: 0.5rem;
   color: var(--vp-c-text-1);
   text-decoration: none;
+  white-space: nowrap;
 }
 .docs-brand__logo {
   height: 1.5rem;
