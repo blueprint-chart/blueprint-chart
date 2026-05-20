@@ -51,7 +51,6 @@ const logoSrc = computed(() => resolvedTheme.value === 'dark' ? logoDark : logoL
       <NavigationWorkspaceSwitcher
         name="Blueprint Chart"
         :logo-src="logoSrc"
-        hide-name
         to="/"
       />
     </div>

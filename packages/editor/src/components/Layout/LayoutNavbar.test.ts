@@ -64,13 +64,13 @@ describe('LayoutNavbar', () => {
     expect(lead.classes()).toContain('d-xl-none')
   })
 
-  it('renders the workspace switcher with hide-name in the leading cluster', async () => {
+  it('renders the workspace switcher with the wordmark visible in the leading cluster', async () => {
     const wrapper = await mountNavbar()
     const lead = wrapper.find('.layout-navbar__lead')
     const switcher = lead.find('.navigation-workspace-switcher')
     expect(switcher.exists()).toBe(true)
-    // hide-name should suppress the wordmark inside the cluster
-    expect(switcher.find('.navigation-workspace-switcher__name').exists()).toBe(false)
+    // wordmark should read "Blueprint Chart"
+    expect(switcher.find('.navigation-workspace-switcher__name').text()).toBe('Blueprint Chart')
   })
 
   it('emits toggleSidebar when the hamburger is clicked', async () => {
