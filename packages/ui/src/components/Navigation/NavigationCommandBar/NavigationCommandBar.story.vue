@@ -16,5 +16,12 @@ import NavigationCommandBar from './NavigationCommandBar.vue'
         shortcut-label=""
       />
     </Variant>
+    <Variant title="Collapsed (icon only)">
+      <NavigationCommandBar
+        placeholder="Search charts…"
+        shortcut-label="⌘K"
+        collapsed
+      />
+    </Variant>
   </Story>
 </template>
