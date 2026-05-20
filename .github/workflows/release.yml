@@ -19,7 +19,7 @@ permissions:
   id-token: write   # required for npm OIDC trusted publishing
 
 env:
-  NODE_VERSION: '24'
+  NODE_VERSION: '27'
   PNPM_VERSION: '10'
 
 jobs:
