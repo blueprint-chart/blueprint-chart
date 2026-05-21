@@ -100,7 +100,7 @@ const cardClassList = computed(() => ({
 
   &__thumb {
     height: 152px;
-    background: var(--bs-tertiary-bg);
+    background: var(--bc-tile-bg-elevated);
     border-bottom: 1px solid var(--bs-border-color);
     display: flex;
     align-items: center;
