@@ -33,15 +33,7 @@ describe('PanelIconRail', () => {
     const w = mount(PanelIconRail, {
       props: { activeTab: 'a', items },
     })
-    expect(w.find('.btn-toggle').text()).toBe('Detach panel')
-  })
-
-  it('renders toggle button with correct label when floating', () => {
-    usePanelStore().$patch({ mode: 'floating' })
-    const w = mount(PanelIconRail, {
-      props: { activeTab: 'a', items },
-    })
-    expect(w.find('.btn-toggle').text()).toBe('Dock panel')
+    expect(w.find('.btn-toggle').text()).toBe('Close panel')
   })
 
   it('renders toggle button with correct label when closed', () => {
@@ -82,12 +74,12 @@ describe('PanelIconRail', () => {
 
   it('does not change mode when clicking while panel is already open', async () => {
     const store = usePanelStore()
-    store.$patch({ mode: 'floating', lastDesktopMode: 'floating' })
+    store.$patch({ mode: 'docked', lastDesktopMode: 'docked' })
     const w = mount(PanelIconRail, {
       props: { activeTab: 'a', items },
     })
     await w.find('.rail-item[data-value="b"]').trigger('click')
-    expect(store.mode).toBe('floating')
+    expect(store.mode).toBe('docked')
     expect(w.emitted('select')).toEqual([['b']])
   })
 })
