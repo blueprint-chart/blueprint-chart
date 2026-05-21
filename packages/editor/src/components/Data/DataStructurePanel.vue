@@ -79,6 +79,10 @@ import { useEditorPanel, type DataPanelTab } from '@/stores/editorPanel'
 import { usePanel } from '@/stores/panel'
 import { useScenes } from '@/stores/scenes'
 import IPhArrowsClockwise from '~icons/ph/arrows-clockwise'
+import IPhColumns from '~icons/ph/columns'
+import IPhFlowArrow from '~icons/ph/flow-arrow'
+import IPhFileText from '~icons/ph/file-text'
+import IPhLightbulb from '~icons/ph/lightbulb'
 import { findDataSourceSceneIndex } from '@/utils/scenes'
 
 const { columns, rows, columnTypes } = useDataTable()
@@ -123,10 +127,10 @@ const { isNarrow } = useBreakpoint()
 const mainRef = useTemplateRef<HTMLElement>('mainRef')
 
 const allTabs = [
-  { key: 'column' as DataPanelTab, label: 'Columns' },
-  { key: 'transforms' as DataPanelTab, label: 'Transforms' },
-  { key: 'parsing' as DataPanelTab, label: 'Parsing' },
-  { key: 'reco' as DataPanelTab, label: 'Recommendations' },
+  { key: 'column' as DataPanelTab, label: 'Columns', icon: IPhColumns },
+  { key: 'transforms' as DataPanelTab, label: 'Transforms', icon: IPhFlowArrow },
+  { key: 'parsing' as DataPanelTab, label: 'Parsing', icon: IPhFileText },
+  { key: 'reco' as DataPanelTab, label: 'Recommendations', icon: IPhLightbulb },
 ]
 
 const sceneDisabledTabs = computed(() => isSceneMode.value ? ['parsing'] : [])

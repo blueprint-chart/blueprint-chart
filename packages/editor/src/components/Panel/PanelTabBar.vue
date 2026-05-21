@@ -12,16 +12,24 @@
       :class="{ 'panel-tab-bar__tab--active': model === tab.key }"
       @click="model = tab.key"
     >
+      <component
+        :is="tab.icon"
+        v-if="tab.icon"
+        class="panel-tab-bar__tab__icon"
+        aria-hidden="true"
+      />
       {{ tab.label }}
     </button>
   </div>
 </template>
 
 <script setup lang="ts">
+import type { Component } from 'vue'
 
 export interface PanelTab {
   key: string
   label: string
+  icon?: Component
 }
 
 withDefaults(defineProps<{
@@ -51,7 +59,7 @@ watch(() => activeTabEl, scrollActiveTabIntoView)
 .panel-tab-bar {
   display: flex;
   gap: 0.125rem;
-  padding: 0.375rem 0.625rem;
+  padding: 0.375rem 0;
   overflow-x: auto;
   scrollbar-width: none;
 
@@ -67,6 +75,9 @@ watch(() => activeTabEl, scrollActiveTabIntoView)
   }
 
   &__tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
     font-family: inherit;
     font-size: var(--bs-font-size-sm);
     font-weight: 500;
@@ -79,6 +90,12 @@ watch(() => activeTabEl, scrollActiveTabIntoView)
     color: var(--bs-secondary-color);
     border-radius: var(--bc-radius-xs);
     transition: background-color 0.15s, color 0.15s, font-weight 0.15s;
+
+    &__icon {
+      width: 1rem;
+      height: 1rem;
+      flex-shrink: 0;
+    }
 
     &:hover {
       color: var(--bs-body-color);
