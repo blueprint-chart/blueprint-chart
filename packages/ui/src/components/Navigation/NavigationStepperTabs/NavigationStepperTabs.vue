@@ -40,6 +40,41 @@ function selectStep(index: number) {
   if (isDisabled(index)) return
   currentStep.value = index
 }
+
+function onKeydown(event: KeyboardEvent, index: number) {
+  const enabled: number[] = []
+  for (let i = 0; i < props.steps.length; i++) {
+    if (!isDisabled(i)) enabled.push(i)
+  }
+  if (enabled.length === 0) return
+
+  const position = enabled.indexOf(index)
+  let target: number | null = null
+
+  switch (event.key) {
+    case 'ArrowRight':
+      target = enabled[(position + 1) % enabled.length]
+      break
+    case 'ArrowLeft':
+      target = enabled[(position - 1 + enabled.length) % enabled.length]
+      break
+    case 'Home':
+      target = enabled[0]
+      break
+    case 'End':
+      target = enabled[enabled.length - 1]
+      break
+    default:
+      return
+  }
+
+  event.preventDefault()
+  if (target === null) return
+  const root = (event.currentTarget as HTMLElement).closest('[role="tablist"]')
+  if (!root) return
+  const tabs = root.querySelectorAll<HTMLButtonElement>('[role="tab"]')
+  tabs[target]?.focus()
+}
 </script>
 
 <template>
@@ -63,6 +98,7 @@ function selectStep(index: number) {
         ]"
         :title="step.label"
         @click="selectStep(index)"
+        @keydown="onKeydown($event, index)"
       >
         <span
           v-if="iconFor(step, index)"
