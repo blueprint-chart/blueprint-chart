@@ -72,8 +72,7 @@ import { useEditorPanel } from '@/stores/editorPanel'
 import { usePanel } from '@/stores/panel'
 import { useExportPanel, type ExportTab } from '@/stores/exportPanel'
 import { useChartConfig } from '@/stores/chartConfig'
-import IPhCode from '~icons/ph/code'
-import IPhDownloadSimple from '~icons/ph/download-simple'
+import { useExportSections } from '@/composables/useExportSections'
 
 const editorPanel = useEditorPanel()
 const { canvasMode, showDimensions } = storeToRefs(editorPanel)
@@ -125,10 +124,7 @@ const canvasStyle = computed<CSSProperties>(() => ({
 
 const drawerOpen = shallowRef(true)
 
-const tabs = [
-  { key: 'embed', label: 'Embed', icon: IPhCode },
-  { key: 'download', label: 'Download', icon: IPhDownloadSimple },
-]
+const { sections: tabs } = useExportSections()
 
 const TAB_LABELS: Record<string, string> = {
   embed: 'Embed',

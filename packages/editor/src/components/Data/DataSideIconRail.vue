@@ -9,13 +9,9 @@
 </template>
 
 <script setup lang="ts">
-import { type Component } from 'vue'
 import { useEditorPanel, type DataPanelTab } from '@/stores/editorPanel'
 import { usePanel } from '@/stores/panel'
-import IPhColumns from '~icons/ph/columns'
-import IPhFlowArrow from '~icons/ph/flow-arrow'
-import IPhFileText from '~icons/ph/file-text'
-import IPhLightbulb from '~icons/ph/lightbulb'
+import { useDataSections } from '@/composables/useDataSections'
 
 const props = withDefaults(defineProps<{
   horizontal?: boolean
@@ -28,16 +24,16 @@ const editorPanel = useEditorPanel()
 const { dataPanelTab } = storeToRefs(editorPanel)
 const { openDataPanel } = editorPanel
 const { mode: panelMode, toggleMode } = usePanel()
-
-const allItems: { value: string, icon: Component, tooltip: string }[] = [
-  { value: 'column', icon: IPhColumns, tooltip: 'Columns' },
-  { value: 'transforms', icon: IPhFlowArrow, tooltip: 'Transforms' },
-  { value: 'parsing', icon: IPhFileText, tooltip: 'Parsing' },
-  { value: 'reco', icon: IPhLightbulb, tooltip: 'Recommendations' },
-]
+const { sections } = useDataSections()
 
 const items = computed(() =>
-  allItems.filter(i => !props.disabledTabs.includes(i.value)),
+  sections
+    .filter(s => !props.disabledTabs.includes(s.key))
+    .map(s => ({
+      value: s.key,
+      icon: s.icon,
+      tooltip: s.tooltip ?? s.label,
+    })),
 )
 
 function onSelect(tab: string | number) {
