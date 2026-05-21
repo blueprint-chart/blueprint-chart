@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { Component } from 'vue'
 import { onBeforeRouteLeave } from 'vue-router'
 import { useWizard } from '@/stores/wizard'
 import { useDataTable } from '@/stores/dataTable'
@@ -13,7 +14,10 @@ import type { ChartColorize } from '@/stores/chartConfig'
 import { ChartType, SortDirection, parseData } from '@blueprint-chart/lib'
 import type { SeriesOverride } from '@blueprint-chart/lib'
 import { BBadge } from 'bootstrap-vue-next'
-import { NavigationStepperChevron, SceneTimeline, useBreakpoint } from '@blueprint-chart/ui'
+import { NavigationStepperTabs, SceneTimeline, useBreakpoint } from '@blueprint-chart/ui'
+import IconPhTable from '~icons/ph/table'
+import IconPhChartBar from '~icons/ph/chart-bar'
+import IconPhExport from '~icons/ph/export'
 import LayoutPageHeader from '@/components/Layout/LayoutPageHeader.vue'
 import LayoutBreadcrumb from '@/components/Layout/LayoutBreadcrumb.vue'
 import LayoutSceneTimeline from '@/components/Layout/LayoutSceneTimeline.vue'
@@ -32,8 +36,15 @@ const savedAtDate = computed<Date | ''>(() => lastSavedAt.value ? new Date(lastS
 const savedAgo = useTimeAgo(savedAtDate)
 const savedLabel = computed(() => savedAtDate.value ? `saved ${savedAgo.value}` : null)
 const { isNarrow: isSavedCompact } = useBreakpoint('lg')
+const { isNarrow: isStepperStacked } = useBreakpoint('md')
 
-const stepLabels = steps.map(s => ({ label: s.label, key: s.key }))
+const stepIcons: Record<string, Component> = {
+  data: IconPhTable,
+  edit: IconPhChartBar,
+  export: IconPhExport,
+}
+
+const stepLabels = steps.map(s => ({ label: s.label, key: s.key, icon: stepIcons[s.key] }))
 
 const disabledSteps = computed(() => {
   const hasParsed = dataTable.rows.value.length > 0
@@ -250,10 +261,11 @@ onBeforeRouteLeave(() => {
         />
       </template>
       <template #center>
-        <NavigationStepperChevron
+        <NavigationStepperTabs
           v-model:current-step="currentIndex"
           :steps="stepLabels"
           :disabled-steps="disabledSteps"
+          :layout="isStepperStacked ? 'stacked' : 'inline'"
         />
       </template>
       <template #end>
@@ -316,18 +328,6 @@ onBeforeRouteLeave(() => {
 
   &__back :deep(.button-icon) {
     border-radius: 50%;
-  }
-
-  @media (max-width: 767.98px) {
-    &__header :deep(.navigation-stepper-tabs) {
-      width: 100%;
-    }
-
-    &__header :deep(.navigation-stepper-tabs__step) {
-      flex: 1;
-      padding: 0 0.5rem;
-      justify-content: center;
-    }
   }
 
   &__saved {
