@@ -52,11 +52,11 @@ onMounted(() => {
       bpcHighlighter,
       EditorView.updateListener.of(onEditorUpdate),
       EditorView.theme({
-        '&': { height: '100%', backgroundColor: 'var(--bs-body-bg)' },
+        '&': { height: '100%', backgroundColor: 'var(--bc-tile-bg-elevated)' },
         '.cm-scroller': { overflow: 'auto' },
         '.cm-content': { fontFamily: 'var(--bs-font-monospace)' },
         '.cm-gutters': {
-          backgroundColor: 'var(--bs-body-bg)',
+          backgroundColor: 'var(--bc-tile-bg-elevated)',
           color: 'var(--bs-secondary-color)',
           borderRight: '1px solid var(--bs-border-color)',
         },
