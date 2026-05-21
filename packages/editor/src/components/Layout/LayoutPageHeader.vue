@@ -23,7 +23,7 @@
   gap: 0.75rem;
   min-height: 3.5rem;
   padding: 0 1.25rem;
-  background: transparent;
+  background: var(--bc-tile-bg-elevated);
   border-bottom: 1px solid var(--bc-hairline);
   flex-shrink: 0;
   // Stay clickable above the bottom-drawer backdrop (z-index 1040).
