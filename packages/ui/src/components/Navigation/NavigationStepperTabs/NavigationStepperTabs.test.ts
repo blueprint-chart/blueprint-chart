@@ -103,4 +103,58 @@ describe('NavigationStepperTabs', () => {
     const tabs = wrapper.findAll('[role="tab"]')
     expect(tabs.length).toBe(steps.length)
   })
+
+  it('moves focus from the active tab to the next enabled tab on ArrowRight, wrapping at the end', async () => {
+    const wrapper = mount(NavigationStepperTabs, {
+      props: { steps, currentStep: 0 },
+      attachTo: document.body,
+    })
+    const tabs = wrapper.findAll('[role="tab"]')
+    ;(tabs[0].element as HTMLElement).focus()
+    await tabs[0].trigger('keydown', { key: 'ArrowRight' })
+    expect(document.activeElement).toBe(tabs[1].element)
+    await tabs[1].trigger('keydown', { key: 'ArrowRight' })
+    expect(document.activeElement).toBe(tabs[2].element)
+    await tabs[2].trigger('keydown', { key: 'ArrowRight' })
+    expect(document.activeElement).toBe(tabs[0].element)
+    wrapper.unmount()
+  })
+
+  it('moves focus to the previous enabled tab on ArrowLeft, wrapping at the start', async () => {
+    const wrapper = mount(NavigationStepperTabs, {
+      props: { steps, currentStep: 0 },
+      attachTo: document.body,
+    })
+    const tabs = wrapper.findAll('[role="tab"]')
+    ;(tabs[0].element as HTMLElement).focus()
+    await tabs[0].trigger('keydown', { key: 'ArrowLeft' })
+    expect(document.activeElement).toBe(tabs[2].element)
+    wrapper.unmount()
+  })
+
+  it('skips disabled tabs with arrow keys', async () => {
+    const wrapper = mount(NavigationStepperTabs, {
+      props: { steps, currentStep: 0, disabledSteps: [1] },
+      attachTo: document.body,
+    })
+    const tabs = wrapper.findAll('[role="tab"]')
+    ;(tabs[0].element as HTMLElement).focus()
+    await tabs[0].trigger('keydown', { key: 'ArrowRight' })
+    expect(document.activeElement).toBe(tabs[2].element)
+    wrapper.unmount()
+  })
+
+  it('moves focus to the first/last enabled tab on Home/End', async () => {
+    const wrapper = mount(NavigationStepperTabs, {
+      props: { steps, currentStep: 1, disabledSteps: [0] },
+      attachTo: document.body,
+    })
+    const tabs = wrapper.findAll('[role="tab"]')
+    ;(tabs[1].element as HTMLElement).focus()
+    await tabs[1].trigger('keydown', { key: 'Home' })
+    expect(document.activeElement).toBe(tabs[1].element) // 0 is disabled, falls to next enabled
+    await tabs[1].trigger('keydown', { key: 'End' })
+    expect(document.activeElement).toBe(tabs[2].element)
+    wrapper.unmount()
+  })
 })
