@@ -75,7 +75,7 @@ export { default as LayoutToolbarSeparator } from './components/Layout/LayoutToo
 
 export { default as NavigationSegmentedControl } from './components/Navigation/NavigationSegmentedControl/NavigationSegmentedControl.vue'
 export type { NavigationSegmentedControlItem } from './components/Navigation/NavigationSegmentedControl/NavigationSegmentedControl.vue'
-export { default as NavigationStepperChevron } from './components/Navigation/NavigationStepperChevron/NavigationStepperChevron.vue'
+export { default as NavigationStepperTabs } from './components/Navigation/NavigationStepperTabs/NavigationStepperTabs.vue'
 export { default as NavigationToggle } from './components/Navigation/NavigationToggle/NavigationToggle.vue'
 export { default as NavigationToggleOption } from './components/Navigation/NavigationToggle/NavigationToggleOption.vue'
 export { default as NavigationCommandBar } from './components/Navigation/NavigationCommandBar/NavigationCommandBar.vue'
