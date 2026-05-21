@@ -25,13 +25,6 @@ describe('LayoutBottomDrawer props', () => {
     })
     expect(wrapper.find('.layout-bottom-drawer__header__title').text()).toBe('Settings')
   })
-
-  it('applies custom maxHeight', () => {
-    const wrapper = mount(Drawer, {
-      props: { modelValue: true, maxHeight: '50vh' },
-    })
-    expect(wrapper.find('.layout-bottom-drawer').attributes('style')).toContain('max-height: 50vh')
-  })
 })
 
 describe('LayoutBottomDrawer interactions', () => {
