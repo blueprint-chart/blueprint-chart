@@ -49,9 +49,7 @@ describe('useDashboardPanel', () => {
   it('selectChart opens the shared panel when chrome is closed', () => {
     const panel = usePanelStore()
     const store = useDashboardPanel()
-    panel.float()
     panel.close()
-    // After close(), lastDesktopMode is 'closed' → open() falls back to 'docked'.
     store.selectChart('abc')
     expect(panel.mode).toBe('docked')
     expect(store.selectedChartId).toBe('abc')
@@ -60,18 +58,18 @@ describe('useDashboardPanel', () => {
   it('selectChart leaves an already-open panel unchanged', () => {
     const panel = usePanelStore()
     const store = useDashboardPanel()
-    panel.float()
+    panel.dock()
     store.selectChart('abc')
-    expect(panel.mode).toBe('floating')
+    expect(panel.mode).toBe('docked')
   })
 
   it('deselecting a chart does not touch the panel chrome', () => {
     const panel = usePanelStore()
     const store = useDashboardPanel()
-    panel.float()
+    panel.dock()
     store.selectChart('abc')
     store.selectChart('abc')
     expect(store.selectedChartId).toBeNull()
-    expect(panel.mode).toBe('floating')
+    expect(panel.mode).toBe('docked')
   })
 })

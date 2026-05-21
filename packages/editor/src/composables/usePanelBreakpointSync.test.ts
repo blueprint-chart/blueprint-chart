@@ -42,63 +42,62 @@ describe('usePanelBreakpointSync', () => {
   it('initial narrow: forces drawer and preserves lastDesktopMode', async () => {
     createMockMatchMedia(true)
     const store = usePanelStore()
-    store.$patch({ mode: 'floating', lastDesktopMode: 'floating' })
+    store.$patch({ mode: 'closed', lastDesktopMode: 'closed' })
 
     mountSync()
     await nextTick()
 
     expect(store.mode).toBe('drawer')
-    expect(store.lastDesktopMode).toBe('floating')
+    expect(store.lastDesktopMode).toBe('closed')
     expect(store.narrow).toBe(true)
   })
 
   it('initial wide: leaves state unchanged', async () => {
     createMockMatchMedia(false)
     const store = usePanelStore()
-    store.$patch({ mode: 'floating', lastDesktopMode: 'floating' })
+    store.$patch({ mode: 'closed', lastDesktopMode: 'closed' })
 
     mountSync()
     await nextTick()
 
-    expect(store.mode).toBe('floating')
-    expect(store.lastDesktopMode).toBe('floating')
+    expect(store.mode).toBe('closed')
+    expect(store.lastDesktopMode).toBe('closed')
     expect(store.narrow).toBe(false)
   })
 
   it('initial wide with persisted drawer: coerces mode to lastDesktopMode', async () => {
     createMockMatchMedia(false)
     const store = usePanelStore()
-    // Simulates rehydration from a previous narrow session.
-    store.$patch({ mode: 'drawer', lastDesktopMode: 'floating' })
+    store.$patch({ mode: 'drawer', lastDesktopMode: 'closed' })
 
     mountSync()
     await nextTick()
 
-    expect(store.mode).toBe('floating')
+    expect(store.mode).toBe('closed')
     expect(store.narrow).toBe(false)
   })
 
   it('wide→narrow: saves current mode and enters drawer', async () => {
     const media = createMockMatchMedia(false)
     const store = usePanelStore()
-    store.float()
+    store.close()
 
     mountSync()
     await nextTick()
-    expect(store.mode).toBe('floating')
+    expect(store.mode).toBe('closed')
 
     media.emit(true)
     await nextTick()
 
     expect(store.mode).toBe('drawer')
-    expect(store.lastDesktopMode).toBe('floating')
+    expect(store.lastDesktopMode).toBe('closed')
     expect(store.narrow).toBe(true)
   })
 
   it('narrow→wide: restores lastDesktopMode', async () => {
     const media = createMockMatchMedia(false)
     const store = usePanelStore()
-    store.float()
+    store.close()
 
     mountSync()
     await nextTick()
@@ -109,7 +108,7 @@ describe('usePanelBreakpointSync', () => {
     media.emit(false)
     await nextTick()
 
-    expect(store.mode).toBe('floating')
+    expect(store.mode).toBe('closed')
     expect(store.narrow).toBe(false)
   })
 })
