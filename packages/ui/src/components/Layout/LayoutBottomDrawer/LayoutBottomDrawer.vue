@@ -39,13 +39,9 @@ const DISMISS_THRESHOLD = 80
 
 const open = defineModel<boolean>({ required: true })
 
-const props = withDefaults(defineProps<{
+defineProps<{
   title?: string
-  maxHeight?: string
-}>(), {
-  title: undefined,
-  maxHeight: '70vh',
-})
+}>()
 
 const dragOffset = shallowRef(0)
 const isDragging = shallowRef(false)
@@ -89,10 +85,9 @@ function onPointerUp() {
   isDragging.value = false
 }
 
-const drawerStyle = computed<CSSProperties>(() => ({
-  maxHeight: props.maxHeight,
-  ...(dragOffset.value > 0 ? { transform: `translateY(${dragOffset.value}px)` } : {}),
-}))
+const drawerStyle = computed<CSSProperties>(() =>
+  dragOffset.value > 0 ? { transform: `translateY(${dragOffset.value}px)` } : {},
+)
 </script>
 
 <style scoped lang="scss">
@@ -102,6 +97,7 @@ const drawerStyle = computed<CSSProperties>(() => ({
   left: 0;
   right: 0;
   z-index: 1050;
+  height: var(--bc-drawer-height);
   display: flex;
   flex-direction: column;
   background: var(--bc-tile-bg);
