@@ -29,4 +29,20 @@ describe('NavigationStepperTabs', () => {
     expect(tabs[1].attributes('aria-selected')).toBe('false')
     expect(tabs[2].attributes('aria-selected')).toBe('true')
   })
+
+  it('emits update:currentStep with the index when an enabled step is clicked', async () => {
+    const wrapper = mount(NavigationStepperTabs, { props: { steps, currentStep: 0 } })
+    await wrapper.findAll('[role="tab"]')[2].trigger('click')
+    expect(wrapper.emitted('update:currentStep')).toEqual([[2]])
+  })
+
+  it('does not emit when a disabled step is clicked', async () => {
+    const wrapper = mount(NavigationStepperTabs, {
+      props: { steps, currentStep: 0, disabledSteps: [2] },
+    })
+    const tabs = wrapper.findAll('[role="tab"]')
+    expect(tabs[2].classes()).toContain('navigation-stepper-tabs__step--disabled')
+    await tabs[2].trigger('click')
+    expect(wrapper.emitted('update:currentStep')).toBeUndefined()
+  })
 })
