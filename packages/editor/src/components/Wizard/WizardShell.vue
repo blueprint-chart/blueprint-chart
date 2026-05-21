@@ -13,7 +13,7 @@ import type { ChartColorize } from '@/stores/chartConfig'
 import { ChartType, SortDirection, parseData } from '@blueprint-chart/lib'
 import type { SeriesOverride } from '@blueprint-chart/lib'
 import { BBadge } from 'bootstrap-vue-next'
-import { NavigationStepperChevron, SceneTimeline } from '@blueprint-chart/ui'
+import { NavigationStepperChevron, SceneTimeline, useBreakpoint } from '@blueprint-chart/ui'
 import LayoutPageHeader from '@/components/Layout/LayoutPageHeader.vue'
 import LayoutBreadcrumb from '@/components/Layout/LayoutBreadcrumb.vue'
 import LayoutSceneTimeline from '@/components/Layout/LayoutSceneTimeline.vue'
@@ -31,6 +31,7 @@ const baseTransforms = ref<TransformStep[]>([])
 const savedAtDate = computed<Date | ''>(() => lastSavedAt.value ? new Date(lastSavedAt.value) : '')
 const savedAgo = useTimeAgo(savedAtDate)
 const savedLabel = computed(() => savedAtDate.value ? `saved ${savedAgo.value}` : null)
+const { isNarrow: isSavedCompact } = useBreakpoint('lg')
 
 const stepLabels = steps.map(s => ({ label: s.label, key: s.key }))
 
@@ -239,8 +240,25 @@ onBeforeRouteLeave(() => {
     <LayoutPageHeader class="wizard-shell__header">
       <template #start>
         <LayoutBreadcrumb />
+        <span
+          v-if="savedLabel && isSavedCompact"
+          class="wizard-shell__saved-dot"
+          role="status"
+          aria-live="polite"
+          :title="savedLabel"
+          :aria-label="savedLabel"
+        />
+      </template>
+      <template #center>
+        <NavigationStepperChevron
+          v-model:current-step="currentIndex"
+          :steps="stepLabels"
+          :disabled-steps="disabledSteps"
+        />
+      </template>
+      <template #end>
         <BBadge
-          v-if="savedLabel"
+          v-if="savedLabel && !isSavedCompact"
           variant="success"
           pill
           class="wizard-shell__saved"
@@ -250,13 +268,6 @@ onBeforeRouteLeave(() => {
           <span class="wizard-shell__saved__dot" />
           {{ savedLabel }}
         </BBadge>
-      </template>
-      <template #center>
-        <NavigationStepperChevron
-          v-model:current-step="currentIndex"
-          :steps="stepLabels"
-          :disabled-steps="disabledSteps"
-        />
       </template>
     </LayoutPageHeader>
 
@@ -329,6 +340,15 @@ onBeforeRouteLeave(() => {
       border-radius: 50%;
       box-shadow: 0 0 0 4px rgba(var(--bs-success-rgb), 0.18);
     }
+  }
+
+  &__saved-dot {
+    flex-shrink: 0;
+    width: 8px;
+    height: 8px;
+    background: var(--bs-success);
+    border-radius: 50%;
+    box-shadow: 0 0 0 4px rgba(var(--bs-success-rgb), 0.18);
   }
 }
 </style>
