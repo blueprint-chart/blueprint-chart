@@ -77,13 +77,21 @@
 </template>
 
 <script setup lang="ts">
-import type { CSSProperties } from 'vue'
+import type { Component, CSSProperties } from 'vue'
 import { useBreakpoint } from '@blueprint-chart/ui'
 import { useEditorPanel } from '@/stores/editorPanel'
 import { usePanel } from '@/stores/panel'
 import { useChartConfig } from '@/stores/chartConfig'
 import { useChartTypeOptions } from '@/stores/chartTypeOptions'
 import { useScenes } from '@/stores/scenes'
+import IPhChartBar from '~icons/ph/chart-bar'
+import IPhTextAa from '~icons/ph/text-aa'
+import IPhPalette from '~icons/ph/palette'
+import IPhPuzzlePiece from '~icons/ph/puzzle-piece'
+import IPhWaves from '~icons/ph/waves'
+import IPhVectorTwo from '~icons/ph/vector-two'
+import IPhPushPin from '~icons/ph/push-pin'
+import IPhCursorClick from '~icons/ph/cursor-click'
 
 const AXIS_KEYS = ['showVerticalAxis', 'verticalAxisDirection', 'showVerticalTicks', 'verticalLabelPosition', 'verticalGridStyle', 'verticalNumberFormat', 'verticalScaleType', 'verticalRangeMin', 'verticalRangeMax', 'showHorizontalAxis', 'showHorizontalTicks', 'horizontalLabelPosition', 'horizontalGridStyle', 'horizontalNumberFormat', 'horizontalScaleType', 'horizontalRangeMin', 'horizontalRangeMax']
 
@@ -127,21 +135,21 @@ const hasInteraction = computed(() =>
 )
 
 const tabs = computed(() => {
-  const base: { key: string, label: string }[] = [
-    { key: 'type', label: 'Type' },
-    { key: 'text', label: 'Text' },
-    { key: 'style', label: 'Style' },
+  const base: { key: string, label: string, icon: Component }[] = [
+    { key: 'type', label: 'Type', icon: IPhChartBar },
+    { key: 'text', label: 'Text', icon: IPhTextAa },
+    { key: 'style', label: 'Style', icon: IPhPalette },
   ]
   if (['line-multi', 'bar-multi', 'bar-split'].includes(chartType.value)) {
-    base.push({ key: 'series', label: 'Series' })
+    base.push({ key: 'series', label: 'Series', icon: IPhWaves })
   }
   if (hasAxisOptions.value) {
-    base.push({ key: 'axes', label: 'Axes' })
+    base.push({ key: 'axes', label: 'Axes', icon: IPhVectorTwo })
   }
-  base.push({ key: 'layout', label: 'Layout' })
-  base.push({ key: 'annotate', label: 'Annotate' })
+  base.push({ key: 'layout', label: 'Layout', icon: IPhPuzzlePiece })
+  base.push({ key: 'annotate', label: 'Annotate', icon: IPhPushPin })
   if (hasInteraction.value) {
-    base.push({ key: 'interactions', label: 'Interactions' })
+    base.push({ key: 'interactions', label: 'Interactions', icon: IPhCursorClick })
   }
   return base
 })
