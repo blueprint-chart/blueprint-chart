@@ -9,11 +9,9 @@
 </template>
 
 <script setup lang="ts">
-import type { Component } from 'vue'
 import { usePanel } from '@/stores/panel'
 import { useExportPanel, type ExportTab } from '@/stores/exportPanel'
-import IPhCode from '~icons/ph/code'
-import IPhDownloadSimple from '~icons/ph/download-simple'
+import { useExportSections } from '@/composables/useExportSections'
 
 defineProps<{
   horizontal?: boolean
@@ -23,11 +21,15 @@ const { mode: panelMode, toggleMode } = usePanel()
 const exportPanelStore = useExportPanel()
 const { exportTab } = storeToRefs(exportPanelStore)
 const { setExportTab } = exportPanelStore
+const { sections } = useExportSections()
 
-const items: { value: string, icon: Component, tooltip: string }[] = [
-  { value: 'embed', icon: IPhCode, tooltip: 'Embed' },
-  { value: 'download', icon: IPhDownloadSimple, tooltip: 'Download' },
-]
+const items = computed(() =>
+  sections.map(s => ({
+    value: s.key,
+    icon: s.icon,
+    tooltip: s.tooltip ?? s.label,
+  })),
+)
 
 function onSelect(tab: string | number) {
   setExportTab(tab as ExportTab)

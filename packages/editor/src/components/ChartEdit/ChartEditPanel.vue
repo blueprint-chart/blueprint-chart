@@ -77,23 +77,12 @@
 </template>
 
 <script setup lang="ts">
-import type { Component, CSSProperties } from 'vue'
+import type { CSSProperties } from 'vue'
 import { useBreakpoint } from '@blueprint-chart/ui'
 import { useEditorPanel } from '@/stores/editorPanel'
 import { usePanel } from '@/stores/panel'
 import { useChartConfig } from '@/stores/chartConfig'
-import { useChartTypeOptions } from '@/stores/chartTypeOptions'
-import { useScenes } from '@/stores/scenes'
-import IPhChartBar from '~icons/ph/chart-bar'
-import IPhTextAa from '~icons/ph/text-aa'
-import IPhPalette from '~icons/ph/palette'
-import IPhPuzzlePiece from '~icons/ph/puzzle-piece'
-import IPhWaves from '~icons/ph/waves'
-import IPhVectorTwo from '~icons/ph/vector-two'
-import IPhPushPin from '~icons/ph/push-pin'
-import IPhCursorClick from '~icons/ph/cursor-click'
-
-const AXIS_KEYS = ['showVerticalAxis', 'verticalAxisDirection', 'showVerticalTicks', 'verticalLabelPosition', 'verticalGridStyle', 'verticalNumberFormat', 'verticalScaleType', 'verticalRangeMin', 'verticalRangeMax', 'showHorizontalAxis', 'showHorizontalTicks', 'horizontalLabelPosition', 'horizontalGridStyle', 'horizontalNumberFormat', 'horizontalScaleType', 'horizontalRangeMin', 'horizontalRangeMax']
+import { useChartEditSections } from '@/composables/useChartEditSections'
 
 const editorPanel = useEditorPanel()
 const { viewMode, activeTab, canvasMode, showDimensions } = storeToRefs(editorPanel)
@@ -101,12 +90,9 @@ const { selectTab } = editorPanel
 const { mode: panelMode } = usePanel()
 const { isNarrow } = useBreakpoint()
 
-const { chartType, layout } = useChartConfig()
-const { availableOptionKeys } = useChartTypeOptions()
-const { scenes } = useScenes()
+const { layout } = useChartConfig()
 const { cardClass, cardStyle } = useCanvasCardStyle(layout, 'chart-edit-panel__canvas__card')
-
-const hasAxisOptions = computed(() => availableOptionKeys.value.some(k => AXIS_KEYS.includes(k)))
+const { sections } = useChartEditSections()
 
 const drawerOpen = computed({
   get: () => !!activeTab.value,
@@ -128,31 +114,9 @@ watch(panelMode, (mode) => {
   }
 }, { immediate: true })
 
-const hasInteraction = computed(() =>
-  availableOptionKeys.value.includes('tooltips')
-  || availableOptionKeys.value.includes('crosshair')
-  || scenes.value.length >= 1,
+const tabs = computed(() =>
+  sections.value.map(s => ({ key: s.key, label: s.label, icon: s.icon })),
 )
-
-const tabs = computed(() => {
-  const base: { key: string, label: string, icon: Component }[] = [
-    { key: 'type', label: 'Type', icon: IPhChartBar },
-    { key: 'text', label: 'Text', icon: IPhTextAa },
-    { key: 'style', label: 'Style', icon: IPhPalette },
-  ]
-  if (['line-multi', 'bar-multi', 'bar-split'].includes(chartType.value)) {
-    base.push({ key: 'series', label: 'Series', icon: IPhWaves })
-  }
-  if (hasAxisOptions.value) {
-    base.push({ key: 'axes', label: 'Axes', icon: IPhVectorTwo })
-  }
-  base.push({ key: 'layout', label: 'Layout', icon: IPhPuzzlePiece })
-  base.push({ key: 'annotate', label: 'Annotate', icon: IPhPushPin })
-  if (hasInteraction.value) {
-    base.push({ key: 'interactions', label: 'Interactions', icon: IPhCursorClick })
-  }
-  return base
-})
 const panelClassList = computed(() => ({
   'chart-edit-panel--narrow': isNarrow.value,
 }))

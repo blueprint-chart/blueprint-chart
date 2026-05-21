@@ -211,6 +211,7 @@ declare global {
   const useCanvasCardStyle: typeof import('./src/composables/useCanvasCardStyle').useCanvasCardStyle
   const useChartConfig: typeof import('./src/composables/useChartConfig').useChartConfig
   const useChartConfigStore: typeof import('./src/composables/useChartConfig').useChartConfigStore
+  const useChartEditSections: typeof import('./src/composables/useChartEditSections').useChartEditSections
   const useChartFromDsl: typeof import('./src/composables/useChartFromDsl').useChartFromDsl
   const useChartHistory: typeof import('./src/composables/useChartHistory').useChartHistory
   const useChartHistoryStore: typeof import('./src/composables/useChartHistory').useChartHistoryStore
@@ -241,6 +242,7 @@ declare global {
   const useDark: typeof import('@vueuse/core').useDark
   const useDashboardGallery: typeof import('./src/composables/useDashboardGallery').useDashboardGallery
   const useDashboardPanel: typeof import('./src/composables/useDashboardPanel').useDashboardPanel
+  const useDataSections: typeof import('./src/composables/useDataSections').useDataSections
   const useDataTable: typeof import('./src/composables/useDataTable').useDataTable
   const useDataTableStore: typeof import('./src/composables/useDataTable').useDataTableStore
   const useDataTransforms: typeof import('./src/composables/useDataTransforms').useDataTransforms
@@ -269,6 +271,7 @@ declare global {
   const useEventListener: typeof import('@vueuse/core').useEventListener
   const useEventSource: typeof import('@vueuse/core').useEventSource
   const useExportPanel: typeof import('./src/composables/useExportPanel').useExportPanel
+  const useExportSections: typeof import('./src/composables/useExportSections').useExportSections
   const useEyeDropper: typeof import('@vueuse/core').useEyeDropper
   const useFavicon: typeof import('@vueuse/core').useFavicon
   const useFetch: typeof import('@vueuse/core').useFetch
@@ -419,6 +422,9 @@ declare global {
   export type { BenfordResult } from './src/composables/useBenfordCheck'
   import('./src/composables/useBenfordCheck')
   // @ts-ignore
+  export type { ChartEditSection } from './src/composables/useChartEditSections'
+  import('./src/composables/useChartEditSections')
+  // @ts-ignore
   export type { DslRenderOptions } from './src/composables/useChartFromDsl'
   import('./src/composables/useChartFromDsl')
   // @ts-ignore
@@ -427,6 +433,12 @@ declare global {
   // @ts-ignore
   export type { ColumnType, ParsedData, ParseDelimitedOptions } from './src/composables/useDataParser'
   import('./src/composables/useDataParser')
+  // @ts-ignore
+  export type { DataSection } from './src/composables/useDataSections'
+  import('./src/composables/useDataSections')
+  // @ts-ignore
+  export type { ExportSection } from './src/composables/useExportSections'
+  import('./src/composables/useExportSections')
   // @ts-ignore
   export type { PlatformShortcut } from './src/composables/usePlatformShortcut'
   import('./src/composables/usePlatformShortcut')
