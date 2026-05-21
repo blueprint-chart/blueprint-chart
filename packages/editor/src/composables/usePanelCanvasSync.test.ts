@@ -2,7 +2,6 @@ import { mount, type VueWrapper } from '@vue/test-utils'
 import { usePanelStore } from '@/stores/panel'
 import { usePanelCanvasSync } from './usePanelCanvasSync'
 
-// Mocked useElementSize lets tests drive width directly.
 const elementWidth = ref(1000)
 vi.mock('@vueuse/core', async () => {
   const actual = await vi.importActual<typeof import('@vueuse/core')>('@vueuse/core')
@@ -12,11 +11,6 @@ vi.mock('@vueuse/core', async () => {
   }
 })
 
-// Tracks the last mounted wrapper so afterEach can unmount it. Without this,
-// orphan watchers from previous tests keep firing on the shared width ref —
-// and because Pinia actions call setActivePinia(<their own pinia>) on every
-// invocation, those orphan calls clobber the active pinia and the next test
-// gets the previous test's store.
 let wrapper: VueWrapper | null = null
 
 function mountSync(target: HTMLElement | null = document.createElement('div')) {
@@ -51,17 +45,17 @@ describe('usePanelCanvasSync', () => {
     expect(store.mode).toBe('docked')
   })
 
-  it('initial cramped canvas (< 480): forces closed', async () => {
+  it('initial cramped canvas: forces closed', async () => {
     elementWidth.value = 400
     const store = usePanelStore()
-    store.$patch({ mode: 'floating', lastDesktopMode: 'floating' })
+    store.$patch({ mode: 'docked', lastDesktopMode: 'docked' })
 
     mountSync()
     await nextTick()
 
     expect(store.cramped).toBe(true)
     expect(store.mode).toBe('closed')
-    expect(store.lastDesktopMode).toBe('floating')
+    expect(store.lastDesktopMode).toBe('docked')
   })
 
   it('threshold boundary at 480: cramped is false at 480, true at 479', async () => {
@@ -91,7 +85,7 @@ describe('usePanelCanvasSync', () => {
   it('wide→cramped→wide restores the previous mode', async () => {
     elementWidth.value = 1000
     const store = usePanelStore()
-    store.float()
+    store.dock()
 
     mountSync()
     await nextTick()
@@ -102,6 +96,6 @@ describe('usePanelCanvasSync', () => {
 
     elementWidth.value = 1000
     await nextTick()
-    expect(store.mode).toBe('floating')
+    expect(store.mode).toBe('docked')
   })
 })
