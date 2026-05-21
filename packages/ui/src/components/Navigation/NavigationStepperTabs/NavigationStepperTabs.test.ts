@@ -45,4 +45,32 @@ describe('NavigationStepperTabs', () => {
     await tabs[2].trigger('click')
     expect(wrapper.emitted('update:currentStep')).toBeUndefined()
   })
+
+  it('renders the step icon when provided, and swaps to a check svg on done steps', () => {
+    const FakeIcon = { template: '<svg data-test="fake"></svg>' }
+    const stepsWithIcons = [
+      { label: 'Data', icon: FakeIcon },
+      { label: 'Visualize', icon: FakeIcon },
+      { label: 'Export', icon: FakeIcon },
+    ]
+    const wrapper = mount(NavigationStepperTabs, { props: { steps: stepsWithIcons, currentStep: 1 } })
+    const tabs = wrapper.findAll('[role="tab"]')
+
+    // index 0 is done → no fake icon, check is rendered
+    expect(tabs[0].find('[data-test="fake"]').exists()).toBe(false)
+    expect(tabs[0].find('.navigation-stepper-tabs__step__icon svg').exists()).toBe(true)
+
+    // index 1 is current → fake icon
+    expect(tabs[1].find('[data-test="fake"]').exists()).toBe(true)
+
+    // index 2 is pending → fake icon
+    expect(tabs[2].find('[data-test="fake"]').exists()).toBe(true)
+  })
+
+  it('omits the icon wrapper if a step has no icon and is not done', () => {
+    const wrapper = mount(NavigationStepperTabs, { props: { steps, currentStep: 1 } })
+    const tabs = wrapper.findAll('[role="tab"]')
+    // No icons supplied, no done index for index 2
+    expect(tabs[2].find('.navigation-stepper-tabs__step__icon').exists()).toBe(false)
+  })
 })

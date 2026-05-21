@@ -1,7 +1,11 @@
 <script setup lang="ts">
+import IconPhCheck from '~icons/ph/check'
+import type { Component } from 'vue'
+
 interface StepEntry {
   label: string
   key?: string
+  icon?: Component
 }
 
 const props = withDefaults(defineProps<{
@@ -25,6 +29,11 @@ function stateOf(index: number): 'done' | 'current' | 'pending' {
 
 function isDisabled(index: number): boolean {
   return props.disabledSteps.includes(index)
+}
+
+function iconFor(step: StepEntry, index: number): Component | undefined {
+  if (stateOf(index) === 'done') return IconPhCheck
+  return step.icon
 }
 
 function selectStep(index: number) {
@@ -55,6 +64,13 @@ function selectStep(index: number) {
         :title="step.label"
         @click="selectStep(index)"
       >
+        <span
+          v-if="iconFor(step, index)"
+          class="navigation-stepper-tabs__step__icon"
+          aria-hidden="true"
+        >
+          <component :is="iconFor(step, index)" />
+        </span>
         <span class="navigation-stepper-tabs__step__label">{{ step.label }}</span>
       </button>
     </template>
@@ -69,6 +85,7 @@ function selectStep(index: number) {
   &__step {
     display: inline-flex;
     align-items: center;
+    gap: 6px;
     background: transparent;
     border: none;
     cursor: pointer;
@@ -99,6 +116,20 @@ function selectStep(index: number) {
       opacity: 0.4;
       cursor: not-allowed;
       pointer-events: none;
+    }
+
+    &__icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: var(--navigation-stepper-tabs-icon-size, 16px);
+      height: var(--navigation-stepper-tabs-icon-size, 16px);
+      flex-shrink: 0;
+
+      svg {
+        width: 100%;
+        height: 100%;
+      }
     }
   }
 }
