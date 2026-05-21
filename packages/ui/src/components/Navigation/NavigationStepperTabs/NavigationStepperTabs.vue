@@ -73,6 +73,11 @@ function selectStep(index: number) {
         </span>
         <span class="navigation-stepper-tabs__step__label">{{ step.label }}</span>
       </button>
+      <span
+        v-if="layout === 'inline' && separator && index < steps.length - 1"
+        class="navigation-stepper-tabs__sep"
+        aria-hidden="true"
+      >›</span>
     </template>
   </div>
 </template>
@@ -81,6 +86,16 @@ function selectStep(index: number) {
 .navigation-stepper-tabs {
   display: flex;
   align-items: stretch;
+
+  &__sep {
+    display: inline-flex;
+    align-items: center;
+    color: var(--bs-tertiary-color);
+    font-family: var(--bs-font-monospace, ui-monospace, monospace);
+    font-size: 0.875rem;
+    user-select: none;
+    padding: 0 4px;
+  }
 
   &__step {
     display: inline-flex;

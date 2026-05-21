@@ -73,4 +73,23 @@ describe('NavigationStepperTabs', () => {
     // No icons supplied, no done index for index 2
     expect(tabs[2].find('.navigation-stepper-tabs__step__icon').exists()).toBe(false)
   })
+
+  it('renders chevron separators between inline tabs (count = steps - 1)', () => {
+    const wrapper = mount(NavigationStepperTabs, { props: { steps, currentStep: 0 } })
+    expect(wrapper.findAll('.navigation-stepper-tabs__sep')).toHaveLength(steps.length - 1)
+  })
+
+  it('omits separators when separator=false on inline layout', () => {
+    const wrapper = mount(NavigationStepperTabs, {
+      props: { steps, currentStep: 0, separator: false },
+    })
+    expect(wrapper.findAll('.navigation-stepper-tabs__sep')).toHaveLength(0)
+  })
+
+  it('omits separators on stacked layout regardless of the separator prop', () => {
+    const wrapper = mount(NavigationStepperTabs, {
+      props: { steps, currentStep: 0, layout: 'stacked', separator: true },
+    })
+    expect(wrapper.findAll('.navigation-stepper-tabs__sep')).toHaveLength(0)
+  })
 })
