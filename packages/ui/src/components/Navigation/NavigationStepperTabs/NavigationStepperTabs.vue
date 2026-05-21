@@ -22,8 +22,12 @@ const props = withDefaults(defineProps<{
 const currentStep = defineModel<number>('currentStep', { required: true })
 
 function stateOf(index: number): 'done' | 'current' | 'pending' {
-  if (index < currentStep.value) return 'done'
-  if (index === currentStep.value) return 'current'
+  if (index < currentStep.value) {
+    return 'done'
+  }
+  if (index === currentStep.value) {
+    return 'current'
+  }
   return 'pending'
 }
 
@@ -32,21 +36,29 @@ function isDisabled(index: number): boolean {
 }
 
 function iconFor(step: StepEntry, index: number): Component | undefined {
-  if (stateOf(index) === 'done') return IconPhCheck
+  if (stateOf(index) === 'done') {
+    return IconPhCheck
+  }
   return step.icon
 }
 
 function selectStep(index: number) {
-  if (isDisabled(index)) return
+  if (isDisabled(index)) {
+    return
+  }
   currentStep.value = index
 }
 
 function onKeydown(event: KeyboardEvent, index: number) {
   const enabled: number[] = []
   for (let i = 0; i < props.steps.length; i++) {
-    if (!isDisabled(i)) enabled.push(i)
+    if (!isDisabled(i)) {
+      enabled.push(i)
+    }
   }
-  if (enabled.length === 0) return
+  if (enabled.length === 0) {
+    return
+  }
 
   const position = enabled.indexOf(index)
   let target: number | null = null
@@ -69,10 +81,14 @@ function onKeydown(event: KeyboardEvent, index: number) {
   }
 
   event.preventDefault()
-  if (target === null) return
+  if (target === null) {
+    return
+  }
   const root = (event.currentTarget as HTMLElement).closest('[role="tablist"]')
-  if (!root) return
-  const tabs = root.querySelectorAll<HTMLButtonElement>('[role="tab"]')
+  if (!root) {
+    return
+  }
+  const tabs = root.querySelectorAll<HTMLElement>('[role="tab"]')
   tabs[target]?.focus()
 }
 </script>
@@ -84,7 +100,10 @@ function onKeydown(event: KeyboardEvent, index: number) {
     role="tablist"
     aria-label="Progress"
   >
-    <template v-for="(step, index) in steps" :key="step.key ?? index">
+    <template
+      v-for="(step, index) in steps"
+      :key="step.key ?? index"
+    >
       <button
         type="button"
         role="tab"
