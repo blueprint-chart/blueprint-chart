@@ -86,9 +86,10 @@ watch(() => activeTabEl, scrollActiveTabIntoView)
     }
 
     &--active,
-    &--active:hover {
-      background: var(--bc-tile-bg-elevated);
-      color: var(--bs-body-color);
+    &--active:hover,
+    &--active:focus-visible {
+      background: var(--bs-primary);
+      color: var(--bs-white, #fff);
       font-weight: 600;
     }
   }
