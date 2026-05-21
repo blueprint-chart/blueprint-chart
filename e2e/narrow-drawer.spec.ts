@@ -9,26 +9,45 @@ async function loadData(page) {
   await page.locator('button', { hasText: 'Load data' }).click()
 }
 
+async function dismissDrawerIfOpen(page) {
+  const backdrop = page.locator('.layout-bottom-drawer__backdrop')
+  if (await backdrop.isVisible().catch(() => false)) {
+    await backdrop.click({ position: { x: 300, y: 100 } })
+    await expect(backdrop).not.toBeVisible()
+  }
+}
+
 async function goToVisualizeStep(page) {
   await loadData(page)
+  // Loading data opens the structure drawer in narrow mode; the modal
+  // backdrop now blocks the navbar, so the drawer must be dismissed
+  // before we can click the next stepper.
+  await dismissDrawerIfOpen(page)
   await page.locator('.navigation-stepper-chevron__step', { hasText: 'Visualize' }).click()
   await expect(page.locator('.bc-frame-body svg')).toBeVisible()
 }
 
 test.describe('Narrow viewport - bottom drawer', () => {
-  test('step 1: navbar is not blocked by drawer backdrop on data step', async ({ page }) => {
+  test('navbar stepper is intercepted by the backdrop on the data step', async ({ page }) => {
     await loadData(page)
 
+    await expect(page.locator('.layout-bottom-drawer')).toBeVisible()
+
     const stepper = page.locator('.navigation-stepper-chevron__step', { hasText: 'Visualize' })
-    await expect(stepper).toBeVisible()
-    await stepper.click({ timeout: 5000 })
+    await expect(async () => {
+      await stepper.click({ timeout: 1500 })
+    }).rejects.toThrow(/intercepts pointer events/)
+
+    // Dismissing the drawer restores access to the stepper.
+    await page.locator('.layout-bottom-drawer__backdrop').click({ position: { x: 300, y: 100 } })
+    await expect(page.locator('.layout-bottom-drawer')).not.toBeVisible()
+    await stepper.click()
     await expect(page.locator('.bc-frame-body svg')).toBeVisible()
   })
 
-  test('step 2: bottom drawer is within viewport on visualize step', async ({ page }) => {
+  test('bottom drawer is within viewport on visualize step', async ({ page }) => {
     await goToVisualizeStep(page)
 
-    // Click a tab to open the drawer
     const rail = page.locator('.navigation-icon-rail--horizontal')
     await expect(rail).toBeVisible()
     await rail.locator('[aria-label="Chart Type"]').click()
@@ -44,21 +63,20 @@ test.describe('Narrow viewport - bottom drawer', () => {
     expect(box!.y + box!.height).toBeLessThanOrEqual(800 + 1)
   })
 
-  test('step 3: navbar remains accessible while drawer is open', async ({ page }) => {
+  test('navbar stepper is intercepted by the backdrop while drawer is open', async ({ page }) => {
     await goToVisualizeStep(page)
 
-    // Open drawer via icon rail
     await page.locator('.navigation-icon-rail--horizontal [aria-label="Chart Type"]').click()
     await page.waitForTimeout(500)
     await expect(page.locator('.layout-bottom-drawer')).toBeVisible()
 
-    // The navbar stepper must still be clickable even with drawer open
     const dataStep = page.locator('.navigation-stepper-chevron__step', { hasText: 'Data' })
-    await dataStep.click({ timeout: 5000 })
-    await expect(page.locator('.data-check-table, textarea')).toBeVisible({ timeout: 5000 })
+    await expect(async () => {
+      await dataStep.click({ timeout: 1500 })
+    }).rejects.toThrow(/intercepts pointer events/)
   })
 
-  test('step 4: clicking backdrop closes the drawer', async ({ page }) => {
+  test('clicking backdrop closes the drawer', async ({ page }) => {
     await goToVisualizeStep(page)
 
     // Open drawer via icon rail
@@ -70,7 +88,8 @@ test.describe('Narrow viewport - bottom drawer', () => {
     await expect(drawer).toBeVisible()
     await expect(backdrop).toBeVisible()
 
-    // Click the backdrop (area between navbar and drawer)
+    // Click the backdrop in the navbar y-band — now covered by the modal
+    // backdrop after the z-index lift (was previously below the navbar).
     await backdrop.click({ position: { x: 300, y: 200 } })
     await page.waitForTimeout(500)
 
