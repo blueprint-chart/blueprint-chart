@@ -30,25 +30,10 @@ vi.mock('@blueprint-chart/ui', () => ({
     props: ['modelValue', 'title'],
     emits: ['update:modelValue'],
   },
-  ButtonDetach: {
-    template: '<button class="btn-detach" @click="$emit(\'click\')"></button>',
-    emits: ['click'],
-  },
-  ButtonDock: {
-    template: '<button class="btn-dock" @click="$emit(\'click\')"></button>',
-    emits: ['click'],
-  },
-  ButtonDrag: {
-    template: '<button class="btn-drag" />',
-  },
   ButtonClose: {
     template: '<button class="btn-close-stub" @click="$emit(\'click\')"></button>',
     emits: ['click'],
   },
-}))
-
-vi.mock('@/composables/usePanelDrag', () => ({
-  usePanelDrag: vi.fn(() => ({ isDragging: false })),
 }))
 
 // Module-scoped wrapper so afterEach can unmount it. Without unmount, orphan
@@ -128,14 +113,6 @@ describe('PanelShell', () => {
       expect(w.find('.footer-content').text()).toBe('Footer')
     })
 
-    it('clicking detach calls panel.float()', async () => {
-      const panel = usePanelStore()
-      panel.dock()
-      const w = mount(PanelShell, { props: { title: 'Test' } })
-      await w.find('.btn-detach').trigger('click')
-      expect(panel.mode).toBe('floating')
-    })
-
     it('clicking close calls panel.close() and emits close', async () => {
       const panel = usePanelStore()
       panel.dock()
@@ -150,44 +127,6 @@ describe('PanelShell', () => {
       panel.dock()
       const w = mount(PanelShell, { props: { title: 'Test', showClose: false } })
       expect(w.find('.btn-close-stub').exists()).toBe(false)
-    })
-  })
-
-  describe('mode === "floating"', () => {
-    it('renders PanelFloating when containerRef is provided', () => {
-      const panel = usePanelStore()
-      panel.float()
-      const container = document.createElement('div')
-      document.body.appendChild(container)
-      const w = mount(PanelShell, {
-        props: { title: 'Floating', containerRef: container },
-        attachTo: document.body,
-      })
-      expect(container.querySelector('.panel-floating')).toBeTruthy()
-      w.unmount()
-      container.remove()
-    })
-
-    it('does not render anything when containerRef is missing', () => {
-      const panel = usePanelStore()
-      panel.float()
-      const w = mount(PanelShell, { props: { title: 'Floating', containerRef: null } })
-      expect(w.find('.panel-floating').exists()).toBe(false)
-    })
-
-    it('clicking dock button calls panel.dock()', async () => {
-      const panel = usePanelStore()
-      panel.float()
-      const container = document.createElement('div')
-      document.body.appendChild(container)
-      mount(PanelShell, {
-        props: { title: 'Floating', containerRef: container },
-        attachTo: document.body,
-      })
-      const dockBtn = container.querySelector('.btn-dock') as HTMLElement | null
-      dockBtn?.click()
-      expect(panel.mode).toBe('docked')
-      container.remove()
     })
   })
 
@@ -286,10 +225,10 @@ describe('PanelShell', () => {
       parent.remove()
     })
 
-    it('docks an open floating panel when canvas crosses the cramped threshold', async () => {
+    it('closes an open docked panel when canvas crosses the cramped threshold', async () => {
       elementWidth.value = 1000
       const store = usePanelStore()
-      store.float()
+      store.dock()
       const parent = document.createElement('div')
       const container = document.createElement('div')
       parent.appendChild(container)
@@ -300,12 +239,9 @@ describe('PanelShell', () => {
         attachTo: parent,
       })
       await nextTick()
-      expect(store.mode).toBe('floating')
+      expect(store.mode).toBe('docked')
 
       elementWidth.value = 400
-      // Two ticks: first lets PanelShell's flush:'sync' watcher run dock()
-      // (capturing lastDesktopMode='docked'), second lets the composable's
-      // queued syncCramped watcher flip mode to 'closed'.
       await nextTick()
       await nextTick()
 

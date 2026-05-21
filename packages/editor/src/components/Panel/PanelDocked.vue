@@ -10,7 +10,6 @@
     />
     <LayoutPanel :title="title">
       <template #actions>
-        <ButtonDetach @click="$emit('float')" />
         <ButtonClose
           v-if="showClose"
           @click="$emit('close')"
@@ -35,7 +34,7 @@
 
 <script setup lang="ts">
 import { useWindowSize } from '@vueuse/core'
-import { LayoutPanel, ButtonDetach, ButtonClose } from '@blueprint-chart/ui'
+import { LayoutPanel, ButtonClose } from '@blueprint-chart/ui'
 import { MIN_CANVAS_WIDTH, PANEL_MIN_WIDTH, PANEL_MAX_WIDTH, DEFAULT_DOCKED_WIDTH_FRACTION } from '@/stores/panel'
 
 // `modelValue` and `initialWidth` are viewport-relative fractions (0..1).
@@ -54,7 +53,6 @@ const props = withDefaults(defineProps<{
 })
 
 defineEmits<{
-  float: []
   close: []
 }>()
 

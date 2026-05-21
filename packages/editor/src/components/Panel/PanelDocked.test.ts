@@ -12,10 +12,6 @@ vi.mock('@blueprint-chart/ui', () => ({
     template: '<div class="panel"><div class="title">{{ title }}</div><slot name="actions" /><slot /><div v-if="$slots.footer" class="panel-footer"><slot name="footer" /></div></div>',
     props: ['title'],
   },
-  ButtonDetach: {
-    template: '<button class="btn-detach" @click="$emit(\'click\')"></button>',
-    emits: ['click'],
-  },
   ButtonClose: {
     template: '<button class="btn-close-stub" @click="$emit(\'click\')"></button>',
     emits: ['click'],
@@ -44,12 +40,6 @@ describe('PanelDocked', () => {
   it('does not add collapsed class when collapsed prop is false', () => {
     const w = mount(PanelDocked, { props: { collapsed: false, title: 'Test' } })
     expect(w.find('.panel-docked--collapsed').exists()).toBe(false)
-  })
-
-  it('emits float when detach button is clicked', async () => {
-    const w = mount(PanelDocked, { props: { collapsed: false, title: 'Test' } })
-    await w.find('.btn-detach').trigger('click')
-    expect(w.emitted('float')).toHaveLength(1)
   })
 
   it('emits close when close button is clicked', async () => {
