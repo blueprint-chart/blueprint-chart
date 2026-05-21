@@ -116,7 +116,7 @@ defineEmits<{
   &__options {
     padding: 0.75rem;
     border-top: 1px solid var(--bs-border-color);
-    background: var(--bs-tertiary-bg);
+    background: var(--bc-tile-bg-elevated);
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
