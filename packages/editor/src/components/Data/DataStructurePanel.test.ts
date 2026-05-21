@@ -34,9 +34,7 @@ vi.mock('@/stores/panel', () => ({
   usePanelStore: () => ({
     mode: ref('docked'),
     dockedWidth: ref(0.22),
-    floatingPosition: ref({ x: 16, y: 16 }),
     dock: vi.fn(),
-    float: vi.fn(),
     close: vi.fn(),
   }),
   MIN_CANVAS_WIDTH: 220,
