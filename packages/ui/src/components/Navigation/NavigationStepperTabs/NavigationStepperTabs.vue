@@ -44,7 +44,7 @@ function selectStep(index: number) {
       <button
         type="button"
         role="tab"
-        :aria-current="index === currentStep ? 'step' : undefined"
+        :aria-selected="index === currentStep ? 'true' : 'false'"
         :aria-disabled="isDisabled(index) || undefined"
         :tabindex="isDisabled(index) ? -1 : 0"
         :class="[

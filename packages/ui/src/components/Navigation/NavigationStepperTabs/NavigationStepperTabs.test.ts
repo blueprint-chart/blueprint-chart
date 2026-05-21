@@ -13,4 +13,20 @@ describe('NavigationStepperTabs', () => {
     expect(wrapper.find('[role="tablist"]').exists()).toBe(true)
     expect(wrapper.findAll('[role="tab"]')).toHaveLength(steps.length)
   })
+
+  it('marks earlier steps as done, the current step as current, and later ones as pending', () => {
+    const wrapper = mount(NavigationStepperTabs, { props: { steps, currentStep: 1 } })
+    const tabs = wrapper.findAll('[role="tab"]')
+    expect(tabs[0].classes()).toContain('navigation-stepper-tabs__step--done')
+    expect(tabs[1].classes()).toContain('navigation-stepper-tabs__step--current')
+    expect(tabs[2].classes()).toContain('navigation-stepper-tabs__step--pending')
+  })
+
+  it('sets aria-selected on every tab and "true" on the current step only', () => {
+    const wrapper = mount(NavigationStepperTabs, { props: { steps, currentStep: 2 } })
+    const tabs = wrapper.findAll('[role="tab"]')
+    expect(tabs[0].attributes('aria-selected')).toBe('false')
+    expect(tabs[1].attributes('aria-selected')).toBe('false')
+    expect(tabs[2].attributes('aria-selected')).toBe('true')
+  })
 })
