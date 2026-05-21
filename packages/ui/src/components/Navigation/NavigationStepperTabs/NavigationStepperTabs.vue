@@ -147,5 +147,22 @@ function selectStep(index: number) {
       }
     }
   }
+
+  &--stacked {
+    width: 100%;
+
+    .navigation-stepper-tabs__step {
+      flex: 1;
+      flex-direction: column;
+      gap: 4px;
+      padding: 8px 6px;
+      --navigation-stepper-tabs-icon-size: 18px;
+      font-weight: 500;
+    }
+
+    .navigation-stepper-tabs__step--current {
+      font-weight: 600;
+    }
+  }
 }
 </style>

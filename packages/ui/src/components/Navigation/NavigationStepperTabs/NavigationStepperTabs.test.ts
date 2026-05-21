@@ -92,4 +92,15 @@ describe('NavigationStepperTabs', () => {
     })
     expect(wrapper.findAll('.navigation-stepper-tabs__sep')).toHaveLength(0)
   })
+
+  it('applies the stacked layout modifier and per-tab flex-1 when layout="stacked"', () => {
+    const wrapper = mount(NavigationStepperTabs, {
+      props: { steps, currentStep: 0, layout: 'stacked' },
+    })
+    expect(wrapper.classes()).toContain('navigation-stepper-tabs--stacked')
+    // Tabs are not asserted on style, since style application via JSDOM doesn't
+    // reflect scoped CSS — class presence is the contract.
+    const tabs = wrapper.findAll('[role="tab"]')
+    expect(tabs.length).toBe(steps.length)
+  })
 })
