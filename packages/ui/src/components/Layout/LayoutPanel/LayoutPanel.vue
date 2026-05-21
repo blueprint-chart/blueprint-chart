@@ -67,7 +67,7 @@ defineProps<{
   &__toolbar {
     flex-shrink: 0;
     padding: 0.375rem 0.75rem;
-    background: var(--bc-tile-bg-elevated, var(--bs-tertiary-bg));
+    background: var(--bc-tile-bg-elevated);
     border-top: 1px solid var(--bs-border-color);
     border-bottom: 1px solid var(--bs-border-color);
   }
