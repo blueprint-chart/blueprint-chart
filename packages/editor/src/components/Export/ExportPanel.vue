@@ -38,7 +38,7 @@
       :container-ref="canvasRef"
     >
       <template
-        v-if="panelMode !== 'docked'"
+        v-if="panelMode === 'drawer'"
         #tabs
       >
         <PanelTabBar
