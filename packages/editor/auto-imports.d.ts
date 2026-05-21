@@ -428,9 +428,6 @@ declare global {
   export type { ColumnType, ParsedData, ParseDelimitedOptions } from './src/composables/useDataParser'
   import('./src/composables/useDataParser')
   // @ts-ignore
-  export type { DragPosition } from './src/composables/usePanelDrag'
-  import('./src/composables/usePanelDrag')
-  // @ts-ignore
   export type { PlatformShortcut } from './src/composables/usePlatformShortcut'
   import('./src/composables/usePlatformShortcut')
   // @ts-ignore

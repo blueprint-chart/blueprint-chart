@@ -58,7 +58,6 @@ describe('PanelShell', () => {
       panel.close()
       const w = mount(PanelShell, { props: { title: 'Test' } })
       expect(w.find('.panel-docked').exists()).toBe(false)
-      expect(w.find('.panel-floating').exists()).toBe(false)
       expect(w.find('.layout-bottom-drawer').exists()).toBe(false)
     })
   })
