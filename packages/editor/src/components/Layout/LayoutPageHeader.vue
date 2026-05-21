@@ -26,9 +26,6 @@
   background: var(--bc-tile-bg-elevated);
   border-bottom: 1px solid var(--bc-hairline);
   flex-shrink: 0;
-  // Stay clickable above the bottom-drawer backdrop (z-index 1040).
-  position: relative;
-  z-index: 1045;
 
   &__start {
     grid-area: start;
