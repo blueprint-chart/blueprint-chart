@@ -115,7 +115,7 @@ const drawerStyle = computed<CSSProperties>(() =>
   &__backdrop {
     position: fixed;
     inset: 0;
-    z-index: 1040;
+    z-index: 1049;
     background: rgba(0, 0, 0, 0.3);
   }
 
