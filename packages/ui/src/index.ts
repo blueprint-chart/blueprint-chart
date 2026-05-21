@@ -60,9 +60,6 @@ export { default as SettingsSectionDescription } from './components/SettingsSect
 
 export { default as ButtonAdd } from './components/Button/ButtonAdd/ButtonAdd.vue'
 export { default as ButtonClose } from './components/Button/ButtonClose/ButtonClose.vue'
-export { default as ButtonDetach } from './components/Button/ButtonDetach/ButtonDetach.vue'
-export { default as ButtonDock } from './components/Button/ButtonDock/ButtonDock.vue'
-export { default as ButtonDrag } from './components/Button/ButtonDrag/ButtonDrag.vue'
 export { default as ButtonIcon } from './components/Button/ButtonIcon/ButtonIcon.vue'
 export type { ButtonIconProps } from './components/Button/ButtonIcon/ButtonIcon.vue'
 export { default as ButtonIconCounter } from './components/Button/ButtonIconCounter/ButtonIconCounter.vue'
