@@ -31,6 +31,9 @@ test.describe('Narrow viewport - bottom drawer', () => {
   test('navbar stepper is intercepted by the backdrop on the data step', async ({ page }) => {
     await loadData(page)
 
+    // The data panel no longer auto-opens on narrow — the dock pill is the
+    // entry point. Open it manually before asserting drawer interception.
+    await page.locator('.panel-open-button').click()
     await expect(page.locator('.layout-bottom-drawer')).toBeVisible()
 
     const stepper = page.locator('.navigation-stepper-tabs__step', { hasText: 'Visualize' })
