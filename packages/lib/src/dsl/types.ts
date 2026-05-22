@@ -22,6 +22,7 @@ export interface ColorizeNode {
 export interface HighlightNode {
   type: DslNodeType.Highlight
   target: string
+  properties: PropertyNode[]
 }
 
 export interface AreaFillNode {
@@ -97,6 +98,7 @@ export interface ChartNode {
   highlights: HighlightNode[]
   areaFills: AreaFillNode[]
   annotations: AnnotationNode[]
+  annotationVisibility: AnnotationVisibilityNode[]
   series: SeriesNode[]
   scenes: SceneNode[]
   transforms: TransformNode[]

@@ -53,6 +53,14 @@ function serializeColorize(colorize: ColorizeNode, indent: string): string {
 }
 
 function serializeHighlight(highlight: HighlightNode, indent: string): string {
+  if (highlight.properties && highlight.properties.length > 0) {
+    const lines = [`${indent}highlight "${highlight.target}" {`]
+    for (const prop of highlight.properties) {
+      lines.push(serializeProperty(prop, `${indent}  `))
+    }
+    lines.push(`${indent}}`)
+    return lines.join('\n')
+  }
   return `${indent}highlight "${highlight.target}"`
 }
 
@@ -120,22 +128,22 @@ function serializeScene(scene: SceneNode, indent: string): string {
   for (const colorize of scene.colorizes) {
     lines.push(serializeColorize(colorize, `${indent}  `))
   }
-  for (const highlight of scene.highlights ?? []) {
+  for (const highlight of scene.highlights) {
     lines.push(serializeHighlight(highlight, `${indent}  `))
   }
-  for (const areaFill of scene.areaFills ?? []) {
+  for (const areaFill of scene.areaFills) {
     lines.push(serializeAreaFill(areaFill, `${indent}  `))
   }
-  for (const annotation of scene.annotations ?? []) {
+  for (const annotation of scene.annotations) {
     lines.push(serializeAnnotation(annotation, `${indent}  `))
   }
-  for (const vis of scene.annotationVisibility ?? []) {
+  for (const vis of scene.annotationVisibility) {
     lines.push(serializeAnnotationVisibility(vis, `${indent}  `))
   }
-  for (const s of scene.series ?? []) {
+  for (const s of scene.series) {
     lines.push(serializeSeries(s, `${indent}  `))
   }
-  for (const transform of scene.transforms ?? []) {
+  for (const transform of scene.transforms) {
     lines.push(serializeTransform(transform, `${indent}  `))
   }
   lines.push(`${indent}}`)
@@ -171,22 +179,25 @@ export function serialize(ast: ChartNode): string {
   for (const colorize of ast.colorizes) {
     lines.push(serializeColorize(colorize, '  '))
   }
-  for (const highlight of ast.highlights ?? []) {
+  for (const highlight of ast.highlights) {
     lines.push(serializeHighlight(highlight, '  '))
   }
-  for (const areaFill of ast.areaFills ?? []) {
+  for (const areaFill of ast.areaFills) {
     lines.push(serializeAreaFill(areaFill, '  '))
   }
-  for (const annotation of ast.annotations ?? []) {
+  for (const annotation of ast.annotations) {
     lines.push(serializeAnnotation(annotation, '  '))
   }
-  for (const s of ast.series ?? []) {
+  for (const vis of ast.annotationVisibility) {
+    lines.push(serializeAnnotationVisibility(vis, '  '))
+  }
+  for (const s of ast.series) {
     lines.push(serializeSeries(s, '  '))
   }
   for (const scene of ast.scenes) {
     lines.push(serializeScene(scene, '  '))
   }
-  for (const transform of ast.transforms ?? []) {
+  for (const transform of ast.transforms) {
     lines.push(serializeTransform(transform, '  '))
   }
   lines.push('}')
@@ -206,22 +217,25 @@ export function compactSerialize(ast: ChartNode): string {
   for (const colorize of ast.colorizes) {
     lines.push(serializeColorize(colorize, '  '))
   }
-  for (const highlight of ast.highlights ?? []) {
+  for (const highlight of ast.highlights) {
     lines.push(serializeHighlight(highlight, '  '))
   }
-  for (const areaFill of ast.areaFills ?? []) {
+  for (const areaFill of ast.areaFills) {
     lines.push(serializeAreaFill(areaFill, '  '))
   }
-  for (const annotation of ast.annotations ?? []) {
+  for (const annotation of ast.annotations) {
     lines.push(serializeAnnotation(annotation, '  '))
   }
-  for (const s of ast.series ?? []) {
+  for (const vis of ast.annotationVisibility) {
+    lines.push(serializeAnnotationVisibility(vis, '  '))
+  }
+  for (const s of ast.series) {
     lines.push(serializeSeries(s, '  '))
   }
   for (const scene of ast.scenes) {
     lines.push(serializeScene(scene, '  '))
   }
-  for (const transform of ast.transforms ?? []) {
+  for (const transform of ast.transforms) {
     lines.push(serializeTransform(transform, '  '))
   }
   lines.push('}')

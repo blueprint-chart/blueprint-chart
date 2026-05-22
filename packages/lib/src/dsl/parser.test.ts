@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { DslNodeType, AnnotationKind, AnnotationAction } from '../enums'
 import { parse } from './parser'
+import { serialize } from './serializer'
 
 const SIMPLE_CHART = `chart horizontal-bar {
   title = "Couverture médiatique"
@@ -677,13 +678,124 @@ describe('parser', () => {
     })
   })
 
-  describe('backward compatibility', () => {
-    it('parses "highlight" keyword as colorize node', () => {
+  describe('highlight with body', () => {
+    it('parses "highlight" keyword with body as HighlightNode with properties', () => {
       const ast = parse('chart bar {\n  highlight "X" {\n    color = "#ff0"\n  }\n}')
-      expect(ast.colorizes).toHaveLength(1)
-      expect(ast.colorizes[0].type).toBe(DslNodeType.Colorize)
-      expect(ast.colorizes[0].target).toBe('X')
-      expect(ast.colorizes[0].properties[0].value).toBe('#ff0')
+      expect(ast.colorizes).toHaveLength(0)
+      expect(ast.highlights).toHaveLength(1)
+      expect(ast.highlights[0].type).toBe(DslNodeType.Highlight)
+      expect(ast.highlights[0].target).toBe('X')
+      expect(ast.highlights[0].properties).toHaveLength(1)
+      expect(ast.highlights[0].properties[0].value).toBe('#ff0')
+    })
+
+    it('round-trips highlight with body through parse and serialize', () => {
+      const dsl = 'chart bar {\n  highlight "X" {\n    color = "#f00"\n  }\n}'
+      const ast1 = parse(dsl)
+      const ast2 = parse(serialize(ast1))
+      expect(ast2.highlights).toHaveLength(1)
+      expect(ast2.highlights[0].target).toBe('X')
+      expect(ast2.highlights[0].properties).toHaveLength(1)
+      expect(ast2.highlights[0].properties[0].key).toBe('color')
+      expect(ast2.highlights[0].properties[0].value).toBe('#f00')
+    })
+  })
+
+  describe('numeric edge cases', () => {
+    it('parses scientific notation', () => {
+      const ast = parse('chart bar { x = 1e10 }')
+      expect(ast.properties[0].value).toBe(1e10)
+    })
+
+    it('parses decimal scientific notation', () => {
+      const ast = parse('chart bar { x = 1.5e6 }')
+      expect(ast.properties[0].value).toBe(1.5e6)
+    })
+
+    it('parses leading-decimal numbers', () => {
+      const ast = parse('chart bar { x = .5 }')
+      expect(ast.properties[0].value).toBe(0.5)
+    })
+
+    it('parses trailing-decimal numbers', () => {
+      const ast = parse('chart bar { x = 5. }')
+      expect(ast.properties[0].value).toBe(5)
+    })
+
+    it('rejects double negative sign', () => {
+      expect(() => parse('chart bar { x = --5 }')).toThrow()
+    })
+
+    it('rejects truncated exponent', () => {
+      expect(() => parse('chart bar { x = 5e }')).toThrow()
+    })
+  })
+
+  describe('string escape sequences', () => {
+    it('parses \\r escape', () => {
+      const ast = parse('chart bar { x = "a\\rb" }')
+      expect(ast.properties[0].value).toBe('a\rb')
+    })
+
+    it('parses \\u unicode escape', () => {
+      const ast = parse('chart bar { x = "\\u0041" }')
+      expect(ast.properties[0].value).toBe('A')
+    })
+
+    it('rejects unknown escape sequences', () => {
+      expect(() => parse('chart bar { x = "\\z" }')).toThrow(/Unknown escape/)
+    })
+  })
+
+  describe('duplicate data blocks', () => {
+    it('throws on duplicate chart-level data block', () => {
+      expect(() => parse('chart bar { data { "A" = 1 } data { "B" = 2 } }')).toThrow(/duplicate data block/)
+    })
+
+    it('throws on duplicate scene-level data block', () => {
+      expect(() => parse('chart bar { scene "S" { data { "A" = 1 } data { "B" = 2 } } }')).toThrow(/duplicate data block/)
+    })
+  })
+
+  describe('comments', () => {
+    it('parses line comment between members', () => {
+      const ast = parse('chart bar {\n  // foo\n  x = 1\n}')
+      expect(ast.properties).toHaveLength(1)
+      expect(ast.properties[0].key).toBe('x')
+    })
+
+    it('parses block comment inside data block', () => {
+      const ast = parse('chart bar {\n  data {\n    /* block comment */\n    "A" = 1\n  }\n}')
+      expect(ast.data!.entries).toHaveLength(1)
+    })
+
+    it('parses line comment at end of file', () => {
+      const ast = parse('chart bar {\n  x = 1\n} // trailing comment')
+      expect(ast.properties[0].value).toBe(1)
+    })
+
+    it('parses block comment spanning multiple lines', () => {
+      const ast = parse('chart bar {\n  /* multi\n     line\n     comment */\n  x = 1\n}')
+      expect(ast.properties[0].key).toBe('x')
+    })
+  })
+
+  describe('chart-level annotation visibility', () => {
+    it('parses hide_annotation at chart level', () => {
+      const ast = parse('chart bar {\n  hide_annotation "x"\n}')
+      expect(ast.annotationVisibility).toHaveLength(1)
+      expect(ast.annotationVisibility[0]).toEqual({
+        type: DslNodeType.AnnotationVisibility,
+        action: AnnotationAction.Hide,
+        kind: AnnotationKind.Point,
+        id: 'x',
+      })
+    })
+
+    it('parses show_range at chart level', () => {
+      const ast = parse('chart bar {\n  show_range "r1"\n}')
+      expect(ast.annotationVisibility).toHaveLength(1)
+      expect(ast.annotationVisibility[0].kind).toBe(AnnotationKind.Range)
     })
   })
 })

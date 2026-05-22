@@ -7,6 +7,7 @@ function collectBody(members) {
     highlights: [],
     areaFills: [],
     annotations: [],
+    annotationVisibility: [],
     series: [],
     scenes: [],
     transforms: [],
@@ -14,11 +15,17 @@ function collectBody(members) {
   for (const m of members) {
     switch (m.type) {
       case 'property':  result.properties.push(m); break;
-      case 'data':       result.data = m;           break;
+      case 'data':
+        if (result.data !== null) {
+          throw new SyntaxError('duplicate data block');
+        }
+        result.data = m;
+        break;
       case 'colorize':   result.colorizes.push(m);  break;
       case 'highlight':  result.highlights.push(m); break;
       case 'areafill':   result.areaFills.push(m);  break;
       case 'annotation': result.annotations.push(m);break;
+      case 'annotation-visibility': result.annotationVisibility.push(m); break;
       case 'series':     result.series.push(m);     break;
       case 'scene':      result.scenes.push(m);     break;
       case 'transform':  result.transforms.push(m); break;
@@ -42,7 +49,12 @@ function collectSceneBody(members) {
   for (const m of members) {
     switch (m.type) {
       case 'property':  result.properties.push(m); break;
-      case 'data':       result.data = m;           break;
+      case 'data':
+        if (result.data !== null) {
+          throw new SyntaxError('duplicate data block');
+        }
+        result.data = m;
+        break;
       case 'colorize':   result.colorizes.push(m);  break;
       case 'highlight':  result.highlights.push(m); break;
       case 'areafill':   result.areaFills.push(m);  break;
@@ -69,6 +81,7 @@ Chart
       highlights: body.highlights,
       areaFills: body.areaFills,
       annotations: body.annotations,
+      annotationVisibility: body.annotationVisibility,
       series: body.series,
       scenes: body.scenes,
       transforms: body.transforms,
@@ -76,7 +89,7 @@ Chart
   }
 
 ChartMember
-  = _ m:(DataBlock / Colorize / Highlight / AreaFill / RangeAnnotation / NoteAnnotation / Annotation / Series / Scene / Transform / Property) _
+  = _ m:(DataBlock / Colorize / Highlight / AreaFill / RangeAnnotation / NoteAnnotation / Annotation / HideAnnotation / HideRange / HideNote / ShowAnnotation / ShowRange / ShowNote / Series / Scene / Transform / Property) _
   { return m; }
 
 DataBlock
@@ -104,9 +117,9 @@ Colorize
 
 Highlight
   = "highlight" __ target:String _ "{" _ props:BlockProperty* _ "}"
-  { return { type: 'colorize', target, properties: props }; }
+  { return { type: 'highlight', target, properties: props }; }
   / "highlight" __ target:String
-  { return { type: 'highlight', target }; }
+  { return { type: 'highlight', target, properties: [] }; }
 
 AreaFill
   = "areafill" __ from:String __ to:String _ "{" _ props:BlockProperty* _ "}"
@@ -199,7 +212,7 @@ Identifier "identifier"
   = $([a-zA-Z_#] [a-zA-Z0-9_#-]*)
 
 Number
-  = digits:$("-"? [0-9]+ ("." [0-9]+)?) { return parseFloat(digits); }
+  = digits:$("-"? ("." [0-9]+ / [0-9]+ ("." [0-9]*)?) ([eE] [+-]? [0-9]+)?) { return parseFloat(digits); }
 
 String "string"
   = '"' chars:StringChar* '"' { return chars.join(''); }
@@ -212,11 +225,23 @@ EscapeChar
   = '"'  { return '"'; }
   / '\\' { return '\\'; }
   / 'n'  { return '\n'; }
+  / 'r'  { return '\r'; }
   / 't'  { return '\t'; }
-  / c:.  { return c; }
+  / 'u' hex:$([0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]) { return String.fromCharCode(parseInt(hex, 16)); }
+  / c:.  { error("Unknown escape sequence \\" + c); }
+
+Comment
+  = LineComment
+  / BlockComment
+
+LineComment
+  = "//" [^\n]*
+
+BlockComment
+  = "/*" (!"*/" .)* "*/"
 
 __ "whitespace"
-  = [ \t\n\r]+
+  = ([ \t\n\r] / Comment)+
 
 _ "optional whitespace"
-  = [ \t\n\r]*
+  = ([ \t\n\r] / Comment)*
