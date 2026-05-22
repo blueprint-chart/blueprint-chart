@@ -27,6 +27,18 @@ describe('LayoutBottomDrawer props', () => {
   })
 })
 
+describe('LayoutBottomDrawer content-driven height', () => {
+  it('mounts when content is short and renders the drawer + body', () => {
+    const wrapper = mount(Drawer, {
+      props: { modelValue: true, title: 'Sheet' },
+      slots: { default: '<div style="height: 10px">tiny</div>' },
+    })
+    expect(wrapper.find('.layout-bottom-drawer').exists()).toBe(true)
+    expect(wrapper.find('.layout-bottom-drawer__body').exists()).toBe(true)
+    wrapper.unmount()
+  })
+})
+
 describe('LayoutBottomDrawer interactions', () => {
   it('emits update:modelValue on handle tap', async () => {
     const wrapper = mount(Drawer, {
