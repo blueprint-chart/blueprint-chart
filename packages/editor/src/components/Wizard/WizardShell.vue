@@ -71,7 +71,9 @@ const panelDisabled = computed(() => {
 })
 
 function onOpenPanel() {
-  if (panelDisabled.value) return
+  if (panelDisabled.value) {
+    return
+  }
   if (currentStep.value.key === 'data') {
     editorPanel.openDataPanel(editorPanel.lastNarrowDataTab.value)
   }

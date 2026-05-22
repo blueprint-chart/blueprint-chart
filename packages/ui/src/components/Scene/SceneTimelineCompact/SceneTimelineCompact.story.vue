@@ -26,8 +26,8 @@ const oneScene = [
       <template #default="{ state }">
         <div style="background: var(--bc-content-bg, #1a1a1a); padding: 1rem;">
           <SceneTimelineCompact
-            :scenes="threeScenes"
             v-model:active-index="state.activeIndex"
+            :scenes="threeScenes"
           />
         </div>
       </template>
@@ -40,8 +40,8 @@ const oneScene = [
       <template #default="{ state }">
         <div style="background: var(--bc-content-bg, #1a1a1a); padding: 1rem;">
           <SceneTimelineCompact
-            :scenes="threeScenes"
             v-model:active-index="state.activeIndex"
+            :scenes="threeScenes"
             playing
           />
         </div>
@@ -55,8 +55,8 @@ const oneScene = [
       <template #default="{ state }">
         <div style="background: var(--bc-content-bg, #1a1a1a); padding: 1rem; max-width: 220px;">
           <SceneTimelineCompact
-            :scenes="longScenes"
             v-model:active-index="state.activeIndex"
+            :scenes="longScenes"
           />
         </div>
       </template>
@@ -69,8 +69,8 @@ const oneScene = [
       <template #default="{ state }">
         <div style="background: var(--bc-content-bg, #1a1a1a); padding: 1rem;">
           <SceneTimelineCompact
-            :scenes="oneScene"
             v-model:active-index="state.activeIndex"
+            :scenes="oneScene"
           />
         </div>
       </template>
