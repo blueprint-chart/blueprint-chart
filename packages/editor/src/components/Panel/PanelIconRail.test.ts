@@ -6,7 +6,7 @@ vi.mock('@blueprint-chart/ui', () => ({
   NavigationIconRail: {
     name: 'NavigationIconRail',
     template: '<div class="icon-rail"><button v-for="i in items" :key="i.value" class="rail-item" :data-value="i.value" @click="$emit(\'update:modelValue\', i.value)" /><slot name="footer" /></div>',
-    props: ['modelValue', 'items', 'horizontal'],
+    props: ['modelValue', 'items'],
     emits: ['update:modelValue'],
   },
   ButtonIcon: {
@@ -42,14 +42,6 @@ describe('PanelIconRail', () => {
       props: { activeTab: 'a', items },
     })
     expect(w.find('.btn-toggle').text()).toBe('Open panel')
-  })
-
-  it('hides toggle button when horizontal', () => {
-    usePanelStore().$patch({ mode: 'docked' })
-    const w = mount(PanelIconRail, {
-      props: { activeTab: 'a', items, horizontal: true },
-    })
-    expect(w.find('.btn-toggle').exists()).toBe(false)
   })
 
   it('emits toggle-mode when toggle button is clicked', async () => {
