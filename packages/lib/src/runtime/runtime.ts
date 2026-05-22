@@ -1,10 +1,39 @@
 import { CHART_CSS } from './chart-css'
 
+// Track the single message router so repeated init() calls don't accumulate
+// `message` listeners on `window` (HMR, multi-script-tag pages, etc.).
+const iframeHandlers = new Map<HTMLIFrameElement, (e: MessageEvent) => void>()
+let rootMessageHandler: ((e: MessageEvent) => void) | null = null
+
+function ensureRootMessageHandler(): void {
+  if (rootMessageHandler) {
+    return
+  }
+  rootMessageHandler = (e: MessageEvent) => {
+    for (const [iframe, handler] of iframeHandlers) {
+      if (e.source === iframe.contentWindow) {
+        handler(e)
+        return
+      }
+    }
+  }
+  window.addEventListener('message', rootMessageHandler)
+}
+
 export function initBlueprint(): void {
+  ensureRootMessageHandler()
   const scripts = document.querySelectorAll<HTMLScriptElement>(
     'script[type="application/blueprint-chart"]',
   )
   scripts.forEach(processScript)
+}
+
+export function teardownBlueprint(): void {
+  if (rootMessageHandler) {
+    window.removeEventListener('message', rootMessageHandler)
+    rootMessageHandler = null
+  }
+  iframeHandlers.clear()
 }
 
 function processScript(script: HTMLScriptElement): void {
@@ -24,11 +53,11 @@ function processScript(script: HTMLScriptElement): void {
   iframe.srcdoc = buildSrcdoc(dsl)
 
   const onMessage = (e: MessageEvent) => {
-    if (e.data?.type === 'blueprint-chart-resize' && e.source === iframe.contentWindow) {
+    if (e.data?.type === 'blueprint-chart-resize') {
       iframe.style.height = `${e.data.height}px`
     }
   }
-  window.addEventListener('message', onMessage)
+  iframeHandlers.set(iframe, onMessage)
 }
 
 function buildSrcdoc(dsl: string): string {

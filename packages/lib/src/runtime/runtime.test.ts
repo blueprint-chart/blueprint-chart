@@ -1,9 +1,14 @@
-import { describe, it, expect, beforeEach } from 'vitest'
-import { initBlueprint } from './runtime'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+import { initBlueprint, teardownBlueprint } from './runtime'
 
 describe('initBlueprint', () => {
   beforeEach(() => {
     document.body.innerHTML = ''
+    teardownBlueprint()
+  })
+
+  afterEach(() => {
+    teardownBlueprint()
   })
 
   it('finds and processes blueprint script tags', () => {
@@ -105,5 +110,40 @@ describe('initBlueprint', () => {
     const iframe = document.querySelector('.blueprint-chart-iframe') as HTMLIFrameElement
     expect(iframe.srcdoc).toContain('<style>')
     expect(iframe.srcdoc).toContain('bc-frame-title')
+  })
+
+  // ── Listener cleanup (L5) ────────────────────────────────────────
+
+  it('attaches only one window message listener across repeated init() calls', () => {
+    const addSpy = vi.spyOn(window, 'addEventListener')
+    const removeSpy = vi.spyOn(window, 'removeEventListener')
+
+    document.body.innerHTML = `
+      <script type="application/blueprint-chart">chart bar { data { "A" = 10 } }</script>
+    `
+    initBlueprint()
+    initBlueprint()
+    initBlueprint()
+
+    const adds = addSpy.mock.calls.filter(c => c[0] === 'message')
+    const removes = removeSpy.mock.calls.filter(c => c[0] === 'message')
+    expect(adds.length - removes.length).toBe(1)
+
+    addSpy.mockRestore()
+    removeSpy.mockRestore()
+  })
+
+  it('teardownBlueprint detaches the window message listener', () => {
+    const removeSpy = vi.spyOn(window, 'removeEventListener')
+
+    document.body.innerHTML = `
+      <script type="application/blueprint-chart">chart bar { data { "A" = 10 } }</script>
+    `
+    initBlueprint()
+    teardownBlueprint()
+
+    const removes = removeSpy.mock.calls.filter(c => c[0] === 'message')
+    expect(removes.length).toBeGreaterThanOrEqual(1)
+    removeSpy.mockRestore()
   })
 })
