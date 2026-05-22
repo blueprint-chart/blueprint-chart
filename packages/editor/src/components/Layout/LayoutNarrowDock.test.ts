@@ -9,8 +9,16 @@ const twoScenes = [
 vi.mock('@blueprint-chart/ui', () => ({
   SceneTimelineCompact: {
     name: 'SceneTimelineCompact',
-    template: '<div class="scene-timeline-compact-stub" @click="$emit(\'expand\')" />',
-    props: ['scenes', 'activeIndex', 'playing'],
+    template: `
+      <div
+        class="scene-timeline-compact-stub"
+        :data-expanded="expanded"
+        @click="$emit('expand')"
+      >
+        <button class="stub-next" @click="$emit('update:activeIndex', activeIndex + 1)" />
+      </div>
+    `,
+    props: ['scenes', 'activeIndex', 'playing', 'expanded'],
     emits: ['update:activeIndex', 'play', 'pause', 'expand'],
   },
 }))
@@ -98,5 +106,33 @@ describe('LayoutNarrowDock', () => {
     })
     await wrapper.find('.scene-timeline-compact-stub').trigger('click')
     expect(wrapper.emitted('expand-timeline')).toHaveLength(1)
+  })
+
+  it('forwards update:activeIndex from the compact strip', async () => {
+    const wrapper = mount(LayoutNarrowDock, {
+      props: {
+        showTimeline: true,
+        scenes: twoScenes,
+        activeIndex: 0,
+        playing: false,
+        panelLabel: 'Edit panel',
+      },
+    })
+    await wrapper.find('.stub-next').trigger('click')
+    expect(wrapper.emitted('update:activeIndex')?.[0]).toEqual([1])
+  })
+
+  it('passes scenesSheetOpen down as expanded on the compact strip', () => {
+    const wrapper = mount(LayoutNarrowDock, {
+      props: {
+        showTimeline: true,
+        scenes: twoScenes,
+        activeIndex: 0,
+        playing: false,
+        panelLabel: 'Edit panel',
+        scenesSheetOpen: true,
+      },
+    })
+    expect(wrapper.find('.scene-timeline-compact-stub').attributes('data-expanded')).toBe('true')
   })
 })

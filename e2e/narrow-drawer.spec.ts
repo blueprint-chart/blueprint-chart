@@ -23,7 +23,7 @@ async function goToVisualizeStep(page) {
   // backdrop now blocks the navbar, so the drawer must be dismissed
   // before we can click the next stepper.
   await dismissDrawerIfOpen(page)
-  await page.locator('.navigation-stepper-chevron__step', { hasText: 'Visualize' }).click()
+  await page.locator('.navigation-stepper-tabs__step', { hasText: 'Visualize' }).click()
   await expect(page.locator('.bc-frame-body svg')).toBeVisible()
 }
 
@@ -33,7 +33,7 @@ test.describe('Narrow viewport - bottom drawer', () => {
 
     await expect(page.locator('.layout-bottom-drawer')).toBeVisible()
 
-    const stepper = page.locator('.navigation-stepper-chevron__step', { hasText: 'Visualize' })
+    const stepper = page.locator('.navigation-stepper-tabs__step', { hasText: 'Visualize' })
     await expect(async () => {
       await stepper.click({ timeout: 1500 })
     }).rejects.toThrow(/intercepts pointer events/)
@@ -48,9 +48,11 @@ test.describe('Narrow viewport - bottom drawer', () => {
   test('bottom drawer is within viewport on visualize step', async ({ page }) => {
     await goToVisualizeStep(page)
 
-    const rail = page.locator('.navigation-icon-rail--horizontal')
-    await expect(rail).toBeVisible()
-    await rail.locator('[aria-label="Chart Type"]').click()
+    // The horizontal section rail was replaced by a bottom dock with a
+    // single primary "open panel" pill that restores the last-used section.
+    const openPanel = page.locator('.panel-open-button')
+    await expect(openPanel).toBeVisible()
+    await openPanel.click()
     await page.waitForTimeout(500)
 
     const drawer = page.locator('.layout-bottom-drawer')
@@ -66,11 +68,11 @@ test.describe('Narrow viewport - bottom drawer', () => {
   test('navbar stepper is intercepted by the backdrop while drawer is open', async ({ page }) => {
     await goToVisualizeStep(page)
 
-    await page.locator('.navigation-icon-rail--horizontal [aria-label="Chart Type"]').click()
+    await page.locator('.panel-open-button').click()
     await page.waitForTimeout(500)
     await expect(page.locator('.layout-bottom-drawer')).toBeVisible()
 
-    const dataStep = page.locator('.navigation-stepper-chevron__step', { hasText: 'Data' })
+    const dataStep = page.locator('.navigation-stepper-tabs__step', { hasText: 'Data' })
     await expect(async () => {
       await dataStep.click({ timeout: 1500 })
     }).rejects.toThrow(/intercepts pointer events/)
@@ -79,8 +81,8 @@ test.describe('Narrow viewport - bottom drawer', () => {
   test('clicking backdrop closes the drawer', async ({ page }) => {
     await goToVisualizeStep(page)
 
-    // Open drawer via icon rail
-    await page.locator('.navigation-icon-rail--horizontal [aria-label="Chart Type"]').click()
+    // Open drawer via the dock's panel pill (replaces the old icon rail entry).
+    await page.locator('.panel-open-button').click()
     await page.waitForTimeout(500)
 
     const drawer = page.locator('.layout-bottom-drawer')
