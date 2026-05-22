@@ -20,18 +20,26 @@ export function computeStack(data: ChartData): d3.Series<Record<string, number>,
   const seriesNames = series.map(s => s.name)
 
   // Build tabular data: one row per label, columns for each series
+  let hasNegative = false
   const rows = data.labels.map((_label, i) => {
     const row: Record<string, number> = { _index: i }
     series.forEach((s) => {
-      row[s.name] = s.values[i] ?? 0
+      const v = s.values[i] ?? 0
+      if (v < 0) {
+        hasNegative = true
+      }
+      row[s.name] = v
     })
     return row
   })
 
+  // Diverging data needs stackOffsetDiverging so negatives sit below the zero
+  // baseline rather than overlapping positives. Keep stackOffsetNone otherwise
+  // so the happy-path layout is unchanged.
   const stack = d3.stack<Record<string, number>>()
     .keys(seriesNames)
     .order(d3.stackOrderNone)
-    .offset(d3.stackOffsetNone)
+    .offset(hasNegative ? d3.stackOffsetDiverging : d3.stackOffsetNone)
 
   return stack(rows)
 }
@@ -48,11 +56,14 @@ export function computeStack100(data: ChartData): d3.Series<Record<string, numbe
 
   const seriesNames = series.map(s => s.name)
 
+  // Feed raw values to d3 and let stackOffsetExpand normalise each row to [0, 1].
+  // The previous implementation mixed Math.abs in the denominator with the raw
+  // numerator, so diverging rows didn't sum to 100. stackOffsetExpand keeps the
+  // row sum consistent for both signed and unsigned data.
   const rows = data.labels.map((_label, i) => {
     const row: Record<string, number> = { _index: i }
-    const total = series.reduce((sum, s) => sum + Math.abs(s.values[i] ?? 0), 0)
     series.forEach((s) => {
-      row[s.name] = total > 0 ? ((s.values[i] ?? 0) / total) * 100 : 0
+      row[s.name] = s.values[i] ?? 0
     })
     return row
   })
@@ -60,7 +71,15 @@ export function computeStack100(data: ChartData): d3.Series<Record<string, numbe
   const stack = d3.stack<Record<string, number>>()
     .keys(seriesNames)
     .order(d3.stackOrderNone)
-    .offset(d3.stackOffsetNone)
+    .offset(d3.stackOffsetExpand)
 
-  return stack(rows)
+  // d3 returns y0/y1 in [0, 1]; scale to [0, 100] to match the previous API.
+  const result = stack(rows)
+  for (const layer of result) {
+    for (const point of layer) {
+      point[0] *= 100
+      point[1] *= 100
+    }
+  }
+  return result
 }

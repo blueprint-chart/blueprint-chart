@@ -110,4 +110,94 @@ describe('computeStack100', () => {
     expect(result[1][0][1]).toBe(40) // 30 + 10
     expect(result[2][0][1]).toBe(100) // 30 + 10 + 60
   })
+
+  // ── N4: diverging data normalisation ─────────────────────────────
+
+  it('normalises diverging rows so the signed segments sum to 100', () => {
+    // Pre-fix bug: the denominator used Math.abs while the numerator used the
+    // raw value, so this row didn't sum to 100. After switching to
+    // stackOffsetExpand the signed segments add up to the row's signed total
+    // (100), and the layout no longer double-counts negative magnitudes.
+    const data: ChartData = {
+      labels: ['X'],
+      values: [],
+      series: [
+        { name: 'A', values: [10] },
+        { name: 'B', values: [-5] },
+        { name: 'C', values: [3] },
+      ],
+    }
+    const result = computeStack100(data)
+    expect(result).toHaveLength(3)
+
+    const signedSum = result.reduce((sum, layer) => sum + (layer[0][1] - layer[0][0]), 0)
+    expect(signedSum).toBeCloseTo(100, 6)
+  })
+
+  it('symmetry fix: numerator and denominator agree for every row', () => {
+    const data: ChartData = {
+      labels: ['Row1', 'Row2', 'Row3'],
+      values: [],
+      series: [
+        { name: 'A', values: [10, 50, -20] },
+        { name: 'B', values: [-5, 50, 30] },
+        { name: 'C', values: [3, 0, 10] },
+      ],
+    }
+    const result = computeStack100(data)
+    for (let i = 0; i < data.labels.length; i++) {
+      const signedSum = result.reduce((sum, layer) => sum + (layer[i][1] - layer[i][0]), 0)
+      expect(signedSum).toBeCloseTo(100, 6)
+    }
+  })
+})
+
+describe('computeStack — N3: diverging offsets', () => {
+  it('uses diverging layout when any value is negative (no overlap)', () => {
+    const data: ChartData = {
+      labels: ['X'],
+      values: [],
+      series: [
+        { name: 'A', values: [10] },
+        { name: 'B', values: [-5] },
+        { name: 'C', values: [3] },
+      ],
+    }
+    const result = computeStack(data)
+    expect(result).toHaveLength(3)
+
+    // Positives stack upward from 0, negatives sit below 0 — no segment may
+    // overlap another along the y-axis.
+    const segments = result.map(layer => [layer[0][0], layer[0][1]] as [number, number])
+    for (let i = 0; i < segments.length; i++) {
+      for (let j = i + 1; j < segments.length; j++) {
+        const [a0, a1] = segments[i]
+        const [b0, b1] = segments[j]
+        const aLo = Math.min(a0, a1)
+        const aHi = Math.max(a0, a1)
+        const bLo = Math.min(b0, b1)
+        const bHi = Math.max(b0, b1)
+        // Overlap means aLo < bHi and bLo < aHi (open intervals).
+        const overlaps = aLo < bHi && bLo < aHi
+        expect(overlaps).toBe(false)
+      }
+    }
+  })
+
+  it('keeps the happy-path (all positive) layout unchanged', () => {
+    const data: ChartData = {
+      labels: ['A'],
+      values: [],
+      series: [
+        { name: 'S1', values: [10] },
+        { name: 'S2', values: [20] },
+      ],
+    }
+    const result = computeStack(data)
+    // Same expectations as the pre-fix behaviour
+    expect(result[0][0][0]).toBe(0)
+    expect(result[0][0][1]).toBe(10)
+    expect(result[1][0][0]).toBe(10)
+    expect(result[1][0][1]).toBe(30)
+  })
 })
