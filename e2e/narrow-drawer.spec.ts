@@ -100,3 +100,83 @@ test.describe('Narrow viewport - bottom drawer', () => {
     await expect(backdrop).not.toBeVisible()
   })
 })
+
+test.describe('Narrow viewport - scenes sheet', () => {
+  test('opens via the dock chevron and shows a row per scene', async ({ page }) => {
+    await goToVisualizeStep(page)
+
+    // Open the scenes sheet via the chevron-up in the bottom dock.
+    await page.locator('.scene-timeline-compact__expand').click()
+    await page.waitForTimeout(300)
+
+    const sheet = page.locator('.layout-bottom-drawer')
+    await expect(sheet).toBeVisible()
+    await expect(sheet.locator('h2', { hasText: 'Scenes' })).toBeVisible()
+
+    // At least the base scene row should be present.
+    const rows = sheet.locator('.scene-list-item-row')
+    expect(await rows.count()).toBeGreaterThanOrEqual(1)
+
+    // The +Add scene footer is present.
+    await expect(sheet.locator('.scene-list__add', { hasText: 'Add scene' })).toBeVisible()
+  })
+
+  test('drawer adapts to content height - not fixed at 70vh', async ({ page }) => {
+    await goToVisualizeStep(page)
+
+    await page.locator('.scene-timeline-compact__expand').click()
+    await page.waitForTimeout(300)
+
+    const sheet = page.locator('.layout-bottom-drawer')
+    const box = await sheet.boundingBox()
+    expect(box).not.toBeNull()
+    // The viewport is 800 px tall; 70 vh would be 560 px. With just the
+    // base row, the sheet should be well below that.
+    expect(box!.height).toBeLessThan(400)
+  })
+
+  test('+ Add scene adds a row', async ({ page }) => {
+    await goToVisualizeStep(page)
+
+    await page.locator('.scene-timeline-compact__expand').click()
+    await page.waitForTimeout(300)
+
+    const sheet = page.locator('.layout-bottom-drawer')
+    const initialRows = await sheet.locator('.scene-list-item-row').count()
+
+    await sheet.locator('.scene-list__add').click()
+    await page.waitForTimeout(300)
+
+    await expect(sheet.locator('.scene-list-item-row')).toHaveCount(initialRows + 1)
+  })
+
+  test('selecting a row closes the sheet', async ({ page }) => {
+    await goToVisualizeStep(page)
+
+    // Add a second scene — addScene() auto-activates it, so the override row
+    // is already active when the list re-renders.
+    await page.locator('.scene-timeline-compact__expand').click()
+    await page.waitForTimeout(300)
+    await page.locator('.layout-bottom-drawer .scene-list__add').click()
+    await page.waitForTimeout(300)
+
+    // Switch back to the base scene (row 0) which is NOT currently active —
+    // this triggers update:activeIndex and closes the sheet.
+    const baseRow = page.locator('.layout-bottom-drawer .scene-list-item-row').nth(0)
+    await baseRow.locator('button.scene-list-item').click()
+    await page.waitForTimeout(300)
+
+    await expect(page.locator('.layout-bottom-drawer')).not.toBeVisible()
+  })
+
+  test('base scene row has no drag handle and no remove button', async ({ page }) => {
+    await goToVisualizeStep(page)
+
+    await page.locator('.scene-timeline-compact__expand').click()
+    await page.waitForTimeout(300)
+
+    const baseRow = page.locator('.layout-bottom-drawer .scene-list-item-row').first()
+    await expect(baseRow.locator('.scene-list-item__handle')).toHaveCount(0)
+    await expect(baseRow.locator('.scene-list-item__remove')).toHaveCount(0)
+  })
+})
