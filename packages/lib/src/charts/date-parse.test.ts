@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { parseDate, detectDates } from './date-parse'
+import { parseDate, parseDateOrNumber, detectDates } from './date-parse'
 
 describe('parseDate', () => {
   it('parses YYYY-MM-DD', () => {
@@ -169,5 +169,59 @@ describe('detectDates', () => {
 
   it('returns null for mixed formats', () => {
     expect(detectDates(['2024-01-15', '01/15/2024'])).toBeNull()
+  })
+
+  // ── N6: ambiguous-format disambiguation ──────────────────────────
+
+  it('disambiguates DD/MM/YYYY from MM/DD/YYYY by checking every label', () => {
+    // '01/02/2024' alone is ambiguous, but '15/02/2024' rules out MM/DD.
+    const result = detectDates(['01/02/2024', '15/02/2024'])
+    expect(result).not.toBeNull()
+    expect(result!.dates).toHaveLength(2)
+    // DD/MM/YYYY → first label is 1 Feb, second is 15 Feb.
+    expect(result!.dates[0].getUTCMonth()).toBe(1) // February
+    expect(result!.dates[0].getUTCDate()).toBe(1)
+    expect(result!.dates[1].getUTCMonth()).toBe(1)
+    expect(result!.dates[1].getUTCDate()).toBe(15)
+  })
+
+  it('still returns null when labels use genuinely different formats', () => {
+    // Each label parses, but no single format parses both.
+    expect(detectDates(['2024-01-15', '15.01.2024'])).toBeNull()
+  })
+})
+
+describe('parseDate — N5: timezone-independent epochs', () => {
+  it('returns UTC midnight for YYYY-MM-DD', () => {
+    const d = parseDate('2024-01-15')
+    expect(d).not.toBeNull()
+    expect(d!.getTime()).toBe(Date.UTC(2024, 0, 15))
+  })
+
+  it('returns the same epoch for YYYY/MM/DD as for YYYY-MM-DD', () => {
+    expect(parseDate('2024/01/15')!.getTime()).toBe(Date.UTC(2024, 0, 15))
+  })
+
+  it('returns UTC midnight for YYYY', () => {
+    expect(parseDate('2024')!.getTime()).toBe(Date.UTC(2024, 0, 1))
+  })
+
+  it('returns UTC midnight for YYYY-MM', () => {
+    expect(parseDate('2024-03')!.getTime()).toBe(Date.UTC(2024, 2, 1))
+  })
+
+  it('returns UTC for datetime strings', () => {
+    expect(parseDate('2024-01-15T14:30:00')!.getTime())
+      .toBe(Date.UTC(2024, 0, 15, 14, 30, 0))
+  })
+})
+
+describe('parseDateOrNumber — N5: timezone-independent epochs', () => {
+  it('returns UTC epoch ms for date strings', () => {
+    expect(parseDateOrNumber('2024-01-15')).toBe(Date.UTC(2024, 0, 15))
+  })
+
+  it('still parses plain numbers', () => {
+    expect(parseDateOrNumber('42')).toBe(42)
   })
 })

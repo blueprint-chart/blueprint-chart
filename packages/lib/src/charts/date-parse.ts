@@ -41,6 +41,26 @@ function granularityForFormat(fmt: string): DateGranularity {
   return 'day'
 }
 
+/**
+ * Build a timezone-independent Date from a validated dayjs instance.
+ *
+ * dayjs(...).toDate() returns local-midnight, which leaks the host TZ into
+ * downstream scales (off-by-one-day in negative-UTC regions). We use the
+ * already-parsed Y/M/D/H/m/s components and rebuild via Date.UTC so the
+ * resulting epoch ms is stable regardless of where the code runs.
+ */
+function toUtcDate(d: dayjs.Dayjs): Date {
+  return new Date(Date.UTC(
+    d.year(),
+    d.month(),
+    d.date(),
+    d.hour(),
+    d.minute(),
+    d.second(),
+    d.millisecond(),
+  ))
+}
+
 export function parseDate(s: string): Date | null {
   const trimmed = s.trim()
   if (!trimmed) {
@@ -50,7 +70,7 @@ export function parseDate(s: string): Date | null {
   // For YYYY-only, require exactly 4 digits to avoid matching random numbers
   if (/^\d{4}$/.test(trimmed)) {
     const d = dayjs(trimmed, 'YYYY', true)
-    return d.isValid() ? d.toDate() : null
+    return d.isValid() ? toUtcDate(d) : null
   }
 
   for (const fmt of DATE_FORMATS) {
@@ -59,7 +79,7 @@ export function parseDate(s: string): Date | null {
     }
     const d = dayjs(trimmed, fmt, true)
     if (d.isValid()) {
-      return d.toDate()
+      return toUtcDate(d)
     }
   }
   return null
@@ -111,32 +131,49 @@ export function detectDates(labels: string[]): { dates: Date[], granularity: Dat
       if (!d.isValid()) {
         return null
       }
-      dates.push(d.toDate())
+      dates.push(toUtcDate(d))
     }
     return { dates, granularity: 'year' }
   }
 
+  // Collect every format that successfully parses the first label, then pick
+  // the first one that also parses every remaining label. Locking on the very
+  // first match would mis-classify ambiguous strings like '01/02/2024' as
+  // MM/DD/YYYY when subsequent rows (e.g. '15/02/2024') prove it's DD/MM.
+  const candidateFormats: string[] = []
   for (const fmt of DATE_FORMATS) {
     if (fmt === 'YYYY') {
       continue
     }
-    const d = dayjs(first, fmt, true)
-    if (d.isValid()) {
+    if (dayjs(first, fmt, true).isValid()) {
+      candidateFormats.push(fmt)
+    }
+  }
+
+  if (candidateFormats.length === 0) {
+    return null
+  }
+
+  for (const fmt of candidateFormats) {
+    const parsed: Date[] = []
+    let allValid = true
+    for (const label of labels) {
+      const d = dayjs(label.trim(), fmt, true)
+      if (!d.isValid()) {
+        allValid = false
+        break
+      }
+      parsed.push(toUtcDate(d))
+    }
+    if (allValid) {
       matchedFormat = fmt
+      dates.push(...parsed)
       break
     }
   }
 
   if (!matchedFormat) {
     return null
-  }
-
-  for (const label of labels) {
-    const d = dayjs(label.trim(), matchedFormat, true)
-    if (!d.isValid()) {
-      return null
-    }
-    dates.push(d.toDate())
   }
 
   return { dates, granularity: granularityForFormat(matchedFormat) }
