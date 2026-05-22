@@ -3,10 +3,6 @@
     class="export-panel"
     :class="{ 'export-panel--narrow': isNarrow }"
   >
-    <ExportIconRail
-      v-if="isNarrow"
-      horizontal
-    />
     <div
       ref="canvasRef"
       class="export-panel__canvas"
@@ -45,7 +41,7 @@
           :tabs="tabs"
           :model-value="exportTab"
           sticky
-          @update:model-value="setExportTab($event as ExportTab)"
+          @update:model-value="onDrawerTabPick"
         />
       </template>
       <ExportEmbedPanel v-if="exportTab === 'embed'" />
@@ -83,8 +79,15 @@ const { mode: panelMode } = usePanel()
 setViewMode('preview')
 const exportPanelStore = useExportPanel()
 const { exportTab } = storeToRefs(exportPanelStore)
-const { setExportTab } = exportPanelStore
+const { setExportTab: setExportTabAction, setLastNarrowExportTab } = exportPanelStore
 const { isNarrow } = useBreakpoint()
+
+watch(panelMode, (mode) => {
+  if (mode === 'drawer' && exportTab.value) {
+    setLastNarrowExportTab(exportTab.value as Exclude<ExportTab, ''>)
+    setExportTabAction('' as ExportTab)
+  }
+}, { immediate: true })
 
 const { layout } = useChartConfig()
 const { cardClass, cardStyle } = useCanvasCardStyle(layout, 'export-panel__canvas__card')
@@ -122,7 +125,19 @@ const canvasStyle = computed<CSSProperties>(() => ({
   '--grid-offset-y': `${gridOffsetY.value}px`,
 } as CSSProperties))
 
-const drawerOpen = shallowRef(true)
+const drawerOpen = computed({
+  get: () => !!exportTab.value,
+  set: (open) => {
+    if (!open) {
+      setExportTabAction('' as ExportTab)
+    }
+  },
+})
+
+function onDrawerTabPick(tab: string) {
+  setLastNarrowExportTab(tab as Exclude<ExportTab, ''>)
+  setExportTabAction(tab as ExportTab)
+}
 
 const { sections: tabs } = useExportSections()
 
