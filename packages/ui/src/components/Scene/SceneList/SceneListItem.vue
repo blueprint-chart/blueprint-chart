@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import IPhDotsSixVertical from '~icons/ph/dots-six-vertical'
 import IPhX from '~icons/ph/x'
 
 withDefaults(defineProps<{
@@ -21,17 +20,7 @@ defineEmits<{
 </script>
 
 <template>
-  <li
-    class="scene-list-item-row"
-    :data-not-sortable="removable ? undefined : true"
-  >
-    <span
-      v-if="removable"
-      class="scene-list-item__handle"
-      aria-label="Drag to reorder"
-    >
-      <IPhDotsSixVertical />
-    </span>
+  <li class="scene-list-item-row">
     <button
       type="button"
       class="scene-list-item"
@@ -79,22 +68,6 @@ defineEmits<{
   align-items: stretch;
   gap: 0.5rem;
   list-style: none;
-}
-
-.scene-list-item__handle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  flex-shrink: 0;
-  color: var(--bs-secondary-color);
-  cursor: grab;
-  touch-action: none;
-  font-size: var(--bs-font-size-lg);
-
-  &:active {
-    cursor: grabbing;
-  }
 }
 
 .scene-list-item {

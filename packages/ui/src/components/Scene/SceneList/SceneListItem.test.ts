@@ -16,20 +16,6 @@ describe('SceneListItem', () => {
     expect(w.find('.scene-list-item__hint').text()).toBe('inherits scene 1')
   })
 
-  it('renders the drag handle when removable', () => {
-    const w = mount(SceneListItem, {
-      props: { index: 1, name: 'A', thumbnail: null, hint: 'custom data', removable: true },
-    })
-    expect(w.find('.scene-list-item__handle').exists()).toBe(true)
-  })
-
-  it('hides the drag handle when not removable (base scene)', () => {
-    const w = mount(SceneListItem, {
-      props: { index: 0, name: 'Base', thumbnail: null, hint: 'base scene', removable: false },
-    })
-    expect(w.find('.scene-list-item__handle').exists()).toBe(false)
-  })
-
   it('renders the remove button only when removable', () => {
     const removable = mount(SceneListItem, {
       props: { index: 1, name: 'A', thumbnail: null, hint: 'override', removable: true },

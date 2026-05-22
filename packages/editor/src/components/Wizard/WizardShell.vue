@@ -266,16 +266,6 @@ function onTimelineRemove(timelineIndex: number) {
   scenesComposable.remove(timelineIndex - 1)
 }
 
-function onSceneReorder({ from, to }: { from: number, to: number }) {
-  // SceneList emits wizard-facing indices (0 = base, 1..N = overrides).
-  // The list filters Sortable's reorder to forbid moving into/out of
-  // position 0, but we double-check defensively here.
-  if (from <= 0 || to <= 0) {
-    return
-  }
-  scenesComposable.reorder(from - 1, to - 1)
-}
-
 const showTimeline = computed(() => {
   const step = currentStep.value.key
   if (step === 'export') {
@@ -428,7 +418,6 @@ onBeforeRouteLeave(() => {
           @remove="onTimelineRemove"
           @play="startPlayback"
           @pause="stopPlayback"
-          @reorder="onSceneReorder"
         />
       </LayoutBottomDrawer>
     </div>
