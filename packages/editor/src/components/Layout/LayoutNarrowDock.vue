@@ -10,7 +10,7 @@ interface SceneEntry {
   thumbnail?: string | null
 }
 
-const props = withDefaults(defineProps<{
+withDefaults(defineProps<{
   showTimeline: boolean
   scenes: SceneEntry[]
   activeIndex: number
