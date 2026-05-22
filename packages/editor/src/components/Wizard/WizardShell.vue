@@ -14,7 +14,10 @@ import type { ChartColorize } from '@/stores/chartConfig'
 import { ChartType, SortDirection, parseData } from '@blueprint-chart/lib'
 import type { SeriesOverride } from '@blueprint-chart/lib'
 import { BBadge } from 'bootstrap-vue-next'
-import { NavigationStepperTabs, SceneTimeline, useBreakpoint } from '@blueprint-chart/ui'
+import { NavigationStepperTabs, SceneTimeline, LayoutBottomDrawer, useBreakpoint } from '@blueprint-chart/ui'
+import LayoutNarrowDock from '@/components/Layout/LayoutNarrowDock.vue'
+import { useEditorPanel } from '@/stores/editorPanel'
+import { useExportPanel } from '@/stores/exportPanel'
 import IconPhTable from '~icons/ph/table'
 import IconPhChartBar from '~icons/ph/chart-bar'
 import IconPhExport from '~icons/ph/export'
@@ -37,6 +40,57 @@ const savedAgo = useTimeAgo(savedAtDate)
 const savedLabel = computed(() => savedAtDate.value ? `saved ${savedAgo.value}` : null)
 const { isNarrow: isSavedCompact } = useBreakpoint('lg')
 const { isNarrow: isStepperStacked } = useBreakpoint('md')
+const { isNarrow } = useBreakpoint() // defaults to 'md' — matches the panel store
+const editorPanel = useEditorPanel()
+const exportPanel = useExportPanel()
+const scenesSheetOpen = ref(false)
+
+const panelLabel = computed(() => {
+  switch (currentStep.value.key) {
+    case 'data': return 'Data panel'
+    case 'edit': return 'Edit panel'
+    case 'export': return 'Export panel'
+    default: return 'Open panel'
+  }
+})
+
+const panelIcon = computed(() => {
+  switch (currentStep.value.key) {
+    case 'data': return IconPhTable
+    case 'edit': return IconPhChartBar
+    case 'export': return IconPhExport
+    default: return IconPhChartBar
+  }
+})
+
+const panelDisabled = computed(() => {
+  // Data step exposes no panel until rows are parsed. Edit and Export are
+  // already gated by `disabledSteps`, so reaching them implies their panels
+  // are usable.
+  return currentStep.value.key === 'data' && dataTable.rows.value.length === 0
+})
+
+function onOpenPanel() {
+  if (panelDisabled.value) return
+  if (currentStep.value.key === 'data') {
+    editorPanel.openDataPanel(editorPanel.lastNarrowDataTab.value)
+  }
+  else if (currentStep.value.key === 'edit') {
+    editorPanel.selectTab(editorPanel.lastNarrowEditTab.value)
+  }
+  else if (currentStep.value.key === 'export') {
+    exportPanel.setExportTab(exportPanel.lastNarrowExportTab.value)
+  }
+}
+
+function onExpandTimeline() {
+  scenesSheetOpen.value = true
+}
+
+function onTimelineSelectFromSheet(index: number) {
+  onTimelineSelect(index)
+  scenesSheetOpen.value = false
+}
 
 const stepIcons: Record<string, Component> = {
   data: IconPhTable,
@@ -289,7 +343,22 @@ onBeforeRouteLeave(() => {
         <ChartEditPanel v-else-if="currentStep.key === 'edit'" />
         <ExportPanel v-else-if="currentStep.key === 'export'" />
       </div>
-      <LayoutSceneTimeline v-if="showTimeline">
+      <LayoutNarrowDock
+        v-if="isNarrow"
+        :show-timeline="showTimeline"
+        :scenes="timelineScenes"
+        :active-index="timelineActiveIndex"
+        :playing="playing"
+        :panel-label="panelLabel"
+        :panel-icon="panelIcon"
+        :panel-disabled="panelDisabled"
+        @update:active-index="onTimelineSelect"
+        @play="startPlayback"
+        @pause="stopPlayback"
+        @expand-timeline="onExpandTimeline"
+        @open-panel="onOpenPanel"
+      />
+      <LayoutSceneTimeline v-else-if="showTimeline">
         <SceneTimeline
           :scenes="timelineScenes"
           :active-index="timelineActiveIndex"
@@ -301,6 +370,23 @@ onBeforeRouteLeave(() => {
           @pause="stopPlayback"
         />
       </LayoutSceneTimeline>
+
+      <LayoutBottomDrawer
+        v-if="isNarrow"
+        v-model="scenesSheetOpen"
+        title="Scenes"
+      >
+        <SceneTimeline
+          :scenes="timelineScenes"
+          :active-index="timelineActiveIndex"
+          :playing="playing"
+          @update:active-index="onTimelineSelectFromSheet"
+          @add="addScene"
+          @remove="onTimelineRemove"
+          @play="startPlayback"
+          @pause="stopPlayback"
+        />
+      </LayoutBottomDrawer>
     </div>
   </div>
 </template>
