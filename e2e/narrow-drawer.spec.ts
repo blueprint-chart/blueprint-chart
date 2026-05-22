@@ -169,6 +169,27 @@ test.describe('Narrow viewport - scenes sheet', () => {
     await expect(page.locator('.layout-bottom-drawer')).not.toBeVisible()
   })
 
+  test('removing an override row drops the row count', async ({ page }) => {
+    await goToVisualizeStep(page)
+
+    // Open the sheet and add an override so there is something to remove.
+    await page.locator('.scene-timeline-compact__expand').click()
+    await page.waitForTimeout(300)
+    await page.locator('.layout-bottom-drawer .scene-list__add').click()
+    await page.waitForTimeout(300)
+
+    const sheet = page.locator('.layout-bottom-drawer')
+    const beforeCount = await sheet.locator('.scene-list-item-row').count()
+    expect(beforeCount).toBeGreaterThanOrEqual(2)
+
+    // Tap the ✕ on the override row (last one in the list).
+    const overrideRow = sheet.locator('.scene-list-item-row').nth(beforeCount - 1)
+    await overrideRow.locator('.scene-list-item__remove').click()
+    await page.waitForTimeout(300)
+
+    await expect(sheet.locator('.scene-list-item-row')).toHaveCount(beforeCount - 1)
+  })
+
   test('base scene row has no drag handle and no remove button', async ({ page }) => {
     await goToVisualizeStep(page)
 

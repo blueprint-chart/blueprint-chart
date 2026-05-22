@@ -83,6 +83,7 @@ function onRemove(index: number) {
     <ul
       ref="listEl"
       class="scene-list__items"
+      role="list"
     >
       <SceneListItem
         v-for="scene in scenes"
