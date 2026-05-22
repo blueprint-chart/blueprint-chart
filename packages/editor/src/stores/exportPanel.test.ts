@@ -1,4 +1,4 @@
-import { useExportPanelStore as useExportPanel } from './exportPanel'
+import { useExportPanelStore, useExportPanelStore as useExportPanel } from './exportPanel'
 
 describe('useExportPanel', () => {
   beforeEach(() => {
@@ -46,5 +46,29 @@ describe('useExportPanel', () => {
     const b = useExportPanel()
     a.setExportTab('download')
     expect(b.exportTab).toBe('download')
+  })
+})
+
+describe('useExportPanelStore — lastNarrowExportTab', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+  })
+
+  it('exposes lastNarrowExportTab with default "embed"', () => {
+    const store = useExportPanelStore()
+    expect(store.lastNarrowExportTab).toBe('embed')
+  })
+
+  it('setLastNarrowExportTab updates lastNarrowExportTab', () => {
+    const store = useExportPanelStore()
+    store.setLastNarrowExportTab('download')
+    expect(store.lastNarrowExportTab).toBe('download')
+  })
+
+  it('reset() clears lastNarrowExportTab to default', () => {
+    const store = useExportPanelStore()
+    store.setLastNarrowExportTab('download')
+    store.reset()
+    expect(store.lastNarrowExportTab).toBe('embed')
   })
 })

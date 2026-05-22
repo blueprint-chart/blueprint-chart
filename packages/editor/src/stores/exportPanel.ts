@@ -9,6 +9,7 @@ export const useExportPanelStore = defineStore('exportPanel', () => {
   const svgMinify = shallowRef(false)
   const bpcIncludeData = shallowRef(true)
   const bpcCompact = shallowRef(false)
+  const lastNarrowExportTab = shallowRef<ExportTab>('embed')
 
   function setExportTab(tab: ExportTab) {
     exportTab.value = tab
@@ -16,6 +17,10 @@ export const useExportPanelStore = defineStore('exportPanel', () => {
 
   function setSelectedFormat(format: DownloadFormat) {
     selectedFormat.value = format
+  }
+
+  function setLastNarrowExportTab(tab: ExportTab) {
+    lastNarrowExportTab.value = tab
   }
 
   function reset() {
@@ -26,6 +31,7 @@ export const useExportPanelStore = defineStore('exportPanel', () => {
     svgMinify.value = false
     bpcIncludeData.value = true
     bpcCompact.value = false
+    lastNarrowExportTab.value = 'embed'
   }
 
   return {
@@ -36,8 +42,10 @@ export const useExportPanelStore = defineStore('exportPanel', () => {
     svgMinify,
     bpcIncludeData,
     bpcCompact,
+    lastNarrowExportTab,
     setExportTab,
     setSelectedFormat,
+    setLastNarrowExportTab,
     reset,
   }
 })
@@ -52,6 +60,7 @@ export function useExportPanel() {
     svgMinify,
     bpcIncludeData,
     bpcCompact,
+    lastNarrowExportTab,
   } = storeToRefs(store)
   return {
     exportTab,
@@ -61,8 +70,10 @@ export function useExportPanel() {
     svgMinify,
     bpcIncludeData,
     bpcCompact,
+    lastNarrowExportTab,
     setExportTab: store.setExportTab,
     setSelectedFormat: store.setSelectedFormat,
+    setLastNarrowExportTab: store.setLastNarrowExportTab,
     reset: store.reset,
   }
 }
