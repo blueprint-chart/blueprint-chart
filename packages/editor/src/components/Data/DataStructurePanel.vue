@@ -3,11 +3,6 @@
     class="data-structure-panel"
     :class="panelClassList"
   >
-    <DataSideIconRail
-      v-if="isNarrow"
-      horizontal
-      :disabled-tabs="sceneDisabledTabs"
-    />
     <div
       ref="mainRef"
       class="data-structure-panel__main"
@@ -51,7 +46,7 @@
           :tabs="activeTabs"
           :model-value="dataPanelTab"
           sticky
-          @update:model-value="openDataPanel($event as DataPanelTab)"
+          @update:model-value="onDrawerTabPick"
         />
       </template>
       <DataColumnSettings v-if="dataPanelTab === 'column'" />
@@ -85,8 +80,14 @@ import { findDataSourceSceneIndex } from '@/utils/scenes'
 const { columns, rows, columnTypes } = useDataTable()
 const editorPanel = useEditorPanel()
 const { dataPanelOpen, dataPanelTab } = storeToRefs(editorPanel)
-const { openDataPanel, closeDataPanel, setDataView } = editorPanel
+const { openDataPanel, closeDataPanel, setDataView, setLastNarrowDataTab } = editorPanel
 const { mode: panelMode } = usePanel()
+watch(panelMode, (mode) => {
+  if (mode === 'drawer' && dataPanelTab.value) {
+    setLastNarrowDataTab(dataPanelTab.value as DataPanelTab)
+    closeDataPanel()
+  }
+}, { immediate: true })
 const { activeScene, activeIndex, scenes } = useScenes()
 const isSceneMode = computed(() => activeScene.value !== null)
 
@@ -118,6 +119,11 @@ const sceneBannerDetail = computed(() => {
 
 function replaceData() {
   setDataView('upload')
+}
+
+function onDrawerTabPick(tab: string) {
+  setLastNarrowDataTab(tab as DataPanelTab)
+  openDataPanel(tab as DataPanelTab)
 }
 const { isNarrow } = useBreakpoint()
 
