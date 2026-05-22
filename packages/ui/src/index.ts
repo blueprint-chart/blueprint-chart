@@ -107,6 +107,8 @@ export { default as SceneTimeline } from './components/Scene/SceneTimeline/Scene
 export { default as SceneTimelineControls } from './components/Scene/SceneTimeline/SceneTimelineControls.vue'
 export { default as SceneTimelineItem } from './components/Scene/SceneTimelineItem/SceneTimelineItem.vue'
 export { default as SceneTimelineCompact } from './components/Scene/SceneTimelineCompact/SceneTimelineCompact.vue'
+export { default as SceneList } from './components/Scene/SceneList/SceneList.vue'
+export { default as SceneListItem } from './components/Scene/SceneList/SceneListItem.vue'
 
 export { default as ScenePlayerProgressBar } from './components/Scene/ScenePlayer/ScenePlayerProgressBar.vue'
 export { default as ScenePlayerDotStepper } from './components/Scene/ScenePlayer/ScenePlayerDotStepper.vue'
