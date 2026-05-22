@@ -15,7 +15,7 @@ export interface SceneController {
   destroy(): void
 }
 
-/** @deprecated Use SceneController instead */
+/** @deprecated Use StepController instead */
 export type StepController = SceneController
 
 export function createSceneController(
@@ -24,6 +24,7 @@ export function createSceneController(
   onSceneChange: (scene: SceneDefinition, index: number) => void,
 ): SceneController {
   let currentScene = 0
+  let destroyed = false
 
   const nav = document.createElement('nav')
   nav.className = 'blueprint-chart-scenes'
@@ -42,14 +43,32 @@ export function createSceneController(
   nav.appendChild(prevBtn)
   nav.appendChild(counter)
   nav.appendChild(nextBtn)
-  container.appendChild(nav)
+
+  // Only attach nav when there are scenes to display; empty arrays render nothing.
+  if (scenes.length > 0) {
+    container.appendChild(nav)
+  }
 
   function updateCounter(): void {
+    if (scenes.length === 0) {
+      counter.textContent = ''
+      return
+    }
     counter.textContent = `${currentScene + 1} / ${scenes.length}`
   }
 
   function goTo(index: number): void {
-    const clamped = ((index % scenes.length) + scenes.length) % scenes.length
+    if (destroyed) {
+      return
+    }
+    if (scenes.length === 0) {
+      return
+    }
+    if (!Number.isFinite(index)) {
+      return
+    }
+    const normalized = Math.floor(index)
+    const clamped = ((normalized % scenes.length) + scenes.length) % scenes.length
     currentScene = clamped
     updateCounter()
     onSceneChange(scenes[clamped], clamped)
@@ -75,6 +94,10 @@ export function createSceneController(
     },
     goTo,
     destroy() {
+      if (destroyed) {
+        return
+      }
+      destroyed = true
       nav.remove()
     },
   }

@@ -123,4 +123,138 @@ describe('createSceneController', () => {
     prevBtn.click()
     expect(onChange).toHaveBeenLastCalledWith(scenes[0], 0)
   })
+
+  it('goTo(NaN) is a no-op', () => {
+    const onChange = vi.fn()
+    const ctrl = createSceneController(container, scenes, onChange)
+
+    ctrl.goTo(NaN)
+    expect(ctrl.currentScene).toBe(0)
+    expect(onChange).not.toHaveBeenCalled()
+  })
+
+  it('goTo(Infinity) and goTo(-Infinity) are no-ops', () => {
+    const onChange = vi.fn()
+    const ctrl = createSceneController(container, scenes, onChange)
+
+    ctrl.goTo(Infinity)
+    expect(ctrl.currentScene).toBe(0)
+    expect(onChange).not.toHaveBeenCalled()
+
+    ctrl.goTo(-Infinity)
+    expect(ctrl.currentScene).toBe(0)
+    expect(onChange).not.toHaveBeenCalled()
+  })
+
+  it('goTo(1.7) clamps to goTo(1)', () => {
+    const onChange = vi.fn()
+    const ctrl = createSceneController(container, scenes, onChange)
+
+    ctrl.goTo(1.7)
+    expect(ctrl.currentScene).toBe(1)
+    expect(onChange).toHaveBeenCalledTimes(1)
+    expect(onChange).toHaveBeenCalledWith(scenes[1], 1)
+  })
+
+  it('empty scenes array: next/previous/goTo are no-ops', () => {
+    const onChange = vi.fn()
+    const ctrl = createSceneController(container, [], onChange)
+
+    expect(ctrl.totalScenes).toBe(0)
+    ctrl.next()
+    ctrl.previous()
+    ctrl.goTo(0)
+    ctrl.goTo(5)
+    expect(onChange).not.toHaveBeenCalled()
+    expect(container.querySelector('.blueprint-chart-scenes')).toBeNull()
+  })
+
+  // Single-scene semantics: next() and previous() wrap to the same index (0).
+  // The existing modulus arithmetic always wraps within range, so the callback
+  // does fire — but the index never changes.
+  it('single-scene array: next() and previous() wrap to the same index 0', () => {
+    const onChange = vi.fn()
+    const ctrl = createSceneController(container, [scenes[0]], onChange)
+
+    ctrl.next()
+    expect(ctrl.currentScene).toBe(0)
+    expect(onChange).toHaveBeenLastCalledWith(scenes[0], 0)
+
+    ctrl.previous()
+    expect(ctrl.currentScene).toBe(0)
+    expect(onChange).toHaveBeenLastCalledWith(scenes[0], 0)
+  })
+
+  it('scene reversal next → next → previous fires callback at 1, 2, 1 (in order)', () => {
+    const onChange = vi.fn()
+    const ctrl = createSceneController(container, scenes, onChange)
+
+    ctrl.next()
+    ctrl.next()
+    ctrl.previous()
+
+    expect(onChange).toHaveBeenCalledTimes(3)
+    expect(onChange.mock.calls[0]).toEqual([scenes[1], 1])
+    expect(onChange.mock.calls[1]).toEqual([scenes[2], 2])
+    expect(onChange.mock.calls[2]).toEqual([scenes[1], 1])
+  })
+
+  it('scene skipping goTo(0) then goTo(3) fires callback exactly twice with indices 0 and 3', () => {
+    const onChange = vi.fn()
+    const fourScenes: SceneDefinition[] = [
+      ...scenes,
+      { name: 'Scene 4', data: { value: 4 } },
+    ]
+    const ctrl = createSceneController(container, fourScenes, onChange)
+
+    ctrl.goTo(0)
+    ctrl.goTo(3)
+
+    expect(onChange).toHaveBeenCalledTimes(2)
+    expect(onChange.mock.calls[0]).toEqual([fourScenes[0], 0])
+    expect(onChange.mock.calls[1]).toEqual([fourScenes[3], 3])
+  })
+
+  it('rapid switching: next() called 10x fires callback exactly 10 times with valid indices', () => {
+    const onChange = vi.fn()
+    const ctrl = createSceneController(container, scenes, onChange)
+
+    for (let i = 0; i < 10; i++) {
+      ctrl.next()
+    }
+
+    expect(onChange).toHaveBeenCalledTimes(10)
+    for (const [, index] of onChange.mock.calls) {
+      expect(Number.isInteger(index)).toBe(true)
+      expect(index).toBeGreaterThanOrEqual(0)
+      expect(index).toBeLessThan(scenes.length)
+    }
+    // Final index after 10 increments from 0, wrapping mod 3, is (0 + 10) % 3 = 1.
+    expect(ctrl.currentScene).toBe(1)
+  })
+
+  it('destroy() then next() is a no-op and does not fire callback', () => {
+    const onChange = vi.fn()
+    const ctrl = createSceneController(container, scenes, onChange)
+
+    ctrl.destroy()
+    onChange.mockClear()
+
+    ctrl.next()
+    ctrl.previous()
+    ctrl.goTo(2)
+
+    expect(onChange).not.toHaveBeenCalled()
+    expect(ctrl.currentScene).toBe(0)
+  })
+
+  it('destroy() twice does not throw', () => {
+    const onChange = vi.fn()
+    const ctrl = createSceneController(container, scenes, onChange)
+
+    expect(() => {
+      ctrl.destroy()
+      ctrl.destroy()
+    }).not.toThrow()
+  })
 })
