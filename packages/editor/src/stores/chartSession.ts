@@ -14,6 +14,8 @@ interface SessionMeta {
   rawInput?: string
   sourceLabel?: string
   sourceFormat?: string
+  sheetNumber?: string | null
+  sheetId?: string
   // Legacy fields (ignored on load, not written on save)
   wizard?: unknown
 }
@@ -40,6 +42,8 @@ export interface SavedChartSummary {
   sceneCount: number
   rowCount: number
   allowDarkMode: boolean
+  sheetNumber: string | null
+  sheetId: string
 }
 
 const CHARS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
@@ -67,6 +71,8 @@ function isLegacyPayload(raw: string): boolean {
 export const useChartSessionStore = defineStore('chartSession', () => {
   const sessionId = shallowRef('')
   const lastSavedAt = shallowRef<string | null>(null)
+  const sheetNumber = ref<string | null>(null)
+  const sheetId = ref<string>('')
 
   const chartConfig = useChartConfig()
   const dataTable = useDataTable()
@@ -84,6 +90,8 @@ export const useChartSessionStore = defineStore('chartSession', () => {
     const now = new Date().toISOString()
     const meta: SessionMeta = {
       savedAt: now,
+      sheetNumber: sheetNumber.value,
+      sheetId: sheetId.value,
     }
     if (dataTable.sourceFormat.value === 'delimited' && dataTable.rawInput.value) {
       meta.rawInput = dataTable.rawInput.value
@@ -132,6 +140,8 @@ export const useChartSessionStore = defineStore('chartSession', () => {
 
       sessionId.value = id
       lastSavedAt.value = (loadedMeta?.savedAt as string | undefined) ?? null
+      sheetNumber.value = loadedMeta?.sheetNumber ?? null
+      sheetId.value = loadedMeta?.sheetId ?? crypto.randomUUID()
       return true
     }
     catch {
@@ -146,6 +156,8 @@ export const useChartSessionStore = defineStore('chartSession', () => {
         dataTable.hydrate(payload.dataTable)
       }
       sessionId.value = id
+      sheetNumber.value = null
+      sheetId.value = crypto.randomUUID()
       return true
     }
     catch {
@@ -165,6 +177,30 @@ export const useChartSessionStore = defineStore('chartSession', () => {
   function prepareNew() {
     resetAll()
     lastSavedAt.value = null
+    sheetNumber.value = null
+    sheetId.value = crypto.randomUUID()
+  }
+
+  function assignSheetNumber() {
+    if (sheetNumber.value !== null) {
+      return
+    }
+    const allKeys = Object.keys(localStorage).filter(k => k.startsWith('blueprint-chart:') && k.endsWith(':meta'))
+    let max = 0
+    for (const key of allKeys) {
+      try {
+        const meta = JSON.parse(localStorage.getItem(key) || '{}') as { sheetNumber?: string | null }
+        if (meta.sheetNumber) {
+          const n = parseInt(meta.sheetNumber, 10)
+          if (Number.isFinite(n) && n > max) {
+            max = n
+          }
+        }
+      }
+      catch { /* skip corrupt entries */ }
+    }
+    sheetNumber.value = String(max + 1).padStart(3, '0')
+    save()
   }
 
   function createSession(): string {
@@ -177,6 +213,8 @@ export const useChartSessionStore = defineStore('chartSession', () => {
   function newChart() {
     resetAll()
     sessionId.value = generateId()
+    sheetNumber.value = null
+    sheetId.value = crypto.randomUUID()
   }
 
   function loadSample(sample: ChartSample) {
@@ -222,6 +260,8 @@ export const useChartSessionStore = defineStore('chartSession', () => {
     }
 
     sessionId.value = generateId()
+    sheetNumber.value = null
+    sheetId.value = crypto.randomUUID()
     save()
     startAutoSave()
     return sessionId.value
@@ -292,6 +332,8 @@ export const useChartSessionStore = defineStore('chartSession', () => {
                 ? (payload.chartConfig.data as string).split('\n').filter((l: string) => l.trim()).length - 1
                 : 0,
               allowDarkMode: payload.chartConfig.allowDarkMode ?? true,
+              sheetNumber: null,
+              sheetId: '',
             })
             continue
           }
@@ -308,7 +350,8 @@ export const useChartSessionStore = defineStore('chartSession', () => {
           : 0
         const darkModeMatch = raw.match(/allowDarkMode\s*=\s*(true|false)/)
         const metaRaw = localStorage.getItem(metaKey(id))
-        const savedAt = metaRaw ? (JSON.parse(metaRaw) as SessionMeta).savedAt ?? null : null
+        const parsedMeta = metaRaw ? (JSON.parse(metaRaw) as SessionMeta) : null
+        const savedAt = parsedMeta?.savedAt ?? null
         charts.push({
           id,
           title: titleMatch?.[1] ?? '',
@@ -318,6 +361,8 @@ export const useChartSessionStore = defineStore('chartSession', () => {
           sceneCount: sceneMatches?.length ?? 0,
           rowCount: dataRows,
           allowDarkMode: darkModeMatch ? darkModeMatch[1] === 'true' : true,
+          sheetNumber: parsedMeta?.sheetNumber ?? null,
+          sheetId: parsedMeta?.sheetId ?? '',
         })
       }
       catch {
@@ -348,9 +393,12 @@ export const useChartSessionStore = defineStore('chartSession', () => {
   return {
     sessionId,
     lastSavedAt,
+    sheetNumber,
+    sheetId,
     save,
     load,
     prepareNew,
+    assignSheetNumber,
     createSession,
     newChart,
     loadSample,
@@ -364,13 +412,16 @@ export const useChartSessionStore = defineStore('chartSession', () => {
 
 export function useChartSession() {
   const store = useChartSessionStore()
-  const { sessionId, lastSavedAt } = storeToRefs(store)
+  const { sessionId, lastSavedAt, sheetNumber, sheetId } = storeToRefs(store)
   return {
     sessionId,
     lastSavedAt,
+    sheetNumber,
+    sheetId,
     save: store.save,
     load: store.load,
     prepareNew: store.prepareNew,
+    assignSheetNumber: store.assignSheetNumber,
     createSession: store.createSession,
     newChart: store.newChart,
     loadSample: store.loadSample,

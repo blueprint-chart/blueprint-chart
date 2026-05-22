@@ -275,3 +275,51 @@ describe('useChartSession', () => {
     expect(config.chartType.value).toBe(ChartType.BarHorizontal)
   })
 })
+
+describe('sheet number allocation', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    localStorage.clear()
+  })
+
+  it('initializes a sheetId on prepareNew()', () => {
+    const session = useChartSession()
+    session.prepareNew()
+    expect(session.sheetId.value).toMatch(/^[0-9a-f-]{36}$/i)
+    expect(session.sheetNumber.value).toBeNull()
+  })
+
+  it('assigns sheetNumber 001 on the first chart', () => {
+    const session = useChartSession()
+    session.prepareNew()
+    session.createSession()
+    session.assignSheetNumber()
+    expect(session.sheetNumber.value).toBe('001')
+  })
+
+  it('increments to 002 for the second chart in the catalog', () => {
+    const a = useChartSession()
+    a.prepareNew()
+    a.createSession()
+    a.assignSheetNumber()
+
+    a.prepareNew()
+    a.createSession()
+    a.assignSheetNumber()
+    expect(a.sheetNumber.value).toBe('002')
+  })
+
+  it('persists sheetNumber + sheetId across loadChart()', () => {
+    const session = useChartSession()
+    session.prepareNew()
+    const id = session.createSession()
+    session.assignSheetNumber()
+    const originalId = session.sheetId.value
+    session.sheetNumber.value = null
+    session.sheetId.value = ''
+
+    session.loadChart(id)
+    expect(session.sheetNumber.value).toBe('001')
+    expect(session.sheetId.value).toBe(originalId)
+  })
+})
