@@ -165,6 +165,52 @@ describe('snapshotForFadeOut', () => {
     expect(snapshotForFadeOut(container)).toBeNull()
   })
 
+  it('removes any pre-existing fade overlays from the container and cancels their animations', () => {
+    vi.stubGlobal('window', {
+      matchMedia: vi.fn().mockReturnValue({ matches: false }),
+    })
+    const container = document.createElement('div')
+    const stale = document.createElement('div')
+    stale.dataset.bcFadeOverlay = 'true'
+    const cancel = vi.fn()
+    ;(stale as HTMLElement & { getAnimations: () => { cancel: () => void }[] }).getAnimations = () => [{ cancel }]
+    container.appendChild(stale)
+    container.appendChild(document.createElement('span'))
+
+    const overlay = snapshotForFadeOut(container)
+
+    expect(overlay).not.toBeNull()
+    // Stale overlay is gone from the container
+    expect(container.querySelectorAll('[data-bc-fade-overlay]').length).toBe(0)
+    // Its animation was cancelled
+    expect(cancel).toHaveBeenCalledTimes(1)
+    // The new overlay does not contain the stripped overlay as a child
+    expect(overlay!.querySelectorAll('[data-bc-fade-overlay]').length).toBe(0)
+  })
+
+  it('strips nested fade overlays and prior fade-snapshot frames from the overlay (defensive)', () => {
+    vi.stubGlobal('window', {
+      matchMedia: vi.fn().mockReturnValue({ matches: false }),
+    })
+    const container = document.createElement('div')
+    // Hide the prior overlay inside a wrapper so the container-level cleanup
+    // does not catch it directly — this exercises the inner querySelectorAll.
+    const wrapper = document.createElement('div')
+    const nestedOverlay = document.createElement('div')
+    nestedOverlay.dataset.bcFadeOverlay = 'true'
+    wrapper.appendChild(nestedOverlay)
+    const oldSnapshot = document.createElement('div')
+    oldSnapshot.className = 'bc-frame--fade-snapshot'
+    wrapper.appendChild(oldSnapshot)
+    container.appendChild(wrapper)
+
+    const overlay = snapshotForFadeOut(container)
+
+    expect(overlay).not.toBeNull()
+    expect(overlay!.querySelectorAll('[data-bc-fade-overlay]').length).toBe(0)
+    expect(overlay!.querySelectorAll('.bc-frame--fade-snapshot').length).toBe(0)
+  })
+
   it('strips bc-frame-footer and bc-frame-note from overlay to prevent duplicate teleported UI', () => {
     vi.stubGlobal('window', {
       matchMedia: vi.fn().mockReturnValue({ matches: false }),

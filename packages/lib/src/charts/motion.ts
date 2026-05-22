@@ -111,6 +111,19 @@ export function fadeIn(el: Element, ms?: number): void {
  */
 export function snapshotForFadeOut(container: HTMLElement, ms?: number): HTMLElement | null {
   const duration = getTransitionDuration(ms ?? DEFAULT_TRANSITION_MS)
+
+  // Remove any prior fade overlays before measuring/cloning — otherwise a
+  // rapid re-trigger mid-fade would clone the previous overlay into the new
+  // one, causing visual doubling and N² DOM growth.  Also cancel each
+  // overlay's in-flight Web Animations API animations so they don't keep
+  // running detached.
+  container.querySelectorAll<HTMLElement>('[data-bc-fade-overlay]').forEach((el) => {
+    if (typeof el.getAnimations === 'function') {
+      el.getAnimations().forEach(a => a.cancel())
+    }
+    el.remove()
+  })
+
   if (duration <= 0 || container.children.length === 0) {
     return null
   }
@@ -138,6 +151,13 @@ export function snapshotForFadeOut(container: HTMLElement, ms?: number): HTMLEle
   // cloned frame loses its constrained-mode positioning so the footer would
   // render in normal flow (below the description) instead of at the bottom.
   overlay.querySelectorAll('.bc-frame-footer, .bc-frame-note').forEach((el) => {
+    el.remove()
+  })
+
+  // Defensive: strip nested fade overlays and prior fade-snapshot frames in
+  // case any slipped through the container-level cleanup above (e.g. when a
+  // caller cloned them under a custom wrapper).
+  overlay.querySelectorAll('[data-bc-fade-overlay], .bc-frame--fade-snapshot').forEach((el) => {
     el.remove()
   })
 

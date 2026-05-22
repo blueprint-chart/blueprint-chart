@@ -2,6 +2,23 @@ import { snapshotForFadeOut, commitFadeOut, fadeIn } from '../charts/motion'
 
 const prevChartType = new WeakMap<HTMLElement, string>()
 
+/**
+ * Cancel and remove any in-flight fade-out overlays inside `container`.
+ *
+ * Safe to call at any time — when no overlay is present this is a no-op.
+ * Use as an explicit cleanup hook (e.g. when tearing down a chart or before
+ * starting a brand-new fade) to prevent stacked overlays and zombie WAAPI
+ * animations from accumulating on rapid re-triggers.
+ */
+export function cancelInflightFade(container: HTMLElement): void {
+  container.querySelectorAll<HTMLElement>('[data-bc-fade-overlay]').forEach((el) => {
+    if (typeof el.getAnimations === 'function') {
+      el.getAnimations().forEach(a => a.cancel())
+    }
+    el.remove()
+  })
+}
+
 export function snapshotIfTypeChanged(
   container: HTMLElement,
   newChartType: string,
@@ -14,6 +31,10 @@ export function snapshotIfTypeChanged(
   if (!prev || prev === newChartType) {
     return null
   }
+  // Symmetric guard: cancel any in-flight fade before snapshotting the new
+  // state.  `snapshotForFadeOut` also performs this cleanup, but doing it
+  // here keeps the invariant explicit at the call site.
+  cancelInflightFade(container)
   return snapshotForFadeOut(container)
 }
 
@@ -34,4 +55,5 @@ export function commitCrossTypeFade(
 
 export function clearCrossTypeMarker(container: HTMLElement): void {
   prevChartType.delete(container)
+  cancelInflightFade(container)
 }
