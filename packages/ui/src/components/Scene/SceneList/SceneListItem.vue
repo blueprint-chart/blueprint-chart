@@ -20,7 +20,10 @@ defineEmits<{
 </script>
 
 <template>
-  <li class="scene-list-item-row">
+  <li
+    class="scene-list-item-row"
+    :class="{ 'scene-list-item-row--active': active }"
+  >
     <button
       type="button"
       class="scene-list-item"
@@ -66,24 +69,11 @@ defineEmits<{
 .scene-list-item-row {
   display: flex;
   align-items: stretch;
-  gap: 0.5rem;
   list-style: none;
-}
-
-.scene-list-item {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.5rem 0.625rem;
-  min-height: 56px;
   border: 1px solid var(--bc-hairline);
   border-radius: var(--bc-radius-md);
   background: var(--bc-tile-bg);
-  color: var(--bs-body-color);
-  cursor: pointer;
-  text-align: left;
+  overflow: hidden;
   transition:
     border-color var(--bc-duration-base) var(--bc-ease),
     box-shadow var(--bc-duration-base) var(--bc-ease);
@@ -96,6 +86,21 @@ defineEmits<{
     border-color: var(--bs-primary);
     box-shadow: 0 0 0 1px var(--bs-primary);
   }
+}
+
+.scene-list-item {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.625rem;
+  min-height: 56px;
+  border: none;
+  background: transparent;
+  color: var(--bs-body-color);
+  cursor: pointer;
+  text-align: left;
 
   &__thumb {
     width: 60px;
