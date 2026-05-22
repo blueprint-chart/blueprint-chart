@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Sortable from 'sortablejs'
 import SceneTimelineControls from '../SceneTimeline/SceneTimelineControls.vue'
 import SceneListItem from './SceneListItem.vue'
 
@@ -28,6 +29,32 @@ const emit = defineEmits<{
 }>()
 
 const listEl = ref<HTMLUListElement | null>(null)
+
+let sortable: Sortable | null = null
+
+onMounted(() => {
+  if (!listEl.value) return
+  sortable = Sortable.create(listEl.value, {
+    handle: '.scene-list-item__handle',
+    filter: '[data-not-sortable]',
+    animation: 150,
+    onMove: (evt) => {
+      if (evt.newIndex === 0) return false
+      return true
+    },
+    onEnd: (evt) => {
+      const from = evt.oldIndex
+      const to = evt.newIndex
+      if (typeof from !== 'number' || typeof to !== 'number' || from === to) return
+      emit('reorder', { from, to })
+    },
+  })
+})
+
+onBeforeUnmount(() => {
+  sortable?.destroy()
+  sortable = null
+})
 
 function onSelect(index: number) {
   activeIndex.value = index

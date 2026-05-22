@@ -1,6 +1,18 @@
 import { mount } from '@vue/test-utils'
 import SceneList from './SceneList.vue'
 
+const sortableInstances: Array<{ options: any, destroy: () => void }> = []
+
+vi.mock('sortablejs', () => ({
+  default: {
+    create: vi.fn((_el: HTMLElement, options: any) => {
+      const instance = { options, destroy: vi.fn() }
+      sortableInstances.push(instance)
+      return instance
+    }),
+  },
+}))
+
 const threeScenes = [
   { name: 'Base', index: 0, removable: false, thumbnail: null, hint: 'base scene' },
   { name: 'Stacked', index: 1, removable: true, thumbnail: null, hint: 'inherits Base' },
@@ -64,5 +76,41 @@ describe('SceneList', () => {
     const rows = w.findAll('.scene-list-item-row')
     expect(rows[0].attributes('data-not-sortable')).toBe('true')
     expect(rows[1].attributes('data-not-sortable')).toBeUndefined()
+  })
+
+  it('creates a Sortable instance on the ul, with onMove blocking newIndex 0', () => {
+    sortableInstances.length = 0
+    mount(SceneList, {
+      props: { scenes: threeScenes, activeIndex: 0 },
+      attachTo: document.body,
+    })
+    expect(sortableInstances).toHaveLength(1)
+    const opts = sortableInstances[0].options
+    const refused = opts.onMove({ related: { dataset: {} }, newIndex: 0 })
+    expect(refused).toBe(false)
+    const allowed = opts.onMove({ related: { dataset: {} }, newIndex: 2 })
+    expect(allowed).not.toBe(false)
+  })
+
+  it('emits reorder({ from, to }) when Sortable onEnd fires', () => {
+    sortableInstances.length = 0
+    const w = mount(SceneList, {
+      props: { scenes: threeScenes, activeIndex: 0 },
+      attachTo: document.body,
+    })
+    const opts = sortableInstances[0].options
+    opts.onEnd({ oldIndex: 1, newIndex: 2 })
+    expect(w.emitted('reorder')?.[0]).toEqual([{ from: 1, to: 2 }])
+  })
+
+  it('destroys the Sortable instance on unmount', () => {
+    sortableInstances.length = 0
+    const w = mount(SceneList, {
+      props: { scenes: threeScenes, activeIndex: 0 },
+      attachTo: document.body,
+    })
+    const instance = sortableInstances[0]
+    w.unmount()
+    expect(instance.destroy).toHaveBeenCalled()
   })
 })
