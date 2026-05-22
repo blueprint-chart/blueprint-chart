@@ -18,7 +18,7 @@ test.describe('smoke tests', () => {
     await textarea.fill('Label,Value\nA,10\nB,20\nC,30')
     await page.locator('button', { hasText: 'Load data' }).click()
 
-    await page.locator('.navigation-stepper-chevron__step', { hasText: 'Visualize' }).click()
+    await page.locator('.navigation-stepper-tabs__step', { hasText: 'Visualize' }).click()
     await expect(page.locator('.bc-frame-body svg')).toBeVisible()
   })
 
@@ -28,7 +28,7 @@ test.describe('smoke tests', () => {
     const textarea = page.locator('textarea')
     await textarea.fill('Label,Value\nA,10\nB,20\nC,30')
     await page.locator('button', { hasText: 'Load data' }).click()
-    await page.locator('.navigation-stepper-chevron__step', { hasText: 'Visualize' }).click()
+    await page.locator('.navigation-stepper-tabs__step', { hasText: 'Visualize' }).click()
 
     await expect(page.locator('.bc-frame-body svg')).toBeVisible()
 
@@ -67,10 +67,15 @@ test.describe('smoke tests', () => {
     const textarea = page.locator('textarea')
     await textarea.fill('Label,Value\nA,10\nB,20\nC,30')
     await page.locator('button', { hasText: 'Load data' }).click()
-    await page.locator('.navigation-stepper-chevron__step', { hasText: 'Visualize' }).click()
+    await page.locator('.navigation-stepper-tabs__step', { hasText: 'Visualize' }).click()
     await expect(page.locator('.bc-frame-body svg')).toBeVisible()
 
-    const realErrors = errors.filter(e => !e.includes('favicon'))
+    // Filter out favicon 404s and Vite's HMR-websocket reconnect noise, neither
+    // of which represents an app-level error.
+    const realErrors = errors.filter(e =>
+      !e.includes('favicon')
+      && !e.includes('WebSocket connection'),
+    )
     expect(realErrors).toEqual([])
   })
 })
