@@ -23,6 +23,7 @@ vi.mock('@/stores/editorPanel', () => ({
     openDataPanel: mockOpenDataPanel,
     closeDataPanel: mockCloseDataPanel,
     setDataView: vi.fn(),
+    setLastNarrowDataTab: vi.fn(),
   }),
 }))
 
@@ -53,7 +54,7 @@ vi.mock('@blueprint-chart/ui', () => ({
 const commonStubs = {
   DataCheckTable: { template: '<div class="table-stub" />' },
   DataInsightBadges: { template: '<div class="badges-stub" />', props: ['columns', 'rows'] },
-  DataSideIconRail: { template: '<div class="icon-rail-stub" />', props: ['horizontal'] },
+  DataSideIconRail: { template: '<div class="icon-rail-stub" />', props: ['disabledTabs'] },
   PanelShell: { template: '<div class="panel-shell-stub"><slot /></div>', props: ['title', 'containerRef', 'showClose', 'drawerOpen'] },
   DataColumnSettings: { template: '<div class="column-settings-stub" />' },
   DataTransformPipeline: { template: '<div class="transforms-stub" />' },
