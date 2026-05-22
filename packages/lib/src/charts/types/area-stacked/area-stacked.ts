@@ -11,7 +11,8 @@ import { estimateLegendSize, estimateDirectLabelWidth } from '../../legend/legen
 import { resolveCurve } from '../../curves'
 import { renderAnnotations, snapshotAnnotations, type AnnotationSnapshot } from '../../plugins/annotations'
 import { resolveBackgroundColor } from '../../contrast'
-import { setupProximityInteraction } from '../../plugins/proximity'
+import { setupProximityInteraction, disposeProximityFor } from '../../plugins/proximity'
+import { ensureClipPath } from '../../clip-path-helper'
 import { getDefaultTransitionMs, setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut, reinsertWithOffset } from '../../motion'
 import { setCachedChart, getCachedChart } from '../../transition-cache'
 import { computeStack, computeStack100 } from '../../stack-helpers'
@@ -161,6 +162,9 @@ export function render(
   transition = false,
 ): void {
   setRenderTransition(transition)
+  // Tear down the previous proximity interaction (if any) so we don't leak
+  // a body-level .bc-tooltip or stale event listeners on every render.
+  disposeProximityFor(container)
   let data = inputData
   // Preserve existing data elements for smooth D3 data-join transitions
   let priorAreas: Element[] = []
@@ -323,13 +327,8 @@ export function render(
   })
 
   // Clip chart content to the plot area
-  const clipId = `bc-clip-${Math.random().toString(36).slice(2, 8)}`
   const svg = chartArea.ownerSVGElement!
-  const clipDefs = d3.select(svg).select('defs').empty()
-    ? d3.select(svg).append('defs')
-    : d3.select(svg).select('defs')
-  clipDefs.append('clipPath').attr('id', clipId)
-    .append('rect').attr('width', width).attr('height', height)
+  const clipId = ensureClipPath(svg, container, 'plot', { x: 0, y: 0, width, height })
   const clippedGroup = d3.select(chartArea).append('g').attr('clip-path', `url(#${clipId})`)
   const clippedArea = clippedGroup.node() as SVGGElement
 
@@ -450,6 +449,7 @@ export function render(
       crosshairStyle: options.crosshairStyle,
       crosshairColor: options.crosshairColor,
       numberFormat: options.verticalAxis?.numberFormat,
+      container,
     })
   }
 

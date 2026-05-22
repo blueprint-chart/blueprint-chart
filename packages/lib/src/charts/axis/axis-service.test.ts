@@ -381,4 +381,48 @@ describe('AxisService', () => {
     const vWrapper = chartArea.querySelector('.bc-axis-service-v') as SVGGElement
     expect(vWrapper.style.display).toBe('none')
   })
+
+  // ── Lifecycle: detach interrupts pending transitions ────────────
+
+  it('detach interrupts pending transitions without throwing', async () => {
+    const axes = AxisService.for(container)
+    axes.attach(chartArea)
+
+    const yScale = d3.scaleLinear().domain([0, 100]).range([300, 0])
+    const xScale = d3.scaleBand<string>().domain(['A', 'B', 'C']).range([0, 500])
+    axes.update({
+      vertical: { scale: yScale, height: 300, options: { gridWidth: 500 } },
+      horizontal: { scale: xScale, height: 300, options: { width: 500 } },
+    })
+
+    // Kick off a long transition on every descendant of both axis groups so
+    // detach() must interrupt active tweens, not just the wrappers.
+    const vWrapper = chartArea.querySelector('.bc-axis-service-v') as SVGGElement
+    const hWrapper = chartArea.querySelector('.bc-axis-service-h') as SVGGElement
+    d3.select(vWrapper).selectAll<SVGGElement, unknown>('.tick')
+      .transition()
+      .duration(5000)
+      .attr('opacity', 0)
+    d3.select(hWrapper).selectAll<SVGGElement, unknown>('.tick')
+      .transition()
+      .duration(5000)
+      .attr('opacity', 0)
+
+    expect(() => axes.detach()).not.toThrow()
+
+    // After detach the wrappers must be removed from the DOM…
+    expect(chartArea.querySelector('.bc-axis-service-v')).toBeNull()
+    expect(chartArea.querySelector('.bc-axis-service-h')).toBeNull()
+
+    // …and the in-memory wrappers must no longer have a registered D3
+    // transition. d3.active() returns null when no transition is running on a
+    // node — proving interrupt() reached every descendant before remove().
+    const allTicks = [
+      ...Array.from(vWrapper.querySelectorAll<SVGGElement>('.tick')),
+      ...Array.from(hWrapper.querySelectorAll<SVGGElement>('.tick')),
+    ]
+    for (const tick of allTicks) {
+      expect(d3.active(tick)).toBeNull()
+    }
+  })
 })

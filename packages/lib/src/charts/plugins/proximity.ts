@@ -5,6 +5,21 @@ import { buildNumberFormatter } from '../format-helpers'
 
 const TOOLTIP_CLASS = 'bc-tooltip'
 
+// Per-container cleanup registry: ensures each chart container has at most one
+// active proximity interaction. Calling disposeProximityFor(container) tears
+// down the prior interaction (overlay, crosshair, dot, body-level tooltip,
+// and DOM listeners) so successive renders don't leak tooltips into <body> or
+// stack duplicate overlays/listeners.
+const proximityCleanups = new WeakMap<Element, () => void>()
+
+export function disposeProximityFor(container: Element): void {
+  const cleanup = proximityCleanups.get(container)
+  if (cleanup) {
+    proximityCleanups.delete(container)
+    cleanup()
+  }
+}
+
 function ensureStyles(): void {
   if (document.getElementById('bc-tooltip-styles')) {
     return
@@ -49,6 +64,13 @@ export interface ProximityOptions {
   crosshairColor?: string
   format?: (point: ProximityPoint) => string
   numberFormat?: string
+  /**
+   * When provided, the returned cleanup function is registered in a per-container
+   * registry. Subsequent renders against the same container should call
+   * `disposeProximityFor(container)` to tear down the prior interaction before
+   * a new one is created, preventing leaked tooltips and listeners.
+   */
+  container?: Element
 }
 
 export function makeDefaultFormat(numberFormat?: string): (p: ProximityPoint) => string {
@@ -82,10 +104,15 @@ export function setupProximityInteraction(
     crosshairStyle = CrosshairStyle.Dashed,
     crosshairColor = '#999',
     format = makeDefaultFormat(options.numberFormat),
+    container,
   } = options
 
   if (points.length === 0) {
-    return () => {}
+    const noop = () => {}
+    if (container) {
+      proximityCleanups.set(container, noop)
+    }
+    return noop
   }
 
   const dashArray = crosshairStyle === CrosshairStyle.Solid ? 'none' : crosshairStyle === CrosshairStyle.Dotted ? '2,2' : '4,3'
@@ -238,7 +265,7 @@ export function setupProximityInteraction(
   overlayNode.addEventListener('mousemove', onMove)
   overlayNode.addEventListener('mouseleave', onLeave)
 
-  return () => {
+  const cleanup = () => {
     overlayNode.removeEventListener('mousemove', onMove)
     overlayNode.removeEventListener('mouseleave', onLeave)
     overlay.remove()
@@ -253,5 +280,14 @@ export function setupProximityInteraction(
     if (hLine) {
       hLine.remove()
     }
+    if (container && proximityCleanups.get(container) === cleanup) {
+      proximityCleanups.delete(container)
+    }
   }
+
+  if (container) {
+    proximityCleanups.set(container, cleanup)
+  }
+
+  return cleanup
 }

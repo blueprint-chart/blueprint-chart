@@ -11,7 +11,8 @@ import { resolveCurve } from '../../curves'
 import { createValueLabelPlugin } from '../../plugins/value-labels'
 import { renderAnnotations, snapshotAnnotations, type AnnotationSnapshot } from '../../plugins/annotations'
 import { resolveBackgroundColor } from '../../contrast'
-import { setupProximityInteraction } from '../../plugins/proximity'
+import { setupProximityInteraction, disposeProximityFor } from '../../plugins/proximity'
+import { ensureClipPath } from '../../clip-path-helper'
 import { renderLineSymbols } from '../../line-symbols'
 import { getDefaultTransitionMs, setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut, reinsertWithOffset } from '../../motion'
 import { getCachedChart, setCachedChart } from '../../transition-cache'
@@ -174,6 +175,9 @@ export function render(
   transition = false,
 ): void {
   setRenderTransition(transition)
+  // Tear down the previous proximity interaction (if any) so we don't leak
+  // a body-level .bc-tooltip or stale event listeners on every render.
+  disposeProximityFor(container)
   // Preserve existing data elements for smooth D3 data-join transitions
   let priorAreas: Element[] = []
   let priorLines: Element[] = []
@@ -229,7 +233,7 @@ export function render(
   const xPos = (d: LineDatum) => pointScale(d.label) ?? 0
 
   const useLog = options.verticalAxis?.scaleType === 'log'
-  const [domainMin, domainMax] = computeLinearDomain(filteredValues, options.verticalAxis?.range)
+  const [domainMin, domainMax] = computeLinearDomain(filteredValues, options.verticalAxis?.range, options.verticalAxis?.scaleType)
   const y = useLog
     ? d3.scaleSymlog().domain([domainMin, domainMax]).nice().range([height, 0])
     : d3.scaleLinear().domain([domainMin, domainMax]).nice().range([height, 0])
@@ -247,17 +251,8 @@ export function render(
   // Clip chart content to the plot area so lines/areas/dots outside the domain are hidden.
   // Inflate by 1px on each side so the stroke isn't half-clipped where data sits on
   // the plot edges (edgePadding=false places the first/last points at x=0 and x=width).
-  const clipId = `bc-clip-${Math.random().toString(36).slice(2, 8)}`
   const svg = chartArea.ownerSVGElement!
-  const defs = d3.select(svg).select('defs').empty()
-    ? d3.select(svg).append('defs')
-    : d3.select(svg).select('defs')
-  defs.append('clipPath').attr('id', clipId)
-    .append('rect')
-    .attr('x', -1)
-    .attr('y', -1)
-    .attr('width', width + 2)
-    .attr('height', height + 2)
+  const clipId = ensureClipPath(svg, container, 'plot', { x: -1, y: -1, width: width + 2, height: height + 2 })
   const clippedGroup = d3.select(chartArea).append('g').attr('clip-path', `url(#${clipId})`)
   const clippedArea = clippedGroup.node() as SVGGElement
 
@@ -316,6 +311,7 @@ export function render(
       crosshairStyle: options.crosshairStyle,
       crosshairColor: options.crosshairColor,
       numberFormat: options.verticalAxis?.numberFormat,
+      container,
     })
   }
 

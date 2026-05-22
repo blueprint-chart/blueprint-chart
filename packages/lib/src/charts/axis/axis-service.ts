@@ -53,13 +53,20 @@ export class AxisService {
   /**
    * Remove axis groups from DOM before replaceChildren().
    * The groups are kept in memory for reattachment.
+   *
+   * Interrupts any pending D3 transitions on the axis groups (and their
+   * descendants) before detaching so tween callbacks don't continue writing
+   * attributes to nodes that have just been removed from the DOM — which would
+   * otherwise throw in jsdom (no SVG baseVal) and leak work in real browsers.
    */
   detach(): void {
     if (this.vGroup?.parentNode) {
+      d3.select(this.vGroup).interrupt().selectAll('*').interrupt()
       this.vGroup.querySelectorAll('.bc-grid-line').forEach(el => el.remove())
       this.vGroup.remove()
     }
     if (this.hGroup?.parentNode) {
+      d3.select(this.hGroup).interrupt().selectAll('*').interrupt()
       this.hGroup.querySelectorAll('.bc-grid-line').forEach(el => el.remove())
       this.hGroup.remove()
     }

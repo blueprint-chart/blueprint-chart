@@ -486,4 +486,29 @@ describe('area-stacked chart', () => {
       expect(area.getAttribute('opacity')).toBe('0.85')
     }
   })
+
+  // ── Lifecycle: proximity tooltip + clipPath de-duplication ──────
+
+  describe('lifecycle', () => {
+    beforeEach(() => {
+      // Earlier tests don't tidy up body-level tooltips; clear them so the
+      // assertions below measure only what this test produces.
+      document.querySelectorAll('.bc-tooltip').forEach(el => el.remove())
+    })
+
+    it('keeps a single body-level tooltip across 5 renders against the same container', () => {
+      for (let i = 0; i < 5; i++) {
+        render(container, data, { tooltips: true })
+      }
+      expect(document.querySelectorAll('.bc-tooltip')).toHaveLength(1)
+    })
+
+    it('keeps a single clipPath in <defs> across 5 renders against the same container', () => {
+      for (let i = 0; i < 5; i++) {
+        render(container, data, { tooltips: true })
+      }
+      const svg = container.querySelector('svg')!
+      expect(svg.querySelectorAll('defs > clipPath')).toHaveLength(1)
+    })
+  })
 })
