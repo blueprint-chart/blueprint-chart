@@ -53,9 +53,9 @@ describe('bar-split', () => {
     render(container, data)
     const bars = container.querySelectorAll('.bc-bar-split')
     const indices = Array.from(bars).map(b => b.getAttribute('data-series'))
-    expect(indices).toContain('0')
-    expect(indices).toContain('1')
-    expect(indices).toContain('2')
+    expect(indices).toContain('Poll')
+    expect(indices).toContain('High')
+    expect(indices).toContain('Low')
   })
 
   // ── Panel layout ─────────────────────────────────────────────────
@@ -124,7 +124,7 @@ describe('bar-split', () => {
     const bars = container.querySelectorAll('.bc-bar-split')
 
     // Panel 0 (Poll): CDU/CSU=29 > Greens=22 > SPD=14
-    const panel0Bars = Array.from(bars).filter(b => b.getAttribute('data-series') === '0')
+    const panel0Bars = Array.from(bars).filter(b => b.getAttribute('data-series') === 'Poll')
     const widths = panel0Bars.map(b => parseFloat(b.getAttribute('width') ?? '0'))
     // CDU/CSU has highest value, so should have the widest bar
     // We can't guarantee order without knowing y positions, but all widths should be positive
@@ -148,14 +148,14 @@ describe('bar-split', () => {
     const cduBars: { si: string, width: number }[] = []
     for (const bar of bars) {
       const si = bar.getAttribute('data-series') ?? ''
-      if (si === '0' || si === '1') {
+      if (si === 'Poll' || si === 'High') {
         cduBars.push({ si, width: parseFloat(bar.getAttribute('width') ?? '0') })
       }
     }
 
     // With independent scales, widths should be close (both ~max of panel)
-    const p0Widths = cduBars.filter(b => b.si === '0').map(b => b.width)
-    const p1Widths = cduBars.filter(b => b.si === '1').map(b => b.width)
+    const p0Widths = cduBars.filter(b => b.si === 'Poll').map(b => b.width)
+    const p1Widths = cduBars.filter(b => b.si === 'High').map(b => b.width)
     expect(p0Widths.length).toBeGreaterThan(0)
     expect(p1Widths.length).toBeGreaterThan(0)
   })
@@ -166,8 +166,8 @@ describe('bar-split', () => {
 
     // With shared scale (max = 32 from High panel), CDU/CSU in Poll (29)
     // should be narrower than CDU/CSU in High (32)
-    const panel0Cdu = Array.from(bars).find(b => b.getAttribute('data-series') === '0')
-    const panel1Cdu = Array.from(bars).find(b => b.getAttribute('data-series') === '1')
+    const panel0Cdu = Array.from(bars).find(b => b.getAttribute('data-series') === 'Poll')
+    const panel1Cdu = Array.from(bars).find(b => b.getAttribute('data-series') === 'High')
     expect(panel0Cdu).not.toBeNull()
     expect(panel1Cdu).not.toBeNull()
 
@@ -185,7 +185,7 @@ describe('bar-split', () => {
 
     // Gather y positions for panel 0 (Poll)
     const panel0Bars = Array.from(bars)
-      .filter(b => b.getAttribute('data-series') === '0')
+      .filter(b => b.getAttribute('data-series') === 'Poll')
       .map(b => ({ y: parseFloat(b.getAttribute('y') ?? '0'), w: parseFloat(b.getAttribute('width') ?? '0') }))
       .sort((a, b) => a.y - b.y)
 
@@ -283,5 +283,14 @@ describe('bar-split', () => {
     render(container, data, { colors: ['#aabbcc'] }, true)
     const bars = container.querySelectorAll('.bc-bar-split')
     expect(bars).toHaveLength(9)
+  })
+
+  // ── Clip path ────────────────────────────────────────────────────
+
+  it('reuses a single clipPath across repeated renders to the same container', () => {
+    for (let i = 0; i < 5; i++) {
+      render(container, data)
+    }
+    expect(container.querySelectorAll('clipPath')).toHaveLength(1)
   })
 })

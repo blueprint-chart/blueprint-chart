@@ -14,6 +14,7 @@ import { resolveBackgroundColor, contrastTextColor } from '../../contrast'
 import { buildNumberFormatter } from '../../format-helpers'
 import { getDefaultTransitionMs, setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut, reinsertWithOffset } from '../../motion'
 import { getCachedChart, setCachedChart } from '../../transition-cache'
+import { ensureClipPath } from '../../clip-path-helper'
 import { SortDirection, ValueLabelPosition, LabelPosition } from '../../../enums'
 
 export const DEFAULT_COLORS = ['#4e79a7']
@@ -180,7 +181,7 @@ export function render(
     ? waterfallData.flatMap(d => [d.y0, d.y1])
     : barData.map(d => d.value)
   // eslint-disable-next-line prefer-const
-  let [domainMin, domainMax] = computeLinearDomain(domainValues, options.verticalAxis?.range)
+  let [domainMin, domainMax] = computeLinearDomain(domainValues, options.verticalAxis?.range, options.verticalAxis?.scaleType)
   // Extend domain to leave room for value labels below negative bars
   if (options.valueLabels && domainMin < 0 && options.verticalAxis?.range?.min == null) {
     const span = domainMax - domainMin
@@ -221,15 +222,14 @@ export function render(
   )
   const highlightTargets = new Set((options.highlights ?? []).map(h => h.target))
 
-  // Clip bars to the chart area so they truncate at axis boundaries
-  const idSuffix = Math.random().toString(36).slice(2, 8)
-  const clipId = `bc-clip-${idSuffix}`
+  // Clip bars to the chart area so they truncate at axis boundaries.
+  // Stable id per (container, key) keeps <defs> from growing on re-renders.
   const svg = chartArea.ownerSVGElement!
-  const defs = d3.select(svg).select('defs').empty()
-    ? d3.select(svg).append('defs')
-    : d3.select(svg).select('defs')
-  defs.append('clipPath').attr('id', clipId)
-    .append('rect').attr('width', width).attr('height', barAreaHeight)
+  const clipId = ensureClipPath(svg, container, 'bars', { x: 0, y: 0, width, height: barAreaHeight })
+  const defs = d3.select(svg).select<SVGDefsElement>('defs')
+  // Stable suffix derived from the clip id so connection-gradient ids are
+  // also deterministic across renders for the same container.
+  const idSuffix = clipId.replace(/^bc-clip-/, '')
   const clippedGroup = d3.select(chartArea).append('g').attr('clip-path', `url(#${clipId})`)
 
   // Bar backgrounds — full-size rects behind each bar at low opacity

@@ -17,6 +17,7 @@ import { getDefaultTransitionMs, setRenderTransition, fadeIn, snapshotForFadeOut
 import { setCachedChart, getCachedChart } from '../../transition-cache'
 import { computeStack, computeStack100 } from '../../stack-helpers'
 import { resolveBarGapPadding } from '../../scale-helpers'
+import { ensureClipPath } from '../../clip-path-helper'
 import { StackMode, Orientation, ValueLabelPosition, LabelPosition } from '../../../enums'
 
 export const DEFAULT_COLORS = [
@@ -55,7 +56,7 @@ class BarStackedChart extends D3Blueprint<StackedBarDatum[]> {
           const colors = this.config('colors') as string[]
           const labelOffset = this.config('categoryLabelOffset') as number
           sel
-            .attr('data-series', (d: StackedBarDatum) => d.seriesIndex)
+            .attr('data-series', (d: StackedBarDatum) => d.seriesName)
             .attr('x', (d: StackedBarDatum) => x(d.y0))
             .attr('y', (d: StackedBarDatum) => (y(d.label) ?? 0) + labelOffset)
             .attr('width', (d: StackedBarDatum) => x(d.y1) - x(d.y0))
@@ -69,7 +70,7 @@ class BarStackedChart extends D3Blueprint<StackedBarDatum[]> {
           const colors = this.config('colors') as string[]
           const labelOffset = this.config('categoryLabelOffset') as number
           sel.duration(getDefaultTransitionMs())
-            .attr('data-series', (d: StackedBarDatum) => d.seriesIndex)
+            .attr('data-series', (d: StackedBarDatum) => d.seriesName)
             .attr('x', (d: StackedBarDatum) => x(d.y0))
             .attr('y', (d: StackedBarDatum) => (y(d.label) ?? 0) + labelOffset)
             .attr('width', (d: StackedBarDatum) => x(d.y1) - x(d.y0))
@@ -234,14 +235,10 @@ export function render(
     order: 'horizontal-first',
   })
 
-  // Clip bars to the chart area
-  const clipId = `bc-clip-${Math.random().toString(36).slice(2, 8)}`
+  // Clip bars to the chart area — deterministic per container so re-renders
+  // re-use the same <clipPath> instead of accumulating new ones in <defs>.
   const svg = chartArea.ownerSVGElement!
-  const defs = d3.select(svg).select('defs').empty()
-    ? d3.select(svg).append('defs')
-    : d3.select(svg).select('defs')
-  defs.append('clipPath').attr('id', clipId)
-    .append('rect').attr('width', width).attr('height', height)
+  const clipId = ensureClipPath(svg, container, 'bars', { x: 0, y: 0, width, height })
   const clippedGroup = d3.select(chartArea).append('g').attr('clip-path', `url(#${clipId})`)
 
   // Re-order flatData to match sorted labels
@@ -358,7 +355,7 @@ export function render(
       const cx = x(datum.y0) + segmentWidth / 2
       vlGroup.append('text')
         .attr('class', 'bc-value-label')
-        .attr('data-series', datum.seriesIndex)
+        .attr('data-series', datum.seriesName)
         .attr('opacity', 0)
         .attr('x', cx)
         .attr('y', cy)
@@ -380,14 +377,19 @@ export function render(
         const nextWidth = nextSegWidthPx.get(datum.label + '\0' + datum.seriesName)
         const overlaps = labelStartX < prevEnd
         const overflows = nextWidth !== undefined && estimatedLabelWidth + 4 > nextWidth
-        if (overlaps || overflows) {
+        // Symmetric guard for the last segment: outside labels there have no
+        // following segment, so `nextWidth` is undefined; instead verify the
+        // label end stays inside the chart's right edge (incl. right margin).
+        const rightLimit = width + margin.right - 2
+        const exceedsRight = labelStartX + estimatedLabelWidth > rightLimit
+        if (overlaps || overflows || exceedsRight) {
           appendHiddenLabel()
         }
         else {
           labelEndByRow.set(datum.label, labelStartX + estimatedLabelWidth)
           vlGroup.append('text')
             .attr('class', 'bc-value-label')
-            .attr('data-series', datum.seriesIndex)
+            .attr('data-series', datum.seriesName)
             .attr('x', labelStartX)
             .attr('y', cy)
             .attr('text-anchor', 'start')
@@ -406,7 +408,7 @@ export function render(
         const cx = x(datum.y0) + segmentWidth / 2
         vlGroup.append('text')
           .attr('class', 'bc-value-label')
-          .attr('data-series', datum.seriesIndex)
+          .attr('data-series', datum.seriesName)
           .attr('x', cx)
           .attr('y', cy)
           .attr('text-anchor', 'middle')

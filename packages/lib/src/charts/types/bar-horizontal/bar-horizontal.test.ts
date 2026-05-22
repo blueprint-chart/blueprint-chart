@@ -315,6 +315,13 @@ describe('bar-horizontal', () => {
     expect(barGroup!.querySelector('.bc-bar')).not.toBeNull()
   })
 
+  it('reuses a single clipPath across repeated renders to the same container', () => {
+    for (let i = 0; i < 5; i++) {
+      render(container, data)
+    }
+    expect(container.querySelectorAll('clipPath')).toHaveLength(1)
+  })
+
   // ── Axis options ─────────────────────────────────────────────────
 
   it('shows horizontal axis tick labels by default', () => {

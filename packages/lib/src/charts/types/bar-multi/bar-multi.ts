@@ -16,6 +16,7 @@ import { contrastTextColor, readableColor, resolveBackgroundColor } from '../../
 import { resolveSeriesColor, isSeriesHidden, resolveSeriesValueLabels, resolveSeriesOpacity, resolveSeriesLabelMode } from '../../series-helpers'
 import { getDefaultTransitionMs, setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut, reinsertWithOffset } from '../../motion'
 import { setCachedChart, getCachedChart } from '../../transition-cache'
+import { ensureClipPath } from '../../clip-path-helper'
 import { ValueLabelPosition, DirectLabelMode } from '../../../enums'
 
 export const DEFAULT_COLORS = [
@@ -52,7 +53,7 @@ class BarMultiChart extends D3Blueprint<MultiBarDatum[]> {
           const y = this.config('y') as d3.ScaleLinear<number, number>
           const colors = this.config('colors') as string[]
           sel
-            .attr('data-series', (d: MultiBarDatum) => d.seriesIndex)
+            .attr('data-series', (d: MultiBarDatum) => d.seriesName)
             .attr('x', (d: MultiBarDatum) => (x0(d.label) ?? 0) + (x1(d.series) ?? 0))
             .attr('y', (d: MultiBarDatum) => Math.min(y(0), y(d.value)))
             .attr('width', x1.bandwidth())
@@ -66,7 +67,7 @@ class BarMultiChart extends D3Blueprint<MultiBarDatum[]> {
           const y = this.config('y') as d3.ScaleLinear<number, number>
           const colors = this.config('colors') as string[]
           sel.duration(getDefaultTransitionMs())
-            .attr('data-series', (d: MultiBarDatum) => d.seriesIndex)
+            .attr('data-series', (d: MultiBarDatum) => d.seriesName)
             .attr('x', (d: MultiBarDatum) => (x0(d.label) ?? 0) + (x1(d.series) ?? 0))
             .attr('y', (d: MultiBarDatum) => Math.min(y(0), y(d.value)))
             .attr('width', x1.bandwidth())
@@ -169,7 +170,7 @@ export function render(
   const { chartArea, width, height, margin } = createCanvas(body, marginOverrides)
   const marginDelta = computeMarginDelta(priorMargin, margin)
   // eslint-disable-next-line prefer-const
-  let [domainMin, domainMax] = computeLinearDomain(allValues, options.verticalAxis?.range)
+  let [domainMin, domainMax] = computeLinearDomain(allValues, options.verticalAxis?.range, options.verticalAxis?.scaleType)
   // Extend domain to leave room for value labels below negative bars
   if (options.valueLabels && domainMin < 0 && options.verticalAxis?.range?.min == null) {
     const span = domainMax - domainMin
@@ -243,14 +244,10 @@ export function render(
 
   const globalValueLabels = options.valueLabels ?? false
 
-  // Clip bars to the chart area so they truncate at axis boundaries
-  const clipId = `bc-clip-${Math.random().toString(36).slice(2, 8)}`
+  // Clip bars to the chart area so they truncate at axis boundaries.
+  // Stable id per (container, key) keeps <defs> from growing on re-renders.
   const svg = chartArea.ownerSVGElement!
-  const defs = d3.select(svg).select('defs').empty()
-    ? d3.select(svg).append('defs')
-    : d3.select(svg).select('defs')
-  defs.append('clipPath').attr('id', clipId)
-    .append('rect').attr('width', width).attr('height', height)
+  const clipId = ensureClipPath(svg, container, 'bars', { x: 0, y: 0, width, height })
   const clippedGroup = d3.select(chartArea).append('g').attr('clip-path', `url(#${clipId})`)
 
   const chart = new BarMultiChart(clippedGroup)
@@ -400,7 +397,7 @@ export function render(
 
     vlGroup.append('text')
       .attr('class', 'bc-value-label')
-      .attr('data-series', datum.seriesIndex)
+      .attr('data-series', datum.seriesName)
       .attr('x', cx)
       .attr('y', cy)
       .attr('text-anchor', 'middle')
@@ -425,7 +422,7 @@ export function render(
     const labelEl = d3.select(chartArea)
       .append('text')
       .attr('class', 'bc-direct-label')
-      .attr('data-series', datum.seriesIndex)
+      .attr('data-series', datum.seriesName)
       .attr('x', cx)
       .attr('text-anchor', 'middle')
       .attr('font-size', '10px')

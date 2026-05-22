@@ -21,60 +21,82 @@ class LegendChart extends D3Blueprint<string[]> {
 
     const g = this.base.append('g').attr('class', 'bc-legend')
 
+    // Shared placement pass: positions every bound item from scratch using the
+    // current layout/width settings. Runs on both enter and update so that
+    // recycled items (positional bind across re-renders) don't keep stale
+    // transforms or stale series identity.
+    const placeItems = (
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      sel: any,
+    ) => {
+      const colors = this.config('colors') as string[]
+      const layout = this.config('layout') as string
+      const suffixes = this.config('valueSuffixes') as string[]
+      const rootEl = (this.base.node() as SVGElement)?.ownerSVGElement?.parentElement ?? document.documentElement
+      const textColor = getComputedStyle(rootEl).getPropertyValue('--bc-text-color').trim() || '#555'
+      const maxWidth = this.config('maxWidth') as number
+      let xOffset = 0
+      let yOffset = 0
+      sel.each(function (this: SVGGElement, d: string, i: number) {
+        const item = d3.select(this)
+        const suffix = suffixes[i]
+        const fullLen = suffix ? d.length + 1 + suffix.length : d.length
+        const itemWidth = 16 + fullLen * 7 + 12
+
+        if (layout === 'horizontal' && maxWidth > 0 && xOffset > 0 && xOffset + itemWidth > maxWidth) {
+          xOffset = 0
+          yOffset += 20
+        }
+
+        item
+          .attr('transform', `translate(${xOffset},${yOffset})`)
+          .attr('data-series', d)
+          .style('cursor', 'default')
+
+        // Reuse swatch / text nodes if present, otherwise create them once.
+        let rect = item.select<SVGRectElement>('rect')
+        if (rect.empty()) {
+          rect = item.append('rect')
+            .attr('width', 12)
+            .attr('height', 12)
+        }
+        rect.attr('fill', colors[i % colors.length])
+
+        let textEl = item.select<SVGTextElement>('text')
+        if (textEl.empty()) {
+          textEl = item.append('text')
+            .attr('x', 16)
+            .attr('y', 10)
+            .attr('font-size', '12px')
+        }
+        textEl.attr('fill', textColor)
+        textEl.selectAll('tspan').remove()
+        if (suffix) {
+          textEl.text(null)
+          textEl.append('tspan').attr('font-weight', 'bold').text(d)
+          textEl.append('tspan').text(` ${suffix}`)
+        }
+        else {
+          textEl.text(d)
+        }
+        if (layout === 'vertical') {
+          yOffset += 20
+        }
+        else {
+          xOffset += itemWidth
+        }
+      })
+    }
+
     this.layer('items', g, {
-      dataBind: (sel, data) => sel.selectAll('.bc-legend-item').data(data),
+      // Key by series name so updates re-bind by identity, not position.
+      // This keeps the swatch colour and label in sync when the visible series
+      // set changes (hidden-series filter, re-order, …).
+      dataBind: (sel, data) => sel.selectAll('.bc-legend-item').data(data, (d: unknown) => d as string),
       insert: sel => sel.append('g').attr('class', 'bc-legend-item'),
       events: {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        enter: (sel: any) => {
-          const colors = this.config('colors') as string[]
-          const layout = this.config('layout') as string
-          const suffixes = this.config('valueSuffixes') as string[]
-          const rootEl = (this.base.node() as SVGElement)?.ownerSVGElement?.parentElement ?? document.documentElement
-          const textColor = getComputedStyle(rootEl).getPropertyValue('--bc-text-color').trim() || '#555'
-          const maxWidth = this.config('maxWidth') as number
-          let xOffset = 0
-          let yOffset = 0
-          sel.each(function (this: SVGGElement, d: string, i: number) {
-            const item = d3.select(this)
-            const suffix = suffixes[i]
-            const fullLen = suffix ? d.length + 1 + suffix.length : d.length
-            const itemWidth = 16 + fullLen * 7 + 12
-
-            // Wrap to next row if item exceeds available width
-            if (layout === 'horizontal' && maxWidth > 0 && xOffset > 0 && xOffset + itemWidth > maxWidth) {
-              xOffset = 0
-              yOffset += 20
-            }
-
-            item
-              .attr('transform', `translate(${xOffset},${yOffset})`)
-              .attr('data-series', i)
-              .style('cursor', 'default')
-            item.append('rect')
-              .attr('width', 12)
-              .attr('height', 12)
-              .attr('fill', colors[i % colors.length])
-            const textEl = item.append('text')
-              .attr('x', 16)
-              .attr('y', 10)
-              .attr('font-size', '12px')
-              .attr('fill', textColor)
-            if (suffix) {
-              textEl.append('tspan').attr('font-weight', 'bold').text(d)
-              textEl.append('tspan').text(` ${suffix}`)
-            }
-            else {
-              textEl.text(d)
-            }
-            if (layout === 'vertical') {
-              yOffset += 20
-            }
-            else {
-              xOffset += itemWidth
-            }
-          })
-        },
+        enter: placeItems,
+        update: placeItems,
       },
     })
   }
@@ -92,16 +114,15 @@ function setupLegendHighlight(chartArea: SVGGElement): void {
   }
 
   let hoverTimer: ReturnType<typeof setTimeout> | null = null
-  let activeIndex: number | null = null
+  let activeKey: string | null = null
 
-  function highlight(seriesIndex: number) {
-    activeIndex = seriesIndex
-    const idx = String(seriesIndex)
+  function highlight(seriesKey: string) {
+    activeKey = seriesKey
 
     // Dim other legend items
     legendItems.each(function () {
       const item = d3.select(this)
-      const isCurrent = item.attr('data-series') === idx
+      const isCurrent = item.attr('data-series') === seriesKey
       item.transition().duration(150).style('opacity', isCurrent ? 1 : DIM_OPACITY)
     })
 
@@ -112,14 +133,14 @@ function setupLegendHighlight(chartArea: SVGGElement): void {
       .filter(function () { return !this.closest('.bc-legend') })
     seriesEls.each(function () {
       const el = d3.select(this)
-      const isCurrent = el.attr('data-series') === idx
+      const isCurrent = el.attr('data-series') === seriesKey
       const isLabel = this.classList.contains('bc-direct-label') || this.classList.contains('bc-value-label')
       el.transition().duration(150).style('opacity', isCurrent ? 1 : (isLabel ? 0 : DIM_OPACITY))
     })
   }
 
   function restore() {
-    activeIndex = null
+    activeKey = null
     legendItems.transition().duration(150).style('opacity', 1)
 
     const seriesEls = d3.select(chartArea).selectAll<SVGElement, unknown>('[data-series]')
@@ -127,27 +148,27 @@ function setupLegendHighlight(chartArea: SVGGElement): void {
     seriesEls.transition().duration(150).style('opacity', null)
   }
 
-  legendItems.each(function () {
-    const el = this as SVGGElement
-    const seriesIndex = parseInt(d3.select(el).attr('data-series') ?? '0', 10)
-
-    el.addEventListener('mouseenter', () => {
+  // Use D3's namespaced events so re-rendering the legend replaces — rather
+  // than accumulates — listeners on the same node across renders.
+  legendItems
+    .on('mouseenter.bcHighlight', null)
+    .on('mouseleave.bcHighlight', null)
+    .on('mouseenter.bcHighlight', function () {
+      const key = d3.select(this).attr('data-series') ?? ''
       if (hoverTimer) {
         clearTimeout(hoverTimer)
       }
-      hoverTimer = setTimeout(() => highlight(seriesIndex), getTransitionDuration(HOVER_DELAY))
+      hoverTimer = setTimeout(() => highlight(key), getTransitionDuration(HOVER_DELAY))
     })
-
-    el.addEventListener('mouseleave', () => {
+    .on('mouseleave.bcHighlight', () => {
       if (hoverTimer) {
         clearTimeout(hoverTimer)
         hoverTimer = null
       }
-      if (activeIndex !== null) {
+      if (activeKey !== null) {
         restore()
       }
     })
-  })
 }
 
 export function renderLegend(

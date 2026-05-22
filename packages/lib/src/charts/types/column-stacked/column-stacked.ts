@@ -17,6 +17,7 @@ import { getDefaultTransitionMs, setRenderTransition, fadeIn, snapshotForFadeOut
 import { setCachedChart, getCachedChart } from '../../transition-cache'
 import { computeStack, computeStack100 } from '../../stack-helpers'
 import { resolveBarGapPadding } from '../../scale-helpers'
+import { ensureClipPath } from '../../clip-path-helper'
 import { StackMode } from '../../../enums'
 
 export const DEFAULT_COLORS = [
@@ -51,7 +52,7 @@ class ColumnStackedChart extends D3Blueprint<StackedBarDatum[]> {
           const y = this.config('y') as d3.ScaleLinear<number, number>
           const colors = this.config('colors') as string[]
           sel
-            .attr('data-series', (d: StackedBarDatum) => d.seriesIndex)
+            .attr('data-series', (d: StackedBarDatum) => d.seriesName)
             .attr('x', (d: StackedBarDatum) => x(d.label) ?? 0)
             .attr('y', (d: StackedBarDatum) => y(d.y1))
             .attr('width', x.bandwidth())
@@ -64,7 +65,7 @@ class ColumnStackedChart extends D3Blueprint<StackedBarDatum[]> {
           const y = this.config('y') as d3.ScaleLinear<number, number>
           const colors = this.config('colors') as string[]
           sel.duration(getDefaultTransitionMs())
-            .attr('data-series', (d: StackedBarDatum) => d.seriesIndex)
+            .attr('data-series', (d: StackedBarDatum) => d.seriesName)
             .attr('x', (d: StackedBarDatum) => x(d.label) ?? 0)
             .attr('y', (d: StackedBarDatum) => y(d.y1))
             .attr('width', x.bandwidth())
@@ -226,14 +227,10 @@ export function render(
     horizontal: { scale: x, height, options: { ...options.horizontalAxis, width } },
   })
 
-  // Clip bars to the chart area
-  const clipId = `bc-clip-${Math.random().toString(36).slice(2, 8)}`
+  // Clip bars to the chart area — deterministic per (container, key) so
+  // re-renders re-use the same <clipPath> instead of accumulating new ones.
   const svg = chartArea.ownerSVGElement!
-  const defs = d3.select(svg).select('defs').empty()
-    ? d3.select(svg).append('defs')
-    : d3.select(svg).select('defs')
-  defs.append('clipPath').attr('id', clipId)
-    .append('rect').attr('width', width).attr('height', height)
+  const clipId = ensureClipPath(svg, container, 'bars', { x: 0, y: 0, width, height })
   const clippedGroup = d3.select(chartArea).append('g').attr('clip-path', `url(#${clipId})`)
 
   // Re-order flatData to match sorted labels
@@ -296,7 +293,7 @@ export function render(
     const cy = y(datum.y0) - (y(datum.y0) - y(datum.y1)) / 2
     vlGroup.append('text')
       .attr('class', 'bc-value-label')
-      .attr('data-series', datum.seriesIndex)
+      .attr('data-series', datum.seriesName)
       .attr('x', cx)
       .attr('y', cy)
       .attr('text-anchor', 'middle')

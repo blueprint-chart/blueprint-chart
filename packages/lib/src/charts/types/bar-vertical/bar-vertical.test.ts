@@ -249,6 +249,13 @@ describe('bar-vertical', () => {
     expect(Number(clipRect!.getAttribute('height'))).toBeGreaterThanOrEqual(0)
   })
 
+  it('reuses a single clipPath across repeated renders to the same container', () => {
+    for (let i = 0; i < 5; i++) {
+      render(container, data)
+    }
+    expect(container.querySelectorAll('clipPath')).toHaveLength(1)
+  })
+
   // ── Crosshair ────────────────────────────────────────────────────
 
   it('renders crosshair lines when crosshair option is true', () => {

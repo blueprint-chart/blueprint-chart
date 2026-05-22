@@ -14,6 +14,7 @@ import { setCachedChart, getCachedChart } from '../../transition-cache'
 import { createTooltipPlugin } from '../../plugins/tooltip'
 import { createCrosshairPlugin } from '../../plugins/crosshair'
 import { resolveBarGapPadding } from '../../scale-helpers'
+import { ensureClipPath } from '../../clip-path-helper'
 import { Orientation, ValueLabelPosition, LabelPosition } from '../../../enums'
 
 export const DEFAULT_COLORS = [
@@ -54,7 +55,7 @@ class BarSplitChart extends D3Blueprint<SplitBarDatum[]> {
           const colors = this.config('colors') as string[]
           const labelOffset = this.config('categoryLabelOffset') as number
           sel
-            .attr('data-series', (d: SplitBarDatum) => d.seriesIndex)
+            .attr('data-series', (d: SplitBarDatum) => d.seriesName)
             .attr('x', (d: SplitBarDatum) => d.xPos)
             .attr('y', (d: SplitBarDatum) => (y(d.label) ?? 0) + labelOffset)
             .attr('width', (d: SplitBarDatum) => d.barWidth)
@@ -67,7 +68,7 @@ class BarSplitChart extends D3Blueprint<SplitBarDatum[]> {
           const colors = this.config('colors') as string[]
           const labelOffset = this.config('categoryLabelOffset') as number
           sel.duration(getDefaultTransitionMs())
-            .attr('data-series', (d: SplitBarDatum) => d.seriesIndex)
+            .attr('data-series', (d: SplitBarDatum) => d.seriesName)
             .attr('x', (d: SplitBarDatum) => d.xPos)
             .attr('y', (d: SplitBarDatum) => (y(d.label) ?? 0) + labelOffset)
             .attr('width', (d: SplitBarDatum) => d.barWidth)
@@ -266,14 +267,10 @@ export function render(
   const sharedScale = options.sharedScale === true
   const panels = computePanels(series, allSeries, width, sharedScale)
 
-  // Clip group for bars
-  const clipId = `bc-clip-${Math.random().toString(36).slice(2, 8)}`
+  // Clip group for bars — stable id per (container, key) so re-renders
+  // re-use the same <clipPath> instead of accumulating new ones.
   const svg = chartArea.ownerSVGElement!
-  const defs = d3.select(svg).select('defs').empty()
-    ? d3.select(svg).append('defs')
-    : d3.select(svg).select('defs')
-  defs.append('clipPath').attr('id', clipId)
-    .append('rect').attr('width', width).attr('height', height)
+  const clipId = ensureClipPath(svg, container, 'bars', { x: 0, y: 0, width, height })
   const clippedGroup = d3.select(chartArea).append('g').attr('clip-path', `url(#${clipId})`)
 
   // Panel headers — series names centered above each panel
@@ -397,7 +394,7 @@ export function render(
 
     vlGroup.append('text')
       .attr('class', 'bc-value-label')
-      .attr('data-series', datum.seriesIndex)
+      .attr('data-series', datum.seriesName)
       .attr('x', tx)
       .attr('y', cy)
       .attr('text-anchor', anchor)

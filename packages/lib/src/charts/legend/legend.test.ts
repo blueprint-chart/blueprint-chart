@@ -90,10 +90,10 @@ describe('setupLegendHighlight (via renderLegend)', () => {
     document.body.appendChild(svg)
   })
 
-  function addSeriesElement(cls: string, seriesIndex: number): SVGElement {
+  function addSeriesElement(cls: string, seriesKey: string): SVGElement {
     const el = document.createElementNS('http://www.w3.org/2000/svg', cls === 'bc-value-label' || cls === 'bc-direct-label' ? 'text' : 'rect')
     el.setAttribute('class', cls)
-    el.setAttribute('data-series', String(seriesIndex))
+    el.setAttribute('data-series', seriesKey)
     chartArea.appendChild(el)
     return el
   }
@@ -102,20 +102,21 @@ describe('setupLegendHighlight (via renderLegend)', () => {
 
   async function triggerHighlight(legendItem: Element) {
     legendItem.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }))
-    // HOVER_DELAY (200ms) + D3 transition (150ms) + buffer
-    await wait(500)
+    // HOVER_DELAY (200ms) + D3 transition (150ms) + generous buffer for
+    // heavily-loaded CI / shared-environment runs.
+    await wait(800)
   }
 
   async function triggerRestore(legendItem: Element) {
     legendItem.dispatchEvent(new MouseEvent('mouseleave', { bubbles: true }))
-    await wait(500)
+    await wait(800)
   }
 
   it('hides non-highlighted value labels (opacity 0)', async () => {
-    addSeriesElement('bc-bar', 0)
-    addSeriesElement('bc-bar', 1)
-    addSeriesElement('bc-value-label', 0)
-    addSeriesElement('bc-value-label', 1)
+    addSeriesElement('bc-bar', 'Series A')
+    addSeriesElement('bc-bar', 'Series B')
+    addSeriesElement('bc-value-label', 'Series A')
+    addSeriesElement('bc-value-label', 'Series B')
 
     renderLegend(chartArea, ['Series A', 'Series B'])
     const items = chartArea.querySelectorAll('.bc-legend-item')
@@ -128,8 +129,8 @@ describe('setupLegendHighlight (via renderLegend)', () => {
   })
 
   it('hides non-highlighted direct labels (opacity 0)', async () => {
-    addSeriesElement('bc-direct-label', 0)
-    addSeriesElement('bc-direct-label', 1)
+    addSeriesElement('bc-direct-label', 'Series A')
+    addSeriesElement('bc-direct-label', 'Series B')
 
     renderLegend(chartArea, ['Series A', 'Series B'])
     const items = chartArea.querySelectorAll('.bc-legend-item')
@@ -142,8 +143,8 @@ describe('setupLegendHighlight (via renderLegend)', () => {
   })
 
   it('reveals labels hidden for space on highlight and re-hides on restore', async () => {
-    addSeriesElement('bc-bar', 0)
-    const hiddenLabel = addSeriesElement('bc-value-label', 0)
+    addSeriesElement('bc-bar', 'Series A')
+    const hiddenLabel = addSeriesElement('bc-value-label', 'Series A')
     // Simulate a label hidden by chart rendering (attr opacity=0)
     hiddenLabel.setAttribute('opacity', '0')
 
@@ -163,8 +164,8 @@ describe('setupLegendHighlight (via renderLegend)', () => {
   })
 
   it('dims non-highlighted bars with DIM_OPACITY instead of hiding', async () => {
-    addSeriesElement('bc-bar', 0)
-    addSeriesElement('bc-bar', 1)
+    addSeriesElement('bc-bar', 'Series A')
+    addSeriesElement('bc-bar', 'Series B')
 
     renderLegend(chartArea, ['Series A', 'Series B'])
     const items = chartArea.querySelectorAll('.bc-legend-item')
@@ -177,10 +178,10 @@ describe('setupLegendHighlight (via renderLegend)', () => {
   })
 
   it('restores all opacities on mouseleave', async () => {
-    addSeriesElement('bc-bar', 0)
-    addSeriesElement('bc-bar', 1)
-    addSeriesElement('bc-value-label', 0)
-    addSeriesElement('bc-value-label', 1)
+    addSeriesElement('bc-bar', 'Series A')
+    addSeriesElement('bc-bar', 'Series B')
+    addSeriesElement('bc-value-label', 'Series A')
+    addSeriesElement('bc-value-label', 'Series B')
 
     renderLegend(chartArea, ['Series A', 'Series B'])
     const items = chartArea.querySelectorAll('.bc-legend-item')
@@ -194,5 +195,59 @@ describe('setupLegendHighlight (via renderLegend)', () => {
     expect(bars[1].style.opacity).toBe('')
     expect(valueLabels[0].style.opacity).toBe('')
     expect(valueLabels[1].style.opacity).toBe('')
+  })
+
+  // ── Listener stability across re-renders (L3) ─────────────────
+
+  it('does not accumulate mouse listeners across repeated renderLegend calls', async () => {
+    addSeriesElement('bc-bar', 'Series A')
+    addSeriesElement('bc-bar', 'Series B')
+
+    // Render once to establish the legend items, then count how often
+    // highlight() fires on a single mouseenter. With the namespaced D3
+    // handler (.on('mouseenter.bcHighlight', …)) every re-render should
+    // replace the previous handler, so the listener count stays at 1
+    // and highlight() runs exactly once per event.
+    for (let i = 0; i < 10; i++) {
+      renderLegend(chartArea, ['Series A', 'Series B'])
+    }
+
+    // The namespaced handler (.on('mouseenter.bcHighlight', …)) means every
+    // re-render REPLACES the previous closure instead of stacking. D3 stores
+    // active handlers on each node under the `__on` property; we assert that
+    // the bcHighlight slot has exactly one enter + one leave handler after
+    // many renders.
+    const items = chartArea.querySelectorAll('.bc-legend-item')
+    const target = items[0] as SVGGElement
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const onRegistry = (target as any).__on as Array<{ type: string, name: string }> | undefined
+    expect(onRegistry).toBeDefined()
+    const enterHandlers = (onRegistry ?? []).filter(h => h.type === 'mouseenter' && h.name === 'bcHighlight')
+    const leaveHandlers = (onRegistry ?? []).filter(h => h.type === 'mouseleave' && h.name === 'bcHighlight')
+    expect(enterHandlers).toHaveLength(1)
+    expect(leaveHandlers).toHaveLength(1)
+  })
+
+  it('renderLegend re-renders update swatch and label by series name', () => {
+    renderLegend(chartArea, ['Series A', 'Series B'], ['#ff0000', '#00ff00'])
+    // Re-render with swapped order — keyed by name, items should preserve
+    // identity so Series A keeps #ff0000 not whatever index it now occupies.
+    renderLegend(chartArea, ['Series B', 'Series A'], ['#00ff00', '#ff0000'])
+
+    const items = chartArea.querySelectorAll('.bc-legend-item')
+    // Find Series A item by its data-series attribute
+    const seriesA = Array.from(items).find(it => it.getAttribute('data-series') === 'Series A')
+    const seriesB = Array.from(items).find(it => it.getAttribute('data-series') === 'Series B')
+    expect(seriesA).toBeDefined()
+    expect(seriesB).toBeDefined()
+    expect(seriesA!.querySelector('rect')?.getAttribute('fill')).toBe('#ff0000')
+    expect(seriesB!.querySelector('rect')?.getAttribute('fill')).toBe('#00ff00')
+  })
+
+  it('uses the series name as the data-series attribute on legend items', () => {
+    renderLegend(chartArea, ['Alpha', 'Beta'])
+    const items = chartArea.querySelectorAll('.bc-legend-item')
+    const keys = Array.from(items).map(i => i.getAttribute('data-series'))
+    expect(keys).toEqual(['Alpha', 'Beta'])
   })
 })

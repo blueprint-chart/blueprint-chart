@@ -53,9 +53,9 @@ describe('bar-grouped', () => {
     render(container, data)
     const bars = container.querySelectorAll('.bc-bar-grouped')
     const indices = Array.from(bars).map(b => b.getAttribute('data-series'))
-    expect(indices).toContain('0')
-    expect(indices).toContain('1')
-    expect(indices).toContain('2')
+    expect(indices).toContain('Solar')
+    expect(indices).toContain('Wind')
+    expect(indices).toContain('Hydro')
   })
 
   // ── Grouping ─────────────────────────────────────────────────────
@@ -97,7 +97,7 @@ describe('bar-grouped', () => {
     const bars = container.querySelectorAll('.bc-bar-grouped')
 
     // Solar series (index 0): USA=200, China=680, Japan=90
-    const solarBars = Array.from(bars).filter(b => b.getAttribute('data-series') === '0')
+    const solarBars = Array.from(bars).filter(b => b.getAttribute('data-series') === 'Solar')
     expect(solarBars).toHaveLength(3)
 
     const widths = solarBars.map(b => parseFloat(b.getAttribute('width') ?? '0'))
@@ -124,7 +124,7 @@ describe('bar-grouped', () => {
       seriesOverrides: [{ name: 'Solar', color: '#123456' }],
     })
     const bars = container.querySelectorAll('.bc-bar-grouped')
-    const solarBars = Array.from(bars).filter(b => b.getAttribute('data-series') === '0')
+    const solarBars = Array.from(bars).filter(b => b.getAttribute('data-series') === 'Solar')
     for (const bar of solarBars) {
       expect(bar.getAttribute('fill')).toBe('#123456')
     }
@@ -184,7 +184,7 @@ describe('bar-grouped', () => {
     // Solar bars (series 0) should have: China widest, USA medium, Japan narrowest
     // Sort by y position (ascending y = higher on screen = first in sort)
     const solarBars = Array.from(bars)
-      .filter(b => b.getAttribute('data-series') === '0')
+      .filter(b => b.getAttribute('data-series') === 'Solar')
       .map(b => ({
         y: parseFloat(b.getAttribute('y') ?? '0'),
         w: parseFloat(b.getAttribute('width') ?? '0'),
@@ -207,8 +207,8 @@ describe('bar-grouped', () => {
     expect(bars).toHaveLength(6)
 
     const indices = Array.from(bars).map(b => b.getAttribute('data-series'))
-    // Wind is index 1 in allSeries
-    expect(indices).not.toContain('1')
+    // Wind is hidden, so its name should not appear on any bar
+    expect(indices).not.toContain('Wind')
   })
 
   // ── Series opacity ───────────────────────────────────────────────
@@ -219,7 +219,7 @@ describe('bar-grouped', () => {
       valueLabels: false,
     })
     const bars = container.querySelectorAll('.bc-bar-grouped')
-    const hydroBars = Array.from(bars).filter(b => b.getAttribute('data-series') === '2')
+    const hydroBars = Array.from(bars).filter(b => b.getAttribute('data-series') === 'Hydro')
     for (const bar of hydroBars) {
       expect(bar.getAttribute('fill-opacity')).toBe('0.4')
     }
@@ -258,6 +258,15 @@ describe('bar-grouped', () => {
     // And distinct (different groups)
     const unique = new Set(ys.map(y => Math.round(y)))
     expect(unique.size).toBe(3)
+  })
+
+  // ── Clip path ────────────────────────────────────────────────────
+
+  it('reuses a single clipPath across repeated renders to the same container', () => {
+    for (let i = 0; i < 5; i++) {
+      render(container, data)
+    }
+    expect(container.querySelectorAll('clipPath')).toHaveLength(1)
   })
 
   // ── barBackground ──────────────────────────────────────────────

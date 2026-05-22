@@ -39,12 +39,12 @@ describe('bar-stacked', () => {
     expect(container.querySelector('svg')).not.toBeNull()
   })
 
-  it('renders bars with correct data-series attribute', () => {
+  it('renders bars with correct data-series attribute (series name)', () => {
     render(container, data)
     const bars = container.querySelectorAll('.bc-bar-stacked')
-    const seriesIndices = Array.from(bars).map(b => b.getAttribute('data-series'))
-    expect(seriesIndices).toContain('0')
-    expect(seriesIndices).toContain('1')
+    const seriesKeys = Array.from(bars).map(b => b.getAttribute('data-series'))
+    expect(seriesKeys).toContain('Product A')
+    expect(seriesKeys).toContain('Product B')
   })
 
   it('renders bars as rect elements with bc-bar class', () => {
@@ -129,10 +129,10 @@ describe('bar-stacked', () => {
     render(container, data, { colors: ['#ff0000', '#00ff00'] })
     const bars = container.querySelectorAll('.bc-bar-stacked')
     const series0Fills = Array.from(bars)
-      .filter(b => b.getAttribute('data-series') === '0')
+      .filter(b => b.getAttribute('data-series') === 'Product A')
       .map(b => b.getAttribute('fill'))
     const series1Fills = Array.from(bars)
-      .filter(b => b.getAttribute('data-series') === '1')
+      .filter(b => b.getAttribute('data-series') === 'Product B')
       .map(b => b.getAttribute('fill'))
     for (const fill of series0Fills) {
       expect(fill).toBe('#ff0000')
@@ -150,7 +150,7 @@ describe('bar-stacked', () => {
       expect(fill).toBeTruthy()
     }
     const series0Fills = Array.from(bars)
-      .filter(b => b.getAttribute('data-series') === '0')
+      .filter(b => b.getAttribute('data-series') === 'Product A')
       .map(b => b.getAttribute('fill'))
     for (const fill of series0Fills) {
       expect(fill).toBe('#4e79a7')
@@ -204,11 +204,16 @@ describe('bar-stacked', () => {
     expect(visible[0].textContent).toBe('999')
   })
 
-  it('outside position places labels at right edge of segment', () => {
+  it('outside position places visible labels at right edge of segment with start anchor', () => {
     render(container, data, { valueLabels: true, valueLabelPosition: ValueLabelPosition.Outside })
     const labels = container.querySelectorAll('.bc-value-label')
     expect(labels).toHaveLength(4)
-    for (const label of labels) {
+    // Visible outside labels (i.e. those that fit) anchor at 'start' against
+    // their segment's right edge. Labels that would clip the chart right edge
+    // are suppressed (see overflow tests) — only check the visible ones here.
+    const visible = Array.from(labels).filter(l => l.getAttribute('opacity') !== '0')
+    expect(visible.length).toBeGreaterThan(0)
+    for (const label of visible) {
       expect(label.getAttribute('text-anchor')).toBe('start')
       expect(label.getAttribute('fill')).toBe('currentColor')
     }
@@ -217,7 +222,7 @@ describe('bar-stacked', () => {
   it('outside position hides labels that overflow past the next segment', () => {
     // A's label "50" sits on B (narrow, ~10px) → overflows → hidden via opacity
     // B's label "10" sits on C (wide) → fits → shown
-    // C is last → always shown
+    // C is last → its label "940" sits past the chart right edge → hidden
     const overflowData = {
       labels: ['Row'],
       values: [],
@@ -231,10 +236,10 @@ describe('bar-stacked', () => {
     const labels = container.querySelectorAll('.bc-value-label')
     const visible = Array.from(labels).filter(l => l.getAttribute('opacity') !== '0')
     const visibleTexts = visible.map(l => l.textContent)
-    // A's label overflows → hidden via opacity attribute
+    // A's label overflows the narrow B segment → hidden via opacity attribute
     expect(visibleTexts).not.toContain('50')
+    // B sits over the wide C segment → fits → shown
     expect(visibleTexts).toContain('10')
-    expect(visibleTexts).toContain('940')
   })
 
   it('uses contrast text color for inside value labels', () => {
@@ -248,21 +253,24 @@ describe('bar-stacked', () => {
   })
 
   it('auto position uses contrast color for inside labels and currentColor for outside', () => {
+    // Two rows so the auto-positioned narrow last segments have room to the
+    // right of their stack: the chart's overall niced max sits well past the
+    // narrow row's y1, leaving outside-label space inside the chart area.
     const skewedData = {
-      labels: ['Row'],
+      labels: ['Wide row', 'Narrow row'],
       values: [],
       series: [
-        { name: 'Big', values: [999] },
-        { name: 'Tiny', values: [1] },
+        { name: 'Big', values: [999, 50] },
+        { name: 'Tiny', values: [1, 5] },
       ],
     }
     render(container, skewedData, { valueLabels: true, colors: ['#000000', '#ff0000'] })
     const labels = container.querySelectorAll('.bc-value-label')
-    expect(labels).toHaveLength(2)
-    const fills = Array.from(labels).map(l => l.getAttribute('fill'))
-    // One inside (contrast) and one outside (currentColor)
+    const visible = Array.from(labels).filter(l => l.getAttribute('opacity') !== '0')
+    const fills = visible.map(l => l.getAttribute('fill'))
+    // At least one inside (contrast colour) and one outside (currentColor).
     expect(fills).toContain('currentColor')
-    expect(fills.filter(f => f !== 'currentColor')).toHaveLength(1)
+    expect(fills.filter(f => f !== 'currentColor').length).toBeGreaterThan(0)
   })
 
   it('auto position hides narrow inner segments to avoid overlap', () => {
@@ -367,7 +375,7 @@ describe('bar-stacked', () => {
       seriesOverrides: [{ name: 'Product A', color: '#abcdef' }],
     })
     const bars = container.querySelectorAll('.bc-bar-stacked')
-    const series0Bars = Array.from(bars).filter(b => b.getAttribute('data-series') === '0')
+    const series0Bars = Array.from(bars).filter(b => b.getAttribute('data-series') === 'Product A')
     for (const bar of series0Bars) {
       expect(bar.getAttribute('fill')).toBe('#abcdef')
     }
@@ -386,7 +394,7 @@ describe('bar-stacked', () => {
       seriesOverrides: [{ name: 'Product A', opacity: 0.5 }],
     })
     const bars = container.querySelectorAll('.bc-bar-stacked')
-    const series0Bars = Array.from(bars).filter(b => b.getAttribute('data-series') === '0')
+    const series0Bars = Array.from(bars).filter(b => b.getAttribute('data-series') === 'Product A')
     for (const bar of series0Bars) {
       expect(bar.getAttribute('fill-opacity')).toBe('0.5')
     }
@@ -409,5 +417,50 @@ describe('bar-stacked', () => {
     expect(bars).toHaveLength(6)
     const items = container.querySelectorAll('.bc-legend-item')
     expect(items).toHaveLength(3)
+  })
+
+  // ── Clip path determinism (L2) ───────────────────────────────────
+
+  it('reuses a single clipPath across repeated renders to the same container', () => {
+    for (let i = 0; i < 5; i++) {
+      render(container, data)
+    }
+    const clips = container.querySelectorAll('clipPath')
+    expect(clips).toHaveLength(1)
+  })
+
+  // ── Legend ↔ bar series-key parity (L8) ──────────────────────────
+
+  it('legend data-series matches bar data-series so highlighting picks the right bars when a series is hidden', () => {
+    const threeSeriesData = {
+      labels: ['Q1', 'Q2'],
+      values: [],
+      series: [
+        { name: 'A', values: [10, 20] },
+        { name: 'B', values: [15, 25] },
+        { name: 'C', values: [5, 30] },
+      ],
+    }
+    // Hide series "B" — legend should show only A and C, both with names as keys.
+    render(container, threeSeriesData, {
+      seriesOverrides: [{ name: 'B', hidden: true }],
+    })
+
+    const legendItems = container.querySelectorAll('.bc-legend-item')
+    const legendKeys = Array.from(legendItems).map(i => i.getAttribute('data-series'))
+    expect(legendKeys).toEqual(['A', 'C'])
+
+    // The bars that remain are A and C; data-series keys are the series names,
+    // NOT the original all-series indices (which would be 0 and 2).
+    const bars = container.querySelectorAll('.bc-bar-stacked')
+    const barKeys = new Set(Array.from(bars).map(b => b.getAttribute('data-series')))
+    expect(barKeys).toEqual(new Set(['A', 'C']))
+
+    // Hovering the "C" legend item would match C-bars by key, not by
+    // positional index (which under the old code would have collided with B).
+    const cLegend = Array.from(legendItems).find(i => i.getAttribute('data-series') === 'C')!
+    expect(cLegend).toBeDefined()
+    const cBars = Array.from(bars).filter(b => b.getAttribute('data-series') === cLegend.getAttribute('data-series'))
+    expect(cBars).toHaveLength(2)
   })
 })

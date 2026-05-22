@@ -43,8 +43,8 @@ describe('column-stacked', () => {
     render(container, data)
     const bars = container.querySelectorAll('.bc-bar-stacked')
     const seriesIndices = Array.from(bars).map(b => b.getAttribute('data-series'))
-    expect(seriesIndices).toContain('0')
-    expect(seriesIndices).toContain('1')
+    expect(seriesIndices).toContain('Product A')
+    expect(seriesIndices).toContain('Product B')
   })
 
   it('renders bars as rect elements with bc-bar class', () => {
@@ -130,10 +130,10 @@ describe('column-stacked', () => {
     render(container, data, { colors: ['#ff0000', '#00ff00'] })
     const bars = container.querySelectorAll('.bc-bar-stacked')
     const series0Fills = Array.from(bars)
-      .filter(b => b.getAttribute('data-series') === '0')
+      .filter(b => b.getAttribute('data-series') === 'Product A')
       .map(b => b.getAttribute('fill'))
     const series1Fills = Array.from(bars)
-      .filter(b => b.getAttribute('data-series') === '1')
+      .filter(b => b.getAttribute('data-series') === 'Product B')
       .map(b => b.getAttribute('fill'))
     for (const fill of series0Fills) {
       expect(fill).toBe('#ff0000')
@@ -151,7 +151,7 @@ describe('column-stacked', () => {
       expect(fill).toBeTruthy()
     }
     const series0Fills = Array.from(bars)
-      .filter(b => b.getAttribute('data-series') === '0')
+      .filter(b => b.getAttribute('data-series') === 'Product A')
       .map(b => b.getAttribute('fill'))
     for (const fill of series0Fills) {
       expect(fill).toBe('#4e79a7')
@@ -229,6 +229,13 @@ describe('column-stacked', () => {
     expect(barGroup!.querySelector('.bc-bar')).not.toBeNull()
   })
 
+  it('reuses a single clipPath across repeated renders to the same container', () => {
+    for (let i = 0; i < 5; i++) {
+      render(container, data)
+    }
+    expect(container.querySelectorAll('clipPath')).toHaveLength(1)
+  })
+
   // ── Crosshair ────────────────────────────────────────────────────
 
   it('adds crosshair lines when crosshair is true', () => {
@@ -255,7 +262,7 @@ describe('column-stacked', () => {
       seriesOverrides: [{ name: 'Product A', color: '#abcdef' }],
     })
     const bars = container.querySelectorAll('.bc-bar-stacked')
-    const series0Bars = Array.from(bars).filter(b => b.getAttribute('data-series') === '0')
+    const series0Bars = Array.from(bars).filter(b => b.getAttribute('data-series') === 'Product A')
     for (const bar of series0Bars) {
       expect(bar.getAttribute('fill')).toBe('#abcdef')
     }
@@ -275,7 +282,7 @@ describe('column-stacked', () => {
       seriesOverrides: [{ name: 'Product A', opacity: 0.5 }],
     })
     const bars = container.querySelectorAll('.bc-bar-stacked')
-    const series0Bars = Array.from(bars).filter(b => b.getAttribute('data-series') === '0')
+    const series0Bars = Array.from(bars).filter(b => b.getAttribute('data-series') === 'Product A')
     for (const bar of series0Bars) {
       expect(bar.getAttribute('fill-opacity')).toBe('0.5')
     }
