@@ -18,14 +18,32 @@ export function renderChart(
     clearCrossTypeMarker(container)
   }
 
+  // S4: even with transition=true, an empty data set must clear stale DOM.
+  // Without this, a previous chart would linger when scenes/state cycle into
+  // an empty-data state.
   if (definition.data.labels.length === 0) {
+    if (options.transition) {
+      container.replaceChildren()
+      clearCrossTypeMarker(container)
+    }
     return
   }
 
-  // stripColors: filter properties before any options resolution
-  const filteredDef: ChartDefinition = options.stripColors && definition.properties
-    ? { ...definition, properties: definition.properties.filter(p => p.key !== 'colors' && p.key !== 'colorPalette') }
-    : definition
+  // S8: stripColors must strip color keys from BOTH `properties` (the raw AST
+  // pass-through) AND `options` (the pre-resolved chart-type options), because
+  // resolveScene prefers `def.options` when present.
+  let filteredDef: ChartDefinition = definition
+  if (options.stripColors) {
+    const next: ChartDefinition = { ...definition }
+    if (definition.properties) {
+      next.properties = definition.properties.filter(p => p.key !== 'colors' && p.key !== 'colorPalette')
+    }
+    if (definition.options) {
+      const { colors: _colors, colorPalette: _colorPalette, ...rest } = definition.options as Record<string, unknown>
+      next.options = rest
+    }
+    filteredDef = next
+  }
 
   const layout = applyLayoutConstraints(container, filteredDef.properties, options)
   const state = resolveScene(filteredDef, options.sceneIndex)

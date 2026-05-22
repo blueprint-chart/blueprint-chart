@@ -32,4 +32,14 @@ describe('applyPostRender', () => {
     const empty = document.createElement('div')
     expect(() => applyPostRender(empty, { theme: 'dark' }, { constrained: false })).not.toThrow()
   })
+
+  // L6: scene 1 with no theme must clear scene 0's bc-theme-* class
+  it('removes stale bc-theme-* classes when theme is omitted', () => {
+    frame.classList.add('bc-theme-dark')
+    applyPostRender(container, {}, { constrained: false })
+    expect(frame.classList.contains('bc-theme-dark')).toBe(false)
+    // sanity: no other bc-theme-* should remain either
+    const remaining = Array.from(frame.classList).filter(c => c.startsWith('bc-theme-'))
+    expect(remaining).toEqual([])
+  })
 })

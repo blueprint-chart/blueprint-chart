@@ -1,7 +1,7 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { parse } from '../dsl/parser'
-import { astToDefinition } from './ast-to-definition'
-import { ChartType } from '../enums'
+import { astToDefinition, __resetTransformWarnings } from './ast-to-definition'
+import { ChartType, SortMode } from '../enums'
 
 describe('astToDefinition', () => {
   it('converts a minimal BPC to a ChartDefinition', () => {
@@ -40,5 +40,45 @@ describe('astToDefinition', () => {
     const def = astToDefinition(ast)
     expect(def.frame?.title).toBe('My Chart')
     expect(def.frame?.description).toBe('A description')
+  })
+
+  // S9: sortMode property is hoisted to ChartDefinition.sortMode
+  it('hoists sortMode from properties onto the definition', () => {
+    const ast = parse(`chart bar-multi {
+  sortMode = "total"
+  data { "a" = "1,2" }
+}`)
+    const def = astToDefinition(ast)
+    expect(def.sortMode).toBe(SortMode.Total)
+  })
+
+  // S2/S9: a `transform sort` directive at chart level populates sortMode
+  it('translates `transform sort` at chart level into sortMode = total', () => {
+    const ast = parse(`chart bar-multi {
+  data { "a" = "1,2" }
+  transform sort {
+    column = "value"
+    direction = descending
+  }
+}`)
+    const def = astToDefinition(ast)
+    expect(def.sortMode).toBe(SortMode.Total)
+  })
+
+  // S2/S9: unknown transform types log a single console.warn
+  it('warns exactly once per unknown chart-level transform type', () => {
+    __resetTransformWarnings()
+    const spy = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+    const ast = parse(`chart line {
+  data { "a" = 1 }
+  transform rolling-average {
+    window = 7
+  }
+}`)
+    astToDefinition(ast)
+    astToDefinition(ast)
+    expect(spy).toHaveBeenCalledTimes(1)
+    expect(spy.mock.calls[0][0]).toContain('rolling-average')
+    spy.mockRestore()
   })
 })

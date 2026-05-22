@@ -1,8 +1,36 @@
 import type { ChartDefinition, ResolvedChartState } from './types'
-import type { SceneNode, ColorizeNode, HighlightNode, AreaFillNode, AnnotationNode, SeriesNode } from '../dsl/types'
-import { AnnotationAction } from '../enums'
-import { extractChartTypeOptions, propertyMap, convertColorizes, convertHighlights, convertAreaFills, convertAnnotations, convertSeriesOverrides } from '../dsl/converter'
+import type { SceneNode, ColorizeNode, HighlightNode, AreaFillNode, AnnotationNode, SeriesNode, TransformNode } from '../dsl/types'
+import { AnnotationAction, SortMode } from '../enums'
+import { extractChartTypeOptions, propertyMap, dataEntriesToString, convertColorizes, convertHighlights, convertAreaFills, convertAnnotations, convertSeriesOverrides } from '../dsl/converter'
 import { resolveChartTypeOptions } from '../charts/resolve'
+import { parseData } from '../charts/chart-helpers'
+
+const warnedTransformTypes = new Set<string>()
+
+function applyTransformsToSortMode(
+  transforms: TransformNode[],
+  current: SortMode | undefined,
+  context: string,
+): SortMode | undefined {
+  let result = current
+  for (const t of transforms) {
+    if (t.transformType === 'sort') {
+      // Both ascending and descending map onto SortMode.Total because the
+      // underlying chart types only support total/within-groups/none.
+      result = SortMode.Total
+    }
+    else if (!warnedTransformTypes.has(t.transformType)) {
+      warnedTransformTypes.add(t.transformType)
+      console.warn(`[blueprint-chart] Unknown transform "${t.transformType}" in ${context}; ignored.`)
+    }
+  }
+  return result
+}
+
+/** @internal — exposed for tests that need to reset the warn-once cache. */
+export function __resetTransformWarnings(): void {
+  warnedTransformTypes.clear()
+}
 
 interface SceneFold {
   chartType?: string
@@ -15,6 +43,7 @@ interface SceneFold {
   annotations: AnnotationNode[]
   seriesOverrides: SeriesNode[]
   hiddenAnnotationIds: Set<string>
+  transforms: TransformNode[]
 }
 
 function emptyFold(): SceneFold {
@@ -27,6 +56,7 @@ function emptyFold(): SceneFold {
     annotations: [],
     seriesOverrides: [],
     hiddenAnnotationIds: new Set(),
+    transforms: [],
   }
 }
 
@@ -59,7 +89,23 @@ function foldScenes(scenes: SceneNode[], index: number, baseChartType: string): 
       fold.areaFills = s.areaFills
     }
     if (s.annotations.length > 0) {
-      fold.annotations = s.annotations
+      // Accumulate annotations across scenes. Later scenes win on id collisions.
+      const merged = [...fold.annotations]
+      for (const a of s.annotations) {
+        const id = propertyMap(a.properties).get('id')
+        if (id != null) {
+          const existingIdx = merged.findIndex((m) => {
+            const mid = propertyMap(m.properties).get('id')
+            return mid === id
+          })
+          if (existingIdx >= 0) {
+            merged[existingIdx] = a
+            continue
+          }
+        }
+        merged.push(a)
+      }
+      fold.annotations = merged
     }
     for (const v of s.annotationVisibility) {
       if (v.action === AnnotationAction.Hide) {
@@ -71,6 +117,9 @@ function foldScenes(scenes: SceneNode[], index: number, baseChartType: string): 
     }
     if (s.series.length > 0) {
       fold.seriesOverrides = s.series
+    }
+    if (s.transforms.length > 0) {
+      fold.transforms = [...fold.transforms, ...s.transforms]
     }
     for (const [k, v] of sProps) {
       fold.properties.set(k, v)
@@ -109,7 +158,11 @@ export function resolveScene(
   const fold = foldScenes(def.scenes, sceneIndex, def.chartType)
   const chartType = fold.chartType ?? def.chartType
 
-  const data = base.data
+  // S1: when a scene supplies data, re-parse it via the canonical chart-helpers
+  // pipeline so the resolved state reflects scene-level data overrides.
+  const data = fold.data
+    ? parseData(dataEntriesToString(fold.data))
+    : base.data
 
   const options = Object.keys(fold.chartTypeOptions).length > 0
     ? resolveChartTypeOptions(chartType, { ...baseOptions, ...fold.chartTypeOptions })
@@ -129,6 +182,8 @@ export function resolveScene(
     ? convertAreaFills(fold.areaFills)
     : base.areaFills
 
+  // S3: accumulate annotations across base + every scene up to sceneIndex.
+  // `fold.annotations` is already accumulated (with id-dedup keeping the latest).
   const sceneAnnotations = fold.annotations.length > 0
     ? convertAnnotations(fold.annotations)
     : []
@@ -141,6 +196,9 @@ export function resolveScene(
     ? convertSeriesOverrides(fold.seriesOverrides)
     : base.seriesOverrides
 
+  // S2/S9: apply any sort transforms accumulated from scenes onto sortMode.
+  const sortMode = applyTransformsToSortMode(fold.transforms, base.sortMode, `scene ${sceneIndex}`)
+
   return {
     ...base,
     chartType,
@@ -151,5 +209,6 @@ export function resolveScene(
     areaFills,
     annotations,
     seriesOverrides,
+    sortMode,
   }
 }

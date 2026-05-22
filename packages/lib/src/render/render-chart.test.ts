@@ -46,4 +46,32 @@ describe('renderChart', () => {
     renderChart(container, baseDef())
     expect(container.querySelector('#sentinel')).toBeNull()
   })
+
+  // S4: empty data while transition=true must still wipe stale DOM
+  it('clears container on transition render with empty data', () => {
+    const sentinel = document.createElement('span')
+    sentinel.id = 'stale'
+    container.appendChild(sentinel)
+    renderChart(container, baseDef({ data: { labels: [], values: [] } }), { transition: true })
+    expect(container.querySelector('#stale')).toBeNull()
+  })
+
+  // S8: stripColors must scrub colors from pre-resolved `options`, not just properties
+  it('stripColors strips colors from pre-resolved options', () => {
+    // Render once WITH the explicit red palette baked into options to capture
+    // the "no strip" fill, then render again with stripColors=true.
+    const defWithRed = baseDef({
+      options: { colors: ['#ff0000'] },
+    })
+    renderChart(container, defWithRed)
+    const withRedFill = container.querySelector('rect')?.getAttribute('fill') ?? ''
+    expect(withRedFill.toLowerCase()).toBe('#ff0000')
+
+    // Now strip — must NOT pick up the red from options.
+    const container2 = document.createElement('div')
+    document.body.appendChild(container2)
+    renderChart(container2, defWithRed, { stripColors: true })
+    const strippedFill = container2.querySelector('rect')?.getAttribute('fill') ?? ''
+    expect(strippedFill.toLowerCase()).not.toBe('#ff0000')
+  })
 })

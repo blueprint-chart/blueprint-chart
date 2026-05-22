@@ -50,4 +50,39 @@ describe('applyLayoutConstraints', () => {
     const result = applyLayoutConstraints(el, props, {})
     expect(result.constrained).toBe(false)
   })
+
+  // L7: dropping the aspectRatio constraint clears the previously-applied inline style
+  it('clears previously applied aspect-ratio when next call has no constraint', () => {
+    const el = document.createElement('div')
+    applyLayoutConstraints(el, makeProps({ heightMode: 'aspect-ratio', aspectRatio: '16:9' }), {})
+    expect(el.style.aspectRatio).toBe('16 / 9')
+
+    // Second call: no layout properties. Inline style must be wiped.
+    const result = applyLayoutConstraints(el, [], {})
+    expect(result.constrained).toBe(false)
+    expect(el.style.aspectRatio).toBe('')
+    expect(el.style.height).toBe('')
+    expect(el.style.display).toBe('')
+  })
+
+  // L7: dropping fixed height also clears it
+  it('clears previously applied fixed height when next call has no constraint', () => {
+    const el = document.createElement('div')
+    applyLayoutConstraints(el, makeProps({ heightMode: 'fixed', fixedHeight: 320 }), {})
+    expect(el.style.height).toBe('320px')
+
+    applyLayoutConstraints(el, [], {})
+    expect(el.style.height).toBe('')
+    expect(el.style.display).toBe('')
+  })
+
+  // L7: ignoreLayout still clears previously-applied keys
+  it('clears applied styles when ignoreLayout is set on a follow-up call', () => {
+    const el = document.createElement('div')
+    applyLayoutConstraints(el, makeProps({ heightMode: 'fixed', fixedHeight: 400 }), {})
+    expect(el.style.height).toBe('400px')
+
+    applyLayoutConstraints(el, makeProps({ heightMode: 'fixed', fixedHeight: 400 }), { ignoreLayout: true })
+    expect(el.style.height).toBe('')
+  })
 })

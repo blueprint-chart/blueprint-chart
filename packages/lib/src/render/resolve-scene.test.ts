@@ -1,7 +1,7 @@
-import { describe, it, expect } from 'vitest'
-import { resolveScene } from './resolve-scene'
+import { describe, it, expect, vi } from 'vitest'
+import { resolveScene, __resetTransformWarnings } from './resolve-scene'
 import type { ChartDefinition } from './types'
-import { DslNodeType, AnnotationKind, AnnotationAction, ChartType } from '../enums'
+import { DslNodeType, AnnotationKind, AnnotationAction, ChartType, SortMode } from '../enums'
 
 function baseDef(overrides: Partial<ChartDefinition> = {}): ChartDefinition {
   return {
@@ -98,5 +98,125 @@ describe('resolveScene', () => {
       }],
     })
     expect(resolveScene(def, 0).colorizes).toEqual([])
+  })
+
+  // S1: scenes that declare data override the resolved data
+  it('reparses scene data so labels/values reflect the scene override', () => {
+    const def = baseDef({
+      data: { labels: ['A', 'B'], values: [1, 2] },
+      scenes: [{
+        type: DslNodeType.Scene, name: null, properties: [],
+        data: { type: DslNodeType.Data, entries: [
+          { type: DslNodeType.Property, key: 'A', value: 99, isPercentage: false },
+        ] },
+        colorizes: [], highlights: [], areaFills: [], annotations: [], annotationVisibility: [], series: [], transforms: [],
+      }],
+    })
+    const state = resolveScene(def, 0)
+    expect(state.data.labels).toEqual(['A'])
+    expect(state.data.values).toEqual([99])
+  })
+
+  // S3: scene annotations accumulate across scenes (do not replace each other)
+  it('accumulates scene annotations across scene 0 → scene 1', () => {
+    const def = baseDef({
+      scenes: [
+        {
+          type: DslNodeType.Scene, name: null, properties: [], data: null,
+          colorizes: [], highlights: [], areaFills: [],
+          annotations: [{
+            type: DslNodeType.Annotation, kind: AnnotationKind.Point, target: 'a',
+            properties: [
+              { type: DslNodeType.Property, key: 'id', value: 'a0', isPercentage: false },
+              { type: DslNodeType.Property, key: 'text', value: 'first', isPercentage: false },
+            ],
+          }],
+          annotationVisibility: [], series: [], transforms: [],
+        },
+        {
+          type: DslNodeType.Scene, name: null, properties: [], data: null,
+          colorizes: [], highlights: [], areaFills: [],
+          annotations: [],
+          annotationVisibility: [], series: [], transforms: [],
+        },
+      ],
+    })
+    const s1 = resolveScene(def, 1)
+    expect(s1.annotations.map(a => a.id)).toEqual(['a0'])
+  })
+
+  // S3: when two scenes declare annotations with the same id, the later one wins
+  it('dedupes scene annotations by id, keeping the later declaration', () => {
+    const def = baseDef({
+      scenes: [
+        {
+          type: DslNodeType.Scene, name: null, properties: [], data: null,
+          colorizes: [], highlights: [], areaFills: [],
+          annotations: [{
+            type: DslNodeType.Annotation, kind: AnnotationKind.Point, target: 'a',
+            properties: [
+              { type: DslNodeType.Property, key: 'id', value: 'shared', isPercentage: false },
+              { type: DslNodeType.Property, key: 'text', value: 'first', isPercentage: false },
+            ],
+          }],
+          annotationVisibility: [], series: [], transforms: [],
+        },
+        {
+          type: DslNodeType.Scene, name: null, properties: [], data: null,
+          colorizes: [], highlights: [], areaFills: [],
+          annotations: [{
+            type: DslNodeType.Annotation, kind: AnnotationKind.Point, target: 'b',
+            properties: [
+              { type: DslNodeType.Property, key: 'id', value: 'shared', isPercentage: false },
+              { type: DslNodeType.Property, key: 'text', value: 'second', isPercentage: false },
+            ],
+          }],
+          annotationVisibility: [], series: [], transforms: [],
+        },
+      ],
+    })
+    const s1 = resolveScene(def, 1)
+    expect(s1.annotations.length).toBe(1)
+    const a = s1.annotations[0] as { id?: string, text?: string, target?: string }
+    expect(a.id).toBe('shared')
+    expect(a.text).toBe('second')
+    expect(a.target).toBe('b')
+  })
+
+  // S2/S9: a `transform sort` directive populates sortMode
+  it('applies transform sort to sortMode = total', () => {
+    const def = baseDef({
+      scenes: [{
+        type: DslNodeType.Scene, name: null, properties: [], data: null,
+        colorizes: [], highlights: [], areaFills: [], annotations: [],
+        annotationVisibility: [], series: [],
+        transforms: [{
+          type: DslNodeType.Transform, transformType: 'sort',
+          properties: [
+            { type: DslNodeType.Property, key: 'column', value: 'value', isPercentage: false },
+            { type: DslNodeType.Property, key: 'direction', value: 'descending', isPercentage: false },
+          ],
+        }],
+      }],
+    })
+    expect(resolveScene(def, 0).sortMode).toBe(SortMode.Total)
+  })
+
+  it('warns once per unknown transform type', () => {
+    __resetTransformWarnings()
+    const spy = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+    const defWithUnknown = baseDef({
+      scenes: [{
+        type: DslNodeType.Scene, name: null, properties: [], data: null,
+        colorizes: [], highlights: [], areaFills: [], annotations: [],
+        annotationVisibility: [], series: [],
+        transforms: [{ type: DslNodeType.Transform, transformType: 'mystery', properties: [] }],
+      }],
+    })
+    resolveScene(defWithUnknown, 0)
+    resolveScene(defWithUnknown, 0)
+    expect(spy).toHaveBeenCalledTimes(1)
+    expect(spy.mock.calls[0][0]).toContain('mystery')
+    spy.mockRestore()
   })
 })
