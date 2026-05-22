@@ -50,10 +50,36 @@ describe('parseData', () => {
     expect(data.values).toEqual([])
   })
 
-  it('handles non-numeric values as 0', () => {
-    const raw = `"Foo" = abc`
+  it('treats non-numeric values as missing (undefined), distinguishable from real 0', () => {
+    const raw = `"Foo" = abc\n"Bar" = 0`
     const data = parseData(raw)
-    expect(data.values).toEqual([0])
+    expect(data.values[0]).toBeUndefined()
+    expect(data.values[1]).toBe(0)
+  })
+
+  // ── N8: missing/non-finite cells are distinguishable from real 0 ─
+
+  it('treats missing cells in multi-series rows as undefined, not 0', () => {
+    // The second row leaves the second column empty (",")
+    const raw = `_series = "A","B"\n"Jan" = 10,20\n"Feb" = 30,`
+    const data = parseData(raw)
+    expect(data.series).toHaveLength(2)
+    // Real values come through unchanged.
+    expect(data.series![0].values).toEqual([10, 30])
+    // Missing trailing cell becomes undefined, not 0.
+    expect(data.series![1].values[0]).toBe(20)
+    expect(data.series![1].values[1]).toBeUndefined()
+  })
+
+  it('treats Infinity / -Infinity / NaN as undefined', () => {
+    const raw = `"A" = Infinity\n"B" = -Infinity\n"C" = NaN\n"D" = 0`
+    const data = parseData(raw)
+    // Infinity and NaN are not finite — they drop out as undefined.
+    expect(data.values[0]).toBeUndefined()
+    expect(data.values[1]).toBeUndefined()
+    expect(data.values[2]).toBeUndefined()
+    // A real 0 remains a real 0.
+    expect(data.values[3]).toBe(0)
   })
 })
 

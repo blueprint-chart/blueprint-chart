@@ -4,10 +4,24 @@ import type { ChartData, ChartOptions, ChartTypeOptions } from './types'
 import { parseDateOrNumber } from './date-parse'
 import { AxisDirection, LabelPosition, LabelRotation, LegendPosition, Anchor, ValueLabelPosition, CrosshairDirection, CrosshairStyle, StackMode, SymbolShape, SymbolShowOn, SymbolStyle } from '../enums'
 
+/**
+ * Parse a single numeric cell, returning `undefined` for empty/missing/non-finite
+ * inputs so consumers can distinguish "no data" from a literal zero.
+ * Callers continue to coalesce via `?? 0` when a numeric fallback is needed.
+ */
+function parseCell(raw: string | undefined): number | undefined {
+  const trimmed = raw?.trim()
+  if (!trimmed) {
+    return undefined
+  }
+  const n = Number.parseFloat(trimmed)
+  return Number.isFinite(n) ? n : undefined
+}
+
 export function parseData(raw: string): ChartData {
   const lines = raw.split('\n').map(l => l.trim()).filter(Boolean)
   const labels: string[] = []
-  const values: number[] = []
+  const values: (number | undefined)[] = []
 
   // Check for multi-series header
   const seriesMatch = lines[0]?.match(/^_series\s*=\s*(.+)$/)
@@ -18,7 +32,7 @@ export function parseData(raw: string): ChartData {
     const seriesNames = raw.includes('","')
       ? raw.split(',').map(s => s.trim().replace(/^"|"$/g, ''))
       : raw.replace(/^"|"$/g, '').split(',').map(s => s.trim())
-    const seriesValues: number[][] = seriesNames.map(() => [])
+    const seriesValues: (number | undefined)[][] = seriesNames.map(() => [])
 
     for (let i = 1; i < lines.length; i++) {
       // New format: "Label" = 40,44,42
@@ -30,18 +44,20 @@ export function parseData(raw: string): ChartData {
         labels.push(match[1])
         const vals = match[2].split(',')
         for (let s = 0; s < seriesNames.length; s++) {
-          seriesValues[s].push(Number.parseFloat(vals[s]?.trim() ?? '') || 0)
+          seriesValues[s].push(parseCell(vals[s]))
         }
       }
     }
 
     const series = seriesNames.map((name, i) => ({
       name,
-      values: seriesValues[i],
+      // Cast preserves the ChartData.values: number[] contract while keeping
+      // `undefined` holes for missing cells; consumer code coalesces with `?? 0`.
+      values: seriesValues[i] as number[],
     }))
 
     // values array uses first series for single-series charts
-    return { labels, values: seriesValues[0] ?? [], series }
+    return { labels, values: (seriesValues[0] ?? []) as number[], series }
   }
 
   // Single-series format
@@ -49,11 +65,11 @@ export function parseData(raw: string): ChartData {
     const match = line.match(/^"([^"]+)"\s*=\s*(.+)$/)
     if (match) {
       labels.push(match[1])
-      values.push(Number.parseFloat(match[2]) || 0)
+      values.push(parseCell(match[2]))
     }
   }
 
-  return { labels, values }
+  return { labels, values: values as number[] }
 }
 
 function buildChartColors(opts: Partial<ChartTypeOptions>, backgroundColor?: string): Partial<ChartOptions> {
