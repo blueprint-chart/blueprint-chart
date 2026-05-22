@@ -75,7 +75,7 @@ const UNSORTED = ['China', 'India', 'United States', 'Indonesia', 'Brazil', 'Rus
 test.describe('BPC scene sort — file upload', () => {
   test('base scene shows unsorted chart data', async ({ page }, testInfo) => {
     await loadBpcFile(page, testInfo)
-    await page.locator('.navigation-stepper-chevron__step', { hasText: 'Visualize' }).click()
+    await page.locator('.navigation-stepper-tabs__step', { hasText: 'Visualize' }).click()
     await expect(page.locator('.bc-frame-body svg')).toBeVisible({ timeout: 10000 })
     await page.locator('.scene-timeline-item').nth(SCENE_BASE).click()
     await expect.poll(() => getChartTickLabels(page)).toEqual(UNSORTED)
@@ -83,7 +83,7 @@ test.describe('BPC scene sort — file upload', () => {
 
   test('scene with sort transform shows sorted chart data', async ({ page }, testInfo) => {
     await loadBpcFile(page, testInfo)
-    await page.locator('.navigation-stepper-chevron__step', { hasText: 'Visualize' }).click()
+    await page.locator('.navigation-stepper-tabs__step', { hasText: 'Visualize' }).click()
     await expect(page.locator('.bc-frame-body svg')).toBeVisible({ timeout: 10000 })
     await page.locator('.scene-timeline-item').nth(SCENE_WITH_SORT).click()
     await expect.poll(() => getChartTickLabels(page)).toEqual(SORTED_ASC)
@@ -91,7 +91,7 @@ test.describe('BPC scene sort — file upload', () => {
 
   test('scene inheriting sort shows sorted chart data', async ({ page }, testInfo) => {
     await loadBpcFile(page, testInfo)
-    await page.locator('.navigation-stepper-chevron__step', { hasText: 'Visualize' }).click()
+    await page.locator('.navigation-stepper-tabs__step', { hasText: 'Visualize' }).click()
     await expect(page.locator('.bc-frame-body svg')).toBeVisible({ timeout: 10000 })
     await page.locator('.scene-timeline-item').nth(SCENE_INHERITS_SORT).click()
     await expect.poll(() => getChartTickLabels(page)).toEqual(SORTED_ASC)
@@ -99,20 +99,20 @@ test.describe('BPC scene sort — file upload', () => {
 
   test('data table sorted on inherited sort scene', async ({ page }, testInfo) => {
     await loadBpcFile(page, testInfo)
-    await page.locator('.navigation-stepper-chevron__step', { hasText: 'Visualize' }).click()
+    await page.locator('.navigation-stepper-tabs__step', { hasText: 'Visualize' }).click()
     await expect(page.locator('.bc-frame-body svg')).toBeVisible({ timeout: 10000 })
     await page.locator('.scene-timeline-item').nth(SCENE_INHERITS_SORT).click()
-    await page.locator('.navigation-stepper-chevron__step', { hasText: 'Data' }).click()
+    await page.locator('.navigation-stepper-tabs__step', { hasText: 'Data' }).click()
     await expect(page.locator('.data-check-table')).toBeVisible()
     await expect.poll(() => getDataTableFirstColumn(page)).toEqual(SORTED_ASC)
   })
 
   test('data table unsorted on base scene', async ({ page }, testInfo) => {
     await loadBpcFile(page, testInfo)
-    await page.locator('.navigation-stepper-chevron__step', { hasText: 'Visualize' }).click()
+    await page.locator('.navigation-stepper-tabs__step', { hasText: 'Visualize' }).click()
     await expect(page.locator('.bc-frame-body svg')).toBeVisible({ timeout: 10000 })
     await page.locator('.scene-timeline-item').nth(SCENE_BASE).click()
-    await page.locator('.navigation-stepper-chevron__step', { hasText: 'Data' }).click()
+    await page.locator('.navigation-stepper-tabs__step', { hasText: 'Data' }).click()
     await expect(page.locator('.data-check-table')).toBeVisible()
     await expect.poll(() => getDataTableFirstColumn(page)).toEqual(UNSORTED)
   })
@@ -121,7 +121,7 @@ test.describe('BPC scene sort — file upload', () => {
 test.describe('BPC scene sort — session reload', () => {
   test('sort persists after page reload', async ({ page }, testInfo) => {
     await loadBpcFile(page, testInfo)
-    await page.locator('.navigation-stepper-chevron__step', { hasText: 'Visualize' }).click()
+    await page.locator('.navigation-stepper-tabs__step', { hasText: 'Visualize' }).click()
     await expect(page.locator('.bc-frame-body svg')).toBeVisible({ timeout: 10000 })
 
     // Activate the sort scene so it's saved
@@ -133,7 +133,7 @@ test.describe('BPC scene sort — session reload', () => {
     await page.goto(url)
 
     // Navigate to Visualize
-    await page.locator('.navigation-stepper-chevron__step', { hasText: 'Visualize' }).click()
+    await page.locator('.navigation-stepper-tabs__step', { hasText: 'Visualize' }).click()
     await expect(page.locator('.bc-frame-body svg')).toBeVisible({ timeout: 10000 })
 
     // Scene 3 should still show sorted data
@@ -141,7 +141,7 @@ test.describe('BPC scene sort — session reload', () => {
     await expect.poll(() => getChartTickLabels(page)).toEqual(SORTED_ASC)
 
     // Data table should also be sorted
-    await page.locator('.navigation-stepper-chevron__step', { hasText: 'Data' }).click()
+    await page.locator('.navigation-stepper-tabs__step', { hasText: 'Data' }).click()
     await expect(page.locator('.data-check-table')).toBeVisible()
     await expect.poll(() => getDataTableFirstColumn(page)).toEqual(SORTED_ASC)
   })

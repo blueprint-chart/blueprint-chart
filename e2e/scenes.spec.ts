@@ -22,7 +22,7 @@ async function goToVisualizeStep(page) {
   await page.locator('button', { hasText: 'Load data' }).click()
 
   // Use the stepper nav button (not the toolbar button)
-  await page.locator('.navigation-stepper-chevron__step', { hasText: 'Visualize' }).click()
+  await page.locator('.navigation-stepper-tabs__step', { hasText: 'Visualize' }).click()
   await expect(page.locator('.bc-frame-body svg')).toBeVisible()
 }
 
@@ -250,7 +250,7 @@ test.describe('Scene Timeline', () => {
     await page.goto(url)
 
     // Navigate to Visualize step
-    await page.locator('.navigation-stepper-chevron__step', { hasText: 'Visualize' }).click()
+    await page.locator('.navigation-stepper-tabs__step', { hasText: 'Visualize' }).click()
     // Wait for the live frame (not the fade-snapshot used during scene transitions)
     await expect(page.locator('.bc-frame:not(.bc-frame--fade-snapshot) .bc-frame-body svg')).toBeVisible()
 
@@ -279,12 +279,12 @@ test.describe('Scene Timeline', () => {
 
     // Navigate back to Data step then forward to Visualize
     // This triggers the watch in WizardShell that serializes data
-    await page.locator('.navigation-stepper-chevron__step', { hasText: 'Data' }).click()
-    await page.locator('.navigation-stepper-chevron__step', { hasText: 'Visualize' }).click()
+    await page.locator('.navigation-stepper-tabs__step', { hasText: 'Data' }).click()
+    await page.locator('.navigation-stepper-tabs__step', { hasText: 'Visualize' }).click()
     await expect(page.locator('.bc-frame-body svg')).toBeVisible()
 
     // Navigate to Export step to inspect DSL via iframe embed URL
-    await page.locator('.navigation-stepper-chevron__step', { hasText: 'Export' }).click()
+    await page.locator('.navigation-stepper-tabs__step', { hasText: 'Export' }).click()
     const codeBlock = page.locator('.export-embed-panel__code-block__pre code')
     await expect(codeBlock).toBeVisible()
 
@@ -326,7 +326,7 @@ test.describe('Scene Timeline', () => {
     await expect(page.locator('.scene-timeline-item')).toHaveCount(2)
 
     // Navigate back to Data step
-    await page.locator('.navigation-stepper-chevron__step', { hasText: 'Data' }).click()
+    await page.locator('.navigation-stepper-tabs__step', { hasText: 'Data' }).click()
 
     // Timeline should be visible on Data step
     await expect(page.locator('.scene-timeline')).toBeVisible()
@@ -340,7 +340,7 @@ test.describe('Scene Timeline', () => {
     await page.locator('.button-add').click()
 
     // Navigate back to Data step
-    await page.locator('.navigation-stepper-chevron__step', { hasText: 'Data' }).click()
+    await page.locator('.navigation-stepper-tabs__step', { hasText: 'Data' }).click()
 
     // Select Scene 2 (non-base)
     await page.locator('.scene-timeline-item').nth(1).click()
@@ -375,7 +375,7 @@ test.describe('Scene Timeline', () => {
     await page.locator('.button-add').click()
 
     // Navigate back to Data step
-    await page.locator('.navigation-stepper-chevron__step', { hasText: 'Data' }).click()
+    await page.locator('.navigation-stepper-tabs__step', { hasText: 'Data' }).click()
 
     // Select Scene 2
     await page.locator('.scene-timeline-item').nth(1).click()
@@ -408,14 +408,14 @@ test.describe('Scene Timeline', () => {
     await page.locator('button', { hasText: 'Load data' }).click()
 
     // Go to Visualize
-    await page.locator('.navigation-stepper-chevron__step', { hasText: 'Visualize' }).click()
+    await page.locator('.navigation-stepper-tabs__step', { hasText: 'Visualize' }).click()
     await expect(page.locator('.bc-frame-body svg')).toBeVisible()
 
     // Add Scene 2
     await page.locator('.button-add').click()
 
     // Navigate back to Data step
-    await page.locator('.navigation-stepper-chevron__step', { hasText: 'Data' }).click()
+    await page.locator('.navigation-stepper-tabs__step', { hasText: 'Data' }).click()
 
     // Select Scene 2
     await page.locator('.scene-timeline-item').nth(1).click()
@@ -430,7 +430,7 @@ test.describe('Scene Timeline', () => {
     await page.locator('.add-wrap__dropdown__item__text__name', { hasText: 'Transpose' }).click()
 
     // Navigate to Visualize step
-    await page.locator('.navigation-stepper-chevron__step', { hasText: 'Visualize' }).click()
+    await page.locator('.navigation-stepper-tabs__step', { hasText: 'Visualize' }).click()
     await expect(page.locator('.bc-frame-body svg')).toBeVisible()
 
     // Switch to Scene 2 — chart should render with transposed data
@@ -438,7 +438,7 @@ test.describe('Scene Timeline', () => {
     await expect(page.locator('.bc-frame-body svg')).toBeVisible()
 
     // Get DSL output to verify scene does NOT bake a data block
-    await page.locator('.navigation-stepper-chevron__step', { hasText: 'Export' }).click()
+    await page.locator('.navigation-stepper-tabs__step', { hasText: 'Export' }).click()
     const codeBlock = page.locator('.export-embed-panel__code-block__pre code')
     await expect(codeBlock).toBeVisible()
 
