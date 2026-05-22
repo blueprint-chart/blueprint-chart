@@ -1,4 +1,4 @@
-export type ExportTab = 'embed' | 'download'
+export type ExportTab = 'embed' | 'download' | ''
 export type DownloadFormat = 'png' | 'svg' | 'bpc'
 
 export const useExportPanelStore = defineStore('exportPanel', () => {
@@ -9,7 +9,7 @@ export const useExportPanelStore = defineStore('exportPanel', () => {
   const svgMinify = shallowRef(false)
   const bpcIncludeData = shallowRef(true)
   const bpcCompact = shallowRef(false)
-  const lastNarrowExportTab = shallowRef<ExportTab>('embed')
+  const lastNarrowExportTab = shallowRef<Exclude<ExportTab, ''>>('embed')
 
   function setExportTab(tab: ExportTab) {
     exportTab.value = tab
@@ -19,7 +19,7 @@ export const useExportPanelStore = defineStore('exportPanel', () => {
     selectedFormat.value = format
   }
 
-  function setLastNarrowExportTab(tab: ExportTab) {
+  function setLastNarrowExportTab(tab: Exclude<ExportTab, ''>) {
     lastNarrowExportTab.value = tab
   }
 
