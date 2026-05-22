@@ -9,12 +9,12 @@ import { useChartTypeOptions } from '@/stores/chartTypeOptions'
 import { useDataTransforms, type TransformStep } from '@/stores/dataTransforms'
 import { serializeTableData } from '@/stores/dataTable'
 import { useScenes } from '@/stores/scenes'
-import { resolveScene, resolveSortFromTransforms } from '@/utils/scenes'
+import { resolveScene, resolveSortFromTransforms, findDataSourceSceneIndex } from '@/utils/scenes'
 import type { ChartColorize } from '@/stores/chartConfig'
 import { ChartType, SortDirection, parseData } from '@blueprint-chart/lib'
 import type { SeriesOverride } from '@blueprint-chart/lib'
 import { BBadge } from 'bootstrap-vue-next'
-import { NavigationStepperTabs, SceneTimeline, LayoutBottomDrawer, useBreakpoint } from '@blueprint-chart/ui'
+import { NavigationStepperTabs, SceneTimeline, SceneList, LayoutBottomDrawer, useBreakpoint } from '@blueprint-chart/ui'
 import LayoutNarrowDock from '@/components/Layout/LayoutNarrowDock.vue'
 import { useEditorPanel } from '@/stores/editorPanel'
 import { useExportPanel } from '@/stores/exportPanel'
@@ -221,14 +221,36 @@ function resolveSceneTitle(index: number): string {
 }
 
 const timelineScenes = computed(() => {
-  const base = [{ name: resolveSceneTitle(-1), index: 0, removable: false, thumbnail: sceneThumbnails.value[0] ?? null }]
-  const overrides = scenes.value.map((s, i) => ({
-    name: resolveSceneTitle(i),
-    index: i + 1,
-    removable: true,
-    thumbnail: sceneThumbnails.value[i + 1] ?? null,
-  }))
-  return [...base, ...overrides]
+  const base = {
+    name: resolveSceneTitle(-1),
+    index: 0,
+    removable: false,
+    thumbnail: sceneThumbnails.value[0] ?? null,
+    hint: 'base scene',
+  }
+  const overrides = scenes.value.map((s, i) => {
+    const wizardIdx = i + 1
+    const dataSource = findDataSourceSceneIndex(scenes.value, i)
+    let hint: string
+    if (dataSource === i) {
+      hint = 'custom data'
+    }
+    else if (dataSource < 0) {
+      hint = 'inherits base'
+    }
+    else {
+      const sourceName = resolveSceneTitle(dataSource) || `Scene ${dataSource + 1}`
+      hint = `inherits ${sourceName}`
+    }
+    return {
+      name: resolveSceneTitle(i),
+      index: wizardIdx,
+      removable: true,
+      thumbnail: sceneThumbnails.value[wizardIdx] ?? null,
+      hint,
+    }
+  })
+  return [base, ...overrides]
 })
 
 const timelineActiveIndex = computed(() => activeIndex.value + 1)
@@ -242,6 +264,16 @@ function onTimelineRemove(timelineIndex: number) {
     return
   }
   scenesComposable.remove(timelineIndex - 1)
+}
+
+function onSceneReorder({ from, to }: { from: number, to: number }) {
+  // SceneList emits wizard-facing indices (0 = base, 1..N = overrides).
+  // The list filters Sortable's reorder to forbid moving into/out of
+  // position 0, but we double-check defensively here.
+  if (from <= 0 || to <= 0) {
+    return
+  }
+  scenesComposable.reorder(from - 1, to - 1)
 }
 
 const showTimeline = computed(() => {
@@ -387,7 +419,7 @@ onBeforeRouteLeave(() => {
         v-model="scenesSheetOpen"
         title="Scenes"
       >
-        <SceneTimeline
+        <SceneList
           :scenes="timelineScenes"
           :active-index="timelineActiveIndex"
           :playing="playing"
@@ -396,6 +428,7 @@ onBeforeRouteLeave(() => {
           @remove="onTimelineRemove"
           @play="startPlayback"
           @pause="stopPlayback"
+          @reorder="onSceneReorder"
         />
       </LayoutBottomDrawer>
     </div>
