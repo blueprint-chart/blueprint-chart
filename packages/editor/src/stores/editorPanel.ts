@@ -13,6 +13,8 @@ export const useEditorPanelStore = defineStore('editorPanel', () => {
   const dataPanelTab = shallowRef<DataPanelTab | ''>('')
   const dataPanelOpen = shallowRef(false)
   const selectedColumnIndex = shallowRef(-1)
+  const lastNarrowEditTab = shallowRef<string>('type')
+  const lastNarrowDataTab = shallowRef<DataPanelTab>('column')
 
   function selectTab(tab: string) {
     activeTab.value = tab
@@ -65,6 +67,14 @@ export const useEditorPanelStore = defineStore('editorPanel', () => {
     openDataPanel('column')
   }
 
+  function setLastNarrowEditTab(tab: string) {
+    lastNarrowEditTab.value = tab
+  }
+
+  function setLastNarrowDataTab(tab: DataPanelTab) {
+    lastNarrowDataTab.value = tab
+  }
+
   function reset() {
     activeTab.value = 'type'
     viewMode.value = 'preview'
@@ -75,6 +85,8 @@ export const useEditorPanelStore = defineStore('editorPanel', () => {
     dataPanelTab.value = '' as DataPanelTab
     dataPanelOpen.value = false
     selectedColumnIndex.value = -1
+    lastNarrowEditTab.value = 'type'
+    lastNarrowDataTab.value = 'column'
   }
 
   return {
@@ -87,6 +99,8 @@ export const useEditorPanelStore = defineStore('editorPanel', () => {
     dataPanelTab,
     dataPanelOpen,
     selectedColumnIndex,
+    lastNarrowEditTab,
+    lastNarrowDataTab,
     selectTab,
     selectAnnotation,
     setViewMode,
@@ -97,6 +111,8 @@ export const useEditorPanelStore = defineStore('editorPanel', () => {
     closeDataPanel,
     toggleDataPanel,
     selectColumn,
+    setLastNarrowEditTab,
+    setLastNarrowDataTab,
     reset,
   }
 })
@@ -113,6 +129,8 @@ export function useEditorPanel() {
     dataPanelTab,
     dataPanelOpen,
     selectedColumnIndex,
+    lastNarrowEditTab,
+    lastNarrowDataTab,
   } = storeToRefs(store)
   return {
     activeTab,
@@ -124,6 +142,8 @@ export function useEditorPanel() {
     dataPanelTab,
     dataPanelOpen,
     selectedColumnIndex,
+    lastNarrowEditTab,
+    lastNarrowDataTab,
     selectTab: store.selectTab,
     selectAnnotation: store.selectAnnotation,
     setViewMode: store.setViewMode,
@@ -134,6 +154,8 @@ export function useEditorPanel() {
     closeDataPanel: store.closeDataPanel,
     toggleDataPanel: store.toggleDataPanel,
     selectColumn: store.selectColumn,
+    setLastNarrowEditTab: store.setLastNarrowEditTab,
+    setLastNarrowDataTab: store.setLastNarrowDataTab,
     reset: store.reset,
   }
 }

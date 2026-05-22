@@ -145,4 +145,35 @@ describe('useEditorPanel', () => {
     a.selectTab('annotate')
     expect(b.activeTab).toBe('annotate')
   })
+
+  it('exposes lastNarrowEditTab with default "type"', () => {
+    const store = useEditorPanel()
+    expect(store.lastNarrowEditTab).toBe('type')
+  })
+
+  it('exposes lastNarrowDataTab with default "column"', () => {
+    const store = useEditorPanel()
+    expect(store.lastNarrowDataTab).toBe('column')
+  })
+
+  it('setLastNarrowEditTab updates lastNarrowEditTab', () => {
+    const store = useEditorPanel()
+    store.setLastNarrowEditTab('style')
+    expect(store.lastNarrowEditTab).toBe('style')
+  })
+
+  it('setLastNarrowDataTab updates lastNarrowDataTab', () => {
+    const store = useEditorPanel()
+    store.setLastNarrowDataTab('transforms')
+    expect(store.lastNarrowDataTab).toBe('transforms')
+  })
+
+  it('reset() clears both refs to their defaults', () => {
+    const store = useEditorPanel()
+    store.setLastNarrowEditTab('style')
+    store.setLastNarrowDataTab('transforms')
+    store.reset()
+    expect(store.lastNarrowEditTab).toBe('type')
+    expect(store.lastNarrowDataTab).toBe('column')
+  })
 })
