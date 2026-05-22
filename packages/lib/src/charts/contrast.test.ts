@@ -146,3 +146,43 @@ describe('wcagLevel', () => {
     expect(wcagLevel(1)).toBe('Fail')
   })
 })
+
+describe('contrast — N9: invalid input does not throw', () => {
+  it('wcagContrastRatio returns 1 when fg is not a valid color', () => {
+    expect(() => wcagContrastRatio('not-a-hex', '#fff')).not.toThrow()
+    expect(wcagContrastRatio('not-a-hex', '#fff')).toBe(1)
+  })
+
+  it('wcagContrastRatio returns 1 when bg is not a valid color', () => {
+    expect(() => wcagContrastRatio('#fff', 'not-a-color')).not.toThrow()
+    expect(wcagContrastRatio('#fff', 'not-a-color')).toBe(1)
+  })
+
+  it('contrastTextColor falls back to #333 when bg is invalid', () => {
+    expect(() => contrastTextColor('not-a-hex')).not.toThrow()
+    expect(contrastTextColor('not-a-hex')).toBe('#333')
+  })
+
+  it('readableColor returns a sensible fallback when color is invalid', () => {
+    expect(() => readableColor('not-a-hex', '#fff')).not.toThrow()
+    const result = readableColor('not-a-hex', '#fff')
+    expect(typeof result).toBe('string')
+    expect(result.length).toBeGreaterThan(0)
+  })
+
+  it('readableColor does not throw when bg is invalid', () => {
+    expect(() => readableColor('#4e79a7', 'not-a-color')).not.toThrow()
+  })
+
+  it('adjustColorsForBackground does not throw on invalid bg', () => {
+    expect(() => adjustColorsForBackground(['#4e79a7', '#f28e2b'], 'not-a-color')).not.toThrow()
+    const result = adjustColorsForBackground(['#4e79a7', '#f28e2b'], 'not-a-color')
+    expect(result).toHaveLength(2)
+  })
+
+  it('adjustColorsForBackground does not throw on invalid colors in the array', () => {
+    expect(() => adjustColorsForBackground(['not-a-hex', '#4e79a7'], '#fff')).not.toThrow()
+    const result = adjustColorsForBackground(['not-a-hex', '#4e79a7'], '#fff')
+    expect(result).toHaveLength(2)
+  })
+})

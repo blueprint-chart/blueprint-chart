@@ -1,17 +1,43 @@
 import chroma from 'chroma-js'
 
 /**
+ * Safe wrapper around `chroma()` that returns a fallback when the input isn't
+ * a valid CSS color. chroma-js otherwise throws `unknown format:` which would
+ * propagate out of every entry point in this module.
+ */
+function safeChroma(color: string, fallback: chroma.Color): chroma.Color {
+  if (!chroma.valid(color)) {
+    return fallback
+  }
+  try {
+    return chroma(color)
+  }
+  catch {
+    return fallback
+  }
+}
+
+/**
  * Returns '#fff' or '#333' — whichever has better contrast against `bg`.
+ * Falls back to '#333' (readable on the default light background) when `bg`
+ * isn't a valid color string.
  */
 export function contrastTextColor(bg: string): string {
+  if (!chroma.valid(bg)) {
+    return '#333'
+  }
   return chroma.contrast(bg, '#fff') >= chroma.contrast(bg, '#333') ? '#fff' : '#333'
 }
 
 /**
  * Compute WCAG 2.1 contrast ratio between two colors.
- * Returns a value between 1 and 21.
+ * Returns a value between 1 and 21, or 1 (no contrast) when either input
+ * isn't a valid color string.
  */
 export function wcagContrastRatio(fg: string, bg: string): number {
+  if (!chroma.valid(fg) || !chroma.valid(bg)) {
+    return 1
+  }
   return chroma.contrast(fg, bg)
 }
 
@@ -54,16 +80,21 @@ export function resolveBackgroundColor(el?: Element | null): string {
  * `bg` can be a CSS color string; defaults to '#fff'.
  */
 export function readableColor(color: string, bg: string = '#fff'): string {
+  // Bail out on invalid input rather than letting chroma throw `unknown format:`.
+  if (!chroma.valid(color)) {
+    return chroma.valid(bg) ? contrastTextColor(bg) : '#333'
+  }
   let c = chroma(color)
-  if (chroma.contrast(c, bg) >= MIN_CONTRAST) {
+  const bgChroma = safeChroma(bg, chroma('#fff'))
+  if (chroma.contrast(c, bgChroma) >= MIN_CONTRAST) {
     return c.hex()
   }
 
   // Decide direction: darken if bg is light, lighten if bg is dark
-  const bgLight = chroma(bg).luminance() > 0.5
+  const bgLight = bgChroma.luminance() > 0.5
   for (let i = 0; i < 20; i++) {
     c = bgLight ? c.darken(0.3) : c.brighten(0.3)
-    if (chroma.contrast(c, bg) >= MIN_CONTRAST) {
+    if (chroma.contrast(c, bgChroma) >= MIN_CONTRAST) {
       break
     }
   }
@@ -87,17 +118,26 @@ export function adjustColorsForBackground(colors: string[], bg: string): string[
     return []
   }
 
-  const bgLight = chroma(bg).luminance() > 0.5
+  // Default to white when `bg` is invalid so downstream chroma calls don't throw.
+  const bgChroma = safeChroma(bg, chroma('#fff'))
+  const safeBg = chroma.valid(bg) ? bg : '#fff'
+  const bgLight = bgChroma.luminance() > 0.5
 
-  // Pass 1 – ensure every color meets minimum contrast against the background
-  const adjusted = colors.map(c => nudgeForBg(chroma(c), bg, bgLight))
+  // Pass 1 – ensure every color meets minimum contrast against the background.
+  // Invalid color entries fall through unchanged (best-effort, no throw).
+  const adjusted = colors.map((c) => {
+    if (!chroma.valid(c)) {
+      return chroma('#000')
+    }
+    return nudgeForBg(chroma(c), safeBg, bgLight)
+  })
 
   // Pass 2 – nudge adjacent colors apart when they are too similar
   for (let i = 1; i < adjusted.length; i++) {
     if (chroma.deltaE(adjusted[i], adjusted[i - 1]) >= MIN_ADJACENT_DELTA_E) {
       continue
     }
-    adjusted[i] = nudgeApart(adjusted[i], adjusted[i - 1], bg, bgLight)
+    adjusted[i] = nudgeApart(adjusted[i], adjusted[i - 1], safeBg, bgLight)
   }
 
   return adjusted.map(c => c.hex())
