@@ -4,7 +4,7 @@ import IPhCode from '~icons/ph/code'
 import IPhDownloadSimple from '~icons/ph/download-simple'
 
 export interface ExportSection {
-  key: ExportTab
+  key: Exclude<ExportTab, ''>
   label: string
   icon: Component
   tooltip?: string

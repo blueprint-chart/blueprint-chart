@@ -30,7 +30,8 @@ const dataTable = useDataTable()
 const config = useChartConfig()
 const { sessionId, createSession, lastSavedAt } = useChartSession()
 const scenesComposable = useScenes()
-const { scenes, activeIndex, playing, startPlayback, stopPlayback } = scenesComposable
+const { scenes, activeIndex, activeScene, playing, startPlayback, stopPlayback } = scenesComposable
+const isSceneMode = computed(() => activeScene.value !== null)
 const { baseOptions } = useChartTypeOptions()
 const transforms = useDataTransforms()
 const baseTransforms = ref<TransformStep[]>([])
@@ -75,7 +76,14 @@ function onOpenPanel() {
     return
   }
   if (currentStep.value.key === 'data') {
-    editorPanel.openDataPanel(editorPanel.lastNarrowDataTab.value)
+    let tab = editorPanel.lastNarrowDataTab.value
+    // The "parsing" tab is hidden in scene-override mode; fall back to
+    // "column" rather than re-opening a tab the user can't navigate away
+    // from inside the drawer.
+    if (isSceneMode.value && tab === 'parsing') {
+      tab = 'column'
+    }
+    editorPanel.openDataPanel(tab)
   }
   else if (currentStep.value.key === 'edit') {
     editorPanel.selectTab(editorPanel.lastNarrowEditTab.value)
