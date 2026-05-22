@@ -82,14 +82,15 @@ const editorPanel = useEditorPanel()
 const { dataPanelOpen, dataPanelTab } = storeToRefs(editorPanel)
 const { openDataPanel, closeDataPanel, setDataView, setLastNarrowDataTab } = editorPanel
 const { mode: panelMode } = usePanel()
+const { activeScene, activeIndex, scenes } = useScenes()
+const isSceneMode = computed(() => activeScene.value !== null)
+
 watch(panelMode, (mode) => {
   if (mode === 'drawer' && dataPanelTab.value) {
     setLastNarrowDataTab(dataPanelTab.value as DataPanelTab)
     closeDataPanel()
   }
 }, { immediate: true })
-const { activeScene, activeIndex, scenes } = useScenes()
-const isSceneMode = computed(() => activeScene.value !== null)
 
 const dataSourceIdx = computed(() => findDataSourceSceneIndex(scenes.value, activeIndex.value))
 

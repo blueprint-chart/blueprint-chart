@@ -125,10 +125,14 @@ const canvasStyle = computed<CSSProperties>(() => ({
   '--grid-offset-y': `${gridOffsetY.value}px`,
 } as CSSProperties))
 
+const { lastNarrowExportTab } = storeToRefs(exportPanelStore)
 const drawerOpen = computed({
   get: () => !!exportTab.value,
   set: (open) => {
-    if (!open) {
+    if (open) {
+      setExportTabAction(lastNarrowExportTab.value)
+    }
+    else {
       setExportTabAction('' as ExportTab)
     }
   },

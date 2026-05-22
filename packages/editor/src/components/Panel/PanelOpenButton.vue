@@ -26,8 +26,8 @@ function onClick() {
     type="button"
     :aria-label="label"
     :aria-disabled="disabled ? 'true' : undefined"
-    :tabindex="disabled ? -1 : 0"
-    @click="!disabled && onClick()"
+    :disabled="disabled"
+    @click="onClick"
   >
     <component
       :is="icon"
@@ -68,10 +68,9 @@ function onClick() {
     box-shadow: 0 0 0 4px rgba(var(--bs-primary-rgb), 0.32);
   }
 
-  &[aria-disabled="true"] {
+  &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
-    pointer-events: none;
   }
 
   &__icon {
