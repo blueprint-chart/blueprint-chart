@@ -18,9 +18,11 @@ withDefaults(defineProps<{
   panelLabel: string
   panelIcon?: Component
   panelDisabled?: boolean
+  scenesSheetOpen?: boolean
 }>(), {
   panelIcon: undefined,
   panelDisabled: false,
+  scenesSheetOpen: false,
 })
 
 const emit = defineEmits<{
@@ -48,6 +50,7 @@ function onActiveIndexUpdate(n: number) {
         :scenes="scenes"
         :active-index="activeIndex"
         :playing="playing"
+        :expanded="scenesSheetOpen"
         @update:active-index="onActiveIndexUpdate"
         @play="emit('play')"
         @pause="emit('pause')"

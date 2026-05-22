@@ -13,8 +13,10 @@ const activeIndex = defineModel<number>('activeIndex', { default: -1 })
 const props = withDefaults(defineProps<{
   scenes: SceneEntry[]
   playing?: boolean
+  expanded?: boolean
 }>(), {
   playing: false,
+  expanded: false,
 })
 
 defineEmits<{
@@ -66,6 +68,7 @@ const displayIndex = computed(() => {
       square
       variant="link"
       size="sm"
+      :aria-expanded="expanded"
       @click="$emit('expand')"
     />
   </div>
@@ -78,6 +81,12 @@ const displayIndex = computed(() => {
   gap: 0.5rem;
   flex: 1;
   min-width: 0;
+
+  // SceneTimelineControls renders its own "N / M" counter; we render our own
+  // "N of M" after the active scene name, so suppress the inner one.
+  :deep(.scene-timeline-controls__counter) {
+    display: none;
+  }
 
   &__name {
     flex: 0 1 auto;

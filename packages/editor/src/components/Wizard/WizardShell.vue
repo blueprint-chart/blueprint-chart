@@ -354,6 +354,7 @@ onBeforeRouteLeave(() => {
         :panel-label="panelLabel"
         :panel-icon="panelIcon"
         :panel-disabled="panelDisabled"
+        :scenes-sheet-open="scenesSheetOpen"
         @update:active-index="onTimelineSelect"
         @play="startPlayback"
         @pause="stopPlayback"
