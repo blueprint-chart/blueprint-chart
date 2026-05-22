@@ -32,7 +32,8 @@ const activeScene = computed(() => {
   return props.scenes.find(s => s.index === activeIndex.value) ?? null
 })
 
-const activeSceneName = computed(() => activeScene.value?.name ?? ' ')
+// '||' (not '??') so empty-string names also fall back to NBSP.
+const activeSceneName = computed(() => activeScene.value?.name || ' ')
 const total = computed(() => props.scenes.length)
 const displayIndex = computed(() => {
   if (activeIndex.value < 0 || total.value === 0) {
@@ -48,6 +49,7 @@ const displayIndex = computed(() => {
       v-model:active-index="activeIndex"
       :total="total"
       :playing="playing"
+      hide-counter
       @play="$emit('play')"
       @pause="$emit('pause')"
     />
@@ -81,12 +83,6 @@ const displayIndex = computed(() => {
   gap: 0.5rem;
   flex: 1;
   min-width: 0;
-
-  // SceneTimelineControls renders its own "N / M" counter; we render our own
-  // "N of M" after the active scene name, so suppress the inner one.
-  :deep(.scene-timeline-controls__counter) {
-    display: none;
-  }
 
   &__name {
     flex: 0 1 auto;

@@ -37,7 +37,7 @@
       />
     </button>
     <span
-      v-if="!disabled"
+      v-if="!disabled && !hideCounter"
       class="scene-timeline-controls__counter"
     >
       {{ displayIndex }} / {{ total }}
@@ -56,8 +56,10 @@ const activeIndex = defineModel<number>('activeIndex', { default: -1 })
 const props = withDefaults(defineProps<{
   total: number
   playing?: boolean
+  hideCounter?: boolean
 }>(), {
   playing: false,
+  hideCounter: false,
 })
 
 defineEmits<{
