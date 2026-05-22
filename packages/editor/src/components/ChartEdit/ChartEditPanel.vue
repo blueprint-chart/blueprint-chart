@@ -3,10 +3,6 @@
     class="chart-edit-panel"
     :class="panelClassList"
   >
-    <ChartEditIconRail
-      v-if="isNarrow"
-      horizontal
-    />
     <div
       ref="canvasRef"
       class="chart-edit-panel__canvas"
@@ -48,7 +44,7 @@
           :tabs="tabs"
           :model-value="activeTab"
           sticky
-          @update:model-value="selectTab"
+          @update:model-value="onDrawerTabPick"
         />
       </template>
       <template
@@ -86,7 +82,7 @@ import { useChartEditSections } from '@/composables/useChartEditSections'
 
 const editorPanel = useEditorPanel()
 const { viewMode, activeTab, canvasMode, showDimensions } = storeToRefs(editorPanel)
-const { selectTab } = editorPanel
+const { selectTab, setLastNarrowEditTab } = editorPanel
 const { mode: panelMode } = usePanel()
 const { isNarrow } = useBreakpoint()
 
@@ -110,9 +106,15 @@ const drawerOpen = computed({
 // the explicit entry point.
 watch(panelMode, (mode) => {
   if (mode === 'drawer' && activeTab.value) {
+    setLastNarrowEditTab(activeTab.value)
     selectTab('')
   }
 }, { immediate: true })
+
+function onDrawerTabPick(tab: string) {
+  setLastNarrowEditTab(tab)
+  selectTab(tab)
+}
 
 const tabs = computed(() =>
   sections.value.map(s => ({ key: s.key, label: s.label, icon: s.icon })),
