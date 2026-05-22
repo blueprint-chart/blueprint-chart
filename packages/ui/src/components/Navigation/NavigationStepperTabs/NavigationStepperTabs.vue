@@ -2,7 +2,7 @@
 import IconPhCheck from '~icons/ph/check'
 import type { Component } from 'vue'
 
-interface StepEntry {
+export interface StepEntry {
   label: string
   key?: string
   icon?: Component
@@ -186,6 +186,11 @@ function onKeydown(event: KeyboardEvent, index: number) {
       opacity: 0.4;
       cursor: not-allowed;
       pointer-events: none;
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: var(--bc-focus-ring);
     }
 
     &__icon {
