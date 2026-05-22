@@ -67,6 +67,7 @@ defineEmits<{
 
 <style scoped lang="scss">
 .scene-list-item-row {
+  position: relative;
   display: flex;
   align-items: stretch;
   list-style: none;
@@ -130,6 +131,9 @@ defineEmits<{
     display: flex;
     flex-direction: column;
     gap: 0.125rem;
+    // Reserve space at the top-right corner for the absolutely-positioned
+    // remove button so the SCENE label / name / hint don't slide under it.
+    padding-right: 1.75rem;
   }
 
   &__label {
@@ -161,17 +165,19 @@ defineEmits<{
 }
 
 .scene-list-item__remove {
+  position: absolute;
+  top: 0.25rem;
+  right: 0.25rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
-  align-self: center;
-  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
   border: none;
   border-radius: var(--bc-radius-sm);
   background: transparent;
   color: var(--bs-secondary-color);
+  font-size: var(--bs-font-size-sm);
   cursor: pointer;
   transition:
     background-color var(--bc-duration-base) var(--bc-ease),
