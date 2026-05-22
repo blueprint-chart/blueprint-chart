@@ -28,24 +28,30 @@ const emit = defineEmits<{
   reorder: [{ from: number, to: number }]
 }>()
 
-const listEl = ref<HTMLUListElement | null>(null)
+const listEl = ref<HTMLElement | null>(null)
 
 let sortable: Sortable | null = null
 
 onMounted(() => {
-  if (!listEl.value) return
+  if (!listEl.value) {
+    return
+  }
   sortable = Sortable.create(listEl.value, {
     handle: '.scene-list-item__handle',
     filter: '[data-not-sortable]',
     animation: 150,
     onMove: (evt) => {
-      if (evt.newIndex === 0) return false
+      if (evt.newIndex === 0) {
+        return false
+      }
       return true
     },
     onEnd: (evt) => {
       const from = evt.oldIndex
       const to = evt.newIndex
-      if (typeof from !== 'number' || typeof to !== 'number' || from === to) return
+      if (typeof from !== 'number' || typeof to !== 'number' || from === to) {
+        return
+      }
       emit('reorder', { from, to })
     },
   })
