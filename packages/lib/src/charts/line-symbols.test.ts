@@ -143,6 +143,41 @@ describe('renderLineSymbols', () => {
     expect(afterElements[2]).toBe(originalElements[2])
   })
 
+  // ── N7: shape transition cleans up the previous tag ─────────────
+
+  it('cleans up old <path> nodes when switching from a path-symbol to circle', () => {
+    const sel = d3.select(g) as unknown as d3.Selection<SVGGElement, unknown, null, undefined>
+    renderLineSymbols(sel, points, 3, { symbol: 'diamond', showOn: 'all', size: 4 })
+    expect(g.querySelectorAll('path.bc-symbol')).toHaveLength(3)
+
+    renderLineSymbols(sel, points, 3, { symbol: 'circle', showOn: 'all', size: 4 })
+    // Only circles should remain after the shape transition.
+    expect(g.querySelectorAll('circle.bc-symbol')).toHaveLength(3)
+    expect(g.querySelectorAll('path.bc-symbol')).toHaveLength(0)
+  })
+
+  it('cleans up old <circle> nodes when switching from circle to a path-symbol', () => {
+    const sel = d3.select(g) as unknown as d3.Selection<SVGGElement, unknown, null, undefined>
+    renderLineSymbols(sel, points, 3, { symbol: 'circle', showOn: 'all', size: 4 })
+    expect(g.querySelectorAll('circle.bc-symbol')).toHaveLength(3)
+
+    renderLineSymbols(sel, points, 3, { symbol: 'diamond', showOn: 'all', size: 4 })
+    expect(g.querySelectorAll('path.bc-symbol')).toHaveLength(3)
+    expect(g.querySelectorAll('circle.bc-symbol')).toHaveLength(0)
+  })
+
+  it('handles diamond → circle → diamond transitions without leaking nodes', () => {
+    const sel = d3.select(g) as unknown as d3.Selection<SVGGElement, unknown, null, undefined>
+    renderLineSymbols(sel, points, 3, { symbol: 'diamond', showOn: 'all', size: 4 })
+    renderLineSymbols(sel, points, 3, { symbol: 'circle', showOn: 'all', size: 4 })
+    renderLineSymbols(sel, points, 3, { symbol: 'diamond', showOn: 'all', size: 4 })
+    // After three transitions only the final shape's nodes should remain.
+    expect(g.querySelectorAll('path.bc-symbol')).toHaveLength(3)
+    expect(g.querySelectorAll('circle.bc-symbol')).toHaveLength(0)
+    // Sanity: the symbol selector matches exactly the expected three nodes.
+    expect(g.querySelectorAll('.bc-symbol')).toHaveLength(3)
+  })
+
   it('applies transition to updated circle positions', () => {
     const sel = d3.select(g) as unknown as d3.Selection<SVGGElement, unknown, null, undefined>
     renderLineSymbols(sel, points, 3, { symbol: 'circle', showOn: 'all', size: 4 })

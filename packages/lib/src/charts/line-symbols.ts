@@ -52,7 +52,12 @@ export function renderLineSymbols(
   const duration = transition ? getDefaultTransitionMs() : 0
 
   if (symbol === SymbolShape.Circle) {
-    const joined = parent.selectAll<SVGCircleElement, typeof visible[number]>('.bc-symbol')
+    // Remove any path-based symbols left over from a previous render with a
+    // different shape, otherwise the `.bc-symbol` selector would match both
+    // circles and paths on the next data-join.
+    parent.selectAll('path.bc-symbol').remove()
+
+    const joined = parent.selectAll<SVGCircleElement, typeof visible[number]>('circle.bc-symbol')
       .data(visible)
       .join(
         enter => enter.append('circle')
@@ -85,7 +90,12 @@ export function renderLineSymbols(
     const area = Math.PI * size * size
     const pathGen = d3.symbol().type(symbolType).size(area)
 
-    const joined = parent.selectAll<SVGPathElement, typeof visible[number]>('.bc-symbol')
+    // Remove any circle-based symbols left over from a previous render with a
+    // different shape, otherwise the `.bc-symbol` selector would match both
+    // circles and paths on the next data-join.
+    parent.selectAll('circle.bc-symbol').remove()
+
+    const joined = parent.selectAll<SVGPathElement, typeof visible[number]>('path.bc-symbol')
       .data(visible)
       .join(
         enter => enter.append('path')
