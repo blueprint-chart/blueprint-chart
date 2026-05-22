@@ -44,7 +44,8 @@ function serializeData(data: DataNode, indent: string): string {
 }
 
 function serializeColorize(colorize: ColorizeNode, indent: string): string {
-  const lines = [`${indent}colorize "${colorize.target}" {`]
+  const keyword = colorize.fromHighlight ? 'highlight' : 'colorize'
+  const lines = [`${indent}${keyword} "${colorize.target}" {`]
   for (const prop of colorize.properties) {
     lines.push(serializeProperty(prop, `${indent}  `))
   }
@@ -53,14 +54,6 @@ function serializeColorize(colorize: ColorizeNode, indent: string): string {
 }
 
 function serializeHighlight(highlight: HighlightNode, indent: string): string {
-  if (highlight.properties && highlight.properties.length > 0) {
-    const lines = [`${indent}highlight "${highlight.target}" {`]
-    for (const prop of highlight.properties) {
-      lines.push(serializeProperty(prop, `${indent}  `))
-    }
-    lines.push(`${indent}}`)
-    return lines.join('\n')
-  }
   return `${indent}highlight "${highlight.target}"`
 }
 

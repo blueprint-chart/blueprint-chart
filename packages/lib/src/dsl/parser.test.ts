@@ -679,25 +679,28 @@ describe('parser', () => {
   })
 
   describe('highlight with body', () => {
-    it('parses "highlight" keyword with body as HighlightNode with properties', () => {
+    it('parses body-form "highlight" as a ColorizeNode tagged fromHighlight', () => {
       const ast = parse('chart bar {\n  highlight "X" {\n    color = "#ff0"\n  }\n}')
-      expect(ast.colorizes).toHaveLength(0)
-      expect(ast.highlights).toHaveLength(1)
-      expect(ast.highlights[0].type).toBe(DslNodeType.Highlight)
-      expect(ast.highlights[0].target).toBe('X')
-      expect(ast.highlights[0].properties).toHaveLength(1)
-      expect(ast.highlights[0].properties[0].value).toBe('#ff0')
+      expect(ast.highlights).toHaveLength(0)
+      expect(ast.colorizes).toHaveLength(1)
+      expect(ast.colorizes[0].type).toBe(DslNodeType.Colorize)
+      expect(ast.colorizes[0].target).toBe('X')
+      expect(ast.colorizes[0].fromHighlight).toBe(true)
+      expect(ast.colorizes[0].properties).toHaveLength(1)
+      expect(ast.colorizes[0].properties[0].value).toBe('#ff0')
     })
 
-    it('round-trips highlight with body through parse and serialize', () => {
+    it('round-trips body-form highlight back to the highlight keyword via fromHighlight', () => {
       const dsl = 'chart bar {\n  highlight "X" {\n    color = "#f00"\n  }\n}'
       const ast1 = parse(dsl)
-      const ast2 = parse(serialize(ast1))
-      expect(ast2.highlights).toHaveLength(1)
-      expect(ast2.highlights[0].target).toBe('X')
-      expect(ast2.highlights[0].properties).toHaveLength(1)
-      expect(ast2.highlights[0].properties[0].key).toBe('color')
-      expect(ast2.highlights[0].properties[0].value).toBe('#f00')
+      const serialized = serialize(ast1)
+      expect(serialized).toContain('highlight "X"')
+      expect(serialized).not.toContain('colorize "X"')
+      const ast2 = parse(serialized)
+      expect(ast2.colorizes).toHaveLength(1)
+      expect(ast2.colorizes[0].fromHighlight).toBe(true)
+      expect(ast2.colorizes[0].properties[0].key).toBe('color')
+      expect(ast2.colorizes[0].properties[0].value).toBe('#f00')
     })
   })
 

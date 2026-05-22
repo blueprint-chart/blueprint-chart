@@ -17,6 +17,7 @@ export interface ColorizeNode {
   type: DslNodeType.Colorize
   target: string
   properties: PropertyNode[]
+  fromHighlight?: boolean
 }
 
 export interface HighlightNode {

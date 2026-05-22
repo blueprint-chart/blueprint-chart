@@ -117,7 +117,7 @@ Colorize
 
 Highlight
   = "highlight" __ target:String _ "{" _ props:BlockProperty* _ "}"
-  { return { type: 'highlight', target, properties: props }; }
+  { return { type: 'colorize', target, properties: props, fromHighlight: true }; }
   / "highlight" __ target:String
   { return { type: 'highlight', target, properties: [] }; }
 
