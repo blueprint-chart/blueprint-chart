@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { computeLinearDomain, filterLabelsByRange, resolveBarGapPadding, DEFAULT_BAR_GAP } from './scale-helpers'
+import { ScaleType } from '../enums'
 
 describe('computeLinearDomain', () => {
   it('returns [0, max] for positive-only data', () => {
@@ -81,6 +82,54 @@ describe('computeLinearDomain', () => {
     const [lo, hi] = computeLinearDomain([5, 10, 15], { min: -50 })
     expect(lo).toBe(-50)
     expect(hi).toBe(15)
+  })
+
+  // ── N1: numeric robustness ───────────────────────────────────────
+
+  it('handles 200_000 values without blowing the argument limit', () => {
+    const values: number[] = []
+    for (let i = 0; i < 200_000; i++) {
+      values.push(i)
+    }
+    // Math.min(0, ...values) would throw RangeError at ~64–125k entries.
+    const [lo, hi] = computeLinearDomain(values)
+    expect(lo).toBe(0)
+    expect(hi).toBe(199_999)
+  })
+
+  it('ignores non-finite values when computing the domain', () => {
+    const [lo, hi] = computeLinearDomain([1, 2, NaN, Infinity, -Infinity, 3])
+    expect(lo).toBe(0)
+    expect(hi).toBe(3)
+  })
+
+  // ── N2: log-scale domain ─────────────────────────────────────────
+
+  it('linear scale (default) still 0-anchors positive data', () => {
+    expect(computeLinearDomain([5, 10, 15], undefined, ScaleType.Linear)).toEqual([0, 15])
+  })
+
+  it('log scale uses min(values) as the floor for positive-only data', () => {
+    const [lo, hi] = computeLinearDomain([5, 10, 15], undefined, ScaleType.Log)
+    expect(lo).toBe(5)
+    expect(hi).toBe(15)
+  })
+
+  it('log scale falls back to 0-anchor when any value is non-positive', () => {
+    // Symlog can handle non-positive, so keep current behaviour in that case.
+    expect(computeLinearDomain([-1, 5, 10], undefined, ScaleType.Log)).toEqual([-1, 10])
+    expect(computeLinearDomain([0, 5, 10], undefined, ScaleType.Log)).toEqual([0, 10])
+  })
+
+  it('log scale honours an explicit range.min', () => {
+    const [lo, hi] = computeLinearDomain([5, 10, 100], { min: 1 }, ScaleType.Log)
+    expect(lo).toBe(1)
+    expect(hi).toBe(100)
+  })
+
+  it('omitting scaleType preserves backward-compatible behaviour', () => {
+    // Existing callers (and earlier tests above) should be unaffected.
+    expect(computeLinearDomain([5, 10, 15])).toEqual([0, 15])
   })
 })
 

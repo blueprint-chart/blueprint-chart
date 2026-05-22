@@ -1,4 +1,5 @@
 import { parseDateOrNumber } from './date-parse'
+import { ScaleType } from '../enums'
 
 /**
  * Filter chart labels (and corresponding data) by a horizontal axis range.
@@ -46,9 +47,42 @@ export function resolveBarGapPadding(barGap?: number): number {
 export function computeLinearDomain(
   values: number[],
   range?: { min?: number, max?: number },
+  scaleType?: ScaleType,
 ): [number, number] {
-  const dataMin = Math.min(0, ...values)
-  const dataMax = Math.max(0, ...values)
+  // Compute min/max via iteration to avoid blowing the argument limit
+  // (Math.min(0, ...values) overflows at ~64–125k entries).
+  // Track both the data extent and whether every finite value is positive,
+  // so log scales can opt out of the 0-anchor below.
+  let dataMin = 0
+  let dataMax = 0
+  let posMin = Infinity
+  let allPositive = true
+  let hasFinite = false
+  for (const v of values) {
+    if (!Number.isFinite(v)) {
+      continue
+    }
+    hasFinite = true
+    if (v < dataMin) {
+      dataMin = v
+    }
+    if (v > dataMax) {
+      dataMax = v
+    }
+    if (v <= 0) {
+      allPositive = false
+    }
+    else if (v < posMin) {
+      posMin = v
+    }
+  }
+
+  // Log scales can't render 0/negative baselines; when every value is positive
+  // use min(values) as the floor instead of forcing 0.
+  if (scaleType === ScaleType.Log && hasFinite && allPositive) {
+    dataMin = posMin
+  }
+
   let lo = range?.min ?? dataMin
   let hi = range?.max ?? dataMax
 
