@@ -106,6 +106,7 @@ export { default as GalleryGrid } from './components/Gallery/GalleryGrid/Gallery
 export { default as SceneTimeline } from './components/Scene/SceneTimeline/SceneTimeline.vue'
 export { default as SceneTimelineControls } from './components/Scene/SceneTimeline/SceneTimelineControls.vue'
 export { default as SceneTimelineItem } from './components/Scene/SceneTimelineItem/SceneTimelineItem.vue'
+export { default as SceneTimelineCompact } from './components/Scene/SceneTimelineCompact/SceneTimelineCompact.vue'
 
 export { default as ScenePlayerProgressBar } from './components/Scene/ScenePlayer/ScenePlayerProgressBar.vue'
 export { default as ScenePlayerDotStepper } from './components/Scene/ScenePlayer/ScenePlayerDotStepper.vue'
