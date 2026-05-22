@@ -1,6 +1,5 @@
 <template>
   <PanelIconRail
-    :horizontal="horizontal"
     :active-tab="activeTab"
     :items="items"
     @select="selectTab"
@@ -12,10 +11,6 @@
 import { useEditorPanel } from '@/stores/editorPanel'
 import { usePanel } from '@/stores/panel'
 import { useChartEditSections } from '@/composables/useChartEditSections'
-
-defineProps<{
-  horizontal?: boolean
-}>()
 
 const editorPanel = useEditorPanel()
 const { activeTab } = storeToRefs(editorPanel)

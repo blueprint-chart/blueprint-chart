@@ -2,13 +2,9 @@
   <NavigationIconRail
     :model-value="activeTab"
     :items="items"
-    :horizontal="horizontal"
     @update:model-value="onSelect"
   >
-    <template
-      v-if="!horizontal"
-      #footer
-    >
+    <template #footer>
       <ButtonIcon
         :icon-left="IPhSidebarSimple"
         :label="toggleLabel"
@@ -29,7 +25,6 @@ import { usePanel } from '@/stores/panel'
 import IPhSidebarSimple from '~icons/ph/sidebar-simple'
 
 defineProps<{
-  horizontal?: boolean
   activeTab: string
   items: { value: string, icon: Component, tooltip: string }[]
 }>()
@@ -41,10 +36,6 @@ const emit = defineEmits<{
 
 const { mode: panelMode, open } = usePanel()
 
-// Selecting a rail entry while the panel is closed should re-open it. In
-// drawer mode, the consumer's drawerOpen v-model is already derived from
-// activeTab/dataPanelTab, so setting the tab via `select` will reopen the
-// drawer naturally.
 function onSelect(tab: string | number) {
   if (panelMode.value === 'closed') {
     open()

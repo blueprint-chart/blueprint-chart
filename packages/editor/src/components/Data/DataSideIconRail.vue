@@ -1,6 +1,5 @@
 <template>
   <PanelIconRail
-    :horizontal="horizontal"
     :active-tab="dataPanelTab"
     :items="items"
     @select="onSelect"
@@ -14,7 +13,6 @@ import { usePanel } from '@/stores/panel'
 import { useDataSections } from '@/composables/useDataSections'
 
 const props = withDefaults(defineProps<{
-  horizontal?: boolean
   disabledTabs?: string[]
 }>(), {
   disabledTabs: () => [],

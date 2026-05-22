@@ -1,6 +1,5 @@
 <template>
   <PanelIconRail
-    :horizontal="horizontal"
     :active-tab="exportTab"
     :items="items"
     @select="onSelect"
@@ -12,10 +11,6 @@
 import { usePanel } from '@/stores/panel'
 import { useExportPanel, type ExportTab } from '@/stores/exportPanel'
 import { useExportSections } from '@/composables/useExportSections'
-
-defineProps<{
-  horizontal?: boolean
-}>()
 
 const { mode: panelMode, toggleMode } = usePanel()
 const exportPanelStore = useExportPanel()
