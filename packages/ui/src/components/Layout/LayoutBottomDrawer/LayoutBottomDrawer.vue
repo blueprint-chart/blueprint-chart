@@ -97,8 +97,7 @@ const drawerStyle = computed<CSSProperties>(() =>
   left: 0;
   right: 0;
   z-index: 1050;
-  height: auto;
-  max-height: var(--bc-drawer-height);
+  height: var(--bc-drawer-height);
   display: flex;
   flex-direction: column;
   background: var(--bc-tile-bg);

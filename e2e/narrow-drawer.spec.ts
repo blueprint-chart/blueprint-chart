@@ -121,20 +121,6 @@ test.describe('Narrow viewport - scenes sheet', () => {
     await expect(sheet.locator('.scene-list__add', { hasText: 'Add scene' })).toBeVisible()
   })
 
-  test('drawer adapts to content height - not fixed at 70vh', async ({ page }) => {
-    await goToVisualizeStep(page)
-
-    await page.locator('.scene-timeline-compact__expand').click()
-    await page.waitForTimeout(300)
-
-    const sheet = page.locator('.layout-bottom-drawer')
-    const box = await sheet.boundingBox()
-    expect(box).not.toBeNull()
-    // The viewport is 800 px tall; 70 vh would be 560 px. With just the
-    // base row, the sheet should be well below that.
-    expect(box!.height).toBeLessThan(400)
-  })
-
   test('+ Add scene adds a row', async ({ page }) => {
     await goToVisualizeStep(page)
 
