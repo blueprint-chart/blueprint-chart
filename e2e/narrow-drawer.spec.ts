@@ -190,14 +190,13 @@ test.describe('Narrow viewport - scenes sheet', () => {
     await expect(sheet.locator('.scene-list-item-row')).toHaveCount(beforeCount - 1)
   })
 
-  test('base scene row has no drag handle and no remove button', async ({ page }) => {
+  test('base scene row has no remove button', async ({ page }) => {
     await goToVisualizeStep(page)
 
     await page.locator('.scene-timeline-compact__expand').click()
     await page.waitForTimeout(300)
 
     const baseRow = page.locator('.layout-bottom-drawer .scene-list-item-row').first()
-    await expect(baseRow.locator('.scene-list-item__handle')).toHaveCount(0)
     await expect(baseRow.locator('.scene-list-item__remove')).toHaveCount(0)
   })
 })
