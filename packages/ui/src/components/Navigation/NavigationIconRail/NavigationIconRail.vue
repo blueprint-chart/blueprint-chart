@@ -1,8 +1,5 @@
 <template>
-  <nav
-    class="navigation-icon-rail"
-    :class="railClassList"
-  >
+  <nav class="navigation-icon-rail">
     <slot />
     <ButtonIcon
       v-for="item in resolvedItems"
@@ -36,20 +33,14 @@ const model = defineModel<string>({ required: true })
 
 const props = withDefaults(defineProps<{
   items?: { value: string, icon: Component, tooltip: string }[]
-  horizontal?: boolean
 }>(), {
   items: () => [],
-  horizontal: false,
 })
 
 const { entries } = useChildEntriesProvider(IconRailEntriesKey)
 const resolvedItems = computed(() =>
   entries.value.length > 0 ? entries.value : props.items,
 )
-
-const railClassList = computed(() => ({
-  'navigation-icon-rail--horizontal': props.horizontal,
-}))
 
 function buttonClassList(value: string) {
   return { 'navigation-icon-rail__button--active': model.value === value }
@@ -90,21 +81,6 @@ function buttonClassList(value: string) {
     }
   }
 
-  &--horizontal {
-    flex-direction: row;
-    width: auto;
-    height: auto;
-    padding: 0.25rem 0.5rem;
-    border-left: none;
-    border-bottom: none;
-    overflow-x: auto;
-    scrollbar-width: none;
-
-    &::-webkit-scrollbar {
-      display: none;
-    }
-  }
-
   &__spacer {
     flex: 1;
   }
@@ -114,10 +90,6 @@ function buttonClassList(value: string) {
     flex-direction: column;
     align-items: center;
     gap: 0.25rem;
-
-    .navigation-icon-rail--horizontal & {
-      flex-direction: row;
-    }
 
     :deep(.btn) {
       display: flex;
