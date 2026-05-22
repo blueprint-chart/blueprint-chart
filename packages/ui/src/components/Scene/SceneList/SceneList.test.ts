@@ -1,11 +1,19 @@
 import { mount } from '@vue/test-utils'
 import SceneList from './SceneList.vue'
 
-const sortableInstances: Array<{ options: Record<string, unknown>, destroy: () => void }> = []
+interface SortableMockOptions {
+  handle?: string
+  filter?: string
+  animation?: number
+  onMove: (evt: { newIndex: number, related?: { dataset: Record<string, string> } }) => boolean | void
+  onEnd: (evt: { oldIndex: number | undefined, newIndex: number | undefined }) => void
+}
+
+const sortableInstances: Array<{ options: SortableMockOptions, destroy: () => void }> = []
 
 vi.mock('sortablejs', () => ({
   default: {
-    create: vi.fn((_el: HTMLElement, options: Record<string, unknown>) => {
+    create: vi.fn((_el: HTMLElement, options: SortableMockOptions) => {
       const instance = { options, destroy: vi.fn() }
       sortableInstances.push(instance)
       return instance
