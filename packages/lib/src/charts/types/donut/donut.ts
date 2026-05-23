@@ -3,7 +3,7 @@ import 'd3-transition'
 import chroma from 'chroma-js'
 import { D3Blueprint } from 'd3-blueprint'
 import type { ChartData, ChartOptions } from '../../types'
-import { getDefaultTransitionMs, setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut } from '../../motion'
+import { setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut } from '../../motion'
 import { getCachedChart, setCachedChart } from '../../transition-cache'
 import { SortDirection, DirectLabelMode } from '../../../enums'
 import { createFrame } from '../../frame/frame'
@@ -15,53 +15,25 @@ import { createAnnotationPlugin, snapshotAnnotations, type AnnotationSnapshot } 
 import { resolveBackgroundColor } from '../../contrast'
 import { renderArcLabels, renderInsideArcLabels, renderAutoArcLabels, estimateArcLabelMargins } from '../../plugins/arc-labels'
 import type { ArcLabelDatum } from '../../plugins/arc-labels'
+import { featureJoin, getSceneTransition } from '../../../transitions'
 
 export const DEFAULT_COLORS = [
   '#4e79a7', '#f28e2b', '#e15759', '#76b7b2',
   '#59a14f', '#edc948', '#b07aa1', '#ff9da7',
 ]
 
-class ArcChart extends D3Blueprint<d3.PieArcDatum<number>[]> {
-  initialize() {
-    this.configDefine('arc', { defaultValue: d3.arc<d3.PieArcDatum<number>>() })
-    this.configDefine('colorScale', { defaultValue: d3.scaleOrdinal<string>() })
-    this.configDefine('labels', { defaultValue: [] as string[] })
+interface ArcDatum {
+  label: string
+  arc: d3.PieArcDatum<number>
+  color: string
+}
 
-    const g = this.base.append('g')
-
-    this.layer('arcs', g, {
-      dataBind: (sel, data) => {
-        const labels = this.config('labels') as string[]
-        return sel.selectAll<Element, d3.PieArcDatum<number>>('.bc-arc').data(data, (_d, i) => labels[i])
-      },
-      insert: sel => sel.append('path').attr('class', 'bc-arc'),
-      events: {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        'enter': (sel: any) => {
-          const arcGen = this.config('arc') as d3.Arc<unknown, d3.PieArcDatum<number>>
-          const colorScale = this.config('colorScale') as d3.ScaleOrdinal<string, string>
-          const labels = this.config('labels') as string[]
-          sel
-            .attr('d', arcGen)
-            .attr('fill', (_d: d3.PieArcDatum<number>, i: number) => colorScale(labels[i]))
-        },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        'merge:transition': (sel: any) => {
-          const arcGen = this.config('arc') as d3.Arc<unknown, d3.PieArcDatum<number>>
-          const colorScale = this.config('colorScale') as d3.ScaleOrdinal<string, string>
-          const labels = this.config('labels') as string[]
-          sel.duration(getDefaultTransitionMs())
-            .attr('d', arcGen)
-            .attr('fill', (_d: d3.PieArcDatum<number>, i: number) => colorScale(labels[i]))
-        },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        'exit:transition': (sel: any) => {
-          sel.duration(getDefaultTransitionMs())
-            .attr('opacity', 0)
-            .remove()
-        },
-      },
-    })
+class ArcChart extends D3Blueprint<ArcDatum[]> {
+  initialize(): void {
+    // Arc slices are rendered via featureJoin against the SceneTransition
+    // orchestrator (see renderArc()). This class is retained only as a host
+    // for legacy plugins (tooltips, annotations) that consume the
+    // D3Blueprint API. Plugins will migrate to the orchestrator in later stages.
   }
 }
 
@@ -82,17 +54,12 @@ export function renderArc(
   transition = false,
 ): void {
   setRenderTransition(transition)
-  // Preserve existing arc elements for smooth D3 data-join transitions
-  let priorArcs: Element[] = []
   let fadeOverlay: HTMLElement | null = null
   let priorAnnotations: Map<string, AnnotationSnapshot> | undefined
   if (transition) {
     const cached = getCachedChart(container)
     const expectedType = innerRadiusRatio > 0 ? 'donut' : 'pie'
-    if (cached?.chartType === expectedType) {
-      priorArcs = Array.from(container.querySelectorAll('.bc-frame .bc-arc'))
-    }
-    else if (cached) {
+    if (cached && cached.chartType !== expectedType) {
       fadeOverlay = snapshotForFadeOut(container)
     }
     priorAnnotations = new Map()
@@ -225,20 +192,40 @@ export function renderArc(
     .attr('transform', `translate(${width / 2},${height / 2})`)
 
   const pieData = pie(values)
+  const arcData: ArcDatum[] = pieData.map((arc, i) => ({
+    label: labels[i],
+    arc,
+    color: colorScale(labels[i]),
+  }))
 
+  const orch = getSceneTransition(container)
+
+  // Arc slices — one feature per category, keyed by label.
+  const arcLayer = centerGroup.append('g').node()!
+  featureJoin<ArcDatum>(orch, {
+    role: 'mark-per-category',
+    parent: arcLayer,
+    selector: '.bc-arc',
+    data: arcData,
+    key: d => d.label,
+    insert: sel => sel.append('path').attr('class', 'bc-arc'),
+    attrs: (d) => {
+      const dStr = arcGen(d.arc) ?? ''
+      return {
+        d: dStr,
+        fill: d.color,
+      }
+    },
+  })
+
+  // Plugins host — kept on the legacy D3Blueprint path. Mounting on
+  // centerGroup so plugins find the `.bc-arc` elements that featureJoin
+  // just inserted under arcLayer.
   const chart = new ArcChart(centerGroup)
-  chart.config({ arc: arcGen, colorScale, labels })
-
-  // Re-insert prior arc elements so D3 data-join finds them and triggers merge:transition
-  if (priorArcs.length > 0) {
-    const layerG = centerGroup.node()!.querySelector('g')!
-    priorArcs.forEach(el => layerG.appendChild(el))
-  }
-
   if (options.tooltips) {
     chart.use(createTooltipPlugin())
   }
-  chart.draw(pieData)
+  chart.draw(arcData)
 
   // Render annotations at chartArea level (not centerGroup) so coordinates
   // are relative to the plot area origin, not the center-translated arc group
