@@ -95,3 +95,20 @@ export type { ChartSample } from './samples'
 // Unified render API
 export { renderBpc, renderChart, astToDefinition, resolveScene } from './render'
 export type { ChartDefinition, RenderOptions, ResolvedChartState } from './render'
+
+// Transitions (orchestrator, feature-join primitive, snapshot helper)
+export {
+  SceneTransition,
+  getSceneTransition,
+  featureJoin,
+  snapshotLiveAttrs,
+} from './transitions'
+export type {
+  CommitOptions,
+  TransitionMode,
+  SceneTransitionState,
+  FeatureRole,
+  FeatureJoinConfig,
+  AttrMap,
+  AttrValue,
+} from './transitions'
