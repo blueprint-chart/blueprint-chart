@@ -64,11 +64,16 @@ describe('createFrame', () => {
     expect(span!.textContent).toBe('Source: Reuters')
   })
 
-  it('always renders credit', () => {
+  it('renders the credit as a clickable link', () => {
     const { footer } = createFrame(container)
-    const credit = footer.querySelector('span.bc-frame-credit')
+    const credit = footer.querySelector('.bc-frame-credit')
     expect(credit).not.toBeNull()
+    expect(credit!.tagName).toBe('A')
+    expect(credit!.getAttribute('href')).toBe(import.meta.env.BASE_URL)
+    expect(credit!.getAttribute('target')).toBe('_blank')
+    expect(credit!.getAttribute('rel')).toBe('noopener noreferrer')
     expect(credit!.textContent).toBe('Blueprint Chart')
+    expect(credit!.querySelector('svg')).not.toBeNull()
   })
 
   it('renders empty header when no header options', () => {
