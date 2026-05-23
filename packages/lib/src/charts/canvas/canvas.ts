@@ -68,6 +68,8 @@ class CanvasChart extends D3Blueprint<Margin[]> {
 }
 
 const AUTO_INSIDE_THRESHOLD = 400
+/** Px reserved between inside-mode tick labels and the SVG content edge. */
+const INSIDE_LABEL_EDGE_BUFFER = 2
 const LABEL_PADDING = 2
 // d3 axisLeft positions text at x=-9 (inner tick size 6 + padding 3)
 const D3_AXIS_LABEL_OFFSET = 9
@@ -176,7 +178,10 @@ export function labelPositionMargins(
   const vLabelsHidden = effectiveV === 'off'
   if (vDir === 'right') {
     overrides.left = 0
-    if (vLabelsInside || vLabelsHidden) {
+    if (vLabelsInside) {
+      overrides.right = INSIDE_LABEL_EDGE_BUFFER
+    }
+    else if (vLabelsHidden) {
       overrides.right = 0
     }
     else {
@@ -185,7 +190,10 @@ export function labelPositionMargins(
   }
   else {
     overrides.right = (showHorizontalAxis !== false) ? 15 : 0
-    if (vLabelsInside || vLabelsHidden) {
+    if (vLabelsInside) {
+      overrides.left = INSIDE_LABEL_EDGE_BUFFER
+    }
+    else if (vLabelsHidden) {
       overrides.left = 0
     }
     else {

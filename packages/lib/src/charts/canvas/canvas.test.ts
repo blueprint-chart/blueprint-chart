@@ -91,4 +91,22 @@ describe('labelPositionMargins', () => {
     const result = labelPositionMargins(800, undefined, 'off')
     expect(result.bottom).toBe(5)
   })
+
+  it('reserves a 2px left buffer in auto/inside mode for left-axis charts', () => {
+    // containerWidth < 400 triggers AUTO_INSIDE_THRESHOLD => inside mode.
+    // Default vDir is 'left'.
+    const result = labelPositionMargins(300)
+    expect(result.left).toBe(2)
+  })
+
+  it('reserves a 2px right buffer in auto/inside mode for right-axis charts', () => {
+    const result = labelPositionMargins(300, undefined, undefined, 'right')
+    expect(result.right).toBe(2)
+  })
+
+  it('keeps off-mode label margin at 0 (no buffer needed when labels are hidden)', () => {
+    // Explicit 'off' label position must NOT receive the inside buffer.
+    const result = labelPositionMargins(300, 'off')
+    expect(result.left).toBe(0)
+  })
 })
