@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { createFrame } from './frame'
 
 describe('createFrame', () => {
@@ -81,5 +81,52 @@ describe('createFrame', () => {
     createFrame(container, { title: 'Second' })
     const titles = container.querySelectorAll('.bc-frame-title')
     expect(titles.length).toBeGreaterThan(0)
+  })
+
+  describe('constrained-frame mode', () => {
+    let host: HTMLElement
+
+    beforeEach(() => {
+      host = document.createElement('div')
+      host.style.display = 'flex'
+      host.style.flexDirection = 'column'
+      document.body.appendChild(host)
+    })
+
+    afterEach(() => {
+      host.remove()
+    })
+
+    const stubHeight = (el: HTMLElement, h: number) => {
+      Object.defineProperty(el, 'offsetHeight', { configurable: true, get: () => h })
+    }
+
+    const stubHeights = (container: HTMLElement, headerH: number, footerH: number, noteH = 0) => {
+      const header = container.querySelector('.bc-frame-header') as HTMLElement
+      const footer = container.querySelector('.bc-frame-footer') as HTMLElement
+      const note = container.querySelector('.bc-frame-note') as HTMLElement
+      stubHeight(header, headerH)
+      stubHeight(footer, footerH)
+      if (note) {
+        stubHeight(note, noteH)
+        if (noteH > 0) note.style.display = 'block'
+      }
+    }
+
+    it('shrinks headerH dataset when description shrinks across renders', () => {
+      createFrame(host, { title: 'T', description: 'Long multi-line description that wraps' })
+      stubHeights(host, 80, 20)
+      createFrame(host, { title: 'T', description: 'Long multi-line description that wraps' })
+      const body1 = host.querySelector('.bc-frame-body') as HTMLElement
+      const firstHeaderH = Number(body1.dataset.headerH)
+
+      stubHeights(host, 30, 20)
+      createFrame(host, { title: 'T' })
+      const body2 = host.querySelector('.bc-frame-body') as HTMLElement
+      const secondHeaderH = Number(body2.dataset.headerH)
+
+      expect(secondHeaderH).toBeLessThan(firstHeaderH)
+      expect(secondHeaderH).toBe(30)
+    })
   })
 })
