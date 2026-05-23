@@ -196,3 +196,45 @@ describe('SceneTransition reduced motion', () => {
     container.remove()
   })
 })
+
+describe('SceneTransition mode dispatch', () => {
+  beforeEach(() => { vi.unstubAllGlobals() })
+  afterEach(() => { vi.restoreAllMocks() })
+
+  it('warns once per unknown mode and snaps to idle', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const t = new SceneTransition(container)
+    t.beginCommit()
+    t.commit({ duration: 500, mode: 'fade' })
+    expect(t.state).toBe('idle')
+    expect(warn).toHaveBeenCalledTimes(1)
+
+    // Second container, same mode — no new warning.
+    const other = document.createElement('div')
+    document.body.appendChild(other)
+    const t2 = new SceneTransition(other)
+    t2.beginCommit()
+    t2.commit({ duration: 500, mode: 'fade' })
+    expect(warn).toHaveBeenCalledTimes(1)
+
+    // Different unknown mode — warns again.
+    t.beginCommit()
+    t.commit({ duration: 500, mode: 'slide-x' })
+    expect(warn).toHaveBeenCalledTimes(2)
+
+    container.remove()
+    other.remove()
+  })
+
+  it('runs animation when mode is "transform"', () => {
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const t = new SceneTransition(container)
+    t.beginCommit()
+    t.commit({ duration: 500, mode: 'transform' })
+    expect(t.state).toBe('animating')
+    container.remove()
+  })
+})

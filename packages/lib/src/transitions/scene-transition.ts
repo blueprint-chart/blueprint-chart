@@ -1,7 +1,9 @@
 import * as d3 from 'd3'
-import { BC_TRANSITION_NAME, type SceneTransitionState } from './types'
+import { BC_TRANSITION_NAME, type SceneTransitionState, type TransitionMode } from './types'
 
 const DEFAULT_DURATION_MS = 500
+
+const warnedModes = new Set<string>()
 
 const registry = new WeakMap<HTMLElement, SceneTransition>()
 
@@ -23,6 +25,8 @@ function dropFromRegistry(container: HTMLElement): void {
 export interface CommitOptions {
   /** Tween duration in ms. `0` snaps without animating (reduced-motion path). */
   duration?: number
+  /** Transition mode. Defaults to `'transform'`. Other values warn-once and snap. */
+  mode?: TransitionMode
 }
 
 /**
@@ -88,6 +92,23 @@ export class SceneTransition {
   commit(opts: CommitOptions = {}): void {
     if (this._state !== 'committing') {
       console.warn(`[blueprint-chart] commit() called from state '${this._state}' — call beginCommit() first; ignored.`)
+      return
+    }
+    const mode: TransitionMode = opts.mode ?? 'transform'
+    if (mode !== 'transform') {
+      if (!warnedModes.has(mode)) {
+        warnedModes.add(mode)
+        console.warn(`[blueprint-chart] transition mode '${mode}' is not yet implemented; falling back to snap.`)
+      }
+      // Snap: run buffered flushes with no transition handle, then idle.
+      const buffered = this._buffer
+      this._buffer = []
+      this._state = 'animating'
+      for (const flush of buffered) {
+        try { flush() }
+        catch (err) { console.warn('[blueprint-chart] feature flush failed:', err) }
+      }
+      this._state = 'idle'
       return
     }
     const requested = opts.duration ?? DEFAULT_DURATION_MS
