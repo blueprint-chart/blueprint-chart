@@ -13,7 +13,7 @@
 | **Latest version** | [![Latest version](https://img.shields.io/github/v/release/blueprint-chart/blueprint-chart?style=flat-square&color=success)](https://github.com/blueprint-chart/blueprint-chart/releases/latest) |
 |   **Release date** | [![Release date](https://img.shields.io/github/release-date/blueprint-chart/blueprint-chart?style=flat-square&color=success)](https://github.com/blueprint-chart/blueprint-chart/releases/latest) |
 |    **Open issues** | [![Open issues](https://img.shields.io/github/issues/blueprint-chart/blueprint-chart?style=flat-square&color=success)](https://github.com/blueprint-chart/blueprint-chart/issues/) |
-|  **Websites** | [![Editor](https://img.shields.io/badge/Editor-2563A0?style=flat-square)](https://blueprintchart.com) |
+|  **Websites** | [![Editor](https://img.shields.io/badge/Editor-2563A0?style=flat-square)](https://blueprintchart.com) [![Docs](https://img.shields.io/badge/Docs-2563A0?style=flat-square)](https://docs.blueprintchart.com) |
 
 </div>
 
@@ -21,18 +21,20 @@ Blueprint Chart lets journalists and developers author **interactive, accessible
 
 ## Architecture
 
-Three packages in a pnpm 10 workspace, wired together via `workspace:*` refs:
+Four packages in a pnpm 10 workspace, wired together via `workspace:*` refs:
 
 ```mermaid
 graph TD
   editor["@blueprint-chart/editor<br/>Vue 3 SPA"] --> ui["@blueprint-chart/ui<br/>Vue components"]
   editor --> lib["@blueprint-chart/lib<br/>Pure TS + D3"]
+  docs["@blueprint-chart/docs<br/>VitePress site + handbook"] -.-> lib
+  docs -.-> ui
   ui --> bootstrap["Bootstrap 5.3 +<br/>BootstrapVueNext"]
   lib --> d3["D3 v7 +<br/>d3-blueprint"]
   lib --> peggy["Peggy DSL<br/>parser"]
 ```
 
-`ui` does **not** depend on `lib`; the editor is the only consumer that composes both. Each package is independently usable and testable.
+`ui` does **not** depend on `lib`; the editor is the only consumer that composes both. `docs` consumes `lib` and `ui` at build time (for the API reference and live samples) but ships its handbook and guides as plain markdown so any tool can re-render them. Each package is independently usable and testable.
 
 ## Packages
 
@@ -42,6 +44,7 @@ graph TD
 <tr><td nowrap><a href="https://www.npmjs.com/package/@blueprint-chart/lib"><code>@blueprint-chart/lib</code></a></td><td>Pure TypeScript + D3 chart engine and Peggy DSL parser. Ships an ESM entry and a standalone IIFE runtime for framework-free embeds.</td></tr>
 <tr><td nowrap><a href="https://www.npmjs.com/package/@blueprint-chart/ui"><code>@blueprint-chart/ui</code></a></td><td>Vue 3 component library (~109 components: forms, panels, navigation, scene timeline, layout). Bootstrap + BootstrapVueNext, with Histoire stories.</td></tr>
 <tr><td nowrap><a href="https://www.npmjs.com/package/@blueprint-chart/editor"><code>@blueprint-chart/editor</code></a></td><td>Vue 3 SPA composing <code>lib</code> + <code>ui</code> into the authoring experience: live CodeMirror 6 DSL editor, Pinia stores, scene playback, export.</td></tr>
+<tr><td nowrap><a href="https://www.npmjs.com/package/@blueprint-chart/docs"><code>@blueprint-chart/docs</code></a></td><td>Public documentation — handbook, guide, BPC DSL spec, and lib API reference. Ships a VitePress site (<a href="https://docs.blueprintchart.com">docs.blueprintchart.com</a>) and a programmatic <code>listDocs</code> / <code>getDoc</code> API + <code>manifest.json</code> for tooling such as <code>@blueprint-chart/mcp</code>.</td></tr>
 </tbody>
 </table>
 
@@ -81,6 +84,14 @@ make dev-story
 
 Histoire serves `packages/ui` stories on **http://localhost:4444**. Every `*.story.vue` file is auto-discovered.
 
+### Docs site
+
+```bash
+make dev-docs
+```
+
+VitePress serves the handbook, guide, DSL spec, and lib API reference from `packages/docs/src/` on **http://localhost:4445**. The same markdown is shipped in the published `@blueprint-chart/docs` package and consumed programmatically by tools like `@blueprint-chart/mcp`.
+
 ### Tests
 
 ```bash
@@ -103,6 +114,7 @@ make build         # build all packages
 make build-lib     # only lib (ES + IIFE runtime)
 make build-editor  # only the editor SPA
 make build-story   # static Histoire site
+make build-docs    # static VitePress docs site (+ manifest.json + api.d.ts)
 make preview       # preview production editor build
 ```
 
@@ -110,7 +122,7 @@ make preview       # preview production editor build
 
 - If you edit `packages/lib/src/dsl/grammar.peggy`, re-run `make build-parser` (or `make install`) to regenerate `grammar.js`.
 - If tests start failing right after a `git pull`, run `make install` once — a changed grammar or lockfile is the usual cause.
-- The editor dev server runs on **5555** (also Playwright's `baseURL`). Histoire runs on **4444**.
+- The editor dev server runs on **5555** (also Playwright's `baseURL`). Histoire runs on **4444**. The docs site runs on **4445**.
 
 ## Further reading
 

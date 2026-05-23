@@ -9,7 +9,7 @@
 
 ## Project Structure (PNPM Monorepo)
 
-Three workspace packages under `packages/`:
+Four workspace packages under `packages/`:
 
 ### `@blueprint-chart/lib` (`packages/lib/`)
 
@@ -40,6 +40,18 @@ Vue 3 + Vite application — the chart editor UI.
 - `src/assets/styles/` — SCSS, Bootstrap imports, CSS variables
 - `src/main.ts`, `src/App.vue`, `src/router.ts` — app entry
 
+### `@blueprint-chart/docs` (`packages/docs/`)
+
+Public documentation — handbook, guide, BPC DSL spec, lib API reference. Published to NPM (markdown + manifest + `listDocs` / `getDoc` API for tooling) and deployed as a VitePress site at `docs.blueprintchart.com`.
+
+- `src/handbook/` — dataviz pedagogy markdown
+- `src/guide/` — usage guides
+- `src/charts/` — per-chart-type docs
+- `src/reference/dsl/`, `src/reference/api/` — BPC DSL spec and lib API reference
+- `src/.vitepress/` — VitePress config and theme
+- `scripts/build-manifest.ts` — builds `dist/manifest.json` from frontmatter
+- `src/api.ts` → `dist/api.{js,d.ts}` — programmatic `listDocs` / `getDoc` for `@blueprint-chart/mcp`
+
 ### Workspace Root
 
 - `pnpm-workspace.yaml` — workspace definition
@@ -52,6 +64,7 @@ Vue 3 + Vite application — the chart editor UI.
 - `lib` has no workspace dependencies (pure TS + D3)
 - `ui` depends on Vue + Bootstrap (no workspace deps)
 - `editor` depends on `workspace:lib` and `workspace:ui`
+- `docs` depends on `workspace:lib` and `workspace:ui` as **devDependencies** only — they're consumed at build time (API reference, live samples) but not bundled into the published package
 
 ## Imports
 

@@ -1,6 +1,6 @@
 # Getting Started
 
-Blueprint Chart is published as three packages on NPM. Pick the one that matches what you're building.
+Blueprint Chart is published as four packages on NPM. Pick the one that matches what you're building.
 
 <table>
 <thead><tr><th>Package</th><th>When to use it</th></tr></thead>
@@ -8,6 +8,7 @@ Blueprint Chart is published as three packages on NPM. Pick the one that matches
 <tr><td nowrap><a href="https://www.npmjs.com/package/@blueprint-chart/lib"><code>@blueprint-chart/lib</code></a></td><td>Pure TypeScript chart engine — render charts from data + options or from a <code>.bpc</code> source. No Vue.</td></tr>
 <tr><td nowrap><a href="https://www.npmjs.com/package/@blueprint-chart/ui"><code>@blueprint-chart/ui</code></a></td><td>Vue 3 component library — forms, panels, navigation, scene timeline, layout primitives.</td></tr>
 <tr><td nowrap><a href="https://www.npmjs.com/package/@blueprint-chart/editor"><code>@blueprint-chart/editor</code></a></td><td>The full SPA — runs on top of <code>lib</code> + <code>ui</code>. Deployed at <a href="https://blueprintchart.com">blueprintchart.com</a>.</td></tr>
+<tr><td nowrap><a href="https://www.npmjs.com/package/@blueprint-chart/docs"><code>@blueprint-chart/docs</code></a></td><td>The markdown source of this site — handbook, guide, BPC DSL spec, and lib API reference. Exposes <code>listDocs</code> / <code>getDoc</code> + <code>manifest.json</code> for tooling such as <code>@blueprint-chart/mcp</code>.</td></tr>
 </tbody>
 </table>
 

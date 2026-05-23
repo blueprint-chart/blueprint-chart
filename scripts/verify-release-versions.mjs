@@ -11,7 +11,7 @@ if (!tag) {
 
 const expected = tag.startsWith('v') ? tag.slice(1) : tag
 
-const packages = ['lib', 'ui', 'editor']
+const packages = ['lib', 'ui', 'editor', 'docs']
 const mismatches = []
 
 for (const pkg of packages) {
@@ -33,4 +33,4 @@ if (mismatches.length > 0) {
   exit(1)
 }
 
-console.log(`\nAll three packages at version ${expected} — matches tag ${tag}.`)
+console.log(`\nAll ${packages.length} packages at version ${expected} — matches tag ${tag}.`)
