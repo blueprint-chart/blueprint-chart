@@ -91,8 +91,12 @@ describe('featureJoin in idle state', () => {
 
 describe('featureJoin during committing + animating', () => {
   let env: ReturnType<typeof setup>
-  beforeEach(() => { env = setup() })
-  afterEach(() => { env.container.remove() })
+  beforeEach(() => {
+    env = setup()
+  })
+  afterEach(() => {
+    env.container.remove()
+  })
 
   it('snaps enter and exit when commit duration is 0', () => {
     // Initial paint (idle).

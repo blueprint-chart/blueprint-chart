@@ -154,7 +154,9 @@ describe('SceneTransition.run convenience', () => {
     document.body.appendChild(container)
     const t = new SceneTransition(container)
     const seen: string[] = []
-    t.run(() => { seen.push(t.state) }, { duration: 100 })
+    t.run(() => {
+      seen.push(t.state)
+    }, { duration: 100 })
     expect(seen).toEqual(['committing'])
     expect(t.state).toBe('animating')
     container.remove()
@@ -165,7 +167,9 @@ describe('SceneTransition.run convenience', () => {
     document.body.appendChild(container)
     const t = new SceneTransition(container)
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
-    t.run(() => { throw new Error('boom') }, { duration: 100 })
+    t.run(() => {
+      throw new Error('boom')
+    }, { duration: 100 })
     expect(t.state).toBe('idle')
     expect(warn).toHaveBeenCalled()
     warn.mockRestore()
@@ -174,7 +178,9 @@ describe('SceneTransition.run convenience', () => {
 })
 
 describe('SceneTransition reduced motion', () => {
-  afterEach(() => { vi.restoreAllMocks() })
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
 
   it('snaps to idle on commit() when prefers-reduced-motion is set', () => {
     vi.stubGlobal('window', {
@@ -198,8 +204,12 @@ describe('SceneTransition reduced motion', () => {
 })
 
 describe('SceneTransition mode dispatch', () => {
-  beforeEach(() => { vi.unstubAllGlobals() })
-  afterEach(() => { vi.restoreAllMocks() })
+  beforeEach(() => {
+    vi.unstubAllGlobals()
+  })
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
 
   it('warns once per unknown mode and snaps to idle', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})

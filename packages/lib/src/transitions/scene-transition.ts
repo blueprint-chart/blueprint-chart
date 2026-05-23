@@ -105,8 +105,12 @@ export class SceneTransition {
       this._buffer = []
       this._state = 'animating'
       for (const flush of buffered) {
-        try { flush() }
-        catch (err) { console.warn('[blueprint-chart] feature flush failed:', err) }
+        try {
+          flush()
+        }
+        catch (err) {
+          console.warn('[blueprint-chart] feature flush failed:', err)
+        }
       }
       this._state = 'idle'
       return
@@ -119,8 +123,12 @@ export class SceneTransition {
       // Snap path: run each flush with no transition handle, then idle.
       this._state = 'animating'
       for (const flush of buffered) {
-        try { flush() }
-        catch (err) { console.warn('[blueprint-chart] feature flush failed:', err) }
+        try {
+          flush()
+        }
+        catch (err) {
+          console.warn('[blueprint-chart] feature flush failed:', err)
+        }
       }
       this._state = 'idle'
       return
@@ -129,8 +137,12 @@ export class SceneTransition {
     const t = d3.transition(BC_TRANSITION_NAME).duration(duration).ease(d3.easeCubicInOut)
     this._transition = t
     for (const flush of buffered) {
-      try { flush() }
-      catch (err) { console.warn('[blueprint-chart] feature flush failed:', err) }
+      try {
+        flush()
+      }
+      catch (err) {
+        console.warn('[blueprint-chart] feature flush failed:', err)
+      }
     }
     t.on('end', () => {
       if (this._transition === t) {
@@ -152,7 +164,9 @@ export class SceneTransition {
    * both animated and reduced-motion behaviour — no aesthetic-only branch.
    */
   private effectiveDuration(requested: number): number {
-    if (requested <= 0) { return 0 }
+    if (requested <= 0) {
+      return 0
+    }
     if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
       return requested
     }
