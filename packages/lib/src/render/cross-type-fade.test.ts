@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { snapshotIfTypeChanged, commitCrossTypeFade, clearCrossTypeMarker, cancelInflightFade } from './cross-type-fade'
+import * as motion from '../charts/motion'
 
 describe('cross-type-fade', () => {
   let container: HTMLElement
@@ -39,6 +40,39 @@ describe('cross-type-fade', () => {
     container.appendChild(document.createElement('svg'))
     const overlay = snapshotIfTypeChanged(container, 'line', true)
     expect(overlay).toBeNull()
+  })
+
+  it('commitCrossTypeFade fades in the .bc-frame-body element, not the whole .bc-frame', () => {
+    // Establish a prior chart type so the next render counts as cross-type.
+    commitCrossTypeFade(container, 'bar-vertical', null)
+
+    // Build a realistic new frame so commitCrossTypeFade has both a body and
+    // a footer to choose between.
+    const frame = document.createElement('div')
+    frame.className = 'bc-frame'
+    const body = document.createElement('div')
+    body.className = 'bc-frame-body'
+    const footer = document.createElement('div')
+    footer.className = 'bc-frame-footer'
+    frame.appendChild(body)
+    frame.appendChild(footer)
+    container.appendChild(frame)
+
+    // Any non-null element works as the overlay argument — commitCrossTypeFade
+    // hands it off to commitFadeOut, which we don't assert on here.
+    const overlay = document.createElement('div')
+
+    const fadeInSpy = vi.spyOn(motion, 'fadeIn').mockImplementation(() => {})
+    try {
+      commitCrossTypeFade(container, 'line', overlay)
+      expect(fadeInSpy).toHaveBeenCalledTimes(1)
+      const target = fadeInSpy.mock.calls[0][0] as Element
+      expect(target.classList.contains('bc-frame-body')).toBe(true)
+      expect(target.classList.contains('bc-frame-footer')).toBe(false)
+    }
+    finally {
+      fadeInSpy.mockRestore()
+    }
   })
 })
 

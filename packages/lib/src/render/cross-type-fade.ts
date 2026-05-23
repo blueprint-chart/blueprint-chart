@@ -54,9 +54,14 @@ export function commitCrossTypeFade(
 ): void {
   prevChartType.set(container, newChartType)
   if (overlay) {
-    const newFrame = container.querySelector('.bc-frame')
-    if (newFrame) {
-      fadeIn(newFrame)
+    // Fade only the chart area (`.bc-frame-body`), not the whole frame.
+    // Frame chrome — header text, source/credit, and the footer's teleported
+    // scene-player nav — must stay at opacity 1 throughout the cross-type
+    // transition. This mirrors `snapshotForFadeOut` stripping the footer
+    // from the overlay clone for the same reason: chrome doesn't crossfade.
+    const newBody = container.querySelector('.bc-frame .bc-frame-body')
+    if (newBody) {
+      fadeIn(newBody)
     }
     commitFadeOut(container, overlay)
   }
