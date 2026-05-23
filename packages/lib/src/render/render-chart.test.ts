@@ -120,7 +120,7 @@ describe('renderChart + SceneTransition integration', () => {
     // 'transition mode … is not yet implemented' warning. Other warnings
     // (e.g. from chart renderer plumbing) may also fire, so we filter.
     const modeWarnings = warn.mock.calls.filter(call =>
-      typeof call[0] === 'string' && call[0].includes("transition mode 'slide-x'"),
+      typeof call[0] === 'string' && call[0].includes('transition mode \'slide-x\''),
     )
     expect(modeWarnings.length).toBeGreaterThan(0)
 

@@ -526,11 +526,11 @@ function renderValueLabels(
     attrs: (d) => {
       const a = valueLabelAttrs(d, x, y, pos)
       return {
-        x: a.tx,
-        y: a.ty,
+        'x': a.tx,
+        'y': a.ty,
         'text-anchor': a.anchor,
         'dominant-baseline': a.baseline,
-        fill: a.isInside
+        'fill': a.isInside
           ? contrastTextColor(opts.colorOverrides.get(d.label) ?? opts.colors[0])
           : 'currentColor',
       }
