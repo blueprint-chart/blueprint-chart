@@ -41,10 +41,10 @@ graph TD
 <table>
 <thead><tr><th>Package</th><th>Role</th></tr></thead>
 <tbody>
-<tr><td><a href="https://www.npmjs.com/package/@blueprint-chart/lib"><code>@blueprint&#8209;chart/lib</code></a></td><td>Pure TypeScript + D3 chart engine and Peggy DSL parser. Ships an ESM entry and a standalone IIFE runtime for framework-free embeds.</td></tr>
-<tr><td><a href="https://www.npmjs.com/package/@blueprint-chart/ui"><code>@blueprint&#8209;chart/ui</code></a></td><td>Vue 3 component library (~109 components: forms, panels, navigation, scene timeline, layout). Bootstrap + BootstrapVueNext, with Histoire stories.</td></tr>
-<tr><td><a href="https://www.npmjs.com/package/@blueprint-chart/editor"><code>@blueprint&#8209;chart/editor</code></a></td><td>Vue 3 SPA composing <code>lib</code> + <code>ui</code> into the authoring experience: live CodeMirror 6 DSL editor, Pinia stores, scene playback, export.</td></tr>
-<tr><td><a href="https://www.npmjs.com/package/@blueprint-chart/docs"><code>@blueprint&#8209;chart/docs</code></a></td><td>Public documentation — handbook, guide, BPC DSL spec, and lib API reference. Ships a VitePress site (<a href="https://docs.blueprintchart.com">docs.blueprintchart.com</a>) and a programmatic <code>listDocs</code> / <code>getDoc</code> API + <code>manifest.json</code> for tooling such as <code>@blueprint-chart/mcp</code>.</td></tr>
+<tr><td><a href="https://www.npmjs.com/package/@blueprint-chart/lib"><code>@blueprint&#8209;chart&#8288;/&#8288;lib</code></a></td><td>Pure TypeScript + D3 chart engine and Peggy DSL parser. Ships an ESM entry and a standalone IIFE runtime for framework-free embeds.</td></tr>
+<tr><td><a href="https://www.npmjs.com/package/@blueprint-chart/ui"><code>@blueprint&#8209;chart&#8288;/&#8288;ui</code></a></td><td>Vue 3 component library (~109 components: forms, panels, navigation, scene timeline, layout). Bootstrap + BootstrapVueNext, with Histoire stories.</td></tr>
+<tr><td><a href="https://www.npmjs.com/package/@blueprint-chart/editor"><code>@blueprint&#8209;chart&#8288;/&#8288;editor</code></a></td><td>Vue 3 SPA composing <code>lib</code> + <code>ui</code> into the authoring experience: live CodeMirror 6 DSL editor, Pinia stores, scene playback, export.</td></tr>
+<tr><td><a href="https://www.npmjs.com/package/@blueprint-chart/docs"><code>@blueprint&#8209;chart&#8288;/&#8288;docs</code></a></td><td>Public documentation — handbook, guide, BPC DSL spec, and lib API reference. Ships a VitePress site (<a href="https://docs.blueprintchart.com">docs.blueprintchart.com</a>) and a programmatic <code>listDocs</code> / <code>getDoc</code> API + <code>manifest.json</code> for tooling such as <code>@blueprint-chart/mcp</code>.</td></tr>
 </tbody>
 </table>
 
