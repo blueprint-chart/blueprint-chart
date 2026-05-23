@@ -7,7 +7,7 @@ export interface UseSheetNumber {
   isDraft: ComputedRef<boolean>
 }
 
-const DRAFT_PLACEHOLDER = 'S-———'   // three em-dashes
+const DRAFT_PLACEHOLDER = 'S-———' // three em-dashes
 
 export function useSheetNumber(): UseSheetNumber {
   const session = useChartSession()
