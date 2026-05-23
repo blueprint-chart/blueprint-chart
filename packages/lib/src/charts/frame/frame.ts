@@ -282,13 +282,24 @@ export function createFrame(
       const footerH = footer.offsetHeight
       const noteH = note.style.display !== 'none' ? note.offsetHeight : 0
       wrapper.classList.add('bc-frame--constrained')
-      // Write measurements so createCanvas can add them to chart margins.
-      // Heights are taken live per render: if a scene's header or footer
-      // shrinks (e.g. shorter description, navigating back), the chart area
-      // expands again. stableTop in computeMarginDelta keeps axes from
-      // sliding during the transition.
+      // Header is read live each render so the chart area shrinks when the
+      // header grows and expands again when it shrinks. stableTop in
+      // computeMarginDelta keeps axes from sliding during the transition.
       body.dataset.headerH = String(headerH)
-      body.dataset.footerH = String(footerH + noteH)
+      // Footer can receive content teleported in after createFrame returns
+      // (e.g. scene-player buttons in the demo and the editor preview), so
+      // the synchronous offsetHeight may undercount the rendered footer.
+      // Use the previous render's post-paint measurement when available —
+      // it captures the true footer height including any teleported nodes.
+      // Fall back to the synchronous read on first render.
+      type Ext = HTMLElement & { __bcFooterH?: number }
+      const ext = container as Ext
+      body.dataset.footerH = String(ext.__bcFooterH ?? (footerH + noteH))
+      // Refresh the cache after this render's paint so the next render
+      // starts from a settled measurement.
+      requestAnimationFrame(() => {
+        ext.__bcFooterH = footer.offsetHeight + (note.style.display !== 'none' ? note.offsetHeight : 0)
+      })
     }
   }
 

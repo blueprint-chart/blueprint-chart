@@ -131,20 +131,49 @@ describe('createFrame', () => {
       expect(secondHeaderH).toBe(30)
     })
 
-    it('shrinks footerH dataset when note is removed across renders', () => {
+    const flushRaf = () => new Promise<void>(resolve => requestAnimationFrame(() => resolve()))
+
+    it('uses synchronous footer measurement on first render', () => {
+      createFrame(host, { source: 'S' })
+      stubHeights(host, 30, 20, 0)
+      createFrame(host, { source: 'S' })
+      const body = host.querySelector('.bc-frame-body') as HTMLElement
+      expect(Number(body.dataset.footerH)).toBe(20)
+    })
+
+    it('uses previous render post-paint footer height (handles teleport-into-footer)', async () => {
+      createFrame(host, { source: 'S' })
+      // Simulate post-paint footer growth (e.g. scene-player buttons teleported in)
+      stubHeights(host, 30, 80, 0)
+      await flushRaf()
+
+      // Subsequent render: synchronous read would give a smaller value, but
+      // the cached post-paint measurement from the previous render is 80.
+      stubHeights(host, 30, 20, 0)
+      createFrame(host, { source: 'S' })
+      const body = host.querySelector('.bc-frame-body') as HTMLElement
+      expect(Number(body.dataset.footerH)).toBe(80)
+    })
+
+    it('footerH dataset settles to a smaller value after note is removed (one-render lag)', async () => {
       createFrame(host, { note: 'A footnote', source: 'S' })
       stubHeights(host, 30, 20, 24)
       createFrame(host, { note: 'A footnote', source: 'S' })
-      const body1 = host.querySelector('.bc-frame-body') as HTMLElement
-      const firstFooterH = Number(body1.dataset.footerH)
+      await flushRaf()
 
+      // Scene change: note removed. First render after the change uses the
+      // cached value (44) from the previous post-paint, since the chart
+      // layout is committed synchronously. After this render's post-paint,
+      // the cache is refreshed.
       stubHeights(host, 30, 20, 0)
       createFrame(host, { source: 'S' })
-      const body2 = host.querySelector('.bc-frame-body') as HTMLElement
-      const secondFooterH = Number(body2.dataset.footerH)
+      await flushRaf()
 
-      expect(secondFooterH).toBeLessThan(firstFooterH)
-      expect(secondFooterH).toBe(20)
+      // Next render now sees the refreshed (smaller) cache.
+      stubHeights(host, 30, 20, 0)
+      createFrame(host, { source: 'S' })
+      const body = host.querySelector('.bc-frame-body') as HTMLElement
+      expect(Number(body.dataset.footerH)).toBe(20)
     })
 
     it('grows headerH dataset when description grows across renders', () => {
