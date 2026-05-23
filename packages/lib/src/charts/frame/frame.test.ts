@@ -146,5 +146,21 @@ describe('createFrame', () => {
       expect(secondFooterH).toBeLessThan(firstFooterH)
       expect(secondFooterH).toBe(20)
     })
+
+    it('grows headerH dataset when description grows across renders', () => {
+      createFrame(host, { title: 'T' })
+      stubHeights(host, 30, 20)
+      createFrame(host, { title: 'T' })
+      const body1 = host.querySelector('.bc-frame-body') as HTMLElement
+      const firstHeaderH = Number(body1.dataset.headerH)
+
+      stubHeights(host, 80, 20)
+      createFrame(host, { title: 'T', description: 'A long description' })
+      const body2 = host.querySelector('.bc-frame-body') as HTMLElement
+      const secondHeaderH = Number(body2.dataset.headerH)
+
+      expect(secondHeaderH).toBeGreaterThan(firstHeaderH)
+      expect(secondHeaderH).toBe(80)
+    })
   })
 })
