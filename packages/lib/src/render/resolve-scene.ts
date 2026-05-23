@@ -208,8 +208,9 @@ export function resolveScene(
   const FRAME_PROPERTY_KEYS = ['title', 'description', 'source', 'sourceUrl', 'byline', 'note'] as const
   const frameOverrides: Partial<FrameOptions> = {}
   for (const k of FRAME_PROPERTY_KEYS) {
-    if (fold.properties.has(k)) {
-      frameOverrides[k] = fold.properties.get(k) as string
+    const v = fold.properties.get(k)
+    if (typeof v === 'string') {
+      frameOverrides[k] = v
     }
   }
   const frame = Object.keys(frameOverrides).length > 0
