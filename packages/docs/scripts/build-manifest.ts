@@ -21,7 +21,9 @@ async function main() {
 
   for (const group of GROUPS) {
     const dir = join(SRC, group)
-    if (!existsSync(dir)) continue
+    if (!existsSync(dir)) {
+      continue
+    }
     const files = (await readdir(dir)).filter(f => f.endsWith('.md') && f !== 'index.md')
     for (const file of files) {
       const path = join(dir, file)
@@ -34,12 +36,14 @@ async function main() {
     }
   }
 
-  if (!existsSync(DIST)) await mkdir(DIST, { recursive: true })
+  if (!existsSync(DIST)) {
+    await mkdir(DIST, { recursive: true })
+  }
   await writeFile(join(DIST, 'manifest.json'), JSON.stringify({ entries }, null, 2))
   console.log(`Wrote ${entries.length} entries to dist/manifest.json`)
 }
 
-main().catch(err => {
+main().catch((err) => {
   console.error(err)
   process.exit(1)
 })

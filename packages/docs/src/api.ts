@@ -21,12 +21,14 @@ interface Manifest {
 let cached: Manifest | undefined
 
 function loadManifest(): Manifest {
-  if (cached) return cached
+  if (cached) {
+    return cached
+  }
   const manifestPath = join(PKG_ROOT, 'dist', 'manifest.json')
   if (!existsSync(manifestPath)) {
     throw new Error(
-      `@blueprint-chart/docs: manifest.json not found at ${manifestPath}. ` +
-        `Did you run \`pnpm --filter @blueprint-chart/docs build\`?`,
+      `@blueprint-chart/docs: manifest.json not found at ${manifestPath}. `
+      + `Did you run \`pnpm --filter @blueprint-chart/docs build\`?`,
     )
   }
   cached = JSON.parse(readFileSync(manifestPath, 'utf8')) as Manifest
@@ -40,7 +42,9 @@ export function listDocs(group?: DocGroup): DocEntry[] {
 
 export function getDoc(group: DocGroup, slug: string): { entry: DocEntry, content: string } {
   const entry = loadManifest().entries.find(e => e.group === group && e.slug === slug)
-  if (!entry) throw new Error(`@blueprint-chart/docs: no doc at ${group}/${slug}`)
+  if (!entry) {
+    throw new Error(`@blueprint-chart/docs: no doc at ${group}/${slug}`)
+  }
   const content = readFileSync(join(PKG_ROOT, 'src', entry.mdPath), 'utf8')
   return { entry, content }
 }

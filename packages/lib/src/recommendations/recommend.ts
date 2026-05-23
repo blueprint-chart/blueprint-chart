@@ -22,7 +22,9 @@ const CHART_LABELS: Record<string, string> = {
 }
 
 export function recommendCharts(columnTypes: ColumnType[], rowCount: number): ChartRecommendation[] {
-  if (columnTypes.length === 0) return []
+  if (columnTypes.length === 0) {
+    return []
+  }
 
   const strings = columnTypes.filter(t => t === 'string').length
   const numbers = columnTypes.filter(t => t === 'number').length
@@ -36,21 +38,25 @@ export function recommendCharts(columnTypes: ColumnType[], rowCount: number): Ch
     if (numbers === 1) {
       push(ChartType.Line, 'best', '1 date + 1 numeric column — ideal for trend')
       push(ChartType.BarVertical, 'alternative', 'Can also show as bars')
-    } else {
+    }
+    else {
       push(ChartType.LineMulti, 'best', `1 date + ${numbers} numeric columns — compare trends`)
       push(ChartType.BarMulti, 'alternative', 'Can also show as grouped bars')
     }
-  } else if (strings === 1 && numbers === 1) {
+  }
+  else if (strings === 1 && numbers === 1) {
     push(ChartType.BarVertical, 'best', '1 categorical + 1 numeric — classic bar chart')
     push(ChartType.BarHorizontal, 'good', 'Horizontal bars work well for long labels')
     if (rowCount <= 8) {
       push(ChartType.Donut, 'good', `${rowCount} items — suitable for part-of-whole`)
       push(ChartType.Pie, 'alternative', 'Pie chart for part-of-whole')
     }
-  } else if (strings === 1 && numbers > 1) {
+  }
+  else if (strings === 1 && numbers > 1) {
     push(ChartType.BarMulti, 'best', `1 categorical + ${numbers} numeric columns — compare groups`)
     push(ChartType.LineMulti, 'good', 'Can also show as multi-line chart')
-  } else if (numbers >= 1 && (strings >= 1 || dates >= 1)) {
+  }
+  else if (numbers >= 1 && (strings >= 1 || dates >= 1)) {
     push(ChartType.BarVertical, 'good', 'Default bar chart recommendation')
   }
 
