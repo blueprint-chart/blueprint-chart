@@ -11,10 +11,11 @@ import { createCrosshairPlugin } from '../../plugins/crosshair'
 import { createAnnotationPlugin, snapshotAnnotations, type AnnotationSnapshot } from '../../plugins/annotations'
 import { resolveBackgroundColor, contrastTextColor } from '../../contrast'
 import { buildNumberFormatter } from '../../format-helpers'
-import { getDefaultTransitionMs, setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut, reinsertWithOffset } from '../../motion'
+import { setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut } from '../../motion'
 import { getCachedChart, setCachedChart } from '../../transition-cache'
 import { ensureClipPath } from '../../clip-path-helper'
 import { SortDirection, ValueLabelPosition, Orientation, LabelPosition } from '../../../enums'
+import { featureJoin, getSceneTransition } from '../../../transitions'
 
 export const DEFAULT_COLORS = ['#4e79a7']
 const CATEGORY_LABEL_HEIGHT = 13
@@ -35,65 +36,11 @@ interface WaterfallDatum {
 }
 
 class BarHorizontalChart extends D3Blueprint<BarDatum[]> {
-  initialize() {
-    this.configDefine('x', { defaultValue: d3.scaleLinear() })
-    this.configDefine('y', { defaultValue: d3.scaleBand<string>() })
-    this.configDefine('width', { defaultValue: 0 })
-    this.configDefine('height', { defaultValue: 0 })
-    this.configDefine('colors', { defaultValue: DEFAULT_COLORS })
-    this.configDefine('colorOverrides', { defaultValue: new Map<string, string>() })
-    this.configDefine('highlightTargets', { defaultValue: new Set<string>() })
-    this.configDefine('swapLabelValue', { defaultValue: false })
-    this.configDefine('categoryLabelOffset', { defaultValue: 0 })
-
-    const g = this.base.append('g')
-
-    this.layer('bars', g, {
-      dataBind: (sel, data) => sel.selectAll<Element, BarDatum>('.bc-bar').data(data, d => d.label),
-      insert: sel => sel.append('rect').attr('class', 'bc-bar'),
-      events: {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        'enter': (sel: any) => {
-          const colors = this.config('colors') as string[]
-          const colorOverrides = this.config('colorOverrides') as Map<string, string>
-          const hl = this.config('highlightTargets') as Set<string>
-          const hasHl = hl.size > 0
-          const x = this.config('x') as d3.ScaleLinear<number, number>
-          const y = this.config('y') as d3.ScaleBand<string>
-          const catOffset = this.config('categoryLabelOffset') as number
-          sel
-            .attr('x', (d: BarDatum) => Math.min(x(0), x(d.value)))
-            .attr('y', (d: BarDatum) => (y(d.label) ?? 0) + catOffset)
-            .attr('width', (d: BarDatum) => Math.abs(x(d.value) - x(0)))
-            .attr('height', y.bandwidth() - catOffset)
-            .attr('fill', (d: BarDatum) => colorOverrides.get(d.label) ?? colors[0])
-            .attr('opacity', (d: BarDatum) => hasHl ? (hl.has(d.label) ? 1 : 0.35) : null)
-        },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        'merge:transition': (sel: any) => {
-          const colors = this.config('colors') as string[]
-          const colorOverrides = this.config('colorOverrides') as Map<string, string>
-          const hl = this.config('highlightTargets') as Set<string>
-          const hasHl = hl.size > 0
-          const x = this.config('x') as d3.ScaleLinear<number, number>
-          const y = this.config('y') as d3.ScaleBand<string>
-          const catOffset = this.config('categoryLabelOffset') as number
-          sel.duration(getDefaultTransitionMs())
-            .attr('x', (d: BarDatum) => Math.min(x(0), x(d.value)))
-            .attr('y', (d: BarDatum) => (y(d.label) ?? 0) + catOffset)
-            .attr('width', (d: BarDatum) => Math.abs(x(d.value) - x(0)))
-            .attr('height', y.bandwidth() - catOffset)
-            .attr('fill', (d: BarDatum) => colorOverrides.get(d.label) ?? colors[0])
-            .attr('opacity', (d: BarDatum) => hasHl ? (hl.has(d.label) ? 1 : 0.35) : null)
-        },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        'exit:transition': (sel: any) => {
-          sel.duration(getDefaultTransitionMs())
-            .attr('opacity', 0)
-            .remove()
-        },
-      },
-    })
+  initialize(): void {
+    // Bars are rendered via featureJoin against the SceneTransition orchestrator
+    // (see render()). This class is retained only as a host for legacy
+    // plugins (tooltips, crosshair, annotations) that consume the D3Blueprint
+    // API. Plugins will migrate to the orchestrator in Stages 3-4.
   }
 }
 
@@ -120,9 +67,6 @@ export function render(
   transition = false,
 ): void {
   setRenderTransition(transition)
-  // Preserve existing data elements for smooth D3 data-join transitions
-  let priorBars: Element[] = []
-  let priorLabels: Element[] = []
   let fadeOverlay: HTMLElement | null = null
   let priorAnnotations: Map<string, AnnotationSnapshot> | undefined
   let priorMargin: { top: number, left: number } | undefined
@@ -131,11 +75,7 @@ export function render(
     const cached = getCachedChart(container)
     priorMargin = cached?.margin
     axes.detach()
-    if (cached?.chartType === 'bar-horizontal') {
-      priorBars = Array.from(container.querySelectorAll('.bc-frame .bc-bar'))
-      priorLabels = Array.from(container.querySelectorAll('.bc-frame .bc-value-label'))
-    }
-    else if (cached) {
+    if (cached && cached.chartType !== 'bar-horizontal') {
       fadeOverlay = snapshotForFadeOut(container)
     }
     priorAnnotations = new Map()
@@ -466,14 +406,34 @@ export function render(
     }
   }
   else {
-    const chart = new BarHorizontalChart(clippedGroup)
-    chart.config({ x, y, width, height, colors: options.colors ?? DEFAULT_COLORS, colorOverrides, highlightTargets, swapLabelValue, categoryLabelOffset })
+    const orch = getSceneTransition(container)
 
-    // Re-insert prior elements so D3 data-join finds them and triggers merge:transition
-    if (priorBars.length > 0) {
-      const layerG = clippedGroup.node()!.querySelector('g')!
-      reinsertWithOffset(layerG, priorBars, marginDelta?.dx ?? 0, marginDelta?.dy ?? 0)
-    }
+    // Bars — one feature per category, keyed by label.
+    const barLayer = clippedGroup.append('g').node()!
+    featureJoin<BarDatum>(orch, {
+      role: 'mark-per-category',
+      parent: barLayer,
+      selector: '.bc-bar',
+      data: barData,
+      key: d => d.label,
+      insert: sel => sel.append('rect').attr('class', 'bc-bar'),
+      attrs: (d) => {
+        const hasHl = highlightTargets.size > 0
+        return {
+          x: Math.min(x(0), x(d.value)),
+          y: (y(d.label) ?? 0) + categoryLabelOffset,
+          width: Math.abs(x(d.value) - x(0)),
+          height: y.bandwidth() - categoryLabelOffset,
+          fill: colorOverrides.get(d.label) ?? (options.colors ?? DEFAULT_COLORS)[0],
+          opacity: hasHl ? (highlightTargets.has(d.label) ? 1 : 0.35) : 1,
+        }
+      },
+    })
+
+    // Plugins host — kept on the legacy D3Blueprint path. Mounting on
+    // clippedGroup so plugins find the `.bc-bar` elements that featureJoin
+    // just inserted under barLayer.
+    const chart = new BarHorizontalChart(clippedGroup)
     if (options.tooltips) {
       chart.use(createTooltipPlugin({ numberFormat: options.horizontalAxis?.numberFormat }))
     }
@@ -495,7 +455,6 @@ export function render(
         colorOverrides,
         colors: options.colors ?? DEFAULT_COLORS,
         transition,
-        priorLabels,
         swapLabelValue,
         categoryLabelOffset,
       })
@@ -573,11 +532,10 @@ function renderValueLabels(
     colorOverrides: Map<string, string>
     colors: string[]
     transition: boolean
-    priorLabels: Element[]
     swapLabelValue?: boolean
     categoryLabelOffset?: number
   },
-) {
+): void {
   const pos = opts.position ?? ValueLabelPosition.Auto
   const catOffset = opts.categoryLabelOffset ?? 0
   const labelText = (d: BarDatum) => opts.swapLabelValue ? d.label : String(d.value)
@@ -588,68 +546,41 @@ function renderValueLabels(
     labelGroup = parent.append('g').attr('class', 'bc-value-label-group')
   }
 
-  // Re-insert prior labels for data-join
-  if (opts.priorLabels.length > 0) {
-    const node = labelGroup.node()!
-    opts.priorLabels.forEach(el => node.appendChild(el))
-  }
+  // Resolve the container from the parent's owner. The parent here is the
+  // unclipped group, which is mounted under the chartArea inside the chart's
+  // SVG root, inside the chart container <div>.
+  const ownerSvg = parent.node()!.ownerSVGElement
+  const container = ownerSvg?.parentElement as HTMLElement
+  const orch = getSceneTransition(container)
 
-  const join = labelGroup.selectAll<SVGTextElement, BarDatum>('.bc-value-label')
+  featureJoin<BarDatum>(orch, {
+    role: 'value-label',
+    parent: labelGroup.node()!,
+    selector: '.bc-value-label',
+    data: barData,
+    key: d => d.label,
+    insert: sel => sel.append('text')
+      .attr('class', 'bc-value-label')
+      .attr('font-size', '11px')
+      .attr('dominant-baseline', 'central'),
+    attrs: (d) => {
+      const a = valueLabelAttrs(d, x, y, pos, catOffset)
+      return {
+        'x': a.tx,
+        'y': a.ty,
+        'text-anchor': a.anchor,
+        'fill': a.isInside
+          ? contrastTextColor(opts.colorOverrides.get(d.label) ?? opts.colors[0])
+          : 'currentColor',
+      }
+    },
+  })
+
+  // featureJoin only manages attributes, not text content. Set text content
+  // for both enter and update bars in a second pass keyed by the same label.
+  labelGroup.selectAll<SVGTextElement, BarDatum>('.bc-value-label')
     .data(barData, (d: BarDatum) => d.label)
-
-  // Exit
-  join.exit()
-    .transition().duration(getDefaultTransitionMs())
-    .attr('opacity', 0)
-    .remove()
-
-  // Enter
-  const enter = join.enter()
-    .append('text')
-    .attr('class', 'bc-value-label')
-    .attr('font-size', '11px')
-    .attr('dominant-baseline', 'central')
-    .each(function (d) {
-      const a = valueLabelAttrs(d, x, y, pos, catOffset)
-      d3.select(this)
-        .attr('x', a.tx)
-        .attr('y', a.ty)
-        .attr('text-anchor', a.anchor)
-        .attr('fill', a.isInside
-          ? contrastTextColor(opts.colorOverrides.get(d.label) ?? opts.colors[0])
-          : 'currentColor')
-        .text(labelText(d))
-    })
-
-  // Merge — update all labels to new positions
-  const merged = enter.merge(join)
-  if (opts.transition) {
-    merged.each(function (d) {
-      const a = valueLabelAttrs(d, x, y, pos, catOffset)
-      d3.select(this)
-        .text(labelText(d))
-        .transition().duration(getDefaultTransitionMs())
-        .attr('x', a.tx)
-        .attr('y', a.ty)
-        .attr('text-anchor', a.anchor)
-        .attr('fill', a.isInside
-          ? contrastTextColor(opts.colorOverrides.get(d.label) ?? opts.colors[0])
-          : 'currentColor')
-    })
-  }
-  else {
-    merged.each(function (d) {
-      const a = valueLabelAttrs(d, x, y, pos, catOffset)
-      d3.select(this)
-        .attr('x', a.tx)
-        .attr('y', a.ty)
-        .attr('text-anchor', a.anchor)
-        .attr('fill', a.isInside
-          ? contrastTextColor(opts.colorOverrides.get(d.label) ?? opts.colors[0])
-          : 'currentColor')
-        .text(labelText(d))
-    })
-  }
+    .text(labelText)
 }
 
 function sortLabels(data: ChartData, options: ChartOptions): string[] {
