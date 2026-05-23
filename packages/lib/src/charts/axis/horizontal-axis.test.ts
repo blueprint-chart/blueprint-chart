@@ -1,7 +1,8 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import * as d3 from 'd3'
 import { HorizontalAxisChart, renderHorizontalAxis, thinLabels, buildTickFormatter, detectDates, willRotateLabels, estimateRotatedAxisHeight, resolveHorizontalAxisBottom, wrapLabel } from './horizontal-axis'
 import { LabelRotation } from '../../enums'
+import { setRenderTransition } from '../motion'
 
 describe('renderHorizontalAxis', () => {
   let chartArea: SVGGElement
@@ -97,11 +98,16 @@ describe('HorizontalAxisChart merge:transition feature parity', () => {
   let scale: d3.ScaleBand<string>
 
   beforeEach(() => {
+    vi.useFakeTimers()
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
     chartArea = document.createElementNS('http://www.w3.org/2000/svg', 'g') as SVGGElement
     svg.appendChild(chartArea)
     document.body.appendChild(svg)
     scale = d3.scaleBand<string>().domain(['A', 'B', 'C']).range([0, 300]).padding(0.1)
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
   })
 
   it('removes tick lines on merge render when showTicks is false', () => {
@@ -172,6 +178,61 @@ describe('HorizontalAxisChart merge:transition feature parity', () => {
       expect(t.getAttribute('y')).toBe('0')
       expect(t.getAttribute('dy')).toBe('-0.6em')
     })
+  })
+
+  it('keeps inside-mode tick text positioned through merge:transition', () => {
+    const chart = new HorizontalAxisChart(d3.select(chartArea))
+    chart.config({
+      scale,
+      height: 300,
+      width: 300,
+      labels: ['A', 'B', 'C'],
+      labelPosition: 'inside',
+    })
+
+    setRenderTransition(true)
+    try {
+      // First draw: enter path. Inside positioning applied via the enter handler.
+      chart.draw([{ placeholder: true }])
+      // Second draw: merge:transition path (this is the buggy code path).
+      chart.draw([{ placeholder: true }])
+
+      // Inspect d3's __transition internals on the first tick text to confirm
+      // the inside-positioning attrs are the final tween target. Same technique
+      // as the vertical-axis test from commit 17584357.
+      const axisEl = chartArea.querySelector('.bc-axis-horizontal')!
+      const tickText = axisEl.querySelector('.tick text') as SVGTextElement & { __transition?: Record<string, unknown> }
+      expect(tickText).not.toBeNull()
+
+      const td = tickText.__transition
+      if (td) {
+        // Find the latest scheduled transition (highest numeric id).
+        const lastKey = String(Math.max(...Object.keys(td).map(Number)))
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const schedule = td[lastKey] as any
+        const yTween = schedule?.tween?.find?.((t: { name: string }) => t.name === 'attr.y')
+        if (yTween) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const interp = yTween.value.call(tickText, (tickText as any).__data__, 0, [tickText])
+          // If the factory returns null, start === end (no animation) which is
+          // the correct outcome when our write target matches axisBottom's.
+          if (interp !== null) {
+            // Otherwise the interpolator should land at y=0 at t=1.
+            let finalY: string | null = null
+            interp.call(
+              { setAttribute: (_n: string, v: string) => { finalY = v }, setAttributeNS: () => {} },
+              1,
+            )
+            expect(Number(finalY)).toBe(0)
+          }
+        }
+      }
+      // dy is a string attribute and not tweened; check it directly.
+      expect(tickText.getAttribute('dy')).toBe('-0.6em')
+    }
+    finally {
+      setRenderTransition(false)
+    }
   })
 })
 

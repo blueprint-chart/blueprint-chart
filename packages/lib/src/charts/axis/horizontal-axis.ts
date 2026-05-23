@@ -503,8 +503,8 @@ export class HorizontalAxisChart extends D3Blueprint<AxisDatum[]> {
     const translateY = position === 'above' ? 0 : height
     const axisNode = sel.node() as SVGGElement | null
 
+    const ms = phase === 'merge' ? getDefaultTransitionMs() : 0
     if (phase === 'merge') {
-      const ms = getDefaultTransitionMs()
       if (!axisNode) {
         return
       }
@@ -523,9 +523,14 @@ export class HorizontalAxisChart extends D3Blueprint<AxisDatum[]> {
       sel.call(axisFn)
     }
 
-    const target = phase === 'merge'
-      ? (axisNode ? d3.select(axisNode) : sel)
-      : sel
+    // When phase === 'merge' && ms > 0, `sel` is the d3 transition created
+    // above; routing downstream label-position writes through it makes those
+    // attribute writes part of the same tween so they win against axisBottom's
+    // default tick-text positioning. Mirrors the vertical-axis fix from the
+    // previous spec (commit 17584357).
+    const target = phase === 'enter' || ms > 0
+      ? sel
+      : (axisNode ? d3.select(axisNode) : sel)
 
     if (!this.config('showAxis')) {
       target.select('.domain').remove()
