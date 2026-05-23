@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { SceneTransition, featureJoin, getSceneTransition, snapshotLiveAttrs } from './index'
+import { SceneTransition, featureJoin, getSceneTransition, snapshotLiveAttrs, BC_TRANSITION_NAME } from './index'
 
 describe('transitions public surface', () => {
   it('exports the orchestrator and primitive', () => {
@@ -7,5 +7,9 @@ describe('transitions public surface', () => {
     expect(typeof featureJoin).toBe('function')
     expect(typeof getSceneTransition).toBe('function')
     expect(typeof snapshotLiveAttrs).toBe('function')
+  })
+
+  it('exports the orchestrator-owned d3 transition name', () => {
+    expect(BC_TRANSITION_NAME).toBe('bc-scene')
   })
 })

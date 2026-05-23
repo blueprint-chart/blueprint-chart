@@ -19,6 +19,9 @@ export function featureJoin<D>(
   orchestrator: SceneTransition,
   cfg: FeatureJoinConfig<D>,
 ): void {
+  // `cfg.role` is captured but intentionally unread in v1; the role-matcher
+  // for cross-type morph (Stage 7) will consume it. See spec §3 for the
+  // role catalog. Removing the property here would break Stage 7's seam.
   if (orchestrator.state === 'idle' || orchestrator.state === 'animating') {
     applyIdle(cfg)
     return
@@ -82,19 +85,16 @@ function applyBuffered<D>(orchestrator: SceneTransition, cfg: FeatureJoinConfig<
     }
   })
 
-  // Update — invariant I4: read live attrs so retween starts from current pixels.
-  // snapshotLiveAttrs calls `select(el).interrupt(BC_TRANSITION_NAME)` which cancels
-  // any orchestrator-owned tween already in flight on this element. The returned
-  // map IS the starting state for the new tween; d3's `.attr()` reads it from
-  // the live DOM on the first tick (which is now post-interrupt), so we don't
-  // pass `liveAttrs` into `tweenAttrs` directly — but capturing it documents the
-  // data flow and prevents a future maintainer from removing the call as dead.
+  // Update — invariant I4: cancel the orchestrator's named tween on each
+  // surviving element so d3's first tick reads the live DOM (current pixels)
+  // as the starting state, not the target of the previous tween. The call
+  // looks like a value-discarding read but is load-bearing — DO NOT remove
+  // even if linters flag it.
   join.each(function (d) {
     const el = this as Element
     const end = cfg.attrs(d as D)
     if (t) {
-      const liveAttrs = snapshotLiveAttrs(el, namesToTween)
-      void liveAttrs
+      snapshotLiveAttrs(el, namesToTween)
       tweenAttrs(el, end, t)
     }
     else {

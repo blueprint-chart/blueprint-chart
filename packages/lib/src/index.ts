@@ -102,6 +102,7 @@ export {
   getSceneTransition,
   featureJoin,
   snapshotLiveAttrs,
+  BC_TRANSITION_NAME,
 } from './transitions'
 export type {
   CommitOptions,
