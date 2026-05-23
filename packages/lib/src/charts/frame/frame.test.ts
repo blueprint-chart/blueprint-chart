@@ -130,5 +130,21 @@ describe('createFrame', () => {
       expect(secondHeaderH).toBeLessThan(firstHeaderH)
       expect(secondHeaderH).toBe(30)
     })
+
+    it('shrinks footerH dataset when note is removed across renders', () => {
+      createFrame(host, { note: 'A footnote', source: 'S' })
+      stubHeights(host, 30, 20, 24)
+      createFrame(host, { note: 'A footnote', source: 'S' })
+      const body1 = host.querySelector('.bc-frame-body') as HTMLElement
+      const firstFooterH = Number(body1.dataset.footerH)
+
+      stubHeights(host, 30, 20, 0)
+      createFrame(host, { source: 'S' })
+      const body2 = host.querySelector('.bc-frame-body') as HTMLElement
+      const secondFooterH = Number(body2.dataset.footerH)
+
+      expect(secondFooterH).toBeLessThan(firstFooterH)
+      expect(secondFooterH).toBe(20)
+    })
   })
 })
