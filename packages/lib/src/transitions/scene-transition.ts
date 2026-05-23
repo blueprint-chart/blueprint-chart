@@ -42,6 +42,16 @@ export class SceneTransition {
   private _state: SceneTransitionState = 'idle'
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private _transition: any = null
+  private _buffer: Array<() => void> = []
+
+  /**
+   * Internal: register a flush callback to be run on the next commit.
+   * Used by `featureJoin` to defer DOM mutations until the orchestrator
+   * is animating. Callbacks run in registration order.
+   */
+  register(flush: () => void): void {
+    this._buffer.push(flush)
+  }
 
   constructor(container: HTMLElement) {
     this.container = container
@@ -49,6 +59,12 @@ export class SceneTransition {
 
   get state(): SceneTransitionState {
     return this._state
+  }
+
+  /** Internal: the active d3 transition handle, or null when not animating. */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  get activeTransition(): any {
+    return this._transition
   }
 
   /**
@@ -75,13 +91,25 @@ export class SceneTransition {
       return
     }
     const duration = opts.duration ?? DEFAULT_DURATION_MS
+    const buffered = this._buffer
+    this._buffer = []
     if (duration <= 0) {
+      // Snap path: run each flush with no transition handle, then idle.
+      this._state = 'animating'
+      for (const flush of buffered) {
+        try { flush() }
+        catch (err) { console.warn('[blueprint-chart] feature flush failed:', err) }
+      }
       this._state = 'idle'
       return
     }
     this._state = 'animating'
     const t = d3.transition(BC_TRANSITION_NAME).duration(duration).ease(d3.easeCubicInOut)
     this._transition = t
+    for (const flush of buffered) {
+      try { flush() }
+      catch (err) { console.warn('[blueprint-chart] feature flush failed:', err) }
+    }
     t.on('end', () => {
       if (this._transition === t) {
         this._transition = null
@@ -107,6 +135,7 @@ export class SceneTransition {
    * transition's `end` event before calling `.remove()`, not before.
    */
   interrupt(): void {
+    this._buffer = []
     this._transition = null
     // Cancel every BC_TRANSITION_NAME tween on any descendant of the
     // container. Element-bound transitions inherit the name from the

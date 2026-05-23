@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { SceneTransition } from './scene-transition'
 import { featureJoin } from './feature-join'
 import type { FeatureJoinConfig } from './types'
@@ -85,6 +85,110 @@ describe('featureJoin in idle state', () => {
     expect(rects.length).toBe(1)
     // Surviving 'a' element is the same DOM node (matched by __data__ key, not re-created).
     expect(rects[0]).toBe(firstA)
+    expect(rects[0].getAttribute('height')).toBe('10')
+  })
+})
+
+describe('featureJoin during committing + animating', () => {
+  let env: ReturnType<typeof setup>
+  beforeEach(() => { env = setup() })
+  afterEach(() => { env.container.remove() })
+
+  it('snaps enter and exit when commit duration is 0', () => {
+    // Initial paint (idle).
+    featureJoin(env.t, {
+      role: 'mark-per-category',
+      parent: env.g,
+      selector: '.bc-bar',
+      data: [{ label: 'a', value: 10 }],
+      key: d => d.label,
+      insert: sel => sel.append('rect').attr('class', 'bc-bar'),
+      attrs: d => ({ x: 0, y: 0, width: 40, height: d.value }),
+    })
+
+    env.t.beginCommit()
+    featureJoin(env.t, {
+      role: 'mark-per-category',
+      parent: env.g,
+      selector: '.bc-bar',
+      data: [{ label: 'a', value: 99 }, { label: 'b', value: 20 }],
+      key: d => d.label,
+      insert: sel => sel.append('rect').attr('class', 'bc-bar'),
+      attrs: d => ({ x: 0, y: 0, width: 40, height: d.value }),
+    })
+    env.t.commit({ duration: 0 })
+
+    const rects = env.g.querySelectorAll('.bc-bar')
+    expect(rects.length).toBe(2)
+    expect(rects[0].getAttribute('height')).toBe('99')
+    expect(rects[1].getAttribute('height')).toBe('20')
+  })
+
+  it('reads "from" attrs off live DOM before tweening (invariant I4)', async () => {
+    // Paint at height=10 (idle path).
+    featureJoin(env.t, {
+      role: 'mark-per-category',
+      parent: env.g,
+      selector: '.bc-bar',
+      data: [{ label: 'a', value: 10 }],
+      key: d => d.label,
+      insert: sel => sel.append('rect').attr('class', 'bc-bar'),
+      attrs: d => ({ x: 0, y: 0, width: 40, height: d.value }),
+    })
+    const rect = env.g.querySelector('.bc-bar')!
+
+    // Spy on the snapshot module so we can verify applyBuffered actually
+    // calls it on the update node before tweening.
+    const snapshotMod = await import('./snapshot')
+    const spy = vi.spyOn(snapshotMod, 'snapshotLiveAttrs')
+
+    env.t.beginCommit()
+    featureJoin(env.t, {
+      role: 'mark-per-category',
+      parent: env.g,
+      selector: '.bc-bar',
+      data: [{ label: 'a', value: 99 }],
+      key: d => d.label,
+      insert: sel => sel.append('rect').attr('class', 'bc-bar'),
+      attrs: d => ({ x: 0, y: 0, width: 40, height: d.value }),
+    })
+    env.t.commit({ duration: 500 })
+
+    // The update path must have called snapshotLiveAttrs on the surviving
+    // element with the attr names we're about to tween. This is the
+    // load-bearing call for invariant I4.
+    const updateCalls = spy.mock.calls.filter(call => call[0] === rect)
+    expect(updateCalls.length).toBeGreaterThan(0)
+    const namesArg = updateCalls[0][1]
+    expect(namesArg).toEqual(expect.arrayContaining(['height']))
+
+    spy.mockRestore()
+  })
+
+  it('removes exit nodes after the snap commit (duration 0)', () => {
+    featureJoin(env.t, {
+      role: 'mark-per-category',
+      parent: env.g,
+      selector: '.bc-bar',
+      data: [{ label: 'a', value: 10 }, { label: 'b', value: 20 }],
+      key: d => d.label,
+      insert: sel => sel.append('rect').attr('class', 'bc-bar'),
+      attrs: d => ({ x: 0, y: 0, width: 40, height: d.value }),
+    })
+    env.t.beginCommit()
+    featureJoin(env.t, {
+      role: 'mark-per-category',
+      parent: env.g,
+      selector: '.bc-bar',
+      data: [{ label: 'a', value: 10 }],
+      key: d => d.label,
+      insert: sel => sel.append('rect').attr('class', 'bc-bar'),
+      attrs: d => ({ x: 0, y: 0, width: 40, height: d.value }),
+    })
+    env.t.commit({ duration: 0 })
+    const rects = env.g.querySelectorAll('.bc-bar')
+    expect(rects.length).toBe(1)
+    // Surviving rect bound to 'a'.
     expect(rects[0].getAttribute('height')).toBe('10')
   })
 })
