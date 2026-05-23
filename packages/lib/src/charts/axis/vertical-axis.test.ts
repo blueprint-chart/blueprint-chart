@@ -1,17 +1,23 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import * as d3 from 'd3'
 import { renderVerticalAxis } from './vertical-axis'
+import { setRenderTransition } from '../motion'
 
 describe('renderVerticalAxis', () => {
   let chartArea: SVGGElement
   let scale: d3.ScaleLinear<number, number>
 
   beforeEach(() => {
+    vi.useFakeTimers()
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
     chartArea = document.createElementNS('http://www.w3.org/2000/svg', 'g') as SVGGElement
     svg.appendChild(chartArea)
     document.body.appendChild(svg)
     scale = d3.scaleLinear().domain([0, 100]).range([300, 0])
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
   })
 
   it('creates a vertical axis group', () => {
@@ -123,5 +129,83 @@ describe('renderVerticalAxis', () => {
     const visibleTickLines = Array.from(g2.querySelectorAll('.tick line'))
       .filter(el => el.getAttribute('opacity') !== '0')
     expect(visibleTickLines).toHaveLength(0)
+  })
+
+  it('keeps tick text inside the chart area across a merge:transition in auto/inside mode', () => {
+    // gridWidth < 400 triggers AUTO_INSIDE_THRESHOLD => inside mode.
+    // showAxis: false => padding === 0.
+    const opts = {
+      labelPosition: 'auto' as const,
+      showAxis: false,
+      gridWidth: 350,
+    }
+
+    // Enable the d3-axis transition path (ms > 0).
+    setRenderTransition(true)
+    try {
+      // First render: enter path. Inside positioning applied via the enter
+      // handler (this already works correctly today).
+      const g1 = renderVerticalAxis(chartArea, scale, 300, opts)
+      expect(g1).not.toBeNull()
+
+      // Second render: merge:transition path. This is the buggy code path.
+      // Passing `g1` as the prior element preserves the data-join so the
+      // selection enters the merge branch with the existing tick elements.
+      renderVerticalAxis(chartArea, scale, 300, opts, g1)
+
+      const tickTexts = Array.from(
+        chartArea.querySelectorAll('.bc-axis-vertical .tick text'),
+      ) as SVGTextElement[]
+      expect(tickTexts.length).toBeGreaterThan(0)
+
+      // jsdom's timer environment does not advance d3 transitions to
+      // completion via timerFlush(). Instead, we inspect the d3 transition
+      // internals (__transition) to verify that the last pending `attr.x`
+      // tween resolves to `padding` (0), not the axisLeft default (-9).
+      //
+      // d3's attrConstant tween factory returns `null` when the current
+      // attribute value already equals the target (start === end), and
+      // returns an interpolator function otherwise. So:
+      //   - Fixed: target is 0, x is already 0 → factory returns null (no-op)
+      //   - Buggy: target is -9, x is 0 → factory returns interpolator → (1) = -9
+      for (const tickText of tickTexts) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const node = tickText as any
+        const td = node['__transition']
+        expect(td).not.toBeNull()
+
+        // Find the last scheduled transition's attr.x tween (highest key wins).
+        const lastKey = Object.keys(td).pop()!
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const xTween = (td[lastKey].tween ?? []).find((tw: any) => tw?.name === 'attr.x')
+        expect(xTween).toBeDefined()
+
+        // Call the tween factory on the real element to get the interpolator.
+        // If it returns null, the current x already equals the target (0 = 0).
+        // If it returns a function, call it at t=1 to get the final value.
+        const interpFactory = xTween.value.call(tickText, node.__data__, 0, [tickText])
+        if (interpFactory === null) {
+          // null → start === end === padding (0). This is the fixed path.
+          expect(tickText.getAttribute('x')).toBe('0')
+        }
+        else {
+          // Function returned → start (0) → end (target). Must not target -9.
+          let finalX: string | null = null
+          interpFactory.call(
+            { setAttribute: (_n: string, v: string) => { finalX = v }, setAttributeNS: () => {} },
+            1,
+          )
+          // padding === 0 because showAxis is false.
+          expect(Number(finalX)).toBe(0)
+        }
+
+        // text-anchor is set as part of the same transition; verify it is
+        // already reflected synchronously on the element.
+        expect(tickText.getAttribute('text-anchor')).toBe('start')
+      }
+    }
+    finally {
+      setRenderTransition(false)
+    }
   })
 })
