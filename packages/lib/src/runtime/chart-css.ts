@@ -89,6 +89,7 @@ export const CHART_CSS = `
   font-weight: 600;
   display: inline-flex;
   align-items: center;
+  text-decoration: none;
 }
 
 .bc-frame-source-link {
