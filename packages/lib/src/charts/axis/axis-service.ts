@@ -113,8 +113,13 @@ export class AxisService {
       chartArea.appendChild(this.vGroup!)
       chartArea.appendChild(this.hGroup!)
 
-      // Apply compensating transform for margin delta
-      if (marginDelta && (marginDelta.dx !== 0 || marginDelta.dy !== 0)) {
+      // Apply compensating transform for margin delta — but only when the shift
+      // is at least a pixel. Sub-pixel deltas (from text-length-driven frame
+      // layout changes between scenes that don't actually move the chart area)
+      // would otherwise produce a visible horizontal slide even when nothing
+      // should be moving.
+      const MIN_MARGIN_DELTA_PX = 1
+      if (marginDelta && (Math.abs(marginDelta.dx) >= MIN_MARGIN_DELTA_PX || Math.abs(marginDelta.dy) >= MIN_MARGIN_DELTA_PX)) {
         const { dx, dy } = marginDelta
         for (const group of [this.vGroup!, this.hGroup!]) {
           group.setAttribute('transform', `translate(${dx},${dy})`)
