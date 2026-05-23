@@ -1,5 +1,7 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
+import * as d3 from 'd3'
 import { renderChart } from './render-chart'
+import { getSceneTransition } from '../transitions'
 import { ChartType } from '../enums'
 import type { ChartDefinition } from './types'
 
@@ -73,5 +75,62 @@ describe('renderChart', () => {
     renderChart(container2, defWithRed, { stripColors: true })
     const strippedFill = container2.querySelector('rect')?.getAttribute('fill') ?? ''
     expect(strippedFill.toLowerCase()).not.toBe('#ff0000')
+  })
+})
+
+function minimalBarVerticalDefinition(values: number[]): ChartDefinition {
+  return {
+    chartType: 'bar-vertical',
+    data: { labels: values.map((_, i) => String.fromCharCode(97 + i)), values },
+  }
+}
+
+describe('renderChart + SceneTransition integration', () => {
+  it('drives the orchestrator lifecycle on transition=true', () => {
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+
+    // First render with no transition — orchestrator stays idle.
+    renderChart(container, minimalBarVerticalDefinition([10, 20]), { transition: false })
+    const orch = getSceneTransition(container)
+    expect(orch.state).toBe('idle')
+
+    // Second render with transition=true — orchestrator runs the lifecycle.
+    // Synchronously it may end in 'animating' (a d3 transition was scheduled)
+    // or 'idle' (snap path) — both are acceptable; what matters is it ran.
+    renderChart(container, minimalBarVerticalDefinition([20, 30]), { transition: true })
+    expect(['animating', 'idle']).toContain(orch.state)
+
+    // Tear down so any in-flight legacy d3 transitions can't fire post-test.
+    orch.destroy()
+    d3.select(container).interrupt()
+    d3.select(container).selectAll('*').interrupt()
+    container.remove()
+  })
+
+  it('warns once and falls back to snap when an unknown transitionMode is passed', () => {
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+    renderChart(container, minimalBarVerticalDefinition([10, 20]), { transition: false })
+    renderChart(container, minimalBarVerticalDefinition([20, 30]), { transition: true, transitionMode: 'slide-x' })
+
+    // The orchestrator's mode dispatch should have produced at least one
+    // 'transition mode … is not yet implemented' warning. Other warnings
+    // (e.g. from chart renderer plumbing) may also fire, so we filter.
+    const modeWarnings = warn.mock.calls.filter(call =>
+      typeof call[0] === 'string' && call[0].includes("transition mode 'slide-x'"),
+    )
+    expect(modeWarnings.length).toBeGreaterThan(0)
+
+    const orch = getSceneTransition(container)
+    expect(orch.state).toBe('idle')
+
+    orch.destroy()
+    d3.select(container).interrupt()
+    d3.select(container).selectAll('*').interrupt()
+    warn.mockRestore()
+    container.remove()
   })
 })

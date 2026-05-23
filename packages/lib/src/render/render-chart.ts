@@ -7,6 +7,7 @@ import { applyPostRender } from './post-render'
 import { getChart } from '../charts/registry'
 import { buildChartOptions } from '../charts/chart-helpers'
 import { resolveBackgroundColor } from '../charts/contrast'
+import { getSceneTransition } from '../transitions'
 
 export function renderChart(
   container: HTMLElement,
@@ -74,6 +75,11 @@ export function renderChart(
     frame = { ...(state.frame ?? {}), padding }
   }
 
+  const orch = getSceneTransition(container)
+  if (options.transition) {
+    orch.beginCommit()
+  }
+
   renderer(container, state.data, {
     frame,
     sort: state.sort,
@@ -85,6 +91,10 @@ export function renderChart(
     annotations: state.annotations.length > 0 ? state.annotations : undefined,
     seriesOverrides: state.seriesOverrides.length > 0 ? state.seriesOverrides : undefined,
   }, !!options.transition)
+
+  if (options.transition) {
+    orch.commit({ mode: options.transitionMode })
+  }
 
   const theme = options.theme ?? state.theme
   applyPostRender(container, { theme }, layout)
