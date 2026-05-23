@@ -12,10 +12,11 @@ import { createCrosshairPlugin } from '../../plugins/crosshair'
 import { createAnnotationPlugin, snapshotAnnotations, type AnnotationSnapshot } from '../../plugins/annotations'
 import { resolveBackgroundColor, contrastTextColor } from '../../contrast'
 import { buildNumberFormatter } from '../../format-helpers'
-import { getDefaultTransitionMs, setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut, reinsertWithOffset } from '../../motion'
+import { getDefaultTransitionMs, setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut } from '../../motion'
 import { getCachedChart, setCachedChart } from '../../transition-cache'
 import { ensureClipPath } from '../../clip-path-helper'
 import { SortDirection, ValueLabelPosition, LabelPosition } from '../../../enums'
+import { featureJoin, getSceneTransition } from '../../../transitions'
 
 export const DEFAULT_COLORS = ['#4e79a7']
 const CATEGORY_LABEL_HEIGHT = 13
@@ -34,62 +35,11 @@ interface WaterfallDatum {
 }
 
 class BarVerticalChart extends D3Blueprint<BarDatum[]> {
-  initialize() {
-    this.configDefine('x', { defaultValue: d3.scaleBand<string>() })
-    this.configDefine('y', { defaultValue: d3.scaleLinear() })
-    this.configDefine('width', { defaultValue: 0 })
-    this.configDefine('height', { defaultValue: 0 })
-    this.configDefine('colors', { defaultValue: DEFAULT_COLORS })
-    this.configDefine('colorOverrides', { defaultValue: new Map<string, string>() })
-    this.configDefine('highlightTargets', { defaultValue: new Set<string>() })
-    this.configDefine('swapLabelValue', { defaultValue: false })
-
-    const g = this.base.append('g')
-
-    this.layer('bars', g, {
-      dataBind: (sel, data) => sel.selectAll<Element, BarDatum>('.bc-bar').data(data, d => d.label),
-      insert: sel => sel.append('rect').attr('class', 'bc-bar'),
-      events: {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        'enter': (sel: any) => {
-          const colors = this.config('colors') as string[]
-          const colorOverrides = this.config('colorOverrides') as Map<string, string>
-          const hl = this.config('highlightTargets') as Set<string>
-          const hasHl = hl.size > 0
-          const x = this.config('x') as d3.ScaleBand<string>
-          const y = this.config('y') as d3.ScaleLinear<number, number>
-          sel
-            .attr('x', (d: BarDatum) => x(d.label) ?? 0)
-            .attr('y', (d: BarDatum) => Math.min(y(0), y(d.value)))
-            .attr('width', x.bandwidth())
-            .attr('height', (d: BarDatum) => Math.abs(y(d.value) - y(0)))
-            .attr('fill', (d: BarDatum) => colorOverrides.get(d.label) ?? colors[0])
-            .attr('opacity', (d: BarDatum) => hasHl ? (hl.has(d.label) ? 1 : 0.35) : null)
-        },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        'merge:transition': (sel: any) => {
-          const colors = this.config('colors') as string[]
-          const colorOverrides = this.config('colorOverrides') as Map<string, string>
-          const hl = this.config('highlightTargets') as Set<string>
-          const hasHl = hl.size > 0
-          const x = this.config('x') as d3.ScaleBand<string>
-          const y = this.config('y') as d3.ScaleLinear<number, number>
-          sel.duration(getDefaultTransitionMs())
-            .attr('x', (d: BarDatum) => x(d.label) ?? 0)
-            .attr('y', (d: BarDatum) => Math.min(y(0), y(d.value)))
-            .attr('width', x.bandwidth())
-            .attr('height', (d: BarDatum) => Math.abs(y(d.value) - y(0)))
-            .attr('fill', (d: BarDatum) => colorOverrides.get(d.label) ?? colors[0])
-            .attr('opacity', (d: BarDatum) => hasHl ? (hl.has(d.label) ? 1 : 0.35) : null)
-        },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        'exit:transition': (sel: any) => {
-          sel.duration(getDefaultTransitionMs())
-            .attr('opacity', 0)
-            .remove()
-        },
-      },
-    })
+  initialize(): void {
+    // Bars are rendered via featureJoin against the SceneTransition orchestrator
+    // (see render()). This class is retained only as a host for legacy
+    // plugins (tooltips, crosshair, annotations) that consume the D3Blueprint
+    // API. Plugins will migrate to the orchestrator in Stages 3-4.
   }
 }
 
@@ -101,7 +51,6 @@ export function render(
 ): void {
   setRenderTransition(transition)
   // Preserve existing data elements for smooth D3 data-join transitions
-  let priorBars: Element[] = []
   let priorLabels: Element[] = []
   let fadeOverlay: HTMLElement | null = null
   let priorAnnotations: Map<string, AnnotationSnapshot> | undefined
@@ -112,7 +61,6 @@ export function render(
     priorMargin = cached?.margin
     axes.detach()
     if (cached?.chartType === 'bar-vertical') {
-      priorBars = Array.from(container.querySelectorAll('.bc-frame .bc-bar'))
       priorLabels = Array.from(container.querySelectorAll('.bc-frame .bc-value-label'))
     }
     else if (cached) {
@@ -432,15 +380,34 @@ export function render(
     }
   }
   else {
+    const orch = getSceneTransition(container)
+
+    // Bars — one feature per category, keyed by label.
+    const barLayer = clippedGroup.append('g').node()!
+    featureJoin<BarDatum>(orch, {
+      role: 'mark-per-category',
+      parent: barLayer,
+      selector: '.bc-bar',
+      data: barData,
+      key: d => d.label,
+      insert: sel => sel.append('rect').attr('class', 'bc-bar'),
+      attrs: (d) => {
+        const hasHl = highlightTargets.size > 0
+        return {
+          x: x(d.label) ?? 0,
+          y: Math.min(y(0), y(d.value)),
+          width: x.bandwidth(),
+          height: Math.abs(y(d.value) - y(0)),
+          fill: colorOverrides.get(d.label) ?? (options.colors ?? DEFAULT_COLORS)[0],
+          opacity: hasHl ? (highlightTargets.has(d.label) ? 1 : 0.35) : 1,
+        }
+      },
+    })
+
+    // Plugins host — kept on the legacy D3Blueprint path. Mounting on
+    // clippedGroup so plugins find the `.bc-bar` elements that featureJoin
+    // just inserted under barLayer.
     const chart = new BarVerticalChart(clippedGroup)
-    chart.config({ x, y, width, height, colors: options.colors ?? DEFAULT_COLORS, colorOverrides, highlightTargets, swapLabelValue })
-
-    // Re-insert prior elements so D3 data-join finds them and triggers merge:transition
-    if (priorBars.length > 0) {
-      const layerG = clippedGroup.node()!.querySelector('g')!
-      reinsertWithOffset(layerG, priorBars, marginDelta?.dx ?? 0, marginDelta?.dy ?? 0)
-    }
-
     if (options.tooltips) {
       chart.use(createTooltipPlugin({ numberFormat: options.verticalAxis?.numberFormat }))
     }

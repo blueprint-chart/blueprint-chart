@@ -1208,7 +1208,9 @@ describe('bar-vertical', () => {
       render(container, data)
       const bars = container.querySelectorAll('.bc-bar')
       const opacities = Array.from(bars).map(b => b.getAttribute('opacity'))
-      expect(opacities.every(o => o === null)).toBe(true)
+      // featureJoin always writes the opacity attribute; "no dimming" means
+      // every bar is at full opacity (either unset or "1"), never < 1.
+      expect(opacities.every(o => o === null || o === '1')).toBe(true)
     })
 
     it('works alongside colorize', () => {
