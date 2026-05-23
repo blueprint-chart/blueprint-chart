@@ -130,12 +130,6 @@ describe('line chart', () => {
       const credit = container.querySelector('.bc-frame-credit')
       expect(credit).not.toBeNull()
     })
-
-    it('hides credit when showCredit=false', () => {
-      render(container, data, { frame: { showCredit: false } })
-      const credit = container.querySelector('.bc-frame-credit')
-      expect(credit).toBeNull()
-    })
   })
 
   // ── Interpolation / curve ────────────────────────────────────────

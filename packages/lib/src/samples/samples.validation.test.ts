@@ -18,7 +18,7 @@ const FRAME_KEYS = new Set([
   // Layout properties
   'sizing', 'fixedWidth', 'maxWidth',
   'heightMode', 'fixedHeight', 'aspectRatio',
-  'padding', 'transparentBackground', 'showCredit',
+  'padding', 'transparentBackground',
   'player', 'playerPosition',
 ])
 

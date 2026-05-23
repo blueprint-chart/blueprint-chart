@@ -82,7 +82,6 @@ export interface FrameOptions {
   sourceUrl?: string
   sizing?: FrameSizing
   aspectRatio?: number
-  showCredit?: boolean
   padding?: string
   transparentBackground?: boolean
 }
