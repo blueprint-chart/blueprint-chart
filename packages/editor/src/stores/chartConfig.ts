@@ -84,7 +84,6 @@ export interface ChartLayout {
   aspectRatio: string
   padding: number
   transparentBackground: boolean
-  showCredit: boolean
   playerType: 'buttons' | 'progress-bar' | 'dot-stepper' | 'minimal-arrows' | 'none'
   playerPosition: 'left' | 'center' | 'right'
 }
@@ -98,7 +97,6 @@ export const layoutDefaults: ChartLayout = {
   aspectRatio: '16:9',
   padding: 16,
   transparentBackground: false,
-  showCredit: true,
   playerType: 'buttons',
   playerPosition: 'left',
 }

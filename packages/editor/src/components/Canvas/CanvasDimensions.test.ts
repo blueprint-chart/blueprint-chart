@@ -16,7 +16,6 @@ function defaultLayout(overrides: Partial<ChartLayout> = {}): ChartLayout {
     aspectRatio: '16:9',
     padding: 0,
     transparentBackground: false,
-    showCredit: true,
     ...overrides,
   }
 }
