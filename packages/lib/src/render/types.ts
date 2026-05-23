@@ -11,6 +11,7 @@ import type {
   FrameOptions,
 } from '../charts/types'
 import type { PropertyNode, SceneNode } from '../dsl/types'
+import type { TransitionMode } from '../transitions/types'
 
 export interface ChartDefinition {
   chartType: string
@@ -32,6 +33,12 @@ export interface ChartDefinition {
 export interface RenderOptions {
   sceneIndex?: number
   transition?: boolean
+  /**
+   * Transition mode. Defaults to `'transform'` when omitted. Only the
+   * `transform` mode runs in v1; other values warn-once at the orchestrator
+   * and fall back to snap. See `transitions/index.ts`.
+   */
+  transitionMode?: TransitionMode
   thumbnail?: boolean
   stripColors?: boolean
   ignoreLayout?: boolean
