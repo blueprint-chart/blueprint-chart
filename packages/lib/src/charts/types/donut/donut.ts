@@ -140,7 +140,7 @@ export function renderArc(
   // Estimate using the chart-area width (container minus default left/right margins)
   const legendAvailableWidth = Math.max(0, containerWidth - 50 - 20)
   const legendSize = showLegend ? estimateLegendSize(legendSizeLabels, legendPos, legendAvailableWidth) : { width: 0, height: 0 }
-  const legendH = showLegend ? legendSize.height + 10 : 0
+  const legendH = showLegend ? legendSize.height + 15 : 0
 
   const marginOverrides: Record<string, number> = {}
   if (showLegend && legendPos === 'top') {
@@ -299,7 +299,7 @@ export function renderArc(
     let xPos = 0
     let yPos = 0
     if (legendPos === 'top') {
-      yPos = -(legendSize.height + 5)
+      yPos = -(legendSize.height + 10)
     }
     else if (legendPos === 'bottom') {
       yPos = height + 25

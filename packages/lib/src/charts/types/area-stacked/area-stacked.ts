@@ -283,7 +283,7 @@ export function render(
   const vLabelsInside = lpMargins.top != null
   const legendAvailableWidth = Math.max(0, containerWidth - (lpMargins.left ?? 50) - (lpMargins.right ?? 20) - directLabelW)
   const legendSize = showLegend ? estimateLegendSize(seriesNames, legendPos, legendAvailableWidth) : { width: 0, height: 0 }
-  const legendH = showLegend ? legendSize.height + 10 : 0
+  const legendH = showLegend ? legendSize.height + 15 : 0
   const marginOverrides: Record<string, number> = { ...lpMargins }
   if (showLegend && legendPos === 'top') {
     const insideGap = vLabelsInside ? 15 : 0
@@ -504,7 +504,7 @@ export function render(
     let yPos = 0
     if (legendPos === 'top') {
       const insideGap = vLabelsInside ? 15 : 0
-      yPos = -(legendSize.height + 5 + insideGap)
+      yPos = -(legendSize.height + 10 + insideGap)
     }
     else if (legendPos === 'bottom') {
       yPos = height + 25

@@ -143,7 +143,7 @@ export function render(
 
   const legendAvailableWidth = Math.max(0, containerWidth - (lpMargins.left ?? 50) - (lpMargins.right ?? 20))
   const legendSize = showLegend ? estimateLegendSize(seriesNames, legendPos, legendAvailableWidth) : { width: 0, height: 0 }
-  const legendH = showLegend ? legendSize.height + 10 : 0
+  const legendH = showLegend ? legendSize.height + 15 : 0
 
   const marginOverrides: Record<string, number> = { ...lpMargins }
   if (showLegend && legendPos === 'top') {
@@ -372,7 +372,7 @@ export function render(
     let xPos = 0
     let yPos = 0
     if (legendPos === 'top') {
-      yPos = -(legendSize.height + 5)
+      yPos = -(legendSize.height + 10)
     }
     else if (legendPos === 'bottom') {
       yPos = height + 25
