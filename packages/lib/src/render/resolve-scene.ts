@@ -1,4 +1,5 @@
 import type { ChartDefinition, ResolvedChartState } from './types'
+import type { FrameOptions } from '../charts/types'
 import type { SceneNode, ColorizeNode, HighlightNode, AreaFillNode, AnnotationNode, SeriesNode, TransformNode } from '../dsl/types'
 import { AnnotationAction, SortMode } from '../enums'
 import { extractChartTypeOptions, propertyMap, dataEntriesToString, convertColorizes, convertHighlights, convertAreaFills, convertAnnotations, convertSeriesOverrides } from '../dsl/converter'
@@ -199,11 +200,28 @@ export function resolveScene(
   // S2/S9: apply any sort transforms accumulated from scenes onto sortMode.
   const sortMode = applyTransformsToSortMode(fold.transforms, base.sortMode, `scene ${sceneIndex}`)
 
+  // Apply frame-relevant scene-property overrides to the base frame. The
+  // whitelist matches the editor's `useChartPreview.ts` contract: only string
+  // fields that are safe to vary per scene appear here. Layout/style fields
+  // like `padding`, `showCredit`, `transparentBackground` are intentionally
+  // excluded because they would cause layout shifts mid-transition.
+  const FRAME_PROPERTY_KEYS = ['title', 'description', 'source', 'sourceUrl', 'byline', 'note'] as const
+  const frameOverrides: Partial<FrameOptions> = {}
+  for (const k of FRAME_PROPERTY_KEYS) {
+    if (fold.properties.has(k)) {
+      frameOverrides[k] = fold.properties.get(k) as string
+    }
+  }
+  const frame = Object.keys(frameOverrides).length > 0
+    ? { ...base.frame, ...frameOverrides }
+    : base.frame
+
   return {
     ...base,
     chartType,
     data,
     options,
+    frame,
     colorizes,
     highlights,
     areaFills,

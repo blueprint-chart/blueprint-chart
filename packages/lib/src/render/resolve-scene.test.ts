@@ -202,6 +202,57 @@ describe('resolveScene', () => {
     expect(resolveScene(def, 0).sortMode).toBe(SortMode.Total)
   })
 
+  // Frame-property merge tests
+  it('merges scene title into returned frame', () => {
+    const def = baseDef({
+      frame: { title: 'Base', description: 'BaseDesc' },
+      scenes: [{
+        type: DslNodeType.Scene, name: null, data: null,
+        properties: [{ type: DslNodeType.Property, key: 'title', value: 'SceneTitle', isPercentage: false }],
+        colorizes: [], highlights: [], areaFills: [], annotations: [], annotationVisibility: [], series: [], transforms: [],
+      }],
+    })
+    const state = resolveScene(def, 0)
+    expect(state.frame?.title).toBe('SceneTitle')
+    expect(state.frame?.description).toBe('BaseDesc')
+  })
+
+  it('preserves base frame fields not overridden by scene', () => {
+    const def = baseDef({
+      frame: { title: 'Base', description: 'BaseDesc' },
+      scenes: [{
+        type: DslNodeType.Scene, name: null, data: null,
+        properties: [{ type: DslNodeType.Property, key: 'description', value: 'SceneDesc', isPercentage: false }],
+        colorizes: [], highlights: [], areaFills: [], annotations: [], annotationVisibility: [], series: [], transforms: [],
+      }],
+    })
+    const state = resolveScene(def, 0)
+    expect(state.frame?.title).toBe('Base')
+    expect(state.frame?.description).toBe('SceneDesc')
+  })
+
+  it('does not leak non-frame scene properties into frame', () => {
+    const def = baseDef({
+      frame: { title: 'Base' },
+      scenes: [{
+        type: DslNodeType.Scene, name: null, data: null,
+        properties: [{ type: DslNodeType.Property, key: 'padding', value: '32px', isPercentage: false }],
+        colorizes: [], highlights: [], areaFills: [], annotations: [], annotationVisibility: [], series: [], transforms: [],
+      }],
+    })
+    const state = resolveScene(def, 0)
+    // `padding` is not in the FRAME_PROPERTY_KEYS whitelist; must not appear in frame.
+    expect((state.frame as Record<string, unknown> | undefined)?.padding).toBeUndefined()
+    expect(state.frame?.title).toBe('Base')
+  })
+
+  it('returns base.frame unchanged when no sceneIndex is provided', () => {
+    const baseFrame = { title: 'Base' }
+    const def = baseDef({ frame: baseFrame, scenes: [] })
+    const state = resolveScene(def, undefined)
+    expect(state.frame).toBe(baseFrame) // identity: early-return path passes base.frame through
+  })
+
   it('warns once per unknown transform type', () => {
     __resetTransformWarnings()
     const spy = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
