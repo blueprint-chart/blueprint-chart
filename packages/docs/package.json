@@ -37,7 +37,9 @@
     "build:vitepress": "vitepress build src",
     "build:manifest": "tsx scripts/build-manifest.ts",
     "build:api": "tsc --project tsconfig.api.json",
-    "build": "pnpm run build:vitepress && pnpm run build:manifest && pnpm run build:api",
+    "build:package": "pnpm run build:manifest && pnpm run build:api",
+    "build": "pnpm run build:vitepress && pnpm run build:package",
+    "prepublishOnly": "pnpm run build:package",
     "preview": "vitepress preview src --host 0.0.0.0 --port 4445",
     "test": "vitest run"
   },
