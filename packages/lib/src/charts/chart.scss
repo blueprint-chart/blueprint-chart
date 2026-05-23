@@ -46,6 +46,19 @@
   @extend .bc-frame;
 }
 
+// The fade overlay is a position:absolute; inset:0; display:flex column
+// container created by snapshotForFadeOut() during cross-type scene
+// transitions. Its cloned chart needs to fill it so the fade-out is
+// visible at the same dimensions as the original chart.
+[data-bc-fade-overlay] {
+  > .bc-frame,
+  > .bc-frame--fade-snapshot {
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+  }
+}
+
 // Constrained-height mode: when the frame's container has a definite height
 // (fixed or aspect-ratio).
 //

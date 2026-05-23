@@ -144,6 +144,10 @@ export function snapshotForFadeOut(container: HTMLElement, ms?: number): HTMLEle
   overlay.style.position = 'absolute'
   overlay.style.inset = '0'
   overlay.style.pointerEvents = 'none'
+  // Flex column so cloned `.bc-frame--constrained` (which uses `flex: 1`)
+  // lays out at full overlay dimensions instead of collapsing to 0x0.
+  overlay.style.display = 'flex'
+  overlay.style.flexDirection = 'column'
   overlay.dataset.bcFadeOverlay = 'true'
 
   // Clone (not move) children so the originals remain available for
