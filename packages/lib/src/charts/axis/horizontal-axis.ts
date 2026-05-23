@@ -523,12 +523,13 @@ export class HorizontalAxisChart extends D3Blueprint<AxisDatum[]> {
       sel.call(axisFn)
     }
 
-    // When phase === 'merge' && ms > 0, `sel` is the d3 transition created
-    // above; routing downstream label-position writes through it makes those
-    // attribute writes part of the same tween so they win against axisBottom's
-    // default tick-text positioning. Mirrors the vertical-axis fix from the
-    // previous spec (commit 17584357).
-    const target = phase === 'enter' || ms > 0
+    // When ms > 0, `sel` is the d3 transition created above; routing downstream
+    // label-position writes through it makes those attribute writes part of the
+    // same tween so they win against axisBottom's default tick-text positioning.
+    // Mirrors the vertical-axis fix from the previous spec (commit 17584357).
+    // For ms === 0 (initial render or transitions disabled), use a plain
+    // selection on axisNode; falling back to `sel` if axisNode is unexpectedly null.
+    const target = ms > 0
       ? sel
       : (axisNode ? d3.select(axisNode) : sel)
 
