@@ -12,7 +12,7 @@ import { createCrosshairPlugin } from '../../plugins/crosshair'
 import { createAnnotationPlugin, snapshotAnnotations, type AnnotationSnapshot } from '../../plugins/annotations'
 import { resolveBackgroundColor, contrastTextColor } from '../../contrast'
 import { buildNumberFormatter } from '../../format-helpers'
-import { getDefaultTransitionMs, setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut } from '../../motion'
+import { setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut } from '../../motion'
 import { getCachedChart, setCachedChart } from '../../transition-cache'
 import { ensureClipPath } from '../../clip-path-helper'
 import { SortDirection, ValueLabelPosition, LabelPosition } from '../../../enums'
@@ -50,8 +50,6 @@ export function render(
   transition = false,
 ): void {
   setRenderTransition(transition)
-  // Preserve existing data elements for smooth D3 data-join transitions
-  let priorLabels: Element[] = []
   let fadeOverlay: HTMLElement | null = null
   let priorAnnotations: Map<string, AnnotationSnapshot> | undefined
   let priorMargin: { top: number, left: number } | undefined
@@ -60,10 +58,7 @@ export function render(
     const cached = getCachedChart(container)
     priorMargin = cached?.margin
     axes.detach()
-    if (cached?.chartType === 'bar-vertical') {
-      priorLabels = Array.from(container.querySelectorAll('.bc-frame .bc-value-label'))
-    }
-    else if (cached) {
+    if (cached && cached.chartType !== 'bar-vertical') {
       fadeOverlay = snapshotForFadeOut(container)
     }
     // Snapshot annotation positions before clearing
@@ -427,7 +422,6 @@ export function render(
         colorOverrides,
         colors: options.colors ?? DEFAULT_COLORS,
         transition,
-        priorLabels,
         swapLabelValue,
       })
     }
@@ -502,10 +496,9 @@ function renderValueLabels(
     colorOverrides: Map<string, string>
     colors: string[]
     transition: boolean
-    priorLabels: Element[]
     swapLabelValue?: boolean
   },
-) {
+): void {
   const pos = opts.position ?? ValueLabelPosition.Auto
   const labelText = (d: BarDatum) => opts.swapLabelValue ? d.label : String(d.value)
 
@@ -514,66 +507,41 @@ function renderValueLabels(
     labelGroup = parent.append('g').attr('class', 'bc-value-label-group')
   }
 
-  if (opts.priorLabels.length > 0) {
-    const node = labelGroup.node()!
-    opts.priorLabels.forEach(el => node.appendChild(el))
-  }
+  // Resolve the container from the parent's owner. The parent here is the
+  // unclippedGroup, which is mounted under the chartArea inside the chart's
+  // SVG root, inside the chart container <div>.
+  const ownerSvg = parent.node()!.ownerSVGElement
+  const container = ownerSvg?.parentElement as HTMLElement
+  const orch = getSceneTransition(container)
 
-  const join = labelGroup.selectAll<SVGTextElement, BarDatum>('.bc-value-label')
+  featureJoin<BarDatum>(orch, {
+    role: 'value-label',
+    parent: labelGroup.node()!,
+    selector: '.bc-value-label',
+    data: barData,
+    key: d => d.label,
+    insert: sel => sel.append('text')
+      .attr('class', 'bc-value-label')
+      .attr('font-size', '11px'),
+    attrs: (d) => {
+      const a = valueLabelAttrs(d, x, y, pos)
+      return {
+        x: a.tx,
+        y: a.ty,
+        'text-anchor': a.anchor,
+        'dominant-baseline': a.baseline,
+        fill: a.isInside
+          ? contrastTextColor(opts.colorOverrides.get(d.label) ?? opts.colors[0])
+          : 'currentColor',
+      }
+    },
+  })
+
+  // featureJoin only manages attributes, not text content. Set text content
+  // for both enter and update bars in a second pass keyed by the same label.
+  labelGroup.selectAll<SVGTextElement, BarDatum>('.bc-value-label')
     .data(barData, (d: BarDatum) => d.label)
-
-  join.exit()
-    .transition().duration(getDefaultTransitionMs())
-    .attr('opacity', 0)
-    .remove()
-
-  const enter = join.enter()
-    .append('text')
-    .attr('class', 'bc-value-label')
-    .attr('font-size', '11px')
-    .each(function (d) {
-      const a = valueLabelAttrs(d, x, y, pos)
-      d3.select(this)
-        .attr('x', a.tx)
-        .attr('y', a.ty)
-        .attr('text-anchor', a.anchor)
-        .attr('dominant-baseline', a.baseline)
-        .attr('fill', a.isInside
-          ? contrastTextColor(opts.colorOverrides.get(d.label) ?? opts.colors[0])
-          : 'currentColor')
-        .text(labelText(d))
-    })
-
-  const merged = enter.merge(join)
-  if (opts.transition) {
-    merged.each(function (d) {
-      const a = valueLabelAttrs(d, x, y, pos)
-      d3.select(this)
-        .text(labelText(d))
-        .transition().duration(getDefaultTransitionMs())
-        .attr('x', a.tx)
-        .attr('y', a.ty)
-        .attr('text-anchor', a.anchor)
-        .attr('dominant-baseline', a.baseline)
-        .attr('fill', a.isInside
-          ? contrastTextColor(opts.colorOverrides.get(d.label) ?? opts.colors[0])
-          : 'currentColor')
-    })
-  }
-  else {
-    merged.each(function (d) {
-      const a = valueLabelAttrs(d, x, y, pos)
-      d3.select(this)
-        .attr('x', a.tx)
-        .attr('y', a.ty)
-        .attr('text-anchor', a.anchor)
-        .attr('dominant-baseline', a.baseline)
-        .attr('fill', a.isInside
-          ? contrastTextColor(opts.colorOverrides.get(d.label) ?? opts.colors[0])
-          : 'currentColor')
-        .text(labelText(d))
-    })
-  }
+    .text(labelText)
 }
 
 function sortLabels(data: ChartData, options: ChartOptions): string[] {
