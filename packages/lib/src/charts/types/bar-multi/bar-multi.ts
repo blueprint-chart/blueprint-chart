@@ -14,10 +14,11 @@ import { createTooltipPlugin } from '../../plugins/tooltip'
 import { createCrosshairPlugin } from '../../plugins/crosshair'
 import { contrastTextColor, readableColor, resolveBackgroundColor } from '../../contrast'
 import { resolveSeriesColor, isSeriesHidden, resolveSeriesValueLabels, resolveSeriesOpacity, resolveSeriesLabelMode } from '../../series-helpers'
-import { getDefaultTransitionMs, setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut, reinsertWithOffset } from '../../motion'
+import { setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut } from '../../motion'
 import { setCachedChart, getCachedChart } from '../../transition-cache'
 import { ensureClipPath } from '../../clip-path-helper'
 import { ValueLabelPosition, DirectLabelMode } from '../../../enums'
+import { featureJoin, getSceneTransition } from '../../../transitions'
 
 export const DEFAULT_COLORS = [
   '#4e79a7', '#f28e2b', '#e15759', '#76b7b2',
@@ -33,55 +34,11 @@ interface MultiBarDatum {
 }
 
 class BarMultiChart extends D3Blueprint<MultiBarDatum[]> {
-  initialize() {
-    this.configDefine('x0', { defaultValue: d3.scaleBand<string>() })
-    this.configDefine('x1', { defaultValue: d3.scaleBand<string>() })
-    this.configDefine('y', { defaultValue: d3.scaleLinear() })
-    this.configDefine('height', { defaultValue: 0 })
-    this.configDefine('colors', { defaultValue: DEFAULT_COLORS })
-
-    const g = this.base.append('g')
-
-    this.layer('bars', g, {
-      dataBind: (sel, data) => sel.selectAll<Element, MultiBarDatum>('.bc-bar-multi').data(data, d => d.label + '\0' + d.seriesName),
-      insert: sel => sel.append('rect').attr('class', 'bc-bar bc-bar-multi'),
-      events: {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        'enter': (sel: any) => {
-          const x0 = this.config('x0') as d3.ScaleBand<string>
-          const x1 = this.config('x1') as d3.ScaleBand<string>
-          const y = this.config('y') as d3.ScaleLinear<number, number>
-          const colors = this.config('colors') as string[]
-          sel
-            .attr('data-series', (d: MultiBarDatum) => d.seriesName)
-            .attr('x', (d: MultiBarDatum) => (x0(d.label) ?? 0) + (x1(d.series) ?? 0))
-            .attr('y', (d: MultiBarDatum) => Math.min(y(0), y(d.value)))
-            .attr('width', x1.bandwidth())
-            .attr('height', (d: MultiBarDatum) => Math.abs(y(d.value) - y(0)))
-            .attr('fill', (d: MultiBarDatum) => colors[d.seriesIndex % colors.length])
-        },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        'merge:transition': (sel: any) => {
-          const x0 = this.config('x0') as d3.ScaleBand<string>
-          const x1 = this.config('x1') as d3.ScaleBand<string>
-          const y = this.config('y') as d3.ScaleLinear<number, number>
-          const colors = this.config('colors') as string[]
-          sel.duration(getDefaultTransitionMs())
-            .attr('data-series', (d: MultiBarDatum) => d.seriesName)
-            .attr('x', (d: MultiBarDatum) => (x0(d.label) ?? 0) + (x1(d.series) ?? 0))
-            .attr('y', (d: MultiBarDatum) => Math.min(y(0), y(d.value)))
-            .attr('width', x1.bandwidth())
-            .attr('height', (d: MultiBarDatum) => Math.abs(y(d.value) - y(0)))
-            .attr('fill', (d: MultiBarDatum) => colors[d.seriesIndex % colors.length])
-        },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        'exit:transition': (sel: any) => {
-          sel.duration(getDefaultTransitionMs())
-            .attr('opacity', 0)
-            .remove()
-        },
-      },
-    })
+  initialize(): void {
+    // Bars are rendered via featureJoin against the SceneTransition orchestrator
+    // (see render()). This class is retained only as a host for legacy
+    // plugins (tooltips, crosshair, annotations) that consume the D3Blueprint
+    // API. Plugins will migrate to the orchestrator in Stages 3-4.
   }
 }
 
@@ -92,8 +49,6 @@ export function render(
   transition = false,
 ): void {
   setRenderTransition(transition)
-  // Preserve existing data elements for smooth D3 data-join transitions
-  let priorBars: Element[] = []
   let fadeOverlay: HTMLElement | null = null
   let priorAnnotations: Map<string, AnnotationSnapshot> | undefined
   let priorMargin: { top: number, left: number } | undefined
@@ -102,10 +57,7 @@ export function render(
     const cached = getCachedChart(container)
     priorMargin = cached?.margin
     axes.detach()
-    if (cached?.chartType === 'bar-multi') {
-      priorBars = Array.from(container.querySelectorAll('.bc-frame .bc-bar-multi'))
-    }
-    else if (cached) {
+    if (cached && cached.chartType !== 'bar-multi') {
       fadeOverlay = snapshotForFadeOut(container)
     }
     priorAnnotations = new Map()
@@ -250,13 +202,39 @@ export function render(
   const clipId = ensureClipPath(svg, container, 'bars', { x: 0, y: 0, width, height })
   const clippedGroup = d3.select(chartArea).append('g').attr('clip-path', `url(#${clipId})`)
 
+  const orch = getSceneTransition(container)
+
+  // Bars — one feature per (category, series) cell, keyed by label + seriesName.
+  const barLayer = clippedGroup.append('g').node()!
+  featureJoin<MultiBarDatum>(orch, {
+    role: 'mark-per-cell',
+    parent: barLayer,
+    selector: '.bc-bar-multi',
+    data: flatData,
+    key: d => `${d.label}\0${d.seriesName}`,
+    insert: sel => sel.append('rect').attr('class', 'bc-bar bc-bar-multi'),
+    attrs: (d) => {
+      const seriesColor = resolveSeriesColor(d.seriesName, d.seriesIndex, colors, overrides)
+      const seriesOpacity = resolveSeriesOpacity(d.seriesName, overrides)
+      const attrs: Record<string, string | number> = {
+        'data-series': d.seriesName,
+        'x': (x0(d.label) ?? 0) + (x1(d.series) ?? 0),
+        'y': Math.min(y(0), y(d.value)),
+        'width': x1.bandwidth(),
+        'height': Math.abs(y(d.value) - y(0)),
+        'fill': seriesColor,
+      }
+      if (seriesOpacity < 1) {
+        attrs['fill-opacity'] = seriesOpacity
+      }
+      return attrs
+    },
+  })
+
+  // Plugins host — kept on the legacy D3Blueprint path. Mounting on
+  // clippedGroup so plugins find the `.bc-bar-multi` elements that featureJoin
+  // just inserted under barLayer.
   const chart = new BarMultiChart(clippedGroup)
-  chart.config({ x0, x1, y, height, colors })
-  // Re-insert prior elements so D3 data-join finds them and triggers merge:transition
-  if (priorBars.length > 0) {
-    const layerG = clippedGroup.node()!.querySelector('g')!
-    reinsertWithOffset(layerG, priorBars, marginDelta?.dx ?? 0, marginDelta?.dy ?? 0)
-  }
   if (options.tooltips) {
     chart.use(createTooltipPlugin({ numberFormat: options.verticalAxis?.numberFormat }))
   }
@@ -278,20 +256,6 @@ export function render(
     fadeIn(clippedGroup.node()!)
     commitFadeOut(container, fadeOverlay)
   }
-
-  // Apply per-series color and opacity overrides to bars
-  d3.select(chartArea).selectAll<SVGRectElement, unknown>('.bc-bar-multi').each(function (d) {
-    const datum = d as MultiBarDatum
-    const seriesColor = resolveSeriesColor(datum.seriesName, datum.seriesIndex, colors, overrides)
-    const seriesOpacity = resolveSeriesOpacity(datum.seriesName, overrides)
-    const el = transition
-      ? d3.select(this).transition().duration(getDefaultTransitionMs())
-      : d3.select(this)
-    el.attr('fill', seriesColor)
-    if (seriesOpacity < 1) {
-      el.attr('fill-opacity', seriesOpacity)
-    }
-  })
 
   // Build set of series that get direct labels so value labels can shift up
   const directLabelSet = new Set<string>()
