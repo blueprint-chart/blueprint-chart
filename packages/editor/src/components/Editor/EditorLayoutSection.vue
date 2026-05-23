@@ -75,11 +75,6 @@
       v-model="transparentBackground"
       label="Transparent background"
     />
-
-    <FormControlCheckbox
-      v-model="showCredit"
-      label="Show credit (recommended)"
-    />
   </div>
 </template>
 
@@ -122,11 +117,6 @@ const aspectRatio = computed({
 const transparentBackground = computed({
   get: () => layout.value.transparentBackground,
   set: (v) => { layout.value.transparentBackground = v },
-})
-
-const showCredit = computed({
-  get: () => layout.value.showCredit,
-  set: (v) => { layout.value.showCredit = v },
 })
 
 const maxWidthStr = computed({

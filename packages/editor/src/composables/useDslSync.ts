@@ -83,11 +83,6 @@ export function useDslSync() {
         ly.transparentBackground = transparentBg === true || transparentBg === 'true'
       }
 
-      const showCredit = propMap.get('showCredit')
-      if (showCredit !== undefined) {
-        ly.showCredit = showCredit !== false && showCredit !== 'false'
-      }
-
       const player = propMap.get('player')
       const validPlayerTypes = ['buttons', 'progress-bar', 'dot-stepper', 'minimal-arrows', 'none']
       if (player && validPlayerTypes.includes(String(player))) {

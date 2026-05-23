@@ -128,7 +128,6 @@ export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
       note: config.note.value || undefined,
       source: (sp?.source as string | undefined) ?? (config.source.value || undefined),
       sourceUrl: (sp?.sourceUrl as string | undefined) ?? (config.sourceUrl.value || undefined),
-      showCredit: config.layout.value.showCredit,
       padding: `${config.layout.value.padding}px`,
       transparentBackground: config.layout.value.transparentBackground || undefined,
     }

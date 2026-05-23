@@ -89,9 +89,6 @@ export function useDslOutput() {
     if (ly.transparentBackground) {
       output += `  transparentBackground = true\n`
     }
-    if (!ly.showCredit) {
-      output += `  showCredit = false\n`
-    }
     if (ly.playerType && ly.playerType !== 'buttons') {
       output += `  player = "${ly.playerType}"\n`
     }
