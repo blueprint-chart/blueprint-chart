@@ -172,3 +172,27 @@ describe('SceneTransition.run convenience', () => {
     container.remove()
   })
 })
+
+describe('SceneTransition reduced motion', () => {
+  afterEach(() => { vi.restoreAllMocks() })
+
+  it('snaps to idle on commit() when prefers-reduced-motion is set', () => {
+    vi.stubGlobal('window', {
+      ...window,
+      matchMedia: vi.fn().mockImplementation((q: string) => ({
+        matches: q.includes('reduce'),
+        media: q,
+        addEventListener: () => {},
+        removeEventListener: () => {},
+      })),
+    })
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const t = new SceneTransition(container)
+    t.beginCommit()
+    // Caller intent is to animate over 500ms — orchestrator should snap.
+    t.commit({ duration: 500 })
+    expect(t.state).toBe('idle')
+    container.remove()
+  })
+})

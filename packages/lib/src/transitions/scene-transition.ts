@@ -90,7 +90,8 @@ export class SceneTransition {
       console.warn(`[blueprint-chart] commit() called from state '${this._state}' — call beginCommit() first; ignored.`)
       return
     }
-    const duration = opts.duration ?? DEFAULT_DURATION_MS
+    const requested = opts.duration ?? DEFAULT_DURATION_MS
+    const duration = this.effectiveDuration(requested)
     const buffered = this._buffer
     this._buffer = []
     if (duration <= 0) {
@@ -122,6 +123,19 @@ export class SceneTransition {
         this._state = 'idle'
       }
     })
+  }
+
+  /**
+   * Clamp a requested duration to 0 when the user prefers reduced motion.
+   * The lifecycle still runs (snap path), so the same code paths exercise
+   * both animated and reduced-motion behaviour — no aesthetic-only branch.
+   */
+  private effectiveDuration(requested: number): number {
+    if (requested <= 0) { return 0 }
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
+      return requested
+    }
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : requested
   }
 
   /**
