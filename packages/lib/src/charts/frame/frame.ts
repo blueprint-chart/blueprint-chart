@@ -282,22 +282,13 @@ export function createFrame(
       const footerH = footer.offsetHeight
       const noteH = note.style.display !== 'none' ? note.offsetHeight : 0
       wrapper.classList.add('bc-frame--constrained')
-      // Store measurements so createCanvas can add them to chart margins.
-      // Use the MAX of current and previous heights so the chart area
-      // size stays constant across scenes. This prevents y-scale range
-      // changes that cause D3 transition artifacts.
-      type Ext = HTMLElement & { __bcHeaderH?: number, __bcFooterH?: number }
-      const prevHeaderH = (container as Ext).__bcHeaderH ?? 0
-      const prevFooterH = (container as Ext).__bcFooterH ?? 0
-      const effectiveHeaderH = Math.max(headerH, prevHeaderH)
-      const effectiveFooterH = Math.max(footerH + noteH, prevFooterH)
-      body.dataset.headerH = String(effectiveHeaderH)
-      body.dataset.footerH = String(effectiveFooterH)
-      ;(container as Ext).__bcHeaderH = effectiveHeaderH
-      // Re-measure actual footer height after paint for next render
-      requestAnimationFrame(() => {
-        (container as Ext).__bcFooterH = Math.max(footer.offsetHeight + noteH, effectiveFooterH)
-      })
+      // Write measurements so createCanvas can add them to chart margins.
+      // Heights are taken live per render: if a scene's header or footer
+      // shrinks (e.g. shorter description, navigating back), the chart area
+      // expands again. stableTop in computeMarginDelta keeps axes from
+      // sliding during the transition.
+      body.dataset.headerH = String(headerH)
+      body.dataset.footerH = String(footerH + noteH)
     }
   }
 

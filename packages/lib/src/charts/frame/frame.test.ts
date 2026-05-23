@@ -109,7 +109,9 @@ describe('createFrame', () => {
       stubHeight(footer, footerH)
       if (note) {
         stubHeight(note, noteH)
-        if (noteH > 0) note.style.display = 'block'
+        if (noteH > 0) {
+          note.style.display = 'block'
+        }
       }
     }
 
