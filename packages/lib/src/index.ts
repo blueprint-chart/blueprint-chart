@@ -70,6 +70,11 @@ export { renderLegend } from './charts/legend/legend'
 export { registerChart, getChart, getChartOptions, listCharts } from './charts/registry'
 
 export { parseData, buildChartOptions } from './charts/chart-helpers'
+
+// Recommendations
+export { recommendCharts } from './recommendations/recommend'
+export type { ChartRecommendation, RecommendationFitness, ColumnType } from './recommendations/recommend'
+
 export { getChartTypeDefaults, resolveChartTypeOptions } from './charts/resolve'
 export { resolveBarGapPadding, DEFAULT_BAR_GAP } from './charts/scale-helpers'
 export { resolvePalette, listPalettes } from './charts/palettes'
