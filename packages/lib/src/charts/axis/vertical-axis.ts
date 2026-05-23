@@ -95,22 +95,14 @@ export class VerticalAxisChart extends D3Blueprint<AxisDatum[]> {
               : labelPos
             if (effective === LabelPosition.Inside) {
               const padding = showAxis ? 4 : 0
-              // When ms > 0, `sel` is the d3 transition created above; writing on
-              // `sel.selectAll(...)` makes these attribute writes part of the same
-              // tween so they win against axisFn's default tick-text positioning
-              // (which targets x=-9 for axisLeft / x=9 for axisRight).
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              const tickTextSel: any = ms > 0
-                ? sel.selectAll('.tick text')
-                : d3.select(axisNode).selectAll('.tick text')
               if (direction === AxisDirection.Right) {
-                tickTextSel
+                d3.select(axisNode).selectAll('.tick text')
                   .attr('x', -padding)
                   .attr('dy', '-0.4em')
                   .attr('text-anchor', 'end')
               }
               else {
-                tickTextSel
+                d3.select(axisNode).selectAll('.tick text')
                   .attr('x', padding)
                   .attr('dy', '-0.4em')
                   .attr('text-anchor', 'start')

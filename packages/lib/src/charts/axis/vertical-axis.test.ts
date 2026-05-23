@@ -175,7 +175,7 @@ describe('renderVerticalAxis', () => {
         expect(td).not.toBeNull()
 
         // Find the last scheduled transition's attr.x tween (highest key wins).
-        const lastKey = Object.keys(td).pop()!
+        const lastKey = String(Math.max(...Object.keys(td).map(Number)))
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const xTween = (td[lastKey].tween ?? []).find((tw: any) => tw?.name === 'attr.x')
         expect(xTween).toBeDefined()
@@ -199,8 +199,9 @@ describe('renderVerticalAxis', () => {
           expect(Number(finalX)).toBe(0)
         }
 
-        // text-anchor is set as part of the same transition; verify it is
-        // already reflected synchronously on the element.
+        // d3-axis does not tween text-anchor; the attribute is applied
+        // synchronously even on a transition selection, so getAttribute
+        // reflects it immediately without needing to advance timers.
         expect(tickText.getAttribute('text-anchor')).toBe('start')
       }
     }
