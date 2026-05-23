@@ -1,30 +1,50 @@
 {
   "name": "@blueprint-chart/docs",
   "version": "0.1.16",
-  "description": "Public documentation site for Blueprint Chart — guides, BPC DSL spec, and lib API reference.",
+  "description": "Public documentation for Blueprint Chart — handbook, guide, BPC DSL spec, and lib API reference.",
+  "type": "module",
   "license": "MIT",
   "author": "pirhoo",
   "homepage": "https://docs.blueprintchart.com",
-  "bugs": {
-    "url": "https://github.com/blueprint-chart/blueprint-chart/issues"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/blueprint-chart/blueprint-chart.git",
     "directory": "packages/docs"
   },
-  "type": "module",
-  "private": true,
+  "exports": {
+    ".": {
+      "types": "./dist/api.d.ts",
+      "import": "./dist/api.js",
+      "default": "./dist/api.js"
+    },
+    "./manifest.json": "./dist/manifest.json"
+  },
+  "files": [
+    "dist",
+    "src/handbook",
+    "src/guide",
+    "src/charts",
+    "src/reference",
+    "README.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "scripts": {
     "dev": "vitepress dev src --host 0.0.0.0 --port 4445",
+    "build:vitepress": "vitepress build src",
     "build:manifest": "tsx scripts/build-manifest.ts",
-    "build": "vitepress build src && pnpm run build:manifest",
+    "build:api": "tsc --project tsconfig.api.json",
+    "build": "pnpm run build:vitepress && pnpm run build:manifest && pnpm run build:api",
     "preview": "vitepress preview src --host 0.0.0.0 --port 4445",
     "test": "vitest run"
   },
   "devDependencies": {
     "@blueprint-chart/lib": "workspace:*",
     "@blueprint-chart/ui": "workspace:*",
+    "@types/node": "^22.10.0",
     "@fontsource-variable/geist": "^5.2.8",
     "@fontsource-variable/geist-mono": "^5.2.7",
     "@fontsource/dm-serif-display": "^5.2.8",
