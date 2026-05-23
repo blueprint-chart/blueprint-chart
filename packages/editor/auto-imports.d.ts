@@ -347,6 +347,7 @@ declare global {
   const useScrollLock: typeof import('@vueuse/core').useScrollLock
   const useSessionStorage: typeof import('@vueuse/core').useSessionStorage
   const useShare: typeof import('@vueuse/core').useShare
+  const useSheetNumber: typeof import('./src/composables/useSheetNumber').useSheetNumber
   const useSlots: typeof import('vue').useSlots
   const useSorted: typeof import('@vueuse/core').useSorted
   const useSpeechRecognition: typeof import('@vueuse/core').useSpeechRecognition
@@ -442,6 +443,9 @@ declare global {
   // @ts-ignore
   export type { PlatformShortcut } from './src/composables/usePlatformShortcut'
   import('./src/composables/usePlatformShortcut')
+  // @ts-ignore
+  export type { UseSheetNumber } from './src/composables/useSheetNumber'
+  import('./src/composables/useSheetNumber')
   // @ts-ignore
   export type { ChildEntriesContext } from '../ui/src/composables/useChildEntries'
   import('../ui/src/composables/useChildEntries')
