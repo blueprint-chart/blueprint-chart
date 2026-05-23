@@ -1,3 +1,15 @@
+/**
+ * @deprecated As of the Scene Transition Orchestrator (Stage 1+), this module
+ * is being retired in favour of `packages/lib/src/transitions/` (SceneTransition
+ * + featureJoin). Renderers that have already migrated do not import from here;
+ * `bar-vertical`, `bar-horizontal`, `bar-multi`, `donut`, `pie`, and `bar-split`
+ * (the donut/pie share path) are clean. The remaining renderers (line, line-multi,
+ * area, area-stacked, bar-stacked, bar-grouped, bar-split's stacked path,
+ * column-stacked) and the axis subsystem still depend on
+ * `setRenderTransition` / `getDefaultTransitionMs` and on `snapshotForFadeOut`
+ * / `commitFadeOut` / `fadeIn`. This file can be deleted once those have all
+ * migrated to the orchestrator.
+ */
 import * as d3 from 'd3'
 import 'd3-transition'
 

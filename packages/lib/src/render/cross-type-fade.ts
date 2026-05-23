@@ -1,3 +1,12 @@
+/**
+ * @deprecated As of the Scene Transition Orchestrator (Stage 1+), this module
+ * is being retired in favour of `packages/lib/src/transitions/` (the
+ * SceneTransition lifecycle and the role-matcher's per-feature crossfade
+ * fallback). Currently still used as the cross-type transition mechanism while
+ * the role-matcher scaffolding (Stage 7) is wired but not yet driving
+ * cross-feature exit behaviour. Delete when every renderer uses featureJoin
+ * AND the role-matcher fully handles cross-type exits.
+ */
 import { snapshotForFadeOut, commitFadeOut, fadeIn } from '../charts/motion'
 
 const prevChartType = new WeakMap<HTMLElement, string>()
