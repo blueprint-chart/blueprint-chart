@@ -235,10 +235,11 @@ export function createCanvas(
   // In constrained mode the body fills the full frame (inset: 0). The SVG
   // size never changes between scenes.
   //
-  // m.top uses the MAX header height ever seen so the chart area height
-  // stays constant across scene transitions (prevents y-scale distortion
-  // during D3 transitions). The header floats on top with an opaque
-  // background, and the chart content always starts below it.
+  // m.top picks up the live header height measured by createFrame, so the
+  // chart area shrinks when the header grows and expands again when it
+  // shrinks. stableTop (see below) keeps axes from sliding during the
+  // transition. The header floats on top with an opaque background, and
+  // the chart content always starts below it.
   if (isConstrained) {
     const headerH = parseFloat(body.dataset.headerH || '0')
     const footerH = parseFloat(body.dataset.footerH || '0')
