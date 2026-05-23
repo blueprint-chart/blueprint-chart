@@ -626,6 +626,35 @@ describe('createAnnotationPlugin', () => {
     expect(pathToX).not.toBeCloseTo(oldToX, 0)
   })
 
+  it('identical line geometry across scenes does NOT mutate path d to old coords', () => {
+    const { x, y, data } = makeScales()
+
+    // First render with annotation
+    const plugin1 = createAnnotationPlugin(
+      [{ kind: AnnotationKind.Point, id: 'p-still', target: 'A', text: 'Same', showLine: true }],
+      { scaleX: x, scaleY: y, data, width: 200, height: 200 },
+    )
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    plugin1.postDraw!(makeChartStub(g) as any, undefined as any)
+
+    const firstLine = g.querySelector('g[data-annotation-id="p-still"] .bc-annotation-line')!
+    const firstD = firstLine.getAttribute('d')!
+
+    // Second render with identical annotation under transition — geometry
+    // should match within tolerance, so the path d must remain at the new
+    // (== old) value rather than being rewound to a recomputed old value.
+    const plugin2 = createAnnotationPlugin(
+      [{ kind: AnnotationKind.Point, id: 'p-still', target: 'A', text: 'Same', showLine: true }],
+      { scaleX: x, scaleY: y, data, width: 200, height: 200, transition: true },
+    )
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    plugin2.postDraw!(makeChartStub(g) as any, undefined as any)
+
+    const secondLine = g.querySelector('g[data-annotation-id="p-still"] .bc-annotation-line')!
+    expect(secondLine.getAttribute('stroke-dasharray')).toBeNull()
+    expect(secondLine.getAttribute('d')).toBe(firstD)
+  })
+
   it('elbow move transition starts path at old elbow coordinates', () => {
     const { x, y, data } = makeScales()
 

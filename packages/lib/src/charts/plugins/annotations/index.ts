@@ -140,6 +140,23 @@ function applyDrawEntrance(lineEl: SVGElement, durationMs: number): void {
 // Line move transition (tween path d attribute)
 // ---------------------------------------------------------------------------
 
+// Tolerance for treating two line endpoints as identical. Sub-pixel jitter from
+// re-layout or floating-point rounding shouldn't trigger a move tween.
+const LINE_MOVE_TOLERANCE_PX = 1
+
+function lineGeometryEqual(a: LineGeometry, b: LineGeometry): boolean {
+  if (a.style !== b.style) {
+    return false
+  }
+  if (a.departVertical !== b.departVertical) {
+    return false
+  }
+  return Math.abs(a.fromX - b.fromX) <= LINE_MOVE_TOLERANCE_PX
+    && Math.abs(a.fromY - b.fromY) <= LINE_MOVE_TOLERANCE_PX
+    && Math.abs(a.toX - b.toX) <= LINE_MOVE_TOLERANCE_PX
+    && Math.abs(a.toY - b.toY) <= LINE_MOVE_TOLERANCE_PX
+}
+
 function applyLineMoveTransition(
   lineEl: SVGElement,
   oldLine: LineGeometry,
@@ -147,6 +164,12 @@ function applyLineMoveTransition(
 ): void {
   const newLine = readLineGeometry(lineEl.parentElement!)
   if (!newLine) {
+    return
+  }
+
+  // Identical geometry across renders (e.g. same annotation in same-data scene
+  // transitions): leave the freshly-rendered line untouched, no tween.
+  if (lineGeometryEqual(oldLine, newLine)) {
     return
   }
 
