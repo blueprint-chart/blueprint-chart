@@ -299,7 +299,7 @@ describe('AxisService', () => {
     expect(newChartArea.querySelector('.bc-axis-vertical')).not.toBeNull()
   })
 
-  it('clears stale tick elements on re-attach to prevent ghost ticks', () => {
+  it('preserves matching tick elements on re-attach so identical values do not re-enter', () => {
     const axes = AxisService.for(container)
     axes.attach(chartArea)
 
@@ -319,17 +319,20 @@ describe('AxisService', () => {
     const newChartArea = makeChartArea()
     axes.attach(newChartArea)
 
-    // Before update(), tick elements must have been cleared to prevent ghost marks
+    // After re-attach, the existing tick elements are reinserted with the
+    // wrapper groups. d3-axis's data-join will key-match them on the next
+    // update, so identical tick values stay in place instead of re-entering
+    // with a fade-in animation. Ticks survive the re-attach.
     const ticksAfterAttach = newChartArea.querySelectorAll('.tick').length
-    expect(ticksAfterAttach).toBe(0)
+    expect(ticksAfterAttach).toBe(ticksBefore)
 
-    // After update(), new ticks are re-created
+    // After update() with the same scales, the tick count is stable
     axes.update({
       vertical: { scale: yScale, height: 300, options: { gridWidth: 500 } },
       horizontal: { scale: xScale, height: 300, options: { width: 500 } },
     })
     const ticksAfterUpdate = newChartArea.querySelectorAll('.tick').length
-    expect(ticksAfterUpdate).toBeGreaterThan(0)
+    expect(ticksAfterUpdate).toBe(ticksBefore)
   })
 
   it('strips grid lines on detach to avoid stale DOM', () => {

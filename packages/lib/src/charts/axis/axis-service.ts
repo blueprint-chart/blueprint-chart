@@ -98,11 +98,15 @@ export class AxisService {
       this.initialized = true
     }
     else {
-      // Interrupt any pending D3 transitions and remove stale tick elements before
-      // reinserting, to prevent ghost tick marks when tickValues change on resize
-      // or between scene transitions.
+      // Interrupt any pending tick transitions so a half-finished tween doesn't
+      // race the new render. Do NOT remove the ticks themselves — d3-axis's
+      // internal data-join keys by tick value, so identical values match and
+      // stay in place; only different values turn into enter/exit. The previous
+      // implementation removed every tick unconditionally, which forced d3-axis
+      // to treat every tick as an enter and produced a visible fade-in on
+      // same-scale scene transitions.
       for (const group of [this.vGroup!, this.hGroup!]) {
-        d3.select(group).selectAll<SVGGElement, unknown>('.tick').interrupt().remove()
+        d3.select(group).selectAll<SVGGElement, unknown>('.tick').interrupt()
       }
 
       // Reinsert existing groups into the new chartArea
