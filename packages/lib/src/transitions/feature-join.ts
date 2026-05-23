@@ -1,5 +1,6 @@
 import * as d3 from 'd3'
 import type { SceneTransition } from './scene-transition'
+import { roleScan, tagsCompatible } from './role-matcher'
 import { snapshotLiveAttrs } from './snapshot'
 import type { AttrMap, FeatureJoinConfig } from './types'
 
@@ -19,9 +20,9 @@ export function featureJoin<D>(
   orchestrator: SceneTransition,
   cfg: FeatureJoinConfig<D>,
 ): void {
-  // `cfg.role` is captured but intentionally unread in v1; the role-matcher
-  // for cross-type morph (Stage 7) will consume it. See spec §3 for the
-  // role catalog. Removing the property here would break Stage 7's seam.
+  // `cfg.role` drives the cross-feature predecessor lookup in
+  // `applyBuffered` (see `roleScan`). It is also stamped onto every
+  // entered element as `data-bc-role` so future commits can find it.
   if (orchestrator.state === 'idle' || orchestrator.state === 'animating') {
     applyIdle(cfg)
     return
@@ -40,6 +41,7 @@ function applyIdle<D>(cfg: FeatureJoinConfig<D>): void {
   join.exit().remove()
 
   const entered = cfg.insert(join.enter())
+  tagRole(entered, cfg)
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const merged = entered.merge(join as any)
@@ -70,12 +72,30 @@ function applyBuffered<D>(orchestrator: SceneTransition, cfg: FeatureJoinConfig<
     exitSel.remove()
   }
 
+  // Role index for cross-feature predecessor lookup. When the new commit's
+  // selector differs from the prior's (cross-type morph), d3's same-parent
+  // data-join can't find the predecessor, but a same-role/same-key element
+  // may still live elsewhere in the container.
+  const roleIndex = roleScan(orchestrator.container, cfg.role)
+
   // Enter
   const entered = cfg.insert(join.enter())
+  tagRole(entered, cfg)
   entered.each(function (d) {
     const el = this as Element
     const end = cfg.attrs(d as D)
     if (t) {
+      // Cross-feature predecessor lookup: a same-role, same-key element
+      // already in the container can act as the morph-from state when the
+      // selector-based data-join missed it (cross-type transition).
+      const k = cfg.key(d as D)
+      const predecessor = roleIndex.get(k)
+      if (predecessor && tagsCompatible(predecessor, el)) {
+        const start = snapshotLiveAttrs(predecessor, namesToTween)
+        applyAttrs(el, start)
+        tweenAttrs(el, end, t)
+        return
+      }
       const start = cfg.enterFrom ? cfg.enterFrom(d as D) : end
       applyAttrs(el, start)
       tweenAttrs(el, end, t)
@@ -101,6 +121,21 @@ function applyBuffered<D>(orchestrator: SceneTransition, cfg: FeatureJoinConfig<
       applyAttrs(el, end)
     }
   })
+}
+
+/**
+ * Stamp the role + key attributes on freshly entered elements so the
+ * cross-feature role-matcher can find them on subsequent commits. The
+ * attributes are namespaced (`data-bc-*`) to avoid colliding with any
+ * `data-*` attributes a renderer might already be using.
+ */
+function tagRole<D>(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  entered: d3.Selection<any, D, any, any>,
+  cfg: FeatureJoinConfig<D>,
+): void {
+  entered.attr('data-bc-role', cfg.role)
+  entered.attr('data-bc-key', (d: D) => cfg.key(d))
 }
 
 function collectAttrNames<D>(cfg: FeatureJoinConfig<D>): string[] {

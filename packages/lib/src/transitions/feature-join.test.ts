@@ -196,3 +196,52 @@ describe('featureJoin during committing + animating', () => {
     expect(rects[0].getAttribute('height')).toBe('10')
   })
 })
+
+describe('featureJoin role tagging (Stage 7)', () => {
+  let env: ReturnType<typeof setup>
+  beforeEach(() => {
+    env = setup()
+  })
+  afterEach(() => {
+    env.container.remove()
+  })
+
+  it('stamps data-bc-role and data-bc-key on entered elements via the idle path', () => {
+    featureJoin(env.t, {
+      role: 'mark-per-category',
+      parent: env.g,
+      selector: '.bc-bar',
+      data: [{ label: 'a', value: 10 }, { label: 'b', value: 20 }],
+      key: d => d.label,
+      insert: sel => sel.append('rect').attr('class', 'bc-bar'),
+      attrs: d => ({ x: 0, y: 0, width: 40, height: d.value }),
+    })
+    const rects = env.g.querySelectorAll('.bc-bar')
+    expect(rects.length).toBe(2)
+    expect(rects[0].getAttribute('data-bc-role')).toBe('mark-per-category')
+    expect(rects[0].getAttribute('data-bc-key')).toBe('a')
+    expect(rects[1].getAttribute('data-bc-role')).toBe('mark-per-category')
+    expect(rects[1].getAttribute('data-bc-key')).toBe('b')
+  })
+
+  it('stamps data-bc-role and data-bc-key on entered elements via the buffered path', () => {
+    // Empty initial state; first featureJoin runs during committing.
+    env.t.beginCommit()
+    featureJoin(env.t, {
+      role: 'mark-per-category',
+      parent: env.g,
+      selector: '.bc-bar',
+      data: [{ label: 'a', value: 10 }, { label: 'b', value: 20 }],
+      key: d => d.label,
+      insert: sel => sel.append('rect').attr('class', 'bc-bar'),
+      attrs: d => ({ x: 0, y: 0, width: 40, height: d.value }),
+    })
+    env.t.commit({ duration: 0 })
+    const rects = env.g.querySelectorAll('.bc-bar')
+    expect(rects.length).toBe(2)
+    expect(rects[0].getAttribute('data-bc-role')).toBe('mark-per-category')
+    expect(rects[0].getAttribute('data-bc-key')).toBe('a')
+    expect(rects[1].getAttribute('data-bc-role')).toBe('mark-per-category')
+    expect(rects[1].getAttribute('data-bc-key')).toBe('b')
+  })
+})
