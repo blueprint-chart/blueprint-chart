@@ -21,7 +21,7 @@ Blueprint Chart lets journalists and developers author **interactive, accessible
 
 ## Architecture
 
-Four packages in a pnpm 10 workspace, wired together via `workspace:*` refs:
+Four packages in a pnpm 10 workspace, wired together via `workspace:*` refs — plus a separate [`@blueprint-chart/mcp`](https://github.com/blueprint-chart/mcp) server (shown dashed) that consumes the published `lib` + `docs`:
 
 ```mermaid
 graph TD
@@ -29,6 +29,8 @@ graph TD
   editor --> lib["@blueprint-chart/lib<br/>Pure TS + D3"]
   docs["@blueprint-chart/docs<br/>VitePress site + handbook"] -.-> lib
   docs -.-> ui
+  mcp["@blueprint-chart/mcp<br/>MCP server · separate repo"] -.-> lib
+  mcp -.-> docs
   ui --> bootstrap["Bootstrap 5.3 +<br/>BootstrapVueNext"]
   lib --> d3["D3 v7 +<br/>d3-blueprint"]
   lib --> peggy["Peggy DSL<br/>parser"]
@@ -45,8 +47,19 @@ graph TD
 <tr><td><a href="https://www.npmjs.com/package/@blueprint-chart/ui"><code>@blueprint&#8209;chart&#8288;/&#8288;ui</code></a></td><td>Vue 3 component library (~109 components: forms, panels, navigation, scene timeline, layout). Bootstrap + BootstrapVueNext, with Histoire stories.</td></tr>
 <tr><td><a href="https://www.npmjs.com/package/@blueprint-chart/editor"><code>@blueprint&#8209;chart&#8288;/&#8288;editor</code></a></td><td>Vue 3 SPA composing <code>lib</code> + <code>ui</code> into the authoring experience: live CodeMirror 6 DSL editor, Pinia stores, scene playback, export.</td></tr>
 <tr><td><a href="https://www.npmjs.com/package/@blueprint-chart/docs"><code>@blueprint&#8209;chart&#8288;/&#8288;docs</code></a></td><td>Public documentation — handbook, guide, BPC DSL spec, and lib API reference. Ships a VitePress site (<a href="https://docs.blueprintchart.com">docs.blueprintchart.com</a>) and a programmatic <code>listDocs</code> / <code>getDoc</code> API + <code>manifest.json</code> for tooling such as <code>@blueprint-chart/mcp</code>.</td></tr>
+<tr><td><a href="https://github.com/blueprint-chart/mcp"><code>@blueprint&#8209;chart&#8288;/&#8288;mcp</code></a></td><td><strong>Separate repo.</strong> Model Context Protocol server that lets LLM clients (Claude, Claude Code, Cursor) author <code>.bpc</code> files — grounded in the dataviz handbook with eight deterministic tools and a parse + render feedback loop. Consumes the published <code>lib</code> + <code>docs</code>. <a href="https://www.npmjs.com/package/@blueprint-chart/mcp">npm</a></td></tr>
 </tbody>
 </table>
+
+## Author with AI
+
+[`@blueprint-chart/mcp`](https://github.com/blueprint-chart/mcp) lets you make charts by chatting with an AI assistant. It exposes the dataviz handbook, the DSL grammar, chart-type docs, and canonical samples as MCP resources, plus eight deterministic tools (`validate_dsl`, `inspect_dsl`, `recommend_chart_type`, `render`, …). Your assistant reads the handbook, writes the `.bpc`, validates it, and renders it — a tight feedback loop instead of guesswork.
+
+```bash
+claude mcp add blueprint-chart -- npx -y @blueprint-chart/mcp
+```
+
+Full setup (Claude Desktop, Cursor) and the complete tool reference live in the [MCP repo](https://github.com/blueprint-chart/mcp).
 
 ## Prerequisites
 
