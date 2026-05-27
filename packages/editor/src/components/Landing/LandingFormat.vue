@@ -145,8 +145,8 @@ const portabilityCards: PortabilityCard[] = [
         size="xs"
         variant="warning"
       />
-      Plain-text BPC is also an excellent target for LLMs: a model can generate valid BPC
-      from a description and you can paste it straight into the editor.
+      Plain-text BPC is also an excellent target for LLMs — there's now an official
+      <strong>MCP</strong> that writes, validates, and renders it for you. See it below.
     </p>
   </LandingSection>
 </template>

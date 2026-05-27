@@ -75,6 +75,9 @@ function openSearch() {
       <router-link :to="{ hash: '#format' }">
         Format
       </router-link>
+      <router-link :to="{ hash: '#mcp' }">
+        AI
+      </router-link>
       <router-link :to="{ hash: '#scenes' }">
         Scenes
       </router-link>

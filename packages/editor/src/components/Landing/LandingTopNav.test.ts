@@ -49,10 +49,10 @@ describe('LandingTopNav', () => {
     expect(w.find('.landing-topnav__brand-logo').exists()).toBe(true)
   })
 
-  it('renders the four section anchor links inside the marketing menu slot', () => {
+  it('renders the five section anchor links inside the marketing menu slot', () => {
     const w = mountNav()
     const menuLabels = w.findAll('.nmb-stub__menu a').map(n => n.text())
-    expect(menuLabels).toEqual(['Defaults', 'Transforms', 'Format', 'Scenes'])
+    expect(menuLabels).toEqual(['Defaults', 'Transforms', 'Format', 'AI', 'Scenes'])
   })
 
   it('renders search, GitHub, and theme toggle inside actions, in that order', () => {

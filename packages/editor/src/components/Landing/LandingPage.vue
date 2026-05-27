@@ -5,6 +5,7 @@ import LandingValuePropStrip from './LandingValuePropStrip.vue'
 import LandingDefaults from './LandingDefaults.vue'
 import LandingTransforms from './LandingTransforms.vue'
 import LandingFormat from './LandingFormat.vue'
+import LandingMcp from './LandingMcp.vue'
 import LandingScenes from './LandingScenes.vue'
 import LandingFooter from './LandingFooter.vue'
 </script>
@@ -17,6 +18,7 @@ import LandingFooter from './LandingFooter.vue'
     <LandingDefaults />
     <LandingTransforms />
     <LandingFormat />
+    <LandingMcp />
     <LandingScenes />
     <LandingFooter />
   </div>

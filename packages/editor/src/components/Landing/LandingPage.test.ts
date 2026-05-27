@@ -32,6 +32,7 @@ describe('LandingPage', () => {
     expect(w.findComponent({ name: 'LandingDefaults' }).exists()).toBe(true)
     expect(w.findComponent({ name: 'LandingTransforms' }).exists()).toBe(true)
     expect(w.findComponent({ name: 'LandingFormat' }).exists()).toBe(true)
+    expect(w.findComponent({ name: 'LandingMcp' }).exists()).toBe(true)
     expect(w.findComponent({ name: 'LandingScenes' }).exists()).toBe(true)
     expect(w.findComponent({ name: 'LandingFooter' }).exists()).toBe(true)
   })

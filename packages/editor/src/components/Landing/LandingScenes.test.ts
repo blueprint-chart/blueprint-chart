@@ -35,10 +35,10 @@ describe('LandingScenes', () => {
     expect(w.find('section').attributes('id')).toBe('scenes')
   })
 
-  it('uses the 05 / Scenes & storytelling eyebrow', async () => {
+  it('uses the 06 / Scenes & storytelling eyebrow', async () => {
     const w = mountScenes()
     await flushPromises()
-    expect(w.find('.header-label').text()).toBe('05 / Scenes & storytelling')
+    expect(w.find('.header-label').text()).toBe('06 / Scenes & storytelling')
   })
 
   it('renders 3 feature rows', async () => {
