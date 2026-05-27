@@ -2,9 +2,10 @@
 
 Describe the chart you want; let your AI assistant build it. The
 [`@blueprint-chart/mcp`](https://github.com/blueprint-chart/mcp) server connects Blueprint
-Chart to Claude, Claude Code, Cursor, or any [Model Context Protocol](https://modelcontextprotocol.io)
-client. The model reads the dataviz handbook, writes the `.bpc`, validates it, and renders it —
-so you get a real, accessible chart from a sentence instead of guesswork.
+Chart to any [Model Context Protocol](https://modelcontextprotocol.io) client — Claude (web,
+desktop, and Code), ChatGPT, Cursor, VS Code, and more. The model reads the dataviz handbook,
+writes the `.bpc`, validates it, and renders it — so you get a real, accessible chart from a
+sentence instead of guesswork.
 
 ## How it works
 
@@ -16,6 +17,33 @@ It is primed on Blueprint Chart's dataviz pedagogy *before* it writes a line of 
 closes the loop with deterministic parse + render feedback instead of hallucinating syntax.
 
 ## Connect your client
+
+There are two ways to connect: use the **hosted** endpoint (nothing to install) or **run the
+server locally** with `npx`.
+
+### Hosted — `mcp.blueprintchart.com`
+
+Point any remote-capable client at the public endpoint. There's nothing to install and no token
+to configure — it's open.
+
+**Endpoint:** `https://mcp.blueprintchart.com`
+
+- **Claude.ai (web)** — requires a Claude Pro, Team, or Enterprise plan:
+  1. Open **Settings → Connectors**.
+  2. Click **Add custom integration**.
+  3. Paste `https://mcp.blueprintchart.com` and save. There's no auth header to enter.
+- **ChatGPT** — add `https://mcp.blueprintchart.com` as a custom connector (no authentication).
+- **Cursor** — **Settings → MCP → Add server**, then enter the URL.
+- **Claude Code** — add it over HTTP:
+
+  ```bash
+  claude mcp add blueprint-chart --transport http https://mcp.blueprintchart.com
+  ```
+
+### Local — run it with `npx`
+
+Prefer to run the server on your own machine (for desktop apps, offline use, or full control)?
+`npx` fetches it on demand — nothing is installed globally.
 
 ::: code-group
 
@@ -45,7 +73,22 @@ claude mcp add blueprint-chart -- npx -y @blueprint-chart/mcp
 }
 ```
 
+```json [VS Code]
+{
+  "servers": {
+    "blueprint-chart": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@blueprint-chart/mcp"]
+    }
+  }
+}
+```
+
 :::
+
+Any other MCP client works too — run `npx -y @blueprint-chart/mcp` over stdio and drop it into
+that client's server config.
 
 ## Tools
 
@@ -76,8 +119,8 @@ The handbook, DSL grammar, guides, chart-type docs, and canonical samples are al
 
 > **You:** Make a horizontal bar chart of English letter frequencies — top 10, highlight E.
 >
-> **Claude:** *(calls `list_chart_types` and `get_example`, writes the `.bpc`, calls `validate_dsl`
-> to confirm it parses, then `render` and shows you the image and the source)*
+> **Your assistant:** *(calls `list_chart_types` and `get_example`, writes the `.bpc`, calls
+> `validate_dsl` to confirm it parses, then `render` and shows you the image and the source)*
 
 ```bpc
 chart bar-horizontal {
