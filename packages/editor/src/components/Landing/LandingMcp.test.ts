@@ -28,24 +28,28 @@ describe('LandingMcp', () => {
     expect(w.find('.header-label').text()).toBe('05 / Author with AI')
   })
 
-  it('renders the user prompt bubble', () => {
+  it('renders the user message bubble with the prompt', () => {
     const w = mountMcp()
-    const bubble = w.find('.landing-mcp__chat__bubble--user')
+    const bubble = w.find('.landing-mcp__bubble--user')
     expect(bubble.exists()).toBe(true)
     expect(bubble.text()).toContain('letter frequencies')
   })
 
-  it('renders the real chart preview inside the chat', () => {
+  it('renders the chart as the assistant reply', () => {
     const w = mountMcp()
-    expect(w.find('.landing-mcp__chat__chart .chart-stub').exists()).toBe(true)
+    expect(w.find('.landing-mcp__chart .chart-stub').exists()).toBe(true)
   })
 
-  it('renders the 5-step pipeline', () => {
+  it('renders the 5-step numbered stepper in order', () => {
     const w = mountMcp()
-    const chips = w.findAll('.landing-mcp__pipeline__chip')
-    expect(chips).toHaveLength(5)
-    expect(chips.map(c => c.text())).toEqual([
-      'read handbook', 'write .bpc', 'validate', 'render', 'iterate',
+    const items = w.findAll('.landing-mcp__steps__item')
+    expect(items).toHaveLength(5)
+    expect(items.map(i => i.find('.landing-mcp__steps__t').text())).toEqual([
+      expect.stringContaining('Read the handbook'),
+      expect.stringContaining('Write the .bpc'),
+      expect.stringContaining('Validate'),
+      expect.stringContaining('Render'),
+      expect.stringContaining('Iterate'),
     ])
   })
 
@@ -54,10 +58,11 @@ describe('LandingMcp', () => {
     expect(w.find('.landing-mcp__install__cmd').text()).toContain('claude mcp add blueprint-chart')
   })
 
-  it('CTA links to the MCP repo in a new tab', () => {
+  it('CTA reads "Read the docs" and links to the docs guide in a new tab', () => {
     const w = mountMcp()
     const cta = w.find('.landing-mcp__cta')
-    expect(cta.attributes('href')).toBe('https://github.com/blueprint-chart/mcp')
+    expect(cta.text()).toContain('Read the docs')
+    expect(cta.attributes('href')).toBe('https://docs.blueprintchart.com/guide/mcp')
     expect(cta.attributes('target')).toBe('_blank')
     expect(cta.attributes('rel')).toBe('noopener noreferrer')
   })
