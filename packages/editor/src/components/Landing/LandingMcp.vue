@@ -23,7 +23,7 @@ const steps = ['read handbook', 'write .bpc', 'validate', 'render', 'iterate']
     <LandingSectionHeader label="05 / Author with AI">
       Describe the chart.<br><em>Let your assistant build it.</em>
       <template #lead>
-        Connect the Blueprint&nbsp;Chart MCP to Claude, Claude&nbsp;Code, or any MCP client.
+        Connect the Blueprint&nbsp;Chart MCP to Claude, Claude&nbsp;Code, Cursor, or any MCP client.
         It reads the dataviz handbook, writes the <code>.bpc</code>, validates it, and renders
         it — so you get a real chart from a sentence.
       </template>
