@@ -5,7 +5,7 @@ import LandingSection from './LandingSection.vue'
 import LandingSectionHeader from './LandingSectionHeader.vue'
 import chartImage from '@/assets/images/mcp-letter-frequency.svg'
 
-const userPrompt = 'Make a bar chart of English letter frequencies — highlight E.'
+const userPrompt = 'Make a bar chart of English letter frequencies with an highlight on "E".'
 const installCmd = 'claude mcp add blueprint-chart -- npx -y @blueprint-chart/mcp'
 
 interface McpStep {
