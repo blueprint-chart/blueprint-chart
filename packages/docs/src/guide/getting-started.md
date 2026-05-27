@@ -1,6 +1,6 @@
 # Getting Started
 
-Blueprint Chart is published as four packages on NPM. Pick the one that matches what you're building.
+Blueprint Chart is published as four packages on NPM, plus a separate `@blueprint-chart/mcp` server for authoring charts with AI. Pick the one that matches what you're building.
 
 <table>
 <thead><tr><th>Package</th><th>When to use it</th></tr></thead>
@@ -9,6 +9,7 @@ Blueprint Chart is published as four packages on NPM. Pick the one that matches 
 <tr><td nowrap><a href="https://www.npmjs.com/package/@blueprint-chart/ui"><code>@blueprint-chart/ui</code></a></td><td>Vue 3 component library — forms, panels, navigation, scene timeline, layout primitives.</td></tr>
 <tr><td nowrap><a href="https://www.npmjs.com/package/@blueprint-chart/editor"><code>@blueprint-chart/editor</code></a></td><td>The full SPA — runs on top of <code>lib</code> + <code>ui</code>. Deployed at <a href="https://blueprintchart.com">blueprintchart.com</a>.</td></tr>
 <tr><td nowrap><a href="https://www.npmjs.com/package/@blueprint-chart/docs"><code>@blueprint-chart/docs</code></a></td><td>The markdown source of this site — handbook, guide, BPC DSL spec, and lib API reference. Exposes <code>listDocs</code> / <code>getDoc</code> + <code>manifest.json</code> for tooling such as <code>@blueprint-chart/mcp</code>.</td></tr>
+<tr><td nowrap><a href="https://www.npmjs.com/package/@blueprint-chart/mcp"><code>@blueprint-chart/mcp</code></a></td><td>MCP server (separate repo) — lets Claude, Claude Code, Cursor, or any MCP client author <code>.bpc</code> files, grounded in the handbook with a parse + render feedback loop. See <a href="/guide/mcp">Authoring with AI</a>.</td></tr>
 </tbody>
 </table>
 

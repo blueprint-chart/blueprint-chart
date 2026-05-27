@@ -26,6 +26,12 @@ features:
     link: /reference/dsl/
     linkText: Read the spec
 
+  - icon: 🤖
+    title: Author with AI
+    details: Connect the Blueprint Chart MCP to Claude, Claude Code, or Cursor — describe a chart in plain language and your assistant writes, validates, and renders the `.bpc` for you.
+    link: /guide/mcp
+    linkText: Use the MCP
+
   - icon: 🎬
     title: Scenes — same chart, different states
     details: Every chart can define multiple scenes that play back as an animated narrative. Built for explanatory journalism.
