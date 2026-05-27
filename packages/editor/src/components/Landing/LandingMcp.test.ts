@@ -10,7 +10,6 @@ function mountMcp() {
           template: '<header><div class="header-label">{{ label }}</div><slot /><slot name="lead" /></header>',
           props: ['label'],
         },
-        LandingChartPreview: { template: '<div class="chart-stub" />', props: ['bpc'] },
         AppIcon: { template: '<span />' },
       },
     },
@@ -35,9 +34,11 @@ describe('LandingMcp', () => {
     expect(bubble.text()).toContain('letter frequencies')
   })
 
-  it('renders the chart as the assistant reply', () => {
+  it('renders the chart image as the assistant reply', () => {
     const w = mountMcp()
-    expect(w.find('.landing-mcp__chart .chart-stub').exists()).toBe(true)
+    const img = w.find('.landing-mcp__chart img')
+    expect(img.exists()).toBe(true)
+    expect(img.attributes('alt')).toContain('E is the most frequent letter')
   })
 
   it('renders the 5-step numbered stepper in order', () => {

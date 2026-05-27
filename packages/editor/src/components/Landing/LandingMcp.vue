@@ -1,16 +1,9 @@
 <script setup lang="ts">
-import { samples } from '@blueprint-chart/lib'
 import IPhSparkle from '~icons/ph/sparkle'
 import { AppIcon } from '@blueprint-chart/ui'
 import LandingSection from './LandingSection.vue'
 import LandingSectionHeader from './LandingSectionHeader.vue'
-import LandingChartPreview from './LandingChartPreview.vue'
-
-const sample = samples.find(s => s.id === 'letter-frequency')
-if (!sample) {
-  throw new Error('Missing letter-frequency sample — see LandingMcp.vue')
-}
-const bpc = sample.dsl
+import chartImage from '@/assets/images/mcp-letter-frequency.svg'
 
 const userPrompt = 'Make a bar chart of English letter frequencies — highlight E.'
 const installCmd = 'claude mcp add blueprint-chart -- npx -y @blueprint-chart/mcp'
@@ -76,8 +69,11 @@ const steps: McpStep[] = [
                 Here's the chart ↓
               </div>
               <div class="landing-mcp__chart">
-                <span class="visually-hidden">Generated letter-frequency chart preview</span>
-                <LandingChartPreview :bpc="bpc" />
+                <img
+                  class="landing-mcp__chart__img"
+                  :src="chartImage"
+                  alt="Bar chart: E is the most frequent letter in English at 12.7%, followed by T, A, O, I, N, S, H, R and D"
+                >
               </div>
             </div>
           </div>
@@ -201,7 +197,7 @@ const steps: McpStep[] = [
       display: flex;
       flex-direction: column;
       gap: 0.1875rem;
-      max-width: 84%;
+      max-width: 92%;
       min-width: 0;
     }
 
@@ -264,7 +260,14 @@ const steps: McpStep[] = [
     border: 1px solid var(--bc-hairline);
     border-radius: var(--bc-radius-md);
     overflow: hidden;
+    padding: 0.75rem;
     background: #fff; /* chart is light-designed; keep a light surface even in dark mode */
+
+    &__img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
   }
 
   /* ---- Right: how it works ---- */

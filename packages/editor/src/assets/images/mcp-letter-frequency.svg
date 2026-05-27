@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 492" role="img" aria-label="Bar chart titled E is the most frequent letter in English. E is highlighted at 12.7 percent, the tallest bar, followed by T 9.06, A 8.17, O 7.51, I 6.97, N 6.75, S 6.33, H 6.09, R 5.99 and D 4.25.">
+  <text x="2" y="40" font-family="Georgia, 'Times New Roman', serif" font-size="25" font-weight="600" fill="#1a2128">E is the most frequent letter in English</text>
+  <text x="2" y="66" font-family="-apple-system, 'Segoe UI', Roboto, sans-serif" font-size="15" fill="#5b6470">How often each letter appears in typical English text</text>
+
+  <g font-family="-apple-system, 'Segoe UI', Roboto, sans-serif" font-size="14" fill="#33404d" text-anchor="middle">
+    <text x="78" y="102" fill="#2563A0" font-weight="700">12.7</text>
+    <text x="130" y="188">9.06</text>
+    <text x="182" y="209">8.17</text>
+    <text x="234" y="225">7.51</text>
+    <text x="286" y="237">6.97</text>
+    <text x="338" y="243">6.75</text>
+    <text x="390" y="253">6.33</text>
+    <text x="442" y="258">6.09</text>
+    <text x="494" y="261">5.99</text>
+    <text x="546" y="302">4.25</text>
+  </g>
+
+  <g>
+    <rect x="60"  y="110" width="36" height="300" fill="#2563A0"/>
+    <rect x="112" y="196" width="36" height="214" fill="#a9c3dd"/>
+    <rect x="164" y="217" width="36" height="193" fill="#a9c3dd"/>
+    <rect x="216" y="233" width="36" height="177" fill="#a9c3dd"/>
+    <rect x="268" y="245" width="36" height="165" fill="#a9c3dd"/>
+    <rect x="320" y="251" width="36" height="159" fill="#a9c3dd"/>
+    <rect x="372" y="261" width="36" height="149" fill="#a9c3dd"/>
+    <rect x="424" y="266" width="36" height="144" fill="#a9c3dd"/>
+    <rect x="476" y="269" width="36" height="141" fill="#a9c3dd"/>
+    <rect x="528" y="310" width="36" height="100" fill="#a9c3dd"/>
+  </g>
+
+  <line x1="56" y1="410" x2="586" y2="410" stroke="#d6dbe1" stroke-width="1"/>
+
+  <g font-family="-apple-system, 'Segoe UI', Roboto, sans-serif" font-size="13" fill="#5b6470" text-anchor="middle">
+    <text x="78" y="432">E</text>
+    <text x="130" y="432">T</text>
+    <text x="182" y="432">A</text>
+    <text x="234" y="432">O</text>
+    <text x="286" y="432">I</text>
+    <text x="338" y="432">N</text>
+    <text x="390" y="432">S</text>
+    <text x="442" y="432">H</text>
+    <text x="494" y="432">R</text>
+    <text x="546" y="432">D</text>
+  </g>
+</svg>
