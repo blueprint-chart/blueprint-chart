@@ -1,5 +1,8 @@
 <template>
-  <div class="scene-timeline">
+  <div
+    class="scene-timeline"
+    :class="{ 'scene-timeline--floating': floating }"
+  >
     <SceneTimelineControls
       v-model:active-index="activeIndex"
       :total="scenes.length"
@@ -35,8 +38,10 @@ const activeIndex = defineModel<number>('activeIndex', { default: -1 })
 withDefaults(defineProps<{
   scenes: { name: string | null, index: number, thumbnail?: string | null, removable?: boolean }[]
   playing?: boolean
+  floating?: boolean
 }>(), {
   playing: false,
+  floating: false,
 })
 
 defineEmits<{
@@ -56,6 +61,13 @@ defineEmits<{
   min-height: 96px;
   background: transparent;
   width: 100%;
+
+  &--floating {
+    background: var(--bc-chrome-bg);
+    border: 1px solid var(--bc-hairline);
+    border-radius: var(--bc-radius-md);
+    box-shadow: var(--bc-shadow-overlay);
+  }
 
   &__items {
     display: flex;

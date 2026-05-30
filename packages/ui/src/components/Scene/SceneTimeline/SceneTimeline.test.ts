@@ -118,4 +118,18 @@ describe('SceneTimeline', () => {
     })
     expect(wrapper.findAllComponents({ name: 'SceneTimelineItem' })).toHaveLength(0)
   })
+
+  it('applies the floating modifier when floating prop is set', () => {
+    const wrapper = mount(SceneTimeline, {
+      props: { scenes: twoScenes, floating: true },
+    })
+    expect(wrapper.find('.scene-timeline').classes()).toContain('scene-timeline--floating')
+  })
+
+  it('omits the floating modifier by default', () => {
+    const wrapper = mount(SceneTimeline, {
+      props: { scenes: twoScenes },
+    })
+    expect(wrapper.find('.scene-timeline').classes()).not.toContain('scene-timeline--floating')
+  })
 })
