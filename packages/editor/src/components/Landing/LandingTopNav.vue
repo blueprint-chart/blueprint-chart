@@ -33,18 +33,9 @@ const themeIcon = computed(() => iconByTheme[theme.value])
 
 function openSearch() {
   // LayoutShell registers a global ⌘/Ctrl+K listener that opens the command
-  // palette. Synthesize the same keystroke so the click path matches the
-  // shortcut path exactly.
-  if (typeof document === 'undefined') {
-    return
-  }
-  document.dispatchEvent(new KeyboardEvent('keydown', {
-    key: 'k',
-    code: 'KeyK',
-    metaKey: true,
-    ctrlKey: true,
-    bubbles: true,
-  }))
+  // palette. Replay the platform-correct keystroke so the click path matches
+  // the shortcut path exactly.
+  shortcut.trigger()
 }
 </script>
 

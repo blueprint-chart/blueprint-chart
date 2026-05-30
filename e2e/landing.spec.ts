@@ -66,6 +66,12 @@ test.describe('landing page layout', () => {
     await expect(page.locator('.landing-footer__tagline')).toContainText('MIT')
   })
 
+  test('clicking the search pill opens the command palette', async ({ page }) => {
+    await expect(page.getByLabel('Search charts')).toBeHidden()
+    await page.locator('.navigation-command-bar').click()
+    await expect(page.getByLabel('Search charts')).toBeVisible()
+  })
+
   test('no console errors on the landing page', async ({ page }) => {
     const errors: string[] = []
     page.on('console', (msg) => {

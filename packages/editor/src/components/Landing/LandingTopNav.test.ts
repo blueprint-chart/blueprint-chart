@@ -11,7 +11,18 @@ vi.mock('@/stores/theme', () => ({
 }))
 
 vi.mock('@/composables/usePlatformShortcut', () => ({
-  usePlatformShortcut: () => ({ keyLabel: '⌘ K', matches: () => false }),
+  usePlatformShortcut: () => ({
+    keyLabel: '⌘ K',
+    matches: () => false,
+    trigger: vi.fn(() => {
+      document.dispatchEvent(new KeyboardEvent('keydown', {
+        key: 'k',
+        code: 'KeyK',
+        ctrlKey: true,
+        bubbles: true,
+      }))
+    }),
+  }),
 }))
 
 function mountNav() {
@@ -69,7 +80,7 @@ describe('LandingTopNav', () => {
     expect(labels).not.toContain('New chart')
   })
 
-  it('clicking the search pill dispatches a ⌘/Ctrl+K keydown', async () => {
+  it('clicking the search pill replays the platform shortcut keydown', async () => {
     const w = mountNav()
     let captured: KeyboardEvent | null = null
     const handler = (ev: Event) => {
@@ -80,8 +91,6 @@ describe('LandingTopNav', () => {
     document.removeEventListener('keydown', handler)
     expect(captured).not.toBeNull()
     expect(captured!.key).toBe('k')
-    expect(captured!.metaKey).toBe(true)
-    expect(captured!.ctrlKey).toBe(true)
   })
 
   it('uses NavigationMarketingBar as its root chrome', () => {

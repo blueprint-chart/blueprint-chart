@@ -2,6 +2,7 @@ export interface PlatformShortcut {
   keyLabel: string
   keys: string
   matches: (event: KeyboardEvent) => boolean
+  trigger: () => void
 }
 
 function isMac(): boolean {
@@ -22,5 +23,20 @@ export function usePlatformShortcut(key: string): PlatformShortcut {
     }
     return mac ? event.metaKey && !event.ctrlKey : event.ctrlKey && !event.metaKey
   }
-  return { keyLabel, keys, matches }
+  // Synthesize a keydown that matches() accepts, so click handlers can replay
+  // the shortcut without re-deriving its platform-specific modifier (which is
+  // exactly the kind of drift that breaks the two paths apart).
+  function trigger(): void {
+    if (typeof document === 'undefined') {
+      return
+    }
+    document.dispatchEvent(new KeyboardEvent('keydown', {
+      key,
+      code: `Key${upper}`,
+      metaKey: mac,
+      ctrlKey: !mac,
+      bubbles: true,
+    }))
+  }
+  return { keyLabel, keys, matches, trigger }
 }
