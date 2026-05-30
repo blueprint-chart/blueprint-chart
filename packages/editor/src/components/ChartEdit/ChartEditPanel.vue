@@ -29,6 +29,10 @@
         :layout="layout"
       />
       <CanvasModePicker v-if="viewMode === 'preview'" />
+      <div
+        class="chart-edit-panel__canvas__timeline-slot"
+        data-timeline-slot
+      />
     </div>
     <PanelShell
       v-model:drawer-open="drawerOpen"
@@ -280,6 +284,18 @@ const canvasStyle = computed<CSSProperties>(() => ({
       flex: 1;
       display: flex;
       flex-direction: column;
+    }
+
+    &__timeline-slot {
+      margin-top: auto;        // push to the bottom when content is short
+      position: sticky;
+      bottom: 0;
+      z-index: 5;              // above the canvas grid, below panel overlays
+      pointer-events: none;    // empty gaps pass clicks through to the canvas
+
+      > * {
+        pointer-events: auto;  // the teleported timeline stays interactive
+      }
     }
   }
 
