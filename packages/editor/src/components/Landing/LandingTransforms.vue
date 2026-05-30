@@ -448,8 +448,17 @@ const steps: Step[] = [
 
 @media (max-width: 51.25rem) {
   .transforms-demo {
+    /* let the tabs keep their natural width and scroll the row, rather than
+       cramming all four into equal slivers that clip their labels */
+    &__step {
+      flex: 0 0 auto;
+    }
+
     &__body {
       grid-template-columns: 1fr;
+      /* panels drop their vertical margins below, so the body supplies the
+         top/bottom breathing room the panel margins gave on desktop */
+      padding: 1.25rem;
 
       &__panel {
         margin: 0;
