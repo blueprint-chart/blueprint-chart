@@ -30,6 +30,10 @@
         />
       </div>
       <DataCheckTable />
+      <div
+        class="data-structure-panel__main__timeline-slot"
+        data-timeline-slot
+      />
     </div>
     <PanelShell
       v-if="dataPanelOpen"
@@ -179,6 +183,8 @@ const panelClassList = computed(() => ({
     overflow: auto;
     padding: 1.25rem;
     position: relative;
+    display: flex;
+    flex-direction: column;
 
     &__pills-bar {
       display: flex;
@@ -203,6 +209,18 @@ const panelClassList = computed(() => ({
       color: var(--bs-info-text-emphasis);
       font-size: var(--bs-font-size-sm);
       font-weight: 500;
+    }
+
+    &__timeline-slot {
+      margin-top: auto;        // push to the bottom when content is short
+      position: sticky;
+      bottom: 0;
+      z-index: 5;              // above the table, below panel overlays
+      pointer-events: none;    // empty gaps pass clicks through to the canvas
+
+      > * {
+        pointer-events: auto;  // the teleported timeline stays interactive
+      }
     }
   }
 

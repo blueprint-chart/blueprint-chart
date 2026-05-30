@@ -154,4 +154,13 @@ describe('DataStructurePanel', () => {
       expect(buttons.length).toBeGreaterThanOrEqual(1)
     })
   })
+
+  it('renders a timeline slot at the bottom of the main canvas', () => {
+    const w = mountPanel()
+    const main = w.find('.data-structure-panel__main')
+    const slot = main.find('[data-timeline-slot]')
+    expect(slot.exists()).toBe(true)
+    // It must be the LAST child of the main canvas so it sits below content.
+    expect(main.element.lastElementChild).toBe(slot.element)
+  })
 })
