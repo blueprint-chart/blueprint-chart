@@ -7,7 +7,7 @@ import { useChartSession } from '@/stores/chartSession'
 declare module 'vue-router' {
   interface RouteMeta {
     bare?: boolean
-    /** Set by /copy/:base64 beforeEnter so the route component can router.replace() to it. */
+    /** Set by /copy beforeEnter so the route component can router.replace() to it. */
     copyTarget?: string
   }
 }
@@ -87,16 +87,17 @@ const router = createRouter({
       redirect: to => `/edit/${to.params.id}/visualize`,
     },
     {
-      // Deep-link: decode a URL-safe base64 BPC payload, hydrate a fresh
-      // session, then redirect to the canonical editing URL. We hydrate in
-      // beforeEnter (so the new session exists before we navigate), and use
-      // router.replace from the stub component on mount so the /copy URL is
-      // swapped out of history rather than pushed onto it.
-      path: '/copy/:base64',
+      // Deep-link: decode a URL-safe base64 BPC payload from the `bpc64` query
+      // param, hydrate a fresh session, then redirect to the canonical editing
+      // URL. We hydrate in beforeEnter (so the new session exists before we
+      // navigate), and use router.replace from the stub component on mount so
+      // the /copy URL is swapped out of history rather than pushed onto it.
+      path: '/copy',
       component: () => import('@/components/Copy/CopyRedirect.vue'),
       meta: { bare: true },
       beforeEnter: (to) => {
-        const dsl = decodeUrlSafeBase64(String(to.params.base64 ?? ''))
+        const bpc64 = to.query.bpc64
+        const dsl = decodeUrlSafeBase64(typeof bpc64 === 'string' ? bpc64 : '')
         if (!dsl) {
           return '/'
         }

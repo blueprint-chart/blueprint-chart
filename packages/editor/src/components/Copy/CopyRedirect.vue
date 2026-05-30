@@ -14,6 +14,6 @@ const route = useRoute()
 const router = useRouter()
 
 // beforeEnter stashes the resolved target on route.meta; replace() so the
-// /copy/<base64> URL is removed from history instead of pushed onto it.
+// /copy?bpc64=… URL is removed from history instead of pushed onto it.
 router.replace(route.meta.copyTarget ?? '/')
 </script>

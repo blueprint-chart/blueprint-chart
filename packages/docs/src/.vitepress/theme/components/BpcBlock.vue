@@ -70,7 +70,7 @@ const editorUrl = computed(() => {
   if (!source.value) {
     return ''
   }
-  return `https://blueprintchart.com/#/copy/${toUrlSafeB64(source.value)}`
+  return `https://blueprintchart.com/#/copy?bpc64=${encodeURIComponent(toUrlSafeB64(source.value))}`
 })
 
 onMounted(async () => {

@@ -19,10 +19,10 @@ const STOCK_SAMPLE = readFileSync(
   'utf-8',
 )
 
-test.describe('/#/copy/:base64 deep-link', () => {
+test.describe('/#/copy?bpc64= deep-link', () => {
   test('decodes a BPC payload, hydrates a session, and lands on /edit/<id>/visualize', async ({ page }) => {
     const encoded = urlSafeB64Encode(STOCK_SAMPLE)
-    await page.goto(`/#/copy/${encoded}`)
+    await page.goto(`/#/copy?bpc64=${encoded}`)
 
     // URL should settle on /#/edit/<sessionId>/visualize.
     await page.waitForURL(/#\/edit\/[a-zA-Z0-9]{11}\/visualize$/)
@@ -32,17 +32,22 @@ test.describe('/#/copy/:base64 deep-link', () => {
     await expect(page.locator('text=Apple stock climbed 36 % through 2024').first()).toBeVisible()
   })
 
+  test('redirects to homepage when the bpc64 query param is missing', async ({ page }) => {
+    await page.goto('/#/copy')
+    await page.waitForURL(/#\/$/)
+    await expect(page.locator('.landing-hero__inner__text__h1')).toBeVisible()
+  })
+
   test('redirects to homepage when payload is not valid base64', async ({ page }) => {
-    // `!@` are outside the base64 alphabet (even after url-safe substitution)
-    // and survive the hash-route param without being treated as querystring.
-    await page.goto('/#/copy/not!base64@@')
+    // `!@` are outside the base64 alphabet (even after url-safe substitution).
+    await page.goto('/#/copy?bpc64=not!base64@@')
     await page.waitForURL(/#\/$/)
     await expect(page.locator('.landing-hero__inner__text__h1')).toBeVisible()
   })
 
   test('redirects to homepage when decoded payload is not valid BPC', async ({ page }) => {
     const encoded = urlSafeB64Encode('this is definitely not a chart definition')
-    await page.goto(`/#/copy/${encoded}`)
+    await page.goto(`/#/copy?bpc64=${encoded}`)
     await page.waitForURL(/#\/$/)
     await expect(page.locator('.landing-hero__inner__text__h1')).toBeVisible()
   })
