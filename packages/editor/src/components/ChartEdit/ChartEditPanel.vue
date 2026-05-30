@@ -3,36 +3,37 @@
     class="chart-edit-panel"
     :class="panelClassList"
   >
-    <div
-      ref="canvasRef"
-      class="chart-edit-panel__canvas"
-      :class="canvasClassList"
-      :style="canvasStyle"
-    >
+    <!-- Non-scrolling frame: the canvas scrolls inside it, but the mode picker
+         is pinned to the frame so it stays put (like the floating timeline). -->
+    <div class="chart-edit-panel__canvas-frame">
       <div
-        v-if="viewMode === 'preview'"
-        ref="cardRef"
-        class="chart-edit-panel__canvas__card"
-        :class="cardClass"
-        :style="cardStyle"
+        ref="canvasRef"
+        class="chart-edit-panel__canvas"
+        :class="canvasClassList"
+        :style="canvasStyle"
       >
-        <PreviewChart />
+        <div
+          v-if="viewMode === 'preview'"
+          ref="cardRef"
+          class="chart-edit-panel__canvas__card"
+          :class="cardClass"
+          :style="cardStyle"
+        >
+          <PreviewChart />
+        </div>
+        <ChartEditDsl
+          v-else
+          class="chart-edit-panel__canvas__dsl"
+        />
+        <CanvasDimensions
+          v-if="viewMode === 'preview' && showDimensions"
+          :card-ref="cardRef"
+          :canvas-ref="canvasRef"
+          :layout="layout"
+        />
+        <FloatingSceneTimeline />
       </div>
-      <ChartEditDsl
-        v-else
-        class="chart-edit-panel__canvas__dsl"
-      />
-      <CanvasDimensions
-        v-if="viewMode === 'preview' && showDimensions"
-        :card-ref="cardRef"
-        :canvas-ref="canvasRef"
-        :layout="layout"
-      />
       <CanvasModePicker v-if="viewMode === 'preview'" />
-      <div
-        class="chart-edit-panel__canvas__timeline-slot"
-        data-timeline-slot
-      />
     </div>
     <PanelShell
       v-model:drawer-open="drawerOpen"
@@ -83,6 +84,7 @@ import { useEditorPanel } from '@/stores/editorPanel'
 import { usePanel } from '@/stores/panel'
 import { useChartConfig } from '@/stores/chartConfig'
 import { useChartEditSections } from '@/composables/useChartEditSections'
+import FloatingSceneTimeline from '@/components/Scene/FloatingSceneTimeline.vue'
 
 const editorPanel = useEditorPanel()
 const { viewMode, activeTab, canvasMode, showDimensions } = storeToRefs(editorPanel)
@@ -130,6 +132,9 @@ const panelClassList = computed(() => ({
 const canvasClassList = computed(() => ({
   [`chart-edit-panel__canvas--${canvasMode.value}`]: canvasMode.value !== 'blueprint',
   'chart-edit-panel__canvas--dsl': viewMode.value !== 'preview',
+  // Reserve extra bottom space so the canvas dimension ruler clears the
+  // floating timeline when scrolled.
+  'chart-edit-panel__canvas--dimensions': viewMode.value === 'preview' && showDimensions.value,
 }))
 
 const TAB_LABELS: Record<string, string> = {
@@ -180,44 +185,71 @@ const canvasStyle = computed<CSSProperties>(() => ({
     flex-direction: column;
   }
 
-  &__canvas {
+  &__canvas-frame {
+    position: relative; // positioning context for the pinned mode picker
     flex: 1;
+    min-width: 0;
     display: flex;
-    flex-direction: column;
-    padding: 2.5rem 3rem;
-    overflow: auto;
-    position: relative;
-    background: var(--bc-canvas-bg);
+    // Shared edge inset so the floating timeline and the canvas mode picker
+    // sit the same distance from the canvas edge.
+    --canvas-float-inset: 0.75rem;
+    // Lift the canvas mode picker above the floating scene-timeline so they
+    // don't overlap (the timeline floats across the canvas bottom).
+    --canvas-mode-picker-bottom: 9rem;
 
     .chart-edit-panel--narrow & {
-      padding: 1rem;
+      // Narrow mode has no floating timeline (it uses the compact dock).
+      --canvas-mode-picker-bottom: 1rem;
+    }
+  }
+
+  &__canvas {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    // Gap between the chart card and the floating timeline so scrolled content
+    // keeps a margin above the timeline (the timeline is the only other
+    // in-flow child; dimensions are absolutely positioned).
+    gap: 2rem;
+    // Padding is exposed as vars so the floating timeline can break out to a
+    // uniform inset from the canvas edges (see FloatingSceneTimeline); the
+    // padding derives from the vars so the two can never drift.
+    --fst-canvas-pad-x: 3rem;
+    --fst-canvas-pad-y: 2.5rem;
+    padding: var(--fst-canvas-pad-y) var(--fst-canvas-pad-x);
+    overflow: auto;
+    // Disable rubber-band overscroll so the sticky timeline doesn't bounce
+    // past the scroll limit (the pinned mode picker never moves; this keeps
+    // the timeline consistent with it).
+    overscroll-behavior: none;
+    position: relative;
+    // The blueprint grid is painted as the canvas background with
+    // `background-attachment: local` so it tiles across the FULL scrollable
+    // content (not just the visible viewport) and scrolls with it.
+    background-color: var(--bc-canvas-bg);
+    background-image:
+      linear-gradient(var(--bc-canvas-grid-color-major) 1px, transparent 1px),
+      linear-gradient(90deg, var(--bc-canvas-grid-color-major) 1px, transparent 1px),
+      linear-gradient(var(--bc-canvas-grid-color) 1px, transparent 1px),
+      linear-gradient(90deg, var(--bc-canvas-grid-color) 1px, transparent 1px);
+    background-size:
+      calc(var(--bc-canvas-grid-size) * 5) calc(var(--bc-canvas-grid-size) * 5),
+      calc(var(--bc-canvas-grid-size) * 5) calc(var(--bc-canvas-grid-size) * 5),
+      var(--bc-canvas-grid-size) var(--bc-canvas-grid-size),
+      var(--bc-canvas-grid-size) var(--bc-canvas-grid-size);
+    background-position: var(--grid-offset-x, 0) var(--grid-offset-y, 0);
+    background-attachment: local;
+
+    .chart-edit-panel--narrow & {
+      --fst-canvas-pad-x: 1rem;
+      --fst-canvas-pad-y: 1rem;
     }
 
-    &::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      background-image:
-        linear-gradient(var(--bc-canvas-grid-color-major) 1px, transparent 1px),
-        linear-gradient(90deg, var(--bc-canvas-grid-color-major) 1px, transparent 1px),
-        linear-gradient(var(--bc-canvas-grid-color) 1px, transparent 1px),
-        linear-gradient(90deg, var(--bc-canvas-grid-color) 1px, transparent 1px);
-      background-size:
-        calc(var(--bc-canvas-grid-size) * 5) calc(var(--bc-canvas-grid-size) * 5),
-        calc(var(--bc-canvas-grid-size) * 5) calc(var(--bc-canvas-grid-size) * 5),
-        var(--bc-canvas-grid-size) var(--bc-canvas-grid-size),
-        var(--bc-canvas-grid-size) var(--bc-canvas-grid-size);
-      background-position: var(--grid-offset-x, 0) var(--grid-offset-y, 0);
-    }
-
-    // Plain canvas modes — hide grid, use flat background
-    &--auto,
-    &--light,
-    &--dark {
-      &::before {
-        display: none;
-      }
+    // When the dimension ruler is shown it extends ~60px below the card, so
+    // reserve more space above the floating timeline for it to clear.
+    &--dimensions {
+      gap: 4.5rem;
     }
 
     &--light,
@@ -236,18 +268,20 @@ const canvasStyle = computed<CSSProperties>(() => ({
       --bc-canvas-dimension-color: rgba(255, 255, 255, 0.3);
     }
 
-    // DSL editor mode — fill the full canvas
+    // DSL editor mode — fill the full canvas, no grid
     &--dsl {
-      padding: 0;
-
-      &::before {
-        display: none;
-      }
+      --fst-canvas-pad-x: 0px;
+      --fst-canvas-pad-y: 0px;
+      background-image: none;
     }
 
     &__card {
       position: relative;
       z-index: 1;
+      // Keep the card at its natural height so the CANVAS scrolls (with the
+      // floating timeline pinned), rather than the card scrolling internally.
+      // --fixed / --constrained-height override with `flex: none` as needed.
+      flex-shrink: 0;
       background: var(--bc-tile-bg);
       border-radius: var(--bc-radius-sm);
       overflow: auto;
@@ -284,18 +318,6 @@ const canvasStyle = computed<CSSProperties>(() => ({
       flex: 1;
       display: flex;
       flex-direction: column;
-    }
-
-    &__timeline-slot {
-      margin-top: auto;        // push to the bottom when content is short
-      position: sticky;
-      bottom: 0;
-      z-index: 5;              // above the canvas grid, below panel overlays
-      pointer-events: none;    // empty gaps pass clicks through to the canvas
-
-      > * {
-        pointer-events: auto;  // the teleported timeline stays interactive
-      }
     }
   }
 

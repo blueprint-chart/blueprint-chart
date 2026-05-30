@@ -14,8 +14,9 @@ import type { ChartColorize } from '@/stores/chartConfig'
 import { ChartType, SortDirection, parseData } from '@blueprint-chart/lib'
 import type { SeriesOverride } from '@blueprint-chart/lib'
 import { BBadge } from 'bootstrap-vue-next'
-import { NavigationStepperTabs, SceneTimeline, SceneList, LayoutBottomDrawer, useBreakpoint } from '@blueprint-chart/ui'
+import { NavigationStepperTabs, SceneList, LayoutBottomDrawer, useBreakpoint } from '@blueprint-chart/ui'
 import LayoutNarrowDock from '@/components/Layout/LayoutNarrowDock.vue'
+import { sceneTimelineKey } from '@/composables/sceneTimelineContext'
 import { useEditorPanel } from '@/stores/editorPanel'
 import { useExportPanel } from '@/stores/exportPanel'
 import IconPhTable from '~icons/ph/table'
@@ -23,7 +24,6 @@ import IconPhChartBar from '~icons/ph/chart-bar'
 import IconPhExport from '~icons/ph/export'
 import LayoutPageHeader from '@/components/Layout/LayoutPageHeader.vue'
 import LayoutBreadcrumb from '@/components/Layout/LayoutBreadcrumb.vue'
-import LayoutSceneTimeline from '@/components/Layout/LayoutSceneTimeline.vue'
 
 const { currentStep, currentIndex, steps, registerCreateSession } = useWizard()
 const dataTable = useDataTable()
@@ -43,6 +43,7 @@ const { isNarrow: isSavedCompact } = useBreakpoint('lg')
 const { isNarrow: isStepperStacked } = useBreakpoint('md')
 const { isNarrow } = useBreakpoint() // defaults to 'md' — matches the panel store
 const editorPanel = useEditorPanel()
+const { dataView } = storeToRefs(editorPanel)
 const exportPanel = useExportPanel()
 const scenesSheetOpen = ref(false)
 
@@ -271,10 +272,27 @@ const showTimeline = computed(() => {
   if (step === 'export') {
     return false
   }
+  if (step === 'data' && dataView.value === 'upload') {
+    return false
+  }
   if (step === 'edit') {
     return true
   }
   return scenes.value.length >= 1
+})
+
+// Publish the timeline state/handlers for FloatingSceneTimeline, which renders
+// the floating timeline inside whichever step canvas is currently mounted.
+provide(sceneTimelineKey, {
+  scenes: timelineScenes,
+  activeIndex: timelineActiveIndex,
+  playing,
+  showTimeline,
+  onSelect: onTimelineSelect,
+  onAdd: addScene,
+  onRemove: onTimelineRemove,
+  onPlay: startPlayback,
+  onPause: stopPlayback,
 })
 
 watch(activeIndex, (newVal, oldVal) => {
@@ -391,19 +409,6 @@ onBeforeRouteLeave(() => {
         @expand-timeline="onExpandTimeline"
         @open-panel="onOpenPanel"
       />
-      <LayoutSceneTimeline v-else-if="showTimeline">
-        <SceneTimeline
-          :scenes="timelineScenes"
-          :active-index="timelineActiveIndex"
-          :playing="playing"
-          @update:active-index="onTimelineSelect"
-          @add="addScene"
-          @remove="onTimelineRemove"
-          @play="startPlayback"
-          @pause="stopPlayback"
-        />
-      </LayoutSceneTimeline>
-
       <LayoutBottomDrawer
         v-if="isNarrow"
         v-model="scenesSheetOpen"

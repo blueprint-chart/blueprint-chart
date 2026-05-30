@@ -76,7 +76,10 @@ defineEmits<{
     overflow-x: auto;
     flex: 1;
     min-width: 0;
-    padding: 0.25rem 0;
+    // Top padding leaves room for each item's remove badge (which sits at
+    // top: -6px); overflow-x:auto also clips the y-axis, so without it the
+    // badge gets truncated.
+    padding: 0.5rem 0 0.25rem;
 
     &::-webkit-scrollbar {
       display: none;

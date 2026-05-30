@@ -62,6 +62,7 @@ const commonStubs = {
   DataRecommendations: { template: '<div class="reco-stub" />' },
   PanelTabBar: { template: '<div class="tab-bar-stub" />', props: ['tabs', 'modelValue', 'sticky'] },
   PanelStepperFooter: { template: '<div class="stepper-footer-stub" />' },
+  FloatingSceneTimeline: { template: '<div class="floating-timeline-stub" />' },
 }
 
 function mountPanel() {
@@ -155,12 +156,12 @@ describe('DataStructurePanel', () => {
     })
   })
 
-  it('renders a timeline slot at the bottom of the main canvas', () => {
+  it('renders the floating timeline as the last child of the main canvas', () => {
     const w = mountPanel()
     const main = w.find('.data-structure-panel__main')
-    const slot = main.find('[data-timeline-slot]')
-    expect(slot.exists()).toBe(true)
-    // It must be the LAST child of the main canvas so it sits below content.
-    expect(main.element.lastElementChild).toBe(slot.element)
+    const timeline = main.find('.floating-timeline-stub')
+    expect(timeline.exists()).toBe(true)
+    // It must be the LAST child of the main canvas so it floats below content.
+    expect(main.element.lastElementChild).toBe(timeline.element)
   })
 })

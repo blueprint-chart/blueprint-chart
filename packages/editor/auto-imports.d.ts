@@ -150,6 +150,7 @@ declare global {
   const resolveSortFromTransforms: typeof import('./src/composables/useChartPreview').resolveSortFromTransforms
   const savePreview: typeof import('./src/composables/useChartThumbnail').savePreview
   const saveThumbnail: typeof import('./src/composables/useChartThumbnail').saveThumbnail
+  const sceneTimelineKey: typeof import('./src/composables/sceneTimelineContext').sceneTimelineKey
   const serializeDelimited: typeof import('./src/composables/useDataParser').serializeDelimited
   const serializeTableData: typeof import('./src/composables/useDataTable').serializeTableData
   const setActivePinia: typeof import('pinia').setActivePinia
@@ -419,6 +420,9 @@ declare global {
   // @ts-ignore
   export type { Component, Slot, Slots, ComponentPublicInstance, ComputedRef, DirectiveBinding, ExtractDefaultPropTypes, ExtractPropTypes, ExtractPublicPropTypes, InjectionKey, PropType, Ref, ShallowRef, MaybeRef, MaybeRefOrGetter, VNode, WritableComputedRef } from 'vue'
   import('vue')
+  // @ts-ignore
+  export type { SceneTimelineScene, SceneTimelineContext } from './src/composables/sceneTimelineContext'
+  import('./src/composables/sceneTimelineContext')
   // @ts-ignore
   export type { BenfordResult } from './src/composables/useBenfordCheck'
   import('./src/composables/useBenfordCheck')

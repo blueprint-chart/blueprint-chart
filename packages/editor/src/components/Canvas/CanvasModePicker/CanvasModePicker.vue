@@ -56,8 +56,10 @@ function select(mode: CanvasMode) {
 <style scoped lang="scss">
 .canvas-mode-picker {
   position: absolute;
-  bottom: 1rem;
-  left: 1rem;
+  // Host can lift the picker (e.g. above the floating scene-timeline) and align
+  // its edge inset with that timeline via --canvas-float-inset.
+  bottom: var(--canvas-mode-picker-bottom, 1rem);
+  left: var(--canvas-float-inset, 1rem);
   z-index: 10;
   display: flex;
   align-items: stretch;

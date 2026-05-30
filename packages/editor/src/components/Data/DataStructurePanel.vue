@@ -30,10 +30,7 @@
         />
       </div>
       <DataCheckTable />
-      <div
-        class="data-structure-panel__main__timeline-slot"
-        data-timeline-slot
-      />
+      <FloatingSceneTimeline />
     </div>
     <PanelShell
       v-if="dataPanelOpen"
@@ -80,6 +77,7 @@ import { useScenes } from '@/stores/scenes'
 import IPhArrowsClockwise from '~icons/ph/arrows-clockwise'
 import { useDataSections } from '@/composables/useDataSections'
 import { findDataSourceSceneIndex } from '@/utils/scenes'
+import FloatingSceneTimeline from '@/components/Scene/FloatingSceneTimeline.vue'
 
 const { columns, rows, columnTypes } = useDataTable()
 const editorPanel = useEditorPanel()
@@ -181,17 +179,35 @@ const panelClassList = computed(() => ({
     flex: 1;
     min-width: 0;
     overflow: auto;
-    padding: 1.25rem;
+    // Disable rubber-band overscroll so the sticky timeline doesn't bounce
+    // past the scroll limit.
+    overscroll-behavior: none;
+    // Padding is exposed as vars so the floating timeline can break out to a
+    // uniform inset from the canvas edges (see FloatingSceneTimeline); the
+    // padding derives from the vars so the two can never drift.
+    --fst-canvas-pad-x: 1.25rem;
+    --fst-canvas-pad-y: 1.25rem;
+    padding: var(--fst-canvas-pad-y) var(--fst-canvas-pad-x);
     position: relative;
     display: flex;
     flex-direction: column;
+    // Space between rows (and a margin above the floating timeline so scrolled
+    // content keeps clearance from it), matching the chart-edit canvas.
+    gap: 2rem;
+
+    // Keep the table at its natural height so THIS panel scrolls (with the
+    // floating timeline pinned). Otherwise the table — which clips its
+    // overflow — shrinks under the timeline and hides rows with no way to
+    // scroll to them.
+    :deep(.data-check-table) {
+      flex-shrink: 0;
+    }
 
     &__pills-bar {
       display: flex;
       align-items: center;
       gap: 0.5rem;
       flex-wrap: wrap;
-      margin-bottom: 0.75rem;
 
       .data-insight-badges {
         flex: 1;
@@ -209,18 +225,6 @@ const panelClassList = computed(() => ({
       color: var(--bs-info-text-emphasis);
       font-size: var(--bs-font-size-sm);
       font-weight: 500;
-    }
-
-    &__timeline-slot {
-      margin-top: auto;        // push to the bottom when content is short
-      position: sticky;
-      bottom: 0;
-      z-index: 5;              // above the table, below panel overlays
-      pointer-events: none;    // empty gaps pass clicks through to the canvas
-
-      > * {
-        pointer-events: auto;  // the teleported timeline stays interactive
-      }
     }
   }
 

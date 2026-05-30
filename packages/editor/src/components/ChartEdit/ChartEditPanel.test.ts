@@ -1,5 +1,6 @@
 import { shallowMount } from '@vue/test-utils'
 import ChartEditPanel from './ChartEditPanel.vue'
+import FloatingSceneTimeline from '@/components/Scene/FloatingSceneTimeline.vue'
 
 vi.mock('@/stores/editorPanel', () => ({
   useEditorPanel: () => ({
@@ -53,11 +54,12 @@ describe('ChartEditPanel', () => {
     setActivePinia(createPinia())
   })
 
-  it('renders a timeline slot at the bottom of the canvas', () => {
+  it('renders the floating timeline as the last child of the canvas', () => {
     const w = mountPanel()
     const canvas = w.find('.chart-edit-panel__canvas')
-    const slot = canvas.find('[data-timeline-slot]')
-    expect(slot.exists()).toBe(true)
-    expect(canvas.element.lastElementChild).toBe(slot.element)
+    const timeline = w.findComponent(FloatingSceneTimeline)
+    expect(timeline.exists()).toBe(true)
+    // It must be the LAST child so it floats below the canvas content.
+    expect(canvas.element.lastElementChild).toBe(timeline.element)
   })
 })
