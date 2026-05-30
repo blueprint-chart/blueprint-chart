@@ -90,7 +90,7 @@ for (const v of VIEWPORTS) {
 
     test('topnav adapts to viewport', async ({ page }) => {
       const links = page.locator('.navigation-marketing-bar__menu a')
-      await expect(links).toHaveCount(4)
+      await expect(links).toHaveCount(5)
       if (v.size.width > 820) {
         await expect(links.first()).toBeVisible()
       }
