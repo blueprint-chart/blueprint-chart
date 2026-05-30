@@ -139,14 +139,23 @@ const portabilityCards: PortabilityCard[] = [
     </div>
 
     <p class="landing-format__footnote">
-      <span class="landing-format__footnote__label">FYI</span>
-      <AppIcon
-        :name="IPhLightning"
-        size="xs"
-        variant="warning"
-      />
-      Plain-text BPC is also an excellent target for LLMs — there's now an official
-      <strong>MCP</strong> that writes, validates, and renders it for you. See it below.
+      <span class="landing-format__footnote__lead">
+        <span class="landing-format__footnote__label">FYI</span>
+        <AppIcon
+          :name="IPhLightning"
+          size="xs"
+          variant="warning"
+        />
+      </span>
+      <span class="landing-format__footnote__text">
+        Plain-text BPC is also an excellent target for LLMs. The official
+        <a
+          class="landing-format__footnote__link"
+          href="https://docs.blueprintchart.com/guide/mcp"
+          target="_blank"
+          rel="noopener noreferrer"
+        >MCP</a> writes, validates, and renders it for you.
+      </span>
     </p>
   </LandingSection>
 </template>
@@ -299,14 +308,25 @@ const portabilityCards: PortabilityCard[] = [
 
   &__footnote {
     display: inline-flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 0.5rem;
     margin-top: 1.25rem;
     padding: 0.5rem 0.875rem;
     border: 1px solid var(--bc-hairline);
     border-radius: var(--bc-radius-pill);
     font-size: var(--bs-font-size-sm);
+    line-height: 1.5;
     color: var(--bs-secondary-color);
+
+    /* label + icon grouped so they stay centered on the text's first line,
+       whether the text is one line or wraps to several */
+    &__lead {
+      flex: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      min-height: 1.5em;
+    }
 
     &__label {
       font-family: "Geist Mono", ui-monospace, monospace;
@@ -314,6 +334,21 @@ const portabilityCards: PortabilityCard[] = [
       letter-spacing: 0.08em;
       text-transform: uppercase;
       color: var(--bs-tertiary-color);
+    }
+
+    &__text {
+      min-width: 0;
+    }
+
+    &__link {
+      font-weight: 700;
+      color: var(--bs-primary);
+      text-decoration: none;
+
+      &:hover,
+      &:focus-visible {
+        text-decoration: underline;
+      }
     }
   }
 }
@@ -332,6 +367,12 @@ const portabilityCards: PortabilityCard[] = [
 
     &__cards {
       grid-template-columns: 1fr;
+    }
+
+    /* the footnote wraps to several lines on narrow screens — a pill radius
+       turns into an ugly blob, so square it off to a normal rounded box */
+    &__footnote {
+      border-radius: var(--bc-radius-md);
     }
   }
 }
