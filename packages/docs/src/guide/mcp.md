@@ -97,11 +97,18 @@ that client's server config.
 | `validate_dsl` | Parse `.bpc`; returns `{ valid, errors[], warnings[] }` — each error carries a `code`, `message`, and actionable `suggestion` |
 | `inspect_dsl` | Summarize a `.bpc`: chart type, scenes, series/row counts, feature flags |
 | `recommend_chart_type` | Rank chart types for a given column shape and row count |
-| `render` | Render to SVG (default) or PNG, with structured errors on failure |
+| `render` | Render to SVG (default), PNG, or HTML, with structured frame metadata and structured errors on failure |
 | `list_chart_types` | List all renderable chart types |
-| `describe_chart_type` | Properties, when-to-use, and data shape for one chart type |
+| `describe_chart_type` | Properties, when-to-use, when-NOT-to-use, and data shape for one chart type |
 | `get_example` | Fetch a canonical `.bpc` sample by chart type or name |
 | `get_grammar` | Full DSL syntax reference |
+| `export_chart` | Turn a validated `.bpc` into shareable editor URLs — an editable `copyUrl` and a read-only `embedUrl` for iframes |
+
+## Prompts
+
+| Prompt | Purpose |
+| --- | --- |
+| `author_chart` | Primes the assistant end-to-end for the full read → write → `validate_dsl` → `render` → iterate loop, with the MCP as validator and renderer |
 
 ## Resources
 
