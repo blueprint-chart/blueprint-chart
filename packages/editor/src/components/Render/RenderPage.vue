@@ -37,6 +37,8 @@ import {
 } from '@blueprint-chart/ui'
 import { useChartConfig } from '@/stores/chartConfig'
 import { useScenes } from '@/stores/scenes'
+import { useCloudCharts } from '@/stores/cloudCharts'
+import { accountsEnabled } from '@/config/runtimeConfig'
 
 const route = useRoute()
 const containerRef = useTemplateRef<HTMLElement>('containerRef')
@@ -96,11 +98,7 @@ onBeforeUnmount(() => {
   }
 })
 
-onMounted(() => {
-  const bpc64 = route.query.bpc64 as string | undefined
-  if (!bpc64) {
-    return
-  }
+function applyBase64(bpc64: string) {
   try {
     const binary = globalThis.atob(bpc64)
     const bytes = Uint8Array.from(binary, c => c.charCodeAt(0))
@@ -109,6 +107,23 @@ onMounted(() => {
   }
   catch {
     // silently fail for invalid input
+  }
+}
+
+onMounted(async () => {
+  const id = route.query.id as string | undefined
+  if (id && accountsEnabled()) {
+    const { fetchPublished } = useCloudCharts()
+    const dsl = await fetchPublished(id)
+    if (dsl) {
+      applyDsl(dsl)
+    }
+    return
+  }
+
+  const bpc64 = route.query.bpc64 as string | undefined
+  if (bpc64) {
+    applyBase64(bpc64)
   }
 })
 </script>
