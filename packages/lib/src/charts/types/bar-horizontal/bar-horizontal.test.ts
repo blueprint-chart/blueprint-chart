@@ -1235,6 +1235,14 @@ describe('bar-horizontal', () => {
     })
   })
 
+  // ── Percent value labels ─────────────────────────────────────────
+
+  it('renders value labels as share-of-total percentages with valueLabels="percent"', () => {
+    render(container, { labels: ['A', 'B', 'C'], values: [10, 30, 20] }, { valueLabels: 'percent' })
+    const texts = Array.from(container.querySelectorAll('.bc-value-label')).map(el => el.textContent)
+    expect(texts).toEqual(expect.arrayContaining(['17%', '50%', '33%']))
+  })
+
   // ── Highlight (dim) ──────────────────────────────────────────────
 
   describe('highlight', () => {
