@@ -229,6 +229,7 @@ declare global {
   const useClipboard: typeof import('@vueuse/core').useClipboard
   const useClipboardItems: typeof import('@vueuse/core').useClipboardItems
   const useCloned: typeof import('@vueuse/core').useCloned
+  const useCloudSync: typeof import('./src/composables/useCloudSync').useCloudSync
   const useColorMode: typeof import('@vueuse/core').useColorMode
   const useConfirmDialog: typeof import('@vueuse/core').useConfirmDialog
   const useCountdown: typeof import('@vueuse/core').useCountdown
@@ -294,6 +295,7 @@ declare global {
   const useIntervalFn: typeof import('@vueuse/core').useIntervalFn
   const useKeyModifier: typeof import('@vueuse/core').useKeyModifier
   const useLastChanged: typeof import('@vueuse/core').useLastChanged
+  const useLocalImport: typeof import('./src/composables/useLocalImport').useLocalImport
   const useLocalStorage: typeof import('@vueuse/core').useLocalStorage
   const useMagicKeys: typeof import('@vueuse/core').useMagicKeys
   const useManualRefHistory: typeof import('@vueuse/core').useManualRefHistory
@@ -436,6 +438,9 @@ declare global {
   export type { ChartRecommendation } from './src/composables/useChartRecommendations'
   import('./src/composables/useChartRecommendations')
   // @ts-ignore
+  export type { CloudSyncStatus, CloudSyncDeps } from './src/composables/useCloudSync'
+  import('./src/composables/useCloudSync')
+  // @ts-ignore
   export type { ColumnType, ParsedData, ParseDelimitedOptions } from './src/composables/useDataParser'
   import('./src/composables/useDataParser')
   // @ts-ignore
@@ -444,6 +449,9 @@ declare global {
   // @ts-ignore
   export type { ExportSection } from './src/composables/useExportSections'
   import('./src/composables/useExportSections')
+  // @ts-ignore
+  export type { LocalChartRef, LocalImportDeps } from './src/composables/useLocalImport'
+  import('./src/composables/useLocalImport')
   // @ts-ignore
   export type { PlatformShortcut } from './src/composables/usePlatformShortcut'
   import('./src/composables/usePlatformShortcut')

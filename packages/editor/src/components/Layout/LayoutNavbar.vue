@@ -14,6 +14,9 @@ import IPhCircleHalf from '~icons/ph/circle-half'
 import IPhList from '~icons/ph/list'
 import logoLight from '@/assets/images/blueprint-chart-logo.svg'
 import logoDark from '@/assets/images/blueprint-chart-logo-dark.svg'
+import AccountMenu from '@/components/Account/AccountMenu.vue'
+import { accountsEnabled } from '@/config/runtimeConfig'
+import { useAccount } from '@/stores/account'
 
 defineProps<{ sidebarOpen?: boolean }>()
 defineEmits<{ searchClick: [], toggleSidebar: [] }>()
@@ -31,6 +34,12 @@ const iconByTheme: Record<ThemeMode, typeof IPhSun> = {
 const themeIcon = computed(() => iconByTheme[theme.value])
 const placeholder = computed(() => isNarrow.value ? 'Search…' : 'Search or jump to…')
 const logoSrc = computed(() => resolvedTheme.value === 'dark' ? logoDark : logoLight)
+
+const showAccount = accountsEnabled()
+const { init } = useAccount()
+if (showAccount) {
+  void init()
+}
 </script>
 
 <template>
@@ -75,6 +84,8 @@ const logoSrc = computed(() => resolvedTheme.value === 'dark' ? logoDark : logoL
       class="layout-navbar__theme"
       @click="cycleTheme"
     />
+
+    <AccountMenu v-if="showAccount" />
   </header>
 </template>
 
