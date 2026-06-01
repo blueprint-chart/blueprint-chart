@@ -11,7 +11,7 @@ import { createTooltipPlugin } from '../../plugins/tooltip'
 import { createCrosshairPlugin } from '../../plugins/crosshair'
 import { createAnnotationPlugin, snapshotAnnotations, type AnnotationSnapshot } from '../../plugins/annotations'
 import { resolveBackgroundColor, contrastTextColor } from '../../contrast'
-import { buildNumberFormatter } from '../../format-helpers'
+import { buildNumberFormatter, percentValueLabel } from '../../format-helpers'
 import { buildColorOverrides } from '../../plugins/colorize'
 import { setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut } from '../../motion'
 import { getCachedChart, setCachedChart } from '../../transition-cache'
@@ -420,6 +420,8 @@ export function render(
         colors: options.colors ?? DEFAULT_COLORS,
         transition,
         swapLabelValue,
+        percent: options.valueLabels === 'percent',
+        total: d3.sum(barData, d => d.value),
       })
     }
   }
@@ -494,10 +496,17 @@ function renderValueLabels(
     colors: string[]
     transition: boolean
     swapLabelValue?: boolean
+    percent?: boolean
+    total?: number
   },
 ): void {
   const pos = opts.position ?? ValueLabelPosition.Auto
-  const labelText = (d: BarDatum) => opts.swapLabelValue ? d.label : String(d.value)
+  const labelText = (d: BarDatum) =>
+    opts.swapLabelValue
+      ? d.label
+      : opts.percent && opts.total !== undefined
+        ? percentValueLabel(d.value, opts.total)
+        : String(d.value)
 
   let labelGroup = parent.select<SVGGElement>('.bc-value-label-group')
   if (labelGroup.empty()) {
