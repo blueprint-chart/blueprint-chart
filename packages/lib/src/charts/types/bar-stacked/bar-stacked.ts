@@ -11,6 +11,7 @@ import { createAnnotationPlugin, snapshotAnnotations, type AnnotationSnapshot } 
 import { createTooltipPlugin } from '../../plugins/tooltip'
 import { createCrosshairPlugin } from '../../plugins/crosshair'
 import { resolveBackgroundColor } from '../../contrast'
+import { percentValueLabel } from '../../format-helpers'
 import { resolveSeriesColor, isSeriesHidden, resolveSeriesValueLabels, resolveSeriesOpacity } from '../../series-helpers'
 import { contrastTextColor } from '../../contrast'
 import { getDefaultTransitionMs, setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut, reinsertWithOffset } from '../../motion'
@@ -340,13 +341,19 @@ export function render(
   // Track the rightmost label extent per row to prevent outside-label overlap
   const labelEndByRow = new Map<string, number>()
 
+  const columnTotals = d3.rollup(sortedFlatData, vs => d3.max(vs, d => d.y1) ?? 0, d => d.label)
+
   const vlGroup = d3.select(chartArea).append('g').attr('class', 'bc-value-labels')
   sortedFlatData.forEach((datum) => {
     if (!resolveSeriesValueLabels(datum.seriesName, globalValueLabels, overrides)) {
       return
     }
 
-    const labelText = isPercent ? `${Math.round(datum.value)}%` : String(Math.round(datum.value * 100) / 100)
+    const labelText = isPercent
+      ? `${Math.round(datum.value)}%`
+      : options.valueLabels === 'percent'
+        ? percentValueLabel(datum.value, columnTotals.get(datum.label) ?? 0)
+        : String(Math.round(datum.value * 100) / 100)
     const segmentWidth = x(datum.y1) - x(datum.y0)
     const estimatedLabelWidth = labelText.length * 6.5 + 8
     const fitsInside = segmentWidth >= estimatedLabelWidth

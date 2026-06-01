@@ -389,6 +389,20 @@ describe('bar-stacked', () => {
     expect(bars).toHaveLength(2)
   })
 
+  it('renders value labels as share-of-column percentages with valueLabels="percent"', () => {
+    const percentData = {
+      labels: ['Col'],
+      values: [],
+      series: [
+        { name: 'Series A', values: [25] },
+        { name: 'Series B', values: [75] },
+      ],
+    }
+    render(container, percentData, { valueLabels: 'percent' })
+    const texts = Array.from(container.querySelectorAll('.bc-value-label')).map(el => el.textContent)
+    expect(texts).toEqual(expect.arrayContaining(['25%', '75%']))
+  })
+
   it('applies opacity override to series', () => {
     render(container, data, {
       seriesOverrides: [{ name: 'Product A', opacity: 0.5 }],
