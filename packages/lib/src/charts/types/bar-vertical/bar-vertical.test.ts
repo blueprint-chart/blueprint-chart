@@ -1187,6 +1187,13 @@ describe('bar-vertical', () => {
       const seps = container.querySelectorAll('.bc-bar-separator')
       expect(seps).toHaveLength(3) // n-1 for 4 bars
     })
+
+    it('dims non-highlighted waterfall bars to 0.35', () => {
+      render(container, wfData, { waterfall: true, highlights: [{ target: 'A' }] })
+      const opacities = Array.from(container.querySelectorAll('.bc-bar')).map(b => b.getAttribute('opacity'))
+      expect(opacities).toContain('0.35')
+      expect(opacities).not.toContain('0.2')
+    })
   })
 
   // ── Highlight (dim) ──────────────────────────────────────────────

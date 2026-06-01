@@ -17,6 +17,7 @@ import { getCachedChart, setCachedChart } from '../../transition-cache'
 import { ensureClipPath } from '../../clip-path-helper'
 import { SortDirection, ValueLabelPosition, LabelPosition } from '../../../enums'
 import { featureJoin, getSceneTransition } from '../../../transitions'
+import { highlightOpacity } from '../../plugins/highlight'
 
 export const DEFAULT_COLORS = ['#4e79a7']
 const CATEGORY_LABEL_HEIGHT = 13
@@ -342,7 +343,7 @@ export function render(
         }
         return colorOverrides.get(d.label) ?? colors[0]
       })
-      .attr('opacity', (d: WaterfallDatum) => highlightTargets.size > 0 ? (highlightTargets.has(d.label) ? 1 : 0.2) : null)
+      .attr('opacity', (d: WaterfallDatum) => highlightTargets.size > 0 ? highlightOpacity(highlightTargets, d.label) : null)
 
     if (options.valueLabels) {
       const pos = options.valueLabelPosition ?? ValueLabelPosition.Auto
@@ -386,17 +387,14 @@ export function render(
       data: barData,
       key: d => d.label,
       insert: sel => sel.append('rect').attr('class', 'bc-bar'),
-      attrs: (d) => {
-        const hasHl = highlightTargets.size > 0
-        return {
-          x: x(d.label) ?? 0,
-          y: Math.min(y(0), y(d.value)),
-          width: x.bandwidth(),
-          height: Math.abs(y(d.value) - y(0)),
-          fill: colorOverrides.get(d.label) ?? (options.colors ?? DEFAULT_COLORS)[0],
-          opacity: hasHl ? (highlightTargets.has(d.label) ? 1 : 0.35) : 1,
-        }
-      },
+      attrs: (d) => ({
+        x: x(d.label) ?? 0,
+        y: Math.min(y(0), y(d.value)),
+        width: x.bandwidth(),
+        height: Math.abs(y(d.value) - y(0)),
+        fill: colorOverrides.get(d.label) ?? (options.colors ?? DEFAULT_COLORS)[0],
+        opacity: highlightOpacity(highlightTargets, d.label),
+      }),
     })
 
     // Plugins host — kept on the legacy D3Blueprint path. Mounting on
