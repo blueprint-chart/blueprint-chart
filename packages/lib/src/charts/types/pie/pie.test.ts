@@ -385,4 +385,13 @@ describe('pie chart', () => {
     const arcs = container.querySelectorAll('.bc-arc')
     expect(arcs[0].getAttribute('opacity')).not.toBe('0.35')
   })
+
+  // ── Colorize ──────────────────────────────────────────────────────
+
+  it('applies colorize to the targeted arc, leaving others on the palette', () => {
+    render(container, data, { colorizes: [{ target: 'X', color: '#ff0000' }] })
+    const arcs = container.querySelectorAll('.bc-arc')
+    expect(arcs[0].getAttribute('fill')).toBe('#ff0000')
+    expect(arcs[1].getAttribute('fill')).not.toBe('#ff0000')
+  })
 })

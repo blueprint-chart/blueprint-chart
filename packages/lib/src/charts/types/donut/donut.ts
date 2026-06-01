@@ -17,6 +17,7 @@ import { renderArcLabels, renderInsideArcLabels, renderAutoArcLabels, estimateAr
 import type { ArcLabelDatum } from '../../plugins/arc-labels'
 import { featureJoin, getSceneTransition } from '../../../transitions'
 import { highlightTargetSet, highlightOpacity } from '../../plugins/highlight'
+import { buildColorOverrides } from '../../plugins/colorize'
 
 export const DEFAULT_COLORS = [
   '#4e79a7', '#f28e2b', '#e15759', '#76b7b2',
@@ -192,11 +193,12 @@ export function renderArc(
     .append('g')
     .attr('transform', `translate(${width / 2},${height / 2})`)
 
+  const colorOverrides = buildColorOverrides(options.colorizes)
   const pieData = pie(values)
   const arcData: ArcDatum[] = pieData.map((arc, i) => ({
     label: labels[i],
     arc,
-    color: colorScale(labels[i]),
+    color: colorOverrides.get(labels[i]) ?? colorScale(labels[i]),
   }))
 
   const orch = getSceneTransition(container)
@@ -212,12 +214,10 @@ export function renderArc(
     key: d => d.label,
     insert: sel => sel.append('path').attr('class', 'bc-arc'),
     attrs: (d) => {
-      const dStr = arcGen(d.arc) ?? ''
-      return {
-        d: dStr,
-        fill: d.color,
-        opacity: highlightOpacity(highlightTargets, d.label),
-      }
+      const base = { d: arcGen(d.arc) ?? '', fill: d.color }
+      return highlightTargets.size > 0
+        ? { ...base, opacity: highlightOpacity(highlightTargets, d.label) }
+        : base
     },
   })
 

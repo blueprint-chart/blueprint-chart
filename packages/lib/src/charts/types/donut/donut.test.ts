@@ -301,4 +301,27 @@ describe('donut chart', () => {
     const arcs = container.querySelectorAll('.bc-arc')
     expect(arcs[0].getAttribute('opacity')).not.toBe('0.35')
   })
+
+  // ── Colorize ──────────────────────────────────────────────────────
+
+  it('applies colorize to the targeted arc, leaving others on the palette', () => {
+    render(container, data, { colorizes: [{ target: 'A', color: '#ff0000' }] })
+    const arcs = container.querySelectorAll('.bc-arc')
+    expect(arcs[0].getAttribute('fill')).toBe('#ff0000')
+    expect(arcs[1].getAttribute('fill')).not.toBe('#ff0000')
+  })
+
+  it('colorize composes with highlight (recolour + dim others)', () => {
+    render(container, data, { colorizes: [{ target: 'A', color: '#ff0000' }], highlights: [{ target: 'A' }] })
+    const arcs = container.querySelectorAll('.bc-arc')
+    expect(arcs[0].getAttribute('fill')).toBe('#ff0000')
+    expect(arcs[0].getAttribute('opacity')).toBe('1')
+    expect(arcs[1].getAttribute('opacity')).toBe('0.35')
+  })
+
+  it('omits the opacity attribute on arcs when no highlight is set', () => {
+    render(container, data)
+    const arcs = container.querySelectorAll('.bc-arc')
+    expect(arcs[0].getAttribute('opacity')).toBeNull()
+  })
 })
