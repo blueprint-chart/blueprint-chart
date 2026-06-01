@@ -20,6 +20,7 @@ import { filterLabelsByRange } from '../../scale-helpers'
 import { resolveSeriesColor, resolveSeriesInterpolation, isSeriesHidden, resolveSeriesLabelMode } from '../../series-helpers'
 import { spreadLabels } from '../../plugins/arc-labels'
 import { StackMode, SortDirection } from '../../../enums'
+import { highlightOpacity } from '../../plugins/highlight'
 
 export const DEFAULT_COLORS = [
   '#4e79a7', '#f28e2b', '#e15759', '#76b7b2',
@@ -58,7 +59,7 @@ class AreaStackedChart extends D3Blueprint<StackedAreaDatum[]> {
           sel
             .attr('data-series', (d: StackedAreaDatum) => d.colorIndex)
             .attr('fill', (d: StackedAreaDatum) => colors[d.colorIndex % colors.length])
-            .attr('opacity', (d: StackedAreaDatum) => hasHl ? (hl.has(d.name) ? opacity : 0.3) : opacity)
+            .attr('opacity', (d: StackedAreaDatum) => hasHl ? highlightOpacity(hl, d.name, opacity) : opacity)
             .attr('d', (d: StackedAreaDatum) => {
               const areaGen = d3.area<[number, number]>()
                 .curve(curve)
@@ -79,7 +80,7 @@ class AreaStackedChart extends D3Blueprint<StackedAreaDatum[]> {
           sel.duration(getDefaultTransitionMs())
             .attr('data-series', (d: StackedAreaDatum) => d.colorIndex)
             .attr('fill', (d: StackedAreaDatum) => colors[d.colorIndex % colors.length])
-            .attr('opacity', (d: StackedAreaDatum) => hasHl ? (hl.has(d.name) ? opacity : 0.3) : opacity)
+            .attr('opacity', (d: StackedAreaDatum) => hasHl ? highlightOpacity(hl, d.name, opacity) : opacity)
             .attr('d', (d: StackedAreaDatum) => {
               const areaGen = d3.area<[number, number]>()
                 .curve(curve)
@@ -114,7 +115,7 @@ class AreaStackedChart extends D3Blueprint<StackedAreaDatum[]> {
             .attr('fill', 'none')
             .attr('stroke', (d: StackedAreaDatum) => colors[d.colorIndex % colors.length])
             .attr('stroke-width', 1)
-            .attr('opacity', (d: StackedAreaDatum) => hasHl ? (hl.has(d.name) ? 1 : 0.3) : null)
+            .attr('opacity', (d: StackedAreaDatum) => hasHl ? highlightOpacity(hl, d.name, 1) : null)
             .attr('d', (d: StackedAreaDatum) => {
               const lineGen = d3.line<[number, number]>()
                 .curve(curve)
@@ -135,7 +136,7 @@ class AreaStackedChart extends D3Blueprint<StackedAreaDatum[]> {
             .attr('fill', 'none')
             .attr('stroke', (d: StackedAreaDatum) => colors[d.colorIndex % colors.length])
             .attr('stroke-width', 1)
-            .attr('opacity', (d: StackedAreaDatum) => hasHl ? (hl.has(d.name) ? 1 : 0.3) : null)
+            .attr('opacity', (d: StackedAreaDatum) => hasHl ? highlightOpacity(hl, d.name, 1) : null)
             .attr('d', (d: StackedAreaDatum) => {
               const lineGen = d3.line<[number, number]>()
                 .curve(curve)
@@ -385,7 +386,7 @@ export function render(
       : d3.select(this)
     el.attr('fill', seriesColor)
     if (hasHighlights) {
-      el.attr('opacity', highlightTargets.has(datum.name) ? resolvedOpacity : 0.3)
+      el.attr('opacity', highlightOpacity(highlightTargets, datum.name, resolvedOpacity))
     }
   })
 
@@ -402,7 +403,7 @@ export function render(
       : d3.select(this)
     el.attr('stroke', seriesColor)
     if (hasHighlights) {
-      el.attr('opacity', highlightTargets.has(datum.name) ? 1 : 0.3)
+      el.attr('opacity', highlightOpacity(highlightTargets, datum.name, 1))
     }
     if (seriesInterp !== (options.interpolation ?? 'monotoneX')) {
       const perCurve = resolveCurve(seriesInterp)

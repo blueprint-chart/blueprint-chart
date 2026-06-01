@@ -463,8 +463,8 @@ describe('area-stacked chart', () => {
     // Product A is highlighted — should have full opacity
     expect(areas[0].getAttribute('opacity')).toBe('0.85')
     // Product B and C are not highlighted — should be dimmed
-    expect(areas[1].getAttribute('opacity')).toBe('0.3')
-    expect(areas[2].getAttribute('opacity')).toBe('0.3')
+    expect(areas[1].getAttribute('opacity')).toBe('0.35')
+    expect(areas[2].getAttribute('opacity')).toBe('0.35')
   })
 
   it('dims non-highlighted line edges when highlights are present', () => {
@@ -473,9 +473,9 @@ describe('area-stacked chart', () => {
     })
     const lines = container.querySelectorAll('.bc-line')
     expect(lines).toHaveLength(3)
-    expect(lines[0].getAttribute('opacity')).toBe('0.3')
+    expect(lines[0].getAttribute('opacity')).toBe('0.35')
     expect(lines[1].getAttribute('opacity')).toBe('1')
-    expect(lines[2].getAttribute('opacity')).toBe('0.3')
+    expect(lines[2].getAttribute('opacity')).toBe('0.35')
   })
 
   it('does not dim when no highlights are present', () => {
