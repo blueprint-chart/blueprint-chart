@@ -78,4 +78,72 @@ describe('useCloudCharts', () => {
     const dsl = await store.fetchPublished('ccccccccccc')
     expect(dsl).toBe('chart bar {}')
   })
+
+  it('loadCloud returns { dsl, meta, owner } when a row exists', async () => {
+    client.__state.rows = [{ dsl: 'chart bar {}', meta: {}, owner: 'u1' }]
+    const store = useCloudCharts()
+    const record = await store.loadCloud('ccccccccccc')
+    expect(record).toEqual({ dsl: 'chart bar {}', meta: {}, owner: 'u1' })
+  })
+
+  it('syncCloud calls upsert with snake_case chart_type and returns the id on success', async () => {
+    const store = useCloudCharts()
+    const id = await store.syncCloud({
+      id: 'ddddddddddd',
+      dsl: 'chart bar {}',
+      meta: {},
+      title: 'T',
+      chartType: 'bar-vertical',
+    })
+    expect(id).toBe('ddddddddddd')
+    expect(client.from).toHaveBeenCalledWith('charts')
+    // client.from() returns the builder chain; grab the upsert spy from it
+    const chainedBuilder = (client.from as ReturnType<typeof vi.fn>).mock.results[0].value as Record<string, unknown>
+    const upsertSpy = chainedBuilder.upsert as ReturnType<typeof vi.fn>
+    const upsertCall = upsertSpy.mock.calls[0]
+    expect(upsertCall[0]).toMatchObject({ id: 'ddddddddddd', chart_type: 'bar-vertical' })
+    expect(upsertCall[1]).toEqual({ onConflict: 'id' })
+  })
+
+  it('syncCloud returns null when input has no id', async () => {
+    const store = useCloudCharts()
+    const id = await store.syncCloud({ dsl: 'chart bar {}', meta: {}, title: 'T', chartType: 'bar' })
+    expect(id).toBeNull()
+  })
+})
+
+describe('cloud index helpers', () => {
+  beforeEach(() => {
+    localStorage.clear()
+    setActivePinia(createPinia())
+  })
+
+  afterEach(() => {
+    localStorage.clear()
+  })
+
+  it('markCloudBacked + isCloudBacked round-trip via localStorage', () => {
+    const store = useCloudCharts()
+    store.markCloudBacked('abc')
+    expect(store.isCloudBacked('abc')).toBe(true)
+    expect(store.isCloudBacked('xyz')).toBe(false)
+  })
+
+  it('persists cloud index to blueprint-chart:cloud-index key', () => {
+    const store = useCloudCharts()
+    store.markCloudBacked('abc')
+    const raw = localStorage.getItem('blueprint-chart:cloud-index')
+    expect(raw).not.toBeNull()
+    const parsed = JSON.parse(raw!)
+    expect(parsed).toContain('abc')
+  })
+
+  it('multiple ids accumulate in the index', () => {
+    const store = useCloudCharts()
+    store.markCloudBacked('aaa')
+    store.markCloudBacked('bbb')
+    expect(store.isCloudBacked('aaa')).toBe(true)
+    expect(store.isCloudBacked('bbb')).toBe(true)
+    expect(store.isCloudBacked('ccc')).toBe(false)
+  })
 })

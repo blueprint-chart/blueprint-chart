@@ -1,6 +1,22 @@
 import { getSupabaseClient } from '@/lib/supabaseClient'
 import { generateId } from '@/stores/chartSession'
 
+const CLOUD_INDEX_KEY = 'blueprint-chart:cloud-index'
+
+function readCloudIndex(): Set<string> {
+  try {
+    const raw = localStorage.getItem(CLOUD_INDEX_KEY)
+    return new Set(raw ? (JSON.parse(raw) as string[]) : [])
+  }
+  catch {
+    return new Set()
+  }
+}
+
+function writeCloudIndex(ids: Set<string>): void {
+  localStorage.setItem(CLOUD_INDEX_KEY, JSON.stringify([...ids]))
+}
+
 export interface CloudChartSummary {
   id: string
   title: string
@@ -40,20 +56,20 @@ export const useCloudChartsStore = defineStore('cloudCharts', () => {
     }))
   }
 
-  async function loadCloud(id: string): Promise<{ dsl: string, meta: Record<string, unknown> } | null> {
+  async function loadCloud(id: string): Promise<{ dsl: string, meta: Record<string, unknown>, owner: string } | null> {
     const client = await getSupabaseClient()
     if (!client) {
       return null
     }
     const { data, error } = await client
       .from('charts')
-      .select('dsl, meta')
+      .select('dsl, meta, owner')
       .eq('id', id)
       .single()
     if (error || !data) {
       return null
     }
-    return { dsl: data.dsl as string, meta: (data.meta as Record<string, unknown>) ?? {} }
+    return { dsl: data.dsl as string, meta: (data.meta as Record<string, unknown>) ?? {}, owner: data.owner as string }
   }
 
   /** Insert (no id) or update (id given). Returns the row id, or null on failure. */
@@ -137,7 +153,35 @@ export const useCloudChartsStore = defineStore('cloudCharts', () => {
     return (data.dsl as string) ?? null
   }
 
-  return { listCloud, loadCloud, pushCloud, deleteCloud, publish, fetchPublished }
+  function markCloudBacked(id: string): void {
+    const ids = readCloudIndex()
+    ids.add(id)
+    writeCloudIndex(ids)
+  }
+
+  function isCloudBacked(id: string): boolean {
+    return readCloudIndex().has(id)
+  }
+
+  async function syncCloud(input: CloudChartInput): Promise<string | null> {
+    const client = await getSupabaseClient()
+    if (!client || !input.id) {
+      return null
+    }
+    const { error } = await client
+      .from('charts')
+      .upsert({
+        id: input.id,
+        dsl: input.dsl,
+        meta: input.meta,
+        title: input.title,
+        chart_type: input.chartType,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'id' })
+    return error ? null : input.id
+  }
+
+  return { listCloud, loadCloud, pushCloud, deleteCloud, publish, fetchPublished, markCloudBacked, isCloudBacked, syncCloud }
 })
 
 export function useCloudCharts() {
@@ -149,5 +193,8 @@ export function useCloudCharts() {
     deleteCloud: store.deleteCloud,
     publish: store.publish,
     fetchPublished: store.fetchPublished,
+    markCloudBacked: store.markCloudBacked,
+    isCloudBacked: store.isCloudBacked,
+    syncCloud: store.syncCloud,
   }
 }

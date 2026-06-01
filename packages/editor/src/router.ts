@@ -12,17 +12,48 @@ declare module 'vue-router' {
   }
 }
 
-function loadSession(to: { params: { id: string } }) {
+async function loadSession(to: { params: { id: string } }) {
   const { sessionId, loadChart, startAutoSave } = useChartSession()
+  const id = to.params.id as string
   // Skip if session is already loaded (navigating between steps)
-  if (sessionId.value === to.params.id) {
+  if (sessionId.value === id) {
     return
   }
-  const found = loadChart(to.params.id as string)
-  if (!found) {
-    return '/charts'
+  // Local hit (includes cloud charts previously cached on this device).
+  if (loadChart(id)) {
+    startAutoSave()
+    return
   }
-  startAutoSave()
+  // No local copy: if accounts are on and the signed-in user OWNS this chart,
+  // fetch it from the cloud, cache it locally under the SAME id (so the editor —
+  // which is localStorage-based — loads it and sessionId === cloudId), then load.
+  const { accountsEnabled } = await import('@/config/runtimeConfig')
+  if (accountsEnabled()) {
+    const { useAccount } = await import('@/stores/account')
+    const account = useAccount()
+    await account.init()
+    const userId = account.user.value?.id
+    if (userId) {
+      const { useCloudCharts } = await import('@/stores/cloudCharts')
+      const cloud = useCloudCharts()
+      const record = await cloud.loadCloud(id)
+      if (record && record.owner === userId) {
+        localStorage.setItem(`blueprint-chart:${id}`, record.dsl)
+        if (record.meta && Object.keys(record.meta).length > 0) {
+          localStorage.setItem(`blueprint-chart:${id}:meta`, JSON.stringify(record.meta))
+        }
+        cloud.markCloudBacked(id)
+        if (loadChart(id)) {
+          startAutoSave()
+          return
+        }
+      }
+    }
+    // Not owner / not found → read-only render.
+    return `/render?id=${id}`
+  }
+  // Accounts off and no local chart → dashboard (unchanged behavior).
+  return '/charts'
 }
 
 /**

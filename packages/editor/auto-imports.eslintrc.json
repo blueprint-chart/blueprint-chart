@@ -242,6 +242,7 @@
     "useClipboardItems": true,
     "useCloned": true,
     "useCloudSync": true,
+    "useCloudSyncBinding": true,
     "useColorMode": true,
     "useConfirmDialog": true,
     "useCountdown": true,
