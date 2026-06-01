@@ -24,11 +24,19 @@ import IconPhChartBar from '~icons/ph/chart-bar'
 import IconPhExport from '~icons/ph/export'
 import LayoutPageHeader from '@/components/Layout/LayoutPageHeader.vue'
 import LayoutBreadcrumb from '@/components/Layout/LayoutBreadcrumb.vue'
+import { accountsEnabled } from '@/config/runtimeConfig'
+import { useCloudCharts } from '@/stores/cloudCharts'
+import { useAccount } from '@/stores/account'
 
 const { currentStep, currentIndex, steps, registerCreateSession } = useWizard()
 const dataTable = useDataTable()
 const config = useChartConfig()
 const { sessionId, createSession, lastSavedAt } = useChartSession()
+if (accountsEnabled()) {
+  useCloudSyncBinding()
+}
+const { markCloudBacked } = useCloudCharts()
+const { isSignedIn } = useAccount()
 const scenesComposable = useScenes()
 const { scenes, activeIndex, activeScene, playing, startPlayback, stopPlayback } = scenesComposable
 const isSceneMode = computed(() => activeScene.value !== null)
@@ -336,7 +344,11 @@ function prepareDataForEdit() {
 
 registerCreateSession(() => {
   prepareDataForEdit()
-  return createSession()
+  const id = createSession()
+  if (accountsEnabled() && isSignedIn.value) {
+    markCloudBacked(id)
+  }
+  return id
 })
 
 watch(() => currentStep.value.key, (newKey, oldKey) => {
