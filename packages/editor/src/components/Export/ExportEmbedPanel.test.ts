@@ -1,7 +1,11 @@
 import { ChartType } from '@blueprint-chart/lib'
 import { mount } from '@vue/test-utils'
+import { createTestingPinia } from '@pinia/testing'
 import { useChartConfig } from '@/stores/chartConfig'
 import { useChartTypeOptionsStore } from '@/stores/chartTypeOptions'
+import { useAccountStore } from '@/stores/account'
+import * as runtimeConfig from '@/config/runtimeConfig'
+import ExportEmbedPanel from './ExportEmbedPanel.vue'
 
 vi.mock('@blueprint-chart/ui', () => ({
   ActionCopyButton: {
@@ -64,5 +68,26 @@ describe('ExportEmbedPanel', () => {
     expect(html).toContain('bpc64=')
     const match = html.match(/bpc64=([^"&\s]+)/)
     expect(match?.[1], 'bpc64 must be non-empty').toBeTruthy()
+  })
+})
+
+describe('ExportEmbedPanel — publish section', () => {
+  it('hides the publish section when accounts are disabled', async () => {
+    vi.spyOn(runtimeConfig, 'accountsEnabled').mockReturnValue(false)
+    const wrapper = mount(ExportEmbedPanel, {
+      global: { plugins: [createTestingPinia({ createSpy: vi.fn })] },
+    })
+    expect(wrapper.text()).not.toContain('Publish')
+  })
+
+  it('shows the publish section when enabled and signed in', async () => {
+    vi.spyOn(runtimeConfig, 'accountsEnabled').mockReturnValue(true)
+    const wrapper = mount(ExportEmbedPanel, {
+      global: { plugins: [createTestingPinia({ stubActions: false, createSpy: vi.fn })] },
+    })
+    const account = useAccountStore()
+    account.user = { id: 'u1', email: 'a@b.co' }
+    await wrapper.vm.$nextTick()
+    expect(wrapper.text()).toContain('Publish')
   })
 })
