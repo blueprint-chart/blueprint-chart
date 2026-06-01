@@ -129,7 +129,7 @@ class LineMultiChart extends D3Blueprint<SeriesDatum[]> {
             .attr('fill', 'none')
             .attr('stroke', (d: SeriesDatum) => colors[d.colorIndex % colors.length])
             .attr('stroke-width', 2)
-            .attr('opacity', (d: SeriesDatum) => hasHl ? (hl.has(d.name) ? 1 : 0.3) : null)
+            .attr('opacity', (d: SeriesDatum) => hasHl ? highlightOpacity(hl, d.name, 1) : null)
             .attr('d', (d: SeriesDatum) => {
               const curve = this.config('curve') as d3.CurveFactory
               const lineGen = d3.line<number>()
@@ -151,7 +151,7 @@ class LineMultiChart extends D3Blueprint<SeriesDatum[]> {
             .attr('fill', 'none')
             .attr('stroke', (d: SeriesDatum) => colors[d.colorIndex % colors.length])
             .attr('stroke-width', 2)
-            .attr('opacity', (d: SeriesDatum) => hasHl ? (hl.has(d.name) ? 1 : 0.3) : null)
+            .attr('opacity', (d: SeriesDatum) => hasHl ? highlightOpacity(hl, d.name, 1) : null)
             .attr('d', (d: SeriesDatum) => {
               const curve = this.config('curve') as d3.CurveFactory
               const lineGen = d3.line<number>()
