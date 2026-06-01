@@ -797,6 +797,15 @@ describe('line-multi chart', () => {
     expect(lines).toHaveLength(1)
   })
 
+  // ── Highlight dimming ───────────────────────────────────────────
+
+  it('dims non-highlighted series lines to 0.35', () => {
+    render(container, data, { highlights: [{ target: 'Series A' }] })
+    const lines = container.querySelectorAll('.bc-line')
+    expect(lines[0].getAttribute('opacity')).toBe('1')
+    expect(lines[1].getAttribute('opacity')).toBe('0.35')
+  })
+
   // ── Lifecycle: proximity tooltip + clipPath de-duplication ──────
 
   describe('lifecycle', () => {

@@ -18,6 +18,7 @@ import { renderLineSymbols } from '../../line-symbols'
 import { getDefaultTransitionMs, setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut, reinsertWithOffset } from '../../motion'
 import { setCachedChart, getCachedChart } from '../../transition-cache'
 import { resolveSeriesColor, resolveSeriesDash, resolveSeriesWidth, resolveSeriesInterpolation, isSeriesHidden, resolveSeriesLabelMode, resolveSeriesValueLabels, resolveSeriesLineSymbols } from '../../series-helpers'
+import { highlightOpacity } from '../../plugins/highlight'
 import type { LineSymbolConfig } from '../../types'
 import { SymbolShape, SymbolShowOn, SymbolStyle } from '../../../enums'
 import { spreadLabels } from '../../plugins/arc-labels'
@@ -389,7 +390,6 @@ export function render(
 
   // Build colorize target set for dimming non-targeted series
   const highlightTargets = new Set((options.highlights ?? []).map(h => h.target))
-  const hasHighlights = highlightTargets.size > 0
 
   const chart = new LineMultiChart(d3.select(clippedArea))
   chart.config({ xPos, y, colors, labels: data.labels, curve, areaFill: options.areaFill ?? false, areaFillOpacity: options.areaFillOpacity ?? 0.2, height, dots: dotData, highlightTargets })
@@ -460,9 +460,7 @@ export function render(
     el.attr('stroke', seriesColor)
       .attr('stroke-width', seriesWidth)
 
-    if (hasHighlights) {
-      el.attr('opacity', highlightTargets.has(datum.name) ? 1 : 0.3)
-    }
+    el.attr('opacity', highlightOpacity(highlightTargets, datum.name, 1))
 
     if (seriesDash !== 'solid') {
       // Dash array can't be interpolated; apply immediately
@@ -488,9 +486,7 @@ export function render(
       ? d3.select(this).transition().duration(getDefaultTransitionMs())
       : d3.select(this)
     el.attr('fill', seriesColor)
-    if (hasHighlights) {
-      el.attr('opacity', highlightTargets.has(datum.name) ? (options.areaFillOpacity ?? 0.2) : 0.1)
-    }
+    el.attr('opacity', highlightOpacity(highlightTargets, datum.name, options.areaFillOpacity ?? 0.2))
   })
 
   // Default dots are invisible; proximity interaction handles tooltips/crosshair
