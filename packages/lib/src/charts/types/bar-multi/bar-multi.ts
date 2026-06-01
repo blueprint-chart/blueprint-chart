@@ -19,6 +19,7 @@ import { setCachedChart, getCachedChart } from '../../transition-cache'
 import { ensureClipPath } from '../../clip-path-helper'
 import { ValueLabelPosition, DirectLabelMode } from '../../../enums'
 import { featureJoin, getSceneTransition } from '../../../transitions'
+import { highlightTargetSet, highlightOpacity } from '../../plugins/highlight'
 
 export const DEFAULT_COLORS = [
   '#4e79a7', '#f28e2b', '#e15759', '#76b7b2',
@@ -203,6 +204,7 @@ export function render(
   const clippedGroup = d3.select(chartArea).append('g').attr('clip-path', `url(#${clipId})`)
 
   const orch = getSceneTransition(container)
+  const highlightTargets = highlightTargetSet(options.highlights)
 
   // Bars — one feature per (category, series) cell, keyed by label + seriesName.
   const barLayer = clippedGroup.append('g').node()!
@@ -223,6 +225,7 @@ export function render(
         'width': x1.bandwidth(),
         'height': Math.abs(y(d.value) - y(0)),
         'fill': seriesColor,
+        'opacity': highlightOpacity(highlightTargets, d.seriesName),
       }
       if (seriesOpacity < 1) {
         attrs['fill-opacity'] = seriesOpacity
