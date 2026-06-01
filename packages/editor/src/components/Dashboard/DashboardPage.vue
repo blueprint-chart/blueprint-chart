@@ -2,6 +2,12 @@
 import { useRouter } from 'vue-router'
 import { useBreakpoint } from '@blueprint-chart/ui'
 import { usePanelStore } from '@/stores/panel'
+import DashboardImportBanner from '@/components/Dashboard/DashboardImportBanner.vue'
+import { accountsEnabled } from '@/config/runtimeConfig'
+import { useAccount } from '@/stores/account'
+import { useCloudCharts, type CloudChartSummary } from '@/stores/cloudCharts'
+import { useLocalImport } from '@/composables/useLocalImport'
+import { useChartSession, type SavedChartSummary } from '@/stores/chartSession'
 
 const router = useRouter()
 const { isNarrow } = useBreakpoint()
@@ -20,6 +26,50 @@ const {
   duplicateChart,
   removeChart,
 } = useDashboardGallery()
+
+const { isSignedIn } = useAccount()
+const showCloud = computed(() => accountsEnabled() && isSignedIn.value)
+
+const { listCloud, pushCloud } = useCloudCharts()
+const { listSavedCharts } = useChartSession()
+const cloudCharts = ref<CloudChartSummary[]>([])
+const importing = ref(false)
+
+const importer = useLocalImport({
+  listLocal: () => listSavedCharts().map((c: SavedChartSummary) => ({ id: c.id, title: c.title, chartType: c.chartType })),
+  pushCloud,
+})
+const localCount = computed(() => (showCloud.value ? importer.localCount() : 0))
+
+async function refreshCloud() {
+  if (showCloud.value) {
+    cloudCharts.value = await listCloud()
+  }
+}
+
+async function onImportLocal() {
+  importing.value = true
+  await importer.importAll()
+  await refreshCloud()
+  importing.value = false
+}
+
+const cloudAsSummaries = computed<SavedChartSummary[]>(() =>
+  cloudCharts.value.map(c => ({
+    id: c.id,
+    title: c.title,
+    description: '',
+    chartType: c.chartType,
+    savedAt: c.updatedAt,
+    sceneCount: 0,
+    rowCount: 0,
+    allowDarkMode: true,
+    sheetNumber: null,
+    sheetId: '',
+  })),
+)
+
+watch(showCloud, refreshCloud, { immediate: true })
 
 const galleryRef = useTemplateRef<HTMLElement>('galleryRef')
 const viewLayout = shallowRef<'grid' | 'row'>('grid')
@@ -98,8 +148,14 @@ onUnmounted(() => {
         ref="galleryRef"
         class="dashboard-page__gallery"
       >
+        <DashboardImportBanner
+          v-if="showCloud"
+          :count="localCount"
+          :importing="importing"
+          @import="onImportLocal"
+        />
         <DashboardGallery
-          :charts="sortedCharts"
+          :charts="showCloud ? cloudAsSummaries : sortedCharts"
           :thumbnails="thumbnails"
           :selected-id="selectedChartId"
           :layout="viewLayout"
