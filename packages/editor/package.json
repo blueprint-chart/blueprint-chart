@@ -51,6 +51,7 @@
     "@fontsource/dm-serif-display": "^5.2.8",
     "@lezer/highlight": "^1",
     "@lezer/lr": "^1",
+    "@supabase/supabase-js": "^2.106.2",
     "@vueuse/core": "^14.2.1",
     "bootstrap": "^5.3",
     "bootstrap-vue-next": "^0.27",
