@@ -18,6 +18,7 @@ import { setCachedChart, getCachedChart } from '../../transition-cache'
 import { computeStack, computeStack100 } from '../../stack-helpers'
 import { resolveBarGapPadding } from '../../scale-helpers'
 import { highlightTargetSet, highlightOpacity } from '../../plugins/highlight'
+import { buildColorOverrides } from '../../plugins/colorize'
 import { ensureClipPath } from '../../clip-path-helper'
 import { StackMode } from '../../../enums'
 
@@ -270,10 +271,11 @@ export function render(
   }
 
   // Apply per-series color and opacity overrides to bars
+  const colorOverrides = buildColorOverrides(options.colorizes)
   const highlightTargets = highlightTargetSet(options.highlights)
   d3.select(chartArea).selectAll<SVGRectElement, unknown>('.bc-bar-stacked').each(function (d) {
     const datum = d as StackedBarDatum
-    const seriesColor = resolveSeriesColor(datum.seriesName, datum.seriesIndex, colors, overrides)
+    const seriesColor = colorOverrides.get(datum.seriesName) ?? resolveSeriesColor(datum.seriesName, datum.seriesIndex, colors, overrides)
     const seriesOpacity = resolveSeriesOpacity(datum.seriesName, overrides)
     const el = transition
       ? d3.select(this).transition().duration(getDefaultTransitionMs())

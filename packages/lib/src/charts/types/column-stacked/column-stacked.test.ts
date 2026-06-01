@@ -398,6 +398,17 @@ describe('column-stacked', () => {
     expect(other?.getAttribute('opacity')).toBe('0.35')
   })
 
+  // ── Colorize ─────────────────────────────────────────────────────
+
+  it('applies colorize to the targeted series', () => {
+    render(container, data, { colorizes: [{ target: 'Product A', color: '#ff0000' }] })
+    const bars = Array.from(container.querySelectorAll('.bc-bar-stacked'))
+    const a = bars.find(b => b.getAttribute('data-series') === 'Product A')
+    const other = bars.find(b => b.getAttribute('data-series') === 'Product B')
+    expect(a?.getAttribute('fill')).toBe('#ff0000')
+    expect(other?.getAttribute('fill')).not.toBe('#ff0000')
+  })
+
   // ── barGap ───────────────────────────────────────────────────────
 
   describe('barGap', () => {
