@@ -36,7 +36,12 @@ export function extractChartTypeOptions(
       opts[def.key] = String(raw).split(',').map(s => s.trim()).filter(Boolean)
     }
     else if (def.type === ChartOptionType.Boolean) {
-      opts[def.key] = raw === 'true' || raw === true
+      if (def.key === 'valueLabels' && String(raw).toLowerCase() === 'percent') {
+        opts[def.key] = 'percent'
+      }
+      else {
+        opts[def.key] = raw === 'true' || raw === true
+      }
     }
     else {
       opts[def.key] = String(raw)

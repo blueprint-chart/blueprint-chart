@@ -52,6 +52,27 @@ describe('extractChartTypeOptions', () => {
     expect(opts.tooltips).toBe(false)
   })
 
+  it('parses chart-level valueLabels = "percent" to the string "percent"', () => {
+    const opts = extractChartTypeOptions(ChartType.BarVertical, [
+      prop('valueLabels', 'percent'),
+    ])
+    expect(opts.valueLabels).toBe('percent')
+  })
+
+  it('parses chart-level valueLabels = "PERCENT" case-insensitively', () => {
+    const opts = extractChartTypeOptions(ChartType.BarVertical, [
+      prop('valueLabels', 'PERCENT'),
+    ])
+    expect(opts.valueLabels).toBe('percent')
+  })
+
+  it('keeps chart-level valueLabels = true as boolean true (regression)', () => {
+    const opts = extractChartTypeOptions(ChartType.BarVertical, [
+      prop('valueLabels', 'true'),
+    ])
+    expect(opts.valueLabels).toBe(true)
+  })
+
   it('extracts string options correctly', () => {
     const opts = extractChartTypeOptions(ChartType.Line, [
       prop('interpolation', 'monotoneX'),
@@ -523,6 +544,16 @@ describe('convertSeriesOverrides', () => {
       symbolSize: 5,
       symbolOpacity: 0.8,
     })
+  })
+
+  it('parses per-series valueLabels = "percent" to the string "percent"', () => {
+    const nodes: SeriesNode[] = [{
+      type: DslNodeType.Series,
+      name: 'Revenue',
+      properties: [prop('valueLabels', 'percent')],
+    }]
+    const result = convertSeriesOverrides(nodes)
+    expect(result[0].valueLabels).toBe('percent')
   })
 
   it('converts multiple series', () => {
