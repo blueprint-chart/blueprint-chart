@@ -286,4 +286,19 @@ describe('donut chart', () => {
     const arcs = container.querySelectorAll('.bc-arc')
     expect(arcs).toHaveLength(3)
   })
+
+  // ── Highlight / dimming ───────────────────────────────────────────
+
+  it('dims non-highlighted arcs to 0.35', () => {
+    render(container, data, { highlights: [{ target: 'A' }] })
+    const arcs = container.querySelectorAll('.bc-arc')
+    expect(arcs[0].getAttribute('opacity')).toBe('1')
+    expect(arcs[1].getAttribute('opacity')).toBe('0.35')
+  })
+
+  it('does not dim arcs when no highlight is set', () => {
+    render(container, data)
+    const arcs = container.querySelectorAll('.bc-arc')
+    expect(arcs[0].getAttribute('opacity')).not.toBe('0.35')
+  })
 })

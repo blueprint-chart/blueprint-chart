@@ -16,6 +16,7 @@ import { resolveBackgroundColor } from '../../contrast'
 import { renderArcLabels, renderInsideArcLabels, renderAutoArcLabels, estimateArcLabelMargins } from '../../plugins/arc-labels'
 import type { ArcLabelDatum } from '../../plugins/arc-labels'
 import { featureJoin, getSceneTransition } from '../../../transitions'
+import { highlightTargetSet, highlightOpacity } from '../../plugins/highlight'
 
 export const DEFAULT_COLORS = [
   '#4e79a7', '#f28e2b', '#e15759', '#76b7b2',
@@ -199,6 +200,7 @@ export function renderArc(
   }))
 
   const orch = getSceneTransition(container)
+  const highlightTargets = highlightTargetSet(options.highlights)
 
   // Arc slices — one feature per category, keyed by label.
   const arcLayer = centerGroup.append('g').node()!
@@ -214,6 +216,7 @@ export function renderArc(
       return {
         d: dStr,
         fill: d.color,
+        opacity: highlightOpacity(highlightTargets, d.label),
       }
     },
   })
