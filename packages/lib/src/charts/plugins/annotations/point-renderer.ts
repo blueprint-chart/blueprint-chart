@@ -105,10 +105,15 @@ export function renderPointAnnotation(
     })
   }
 
+  // Clamp the label (and the connector's fallback start) to the canvas so a
+  // large textOffsetY / legacy dy can't push it off-screen. textAnchor stays
+  // keyed off the unclamped offset so alignment relative to the target holds.
+  const clampedX = Math.max(4, Math.min(tx, ctx.width - 4))
+  const clampedY = Math.max(4, Math.min(ty, ctx.height - 4))
+
   if (ann.text) {
-    const clampedX = Math.max(4, Math.min(tx, ctx.width - 4))
     const textAnchor = inferTextAnchorFromOffset(tx - anchor.x)
-    renderAnnotationText(annG, ann.text, clampedX, ty - 4, {
+    renderAnnotationText(annG, ann.text, clampedX, clampedY - 4, {
       textColor: ann.textColor,
       maxWidth: resolveMaxWidth(ann.maxWidth, ctx.width),
       textAnchor,
@@ -118,9 +123,13 @@ export function renderPointAnnotation(
   }
 
   const isLegacy = legacyAnn.dx != null || legacyAnn.dy != null
-  const showLine = isLegacy ? (lineConfig.showLine !== false) : (lineConfig.showLine === true)
+  // An arrowhead needs a connector to orient it, so showArrow implies showLine
+  // for modern annotations (legacy dx/dy already defaults showLine on).
+  const showLine = isLegacy
+    ? (lineConfig.showLine !== false)
+    : (lineConfig.showLine === true || lineConfig.showArrow === true)
   if (showLine) {
-    let lineStart = { x: tx, y: ty }
+    let lineStart = { x: clampedX, y: clampedY }
     let departVertical = false
     const textNode = annG.select('.bc-annotation-text').node() as SVGTextElement | null
     if (textNode) {
