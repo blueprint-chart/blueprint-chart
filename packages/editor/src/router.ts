@@ -3,6 +3,9 @@ import DashboardPage from '@/components/Dashboard/DashboardPage.vue'
 import WizardShell from '@/components/Wizard/WizardShell.vue'
 import RenderPage from '@/components/Render/RenderPage.vue'
 import { useChartSession } from '@/stores/chartSession'
+import { accountsEnabled } from '@/config/runtimeConfig'
+import { useAccount } from '@/stores/account'
+import { useCloudCharts } from '@/stores/cloudCharts'
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -27,14 +30,11 @@ async function loadSession(to: { params: { id: string } }) {
   // No local copy: if accounts are on and the signed-in user OWNS this chart,
   // fetch it from the cloud, cache it locally under the SAME id (so the editor —
   // which is localStorage-based — loads it and sessionId === cloudId), then load.
-  const { accountsEnabled } = await import('@/config/runtimeConfig')
   if (accountsEnabled()) {
-    const { useAccount } = await import('@/stores/account')
     const account = useAccount()
     await account.init()
     const userId = account.user.value?.id
     if (userId) {
-      const { useCloudCharts } = await import('@/stores/cloudCharts')
       const cloud = useCloudCharts()
       const record = await cloud.loadCloud(id)
       if (record && record.owner === userId) {
