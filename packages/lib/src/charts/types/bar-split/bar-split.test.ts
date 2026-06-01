@@ -304,4 +304,15 @@ describe('bar-split', () => {
     expect(a?.getAttribute('opacity')).toBe('1')
     expect(other?.getAttribute('opacity')).toBe('0.35')
   })
+
+  // ── Colorize ─────────────────────────────────────────────────────
+
+  it('applies colorize to the targeted series', () => {
+    render(container, data, { colorizes: [{ target: 'Poll', color: '#ff0000' }] })
+    const bars = Array.from(container.querySelectorAll('.bc-bar-split'))
+    const a = bars.find(b => b.getAttribute('data-series') === 'Poll')
+    const other = bars.find(b => b.getAttribute('data-series') === 'High')
+    expect(a?.getAttribute('fill')).toBe('#ff0000')
+    expect(other?.getAttribute('fill')).not.toBe('#ff0000')
+  })
 })

@@ -17,6 +17,7 @@ import { resolveBarGapPadding } from '../../scale-helpers'
 import { ensureClipPath } from '../../clip-path-helper'
 import { Orientation, ValueLabelPosition, LabelPosition } from '../../../enums'
 import { highlightTargetSet, highlightOpacity } from '../../plugins/highlight'
+import { buildColorOverrides } from '../../plugins/colorize'
 
 export const DEFAULT_COLORS = [
   '#4e79a7', '#f28e2b', '#e15759', '#76b7b2',
@@ -318,9 +319,10 @@ export function render(
   }
 
   // Apply per-series color and opacity overrides
+  const colorOverrides = buildColorOverrides(options.colorizes)
   d3.select(chartArea).selectAll<SVGRectElement, unknown>('.bc-bar-split').each(function (d) {
     const datum = d as SplitBarDatum
-    const seriesColor = resolveSeriesColor(datum.seriesName, datum.seriesIndex, colors, overrides)
+    const seriesColor = colorOverrides.get(datum.seriesName) ?? resolveSeriesColor(datum.seriesName, datum.seriesIndex, colors, overrides)
     const seriesOpacity = resolveSeriesOpacity(datum.seriesName, overrides)
     const el = transition
       ? d3.select(this).transition().duration(getDefaultTransitionMs())
