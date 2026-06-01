@@ -487,6 +487,18 @@ describe('area-stacked chart', () => {
     }
   })
 
+  // ── Colorize overrides ───────────────────────────────────────────
+
+  it('applies colorize to the targeted series area', () => {
+    render(container, data, { colorizes: [{ target: 'Product A', color: '#ff0000' }] })
+    const areas = container.querySelectorAll('.bc-area')
+    const target = Array.from(areas).find(a => a.getAttribute('fill') === '#ff0000')
+    expect(target).toBeTruthy()
+    // a non-target area keeps a different fill
+    const others = Array.from(areas).filter(a => a.getAttribute('fill') !== '#ff0000')
+    expect(others.length).toBeGreaterThan(0)
+  })
+
   // ── Lifecycle: proximity tooltip + clipPath de-duplication ──────
 
   describe('lifecycle', () => {

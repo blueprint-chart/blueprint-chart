@@ -21,6 +21,7 @@ import { resolveSeriesColor, resolveSeriesInterpolation, isSeriesHidden, resolve
 import { spreadLabels } from '../../plugins/arc-labels'
 import { StackMode, SortDirection } from '../../../enums'
 import { highlightOpacity } from '../../plugins/highlight'
+import { buildColorOverrides } from '../../plugins/colorize'
 
 export const DEFAULT_COLORS = [
   '#4e79a7', '#f28e2b', '#e15759', '#76b7b2',
@@ -210,6 +211,7 @@ export function render(
   const colors = options.colors ?? DEFAULT_COLORS
   const seriesNames = series.map(s => s.name)
   const overrides = options.seriesOverrides
+  const colorOverrides = buildColorOverrides(options.colorizes)
 
   // Determine global label mode for legend/direct label sizing
   // 'auto' defers to legend when legend is explicitly true; explicit true/truthy forces direct
@@ -380,7 +382,7 @@ export function render(
   // Apply per-series color overrides and highlight dimming
   d3.select(clippedArea).selectAll<SVGPathElement, unknown>('.bc-area').each(function (d) {
     const datum = d as StackedAreaDatum
-    const seriesColor = resolveSeriesColor(datum.name, datum.colorIndex, colors, overrides)
+    const seriesColor = colorOverrides.get(datum.name) ?? resolveSeriesColor(datum.name, datum.colorIndex, colors, overrides)
     const el = transition
       ? d3.select(this).transition().duration(getDefaultTransitionMs())
       : d3.select(this)
@@ -396,7 +398,7 @@ export function render(
 
   d3.select(clippedArea).selectAll<SVGPathElement, unknown>('.bc-line').each(function (d) {
     const datum = d as StackedAreaDatum
-    const seriesColor = resolveSeriesColor(datum.name, datum.colorIndex, colors, overrides)
+    const seriesColor = colorOverrides.get(datum.name) ?? resolveSeriesColor(datum.name, datum.colorIndex, colors, overrides)
     const seriesInterp = resolveSeriesInterpolation(datum.name, options.interpolation ?? 'monotoneX', overrides)
     const el = transition
       ? d3.select(this).transition().duration(getDefaultTransitionMs())
