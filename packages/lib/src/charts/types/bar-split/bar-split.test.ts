@@ -293,4 +293,15 @@ describe('bar-split', () => {
     }
     expect(container.querySelectorAll('clipPath')).toHaveLength(1)
   })
+
+  // ── Highlight / dimming ──────────────────────────────────────────────
+
+  it('dims non-highlighted series bars to 0.35', () => {
+    render(container, data, { highlights: [{ target: 'Poll' }] })
+    const bars = Array.from(container.querySelectorAll('.bc-bar-split'))
+    const a = bars.find(b => b.getAttribute('data-series') === 'Poll')
+    const other = bars.find(b => b.getAttribute('data-series') === 'High')
+    expect(a?.getAttribute('opacity')).toBe('1')
+    expect(other?.getAttribute('opacity')).toBe('0.35')
+  })
 })

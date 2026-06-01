@@ -16,6 +16,7 @@ import { createCrosshairPlugin } from '../../plugins/crosshair'
 import { resolveBarGapPadding } from '../../scale-helpers'
 import { ensureClipPath } from '../../clip-path-helper'
 import { Orientation, ValueLabelPosition, LabelPosition } from '../../../enums'
+import { highlightTargetSet, highlightOpacity } from '../../plugins/highlight'
 
 export const DEFAULT_COLORS = [
   '#4e79a7', '#f28e2b', '#e15759', '#76b7b2',
@@ -308,6 +309,7 @@ export function render(
   }
 
   chart.draw(flatData)
+  const highlightTargets = highlightTargetSet(options.highlights)
   setCachedChart(container, { chartType: 'bar-split', margin })
 
   if (fadeOverlay) {
@@ -326,6 +328,9 @@ export function render(
     el.attr('fill', seriesColor)
     if (seriesOpacity < 1) {
       el.attr('fill-opacity', seriesOpacity)
+    }
+    if (highlightTargets.size > 0) {
+      el.attr('opacity', highlightOpacity(highlightTargets, datum.seriesName))
     }
   })
 
