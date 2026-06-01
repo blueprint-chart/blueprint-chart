@@ -105,3 +105,16 @@ describe('buildNumberFormatter', () => {
     expect(fn(-1234)).toBe('(1,234)')
   })
 })
+
+import { percentValueLabel } from './format-helpers'
+
+describe('percentValueLabel', () => {
+  it('renders an integer percentage of the total', () => {
+    expect(percentValueLabel(10, 60)).toBe('17%')
+    expect(percentValueLabel(30, 60)).toBe('50%')
+  })
+  it('returns 0% for a non-positive total', () => {
+    expect(percentValueLabel(5, 0)).toBe('0%')
+    expect(percentValueLabel(5, -1)).toBe('0%')
+  })
+})

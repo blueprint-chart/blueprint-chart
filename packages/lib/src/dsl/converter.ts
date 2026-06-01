@@ -345,7 +345,8 @@ export function convertSeriesOverrides(nodes: SeriesNode[]): SeriesOverride[] {
       override.labelText = String(p.get('labelText'))
     }
     if (p.has('valueLabels')) {
-      override.valueLabels = toBool(p.get('valueLabels'))
+      const raw = p.get('valueLabels')
+      override.valueLabels = String(raw).toLowerCase() === 'percent' ? 'percent' : toBool(raw)
     }
     if (p.has('lineSymbols')) {
       override.lineSymbols = toBool(p.get('lineSymbols'))

@@ -40,7 +40,7 @@ export function resolveSeriesLabelMode(name: string, globalMode: string, overrid
   return override.labelMode
 }
 
-export function resolveSeriesValueLabels(name: string, globalValueLabels: boolean, overrides?: SeriesOverride[]): boolean {
+export function resolveSeriesValueLabels(name: string, globalValueLabels: boolean | 'percent', overrides?: SeriesOverride[]): boolean | 'percent' {
   const override = findOverride(name, overrides)
   if (override?.valueLabels !== undefined) {
     return override.valueLabels

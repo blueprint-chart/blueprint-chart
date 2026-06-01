@@ -162,7 +162,7 @@ export interface SeriesOverride {
   dash?: string
   labelMode?: string
   labelText?: string
-  valueLabels?: boolean
+  valueLabels?: boolean | 'percent'
   lineSymbols?: boolean
   symbolShape?: string
   symbolShowOn?: string
@@ -195,7 +195,7 @@ export interface ChartOptions {
   stackPercent?: boolean
   areaSortMode?: string
   areaLines?: boolean
-  valueLabels?: boolean
+  valueLabels?: boolean | 'percent'
   valueLabelPosition?: ValueLabelPosition
   tooltips?: boolean
   crosshair?: boolean
@@ -277,7 +277,7 @@ export interface ChartTypeOptions {
   horizontalLabelRotation: string
   horizontalRangeMin: string
   horizontalRangeMax: string
-  valueLabels: boolean
+  valueLabels: boolean | 'percent'
   valueLabelPosition: string
   tooltips: boolean
   crosshair: boolean
