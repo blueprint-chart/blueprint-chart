@@ -19,6 +19,7 @@ import { getDefaultTransitionMs, setRenderTransition, fadeIn, snapshotForFadeOut
 import { setCachedChart, getCachedChart } from '../../transition-cache'
 import { resolveSeriesColor, resolveSeriesDash, resolveSeriesWidth, resolveSeriesInterpolation, isSeriesHidden, resolveSeriesLabelMode, resolveSeriesValueLabels, resolveSeriesLineSymbols } from '../../series-helpers'
 import { highlightOpacity } from '../../plugins/highlight'
+import { buildColorOverrides } from '../../plugins/colorize'
 import type { LineSymbolConfig } from '../../types'
 import { SymbolShape, SymbolShowOn, SymbolStyle } from '../../../enums'
 import { spreadLabels } from '../../plugins/arc-labels'
@@ -269,6 +270,7 @@ export function render(
 
   const colors = options.colors ?? DEFAULT_COLORS
   const seriesNames = series.map(s => s.name)
+  const colorOverrides = buildColorOverrides(options.colorizes)
 
   // Determine global label mode early so margin calculations account for per-series overrides
   const overrides = options.seriesOverrides
@@ -457,7 +459,7 @@ export function render(
     const el = (transition
       ? d3.select(this).transition().duration(getDefaultTransitionMs())
       : d3.select(this)) as d3.Selection<SVGPathElement, unknown, null, undefined>
-    el.attr('stroke', seriesColor)
+    el.attr('stroke', colorOverrides.get(datum.name) ?? seriesColor)
       .attr('stroke-width', seriesWidth)
 
     el.attr('opacity', highlightOpacity(highlightTargets, datum.name, 1))
@@ -485,7 +487,7 @@ export function render(
     const el = transition
       ? d3.select(this).transition().duration(getDefaultTransitionMs())
       : d3.select(this)
-    el.attr('fill', seriesColor)
+    el.attr('fill', colorOverrides.get(datum.name) ?? seriesColor)
     el.attr('opacity', highlightOpacity(highlightTargets, datum.name, options.areaFillOpacity ?? 0.2))
   })
 

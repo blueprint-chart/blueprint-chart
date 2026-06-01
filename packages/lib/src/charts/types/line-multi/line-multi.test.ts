@@ -806,6 +806,15 @@ describe('line-multi chart', () => {
     expect(lines[1].getAttribute('opacity')).toBe('0.35')
   })
 
+  // ── Colorize ────────────────────────────────────────────────────
+
+  it('applies colorize to the targeted series line', () => {
+    render(container, data, { colorizes: [{ target: 'Series A', color: '#ff0000' }] })
+    const lines = container.querySelectorAll('.bc-line')
+    expect(lines[0].getAttribute('stroke')).toBe('#ff0000')
+    expect(lines[1].getAttribute('stroke')).not.toBe('#ff0000')
+  })
+
   // ── Lifecycle: proximity tooltip + clipPath de-duplication ──────
 
   describe('lifecycle', () => {
