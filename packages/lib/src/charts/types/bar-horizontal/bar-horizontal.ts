@@ -418,7 +418,7 @@ export function render(
       data: barData,
       key: d => d.label,
       insert: sel => sel.append('rect').attr('class', 'bc-bar'),
-      attrs: (d) => ({
+      attrs: d => ({
         x: Math.min(x(0), x(d.value)),
         y: (y(d.label) ?? 0) + categoryLabelOffset,
         width: Math.abs(x(d.value) - x(0)),

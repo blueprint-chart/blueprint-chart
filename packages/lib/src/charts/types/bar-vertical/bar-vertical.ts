@@ -387,7 +387,7 @@ export function render(
       data: barData,
       key: d => d.label,
       insert: sel => sel.append('rect').attr('class', 'bc-bar'),
-      attrs: (d) => ({
+      attrs: d => ({
         x: x(d.label) ?? 0,
         y: Math.min(y(0), y(d.value)),
         width: x.bandwidth(),
