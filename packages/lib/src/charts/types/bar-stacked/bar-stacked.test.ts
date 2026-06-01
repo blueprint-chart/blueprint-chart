@@ -431,6 +431,19 @@ describe('bar-stacked', () => {
 
   // ── Legend ↔ bar series-key parity (L8) ──────────────────────────
 
+  // ── Highlight / dimming ──────────────────────────────────────────
+
+  it('dims non-highlighted series segments to 0.35', () => {
+    render(container, data, { highlights: [{ target: 'Product A' }] })
+    const bars = Array.from(container.querySelectorAll('.bc-bar-stacked'))
+    const a = bars.find(b => b.getAttribute('data-series') === 'Product A')
+    const other = bars.find(b => b.getAttribute('data-series') === 'Product B')
+    expect(a?.getAttribute('opacity')).toBe('1')
+    expect(other?.getAttribute('opacity')).toBe('0.35')
+  })
+
+  // ── Legend ↔ bar series-key parity (L8) ──────────────────────────
+
   it('legend data-series matches bar data-series so highlighting picks the right bars when a series is hidden', () => {
     const threeSeriesData = {
       labels: ['Q1', 'Q2'],

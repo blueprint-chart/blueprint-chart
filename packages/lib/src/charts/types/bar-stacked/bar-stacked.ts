@@ -19,6 +19,7 @@ import { computeStack, computeStack100 } from '../../stack-helpers'
 import { resolveBarGapPadding } from '../../scale-helpers'
 import { ensureClipPath } from '../../clip-path-helper'
 import { StackMode, Orientation, ValueLabelPosition, LabelPosition } from '../../../enums'
+import { highlightTargetSet, highlightOpacity } from '../../plugins/highlight'
 
 export const DEFAULT_COLORS = [
   '#4e79a7', '#f28e2b', '#e15759', '#76b7b2',
@@ -278,6 +279,7 @@ export function render(
   }
 
   // Apply per-series color and opacity overrides to bars
+  const highlightTargets = highlightTargetSet(options.highlights)
   d3.select(chartArea).selectAll<SVGRectElement, unknown>('.bc-bar-stacked').each(function (d) {
     const datum = d as StackedBarDatum
     const seriesColor = resolveSeriesColor(datum.seriesName, datum.seriesIndex, colors, overrides)
@@ -288,6 +290,9 @@ export function render(
     el.attr('fill', seriesColor)
     if (seriesOpacity < 1) {
       el.attr('fill-opacity', seriesOpacity)
+    }
+    if (highlightTargets.size > 0) {
+      el.attr('opacity', highlightOpacity(highlightTargets, datum.seriesName))
     }
   })
 
