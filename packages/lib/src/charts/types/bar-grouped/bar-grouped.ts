@@ -13,6 +13,7 @@ import { getDefaultTransitionMs, setRenderTransition, fadeIn, snapshotForFadeOut
 import { setCachedChart, getCachedChart } from '../../transition-cache'
 import { createTooltipPlugin } from '../../plugins/tooltip'
 import { createCrosshairPlugin } from '../../plugins/crosshair'
+import { highlightTargetSet, highlightOpacity } from '../../plugins/highlight'
 import { resolveBarGapPadding } from '../../scale-helpers'
 import { ensureClipPath } from '../../clip-path-helper'
 import { Orientation, ValueLabelPosition, LabelPosition } from '../../../enums'
@@ -263,6 +264,7 @@ export function render(
 
   const chart = new BarGroupedChart(clippedGroup)
   chart.config({ x, y0, y1, colors, categoryLabelOffset })
+  const highlightTargets = highlightTargetSet(options.highlights)
 
   if (priorBars.length > 0) {
     const layerG = clippedGroup.node()!.querySelector('g')!
@@ -297,6 +299,9 @@ export function render(
     el.attr('fill', seriesColor)
     if (seriesOpacity < 1) {
       el.attr('fill-opacity', seriesOpacity)
+    }
+    if (highlightTargets.size > 0) {
+      el.attr('opacity', highlightOpacity(highlightTargets, datum.seriesName))
     }
   })
 

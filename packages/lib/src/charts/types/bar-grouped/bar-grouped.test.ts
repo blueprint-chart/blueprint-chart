@@ -401,4 +401,15 @@ describe('bar-grouped', () => {
     const emptyData = { labels: ['A', 'B'], values: [], series: [] }
     expect(() => render(container, emptyData)).not.toThrow()
   })
+
+  // ── Highlight / dimming ──────────────────────────────────────────
+
+  it('dims non-highlighted series bars to 0.35', () => {
+    render(container, data, { highlights: [{ target: 'Solar' }] })
+    const bars = Array.from(container.querySelectorAll('.bc-bar-grouped'))
+    const a = bars.find(b => b.getAttribute('data-series') === 'Solar')
+    const other = bars.find(b => b.getAttribute('data-series') === 'Wind')
+    expect(a?.getAttribute('opacity')).toBe('1')
+    expect(other?.getAttribute('opacity')).toBe('0.35')
+  })
 })
