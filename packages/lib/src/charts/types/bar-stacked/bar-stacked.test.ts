@@ -431,6 +431,17 @@ describe('bar-stacked', () => {
 
   // ── Legend ↔ bar series-key parity (L8) ──────────────────────────
 
+  // ── Colorize ─────────────────────────────────────────────────────
+
+  it('applies colorize to the targeted series', () => {
+    render(container, data, { colorizes: [{ target: 'Product A', color: '#ff0000' }] })
+    const bars = Array.from(container.querySelectorAll('.bc-bar-stacked'))
+    const a = bars.find(b => b.getAttribute('data-series') === 'Product A')
+    const other = bars.find(b => b.getAttribute('data-series') === 'Product B')
+    expect(a?.getAttribute('fill')).toBe('#ff0000')
+    expect(other?.getAttribute('fill')).not.toBe('#ff0000')
+  })
+
   // ── Highlight / dimming ──────────────────────────────────────────
 
   it('dims non-highlighted series segments to 0.35', () => {
