@@ -1,0 +1,98 @@
+import type { Session, User } from '@supabase/supabase-js'
+import { getSupabaseClient } from '@/lib/supabaseClient'
+
+export interface AccountUser {
+  id: string
+  email: string
+}
+
+export type AccountStatus = 'idle' | 'sending' | 'link-sent' | 'error'
+
+function toAccountUser(user: User | null | undefined): AccountUser | null {
+  if (!user) {
+    return null
+  }
+  return { id: user.id, email: user.email ?? '' }
+}
+
+/** Redirect target for the magic link: site root WITHOUT the router hash, so
+ *  Supabase appends `?code=...` as a query param the boot step can exchange. */
+function redirectTarget(): string {
+  return `${window.location.origin}${window.location.pathname}`
+}
+
+export const useAccountStore = defineStore('account', () => {
+  const user = shallowRef<AccountUser | null>(null)
+  const status = shallowRef<AccountStatus>('idle')
+  const errorMessage = shallowRef<string | null>(null)
+  const initialized = shallowRef(false)
+
+  const isSignedIn = computed(() => user.value !== null)
+
+  async function init(): Promise<void> {
+    if (initialized.value) {
+      return
+    }
+    initialized.value = true
+    const client = await getSupabaseClient()
+    if (!client) {
+      return
+    }
+    const { data } = await client.auth.getSession()
+    user.value = toAccountUser((data.session as Session | null)?.user)
+    client.auth.onAuthStateChange((_event, session) => {
+      user.value = toAccountUser((session as Session | null)?.user)
+    })
+  }
+
+  async function signInWithEmail(email: string): Promise<void> {
+    const client = await getSupabaseClient()
+    if (!client) {
+      return
+    }
+    status.value = 'sending'
+    errorMessage.value = null
+    const { error } = await client.auth.signInWithOtp({
+      email,
+      options: { emailRedirectTo: redirectTarget() },
+    })
+    if (error) {
+      status.value = 'error'
+      errorMessage.value = error.message
+      return
+    }
+    status.value = 'link-sent'
+  }
+
+  async function signOut(): Promise<void> {
+    const client = await getSupabaseClient()
+    if (!client) {
+      return
+    }
+    await client.auth.signOut()
+    user.value = null
+    status.value = 'idle'
+  }
+
+  function resetStatus(): void {
+    status.value = 'idle'
+    errorMessage.value = null
+  }
+
+  return { user, status, errorMessage, isSignedIn, init, signInWithEmail, signOut, resetStatus }
+})
+
+export function useAccount() {
+  const store = useAccountStore()
+  const { user, status, errorMessage, isSignedIn } = storeToRefs(store)
+  return {
+    user,
+    status,
+    errorMessage,
+    isSignedIn,
+    init: store.init,
+    signInWithEmail: store.signInWithEmail,
+    signOut: store.signOut,
+    resetStatus: store.resetStatus,
+  }
+}
