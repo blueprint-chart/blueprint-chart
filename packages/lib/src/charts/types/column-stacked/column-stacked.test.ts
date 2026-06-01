@@ -387,6 +387,17 @@ describe('column-stacked', () => {
     })
   })
 
+  // ── Highlight / dimming ──────────────────────────────────────────
+
+  it('dims non-highlighted series segments to 0.35', () => {
+    render(container, data, { highlights: [{ target: 'Product A' }] })
+    const bars = Array.from(container.querySelectorAll('.bc-bar-stacked'))
+    const a = bars.find(b => b.getAttribute('data-series') === 'Product A')
+    const other = bars.find(b => b.getAttribute('data-series') === 'Product B')
+    expect(a?.getAttribute('opacity')).toBe('1')
+    expect(other?.getAttribute('opacity')).toBe('0.35')
+  })
+
   // ── barGap ───────────────────────────────────────────────────────
 
   describe('barGap', () => {
