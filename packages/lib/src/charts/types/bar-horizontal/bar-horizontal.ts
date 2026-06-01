@@ -11,6 +11,7 @@ import { createCrosshairPlugin } from '../../plugins/crosshair'
 import { createAnnotationPlugin, snapshotAnnotations, type AnnotationSnapshot } from '../../plugins/annotations'
 import { resolveBackgroundColor, contrastTextColor } from '../../contrast'
 import { buildNumberFormatter } from '../../format-helpers'
+import { buildColorOverrides } from '../../plugins/colorize'
 import { setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut } from '../../motion'
 import { getCachedChart, setCachedChart } from '../../transition-cache'
 import { ensureClipPath } from '../../clip-path-helper'
@@ -195,9 +196,7 @@ export function render(
       .attr('stroke', '#666').attr('stroke-width', 1)
   }
 
-  const colorOverrides = new Map(
-    (options.colorizes ?? []).map(h => [h.target, h.color]),
-  )
+  const colorOverrides = buildColorOverrides(options.colorizes)
   const highlightTargets = new Set((options.highlights ?? []).map(h => h.target))
 
   // Clip bars to the chart area so they truncate at axis boundaries.
