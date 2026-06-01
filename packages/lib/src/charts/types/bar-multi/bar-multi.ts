@@ -20,6 +20,7 @@ import { ensureClipPath } from '../../clip-path-helper'
 import { ValueLabelPosition, DirectLabelMode } from '../../../enums'
 import { featureJoin, getSceneTransition } from '../../../transitions'
 import { highlightTargetSet, highlightOpacity } from '../../plugins/highlight'
+import { buildColorOverrides } from '../../plugins/colorize'
 
 export const DEFAULT_COLORS = [
   '#4e79a7', '#f28e2b', '#e15759', '#76b7b2',
@@ -205,6 +206,7 @@ export function render(
 
   const orch = getSceneTransition(container)
   const highlightTargets = highlightTargetSet(options.highlights)
+  const colorOverrides = buildColorOverrides(options.colorizes)
 
   // Bars — one feature per (category, series) cell, keyed by label + seriesName.
   const barLayer = clippedGroup.append('g').node()!
@@ -218,19 +220,20 @@ export function render(
     attrs: (d) => {
       const seriesColor = resolveSeriesColor(d.seriesName, d.seriesIndex, colors, overrides)
       const seriesOpacity = resolveSeriesOpacity(d.seriesName, overrides)
-      const attrs: Record<string, string | number> = {
+      const base: Record<string, string | number> = {
         'data-series': d.seriesName,
         'x': (x0(d.label) ?? 0) + (x1(d.series) ?? 0),
         'y': Math.min(y(0), y(d.value)),
         'width': x1.bandwidth(),
         'height': Math.abs(y(d.value) - y(0)),
-        'fill': seriesColor,
-        'opacity': highlightOpacity(highlightTargets, d.seriesName),
+        'fill': colorOverrides.get(d.seriesName) ?? seriesColor,
       }
       if (seriesOpacity < 1) {
-        attrs['fill-opacity'] = seriesOpacity
+        base['fill-opacity'] = seriesOpacity
       }
-      return attrs
+      return highlightTargets.size > 0
+        ? { ...base, opacity: highlightOpacity(highlightTargets, d.seriesName) }
+        : base
     },
   })
 
