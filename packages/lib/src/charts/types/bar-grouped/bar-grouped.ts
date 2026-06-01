@@ -14,6 +14,7 @@ import { setCachedChart, getCachedChart } from '../../transition-cache'
 import { createTooltipPlugin } from '../../plugins/tooltip'
 import { createCrosshairPlugin } from '../../plugins/crosshair'
 import { highlightTargetSet, highlightOpacity } from '../../plugins/highlight'
+import { buildColorOverrides } from '../../plugins/colorize'
 import { resolveBarGapPadding } from '../../scale-helpers'
 import { ensureClipPath } from '../../clip-path-helper'
 import { Orientation, ValueLabelPosition, LabelPosition } from '../../../enums'
@@ -289,9 +290,10 @@ export function render(
   }
 
   // Apply per-series color and opacity overrides
+  const colorOverrides = buildColorOverrides(options.colorizes)
   d3.select(chartArea).selectAll<SVGRectElement, unknown>('.bc-bar-grouped').each(function (d) {
     const datum = d as GroupedBarDatum
-    const seriesColor = resolveSeriesColor(datum.seriesName, datum.seriesIndex, colors, overrides)
+    const seriesColor = colorOverrides.get(datum.seriesName) ?? resolveSeriesColor(datum.seriesName, datum.seriesIndex, colors, overrides)
     const seriesOpacity = resolveSeriesOpacity(datum.seriesName, overrides)
     const el = transition
       ? d3.select(this).transition().duration(getDefaultTransitionMs())

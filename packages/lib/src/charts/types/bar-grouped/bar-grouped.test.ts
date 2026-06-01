@@ -412,4 +412,15 @@ describe('bar-grouped', () => {
     expect(a?.getAttribute('opacity')).toBe('1')
     expect(other?.getAttribute('opacity')).toBe('0.35')
   })
+
+  // ── Colorize ─────────────────────────────────────────────────────
+
+  it('applies colorize to the targeted series', () => {
+    render(container, data, { colorizes: [{ target: 'Solar', color: '#ff0000' }] })
+    const bars = Array.from(container.querySelectorAll('.bc-bar-grouped'))
+    const a = bars.find(b => b.getAttribute('data-series') === 'Solar')
+    const other = bars.find(b => b.getAttribute('data-series') === 'Wind')
+    expect(a?.getAttribute('fill')).toBe('#ff0000')
+    expect(other?.getAttribute('fill')).not.toBe('#ff0000')
+  })
 })
