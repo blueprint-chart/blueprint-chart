@@ -21,6 +21,7 @@ import { highlightTargetSet, highlightOpacity } from '../../plugins/highlight'
 import { buildColorOverrides } from '../../plugins/colorize'
 import { ensureClipPath } from '../../clip-path-helper'
 import { StackMode } from '../../../enums'
+import { percentValueLabel } from '../../format-helpers'
 
 export const DEFAULT_COLORS = [
   '#4e79a7', '#f28e2b', '#e15759', '#76b7b2',
@@ -291,6 +292,7 @@ export function render(
 
   // Value labels
   const globalValueLabels = options.valueLabels ?? false
+  const columnTotals = d3.rollup(sortedFlatData, vs => d3.max(vs, d => d.y1) ?? 0, d => d.label)
   const vlGroup = d3.select(chartArea).append('g').attr('class', 'bc-value-labels')
   sortedFlatData.forEach((datum) => {
     if (!resolveSeriesValueLabels(datum.seriesName, globalValueLabels, overrides)) {
@@ -307,7 +309,11 @@ export function render(
       .attr('dominant-baseline', 'central')
       .attr('font-size', '11px')
       .attr('fill', 'currentColor')
-      .text(isPercent ? `${Math.round(datum.value)}%` : String(Math.round(datum.value * 100) / 100))
+      .text(isPercent
+        ? `${Math.round(datum.value)}%`
+        : options.valueLabels === 'percent'
+          ? percentValueLabel(datum.value, columnTotals.get(datum.label) ?? 0)
+          : String(Math.round(datum.value * 100) / 100))
   })
 
   // Legend

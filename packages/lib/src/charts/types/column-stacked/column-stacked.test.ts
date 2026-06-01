@@ -409,6 +409,22 @@ describe('column-stacked', () => {
     expect(other?.getAttribute('fill')).not.toBe('#ff0000')
   })
 
+  // ── valueLabels percent ──────────────────────────────────────────
+
+  it('renders value labels as share-of-column percentages with valueLabels="percent"', () => {
+    const singleColumnData = {
+      labels: ['Col'],
+      values: [],
+      series: [
+        { name: 'A', values: [25] },
+        { name: 'B', values: [75] },
+      ],
+    }
+    render(container, singleColumnData, { valueLabels: 'percent' })
+    const texts = Array.from(container.querySelectorAll('.bc-value-label')).map(el => el.textContent)
+    expect(texts).toEqual(expect.arrayContaining(['25%', '75%']))
+  })
+
   // ── barGap ───────────────────────────────────────────────────────
 
   describe('barGap', () => {
