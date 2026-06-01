@@ -29,15 +29,90 @@
     >
       Preview in new tab
     </a>
+    <div
+      v-if="canPublish"
+      class="export-embed-panel__publish"
+    >
+      <hr>
+      <div class="export-embed-panel__publish-head">
+        <span class="export-embed-panel__code-block__label">Publish a live link</span>
+        <button
+          type="button"
+          class="btn btn-sm"
+          :class="published ? 'btn-outline-danger' : 'btn-primary'"
+          :disabled="publishing"
+          @click="onTogglePublish"
+        >
+          {{ publishing ? '…' : published ? 'Unpublish' : 'Publish' }}
+        </button>
+      </div>
+      <p class="export-embed-panel__info">
+        Publishing hosts this chart at a short id. Edits you make later update the embed everywhere. Base64 links above stay self-contained and are unaffected.
+      </p>
+      <template v-if="published">
+        <div class="export-embed-panel__code-block">
+          <div class="export-embed-panel__code-block__header">
+            <span class="export-embed-panel__code-block__label">Live embed</span>
+            <ActionCopyButton
+              :text="idEmbedSnippet"
+              label="Copy"
+              variant="outline-secondary"
+              size="sm"
+            />
+          </div>
+          <pre class="export-embed-panel__code-block__pre"><code>{{ idEmbedSnippet }}</code></pre>
+        </div>
+        <ActionCopyButton
+          :text="editablePermalink"
+          label="Copy editable permalink"
+          variant="outline-secondary"
+          size="sm"
+        />
+      </template>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ActionCopyButton } from '@blueprint-chart/ui'
 import { useChartConfig } from '@/stores/chartConfig'
+import { useAccount } from '@/stores/account'
+import { useCloudCharts } from '@/stores/cloudCharts'
+import { useChartSession } from '@/stores/chartSession'
+import { accountsEnabled } from '@/config/runtimeConfig'
 
 const { dsl, generateDsl } = useDslOutput()
 const { layout } = useChartConfig()
+
+const { isSignedIn } = useAccount()
+const { sessionId } = useChartSession()
+const { publish } = useCloudCharts()
+
+const canPublish = computed(() => accountsEnabled() && isSignedIn.value)
+const published = ref(false)
+const publishing = ref(false)
+
+const baseUrl = computed(() => `${window.location.origin}${window.location.pathname}`)
+const idEmbedSnippet = computed(() => {
+  const l = toRaw(layout.value)
+  const height = l.heightMode === 'fixed' ? l.fixedHeight : 400
+  const sizing = l.sizing === 'responsive'
+    ? `width="100%" height="${height}"`
+    : l.sizing === 'max-width'
+      ? `style="width:100%;max-width:${l.maxWidth}px" height="${height}"`
+      : `width="${l.fixedWidth}" height="${height}"`
+  return `<iframe src="${baseUrl.value}#/render?id=${sessionId.value}" ${sizing} frameborder="0"></iframe>`
+})
+const editablePermalink = computed(() => `${baseUrl.value}#/edit/${sessionId.value}`)
+
+async function onTogglePublish() {
+  publishing.value = true
+  const ok = await publish(sessionId.value, !published.value)
+  if (ok) {
+    published.value = !published.value
+  }
+  publishing.value = false
+}
 
 // btoa only handles Latin-1 (code points 0–255). Encode as UTF-8 bytes first
 // so multi-byte characters (e.g. em-dash U+2014) don't throw InvalidCharacterError.
