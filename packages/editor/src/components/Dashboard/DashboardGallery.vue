@@ -14,6 +14,8 @@
       :layout="layout"
       @select="$emit('select', $event)"
       @edit="$emit('edit', $event)"
+      @sync="$emit('sync', $event)"
+      @open="$emit('open', $event)"
     />
 
     <FeedbackEmptyState
@@ -25,10 +27,10 @@
 
 <script setup lang="ts">
 import { GalleryGrid, FeedbackEmptyState } from '@blueprint-chart/ui'
-import type { SavedChartSummary } from '@/stores/chartSession'
+import type { UnifiedChartSummary } from '@/composables/useDashboardCharts'
 
 defineProps<{
-  charts: SavedChartSummary[]
+  charts: UnifiedChartSummary[]
   thumbnails: Record<string, string>
   selectedId: string | null
   layout: 'grid' | 'row'
@@ -37,6 +39,8 @@ defineProps<{
 defineEmits<{
   select: [id: string]
   edit: [id: string]
+  sync: [id: string]
+  open: [id: string]
   new: []
 }>()
 </script>
