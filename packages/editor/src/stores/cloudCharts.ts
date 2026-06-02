@@ -128,11 +128,31 @@ export const useCloudChartsStore = defineStore('cloudCharts', () => {
     if (!client) {
       return false
     }
-    const { error } = await client
+    // .select() so a zero-row update (no such row / not owned) is detectable —
+    // a PATCH matching nothing otherwise returns {error:null} and looks like success.
+    const { data, error } = await client
       .from('charts')
       .update({ published, updated_at: new Date().toISOString() })
       .eq('id', id)
-    return !error
+      .select('id')
+    return !error && Array.isArray(data) && data.length > 0
+  }
+
+  /** True iff a chart row exists for this id and is currently published. */
+  async function isPublished(id: string): Promise<boolean> {
+    const client = await getSupabaseClient()
+    if (!client) {
+      return false
+    }
+    const { data, error } = await client
+      .from('charts')
+      .select('published')
+      .eq('id', id)
+      .single()
+    if (error || !data) {
+      return false
+    }
+    return Boolean(data.published)
   }
 
   /** Anon-readable fetch of a PUBLISHED chart's DSL (used by the render route). */
@@ -181,7 +201,7 @@ export const useCloudChartsStore = defineStore('cloudCharts', () => {
     return error ? null : input.id
   }
 
-  return { listCloud, loadCloud, pushCloud, deleteCloud, publish, fetchPublished, markCloudBacked, isCloudBacked, syncCloud }
+  return { listCloud, loadCloud, pushCloud, deleteCloud, publish, isPublished, fetchPublished, markCloudBacked, isCloudBacked, syncCloud }
 })
 
 export function useCloudCharts() {
@@ -192,6 +212,7 @@ export function useCloudCharts() {
     pushCloud: store.pushCloud,
     deleteCloud: store.deleteCloud,
     publish: store.publish,
+    isPublished: store.isPublished,
     fetchPublished: store.fetchPublished,
     markCloudBacked: store.markCloudBacked,
     isCloudBacked: store.isCloudBacked,

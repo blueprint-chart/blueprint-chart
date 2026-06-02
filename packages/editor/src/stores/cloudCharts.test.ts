@@ -3,7 +3,12 @@ import * as clientModule from '@/lib/supabaseClient'
 
 /** Minimal chainable query-builder mock matching the calls the store makes. */
 function makeClientMock() {
-  const state: { rows: Record<string, unknown>[], lastInsert?: Record<string, unknown> } = { rows: [] }
+  const state: {
+    rows: Record<string, unknown>[]
+    lastInsert?: Record<string, unknown>
+    // Result for an awaited update/insert/delete chain (e.g. publish's .select('id')).
+    updateResult: { data: Record<string, unknown>[] | null, error: unknown }
+  } = { rows: [], updateResult: { data: [{ id: 'x' }], error: null } }
   const builder: Record<string, unknown> = {}
   const chain = () => builder
   builder.select = vi.fn(() => builder)
@@ -17,6 +22,10 @@ function makeClientMock() {
   builder.upsert = vi.fn(() => Promise.resolve({ error: null }))
   builder.update = vi.fn(() => builder)
   builder.delete = vi.fn(() => builder)
+  // Make the builder thenable so an awaited mutating chain (update/insert/delete,
+  // and publish's trailing .select('id')) resolves to updateResult. Terminal reads
+  // use the explicit promises from .order()/.single() and are unaffected.
+  builder.then = (resolve: (v: unknown) => void) => resolve(state.updateResult)
   const client = {
     __state: state,
     from: vi.fn(() => chain()),
@@ -60,10 +69,29 @@ describe('useCloudCharts', () => {
     expect(client.from).toHaveBeenCalledWith('charts')
   })
 
-  it('toggles published', async () => {
+  it('publish returns true when a row is updated', async () => {
+    client.__state.updateResult = { data: [{ id: 'bbbbbbbbbbb' }], error: null }
     const store = useCloudCharts()
-    await store.publish('bbbbbbbbbbb', true)
+    const ok = await store.publish('bbbbbbbbbbb', true)
+    expect(ok).toBe(true)
     expect(client.from).toHaveBeenCalledWith('charts')
+  })
+
+  it('publish returns false when no row matches (chart not in cloud / not owned)', async () => {
+    client.__state.updateResult = { data: [], error: null }
+    const store = useCloudCharts()
+    const ok = await store.publish('missingmissi', true)
+    expect(ok).toBe(false)
+  })
+
+  it('isPublished reflects the row flag, false when absent', async () => {
+    const store = useCloudCharts()
+    client.__state.rows = [{ published: true }]
+    expect(await store.isPublished('bbbbbbbbbbb')).toBe(true)
+    client.__state.rows = [{ published: false }]
+    expect(await store.isPublished('bbbbbbbbbbb')).toBe(false)
+    client.__state.rows = []
+    expect(await store.isPublished('missingmissi')).toBe(false)
   })
 
   it('returns null DSL when a published chart is not found', async () => {
