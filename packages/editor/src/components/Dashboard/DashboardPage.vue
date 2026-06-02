@@ -59,9 +59,12 @@ function openChart(id: string) {
   router.push(`/edit/${id}`)
 }
 
+// Re-load when the signed-in/accounts state flips (sign in/out). Initial load
+// happens in onMounted — an immediate watcher fires during setup, which is too
+// early to reliably populate on a cold page load.
 watch(showCloud, () => {
   void refresh()
-}, { immediate: true })
+})
 
 const galleryRef = useTemplateRef<HTMLElement>('galleryRef')
 const viewLayout = shallowRef<'grid' | 'row'>('grid')
@@ -127,6 +130,7 @@ function handleKeydown(e: globalThis.KeyboardEvent) {
 }
 
 onMounted(() => {
+  void refresh()
   document.addEventListener('keydown', handleKeydown)
 })
 
@@ -201,9 +205,17 @@ onUnmounted(() => {
 </template>
 
 <style scoped lang="scss">
+.dashboard-page-wrapper {
+  // Cap the wrapper to the layout shell's bounded <main> so the gallery and
+  // side panel scroll internally instead of growing the whole page. Without
+  // min-height:0 a flex column child stretches to its content height.
+  min-height: 0;
+}
+
 .dashboard-page {
   display: flex;
   flex: 1;
+  min-height: 0;
   overflow: hidden;
   background: var(--bc-content-bg);
 
@@ -214,6 +226,7 @@ onUnmounted(() => {
   &__gallery {
     flex: 1;
     min-width: 0;
+    min-height: 0;
     overflow-y: auto;
     padding: 1.75rem;
     background: transparent;
