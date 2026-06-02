@@ -1,9 +1,9 @@
 <script setup lang="ts">
 const cells = [
-  { label: '01 / No backend', value: 'Runs in the browser' },
-  { label: '02 / Self-contained', value: 'One portable iframe' },
+  { label: '01 / Plain text', value: 'A format AI can write' },
+  { label: '02 / No backend', value: 'Renders in the browser' },
   { label: '03 / Data sovereignty', value: 'Nothing ever uploaded' },
-  { label: '04 / MIT', value: 'Free, open source, forever' },
+  { label: '04 / MIT', value: 'Open source, forever' },
 ] as const
 </script>
 

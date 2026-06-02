@@ -15,8 +15,8 @@ describe('LandingValuePropStrip', () => {
     const w = mountStrip()
     const labels = w.findAll('.landing-value-prop-strip__cell__label').map(n => n.text())
     expect(labels).toEqual([
-      '01 / No backend',
-      '02 / Self-contained',
+      '01 / Plain text',
+      '02 / No backend',
       '03 / Data sovereignty',
       '04 / MIT',
     ])
@@ -26,10 +26,10 @@ describe('LandingValuePropStrip', () => {
     const w = mountStrip()
     const values = w.findAll('.landing-value-prop-strip__cell__value').map(n => n.text())
     expect(values).toEqual([
-      'Runs in the browser',
-      'One portable iframe',
+      'A format AI can write',
+      'Renders in the browser',
       'Nothing ever uploaded',
-      'Free, open source, forever',
+      'Open source, forever',
     ])
   })
 })
