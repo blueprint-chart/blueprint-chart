@@ -3,7 +3,7 @@
     <img src="https://raw.githubusercontent.com/blueprint-chart/blueprint-chart/main/packages/editor/src/assets/images/blueprint-chart-logo.svg" width="120" alt="blueprint-chart">
   </a>
 </p>
-<p align="center"><strong>DSL-driven interactive charting library and Vue 3 editor designed for newsroom storytelling — composable, accessible, and scene-driven.</strong></p>
+<p align="center"><strong>The open chart format AI writes and the browser renders — a DSL-driven charting library, MCP server, and Vue 3 editor. Static-first, open source, accessible.</strong></p>
 
 <div align="center">
 
@@ -17,7 +17,7 @@
 
 </div>
 
-Blueprint Chart lets journalists and developers author **interactive, accessible, narrative-driven charts** from a compact DSL (`.bpc`). Charts are first-class **stories**: every chart can define multiple **scenes** (named data/config states) that play back as an animated sequence.
+Blueprint Chart lets developers, AI assistants, and journalists author **interactive, accessible charts** from a compact, plain-text DSL (`.bpc`) — emitted by an LLM or written by hand, and rendered anywhere with no backend. Charts are first-class **stories**: every chart can define multiple **scenes** (named data/config states) that play back as an animated sequence.
 
 ## Architecture
 
