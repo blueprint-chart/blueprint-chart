@@ -50,7 +50,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
 import IPhCopy from '~icons/ph/copy'
 import IPhTrash from '~icons/ph/trash'
 import type { SyncState } from '@/composables/useDashboardCharts'
@@ -67,7 +66,7 @@ const confirming = ref(false)
 const scope = computed(() =>
   props.syncState === 'local' ? 'this device' : 'your account and every device',
 )
-const deleteHint = computed(() => 'This cannot be undone')
+const deleteHint = 'This cannot be undone'
 const confirmText = computed(() => `Delete this chart from ${scope.value}? This can't be undone.`)
 
 function onConfirm() {
