@@ -208,7 +208,9 @@ export function useDashboardCharts() {
   }
 
   async function remove(id: string): Promise<void> {
-    if (cloud.isCloudBacked(id)) {
+    const entry = charts.value.find(c => c.id === id)
+    const inCloud = entry ? entry.syncState !== 'local' : cloud.isCloudBacked(id)
+    if (inCloud) {
       await cloud.deleteCloud(id)
       cloud.unmarkCloudBacked(id)
     }
