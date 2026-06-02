@@ -21,3 +21,4 @@ playwright-report
 
 # VitePress build cache
 packages/docs/src/.vitepress/cache
+.gstack/
