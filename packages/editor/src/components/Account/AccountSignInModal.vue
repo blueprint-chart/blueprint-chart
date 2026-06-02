@@ -2,7 +2,7 @@
   <BModal
     :model-value="open"
     title="Sign in"
-    hide-footer
+    no-footer
     centered
     @update:model-value="$emit('update:open', $event)"
   >
