@@ -144,7 +144,7 @@ const steps: Step[] = [
     id="transforms"
     surface="content"
   >
-    <LandingSectionHeader label="03 / Data pipeline">
+    <LandingSectionHeader label="04 / Data pipeline">
       Reshape your data<br><em>before you chart it.</em>
       <template #lead>
         Raw data rarely fits a chart out of the box. Blueprint's pipeline lets you sort, filter, group, parse and reshape, all without leaving the editor, all replayable from your BPC source.

@@ -27,7 +27,7 @@ describe('LandingTransforms', () => {
 
   it('renders the mono eyebrow', () => {
     const w = mountTransforms()
-    expect(w.find('.header-label').text()).toBe('03 / Data pipeline')
+    expect(w.find('.header-label').text()).toBe('04 / Data pipeline')
   })
 
   it('renders 4 grouped capability cards', () => {
