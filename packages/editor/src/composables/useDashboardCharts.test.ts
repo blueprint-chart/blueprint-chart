@@ -42,3 +42,71 @@ describe('mergeChartLists', () => {
     expect(merged.map(m => m.id).sort()).toEqual(['a', 'b', 'c'])
   })
 })
+
+import { useDashboardCharts } from './useDashboardCharts'
+import { useCloudCharts } from '@/stores/cloudCharts'
+import * as clientModule from '@/lib/supabaseClient'
+
+/** Minimal chainable Supabase mock; upsert/delete chains resolve { error: null }. */
+function makeClientMock() {
+  const builder: Record<string, any> = {}
+  builder.select = vi.fn(() => builder)
+  builder.order = vi.fn(() => Promise.resolve({ data: [], error: null }))
+  builder.eq = vi.fn(() => builder)
+  builder.single = vi.fn(() => Promise.resolve({ data: null, error: null }))
+  builder.upsert = vi.fn(() => Promise.resolve({ error: null }))
+  builder.delete = vi.fn(() => builder)
+  // Thenable so an awaited delete().eq() chain resolves with no error.
+  builder.then = (resolve: (v: unknown) => void) => resolve({ data: [{ id: 'x' }], error: null })
+  return { from: vi.fn(() => builder), __builder: builder }
+}
+
+describe('useDashboardCharts actions', () => {
+  let client: ReturnType<typeof makeClientMock>
+
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    localStorage.clear()
+    vi.restoreAllMocks()
+    client = makeClientMock()
+    vi.spyOn(clientModule, 'getSupabaseClient').mockResolvedValue(client as never)
+  })
+
+  function seedLocal(id: string, dsl = 'chart bar {}') {
+    localStorage.setItem(`blueprint-chart:${id}`, dsl)
+    localStorage.setItem(`blueprint-chart:${id}:meta`, JSON.stringify({ savedAt: '2026-01-01' }))
+  }
+
+  it('syncOne upserts the local DSL under its id and marks it cloud-backed', async () => {
+    seedLocal('localid0001')
+    const dash = useDashboardCharts()
+
+    await dash.syncOne('localid0001')
+
+    expect(client.__builder.upsert).toHaveBeenCalled()
+    expect(client.__builder.upsert.mock.calls[0][0]).toMatchObject({ id: 'localid0001', dsl: 'chart bar {}' })
+    expect(useCloudCharts().isCloudBacked('localid0001')).toBe(true)
+  })
+
+  it('remove deletes the cloud row, local copy and index entry for a synced chart', async () => {
+    seedLocal('localid0002')
+    useCloudCharts().markCloudBacked('localid0002')
+    const dash = useDashboardCharts()
+
+    await dash.remove('localid0002')
+
+    expect(client.__builder.delete).toHaveBeenCalled()
+    expect(localStorage.getItem('blueprint-chart:localid0002')).toBeNull()
+    expect(useCloudCharts().isCloudBacked('localid0002')).toBe(false)
+  })
+
+  it('remove of a local-only chart never calls the cloud', async () => {
+    seedLocal('localid0003')
+    const dash = useDashboardCharts()
+
+    await dash.remove('localid0003')
+
+    expect(client.__builder.delete).not.toHaveBeenCalled()
+    expect(localStorage.getItem('blueprint-chart:localid0003')).toBeNull()
+  })
+})
