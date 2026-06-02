@@ -2,10 +2,10 @@
 import LandingTopNav from './LandingTopNav.vue'
 import LandingHero from './LandingHero.vue'
 import LandingValuePropStrip from './LandingValuePropStrip.vue'
+import LandingMcp from './LandingMcp.vue'
+import LandingFormat from './LandingFormat.vue'
 import LandingDefaults from './LandingDefaults.vue'
 import LandingTransforms from './LandingTransforms.vue'
-import LandingFormat from './LandingFormat.vue'
-import LandingMcp from './LandingMcp.vue'
 import LandingScenes from './LandingScenes.vue'
 import LandingFooter from './LandingFooter.vue'
 </script>
