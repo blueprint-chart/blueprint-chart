@@ -15,6 +15,7 @@ import {
   getThumbnail,
   saveThumbnail,
   getPreview,
+  savePreview,
   deletePreview,
   renderThumbnailFromStorage,
   renderPreviewFromStorage,
@@ -139,6 +140,7 @@ export function useDashboardCharts() {
         if (!cachedPreview) {
           const preview = renderPreviewFromStorage(raw)
           if (preview) {
+            savePreview(chart.id, preview)
             previews[chart.id] = svgToDataUrl(preview)
           }
         }
@@ -174,12 +176,15 @@ export function useDashboardCharts() {
     }
     // Enrich cloud-only metadata now that we have the DSL.
     const summary = summarizeDsl(record.dsl)
-    const target = charts.value.find(c => c.id === id)
-    if (target) {
-      target.description = summary.description
-      target.sceneCount = summary.sceneCount
-      target.rowCount = summary.rowCount
-      target.allowDarkMode = summary.allowDarkMode
+    const idx = charts.value.findIndex(c => c.id === id)
+    if (idx !== -1) {
+      charts.value[idx] = {
+        ...charts.value[idx],
+        description: summary.description,
+        sceneCount: summary.sceneCount,
+        rowCount: summary.rowCount,
+        allowDarkMode: summary.allowDarkMode,
+      }
     }
   }
 
@@ -189,15 +194,15 @@ export function useDashboardCharts() {
       return
     }
     const summary = summarizeDsl(dsl)
-    const newId = await cloud.syncCloud({
+    const syncedId = await cloud.syncCloud({
       id,
       dsl,
       meta: readLocalMeta(id),
       title: summary.title,
       chartType: summary.chartType,
     })
-    if (newId) {
-      cloud.markCloudBacked(newId)
+    if (syncedId) {
+      cloud.markCloudBacked(syncedId)
       await refresh()
     }
   }
