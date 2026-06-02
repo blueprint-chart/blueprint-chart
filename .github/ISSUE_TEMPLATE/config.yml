@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation & handbook
+    url: https://docs.blueprintchart.com
+    about: Guides, the dataviz handbook, the BPC DSL spec, and the lib API reference.
+  - name: Questions & ideas (Discussions)
+    url: https://github.com/blueprint-chart/blueprint-chart/discussions
+    about: Ask a question, share a chart, or float an idea before opening an issue.
+  - name: Report a security vulnerability
+    url: https://github.com/blueprint-chart/blueprint-chart/security/advisories/new
+    about: Please report vulnerabilities privately. Do not open a public issue.
