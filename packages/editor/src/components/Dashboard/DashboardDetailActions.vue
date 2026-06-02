@@ -11,7 +11,6 @@
         @click="$emit('duplicate')"
       />
       <DashboardActionRow
-        v-if="!confirming"
         :icon="IPhTrash"
         label="Delete chart"
         :description="deleteHint"
@@ -19,33 +18,36 @@
         data-test="delete"
         @click="confirming = true"
       />
-      <div
-        v-else
-        class="dashboard-detail-actions__confirm"
-      >
-        <p class="dashboard-detail-actions__confirm-text">
-          {{ confirmText }}
-        </p>
-        <div class="dashboard-detail-actions__confirm-buttons">
-          <button
-            type="button"
-            class="btn btn-link btn-sm"
-            data-test="cancel-delete"
-            @click="confirming = false"
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            class="btn btn-danger btn-sm"
-            data-test="confirm-delete"
-            @click="onConfirm"
-          >
-            Delete
-          </button>
-        </div>
-      </div>
     </div>
+
+    <BModal
+      v-model="confirming"
+      title="Delete chart?"
+      hide-footer
+      centered
+    >
+      <p class="dashboard-detail-actions__confirm-text">
+        {{ confirmText }}
+      </p>
+      <div class="dashboard-detail-actions__confirm-buttons">
+        <button
+          type="button"
+          class="btn btn-link btn-sm"
+          data-test="cancel-delete"
+          @click="confirming = false"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          class="btn btn-danger btn-sm"
+          data-test="confirm-delete"
+          @click="onConfirm"
+        >
+          Delete
+        </button>
+      </div>
+    </BModal>
   </div>
 </template>
 
@@ -63,10 +65,10 @@ const emit = defineEmits<{
 
 const confirming = ref(false)
 
+const deleteHint = 'This cannot be undone'
 const scope = computed(() =>
   props.syncState === 'local' ? 'this device' : 'your account and every device',
 )
-const deleteHint = 'This cannot be undone'
 const confirmText = computed(() => `Delete this chart from ${scope.value}? This can't be undone.`)
 
 function onConfirm() {
@@ -93,15 +95,9 @@ function onConfirm() {
     gap: 0.375rem;
   }
 
-  &__confirm {
-    border: 1px solid var(--bs-border-color);
-    border-radius: var(--bc-radius-md, 0.5rem);
-    padding: 0.75rem;
-  }
-
   &__confirm-text {
     font-size: var(--bs-font-size-sm);
-    margin: 0 0 0.5rem;
+    margin: 0 0 1rem;
   }
 
   &__confirm-buttons {
