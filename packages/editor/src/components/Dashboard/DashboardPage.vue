@@ -2,7 +2,6 @@
 import { useRouter } from 'vue-router'
 import { useBreakpoint } from '@blueprint-chart/ui'
 import { usePanelStore } from '@/stores/panel'
-import DashboardImportBanner from '@/components/Dashboard/DashboardImportBanner.vue'
 import { accountsEnabled } from '@/config/runtimeConfig'
 import { useAccount } from '@/stores/account'
 import { useCloudCharts } from '@/stores/cloudCharts'
@@ -145,21 +144,18 @@ onUnmounted(() => {
       :chart-count="sortedCharts.length"
       :sort-value="sortValue"
       :layout="viewLayout"
+      :local-only-count="showCloud ? localOnlyCount : 0"
+      :syncing-all="syncingAll"
       @update:sort-value="sortValue = $event"
       @update:layout="viewLayout = $event"
       @new="router.push('/new')"
+      @sync="onSyncAll"
     />
     <div :class="pageClass">
       <div
         ref="galleryRef"
         class="dashboard-page__gallery"
       >
-        <DashboardImportBanner
-          v-if="showCloud"
-          :count="localOnlyCount"
-          :syncing="syncingAll"
-          @sync="onSyncAll"
-        />
         <DashboardGallery
           :charts="sortedCharts"
           :thumbnails="thumbnails"
