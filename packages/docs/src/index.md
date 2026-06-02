@@ -4,7 +4,7 @@ layout: home
 hero:
   name: Blueprint Chart
   text: The open chart format AI writes.
-  tagline: "…and the browser renders. A compact `.bpc` DSL, a static-first engine, an MCP server, and a Vue 3 editor — open source, accessible, no backend."
+  tagline: "An open, plain-text chart format an AI can write and any browser can render. No backend, no account, nothing uploaded."
   image:
     src: /logo.svg
     alt: Blueprint Chart

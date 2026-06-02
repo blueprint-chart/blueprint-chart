@@ -3,7 +3,7 @@
     <img src="https://raw.githubusercontent.com/blueprint-chart/blueprint-chart/main/packages/editor/src/assets/images/blueprint-chart-logo.svg" width="120" alt="blueprint-chart">
   </a>
 </p>
-<p align="center"><strong>The open chart format AI writes and the browser renders — a DSL-driven charting library, MCP server, and Vue 3 editor. Static-first, open source, accessible.</strong></p>
+<p align="center"><strong>An open, plain-text chart format an AI can write and any browser can render. No backend, no account, nothing uploaded.</strong></p>
 
 <div align="center">
 
