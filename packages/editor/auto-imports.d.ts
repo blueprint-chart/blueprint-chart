@@ -24,6 +24,7 @@ declare global {
   const beforeAll: typeof import('vitest').beforeAll
   const beforeEach: typeof import('vitest').beforeEach
   const buildPathD: typeof import('./src/composables/useAnnotationDrag').buildPathD
+  const cacheImagesFromDsl: typeof import('./src/composables/useChartThumbnail').cacheImagesFromDsl
   const chai: typeof import('vitest').chai
   const chartThemeOptions: typeof import('./src/composables/useChartTheme').chartThemeOptions
   const checkBenford: typeof import('./src/composables/useBenfordCheck').checkBenford
@@ -96,6 +97,7 @@ declare global {
   const mapStores: typeof import('pinia').mapStores
   const mapWritableState: typeof import('pinia').mapWritableState
   const markRaw: typeof import('vue').markRaw
+  const mergeChartLists: typeof import('./src/composables/useDashboardCharts').mergeChartLists
   const nextTick: typeof import('vue').nextTick
   const onActivated: typeof import('vue').onActivated
   const onBeforeMount: typeof import('vue').onBeforeMount
@@ -243,6 +245,7 @@ declare global {
   const useCvdMode: typeof import('./src/composables/useCvdMode').useCvdMode
   const useCycleList: typeof import('@vueuse/core').useCycleList
   const useDark: typeof import('@vueuse/core').useDark
+  const useDashboardCharts: typeof import('./src/composables/useDashboardCharts').useDashboardCharts
   const useDashboardGallery: typeof import('./src/composables/useDashboardGallery').useDashboardGallery
   const useDashboardPanel: typeof import('./src/composables/useDashboardPanel').useDashboardPanel
   const useDataSections: typeof import('./src/composables/useDataSections').useDataSections
@@ -441,6 +444,9 @@ declare global {
   // @ts-ignore
   export type { CloudSyncStatus, CloudSyncDeps } from './src/composables/useCloudSync'
   import('./src/composables/useCloudSync')
+  // @ts-ignore
+  export type { SyncState, UnifiedChartSummary } from './src/composables/useDashboardCharts'
+  import('./src/composables/useDashboardCharts')
   // @ts-ignore
   export type { ColumnType, ParsedData, ParseDelimitedOptions } from './src/composables/useDataParser'
   import('./src/composables/useDataParser')
