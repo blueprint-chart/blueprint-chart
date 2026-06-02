@@ -30,9 +30,9 @@ const heroBpc = sample.dsl.replace(/\{/, '{\n  theme = "blueprint-framed"')
           The open chart format<br><em>AI writes.</em>
         </h1>
         <p class="landing-hero__inner__text__sub">
-          Blueprint Chart is an open, plain-text format for charts — compact enough for an LLM
-          to emit, self-contained enough to render anywhere with no backend. A best-in-class
-          editor is here for when you want to refine by hand.
+          An open, plain-text chart format an AI can write and any browser can render —
+          no backend, no account, nothing uploaded. Prefer to do it yourself? The editor's
+          right here.
         </p>
         <div class="landing-hero__inner__text__actions">
           <ButtonIcon
