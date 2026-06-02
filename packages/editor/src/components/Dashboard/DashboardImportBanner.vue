@@ -5,17 +5,17 @@
     role="status"
   >
     <span>
-      You have <strong>{{ count }}</strong> chart{{ count === 1 ? '' : 's' }} saved on this device.
-      Import {{ count === 1 ? 'it' : 'them' }} into your account?
+      You have <strong>{{ count }}</strong> chart{{ count === 1 ? '' : 's' }} saved only on this device.
+      Sync {{ count === 1 ? 'it' : 'them' }} to your account?
     </span>
     <span class="d-flex gap-2">
       <button
         type="button"
         class="btn btn-primary btn-sm"
-        :disabled="importing"
-        @click="onImport"
+        :disabled="syncing"
+        @click="onSync"
       >
-        {{ importing ? 'Importing…' : `Import ${count}` }}
+        {{ syncing ? 'Syncing…' : `Sync all to cloud` }}
       </button>
       <button
         type="button"
@@ -29,15 +29,15 @@
 </template>
 
 <script setup lang="ts">
-const props = defineProps<{ count: number, importing: boolean }>()
-const emit = defineEmits<{ import: [] }>()
+const props = defineProps<{ count: number, syncing: boolean }>()
+const emit = defineEmits<{ sync: [] }>()
 const dismissed = ref(false)
 
-function onImport() {
-  emit('import')
+function onSync() {
+  emit('sync')
 }
 
-// Auto-hide once everything has been imported away.
+// Auto-hide once everything has been synced away.
 watch(() => props.count, (n) => {
   if (n === 0) {
     dismissed.value = true
