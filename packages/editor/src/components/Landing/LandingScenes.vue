@@ -144,7 +144,7 @@ const features: { icon: Component, title: string, description: string }[] = [
     id="scenes"
     surface="content"
   >
-    <LandingSectionHeader label="06 / Scenes & storytelling">
+    <LandingSectionHeader label="05 / Scenes & storytelling">
       Guide your reader<br><em>through the data.</em>
       <template #lead>
         Create a sequence of scenes, each one a step in your narrative.
