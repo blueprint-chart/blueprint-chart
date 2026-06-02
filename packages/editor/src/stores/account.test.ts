@@ -68,4 +68,13 @@ describe('useAccount', () => {
     expect(auth.signOut).toHaveBeenCalled()
     expect(account.user.value).toBeNull()
   })
+
+  it('a second init() awaits the first session restore (no early-return race)', async () => {
+    auth.getSession.mockResolvedValue({ data: { session: { user: { id: 'u1', email: 'a@b.co' } } } })
+    const account = useAccount()
+    void account.init() // first caller, in-flight
+    await account.init() // second caller must await the SAME resolution
+    expect(account.user.value).toEqual({ id: 'u1', email: 'a@b.co' })
+    expect(auth.getSession).toHaveBeenCalledTimes(1)
+  })
 })

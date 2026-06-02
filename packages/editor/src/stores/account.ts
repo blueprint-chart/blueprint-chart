@@ -25,24 +25,28 @@ export const useAccountStore = defineStore('account', () => {
   const user = shallowRef<AccountUser | null>(null)
   const status = shallowRef<AccountStatus>('idle')
   const errorMessage = shallowRef<string | null>(null)
-  const initialized = shallowRef(false)
+  // Memoized in-flight init() promise so concurrent callers await the SAME
+  // session restore instead of a second caller returning before user is set.
+  let initPromise: Promise<void> | null = null
 
   const isSignedIn = computed(() => user.value !== null)
 
   async function init(): Promise<void> {
-    if (initialized.value) {
-      return
+    if (initPromise) {
+      return initPromise
     }
-    initialized.value = true
-    const client = await getSupabaseClient()
-    if (!client) {
-      return
-    }
-    const { data } = await client.auth.getSession()
-    user.value = toAccountUser((data.session as Session | null)?.user)
-    client.auth.onAuthStateChange((_event, session) => {
-      user.value = toAccountUser((session as Session | null)?.user)
-    })
+    initPromise = (async () => {
+      const client = await getSupabaseClient()
+      if (!client) {
+        return
+      }
+      const { data } = await client.auth.getSession()
+      user.value = toAccountUser((data.session as Session | null)?.user)
+      client.auth.onAuthStateChange((_event, session) => {
+        user.value = toAccountUser((session as Session | null)?.user)
+      })
+    })()
+    return initPromise
   }
 
   async function signInWithEmail(email: string): Promise<void> {
