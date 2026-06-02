@@ -10,7 +10,7 @@
         <BDropdownItem @click="goToCharts">
           My charts
         </BDropdownItem>
-        <BDropdownItem @click="signOut">
+        <BDropdownItem @click="onSignOut">
           Sign out
         </BDropdownItem>
       </BDropdown>
@@ -38,6 +38,11 @@ const { user, isSignedIn, signOut } = useAccount()
 const modalOpen = ref(false)
 
 function goToCharts() {
+  router.push('/charts')
+}
+
+async function onSignOut() {
+  await signOut()
   router.push('/charts')
 }
 </script>
