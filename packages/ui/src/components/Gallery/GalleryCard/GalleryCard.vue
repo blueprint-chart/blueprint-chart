@@ -19,6 +19,13 @@
         class="gallery-card__thumb__img"
       >
       <div
+        v-if="$slots.status"
+        class="gallery-card__thumb__status"
+        @click.stop
+      >
+        <slot name="status" />
+      </div>
+      <div
         v-if="$slots.actions"
         class="gallery-card__thumb__actions"
         @click.stop
@@ -129,6 +136,15 @@ const cardClassList = computed(() => ({
       .gallery-card:focus-within & {
         opacity: 1;
       }
+    }
+
+    &__status {
+      position: absolute;
+      top: 0.5rem;
+      left: 0.5rem;
+      display: flex;
+      gap: 0.25rem;
+      z-index: 1;
     }
   }
 
