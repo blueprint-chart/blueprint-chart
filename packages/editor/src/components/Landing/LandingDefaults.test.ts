@@ -37,6 +37,11 @@ describe('LandingDefaults', () => {
     expect(w.find('.chart-stub').exists()).toBe(true)
   })
 
+  it('keeps the newsroom-rigor credibility line in the lead', () => {
+    const w = mountDefaults()
+    expect(w.text()).toContain('the same rigor newsrooms rely on')
+  })
+
   it('renders 6 default cards in the expected order', () => {
     const w = mountDefaults()
     const titles = w.findAll('.default-card-stub').map(n => n.attributes('data-title'))
