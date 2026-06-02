@@ -11,9 +11,9 @@ function chart(over: Partial<UnifiedChartSummary> = {}): UnifiedChartSummary {
   }
 }
 
-function mountCard(over: Partial<UnifiedChartSummary> = {}) {
+function mountCard(over: Partial<UnifiedChartSummary> = {}, extra: Record<string, unknown> = {}) {
   return mount(DashboardChartCard, {
-    props: { chart: chart(over), selected: false, layout: 'grid' as const },
+    props: { chart: chart(over), selected: false, layout: 'grid' as const, showCloud: true, ...extra },
     global: {
       // DashboardChartCard calls useTheme() → needs an active Pinia.
       plugins: [createTestingPinia({ createSpy: vi.fn })],
@@ -40,5 +40,10 @@ describe('DashboardChartCard status pill', () => {
     await wrapper.find('.dashboard-chart-card__status').trigger('click')
     expect(wrapper.emitted('sync')).toBeUndefined()
     expect(wrapper.emitted('open')).toBeUndefined()
+  })
+
+  it('hides the sync-state pill when cloud is unavailable (signed out / accounts off)', () => {
+    const wrapper = mountCard({ syncState: 'local' }, { showCloud: false })
+    expect(wrapper.find('.dashboard-chart-card__status').exists()).toBe(false)
   })
 })
