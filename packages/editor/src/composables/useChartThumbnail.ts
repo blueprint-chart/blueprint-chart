@@ -363,3 +363,31 @@ export function generateThumbnail() {
     }
   }
 }
+
+/**
+ * Render a thumbnail + preview from a DSL string and cache both under `id`,
+ * so cloud-only charts surface artwork on the same path as local charts.
+ * Defensive: a render failure caches nothing rather than breaking the gallery.
+ */
+export function cacheImagesFromDsl(id: string, dsl: string): void {
+  let svg: string | null = null
+  let preview: string | null = null
+  try {
+    svg = renderThumbnailFromDsl(dsl)
+  }
+  catch {
+    svg = null
+  }
+  try {
+    preview = renderPreviewFromDsl(dsl)
+  }
+  catch {
+    preview = null
+  }
+  if (svg) {
+    saveThumbnail(id, svg)
+  }
+  if (preview) {
+    savePreview(id, preview)
+  }
+}
