@@ -74,6 +74,36 @@ export function readLocalMeta(id: string): Record<string, unknown> {
   }
 }
 
+export interface DslSummary {
+  title: string
+  description: string
+  chartType: string
+  sceneCount: number
+  rowCount: number
+  allowDarkMode: boolean
+}
+
+/** Extract display metadata from a raw BPC DSL string via lightweight regex. */
+export function summarizeDsl(dsl: string): DslSummary {
+  const titleMatch = dsl.match(/title\s*=\s*"([^"]*)"/)
+  const descMatch = dsl.match(/description\s*=\s*"([^"]*)"/)
+  const typeMatch = dsl.match(/^chart\s+(\S+)/)
+  const sceneMatches = dsl.match(/\bscene\s+"/g)
+  const dataBlock = dsl.match(/data\s*\{([^}]*)\}/)
+  const dataRows = dataBlock
+    ? dataBlock[1].split('\n').filter(l => l.trim() && l.includes('=')).length
+    : 0
+  const darkModeMatch = dsl.match(/allowDarkMode\s*=\s*(true|false)/)
+  return {
+    title: titleMatch?.[1] ?? '',
+    description: descMatch?.[1] ?? '',
+    chartType: typeMatch?.[1] ?? '',
+    sceneCount: sceneMatches?.length ?? 0,
+    rowCount: dataRows,
+    allowDarkMode: darkModeMatch ? darkModeMatch[1] === 'true' : true,
+  }
+}
+
 function isLegacyPayload(raw: string): boolean {
   return raw.trimStart().startsWith('{')
 }
@@ -349,28 +379,19 @@ export const useChartSessionStore = defineStore('chartSession', () => {
           }
         }
 
-        // Raw DSL string — extract metadata with regex
-        const titleMatch = raw.match(/title\s*=\s*"([^"]*)"/)
-        const descMatch = raw.match(/description\s*=\s*"([^"]*)"/)
-        const typeMatch = raw.match(/^chart\s+(\S+)/)
-        const sceneMatches = raw.match(/\bscene\s+"/g)
-        const dataBlock = raw.match(/data\s*\{([^}]*)\}/)
-        const dataRows = dataBlock
-          ? dataBlock[1].split('\n').filter(l => l.trim() && l.includes('=')).length
-          : 0
-        const darkModeMatch = raw.match(/allowDarkMode\s*=\s*(true|false)/)
+        // Raw DSL string — extract metadata with the shared summarizer.
+        const summary = summarizeDsl(raw)
         const metaRaw = localStorage.getItem(metaKey(id))
         const parsedMeta = metaRaw ? (JSON.parse(metaRaw) as SessionMeta) : null
-        const savedAt = parsedMeta?.savedAt ?? null
         charts.push({
           id,
-          title: titleMatch?.[1] ?? '',
-          description: descMatch?.[1] ?? '',
-          chartType: typeMatch?.[1] ?? '',
-          savedAt,
-          sceneCount: sceneMatches?.length ?? 0,
-          rowCount: dataRows,
-          allowDarkMode: darkModeMatch ? darkModeMatch[1] === 'true' : true,
+          title: summary.title,
+          description: summary.description,
+          chartType: summary.chartType,
+          savedAt: parsedMeta?.savedAt ?? null,
+          sceneCount: summary.sceneCount,
+          rowCount: summary.rowCount,
+          allowDarkMode: summary.allowDarkMode,
           sheetNumber: parsedMeta?.sheetNumber ?? null,
           sheetId: parsedMeta?.sheetId ?? '',
         })

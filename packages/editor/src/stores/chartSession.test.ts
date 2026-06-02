@@ -1,5 +1,5 @@
 import { ChartType } from '@blueprint-chart/lib'
-import { generateId, useChartSession } from './chartSession'
+import { generateId, useChartSession, summarizeDsl } from './chartSession'
 import { useChartConfig } from '@/stores/chartConfig'
 import { useDataTable } from '@/stores/dataTable'
 import { useDataTransforms } from '@/stores/dataTransforms'
@@ -321,5 +321,42 @@ describe('sheet number allocation', () => {
     session.loadChart(id)
     expect(session.sheetNumber.value).toBe('001')
     expect(session.sheetId.value).toBe(originalId)
+  })
+})
+
+describe('summarizeDsl', () => {
+  it('extracts title, description, chartType, scene and row counts from DSL', () => {
+    const dsl = [
+      'chart bar-vertical',
+      'title = "Quarterly Revenue"',
+      'description = "By region"',
+      'allowDarkMode = false',
+      'data {',
+      '  A = 1',
+      '  B = 2',
+      '  C = 3',
+      '}',
+      'scene "Intro" {}',
+      'scene "Detail" {}',
+    ].join('\n')
+    expect(summarizeDsl(dsl)).toEqual({
+      title: 'Quarterly Revenue',
+      description: 'By region',
+      chartType: 'bar-vertical',
+      sceneCount: 2,
+      rowCount: 3,
+      allowDarkMode: false,
+    })
+  })
+
+  it('defaults sensibly for a minimal DSL', () => {
+    expect(summarizeDsl('chart line')).toEqual({
+      title: '',
+      description: '',
+      chartType: 'line',
+      sceneCount: 0,
+      rowCount: 0,
+      allowDarkMode: true,
+    })
   })
 })
