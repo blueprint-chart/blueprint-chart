@@ -4,6 +4,8 @@ import { createTestingPinia } from '@pinia/testing'
 import { useChartConfig } from '@/stores/chartConfig'
 import { useChartTypeOptionsStore } from '@/stores/chartTypeOptions'
 import { useAccountStore } from '@/stores/account'
+import { useChartSessionStore } from '@/stores/chartSession'
+import { useCloudChartsStore } from '@/stores/cloudCharts'
 import * as runtimeConfig from '@/config/runtimeConfig'
 import ExportEmbedPanel from './ExportEmbedPanel.vue'
 
@@ -72,6 +74,10 @@ describe('ExportEmbedPanel', () => {
 })
 
 describe('ExportEmbedPanel — publish section', () => {
+  beforeEach(() => {
+    localStorage.clear()
+  })
+
   it('hides the publish section when accounts are disabled', async () => {
     vi.spyOn(runtimeConfig, 'accountsEnabled').mockReturnValue(false)
     const wrapper = mount(ExportEmbedPanel, {
@@ -80,14 +86,26 @@ describe('ExportEmbedPanel — publish section', () => {
     expect(wrapper.text()).not.toContain('Publish')
   })
 
-  it('shows the publish section when enabled and signed in', async () => {
+  it('shows the publish section when enabled, signed in, and the chart is cloud-backed', async () => {
     vi.spyOn(runtimeConfig, 'accountsEnabled').mockReturnValue(true)
     const wrapper = mount(ExportEmbedPanel, {
       global: { plugins: [createTestingPinia({ stubActions: false, createSpy: vi.fn })] },
     })
-    const account = useAccountStore()
-    account.user = { id: 'u1', email: 'a@b.co' }
+    useAccountStore().user = { id: 'u1', email: 'a@b.co' }
+    useChartSessionStore().sessionId = 'cloudchart1'
+    useCloudChartsStore().markCloudBacked('cloudchart1')
     await wrapper.vm.$nextTick()
     expect(wrapper.text()).toContain('Publish')
+  })
+
+  it('hides the publish section for a chart that is not cloud-backed', async () => {
+    vi.spyOn(runtimeConfig, 'accountsEnabled').mockReturnValue(true)
+    const wrapper = mount(ExportEmbedPanel, {
+      global: { plugins: [createTestingPinia({ stubActions: false, createSpy: vi.fn })] },
+    })
+    useAccountStore().user = { id: 'u1', email: 'a@b.co' }
+    useChartSessionStore().sessionId = 'localchart1' // never marked cloud-backed
+    await wrapper.vm.$nextTick()
+    expect(wrapper.text()).not.toContain('Publish')
   })
 })

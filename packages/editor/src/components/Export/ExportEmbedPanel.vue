@@ -86,11 +86,21 @@ const { layout } = useChartConfig()
 
 const { isSignedIn } = useAccount()
 const { sessionId } = useChartSession()
-const { publish } = useCloudCharts()
+const { publish, isCloudBacked, isPublished } = useCloudCharts()
 
-const canPublish = computed(() => accountsEnabled() && isSignedIn.value)
+// Only a chart that actually has a cloud row can be published — otherwise the
+// UPDATE matches zero rows and we'd surface a dead ?id= permalink.
+const canPublish = computed(() => accountsEnabled() && isSignedIn.value && isCloudBacked(sessionId.value))
 const published = ref(false)
 const publishing = ref(false)
+
+// Seed the toggle from the server so an already-published chart shows Unpublish
+// and its live embed, rather than defaulting to the unpublished state.
+onMounted(async () => {
+  if (canPublish.value) {
+    published.value = await isPublished(sessionId.value)
+  }
+})
 
 const baseUrl = computed(() => `${window.location.origin}${window.location.pathname}`)
 
