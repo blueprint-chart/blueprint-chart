@@ -3,8 +3,8 @@ layout: home
 
 hero:
   name: Blueprint Chart
-  text: Charts as text. Stories as scenes.
-  tagline: A DSL-driven interactive charting library and Vue 3 editor for newsroom storytelling — composable, accessible, static-first.
+  text: The open chart format AI writes.
+  tagline: "…and the browser renders. A compact `.bpc` DSL, a static-first engine, an MCP server, and a Vue 3 editor — open source, accessible, no backend."
   image:
     src: /logo.svg
     alt: Blueprint Chart
