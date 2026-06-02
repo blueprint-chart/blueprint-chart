@@ -5,108 +5,62 @@ import { usePanelStore } from '@/stores/panel'
 import DashboardImportBanner from '@/components/Dashboard/DashboardImportBanner.vue'
 import { accountsEnabled } from '@/config/runtimeConfig'
 import { useAccount } from '@/stores/account'
-import { useCloudCharts, type CloudChartSummary } from '@/stores/cloudCharts'
+import { useCloudCharts } from '@/stores/cloudCharts'
 import { useLocalImport } from '@/composables/useLocalImport'
-import { useChartSession, type SavedChartSummary } from '@/stores/chartSession'
+import { useDashboardCharts } from '@/composables/useDashboardCharts'
 
 const router = useRouter()
 const { isNarrow } = useBreakpoint()
-const {
-  selectedChartId,
-  selectChart,
-} = useDashboardPanel()
+const { selectedChartId, selectChart } = useDashboardPanel()
 const { mode } = storeToRefs(usePanelStore())
+
 const {
   sortedCharts,
-  selectedChart: gallerySelectedChart,
   thumbnails,
   previews,
   sortValue,
+  localOnlyCount,
   refresh,
-  duplicateChart,
-  removeChart,
-} = useDashboardGallery()
+  syncOne,
+  remove,
+  duplicate,
+} = useDashboardCharts()
 
 const { isSignedIn } = useAccount()
 const showCloud = computed(() => accountsEnabled() && isSignedIn.value)
 
-const { listCloud, pushCloud, deleteCloud, loadCloud } = useCloudCharts()
-const { listSavedCharts, deleteChart } = useChartSession()
-const cloudCharts = ref<CloudChartSummary[]>([])
-const importing = ref(false)
-
+const cloud = useCloudCharts()
 const importer = useLocalImport({
-  listLocal: () => listSavedCharts().map((c: SavedChartSummary) => ({ id: c.id, title: c.title, chartType: c.chartType })),
-  pushCloud,
-  deleteLocal: deleteChart,
+  listLocalOnly: () => sortedCharts.value
+    .filter(c => c.syncState === 'local')
+    .map(c => ({ id: c.id, title: c.title, chartType: c.chartType })),
+  syncCloud: cloud.syncCloud,
+  markCloudBacked: cloud.markCloudBacked,
 })
 
-// localStorage isn't reactive, so track the count explicitly and refresh it
-// whenever it can change (mount, cloud-mode toggle, after an import).
-const localCount = ref(0)
-function refreshLocalCount() {
-  localCount.value = showCloud.value ? importer.localCount() : 0
-}
+const syncingAll = ref(false)
 
-async function refreshCloud() {
-  if (showCloud.value) {
-    cloudCharts.value = await listCloud()
-  }
-}
-
-async function onImportLocal() {
-  importing.value = true
-  await importer.importAll()
-  await refreshCloud()
-  refreshLocalCount()
-  importing.value = false
-}
-
-const cloudAsSummaries = computed<SavedChartSummary[]>(() =>
-  cloudCharts.value.map(c => ({
-    id: c.id,
-    title: c.title,
-    description: '',
-    chartType: c.chartType,
-    savedAt: c.updatedAt,
-    sceneCount: 0,
-    rowCount: 0,
-    allowDarkMode: true,
-    sheetNumber: null,
-    sheetId: '',
-  })),
-)
-
-/** Sort a summary list by the toolbar's sort value (mirrors useDashboardGallery). */
-function sortSummaries(list: SavedChartSummary[], sort: string): SavedChartSummary[] {
-  const out = [...list]
-  if (sort === 'date-desc') {
-    out.sort((a, b) => (b.savedAt ?? '').localeCompare(a.savedAt ?? ''))
-  }
-  else if (sort === 'date-asc') {
-    out.sort((a, b) => (a.savedAt ?? '').localeCompare(b.savedAt ?? ''))
-  }
-  else if (sort === 'name-asc') {
-    out.sort((a, b) => (a.title || '').localeCompare(b.title || ''))
-  }
-  return out
-}
-
-// The list the gallery actually renders — cloud charts when signed in, else local.
-const displayedCharts = computed<SavedChartSummary[]>(() =>
-  showCloud.value ? sortSummaries(cloudAsSummaries.value, sortValue.value) : sortedCharts.value,
-)
-
-// Resolve the selected chart against whichever list is on screen.
 const selectedChart = computed(() =>
-  showCloud.value
-    ? (cloudAsSummaries.value.find(c => c.id === selectedChartId.value) ?? null)
-    : gallerySelectedChart.value,
+  sortedCharts.value.find(c => c.id === selectedChartId.value) ?? null,
 )
+
+async function onSyncAll() {
+  syncingAll.value = true
+  await importer.syncAll()
+  await refresh()
+  syncingAll.value = false
+}
+
+async function onSyncOne(id: string) {
+  await syncOne(id)
+}
+
+function openChart(id: string) {
+  router.push(`/edit/${id}`)
+}
 
 watch(showCloud, () => {
-  void refreshCloud()
-  refreshLocalCount()
+  void refresh()
 }, { immediate: true })
 
 const galleryRef = useTemplateRef<HTMLElement>('galleryRef')
@@ -136,7 +90,7 @@ const drawerOpen = computed({
 
 function editSelected() {
   if (selectedChartId.value) {
-    router.push(`/edit/${selectedChartId.value}`)
+    openChart(selectedChartId.value)
   }
 }
 
@@ -145,20 +99,9 @@ async function duplicateSelected() {
   if (!id) {
     return
   }
-  if (showCloud.value) {
-    const record = await loadCloud(id)
-    if (record) {
-      const sel = cloudAsSummaries.value.find(c => c.id === id)
-      const newId = await pushCloud({ dsl: record.dsl, meta: record.meta, title: sel?.title ?? '', chartType: sel?.chartType ?? '' })
-      if (newId) {
-        await refreshCloud()
-      }
-    }
-    return
-  }
-  const newId = duplicateChart(id)
+  const newId = await duplicate(id)
   if (newId) {
-    router.push(`/edit/${newId}`)
+    openChart(newId)
   }
 }
 
@@ -167,13 +110,14 @@ async function deleteSelected() {
   if (!id) {
     return
   }
-  if (showCloud.value) {
-    await deleteCloud(id)
-    await refreshCloud()
-    selectedChartId.value = null
-    return
+  await remove(id)
+  selectedChartId.value = null
+}
+
+async function syncSelected() {
+  if (selectedChartId.value) {
+    await onSyncOne(selectedChartId.value)
   }
-  removeChart(id)
 }
 
 function handleKeydown(e: globalThis.KeyboardEvent) {
@@ -183,8 +127,7 @@ function handleKeydown(e: globalThis.KeyboardEvent) {
 }
 
 onMounted(() => {
-  refresh()
-  refreshLocalCount()
+  void refresh()
   document.addEventListener('keydown', handleKeydown)
 })
 
@@ -196,7 +139,7 @@ onUnmounted(() => {
 <template>
   <div class="dashboard-page-wrapper d-flex flex-column flex-grow-1">
     <DashboardToolbar
-      :chart-count="displayedCharts.length"
+      :chart-count="sortedCharts.length"
       :sort-value="sortValue"
       :layout="viewLayout"
       @update:sort-value="sortValue = $event"
@@ -210,17 +153,19 @@ onUnmounted(() => {
       >
         <DashboardImportBanner
           v-if="showCloud"
-          :count="localCount"
-          :importing="importing"
-          @import="onImportLocal"
+          :count="localOnlyCount"
+          :syncing="syncingAll"
+          @sync="onSyncAll"
         />
         <DashboardGallery
-          :charts="displayedCharts"
+          :charts="sortedCharts"
           :thumbnails="thumbnails"
           :selected-id="selectedChartId"
           :layout="viewLayout"
           @select="selectChart"
-          @edit="(id: string) => router.push(`/edit/${id}`)"
+          @edit="openChart"
+          @sync="onSyncOne"
+          @open="openChart"
           @new="router.push('/new')"
         />
       </div>
@@ -242,9 +187,11 @@ onUnmounted(() => {
           :saved-at="selectedChart.savedAt ?? undefined"
           :scene-count="selectedChart.sceneCount"
           :row-count="selectedChart.rowCount"
+          :sync-state="selectedChart.syncState"
           @edit="editSelected"
           @duplicate="duplicateSelected"
           @delete="deleteSelected"
+          @sync="syncSelected"
         />
         <DashboardEmptyState
           v-else-if="mode === 'docked'"
