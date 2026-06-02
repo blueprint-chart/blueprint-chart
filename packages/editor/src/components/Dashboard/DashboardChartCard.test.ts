@@ -1,66 +1,44 @@
 import { mount } from '@vue/test-utils'
+import { createTestingPinia } from '@pinia/testing'
 import DashboardChartCard from './DashboardChartCard.vue'
+import type { UnifiedChartSummary } from '@/composables/useDashboardCharts'
 
-vi.mock('@/stores/theme', () => ({
-  useTheme: () => ({ resolvedTheme: ref('light'), theme: ref('light'), cycleTheme: () => {} }),
-}))
-
-vi.mock('@blueprint-chart/ui', () => ({
-  GalleryCard: {
-    template: `<div class="gallery-card" @click="$emit('click')">
-      <slot name="actions" />
-      <slot name="footer" />
-    </div>`,
-    props: ['title', 'subtitle', 'thumbSrc', 'selected', 'layout', 'forceLightThumb'],
-    emits: ['click'],
-  },
-  DisplayDate: {
-    template: '<span class="display-date">{{ value }}</span>',
-    props: ['value'],
-  },
-  DisplayChartTypeBadge: {
-    template: '<span class="display-chart-type-badge">{{ chartType }}</span>',
-    props: ['chartType', 'theme'],
-  },
-  ButtonIcon: {
-    template: '<button class="btn-icon" @click="$emit(\'click\')"></button>',
-    props: ['iconLeft', 'label', 'hideLabel', 'square', 'variant', 'size'],
-    emits: ['click'],
-  },
-}))
-
-const chart = {
-  id: 'abc',
-  title: 'Test Chart',
-  description: 'A chart',
-  allowDarkMode: true,
-  savedAt: '2026-01-01',
-  chartType: 'bar',
-  sceneCount: 1,
-  rowCount: 10,
+function chart(over: Partial<UnifiedChartSummary> = {}): UnifiedChartSummary {
+  return {
+    id: 'aaaaaaaaaaa', title: 'My chart', description: '', chartType: 'bar',
+    savedAt: '2026-01-01', sceneCount: 1, rowCount: 3, allowDarkMode: true,
+    sheetNumber: null, sheetId: '', syncState: 'local', published: false, ...over,
+  }
 }
 
-describe('DashboardChartCard', () => {
-  it('emits edit when edit button is clicked', async () => {
-    const w = mount(DashboardChartCard, {
-      props: { chart, selected: false, layout: 'grid' as const },
-    })
-    await w.find('.dashboard-chart-card__edit-btn').trigger('click')
-    expect(w.emitted('edit')).toEqual([[chart.id]])
+function mountCard(over: Partial<UnifiedChartSummary> = {}) {
+  return mount(DashboardChartCard, {
+    props: { chart: chart(over), selected: false, layout: 'grid' as const },
+    global: {
+      // DashboardChartCard calls useTheme() → needs an active Pinia.
+      plugins: [createTestingPinia({ createSpy: vi.fn })],
+      stubs: { DisplayChartTypeBadge: true, DisplayDate: true },
+    },
+  })
+}
+
+describe('DashboardChartCard status pill', () => {
+  it('emits sync when a local-only chart pill is clicked', async () => {
+    const wrapper = mountCard({ syncState: 'local' })
+    await wrapper.find('.dashboard-chart-card__status').trigger('click')
+    expect(wrapper.emitted('sync')?.[0]).toEqual(['aaaaaaaaaaa'])
   })
 
-  it('renders the edit button', () => {
-    const w = mount(DashboardChartCard, {
-      props: { chart, selected: false, layout: 'grid' as const },
-    })
-    expect(w.find('.dashboard-chart-card__edit-btn').exists()).toBe(true)
+  it('emits open when a cloud-only chart pill is clicked', async () => {
+    const wrapper = mountCard({ syncState: 'cloud' })
+    await wrapper.find('.dashboard-chart-card__status').trigger('click')
+    expect(wrapper.emitted('open')?.[0]).toEqual(['aaaaaaaaaaa'])
   })
 
-  it('emits select when card is clicked', async () => {
-    const w = mount(DashboardChartCard, {
-      props: { chart, selected: false, layout: 'grid' as const },
-    })
-    await w.find('.gallery-card').trigger('click')
-    expect(w.emitted('select')).toEqual([[chart.id]])
+  it('renders a non-interactive pill for a synced chart', async () => {
+    const wrapper = mountCard({ syncState: 'synced' })
+    await wrapper.find('.dashboard-chart-card__status').trigger('click')
+    expect(wrapper.emitted('sync')).toBeUndefined()
+    expect(wrapper.emitted('open')).toBeUndefined()
   })
 })
