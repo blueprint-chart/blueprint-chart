@@ -109,4 +109,18 @@ describe('useDashboardCharts actions', () => {
     expect(client.__builder.delete).not.toHaveBeenCalled()
     expect(localStorage.getItem('blueprint-chart:localid0003')).toBeNull()
   })
+
+  it('remove of a cloud-only chart deletes the cloud row even when not in the local index', async () => {
+    const dash = useDashboardCharts()
+    dash.charts.value = [{
+      id: 'cloudonly001', title: 'Remote', description: '', chartType: 'bar',
+      savedAt: '2026-02-01', sceneCount: 0, rowCount: 0, allowDarkMode: true,
+      sheetNumber: null, sheetId: '', syncState: 'cloud', published: false,
+    }]
+
+    await dash.remove('cloudonly001')
+
+    expect(client.__builder.delete).toHaveBeenCalled()
+    expect(useCloudCharts().isCloudBacked('cloudonly001')).toBe(false)
+  })
 })
