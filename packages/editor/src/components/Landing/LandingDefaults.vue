@@ -67,12 +67,10 @@ const cards: Card[] = [
 
 <template>
   <LandingSection id="defaults">
-    <LandingSectionHeader label="02 / Defaults">
+    <LandingSectionHeader label="03 / Defaults">
       A simple chart<br><em>sends a big message.</em>
       <template #lead>
-        Clutter is the enemy of insight. Blueprint Chart's defaults are opinionated by design,
-        guided by decades of dataviz research from Tufte, Cairo and Schwabish, so your readers
-        focus on the story, not the noise.
+        Clutter is the enemy of insight. Blueprint Chart's defaults are opinionated by design, guided by decades of dataviz research from Tufte, Cairo and Schwabish — the same rigor newsrooms rely on — so your readers focus on the story, not the noise.
       </template>
     </LandingSectionHeader>
     <div class="landing-defaults__grid">

@@ -29,7 +29,7 @@ describe('LandingDefaults', () => {
 
   it('renders the mono eyebrow', () => {
     const w = mountDefaults()
-    expect(w.find('.header-label').text()).toBe('02 / Defaults')
+    expect(w.find('.header-label').text()).toBe('03 / Defaults')
   })
 
   it('renders the chart preview', () => {
