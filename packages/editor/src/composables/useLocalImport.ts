@@ -1,4 +1,5 @@
 import type { CloudChartInput } from '@/stores/cloudCharts'
+import { storageKey, readLocalMeta } from '@/stores/chartSession'
 
 export interface LocalChartRef {
   id: string
@@ -9,19 +10,6 @@ export interface LocalChartRef {
 export interface LocalImportDeps {
   listLocal: () => LocalChartRef[]
   pushCloud: (input: CloudChartInput) => Promise<string | null>
-}
-
-function readLocalMeta(id: string): Record<string, unknown> {
-  const raw = localStorage.getItem(`blueprint-chart:${id}:meta`)
-  if (!raw) {
-    return {}
-  }
-  try {
-    return JSON.parse(raw) as Record<string, unknown>
-  }
-  catch {
-    return {}
-  }
 }
 
 /**
@@ -38,7 +26,7 @@ export function useLocalImport(deps: LocalImportDeps) {
   async function importAll(): Promise<number> {
     let imported = 0
     for (const ref of deps.listLocal()) {
-      const dsl = localStorage.getItem(`blueprint-chart:${ref.id}`)
+      const dsl = localStorage.getItem(storageKey(ref.id))
       if (!dsl) {
         continue
       }

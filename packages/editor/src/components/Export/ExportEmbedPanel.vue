@@ -93,16 +93,24 @@ const published = ref(false)
 const publishing = ref(false)
 
 const baseUrl = computed(() => `${window.location.origin}${window.location.pathname}`)
-const idEmbedSnippet = computed(() => {
+
+// Iframe sizing attributes derived from the chart layout — shared by the base64
+// and id-based embed snippets so the two stay in lockstep.
+const sizeAttrs = computed(() => {
   const l = toRaw(layout.value)
   const height = l.heightMode === 'fixed' ? l.fixedHeight : 400
-  const sizing = l.sizing === 'responsive'
-    ? `width="100%" height="${height}"`
-    : l.sizing === 'max-width'
-      ? `style="width:100%;max-width:${l.maxWidth}px" height="${height}"`
-      : `width="${l.fixedWidth}" height="${height}"`
-  return `<iframe src="${baseUrl.value}#/render?id=${sessionId.value}" ${sizing} frameborder="0"></iframe>`
+  if (l.sizing === 'responsive') {
+    return `width="100%" height="${height}"`
+  }
+  if (l.sizing === 'max-width') {
+    return `style="width:100%;max-width:${l.maxWidth}px" height="${height}"`
+  }
+  return `width="${l.fixedWidth}" height="${height}"`
 })
+
+const idEmbedSnippet = computed(() =>
+  `<iframe src="${baseUrl.value}#/render?id=${sessionId.value}" ${sizeAttrs.value} frameborder="0"></iframe>`,
+)
 const editablePermalink = computed(() => `${baseUrl.value}#/edit/${sessionId.value}`)
 
 async function onTogglePublish() {
@@ -127,26 +135,12 @@ function toBase64(str: string): string {
 
 const renderUrl = computed(() => {
   const bpc64 = toBase64(dsl.value || generateDsl())
-  return `${window.location.origin}${window.location.pathname}#/render?bpc64=${encodeURIComponent(bpc64)}`
+  return `${baseUrl.value}#/render?bpc64=${encodeURIComponent(bpc64)}`
 })
 
-const iframeSnippet = computed(() => {
-  const l = toRaw(layout.value)
-  const height = l.heightMode === 'fixed' ? l.fixedHeight : 400
-  const parts: string[] = []
-
-  if (l.sizing === 'responsive') {
-    parts.push(`width="100%" height="${height}"`)
-  }
-  else if (l.sizing === 'max-width') {
-    parts.push(`style="width:100%;max-width:${l.maxWidth}px" height="${height}"`)
-  }
-  else {
-    parts.push(`width="${l.fixedWidth}" height="${height}"`)
-  }
-
-  return `<iframe src="${renderUrl.value}" ${parts.join(' ')} frameborder="0"></iframe>`
-})
+const iframeSnippet = computed(() =>
+  `<iframe src="${renderUrl.value}" ${sizeAttrs.value} frameborder="0"></iframe>`,
+)
 </script>
 
 <style scoped lang="scss">

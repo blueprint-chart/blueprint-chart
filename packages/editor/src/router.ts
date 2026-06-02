@@ -2,7 +2,7 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 import DashboardPage from '@/components/Dashboard/DashboardPage.vue'
 import WizardShell from '@/components/Wizard/WizardShell.vue'
 import RenderPage from '@/components/Render/RenderPage.vue'
-import { useChartSession } from '@/stores/chartSession'
+import { useChartSession, storageKey, metaKey } from '@/stores/chartSession'
 import { accountsEnabled } from '@/config/runtimeConfig'
 import { useAccount } from '@/stores/account'
 import { useCloudCharts } from '@/stores/cloudCharts'
@@ -38,9 +38,9 @@ async function loadSession(to: { params: { id: string } }) {
       const cloud = useCloudCharts()
       const record = await cloud.loadCloud(id)
       if (record && record.owner === userId) {
-        localStorage.setItem(`blueprint-chart:${id}`, record.dsl)
+        localStorage.setItem(storageKey(id), record.dsl)
         if (record.meta && Object.keys(record.meta).length > 0) {
-          localStorage.setItem(`blueprint-chart:${id}:meta`, JSON.stringify(record.meta))
+          localStorage.setItem(metaKey(id), JSON.stringify(record.meta))
         }
         cloud.markCloudBacked(id)
         if (loadChart(id)) {
