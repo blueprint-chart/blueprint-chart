@@ -122,3 +122,18 @@ describe('GalleryCard', () => {
     expect(wrapper.find('.gallery-card__meta__title').classes()).not.toContain('bc-display')
   })
 })
+
+describe('GalleryCard #status slot', () => {
+  it('renders status slot content on the thumbnail', () => {
+    const wrapper = mount(GalleryCard, {
+      props: { title: 'X' },
+      slots: { status: '<span class="probe">●</span>' },
+    })
+    expect(wrapper.find('.gallery-card__thumb__status .probe').exists()).toBe(true)
+  })
+
+  it('omits the status container when no slot is provided', () => {
+    const wrapper = mount(GalleryCard, { props: { title: 'X' } })
+    expect(wrapper.find('.gallery-card__thumb__status').exists()).toBe(false)
+  })
+})
