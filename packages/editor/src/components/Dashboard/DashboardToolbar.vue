@@ -3,6 +3,7 @@ import { ButtonIcon, FormControlDropdown, NavigationSegmentedControl } from '@bl
 import type { NavigationSegmentedControlItem, FormControlDropdownOption } from '@blueprint-chart/ui'
 import LayoutPageHeader from '@/components/Layout/LayoutPageHeader.vue'
 import LayoutBreadcrumb from '@/components/Layout/LayoutBreadcrumb.vue'
+import DashboardSyncPill from '@/components/Dashboard/DashboardSyncPill.vue'
 import IPhSquaresFour from '~icons/ph/squares-four'
 import IPhRows from '~icons/ph/rows'
 import IPhPlus from '~icons/ph/plus'
@@ -11,12 +12,15 @@ const props = defineProps<{
   chartCount: number
   sortValue: string
   layout: 'grid' | 'row'
+  localOnlyCount: number
+  syncingAll: boolean
 }>()
 
 defineEmits<{
   'update:sortValue': [value: string]
   'update:layout': [value: 'grid' | 'row']
   'new': []
+  'sync': []
 }>()
 
 const sortOptions: FormControlDropdownOption[] = [
@@ -38,6 +42,11 @@ const layoutItems = computed<NavigationSegmentedControlItem[]>(() => [
       <span class="dashboard-toolbar__count">
         {{ chartCount }} {{ chartCount === 1 ? 'chart' : 'charts' }}
       </span>
+      <DashboardSyncPill
+        :count="localOnlyCount"
+        :syncing="syncingAll"
+        @sync="$emit('sync')"
+      />
     </template>
     <template #end>
       <NavigationSegmentedControl
