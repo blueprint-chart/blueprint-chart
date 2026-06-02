@@ -46,13 +46,13 @@ const selectedChart = computed(() =>
 
 async function onSyncAll() {
   syncingAll.value = true
-  await importer.syncAll()
-  await refresh()
-  syncingAll.value = false
-}
-
-async function onSyncOne(id: string) {
-  await syncOne(id)
+  try {
+    await importer.syncAll()
+    await refresh()
+  }
+  finally {
+    syncingAll.value = false
+  }
 }
 
 function openChart(id: string) {
@@ -116,7 +116,7 @@ async function deleteSelected() {
 
 async function syncSelected() {
   if (selectedChartId.value) {
-    await onSyncOne(selectedChartId.value)
+    await syncOne(selectedChartId.value)
   }
 }
 
@@ -127,7 +127,6 @@ function handleKeydown(e: globalThis.KeyboardEvent) {
 }
 
 onMounted(() => {
-  void refresh()
   document.addEventListener('keydown', handleKeydown)
 })
 
@@ -164,7 +163,7 @@ onUnmounted(() => {
           :layout="viewLayout"
           @select="selectChart"
           @edit="openChart"
-          @sync="onSyncOne"
+          @sync="syncOne"
           @open="openChart"
           @new="router.push('/new')"
         />
