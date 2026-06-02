@@ -11,6 +11,7 @@
   >
     <template #status>
       <button
+        v-if="showCloud"
         type="button"
         class="dashboard-chart-card__status"
         :class="`dashboard-chart-card__status--${chart.syncState}`"
@@ -58,12 +59,15 @@ import type { UnifiedChartSummary } from '@/composables/useDashboardCharts'
 
 const { resolvedTheme } = useTheme()
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   chart: UnifiedChartSummary
   thumbSrc?: string
   selected: boolean
   layout: 'grid' | 'row'
-}>()
+  /** Whether cloud sync is available (accounts on + signed in). When false the
+   *  sync-state pill is hidden — there's no cloud to sync to. */
+  showCloud?: boolean
+}>(), { showCloud: true })
 
 const emit = defineEmits<{
   select: [id: string]
@@ -107,14 +111,16 @@ function onStatusClick() {
   height: 1.75rem;
   border: none;
   border-radius: 0.5rem;
-  background: rgba(0, 0, 0, 0.45);
+  // Translucent body-bg so the pill blends into the page in both themes,
+  // instead of the heavy dark scrim that was too prominent on light mode.
+  background: color-mix(in srgb, var(--bs-body-bg) 70%, transparent);
   backdrop-filter: blur(3px);
-  color: #fff;
+  color: var(--bs-body-color);
   font-size: 0.95rem;
   cursor: pointer;
 
-  &--synced { color: #5fd29a; cursor: default; }
-  &--cloud { color: #9ec2ff; }
-  &--local { color: #e6e9f0; }
+  &--synced { color: #2d8659; cursor: default; }
+  &--cloud { color: #2563a0; }
+  &--local { color: #163a65; }
 }
 </style>

@@ -28,7 +28,7 @@
     />
 
     <ButtonIcon
-      v-if="syncState === 'local'"
+      v-if="showCloud && syncState === 'local'"
       :icon-left="IPhCloudArrowUp"
       label="Sync to cloud"
       variant="secondary"
@@ -61,6 +61,9 @@ defineProps<{
   sceneCount: number
   rowCount: number
   syncState: SyncState
+  /** Whether cloud sync is available (accounts on + signed in). When false the
+   *  "Sync to cloud" action is hidden. */
+  showCloud: boolean
 }>()
 
 defineEmits<{

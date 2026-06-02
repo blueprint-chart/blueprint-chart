@@ -12,6 +12,7 @@
       :thumb-src="thumbnails[chart.id]"
       :selected="selectedId === chart.id"
       :layout="layout"
+      :show-cloud="showCloud"
       @select="$emit('select', $event)"
       @edit="$emit('edit', $event)"
       @sync="$emit('sync', $event)"
@@ -34,6 +35,7 @@ defineProps<{
   thumbnails: Record<string, string>
   selectedId: string | null
   layout: 'grid' | 'row'
+  showCloud: boolean
 }>()
 
 defineEmits<{
