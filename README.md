@@ -3,7 +3,7 @@
     <img src="https://raw.githubusercontent.com/blueprint-chart/blueprint-chart/main/packages/editor/src/assets/images/blueprint-chart-logo.svg" width="120" alt="blueprint-chart">
   </a>
 </p>
-<p align="center"><strong>An open, plain-text chart format an AI can write and any browser can render. No backend, no account, nothing uploaded.</strong></p>
+<p align="center"><strong>An open, plain-text chart format an AI can write and any browser can render. Self-contained, no backend, no account required.</strong></p>
 
 <div align="center">
 

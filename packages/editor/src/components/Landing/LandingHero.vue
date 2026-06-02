@@ -31,8 +31,8 @@ const heroBpc = sample.dsl.replace(/\{/, '{\n  theme = "blueprint-framed"')
         </h1>
         <p class="landing-hero__inner__text__sub">
           An open, plain-text chart format an AI can write and any browser can render.
-          No backend, no account, nothing uploaded. Prefer to do it yourself? The editor's
-          right here.
+          Self-contained, no backend, no account required. Prefer to do it yourself? The
+          editor's right here.
         </p>
         <div class="landing-hero__inner__text__actions">
           <ButtonIcon

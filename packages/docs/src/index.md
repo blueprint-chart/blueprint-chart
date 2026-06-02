@@ -4,7 +4,7 @@ layout: home
 hero:
   name: Blueprint Chart
   text: The open chart format AI writes.
-  tagline: "An open, plain-text chart format an AI can write and any browser can render. No backend, no account, nothing uploaded."
+  tagline: "An open, plain-text chart format an AI can write and any browser can render. Self-contained, no backend, no account required."
   image:
     src: /logo.svg
     alt: Blueprint Chart

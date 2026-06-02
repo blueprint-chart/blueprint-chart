@@ -4,7 +4,7 @@
 
 ## Vision
 
-**Blueprint Chart is an open, plain-text chart format an AI can write and any browser can render. No backend, no account, nothing uploaded.** Describe a chart in a compact, human-readable DSL (`.bpc`) — or let an LLM emit it — and it renders anywhere, fully self-contained. A best-in-class editor is there for when a human wants to refine it by hand.
+**Blueprint Chart is an open, plain-text chart format an AI can write and any browser can render. Self-contained, no backend, no account required.** Describe a chart in a compact, human-readable DSL (`.bpc`) — or let an LLM emit it — and it renders anywhere, fully self-contained. A best-in-class editor is there for when a human wants to refine it by hand.
 
 Three properties make this work, and we won't trade them away:
 
