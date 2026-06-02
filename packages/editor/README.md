@@ -29,9 +29,27 @@ in the cloud, and publish live permalinks, configure Supabase.
 
 ### 1. Create a Supabase project and apply the schema
 
-Run the migration in `supabase/migrations/0001_charts.sql` against your project
-(`supabase db push`, or paste it into the SQL editor). It creates the `charts`
-table and RLS policies (owner full access; public read of published charts).
+The schema lives in `packages/editor/supabase/migrations/20260601000000_charts.sql`
+(creates the `charts` table and RLS policies — owner full access; public read of
+published charts). Apply it with **either** method:
+
+**A. Supabase SQL Editor (no tooling).** Open your project → SQL Editor → paste the
+file contents → Run. Always works.
+
+**B. Supabase CLI.** This repo ships a ready `packages/editor/supabase/` project, so
+from that directory:
+
+```bash
+cd packages/editor
+supabase link --project-ref YOUR-PROJECT-REF
+supabase db push
+```
+
+`db push` only recognizes migrations named `<timestamp>_name.sql` and reads them
+from the `supabase/` project it's run against — hence `cd packages/editor` first.
+If you keep your own `supabase/` project elsewhere, copy
+`20260601000000_charts.sql` into its `supabase/migrations/` (keep the timestamped
+name) before running `supabase db push`.
 
 ### 2. Configure credentials
 
