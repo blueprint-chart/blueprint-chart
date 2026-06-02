@@ -71,7 +71,7 @@ const portabilityCards: PortabilityCard[] = [
 
 <template>
   <LandingSection id="format">
-    <LandingSectionHeader label="04 / One portable file">
+    <LandingSectionHeader label="02 / One portable file">
       BPC: a chart you<br><em>can hold in your hand.</em>
       <template #lead>
         Blueprint charts are plain-text in, self-contained iframe out. No backend renders them.

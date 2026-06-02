@@ -29,7 +29,7 @@ describe('LandingFormat', () => {
 
   it('renders the mono eyebrow', () => {
     const w = mountFormat()
-    expect(w.find('.header-label').text()).toBe('04 / One portable file')
+    expect(w.find('.header-label').text()).toBe('02 / One portable file')
   })
 
   it('renders the BPC code pane', () => {
