@@ -74,12 +74,16 @@ export const useAccountStore = defineStore('account', () => {
     if (!client) {
       return
     }
+    // Drop synced charts from this device BEFORE auth.signOut() — that call
+    // fires onAuthStateChange('SIGNED_OUT') which flips showCloud and triggers
+    // the dashboard's refresh. Purging first guarantees that refresh re-reads
+    // local storage AFTER the synced charts are gone (otherwise it shows a stale
+    // list). They live in the cloud and return on next sign-in; local-only
+    // charts are kept.
+    useCloudChartsStore().clearLocalSynced()
     await client.auth.signOut()
     user.value = null
     status.value = 'idle'
-    // Drop synced charts from this device — they live in the cloud and will
-    // come back on next sign-in. Local-only charts are kept.
-    useCloudChartsStore().clearLocalSynced()
   }
 
   function resetStatus(): void {
