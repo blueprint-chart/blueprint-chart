@@ -27,7 +27,18 @@
       :row-count="rowCount"
     />
 
+    <ButtonIcon
+      v-if="syncState === 'local'"
+      :icon-left="IPhCloudArrowUp"
+      label="Sync to cloud"
+      variant="secondary"
+      block
+      class="dashboard-detail-content__sync"
+      @click="$emit('sync')"
+    />
+
     <DashboardDetailActions
+      :sync-state="syncState"
       @duplicate="$emit('duplicate')"
       @delete="$emit('delete')"
     />
@@ -37,6 +48,8 @@
 <script setup lang="ts">
 import { ButtonIcon } from '@blueprint-chart/ui'
 import IPhPencilSimple from '~icons/ph/pencil-simple'
+import IPhCloudArrowUp from '~icons/ph/cloud-arrow-up'
+import type { SyncState } from '@/composables/useDashboardCharts'
 
 defineProps<{
   title: string
@@ -47,12 +60,14 @@ defineProps<{
   savedAt?: string
   sceneCount: number
   rowCount: number
+  syncState: SyncState
 }>()
 
 defineEmits<{
   edit: []
   duplicate: []
   delete: []
+  sync: []
 }>()
 </script>
 
@@ -63,6 +78,10 @@ defineEmits<{
     color: var(--bs-secondary-color);
     line-height: 1.5;
     margin-bottom: 0.75rem;
+  }
+
+  &__sync {
+    margin-top: 0.5rem;
   }
 
   :deep(.btn) {
