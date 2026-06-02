@@ -15,10 +15,10 @@ import LandingFooter from './LandingFooter.vue'
     <LandingTopNav />
     <LandingHero />
     <LandingValuePropStrip />
+    <LandingMcp />
+    <LandingFormat />
     <LandingDefaults />
     <LandingTransforms />
-    <LandingFormat />
-    <LandingMcp />
     <LandingScenes />
     <LandingFooter />
   </div>

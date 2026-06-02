@@ -19,10 +19,14 @@ describe('LandingPage', () => {
   it('renders the new spine in order', () => {
     const w = mountPage()
     const order = w.html()
-    // Use the components' rendered tag/class fingerprints as ordering markers.
-    expect(order.indexOf('landing-topnav')).toBeLessThan(order.indexOf('landing-hero'))
-    expect(order.indexOf('landing-hero')).toBeLessThan(order.indexOf('landing-value-prop-strip'))
-    expect(order.indexOf('landing-value-prop-strip')).toBeLessThan(order.indexOf('landing-defaults'))
+    const idx = (marker: string) => order.indexOf(marker)
+    expect(idx('landing-top-nav')).toBeLessThan(idx('landing-hero'))
+    expect(idx('landing-hero')).toBeLessThan(idx('landing-value-prop-strip'))
+    expect(idx('landing-value-prop-strip')).toBeLessThan(idx('landing-mcp'))
+    expect(idx('landing-mcp')).toBeLessThan(idx('landing-format'))
+    expect(idx('landing-format')).toBeLessThan(idx('landing-defaults'))
+    expect(idx('landing-defaults')).toBeLessThan(idx('landing-transforms'))
+    expect(idx('landing-transforms')).toBeLessThan(idx('landing-scenes'))
   })
 
   it('renders all sections present in the spine', () => {
