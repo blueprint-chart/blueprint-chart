@@ -183,4 +183,20 @@ describe('cloud index helpers', () => {
     expect(store.isCloudBacked('aaa')).toBe(false)
     expect(store.isCloudBacked('bbb')).toBe(true)
   })
+
+  it('clearLocalSynced deletes synced local charts and clears the index, keeping local-only', () => {
+    const store = useCloudCharts()
+    // Synced: local DSL + tracked in cloud index.
+    localStorage.setItem('blueprint-chart:syncedaaaaa', 'chart bar {}')
+    store.markCloudBacked('syncedaaaaa')
+    // Local-only: local DSL, not in the index.
+    localStorage.setItem('blueprint-chart:localbbbbbb', 'chart bar {}')
+
+    store.clearLocalSynced()
+
+    expect(localStorage.getItem('blueprint-chart:syncedaaaaa')).toBeNull()
+    expect(localStorage.getItem('blueprint-chart:localbbbbbb')).toBe('chart bar {}')
+    expect(store.isCloudBacked('syncedaaaaa')).toBe(false)
+    expect(localStorage.getItem('blueprint-chart:cloud-index')).toBe('[]')
+  })
 })

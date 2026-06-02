@@ -69,6 +69,25 @@ describe('useAccount', () => {
     expect(account.user.value).toBeNull()
   })
 
+  it('removes synced charts from local storage on signOut, keeping local-only ones', async () => {
+    localStorage.clear()
+    // A synced chart: has a local DSL entry AND is tracked in the cloud index.
+    localStorage.setItem('blueprint-chart:syncedaaaaa', 'chart bar {}')
+    localStorage.setItem('blueprint-chart:cloud-index', JSON.stringify(['syncedaaaaa']))
+    // A local-only chart: local DSL entry, NOT in the cloud index.
+    localStorage.setItem('blueprint-chart:localbbbbbb', 'chart bar {}')
+
+    auth.getSession.mockResolvedValue({ data: { session: { user: { id: 'u1', email: 'a@b.co' } } } })
+    const account = useAccount()
+    await account.init()
+    await account.signOut()
+
+    expect(localStorage.getItem('blueprint-chart:syncedaaaaa')).toBeNull()
+    expect(localStorage.getItem('blueprint-chart:localbbbbbb')).toBe('chart bar {}')
+    expect(localStorage.getItem('blueprint-chart:cloud-index')).toBe('[]')
+    localStorage.clear()
+  })
+
   it('a second init() awaits the first session restore (no early-return race)', async () => {
     auth.getSession.mockResolvedValue({ data: { session: { user: { id: 'u1', email: 'a@b.co' } } } })
     const account = useAccount()

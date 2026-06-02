@@ -1,5 +1,6 @@
 import type { Session, User } from '@supabase/supabase-js'
 import { getSupabaseClient } from '@/lib/supabaseClient'
+import { useCloudChartsStore } from '@/stores/cloudCharts'
 
 export interface AccountUser {
   id: string
@@ -76,6 +77,9 @@ export const useAccountStore = defineStore('account', () => {
     await client.auth.signOut()
     user.value = null
     status.value = 'idle'
+    // Drop synced charts from this device — they live in the cloud and will
+    // come back on next sign-in. Local-only charts are kept.
+    useCloudChartsStore().clearLocalSynced()
   }
 
   function resetStatus(): void {

@@ -1,5 +1,6 @@
 import { getSupabaseClient } from '@/lib/supabaseClient'
-import { generateId } from '@/stores/chartSession'
+import { generateId, storageKey, useChartSessionStore } from '@/stores/chartSession'
+import { deletePreview } from '@/composables/useChartThumbnail'
 
 const CLOUD_INDEX_KEY = 'blueprint-chart:cloud-index'
 
@@ -189,6 +190,21 @@ export const useCloudChartsStore = defineStore('cloudCharts', () => {
     writeCloudIndex(ids)
   }
 
+  /** Remove the local copies (DSL, meta, thumbnail, preview) of every synced
+   *  chart — i.e. cloud-backed charts that still have a local entry — and clear
+   *  the cloud index. Local-only charts (absent from the index) are untouched.
+   *  Used on sign-out so synced charts don't linger on a shared device. */
+  function clearLocalSynced(): void {
+    const session = useChartSessionStore()
+    for (const id of readCloudIndex()) {
+      if (localStorage.getItem(storageKey(id)) !== null) {
+        session.deleteChart(id)
+        deletePreview(id)
+      }
+    }
+    writeCloudIndex(new Set())
+  }
+
   async function syncCloud(input: CloudChartInput): Promise<string | null> {
     const client = await getSupabaseClient()
     if (!client || !input.id) {
@@ -207,7 +223,7 @@ export const useCloudChartsStore = defineStore('cloudCharts', () => {
     return error ? null : input.id
   }
 
-  return { listCloud, loadCloud, pushCloud, deleteCloud, publish, isPublished, fetchPublished, markCloudBacked, isCloudBacked, unmarkCloudBacked, syncCloud }
+  return { listCloud, loadCloud, pushCloud, deleteCloud, publish, isPublished, fetchPublished, markCloudBacked, isCloudBacked, unmarkCloudBacked, clearLocalSynced, syncCloud }
 })
 
 export function useCloudCharts() {
@@ -223,6 +239,7 @@ export function useCloudCharts() {
     markCloudBacked: store.markCloudBacked,
     isCloudBacked: store.isCloudBacked,
     unmarkCloudBacked: store.unmarkCloudBacked,
+    clearLocalSynced: store.clearLocalSynced,
     syncCloud: store.syncCloud,
   }
 }
