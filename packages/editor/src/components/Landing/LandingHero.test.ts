@@ -18,13 +18,13 @@ function mountHero() {
 describe('LandingHero', () => {
   it('renders the new headline', () => {
     const w = mountHero()
-    expect(w.find('.landing-hero__inner__text__h1').text()).toContain('Great stories')
-    expect(w.find('.landing-hero__inner__text__h1').text()).toContain('great data viz')
+    expect(w.find('.landing-hero__inner__text__h1').text()).toContain('The open chart format')
+    expect(w.find('.landing-hero__inner__text__h1').text()).toContain('AI writes')
   })
 
   it('renders the eyebrow', () => {
     const w = mountHero()
-    expect(w.find('.landing-hero__inner__text__eyebrow').text()).toContain('Built in the newsroom')
+    expect(w.find('.landing-hero__inner__text__eyebrow').text()).toContain('Open source')
   })
 
   it('renders CTA buttons', () => {
