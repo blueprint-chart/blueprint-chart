@@ -1,7 +1,7 @@
 import { useCloudSync } from '@/composables/useCloudSync'
 import { useAccount } from '@/stores/account'
 import { useCloudCharts } from '@/stores/cloudCharts'
-import { useChartSession } from '@/stores/chartSession'
+import { useChartSession, readLocalMeta } from '@/stores/chartSession'
 import { useChartConfig } from '@/stores/chartConfig'
 import { useDslOutput } from '@/composables/useDslOutput'
 
@@ -38,13 +38,4 @@ export function useCloudSyncBinding() {
   })
 
   return sync
-}
-
-function readLocalMeta(id: string): Record<string, unknown> {
-  try {
-    return JSON.parse(localStorage.getItem(`blueprint-chart:${id}:meta`) || '{}') as Record<string, unknown>
-  }
-  catch {
-    return {}
-  }
 }

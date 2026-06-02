@@ -56,12 +56,22 @@ export function generateId(): string {
   return id
 }
 
-function storageKey(id: string): string {
+export function storageKey(id: string): string {
   return `blueprint-chart:${id}`
 }
 
-function metaKey(id: string): string {
+export function metaKey(id: string): string {
   return `blueprint-chart:${id}:meta`
+}
+
+/** Read and parse the JSON meta sidecar for a chart id; {} if absent/corrupt. */
+export function readLocalMeta(id: string): Record<string, unknown> {
+  try {
+    return JSON.parse(localStorage.getItem(metaKey(id)) || '{}') as Record<string, unknown>
+  }
+  catch {
+    return {}
+  }
 }
 
 function isLegacyPayload(raw: string): boolean {
