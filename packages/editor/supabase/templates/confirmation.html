@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="supported-color-schemes" content="light dark" />
+  <title>Confirm your email for Blueprint Chart</title>
+  <!--[if mso]>
+  <noscript><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml></noscript>
+  <![endif]-->
+  <style>
+    /* Client resets */
+    body { margin: 0; padding: 0; width: 100% !important; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+    table { border-collapse: collapse; }
+    img { border: 0; line-height: 100%; outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; }
+    a { text-decoration: none; }
+
+    /* Dark-mode-aware clients */
+    @media (prefers-color-scheme: dark) {
+      .bc-body { background: #0a0a0a !important; }
+      .bc-card { background: #1c1c20 !important; }
+      .bc-heading, .bc-wordmark { color: #ffffff !important; }
+      .bc-text { color: #d4d4d8 !important; }
+      .bc-muted { color: #9ca3af !important; }
+      .bc-rule { border-color: #33323e !important; }
+    }
+  </style>
+</head>
+<body class="bc-body" style="margin:0; padding:0; background:#f3f3f4; font-family:'Geist Sans', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+  <div style="display:none; max-height:0; overflow:hidden; opacity:0;">Confirm your email to start using Blueprint Chart. This link expires in 1 hour.</div>
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f3f3f4;">
+    <tr>
+      <td align="center" style="padding:32px 16px;">
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:600px; max-width:600px;">
+
+          <!-- Header -->
+          <tr>
+            <td style="padding:4px 8px 20px;">
+              <table role="presentation" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="padding-right:10px; vertical-align:middle;">
+                    <img src="{{ .SiteURL }}/favicon-128.png" width="32" height="32" alt="" style="display:block; border-radius:6px;" />
+                  </td>
+                  <td class="bc-wordmark" style="vertical-align:middle; font-family:'DM Serif Display', Georgia, 'Times New Roman', serif; font-size:22px; color:#163A65; letter-spacing:0.2px;">
+                    Blueprint Chart
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Card -->
+          <tr>
+            <td class="bc-card" style="background:#ffffff; border-radius:14px; padding:40px 40px 36px;">
+              <h1 class="bc-heading" style="margin:0 0 16px; font-family:'DM Serif Display', Georgia, 'Times New Roman', serif; font-weight:400; font-size:28px; line-height:1.2; color:#163A65;">
+                Welcome to Blueprint Chart
+              </h1>
+              <p class="bc-text" style="margin:0 0 28px; font-size:16px; line-height:1.6; color:#1c1c20;">
+                Confirm your email to start using Blueprint Chart. This link works once and expires in 1 hour.
+              </p>
+
+              <!-- Bulletproof button -->
+              <table role="presentation" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td align="center" bgcolor="#2563A0" style="border-radius:8px;">
+                    <!--[if mso]>
+                    <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{{ .ConfirmationURL }}" style="height:48px;v-text-anchor:middle;width:220px;" arcsize="17%" stroke="f" fillcolor="#2563A0">
+                    <w:anchorlock/><center style="color:#ffffff;font-family:Arial,sans-serif;font-size:16px;font-weight:bold;">Confirm email</center>
+                    </v:roundrect>
+                    <![endif]-->
+                    <!--[if !mso]><!-->
+                    <a href="{{ .ConfirmationURL }}" target="_blank" style="display:inline-block; padding:14px 36px; font-family:'Geist Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif; font-size:16px; font-weight:600; color:#ffffff; background:#2563A0; border-radius:8px;">
+                      Confirm email
+                    </a>
+                    <!--<![endif]-->
+                  </td>
+                </tr>
+              </table>
+
+              <p class="bc-muted" style="margin:28px 0 0; font-size:14px; line-height:1.6; color:#6b7280;">
+                If the button doesn't work, copy and paste this link into your browser:<br />
+                <a href="{{ .ConfirmationURL }}" style="color:#2563A0; word-break:break-all;">{{ .ConfirmationURL }}</a>
+              </p>
+
+              <hr class="bc-rule" style="border:none; border-top:1px solid #dcdce0; margin:28px 0 0;" />
+
+              <p class="bc-muted" style="margin:24px 0 0; font-size:13px; line-height:1.6; color:#6b7280;">
+                Didn't create an account? You can safely ignore this email — someone may have typed your address by mistake.
+              </p>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="padding:24px 8px 0;">
+              <p class="bc-muted" style="margin:0; font-size:13px; line-height:1.6; color:#6b7280;">
+                <strong style="color:#163A65;">Blueprint Chart</strong> · The open chart format AI writes.
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
