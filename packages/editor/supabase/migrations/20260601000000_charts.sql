@@ -46,3 +46,9 @@ create policy "public read published" on public.charts
   for select
   to anon, authenticated
   using (published = true);
+
+-- Table-level privileges. RLS (above) decides WHICH rows each role may touch,
+-- but the role still needs the base GRANT or every statement fails with 42501.
+-- anon reads published charts; authenticated owns full CRUD on its own rows.
+grant select on public.charts to anon;
+grant select, insert, update, delete on public.charts to authenticated;
