@@ -18,7 +18,7 @@ const {
 const { mode } = storeToRefs(usePanelStore())
 const {
   sortedCharts,
-  selectedChart,
+  selectedChart: gallerySelectedChart,
   thumbnails,
   previews,
   sortValue,
@@ -30,16 +30,23 @@ const {
 const { isSignedIn } = useAccount()
 const showCloud = computed(() => accountsEnabled() && isSignedIn.value)
 
-const { listCloud, pushCloud } = useCloudCharts()
-const { listSavedCharts } = useChartSession()
+const { listCloud, pushCloud, deleteCloud, loadCloud } = useCloudCharts()
+const { listSavedCharts, deleteChart } = useChartSession()
 const cloudCharts = ref<CloudChartSummary[]>([])
 const importing = ref(false)
 
 const importer = useLocalImport({
   listLocal: () => listSavedCharts().map((c: SavedChartSummary) => ({ id: c.id, title: c.title, chartType: c.chartType })),
   pushCloud,
+  deleteLocal: deleteChart,
 })
-const localCount = computed(() => (showCloud.value ? importer.localCount() : 0))
+
+// localStorage isn't reactive, so track the count explicitly and refresh it
+// whenever it can change (mount, cloud-mode toggle, after an import).
+const localCount = ref(0)
+function refreshLocalCount() {
+  localCount.value = showCloud.value ? importer.localCount() : 0
+}
 
 async function refreshCloud() {
   if (showCloud.value) {
@@ -51,6 +58,7 @@ async function onImportLocal() {
   importing.value = true
   await importer.importAll()
   await refreshCloud()
+  refreshLocalCount()
   importing.value = false
 }
 
@@ -69,7 +77,37 @@ const cloudAsSummaries = computed<SavedChartSummary[]>(() =>
   })),
 )
 
-watch(showCloud, refreshCloud, { immediate: true })
+/** Sort a summary list by the toolbar's sort value (mirrors useDashboardGallery). */
+function sortSummaries(list: SavedChartSummary[], sort: string): SavedChartSummary[] {
+  const out = [...list]
+  if (sort === 'date-desc') {
+    out.sort((a, b) => (b.savedAt ?? '').localeCompare(a.savedAt ?? ''))
+  }
+  else if (sort === 'date-asc') {
+    out.sort((a, b) => (a.savedAt ?? '').localeCompare(b.savedAt ?? ''))
+  }
+  else if (sort === 'name-asc') {
+    out.sort((a, b) => (a.title || '').localeCompare(b.title || ''))
+  }
+  return out
+}
+
+// The list the gallery actually renders — cloud charts when signed in, else local.
+const displayedCharts = computed<SavedChartSummary[]>(() =>
+  showCloud.value ? sortSummaries(cloudAsSummaries.value, sortValue.value) : sortedCharts.value,
+)
+
+// Resolve the selected chart against whichever list is on screen.
+const selectedChart = computed(() =>
+  showCloud.value
+    ? (cloudAsSummaries.value.find(c => c.id === selectedChartId.value) ?? null)
+    : gallerySelectedChart.value,
+)
+
+watch(showCloud, () => {
+  void refreshCloud()
+  refreshLocalCount()
+}, { immediate: true })
 
 const galleryRef = useTemplateRef<HTMLElement>('galleryRef')
 const viewLayout = shallowRef<'grid' | 'row'>('grid')
@@ -102,19 +140,40 @@ function editSelected() {
   }
 }
 
-function duplicateSelected() {
-  if (selectedChartId.value) {
-    const newId = duplicateChart(selectedChartId.value)
-    if (newId) {
-      router.push(`/edit/${newId}`)
+async function duplicateSelected() {
+  const id = selectedChartId.value
+  if (!id) {
+    return
+  }
+  if (showCloud.value) {
+    const record = await loadCloud(id)
+    if (record) {
+      const sel = cloudAsSummaries.value.find(c => c.id === id)
+      const newId = await pushCloud({ dsl: record.dsl, meta: record.meta, title: sel?.title ?? '', chartType: sel?.chartType ?? '' })
+      if (newId) {
+        await refreshCloud()
+      }
     }
+    return
+  }
+  const newId = duplicateChart(id)
+  if (newId) {
+    router.push(`/edit/${newId}`)
   }
 }
 
-function deleteSelected() {
-  if (selectedChartId.value) {
-    removeChart(selectedChartId.value)
+async function deleteSelected() {
+  const id = selectedChartId.value
+  if (!id) {
+    return
   }
+  if (showCloud.value) {
+    await deleteCloud(id)
+    await refreshCloud()
+    selectedChartId.value = null
+    return
+  }
+  removeChart(id)
 }
 
 function handleKeydown(e: globalThis.KeyboardEvent) {
@@ -125,6 +184,7 @@ function handleKeydown(e: globalThis.KeyboardEvent) {
 
 onMounted(() => {
   refresh()
+  refreshLocalCount()
   document.addEventListener('keydown', handleKeydown)
 })
 
@@ -136,7 +196,7 @@ onUnmounted(() => {
 <template>
   <div class="dashboard-page-wrapper d-flex flex-column flex-grow-1">
     <DashboardToolbar
-      :chart-count="sortedCharts.length"
+      :chart-count="displayedCharts.length"
       :sort-value="sortValue"
       :layout="viewLayout"
       @update:sort-value="sortValue = $event"
@@ -155,7 +215,7 @@ onUnmounted(() => {
           @import="onImportLocal"
         />
         <DashboardGallery
-          :charts="showCloud ? cloudAsSummaries : sortedCharts"
+          :charts="displayedCharts"
           :thumbnails="thumbnails"
           :selected-id="selectedChartId"
           :layout="viewLayout"

@@ -10,13 +10,16 @@ export interface LocalChartRef {
 export interface LocalImportDeps {
   listLocal: () => LocalChartRef[]
   pushCloud: (input: CloudChartInput) => Promise<string | null>
+  /** Remove the local copy once it has been migrated to the cloud. */
+  deleteLocal: (id: string) => void
 }
 
 /**
- * One-time import of localStorage charts into the signed-in user's account.
+ * One-time migration of localStorage charts into the signed-in user's account.
  * Each import is an INSERT (no id) so a fresh, globally-unique cloud id is
- * minted - local ids are never reused (they can collide across users). The
- * local copies are left untouched.
+ * minted - local ids are never reused (they can collide across users). On
+ * success the local copy is removed, so the import banner empties and a repeat
+ * import can't create duplicate cloud rows.
  */
 export function useLocalImport(deps: LocalImportDeps) {
   function localCount(): number {
@@ -38,6 +41,7 @@ export function useLocalImport(deps: LocalImportDeps) {
       })
       if (id) {
         imported++
+        deps.deleteLocal(ref.id)
       }
     }
     return imported
