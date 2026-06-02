@@ -9,6 +9,19 @@
     :serif-title="true"
     @click="$emit('select', chart.id)"
   >
+    <template #status>
+      <button
+        type="button"
+        class="dashboard-chart-card__status"
+        :class="`dashboard-chart-card__status--${chart.syncState}`"
+        :title="statusLabel"
+        :aria-label="statusLabel"
+        @click="onStatusClick"
+      >
+        <component :is="statusIcon" />
+      </button>
+    </template>
+
     <template #actions>
       <ButtonIcon
         :icon-left="IPhPencilSimple"
@@ -36,21 +49,72 @@
 
 <script setup lang="ts">
 import IPhPencilSimple from '~icons/ph/pencil-simple'
+import IPhCloudArrowUp from '~icons/ph/cloud-arrow-up'
+import IPhCloudArrowDown from '~icons/ph/cloud-arrow-down'
+import IPhCloudCheck from '~icons/ph/cloud-check'
 import { GalleryCard, DisplayDate, DisplayChartTypeBadge, ButtonIcon } from '@blueprint-chart/ui'
 import { useTheme } from '@/stores/theme'
-import type { SavedChartSummary } from '@/stores/chartSession'
+import type { UnifiedChartSummary } from '@/composables/useDashboardCharts'
 
 const { resolvedTheme } = useTheme()
 
-defineProps<{
-  chart: SavedChartSummary
+const props = defineProps<{
+  chart: UnifiedChartSummary
   thumbSrc?: string
   selected: boolean
   layout: 'grid' | 'row'
 }>()
 
-defineEmits<{
+const emit = defineEmits<{
   select: [id: string]
   edit: [id: string]
+  sync: [id: string]
+  open: [id: string]
 }>()
+
+const statusIcon = computed(() => {
+  if (props.chart.syncState === 'synced') {
+    return IPhCloudCheck
+  }
+  return props.chart.syncState === 'cloud' ? IPhCloudArrowDown : IPhCloudArrowUp
+})
+
+const statusLabel = computed(() => {
+  if (props.chart.syncState === 'synced') {
+    return 'Synced to cloud'
+  }
+  return props.chart.syncState === 'cloud'
+    ? 'In the cloud — open to download'
+    : 'Local only — sync to cloud'
+})
+
+function onStatusClick() {
+  if (props.chart.syncState === 'local') {
+    emit('sync', props.chart.id)
+  }
+  else if (props.chart.syncState === 'cloud') {
+    emit('open', props.chart.id)
+  }
+}
 </script>
+
+<style scoped lang="scss">
+.dashboard-chart-card__status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: none;
+  border-radius: 0.5rem;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(3px);
+  color: #fff;
+  font-size: 0.95rem;
+  cursor: pointer;
+
+  &--synced { color: #5fd29a; cursor: default; }
+  &--cloud { color: #9ec2ff; }
+  &--local { color: #e6e9f0; }
+}
+</style>
