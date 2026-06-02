@@ -42,7 +42,7 @@ const logoSrc = computed(() => theme.value === 'dark' ? logoDark : logoLight)
     </a>
     <span class="landing-footer__spacer" />
     <span class="landing-footer__tagline">
-      MIT · Made for investigative journalism
+      MIT · Open source charting
     </span>
   </footer>
 </template>

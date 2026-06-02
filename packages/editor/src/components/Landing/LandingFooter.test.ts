@@ -32,7 +32,7 @@ describe('LandingFooter', () => {
   it('renders the mono tagline', () => {
     const w = mountFooter()
     expect(w.find('.landing-footer__tagline').text()).toContain('MIT')
-    expect(w.find('.landing-footer__tagline').text()).toContain('investigative journalism')
+    expect(w.find('.landing-footer__tagline').text()).toContain('Open source charting')
   })
 
   it('does not use the dark slab class', () => {
