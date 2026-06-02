@@ -22,9 +22,9 @@ describe('LandingMcp', () => {
     expect(w.find('section').attributes('id')).toBe('mcp')
   })
 
-  it('renders the 05 / Author with AI eyebrow', () => {
+  it('renders the 01 / Author with AI eyebrow', () => {
     const w = mountMcp()
-    expect(w.find('.header-label').text()).toBe('05 / Author with AI')
+    expect(w.find('.header-label').text()).toBe('01 / Author with AI')
   })
 
   it('renders the user message bubble with the prompt', () => {

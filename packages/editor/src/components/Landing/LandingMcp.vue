@@ -46,7 +46,7 @@ const steps: McpStep[] = [
 
 <template>
   <LandingSection id="mcp">
-    <LandingSectionHeader label="05 / Author with AI">
+    <LandingSectionHeader label="01 / Author with AI">
       Describe the chart.<br><em>Let your assistant build it.</em>
       <template #lead>
         Connect the Blueprint&nbsp;Chart MCP to Claude, Claude&nbsp;Code, Cursor, or any MCP client.
