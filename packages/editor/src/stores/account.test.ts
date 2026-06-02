@@ -1,4 +1,5 @@
 import { useAccount } from './account'
+import { useCloudChartsStore } from './cloudCharts'
 import * as clientModule from '@/lib/supabaseClient'
 
 function makeAuthMock() {
@@ -67,6 +68,28 @@ describe('useAccount', () => {
     await account.signOut()
     expect(auth.signOut).toHaveBeenCalled()
     expect(account.user.value).toBeNull()
+  })
+
+  it('purges synced charts BEFORE the auth sign-out, so the dashboard refresh sees them gone', async () => {
+    // The dashboard refreshes when showCloud flips (user → null), which happens
+    // via onAuthStateChange DURING client.auth.signOut(). If the purge ran after
+    // that, refresh() would read the still-present synced charts and show a stale
+    // list. So the purge must complete before auth.signOut() is awaited.
+    const order: string[] = []
+    auth.signOut.mockImplementation(async () => {
+      order.push('auth.signOut')
+      return { error: null }
+    })
+    const cloud = useCloudChartsStore()
+    vi.spyOn(cloud, 'clearLocalSynced').mockImplementation(() => {
+      order.push('purge')
+    })
+
+    const account = useAccount()
+    await account.init()
+    await account.signOut()
+
+    expect(order).toEqual(['purge', 'auth.signOut'])
   })
 
   it('removes synced charts from local storage on signOut, keeping local-only ones', async () => {
