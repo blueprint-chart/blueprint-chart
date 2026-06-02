@@ -13,8 +13,8 @@ test.describe('landing page layout', () => {
 
   test('hero shows new headline + CTAs', async ({ page }) => {
     await expect(page.locator('.landing-hero__inner__text__h1')).toBeVisible()
-    await expect(page.locator('.landing-hero__inner__text__h1')).toContainText('Great stories')
-    await expect(page.locator('.landing-hero__inner__text__h1')).toContainText('great data viz')
+    await expect(page.locator('.landing-hero__inner__text__h1')).toContainText('The open chart format')
+    await expect(page.locator('.landing-hero__inner__text__h1')).toContainText('AI writes')
     await expect(page.locator('.button-icon', { hasText: 'My charts' }).first()).toBeVisible()
     await expect(page.locator('.button-icon', { hasText: 'New chart' }).first()).toBeVisible()
   })
