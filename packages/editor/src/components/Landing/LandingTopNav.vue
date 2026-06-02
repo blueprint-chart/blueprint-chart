@@ -57,17 +57,17 @@ function openSearch() {
     </template>
 
     <template #menu>
+      <router-link :to="{ hash: '#mcp' }">
+        AI
+      </router-link>
+      <router-link :to="{ hash: '#format' }">
+        Format
+      </router-link>
       <router-link :to="{ hash: '#defaults' }">
         Defaults
       </router-link>
       <router-link :to="{ hash: '#transforms' }">
         Transforms
-      </router-link>
-      <router-link :to="{ hash: '#format' }">
-        Format
-      </router-link>
-      <router-link :to="{ hash: '#mcp' }">
-        AI
       </router-link>
       <router-link :to="{ hash: '#scenes' }">
         Scenes
