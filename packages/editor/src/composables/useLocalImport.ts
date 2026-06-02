@@ -8,44 +8,45 @@ export interface LocalChartRef {
 }
 
 export interface LocalImportDeps {
-  listLocal: () => LocalChartRef[]
-  pushCloud: (input: CloudChartInput) => Promise<string | null>
-  /** Remove the local copy once it has been migrated to the cloud. */
-  deleteLocal: (id: string) => void
+  /** Charts that live only in localStorage (not yet synced). */
+  listLocalOnly: () => LocalChartRef[]
+  /** Upsert a chart to the cloud by its existing id; returns the id or null. */
+  syncCloud: (input: CloudChartInput) => Promise<string | null>
+  /** Record an id as cloud-backed so the editor auto-pushes future edits. */
+  markCloudBacked: (id: string) => void
 }
 
 /**
- * One-time migration of localStorage charts into the signed-in user's account.
- * Each import is an INSERT (no id) so a fresh, globally-unique cloud id is
- * minted - local ids are never reused (they can collide across users). On
- * success the local copy is removed, so the import banner empties and a repeat
- * import can't create duplicate cloud rows.
+ * Bulk "Sync all to cloud" for local-only charts. Each chart is upserted under
+ * its EXISTING id (so it appears as a single synced row, never a duplicate) and
+ * the local copy is kept as the always-on source of truth.
  */
 export function useLocalImport(deps: LocalImportDeps) {
-  function localCount(): number {
-    return deps.listLocal().length
+  function localOnlyCount(): number {
+    return deps.listLocalOnly().length
   }
 
-  async function importAll(): Promise<number> {
-    let imported = 0
-    for (const ref of deps.listLocal()) {
+  async function syncAll(): Promise<number> {
+    let synced = 0
+    for (const ref of deps.listLocalOnly()) {
       const dsl = localStorage.getItem(storageKey(ref.id))
       if (!dsl) {
         continue
       }
-      const id = await deps.pushCloud({
+      const id = await deps.syncCloud({
+        id: ref.id,
         dsl,
         meta: readLocalMeta(ref.id),
         title: ref.title,
         chartType: ref.chartType,
       })
       if (id) {
-        imported++
-        deps.deleteLocal(ref.id)
+        deps.markCloudBacked(id)
+        synced++
       }
     }
-    return imported
+    return synced
   }
 
-  return { localCount, importAll }
+  return { localOnlyCount, syncAll }
 }

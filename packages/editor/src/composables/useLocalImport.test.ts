@@ -11,57 +11,64 @@ describe('useLocalImport', () => {
     localStorage.setItem(`blueprint-chart:${id}:meta`, JSON.stringify({ savedAt: '2026-01-01' }))
   }
 
-  function deps(pushCloud = vi.fn().mockResolvedValue('newcloudid01')): LocalImportDeps {
+  function deps(syncCloud = vi.fn().mockResolvedValue('localid0001')): LocalImportDeps {
     return {
-      listLocal: () => [
+      listLocalOnly: () => [
         { id: 'localid0001', title: 'Bar One', chartType: 'bar' },
         { id: 'localid0002', title: 'Line Two', chartType: 'line' },
       ],
-      pushCloud,
-      deleteLocal: vi.fn(),
+      syncCloud,
+      markCloudBacked: vi.fn(),
     }
   }
 
-  it('counts importable local charts', () => {
-    seedLocal('localid0001', 'chart bar {}')
+  it('counts local-only charts', () => {
     const importer = useLocalImport(deps())
-    expect(importer.localCount()).toBe(2)
+    expect(importer.localOnlyCount()).toBe(2)
   })
 
-  it('imports each local chart with a fresh cloud id and removes the local copy', async () => {
+  it('syncs each local-only chart by its existing id and keeps the local copy', async () => {
     seedLocal('localid0001', 'chart bar {}')
     seedLocal('localid0002', 'chart line {}')
-    const push = vi.fn().mockResolvedValue('newcloudid01')
-    const d = deps(push)
+    const sync = vi.fn(input => Promise.resolve(input.id))
+    const d = deps(sync)
     const importer = useLocalImport(d)
-    const imported = await importer.importAll()
-    expect(imported).toBe(2)
-    expect(push).toHaveBeenCalledTimes(2)
-    expect(push.mock.calls[0][0]).not.toHaveProperty('id')
-    expect(push.mock.calls[0][0]).toMatchObject({ dsl: 'chart bar {}', title: 'Bar One', chartType: 'bar' })
-    expect(d.deleteLocal).toHaveBeenCalledTimes(2)
-    expect(d.deleteLocal).toHaveBeenCalledWith('localid0001')
-    expect(d.deleteLocal).toHaveBeenCalledWith('localid0002')
+
+    const synced = await importer.syncAll()
+
+    expect(synced).toBe(2)
+    expect(sync).toHaveBeenCalledTimes(2)
+    // id is PRESERVED (upsert), not minted fresh.
+    expect(sync.mock.calls[0][0]).toMatchObject({ id: 'localid0001', dsl: 'chart bar {}', title: 'Bar One', chartType: 'bar' })
+    // local copy is NOT deleted.
+    expect(localStorage.getItem('blueprint-chart:localid0001')).toBe('chart bar {}')
+    // each synced id is marked cloud-backed.
+    expect(d.markCloudBacked).toHaveBeenCalledWith('localid0001')
+    expect(d.markCloudBacked).toHaveBeenCalledWith('localid0002')
   })
 
-  it('does not remove the local copy when the cloud push fails', async () => {
+  it('does not mark cloud-backed when the sync fails', async () => {
     seedLocal('localid0001', 'chart bar {}')
     seedLocal('localid0002', 'chart line {}')
     const d = deps(vi.fn().mockResolvedValue(null))
     const importer = useLocalImport(d)
-    const imported = await importer.importAll()
-    expect(imported).toBe(0)
-    expect(d.deleteLocal).not.toHaveBeenCalled()
+
+    const synced = await importer.syncAll()
+
+    expect(synced).toBe(0)
+    expect(d.markCloudBacked).not.toHaveBeenCalled()
   })
 
   it('skips local charts whose DSL is missing', async () => {
     seedLocal('localid0001', 'chart bar {}')
-    const d = deps(vi.fn().mockResolvedValue('newcloudid01'))
+    const sync = vi.fn(input => Promise.resolve(input.id))
+    const d = deps(sync)
     const importer = useLocalImport(d)
-    const imported = await importer.importAll()
-    expect(imported).toBe(1)
-    expect(d.pushCloud).toHaveBeenCalledTimes(1)
-    expect(d.deleteLocal).toHaveBeenCalledTimes(1)
-    expect(d.deleteLocal).toHaveBeenCalledWith('localid0001')
+
+    const synced = await importer.syncAll()
+
+    expect(synced).toBe(1)
+    expect(sync).toHaveBeenCalledTimes(1)
+    expect(sync.mock.calls[0][0]).toMatchObject({ id: 'localid0001' })
   })
 })
