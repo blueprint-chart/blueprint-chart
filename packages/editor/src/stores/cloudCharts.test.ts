@@ -174,4 +174,13 @@ describe('cloud index helpers', () => {
     expect(store.isCloudBacked('bbb')).toBe(true)
     expect(store.isCloudBacked('ccc')).toBe(false)
   })
+
+  it('unmarkCloudBacked removes an id from the index', () => {
+    const store = useCloudCharts()
+    store.markCloudBacked('aaa')
+    store.markCloudBacked('bbb')
+    store.unmarkCloudBacked('aaa')
+    expect(store.isCloudBacked('aaa')).toBe(false)
+    expect(store.isCloudBacked('bbb')).toBe(true)
+  })
 })

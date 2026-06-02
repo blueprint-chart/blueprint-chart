@@ -183,6 +183,12 @@ export const useCloudChartsStore = defineStore('cloudCharts', () => {
     return readCloudIndex().has(id)
   }
 
+  function unmarkCloudBacked(id: string): void {
+    const ids = readCloudIndex()
+    ids.delete(id)
+    writeCloudIndex(ids)
+  }
+
   async function syncCloud(input: CloudChartInput): Promise<string | null> {
     const client = await getSupabaseClient()
     if (!client || !input.id) {
@@ -201,7 +207,7 @@ export const useCloudChartsStore = defineStore('cloudCharts', () => {
     return error ? null : input.id
   }
 
-  return { listCloud, loadCloud, pushCloud, deleteCloud, publish, isPublished, fetchPublished, markCloudBacked, isCloudBacked, syncCloud }
+  return { listCloud, loadCloud, pushCloud, deleteCloud, publish, isPublished, fetchPublished, markCloudBacked, isCloudBacked, unmarkCloudBacked, syncCloud }
 })
 
 export function useCloudCharts() {
@@ -216,6 +222,7 @@ export function useCloudCharts() {
     fetchPublished: store.fetchPublished,
     markCloudBacked: store.markCloudBacked,
     isCloudBacked: store.isCloudBacked,
+    unmarkCloudBacked: store.unmarkCloudBacked,
     syncCloud: store.syncCloud,
   }
 }
