@@ -23,7 +23,7 @@
     <BModal
       v-model="confirming"
       title="Delete chart?"
-      hide-footer
+      no-footer
       centered
     >
       <p class="dashboard-detail-actions__confirm-text">
