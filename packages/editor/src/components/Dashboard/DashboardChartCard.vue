@@ -3,6 +3,7 @@
     :title="chart.title || 'Untitled'"
     :subtitle="chart.description"
     :thumb-src="thumbSrc"
+    :thumb-loading="thumbLoading"
     :selected="selected"
     :layout="layout"
     :force-light-thumb="!chart.allowDarkMode"
@@ -57,6 +58,7 @@ import { useTheme } from '@/stores/theme'
 import type { UnifiedChartSummary } from '@/composables/useDashboardCharts'
 
 const { resolvedTheme } = useTheme()
+const wait = useWait()
 
 const props = withDefaults(defineProps<{
   chart: UnifiedChartSummary
@@ -67,6 +69,8 @@ const props = withDefaults(defineProps<{
    *  sync-state pill is hidden — there's no cloud to sync to. */
   showCloud?: boolean
 }>(), { showCloud: true })
+
+const thumbLoading = computed(() => wait.waiting(`chart-media:${props.chart.id}`))
 
 const emit = defineEmits<{
   select: [id: string]

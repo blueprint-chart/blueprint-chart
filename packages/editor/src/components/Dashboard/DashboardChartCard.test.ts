@@ -22,6 +22,8 @@ function mountCard(over: Partial<UnifiedChartSummary> = {}, extra: Record<string
   })
 }
 
+import { useWaitStore } from '@/stores/wait'
+
 describe('DashboardChartCard status pill', () => {
   it('emits sync when a local-only chart pill is clicked', async () => {
     const wrapper = mountCard({ syncState: 'local' })
@@ -45,5 +47,33 @@ describe('DashboardChartCard status pill', () => {
   it('hides the sync-state pill when cloud is unavailable (signed out / accounts off)', () => {
     const wrapper = mountCard({ syncState: 'local' }, { showCloud: false })
     expect(wrapper.find('.dashboard-chart-card__status').exists()).toBe(false)
+  })
+})
+
+describe('DashboardChartCard thumb loading', () => {
+  it('shows a thumb skeleton while its chart-media loader is active', () => {
+    // stubActions:false so the real wait store mutates; pass the same pinia in.
+    const pinia = createTestingPinia({ stubActions: false, createSpy: vi.fn })
+    useWaitStore(pinia).set('chart-media:aaaaaaaaaaa', true)
+    const wrapper = mount(DashboardChartCard, {
+      props: { chart: chart({ syncState: 'cloud' }), selected: false, layout: 'grid' as const, showCloud: true },
+      global: {
+        plugins: [pinia],
+        stubs: { DisplayChartTypeBadge: true, DisplayDate: true },
+      },
+    })
+    expect(wrapper.find('.gallery-card__thumb__skeleton').exists()).toBe(true)
+  })
+
+  it('shows no thumb skeleton when the loader is inactive', () => {
+    const pinia = createTestingPinia({ stubActions: false, createSpy: vi.fn })
+    const wrapper = mount(DashboardChartCard, {
+      props: { chart: chart({ syncState: 'cloud' }), selected: false, layout: 'grid' as const, showCloud: true },
+      global: {
+        plugins: [pinia],
+        stubs: { DisplayChartTypeBadge: true, DisplayDate: true },
+      },
+    })
+    expect(wrapper.find('.gallery-card__thumb__skeleton').exists()).toBe(false)
   })
 })
