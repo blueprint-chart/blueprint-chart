@@ -2,31 +2,39 @@
   <div
     class="gallery-card"
     :class="cardClassList"
-    role="button"
-    tabindex="0"
-    @click="$emit('click')"
-    @keydown.enter="$emit('click')"
-    @keydown.space.prevent="$emit('click')"
+    :role="loading ? undefined : 'button'"
+    :tabindex="loading ? -1 : 0"
+    :aria-hidden="loading ? 'true' : undefined"
+    @click="onActivate"
+    @keydown.enter="onActivate"
+    @keydown.space.prevent="onActivate"
   >
     <div
       class="gallery-card__thumb"
       :data-bs-theme="forceLightThumb ? 'light' : undefined"
     >
+      <FeedbackSkeleton
+        v-if="loading || (thumbLoading && !thumbSrc)"
+        class="gallery-card__thumb__skeleton"
+        width="100%"
+        height="100%"
+        radius="0"
+      />
       <img
-        v-if="thumbSrc"
+        v-else-if="thumbSrc"
         :src="thumbSrc"
         alt=""
         class="gallery-card__thumb__img"
       >
       <div
-        v-if="$slots.status"
+        v-if="$slots.status && !loading"
         class="gallery-card__thumb__status"
         @click.stop
       >
         <slot name="status" />
       </div>
       <div
-        v-if="$slots.actions"
+        v-if="$slots.actions && !loading"
         class="gallery-card__thumb__actions"
         @click.stop
       >
@@ -34,29 +42,50 @@
       </div>
     </div>
     <div class="gallery-card__meta">
-      <div
-        class="gallery-card__meta__title"
-        :class="{ 'bc-display': serifTitle }"
-      >
-        {{ title }}
-      </div>
-      <div
-        v-if="subtitle"
-        class="gallery-card__meta__subtitle"
-      >
-        {{ subtitle }}
-      </div>
-      <div
-        v-if="$slots.footer"
-        class="gallery-card__meta__footer"
-      >
-        <slot name="footer" />
-      </div>
+      <template v-if="loading">
+        <FeedbackSkeleton
+          class="gallery-card__skeleton-line"
+          width="70%"
+          height="0.9rem"
+        />
+        <FeedbackSkeleton
+          class="gallery-card__skeleton-line"
+          width="45%"
+          height="0.7rem"
+        />
+        <div class="gallery-card__meta__footer">
+          <FeedbackSkeleton
+            width="30%"
+            height="0.7rem"
+          />
+        </div>
+      </template>
+      <template v-else>
+        <div
+          class="gallery-card__meta__title"
+          :class="{ 'bc-display': serifTitle }"
+        >
+          {{ title }}
+        </div>
+        <div
+          v-if="subtitle"
+          class="gallery-card__meta__subtitle"
+        >
+          {{ subtitle }}
+        </div>
+        <div
+          v-if="$slots.footer"
+          class="gallery-card__meta__footer"
+        >
+          <slot name="footer" />
+        </div>
+      </template>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import FeedbackSkeleton from '../../Feedback/FeedbackSkeleton/FeedbackSkeleton.vue'
 
 const props = defineProps<{
   title: string
@@ -66,16 +95,27 @@ const props = defineProps<{
   layout?: 'grid' | 'row'
   forceLightThumb?: boolean
   serifTitle?: boolean
+  /** Whole-card placeholder: thumb + meta render as skeletons, content ignored. */
+  loading?: boolean
+  /** Card is real, but the thumb area shimmers until `thumbSrc` arrives. */
+  thumbLoading?: boolean
 }>()
 
-defineEmits<{
+const emit = defineEmits<{
   click: []
 }>()
 
 const cardClassList = computed(() => ({
   'gallery-card--selected': props.selected,
   'gallery-card--row': props.layout === 'row',
+  'gallery-card--loading': props.loading,
 }))
+
+function onActivate() {
+  if (!props.loading) {
+    emit('click')
+  }
+}
 </script>
 
 <style scoped lang="scss">
@@ -105,6 +145,16 @@ const cardClassList = computed(() => ({
     box-shadow: 0 0 0 1px rgba(37, 99, 160, 0.4);
   }
 
+  &--loading {
+    cursor: default;
+    pointer-events: none;
+
+    &:hover {
+      border-color: var(--bc-hairline);
+      transform: none;
+    }
+  }
+
   &__thumb {
     height: 152px;
     background: var(--bc-tile-bg-elevated);
@@ -121,6 +171,11 @@ const cardClassList = computed(() => ({
       height: 100%;
       object-fit: contain;
       display: block;
+    }
+
+    &__skeleton {
+      position: absolute;
+      inset: 0;
     }
 
     &__actions {
@@ -181,6 +236,10 @@ const cardClassList = computed(() => ({
       justify-content: space-between;
       margin-top: auto;
     }
+  }
+
+  &__skeleton-line {
+    margin-bottom: 0.5rem;
   }
 
   // ─── Row layout ───

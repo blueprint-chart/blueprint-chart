@@ -137,3 +137,39 @@ describe('GalleryCard #status slot', () => {
     expect(wrapper.find('.gallery-card__thumb__status').exists()).toBe(false)
   })
 })
+
+describe('GalleryCard loading states', () => {
+  it('renders skeleton lines and no real meta when loading', () => {
+    const wrapper = mount(GalleryCard, { props: { title: 'Real title', loading: true } })
+    expect(wrapper.classes()).toContain('gallery-card--loading')
+    expect(wrapper.findAll('.feedback-skeleton').length).toBeGreaterThanOrEqual(3)
+    expect(wrapper.text()).not.toContain('Real title')
+  })
+
+  it('is not interactive while loading', async () => {
+    const wrapper = mount(GalleryCard, { props: { title: '', loading: true } })
+    expect(wrapper.attributes('aria-hidden')).toBe('true')
+    await wrapper.trigger('click')
+    expect(wrapper.emitted('click')).toBeUndefined()
+  })
+
+  it('shows a thumb skeleton when thumbLoading and no thumbSrc', () => {
+    const wrapper = mount(GalleryCard, { props: { title: 'T', thumbLoading: true } })
+    expect(wrapper.find('.gallery-card__thumb__skeleton').exists()).toBe(true)
+    expect(wrapper.text()).toContain('T') // meta still real
+  })
+
+  it('prefers the real image once thumbSrc is present', () => {
+    const wrapper = mount(GalleryCard, {
+      props: { title: 'T', thumbLoading: true, thumbSrc: 'data:image/svg+xml,x' },
+    })
+    expect(wrapper.find('.gallery-card__thumb__skeleton').exists()).toBe(false)
+    expect(wrapper.find('.gallery-card__thumb__img').exists()).toBe(true)
+  })
+
+  it('emits click normally when not loading', async () => {
+    const wrapper = mount(GalleryCard, { props: { title: 'T' } })
+    await wrapper.trigger('click')
+    expect(wrapper.emitted('click')).toHaveLength(1)
+  })
+})
