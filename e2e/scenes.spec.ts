@@ -285,7 +285,7 @@ test.describe('Scene Timeline', () => {
 
     // Navigate to Export step to inspect DSL via iframe embed URL
     await page.locator('.navigation-stepper-tabs__step', { hasText: 'Export' }).click()
-    const codeBlock = page.locator('.export-embed-panel__code-block__pre code')
+    const codeBlock = page.locator('.export-embed-block__pre code')
     await expect(codeBlock).toBeVisible()
 
     // Extract DSL from the iframe bpc64 query param
@@ -439,7 +439,7 @@ test.describe('Scene Timeline', () => {
 
     // Get DSL output to verify scene does NOT bake a data block
     await page.locator('.navigation-stepper-tabs__step', { hasText: 'Export' }).click()
-    const codeBlock = page.locator('.export-embed-panel__code-block__pre code')
+    const codeBlock = page.locator('.export-embed-block__pre code')
     await expect(codeBlock).toBeVisible()
 
     // Extract DSL from the iframe bpc64 query param

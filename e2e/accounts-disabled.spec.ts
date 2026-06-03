@@ -4,6 +4,21 @@ import { test, expect } from '@playwright/test'
 // Accounts-ENABLED flows (magic-link auth, render-by-id) require a live Supabase
 // project + email round-trip, so they are intentionally NOT part of CI.
 test.describe('accounts disabled (default build)', () => {
+  // A developer's local .env.local may set VITE_SUPABASE_* (accounts ON). This
+  // suite asserts the default, accounts-OFF build, so force the runtime config
+  // to resolve disabled: runtimeConfig lets config.json override the build-time
+  // env, and an empty value disables the feature. In CI (no env, no config.json)
+  // this fulfill is a harmless no-op — accounts are already off.
+  test.beforeEach(async ({ page }) => {
+    await page.route('**/config.json', route =>
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: '{"supabaseUrl":"","supabaseAnonKey":""}',
+      }),
+    )
+  })
+
   test('shows no Sign in control on the dashboard', async ({ page }) => {
     await page.goto('/#/charts')
     await expect(page.getByRole('button', { name: 'Sign in' })).toHaveCount(0)
