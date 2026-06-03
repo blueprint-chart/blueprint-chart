@@ -1,7 +1,7 @@
 <template>
   <div class="export-embed-block">
     <div class="export-embed-block__head">
-      <span class="export-embed-block__label">{{ label }}</span>
+      <span class="form-label export-embed-block__label">{{ label }}</span>
       <span
         v-if="recommended"
         class="export-embed-block__badge"
@@ -72,10 +72,10 @@ withDefaults(defineProps<{
     gap: 0.5rem;
   }
 
+  // Appearance comes from the shared .form-label rule; just drop its bottom
+  // margin so the title stays centered in the flex header.
   &__label {
-    font-size: var(--bs-font-size-md);
-    font-weight: 600;
-    color: var(--bs-body-color);
+    margin-bottom: 0;
   }
 
   &__badge {

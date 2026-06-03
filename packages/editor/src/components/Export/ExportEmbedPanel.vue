@@ -35,7 +35,7 @@
     <template v-else-if="state === 'not-published'">
       <div class="export-embed-panel__publish">
         <div class="export-embed-panel__publish-head">
-          <span class="export-embed-panel__label">Live link</span>
+          <span class="form-label export-embed-panel__label">Live link</span>
           <span class="export-embed-panel__badge">Recommended</span>
         </div>
         <p class="export-embed-panel__note">
@@ -246,10 +246,10 @@ async function onSave() {
     gap: 0.5rem;
   }
 
+  // Appearance comes from the shared .form-label rule; just drop its bottom
+  // margin so the title stays centered in the flex header.
   &__label {
-    font-size: var(--bs-font-size-md);
-    font-weight: 600;
-    color: var(--bs-body-color);
+    margin-bottom: 0;
   }
 
   &__badge {
