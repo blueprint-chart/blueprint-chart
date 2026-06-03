@@ -9,9 +9,13 @@ describe('cacheImagesFromDsl', () => {
     const dsl = 'chart bar-vertical\ndata {\n A = 1\n B = 2\n}'
     let expectedThumb: string | null = null
     let expectedPreview: string | null = null
-    try { expectedThumb = thumb.renderThumbnailFromDsl(dsl) }
+    try {
+      expectedThumb = thumb.renderThumbnailFromDsl(dsl)
+    }
     catch { expectedThumb = null }
-    try { expectedPreview = thumb.renderPreviewFromDsl(dsl) }
+    try {
+      expectedPreview = thumb.renderPreviewFromDsl(dsl)
+    }
     catch { expectedPreview = null }
 
     thumb.cacheImagesFromDsl('cloudid0001', dsl)

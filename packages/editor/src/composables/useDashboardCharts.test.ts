@@ -49,6 +49,8 @@ import * as clientModule from '@/lib/supabaseClient'
 
 /** Minimal chainable Supabase mock; upsert/delete chains resolve { error: null }. */
 function makeClientMock() {
+  // Mock builder: values are vi.fn()s / a thenable accessed with .mock ergonomics in assertions.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const builder: Record<string, any> = {}
   builder.select = vi.fn(() => builder)
   builder.order = vi.fn(() => Promise.resolve({ data: [], error: null }))
