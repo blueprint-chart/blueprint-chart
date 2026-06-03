@@ -113,26 +113,27 @@ describe('ExportEmbedPanel — four states', () => {
 
   it('state 2: clicking "Save this chart" saves to cloud and advances to the publish prompt', async () => {
     vi.spyOn(runtimeConfig, 'accountsEnabled').mockReturnValue(true)
-    const cloud = useCloudChartsStore()
-    const syncSpy = vi.spyOn(cloud, 'syncCloud').mockResolvedValue('localchart1')
-    const markSpy = vi.spyOn(cloud, 'markCloudBacked')
     const wrapper = mountState()
+    // Acquire the store AFTER mount so it shares the component's pinia, and
+    // configure the testing-pinia action spies the component already holds.
+    const cloud = useCloudChartsStore()
+    vi.mocked(cloud.syncCloud).mockResolvedValue('localchart1')
     useAccountStore().user = { id: 'u1', email: 'a@b.co' }
     useChartSessionStore().sessionId = 'localchart1'
     await nextTick()
     await wrapper.find('.export-embed-panel__hint a').trigger('click')
     await flushPromises()
-    expect(syncSpy).toHaveBeenCalledWith(expect.objectContaining({ id: 'localchart1' }))
-    expect(markSpy).toHaveBeenCalledWith('localchart1')
+    expect(cloud.syncCloud).toHaveBeenCalledWith(expect.objectContaining({ id: 'localchart1' }))
+    expect(cloud.markCloudBacked).toHaveBeenCalledWith('localchart1')
     expect(wrapper.text()).toContain('Live link')
     expect(wrapper.text()).toContain('Publish live link')
   })
 
   it('state 3 (signed in, saved, not published): shows Publish, leads with live link', async () => {
     vi.spyOn(runtimeConfig, 'accountsEnabled').mockReturnValue(true)
-    const cloud = useCloudChartsStore()
-    vi.spyOn(cloud, 'isPublished').mockResolvedValue(false)
     const wrapper = mountState()
+    const cloud = useCloudChartsStore()
+    vi.mocked(cloud.isPublished).mockResolvedValue(false)
     useAccountStore().user = { id: 'u1', email: 'a@b.co' }
     useChartSessionStore().sessionId = 'cloudchart1'
     cloud.markCloudBacked('cloudchart1')
@@ -146,9 +147,9 @@ describe('ExportEmbedPanel — four states', () => {
 
   it('state 4 (signed in, saved, published): shows live embed + Unpublish + self-contained', async () => {
     vi.spyOn(runtimeConfig, 'accountsEnabled').mockReturnValue(true)
-    const cloud = useCloudChartsStore()
-    vi.spyOn(cloud, 'isPublished').mockResolvedValue(true)
     const wrapper = mountState()
+    const cloud = useCloudChartsStore()
+    vi.mocked(cloud.isPublished).mockResolvedValue(true)
     useAccountStore().user = { id: 'u1', email: 'a@b.co' }
     useChartSessionStore().sessionId = 'cloudchart1'
     cloud.markCloudBacked('cloudchart1')
