@@ -19,16 +19,6 @@
       />
     </button>
 
-    <div class="account-sign-in__brand">
-      <img
-        :src="logoSrc"
-        alt=""
-        class="account-sign-in__logo"
-        aria-hidden="true"
-      >
-      <span class="account-sign-in__wordmark">Blueprint Chart</span>
-    </div>
-
     <div
       v-if="status === 'link-sent'"
       class="account-sign-in__sent"
@@ -134,20 +124,14 @@ import IPhCloudArrowUp from '~icons/ph/cloud-arrow-up'
 import IPhSquaresFour from '~icons/ph/squares-four'
 import IPhWarningCircle from '~icons/ph/warning-circle'
 import IPhCircleNotch from '~icons/ph/circle-notch'
-import logoLight from '@/assets/images/blueprint-chart-logo.svg'
-import logoDark from '@/assets/images/blueprint-chart-logo-dark.svg'
 import { useAccount, useAccountStore } from '@/stores/account'
-import { useTheme } from '@/stores/theme'
 
 const props = defineProps<{ open: boolean }>()
 defineEmits<{ 'update:open': [value: boolean] }>()
 
 const store = useAccountStore()
 const { status, errorMessage } = useAccount()
-const { resolvedTheme } = useTheme()
 const email = ref('')
-
-const logoSrc = computed(() => (resolvedTheme.value === 'dark' ? logoDark : logoLight))
 
 watch(
   () => props.open,
@@ -196,23 +180,6 @@ async function onSubmit() {
     outline: 2px solid var(--bs-primary);
     outline-offset: 1px;
   }
-}
-
-.account-sign-in__brand {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 1.125rem;
-}
-
-.account-sign-in__logo {
-  height: 1.5rem;
-  width: auto;
-}
-
-.account-sign-in__wordmark {
-  font-weight: 600;
-  font-size: 0.875rem;
 }
 
 .account-sign-in__title {
