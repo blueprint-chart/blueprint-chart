@@ -162,4 +162,55 @@ describe('ExportEmbedPanel — four states', () => {
     expect(wrapper.text()).toContain('Or use a self-contained copy')
     expect(wrapper.html()).toContain('render?id=cloudchart1')
   })
+
+  it('state 3: clicking "Publish live link" publishes and advances to the live embed', async () => {
+    vi.spyOn(runtimeConfig, 'accountsEnabled').mockReturnValue(true)
+    const wrapper = mountState()
+    const cloud = useCloudChartsStore()
+    vi.mocked(cloud.isPublished).mockResolvedValue(false)
+    vi.mocked(cloud.publish).mockResolvedValue(true)
+    useAccountStore().user = { id: 'u1', email: 'a@b.co' }
+    useChartSessionStore().sessionId = 'cloudchart1'
+    cloud.markCloudBacked('cloudchart1')
+    await nextTick()
+    await flushPromises()
+    await wrapper.find('.export-embed-panel__publish button').trigger('click')
+    await flushPromises()
+    expect(cloud.publish).toHaveBeenCalledWith('cloudchart1', true)
+    expect(wrapper.text()).toContain('Copy live embed')
+    expect(wrapper.text()).toContain('Unpublish')
+  })
+
+  it('state 4: clicking "Unpublish" unpublishes and returns to the publish prompt', async () => {
+    vi.spyOn(runtimeConfig, 'accountsEnabled').mockReturnValue(true)
+    const wrapper = mountState()
+    const cloud = useCloudChartsStore()
+    vi.mocked(cloud.isPublished).mockResolvedValue(true)
+    vi.mocked(cloud.publish).mockResolvedValue(true)
+    useAccountStore().user = { id: 'u1', email: 'a@b.co' }
+    useChartSessionStore().sessionId = 'cloudchart1'
+    cloud.markCloudBacked('cloudchart1')
+    await nextTick()
+    await flushPromises()
+    await wrapper.find('.export-embed-panel__unpublish').trigger('click')
+    await flushPromises()
+    expect(cloud.publish).toHaveBeenCalledWith('cloudchart1', false)
+    expect(wrapper.text()).toContain('Publish live link')
+  })
+
+  it('state 2: a failed save keeps the panel on the self-contained hint', async () => {
+    vi.spyOn(runtimeConfig, 'accountsEnabled').mockReturnValue(true)
+    const wrapper = mountState()
+    const cloud = useCloudChartsStore()
+    vi.mocked(cloud.syncCloud).mockResolvedValue(null)
+    useAccountStore().user = { id: 'u1', email: 'a@b.co' }
+    useChartSessionStore().sessionId = 'localchart1'
+    await nextTick()
+    await wrapper.find('.export-embed-panel__hint button').trigger('click')
+    await flushPromises()
+    expect(cloud.syncCloud).toHaveBeenCalled()
+    expect(cloud.markCloudBacked).not.toHaveBeenCalled()
+    expect(wrapper.text()).toContain('Save this chart')
+    expect(wrapper.text()).not.toContain('Live link')
+  })
 })
