@@ -69,6 +69,9 @@ jobs:
         with:
           node-version: 24
           cache: pnpm
+      # The Playwright image is minimal and ships no `make`; install it so this
+      # job can reuse the same Makefile targets as every other CI job.
+      - run: apt-get update && apt-get install -y --no-install-recommends make
       - run: make install
       - run: make test-e2e
       - name: Upload Playwright report
