@@ -96,7 +96,7 @@ describe('ExportEmbedPanel — four states', () => {
     const wrapper = mountState()
     await nextTick()
     const store = useAccountStore()
-    await wrapper.find('.export-embed-panel__hint a').trigger('click')
+    await wrapper.find('.export-embed-panel__hint button').trigger('click')
     expect(store.signInModalOpen).toBe(true)
   })
 
@@ -121,7 +121,7 @@ describe('ExportEmbedPanel — four states', () => {
     useAccountStore().user = { id: 'u1', email: 'a@b.co' }
     useChartSessionStore().sessionId = 'localchart1'
     await nextTick()
-    await wrapper.find('.export-embed-panel__hint a').trigger('click')
+    await wrapper.find('.export-embed-panel__hint button').trigger('click')
     await flushPromises()
     expect(cloud.syncCloud).toHaveBeenCalledWith(expect.objectContaining({ id: 'localchart1' }))
     expect(cloud.markCloudBacked).toHaveBeenCalledWith('localchart1')
@@ -136,6 +136,7 @@ describe('ExportEmbedPanel — four states', () => {
     vi.mocked(cloud.isPublished).mockResolvedValue(false)
     useAccountStore().user = { id: 'u1', email: 'a@b.co' }
     useChartSessionStore().sessionId = 'cloudchart1'
+    // Mark AFTER setting sessionId: the watch flushes async (default 'pre'), so localStorage is updated before the callback reads isCloudBacked.
     cloud.markCloudBacked('cloudchart1')
     await nextTick()
     await flushPromises()
@@ -152,6 +153,7 @@ describe('ExportEmbedPanel — four states', () => {
     vi.mocked(cloud.isPublished).mockResolvedValue(true)
     useAccountStore().user = { id: 'u1', email: 'a@b.co' }
     useChartSessionStore().sessionId = 'cloudchart1'
+    // Mark AFTER setting sessionId: the watch flushes async (default 'pre'), so localStorage is updated before the callback reads isCloudBacked.
     cloud.markCloudBacked('cloudchart1')
     await nextTick()
     await flushPromises()

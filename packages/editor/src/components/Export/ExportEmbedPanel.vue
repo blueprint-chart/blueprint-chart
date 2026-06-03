@@ -73,18 +73,22 @@
       <p class="export-embed-panel__hint">
         <template v-if="state === 'signed-out'">
           Want an embed that updates when you edit it?
-          <a
-            href="#"
-            @click.prevent="openSignInModal"
-          >Sign in</a>
+          <button
+            type="button"
+            @click="openSignInModal"
+          >
+            Sign in
+          </button>
           to publish a live link.
         </template>
         <template v-else>
           Want an embed that updates when you edit it?
-          <a
-            href="#"
-            @click.prevent="onSave"
-          >{{ saving ? 'Saving…' : 'Save this chart' }}</a>
+          <button
+            type="button"
+            @click="onSave"
+          >
+            {{ saving ? 'Saving…' : 'Save this chart' }}
+          </button>
           to publish a live link.
         </template>
       </p>
@@ -136,14 +140,20 @@ const state = computed<'signed-out' | 'not-saved' | 'not-published' | 'published
 
 watch(
   [eligible, sessionId],
-  async ([elig, id]) => {
+  async ([elig, id], _prev, onCleanup) => {
+    let stale = false
+    onCleanup(() => {
+      stale = true
+    })
     const backed = elig && isCloudBacked(id)
     cloudBacked.value = backed
-    if (backed) {
-      published.value = await isPublished(id)
-    }
-    else {
+    if (!backed) {
       published.value = false
+      return
+    }
+    const result = await isPublished(id)
+    if (!stale) {
+      published.value = result
     }
   },
   { immediate: true },
@@ -272,9 +282,15 @@ async function onSave() {
     color: var(--bs-secondary-color);
     line-height: 1.5;
 
-    a {
+    button {
+      padding: 0;
+      border: 0;
+      background: none;
+      font: inherit;
       color: var(--bs-link-color);
       font-weight: 600;
+      cursor: pointer;
+      text-decoration: underline;
     }
   }
 }
