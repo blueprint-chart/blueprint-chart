@@ -271,6 +271,14 @@ function onActivate() {
       min-width: 0;
     }
 
+    // While loading, the meta holds skeleton lines (not the grid-positioned
+    // title/subtitle/footer), so fall back to a simple stacked layout.
+    &.gallery-card--loading .gallery-card__meta {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
     .gallery-card__meta__title {
       grid-column: 1;
       grid-row: 1;
