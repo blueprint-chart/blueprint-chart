@@ -39,6 +39,13 @@
       <p class="mb-0 text-secondary">
         We sent a link to <strong>{{ email }}</strong>. Open it on this device to finish.
       </p>
+      <button
+        type="button"
+        class="account-sign-in__again"
+        @click="store.resetStatus()"
+      >
+        Use a different email
+      </button>
     </div>
 
     <form
@@ -271,5 +278,25 @@ async function onSubmit() {
   line-height: 1.5;
   margin: 0.875rem 0 0;
   text-align: center;
+}
+
+.account-sign-in__again {
+  margin-top: 1rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--bs-primary);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--bs-primary);
+    outline-offset: 1px;
+  }
 }
 </style>

@@ -51,6 +51,26 @@ describe('AccountSignInModal', () => {
     expect(store.resetStatus).toHaveBeenCalledTimes(1)
   })
 
+  it('returns to the form from the sent state via "Use a different email"', async () => {
+    const wrapper = mount(AccountSignInModal, {
+      props: { open: true },
+      global: {
+        plugins: [createTestingPinia({ stubActions: false, createSpy: vi.fn })],
+        stubs: { BModal: { template: '<div><slot /></div>' } },
+      },
+    })
+    const store = useAccountStore()
+    store.status = 'link-sent'
+    store.resetStatus = vi.fn()
+    await wrapper.vm.$nextTick()
+
+    const again = wrapper.find('.account-sign-in__again')
+    expect(again.exists()).toBe(true)
+    await again.trigger('click')
+
+    expect(store.resetStatus).toHaveBeenCalledTimes(1)
+  })
+
   it('renders the branded headline, both benefit rows, and refined form copy', () => {
     const wrapper = mount(AccountSignInModal, {
       props: { open: true },
