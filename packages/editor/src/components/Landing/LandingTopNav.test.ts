@@ -2,7 +2,7 @@ import { shallowRef } from 'vue'
 import { mount } from '@vue/test-utils'
 import LandingTopNav from './LandingTopNav.vue'
 
-vi.mock('@/config/runtimeConfig', async (importOriginal) => ({
+vi.mock('@/config/runtimeConfig', async importOriginal => ({
   ...(await importOriginal<typeof import('@/config/runtimeConfig')>()),
   accountsEnabled: () => true,
 }))

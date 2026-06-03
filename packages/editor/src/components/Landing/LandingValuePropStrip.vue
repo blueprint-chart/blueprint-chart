@@ -43,7 +43,9 @@ const cells: ValueCell[] = [
           />
           {{ cell.value }}
         </a>
-        <template v-else>{{ cell.value }}</template>
+        <template v-else>
+          {{ cell.value }}
+        </template>
       </dd>
     </dl>
   </section>
