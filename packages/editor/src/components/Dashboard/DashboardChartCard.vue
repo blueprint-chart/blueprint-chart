@@ -68,7 +68,7 @@ const props = withDefaults(defineProps<{
   /** Whether cloud sync is available (accounts on + signed in). When false the
    *  sync-state pill is hidden — there's no cloud to sync to. */
   showCloud?: boolean
-}>(), { showCloud: true })
+}>(), { thumbSrc: undefined, showCloud: true })
 
 const thumbLoading = computed(() => wait.waiting(`chart-media:${props.chart.id}`))
 

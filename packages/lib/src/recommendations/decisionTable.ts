@@ -15,7 +15,7 @@ const r = (type: string, fitness: RecommendationFitness, reason: string): RawRec
 // an unmapped intent falls back to `none`.
 const TABLE: Record<ShapeSignature, Partial<Record<Intent, CellFn>>> = {
   '1cat+1num': {
-    none: rowCount => {
+    'none': (rowCount) => {
       const recs = [
         r('bar-vertical', 'best', '1 categorical + 1 numeric — classic bar chart'),
         r('bar-horizontal', 'good', 'Horizontal bars work well for long labels'),
@@ -26,12 +26,12 @@ const TABLE: Record<ShapeSignature, Partial<Record<Intent, CellFn>>> = {
       }
       return recs
     },
-    comparison: rowCount => TABLE['1cat+1num'].none!(rowCount),
-    ranking: () => [
+    'comparison': rowCount => TABLE['1cat+1num'].none!(rowCount),
+    'ranking': () => [
       r('bar-horizontal', 'best', 'Ranked categories read best as horizontal bars'),
       r('bar-vertical', 'good', 'Vertical bars also work for ranking'),
     ],
-    'part-to-whole': rowCount => {
+    'part-to-whole': (rowCount) => {
       if (rowCount <= 5) {
         return [
           r('pie', 'best', `${rowCount} slices — pie reads cleanly for very small N`),
@@ -51,20 +51,20 @@ const TABLE: Record<ShapeSignature, Partial<Record<Intent, CellFn>>> = {
         r('bar-horizontal', 'good', 'Horizontal bars for long labels'),
       ]
     },
-    range: () => [
+    'range': () => [
       r('bar-split', 'best', 'Diverging bars show a value against a shared baseline'),
       r('bar-vertical', 'alternative', 'Plain bars if the baseline is zero'),
     ],
   },
   '1cat+Nnum': {
-    none: () => [
+    'none': () => [
       r('bar-multi', 'best', '1 categorical + multiple numeric columns — compare groups'),
       r('line-multi', 'good', 'Can also show as a multi-line chart'),
     ],
-    comparison: rowCount => TABLE['1cat+Nnum'].none!(rowCount),
-    ranking: rowCount => TABLE['1cat+Nnum'].none!(rowCount),
+    'comparison': rowCount => TABLE['1cat+Nnum'].none!(rowCount),
+    'ranking': rowCount => TABLE['1cat+Nnum'].none!(rowCount),
     // Categorical x beats trend narrative: "overtakes" must NOT flip to lines.
-    trend: () => [
+    'trend': () => [
       r('bar-multi', 'best', 'Categorical x-axis — grouped bars even for a trend story'),
       r('line-multi', 'alternative', 'Lines if the x-axis is really time'),
     ],
@@ -78,26 +78,26 @@ const TABLE: Record<ShapeSignature, Partial<Record<Intent, CellFn>>> = {
       r('bar-stacked', 'good', 'Stacked bars for the same composition'),
       r('area-stacked', 'alternative', 'Stacked area if the periods are continuous time'),
     ],
-    range: () => [
+    'range': () => [
       r('bar-split', 'best', 'Diverging bars show values around a shared baseline'),
       r('bar-multi', 'alternative', 'Grouped bars if there is no shared baseline'),
     ],
   },
   '1date+1num': {
-    none: () => [
+    'none': () => [
       r('line', 'best', '1 date + 1 numeric column — ideal for trend'),
       r('bar-vertical', 'alternative', 'Can also show as bars'),
     ],
-    trend: () => [
+    'trend': () => [
       r('line', 'best', '1 date + 1 numeric column — ideal for trend'),
       r('area', 'good', 'Filled area emphasizes magnitude over time'),
       r('bar-vertical', 'alternative', 'Can also show as bars'),
     ],
-    comparison: () => [
+    'comparison': () => [
       r('bar-vertical', 'best', 'Bars for comparing discrete time points'),
       r('line', 'good', 'Line if the trend matters more than the comparison'),
     ],
-    ranking: () => [
+    'ranking': () => [
       r('bar-vertical', 'best', 'Bars for ranking discrete time points'),
       r('line', 'good', 'Line for the underlying trend'),
     ],
@@ -111,13 +111,13 @@ const TABLE: Record<ShapeSignature, Partial<Record<Intent, CellFn>>> = {
     ],
   },
   '1date+Nnum': {
-    none: () => [
+    'none': () => [
       r('line-multi', 'best', '1 date + multiple numeric columns — compare trends'),
       r('bar-multi', 'alternative', 'Can also show as grouped bars'),
     ],
-    trend: rowCount => TABLE['1date+Nnum'].none!(rowCount),
-    comparison: rowCount => TABLE['1date+Nnum'].none!(rowCount),
-    ranking: rowCount => TABLE['1date+Nnum'].none!(rowCount),
+    'trend': rowCount => TABLE['1date+Nnum'].none!(rowCount),
+    'comparison': rowCount => TABLE['1date+Nnum'].none!(rowCount),
+    'ranking': rowCount => TABLE['1date+Nnum'].none!(rowCount),
     'composition-over-time': () => [
       r('area-stacked', 'best', 'Stacked area shows composition over continuous time'),
       r('column-stacked', 'good', 'Stacked columns for the same composition'),
@@ -128,7 +128,7 @@ const TABLE: Record<ShapeSignature, Partial<Record<Intent, CellFn>>> = {
       r('line-multi', 'good', 'Multi-line if absolute trends matter more'),
     ],
   },
-  other: {
+  'other': {
     none: () => [
       r('bar-vertical', 'good', 'Default bar chart recommendation'),
     ],

@@ -4,7 +4,10 @@
     class="dashboard-sync-pill"
     :class="{ 'dashboard-sync-pill--busy': syncing }"
   >
-    <IPhCloudArrowUp class="dashboard-sync-pill__icon" aria-hidden="true" />
+    <IPhCloudArrowUp
+      class="dashboard-sync-pill__icon"
+      aria-hidden="true"
+    />
     <template v-if="syncing">
       <span>Backing up…</span>
     </template>
