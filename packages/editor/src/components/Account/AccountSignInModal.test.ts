@@ -34,4 +34,22 @@ describe('AccountSignInModal', () => {
     await wrapper.vm.$nextTick()
     expect(wrapper.text()).toContain('Check your inbox')
   })
+
+  it('renders the branded headline, both benefit rows, and refined form copy', () => {
+    const wrapper = mount(AccountSignInModal, {
+      props: { open: true },
+      global: {
+        plugins: [createTestingPinia({ stubActions: false, createSpy: vi.fn })],
+        stubs: { BModal: { template: '<div><slot /></div>' } },
+      },
+    })
+    const text = wrapper.text()
+    expect(text).toContain('Keep your charts in sync')
+    expect(text).toContain('Your work, safe and ready wherever you sign in.')
+    expect(text).toContain('Charts save to the cloud as you edit')
+    expect(text).toContain('Open your full library from any device')
+    expect(text).toContain('No password required. The link arrives in seconds.')
+    expect(wrapper.find('button[type="submit"]').text()).toContain('Email me a magic link')
+    expect(wrapper.find('input[type="email"]').attributes('placeholder')).toBe('you@example.com')
+  })
 })

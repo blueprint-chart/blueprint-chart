@@ -1,11 +1,34 @@
 <template>
   <BModal
     :model-value="open"
-    title="Sign in"
+    no-header
     no-footer
     centered
+    body-class="account-sign-in__body"
     @update:model-value="$emit('update:open', $event)"
   >
+    <button
+      type="button"
+      class="account-sign-in__close"
+      aria-label="Close"
+      @click="$emit('update:open', false)"
+    >
+      <AppIcon
+        :name="IPhX"
+        size="sm"
+      />
+    </button>
+
+    <div class="account-sign-in__brand">
+      <img
+        :src="logoSrc"
+        alt=""
+        class="account-sign-in__logo"
+        aria-hidden="true"
+      >
+      <span class="account-sign-in__wordmark">Blueprint Chart</span>
+    </div>
+
     <div
       v-if="status === 'link-sent'"
       class="account-sign-in__sent"
@@ -14,7 +37,7 @@
         Check your inbox
       </p>
       <p class="mb-0 text-secondary">
-        We sent a magic link to <strong>{{ email }}</strong>. Open it on this device to finish signing in.
+        We sent a link to <strong>{{ email }}</strong>. Open it on this device to finish.
       </p>
     </div>
 
@@ -23,6 +46,34 @@
       class="account-sign-in"
       @submit.prevent="onSubmit"
     >
+      <h2 class="account-sign-in__title">
+        Keep your charts in sync
+      </h2>
+      <p class="account-sign-in__sub">
+        Your work, safe and ready wherever you sign in.
+      </p>
+
+      <ul class="account-sign-in__benefits">
+        <li>
+          <span class="account-sign-in__benefit-icon">
+            <AppIcon
+              :name="IPhCloudArrowUp"
+              size="sm"
+            />
+          </span>
+          Charts save to the cloud as you edit
+        </li>
+        <li>
+          <span class="account-sign-in__benefit-icon">
+            <AppIcon
+              :name="IPhSquaresFour"
+              size="sm"
+            />
+          </span>
+          Open your full library from any device
+        </li>
+      </ul>
+
       <label
         for="account-email"
         class="form-label"
@@ -32,14 +83,20 @@
         v-model="email"
         type="email"
         class="form-control"
-        placeholder="you@newsroom.org"
+        :class="{ 'is-invalid': status === 'error' }"
+        placeholder="you@example.com"
         required
         autocomplete="email"
       >
       <p
         v-if="status === 'error'"
-        class="text-danger small mt-2 mb-0"
+        class="account-sign-in__error"
+        role="alert"
       >
+        <AppIcon
+          :name="IPhWarningCircle"
+          size="sm"
+        />
         {{ errorMessage || 'Something went wrong. Try again.' }}
       </p>
       <button
@@ -47,24 +104,42 @@
         class="btn btn-primary w-100 mt-3"
         :disabled="status === 'sending'"
       >
-        {{ status === 'sending' ? 'Sending…' : 'Send magic link' }}
+        <AppIcon
+          v-if="status === 'sending'"
+          :name="IPhCircleNotch"
+          size="sm"
+          class="account-sign-in__spinner"
+        />
+        {{ status === 'sending' ? 'Sending link…' : 'Email me a magic link' }}
       </button>
-      <p class="text-secondary small mt-3 mb-0">
-        Passwordless sign-in. We email you a one-time link — no password to remember.
+      <p class="account-sign-in__fine">
+        No password required. The link arrives in seconds.
       </p>
     </form>
   </BModal>
 </template>
 
 <script setup lang="ts">
+import { AppIcon } from '@blueprint-chart/ui'
+import IPhX from '~icons/ph/x'
+import IPhCloudArrowUp from '~icons/ph/cloud-arrow-up'
+import IPhSquaresFour from '~icons/ph/squares-four'
+import IPhWarningCircle from '~icons/ph/warning-circle'
+import IPhCircleNotch from '~icons/ph/circle-notch'
+import logoLight from '@/assets/images/blueprint-chart-logo.svg'
+import logoDark from '@/assets/images/blueprint-chart-logo-dark.svg'
 import { useAccount, useAccountStore } from '@/stores/account'
+import { useTheme } from '@/stores/theme'
 
-defineProps<{ open: boolean }>()
+const props = defineProps<{ open: boolean }>()
 defineEmits<{ 'update:open': [value: boolean] }>()
 
 const store = useAccountStore()
 const { status, errorMessage } = useAccount()
+const { resolvedTheme } = useTheme()
 const email = ref('')
+
+const logoSrc = computed(() => (resolvedTheme.value === 'dark' ? logoDark : logoLight))
 
 async function onSubmit() {
   if (!email.value) {
@@ -73,3 +148,120 @@ async function onSubmit() {
   await store.signInWithEmail(email.value)
 }
 </script>
+
+<style scoped lang="scss">
+.account-sign-in__body {
+  position: relative;
+}
+
+.account-sign-in__close {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  border: 0;
+  border-radius: 0.5rem;
+  background: transparent;
+  color: var(--bs-secondary-color);
+
+  &:hover {
+    background: var(--bs-tertiary-bg);
+  }
+}
+
+.account-sign-in__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.125rem;
+}
+
+.account-sign-in__logo {
+  height: 1.5rem;
+  width: auto;
+}
+
+.account-sign-in__wordmark {
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.account-sign-in__title {
+  font-family: "DM Serif Display", Georgia, serif;
+  font-weight: 400;
+  font-size: 1.5rem;
+  line-height: 1.15;
+  margin: 0;
+}
+
+.account-sign-in__sub {
+  color: var(--bs-secondary-color);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  margin: 0.5rem 0 0;
+}
+
+.account-sign-in__benefits {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0 0.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6875rem;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 0.6875rem;
+    font-size: 0.875rem;
+  }
+}
+
+.account-sign-in__benefit-icon {
+  flex: 0 0 1.875rem;
+  width: 1.875rem;
+  height: 1.875rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  background: rgba(var(--bs-primary-rgb), 0.1);
+  color: var(--bs-primary);
+}
+
+.account-sign-in .form-label {
+  margin-top: 1.125rem;
+}
+
+.account-sign-in__error {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  color: var(--bs-danger);
+  font-size: 0.8125rem;
+  margin: 0.5rem 0 0;
+}
+
+.account-sign-in__spinner {
+  animation: account-sign-in-spin 0.7s linear infinite;
+}
+
+@keyframes account-sign-in-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.account-sign-in__fine {
+  color: var(--bs-secondary-color);
+  font-size: 0.75rem;
+  line-height: 1.5;
+  margin: 0.875rem 0 0;
+  text-align: center;
+}
+</style>
