@@ -130,4 +130,19 @@ async function onSignOut() {
   gap: 0.625rem;
   min-height: 1.5rem;
 }
+
+// The avatar (1.75rem) is taller than the sm button's line-box, which would
+// inflate the toggle past the navbar's other btn-sm controls. Pin the toggle
+// to the same natural button height ButtonIcon uses for its square buttons and
+// center the avatar within it, so all navbar controls line up.
+.account-menu :deep(.dropdown-toggle) {
+  display: inline-flex;
+  align-items: center;
+  height: calc(
+    var(--bs-btn-line-height) * var(--bs-btn-font-size)
+    + var(--bs-btn-padding-y) * 2
+    + var(--bs-btn-border-width) * 2
+  );
+  padding-block: 0;
+}
 </style>
