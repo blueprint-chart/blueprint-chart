@@ -108,3 +108,13 @@ describe('AccountMenu (signed out)', () => {
     expect(wrapper.findComponent(AccountSignInModal).props('open')).toBe(true)
   })
 })
+
+describe('AccountMenu (session init)', () => {
+  // Locks the "AccountMenu owns init()" contract: the navbar no longer calls it,
+  // so the component must trigger the (memoized) session restore on mount.
+  it('triggers store.init on mount', async () => {
+    await mountMenu(false)
+    const store = useAccountStore()
+    expect(store.init).toHaveBeenCalled()
+  })
+})
