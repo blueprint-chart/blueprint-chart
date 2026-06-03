@@ -60,6 +60,12 @@ export function storageKey(id: string): string {
   return `blueprint-chart:${id}`
 }
 
+/** Single-segment slugs under the `blueprint-chart:` namespace that hold app
+ *  state rather than charts. listSavedCharts() must skip these — otherwise the
+ *  key is parsed as a phantom chart (e.g. `cloud-index` → an empty chart).
+ *  `cloud-index` mirrors CLOUD_INDEX_KEY in cloudCharts.ts. */
+const RESERVED_SLUGS = new Set(['cloud-index'])
+
 export function metaKey(id: string): string {
   return `blueprint-chart:${id}:meta`
 }
@@ -349,7 +355,7 @@ export const useChartSessionStore = defineStore('chartSession', () => {
         continue
       }
       const id = key.slice(prefix.length)
-      if (id.includes(':')) {
+      if (id.includes(':') || RESERVED_SLUGS.has(id)) {
         continue
       }
       const raw = localStorage.getItem(key)

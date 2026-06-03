@@ -201,6 +201,18 @@ describe('useChartSession', () => {
     expect(charts.find(c => c.id === 'other-key')).toBeUndefined()
   })
 
+  it('listSavedCharts ignores the reserved cloud-index key', () => {
+    localStorage.clear()
+    // The cloud index is app state under the chart namespace, not a chart.
+    localStorage.setItem('blueprint-chart:cloud-index', JSON.stringify(['realId0001']))
+    const realId = 'realId0001'
+    localStorage.setItem(`blueprint-chart:${realId}`, 'chart line {\n  title = "Real"\n}\n')
+    const session = useChartSession()
+    const charts = session.listSavedCharts()
+    expect(charts.find(c => c.id === 'cloud-index')).toBeUndefined()
+    expect(charts.map(c => c.id)).toEqual([realId])
+  })
+
   it('deleteChart removes both DSL and meta keys', () => {
     const session = useChartSession()
     session.newChart()

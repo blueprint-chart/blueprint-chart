@@ -2,6 +2,8 @@ import { getSupabaseClient } from '@/lib/supabaseClient'
 import { generateId, storageKey, useChartSessionStore } from '@/stores/chartSession'
 import { deletePreview } from '@/composables/useChartThumbnail'
 
+// Kept in sync with RESERVED_SLUGS in chartSession.ts, which skips this slug so
+// the index key never surfaces as a phantom chart in listSavedCharts().
 const CLOUD_INDEX_KEY = 'blueprint-chart:cloud-index'
 
 function readCloudIndex(): Set<string> {
