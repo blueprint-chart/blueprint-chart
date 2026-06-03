@@ -16,7 +16,6 @@ import logoLight from '@/assets/images/blueprint-chart-logo.svg'
 import logoDark from '@/assets/images/blueprint-chart-logo-dark.svg'
 import AccountMenu from '@/components/Account/AccountMenu.vue'
 import { accountsEnabled } from '@/config/runtimeConfig'
-import { useAccount } from '@/stores/account'
 
 defineProps<{ sidebarOpen?: boolean }>()
 defineEmits<{ searchClick: [], toggleSidebar: [] }>()
@@ -36,10 +35,6 @@ const placeholder = computed(() => isNarrow.value ? 'Search…' : 'Search or jum
 const logoSrc = computed(() => resolvedTheme.value === 'dark' ? logoDark : logoLight)
 
 const showAccount = accountsEnabled()
-const { init } = useAccount()
-if (showAccount) {
-  void init()
-}
 </script>
 
 <template>
