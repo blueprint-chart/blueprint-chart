@@ -36,4 +36,34 @@ describe('recommendCharts', () => {
     const recs = recommendCharts(['string', 'number', 'number'], 10)
     expect(recs[0]).toMatchObject({ chartType: 'bar-multi', fitness: 'best' })
   })
+
+  it('recommends bar-split when the goal mentions a margin of error', () => {
+    const recs = recommendCharts(['string', 'number'], 6, 'the polling lead with its margin of error')
+    expect(recs[0]).toMatchObject({ chartType: 'bar-split', fitness: 'best' })
+  })
+
+  it('recommends area-stacked for a date + N numbers composition-over-time goal', () => {
+    const recs = recommendCharts(['date', 'number', 'number', 'number'], 24, 'the energy mix composition over time')
+    expect(recs[0]).toMatchObject({ chartType: 'area-stacked', fitness: 'best' })
+  })
+
+  it('keeps bar-multi for a categorical "overtakes" goal (does not flip to lines)', () => {
+    const recs = recommendCharts(['string', 'number', 'number', 'number'], 8, 'how software overtakes hardware by quarter')
+    expect(recs[0]).toMatchObject({ chartType: 'bar-multi', fitness: 'best' })
+  })
+
+  it('recommends bar-horizontal for a ranking goal', () => {
+    const recs = recommendCharts(['string', 'number'], 10, 'the most-spoken languages, ranked')
+    expect(recs[0]).toMatchObject({ chartType: 'bar-horizontal', fitness: 'best' })
+  })
+
+  it('recommends bar-stacked for a 1cat+Nnum part-to-whole goal', () => {
+    const recs = recommendCharts(['string', 'number', 'number'], 5, 'each segment as a share of the total')
+    expect(recs[0]).toMatchObject({ chartType: 'bar-stacked', fitness: 'best' })
+  })
+
+  it('ignores an unrecognized goal and uses the shape default', () => {
+    const recs = recommendCharts(['date', 'number'], 12, 'just a chart please')
+    expect(recs[0]).toMatchObject({ chartType: 'line', fitness: 'best' })
+  })
 })
