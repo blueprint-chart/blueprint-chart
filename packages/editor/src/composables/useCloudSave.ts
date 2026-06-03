@@ -14,25 +14,29 @@ export function useCloudSave() {
   const { generateDsl } = useDslOutput()
   const { syncCloud, markCloudBacked } = useCloudCharts()
 
-  const saving = ref(false)
+  const saving = shallowRef(false)
 
   async function saveToCloud(): Promise<boolean> {
     if (!sessionId.value) {
       return false
     }
     saving.value = true
-    const id = await syncCloud({
-      id: sessionId.value,
-      dsl: generateDsl(),
-      meta: readLocalMeta(sessionId.value),
-      title: title.value,
-      chartType: chartType.value,
-    })
-    if (id) {
-      markCloudBacked(id)
+    try {
+      const id = await syncCloud({
+        id: sessionId.value,
+        dsl: generateDsl(),
+        meta: readLocalMeta(sessionId.value),
+        title: title.value,
+        chartType: chartType.value,
+      })
+      if (id) {
+        markCloudBacked(id)
+      }
+      return Boolean(id)
     }
-    saving.value = false
-    return Boolean(id)
+    finally {
+      saving.value = false
+    }
   }
 
   return { saving, saveToCloud }
