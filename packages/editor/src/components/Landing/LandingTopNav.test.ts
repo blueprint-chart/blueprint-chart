@@ -2,6 +2,11 @@ import { shallowRef } from 'vue'
 import { mount } from '@vue/test-utils'
 import LandingTopNav from './LandingTopNav.vue'
 
+vi.mock('@/config/runtimeConfig', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/config/runtimeConfig')>()),
+  accountsEnabled: () => true,
+}))
+
 vi.mock('@/stores/theme', () => ({
   useTheme: () => ({
     theme: shallowRef('light'),
@@ -31,7 +36,7 @@ function mountNav() {
       stubs: {
         'router-link': { template: '<a><slot /></a>', props: ['to'] },
         'ButtonIcon': { template: '<button class="btn-stub" :data-label="label"><slot /></button>', props: ['label', 'variant', 'size', 'iconRight', 'iconLeft', 'hideLabel', 'square'] },
-        'AppIcon': { template: '<span />', props: ['name', 'size'] },
+        'AccountMenu': { template: '<div class="account-menu-stub" />' },
         'NavigationCommandBar': {
           template: '<button class="ncb-stub" :data-placeholder="placeholder" @click="$emit(\'click\')"><slot /></button>',
           props: ['placeholder', 'shortcutLabel'],
@@ -66,11 +71,21 @@ describe('LandingTopNav', () => {
     expect(menuLabels).toEqual(['AI', 'Format', 'Defaults', 'Transforms', 'Scenes'])
   })
 
-  it('renders search, GitHub, and theme toggle inside actions, in that order', () => {
+  it('renders search, theme toggle, then account menu inside actions, in that order', () => {
     const w = mountNav()
     const actions = w.find('.nmb-stub__actions').html()
-    expect(actions.indexOf('ncb-stub')).toBeLessThan(actions.indexOf('landing-topnav__github'))
-    expect(actions.indexOf('landing-topnav__github')).toBeLessThan(actions.indexOf('data-label="Toggle theme"'))
+    expect(actions.indexOf('ncb-stub')).toBeLessThan(actions.indexOf('data-label="Toggle theme"'))
+    expect(actions.indexOf('data-label="Toggle theme"')).toBeLessThan(actions.indexOf('account-menu-stub'))
+  })
+
+  it('no longer renders a GitHub link in the nav', () => {
+    const w = mountNav()
+    expect(w.find('a[href*="github.com"]').exists()).toBe(false)
+  })
+
+  it('mounts the account menu when accounts are enabled', () => {
+    const w = mountNav()
+    expect(w.find('.account-menu-stub').exists()).toBe(true)
   })
 
   it('does not render My charts or New chart buttons', () => {

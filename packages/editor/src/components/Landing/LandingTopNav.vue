@@ -2,16 +2,16 @@
 import { computed } from 'vue'
 import { useMediaQuery } from '@vueuse/core'
 import {
-  AppIcon,
   ButtonIcon,
   NavigationCommandBar,
   NavigationMarketingBar,
 } from '@blueprint-chart/ui'
 import { useTheme, type ThemeMode } from '@/stores/theme'
 import { usePlatformShortcut } from '@/composables/usePlatformShortcut'
+import AccountMenu from '@/components/Account/AccountMenu.vue'
+import { accountsEnabled } from '@/config/runtimeConfig'
 import logoLight from '@/assets/images/blueprint-chart-logo.svg'
 import logoDark from '@/assets/images/blueprint-chart-logo-dark.svg'
-import IPhGithubLogo from '~icons/ph/github-logo'
 import IPhSun from '~icons/ph/sun'
 import IPhMoon from '~icons/ph/moon'
 import IPhCircleHalf from '~icons/ph/circle-half'
@@ -19,9 +19,10 @@ import IPhCircleHalf from '~icons/ph/circle-half'
 const { theme, resolvedTheme, cycleTheme } = useTheme()
 const shortcut = usePlatformShortcut('k')
 const logoSrc = computed(() => resolvedTheme.value === 'dark' ? logoDark : logoLight)
+const showAccount = accountsEnabled()
 
-// Matches the existing `@media (max-width: 37.5rem)` CSS threshold below so
-// the JS-driven `:collapsed` switches at the same width as the CSS hides.
+// Collapses the search bar on narrow viewports (matches the 37.5rem breakpoint
+// used by NavigationMarketingBar for its own narrow layout).
 const isNarrow = useMediaQuery('(max-width: 37.5rem)')
 
 const iconByTheme: Record<ThemeMode, typeof IPhSun> = {
@@ -81,18 +82,6 @@ function openSearch() {
         :collapsed="isNarrow"
         @click="openSearch"
       />
-      <a
-        class="btn btn-sm btn-outline-secondary landing-topnav__github"
-        href="https://github.com/blueprint-chart/blueprint-chart"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        <AppIcon
-          :name="IPhGithubLogo"
-          size="xs"
-        />
-        GitHub
-      </a>
       <ButtonIcon
         :icon-left="themeIcon"
         label="Toggle theme"
@@ -102,6 +91,7 @@ function openSearch() {
         size="sm"
         @click="cycleTheme"
       />
+      <AccountMenu v-if="showAccount" />
     </template>
   </NavigationMarketingBar>
 </template>
@@ -126,18 +116,5 @@ function openSearch() {
 
 .landing-topnav__brand-name {
   line-height: 1;
-}
-
-.landing-topnav__github {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.375rem;
-  white-space: nowrap;
-}
-
-// Brand wordmark stays visible at every width (the search collapses + GitHub
-// drops out instead, matching LayoutNavbar's narrow behavior).
-@media (max-width: 37.5rem) {
-  .landing-topnav__github { display: none; }
 }
 </style>
