@@ -51,7 +51,6 @@
 <script setup lang="ts">
 import IPhPencilSimple from '~icons/ph/pencil-simple'
 import IPhCloudArrowUp from '~icons/ph/cloud-arrow-up'
-import IPhCloudArrowDown from '~icons/ph/cloud-arrow-down'
 import IPhCloudCheck from '~icons/ph/cloud-check'
 import { GalleryCard, DisplayDate, DisplayChartTypeBadge, ButtonIcon } from '@blueprint-chart/ui'
 import { useTheme } from '@/stores/theme'
@@ -77,10 +76,14 @@ const emit = defineEmits<{
 }>()
 
 const statusIcon = computed(() => {
-  if (props.chart.syncState === 'synced') {
-    return IPhCloudCheck
+  // A chart that lives in the cloud reads the same to the user whether or not
+  // it's also been pulled to this device ('synced') — both are simply "in the
+  // cloud", so they share the check icon. Only a chart that exists *only*
+  // locally (not backed up yet) gets the distinct upload icon.
+  if (props.chart.syncState === 'local') {
+    return IPhCloudArrowUp
   }
-  return props.chart.syncState === 'cloud' ? IPhCloudArrowDown : IPhCloudArrowUp
+  return IPhCloudCheck
 })
 
 const statusLabel = computed(() => {
@@ -119,8 +122,10 @@ function onStatusClick() {
   font-size: 0.95rem;
   cursor: pointer;
 
+  // 'synced' and 'cloud' both mean "in the cloud" — same green. 'synced' is
+  // non-interactive (already here); 'cloud' stays clickable to pull it down.
   &--synced { color: #2d8659; cursor: default; }
-  &--cloud { color: #2563a0; }
+  &--cloud { color: #2d8659; }
   &--local { color: #163a65; }
 }
 </style>
