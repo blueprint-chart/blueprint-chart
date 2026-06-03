@@ -147,9 +147,16 @@ body {
 .offcanvas-backdrop      { z-index: 1050; }
 .layout-shell__sidebar-offcanvas { z-index: 1055; }
 
-// The AccountMenu dropdown teleports to <body> (bootstrap-vue-next default, so it
-// escapes the app shell's overflow:hidden). The teleported menu carries only
-// floating-ui's positioning styles — no z-index — so it falls back to Bootstrap's
-// dropdown default (1000), which is *below* our navbar (1040) and renders behind
-// chrome. Slot it above the navbar but under the offcanvas overlay.
-.account-menu__menu      { z-index: 1045; }
+// The AccountMenu dropdown opts into teleport-to="body" so it escapes the
+// navbar's backdrop-filter stacking context (which paints *before* the main
+// panel in DOM order, trapping any in-place menu behind it). The teleported
+// menu carries only floating-ui's positioning styles — no z-index — so it
+// falls back to Bootstrap's dropdown default (1000), which is *below* our
+// navbar (1040) and renders behind chrome. Slot it above the navbar but under
+// the offcanvas overlay.
+.account-menu__menu {
+  z-index: 1045;
+  // Cap to the viewport so the teleported menu never overflows on small
+  // screens; floating-ui flip/shift keeps it on-screen and right-aligned.
+  width: min(248px, calc(100vw - 1rem));
+}
