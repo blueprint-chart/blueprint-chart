@@ -245,6 +245,7 @@
     "useClipboard": true,
     "useClipboardItems": true,
     "useCloned": true,
+    "useCloudSave": true,
     "useCloudSync": true,
     "useCloudSyncBinding": true,
     "useColorMode": true,

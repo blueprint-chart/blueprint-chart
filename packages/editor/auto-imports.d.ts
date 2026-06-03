@@ -231,6 +231,7 @@ declare global {
   const useClipboard: typeof import('@vueuse/core').useClipboard
   const useClipboardItems: typeof import('@vueuse/core').useClipboardItems
   const useCloned: typeof import('@vueuse/core').useCloned
+  const useCloudSave: typeof import('./src/composables/useCloudSave').useCloudSave
   const useCloudSync: typeof import('./src/composables/useCloudSync').useCloudSync
   const useCloudSyncBinding: typeof import('./src/composables/useCloudSyncBinding').useCloudSyncBinding
   const useColorMode: typeof import('@vueuse/core').useColorMode
