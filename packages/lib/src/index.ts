@@ -73,7 +73,9 @@ export { parseData, buildChartOptions } from './charts/chart-helpers'
 
 // Recommendations
 export { recommendCharts } from './recommendations/recommend'
-export type { ChartRecommendation, RecommendationFitness, ColumnType } from './recommendations/recommend'
+export { classifyIntent } from './recommendations/intent'
+export { shapeOf } from './recommendations/shape'
+export type { ChartRecommendation, RecommendationFitness, ColumnType, Intent, ShapeSignature } from './recommendations/types'
 
 export { getChartTypeDefaults, resolveChartTypeOptions } from './charts/resolve'
 export { resolveBarGapPadding, DEFAULT_BAR_GAP } from './charts/scale-helpers'
