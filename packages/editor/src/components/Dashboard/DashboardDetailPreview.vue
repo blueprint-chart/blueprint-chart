@@ -10,12 +10,25 @@
       class="dashboard-detail-preview__img"
     >
   </div>
+  <div
+    v-else-if="loading"
+    class="dashboard-detail-preview"
+  >
+    <FeedbackSkeleton
+      width="100%"
+      height="100%"
+      radius="var(--bc-radius-xs)"
+    />
+  </div>
 </template>
 
 <script setup lang="ts">
+import { FeedbackSkeleton } from '@blueprint-chart/ui'
+
 defineProps<{
   src?: string
   forceLightTheme?: boolean
+  loading?: boolean
 }>()
 </script>
 

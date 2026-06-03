@@ -18,6 +18,7 @@
     <DashboardDetailPreview
       :src="previewSrc"
       :force-light-theme="forceLightTheme"
+      :loading="previewLoading"
     />
 
     <DashboardDetailMeta
@@ -55,6 +56,7 @@ defineProps<{
   title: string
   subtitle?: string
   previewSrc?: string
+  previewLoading?: boolean
   forceLightTheme?: boolean
   chartType: string
   savedAt?: string

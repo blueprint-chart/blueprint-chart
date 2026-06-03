@@ -29,6 +29,12 @@ const { isSignedIn } = useAccount()
 const showCloud = computed(() => accountsEnabled() && isSignedIn.value)
 
 const cloud = useCloudCharts()
+const wait = useWait()
+const previewLoading = computed(() =>
+  selectedChartId.value
+    ? wait.waiting(`chart-media:${selectedChartId.value}`) && !previews[selectedChartId.value]
+    : false,
+)
 const importer = useLocalImport({
   listLocalOnly: () => sortedCharts.value
     .filter(c => c.syncState === 'local')
@@ -182,6 +188,7 @@ onUnmounted(() => {
           :title="selectedChart.title || 'Untitled'"
           :subtitle="selectedChart.description"
           :preview-src="selectedChartId ? previews[selectedChartId] : undefined"
+          :preview-loading="previewLoading"
           :force-light-theme="selectedChart ? !selectedChart.allowDarkMode : false"
           :chart-type="selectedChart.chartType"
           :saved-at="selectedChart.savedAt ?? undefined"
