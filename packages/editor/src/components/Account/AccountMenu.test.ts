@@ -118,3 +118,13 @@ describe('AccountMenu (session init)', () => {
     expect(store.init).toHaveBeenCalled()
   })
 })
+
+describe('AccountMenu — shared sign-in modal', () => {
+  it('opens the store-backed modal when the signed-out sign-in button is clicked', async () => {
+    const { wrapper } = await mountMenu(false)
+    const store = useAccountStore()
+    expect(store.signInModalOpen).toBe(false)
+    await wrapper.find('button').trigger('click')
+    expect(store.signInModalOpen).toBe(true)
+  })
+})

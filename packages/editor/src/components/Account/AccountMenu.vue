@@ -65,11 +65,11 @@
         label="Sign in"
         variant="primary"
         size="sm"
-        @click="modalOpen = true"
+        @click="signInModalOpen = true"
       />
     </template>
 
-    <AccountSignInModal v-model:open="modalOpen" />
+    <AccountSignInModal v-model:open="signInModalOpen" />
   </div>
 </template>
 
@@ -84,8 +84,7 @@ import AccountSignInModal from '@/components/Account/AccountSignInModal.vue'
 import { useAccount } from '@/stores/account'
 
 const router = useRouter()
-const { user, isSignedIn, signOut, init } = useAccount()
-const modalOpen = ref(false)
+const { user, isSignedIn, signOut, init, signInModalOpen } = useAccount()
 const email = computed(() => user.value?.email ?? '')
 
 // Self-contained: load the session wherever this is mounted (navbar OR landing).
