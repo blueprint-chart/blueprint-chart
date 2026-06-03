@@ -61,8 +61,8 @@ const TABLE: Record<ShapeSignature, Partial<Record<Intent, CellFn>>> = {
       r('bar-multi', 'best', '1 categorical + multiple numeric columns — compare groups'),
       r('line-multi', 'good', 'Can also show as a multi-line chart'),
     ],
-    comparison: () => TABLE['1cat+Nnum'].none!(0),
-    ranking: () => TABLE['1cat+Nnum'].none!(0),
+    comparison: rowCount => TABLE['1cat+Nnum'].none!(rowCount),
+    ranking: rowCount => TABLE['1cat+Nnum'].none!(rowCount),
     // Categorical x beats trend narrative: "overtakes" must NOT flip to lines.
     trend: () => [
       r('bar-multi', 'best', 'Categorical x-axis — grouped bars even for a trend story'),
@@ -115,9 +115,9 @@ const TABLE: Record<ShapeSignature, Partial<Record<Intent, CellFn>>> = {
       r('line-multi', 'best', '1 date + multiple numeric columns — compare trends'),
       r('bar-multi', 'alternative', 'Can also show as grouped bars'),
     ],
-    trend: () => TABLE['1date+Nnum'].none!(0),
-    comparison: () => TABLE['1date+Nnum'].none!(0),
-    ranking: () => TABLE['1date+Nnum'].none!(0),
+    trend: rowCount => TABLE['1date+Nnum'].none!(rowCount),
+    comparison: rowCount => TABLE['1date+Nnum'].none!(rowCount),
+    ranking: rowCount => TABLE['1date+Nnum'].none!(rowCount),
     'composition-over-time': () => [
       r('area-stacked', 'best', 'Stacked area shows composition over continuous time'),
       r('column-stacked', 'good', 'Stacked columns for the same composition'),
