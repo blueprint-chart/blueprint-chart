@@ -82,6 +82,7 @@ export function useDashboardCharts() {
   const session = useChartSession()
   const cloud = useCloudCharts()
   const { isSignedIn } = useAccount()
+  const wait = useWait()
 
   const charts = ref<UnifiedChartSummary[]>([])
   const thumbnails = reactive<Record<string, string>>({})
@@ -101,7 +102,14 @@ export function useDashboardCharts() {
 
   async function refresh(): Promise<void> {
     const localList = session.listSavedCharts()
-    const cloudList = showCloud.value ? await cloud.listCloud() : []
+    wait.start('dashboard-charts')
+    let cloudList: CloudChartSummary[] = []
+    try {
+      cloudList = showCloud.value ? await cloud.listCloud() : []
+    }
+    finally {
+      wait.end('dashboard-charts')
+    }
     charts.value = mergeChartLists(localList, cloudList)
     loadImages()
   }
@@ -161,30 +169,36 @@ export function useDashboardCharts() {
     if (cachedThumb && cachedPreview) {
       return
     }
-    const record = await cloud.loadCloud(id)
-    if (!record) {
-      return
-    }
-    cacheImagesFromDsl(id, record.dsl)
-    const t = getThumbnail(id)
-    const p = getPreview(id)
-    if (t) {
-      thumbnails[id] = svgToDataUrl(t)
-    }
-    if (p) {
-      previews[id] = svgToDataUrl(p)
-    }
-    // Enrich cloud-only metadata now that we have the DSL.
-    const summary = summarizeDsl(record.dsl)
-    const idx = charts.value.findIndex(c => c.id === id)
-    if (idx !== -1) {
-      charts.value[idx] = {
-        ...charts.value[idx],
-        description: summary.description,
-        sceneCount: summary.sceneCount,
-        rowCount: summary.rowCount,
-        allowDarkMode: summary.allowDarkMode,
+    wait.start(`chart-media:${id}`)
+    try {
+      const record = await cloud.loadCloud(id)
+      if (!record) {
+        return
       }
+      cacheImagesFromDsl(id, record.dsl)
+      const t = getThumbnail(id)
+      const p = getPreview(id)
+      if (t) {
+        thumbnails[id] = svgToDataUrl(t)
+      }
+      if (p) {
+        previews[id] = svgToDataUrl(p)
+      }
+      // Enrich cloud-only metadata now that we have the DSL.
+      const summary = summarizeDsl(record.dsl)
+      const idx = charts.value.findIndex(c => c.id === id)
+      if (idx !== -1) {
+        charts.value[idx] = {
+          ...charts.value[idx],
+          description: summary.description,
+          sceneCount: summary.sceneCount,
+          rowCount: summary.rowCount,
+          allowDarkMode: summary.allowDarkMode,
+        }
+      }
+    }
+    finally {
+      wait.end(`chart-media:${id}`)
     }
   }
 

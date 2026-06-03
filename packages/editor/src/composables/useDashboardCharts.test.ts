@@ -126,3 +126,27 @@ describe('useDashboardCharts actions', () => {
     expect(useCloudCharts().isCloudBacked('cloudonly001')).toBe(false)
   })
 })
+
+import { useWaitStore } from '@/stores/wait'
+
+describe('useDashboardCharts loading flags', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    localStorage.clear()
+    vi.restoreAllMocks()
+    const client = makeClientMock()
+    vi.spyOn(clientModule, 'getSupabaseClient').mockResolvedValue(client as never)
+  })
+
+  it('brackets refresh with the dashboard-charts loader and clears it after', async () => {
+    const store = useWaitStore()
+    const setSpy = vi.spyOn(store, 'set')
+    const dash = useDashboardCharts()
+
+    await dash.refresh()
+
+    const calls = setSpy.mock.calls.filter(c => c[0] === 'dashboard-charts')
+    expect(calls).toEqual([['dashboard-charts', true], ['dashboard-charts', false]])
+    expect(store.get('dashboard-charts')).toBe(false)
+  })
+})
