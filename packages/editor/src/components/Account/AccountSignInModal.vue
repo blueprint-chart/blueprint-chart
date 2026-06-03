@@ -108,7 +108,8 @@
           v-if="status === 'sending'"
           :name="IPhCircleNotch"
           size="sm"
-          class="account-sign-in__spinner"
+          spin
+          spin-duration="0.7s"
         />
         {{ status === 'sending' ? 'Sending link…' : 'Email me a magic link' }}
       </button>
@@ -150,7 +151,7 @@ async function onSubmit() {
 </script>
 
 <style scoped lang="scss">
-.account-sign-in__body {
+:deep(.account-sign-in__body) {
   position: relative;
 }
 
@@ -169,8 +170,15 @@ async function onSubmit() {
   background: transparent;
   color: var(--bs-secondary-color);
 
+  cursor: pointer;
+
   &:hover {
     background: var(--bs-tertiary-bg);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--bs-primary);
+    outline-offset: 1px;
   }
 }
 
@@ -234,6 +242,7 @@ async function onSubmit() {
   color: var(--bs-primary);
 }
 
+// Deliberate override of Bootstrap's .form-label top margin inside this form.
 .account-sign-in .form-label {
   margin-top: 1.125rem;
 }
@@ -245,16 +254,6 @@ async function onSubmit() {
   color: var(--bs-danger);
   font-size: 0.8125rem;
   margin: 0.5rem 0 0;
-}
-
-.account-sign-in__spinner {
-  animation: account-sign-in-spin 0.7s linear infinite;
-}
-
-@keyframes account-sign-in-spin {
-  to {
-    transform: rotate(360deg);
-  }
 }
 
 .account-sign-in__fine {
