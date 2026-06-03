@@ -1,19 +1,12 @@
 import { mount } from '@vue/test-utils'
 import LandingValuePropStrip from './LandingValuePropStrip.vue'
 
-function mountStrip() {
-  return mount(LandingValuePropStrip)
-}
+const GITHUB_URL = 'https://github.com/blueprint-chart/blueprint-chart'
 
 describe('LandingValuePropStrip', () => {
-  it('renders 4 cells', () => {
-    const w = mountStrip()
-    expect(w.findAll('.landing-value-prop-strip__cell')).toHaveLength(4)
-  })
-
   it('renders the four expected labels', () => {
-    const w = mountStrip()
-    const labels = w.findAll('.landing-value-prop-strip__cell__label').map(n => n.text())
+    const wrapper = mount(LandingValuePropStrip)
+    const labels = wrapper.findAll('.landing-value-prop-strip__cell__label').map(n => n.text())
     expect(labels).toEqual([
       '01 / Plain text',
       '02 / No backend',
@@ -23,13 +16,22 @@ describe('LandingValuePropStrip', () => {
   })
 
   it('renders the four expected values', () => {
-    const w = mountStrip()
-    const values = w.findAll('.landing-value-prop-strip__cell__value').map(n => n.text())
+    const wrapper = mount(LandingValuePropStrip)
+    const values = wrapper.findAll('.landing-value-prop-strip__cell__value').map(n => n.text().trim())
     expect(values).toEqual([
       'A format AI can write',
       'Renders in the browser',
       'Nothing ever uploaded',
       'Open source, forever',
     ])
+  })
+
+  it('links the MIT cell to the GitHub repository', () => {
+    const wrapper = mount(LandingValuePropStrip)
+    const link = wrapper.find(`a[href="${GITHUB_URL}"]`)
+    expect(link.exists()).toBe(true)
+    expect(link.text()).toContain('Open source')
+    expect(link.attributes('target')).toBe('_blank')
+    expect(link.attributes('rel')).toBe('noopener noreferrer')
   })
 })

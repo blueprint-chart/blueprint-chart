@@ -1,10 +1,19 @@
 <script setup lang="ts">
-const cells = [
+import { AppIcon } from '@blueprint-chart/ui'
+import IPhGithubLogo from '~icons/ph/github-logo'
+
+interface ValueCell {
+  label: string
+  value: string
+  href?: string
+}
+
+const cells: ValueCell[] = [
   { label: '01 / Plain text', value: 'A format AI can write' },
   { label: '02 / No backend', value: 'Renders in the browser' },
   { label: '03 / Data sovereignty', value: 'Nothing ever uploaded' },
-  { label: '04 / MIT', value: 'Open source, forever' },
-] as const
+  { label: '04 / MIT', value: 'Open source, forever', href: 'https://github.com/blueprint-chart/blueprint-chart' },
+]
 </script>
 
 <template>
@@ -21,7 +30,20 @@ const cells = [
         {{ cell.label }}
       </dt>
       <dd class="landing-value-prop-strip__cell__value">
-        {{ cell.value }}
+        <a
+          v-if="cell.href"
+          :href="cell.href"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="landing-value-prop-strip__cell__link"
+        >
+          <AppIcon
+            :name="IPhGithubLogo"
+            size="xs"
+          />
+          {{ cell.value }}
+        </a>
+        <template v-else>{{ cell.value }}</template>
       </dd>
     </dl>
   </section>
@@ -60,6 +82,26 @@ const cells = [
       font-size: var(--bs-font-size-md);
       font-weight: 500;
       color: var(--bs-body-color);
+    }
+
+    &__link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      color: inherit;
+      text-decoration: none;
+      transition: color var(--bc-duration-base) var(--bc-ease);
+
+      &:hover {
+        color: var(--bs-primary);
+        text-decoration: underline;
+      }
+
+      &:focus-visible {
+        outline: none;
+        box-shadow: var(--bc-focus-ring);
+        border-radius: 2px;
+      }
     }
   }
 }
