@@ -405,6 +405,7 @@
     "useVModels": true,
     "useVibrate": true,
     "useVirtualList": true,
+    "useWait": true,
     "useWakeLock": true,
     "useWebNotification": true,
     "useWebSocket": true,
