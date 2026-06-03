@@ -55,6 +55,11 @@ jobs:
   e2e:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    # Browsers + all system deps are pre-baked into this image, so there is no
+    # download and no apt step. Keep the tag in sync with the @playwright/test
+    # version in package.json.
+    container:
+      image: mcr.microsoft.com/playwright:v1.58.2-noble
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -65,18 +70,6 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: make install
-      - name: Cache Playwright browsers
-        id: playwright-cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
-      - name: Install Playwright browsers + system deps
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: npx playwright install --with-deps chromium
-      - name: Install Playwright system deps only
-        if: steps.playwright-cache.outputs.cache-hit == 'true'
-        run: npx playwright install-deps chromium
       - run: make test-e2e
       - name: Upload Playwright report
         if: failure()
