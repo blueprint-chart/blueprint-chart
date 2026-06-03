@@ -5,6 +5,7 @@
         variant="outline-secondary"
         size="sm"
         end
+        :offset="6"
         teleport-to="body"
         menu-class="account-menu__menu"
       >
