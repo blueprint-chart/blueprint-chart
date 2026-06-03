@@ -6,6 +6,7 @@
         variant="outline-secondary"
         size="sm"
         end
+        menu-class="account-menu__menu"
       >
         <BDropdownItem @click="goToCharts">
           My charts

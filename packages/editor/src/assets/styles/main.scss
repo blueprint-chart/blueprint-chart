@@ -146,3 +146,10 @@ body {
 // chrome stays under the overlay when it's open.
 .offcanvas-backdrop      { z-index: 1050; }
 .layout-shell__sidebar-offcanvas { z-index: 1055; }
+
+// The AccountMenu dropdown teleports to <body> (bootstrap-vue-next default, so it
+// escapes the app shell's overflow:hidden). The teleported menu carries only
+// floating-ui's positioning styles — no z-index — so it falls back to Bootstrap's
+// dropdown default (1000), which is *below* our navbar (1040) and renders behind
+// chrome. Slot it above the navbar but under the offcanvas overlay.
+.account-menu__menu      { z-index: 1045; }
