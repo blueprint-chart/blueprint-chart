@@ -88,4 +88,21 @@ describe('AccountSignInModal', () => {
     expect(wrapper.find('button[type="submit"]').text()).toContain('Email me a magic link')
     expect(wrapper.find('input[type="email"]').attributes('placeholder')).toBe('you@example.com')
   })
+
+  it('disables the submit button and shows a sending label while sending', async () => {
+    const wrapper = mount(AccountSignInModal, {
+      props: { open: true },
+      global: {
+        plugins: [createTestingPinia({ stubActions: false, createSpy: vi.fn })],
+        stubs: { BModal: { template: '<div><slot /></div>' } },
+      },
+    })
+    const store = useAccountStore()
+    store.status = 'sending'
+    await wrapper.vm.$nextTick()
+
+    const button = wrapper.find('button[type="submit"]')
+    expect(button.attributes('disabled')).toBeDefined()
+    expect(button.text()).toContain('Sending link…')
+  })
 })
