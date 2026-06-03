@@ -105,4 +105,21 @@ describe('AccountSignInModal', () => {
     expect(button.attributes('disabled')).toBeDefined()
     expect(button.text()).toContain('Sending link…')
   })
+
+  it('shows the error message and marks the input invalid on error', async () => {
+    const wrapper = mount(AccountSignInModal, {
+      props: { open: true },
+      global: {
+        plugins: [createTestingPinia({ stubActions: false, createSpy: vi.fn })],
+        stubs: { BModal: { template: '<div><slot /></div>' } },
+      },
+    })
+    const store = useAccountStore()
+    store.status = 'error'
+    store.errorMessage = 'That email is not valid'
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.find('.account-sign-in__error').text()).toContain('That email is not valid')
+    expect(wrapper.find('input[type="email"]').classes()).toContain('is-invalid')
+  })
 })
