@@ -1,4 +1,4 @@
-import { useAccount } from './account'
+import { useAccount, useAccountStore } from './account'
 import { useCloudChartsStore } from './cloudCharts'
 import * as clientModule from '@/lib/supabaseClient'
 
@@ -118,5 +118,22 @@ describe('useAccount', () => {
     await account.init() // second caller must await the SAME resolution
     expect(account.user.value).toEqual({ id: 'u1', email: 'a@b.co' })
     expect(auth.getSession).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe('account store — sign-in modal state', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+  })
+
+  it('starts with the sign-in modal closed', () => {
+    const store = useAccountStore()
+    expect(store.signInModalOpen).toBe(false)
+  })
+
+  it('openSignInModal() opens the sign-in modal', () => {
+    const store = useAccountStore()
+    store.openSignInModal()
+    expect(store.signInModalOpen).toBe(true)
   })
 })

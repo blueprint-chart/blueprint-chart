@@ -26,6 +26,7 @@ export const useAccountStore = defineStore('account', () => {
   const user = shallowRef<AccountUser | null>(null)
   const status = shallowRef<AccountStatus>('idle')
   const errorMessage = shallowRef<string | null>(null)
+  const signInModalOpen = shallowRef(false)
   // Memoized in-flight init() promise so concurrent callers await the SAME
   // session restore instead of a second caller returning before user is set.
   let initPromise: Promise<void> | null = null
@@ -91,20 +92,26 @@ export const useAccountStore = defineStore('account', () => {
     errorMessage.value = null
   }
 
-  return { user, status, errorMessage, isSignedIn, init, signInWithEmail, signOut, resetStatus }
+  function openSignInModal(): void {
+    signInModalOpen.value = true
+  }
+
+  return { user, status, errorMessage, isSignedIn, signInModalOpen, init, signInWithEmail, signOut, resetStatus, openSignInModal }
 })
 
 export function useAccount() {
   const store = useAccountStore()
-  const { user, status, errorMessage, isSignedIn } = storeToRefs(store)
+  const { user, status, errorMessage, isSignedIn, signInModalOpen } = storeToRefs(store)
   return {
     user,
     status,
     errorMessage,
     isSignedIn,
+    signInModalOpen,
     init: store.init,
     signInWithEmail: store.signInWithEmail,
     signOut: store.signOut,
     resetStatus: store.resetStatus,
+    openSignInModal: store.openSignInModal,
   }
 }
