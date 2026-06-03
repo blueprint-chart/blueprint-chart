@@ -81,8 +81,19 @@ describe('ExportEmbedPanel — four states', () => {
     })
   }
 
-  it('state 1 (signed out): leads with self-contained, hints sign-in, no live link', async () => {
+  it('no-cloud (accounts not configured): self-contained only, no sign-in hint', async () => {
     vi.spyOn(runtimeConfig, 'accountsEnabled').mockReturnValue(false)
+    const wrapper = mountState()
+    await nextTick()
+    expect(wrapper.text()).toContain('Embed code')
+    expect(wrapper.find('.export-embed-panel__hint').exists()).toBe(false)
+    expect(wrapper.text()).not.toContain('Sign in')
+    expect(wrapper.text()).not.toContain('Live link')
+    expect(wrapper.text()).not.toContain('Publish')
+  })
+
+  it('state 1 (accounts configured, signed out): leads with self-contained, hints sign-in, no live link', async () => {
+    vi.spyOn(runtimeConfig, 'accountsEnabled').mockReturnValue(true)
     const wrapper = mountState()
     await nextTick()
     expect(wrapper.text()).toContain('Embed code')
@@ -91,8 +102,8 @@ describe('ExportEmbedPanel — four states', () => {
     expect(wrapper.text()).not.toContain('Publish')
   })
 
-  it('state 1 (signed out): clicking the hint opens the sign-in modal', async () => {
-    vi.spyOn(runtimeConfig, 'accountsEnabled').mockReturnValue(false)
+  it('state 1 (accounts configured, signed out): clicking the hint opens the sign-in modal', async () => {
+    vi.spyOn(runtimeConfig, 'accountsEnabled').mockReturnValue(true)
     const wrapper = mountState()
     await nextTick()
     const store = useAccountStore()

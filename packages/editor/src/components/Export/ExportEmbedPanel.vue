@@ -70,7 +70,10 @@
         :permalink="selfRenderUrl"
         copy-embed-label="Copy embed code"
       />
-      <p class="export-embed-panel__hint">
+      <p
+        v-if="state !== 'no-cloud'"
+        class="export-embed-panel__hint"
+      >
         <template v-if="state === 'signed-out'">
           Want an embed that updates when you edit it?
           <button
@@ -125,8 +128,12 @@ const cloudBacked = ref(false)
 const published = ref(false)
 const publishing = ref(false)
 
-const state = computed<'signed-out' | 'not-saved' | 'not-published' | 'published'>(() => {
-  if (!eligible.value) {
+const state = computed<'no-cloud' | 'signed-out' | 'not-saved' | 'not-published' | 'published'>(() => {
+  // No cloud configured: there is nothing to sign into, so skip the hint entirely.
+  if (!accountsEnabled()) {
+    return 'no-cloud'
+  }
+  if (!isSignedIn.value) {
     return 'signed-out'
   }
   if (!cloudBacked.value) {
