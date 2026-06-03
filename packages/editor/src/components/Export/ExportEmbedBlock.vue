@@ -73,7 +73,7 @@ withDefaults(defineProps<{
   }
 
   &__label {
-    font-size: var(--bs-body-font-size);
+    font-size: var(--bs-font-size-md);
     font-weight: 600;
     color: var(--bs-body-color);
   }
@@ -111,7 +111,7 @@ withDefaults(defineProps<{
     white-space: pre;
 
     code {
-      font-size: var(--bs-body-font-size-sm);
+      font-size: var(--bs-font-size-sm);
     }
   }
 
