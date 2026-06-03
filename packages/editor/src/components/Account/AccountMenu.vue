@@ -16,15 +16,20 @@
           <span class="visually-hidden">Account menu, {{ email }}</span>
         </template>
 
-        <BDropdownText class="account-menu__header">
-          <AccountAvatar
-            :email="email"
-            size="md"
-          />
-          <span class="account-menu__header__id">
-            <span class="account-menu__header__label">Signed in as</span>
-            <span class="account-menu__header__email">{{ email }}</span>
-          </span>
+        <BDropdownText>
+          <!-- Flex lives on this inner div: BDropdownText puts a class on its
+               outer <li> but wraps content in a .dropdown-item-text span, so a
+               class on the component wouldn't lay out the avatar + text as a row. -->
+          <div class="account-menu__header">
+            <AccountAvatar
+              :email="email"
+              size="md"
+            />
+            <span class="account-menu__header__id">
+              <span class="account-menu__header__label">Signed in as</span>
+              <span class="account-menu__header__email">{{ email }}</span>
+            </span>
+          </div>
         </BDropdownText>
 
         <BDropdownDivider />
