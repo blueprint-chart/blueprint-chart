@@ -35,6 +35,22 @@ describe('AccountSignInModal', () => {
     expect(wrapper.text()).toContain('Check your inbox')
   })
 
+  it('resets status when the modal opens', async () => {
+    const wrapper = mount(AccountSignInModal, {
+      props: { open: false },
+      global: {
+        plugins: [createTestingPinia({ stubActions: false, createSpy: vi.fn })],
+        stubs: { BModal: { template: '<div><slot /></div>' } },
+      },
+    })
+    const store = useAccountStore()
+    store.resetStatus = vi.fn()
+
+    await wrapper.setProps({ open: true })
+
+    expect(store.resetStatus).toHaveBeenCalledTimes(1)
+  })
+
   it('renders the branded headline, both benefit rows, and refined form copy', () => {
     const wrapper = mount(AccountSignInModal, {
       props: { open: true },

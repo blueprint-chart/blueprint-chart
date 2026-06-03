@@ -142,6 +142,15 @@ const email = ref('')
 
 const logoSrc = computed(() => (resolvedTheme.value === 'dark' ? logoDark : logoLight))
 
+watch(
+  () => props.open,
+  (isOpen) => {
+    if (isOpen) {
+      store.resetStatus()
+    }
+  },
+)
+
 async function onSubmit() {
   if (!email.value) {
     return
