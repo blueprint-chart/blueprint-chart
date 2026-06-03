@@ -68,6 +68,7 @@ export { default as ButtonRedo } from './components/Button/ButtonRedo/ButtonRedo
 export { default as ButtonUndo } from './components/Button/ButtonUndo/ButtonUndo.vue'
 
 export { default as FeedbackEmptyState } from './components/Feedback/FeedbackEmptyState/FeedbackEmptyState.vue'
+export { default as FeedbackSkeleton } from './components/Feedback/FeedbackSkeleton/FeedbackSkeleton.vue'
 
 export { default as LayoutBottomDrawer } from './components/Layout/LayoutBottomDrawer/LayoutBottomDrawer.vue'
 export { default as LayoutPanel } from './components/Layout/LayoutPanel/LayoutPanel.vue'
