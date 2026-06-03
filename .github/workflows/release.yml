@@ -182,6 +182,18 @@ jobs:
           find pages -mindepth 1 -maxdepth 1 ! -name '.git' -exec rm -rf {} +
           cp -R packages/editor/dist/. pages/
           ls -la pages/
+      - name: Write runtime config.json
+        working-directory: pages
+        env:
+          SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+        run: |
+          set -euo pipefail
+          jq -n \
+            --arg url "$SUPABASE_URL" \
+            --arg key "$SUPABASE_ANON_KEY" \
+            '{supabaseUrl: $url, supabaseAnonKey: $key}' > config.json
+          cat config.json
       - name: Commit and push
         if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && !inputs.dry_run)
         working-directory: pages

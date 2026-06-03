@@ -27,8 +27,24 @@ Releases are unified across the four packages (`lib`, `ui`, `editor`, `docs`) �
    - `verify` confirms the four `package.json` versions match the tag
    - `ci` runs lint + test + build
    - `publish-npm` publishes all four packages with provenance
-   - `deploy-pages` pushes `packages/editor/dist/` to `blueprint-chart/blueprintchart.com`
+   - `deploy-pages` pushes `packages/editor/dist/` to `blueprint-chart/blueprintchart.com`, writing a runtime `config.json` from the `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` secrets so the deployed editor has accounts enabled
    - `deploy-docs` pushes the VitePress build to `blueprint-chart/docs.blueprintchart.com`
+
+## Editor Supabase config
+
+The editor reads its Supabase credentials from a runtime `config.json` deployed
+next to `index.html`, not from the build. `deploy-pages` generates that file from
+two repository secrets (`Settings → Secrets and variables → Actions`):
+
+- `VITE_SUPABASE_URL`
+- `VITE_SUPABASE_ANON_KEY`
+
+Keeping them out of the build means the npm-published `@blueprint-chart/editor`
+package stays credential-free — only the deployed site is configured. If either
+secret is missing the editor still ships fine, with accounts disabled. The anon
+key is safe to expose (RLS-protected) but will live in the public Pages repo's
+git history. Confirm `https://blueprintchart.com` is in the Supabase Email
+provider's allowed redirect URLs, or magic-link sign-in will fail.
 
 ## Dry run
 
