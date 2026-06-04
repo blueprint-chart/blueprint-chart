@@ -70,6 +70,9 @@ const crumbs = computed<Crumb[]>(() => {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  // Link crumbs are short, fixed wayfinding labels ("My Charts") — keep them
+  // whole and let the active crumb (chart title) absorb the truncation.
+  flex-shrink: 0;
   transition: color var(--bc-duration-base) var(--bc-ease);
 
   &:hover {
@@ -80,6 +83,7 @@ const crumbs = computed<Crumb[]>(() => {
 .layout-breadcrumb__crumb--active {
   color: var(--bs-body-color);
   font-weight: 500;
+  flex-shrink: 1;
 }
 
 .layout-breadcrumb__crumb-sep {
