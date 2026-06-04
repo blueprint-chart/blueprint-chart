@@ -54,7 +54,12 @@ onMounted(() => {
       EditorView.theme({
         '&': { height: '100%', backgroundColor: 'var(--bc-tile-bg-elevated)' },
         '.cm-scroller': { overflow: 'auto' },
-        '.cm-content': { fontFamily: 'var(--bs-font-monospace)' },
+        // Bottom clearance so the last lines can scroll above the floating
+        // scene timeline, which overlays the canvas bottom (the editor
+        // scrolls internally, so canvas padding can't provide this).
+        // --fst-clearance is set by ChartEditPanel next to the timeline
+        // sizing; the fallback covers standalone use.
+        '.cm-content': { fontFamily: 'var(--bs-font-monospace)', paddingBottom: 'var(--fst-clearance, 9rem)' },
         '.cm-gutters': {
           backgroundColor: 'var(--bc-tile-bg-elevated)',
           color: 'var(--bs-secondary-color)',

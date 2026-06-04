@@ -272,6 +272,11 @@ const canvasStyle = computed<CSSProperties>(() => ({
     &--dsl {
       --fst-canvas-pad-x: 0px;
       --fst-canvas-pad-y: 0px;
+      // CodeMirror scrolls internally, so the floating scene timeline would
+      // permanently cover the last lines of code. The DSL editor pads its
+      // content bottom by this much so code can scroll clear of the strip
+      // (timeline card ~7.75rem + inset).
+      --fst-clearance: 9rem;
       background-image: none;
     }
 
