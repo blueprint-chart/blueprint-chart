@@ -84,7 +84,11 @@
         </div>
         <div class="upload-card__paste__footer">
           <div class="upload-card__paste__footer__hint">
-            <span class="upload-card__paste__footer__hint__kbd">⌘</span><span class="upload-card__paste__footer__hint__kbd">V</span> paste from spreadsheet
+            <span
+              v-for="k in pasteKeyChips"
+              :key="k"
+              class="upload-card__paste__footer__hint__kbd"
+            >{{ k }}</span> paste from spreadsheet
           </div>
           <button
             class="upload-card__paste__footer__btn"
@@ -107,6 +111,11 @@
 import { useDataTable } from '@/stores/dataTable'
 import { useScenes } from '@/stores/scenes'
 import { resolveScene } from '@/utils/scenes'
+import { usePlatformShortcut } from '@/composables/usePlatformShortcut'
+
+// Same platform detection as the navbar's Ctrl/⌘ K hint — the two hints were
+// hardcoded apart (⌘ V vs Ctrl K), so one was wrong on every platform.
+const pasteKeyChips = usePlatformShortcut('v').keyLabel.split(' ')
 
 defineEmits<{
   loaded: [content: string, sourceLabel: string]
