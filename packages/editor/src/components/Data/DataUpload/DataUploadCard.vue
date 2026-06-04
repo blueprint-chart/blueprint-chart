@@ -1,8 +1,9 @@
 <template>
   <div class="upload-card">
-    <h2 class="upload-card__title">
+    <!-- h1: this is the page's main heading (the wizard renders no other) -->
+    <h1 class="upload-card__title">
       Add your data
-    </h2>
+    </h1>
     <p class="upload-card__subtitle">
       Drop a file, paste from a spreadsheet, or pick a sample dataset
     </p>
