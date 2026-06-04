@@ -305,7 +305,10 @@ const tabOptions = [
         }
 
         &:disabled {
-          opacity: 0.5;
+          // Neutral surface, not faded primary: white-on-washed-blue reads
+          // as a rendering bug rather than "not available yet".
+          background: var(--bc-wash-firm, var(--bs-secondary-bg));
+          color: var(--bs-secondary-color);
           cursor: not-allowed;
         }
       }
