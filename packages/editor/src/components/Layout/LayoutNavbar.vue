@@ -55,6 +55,7 @@ const showAccount = accountsEnabled()
       <NavigationWorkspaceSwitcher
         name="Blueprint Chart"
         :logo-src="logoSrc"
+        :hide-name="isNarrow"
         to="/"
       />
     </div>

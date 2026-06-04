@@ -64,13 +64,15 @@ defineEmits<{ click: [] }>()
     box-shadow: var(--bc-focus-ring);
   }
 
-  // Collapsed: icon-only square button for narrow viewports.
+  // Collapsed: icon-only square button for narrow viewports. flex-shrink: 0
+  // keeps the square from being crushed to a sliver in a crowded navbar row.
   &--collapsed {
     min-width: 0;
     width: 1.9375rem;
     padding: 0;
     justify-content: center;
     gap: 0;
+    flex-shrink: 0;
   }
 }
 

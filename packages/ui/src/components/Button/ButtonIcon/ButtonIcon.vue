@@ -233,6 +233,9 @@ const buttonProps = computed((): Pick<BButtonProps, 'pill' | 'pressed' | 'size' 
 
   &__label {
     text-align: inherit;
+    // Buttons never wrap: a two-line "Sign in" reads as a layout bug. Use the
+    // `truncate` prop when a constrained container needs an ellipsis instead.
+    white-space: nowrap;
   }
 }
 </style>
