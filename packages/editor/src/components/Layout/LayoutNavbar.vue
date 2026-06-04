@@ -22,6 +22,9 @@ defineEmits<{ searchClick: [], toggleSidebar: [] }>()
 
 const { theme, cycleTheme, resolvedTheme } = useTheme()
 const { isNarrow } = useBreakpoint()
+// The wordmark only overflows the navbar on phone-width rows (~375px); keep
+// it visible through tablet widths and drop it below sm only.
+const { isNarrow: isCompact } = useBreakpoint('sm')
 const shortcut = usePlatformShortcut('k')
 
 const iconByTheme: Record<ThemeMode, typeof IPhSun> = {
@@ -55,7 +58,7 @@ const showAccount = accountsEnabled()
       <NavigationWorkspaceSwitcher
         name="Blueprint Chart"
         :logo-src="logoSrc"
-        :hide-name="isNarrow"
+        :hide-name="isCompact"
         to="/"
       />
     </div>
