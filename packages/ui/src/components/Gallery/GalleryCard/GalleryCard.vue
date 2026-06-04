@@ -221,6 +221,15 @@ function onActivate() {
       overflow: hidden;
     }
 
+    // Serif title variant: DM Serif Display ships a 400 face only, so the
+    // scoped 700 above forces synthetic bold that renders like a Times
+    // fallback. Let the display face use its native weight, one size up to
+    // keep optical parity with the bold sans variant.
+    &__title.bc-display {
+      font-weight: 400;
+      font-size: var(--bs-font-size-md);
+    }
+
     &__subtitle {
       font-size: var(--bs-font-size-xs);
       color: var(--bs-secondary-color);
