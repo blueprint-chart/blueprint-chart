@@ -47,9 +47,9 @@ describe('recommendCharts', () => {
     expect(recs[0]).toMatchObject({ chartType: 'area-stacked', fitness: 'best' })
   })
 
-  it('keeps bar-multi for a categorical "overtakes" goal (does not flip to lines)', () => {
+  it('recommends line-multi for a categorical "overtakes" goal (crossover reads as lines)', () => {
     const recs = recommendCharts(['string', 'number', 'number', 'number'], 8, 'how software overtakes hardware by quarter')
-    expect(recs[0]).toMatchObject({ chartType: 'bar-multi', fitness: 'best' })
+    expect(recs[0]).toMatchObject({ chartType: 'line-multi', fitness: 'best' })
   })
 
   it('recommends bar-horizontal for a ranking goal', () => {

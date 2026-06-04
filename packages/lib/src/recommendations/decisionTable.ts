@@ -63,10 +63,10 @@ const TABLE: Record<ShapeSignature, Partial<Record<Intent, CellFn>>> = {
     ],
     'comparison': rowCount => TABLE['1cat+Nnum'].none!(rowCount),
     'ranking': rowCount => TABLE['1cat+Nnum'].none!(rowCount),
-    // Categorical x beats trend narrative: "overtakes" must NOT flip to lines.
+    // Crossover/trend stories read as lines, even over categorical periods (turn-6 re-cut).
     'trend': () => [
-      r('bar-multi', 'best', 'Categorical x-axis — grouped bars even for a trend story'),
-      r('line-multi', 'alternative', 'Lines if the x-axis is really time'),
+      r('line-multi', 'best', 'A trend or crossover story reads best as lines, even over categorical periods'),
+      r('bar-multi', 'alternative', 'Grouped bars if per-period comparison matters more than the trend'),
     ],
     'part-to-whole': () => [
       r('bar-stacked', 'best', 'Stacked bars show composition within each category'),

@@ -20,7 +20,7 @@ export const RECOMMEND_FIXTURES: RecommendFixture[] = [
   { id: 'letter-frequency', columnTypes: ['string', 'number'], rowCount: 26, goal: 'compare how often each letter appears', expectedType: 'bar-vertical' },
   { id: 'medal-count', columnTypes: ['string', 'number', 'number', 'number'], rowCount: 10, goal: 'compare gold, silver and bronze medals across countries', expectedType: 'bar-multi' },
   { id: 'population-stacked-bar', columnTypes: ['string', 'number', 'number', 'number'], rowCount: 6, goal: 'each age group as a share of the total per country', expectedType: 'bar-stacked' },
-  { id: 'quarterly-revenue', columnTypes: ['string', 'number', 'number', 'number'], rowCount: 8, goal: 'how software overtakes hardware as the top revenue driver by quarter', expectedType: 'bar-multi' },
+  { id: 'quarterly-revenue', columnTypes: ['string', 'number', 'number', 'number'], rowCount: 8, goal: 'how software overtakes hardware as the top revenue driver by quarter', expectedType: 'line-multi' },
   { id: 'quarterly-stacked-columns', columnTypes: ['string', 'number', 'number', 'number'], rowCount: 8, goal: 'the revenue mix composition by quarter', expectedType: 'column-stacked' },
   { id: 'renewable-capacity', columnTypes: ['string', 'number', 'number'], rowCount: 6, goal: 'compare installed renewable capacity by source across regions', expectedType: 'bar-grouped', allowedMiss: true },
   { id: 'spoken-languages', columnTypes: ['string', 'number'], rowCount: 12, goal: 'the most-spoken languages ranked by native speakers', expectedType: 'bar-horizontal' },

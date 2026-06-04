@@ -1,5 +1,5 @@
 chart column-stacked {
-  title = "Software revenue grew steadily while hardware spiked in Q4"
+  title = "Revenue climbed every quarter as the product mix held steady"
   description = "Quarterly revenue in millions, 2024"
   source = "Annual report"
 

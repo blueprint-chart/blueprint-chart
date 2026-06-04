@@ -16,8 +16,8 @@ describe('resolveCell', () => {
     expect(topType('1cat+1num', 'part-to-whole', 7)).toBe('donut')
     expect(topType('1cat+1num', 'part-to-whole', 20)).toBe('bar-vertical')
   })
-  it('1cat+Nnum trend stays bar-multi (categorical x beats trend narrative)', () => {
-    expect(topType('1cat+Nnum', 'trend')).toBe('bar-multi')
+  it('1cat+Nnum trend prefers line-multi (crossover stories read as lines)', () => {
+    expect(topType('1cat+Nnum', 'trend')).toBe('line-multi')
   })
   it('1cat+Nnum part-to-whole → bar-stacked', () => {
     expect(topType('1cat+Nnum', 'part-to-whole')).toBe('bar-stacked')
