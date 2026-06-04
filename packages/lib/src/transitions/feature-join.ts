@@ -87,9 +87,10 @@ function applyBuffered<D>(orchestrator: SceneTransition, cfg: FeatureJoinConfig<
     if (t) {
       // Cross-feature predecessor lookup: a same-role, same-key element
       // already in the container can act as the morph-from state when the
-      // selector-based data-join missed it (cross-type transition).
-      const k = cfg.key(d as D)
-      const predecessor = roleIndex.get(k)
+      // selector-based data-join missed it (cross-type transition). The
+      // roleIndex is keyed by the encoded attribute value (see
+      // `encodeKeyForAttr`), so encode before looking up.
+      const predecessor = roleIndex.get(encodeKeyForAttr(cfg.key(d as D)))
       if (predecessor && tagsCompatible(predecessor, el)) {
         const start = snapshotLiveAttrs(predecessor, namesToTween)
         applyAttrs(el, start)
@@ -135,7 +136,22 @@ function tagRole<D>(
   cfg: FeatureJoinConfig<D>,
 ): void {
   entered.attr('data-bc-role', cfg.role)
-  entered.attr('data-bc-key', (d: D) => cfg.key(d))
+  entered.attr('data-bc-key', (d: D) => encodeKeyForAttr(cfg.key(d)))
+}
+
+/**
+ * `data-bc-key` must survive a round-trip through an XML attribute: sample
+ * thumbnails and SVG export serialize the live chart, and XML 1.0 forbids
+ * control characters in attribute values — a single `\0` (the composite-key
+ * separator used by multi-series chart types) invalidates the whole
+ * document. Encode control characters to the printable "symbol for unit
+ * separator" (␟, U+241F) before stamping. The roleIndex lookup applies the
+ * same encoding, so cross-feature key matching is unaffected. Tab, LF and
+ * CR are valid in attributes and left alone.
+ */
+function encodeKeyForAttr(key: string): string {
+  // eslint-disable-next-line no-control-regex
+  return key.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '␟')
 }
 
 function collectAttrNames<D>(cfg: FeatureJoinConfig<D>): string[] {
