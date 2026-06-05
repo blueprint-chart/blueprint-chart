@@ -336,7 +336,7 @@ describe('serializeDelimited', () => {
   })
 
   it('round-trips BPC multi-series data to TSV without = signs', () => {
-    const bpc = '_series = "New York","Los Angeles","Chicago","Detroit"\n"2000" = 5,5.6,4.5,3.8\n"2002" = 7.3,7.5,6.8,7'
+    const bpc = 'series = "New York","Los Angeles","Chicago","Detroit"\n"2000" = 5,5.6,4.5,3.8\n"2002" = 7.3,7.5,6.8,7'
     const parsed = parseBpcData(bpc)
     const tsv = serializeDelimited(parsed.columns, parsed.rows)
     expect(tsv).not.toContain('=')
@@ -344,7 +344,7 @@ describe('serializeDelimited', () => {
   })
 
   it('round-trips BPC legacy format to TSV without = signs', () => {
-    const bpc = '_series = "Chrome,IE,Firefox"\n"2009-01" = "1.37,64.97,26.85"\n"2009-02" = "1.5,63.98,27.66"'
+    const bpc = 'series = "Chrome,IE,Firefox"\n"2009-01" = "1.37,64.97,26.85"\n"2009-02" = "1.5,63.98,27.66"'
     const parsed = parseBpcData(bpc)
     const tsv = serializeDelimited(parsed.columns, parsed.rows)
     expect(tsv).not.toContain('=')
@@ -354,7 +354,7 @@ describe('serializeDelimited', () => {
   it('round-trips real BPC DSL data section to TSV without = signs', () => {
     const dsl = `chart line-multi {
   data {
-    _series = "New York","Los Angeles","Chicago","Detroit"
+    series = "New York","Los Angeles","Chicago","Detroit"
     "2000" = 5.0,5.6,4.5,3.8
     "2002" = 7.3,7.5,6.8,7.0
   }
@@ -363,7 +363,7 @@ describe('serializeDelimited', () => {
     const dataStr = dataEntriesToString(ast.data!)
 
     // Verify dataEntriesToString preserves multi-value entries
-    expect(dataStr).toContain('_series')
+    expect(dataStr).toContain('series')
     expect(dataStr).toContain('New York')
     expect(dataStr).not.toMatch(/"2000" = 5\n/) // should NOT truncate to single value
 
@@ -385,7 +385,7 @@ describe('serializeDelimited', () => {
 
   it('shows that parseDelimited corrupts BPC data (= ends up in cells)', () => {
     // This documents the corruption that happens when BPC text is fed to parseDelimited
-    const bpcText = '_series = "New York","Los Angeles","Chicago","Detroit"\n"2000" = 5,5.6,4.5,3.8'
+    const bpcText = 'series = "New York","Los Angeles","Chicago","Detroit"\n"2000" = 5,5.6,4.5,3.8'
     const parsed = parseDelimited(bpcText)
 
     // parseDelimited treats BPC as CSV: "2000" = 5 becomes a single cell "2000 = 5"
@@ -423,8 +423,8 @@ describe('parseBpcData', () => {
     ])
   })
 
-  it('parses multi-series format with _series header', () => {
-    const result = parseBpcData('_series = "Chrome,IE,Firefox"\n"2009-01" = "1.37,64.97,26.85"\n"2009-02" = "1.5,63.98,27.66"')
+  it('parses multi-series format with series header', () => {
+    const result = parseBpcData('series = "Chrome,IE,Firefox"\n"2009-01" = "1.37,64.97,26.85"\n"2009-02" = "1.5,63.98,27.66"')
     expect(result.columns).toEqual(['label', 'Chrome', 'IE', 'Firefox'])
     expect(result.rows).toEqual([
       ['2009-01', '1.37', '64.97', '26.85'],

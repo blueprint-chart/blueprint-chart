@@ -1,7 +1,7 @@
 chart line-multi {
   colorPalette = Blueprint
   data {
-    _series = "X","Y","Z"
+    series = "X","Y","Z"
     "A" = 4,14,8
     "B" = 10,11,12
     "C" = 7,18,10

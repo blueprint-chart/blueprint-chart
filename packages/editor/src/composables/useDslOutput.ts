@@ -4,7 +4,7 @@ import { useChartTypeOptions } from './useChartTypeOptions'
 import { useDataTransforms } from './useDataTransforms'
 import { useScenes } from './useScenes'
 import { useDataTable } from './useDataTable'
-import { getChartOptions, AnnotationKind, SortDirection } from '@blueprint-chart/lib'
+import { getChartOptions, AnnotationKind, ANNOTATION_KIND_KEYWORD, SortDirection } from '@blueprint-chart/lib'
 import type { RangeAnnotationConfig, FreeAnnotationConfig } from '@blueprint-chart/lib'
 import { TransformType } from '../enums'
 import { serializePosition, serializeMaxWidth } from '@/utils/dsl/output'
@@ -133,7 +133,7 @@ export function useDslOutput() {
       if (!af.from || !af.to) {
         continue
       }
-      output += `\n  areafill "${af.from}" "${af.to}" {\n`
+      output += `\n  area-fill "${af.from}" "${af.to}" {\n`
       if (af.color) {
         output += `    color = "${
           af.color}"\n`
@@ -478,7 +478,7 @@ export function useDslOutput() {
           if (!af.from || !af.to) {
             continue
           }
-          output += `\n    areafill "${af.from}" "${af.to}" {\n`
+          output += `\n    area-fill "${af.from}" "${af.to}" {\n`
           if (af.color) {
             output += `      color = "${af.color}"\n`
           }
@@ -613,9 +613,8 @@ export function useDslOutput() {
         }
       }
       if (scene.annotationVisibility) {
-        const kindMap = { [AnnotationKind.Point]: 'annotation', [AnnotationKind.Range]: 'range', [AnnotationKind.Free]: 'note' } as const
         for (const v of scene.annotationVisibility) {
-          output += `    ${v.action}_${kindMap[v.kind]} "${v.id}"\n`
+          output += `    ${v.action}-${ANNOTATION_KIND_KEYWORD[v.kind]} "${v.id}"\n`
         }
       }
       if (scene.seriesOverrides) {

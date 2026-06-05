@@ -166,7 +166,7 @@ describe('resolveScene', () => {
     expect(result.colorizes).toEqual([{ target: 'B', color: 'blue' }])
   })
 
-  it('hide_annotation in a scene populates hiddenAnnotationIds', () => {
+  it('hide-annotation in a scene populates hiddenAnnotationIds', () => {
     const scenes = [
       scene({ annotationVisibility: [{ action: 'hide', kind: 'point', id: 'abc' }] }),
     ]
@@ -174,7 +174,7 @@ describe('resolveScene', () => {
     expect(result.hiddenAnnotationIds).toEqual(new Set(['abc']))
   })
 
-  it('show_annotation after hide removes from hiddenAnnotationIds', () => {
+  it('show-annotation after hide removes from hiddenAnnotationIds', () => {
     const scenes = [
       scene({ annotationVisibility: [{ action: 'hide', kind: 'point', id: 'abc' }] }),
       scene({ annotationVisibility: [{ action: 'show', kind: 'point', id: 'abc' }] }),
@@ -564,7 +564,7 @@ describe('base + scene annotation merging', () => {
     expect(result[1].id).toBe('tha5f')
   })
 
-  it('hide_annotation removes specific annotation from merged result', () => {
+  it('hide-annotation removes specific annotation from merged result', () => {
     const scenes = [
       scene({
         annotations: scene0Anns,

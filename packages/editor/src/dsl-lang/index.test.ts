@@ -39,10 +39,47 @@ describe('highlightDsl', () => {
     expect(html).toContain('<span class="tok-keyword">series</span>')
   })
 
-  it('highlights legacy highlight keyword for backward compat', () => {
+  it('highlights highlight keyword (block form)', () => {
     const dsl = 'chart line {\nhighlight "A" {\n}\n}'
     const html = highlightDsl(dsl)
     expect(html).toContain('<span class="tok-keyword">highlight</span>')
+  })
+
+  it('highlights bodyless highlight keyword', () => {
+    const html = highlightDsl('chart line {\nhighlight "2021"\n}')
+    expect(html).toContain('<span class="tok-keyword">highlight</span>')
+    expect(html).toContain('2021')
+  })
+
+  it('highlights the kebab-case area-fill keyword', () => {
+    const html = highlightDsl('chart line {\narea-fill "A" "B" {\n}\n}')
+    expect(html).toContain('<span class="tok-keyword">area-fill</span>')
+  })
+
+  it('highlights the kebab-case hide-annotation keyword', () => {
+    const html = highlightDsl('chart line {\nscene "s" {\nhide-annotation "abc12"\n}\n}')
+    expect(html).toContain('<span class="tok-keyword">hide-annotation</span>')
+  })
+
+  it('highlights the show-range visibility verb', () => {
+    const html = highlightDsl('chart line {\nscene "s" {\nshow-range "rng01"\n}\n}')
+    expect(html).toContain('<span class="tok-keyword">show-range</span>')
+  })
+
+  it('highlights block comments with the tok-comment class', () => {
+    const html = highlightDsl('chart line {\n/* a comment */\ntitle = "Hi"\n}')
+    expect(html).toContain('<span class="tok-comment">/* a comment */</span>')
+  })
+
+  it('highlights note as a keyword in the block form', () => {
+    const html = highlightDsl('chart line {\nnote {\ntext = "hi"\n}\n}')
+    expect(html).toContain('<span class="tok-keyword">note</span>')
+  })
+
+  it('highlights a top-level note property key as an identifier, not a keyword', () => {
+    const html = highlightDsl('chart line {\nnote = "footnote"\n}')
+    expect(html).toContain('<span class="tok-variableName">note</span>')
+    expect(html).not.toContain('<span class="tok-keyword">note</span>')
   })
 
   it('highlights scene keyword', () => {
@@ -50,9 +87,10 @@ describe('highlightDsl', () => {
     expect(html).toContain('<span class="tok-keyword">scene</span>')
   })
 
-  it('highlights step keyword for backward compat', () => {
-    const html = highlightDsl('chart line {\nstep "intro" {\n}\n}')
-    expect(html).toContain('<span class="tok-keyword">step</span>')
+  it('treats series meta-row key as a plain identifier inside data', () => {
+    const html = highlightDsl('chart bar {\ndata {\nseries = "X","Y"\n"2000" = 1,2\n}\n}')
+    expect(html).toContain('series')
+    expect(html).toContain('tok-string')
   })
 
   it('escapes HTML entities in plain text', () => {

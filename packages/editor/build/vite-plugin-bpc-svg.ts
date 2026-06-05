@@ -105,7 +105,7 @@ export function extractData(entries: PropertyNode[]): ChartData {
     return { kind: 'single', labels: [], values: [] }
   }
 
-  if (entries[0].key === '_series') {
+  if (entries[0].key === 'series' && !entries[0].quotedKey) {
     const seriesNames = entries[0].values
       ? entries[0].values.map(s => String(s).trim())
       : String(entries[0].value).split(',').map(s => s.trim())

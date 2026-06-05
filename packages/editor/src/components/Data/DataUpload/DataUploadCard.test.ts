@@ -100,7 +100,7 @@ describe('DataUploadCard', () => {
   })
 
   it('shows TSV instead of BPC when source format is bpc', () => {
-    mockDataTable.rawInput.value = '_series = "New York","Detroit"\n"2000" = 5,3.8'
+    mockDataTable.rawInput.value = 'series = "New York","Detroit"\n"2000" = 5,3.8'
     mockDataTable.sourceFormat.value = 'bpc'
     columnsRef.value = ['label', 'New York', 'Detroit']
     rowsRef.value = [['2000', '5', '3.8']]
