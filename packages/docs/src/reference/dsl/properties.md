@@ -16,7 +16,7 @@ lineSymbolShape = "diamond"
 | Value kind | Example | Notes |
 | --- | --- | --- |
 | String | `"Chrome"` | Double-quoted. |
-| Number | `42`, `3.14`, `-1.2` | Optional minus, optional decimal part. |
+| Number | `42`, `3.14`, `-1.2`, `.5`, `2.5e-4` | Optional minus, optional decimal (leading-dot allowed), optional `e`/`E` exponent. |
 | Percentage | `35%` | Number suffixed with `%`. |
 | Identifier | `true`, `false`, `right` | Used for enum-valued properties. |
 
@@ -36,11 +36,11 @@ data {
 }
 ```
 
-For multi-series data, comma-separated values map positionally to series. A leading `_series = "A","B",…` row labels each column:
+For multi-series data, comma-separated values map positionally to series. A leading `series = "A","B",…` row labels each column. The unquoted key `series` inside a `data` block is reserved for this meta-row; quote your labels (`"series" = …`) if you ever need a real data row by that name:
 
 ```bpc
 data {
-  _series = "Gold","Silver","Bronze"
+  series = "Gold","Silver","Bronze"
   "USA" = 40,44,42
   "China" = 38,32,18
   "Japan" = 27,14,17
@@ -51,7 +51,7 @@ data {
 ```
 
 ::: info From `packages/lib/src/samples/medal-count.bpc`
-A `bar-multi` chart driven by three positional columns. The `_series` row supplies legend labels; each subsequent row's comma-separated values map to those columns in order.
+A `bar-multi` chart driven by three positional columns. The `series` meta-row supplies legend labels; each subsequent row's comma-separated values map to those columns in order.
 :::
 
 A **tabular** form is also accepted — keys and values separated by a literal tab character — for pasting CSV-like input:
@@ -75,5 +75,5 @@ series "Renewables" {
 ```
 
 ::: tip
-None of the bundled `packages/lib/src/samples/*.bpc` files currently exercise top-level `series` overrides — the samples lean on `_series` legends inside `data` plus `colors`, `colorPalette`, and `colorize` directives. The example above is illustrative; the grammar is exercised by parser tests.
+None of the bundled `packages/lib/src/samples/*.bpc` files currently exercise top-level `series` overrides. The samples lean on the `series` meta-row inside `data` plus `colors`, `colorPalette`, and `colorize` directives. The example above is illustrative; the grammar is exercised by parser tests.
 :::

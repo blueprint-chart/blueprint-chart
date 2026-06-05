@@ -115,8 +115,8 @@ If you don't need the programmatic API, use the bundled runtime. It picks up eve
 </script>
 ```
 
-::: tip From the sample library
-This is `packages/lib/src/samples/energy-sources.bpc` — a donut chart with a hand-picked categorical palette, percentage display, and a right-anchored legend.
+::: tip Inline example
+A donut chart with a hand-picked categorical palette, percentage display, and a right-anchored legend.
 :::
 
 See the [embedding guide](/guide/embed) for static sites, CMS integrations, and the base64 iframe pattern.

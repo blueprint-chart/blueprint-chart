@@ -129,6 +129,7 @@ The handbook, DSL grammar, guides, chart-type docs, and canonical samples are al
 > **Your assistant:** *(calls `list_chart_types` and `get_example`, writes the `.bpc`, calls
 > `validate_dsl` to confirm it parses, then `render` and shows you the image and the source)*
 
+<!-- bpc-no-parse -->
 ```bpc
 chart bar-horizontal {
   title = "E is the most frequent letter in English"

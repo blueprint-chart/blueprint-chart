@@ -78,7 +78,7 @@ chart line-multi {
   }
 
   data {
-    _series = "New York","Los Angeles","Chicago","Detroit"
+    series = "New York","Los Angeles","Chicago","Detroit"
     "2000" = 5.0,5.6,4.5,3.8
     "2009" = 9.5,12.4,11.2,16.2
     "2014" = 6.5,8.0,7.1,8.2

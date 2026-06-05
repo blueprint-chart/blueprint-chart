@@ -34,7 +34,7 @@ chart area-stacked {
   areaFillOpacity = 0.85
 
   data {
-    _series = "Coal","Oil","Gas","Renewables"
+    series = "Coal","Oil","Gas","Renewables"
     "2000" = 25,36,21,18
     "2005" = 27,35,22,16
     "2010" = 29,33,23,15

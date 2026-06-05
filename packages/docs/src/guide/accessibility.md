@@ -88,7 +88,7 @@ chart bar-multi {
   legendPosition = "top"
 
   data {
-    _series = "Gold","Silver","Bronze"
+    series = "Gold","Silver","Bronze"
     "USA" = 40,44,42
     "China" = 38,32,18
   }

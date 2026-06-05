@@ -33,7 +33,7 @@ chart line-multi {
   tooltips = true
 
   data {
-    _series = "United States","China","Germany"
+    series = "United States","China","Germany"
     "2018" = 2.9,6.7,1.0
     "2019" = 2.3,6.0,1.1
     "2020" = -2.8,2.2,-3.7

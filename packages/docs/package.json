@@ -46,11 +46,12 @@
   "devDependencies": {
     "@blueprint-chart/lib": "workspace:*",
     "@blueprint-chart/ui": "workspace:*",
-    "@types/node": "^22.10.0",
     "@fontsource-variable/geist": "^5.2.8",
     "@fontsource-variable/geist-mono": "^5.2.7",
     "@fontsource/dm-serif-display": "^5.2.8",
     "@iconify-json/ph": "^1.2.2",
+    "@types/node": "^22.10.0",
+    "@vitejs/plugin-vue": "^5.2.4",
     "@vue/test-utils": "^2.4.6",
     "@vueuse/core": "^14.2.1",
     "gray-matter": "^4.0.3",

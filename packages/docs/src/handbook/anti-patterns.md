@@ -56,7 +56,7 @@ chart bar-split {
   sharedScale = true
 
   data {
-    _series = "Mathematics","Reading","Science"
+    series = "Mathematics","Reading","Science"
     "Singapore" = 575,543,561
     "Japan"     = 536,516,547
     "Korea"     = 527,515,528
@@ -68,7 +68,7 @@ chart bar-split {
 ```
 
 ::: tip Done right
-`sharedScale = true` forces every panel onto the same baseline-zero axis, so the eye can compare Mathematics directly against Reading directly against Science. `valueLabels = true` then exposes the exact number, removing any temptation to truncate the axis for visual drama. This is the corrective pattern for the "truncated y-axis", "dual y-axes", and "missing context" rows above. From `packages/lib/src/samples/pisa-scores.bpc`.
+`sharedScale = true` forces every panel onto the same baseline-zero axis, so the eye can compare Mathematics directly against Reading directly against Science. `valueLabels = true` then exposes the exact number, removing any temptation to truncate the axis for visual drama. This is the corrective pattern for the "truncated y-axis", "dual y-axes", and "missing context" rows above.
 :::
 
 ## The meta-rule
