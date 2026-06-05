@@ -30,6 +30,10 @@ Releases are unified across the four packages (`lib`, `ui`, `editor`, `docs`) â€
    - `deploy-pages` pushes `packages/editor/dist/` to `blueprint-chart/blueprintchart.com`, writing a runtime `config.json` from the `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` secrets so the deployed editor has accounts enabled
    - `deploy-docs` pushes the VitePress build to `blueprint-chart/docs.blueprintchart.com`
 
+## DSL grammar changes
+
+Any release that touches `packages/lib/src/dsl/grammar.peggy` must call the change out under a **DSL** heading in `CHANGELOG.md`. The DSL is a public contract: readers rely on the CHANGELOG to learn that keyword spellings, the data meta-row, number or string lexing, or comment handling shifted. Mark removals and renames as **BREAKING** so the impact is unambiguous.
+
 ## Editor Supabase config
 
 The editor reads its Supabase credentials from a runtime `config.json` deployed

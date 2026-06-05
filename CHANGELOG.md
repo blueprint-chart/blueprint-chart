@@ -8,6 +8,38 @@ Versions are published from `origin/main` and tagged `vX.Y.Z`; all three workspa
 packages (`@blueprint-chart/lib`, `@blueprint-chart/ui`, `@blueprint-chart/editor`)
 share a single version.
 
+## [Unreleased]
+
+### DSL
+
+- **BREAKING**: `areafill` renamed to `area-fill`.
+- **BREAKING**: `hide_annotation` / `show_annotation` renamed to `hide-annotation` / `show-annotation`.
+- **BREAKING**: `hide_range` / `show_range` renamed to `hide-range` / `show-range`.
+- **BREAKING**: `hide_note` / `show_note` renamed to `hide-note` / `show-note`.
+- **BREAKING**: the data meta-row key `_series` renamed to `series` (unquoted; quoted labels stay data rows).
+- **BREAKING**: the `step` alias for `scene` removed; old keyword forms are now parse errors with no backward-compatible fallback.
+- **BREAKING**: the unused `StepNode` type alias removed from the public API.
+- a quoted `"series"` data row now survives round-trips as a real data category instead of being re-read as the column header.
+
+### Added
+
+- value-level validation via `validateChart`: unknown chart types, property keys, enum and boolean values, transform types, and annotation body keys all get errors with did-you-mean suggestions; suspicious `series` meta-rows get warnings.
+- friendly parser errors with line/column for duplicate data blocks and missing quoted targets on `colorize`, `highlight`, `annotation`, `area-fill`, and `series`.
+- embeds now render a visible error message when a chart fails to parse or render, instead of staying blank.
+- two new bundled samples: `bitcoin-price.bpc` and `co2-emissions-story.bpc`.
+- a "Was this page helpful?" feedback link on every docs page.
+- shared `ANNOTATION_KIND_KEYWORD` map exported from the lib.
+
+### Changed
+
+- the editor's syntax highlighter now understands the full language: visibility directives, bodyless `highlight`, block comments, and scientific-notation numbers.
+
+### Fixed
+
+- duplicate `data` block error now reports the offending line/column.
+- a malformed `highlight` body now reports the error inside the body instead of a confusing stray-brace message.
+- DSL documentation corrections across the reference pages (comment syntax, number and escape grammar, annotation `start`/`end` keys, round-trip and versioning scope); guard tests now pin every docs snippet and sample reference to the canonical grammar.
+
 ## [0.1.27] — 2026-06-03
 
 ### Added
