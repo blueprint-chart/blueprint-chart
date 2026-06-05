@@ -62,9 +62,9 @@ chart line {
     "May" = 2420
   }
 
-  annotation point {
-    at    = "Mar"
-    label = "New packaging launched March 3"
+  annotation "Mar" {
+    text = "New packaging launched March 3"
+    showArrow = true
   }
 }
 ```

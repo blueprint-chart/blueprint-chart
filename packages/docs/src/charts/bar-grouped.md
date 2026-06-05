@@ -31,7 +31,7 @@ chart bar-grouped {
   valueLabels = true
 
   data {
-    _series = "Solar","Wind","Hydro"
+    series = "Solar","Wind","Hydro"
     "Asia Pacific"  = 680,540,840
     "Europe"        = 250,300,200
     "North America" = 200,180,190

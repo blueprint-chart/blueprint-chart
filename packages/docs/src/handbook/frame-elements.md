@@ -86,7 +86,7 @@ chart line {
 }
 ```
 
-::: info From `packages/lib/src/samples/inflation-rate.bpc`
+::: info Worked example
 A declarative title carries the insight (`"…peaked at 9.1% before retreating to near 3%"`), `description` fixes the unit and time period, `note` confines the methodology footnote to the bottom, `source` plus `sourceUrl` form the attribution pair, and `byline` is the credit slot. Each field maps one-to-one onto `FrameOptions`.
 :::
 

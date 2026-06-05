@@ -97,7 +97,7 @@ chart bar-multi {
   sort = descending
 
   data {
-    _series = "Gold","Silver","Bronze"
+    series = "Gold","Silver","Bronze"
     "USA" = 40,44,42
     "China" = 38,32,18
     "Japan" = 27,14,17

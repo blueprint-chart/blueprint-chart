@@ -31,7 +31,7 @@ chart bar-split {
   valueLabels = true
 
   data {
-    _series = "Winter (Jan)","Spring (Apr)","Summer (Jul)"
+    series = "Winter (Jan)","Spring (Apr)","Summer (Jul)"
     "Miami"       = 20,26,29
     "Los Angeles" = 14,17,23
     "Phoenix"     = 13,24,37

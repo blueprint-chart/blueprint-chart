@@ -10,6 +10,7 @@ import {
 } from '@blueprint-chart/ui'
 import { useCurrentSection } from './use-current-section'
 import { useDocsTheme, type DocsThemeMode } from './use-docs-theme'
+import DocFeedback from './components/DocFeedback.vue'
 import IPhSun from '~icons/ph/sun'
 import IPhMoon from '~icons/ph/moon'
 import IPhCircleHalf from '~icons/ph/circle-half'
@@ -257,6 +258,13 @@ function openSidebar() {
         :active-link="current?.link"
         trigger-label="Switch section"
       />
+    </template>
+
+    <template
+      v-if="!isHome"
+      #doc-after
+    >
+      <DocFeedback />
     </template>
   </Layout>
 </template>

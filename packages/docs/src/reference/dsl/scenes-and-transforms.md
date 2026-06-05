@@ -54,7 +54,7 @@ scene "Cash crops replaced vegetables" {
   type = area-stacked
 
   data {
-    _series = "Vegetables","Cash crops","Other production"
+    series = "Vegetables","Cash crops","Other production"
     "2000" = 464,615,1854
     "2008" = 541,2045,1563
     "2015" = 144,2986,785
@@ -72,12 +72,10 @@ Scenes accept the same member set as the top-level chart, **plus** annotation-vi
 
 | Verb | Effect |
 | --- | --- |
-| `hide_annotation "<id>"` | Hide a point annotation set on the chart. |
-| `hide_range "<id>"` | Hide a range annotation. |
-| `hide_note "<id>"` | Hide a free / note annotation. |
-| `show_annotation "<id>"` / `show_range "<id>"` / `show_note "<id>"` | Re-show one previously hidden by an earlier scene. |
-
-`step` is accepted as an alias for `scene`.
+| `hide-annotation "<id>"` | Hide a point annotation set on the chart. |
+| `hide-range "<id>"` | Hide a range annotation. |
+| `hide-note "<id>"` | Hide a free / note annotation. |
+| `show-annotation "<id>"` / `show-range "<id>"` / `show-note "<id>"` | Re-show one previously hidden by an earlier scene. |
 
 ## Transforms
 

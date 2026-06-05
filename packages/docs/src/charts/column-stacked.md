@@ -29,7 +29,7 @@ chart column-stacked {
   source = "Annual report"
 
   data {
-    _series = "Hardware","Software","Services"
+    series = "Hardware","Software","Services"
     "Q1" = 120,85,45
     "Q2" = 135,92,48
     "Q3" = 128,98,52

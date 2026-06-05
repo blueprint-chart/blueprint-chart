@@ -141,7 +141,7 @@ The `parse → mutate → serialize` cycle is **round-trip safe**: re-parsing th
 
 ### AST node types
 
-`ChartNode` · `DataNode` · `PropertyNode` · `SeriesNode` · `SceneNode` · `StepNode` · `TransformNode` · `ColorizeNode` · `HighlightNode` · `AreaFillNode` · `AnnotationNode` · `PointAnnotationNode` · `RangeAnnotationNode` · `FreeAnnotationNode` · `AnnotationVisibilityNode`
+`ChartNode` · `DataNode` · `PropertyNode` · `SeriesNode` · `SceneNode` · `TransformNode` · `ColorizeNode` · `HighlightNode` · `AreaFillNode` · `AnnotationNode` · `PointAnnotationNode` · `RangeAnnotationNode` · `FreeAnnotationNode` · `AnnotationVisibilityNode`
 
 See [the DSL spec](/reference/dsl/) for the corresponding source-level grammar.
 

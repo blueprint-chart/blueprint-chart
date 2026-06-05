@@ -50,6 +50,7 @@ export default [
         console: 'readonly',
         TextEncoder: 'readonly',
         TextDecoder: 'readonly',
+        URLSearchParams: 'readonly',
       },
     },
     rules: {

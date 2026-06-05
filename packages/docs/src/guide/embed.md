@@ -26,7 +26,7 @@ The simplest path. Load the standalone runtime once per page, then add one `<scr
     tooltips = true
 
     data {
-      _series = "Hydro","Wind","Solar"
+      series = "Hydro","Wind","Solar"
       "2010" = 16.0,1.6,0.3
       "2012" = 16.2,2.4,0.6
       "2014" = 16.3,3.3,1.1
@@ -40,8 +40,8 @@ The simplest path. Load the standalone runtime once per page, then add one `<scr
 </script>
 ```
 
-::: tip From the sample library
-This is `packages/lib/src/samples/renewable-energy.bpc` — a multi-series line with explicit per-series colours and a single trailing symbol on the last datapoint of each series. Pasted verbatim into a page, it renders to a self-contained iframe with no extra wiring.
+::: tip Inline example
+A multi-series line with explicit per-series colours and a single trailing symbol on the last datapoint of each series. Pasted verbatim into a page, it renders to a self-contained iframe with no extra wiring.
 :::
 
 The runtime auto-runs on `DOMContentLoaded`, finds every chart script tag, and replaces it with a sandboxed iframe (`sandbox="allow-scripts"`) sized via `postMessage` to match the rendered chart.
@@ -144,8 +144,8 @@ Two end-to-end examples drawn straight from the lib's sample library — paste e
 </script>
 ```
 
-::: tip From the sample library
-This is `packages/lib/src/samples/energy-sources.bpc` — a donut chart with an explicit categorical palette, right-anchored legend, and percentage display.
+::: tip Inline example
+A donut chart with an explicit categorical palette, right-anchored legend, and percentage display.
 :::
 
 ### Line: a single-series time series with an annotation
@@ -185,8 +185,8 @@ This is `packages/lib/src/samples/energy-sources.bpc` — a donut chart with an 
 </script>
 ```
 
-::: tip From the sample library
-This is `packages/lib/src/samples/inflation-rate.bpc` — a single-series line with circular symbols on every datapoint, a pinned annotation on the peak, and a one-decimal vertical number format.
+::: tip Inline example
+A single-series line with circular symbols on every datapoint, a pinned annotation on the peak, and a one-decimal vertical number format.
 :::
 
 ## Security model

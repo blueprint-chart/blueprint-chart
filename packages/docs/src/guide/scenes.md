@@ -108,7 +108,7 @@ scene "Bulgaria: subsidies explode" {
   description = "85% of Bulgarian subsidies are direct payments — the highest share among new members"
 
   data {
-    _series = "Indirect subsidies","Direct subsidies"
+    series = "Indirect subsidies","Direct subsidies"
     "2000" = 0,5
     "2004" = 0,67
     "2007" = 59,250
@@ -150,7 +150,7 @@ Scene #5 of `packages/lib/src/samples/farm-compass.bpc`. The story changes chart
 
 ### Hide an annotation in a later scene
 
-Use `hide_annotation`, `hide_range`, or `hide_note` with the annotation's id to peel things back as the story progresses:
+Use `hide-annotation`, `hide-range`, or `hide-note` with the annotation's id to peel things back as the story progresses:
 
 ```bpc
 annotation "2015" {
@@ -159,11 +159,11 @@ annotation "2015" {
 }
 
 scene "Without Paris callout" {
-  hide_annotation "paris"
+  hide-annotation "paris"
 }
 ```
 
-To bring it back later, use `show_annotation "paris"` in a subsequent scene.
+To bring it back later, use `show-annotation "paris"` in a subsequent scene.
 
 ### Drive playback from your own UI
 

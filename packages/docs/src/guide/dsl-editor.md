@@ -76,7 +76,7 @@ The CodeMirror 6 stack pulls in `@codemirror/view`, `@codemirror/state`, `@codem
 - `bpcHighlighter` — a `syntaxHighlighting` extension pre-wired to the class-based highlighter.
 - `highlightDsl(code)` — one-shot server-style highlight, used by read-only previews; returns HTML.
 
-The Lezer parser tags DSL keywords (`chart`, `data`, `colorize`, `highlight`, `areafill`, `annotation`, `range`, `note`, `series`, `scene`, `step`, `transform`) and lexical tokens (`Identifier`, `String`, `Number`, `Percentage`, `Equals`, `LineComment`, braces). Each tag maps to a token class in `packages/editor/src/dsl-lang/highlight.scss`, with separate light- and dark-mode rules driven by the `--bc-syn-*` CSS custom properties.
+The Lezer parser tags DSL keywords (`chart`, `data`, `colorize`, `highlight`, `area-fill`, `annotation`, `range`, `note`, `series`, `scene`, `transform`) and lexical tokens (`Identifier`, `String`, `Number`, `Percentage`, `Equals`, `LineComment`, braces). Each tag maps to a token class in `packages/editor/src/dsl-lang/highlight.scss`, with separate light- and dark-mode rules driven by the `--bc-syn-*` CSS custom properties.
 
 ## Two-way sync between DSL and panels
 
@@ -130,7 +130,7 @@ const html = highlightDsl(`chart line-multi {
   }
 
   data {
-    _series = "United States","China","Germany"
+    series = "United States","China","Germany"
     "2018" = 2.9,6.7,1.0
     "2020" = -2.8,2.2,-3.7
     "2024" = 2.8,5.0,-0.2
@@ -140,8 +140,8 @@ const html = highlightDsl(`chart line-multi {
 document.querySelector('#preview')!.innerHTML = html
 ```
 
-::: tip From the sample library
-The DSL string is trimmed from `packages/lib/src/samples/gdp-growth.bpc` (full sample has the 2018–2024 yearly series). Good stress-case for the highlighter — multi-series data, palette name, a negative number, an annotation block.
+::: tip Inline example
+The DSL string is an abbreviated GDP series (the 2018, 2020, and 2024 rows). Good stress-case for the highlighter — multi-series data, palette name, a negative number, an annotation block.
 :::
 
 This skips the editor surface entirely and is the right tool when the user shouldn't be able to type.

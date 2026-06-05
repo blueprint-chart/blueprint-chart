@@ -1,6 +1,6 @@
 # DSL — Color directives & annotations
 
-Two families of named blocks that target specific data values to draw the eye: **color directives** (`colorize`, `highlight`, `areafill`) recolor or emphasize parts of the chart, and **annotations** (`annotation`, `range`, `note`) attach text and shapes to data points, ranges, or absolute positions. Both share the same "named block with a body" shape, and `highlight` is the verb scenes use to switch emphasis — see [Scenes & transforms](/reference/dsl/scenes-and-transforms).
+Two families of named blocks that target specific data values to draw the eye: **color directives** (`colorize`, `highlight`, `area-fill`) recolor or emphasize parts of the chart, and **annotations** (`annotation`, `range`, `note`) attach text and shapes to data points, ranges, or absolute positions. Both share the same "named block with a body" shape, and `highlight` is the verb scenes use to switch emphasis — see [Scenes & transforms](/reference/dsl/scenes-and-transforms).
 
 ## Color directives
 
@@ -8,7 +8,7 @@ Two families of named blocks that target specific data values to draw the eye: *
 | --- | --- |
 | `colorize "<target>" { … }` | Apply a color rule to a target (axis label, value label, etc.). |
 | `highlight "<target>" { … }` or `highlight "<target>"` | Emphasize a data point or series. The short form has no body. |
-| `areafill "<from>" "<to>" { … }` | Fill the area between two series with a color (line / area charts). |
+| `area-fill "<from>" "<to>" { … }` | Fill the area between two series with a color (line / area charts). |
 
 ### `colorize`
 
@@ -63,17 +63,17 @@ scene "Japan declining" {
 Three scenes share the same data and successively highlight one country each — the canonical "guided tour" pattern.
 :::
 
-### `areafill`
+### `area-fill`
 
 ```bpc
-areafill "Lower bound" "Upper bound" {
+area-fill "Lower bound" "Upper bound" {
   color = "#94a3b8"
   opacity = 0.2
 }
 ```
 
 ::: tip
-No bundled sample currently uses `areafill`. The grammar is documented and parser-tested; the example above is illustrative.
+No bundled sample currently uses `area-fill`. The grammar is documented and parser-tested; the example above is illustrative.
 :::
 
 ## Annotations
@@ -115,13 +115,14 @@ Demonstrates `showLine` + `lineStyle = curve-right` for a labelled callout that 
 ### Range and free annotations
 
 ```bpc
-range {                    # range: spans a domain/value window
-  fromX = "2020"
-  toX = "2022"
+range {                    // range: spans a domain/value window
+  orientation = vertical
+  start = "2020"
+  end = "2022"
   text = "Pandemic rally"
 }
 
-note {                     # free: absolutely positioned
+note {                     // free: absolutely positioned
   text = "Methodology footnote"
   x = "10%"
   y = "90%"
