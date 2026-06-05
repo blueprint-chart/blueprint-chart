@@ -65,7 +65,7 @@ describe('useDataTable', () => {
     expect(dt.rawInput.value).toBe('')
   })
 
-  it('serializes multi-series data with _series header', () => {
+  it('serializes multi-series data with series header', () => {
     const { loadParsed, serialize } = useDataTable()
     loadParsed({
       columns: ['Date', 'Chrome', 'IE', 'Firefox'],
@@ -76,7 +76,7 @@ describe('useDataTable', () => {
       columnTypes: ['date', 'number', 'number', 'number'],
     })
     const result = serialize()
-    expect(result).toContain('_series = "Chrome","IE","Firefox"')
+    expect(result).toContain('series = "Chrome","IE","Firefox"')
     expect(result).toContain('"2009-01" = 1.37,64.97,26.85')
     expect(result).toContain('"2009-02" = 1.5,63.98,27.66')
   })
@@ -124,7 +124,7 @@ describe('useDataTable', () => {
     expect(dt.loadedAt.value).toBeNull()
   })
 
-  it('serializes two-column data without _series header', () => {
+  it('serializes two-column data without series header', () => {
     const { loadParsed, serialize } = useDataTable()
     loadParsed({
       columns: ['Name', 'Value'],
@@ -133,7 +133,7 @@ describe('useDataTable', () => {
     })
     const result = serialize()
     expect(result).toBe('"Apples" = 42')
-    expect(result).not.toContain('_series')
+    expect(result).not.toContain('series')
   })
 })
 
@@ -143,12 +143,12 @@ describe('serializeTableData', () => {
     expect(result).toBe('"A" = 10\n"B" = 20')
   })
 
-  it('serializes multi-column data with _series header', () => {
+  it('serializes multi-column data with series header', () => {
     const result = serializeTableData(
       ['Date', 'X', 'Y'],
       [['Jan', '1', '2'], ['Feb', '3', '4']],
     )
-    expect(result).toContain('_series = "X","Y"')
+    expect(result).toContain('series = "X","Y"')
     expect(result).toContain('"Jan" = 1,2')
     expect(result).toContain('"Feb" = 3,4')
   })

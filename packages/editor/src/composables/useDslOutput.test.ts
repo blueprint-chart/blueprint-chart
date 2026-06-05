@@ -40,7 +40,7 @@ describe('useDslOutput', () => {
   })
 
   describe('area fill serialization', () => {
-    it('emits areafill blocks', () => {
+    it('emits area-fill blocks', () => {
       const config = useChartConfig()
       config.chartType.value = ChartType.Line
       config.areaFills.value = [
@@ -48,7 +48,7 @@ describe('useDslOutput', () => {
       ]
 
       const { generateDsl: dsl } = useDslOutput()
-      expect(dsl()).toContain('areafill "A" "B"')
+      expect(dsl()).toContain('area-fill "A" "B"')
       expect(dsl()).toContain('color = "#ff0000"')
       expect(dsl()).toContain('negativeColor = "#0000ff"')
       expect(dsl()).toContain('opacity = 0.5')
@@ -63,7 +63,7 @@ describe('useDslOutput', () => {
       ]
 
       const { generateDsl: dsl } = useDslOutput()
-      expect(dsl()).not.toContain('areafill')
+      expect(dsl()).not.toContain('area-fill')
     })
   })
 
@@ -380,7 +380,7 @@ describe('useDslOutput', () => {
       })
 
       const { generateDsl: dsl } = useDslOutput()
-      expect(dsl()).toContain('hide_annotation "abc12"')
+      expect(dsl()).toContain('hide-annotation "abc12"')
     })
 
     it('serializes mixed hide and show directives in scene', () => {
@@ -398,9 +398,9 @@ describe('useDslOutput', () => {
       })
 
       const { generateDsl: dsl } = useDslOutput()
-      expect(dsl()).toContain('hide_annotation "abc12"')
-      expect(dsl()).toContain('show_range "rng01"')
-      expect(dsl()).toContain('hide_note "nt001"')
+      expect(dsl()).toContain('hide-annotation "abc12"')
+      expect(dsl()).toContain('show-range "rng01"')
+      expect(dsl()).toContain('hide-note "nt001"')
     })
 
     it('does not leak scene values into base chart section', () => {
@@ -591,8 +591,8 @@ describe('useDslOutput', () => {
   }
 
   scene {
-    hide_annotation "base1"
-    show_range "rng01"
+    hide-annotation "base1"
+    show-range "rng01"
   }
 }`)
 
@@ -603,8 +603,8 @@ describe('useDslOutput', () => {
       expect(dsl()).toContain('range {')
       expect(dsl()).toContain('id = "rng01"')
       // Scene visibility directives should be present
-      expect(dsl()).toContain('hide_annotation "base1"')
-      expect(dsl()).toContain('show_range "rng01"')
+      expect(dsl()).toContain('hide-annotation "base1"')
+      expect(dsl()).toContain('show-range "rng01"')
     })
   })
 })

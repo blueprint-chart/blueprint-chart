@@ -9,6 +9,7 @@ ChartMember {
   RangeAnnotation |
   NoteAnnotation |
   Annotation |
+  VisibilityDirective |
   Series |
   Scene |
   Transform |
@@ -21,19 +22,42 @@ DataEntry { PropertyKey Equals ValueList | Property }
 
 ValueList { PropertyValue ("," PropertyValue)+ }
 
-Colorize { (kw<"colorize"> | kw<"highlight">) String "{" Property* "}" }
+// `highlight "x"` has a bodyless form (no braces) in addition to the block
+// form. The bodied form is shared with `colorize`.
+Colorize { (kw<"colorize"> | kw<"highlight">) String ("{" Property* "}")? }
 
-AreaFill { kw<"areafill"> String String "{" Property* "}" }
+AreaFill { kw<"area-fill"> String String "{" Property* "}" }
 
 Annotation { kw<"annotation"> String "{" Property* "}" }
 
 RangeAnnotation { kw<"range"> "{" Property* "}" }
 
-NoteAnnotation { kw<"note"> "{" Property* "}" }
+// `note` is both a block keyword (note { … }) and a valid plain property key
+// (note = "…") in the canonical Peggy grammar. Like `series`, use @extend (not
+// @specialize) so the bare Identifier token stays available to fill a
+// PropertyKey slot — otherwise `note = "…"` is forced to the keyword token and
+// the following `=` produces a parse error.
+NoteAnnotation { noteKw "{" Property* "}" }
 
-Series { kw<"series"> String "{" Property* "}" }
+noteKw { @extend[@name="note"]<Identifier, "note"> }
 
-Scene { (kw<"scene"> | kw<"step">) String? "{" SceneMember* "}" }
+// The six visibility verbs are bodyless statements: a kebab keyword followed by
+// a quoted id, with no braces.
+VisibilityDirective {
+  ( kw<"hide-annotation"> | kw<"show-annotation">
+  | kw<"hide-range"> | kw<"show-range">
+  | kw<"hide-note"> | kw<"show-note"> ) String
+}
+
+// `series` is special: it is both a block keyword (series "X" { … }) and the
+// reserved unquoted meta-row key inside a data block (series = "X","Y"). Using
+// @extend (not @specialize) keeps the bare Identifier token available so the
+// same word can also fill an Identifier/PropertyKey slot.
+Series { seriesKw String "{" Property* "}" }
+
+seriesKw { @extend[@name="series"]<Identifier, "series"> }
+
+Scene { kw<"scene"> String? "{" SceneMember* "}" }
 
 SceneMember {
   DataBlock |
@@ -42,6 +66,7 @@ SceneMember {
   RangeAnnotation |
   NoteAnnotation |
   Annotation |
+  VisibilityDirective |
   Series |
   Transform |
   Property
@@ -60,9 +85,15 @@ kw<term> { @specialize[@name={term}]<Identifier, term> }
 @tokens {
   space { @whitespace+ }
 
+  // `-` is an identifier char, so the kebab-case keywords (area-fill,
+  // hide-annotation, …) are all valid Identifiers and are picked out by the
+  // @specialize-based kw<> rule above.
   Identifier { $[a-zA-Z_#] $[a-zA-Z0-9_#\-]* }
 
-  Number { "-"? @digit+ ("." @digit+)? }
+  // Mirrors the canonical Peggy Number rule: optional leading sign, either a
+  // leading-dot decimal (.5) or an integer with optional fraction (12, 12.5,
+  // 12.), and an optional scientific-notation exponent (1e3, 1.5E-2).
+  Number { "-"? ("." @digit+ | @digit+ ("." @digit*)?) ($[eE] $[+\-]? @digit+)? }
 
   Percentage { Number "%" }
 
@@ -76,8 +107,21 @@ kw<term> { @specialize[@name={term}]<Identifier, term> }
 
   LineComment { "//" ![\n]* }
 
+  // Block comment: /* … */ — the body is any run of "not *" or "* not /",
+  // closed by one-or-more "*" followed by "/".
+  BlockComment { "/*" (![*] | "*" ![/])* "*"+ "/" }
+
   @precedence { Percentage, Number }
-  @precedence { LineComment, Identifier }
+  @precedence { BlockComment, LineComment, Identifier }
 }
 
-@skip { space | LineComment }
+@skip { space | LineComment | BlockComment }
+
+// NOTE — tabular (tab-separated) data entries `label<TAB>value` from the
+// canonical Peggy grammar (TabularDataEntry) are NOT expressed here. The label
+// may contain arbitrary non-tab text including spaces, which cannot be
+// tokenized in Lezer without colliding with Identifier/String/keyword tokens
+// and the skipped-whitespace model. Because highlighting is purely cosmetic,
+// such a line is left unmatched: Lezer's error recovery skips it and keeps
+// highlighting the rest of the file (graceful degradation). The canonical
+// Peggy parser remains the source of truth for parsing tabular data.

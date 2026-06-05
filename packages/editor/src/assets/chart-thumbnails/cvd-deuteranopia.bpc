@@ -1,7 +1,7 @@
 chart bar-multi {
   colors = "#345b9f,#c5b23f,#887c40"
   data {
-    _series = "A","B","C"
+    series = "A","B","C"
     "1" = 15,12,18
   }
 }

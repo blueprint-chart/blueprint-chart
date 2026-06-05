@@ -304,7 +304,7 @@ describe('useDslSync', () => {
     it('parses area fills from DSL', () => {
       const { applyDsl } = useDslSync()
       applyDsl(`chart line {
-  areafill "SeriesA" "SeriesB" {
+  area-fill "SeriesA" "SeriesB" {
     color = "#ff0000"
     negativeColor = "#0000ff"
     opacity = 0.5
@@ -494,7 +494,7 @@ describe('useDslSync', () => {
   })
 
   describe('annotation visibility in scenes', () => {
-    it('parses hide_annotation directive in scene', () => {
+    it('parses hide-annotation directive in scene', () => {
       const { applyDsl } = useDslSync()
       applyDsl(`chart line {
   annotation "2024-Q1" {
@@ -503,7 +503,7 @@ describe('useDslSync', () => {
   }
 
   scene {
-    hide_annotation "abc12"
+    hide-annotation "abc12"
   }
 }`)
 
@@ -518,7 +518,7 @@ describe('useDslSync', () => {
       })
     })
 
-    it('parses show_annotation directive in scene', () => {
+    it('parses show-annotation directive in scene', () => {
       const { applyDsl } = useDslSync()
       applyDsl(`chart line {
   annotation "2024-Q1" {
@@ -527,7 +527,7 @@ describe('useDslSync', () => {
   }
 
   scene {
-    show_annotation "abc12"
+    show-annotation "abc12"
   }
 }`)
 
@@ -541,7 +541,7 @@ describe('useDslSync', () => {
       })
     })
 
-    it('parses hide_range directive in scene', () => {
+    it('parses hide-range directive in scene', () => {
       const { applyDsl } = useDslSync()
       applyDsl(`chart line {
   range {
@@ -551,7 +551,7 @@ describe('useDslSync', () => {
   }
 
   scene {
-    hide_range "rng01"
+    hide-range "rng01"
   }
 }`)
 
@@ -565,7 +565,7 @@ describe('useDslSync', () => {
       })
     })
 
-    it('parses hide_note directive in scene', () => {
+    it('parses hide-note directive in scene', () => {
       const { applyDsl } = useDslSync()
       applyDsl(`chart line {
   note {
@@ -576,7 +576,7 @@ describe('useDslSync', () => {
   }
 
   scene {
-    hide_note "nt001"
+    hide-note "nt001"
   }
 }`)
 
@@ -612,9 +612,9 @@ describe('useDslSync', () => {
   }
 
   scene {
-    hide_annotation "abc12"
-    show_range "rng01"
-    hide_note "nt001"
+    hide-annotation "abc12"
+    show-range "rng01"
+    hide-note "nt001"
   }
 }`)
 
@@ -844,7 +844,7 @@ describe('useDslSync', () => {
       id = "s1"
       text = "Scene ann"
     }
-    hide_annotation "base1"
+    hide-annotation "base1"
   }
 }`)
 

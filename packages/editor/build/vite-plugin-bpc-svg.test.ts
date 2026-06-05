@@ -11,7 +11,7 @@ const singleData = extractData([
 ])
 
 const multiData = extractData([
-  { type: 'property' as const, key: '_series', value: 'X,Y,Z', values: ['X', 'Y', 'Z'], isPercentage: false },
+  { type: 'property' as const, key: 'series', value: 'X,Y,Z', values: ['X', 'Y', 'Z'], isPercentage: false },
   { type: 'property' as const, key: 'A', value: '4,14,8', values: [4, 14, 8], isPercentage: false },
   { type: 'property' as const, key: 'B', value: '10,11,12', values: [10, 11, 12], isPercentage: false },
   { type: 'property' as const, key: 'C', value: '7,18,10', values: [7, 18, 10], isPercentage: false },

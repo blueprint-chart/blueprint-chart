@@ -38,7 +38,7 @@ const SAMPLES = {
   legend = true
 
   data {
-    _series = "HW,SW,SV"
+    series = "HW,SW,SV"
     "Q1" = "14,10,7"
     "Q2" = "13,11,8"
   }
@@ -52,7 +52,7 @@ const SAMPLES = {
   colors = "#e15759,#4e79a7"
 
   data {
-    _series = "US,UK"
+    series = "US,UK"
     "2020" = "8.1,4.5"
     "2021" = "5.4,4.5"
     "2022" = "3.6,3.7"
@@ -100,7 +100,7 @@ const SAMPLES = {
   verticalGridStyle = dashed
 
   data {
-    _series = "X,Y"
+    series = "X,Y"
     "2020" = "10,20"
     "2021" = "15,25"
     "2022" = "20,30"
@@ -394,9 +394,9 @@ test.describe('donut chart', () => {
 const ALL_SAMPLE_BPCS: [string, string][] = [
   ['bar-vertical simple', `chart bar-vertical { title = "Test" data { "A" = 10 "B" = 20 } }`],
   ['bar-horizontal simple', `chart bar-horizontal { title = "Test" data { "A" = 10 "B" = 20 } }`],
-  ['bar-multi simple', `chart bar-multi { title = "Test" data { _series = "X,Y" "A" = "10,20" "B" = "15,25" } }`],
+  ['bar-multi simple', `chart bar-multi { title = "Test" data { series = "X,Y" "A" = "10,20" "B" = "15,25" } }`],
   ['line simple', `chart line { title = "Test" data { "2020" = 10 "2021" = 20 } }`],
-  ['line-multi simple', `chart line-multi { title = "Test" data { _series = "X,Y" "2020" = "10,20" "2021" = "15,25" } }`],
+  ['line-multi simple', `chart line-multi { title = "Test" data { series = "X,Y" "2020" = "10,20" "2021" = "15,25" } }`],
   ['donut simple', `chart donut { title = "Test" data { "A" = 60 "B" = 40 } }`],
   ['pie simple', `chart pie { title = "Test" data { "A" = 60 "B" = 40 } }`],
 ]
