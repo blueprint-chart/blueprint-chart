@@ -8,6 +8,12 @@ Versions are published from `origin/main` and tagged `vX.Y.Z`; all three workspa
 packages (`@blueprint-chart/lib`, `@blueprint-chart/ui`, `@blueprint-chart/editor`)
 share a single version.
 
+## [Unreleased]
+
+### Fixed
+
+- the bundled samples and docs no longer use the dead `dy` annotation key (silently ignored by the renderer); `textOffsetY` replaces it, and a guard test now requires every bundled sample to pass `validateChart` with no errors or warnings.
+
 ## [0.1.30] — 2026-06-05
 
 ### DSL
