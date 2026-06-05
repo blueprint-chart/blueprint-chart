@@ -1,19 +1,5 @@
 # TODOS
 
-## MCP Server
-
-### Update @blueprint-chart/mcp for the kebab-case language break
-
-**What:** Bump the MCP repo's lib dependency and rewrite its suggestion templates (`_series = "Gold","Silver"`, old keyword spellings) to the unified syntax.
-
-**Why:** The MCP server teaches LLMs the DSL. After the breaking rename ships, an MCP server suggesting `_series` against a parser that hard-rejects it breaks the entire AI-authoring loop.
-
-**Context:** The June 2026 language unification renamed `areafill` to `area-fill`, `hide_*`/`show_*` to `hide-*`/`show-*`, `_series` to `series`, and removed the `step` alias, with no legacy parsing. The separate `blueprint-chart/mcp` repo pins the published lib and embeds syntax templates in its `validate_dsl` error remapping. Grep that repo for `_series`, `areafill`, and `hide_` to find every template.
-
-**Effort:** M
-**Priority:** P0
-**Depends on:** This release being published to npm
-
 ## DSL
 
 ### Comment preservation through parse/serialize round-trip
@@ -53,3 +39,17 @@
 **Depends on:** None
 
 ## Completed
+
+### Update @blueprint-chart/mcp for the kebab-case language break
+
+**What:** Bump the MCP repo's lib dependency and rewrite its suggestion templates (`_series = "Gold","Silver"`, old keyword spellings) to the unified syntax.
+
+**Why:** The MCP server teaches LLMs the DSL. After the breaking rename ships, an MCP server suggesting `_series` against a parser that hard-rejects it breaks the entire AI-authoring loop.
+
+**Context:** The June 2026 language unification renamed `areafill` to `area-fill`, `hide_*`/`show_*` to `hide-*`/`show-*`, `_series` to `series`, and removed the `step` alias, with no legacy parsing. The separate `blueprint-chart/mcp` repo pins the published lib and embeds syntax templates in its `validate_dsl` error remapping. Grep that repo for `_series`, `areafill`, and `hide_` to find every template.
+
+**Effort:** M
+**Priority:** P0
+**Depends on:** This release being published to npm
+
+**Completed:** v0.1.5 of @blueprint-chart/mcp (2026-06-05) — kebab templates, quotedKey-aware series checks, and lib validateChart wired into validate_dsl.
