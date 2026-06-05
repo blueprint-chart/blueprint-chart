@@ -21,12 +21,15 @@ Getting to a stable, well-documented public release:
 - Improve `recommend_chart_type` accuracy in [`@blueprint-chart/mcp`](https://github.com/blueprint-chart/mcp) so AI-authored charts pick the right type.
 - Continue chart-rendering correctness and polish (see open issues).
 
+Recently shipped: the DSL keyword set was unified on kebab-case (`area-fill`, `hide-annotation`, `show-annotation`, `hide-range`, `show-range`, `hide-note`, `show-note`), the data meta-row key became `series`, and the `step` alias for `scene` was removed. See the CHANGELOG for the full break.
+
 ## Next
 
 Make Blueprint Chart the natural choice when an AI assistant needs to draw a chart:
 
 - Publish and harden the [`@blueprint-chart/mcp`](https://github.com/blueprint-chart/mcp) server for Claude, Cursor, ChatGPT, and other agents.
 - `llms.txt` and per-chart-type guides so agents and search can discover the DSL.
+- Comment preservation through the DSL round-trip: attach `//` and `/* */` comments to the AST during `parse` so `serialize` can re-emit them. Today comments are consumed as whitespace and dropped on re-serialize.
 - A headless renderer CLI (`bpc render`) for PNG / SVG / animated exports.
 - First-party agent artefacts (Cursor rule, Claude skill, editor templates).
 - Premium extensions (Brand Kit, advanced export, animation) and an embeddable SDK for products that ship charts in production.
