@@ -23,7 +23,7 @@ The simplest way to render a chart is the IIFE runtime, which auto-scans the doc
 </script>
 ```
 
-For programmatic use in an ES module project, the lib exposes the underlying primitives: `parse` (DSL → AST), `buildChartOptions` (AST → render options), `createFrame`/`createCanvas`, and the chart registry (`registerChart`, `getChart`). See [src/index.ts](https://github.com/blueprint-chart/blueprint-chart/blob/main/packages/lib/src/index.ts) for the full public API.
+For programmatic use in an ES module project, the lib exposes the underlying primitives: `parse` (DSL → AST), `validateChart` (AST → `ValidationResult` with typed errors and warnings), `buildChartOptions` (AST → render options), `createFrame`/`createCanvas`, and the chart registry (`registerChart`, `getChart`). See [src/index.ts](https://github.com/blueprint-chart/blueprint-chart/blob/main/packages/lib/src/index.ts) for the full public API.
 
 ## DSL Grammar
 
