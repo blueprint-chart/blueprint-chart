@@ -35,6 +35,14 @@
   background: var(--bc-frame-bg);
 }
 
+// The chart SVG carries its own background rect (applyCanvasBackground in
+// canvas.ts) so the frame background survives bare-SVG extraction. This rule
+// overrides the rect's baked-in fill attribute, keeping live theme switches
+// and `transparentBackground` working in the browser.
+.bc-frame .bc-canvas-bg {
+  fill: var(--bc-frame-bg, var(--bs-card-bg, #fff));
+}
+
 // During a cross-type scene transition, `snapshotForFadeOut()` in motion.ts
 // renames `.bc-frame` -> `.bc-frame--fade-snapshot` on the overlay clone so
 // selectors targeting `.bc-frame` don't double-match the live + fading

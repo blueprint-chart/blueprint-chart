@@ -18,7 +18,12 @@ function extractChartSvg(container: HTMLElement): string {
   if (!svg) {
     return ''
   }
-  return normalizeRandomIds(svg.outerHTML)
+  // The background rect is a frame concern (applyCanvasBackground only runs
+  // inside a .bc-frame); frameless thumbnails never get one. Strip it so the
+  // parity check compares chart bodies only.
+  const clone = svg.cloneNode(true) as SVGSVGElement
+  clone.querySelector('.bc-canvas-bg')?.remove()
+  return normalizeRandomIds(clone.outerHTML)
 }
 
 function renderLiveEquivalent(container: HTMLElement, dsl: string): void {

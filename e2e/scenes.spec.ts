@@ -200,8 +200,8 @@ test.describe('Scene Timeline', () => {
     await baseColorInput.fill('#9900ef')
     await baseColorInput.press('Tab')
 
-    // Verify the bar uses the new base color
-    const firstRect = page.locator('.bc-frame-body rect').first()
+    // Verify the bar uses the new base color (skip the .bc-canvas-bg rect)
+    const firstRect = page.locator('.bc-frame-body rect.bc-bar').first()
     await expect.poll(() => firstRect.getAttribute('fill').then(c => normalizeColor(c ?? ''))).toBe(normalizeColor('#9900ef'))
 
     // Add Scene 2

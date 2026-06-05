@@ -5,8 +5,17 @@ export const CHART_CSS = `
 .bc-frame {
   --bc-frame-font-family: system-ui, -apple-system, sans-serif;
   --bc-frame-padding: 0;
+  --bc-frame-bg: #fff;
   --bc-text-color: #333;
   font-family: var(--bc-frame-font-family);
+  background: var(--bc-frame-bg);
+}
+
+/* Keeps the SVG's baked-in background rect (applyCanvasBackground) in sync
+   with the frame background; transparentBackground sets the var to
+   transparent at runtime. */
+.bc-frame .bc-canvas-bg {
+  fill: var(--bc-frame-bg, #fff);
 }
 
 .bc-frame-header {

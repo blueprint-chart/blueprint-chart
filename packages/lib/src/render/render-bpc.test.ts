@@ -69,3 +69,46 @@ describe('renderBpc', () => {
     expect(container.textContent).not.toContain('could not parse chart')
   })
 })
+
+describe('renderBpc canvas background', () => {
+  let container: HTMLElement
+  beforeEach(() => {
+    container = document.createElement('div')
+    document.body.appendChild(container)
+  })
+
+  const SRC = (extra = '') => `chart bar-vertical {
+  title = "Bg test"${extra}
+  data {
+    "a" = 1
+    "b" = 2
+  }
+}`
+
+  it('inserts a background rect as the first SVG child by default', () => {
+    renderBpc(container, SRC())
+    const svg = container.querySelector('.bc-frame-body svg')!
+    const bg = svg.querySelector('.bc-canvas-bg')
+    expect(bg).not.toBeNull()
+    expect(svg.firstElementChild).toBe(bg)
+    expect(bg!.getAttribute('fill')).toBeTruthy()
+  })
+
+  it('omits the background rect when transparentBackground = true', () => {
+    renderBpc(container, SRC('\n  transparentBackground = true'))
+    const svg = container.querySelector('.bc-frame-body svg')!
+    expect(svg.querySelector('.bc-canvas-bg')).toBeNull()
+  })
+
+  it('keeps the background when transparentBackground = false', () => {
+    renderBpc(container, SRC('\n  transparentBackground = false'))
+    const svg = container.querySelector('.bc-frame-body svg')!
+    expect(svg.querySelector('.bc-canvas-bg')).not.toBeNull()
+  })
+
+  it('does not add a background rect in frameless thumbnail mode', () => {
+    renderBpc(container, SRC(), { thumbnail: true })
+    const svg = container.querySelector('svg')!
+    expect(svg.querySelector('.bc-canvas-bg')).toBeNull()
+  })
+})

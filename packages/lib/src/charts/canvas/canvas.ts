@@ -3,6 +3,7 @@ import 'd3-transition'
 import { D3Blueprint } from 'd3-blueprint'
 import type { Margin } from '../types'
 import { buildNumberFormatter } from '../format-helpers'
+import { resolveBackgroundColor } from '../contrast'
 
 export interface CanvasElements {
   svg: SVGSVGElement
@@ -232,6 +233,37 @@ export function contentSize(el: HTMLElement): { width: number, height: number } 
   }
 }
 
+/**
+ * Insert a background rect as the first child of the chart SVG so the frame
+ * background survives bare-SVG extraction (MCP renders, resvg rasterization,
+ * any consumer serializing the SVG without the HTML frame's CSS).
+ *
+ * The CSS rule `.bc-frame .bc-canvas-bg { fill: var(--bc-frame-bg, ...) }`
+ * overrides the presentation attribute in browsers, so live theme switches
+ * keep working; headless environments without stylesheets fall back to the
+ * attribute resolved here.
+ *
+ * Skipped for frameless renders (thumbnails) and when the BPC opted out via
+ * `transparentBackground = true` (createFrame marks the wrapper with an
+ * inline `--bc-frame-bg: transparent`, readable without CSS resolution).
+ */
+function applyCanvasBackground(svg: SVGSVGElement, body: HTMLElement): void {
+  const wrapper = body.closest('.bc-frame') as HTMLElement | null
+  if (!wrapper) {
+    return
+  }
+  if (wrapper.style.getPropertyValue('--bc-frame-bg').trim() === 'transparent') {
+    return
+  }
+  svg.querySelector('.bc-canvas-bg')?.remove()
+  const rect = svg.ownerDocument.createElementNS('http://www.w3.org/2000/svg', 'rect')
+  rect.setAttribute('class', 'bc-canvas-bg')
+  rect.setAttribute('width', '100%')
+  rect.setAttribute('height', '100%')
+  rect.setAttribute('fill', resolveBackgroundColor(wrapper))
+  svg.insertBefore(rect, svg.firstChild)
+}
+
 export function createCanvas(
   body: HTMLElement,
   margin?: Partial<Margin>,
@@ -275,6 +307,8 @@ export function createCanvas(
 
   const svg = body.querySelector('svg') as SVGSVGElement
   const chartArea = svg.querySelector('g') as SVGGElement
+
+  applyCanvasBackground(svg, body)
 
   // In constrained-height mode the body's flex-allocated height may shift
   // slightly after the scene player teleports into the footer. Use viewBox +

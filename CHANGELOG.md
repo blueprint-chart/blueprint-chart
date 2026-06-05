@@ -12,6 +12,12 @@ share a single version.
 
 ### Fixed
 
+- exported SVG and PNG images now carry the chart background: the chart SVG embeds a background rect resolved from the frame theme, omitted when the BPC sets `transparentBackground = true`. Bare-SVG consumers (MCP renders, resvg rasterization) previously produced transparent images regardless of the BPC.
+
+## [0.1.31] — 2026-06-05
+
+### Fixed
+
 - the bundled samples and docs no longer use the dead `dy` annotation key (silently ignored by the renderer); `textOffsetY` replaces it, and a guard test now requires every bundled sample to pass `validateChart` with no errors or warnings.
 
 ## [0.1.30] — 2026-06-05

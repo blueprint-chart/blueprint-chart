@@ -66,14 +66,14 @@ describe('renderChart', () => {
       options: { colors: ['#ff0000'] },
     })
     renderChart(container, defWithRed)
-    const withRedFill = container.querySelector('rect')?.getAttribute('fill') ?? ''
+    const withRedFill = container.querySelector('rect:not(.bc-canvas-bg)')?.getAttribute('fill') ?? ''
     expect(withRedFill.toLowerCase()).toBe('#ff0000')
 
     // Now strip — must NOT pick up the red from options.
     const container2 = document.createElement('div')
     document.body.appendChild(container2)
     renderChart(container2, defWithRed, { stripColors: true })
-    const strippedFill = container2.querySelector('rect')?.getAttribute('fill') ?? ''
+    const strippedFill = container2.querySelector('rect:not(.bc-canvas-bg)')?.getAttribute('fill') ?? ''
     expect(strippedFill.toLowerCase()).not.toBe('#ff0000')
   })
 })
