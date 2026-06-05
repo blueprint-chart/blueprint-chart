@@ -125,7 +125,7 @@ const html = highlightDsl(`chart line-multi {
 
   annotation "2020" {
     text = "COVID-19 recession"
-    dy = -10
+    textOffsetY = -10
     showArrow = true
   }
 

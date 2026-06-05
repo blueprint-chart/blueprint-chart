@@ -166,7 +166,7 @@ A donut chart with an explicit categorical palette, right-anchored legend, and p
 
     annotation "Jun 2022" {
       text = "Peak: 9.1%"
-      dy = -12
+      textOffsetY = -12
       showArrow = true
     }
 

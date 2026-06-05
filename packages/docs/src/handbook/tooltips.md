@@ -73,7 +73,7 @@ chart line-multi {
 
   annotation "2009" {
     text = "Great Recession peak"
-    dy = -10
+    textOffsetY = -10
     showArrow = true
   }
 

@@ -2,6 +2,7 @@ import { readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { parse } from '../dsl/parser'
+import { validateChart } from '../dsl/validate'
 import { getChart, getChartOptions } from '../charts/registry'
 import { listPalettes } from '../charts/palettes'
 
@@ -34,6 +35,13 @@ describe('sample .bpc files', () => {
 
       it('parses without error', () => {
         expect(ast.type).toBe('chart')
+      })
+
+      it('passes validateChart with no errors or warnings', () => {
+        const result = validateChart(ast)
+        const describeIssue = (i: { code: string, path: string, message: string }) => `${i.code} ${i.path}: ${i.message}`
+        expect(result.errors.map(describeIssue)).toEqual([])
+        expect(result.warnings.map(describeIssue)).toEqual([])
       })
 
       it('has a registered chart type', () => {

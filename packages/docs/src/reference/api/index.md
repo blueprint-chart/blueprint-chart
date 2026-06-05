@@ -206,7 +206,7 @@ Drop a BPC source into the page inside a typed `<script>` tag, then call `initBl
 
     annotation "2021" {
       text = "All-time high cycle"
-      dy = -12
+      textOffsetY = -12
       showArrow = true
     }
 

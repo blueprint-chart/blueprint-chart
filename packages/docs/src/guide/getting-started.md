@@ -51,7 +51,7 @@ const source = `
 
     annotation "2021" {
       text = "All-time high cycle"
-      dy = -12
+      textOffsetY = -12
       showArrow = true
     }
 

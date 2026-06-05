@@ -78,20 +78,20 @@ No bundled sample currently uses `area-fill`. The grammar is documented and pars
 
 ## Annotations
 
-Three kinds of annotation, sharing a body of properties (`text`, `dx`, `dy`, `showArrow`, …):
+Three kinds of annotation, sharing a body of properties (`text`, `textOffsetX`, `textOffsetY`, `showArrow`, …):
 
 ### Point annotation — anchored to a data key
 
 ```bpc
 annotation "2021" {
   text = "All-time high cycle"
-  dy = -12
+  textOffsetY = -12
   showArrow = true
 }
 ```
 
 ::: info From `packages/lib/src/samples/bitcoin-price.bpc`
-A minimal point annotation: the key matches a data label, `dy` nudges the text up, and an arrow draws back to the point.
+A minimal point annotation: the key matches a data label, `textOffsetY` nudges the text up, and an arrow draws back to the point.
 :::
 
 A richer point annotation with a connector line and curved leader:
