@@ -250,7 +250,7 @@ describe('serializer', () => {
     expect(output).toContain('id = abc')
   })
 
-  it('serializes hide_annotation in scene', () => {
+  it('serializes hide-annotation in scene', () => {
     const ast: ChartNode = {
       type: DslNodeType.Chart,
       chartType: 'bar',
@@ -280,10 +280,10 @@ describe('serializer', () => {
       transforms: [],
     }
     const output = serialize(ast)
-    expect(output).toContain('hide_annotation "abc"')
+    expect(output).toContain('hide-annotation "abc"')
   })
 
-  it('serializes show_annotation in scene', () => {
+  it('serializes show-annotation in scene', () => {
     const ast: ChartNode = {
       type: DslNodeType.Chart,
       chartType: 'bar',
@@ -313,10 +313,10 @@ describe('serializer', () => {
       transforms: [],
     }
     const output = serialize(ast)
-    expect(output).toContain('show_annotation "xyz"')
+    expect(output).toContain('show-annotation "xyz"')
   })
 
-  it('serializes hide_range and show_range in scene', () => {
+  it('serializes hide-range and show-range in scene', () => {
     const ast: ChartNode = {
       type: DslNodeType.Chart,
       chartType: 'bar',
@@ -347,11 +347,11 @@ describe('serializer', () => {
       transforms: [],
     }
     const output = serialize(ast)
-    expect(output).toContain('hide_range "r1"')
-    expect(output).toContain('show_range "r2"')
+    expect(output).toContain('hide-range "r1"')
+    expect(output).toContain('show-range "r2"')
   })
 
-  it('serializes hide_note and show_note in scene', () => {
+  it('serializes hide-note and show-note in scene', () => {
     const ast: ChartNode = {
       type: DslNodeType.Chart,
       chartType: 'bar',
@@ -382,16 +382,16 @@ describe('serializer', () => {
       transforms: [],
     }
     const output = serialize(ast)
-    expect(output).toContain('hide_note "n1"')
-    expect(output).toContain('show_note "n2"')
+    expect(output).toContain('hide-note "n1"')
+    expect(output).toContain('show-note "n2"')
   })
 
   it('round-trips annotation visibility through parse and serialize', () => {
     const dsl = `chart bar {
   scene "Test" {
-    hide_annotation "a1"
-    show_range "r1"
-    hide_note "n1"
+    hide-annotation "a1"
+    show-range "r1"
+    hide-note "n1"
   }
 }`
     const ast1 = parse(dsl)
@@ -408,7 +408,7 @@ describe('serializer', () => {
       data: {
         type: DslNodeType.Data,
         entries: [
-          { type: DslNodeType.Property, key: '_series', value: 'Gold', isPercentage: false, values: ['Gold', 'Silver', 'Bronze'] },
+          { type: DslNodeType.Property, key: 'series', value: 'Gold', isPercentage: false, values: ['Gold', 'Silver', 'Bronze'] },
           { type: DslNodeType.Property, key: 'USA', value: 40, isPercentage: false, values: [40, 44, 42] },
         ],
       },
@@ -422,14 +422,14 @@ describe('serializer', () => {
       transforms: [],
     }
     const output = serialize(ast)
-    expect(output).toContain('_series = "Gold","Silver","Bronze"')
+    expect(output).toContain('series = "Gold","Silver","Bronze"')
     expect(output).toContain('"USA" = 40,44,42')
   })
 
   it('round-trips multi-value data entries', () => {
     const dsl = `chart bar-multi {
   data {
-    _series = "Gold","Silver","Bronze"
+    series = "Gold","Silver","Bronze"
     "USA" = 40,44,42
     "China" = -2.8,3.2,18
   }
@@ -440,7 +440,7 @@ describe('serializer', () => {
     expect(ast2).toEqual(ast1)
   })
 
-  it('serializes areafill blocks', () => {
+  it('serializes area-fill blocks', () => {
     const ast: ChartNode = {
       type: DslNodeType.Chart,
       chartType: ChartType.LineMulti,
@@ -464,7 +464,7 @@ describe('serializer', () => {
       transforms: [],
     }
     const output = serialize(ast)
-    expect(output).toContain('  areafill "Revenue" "Cost" {')
+    expect(output).toContain('  area-fill "Revenue" "Cost" {')
     expect(output).toContain('    color = "#0000ff"')
     expect(output).toContain('    opacity = 0.3')
   })
@@ -672,7 +672,7 @@ describe('serializer', () => {
     expect(output).toContain('path = "C:\\\\Users"')
   })
 
-  it('serializes scene with areafill and annotations', () => {
+  it('serializes scene with area-fill and annotations', () => {
     const ast: ChartNode = {
       type: DslNodeType.Chart,
       chartType: ChartType.Line,
@@ -708,7 +708,7 @@ describe('serializer', () => {
       transforms: [],
     }
     const output = serialize(ast)
-    expect(output).toContain('    areafill "A" "B" {')
+    expect(output).toContain('    area-fill "A" "B" {')
     expect(output).toContain('    range {')
     expect(output).toContain('    note {')
   })
@@ -785,9 +785,9 @@ describe('serializer', () => {
       expect(s2).toBe(s1)
     })
 
-    it('round-trips areafill blocks', () => {
+    it('round-trips area-fill blocks', () => {
       const dsl = `chart line-multi {
-  areafill "Revenue" "Cost" {
+  area-fill "Revenue" "Cost" {
     color = "#0000ff"
     opacity = 0.3
   }
@@ -854,13 +854,13 @@ describe('serializer', () => {
       const dsl = `chart line-multi {
   title = "Full chart"
   data {
-    _series = "A","B"
+    series = "A","B"
     "2020" = 10,20
   }
   colorize "2020" {
     color = "#e53e3e"
   }
-  areafill "A" "B" {
+  area-fill "A" "B" {
     color = "#0000ff"
   }
   annotation "2020" {

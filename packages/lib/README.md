@@ -37,7 +37,7 @@ ChartMember = DataBlock | Colorize | AreaFill | Annotation | Series | Scene | Pr
 
 DataBlock   = "data" "{" Property* "}"
 Colorize    = "colorize" String "{" Property* "}"
-AreaFill    = "areafill" String String "{" Property* "}"
+AreaFill    = "area-fill" String String "{" Property* "}"
 Annotation  = "annotation" String "{" Property* "}"
 Series      = "series" String "{" Property* "}"
 Scene       = "scene" String "{" SceneMember* "}"

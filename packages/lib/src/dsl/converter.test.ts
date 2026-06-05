@@ -131,27 +131,39 @@ describe('dataEntriesToString', () => {
     expect(result).toBe('"Firefox" = 61.11%')
   })
 
-  it('handles _series metadata key', () => {
+  it('handles series metadata key', () => {
     const data: DataNode = {
       type: DslNodeType.Data,
       entries: [
-        prop('_series', 'Revenue'),
+        prop('series', 'Revenue'),
       ],
     }
     const result = dataEntriesToString(data)
-    expect(result).toBe('_series = "Revenue"')
+    expect(result).toBe('series = "Revenue"')
+  })
+
+  it('keeps a quoted "series" data row quoted instead of emitting the meta-row', () => {
+    const data: DataNode = {
+      type: DslNodeType.Data,
+      entries: [
+        { ...prop('series', 5), quotedKey: true },
+        prop('movies', 9),
+      ],
+    }
+    const result = dataEntriesToString(data)
+    expect(result).toBe('"series" = 5\n"movies" = 9')
   })
 
   it('converts multi-value entries', () => {
     const data: DataNode = {
       type: DslNodeType.Data,
       entries: [
-        { type: DslNodeType.Property, key: '_series', value: 'Gold', isPercentage: false, values: ['Gold', 'Silver'] },
+        { type: DslNodeType.Property, key: 'series', value: 'Gold', isPercentage: false, values: ['Gold', 'Silver'] },
         { type: DslNodeType.Property, key: 'USA', value: 40, isPercentage: false, values: [40, 44] },
       ],
     }
     const result = dataEntriesToString(data)
-    expect(result).toContain('_series = "Gold","Silver"')
+    expect(result).toContain('series = "Gold","Silver"')
     expect(result).toContain('"USA" = 40,44')
   })
 
@@ -232,7 +244,7 @@ describe('convertAreaFills', () => {
     expect(convertAreaFills([])).toEqual([])
   })
 
-  it('converts areafill with all properties', () => {
+  it('converts area-fill with all properties', () => {
     const nodes: AreaFillNode[] = [{
       type: DslNodeType.AreaFill,
       from: 'Revenue',

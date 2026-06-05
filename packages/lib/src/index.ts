@@ -32,6 +32,7 @@ export {
   Interpolation,
   DslNodeType,
 } from './enums'
+export { ANNOTATION_KIND_KEYWORD } from './enums'
 
 // Charts
 export type {
@@ -93,7 +94,9 @@ export type { CvdType, CvdIssue } from './charts/colorblind'
 export { parse } from './dsl/parser'
 export { serialize, compactSerialize } from './dsl/serializer'
 export { propertyMap, extractChartTypeOptions, dataEntriesToString, extractSceneOverrides, convertColorizes, convertHighlights, convertAreaFills, convertAnnotations, convertSeriesOverrides } from './dsl/converter'
-export type { AnnotationNode, AnnotationVisibilityNode, PointAnnotationNode, RangeAnnotationNode, FreeAnnotationNode, AreaFillNode, ChartNode, DataNode, ColorizeNode, HighlightNode, PropertyNode, SceneNode, SeriesNode, StepNode, TransformNode } from './dsl/types'
+export type { AnnotationNode, AnnotationVisibilityNode, PointAnnotationNode, RangeAnnotationNode, FreeAnnotationNode, AreaFillNode, ChartNode, DataNode, ColorizeNode, HighlightNode, PropertyNode, SceneNode, SeriesNode, TransformNode } from './dsl/types'
+export { validateChart } from './dsl/validate'
+export type { ValidationIssue, ValidationResult } from './dsl/validate'
 
 // Samples
 export { samples } from './samples'

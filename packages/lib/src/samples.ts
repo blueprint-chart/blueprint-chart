@@ -7,6 +7,7 @@ import spokenLanguagesBpc from './samples/spoken-languages.bpc?raw'
 import quarterlyRevenueBpc from './samples/quarterly-revenue.bpc?raw'
 import medalCountBpc from './samples/medal-count.bpc?raw'
 import temperatureAnomalyBpc from './samples/temperature-anomaly.bpc?raw'
+import bitcoinPriceBpc from './samples/bitcoin-price.bpc?raw'
 import unemploymentRatesBpc from './samples/unemployment-rates.bpc?raw'
 import worldPopulationBpc from './samples/world-population.bpc?raw'
 import coffeeProductionBpc from './samples/coffee-production.bpc?raw'
@@ -16,6 +17,7 @@ import energyMixStackedAreaBpc from './samples/energy-mix-stacked-area.bpc?raw'
 import quarterlyStackedColumnsBpc from './samples/quarterly-stacked-columns.bpc?raw'
 import populationStackedBarBpc from './samples/population-stacked-bar.bpc?raw'
 import farmCompassBpc from './samples/farm-compass.bpc?raw'
+import co2EmissionsStoryBpc from './samples/co2-emissions-story.bpc?raw'
 import electionPollsBpc from './samples/election-polls.bpc?raw'
 import renewableCapacityBpc from './samples/renewable-capacity.bpc?raw'
 
@@ -39,13 +41,13 @@ function extractTsv(ast: ChartNode): string {
     return ''
   }
   const entries = ast.data.entries
-  const seriesEntry = entries.find((e: PropertyNode) => e.key === '_series')
+  const seriesEntry = entries.find((e: PropertyNode) => e.key === 'series' && !e.quotedKey)
 
   if (seriesEntry) {
     const seriesNames = String(seriesEntry.value).split(',')
     const header = ['category', ...seriesNames].join('\t')
     const rows = entries
-      .filter((e: PropertyNode) => e.key !== '_series')
+      .filter((e: PropertyNode) => !(e.key === 'series' && !e.quotedKey))
       .map((e: PropertyNode) => {
         const values = String(e.value).split(',')
         return [e.key, ...values].join('\t')
@@ -63,12 +65,12 @@ function extractSerialized(ast: ChartNode): string {
     return ''
   }
   const entries = ast.data.entries
-  const seriesEntry = entries.find((e: PropertyNode) => e.key === '_series')
+  const seriesEntry = entries.find((e: PropertyNode) => e.key === 'series' && !e.quotedKey)
 
   if (seriesEntry) {
-    const header = `_series = "${String(seriesEntry.value)}"`
+    const header = `series = "${String(seriesEntry.value)}"`
     const rows = entries
-      .filter((e: PropertyNode) => e.key !== '_series')
+      .filter((e: PropertyNode) => !(e.key === 'series' && !e.quotedKey))
       .map((e: PropertyNode) => `"${e.key}" = "${String(e.value)}"`)
     return [header, ...rows].join('\n')
   }
@@ -103,6 +105,7 @@ export const samples: ChartSample[] = [
   buildSample('medal-count', medalCountBpc),
   // Line
   buildSample('temperature-anomaly', temperatureAnomalyBpc),
+  buildSample('bitcoin-price', bitcoinPriceBpc),
   // Line Multi
   buildSample('unemployment-rates', unemploymentRatesBpc),
   // Donut
@@ -123,4 +126,5 @@ export const samples: ChartSample[] = [
   buildSample('renewable-capacity', renewableCapacityBpc),
   // Story (multi-scene)
   buildSample('farm-compass', farmCompassBpc),
+  buildSample('co2-emissions-story', co2EmissionsStoryBpc),
 ]

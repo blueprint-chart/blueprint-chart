@@ -6,6 +6,12 @@ export interface PropertyNode {
   value: string | number
   isPercentage: boolean
   values?: (string | number)[]
+  /**
+   * Set when a data row's key was written as a quoted string and collides
+   * with the reserved `series` meta-row key. A quoted `"series"` row is a
+   * real data category; only the unquoted `series = ...` row names columns.
+   */
+  quotedKey?: boolean
 }
 
 export interface DataNode {
@@ -80,9 +86,6 @@ export interface SceneNode {
   series: SeriesNode[]
   transforms: TransformNode[]
 }
-
-/** @deprecated Use SceneNode instead */
-export type StepNode = SceneNode
 
 export interface TransformNode {
   type: DslNodeType.Transform

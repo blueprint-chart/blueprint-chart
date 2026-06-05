@@ -8,7 +8,7 @@ chart area-stacked {
   aspectRatio = "1:1"
 
   data {
-    _series = "Indirect subsidies","Direct subsidies"
+    series = "Indirect subsidies","Direct subsidies"
     "2000" = 370,800
     "2001" = 445,896
     "2002" = 567,816
@@ -46,7 +46,7 @@ chart area-stacked {
     description = "85% of Bulgarian subsidies are direct payments — the highest share among new members"
 
     data {
-      _series = "Indirect subsidies","Direct subsidies"
+      series = "Indirect subsidies","Direct subsidies"
       "2000" = 0,5
       "2001" = 0,33
       "2002" = 0,48
@@ -112,7 +112,7 @@ chart area-stacked {
     type = area-stacked
 
     data {
-      _series = "Vegetables","Cash crops","Other production"
+      series = "Vegetables","Cash crops","Other production"
       "2000" = 464,615,1854
       "2001" = 458,777,2005
       "2002" = 577,850,1624
@@ -148,7 +148,7 @@ chart area-stacked {
     lineSymbols = false
 
     data {
-      _series = "Cabbages","Tomatoes","Watermelons","Carrots","Onions","Garlic","Strawberries"
+      series = "Cabbages","Tomatoes","Watermelons","Carrots","Onions","Garlic","Strawberries"
       "2001" = 100,100,100,100,100,100,100
       "2002" = 79,90,124,64,106,95,100
       "2003" = 100,157,177,142,118,98,72
@@ -174,7 +174,7 @@ chart area-stacked {
     lineSymbols = false
 
     data {
-      _series = "Salaried workers","Non-salaried workers"
+      series = "Salaried workers","Non-salaried workers"
       "2000" = 2678,12194
       "2001" = 2598,11586
       "2002" = 2658,10795

@@ -1,4 +1,12 @@
 {{
+function countDataBlocks(members) {
+  let n = 0;
+  for (const m of members) {
+    if (m.type === 'data') n++;
+  }
+  return n;
+}
+
 function collectBody(members) {
   const result = {
     properties: [],
@@ -15,15 +23,10 @@ function collectBody(members) {
   for (const m of members) {
     switch (m.type) {
       case 'property':  result.properties.push(m); break;
-      case 'data':
-        if (result.data !== null) {
-          throw new SyntaxError('duplicate data block');
-        }
-        result.data = m;
-        break;
+      case 'data':      result.data = m; break;
       case 'colorize':   result.colorizes.push(m);  break;
       case 'highlight':  result.highlights.push(m); break;
-      case 'areafill':   result.areaFills.push(m);  break;
+      case 'area-fill':  result.areaFills.push(m);  break;
       case 'annotation': result.annotations.push(m);break;
       case 'annotation-visibility': result.annotationVisibility.push(m); break;
       case 'series':     result.series.push(m);     break;
@@ -49,15 +52,10 @@ function collectSceneBody(members) {
   for (const m of members) {
     switch (m.type) {
       case 'property':  result.properties.push(m); break;
-      case 'data':
-        if (result.data !== null) {
-          throw new SyntaxError('duplicate data block');
-        }
-        result.data = m;
-        break;
+      case 'data':      result.data = m; break;
       case 'colorize':   result.colorizes.push(m);  break;
       case 'highlight':  result.highlights.push(m); break;
-      case 'areafill':   result.areaFills.push(m);  break;
+      case 'area-fill':  result.areaFills.push(m);  break;
       case 'annotation': result.annotations.push(m);break;
       case 'annotation-visibility': result.annotationVisibility.push(m); break;
       case 'series':     result.series.push(m);     break;
@@ -71,6 +69,9 @@ function collectSceneBody(members) {
 Chart
   = _ "chart" __ chartType:Identifier _ "{" _ members:ChartMember* _ "}" _
   {
+    if (countDataBlocks(members) > 1) {
+      error('duplicate data block — a chart or scene may define at most one data { } block');
+    }
     const body = collectBody(members);
     return {
       type: 'chart',
@@ -97,16 +98,23 @@ DataBlock
   { return { type: 'data', entries }; }
 
 DataEntry
-  = _ key:PropertyKey _ "=" _ first:PropertyValue rest:("," _ v:PropertyValue { return v; })+ _
+  = _ key:DataKey _ "=" _ first:PropertyValue rest:("," _ v:PropertyValue { return v; })+ _
   {
     const all = [first, ...rest];
-    return { type: 'property', key, value: all[0].value, isPercentage: false, values: all.map(v => v.value) };
+    // quotedKey distinguishes a real data row labelled "series" (quoted) from
+    // the unquoted `series = ...` meta-row that names the columns.
+    return { type: 'property', key: key.name, ...(key.quoted && key.name === 'series' ? { quotedKey: true } : {}), value: all[0].value, isPercentage: false, values: all.map(v => v.value) };
   }
-  / _ p:Property _ { return p; }
+  / _ key:DataKey _ "=" _ value:PropertyValue _
+  { return { type: 'property', key: key.name, ...(key.quoted && key.name === 'series' ? { quotedKey: true } : {}), value: value.value, isPercentage: value.isPercentage }; }
+
+DataKey
+  = s:String { return { name: s, quoted: true }; }
+  / i:Identifier { return { name: i, quoted: false }; }
 
 TabularDataEntry
   = _ label:TabularLabel "\t" _ value:PropertyValue _
-  { return { type: 'property', key: label, value: value.value, isPercentage: value.isPercentage }; }
+  { return { type: 'property', key: label, ...(label === 'series' ? { quotedKey: true } : {}), value: value.value, isPercentage: value.isPercentage }; }
 
 TabularLabel
   = chars:$([^\t\n\r{}=]+) { return chars.trim(); }
@@ -114,20 +122,30 @@ TabularLabel
 Colorize
   = "colorize" __ target:String _ "{" _ props:BlockProperty* _ "}"
   { return { type: 'colorize', target, properties: props }; }
+  / "colorize" _ "{"
+  { error('colorize needs a quoted target, e.g. colorize "2021" { ... }'); }
 
 Highlight
   = "highlight" __ target:String _ "{" _ props:BlockProperty* _ "}"
   { return { type: 'colorize', target, properties: props, fromHighlight: true }; }
-  / "highlight" __ target:String
+  / "highlight" __ target:String !(_ "{")
   { return { type: 'highlight', target, properties: [] }; }
+  / "highlight" _ "{"
+  { error('highlight needs a quoted target, e.g. highlight "2021" { ... } or highlight "2021"'); }
 
 AreaFill
-  = "areafill" __ from:String __ to:String _ "{" _ props:BlockProperty* _ "}"
-  { return { type: 'areafill', from, to, properties: props }; }
+  = "area-fill" __ from:String __ to:String _ "{" _ props:BlockProperty* _ "}"
+  { return { type: 'area-fill', from, to, properties: props }; }
+  / "area-fill" __ String _ "{"
+  { error('area-fill needs two quoted targets, e.g. area-fill "Revenue" "Cost" { ... }'); }
+  / "area-fill" _ "{"
+  { error('area-fill needs two quoted targets, e.g. area-fill "Revenue" "Cost" { ... }'); }
 
 Annotation
   = "annotation" __ target:String _ "{" _ props:BlockProperty* _ "}"
   { return { type: 'annotation', kind: 'point', target, properties: props }; }
+  / "annotation" _ "{"
+  { error('annotation needs a quoted target, e.g. annotation "2021" { ... }'); }
 
 RangeAnnotation
   = "range" _ "{" _ props:BlockProperty* _ "}"
@@ -140,10 +158,15 @@ NoteAnnotation
 Series
   = "series" __ name:String _ "{" _ props:BlockProperty* _ "}"
   { return { type: 'series', name, properties: props }; }
+  / "series" _ "{"
+  { error('series needs a quoted name, e.g. series "Revenue" { ... }'); }
 
 Scene
-  = ("scene" / "step") __ name:String? _ "{" _ members:SceneMember* _ "}"
+  = "scene" __ name:String? _ "{" _ members:SceneMember* _ "}"
   {
+    if (countDataBlocks(members) > 1) {
+      error('duplicate data block — a chart or scene may define at most one data { } block');
+    }
     const body = collectSceneBody(members);
     return {
       type: 'scene',
@@ -165,27 +188,27 @@ Transform
   { return { type: 'transform', transformType, properties: props }; }
 
 HideAnnotation
-  = "hide_annotation" __ id:String
+  = "hide-annotation" __ id:String
   { return { type: 'annotation-visibility', action: 'hide', kind: 'point', id }; }
 
 HideRange
-  = "hide_range" __ id:String
+  = "hide-range" __ id:String
   { return { type: 'annotation-visibility', action: 'hide', kind: 'range', id }; }
 
 HideNote
-  = "hide_note" __ id:String
+  = "hide-note" __ id:String
   { return { type: 'annotation-visibility', action: 'hide', kind: 'free', id }; }
 
 ShowAnnotation
-  = "show_annotation" __ id:String
+  = "show-annotation" __ id:String
   { return { type: 'annotation-visibility', action: 'show', kind: 'point', id }; }
 
 ShowRange
-  = "show_range" __ id:String
+  = "show-range" __ id:String
   { return { type: 'annotation-visibility', action: 'show', kind: 'range', id }; }
 
 ShowNote
-  = "show_note" __ id:String
+  = "show-note" __ id:String
   { return { type: 'annotation-visibility', action: 'show', kind: 'free', id }; }
 
 SceneMember

@@ -7,7 +7,7 @@ chart bar-stacked {
   horizontalLabelPosition = off
 
   data {
-    _series = "0-14","15-64","65+"
+    series = "0-14","15-64","65+"
     "China" = 249,987,191
     "India" = 365,948,100
     "USA" = 60,215,58

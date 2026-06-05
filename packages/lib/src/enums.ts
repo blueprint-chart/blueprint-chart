@@ -99,6 +99,17 @@ export enum AnnotationKind {
   Free = 'free',
 }
 
+/**
+ * Maps an annotation kind to its DSL block keyword. Used by the serializer,
+ * the editor's DSL output, and the validator so the three never drift apart
+ * (e.g. `point` -> `annotation`, not the enum's raw value).
+ */
+export const ANNOTATION_KIND_KEYWORD: Record<AnnotationKind, string> = {
+  [AnnotationKind.Point]: 'annotation',
+  [AnnotationKind.Range]: 'range',
+  [AnnotationKind.Free]: 'note',
+}
+
 export enum AnnotationAction {
   Hide = 'hide',
   Show = 'show',
@@ -230,7 +241,7 @@ export enum DslNodeType {
   Data = 'data',
   Colorize = 'colorize',
   Highlight = 'highlight',
-  AreaFill = 'areafill',
+  AreaFill = 'area-fill',
   Annotation = 'annotation',
   Series = 'series',
   AnnotationVisibility = 'annotation-visibility',
