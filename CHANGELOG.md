@@ -8,7 +8,7 @@ Versions are published from `origin/main` and tagged `vX.Y.Z`; all three workspa
 packages (`@blueprint-chart/lib`, `@blueprint-chart/ui`, `@blueprint-chart/editor`)
 share a single version.
 
-## [Unreleased]
+## [0.1.30] — 2026-06-05
 
 ### DSL
 
