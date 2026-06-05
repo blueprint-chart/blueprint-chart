@@ -53,7 +53,7 @@ export function extractChartTypeOptions(
 
 /**
  * Convert data entries from the AST back to the editor's raw data string format.
- * Preserves percentage syntax and _series metadata.
+ * Preserves percentage syntax and series metadata.
  */
 function needsQuoting(val: string): boolean {
   if (/^-?\d+(\.\d+)?$/.test(val)) {
@@ -71,18 +71,19 @@ function needsQuoting(val: string): boolean {
 export function dataEntriesToString(data: DataNode): string {
   return data.entries
     .map((e) => {
-      // Multi-value entries (new format)
+      // Multi-value entries (new format). A quoted "series" key is a real
+      // data row (quotedKey), never the column meta-row.
       if (e.values && e.values.length > 1) {
-        if (e.key === '_series') {
-          return `_series = ${e.values.map(v => `"${v}"`).join(',')}`
+        if (e.key === 'series' && !e.quotedKey) {
+          return `series = ${e.values.map(v => `"${v}"`).join(',')}`
         }
         const vals = e.values.join(',')
         return `"${e.key}" = ${vals}`
       }
       // Legacy single-value entries
       const val = e.isPercentage ? `${e.value}%` : String(e.value)
-      if (e.key === '_series') {
-        return `_series = "${val}"`
+      if (e.key === 'series' && !e.quotedKey) {
+        return `series = "${val}"`
       }
       if (typeof e.value === 'string' && needsQuoting(val)) {
         return `"${e.key}" = "${val}"`

@@ -16,7 +16,7 @@ describe('parseData', () => {
   })
 
   it('parses multi-series data with new format', () => {
-    const raw = `_series = "A","B"
+    const raw = `series = "A","B"
 "Jan" = 10,20
 "Feb" = 30,40`
     const data = parseData(raw)
@@ -27,7 +27,7 @@ describe('parseData', () => {
   })
 
   it('parses multi-series data with legacy quoted format', () => {
-    const raw = `_series = "A,B"
+    const raw = `series = "A,B"
 "Jan" = "10,20"
 "Feb" = "30,40"`
     const data = parseData(raw)
@@ -38,7 +38,7 @@ describe('parseData', () => {
   })
 
   it('sets values to first series for multi-series data', () => {
-    const raw = `_series = "X","Y"
+    const raw = `series = "X","Y"
 "A" = 5,15`
     const data = parseData(raw)
     expect(data.values).toEqual([5])
@@ -61,7 +61,7 @@ describe('parseData', () => {
 
   it('treats missing cells in multi-series rows as undefined, not 0', () => {
     // The second row leaves the second column empty (",")
-    const raw = `_series = "A","B"\n"Jan" = 10,20\n"Feb" = 30,`
+    const raw = `series = "A","B"\n"Jan" = 10,20\n"Feb" = 30,`
     const data = parseData(raw)
     expect(data.series).toHaveLength(2)
     // Real values come through unchanged.

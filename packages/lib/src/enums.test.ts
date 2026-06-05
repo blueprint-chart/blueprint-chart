@@ -406,7 +406,7 @@ describe('DslNodeType', () => {
     expect(DslNodeType.Data).toBe('data')
     expect(DslNodeType.Colorize).toBe('colorize')
     expect(DslNodeType.Highlight).toBe('highlight')
-    expect(DslNodeType.AreaFill).toBe('areafill')
+    expect(DslNodeType.AreaFill).toBe('area-fill')
     expect(DslNodeType.Annotation).toBe('annotation')
     expect(DslNodeType.Series).toBe('series')
     expect(DslNodeType.AnnotationVisibility).toBe('annotation-visibility')

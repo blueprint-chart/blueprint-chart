@@ -36,4 +36,36 @@ describe('renderBpc', () => {
     // Rendering a line for a 2-point series should produce a path
     expect(container.querySelector('svg path')).not.toBeNull()
   })
+
+  it('renders a visible error element on invalid DSL instead of throwing', () => {
+    expect(() => renderBpc(container, 'not a chart at all {')).not.toThrow()
+    expect(container.querySelector('svg')).toBeNull()
+    expect(container.textContent).toContain('Blueprint Chart: could not parse chart')
+    // The SyntaxError message (carrying line:column) should be surfaced too.
+    expect(container.textContent).toMatch(/\d+:\d+/)
+  })
+
+  it('clears a prior valid render when given invalid DSL', () => {
+    renderBpc(container, `chart bar-vertical {
+  data {
+    "a" = 1
+    "b" = 2
+  }
+}`)
+    expect(container.querySelector('svg')).not.toBeNull()
+    renderBpc(container, 'broken {')
+    expect(container.querySelector('svg')).toBeNull()
+    expect(container.textContent).toContain('Blueprint Chart: could not parse chart')
+  })
+
+  it('leaves valid DSL unaffected (no error element)', () => {
+    renderBpc(container, `chart bar-vertical {
+  data {
+    "a" = 1
+    "b" = 2
+  }
+}`)
+    expect(container.querySelector('svg')).not.toBeNull()
+    expect(container.textContent).not.toContain('could not parse chart')
+  })
 })

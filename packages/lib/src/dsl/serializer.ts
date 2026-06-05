@@ -1,6 +1,6 @@
 import type { AnnotationNode, AnnotationVisibilityNode, AreaFillNode, ChartNode, DataNode, ColorizeNode, HighlightNode, PropertyNode, SceneNode, SeriesNode, TransformNode } from './types'
 import { getChartOptions } from '../charts/registry'
-import { AnnotationKind } from '../enums'
+import { AnnotationKind, ANNOTATION_KIND_KEYWORD } from '../enums'
 
 function serializeValue(prop: PropertyNode): string {
   if (typeof prop.value === 'number') {
@@ -21,8 +21,13 @@ function serializeProperty(prop: PropertyNode, indent: string): string {
 }
 
 function serializeDataEntry(prop: PropertyNode, indent: string): string {
+  // A quoted "series" key is a real data row, never the column meta-row —
+  // keep it quoted so it cannot be re-read as the header.
+  if (prop.key === 'series' && prop.quotedKey && !(prop.values && prop.values.length > 1)) {
+    return `${indent}"series" = ${serializeValue(prop)}`
+  }
   if (prop.values && prop.values.length > 1) {
-    const key = prop.key.startsWith('_') ? prop.key : `"${prop.key}"`
+    const key = prop.key === 'series' && !prop.quotedKey ? prop.key : `"${prop.key}"`
     const vals = prop.values.map((v) => {
       if (typeof v === 'number') {
         return `${v}`
@@ -58,7 +63,7 @@ function serializeHighlight(highlight: HighlightNode, indent: string): string {
 }
 
 function serializeAreaFill(areaFill: AreaFillNode, indent: string): string {
-  const lines = [`${indent}areafill "${areaFill.from}" "${areaFill.to}" {`]
+  const lines = [`${indent}area-fill "${areaFill.from}" "${areaFill.to}" {`]
   for (const prop of areaFill.properties) {
     lines.push(serializeProperty(prop, `${indent}  `))
   }
@@ -95,8 +100,7 @@ function serializeAnnotation(annotation: AnnotationNode, indent: string): string
 }
 
 function serializeAnnotationVisibility(node: AnnotationVisibilityNode, indent: string): string {
-  const kindMap = { [AnnotationKind.Point]: 'annotation', [AnnotationKind.Range]: 'range', [AnnotationKind.Free]: 'note' }
-  const keyword = `${node.action}_${kindMap[node.kind]}`
+  const keyword = `${node.action}-${ANNOTATION_KIND_KEYWORD[node.kind]}`
   return `${indent}${keyword} "${node.id}"`
 }
 

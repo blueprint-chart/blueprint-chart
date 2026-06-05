@@ -202,11 +202,8 @@ describe('parser', () => {
       expect(ast.scenes[0].transforms[0].transformType).toBe('cumulative')
     })
 
-    it('accepts backward-compatible "step" keyword', () => {
-      const ast = parse('chart bar {\n  step "Old" {\n    title = "compat"\n  }\n}')
-      expect(ast.scenes).toHaveLength(1)
-      expect(ast.scenes[0].type).toBe(DslNodeType.Scene)
-      expect(ast.scenes[0].name).toBe('Old')
+    it('rejects the dropped "step" alias for scene', () => {
+      expect(() => parse('chart bar {\n  step "Old" {\n    title = "compat"\n  }\n}')).toThrow(SyntaxError)
     })
   })
 
@@ -231,8 +228,69 @@ describe('parser', () => {
       expect(() => parse('chart bar { title = { } }')).toThrow(/Expected/)
     })
 
-    it('throws on missing colorize target', () => {
-      expect(() => parse('chart bar { colorize { } }')).toThrow(/Expected/)
+    it('throws a friendly error on missing colorize target', () => {
+      expect(() => parse('chart bar { colorize { } }')).toThrow(/colorize needs a quoted target/)
+    })
+
+    it('throws a friendly error on missing annotation target', () => {
+      expect(() => parse('chart bar { annotation { } }')).toThrow(/annotation needs a quoted target/)
+    })
+
+    it('throws a friendly error on missing area-fill targets', () => {
+      expect(() => parse('chart line-multi { area-fill { } }')).toThrow(/area-fill needs two quoted targets/)
+    })
+
+    it('throws a friendly error on missing series name', () => {
+      expect(() => parse('chart line { series { } }')).toThrow(/series needs a quoted name/)
+    })
+
+    it('throws a friendly error on missing highlight target', () => {
+      expect(() => parse('chart line { highlight { } }')).toThrow(/highlight needs a quoted target/)
+    })
+
+    it('throws a friendly error on one-target area-fill', () => {
+      expect(() => parse('chart line-multi { area-fill "Revenue" { } }')).toThrow(/two quoted targets/)
+    })
+
+    it('reports an in-body error for a malformed highlight body, not a target hint', () => {
+      let message = ''
+      try {
+        parse('chart line { highlight "X" { color = } }')
+      }
+      catch (e) {
+        message = (e as Error).message
+      }
+      expect(message).not.toBe('')
+      // The bodyless alternative must not mask the malformed body: we should
+      // not see the friendly "needs a quoted target" hint, nor a stray-`{` shape.
+      expect(message).not.toMatch(/highlight needs a quoted target/)
+      expect(message).not.toMatch(/Expected .*"\{"/)
+      // Error should point past the opening brace, into the body.
+      const loc = message.match(/(\d+):(\d+)$/)
+      expect(loc).not.toBeNull()
+      const column = Number(loc![2])
+      // `chart line { highlight "X" { ` — the `{` of the body is at column 28.
+      expect(column).toBeGreaterThan(28)
+    })
+
+    it('parses a bodyless highlight followed by another member on the next line', () => {
+      const ast = parse('chart line {\n  highlight "X"\n  title = "t"\n}')
+      expect(ast.highlights).toHaveLength(1)
+      expect(ast.highlights[0].target).toBe('X')
+      expect(ast.properties.some(p => p.key === 'title' && p.value === 't')).toBe(true)
+    })
+
+    it('parses a bodyless highlight as the last member before the closing brace', () => {
+      const ast = parse('chart line {\n  highlight "X"\n}')
+      expect(ast.highlights).toHaveLength(1)
+      expect(ast.highlights[0].target).toBe('X')
+    })
+
+    it('still parses a bodied highlight after the lookahead fix', () => {
+      const ast = parse('chart line {\n  highlight "X" {\n    color = "#f00"\n  }\n}')
+      // bodied highlight becomes a colorize node with fromHighlight
+      expect(ast.colorizes).toHaveLength(1)
+      expect(ast.colorizes[0].target).toBe('X')
     })
 
     it('includes line and column in error', () => {
@@ -242,6 +300,18 @@ describe('parser', () => {
       }
       catch (e) {
         expect((e as Error).message).toMatch(/2:\d+/)
+      }
+    })
+
+    it('reports duplicate data block with line and column', () => {
+      const src = 'chart bar {\n  data {\n    "A" = 1\n  }\n  data {\n    "B" = 2\n  }\n}'
+      try {
+        parse(src)
+        expect.fail('Should have thrown')
+      }
+      catch (e) {
+        expect((e as Error).message).toMatch(/duplicate data block/)
+        expect((e as Error).message).toMatch(/\d+:\d+/)
       }
     })
   })
@@ -310,9 +380,9 @@ describe('parser', () => {
     })
 
     it('parses comma-separated string values', () => {
-      const ast = parse('chart bar {\n  data {\n    _series = "Gold","Silver","Bronze"\n  }\n}')
+      const ast = parse('chart bar {\n  data {\n    series = "Gold","Silver","Bronze"\n  }\n}')
       expect(ast.data!.entries).toHaveLength(1)
-      expect(ast.data!.entries[0].key).toBe('_series')
+      expect(ast.data!.entries[0].key).toBe('series')
       expect(ast.data!.entries[0].values).toEqual(['Gold', 'Silver', 'Bronze'])
     })
 
@@ -328,9 +398,38 @@ describe('parser', () => {
     })
   })
 
+  describe('series meta-row vs quoted "series" data row', () => {
+    it('marks a quoted "series" data row with quotedKey', () => {
+      const ast = parse('chart bar {\n  data {\n    "series" = 5\n  }\n}')
+      expect(ast.data!.entries[0].key).toBe('series')
+      expect(ast.data!.entries[0].quotedKey).toBe(true)
+    })
+
+    it('does not mark the unquoted series meta-row', () => {
+      const ast = parse('chart bar {\n  data {\n    series = "Gold","Silver"\n  }\n}')
+      expect(ast.data!.entries[0].key).toBe('series')
+      expect(ast.data!.entries[0].quotedKey).toBeUndefined()
+    })
+
+    it('does not mark quoted keys other than series', () => {
+      const ast = parse('chart bar {\n  data {\n    "USA" = 5\n  }\n}')
+      expect(ast.data!.entries[0].quotedKey).toBeUndefined()
+    })
+
+    it('round-trips a quoted "series" data row without turning it into the meta-row', () => {
+      const source = 'chart bar {\n  data {\n    "series" = 5\n    "movies" = 9\n  }\n}'
+      const once = serialize(parse(source))
+      expect(once).toContain('"series" = 5')
+      const twice = parse(once)
+      expect(twice.data!.entries[0].key).toBe('series')
+      expect(twice.data!.entries[0].quotedKey).toBe(true)
+      expect(twice.data!.entries[0].value).toBe(5)
+    })
+  })
+
   describe('annotation visibility directives', () => {
-    it('parses hide_annotation in scene', () => {
-      const ast = parse('chart bar {\n  scene {\n    hide_annotation "abc"\n  }\n}')
+    it('parses hide-annotation in scene', () => {
+      const ast = parse('chart bar {\n  scene {\n    hide-annotation "abc"\n  }\n}')
       expect(ast.scenes[0].annotationVisibility).toHaveLength(1)
       expect(ast.scenes[0].annotationVisibility[0]).toEqual({
         type: DslNodeType.AnnotationVisibility,
@@ -340,8 +439,8 @@ describe('parser', () => {
       })
     })
 
-    it('parses show_annotation in scene', () => {
-      const ast = parse('chart bar {\n  scene {\n    show_annotation "abc"\n  }\n}')
+    it('parses show-annotation in scene', () => {
+      const ast = parse('chart bar {\n  scene {\n    show-annotation "abc"\n  }\n}')
       expect(ast.scenes[0].annotationVisibility).toHaveLength(1)
       expect(ast.scenes[0].annotationVisibility[0]).toEqual({
         type: DslNodeType.AnnotationVisibility,
@@ -351,8 +450,8 @@ describe('parser', () => {
       })
     })
 
-    it('parses hide_range in scene', () => {
-      const ast = parse('chart bar {\n  scene {\n    hide_range "r1"\n  }\n}')
+    it('parses hide-range in scene', () => {
+      const ast = parse('chart bar {\n  scene {\n    hide-range "r1"\n  }\n}')
       expect(ast.scenes[0].annotationVisibility).toHaveLength(1)
       expect(ast.scenes[0].annotationVisibility[0]).toEqual({
         type: DslNodeType.AnnotationVisibility,
@@ -362,8 +461,8 @@ describe('parser', () => {
       })
     })
 
-    it('parses show_range in scene', () => {
-      const ast = parse('chart bar {\n  scene {\n    show_range "r1"\n  }\n}')
+    it('parses show-range in scene', () => {
+      const ast = parse('chart bar {\n  scene {\n    show-range "r1"\n  }\n}')
       expect(ast.scenes[0].annotationVisibility).toHaveLength(1)
       expect(ast.scenes[0].annotationVisibility[0]).toEqual({
         type: DslNodeType.AnnotationVisibility,
@@ -373,8 +472,8 @@ describe('parser', () => {
       })
     })
 
-    it('parses hide_note in scene', () => {
-      const ast = parse('chart bar {\n  scene {\n    hide_note "n1"\n  }\n}')
+    it('parses hide-note in scene', () => {
+      const ast = parse('chart bar {\n  scene {\n    hide-note "n1"\n  }\n}')
       expect(ast.scenes[0].annotationVisibility).toHaveLength(1)
       expect(ast.scenes[0].annotationVisibility[0]).toEqual({
         type: DslNodeType.AnnotationVisibility,
@@ -384,8 +483,8 @@ describe('parser', () => {
       })
     })
 
-    it('parses show_note in scene', () => {
-      const ast = parse('chart bar {\n  scene {\n    show_note "n1"\n  }\n}')
+    it('parses show-note in scene', () => {
+      const ast = parse('chart bar {\n  scene {\n    show-note "n1"\n  }\n}')
       expect(ast.scenes[0].annotationVisibility).toHaveLength(1)
       expect(ast.scenes[0].annotationVisibility[0]).toEqual({
         type: DslNodeType.AnnotationVisibility,
@@ -396,7 +495,7 @@ describe('parser', () => {
     })
 
     it('parses multiple visibility directives in one scene', () => {
-      const ast = parse('chart bar {\n  scene {\n    hide_annotation "a1"\n    show_range "r1"\n    hide_note "n1"\n  }\n}')
+      const ast = parse('chart bar {\n  scene {\n    hide-annotation "a1"\n    show-range "r1"\n    hide-note "n1"\n  }\n}')
       expect(ast.scenes[0].annotationVisibility).toHaveLength(3)
       expect(ast.scenes[0].annotationVisibility[0]).toEqual({
         type: DslNodeType.AnnotationVisibility,
@@ -430,10 +529,10 @@ describe('parser', () => {
     })
   })
 
-  describe('areafill block', () => {
-    it('parses areafill with two targets and properties', () => {
+  describe('area-fill block', () => {
+    it('parses area-fill with two targets and properties', () => {
       const ast = parse(`chart line-multi {
-  areafill "Revenue" "Cost" {
+  area-fill "Revenue" "Cost" {
     color = "#0000ff"
     opacity = 0.3
   }
@@ -449,10 +548,10 @@ describe('parser', () => {
       expect(ast.areaFills[0].properties[1]).toMatchObject({ key: 'opacity', value: 0.3 })
     })
 
-    it('parses multiple areafills', () => {
+    it('parses multiple area-fills', () => {
       const ast = parse(`chart line-multi {
-  areafill "A" "B" { color = "#f00" }
-  areafill "C" "D" { color = "#0f0" }
+  area-fill "A" "B" { color = "#f00" }
+  area-fill "C" "D" { color = "#0f0" }
 }`)
       expect(ast.areaFills).toHaveLength(2)
     })
@@ -784,8 +883,8 @@ describe('parser', () => {
   })
 
   describe('chart-level annotation visibility', () => {
-    it('parses hide_annotation at chart level', () => {
-      const ast = parse('chart bar {\n  hide_annotation "x"\n}')
+    it('parses hide-annotation at chart level', () => {
+      const ast = parse('chart bar {\n  hide-annotation "x"\n}')
       expect(ast.annotationVisibility).toHaveLength(1)
       expect(ast.annotationVisibility[0]).toEqual({
         type: DslNodeType.AnnotationVisibility,
@@ -795,8 +894,8 @@ describe('parser', () => {
       })
     })
 
-    it('parses show_range at chart level', () => {
-      const ast = parse('chart bar {\n  show_range "r1"\n}')
+    it('parses show-range at chart level', () => {
+      const ast = parse('chart bar {\n  show-range "r1"\n}')
       expect(ast.annotationVisibility).toHaveLength(1)
       expect(ast.annotationVisibility[0].kind).toBe(AnnotationKind.Range)
     })

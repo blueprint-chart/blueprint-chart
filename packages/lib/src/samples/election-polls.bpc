@@ -6,7 +6,7 @@ chart bar-split {
   note = "Margin of error at 10%: +/- 2 percentage points; at 40%: +/- 3 percentage points"
 
   data {
-    _series = "Poll","High","Low"
+    series = "Poll","High","Low"
     "CDU/CSU" = 29,32,27
     "Greens"  = 22,25,20
     "SPD"     = 14,16,12
