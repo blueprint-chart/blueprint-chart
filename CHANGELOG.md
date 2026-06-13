@@ -1,3 +1,9 @@
+## [0.1.35](https://github.com/blueprint-chart/blueprint-chart/compare/v0.1.34...v0.1.35) (2026-06-13)
+
+### Bug Fixes
+
+* verify automated release and site deploy pipeline ([a33d112](https://github.com/blueprint-chart/blueprint-chart/commit/a33d11272a71624e4d3c697b16188e2b30b232e4))
+
 # Changelog
 
 All notable changes to Blueprint Chart are documented here.
@@ -766,4 +772,3 @@ _+5 docs/test/build/ci commits._
 ## [0.1.1] — 2026-05-14
 
 Initial public release: the D3 charting engine (`lib`), the Vue 3 component library (`ui`), and the editor SPA (`editor`), published to npm under `@blueprint-chart/*` with GitHub Pages deploy. Ships the BPC DSL parser/serializer, 13 chart types, scenes, standalone + embed export, light/dark theming, and the WCAG/CVD accessibility toolkits.
-
