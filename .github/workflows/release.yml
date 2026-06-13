@@ -33,16 +33,16 @@ jobs:
       published: ${{ steps.semantic.outputs.new_release_published }}
       version: ${{ steps.semantic.outputs.new_release_version }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           # On workflow_run, check out the exact commit CI validated.
           ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.ref }}
           fetch-depth: 0          # semantic-release needs full history + tags
           persist-credentials: true
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
         with:
           version: ${{ env.PNPM_VERSION }}
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
@@ -50,7 +50,7 @@ jobs:
       - run: make install
       - run: make build
       - name: Upload package dists
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: dist
           path: |
@@ -60,7 +60,7 @@ jobs:
           if-no-files-found: error
           retention-days: 1
       - name: Upload docs dist
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: docs-dist
           path: packages/docs/src/.vitepress/dist
@@ -68,7 +68,7 @@ jobs:
           retention-days: 1
       - name: Semantic Release
         id: semantic
-        uses: cycjimmy/semantic-release-action@v4
+        uses: cycjimmy/semantic-release-action@v5
         with:
           dry_run: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run == true }}
           extra_plugins: |
@@ -88,20 +88,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download package dists
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: dist
           path: packages
       - name: Mint installation token
         id: app-token
-        uses: actions/create-github-app-token@v1
+        uses: actions/create-github-app-token@v3
         with:
           app-id: ${{ secrets.BLUEPRINT_BOT_APP_ID }}
           private-key: ${{ secrets.BLUEPRINT_BOT_PRIVATE_KEY }}
           owner: blueprint-chart
           repositories: blueprintchart.com
       - name: Checkout Pages repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: blueprint-chart/blueprintchart.com
           token: ${{ steps.app-token.outputs.token }}
@@ -149,20 +149,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download docs dist
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: docs-dist
           path: docs-dist
       - name: Mint installation token
         id: app-token
-        uses: actions/create-github-app-token@v1
+        uses: actions/create-github-app-token@v3
         with:
           app-id: ${{ secrets.BLUEPRINT_BOT_APP_ID }}
           private-key: ${{ secrets.BLUEPRINT_BOT_PRIVATE_KEY }}
           owner: blueprint-chart
           repositories: docs.blueprintchart.com
       - name: Checkout docs Pages repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: blueprint-chart/docs.blueprintchart.com
           token: ${{ steps.app-token.outputs.token }}
