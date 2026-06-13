@@ -1,69 +1,43 @@
 name: Release
 
 on:
-  release:
-    types: [published]
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+    branches: [main]
   workflow_dispatch:
     inputs:
       dry_run:
-        description: "Dry run: skip actual NPM publish and Pages push"
+        description: "Dry run: compute version + notes, skip publish/deploy"
         type: boolean
         default: true
-      tag:
-        description: "Tag to verify against (only used for workflow_dispatch)"
-        type: string
-        required: false
 
 permissions:
-  contents: read
-  id-token: write   # required for npm OIDC trusted publishing
+  contents: write      # push the release commit + create the tag/release
+  issues: write        # semantic-release github plugin
+  pull-requests: write # semantic-release github plugin
+  id-token: write      # npm OIDC trusted publishing (provenance)
 
 env:
   NODE_VERSION: '24'
   PNPM_VERSION: '11'
 
 jobs:
-  verify:
-    name: Verify versions match tag
+  release:
+    name: Release
+    # Run on manual dispatch, or only when the triggering CI run succeeded.
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     outputs:
-      tag: ${{ steps.resolve.outputs.tag }}
-      version: ${{ steps.resolve.outputs.version }}
+      published: ${{ steps.semantic.outputs.new_release_published }}
+      version: ${{ steps.semantic.outputs.new_release_version }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
         with:
-          node-version: ${{ env.NODE_VERSION }}
-      - id: resolve
-        env:
-          RELEASE_TAG: ${{ github.event.release.tag_name }}
-          INPUT_TAG: ${{ inputs.tag }}
-        run: |
-          set -euo pipefail
-          if [ "${{ github.event_name }}" = "release" ]; then
-            TAG="$RELEASE_TAG"
-          else
-            TAG="$INPUT_TAG"
-            if [ -z "$TAG" ]; then
-              VER=$(node -p "require('./packages/lib/package.json').version")
-              TAG="v$VER"
-            fi
-          fi
-          VERSION="${TAG#v}"
-          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "Resolved TAG=$TAG VERSION=$VERSION"
-      - name: Verify package versions match tag
-        env:
-          RESOLVED_TAG: ${{ steps.resolve.outputs.tag }}
-        run: node scripts/verify-release-versions.mjs "$RESOLVED_TAG"
-
-  lint:
-    name: Lint
-    needs: [verify]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+          # On workflow_run, check out the exact commit CI validated.
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.ref }}
+          fetch-depth: 0          # semantic-release needs full history + tags
+          persist-credentials: true
       - uses: pnpm/action-setup@v4
         with:
           version: ${{ env.PNPM_VERSION }}
@@ -71,38 +45,7 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
-      - run: make install
-      - run: make lint
-
-  test:
-    name: Test
-    needs: [verify]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: pnpm
-      - run: make install
-      - run: make test
-
-  build:
-    name: Build
-    needs: [verify]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: pnpm
+          registry-url: 'https://registry.npmjs.org'
       - run: make install
       - run: make build
       - name: Upload package dists
@@ -122,37 +65,24 @@ jobs:
           path: packages/docs/src/.vitepress/dist
           if-no-files-found: error
           retention-days: 1
-
-  publish-npm:
-    name: Publish to NPM
-    needs: [verify, lint, test, build]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
+      - name: Semantic Release
+        id: semantic
+        uses: cycjimmy/semantic-release-action@v4
         with:
-          version: ${{ env.PNPM_VERSION }}
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: pnpm
-          registry-url: 'https://registry.npmjs.org'
-      - run: make install
-      - name: Download package dists
-        uses: actions/download-artifact@v4
-        with:
-          name: dist
-          path: packages
-      - name: pnpm publish (dry run)
-        if: github.event_name == 'workflow_dispatch' && inputs.dry_run
-        run: pnpm -r publish --access public --no-git-checks --provenance --dry-run
-      - name: pnpm publish
-        if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && !inputs.dry_run)
-        run: pnpm -r publish --access public --no-git-checks --provenance
+          dry_run: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run }}
+          extra_plugins: |
+            @semantic-release/changelog
+            @semantic-release/exec
+            @semantic-release/git
+            conventional-changelog-conventionalcommits
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_CONFIG_PROVENANCE: 'true'
 
   deploy-pages:
     name: Deploy editor to blueprintchart.com
-    needs: [verify, lint, test, build]
+    needs: [release]
+    if: ${{ needs.release.outputs.published == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -195,11 +125,10 @@ jobs:
             '{supabaseUrl: $url, supabaseAnonKey: $key}' > config.json
           cat config.json
       - name: Commit and push
-        if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && !inputs.dry_run)
         working-directory: pages
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
-          DEPLOY_TAG: ${{ needs.verify.outputs.tag }}
+          DEPLOY_TAG: v${{ needs.release.outputs.version }}
         run: |
           set -euo pipefail
           git config user.name "blueprint-chart-bot[bot]"
@@ -211,21 +140,12 @@ jobs:
           fi
           git commit -m "chore: deploy editor $DEPLOY_TAG"
           git push origin HEAD:main
-      - name: Dry-run notice
-        if: github.event_name == 'workflow_dispatch' && inputs.dry_run
-        working-directory: pages
-        run: |
-          echo "Dry run: skipping git push. Pending changes:"
-          git status --short
 
   deploy-docs:
     name: Deploy docs to docs.blueprintchart.com
-    needs: [verify, lint, test, build]
+    needs: [release]
+    if: ${{ needs.release.outputs.published == 'true' }}
     runs-on: ubuntu-latest
-    # Requires:
-    #   - A Pages repo at blueprint-chart/docs.blueprintchart.com (Pages → "Deploy from branch: main")
-    #   - The BLUEPRINT_BOT GitHub App granted access to that repo
-    #   - DNS: CNAME `docs.blueprintchart.com` → `blueprint-chart.github.io`
     steps:
       - uses: actions/checkout@v4
       - name: Download docs dist
@@ -255,11 +175,10 @@ jobs:
           cp -R docs-dist/. pages-docs/
           ls -la pages-docs/
       - name: Commit and push
-        if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && !inputs.dry_run)
         working-directory: pages-docs
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
-          DEPLOY_TAG: ${{ needs.verify.outputs.tag }}
+          DEPLOY_TAG: v${{ needs.release.outputs.version }}
         run: |
           set -euo pipefail
           git config user.name "blueprint-chart-bot[bot]"
@@ -271,9 +190,3 @@ jobs:
           fi
           git commit -m "chore: deploy docs $DEPLOY_TAG"
           git push origin HEAD:main
-      - name: Dry-run notice
-        if: github.event_name == 'workflow_dispatch' && inputs.dry_run
-        working-directory: pages-docs
-        run: |
-          echo "Dry run: skipping git push. Pending changes:"
-          git status --short
