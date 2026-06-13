@@ -1,0 +1,39 @@
+# Blueprint Chart docs — https://docs.blueprintchart.com
+# LLM-readable indexes:
+#   https://docs.blueprintchart.com/llms.txt       (curated link index)
+#   https://docs.blueprintchart.com/llms-full.txt  (full docs, concatenated)
+
+# Allow everything by default.
+User-agent: *
+Allow: /
+
+# Explicitly welcome AI/LLM crawlers and assistants.
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: CCBot
+Allow: /

@@ -1,0 +1,37 @@
+# Blueprint Chart
+
+> The open chart format an LLM writes and the browser renders. Author charts as a compact plain-text `.bpc` DSL — emitted by an LLM or written by hand — that any browser renders to interactive, accessible SVG. Static-first: no backend, no account, data stays in the browser. Charts are narrative "scenes" that can animate through a finding.
+
+Blueprint Chart is built for AI coding agents and developers. An agent writes a `.bpc` document; the browser (or the `@blueprint-chart/mcp` server) renders it. The DSL is small, open, and machine-emittable — the format incumbents (Datawrapper, Flourish, Infogram) cannot retrofit.
+
+## Start here
+- [Getting started](https://docs.blueprintchart.com/guide/getting-started): your first chart in a few lines of `.bpc`
+- [Use with an LLM / MCP server](https://docs.blueprintchart.com/guide/mcp): install `@blueprint-chart/mcp` and let an agent author charts
+- [Live editor](https://blueprintchart.com): write `.bpc` and see it render instantly
+
+## DSL reference
+- [DSL reference](https://docs.blueprintchart.com/reference/dsl/): the complete `.bpc` grammar
+- [Properties](https://docs.blueprintchart.com/reference/dsl/properties): every chart property and its meaning
+- [Annotations](https://docs.blueprintchart.com/reference/dsl/annotations): callouts, highlights, direct labels
+- [Scenes & transforms](https://docs.blueprintchart.com/reference/dsl/scenes-and-transforms): multi-state narrative charts and data transforms
+- [API reference](https://docs.blueprintchart.com/reference/api/): the rendering library API
+
+## Chart types
+- [All chart types](https://docs.blueprintchart.com/charts/): index of supported charts
+- [line](https://docs.blueprintchart.com/charts/line) · [line-multi](https://docs.blueprintchart.com/charts/line-multi)
+- [area](https://docs.blueprintchart.com/charts/area) · [area-stacked](https://docs.blueprintchart.com/charts/area-stacked)
+- [bar-vertical](https://docs.blueprintchart.com/charts/bar-vertical) · [bar-horizontal](https://docs.blueprintchart.com/charts/bar-horizontal) · [bar-multi](https://docs.blueprintchart.com/charts/bar-multi) · [bar-grouped](https://docs.blueprintchart.com/charts/bar-grouped) · [bar-stacked](https://docs.blueprintchart.com/charts/bar-stacked) · [bar-split](https://docs.blueprintchart.com/charts/bar-split)
+- [column-stacked](https://docs.blueprintchart.com/charts/column-stacked)
+- [pie](https://docs.blueprintchart.com/charts/pie) · [donut](https://docs.blueprintchart.com/charts/donut)
+
+## Choosing & craft (handbook)
+- [Choosing the right chart](https://docs.blueprintchart.com/handbook/choosing): match data shape and goal to a chart type
+- [Color & palettes](https://docs.blueprintchart.com/handbook/color): accessible, CVD-safe color
+- [Accessibility](https://docs.blueprintchart.com/handbook/accessibility): WCAG contrast and color-vision-deficiency guidance
+- [Annotations](https://docs.blueprintchart.com/handbook/annotations) · [Labels](https://docs.blueprintchart.com/handbook/labels) · [Axes](https://docs.blueprintchart.com/handbook/axes) · [Anti-patterns](https://docs.blueprintchart.com/handbook/anti-patterns)
+
+## Optional
+- [Scenes](https://docs.blueprintchart.com/guide/scenes): animated multi-state storytelling
+- [Data transforms](https://docs.blueprintchart.com/guide/data-transforms): reshape data inside the DSL
+- [Embed](https://docs.blueprintchart.com/guide/embed): drop a chart into any page, framework-free
+- [Palettes](https://docs.blueprintchart.com/guide/palettes) · [DSL editor](https://docs.blueprintchart.com/guide/dsl-editor)

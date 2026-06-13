@@ -36,9 +36,10 @@
     "dev": "vitepress dev src --host 0.0.0.0 --port 4445",
     "build:vitepress": "vitepress build src",
     "build:manifest": "tsx scripts/build-manifest.ts",
+    "build:llms-full": "tsx scripts/build-llms-full.ts",
     "build:api": "tsc --project tsconfig.api.json",
     "build:package": "pnpm run build:manifest && pnpm run build:api",
-    "build": "pnpm run build:vitepress && pnpm run build:package",
+    "build": "pnpm run build:llms-full && pnpm run build:vitepress && pnpm run build:package",
     "prepublishOnly": "pnpm run build:package",
     "preview": "vitepress preview src --host 0.0.0.0 --port 4445",
     "test": "vitest run"
