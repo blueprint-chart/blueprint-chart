@@ -2,33 +2,28 @@
 
 Releases are unified across the four packages (`lib`, `ui`, `editor`, `docs`) — one tag, one set of versions, one Release.
 
-## Steps
+## How releases happen
 
-1. From a clean `main` working tree, pick one:
+Releases are automatic. Push Conventional Commits to `main`:
 
-   ```bash
-   make release-patch       # 0.1.0 → 0.1.1
-   make release-minor       # 0.1.0 → 0.2.0
-   make release-major       # 0.1.0 → 1.0.0
-   make release VERSION=0.4.2   # explicit
-   ```
+- `fix:` → patch · `feat:` → minor · `feat!:` / `BREAKING CHANGE:` → major
+- `docs:` / `style:` / `chore:` / `test:` / `refactor:` / `ci:` → no release
 
-   This bumps all four packages, creates the commit `chore(release): vX.Y.Z`, and tags `vX.Y.Z` locally.
+When the `CI` workflow succeeds on `main`, the `Release` workflow runs semantic-release, which:
 
-2. Push:
+1. Computes the next version from the commits since the last `vX.Y.Z` tag.
+2. Bumps all four packages to that version and re-checks them with `verify-release-versions.mjs`.
+3. Writes `CHANGELOG.md` and creates the GitHub Release with generated notes (editable afterward).
+4. Publishes all four packages to npm with provenance.
+5. Tags `vX.Y.Z` and commits `chore(release): vX.Y.Z [skip ci]` back to `main`.
+6. Deploys the editor to blueprintchart.com and the docs to docs.blueprintchart.com (only when a release is cut).
 
-   ```bash
-   git push --follow-tags
-   ```
+You do not run anything locally and you do not touch the GitHub UI.
 
-3. On GitHub, create a Release for `vX.Y.Z`. Author the release notes. Publish.
-
-4. The `Release` workflow runs automatically:
-   - `verify` confirms the four `package.json` versions match the tag
-   - `ci` runs lint + test + build
-   - `publish-npm` publishes all four packages with provenance
-   - `deploy-pages` pushes `packages/editor/dist/` to `blueprint-chart/blueprintchart.com`, writing a runtime `config.json` from the `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` secrets so the deployed editor has accounts enabled
-   - `deploy-docs` pushes the VitePress build to `blueprint-chart/docs.blueprintchart.com`
+> **Docs-only changes** do not cut a release, so they will not redeploy the docs site until the
+> next `feat`/`fix`. To force a deploy, trigger **Actions → Release → Run workflow** with
+> `dry_run` unchecked (it will redeploy the current build if a release is computed), or land a
+> `fix:` commit.
 
 ## DSL grammar changes
 
@@ -52,20 +47,18 @@ provider's allowed redirect URLs, or magic-link sign-in will fail.
 
 ## Dry run
 
-Before a real release, dry-run the workflow:
+GitHub → Actions → Release → **Run workflow** → leave `dry_run` checked.
 
-GitHub → Actions → Release → Run workflow → leave `dry_run` checked, optionally specify a tag (defaults to current `lib` version).
-
-This validates the pack contents and the Pages-repo diff without publishing or pushing.
+semantic-release runs in dry-run: it prints the next version it *would* release and the generated
+notes, and validates the pack, without publishing, tagging, committing, or deploying.
 
 ## Recovering from a failed release
 
 | Failure | Recovery |
 |---|---|
-| `make release-*` aborted between version bump and commit (rare) | `git checkout packages/*/package.json` to discard partial bumps, then retry |
-| `verify` job fails | Edit drifted `package.json`, delete the tag locally and on GitHub, delete the Release, re-tag, re-create Release |
-| `ci` job fails | Fix on `main`, delete the failed Release + tag, cut a fresh patch release |
-| `publish-npm` partial (some packages live, others not) | NPM rejects republishing the same version. Bump to the next patch and re-release the lot |
-| `deploy-pages` failed | Re-run only the `deploy-pages` job from the GitHub UI (idempotent — it wipes and replaces) |
-| `deploy-docs` failed | Re-run only the `deploy-docs` job from the GitHub UI (idempotent — it wipes and replaces) |
-| Bad release shipped | `npm deprecate @blueprint-chart/<name>@x.y.z "reason"` and ship a fix in the next version |
+| `make build` / publish failed mid-run | Fix forward with a `fix:` commit — semantic-release never reuses a version; the next green CI republishes cleanly |
+| `verify-release-versions.mjs` (inside exec) fails | A package drifted; fix the version on `main` and push a `fix:` |
+| `deploy-pages` / `deploy-docs` failed | Re-run only that job from the GitHub UI (idempotent — it wipes and replaces) |
+| Bad release shipped | `npm deprecate @blueprint-chart/<name>@x.y.z "reason"` and ship a `fix:` |
+| Need a release the commits won't trigger | Land an explicit `fix:`/`feat:`, or use **Actions → Release → Run workflow** with `dry_run` off |
+| Emergency manual release | `make release-*` + `git push --follow-tags` still work as a fallback (see Makefile) |
