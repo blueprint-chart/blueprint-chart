@@ -9,10 +9,10 @@
       "prepareCmd": "pnpm -r exec -- npm version ${nextRelease.version} --no-git-tag-version --allow-same-version && node scripts/verify-release-versions.mjs v${nextRelease.version}",
       "publishCmd": "pnpm -r publish --access public --no-git-checks --provenance"
     }],
-    ["@semantic-release/github", { "successComment": false, "failComment": false }],
     ["@semantic-release/git", {
       "assets": ["CHANGELOG.md", "packages/*/package.json"],
       "message": "chore(release): v${nextRelease.version} [skip ci]"
-    }]
+    }],
+    ["@semantic-release/github", { "successComment": false, "failComment": false }]
   ]
 }
