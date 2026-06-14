@@ -57,7 +57,7 @@ chart line {
 This is `packages/lib/src/samples/temperature-anomaly.bpc` — a good stress test for the highlighter because it mixes every common token class: keywords (`chart`, `data`, `annotation`), identifiers (`autoContrast`, `lineSymbolShape`), strings, numbers, enum values (`monotoneX`, `firstLast`, `curve-right`), and booleans. The fold ranges align with each top-level block.
 :::
 
-Line comments use `//` and stop at end-of-line. There are no block comments.
+The editor highlights both comment forms: line comments (`//`, to end-of-line) and block comments (`/* … */`, which may span multiple lines).
 
 ## How it works
 
