@@ -90,7 +90,7 @@ Chart
   }
 
 ChartMember
-  = comments:LeadingComments m:(DataBlock / Colorize / Highlight / AreaFill / RangeAnnotation / NoteAnnotation / Annotation / HideAnnotation / HideRange / HideNote / ShowAnnotation / ShowRange / ShowNote / Series / Scene / Transform / Property) S
+  = comments:LeadingComments m:(DataBlock / Colorize / Highlight / AreaFill / RangeAnnotation / NoteAnnotation / Annotation / HideAnnotation / HideRange / HideNote / ShowAnnotation / ShowRange / ShowNote / Series / Scene / Transform / Property) [ \t]* LineComment? S
   { if (comments.length) m.leadingComments = comments; return m; }
 
 DataBlock
@@ -98,7 +98,7 @@ DataBlock
   { return { type: 'data', entries }; }
 
 DataMember
-  = comments:LeadingComments e:(TabularDataEntry / DataEntry) S
+  = comments:LeadingComments e:(TabularDataEntry / DataEntry) [ \t]* LineComment? S
   { if (comments.length) e.leadingComments = comments; return e; }
 
 DataEntry
@@ -216,7 +216,7 @@ ShowNote
   { return { type: 'annotation-visibility', action: 'show', kind: 'free', id }; }
 
 SceneMember
-  = comments:LeadingComments m:(DataBlock / Colorize / Highlight / AreaFill / RangeAnnotation / NoteAnnotation / Annotation / HideAnnotation / HideRange / HideNote / ShowAnnotation / ShowRange / ShowNote / Series / Transform / Property) S
+  = comments:LeadingComments m:(DataBlock / Colorize / Highlight / AreaFill / RangeAnnotation / NoteAnnotation / Annotation / HideAnnotation / HideRange / HideNote / ShowAnnotation / ShowRange / ShowNote / Series / Transform / Property) [ \t]* LineComment? S
   { if (comments.length) m.leadingComments = comments; return m; }
 
 BlockProperty

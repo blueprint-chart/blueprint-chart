@@ -970,3 +970,38 @@ describe('parser', () => {
     })
   })
 })
+
+describe('inline trailing comments are discarded', () => {
+  it('does not reattach a same-line trailing comment to the next member', () => {
+    const ast = parse(`chart bar {
+  title = "Hi" // inline trailing
+  data {
+    "A" = 1
+  }
+}`)
+    expect(ast.properties.find((p) => p.key === 'title')?.leadingComments).toBeUndefined()
+    expect(ast.data?.leadingComments).toBeUndefined()
+  })
+
+  it('does not reattach a same-line trailing comment on a data row', () => {
+    const ast = parse(`chart bar {
+  data {
+    "A" = 1 // first row
+    "B" = 2
+  }
+}`)
+    expect(ast.data?.entries.find((e) => e.key === 'A')?.leadingComments).toBeUndefined()
+    expect(ast.data?.entries.find((e) => e.key === 'B')?.leadingComments).toBeUndefined()
+  })
+
+  it('still captures a standalone leading comment on the next line', () => {
+    const ast = parse(`chart bar {
+  title = "Hi"
+  // about the data
+  data {
+    "A" = 1
+  }
+}`)
+    expect(ast.data?.leadingComments).toEqual(['about the data'])
+  })
+})

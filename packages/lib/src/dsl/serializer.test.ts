@@ -1116,3 +1116,23 @@ describe('leadingComments serialization', () => {
     expect(serialize(ast2)).toBe(serialize(ast1))
   })
 })
+
+describe('comment edge cases', () => {
+  it('round-trips a multi-line block comment without crashing', () => {
+    const src = `chart bar {
+  /* line one
+     line two */
+  title = "Hi"
+  data { "A" = 1 }
+}`
+    const ast1 = parse(src)
+    const out1 = serialize(ast1)
+    // every emitted comment physical line must start with //
+    for (const line of out1.split('\n').filter((l) => l.trim() && /two|one/.test(l))) {
+      expect(line.trim().startsWith('//')).toBe(true)
+    }
+    // re-parsing the serialized output must not throw, and serialize is stable
+    const ast2 = parse(out1)
+    expect(serialize(ast2)).toBe(out1)
+  })
+})

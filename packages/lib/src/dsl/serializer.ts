@@ -3,7 +3,12 @@ import { getChartOptions } from '../charts/registry'
 import { AnnotationKind, ANNOTATION_KIND_KEYWORD } from '../enums'
 
 function commentLines(comments: string[] | undefined, indent: string): string[] {
-  return (comments ?? []).map((c) => `${indent}// ${c}`)
+  // A captured comment may contain embedded newlines (multi-line block
+  // comments). Emit every physical line as its own `// ` line so the result
+  // re-parses as comments rather than bare continuation text.
+  return (comments ?? []).flatMap((c) =>
+    c.split('\n').map((line) => `${indent}// ${line.trim()}`),
+  )
 }
 
 function serializeValue(prop: PropertyNode): string {
