@@ -1056,3 +1056,63 @@ describe('serializer', () => {
     })
   })
 })
+
+describe('leadingComments serialization', () => {
+  it('emits a comment above a property', () => {
+    const out = serialize(parse(`chart bar {
+  // about the title
+  title = "Hi"
+  data { "A" = 1 }
+}`))
+    expect(out).toContain('  // about the title\n  title = Hi')
+  })
+
+  it('emits a comment above the data block', () => {
+    const out = serialize(parse(`chart bar {
+  // each row is a bar
+  data { "A" = 1 }
+}`))
+    expect(out).toContain('  // each row is a bar\n  data {')
+  })
+
+  it('emits a comment above a data row', () => {
+    const out = serialize(parse(`chart bar {
+  data {
+    // outlier
+    "A" = 99
+  }
+}`))
+    expect(out).toContain('    // outlier\n    A = 99')
+  })
+
+  it('emits a comment above a highlight', () => {
+    const out = serialize(parse(`chart bar {
+  data { "A" = 1 }
+  // pop the winner
+  highlight "A"
+}`))
+    expect(out).toContain('  // pop the winner\n  highlight "A"')
+  })
+
+  it('round-trips comments through parse → serialize → parse', () => {
+    const src = `chart bar {
+  // about the title
+  title = "Hi"
+  // each row is a bar
+  data {
+    // outlier
+    "A" = 99
+    "B" = 1
+  }
+  // pop the winner
+  highlight "A"
+}`
+    const ast1 = parse(src)
+    const ast2 = parse(serialize(ast1))
+    expect(ast2.properties.find((p) => p.key === 'title')?.leadingComments).toEqual(['about the title'])
+    expect(ast2.data?.leadingComments).toEqual(['each row is a bar'])
+    expect(ast2.data?.entries.find((e) => e.key === 'A')?.leadingComments).toEqual(['outlier'])
+    expect(ast2.highlights[0]?.leadingComments).toEqual(['pop the winner'])
+    expect(serialize(ast2)).toBe(serialize(ast1))
+  })
+})
