@@ -12,11 +12,15 @@ export interface PropertyNode {
    * real data category; only the unquoted `series = ...` row names columns.
    */
   quotedKey?: boolean
+  /** `//` comment lines authored immediately above this node, text only (no `//`). */
+  leadingComments?: string[]
 }
 
 export interface DataNode {
   type: DslNodeType.Data
   entries: PropertyNode[]
+  /** `//` comment lines authored immediately above this node, text only (no `//`). */
+  leadingComments?: string[]
 }
 
 export interface ColorizeNode {
@@ -24,12 +28,16 @@ export interface ColorizeNode {
   target: string
   properties: PropertyNode[]
   fromHighlight?: boolean
+  /** `//` comment lines authored immediately above this node, text only (no `//`). */
+  leadingComments?: string[]
 }
 
 export interface HighlightNode {
   type: DslNodeType.Highlight
   target: string
   properties: PropertyNode[]
+  /** `//` comment lines authored immediately above this node, text only (no `//`). */
+  leadingComments?: string[]
 }
 
 export interface AreaFillNode {
@@ -37,6 +45,8 @@ export interface AreaFillNode {
   from: string
   to: string
   properties: PropertyNode[]
+  /** `//` comment lines authored immediately above this node, text only (no `//`). */
+  leadingComments?: string[]
 }
 
 export interface PointAnnotationNode {
@@ -44,18 +54,24 @@ export interface PointAnnotationNode {
   kind: AnnotationKind.Point
   target: string
   properties: PropertyNode[]
+  /** `//` comment lines authored immediately above this node, text only (no `//`). */
+  leadingComments?: string[]
 }
 
 export interface RangeAnnotationNode {
   type: DslNodeType.Annotation
   kind: AnnotationKind.Range
   properties: PropertyNode[]
+  /** `//` comment lines authored immediately above this node, text only (no `//`). */
+  leadingComments?: string[]
 }
 
 export interface FreeAnnotationNode {
   type: DslNodeType.Annotation
   kind: AnnotationKind.Free
   properties: PropertyNode[]
+  /** `//` comment lines authored immediately above this node, text only (no `//`). */
+  leadingComments?: string[]
 }
 
 export type AnnotationNode = PointAnnotationNode | RangeAnnotationNode | FreeAnnotationNode
@@ -64,6 +80,8 @@ export interface SeriesNode {
   type: DslNodeType.Series
   name: string
   properties: PropertyNode[]
+  /** `//` comment lines authored immediately above this node, text only (no `//`). */
+  leadingComments?: string[]
 }
 
 export interface AnnotationVisibilityNode {
@@ -71,6 +89,8 @@ export interface AnnotationVisibilityNode {
   action: AnnotationAction
   kind: AnnotationKind
   id: string
+  /** `//` comment lines authored immediately above this node, text only (no `//`). */
+  leadingComments?: string[]
 }
 
 export interface SceneNode {
@@ -85,12 +105,16 @@ export interface SceneNode {
   annotationVisibility: AnnotationVisibilityNode[]
   series: SeriesNode[]
   transforms: TransformNode[]
+  /** `//` comment lines authored immediately above this node, text only (no `//`). */
+  leadingComments?: string[]
 }
 
 export interface TransformNode {
   type: DslNodeType.Transform
   transformType: string
   properties: PropertyNode[]
+  /** `//` comment lines authored immediately above this node, text only (no `//`). */
+  leadingComments?: string[]
 }
 
 export interface ChartNode {
