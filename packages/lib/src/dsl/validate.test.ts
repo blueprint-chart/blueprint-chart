@@ -7,6 +7,7 @@ import {
   FREE_ANNOTATION_KEYS,
 } from './validate'
 import { convertAnnotations } from './converter'
+import { parse } from './parser'
 import type { ChartNode, SceneNode, PropertyNode, DataNode, AnnotationNode, TransformNode } from './types'
 
 function prop(key: string, value: string | number | boolean, isPercentage = false): PropertyNode {
@@ -437,4 +438,24 @@ describe('annotation allowlist / converter parity', () => {
       })
     }
   }
+})
+
+describe('comments do not affect validation', () => {
+  it('a chart with // comments has no errors or warnings', () => {
+    const ast = parse(`chart bar-vertical {
+  // headline
+  title = "Hi"
+  // each row is a bar
+  data {
+    // the leader
+    "A" = 10
+    "B" = 5
+  }
+  // pop the leader
+  highlight "A"
+}`)
+    const result = validateChart(ast)
+    expect(result.errors).toEqual([])
+    expect(result.warnings).toEqual([])
+  })
 })
