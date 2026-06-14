@@ -900,4 +900,73 @@ describe('parser', () => {
       expect(ast.annotationVisibility[0].kind).toBe(AnnotationKind.Range)
     })
   })
+
+  describe('leading comments', () => {
+    it('attaches a comment above a top-level property', () => {
+      const ast = parse(`chart bar {
+  // shown above the title
+  title = "Hi"
+  data {
+    "A" = 1
+  }
+}`)
+      const title = ast.properties.find((p) => p.key === 'title')
+      expect(title?.leadingComments).toEqual(['shown above the title'])
+    })
+
+    it('attaches a comment above the data block', () => {
+      const ast = parse(`chart bar {
+  // each row is a bar
+  data {
+    "A" = 1
+  }
+}`)
+      expect(ast.data?.leadingComments).toEqual(['each row is a bar'])
+    })
+
+    it('attaches a comment above a data row', () => {
+      const ast = parse(`chart bar {
+  data {
+    // the outlier
+    "A" = 99
+    "B" = 1
+  }
+}`)
+      const a = ast.data?.entries.find((e) => e.key === 'A')
+      const b = ast.data?.entries.find((e) => e.key === 'B')
+      expect(a?.leadingComments).toEqual(['the outlier'])
+      expect(b?.leadingComments).toBeUndefined()
+    })
+
+    it('attaches a comment above a highlight', () => {
+      const ast = parse(`chart bar {
+  data {
+    "A" = 1
+  }
+  // pop the winner
+  highlight "A"
+}`)
+      expect(ast.highlights[0]?.leadingComments).toEqual(['pop the winner'])
+    })
+
+    it('keeps consecutive comments as separate entries in order', () => {
+      const ast = parse(`chart bar {
+  // line one
+  // line two
+  title = "Hi"
+  data { "A" = 1 }
+}`)
+      const title = ast.properties.find((p) => p.key === 'title')
+      expect(title?.leadingComments).toEqual(['line one', 'line two'])
+    })
+
+    it('leaves uncommented charts with no leadingComments field', () => {
+      const ast = parse(`chart bar {
+  title = "Hi"
+  data { "A" = 1 }
+}`)
+      const title = ast.properties.find((p) => p.key === 'title')
+      expect(title?.leadingComments).toBeUndefined()
+    })
+  })
 })

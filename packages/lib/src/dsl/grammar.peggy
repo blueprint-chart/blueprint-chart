@@ -67,7 +67,7 @@ function collectSceneBody(members) {
 }}
 
 Chart
-  = _ "chart" __ chartType:Identifier _ "{" _ members:ChartMember* _ "}" _
+  = _ "chart" __ chartType:Identifier _ "{" members:ChartMember* _ "}" _
   {
     if (countDataBlocks(members) > 1) {
       error('duplicate data block — a chart or scene may define at most one data { } block');
@@ -90,22 +90,26 @@ Chart
   }
 
 ChartMember
-  = _ m:(DataBlock / Colorize / Highlight / AreaFill / RangeAnnotation / NoteAnnotation / Annotation / HideAnnotation / HideRange / HideNote / ShowAnnotation / ShowRange / ShowNote / Series / Scene / Transform / Property) _
-  { return m; }
+  = comments:LeadingComments m:(DataBlock / Colorize / Highlight / AreaFill / RangeAnnotation / NoteAnnotation / Annotation / HideAnnotation / HideRange / HideNote / ShowAnnotation / ShowRange / ShowNote / Series / Scene / Transform / Property) S
+  { if (comments.length) m.leadingComments = comments; return m; }
 
 DataBlock
-  = "data" _ "{" _ entries:(TabularDataEntry / DataEntry)* _ "}"
+  = "data" _ "{" entries:DataMember* _ "}"
   { return { type: 'data', entries }; }
 
+DataMember
+  = comments:LeadingComments e:(TabularDataEntry / DataEntry) S
+  { if (comments.length) e.leadingComments = comments; return e; }
+
 DataEntry
-  = _ key:DataKey _ "=" _ first:PropertyValue rest:("," _ v:PropertyValue { return v; })+ _
+  = key:DataKey _ "=" _ first:PropertyValue rest:("," _ v:PropertyValue { return v; })+
   {
     const all = [first, ...rest];
     // quotedKey distinguishes a real data row labelled "series" (quoted) from
     // the unquoted `series = ...` meta-row that names the columns.
     return { type: 'property', key: key.name, ...(key.quoted && key.name === 'series' ? { quotedKey: true } : {}), value: all[0].value, isPercentage: false, values: all.map(v => v.value) };
   }
-  / _ key:DataKey _ "=" _ value:PropertyValue _
+  / key:DataKey _ "=" _ value:PropertyValue
   { return { type: 'property', key: key.name, ...(key.quoted && key.name === 'series' ? { quotedKey: true } : {}), value: value.value, isPercentage: value.isPercentage }; }
 
 DataKey
@@ -113,7 +117,7 @@ DataKey
   / i:Identifier { return { name: i, quoted: false }; }
 
 TabularDataEntry
-  = _ label:TabularLabel "\t" _ value:PropertyValue _
+  = label:TabularLabel "\t" _ value:PropertyValue
   { return { type: 'property', key: label, ...(label === 'series' ? { quotedKey: true } : {}), value: value.value, isPercentage: value.isPercentage }; }
 
 TabularLabel
@@ -162,7 +166,7 @@ Series
   { error('series needs a quoted name, e.g. series "Revenue" { ... }'); }
 
 Scene
-  = "scene" __ name:String? _ "{" _ members:SceneMember* _ "}"
+  = "scene" __ name:String? _ "{" members:SceneMember* _ "}"
   {
     if (countDataBlocks(members) > 1) {
       error('duplicate data block — a chart or scene may define at most one data { } block');
@@ -212,8 +216,8 @@ ShowNote
   { return { type: 'annotation-visibility', action: 'show', kind: 'free', id }; }
 
 SceneMember
-  = _ m:(DataBlock / Colorize / Highlight / AreaFill / RangeAnnotation / NoteAnnotation / Annotation / HideAnnotation / HideRange / HideNote / ShowAnnotation / ShowRange / ShowNote / Series / Transform / Property) _
-  { return m; }
+  = comments:LeadingComments m:(DataBlock / Colorize / Highlight / AreaFill / RangeAnnotation / NoteAnnotation / Annotation / HideAnnotation / HideRange / HideNote / ShowAnnotation / ShowRange / ShowNote / Series / Transform / Property) S
+  { if (comments.length) m.leadingComments = comments; return m; }
 
 BlockProperty
   = _ p:Property _ { return p; }
@@ -262,6 +266,16 @@ LineComment
 
 BlockComment
   = "/*" (!"*/" .)* "*/"
+
+S "blank space"
+  = [ \t\n\r]*
+
+LeadingComments
+  = list:(S c:CommentText { return c; })* S { return list; }
+
+CommentText
+  = "//" text:$([^\n]*)            { return text.trim(); }
+  / "/*" text:$((!"*/" .)*) "*/"   { return text.trim(); }
 
 __ "whitespace"
   = ([ \t\n\r] / Comment)+
