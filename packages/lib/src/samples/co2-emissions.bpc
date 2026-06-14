@@ -1,12 +1,15 @@
 chart bar-vertical {
+  // the headline above the chart
   title = "China emits more CO₂ than the US and India combined"
   description = "Annual emissions in billion tonnes, 2023"
   source = "Global Carbon Project"
   sourceUrl = "https://globalcarbonproject.org"
   verticalLabelPosition = "off"
   verticalGridStyle = "none"
+  // print each bar's value at its tip
   valueLabels = true
 
+  // one row per country: "label" = value
   data {
     "China" = 11.9
     "United States" = 4.78
@@ -16,8 +19,10 @@ chart bar-vertical {
     "Germany" = 0.64
   }
 
+  // highlight pops one bar in the accent color
   highlight "China"
 
+  // an annotation points a callout at a single bar
   annotation "India" {
     text = "Surpassed EU in 2023"
     showLine = true

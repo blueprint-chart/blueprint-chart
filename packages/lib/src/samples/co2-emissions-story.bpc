@@ -1,4 +1,5 @@
 chart bar-horizontal {
+  // the headline above the chart
   title = "China emits more CO₂ than the US and India combined"
   description = "Annual emissions in billion tonnes, 2023"
   source = "Global Carbon Project"
@@ -6,8 +7,10 @@ chart bar-horizontal {
   byline = "Pierre Romera"
   horizontalLabelPosition = off
   horizontalGridStyle = none
+  // print each bar's value at its tip
   valueLabels = true
 
+  // one row per country: "label" = value
   data {
     "China" = 11.9
     "United States" = 4.78
