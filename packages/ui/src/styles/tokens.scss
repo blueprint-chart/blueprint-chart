@@ -191,7 +191,11 @@ $spacer-xs: 0.25rem !default;
   --bc-grid-color: #444;
   --bc-text-color: #aaa;
 
-  --bc-canvas-bg: #244a7c;
+  // Blueprint canvas goes dark in dark theme: the blue surface becomes a
+  // near-black that matches the rest of the dark editor (and the dimmed promo
+  // backdrops). The white grid lines below already read on a dark surface, so
+  // only the background color changes — the blueprint grid stays the grid.
+  --bc-canvas-bg: #151518;
   --bc-canvas-grid-color: rgba(255, 255, 255, 0.04);
   --bc-canvas-grid-color-major: rgba(255, 255, 255, 0.10);
   --bc-canvas-dimension-color: rgba(255, 255, 255, 0.4);
