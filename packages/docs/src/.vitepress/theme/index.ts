@@ -33,11 +33,13 @@ import '@blueprint-chart/lib/charts.scss'
 
 import Layout from './Layout.vue'
 import BpcBlock from './components/BpcBlock.vue'
+import SectionTiles from './components/SectionTiles.vue'
 
 export default {
   extends: DefaultTheme,
   Layout,
   enhanceApp({ app }: { app: App }) {
     app.component('BpcBlock', BpcBlock)
+    app.component('SectionTiles', SectionTiles)
   },
 }

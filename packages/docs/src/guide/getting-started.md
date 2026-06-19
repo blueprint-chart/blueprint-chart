@@ -1,5 +1,9 @@
 # Getting Started
 
+Welcome to the Blueprint Chart documentation. Jump straight to a section below, or read on for the install quickstart.
+
+<SectionTiles />
+
 Blueprint Chart is published as four packages on NPM, plus a separate `@blueprint-chart/mcp` server for authoring charts with AI. Pick the one that matches what you're building.
 
 <table>
