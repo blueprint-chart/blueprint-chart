@@ -1,6 +1,6 @@
 {
   "name": "@blueprint-chart/editor",
-  "version": "0.1.35",
+  "version": "0.2.0",
   "description": "Blueprint Chart editor — static site bundle. Self-host or use the live version at https://blueprintchart.com.",
   "keywords": [
     "blueprint-chart",

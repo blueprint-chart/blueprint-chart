@@ -1,3 +1,17 @@
+## [0.2.0](https://github.com/blueprint-chart/blueprint-chart/compare/v0.1.35...v0.2.0) (2026-06-19)
+
+### Features
+
+* **docs:** redirect home to getting-started with section tiles ([0a240c8](https://github.com/blueprint-chart/blueprint-chart/commit/0a240c84582e01065fa2f2bfb3545ef5d366005b))
+* **dsl:** add optional leadingComments to AST node types ([56f1135](https://github.com/blueprint-chart/blueprint-chart/commit/56f113598015025af655759c47ce263879029f65))
+* **dsl:** capture leading // comments into AST nodes ([bff9498](https://github.com/blueprint-chart/blueprint-chart/commit/bff949870e67d814b0bafc0b6d75acdda0bac9e0))
+* **dsl:** serialize leadingComments above their nodes ([307ada4](https://github.com/blueprint-chart/blueprint-chart/commit/307ada46cf5a2c82f58fabc6c8d924788bd8be83))
+* **samples:** add didactic // comments to the CO₂ samples ([d6a3334](https://github.com/blueprint-chart/blueprint-chart/commit/d6a3334cab7ab172e3ece5eb074c561874eabdec))
+
+### Bug Fixes
+
+* **dsl:** handle multi-line comments and discard inline trailing comments ([1e2f920](https://github.com/blueprint-chart/blueprint-chart/commit/1e2f9201612fc1e626dd9f774dab5101d46878e8))
+
 ## [0.1.35](https://github.com/blueprint-chart/blueprint-chart/compare/v0.1.34...v0.1.35) (2026-06-13)
 
 ### Bug Fixes
