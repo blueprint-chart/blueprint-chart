@@ -910,7 +910,7 @@ describe('parser', () => {
     "A" = 1
   }
 }`)
-      const title = ast.properties.find((p) => p.key === 'title')
+      const title = ast.properties.find(p => p.key === 'title')
       expect(title?.leadingComments).toEqual(['shown above the title'])
     })
 
@@ -932,8 +932,8 @@ describe('parser', () => {
     "B" = 1
   }
 }`)
-      const a = ast.data?.entries.find((e) => e.key === 'A')
-      const b = ast.data?.entries.find((e) => e.key === 'B')
+      const a = ast.data?.entries.find(e => e.key === 'A')
+      const b = ast.data?.entries.find(e => e.key === 'B')
       expect(a?.leadingComments).toEqual(['the outlier'])
       expect(b?.leadingComments).toBeUndefined()
     })
@@ -956,7 +956,7 @@ describe('parser', () => {
   title = "Hi"
   data { "A" = 1 }
 }`)
-      const title = ast.properties.find((p) => p.key === 'title')
+      const title = ast.properties.find(p => p.key === 'title')
       expect(title?.leadingComments).toEqual(['line one', 'line two'])
     })
 
@@ -965,7 +965,7 @@ describe('parser', () => {
   title = "Hi"
   data { "A" = 1 }
 }`)
-      const title = ast.properties.find((p) => p.key === 'title')
+      const title = ast.properties.find(p => p.key === 'title')
       expect(title?.leadingComments).toBeUndefined()
     })
   })
@@ -979,7 +979,7 @@ describe('inline trailing comments are discarded', () => {
     "A" = 1
   }
 }`)
-    expect(ast.properties.find((p) => p.key === 'title')?.leadingComments).toBeUndefined()
+    expect(ast.properties.find(p => p.key === 'title')?.leadingComments).toBeUndefined()
     expect(ast.data?.leadingComments).toBeUndefined()
   })
 
@@ -990,8 +990,8 @@ describe('inline trailing comments are discarded', () => {
     "B" = 2
   }
 }`)
-    expect(ast.data?.entries.find((e) => e.key === 'A')?.leadingComments).toBeUndefined()
-    expect(ast.data?.entries.find((e) => e.key === 'B')?.leadingComments).toBeUndefined()
+    expect(ast.data?.entries.find(e => e.key === 'A')?.leadingComments).toBeUndefined()
+    expect(ast.data?.entries.find(e => e.key === 'B')?.leadingComments).toBeUndefined()
   })
 
   it('still captures a standalone leading comment on the next line', () => {

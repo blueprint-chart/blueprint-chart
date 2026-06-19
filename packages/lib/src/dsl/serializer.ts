@@ -6,8 +6,8 @@ function commentLines(comments: string[] | undefined, indent: string): string[] 
   // A captured comment may contain embedded newlines (multi-line block
   // comments). Emit every physical line as its own `// ` line so the result
   // re-parses as comments rather than bare continuation text.
-  return (comments ?? []).flatMap((c) =>
-    c.split('\n').map((line) => `${indent}// ${line.trim()}`),
+  return (comments ?? []).flatMap(c =>
+    c.split('\n').map(line => `${indent}// ${line.trim()}`),
   )
 }
 
@@ -36,7 +36,8 @@ function serializeDataEntry(prop: PropertyNode, indent: string): string {
   // keep it quoted so it cannot be re-read as the header.
   if (prop.key === 'series' && prop.quotedKey && !(prop.values && prop.values.length > 1)) {
     line = `${indent}"series" = ${serializeValue(prop)}`
-  } else if (prop.values && prop.values.length > 1) {
+  }
+  else if (prop.values && prop.values.length > 1) {
     const key = prop.key === 'series' && !prop.quotedKey ? prop.key : `"${prop.key}"`
     const vals = prop.values.map((v) => {
       if (typeof v === 'number') {
@@ -45,7 +46,8 @@ function serializeDataEntry(prop: PropertyNode, indent: string): string {
       return `"${String(v).replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`
     })
     line = `${indent}${key} = ${vals.join(',')}`
-  } else {
+  }
+  else {
     // Inline the single-value case (do NOT call serializeProperty, which would
     // emit this entry's comment a second time).
     const key = /^[a-zA-Z_][a-zA-Z0-9_-]*$/.test(prop.key) ? prop.key : `"${prop.key}"`

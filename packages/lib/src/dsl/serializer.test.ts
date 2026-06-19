@@ -1109,9 +1109,9 @@ describe('leadingComments serialization', () => {
 }`
     const ast1 = parse(src)
     const ast2 = parse(serialize(ast1))
-    expect(ast2.properties.find((p) => p.key === 'title')?.leadingComments).toEqual(['about the title'])
+    expect(ast2.properties.find(p => p.key === 'title')?.leadingComments).toEqual(['about the title'])
     expect(ast2.data?.leadingComments).toEqual(['each row is a bar'])
-    expect(ast2.data?.entries.find((e) => e.key === 'A')?.leadingComments).toEqual(['outlier'])
+    expect(ast2.data?.entries.find(e => e.key === 'A')?.leadingComments).toEqual(['outlier'])
     expect(ast2.highlights[0]?.leadingComments).toEqual(['pop the winner'])
     expect(serialize(ast2)).toBe(serialize(ast1))
   })
@@ -1128,7 +1128,7 @@ describe('comment edge cases', () => {
     const ast1 = parse(src)
     const out1 = serialize(ast1)
     // every emitted comment physical line must start with //
-    for (const line of out1.split('\n').filter((l) => l.trim() && /two|one/.test(l))) {
+    for (const line of out1.split('\n').filter(l => l.trim() && /two|one/.test(l))) {
       expect(line.trim().startsWith('//')).toBe(true)
     }
     // re-parsing the serialized output must not throw, and serialize is stable
