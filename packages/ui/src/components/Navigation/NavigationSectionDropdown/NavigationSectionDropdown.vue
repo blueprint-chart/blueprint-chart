@@ -74,10 +74,23 @@ useEventListener(document, 'mousedown', (event: MouseEvent) => {
       @click="toggle"
     >
       <span class="navigation-section-dropdown__label">{{ activeText }}</span>
-      <span
+      <svg
         class="navigation-section-dropdown__caret"
+        :class="{ 'navigation-section-dropdown__caret--open': open }"
+        width="12"
+        height="12"
+        viewBox="0 0 12 12"
+        fill="none"
         aria-hidden="true"
-      >▾</span>
+      >
+        <path
+          d="M3 4.5 6 7.5 9 4.5"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
     </button>
 
     <menu
@@ -143,9 +156,19 @@ useEventListener(document, 'mousedown', (event: MouseEvent) => {
 }
 
 .navigation-section-dropdown__caret {
-  opacity: 0.6;
-  font-size: 0.75rem;
   flex-shrink: 0;
+  opacity: 0.5;
+  transition: transform var(--bc-duration-base) var(--bc-ease),
+              opacity var(--bc-duration-base) var(--bc-ease);
+
+  &--open {
+    opacity: 0.8;
+    transform: rotate(180deg);
+  }
+}
+
+.navigation-section-dropdown__trigger:hover .navigation-section-dropdown__caret {
+  opacity: 0.8;
 }
 
 .navigation-section-dropdown__panel {
