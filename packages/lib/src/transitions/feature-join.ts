@@ -16,6 +16,15 @@ const DEFAULT_EXIT: AttrMap = { opacity: 0 }
 const POINTWISE_ATTRS = new Set(['d', 'transform'])
 
 /**
+ * Attributes that cannot be meaningfully interpolated (d3's default string
+ * interpolation mangles `stroke-dasharray` by pairing mismatched-length number
+ * lists). These are set immediately at tween start rather than animated, which
+ * matches the pre-orchestrator behaviour ("dash array can't be interpolated;
+ * apply immediately").
+ */
+const SNAP_ATTRS = new Set(['stroke-dasharray'])
+
+/**
  * Idempotent keyed data-join for a single visual feature.
  *
  * Behaviour by orchestrator state:
@@ -192,6 +201,11 @@ function tweenAttrs(
         const from = this.getAttribute(k) ?? target
         return interpolatePath(from, target)
       })
+    }
+    else if (SNAP_ATTRS.has(k)) {
+      // Set on the element directly (not via the transition) so it changes at
+      // once instead of being string-interpolated to a malformed intermediate.
+      el.setAttribute(k, String(v))
     }
     else {
       sel.attr(k, String(v))

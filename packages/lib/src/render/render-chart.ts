@@ -16,6 +16,11 @@ export function renderChart(
   options: RenderOptions = {},
 ): void {
   if (!options.transition) {
+    // Cancel any in-flight scene transition before wiping the DOM, otherwise its
+    // element-bound tweens keep ticking against detached nodes and the
+    // orchestrator stays `animating` (so the next featureJoin snaps instead of
+    // buffering). interrupt() is idempotent/safe when idle.
+    getSceneTransition(container).interrupt()
     container.replaceChildren()
     clearCrossTypeMarker(container)
   }
@@ -25,6 +30,7 @@ export function renderChart(
   // an empty-data state.
   if (definition.data.labels.length === 0) {
     if (options.transition) {
+      getSceneTransition(container).interrupt()
       container.replaceChildren()
       clearCrossTypeMarker(container)
     }

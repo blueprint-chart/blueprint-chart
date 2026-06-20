@@ -17,6 +17,15 @@ export function interpolatePath(a: string, b: string): (t: number) => string {
   const { skeleton, nums: from } = pa
   const { nums: to } = pb
   return (t: number) => {
+    // Return the exact endpoint strings at the extremes so the settled value
+    // byte-matches the generator output a subsequent idle render writes (the
+    // rounded interior is fine mid-tween, but t=1 must land on `b` exactly).
+    if (t <= 0) {
+      return a
+    }
+    if (t >= 1) {
+      return b
+    }
     let i = 0
     return skeleton.replace(/#/g, () => {
       const v = from[i] + (to[i] - from[i]) * t
