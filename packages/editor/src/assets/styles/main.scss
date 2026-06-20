@@ -17,11 +17,11 @@
   }
 
   .form-range::-webkit-slider-runnable-track {
-    background-color: #444;
+    background-color: var(--bc-hairline-strong);
   }
 
   .form-range::-moz-range-track {
-    background-color: #444;
+    background-color: var(--bc-hairline-strong);
   }
 
   .form-check-input {
