@@ -165,8 +165,8 @@ test.describe('theme in BPC', () => {
     const footerBg = await page.locator('.bc-frame-footer').evaluate(
       el => getComputedStyle(el).backgroundColor,
     )
-    // #1c1c20 = rgb(28, 28, 32)
-    expect(footerBg).toBe('rgb(28, 28, 32)')
+    // #1c1c1c = rgb(28, 28, 28) — neutral dark footer (de-tinted in d59b5bd4)
+    expect(footerBg).toBe('rgb(28, 28, 28)')
   })
 
   test('framed theme dark mode: header border adapts', async ({ page }) => {
