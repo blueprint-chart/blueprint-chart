@@ -1,3 +1,37 @@
+## [0.3.0](https://github.com/blueprint-chart/blueprint-chart/compare/v0.2.0...v0.3.0) (2026-06-20)
+
+### Features
+
+* add point-wise SVG path interpolator for scene transitions ([e295470](https://github.com/blueprint-chart/blueprint-chart/commit/e295470f6bf2855377abbe45bf53355b7b0b4113))
+* area marks resize on one clock via featureJoin + frame-geometry tween ([6eeb823](https://github.com/blueprint-chart/blueprint-chart/commit/6eeb8232158bfa75d0795900b1912def11cc9909))
+* area-stacked marks resize on one clock via featureJoin + frame-geometry tween ([4b23e33](https://github.com/blueprint-chart/blueprint-chart/commit/4b23e33552bec545d3e0f7a6946ff94b5de4224b))
+* bar-grouped marks resize via featureJoin migration + frame-geometry tween ([cff803d](https://github.com/blueprint-chart/blueprint-chart/commit/cff803d909c8f5121afd290b12cf1139665cb7ac))
+* bar-horizontal marks resize on one clock via featureJoin reinsert + frame-geometry tween ([733de6b](https://github.com/blueprint-chart/blueprint-chart/commit/733de6b5cc8de4d08bb6aca417771f8d25423a66))
+* bar-multi marks resize on one clock via featureJoin reinsert + frame-geometry tween ([a605143](https://github.com/blueprint-chart/blueprint-chart/commit/a60514350be838ec4e03159b8b968e0dc615ec89))
+* bar-split marks resize via featureJoin migration + frame-geometry tween ([bfb62db](https://github.com/blueprint-chart/blueprint-chart/commit/bfb62db0fac258c947a5c824bccb4d012c6a54eb))
+* bar-stacked marks resize via featureJoin migration + frame-geometry tween ([9bdd82a](https://github.com/blueprint-chart/blueprint-chart/commit/9bdd82a8e7790748fe11f415a67d668194ef7c6d))
+* bar-vertical marks resize on one clock via featureJoin reinsert + frame-geometry tween ([d52c796](https://github.com/blueprint-chart/blueprint-chart/commit/d52c796908d7418aa17457ecfebd99e7b4802e47))
+* **canvas:** make blueprint canvas adaptive to dark theme ([f924335](https://github.com/blueprint-chart/blueprint-chart/commit/f924335c442e5dd7fd8c04c73dcc0e21bad0e40c))
+* column-stacked marks resize via featureJoin migration + frame-geometry tween ([b1e2bb0](https://github.com/blueprint-chart/blueprint-chart/commit/b1e2bb0264ecc628c76e4511e8811c66fd6c943b))
+* frame-geometry tween (group transform + clip) on the scene clock ([c896e0c](https://github.com/blueprint-chart/blueprint-chart/commit/c896e0c36596f839623754632796c22693c40e32))
+* line marks resize on one clock via featureJoin + frame-geometry tween ([199ebfc](https://github.com/blueprint-chart/blueprint-chart/commit/199ebfcaa0577f4bfcc22176ee13ab24161cd902))
+* line-multi marks resize on one clock via featureJoin + frame-geometry tween ([c5624d0](https://github.com/blueprint-chart/blueprint-chart/commit/c5624d0d97eafa6a53ad25d9fa05266c35e5d42c))
+* shared tweenPlotFrame helper + cached plot rect, plugin-host factory, distinct series-area/line roles ([c599c0f](https://github.com/blueprint-chart/blueprint-chart/commit/c599c0f91ade8baf22f4136ead8d5845a012d733))
+* tween d/transform via point-wise interpolation in the orchestrator ([4a0e48a](https://github.com/blueprint-chart/blueprint-chart/commit/4a0e48af4c62c9fe8c48b283b5762dcbea9e50a5))
+
+### Bug Fixes
+
+* area-stacked path transitions use point-wise interpolation (no corruption) ([815ac81](https://github.com/blueprint-chart/blueprint-chart/commit/815ac81e872853535532a8427f44e7db2682c306))
+* **docs:** drive dark bridge surfaces from shared tokens ([dd0ca79](https://github.com/blueprint-chart/blueprint-chart/commit/dd0ca7900e7faf86bcb38d867d8532dcde29b923))
+* **editor:** token-drive dark range-slider track ([f78d23b](https://github.com/blueprint-chart/blueprint-chart/commit/f78d23b165abe560ff81fe5b6626876332643db2))
+* exit area-stacked edge lines when areaLines toggles off mid-transition ([87fc3d3](https://github.com/blueprint-chart/blueprint-chart/commit/87fc3d37238d19dc72239569c53ec31e10ebb342))
+* **lib:** neutralize dark blueprint-framed footer tint ([d59b5bd](https://github.com/blueprint-chart/blueprint-chart/commit/d59b5bd4e92c1cad131a99a129704039ee9fa5a1))
+* reset stale highlight/opacity on reused bars across transitions ([7f73a2a](https://github.com/blueprint-chart/blueprint-chart/commit/7f73a2a130a5669cbfdd55f8c4e025fed5248a01))
+* snap non-interpolable attrs, exact interpolatePath endpoints, interrupt orchestrator on non-transition render ([399e626](https://github.com/blueprint-chart/blueprint-chart/commit/399e62639cef8f75319b06a25a50680782c6c491))
+* **ui:** deepen dark canvas well below the void ([494b442](https://github.com/blueprint-chart/blueprint-chart/commit/494b442a0c7726d1fb147853ab9447e283be406b))
+* **ui:** unify dark surfaces on a cool-slate ramp ([01a2fd7](https://github.com/blueprint-chart/blueprint-chart/commit/01a2fd7123bce6b97cfc0e4a849f15eb5c0f3157))
+* widen line-multi priorMargin type so the frame-geometry tween typechecks ([6e99fdf](https://github.com/blueprint-chart/blueprint-chart/commit/6e99fdf8a68788393dec9596f31258e35f01085d))
+
 ## [0.2.0](https://github.com/blueprint-chart/blueprint-chart/compare/v0.1.35...v0.2.0) (2026-06-19)
 
 ### Features
