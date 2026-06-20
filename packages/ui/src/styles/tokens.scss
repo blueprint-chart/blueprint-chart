@@ -46,15 +46,15 @@ $danger:  #C94044 !default;
 
 // Borders
 $border-color:      #dcdce0 !default;
-$border-color-dark: #33323e !default;
+$border-color-dark: #313b4a !default;
 
 // Surface hierarchy (void > tile > elevated)
 $body-bg:                 #f3f3f4 !default;
-$body-bg-dark:            #0a0a0a !default;
+$body-bg-dark:            #141821 !default;
 $body-secondary-bg:       #ffffff !default;
-$body-secondary-bg-dark:  #1c1c20 !default;
+$body-secondary-bg-dark:  #1b212c !default;
 $body-tertiary-bg:        #f8f8fa !default;
-$body-tertiary-bg-dark:   #1c1c20 !default;
+$body-tertiary-bg-dark:   #1f2632 !default;
 
 // Links
 $link-color:            $primary !default;
@@ -195,16 +195,16 @@ $spacer-xs: 0.25rem !default;
   // near-black that matches the rest of the dark editor (and the dimmed promo
   // backdrops). The white grid lines below already read on a dark surface, so
   // only the background color changes — the blueprint grid stays the grid.
-  --bc-canvas-bg: #151518;
-  --bc-canvas-grid-color: rgba(255, 255, 255, 0.04);
-  --bc-canvas-grid-color-major: rgba(255, 255, 255, 0.10);
+  --bc-canvas-bg: #10151d;
+  --bc-canvas-grid-color: rgba(150, 180, 220, 0.05);
+  --bc-canvas-grid-color-major: rgba(150, 180, 220, 0.12);
   --bc-canvas-dimension-color: rgba(255, 255, 255, 0.4);
 
-  --bc-chrome-bg: #08090a;
-  --bc-content-bg: #101112;
-  --bc-tile-bg: #101112;
-  --bc-tile-bg-elevated: #16161b;
-  --bc-canvas-glow: radial-gradient(ellipse at top, rgba(37, 99, 160, 0.04), transparent 60%);
+  --bc-chrome-bg: #171c26;
+  --bc-content-bg: #171c26;
+  --bc-tile-bg: #1f2632;
+  --bc-tile-bg-elevated: #262f3d;
+  --bc-canvas-glow: radial-gradient(ellipse at top, rgba(75, 144, 207, 0.05), transparent 60%);
 
   --bc-wash-soft: rgba(255, 255, 255, 0.03);
   --bc-wash-firm: rgba(255, 255, 255, 0.07);
