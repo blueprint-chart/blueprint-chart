@@ -218,6 +218,11 @@ export function render(
   const barLayer = clippedGroup.append('g').node()!
   if (transition) {
     for (const el of priorBars) {
+      // Clear transient styling so a highlight/opacity override that no longer
+      // applies in the new scene doesn't persist on the re-used rect (the
+      // featureJoin update path only sets attrs present in the new `attrs`).
+      el.removeAttribute('opacity')
+      el.removeAttribute('fill-opacity')
       barLayer.appendChild(el)
     }
   }
