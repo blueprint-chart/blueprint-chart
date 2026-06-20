@@ -274,28 +274,29 @@ export function render(
     }),
   })
 
-  if (showAreaLines) {
-    featureJoin<StackedAreaDatum>(orch, {
-      role: 'series-path',
-      parent: lineLayer,
-      selector: '.bc-line',
-      data: stackedAreaData,
-      key: d => d.name,
-      insert: sel => sel.append('path').attr('class', 'bc-line'),
-      attrs: (d) => {
-        const seriesInterp = resolveSeriesInterpolation(d.name, options.interpolation ?? 'monotoneX', overrides)
-        const lineGen = d3.line<[number, number]>().curve(resolveCurve(seriesInterp)).x((_v, i) => xPos(i)).y(p => p[1])
-        return {
-          'data-series': d.colorIndex,
-          'd': lineGen(d.points) ?? '',
-          'fill': 'none',
-          'stroke': seriesColorFor(d),
-          'stroke-width': 1,
-          'opacity': hasHighlights ? highlightOpacity(highlightTargets, d.name, 1) : 1,
-        }
-      },
-    })
-  }
+  // Always run the line join (with empty data when area-lines are off) so that
+  // re-inserted prior `.bc-line` marks exit cleanly instead of being stranded as
+  // orphans when `areaLines` toggles off across a transition.
+  featureJoin<StackedAreaDatum>(orch, {
+    role: 'series-path',
+    parent: lineLayer,
+    selector: '.bc-line',
+    data: showAreaLines ? stackedAreaData : [],
+    key: d => d.name,
+    insert: sel => sel.append('path').attr('class', 'bc-line'),
+    attrs: (d) => {
+      const seriesInterp = resolveSeriesInterpolation(d.name, options.interpolation ?? 'monotoneX', overrides)
+      const lineGen = d3.line<[number, number]>().curve(resolveCurve(seriesInterp)).x((_v, i) => xPos(i)).y(p => p[1])
+      return {
+        'data-series': d.colorIndex,
+        'd': lineGen(d.points) ?? '',
+        'fill': 'none',
+        'stroke': seriesColorFor(d),
+        'stroke-width': 1,
+        'opacity': hasHighlights ? highlightOpacity(highlightTargets, d.name, 1) : 1,
+      }
+    },
+  })
 
   // Frame-geometry tween: ease the plot origin (chart-area transform) + clip from
   // the prior scene's rect to the new one on the SAME orchestrator clock, so the
