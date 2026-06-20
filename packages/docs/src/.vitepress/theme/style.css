@@ -108,7 +108,7 @@
   --vp-c-bg: var(--bc-tile-bg);
   --vp-c-bg-alt: var(--bc-chrome-bg);
   --vp-c-bg-elv: var(--bc-tile-bg-elevated);
-  --vp-c-bg-soft: #0f1011;
+  --vp-c-bg-soft: var(--bc-content-bg);
 
   --vp-c-text-1: rgba(255, 255, 255, 0.92);
   --vp-c-text-2: rgba(255, 255, 255, 0.68);
@@ -118,9 +118,9 @@
   --vp-c-gutter: var(--bc-hairline);
   --vp-c-border: var(--bc-hairline-strong);
 
-  --vp-button-brand-text: #08090a;
-  --vp-button-brand-hover-text: #08090a;
-  --vp-button-brand-active-text: #08090a;
+  --vp-button-brand-text: #0b0e13;
+  --vp-button-brand-hover-text: #0b0e13;
+  --vp-button-brand-active-text: #0b0e13;
 
   --vp-home-hero-name-background: linear-gradient(
     120deg, #A3C9E8 0%, #4B90CF 50%, #2563A0 100%
@@ -133,7 +133,7 @@
   );
   --vp-home-hero-image-filter: blur(64px);
 
-  --vp-code-block-bg: #16161b;
+  --vp-code-block-bg: var(--bc-tile-bg-elevated);
   --vp-code-line-highlight-color: rgba(75, 144, 207, 0.10);
 
   --vp-custom-block-tip-text: var(--vp-c-brand-2);
