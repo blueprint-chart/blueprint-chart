@@ -14,7 +14,7 @@ import { setupProximityInteraction, disposeProximityFor } from '../../plugins/pr
 import { ensureClipPath } from '../../clip-path-helper'
 import { setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut } from '../../motion'
 import { setCachedChart, getCachedChart } from '../../transition-cache'
-import { featureJoin, getSceneTransition, tweenFrameGeometry, type PlotRect } from '../../../transitions'
+import { featureJoin, getSceneTransition, tweenPlotFrame, type PlotRect } from '../../../transitions'
 import { computeStack, computeStack100 } from '../../stack-helpers'
 import { filterLabelsByRange } from '../../scale-helpers'
 import { resolveSeriesColor, resolveSeriesInterpolation, isSeriesHidden, resolveSeriesLabelMode } from '../../series-helpers'
@@ -51,10 +51,12 @@ export function render(
   let fadeOverlay: HTMLElement | null = null
   let priorAnnotations: Map<string, AnnotationSnapshot> | undefined
   let priorMargin: { top: number, left: number } | undefined
+  let priorPlotRect: PlotRect | undefined
   const axes = AxisService.for(container)
   if (transition) {
     const cached = getCachedChart(container)
     priorMargin = cached?.margin
+    priorPlotRect = cached?.plotRect
     axes.detach()
     if (cached?.chartType === 'area-stacked') {
       priorAreas = Array.from(container.querySelectorAll('.bc-frame .bc-area'))
@@ -260,7 +262,7 @@ export function render(
   const orch = getSceneTransition(container)
 
   featureJoin<StackedAreaDatum>(orch, {
-    role: 'series-path',
+    role: 'series-area',
     parent: areaLayer,
     selector: '.bc-area',
     data: stackedAreaData,
@@ -278,7 +280,7 @@ export function render(
   // re-inserted prior `.bc-line` marks exit cleanly instead of being stranded as
   // orphans when `areaLines` toggles off across a transition.
   featureJoin<StackedAreaDatum>(orch, {
-    role: 'series-path',
+    role: 'series-line',
     parent: lineLayer,
     selector: '.bc-line',
     data: showAreaLines ? stackedAreaData : [],
@@ -299,22 +301,17 @@ export function render(
   })
 
   // Frame-geometry tween: ease the plot origin (chart-area transform) + clip from
-  // the prior scene's rect to the new one on the SAME orchestrator clock, so the
-  // marks (above), legend and axis move in lockstep. Same-type only.
-  if (transition && priorMargin && (priorAreas.length > 0 || priorLines.length > 0)) {
-    const pm = priorMargin as { top: number, left: number, right: number, bottom: number }
-    const totalW = width + margin.left + margin.right
-    const totalH = height + margin.top + margin.bottom
-    const priorRect: PlotRect = {
-      left: pm.left,
-      top: pm.top,
-      width: totalW - pm.left - pm.right,
-      height: totalH - pm.top - pm.bottom,
-    }
-    const newRect: PlotRect = { left: margin.left, top: margin.top, width, height }
-    const clipRect = svg.querySelector(`#${clipId} rect`) as SVGRectElement | null
-    tweenFrameGeometry(orch, { group: chartArea, clipRect, from: priorRect, to: newRect })
-  }
+  // the prior scene's cached rect to this one on the SAME orchestrator clock, so
+  // the marks (above), legend and axis move in lockstep. Same-type only.
+  const plotRect: PlotRect = { left: margin.left, top: margin.top, width, height }
+  tweenPlotFrame(orch, {
+    svg,
+    clipId,
+    group: chartArea,
+    from: priorPlotRect,
+    to: plotRect,
+    active: transition && (priorAreas.length > 0 || priorLines.length > 0),
+  })
 
   if (options.annotations?.length) {
     const annotationData = data.labels.map((l, i) => ({
@@ -420,7 +417,7 @@ export function render(
     renderLegend(chartArea, legendSeriesNames, legendColors, yPos, legendPos, legendAnchor, width, height, xLegendPos, [], { left: margin.left, right: margin.right })
   }
 
-  setCachedChart(container, { chartType: 'area-stacked', margin })
+  setCachedChart(container, { chartType: 'area-stacked', margin, plotRect })
 
   if (fadeOverlay) {
     fadeIn(clippedGroup.node()!)

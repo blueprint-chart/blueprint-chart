@@ -1,6 +1,5 @@
 import * as d3 from 'd3'
 import 'd3-transition'
-import { D3Blueprint } from 'd3-blueprint'
 import type { ChartData, ChartOptions } from '../../types'
 import { createFrame } from '../../frame/frame'
 import { createCanvas, contentSize, labelPositionMargins, estimateCategoryLabelWidth, computeMarginDelta } from '../../canvas/canvas'
@@ -17,7 +16,8 @@ import { highlightTargetSet, highlightOpacity } from '../../plugins/highlight'
 import { buildColorOverrides } from '../../plugins/colorize'
 import { resolveBarGapPadding } from '../../scale-helpers'
 import { ensureClipPath } from '../../clip-path-helper'
-import { featureJoin, getSceneTransition, tweenFrameGeometry, type PlotRect } from '../../../transitions'
+import { featureJoin, getSceneTransition, tweenPlotFrame, type PlotRect } from '../../../transitions'
+import { createPluginHost } from '../../plugins/plugin-host'
 import { Orientation, ValueLabelPosition, LabelPosition } from '../../../enums'
 
 export const DEFAULT_COLORS = [
@@ -34,13 +34,6 @@ interface GroupedBarDatum {
   value: number
 }
 
-class BarGroupedChart extends D3Blueprint<GroupedBarDatum[]> {
-  // Bars are rendered via featureJoin against the SceneTransition orchestrator
-  // (see render()). This class is retained only as a host for legacy plugins
-  // (tooltips, crosshair) that consume the D3Blueprint API.
-  initialize(): void {}
-}
-
 export function render(
   container: HTMLElement,
   data: ChartData,
@@ -52,11 +45,13 @@ export function render(
   let priorBars: Element[] = []
   let fadeOverlay: HTMLElement | null = null
   let priorMargin: { top: number, left: number, right: number, bottom: number } | undefined
+  let priorPlotRect: PlotRect | undefined
   const axes = AxisService.for(container)
 
   if (transition) {
     const cached = getCachedChart(container)
     priorMargin = cached?.margin
+    priorPlotRect = cached?.plotRect
     axes.detach()
     if (cached?.chartType === 'bar-grouped') {
       priorBars = Array.from(container.querySelectorAll('.bc-frame .bc-bar-grouped'))
@@ -268,24 +263,20 @@ export function render(
   // the prior scene's rect to the new one on the SAME orchestrator clock, so the
   // bars (above), axis and value labels move in lockstep. The bar rects resize via
   // their numeric x/y/width/height tweens (no `d`). Same-type only.
-  if (transition && priorMargin && priorBars.length > 0) {
-    const pm = priorMargin
-    const totalW = width + margin.left + margin.right
-    const totalH = height + margin.top + margin.bottom
-    const priorRect: PlotRect = {
-      left: pm.left,
-      top: pm.top,
-      width: totalW - pm.left - pm.right,
-      height: totalH - pm.top - pm.bottom,
-    }
-    const newRect: PlotRect = { left: margin.left, top: margin.top, width, height }
-    const clipRect = svg.querySelector(`#${clipId} rect`) as SVGRectElement | null
-    tweenFrameGeometry(orch, { group: chartArea, clipRect, from: priorRect, to: newRect })
-  }
+  const plotRect: PlotRect = { left: margin.left, top: margin.top, width, height }
+  tweenPlotFrame(orch, {
+    svg,
+    clipId,
+    group: chartArea,
+    from: priorPlotRect,
+    to: plotRect,
+    active: transition && priorBars.length > 0,
+  })
 
-  // Plugins host — kept on the legacy D3Blueprint path. Mounting on clippedGroup
-  // so plugins find the `.bc-bar-grouped` elements that featureJoin inserted.
-  const chart = new BarGroupedChart(clippedGroup)
+  // Plugins host — kept on the legacy D3Blueprint API. The draw is deferred into
+  // the commit flush (when transitioning) so plugins bind after featureJoin has
+  // created the `.bc-bar-grouped` marks, not before.
+  const chart = createPluginHost(clippedGroup)
   if (options.tooltips) {
     chart.use(createTooltipPlugin({ numberFormat: options.verticalAxis?.numberFormat }))
   }
@@ -295,8 +286,14 @@ export function render(
     }))
   }
 
-  chart.draw(flatData)
-  setCachedChart(container, { chartType: 'bar-grouped', margin })
+  const drawPlugins = () => chart.draw(flatData)
+  if (orch.state === 'committing') {
+    orch.register(drawPlugins)
+  }
+  else {
+    drawPlugins()
+  }
+  setCachedChart(container, { chartType: 'bar-grouped', margin, plotRect })
 
   if (fadeOverlay) {
     fadeIn(clippedGroup.node()!)

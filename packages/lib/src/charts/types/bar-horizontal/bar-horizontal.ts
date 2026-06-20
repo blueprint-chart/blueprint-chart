@@ -1,6 +1,5 @@
 import * as d3 from 'd3'
 import 'd3-transition'
-import { D3Blueprint } from 'd3-blueprint'
 import type { ChartData, ChartOptions } from '../../types'
 import { createFrame } from '../../frame/frame'
 import { createCanvas, contentSize, labelPositionMargins, estimateCategoryLabelWidth, computeMarginDelta } from '../../canvas/canvas'
@@ -16,7 +15,8 @@ import { setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut } from '
 import { getCachedChart, setCachedChart } from '../../transition-cache'
 import { ensureClipPath } from '../../clip-path-helper'
 import { SortDirection, ValueLabelPosition, Orientation, LabelPosition } from '../../../enums'
-import { featureJoin, getSceneTransition, tweenFrameGeometry, type PlotRect } from '../../../transitions'
+import { featureJoin, getSceneTransition, tweenPlotFrame, type PlotRect } from '../../../transitions'
+import { createPluginHost } from '../../plugins/plugin-host'
 import { highlightOpacity } from '../../plugins/highlight'
 
 export const DEFAULT_COLORS = ['#4e79a7']
@@ -35,15 +35,6 @@ interface WaterfallDatum {
   x0: number
   x1: number
   isTotal: boolean
-}
-
-class BarHorizontalChart extends D3Blueprint<BarDatum[]> {
-  initialize(): void {
-    // Bars are rendered via featureJoin against the SceneTransition orchestrator
-    // (see render()). This class is retained only as a host for legacy
-    // plugins (tooltips, crosshair, annotations) that consume the D3Blueprint
-    // API. Plugins will migrate to the orchestrator in Stages 3-4.
-  }
 }
 
 /**
@@ -75,10 +66,12 @@ export function render(
   // Prior bar rects, re-inserted into the featureJoin layer so the data-join
   // matches them as updates: that gives the resize tween its "from" shape.
   let priorBars: Element[] = []
+  let priorPlotRect: PlotRect | undefined
   const axes = AxisService.for(container)
   if (transition) {
     const cached = getCachedChart(container)
     priorMargin = cached?.margin
+    priorPlotRect = cached?.plotRect
     axes.detach()
     if (cached?.chartType === 'bar-horizontal') {
       priorBars = Array.from(container.querySelectorAll('.bc-frame .bc-bar'))
@@ -132,6 +125,8 @@ export function render(
   }
 
   const { chartArea, width, height, margin } = createCanvas(body, lpMargins)
+  // Plot rect cached for the next same-type transition's frame-geometry `from`.
+  const plotRect: PlotRect = { left: margin.left, top: margin.top, width, height }
   const categoryLabelOffset = useCategoryLabelLine ? CATEGORY_LABEL_HEIGHT : 0
   const marginDelta = computeMarginDelta(priorMargin, margin)
 
@@ -444,25 +439,19 @@ export function render(
     // from the prior scene's rect to the new one on the SAME orchestrator clock,
     // so the bars (above), axis and value labels move in lockstep. The bar rects
     // redistribute via their numeric x/y/width/height tweens (no `d`). Same-type only.
-    if (transition && priorMargin && priorBars.length > 0) {
-      const pm = priorMargin
-      const totalW = width + margin.left + margin.right
-      const totalH = height + margin.top + margin.bottom
-      const priorRect: PlotRect = {
-        left: pm.left,
-        top: pm.top,
-        width: totalW - pm.left - pm.right,
-        height: totalH - pm.top - pm.bottom,
-      }
-      const newRect: PlotRect = { left: margin.left, top: margin.top, width, height }
-      const clipRect = svg.querySelector(`#${clipId} rect`) as SVGRectElement | null
-      tweenFrameGeometry(orch, { group: chartArea, clipRect, from: priorRect, to: newRect })
-    }
+    tweenPlotFrame(orch, {
+      svg,
+      clipId,
+      group: chartArea,
+      from: priorPlotRect,
+      to: plotRect,
+      active: transition && priorBars.length > 0,
+    })
 
-    // Plugins host — kept on the legacy D3Blueprint path. Mounting on
-    // clippedGroup so plugins find the `.bc-bar` elements that featureJoin
-    // just inserted under barLayer.
-    const chart = new BarHorizontalChart(clippedGroup)
+    // Plugins host — kept on the legacy D3Blueprint API. The draw is deferred
+    // into the commit flush (when transitioning) so plugins bind after featureJoin
+    // has created the `.bc-bar` marks, not before.
+    const chart = createPluginHost(clippedGroup)
     if (options.tooltips) {
       chart.use(createTooltipPlugin({ numberFormat: options.horizontalAxis?.numberFormat }))
     }
@@ -474,7 +463,13 @@ export function render(
       chart.use(createAnnotationPlugin(options.annotations, {
         scaleX: y, scaleY: x, data: barData, width, height, backgroundColor: resolveBackgroundColor(container), orientation: Orientation.Horizontal, transition, priorAnnotations }))
     }
-    chart.draw(barData)
+    const drawPlugins = () => chart.draw(barData)
+    if (orch.state === 'committing') {
+      orch.register(drawPlugins)
+    }
+    else {
+      drawPlugins()
+    }
 
     if (options.valueLabels) {
       // Render value labels in an unclipped group so outside labels aren't truncated
@@ -510,7 +505,7 @@ export function render(
     }
   }
 
-  setCachedChart(container, { chartType: 'bar-horizontal', margin })
+  setCachedChart(container, { chartType: 'bar-horizontal', margin, plotRect })
 
   if (fadeOverlay) {
     fadeIn(clippedGroup.node()!)

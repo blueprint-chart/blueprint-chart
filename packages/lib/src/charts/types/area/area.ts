@@ -14,7 +14,7 @@ import { ensureClipPath } from '../../clip-path-helper'
 import { renderLineSymbols } from '../../line-symbols'
 import { setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut } from '../../motion'
 import { getCachedChart, setCachedChart } from '../../transition-cache'
-import { featureJoin, getSceneTransition, tweenFrameGeometry, type PlotRect } from '../../../transitions'
+import { featureJoin, getSceneTransition, tweenPlotFrame, type PlotRect } from '../../../transitions'
 
 export const DEFAULT_COLOR = '#4e79a7'
 
@@ -47,10 +47,12 @@ export function render(
   let fadeOverlay: HTMLElement | null = null
   let priorAnnotations: Map<string, AnnotationSnapshot> | undefined
   let priorMargin: { top: number, left: number, right: number, bottom: number } | undefined
+  let priorPlotRect: PlotRect | undefined
   const axes = AxisService.for(container)
   if (transition) {
     const cached = getCachedChart(container)
     priorMargin = cached?.margin
+    priorPlotRect = cached?.plotRect
     axes.detach()
     if (cached?.chartType === 'area') {
       priorAreas = Array.from(container.querySelectorAll('.bc-frame .bc-area'))
@@ -140,7 +142,7 @@ export function render(
   const seriesData: AreaSeriesDatum[] = [{ name: 'area', points: areaData }]
 
   featureJoin<AreaSeriesDatum>(orch, {
-    role: 'series-path',
+    role: 'series-area',
     parent: areaLayer,
     selector: '.bc-area',
     data: seriesData,
@@ -154,7 +156,7 @@ export function render(
   })
 
   featureJoin<AreaSeriesDatum>(orch, {
-    role: 'series-path',
+    role: 'series-line',
     parent: lineLayer,
     selector: '.bc-line',
     data: seriesData,
@@ -186,22 +188,17 @@ export function render(
     .attr('pointer-events', 'none')
 
   // Frame-geometry tween: ease the plot origin (chart-area transform) + clip from
-  // the prior scene's rect to the new one on the SAME orchestrator clock, so the
-  // marks (above), legend and axis move in lockstep. Same-type only.
-  if (transition && priorMargin && (priorAreas.length > 0 || priorLines.length > 0)) {
-    const pm = priorMargin
-    const totalW = width + margin.left + margin.right
-    const totalH = height + margin.top + margin.bottom
-    const priorRect: PlotRect = {
-      left: pm.left,
-      top: pm.top,
-      width: totalW - pm.left - pm.right,
-      height: totalH - pm.top - pm.bottom,
-    }
-    const newRect: PlotRect = { left: margin.left, top: margin.top, width, height }
-    const clipRect = svg.querySelector(`#${clipId} rect`) as SVGRectElement | null
-    tweenFrameGeometry(orch, { group: chartArea, clipRect, from: priorRect, to: newRect })
-  }
+  // the prior scene's cached rect to this one on the SAME orchestrator clock, so
+  // the marks (above), legend and axis move in lockstep. Same-type only.
+  const plotRect: PlotRect = { left: margin.left, top: margin.top, width, height }
+  tweenPlotFrame(orch, {
+    svg,
+    clipId,
+    group: chartArea,
+    from: priorPlotRect,
+    to: plotRect,
+    active: transition && (priorAreas.length > 0 || priorLines.length > 0),
+  })
 
   if (options.annotations?.length) {
     renderAnnotations(chartArea, options.annotations, { scaleX: xScale, scaleY: y, data: areaData, width, height, backgroundColor: resolveBackgroundColor(container), transition, priorAnnotations })
@@ -264,7 +261,7 @@ export function render(
     renderLineSymbols(symbolsGroup, symbolPoints, areaData.length, options.lineSymbols, transition)
   }
 
-  setCachedChart(container, { chartType: 'area', margin })
+  setCachedChart(container, { chartType: 'area', margin, plotRect })
 
   if (fadeOverlay) {
     fadeIn(clippedGroup.node()!)

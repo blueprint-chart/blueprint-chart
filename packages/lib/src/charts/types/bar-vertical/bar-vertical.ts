@@ -1,6 +1,5 @@
 import * as d3 from 'd3'
 import 'd3-transition'
-import { D3Blueprint } from 'd3-blueprint'
 import type { ChartData, ChartOptions } from '../../types'
 import { createFrame } from '../../frame/frame'
 import { createCanvas, contentSize, labelPositionMargins, estimateVerticalLabelWidth, computeMarginDelta } from '../../canvas/canvas'
@@ -16,8 +15,9 @@ import { buildColorOverrides } from '../../plugins/colorize'
 import { setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut } from '../../motion'
 import { getCachedChart, setCachedChart } from '../../transition-cache'
 import { ensureClipPath } from '../../clip-path-helper'
+import { createPluginHost } from '../../plugins/plugin-host'
 import { SortDirection, ValueLabelPosition, LabelPosition } from '../../../enums'
-import { featureJoin, getSceneTransition, tweenFrameGeometry, type PlotRect } from '../../../transitions'
+import { featureJoin, getSceneTransition, tweenPlotFrame, type PlotRect } from '../../../transitions'
 import { highlightOpacity } from '../../plugins/highlight'
 
 export const DEFAULT_COLORS = ['#4e79a7']
@@ -36,15 +36,6 @@ interface WaterfallDatum {
   isTotal: boolean
 }
 
-class BarVerticalChart extends D3Blueprint<BarDatum[]> {
-  initialize(): void {
-    // Bars are rendered via featureJoin against the SceneTransition orchestrator
-    // (see render()). This class is retained only as a host for legacy
-    // plugins (tooltips, crosshair, annotations) that consume the D3Blueprint
-    // API. Plugins will migrate to the orchestrator in Stages 3-4.
-  }
-}
-
 export function render(
   container: HTMLElement,
   data: ChartData,
@@ -55,6 +46,7 @@ export function render(
   let fadeOverlay: HTMLElement | null = null
   let priorAnnotations: Map<string, AnnotationSnapshot> | undefined
   let priorMargin: { top: number, left: number, right: number, bottom: number } | undefined
+  let priorPlotRect: PlotRect | undefined
   // Prior bar rects, re-inserted into the featureJoin layer so the data-join
   // matches them as updates: that gives the resize tween its "from" shape.
   let priorBars: Element[] = []
@@ -62,6 +54,7 @@ export function render(
   if (transition) {
     const cached = getCachedChart(container)
     priorMargin = cached?.margin
+    priorPlotRect = cached?.plotRect
     axes.detach()
     if (cached?.chartType === 'bar-vertical') {
       priorBars = Array.from(container.querySelectorAll('.bc-frame .bc-bar'))
@@ -96,6 +89,9 @@ export function render(
   const categoryLabelOffset = useCategoryLabelLine ? CATEGORY_LABEL_HEIGHT : 0
   const barAreaHeight = height - categoryLabelOffset
   const marginDelta = computeMarginDelta(priorMargin, margin)
+  // Plot rect (clip height = barAreaHeight) cached for the next same-type
+  // transition's frame-geometry `from`, and used by the tween below.
+  const plotRect: PlotRect = { left: margin.left, top: margin.top, width, height: barAreaHeight }
 
   const labels = sortLabels(data, options)
   const barData: BarDatum[] = labels.map(l => ({
@@ -410,29 +406,24 @@ export function render(
     })
 
     // Frame-geometry tween: ease the plot origin (chart-area transform) + clip
-    // from the prior scene's rect to the new one on the SAME orchestrator clock,
-    // so the bars (above), axis and value labels move in lockstep. The bar rects
-    // resize via their numeric x/y/width/height tweens (no `d`); combined with the
-    // origin ease this keeps the x-axis baseline pinned. Same-type only.
-    if (transition && priorMargin && priorBars.length > 0) {
-      const pm = priorMargin
-      const totalW = width + margin.left + margin.right
-      const totalH = height + margin.top + margin.bottom
-      const priorRect: PlotRect = {
-        left: pm.left,
-        top: pm.top,
-        width: totalW - pm.left - pm.right,
-        height: totalH - pm.top - pm.bottom - categoryLabelOffset,
-      }
-      const newRect: PlotRect = { left: margin.left, top: margin.top, width, height: barAreaHeight }
-      const clipRect = svg.querySelector(`#${clipId} rect`) as SVGRectElement | null
-      tweenFrameGeometry(orch, { group: chartArea, clipRect, from: priorRect, to: newRect })
-    }
+    // from the prior scene's cached rect to this one on the SAME orchestrator
+    // clock, so the bars (above), axis and value labels move in lockstep. The bar
+    // rects resize via their numeric x/y/width/height tweens (no `d`); combined
+    // with the origin ease this keeps the x-axis baseline pinned. Same-type only.
+    tweenPlotFrame(orch, {
+      svg,
+      clipId,
+      group: chartArea,
+      from: priorPlotRect,
+      to: plotRect,
+      active: transition && priorBars.length > 0,
+    })
 
-    // Plugins host — kept on the legacy D3Blueprint path. Mounting on
-    // clippedGroup so plugins find the `.bc-bar` elements that featureJoin
-    // just inserted under barLayer.
-    const chart = new BarVerticalChart(clippedGroup)
+    // Plugins host — kept on the legacy D3Blueprint API. Mounting on clippedGroup
+    // so plugins find the `.bc-bar` elements featureJoin inserts. The draw is
+    // deferred into the commit flush (when transitioning) so plugins bind after
+    // featureJoin has created the marks, not before.
+    const chart = createPluginHost(clippedGroup)
     if (options.tooltips) {
       chart.use(createTooltipPlugin({ numberFormat: options.verticalAxis?.numberFormat }))
     }
@@ -444,7 +435,13 @@ export function render(
       chart.use(createAnnotationPlugin(options.annotations, {
         scaleX: x, scaleY: y, data: barData, width, height: barAreaHeight, backgroundColor: resolveBackgroundColor(container), transition, priorAnnotations }))
     }
-    chart.draw(barData)
+    const drawPlugins = () => chart.draw(barData)
+    if (orch.state === 'committing') {
+      orch.register(drawPlugins)
+    }
+    else {
+      drawPlugins()
+    }
 
     if (options.valueLabels) {
       renderValueLabels(unclippedGroup, barData, x, y, {
@@ -476,7 +473,7 @@ export function render(
     }
   }
 
-  setCachedChart(container, { chartType: 'bar-vertical', margin })
+  setCachedChart(container, { chartType: 'bar-vertical', margin, plotRect })
 
   if (fadeOverlay) {
     fadeIn(clippedGroup.node()!)
