@@ -118,9 +118,9 @@
   --vp-c-gutter: var(--bc-hairline);
   --vp-c-border: var(--bc-hairline-strong);
 
-  --vp-button-brand-text: #0b0e13;
-  --vp-button-brand-hover-text: #0b0e13;
-  --vp-button-brand-active-text: #0b0e13;
+  --vp-button-brand-text: #0a0a0a;
+  --vp-button-brand-hover-text: #0a0a0a;
+  --vp-button-brand-active-text: #0a0a0a;
 
   --vp-home-hero-name-background: linear-gradient(
     120deg, #A3C9E8 0%, #4B90CF 50%, #2563A0 100%

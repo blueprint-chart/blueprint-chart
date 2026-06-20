@@ -46,15 +46,15 @@ $danger:  #C94044 !default;
 
 // Borders
 $border-color:      #dcdce0 !default;
-$border-color-dark: #313b4a !default;
+$border-color-dark: #2e2e2e !default;
 
 // Surface hierarchy (void > tile > elevated)
 $body-bg:                 #f3f3f4 !default;
-$body-bg-dark:            #141821 !default;
+$body-bg-dark:            #0a0a0a !default;
 $body-secondary-bg:       #ffffff !default;
-$body-secondary-bg-dark:  #1b212c !default;
+$body-secondary-bg-dark:  #141414 !default;
 $body-tertiary-bg:        #f8f8fa !default;
-$body-tertiary-bg-dark:   #1f2632 !default;
+$body-tertiary-bg-dark:   #1a1a1a !default;
 
 // Links
 $link-color:            $primary !default;
@@ -192,19 +192,19 @@ $spacer-xs: 0.25rem !default;
   --bc-text-color: #aaa;
 
   // Blueprint canvas goes dark in dark theme: the blue surface becomes a deep
-  // cool-slate well one rung below the void, harmonized with the slate surface
+  // neutral well one rung below the void, harmonized with the graphite surface
   // ramp. The white grid lines below already read on a dark surface, so only
   // the background color changes — the blueprint grid stays the grid.
-  --bc-canvas-bg: #10151d;
-  --bc-canvas-grid-color: rgba(150, 180, 220, 0.05);
-  --bc-canvas-grid-color-major: rgba(150, 180, 220, 0.12);
+  --bc-canvas-bg: #0d0d0d;
+  --bc-canvas-grid-color: rgba(255, 255, 255, 0.04);
+  --bc-canvas-grid-color-major: rgba(255, 255, 255, 0.10);
   --bc-canvas-dimension-color: rgba(255, 255, 255, 0.4);
 
-  --bc-chrome-bg: #171c26;
-  --bc-content-bg: #171c26;
-  --bc-tile-bg: #1f2632;
-  --bc-tile-bg-elevated: #262f3d;
-  --bc-canvas-glow: radial-gradient(ellipse at top, rgba(75, 144, 207, 0.05), transparent 60%);
+  --bc-chrome-bg: #0f0f0f;
+  --bc-content-bg: #0f0f0f;
+  --bc-tile-bg: #1a1a1a;
+  --bc-tile-bg-elevated: #232323;
+  --bc-canvas-glow: none;
 
   --bc-wash-soft: rgba(255, 255, 255, 0.03);
   --bc-wash-firm: rgba(255, 255, 255, 0.07);
