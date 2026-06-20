@@ -15,6 +15,7 @@ import { setupProximityInteraction, disposeProximityFor } from '../../plugins/pr
 import { ensureClipPath } from '../../clip-path-helper'
 import { getDefaultTransitionMs, setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut, reinsertWithOffset } from '../../motion'
 import { setCachedChart, getCachedChart } from '../../transition-cache'
+import { interpolatePath } from '../../../transitions/interpolate-path'
 import { computeStack, computeStack100 } from '../../stack-helpers'
 import { filterLabelsByRange } from '../../scale-helpers'
 import { resolveSeriesColor, resolveSeriesInterpolation, isSeriesHidden, resolveSeriesLabelMode } from '../../series-helpers'
@@ -82,13 +83,19 @@ class AreaStackedChart extends D3Blueprint<StackedAreaDatum[]> {
             .attr('data-series', (d: StackedAreaDatum) => d.colorIndex)
             .attr('fill', (d: StackedAreaDatum) => colors[d.colorIndex % colors.length])
             .attr('opacity', (d: StackedAreaDatum) => hasHl ? highlightOpacity(hl, d.name, opacity) : opacity)
-            .attr('d', (d: StackedAreaDatum) => {
+            // Point-wise path tween: d3's default `d` string interpolation fuses
+            // area coordinates into garbage when the scale changes. interpolatePath
+            // blends matching paths point-by-point and reads the live "from" at
+            // tween start (invariant I4).
+            .attrTween('d', function (this: Element, d: StackedAreaDatum) {
               const areaGen = d3.area<[number, number]>()
                 .curve(curve)
                 .x((_v, i) => xPos(i))
                 .y0(p => p[0])
                 .y1(p => p[1])
-              return areaGen(d.points)
+              const target = areaGen(d.points) ?? ''
+              const from = this.getAttribute('d') ?? target
+              return interpolatePath(from, target)
             })
         },
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -138,12 +145,14 @@ class AreaStackedChart extends D3Blueprint<StackedAreaDatum[]> {
             .attr('stroke', (d: StackedAreaDatum) => colors[d.colorIndex % colors.length])
             .attr('stroke-width', 1)
             .attr('opacity', (d: StackedAreaDatum) => hasHl ? highlightOpacity(hl, d.name, 1) : null)
-            .attr('d', (d: StackedAreaDatum) => {
+            .attrTween('d', function (this: Element, d: StackedAreaDatum) {
               const lineGen = d3.line<[number, number]>()
                 .curve(curve)
                 .x((_v, i) => xPos(i))
                 .y(p => p[1])
-              return lineGen(d.points)
+              const target = lineGen(d.points) ?? ''
+              const from = this.getAttribute('d') ?? target
+              return interpolatePath(from, target)
             })
         },
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
