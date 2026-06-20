@@ -32,6 +32,37 @@ export interface FrameGeometryOptions {
  * `SceneTransition.run`). On the snap path (duration 0 / reduced motion) the
  * geometry is set directly to `to`.
  */
+export interface PlotFrameOptions {
+  /** The chart's `<svg>` (used to find the clip rect by id). */
+  svg: SVGSVGElement
+  /** The plot clip-path id (its `rect` size interpolates with the plot). */
+  clipId: string
+  /** The chart-area `<g>` whose `transform` carries the plot origin. */
+  group: SVGGElement
+  /** The prior scene's plot rect (from the transition cache), if any. */
+  from: PlotRect | undefined
+  /** This render's plot rect. */
+  to: PlotRect
+  /** Only ease when true (same-type transition with prior marks to tween from). */
+  active: boolean
+}
+
+/**
+ * Renderer-facing wrapper over {@link tweenFrameGeometry}: resolves the clip
+ * rect from `svg`/`clipId` and eases from the cached prior plot rect to this
+ * render's rect. No-ops unless `active` and a prior rect exist. Using the cached
+ * prior rect (rather than reconstructing it from margins) keeps the `from`
+ * geometry exact even when a chart's plot height differs from its inner height
+ * (e.g. a category-label band) or carries clip inflation.
+ */
+export function tweenPlotFrame(orch: SceneTransition, opts: PlotFrameOptions): void {
+  if (!opts.active || !opts.from) {
+    return
+  }
+  const clipRect = opts.svg.querySelector(`#${opts.clipId} rect`) as SVGRectElement | null
+  tweenFrameGeometry(orch, { group: opts.group, clipRect, from: opts.from, to: opts.to })
+}
+
 export function tweenFrameGeometry(orch: SceneTransition, opts: FrameGeometryOptions): void {
   const { group, clipRect, from, to } = opts
   const toTransform = `translate(${to.left},${to.top})`

@@ -25,6 +25,8 @@ export type FeatureRole =
   | 'mark-per-category'
   | 'mark-per-cell'
   | 'series-path'
+  | 'series-area'
+  | 'series-line'
   | 'axis-tick.value'
   | 'axis-tick.category'
   | 'value-label'

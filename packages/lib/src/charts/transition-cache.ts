@@ -11,6 +11,12 @@ import type { Margin } from './types'
 export interface CachedChart {
   chartType: string
   margin?: Margin
+  /**
+   * The plot rect (origin + size) this render used for its marks/clip, so the
+   * next same-type transition can ease the frame geometry from the exact prior
+   * rect instead of reconstructing it from margins. Shape matches `PlotRect`.
+   */
+  plotRect?: { left: number, top: number, width: number, height: number }
 }
 
 const cache = new WeakMap<HTMLElement, CachedChart>()
