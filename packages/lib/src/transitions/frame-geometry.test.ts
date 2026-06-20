@@ -21,8 +21,12 @@ function setup() {
 
 describe('tweenFrameGeometry', () => {
   let env: ReturnType<typeof setup>
-  beforeEach(() => { env = setup() })
-  afterEach(() => { env.container.remove() })
+  beforeEach(() => {
+    env = setup()
+  })
+  afterEach(() => {
+    env.container.remove()
+  })
 
   it('snaps group transform + clip to `to` on the duration:0 path', () => {
     env.t.beginCommit()
