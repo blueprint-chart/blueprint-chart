@@ -27,18 +27,10 @@ defineProps<{
     background-size: 8px 8px;
   }
 
+  // Auto resolves to the explicit light/dark surface for the current theme, so
+  // its swatch mirrors that token — #ffffff in light, #0f0f0f in dark.
   &--auto {
-    background: #f0f0f0;
-    overflow: hidden;
-    position: relative;
-
-    &::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: #1a1a1a;
-      clip-path: polygon(100% 0, 100% 100%, 0 100%);
-    }
+    background: var(--bc-chrome-bg);
   }
 
   &--light {
@@ -46,7 +38,7 @@ defineProps<{
   }
 
   &--dark {
-    background: #1a1a1a;
+    background: #0f0f0f;
   }
 }
 </style>
