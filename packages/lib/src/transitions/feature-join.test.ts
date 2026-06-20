@@ -195,6 +195,36 @@ describe('featureJoin during committing + animating', () => {
     // Surviving rect bound to 'a'.
     expect(rects[0].getAttribute('height')).toBe('10')
   })
+
+  it('tweens the `d` attribute point-wise (no fused digits mid-transition; ends on target)', async () => {
+    const OLD = 'M0,367L10,300L10,367L0,367Z'
+    const NEW = 'M0,263L10,200L10,263L0,263Z'
+    const cfg = (d: string): FeatureJoinConfig<{ k: string }> => ({
+      role: 'series-path',
+      parent: env.g,
+      selector: '.bc-area',
+      data: [{ k: 'a' }],
+      key: x => x.k,
+      insert: sel => sel.append('path').attr('class', 'bc-area'),
+      attrs: () => ({ d }),
+    })
+    // Idle paint at OLD.
+    featureJoin(env.t, cfg(OLD))
+    // Animated commit toward NEW.
+    env.t.beginCommit()
+    featureJoin(env.t, cfg(NEW))
+    env.t.commit({ duration: 200 })
+
+    // Mid-transition: a clean pairwise blend — never fused digits or NaN.
+    await new Promise(r => setTimeout(r, 90))
+    const mid = env.g.querySelector('.bc-area')!.getAttribute('d')!
+    expect(mid).not.toMatch(/NaN/)
+    expect(mid).not.toMatch(/\d{8,}/)
+
+    // Settles exactly on the target.
+    await new Promise(r => setTimeout(r, 250))
+    expect(env.g.querySelector('.bc-area')!.getAttribute('d')).toBe(NEW)
+  })
 })
 
 describe('featureJoin role tagging (Stage 7)', () => {

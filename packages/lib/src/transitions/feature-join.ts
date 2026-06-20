@@ -2,9 +2,18 @@ import * as d3 from 'd3'
 import type { SceneTransition } from './scene-transition'
 import { roleScan, tagsCompatible } from './role-matcher'
 import { snapshotLiveAttrs } from './snapshot'
+import { interpolatePath } from './interpolate-path'
 import type { AttrMap, FeatureJoinConfig } from './types'
 
 const DEFAULT_EXIT: AttrMap = { opacity: 0 }
+
+/**
+ * Attributes whose values are numeric strings (path data, transforms) that
+ * d3's default `attr` string-interpolation mangles — observed fusing area
+ * coordinates into ~1e11 garbage. These are tweened with the point-wise
+ * `interpolatePath` instead, reading the live value at tween start (I4).
+ */
+const POINTWISE_ATTRS = new Set(['d', 'transform'])
 
 /**
  * Idempotent keyed data-join for a single visual feature.
@@ -175,7 +184,18 @@ function tweenAttrs(
 ) {
   const sel = d3.select(el).transition(t)
   for (const [k, v] of Object.entries(to)) {
-    sel.attr(k, String(v))
+    if (POINTWISE_ATTRS.has(k)) {
+      const target = String(v)
+      // Read the "from" value live at tween start so an interrupted retween
+      // starts from the current visible state (invariant I4).
+      sel.attrTween(k, function (this: Element) {
+        const from = this.getAttribute(k) ?? target
+        return interpolatePath(from, target)
+      })
+    }
+    else {
+      sel.attr(k, String(v))
+    }
   }
   return sel
 }
