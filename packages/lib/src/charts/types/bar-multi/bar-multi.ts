@@ -18,7 +18,7 @@ import { setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut } from '
 import { setCachedChart, getCachedChart } from '../../transition-cache'
 import { ensureClipPath } from '../../clip-path-helper'
 import { ValueLabelPosition, DirectLabelMode } from '../../../enums'
-import { featureJoin, getSceneTransition } from '../../../transitions'
+import { featureJoin, getSceneTransition, tweenFrameGeometry, type PlotRect } from '../../../transitions'
 import { highlightTargetSet, highlightOpacity } from '../../plugins/highlight'
 import { buildColorOverrides } from '../../plugins/colorize'
 
@@ -53,13 +53,19 @@ export function render(
   setRenderTransition(transition)
   let fadeOverlay: HTMLElement | null = null
   let priorAnnotations: Map<string, AnnotationSnapshot> | undefined
-  let priorMargin: { top: number, left: number } | undefined
+  let priorMargin: { top: number, left: number, right: number, bottom: number } | undefined
+  // Prior bar rects, re-inserted into the featureJoin layer so the data-join
+  // matches them as updates: that gives the resize tween its "from" shape.
+  let priorBars: Element[] = []
   const axes = AxisService.for(container)
   if (transition) {
     const cached = getCachedChart(container)
     priorMargin = cached?.margin
     axes.detach()
-    if (cached && cached.chartType !== 'bar-multi') {
+    if (cached?.chartType === 'bar-multi') {
+      priorBars = Array.from(container.querySelectorAll('.bc-frame .bc-bar-multi'))
+    }
+    else if (cached) {
       fadeOverlay = snapshotForFadeOut(container)
     }
     priorAnnotations = new Map()
@@ -210,6 +216,13 @@ export function render(
 
   // Bars — one feature per (category, series) cell, keyed by label + seriesName.
   const barLayer = clippedGroup.append('g').node()!
+  // Re-insert prior bars (with their bound data) so the data-join matches them
+  // as updates and tweens x/y/width/height from the prior scene's geometry.
+  if (transition) {
+    for (const el of priorBars) {
+      barLayer.appendChild(el)
+    }
+  }
   featureJoin<MultiBarDatum>(orch, {
     role: 'mark-per-cell',
     parent: barLayer,
@@ -236,6 +249,26 @@ export function render(
         : base
     },
   })
+
+  // Frame-geometry tween: ease the plot origin (chart-area transform) + clip from
+  // the prior scene's rect to the new one on the SAME orchestrator clock, so the
+  // bars (above), axis and value labels move in lockstep. The bar rects resize via
+  // their numeric x/y/width/height tweens (no `d`); combined with the origin ease
+  // this keeps the x-axis baseline pinned. Same-type only.
+  if (transition && priorMargin && priorBars.length > 0) {
+    const pm = priorMargin
+    const totalW = width + margin.left + margin.right
+    const totalH = height + margin.top + margin.bottom
+    const priorRect: PlotRect = {
+      left: pm.left,
+      top: pm.top,
+      width: totalW - pm.left - pm.right,
+      height: totalH - pm.top - pm.bottom,
+    }
+    const newRect: PlotRect = { left: margin.left, top: margin.top, width, height }
+    const clipRect = svg.querySelector(`#${clipId} rect`) as SVGRectElement | null
+    tweenFrameGeometry(orch, { group: chartArea, clipRect, from: priorRect, to: newRect })
+  }
 
   // Plugins host — kept on the legacy D3Blueprint path. Mounting on
   // clippedGroup so plugins find the `.bc-bar-multi` elements that featureJoin
