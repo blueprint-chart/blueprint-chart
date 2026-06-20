@@ -14,11 +14,12 @@ import { resolveBackgroundColor } from '../../contrast'
 import { percentValueLabel } from '../../format-helpers'
 import { resolveSeriesColor, isSeriesHidden, resolveSeriesValueLabels, resolveSeriesOpacity } from '../../series-helpers'
 import { contrastTextColor } from '../../contrast'
-import { getDefaultTransitionMs, setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut, reinsertWithOffset } from '../../motion'
+import { setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut } from '../../motion'
 import { setCachedChart, getCachedChart } from '../../transition-cache'
 import { computeStack, computeStack100 } from '../../stack-helpers'
 import { resolveBarGapPadding } from '../../scale-helpers'
 import { ensureClipPath } from '../../clip-path-helper'
+import { featureJoin, getSceneTransition, tweenFrameGeometry, type PlotRect } from '../../../transitions'
 import { StackMode, Orientation, ValueLabelPosition, LabelPosition } from '../../../enums'
 import { highlightTargetSet, highlightOpacity } from '../../plugins/highlight'
 import { buildColorOverrides } from '../../plugins/colorize'
@@ -40,55 +41,10 @@ interface StackedBarDatum {
 }
 
 class BarStackedChart extends D3Blueprint<StackedBarDatum[]> {
-  initialize() {
-    this.configDefine('x', { defaultValue: d3.scaleLinear() })
-    this.configDefine('y', { defaultValue: d3.scaleBand<string>() })
-    this.configDefine('colors', { defaultValue: DEFAULT_COLORS })
-    this.configDefine('categoryLabelOffset', { defaultValue: 0 })
-
-    const g = this.base.append('g')
-
-    this.layer('bars', g, {
-      dataBind: (sel, data) => sel.selectAll<Element, StackedBarDatum>('.bc-bar-stacked').data(data, d => d.label + '\0' + d.seriesName),
-      insert: sel => sel.append('rect').attr('class', 'bc-bar bc-bar-stacked'),
-      events: {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        'enter': (sel: any) => {
-          const x = this.config('x') as d3.ScaleLinear<number, number>
-          const y = this.config('y') as d3.ScaleBand<string>
-          const colors = this.config('colors') as string[]
-          const labelOffset = this.config('categoryLabelOffset') as number
-          sel
-            .attr('data-series', (d: StackedBarDatum) => d.seriesName)
-            .attr('x', (d: StackedBarDatum) => x(d.y0))
-            .attr('y', (d: StackedBarDatum) => (y(d.label) ?? 0) + labelOffset)
-            .attr('width', (d: StackedBarDatum) => x(d.y1) - x(d.y0))
-            .attr('height', Math.max(0, y.bandwidth() - labelOffset))
-            .attr('fill', (d: StackedBarDatum) => colors[d.seriesIndex % colors.length])
-        },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        'merge:transition': (sel: any) => {
-          const x = this.config('x') as d3.ScaleLinear<number, number>
-          const y = this.config('y') as d3.ScaleBand<string>
-          const colors = this.config('colors') as string[]
-          const labelOffset = this.config('categoryLabelOffset') as number
-          sel.duration(getDefaultTransitionMs())
-            .attr('data-series', (d: StackedBarDatum) => d.seriesName)
-            .attr('x', (d: StackedBarDatum) => x(d.y0))
-            .attr('y', (d: StackedBarDatum) => (y(d.label) ?? 0) + labelOffset)
-            .attr('width', (d: StackedBarDatum) => x(d.y1) - x(d.y0))
-            .attr('height', Math.max(0, y.bandwidth() - labelOffset))
-            .attr('fill', (d: StackedBarDatum) => colors[d.seriesIndex % colors.length])
-        },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        'exit:transition': (sel: any) => {
-          sel.duration(getDefaultTransitionMs())
-            .attr('opacity', 0)
-            .remove()
-        },
-      },
-    })
-  }
+  // Bars are rendered via featureJoin against the SceneTransition orchestrator
+  // (see render()). This class is retained only as a host for legacy plugins
+  // (tooltips, crosshair, annotations) that consume the D3Blueprint API.
+  initialize(): void {}
 }
 
 function flattenStack(
@@ -126,7 +82,7 @@ export function render(
   let priorBars: Element[] = []
   let fadeOverlay: HTMLElement | null = null
   let priorAnnotations: Map<string, AnnotationSnapshot> | undefined
-  let priorMargin: { top: number, left: number } | undefined
+  let priorMargin: { top: number, left: number, right: number, bottom: number } | undefined
   const axes = AxisService.for(container)
   if (transition) {
     const cached = getCachedChart(container)
@@ -250,14 +206,71 @@ export function render(
     : sortedLabels.flatMap(label => flatData.filter(d => d.label === label))
 
   const categoryLabelOffset = useCategoryLabelLine ? CATEGORY_LABEL_HEIGHT : 0
-  const chart = new BarStackedChart(clippedGroup)
-  chart.config({ x, y, colors, categoryLabelOffset })
+  const colorOverrides = buildColorOverrides(options.colorizes)
+  const highlightTargets = highlightTargetSet(options.highlights)
+  const orch = getSceneTransition(container)
 
-  // Re-insert prior elements so D3 data-join finds them and triggers merge:transition
-  if (priorBars.length > 0) {
-    const layerG = clippedGroup.node()!.querySelector('g')!
-    reinsertWithOffset(layerG, priorBars, marginDelta?.dx ?? 0, marginDelta?.dy ?? 0)
+  // Bars — one feature per (category, series) segment, keyed by label + seriesName.
+  // Per-series color/opacity/highlight is folded into `attrs` so the orchestrator
+  // tweens it on one clock. Captured prior bars are re-inserted into the layer so
+  // the data-join matches them as updates and tweens x/y/width/height from the
+  // prior scene's geometry.
+  const barLayer = clippedGroup.append('g').node()!
+  if (transition) {
+    for (const el of priorBars) {
+      barLayer.appendChild(el)
+    }
   }
+  featureJoin<StackedBarDatum>(orch, {
+    role: 'mark-per-cell',
+    parent: barLayer,
+    selector: '.bc-bar-stacked',
+    data: sortedFlatData,
+    key: d => d.label + '\0' + d.seriesName,
+    insert: sel => sel.append('rect').attr('class', 'bc-bar bc-bar-stacked'),
+    attrs: (d) => {
+      const seriesColor = colorOverrides.get(d.seriesName) ?? resolveSeriesColor(d.seriesName, d.seriesIndex, colors, overrides)
+      const seriesOpacity = resolveSeriesOpacity(d.seriesName, overrides)
+      const base: Record<string, string | number> = {
+        'data-series': d.seriesName,
+        'x': x(d.y0),
+        'y': (y(d.label) ?? 0) + categoryLabelOffset,
+        'width': x(d.y1) - x(d.y0),
+        'height': Math.max(0, y.bandwidth() - categoryLabelOffset),
+        'fill': seriesColor,
+      }
+      if (seriesOpacity < 1) {
+        base['fill-opacity'] = seriesOpacity
+      }
+      if (highlightTargets.size > 0) {
+        base.opacity = highlightOpacity(highlightTargets, d.seriesName)
+      }
+      return base
+    },
+  })
+
+  // Frame-geometry tween: ease the plot origin (chart-area transform) + clip from
+  // the prior scene's rect to the new one on the SAME orchestrator clock, so the
+  // bars (above), axis and value labels move in lockstep. The bar rects resize via
+  // their numeric x/y/width/height tweens (no `d`). Same-type only.
+  if (transition && priorMargin && priorBars.length > 0) {
+    const pm = priorMargin
+    const totalW = width + margin.left + margin.right
+    const totalH = height + margin.top + margin.bottom
+    const priorRect: PlotRect = {
+      left: pm.left,
+      top: pm.top,
+      width: totalW - pm.left - pm.right,
+      height: totalH - pm.top - pm.bottom,
+    }
+    const newRect: PlotRect = { left: margin.left, top: margin.top, width, height }
+    const clipRect = svg.querySelector(`#${clipId} rect`) as SVGRectElement | null
+    tweenFrameGeometry(orch, { group: chartArea, clipRect, from: priorRect, to: newRect })
+  }
+
+  // Plugins host — kept on the legacy D3Blueprint path. Mounting on clippedGroup
+  // so plugins find the `.bc-bar-stacked` elements that featureJoin inserted.
+  const chart = new BarStackedChart(clippedGroup)
   if (options.tooltips) {
     chart.use(createTooltipPlugin({ numberFormat: options.verticalAxis?.numberFormat }))
   }
@@ -279,25 +292,6 @@ export function render(
     fadeIn(clippedGroup.node()!)
     commitFadeOut(container, fadeOverlay)
   }
-
-  // Apply per-series color and opacity overrides to bars
-  const colorOverrides = buildColorOverrides(options.colorizes)
-  const highlightTargets = highlightTargetSet(options.highlights)
-  d3.select(chartArea).selectAll<SVGRectElement, unknown>('.bc-bar-stacked').each(function (d) {
-    const datum = d as StackedBarDatum
-    const seriesColor = colorOverrides.get(datum.seriesName) ?? resolveSeriesColor(datum.seriesName, datum.seriesIndex, colors, overrides)
-    const seriesOpacity = resolveSeriesOpacity(datum.seriesName, overrides)
-    const el = transition
-      ? d3.select(this).transition().duration(getDefaultTransitionMs())
-      : d3.select(this)
-    el.attr('fill', seriesColor)
-    if (seriesOpacity < 1) {
-      el.attr('fill-opacity', seriesOpacity)
-    }
-    if (highlightTargets.size > 0) {
-      el.attr('opacity', highlightOpacity(highlightTargets, datum.seriesName))
-    }
-  })
 
   // Category labels on separate line
   if (useCategoryLabelLine) {
