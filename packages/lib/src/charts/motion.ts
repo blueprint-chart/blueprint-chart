@@ -1,17 +1,12 @@
 /**
- * @deprecated As of the Scene Transition Orchestrator (Stage 1+), this module
- * is being retired in favour of `packages/lib/src/transitions/` (SceneTransition
- * + featureJoin). Renderers that have already migrated do not import from here;
- * `bar-vertical`, `bar-horizontal`, `bar-multi`, `donut`, `pie`, and `bar-split`
- * (the donut/pie share path) are clean. The remaining renderers (line, line-multi,
- * area, area-stacked, bar-stacked, bar-grouped, bar-split's stacked path,
- * column-stacked) and the axis subsystem still depend on
- * `setRenderTransition` / `getDefaultTransitionMs` and on `snapshotForFadeOut`
- * / `commitFadeOut` / `fadeIn`. This file can be deleted once those have all
- * migrated to the orchestrator.
+ * @deprecated As of the Scene Transition Orchestrator, mark rendering has fully
+ * migrated to `packages/lib/src/transitions/` (SceneTransition + featureJoin +
+ * tweenFrameGeometry): the legacy `reinsertWithOffset` mark-translate wrapper is
+ * gone. What remains here is the cross-type fade path and the transition-duration
+ * flag: every renderer and the axis subsystem still call `setRenderTransition` /
+ * `getDefaultTransitionMs`, and cross-type transitions use `snapshotForFadeOut` /
+ * `commitFadeOut` / `fadeIn`. This file can be deleted once those move too.
  */
-import * as d3 from 'd3'
-import 'd3-transition'
 
 /**
  * Returns 0 when the user prefers reduced motion, otherwise returns the input duration.
@@ -45,58 +40,6 @@ export function setRenderTransition(enabled: boolean): void {
  */
 export function getDefaultTransitionMs(): number {
   return getTransitionDuration(_transitionMs)
-}
-
-/**
- * Reinsert prior elements into a parent, wrapping them in a compensating
- * `<g translate(dx,dy)>` that transitions to identity over the default
- * duration.  This corrects for chartArea origin shifts (e.g. when legend
- * toggles change margins) so that prior elements don't visually jump.
- *
- * When dx/dy are both 0, elements are appended directly without a wrapper.
- */
-export function reinsertWithOffset(
-  parent: Element,
-  elements: Element[],
-  dx: number,
-  dy: number,
-): void {
-  if (elements.length === 0) {
-    return
-  }
-  if (dx === 0 && dy === 0) {
-    elements.forEach(el => parent.appendChild(el))
-    return
-  }
-  const wrapper = document.createElementNS('http://www.w3.org/2000/svg', 'g')
-  wrapper.setAttribute('transform', `translate(${dx},${dy})`)
-  elements.forEach(el => wrapper.appendChild(el))
-  parent.appendChild(wrapper)
-  const duration = getDefaultTransitionMs()
-  if (duration > 0) {
-    // Use attrTween with string interpolation to avoid D3's SVG
-    // transform parsing (which reads baseVal, unsupported in jsdom)
-    d3.select(wrapper)
-      .transition()
-      .duration(duration)
-      .attrTween('transform', () => {
-        const ix = d3.interpolateNumber(dx, 0)
-        const iy = d3.interpolateNumber(dy, 0)
-        return (t: number) => `translate(${ix(t)},${iy(t)})`
-      })
-      .on('end', () => {
-        while (wrapper.firstChild) {
-          parent.appendChild(wrapper.firstChild)
-        }
-        wrapper.remove()
-      })
-  }
-  else {
-    while (wrapper.firstChild) {
-      parent.appendChild(wrapper.firstChild)
-    }
-    wrapper.remove()
-  }
 }
 
 /**
