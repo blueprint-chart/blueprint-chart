@@ -59,7 +59,7 @@ export function render(
   let priorSymbolsGroups: Element[] = []
   let fadeOverlay: HTMLElement | null = null
   let priorAnnotations: Map<string, AnnotationSnapshot> | undefined
-  let priorMargin: { top: number, left: number } | undefined
+  let priorMargin: { top: number, left: number, right: number, bottom: number } | undefined
   const axes = AxisService.for(container)
   if (transition) {
     const cached = getCachedChart(container)
