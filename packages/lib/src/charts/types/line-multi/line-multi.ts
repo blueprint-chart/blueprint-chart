@@ -1,6 +1,5 @@
 import * as d3 from 'd3'
 import 'd3-transition'
-import { D3Blueprint } from 'd3-blueprint'
 import type { AreaFillConfig, ChartData, ChartOptions } from '../../types'
 import { createFrame } from '../../frame/frame'
 import { createCanvas, contentSize, labelPositionMargins, estimateVerticalLabelWidth, computeMarginDelta } from '../../canvas/canvas'
@@ -15,8 +14,9 @@ import { resolveBackgroundColor } from '../../contrast'
 import { setupProximityInteraction, disposeProximityFor } from '../../plugins/proximity'
 import { ensureClipPath } from '../../clip-path-helper'
 import { renderLineSymbols } from '../../line-symbols'
-import { getDefaultTransitionMs, setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut, reinsertWithOffset } from '../../motion'
+import { setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut } from '../../motion'
 import { setCachedChart, getCachedChart } from '../../transition-cache'
+import { featureJoin, getSceneTransition, tweenFrameGeometry, type PlotRect } from '../../../transitions'
 import { resolveSeriesColor, resolveSeriesDash, resolveSeriesWidth, resolveSeriesInterpolation, isSeriesHidden, resolveSeriesLabelMode, resolveSeriesValueLabels, resolveSeriesLineSymbols } from '../../series-helpers'
 import { highlightOpacity } from '../../plugins/highlight'
 import { buildColorOverrides } from '../../plugins/colorize'
@@ -42,176 +42,6 @@ interface DotDatum {
   colorIndex: number
 }
 
-class LineMultiChart extends D3Blueprint<SeriesDatum[]> {
-  initialize() {
-    this.configDefine('xPos', { defaultValue: (_i: number) => 0 })
-    this.configDefine('y', { defaultValue: d3.scaleLinear() })
-    this.configDefine('colors', { defaultValue: DEFAULT_COLORS })
-    this.configDefine('labels', { defaultValue: [] as string[] })
-    this.configDefine('curve', { defaultValue: d3.curveLinear })
-    this.configDefine('areaFill', { defaultValue: false })
-    this.configDefine('areaFillOpacity', { defaultValue: 0.2 })
-    this.configDefine('height', { defaultValue: 0 })
-    this.configDefine('dots', { defaultValue: [] as DotDatum[] })
-    this.configDefine('highlightTargets', { defaultValue: new Set<string>() })
-
-    const areaGroup = this.base.append('g')
-    const g = this.base.append('g')
-    const dotsGroup = this.base.append('g')
-
-    this.layer('areas', areaGroup, {
-      dataBind: (sel, data) => sel.selectAll<Element, SeriesDatum>('.bc-area').data(this.config('areaFill') ? data : [], d => d.name),
-      insert: sel => sel.append('path').attr('class', 'bc-area'),
-      events: {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        'enter': (sel: any) => {
-          const xPos = this.config('xPos') as (i: number) => number
-          const y = this.config('y') as d3.ScaleLinear<number, number>
-          const colors = this.config('colors') as string[]
-          const curve = this.config('curve') as d3.CurveFactory
-          const h = this.config('height') as number
-          const opacity = this.config('areaFillOpacity') as number
-          sel
-            .attr('data-series', (d: SeriesDatum) => d.colorIndex)
-            .attr('fill', (d: SeriesDatum) => colors[d.colorIndex % colors.length])
-            .attr('opacity', opacity)
-            .attr('d', (d: SeriesDatum) => {
-              const areaGen = d3.area<number>()
-                .curve(curve)
-                .x((_v, i) => xPos(i))
-                .y0(h)
-                .y1(v => y(v))
-              return areaGen(d.values)
-            })
-        },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        'merge:transition': (sel: any) => {
-          const xPos = this.config('xPos') as (i: number) => number
-          const y = this.config('y') as d3.ScaleLinear<number, number>
-          const colors = this.config('colors') as string[]
-          const curve = this.config('curve') as d3.CurveFactory
-          const h = this.config('height') as number
-          const opacity = this.config('areaFillOpacity') as number
-          sel.duration(getDefaultTransitionMs())
-            .attr('data-series', (d: SeriesDatum) => d.colorIndex)
-            .attr('fill', (d: SeriesDatum) => colors[d.colorIndex % colors.length])
-            .attr('opacity', opacity)
-            .attr('d', (d: SeriesDatum) => {
-              const areaGen = d3.area<number>()
-                .curve(curve)
-                .x((_v, i) => xPos(i))
-                .y0(h)
-                .y1(v => y(v))
-              return areaGen(d.values)
-            })
-        },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        'exit:transition': (sel: any) => {
-          sel.duration(getDefaultTransitionMs())
-            .attr('opacity', 0)
-            .remove()
-        },
-      },
-    })
-
-    this.layer('lines', g, {
-      dataBind: (sel, data) => sel.selectAll<Element, SeriesDatum>('.bc-line').data(data, d => d.name),
-      insert: sel => sel.append('path').attr('class', 'bc-line'),
-      events: {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        'enter': (sel: any) => {
-          const xPos = this.config('xPos') as (i: number) => number
-          const y = this.config('y') as d3.ScaleLinear<number, number>
-          const colors = this.config('colors') as string[]
-          const hl = this.config('highlightTargets') as Set<string>
-          const hasHl = hl.size > 0
-          sel
-            .attr('data-series', (d: SeriesDatum) => d.colorIndex)
-            .attr('fill', 'none')
-            .attr('stroke', (d: SeriesDatum) => colors[d.colorIndex % colors.length])
-            .attr('stroke-width', 2)
-            .attr('opacity', (d: SeriesDatum) => hasHl ? highlightOpacity(hl, d.name, 1) : null)
-            .attr('d', (d: SeriesDatum) => {
-              const curve = this.config('curve') as d3.CurveFactory
-              const lineGen = d3.line<number>()
-                .curve(curve)
-                .x((_v, i) => xPos(i))
-                .y(v => y(v))
-              return lineGen(d.values)
-            })
-        },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        'merge:transition': (sel: any) => {
-          const xPos = this.config('xPos') as (i: number) => number
-          const y = this.config('y') as d3.ScaleLinear<number, number>
-          const colors = this.config('colors') as string[]
-          const hl = this.config('highlightTargets') as Set<string>
-          const hasHl = hl.size > 0
-          sel.duration(getDefaultTransitionMs())
-            .attr('data-series', (d: SeriesDatum) => d.colorIndex)
-            .attr('fill', 'none')
-            .attr('stroke', (d: SeriesDatum) => colors[d.colorIndex % colors.length])
-            .attr('stroke-width', 2)
-            .attr('opacity', (d: SeriesDatum) => hasHl ? highlightOpacity(hl, d.name, 1) : null)
-            .attr('d', (d: SeriesDatum) => {
-              const curve = this.config('curve') as d3.CurveFactory
-              const lineGen = d3.line<number>()
-                .curve(curve)
-                .x((_v, i) => xPos(i))
-                .y(v => y(v))
-              return lineGen(d.values)
-            })
-        },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        'exit:transition': (sel: any) => {
-          sel.duration(getDefaultTransitionMs())
-            .attr('opacity', 0)
-            .remove()
-        },
-      },
-    })
-
-    this.layer('dots', dotsGroup, {
-      dataBind: sel => sel.selectAll<Element, DotDatum>('.bc-dot').data(this.config('dots') as DotDatum[], d => d.label + '\0' + d.series),
-      insert: sel => sel.append('circle').attr('class', 'bc-dot'),
-      events: {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        'enter': (sel: any) => {
-          const xPos = this.config('xPos') as (i: number) => number
-          const y = this.config('y') as d3.ScaleLinear<number, number>
-          const colors = this.config('colors') as string[]
-          const labels = this.config('labels') as string[]
-          sel
-            .attr('data-series', (d: DotDatum) => d.colorIndex)
-            .attr('cx', (d: DotDatum) => xPos(labels.indexOf(d.label)))
-            .attr('cy', (d: DotDatum) => y(d.value))
-            .attr('r', 3)
-            .attr('fill', (d: DotDatum) => colors[d.colorIndex % colors.length])
-        },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        'merge:transition': (sel: any) => {
-          const xPos = this.config('xPos') as (i: number) => number
-          const y = this.config('y') as d3.ScaleLinear<number, number>
-          const colors = this.config('colors') as string[]
-          const labels = this.config('labels') as string[]
-          sel.duration(getDefaultTransitionMs())
-            .attr('data-series', (d: DotDatum) => d.colorIndex)
-            .attr('cx', (d: DotDatum) => xPos(labels.indexOf(d.label)))
-            .attr('cy', (d: DotDatum) => y(d.value))
-            .attr('r', 3)
-            .attr('fill', (d: DotDatum) => colors[d.colorIndex % colors.length])
-        },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        'exit:transition': (sel: any) => {
-          sel.duration(getDefaultTransitionMs())
-            .attr('opacity', 0)
-            .remove()
-        },
-      },
-    })
-  }
-}
-
 export function render(
   container: HTMLElement,
   inputData: ChartData,
@@ -226,7 +56,6 @@ export function render(
   // Preserve existing data elements for smooth D3 data-join transitions
   let priorAreas: Element[] = []
   let priorLines: Element[] = []
-  let priorDots: Element[] = []
   let priorSymbolsGroups: Element[] = []
   let fadeOverlay: HTMLElement | null = null
   let priorAnnotations: Map<string, AnnotationSnapshot> | undefined
@@ -239,7 +68,6 @@ export function render(
     if (cached?.chartType === 'line-multi') {
       priorAreas = Array.from(container.querySelectorAll('.bc-frame .bc-area'))
       priorLines = Array.from(container.querySelectorAll('.bc-frame .bc-line'))
-      priorDots = Array.from(container.querySelectorAll('.bc-frame .bc-dot'))
       priorSymbolsGroups = Array.from(container.querySelectorAll('.bc-frame .bc-symbols'))
     }
     else if (cached) {
@@ -393,33 +221,109 @@ export function render(
   // Build colorize target set for dimming non-targeted series
   const highlightTargets = new Set((options.highlights ?? []).map(h => h.target))
 
-  const chart = new LineMultiChart(d3.select(clippedArea))
-  chart.config({ xPos, y, colors, labels: data.labels, curve, areaFill: options.areaFill ?? false, areaFillOpacity: options.areaFillOpacity ?? 0.2, height, dots: dotData, highlightTargets })
+  const areaFillOn = options.areaFill ?? false
+  const areaFillOpacity = options.areaFillOpacity ?? 0.2
+  const seriesColorFor = (d: SeriesDatum) =>
+    colorOverrides.get(d.name) ?? resolveSeriesColor(d.name, d.colorIndex, colors, overrides)
+  const areaGen = d3.area<number>().curve(curve).x((_v, i) => xPos(i)).y0(height).y1(v => y(v) as number)
 
-  // Drop priors whose series no longer exists in the new scene so they vanish
-  // immediately instead of lingering through the exit transition.
+  // Marks are driven through the SceneTransition orchestrator's featureJoin so
+  // they tween (resize) on the same `bc-scene` clock as the frame-geometry tween
+  // below — instead of snapping. Per-series styling (color/width/dash/interp/
+  // highlight) is folded into `attrs` so the orchestrator tweens it on one clock;
+  // there is no post-draw `.each()` pass because featureJoin defers DOM creation
+  // to commit(). Captured prior marks (for series that persist) are re-inserted
+  // into the featureJoin layers so the data-join matches them as updates.
+  const orch = getSceneTransition(container)
+  const areaLayer = d3.select(clippedArea).append('g').node() as SVGGElement
+  const lineLayer = d3.select(clippedArea).append('g').node() as SVGGElement
+  // Drop priors whose series no longer exists so they vanish immediately
+  // (not reinserted = removed by replaceChildren) instead of exit-fading.
   const nextSeriesNames = new Set(seriesData.map(s => s.name))
-  const keptPriorAreas = priorAreas.filter(el => nextSeriesNames.has((el as { __data__?: SeriesDatum }).__data__?.name ?? ''))
-  const keptPriorLines = priorLines.filter(el => nextSeriesNames.has((el as { __data__?: SeriesDatum }).__data__?.name ?? ''))
-  const keptPriorDots = priorDots.filter(el => nextSeriesNames.has((el as { __data__?: DotDatum }).__data__?.series ?? ''))
-
-  // Re-insert prior elements so D3 data-join finds them and triggers merge:transition
-  if (keptPriorLines.length > 0 || keptPriorAreas.length > 0 || keptPriorDots.length > 0) {
-    const dx = marginDelta?.dx ?? 0
-    const dy = marginDelta?.dy ?? 0
-    const groups = clippedArea.querySelectorAll(':scope > g')
-    if (groups[0]) {
-      reinsertWithOffset(groups[0], keptPriorAreas, dx, dy)
+  if (transition) {
+    for (const el of priorAreas) {
+      if (nextSeriesNames.has((el as { __data__?: SeriesDatum }).__data__?.name ?? '')) {
+        areaLayer.appendChild(el)
+      }
     }
-    if (groups[1]) {
-      reinsertWithOffset(groups[1], keptPriorLines, dx, dy)
-    }
-    if (groups[2]) {
-      reinsertWithOffset(groups[2], keptPriorDots, dx, dy)
+    for (const el of priorLines) {
+      if (nextSeriesNames.has((el as { __data__?: SeriesDatum }).__data__?.name ?? '')) {
+        lineLayer.appendChild(el)
+      }
     }
   }
 
-  chart.draw(seriesData)
+  featureJoin<SeriesDatum>(orch, {
+    role: 'series-path',
+    parent: areaLayer,
+    selector: '.bc-area',
+    data: areaFillOn ? seriesData : [],
+    key: d => d.name,
+    insert: sel => sel.append('path').attr('class', 'bc-area'),
+    attrs: d => ({
+      'data-series': d.colorIndex,
+      'd': areaGen(d.values) ?? '',
+      'fill': seriesColorFor(d),
+      'opacity': highlightOpacity(highlightTargets, d.name, areaFillOpacity),
+    }),
+  })
+
+  featureJoin<SeriesDatum>(orch, {
+    role: 'series-path',
+    parent: lineLayer,
+    selector: '.bc-line',
+    data: seriesData,
+    key: d => d.name,
+    insert: sel => sel.append('path').attr('class', 'bc-line'),
+    attrs: (d) => {
+      const seriesInterp = resolveSeriesInterpolation(d.name, options.interpolation ?? 'linear', overrides)
+      const lineGen = d3.line<number>().curve(resolveCurve(seriesInterp)).x((_v, i) => xPos(i)).y(v => y(v) as number)
+      return {
+        'data-series': d.colorIndex,
+        'd': lineGen(d.values) ?? '',
+        'fill': 'none',
+        'stroke': seriesColorFor(d),
+        'stroke-width': resolveSeriesWidth(d.name, overrides),
+        'stroke-dasharray': DASH_MAP[resolveSeriesDash(d.name, overrides)] ?? '',
+        'opacity': highlightOpacity(highlightTargets, d.name, 1),
+      }
+    },
+  })
+
+  // Invisible dots: re-derived each render (proximity handles interaction). Rendered
+  // fresh so the count always tracks the current data — they ride the group transform.
+  const dotsLayer = d3.select(clippedArea).append('g')
+  dotsLayer.selectAll<SVGCircleElement, DotDatum>('.bc-dot')
+    .data(dotData, d => d.label + '\0' + d.series)
+    .enter()
+    .append('circle')
+    .attr('class', 'bc-dot')
+    .attr('data-series', d => d.colorIndex)
+    .attr('cx', d => xPos(data.labels.indexOf(d.label)))
+    .attr('cy', d => y(d.value) as number)
+    .attr('r', 3)
+    .attr('fill', d => seriesColorFor({ name: d.series, values: [], colorIndex: d.colorIndex }))
+    .attr('fill-opacity', 0)
+    .attr('stroke-opacity', 0)
+    .attr('pointer-events', 'none')
+
+  // Frame-geometry tween: ease the plot origin (chart-area transform) + clip from
+  // the prior scene's rect to the new one on the SAME orchestrator clock, so the
+  // marks (above), legend and axis move in lockstep. Same-type only.
+  if (transition && priorMargin && (priorLines.length > 0 || priorAreas.length > 0)) {
+    const pm = priorMargin
+    const totalW = width + margin.left + margin.right
+    const totalH = height + margin.top + margin.bottom
+    const priorRect: PlotRect = {
+      left: pm.left,
+      top: pm.top,
+      width: totalW - pm.left - pm.right,
+      height: totalH - pm.top - pm.bottom,
+    }
+    const newRect: PlotRect = { left: margin.left, top: margin.top, width, height }
+    const clipRect = svg.querySelector(`#${clipId} rect`) as SVGRectElement | null
+    tweenFrameGeometry(orch, { group: chartArea, clipRect, from: priorRect, to: newRect })
+  }
 
   if (options.annotations?.length) {
     const annotationData = data.labels.map((l, i) => ({
@@ -447,55 +351,6 @@ export function render(
       .attr('fill', 'currentColor')
       .text(String(dot.value))
   })
-
-  // Apply per-series overrides, colors, and highlight dimming to lines
-  d3.select(clippedArea).selectAll<SVGPathElement, unknown>('.bc-line').each(function (d) {
-    const datum = d as SeriesDatum
-    const seriesColor = resolveSeriesColor(datum.name, datum.colorIndex, colors, overrides)
-    const seriesWidth = resolveSeriesWidth(datum.name, overrides)
-    const seriesDash = resolveSeriesDash(datum.name, overrides)
-    const seriesInterp = resolveSeriesInterpolation(datum.name, options.interpolation ?? 'linear', overrides)
-
-    const el = (transition
-      ? d3.select(this).transition().duration(getDefaultTransitionMs())
-      : d3.select(this)) as d3.Selection<SVGPathElement, unknown, null, undefined>
-    el.attr('stroke', colorOverrides.get(datum.name) ?? seriesColor)
-      .attr('stroke-width', seriesWidth)
-
-    el.attr('opacity', highlightOpacity(highlightTargets, datum.name, 1))
-
-    if (seriesDash !== 'solid') {
-      // Dash array can't be interpolated; apply immediately
-      d3.select(this).attr('stroke-dasharray', DASH_MAP[seriesDash] ?? '')
-    }
-
-    // Re-generate path if interpolation differs from global
-    if (seriesInterp !== (options.interpolation ?? 'linear')) {
-      const perCurve = resolveCurve(seriesInterp)
-      const lineGen = d3.line<number>()
-        .curve(perCurve)
-        .x((_v, i) => xPos(i))
-        .y(v => y(v))
-      el.attr('d', lineGen(datum.values))
-    }
-  })
-
-  // Apply per-series colors and highlight dimming to area fills
-  d3.select(clippedArea).selectAll<SVGPathElement, unknown>('.bc-area').each(function (d) {
-    const datum = d as SeriesDatum
-    const seriesColor = resolveSeriesColor(datum.name, datum.colorIndex, colors, overrides)
-    const el = transition
-      ? d3.select(this).transition().duration(getDefaultTransitionMs())
-      : d3.select(this)
-    el.attr('fill', colorOverrides.get(datum.name) ?? seriesColor)
-    el.attr('opacity', highlightOpacity(highlightTargets, datum.name, options.areaFillOpacity ?? 0.2))
-  })
-
-  // Default dots are invisible; proximity interaction handles tooltips/crosshair
-  d3.select(clippedArea).selectAll('.bc-dot')
-    .attr('fill-opacity', 0)
-    .attr('stroke-opacity', 0)
-    .attr('pointer-events', 'none')
 
   if (options.tooltips || options.crosshair) {
     const proximityPoints = dotData.map(d => ({
