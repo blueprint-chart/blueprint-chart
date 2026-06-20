@@ -1,6 +1,5 @@
 import * as d3 from 'd3'
 import 'd3-transition'
-import { D3Blueprint } from 'd3-blueprint'
 import type { ChartData, ChartOptions } from '../../types'
 import { createFrame } from '../../frame/frame'
 import { createCanvas, contentSize, labelPositionMargins, estimateVerticalLabelWidth, computeMarginDelta } from '../../canvas/canvas'
@@ -13,9 +12,9 @@ import { renderAnnotations, snapshotAnnotations, type AnnotationSnapshot } from 
 import { resolveBackgroundColor } from '../../contrast'
 import { setupProximityInteraction, disposeProximityFor } from '../../plugins/proximity'
 import { ensureClipPath } from '../../clip-path-helper'
-import { getDefaultTransitionMs, setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut, reinsertWithOffset } from '../../motion'
+import { setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut } from '../../motion'
 import { setCachedChart, getCachedChart } from '../../transition-cache'
-import { interpolatePath } from '../../../transitions/interpolate-path'
+import { featureJoin, getSceneTransition, tweenFrameGeometry, type PlotRect } from '../../../transitions'
 import { computeStack, computeStack100 } from '../../stack-helpers'
 import { filterLabelsByRange } from '../../scale-helpers'
 import { resolveSeriesColor, resolveSeriesInterpolation, isSeriesHidden, resolveSeriesLabelMode } from '../../series-helpers'
@@ -33,137 +32,6 @@ interface StackedAreaDatum {
   name: string
   points: [number, number][] // [y0, y1] pairs
   colorIndex: number
-}
-
-class AreaStackedChart extends D3Blueprint<StackedAreaDatum[]> {
-  initialize() {
-    this.configDefine('xPos', { defaultValue: (_i: number) => 0 })
-    this.configDefine('colors', { defaultValue: DEFAULT_COLORS })
-    this.configDefine('curve', { defaultValue: d3.curveMonotoneX })
-    this.configDefine('areaFillOpacity', { defaultValue: 0.85 })
-    this.configDefine('highlightTargets', { defaultValue: new Set<string>() })
-
-    const areaGroup = this.base.append('g')
-    const lineGroup = this.base.append('g')
-
-    this.layer('stacked-areas', areaGroup, {
-      dataBind: (sel, data) => sel.selectAll<Element, StackedAreaDatum>('.bc-area').data(data, d => d.name),
-      insert: sel => sel.append('path').attr('class', 'bc-area'),
-      events: {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        'enter': (sel: any) => {
-          const xPos = this.config('xPos') as (i: number) => number
-          const colors = this.config('colors') as string[]
-          const curve = this.config('curve') as d3.CurveFactory
-          const opacity = this.config('areaFillOpacity') as number
-          const hl = this.config('highlightTargets') as Set<string>
-          const hasHl = hl.size > 0
-          sel
-            .attr('data-series', (d: StackedAreaDatum) => d.colorIndex)
-            .attr('fill', (d: StackedAreaDatum) => colors[d.colorIndex % colors.length])
-            .attr('opacity', (d: StackedAreaDatum) => hasHl ? highlightOpacity(hl, d.name, opacity) : opacity)
-            .attr('d', (d: StackedAreaDatum) => {
-              const areaGen = d3.area<[number, number]>()
-                .curve(curve)
-                .x((_v, i) => xPos(i))
-                .y0(p => p[0])
-                .y1(p => p[1])
-              return areaGen(d.points)
-            })
-        },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        'merge:transition': (sel: any) => {
-          const xPos = this.config('xPos') as (i: number) => number
-          const colors = this.config('colors') as string[]
-          const curve = this.config('curve') as d3.CurveFactory
-          const opacity = this.config('areaFillOpacity') as number
-          const hl = this.config('highlightTargets') as Set<string>
-          const hasHl = hl.size > 0
-          sel.duration(getDefaultTransitionMs())
-            .attr('data-series', (d: StackedAreaDatum) => d.colorIndex)
-            .attr('fill', (d: StackedAreaDatum) => colors[d.colorIndex % colors.length])
-            .attr('opacity', (d: StackedAreaDatum) => hasHl ? highlightOpacity(hl, d.name, opacity) : opacity)
-            // Point-wise path tween: d3's default `d` string interpolation fuses
-            // area coordinates into garbage when the scale changes. interpolatePath
-            // blends matching paths point-by-point and reads the live "from" at
-            // tween start (invariant I4).
-            .attrTween('d', function (this: Element, d: StackedAreaDatum) {
-              const areaGen = d3.area<[number, number]>()
-                .curve(curve)
-                .x((_v, i) => xPos(i))
-                .y0(p => p[0])
-                .y1(p => p[1])
-              const target = areaGen(d.points) ?? ''
-              const from = this.getAttribute('d') ?? target
-              return interpolatePath(from, target)
-            })
-        },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        'exit:transition': (sel: any) => {
-          sel.duration(getDefaultTransitionMs())
-            .attr('opacity', 0)
-            .remove()
-        },
-      },
-    })
-
-    this.layer('line-edges', lineGroup, {
-      dataBind: (sel, data) => sel.selectAll<Element, StackedAreaDatum>('.bc-line').data(data, d => d.name),
-      insert: sel => sel.append('path').attr('class', 'bc-line'),
-      events: {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        'enter': (sel: any) => {
-          const xPos = this.config('xPos') as (i: number) => number
-          const colors = this.config('colors') as string[]
-          const curve = this.config('curve') as d3.CurveFactory
-          const hl = this.config('highlightTargets') as Set<string>
-          const hasHl = hl.size > 0
-          sel
-            .attr('data-series', (d: StackedAreaDatum) => d.colorIndex)
-            .attr('fill', 'none')
-            .attr('stroke', (d: StackedAreaDatum) => colors[d.colorIndex % colors.length])
-            .attr('stroke-width', 1)
-            .attr('opacity', (d: StackedAreaDatum) => hasHl ? highlightOpacity(hl, d.name, 1) : null)
-            .attr('d', (d: StackedAreaDatum) => {
-              const lineGen = d3.line<[number, number]>()
-                .curve(curve)
-                .x((_v, i) => xPos(i))
-                .y(p => p[1])
-              return lineGen(d.points)
-            })
-        },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        'merge:transition': (sel: any) => {
-          const xPos = this.config('xPos') as (i: number) => number
-          const colors = this.config('colors') as string[]
-          const curve = this.config('curve') as d3.CurveFactory
-          const hl = this.config('highlightTargets') as Set<string>
-          const hasHl = hl.size > 0
-          sel.duration(getDefaultTransitionMs())
-            .attr('data-series', (d: StackedAreaDatum) => d.colorIndex)
-            .attr('fill', 'none')
-            .attr('stroke', (d: StackedAreaDatum) => colors[d.colorIndex % colors.length])
-            .attr('stroke-width', 1)
-            .attr('opacity', (d: StackedAreaDatum) => hasHl ? highlightOpacity(hl, d.name, 1) : null)
-            .attrTween('d', function (this: Element, d: StackedAreaDatum) {
-              const lineGen = d3.line<[number, number]>()
-                .curve(curve)
-                .x((_v, i) => xPos(i))
-                .y(p => p[1])
-              const target = lineGen(d.points) ?? ''
-              const from = this.getAttribute('d') ?? target
-              return interpolatePath(from, target)
-            })
-        },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        'exit:transition': (sel: any) => {
-          sel.duration(getDefaultTransitionMs())
-            .attr('opacity', 0)
-            .remove()
-        },
-      },
-    })
-  }
 }
 
 export function render(
@@ -370,61 +238,82 @@ export function render(
   const hasHighlights = highlightTargets.size > 0
 
   const resolvedOpacity = options.areaFillOpacity != null ? options.areaFillOpacity : 0.85
-  const chart = new AreaStackedChart(d3.select(clippedArea))
-  chart.config({ xPos, colors, curve, areaFillOpacity: resolvedOpacity, highlightTargets })
+  const seriesColorFor = (d: StackedAreaDatum): string =>
+    colorOverrides.get(d.name) ?? resolveSeriesColor(d.name, d.colorIndex, colors, overrides)
+  const areaGen = d3.area<[number, number]>().curve(curve).x((_v, i) => xPos(i)).y0(p => p[0]).y1(p => p[1])
 
-  // Re-insert prior elements so D3 data-join finds them and triggers merge:transition
-  if (priorAreas.length > 0 || priorLines.length > 0) {
-    const dx = marginDelta?.dx ?? 0
-    const dy = marginDelta?.dy ?? 0
-    const groups = clippedArea.querySelectorAll(':scope > g')
-    if (groups[0]) {
-      reinsertWithOffset(groups[0], priorAreas, dx, dy)
+  // Marks are driven through the SceneTransition orchestrator's featureJoin so
+  // they tween (resize) on the same `bc-scene` clock as the frame-geometry tween
+  // below — instead of snapping. Captured prior marks are re-inserted (with their
+  // bound data) into the featureJoin layers so the data-join matches them as
+  // updates: that gives the tween its "from" shape, which a plain rebuild lacks.
+  const areaLayer = d3.select(clippedArea).append('g').node() as SVGGElement
+  const lineLayer = d3.select(clippedArea).append('g').node() as SVGGElement
+  if (transition) {
+    for (const el of priorAreas) {
+      areaLayer.appendChild(el)
     }
-    if (groups[1]) {
-      reinsertWithOffset(groups[1], priorLines, dx, dy)
+    for (const el of priorLines) {
+      lineLayer.appendChild(el)
     }
   }
+  const orch = getSceneTransition(container)
 
-  chart.draw(stackedAreaData)
-
-  // Apply per-series color overrides and highlight dimming
-  d3.select(clippedArea).selectAll<SVGPathElement, unknown>('.bc-area').each(function (d) {
-    const datum = d as StackedAreaDatum
-    const seriesColor = colorOverrides.get(datum.name) ?? resolveSeriesColor(datum.name, datum.colorIndex, colors, overrides)
-    const el = transition
-      ? d3.select(this).transition().duration(getDefaultTransitionMs())
-      : d3.select(this)
-    el.attr('fill', seriesColor)
-    if (hasHighlights) {
-      el.attr('opacity', highlightOpacity(highlightTargets, datum.name, resolvedOpacity))
-    }
+  featureJoin<StackedAreaDatum>(orch, {
+    role: 'series-path',
+    parent: areaLayer,
+    selector: '.bc-area',
+    data: stackedAreaData,
+    key: d => d.name,
+    insert: sel => sel.append('path').attr('class', 'bc-area'),
+    attrs: d => ({
+      'data-series': d.colorIndex,
+      'd': areaGen(d.points) ?? '',
+      'fill': seriesColorFor(d),
+      'opacity': hasHighlights ? highlightOpacity(highlightTargets, d.name, resolvedOpacity) : resolvedOpacity,
+    }),
   })
 
-  if (!showAreaLines) {
-    d3.select(clippedArea).selectAll('.bc-line').attr('display', 'none')
+  if (showAreaLines) {
+    featureJoin<StackedAreaDatum>(orch, {
+      role: 'series-path',
+      parent: lineLayer,
+      selector: '.bc-line',
+      data: stackedAreaData,
+      key: d => d.name,
+      insert: sel => sel.append('path').attr('class', 'bc-line'),
+      attrs: (d) => {
+        const seriesInterp = resolveSeriesInterpolation(d.name, options.interpolation ?? 'monotoneX', overrides)
+        const lineGen = d3.line<[number, number]>().curve(resolveCurve(seriesInterp)).x((_v, i) => xPos(i)).y(p => p[1])
+        return {
+          'data-series': d.colorIndex,
+          'd': lineGen(d.points) ?? '',
+          'fill': 'none',
+          'stroke': seriesColorFor(d),
+          'stroke-width': 1,
+          'opacity': hasHighlights ? highlightOpacity(highlightTargets, d.name, 1) : 1,
+        }
+      },
+    })
   }
 
-  d3.select(clippedArea).selectAll<SVGPathElement, unknown>('.bc-line').each(function (d) {
-    const datum = d as StackedAreaDatum
-    const seriesColor = colorOverrides.get(datum.name) ?? resolveSeriesColor(datum.name, datum.colorIndex, colors, overrides)
-    const seriesInterp = resolveSeriesInterpolation(datum.name, options.interpolation ?? 'monotoneX', overrides)
-    const el = transition
-      ? d3.select(this).transition().duration(getDefaultTransitionMs())
-      : d3.select(this)
-    el.attr('stroke', seriesColor)
-    if (hasHighlights) {
-      el.attr('opacity', highlightOpacity(highlightTargets, datum.name, 1))
+  // Frame-geometry tween: ease the plot origin (chart-area transform) + clip from
+  // the prior scene's rect to the new one on the SAME orchestrator clock, so the
+  // marks (above), legend and axis move in lockstep. Same-type only.
+  if (transition && priorMargin && (priorAreas.length > 0 || priorLines.length > 0)) {
+    const pm = priorMargin as { top: number, left: number, right: number, bottom: number }
+    const totalW = width + margin.left + margin.right
+    const totalH = height + margin.top + margin.bottom
+    const priorRect: PlotRect = {
+      left: pm.left,
+      top: pm.top,
+      width: totalW - pm.left - pm.right,
+      height: totalH - pm.top - pm.bottom,
     }
-    if (seriesInterp !== (options.interpolation ?? 'monotoneX')) {
-      const perCurve = resolveCurve(seriesInterp)
-      const lineGen = d3.line<[number, number]>()
-        .curve(perCurve)
-        .x((_v, i) => xPos(i))
-        .y(p => p[1])
-      el.attr('d', lineGen(datum.points))
-    }
-  })
+    const newRect: PlotRect = { left: margin.left, top: margin.top, width, height }
+    const clipRect = svg.querySelector(`#${clipId} rect`) as SVGRectElement | null
+    tweenFrameGeometry(orch, { group: chartArea, clipRect, from: priorRect, to: newRect })
+  }
 
   if (options.annotations?.length) {
     const annotationData = data.labels.map((l, i) => ({

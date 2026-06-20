@@ -8,6 +8,7 @@ import { getChart } from '../charts/registry'
 import { buildChartOptions } from '../charts/chart-helpers'
 import { resolveBackgroundColor } from '../charts/contrast'
 import { getSceneTransition } from '../transitions'
+import { getDefaultTransitionMs } from '../charts/motion'
 
 export function renderChart(
   container: HTMLElement,
@@ -93,7 +94,9 @@ export function renderChart(
   }, !!options.transition)
 
   if (options.transition) {
-    orch.commit({ mode: options.transitionMode })
+    // Run the orchestrator clock at the per-renderer mark duration so every
+    // feature (marks, frame geometry, annotations) eases together.
+    orch.commit({ duration: getDefaultTransitionMs(), mode: options.transitionMode })
   }
 
   const theme = options.theme ?? state.theme
