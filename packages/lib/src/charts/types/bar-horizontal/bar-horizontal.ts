@@ -18,6 +18,7 @@ import { SortDirection, ValueLabelPosition, Orientation, LabelPosition } from '.
 import { featureJoin, getSceneTransition, tweenPlotFrame, type PlotRect } from '../../../transitions'
 import { createPluginHost } from '../../plugins/plugin-host'
 import { highlightOpacity } from '../../plugins/highlight'
+import { shouldRenderValueLabel } from '../../value-label-fit'
 
 export const DEFAULT_COLORS = ['#4e79a7']
 const CATEGORY_LABEL_HEIGHT = 13
@@ -586,11 +587,21 @@ function renderValueLabels(
   const container = ownerSvg?.parentElement as HTMLElement
   const orch = getSceneTransition(container)
 
+  const visibleData = barData.filter(d =>
+    shouldRenderValueLabel({
+      text: labelText(d),
+      placement: pos === ValueLabelPosition.Inside ? 'inside' : 'outside',
+      orientation: 'horizontal',
+      barWidth: Math.abs(x(d.value) - x(0)),
+      barHeight: y.bandwidth(),
+    }),
+  )
+
   featureJoin<BarDatum>(orch, {
     role: 'value-label',
     parent: labelGroup.node()!,
     selector: '.bc-value-label',
-    data: barData,
+    data: visibleData,
     key: d => d.label,
     insert: sel => sel.append('text')
       .attr('class', 'bc-value-label')
@@ -612,7 +623,7 @@ function renderValueLabels(
   // featureJoin only manages attributes, not text content. Set text content
   // for both enter and update bars in a second pass keyed by the same label.
   labelGroup.selectAll<SVGTextElement, BarDatum>('.bc-value-label')
-    .data(barData, (d: BarDatum) => d.label)
+    .data(visibleData, (d: BarDatum) => d.label)
     .text(labelText)
 }
 
