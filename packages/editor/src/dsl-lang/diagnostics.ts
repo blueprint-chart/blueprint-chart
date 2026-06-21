@@ -12,7 +12,7 @@ export function locationToOffset(doc: Text, line: number, column: number): numbe
   const safeLine = Math.min(Math.max(line, 1), doc.lines)
   const lineObj = doc.line(safeLine)
   const offset = lineObj.from + Math.max(column - 1, 0)
-  return Math.min(Math.max(offset, 0), doc.length)
+  return Math.min(Math.max(offset, 0), lineObj.to)
 }
 
 /** Map the latest parse result onto CodeMirror lint diagnostics. */

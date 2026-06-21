@@ -20,6 +20,10 @@ describe('locationToOffset', () => {
   it('clamps a non-positive column to the line start', () => {
     expect(locationToOffset(doc, 2, 0)).toBe(doc.line(2).from)
   })
+
+  it('clamps an out-of-range column to the line end', () => {
+    expect(locationToOffset(doc, 2, 9999)).toBe(doc.line(2).to)
+  })
 })
 
 describe('buildDiagnostics', () => {
