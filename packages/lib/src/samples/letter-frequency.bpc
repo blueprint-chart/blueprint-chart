@@ -7,9 +7,7 @@ chart bar-vertical {
   note = "Based on analysis of 40,000 words from English prose"
   colorPalette = "London"
   sort = descending
-  valueLabels = true
   verticalLabelPosition = off
-  verticalGridStyle = none
 
   highlight "E"
 

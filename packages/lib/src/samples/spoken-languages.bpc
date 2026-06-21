@@ -6,7 +6,6 @@ chart bar-horizontal {
   byline = "Pierre Romera"
   sort = descending
   horizontalLabelPosition = off
-  horizontalGridStyle = none
 
   highlight "Mandarin"
 

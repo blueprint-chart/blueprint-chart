@@ -5,8 +5,6 @@ chart bar-vertical {
   sourceUrl = "https://ico.org"
   colorPalette = "Harvey"
   verticalLabelPosition = "off"
-  verticalGridStyle = "none"
-  valueLabels = true
 
   data {
     "Brazil" = 66.4

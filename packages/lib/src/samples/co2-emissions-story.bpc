@@ -6,9 +6,6 @@ chart bar-horizontal {
   sourceUrl = "https://globalcarbonproject.org"
   byline = "Pierre Romera"
   horizontalLabelPosition = off
-  horizontalGridStyle = none
-  // print each bar's value at its tip
-  valueLabels = true
 
   // one row per country: "label" = value
   data {

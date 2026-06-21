@@ -3,7 +3,6 @@ chart bar-stacked {
   description = "Millions of people, 2023"
   source = "UN Population Division"
   sourceUrl = "https://population.un.org"
-  horizontalGridStyle = none
   horizontalLabelPosition = off
 
   data {

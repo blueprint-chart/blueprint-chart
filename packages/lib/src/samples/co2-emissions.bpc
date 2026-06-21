@@ -5,9 +5,6 @@ chart bar-vertical {
   source = "Global Carbon Project"
   sourceUrl = "https://globalcarbonproject.org"
   verticalLabelPosition = "off"
-  verticalGridStyle = "none"
-  // print each bar's value at its tip
-  valueLabels = true
 
   // one row per country: "label" = value
   data {
