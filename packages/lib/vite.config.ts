@@ -18,7 +18,11 @@ export default defineConfig({
       fileName: 'index',
     },
     rollupOptions: {
-      external: ['d3', 'd3-blueprint', 'd3-transition', 'chroma-js', 'dayjs', '@floating-ui/dom'],
+      external: [
+        'd3', 'd3-blueprint', 'd3-transition', 'chroma-js', 'dayjs', '@floating-ui/dom',
+        '@blueprint-chart/lib/internal/node-backend',
+        'jsdom', '@napi-rs/canvas', '@resvg/resvg-js',
+      ],
     },
   },
   test: {

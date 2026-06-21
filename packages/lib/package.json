@@ -32,6 +32,11 @@
       "import": "./dist/index.js",
       "default": "./dist/index.js"
     },
+    "./internal/node-backend": {
+      "node": "./dist/node-backend/index.js",
+      "browser": "./dist/node-backend/browser.js",
+      "default": "./dist/node-backend/browser.js"
+    },
     "./charts.scss": "./src/charts/chart.scss",
     "./src/charts/chart.scss": "./src/charts/chart.scss"
   },
@@ -49,7 +54,7 @@
     "generate:parser": "peggy --format es -o src/dsl/grammar.js src/dsl/grammar.peggy",
     "prebuild": "pnpm run generate:parser",
     "pretest": "pnpm run generate:parser",
-    "build": "vite build && vite build -c vite.lib.config.ts",
+    "build": "vite build && vite build -c vite.lib.config.ts && vite build -c vite.node-backend.config.ts",
     "test": "vitest run"
   },
   "dependencies": {
