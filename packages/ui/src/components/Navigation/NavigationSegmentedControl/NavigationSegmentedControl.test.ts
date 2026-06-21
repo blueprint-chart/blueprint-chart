@@ -55,4 +55,16 @@ describe('NavigationSegmentedControl', () => {
     expect(wrapper.find('.navigation-segmented-control').classes())
       .toContain('navigation-segmented-control--sm')
   })
+
+  it('applies icon-only modifier class when iconOnly is set', () => {
+    const wrapper = mount(NavigationSegmentedControl, { props: { items, iconOnly: true } })
+    expect(wrapper.find('.navigation-segmented-control').classes())
+      .toContain('navigation-segmented-control--icon-only')
+  })
+
+  it('renders the per-item title as a tooltip on the option', () => {
+    const titled = [{ key: 'grid', text: 'Grid', title: 'Grid view', active: true }]
+    const wrapper = mount(NavigationSegmentedControl, { props: { items: titled } })
+    expect(wrapper.find('.navigation-segmented-control__option').attributes('title')).toBe('Grid view')
+  })
 })

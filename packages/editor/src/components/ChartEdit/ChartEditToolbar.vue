@@ -12,7 +12,7 @@
       v-model="viewModeModel"
       :options="viewModeOptions"
       size="sm"
-      class="chart-edit-toolbar__view-toggle"
+      icon-only
     />
   </div>
 </template>
@@ -67,21 +67,6 @@ const viewModeOptions = computed(() => {
 
   .navigation-pill {
     margin-left: auto;
-  }
-
-  // Icon-only view toggle: hide the text labels, keep the icons; the tooltip
-  // (title) carries the mode name.
-  &__view-toggle {
-    // Equal padding on both axes so each option (and its active fill) is a
-    // square icon button rather than a wide pill — the icon is already 1em²,
-    // and the horizontal padding var sizes the square to the control height.
-    :deep(.navigation-segmented-control__option) {
-      padding: var(--segmented-option-padding-x);
-    }
-
-    :deep(.navigation-segmented-control__option__label) {
-      display: none;
-    }
   }
 }
 </style>

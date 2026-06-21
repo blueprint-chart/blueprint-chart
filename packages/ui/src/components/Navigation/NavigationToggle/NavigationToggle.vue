@@ -2,6 +2,7 @@
   <NavigationSegmentedControl
     :items="segmentedItems"
     :size="size"
+    :icon-only="iconOnly"
     @select="onSelect"
   >
     <slot />
@@ -18,9 +19,11 @@ const model = defineModel<string>({ required: true })
 const props = withDefaults(defineProps<{
   options?: { value: string, text: string, icon?: Component, title?: string, disabled?: boolean }[]
   size?: 'sm' | 'md'
+  iconOnly?: boolean
 }>(), {
   options: () => [],
   size: 'md',
+  iconOnly: false,
 })
 
 const { entries } = useChildEntriesProvider(ToggleEntriesKey)

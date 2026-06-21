@@ -1,7 +1,7 @@
 <template>
   <nav
     class="navigation-segmented-control"
-    :class="sizeClass"
+    :class="[sizeClass, { 'navigation-segmented-control--icon-only': iconOnly }]"
     :aria-label="ariaLabel"
   >
     <slot />
@@ -47,9 +47,12 @@ const props = withDefaults(defineProps<{
   items: NavigationSegmentedControlItem[]
   ariaLabel?: string
   size?: 'sm' | 'md'
+  /** Hide labels and render each option as a square icon button (icons required). */
+  iconOnly?: boolean
 }>(), {
   ariaLabel: undefined,
   size: 'md',
+  iconOnly: false,
 })
 
 const emit = defineEmits<{
@@ -66,6 +69,18 @@ function onSelect(item: NavigationSegmentedControlItem) {
 </script>
 
 <style scoped lang="scss">
+// Square icon button: with the label hidden, the only child is the 1em² icon,
+// so equal padding on every side yields a square option (and active fill)
+// instead of a wide pill. Deliberately NOT using align-self:stretch or
+// aspect-ratio — combined they balloon the option to the row height.
+@mixin square-icon-option {
+  justify-content: center;
+  // 1em icon + equal padding → a square that fills most of the control height
+  // (min-height ~2rem) without exceeding it, so the control never grows.
+  padding: 0.375rem;
+  gap: 0;
+}
+
 .navigation-segmented-control {
   display: inline-flex;
   align-items: center;
@@ -142,12 +157,27 @@ function onSelect(item: NavigationSegmentedControlItem) {
     }
   }
 
+  // Explicit icon-only mode: labels hidden, every option square, at all widths.
+  &--icon-only &__option {
+    @include square-icon-option;
+
+    .navigation-segmented-control__option__label {
+      display: none;
+    }
+  }
+
   @media (max-width: 575.98px) {
     &__option {
       padding-left: 0.5rem;
       padding-right: 0.5rem;
+    }
 
-      &:has(.navigation-segmented-control__option__icon) .navigation-segmented-control__option__label {
+    // Icon options collapse to square icon-only buttons when there is no room
+    // for the label.
+    &__option:has(.navigation-segmented-control__option__icon) {
+      @include square-icon-option;
+
+      .navigation-segmented-control__option__label {
         display: none;
       }
     }
