@@ -24,17 +24,23 @@ export function createDomBackend(): RenderBackend {
       const frameBody = container.querySelector('.bc-frame-body')
       const svg = (frameBody ? frameBody.querySelector('svg') : container.querySelector('svg'))
       const markup = svg?.outerHTML ?? ''
-      if (!markup) throw new Error('dom-backend: renderToContainer produced no SVG')
+      if (!markup) {
+        throw new Error('dom-backend: renderToContainer produced no SVG')
+      }
       return markup.includes('xmlns="http://www.w3.org/2000/svg"')
         ? markup
         : markup.replace(/^<svg(?=\s|>)/, '<svg xmlns="http://www.w3.org/2000/svg"')
     },
     serializeFrame(container: HTMLElement): string {
       const frame = container.querySelector('.bc-frame')
-      if (frame) return frame.outerHTML
+      if (frame) {
+        return frame.outerHTML
+      }
       // Fallback: thumbnail mode — no frame, return the SVG serialization.
       const svg = container.querySelector('svg')
-      if (svg) return this.serializeSvg(container)
+      if (svg) {
+        return this.serializeSvg(container)
+      }
       throw new Error('dom-backend: renderToContainer produced no frame')
     },
     rasterizePng(): Promise<Uint8Array> {

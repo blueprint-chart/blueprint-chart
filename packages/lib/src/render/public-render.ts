@@ -36,7 +36,9 @@ function hasDom(): boolean {
 /** Internal; exported for tests. Picks the DOM backend in a browser-like env,
  *  else dynamically loads the Node backend via the conditional subpath export. */
 export async function selectBackend(): Promise<RenderBackend> {
-  if (hasDom()) return createDomBackend()
+  if (hasDom()) {
+    return createDomBackend()
+  }
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore – no type declarations for conditional subpath export; resolved at runtime
   const mod = await import('@blueprint-chart/lib/internal/node-backend') as { createNodeBackend: () => RenderBackend }
@@ -107,7 +109,9 @@ export async function render(source: string, options: RenderApiOptions = {}): Pr
         return handle
       }
       const el = typeof target === 'string' ? document.querySelector(target) : target
-      if (!el) throw new Error(`Blueprint Chart: mount target "${String(target)}" not found`)
+      if (!el) {
+        throw new Error(`Blueprint Chart: mount target "${String(target)}" not found`)
+      }
       renderInto(el as HTMLElement)
       return handle
     },
