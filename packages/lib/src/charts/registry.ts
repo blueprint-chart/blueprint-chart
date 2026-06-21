@@ -357,8 +357,8 @@ function axisOpts(defaults: {
   ]
 }
 
-// Vertical bars: value axis is vertical → horizontal dashed grid, no vertical grid, no ticks on category axis, no vertical axis line
-const barVerticalAxisOpts = axisOpts({ verticalGrid: GridStyle.Dashed, horizontalGrid: GridStyle.None, showVerticalTicks: false, showHorizontalTicks: false, showVerticalAxis: false, valueAxis: 'vertical', valueAxisZeroBaseline: true })
+// Vertical bars: value axis is vertical → no vertical grid (direct labels carry value), no horizontal grid, no ticks, no vertical axis line
+const barVerticalAxisOpts = axisOpts({ verticalGrid: GridStyle.None, horizontalGrid: GridStyle.None, showVerticalTicks: false, showHorizontalTicks: false, showVerticalAxis: false, valueAxis: 'vertical', valueAxisZeroBaseline: true })
 
 // Horizontal bars: value axis is horizontal → vertical dashed grid, no horizontal grid, no ticks on category axis
 const barHorizontalAxisOpts = axisOpts({ verticalGrid: GridStyle.None, horizontalGrid: GridStyle.Dashed, showVerticalTicks: false, showHorizontalTicks: false, valueAxis: 'horizontal', valueAxisZeroBaseline: true })
@@ -385,6 +385,8 @@ const lineMultiLineSymbolsOpt: ChartOptionDef = { ...lineSymbolsOpt, default: tr
 const sortByTotalOpt: ChartOptionDef = { ...sortModeOpt, default: SortMode.Total }
 // Horizontal bars: value labels at end of bar are a best practice for readability
 const barHorizontalValueLabelsOpt: ChartOptionDef = { ...valueLabelsOpt, default: true }
+// Bar charts default to direct value labels on each bar (no value axis).
+const barValueLabelsOpt: ChartOptionDef = { ...valueLabelsOpt, default: true }
 // Pie: display as percentage (pies show proportions), limit to 5 slices (not 6)
 const pieDisplayAsPercentageOpt: ChartOptionDef = { ...displayAsPercentageOpt, default: true }
 const pieSliceMaxOpt: ChartOptionDef = { ...sliceMaxOpt, default: '5' }
@@ -403,7 +405,7 @@ const legendOffOpt: ChartOptionDef = { ...legendOpt, default: false }
 // Register all chart types
 const crosshairOpts = [crosshairOpt, crosshairDirectionOpt, crosshairStyleOpt, crosshairColorOpt]
 const lineCrosshairOpts = [lineCrosshairToggleOpt, lineCrosshairDirectionOpt, crosshairStyleOpt, crosshairColorOpt]
-const barOpts = [valueLabelsOpt, valueLabelPositionOpt, tooltipsOpt, ...crosshairOpts]
+const barOpts = [barValueLabelsOpt, valueLabelPositionOpt, tooltipsOpt, ...crosshairOpts]
 const barHorizontalOpts = [barHorizontalValueLabelsOpt, valueLabelPositionOpt, tooltipsOpt, ...crosshairOpts]
 const lineSymbolOpts = [lineSymbolsOpt, lineSymbolShapeOpt, lineSymbolShowOnOpt, lineSymbolStyleOpt, lineSymbolSizeOpt, lineSymbolOpacityOpt]
 // LineMulti-specific: symbol toggle on by default; other symbol options inherited.

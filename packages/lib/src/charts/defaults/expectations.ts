@@ -24,7 +24,6 @@ const RULE_WHEN_TO_USE_LEGENDS = 'wiki/concepts/labels-and-legends.md § When to
 const RULE_VALUE_LABELS = 'wiki/concepts/labels-and-legends.md § Value labels'
 const RULE_NEVER_ROTATE = 'wiki/concepts/handbook-typography.md § Readability rules'
 const RULE_HANDBOOK_BAR_HORIZONTAL = 'wiki/concepts/handbook-chart-types.md § Bar Chart (Horizontal)'
-const RULE_HANDBOOK_BAR_VERTICAL = 'wiki/concepts/handbook-chart-types.md § Bar Chart (Vertical)'
 const RULE_HANDBOOK_LINE_MULTI = 'wiki/concepts/handbook-chart-types.md § Multi-series Line Chart'
 const RULE_GRIDLINES_Y_AXIS = 'wiki/concepts/axes-and-grid-lines.md § Grid lines'
 const RULE_TICKS_SUBTLE = 'wiki/concepts/axes-and-grid-lines.md § Tick marks'
@@ -42,6 +41,7 @@ const RULE_STACKING_VARIANTS = 'wiki/concepts/handbook-chart-types.md § Stacked
 const RULE_SORT_DESCENDING = 'wiki/concepts/handbook-chart-types.md § Bar Chart (Vertical)'
 const RULE_CVD_SAFE_PALETTE = 'wiki/concepts/handbook-color-and-palettes.md § Key rules'
 const RULE_FRAME_MINIMAL = 'wiki/concepts/design-principles.md § Restraint'
+const RULE_BAR_NO_VALUE_AXIS = 'wiki/concepts/axes-and-grid-lines.md § Bar charts default to no value axis'
 
 // ---------------------------------------------------------------------------
 
@@ -201,12 +201,12 @@ export const MATRIX: Matrix = {
   // optionKey verdict on 'valueLabels' (boolean visibility); position is secondary
   // =========================================================================
   [Concern.ValueLabels]: {
-    // vertical bar; current default false; wiki says optional/off unless precision is needed → asserted
+    // vertical bar; direct labels on (no value axis) → asserted
     [ChartType.BarVertical]: {
       status: 'asserted',
       optionKey: 'valueLabels',
-      target: false,
-      rule: RULE_HANDBOOK_BAR_VERTICAL,
+      target: true,
+      rule: RULE_BAR_NO_VALUE_AXIS,
     },
     // horizontal bar; current default true (barHorizontalValueLabelsOpt); wiki says label bars at end → asserted
     [ChartType.BarHorizontal]: {
@@ -215,12 +215,13 @@ export const MATRIX: Matrix = {
       target: true,
       rule: RULE_HANDBOOK_BAR_HORIZONTAL,
     },
-    // multi-series vertical bar; current default false; wiki says optional/off → asserted
+    // multi-series vertical bar; direct labels on (no value axis) → asserted
     [ChartType.BarMulti]: {
       status: 'asserted',
       optionKey: 'valueLabels',
-      target: false,
-      rule: RULE_VALUE_LABELS,
+      target: true,
+      rule: RULE_BAR_NO_VALUE_AXIS,
+      notes: 'On by default; the renderer suppresses any label too small to fit its bar (auto: label if it fits).',
     },
     // stacked horizontal bar; current default true (barHorizontalValueLabelsOpt); wiki is silent on stacked variant → asserted
     [ChartType.BarStacked]: {
@@ -245,13 +246,13 @@ export const MATRIX: Matrix = {
       target: true,
       rule: RULE_HANDBOOK_BAR_HORIZONTAL,
     },
-    // stacked column; current default false; wiki is silent on stacked variant value labels → asserted
+    // stacked column; direct labels on (no value axis) → asserted
     [ChartType.ColumnStacked]: {
       status: 'asserted',
       optionKey: 'valueLabels',
-      target: false,
-      rule: RULE_VALUE_LABELS,
-      notes: 'Wiki value-labels guidance covers bar charts and key data points; stacked column segments are often too narrow for per-segment labels. Off accepted as default, consistent with the vertical bar family.',
+      target: true,
+      rule: RULE_BAR_NO_VALUE_AXIS,
+      notes: 'On by default; thin stacked segments drop their label via the fit check and fall back to the tooltip.',
     },
     // single-series line; current default false; wiki says label extremes only, off by default → asserted
     [ChartType.Line]: {
@@ -369,12 +370,12 @@ export const MATRIX: Matrix = {
   // load-bearing key; for all other chart types verticalGridStyle is the load-bearing key.
   // =========================================================================
   [Concern.Gridlines]: {
-    // vertical bar; verticalGridStyle=Dashed (value axis), horizontalGridStyle=None → asserted
+    // vertical bar; verticalGridStyle=None (no value axis grid — direct labels carry value) → asserted
     [ChartType.BarVertical]: {
       status: 'asserted',
       optionKey: 'verticalGridStyle',
-      target: GridStyle.Dashed,
-      rule: RULE_GRIDLINES_Y_AXIS,
+      target: GridStyle.None,
+      rule: RULE_BAR_NO_VALUE_AXIS,
     },
     // horizontal bar; horizontalGridStyle=Dashed (value axis), verticalGridStyle=None → asserted
     [ChartType.BarHorizontal]: {
@@ -387,8 +388,8 @@ export const MATRIX: Matrix = {
     [ChartType.BarMulti]: {
       status: 'asserted',
       optionKey: 'verticalGridStyle',
-      target: GridStyle.Dashed,
-      rule: RULE_GRIDLINES_Y_AXIS,
+      target: GridStyle.None,
+      rule: RULE_BAR_NO_VALUE_AXIS,
     },
     // stacked horizontal bar; horizontalGridStyle=Dashed (value axis) → asserted
     [ChartType.BarStacked]: {
@@ -415,8 +416,8 @@ export const MATRIX: Matrix = {
     [ChartType.ColumnStacked]: {
       status: 'asserted',
       optionKey: 'verticalGridStyle',
-      target: GridStyle.Dashed,
-      rule: RULE_GRIDLINES_Y_AXIS,
+      target: GridStyle.None,
+      rule: RULE_BAR_NO_VALUE_AXIS,
     },
     // single-series line; verticalGridStyle=Dashed (value axis), horizontalGridStyle=None → asserted
     [ChartType.Line]: {
