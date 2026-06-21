@@ -28,12 +28,13 @@ const { canUndo, canRedo, undo, redo } = useChartHistory()
 
 const viewModeModel = computed({
   get: () => viewMode.value,
-  set: (v: string) => setViewMode(v as 'preview' | 'dsl'),
+  set: (v: string) => setViewMode(v as 'preview' | 'split' | 'dsl'),
 })
 
 const viewModeOptions = [
-  { value: 'preview', text: 'Preview' },
-  { value: 'dsl', text: 'DSL' },
+  { value: 'preview', text: 'Chart' },
+  { value: 'split', text: 'Chart + BPC' },
+  { value: 'dsl', text: 'BPC' },
 ]
 </script>
 
