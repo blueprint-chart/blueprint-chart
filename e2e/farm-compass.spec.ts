@@ -28,6 +28,12 @@ async function gotoFarmCompass(page: Page) {
   await expect(page.locator('.bc-frame-body svg')).toBeVisible()
 }
 
+/** Read the active scene number from the player counter ("3 / 10" → 3). */
+async function currentScene(page: Page): Promise<number> {
+  const txt = await page.locator('.bc-scene-player__counter').innerText()
+  return Number.parseInt(txt.split('/')[0]!.trim(), 10)
+}
+
 /** Click next‐scene N times via the player arrow button */
 async function goToScene(page: Page, clicks: number) {
   const nextBtn = page.locator('.bc-frame [aria-label="Next scene"]')
@@ -264,17 +270,25 @@ test.describe('Farm Compass — navigation round-trip', () => {
     await goToScene(page, 9)
     await expect(counter).toContainText('10 / 10')
 
-    // Navigate back to first
+    // Navigate back to first, waiting for each step to register in the store
+    // before the next click (the D3 transition can outlast a fixed delay under
+    // load, so poll the counter instead of guessing).
     const prevBtn = page.locator('.bc-frame [aria-label="Previous scene"]').first()
     for (let i = 0; i < 9; i++) {
+      const current = await currentScene(page)
       await prevBtn.click()
-      await page.waitForTimeout(400)
+      await expect.poll(() => currentScene(page)).toBe(current - 1)
     }
     await expect(counter).toContainText('1 / 10')
 
-    // Chart should still be visible and correct
+    // Chart should still be visible and correct. Poll for the settled single
+    // frame first: overlapping transitions can briefly leave two frames in the
+    // DOM, which would make the per-frame locators below ambiguous.
+    await expect.poll(async () => {
+      const titles = await page.locator('.bc-frame-title').allInnerTexts()
+      return titles.length === 1 && titles[0]!.includes('EU subsidies')
+    }, { timeout: 10_000 }).toBe(true)
     await expect(page.locator('.bc-frame-body svg')).toBeVisible()
-    await expect(page.locator('.bc-frame-title')).toContainText('EU subsidies')
   })
 })
 
@@ -336,13 +350,11 @@ test.describe('Farm Compass — rapid navigation', () => {
 
   test('stress: alternating next/prev bursts leave a consistent single chart', async ({ page }) => {
     await gotoFarmCompass(page)
-    await page.waitForTimeout(500)
 
     // Navigate to a middle scene first so both next/prev buttons are enabled,
     // then alternate direction bursts within a single tick to prove that
     // handlers read the store atomically on each click.
     await goToScene(page, 5) // Scene 6 (line/area territory)
-    await page.waitForTimeout(500)
 
     await page.evaluate(() => {
       const next = document.querySelector('[aria-label="Next scene"]') as HTMLElement | null
@@ -354,16 +366,21 @@ test.describe('Farm Compass — rapid navigation', () => {
       for (let i = 0; i < 1; i++) next.click()
     })
 
-    await page.waitForTimeout(2000)
-
+    // Settle on the observable end state rather than a fixed delay. The
+    // overlapping burst transitions make the frame count oscillate (old + new
+    // frame coexist) before collapsing, so a single toHaveCount(1) can catch a
+    // transient 1 and pass too early. Poll for the genuinely settled state:
+    // exactly one frame, showing the final scene's title.
     // Starting scene was 6, net +2 = scene 8 = "Vegetables collapsed"
     const counter = page.locator('.bc-scene-player__counter')
     await expect(counter).toContainText('8 / 10')
-    await expect(page.locator('.bc-frame-title')).toContainText('Vegetable')
+    await expect.poll(async () => {
+      const titles = await page.locator('.bc-frame-title').allInnerTexts()
+      return titles.length === 1 && titles[0]!.includes('Vegetable')
+    }, { timeout: 10_000 }).toBe(true)
 
-    // Exactly one frame, no leftover bars.
-    expect(await page.locator('.bc-frame').count()).toBe(1)
-    expect(await page.locator('.bc-bar').count()).toBe(0)
+    // No leftover bars from earlier chart types.
+    await expect(page.locator('.bc-bar')).toHaveCount(0)
   })
 })
 
@@ -374,15 +391,19 @@ test.describe('Farm Compass — rapid navigation', () => {
 test.describe('Farm Compass — constrained height', () => {
   test('chart fills body with no gap at top, 1 frame per scene', async ({ page }) => {
     await gotoFarmCompass(page)
-    await page.waitForTimeout(2000)
 
     const nextBtn = page.locator('.bc-frame [aria-label="Next scene"]').first()
 
     for (let scene = 1; scene <= 10; scene++) {
       if (scene > 1) {
+        const current = await currentScene(page)
         await nextBtn.click()
-        await page.waitForTimeout(1500)
+        await expect.poll(() => currentScene(page)).toBe(current + 1)
       }
+      // Wait for the cross-scene transition to collapse back to a single live
+      // frame before measuring geometry — under load a fixed delay can land
+      // mid-transition while the old frame is still in the DOM.
+      await expect(page.locator('.bc-frame')).toHaveCount(1)
 
       const info = await page.evaluate(() => {
         const body = document.querySelector('.bc-frame-body') as HTMLElement
@@ -426,12 +447,20 @@ test.describe('Farm Compass — stability', () => {
     // Navigate through all scenes
     await goToScene(page, 9)
 
-    // Navigate back
+    // Navigate back, waiting for each step to register before clicking again
+    // (a delay below the 500ms transition would let clicks overlap and race).
     const prevBtn = page.locator('.bc-frame [aria-label="Previous scene"]').first()
     for (let i = 0; i < 9; i++) {
+      const current = await currentScene(page)
       await prevBtn.click()
-      await page.waitForTimeout(300)
+      await expect.poll(() => currentScene(page)).toBe(current - 1)
     }
+    await expect(page.locator('.bc-scene-player__counter')).toContainText('1 / 10')
+    // Let the navigation fully settle to a single frame so any transition-end
+    // console error has surfaced before we assert there were none.
+    await expect.poll(async () => {
+      return (await page.locator('.bc-frame-title').allInnerTexts()).length === 1
+    }, { timeout: 10_000 }).toBe(true)
 
     const realErrors = errors.filter(e => !e.includes('favicon'))
     expect(realErrors).toEqual([])

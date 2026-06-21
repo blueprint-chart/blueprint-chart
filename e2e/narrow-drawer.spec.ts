@@ -144,18 +144,19 @@ test.describe('Narrow viewport - scenes sheet', () => {
 
     // Add a second scene — addScene() auto-activates it, so the override row
     // is already active when the list re-renders.
+    const sheet = page.locator('.layout-bottom-drawer')
     await page.locator('.scene-timeline-compact__expand').click()
-    await page.waitForTimeout(300)
-    await page.locator('.layout-bottom-drawer .scene-list__add').click()
-    await page.waitForTimeout(300)
+    await expect(sheet).toBeVisible()
+    await sheet.locator('.scene-list__add').click()
+    // Wait for the added override row to land (base + override = 2 rows).
+    await expect(sheet.locator('.scene-list-item-row')).toHaveCount(2)
 
     // Switch back to the base scene (row 0) which is NOT currently active —
     // this triggers update:activeIndex and closes the sheet.
-    const baseRow = page.locator('.layout-bottom-drawer .scene-list-item-row').nth(0)
+    const baseRow = sheet.locator('.scene-list-item-row').nth(0)
     await baseRow.locator('button.scene-list-item').click()
-    await page.waitForTimeout(300)
 
-    await expect(page.locator('.layout-bottom-drawer')).not.toBeVisible()
+    await expect(sheet).not.toBeVisible()
   })
 
   test('removing an override row drops the row count', async ({ page }) => {
