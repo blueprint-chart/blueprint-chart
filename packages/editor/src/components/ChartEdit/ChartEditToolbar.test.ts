@@ -1,3 +1,4 @@
+import { ref } from 'vue'
 import { mount } from '@vue/test-utils'
 import ChartEditToolbar from './ChartEditToolbar.vue'
 
@@ -12,12 +13,21 @@ vi.mock('@/stores/chartHistory', () => ({
 describe('ChartEditToolbar', () => {
   beforeEach(() => { setViewMode.mockClear() })
 
-  it('offers Chart, Chart + BPC and BPC options', () => {
+  it('offers exactly Chart, Chart + BPC and BPC options', () => {
     const wrapper = mount(ChartEditToolbar, { global: { stubs: { ButtonUndo: true, ButtonRedo: true } } })
-    const text = wrapper.text()
-    expect(text).toContain('Chart + BPC')
-    expect(text).toContain('BPC')
-    // exactly three segmented options
-    expect(wrapper.findAll('.navigation-segmented-control__option').length).toBe(3)
+    const labels = wrapper
+      .findAll('.navigation-segmented-control__option')
+      .map(el => el.text().trim())
+    expect(labels).toEqual(['Chart', 'Chart + BPC', 'BPC'])
+  })
+
+  it('calls setViewMode with "split" when the Chart + BPC option is selected', async () => {
+    const wrapper = mount(ChartEditToolbar, { global: { stubs: { ButtonUndo: true, ButtonRedo: true } } })
+    const splitOption = wrapper
+      .findAll('.navigation-segmented-control__option')
+      .find(el => el.text().trim() === 'Chart + BPC')
+    expect(splitOption).toBeDefined()
+    await splitOption!.trigger('click')
+    expect(setViewMode).toHaveBeenCalledWith('split')
   })
 })
