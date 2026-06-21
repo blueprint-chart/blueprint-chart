@@ -24,6 +24,7 @@ export default defineConfig({
         'jsdom', '@napi-rs/canvas', '@resvg/resvg-js',
         'd3', 'd3-blueprint', 'd3-transition', 'chroma-js', 'dayjs', '@floating-ui/dom',
         /^@blueprint-chart\/lib/,
+        /^node:/,
       ],
     },
   },
