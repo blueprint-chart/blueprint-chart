@@ -27,7 +27,7 @@ describe('ChartEditDsl', () => {
     const wrapper = shallowMount(ChartEditDsl)
     const purgeBtn = wrapper.find('.chart-edit-dsl__purge')
     expect(purgeBtn.exists()).toBe(true)
-    // Fresh editor with a minimal/seed doc → nothing to purge → disabled.
+    // useDslEditor is mocked to return canPurge=false; this asserts the disabled binding renders.
     expect(purgeBtn.attributes('disabled')).toBeDefined()
   })
 })

@@ -220,7 +220,7 @@ export function serialize(ast: ChartNode): string {
 
 // propValueMap is used by compactSerializeDeep in Task 2 (scene/series scope
 // purging) — declared alongside redundantInScope for co-location.
-export function propValueMap(props: PropertyNode[]): Map<string, string | number> {
+function propValueMap(props: PropertyNode[]): Map<string, string | number> {
   return new Map(props.map(p => [p.key, p.value]))
 }
 
@@ -256,7 +256,7 @@ function compactSerializeSeries(
 ): string {
   const lines = [...commentLines(series.leadingComments, indent), `${indent}series "${series.name}" {`]
   for (const prop of series.properties) {
-    if (!redundantInScope(prop.key, prop.value, chartType, inherited)) {
+    if (prop.isPercentage || !redundantInScope(prop.key, prop.value, chartType, inherited)) {
       lines.push(serializeProperty(prop, `${indent}  `))
     }
   }
@@ -284,7 +284,7 @@ function compactSerializeScene(
       continue
     }
     sceneInherited.set(prop.key, prop.value)
-    if (!redundantInScope(prop.key, prop.value, effectiveType, baseInherited)) {
+    if (prop.isPercentage || !redundantInScope(prop.key, prop.value, effectiveType, baseInherited)) {
       lines.push(serializeProperty(prop, `${indent}  `))
     }
   }
@@ -320,7 +320,7 @@ export function compactSerializeDeep(ast: ChartNode): string {
   const lines = [`chart ${ast.chartType} {`]
   const noInherit = new Map<string, string | number>()
   for (const prop of ast.properties) {
-    if (!redundantInScope(prop.key, prop.value, ast.chartType, noInherit)) {
+    if (prop.isPercentage || !redundantInScope(prop.key, prop.value, ast.chartType, noInherit)) {
       lines.push(serializeProperty(prop, '  '))
     }
   }
