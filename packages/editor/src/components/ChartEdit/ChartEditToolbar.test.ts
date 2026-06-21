@@ -14,7 +14,7 @@ vi.mock('@/stores/chartHistory', () => ({
 // Keep NavigationToggle (and the rest of the library) real so the rendered
 // options are exercised; only override the breakpoint so the test controls
 // narrow/wide.
-vi.mock('@blueprint-chart/ui', async (importOriginal) => ({
+vi.mock('@blueprint-chart/ui', async importOriginal => ({
   ...(await importOriginal<typeof import('@blueprint-chart/ui')>()),
   useBreakpoint: () => ({ isNarrow: isNarrowRef }),
 }))
