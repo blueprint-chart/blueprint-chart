@@ -4,90 +4,13 @@
       ref="editorEl"
       class="flex-grow-1 overflow-auto"
     />
-    <div
-      v-if="error"
-      class="text-danger small mt-1"
-    >
-      {{ error }}
-    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { EditorView, keymap } from '@codemirror/view'
-import { EditorState } from '@codemirror/state'
-import { defaultKeymap, history, historyKeymap } from '@codemirror/commands'
-import { bpcLanguage, bpcHighlighter } from '@/dsl-lang'
-import '@/dsl-lang/highlight.scss'
-
-const { dsl } = useDslOutput()
-const { applyDsl } = useDslSync()
+import { useTemplateRef } from 'vue'
+import { useDslEditor } from '@/composables/useDslEditor'
 
 const editorEl = useTemplateRef<HTMLElement>('editorEl')
-const error = ref<string>()
-let view: EditorView | undefined
-let updatingFromExternal = false
-
-function onEditorUpdate(update: { docChanged: boolean, state: EditorState }) {
-  if (!update.docChanged || updatingFromExternal) {
-    return
-  }
-  const value = update.state.doc.toString()
-  const result = applyDsl(value)
-  if (result.success) {
-    error.value = undefined
-  }
-  else {
-    error.value = result.error
-  }
-}
-
-onMounted(() => {
-  const state = EditorState.create({
-    doc: dsl.value,
-    extensions: [
-      keymap.of([...defaultKeymap, ...historyKeymap]),
-      history(),
-      bpcLanguage(),
-      bpcHighlighter,
-      EditorView.updateListener.of(onEditorUpdate),
-      EditorView.theme({
-        '&': { height: '100%', backgroundColor: 'var(--bc-tile-bg-elevated)' },
-        '.cm-scroller': { overflow: 'auto' },
-        // Bottom clearance so the last lines can scroll above the floating
-        // scene timeline, which overlays the canvas bottom (the editor
-        // scrolls internally, so canvas padding can't provide this).
-        // --fst-clearance is set by ChartEditPanel next to the timeline
-        // sizing; the fallback covers standalone use.
-        '.cm-content': { fontFamily: 'var(--bs-font-monospace)', paddingBottom: 'var(--fst-clearance, 9rem)' },
-        '.cm-gutters': {
-          backgroundColor: 'var(--bc-tile-bg-elevated)',
-          color: 'var(--bs-secondary-color)',
-          borderRight: '1px solid var(--bs-border-color)',
-        },
-      }),
-    ],
-  })
-  view = new EditorView({ state, parent: editorEl.value! })
-})
-
-watch(dsl, (newVal) => {
-  if (!view) {
-    return
-  }
-  const current = view.state.doc.toString()
-  if (current === newVal) {
-    return
-  }
-  updatingFromExternal = true
-  view.dispatch({
-    changes: { from: 0, to: view.state.doc.length, insert: newVal },
-  })
-  updatingFromExternal = false
-})
-
-onUnmounted(() => {
-  view?.destroy()
-  view = undefined
-})
+useDslEditor(editorEl)
 </script>
