@@ -110,7 +110,7 @@ describe('createDslSync', () => {
   it('does not re-parse when an external write echoes back as a doc change', () => {
     const state = { doc: 'chart bar {}' }
     const applyDsl = vi.fn(() => ({ success: true }) as DslApplyResult)
-    let c: ReturnType<typeof createDslSync>
+    const holder: { c?: ReturnType<typeof createDslSync> } = {}
     const effects: DslSyncEffects = {
       applyDsl,
       getCanonicalDsl: () => state.doc,
@@ -118,12 +118,16 @@ describe('createDslSync', () => {
       patchDoc: (edit) => {
         state.doc = state.doc.slice(0, edit.from) + edit.insert + state.doc.slice(edit.to)
         // Mimic CodeMirror firing the update listener synchronously on dispatch.
-        c.onDocChanged(state.doc)
+        holder.c!.onDocChanged(state.doc)
       },
       setDiagnostics: vi.fn(),
-      schedule: (fn) => { fn(); return vi.fn() },
+      schedule: (fn) => {
+        fn()
+        return vi.fn()
+      },
     }
-    c = createDslSync(effects)
+    holder.c = createDslSync(effects)
+    const c = holder.c
     c.onExternalDsl('chart line {}')
     expect(applyDsl).not.toHaveBeenCalled()
   })
