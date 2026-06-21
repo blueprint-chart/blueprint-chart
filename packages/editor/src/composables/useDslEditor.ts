@@ -33,7 +33,7 @@ const editorTheme = EditorView.theme({
   '.cm-activeLineGutter': { backgroundColor: 'color-mix(in srgb, var(--bs-body-color) 6%, transparent)' },
   '.cm-gutters': {
     backgroundColor: 'var(--bc-tile-bg-elevated)',
-    color: 'var(--bs-secondary-color)',
+    color: 'var(--bs-tertiary-color)',
     border: 'none',
   },
 })

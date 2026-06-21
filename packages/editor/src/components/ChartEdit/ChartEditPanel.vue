@@ -31,7 +31,7 @@
           :canvas-ref="canvasRef"
           :layout="layout"
         />
-        <FloatingSceneTimeline />
+        <FloatingSceneTimeline v-if="viewMode === 'preview'" />
       </div>
       <CanvasModePicker v-if="viewMode === 'preview'" />
     </div>
@@ -275,11 +275,11 @@ const canvasStyle = computed<CSSProperties>(() => ({
     &--dsl {
       --fst-canvas-pad-x: 0px;
       --fst-canvas-pad-y: 0px;
-      // CodeMirror scrolls internally, so the floating scene timeline would
-      // permanently cover the last lines of code. The DSL editor pads its
-      // content bottom by this much so code can scroll clear of the strip
-      // (timeline card ~7.75rem + inset).
-      --fst-clearance: 9rem;
+      // CodeMirror scrolls internally; the canvas itself must not scroll too,
+      // or there'd be a double scrollbar. The scene timeline is hidden in DSL
+      // mode, so only a small bottom breathing space is needed.
+      --fst-clearance: 1rem;
+      overflow: hidden;
       background-image: none;
     }
 
