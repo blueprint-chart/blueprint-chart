@@ -19,9 +19,11 @@ vi.mock('@/stores/editorPanel', () => ({
   useEditorPanel: () => editorPanelState,
 }))
 
+const panelStoreMock = vi.hoisted(() => ({ dock: vi.fn(), close: vi.fn() }))
+
 vi.mock('@/stores/panel', () => ({
   usePanel: () => ({ mode: ref('docked') }),
-  usePanelStore: () => ({ mode: ref('docked'), dockedWidth: ref(0.22), dock: vi.fn(), close: vi.fn() }),
+  usePanelStore: () => ({ mode: ref('docked'), dockedWidth: ref(0.22), ...panelStoreMock }),
   MIN_CANVAS_WIDTH: 220,
   PANEL_MIN_WIDTH: 260,
   PANEL_MAX_WIDTH: 660,
@@ -122,5 +124,17 @@ describe('ChartEditPanel view modes', () => {
     // assert the handler is wired by dispatching pointerdown without throwing.
     await divider.trigger('pointerdown', { clientX: 100, pointerId: 1 })
     expect(divider.exists()).toBe(true)
+  })
+
+  it('closes the options panel when entering split mode and re-docks on preview', async () => {
+    const panel = useEditorPanel()
+    panel.viewMode.value = 'preview'
+    mountPanel()
+    panel.viewMode.value = 'split'
+    await nextTick()
+    expect(panelStoreMock.close).toHaveBeenCalled()
+    panel.viewMode.value = 'preview'
+    await nextTick()
+    expect(panelStoreMock.dock).toHaveBeenCalled()
   })
 })

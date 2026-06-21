@@ -87,7 +87,7 @@
 import type { CSSProperties } from 'vue'
 import { useBreakpoint } from '@blueprint-chart/ui'
 import { useEditorPanel } from '@/stores/editorPanel'
-import { usePanel } from '@/stores/panel'
+import { usePanel, usePanelStore } from '@/stores/panel'
 import { useChartConfig } from '@/stores/chartConfig'
 import { useChartEditSections } from '@/composables/useChartEditSections'
 import FloatingSceneTimeline from '@/components/Scene/FloatingSceneTimeline.vue'
@@ -98,6 +98,7 @@ const { viewMode, activeTab, canvasMode, showDimensions, splitRatio } = storeToR
 const { stopPlayback } = useScenes()
 const { selectTab, setLastNarrowEditTab } = editorPanel
 const { mode: panelMode } = usePanel()
+const panelStore = usePanelStore()
 const { isNarrow } = useBreakpoint()
 
 const { layout } = useChartConfig()
@@ -137,6 +138,12 @@ function onDrawerTabPick(tab: string) {
 watch(viewMode, (mode) => {
   if (mode === 'dsl') {
     stopPlayback()
+  }
+  if (mode === 'preview') {
+    panelStore.dock()
+  }
+  else {
+    panelStore.close()
   }
 })
 
