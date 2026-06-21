@@ -125,7 +125,11 @@ export function useDslEditor(editorEl: TemplateRef<HTMLElement>): { purge: () =>
 
   watch(dsl, (newVal: string) => {
     controller?.onExternalDsl(newVal)
-    recomputeCanPurge(newVal)
+    // Do NOT recompute canPurge from `newVal`: `dsl` is the compact canonical
+    // (defaults already omitted via compact=true), so it always reports
+    // "nothing to purge" and would clobber the value computed from the real
+    // editor text. External dsl reaches the document via onExternalDsl →
+    // patchDoc → updateListener docChanged, which recomputes from the doc.
   })
 
   onUnmounted(() => {
