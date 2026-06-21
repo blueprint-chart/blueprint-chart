@@ -1005,3 +1005,30 @@ describe('inline trailing comments are discarded', () => {
     expect(ast.data?.leadingComments).toEqual(['about the data'])
   })
 })
+
+describe('parse error location', () => {
+  it('attaches the structured Peggy location to the thrown SyntaxError', () => {
+    let caught: unknown
+    try {
+      parse('!!!')
+    }
+    catch (e) {
+      caught = e
+    }
+    expect(caught).toBeInstanceOf(SyntaxError)
+    const err = caught as SyntaxError & { location?: { start: { line: number, column: number } } }
+    expect(typeof err.location?.start.line).toBe('number')
+    expect(typeof err.location?.start.column).toBe('number')
+  })
+
+  it('keeps the message suffix as " at line:column"', () => {
+    let message = ''
+    try {
+      parse('!!!')
+    }
+    catch (e) {
+      message = (e as Error).message
+    }
+    expect(message).toMatch(/ at \d+:\d+$/)
+  })
+})

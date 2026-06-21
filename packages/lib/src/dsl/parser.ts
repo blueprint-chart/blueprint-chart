@@ -8,7 +8,9 @@ export function parse(input: string): ChartNode {
   catch (e: unknown) {
     if (e instanceof Error && 'location' in e) {
       const loc = (e as Error & { location: { start: { line: number, column: number } } }).location
-      throw new SyntaxError(`${e.message} at ${loc.start.line}:${loc.start.column}`)
+      const err = new SyntaxError(`${e.message} at ${loc.start.line}:${loc.start.column}`)
+      ;(err as SyntaxError & { location: typeof loc }).location = loc
+      throw err
     }
     throw e
   }
