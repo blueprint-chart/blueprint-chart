@@ -19,6 +19,7 @@ import { createPluginHost } from '../../plugins/plugin-host'
 import { Orientation, ValueLabelPosition, LabelPosition } from '../../../enums'
 import { highlightTargetSet, highlightOpacity } from '../../plugins/highlight'
 import { buildColorOverrides } from '../../plugins/colorize'
+import { shouldRenderValueLabel } from '../../value-label-fit'
 
 export const DEFAULT_COLORS = [
   '#4e79a7', '#f28e2b', '#e15759', '#76b7b2',
@@ -374,6 +375,16 @@ export function render(
 
     const isInside = valueLabelPos === ValueLabelPosition.Inside
       || (valueLabelPos === ValueLabelPosition.Auto && datum.barWidth > 30)
+
+    if (!shouldRenderValueLabel({
+      text: String(datum.value),
+      placement: isInside ? 'inside' : 'outside',
+      orientation: 'horizontal',
+      barWidth: datum.barWidth,
+      barHeight,
+    })) {
+      return
+    }
 
     let tx: number
     let anchor: string

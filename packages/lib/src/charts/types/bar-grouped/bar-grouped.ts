@@ -19,6 +19,7 @@ import { ensureClipPath } from '../../clip-path-helper'
 import { featureJoin, getSceneTransition, tweenPlotFrame, type PlotRect } from '../../../transitions'
 import { createPluginHost } from '../../plugins/plugin-host'
 import { Orientation, ValueLabelPosition, LabelPosition } from '../../../enums'
+import { shouldRenderValueLabel } from '../../value-label-fit'
 
 export const DEFAULT_COLORS = [
   '#4e79a7', '#f28e2b', '#e15759', '#76b7b2',
@@ -335,6 +336,16 @@ export function render(
 
     const isInside = valueLabelPos === ValueLabelPosition.Inside
       || (valueLabelPos === ValueLabelPosition.Auto && barWidth > 30)
+
+    if (!shouldRenderValueLabel({
+      text: String(datum.value),
+      placement: isInside ? 'inside' : 'outside',
+      orientation: 'horizontal',
+      barWidth,
+      barHeight: y1.bandwidth(),
+    })) {
+      return
+    }
 
     let tx: number
     let anchor: string

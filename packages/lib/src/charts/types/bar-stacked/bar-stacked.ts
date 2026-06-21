@@ -23,6 +23,7 @@ import { createPluginHost } from '../../plugins/plugin-host'
 import { StackMode, Orientation, ValueLabelPosition, LabelPosition } from '../../../enums'
 import { highlightTargetSet, highlightOpacity } from '../../plugins/highlight'
 import { buildColorOverrides } from '../../plugins/colorize'
+import { shouldRenderValueLabel } from '../../value-label-fit'
 
 export const DEFAULT_COLORS = [
   '#4e79a7', '#f28e2b', '#e15759', '#76b7b2',
@@ -360,6 +361,14 @@ export function render(
     const placeOutside = valueLabelPos === ValueLabelPosition.Outside
       || (valueLabelPos === ValueLabelPosition.Auto && !fitsInside && isLastInRow)
 
+    const fitsGeometry = shouldRenderValueLabel({
+      text: labelText,
+      placement: placeOutside ? 'outside' : 'inside',
+      orientation: 'horizontal',
+      barWidth: segmentWidth,
+      barHeight: y.bandwidth(),
+    })
+
     // Helper: create a hidden label inside the segment (revealed on legend highlight)
     const appendHiddenLabel = () => {
       const cx = x(datum.y0) + segmentWidth / 2
@@ -392,7 +401,7 @@ export function render(
         // label end stays inside the chart's right edge (incl. right margin).
         const rightLimit = width + margin.right - 2
         const exceedsRight = labelStartX + estimatedLabelWidth > rightLimit
-        if (overlaps || overflows || exceedsRight) {
+        if (overlaps || overflows || exceedsRight || !fitsGeometry) {
           appendHiddenLabel()
         }
         else {
@@ -411,7 +420,7 @@ export function render(
       }
     }
     else {
-      if (!fitsInside) {
+      if (!fitsInside || !fitsGeometry) {
         appendHiddenLabel()
       }
       else {
