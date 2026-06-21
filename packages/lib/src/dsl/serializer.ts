@@ -248,6 +248,74 @@ function redundantInScope(
   return String(def.default) === String(value)
 }
 
+function compactSerializeSeries(
+  series: SeriesNode,
+  indent: string,
+  chartType: string,
+  inherited: Map<string, string | number>,
+): string {
+  const lines = [...commentLines(series.leadingComments, indent), `${indent}series "${series.name}" {`]
+  for (const prop of series.properties) {
+    if (!redundantInScope(prop.key, prop.value, chartType, inherited)) {
+      lines.push(serializeProperty(prop, `${indent}  `))
+    }
+  }
+  lines.push(`${indent}}`)
+  return lines.join('\n')
+}
+
+function compactSerializeScene(
+  scene: SceneNode,
+  indent: string,
+  baseChartType: string,
+  baseInherited: Map<string, string | number>,
+): string {
+  const typeProp = scene.properties.find(p => p.key === 'type')
+  const effectiveType = typeProp ? String(typeProp.value) : baseChartType
+  const header = scene.name != null ? `${indent}scene "${scene.name}" {` : `${indent}scene {`
+  const lines = [...commentLines(scene.leadingComments, indent), header]
+  // Scene-scope inherited map for nested series: base effective overlaid with
+  // the scene's own (non-redundant or not) option values.
+  const sceneInherited = new Map(baseInherited)
+  for (const prop of scene.properties) {
+    if (prop.key === 'type') {
+      // Structural, not an option — always keep.
+      lines.push(serializeProperty(prop, `${indent}  `))
+      continue
+    }
+    sceneInherited.set(prop.key, prop.value)
+    if (!redundantInScope(prop.key, prop.value, effectiveType, baseInherited)) {
+      lines.push(serializeProperty(prop, `${indent}  `))
+    }
+  }
+  if (scene.data) {
+    lines.push(serializeData(scene.data, `${indent}  `))
+  }
+  for (const colorize of scene.colorizes) {
+    lines.push(serializeColorize(colorize, `${indent}  `))
+  }
+  for (const highlight of scene.highlights) {
+    lines.push(serializeHighlight(highlight, `${indent}  `))
+  }
+  for (const areaFill of scene.areaFills) {
+    lines.push(serializeAreaFill(areaFill, `${indent}  `))
+  }
+  for (const annotation of scene.annotations) {
+    lines.push(serializeAnnotation(annotation, `${indent}  `))
+  }
+  for (const vis of scene.annotationVisibility) {
+    lines.push(serializeAnnotationVisibility(vis, `${indent}  `))
+  }
+  for (const s of scene.series) {
+    lines.push(compactSerializeSeries(s, `${indent}  `, effectiveType, sceneInherited))
+  }
+  for (const transform of scene.transforms) {
+    lines.push(serializeTransform(transform, `${indent}  `))
+  }
+  lines.push(`${indent}}`)
+  return lines.join('\n')
+}
+
 export function compactSerializeDeep(ast: ChartNode): string {
   const lines = [`chart ${ast.chartType} {`]
   const noInherit = new Map<string, string | number>()
@@ -274,11 +342,12 @@ export function compactSerializeDeep(ast: ChartNode): string {
   for (const vis of ast.annotationVisibility) {
     lines.push(serializeAnnotationVisibility(vis, '  '))
   }
+  const baseInherited = propValueMap(ast.properties)
   for (const s of ast.series) {
-    lines.push(serializeSeries(s, '  '))
+    lines.push(compactSerializeSeries(s, '  ', ast.chartType, baseInherited))
   }
   for (const scene of ast.scenes) {
-    lines.push(serializeScene(scene, '  '))
+    lines.push(compactSerializeScene(scene, '  ', ast.chartType, baseInherited))
   }
   for (const transform of ast.transforms) {
     lines.push(serializeTransform(transform, '  '))

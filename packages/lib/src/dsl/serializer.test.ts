@@ -1142,6 +1142,41 @@ describe('compactSerializeDeep', () => {
     expect(out).toContain('// keep me')
     expect(out).toContain('valueLabels = false')
   })
+
+  test('drops a series override equal to the inherited global value', () => {
+    // chart leaves valueLabels at its bar-vertical default (true); a series
+    // that restates true is redundant.
+    const ast = parse('chart bar-vertical {\n  data {\n    series = "X","Y"\n    "A" = 1,2\n  }\n  series "X" {\n    valueLabels = true\n  }\n}')
+    const out = compactSerializeDeep(ast)
+    expect(out).not.toContain('valueLabels')
+  })
+
+  test('keeps a scene override that equals the global default but overrides a non-default base', () => {
+    // base sets valueLabels = false; scene sets valueLabels = true. true equals
+    // the registered default, but it is NOT redundant — it overrides the base.
+    const src = 'chart bar-horizontal {\n  valueLabels = false\n  data {\n    "A" = 1\n  }\n  scene "s" {\n    valueLabels = true\n  }\n}'
+    const ast = parse(src)
+    const out = compactSerializeDeep(ast)
+    expect(out).toContain('valueLabels = false') // base kept (non-default)
+    // scene line retained because base effective value is false, not true
+    const sceneBlock = out.slice(out.indexOf('scene'))
+    expect(sceneBlock).toContain('valueLabels = true')
+  })
+
+  test('drops a scene override equal to the base effective value', () => {
+    // base sets valueLabels = false; scene restates false → redundant.
+    const src = 'chart bar-horizontal {\n  valueLabels = false\n  data {\n    "A" = 1\n  }\n  scene "s" {\n    valueLabels = false\n  }\n}'
+    const ast = parse(src)
+    const out = compactSerializeDeep(ast)
+    const sceneBlock = out.slice(out.indexOf('scene'))
+    expect(sceneBlock).not.toContain('valueLabels')
+  })
+
+  test('keeps a scene `type` property untouched', () => {
+    const src = 'chart bar-vertical {\n  data {\n    "A" = 1\n  }\n  scene "s" {\n    type = bar-horizontal\n  }\n}'
+    const ast = parse(src)
+    expect(compactSerializeDeep(ast)).toContain('type = bar-horizontal')
+  })
 })
 
 describe('comment edge cases', () => {
