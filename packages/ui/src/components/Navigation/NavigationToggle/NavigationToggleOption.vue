@@ -9,6 +9,7 @@ const props = defineProps<{
   value: string
   text: string
   icon?: Component
+  title?: string
   disabled?: boolean
 }>()
 
@@ -16,6 +17,7 @@ useChildEntry(ToggleEntriesKey, () => ({
   value: props.value,
   text: props.text,
   icon: props.icon,
+  title: props.title,
   disabled: props.disabled,
 }))
 </script>

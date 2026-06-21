@@ -36,7 +36,7 @@ const segmentedItems = computed<NavigationSegmentedControlItem[]>(() =>
     key: opt.value,
     text: opt.text,
     icon: opt.icon,
-    title: 'title' in opt ? opt.title : undefined,
+    title: opt.title,
     active: opt.value === model.value,
     disabled: opt.disabled,
   })),

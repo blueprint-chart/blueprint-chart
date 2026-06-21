@@ -19,5 +19,5 @@ export const IconRailEntriesKey: InjectionKey<
 > = Symbol('IconRailEntries')
 
 export const ToggleEntriesKey: InjectionKey<
-  ChildEntriesContext<{ value: string, text: string, icon?: Component, disabled?: boolean }>
+  ChildEntriesContext<{ value: string, text: string, icon?: Component, title?: string, disabled?: boolean }>
 > = Symbol('ToggleEntries')
