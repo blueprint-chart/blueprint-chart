@@ -561,7 +561,7 @@ export const MATRIX: Matrix = {
       optionKey: 'showVerticalAxis',
       target: false,
       rule: RULE_BAR_NO_VALUE_AXIS,
-      notes: 'Wiki silent on axis-line visibility default; hiding the value axis line on bar-vertical / line / area family aligns with minimal-frame principle (grid lines carry the value reference).',
+      notes: 'Value axis line hidden by default; bars are labelled directly and the category baseline (showHorizontalAxis) anchors them.',
     },
     // horizontal bar; showHorizontalAxis=false (value axis line hidden); category baseline (showVerticalAxis) stays true
     [ChartType.BarHorizontal]: {
@@ -577,7 +577,7 @@ export const MATRIX: Matrix = {
       optionKey: 'showVerticalAxis',
       target: false,
       rule: RULE_BAR_NO_VALUE_AXIS,
-      notes: 'Wiki silent on axis-line visibility default; hiding the value axis line on bar-vertical / line / area family aligns with minimal-frame principle (grid lines carry the value reference).',
+      notes: 'Value axis line hidden by default; bars are labelled directly and the category baseline (showHorizontalAxis) anchors them.',
     },
     // stacked horizontal bar; showHorizontalAxis=false (value axis line hidden); category baseline stays true
     [ChartType.BarStacked]: {
@@ -609,7 +609,7 @@ export const MATRIX: Matrix = {
       optionKey: 'showVerticalAxis',
       target: false,
       rule: RULE_BAR_NO_VALUE_AXIS,
-      notes: 'Wiki silent on axis-line visibility default; hiding the value axis line on bar-vertical / line / area family aligns with minimal-frame principle (grid lines carry the value reference).',
+      notes: 'Value axis line hidden by default; bars are labelled directly and the category baseline (showHorizontalAxis) anchors them.',
     },
     // single-series line; showVerticalAxis=false, showHorizontalAxis=true
     [ChartType.Line]: {
