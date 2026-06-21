@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { shallowMount } from '@vue/test-utils'
 import { ref } from 'vue'
+import { ButtonIcon } from '@blueprint-chart/ui'
 import ChartEditDsl from './ChartEditDsl.vue'
 
 const useDslEditorMock = vi.fn()
@@ -25,9 +26,13 @@ describe('ChartEditDsl', () => {
   it('renders a purge button, disabled when canPurge is false', async () => {
     useDslEditorMock.mockReturnValue({ purge: vi.fn(), canPurge: ref(false) })
     const wrapper = shallowMount(ChartEditDsl)
-    const purgeBtn = wrapper.find('.chart-edit-dsl__purge')
-    expect(purgeBtn.exists()).toBe(true)
-    // useDslEditor is mocked to return canPurge=false; this asserts the disabled binding renders.
-    expect(purgeBtn.attributes('disabled')).toBeDefined()
+    // The positioned wrapper is a native div (so scoped CSS reliably applies);
+    // the ButtonIcon lives inside it.
+    expect(wrapper.find('.chart-edit-dsl__purge').exists()).toBe(true)
+    // useDslEditor is mocked to return canPurge=false; assert the disabled binding reached the button.
+    // (`disabled` is a fall-through attr on ButtonIcon, not a declared prop, so check the attribute.)
+    const btn = wrapper.findComponent(ButtonIcon)
+    expect(btn.exists()).toBe(true)
+    expect(btn.attributes('disabled')).toBeDefined()
   })
 })

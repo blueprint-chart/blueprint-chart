@@ -4,18 +4,19 @@
       ref="editorEl"
       class="flex-grow-1 overflow-auto"
     />
-    <ButtonIcon
-      :icon-left="IPhBroom"
-      label="Purge defaults"
-      tooltip-label="Remove options already at their default value"
-      hide-label
-      square
-      variant="outline-secondary"
-      size="sm"
-      class="chart-edit-dsl__purge"
-      :disabled="!canPurge"
-      @click="purge"
-    />
+    <div class="chart-edit-dsl__purge">
+      <ButtonIcon
+        :icon-left="IPhBroom"
+        label="Purge defaults"
+        tooltip-label="Remove options already at their default value"
+        hide-label
+        square
+        variant="outline-secondary"
+        size="sm"
+        :disabled="!canPurge"
+        @click="purge"
+      />
+    </div>
   </div>
 </template>
 
