@@ -43,8 +43,9 @@ vi.mock('@/composables/useChartEditSections', () => ({
   useChartEditSections: () => ({ sections: ref([]) }),
 }))
 
+const isNarrowRef = ref(false)
 vi.mock('@blueprint-chart/ui', () => ({
-  useBreakpoint: () => ({ isNarrow: ref(false) }),
+  useBreakpoint: () => ({ isNarrow: isNarrowRef }),
 }))
 
 vi.mock('@vueuse/core', () => ({
@@ -60,6 +61,7 @@ function mountPanel() {
 describe('ChartEditPanel', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
+    isNarrowRef.value = false
   })
 
   it('renders the floating timeline inside the canvas in preview mode', () => {
@@ -71,7 +73,10 @@ describe('ChartEditPanel', () => {
 })
 
 describe('ChartEditPanel view modes', () => {
-  beforeEach(() => { setActivePinia(createPinia()) })
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    isNarrowRef.value = false
+  })
 
   it('shows the chart and not the DSL pane in preview mode', () => {
     useEditorPanel().viewMode.value = 'preview'
@@ -136,5 +141,16 @@ describe('ChartEditPanel view modes', () => {
     panel.viewMode.value = 'preview'
     await nextTick()
     expect(panelStoreMock.dock).toHaveBeenCalled()
+  })
+
+  it('stacks the frame and hides the divider on narrow split', () => {
+    isNarrowRef.value = true
+    useEditorPanel().viewMode.value = 'split'
+    const wrapper = mountPanel()
+    expect(wrapper.find('.chart-edit-panel__canvas-frame--stacked').exists()).toBe(true)
+    expect(wrapper.find('.chart-edit-panel__divider').exists()).toBe(false)
+    // both panes still present
+    expect(wrapper.findComponent(PreviewChart).exists()).toBe(true)
+    expect(wrapper.find('.chart-edit-panel__canvas__dsl').exists()).toBe(true)
   })
 })

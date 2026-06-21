@@ -7,7 +7,10 @@
          is pinned to the frame so it stays put (like the floating timeline). -->
     <div
       class="chart-edit-panel__canvas-frame"
-      :class="{ 'chart-edit-panel__canvas-frame--split': viewMode === 'split' }"
+      :class="{
+        'chart-edit-panel__canvas-frame--split': viewMode === 'split',
+        'chart-edit-panel__canvas-frame--stacked': viewMode === 'split' && isNarrow,
+      }"
     >
       <ChartEditToolbar class="chart-edit-panel__view-toolbar" />
 
@@ -17,7 +20,7 @@
         :style="dslPaneStyle"
       />
       <div
-        v-if="viewMode === 'split'"
+        v-if="viewMode === 'split' && !isNarrow"
         class="chart-edit-panel__divider"
         @pointerdown="onDividerDown"
       />
@@ -150,11 +153,12 @@ watch(viewMode, (mode) => {
 const chartVisible = computed(() => viewMode.value !== 'dsl')
 const dslVisible = computed(() => viewMode.value !== 'preview')
 
-const dslPaneStyle = computed<CSSProperties>(() =>
-  viewMode.value === 'split'
-    ? { flex: `0 0 ${splitRatio.value * 100}%` }
-    : { flex: '1 1 auto' },
-)
+const dslPaneStyle = computed<CSSProperties>(() => {
+  if (viewMode.value !== 'split' || isNarrow.value) {
+    return { flex: '1 1 auto' }
+  }
+  return { flex: `0 0 ${splitRatio.value * 100}%` }
+})
 
 function onDividerDown(e: PointerEvent) {
   const frame = (e.currentTarget as HTMLElement).parentElement
@@ -385,6 +389,20 @@ const canvasStyle = computed<CSSProperties>(() => ({
       }
     }
 
+  }
+
+  &__canvas-frame--stacked {
+    flex-direction: column;
+
+    .chart-edit-panel__canvas {
+      flex: 0 0 45%;
+      min-height: 0;
+    }
+    .chart-edit-panel__canvas__dsl {
+      flex: 1 1 auto;
+      min-height: 0;
+      border-top: 1px solid var(--bc-hairline);
+    }
   }
 
   &__canvas__dsl {
