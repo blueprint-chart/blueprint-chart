@@ -5,15 +5,31 @@
   >
     <!-- Non-scrolling frame: the canvas scrolls inside it, but the mode picker
          is pinned to the frame so it stays put (like the floating timeline). -->
-    <div class="chart-edit-panel__canvas-frame">
+    <div
+      class="chart-edit-panel__canvas-frame"
+      :class="{ 'chart-edit-panel__canvas-frame--split': viewMode === 'split' }"
+    >
+      <ChartEditToolbar class="chart-edit-panel__view-toolbar" />
+
+      <ChartEditDsl
+        v-if="dslVisible"
+        class="chart-edit-panel__canvas__dsl"
+        :style="dslPaneStyle"
+      />
       <div
+        v-if="viewMode === 'split'"
+        class="chart-edit-panel__divider"
+        @pointerdown="onDividerDown"
+      />
+
+      <div
+        v-if="chartVisible"
         ref="canvasRef"
         class="chart-edit-panel__canvas"
         :class="canvasClassList"
         :style="canvasStyle"
       >
         <div
-          v-if="viewMode === 'preview'"
           ref="cardRef"
           class="chart-edit-panel__canvas__card"
           :class="cardClass"
@@ -21,19 +37,15 @@
         >
           <PreviewChart />
         </div>
-        <ChartEditDsl
-          v-else
-          class="chart-edit-panel__canvas__dsl"
-        />
         <CanvasDimensions
-          v-if="viewMode === 'preview' && showDimensions"
+          v-if="showDimensions"
           :card-ref="cardRef"
           :canvas-ref="canvasRef"
           :layout="layout"
         />
-        <FloatingSceneTimeline v-if="viewMode === 'preview'" />
+        <FloatingSceneTimeline />
       </div>
-      <CanvasModePicker v-if="viewMode === 'preview'" />
+      <CanvasModePicker v-if="chartVisible" />
     </div>
     <PanelShell
       v-model:drawer-open="drawerOpen"
@@ -51,12 +63,6 @@
           sticky
           @update:model-value="onDrawerTabPick"
         />
-      </template>
-      <template
-        v-if="panelMode !== 'drawer'"
-        #header
-      >
-        <ChartEditToolbar />
       </template>
       <EditorChartTypePicker v-if="activeTab === 'type'" />
       <EditorPropertyForm v-else-if="activeTab === 'text'" />
@@ -88,7 +94,7 @@ import FloatingSceneTimeline from '@/components/Scene/FloatingSceneTimeline.vue'
 import { useScenes } from '@/composables/useScenes'
 
 const editorPanel = useEditorPanel()
-const { viewMode, activeTab, canvasMode, showDimensions } = storeToRefs(editorPanel)
+const { viewMode, activeTab, canvasMode, showDimensions, splitRatio } = storeToRefs(editorPanel)
 const { stopPlayback } = useScenes()
 const { selectTab, setLastNarrowEditTab } = editorPanel
 const { mode: panelMode } = usePanel()
@@ -126,13 +132,26 @@ function onDrawerTabPick(tab: string) {
 
 // Scene playback runs in the scenes store, not the timeline component. The
 // floating timeline (the only pause control in wide mode) is hidden in DSL
-// view, so stop playback when leaving preview — otherwise it keeps advancing
-// scenes with no way to pause.
+// view, so stop playback when the chart is fully hidden — otherwise it keeps
+// advancing scenes with no way to pause.
 watch(viewMode, (mode) => {
-  if (mode !== 'preview') {
+  if (mode === 'dsl') {
     stopPlayback()
   }
 })
+
+const chartVisible = computed(() => viewMode.value !== 'dsl')
+const dslVisible = computed(() => viewMode.value !== 'preview')
+
+const dslPaneStyle = computed<CSSProperties>(() =>
+  viewMode.value === 'split'
+    ? { flex: `0 0 ${splitRatio.value * 100}%` }
+    : { flex: '1 1 auto' },
+)
+
+function onDividerDown(_e: PointerEvent) {
+  // wired up in Task 4
+}
 
 const tabs = computed(() =>
   sections.value.map(s => ({ key: s.key, label: s.label, icon: s.icon })),
@@ -143,10 +162,9 @@ const panelClassList = computed(() => ({
 
 const canvasClassList = computed(() => ({
   [`chart-edit-panel__canvas--${canvasMode.value}`]: canvasMode.value !== 'blueprint',
-  'chart-edit-panel__canvas--dsl': viewMode.value !== 'preview',
   // Reserve extra bottom space so the canvas dimension ruler clears the
   // floating timeline when scrolled.
-  'chart-edit-panel__canvas--dimensions': viewMode.value === 'preview' && showDimensions.value,
+  'chart-edit-panel__canvas--dimensions': chartVisible.value && showDimensions.value,
 }))
 
 const TAB_LABELS: Record<string, string> = {
@@ -213,6 +231,25 @@ const canvasStyle = computed<CSSProperties>(() => ({
       // Narrow mode has no floating timeline (it uses the compact dock).
       --canvas-mode-picker-bottom: 1rem;
     }
+  }
+
+  &__view-toolbar {
+    position: absolute;
+    top: var(--canvas-float-inset);
+    right: var(--canvas-float-inset);
+    z-index: 4;
+    background: var(--bc-chrome-bg);
+    border: 1px solid var(--bc-hairline);
+    border-radius: var(--bc-radius-sm);
+    padding: 0.25rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  }
+
+  &__divider {
+    flex: 0 0 6px;
+    cursor: col-resize;
+    background: var(--bc-hairline);
+    align-self: stretch;
   }
 
   &__canvas {
@@ -283,18 +320,6 @@ const canvasStyle = computed<CSSProperties>(() => ({
       --bc-canvas-dimension-color: rgba(255, 255, 255, 0.3);
     }
 
-    // DSL editor mode — fill the full canvas, no grid
-    &--dsl {
-      --fst-canvas-pad-x: 0px;
-      --fst-canvas-pad-y: 0px;
-      // CodeMirror scrolls internally; the canvas itself must not scroll too,
-      // or there'd be a double scrollbar. The scene timeline is hidden in DSL
-      // mode, so only a small bottom breathing space is needed.
-      --fst-clearance: 1rem;
-      overflow: hidden;
-      background-image: none;
-    }
-
     &__card {
       position: relative;
       z-index: 1;
@@ -334,11 +359,14 @@ const canvasStyle = computed<CSSProperties>(() => ({
       }
     }
 
-    &__dsl {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-    }
+  }
+
+  &__canvas__dsl {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    background: var(--bc-content-bg);
+    overflow: hidden;
   }
 
   &__drawer-body {

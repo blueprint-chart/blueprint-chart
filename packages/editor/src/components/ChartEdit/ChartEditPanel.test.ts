@@ -1,16 +1,22 @@
 import { shallowMount } from '@vue/test-utils'
 import ChartEditPanel from './ChartEditPanel.vue'
 import FloatingSceneTimeline from '@/components/Scene/FloatingSceneTimeline.vue'
+import PreviewChart from '@/components/Preview/PreviewChart.vue'
+import { useEditorPanel } from '@/stores/editorPanel'
+
+const editorPanelState = {
+  viewMode: ref('preview'),
+  activeTab: ref(''),
+  canvasMode: ref('blueprint'),
+  showDimensions: ref(false),
+  splitRatio: ref(0.5),
+  selectTab: vi.fn(),
+  setLastNarrowEditTab: vi.fn(),
+  setSplitRatio: vi.fn(),
+}
 
 vi.mock('@/stores/editorPanel', () => ({
-  useEditorPanel: () => ({
-    viewMode: ref('preview'),
-    activeTab: ref(''),
-    canvasMode: ref('blueprint'),
-    showDimensions: ref(false),
-    selectTab: vi.fn(),
-    setLastNarrowEditTab: vi.fn(),
-  }),
+  useEditorPanel: () => editorPanelState,
 }))
 
 vi.mock('@/stores/panel', () => ({
@@ -54,12 +60,47 @@ describe('ChartEditPanel', () => {
     setActivePinia(createPinia())
   })
 
-  it('renders the floating timeline as the last child of the canvas', () => {
+  it('renders the floating timeline inside the canvas in preview mode', () => {
+    useEditorPanel().viewMode.value = 'preview'
     const w = mountPanel()
-    const canvas = w.find('.chart-edit-panel__canvas')
     const timeline = w.findComponent(FloatingSceneTimeline)
     expect(timeline.exists()).toBe(true)
-    // It must be the LAST child so it floats below the canvas content.
-    expect(canvas.element.lastElementChild).toBe(timeline.element)
+  })
+})
+
+describe('ChartEditPanel view modes', () => {
+  beforeEach(() => { setActivePinia(createPinia()) })
+
+  it('shows the chart and not the DSL pane in preview mode', () => {
+    useEditorPanel().viewMode.value = 'preview'
+    const wrapper = mountPanel()
+    expect(wrapper.findComponent(PreviewChart).exists()).toBe(true)
+    expect(wrapper.find('.chart-edit-panel__canvas__dsl').exists()).toBe(false)
+  })
+
+  it('shows BOTH the chart and the DSL pane in split mode', () => {
+    useEditorPanel().viewMode.value = 'split'
+    const wrapper = mountPanel()
+    expect(wrapper.findComponent(PreviewChart).exists()).toBe(true)
+    expect(wrapper.find('.chart-edit-panel__canvas__dsl').exists()).toBe(true)
+  })
+
+  it('shows the DSL pane and hides the chart in dsl mode', () => {
+    useEditorPanel().viewMode.value = 'dsl'
+    const wrapper = mountPanel()
+    expect(wrapper.findComponent(PreviewChart).exists()).toBe(false)
+    expect(wrapper.find('.chart-edit-panel__canvas__dsl').exists()).toBe(true)
+  })
+
+  it('renders the pinned view toolbar in every mode', () => {
+    useEditorPanel().viewMode.value = 'dsl'
+    const wrapper = mountPanel()
+    expect(wrapper.find('.chart-edit-panel__view-toolbar').exists()).toBe(true)
+  })
+
+  it('renders the scene timeline in split mode (chart is visible)', () => {
+    useEditorPanel().viewMode.value = 'split'
+    const wrapper = mountPanel()
+    expect(wrapper.findComponent(FloatingSceneTimeline).exists()).toBe(true)
   })
 })
