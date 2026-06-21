@@ -157,4 +157,54 @@ describe('createDslSync', () => {
     c.onBlur()
     expect(h.applyDsl).toHaveBeenCalledWith('chart bar {}')
   })
+
+  it('applies a buffered external change on blur when the user did not edit', () => {
+    const h = makeHarness()
+    h.doc = 'chart bar {}'
+    const c = createDslSync(h.effects)
+    c.onFocus()
+    // External change arrives while focused (e.g. cloud sync) — suppressed now.
+    c.onExternalDsl('chart line {}')
+    expect(h.patchDoc).not.toHaveBeenCalled()
+    // User blurs without having typed: the buffered change is applied, not lost.
+    c.onBlur()
+    expect(h.doc).toBe('chart line {}')
+  })
+
+  it('lets the user edit win over a buffered external change on blur', () => {
+    const h = makeHarness({ canonical: 'chart bar {\n  title = "mine"\n}\n' })
+    h.doc = 'chart bar {}'
+    const c = createDslSync(h.effects)
+    c.onFocus()
+    c.onDocChanged('chart bar { title = "mine" }') // dirty
+    h.flush()
+    c.onExternalDsl('chart line {}') // external arrives while focused
+    c.onBlur()
+    // The user's edit (snapped to canonical) wins; the buffered external is dropped.
+    expect(h.doc).toBe('chart bar {\n  title = "mine"\n}\n')
+  })
+
+  it('does not snap to canonical on blur when the document contains comments', () => {
+    const h = makeHarness({ canonical: 'chart bar {\n  title = "x"\n}\n' })
+    h.doc = 'chart bar {\n  // keep me\n  title = "x"\n}\n'
+    const c = createDslSync(h.effects)
+    c.onFocus()
+    c.onDocChanged(h.doc) // valid parse
+    h.flush()
+    c.onBlur()
+    // Comments would be lost by canonical regeneration, so the text is left as-is.
+    expect(h.patchDoc).not.toHaveBeenCalled()
+    expect(h.doc).toContain('// keep me')
+  })
+
+  it('cancel() stops a pending parse so it never runs', () => {
+    const h = makeHarness()
+    const c = createDslSync(h.effects)
+    c.onFocus()
+    c.onDocChanged('chart bar {}')
+    c.cancel()
+    expect(h.cancels[0]).toHaveBeenCalled()
+    h.flush()
+    expect(h.applyDsl).not.toHaveBeenCalled()
+  })
 })

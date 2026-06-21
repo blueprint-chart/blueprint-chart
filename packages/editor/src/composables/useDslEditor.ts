@@ -1,11 +1,12 @@
 import { onMounted, onUnmounted, watch, type TemplateRef } from 'vue'
+import { useTimeoutFn } from '@vueuse/core'
 import { EditorView, keymap, lineNumbers, highlightActiveLine, highlightActiveLineGutter } from '@codemirror/view'
 import { EditorState } from '@codemirror/state'
 import { defaultKeymap, history, historyKeymap } from '@codemirror/commands'
 import { bracketMatching, indentOnInput, indentUnit } from '@codemirror/language'
 import { closeBrackets, closeBracketsKeymap } from '@codemirror/autocomplete'
 import { lintGutter, linter, forceLinting } from '@codemirror/lint'
-import { bpcLanguage, bpcHighlighter } from '@/dsl-lang'
+import { bpcLanguage, bpcHighlighter, bpcEditorTheme } from '@/dsl-lang'
 import { buildDiagnostics } from '@/dsl-lang/diagnostics'
 import { createDslSync, type DslSyncController } from '@/composables/dslSync'
 import { useDslOutput } from '@/composables/useDslOutput'
@@ -13,30 +14,6 @@ import { useDslSync } from '@/composables/useDslSync'
 import '@/dsl-lang/highlight.scss'
 
 const DEBOUNCE_MS = 200
-
-const editorTheme = EditorView.theme({
-  '&': {
-    height: '100%',
-    backgroundColor: 'var(--bc-tile-bg-elevated)',
-    fontSize: '13px',
-  },
-  '.cm-scroller': { overflow: 'auto', lineHeight: '1.6' },
-  // --fst-clearance is set by ChartEditPanel next to the floating scene
-  // timeline; the fallback covers standalone use. Keep this hack.
-  '.cm-content': {
-    fontFamily: 'var(--bs-font-monospace)',
-    paddingBottom: 'var(--fst-clearance, 9rem)',
-    caretColor: 'var(--bs-body-color)',
-  },
-  '.cm-cursor, .cm-dropCursor': { borderLeftColor: 'var(--bs-body-color)' },
-  '.cm-activeLine': { backgroundColor: 'color-mix(in srgb, var(--bs-body-color) 4%, transparent)' },
-  '.cm-activeLineGutter': { backgroundColor: 'color-mix(in srgb, var(--bs-body-color) 6%, transparent)' },
-  '.cm-gutters': {
-    backgroundColor: 'var(--bc-tile-bg-elevated)',
-    color: 'color-mix(in srgb, var(--bs-body-color) 28%, transparent)',
-    border: 'none',
-  },
-})
 
 export function useDslEditor(editorEl: TemplateRef<HTMLElement>): void {
   const { dsl, generateDsl, compact } = useDslOutput()
@@ -49,6 +26,17 @@ export function useDslEditor(editorEl: TemplateRef<HTMLElement>): void {
 
   let view: EditorView | undefined
   let controller: DslSyncController | undefined
+
+  // Single reusable debounce timer (via @vueuse useTimeoutFn) instead of a
+  // hand-rolled setTimeout. It auto-stops on scope dispose, and we stop it
+  // explicitly on unmount so an in-flight parse can't mutate the stores after
+  // the editor is gone.
+  let pendingParse: (() => void) | null = null
+  const { start: startDebounce, stop: stopDebounce } = useTimeoutFn(() => {
+    const fn = pendingParse
+    pendingParse = null
+    fn?.()
+  }, DEBOUNCE_MS, { immediate: false })
 
   const dslLinter = linter(v => (controller ? buildDiagnostics(controller.lastParse, v.state.doc) : []))
 
@@ -64,8 +52,9 @@ export function useDslEditor(editorEl: TemplateRef<HTMLElement>): void {
         }
       },
       schedule: (fn) => {
-        const id = setTimeout(fn, DEBOUNCE_MS)
-        return () => clearTimeout(id)
+        pendingParse = fn
+        startDebounce()
+        return () => stopDebounce()
       },
     })
 
@@ -98,7 +87,7 @@ export function useDslEditor(editorEl: TemplateRef<HTMLElement>): void {
             }
           }
         }),
-        editorTheme,
+        bpcEditorTheme,
       ],
     })
 
@@ -110,6 +99,8 @@ export function useDslEditor(editorEl: TemplateRef<HTMLElement>): void {
   })
 
   onUnmounted(() => {
+    controller?.cancel()
+    stopDebounce()
     view?.destroy()
     view = undefined
     controller = undefined
