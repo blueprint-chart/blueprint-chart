@@ -80,7 +80,7 @@ chart bar-vertical {
 ```
 
 ::: info From `packages/lib/src/samples/letter-frequency.bpc`
-`valueLabels = true` puts the precise number at the end of every bar, so the y-axis label position can be set to `off` and the gridlines removed entirely. Direct labelling replaces both the legend and the axis labels — a clean application of the data-ink rule.
+Value labels appear at the end of every bar by default, so the y-axis label position can be set to `off` and the gridlines removed entirely. Direct labelling replaces both the legend and the axis labels — a clean application of the data-ink rule.
 :::
 
 ## Worked example: legend at the top, direct value labels at the bar end
@@ -104,7 +104,7 @@ chart bar-multi {
 ```
 
 ::: info From `packages/lib/src/samples/medal-count.bpc`
-A multi-series bar chart needs a legend to map the three hues to Gold / Silver / Bronze — placed at the top so the eye reaches it before scanning the bars. Inside each bar, `valueLabels = true` prints the exact count, eliminating the need to read against a vertical scale.
+A multi-series bar chart needs a legend to map the three hues to Gold / Silver / Bronze — placed at the top so the eye reaches it before scanning the bars. Inside each bar, value labels print the exact count by default, eliminating the need to read against a vertical scale.
 :::
 
 ## See also

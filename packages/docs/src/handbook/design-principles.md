@@ -93,7 +93,7 @@ chart bar-vertical {
 ```
 
 ::: info From `packages/lib/src/samples/coffee-production.bpc`
-Five bars stay in muted neutrals; the `colorize "Brazil"` block lifts the one bar the title is about. `valueLabels = true` removes the need for a y-axis altogether — direct labels carry the precise numbers, and gridlines drop out entirely. Restraint, purposefulness, and "start with grey" applied in a single chart.
+Five bars stay in muted neutrals; the `colorize "Brazil"` block lifts the one bar the title is about. Direct labels carry the precise numbers by default, removing the need for a y-axis altogether, and gridlines drop out entirely. Restraint, purposefulness, and "start with grey" applied in a single chart.
 :::
 
 ## How Blueprint Chart applies these principles
