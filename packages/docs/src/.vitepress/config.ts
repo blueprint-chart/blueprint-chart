@@ -12,6 +12,15 @@ export default defineConfig({
         },
       },
     },
+    // @blueprint-chart/lib's browser entry has a node-only, runtime-guarded
+    // dynamic import of its node backend, which pulls in native .node binaries
+    // (@napi-rs/canvas, @resvg/resvg-js) that rollup can't bundle. Keep the
+    // backend external — the import is never reached in the browser anyway.
+    build: {
+      rollupOptions: {
+        external: [/@blueprint-chart\/lib\/internal\/node-backend/],
+      },
+    },
   },
 
   title: 'Blueprint Chart',
