@@ -71,9 +71,6 @@ chart bar-vertical {
   description = "Million 60-kg bags, 2023/24 crop year"
   source = "International Coffee Organization"
   colorPalette = "Harvey"
-  valueLabels = true
-  verticalGridStyle = "none"
-  horizontalGridStyle = "none"
 
   data {
     "Brazil" = 66.4

@@ -1,3 +1,14 @@
+## [Unreleased]
+
+### Features
+
+- **Bar charts now default to no value axis with direct value labels.** Every bar
+  variant (vertical, horizontal, grouped, stacked, split) hides the value-axis
+  line, ticks, numbers, and value gridlines, and labels each bar directly; labels
+  that don't fit their bar are suppressed and fall back to the tooltip instead. Restore the
+  previous look with `showVerticalAxis`/`showHorizontalAxis`, `verticalGridStyle`/
+  `horizontalGridStyle`, or by setting `valueLabels` off.
+
 ## [0.3.0](https://github.com/blueprint-chart/blueprint-chart/compare/v0.2.0...v0.3.0) (2026-06-20)
 
 ### Features
