@@ -10,6 +10,25 @@ npm install @blueprint-chart/lib
 
 ## Quick start
 
+### Node — write SVG and PNG to disk
+
+```ts
+import { render } from '@blueprint-chart/lib'
+import { writeFile } from 'node:fs/promises'
+
+const chart = await render(bpc)
+await writeFile('chart.svg', await chart.toSvg())
+await writeFile('chart.png', await chart.toPng({ width: 1200 }))
+```
+
+### Browser — mount and step scenes
+
+```ts
+const { mount, scene } = await render(bpc)
+mount('#chart')   // element or selector
+scene(2)          // advance to scene index 2
+```
+
 The simplest way to render a chart is the IIFE runtime, which auto-scans the document for embedded chart definitions and renders each one inline (inside a sandboxed iframe inserted before the script tag):
 
 ```html

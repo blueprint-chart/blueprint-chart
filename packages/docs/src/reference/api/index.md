@@ -6,6 +6,56 @@ Public surface of [`@blueprint-chart/lib`](https://www.npmjs.com/package/@bluepr
 This page mirrors [`packages/lib/src/index.ts`](https://github.com/blueprint-chart/blueprint-chart/blob/main/packages/lib/src/index.ts). It will be progressively replaced by automatically-generated TypeDoc output; for now, treat the source file as canonical when a symbol is missing here.
 :::
 
+## Rendering a chart
+
+The fastest path: one function returns a chart **handle**.
+
+```ts
+import { render } from '@blueprint-chart/lib'
+
+const chart = await render(bpcSource, { theme: 'dark' })
+```
+
+### Node — write SVG and PNG to disk
+
+```ts
+import { render } from '@blueprint-chart/lib'
+import { writeFile } from 'node:fs/promises'
+
+const chart = await render(bpc)
+await writeFile('chart.svg', await chart.toSvg())
+await writeFile('chart.png', await chart.toPng({ width: 1200 }))
+```
+
+### Browser — mount and step scenes
+
+```ts
+const { mount, scene } = await render(bpc)
+mount('#chart')   // element or selector
+scene(2)          // advance to scene index 2
+```
+
+### The handle
+
+`render(source, options?)` resolves to a `ChartHandle`. Its methods are **bound** — destructure them freely (`const { toSvg } = await render(bpc)`) — and `mount`/`scene` are **chainable** (`(await render(bpc)).scene(1).toSvg()`).
+
+| Method | Browser | Node | Returns |
+| --- | --- | --- | --- |
+| `toSvg(opts?)` | ✅ | ✅ | `Promise<string>` |
+| `toPng(opts?)` | ❌ throws `PngBrowserUnsupportedError` | ✅ | `Promise<Uint8Array>` |
+| `mount(target)` | ✅ | no-op (warns) | `ChartHandle` |
+| `scene(n)` | ✅ | ✅ | `ChartHandle` |
+
+`RenderApiOptions`: `theme?`, `scene?` (initial scene), `width?`/`height?` (default `640×400`, used for headless output only), `frame?` (default `true`; `false` renders frameless). `OutputOptions` on `toSvg`/`toPng`: `width?`, `height?`.
+
+### Node dependencies
+
+PNG export and headless SVG in Node require optional native deps (`jsdom`, `@napi-rs/canvas`, `@resvg/resvg-js`), installed automatically as `optionalDependencies`. If a binary failed to install, the Node methods throw `MissingNodeRenderDepsError` naming what to reinstall. Browser bundles never include these.
+
+> SVG produced headlessly carries inline data colors and renders fonts via bundled DejaVu during PNG rasterization. It does not inline the full `charts.scss` theme; opening the bare `.svg` outside an app with that stylesheet may lack some structural styling.
+
+## Low-level surface
+
 ## Entrypoints
 
 | Entrypoint | Purpose |

@@ -98,6 +98,7 @@ export default defineConfig({
           collapsed: false,
           items: [
             { text: 'Getting Started', link: '/guide/getting-started' },
+            { text: 'Rendering', link: '/guide/rendering' },
             { text: 'Authoring with AI', link: '/guide/mcp' },
             { text: 'Embedding Charts', link: '/guide/embed' },
           ],
