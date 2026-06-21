@@ -36,8 +36,10 @@ Place labels directly on or adjacent to data elements instead of using a separat
 
 ## Value labels
 
-- Show value labels when precision matters to the reader
-- On bar charts: inside the bar (if wide enough) or at the end
+For bar charts, value labels are **on by default** — they replace the value axis entirely, so each bar carries its number directly. The renderer uses an "auto: label if it fits" rule: when a bar or stack segment is too narrow to hold its label legibly, the label is suppressed and the value falls back to the tooltip instead. See [Axes & Grid Lines](/handbook/axes) for the no-value-axis default.
+
+For other chart types:
+
 - On line charts: at key data points only, not every point
 - On pie / donut charts: outside for small slices, inside for large ones
 - Position labels to avoid overlap; use tooltips as a fallback for dense data

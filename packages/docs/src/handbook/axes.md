@@ -27,6 +27,18 @@ Truncating the y-axis on a bar or area chart visually exaggerates differences. T
 - Remove grid lines entirely when value labels are shown directly on data
 - Grid lines are reference aids, not primary content — they should never compete with data
 
+## Bar charts default to no value axis
+
+Bar charts label each bar directly, so the value axis is redundant. Every bar
+variant — vertical, horizontal, grouped, stacked, split — defaults to **no
+value-axis line, no value ticks/numbers, and no value gridlines**. Only the zero
+baseline and the category names remain.
+
+When a segment is too small to hold its label legibly, the label is suppressed
+and the value falls back to the tooltip. To restore a value axis, set
+`showVerticalAxis` / `showHorizontalAxis`, `verticalGridStyle` /
+`horizontalGridStyle`, or turn `valueLabels` off explicitly.
+
 ## Tick marks
 
 - Subtle or no ticks are preferred in modern chart design
@@ -62,6 +74,8 @@ A trend that looks alarming at 3:1 can look flat at 3:4. When showing rate of ch
 ## How Blueprint Chart applies axes
 
 Blueprint Chart's `AxisOptions` exposes scale type (linear / log), tick count, tick format, and baseline behavior. D3 scales drive the tick layout, and a shared number formatter is used by the axis, tooltip, and direct labels so the same value is rendered identically wherever it appears.
+
+Bar charts ship with the value axis suppressed by default — direct value labels replace it. The category axis always remains. See [Bar charts default to no value axis](#bar-charts-default-to-no-value-axis) above for the complete rule.
 
 See the [API reference](/reference/api/) for the public options that toggle grid lines, tick density, and baseline zero.
 
