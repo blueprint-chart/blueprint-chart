@@ -68,7 +68,6 @@ chart bar-vertical {
   source = "Lewand, Cryptological Mathematics"
   note = "Based on analysis of 40,000 words from English prose"
   valueLabels = true
-  verticalLabelPosition = off
   verticalGridStyle = none
 
   data {

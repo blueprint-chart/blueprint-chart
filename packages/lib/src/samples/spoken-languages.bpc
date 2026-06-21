@@ -5,7 +5,6 @@ chart bar-horizontal {
   sourceUrl = "https://ethnologue.com"
   byline = "Pierre Romera"
   sort = descending
-  horizontalLabelPosition = off
 
   highlight "Mandarin"
 

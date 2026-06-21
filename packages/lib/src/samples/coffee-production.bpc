@@ -4,7 +4,6 @@ chart bar-vertical {
   source = "International Coffee Organization"
   sourceUrl = "https://ico.org"
   colorPalette = "Harvey"
-  verticalLabelPosition = "off"
 
   data {
     "Brazil" = 66.4

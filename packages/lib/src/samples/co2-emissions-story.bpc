@@ -5,7 +5,6 @@ chart bar-horizontal {
   source = "Global Carbon Project"
   sourceUrl = "https://globalcarbonproject.org"
   byline = "Pierre Romera"
-  horizontalLabelPosition = off
 
   // one row per country: "label" = value
   data {

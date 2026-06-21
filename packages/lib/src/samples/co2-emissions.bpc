@@ -4,7 +4,6 @@ chart bar-vertical {
   description = "Annual emissions in billion tonnes, 2023"
   source = "Global Carbon Project"
   sourceUrl = "https://globalcarbonproject.org"
-  verticalLabelPosition = "off"
 
   // one row per country: "label" = value
   data {

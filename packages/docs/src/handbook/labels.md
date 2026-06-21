@@ -67,7 +67,6 @@ chart bar-vertical {
   title = "E is the most frequent letter in English"
   description = "How often each letter appears in typical English text"
   sort = descending
-  verticalLabelPosition = off
 
   data {
     "E" = 12.70
@@ -91,7 +90,6 @@ chart bar-multi {
   description = "2024 Paris Summer Games — top six nations"
   colors = "#eeca3b, #c0c0c0, #cd7f32"
   legendPosition = "top"
-  verticalLabelPosition = off
   sort = descending
 
   data {
