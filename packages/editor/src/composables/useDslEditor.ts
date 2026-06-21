@@ -39,7 +39,12 @@ const editorTheme = EditorView.theme({
 })
 
 export function useDslEditor(editorEl: TemplateRef<HTMLElement>): void {
-  const { dsl, generateDsl } = useDslOutput()
+  const { dsl, generateDsl, compact } = useDslOutput()
+  // Generate compact canonical: emit only what the user meaningfully set, not
+  // every ensureDefaults-backfilled option. Otherwise the seed and the
+  // blur-time snap re-expand the chart, and deleting a default-valued line
+  // would reappear ("previous value restored").
+  compact.value = true
   const { applyDsl } = useDslSync()
 
   let view: EditorView | undefined
