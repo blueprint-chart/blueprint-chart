@@ -313,6 +313,7 @@ function axisOpts(defaults: {
   showVerticalTicks: boolean
   showHorizontalTicks: boolean
   showVerticalAxis?: boolean
+  showHorizontalAxis?: boolean
   valueAxis?: 'vertical' | 'horizontal'
   horizontalRange?: boolean
   valueAxisZeroBaseline?: boolean
@@ -333,7 +334,7 @@ function axisOpts(defaults: {
           { key: 'verticalRangeMax', type: ChartOptionType.Text as const, label: 'Vertical max', placeholder: 'auto' },
         ]
       : []),
-    { key: 'showHorizontalAxis', type: ChartOptionType.Boolean, label: 'Show horizontal axis', default: true },
+    { key: 'showHorizontalAxis', type: ChartOptionType.Boolean, label: 'Show horizontal axis', default: defaults.showHorizontalAxis ?? true },
     { key: 'showHorizontalTicks', type: ChartOptionType.Boolean, label: 'Show horizontal ticks', default: defaults.showHorizontalTicks },
     { key: 'horizontalLabelPosition', type: ChartOptionType.Select, label: 'Horizontal labels', default: LabelPosition.Auto, choices: LABEL_POSITION_CHOICES },
     { key: 'horizontalLabelRotation', type: ChartOptionType.Select, label: 'Horizontal label rotation', default: LabelRotation.Horizontal, choices: LABEL_ROTATION_CHOICES },
@@ -360,8 +361,8 @@ function axisOpts(defaults: {
 // Vertical bars: value axis is vertical → no vertical grid (direct labels carry value), no horizontal grid, no ticks, no vertical axis line
 const barVerticalAxisOpts = axisOpts({ verticalGrid: GridStyle.None, horizontalGrid: GridStyle.None, showVerticalTicks: false, showHorizontalTicks: false, showVerticalAxis: false, valueAxis: 'vertical', valueAxisZeroBaseline: true })
 
-// Horizontal bars: value axis is horizontal → vertical dashed grid, no horizontal grid, no ticks on category axis
-const barHorizontalAxisOpts = axisOpts({ verticalGrid: GridStyle.None, horizontalGrid: GridStyle.Dashed, showVerticalTicks: false, showHorizontalTicks: false, valueAxis: 'horizontal', valueAxisZeroBaseline: true })
+// Horizontal bars: value axis is horizontal → no value axis line, no gridlines, no ticks (direct labels carry value)
+const barHorizontalAxisOpts = axisOpts({ verticalGrid: GridStyle.None, horizontalGrid: GridStyle.None, showVerticalTicks: false, showHorizontalTicks: false, showHorizontalAxis: false, valueAxis: 'horizontal', valueAxisZeroBaseline: true })
 
 // Lines: value axis is vertical → horizontal dashed grid, no vertical grid, no vertical axis line
 const lineAxisOpts = axisOpts({ verticalGrid: GridStyle.Dashed, horizontalGrid: GridStyle.None, showVerticalTicks: false, showHorizontalTicks: false, showVerticalAxis: false, valueAxis: 'vertical', horizontalRange: true })

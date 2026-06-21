@@ -377,12 +377,12 @@ export const MATRIX: Matrix = {
       target: GridStyle.None,
       rule: RULE_BAR_NO_VALUE_AXIS,
     },
-    // horizontal bar; horizontalGridStyle=Dashed (value axis), verticalGridStyle=None → asserted
+    // horizontal bar; horizontalGridStyle=None (value axis gridlines off; direct labels carry value) → asserted
     [ChartType.BarHorizontal]: {
       status: 'asserted',
       optionKey: 'horizontalGridStyle',
-      target: GridStyle.Dashed,
-      rule: RULE_GRIDLINES_Y_AXIS,
+      target: GridStyle.None,
+      rule: RULE_BAR_NO_VALUE_AXIS,
     },
     // multi-series vertical bar; same axis opts as barVertical → asserted
     [ChartType.BarMulti]: {
@@ -391,26 +391,26 @@ export const MATRIX: Matrix = {
       target: GridStyle.None,
       rule: RULE_BAR_NO_VALUE_AXIS,
     },
-    // stacked horizontal bar; horizontalGridStyle=Dashed (value axis) → asserted
+    // stacked horizontal bar; horizontalGridStyle=None (value axis gridlines off; direct labels carry value) → asserted
     [ChartType.BarStacked]: {
       status: 'asserted',
       optionKey: 'horizontalGridStyle',
-      target: GridStyle.Dashed,
-      rule: RULE_GRIDLINES_Y_AXIS,
+      target: GridStyle.None,
+      rule: RULE_BAR_NO_VALUE_AXIS,
     },
-    // split bar; horizontalGridStyle=Dashed (value axis) → asserted
+    // split bar; horizontalGridStyle=None (value axis gridlines off; direct labels carry value) → asserted
     [ChartType.BarSplit]: {
       status: 'asserted',
       optionKey: 'horizontalGridStyle',
-      target: GridStyle.Dashed,
-      rule: RULE_GRIDLINES_Y_AXIS,
+      target: GridStyle.None,
+      rule: RULE_BAR_NO_VALUE_AXIS,
     },
-    // grouped horizontal bars; horizontalGridStyle=Dashed (value axis) → asserted
+    // grouped horizontal bars; horizontalGridStyle=None (value axis gridlines off; direct labels carry value) → asserted
     [ChartType.BarGrouped]: {
       status: 'asserted',
       optionKey: 'horizontalGridStyle',
-      target: GridStyle.Dashed,
-      rule: RULE_GRIDLINES_Y_AXIS,
+      target: GridStyle.None,
+      rule: RULE_BAR_NO_VALUE_AXIS,
     },
     // stacked column; same axis opts as barVertical → asserted
     [ChartType.ColumnStacked]: {
@@ -560,55 +560,55 @@ export const MATRIX: Matrix = {
       status: 'asserted',
       optionKey: 'showVerticalAxis',
       target: false,
-      rule: RULE_FRAME_MINIMAL,
+      rule: RULE_BAR_NO_VALUE_AXIS,
       notes: 'Wiki silent on axis-line visibility default; hiding the value axis line on bar-vertical / line / area family aligns with minimal-frame principle (grid lines carry the value reference).',
     },
-    // horizontal bar; showVerticalAxis=true (category-axis line shown), showHorizontalAxis=true
+    // horizontal bar; showHorizontalAxis=false (value axis line hidden); category baseline (showVerticalAxis) stays true
     [ChartType.BarHorizontal]: {
       status: 'asserted',
       optionKey: 'showHorizontalAxis',
-      target: true,
-      rule: RULE_FRAME_MINIMAL,
-      notes: 'Wiki silent on axis-line visibility default; horizontal bar family keeps both axis lines visible to anchor the value-axis baseline and category labels.',
+      target: false,
+      rule: RULE_BAR_NO_VALUE_AXIS,
+      notes: 'Value axis line hidden; the category baseline (showVerticalAxis) anchors the bars and each bar is labelled directly.',
     },
     // multi-series vertical bar; showVerticalAxis=false, showHorizontalAxis=true
     [ChartType.BarMulti]: {
       status: 'asserted',
       optionKey: 'showVerticalAxis',
       target: false,
-      rule: RULE_FRAME_MINIMAL,
+      rule: RULE_BAR_NO_VALUE_AXIS,
       notes: 'Wiki silent on axis-line visibility default; hiding the value axis line on bar-vertical / line / area family aligns with minimal-frame principle (grid lines carry the value reference).',
     },
-    // stacked horizontal bar; showVerticalAxis=true, showHorizontalAxis=true
+    // stacked horizontal bar; showHorizontalAxis=false (value axis line hidden); category baseline stays true
     [ChartType.BarStacked]: {
       status: 'asserted',
       optionKey: 'showHorizontalAxis',
-      target: true,
-      rule: RULE_FRAME_MINIMAL,
-      notes: 'Wiki silent on axis-line visibility default; horizontal bar family keeps both axis lines visible to anchor the value-axis baseline and category labels.',
+      target: false,
+      rule: RULE_BAR_NO_VALUE_AXIS,
+      notes: 'Value axis line hidden; the category baseline (showVerticalAxis) anchors the bars and each bar is labelled directly.',
     },
-    // split bar; showVerticalAxis=true, showHorizontalAxis=true
+    // split bar; showHorizontalAxis=false (value axis line hidden); category baseline stays true
     [ChartType.BarSplit]: {
       status: 'asserted',
       optionKey: 'showHorizontalAxis',
-      target: true,
-      rule: RULE_FRAME_MINIMAL,
-      notes: 'Wiki silent on axis-line visibility default; horizontal bar family keeps both axis lines visible to anchor the value-axis baseline and category labels.',
+      target: false,
+      rule: RULE_BAR_NO_VALUE_AXIS,
+      notes: 'Value axis line hidden; the category baseline (showVerticalAxis) anchors the bars and each bar is labelled directly.',
     },
-    // grouped horizontal bars; showVerticalAxis=true, showHorizontalAxis=true
+    // grouped horizontal bars; showHorizontalAxis=false (value axis line hidden); category baseline stays true
     [ChartType.BarGrouped]: {
       status: 'asserted',
       optionKey: 'showHorizontalAxis',
-      target: true,
-      rule: RULE_FRAME_MINIMAL,
-      notes: 'Wiki silent on axis-line visibility default; horizontal bar family keeps both axis lines visible to anchor the value-axis baseline and category labels.',
+      target: false,
+      rule: RULE_BAR_NO_VALUE_AXIS,
+      notes: 'Value axis line hidden; the category baseline (showVerticalAxis) anchors the bars and each bar is labelled directly.',
     },
     // stacked column; showVerticalAxis=false, showHorizontalAxis=true
     [ChartType.ColumnStacked]: {
       status: 'asserted',
       optionKey: 'showVerticalAxis',
       target: false,
-      rule: RULE_FRAME_MINIMAL,
+      rule: RULE_BAR_NO_VALUE_AXIS,
       notes: 'Wiki silent on axis-line visibility default; hiding the value axis line on bar-vertical / line / area family aligns with minimal-frame principle (grid lines carry the value reference).',
     },
     // single-series line; showVerticalAxis=false, showHorizontalAxis=true
