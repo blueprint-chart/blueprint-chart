@@ -17,6 +17,7 @@ import { setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut } from '
 import { setCachedChart, getCachedChart } from '../../transition-cache'
 import { ensureClipPath } from '../../clip-path-helper'
 import { ValueLabelPosition, DirectLabelMode } from '../../../enums'
+import { shouldRenderValueLabel } from '../../value-label-fit'
 import { featureJoin, getSceneTransition, tweenPlotFrame, type PlotRect } from '../../../transitions'
 import { createPluginHost } from '../../plugins/plugin-host'
 import { highlightTargetSet, highlightOpacity } from '../../plugins/highlight'
@@ -395,6 +396,16 @@ export function render(
         cy = dlIsOutside ? barTop - 16 : barTop - 4
         baseline = 'auto'
       }
+    }
+
+    if (!shouldRenderValueLabel({
+      text: String(datum.value),
+      placement: vlMode === ValueLabelPosition.Inside ? 'inside' : 'outside',
+      orientation: 'vertical',
+      barWidth: x1.bandwidth(),
+      barHeight,
+    })) {
+      return
     }
 
     vlGroup.append('text')

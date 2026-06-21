@@ -23,6 +23,7 @@ import { featureJoin, getSceneTransition, tweenPlotFrame, type PlotRect } from '
 import { createPluginHost } from '../../plugins/plugin-host'
 import { StackMode } from '../../../enums'
 import { percentValueLabel } from '../../format-helpers'
+import { shouldRenderValueLabel } from '../../value-label-fit'
 
 export const DEFAULT_COLORS = [
   '#4e79a7', '#f28e2b', '#e15759', '#76b7b2',
@@ -299,7 +300,22 @@ export function render(
       return
     }
     const cx = (x(datum.label) ?? 0) + x.bandwidth() / 2
-    const cy = y(datum.y0) - (y(datum.y0) - y(datum.y1)) / 2
+    const segmentHeight = Math.abs(y(datum.y0) - y(datum.y1))
+    const cy = y(datum.y0) - segmentHeight / 2
+    const labelText = isPercent
+      ? `${Math.round(datum.value)}%`
+      : options.valueLabels === 'percent'
+        ? percentValueLabel(datum.value, columnTotals.get(datum.label) ?? 0)
+        : String(Math.round(datum.value * 100) / 100)
+    if (!shouldRenderValueLabel({
+      text: labelText,
+      placement: 'inside',
+      orientation: 'vertical',
+      barWidth: x.bandwidth(),
+      barHeight: segmentHeight,
+    })) {
+      return
+    }
     vlGroup.append('text')
       .attr('class', 'bc-value-label')
       .attr('data-series', datum.seriesName)
@@ -309,11 +325,7 @@ export function render(
       .attr('dominant-baseline', 'central')
       .attr('font-size', '11px')
       .attr('fill', 'currentColor')
-      .text(isPercent
-        ? `${Math.round(datum.value)}%`
-        : options.valueLabels === 'percent'
-          ? percentValueLabel(datum.value, columnTotals.get(datum.label) ?? 0)
-          : String(Math.round(datum.value * 100) / 100))
+      .text(labelText)
   })
 
   // Legend
