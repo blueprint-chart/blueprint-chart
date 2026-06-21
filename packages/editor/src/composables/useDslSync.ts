@@ -161,10 +161,14 @@ export function useDslSync() {
       }
 
       if (ast.scenes?.length) {
-        const extractedScenes: SceneOverride[] = ast.scenes.map((sceneNode) => {
+        // Reuse existing scene ids by position so re-parsing the same DSL keeps
+        // stable identities (a random id per parse churned references on every
+        // keystroke). New scenes fall back to a deterministic positional id.
+        const prevSceneIds = scenesComposable.scenes.value.map(s => s.id)
+        const extractedScenes: SceneOverride[] = ast.scenes.map((sceneNode, sceneIndex) => {
           const extracted = extractSceneOverrides(sceneNode, ast.chartType)
           const scene: SceneOverride = {
-            id: Math.random().toString(36).slice(2, 10),
+            id: prevSceneIds[sceneIndex] ?? `scene-${sceneIndex}`,
             name: extracted.name,
           }
           if (extracted.chartType) {
