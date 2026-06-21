@@ -1,3 +1,58 @@
+## [0.4.0](https://github.com/blueprint-chart/blueprint-chart/compare/v0.3.0...v0.4.0) (2026-06-21)
+
+### Features
+
+* add compactSerializeDeep for top-level default purging ([5182184](https://github.com/blueprint-chart/blueprint-chart/commit/5182184d31ad77a52cc8fc78f375655745c6d1d3))
+* add floating purge-defaults button to the DSL editor ([94e9d97](https://github.com/blueprint-chart/blueprint-chart/commit/94e9d974d8d66bd70cccc7efc89df345fe0fb2bf))
+* add value-label fit helper for bar charts ([be7d5a6](https://github.com/blueprint-chart/blueprint-chart/commit/be7d5a6320faa590bf2fda8537da6516e3122065))
+* auto-fit value labels on grouped and stacked column charts ([32c24ed](https://github.com/blueprint-chart/blueprint-chart/commit/32c24edf4286420f894134bdf05ded375c66952f))
+* auto-fit value labels on horizontal grouped, stacked, and split bars ([a97fb51](https://github.com/blueprint-chart/blueprint-chart/commit/a97fb510aa1ab1b462915bada724379d61335b8a))
+* bar charts hide value-axis number labels by default ([aa3b5d5](https://github.com/blueprint-chart/blueprint-chart/commit/aa3b5d5c568a2d936a19fb32a9588c8be484f63a))
+* deep inheritance-aware purge of scene and series overrides ([8abc80b](https://github.com/blueprint-chart/blueprint-chart/commit/8abc80b9f4b40ca739ffcbd72a6c6309a91ff00f))
+* **editor:** add Chart + BPC option to the view toggle ([c5a6d00](https://github.com/blueprint-chart/blueprint-chart/commit/c5a6d00de92f3c6d4be8bc6971a0a927caafa132))
+* **editor:** add diffEdit minimal-diff helper for DSL writes ([f1fbec1](https://github.com/blueprint-chart/blueprint-chart/commit/f1fbec118728161594ba0ec5df70adecd4772ec8))
+* **editor:** add focus-aware DSL sync controller ([190070c](https://github.com/blueprint-chart/blueprint-chart/commit/190070cdd0e0de6cdff02c4dfbd62be8ed9f180f))
+* **editor:** add split view mode and splitRatio to editorPanel store ([51f2c8e](https://github.com/blueprint-chart/blueprint-chart/commit/51f2c8eb4b6a8320513a8bf0188e126e06d19061))
+* **editor:** collapse options panel to the icon rail in split and BPC modes ([b8f96e2](https://github.com/blueprint-chart/blueprint-chart/commit/b8f96e2f9afc895a1d0a8a98e48c7e287c73214c))
+* **editor:** focus-aware DSL editor with inline diagnostics and polish ([a72fe37](https://github.com/blueprint-chart/blueprint-chart/commit/a72fe371dc683ddc31ab6f7664ab4e5fc3d6034f))
+* **editor:** make the split divider draggable ([5670469](https://github.com/blueprint-chart/blueprint-chart/commit/56704692439eef37ac4ce198e76fbb0d2573022b))
+* **editor:** map DSL parse errors to lint diagnostics ([277f3b6](https://github.com/blueprint-chart/blueprint-chart/commit/277f3b64fa5c70967f9ac6b60e21c98046132ec5))
+* **editor:** refine split view toggle, narrow handling, mode picker ([1458dce](https://github.com/blueprint-chart/blueprint-chart/commit/1458dceb4595750908f7a1f383cabfddcd9ff8d0))
+* **editor:** render chart and DSL side by side in split mode ([4ce549e](https://github.com/blueprint-chart/blueprint-chart/commit/4ce549ee0b80dbf8f0685560ae7ffa240e8163b8))
+* **editor:** stack chart over DSL on narrow split view ([32b8da0](https://github.com/blueprint-chart/blueprint-chart/commit/32b8da00fb27190536a97504e7d9c05001fe9044))
+* **editor:** surface parse error location from applyDsl ([64c7041](https://github.com/blueprint-chart/blueprint-chart/commit/64c704135976a46bd87ba877cec4b5aca1ff4209))
+* expose canPurge and purge from the DSL editor ([42ba243](https://github.com/blueprint-chart/blueprint-chart/commit/42ba2434436970f8a67ec7289edaa20cc73ca9f3))
+* horizontal bar charts hide value axis line and gridlines by default ([0817b21](https://github.com/blueprint-chart/blueprint-chart/commit/0817b21c5a28455a9d6fc83178a2ef24769e332b))
+* **lib:** add dom render backend ([d275287](https://github.com/blueprint-chart/blueprint-chart/commit/d275287ddca93faa7fc939c0a5e4cd4eb6e7175a))
+* **lib:** add node render backend with browser stub ([42e2e42](https://github.com/blueprint-chart/blueprint-chart/commit/42e2e42fc36de51bf03019bcc10ab338262d575b))
+* **lib:** add render error types and backend interface ([85bd148](https://github.com/blueprint-chart/blueprint-chart/commit/85bd1486f913ce1290551824cba14339178170aa))
+* **lib:** add toHtml() to the render handle ([3eff307](https://github.com/blueprint-chart/blueprint-chart/commit/3eff30706739c3ca1f8d65ca453ad2d701871b16))
+* **lib:** add unified render() front door and chart handle ([968a036](https://github.com/blueprint-chart/blueprint-chart/commit/968a036b6715cc29fc3247753b07616a60156da1))
+* **lib:** expose parse error location on SyntaxError ([a295a32](https://github.com/blueprint-chart/blueprint-chart/commit/a295a323071887565013d675b20aaad2e234748d))
+* **lib:** relocate headless jsdom/text-shim/rasterize internals into render backends ([414c071](https://github.com/blueprint-chart/blueprint-chart/commit/414c0714faa0469877cfe9cec6eacd42c5470448))
+* suppress unfit value labels on single-series bar charts ([c79949d](https://github.com/blueprint-chart/blueprint-chart/commit/c79949d5ea01a16ee386a464158cce0528892073))
+* **ui:** support per-option tooltip on segmented control / toggle ([80f95f6](https://github.com/blueprint-chart/blueprint-chart/commit/80f95f69fd0ad397720934dcdeda2cac71960049))
+* vertical bar charts default to direct labels, no value gridlines ([c474496](https://github.com/blueprint-chart/blueprint-chart/commit/c4744962231ed065e3c859218ebd0d2dc7587d06))
+
+### Bug Fixes
+
+* compute canPurge from editor doc, not compact canonical dsl ([c5f994d](https://github.com/blueprint-chart/blueprint-chart/commit/c5f994dc57bbf449eed7652f153d8f16ac7a4e9e))
+* **docs:** externalize lib node-backend from vitepress build ([ec0f996](https://github.com/blueprint-chart/blueprint-chart/commit/ec0f9963ec0feecbf120085265adf9c2ec963714))
+* **editor:** clamp diagnostic offset to line end ([426d369](https://github.com/blueprint-chart/blueprint-chart/commit/426d369c4abce4cc7166b32a4ac5c3107979faa4))
+* **editor:** generate compact DSL so deleted lines aren't restored ([84bb068](https://github.com/blueprint-chart/blueprint-chart/commit/84bb0689e77cdb73a14bd4f02c923484ae37456c))
+* **editor:** harden DSL sync — cancel on unmount, useTimeoutFn debounce, buffer external edits, preserve comments, share theme ([9389c9a](https://github.com/blueprint-chart/blueprint-chart/commit/9389c9aa8d51eac1e502f7ee9011867544d5d834))
+* **editor:** keep options panel reachable in narrow split view ([aa675d9](https://github.com/blueprint-chart/blueprint-chart/commit/aa675d9cd47953ebc5206f938b713454690550e5))
+* **editor:** match canvas auto mode to theme light/dark surface ([9e5386a](https://github.com/blueprint-chart/blueprint-chart/commit/9e5386ac3cd1fcac6e1bac94320fcd31220f5394))
+* **editor:** mute DSL line numbers further ([992d73e](https://github.com/blueprint-chart/blueprint-chart/commit/992d73e899a40cc516347b7d8bf184336bf2eef2))
+* **editor:** render a visible underline for end-of-line DSL parse errors ([aa8c297](https://github.com/blueprint-chart/blueprint-chart/commit/aa8c297dd8b1ef7c59b45df02e96f7df46a04d59))
+* **editor:** single scrollbar, muted line numbers, hide scene timeline in DSL view ([f331084](https://github.com/blueprint-chart/blueprint-chart/commit/f331084f316120744a1842cbf12218d85473ac11))
+* **editor:** square the icon-only view toggle options ([00d73fc](https://github.com/blueprint-chart/blueprint-chart/commit/00d73fc1fc083840f79a6079d9c89545f5f77667))
+* **editor:** stop scene playback when leaving preview view ([b0828cd](https://github.com/blueprint-chart/blueprint-chart/commit/b0828cd6559c0f21f6ade3c14cfec05f1f938d12))
+* **editor:** use stable scene ids across DSL re-parses ([a54a040](https://github.com/blueprint-chart/blueprint-chart/commit/a54a040883316ab35352cfa75696619ad3e15e8f))
+* float purge button via positioned wrapper, removing bottom strip ([c554844](https://github.com/blueprint-chart/blueprint-chart/commit/c554844d37f722eb14fe80b666ef3592d62564fb))
+* **ui:** square icon-only segmented-control options ([d5cae6d](https://github.com/blueprint-chart/blueprint-chart/commit/d5cae6d125c7a943844ce0c068631c2a69b2bbec))
+* **ui:** support per-option title on NavigationToggle and fix item type ([ea4f2d7](https://github.com/blueprint-chart/blueprint-chart/commit/ea4f2d768929708d110a8a95b1b31aba2a43363a))
+
 ## [Unreleased]
 
 ### Features
