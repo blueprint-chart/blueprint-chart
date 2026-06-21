@@ -149,8 +149,27 @@ const dslPaneStyle = computed<CSSProperties>(() =>
     : { flex: '1 1 auto' },
 )
 
-function onDividerDown(_e: PointerEvent) {
-  // wired up in Task 4
+function onDividerDown(e: PointerEvent) {
+  const frame = (e.currentTarget as HTMLElement).parentElement
+  if (!frame) {
+    return
+  }
+  const rect = frame.getBoundingClientRect()
+  const target = e.currentTarget as HTMLElement
+  target.setPointerCapture?.(e.pointerId)
+
+  function onMove(ev: PointerEvent) {
+    if (rect.width <= 0) {
+      return
+    }
+    editorPanel.setSplitRatio((ev.clientX - rect.left) / rect.width)
+  }
+  function onUp() {
+    target.removeEventListener('pointermove', onMove)
+    target.removeEventListener('pointerup', onUp)
+  }
+  target.addEventListener('pointermove', onMove)
+  target.addEventListener('pointerup', onUp)
 }
 
 const tabs = computed(() =>
