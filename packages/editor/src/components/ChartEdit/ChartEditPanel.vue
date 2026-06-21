@@ -85,9 +85,11 @@ import { usePanel } from '@/stores/panel'
 import { useChartConfig } from '@/stores/chartConfig'
 import { useChartEditSections } from '@/composables/useChartEditSections'
 import FloatingSceneTimeline from '@/components/Scene/FloatingSceneTimeline.vue'
+import { useScenes } from '@/composables/useScenes'
 
 const editorPanel = useEditorPanel()
 const { viewMode, activeTab, canvasMode, showDimensions } = storeToRefs(editorPanel)
+const { stopPlayback } = useScenes()
 const { selectTab, setLastNarrowEditTab } = editorPanel
 const { mode: panelMode } = usePanel()
 const { isNarrow } = useBreakpoint()
@@ -121,6 +123,16 @@ function onDrawerTabPick(tab: string) {
   setLastNarrowEditTab(tab)
   selectTab(tab)
 }
+
+// Scene playback runs in the scenes store, not the timeline component. The
+// floating timeline (the only pause control in wide mode) is hidden in DSL
+// view, so stop playback when leaving preview — otherwise it keeps advancing
+// scenes with no way to pause.
+watch(viewMode, (mode) => {
+  if (mode !== 'preview') {
+    stopPlayback()
+  }
+})
 
 const tabs = computed(() =>
   sections.value.map(s => ({ key: s.key, label: s.label, icon: s.icon })),
