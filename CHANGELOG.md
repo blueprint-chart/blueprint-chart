@@ -2,6 +2,13 @@
 
 ### Features
 
+* **Unified `render()` API.** One function returns a chart handle that works in
+  both the browser and Node: `const chart = await render(bpc)`, then
+  `chart.toSvg()`, `chart.toPng()` (Node-only), `chart.toHtml()`,
+  `chart.mount(target)`, and `chart.scene(n)`. Handle methods are destructurable
+  bound closures. The Node render path (jsdom + resvg) ships as
+  `optionalDependencies` and is lazily loaded behind a conditional export, so
+  browser bundles stay free of the native deps.
 * **Bar charts now default to no value axis with direct value labels.** Every bar
   variant (vertical, horizontal, grouped, stacked, split) hides the value-axis
   line, ticks, numbers, and value gridlines, and labels each bar directly; labels
