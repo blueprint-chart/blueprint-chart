@@ -38,6 +38,7 @@ declare global {
   const controlledComputed: typeof import('@vueuse/core').controlledComputed
   const controlledRef: typeof import('@vueuse/core').controlledRef
   const createApp: typeof import('vue').createApp
+  const createDslSync: typeof import('./src/composables/dslSync').createDslSync
   const createEventHook: typeof import('@vueuse/core').createEventHook
   const createGlobalState: typeof import('@vueuse/core').createGlobalState
   const createInjectionState: typeof import('@vueuse/core').createInjectionState
@@ -266,6 +267,7 @@ declare global {
   const useDocumentVisibility: typeof import('@vueuse/core').useDocumentVisibility
   const useDraggable: typeof import('@vueuse/core').useDraggable
   const useDropZone: typeof import('@vueuse/core').useDropZone
+  const useDslEditor: typeof import('./src/composables/useDslEditor').useDslEditor
   const useDslOutput: typeof import('./src/composables/useDslOutput').useDslOutput
   const useDslSync: typeof import('./src/composables/useDslSync').useDslSync
   const useEditorPanel: typeof import('./src/composables/useEditorPanel').useEditorPanel
@@ -428,6 +430,9 @@ declare global {
   // @ts-ignore
   export type { Component, Slot, Slots, ComponentPublicInstance, ComputedRef, DirectiveBinding, ExtractDefaultPropTypes, ExtractPropTypes, ExtractPublicPropTypes, InjectionKey, PropType, Ref, ShallowRef, MaybeRef, MaybeRefOrGetter, VNode, WritableComputedRef } from 'vue'
   import('vue')
+  // @ts-ignore
+  export type { DslSyncEffects, DslSyncController, DslApplyResult } from './src/composables/dslSync'
+  import('./src/composables/dslSync')
   // @ts-ignore
   export type { SceneTimelineScene, SceneTimelineContext } from './src/composables/sceneTimelineContext'
   import('./src/composables/sceneTimelineContext')
