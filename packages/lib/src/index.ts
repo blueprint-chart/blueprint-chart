@@ -103,8 +103,9 @@ export { samples } from './samples'
 export type { ChartSample } from './samples'
 
 // Unified render API
-export { renderBpc, renderChart, astToDefinition, resolveScene } from './render'
-export type { ChartDefinition, RenderOptions, ResolvedChartState } from './render'
+export { renderBpc, renderChart, astToDefinition, resolveScene, render } from './render'
+export type { ChartDefinition, RenderOptions, ResolvedChartState, ChartHandle, RenderApiOptions, OutputOptions } from './render'
+export { ChartParseError, PngBrowserUnsupportedError, MissingNodeRenderDepsError } from './render'
 
 // Transitions (orchestrator, feature-join primitive, snapshot helper)
 export {
