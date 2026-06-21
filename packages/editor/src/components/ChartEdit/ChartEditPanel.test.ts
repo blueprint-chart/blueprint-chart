@@ -64,11 +64,15 @@ describe('ChartEditPanel', () => {
     isNarrowRef.value = false
   })
 
-  it('renders the floating timeline inside the canvas in preview mode', () => {
+  it('renders the floating timeline as the last canvas child in preview mode', () => {
     useEditorPanel().viewMode.value = 'preview'
     const w = mountPanel()
     const timeline = w.findComponent(FloatingSceneTimeline)
     expect(timeline.exists()).toBe(true)
+    // The timeline must be the last child of the canvas so it layers above the
+    // chart card and dimension rulers (z-order follows DOM order).
+    const canvas = w.find('.chart-edit-panel__canvas')
+    expect(canvas.element.lastElementChild).toBe(timeline.element)
   })
 })
 
@@ -76,6 +80,8 @@ describe('ChartEditPanel view modes', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
     isNarrowRef.value = false
+    panelStoreMock.dock.mockClear()
+    panelStoreMock.close.mockClear()
   })
 
   it('shows the chart and not the DSL pane in preview mode', () => {
@@ -141,6 +147,18 @@ describe('ChartEditPanel view modes', () => {
     panel.viewMode.value = 'preview'
     await nextTick()
     expect(panelStoreMock.dock).toHaveBeenCalled()
+  })
+
+  it('does not close the options panel when entering split mode on narrow', async () => {
+    isNarrowRef.value = true
+    const panel = useEditorPanel()
+    panel.viewMode.value = 'preview'
+    mountPanel()
+    panel.viewMode.value = 'split'
+    await nextTick()
+    // Narrow owns panel mode via the breakpoint sync; closing here would strand
+    // the options panel as unreachable (the narrow open button only sets a tab).
+    expect(panelStoreMock.close).not.toHaveBeenCalled()
   })
 
   it('stacks the frame and hides the divider on narrow split', () => {

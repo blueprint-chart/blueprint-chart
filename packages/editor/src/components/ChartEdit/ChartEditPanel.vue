@@ -8,7 +8,6 @@
     <div
       class="chart-edit-panel__canvas-frame"
       :class="{
-        'chart-edit-panel__canvas-frame--split': viewMode === 'split',
         'chart-edit-panel__canvas-frame--stacked': viewMode === 'split' && isNarrow,
       }"
     >
@@ -142,6 +141,13 @@ watch(viewMode, (mode) => {
   if (mode === 'dsl') {
     stopPlayback()
   }
+  // Narrow owns panel mode via the breakpoint sync; the dock/close dance is
+  // wide-only (the icon rail that re-opens the panel exists only when
+  // !isNarrow). On narrow, close() would strand the options panel as
+  // unreachable, since the narrow open button only sets activeTab.
+  if (isNarrow.value) {
+    return
+  }
   if (mode === 'preview') {
     panelStore.dock()
   }
@@ -176,6 +182,7 @@ function onDividerDown(e: PointerEvent) {
     editorPanel.setSplitRatio((ev.clientX - rect.left) / rect.width)
   }
   function onUp() {
+    target.releasePointerCapture?.(e.pointerId)
     target.removeEventListener('pointermove', onMove)
     target.removeEventListener('pointerup', onUp)
   }
