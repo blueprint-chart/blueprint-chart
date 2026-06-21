@@ -63,11 +63,16 @@
   "devDependencies": {
     "@types/chroma-js": "^3.1.2",
     "@types/d3": "^7",
-    "jsdom": "^26",
+    "@types/jsdom": "^21.1.7",
     "peggy": "^4",
     "typescript": "^5.7",
     "vite": "^6",
     "vite-plugin-dts": "^5.0.0",
     "vitest": "^3"
+  },
+  "optionalDependencies": {
+    "@napi-rs/canvas": "^0.1.100",
+    "@resvg/resvg-js": "^2.6.2",
+    "jsdom": "^26.1.0"
   }
 }
