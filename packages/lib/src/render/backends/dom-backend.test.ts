@@ -26,4 +26,14 @@ describe('dom backend', () => {
     const backend = createDomBackend()
     await expect(backend.rasterizePng('<svg/>', {})).rejects.toBeInstanceOf(PngBrowserUnsupportedError)
   })
+
+  it('serializeFrame returns markup containing bc-frame for a framed render', () => {
+    const backend = createDomBackend()
+    const def = astToDefinition(parse(BPC))
+    const { container, cleanup } = backend.createContainer(640, 400)
+    backend.renderToContainer(container, def, { thumbnail: false })
+    const html = backend.serializeFrame(container)
+    cleanup()
+    expect(html).toContain('bc-frame')
+  })
 })

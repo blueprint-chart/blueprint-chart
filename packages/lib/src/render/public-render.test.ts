@@ -50,4 +50,10 @@ describe('render() front door (DOM env)', () => {
     const chart = await render(BPC)
     await expect(chart.toPng()).rejects.toBeInstanceOf(PngBrowserUnsupportedError)
   })
+
+  it('toHtml() returns a string containing bc-frame', async () => {
+    const html = await (await render(BPC)).toHtml()
+    expect(typeof html).toBe('string')
+    expect(html).toContain('bc-frame')
+  })
 })

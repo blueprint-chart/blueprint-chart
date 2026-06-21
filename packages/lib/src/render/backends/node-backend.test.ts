@@ -20,6 +20,17 @@ describe('node backend', () => {
     expect(svg.length).toBeGreaterThan(100)
   })
 
+  it('serializeFrame returns non-empty string containing bc-frame', () => {
+    const backend = createNodeBackend()
+    const def = astToDefinition(parse(BPC))
+    const { container, cleanup } = backend.createContainer(640, 400)
+    backend.renderToContainer(container, def, { thumbnail: false })
+    const html = backend.serializeFrame(container)
+    cleanup()
+    expect(html.length).toBeGreaterThan(0)
+    expect(html).toContain('bc-frame')
+  })
+
   it('rasterizes SVG to PNG bytes', async () => {
     const backend = createNodeBackend()
     const def = astToDefinition(parse(BPC))

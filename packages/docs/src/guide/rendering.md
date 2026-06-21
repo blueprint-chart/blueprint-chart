@@ -48,6 +48,7 @@ const chart = await render(bpc, { theme: 'dark', width: 1200, height: 630 })
 | Method | Browser | Node | Returns |
 | --- | --- | --- | --- |
 | `toSvg(opts?)` | ✅ | ✅ | `Promise<string>` |
+| `toHtml(opts?)` | ✅ | ✅ | `Promise<string>` |
 | `toPng(opts?)` | ❌ throws `PngBrowserUnsupportedError` | ✅ | `Promise<Uint8Array>` |
 | `mount(target)` | ✅ | no-op (warns) | `ChartHandle` |
 | `scene(n)` | ✅ | ✅ | `ChartHandle` |

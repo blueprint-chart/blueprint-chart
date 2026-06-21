@@ -20,6 +20,7 @@ export interface OutputOptions {
 
 export interface ChartHandle {
   toSvg: (opts?: OutputOptions) => Promise<string>
+  toHtml: (opts?: OutputOptions) => Promise<string>
   toPng: (opts?: OutputOptions) => Promise<Uint8Array>
   mount: (target: HTMLElement | string) => ChartHandle
   scene: (index: number) => ChartHandle
@@ -73,6 +74,16 @@ export async function render(source: string, options: RenderApiOptions = {}): Pr
       try {
         renderInto(container)
         return backend.serializeSvg(container)
+      }
+      finally {
+        cleanup()
+      }
+    },
+    async toHtml(opts: OutputOptions = {}): Promise<string> {
+      const { container, cleanup } = backend.createContainer(opts.width ?? state.width, opts.height ?? state.height)
+      try {
+        renderInto(container)
+        return backend.serializeFrame(container)
       }
       finally {
         cleanup()

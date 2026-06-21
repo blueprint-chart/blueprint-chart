@@ -19,6 +19,8 @@ export interface RenderBackend {
   renderToContainer(container: HTMLElement, definition: ChartDefinition, opts: BackendRenderOptions): void
   /** Serialize the chart SVG markup from a rendered container. */
   serializeSvg(container: HTMLElement): string
+  /** Returns the `.bc-frame` outerHTML; falls back to the chart SVG markup when there is no frame (e.g. thumbnail mode). */
+  serializeFrame(container: HTMLElement): string
   /** Rasterize SVG markup to a PNG byte array. DOM backend throws PngBrowserUnsupportedError. */
   rasterizePng(svg: string, opts: { width?: number, height?: number }): Promise<Uint8Array>
 }

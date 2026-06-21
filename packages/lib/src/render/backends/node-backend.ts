@@ -13,7 +13,7 @@ type GlobalsBag = Record<ForwardedKey, unknown>
 
 // jsdom env is created lazily per container; we stash window + serialize on the
 // container via a WeakMap so serializeSvg() can read them back without re-deriving.
-interface EnvRef { window: DOMWindow, serializeSvg: () => string, cleanup: () => void }
+interface EnvRef { window: DOMWindow, serializeSvg: () => string, serializeFrame: () => string | undefined, cleanup: () => void }
 const ENVS = new WeakMap<HTMLElement, EnvRef>()
 
 function ensureSvgNamespace(svg: string): string {
@@ -34,7 +34,7 @@ export function createNodeBackend(): RenderBackend {
           `Headless rendering requires jsdom. Install it: npm i jsdom @napi-rs/canvas @resvg/resvg-js. (${e instanceof Error ? e.message : String(e)})`,
         )
       }
-      const ref: EnvRef = { window: env.window, serializeSvg: env.serializeSvg, cleanup: env.cleanup }
+      const ref: EnvRef = { window: env.window, serializeSvg: env.serializeSvg, serializeFrame: env.serializeFrame, cleanup: env.cleanup }
       ENVS.set(env.container, ref)
       return { container: env.container, cleanup: () => { ENVS.delete(env.container); env.cleanup() } }
     },
@@ -63,6 +63,21 @@ export function createNodeBackend(): RenderBackend {
       const svg = ref ? ref.serializeSvg() : (container.querySelector('svg')?.outerHTML ?? '')
       if (!svg) throw new Error('node-backend: renderToContainer produced no SVG')
       return ensureSvgNamespace(svg)
+    },
+    serializeFrame(container: HTMLElement): string {
+      const ref = ENVS.get(container)
+      if (ref) {
+        const frame = ref.serializeFrame()
+        if (frame !== undefined) return frame
+        // Thumbnail mode — no frame, fall back to SVG.
+        return this.serializeSvg(container)
+      }
+      // Container was not created by this backend — fall back to DOM queries.
+      const frameHtml = container.querySelector('.bc-frame')?.outerHTML
+      if (frameHtml) return frameHtml
+      const svgHtml = container.querySelector('svg')?.outerHTML
+      if (svgHtml) return svgHtml
+      throw new Error('node-backend: renderToContainer produced no frame')
     },
     async rasterizePng(svg: string, opts: { width?: number, height?: number }): Promise<Uint8Array> {
       try {

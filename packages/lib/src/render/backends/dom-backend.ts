@@ -29,6 +29,14 @@ export function createDomBackend(): RenderBackend {
         ? markup
         : markup.replace(/^<svg(?=\s|>)/, '<svg xmlns="http://www.w3.org/2000/svg"')
     },
+    serializeFrame(container: HTMLElement): string {
+      const frame = container.querySelector('.bc-frame')
+      if (frame) return frame.outerHTML
+      // Fallback: thumbnail mode — no frame, return the SVG serialization.
+      const svg = container.querySelector('svg')
+      if (svg) return this.serializeSvg(container)
+      throw new Error('dom-backend: renderToContainer produced no frame')
+    },
     rasterizePng(): Promise<Uint8Array> {
       return Promise.reject(new PngBrowserUnsupportedError())
     },

@@ -42,9 +42,12 @@ scene(2)          // advance to scene index 2
 | Method | Browser | Node | Returns |
 | --- | --- | --- | --- |
 | `toSvg(opts?)` | ✅ | ✅ | `Promise<string>` |
+| `toHtml(opts?)` | ✅ | ✅ | `Promise<string>` |
 | `toPng(opts?)` | ❌ throws `PngBrowserUnsupportedError` | ✅ | `Promise<Uint8Array>` |
 | `mount(target)` | ✅ | no-op (warns) | `ChartHandle` |
 | `scene(n)` | ✅ | ✅ | `ChartHandle` |
+
+`toHtml()` returns the `.bc-frame` outerHTML (the complete framed chart markup). When `frame: false` was passed to `render()`, it falls back to the bare chart SVG.
 
 `RenderApiOptions`: `theme?`, `scene?` (initial scene), `width?`/`height?` (default `640×400`, used for headless output only), `frame?` (default `true`; `false` renders frameless). `OutputOptions` on `toSvg`/`toPng`: `width?`, `height?`.
 
