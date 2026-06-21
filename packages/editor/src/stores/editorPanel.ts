@@ -1,4 +1,4 @@
-export type ViewMode = 'preview' | 'dsl'
+export type ViewMode = 'preview' | 'split' | 'dsl'
 export type CanvasMode = 'blueprint' | 'auto' | 'light' | 'dark'
 export type DataView = 'upload' | 'structure'
 export type DataPanelTab = 'column' | 'transforms' | 'parsing' | 'reco'
@@ -6,6 +6,7 @@ export type DataPanelTab = 'column' | 'transforms' | 'parsing' | 'reco'
 export const useEditorPanelStore = defineStore('editorPanel', () => {
   const activeTab = shallowRef('type')
   const viewMode = shallowRef<ViewMode>('preview')
+  const splitRatio = shallowRef(0.5)
   const canvasMode = shallowRef<CanvasMode>('blueprint')
   const showDimensions = shallowRef(true)
   const pendingAnnotationIndex = shallowRef<number | string | null>(null)
@@ -27,6 +28,10 @@ export const useEditorPanelStore = defineStore('editorPanel', () => {
 
   function setViewMode(mode: ViewMode) {
     viewMode.value = mode
+  }
+
+  function setSplitRatio(next: number) {
+    splitRatio.value = Math.min(0.8, Math.max(0.2, next))
   }
 
   function setCanvasMode(mode: CanvasMode) {
@@ -78,6 +83,7 @@ export const useEditorPanelStore = defineStore('editorPanel', () => {
   function reset() {
     activeTab.value = 'type'
     viewMode.value = 'preview'
+    splitRatio.value = 0.5
     canvasMode.value = 'blueprint'
     showDimensions.value = true
     pendingAnnotationIndex.value = null
@@ -92,6 +98,7 @@ export const useEditorPanelStore = defineStore('editorPanel', () => {
   return {
     activeTab,
     viewMode,
+    splitRatio,
     canvasMode,
     showDimensions,
     pendingAnnotationIndex,
@@ -104,6 +111,7 @@ export const useEditorPanelStore = defineStore('editorPanel', () => {
     selectTab,
     selectAnnotation,
     setViewMode,
+    setSplitRatio,
     setCanvasMode,
     setDataView,
     setDataPanelTab,
@@ -122,6 +130,7 @@ export function useEditorPanel() {
   const {
     activeTab,
     viewMode,
+    splitRatio,
     canvasMode,
     showDimensions,
     pendingAnnotationIndex,
@@ -135,6 +144,7 @@ export function useEditorPanel() {
   return {
     activeTab,
     viewMode,
+    splitRatio,
     canvasMode,
     showDimensions,
     pendingAnnotationIndex,
@@ -147,6 +157,7 @@ export function useEditorPanel() {
     selectTab: store.selectTab,
     selectAnnotation: store.selectAnnotation,
     setViewMode: store.setViewMode,
+    setSplitRatio: store.setSplitRatio,
     setCanvasMode: store.setCanvasMode,
     setDataView: store.setDataView,
     setDataPanelTab: store.setDataPanelTab,

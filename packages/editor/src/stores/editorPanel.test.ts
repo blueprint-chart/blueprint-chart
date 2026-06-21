@@ -176,4 +176,32 @@ describe('useEditorPanel', () => {
     expect(store.lastNarrowEditTab).toBe('type')
     expect(store.lastNarrowDataTab).toBe('column')
   })
+
+  it('setViewMode accepts the split mode', () => {
+    const store = useEditorPanel()
+    store.setViewMode('split')
+    expect(store.viewMode).toBe('split')
+  })
+
+  it('splitRatio defaults to 0.5', () => {
+    const store = useEditorPanel()
+    expect(store.splitRatio).toBe(0.5)
+  })
+
+  it('setSplitRatio clamps to the 0.2–0.8 range', () => {
+    const store = useEditorPanel()
+    store.setSplitRatio(0.65)
+    expect(store.splitRatio).toBe(0.65)
+    store.setSplitRatio(0.05)
+    expect(store.splitRatio).toBe(0.2)
+    store.setSplitRatio(0.95)
+    expect(store.splitRatio).toBe(0.8)
+  })
+
+  it('reset restores splitRatio to 0.5', () => {
+    const store = useEditorPanel()
+    store.setSplitRatio(0.8)
+    store.reset()
+    expect(store.splitRatio).toBe(0.5)
+  })
 })
