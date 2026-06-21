@@ -14,6 +14,8 @@
         'navigation-segmented-control__option--disabled': item.disabled,
       }"
       :disabled="item.disabled"
+      :title="item.title"
+      :aria-label="item.title ?? item.text"
       :aria-current="item.active ? 'true' : undefined"
       type="button"
       @click="onSelect(item)"
@@ -35,6 +37,8 @@ export interface NavigationSegmentedControlItem {
   key: string
   text: string
   icon?: Component
+  /** Native tooltip; also used as the accessible label when the visible text is hidden (icon-only). */
+  title?: string
   active: boolean
   disabled?: boolean
 }

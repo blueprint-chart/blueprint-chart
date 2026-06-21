@@ -16,7 +16,7 @@ import type { NavigationSegmentedControlItem } from '../NavigationSegmentedContr
 const model = defineModel<string>({ required: true })
 
 const props = withDefaults(defineProps<{
-  options?: { value: string, text: string, icon?: Component, disabled?: boolean }[]
+  options?: { value: string, text: string, icon?: Component, title?: string, disabled?: boolean }[]
   size?: 'sm' | 'md'
 }>(), {
   options: () => [],
@@ -33,6 +33,7 @@ const segmentedItems = computed<NavigationSegmentedControlItem[]>(() =>
     key: opt.value,
     text: opt.text,
     icon: opt.icon,
+    title: 'title' in opt ? opt.title : undefined,
     active: opt.value === model.value,
     disabled: opt.disabled,
   })),
