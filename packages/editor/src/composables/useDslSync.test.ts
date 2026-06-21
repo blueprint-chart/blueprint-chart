@@ -87,6 +87,15 @@ describe('useDslSync', () => {
     expect(result.error).toBeDefined()
   })
 
+  it('returns a structured location on a syntax error', () => {
+    const { applyDsl } = useDslSync()
+    const result = applyDsl('!!!')
+    expect(result.success).toBe(false)
+    expect(result.error).toBeTruthy()
+    expect(typeof result.location?.line).toBe('number')
+    expect(typeof result.location?.column).toBe('number')
+  })
+
   it('handles percentage values in data', () => {
     const { applyDsl } = useDslSync()
     applyDsl(`chart donut {

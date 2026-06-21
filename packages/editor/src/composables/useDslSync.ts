@@ -1,4 +1,5 @@
 import { parse, propertyMap, extractChartTypeOptions, extractSceneOverrides, dataEntriesToString, convertColorizes, convertHighlights, convertAreaFills, convertAnnotations, convertSeriesOverrides, SortDirection } from '@blueprint-chart/lib'
+import type { DslApplyResult } from '@/dsl-lang/diagnostics'
 import { useChartConfig, layoutDefaults, type ChartLayout } from './useChartConfig'
 import { useChartThemeStore } from './useChartTheme'
 import { useChartTypeOptions, type ChartTypeOptions } from './useChartTypeOptions'
@@ -18,7 +19,7 @@ export function useDslSync() {
   const transforms = useDataTransforms()
   const scenesComposable = useScenes()
 
-  function applyDsl(dslString: string): { success: boolean, error?: string } {
+  function applyDsl(dslString: string): DslApplyResult {
     try {
       const ast = parse(dslString)
 
@@ -226,7 +227,14 @@ export function useDslSync() {
       return { success: true }
     }
     catch (err) {
-      return { success: false, error: err instanceof Error ? err.message : String(err) }
+      const loc = (err && typeof err === 'object' && 'location' in err)
+        ? (err as { location?: { start?: { line: number, column: number } } }).location?.start
+        : undefined
+      return {
+        success: false,
+        error: err instanceof Error ? err.message : String(err),
+        location: loc ? { line: loc.line, column: loc.column } : undefined,
+      }
     }
   }
 
