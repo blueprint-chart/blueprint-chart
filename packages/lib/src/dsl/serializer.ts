@@ -218,6 +218,75 @@ export function serialize(ast: ChartNode): string {
   return lines.join('\n')
 }
 
+// propValueMap is used by compactSerializeDeep in Task 2 (scene/series scope
+// purging) — declared alongside redundantInScope for co-location.
+export function propValueMap(props: PropertyNode[]): Map<string, string | number> {
+  return new Map(props.map(p => [p.key, p.value]))
+}
+
+// Redundant in a scope iff the value equals the effective inherited value:
+//  - inherited.has(key)  → equals the value inherited from the enclosing scope
+//  - otherwise           → equals the registered default for this chart type
+// Non-option keys (no registered ChartOptionDef) are never redundant — title,
+// description, `type`, etc. are kept untouched.
+function redundantInScope(
+  key: string,
+  value: string | number,
+  chartType: string,
+  inherited: Map<string, string | number>,
+): boolean {
+  const def = getChartOptions(chartType).find(d => d.key === key)
+  if (!def) {
+    return false
+  }
+  if (inherited.has(key)) {
+    return String(inherited.get(key)) === String(value)
+  }
+  if (def.default === undefined) {
+    return false
+  }
+  return String(def.default) === String(value)
+}
+
+export function compactSerializeDeep(ast: ChartNode): string {
+  const lines = [`chart ${ast.chartType} {`]
+  const noInherit = new Map<string, string | number>()
+  for (const prop of ast.properties) {
+    if (!redundantInScope(prop.key, prop.value, ast.chartType, noInherit)) {
+      lines.push(serializeProperty(prop, '  '))
+    }
+  }
+  if (ast.data) {
+    lines.push(serializeData(ast.data, '  '))
+  }
+  for (const colorize of ast.colorizes) {
+    lines.push(serializeColorize(colorize, '  '))
+  }
+  for (const highlight of ast.highlights) {
+    lines.push(serializeHighlight(highlight, '  '))
+  }
+  for (const areaFill of ast.areaFills) {
+    lines.push(serializeAreaFill(areaFill, '  '))
+  }
+  for (const annotation of ast.annotations) {
+    lines.push(serializeAnnotation(annotation, '  '))
+  }
+  for (const vis of ast.annotationVisibility) {
+    lines.push(serializeAnnotationVisibility(vis, '  '))
+  }
+  for (const s of ast.series) {
+    lines.push(serializeSeries(s, '  '))
+  }
+  for (const scene of ast.scenes) {
+    lines.push(serializeScene(scene, '  '))
+  }
+  for (const transform of ast.transforms) {
+    lines.push(serializeTransform(transform, '  '))
+  }
+  lines.push('}')
+  return lines.join('\n')
+}
+
 export function compactSerialize(ast: ChartNode): string {
   const lines = [`chart ${ast.chartType} {`]
   for (const prop of ast.properties) {

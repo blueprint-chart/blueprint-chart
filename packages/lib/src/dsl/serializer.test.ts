@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { DslNodeType, AnnotationKind, AnnotationAction, ChartType } from '../enums'
 import { parse } from './parser'
-import { serialize, compactSerialize } from './serializer'
+import { serialize, compactSerialize, compactSerializeDeep } from './serializer'
 import type { ChartNode } from './types'
 
 describe('serializer', () => {
@@ -1114,6 +1114,33 @@ describe('leadingComments serialization', () => {
     expect(ast2.data?.entries.find(e => e.key === 'A')?.leadingComments).toEqual(['outlier'])
     expect(ast2.highlights[0]?.leadingComments).toEqual(['pop the winner'])
     expect(serialize(ast2)).toBe(serialize(ast1))
+  })
+})
+
+describe('compactSerializeDeep', () => {
+  test('drops a top-level option equal to the registered default', () => {
+    const ast = parse('chart bar-vertical {\n  valueLabels = true\n  data {\n    "A" = 1\n  }\n}')
+    const out = compactSerializeDeep(ast)
+    expect(out).not.toContain('valueLabels')
+    expect(out).toContain('A = 1')
+  })
+
+  test('keeps a top-level option that differs from the default', () => {
+    const ast = parse('chart bar-vertical {\n  valueLabels = false\n  data {\n    "A" = 1\n  }\n}')
+    const out = compactSerializeDeep(ast)
+    expect(out).toContain('valueLabels = false')
+  })
+
+  test('is a no-op (equal to serialize) when nothing is redundant', () => {
+    const ast = parse('chart bar-vertical {\n  valueLabels = false\n  data {\n    "A" = 1\n  }\n}')
+    expect(compactSerializeDeep(ast)).toBe(serialize(ast))
+  })
+
+  test('preserves a comment on a retained option', () => {
+    const ast = parse('chart bar-vertical {\n  // keep me\n  valueLabels = false\n  data {\n    "A" = 1\n  }\n}')
+    const out = compactSerializeDeep(ast)
+    expect(out).toContain('// keep me')
+    expect(out).toContain('valueLabels = false')
   })
 })
 
