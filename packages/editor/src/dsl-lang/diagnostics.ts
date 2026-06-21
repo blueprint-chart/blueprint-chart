@@ -22,8 +22,23 @@ export function buildDiagnostics(result: DslApplyResult | null, doc: Text): Diag
   }
   const message = result.error ?? 'Invalid DSL'
   if (result.location) {
-    const from = locationToOffset(doc, result.location.line, result.location.column)
-    const to = doc.lineAt(from).to
+    const offset = locationToOffset(doc, result.location.line, result.location.column)
+    const line = doc.lineAt(offset)
+    let from = offset
+    let to = line.to
+    if (from === to) {
+      // Error at the end of a line / end of input (the common "expected }" /
+      // "unexpected end" case): a zero-width range renders as a faint point,
+      // not the underline used for every other error. Underline the last
+      // character (or, on an empty line, the next one) so the marker is
+      // visible and consistent.
+      if (from > line.from) {
+        from = from - 1
+      }
+      else if (to < doc.length) {
+        to = to + 1
+      }
+    }
     return [{ from, to, severity: 'error', message }]
   }
   return [{ from: 0, to: doc.length, severity: 'error', message }]

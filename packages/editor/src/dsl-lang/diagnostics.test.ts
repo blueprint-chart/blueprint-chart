@@ -53,4 +53,17 @@ describe('buildDiagnostics', () => {
     const diags = buildDiagnostics({ success: false, error: 'broken' }, doc)
     expect(diags).toEqual([{ from: 0, to: doc.length, severity: 'error', message: 'broken' }])
   })
+
+  it('underlines the last character for an end-of-line/EOF error (never zero-width)', () => {
+    // 'expected }' / unexpected-end errors report a column past the line end.
+    const oneLine = docOf('chart bar {')
+    const diags = buildDiagnostics(
+      { success: false, error: 'unexpected end', location: { line: 1, column: 99 } },
+      oneLine,
+    )
+    expect(diags).toHaveLength(1)
+    expect(diags[0].to).toBe(oneLine.line(1).to)
+    expect(diags[0].from).toBe(oneLine.line(1).to - 1)
+    expect(diags[0].from).toBeLessThan(diags[0].to) // visible underline, not a point
+  })
 })
