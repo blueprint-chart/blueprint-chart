@@ -1,4 +1,4 @@
-import { onMounted, onUnmounted, watch, type TemplateRef } from 'vue'
+import { onMounted, onUnmounted, shallowRef, watch, type Ref, type TemplateRef } from 'vue'
 import { useTimeoutFn } from '@vueuse/core'
 import { EditorView, keymap, lineNumbers, highlightActiveLine, highlightActiveLineGutter } from '@codemirror/view'
 import { EditorState } from '@codemirror/state'
@@ -11,11 +11,13 @@ import { buildDiagnostics } from '@/dsl-lang/diagnostics'
 import { createDslSync, type DslSyncController } from '@/composables/dslSync'
 import { useDslOutput } from '@/composables/useDslOutput'
 import { useDslSync } from '@/composables/useDslSync'
+import { diffEdit } from '@/utils/dsl/diff'
+import { computePurge } from '@/utils/dsl/purge'
 import '@/dsl-lang/highlight.scss'
 
 const DEBOUNCE_MS = 200
 
-export function useDslEditor(editorEl: TemplateRef<HTMLElement>): void {
+export function useDslEditor(editorEl: TemplateRef<HTMLElement>): { purge: () => void, canPurge: Ref<boolean> } {
   const { dsl, generateDsl, compact } = useDslOutput()
   // Generate compact canonical: emit only what the user meaningfully set, not
   // every ensureDefaults-backfilled option. Otherwise the seed and the
@@ -23,6 +25,30 @@ export function useDslEditor(editorEl: TemplateRef<HTMLElement>): void {
   // would reappear ("previous value restored").
   compact.value = true
   const { applyDsl } = useDslSync()
+
+  const canPurge = shallowRef(false)
+
+  function recomputeCanPurge(text: string): void {
+    canPurge.value = computePurge(text).canPurge
+  }
+
+  function purge(): void {
+    if (!view) {
+      return
+    }
+    const text = view.state.doc.toString()
+    const { text: next } = computePurge(text)
+    if (next === null) {
+      return
+    }
+    const edit = diffEdit(text, next)
+    if (!edit) {
+      return
+    }
+    // Dispatching fires the updateListener docChanged path, which re-syncs the
+    // stores and recomputes canPurge.
+    view.dispatch({ changes: edit })
+  }
 
   let view: EditorView | undefined
   let controller: DslSyncController | undefined
@@ -76,7 +102,9 @@ export function useDslEditor(editorEl: TemplateRef<HTMLElement>): void {
         dslLinter,
         EditorView.updateListener.of((update) => {
           if (update.docChanged) {
-            controller?.onDocChanged(update.state.doc.toString())
+            const text = update.state.doc.toString()
+            controller?.onDocChanged(text)
+            recomputeCanPurge(text)
           }
           if (update.focusChanged) {
             if (update.view.hasFocus) {
@@ -92,10 +120,12 @@ export function useDslEditor(editorEl: TemplateRef<HTMLElement>): void {
     })
 
     view = new EditorView({ state, parent: editorEl.value! })
+    recomputeCanPurge(dsl.value)
   })
 
   watch(dsl, (newVal: string) => {
     controller?.onExternalDsl(newVal)
+    recomputeCanPurge(newVal)
   })
 
   onUnmounted(() => {
@@ -105,4 +135,6 @@ export function useDslEditor(editorEl: TemplateRef<HTMLElement>): void {
     view = undefined
     controller = undefined
   })
+
+  return { purge, canPurge }
 }
