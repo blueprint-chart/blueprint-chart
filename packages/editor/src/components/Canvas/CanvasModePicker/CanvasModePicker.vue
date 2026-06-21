@@ -63,9 +63,12 @@ function select(mode: CanvasMode) {
 .canvas-mode-picker {
   position: absolute;
   // Host can lift the picker (e.g. above the floating scene-timeline) and align
-  // its edge inset with that timeline via --canvas-float-inset.
+  // its edge inset with that timeline via --canvas-float-inset. The host can
+  // also flip it to the right edge (e.g. split view, where the left side is the
+  // DSL editor) via --canvas-mode-picker-left/right.
   bottom: var(--canvas-mode-picker-bottom, 1rem);
-  left: var(--canvas-float-inset, 1rem);
+  left: var(--canvas-mode-picker-left, var(--canvas-float-inset, 1rem));
+  right: var(--canvas-mode-picker-right, auto);
   z-index: 10;
   display: flex;
   align-items: stretch;

@@ -13,6 +13,7 @@ const editorPanelState = {
   selectTab: vi.fn(),
   setLastNarrowEditTab: vi.fn(),
   setSplitRatio: vi.fn(),
+  setViewMode: vi.fn(),
 }
 
 vi.mock('@/stores/editorPanel', () => ({
@@ -82,6 +83,7 @@ describe('ChartEditPanel view modes', () => {
     isNarrowRef.value = false
     panelStoreMock.dock.mockClear()
     panelStoreMock.close.mockClear()
+    editorPanelState.setViewMode.mockClear()
   })
 
   it('shows the chart and not the DSL pane in preview mode', () => {
@@ -161,14 +163,20 @@ describe('ChartEditPanel view modes', () => {
     expect(panelStoreMock.close).not.toHaveBeenCalled()
   })
 
-  it('stacks the frame and hides the divider on narrow split', () => {
+  it('switches split view back to Chart when the viewport becomes narrow', async () => {
+    const panel = useEditorPanel()
+    panel.viewMode.value = 'split'
+    mountPanel()
+    // Split is wide-only; shrinking below the breakpoint must fall back to Chart.
+    isNarrowRef.value = true
+    await nextTick()
+    expect(panel.setViewMode).toHaveBeenCalledWith('preview')
+  })
+
+  it('hides the divider on narrow', () => {
     isNarrowRef.value = true
     useEditorPanel().viewMode.value = 'split'
     const wrapper = mountPanel()
-    expect(wrapper.find('.chart-edit-panel__canvas-frame--stacked').exists()).toBe(true)
     expect(wrapper.find('.chart-edit-panel__divider').exists()).toBe(false)
-    // both panes still present
-    expect(wrapper.findComponent(PreviewChart).exists()).toBe(true)
-    expect(wrapper.find('.chart-edit-panel__canvas__dsl').exists()).toBe(true)
   })
 })

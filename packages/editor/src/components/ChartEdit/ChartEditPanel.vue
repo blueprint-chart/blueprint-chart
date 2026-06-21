@@ -8,7 +8,7 @@
     <div
       class="chart-edit-panel__canvas-frame"
       :class="{
-        'chart-edit-panel__canvas-frame--stacked': viewMode === 'split' && isNarrow,
+        'chart-edit-panel__canvas-frame--split': viewMode === 'split',
       }"
     >
       <ChartEditToolbar class="chart-edit-panel__view-toolbar" />
@@ -98,7 +98,7 @@ import { useScenes } from '@/composables/useScenes'
 const editorPanel = useEditorPanel()
 const { viewMode, activeTab, canvasMode, showDimensions, splitRatio } = storeToRefs(editorPanel)
 const { stopPlayback } = useScenes()
-const { selectTab, setLastNarrowEditTab } = editorPanel
+const { selectTab, setLastNarrowEditTab, setViewMode } = editorPanel
 const { mode: panelMode } = usePanel()
 const panelStore = usePanelStore()
 const { isNarrow } = useBreakpoint()
@@ -153,6 +153,16 @@ watch(viewMode, (mode) => {
   }
   else {
     panelStore.close()
+  }
+})
+
+// Split is a wide-only mode: there is no room for a usable side-by-side or
+// stacked editor+chart on narrow viewports. The toolbar hides the split
+// option on narrow; this watch covers the case where a wide window holding
+// the split view is shrunk below the breakpoint — fall back to Chart.
+watch(isNarrow, (narrow) => {
+  if (narrow && viewMode.value === 'split') {
+    setViewMode('preview')
   }
 })
 
@@ -398,18 +408,12 @@ const canvasStyle = computed<CSSProperties>(() => ({
 
   }
 
-  &__canvas-frame--stacked {
-    flex-direction: column;
-
-    .chart-edit-panel__canvas {
-      flex: 0 0 45%;
-      min-height: 0;
-    }
-    .chart-edit-panel__canvas__dsl {
-      flex: 1 1 auto;
-      min-height: 0;
-      border-top: 1px solid var(--bc-hairline);
-    }
+  // In split mode the DSL pane is on the left and the chart on the right, so
+  // pin the canvas mode picker to the chart (right) side — otherwise it floats
+  // over the DSL editor.
+  &__canvas-frame--split {
+    --canvas-mode-picker-left: auto;
+    --canvas-mode-picker-right: var(--canvas-float-inset);
   }
 
   &__canvas__dsl {
