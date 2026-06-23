@@ -1,5 +1,5 @@
 chart donut {
-  title = "The richest 1% own as much wealth as the entire global middle class"
+  title = "The richest 1% own more wealth than the entire bottom 90% combined"
   description = "Share of global wealth by group, 2021"
   source = "World Inequality Report 2022"
   sourceUrl = "https://wir2022.wid.world"
