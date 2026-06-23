@@ -64,7 +64,6 @@ export function resolveScene(scenes: SceneOverride[], index: number): SceneOverr
     return null
   }
   const resolved: SceneOverride = { id: scenes[index].id, name: scenes[index].name }
-  const hiddenIds = new Set<string>()
   for (let i = 0; i <= index; i++) {
     const s = scenes[i]
     if (s.chartType !== undefined) {
@@ -97,16 +96,6 @@ export function resolveScene(scenes: SceneOverride[], index: number): SceneOverr
     if (s.annotations !== undefined && s.annotations.length > 0) {
       resolved.annotations = s.annotations
     }
-    if (s.annotationVisibility) {
-      for (const v of s.annotationVisibility) {
-        if (v.action === 'hide') {
-          hiddenIds.add(v.id)
-        }
-        else {
-          hiddenIds.delete(v.id)
-        }
-      }
-    }
     if (s.seriesOverrides !== undefined && s.seriesOverrides.length > 0) {
       resolved.seriesOverrides = s.seriesOverrides
     }
@@ -118,9 +107,6 @@ export function resolveScene(scenes: SceneOverride[], index: number): SceneOverr
         ? { ...resolved.properties, ...s.properties }
         : { ...s.properties }
     }
-  }
-  if (hiddenIds.size > 0) {
-    resolved.hiddenAnnotationIds = hiddenIds
   }
   return resolved
 }

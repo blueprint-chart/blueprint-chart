@@ -7,7 +7,7 @@ import { TransformType } from '../enums'
 import { useDataTransforms } from '@/stores/dataTransforms'
 import { useDataTable } from './useDataTable'
 import { parseBpcData } from './useDataParser'
-import { useScenes, type SceneOverride, type AnnotationVisibility } from './useScenes'
+import { useScenes, type SceneOverride } from './useScenes'
 
 const VALID_TRANSFORM_TYPES = new Set<TransformType | string>([TransformType.Sort, TransformType.Filter, TransformType.HideColumns, TransformType.Transpose, TransformType.Parse, TransformType.GroupBy, TransformType.Computed, 'pivot'])
 
@@ -194,13 +194,6 @@ export function useDslSync() {
           }
           if (extracted.series.length > 0) {
             scene.seriesOverrides = convertSeriesOverrides(extracted.series)
-          }
-          if (extracted.annotationVisibility.length > 0) {
-            scene.annotationVisibility = extracted.annotationVisibility.map((v): AnnotationVisibility => ({
-              action: v.action,
-              kind: v.kind,
-              id: v.id,
-            }))
           }
           if (extracted.transforms.length > 0) {
             scene.transforms = extracted.transforms.map((t, i) => ({

@@ -1,7 +1,5 @@
 import {
   DslNodeType,
-  AnnotationAction,
-  AnnotationKind,
   type SceneNode,
   type PropertyNode,
 } from '@blueprint-chart/lib'
@@ -38,12 +36,6 @@ export function sceneOverrideToSceneNode(override: SceneOverride): SceneNode {
     highlights: (override.highlights ?? []) as never,
     areaFills: (override.areaFills ?? []) as never,
     annotations: (override.annotations ?? []) as never,
-    annotationVisibility: (override.annotationVisibility ?? []).map(v => ({
-      type: DslNodeType.AnnotationVisibility,
-      action: v.action === 'hide' ? AnnotationAction.Hide : AnnotationAction.Show,
-      kind: v.kind as AnnotationKind,
-      id: v.id,
-    })),
     series: (override.seriesOverrides ?? []) as never,
     transforms: (override.transforms ?? []) as never,
   }

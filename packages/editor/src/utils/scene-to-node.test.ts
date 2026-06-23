@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { AnnotationKind, AnnotationAction, DslNodeType } from '@blueprint-chart/lib'
+import { DslNodeType } from '@blueprint-chart/lib'
 import { sceneOverrideToSceneNode } from './scene-to-node'
 
 describe('sceneOverrideToSceneNode', () => {
@@ -8,7 +8,6 @@ describe('sceneOverrideToSceneNode', () => {
     expect(node.type).toBe(DslNodeType.Scene)
     expect(node.properties).toEqual([])
     expect(node.colorizes).toEqual([])
-    expect(node.annotationVisibility).toEqual([])
   })
 
   it('encodes chartType override as a `type` property', () => {
@@ -17,19 +16,8 @@ describe('sceneOverrideToSceneNode', () => {
     expect(typeProp?.value).toBe('line')
   })
 
-  it('maps annotationVisibility entries', () => {
-    const node = sceneOverrideToSceneNode({
-      id: 's1',
-      name: null,
-      annotationVisibility: [{ action: 'hide', kind: AnnotationKind.Point, id: 'abc' }],
-    })
-    expect(node.annotationVisibility).toEqual([
-      {
-        type: DslNodeType.AnnotationVisibility,
-        action: AnnotationAction.Hide,
-        kind: AnnotationKind.Point,
-        id: 'abc',
-      },
-    ])
+  it('does not emit annotationVisibility on the scene node', () => {
+    const node = sceneOverrideToSceneNode({ id: 's', name: 'S', annotations: [] })
+    expect('annotationVisibility' in node).toBe(false)
   })
 })
