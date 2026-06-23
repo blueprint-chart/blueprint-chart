@@ -1,5 +1,5 @@
 chart bar-stacked {
-  title = "India's working-age population now surpasses China's"
+  title = "India has far more children than China, and a workforce nearly as large"
   description = "Millions of people, 2023"
   source = "UN Population Division"
   sourceUrl = "https://population.un.org"
