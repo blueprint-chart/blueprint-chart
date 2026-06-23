@@ -4,10 +4,20 @@ import { useChartTypeOptions } from './useChartTypeOptions'
 import { useDataTransforms } from './useDataTransforms'
 import { useScenes } from './useScenes'
 import { useDataTable } from './useDataTable'
-import { getChartOptions, AnnotationKind, ANNOTATION_KIND_KEYWORD, SortDirection } from '@blueprint-chart/lib'
-import type { RangeAnnotationConfig, FreeAnnotationConfig } from '@blueprint-chart/lib'
+import { getChartOptions, AnnotationKind, SortDirection } from '@blueprint-chart/lib'
+import type { AnnotationConfig, RangeAnnotationConfig, FreeAnnotationConfig } from '@blueprint-chart/lib'
 import { TransformType } from '../enums'
 import { serializePosition, serializeMaxWidth } from '@/utils/dsl/output'
+
+function repeatLine(a: AnnotationConfig, indent: string): string {
+  if (a.repeat === 'always') {
+    return `${indent}repeat = true\n`
+  }
+  if (typeof a.repeat === 'number' && a.repeat > 1) {
+    return `${indent}repeat = ${a.repeat}\n`
+  }
+  return ''
+}
 
 export function useDslOutput() {
   const config = useChartConfig()
@@ -160,9 +170,7 @@ export function useDslOutput() {
           continue
         }
         output += `\n  annotation "${a.target}" {\n`
-        if (a.id) {
-          output += `    id = "${a.id}"\n`
-        }
+        output += repeatLine(a, '    ')
         if (a.text) {
           output += `    text = "${
             a.text}"\n`
@@ -232,9 +240,7 @@ export function useDslOutput() {
       else if (kind === AnnotationKind.Range) {
         const ra = a as RangeAnnotationConfig
         output += `\n  range {\n`
-        if (ra.id) {
-          output += `    id = "${ra.id}"\n`
-        }
+        output += repeatLine(ra, '    ')
         if (ra.start !== undefined) {
           output += `    start = ${typeof ra.start === 'string'
             ? `"${
@@ -284,9 +290,7 @@ export function useDslOutput() {
       else if (kind === AnnotationKind.Free) {
         const fa = a as FreeAnnotationConfig
         output += `\n  note {\n`
-        if (fa.id) {
-          output += `    id = "${fa.id}"\n`
-        }
+        output += repeatLine(fa, '    ')
         if (fa.text) {
           output += `    text = "${
             fa.text}"\n`
@@ -493,9 +497,7 @@ export function useDslOutput() {
               continue
             }
             output += `\n    annotation "${a.target}" {\n`
-            if (a.id) {
-              output += `      id = "${a.id}"\n`
-            }
+            output += repeatLine(a, '      ')
             if (a.text) {
               output += `      text = "${a.text}"\n`
             }
@@ -549,9 +551,7 @@ export function useDslOutput() {
           else if (kind === AnnotationKind.Range) {
             const ra = a as import('@blueprint-chart/lib').RangeAnnotationConfig
             output += `\n    range {\n`
-            if (ra.id) {
-              output += `      id = "${ra.id}"\n`
-            }
+            output += repeatLine(ra, '      ')
             if (ra.start !== undefined) {
               output += `      start = ${typeof ra.start === 'string' ? `"${ra.start}"` : ra.start}\n`
             }
@@ -587,9 +587,7 @@ export function useDslOutput() {
           else if (kind === AnnotationKind.Free) {
             const fa = a as import('@blueprint-chart/lib').FreeAnnotationConfig
             output += `\n    note {\n`
-            if (fa.id) {
-              output += `      id = "${fa.id}"\n`
-            }
+            output += repeatLine(fa, '      ')
             if (fa.text) {
               output += `      text = "${fa.text}"\n`
             }
@@ -610,11 +608,6 @@ export function useDslOutput() {
             }
             output += `    }\n`
           }
-        }
-      }
-      if (scene.annotationVisibility) {
-        for (const v of scene.annotationVisibility) {
-          output += `    ${v.action}-${ANNOTATION_KIND_KEYWORD[v.kind]} "${v.id}"\n`
         }
       }
       if (scene.seriesOverrides) {

@@ -126,50 +126,6 @@ describe('useDslOutput', () => {
       expect(dsl()).toContain('y = "80px"')
     })
 
-    it('emits annotation id for point annotation', () => {
-      const config = useChartConfig()
-      config.chartType.value = ChartType.Line
-      config.annotations.value = [
-        { kind: 'point', target: '2024-Q1', text: 'Peak', id: 'abc12' },
-      ]
-
-      const { generateDsl: dsl } = useDslOutput()
-      expect(dsl()).toContain('id = "abc12"')
-    })
-
-    it('emits annotation id for range annotation', () => {
-      const config = useChartConfig()
-      config.chartType.value = ChartType.Line
-      config.annotations.value = [
-        { kind: 'range', start: 0, end: 100, id: 'rng01' },
-      ]
-
-      const { generateDsl: dsl } = useDslOutput()
-      expect(dsl()).toContain('id = "rng01"')
-    })
-
-    it('emits annotation id for free annotation (note)', () => {
-      const config = useChartConfig()
-      config.chartType.value = ChartType.Line
-      config.annotations.value = [
-        { kind: 'free', text: 'Note', x: 50, y: 50, id: 'nt001' },
-      ]
-
-      const { generateDsl: dsl } = useDslOutput()
-      expect(dsl()).toContain('id = "nt001"')
-    })
-
-    it('does not emit id when annotation has no id', () => {
-      const config = useChartConfig()
-      config.chartType.value = ChartType.Line
-      config.annotations.value = [
-        { kind: 'point', target: '2024-Q1', text: 'Peak' },
-      ]
-
-      const { generateDsl: dsl } = useDslOutput()
-      expect(dsl()).not.toContain('id = ')
-    })
-
     it('skips point annotations without target', () => {
       const config = useChartConfig()
       config.chartType.value = ChartType.Line
@@ -179,6 +135,54 @@ describe('useDslOutput', () => {
 
       const { generateDsl: dsl } = useDslOutput()
       expect(dsl()).not.toContain('annotation')
+    })
+
+    it('emits repeat = true for an always annotation', () => {
+      const config = useChartConfig()
+      config.chartType.value = ChartType.Line
+      config.annotations.value = [
+        { kind: 'point', target: '2024-Q1', text: 'Peak', repeat: 'always' },
+      ]
+
+      const { generateDsl: dsl } = useDslOutput()
+      expect(dsl()).toContain('repeat = true')
+      expect(dsl()).not.toContain('id =')
+    })
+
+    it('emits repeat = N for an integer repeat', () => {
+      const config = useChartConfig()
+      config.chartType.value = ChartType.Line
+      config.annotations.value = [
+        { kind: 'point', target: '2024-Q1', text: 'Peak', repeat: 3 },
+      ]
+
+      const { generateDsl: dsl } = useDslOutput()
+      expect(dsl()).toContain('repeat = 3')
+    })
+
+    it('omits repeat for a once (default) annotation', () => {
+      const config = useChartConfig()
+      config.chartType.value = ChartType.Line
+      config.annotations.value = [
+        { kind: 'point', target: '2024-Q1', text: 'Peak' },
+      ]
+
+      const { generateDsl: dsl } = useDslOutput()
+      expect(dsl()).not.toContain('repeat =')
+    })
+
+    it('never emits id or visibility verbs', () => {
+      const config = useChartConfig()
+      config.chartType.value = ChartType.Line
+      config.annotations.value = [
+        // id is not on AnnotationConfig in the new schema; cast to test the guard
+        { kind: 'point', target: '2024-Q1', text: 'Peak', id: 'abc12' } as unknown as import('@blueprint-chart/lib').AnnotationConfig,
+      ]
+
+      const { generateDsl: dsl } = useDslOutput()
+      expect(dsl()).not.toMatch(/\bid =/)
+      expect(dsl()).not.toContain('hide-')
+      expect(dsl()).not.toContain('show-')
     })
   })
 
@@ -367,42 +371,6 @@ describe('useDslOutput', () => {
       expect(sceneBlock).not.toContain('data {')
     })
 
-    it('serializes scene annotation visibility directives', () => {
-      const config = useChartConfig()
-      config.chartType.value = ChartType.Line
-
-      const scenes = useScenes()
-      scenes.add()
-      scenes.update(0, {
-        annotationVisibility: [
-          { action: 'hide', kind: 'point', id: 'abc12' },
-        ],
-      })
-
-      const { generateDsl: dsl } = useDslOutput()
-      expect(dsl()).toContain('hide-annotation "abc12"')
-    })
-
-    it('serializes mixed hide and show directives in scene', () => {
-      const config = useChartConfig()
-      config.chartType.value = ChartType.Line
-
-      const scenes = useScenes()
-      scenes.add()
-      scenes.update(0, {
-        annotationVisibility: [
-          { action: 'hide', kind: 'point', id: 'abc12' },
-          { action: 'show', kind: 'range', id: 'rng01' },
-          { action: 'hide', kind: 'free', id: 'nt001' },
-        ],
-      })
-
-      const { generateDsl: dsl } = useDslOutput()
-      expect(dsl()).toContain('hide-annotation "abc12"')
-      expect(dsl()).toContain('show-range "rng01"')
-      expect(dsl()).toContain('hide-note "nt001"')
-    })
-
     it('does not leak scene values into base chart section', () => {
       const config = useChartConfig()
       config.chartType.value = ChartType.BarVertical
@@ -426,7 +394,7 @@ describe('useDslOutput', () => {
       expect(baseSection).not.toContain('colorize "A"')
     })
 
-    it('serializes point annotation with id in scene', () => {
+    it('serializes point annotation in scene', () => {
       const config = useChartConfig()
       config.chartType.value = ChartType.Line
 
@@ -434,14 +402,14 @@ describe('useDslOutput', () => {
       scenes.add()
       scenes.update(0, {
         annotations: [
-          { kind: 'point', target: '2024-Q1', text: 'Peak', id: 'p1', showArrow: true },
+          { kind: 'point', target: '2024-Q1', text: 'Peak', showArrow: true },
         ],
       })
 
       const { generateDsl: dsl } = useDslOutput()
       expect(dsl()).toContain('scene {')
       expect(dsl()).toContain('annotation "2024-Q1"')
-      expect(dsl()).toContain('id = "p1"')
+      expect(dsl()).not.toContain('id =')
       expect(dsl()).toContain('text = "Peak"')
       expect(dsl()).toContain('showArrow = true')
     })
@@ -454,14 +422,14 @@ describe('useDslOutput', () => {
       scenes.add()
       scenes.update(0, {
         annotations: [
-          { kind: 'range', start: 10, end: 90, bgColor: '#ccc', id: 'r1' },
+          { kind: 'range', start: 10, end: 90, bgColor: '#ccc' },
         ],
       })
 
       const { generateDsl: dsl } = useDslOutput()
       expect(dsl()).toContain('scene {')
       expect(dsl()).toContain('range {')
-      expect(dsl()).toContain('id = "r1"')
+      expect(dsl()).not.toContain('id =')
       expect(dsl()).toContain('start = 10')
       expect(dsl()).toContain('end = 90')
       expect(dsl()).toContain('bgColor = "#ccc"')
@@ -475,14 +443,14 @@ describe('useDslOutput', () => {
       scenes.add()
       scenes.update(0, {
         annotations: [
-          { kind: 'free', text: 'Note', x: 50, y: 25, id: 'n1' },
+          { kind: 'free', text: 'Note', x: 50, y: 25 },
         ],
       })
 
       const { generateDsl: dsl } = useDslOutput()
       expect(dsl()).toContain('scene {')
       expect(dsl()).toContain('note {')
-      expect(dsl()).toContain('id = "n1"')
+      expect(dsl()).not.toContain('id =')
       expect(dsl()).toContain('text = "Note"')
       expect(dsl()).toContain('x = 50')
       expect(dsl()).toContain('y = 25')
@@ -496,9 +464,9 @@ describe('useDslOutput', () => {
       scenes.add()
       scenes.update(0, {
         annotations: [
-          { kind: 'point', target: 'X', text: 'Pt', id: 'p1' },
-          { kind: 'range', start: 0, end: 100, id: 'r1' },
-          { kind: 'free', text: 'Free', x: 10, y: 20, id: 'n1' },
+          { kind: 'point', target: 'X', text: 'Pt' },
+          { kind: 'range', start: 0, end: 100 },
+          { kind: 'free', text: 'Free', x: 10, y: 20 },
         ],
       })
 
@@ -543,17 +511,14 @@ describe('useDslOutput', () => {
       applyDsl(`chart line {
   scene {
     annotation "X" {
-      id = "p1"
       text = "Hello"
       showArrow = true
     }
     range {
-      id = "r1"
       start = 10
       end = 90
     }
     note {
-      id = "n1"
       text = "Note"
       x = 50
       y = 25
@@ -563,48 +528,44 @@ describe('useDslOutput', () => {
 
       const { generateDsl: dsl } = useDslOutput()
       expect(dsl()).toContain('annotation "X"')
-      expect(dsl()).toContain('id = "p1"')
+      expect(dsl()).not.toContain('id =')
       expect(dsl()).toContain('text = "Hello"')
       expect(dsl()).toContain('showArrow = true')
       expect(dsl()).toContain('range {')
-      expect(dsl()).toContain('id = "r1"')
       expect(dsl()).toContain('start = 10')
       expect(dsl()).toContain('end = 90')
       expect(dsl()).toContain('note {')
-      expect(dsl()).toContain('id = "n1"')
       expect(dsl()).toContain('text = "Note"')
       expect(dsl()).toContain('x = 50')
       expect(dsl()).toContain('y = 25')
     })
 
-    it('scene annotation with visibility directives round-trip', () => {
+    it('scene annotation round-trip omits id and visibility verbs', () => {
       const { applyDsl } = useDslSync()
       applyDsl(`chart line {
   annotation "Base" {
-    id = "base1"
     text = "Base ann"
   }
   range {
-    id = "rng01"
     start = 0
     end = 100
   }
 
   scene {
-    hide-annotation "base1"
-    show-range "rng01"
+    annotation "Extra" {
+      text = "Extra"
+    }
   }
 }`)
 
       const { generateDsl: dsl } = useDslOutput()
       // Base annotations should be present
       expect(dsl()).toContain('annotation "Base"')
-      expect(dsl()).toContain('id = "base1"')
       expect(dsl()).toContain('range {')
-      expect(dsl()).toContain('id = "rng01"')
-      // Scene visibility directives should be present
-      expect(dsl()).toContain('hide-annotation "base1"')
-      expect(dsl()).toContain('show-range "rng01"')
+      // No id or visibility verbs
+      expect(dsl()).not.toMatch(/\bid =/)
+      expect(dsl()).not.toContain('hide-')
+      expect(dsl()).not.toContain('show-')
     })
   })
 })
