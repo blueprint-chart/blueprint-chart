@@ -1,17 +1,17 @@
 chart bar-horizontal {
   title = "China emits more CO₂ than the US and India combined"
   description = "Annual emissions in billion tonnes, 2023"
-  source = "Global Carbon Project"
-  sourceUrl = "https://globalcarbonproject.org"
+  source = "Our World in Data"
+  sourceUrl = "https://ourworldindata.org/co2-emissions"
   byline = "Pierre Romera"
 
   data {
-    "China" = 13.26
-    "United States" = 4.68
-    "India" = 2.96
-    "Russia" = 2.07
-    "Japan" = 0.94
-    "Germany" = 0.58
+    "China" = 12.01
+    "United States" = 4.72
+    "India" = 2.92
+    "Russia" = 1.71
+    "Japan" = 0.95
+    "Germany" = 0.63
   }
 
   scene "China spotlight" {
@@ -34,11 +34,11 @@ chart bar-horizontal {
     description = "CO₂ emissions per capita, tonnes per person, 2023"
     highlight "Qatar"
     data {
-      "Qatar" = 43.55
-      "United Arab Emirates" = 20.22
-      "United States" = 13.83
-      "China" = 9.24
-      "India" = 2.07
+      "Qatar" = 37.17
+      "United Arab Emirates" = 23.31
+      "United States" = 16.06
+      "China" = 10.65
+      "India" = 1.91
     }
   }
 }
