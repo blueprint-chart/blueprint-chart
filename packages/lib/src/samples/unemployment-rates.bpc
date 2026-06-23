@@ -1,28 +1,34 @@
 chart line-multi {
-  title = "Detroit's unemployment hit 16% during the Great Recession"
-  description = "Percent of labour force, 2000–2014"
-  source = "Bureau of Labor Statistics"
-  sourceUrl = "https://bls.gov"
-  note = "Not seasonally adjusted. Metro area definitions may vary across years."
-  colorPalette = "Maya"
+  title = "The income share of the top 1% has surged since 1980"
+  description = "Pre-tax national income captured by the top 1%, percent"
+  source = "World Inequality Database"
+  sourceUrl = "https://wid.world"
+  colorPalette = "Egypt"
   tooltips = true
-
-  annotation "2009" {
-    text = "Great Recession peak"
-    textOffsetY = -10
-    showArrow = true
-  }
+  lineSymbols = true
+  lineSymbolShowOn = "all"
 
   data {
-    series = "New York","Los Angeles","Chicago","Detroit"
-    "2000" = 5.0,5.6,4.5,3.8
-    "2002" = 7.3,7.5,6.8,7.0
-    "2004" = 6.5,6.4,6.5,7.3
-    "2006" = 5.0,4.8,5.0,6.8
-    "2008" = 6.2,7.5,7.1,9.4
-    "2009" = 9.5,12.4,11.2,16.2
-    "2010" = 9.4,12.7,10.8,15.8
-    "2012" = 8.2,10.6,9.3,10.4
-    "2014" = 6.5,8.0,7.1,8.2
+    series = "United States","India","China","France"
+    "1980" = 10.4,7.5,6.6,7.5
+    "1990" = 14.7,10.7,8.3,9.0
+    "2000" = 17.3,13.5,10.5,11.3
+    "2010" = 17.9,18.0,15.2,11.0
+    "2021" = 19.9,22.1,15.7,12.7
+  }
+
+  scene "US doubles" {
+    title = "The US top 1% nearly doubled its income share since 1980"
+    highlight "United States"
+  }
+
+  scene "India overtakes" {
+    title = "India is now the most unequal of these major economies"
+    highlight "India"
+  }
+
+  scene "France holds the line" {
+    title = "France kept its top 1% share roughly flat"
+    highlight "France"
   }
 }
