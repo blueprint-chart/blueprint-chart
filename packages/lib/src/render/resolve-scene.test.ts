@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
 import { resolveScene, __resetTransformWarnings } from './resolve-scene'
 import type { ChartDefinition } from './types'
-import { DslNodeType, AnnotationKind, AnnotationAction, ChartType, SortMode } from '../enums'
+import { DslNodeType, AnnotationKind, ChartType, SortMode } from '../enums'
 import { convertAnnotations } from '../dsl/converter'
 
 function baseDef(overrides: Partial<ChartDefinition> = {}): ChartDefinition {
