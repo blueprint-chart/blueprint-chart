@@ -308,7 +308,6 @@ describe('convertAnnotations', () => {
       kind: AnnotationKind.Point,
       target: 'X',
       properties: [
-        prop('id', 'ann-1'),
         prop('text', 'Note'),
         prop('textColor', '#333'),
         prop('anchorDirection', 'NE'),
@@ -331,7 +330,6 @@ describe('convertAnnotations', () => {
     const ann = result[0]
     expect(ann.kind).toBe(AnnotationKind.Point)
     if (ann.kind === AnnotationKind.Point) {
-      expect(ann.id).toBe('ann-1')
       expect(ann.textColor).toBe('#333')
       expect(ann.anchorDirection).toBe('NE')
       expect(ann.textOffsetX).toBe(10)
@@ -363,7 +361,6 @@ describe('convertAnnotations', () => {
         prop('direction', 'horizontal'),
         prop('text', 'Region'),
         prop('textColor', '#333'),
-        prop('id', 'r1'),
       ],
     }]
     const result = convertAnnotations(nodes)
@@ -377,7 +374,6 @@ describe('convertAnnotations', () => {
       direction: 'horizontal',
       text: 'Region',
       textColor: '#333',
-      id: 'r1',
     })
   })
 
@@ -437,7 +433,6 @@ describe('convertAnnotations', () => {
         prop('text', 'Important note'),
         { type: DslNodeType.Property, key: 'x', value: 50, isPercentage: true },
         { type: DslNodeType.Property, key: 'y', value: 25, isPercentage: true },
-        prop('id', 'n1'),
         prop('textColor', '#666'),
         prop('textOutline', 'true'),
       ],
@@ -448,7 +443,6 @@ describe('convertAnnotations', () => {
       text: 'Important note',
       x: 50,
       y: 25,
-      id: 'n1',
       textColor: '#666',
       textOutline: true,
     })

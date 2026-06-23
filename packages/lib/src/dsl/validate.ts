@@ -2,6 +2,7 @@ import type { ChartNode, SceneNode, PropertyNode, AnnotationNode, TransformNode 
 import type { ChartOptionDef } from '../charts/types'
 import { getChartOptions, listCharts } from '../charts/registry'
 import { ChartOptionType, AnnotationKind, ANNOTATION_KIND_KEYWORD } from '../enums'
+import { propertyMap } from './converter'
 
 /**
  * A single validation finding. `code` is a stable machine-readable identifier,
@@ -64,7 +65,7 @@ const KNOWN_TRANSFORM_TYPES = new Set<string>(['sort'])
  */
 export const POINT_ANNOTATION_KEYS = new Set<string>([
   'text',
-  'id',
+  'repeat',
   'textColor',
   'maxWidth',
   'textOutline',
@@ -84,7 +85,7 @@ export const POINT_ANNOTATION_KEYS = new Set<string>([
 export const RANGE_ANNOTATION_KEYS = new Set<string>([
   'start',
   'end',
-  'id',
+  'repeat',
   'orientation',
   'startAnchor',
   'endAnchor',
@@ -98,7 +99,7 @@ export const FREE_ANNOTATION_KEYS = new Set<string>([
   'text',
   'x',
   'y',
-  'id',
+  'repeat',
   'textColor',
   'maxWidth',
   'textOutline',
@@ -270,6 +271,19 @@ function validateAnnotations(
         message: `Unknown ${label} property "${prop.key}"; it will be silently ignored.`,
         suggestion: nearest(prop.key, allowed),
       })
+    }
+    const repeatRaw = propertyMap(a.properties).get('repeat')
+    if (repeatRaw !== undefined) {
+      const ok = repeatRaw === 'true' || repeatRaw === 'false'
+        || repeatRaw === true || repeatRaw === false
+        || (typeof repeatRaw === 'number' && Number.isInteger(repeatRaw) && repeatRaw >= 1)
+      if (!ok) {
+        errors.push({
+          code: 'invalid-annotation-repeat',
+          message: `repeat must be false, true, or a positive integer (got ${String(repeatRaw)})`,
+          path: `${basePath}.${label}[${i}].repeat`,
+        })
+      }
     }
   })
 }

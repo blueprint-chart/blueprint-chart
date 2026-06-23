@@ -231,9 +231,6 @@ export function convertAnnotations(nodes: AnnotationNode[]): AnnotationConfig[] 
         end: aProps.has('end') ? (isNaN(Number(aProps.get('end'))) ? String(aProps.get('end')) : Number(aProps.get('end'))) : 0,
       }
       result.repeat = readRepeat(aProps)
-      if (aProps.has('id')) {
-        result.id = String(aProps.get('id'))
-      }
       if (aProps.has('orientation')) {
         result.orientation = String(aProps.get('orientation')) as Orientation
       }
@@ -269,9 +266,6 @@ export function convertAnnotations(nodes: AnnotationNode[]): AnnotationConfig[] 
         y: readPosition(a.properties, 'y') ?? 0,
       }
       result.repeat = readRepeat(aProps)
-      if (aProps.has('id')) {
-        result.id = String(aProps.get('id'))
-      }
       if (aProps.has('textColor')) {
         result.textColor = String(aProps.get('textColor'))
       }
@@ -293,9 +287,6 @@ export function convertAnnotations(nodes: AnnotationNode[]): AnnotationConfig[] 
       text: String(aProps.get('text') ?? ''),
     }
     result.repeat = readRepeat(aProps)
-    if (aProps.has('id')) {
-      result.id = String(aProps.get('id'))
-    }
     if (aProps.has('textColor')) {
       result.textColor = String(aProps.get('textColor'))
     }

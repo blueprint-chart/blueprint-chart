@@ -487,7 +487,7 @@ describe('createAnnotationPlugin', () => {
     const { x, y, data } = makeScales()
 
     const plugin = createAnnotationPlugin(
-      [{ kind: AnnotationKind.Point, id: 'p1', target: 'A', text: 'Test', showLine: true }],
+      [{ kind: AnnotationKind.Point, key: 'p1', target: 'A', text: 'Test', showLine: true }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200 },
     )
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -516,7 +516,7 @@ describe('createAnnotationPlugin', () => {
 
     // Second render adds annotation with line — should get draw entrance
     const plugin2 = createAnnotationPlugin(
-      [{ kind: AnnotationKind.Point, id: 'new-line', target: 'A', text: 'Draw me', showLine: true }],
+      [{ kind: AnnotationKind.Point, key: 'new-line', target: 'A', text: 'Draw me', showLine: true }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200, transition: true },
     )
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -541,7 +541,7 @@ describe('createAnnotationPlugin', () => {
 
     // Second render adds annotation with arrow line
     const plugin2 = createAnnotationPlugin(
-      [{ kind: AnnotationKind.Point, id: 'arrow-draw', target: 'A', text: 'Arrow', showLine: true, showArrow: true }],
+      [{ kind: AnnotationKind.Point, key: 'arrow-draw', target: 'A', text: 'Arrow', showLine: true, showArrow: true }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200, transition: true },
     )
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -570,7 +570,7 @@ describe('createAnnotationPlugin', () => {
     plugin1.postDraw!(makeChartStub(g) as any, undefined as any)
 
     const plugin2 = createAnnotationPlugin(
-      [{ kind: AnnotationKind.Point, id: 'curve-arrow', target: 'A', text: 'Curve', showLine: true, showArrow: true, lineStyle: AnnotationLineStyle.CurveRight }],
+      [{ kind: AnnotationKind.Point, key: 'curve-arrow', target: 'A', text: 'Curve', showLine: true, showArrow: true, lineStyle: AnnotationLineStyle.CurveRight }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200, transition: true },
     )
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -592,7 +592,7 @@ describe('createAnnotationPlugin', () => {
 
     // First render with annotation
     const plugin1 = createAnnotationPlugin(
-      [{ kind: AnnotationKind.Point, id: 'p-move', target: 'A', text: 'Start', showLine: true }],
+      [{ kind: AnnotationKind.Point, key: 'p-move', target: 'A', text: 'Start', showLine: true }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200 },
     )
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -600,7 +600,7 @@ describe('createAnnotationPlugin', () => {
 
     // Second render moves annotation — should NOT get draw entrance
     const plugin2 = createAnnotationPlugin(
-      [{ kind: AnnotationKind.Point, id: 'p-move', target: 'B', text: 'Moved', showLine: true }],
+      [{ kind: AnnotationKind.Point, key: 'p-move', target: 'B', text: 'Moved', showLine: true }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200, transition: true },
     )
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -631,7 +631,7 @@ describe('createAnnotationPlugin', () => {
 
     // First render with annotation
     const plugin1 = createAnnotationPlugin(
-      [{ kind: AnnotationKind.Point, id: 'p-still', target: 'A', text: 'Same', showLine: true }],
+      [{ kind: AnnotationKind.Point, key: 'p-still', target: 'A', text: 'Same', showLine: true }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200 },
     )
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -644,7 +644,7 @@ describe('createAnnotationPlugin', () => {
     // should match within tolerance, so the path d must remain at the new
     // (== old) value rather than being rewound to a recomputed old value.
     const plugin2 = createAnnotationPlugin(
-      [{ kind: AnnotationKind.Point, id: 'p-still', target: 'A', text: 'Same', showLine: true }],
+      [{ kind: AnnotationKind.Point, key: 'p-still', target: 'A', text: 'Same', showLine: true }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200, transition: true },
     )
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -660,7 +660,7 @@ describe('createAnnotationPlugin', () => {
 
     // First render with elbow annotation targeting A
     const plugin1 = createAnnotationPlugin(
-      [{ kind: AnnotationKind.Point, id: 'elb-move', target: 'A', text: 'Start', showLine: true, lineStyle: AnnotationLineStyle.Elbow }],
+      [{ kind: AnnotationKind.Point, key: 'elb-move', target: 'A', text: 'Start', showLine: true, lineStyle: AnnotationLineStyle.Elbow }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200 },
     )
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -668,7 +668,7 @@ describe('createAnnotationPlugin', () => {
 
     // Second render moves to B
     const plugin2 = createAnnotationPlugin(
-      [{ kind: AnnotationKind.Point, id: 'elb-move', target: 'B', text: 'Moved', showLine: true, lineStyle: AnnotationLineStyle.Elbow }],
+      [{ kind: AnnotationKind.Point, key: 'elb-move', target: 'B', text: 'Moved', showLine: true, lineStyle: AnnotationLineStyle.Elbow }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200, transition: true },
     )
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -693,7 +693,7 @@ describe('createAnnotationPlugin', () => {
 
     // First render with curve annotation targeting A
     const plugin1 = createAnnotationPlugin(
-      [{ kind: AnnotationKind.Point, id: 'curve-move', target: 'A', text: 'Start', showLine: true, lineStyle: 'curve' }],
+      [{ kind: AnnotationKind.Point, key: 'curve-move', target: 'A', text: 'Start', showLine: true, lineStyle: 'curve' }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200 },
     )
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -701,7 +701,7 @@ describe('createAnnotationPlugin', () => {
 
     // Second render moves to B
     const plugin2 = createAnnotationPlugin(
-      [{ kind: AnnotationKind.Point, id: 'curve-move', target: 'B', text: 'Moved', showLine: true, lineStyle: 'curve' }],
+      [{ kind: AnnotationKind.Point, key: 'curve-move', target: 'B', text: 'Moved', showLine: true, lineStyle: 'curve' }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200, transition: true },
     )
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -726,7 +726,7 @@ describe('createAnnotationPlugin', () => {
     const { x, y, data } = makeScales()
 
     const plugin = createAnnotationPlugin(
-      [{ kind: AnnotationKind.Point, id: 'elb-1', target: 'A', text: 'Elbow', showLine: true, lineStyle: AnnotationLineStyle.Elbow }],
+      [{ kind: AnnotationKind.Point, key: 'elb-1', target: 'A', text: 'Elbow', showLine: true, lineStyle: AnnotationLineStyle.Elbow }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200 },
     )
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -866,11 +866,11 @@ describe('createAnnotationPlugin', () => {
   // Transition support
   // -----------------------------------------------------------------------
 
-  it('adds data-annotation-id attribute when annotation has id', () => {
+  it('adds data-annotation-id attribute when annotation has key', () => {
     const { x, y, data } = makeScales()
 
     const plugin = createAnnotationPlugin(
-      [{ kind: AnnotationKind.Point, id: 'ann-1', target: 'A', text: 'With id' }],
+      [{ kind: AnnotationKind.Point, key: 'ann-1', target: 'A', text: 'With id' }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200 },
     )
 
@@ -881,7 +881,7 @@ describe('createAnnotationPlugin', () => {
     expect(annGroup).toBeTruthy()
   })
 
-  it('does not add data-annotation-id when annotation has no id', () => {
+  it('does not add data-annotation-id when annotation has no key', () => {
     const { x, y, data } = makeScales()
 
     const plugin = createAnnotationPlugin(
@@ -900,7 +900,7 @@ describe('createAnnotationPlugin', () => {
     const { x, y, data } = makeScales()
 
     const plugin = createAnnotationPlugin(
-      [{ kind: AnnotationKind.Range, id: 'rng-1', start: 'A', end: 'B' }],
+      [{ kind: AnnotationKind.Range, key: 'rng-1', start: 'A', end: 'B' }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200 },
     )
 
@@ -915,7 +915,7 @@ describe('createAnnotationPlugin', () => {
     const { x, y, data } = makeScales()
 
     const plugin = createAnnotationPlugin(
-      [{ kind: AnnotationKind.Free, id: 'free-1', text: 'Note', x: 0, y: 0 }],
+      [{ kind: AnnotationKind.Free, key: 'free-1', text: 'Note', x: 0, y: 0 }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200 },
     )
 
@@ -931,7 +931,7 @@ describe('createAnnotationPlugin', () => {
 
     // First render
     const plugin1 = createAnnotationPlugin(
-      [{ kind: AnnotationKind.Point, id: 'p1', target: 'A', text: 'First' }],
+      [{ kind: AnnotationKind.Point, key: 'p1', target: 'A', text: 'First' }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200 },
     )
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -944,7 +944,7 @@ describe('createAnnotationPlugin', () => {
     // Do NOT remove old containers — during scene transitions the chart
     // preserves the DOM so the plugin can snapshot old positions.
     const plugin2 = createAnnotationPlugin(
-      [{ kind: AnnotationKind.Point, id: 'p1', target: 'B', text: 'Moved' }],
+      [{ kind: AnnotationKind.Point, key: 'p1', target: 'B', text: 'Moved' }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200, transition: true },
     )
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -962,7 +962,7 @@ describe('createAnnotationPlugin', () => {
 
     // First render with annotation
     const plugin1 = createAnnotationPlugin(
-      [{ kind: AnnotationKind.Point, id: 'removed-1', target: 'A', text: 'Will be removed' }],
+      [{ kind: AnnotationKind.Point, key: 'removed-1', target: 'A', text: 'Will be removed' }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200 },
     )
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -986,7 +986,7 @@ describe('createAnnotationPlugin', () => {
     const { x, y, data } = makeScales()
 
     const plugin = createAnnotationPlugin(
-      [{ kind: AnnotationKind.Point, id: 'p1', target: 'A', text: 'Static' }],
+      [{ kind: AnnotationKind.Point, key: 'p1', target: 'A', text: 'Static' }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200, transition: false },
     )
 
@@ -1012,7 +1012,7 @@ describe('createAnnotationPlugin', () => {
 
     // Leave old containers in place for snapshot
     const plugin2 = createAnnotationPlugin(
-      [{ kind: AnnotationKind.Point, id: 'new-1', target: 'A', text: 'New ann' }],
+      [{ kind: AnnotationKind.Point, key: 'new-1', target: 'A', text: 'New ann' }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200, transition: true },
     )
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1030,7 +1030,7 @@ describe('createAnnotationPlugin', () => {
 
     // First render
     const plugin1 = createAnnotationPlugin(
-      [{ kind: AnnotationKind.Range, id: 'r1', start: 'A', end: 'B', bgColor: '#f00' }],
+      [{ kind: AnnotationKind.Range, key: 'r1', start: 'A', end: 'B', bgColor: '#f00' }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200 },
     )
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1038,7 +1038,7 @@ describe('createAnnotationPlugin', () => {
 
     // Leave old containers in place for snapshot
     const plugin2 = createAnnotationPlugin(
-      [{ kind: AnnotationKind.Range, id: 'r1', start: 'A', end: 'B', bgColor: '#00f' }],
+      [{ kind: AnnotationKind.Range, key: 'r1', start: 'A', end: 'B', bgColor: '#00f' }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200, transition: true },
     )
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1059,7 +1059,7 @@ describe('createAnnotationPlugin', () => {
 
     // First render
     const plugin1 = createAnnotationPlugin(
-      [{ kind: AnnotationKind.Point, id: 'p1', target: 'A', text: 'Before' }],
+      [{ kind: AnnotationKind.Point, key: 'p1', target: 'A', text: 'Before' }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200 },
     )
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1079,7 +1079,7 @@ describe('createAnnotationPlugin', () => {
 
     // Second render with priorAnnotations
     const plugin2 = createAnnotationPlugin(
-      [{ kind: AnnotationKind.Point, id: 'p1', target: 'B', text: 'After' }],
+      [{ kind: AnnotationKind.Point, key: 'p1', target: 'B', text: 'After' }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200, transition: true, priorAnnotations: prior },
     )
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1095,7 +1095,7 @@ describe('createAnnotationPlugin', () => {
 
     // First render
     const plugin1 = createAnnotationPlugin(
-      [{ kind: AnnotationKind.Point, id: 'gone-1', target: 'A', text: 'Will go' }],
+      [{ kind: AnnotationKind.Point, key: 'gone-1', target: 'A', text: 'Will go' }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200 },
     )
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1140,7 +1140,7 @@ describe('createAnnotationPlugin', () => {
 
     // Second render adds annotation — should fade in
     const plugin2 = createAnnotationPlugin(
-      [{ kind: AnnotationKind.Free, id: 'f1', text: 'Appeared', x: 0, y: 0 }],
+      [{ kind: AnnotationKind.Free, key: 'f1', text: 'Appeared', x: 0, y: 0 }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200, transition: true, priorAnnotations: prior },
     )
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

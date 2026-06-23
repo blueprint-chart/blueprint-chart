@@ -111,7 +111,6 @@ export interface AnnotationLineConfig {
 }
 
 interface AnnotationBase {
-  id?: string
   /** Internal transition-matching key, assigned during scene resolution. Never author-supplied. */
   key?: string
   /** How many scenes this annotation lives for: a positive integer count, or 'always'. Defaults to 1. */

@@ -64,7 +64,7 @@ export function renderPointAnnotation(
   }
 
   const annG = g.append('g').attr('data-annotation-index', String(index))
-  const annotationKey = ann.key ?? ann.id
+  const annotationKey = ann.key
   if (annotationKey) {
     annG.attr('data-annotation-id', annotationKey)
   }

@@ -459,3 +459,27 @@ describe('comments do not affect validation', () => {
     expect(result.warnings).toEqual([])
   })
 })
+
+describe('annotation id removal and repeat validation', () => {
+  it('rejects the removed id property on an annotation', () => {
+    const ast = parse(`chart line {\n  annotation "2020" { id = "x" text = "t" }\n  data { "2020" = 1 }\n}`)
+    const { errors } = validateChart(ast)
+    expect(errors.some(e => e.code === 'unknown-annotation-property')).toBe(true)
+  })
+
+  it('accepts repeat = true / false / positive int', () => {
+    for (const r of ['true', 'false', '3']) {
+      const ast = parse(`chart line {\n  annotation "2020" { text = "t" repeat = ${r} }\n  data { "2020" = 1 }\n}`)
+      const { errors } = validateChart(ast)
+      expect(errors.filter(e => e.code === 'invalid-annotation-repeat')).toHaveLength(0)
+    }
+  })
+
+  it('rejects repeat = 0, negative, or non-integer', () => {
+    for (const r of ['0', '-2', '1.5']) {
+      const ast = parse(`chart line {\n  annotation "2020" { text = "t" repeat = ${r} }\n  data { "2020" = 1 }\n}`)
+      const { errors } = validateChart(ast)
+      expect(errors.some(e => e.code === 'invalid-annotation-repeat')).toBe(true)
+    }
+  })
+})
