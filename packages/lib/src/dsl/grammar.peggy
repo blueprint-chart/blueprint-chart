@@ -15,7 +15,6 @@ function collectBody(members) {
     highlights: [],
     areaFills: [],
     annotations: [],
-    annotationVisibility: [],
     series: [],
     scenes: [],
     transforms: [],
@@ -28,7 +27,6 @@ function collectBody(members) {
       case 'highlight':  result.highlights.push(m); break;
       case 'area-fill':  result.areaFills.push(m);  break;
       case 'annotation': result.annotations.push(m);break;
-      case 'annotation-visibility': result.annotationVisibility.push(m); break;
       case 'series':     result.series.push(m);     break;
       case 'scene':      result.scenes.push(m);     break;
       case 'transform':  result.transforms.push(m); break;
@@ -45,7 +43,6 @@ function collectSceneBody(members) {
     highlights: [],
     areaFills: [],
     annotations: [],
-    annotationVisibility: [],
     series: [],
     transforms: [],
   };
@@ -57,7 +54,6 @@ function collectSceneBody(members) {
       case 'highlight':  result.highlights.push(m); break;
       case 'area-fill':  result.areaFills.push(m);  break;
       case 'annotation': result.annotations.push(m);break;
-      case 'annotation-visibility': result.annotationVisibility.push(m); break;
       case 'series':     result.series.push(m);     break;
       case 'transform':  result.transforms.push(m); break;
     }
@@ -82,7 +78,6 @@ Chart
       highlights: body.highlights,
       areaFills: body.areaFills,
       annotations: body.annotations,
-      annotationVisibility: body.annotationVisibility,
       series: body.series,
       scenes: body.scenes,
       transforms: body.transforms,
@@ -90,7 +85,7 @@ Chart
   }
 
 ChartMember
-  = comments:LeadingComments m:(DataBlock / Colorize / Highlight / AreaFill / RangeAnnotation / NoteAnnotation / Annotation / HideAnnotation / HideRange / HideNote / ShowAnnotation / ShowRange / ShowNote / Series / Scene / Transform / Property) [ \t]* LineComment? S
+  = comments:LeadingComments m:(DataBlock / Colorize / Highlight / AreaFill / RangeAnnotation / NoteAnnotation / Annotation / Series / Scene / Transform / Property) [ \t]* LineComment? S
   { if (comments.length) m.leadingComments = comments; return m; }
 
 DataBlock
@@ -181,7 +176,6 @@ Scene
       highlights: body.highlights,
       areaFills: body.areaFills,
       annotations: body.annotations,
-      annotationVisibility: body.annotationVisibility,
       series: body.series,
       transforms: body.transforms,
     };
@@ -191,32 +185,8 @@ Transform
   = "transform" __ transformType:Identifier _ "{" _ props:BlockProperty* _ "}"
   { return { type: 'transform', transformType, properties: props }; }
 
-HideAnnotation
-  = "hide-annotation" __ id:String
-  { return { type: 'annotation-visibility', action: 'hide', kind: 'point', id }; }
-
-HideRange
-  = "hide-range" __ id:String
-  { return { type: 'annotation-visibility', action: 'hide', kind: 'range', id }; }
-
-HideNote
-  = "hide-note" __ id:String
-  { return { type: 'annotation-visibility', action: 'hide', kind: 'free', id }; }
-
-ShowAnnotation
-  = "show-annotation" __ id:String
-  { return { type: 'annotation-visibility', action: 'show', kind: 'point', id }; }
-
-ShowRange
-  = "show-range" __ id:String
-  { return { type: 'annotation-visibility', action: 'show', kind: 'range', id }; }
-
-ShowNote
-  = "show-note" __ id:String
-  { return { type: 'annotation-visibility', action: 'show', kind: 'free', id }; }
-
 SceneMember
-  = comments:LeadingComments m:(DataBlock / Colorize / Highlight / AreaFill / RangeAnnotation / NoteAnnotation / Annotation / HideAnnotation / HideRange / HideNote / ShowAnnotation / ShowRange / ShowNote / Series / Transform / Property) [ \t]* LineComment? S
+  = comments:LeadingComments m:(DataBlock / Colorize / Highlight / AreaFill / RangeAnnotation / NoteAnnotation / Annotation / Series / Transform / Property) [ \t]* LineComment? S
   { if (comments.length) m.leadingComments = comments; return m; }
 
 BlockProperty

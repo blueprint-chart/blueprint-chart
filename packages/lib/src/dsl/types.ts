@@ -1,4 +1,4 @@
-import type { DslNodeType, AnnotationKind, AnnotationAction } from '../enums'
+import type { DslNodeType, AnnotationKind } from '../enums'
 
 export interface PropertyNode {
   type: DslNodeType.Property
@@ -84,15 +84,6 @@ export interface SeriesNode {
   leadingComments?: string[]
 }
 
-export interface AnnotationVisibilityNode {
-  type: DslNodeType.AnnotationVisibility
-  action: AnnotationAction
-  kind: AnnotationKind
-  id: string
-  /** `//` comment lines authored immediately above this node, text only (no `//`). */
-  leadingComments?: string[]
-}
-
 export interface SceneNode {
   type: DslNodeType.Scene
   name: string | null
@@ -102,7 +93,6 @@ export interface SceneNode {
   highlights: HighlightNode[]
   areaFills: AreaFillNode[]
   annotations: AnnotationNode[]
-  annotationVisibility: AnnotationVisibilityNode[]
   series: SeriesNode[]
   transforms: TransformNode[]
   /** `//` comment lines authored immediately above this node, text only (no `//`). */
@@ -126,7 +116,6 @@ export interface ChartNode {
   highlights: HighlightNode[]
   areaFills: AreaFillNode[]
   annotations: AnnotationNode[]
-  annotationVisibility: AnnotationVisibilityNode[]
   series: SeriesNode[]
   scenes: SceneNode[]
   transforms: TransformNode[]

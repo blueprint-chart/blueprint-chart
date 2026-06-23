@@ -12,7 +12,6 @@ import {
   AnnotationLineStyle,
   StrokeStyle,
   AnnotationKind,
-  AnnotationAction,
   RangeAnchor,
   Orientation,
   SymbolShape,
@@ -187,15 +186,7 @@ describe('AnnotationKind', () => {
   })
 })
 
-describe('AnnotationAction', () => {
-  it('has 2 members', () => {
-    expect(enumValues(AnnotationAction)).toHaveLength(2)
-  })
-  it('values match', () => {
-    expect(AnnotationAction.Hide).toBe('hide')
-    expect(AnnotationAction.Show).toBe('show')
-  })
-})
+
 
 describe('RangeAnchor', () => {
   it('has 3 members', () => {
@@ -398,8 +389,8 @@ describe('Interpolation', () => {
 })
 
 describe('DslNodeType', () => {
-  it('has 11 members', () => {
-    expect(enumValues(DslNodeType)).toHaveLength(11)
+  it('has 10 members', () => {
+    expect(enumValues(DslNodeType)).toHaveLength(10)
   })
   it('values match', () => {
     expect(DslNodeType.Property).toBe('property')
@@ -409,7 +400,6 @@ describe('DslNodeType', () => {
     expect(DslNodeType.AreaFill).toBe('area-fill')
     expect(DslNodeType.Annotation).toBe('annotation')
     expect(DslNodeType.Series).toBe('series')
-    expect(DslNodeType.AnnotationVisibility).toBe('annotation-visibility')
     expect(DslNodeType.Scene).toBe('scene')
     expect(DslNodeType.Transform).toBe('transform')
     expect(DslNodeType.Chart).toBe('chart')

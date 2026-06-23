@@ -110,11 +110,6 @@ export const ANNOTATION_KIND_KEYWORD: Record<AnnotationKind, string> = {
   [AnnotationKind.Free]: 'note',
 }
 
-export enum AnnotationAction {
-  Hide = 'hide',
-  Show = 'show',
-}
-
 export enum RangeAnchor {
   Start = 'start',
   Center = 'center',
@@ -244,7 +239,6 @@ export enum DslNodeType {
   AreaFill = 'area-fill',
   Annotation = 'annotation',
   Series = 'series',
-  AnnotationVisibility = 'annotation-visibility',
   Scene = 'scene',
   Transform = 'transform',
   Chart = 'chart',

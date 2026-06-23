@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { DslNodeType, AnnotationKind, AnnotationAction, ChartType } from '../enums'
+import { DslNodeType, AnnotationKind, ChartType } from '../enums'
 import { parse } from './parser'
 import { serialize, compactSerialize, compactSerializeDeep } from './serializer'
 import type { ChartNode } from './types'
@@ -15,7 +15,7 @@ describe('serializer', () => {
       highlights: [],
       areaFills: [],
       annotations: [],
-      annotationVisibility: [],
+
       series: [],
       scenes: [],
       transforms: [],
@@ -36,7 +36,7 @@ describe('serializer', () => {
       highlights: [],
       areaFills: [],
       annotations: [],
-      annotationVisibility: [],
+
       series: [],
       scenes: [],
       transforms: [],
@@ -62,7 +62,7 @@ describe('serializer', () => {
       highlights: [],
       areaFills: [],
       annotations: [],
-      annotationVisibility: [],
+
       series: [],
       scenes: [],
       transforms: [],
@@ -89,7 +89,7 @@ describe('serializer', () => {
       highlights: [],
       areaFills: [],
       annotations: [],
-      annotationVisibility: [],
+
       series: [],
       scenes: [],
       transforms: [],
@@ -110,7 +110,7 @@ describe('serializer', () => {
       highlights: [],
       areaFills: [],
       annotations: [],
-      annotationVisibility: [],
+
       series: [],
       scenes: [{
         type: DslNodeType.Scene,
@@ -129,7 +129,7 @@ describe('serializer', () => {
         highlights: [],
         areaFills: [],
         annotations: [],
-        annotationVisibility: [],
+  
         series: [],
         transforms: [],
       }],
@@ -152,7 +152,7 @@ describe('serializer', () => {
       highlights: [],
       areaFills: [],
       annotations: [],
-      annotationVisibility: [],
+
       series: [],
       scenes: [{
         type: DslNodeType.Scene,
@@ -165,7 +165,7 @@ describe('serializer', () => {
         highlights: [],
         areaFills: [],
         annotations: [],
-        annotationVisibility: [],
+  
         series: [],
         transforms: [],
       }],
@@ -186,7 +186,7 @@ describe('serializer', () => {
       highlights: [],
       areaFills: [],
       annotations: [],
-      annotationVisibility: [],
+
       series: [],
       scenes: [{
         type: DslNodeType.Scene,
@@ -197,7 +197,7 @@ describe('serializer', () => {
         highlights: [],
         areaFills: [],
         annotations: [],
-        annotationVisibility: [],
+  
         series: [{
           type: DslNodeType.Series,
           name: 'Revenue',
@@ -241,163 +241,13 @@ describe('serializer', () => {
           { type: DslNodeType.Property, key: 'label', value: 'My point', isPercentage: false },
         ],
       }],
-      annotationVisibility: [],
+
       series: [],
       scenes: [],
       transforms: [],
     }
     const output = serialize(ast)
     expect(output).toContain('id = abc')
-  })
-
-  it('serializes hide-annotation in scene', () => {
-    const ast: ChartNode = {
-      type: DslNodeType.Chart,
-      chartType: 'bar',
-      properties: [],
-      data: null,
-      colorizes: [],
-      highlights: [],
-      areaFills: [],
-      annotations: [],
-      annotationVisibility: [],
-      series: [],
-      scenes: [{
-        type: DslNodeType.Scene,
-        name: null,
-        properties: [],
-        data: null,
-        colorizes: [],
-        highlights: [],
-        areaFills: [],
-        annotations: [],
-        annotationVisibility: [
-          { type: DslNodeType.AnnotationVisibility, action: AnnotationAction.Hide, kind: AnnotationKind.Point, id: 'abc' },
-        ],
-        series: [],
-        transforms: [],
-      }],
-      transforms: [],
-    }
-    const output = serialize(ast)
-    expect(output).toContain('hide-annotation "abc"')
-  })
-
-  it('serializes show-annotation in scene', () => {
-    const ast: ChartNode = {
-      type: DslNodeType.Chart,
-      chartType: 'bar',
-      properties: [],
-      data: null,
-      colorizes: [],
-      highlights: [],
-      areaFills: [],
-      annotations: [],
-      annotationVisibility: [],
-      series: [],
-      scenes: [{
-        type: DslNodeType.Scene,
-        name: null,
-        properties: [],
-        data: null,
-        colorizes: [],
-        highlights: [],
-        areaFills: [],
-        annotations: [],
-        annotationVisibility: [
-          { type: DslNodeType.AnnotationVisibility, action: AnnotationAction.Show, kind: AnnotationKind.Point, id: 'xyz' },
-        ],
-        series: [],
-        transforms: [],
-      }],
-      transforms: [],
-    }
-    const output = serialize(ast)
-    expect(output).toContain('show-annotation "xyz"')
-  })
-
-  it('serializes hide-range and show-range in scene', () => {
-    const ast: ChartNode = {
-      type: DslNodeType.Chart,
-      chartType: 'bar',
-      properties: [],
-      data: null,
-      colorizes: [],
-      highlights: [],
-      areaFills: [],
-      annotations: [],
-      annotationVisibility: [],
-      series: [],
-      scenes: [{
-        type: DslNodeType.Scene,
-        name: null,
-        properties: [],
-        data: null,
-        colorizes: [],
-        highlights: [],
-        areaFills: [],
-        annotations: [],
-        annotationVisibility: [
-          { type: DslNodeType.AnnotationVisibility, action: AnnotationAction.Hide, kind: AnnotationKind.Range, id: 'r1' },
-          { type: DslNodeType.AnnotationVisibility, action: AnnotationAction.Show, kind: AnnotationKind.Range, id: 'r2' },
-        ],
-        series: [],
-        transforms: [],
-      }],
-      transforms: [],
-    }
-    const output = serialize(ast)
-    expect(output).toContain('hide-range "r1"')
-    expect(output).toContain('show-range "r2"')
-  })
-
-  it('serializes hide-note and show-note in scene', () => {
-    const ast: ChartNode = {
-      type: DslNodeType.Chart,
-      chartType: 'bar',
-      properties: [],
-      data: null,
-      colorizes: [],
-      highlights: [],
-      areaFills: [],
-      annotations: [],
-      annotationVisibility: [],
-      series: [],
-      scenes: [{
-        type: DslNodeType.Scene,
-        name: null,
-        properties: [],
-        data: null,
-        colorizes: [],
-        highlights: [],
-        areaFills: [],
-        annotations: [],
-        annotationVisibility: [
-          { type: DslNodeType.AnnotationVisibility, action: AnnotationAction.Hide, kind: AnnotationKind.Free, id: 'n1' },
-          { type: DslNodeType.AnnotationVisibility, action: AnnotationAction.Show, kind: AnnotationKind.Free, id: 'n2' },
-        ],
-        series: [],
-        transforms: [],
-      }],
-      transforms: [],
-    }
-    const output = serialize(ast)
-    expect(output).toContain('hide-note "n1"')
-    expect(output).toContain('show-note "n2"')
-  })
-
-  it('round-trips annotation visibility through parse and serialize', () => {
-    const dsl = `chart bar {
-  scene "Test" {
-    hide-annotation "a1"
-    show-range "r1"
-    hide-note "n1"
-  }
-}`
-    const ast1 = parse(dsl)
-    const serialized = serialize(ast1)
-    const ast2 = parse(serialized)
-    expect(ast2.scenes[0].annotationVisibility).toEqual(ast1.scenes[0].annotationVisibility)
   })
 
   it('serializes multi-value data entries', () => {
@@ -416,7 +266,7 @@ describe('serializer', () => {
       highlights: [],
       areaFills: [],
       annotations: [],
-      annotationVisibility: [],
+
       series: [],
       scenes: [],
       transforms: [],
@@ -458,7 +308,7 @@ describe('serializer', () => {
         ],
       }],
       annotations: [],
-      annotationVisibility: [],
+
       series: [],
       scenes: [],
       transforms: [],
@@ -486,7 +336,7 @@ describe('serializer', () => {
           { type: DslNodeType.Property, key: 'end', value: 5, isPercentage: false },
         ],
       }],
-      annotationVisibility: [],
+
       series: [],
       scenes: [],
       transforms: [],
@@ -515,7 +365,7 @@ describe('serializer', () => {
           { type: DslNodeType.Property, key: 'y', value: 25, isPercentage: true },
         ],
       }],
-      annotationVisibility: [],
+
       series: [],
       scenes: [],
       transforms: [],
@@ -536,7 +386,7 @@ describe('serializer', () => {
       highlights: [],
       areaFills: [],
       annotations: [],
-      annotationVisibility: [],
+
       series: [
         {
           type: DslNodeType.Series,
@@ -566,7 +416,7 @@ describe('serializer', () => {
       highlights: [],
       areaFills: [],
       annotations: [],
-      annotationVisibility: [],
+
       series: [],
       scenes: [],
       transforms: [{
@@ -594,7 +444,7 @@ describe('serializer', () => {
       highlights: [],
       areaFills: [],
       annotations: [],
-      annotationVisibility: [],
+
       series: [],
       scenes: [],
       transforms: [],
@@ -615,7 +465,7 @@ describe('serializer', () => {
       highlights: [],
       areaFills: [],
       annotations: [],
-      annotationVisibility: [],
+
       series: [],
       scenes: [],
       transforms: [],
@@ -640,7 +490,7 @@ describe('serializer', () => {
       highlights: [],
       areaFills: [],
       annotations: [],
-      annotationVisibility: [],
+
       series: [],
       scenes: [],
       transforms: [],
@@ -662,7 +512,7 @@ describe('serializer', () => {
       highlights: [],
       areaFills: [],
       annotations: [],
-      annotationVisibility: [],
+
       series: [],
       scenes: [],
       transforms: [],
@@ -682,7 +532,7 @@ describe('serializer', () => {
       highlights: [],
       areaFills: [],
       annotations: [],
-      annotationVisibility: [],
+
       series: [],
       scenes: [{
         type: DslNodeType.Scene,
@@ -701,7 +551,7 @@ describe('serializer', () => {
           { type: DslNodeType.Annotation, kind: AnnotationKind.Range, properties: [{ type: DslNodeType.Property, key: 'start', value: 1, isPercentage: false }] },
           { type: DslNodeType.Annotation, kind: AnnotationKind.Free, properties: [{ type: DslNodeType.Property, key: 'text', value: 'Note', isPercentage: false }] },
         ],
-        annotationVisibility: [],
+  
         series: [],
         transforms: [],
       }],
@@ -907,7 +757,7 @@ describe('serializer', () => {
       highlights: [{ type: DslNodeType.Highlight, target: 'Apple' }],
       areaFills: [],
       annotations: [],
-      annotationVisibility: [],
+
       series: [],
       scenes: [],
       transforms: [],
@@ -926,7 +776,7 @@ describe('serializer', () => {
       highlights: [],
       areaFills: [],
       annotations: [],
-      annotationVisibility: [],
+
       series: [],
       scenes: [{
         type: DslNodeType.Scene,
@@ -937,7 +787,7 @@ describe('serializer', () => {
         highlights: [{ type: DslNodeType.Highlight, target: 'Banana' }],
         areaFills: [],
         annotations: [],
-        annotationVisibility: [],
+  
         series: [],
         transforms: [],
       }],
@@ -976,7 +826,7 @@ describe('serializer', () => {
         highlights: [],
         areaFills: [],
         annotations: [],
-        annotationVisibility: [],
+  
         series: [],
         scenes: [],
         transforms: [],
@@ -1001,7 +851,7 @@ describe('serializer', () => {
         highlights: [],
         areaFills: [],
         annotations: [],
-        annotationVisibility: [],
+  
         series: [],
         scenes: [],
         transforms: [],
@@ -1027,7 +877,7 @@ describe('serializer', () => {
         highlights: [],
         areaFills: [],
         annotations: [],
-        annotationVisibility: [],
+  
         series: [],
         scenes: [],
         transforms: [],
@@ -1047,7 +897,7 @@ describe('serializer', () => {
         highlights: [],
         areaFills: [],
         annotations: [],
-        annotationVisibility: [],
+  
         series: [],
         scenes: [],
         transforms: [],

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { DslNodeType, AnnotationKind, AnnotationAction, ChartType } from '../enums'
+import { DslNodeType, AnnotationKind, ChartType } from '../enums'
 import {
   propertyMap,
   extractChartTypeOptions,
@@ -590,7 +590,7 @@ describe('extractSceneOverrides', () => {
       colorizes: [],
       areaFills: [],
       annotations: [],
-      annotationVisibility: [],
+
       series: [],
       transforms: [],
     }
@@ -610,7 +610,7 @@ describe('extractSceneOverrides', () => {
       colorizes: [],
       areaFills: [],
       annotations: [],
-      annotationVisibility: [],
+
       series: [],
       transforms: [],
     }
@@ -644,12 +644,6 @@ describe('extractSceneOverrides', () => {
         target: 'A',
         properties: [prop('text', 'note')],
       }],
-      annotationVisibility: [{
-        type: DslNodeType.AnnotationVisibility,
-        action: AnnotationAction.Hide,
-        kind: AnnotationKind.Point,
-        id: 'ann1',
-      }],
       series: [{
         type: DslNodeType.Series,
         name: 'A',
@@ -666,7 +660,6 @@ describe('extractSceneOverrides', () => {
     expect(result.colorizes).toHaveLength(1)
     expect(result.areaFills).toHaveLength(1)
     expect(result.annotations).toHaveLength(1)
-    expect(result.annotationVisibility).toHaveLength(1)
     expect(result.series).toHaveLength(1)
     expect(result.transforms).toHaveLength(1)
   })
@@ -680,7 +673,7 @@ describe('extractSceneOverrides', () => {
       colorizes: [],
       areaFills: [],
       annotations: [],
-      annotationVisibility: [],
+
       series: [],
       transforms: [],
     }

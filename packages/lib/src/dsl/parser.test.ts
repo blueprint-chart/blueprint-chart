@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { DslNodeType, AnnotationKind, AnnotationAction } from '../enums'
+import { DslNodeType, AnnotationKind } from '../enums'
 import { parse } from './parser'
 import { serialize } from './serializer'
 
@@ -427,96 +427,7 @@ describe('parser', () => {
     })
   })
 
-  describe('annotation visibility directives', () => {
-    it('parses hide-annotation in scene', () => {
-      const ast = parse('chart bar {\n  scene {\n    hide-annotation "abc"\n  }\n}')
-      expect(ast.scenes[0].annotationVisibility).toHaveLength(1)
-      expect(ast.scenes[0].annotationVisibility[0]).toEqual({
-        type: DslNodeType.AnnotationVisibility,
-        action: AnnotationAction.Hide,
-        kind: AnnotationKind.Point,
-        id: 'abc',
-      })
-    })
-
-    it('parses show-annotation in scene', () => {
-      const ast = parse('chart bar {\n  scene {\n    show-annotation "abc"\n  }\n}')
-      expect(ast.scenes[0].annotationVisibility).toHaveLength(1)
-      expect(ast.scenes[0].annotationVisibility[0]).toEqual({
-        type: DslNodeType.AnnotationVisibility,
-        action: AnnotationAction.Show,
-        kind: AnnotationKind.Point,
-        id: 'abc',
-      })
-    })
-
-    it('parses hide-range in scene', () => {
-      const ast = parse('chart bar {\n  scene {\n    hide-range "r1"\n  }\n}')
-      expect(ast.scenes[0].annotationVisibility).toHaveLength(1)
-      expect(ast.scenes[0].annotationVisibility[0]).toEqual({
-        type: DslNodeType.AnnotationVisibility,
-        action: AnnotationAction.Hide,
-        kind: AnnotationKind.Range,
-        id: 'r1',
-      })
-    })
-
-    it('parses show-range in scene', () => {
-      const ast = parse('chart bar {\n  scene {\n    show-range "r1"\n  }\n}')
-      expect(ast.scenes[0].annotationVisibility).toHaveLength(1)
-      expect(ast.scenes[0].annotationVisibility[0]).toEqual({
-        type: DslNodeType.AnnotationVisibility,
-        action: AnnotationAction.Show,
-        kind: AnnotationKind.Range,
-        id: 'r1',
-      })
-    })
-
-    it('parses hide-note in scene', () => {
-      const ast = parse('chart bar {\n  scene {\n    hide-note "n1"\n  }\n}')
-      expect(ast.scenes[0].annotationVisibility).toHaveLength(1)
-      expect(ast.scenes[0].annotationVisibility[0]).toEqual({
-        type: DslNodeType.AnnotationVisibility,
-        action: AnnotationAction.Hide,
-        kind: AnnotationKind.Free,
-        id: 'n1',
-      })
-    })
-
-    it('parses show-note in scene', () => {
-      const ast = parse('chart bar {\n  scene {\n    show-note "n1"\n  }\n}')
-      expect(ast.scenes[0].annotationVisibility).toHaveLength(1)
-      expect(ast.scenes[0].annotationVisibility[0]).toEqual({
-        type: DslNodeType.AnnotationVisibility,
-        action: AnnotationAction.Show,
-        kind: AnnotationKind.Free,
-        id: 'n1',
-      })
-    })
-
-    it('parses multiple visibility directives in one scene', () => {
-      const ast = parse('chart bar {\n  scene {\n    hide-annotation "a1"\n    show-range "r1"\n    hide-note "n1"\n  }\n}')
-      expect(ast.scenes[0].annotationVisibility).toHaveLength(3)
-      expect(ast.scenes[0].annotationVisibility[0]).toEqual({
-        type: DslNodeType.AnnotationVisibility,
-        action: AnnotationAction.Hide,
-        kind: AnnotationKind.Point,
-        id: 'a1',
-      })
-      expect(ast.scenes[0].annotationVisibility[1]).toEqual({
-        type: DslNodeType.AnnotationVisibility,
-        action: AnnotationAction.Show,
-        kind: AnnotationKind.Range,
-        id: 'r1',
-      })
-      expect(ast.scenes[0].annotationVisibility[2]).toEqual({
-        type: DslNodeType.AnnotationVisibility,
-        action: AnnotationAction.Hide,
-        kind: AnnotationKind.Free,
-        id: 'n1',
-      })
-    })
-
+  describe('annotation id property', () => {
     it('parses annotation id property', () => {
       const ast = parse('chart bar {\n  annotation "X" {\n    id = "abc"\n  }\n}')
       expect(ast.annotations).toHaveLength(1)
@@ -882,25 +793,6 @@ describe('parser', () => {
     })
   })
 
-  describe('chart-level annotation visibility', () => {
-    it('parses hide-annotation at chart level', () => {
-      const ast = parse('chart bar {\n  hide-annotation "x"\n}')
-      expect(ast.annotationVisibility).toHaveLength(1)
-      expect(ast.annotationVisibility[0]).toEqual({
-        type: DslNodeType.AnnotationVisibility,
-        action: AnnotationAction.Hide,
-        kind: AnnotationKind.Point,
-        id: 'x',
-      })
-    })
-
-    it('parses show-range at chart level', () => {
-      const ast = parse('chart bar {\n  show-range "r1"\n}')
-      expect(ast.annotationVisibility).toHaveLength(1)
-      expect(ast.annotationVisibility[0].kind).toBe(AnnotationKind.Range)
-    })
-  })
-
   describe('leading comments', () => {
     it('attaches a comment above a top-level property', () => {
       const ast = parse(`chart bar {
@@ -1030,5 +922,10 @@ describe('parse error location', () => {
       message = (e as Error).message
     }
     expect(message).toMatch(/ at \d+:\d+$/)
+  })
+
+  it('rejects the removed hide-annotation verb', () => {
+    expect(() => parse(`chart line {\n  scene "s" {\n    hide-annotation "x"\n  }\n}`))
+      .toThrow()
   })
 })

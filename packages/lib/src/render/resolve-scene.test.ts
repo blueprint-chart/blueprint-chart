@@ -45,7 +45,7 @@ describe('resolveScene', () => {
         name: null,
         properties: [{ type: DslNodeType.Property, key: 'type', value: ChartType.Line, isPercentage: false }],
         data: null,
-        colorizes: [], highlights: [], areaFills: [], annotations: [], annotationVisibility: [], series: [], transforms: [],
+        colorizes: [], highlights: [], areaFills: [], annotations: [], series: [], transforms: [],
       }],
     })
     const state = resolveScene(def, 0)
@@ -59,12 +59,12 @@ describe('resolveScene', () => {
         {
           type: DslNodeType.Scene, name: null, properties: [], data: null,
           colorizes: [], highlights: [{ type: DslNodeType.Highlight, target: 's0' }],
-          areaFills: [], annotations: [], annotationVisibility: [], series: [], transforms: [],
+          areaFills: [], annotations: [], series: [], transforms: [],
         },
         {
           type: DslNodeType.Scene, name: null, properties: [], data: null,
           colorizes: [], highlights: [],
-          areaFills: [], annotations: [], annotationVisibility: [], series: [], transforms: [],
+          areaFills: [], annotations: [], series: [], transforms: [],
         },
       ],
     })
@@ -97,7 +97,7 @@ describe('resolveScene', () => {
       highlights: [],
       areaFills: [],
       annotations,
-      annotationVisibility: [],
+
       series: [],
       transforms: [],
     }
@@ -180,7 +180,7 @@ describe('resolveScene', () => {
         data: { type: DslNodeType.Data, entries: [
           { type: DslNodeType.Property, key: 'x', value: '1', isPercentage: false },
         ] },
-        colorizes: [], highlights: [], areaFills: [], annotations: [], annotationVisibility: [], series: [], transforms: [],
+        colorizes: [], highlights: [], areaFills: [], annotations: [], series: [], transforms: [],
       }],
     })
     expect(resolveScene(def, 0).colorizes).toEqual([])
@@ -195,7 +195,7 @@ describe('resolveScene', () => {
         data: { type: DslNodeType.Data, entries: [
           { type: DslNodeType.Property, key: 'A', value: 99, isPercentage: false },
         ] },
-        colorizes: [], highlights: [], areaFills: [], annotations: [], annotationVisibility: [], series: [], transforms: [],
+        colorizes: [], highlights: [], areaFills: [], annotations: [], series: [], transforms: [],
       }],
     })
     const state = resolveScene(def, 0)
@@ -210,7 +210,7 @@ describe('resolveScene', () => {
       scenes: [{
         type: DslNodeType.Scene, name: null, properties: [], data: null,
         colorizes: [], highlights: [], areaFills: [], annotations: [],
-        annotationVisibility: [], series: [],
+  series: [],
         transforms: [{
           type: DslNodeType.Transform, transformType: 'sort',
           properties: [
@@ -230,7 +230,7 @@ describe('resolveScene', () => {
       scenes: [{
         type: DslNodeType.Scene, name: null, data: null,
         properties: [{ type: DslNodeType.Property, key: 'title', value: 'SceneTitle', isPercentage: false }],
-        colorizes: [], highlights: [], areaFills: [], annotations: [], annotationVisibility: [], series: [], transforms: [],
+        colorizes: [], highlights: [], areaFills: [], annotations: [], series: [], transforms: [],
       }],
     })
     const state = resolveScene(def, 0)
@@ -244,7 +244,7 @@ describe('resolveScene', () => {
       scenes: [{
         type: DslNodeType.Scene, name: null, data: null,
         properties: [{ type: DslNodeType.Property, key: 'description', value: 'SceneDesc', isPercentage: false }],
-        colorizes: [], highlights: [], areaFills: [], annotations: [], annotationVisibility: [], series: [], transforms: [],
+        colorizes: [], highlights: [], areaFills: [], annotations: [], series: [], transforms: [],
       }],
     })
     const state = resolveScene(def, 0)
@@ -258,7 +258,7 @@ describe('resolveScene', () => {
       scenes: [{
         type: DslNodeType.Scene, name: null, data: null,
         properties: [{ type: DslNodeType.Property, key: 'padding', value: '32px', isPercentage: false }],
-        colorizes: [], highlights: [], areaFills: [], annotations: [], annotationVisibility: [], series: [], transforms: [],
+        colorizes: [], highlights: [], areaFills: [], annotations: [], series: [], transforms: [],
       }],
     })
     const state = resolveScene(def, 0)
@@ -281,7 +281,7 @@ describe('resolveScene', () => {
       scenes: [{
         type: DslNodeType.Scene, name: null, properties: [], data: null,
         colorizes: [], highlights: [], areaFills: [], annotations: [],
-        annotationVisibility: [], series: [],
+  series: [],
         transforms: [{ type: DslNodeType.Transform, transformType: 'mystery', properties: [] }],
       }],
     })

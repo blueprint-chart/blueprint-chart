@@ -1,6 +1,6 @@
-import type { AnnotationNode, AnnotationVisibilityNode, AreaFillNode, ChartNode, DataNode, ColorizeNode, HighlightNode, PropertyNode, SceneNode, SeriesNode, TransformNode } from './types'
+import type { AnnotationNode, AreaFillNode, ChartNode, DataNode, ColorizeNode, HighlightNode, PropertyNode, SceneNode, SeriesNode, TransformNode } from './types'
 import { getChartOptions } from '../charts/registry'
-import { AnnotationKind, ANNOTATION_KIND_KEYWORD } from '../enums'
+import { AnnotationKind } from '../enums'
 
 function commentLines(comments: string[] | undefined, indent: string): string[] {
   // A captured comment may contain embedded newlines (multi-line block
@@ -116,11 +116,6 @@ function serializeAnnotation(annotation: AnnotationNode, indent: string): string
   return lines.join('\n')
 }
 
-function serializeAnnotationVisibility(node: AnnotationVisibilityNode, indent: string): string {
-  const keyword = `${node.action}-${ANNOTATION_KIND_KEYWORD[node.kind]}`
-  return [...commentLines(node.leadingComments, indent), `${indent}${keyword} "${node.id}"`].join('\n')
-}
-
 function serializeSeries(series: SeriesNode, indent: string): string {
   const lines = [...commentLines(series.leadingComments, indent), `${indent}series "${series.name}" {`]
   for (const prop of series.properties) {
@@ -150,9 +145,6 @@ function serializeScene(scene: SceneNode, indent: string): string {
   }
   for (const annotation of scene.annotations) {
     lines.push(serializeAnnotation(annotation, `${indent}  `))
-  }
-  for (const vis of scene.annotationVisibility) {
-    lines.push(serializeAnnotationVisibility(vis, `${indent}  `))
   }
   for (const s of scene.series) {
     lines.push(serializeSeries(s, `${indent}  `))
@@ -201,9 +193,6 @@ export function serialize(ast: ChartNode): string {
   }
   for (const annotation of ast.annotations) {
     lines.push(serializeAnnotation(annotation, '  '))
-  }
-  for (const vis of ast.annotationVisibility) {
-    lines.push(serializeAnnotationVisibility(vis, '  '))
   }
   for (const s of ast.series) {
     lines.push(serializeSeries(s, '  '))
@@ -303,9 +292,6 @@ function compactSerializeScene(
   for (const annotation of scene.annotations) {
     lines.push(serializeAnnotation(annotation, `${indent}  `))
   }
-  for (const vis of scene.annotationVisibility) {
-    lines.push(serializeAnnotationVisibility(vis, `${indent}  `))
-  }
   for (const s of scene.series) {
     lines.push(compactSerializeSeries(s, `${indent}  `, effectiveType, sceneInherited))
   }
@@ -338,9 +324,6 @@ export function compactSerializeDeep(ast: ChartNode): string {
   }
   for (const annotation of ast.annotations) {
     lines.push(serializeAnnotation(annotation, '  '))
-  }
-  for (const vis of ast.annotationVisibility) {
-    lines.push(serializeAnnotationVisibility(vis, '  '))
   }
   const baseInherited = propValueMap(ast.properties)
   for (const s of ast.series) {
@@ -377,9 +360,6 @@ export function compactSerialize(ast: ChartNode): string {
   }
   for (const annotation of ast.annotations) {
     lines.push(serializeAnnotation(annotation, '  '))
-  }
-  for (const vis of ast.annotationVisibility) {
-    lines.push(serializeAnnotationVisibility(vis, '  '))
   }
   for (const s of ast.series) {
     lines.push(serializeSeries(s, '  '))
