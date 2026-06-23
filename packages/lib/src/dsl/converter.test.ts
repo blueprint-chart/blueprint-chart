@@ -688,3 +688,36 @@ describe('extractSceneOverrides', () => {
     expect(result.name).toBeNull()
   })
 })
+
+function pointNode(props: Record<string, string | number>) {
+  return {
+    type: DslNodeType.Annotation,
+    kind: AnnotationKind.Point,
+    target: '2020',
+    properties: Object.entries(props).map(([key, value]) => ({
+      type: DslNodeType.Property, key, value, isPercentage: false,
+    })),
+  } as const
+}
+
+describe('convertAnnotations repeat', () => {
+  it('defaults repeat to 1 when omitted', () => {
+    const [a] = convertAnnotations([pointNode({ text: 'hi' })])
+    expect(a.repeat).toBe(1)
+  })
+
+  it('maps repeat = true to "always"', () => {
+    const [a] = convertAnnotations([pointNode({ text: 'hi', repeat: 'true' })])
+    expect(a.repeat).toBe('always')
+  })
+
+  it('maps repeat = false to 1', () => {
+    const [a] = convertAnnotations([pointNode({ text: 'hi', repeat: 'false' })])
+    expect(a.repeat).toBe(1)
+  })
+
+  it('keeps a positive integer repeat', () => {
+    const [a] = convertAnnotations([pointNode({ text: 'hi', repeat: 3 })])
+    expect(a.repeat).toBe(3)
+  })
+})

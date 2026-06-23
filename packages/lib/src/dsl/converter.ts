@@ -199,6 +199,26 @@ export function convertAreaFills(nodes: AreaFillNode[]): AreaFillConfig[] {
 }
 
 /**
+ * Read an annotation's `repeat` lifespan from its properties.
+ * `true` → 'always'; `false`/absent → 1; a positive integer → itself.
+ * Out-of-range values are rejected upstream by validate.ts; this coerces defensively.
+ */
+function readRepeat(props: Map<string, string | number | boolean>): number | 'always' {
+  const raw = props.get('repeat')
+  if (raw === undefined) {
+    return 1
+  }
+  if (raw === true || raw === 'true') {
+    return 'always'
+  }
+  if (raw === false || raw === 'false') {
+    return 1
+  }
+  const n = Number(raw)
+  return Number.isInteger(n) && n >= 1 ? n : 1
+}
+
+/**
  * Convert AST annotation nodes to AnnotationConfig objects.
  */
 export function convertAnnotations(nodes: AnnotationNode[]): AnnotationConfig[] {
@@ -212,6 +232,7 @@ export function convertAnnotations(nodes: AnnotationNode[]): AnnotationConfig[] 
         start: aProps.has('start') ? (isNaN(Number(aProps.get('start'))) ? String(aProps.get('start')) : Number(aProps.get('start'))) : 0,
         end: aProps.has('end') ? (isNaN(Number(aProps.get('end'))) ? String(aProps.get('end')) : Number(aProps.get('end'))) : 0,
       }
+      result.repeat = readRepeat(aProps)
       if (aProps.has('id')) {
         result.id = String(aProps.get('id'))
       }
@@ -249,6 +270,7 @@ export function convertAnnotations(nodes: AnnotationNode[]): AnnotationConfig[] 
         x: readPosition(a.properties, 'x') ?? 0,
         y: readPosition(a.properties, 'y') ?? 0,
       }
+      result.repeat = readRepeat(aProps)
       if (aProps.has('id')) {
         result.id = String(aProps.get('id'))
       }
@@ -272,6 +294,7 @@ export function convertAnnotations(nodes: AnnotationNode[]): AnnotationConfig[] 
       target,
       text: String(aProps.get('text') ?? ''),
     }
+    result.repeat = readRepeat(aProps)
     if (aProps.has('id')) {
       result.id = String(aProps.get('id'))
     }
