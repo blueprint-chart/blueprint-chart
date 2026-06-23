@@ -98,15 +98,14 @@ function foldScenes(scenes: SceneNode[], index: number, baseChartType: string): 
   return fold
 }
 
-function repeatVisible(anchor: number, repeat: number | 'always' | undefined, index: number): boolean {
+function repeatVisible(anchor: number, repeat: number | 'always', index: number): boolean {
   if (index < anchor) {
     return false
   }
   if (repeat === 'always') {
     return true
   }
-  const count = typeof repeat === 'number' ? repeat : 1
-  return index < anchor + count
+  return index < anchor + repeat
 }
 
 interface AnchoredAnnotation {
@@ -185,7 +184,7 @@ export function resolveScene(
     })
   }
   const annotations = anchored
-    .filter(({ anchor, config }) => repeatVisible(anchor, config.repeat, sceneIndex))
+    .filter(({ anchor, config }) => repeatVisible(anchor, config.repeat ?? 1, sceneIndex))
     .map(({ key, config }) => ({ ...config, key }))
 
   const seriesOverrides = fold.seriesOverrides.length > 0

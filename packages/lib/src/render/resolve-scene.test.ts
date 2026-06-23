@@ -20,10 +20,16 @@ function baseDef(overrides: Partial<ChartDefinition> = {}): ChartDefinition {
 
 describe('resolveScene', () => {
   it('returns base state unchanged when sceneIndex is undefined', () => {
-    const def = baseDef({ highlights: [{ target: 'a' }] })
+    const def = baseDef({
+      highlights: [{ target: 'a' }],
+      annotations: [{ kind: AnnotationKind.Point, target: 'a', text: 't' }],
+    })
     const state = resolveScene(def, undefined)
     expect(state.chartType).toBe(ChartType.BarVertical)
     expect(state.highlights).toEqual([{ target: 'a' }])
+    // No-scene render still assigns anchor-0 keys to top-level annotations.
+    expect(state.annotations).toHaveLength(1)
+    expect(state.annotations[0].key).toBe('base:0:point')
   })
 
   it('returns base when sceneIndex is out of range', () => {
