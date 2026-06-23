@@ -129,7 +129,7 @@ describe('serializer', () => {
         highlights: [],
         areaFills: [],
         annotations: [],
-  
+
         series: [],
         transforms: [],
       }],
@@ -165,7 +165,7 @@ describe('serializer', () => {
         highlights: [],
         areaFills: [],
         annotations: [],
-  
+
         series: [],
         transforms: [],
       }],
@@ -197,7 +197,7 @@ describe('serializer', () => {
         highlights: [],
         areaFills: [],
         annotations: [],
-  
+
         series: [{
           type: DslNodeType.Series,
           name: 'Revenue',
@@ -551,7 +551,7 @@ describe('serializer', () => {
           { type: DslNodeType.Annotation, kind: AnnotationKind.Range, properties: [{ type: DslNodeType.Property, key: 'start', value: 1, isPercentage: false }] },
           { type: DslNodeType.Annotation, kind: AnnotationKind.Free, properties: [{ type: DslNodeType.Property, key: 'text', value: 'Note', isPercentage: false }] },
         ],
-  
+
         series: [],
         transforms: [],
       }],
@@ -787,7 +787,7 @@ describe('serializer', () => {
         highlights: [{ type: DslNodeType.Highlight, target: 'Banana' }],
         areaFills: [],
         annotations: [],
-  
+
         series: [],
         transforms: [],
       }],
@@ -826,7 +826,7 @@ describe('serializer', () => {
         highlights: [],
         areaFills: [],
         annotations: [],
-  
+
         series: [],
         scenes: [],
         transforms: [],
@@ -851,7 +851,7 @@ describe('serializer', () => {
         highlights: [],
         areaFills: [],
         annotations: [],
-  
+
         series: [],
         scenes: [],
         transforms: [],
@@ -877,7 +877,7 @@ describe('serializer', () => {
         highlights: [],
         areaFills: [],
         annotations: [],
-  
+
         series: [],
         scenes: [],
         transforms: [],
@@ -897,7 +897,7 @@ describe('serializer', () => {
         highlights: [],
         areaFills: [],
         annotations: [],
-  
+
         series: [],
         scenes: [],
         transforms: [],

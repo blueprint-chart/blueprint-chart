@@ -186,8 +186,6 @@ describe('AnnotationKind', () => {
   })
 })
 
-
-
 describe('RangeAnchor', () => {
   it('has 3 members', () => {
     expect(enumValues(RangeAnchor)).toHaveLength(3)

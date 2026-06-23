@@ -110,7 +110,7 @@ describe('resolveScene', () => {
   it('shows a repeat=false scene annotation only in its own scene', () => {
     const def = makeDef({
       scenes: [
-        makeScene([ann('a', 'first')]),  // repeat omitted → once
+        makeScene([ann('a', 'first')]), // repeat omitted → once
         makeScene([]),
       ],
     })
@@ -134,7 +134,7 @@ describe('resolveScene', () => {
     const def = makeDef({
       scenes: [
         makeScene([]),
-        makeScene([ann('a', 'span', 2)]),  // scenes 1 and 2
+        makeScene([ann('a', 'span', 2)]), // scenes 1 and 2
         makeScene([]),
         makeScene([]),
       ],
@@ -203,14 +203,13 @@ describe('resolveScene', () => {
     expect(state.data.values).toEqual([99])
   })
 
-
   // S2/S9: a `transform sort` directive populates sortMode
   it('applies transform sort to sortMode = total', () => {
     const def = baseDef({
       scenes: [{
         type: DslNodeType.Scene, name: null, properties: [], data: null,
         colorizes: [], highlights: [], areaFills: [], annotations: [],
-  series: [],
+        series: [],
         transforms: [{
           type: DslNodeType.Transform, transformType: 'sort',
           properties: [
@@ -281,7 +280,7 @@ describe('resolveScene', () => {
       scenes: [{
         type: DslNodeType.Scene, name: null, properties: [], data: null,
         colorizes: [], highlights: [], areaFills: [], annotations: [],
-  series: [],
+        series: [],
         transforms: [{ type: DslNodeType.Transform, transformType: 'mystery', properties: [] }],
       }],
     })
