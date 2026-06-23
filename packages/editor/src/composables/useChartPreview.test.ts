@@ -1,9 +1,32 @@
+import { mount } from '@vue/test-utils'
 import type { AnnotationConfig, SeriesOverride } from '@blueprint-chart/lib'
 import { ChartType, SortDirection } from '@blueprint-chart/lib'
 import { TransformType } from '@/enums'
 import { resolveScene, resolveSortFromTransforms } from './useChartPreview'
+import { useChartPreview } from './useChartPreview'
+import { useChartConfig } from '@/stores/chartConfig'
+import { useScenes } from '@/stores/scenes'
 import type { SceneOverride } from './useScenes'
 import type { TransformStep } from './useDataTransforms'
+
+const { mockRenderChart } = vi.hoisted(() => ({ mockRenderChart: vi.fn() }))
+
+vi.mock('@blueprint-chart/lib', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@blueprint-chart/lib')>()
+  return {
+    ...actual,
+    renderChart: mockRenderChart,
+  }
+})
+
+vi.mock('@vueuse/core', async () => {
+  const actual = await vi.importActual<typeof import('@vueuse/core')>('@vueuse/core')
+  return {
+    ...actual,
+    useResizeObserver: vi.fn(),
+    useThrottleFn: (_fn: (...args: unknown[]) => unknown) => _fn,
+  }
+})
 
 function scene(overrides: Partial<SceneOverride> = {}): SceneOverride {
   return { id: Math.random().toString(36).slice(2), name: null, ...overrides }
@@ -164,141 +187,6 @@ describe('resolveScene', () => {
     ]
     const result = resolveScene(scenes, 1)!
     expect(result.colorizes).toEqual([{ target: 'B', color: 'blue' }])
-  })
-
-  it('hide-annotation in a scene populates hiddenAnnotationIds', () => {
-    const scenes = [
-      scene({ annotationVisibility: [{ action: 'hide', kind: 'point', id: 'abc' }] }),
-    ]
-    const result = resolveScene(scenes, 0)!
-    expect(result.hiddenAnnotationIds).toEqual(new Set(['abc']))
-  })
-
-  it('show-annotation after hide removes from hiddenAnnotationIds', () => {
-    const scenes = [
-      scene({ annotationVisibility: [{ action: 'hide', kind: 'point', id: 'abc' }] }),
-      scene({ annotationVisibility: [{ action: 'show', kind: 'point', id: 'abc' }] }),
-    ]
-    const result = resolveScene(scenes, 1)!
-    expect(result.hiddenAnnotationIds).toBeUndefined()
-  })
-
-  it('hide cascades across multiple scenes', () => {
-    const scenes = [
-      scene({ annotationVisibility: [{ action: 'hide', kind: 'point', id: 'abc' }] }),
-      scene({}),
-    ]
-    const result = resolveScene(scenes, 1)!
-    expect(result.hiddenAnnotationIds).toEqual(new Set(['abc']))
-  })
-
-  it('show in later scene overrides hide from earlier scene', () => {
-    const scenes = [
-      scene({ annotationVisibility: [{ action: 'hide', kind: 'range', id: 'x' }] }),
-      scene({}),
-      scene({ annotationVisibility: [{ action: 'show', kind: 'range', id: 'x' }] }),
-    ]
-    const result = resolveScene(scenes, 2)!
-    expect(result.hiddenAnnotationIds).toBeUndefined()
-  })
-
-  it('multiple hides accumulate across scenes', () => {
-    const scenes = [
-      scene({ annotationVisibility: [{ action: 'hide', kind: 'point', id: 'a' }] }),
-      scene({ annotationVisibility: [{ action: 'hide', kind: 'point', id: 'b' }] }),
-    ]
-    const result = resolveScene(scenes, 1)!
-    expect(result.hiddenAnnotationIds).toEqual(new Set(['a', 'b']))
-  })
-
-  it('hiddenAnnotationIds is undefined when no visibility directives exist', () => {
-    const scenes = [
-      scene({ chartType: ChartType.Line }),
-      scene({ chartType: ChartType.BarVertical }),
-    ]
-    const result = resolveScene(scenes, 1)!
-    expect(result.hiddenAnnotationIds).toBeUndefined()
-  })
-
-  it('hiddenAnnotationIds is undefined when all hides are canceled by shows', () => {
-    const scenes = [
-      scene({ annotationVisibility: [{ action: 'hide', kind: 'point', id: 'a' }, { action: 'hide', kind: 'range', id: 'b' }] }),
-      scene({ annotationVisibility: [{ action: 'show', kind: 'point', id: 'a' }, { action: 'show', kind: 'range', id: 'b' }] }),
-    ]
-    const result = resolveScene(scenes, 1)!
-    expect(result.hiddenAnnotationIds).toBeUndefined()
-  })
-
-  it('hide and show of different annotation kinds work independently', () => {
-    const scenes = [
-      scene({ annotationVisibility: [
-        { action: 'hide', kind: 'point', id: 'a' },
-        { action: 'hide', kind: 'range', id: 'b' },
-      ] }),
-    ]
-    const result = resolveScene(scenes, 0)!
-    expect(result.hiddenAnnotationIds).toEqual(new Set(['a', 'b']))
-  })
-
-  it('same id hidden and shown in same scene uses last directive', () => {
-    const scenes = [
-      scene({ annotationVisibility: [
-        { action: 'hide', kind: 'point', id: 'a' },
-        { action: 'show', kind: 'point', id: 'a' },
-      ] }),
-    ]
-    const result = resolveScene(scenes, 0)!
-    expect(result.hiddenAnnotationIds).toBeUndefined()
-  })
-
-  it('annotations without id are never filtered by hiddenAnnotationIds', () => {
-    const scenes = [
-      scene({ annotationVisibility: [{ action: 'hide', kind: 'point', id: 'abc' }] }),
-    ]
-    const result = resolveScene(scenes, 0)!
-    // hiddenAnnotationIds contains 'abc', but annotations without id should pass
-    // the filter at render time: !a.id || !hiddenIds.has(a.id)
-    expect(result.hiddenAnnotationIds).toEqual(new Set(['abc']))
-    // An annotation without an id would survive the filter because !a.id is true
-    const annotation = { kind: 'point' as const }
-    const passes = !annotation.id || !result.hiddenAnnotationIds!.has(annotation.id!)
-    expect(passes).toBe(true)
-  })
-
-  it('annotation visibility directives only affect matching ids', () => {
-    const scenes = [
-      scene({ annotationVisibility: [{ action: 'hide', kind: 'point', id: 'abc' }] }),
-    ]
-    const result = resolveScene(scenes, 0)!
-    expect(result.hiddenAnnotationIds).toEqual(new Set(['abc']))
-    expect(result.hiddenAnnotationIds!.has('xyz')).toBe(false)
-  })
-
-  it('empty annotationVisibility array does not set hiddenAnnotationIds', () => {
-    const scenes = [
-      scene({ annotationVisibility: [] }),
-    ]
-    const result = resolveScene(scenes, 0)!
-    expect(result.hiddenAnnotationIds).toBeUndefined()
-  })
-
-  it('hide in scene 0, no directive in scene 1, annotation still hidden at scene 1', () => {
-    const scenes = [
-      scene({ annotationVisibility: [{ action: 'hide', kind: 'point', id: 'abc' }] }),
-      scene({}),
-    ]
-    const result = resolveScene(scenes, 1)!
-    expect(result.hiddenAnnotationIds).toEqual(new Set(['abc']))
-  })
-
-  it('hide in scene 0, show in scene 1, hide again in scene 2', () => {
-    const scenes = [
-      scene({ annotationVisibility: [{ action: 'hide', kind: 'point', id: 'abc' }] }),
-      scene({ annotationVisibility: [{ action: 'show', kind: 'point', id: 'abc' }] }),
-      scene({ annotationVisibility: [{ action: 'hide', kind: 'point', id: 'abc' }] }),
-    ]
-    const result = resolveScene(scenes, 2)!
-    expect(result.hiddenAnnotationIds).toEqual(new Set(['abc']))
   })
 
   it('scene annotations override base annotations', () => {
@@ -520,13 +408,8 @@ describe('base + scene annotation merging', () => {
   function mergeAnnotations(
     baseAnnotations: AnnotationConfig[],
     sceneAnnotations: AnnotationConfig[],
-    hiddenIds?: Set<string>,
   ): AnnotationConfig[] {
-    const raw = [...baseAnnotations, ...sceneAnnotations]
-    if (!hiddenIds) {
-      return raw
-    }
-    return raw.filter(a => !a.id || !hiddenIds.has(a.id))
+    return [...baseAnnotations, ...sceneAnnotations]
   }
 
   const baseAnns: AnnotationConfig[] = [
@@ -564,20 +447,6 @@ describe('base + scene annotation merging', () => {
     expect(result[1].id).toBe('tha5f')
   })
 
-  it('hide-annotation removes specific annotation from merged result', () => {
-    const scenes = [
-      scene({
-        annotations: scene0Anns,
-        annotationVisibility: [{ action: 'hide', kind: 'point', id: '537sb' }],
-      }),
-    ]
-    const resolved = resolveScene(scenes, 0)!
-
-    const result = mergeAnnotations(baseAnns, resolved.annotations ?? [], resolved.hiddenAnnotationIds)
-    expect(result).toHaveLength(1)
-    expect(result[0].id).toBe('tha5f')
-  })
-
   it('scene annotations do not duplicate base annotations', () => {
     // If a scene has no annotations of its own, only base should appear
     const scenes = [
@@ -587,5 +456,62 @@ describe('base + scene annotation merging', () => {
     const result = mergeAnnotations(baseAnns, resolved.annotations ?? [])
     expect(result).toHaveLength(1)
     expect(result[0].id).toBe('537sb')
+  })
+})
+
+describe('useChartPreview › renderChart annotations windowing', () => {
+  // Minimal data string that parseData turns into non-empty labels
+  const DATA = '"A" = 10\n"B" = 20'
+
+  function mountPreview() {
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const containerRef = ref<HTMLElement | null>(container)
+    const Comp = defineComponent({
+      setup() {
+        useChartPreview(containerRef)
+        return () => h('div')
+      },
+    })
+    const wrapper = mount(Comp, { attachTo: document.body })
+    return { wrapper, container }
+  }
+
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    mockRenderChart.mockClear()
+    // Set up a minimal valid config so parseData produces non-empty labels
+    const config = useChartConfig()
+    config.reset()
+    config._base.data.value = DATA
+    config._base.chartType.value = ChartType.BarVertical
+  })
+
+  it('passes only repeat-visible annotations with anchor keys to renderChart', async () => {
+    const config = useChartConfig()
+    const scenesStore = useScenes()
+
+    // Base: one annotation with repeat='always', one with default (undefined → only scene 0)
+    const alwaysAnn: AnnotationConfig = { kind: 'point', target: 'A', text: 'always', repeat: 'always' }
+    const defaultAnn: AnnotationConfig = { kind: 'point', target: 'B', text: 'default' }
+    config._base.annotations.value = [alwaysAnn, defaultAnn]
+
+    // Two scenes; activate index 1 so activeIndex > 0
+    scenesStore.add()
+    scenesStore.add()
+    scenesStore.setActive(1)
+
+    const { wrapper } = mountPreview()
+    await nextTick()
+    wrapper.unmount()
+
+    expect(mockRenderChart).toHaveBeenCalled()
+    const lastCall = mockRenderChart.mock.calls[mockRenderChart.mock.calls.length - 1]
+    const annotations = lastCall[1].annotations as (AnnotationConfig & { key: string })[]
+
+    // Only the 'always' annotation should be visible at index 1
+    expect(annotations).toHaveLength(1)
+    expect(annotations[0].key).toBe('base:0:point')
+    expect(annotations[0].text).toBe('always')
   })
 })

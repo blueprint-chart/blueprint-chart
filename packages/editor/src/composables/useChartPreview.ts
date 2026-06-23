@@ -8,7 +8,7 @@ import { useDataTransforms } from './useDataTransforms'
 import { useTheme } from './useTheme'
 import { useChartTheme } from './useChartTheme'
 import { parseData, renderChart } from '@blueprint-chart/lib'
-import { resolveScene, resolveSortFromTransforms } from '@/utils/scenes'
+import { resolveScene, resolveSortFromTransforms, resolveVisibleAnnotations } from '@/utils/scenes'
 
 export { resolveScene, resolveSortFromTransforms }
 
@@ -112,12 +112,11 @@ export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
     const colorizes = scene?.colorizes ?? config.colorizes.value
     const highlights = scene ? (scene.highlights ?? []) : config._base.highlights.value
     const areaFills = scene?.areaFills ?? config.areaFills.value
-    const baseAnnotations = config._base.annotations.value
-    const sceneAnnotations = scene?.annotations ?? []
-    const rawAnnotations = [...baseAnnotations, ...sceneAnnotations]
-    const annotations = scene?.hiddenAnnotationIds
-      ? rawAnnotations.filter(a => !a.id || !scene.hiddenAnnotationIds!.has(a.id))
-      : rawAnnotations
+    const annotations = resolveVisibleAnnotations(
+      config._base.annotations.value,
+      scenes.value,
+      activeIndex.value,
+    ).map(v => ({ ...v.config, key: v.key }))
     const seriesOverrides = scene?.seriesOverrides ?? config.seriesOverrides.value
 
     const sp = scene?.properties
