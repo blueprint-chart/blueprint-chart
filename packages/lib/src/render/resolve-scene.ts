@@ -132,7 +132,7 @@ export function resolveScene(
     areaFills: def.areaFills ?? [],
     annotations: (def.annotations ?? []).map((config, i) => ({
       ...config,
-      key: `base:${i}:${config.kind}`,
+      key: config.key ?? `base:${i}:${config.kind}`,
     })),
     seriesOverrides: def.seriesOverrides ?? [],
     sort: def.sort,
@@ -175,12 +175,12 @@ export function resolveScene(
   // then keep only those whose repeat window covers this sceneIndex.
   const anchored: AnchoredAnnotation[] = (def.annotations ?? []).map((config, i) => ({
     anchor: 0,
-    key: `base:${i}:${config.kind}`,
+    key: config.key ?? `base:${i}:${config.kind}`,
     config,
   }))
   for (let j = 0; j <= sceneIndex; j++) {
     convertAnnotations(def.scenes[j].annotations).forEach((config, i) => {
-      anchored.push({ anchor: j, key: `s${j}:${i}:${config.kind}`, config })
+      anchored.push({ anchor: j, key: config.key ?? `s${j}:${i}:${config.kind}`, config })
     })
   }
   const annotations = anchored

@@ -273,6 +273,20 @@ describe('resolveScene', () => {
     expect(state.frame).toBe(baseFrame) // identity: early-return path passes base.frame through
   })
 
+  it('preserves a caller-supplied annotation key on the no-scene path', () => {
+    const def = baseDef({
+      annotations: [{ kind: AnnotationKind.Point, target: 'a', text: 't', key: 'custom:key' }],
+    })
+    expect(resolveScene(def, undefined).annotations[0].key).toBe('custom:key')
+  })
+
+  it('falls back to base:i:kind when no key is supplied', () => {
+    const def = baseDef({
+      annotations: [{ kind: AnnotationKind.Point, target: 'a', text: 't' }],
+    })
+    expect(resolveScene(def, undefined).annotations[0].key).toBe('base:0:point')
+  })
+
   it('warns once per unknown transform type', () => {
     __resetTransformWarnings()
     const spy = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
