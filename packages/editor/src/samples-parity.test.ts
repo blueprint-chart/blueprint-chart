@@ -92,10 +92,8 @@ beforeAll(() => {
 // TODO: scene-parity (out of scope for thumbnail-parity)
 const SKIP_IDS = new Set([
   'temperature-anomaly',
-  'inflation-rate',
   'bitcoin-price',
   'unemployment-rates',
-  'gdp-growth',
   'farm-compass',
 ])
 
