@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from 'vitest'
 import { resolveScene, __resetTransformWarnings } from './resolve-scene'
 import type { ChartDefinition } from './types'
 import { DslNodeType, AnnotationKind, AnnotationAction, ChartType, SortMode } from '../enums'
+import { convertAnnotations } from '../dsl/converter'
 
 function baseDef(overrides: Partial<ChartDefinition> = {}): ChartDefinition {
   return {
@@ -66,24 +67,103 @@ describe('resolveScene', () => {
     expect(resolveScene(def, 1).highlights).toEqual([])
   })
 
-  it('cascades annotationVisibility hide/show across scenes', () => {
-    const vis = (action: AnnotationAction, id: string) => ({
-      type: DslNodeType.AnnotationVisibility as const,
-      action, kind: AnnotationKind.Point, id,
-    })
-    const def = baseDef({
-      annotations: [{ kind: AnnotationKind.Point, id: 'x', target: 'a', text: 't' }],
+  // Windowing helpers used by the repeat tests below
+  function ann(target: string, text: string, repeat?: string | number) {
+    return {
+      kind: AnnotationKind.Point,
+      target,
+      properties: [
+        { type: DslNodeType.Property, key: 'text', value: text, isPercentage: false },
+        ...(repeat === undefined
+          ? []
+          : [{ type: DslNodeType.Property, key: 'repeat', value: repeat, isPercentage: false }]),
+      ],
+    }
+  }
+
+  function makeScene(annotations: ReturnType<typeof ann>[] = []) {
+    return {
+      type: DslNodeType.Scene as const,
+      name: null,
+      properties: [],
+      data: null,
+      colorizes: [],
+      highlights: [],
+      areaFills: [],
+      annotations,
+      annotationVisibility: [],
+      series: [],
+      transforms: [],
+    }
+  }
+
+  function makeDef(partial: Partial<ChartDefinition> = {}): ChartDefinition {
+    return baseDef(partial)
+  }
+
+  it('shows a repeat=false scene annotation only in its own scene', () => {
+    const def = makeDef({
       scenes: [
-        { type: DslNodeType.Scene, name: null, properties: [], data: null,
-          colorizes: [], highlights: [], areaFills: [], annotations: [],
-          annotationVisibility: [vis(AnnotationAction.Hide, 'x')], series: [], transforms: [] },
-        { type: DslNodeType.Scene, name: null, properties: [], data: null,
-          colorizes: [], highlights: [], areaFills: [], annotations: [],
-          annotationVisibility: [vis(AnnotationAction.Show, 'x')], series: [], transforms: [] },
+        makeScene([ann('a', 'first')]),  // repeat omitted → once
+        makeScene([]),
       ],
     })
-    expect(resolveScene(def, 0).annotations).toEqual([])
-    expect(resolveScene(def, 1).annotations.map((a: { id?: string }) => a.id)).toEqual(['x'])
+    expect(resolveScene(def, 0).annotations.map(a => a.text)).toEqual(['first'])
+    expect(resolveScene(def, 1).annotations.map(a => a.text)).toEqual([])
+  })
+
+  it('shows a repeat=true scene annotation from its scene onward', () => {
+    const def = makeDef({
+      scenes: [
+        makeScene([ann('a', 'persist', 'true')]),
+        makeScene([]),
+        makeScene([]),
+      ],
+    })
+    expect(resolveScene(def, 0).annotations.map(a => a.text)).toEqual(['persist'])
+    expect(resolveScene(def, 2).annotations.map(a => a.text)).toEqual(['persist'])
+  })
+
+  it('shows a repeat=N annotation for exactly N scenes from its anchor', () => {
+    const def = makeDef({
+      scenes: [
+        makeScene([]),
+        makeScene([ann('a', 'span', 2)]),  // scenes 1 and 2
+        makeScene([]),
+        makeScene([]),
+      ],
+    })
+    expect(resolveScene(def, 0).annotations.map(a => a.text)).toEqual([])
+    expect(resolveScene(def, 1).annotations.map(a => a.text)).toEqual(['span'])
+    expect(resolveScene(def, 2).annotations.map(a => a.text)).toEqual(['span'])
+    expect(resolveScene(def, 3).annotations.map(a => a.text)).toEqual([])
+  })
+
+  it('anchors top-level annotations at scene 0', () => {
+    const def = makeDef({
+      annotations: convertAnnotations([ann('top', 'banner', 'true')]),
+      scenes: [makeScene([]), makeScene([])],
+    })
+    expect(resolveScene(def, 1).annotations.map(a => a.text)).toEqual(['banner'])
+  })
+
+  it('top-level repeat=false annotation shows only in scene 0', () => {
+    const def = makeDef({
+      annotations: convertAnnotations([ann('top', 'once')]),
+      scenes: [makeScene([]), makeScene([])],
+    })
+    expect(resolveScene(def, 0).annotations.map(a => a.text)).toEqual(['once'])
+    expect(resolveScene(def, 1).annotations.map(a => a.text)).toEqual([])
+  })
+
+  it('assigns a stable key to a persisting annotation across scenes', () => {
+    const def = makeDef({
+      scenes: [makeScene([ann('a', 'persist', 'true')]), makeScene([])],
+    })
+    const k0 = resolveScene(def, 0).annotations[0].key
+    const k1 = resolveScene(def, 1).annotations[0].key
+    expect(k0).toBeDefined()
+    expect(k0).toBe(k1)
   })
 
   it('clears inherited colorizes when scene supplies new data', () => {
@@ -117,71 +197,6 @@ describe('resolveScene', () => {
     expect(state.data.values).toEqual([99])
   })
 
-  // S3: scene annotations accumulate across scenes (do not replace each other)
-  it('accumulates scene annotations across scene 0 → scene 1', () => {
-    const def = baseDef({
-      scenes: [
-        {
-          type: DslNodeType.Scene, name: null, properties: [], data: null,
-          colorizes: [], highlights: [], areaFills: [],
-          annotations: [{
-            type: DslNodeType.Annotation, kind: AnnotationKind.Point, target: 'a',
-            properties: [
-              { type: DslNodeType.Property, key: 'id', value: 'a0', isPercentage: false },
-              { type: DslNodeType.Property, key: 'text', value: 'first', isPercentage: false },
-            ],
-          }],
-          annotationVisibility: [], series: [], transforms: [],
-        },
-        {
-          type: DslNodeType.Scene, name: null, properties: [], data: null,
-          colorizes: [], highlights: [], areaFills: [],
-          annotations: [],
-          annotationVisibility: [], series: [], transforms: [],
-        },
-      ],
-    })
-    const s1 = resolveScene(def, 1)
-    expect(s1.annotations.map(a => a.id)).toEqual(['a0'])
-  })
-
-  // S3: when two scenes declare annotations with the same id, the later one wins
-  it('dedupes scene annotations by id, keeping the later declaration', () => {
-    const def = baseDef({
-      scenes: [
-        {
-          type: DslNodeType.Scene, name: null, properties: [], data: null,
-          colorizes: [], highlights: [], areaFills: [],
-          annotations: [{
-            type: DslNodeType.Annotation, kind: AnnotationKind.Point, target: 'a',
-            properties: [
-              { type: DslNodeType.Property, key: 'id', value: 'shared', isPercentage: false },
-              { type: DslNodeType.Property, key: 'text', value: 'first', isPercentage: false },
-            ],
-          }],
-          annotationVisibility: [], series: [], transforms: [],
-        },
-        {
-          type: DslNodeType.Scene, name: null, properties: [], data: null,
-          colorizes: [], highlights: [], areaFills: [],
-          annotations: [{
-            type: DslNodeType.Annotation, kind: AnnotationKind.Point, target: 'b',
-            properties: [
-              { type: DslNodeType.Property, key: 'id', value: 'shared', isPercentage: false },
-              { type: DslNodeType.Property, key: 'text', value: 'second', isPercentage: false },
-            ],
-          }],
-          annotationVisibility: [], series: [], transforms: [],
-        },
-      ],
-    })
-    const s1 = resolveScene(def, 1)
-    expect(s1.annotations.length).toBe(1)
-    const a = s1.annotations[0] as { id?: string, text?: string, target?: string }
-    expect(a.id).toBe('shared')
-    expect(a.text).toBe('second')
-    expect(a.target).toBe('b')
-  })
 
   // S2/S9: a `transform sort` directive populates sortMode
   it('applies transform sort to sortMode = total', () => {

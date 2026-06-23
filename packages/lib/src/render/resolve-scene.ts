@@ -1,7 +1,7 @@
 import type { ChartDefinition, ResolvedChartState } from './types'
-import type { FrameOptions } from '../charts/types'
-import type { SceneNode, ColorizeNode, HighlightNode, AreaFillNode, AnnotationNode, SeriesNode, TransformNode } from '../dsl/types'
-import { AnnotationAction, SortMode } from '../enums'
+import type { FrameOptions, AnnotationConfig } from '../charts/types'
+import type { SceneNode, ColorizeNode, HighlightNode, AreaFillNode, SeriesNode, TransformNode } from '../dsl/types'
+import { SortMode } from '../enums'
 import { extractChartTypeOptions, propertyMap, dataEntriesToString, convertColorizes, convertHighlights, convertAreaFills, convertAnnotations, convertSeriesOverrides } from '../dsl/converter'
 import { resolveChartTypeOptions } from '../charts/resolve'
 import { parseData } from '../charts/chart-helpers'
@@ -41,9 +41,7 @@ interface SceneFold {
   colorizes: ColorizeNode[]
   highlights: HighlightNode[]
   areaFills: AreaFillNode[]
-  annotations: AnnotationNode[]
   seriesOverrides: SeriesNode[]
-  hiddenAnnotationIds: Set<string>
   transforms: TransformNode[]
 }
 
@@ -54,9 +52,7 @@ function emptyFold(): SceneFold {
     colorizes: [],
     highlights: [],
     areaFills: [],
-    annotations: [],
     seriesOverrides: [],
-    hiddenAnnotationIds: new Set(),
     transforms: [],
   }
 }
@@ -89,33 +85,6 @@ function foldScenes(scenes: SceneNode[], index: number, baseChartType: string): 
     if (s.areaFills.length > 0) {
       fold.areaFills = s.areaFills
     }
-    if (s.annotations.length > 0) {
-      // Accumulate annotations across scenes. Later scenes win on id collisions.
-      const merged = [...fold.annotations]
-      for (const a of s.annotations) {
-        const id = propertyMap(a.properties).get('id')
-        if (id != null) {
-          const existingIdx = merged.findIndex((m) => {
-            const mid = propertyMap(m.properties).get('id')
-            return mid === id
-          })
-          if (existingIdx >= 0) {
-            merged[existingIdx] = a
-            continue
-          }
-        }
-        merged.push(a)
-      }
-      fold.annotations = merged
-    }
-    for (const v of s.annotationVisibility) {
-      if (v.action === AnnotationAction.Hide) {
-        fold.hiddenAnnotationIds.add(v.id)
-      }
-      else {
-        fold.hiddenAnnotationIds.delete(v.id)
-      }
-    }
     if (s.series.length > 0) {
       fold.seriesOverrides = s.series
     }
@@ -127,6 +96,23 @@ function foldScenes(scenes: SceneNode[], index: number, baseChartType: string): 
     }
   }
   return fold
+}
+
+function repeatVisible(anchor: number, repeat: number | 'always' | undefined, index: number): boolean {
+  if (index < anchor) {
+    return false
+  }
+  if (repeat === 'always') {
+    return true
+  }
+  const count = typeof repeat === 'number' ? repeat : 1
+  return index < anchor + count
+}
+
+interface AnchoredAnnotation {
+  anchor: number
+  key: string
+  config: AnnotationConfig
 }
 
 export function resolveScene(
@@ -145,7 +131,10 @@ export function resolveScene(
     colorizes: def.colorizes ?? [],
     highlights: def.highlights ?? [],
     areaFills: def.areaFills ?? [],
-    annotations: def.annotations ?? [],
+    annotations: (def.annotations ?? []).map((config, i) => ({
+      ...config,
+      key: `base:${i}:${config.kind}`,
+    })),
     seriesOverrides: def.seriesOverrides ?? [],
     sort: def.sort,
     sortMode: def.sortMode,
@@ -183,15 +172,21 @@ export function resolveScene(
     ? convertAreaFills(fold.areaFills)
     : base.areaFills
 
-  // S3: accumulate annotations across base + every scene up to sceneIndex.
-  // `fold.annotations` is already accumulated (with id-dedup keeping the latest).
-  const sceneAnnotations = fold.annotations.length > 0
-    ? convertAnnotations(fold.annotations)
-    : []
-  const mergedAnnotations = [...base.annotations, ...sceneAnnotations]
-  const annotations = fold.hiddenAnnotationIds.size > 0
-    ? mergedAnnotations.filter(a => !a.id || !fold.hiddenAnnotationIds.has(a.id))
-    : mergedAnnotations
+  // Collect base (anchor 0) + each scene's annotations (anchor = scene index),
+  // then keep only those whose repeat window covers this sceneIndex.
+  const anchored: AnchoredAnnotation[] = (def.annotations ?? []).map((config, i) => ({
+    anchor: 0,
+    key: `base:${i}:${config.kind}`,
+    config,
+  }))
+  for (let j = 0; j <= sceneIndex; j++) {
+    convertAnnotations(def.scenes[j].annotations).forEach((config, i) => {
+      anchored.push({ anchor: j, key: `s${j}:${i}:${config.kind}`, config })
+    })
+  }
+  const annotations = anchored
+    .filter(({ anchor, config }) => repeatVisible(anchor, config.repeat, sceneIndex))
+    .map(({ key, config }) => ({ ...config, key }))
 
   const seriesOverrides = fold.seriesOverrides.length > 0
     ? convertSeriesOverrides(fold.seriesOverrides)
