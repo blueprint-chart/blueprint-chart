@@ -56,14 +56,14 @@ describe('highlightDsl', () => {
     expect(html).toContain('<span class="tok-keyword">area-fill</span>')
   })
 
-  it('highlights the kebab-case hide-annotation keyword', () => {
-    const html = highlightDsl('chart line {\nscene "s" {\nhide-annotation "abc12"\n}\n}')
-    expect(html).toContain('<span class="tok-keyword">hide-annotation</span>')
+  it('highlights annotation as a keyword', () => {
+    const html = highlightDsl('chart line {\nscene "s" {\nannotation "abc12" {\nrepeat = true\n}\n}\n}')
+    expect(html).toContain('<span class="tok-keyword">annotation</span>')
   })
 
-  it('highlights the show-range visibility verb', () => {
-    const html = highlightDsl('chart line {\nscene "s" {\nshow-range "rng01"\n}\n}')
-    expect(html).toContain('<span class="tok-keyword">show-range</span>')
+  it('highlights range as a keyword', () => {
+    const html = highlightDsl('chart line {\nscene "s" {\nrange {\nrepeat = true\n}\n}\n}')
+    expect(html).toContain('<span class="tok-keyword">range</span>')
   })
 
   it('highlights block comments with the tok-comment class', () => {

@@ -80,7 +80,9 @@ chart line {
   }
   highlight "2000"
   scene "s" {
-    hide-annotation "abc12"
+    annotation "abc12" {
+      repeat = true
+    }
   }
 }
 `

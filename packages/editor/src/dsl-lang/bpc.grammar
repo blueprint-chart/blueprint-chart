@@ -9,7 +9,6 @@ ChartMember {
   RangeAnnotation |
   NoteAnnotation |
   Annotation |
-  VisibilityDirective |
   Series |
   Scene |
   Transform |
@@ -41,14 +40,6 @@ NoteAnnotation { noteKw "{" Property* "}" }
 
 noteKw { @extend[@name="note"]<Identifier, "note"> }
 
-// The six visibility verbs are bodyless statements: a kebab keyword followed by
-// a quoted id, with no braces.
-VisibilityDirective {
-  ( kw<"hide-annotation"> | kw<"show-annotation">
-  | kw<"hide-range"> | kw<"show-range">
-  | kw<"hide-note"> | kw<"show-note"> ) String
-}
-
 // `series` is special: it is both a block keyword (series "X" { … }) and the
 // reserved unquoted meta-row key inside a data block (series = "X","Y"). Using
 // @extend (not @specialize) keeps the bare Identifier token available so the
@@ -66,7 +57,6 @@ SceneMember {
   RangeAnnotation |
   NoteAnnotation |
   Annotation |
-  VisibilityDirective |
   Series |
   Transform |
   Property
@@ -85,9 +75,8 @@ kw<term> { @specialize[@name={term}]<Identifier, term> }
 @tokens {
   space { @whitespace+ }
 
-  // `-` is an identifier char, so the kebab-case keywords (area-fill,
-  // hide-annotation, …) are all valid Identifiers and are picked out by the
-  // @specialize-based kw<> rule above.
+  // `-` is an identifier char, so the kebab-case keyword (area-fill)
+  // is a valid Identifier and is picked out by the @specialize-based kw<> rule above.
   Identifier { $[a-zA-Z_#] $[a-zA-Z0-9_#\-]* }
 
   // Mirrors the canonical Peggy Number rule: optional leading sign, either a
