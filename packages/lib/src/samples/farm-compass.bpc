@@ -3,6 +3,7 @@ chart area-stacked {
   description = "Agricultural subsidies to post-socialist EU members, million euros"
   source = "Eurostat"
   sourceUrl = "https://ec.europa.eu/eurostat"
+  colorPalette = "Enara"
   interpolation = "linear"
   heightMode = "aspect-ratio"
   aspectRatio = "1:1"
@@ -42,7 +43,7 @@ chart area-stacked {
   }
 
   scene "Bulgaria: subsidies explode" {
-    title = "Subsidies to Bulgarian farmers, million euros"
+    title = "Bulgarian farmers received almost nothing before 2007 accession"
     description = "85% of Bulgarian subsidies are direct payments — the highest share among new members"
 
     data {
@@ -168,7 +169,7 @@ chart area-stacked {
   }
 
   scene "Jobs disappeared" {
-    title = "Seasonal farm workers vanished while salaried jobs held steady"
+    title = "Family farmers disappeared while salaried ag jobs held steady"
     description = "EU agricultural employment, thousands of full-time equivalents"
     type = line-multi
     lineSymbols = false
