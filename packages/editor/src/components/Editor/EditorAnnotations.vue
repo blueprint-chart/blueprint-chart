@@ -16,12 +16,9 @@
               :kind-label="kindLabel(ann)"
               :summary="summaryText(ann)"
               :collapsed="openIndex !== index"
-              :hidden="isHidden(ann)"
-              :can-toggle-visibility="canToggleVisibility"
               @duplicate="duplicate(index)"
               @remove="remove(index)"
               @toggle-collapse="toggleCollapse(index)"
-              @toggle-visibility="toggleVisibility(ann)"
             />
           </template>
           <template v-if="openIndex === index">
@@ -31,6 +28,24 @@
               :chart-width="chartWidth"
               @update:annotation="(v) => update(index, v)"
             />
+            <div
+              v-if="showRepeat"
+              class="d-flex align-items-center gap-2"
+            >
+              <NavigationSegmentedControl
+                :items="repeatItems(ann)"
+                aria-label="Repeat"
+                size="sm"
+                @select="key => setRepeat(index, key)"
+              />
+              <input
+                v-if="repeatMode(ann) === 'n'"
+                type="number"
+                min="2"
+                :value="typeof ann.repeat === 'number' ? ann.repeat : 2"
+                @input="e => setRepeatN(index, Number((e.target as HTMLInputElement).value))"
+              >
+            </div>
           </template>
         </SectionCard>
       </div>
@@ -56,12 +71,9 @@
               :kind-label="kindLabel(ann)"
               :summary="summaryText(ann)"
               :collapsed="openIndex !== index"
-              :hidden="isHidden(ann)"
-              :can-toggle-visibility="canToggleVisibility"
               @duplicate="duplicate(index)"
               @remove="remove(index)"
               @toggle-collapse="toggleCollapse(index)"
-              @toggle-visibility="toggleVisibility(ann)"
             />
           </template>
           <template v-if="openIndex === index">
@@ -70,6 +82,24 @@
               :labels="labels"
               @update:annotation="(v) => update(index, v)"
             />
+            <div
+              v-if="showRepeat"
+              class="d-flex align-items-center gap-2"
+            >
+              <NavigationSegmentedControl
+                :items="repeatItems(ann)"
+                aria-label="Repeat"
+                size="sm"
+                @select="key => setRepeat(index, key)"
+              />
+              <input
+                v-if="repeatMode(ann) === 'n'"
+                type="number"
+                min="2"
+                :value="typeof ann.repeat === 'number' ? ann.repeat : 2"
+                @input="e => setRepeatN(index, Number((e.target as HTMLInputElement).value))"
+              >
+            </div>
           </template>
         </SectionCard>
       </div>
@@ -94,12 +124,9 @@
               :kind-label="kindLabel(ann)"
               :summary="summaryText(ann)"
               :collapsed="openIndex !== index"
-              :hidden="isHidden(ann)"
-              :can-toggle-visibility="canToggleVisibility"
               @duplicate="duplicate(index)"
               @remove="remove(index)"
               @toggle-collapse="toggleCollapse(index)"
-              @toggle-visibility="toggleVisibility(ann)"
             />
           </template>
           <template v-if="openIndex === index">
@@ -109,6 +136,24 @@
               :chart-height="chartHeight"
               @update:annotation="(v) => update(index, v)"
             />
+            <div
+              v-if="showRepeat"
+              class="d-flex align-items-center gap-2"
+            >
+              <NavigationSegmentedControl
+                :items="repeatItems(ann)"
+                aria-label="Repeat"
+                size="sm"
+                @select="key => setRepeat(index, key)"
+              />
+              <input
+                v-if="repeatMode(ann) === 'n'"
+                type="number"
+                min="2"
+                :value="typeof ann.repeat === 'number' ? ann.repeat : 2"
+                @input="e => setRepeatN(index, Number((e.target as HTMLInputElement).value))"
+              >
+            </div>
           </template>
         </SectionCard>
       </div>
@@ -123,7 +168,7 @@
 <script setup lang="ts">
 import { ChartType, AnnotationKind } from '@blueprint-chart/lib'
 import type { AnnotationConfig, PointAnnotationConfig, RangeAnnotationConfig, FreeAnnotationConfig } from '@blueprint-chart/lib'
-import { ButtonAdd, SectionCard, SettingsSection } from '@blueprint-chart/ui'
+import { ButtonAdd, SectionCard, SettingsSection, NavigationSegmentedControl } from '@blueprint-chart/ui'
 import IPhMapPin from '~icons/ph/map-pin'
 import IPhArrowsOutLineHorizontal from '~icons/ph/arrows-out-line-horizontal'
 import IPhNote from '~icons/ph/note'
@@ -133,26 +178,12 @@ const props = defineProps<{
   chartType?: string
   chartWidth?: number
   chartHeight?: number
-  hiddenAnnotationIds?: Set<string>
-  canToggleVisibility?: boolean
-}>()
-
-const emit = defineEmits<{
-  'toggle-visibility': [id: string, kind: 'point' | 'range' | 'free']
+  showRepeat?: boolean
 }>()
 
 const model = defineModel<AnnotationConfig[]>({ required: true })
 
 const annotations = computed(() => model.value)
-
-const CHARS = 'abcdefghijklmnopqrstuvwxyz0123456789'
-function generateId(): string {
-  let id = ''
-  for (let i = 0; i < 5; i++) {
-    id += CHARS[Math.floor(Math.random() * CHARS.length)]
-  }
-  return id
-}
 
 const isPieOrDonut = computed(() => props.chartType === ChartType.Pie || props.chartType === ChartType.Donut)
 
@@ -182,14 +213,45 @@ const freeAnnotations = computed(() =>
     .filter(({ ann }) => ann.kind === AnnotationKind.Free),
 )
 
-function isHidden(ann: AnnotationConfig): boolean {
-  return !!ann.id && !!props.hiddenAnnotationIds?.has(ann.id)
+function repeatMode(ann: AnnotationConfig): 'once' | 'always' | 'n' {
+  if (ann.repeat === 'always') {
+    return 'always'
+  }
+  if (typeof ann.repeat === 'number' && ann.repeat > 1) {
+    return 'n'
+  }
+  return 'once'
 }
 
-function toggleVisibility(ann: AnnotationConfig) {
-  if (ann.id) {
-    emit('toggle-visibility', ann.id, ann.kind)
+function repeatItems(ann: AnnotationConfig) {
+  const mode = repeatMode(ann)
+  return [
+    { key: 'once', text: 'Once', active: mode === 'once' },
+    { key: 'always', text: 'Always', active: mode === 'always' },
+    { key: 'n', text: 'For N', active: mode === 'n' },
+  ]
+}
+
+function updateAnnotation(index: number, patch: Partial<AnnotationConfig>) {
+  const next = model.value.map((a, i) => (i === index ? { ...a, ...patch } as AnnotationConfig : a))
+  model.value = next
+}
+
+function setRepeat(index: number, key: string) {
+  if (key === 'always') {
+    updateAnnotation(index, { repeat: 'always' })
   }
+  else if (key === 'n') {
+    const cur = model.value[index].repeat
+    updateAnnotation(index, { repeat: typeof cur === 'number' && cur > 1 ? cur : 2 })
+  }
+  else {
+    updateAnnotation(index, { repeat: undefined })
+  }
+}
+
+function setRepeatN(index: number, value: number) {
+  updateAnnotation(index, { repeat: Math.max(2, Math.floor(value) || 2) })
 }
 
 function kindLabel(ann: AnnotationConfig): string {
@@ -220,7 +282,7 @@ function update(index: number, value: AnnotationConfig) {
 }
 
 function addPoint() {
-  const ann: PointAnnotationConfig = { kind: AnnotationKind.Point, id: generateId(), target: props.labels[0] ?? '', text: 'Enter an annotation', showLine: true, showArrow: true }
+  const ann: PointAnnotationConfig = { kind: AnnotationKind.Point, target: props.labels[0] ?? '', text: 'Enter an annotation', showLine: true, showArrow: true }
   const next = [...annotations.value, ann]
   model.value = next
   openIndex.value = next.length - 1
@@ -230,7 +292,6 @@ function addRange() {
   const hasLabels = props.labels.length > 0
   const ann: RangeAnnotationConfig = {
     kind: AnnotationKind.Range,
-    id: generateId(),
     start: hasLabels ? props.labels[0] : 0,
     end: hasLabels ? props.labels[props.labels.length - 1] : 100,
   }
@@ -240,7 +301,7 @@ function addRange() {
 }
 
 function addFree() {
-  const ann: FreeAnnotationConfig = { kind: AnnotationKind.Free, id: generateId(), text: 'Enter an annotation', x: 0, y: 0 }
+  const ann: FreeAnnotationConfig = { kind: AnnotationKind.Free, text: 'Enter an annotation', x: 0, y: 0 }
   const next = [...annotations.value, ann]
   model.value = next
   openIndex.value = next.length - 1
@@ -248,7 +309,7 @@ function addFree() {
 
 function duplicate(index: number) {
   const copy = [...annotations.value]
-  copy.splice(index + 1, 0, { ...copy[index], id: generateId() })
+  copy.splice(index + 1, 0, { ...copy[index] })
   model.value = copy
 }
 
