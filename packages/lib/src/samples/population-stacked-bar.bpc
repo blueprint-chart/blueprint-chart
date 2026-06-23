@@ -7,10 +7,10 @@ chart bar-stacked {
 
   data {
     series = "0-14","15-64","65+"
-    "China" = 249,987,191
-    "India" = 365,948,100
-    "USA" = 60,215,58
-    "Indonesia" = 66,191,18
-    "Brazil" = 42,150,22
+    "China" = 232,988,200
+    "India" = 354,978,97
+    "USA" = 58,216,59
+    "Indonesia" = 67,189,21
+    "Brazil" = 43,148,24
   }
 }

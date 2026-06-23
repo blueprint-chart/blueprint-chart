@@ -44,7 +44,7 @@ chart area-stacked {
 
   scene "Bulgaria: subsidies explode" {
     title = "Bulgarian farmers received almost nothing before 2007 accession"
-    description = "85% of Bulgarian subsidies are direct payments — the highest share among new members"
+    description = "More than three-quarters of Bulgarian subsidies are direct payments — the highest share among new members"
 
     data {
       series = "Indirect subsidies","Direct subsidies"
@@ -136,7 +136,7 @@ chart area-stacked {
   }
 
   scene "Vegetables collapsed" {
-    title = "Vegetable production fell by a factor of four"
+    title = "Vegetable production fell by a factor of three"
     description = "A traditional Bulgarian cultivation shrank as subsidies favoured large fields"
 
     highlight "Vegetables"

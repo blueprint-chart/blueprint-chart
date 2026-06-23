@@ -8,10 +8,10 @@ chart pie {
   tooltips = true
 
   data {
-    "Asia" = 59.4
-    "Africa" = 18.3
-    "Europe" = 9.3
-    "Latin America" = 8.2
-    "North America" = 4.8
+    "Asia" = 58.9
+    "Africa" = 18.6
+    "Europe" = 9.1
+    "Latin America" = 8.1
+    "North America" = 4.7
   }
 }

@@ -1,16 +1,16 @@
 chart bar-grouped {
   title = "Asia Pacific holds more renewable capacity than all other regions combined"
-  description = "Installed capacity in gigawatts (GW)"
+  description = "Installed capacity in gigawatts (GW), 2023"
   source = "IRENA"
-  sourceUrl = "https://www.irena.org"
+  sourceUrl = "https://www.irena.org/Publications/2024/Mar/Renewable-capacity-statistics-2024"
   colorPalette = "Folklore"
 
   data {
     series = "Solar","Wind","Hydro"
-    "Asia Pacific"  = 680,540,840
-    "Europe"        = 250,300,200
-    "North America" = 200,180,190
-    "Latin America" = 30,50,200
-    "Africa"        = 15,10,40
+    "Asia Pacific"  = 870,520,650
+    "Europe"        = 290,260,230
+    "North America" = 150,170,200
+    "Latin America" = 50,40,190
+    "Africa"        = 12,9,40
   }
 }

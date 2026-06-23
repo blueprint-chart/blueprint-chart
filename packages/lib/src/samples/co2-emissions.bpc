@@ -2,17 +2,17 @@ chart bar-vertical {
   // the headline above the chart
   title = "China emits more CO₂ than the US and India combined"
   description = "Annual emissions in billion tonnes, 2023"
-  source = "Global Carbon Project"
-  sourceUrl = "https://globalcarbonproject.org"
+  source = "Our World in Data"
+  sourceUrl = "https://ourworldindata.org/co2-emissions"
 
   // one row per country: "label" = value
   data {
-    "China" = 11.9
-    "United States" = 4.78
-    "India" = 2.88
-    "Russia" = 1.78
-    "Japan" = 1.02
-    "Germany" = 0.64
+    "China" = 12.17
+    "United States" = 4.92
+    "India" = 3.06
+    "Russia" = 1.73
+    "Japan" = 0.99
+    "Germany" = 0.59
   }
 
   // highlight pops one bar in the accent color

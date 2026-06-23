@@ -6,12 +6,12 @@ chart bar-horizontal {
   byline = "Pierre Romera"
 
   data {
-    "China" = 12.01
-    "United States" = 4.72
-    "India" = 2.92
-    "Russia" = 1.71
-    "Japan" = 0.95
-    "Germany" = 0.63
+    "China" = 12.17
+    "United States" = 4.92
+    "India" = 3.06
+    "Russia" = 1.73
+    "Japan" = 0.99
+    "Germany" = 0.59
   }
 
   scene "China spotlight" {
@@ -25,7 +25,7 @@ chart bar-horizontal {
   }
 
   scene "Japan declining" {
-    title = "Japan's emissions have fallen for over a decade"
+    title = "Japan's emissions have fallen since their 2013 peak"
     highlight "Japan"
   }
 
@@ -34,11 +34,11 @@ chart bar-horizontal {
     description = "CO₂ emissions per capita, tonnes per person, 2023"
     highlight "Qatar"
     data {
-      "Qatar" = 37.17
-      "United Arab Emirates" = 23.31
-      "United States" = 16.06
-      "China" = 10.65
-      "India" = 1.91
+      "Qatar" = 40.13
+      "United Arab Emirates" = 19.77
+      "United States" = 14.32
+      "China" = 8.56
+      "India" = 2.13
     }
   }
 }

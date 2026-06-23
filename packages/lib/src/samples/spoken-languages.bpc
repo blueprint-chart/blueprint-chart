@@ -9,13 +9,13 @@ chart bar-horizontal {
   highlight "Mandarin"
 
   data {
-    "Mandarin" = 920
-    "Spanish" = 475
-    "English" = 373
-    "Hindi" = 344
-    "Bengali" = 234
-    "Portuguese" = 232
-    "Russian" = 154
-    "Japanese" = 125
+    "Mandarin" = 988
+    "Spanish" = 487
+    "English" = 372
+    "Hindi" = 347
+    "Bengali" = 232
+    "Portuguese" = 252
+    "Russian" = 133
+    "Japanese" = 124
   }
 }
