@@ -20,10 +20,11 @@ describe('recommend eval (deterministic proxy for the acceptance harness)', () =
     })
   }
 
-  it('hits >= 13 of 17 (>= 76% type-match)', () => {
-    const hits = results.filter(r => r.hit).length
+  it('every non-allowed-miss fixture type-matches', () => {
+    const gradable = results.filter(r => !r.allowedMiss)
+    const hits = gradable.filter(r => r.hit).length
 
-    console.log(`recommend eval: ${hits}/${RECOMMEND_FIXTURES.length} type-match`, results.filter(r => !r.hit).map(r => `${r.id}:${r.top}`))
-    expect(hits).toBeGreaterThanOrEqual(13)
+    console.log(`recommend eval: ${hits}/${gradable.length} type-match (of ${RECOMMEND_FIXTURES.length} fixtures, ${RECOMMEND_FIXTURES.length - gradable.length} allowed-miss)`, results.filter(r => !r.hit).map(r => `${r.id}:${r.top}`))
+    expect(hits).toBe(gradable.length)
   })
 })
