@@ -55,6 +55,35 @@
 
 ## [Unreleased]
 
+### BREAKING CHANGES
+
+* **Annotation visibility model changed.** Annotations previously persisted across
+  all later scenes by default and were hidden with `hide-annotation`,
+  `hide-range`, or `hide-note` verbs. The new default is **show once**: an
+  annotation appears only in the scene where it is declared, then disappears.
+  Use `repeat = true` to restore the old always-on behaviour, or `repeat = N`
+  (a positive integer) to keep an annotation visible for N scenes from where it
+  appears. Top-level annotations anchor at scene 0.
+
+  The `id` property on annotations and the `hide-*`/`show-*` scene verbs are
+  removed and will produce a parse error in existing documents. Replace them
+  with `repeat`:
+
+  ```bpc
+  // Before
+  annotation "2015" {
+    id = "paris"
+    text = "Paris Agreement"
+  }
+  scene "Without callout" { hide-annotation "paris" }
+
+  // After
+  annotation "2015" {
+    text = "Paris Agreement"
+    repeat = true        // stays visible from this scene onward
+  }
+  ```
+
 ### Features
 
 * **Unified `render()` API.** One function returns a chart handle that works in
