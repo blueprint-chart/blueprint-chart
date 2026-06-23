@@ -1,22 +1,22 @@
 chart area {
-  title = "Apple stock climbed 36 % through 2024"
-  description = "Monthly closing price in USD"
-  source = "Yahoo Finance"
-  sourceUrl = "https://finance.yahoo.com"
+  title = "The US national debt has more than tripled since 2008"
+  description = "Total federal debt outstanding, trillions of dollars"
+  source = "U.S. Treasury, Fiscal Data"
+  sourceUrl = "https://fiscaldata.treasury.gov"
 
+  annotation "2008" {
+    text = "Financial crisis"
+    showArrow = true
+    textOffsetY = -14
+  }
 
   data {
-    "Jan" = 183
-    "Feb" = 182
-    "Mar" = 171
-    "Apr" = 170
-    "May" = 192
-    "Jun" = 210
-    "Jul" = 222
-    "Aug" = 229
-    "Sep" = 233
-    "Oct" = 225
-    "Nov" = 237
-    "Dec" = 249
+    "2000" = 5.7
+    "2004" = 7.4
+    "2008" = 10.0
+    "2012" = 16.1
+    "2016" = 19.6
+    "2020" = 26.9
+    "2024" = 35.5
   }
 }

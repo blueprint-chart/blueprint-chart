@@ -24,7 +24,7 @@ export const RECOMMEND_FIXTURES: RecommendFixture[] = [
   { id: 'quarterly-stacked-columns', columnTypes: ['date', 'number', 'number', 'number', 'number'], rowCount: 4, goal: 'the electricity generation mix by source over time', expectedType: 'column-stacked', allowedMiss: true },
   { id: 'renewable-capacity', columnTypes: ['string', 'number', 'number'], rowCount: 6, goal: 'compare installed renewable capacity by source across regions', expectedType: 'bar-grouped', allowedMiss: true },
   { id: 'spoken-languages', columnTypes: ['string', 'number'], rowCount: 12, goal: 'the most-spoken languages ranked by native speakers', expectedType: 'bar-horizontal' },
-  { id: 'stock-price-area', columnTypes: ['date', 'number'], rowCount: 12, goal: 'how the stock climbed through the year', expectedType: 'area', allowedMiss: true },
+  { id: 'stock-price-area', columnTypes: ['date', 'number'], rowCount: 7, goal: 'how the national debt grew over time', expectedType: 'area', allowedMiss: true },
   { id: 'temperature-anomaly', columnTypes: ['date', 'number'], rowCount: 40, goal: 'the global temperature anomaly trend over time', expectedType: 'line' },
   { id: 'unemployment-rates', columnTypes: ['date', 'number', 'number', 'number', 'number'], rowCount: 5, goal: 'compare how the top 1% income concentration diverged across countries over time', expectedType: 'line-multi' },
   { id: 'world-population', columnTypes: ['string', 'number'], rowCount: 5, goal: 'each continent as a share of world population', expectedType: 'pie' },
