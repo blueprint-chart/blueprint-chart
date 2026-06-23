@@ -77,7 +77,6 @@ describe('sample .bpc files', () => {
         expect(source, 'missing "source" property').toBeDefined()
 
         const FICTIONAL_SAMPLES = new Set([
-          'quarterly-revenue.bpc',
           'quarterly-stacked-columns.bpc',
         ])
 

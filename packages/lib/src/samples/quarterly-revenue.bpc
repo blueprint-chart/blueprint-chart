@@ -1,19 +1,17 @@
 chart line-multi {
-  title = "Software overtakes hardware as the top revenue driver"
-  description = "USD billions"
-  byline = "Pierre Romera"
-  source = "Company filings"
-  note = "Figures are illustrative and do not represent actual company data"
+  title = "China now buys more electric cars than the rest of the world combined"
+  description = "Electric car sales by region, millions per year"
+  source = "IEA Global EV Outlook 2024"
+  sourceUrl = "https://www.iea.org/reports/global-ev-outlook-2024"
+  colorPalette = "Maya"
   tooltips = true
-  colorPalette = "Egypt"
 
   data {
-    series = "Hardware","Software","Services"
-    "Q1 2024" = 14.2,9.8,7.4
-    "Q2 2024" = 13.8,11.0,8.1
-    "Q3 2024" = 15.5,12.1,8.9
-    "Q4 2024" = 18.9,13.4,10.2
-    "Q1 2025" = 14.8,14.0,9.5
-    "Q2 2025" = 16.2,15.5,10.8
+    series = "China","Europe","United States","Rest of world"
+    "2018" = 1.1,0.4,0.36,0.1
+    "2020" = 1.3,1.4,0.30,0.2
+    "2021" = 3.3,2.3,0.63,0.4
+    "2022" = 6.0,2.7,1.0,0.7
+    "2023" = 8.1,3.2,1.4,1.0
   }
 }
