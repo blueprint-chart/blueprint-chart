@@ -9,16 +9,29 @@
     </SettingsSection>
 
     <EditorAnnotations
-      ref="annotationsRef"
-      v-model="resolvedAnnotations"
+      ref="baseAnnotationsRef"
+      v-model="baseAnnotations"
       :labels="dataLabels"
       :chart-type="chartType"
       :chart-width="chartWidth"
       :chart-height="chartHeight"
-      :hidden-annotation-ids="hiddenAnnotationIds"
-      :can-toggle-visibility="isSceneActive"
-      @toggle-visibility="handleToggleVisibility"
+      :show-repeat="showRepeat"
     />
+
+    <SettingsSection
+      v-if="isSceneActive"
+      title="This scene"
+    >
+      <EditorAnnotations
+        ref="sceneAnnotationsRef"
+        v-model="sceneAnnotations"
+        :labels="dataLabels"
+        :chart-type="chartType"
+        :chart-width="chartWidth"
+        :chart-height="chartHeight"
+        :show-repeat="showRepeat"
+      />
+    </SettingsSection>
 
     <SettingsSection
       v-if="isMultiLine"
@@ -41,7 +54,6 @@ import { useChartTypeOptions } from '@/stores/chartTypeOptions'
 import { usePreviewContainer } from '@/stores/previewContainer'
 import { useEditorPanel } from '@/stores/editorPanel'
 import { useScenes } from '@/stores/scenes'
-import { resolveScene } from '@/utils/scenes'
 import { ChartType, parseData } from '@blueprint-chart/lib'
 import type { AnnotationConfig } from '@blueprint-chart/lib'
 import { SettingsSection } from '@blueprint-chart/ui'
@@ -61,82 +73,25 @@ const isSceneActive = computed(() => activeIndex.value >= 0)
 const HIGHLIGHT_TYPES: string[] = [ChartType.BarVertical, ChartType.BarHorizontal, ChartType.LineMulti, ChartType.AreaStacked]
 const hasHighlight = computed(() => HIGHLIGHT_TYPES.includes(chartType.value))
 
-// Base annotations are always the foundation; scene annotations are additions.
-// resolveScene cascades scene annotations across scenes 0..N, then we merge
-// with base so annotations defined in base + any scene are all visible.
-const resolvedAnnotations = computed<AnnotationConfig[]>({
-  get() {
-    const base = config._base.annotations.value
+// showRepeat = true whenever any scenes exist (repeat controls make sense even
+// on the base group so annotations can be configured to repeat into scenes).
+const showRepeat = computed(() => scenes.value.length > 0)
+
+// Base annotations — always-present group, directly bound to config._base
+const baseAnnotations = computed<AnnotationConfig[]>({
+  get: () => config._base.annotations.value,
+  set: (val) => { config._base.annotations.value = val },
+})
+
+// Scene annotations — only meaningful when a scene is active
+const sceneAnnotations = computed<AnnotationConfig[]>({
+  get: () => activeScene.value?.annotations ?? [],
+  set: (val) => {
     if (activeIndex.value >= 0) {
-      const resolved = resolveScene(scenes.value, activeIndex.value)
-      const sceneAnns = resolved?.annotations ?? []
-      return [...base, ...sceneAnns]
+      updateScene(activeIndex.value, { annotations: val.length > 0 ? val : undefined })
     }
-    return base
-  },
-  set(val: AnnotationConfig[]) {
-    if (activeIndex.value >= 0 && activeScene.value) {
-      // Split: annotations with ids from base stay in base, the rest go to scene
-      const baseIds = new Set(config._base.annotations.value.map(a => a.id).filter(Boolean))
-      const baseUpdates = val.filter(a => a.id && baseIds.has(a.id))
-      const sceneUpdates = val.filter(a => !a.id || !baseIds.has(a.id))
-      config._base.annotations.value = baseUpdates
-      updateScene(activeIndex.value, { annotations: sceneUpdates.length > 0 ? sceneUpdates : undefined })
-      return
-    }
-    config._base.annotations.value = val
   },
 })
-
-const hiddenAnnotationIds = computed(() => {
-  if (activeIndex.value < 0) {
-    return undefined
-  }
-  const resolved = resolveScene(scenes.value, activeIndex.value)
-  return resolved?.hiddenAnnotationIds
-})
-
-function handleToggleVisibility(id: string, kind: 'point' | 'range' | 'free') {
-  if (activeIndex.value < 0) {
-    return
-  }
-  const scene = activeScene.value
-  if (!scene) {
-    return
-  }
-
-  const existing = scene.annotationVisibility ?? []
-  const isHidden = hiddenAnnotationIds.value?.has(id)
-
-  if (isHidden) {
-    // Add show directive (or remove hide from this scene)
-    const inThisScene = existing.find(v => v.id === id && v.action === 'hide')
-    if (inThisScene) {
-      updateScene(activeIndex.value, {
-        annotationVisibility: existing.filter(v => !(v.id === id && v.action === 'hide')),
-      })
-    }
-    else {
-      updateScene(activeIndex.value, {
-        annotationVisibility: [...existing, { action: 'show', kind, id }],
-      })
-    }
-  }
-  else {
-    // Add hide directive (or remove show from this scene)
-    const inThisScene = existing.find(v => v.id === id && v.action === 'show')
-    if (inThisScene) {
-      updateScene(activeIndex.value, {
-        annotationVisibility: existing.filter(v => !(v.id === id && v.action === 'show')),
-      })
-    }
-    else {
-      updateScene(activeIndex.value, {
-        annotationVisibility: [...existing, { action: 'hide', kind, id }],
-      })
-    }
-  }
-}
 
 const isMultiLine = computed(() => chartType.value === ChartType.LineMulti)
 
@@ -144,8 +99,31 @@ const parsed = computed(() => parseData(data.value))
 const dataLabels = computed(() => parsed.value.labels)
 const seriesNames = computed(() => parsed.value.series?.map(s => s.name) ?? [])
 
-const annotationsRef = ref<InstanceType<typeof EditorAnnotations> | null>(null)
-const selectedIndex = computed(() => annotationsRef.value?.openIndex ?? null)
+// Template refs for both EditorAnnotations instances
+const baseAnnotationsRef = ref<InstanceType<typeof EditorAnnotations> | null>(null)
+const sceneAnnotationsRef = ref<InstanceType<typeof EditorAnnotations> | null>(null)
+
+// Combined read surface for drag: base first, then scene annotations
+const allAnnotations = computed(() => [
+  ...baseAnnotations.value,
+  ...sceneAnnotations.value,
+])
+
+// selectedIndex tracks the currently open annotation across both groups.
+// Drag uses the combined allAnnotations array, so the index is into that list.
+// We synthesise a combined selectedIndex: if base group has an open item, use
+// that index directly; if scene group has an open item, offset by base length.
+const selectedIndex = computed(() => {
+  const baseOpen = baseAnnotationsRef.value?.openIndex ?? null
+  if (baseOpen !== null) {
+    return baseOpen
+  }
+  const sceneOpen = sceneAnnotationsRef.value?.openIndex ?? null
+  if (sceneOpen !== null) {
+    return baseAnnotations.value.length + sceneOpen
+  }
+  return null
+})
 
 const { containerRef } = usePreviewContainer()
 
@@ -170,31 +148,77 @@ onMounted(() => {
 })
 onBeforeUnmount(() => resizeObserver?.disconnect())
 
+// Drag update: route by index position in the combined array.
+// Indices 0..(baseLen-1) map to the base group; the rest map to the scene group.
 function handleDragUpdate(index: number, ann: AnnotationConfig) {
-  const copy = resolvedAnnotations.value.map(a => ({ ...a }))
-  copy[index] = ann
-  resolvedAnnotations.value = copy
+  const baseLen = baseAnnotations.value.length
+  if (index < baseLen) {
+    const copy = baseAnnotations.value.map(a => ({ ...a }))
+    copy[index] = ann
+    baseAnnotations.value = copy
+  }
+  else {
+    const sceneIndex = index - baseLen
+    const copy = sceneAnnotations.value.map(a => ({ ...a }))
+    copy[sceneIndex] = ann
+    sceneAnnotations.value = copy
+  }
 }
 
-useAnnotationDrag(containerRef, resolvedAnnotations, selectedIndex, handleDragUpdate)
+useAnnotationDrag(containerRef, allAnnotations, selectedIndex, handleDragUpdate)
 
-// Consume pending annotation selection (e.g. from double-click on chart)
+// Parse a data-annotation-id key into the group + row it belongs to.
+// Keys are formatted as:  base:${i}:${kind}  or  s${j}:${i}:${kind}
+function rowFromKey(key: string): { group: 'base' | 'scene', index: number } | null {
+  const m = /^(base|s(\d+)):(\d+):/.exec(key)
+  if (!m) {
+    return null
+  }
+  const index = Number(m[3])
+  if (m[1] === 'base') {
+    return { group: 'base', index }
+  }
+  const j = Number(m[2])
+  // Only open the scene group if the scene index matches the active scene.
+  // A key from a different scene index is a pass-through — no-op.
+  return j === activeIndex.value ? { group: 'scene', index } : null
+}
+
+// Consume pending annotation selection (e.g. from double-click on chart).
+// pendingAnnotationIndex is now a data-annotation-id string key (or null).
 watch(pendingAnnotationIndex, async (pending) => {
   if (pending === null) {
     return
   }
   await nextTick()
-  if (annotationsRef.value) {
-    // Resolve annotation id (string) to index in resolvedAnnotations
-    const index = typeof pending === 'string'
-      ? resolvedAnnotations.value.findIndex(a => a.id === pending)
-      : pending
-    if (index < 0) {
+
+  if (typeof pending === 'string') {
+    const row = rowFromKey(pending)
+    if (!row) {
       pendingAnnotationIndex.value = null
       return
     }
-    // Toggle: deselect if already open
-    annotationsRef.value.openIndex = annotationsRef.value.openIndex === index ? null : index
+    if (row.group === 'base' && baseAnnotationsRef.value) {
+      const cur = baseAnnotationsRef.value.openIndex
+      baseAnnotationsRef.value.openIndex = cur === row.index ? null : row.index
+    }
+    else if (row.group === 'scene' && sceneAnnotationsRef.value) {
+      const cur = sceneAnnotationsRef.value.openIndex
+      sceneAnnotationsRef.value.openIndex = cur === row.index ? null : row.index
+    }
+    pendingAnnotationIndex.value = null
+    return
+  }
+
+  // Numeric fallback: treat as an index into the base group (legacy path)
+  if (typeof pending === 'number' && baseAnnotationsRef.value) {
+    const index = pending
+    if (index < 0 || index >= baseAnnotations.value.length) {
+      pendingAnnotationIndex.value = null
+      return
+    }
+    const cur = baseAnnotationsRef.value.openIndex
+    baseAnnotationsRef.value.openIndex = cur === index ? null : index
     pendingAnnotationIndex.value = null
   }
 }, { immediate: true })
