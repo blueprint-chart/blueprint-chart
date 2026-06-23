@@ -27,8 +27,8 @@ chart line-multi {
     highlight "India"
   }
 
-  scene "France holds the line" {
-    title = "France kept its top 1% share roughly flat"
+  scene "France's modest rise" {
+    title = "France's top 1% rose far less than the US or India"
     highlight "France"
   }
 }
