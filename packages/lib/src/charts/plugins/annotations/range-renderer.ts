@@ -22,8 +22,9 @@ export function renderRangeAnnotation(
   }
 
   const annG = g.append('g').attr('data-annotation-index', String(index))
-  if (ann.id) {
-    annG.attr('data-annotation-id', ann.id)
+  const annotationKey = ann.key ?? ann.id
+  if (annotationKey) {
+    annG.attr('data-annotation-id', annotationKey)
   }
   const rangeOrientation = ann.orientation ?? Orientation.Vertical
 

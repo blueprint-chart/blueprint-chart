@@ -64,8 +64,9 @@ export function renderPointAnnotation(
   }
 
   const annG = g.append('g').attr('data-annotation-index', String(index))
-  if (ann.id) {
-    annG.attr('data-annotation-id', ann.id)
+  const annotationKey = ann.key ?? ann.id
+  if (annotationKey) {
+    annG.attr('data-annotation-id', annotationKey)
   }
 
   const lineConfig = ann as { showLine?: boolean, showArrow?: boolean, lineStyle?: AnnotationLineStyle, lineWeight?: number, lineTargetDistance?: number, showCircle?: boolean, circleSize?: number, anchorDirection?: CompassDirection, textOffsetX?: number, textOffsetY?: number }

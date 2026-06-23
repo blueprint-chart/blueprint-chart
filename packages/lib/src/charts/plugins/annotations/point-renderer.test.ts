@@ -1,6 +1,7 @@
 import * as d3 from 'd3'
 import { describe, it, expect, afterEach } from 'vitest'
 import { renderPointAnnotation } from './point-renderer'
+import { AnnotationKind } from '../../../enums'
 import type { AnnotationContext } from './context'
 
 const WIDTH = 400
@@ -61,5 +62,14 @@ describe('renderPointAnnotation', () => {
     const { g, ctx } = setup()
     renderPointAnnotation(g, { target: 'B', text: 'peak', dy: -40 } as Ann, ctx, 0)
     expect(document.querySelector('.bc-annotation-line')).not.toBeNull()
+  })
+
+  it('uses the internal key for data-annotation-id', () => {
+    const { g, ctx } = setup()
+    const ann = { kind: AnnotationKind.Point, target: 'A', text: 'hi', key: 's0:0:point' } as Ann
+    renderPointAnnotation(g, ann, ctx, 0)
+    const annGEl = document.querySelector('[data-annotation-index="0"]')
+    expect(annGEl).not.toBeNull()
+    expect(annGEl!.getAttribute('data-annotation-id')).toBe('s0:0:point')
   })
 })
