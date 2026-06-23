@@ -1,6 +1,54 @@
 import { SortDirection } from '@blueprint-chart/lib'
+import type { AnnotationConfig } from '@blueprint-chart/lib'
 import { TransformType } from '../enums'
 import type { SceneOverride } from '@/composables/useScenes'
+
+export interface VisibleAnnotation {
+  config: AnnotationConfig
+  key: string
+  anchor: number
+}
+
+function repeatVisibleAt(anchor: number, repeat: number | 'always' | undefined, index: number): boolean {
+  if (index < anchor) {
+    return false
+  }
+  if (repeat === 'always') {
+    return true
+  }
+  const count = typeof repeat === 'number' ? repeat : 1
+  return index < anchor + count
+}
+
+/**
+ * Annotations visible at `activeIndex` under the `repeat` rule, each tagged with
+ * its anchor-correct internal key. Base annotations anchor at scene 0; a scene's
+ * annotations anchor at that scene's index. With no active scene (activeIndex < 0),
+ * all base annotations are returned.
+ */
+export function resolveVisibleAnnotations(
+  baseAnnotations: AnnotationConfig[],
+  scenes: SceneOverride[],
+  activeIndex: number,
+): VisibleAnnotation[] {
+  const result: VisibleAnnotation[] = []
+  baseAnnotations.forEach((config, i) => {
+    if (activeIndex < 0 || repeatVisibleAt(0, config.repeat, activeIndex)) {
+      result.push({ config, key: `base:${i}:${config.kind}`, anchor: 0 })
+    }
+  })
+  if (activeIndex >= 0) {
+    for (let j = 0; j <= activeIndex && j < scenes.length; j++) {
+      const anns = scenes[j].annotations ?? []
+      anns.forEach((config, i) => {
+        if (repeatVisibleAt(j, config.repeat, activeIndex)) {
+          result.push({ config, key: `s${j}:${i}:${config.kind}`, anchor: j })
+        }
+      })
+    }
+  }
+  return result
+}
 
 /**
  * Fold scenes 0..index into a single resolved override.
