@@ -25,7 +25,7 @@ chart bar-horizontal {
   }
 
   scene "Japan declining" {
-    title = "Japan's emissions have fallen 20% from their peak"
+    title = "Japan's emissions have fallen for over a decade"
     highlight "Japan"
   }
 
