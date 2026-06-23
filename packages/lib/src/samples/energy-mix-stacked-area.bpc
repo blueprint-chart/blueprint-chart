@@ -1,6 +1,6 @@
 chart area-stacked {
-  title = "Renewables rose from 18 % to 23 % of global energy since 2000"
-  description = "Share of primary energy by source, 2000–2023"
+  title = "Renewables' share of global energy has more than doubled since 2000"
+  description = "Share of global primary energy by source, 2000–2023"
   source = "Our World in Data"
   sourceUrl = "https://ourworldindata.org/energy-mix"
   stackPercent = true
@@ -8,11 +8,11 @@ chart area-stacked {
 
   data {
     series = "Coal","Oil","Gas","Renewables"
-    "2000" = 25,36,21,18
-    "2005" = 27,35,22,16
-    "2010" = 29,33,23,15
-    "2015" = 28,32,24,16
-    "2020" = 26,30,25,19
-    "2023" = 24,29,24,23
+    "2000" = 27456,43017,23994,2997
+    "2005" = 36201,47017,27439,3510
+    "2010" = 42016,48193,31593,4868
+    "2015" = 43695,51294,34780,6400
+    "2020" = 42316,49101,38704,8569
+    "2023" = 45319,54839,40151,10325
   }
 }
