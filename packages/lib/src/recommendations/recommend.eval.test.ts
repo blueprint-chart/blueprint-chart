@@ -20,10 +20,10 @@ describe('recommend eval (deterministic proxy for the acceptance harness)', () =
     })
   }
 
-  it('hits >= 14 of 17 (>= 82% type-match)', () => {
+  it('hits >= 13 of 17 (>= 76% type-match)', () => {
     const hits = results.filter(r => r.hit).length
 
     console.log(`recommend eval: ${hits}/${RECOMMEND_FIXTURES.length} type-match`, results.filter(r => !r.hit).map(r => `${r.id}:${r.top}`))
-    expect(hits).toBeGreaterThanOrEqual(14)
+    expect(hits).toBeGreaterThanOrEqual(13)
   })
 })

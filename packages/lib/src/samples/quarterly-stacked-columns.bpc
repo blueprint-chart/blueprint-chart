@@ -1,13 +1,15 @@
 chart column-stacked {
-  title = "Revenue climbed every quarter as the product mix held steady"
-  description = "Quarterly revenue in millions, 2024"
-  source = "Annual report"
+  title = "Natural gas and renewables pushed coal off the US power grid"
+  description = "Share of US electricity generation by source, percent"
+  source = "U.S. Energy Information Administration"
+  sourceUrl = "https://www.eia.gov/electricity"
+  stackMode = "percent"
 
   data {
-    series = "Hardware","Software","Services"
-    "Q1" = 120,85,45
-    "Q2" = 135,92,48
-    "Q3" = 128,98,52
-    "Q4" = 155,105,58
+    series = "Coal","Natural gas","Nuclear","Renewables"
+    "2010" = 45,24,20,10
+    "2015" = 33,33,20,13
+    "2020" = 19,39,20,20
+    "2023" = 16,43,19,21
   }
 }

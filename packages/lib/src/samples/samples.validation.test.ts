@@ -76,9 +76,7 @@ describe('sample .bpc files', () => {
         const source = ast.properties.find(p => p.key === 'source')
         expect(source, 'missing "source" property').toBeDefined()
 
-        const FICTIONAL_SAMPLES = new Set([
-          'quarterly-stacked-columns.bpc',
-        ])
+        const FICTIONAL_SAMPLES = new Set<string>([])
 
         if (!FICTIONAL_SAMPLES.has(file)) {
           const sourceUrl = ast.properties.find(p => p.key === 'sourceUrl')
