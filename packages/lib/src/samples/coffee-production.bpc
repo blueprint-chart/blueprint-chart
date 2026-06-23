@@ -7,7 +7,7 @@ chart bar-vertical {
 
   data {
     "Brazil" = 66.4
-    "Vietnam" = 29
+    "Vietnam" = 27.5
     "Colombia" = 11.4
     "Indonesia" = 9.9
     "Ethiopia" = 8.7

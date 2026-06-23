@@ -9,10 +9,10 @@ chart bar-multi {
   data {
     series = "Gold","Silver","Bronze"
     "USA" = 40,44,42
-    "China" = 38,32,18
-    "Japan" = 27,14,17
-    "Great Britain" = 22,21,22
-    "Australia" = 17,7,22
-    "France" = 16,20,23
+    "China" = 40,27,24
+    "Japan" = 20,12,13
+    "Great Britain" = 14,22,29
+    "Australia" = 18,19,16
+    "France" = 16,26,22
   }
 }

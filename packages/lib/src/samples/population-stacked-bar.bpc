@@ -3,6 +3,7 @@ chart bar-stacked {
   description = "Millions of people, 2023"
   source = "UN Population Division"
   sourceUrl = "https://population.un.org"
+  colorPalette = "London"
 
   data {
     series = "0-14","15-64","65+"

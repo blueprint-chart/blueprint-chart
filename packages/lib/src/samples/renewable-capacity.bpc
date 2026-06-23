@@ -3,6 +3,7 @@ chart bar-grouped {
   description = "Installed capacity in gigawatts (GW)"
   source = "IRENA"
   sourceUrl = "https://www.irena.org"
+  colorPalette = "Folklore"
 
   data {
     series = "Solar","Wind","Hydro"
