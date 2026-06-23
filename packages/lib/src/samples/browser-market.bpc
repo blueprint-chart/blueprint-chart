@@ -1,19 +1,41 @@
 chart donut {
-  title = "Chrome dominates with two-thirds of the desktop browser market"
-  description = "Worldwide, January 2025"
-  source = "StatCounter"
-  sourceUrl = "https://gs.statcounter.com"
-  colorPalette = "Heep"
+  title = "The richest 1% own as much wealth as the entire global middle class"
+  description = "Share of global wealth by group, 2021"
+  source = "World Inequality Report 2022"
+  sourceUrl = "https://wir2022.wid.world"
+  colorPalette = "Imperator"
   legendPosition = "right"
-  tooltips = true
   displayAsPercentage = true
+  tooltips = true
 
   data {
-    "Chrome" = 65.7
-    "Edge" = 13.1
-    "Safari" = 8.9
-    "Firefox" = 6.3
-    "Opera" = 3.1
-    "Others" = 2.9
+    "Top 1%" = 38
+    "Next 9%" = 38
+    "Middle 40%" = 22
+    "Bottom 50%" = 2
+  }
+
+  scene "Top 1% spotlight" {
+    title = "The top 1% hold 38% of all global wealth"
+    description = "Share of global wealth by group, 2021"
+    highlight "Top 1%"
+  }
+
+  scene "Bottom half" {
+    title = "The bottom half of humanity owns just 2%"
+    description = "Share of global wealth by group, 2021"
+    highlight "Bottom 50%"
+  }
+
+  scene "Income tells a softer story" {
+    title = "Income is concentrated too — but less than wealth"
+    description = "Share of global income by the same groups, 2021"
+    highlight "Top 1%"
+    data {
+      "Top 1%" = 19
+      "Next 9%" = 33
+      "Middle 40%" = 39
+      "Bottom 50%" = 9
+    }
   }
 }

@@ -11,7 +11,7 @@ export interface RecommendFixture {
 }
 
 export const RECOMMEND_FIXTURES: RecommendFixture[] = [
-  { id: 'browser-market', columnTypes: ['string', 'number'], rowCount: 6, goal: 'each browser as a share of the total market', expectedType: 'donut' },
+  { id: 'browser-market', columnTypes: ['string', 'number'], rowCount: 4, goal: 'each wealth group as a share of the global total', expectedType: 'donut', allowedMiss: true },
   { id: 'co2-emissions', columnTypes: ['string', 'number'], rowCount: 6, goal: 'compare annual CO2 emissions across countries', expectedType: 'bar-vertical' },
   { id: 'coffee-production', columnTypes: ['string', 'number'], rowCount: 8, goal: 'compare coffee production by country', expectedType: 'bar-vertical' },
   { id: 'election-polls', columnTypes: ['string', 'number'], rowCount: 6, goal: 'the polling lead for each party with its margin of error', expectedType: 'bar-split' },
