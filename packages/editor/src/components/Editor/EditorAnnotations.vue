@@ -219,20 +219,20 @@ const freeAnnotations = computed(() =>
     .filter(({ ann }) => ann.kind === AnnotationKind.Free),
 )
 
-function repeatMode(ann: AnnotationConfig): 'once' | 'always' | 'n' {
+function repeatMode(ann: AnnotationConfig): 'never' | 'always' | 'n' {
   if (ann.repeat === 'always') {
     return 'always'
   }
   if (typeof ann.repeat === 'number' && ann.repeat > 1) {
     return 'n'
   }
-  return 'once'
+  return 'never'
 }
 
 function repeatItems(ann: AnnotationConfig) {
   const mode = repeatMode(ann)
   return [
-    { key: 'once', text: 'Once', active: mode === 'once' },
+    { key: 'never', text: 'Never', active: mode === 'never' },
     { key: 'always', text: 'Always', active: mode === 'always' },
     { key: 'n', text: 'For N', active: mode === 'n' },
   ]

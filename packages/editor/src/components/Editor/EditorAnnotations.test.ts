@@ -52,11 +52,12 @@ describe('EditorAnnotations', () => {
       expect(w.text()).not.toContain('Always')
     })
 
-    it('shows Once/Always/For N when showRepeat is true and annotation is open', async () => {
+    it('shows Never/Always/For N when showRepeat is true and annotation is open', async () => {
       const w = mountWith([{ kind: AnnotationKind.Point, target: 'a', text: 't' }], true)
       // The forms start collapsed; open the first annotation by clicking its header
       const header = w.find('.stub-annotation-header')
       await header.trigger('click')
+      expect(w.text()).toContain('Never')
       expect(w.text()).toContain('Always')
     })
   })
