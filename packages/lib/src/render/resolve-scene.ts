@@ -171,10 +171,13 @@ export function resolveScene(
     ? convertAreaFills(fold.areaFills)
     : base.areaFills
 
-  // Collect base (anchor 0) + each scene's annotations (anchor = scene index),
-  // then keep only those whose repeat window covers this sceneIndex.
+  // Top-level annotations belong to the base chart — the first frame, before
+  // scene 0 — so they anchor at -1: with no repeat they show only on the base
+  // render (sceneIndex == null, handled above), `repeat = N` carries them into
+  // the first N-1 scenes, and `always` shows them in every scene. Scene
+  // annotations anchor at their own scene index.
   const anchored: AnchoredAnnotation[] = (def.annotations ?? []).map((config, i) => ({
-    anchor: 0,
+    anchor: -1,
     key: config.key ?? `base:${i}:${config.kind}`,
     config,
   }))

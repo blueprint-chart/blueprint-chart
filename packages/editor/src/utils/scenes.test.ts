@@ -76,9 +76,30 @@ describe('resolveVisibleAnnotations', () => {
     expect(resolveVisibleAnnotations([], scenes, 3).map(v => v.config.text)).toEqual(['always'])
   })
 
-  it('anchors base annotations at scene 0 under windowing', () => {
+  it('windows base annotations forward from the base frame', () => {
     const scenes = [annotatedScene([]), annotatedScene([])]
     expect(resolveVisibleAnnotations([point('persist', 'always')], scenes, 1).map(v => v.key)).toEqual(['base:0:point'])
     expect(resolveVisibleAnnotations([point('once')], scenes, 1)).toEqual([])
+  })
+
+  it('shows a base "Never" annotation only on the first (base) frame, not in scenes', () => {
+    // A top-level annotation belongs to the base chart — the first frame
+    // (activeIndex -1). With no repeat it shows there and nowhere else; it must
+    // not bleed into the declared scenes.
+    const scenes = [annotatedScene([]), annotatedScene([])]
+    expect(resolveVisibleAnnotations([point('once')], scenes, -1).map(v => v.key)).toEqual(['base:0:point'])
+    expect(resolveVisibleAnnotations([point('once')], scenes, 0)).toEqual([])
+    expect(resolveVisibleAnnotations([point('once')], scenes, 1)).toEqual([])
+  })
+
+  it('carries a base annotation into scenes by repeat (always everywhere, N for N frames)', () => {
+    const scenes = [annotatedScene([]), annotatedScene([])]
+    // always: base + every scene
+    expect(resolveVisibleAnnotations([point('a', 'always')], scenes, -1).map(v => v.key)).toEqual(['base:0:point'])
+    expect(resolveVisibleAnnotations([point('a', 'always')], scenes, 1).map(v => v.key)).toEqual(['base:0:point'])
+    // N=2: base frame + first scene only
+    expect(resolveVisibleAnnotations([point('n', 2)], scenes, -1).map(v => v.key)).toEqual(['base:0:point'])
+    expect(resolveVisibleAnnotations([point('n', 2)], scenes, 0).map(v => v.key)).toEqual(['base:0:point'])
+    expect(resolveVisibleAnnotations([point('n', 2)], scenes, 1)).toEqual([])
   })
 })

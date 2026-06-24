@@ -32,9 +32,14 @@ export function resolveVisibleAnnotations(
   activeIndex: number,
 ): VisibleAnnotation[] {
   const result: VisibleAnnotation[] = []
+  // Top-level annotations belong to the base chart, which is the first frame
+  // (the editor's base/intro step, activeIndex -1; the default render in an
+  // embed). So they anchor at -1: with no repeat they show only on that first
+  // frame, `repeat = N` carries them into the next N-1 scenes, and `always`
+  // shows them everywhere. With no scenes there is just the base frame.
   baseAnnotations.forEach((config, i) => {
-    if (activeIndex < 0 || repeatVisibleAt(0, config.repeat, activeIndex)) {
-      result.push({ config, key: `base:${i}:${config.kind}`, anchor: 0 })
+    if (repeatVisibleAt(-1, config.repeat, activeIndex)) {
+      result.push({ config, key: `base:${i}:${config.kind}`, anchor: -1 })
     }
   })
   if (activeIndex >= 0) {

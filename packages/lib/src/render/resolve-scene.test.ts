@@ -145,7 +145,7 @@ describe('resolveScene', () => {
     expect(resolveScene(def, 3).annotations.map(a => a.text)).toEqual([])
   })
 
-  it('anchors top-level annotations at scene 0', () => {
+  it('top-level always annotation shows in every scene', () => {
     const def = makeDef({
       annotations: convertAnnotations([ann('top', 'banner', 'true')]),
       scenes: [makeScene([]), makeScene([])],
@@ -153,12 +153,25 @@ describe('resolveScene', () => {
     expect(resolveScene(def, 1).annotations.map(a => a.text)).toEqual(['banner'])
   })
 
-  it('top-level repeat=false annotation shows only in scene 0', () => {
+  it('top-level repeat=false annotation shows only on the base frame, not in scenes', () => {
+    // A top-level annotation belongs to the base chart (the first frame).
+    // With no repeat it shows only there (sceneIndex == null), never in a scene.
     const def = makeDef({
       annotations: convertAnnotations([ann('top', 'once')]),
       scenes: [makeScene([]), makeScene([])],
     })
-    expect(resolveScene(def, 0).annotations.map(a => a.text)).toEqual(['once'])
+    expect(resolveScene(def, undefined).annotations.map(a => a.text)).toEqual(['once'])
+    expect(resolveScene(def, 0).annotations.map(a => a.text)).toEqual([])
+    expect(resolveScene(def, 1).annotations.map(a => a.text)).toEqual([])
+  })
+
+  it('top-level repeat=N annotation carries from the base frame into the first N-1 scenes', () => {
+    const def = makeDef({
+      annotations: convertAnnotations([ann('top', 'span', 2)]),
+      scenes: [makeScene([]), makeScene([])],
+    })
+    expect(resolveScene(def, undefined).annotations.map(a => a.text)).toEqual(['span'])
+    expect(resolveScene(def, 0).annotations.map(a => a.text)).toEqual(['span'])
     expect(resolveScene(def, 1).annotations.map(a => a.text)).toEqual([])
   })
 
