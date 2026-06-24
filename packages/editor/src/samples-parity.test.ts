@@ -4,6 +4,7 @@ import { useDslSync } from './composables/useDslSync'
 import { useChartConfig } from './composables/useChartConfig'
 import { useChartTypeOptions } from './composables/useChartTypeOptions'
 import { useScenes } from './composables/useScenes'
+import { resolveVisibleAnnotations } from '@/utils/scenes'
 
 function normalizeRandomIds(html: string): string {
   // The renderer generates per-call unique IDs like bc-clip-a1b2c3d4 and bc-arrow-HEX.
@@ -67,6 +68,13 @@ function renderLiveEquivalent(container: HTMLElement, dsl: string): void {
   const bg = resolveBackgroundColor(container)
   const chartOpts = buildChartOptions(currentOptions.value, bg)
 
+  const { scenes } = useScenes()
+  const annotations = resolveVisibleAnnotations(
+    config._base.annotations.value,
+    scenes.value,
+    -1,
+  ).map(v => ({ ...v.config, key: v.key }))
+
   renderer(container, data, {
     frame: undefined,
     sort: config.sort.value,
@@ -74,7 +82,7 @@ function renderLiveEquivalent(container: HTMLElement, dsl: string): void {
     colorizes: config.colorizes.value.length > 0 ? config.colorizes.value : undefined,
     highlights: config.highlights.value.length > 0 ? config.highlights.value : undefined,
     areaFills: config.areaFills.value.length > 0 ? config.areaFills.value : undefined,
-    annotations: config.annotations.value.length > 0 ? config.annotations.value : undefined,
+    annotations: annotations.length > 0 ? annotations : undefined,
     seriesOverrides: config.seriesOverrides.value.length > 0 ? config.seriesOverrides.value : undefined,
   })
 }

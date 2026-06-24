@@ -428,66 +428,34 @@ describe('useDslSync', () => {
       expect(free.y).toBe('80px')
     })
 
-    it('parses annotation id from DSL', () => {
-      const { applyDsl } = useDslSync()
-      applyDsl(`chart line {
-  annotation "2024-Q1" {
-    id = "abc12"
-    text = "Hello"
-  }
-}`)
-
-      const config = useChartConfig()
-      expect(config.annotations.value).toHaveLength(1)
-      const ann = config.annotations.value[0]
-      expect(ann.id).toBe('abc12')
-    })
-
-    it('parses range annotation id from DSL', () => {
-      const { applyDsl } = useDslSync()
-      applyDsl(`chart line {
-  range {
-    id = "rng01"
-    start = 0
-    end = 100
-  }
-}`)
-
-      const config = useChartConfig()
-      expect(config.annotations.value).toHaveLength(1)
-      const ann = config.annotations.value[0]
-      expect(ann.id).toBe('rng01')
-    })
-
-    it('parses free annotation (note) id from DSL', () => {
-      const { applyDsl } = useDslSync()
-      applyDsl(`chart line {
-  note {
-    id = "nt001"
-    text = "Note"
-    x = 50
-    y = 50
-  }
-}`)
-
-      const config = useChartConfig()
-      expect(config.annotations.value).toHaveLength(1)
-      const ann = config.annotations.value[0]
-      expect(ann.id).toBe('nt001')
-    })
-
-    it('parses annotation without id', () => {
+    it('parses annotation with repeat = true from DSL', () => {
       const { applyDsl } = useDslSync()
       applyDsl(`chart line {
   annotation "2024-Q1" {
     text = "Hello"
+    repeat = true
   }
 }`)
 
       const config = useChartConfig()
       expect(config.annotations.value).toHaveLength(1)
       const ann = config.annotations.value[0]
-      expect(ann.id).toBeUndefined()
+      expect(ann.repeat).toBe('always')
+    })
+
+    it('parses annotation with repeat = 3 from DSL', () => {
+      const { applyDsl } = useDslSync()
+      applyDsl(`chart line {
+  annotation "2024-Q1" {
+    text = "Hello"
+    repeat = 3
+  }
+}`)
+
+      const config = useChartConfig()
+      expect(config.annotations.value).toHaveLength(1)
+      const ann = config.annotations.value[0]
+      expect(ann.repeat).toBe(3)
     })
 
     it('clears annotations when not present', () => {
@@ -502,168 +470,12 @@ describe('useDslSync', () => {
     })
   })
 
-  describe('annotation visibility in scenes', () => {
-    it('parses hide-annotation directive in scene', () => {
-      const { applyDsl } = useDslSync()
-      applyDsl(`chart line {
-  annotation "2024-Q1" {
-    id = "abc12"
-    text = "Peak"
-  }
-
-  scene {
-    hide-annotation "abc12"
-  }
-}`)
-
-      const scenes = useScenes()
-      expect(scenes.scenes.value).toHaveLength(1)
-      expect(scenes.scenes.value[0].annotationVisibility).toBeDefined()
-      expect(scenes.scenes.value[0].annotationVisibility).toHaveLength(1)
-      expect(scenes.scenes.value[0].annotationVisibility![0]).toEqual({
-        action: 'hide',
-        kind: 'point',
-        id: 'abc12',
-      })
-    })
-
-    it('parses show-annotation directive in scene', () => {
-      const { applyDsl } = useDslSync()
-      applyDsl(`chart line {
-  annotation "2024-Q1" {
-    id = "abc12"
-    text = "Peak"
-  }
-
-  scene {
-    show-annotation "abc12"
-  }
-}`)
-
-      const scenes = useScenes()
-      expect(scenes.scenes.value).toHaveLength(1)
-      expect(scenes.scenes.value[0].annotationVisibility).toHaveLength(1)
-      expect(scenes.scenes.value[0].annotationVisibility![0]).toEqual({
-        action: 'show',
-        kind: 'point',
-        id: 'abc12',
-      })
-    })
-
-    it('parses hide-range directive in scene', () => {
-      const { applyDsl } = useDslSync()
-      applyDsl(`chart line {
-  range {
-    id = "rng01"
-    start = 0
-    end = 100
-  }
-
-  scene {
-    hide-range "rng01"
-  }
-}`)
-
-      const scenes = useScenes()
-      expect(scenes.scenes.value).toHaveLength(1)
-      expect(scenes.scenes.value[0].annotationVisibility).toHaveLength(1)
-      expect(scenes.scenes.value[0].annotationVisibility![0]).toEqual({
-        action: 'hide',
-        kind: 'range',
-        id: 'rng01',
-      })
-    })
-
-    it('parses hide-note directive in scene', () => {
-      const { applyDsl } = useDslSync()
-      applyDsl(`chart line {
-  note {
-    id = "nt001"
-    text = "Note"
-    x = 50
-    y = 50
-  }
-
-  scene {
-    hide-note "nt001"
-  }
-}`)
-
-      const scenes = useScenes()
-      expect(scenes.scenes.value).toHaveLength(1)
-      expect(scenes.scenes.value[0].annotationVisibility).toHaveLength(1)
-      expect(scenes.scenes.value[0].annotationVisibility![0]).toEqual({
-        action: 'hide',
-        kind: 'free',
-        id: 'nt001',
-      })
-    })
-
-    it('parses multiple visibility directives in scene', () => {
-      const { applyDsl } = useDslSync()
-      applyDsl(`chart line {
-  annotation "2024-Q1" {
-    id = "abc12"
-    text = "Peak"
-  }
-
-  range {
-    id = "rng01"
-    start = 0
-    end = 100
-  }
-
-  note {
-    id = "nt001"
-    text = "Note"
-    x = 50
-    y = 50
-  }
-
-  scene {
-    hide-annotation "abc12"
-    show-range "rng01"
-    hide-note "nt001"
-  }
-}`)
-
-      const scenes = useScenes()
-      expect(scenes.scenes.value).toHaveLength(1)
-      const vis = scenes.scenes.value[0].annotationVisibility!
-      expect(vis).toHaveLength(3)
-      expect(vis[0]).toEqual({ action: 'hide', kind: 'point', id: 'abc12' })
-      expect(vis[1]).toEqual({ action: 'show', kind: 'range', id: 'rng01' })
-      expect(vis[2]).toEqual({ action: 'hide', kind: 'free', id: 'nt001' })
-    })
-
-    it('round-trips annotation id through DSL parse and output', () => {
-      const { applyDsl } = useDslSync()
-      const dslInput = `chart line {
-  annotation "2024-Q1" {
-    id = "abc12"
-    text = "Peak"
-  }
-}`
-
-      const result = applyDsl(dslInput)
-      expect(result.success).toBe(true)
-
-      const config = useChartConfig()
-      expect(config.annotations.value).toHaveLength(1)
-      expect(config.annotations.value[0].id).toBe('abc12')
-
-      const { generateDsl } = useDslOutput()
-      expect(generateDsl()).toContain('id = "abc12"')
-    })
-  })
-
   describe('scene annotations', () => {
-    it('parses point annotation with id in scene', () => {
+    it('parses point annotation in scene', () => {
       const { applyDsl } = useDslSync()
       applyDsl(`chart line {
   scene {
     annotation "X" {
-      id = "p1"
       text = "Hello"
       showArrow = true
     }
@@ -675,17 +487,15 @@ describe('useDslSync', () => {
       expect(scenes.scenes.value[0].annotations).toHaveLength(1)
       const ann = scenes.scenes.value[0].annotations![0]
       expect(ann.kind).toBe('point')
-      expect(ann.id).toBe('p1')
       expect(ann.text).toBe('Hello')
       expect('showArrow' in ann && ann.showArrow).toBe(true)
     })
 
-    it('parses range annotation with id in scene', () => {
+    it('parses range annotation in scene', () => {
       const { applyDsl } = useDslSync()
       applyDsl(`chart line {
   scene {
     range {
-      id = "r1"
       start = 10
       end = 90
       bgColor = "#ccc"
@@ -698,19 +508,17 @@ describe('useDslSync', () => {
       expect(scenes.scenes.value[0].annotations).toHaveLength(1)
       const ann = scenes.scenes.value[0].annotations![0]
       expect(ann.kind).toBe('range')
-      expect(ann.id).toBe('r1')
       const range = ann as RangeAnnotationConfig
       expect(range.start).toBe(10)
       expect(range.end).toBe(90)
       expect(range.bgColor).toBe('#ccc')
     })
 
-    it('parses free annotation with id in scene', () => {
+    it('parses free annotation in scene', () => {
       const { applyDsl } = useDslSync()
       applyDsl(`chart line {
   scene {
     note {
-      id = "n1"
       text = "Note"
       x = 50
       y = 25
@@ -723,7 +531,6 @@ describe('useDslSync', () => {
       expect(scenes.scenes.value[0].annotations).toHaveLength(1)
       const ann = scenes.scenes.value[0].annotations![0]
       expect(ann.kind).toBe('free')
-      expect(ann.id).toBe('n1')
       const free = ann as FreeAnnotationConfig
       expect(free.text).toBe('Note')
       expect(free.x).toBe(50)
@@ -735,7 +542,6 @@ describe('useDslSync', () => {
       applyDsl(`chart line {
   scene {
     annotation "X" {
-      id = "p2"
       text = "Full"
       anchorDirection = NE
       textOffsetX = 10
@@ -759,7 +565,6 @@ describe('useDslSync', () => {
       const scenes = useScenes()
       const ann = scenes.scenes.value[0].annotations![0]
       expect(ann.kind).toBe('point')
-      expect(ann.id).toBe('p2')
       expect(ann.text).toBe('Full')
       expect('anchorDirection' in ann && ann.anchorDirection).toBe('NE')
       expect('textOffsetX' in ann && ann.textOffsetX).toBe(10)
@@ -783,7 +588,6 @@ describe('useDslSync', () => {
       applyDsl(`chart line {
   scene {
     range {
-      id = "r2"
       start = 5
       end = 95
       orientation = horizontal
@@ -800,7 +604,6 @@ describe('useDslSync', () => {
       const scenes = useScenes()
       const ann = scenes.scenes.value[0].annotations![0] as RangeAnnotationConfig
       expect(ann.kind).toBe('range')
-      expect(ann.id).toBe('r2')
       expect(ann.start).toBe(5)
       expect(ann.end).toBe(95)
       expect(ann.orientation).toBe('horizontal')
@@ -817,7 +620,6 @@ describe('useDslSync', () => {
       applyDsl(`chart line {
   scene {
     note {
-      id = "n2"
       text = "Full note"
       x = 10
       y = 80
@@ -831,7 +633,6 @@ describe('useDslSync', () => {
       const scenes = useScenes()
       const ann = scenes.scenes.value[0].annotations![0] as FreeAnnotationConfig
       expect(ann.kind).toBe('free')
-      expect(ann.id).toBe('n2')
       expect(ann.text).toBe('Full note')
       expect(ann.x).toBe(10)
       expect(ann.y).toBe(80)
@@ -840,33 +641,27 @@ describe('useDslSync', () => {
       expect(ann.textOutline).toBe(true)
     })
 
-    it('parses scene with annotations and visibility directives together', () => {
+    it('parses scene with base and scene annotations', () => {
       const { applyDsl } = useDslSync()
       applyDsl(`chart line {
   annotation "Base" {
-    id = "base1"
     text = "Base ann"
   }
 
   scene {
     annotation "SceneOnly" {
-      id = "s1"
       text = "Scene ann"
     }
-    hide-annotation "base1"
   }
 }`)
 
+      const config = useChartConfig()
       const scenes = useScenes()
+      expect(config._base.annotations.value).toHaveLength(1)
+      expect(config._base.annotations.value[0].text).toBe('Base ann')
       expect(scenes.scenes.value).toHaveLength(1)
       expect(scenes.scenes.value[0].annotations).toHaveLength(1)
-      expect(scenes.scenes.value[0].annotations![0].id).toBe('s1')
-      expect(scenes.scenes.value[0].annotationVisibility).toHaveLength(1)
-      expect(scenes.scenes.value[0].annotationVisibility![0]).toEqual({
-        action: 'hide',
-        kind: 'point',
-        id: 'base1',
-      })
+      expect(scenes.scenes.value[0].annotations![0].text).toBe('Scene ann')
     })
 
     it('scene annotations do not leak into base config', () => {
@@ -874,7 +669,6 @@ describe('useDslSync', () => {
       applyDsl(`chart line {
   scene {
     annotation "X" {
-      id = "p1"
       text = "Hello"
     }
   }
@@ -893,13 +687,11 @@ describe('useDslSync', () => {
       const { applyDsl } = useDslSync()
       applyDsl(`chart bar-horizontal {
   annotation "Japan" {
-    id = "537sb"
     text = "Japan note"
   }
 
   scene {
     annotation "India" {
-      id = "tha5f"
       text = "India note"
     }
   }
@@ -918,12 +710,10 @@ describe('useDslSync', () => {
       // Base annotation must be in the base section (before any scene block)
       const baseSection = output.split('scene {')[0]
       expect(baseSection).toContain('annotation "Japan"')
-      expect(baseSection).toContain('id = "537sb"')
 
       // Scene 0 must have its own annotation
       const sceneBlocks = output.split('scene {').slice(1)
       expect(sceneBlocks[0]).toContain('annotation "India"')
-      expect(sceneBlocks[0]).toContain('id = "tha5f"')
 
       // Re-parse the output
       const result = applyDsl(output)
@@ -933,16 +723,15 @@ describe('useDslSync', () => {
       const scenes = useScenes()
 
       expect(config._base.annotations.value).toHaveLength(1)
-      expect(config._base.annotations.value[0].id).toBe('537sb')
+      expect(config._base.annotations.value[0].text).toBe('Japan note')
       expect(scenes.scenes.value[0].annotations).toHaveLength(1)
-      expect(scenes.scenes.value[0].annotations![0].id).toBe('tha5f')
+      expect(scenes.scenes.value[0].annotations![0].text).toBe('India note')
     })
 
     it('base annotation + scene annotation both visible at later scene', () => {
       const { applyDsl } = useDslSync()
       applyDsl(`chart bar-horizontal {
   annotation "Japan" {
-    id = "537sb"
     text = "Japan note"
     showLine = true
     showArrow = true
@@ -950,7 +739,6 @@ describe('useDslSync', () => {
 
   scene {
     annotation "India" {
-      id = "tha5f"
       text = "India note"
       showLine = true
       showArrow = true
@@ -969,11 +757,11 @@ describe('useDslSync', () => {
 
       // Base should have Japan annotation
       expect(config._base.annotations.value).toHaveLength(1)
-      expect(config._base.annotations.value[0].id).toBe('537sb')
+      expect(config._base.annotations.value[0].text).toBe('Japan note')
 
       // Scene 0 should have India annotation
       expect(scenes.scenes.value[0].annotations).toHaveLength(1)
-      expect(scenes.scenes.value[0].annotations![0].id).toBe('tha5f')
+      expect(scenes.scenes.value[0].annotations![0].text).toBe('India note')
 
       // Scene 1 has no annotations of its own
       expect(scenes.scenes.value[1].annotations).toBeUndefined()
@@ -981,27 +769,25 @@ describe('useDslSync', () => {
       // resolveScene at scene 1 cascades scene 0's annotations
       const resolved = resolveScene(scenes.scenes.value, 1)!
       expect(resolved.annotations).toHaveLength(1)
-      expect(resolved.annotations![0].id).toBe('tha5f')
+      expect(resolved.annotations![0].text).toBe('India note')
 
       // Merged result (as the render does): base + cascaded scene annotations
       const base = config._base.annotations.value
       const sceneAnns = resolved.annotations ?? []
       const merged = [...base, ...sceneAnns]
       expect(merged).toHaveLength(2)
-      expect(merged.map(a => a.id)).toEqual(['537sb', 'tha5f'])
+      expect(merged.map(a => a.text)).toEqual(['Japan note', 'India note'])
     })
 
     it('annotations remain after navigating to scene then serializing DSL', () => {
       const { applyDsl } = useDslSync()
       applyDsl(`chart bar-horizontal {
   annotation "Japan" {
-    id = "537sb"
     text = "Japan note"
   }
 
   scene {
     annotation "India" {
-      id = "tha5f"
       text = "India note"
     }
   }
@@ -1021,11 +807,11 @@ describe('useDslSync', () => {
 
       // Verify base annotation is still accessible
       expect(config._base.annotations.value).toHaveLength(1)
-      expect(config._base.annotations.value[0].id).toBe('537sb')
+      expect(config._base.annotations.value[0].text).toBe('Japan note')
 
       // Verify scene 0's annotation is still there
       expect(scenes.scenes.value[0].annotations).toHaveLength(1)
-      expect(scenes.scenes.value[0].annotations![0].id).toBe('tha5f')
+      expect(scenes.scenes.value[0].annotations![0].text).toBe('India note')
 
       // Serialize DSL while scene 1 is active
       const { generateDsl } = useDslOutput()
@@ -1033,11 +819,9 @@ describe('useDslSync', () => {
 
       // Base annotation must survive
       expect(output).toContain('annotation "Japan"')
-      expect(output).toContain('id = "537sb"')
 
       // Scene 0 annotation must survive
       expect(output).toContain('annotation "India"')
-      expect(output).toContain('id = "tha5f"')
 
       // Re-parse and verify nothing was lost
       scenes.setActive(-1)
@@ -1045,94 +829,44 @@ describe('useDslSync', () => {
       expect(result.success).toBe(true)
 
       expect(config._base.annotations.value).toHaveLength(1)
-      expect(config._base.annotations.value[0].id).toBe('537sb')
+      expect(config._base.annotations.value[0].text).toBe('Japan note')
       expect(scenes.scenes.value[0].annotations).toHaveLength(1)
-      expect(scenes.scenes.value[0].annotations![0].id).toBe('tha5f')
+      expect(scenes.scenes.value[0].annotations![0].text).toBe('India note')
     })
 
-    it('exact user DSL: both annotations visible at scene 1', () => {
+    it('real-world DSL: both annotations visible at scene 1 via resolveVisibleAnnotations', () => {
       const { applyDsl } = useDslSync()
       const result = applyDsl(`chart bar-horizontal {
   title = "Internet Users by Country"
   description = "Millions of users, 2024"
   source = "ITU / World Bank"
-  colors = "#0693e3"
-  colorPalette = "Blueprint"
-  autoContrast = false
-  allowDarkMode = true
-  showVerticalAxis = true
-  verticalAxisDirection = "left"
-  showVerticalTicks = false
-  verticalLabelPosition = "auto"
-  verticalGridStyle = "none"
-  showHorizontalAxis = true
-  showHorizontalTicks = false
-  horizontalLabelPosition = "off"
-  horizontalGridStyle = "none"
-  horizontalScaleType = "linear"
-  valueLabels = true
-  valueLabelPosition = "auto"
-  tooltips = false
-  crosshair = false
-  crosshairDirection = "both"
-  crosshairStyle = "dashed"
-  crosshairColor = "#999"
 
   data {
     "China" = 1050
     "India" = 900
     "United States" = 312
-    "Indonesia" = 213
-    "Brazil" = 186
-    "Russia" = 130
     "Japan" = 118
-    "Nigeria" = 110
   }
 
   annotation "Japan" {
-    id = "537sb"
-    text = "Enter an annotation"
+    text = "Japan annotation"
     showLine = true
-    anchorDirection = center
-    textOffsetX = 221
-    textOffsetY = 8
     showArrow = true
   }
 
-  transform sort {
-    column = "value"
-    direction = "descending"
-  }
-
-  transform sort {
-    column = "value"
-    direction = "descending"
-  }
-
-  transform sort {
-    column = "value"
-    direction = descending
-  }
-
   scene {
-
     highlight "India" {
       color = "#9900ef"
     }
 
     annotation "India" {
-      id = "tha5f"
-      text = "Enter an annotation"
+      text = "India annotation"
       showLine = true
-      anchorDirection = center
-      textOffsetX = 65
-      textOffsetY = 119
       showArrow = true
     }
   }
 
   scene {
-
     highlight "China" {
       color = "#9900ef"
     }
@@ -1146,12 +880,10 @@ describe('useDslSync', () => {
 
       // Verify parsing
       expect(config._base.annotations.value).toHaveLength(1)
-      expect(config._base.annotations.value[0].id).toBe('537sb')
       expect(config._base.annotations.value[0]).toMatchObject({ kind: 'point', target: 'Japan' })
 
       expect(scenes.scenes.value).toHaveLength(2)
       expect(scenes.scenes.value[0].annotations).toHaveLength(1)
-      expect(scenes.scenes.value[0].annotations![0].id).toBe('tha5f')
       expect(scenes.scenes.value[0].annotations![0]).toMatchObject({ kind: 'point', target: 'India' })
 
       expect(scenes.scenes.value[1].annotations).toBeUndefined()
@@ -1163,20 +895,15 @@ describe('useDslSync', () => {
       const resolved = resolveScene(scenes.scenes.value, 1)!
       expect(resolved).not.toBeNull()
       expect(resolved.annotations).toHaveLength(1)
-      expect(resolved.annotations![0].id).toBe('tha5f')
+      expect(resolved.annotations![0]).toMatchObject({ kind: 'point', target: 'India' })
 
-      // Simulate what the render function does:
+      // Simulate what the render function does via resolveVisibleAnnotations:
+      // Both base (Japan) and cascaded scene 0 (India) annotations must be present at scene 1
       const baseAnnotations = config._base.annotations.value
-      const sceneAnnotations = resolved.annotations ?? []
-      const rawAnnotations = [...baseAnnotations, ...sceneAnnotations]
-      const annotations = resolved.hiddenAnnotationIds
-        ? rawAnnotations.filter(a => !a.id || !resolved.hiddenAnnotationIds!.has(a.id))
-        : rawAnnotations
-
-      // BOTH annotations must be present
-      expect(annotations).toHaveLength(2)
-      expect(annotations[0].id).toBe('537sb') // Japan (base)
-      expect(annotations[1].id).toBe('tha5f') // India (cascaded from scene 0)
+      const mergedAnnotations = [...baseAnnotations, ...(resolved.annotations ?? [])]
+      expect(mergedAnnotations).toHaveLength(2)
+      expect(mergedAnnotations[0]).toMatchObject({ kind: 'point', target: 'Japan' })
+      expect(mergedAnnotations[1]).toMatchObject({ kind: 'point', target: 'India' })
     })
   })
 
