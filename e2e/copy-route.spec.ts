@@ -29,7 +29,7 @@ test.describe('/#/copy?bpc64= deep-link', () => {
     expect(page.url()).toMatch(/#\/edit\/[a-zA-Z0-9]{11}\/visualize$/)
 
     // The hydrated chart's title should be rendered.
-    await expect(page.locator('text=Apple stock climbed 36 % through 2024').first()).toBeVisible()
+    await expect(page.locator('text=The US national debt has more than tripled since 2008').first()).toBeVisible()
   })
 
   test('redirects to homepage when the bpc64 query param is missing', async ({ page }) => {

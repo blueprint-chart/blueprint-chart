@@ -199,7 +199,7 @@ test.describe('Farm Compass — scene navigation', () => {
     await gotoFarmCompass(page)
     await goToScene(page, 9) // Scene 10 = "Jobs disappeared"
 
-    await expect(page.locator('.bc-frame-title')).toContainText('Seasonal farm workers')
+    await expect(page.locator('.bc-frame-title')).toContainText('Family farmers disappeared')
     const lines = page.locator('.bc-line')
     expect(await lines.count()).toBeGreaterThanOrEqual(2)
 
@@ -311,7 +311,7 @@ test.describe('Farm Compass — rapid navigation', () => {
 
     // After settling, scene 10 should render correctly
     await page.waitForTimeout(2000)
-    await expect(page.locator('.bc-frame-title')).toContainText('Seasonal farm workers')
+    await expect(page.locator('.bc-frame-title')).toContainText('Family farmers disappeared')
     const lines = page.locator('.bc-line')
     expect(await lines.count()).toBeGreaterThanOrEqual(2)
   })
@@ -334,8 +334,8 @@ test.describe('Farm Compass — rapid navigation', () => {
     // past the last transition is the only reliable settle signal.
     await page.waitForTimeout(2000)
 
-    // Final scene (#10) is line-multi: "Seasonal farm workers vanished"
-    await expect(page.locator('.bc-frame-title')).toContainText('Seasonal farm workers')
+    // Final scene (#10) is line-multi: "Family farmers disappeared..."
+    await expect(page.locator('.bc-frame-title')).toContainText('Family farmers disappeared')
 
     // Exactly one live frame in the DOM.
     expect(await page.locator('.bc-frame').count()).toBe(1)
