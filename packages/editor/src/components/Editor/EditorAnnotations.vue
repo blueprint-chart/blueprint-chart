@@ -28,24 +28,26 @@
               :chart-width="chartWidth"
               @update:annotation="(v) => update(index, v)"
             />
-            <div
+            <BFormGroup
               v-if="showRepeat"
-              class="d-flex align-items-center gap-2"
+              label="Repeat"
             >
-              <NavigationSegmentedControl
-                :items="repeatItems(ann)"
-                aria-label="Repeat"
-                size="sm"
-                @select="key => setRepeat(index, key)"
-              />
-              <input
-                v-if="repeatMode(ann) === 'n'"
-                type="number"
-                min="2"
-                :value="typeof ann.repeat === 'number' ? ann.repeat : 2"
-                @input="e => setRepeatN(index, Number((e.target as HTMLInputElement).value))"
-              >
-            </div>
+              <div class="d-flex align-items-center gap-2">
+                <NavigationSegmentedControl
+                  :items="repeatItems(ann)"
+                  aria-label="Repeat"
+                  size="sm"
+                  @select="key => setRepeat(index, key)"
+                />
+                <input
+                  v-if="repeatMode(ann) === 'n'"
+                  type="number"
+                  min="2"
+                  :value="typeof ann.repeat === 'number' ? ann.repeat : 2"
+                  @input="e => setRepeatN(index, Number((e.target as HTMLInputElement).value))"
+                >
+              </div>
+            </BFormGroup>
           </template>
         </SectionCard>
       </div>
@@ -82,24 +84,26 @@
               :labels="labels"
               @update:annotation="(v) => update(index, v)"
             />
-            <div
+            <BFormGroup
               v-if="showRepeat"
-              class="d-flex align-items-center gap-2"
+              label="Repeat"
             >
-              <NavigationSegmentedControl
-                :items="repeatItems(ann)"
-                aria-label="Repeat"
-                size="sm"
-                @select="key => setRepeat(index, key)"
-              />
-              <input
-                v-if="repeatMode(ann) === 'n'"
-                type="number"
-                min="2"
-                :value="typeof ann.repeat === 'number' ? ann.repeat : 2"
-                @input="e => setRepeatN(index, Number((e.target as HTMLInputElement).value))"
-              >
-            </div>
+              <div class="d-flex align-items-center gap-2">
+                <NavigationSegmentedControl
+                  :items="repeatItems(ann)"
+                  aria-label="Repeat"
+                  size="sm"
+                  @select="key => setRepeat(index, key)"
+                />
+                <input
+                  v-if="repeatMode(ann) === 'n'"
+                  type="number"
+                  min="2"
+                  :value="typeof ann.repeat === 'number' ? ann.repeat : 2"
+                  @input="e => setRepeatN(index, Number((e.target as HTMLInputElement).value))"
+                >
+              </div>
+            </BFormGroup>
           </template>
         </SectionCard>
       </div>
@@ -136,24 +140,26 @@
               :chart-height="chartHeight"
               @update:annotation="(v) => update(index, v)"
             />
-            <div
+            <BFormGroup
               v-if="showRepeat"
-              class="d-flex align-items-center gap-2"
+              label="Repeat"
             >
-              <NavigationSegmentedControl
-                :items="repeatItems(ann)"
-                aria-label="Repeat"
-                size="sm"
-                @select="key => setRepeat(index, key)"
-              />
-              <input
-                v-if="repeatMode(ann) === 'n'"
-                type="number"
-                min="2"
-                :value="typeof ann.repeat === 'number' ? ann.repeat : 2"
-                @input="e => setRepeatN(index, Number((e.target as HTMLInputElement).value))"
-              >
-            </div>
+              <div class="d-flex align-items-center gap-2">
+                <NavigationSegmentedControl
+                  :items="repeatItems(ann)"
+                  aria-label="Repeat"
+                  size="sm"
+                  @select="key => setRepeat(index, key)"
+                />
+                <input
+                  v-if="repeatMode(ann) === 'n'"
+                  type="number"
+                  min="2"
+                  :value="typeof ann.repeat === 'number' ? ann.repeat : 2"
+                  @input="e => setRepeatN(index, Number((e.target as HTMLInputElement).value))"
+                >
+              </div>
+            </BFormGroup>
           </template>
         </SectionCard>
       </div>
