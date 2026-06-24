@@ -130,11 +130,11 @@ describe('resolveScene', () => {
     expect(resolveScene(def, 2).annotations.map(a => a.text)).toEqual(['persist'])
   })
 
-  it('shows a repeat=N annotation for exactly N scenes from its anchor', () => {
+  it('shows a repeat=N annotation for its own scene plus the next N', () => {
     const def = makeDef({
       scenes: [
         makeScene([]),
-        makeScene([ann('a', 'span', 2)]), // scenes 1 and 2
+        makeScene([ann('a', 'span', 1)]), // repeat=1 → scenes 1 and 2 (own + next 1)
         makeScene([]),
         makeScene([]),
       ],
@@ -165,9 +165,9 @@ describe('resolveScene', () => {
     expect(resolveScene(def, 1).annotations.map(a => a.text)).toEqual([])
   })
 
-  it('top-level repeat=N annotation carries from the base frame into the first N-1 scenes', () => {
+  it('top-level repeat=N carries from the base frame into the next N scenes', () => {
     const def = makeDef({
-      annotations: convertAnnotations([ann('top', 'span', 2)]),
+      annotations: convertAnnotations([ann('top', 'span', 1)]), // base + next 1 scene
       scenes: [makeScene([]), makeScene([])],
     })
     expect(resolveScene(def, undefined).annotations.map(a => a.text)).toEqual(['span'])

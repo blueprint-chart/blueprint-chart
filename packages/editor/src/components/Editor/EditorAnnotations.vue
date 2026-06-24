@@ -42,8 +42,8 @@
                 <input
                   v-if="repeatMode(ann) === 'n'"
                   type="number"
-                  min="2"
-                  :value="typeof ann.repeat === 'number' ? ann.repeat : 2"
+                  min="1"
+                  :value="typeof ann.repeat === 'number' ? ann.repeat : 1"
                   @input="e => setRepeatN(index, Number((e.target as HTMLInputElement).value))"
                 >
               </div>
@@ -98,8 +98,8 @@
                 <input
                   v-if="repeatMode(ann) === 'n'"
                   type="number"
-                  min="2"
-                  :value="typeof ann.repeat === 'number' ? ann.repeat : 2"
+                  min="1"
+                  :value="typeof ann.repeat === 'number' ? ann.repeat : 1"
                   @input="e => setRepeatN(index, Number((e.target as HTMLInputElement).value))"
                 >
               </div>
@@ -154,8 +154,8 @@
                 <input
                   v-if="repeatMode(ann) === 'n'"
                   type="number"
-                  min="2"
-                  :value="typeof ann.repeat === 'number' ? ann.repeat : 2"
+                  min="1"
+                  :value="typeof ann.repeat === 'number' ? ann.repeat : 1"
                   @input="e => setRepeatN(index, Number((e.target as HTMLInputElement).value))"
                 >
               </div>
@@ -223,7 +223,7 @@ function repeatMode(ann: AnnotationConfig): 'never' | 'always' | 'n' {
   if (ann.repeat === 'always') {
     return 'always'
   }
-  if (typeof ann.repeat === 'number' && ann.repeat > 1) {
+  if (typeof ann.repeat === 'number' && ann.repeat >= 1) {
     return 'n'
   }
   return 'never'
@@ -249,7 +249,7 @@ function setRepeat(index: number, key: string) {
   }
   else if (key === 'n') {
     const cur = model.value[index].repeat
-    updateAnnotation(index, { repeat: typeof cur === 'number' && cur > 1 ? cur : 2 })
+    updateAnnotation(index, { repeat: typeof cur === 'number' && cur >= 1 ? cur : 1 })
   }
   else {
     updateAnnotation(index, { repeat: undefined })
@@ -257,7 +257,7 @@ function setRepeat(index: number, key: string) {
 }
 
 function setRepeatN(index: number, value: number) {
-  updateAnnotation(index, { repeat: Math.max(2, Math.floor(value) || 2) })
+  updateAnnotation(index, { repeat: Math.max(1, Math.floor(value) || 1) })
 }
 
 function kindLabel(ann: AnnotationConfig): string {

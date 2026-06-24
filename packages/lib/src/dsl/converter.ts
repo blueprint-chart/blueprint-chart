@@ -197,23 +197,22 @@ export function convertAreaFills(nodes: AreaFillNode[]): AreaFillConfig[] {
 }
 
 /**
- * Read an annotation's `repeat` lifespan from its properties.
- * `true` → 'always'; `false`/absent → 1; a positive integer → itself.
+ * Read an annotation's `repeat` lifespan from its properties. `repeat` counts
+ * the EXTRA scenes the annotation carries into beyond its own:
+ * `true` → 'always'; `false`/absent → once (undefined, no extra); a positive
+ * integer N → N additional scenes (so the annotation shows on N+1 scenes total).
  * Out-of-range values are rejected upstream by validate.ts; this coerces defensively.
  */
-function readRepeat(props: Map<string, string | number | boolean>): number | 'always' {
+function readRepeat(props: Map<string, string | number | boolean>): number | 'always' | undefined {
   const raw = props.get('repeat')
-  if (raw === undefined) {
-    return 1
-  }
   if (raw === true || raw === 'true') {
     return 'always'
   }
-  if (raw === false || raw === 'false') {
-    return 1
+  if (raw === undefined || raw === false || raw === 'false') {
+    return undefined
   }
   const n = Number(raw)
-  return Number.isInteger(n) && n >= 1 ? n : 1
+  return Number.isInteger(n) && n >= 1 ? n : undefined
 }
 
 /**

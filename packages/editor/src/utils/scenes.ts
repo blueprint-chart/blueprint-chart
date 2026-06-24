@@ -9,6 +9,8 @@ export interface VisibleAnnotation {
   anchor: number
 }
 
+// `repeat` is the number of EXTRA frames beyond the annotation's own
+// (undefined/absent → 0 → shows once); visible across [anchor, anchor + extra].
 function repeatVisibleAt(anchor: number, repeat: number | 'always' | undefined, index: number): boolean {
   if (index < anchor) {
     return false
@@ -16,8 +18,8 @@ function repeatVisibleAt(anchor: number, repeat: number | 'always' | undefined, 
   if (repeat === 'always') {
     return true
   }
-  const count = typeof repeat === 'number' ? repeat : 1
-  return index < anchor + count
+  const extra = typeof repeat === 'number' ? repeat : 0
+  return index <= anchor + extra
 }
 
 /**

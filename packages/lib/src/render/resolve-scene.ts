@@ -98,14 +98,18 @@ function foldScenes(scenes: SceneNode[], index: number, baseChartType: string): 
   return fold
 }
 
-function repeatVisible(anchor: number, repeat: number | 'always', index: number): boolean {
+// `repeat` is the number of EXTRA frames an annotation carries into beyond its
+// own (undefined/absent → 0 → shows once). So it is visible across
+// [anchor, anchor + extra] inclusive.
+function repeatVisible(anchor: number, repeat: number | 'always' | undefined, index: number): boolean {
   if (index < anchor) {
     return false
   }
   if (repeat === 'always') {
     return true
   }
-  return index < anchor + repeat
+  const extra = typeof repeat === 'number' ? repeat : 0
+  return index <= anchor + extra
 }
 
 interface AnchoredAnnotation {
@@ -187,7 +191,7 @@ export function resolveScene(
     })
   }
   const annotations = anchored
-    .filter(({ anchor, config }) => repeatVisible(anchor, config.repeat ?? 1, sceneIndex))
+    .filter(({ anchor, config }) => repeatVisible(anchor, config.repeat, sceneIndex))
     .map(({ key, config }) => ({ ...config, key }))
 
   const seriesOverrides = fold.seriesOverrides.length > 0

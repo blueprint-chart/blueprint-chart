@@ -688,9 +688,9 @@ function pointNode(props: Record<string, string | number>) {
 }
 
 describe('convertAnnotations repeat', () => {
-  it('defaults repeat to 1 when omitted', () => {
+  it('leaves repeat undefined when omitted (shows once)', () => {
     const [a] = convertAnnotations([pointNode({ text: 'hi' })])
-    expect(a.repeat).toBe(1)
+    expect(a.repeat).toBeUndefined()
   })
 
   it('maps repeat = true to "always"', () => {
@@ -698,12 +698,12 @@ describe('convertAnnotations repeat', () => {
     expect(a.repeat).toBe('always')
   })
 
-  it('maps repeat = false to 1', () => {
+  it('leaves repeat undefined for repeat = false (shows once)', () => {
     const [a] = convertAnnotations([pointNode({ text: 'hi', repeat: 'false' })])
-    expect(a.repeat).toBe(1)
+    expect(a.repeat).toBeUndefined()
   })
 
-  it('keeps a positive integer repeat', () => {
+  it('keeps a positive integer repeat (extra scenes)', () => {
     const [a] = convertAnnotations([pointNode({ text: 'hi', repeat: 3 })])
     expect(a.repeat).toBe(3)
   })

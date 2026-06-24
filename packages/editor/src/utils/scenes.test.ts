@@ -70,7 +70,8 @@ describe('resolveVisibleAnnotations', () => {
   })
 
   it('windows true (always) and N correctly with scene keys', () => {
-    const scenes = [annotatedScene([point('always', 'always')]), annotatedScene([point('span', 2)]), annotatedScene([]), annotatedScene([])]
+    // span has repeat=1 → its own scene (s1) plus the next 1 (s2).
+    const scenes = [annotatedScene([point('always', 'always')]), annotatedScene([point('span', 1)]), annotatedScene([]), annotatedScene([])]
     expect(resolveVisibleAnnotations([], scenes, 0).map(v => v.key)).toEqual(['s0:0:point'])
     expect(resolveVisibleAnnotations([], scenes, 2).map(v => v.config.text)).toEqual(['always', 'span'])
     expect(resolveVisibleAnnotations([], scenes, 3).map(v => v.config.text)).toEqual(['always'])
@@ -92,14 +93,14 @@ describe('resolveVisibleAnnotations', () => {
     expect(resolveVisibleAnnotations([point('once')], scenes, 1)).toEqual([])
   })
 
-  it('carries a base annotation into scenes by repeat (always everywhere, N for N frames)', () => {
+  it('carries a base annotation into scenes by repeat (always everywhere, N = base + next N)', () => {
     const scenes = [annotatedScene([]), annotatedScene([])]
     // always: base + every scene
     expect(resolveVisibleAnnotations([point('a', 'always')], scenes, -1).map(v => v.key)).toEqual(['base:0:point'])
     expect(resolveVisibleAnnotations([point('a', 'always')], scenes, 1).map(v => v.key)).toEqual(['base:0:point'])
-    // N=2: base frame + first scene only
-    expect(resolveVisibleAnnotations([point('n', 2)], scenes, -1).map(v => v.key)).toEqual(['base:0:point'])
-    expect(resolveVisibleAnnotations([point('n', 2)], scenes, 0).map(v => v.key)).toEqual(['base:0:point'])
-    expect(resolveVisibleAnnotations([point('n', 2)], scenes, 1)).toEqual([])
+    // repeat=1: base frame + the next 1 scene (s0); not s1
+    expect(resolveVisibleAnnotations([point('n', 1)], scenes, -1).map(v => v.key)).toEqual(['base:0:point'])
+    expect(resolveVisibleAnnotations([point('n', 1)], scenes, 0).map(v => v.key)).toEqual(['base:0:point'])
+    expect(resolveVisibleAnnotations([point('n', 1)], scenes, 1)).toEqual([])
   })
 })

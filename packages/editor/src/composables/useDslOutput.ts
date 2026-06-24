@@ -13,7 +13,7 @@ function repeatLine(a: AnnotationConfig, indent: string): string {
   if (a.repeat === 'always') {
     return `${indent}repeat = true\n`
   }
-  if (typeof a.repeat === 'number' && a.repeat > 1) {
+  if (typeof a.repeat === 'number' && a.repeat >= 1) {
     return `${indent}repeat = ${a.repeat}\n`
   }
   return ''
