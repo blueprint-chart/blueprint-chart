@@ -106,7 +106,7 @@ chart donut {
 }
 ```
 
-::: info From `packages/lib/src/samples/browser-market.bpc`
+::: info A categorical palette at the 7-color limit
 Six unordered categories, so a categorical palette ("Heep") is the right tool — its hues vary in lightness, which means the donut survives a grayscale conversion. The rule "maximum 7 categorical colors" is exactly at the limit here.
 :::
 

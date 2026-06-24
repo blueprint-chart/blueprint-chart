@@ -152,9 +152,9 @@ make dev-docs     # these docs at http://localhost:4445
 The lib ships ~40 ready-to-run `.bpc` files under `packages/lib/src/samples/`. They double as canonical examples and as integration-test fixtures. A handful worth opening first:
 
 - `bitcoin-price.bpc` — single-series line with a brand colour, year-by-year diamond symbols, and an annotation on the 2021 peak.
-- `co2-emissions-story.bpc` — a bar chart with three scenes, each highlighting a different country to walk a reader through the same data.
-- `farm-compass.bpc` — a multi-scene narrative where later scenes swap the chart type (area → line → area-stacked) without rewriting the source.
-- `browser-market.bpc` — a donut driven by the named `Heep` palette, with right-anchored legend and percentage display.
+- `co2-emissions-story.bpc` — a bar chart with four scenes, each highlighting a different country to walk a reader through the same data.
+- `farm-compass.bpc` — a multi-scene narrative where later scenes swap the chart type (area-stacked → line → area → line-multi) without rewriting the source.
+- `browser-market.bpc` — a donut driven by the named `Imperator` palette, with right-anchored legend and percentage display.
 - `medal-count.bpc` — `bar-multi` with a gold / silver / bronze custom palette, sorted descending, top-anchored legend.
 - `temperature-anomaly.bpc` — single-series line tuned for dark mode (`autoContrast = false`, `allowDarkMode = true`) with a curved annotation calling out the 2015 Paris Agreement.
 

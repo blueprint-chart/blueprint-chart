@@ -10,26 +10,26 @@ A simple "highlight tour" — each scene swaps the title and emphasises one bar:
 
 ```bpc
 scene "China spotlight" {
-  title = "China emits more than the US and India combined"
+  title = "China alone emits more than the US and India together"
 
   highlight "China"
 }
 
 scene "India rising" {
-  title = "India surpassed the EU in 2023"
+  title = "India passed the EU to become the third-largest emitter"
 
   highlight "India"
 }
 
 scene "Japan declining" {
-  title = "Japan's emissions fell 20% from their peak"
+  title = "Japan's emissions have fallen since their 2013 peak"
 
   highlight "Japan"
 }
 ```
 
 ::: info From `packages/lib/src/samples/co2-emissions-story.bpc`
-Three scenes on a `bar-horizontal` chart. Each scene inherits the chart's data and styling, and only overrides what changes — `title` plus a `highlight` target.
+Three scenes from a `bar-horizontal` story. Each scene inherits the chart's data and styling, and only overrides what changes — `title` plus a `highlight` target.
 :::
 
 Scenes can also override the chart's **type** and **data** wholesale, switching from one visualisation to another mid-story:

@@ -26,19 +26,19 @@ title: Vertical bar chart
 chart bar-vertical {
   title = "Brazil produces more coffee than the next three countries combined"
   description = "Million 60-kg bags, 2023/24 crop year"
-  source = "International Coffee Organization"
-  sourceUrl = "https://ico.org"
+  source = "USDA Foreign Agricultural Service"
+  sourceUrl = "https://www.fas.usda.gov/data/coffee-world-markets-and-trade"
   colorPalette = "Harvey"
   valueLabels = true
   valueLabelPosition = "auto"
 
   data {
     "Brazil" = 66.4
-    "Vietnam" = 29
-    "Colombia" = 11.4
-    "Indonesia" = 9.9
-    "Ethiopia" = 8.7
-    "Honduras" = 6.3
+    "Vietnam" = 27.5
+    "Colombia" = 12.76
+    "Ethiopia" = 9.13
+    "Indonesia" = 7.65
+    "Honduras" = 5.5
   }
 
   colorize "Brazil" {

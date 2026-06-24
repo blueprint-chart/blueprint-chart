@@ -41,19 +41,19 @@ The short form `highlight "<name>"` (no body) is the common case — useful insi
 
 ```bpc
 scene "China spotlight" {
-  title = "China emits more than the US and India combined"
+  title = "China alone emits more than the US and India together"
 
   highlight "China"
 }
 
 scene "India rising" {
-  title = "India surpassed the EU in 2023"
+  title = "India passed the EU to become the third-largest emitter"
 
   highlight "India"
 }
 
 scene "Japan declining" {
-  title = "Japan's emissions fell 20% from their peak"
+  title = "Japan's emissions have fallen since their 2013 peak"
 
   highlight "Japan"
 }

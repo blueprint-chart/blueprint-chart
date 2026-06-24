@@ -74,11 +74,11 @@ chart bar-vertical {
 
   data {
     "Brazil" = 66.4
-    "Vietnam" = 29
-    "Colombia" = 11.4
-    "Indonesia" = 9.9
-    "Ethiopia" = 8.7
-    "Honduras" = 6.3
+    "Vietnam" = 27.5
+    "Colombia" = 12.76
+    "Ethiopia" = 9.13
+    "Indonesia" = 7.65
+    "Honduras" = 5.5
   }
 
   colorize "Brazil" {
@@ -92,7 +92,7 @@ chart bar-vertical {
 }
 ```
 
-::: info From `packages/lib/src/samples/coffee-production.bpc`
+::: info Adapted from `packages/lib/src/samples/coffee-production.bpc`
 Five bars stay in muted neutrals; the `colorize "Brazil"` block lifts the one bar the title is about. Direct labels carry the precise numbers by default, removing the need for a y-axis altogether, and gridlines drop out entirely. Restraint, purposefulness, and "start with grey" applied in a single chart.
 :::
 

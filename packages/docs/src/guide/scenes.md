@@ -12,51 +12,57 @@ Journalism rarely sits still on a single chart. A finding has a build-up, a turn
 
 ## Quickstart
 
-A bar chart with three narrative beats — each one highlights a different country:
+A bar chart with four narrative beats — the first three re-spotlight a different country, and the last reframes the same story per capita:
 
 ```bpc
 chart bar-horizontal {
-  title = "Five nations produce 80% of global CO₂"
+  title = "China emits more CO₂ than the US and India combined"
   description = "Annual emissions in billion tonnes, 2023"
-  source = "Global Carbon Project"
-  sourceUrl = "https://globalcarbonproject.org"
-  sort = descending
-  valueLabels = true
-  horizontalGridStyle = none
-  showVerticalAxis = true
-  showVerticalTicks = false
-  verticalGridStyle = none
+  source = "Our World in Data"
+  sourceUrl = "https://ourworldindata.org/co2-emissions"
+  byline = "Pierre Romera"
 
   data {
-    "China" = 11.90
-    "United States" = 4.78
-    "India" = 2.88
-    "Russia" = 1.78
-    "Japan" = 1.02
+    "China" = 12.17
+    "United States" = 4.92
+    "India" = 3.06
+    "Russia" = 1.73
+    "Japan" = 0.99
+    "Germany" = 0.59
   }
 
   scene "China spotlight" {
-    title = "China emits more than the US and India combined"
-
+    title = "China alone emits more than the US and India together"
     highlight "China"
   }
 
   scene "India rising" {
-    title = "India surpassed the EU in 2023"
-
+    title = "India passed the EU to become the third-largest emitter"
     highlight "India"
   }
 
   scene "Japan declining" {
-    title = "Japan's emissions fell 20% from their peak"
-
+    title = "Japan's emissions have fallen since their 2013 peak"
     highlight "Japan"
+  }
+
+  scene "Per capita reframe" {
+    title = "Per person, Gulf states dwarf the biggest emitters"
+    description = "CO₂ emissions per capita, tonnes per person, 2023"
+    highlight "Qatar"
+    data {
+      "Qatar" = 40.13
+      "United Arab Emirates" = 19.77
+      "United States" = 14.32
+      "China" = 8.56
+      "India" = 2.13
+    }
   }
 }
 ```
 
 ::: tip From the sample library
-This is `packages/lib/src/samples/co2-emissions-story.bpc` verbatim — three scenes, each one re-titling the chart and shifting the highlight to a new country. The base data stays the same; only the framing changes.
+This is `packages/lib/src/samples/co2-emissions-story.bpc` verbatim. The first three scenes keep the same base data and only shift the title and highlight; the fourth swaps in per-capita data for a closing reframe.
 :::
 
 Open this in the editor to see the scene timeline appear automatically; embed it on a page and readers get a Previous / Next nav.
@@ -82,13 +88,13 @@ The short-form `highlight "<name>"` is the workhorse. Drop one per scene and the
 
 ```bpc
 scene "China spotlight" {
-  title = "China emits more than the US and India combined"
+  title = "China alone emits more than the US and India together"
 
   highlight "China"
 }
 
 scene "India rising" {
-  title = "India surpassed the EU in 2023"
+  title = "India passed the EU to become the third-largest emitter"
 
   highlight "India"
 }
@@ -104,8 +110,8 @@ Any scene can carry its own `data` block, which **replaces** the base data for t
 
 ```bpc
 scene "Bulgaria: subsidies explode" {
-  title = "Subsidies to Bulgarian farmers, million euros"
-  description = "85% of Bulgarian subsidies are direct payments — the highest share among new members"
+  title = "Bulgarian farmers received almost nothing before 2007 accession"
+  description = "More than three-quarters of Bulgarian subsidies are direct payments — the highest share among new members"
 
   data {
     series = "Indirect subsidies","Direct subsidies"
@@ -145,7 +151,7 @@ scene "Bulgarian farms grew" {
 ```
 
 ::: tip From the sample library
-Scene #5 of `packages/lib/src/samples/farm-compass.bpc`. The story changes chart type three times across nine scenes — `area-stacked` → `line` → `area` → `area-stacked` → bar — all from one document.
+Scene #4 of `packages/lib/src/samples/farm-compass.bpc`. The story changes chart type four times across its nine scenes — `area-stacked` → `line` → `area` → `area-stacked` → `line-multi` — all from one document.
 :::
 
 ### Control how long an annotation stays

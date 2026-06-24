@@ -16,28 +16,26 @@ Pick a palette by name in a `.bpc` document:
 
 ```bpc
 chart donut {
-  title = "Chrome dominates with two-thirds of the desktop browser market"
-  description = "Worldwide, January 2025"
-  source = "StatCounter"
-  sourceUrl = "https://gs.statcounter.com"
-  colorPalette = "Heep"
+  title = "The richest 1% own more wealth than the entire bottom 90% combined"
+  description = "Share of global wealth by group, 2021"
+  source = "World Inequality Report 2022"
+  sourceUrl = "https://wir2022.wid.world"
+  colorPalette = "Imperator"
   legendPosition = "right"
-  tooltips = true
   displayAsPercentage = true
+  tooltips = true
 
   data {
-    "Chrome" = 65.7
-    "Edge" = 13.1
-    "Safari" = 8.9
-    "Firefox" = 6.3
-    "Opera" = 3.1
-    "Others" = 2.9
+    "Top 1%" = 38
+    "Next 9%" = 38
+    "Middle 40%" = 22
+    "Bottom 50%" = 2
   }
 }
 ```
 
 ::: tip From the sample library
-This is `packages/lib/src/samples/browser-market.bpc` — a donut chart driven entirely by the named `Heep` palette. Each slice picks up the next colour from the resolved palette array.
+Excerpted from `packages/lib/src/samples/browser-market.bpc` — a donut chart driven entirely by the named `Imperator` palette. Each slice picks up the next colour from the resolved palette array.
 :::
 
 Or pull the colours into TypeScript:

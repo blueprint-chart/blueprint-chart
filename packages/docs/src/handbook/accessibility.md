@@ -82,9 +82,9 @@ chart bar-vertical {
 
   data {
     "Brazil" = 66.4
-    "Vietnam" = 29
-    "Colombia" = 11.4
-    "Indonesia" = 9.9
+    "Vietnam" = 27.5
+    "Colombia" = 12.76
+    "Indonesia" = 7.65
   }
 
   colorize "Brazil" {
@@ -93,7 +93,7 @@ chart bar-vertical {
 }
 ```
 
-::: info From `packages/lib/src/samples/coffee-production.bpc`
+::: info Adapted from `packages/lib/src/samples/coffee-production.bpc`
 Coffee uses two encodings for the highlighted bar: a distinct hue (`#a4432d` red-brown vs. the muted Harvey palette) and clear *lightness* contrast against its neighbours. Convert the chart to greyscale and Brazil still reads as the darkest bar — the second encoding (lightness) carries the story even when CVD removes the first (hue). Compare with `valueLabels = true`, which adds a *third* encoding (the literal number).
 :::
 

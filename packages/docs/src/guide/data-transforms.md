@@ -23,11 +23,11 @@ chart bar-vertical {
 
   data {
     "Brazil" = 66.4
-    "Vietnam" = 29
-    "Colombia" = 11.4
-    "Indonesia" = 9.9
-    "Ethiopia" = 8.7
-    "Honduras" = 6.3
+    "Colombia" = 12.76
+    "Ethiopia" = 9.13
+    "Honduras" = 5.5
+    "Indonesia" = 7.65
+    "Vietnam" = 27.5
   }
 
   colorize "Brazil" {
@@ -42,7 +42,7 @@ chart bar-vertical {
 ```
 
 ::: tip From the sample library
-This is `packages/lib/src/samples/coffee-production.bpc` — the only sample currently shipping with a `transform` block. The data is authored in arbitrary order on disk; `transform sort` flips it to descending before the bar-vertical renderer reads it.
+Adapted from `packages/lib/src/samples/coffee-production.bpc`, the only sample currently shipping with a `transform` block. The rows are shown here unsorted; `transform sort` reorders them to descending before the bar-vertical renderer reads them.
 :::
 
 In the editor, the same pipeline is built interactively in the Data panel — each step appears as a card, can be reordered by drag, and is re-applied on every keystroke.

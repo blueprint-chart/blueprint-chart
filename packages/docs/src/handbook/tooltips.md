@@ -86,7 +86,7 @@ chart line-multi {
 }
 ```
 
-::: info From `packages/lib/src/samples/unemployment-rates.bpc`
+::: info Progressive disclosure without hiding the story
 The annotation carries the headline (`"Great Recession peak"`) so the chart stands on its own. `tooltips = true` plus `crosshair = true` then layer progressive disclosure on top: hover anywhere on the x-axis and a dashed vertical line aligns the cursor with all four series at once, while the tooltip shows the four percentages for that year. The essential story is never trapped behind a hover.
 :::
 

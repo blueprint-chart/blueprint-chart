@@ -108,7 +108,7 @@ chart donut {
 }
 ```
 
-::: info From `packages/lib/src/samples/browser-market.bpc`
+::: info When a donut fits
 Six categories summing to 100 % — the question is "how big a slice does Chrome own?" A donut answers it directly; a line chart cannot.
 :::
 
