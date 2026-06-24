@@ -1,3 +1,38 @@
+## [1.0.0](https://github.com/blueprint-chart/blueprint-chart/compare/v0.4.0...v1.0.0) (2026-06-24)
+
+### ⚠ BREAKING CHANGES
+
+* **annotation:** repeat = N means N additional scenes (own + next N)
+* **editor:** emit annotation repeat, drop id and visibility verbs from DSL output
+* **editor:** remove annotation visibility plumbing from scene model
+* **editor:** drop annotation visibility verbs from DSL grammar
+* **dsl:** remove annotation id property, validate repeat
+* **dsl:** remove annotation visibility verbs and AnnotationVisibility node
+
+### Features
+
+* **annotation:** repeat = N means N additional scenes (own + next N) ([13d0e2e](https://github.com/blueprint-chart/blueprint-chart/commit/13d0e2e2e910fde7b34d62cee414a224c546b173))
+* **annotations:** key transitions on internal annotation key ([1ece27d](https://github.com/blueprint-chart/blueprint-chart/commit/1ece27d44462e43f5e82ebf42ab78a2cb68c1ed1))
+* **dsl:** parse annotation repeat into AnnotationConfig ([6d79007](https://github.com/blueprint-chart/blueprint-chart/commit/6d79007076a6eae07d396aad54dd5ec57b652027))
+* **dsl:** remove annotation id property, validate repeat ([3c5b57e](https://github.com/blueprint-chart/blueprint-chart/commit/3c5b57e8870c066f4e9d0ad86b083e98137fe487))
+* **dsl:** remove annotation visibility verbs and AnnotationVisibility node ([0c99a52](https://github.com/blueprint-chart/blueprint-chart/commit/0c99a52a2d7385712863e2670e8a1255c626cda5))
+* **editor:** add annotation Repeat control, drop visibility toggle and id ([af329d8](https://github.com/blueprint-chart/blueprint-chart/commit/af329d8a01b901ed8b22a3613b9f835d66c4001b))
+* **editor:** add repeat-windowing helper resolveVisibleAnnotations ([c8b5d11](https://github.com/blueprint-chart/blueprint-chart/commit/c8b5d110a82795de7ba560c6d95e987632de2b60))
+* **editor:** drop annotation visibility verbs from DSL grammar ([79c2e91](https://github.com/blueprint-chart/blueprint-chart/commit/79c2e91ffbdcc1875cc1a60d67cee57ca5678ec1))
+* **editor:** emit annotation repeat, drop id and visibility verbs from DSL output ([36710b1](https://github.com/blueprint-chart/blueprint-chart/commit/36710b1e096b74cb3d4f17e9c78d5d5fcd408499))
+* **editor:** origin-grouped annotation editing with key-based selection ([de03d11](https://github.com/blueprint-chart/blueprint-chart/commit/de03d11820e403be25d77ec592f8ac8b582082e3))
+* **editor:** remove annotation visibility plumbing from scene model ([a0cf9e8](https://github.com/blueprint-chart/blueprint-chart/commit/a0cf9e808a5b4922f506f29f7e6275436aa90e19))
+* **editor:** window preview annotations by repeat ([31961f9](https://github.com/blueprint-chart/blueprint-chart/commit/31961f94b656b175700e799c07490a3ff5ba69df))
+* **render:** preserve caller-supplied annotation key in resolveScene ([ec7f258](https://github.com/blueprint-chart/blueprint-chart/commit/ec7f258d6f74d94108b6a0082124610b25393c9c))
+* **render:** resolve annotation visibility by repeat window ([b59e4c9](https://github.com/blueprint-chart/blueprint-chart/commit/b59e4c9439aa8839564b26b795bcbde3c6e20dd4))
+
+### Bug Fixes
+
+* **annotation:** anchor top-level annotations at the base/first frame ([4240c03](https://github.com/blueprint-chart/blueprint-chart/commit/4240c0337cb1fe0c7f064a57e731a37137697471))
+* **editor:** drag annotations by key, not index, in two-group tab ([0a46a5b](https://github.com/blueprint-chart/blueprint-chart/commit/0a46a5b3502cb30bb45ee6af8ff41da229581072))
+* **editor:** label the no-repeat annotation option "Never" not "Once" ([b6afd8e](https://github.com/blueprint-chart/blueprint-chart/commit/b6afd8e24925690404edbd9b562f87e5f91e4ed2))
+* **editor:** refresh MCP landing copy-link for updated letter-frequency sample ([20a66c4](https://github.com/blueprint-chart/blueprint-chart/commit/20a66c497de16d3f3a96c86055140b440b13cdc9))
+
 ## [0.4.0](https://github.com/blueprint-chart/blueprint-chart/compare/v0.3.0...v0.4.0) (2026-06-21)
 
 ### Features
