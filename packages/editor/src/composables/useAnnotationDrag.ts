@@ -42,11 +42,11 @@ export function useAnnotationDrag(
       return
     }
 
-    // Prefer lookup by annotation id (stable across hidden-annotation filtering)
-    // and fall back to index only when the annotation has no id.
-    const annId = ann.id
-    const annG = (annId
-      ? svg.querySelector(`g[data-annotation-id="${annId}"]`)
+    // Prefer lookup by annotation key (stable across hidden-annotation filtering)
+    // and fall back to index only when the annotation has no key.
+    const annKey = (ann as AnnotationConfig & { key?: string }).key
+    const annG = (annKey
+      ? svg.querySelector(`g[data-annotation-id="${annKey}"]`)
       : svg.querySelector(`g[data-annotation-index="${index}"]`)) as SVGGElement | null
     if (!annG) {
       return

@@ -1,8 +1,8 @@
-import type { EffectScope } from 'vue'
+import type { EffectScope, Ref } from 'vue'
 import type { AnnotationConfig } from '@blueprint-chart/lib'
 import { useAnnotationDrag, computeElbowPath, buildPathD, shortenToward, bboxEdgeToward } from './useAnnotationDrag'
 
-function makeSvgContainer(annotations: { id?: string, index: number }[]) {
+function makeSvgContainer(annotations: { id?: string, key?: string, index: number }[]) {
   const container = document.createElement('div')
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
   svg.setAttribute('width', '600')
@@ -10,8 +10,9 @@ function makeSvgContainer(annotations: { id?: string, index: number }[]) {
   for (const ann of annotations) {
     const g = document.createElementNS('http://www.w3.org/2000/svg', 'g')
     g.setAttribute('data-annotation-index', String(ann.index))
-    if (ann.id) {
-      g.setAttribute('data-annotation-id', ann.id)
+    const annotationId = ann.key ?? ann.id
+    if (annotationId) {
+      g.setAttribute('data-annotation-id', annotationId)
     }
     const text = document.createElementNS('http://www.w3.org/2000/svg', 'text')
     text.classList.add('bc-annotation-text')
@@ -198,34 +199,34 @@ describe('useAnnotationDrag', () => {
     vi.restoreAllMocks()
   })
 
-  it('finds annotation by data-annotation-id when id is present', async () => {
+  it('finds annotation by data-annotation-id when key is present', async () => {
     // Simulate filtered SVG: annotations at SVG indices 0 and 1,
     // but the editor list has 3 annotations (index 1 is hidden).
-    // The selected annotation (index 2 in editor) has id "china" and
+    // The selected annotation (index 2 in editor) has key "base:2:point" and
     // appears at SVG index 1.
     const container = makeSvgContainer([
-      { id: 'japan', index: 0 },
-      { id: 'china', index: 1 },
+      { key: 'base:0:point', index: 0 },
+      { key: 'base:2:point', index: 1 },
     ])
 
     const containerRef = ref<HTMLElement | null>(container)
-    const annotations = ref<AnnotationConfig[]>([
-      { kind: 'point', target: 'Japan', text: 'Japan', id: 'japan' },
-      { kind: 'point', target: 'India', text: 'India', id: 'india' },
-      { kind: 'point', target: 'China', text: 'China', id: 'china' },
+    const annotations = ref<(AnnotationConfig & { key?: string })[]>([
+      { kind: 'point', target: 'Japan', text: 'Japan', key: 'base:0:point' },
+      { kind: 'point', target: 'India', text: 'India', key: 'base:1:point' },
+      { kind: 'point', target: 'China', text: 'China', key: 'base:2:point' },
     ])
     const selectedIndex = ref<number | null>(null)
     const onUpdate = vi.fn()
 
-    scope.run(() => useAnnotationDrag(containerRef, annotations, selectedIndex, onUpdate))
+    scope.run(() => useAnnotationDrag(containerRef, annotations as Ref<AnnotationConfig[]>, selectedIndex, onUpdate))
 
-    // Select index 2 (China) — SVG has it at index 1 but with id "china"
+    // Select index 2 (China) — SVG has it at index 1 but with key "base:2:point"
     selectedIndex.value = 2
     await flush()
 
-    // The overlay should be created on the correct element (found by id, not index)
+    // The overlay should be created on the correct element (found by key, not index)
     const svg = container.querySelector('svg')!
-    const chinaG = svg.querySelector('g[data-annotation-id="china"]')!
+    const chinaG = svg.querySelector('g[data-annotation-id="base:2:point"]')!
     const overlay = chinaG.querySelector('rect')
     expect(overlay).toBeTruthy()
     expect(overlay!.style.cursor).toBe('grab')

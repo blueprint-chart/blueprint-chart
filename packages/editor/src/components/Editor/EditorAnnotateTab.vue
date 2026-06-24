@@ -103,10 +103,12 @@ const seriesNames = computed(() => parsed.value.series?.map(s => s.name) ?? [])
 const baseAnnotationsRef = ref<InstanceType<typeof EditorAnnotations> | null>(null)
 const sceneAnnotationsRef = ref<InstanceType<typeof EditorAnnotations> | null>(null)
 
-// Combined read surface for drag: base first, then scene annotations
+// Combined read surface for drag: base first, then scene annotations.
+// Attach anchor-correct keys matching the preview/lib format so useAnnotationDrag
+// can look up SVG elements via data-annotation-id instead of an unreliable index.
 const allAnnotations = computed(() => [
-  ...baseAnnotations.value,
-  ...sceneAnnotations.value,
+  ...baseAnnotations.value.map((a, i) => ({ ...a, key: `base:${i}:${a.kind}` })),
+  ...sceneAnnotations.value.map((a, i) => ({ ...a, key: `s${activeIndex.value}:${i}:${a.kind}` })),
 ])
 
 // selectedIndex tracks the currently open annotation across both groups.
@@ -150,17 +152,19 @@ onBeforeUnmount(() => resizeObserver?.disconnect())
 
 // Drag update: route by index position in the combined array.
 // Indices 0..(baseLen-1) map to the base group; the rest map to the scene group.
+// Strip the synthetic `key` added by allAnnotations before persisting.
 function handleDragUpdate(index: number, ann: AnnotationConfig) {
+  const { key: _key, ...clean } = ann as AnnotationConfig & { key?: string }
   const baseLen = baseAnnotations.value.length
   if (index < baseLen) {
     const copy = baseAnnotations.value.map(a => ({ ...a }))
-    copy[index] = ann
+    copy[index] = clean
     baseAnnotations.value = copy
   }
   else {
     const sceneIndex = index - baseLen
     const copy = sceneAnnotations.value.map(a => ({ ...a }))
-    copy[sceneIndex] = ann
+    copy[sceneIndex] = clean
     sceneAnnotations.value = copy
   }
 }
