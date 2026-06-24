@@ -1,6 +1,6 @@
 # DSL — Scenes & transforms
 
-Story-level constructs: **scenes** compose multiple visualisation states into a stepable narrative, and **transforms** describe data-pipeline operations applied before rendering. Scenes can override almost any chart member — including chart `type` and `data` — and add their own annotation-visibility verbs.
+Story-level constructs: **scenes** compose multiple visualisation states into a stepable narrative, and **transforms** describe data-pipeline operations applied before rendering. Scenes can override almost any chart member, including chart `type` and `data`. Annotation lifetime is controlled with the `repeat` property on the annotation itself.
 
 ## Scenes
 
@@ -68,14 +68,17 @@ scene "Cash crops replaced vegetables" {
 A "story" can transition between chart types — here from a stacked area to a single-series line, then to a different stacked area — by setting `type` and supplying fresh `data` inside the scene.
 :::
 
-Scenes accept the same member set as the top-level chart, **plus** annotation-visibility verbs:
+Scenes accept the same member set as the top-level chart.
 
-| Verb | Effect |
+Annotation lifetime is governed by the `repeat` property on each annotation, not by scene-level verbs:
+
+| Value | Meaning |
 | --- | --- |
-| `hide-annotation "<id>"` | Hide a point annotation set on the chart. |
-| `hide-range "<id>"` | Hide a range annotation. |
-| `hide-note "<id>"` | Hide a free / note annotation. |
-| `show-annotation "<id>"` / `show-range "<id>"` / `show-note "<id>"` | Re-show one previously hidden by an earlier scene. |
+| `repeat = false` (or omitted) | Show only in the scene where the annotation is declared (default). |
+| `repeat = N` | Show in the declaring scene plus the next `N` scenes, so `repeat = 1` spans 2 scenes and `repeat = 3` spans 4. `N` must be a positive integer. |
+| `repeat = true` | Show in the declaring scene and every scene after it. |
+
+A top-level annotation (declared on the chart, outside any scene) anchors at the base chart frame: with no `repeat` it shows only on that first frame, and `repeat` carries it forward into the following scenes.
 
 ## Transforms
 

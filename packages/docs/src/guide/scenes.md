@@ -63,7 +63,7 @@ Open this in the editor to see the scene timeline appear automatically; embed it
 
 ## How it works
 
-A scene block accepts the same member set as the top-level chart, **plus** annotation-visibility verbs. At parse time, each `scene` becomes a `SceneNode` in the AST. The DSL converter merges scene members on top of the base chart to produce the **effective** `ChartData` and `ChartOptions` for that scene.
+A scene block accepts the same member set as the top-level chart. At parse time, each `scene` becomes a `SceneNode` in the AST. The DSL converter merges scene members on top of the base chart to produce the **effective** `ChartData` and `ChartOptions` for that scene.
 
 At render time:
 
@@ -148,22 +148,40 @@ scene "Bulgarian farms grew" {
 Scene #5 of `packages/lib/src/samples/farm-compass.bpc`. The story changes chart type three times across nine scenes — `area-stacked` → `line` → `area` → `area-stacked` → bar — all from one document.
 :::
 
-### Hide an annotation in a later scene
+### Control how long an annotation stays
 
-Use `hide-annotation`, `hide-range`, or `hide-note` with the annotation's id to peel things back as the story progresses:
+By default an annotation shows only in the scene where it is declared. Use
+`repeat` to carry it into later scenes:
 
 ```bpc
-annotation "2015" {
-  id = "paris"
-  text = "Paris Agreement"
+scene "Crash" {
+  range {
+    start = 2008
+    end = 2009
+    text = "Financial crisis"
+    repeat = 1         // this scene plus the next one (2 scenes total)
+  }
 }
 
-scene "Without Paris callout" {
-  hide-annotation "paris"
+scene "Recovery" {
+  annotation "2015" {
+    text = "Paris Agreement"
+    repeat = true      // this scene and every scene after it
+  }
 }
 ```
 
-To bring it back later, use `show-annotation "paris"` in a subsequent scene.
+`repeat` accepts three forms:
+
+- `false` or omitted (the default): show only in this scene.
+- a positive integer `N`: show in this scene plus the next `N` scenes, so
+  `repeat = 1` spans 2 scenes and `repeat = 3` spans 4.
+- `true`: show in this scene and every scene after it.
+
+A top-level annotation (declared on the chart itself, outside any scene)
+anchors at the base chart frame, the first thing a reader sees. With no
+`repeat` it appears only there; `repeat` carries it forward into the scenes
+that follow.
 
 ### Drive playback from your own UI
 
