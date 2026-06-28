@@ -86,7 +86,7 @@ graph TD
 claude mcp add blueprint-chart -- npx -y @blueprint-chart/mcp
 ```
 
-Full setup (Claude Desktop, Cursor) and the complete tool reference live in the [MCP repo](https://github.com/blueprint-chart/mcp).
+Copy-paste setup for every client (Claude Code, Claude Desktop, Cursor, Windsurf, Cline, VS Code) lives in the [**Authoring with AI** guide](https://docs.blueprintchart.com/guide/mcp); the complete tool reference is in the [MCP repo](https://github.com/blueprint-chart/mcp).
 
 ## Prerequisites
 

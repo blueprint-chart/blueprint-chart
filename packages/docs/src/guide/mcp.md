@@ -85,6 +85,28 @@ claude mcp add blueprint-chart -- npx -y @blueprint-chart/mcp
 }
 ```
 
+```json [Windsurf]
+{
+  "mcpServers": {
+    "blueprint-chart": {
+      "command": "npx",
+      "args": ["-y", "@blueprint-chart/mcp"]
+    }
+  }
+}
+```
+
+```json [Cline]
+{
+  "mcpServers": {
+    "blueprint-chart": {
+      "command": "npx",
+      "args": ["-y", "@blueprint-chart/mcp"]
+    }
+  }
+}
+```
+
 :::
 
 Any other MCP client works too — run `npx -y @blueprint-chart/mcp` over stdio and drop it into
