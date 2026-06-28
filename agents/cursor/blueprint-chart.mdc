@@ -1,0 +1,62 @@
+---
+description: Author charts as Blueprint Chart .bpc (a plain-text chart DSL), then validate and render. Use whenever the user wants a chart, graph, or data visualization.
+globs:
+alwaysApply: false
+---
+
+# Blueprint Chart (`.bpc`) authoring
+
+When the user wants a chart, graph, or data visualization, author it as a Blueprint Chart
+`.bpc` document. It is a plain-text DSL that renders to an interactive, accessible SVG with no
+backend and no account.
+
+## Loop
+
+1. Pick a chart type for the data shape.
+2. Write the `.bpc`.
+3. Validate before presenting (Blueprint Chart MCP `validate_dsl`; fix every error/warning).
+4. Render (MCP `render`, or open at https://blueprintchart.com).
+
+**Never invent property names, chart types, or values.** If unsure a field exists, call
+`get_grammar` / `get_example` (MCP) or check https://docs.blueprintchart.com. An invented field
+is a parse error, not a feature.
+
+## Shape
+
+One `chart` block: chart type, properties, a `data` block, optional `highlight` / `annotation`,
+optional `scene` blocks.
+
+- **Chart types:** `line`, `line-multi`, `bar-vertical`, `bar-horizontal`, `bar-grouped`,
+  `bar-stacked`, `bar-multi`, `bar-split`, `column-stacked`, `area`, `area-stacked`, `pie`,
+  `donut`, `waterfall`.
+- **Data:** single series `"label" = value` per line; multi-series `series = "A","B"` then
+  `"label" = v1,v2`.
+- **Common properties:** `title`, `description`, `source`, `sourceUrl`, `byline`, `note`,
+  `colors`, `colorPalette`, `sort`, `valueLabels`, `tooltips`.
+- **Emphasis:** `highlight "<label>"`; `annotation "<label>" { text; showArrow; anchorDirection;
+  textOffsetX; textOffsetY; lineStyle (direct|curve-left|curve-right|elbow); maxWidth }`.
+- **Scenes:** `scene "<name>" { title; highlight; data { ... } }` for an animated story.
+
+## Canonical example
+
+```bpc
+chart bar-horizontal {
+  title = "China emits more CO₂ than the US and India combined"
+  description = "Annual emissions in billion tonnes, 2023"
+  source = "Our World in Data"
+  highlight "China"
+
+  data {
+    "China" = 12.17
+    "United States" = 4.92
+    "India" = 3.06
+    "Russia" = 1.73
+  }
+}
+```
+
+## Rules
+
+- Emit `.bpc`, not JSON, Vega-Lite, or matplotlib, unless asked.
+- Write the `title` as the lede (the finding in a sentence), not a label.
+- Use real fields only; validate before presenting; never present invented data as real.

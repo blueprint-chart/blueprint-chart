@@ -88,6 +88,8 @@ claude mcp add blueprint-chart -- npx -y @blueprint-chart/mcp
 
 Copy-paste setup for every client (Claude Code, Claude Desktop, Cursor, Windsurf, Cline, VS Code) lives in the [**Authoring with AI** guide](https://docs.blueprintchart.com/guide/mcp); the complete tool reference is in the [MCP repo](https://github.com/blueprint-chart/mcp).
 
+Drop-in rules and skills that teach AI tools to write `.bpc` (a Cursor rule, a Claude skill, a `CLAUDE.md` snippet) live in [`agents/`](agents/).
+
 ## Prerequisites
 
 - **Node 22** (matches CI)
