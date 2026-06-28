@@ -5,6 +5,33 @@
 </p>
 <p align="center"><strong>An open, plain-text chart format an AI can write and any browser can render. Self-contained, no backend, no account required.</strong></p>
 
+<p align="center">
+  <a href="https://blueprintchart.com"><strong>Try the live editor →</strong></a>&nbsp;&nbsp;·&nbsp;&nbsp;<a href="https://docs.blueprintchart.com">Docs</a>&nbsp;&nbsp;·&nbsp;&nbsp;<a href="#author-with-ai">Make charts with AI</a>
+</p>
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/blueprint-chart/blueprint-chart/main/packages/editor/public/blueprint-chart-demo.gif" alt="Paste a .bpc source and the browser renders an interactive chart" width="720">
+</p>
+
+Write a chart in plain text:
+
+```bpc
+chart bar-vertical {
+  title = "A chart in four lines"
+  data {
+    "Plain text" = 92
+    "No backend" = 88
+    "No account" = 95
+  }
+}
+```
+
+…or let an AI assistant write it for you:
+
+```bash
+claude mcp add blueprint-chart -- npx -y @blueprint-chart/mcp
+```
+
 <div align="center">
 
 |      | Status |
