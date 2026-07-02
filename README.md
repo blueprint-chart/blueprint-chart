@@ -172,6 +172,12 @@ make preview       # preview production editor build
 - `RELEASING.md` — release process and versioning
 - `docs/` — additional documentation
 
+## Privacy
+
+The hosted editor at [blueprintchart.com](https://blueprintchart.com) uses [Umami](https://umami.is), a cookieless, privacy-friendly analytics tool, to measure aggregate traffic such as pageviews, referrers, and countries. It sets no cookies, collects no personal data, and does no cross-site tracking, so no consent banner is needed. Visitors with Do Not Track enabled are not counted.
+
+Self-hosted copies and the npm-published bundle collect **nothing** by default. To add your own analytics to a self-hosted editor, add your own Umami (or equivalent) script tag to `index.html`.
+
 ## License
 
 See `LICENSE`.
