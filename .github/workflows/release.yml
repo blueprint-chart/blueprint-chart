@@ -125,6 +125,44 @@ jobs:
             --arg key "$SUPABASE_ANON_KEY" \
             '{supabaseUrl: $url, supabaseAnonKey: $key}' > config.json
           cat config.json
+      - name: Inject Umami analytics snippet
+        working-directory: pages
+        env:
+          UMAMI_WEBSITE_ID: ${{ vars.UMAMI_WEBSITE_ID }}
+        run: |
+          set -euo pipefail
+          if [ -z "${UMAMI_WEBSITE_ID:-}" ]; then
+            echo "UMAMI_WEBSITE_ID not set; skipping analytics injection."
+            exit 0
+          fi
+          node - "$UMAMI_WEBSITE_ID" <<'EOF'
+          const { readFileSync, writeFileSync } = require('node:fs')
+          const [websiteId] = process.argv.slice(2)
+          const file = 'index.html'
+          let html = readFileSync(file, 'utf8')
+          if (html.includes('data-website-id')) {
+            console.log('Umami snippet already present; skipping.')
+            process.exit(0)
+          }
+          const closeHead = html.indexOf('</head>')
+          if (closeHead === -1) {
+            console.error('No </head> found in index.html; cannot inject Umami.')
+            process.exit(1)
+          }
+          const snippet = [
+            '  <script defer',
+            '    src="https://cloud.umami.is/script.js"',
+            `    data-website-id="${websiteId}"`,
+            '    data-domains="blueprintchart.com"',
+            '    data-do-not-track="true"></script>',
+            '',
+          ].join('\n')
+          html = html.slice(0, closeHead) + snippet + html.slice(closeHead)
+          writeFileSync(file, html)
+          console.log('Injected Umami snippet.')
+          EOF
+          grep -q 'data-website-id' index.html
+          echo "Verified: Umami snippet present in index.html"
       - name: Commit and push
         working-directory: pages
         env:
