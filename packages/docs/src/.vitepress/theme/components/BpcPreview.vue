@@ -9,7 +9,7 @@
 // Safe to import statically at the top level (skipped during SSR) only because
 // BpcBlock.vue always renders this component inside <ClientOnly>.
 import { buildSrcdoc } from '@blueprint-chart/lib'
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 // Resolved to a fingerprinted asset URL by Vite; loaded INSIDE the iframe.
 import runtimeUrl from '@blueprint-chart/lib/embed-runtime.js?url'
 
@@ -18,30 +18,29 @@ const props = defineProps<{
 }>()
 
 const frame = ref<HTMLIFrameElement | null>(null)
+const height = ref(0)
+
+const srcdoc = computed(() => {
+  if (!props.source) {
+    return ''
+  }
+  // Resolve to an absolute URL so the srcdoc iframe (opaque origin) can load it.
+  const absoluteUrl = new URL(runtimeUrl, globalThis.location.href).href
+  return buildSrcdoc(props.source, absoluteUrl)
+})
 
 function onMessage(e: MessageEvent) {
   if (!frame.value || e.source !== frame.value.contentWindow) {
     return
   }
   if (e.data?.type === 'blueprint-chart-resize' && typeof e.data.height === 'number') {
-    frame.value.style.height = `${e.data.height}px`
+    height.value = e.data.height
   }
-}
-
-function render() {
-  if (!frame.value || !props.source) {
-    return
-  }
-  // Resolve to an absolute URL so the srcdoc iframe (opaque origin) can load it.
-  const absoluteUrl = new URL(runtimeUrl, globalThis.location.href).href
-  frame.value.srcdoc = buildSrcdoc(props.source, absoluteUrl)
 }
 
 onMounted(() => {
   globalThis.addEventListener('message', onMessage)
-  render()
 })
-watch(() => props.source, render)
 onBeforeUnmount(() => {
   globalThis.removeEventListener('message', onMessage)
 })
@@ -54,6 +53,8 @@ onBeforeUnmount(() => {
       class="bpc-preview__frame"
       title="Blueprint Chart preview"
       sandbox="allow-scripts"
+      :srcdoc="srcdoc"
+      :style="height ? { height: `${height}px` } : undefined"
     />
   </div>
 </template>
