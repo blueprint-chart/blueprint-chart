@@ -78,30 +78,42 @@ function processScript(script: HTMLScriptElement): void {
 }
 
 export function buildSrcdoc(dsl: string, runtimeUrl: string): string {
+  const runtimeScriptTag = runtimeUrl
+    ? `<script src="${escapeAttr(runtimeUrl)}"></script>`
+    : ''
+
+  const bootstrap = runtimeUrl
+    ? [
+        'try {',
+        '  window.BlueprintChart.renderBpc(document.getElementById("chart"), __BPC_SRC__);',
+        '}',
+        'catch (e) {',
+        '  parent.postMessage({ type: "blueprint-chart-error", message: String(e) }, "*");',
+        '}',
+      ]
+    : [
+        'parent.postMessage({ type: "blueprint-chart-error", message: "Blueprint Chart runtime URL unavailable" }, "*");',
+      ]
+
   return [
     '<!DOCTYPE html>',
     '<html><head>',
     `<style>${CHART_CSS}</style>`,
     '</head><body>',
     '<div id="chart" class="blueprint-chart-container"></div>',
-    `<script src="${escapeAttr(runtimeUrl)}"></script>`,
+    runtimeScriptTag,
     '<script>',
     `var __BPC_SRC__ = ${serializeForScript(dsl)};`,
     'function notifySize() {',
     '  var h = document.documentElement.scrollHeight;',
     '  parent.postMessage({ type: "blueprint-chart-resize", height: h }, "*");',
     '}',
-    'try {',
-    '  window.BlueprintChart.renderBpc(document.getElementById("chart"), __BPC_SRC__);',
-    '}',
-    'catch (e) {',
-    '  parent.postMessage({ type: "blueprint-chart-error", message: String(e) }, "*");',
-    '}',
+    ...bootstrap,
     'notifySize();',
     'new ResizeObserver(notifySize).observe(document.body);',
     '</' + 'script>',
     '</body></html>',
-  ].join('\n')
+  ].filter(Boolean).join('\n')
 }
 
 // Serialize a string as a safe JS string literal for inlining into a <script>.

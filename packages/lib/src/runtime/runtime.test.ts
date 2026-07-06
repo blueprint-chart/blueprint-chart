@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { initBlueprint, teardownBlueprint } from './runtime'
+import { initBlueprint, teardownBlueprint, buildSrcdoc } from './runtime'
 
 describe('initBlueprint', () => {
   beforeEach(() => {
@@ -70,20 +70,21 @@ describe('initBlueprint', () => {
   })
 
   it('sets srcdoc that loads the runtime and renders the DSL', () => {
-    document.body.innerHTML = `
-      <script type="application/blueprint-chart">chart bar { data { "A" = 10 } }</script>
-    `
-    initBlueprint()
-
-    const iframe = document.querySelector('.blueprint-chart-iframe') as HTMLIFrameElement
+    // Exercise buildSrcdoc directly with a real runtime URL: initBlueprint()
+    // relies on document.currentScript, which jsdom never populates, so it
+    // cannot be used here to test the "runtime URL known" path.
+    const srcdoc = buildSrcdoc(
+      'chart bar { data { "A" = 10 } }',
+      'https://example.com/blueprint-runtime.js',
+    )
     // Runtime bundle is loaded INSIDE the iframe via a script tag.
-    expect(iframe.srcdoc).toContain('<script src=')
+    expect(srcdoc).toContain('<script src=')
     // The bootstrap calls the global renderer on the inlined source.
-    expect(iframe.srcdoc).toContain('BlueprintChart.renderBpc')
+    expect(srcdoc).toContain('BlueprintChart.renderBpc')
     // The DSL is present (as a JS string literal).
-    expect(iframe.srcdoc).toContain('chart bar')
+    expect(srcdoc).toContain('chart bar')
     // The target container is present.
-    expect(iframe.srcdoc).toContain('blueprint-chart-container')
+    expect(srcdoc).toContain('blueprint-chart-container')
   })
 
   it('inlines the DSL as a JS string with < escaped so it cannot break out', () => {
@@ -118,6 +119,15 @@ describe('initBlueprint', () => {
     const iframe = document.querySelector('.blueprint-chart-iframe') as HTMLIFrameElement
     expect(iframe.srcdoc).toContain('<style>')
     expect(iframe.srcdoc).toContain('bc-frame-title')
+  })
+
+  // ── Empty runtime URL hardening ──────────────────────────────────
+
+  it('does not emit an empty-src script tag when runtimeUrl is empty', () => {
+    const srcdoc = buildSrcdoc('chart bar-vertical { data { "A" = 10 } }', '')
+
+    expect(srcdoc).not.toContain('src=""')
+    expect(srcdoc).toContain('blueprint-chart-error')
   })
 
   // ── Listener cleanup (L5) ────────────────────────────────────────
