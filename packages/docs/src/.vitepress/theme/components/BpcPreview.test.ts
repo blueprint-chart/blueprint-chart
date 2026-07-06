@@ -1,17 +1,24 @@
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
-import { nextTick } from 'vue'
+import { nextTick, ref } from 'vue'
 
 // The real IIFE URL import (`?url`) is not resolvable under vitest; stub it.
 vi.mock('@blueprint-chart/lib/embed-runtime.js?url', () => ({
   default: '/stub/lib.iife.js',
 }))
 
+// VitePress is not booted under vitest; stub useData so the component can read
+// the current theme. Light by default.
+vi.mock('vitepress', () => ({
+  useData: () => ({ isDark: ref(false) }),
+}))
+
 // Stub the narrow embed entry so the test does not pull the lib into the
-// runner. Mirror the real message contract the component depends on.
+// runner. Mirror the real message contract the component depends on. The
+// buildSrcdoc stub echoes the theme it receives so tests can assert theming.
 vi.mock('@blueprint-chart/lib/embed', () => ({
-  buildSrcdoc: (dsl: string, url: string) =>
-    `<!DOCTYPE html><script src="${url}"></script><script>BlueprintChart.renderBpc(x, ${JSON.stringify(dsl)})</script>`,
+  buildSrcdoc: (dsl: string, url: string, theme?: Record<string, string>) =>
+    `<!DOCTYPE html><script src="${url}"></script><style data-theme='${JSON.stringify(theme ?? {})}'></style><script>BlueprintChart.renderBpc(x, ${JSON.stringify(dsl)})</script>`,
   readResizeHeight: (data: unknown) =>
     (data as { type?: string, height?: unknown })?.type === 'blueprint-chart-resize'
     && typeof (data as { height?: unknown }).height === 'number'
@@ -37,6 +44,20 @@ describe('BpcPreview', () => {
     const absoluteRuntimeUrl = new URL('/stub/lib.iife.js', globalThis.location.href).href
     expect(srcdoc).toContain(absoluteRuntimeUrl)
     expect(srcdoc).toContain('chart bar')
+  })
+
+  it('passes the docs theme colors into buildSrcdoc', async () => {
+    const wrapper = mount(BpcPreview, {
+      props: { source: 'chart bar { data { "A" = 10 } }', active: true },
+    })
+    await nextTick()
+
+    const srcdoc = wrapper.get('iframe.bpc-preview__frame').attributes('srcdoc')!
+    // jsdom returns no value for the VitePress custom properties, so the
+    // component falls back to the light defaults; assert the theme object was
+    // threaded through to buildSrcdoc with the expected keys.
+    expect(srcdoc).toContain('frameBg')
+    expect(srcdoc).toContain('textColor')
   })
 
   it('keeps srcdoc empty until the preview tab is active', async () => {

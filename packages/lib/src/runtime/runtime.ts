@@ -96,10 +96,23 @@ function processScript(script: HTMLScriptElement): void {
   iframeHandlers.set(iframe, onMessage)
 }
 
-export function buildSrcdoc(dsl: string, runtimeUrl: string): string {
+/**
+ * CSS-variable overrides applied to the chart frame inside the iframe, so a
+ * host can theme the chart chrome (background, text, axis, grid) to match its
+ * own surface. Omit for the default light chrome. Data-mark colors come from
+ * the chart's palette and are not affected.
+ */
+export type EmbedTheme = 'light' | 'dark'
+
+export function buildSrcdoc(dsl: string, runtimeUrl: string, theme?: EmbedTheme): string {
   const runtimeScriptTag = runtimeUrl
     ? `<script src="${escapeAttr(runtimeUrl)}"></script>`
     : ''
+
+  // The chart owns its theme colors (see CHART_CSS). We only flip the switch:
+  // data-bs-theme="dark" activates the dark palette and, via the dark frame
+  // background, the renderer's resolveBackgroundColor adapts data marks too.
+  const htmlOpenTag = theme === 'dark' ? '<html data-bs-theme="dark">' : '<html>'
 
   const bootstrap = runtimeUrl
     ? [
@@ -116,7 +129,7 @@ export function buildSrcdoc(dsl: string, runtimeUrl: string): string {
 
   return [
     '<!DOCTYPE html>',
-    '<html><head>',
+    `${htmlOpenTag}<head>`,
     `<style>${CHART_CSS}</style>`,
     '</head><body>',
     '<div id="chart" class="blueprint-chart-container"></div>',

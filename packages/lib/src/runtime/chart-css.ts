@@ -192,4 +192,25 @@ body {
   margin: 0;
   overflow: hidden;
 }
+
+/* Dark theme: activated by data-bs-theme="dark" on the document (matching the
+   editor's convention). The chart owns these colors; the dark frame background
+   also drives the renderer's resolveBackgroundColor, so data-mark colors and
+   contrast labels adapt at render time. Scoped to .bc-frame so these override
+   the frame's own light --bc-frame-bg / --bc-text-color declarations (which are
+   set on .bc-frame and would otherwise shadow a document-level override). */
+[data-bs-theme="dark"] body {
+  /* color themes above-bar value labels (fill: currentColor). */
+  background: #1c1c1c;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+[data-bs-theme="dark"] .bc-frame {
+  --bc-frame-bg: #1c1c1c;
+  --bc-text-color: rgba(255, 255, 255, 0.9);
+  --bc-axis-color: rgba(255, 255, 255, 0.6);
+  --bc-grid-color: #333;
+
+  color: rgba(255, 255, 255, 0.9);
+}
 `
