@@ -46,6 +46,7 @@ export default [
         SVGGElement: 'readonly',
         MutationObserver: 'readonly',
         ResizeObserver: 'readonly',
+        IntersectionObserver: 'readonly',
         getComputedStyle: 'readonly',
         setTimeout: 'readonly',
         clearTimeout: 'readonly',

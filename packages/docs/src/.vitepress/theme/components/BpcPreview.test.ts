@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 
 // The real IIFE URL import (`?url`) is not resolvable under vitest; stub it.
@@ -15,6 +15,42 @@ vi.mock('@blueprint-chart/lib', () => ({
 
 import BpcPreview from './BpcPreview.vue'
 
+// jsdom does not implement IntersectionObserver, and the component relies on
+// it to defer srcdoc until the iframe is actually visible (see BpcPreview.vue
+// for why: the preview panel is hidden behind a v-show tab at mount, and
+// loading srcdoc while hidden yields a permanently zero-height iframe). Stub
+// it so `observe()` synchronously reports intersection, mirroring a real
+// visible iframe.
+type ObserverCallback = (entries: Array<{ isIntersecting: boolean }>) => void
+
+let fireOnObserve = true
+
+class StubIntersectionObserver {
+  #callback: ObserverCallback
+
+  constructor(callback: ObserverCallback) {
+    this.#callback = callback
+  }
+
+  observe() {
+    if (fireOnObserve) {
+      this.#callback([{ isIntersecting: true }])
+    }
+  }
+
+  disconnect() {}
+  unobserve() {}
+}
+
+beforeEach(() => {
+  fireOnObserve = true
+  vi.stubGlobal('IntersectionObserver', StubIntersectionObserver)
+})
+
+afterEach(() => {
+  vi.unstubAllGlobals()
+})
+
 describe('BpcPreview', () => {
   it('renders an iframe whose srcdoc loads the runtime and the source', async () => {
     const wrapper = mount(BpcPreview, { props: { source: 'chart bar { data { "A" = 10 } }' } })
@@ -27,6 +63,15 @@ describe('BpcPreview', () => {
     const absoluteRuntimeUrl = new URL('/stub/lib.iife.js', globalThis.location.href).href
     expect(srcdoc).toContain(absoluteRuntimeUrl)
     expect(srcdoc).toContain('chart bar')
+  })
+
+  it('keeps srcdoc empty until the iframe becomes visible', async () => {
+    fireOnObserve = false
+    const wrapper = mount(BpcPreview, { props: { source: 'chart bar { data { "A" = 10 } }' } })
+    await nextTick()
+
+    const iframe = wrapper.get('iframe.bpc-preview__frame')
+    expect(iframe.attributes('srcdoc')).toBe('')
   })
 
   it('sizes the iframe from a resize message', async () => {

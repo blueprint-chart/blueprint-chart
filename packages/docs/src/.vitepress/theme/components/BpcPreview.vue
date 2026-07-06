@@ -19,9 +19,16 @@ const props = defineProps<{
 
 const frame = ref<HTMLIFrameElement | null>(null)
 const height = ref(0)
+// Gates the first srcdoc write until the iframe actually has layout. The
+// BpcBlock preview panel is `v-show`n hidden behind the Code tab at mount, so
+// loading srcdoc immediately would measure `document.documentElement` at
+// zero size inside the iframe and never re-measure (no resize event fires
+// for a display:none -> block transition), leaving the chart clipped.
+const visible = ref(false)
+let observer: IntersectionObserver | null = null
 
 const srcdoc = computed(() => {
-  if (!props.source) {
+  if (!visible.value || !props.source) {
     return ''
   }
   // Resolve to an absolute URL so the srcdoc iframe (opaque origin) can load it.
@@ -40,9 +47,28 @@ function onMessage(e: MessageEvent) {
 
 onMounted(() => {
   globalThis.addEventListener('message', onMessage)
+
+  if (typeof IntersectionObserver === 'undefined') {
+    // No IntersectionObserver support: fall back to rendering immediately.
+    visible.value = true
+    return
+  }
+
+  observer = new IntersectionObserver((entries) => {
+    if (entries.some(entry => entry.isIntersecting)) {
+      visible.value = true
+      observer?.disconnect()
+      observer = null
+    }
+  })
+  if (frame.value) {
+    observer.observe(frame.value)
+  }
 })
 onBeforeUnmount(() => {
   globalThis.removeEventListener('message', onMessage)
+  observer?.disconnect()
+  observer = null
 })
 </script>
 
