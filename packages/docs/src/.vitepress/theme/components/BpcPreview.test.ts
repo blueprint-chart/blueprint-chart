@@ -15,10 +15,10 @@ vi.mock('vitepress', () => ({
 
 // Stub the narrow embed entry so the test does not pull the lib into the
 // runner. Mirror the real message contract the component depends on. The
-// buildSrcdoc stub echoes the theme it receives so tests can assert theming.
+// buildSrcdoc stub echoes the theme flag it receives so tests can assert it.
 vi.mock('@blueprint-chart/lib/embed', () => ({
-  buildSrcdoc: (dsl: string, url: string, theme?: Record<string, string>) =>
-    `<!DOCTYPE html><script src="${url}"></script><style data-theme='${JSON.stringify(theme ?? {})}'></style><script>BlueprintChart.renderBpc(x, ${JSON.stringify(dsl)})</script>`,
+  buildSrcdoc: (dsl: string, url: string, theme?: string) =>
+    `<!DOCTYPE html><html data-theme='${theme ?? ''}'><script src="${url}"></script><script>BlueprintChart.renderBpc(x, ${JSON.stringify(dsl)})</script>`,
   readResizeHeight: (data: unknown) =>
     (data as { type?: string, height?: unknown })?.type === 'blueprint-chart-resize'
     && typeof (data as { height?: unknown }).height === 'number'
@@ -46,18 +46,15 @@ describe('BpcPreview', () => {
     expect(srcdoc).toContain('chart bar')
   })
 
-  it('passes the docs theme colors into buildSrcdoc', async () => {
+  it('forces the current docs theme (light) via buildSrcdoc', async () => {
     const wrapper = mount(BpcPreview, {
       props: { source: 'chart bar { data { "A" = 10 } }', active: true },
     })
     await nextTick()
 
+    // useData is stubbed to isDark=false, so the light theme flag is forwarded.
     const srcdoc = wrapper.get('iframe.bpc-preview__frame').attributes('srcdoc')!
-    // jsdom returns no value for the VitePress custom properties, so the
-    // component falls back to the light defaults; assert the theme object was
-    // threaded through to buildSrcdoc with the expected keys.
-    expect(srcdoc).toContain('frameBg')
-    expect(srcdoc).toContain('textColor')
+    expect(srcdoc).toContain('data-theme=\'light\'')
   })
 
   it('keeps srcdoc empty until the preview tab is active', async () => {
