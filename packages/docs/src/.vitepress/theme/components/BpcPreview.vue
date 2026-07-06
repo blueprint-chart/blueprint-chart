@@ -6,6 +6,8 @@
 // iframe's own realm, so the chart is fully isolated from the VitePress page
 // CSS and every interactive feature (tooltips, scenes) is correctly scoped.
 
+// Safe to import statically at the top level (skipped during SSR) only because
+// BpcBlock.vue always renders this component inside <ClientOnly>.
 import { buildSrcdoc } from '@blueprint-chart/lib'
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 // Resolved to a fingerprinted asset URL by Vite; loaded INSIDE the iframe.
