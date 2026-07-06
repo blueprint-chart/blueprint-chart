@@ -37,6 +37,16 @@
       "browser": "./dist/node-backend/browser.js",
       "default": "./dist/node-backend/browser.js"
     },
+    "./embed": {
+      "types": "./dist/embed.d.ts",
+      "import": "./dist/embed.js",
+      "default": "./dist/embed.js"
+    },
+    "./runtime": {
+      "types": "./dist/runtime/index.d.ts",
+      "import": "./dist/runtime.js",
+      "default": "./dist/runtime.js"
+    },
     "./charts.scss": "./src/charts/chart.scss",
     "./src/charts/chart.scss": "./src/charts/chart.scss",
     "./embed-runtime.js": "./dist/lib/lib.iife.js"

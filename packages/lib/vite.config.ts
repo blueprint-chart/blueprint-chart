@@ -13,9 +13,17 @@ export default defineConfig({
   ],
   build: {
     lib: {
-      entry: 'src/index.ts',
+      // `index` is the full public API. `embed` is a narrow entry exposing only
+      // the srcdoc builder + message contract (so hosts building an embed iframe
+      // don't pull the chart engine). `runtime` is the ESM form of the embed
+      // runtime (initBlueprint / scene controllers) for module-form consumers.
+      entry: {
+        index: 'src/index.ts',
+        embed: 'src/embed.ts',
+        runtime: 'src/runtime/index.ts',
+      },
       formats: ['es'],
-      fileName: 'index',
+      fileName: (_format, entryName) => `${entryName}.js`,
     },
     rollupOptions: {
       external: [
