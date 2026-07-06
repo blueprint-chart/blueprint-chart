@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// Blueprint Chart — docs preview for a BPC fragment.
+// Blueprint Chart docs preview for a BPC fragment.
 //
 // Renders inside a sandboxed iframe using the SAME self-contained srcdoc the
 // production embed uses (`buildSrcdoc`). The chart runtime runs inside the
