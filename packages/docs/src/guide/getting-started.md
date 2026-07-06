@@ -89,7 +89,7 @@ From here you wire the `data` and `options` into the renderer of your choice —
 If you don't need the programmatic API, use the bundled runtime. It picks up every `<script type="application/blueprint-chart">` tag and replaces it with a sandboxed iframe containing the rendered chart.
 
 ```html
-<script src="https://unpkg.com/@blueprint-chart/lib/dist/runtime.iife.js"></script>
+<script src="https://unpkg.com/@blueprint-chart/lib/dist/lib/lib.iife.js"></script>
 
 <script type="application/blueprint-chart">
   chart donut {

@@ -1,34 +1,35 @@
 <script setup lang="ts">
 // Blueprint Chart docs preview for a BPC fragment.
 //
-// Renders inside a sandboxed iframe using the SAME self-contained srcdoc the
-// production embed uses (`buildSrcdoc`). The chart runtime runs inside the
+// Renders inside a sandboxed iframe using the same self-contained srcdoc the
+// production embed uses (buildSrcdoc). The chart runtime runs inside the
 // iframe's own realm, so the chart is fully isolated from the VitePress page
 // CSS and every interactive feature (tooltips, scenes) is correctly scoped.
 
+// The narrow `embed` entry exposes only the srcdoc builder + message contract,
+// so the docs bundle does not pull the chart engine (that runs in the iframe).
 // Safe to import statically at the top level (skipped during SSR) only because
 // BpcBlock.vue always renders this component inside <ClientOnly>.
-import { buildSrcdoc } from '@blueprint-chart/lib'
+import { buildSrcdoc, readResizeHeight, isErrorMessage } from '@blueprint-chart/lib/embed'
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 // Resolved to a fingerprinted asset URL by Vite; loaded INSIDE the iframe.
 import runtimeUrl from '@blueprint-chart/lib/embed-runtime.js?url'
 
 const props = defineProps<{
   source: string
+  // True when the preview tab is active. BpcBlock owns this fact; the iframe
+  // only builds its srcdoc once active so its first height measurement happens
+  // while it has layout (a preview built while hidden measures at zero and the
+  // resize observer never re-fires on a display:none -> block transition).
+  active?: boolean
 }>()
 
 const frame = ref<HTMLIFrameElement | null>(null)
 const height = ref(0)
-// Gates the first srcdoc write until the iframe actually has layout. The
-// BpcBlock preview panel is `v-show`n hidden behind the Code tab at mount, so
-// loading srcdoc immediately would measure `document.documentElement` at
-// zero size inside the iframe and never re-measure (no resize event fires
-// for a display:none -> block transition), leaving the chart clipped.
-const visible = ref(false)
-let observer: IntersectionObserver | null = null
+const errored = ref(false)
 
 const srcdoc = computed(() => {
-  if (!visible.value || !props.source) {
+  if (!props.active || !props.source) {
     return ''
   }
   // Resolve to an absolute URL so the srcdoc iframe (opaque origin) can load it.
@@ -40,35 +41,22 @@ function onMessage(e: MessageEvent) {
   if (!frame.value || e.source !== frame.value.contentWindow) {
     return
   }
-  if (e.data?.type === 'blueprint-chart-resize' && typeof e.data.height === 'number') {
-    height.value = e.data.height
+  const measured = readResizeHeight(e.data)
+  if (measured !== null) {
+    errored.value = false
+    height.value = measured
+    return
+  }
+  if (isErrorMessage(e.data)) {
+    errored.value = true
   }
 }
 
 onMounted(() => {
   globalThis.addEventListener('message', onMessage)
-
-  if (typeof IntersectionObserver === 'undefined') {
-    // No IntersectionObserver support: fall back to rendering immediately.
-    visible.value = true
-    return
-  }
-
-  observer = new IntersectionObserver((entries) => {
-    if (entries.some(entry => entry.isIntersecting)) {
-      visible.value = true
-      observer?.disconnect()
-      observer = null
-    }
-  })
-  if (frame.value) {
-    observer.observe(frame.value)
-  }
 })
 onBeforeUnmount(() => {
   globalThis.removeEventListener('message', onMessage)
-  observer?.disconnect()
-  observer = null
 })
 </script>
 
@@ -82,5 +70,11 @@ onBeforeUnmount(() => {
       :srcdoc="srcdoc"
       :style="height ? { height: `${height}px` } : undefined"
     />
+    <div
+      v-if="errored"
+      class="bpc-preview__error"
+    >
+      Could not render this preview. View the source instead.
+    </div>
   </div>
 </template>

@@ -232,8 +232,8 @@ Each `ChartSample` exposes:
 
 ```ts
 // Available only from the IIFE bundle (auto-initialized) or:
-import { initBlueprint, createSceneController, createStepController } from '@blueprint-chart/lib/dist/runtime'
-import type { SceneDefinition, SceneController, StepDefinition, StepController } from '@blueprint-chart/lib/dist/runtime'
+import { initBlueprint, createSceneController, createStepController } from '@blueprint-chart/lib/runtime'
+import type { SceneDefinition, SceneController, StepDefinition, StepController } from '@blueprint-chart/lib/runtime'
 ```
 
 | Symbol | Purpose |
@@ -278,13 +278,18 @@ Drop a BPC source into the page inside a typed `<script>` tag, then call `initBl
 </script>
 
 <script type="module">
-  import { initBlueprint } from '@blueprint-chart/lib/dist/runtime'
+  // Each chart renders inside a sandboxed iframe that reloads the standalone
+  // runtime bundle. In the IIFE form that URL is detected automatically; in the
+  // module form `document.currentScript` is null, so point the runtime at the
+  // IIFE bundle explicitly before calling initBlueprint().
+  globalThis.BLUEPRINT_CHART_RUNTIME_URL = 'https://unpkg.com/@blueprint-chart/lib/dist/lib/lib.iife.js'
+  import { initBlueprint } from '@blueprint-chart/lib/runtime'
   initBlueprint()
 </script>
 ```
 
 ::: info BPC source from `packages/lib/src/samples/bitcoin-price.bpc`
-The IIFE bundle (`@blueprint-chart/lib/dist/lib/lib.iife.js`) calls `initBlueprint()` for you on `DOMContentLoaded`. Import the module form when you want to control timing or re-initialize after DOM updates.
+The IIFE bundle (`@blueprint-chart/lib/dist/lib/lib.iife.js`) calls `initBlueprint()` for you on `DOMContentLoaded`. Import the module form when you want to control timing or re-initialize after DOM updates; set `globalThis.BLUEPRINT_CHART_RUNTIME_URL` to the IIFE bundle URL so each generated iframe can load the runtime.
 :::
 
 ## Versioning

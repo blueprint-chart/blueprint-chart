@@ -147,7 +147,10 @@ function activate(tab: 'code' | 'preview') {
         class="bpc-block__preview"
       >
         <ClientOnly>
-          <BpcPreview :source="source" />
+          <BpcPreview
+            :source="source"
+            :active="activeTab === 'preview'"
+          />
         </ClientOnly>
       </div>
     </div>

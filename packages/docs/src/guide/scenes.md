@@ -194,7 +194,7 @@ that follow.
 The controller is decoupled from the nav DOM it inserts — you can ignore the built-in buttons and call `next()`, `previous()`, or `goTo(index)` from any custom UI:
 
 ```ts
-import { createSceneController } from '@blueprint-chart/lib/dist/runtime'
+import { createSceneController } from '@blueprint-chart/lib/runtime'
 
 const controller = createSceneController(container, scenes, (scene, index) => {
   renderChart(canvas, scene.data, true)
@@ -212,7 +212,7 @@ Call `controller.destroy()` to remove the injected nav when tearing the chart do
 
 ## API surface
 
-Exported from `@blueprint-chart/lib/dist/runtime`:
+Exported from `@blueprint-chart/lib/runtime`:
 
 | Symbol | One-liner |
 | --- | --- |
