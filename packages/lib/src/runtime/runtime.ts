@@ -1,4 +1,5 @@
 import { CHART_CSS } from './chart-css'
+import { ERROR_MESSAGE, RESIZE_MESSAGE, isErrorMessage, readResizeHeight } from './messages'
 
 // URL of the currently-executing runtime bundle, captured at module eval time
 // (valid while the IIFE runs synchronously on the host page). Each generated
@@ -7,6 +8,16 @@ const RUNTIME_URL = detectRuntimeUrl()
 
 function detectRuntimeUrl(): string {
   try {
+    if (typeof globalThis !== 'undefined') {
+      // Explicit override: `document.currentScript` is null when the runtime
+      // is loaded as an ES module (`<script type="module">`) or via dynamic
+      // import(), so module-form consumers set this global to the URL of the
+      // self-contained IIFE bundle each iframe should load.
+      const override = (globalThis as { BLUEPRINT_CHART_RUNTIME_URL?: unknown }).BLUEPRINT_CHART_RUNTIME_URL
+      if (typeof override === 'string' && override) {
+        return override
+      }
+    }
     if (typeof document === 'undefined') {
       return ''
     }
@@ -70,8 +81,16 @@ function processScript(script: HTMLScriptElement): void {
   iframe.srcdoc = buildSrcdoc(dsl, RUNTIME_URL)
 
   const onMessage = (e: MessageEvent) => {
-    if (e.data?.type === 'blueprint-chart-resize') {
-      iframe.style.height = `${e.data.height}px`
+    const height = readResizeHeight(e.data)
+    if (height !== null) {
+      iframe.style.height = `${height}px`
+      return
+    }
+    if (isErrorMessage(e.data)) {
+      // The runtime failed to load or renderBpc threw. The host page owns the
+      // surrounding UI, so surface the failure to the console rather than leave
+      // a silently blank iframe with no diagnostic.
+      console.warn('Blueprint Chart: could not render embed.', (e.data as { message?: unknown }).message)
     }
   }
   iframeHandlers.set(iframe, onMessage)
@@ -88,11 +107,11 @@ export function buildSrcdoc(dsl: string, runtimeUrl: string): string {
         '  window.BlueprintChart.renderBpc(document.getElementById("chart"), __BPC_SRC__);',
         '}',
         'catch (e) {',
-        '  parent.postMessage({ type: "blueprint-chart-error", message: String(e) }, "*");',
+        `  parent.postMessage({ type: "${ERROR_MESSAGE}", message: String(e) }, "*");`,
         '}',
       ]
     : [
-        'parent.postMessage({ type: "blueprint-chart-error", message: "Blueprint Chart runtime URL unavailable" }, "*");',
+        `parent.postMessage({ type: "${ERROR_MESSAGE}", message: "Blueprint Chart runtime URL unavailable" }, "*");`,
       ]
 
   return [
@@ -106,7 +125,7 @@ export function buildSrcdoc(dsl: string, runtimeUrl: string): string {
     `var __BPC_SRC__ = ${serializeForScript(dsl)};`,
     'function notifySize() {',
     '  var h = document.documentElement.scrollHeight;',
-    '  parent.postMessage({ type: "blueprint-chart-resize", height: h }, "*");',
+    `  parent.postMessage({ type: "${RESIZE_MESSAGE}", height: h }, "*");`,
     '}',
     ...bootstrap,
     'notifySize();',
