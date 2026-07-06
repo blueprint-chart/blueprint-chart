@@ -8,5 +8,6 @@ else {
 }
 
 export { initBlueprint }
+export { renderBpc } from '../render/render-bpc'
 export { createSceneController, createStepController } from './scenes'
 export type { SceneDefinition, SceneController, StepDefinition, StepController } from './scenes'

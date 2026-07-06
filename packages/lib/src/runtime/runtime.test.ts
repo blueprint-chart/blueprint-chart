@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { initBlueprint, teardownBlueprint } from './runtime'
+import { initBlueprint, teardownBlueprint, buildSrcdoc } from './runtime'
 
 describe('initBlueprint', () => {
   beforeEach(() => {
@@ -69,26 +69,35 @@ describe('initBlueprint', () => {
     expect(iframes.length).toBe(2)
   })
 
-  it('sets srcdoc with escaped DSL content', () => {
-    document.body.innerHTML = `
-      <script type="application/blueprint-chart">chart bar { data { "A" = 10 } }</script>
-    `
-    initBlueprint()
-
-    const iframe = document.querySelector('.blueprint-chart-iframe') as HTMLIFrameElement
-    expect(iframe.srcdoc).toContain('chart bar')
-    expect(iframe.srcdoc).toContain('blueprint-chart-container')
+  it('sets srcdoc that loads the runtime and renders the DSL', () => {
+    // Exercise buildSrcdoc directly with a real runtime URL: initBlueprint()
+    // relies on document.currentScript, which jsdom never populates, so it
+    // cannot be used here to test the "runtime URL known" path.
+    const srcdoc = buildSrcdoc(
+      'chart bar { data { "A" = 10 } }',
+      'https://example.com/blueprint-runtime.js',
+    )
+    // Runtime bundle is loaded INSIDE the iframe via a script tag.
+    expect(srcdoc).toContain('<script src=')
+    // The bootstrap calls the global renderer on the inlined source.
+    expect(srcdoc).toContain('BlueprintChart.renderBpc')
+    // The DSL is present (as a JS string literal).
+    expect(srcdoc).toContain('chart bar')
+    // The target container is present.
+    expect(srcdoc).toContain('blueprint-chart-container')
   })
 
-  it('escapes HTML in DSL content within srcdoc', () => {
+  it('inlines the DSL as a JS string with < escaped so it cannot break out', () => {
     document.body.innerHTML = `
       <script type="application/blueprint-chart"><img onerror="alert(1)"> test</script>
     `
     initBlueprint()
 
     const iframe = document.querySelector('.blueprint-chart-iframe') as HTMLIFrameElement
+    // No raw markup that the iframe parser could act on.
     expect(iframe.srcdoc).not.toContain('<img')
-    expect(iframe.srcdoc).toContain('&lt;img')
+    // `<` is unicode-escaped inside the JS string literal.
+    expect(iframe.srcdoc).toContain('\\u003cimg')
   })
 
   it('sets sandbox attribute for security', () => {
@@ -110,6 +119,15 @@ describe('initBlueprint', () => {
     const iframe = document.querySelector('.blueprint-chart-iframe') as HTMLIFrameElement
     expect(iframe.srcdoc).toContain('<style>')
     expect(iframe.srcdoc).toContain('bc-frame-title')
+  })
+
+  // ── Empty runtime URL hardening ──────────────────────────────────
+
+  it('does not emit an empty-src script tag when runtimeUrl is empty', () => {
+    const srcdoc = buildSrcdoc('chart bar-vertical { data { "A" = 10 } }', '')
+
+    expect(srcdoc).not.toContain('src=""')
+    expect(srcdoc).toContain('blueprint-chart-error')
   })
 
   // ── Listener cleanup (L5) ────────────────────────────────────────
