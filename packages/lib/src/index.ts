@@ -106,6 +106,9 @@ export { renderBpc, renderChart, astToDefinition, resolveScene, render } from '.
 export type { ChartDefinition, RenderOptions, ResolvedChartState, ChartHandle, RenderApiOptions, OutputOptions } from './render'
 export { ChartParseError, PngBrowserUnsupportedError, MissingNodeRenderDepsError } from './render'
 
+// Runtime
+export { buildSrcdoc } from './runtime/runtime'
+
 // Transitions (orchestrator, feature-join primitive, snapshot helper)
 export {
   SceneTransition,

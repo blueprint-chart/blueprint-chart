@@ -38,7 +38,8 @@
       "default": "./dist/node-backend/browser.js"
     },
     "./charts.scss": "./src/charts/chart.scss",
-    "./src/charts/chart.scss": "./src/charts/chart.scss"
+    "./src/charts/chart.scss": "./src/charts/chart.scss",
+    "./embed-runtime.js": "./dist/lib/lib.iife.js"
   },
   "files": [
     "dist",
