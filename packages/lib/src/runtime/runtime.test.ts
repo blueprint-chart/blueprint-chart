@@ -69,26 +69,34 @@ describe('initBlueprint', () => {
     expect(iframes.length).toBe(2)
   })
 
-  it('sets srcdoc with escaped DSL content', () => {
+  it('sets srcdoc that loads the runtime and renders the DSL', () => {
     document.body.innerHTML = `
       <script type="application/blueprint-chart">chart bar { data { "A" = 10 } }</script>
     `
     initBlueprint()
 
     const iframe = document.querySelector('.blueprint-chart-iframe') as HTMLIFrameElement
+    // Runtime bundle is loaded INSIDE the iframe via a script tag.
+    expect(iframe.srcdoc).toContain('<script src=')
+    // The bootstrap calls the global renderer on the inlined source.
+    expect(iframe.srcdoc).toContain('BlueprintChart.renderBpc')
+    // The DSL is present (as a JS string literal).
     expect(iframe.srcdoc).toContain('chart bar')
+    // The target container is present.
     expect(iframe.srcdoc).toContain('blueprint-chart-container')
   })
 
-  it('escapes HTML in DSL content within srcdoc', () => {
+  it('inlines the DSL as a JS string with < escaped so it cannot break out', () => {
     document.body.innerHTML = `
       <script type="application/blueprint-chart"><img onerror="alert(1)"> test</script>
     `
     initBlueprint()
 
     const iframe = document.querySelector('.blueprint-chart-iframe') as HTMLIFrameElement
+    // No raw markup that the iframe parser could act on.
     expect(iframe.srcdoc).not.toContain('<img')
-    expect(iframe.srcdoc).toContain('&lt;img')
+    // `<` is unicode-escaped inside the JS string literal.
+    expect(iframe.srcdoc).toContain('\\u003cimg')
   })
 
   it('sets sandbox attribute for security', () => {
