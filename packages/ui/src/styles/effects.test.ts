@@ -11,7 +11,7 @@ import * as sass from 'sass'
 const effectsPath = fileURLToPath(new URL('./_effects.scss', import.meta.url))
 const css = sass.compile(effectsPath, { style: 'expanded' }).css
 
-describe('_effects.scss — grid pool + ring', () => {
+describe('_effects.scss - grid pool + ring', () => {
   it('masks the grid pool with a radial gradient (the signature)', () => {
     expect(css).toMatch(/\.bc-pool/)
     expect(css).toMatch(/mask-image:\s*radial-gradient\(circle var\(--bc-pool-r\)/i)
@@ -28,7 +28,7 @@ describe('_effects.scss — grid pool + ring', () => {
   })
 })
 
-describe('_effects.scss — primary button', () => {
+describe('_effects.scss - primary button', () => {
   it('fills with accent and inks with accent-ink on dark by default', () => {
     expect(css).toMatch(/\.btn-bc-primary/)
     expect(css).toMatch(/background:\s*var\(--bc-accent\)/)

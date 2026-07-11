@@ -149,7 +149,6 @@ $spacer-xs: 0.25rem !default;
   // editorial emphasis. Always rides a non-color signal (fill/shape/pool). ~4%.
   --bc-accent: #{$accent};
   --bc-accent-ink: #{$prussian-600};   // only text color on accent fills
-  --bc-accent-quiet: rgba(#{$accent}, 0.16);
 
   // Grid pool (see _effects.scss). Ink reads on any surface, not just canvas.
   --bc-pool-r: 100px;
@@ -254,7 +253,6 @@ $spacer-xs: 0.25rem !default;
 
   --bc-accent: #{$accent};             // same hex; gesture differs, not value
   --bc-accent-ink: #{$prussian-600};   // navy on chartreuse in both themes
-  --bc-accent-quiet: rgba(#{$accent}, 0.16);
   --bc-pool-ink: rgba(#{$prussian-100}, 0.28); // paper-blue grid on dark
   --bc-mark: #{$accent};               // chartreuse is ink on dark
   --bc-mark-quiet: rgba(#{$accent}, 0.18);

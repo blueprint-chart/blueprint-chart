@@ -125,7 +125,7 @@ body {
   font-style: italic;
 }
 
-// FIG.03 — the highlighter. On light, chartreuse is never figure, only ground:
+// FIG.03 - the highlighter. On light, chartreuse is never figure, only ground:
 // a swipe (--bc-swipe) behind body-color ink. On dark, --bc-swipe is none and
 // chartreuse is ink (text). The gradient itself is defined once in tokens.scss.
 .bc-highlight {

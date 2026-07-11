@@ -52,7 +52,7 @@ describe('LandingHero', () => {
   })
 })
 
-describe('LandingHero — grain', () => {
+describe('LandingHero - grain', () => {
   it('mounts the shared stipple defs so grain filters resolve', () => {
     const w = mountHero()
     expect(w.find('filter#bc-stipple-a').exists()).toBe(true)

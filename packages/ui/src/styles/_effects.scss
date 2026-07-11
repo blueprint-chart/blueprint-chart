@@ -2,7 +2,7 @@
 // and blueprint-chart-effects-kit.html. Law: ink and light condense around a
 // point of attention. Every pool/ring has an anchor; nothing is full-bleed.
 
-// FIG.02 — the grid pool. The drafting grid never exists on its own; it is
+// FIG.02 - the grid pool. The drafting grid never exists on its own; it is
 // revealed radially around an anchor via a mask, and fades to nothing. Cell
 // size and line weight match the blueprint canvas (20px / 1px). The mask IS
 // the signature. Consumers set --bc-pool-x / --bc-pool-y (inline or by JS) to
@@ -38,7 +38,7 @@
   );
 }
 
-// FIG.06 — the particle ring. One stippled gradient stroke behind a crisp-edged
+// FIG.06 - the particle ring. One stippled gradient stroke behind a crisp-edged
 // child; a frame of honor, one per view. The stippled stroke itself is drawn
 // with the shared StippleDefs filter (Task 3) applied to an SVG stroke; this
 // wrapper positions the framed child and keeps its inner edge crisp. Ordinary
