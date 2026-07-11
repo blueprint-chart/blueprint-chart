@@ -7,6 +7,7 @@ import LandingFormat from './LandingFormat.vue'
 import LandingDefaults from './LandingDefaults.vue'
 import LandingTransforms from './LandingTransforms.vue'
 import LandingScenes from './LandingScenes.vue'
+import LandingCallout from './LandingCallout.vue'
 import LandingFooter from './LandingFooter.vue'
 </script>
 
@@ -21,6 +22,7 @@ import LandingFooter from './LandingFooter.vue'
       <LandingDefaults />
       <LandingTransforms />
       <LandingScenes />
+      <LandingCallout />
       <LandingFooter />
     </div>
   </div>
