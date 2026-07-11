@@ -16,7 +16,7 @@ Ink and light condense around a point of attention. Everything below is that sen
 - On paper, any chartreuse focus dot wears a 2px navy ring, a miniature of the two-circle logo.
 - Keep chartreuse at roughly 4% of any composition, it marks decisions and data, nothing else.
 - Keep inner card edges crisp; texture lives in the ring and the bloom.
-- Use identical grid cell size (11px) and line weight (1px) in both modes.
+- Use identical grid cell size (20px) and line weight (1px) in both modes.
 - Treat gradients on dark as particle-density ramps, two seeds, optical mixing.
 
 ## NEVER, including the rejected variants

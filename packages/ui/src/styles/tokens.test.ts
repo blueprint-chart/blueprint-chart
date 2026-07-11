@@ -7,7 +7,7 @@ const tokensPath = resolve(currentDir, 'tokens.scss')
 const css = sass.compile(tokensPath, { style: 'expanded' }).css
 const source = readFileSync(tokensPath, 'utf8')
 
-describe('tokens.scss — chartreuse accent', () => {
+describe('tokens.scss - chartreuse accent', () => {
   it('defines chartreuse as the accent in light and dark', () => {
     // #DDF247 appears as --bc-accent in both :root and the dark block
     const matches = css.match(/--bc-accent:\s*#DDF247/gi) ?? []

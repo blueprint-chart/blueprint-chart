@@ -37,7 +37,7 @@ describe('_effects.scss — primary button', () => {
 
   it('inverts on light: navy fill, accent text', () => {
     const match = css.match(
-      /\[data-bs-theme=light\]\s*\.btn-bc-primary\s*\{([^}]*)\}/
+      /\[data-bs-theme=light\]\s*\.btn-bc-primary\s*\{([^}]*)\}/,
     )
     expect(match).not.toBeNull()
     const body = (match?.[1] ?? '').replace(/\s+/g, ' ')
