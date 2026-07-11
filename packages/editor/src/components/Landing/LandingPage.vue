@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { StippleDefs } from '@blueprint-chart/ui'
 import LandingTopNav from './LandingTopNav.vue'
 import LandingHero from './LandingHero.vue'
 import LandingValuePropStrip from './LandingValuePropStrip.vue'
@@ -13,6 +14,9 @@ import LandingFooter from './LandingFooter.vue'
 
 <template>
   <div class="landing-page">
+    <!-- The stipple filters are declared once per page; the hero/callout grain
+         and any BcRing reference them by id. -->
+    <StippleDefs />
     <LandingTopNav />
     <div class="landing-page__frame">
       <LandingHero />

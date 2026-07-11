@@ -53,4 +53,11 @@ describe('LandingPage', () => {
     const w = mountPage()
     expect(w.find('.landing-page__frame').exists()).toBe(true)
   })
+
+  it('renders exactly one shared StippleDefs, not one per section', () => {
+    const w = shallowMount(LandingPage, {
+      global: { stubs: { 'router-link': true, 'router-view': true, 'StippleDefs': false } },
+    })
+    expect(w.findAll('filter#bc-stipple-a')).toHaveLength(1)
+  })
 })

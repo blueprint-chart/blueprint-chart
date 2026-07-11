@@ -1,13 +1,8 @@
-<script setup lang="ts">
-import { StippleDefs } from '@blueprint-chart/ui'
-</script>
-
 <template>
   <section
     class="landing-callout"
     data-bs-theme="dark"
   >
-    <StippleDefs />
     <div
       class="landing-callout__grain"
       aria-hidden="true"

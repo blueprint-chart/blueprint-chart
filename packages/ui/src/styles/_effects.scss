@@ -75,6 +75,12 @@
   }
 }
 
+// The default Prussian focus ring is too faint on the black marketing field
+// (~1.4:1); use the brighter marketing variant so it clears the 3:1 floor.
+[data-bs-theme="dark"] .btn-bc-primary:focus-visible {
+  box-shadow: var(--bc-focus-ring-marketing);
+}
+
 [data-bs-theme="light"] .btn-bc-primary {
   background: var(--bc-mark); // navy fill on light (prussian-500)
   color: var(--bc-accent);    // chartreuse ink, as a fill's text it is ground

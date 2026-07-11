@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { StippleDefs, BcRing } from '@blueprint-chart/ui'
+import { BcRing } from '@blueprint-chart/ui'
 import { samples } from '@blueprint-chart/lib'
 
 const sample = samples.find(s => s.id === 'coffee-production')
@@ -14,7 +14,6 @@ const heroBpc = sample.dsl.replace(/\{/, '{\n  theme = "blueprint-framed"')
     class="landing-hero"
     data-bs-theme="dark"
   >
-    <StippleDefs />
     <div
       class="landing-hero__grain"
       aria-hidden="true"

@@ -53,11 +53,6 @@ describe('LandingHero', () => {
 })
 
 describe('LandingHero - grain', () => {
-  it('mounts the shared stipple defs so grain filters resolve', () => {
-    const w = mountHero()
-    expect(w.find('filter#bc-stipple-a').exists()).toBe(true)
-  })
-
   it('renders a grain layer scoped inside the hero', () => {
     const w = mountHero()
     expect(w.find('.landing-hero__grain').exists()).toBe(true)

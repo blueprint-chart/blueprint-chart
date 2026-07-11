@@ -2,11 +2,19 @@
 // FIG.06 - the particle ring. A stippled gradient stroke drawn behind a
 // crisp-edged slotted child; a frame of honor, one per view. Requires
 // <StippleDefs /> present once on the page for the filter to resolve.
+import { useId } from 'vue'
+
 withDefaults(defineProps<{
   tone?: 'field' | 'paper'
 }>(), {
   tone: 'field',
 })
+
+// Namespace the gradient ids per instance so two rings on the same page
+// (e.g. hero + a future card) never collide over #bc-ring-field/paper.
+const uid = useId()
+const fieldId = `bc-ring-field-${uid}`
+const paperId = `bc-ring-paper-${uid}`
 </script>
 
 <template>
@@ -18,7 +26,7 @@ withDefaults(defineProps<{
     >
       <defs>
         <linearGradient
-          id="bc-ring-field"
+          :id="fieldId"
           x1="0"
           y1="0"
           x2="1"
@@ -38,7 +46,7 @@ withDefaults(defineProps<{
           />
         </linearGradient>
         <linearGradient
-          id="bc-ring-paper"
+          :id="paperId"
           x1="0"
           y1="0"
           x2="1"
@@ -62,7 +70,7 @@ withDefaults(defineProps<{
         height="calc(100% - 9px)"
         rx="14"
         fill="none"
-        :stroke="`url(#bc-ring-${tone})`"
+        :stroke="`url(#${tone === 'paper' ? paperId : fieldId})`"
         stroke-width="9"
         filter="url(#bc-stipple-a)"
       />

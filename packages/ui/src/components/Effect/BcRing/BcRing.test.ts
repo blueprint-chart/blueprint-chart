@@ -20,8 +20,10 @@ describe('BcRing', () => {
   it('uses the field gradient by default and the paper gradient when tone=paper', () => {
     const field = mount(BcRing, { slots: { default: '<i/>' } })
     const paper = mount(BcRing, { props: { tone: 'paper' }, slots: { default: '<i/>' } })
-    const fieldId = field.find('svg rect').attributes('stroke')
-    const paperId = paper.find('svg rect').attributes('stroke')
-    expect(fieldId).not.toBe(paperId)
+    const fieldStroke = field.find('svg rect').attributes('stroke')
+    const paperStroke = paper.find('svg rect').attributes('stroke')
+    expect(fieldStroke).not.toBe(paperStroke)
+    expect(fieldStroke).toMatch(/^url\(#bc-ring-(field|paper)-/)
+    expect(paperStroke).toMatch(/^url\(#bc-ring-(field|paper)-/)
   })
 })

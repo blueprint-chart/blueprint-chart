@@ -164,6 +164,12 @@ $spacer-xs: 0.25rem !default;
   --bc-marketing-ink: #EAF2FA;
   --bc-marketing-ink-dim: #{$prussian-100};
 
+  // Island constant: the default Prussian focus ring is only ~1.4:1 on the
+  // #000000 marketing field, below the 3:1 focus-indicator floor. This
+  // brighter Prussian tint reads at roughly 3.5:1+ on black and is used only
+  // on the dark marketing islands (see .btn-bc-primary:focus-visible below).
+  --bc-focus-ring-marketing: 0 0 0 3px rgba(#{$prussian-300}, 0.9);
+
   // Editorial mark ink: chartreuse can't be a thin figure on white, so small
   // marks (eyebrow #/dot) fall back to Prussian on light, chartreuse on dark.
   --bc-mark: #{$prussian-500};
