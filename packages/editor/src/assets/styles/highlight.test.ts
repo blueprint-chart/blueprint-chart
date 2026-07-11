@@ -12,8 +12,11 @@ describe('highlighter utility', () => {
     expect(main).toMatch(/\.bc-highlight\s*{[^}]*background:\s*var\(--bc-swipe\)/)
   })
 
-  it('renders chartreuse as ink (text) on dark', () => {
-    expect(main).toMatch(/\[data-bs-theme="dark"\][^{]*\.bc-highlight[^}]*var\(--bc-accent\)/s)
+  it('shares the swipe token in both themes (no dark chartreuse-ink override)', () => {
+    // The dark override that force-colored .bc-highlight chartreuse text is
+    // removed: --bc-swipe itself carries the faint dark treatment now, so
+    // .bc-highlight resolves the same rule in both themes.
+    expect(main).not.toMatch(/\[data-bs-theme="dark"\][^{]*\.bc-highlight/s)
   })
 
   it('does not re-declare the swipe gradient (it lives in --bc-swipe)', () => {

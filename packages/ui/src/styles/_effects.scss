@@ -54,8 +54,8 @@
   padding: 0.5rem 1.25rem;
   font-family: var(--bs-font-monospace, "Geist Mono", ui-monospace, monospace);
   font-size: var(--bs-font-size-sm);
-  background: var(--bc-accent);
-  color: var(--bc-accent-ink);
+  background: var(--bc-btn-primary-bg);
+  color: var(--bc-btn-primary-fg);
   cursor: pointer;
   text-decoration: none;
 
@@ -79,9 +79,4 @@
 // (~1.4:1); use the brighter marketing variant so it clears the 3:1 floor.
 [data-bs-theme="dark"] .btn-bc-primary:focus-visible {
   box-shadow: var(--bc-focus-ring-marketing);
-}
-
-[data-bs-theme="light"] .btn-bc-primary {
-  background: var(--bc-mark); // navy fill on light (prussian-500)
-  color: var(--bc-accent);    // chartreuse ink, as a fill's text it is ground
 }

@@ -25,4 +25,18 @@ describe('LandingChartPreview', () => {
     })
     expect(w.props('bpc')).toContain('chart bar-vertical')
   })
+
+  it('accepts the transparentBackground prop without throwing, default false', () => {
+    const w = mount(LandingChartPreview, {
+      props: { bpc: '' },
+    })
+    expect(w.props('transparentBackground')).toBe(false)
+  })
+
+  it('accepts transparentBackground=true without throwing', () => {
+    const w = mount(LandingChartPreview, {
+      props: { bpc: '', transparentBackground: true },
+    })
+    expect(w.props('transparentBackground')).toBe(true)
+  })
 })

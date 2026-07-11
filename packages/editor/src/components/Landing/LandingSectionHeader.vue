@@ -73,9 +73,4 @@ withDefaults(defineProps<{
     }
   }
 }
-
-[data-bs-theme="dark"] .landing-section-header__title :deep(em) {
-  padding: 0;
-  color: var(--bc-accent);
-}
 </style>

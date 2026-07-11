@@ -7,13 +7,19 @@
 
 <script setup lang="ts">
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   bpc: string
-}>()
+  transparentBackground?: boolean
+}>(), {
+  transparentBackground: false,
+})
 
 const containerRef = useTemplateRef<HTMLElement>('containerRef')
 
-useChartFromDsl(containerRef, toRef(props, 'bpc'), { stripColors: true })
+useChartFromDsl(containerRef, toRef(props, 'bpc'), {
+  stripColors: true,
+  transparentBackground: props.transparentBackground,
+})
 </script>
 
 <style scoped>

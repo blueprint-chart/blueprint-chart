@@ -175,6 +175,13 @@ $spacer-xs: 0.25rem !default;
   --bc-mark: #{$prussian-500};
   --bc-mark-quiet: rgba(#{$prussian-500}, 0.14);
 
+  // Primary button fill/ink pair. Flips per theme so .btn-bc-primary always
+  // resolves at the nearest theme (see _effects.scss), instead of a
+  // theme-scoped selector outranking the base rule inside a forced-dark
+  // island. Light: navy fill on paper. Dark: chartreuse fill on the field.
+  --bc-btn-primary-bg: #{$prussian-600};
+  --bc-btn-primary-fg: #{$accent};
+
   // Highlighter swipe (FIG.03). Defined once here so .bc-highlight and the
   // landing emphasis rules share one gradient (DRY). Ground on light.
   --bc-swipe: linear-gradient(
@@ -268,7 +275,21 @@ $spacer-xs: 0.25rem !default;
   --bc-pool-ink: rgba(#{$prussian-100}, 0.28); // paper-blue grid on dark
   --bc-mark: #{$accent};               // chartreuse is ink on dark
   --bc-mark-quiet: rgba(#{$accent}, 0.18);
-  --bc-swipe: none;                    // on dark, chartreuse is ink (text), no swipe
+
+  // On dark, chartreuse is ink (text) so the swipe stays as a faint ground
+  // behind normal text rather than a bold block.
+  --bc-swipe: linear-gradient(
+    180deg,
+    transparent 45%,
+    rgba(#{$chartreuse-400}, 0.18) 45%,
+    rgba(#{$chartreuse-400}, 0.18) 92%,
+    transparent 92%
+  );
+
+  // Primary button fill/ink pair, flipped: chartreuse fill on the field,
+  // navy ink. See the light block above for the pairing rationale.
+  --bc-btn-primary-bg: #{$accent};
+  --bc-btn-primary-fg: #{$prussian-600};
 
   --bc-shadow-overlay:
     0 8px 24px rgba(0, 0, 0, 0.4),

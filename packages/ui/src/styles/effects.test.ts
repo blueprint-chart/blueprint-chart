@@ -25,20 +25,10 @@ describe('_effects.scss - grid pool + ring', () => {
 })
 
 describe('_effects.scss - primary button', () => {
-  it('fills with accent and inks with accent-ink on dark by default', () => {
+  it('fills and inks using the token-driven button pair', () => {
     expect(css).toMatch(/\.btn-bc-primary/)
-    expect(css).toMatch(/background:\s*var\(--bc-accent\)/)
-    expect(css).toMatch(/color:\s*var\(--bc-accent-ink\)/)
-  })
-
-  it('inverts on light: navy fill, accent text', () => {
-    const match = css.match(
-      /\[data-bs-theme=light\]\s*\.btn-bc-primary\s*\{([^}]*)\}/,
-    )
-    expect(match).not.toBeNull()
-    const body = (match?.[1] ?? '').replace(/\s+/g, ' ')
-    expect(body).toMatch(/background:\s*var\(--bc-mark\)/)
-    expect(body).toMatch(/color:\s*var\(--bc-accent\)/)
+    expect(css).toMatch(/background:\s*var\(--bc-btn-primary-bg\)/)
+    expect(css).toMatch(/color:\s*var\(--bc-btn-primary-fg\)/)
   })
 
   it('shows the pool on hover and focus-visible, keeping the prussian focus ring', () => {

@@ -57,7 +57,10 @@ const heroBpc = sample.dsl.replace(/\{/, '{\n  theme = "blueprint-framed"')
       <div class="landing-hero__inner__chart">
         <BcRing tone="field">
           <div class="landing-hero__inner__chart__card">
-            <LandingChartPreview :bpc="heroBpc" />
+            <LandingChartPreview
+              :bpc="heroBpc"
+              transparent-background
+            />
           </div>
         </BcRing>
       </div>
