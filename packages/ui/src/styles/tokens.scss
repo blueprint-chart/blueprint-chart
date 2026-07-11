@@ -43,6 +43,8 @@ $success: #2D8659 !default;
 $info:    $prussian-300 !default;
 $warning: #D4A63A !default;
 $danger:  #C94044 !default;
+$accent:      #E4512B !default;
+$accent-dark: #F2703F !default;
 
 // Borders
 $border-color:      #dcdce0 !default;
@@ -127,7 +129,7 @@ $spacer-xs: 0.25rem !default;
   --bc-canvas-dimension-color: rgba(255, 255, 255, 0.55);
 
   --bc-chrome-bg: #ffffff;
-  --bc-content-bg: #f5f5f7;
+  --bc-content-bg: #ECEEF1;
   --bc-tile-bg: #ffffff;
   --bc-tile-bg-elevated: #f5f5f7;
   --bc-canvas-glow: none;
@@ -139,6 +141,16 @@ $spacer-xs: 0.25rem !default;
 
   --bc-hairline: rgba(0, 0, 0, 0.08);
   --bc-hairline-strong: rgba(0, 0, 0, 0.14);
+
+  // Editorial accent: the "red pencil on the blueprint". Non-interactive
+  // only: display emphasis, # eyebrows, brand mark, empty-state art. Never
+  // on buttons, links, focus, or selection (those stay Prussian). See DESIGN.md.
+  --bc-accent: #E4512B;
+  --bc-accent-quiet: rgba(228, 81, 43, 0.12);
+
+  // Framed-canvas system (flat: hairline border, no shadow).
+  --bc-frame-border: var(--bc-hairline);
+  --bc-frame-radius: var(--bc-radius-lg);
 
   --bc-radius-pill: 999px;
   --bc-radius-xs: 4px;
@@ -213,6 +225,9 @@ $spacer-xs: 0.25rem !default;
 
   --bc-hairline: rgba(255, 255, 255, 0.06);
   --bc-hairline-strong: rgba(255, 255, 255, 0.12);
+
+  --bc-accent: #F2703F;
+  --bc-accent-quiet: rgba(242, 112, 63, 0.16);
 
   --bc-shadow-overlay:
     0 8px 24px rgba(0, 0, 0, 0.4),
