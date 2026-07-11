@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { ButtonIcon, StippleDefs } from '@blueprint-chart/ui'
-import IPhPlus from '~icons/ph/plus'
+import { StippleDefs, BcRing } from '@blueprint-chart/ui'
 import { samples } from '@blueprint-chart/lib'
 
 const sample = samples.find(s => s.id === 'coffee-production')
@@ -35,21 +34,28 @@ const heroBpc = sample.dsl.replace(/\{/, '{\n  theme = "blueprint-framed"')
           editor's right here.
         </p>
         <div class="landing-hero__inner__text__actions">
-          <ButtonIcon
+          <router-link
             to="/charts"
-            label="My charts"
-            variant="outline-secondary"
-          />
-          <ButtonIcon
+            class="landing-hero__ghost"
+          >My charts</router-link>
+          <router-link
             to="/new"
-            label="New chart"
-            variant="primary"
-            :icon-left="IPhPlus"
-          />
+            class="btn-bc-primary"
+          >
+            <span
+              class="bc-pool"
+              aria-hidden="true"
+            />
+            <span class="btn-bc-primary__label">New chart</span>
+          </router-link>
         </div>
       </div>
       <div class="landing-hero__inner__chart">
-        <LandingChartPreview :bpc="heroBpc" />
+        <BcRing tone="field">
+          <div class="landing-hero__inner__chart__card">
+            <LandingChartPreview :bpc="heroBpc" />
+          </div>
+        </BcRing>
       </div>
     </div>
   </section>
@@ -62,6 +68,7 @@ const heroBpc = sample.dsl.replace(/\{/, '{\n  theme = "blueprint-framed"')
   position: relative;
   overflow: hidden;
   padding: 3.5rem clamp(1rem, 5vw, 3.75rem) 4rem;
+  background: var(--bc-marketing-field);
 
   &__grain {
     position: absolute;
@@ -69,10 +76,10 @@ const heroBpc = sample.dsl.replace(/\{/, '{\n  theme = "blueprint-framed"')
     z-index: 0;
     pointer-events: none;
     background:
-      radial-gradient(75% 75% at 12% 10%, rgba(tok.$prussian-300, 0.55), transparent 70%),
-      radial-gradient(70% 70% at 88% 92%, rgba(tok.$chartreuse-400, 0.35), transparent 70%);
+      radial-gradient(80% 80% at 12% 8%, rgba(tok.$prussian-300, 0.75), transparent 68%),
+      radial-gradient(72% 72% at 90% 94%, rgba(tok.$chartreuse-400, 0.5), transparent 68%);
     filter: url(#bc-stipple-a);
-    opacity: 0;
+    opacity: 1;
   }
 
   &__inner {
@@ -95,20 +102,19 @@ const heroBpc = sample.dsl.replace(/\{/, '{\n  theme = "blueprint-framed"')
         font-weight: 400;
         line-height: 1.05;
         letter-spacing: -0.015em;
-        color: var(--bs-body-color);
+        color: var(--bc-marketing-ink);
         margin-bottom: 1.5rem;
         font-family: "DM Serif Display", Georgia, "Times New Roman", serif;
 
         :deep(em) {
           font-style: italic;
-          background: var(--bc-swipe);
-          padding: 0 0.1875rem;
+          color: var(--bc-accent);
         }
       }
 
       &__sub {
         font-size: 1rem;
-        color: var(--bs-secondary-color);
+        color: var(--bc-marketing-ink-dim);
         line-height: 1.65;
         max-width: 28.75rem;
         margin-bottom: 2.25rem;
@@ -123,27 +129,32 @@ const heroBpc = sample.dsl.replace(/\{/, '{\n  theme = "blueprint-framed"')
     }
 
     &__chart {
-      background: var(--bc-tile-bg);
-      border: 1px solid var(--bc-hairline);
-      border-radius: var(--bc-radius-lg);
-      box-shadow: none;
       align-self: center;
-      overflow: hidden;
+
+      &__card {
+        background: var(--bc-marketing-card);
+        border-radius: var(--bc-radius-lg);
+        overflow: hidden;
+      }
     }
   }
-}
 
-[data-bs-theme="dark"] .landing-hero__inner__text__h1 :deep(em) {
-  padding: 0;
-  color: var(--bc-accent);
-}
-
-[data-bs-theme="dark"] .landing-hero {
-  background: var(--bc-marketing-field);
-
-  .landing-hero__grain {
-    opacity: 1;
+  &__ghost {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 1.1rem;
+    border-radius: var(--bc-radius-md);
+    border: 1px solid rgba(tok.$chartreuse-400, 0.5);
+    color: var(--bc-marketing-ink);
+    font-family: var(--bs-font-monospace, "Geist Mono", ui-monospace, monospace);
+    font-size: var(--bs-font-size-sm);
+    text-decoration: none;
   }
+}
+
+.btn-bc-primary__label {
+  position: relative;
+  z-index: 1;
 }
 
 @media (max-width: 51.25rem) {

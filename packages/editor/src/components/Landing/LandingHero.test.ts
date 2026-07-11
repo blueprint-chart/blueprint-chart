@@ -63,3 +63,16 @@ describe('LandingHero - grain', () => {
     expect(w.find('.landing-hero__grain').exists()).toBe(true)
   })
 })
+
+describe('LandingHero - bold marketing island', () => {
+  it('wraps the chart preview in a particle ring', () => {
+    const w = mountHero()
+    expect(w.find('.bc-ring').exists()).toBe(true)
+    expect(w.find('.bc-ring svg rect').exists()).toBe(true)
+  })
+
+  it('renders a chartreuse pooled primary CTA', () => {
+    const w = mountHero()
+    expect(w.find('.btn-bc-primary').exists()).toBe(true)
+  })
+})
