@@ -14,7 +14,7 @@ function mountHeader(slots: Record<string, string> = {}, props: Record<string, u
 describe('LandingSectionHeader', () => {
   it('renders the label text', () => {
     const w = mountHeader()
-    expect(w.find('.landing-section-header__label').text()).toBe('02 / Defaults')
+    expect(w.find('.landing-section-header__label').text()).toContain('02 / Defaults')
   })
 
   it('label element carries the BEM class', () => {
@@ -43,5 +43,16 @@ describe('LandingSectionHeader', () => {
   it('applies the center class when the center prop is true', () => {
     const w = mountHeader({}, { center: true })
     expect(w.find('.landing-section-header--center').exists()).toBe(true)
+  })
+
+  it('prefixes the label with an accent hash marker', () => {
+    const w = mount(LandingSectionHeader, {
+      props: { label: 'why blueprint' },
+      slots: { default: 'Heading' },
+    })
+    const hash = w.find('.landing-section-header__label .bc-eyebrow__hash')
+    expect(hash.exists()).toBe(true)
+    expect(hash.text()).toBe('#')
+    expect(w.find('.landing-section-header__label').text()).toContain('why blueprint')
   })
 })

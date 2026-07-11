@@ -3,7 +3,11 @@
     class="landing-section-header"
     :class="{ 'landing-section-header--center': center }"
   >
-    <div class="landing-section-header__label">
+    <div class="landing-section-header__label bc-eyebrow">
+      <span
+        class="bc-eyebrow__hash"
+        aria-hidden="true"
+      >#</span>
       {{ label }}
     </div>
     <h2 class="landing-section-header__title">
@@ -30,12 +34,6 @@ withDefaults(defineProps<{
 <style scoped lang="scss">
 .landing-section-header {
   &__label {
-    font-family: "Geist Mono", ui-monospace, "JetBrains Mono", monospace;
-    font-size: var(--bs-font-size-xs);
-    font-weight: 500;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--bs-tertiary-color);
     margin-bottom: 0.625rem;
   }
 
