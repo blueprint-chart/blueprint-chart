@@ -35,6 +35,11 @@ Rules:
   (page h1), 2xl 38px (dashboard title), hero 64px (landing h1).
 - Body text never below 16px; captions never below 12px.
 - Every page has exactly one `h1`, no skipped heading levels below it.
+- Eyebrow labels use the `.bc-eyebrow` utility (`packages/ui/src/styles/_eyebrow.scss`):
+  mono, uppercase, `xs` size, with an accent-colored leading marker
+  (`.bc-eyebrow__hash` for a `#` glyph, `.bc-eyebrow__dot` for a dot). The
+  marker is vermilion, the editorial accent, and is decorative only, never a
+  control.
 - Ellipsis is the character `…`, never three dots. Loading labels end with `…`.
 - Keyboard hints derive from `usePlatformShortcut`
   (`packages/editor/src/composables/usePlatformShortcut.ts`). Never hardcode
@@ -49,9 +54,12 @@ info `$prussian-300`, warning `#D4A63A`, danger `#C94044`.
 
 Rules:
 
-- One accent. UI chrome is neutral; Prussian blue marks primary actions,
-  selection, focus, and links. If a second accent feels necessary, the layout
-  is probably shouting; fix hierarchy first.
+- **One functional accent + one editorial accent.** Prussian is the functional
+  accent (primary actions, selection, focus, links, DSL keywords). Vermilion
+  `#E4512B` (`#F2703F` in dark theme, via `--bc-accent`) is the editorial
+  accent (display emphasis, `#` eyebrows, brand mark, empty-state art).
+  Vermilion never marks interactivity, never on buttons, links, focus, or
+  selection, so color is never the sole signal that something is actionable.
 - Neutrals are cool and come from tokens, never ad-hoc hex. Surface hierarchy
   (void > tile > elevated): `--bc-chrome-bg`, `--bc-content-bg`,
   `--bc-tile-bg`, `--bc-tile-bg-elevated`.
@@ -81,6 +89,10 @@ Rules:
 - Shadows: `--bc-shadow-overlay` for floating UI (pickers, strips, popovers).
   Cards on tiles use hairline borders, not shadows (`--bs-card-box-shadow`
   is none on purpose).
+- The framed canvas is flat by design: a hairline border (`--bc-frame-border`)
+  plus `--bc-frame-radius`, never a shadow. It reads as a drawn frame, not a
+  floating card. Use it for large canvas-like surfaces (the landing preview,
+  the chart work area), not for small tiles.
 
 ## Motion
 
