@@ -25,7 +25,7 @@ function viteCopyStyles() {
       // `exports` map. Do NOT copy every .scss in this directory: partials
       // like _mixins.scss are internal (used by tokens.scss/eyebrow.scss)
       // and must not be emitted as their own dist/styles/*.css|scss files.
-      const publicEntries = ['tokens.scss', 'eyebrow.scss']
+      const publicEntries = ['tokens.scss', 'eyebrow.scss', 'effects.scss']
       for (const publicName of publicEntries) {
         // Partials (leading underscore) are still valid public entry points.
         // Consumers `@use` them without the underscore, so the dist copy

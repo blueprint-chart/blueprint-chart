@@ -2,6 +2,7 @@
 // are in scope before _overrides.scss and bootstrap consume them.
 @use "@blueprint-chart/ui/styles/tokens.scss" as *;
 @use "@blueprint-chart/ui/styles/eyebrow.scss";
+@use "@blueprint-chart/ui/styles/effects.scss";
 @use "@blueprint-chart/lib/charts.scss";
 @import "./fonts";
 @import "./overrides";
