@@ -28,6 +28,14 @@ describe('NavigationWorkspaceSwitcher', () => {
     expect(wrapper.find('.navigation-workspace-switcher__badge').text()).toBe('B')
   })
 
+  it('renders the initial badge with the editorial accent', () => {
+    const w = mount(NavigationWorkspaceSwitcher, { props: { name: 'Blueprint' } })
+    const badge = w.find('.navigation-workspace-switcher__badge')
+    expect(badge.exists()).toBe(true)
+    // background pulls from --bc-accent via a class, asserted structurally:
+    expect(badge.classes()).toContain('navigation-workspace-switcher__badge--accent')
+  })
+
   it('emits a click event when activated as a button', async () => {
     const wrapper = mount(NavigationWorkspaceSwitcher, {
       props: { name: 'Blueprint' },

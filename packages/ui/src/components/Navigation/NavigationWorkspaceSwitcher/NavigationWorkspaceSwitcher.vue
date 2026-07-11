@@ -39,7 +39,7 @@ const initial = computed(() => props.name.trim().charAt(0).toUpperCase())
         >
         <span
           v-else
-          class="navigation-workspace-switcher__badge"
+          class="navigation-workspace-switcher__badge navigation-workspace-switcher__badge--accent"
           aria-hidden="true"
         >{{ initial }}</span>
         <span
@@ -64,7 +64,7 @@ const initial = computed(() => props.name.trim().charAt(0).toUpperCase())
     >
     <span
       v-else
-      class="navigation-workspace-switcher__badge"
+      class="navigation-workspace-switcher__badge navigation-workspace-switcher__badge--accent"
       aria-hidden="true"
     >{{ initial }}</span>
     <span
@@ -108,7 +108,7 @@ const initial = computed(() => props.name.trim().charAt(0).toUpperCase())
   width: 1.25rem;
   height: 1.25rem;
   border-radius: var(--bc-radius-sm);
-  background: linear-gradient(135deg, #2563A0, #7AB0E2);
+  background: var(--bc-accent);
   color: #ffffff;
   font-family: "DM Serif Display", Georgia, serif;
   font-size: 0.75rem;
