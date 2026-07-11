@@ -22,10 +22,6 @@ describe('_effects.scss - grid pool + ring', () => {
     expect(grads.length).toBeGreaterThanOrEqual(2)
     expect(css).toMatch(/var\(--bc-pool-ink\)/)
   })
-
-  it('exposes a particle-ring class', () => {
-    expect(css).toMatch(/\.bc-ring/)
-  })
 })
 
 describe('_effects.scss - primary button', () => {

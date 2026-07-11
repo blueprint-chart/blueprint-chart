@@ -38,22 +38,6 @@
   );
 }
 
-// FIG.06 - the particle ring. One stippled gradient stroke behind a crisp-edged
-// child; a frame of honor, one per view. The stippled stroke itself is drawn
-// with the shared StippleDefs filter (Task 3) applied to an SVG stroke; this
-// wrapper positions the framed child and keeps its inner edge crisp. Ordinary
-// cards keep flat hairlines, not this ring.
-.bc-ring {
-  position: relative;
-  display: inline-block;
-  border-radius: var(--bc-radius-lg);
-
-  > * {
-    position: relative;
-    z-index: 1;
-  }
-}
-
 // FIG.04 - the primary important button. The everyday emphasis button, one per
 // view. Default (dark world): chartreuse fill, navy ink. On light: navy fill,
 // chartreuse ink. Only these two pairings. The POOLED state is not a separate

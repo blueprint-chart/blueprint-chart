@@ -4,18 +4,13 @@
 // <StippleDefs /> present once on the page for the filter to resolve.
 withDefaults(defineProps<{
   tone?: 'field' | 'paper'
-  radius?: string
 }>(), {
   tone: 'field',
-  radius: 'var(--bc-radius-lg)',
 })
 </script>
 
 <template>
-  <div
-    class="bc-ring"
-    :style="{ borderRadius: radius }"
-  >
+  <div class="bc-ring">
     <svg
       class="bc-ring__stroke"
       aria-hidden="true"
@@ -59,6 +54,7 @@ withDefaults(defineProps<{
           />
         </linearGradient>
       </defs>
+      <!-- rx=14 frames a --bc-radius-lg (12px) card from just outside its corner -->
       <rect
         x="4.5"
         y="4.5"

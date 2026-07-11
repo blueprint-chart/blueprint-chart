@@ -35,7 +35,7 @@ Ink and light condense around a point of attention. Everything below is that sen
 - **Grid pool** (`.bc-pool`): the drafting grid revealed radially around an anchor via a mask, never full-bleed; set `--bc-pool-x` / `--bc-pool-y` to place it over the anchor.
 - **Pen & highlighter** (`--bc-mark`, `.bc-highlight`): the one marker with two gestures, chartreuse ink on dark, a chartreuse swipe behind body ink on light.
 - **Grain** (`StippleDefs`): the shared stipple filter defs, referenced by `filter: url(#bc-stipple-a|b|c)`; dark marketing surfaces only (the landing hero), never on charts, data, or app UI.
-- **Particle ring** (`.bc-ring`): a stippled gradient stroke framing one featured element per view; inner edges stay crisp, ordinary cards keep flat hairlines instead.
+- **Particle ring** (`BcRing`): a stippled gradient stroke framing one featured element per view; inner edges stay crisp, ordinary cards keep flat hairlines instead.
 - **Buttons** (`.btn-bc-primary`): the everyday emphasis button, chartreuse fill / navy ink (navy fill / chartreuse ink on light); its hover/focus state is the pooled `.bc-pool`, not a separate button.
 
 ## See also
