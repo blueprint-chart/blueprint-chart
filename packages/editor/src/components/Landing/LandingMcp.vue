@@ -424,6 +424,9 @@ const steps: McpStep[] = [
     border-radius: var(--bc-radius-md);
     overflow: hidden;
     min-width: 0; /* contain the nowrap command so it scrolls instead of widening the column */
+    /* Wrapper is data-bs-theme="dark": give it a dark body so the light
+       command text stays readable on the light page. */
+    background: var(--bs-body-bg);
 
     &__head {
       padding: 0.5rem 0.875rem;
