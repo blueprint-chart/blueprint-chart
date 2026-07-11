@@ -158,6 +158,12 @@ $spacer-xs: 0.25rem !default;
   --bc-marketing-field: #000000;
   --bc-marketing-card: #0D1B2E;
 
+  // Light ink for forced-dark marketing islands (hero, closing band). These are
+  // island constants: the same value in both themes, so they are not overridden
+  // in the dark block.
+  --bc-marketing-ink: #EAF2FA;
+  --bc-marketing-ink-dim: #{$prussian-100};
+
   // Editorial mark ink: chartreuse can't be a thin figure on white, so small
   // marks (eyebrow #/dot) fall back to Prussian on light, chartreuse on dark.
   --bc-mark: #{$prussian-500};
