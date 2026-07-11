@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { BBadge } from 'bootstrap-vue-next'
 import { ButtonIcon } from '@blueprint-chart/ui'
 import IPhPlus from '~icons/ph/plus'
 import { samples } from '@blueprint-chart/lib'
@@ -15,17 +14,13 @@ const heroBpc = sample.dsl.replace(/\{/, '{\n  theme = "blueprint-framed"')
   <section class="landing-hero">
     <div class="landing-hero__inner">
       <div class="landing-hero__inner__text">
-        <BBadge
-          variant="info"
-          pill
-          class="landing-hero__inner__text__eyebrow"
-        >
+        <span class="landing-hero__inner__text__eyebrow bc-eyebrow">
           <span
-            class="landing-hero__inner__text__eyebrow__dot"
+            class="bc-eyebrow__dot"
             aria-hidden="true"
           />
           Open source · MIT
-        </BBadge>
+        </span>
         <h1 class="landing-hero__inner__text__h1">
           The open chart format<br><em>AI writes.</em>
         </h1>
@@ -70,14 +65,6 @@ const heroBpc = sample.dsl.replace(/\{/, '{\n  theme = "blueprint-framed"')
     &__text {
       &__eyebrow {
         margin-bottom: 1.25rem;
-
-        &__dot {
-          width: 0.4375rem;
-          height: 0.4375rem;
-          border-radius: 50%;
-          background: var(--bs-info);
-          box-shadow: 0 0 0 4px rgba(var(--bs-info-rgb), 0.18);
-        }
       }
 
       &__h1 {
@@ -91,7 +78,7 @@ const heroBpc = sample.dsl.replace(/\{/, '{\n  theme = "blueprint-framed"')
 
         :deep(em) {
           font-style: italic;
-          color: var(--bs-info);
+          color: var(--bc-accent);
         }
       }
 
@@ -115,7 +102,7 @@ const heroBpc = sample.dsl.replace(/\{/, '{\n  theme = "blueprint-framed"')
       background: var(--bc-tile-bg);
       border: 1px solid var(--bc-hairline);
       border-radius: var(--bc-radius-lg);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+      box-shadow: none;
       align-self: center;
       overflow: hidden;
     }

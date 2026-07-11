@@ -27,6 +27,14 @@ describe('LandingHero', () => {
     expect(w.find('.landing-hero__inner__text__eyebrow').text()).toContain('Open source')
   })
 
+  it('renders the eyebrow as a bc-eyebrow with an accent dot, not a BBadge', () => {
+    const w = mountHero()
+    const eyebrow = w.find('.landing-hero__inner__text__eyebrow')
+    expect(eyebrow.classes()).toContain('bc-eyebrow')
+    expect(w.find('.bc-eyebrow__dot').exists()).toBe(true)
+    expect(w.findComponent({ name: 'BBadge' }).exists()).toBe(false)
+  })
+
   it('renders CTA buttons', () => {
     const w = mountHero()
     expect(w.text()).toContain('My charts')
