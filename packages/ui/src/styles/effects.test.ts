@@ -36,11 +36,17 @@ describe('_effects.scss — primary button', () => {
   })
 
   it('inverts on light: navy fill, accent text', () => {
-    expect(css).toMatch(/\[data-bs-theme[=:]*['"]?light['"]?\]\s*\.btn-bc-primary/)
+    const match = css.match(
+      /\[data-bs-theme=light\]\s*\.btn-bc-primary\s*\{([^}]*)\}/
+    )
+    expect(match).not.toBeNull()
+    const body = (match?.[1] ?? '').replace(/\s+/g, ' ')
+    expect(body).toMatch(/background:\s*var\(--bc-mark\)/)
+    expect(body).toMatch(/color:\s*var\(--bc-accent\)/)
   })
 
   it('shows the pool on hover and focus-visible, keeping the prussian focus ring', () => {
-    expect(css).toMatch(/\.btn-bc-primary:hover .bc-pool|\.btn-bc-primary:hover\s*\.bc-pool/)
+    expect(css).toMatch(/\.btn-bc-primary:hover\s*\.bc-pool/)
     expect(css).toMatch(/:focus-visible/)
     expect(css).toMatch(/var\(--bc-focus-ring\)/)
   })
