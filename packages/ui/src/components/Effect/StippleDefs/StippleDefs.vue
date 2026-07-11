@@ -29,10 +29,10 @@ const filters = [
       >
         <feTurbulence
           type="fractalNoise"
-          :base-frequency="f.freq"
-          num-octaves="3"
+          :baseFrequency="f.freq"
+          numOctaves="3"
           :seed="f.seed"
-          stitch-tiles="stitch"
+          stitchTiles="stitch"
           result="n"
         />
         <feColorMatrix
