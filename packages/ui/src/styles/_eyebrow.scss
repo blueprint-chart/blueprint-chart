@@ -14,13 +14,15 @@
 }
 
 .bc-eyebrow__hash {
-  color: var(--bc-accent);
+  // Editorial mark: Prussian on light (chartreuse can't be a thin figure on
+  // white), chartreuse ink on dark. See --bc-mark in tokens.scss.
+  color: var(--bc-mark);
 }
 
 .bc-eyebrow__dot {
   width: 0.4375rem;
   height: 0.4375rem;
   border-radius: 50%;
-  background: var(--bc-accent);
-  box-shadow: 0 0 0 4px var(--bc-accent-quiet);
+  background: var(--bc-mark);
+  box-shadow: 0 0 0 4px var(--bc-mark-quiet);
 }
