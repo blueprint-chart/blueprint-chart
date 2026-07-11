@@ -53,7 +53,6 @@ const cells: ValueCell[] = [
 
 <style scoped lang="scss">
 .landing-value-prop-strip {
-  background: var(--bc-content-bg);
   border-top: 1px solid var(--bc-hairline);
   border-bottom: 1px solid var(--bc-hairline);
   display: grid;

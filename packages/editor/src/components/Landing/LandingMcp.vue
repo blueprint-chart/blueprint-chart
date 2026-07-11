@@ -297,9 +297,9 @@ const steps: McpStep[] = [
     }
 
     &--user {
-      background: #e6eff8;
-      color: #1d4f86;
-      border: 1px solid #cfe0f1;
+      background: var(--bs-primary-bg-subtle);
+      color: var(--bs-primary-text-emphasis);
+      border: 1px solid var(--bs-primary-border-subtle);
       border-radius: var(--bc-radius-md) 0 var(--bc-radius-md) var(--bc-radius-md);
       text-wrap: balance;
       text-wrap: pretty;
@@ -487,12 +487,6 @@ const steps: McpStep[] = [
       box-shadow: var(--bc-focus-ring);
     }
   }
-}
-
-[data-bs-theme="dark"] .landing-mcp__bubble--user {
-  background: rgba(37, 99, 160, 0.22);
-  color: #dce8f4;
-  border-color: rgba(37, 99, 160, 0.45);
 }
 
 [data-bs-theme="dark"] .landing-mcp__chat__body {

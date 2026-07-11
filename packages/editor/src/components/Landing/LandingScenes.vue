@@ -140,10 +140,7 @@ const features: { icon: Component, title: string, description: string }[] = [
 </script>
 
 <template>
-  <LandingSection
-    id="scenes"
-    surface="content"
-  >
+  <LandingSection id="scenes">
     <LandingSectionHeader label="05 / Scenes & storytelling">
       Guide your reader<br><em>through the data.</em>
       <template #lead>
