@@ -43,8 +43,11 @@ $success: #2D8659 !default;
 $info:    $prussian-300 !default;
 $warning: #D4A63A !default;
 $danger:  #C94044 !default;
-$accent:      #E4512B !default;
-$accent-dark: #F2703F !default;
+
+// Accent - the marker. One hex, two gestures (pen on dark, ground on light).
+// No darkened-for-white variant: chartreuse on white is forbidden, not missing.
+$chartreuse-400: #DDF247 !default;
+$accent: $chartreuse-400 !default;
 
 // Borders
 $border-color:      #dcdce0 !default;
@@ -142,11 +145,34 @@ $spacer-xs: 0.25rem !default;
   --bc-hairline: rgba(0, 0, 0, 0.08);
   --bc-hairline-strong: rgba(0, 0, 0, 0.14);
 
-  // Editorial accent: the "red pencil on the blueprint". Non-interactive
-  // only: display emphasis, # eyebrows, brand mark, empty-state art. Never
-  // on buttons, links, focus, or selection (those stay Prussian). See DESIGN.md.
+  // The marker. Interactive emphasis (CTA/hover/selection/focus expression) and
+  // editorial emphasis. Always rides a non-color signal (fill/shape/pool). ~4%.
   --bc-accent: #{$accent};
-  --bc-accent-quiet: rgba($accent, 0.12);
+  --bc-accent-ink: #{$prussian-600};   // only text color on accent fills
+  --bc-accent-quiet: rgba(#{$accent}, 0.16);
+
+  // Grid pool (see _effects.scss). Ink reads on any surface, not just canvas.
+  --bc-pool-r: 100px;
+  --bc-pool-ink: rgba(#{$prussian-300}, 0.33); // drafting-blue grid on light
+
+  // Marketing-only dark surfaces (not the app graphite ramp).
+  --bc-marketing-field: #000000;
+  --bc-marketing-card: #0D1B2E;
+
+  // Editorial mark ink: chartreuse can't be a thin figure on white, so small
+  // marks (eyebrow #/dot) fall back to Prussian on light, chartreuse on dark.
+  --bc-mark: #{$prussian-500};
+  --bc-mark-quiet: rgba(#{$prussian-500}, 0.14);
+
+  // Highlighter swipe (FIG.03). Defined once here so .bc-highlight and the
+  // landing emphasis rules share one gradient (DRY). Ground on light.
+  --bc-swipe: linear-gradient(
+    180deg,
+    transparent 45%,
+    var(--bc-accent) 45%,
+    var(--bc-accent) 92%,
+    transparent 92%
+  );
 
   // Framed-canvas system (flat: hairline border, no shadow).
   --bc-frame-border: var(--bc-hairline);
@@ -226,8 +252,13 @@ $spacer-xs: 0.25rem !default;
   --bc-hairline: rgba(255, 255, 255, 0.06);
   --bc-hairline-strong: rgba(255, 255, 255, 0.12);
 
-  --bc-accent: #{$accent-dark};
-  --bc-accent-quiet: rgba($accent-dark, 0.16);
+  --bc-accent: #{$accent};             // same hex; gesture differs, not value
+  --bc-accent-ink: #{$prussian-600};   // navy on chartreuse in both themes
+  --bc-accent-quiet: rgba(#{$accent}, 0.16);
+  --bc-pool-ink: rgba(#{$prussian-100}, 0.28); // paper-blue grid on dark
+  --bc-mark: #{$accent};               // chartreuse is ink on dark
+  --bc-mark-quiet: rgba(#{$accent}, 0.18);
+  --bc-swipe: none;                    // on dark, chartreuse is ink (text), no swipe
 
   --bc-shadow-overlay:
     0 8px 24px rgba(0, 0, 0, 0.4),
