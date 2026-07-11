@@ -38,8 +38,8 @@ Rules:
 - Eyebrow labels use the `.bc-eyebrow` utility (`packages/ui/src/styles/_eyebrow.scss`):
   mono, uppercase, `xs` size, with an accent-colored leading marker
   (`.bc-eyebrow__hash` for a `#` glyph, `.bc-eyebrow__dot` for a dot). The
-  marker is vermilion, the editorial accent, and is decorative only, never a
-  control.
+  marker uses `--bc-mark` (Prussian on light, chartreuse on dark) and is
+  decorative only, never a control.
 - Ellipsis is the character `…`, never three dots. Loading labels end with `…`.
 - Keyboard hints derive from `usePlatformShortcut`
   (`packages/editor/src/composables/usePlatformShortcut.ts`). Never hardcode
@@ -54,12 +54,23 @@ info `$prussian-300`, warning `#D4A63A`, danger `#C94044`.
 
 Rules:
 
-- **One functional accent + one editorial accent.** Prussian is the functional
-  accent (primary actions, selection, focus, links, DSL keywords). Vermilion
-  `#E4512B` (`#F2703F` in dark theme, via `--bc-accent`) is the editorial
-  accent (display emphasis, `#` eyebrows, brand mark, empty-state art).
-  Vermilion never marks interactivity, never on buttons, links, focus, or
-  selection, so color is never the sole signal that something is actionable.
+- **Prussian is the functional/structural color; chartreuse is the marker.**
+  Prussian (`$prussian-500` `#2563A0`) carries structure, links, and DSL
+  keywords. Chartreuse `#DDF247` (`--bc-accent`) is the marker: it owns
+  interactive emphasis (CTA, hover, selection, the pooled focus state) and
+  editorial emphasis. Chartreuse always rides a non-color signal too (a fill, a
+  shape, the navy focus ring, the grid pool), so color is never the sole
+  actionable signal. It is one hex with two gestures: pen (ink) on dark, ground
+  (fills/swipes) on light. It is never a thin figure or text on white, never in
+  the static logo, nav, or ordinary structure, and is kept to roughly 4% of any
+  composition (the 4% rule). The focus ring stays Prussian
+  (`--bc-focus-ring`); chartreuse's focus expression is the pooled button state.
+- **Charts are exempt.** Rendered chart output (`packages/lib`) keeps its own
+  palette and Prussian emphasis; chartreuse never enters a rendered chart.
+- **Small editorial marks** (the eyebrow `#`/dot) use `--bc-mark`: Prussian on
+  light, chartreuse on dark. Larger emphasis moments use the highlighter
+  (`.bc-highlight`): a chartreuse swipe behind body ink on light, chartreuse
+  ink on dark.
 - Neutrals are cool and come from tokens, never ad-hoc hex. Surface hierarchy
   (void > tile > elevated): `--bc-chrome-bg`, `--bc-content-bg`,
   `--bc-tile-bg`, `--bc-tile-bg-elevated`.

@@ -197,6 +197,7 @@ export default defineConfig({
           items: [
             { text: 'Typography', link: '/handbook/typography' },
             { text: 'Color & palettes', link: '/handbook/color' },
+            { text: 'Effects kit', link: '/handbook/effects-kit' },
             { text: 'Accessibility', link: '/handbook/accessibility' },
           ],
         },
