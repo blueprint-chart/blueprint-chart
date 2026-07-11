@@ -20,5 +20,29 @@ import SectionTitle from './SectionTitle.vue'
         />
       </template>
     </Variant>
+
+    <Variant
+      title="With eyebrow"
+      :init-state="() => ({ flush: false, eyebrow: 'my charts' })"
+    >
+      <template #default="{ state }">
+        <SectionTitle
+          :flush="state.flush"
+          :eyebrow="state.eyebrow"
+        >
+          Section Heading
+        </SectionTitle>
+      </template>
+      <template #controls="{ state }">
+        <HstCheckbox
+          v-model="state.flush"
+          title="flush"
+        />
+        <HstText
+          v-model="state.eyebrow"
+          title="eyebrow"
+        />
+      </template>
+    </Variant>
   </Story>
 </template>

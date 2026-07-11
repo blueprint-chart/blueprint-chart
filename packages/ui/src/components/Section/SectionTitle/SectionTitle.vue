@@ -1,5 +1,24 @@
 <template>
+  <div
+    v-if="eyebrow"
+    class="section-title-block"
+  >
+    <div class="section-title__eyebrow bc-eyebrow">
+      <span
+        class="bc-eyebrow__hash"
+        aria-hidden="true"
+      >#</span>
+      {{ eyebrow }}
+    </div>
+    <h6
+      class="section-title"
+      :class="classList"
+    >
+      <slot />
+    </h6>
+  </div>
   <h6
+    v-else
     class="section-title"
     :class="classList"
   >
@@ -11,8 +30,10 @@
 
 const props = withDefaults(defineProps<{
   flush?: boolean
+  eyebrow?: string
 }>(), {
   flush: false,
+  eyebrow: undefined,
 })
 
 const classList = computed(() => ({
@@ -21,6 +42,10 @@ const classList = computed(() => ({
 </script>
 
 <style scoped lang="scss">
+.section-title__eyebrow {
+  margin-bottom: 0.625rem;
+}
+
 .section-title {
   font-family: "DM Serif Display", Georgia, "Times New Roman", serif;
   font-size: var(--bs-font-size-lg);

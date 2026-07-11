@@ -16,4 +16,16 @@ describe('SectionTitle', () => {
     const wrapper = mount(SectionTitle)
     expect(wrapper.classes()).not.toContain('section-title--flush')
   })
+
+  it('renders an eyebrow when provided', () => {
+    const wrapper = mount(SectionTitle, { props: { eyebrow: 'my charts' }, slots: { default: 'Title' } })
+    expect(wrapper.find('.bc-eyebrow__hash').exists()).toBe(true)
+    expect(wrapper.find('.bc-eyebrow').text()).toBe('# my charts')
+    expect(wrapper.text()).toContain('Title')
+  })
+
+  it('does not render an eyebrow when not provided', () => {
+    const wrapper = mount(SectionTitle, { slots: { default: 'Title' } })
+    expect(wrapper.find('.bc-eyebrow').exists()).toBe(false)
+  })
 })
