@@ -28,15 +28,19 @@ import LandingFooter from './LandingFooter.vue'
 
 <style scoped>
 .landing-page {
-  background: var(--bc-content-bg);
+  /* White in light theme, deep neutral in dark. */
+  background: var(--bc-chrome-bg);
   min-height: 100vh;
   width: 100%;
 }
 
 .landing-page__frame {
   max-width: 75rem;
-  margin: 0 auto 3rem;
-  background: var(--bc-chrome-bg);
+  /* Gap between the sticky top nav and the framed content. */
+  margin: 1.5rem auto 3rem;
+  /* Transparent so the frame always shares the body ground; the hairline */
+  /* border does the framing, inner tiles carry the contrast. */
+  background: transparent;
   border: 1px solid var(--bc-frame-border);
   border-radius: var(--bc-frame-radius);
   overflow: hidden;
