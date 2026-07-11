@@ -27,3 +27,21 @@ describe('_effects.scss — grid pool + ring', () => {
     expect(css).toMatch(/\.bc-ring/)
   })
 })
+
+describe('_effects.scss — primary button', () => {
+  it('fills with accent and inks with accent-ink on dark by default', () => {
+    expect(css).toMatch(/\.btn-bc-primary/)
+    expect(css).toMatch(/background:\s*var\(--bc-accent\)/)
+    expect(css).toMatch(/color:\s*var\(--bc-accent-ink\)/)
+  })
+
+  it('inverts on light: navy fill, accent text', () => {
+    expect(css).toMatch(/\[data-bs-theme[=:]*['"]?light['"]?\]\s*\.btn-bc-primary/)
+  })
+
+  it('shows the pool on hover and focus-visible, keeping the prussian focus ring', () => {
+    expect(css).toMatch(/\.btn-bc-primary:hover .bc-pool|\.btn-bc-primary:hover\s*\.bc-pool/)
+    expect(css).toMatch(/:focus-visible/)
+    expect(css).toMatch(/var\(--bc-focus-ring\)/)
+  })
+})

@@ -53,3 +53,46 @@
     z-index: 1;
   }
 }
+
+// FIG.04 — the primary important button. The everyday emphasis button, one per
+// view. Default (dark world): chartreuse fill, navy ink. On light: navy fill,
+// chartreuse ink. Only these two pairings. The POOLED state is not a separate
+// button: on hover / focus-visible the grid gathers under the cursor then
+// fades. The Prussian focus ring is preserved (chartreuse stays scarce).
+.btn-bc-primary {
+  position: relative;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: none;
+  border-radius: var(--bc-radius-md);
+  padding: 0.5rem 1.25rem;
+  font-family: var(--bs-font-monospace, "Geist Mono", ui-monospace, monospace);
+  font-size: var(--bs-font-size-sm);
+  background: var(--bc-accent);
+  color: var(--bc-accent-ink);
+  cursor: pointer;
+  text-decoration: none;
+  transition: filter var(--bc-duration-base) var(--bc-ease);
+
+  .bc-pool {
+    opacity: 0;
+    transition: opacity var(--bc-duration-base) var(--bc-ease);
+  }
+
+  &:hover .bc-pool,
+  &:focus-visible .bc-pool {
+    opacity: 1;
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--bc-focus-ring);
+  }
+}
+
+[data-bs-theme="light"] .btn-bc-primary {
+  background: var(--bc-mark); // navy fill on light (prussian-500)
+  color: var(--bc-accent);    // chartreuse ink, as a fill's text it is ground
+}
