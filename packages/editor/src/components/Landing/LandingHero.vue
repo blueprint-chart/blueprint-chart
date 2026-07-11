@@ -6,7 +6,7 @@ const sample = samples.find(s => s.id === 'coffee-production')
 if (!sample) {
   throw new Error('Missing coffee-production sample — see LandingHero.vue')
 }
-const heroBpc = sample.dsl.replace(/\{/, '{\n  theme = "blueprint-framed"')
+const heroBpc = sample.dsl.replace(/\{/, '{\n  theme = "blueprint-framed"\n  transparentBackground = true')
 </script>
 
 <template>
@@ -59,7 +59,6 @@ const heroBpc = sample.dsl.replace(/\{/, '{\n  theme = "blueprint-framed"')
           <div class="landing-hero__inner__chart__card">
             <LandingChartPreview
               :bpc="heroBpc"
-              transparent-background
             />
           </div>
         </BcRing>

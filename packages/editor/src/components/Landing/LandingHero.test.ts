@@ -8,7 +8,7 @@ function mountHero() {
     global: {
       stubs: {
         'router-link': RouterLinkStub,
-        'LandingChartPreview': { template: '<div class="chart-stub" />', props: ['bpc'] },
+        'LandingChartPreview': { name: 'LandingChartPreview', template: '<div class="chart-stub" />', props: ['bpc'] },
         'AppIcon': { template: '<span />', props: ['name', 'size', 'variant'] },
       },
     },
@@ -49,6 +49,12 @@ describe('LandingHero', () => {
   it('renders the chart preview', () => {
     const w = mountHero()
     expect(w.find('.landing-hero__inner__chart').exists()).toBe(true)
+  })
+
+  it('requests a transparent chart background via the DSL, not a prop', () => {
+    const w = mountHero()
+    const preview = w.findComponent({ name: 'LandingChartPreview' })
+    expect(preview.props('bpc')).toContain('transparentBackground = true')
   })
 })
 
