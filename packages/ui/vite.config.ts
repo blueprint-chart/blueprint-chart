@@ -23,7 +23,9 @@ function viteCopyStyles() {
       await mkdir(outDir, { recursive: true })
       const entries = await readdir(srcDir)
       for (const entry of entries) {
-        if (!entry.endsWith('.scss')) continue
+        if (!entry.endsWith('.scss')) {
+          continue
+        }
         // Partials (leading underscore) are still valid public entry points.
         // Consumers `@use` them without the underscore, so the dist copy
         // drops it too, matching Sass's own partial-resolution convention.
