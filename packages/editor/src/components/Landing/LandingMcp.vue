@@ -344,7 +344,7 @@ const steps: McpStep[] = [
   &__proof {
     border: 1px solid var(--bc-hairline);
     border-radius: var(--bc-radius-md);
-    background: var(--bc-content-bg);
+    background: var(--bc-tile-bg);
     padding: 1.125rem;
     display: flex;
     flex-direction: column;
@@ -395,7 +395,7 @@ const steps: McpStep[] = [
       height: 1.4375rem;
       border-radius: 50%;
       border: 1.5px solid var(--bs-primary);
-      background: var(--bc-content-bg);
+      background: var(--bc-tile-bg);
       color: var(--bs-primary);
       font-family: "Geist Mono", ui-monospace, monospace;
       font-size: var(--bs-font-size-xs);

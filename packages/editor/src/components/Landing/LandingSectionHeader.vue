@@ -48,6 +48,7 @@ withDefaults(defineProps<{
 
     :deep(em) {
       font-style: italic;
+      color: var(--bc-accent);
     }
   }
 

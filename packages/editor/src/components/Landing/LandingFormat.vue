@@ -170,7 +170,7 @@ const portabilityCards: PortabilityCard[] = [
   }
 
   &__pane {
-    background: var(--bc-content-bg);
+    background: var(--bc-tile-bg);
     border: 1px solid var(--bc-hairline);
     border-radius: var(--bc-radius-md);
     overflow: hidden;
