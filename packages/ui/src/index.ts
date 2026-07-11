@@ -19,6 +19,8 @@ export type { AppIconProps } from './components/App/AppIcon/AppIcon.vue'
 export { default as AppIconLayers } from './components/App/AppIconLayers/AppIconLayers.vue'
 export type { AppIconLayersProps } from './components/App/AppIconLayers/AppIconLayers.vue'
 
+export { default as StippleDefs } from './components/Effect/StippleDefs/StippleDefs.vue'
+
 export { default as FormControlCheckbox } from './components/Form/FormControl/FormControlCheckbox.vue'
 export { default as FormControlColorInput } from './components/Form/FormControl/FormControlColorInput/FormControlColorInput.vue'
 export { default as FormControlColorInputPopover } from './components/Form/FormControl/FormControlColorInput/FormControlColorInputPopover.vue'
