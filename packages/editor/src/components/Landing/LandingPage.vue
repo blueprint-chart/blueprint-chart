@@ -32,6 +32,10 @@ import LandingFooter from './LandingFooter.vue'
   background: var(--bc-chrome-bg);
   min-height: 100vh;
   width: 100%;
+  /* Contain the frame's bottom margin so the ground paints the full height.
+     Without this the margin collapses out and a strip of the body background
+     shows below the page (the "double background"). */
+  display: flow-root;
 }
 
 .landing-page__frame {
