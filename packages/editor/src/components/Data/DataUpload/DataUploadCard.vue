@@ -325,19 +325,17 @@ const tabOptions = [
   border-radius: 0.625rem;
   overflow: hidden;
   background: var(--bs-body-bg);
-  box-shadow: var(--bs-card-box-shadow, 0 1px 3px rgba(0, 0, 0, 0.1));
+  box-shadow: var(--bs-card-box-shadow);
   transition: border-color 0.2s, box-shadow 0.2s;
 
   &:focus-within {
     border-color: var(--bs-primary);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--bs-primary) 15%, transparent),
-      var(--bs-card-box-shadow, 0 1px 3px rgba(0, 0, 0, 0.1));
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--bs-primary) 15%, transparent);
   }
 
   &--drag-over {
     border-color: var(--bs-primary);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--bs-primary) 25%, transparent),
-      0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--bs-primary) 25%, transparent);
     background: var(--bs-primary-bg-subtle);
   }
 

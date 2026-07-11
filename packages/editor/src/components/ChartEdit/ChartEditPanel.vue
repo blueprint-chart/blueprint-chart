@@ -289,7 +289,7 @@ const canvasStyle = computed<CSSProperties>(() => ({
     border: 1px solid var(--bc-hairline);
     border-radius: var(--bc-radius-sm);
     padding: 0.25rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    box-shadow: none;
   }
 
   &__divider {
