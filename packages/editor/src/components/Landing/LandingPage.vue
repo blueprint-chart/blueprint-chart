@@ -13,26 +13,32 @@ import LandingFooter from './LandingFooter.vue'
 <template>
   <div class="landing-page">
     <LandingTopNav />
-    <LandingHero />
-    <LandingValuePropStrip />
-    <LandingMcp />
-    <LandingFormat />
-    <LandingDefaults />
-    <LandingTransforms />
-    <LandingScenes />
-    <LandingFooter />
+    <div class="landing-page__frame">
+      <LandingHero />
+      <LandingValuePropStrip />
+      <LandingMcp />
+      <LandingFormat />
+      <LandingDefaults />
+      <LandingTransforms />
+      <LandingScenes />
+      <LandingFooter />
+    </div>
   </div>
 </template>
 
 <style scoped>
 .landing-page {
-  background: var(--bc-chrome-bg);
+  background: var(--bc-content-bg);
   min-height: 100vh;
   width: 100%;
-  background-image: radial-gradient(
-    ellipse 900px 600px at 18% 8%,
-    rgba(37, 99, 160, 0.10),
-    transparent 60%
-  );
+}
+
+.landing-page__frame {
+  max-width: 75rem;
+  margin: 0 auto 3rem;
+  background: var(--bc-chrome-bg);
+  border: 1px solid var(--bc-frame-border);
+  border-radius: var(--bc-frame-radius);
+  overflow: hidden;
 }
 </style>

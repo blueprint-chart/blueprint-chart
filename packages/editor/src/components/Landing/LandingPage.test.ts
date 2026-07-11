@@ -48,4 +48,9 @@ describe('LandingPage', () => {
     expect(w.findComponent({ name: 'LandingPhilosophy' }).exists()).toBe(false)
     expect(w.findComponent({ name: 'LandingPractices' }).exists()).toBe(false)
   })
+
+  it('wraps sections in a framed canvas', () => {
+    const w = mountPage()
+    expect(w.find('.landing-page__frame').exists()).toBe(true)
+  })
 })
