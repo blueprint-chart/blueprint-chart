@@ -33,6 +33,8 @@
     },
     "./styles/tokens.css": "./dist/styles/tokens.css",
     "./styles/tokens.scss": "./dist/styles/tokens.scss",
+    "./styles/eyebrow.css": "./dist/styles/eyebrow.css",
+    "./styles/eyebrow.scss": "./dist/styles/eyebrow.scss",
     "./style.css": "./dist/style.css"
   },
   "files": [

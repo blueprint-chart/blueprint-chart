@@ -1,0 +1,26 @@
+// Shared eyebrow label: mono, uppercase, xs, with an accent-colored leading
+// marker. Used above section titles (# variant) and on the landing hero (dot
+// variant). The accent here is editorial, never interactive.
+.bc-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--bs-font-monospace, "Geist Mono", ui-monospace, monospace);
+  font-size: var(--bs-font-size-xs);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--bs-tertiary-color);
+}
+
+.bc-eyebrow__hash {
+  color: var(--bc-accent);
+}
+
+.bc-eyebrow__dot {
+  width: 0.4375rem;
+  height: 0.4375rem;
+  border-radius: 50%;
+  background: var(--bc-accent);
+  box-shadow: 0 0 0 4px var(--bc-accent-quiet);
+}
