@@ -86,6 +86,26 @@ test.describe('landing page layout', () => {
   })
 })
 
+test.describe('landing redesign', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/#/')
+  })
+
+  test('renders a framed canvas with no hero card shadow', async ({ page }) => {
+    await expect(page.locator('.landing-page__frame')).toBeVisible()
+    const shadow = await page.locator('.landing-hero__inner__chart')
+      .evaluate(el => getComputedStyle(el).boxShadow)
+    expect(shadow).toBe('none')
+  })
+
+  test('section eyebrow hash uses the vermilion accent', async ({ page }) => {
+    const color = await page.locator('.bc-eyebrow__hash').first()
+      .evaluate(el => getComputedStyle(el).color)
+    // #E4512B
+    expect(color).toBe('rgb(228, 81, 43)')
+  })
+})
+
 for (const v of VIEWPORTS) {
   test.describe(`landing page @${v.name}`, () => {
     test.use({ viewport: v.size })
