@@ -28,11 +28,12 @@ describe('NavigationWorkspaceSwitcher', () => {
     expect(wrapper.find('.navigation-workspace-switcher__badge').text()).toBe('B')
   })
 
-  it('renders the initial badge with the editorial accent', () => {
+  it('renders the initial badge with the brand marker fill', () => {
     const w = mount(NavigationWorkspaceSwitcher, { props: { name: 'Blueprint' } })
     const badge = w.find('.navigation-workspace-switcher__badge')
     expect(badge.exists()).toBe(true)
-    // background pulls from --bc-accent via a class, asserted structurally:
+    // fill pulls from --bc-accent (chartreuse) via the --accent modifier class,
+    // text from --bc-accent-ink; asserted structurally (jsdom has no CSS engine):
     expect(badge.classes()).toContain('navigation-workspace-switcher__badge--accent')
   })
 

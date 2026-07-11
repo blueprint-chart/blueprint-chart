@@ -109,7 +109,7 @@ const initial = computed(() => props.name.trim().charAt(0).toUpperCase())
   height: 1.25rem;
   border-radius: var(--bc-radius-sm);
   background: var(--bc-accent);
-  color: #ffffff;
+  color: var(--bc-accent-ink);
   font-family: "DM Serif Display", Georgia, serif;
   font-size: 0.75rem;
   font-weight: 400;
