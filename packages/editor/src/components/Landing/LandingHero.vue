@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ButtonIcon } from '@blueprint-chart/ui'
+import { ButtonIcon, StippleDefs } from '@blueprint-chart/ui'
 import IPhPlus from '~icons/ph/plus'
 import { samples } from '@blueprint-chart/lib'
 
@@ -12,6 +12,11 @@ const heroBpc = sample.dsl.replace(/\{/, '{\n  theme = "blueprint-framed"')
 
 <template>
   <section class="landing-hero">
+    <StippleDefs />
+    <div
+      class="landing-hero__grain"
+      aria-hidden="true"
+    />
     <div class="landing-hero__inner">
       <div class="landing-hero__inner__text">
         <span class="landing-hero__inner__text__eyebrow bc-eyebrow">
@@ -51,10 +56,28 @@ const heroBpc = sample.dsl.replace(/\{/, '{\n  theme = "blueprint-framed"')
 </template>
 
 <style scoped lang="scss">
+@use "@blueprint-chart/ui/styles/tokens.scss" as tok;
+
 .landing-hero {
+  position: relative;
+  overflow: hidden;
   padding: 3.5rem clamp(1rem, 5vw, 3.75rem) 4rem;
 
+  &__grain {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(75% 75% at 12% 10%, rgba(tok.$prussian-300, 0.55), transparent 70%),
+      radial-gradient(70% 70% at 88% 92%, rgba(tok.$chartreuse-400, 0.35), transparent 70%);
+    filter: url(#bc-stipple-a);
+    opacity: 0;
+  }
+
   &__inner {
+    position: relative;
+    z-index: 1;
     max-width: 70rem;
     margin: 0 auto;
     display: grid;
@@ -113,6 +136,14 @@ const heroBpc = sample.dsl.replace(/\{/, '{\n  theme = "blueprint-framed"')
 [data-bs-theme="dark"] .landing-hero__inner__text__h1 :deep(em) {
   padding: 0;
   color: var(--bc-accent);
+}
+
+[data-bs-theme="dark"] .landing-hero {
+  background: var(--bc-marketing-field);
+
+  .landing-hero__grain {
+    opacity: 1;
+  }
 }
 
 @media (max-width: 51.25rem) {
