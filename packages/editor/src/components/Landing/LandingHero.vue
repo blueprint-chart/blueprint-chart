@@ -78,7 +78,8 @@ const heroBpc = sample.dsl.replace(/\{/, '{\n  theme = "blueprint-framed"')
 
         :deep(em) {
           font-style: italic;
-          color: var(--bc-accent);
+          background: var(--bc-swipe);
+          padding: 0 0.1875rem;
         }
       }
 
@@ -107,6 +108,11 @@ const heroBpc = sample.dsl.replace(/\{/, '{\n  theme = "blueprint-framed"')
       overflow: hidden;
     }
   }
+}
+
+[data-bs-theme="dark"] .landing-hero__inner__text__h1 :deep(em) {
+  padding: 0;
+  color: var(--bc-accent);
 }
 
 @media (max-width: 51.25rem) {

@@ -48,7 +48,8 @@ withDefaults(defineProps<{
 
     :deep(em) {
       font-style: italic;
-      color: var(--bc-accent);
+      background: var(--bc-swipe);
+      padding: 0 0.1875rem;
     }
   }
 
@@ -71,5 +72,10 @@ withDefaults(defineProps<{
       margin-bottom: 0;
     }
   }
+}
+
+[data-bs-theme="dark"] .landing-section-header__title :deep(em) {
+  padding: 0;
+  color: var(--bc-accent);
 }
 </style>

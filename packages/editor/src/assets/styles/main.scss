@@ -125,6 +125,20 @@ body {
   font-style: italic;
 }
 
+// FIG.03 — the highlighter. On light, chartreuse is never figure, only ground:
+// a swipe (--bc-swipe) behind body-color ink. On dark, --bc-swipe is none and
+// chartreuse is ink (text). The gradient itself is defined once in tokens.scss.
+.bc-highlight {
+  background: var(--bc-swipe);
+  padding: 0 0.1875rem;
+  color: inherit;
+}
+
+[data-bs-theme="dark"] .bc-highlight {
+  padding: 0;
+  color: var(--bc-accent);
+}
+
 .bc-frame-title       { font-size: var(--bs-font-size-lg); }
 .bc-frame-description { font-size: var(--bs-font-size-md); }
 .bc-frame-note        { color: var(--bs-body-color, #888); font-size: var(--bs-font-size-sm); }
