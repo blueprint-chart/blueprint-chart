@@ -75,4 +75,9 @@ describe('LandingHero - bold marketing island', () => {
     const w = mountHero()
     expect(w.find('.btn-bc-primary').exists()).toBe(true)
   })
+
+  it('stamps data-bs-theme=dark so it is an always-dark island regardless of app theme', () => {
+    const w = mountHero()
+    expect(w.find('.landing-hero').attributes('data-bs-theme')).toBe('dark')
+  })
 })

@@ -10,7 +10,10 @@ const heroBpc = sample.dsl.replace(/\{/, '{\n  theme = "blueprint-framed"')
 </script>
 
 <template>
-  <section class="landing-hero">
+  <section
+    class="landing-hero"
+    data-bs-theme="dark"
+  >
     <StippleDefs />
     <div
       class="landing-hero__grain"
