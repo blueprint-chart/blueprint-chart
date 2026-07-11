@@ -1,3 +1,6 @@
+<!-- The h6 below is duplicated across the v-if/v-else branches on purpose: Vue Test
+     Utils requires a single root element, so this cannot be merged into a
+     v-if-wrapped fragment without reintroducing that multi-root test failure. -->
 <template>
   <div
     v-if="eyebrow"

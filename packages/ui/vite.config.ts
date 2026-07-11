@@ -6,7 +6,7 @@ import Components from 'unplugin-vue-components/vite'
 import { BootstrapVueNextResolver } from 'bootstrap-vue-next'
 import Icons from 'unplugin-icons/vite'
 import IconsResolver from 'unplugin-icons/resolver'
-import { mkdir, copyFile, readdir, writeFile } from 'node:fs/promises'
+import { mkdir, copyFile, writeFile } from 'node:fs/promises'
 import { resolve, join } from 'node:path'
 import * as sass from 'sass'
 
@@ -21,15 +21,16 @@ function viteCopyStyles() {
       const srcDir = resolve(__dirname, 'src/styles')
       const outDir = resolve(__dirname, 'dist/styles')
       await mkdir(outDir, { recursive: true })
-      const entries = await readdir(srcDir)
-      for (const entry of entries) {
-        if (!entry.endsWith('.scss')) {
-          continue
-        }
+      // Explicit allowlist of public entry points, matching package.json's
+      // `exports` map. Do NOT copy every .scss in this directory: partials
+      // like _mixins.scss are internal (used by tokens.scss/eyebrow.scss)
+      // and must not be emitted as their own dist/styles/*.css|scss files.
+      const publicEntries = ['tokens.scss', 'eyebrow.scss']
+      for (const publicName of publicEntries) {
         // Partials (leading underscore) are still valid public entry points.
         // Consumers `@use` them without the underscore, so the dist copy
         // drops it too, matching Sass's own partial-resolution convention.
-        const publicName = entry.startsWith('_') ? entry.slice(1) : entry
+        const entry = publicName === 'tokens.scss' ? publicName : `_${publicName}`
         await copyFile(join(srcDir, entry), join(outDir, publicName))
         const css = sass.compile(join(srcDir, entry), { style: 'compressed' }).css
         const cssName = publicName.replace(/\.scss$/, '.css')

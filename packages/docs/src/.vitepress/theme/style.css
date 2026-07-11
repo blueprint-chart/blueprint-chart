@@ -54,7 +54,6 @@
     120deg, #102E55 0%, #2563A0 45%, #4B90CF 100%
   );
   --vp-home-hero-image-background-image: none;
-  --vp-home-hero-image-filter: blur(56px);
 
   /* Code blocks */
   --vp-code-block-bg: var(--bc-tile-bg-elevated);
@@ -121,7 +120,6 @@
     120deg, #A3C9E8 0%, #4B90CF 50%, #2563A0 100%
   );
   --vp-home-hero-image-background-image: none;
-  --vp-home-hero-image-filter: blur(64px);
 
   --vp-code-block-bg: var(--bc-tile-bg-elevated);
   --vp-code-line-highlight-color: rgba(75, 144, 207, 0.10);

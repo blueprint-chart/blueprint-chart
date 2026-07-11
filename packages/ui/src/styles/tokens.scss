@@ -145,8 +145,8 @@ $spacer-xs: 0.25rem !default;
   // Editorial accent: the "red pencil on the blueprint". Non-interactive
   // only: display emphasis, # eyebrows, brand mark, empty-state art. Never
   // on buttons, links, focus, or selection (those stay Prussian). See DESIGN.md.
-  --bc-accent: #E4512B;
-  --bc-accent-quiet: rgba(228, 81, 43, 0.12);
+  --bc-accent: #{$accent};
+  --bc-accent-quiet: rgba($accent, 0.12);
 
   // Framed-canvas system (flat: hairline border, no shadow).
   --bc-frame-border: var(--bc-hairline);
@@ -226,8 +226,8 @@ $spacer-xs: 0.25rem !default;
   --bc-hairline: rgba(255, 255, 255, 0.06);
   --bc-hairline-strong: rgba(255, 255, 255, 0.12);
 
-  --bc-accent: #F2703F;
-  --bc-accent-quiet: rgba(242, 112, 63, 0.16);
+  --bc-accent: #{$accent-dark};
+  --bc-accent-quiet: rgba($accent-dark, 0.16);
 
   --bc-shadow-overlay:
     0 8px 24px rgba(0, 0, 0, 0.4),
