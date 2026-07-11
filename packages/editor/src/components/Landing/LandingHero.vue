@@ -40,7 +40,9 @@ const heroBpc = sample.dsl.replace(/\{/, '{\n  theme = "blueprint-framed"')
           <router-link
             to="/charts"
             class="landing-hero__ghost"
-          >My charts</router-link>
+          >
+            My charts
+          </router-link>
           <router-link
             to="/new"
             class="btn-bc-primary"
