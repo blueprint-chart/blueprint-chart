@@ -76,12 +76,38 @@ const logoSrc = computed(() => theme.value === 'dark' ? logoDark : logoLight)
     color: var(--bs-tertiary-color);
   }
 
+  // Link-hover highlighter (effects kit, FIG.03), bookending the top nav: the
+  // link rides a chartreuse swipe (ground) on hover, ink stays on top. Full
+  // swipe on light, faint chartreuse ground on dark (see --bc-swipe).
   &__link {
+    position: relative;
+    isolation: isolate;
+    padding: 0.1rem 0.3rem;
+    border-radius: var(--bc-radius-xs);
     color: var(--bs-secondary-color);
     text-decoration: none;
 
+    &::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background: var(--bc-swipe);
+      transform: scaleX(0);
+      transform-origin: left center;
+      opacity: 0;
+      transition:
+        transform var(--bc-duration-slow) var(--bc-ease),
+        opacity var(--bc-duration-base) var(--bc-ease);
+    }
+
     &:hover {
       color: var(--bs-body-color);
+
+      &::before {
+        transform: scaleX(1);
+        opacity: 1;
+      }
     }
   }
 
@@ -95,6 +121,12 @@ const logoSrc = computed(() => theme.value === 'dark' ? logoDark : logoLight)
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--bs-tertiary-color);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-footer__link::before {
+    transition: none;
   }
 }
 
