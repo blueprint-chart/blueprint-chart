@@ -147,12 +147,12 @@ const heroBpc = applyBrandLook(sample.dsl)
       align-self: center;
 
       &__card {
-        background: var(--bc-tile-bg);
+        background: rgba(0, 0, 0, 0.85);
         border: 1px solid var(--bc-hairline-strong);
         border-radius: var(--bc-radius-lg);
         overflow: hidden;
         // The chart styles itself via the blueprint-bold theme (transparent
-        // background over this dark island). No per-frame overrides here.
+        // background over this black card). No per-frame overrides here.
       }
     }
   }
