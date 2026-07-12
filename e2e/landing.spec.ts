@@ -15,8 +15,8 @@ test.describe('landing page layout', () => {
     await expect(page.locator('.landing-hero__inner__text__h1')).toBeVisible()
     await expect(page.locator('.landing-hero__inner__text__h1')).toContainText('The open chart format')
     await expect(page.locator('.landing-hero__inner__text__h1')).toContainText('AI writes')
-    await expect(page.locator('.button-icon', { hasText: 'My charts' }).first()).toBeVisible()
-    await expect(page.locator('.button-icon', { hasText: 'New chart' }).first()).toBeVisible()
+    await expect(page.locator('.landing-hero__ghost', { hasText: 'My charts' }).first()).toBeVisible()
+    await expect(page.locator('.landing-hero .btn-bc-primary', { hasText: 'New chart' }).first()).toBeVisible()
   })
 
   test('hero chart renders D3 SVG', async ({ page }) => {
@@ -98,11 +98,12 @@ test.describe('landing redesign', () => {
     expect(shadow).toBe('none')
   })
 
-  test('section eyebrow hash uses the vermilion accent', async ({ page }) => {
+  test('section eyebrow hash uses the Prussian mark, never vermilion', async ({ page }) => {
     const color = await page.locator('.bc-eyebrow__hash').first()
       .evaluate(el => getComputedStyle(el).color)
-    // #E4512B
-    expect(color).toBe('rgb(228, 81, 43)')
+    // #2563A0 — --bc-mark on light. Chartreuse can't be a thin figure on white,
+    // so small editorial marks fall back to the Prussian brand ink (vermilion retired).
+    expect(color).toBe('rgb(37, 99, 160)')
   })
 })
 
