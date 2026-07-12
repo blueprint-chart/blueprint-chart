@@ -1,3 +1,7 @@
+<script setup lang="ts">
+import { BcRing } from '@blueprint-chart/ui'
+</script>
+
 <template>
   <section
     class="landing-callout"
@@ -18,16 +22,24 @@
       <h2 class="landing-callout__title">
         Draft your first chart <em>in a sentence.</em>
       </h2>
-      <router-link
-        to="/new"
-        class="btn-bc-primary"
+      <!-- The closing ceremonial CTA, ringed to match the hero: the two rings
+           (hero + closing) bookend the page on its dark marketing islands. -->
+      <BcRing
+        tone="field"
+        inline
+        class="landing-callout__cta-ring"
       >
-        <span
-          class="bc-pool"
-          aria-hidden="true"
-        />
-        <span class="landing-callout__cta-label">New chart</span>
-      </router-link>
+        <router-link
+          to="/new"
+          class="btn-bc-primary"
+        >
+          <span
+            class="bc-pool"
+            aria-hidden="true"
+          />
+          <span class="landing-callout__cta-label">New chart</span>
+        </router-link>
+      </BcRing>
     </div>
   </section>
 </template>
@@ -76,6 +88,14 @@
   &__cta-label {
     position: relative;
     z-index: 1;
+  }
+
+  // Ring corner matches the button radius so they read as one control (same as
+  // the hero's ringed CTA).
+  &__cta-ring {
+    --bc-ring-gap: 4px;
+    --bc-ring-radius: var(--bc-radius-md);
+    vertical-align: middle;
   }
 }
 </style>
