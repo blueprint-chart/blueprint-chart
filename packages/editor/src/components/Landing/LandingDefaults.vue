@@ -103,7 +103,7 @@ const cards: Card[] = [
     align-items: stretch;
 
     &__chart {
-      background: var(--bc-tile-bg);
+      background: transparent;
       border: 1px solid var(--bc-hairline);
       border-radius: var(--bc-radius-lg);
       overflow: hidden;

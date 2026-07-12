@@ -268,7 +268,7 @@ const features: { icon: Component, title: string, description: string }[] = [
 }
 
 .scenes-demo {
-  background: var(--bc-tile-bg);
+  background: transparent;
   border: 1px solid var(--bc-hairline);
   border-radius: var(--bc-radius-md);
   overflow: hidden;
