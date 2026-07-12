@@ -88,8 +88,10 @@
     position: relative;
     z-index: 1;
     // Opaque background so the header covers SVG content behind it.
-    // Uses the card/container background or white as fallback.
-    background: var(--bc-frame-header-bg, var(--bs-card-bg, #fff));
+    // Falls back to the frame background (which themes such as blueprint-bold
+    // set) before the card/container background, so the cover matches the
+    // frame rather than flashing a light band over a dark themed canvas.
+    background: var(--bc-frame-header-bg, var(--bc-frame-bg, var(--bs-card-bg, #fff)));
   }
 
   .bc-frame-body {
