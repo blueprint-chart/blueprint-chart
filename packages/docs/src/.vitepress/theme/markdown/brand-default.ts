@@ -8,11 +8,11 @@
 export const BRAND_THEME = 'blueprint-bold'
 export const BRAND_PALETTE = 'BlueprintBold'
 
-/** True when the BPC source already sets a `theme` or `colorPalette` property. */
+/** True when the BPC source already sets a `theme`, `colorPalette`, or `colors` property. */
 export function declaresPaletteOrTheme(source: string): boolean {
   // Match a property assignment at the start of a (trimmed) line only, so a
   // data key like "theme park" cannot trigger a false positive.
-  return /^[ \t]*(theme|colorPalette)[ \t]*=/m.test(source)
+  return /^[ \t]*(theme|colorPalette|colors)[ \t]*=/m.test(source)
 }
 
 /**

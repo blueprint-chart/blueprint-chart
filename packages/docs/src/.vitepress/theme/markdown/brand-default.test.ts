@@ -14,6 +14,12 @@ describe('declaresPaletteOrTheme', () => {
   it('does not false-match a data key named theme', () => {
     expect(declaresPaletteOrTheme('chart bar-vertical {\n  data {\n    "theme park" = 5\n  }\n}')).toBe(false)
   })
+  it('detects an existing colors property', () => {
+    expect(declaresPaletteOrTheme('chart bar-vertical {\n  colors = "#eeca3b, #c0c0c0, #cd7f32"\n}')).toBe(true)
+  })
+  it('does not false-match a data key named "colors of autumn"', () => {
+    expect(declaresPaletteOrTheme('chart bar-vertical {\n  data {\n    "colors of autumn" = 5\n  }\n}')).toBe(false)
+  })
 })
 
 describe('injectBrandDefault', () => {
