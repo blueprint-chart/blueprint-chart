@@ -51,10 +51,10 @@ describe('LandingHero', () => {
     expect(w.find('.landing-hero__inner__chart').exists()).toBe(true)
   })
 
-  it('requests a transparent chart background via the DSL, not a prop', () => {
+  it('renders the chart with the framed theme (dark surface is forced via CSS)', () => {
     const w = mountHero()
     const preview = w.findComponent({ name: 'LandingChartPreview' })
-    expect(preview.props('bpc')).toContain('transparentBackground = true')
+    expect(preview.props('bpc')).toContain('theme = "blueprint-framed"')
   })
 })
 

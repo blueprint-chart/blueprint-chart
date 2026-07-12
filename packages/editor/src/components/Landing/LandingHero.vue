@@ -6,7 +6,7 @@ const sample = samples.find(s => s.id === 'coffee-production')
 if (!sample) {
   throw new Error('Missing coffee-production sample — see LandingHero.vue')
 }
-const heroBpc = sample.dsl.replace(/\{/, '{\n  theme = "blueprint-framed"\n  transparentBackground = true')
+const heroBpc = sample.dsl.replace(/\{/, '{\n  theme = "blueprint-framed"')
 </script>
 
 <template>
@@ -141,6 +141,18 @@ const heroBpc = sample.dsl.replace(/\{/, '{\n  theme = "blueprint-framed"\n  tra
         background: var(--bc-marketing-card);
         border-radius: var(--bc-radius-lg);
         overflow: hidden;
+
+        // Force the chart frame onto the dark marketing surface. The editor's
+        // chart.scss ties --bc-frame-bg to --bs-card-bg, which resolves light
+        // even inside this dark island, so the plot area would render white.
+        // Pin the frame ink to the marketing tokens so the chart matches the hero.
+        :deep(.bc-frame) {
+          --bc-frame-bg: var(--bc-marketing-card);
+          --bc-text-color: var(--bc-marketing-ink);
+          --bc-axis-color: var(--bc-marketing-ink-dim);
+          --bc-grid-color: var(--bc-hairline-strong);
+          color: var(--bc-marketing-ink);
+        }
       }
     }
   }
