@@ -1,5 +1,6 @@
 ---
 title: Palettes
+bpcBrandDefault: false
 ---
 
 # Palettes
@@ -173,12 +174,20 @@ A small sampling of the catalogue (run `listPalettes()` for the current full lis
 | name | label | colours |
 | --- | --- | --- |
 | `Blueprint` | Blueprint | 6 |
+| `BlueprintBold` | Blueprint Bold | 6 |
 | `JosefAlbers` | Albers | 5 |
 | `Egypt` | Egypt | 4 |
 | `Klimt` | Klimt | 6 |
 | `Maya` | Maya | 5 |
 | `Sunset` | Sunset | 7 |
 | `TheovanDoesburg` | Van Doesburg | 5 |
+
+::: tip Brand palette
+`BlueprintBold` is the brand palette: the `Blueprint` set with chartreuse as the
+second series. It is designed to pair with the `blueprint-bold` theme, which
+renders charts on the dark blueprint canvas where chartreuse reads. On a light
+background, enable `autoContrast` so chartreuse is darkened to stay legible.
+:::
 
 ## API surface
 

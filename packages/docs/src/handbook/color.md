@@ -1,5 +1,6 @@
 ---
 title: Color & Palettes
+bpcBrandDefault: false
 ---
 
 # Color & Palettes
