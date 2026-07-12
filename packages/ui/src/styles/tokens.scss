@@ -152,7 +152,7 @@ $spacer-xs: 0.25rem !default;
 
   // Grid pool (see _effects.scss). Ink reads on any surface, not just canvas.
   --bc-pool-r: 100px;
-  --bc-pool-ink: rgba(#{$prussian-300}, 0.33); // drafting-blue grid on light
+  --bc-pool-ink: #{rgba($prussian-300, 0.33)}; // drafting-blue grid on light
 
   // Marketing-only dark surfaces (not the app graphite ramp).
   --bc-marketing-field: #000000;
@@ -168,12 +168,12 @@ $spacer-xs: 0.25rem !default;
   // #000000 marketing field, below the 3:1 focus-indicator floor. This
   // brighter Prussian tint reads at roughly 3.5:1+ on black and is used only
   // on the dark marketing islands (see .btn-bc-primary:focus-visible below).
-  --bc-focus-ring-marketing: 0 0 0 3px rgba(#{$prussian-300}, 0.9);
+  --bc-focus-ring-marketing: 0 0 0 3px #{rgba($prussian-300, 0.9)};
 
   // Editorial mark ink: chartreuse can't be a thin figure on white, so small
   // marks (eyebrow #/dot) fall back to Prussian on light, chartreuse on dark.
   --bc-mark: #{$prussian-500};
-  --bc-mark-quiet: rgba(#{$prussian-500}, 0.14);
+  --bc-mark-quiet: #{rgba($prussian-500, 0.14)};
 
   // Primary button fill/ink pair. Flips per theme so .btn-bc-primary always
   // resolves at the nearest theme (see _effects.scss), instead of a
@@ -272,17 +272,17 @@ $spacer-xs: 0.25rem !default;
 
   --bc-accent: #{$accent};             // same hex; gesture differs, not value
   --bc-accent-ink: #{$prussian-600};   // navy on chartreuse in both themes
-  --bc-pool-ink: rgba(#{$prussian-100}, 0.28); // paper-blue grid on dark
+  --bc-pool-ink: #{rgba($prussian-100, 0.28)}; // paper-blue grid on dark
   --bc-mark: #{$accent};               // chartreuse is ink on dark
-  --bc-mark-quiet: rgba(#{$accent}, 0.18);
+  --bc-mark-quiet: #{rgba($accent, 0.18)};
 
   // On dark, chartreuse is ink (text) so the swipe stays as a faint ground
   // behind normal text rather than a bold block.
   --bc-swipe: linear-gradient(
     180deg,
     transparent 45%,
-    rgba(#{$chartreuse-400}, 0.18) 45%,
-    rgba(#{$chartreuse-400}, 0.18) 92%,
+    #{rgba($chartreuse-400, 0.18)} 45%,
+    #{rgba($chartreuse-400, 0.18)} 92%,
     transparent 92%
   );
 
