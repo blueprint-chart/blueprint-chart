@@ -78,15 +78,17 @@ Rules:
   `--bc-hairline-strong`, `--bc-wash-soft/firm/input/input-hover`) so they
   work on any surface in both themes.
 - Dark mode is a full token swap on `[data-bs-theme="dark"]` (aliased to
-  `.dark` for the docs site). Dark surfaces use elevation steps, not plain
-  lightness inversion. Never branch on theme in component CSS when a token
+  `.dark` for the docs site). Dark surfaces are intense black (`#000000` for void/chrome/content/canvas)
+  with a single quiet lift for resting tiles (`#0e0e0e`) and floating surfaces
+  (`#161616`); depth comes from that lift plus hairlines, since drop shadows do
+  not read on true black. Never branch on theme in component CSS when a token
   can carry the difference.
 - Tooltips follow Bootstrap 5.3's inverted convention (dark-on-light theme
   shows dark tooltips, dark theme shows light tooltips). This is intentional;
   do not override per-component.
-- The blueprint canvas (`--bc-canvas-bg` `#244a7c` with white grid lines) is
-  the product's brand moment. It is identical in light and dark themes and is
-  not a general-purpose surface.
+- The blueprint canvas is the product's brand moment: blueprint blue
+  (`#244a7c`) in light, intense black (`#000000`) in dark, both with white grid
+  lines. It is not a general-purpose surface.
 - Contrast floors: body text 4.5:1, large text and UI components 3:1. Never
   encode meaning with color alone.
 
