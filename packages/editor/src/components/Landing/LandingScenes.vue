@@ -141,13 +141,23 @@ const features: { icon: Component, title: string, description: string }[] = [
 
 <template>
   <LandingSection id="scenes">
-    <LandingSectionHeader label="05 / Scenes & storytelling">
-      Guide your reader<br><em>through the data.</em>
-      <template #lead>
-        Create a sequence of scenes, each one a step in your narrative.
-        The same chart morphs from overview to focus, from cause to consequence. Press play, or step through.
-      </template>
-    </LandingSectionHeader>
+    <div class="scenes__intro">
+      <!-- Grid-pool lamp in the header's open right space, matching the format
+           section. Ink flips per theme; no extra chartreuse. -->
+      <div
+        class="scenes__lamp"
+        aria-hidden="true"
+      >
+        <span class="bc-pool" />
+      </div>
+      <LandingSectionHeader label="05 / Scenes & storytelling">
+        Guide your reader<br><em>through the data.</em>
+        <template #lead>
+          Create a sequence of scenes, each one a step in your narrative.
+          The same chart morphs from overview to focus, from cause to consequence. Press play, or step through.
+        </template>
+      </LandingSectionHeader>
+    </div>
     <div class="scenes__grid">
       <div class="scenes__grid__features">
         <div
@@ -197,6 +207,28 @@ const features: { icon: Component, title: string, description: string }[] = [
 </template>
 
 <style scoped lang="scss">
+.scenes__intro {
+  position: relative;
+}
+
+// Positioned wrapper (mirrors LandingFormat's lamp): the .bc-pool child fills
+// it and fades radially in the header's empty right column, on both themes.
+.scenes__lamp {
+  position: absolute;
+  z-index: 0;
+  top: -0.5rem;
+  right: 3%;
+  width: 15rem;
+  height: 11rem;
+  pointer-events: none;
+
+  .bc-pool {
+    --bc-pool-r: 105px;
+    --bc-pool-x: 58%;
+    --bc-pool-y: 45%;
+  }
+}
+
 .scenes__grid {
   display: grid;
   grid-template-columns: 1fr 1.2fr;
@@ -243,6 +275,11 @@ const features: { icon: Component, title: string, description: string }[] = [
 }
 
 @media (max-width: 51.25rem) {
+  // The header goes full-width here; drop the lamp so it can't sit under text.
+  .scenes__lamp {
+    display: none;
+  }
+
   // Mobile: chart sits above features (features get order:1; chart stays at default order 0)
   .scenes__grid {
     grid-template-columns: 1fr;
