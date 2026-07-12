@@ -269,13 +269,15 @@ $spacer-xs: 0.25rem !default;
   --bc-mark: #{$accent};               // chartreuse is ink on dark
   --bc-mark-quiet: #{rgba($accent, 0.18)};
 
-  // On dark, chartreuse is ink (text) so the swipe stays as a faint ground
-  // behind normal text rather than a bold block.
+  // On dark, chartreuse is ink (text) so the swipe stays a translucent ground
+  // behind normal text rather than a bold block. Alpha 0.4 makes the band
+  // clearly read on true black while keeping white/near-white text over it
+  // above the 4.5:1 floor (~5.9:1 on #EAF2FA, ~5.1:1 on --bs-body-color).
   --bc-swipe: linear-gradient(
     180deg,
     transparent 45%,
-    #{rgba($chartreuse-400, 0.22)} 45%,
-    #{rgba($chartreuse-400, 0.22)} 92%,
+    #{rgba($chartreuse-400, 0.4)} 45%,
+    #{rgba($chartreuse-400, 0.4)} 92%,
     transparent 92%
   );
 
