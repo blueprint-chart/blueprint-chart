@@ -56,6 +56,7 @@ describe('LandingHero', () => {
     const preview = w.findComponent({ name: 'LandingChartPreview' })
     expect(preview.props('bpc')).toContain('theme = "blueprint-bold"')
     expect(preview.props('bpc')).toContain('colorPalette = "BlueprintBold"')
+    expect(preview.props('bpc')).toContain('transparentBackground = true')
     expect(preview.props('bpc')).not.toContain('Harvey')
   })
 })

@@ -2,9 +2,9 @@ import { describe, it, expect } from 'vitest'
 import { applyBrandLook } from './brand-look'
 
 describe('applyBrandLook', () => {
-  it('injects the brand theme and palette as the first chart properties', () => {
+  it('injects the brand theme, palette and transparent background as the first chart properties', () => {
     const out = applyBrandLook('chart bar-vertical {\n  title = "Hi"\n  data {\n    "a" = 1\n  }\n}')
-    expect(out).toContain('chart bar-vertical {\n  theme = "blueprint-bold"\n  colorPalette = "BlueprintBold"')
+    expect(out).toContain('chart bar-vertical {\n  theme = "blueprint-bold"\n  colorPalette = "BlueprintBold"\n  transparentBackground = true')
     expect(out).toContain('title = "Hi"')
   })
 
