@@ -65,8 +65,13 @@ Rules:
   the static logo, nav, or ordinary structure, and is kept to roughly 4% of any
   composition (the 4% rule). The focus ring stays Prussian
   (`--bc-focus-ring`); chartreuse's focus expression is the pooled button state.
-- **Charts are exempt.** Rendered chart output (`packages/lib`) keeps its own
-  palette and Prussian emphasis; chartreuse never enters a rendered chart.
+- **Charts are exempt by default, with one branded exception.** Rendered chart
+  output (`packages/lib`) keeps its own palette and Prussian emphasis; chartreuse
+  never enters an ordinary chart. The single exception is the `blueprint-bold`
+  theme paired with the `BlueprintBold` palette, where chartreuse is a series
+  colour on the dark blueprint canvas (the surface where it reads). This brand
+  look is the default only on the landing/marketing pages and docs previews; the
+  library defaults stay `Blueprint`/`blueprint`.
 - **Small editorial marks** (the eyebrow `#`/dot) use `--bc-mark`: Prussian on
   light, chartreuse on dark. Larger emphasis moments use the highlighter
   (`.bc-highlight`): a chartreuse swipe behind body ink on light, chartreuse
