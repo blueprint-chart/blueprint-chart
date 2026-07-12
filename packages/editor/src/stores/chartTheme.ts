@@ -7,6 +7,7 @@ export interface ChartThemeOption {
 export const chartThemeOptions: ChartThemeOption[] = [
   { value: 'blueprint', label: 'Blueprint', description: 'The default Blueprint Chart theme' },
   { value: 'blueprint-framed', label: 'Blueprint Framed', description: 'Adds borders and a tinted footer' },
+  { value: 'blueprint-bold', label: 'Blueprint Bold', description: 'Charts on the blueprint canvas with the full brand palette' },
 ]
 
 export const useChartThemeStore = defineStore('chartTheme', () => {

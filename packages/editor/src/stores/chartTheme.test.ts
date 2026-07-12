@@ -31,8 +31,9 @@ describe('useChartThemeStore', () => {
   })
 
   it('exports chartThemeOptions with available themes', () => {
-    expect(chartThemeOptions).toHaveLength(2)
+    expect(chartThemeOptions).toHaveLength(3)
     expect(chartThemeOptions[0].value).toBe('blueprint')
     expect(chartThemeOptions[1].value).toBe('blueprint-framed')
+    expect(chartThemeOptions[2].value).toBe('blueprint-bold')
   })
 })
