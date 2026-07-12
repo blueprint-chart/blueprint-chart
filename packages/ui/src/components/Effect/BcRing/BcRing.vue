@@ -109,6 +109,13 @@ const paperId = `bc-ring-paper-${uid}`
     z-index: 0;
     pointer-events: none;
     overflow: visible;
+
+    // Corner radius as a CSS property (overrides the rect's rx attribute where
+    // supported) so consumers can match the ring to the radius of the content
+    // it frames, e.g. --bc-ring-radius: var(--bc-radius-md) around a button.
+    rect {
+      rx: var(--bc-ring-radius, 14px);
+    }
   }
 
   &__inner {

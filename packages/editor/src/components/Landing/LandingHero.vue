@@ -25,8 +25,6 @@ const heroBpc = sample.dsl.replace(/\{/, '{\n  theme = "blueprint-framed"')
       aria-hidden="true"
     >
       <span class="landing-hero__lamp__grid bc-pool" />
-      <span class="landing-hero__lamp__dot" />
-      <span class="landing-hero__lamp__val">42.7</span>
     </div>
     <div class="landing-hero__inner">
       <div class="landing-hero__inner__text">
@@ -181,14 +179,16 @@ const heroBpc = sample.dsl.replace(/\{/, '{\n  theme = "blueprint-framed"')
   }
 
   // Ringed hero CTA: the single ceremonial button, framed by the particle ring.
+  // The ring corner matches the button radius so they read as one control.
   &__cta-ring {
-    --bc-ring-gap: 5px;
+    --bc-ring-gap: 4px;
+    --bc-ring-radius: var(--bc-radius-md);
     vertical-align: middle;
   }
 
   // The grid-pool lamp: sits above the grain, in the open field over the chart
-  // column gap. Anchored by a chartreuse data dot, the drafting grid pools
-  // around it and fades. z-index 2 so it reads over the content as a focal point.
+  // column gap. The drafting grid pools radially and fades to nothing.
+  // z-index 2 so it reads over the content as a quiet focal texture.
   &__lamp {
     position: absolute;
     z-index: 2;
@@ -202,26 +202,6 @@ const heroBpc = sample.dsl.replace(/\{/, '{\n  theme = "blueprint-framed"')
       --bc-pool-r: 105px;
       --bc-pool-x: 50%;
       --bc-pool-y: 50%;
-    }
-
-    &__dot {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
-      width: 0.625rem;
-      height: 0.625rem;
-      border-radius: 50%;
-      background: var(--bc-accent);
-    }
-
-    &__val {
-      position: absolute;
-      left: calc(50% + 0.875rem);
-      top: calc(50% - 1rem);
-      font-family: var(--bs-font-monospace, "Geist Mono", ui-monospace, monospace);
-      font-size: 0.8125rem;
-      color: var(--bc-accent);
     }
   }
 }
