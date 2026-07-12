@@ -21,3 +21,9 @@ describe('CHART_CSS blueprint-bold theme', () => {
     expect(CHART_CSS).toContain('.bc-frame.bc-theme-blueprint-bold')
   })
 })
+
+describe('CHART_CSS frame text colour', () => {
+  it('ties .bc-frame color to --bc-text-color so currentColor value labels follow the theme', () => {
+    expect(CHART_CSS).toMatch(/\.bc-frame\s*\{[^}]*\bcolor:\s*var\(--bc-text-color/)
+  })
+})

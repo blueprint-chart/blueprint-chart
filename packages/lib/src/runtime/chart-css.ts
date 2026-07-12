@@ -9,6 +9,9 @@ export const CHART_CSS = `
   --bc-text-color: #333;
   font-family: var(--bc-frame-font-family);
   background: var(--bc-frame-bg);
+  /* currentColor marks (e.g. above-bar value labels) follow the theme text
+     colour, not the ambient document colour. */
+  color: var(--bc-text-color, #333);
 }
 
 /* Keeps the SVG's baked-in background rect (applyCanvasBackground) in sync
