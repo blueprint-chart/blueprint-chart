@@ -58,6 +58,7 @@ const PALETTES: PaletteEntry[] = [
   { name: 'Wizards', label: 'Wizards', colors: ['#c8102e', '#0c2340', '#8d9093', '#c8c9c7'] },
   { name: 'FrancescoXanto', label: 'Xanto', colors: ['#2c6aa5', '#d9ae2c', '#ddc655', '#d88c27', '#64894d'] },
   { name: 'Zeppelin', label: 'Zeppelin', colors: ['#efdb15', '#739c9c', '#0d484c', '#c71a08'] },
+  { name: 'BlueprintBold', label: 'Blueprint Bold', colors: ['#2563A0', '#DDF247', '#C94044', '#2D8659', '#D4A63A', '#163A65'] },
 ]
 
 const PALETTE_MAP: Record<string, readonly string[]> = Object.fromEntries(

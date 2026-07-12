@@ -85,4 +85,36 @@ describe('palettes', () => {
       })
     }
   })
+
+  describe('BlueprintBold palette', () => {
+    it('resolves BlueprintBold by name with chartreuse second', () => {
+      const colors = resolvePalette('BlueprintBold')
+      expect(colors).toEqual(['#2563A0', '#DDF247', '#C94044', '#2D8659', '#D4A63A', '#163A65'])
+    })
+
+    it('is listed in the catalogue with a human label', () => {
+      const entry = listPalettes().find(p => p.name === 'BlueprintBold')
+      expect(entry).toBeDefined()
+      expect(entry!.label).toBe('Blueprint Bold')
+    })
+
+    it('keeps Blueprint as the first listed palette', () => {
+      expect(listPalettes()[0].name).toBe('Blueprint')
+    })
+
+    describe('colour-vision deficiency safety', () => {
+      const colors = resolvePalette('BlueprintBold')!
+
+      it('has sufficient pairwise contrast for normal vision', () => {
+        expect(minPairwiseDeltaE(colors)).toBeGreaterThanOrEqual(MIN_CVD_DELTA_E)
+      })
+
+      for (const [cvdType, matrix] of Object.entries(CVD_MATRICES)) {
+        it(`is distinguishable under ${cvdType}`, () => {
+          const simulated = colors.map(c => simulateCVD(c, matrix))
+          expect(minPairwiseDeltaE(simulated)).toBeGreaterThanOrEqual(MIN_CVD_DELTA_E)
+        })
+      }
+    })
+  })
 })
