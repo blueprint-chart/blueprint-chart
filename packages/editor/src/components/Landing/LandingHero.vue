@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { BcRing } from '@blueprint-chart/ui'
 import { samples } from '@blueprint-chart/lib'
+import { applyBrandLook } from './brand-look'
 
 const sample = samples.find(s => s.id === 'coffee-production')
 if (!sample) {
   throw new Error('Missing coffee-production sample — see LandingHero.vue')
 }
-const heroBpc = sample.dsl.replace(/\{/, '{\n  theme = "blueprint-bold"\n  colorPalette = "BlueprintBold"')
+const heroBpc = applyBrandLook(sample.dsl)
 </script>
 
 <template>

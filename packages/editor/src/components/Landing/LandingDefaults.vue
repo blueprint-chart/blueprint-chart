@@ -11,12 +11,13 @@ import LandingSection from './LandingSection.vue'
 import LandingSectionHeader from './LandingSectionHeader.vue'
 import LandingChartPreview from './LandingChartPreview.vue'
 import LandingDefaultCard from './LandingDefaultCard.vue'
+import { applyBrandLook } from './brand-look'
 
 const sample = samples.find(s => s.id === 'temperature-anomaly')
 if (!sample) {
   throw new Error('Missing temperature-anomaly sample — see LandingDefaults.vue')
 }
-const bpc = sample.dsl.replace(/\{/, '{\n  theme = "blueprint-bold"\n  colorPalette = "BlueprintBold"')
+const bpc = applyBrandLook(sample.dsl)
 
 interface Card {
   icon: Component

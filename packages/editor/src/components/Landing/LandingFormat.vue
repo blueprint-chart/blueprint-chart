@@ -13,12 +13,13 @@ import LandingSection from './LandingSection.vue'
 import LandingSectionHeader from './LandingSectionHeader.vue'
 import LandingChartPreview from './LandingChartPreview.vue'
 import LandingDefaultCard from './LandingDefaultCard.vue'
+import { applyBrandLook } from './brand-look'
 
 const sample = samples.find(s => s.id === 'temperature-anomaly')
 if (!sample) {
   throw new Error('Missing temperature-anomaly sample — see LandingFormat.vue')
 }
-const bpc = sample.dsl.replace(/\{/, '{\n  theme = "blueprint-bold"\n  colorPalette = "BlueprintBold"')
+const bpc = applyBrandLook(sample.dsl)
 const highlighted = highlightDsl(bpc)
 
 // Mirrors ExportEmbedPanel's toBase64 — btoa() only handles Latin-1, so encode

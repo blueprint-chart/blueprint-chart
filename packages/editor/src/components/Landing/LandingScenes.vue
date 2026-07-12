@@ -6,12 +6,13 @@ import IPhFilmSlate from '~icons/ph/film-slate'
 import IPhSparkle from '~icons/ph/sparkle'
 import IPhCode from '~icons/ph/code'
 import { useTheme } from '@/stores/theme'
+import { applyBrandLook } from './brand-look'
 
 const sample = samples.find(s => s.id === 'farm-compass')
 if (!sample) {
   throw new Error('Missing farm-compass sample — see LandingScenes.vue')
 }
-const bpc = sample.dsl
+const bpc = applyBrandLook(sample.dsl)
 const sceneCount = parseDslSceneCount(bpc)
 
 const containerRef = useTemplateRef<HTMLElement>('containerRef')
@@ -33,7 +34,6 @@ function render() {
     return
   }
   renderDsl(containerRef.value, bpc, {
-    stripColors: true,
     sceneIndex: activeIndex.value >= 0 ? activeIndex.value : undefined,
     transition: isSceneTransition.value,
   })

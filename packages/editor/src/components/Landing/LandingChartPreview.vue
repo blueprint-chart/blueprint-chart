@@ -13,9 +13,7 @@ const props = defineProps<{
 
 const containerRef = useTemplateRef<HTMLElement>('containerRef')
 
-useChartFromDsl(containerRef, toRef(props, 'bpc'), {
-  stripColors: true,
-})
+useChartFromDsl(containerRef, toRef(props, 'bpc'))
 </script>
 
 <style scoped>
