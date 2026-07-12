@@ -82,7 +82,7 @@ const heroBpc = sample.dsl.replace(/\{/, '{\n  theme = "blueprint-framed"')
   position: relative;
   overflow: hidden;
   padding: 3.5rem clamp(1rem, 5vw, 3.75rem) 4rem;
-  background: var(--bc-marketing-field);
+  background: var(--bc-content-bg);
 
   &__grain {
     position: absolute;
@@ -146,7 +146,7 @@ const heroBpc = sample.dsl.replace(/\{/, '{\n  theme = "blueprint-framed"')
       align-self: center;
 
       &__card {
-        background: var(--bc-marketing-card);
+        background: var(--bc-tile-bg);
         border: 1px solid var(--bc-hairline-strong);
         border-radius: var(--bc-radius-lg);
         overflow: hidden;
@@ -154,9 +154,9 @@ const heroBpc = sample.dsl.replace(/\{/, '{\n  theme = "blueprint-framed"')
         // Force the chart frame onto the dark marketing surface. The editor's
         // chart.scss ties --bc-frame-bg to --bs-card-bg, which resolves light
         // even inside this dark island, so the plot area would render white.
-        // Pin the frame ink to the marketing tokens so the chart matches the hero.
+        // Pin the frame ink to the app dark tokens so the chart matches the hero.
         :deep(.bc-frame) {
-          --bc-frame-bg: var(--bc-marketing-card);
+          --bc-frame-bg: var(--bc-tile-bg);
           --bc-text-color: var(--bc-marketing-ink);
           --bc-axis-color: var(--bc-marketing-ink-dim);
           --bc-grid-color: var(--bc-hairline-strong);

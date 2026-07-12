@@ -50,7 +50,7 @@ import { BcRing } from '@blueprint-chart/ui'
 .landing-callout {
   position: relative;
   overflow: hidden;
-  background: var(--bc-marketing-field);
+  background: var(--bc-content-bg);
   padding: 4rem clamp(1rem, 5vw, 3.75rem);
 
   &__grain {

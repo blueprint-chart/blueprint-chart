@@ -21,10 +21,16 @@ describe('tokens.scss - chartreuse accent', () => {
   it('exposes pool + marketing + mark tokens', () => {
     expect(css).toMatch(/--bc-pool-r:\s*100px/i)
     expect(css).toMatch(/--bc-pool-ink:/i)
-    expect(css).toMatch(/--bc-marketing-field:\s*#000000/i)
-    expect(css).toMatch(/--bc-marketing-card:\s*#0D1B2E/i)
     expect(css).toMatch(/--bc-mark:/i)
     expect(css).toMatch(/--bc-swipe:/i)
+  })
+
+  it('no longer defines the retired marketing surface tokens', () => {
+    expect(css).not.toMatch(/--bc-marketing-field/i)
+    expect(css).not.toMatch(/--bc-marketing-card/i)
+    // the editorial ink + focus constants stay
+    expect(css).toMatch(/--bc-marketing-ink:/i)
+    expect(css).toMatch(/--bc-focus-ring-marketing:/i)
   })
 
   it('defines a primary button token pair that flips per theme', () => {

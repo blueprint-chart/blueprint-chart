@@ -154,10 +154,6 @@ $spacer-xs: 0.25rem !default;
   --bc-pool-r: 100px;
   --bc-pool-ink: #{rgba($prussian-300, 0.33)}; // drafting-blue grid on light
 
-  // Marketing-only dark surfaces (not the app graphite ramp).
-  --bc-marketing-field: #000000;
-  --bc-marketing-card: #0D1B2E;
-
   // Light ink for forced-dark marketing islands (hero, closing band). These are
   // island constants: the same value in both themes, so they are not overridden
   // in the dark block.
