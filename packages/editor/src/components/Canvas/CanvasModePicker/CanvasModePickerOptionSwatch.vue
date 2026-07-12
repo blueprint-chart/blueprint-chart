@@ -28,7 +28,7 @@ defineProps<{
   }
 
   // Auto resolves to the explicit light/dark surface for the current theme, so
-  // its swatch mirrors that token — #ffffff in light, #0f0f0f in dark.
+  // its swatch mirrors that token — #ffffff in light, #000000 in dark.
   &--auto {
     background: var(--bc-chrome-bg);
   }
@@ -38,7 +38,7 @@ defineProps<{
   }
 
   &--dark {
-    background: #0f0f0f;
+    background: #000000;
   }
 }
 </style>

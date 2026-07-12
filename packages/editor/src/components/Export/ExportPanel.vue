@@ -214,7 +214,7 @@ const canvasClassList = computed(() => ({
     }
 
     // Auto resolves to the same surface as the explicit light/dark modes for
-    // the current theme: --bc-chrome-bg is #ffffff (light) / #0f0f0f (dark) and
+    // the current theme: --bc-chrome-bg is #ffffff (light) / #000000 (dark) and
     // --bs-emphasis-color is #000 (light) / #fff (dark), so the canvas and its
     // dimension rulers are identical to Light in light theme and Dark in dark.
     &--auto {
@@ -223,7 +223,7 @@ const canvasClassList = computed(() => ({
     }
 
     &--dark {
-      background: #0f0f0f;
+      background: #000000;
       --bc-canvas-dimension-color: rgba(255, 255, 255, 0.3);
     }
 

@@ -3,7 +3,7 @@ import { wcagContrastRatio, wcagLevel, adjustColorsForBackground, checkCvdColors
 import type { CvdType } from '@blueprint-chart/lib'
 
 const LIGHT_BG = '#ffffff'
-const DARK_BG = '#1a1a1a'
+const DARK_BG = '#000000'
 
 const CVD_SHORT_LABELS: Record<CvdType, string> = {
   protanopia: 'Protan',
