@@ -55,4 +55,19 @@ describe('tokens.scss - chartreuse accent', () => {
     expect(css).not.toMatch(/E4512B/i)
     expect(css).not.toMatch(/F2703F/i)
   })
+
+  it('locks the true-black dark surface ramp', () => {
+    const darkBody =
+      css.match(/\[data-bs-theme=["']?dark["']?\],\s*\.dark\s*\{([^}]*)\}/i)?.[1] ?? ''
+    expect(darkBody).toMatch(/--bc-chrome-bg:\s*#000000/i)
+    expect(darkBody).toMatch(/--bc-content-bg:\s*#000000/i)
+    expect(darkBody).toMatch(/--bc-tile-bg:\s*#0e0e0e/i)
+    expect(darkBody).toMatch(/--bc-tile-bg-elevated:\s*#161616/i)
+    expect(darkBody).toMatch(/--bc-canvas-bg:\s*#000000/i)
+    expect(darkBody).toMatch(/--bc-hairline:\s*rgba\(255,\s*255,\s*255,\s*0\.09\)/i)
+    expect(darkBody).toMatch(/--bc-hairline-strong:\s*rgba\(255,\s*255,\s*255,\s*0\.15\)/i)
+    expect(darkBody).toMatch(/--bc-pool-ink:\s*rgba\(163,\s*201,\s*232,\s*0\.32\)/i)
+    expect(darkBody).toMatch(/--bc-swipe:[^;]*rgba\(221,\s*242,\s*71,\s*0\.22\)/i)
+    expect(darkBody).toMatch(/--bc-focus-ring:\s*0 0 0 2px rgba\(75,\s*144,\s*207,\s*0\.6\)/i)
+  })
 })

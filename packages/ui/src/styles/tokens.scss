@@ -55,11 +55,11 @@ $border-color-dark: #2e2e2e !default;
 
 // Surface hierarchy (void > tile > elevated)
 $body-bg:                 #f3f3f4 !default;
-$body-bg-dark:            #0a0a0a !default;
+$body-bg-dark:            #000000 !default;
 $body-secondary-bg:       #ffffff !default;
-$body-secondary-bg-dark:  #141414 !default;
+$body-secondary-bg-dark:  #0e0e0e !default;
 $body-tertiary-bg:        #f8f8fa !default;
-$body-tertiary-bg-dark:   #1a1a1a !default;
+$body-tertiary-bg-dark:   #161616 !default;
 
 // Links
 $link-color:            $primary !default;
@@ -247,19 +247,16 @@ $spacer-xs: 0.25rem !default;
   --bc-grid-color: #444;
   --bc-text-color: #aaa;
 
-  // Blueprint canvas goes dark in dark theme: the blue surface becomes a deep
-  // neutral well one rung below the void, harmonized with the graphite surface
-  // ramp. The white grid lines below already read on a dark surface, so only
-  // the background color changes — the blueprint grid stays the grid.
-  --bc-canvas-bg: #070707;
-  --bc-canvas-grid-color: rgba(255, 255, 255, 0.04);
-  --bc-canvas-grid-color-major: rgba(255, 255, 255, 0.10);
-  --bc-canvas-dimension-color: rgba(255, 255, 255, 0.4);
+  // Dark canvas is true black; the white grid lines carry the blueprint.
+  --bc-canvas-bg: #000000;
+  --bc-canvas-grid-color: rgba(255, 255, 255, 0.05);
+  --bc-canvas-grid-color-major: rgba(255, 255, 255, 0.12);
+  --bc-canvas-dimension-color: rgba(255, 255, 255, 0.45);
 
-  --bc-chrome-bg: #0f0f0f;
-  --bc-content-bg: #0f0f0f;
-  --bc-tile-bg: #1a1a1a;
-  --bc-tile-bg-elevated: #232323;
+  --bc-chrome-bg: #000000;
+  --bc-content-bg: #000000;
+  --bc-tile-bg: #0e0e0e;
+  --bc-tile-bg-elevated: #161616;
   --bc-canvas-glow: none;
 
   --bc-wash-soft: rgba(255, 255, 255, 0.03);
@@ -267,12 +264,12 @@ $spacer-xs: 0.25rem !default;
   --bc-wash-input: rgba(255, 255, 255, 0.03);
   --bc-wash-input-hover: rgba(255, 255, 255, 0.05);
 
-  --bc-hairline: rgba(255, 255, 255, 0.06);
-  --bc-hairline-strong: rgba(255, 255, 255, 0.12);
+  --bc-hairline: rgba(255, 255, 255, 0.09);
+  --bc-hairline-strong: rgba(255, 255, 255, 0.15);
 
   --bc-accent: #{$accent};             // same hex; gesture differs, not value
   --bc-accent-ink: #{$prussian-600};   // navy on chartreuse in both themes
-  --bc-pool-ink: #{rgba($prussian-100, 0.28)}; // paper-blue grid on dark
+  --bc-pool-ink: #{rgba($prussian-100, 0.32)}; // paper-blue grid on true black
   --bc-mark: #{$accent};               // chartreuse is ink on dark
   --bc-mark-quiet: #{rgba($accent, 0.18)};
 
@@ -281,8 +278,8 @@ $spacer-xs: 0.25rem !default;
   --bc-swipe: linear-gradient(
     180deg,
     transparent 45%,
-    #{rgba($chartreuse-400, 0.18)} 45%,
-    #{rgba($chartreuse-400, 0.18)} 92%,
+    #{rgba($chartreuse-400, 0.22)} 45%,
+    #{rgba($chartreuse-400, 0.22)} 92%,
     transparent 92%
   );
 
@@ -291,9 +288,13 @@ $spacer-xs: 0.25rem !default;
   --bc-btn-primary-bg: #{$accent};
   --bc-btn-primary-fg: #{$prussian-600};
 
+  // Brighter Prussian so the focus ring clears the 3:1 floor on the #000 field
+  // (mirrors what --bc-focus-ring-marketing already does for primary buttons).
+  --bc-focus-ring: 0 0 0 2px #{rgba($prussian-300, 0.6)};
+
   --bc-shadow-overlay:
-    0 8px 24px rgba(0, 0, 0, 0.4),
-    0 1px 2px rgba(0, 0, 0, 0.3);
+    0 8px 24px rgba(0, 0, 0, 0.6),
+    0 1px 2px rgba(0, 0, 0, 0.4);
 }
 
 @media (prefers-reduced-motion: reduce) {
