@@ -3,16 +3,17 @@ import { AppIcon } from '@blueprint-chart/ui'
 import IPhGithubLogo from '~icons/ph/github-logo'
 
 interface ValueCell {
-  label: string
+  index: string
+  name: string
   value: string
   href?: string
 }
 
 const cells: ValueCell[] = [
-  { label: '01 / Plain text', value: 'A format AI can write' },
-  { label: '02 / No backend', value: 'Renders in the browser' },
-  { label: '03 / Data sovereignty', value: 'Nothing ever uploaded' },
-  { label: '04 / MIT', value: 'Open source, forever', href: 'https://github.com/blueprint-chart/blueprint-chart' },
+  { index: '01', name: 'Plain text', value: 'A format AI can write' },
+  { index: '02', name: 'No backend', value: 'Renders in the browser' },
+  { index: '03', name: 'Data sovereignty', value: 'Nothing ever uploaded' },
+  { index: '04', name: 'MIT', value: 'Open source, forever', href: 'https://github.com/blueprint-chart/blueprint-chart' },
 ]
 </script>
 
@@ -23,11 +24,11 @@ const cells: ValueCell[] = [
   >
     <dl
       v-for="cell in cells"
-      :key="cell.label"
+      :key="cell.index"
       class="landing-value-prop-strip__cell"
     >
       <dt class="landing-value-prop-strip__cell__label">
-        {{ cell.label }}
+        <span class="landing-value-prop-strip__cell__index">{{ cell.index }}</span> / {{ cell.name }}
       </dt>
       <dd class="landing-value-prop-strip__cell__value">
         <a
@@ -54,7 +55,8 @@ const cells: ValueCell[] = [
 <style scoped lang="scss">
 .landing-value-prop-strip {
   border-top: 1px solid var(--bc-hairline);
-  border-bottom: 1px solid var(--bc-hairline);
+  // No bottom border: the bordered LandingSection directly below contributes
+  // its own top hairline, so a border-bottom here would render as a 2px double.
   display: grid;
   grid-template-columns: repeat(4, 1fr);
 
@@ -76,6 +78,32 @@ const cells: ValueCell[] = [
       letter-spacing: 0.08em;
       text-transform: uppercase;
       color: var(--bs-tertiary-color);
+    }
+
+    // Highlighter index tab (effects kit, FIG.03). The cell number sits on a
+    // chartreuse swipe — ground, never a thin figure: the digits stay ink and
+    // ride on top. `--bc-swipe` is a full chartreuse block on light and a faint
+    // chartreuse ground on dark, echoing the top nav's active mark.
+    &__index {
+      position: relative;
+      // Own stacking context so the negative-z swipe stays behind the digits.
+      isolation: isolate;
+      padding: 0 0.25rem;
+      color: var(--bs-body-color);
+
+      &::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        background: var(--bc-swipe);
+        opacity: 0.85;
+        transition: opacity var(--bc-duration-base) var(--bc-ease);
+      }
+    }
+
+    &:hover &__index::before {
+      opacity: 1;
     }
 
     &__value {
