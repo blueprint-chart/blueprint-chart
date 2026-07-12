@@ -1,0 +1,23 @@
+// ============================================================================
+// Theme: Blueprint Bold
+// ============================================================================
+//
+// Renders the chart on the "blueprint canvas" brand surface: blueprint-blue
+// in light mode, black in dark mode, both with white grid and axis lines.
+// This is the one theme where the chartreuse-led BlueprintBold palette reads,
+// because chartreuse only has contrast against a dark surface.
+//
+// Only CSS custom properties are overridden: no new selectors or rules.
+// Keep in sync with the mirrored block in src/runtime/chart-css.ts.
+// ============================================================================
+
+.bc-theme-blueprint-bold {
+  --bc-frame-bg: #244a7c;
+  --bc-text-color: rgba(255, 255, 255, 0.95);
+  --bc-axis-color: rgba(255, 255, 255, 0.7);
+  --bc-grid-color: rgba(255, 255, 255, 0.22);
+}
+
+[data-bs-theme="dark"] .bc-theme-blueprint-bold {
+  --bc-frame-bg: #000000;
+}
