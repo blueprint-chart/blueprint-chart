@@ -63,8 +63,9 @@ describe('tokens.scss - chartreuse accent', () => {
   })
 
   it('locks the true-black dark surface ramp', () => {
-    const darkBody =
-      css.match(/\[data-bs-theme=["']?dark["']?\],\s*\.dark\s*\{([^}]*)\}/i)?.[1] ?? ''
+    const darkBody = css.match(
+      /\[data-bs-theme=["']?dark["']?\],\s*\.dark\s*\{([^}]*)\}/i,
+    )?.[1] ?? ''
     expect(darkBody).toMatch(/--bc-chrome-bg:\s*#000000/i)
     expect(darkBody).toMatch(/--bc-content-bg:\s*#000000/i)
     expect(darkBody).toMatch(/--bc-tile-bg:\s*#0e0e0e/i)
