@@ -189,7 +189,7 @@ export const CHART_CSS = `
   --bc-frame-bg: #000000;
   --bc-text-color: rgba(255, 255, 255, 0.95);
   --bc-axis-color: rgba(255, 255, 255, 0.7);
-  --bc-grid-color: rgba(255, 255, 255, 0.22);
+  --bc-grid-color: rgba(255, 255, 255, 0.12);
 }
 
 .blueprint-chart-error {
