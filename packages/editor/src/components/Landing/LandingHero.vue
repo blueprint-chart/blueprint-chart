@@ -151,18 +151,8 @@ const heroBpc = applyBrandLook(sample.dsl)
         border: 1px solid var(--bc-hairline-strong);
         border-radius: var(--bc-radius-lg);
         overflow: hidden;
-
-        // Force the chart frame onto the dark marketing surface. The editor's
-        // chart.scss ties --bc-frame-bg to --bs-card-bg, which resolves light
-        // even inside this dark island, so the plot area would render white.
-        // Pin the frame ink to the app dark tokens so the chart matches the hero.
-        :deep(.bc-frame) {
-          --bc-frame-bg: var(--bc-tile-bg);
-          --bc-text-color: var(--bc-marketing-ink);
-          --bc-axis-color: var(--bc-marketing-ink-dim);
-          --bc-grid-color: var(--bc-hairline-strong);
-          color: var(--bc-marketing-ink);
-        }
+        // The chart styles itself via the blueprint-bold theme (transparent
+        // background over this dark island). No per-frame overrides here.
       }
     }
   }
