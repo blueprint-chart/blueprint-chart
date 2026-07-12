@@ -55,4 +55,15 @@ import LandingFooter from './LandingFooter.vue'
   border-radius: var(--bc-frame-radius);
   overflow: hidden;
 }
+
+/* On mobile the framed "card" reads as detached: a gap under the nav plus
+   rounded top corners. Go full-bleed so the hero butts straight against the
+   navbar (its bottom hairline is the only separator). */
+@media (max-width: 51.25rem) {
+  .landing-page__frame {
+    margin: 0;
+    border: none;
+    border-radius: 0;
+  }
+}
 </style>
