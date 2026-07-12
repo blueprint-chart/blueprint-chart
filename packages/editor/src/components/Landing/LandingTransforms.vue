@@ -314,9 +314,11 @@ const steps: Step[] = [
       flex-shrink: 0;
       transition: all 0.15s;
 
+      // The active step is the brand marker: navy chip + chartreuse digit on
+      // light, chartreuse chip + navy digit on dark (the btn-primary pairing).
       .transforms-demo__step--active & {
-        background: var(--bs-primary);
-        color: #fff;
+        background: var(--bc-btn-primary-bg);
+        color: var(--bc-btn-primary-fg);
       }
     }
 
@@ -327,7 +329,7 @@ const steps: Step[] = [
       white-space: nowrap;
 
       .transforms-demo__step--active & {
-        color: var(--bs-primary);
+        color: var(--bs-body-color);
       }
     }
   }
@@ -405,7 +407,9 @@ const steps: Step[] = [
 
       &__wire {
         fill: none;
-        stroke: var(--bc-hairline);
+        // The data wire glows with brand ink as it flows: Prussian on light,
+        // chartreuse on dark (see --bc-mark). Lights up the pipeline metaphor.
+        stroke: var(--bc-mark);
         stroke-width: 1.5;
         stroke-dasharray: 5 4;
         stroke-linecap: round;
@@ -417,7 +421,7 @@ const steps: Step[] = [
         width: 6px;
         height: 6px;
         border-radius: 50%;
-        background: var(--bc-hairline);
+        background: var(--bc-mark);
         top: 50%;
         transform: translateY(-50%);
 
@@ -431,6 +435,12 @@ const steps: Step[] = [
 @keyframes wire-flow {
   to {
     stroke-dashoffset: -9;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .transforms-demo__body__flow__wire {
+    animation: none;
   }
 }
 
