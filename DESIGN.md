@@ -69,9 +69,11 @@ Rules:
   output (`packages/lib`) keeps its own palette and Prussian emphasis; chartreuse
   never enters an ordinary chart. The single exception is the `blueprint-bold`
   theme paired with the `BlueprintBold` palette, where chartreuse is a series
-  colour on the dark blueprint canvas (the surface where it reads). This brand
-  look is the default only on the landing/marketing pages and docs previews; the
-  library defaults stay `Blueprint`/`blueprint`.
+  colour. That theme is light/dark responsive (a normal white canvas in light,
+  a black brand canvas in dark), and chartreuse only reads on the dark canvas,
+  so it is a dark-mode colour by design. This brand look is the default only on
+  the landing/marketing pages and docs previews; the library defaults stay
+  `Blueprint`/`blueprint`.
 - **Small editorial marks** (the eyebrow `#`/dot) use `--bc-mark`: Prussian on
   light, chartreuse on dark. Larger emphasis moments use the highlighter
   (`.bc-highlight`): a chartreuse swipe behind body ink on light, chartreuse
