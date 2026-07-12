@@ -18,6 +18,16 @@ const heroBpc = sample.dsl.replace(/\{/, '{\n  theme = "blueprint-framed"')
       class="landing-hero__grain"
       aria-hidden="true"
     />
+    <!-- FIG.02 - the grid pool: a lamp over the drafting table, pooled around a
+         chartreuse data anchor. Decorative background flourish. -->
+    <div
+      class="landing-hero__lamp"
+      aria-hidden="true"
+    >
+      <span class="landing-hero__lamp__grid bc-pool" />
+      <span class="landing-hero__lamp__dot" />
+      <span class="landing-hero__lamp__val">42.7</span>
+    </div>
     <div class="landing-hero__inner">
       <div class="landing-hero__inner__text">
         <span class="landing-hero__inner__text__eyebrow bc-eyebrow">
@@ -42,26 +52,26 @@ const heroBpc = sample.dsl.replace(/\{/, '{\n  theme = "blueprint-framed"')
           >
             My charts
           </router-link>
-          <router-link
-            to="/new"
-            class="btn-bc-primary"
+          <BcRing
+            tone="field"
+            inline
+            class="landing-hero__cta-ring"
           >
-            <span
-              class="bc-pool"
-              aria-hidden="true"
-            />
-            <span class="btn-bc-primary__label">New chart</span>
-          </router-link>
+            <router-link
+              to="/new"
+              class="btn-bc-primary"
+            >
+              New chart
+            </router-link>
+          </BcRing>
         </div>
       </div>
       <div class="landing-hero__inner__chart">
-        <BcRing tone="field">
-          <div class="landing-hero__inner__chart__card">
-            <LandingChartPreview
-              :bpc="heroBpc"
-            />
-          </div>
-        </BcRing>
+        <div class="landing-hero__inner__chart__card">
+          <LandingChartPreview
+            :bpc="heroBpc"
+          />
+        </div>
       </div>
     </div>
   </section>
@@ -139,6 +149,7 @@ const heroBpc = sample.dsl.replace(/\{/, '{\n  theme = "blueprint-framed"')
 
       &__card {
         background: var(--bc-marketing-card);
+        border: 1px solid var(--bc-hairline-strong);
         border-radius: var(--bc-radius-lg);
         overflow: hidden;
 
@@ -168,11 +179,51 @@ const heroBpc = sample.dsl.replace(/\{/, '{\n  theme = "blueprint-framed"')
     font-size: var(--bs-font-size-sm);
     text-decoration: none;
   }
-}
 
-.btn-bc-primary__label {
-  position: relative;
-  z-index: 1;
+  // Ringed hero CTA: the single ceremonial button, framed by the particle ring.
+  &__cta-ring {
+    --bc-ring-gap: 5px;
+    vertical-align: middle;
+  }
+
+  // The grid-pool lamp: sits above the grain, in the open field over the chart
+  // column gap. Anchored by a chartreuse data dot, the drafting grid pools
+  // around it and fades. z-index 2 so it reads over the content as a focal point.
+  &__lamp {
+    position: absolute;
+    z-index: 2;
+    top: 20%;
+    left: 39%;
+    width: 15rem;
+    height: 11rem;
+    pointer-events: none;
+
+    .bc-pool {
+      --bc-pool-r: 105px;
+      --bc-pool-x: 50%;
+      --bc-pool-y: 50%;
+    }
+
+    &__dot {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 0.625rem;
+      height: 0.625rem;
+      border-radius: 50%;
+      background: var(--bc-accent);
+    }
+
+    &__val {
+      position: absolute;
+      left: calc(50% + 0.875rem);
+      top: calc(50% - 1rem);
+      font-family: var(--bs-font-monospace, "Geist Mono", ui-monospace, monospace);
+      font-size: 0.8125rem;
+      color: var(--bc-accent);
+    }
+  }
 }
 
 @media (max-width: 51.25rem) {

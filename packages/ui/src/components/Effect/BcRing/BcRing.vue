@@ -6,8 +6,11 @@ import { useId } from 'vue'
 
 withDefaults(defineProps<{
   tone?: 'field' | 'paper'
+  // Hug inline content (a button) instead of filling the row as a block.
+  inline?: boolean
 }>(), {
   tone: 'field',
+  inline: false,
 })
 
 // Namespace the gradient ids per instance so two rings on the same page
@@ -18,7 +21,10 @@ const paperId = `bc-ring-paper-${uid}`
 </script>
 
 <template>
-  <div class="bc-ring">
+  <div
+    class="bc-ring"
+    :class="{ 'bc-ring--inline': inline }"
+  >
     <svg
       class="bc-ring__stroke"
       aria-hidden="true"
@@ -83,8 +89,17 @@ const paperId = `bc-ring-paper-${uid}`
 
 <style scoped lang="scss">
 .bc-ring {
+  // The stippled stroke sits at the outer edge; the padding is the gap that
+  // lets the ring show AROUND the crisp-edged inner content (without it, the
+  // inner fill covers the stroke and the ring is invisible).
+  --bc-ring-gap: 8px;
   position: relative;
   display: block;
+  padding: var(--bc-ring-gap);
+
+  &--inline {
+    display: inline-block;
+  }
 
   &__stroke {
     position: absolute;

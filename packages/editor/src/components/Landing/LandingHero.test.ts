@@ -66,15 +66,24 @@ describe('LandingHero - grain', () => {
 })
 
 describe('LandingHero - bold marketing island', () => {
-  it('wraps the chart preview in a particle ring', () => {
+  it('rings the hero CTA with the particle ring', () => {
     const w = mountHero()
-    expect(w.find('.bc-ring').exists()).toBe(true)
-    expect(w.find('.bc-ring svg rect').exists()).toBe(true)
+    const ring = w.find('.bc-ring')
+    expect(ring.exists()).toBe(true)
+    expect(ring.find('svg rect').exists()).toBe(true)
+    // the ring wraps the primary CTA
+    expect(ring.find('.btn-bc-primary').exists()).toBe(true)
   })
 
-  it('renders a chartreuse pooled primary CTA', () => {
+  it('renders a chartreuse primary CTA', () => {
     const w = mountHero()
     expect(w.find('.btn-bc-primary').exists()).toBe(true)
+  })
+
+  it('renders the grid-pool lamp with a chartreuse anchor', () => {
+    const w = mountHero()
+    expect(w.find('.landing-hero__lamp .bc-pool').exists()).toBe(true)
+    expect(w.find('.landing-hero__lamp__dot').exists()).toBe(true)
   })
 
   it('stamps data-bs-theme=dark so it is an always-dark island regardless of app theme', () => {
