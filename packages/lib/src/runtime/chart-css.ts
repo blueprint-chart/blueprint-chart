@@ -182,14 +182,14 @@ export const CHART_CSS = `
   --bc-frame-footer-padding-top: 0.625rem;
 }
 
-.bc-theme-blueprint-bold {
-  --bc-frame-bg: #244a7c;
+.bc-frame.bc-theme-blueprint-bold {
+  --bc-frame-bg: #000000;
   --bc-text-color: rgba(255, 255, 255, 0.95);
   --bc-axis-color: rgba(255, 255, 255, 0.7);
   --bc-grid-color: rgba(255, 255, 255, 0.22);
 }
 
-[data-bs-theme="dark"] .bc-theme-blueprint-bold {
+[data-bs-theme="dark"] .bc-frame.bc-theme-blueprint-bold {
   --bc-frame-bg: #000000;
 }
 

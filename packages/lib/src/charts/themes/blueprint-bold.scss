@@ -2,22 +2,28 @@
 // Theme: Blueprint Bold
 // ============================================================================
 //
-// Renders the chart on the "blueprint canvas" brand surface: blueprint-blue
-// in light mode, black in dark mode, both with white grid and axis lines.
-// This is the one theme where the chartreuse-led BlueprintBold palette reads,
-// because chartreuse only has contrast against a dark surface.
+// Renders the chart on a black brand canvas (both light and dark modes) with
+// white grid and axis lines. This is the one theme where the BlueprintBold
+// palette (which includes chartreuse) reads, because chartreuse and several
+// other brand colours only clear contrast against a dark surface. Black is
+// used rather than the navy blueprint blue so the raw palette stays legible
+// without autoContrast (Prussian, the primary series, is too close to navy).
 //
 // Only CSS custom properties are overridden: no new selectors or rules.
 // Keep in sync with the mirrored block in src/runtime/chart-css.ts.
 // ============================================================================
 
-.bc-theme-blueprint-bold {
-  --bc-frame-bg: #244a7c;
+// Qualified with .bc-frame (the theme class rides the same element) so the
+// canvas override outranks the base `.bc-frame { --bc-frame-bg: … }` default.
+// SCSS `@use` forces theme partials to the top of the compiled sheet, ahead of
+// that base rule, so equal specificity would otherwise lose on source order.
+.bc-frame.bc-theme-blueprint-bold {
+  --bc-frame-bg: #000000;
   --bc-text-color: rgba(255, 255, 255, 0.95);
   --bc-axis-color: rgba(255, 255, 255, 0.7);
   --bc-grid-color: rgba(255, 255, 255, 0.22);
 }
 
-[data-bs-theme="dark"] .bc-theme-blueprint-bold {
+[data-bs-theme="dark"] .bc-frame.bc-theme-blueprint-bold {
   --bc-frame-bg: #000000;
 }

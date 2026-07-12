@@ -185,8 +185,10 @@ A small sampling of the catalogue (run `listPalettes()` for the current full lis
 ::: tip Brand palette
 `BlueprintBold` is the brand palette: the `Blueprint` set with chartreuse as the
 second series. It is designed to pair with the `blueprint-bold` theme, which
-renders charts on the dark blueprint canvas where chartreuse reads. On a light
-background, enable `autoContrast` so chartreuse is darkened to stay legible.
+renders charts on a black brand canvas in both light and dark modes. Chartreuse
+and the rest of the palette need a dark surface to read; on a white background
+chartreuse is nearly invisible, so use this palette with the `blueprint-bold`
+theme rather than on the default canvas.
 :::
 
 ## API surface

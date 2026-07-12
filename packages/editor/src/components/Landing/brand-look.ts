@@ -2,7 +2,8 @@
 // landing/marketing previews. It drops any author-declared palette so the
 // brand palette is the only one, then injects the brand theme + palette as
 // the first properties of the chart block. Rendered with colors NOT stripped
-// so the brand palette actually reaches the chart.
+// so the brand palette actually reaches the chart. The theme renders on a
+// black canvas where the raw palette clears contrast, so no autoContrast.
 
 const BRAND_INJECT = '{\n  theme = "blueprint-bold"\n  colorPalette = "BlueprintBold"'
 

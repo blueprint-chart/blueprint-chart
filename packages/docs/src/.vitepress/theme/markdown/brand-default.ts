@@ -18,6 +18,8 @@ export function declaresPaletteOrTheme(source: string): boolean {
 /**
  * Insert the brand theme + palette as the first two properties inside the
  * top-level `chart ... {` block. Replaces only the first `{` (the chart opener).
+ * The theme renders on a black canvas where the raw brand palette already
+ * clears contrast, so no autoContrast is needed.
  */
 export function injectBrandDefault(source: string): string {
   return source.replace(
