@@ -51,6 +51,7 @@ import { BcRing } from '@blueprint-chart/ui'
   position: relative;
   overflow: hidden;
   background: var(--bc-content-bg);
+  border-top: 1px solid var(--bc-hairline);
   padding: 4rem clamp(1rem, 5vw, 3.75rem);
 
   &__grain {
