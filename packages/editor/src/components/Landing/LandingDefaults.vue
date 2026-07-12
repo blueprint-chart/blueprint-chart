@@ -16,7 +16,7 @@ const sample = samples.find(s => s.id === 'temperature-anomaly')
 if (!sample) {
   throw new Error('Missing temperature-anomaly sample — see LandingDefaults.vue')
 }
-const bpc = sample.dsl.replace(/\{/, '{\n  theme = "blueprint-framed"')
+const bpc = sample.dsl.replace(/\{/, '{\n  theme = "blueprint-bold"\n  colorPalette = "BlueprintBold"')
 
 interface Card {
   icon: Component

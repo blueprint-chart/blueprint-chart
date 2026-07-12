@@ -18,7 +18,7 @@ const sample = samples.find(s => s.id === 'temperature-anomaly')
 if (!sample) {
   throw new Error('Missing temperature-anomaly sample — see LandingFormat.vue')
 }
-const bpc = sample.dsl.replace(/\{/, '{\n  theme = "blueprint-framed"')
+const bpc = sample.dsl.replace(/\{/, '{\n  theme = "blueprint-bold"\n  colorPalette = "BlueprintBold"')
 const highlighted = highlightDsl(bpc)
 
 // Mirrors ExportEmbedPanel's toBase64 — btoa() only handles Latin-1, so encode
