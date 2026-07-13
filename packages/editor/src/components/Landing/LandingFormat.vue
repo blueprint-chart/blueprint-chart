@@ -72,25 +72,14 @@ const portabilityCards: PortabilityCard[] = [
 
 <template>
   <LandingSection id="format">
-    <div class="landing-format__intro">
-      <!-- Grid-pool lamp: a quiet drafting-grid bloom in the header's open
-           right-hand space, echoing the hero. Ink flips per theme; no extra
-           chartreuse (the header em-swipe already carries this section's). -->
-      <div
-        class="landing-format__lamp"
-        aria-hidden="true"
-      >
-        <span class="bc-pool" />
-      </div>
-      <LandingSectionHeader label="02 / One portable file">
-        BPC: a chart you<br><em>can hold in your hand.</em>
-        <template #lead>
-          Blueprint charts are plain-text in, self-contained iframe out. No backend renders them.
-          Your data never leaves the browser. One file is the chart, the data, and the embed,
-          together.
-        </template>
-      </LandingSectionHeader>
-    </div>
+    <LandingSectionHeader label="02 / One portable file">
+      BPC: a chart you<br><em>can hold in your hand.</em>
+      <template #lead>
+        Blueprint charts are plain-text in, self-contained iframe out. No backend renders them.
+        Your data never leaves the browser. One file is the chart, the data, and the embed,
+        together.
+      </template>
+    </LandingSectionHeader>
 
     <div class="landing-format__grid">
       <div
@@ -174,29 +163,6 @@ const portabilityCards: PortabilityCard[] = [
 
 <style scoped lang="scss">
 .landing-format {
-  &__intro {
-    position: relative;
-  }
-
-  // Positioned wrapper (mirrors LandingHero's lamp): the .bc-pool child fills
-  // it and fades radially. Sits in the header's empty right column, behind the
-  // text (which stays on the left), on both themes.
-  &__lamp {
-    position: absolute;
-    z-index: 0;
-    top: -0.5rem;
-    right: 3%;
-    width: 15rem;
-    height: 11rem;
-    pointer-events: none;
-
-    .bc-pool {
-      --bc-pool-r: 105px;
-      --bc-pool-x: 58%;
-      --bc-pool-y: 45%;
-    }
-  }
-
   &__grid {
     display: grid;
     grid-template-columns: 1fr 1fr;

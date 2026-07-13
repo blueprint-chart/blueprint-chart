@@ -19,14 +19,12 @@ const heroBpc = applyBrandLook(sample.dsl)
       class="landing-hero__grain"
       aria-hidden="true"
     />
-    <!-- FIG.02 - the grid pool: a lamp over the drafting table, pooled around a
-         chartreuse data anchor. Decorative background flourish. -->
-    <div
-      class="landing-hero__lamp"
+    <!-- Very subtle full-bleed drafting grid (the .bc-pool grid ink with the
+         radial mask dropped), a quiet texture over the grain. -->
+    <span
+      class="landing-hero__grid bc-pool"
       aria-hidden="true"
-    >
-      <span class="landing-hero__lamp__grid bc-pool" />
-    </div>
+    />
     <div class="landing-hero__inner">
       <div class="landing-hero__inner__text">
         <span class="landing-hero__inner__text__eyebrow bc-eyebrow">
@@ -177,23 +175,14 @@ const heroBpc = applyBrandLook(sample.dsl)
     vertical-align: middle;
   }
 
-  // The grid-pool lamp: sits above the grain, in the open field over the chart
-  // column gap. The drafting grid pools radially and fades to nothing.
-  // z-index 2 so it reads over the content as a quiet focal texture.
-  &__lamp {
-    position: absolute;
-    z-index: 2;
-    top: 20%;
-    left: 39%;
-    width: 15rem;
-    height: 11rem;
-    pointer-events: none;
-
-    .bc-pool {
-      --bc-pool-r: 105px;
-      --bc-pool-x: 50%;
-      --bc-pool-y: 50%;
-    }
+  // Full-bleed drafting grid: reuses the .bc-pool grid ink but drops the radial
+  // mask so it spans the whole hero. Sits over the grain, under the content, and
+  // is softened well below the standard --bc-pool-ink so it stays a quiet texture.
+  &__grid {
+    z-index: 0;
+    --bc-pool-ink: rgba(255, 255, 255, 0.015);
+    -webkit-mask-image: none;
+    mask-image: none;
   }
 }
 
