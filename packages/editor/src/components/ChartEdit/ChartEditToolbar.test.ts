@@ -1,68 +1,63 @@
-import { ref } from 'vue'
 import { mount } from '@vue/test-utils'
 import ChartEditToolbar from './ChartEditToolbar.vue'
+import CanvasViewPicker from '@/components/Canvas/CanvasViewPicker/CanvasViewPicker.vue'
 
-const setViewMode = vi.fn()
 const isNarrowRef = ref(false)
 
 vi.mock('@/stores/editorPanel', () => ({
-  useEditorPanel: () => ({ viewMode: ref('preview'), setViewMode }),
+  useEditorPanel: () => ({
+    viewMode: ref('preview'),
+    canvasMode: ref('blueprint'),
+    showDimensions: ref(true),
+    setViewMode: vi.fn(),
+    setCanvasMode: vi.fn(),
+  }),
 }))
 vi.mock('@/stores/chartHistory', () => ({
   useChartHistory: () => ({ canUndo: ref(false), canRedo: ref(false), undo: vi.fn(), redo: vi.fn() }),
 }))
-// Keep NavigationToggle (and the rest of the library) real so the rendered
-// options are exercised; only override the breakpoint so the test controls
-// narrow/wide.
+// Keep the library real so the picker's segmented control renders; only
+// override the breakpoint so the test controls narrow/wide.
 vi.mock('@blueprint-chart/ui', async importOriginal => ({
   ...(await importOriginal<typeof import('@blueprint-chart/ui')>()),
   useBreakpoint: () => ({ isNarrow: isNarrowRef }),
 }))
+vi.mock('~icons/ph/ruler', () => ({
+  default: { template: '<span class="icon-ruler" />' },
+}))
+vi.mock('~icons/ph/caret-down', () => ({
+  default: { template: '<span class="icon-caret-down" />' },
+}))
 
-function optionLabels(wrapper: ReturnType<typeof mount>) {
-  return wrapper
-    .findAll('.navigation-segmented-control__option')
-    .map(el => el.text().trim())
+function mountToolbar() {
+  return mount(ChartEditToolbar, {
+    global: { stubs: { ButtonUndo: true, ButtonRedo: true } },
+  })
 }
 
 describe('ChartEditToolbar', () => {
   beforeEach(() => {
-    setViewMode.mockClear()
     isNarrowRef.value = false
   })
 
-  it('offers exactly Chart, Chart + BPC and BPC options on wide viewports', () => {
-    const wrapper = mount(ChartEditToolbar, { global: { stubs: { ButtonUndo: true, ButtonRedo: true } } })
-    expect(optionLabels(wrapper)).toEqual(['Chart', 'Chart + BPC', 'BPC'])
+  it('renders undo, redo and the view picker', () => {
+    const wrapper = mountToolbar()
+    expect(wrapper.find('button-undo-stub').exists()).toBe(true)
+    expect(wrapper.find('button-redo-stub').exists()).toBe(true)
+    expect(wrapper.findComponent(CanvasViewPicker).exists()).toBe(true)
   })
 
-  it('drops the Chart + BPC option on narrow viewports', () => {
-    isNarrowRef.value = true
-    const wrapper = mount(ChartEditToolbar, { global: { stubs: { ButtonUndo: true, ButtonRedo: true } } })
-    expect(optionLabels(wrapper)).toEqual(['Chart', 'BPC'])
+  it('asks the picker for its layout section', () => {
+    const wrapper = mountToolbar()
+    expect(wrapper.findComponent(CanvasViewPicker).props('showLayout')).toBe(true)
   })
 
-  it('renders an icon per option (icon-only toggle)', () => {
-    const wrapper = mount(ChartEditToolbar, { global: { stubs: { ButtonUndo: true, ButtonRedo: true } } })
-    const icons = wrapper.findAll('.navigation-segmented-control__option__icon')
-    expect(icons.length).toBe(3)
-  })
-
-  it('exposes the mode name as a tooltip on each option', () => {
-    const wrapper = mount(ChartEditToolbar, { global: { stubs: { ButtonUndo: true, ButtonRedo: true } } })
-    const titles = wrapper
-      .findAll('.navigation-segmented-control__option')
-      .map(el => el.attributes('title'))
-    expect(titles).toEqual(['Chart', 'Chart + BPC', 'BPC'])
-  })
-
-  it('calls setViewMode with "split" when the Chart + BPC option is selected', async () => {
-    const wrapper = mount(ChartEditToolbar, { global: { stubs: { ButtonUndo: true, ButtonRedo: true } } })
-    const splitOption = wrapper
-      .findAll('.navigation-segmented-control__option')
-      .find(el => el.text().trim() === 'Chart + BPC')
-    expect(splitOption).toBeDefined()
-    await splitOption!.trigger('click')
-    expect(setViewMode).toHaveBeenCalledWith('split')
+  // The view modes moved into the picker's popover; the toolbar itself no
+  // longer carries a segmented control (see CanvasViewPicker.test.ts for the
+  // view mode assertions).
+  it('renders no view mode toggle of its own', () => {
+    const wrapper = mountToolbar()
+    expect(wrapper.find('.canvas-view-picker__panel').exists()).toBe(false)
+    expect(wrapper.find('.navigation-segmented-control').exists()).toBe(false)
   })
 })

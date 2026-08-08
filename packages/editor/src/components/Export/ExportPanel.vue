@@ -26,7 +26,9 @@
         :canvas-ref="canvasRef"
         :layout="layout"
       />
-      <CanvasViewPicker />
+      <div class="export-panel__view-toolbar">
+        <CanvasViewPicker />
+      </div>
     </div>
     <PanelShell
       v-model:drawer-open="drawerOpen"
@@ -267,6 +269,23 @@ const canvasClassList = computed(() => ({
       min-height: 200px;
     }
   }
+  }
+
+  // Same floating chrome as ChartEditPanel's view toolbar. Two scoped blocks of
+  // eight lines beat inventing a shared floating-box component for two call
+  // sites. This box lives inside the scrolling canvas, so it scrolls with the
+  // content (see the plan's follow-ups).
+  &__view-toolbar {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    z-index: 4;
+    display: flex;
+    align-items: center;
+    padding: 0.25rem;
+    background: var(--bc-chrome-bg);
+    border: 1px solid var(--bc-hairline);
+    border-radius: var(--bc-radius-sm);
   }
 
   &__drawer-body {

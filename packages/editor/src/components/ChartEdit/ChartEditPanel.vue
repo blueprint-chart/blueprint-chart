@@ -3,14 +3,10 @@
     class="chart-edit-panel"
     :class="panelClassList"
   >
-    <!-- Non-scrolling frame: the canvas scrolls inside it, but the mode picker
-         is pinned to the frame so it stays put (like the floating timeline). -->
-    <div
-      class="chart-edit-panel__canvas-frame"
-      :class="{
-        'chart-edit-panel__canvas-frame--split': viewMode === 'split',
-      }"
-    >
+    <!-- Non-scrolling frame: the canvas scrolls inside it, but the view
+         toolbar is pinned to the frame so it stays put (like the floating
+         timeline). -->
+    <div class="chart-edit-panel__canvas-frame">
       <ChartEditToolbar class="chart-edit-panel__view-toolbar" />
 
       <ChartEditDsl
@@ -47,7 +43,6 @@
         />
         <FloatingSceneTimeline />
       </div>
-      <CanvasViewPicker v-if="chartVisible" />
     </div>
     <PanelShell
       v-model:drawer-open="drawerOpen"
@@ -263,21 +258,13 @@ const canvasStyle = computed<CSSProperties>(() => ({
   }
 
   &__canvas-frame {
-    position: relative; // positioning context for the pinned mode picker
+    position: relative; // positioning context for the pinned view toolbar
     flex: 1;
     min-width: 0;
     display: flex;
-    // Shared edge inset so the floating timeline and the canvas mode picker
+    // Shared edge inset so the floating timeline and the pinned view toolbar
     // sit the same distance from the canvas edge.
     --canvas-float-inset: 0.75rem;
-    // Lift the canvas mode picker above the floating scene-timeline so they
-    // don't overlap (the timeline floats across the canvas bottom).
-    --canvas-mode-picker-bottom: 9rem;
-
-    .chart-edit-panel--narrow & {
-      // Narrow mode has no floating timeline (it uses the compact dock).
-      --canvas-mode-picker-bottom: 1rem;
-    }
   }
 
   &__view-toolbar {
@@ -316,7 +303,7 @@ const canvasStyle = computed<CSSProperties>(() => ({
     padding: var(--fst-canvas-pad-y) var(--fst-canvas-pad-x);
     overflow: auto;
     // Disable rubber-band overscroll so the sticky timeline doesn't bounce
-    // past the scroll limit (the pinned mode picker never moves; this keeps
+    // past the scroll limit (the pinned view toolbar never moves; this keeps
     // the timeline consistent with it).
     overscroll-behavior: none;
     position: relative;
@@ -406,14 +393,6 @@ const canvasStyle = computed<CSSProperties>(() => ({
       }
     }
 
-  }
-
-  // In split mode the DSL pane is on the left and the chart on the right, so
-  // pin the canvas mode picker to the chart (right) side — otherwise it floats
-  // over the DSL editor.
-  &__canvas-frame--split {
-    --canvas-mode-picker-left: auto;
-    --canvas-mode-picker-right: var(--canvas-float-inset);
   }
 
   &__canvas__dsl {

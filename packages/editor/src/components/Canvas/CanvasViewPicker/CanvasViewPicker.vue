@@ -162,21 +162,11 @@ useEventListener(document, 'mousedown', (event: MouseEvent) => {
 
 <style scoped lang="scss">
 .canvas-view-picker {
-  position: absolute;
-  // Host can lift the picker (e.g. above the floating scene-timeline) and align
-  // its edge inset with that timeline via --canvas-float-inset. The host can
-  // also flip it to the right edge (e.g. split view, where the left side is the
-  // DSL editor) via --canvas-mode-picker-left/right.
-  bottom: var(--canvas-mode-picker-bottom, 1rem);
-  left: var(--canvas-mode-picker-left, var(--canvas-float-inset, 1rem));
-  right: var(--canvas-mode-picker-right, auto);
-  z-index: 10;
+  // Plain inline widget: the host provides the floating box, the popover
+  // carries its own chrome.
+  position: relative;
   display: flex;
   align-items: center;
-  background: var(--bc-tile-bg);
-  border: 1px solid var(--bc-hairline);
-  border-radius: var(--bc-radius-sm);
-  box-shadow: var(--bc-shadow-overlay);
 
   &__trigger {
     display: flex;
