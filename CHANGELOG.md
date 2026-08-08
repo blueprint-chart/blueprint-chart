@@ -1,3 +1,5 @@
+## [1.8.1](https://github.com/blueprint-chart/blueprint-chart/compare/v1.8.0...v1.8.1) (2026-08-08)
+
 ## [1.8.0](https://github.com/blueprint-chart/blueprint-chart/compare/v1.7.0...v1.8.0) (2026-08-08)
 
 ## [1.7.0](https://github.com/blueprint-chart/blueprint-chart/compare/v1.6.0...v1.7.0) (2026-08-08)
