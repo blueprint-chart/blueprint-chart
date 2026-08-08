@@ -12,19 +12,19 @@
     "story:dev": "pnpm --filter @blueprint-chart/ui story:dev"
   },
   "devDependencies": {
-    "@eslint/js": "^9",
-    "@iconify-json/fluent": "^1.2.39",
-    "@playwright/test": "^1.58.2",
-    "@semantic-release/changelog": "^6",
-    "@semantic-release/exec": "^7",
-    "@semantic-release/git": "^10",
-    "@stylistic/eslint-plugin": "^4",
-    "conventional-changelog-conventionalcommits": "^8",
-    "eslint": "^9",
-    "eslint-plugin-vue": "^10",
-    "semantic-release": "^24",
-    "typescript": "^5.7",
-    "typescript-eslint": "^8",
-    "vue-eslint-parser": "^10.4.0"
+    "@eslint/js": "^9.39.5",
+    "@iconify-json/fluent": "^1.2.55",
+    "@playwright/test": "^1.62.1",
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/exec": "^7.1.0",
+    "@semantic-release/git": "^10.0.1",
+    "@stylistic/eslint-plugin": "^4.4.1",
+    "conventional-changelog-conventionalcommits": "^8.0.0",
+    "eslint": "^9.39.5",
+    "eslint-plugin-vue": "^10.10.0",
+    "semantic-release": "^24.2.9",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.66.0",
+    "vue-eslint-parser": "^10.4.1"
   }
 }
