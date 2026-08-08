@@ -102,6 +102,7 @@ describe('CanvasViewPicker', () => {
     window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))
     await nextTick()
     expect(w.find('.canvas-view-picker__panel').exists()).toBe(false)
+    expect(document.activeElement).toBe(w.find('.canvas-view-picker__trigger').element)
     w.unmount()
   })
 
@@ -234,5 +235,17 @@ describe('CanvasViewPicker layout section', () => {
     const w = mount(CanvasViewPicker, { props: { showLayout: true } })
     await w.find('.canvas-view-picker__trigger').trigger('click')
     expect(w.find('.canvas-view-picker__divider').exists()).toBe(true)
+  })
+
+  // The narrow-viewport override in this component reaches through :deep() onto
+  // these two library class names. jsdom cannot evaluate the media query, so this
+  // pins the structure instead: a rename in NavigationSegmentedControl turns a
+  // silent visual regression into a red test.
+  it('keeps the label and icon hooks the narrow override targets', async () => {
+    const w = mount(CanvasViewPicker, { props: { showLayout: true } })
+    await w.find('.canvas-view-picker__trigger').trigger('click')
+    const first = segments(w)[0]
+    expect(first.find('.navigation-segmented-control__option__icon').exists()).toBe(true)
+    expect(first.find('.navigation-segmented-control__option__label').text()).toBe('Chart')
   })
 })
