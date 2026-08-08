@@ -35,10 +35,15 @@ defineEmits<{
   background: none;
   cursor: pointer;
   color: var(--bs-secondary-color);
-  transition: background-color 0.15s;
+  transition: background-color var(--bc-duration-base) var(--bc-ease);
 
   &:hover {
     background: var(--bs-tertiary-bg);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--bc-focus-ring);
   }
 
   &--active {
