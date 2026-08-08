@@ -3,6 +3,15 @@ import LandingHero from './LandingHero.vue'
 
 const RouterLinkStub = { template: '<a><slot /></a>', props: ['to'] }
 
+let savedCharts: { id: string }[] = []
+vi.mock('@/stores/chartSession', () => ({
+  useChartSession: () => ({ listSavedCharts: () => savedCharts }),
+}))
+
+beforeEach(() => {
+  savedCharts = [{ id: 'chart-1' }]
+})
+
 function mountHero() {
   return mount(LandingHero, {
     global: {
@@ -38,6 +47,13 @@ describe('LandingHero', () => {
   it('renders CTA buttons', () => {
     const w = mountHero()
     expect(w.text()).toContain('My charts')
+    expect(w.text()).toContain('New chart')
+  })
+
+  it('hides the My charts CTA when nothing is saved', () => {
+    savedCharts = []
+    const w = mountHero()
+    expect(w.find('.landing-hero__ghost').exists()).toBe(false)
     expect(w.text()).toContain('New chart')
   })
 

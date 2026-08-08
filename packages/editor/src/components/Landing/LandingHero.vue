@@ -1,7 +1,12 @@
 <script setup lang="ts">
 import { BcRing } from '@blueprint-chart/ui'
 import { samples } from '@blueprint-chart/lib'
+import { useChartSession } from '@/stores/chartSession'
 import { applyBrandLook } from './brand-look'
+
+// Nothing to visit when there are no saved charts, so the ghost CTA only shows
+// up once the visitor has one. Read once: the landing page mounts on arrival.
+const hasCharts = useChartSession().listSavedCharts().length > 0
 
 const sample = samples.find(s => s.id === 'coffee-production')
 if (!sample) {
@@ -44,6 +49,7 @@ const heroBpc = applyBrandLook(sample.dsl)
         </p>
         <div class="landing-hero__inner__text__actions">
           <router-link
+            v-if="hasCharts"
             to="/charts"
             class="landing-hero__ghost"
           >

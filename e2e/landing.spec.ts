@@ -15,8 +15,11 @@ test.describe('landing page layout', () => {
     await expect(page.locator('.landing-hero__inner__text__h1')).toBeVisible()
     await expect(page.locator('.landing-hero__inner__text__h1')).toContainText('The open chart format')
     await expect(page.locator('.landing-hero__inner__text__h1')).toContainText('AI writes')
-    await expect(page.locator('.landing-hero__ghost', { hasText: 'My charts' }).first()).toBeVisible()
     await expect(page.locator('.landing-hero .btn-bc-primary', { hasText: 'New chart' }).first()).toBeVisible()
+  })
+
+  test('hero hides the My charts CTA with no saved charts', async ({ page }) => {
+    await expect(page.locator('.landing-hero__ghost')).toHaveCount(0)
   })
 
   test('hero chart renders D3 SVG', async ({ page }) => {
