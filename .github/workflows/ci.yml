@@ -59,7 +59,7 @@ jobs:
     # download and no apt step. Keep the tag in sync with the @playwright/test
     # version in package.json.
     container:
-      image: mcr.microsoft.com/playwright:v1.58.2-noble
+      image: mcr.microsoft.com/playwright:v1.62.1-noble
     steps:
       - uses: actions/checkout@v6
       - uses: pnpm/action-setup@v6
