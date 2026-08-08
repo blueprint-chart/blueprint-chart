@@ -56,10 +56,12 @@ import LandingFooter from './LandingFooter.vue'
   overflow: hidden;
 }
 
-/* On mobile the framed "card" reads as detached: a gap under the nav plus
-   rounded top corners. Go full-bleed so the hero butts straight against the
-   navbar (its bottom hairline is the only separator). */
-@media (max-width: 51.25rem) {
+/* Once the viewport is narrow enough that the frame's sides touch the screen
+   edges, the framed "card" stops reading as detached: a gap under the nav plus
+   rounded corners with no side gutters looks like a mistake. Go full-bleed so
+   the hero butts straight against the navbar (its bottom hairline is the only
+   separator). Breakpoint must match the frame's max-width above. */
+@media (max-width: 75rem) {
   .landing-page__frame {
     margin: 0;
     border: none;
