@@ -130,7 +130,7 @@ Rules:
   without a replacement.
 - **Hover is an enhancement, never the only path.** Anything that expands or
   reveals on mouseenter must also open on click/Enter, or touch and keyboard
-  users cannot reach it (see CanvasModePicker for the pattern).
+  users cannot reach it.
 - Disabled buttons use a neutral wash surface with muted text and
   `cursor: not-allowed`. Never fade the primary color: washed primary with
   white text reads as a rendering bug.
