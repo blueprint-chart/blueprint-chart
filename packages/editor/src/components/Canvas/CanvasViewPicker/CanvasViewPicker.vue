@@ -270,15 +270,17 @@ useEventListener(document, 'mousedown', (event: MouseEvent) => {
   // The segmented control collapses to icon-only below 576px (see
   // NavigationSegmentedControl). Inside the popover the width is ours and there
   // is room for the labels, and hiding them would bring back the "the icons do
-  // not say what they do" problem this popover exists to fix.
+  // not say what they do" problem this popover exists to fix. The selectors
+  // mirror the library's own `:has()` structure so they outrank it instead of
+  // tying on specificity.
   @media (max-width: 575.98px) {
-    :deep(.navigation-segmented-control__option) {
+    :deep(.navigation-segmented-control__option:has(.navigation-segmented-control__option__icon)) {
       justify-content: flex-start;
       gap: var(--segmented-option-gap);
       padding: var(--segmented-option-padding-y) var(--segmented-option-padding-x);
     }
 
-    :deep(.navigation-segmented-control__option__label) {
+    :deep(.navigation-segmented-control__option:has(.navigation-segmented-control__option__icon) .navigation-segmented-control__option__label) {
       display: initial;
     }
   }
