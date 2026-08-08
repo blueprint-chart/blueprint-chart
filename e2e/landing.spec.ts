@@ -63,8 +63,9 @@ test.describe('landing page layout', () => {
     await expect(page.locator('.scenes-feature')).toHaveCount(3)
   })
 
-  test('footer renders brand + GitHub + tagline', async ({ page }) => {
+  test('footer renders brand + Documentation + GitHub + tagline', async ({ page }) => {
     await expect(page.locator('.landing-footer__brand__name')).toContainText('Blueprint Chart')
+    await expect(page.locator('.landing-footer__link', { hasText: 'Documentation' })).toBeVisible()
     await expect(page.locator('.landing-footer__link', { hasText: 'GitHub' })).toBeVisible()
     await expect(page.locator('.landing-footer__tagline')).toContainText('MIT')
   })

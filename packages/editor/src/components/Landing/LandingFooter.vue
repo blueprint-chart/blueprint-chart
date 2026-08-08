@@ -34,6 +34,18 @@ const logoSrc = computed(() => theme.value === 'dark' ? logoDark : logoLight)
     >·</span>
     <a
       class="landing-footer__link"
+      href="https://docs.blueprintchart.com"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      Documentation
+    </a>
+    <span
+      class="landing-footer__sep"
+      aria-hidden="true"
+    >·</span>
+    <a
+      class="landing-footer__link"
       href="https://github.com/blueprint-chart/blueprint-chart"
       target="_blank"
       rel="noopener noreferrer"

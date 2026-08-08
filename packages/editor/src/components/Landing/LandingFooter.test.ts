@@ -24,6 +24,12 @@ describe('LandingFooter', () => {
     expect(w.text()).toContain('Editor')
   })
 
+  it('renders the Documentation link, same target as the sidebar', () => {
+    const w = mountFooter()
+    const link = w.findAll('.landing-footer__link').find(a => a.text() === 'Documentation')
+    expect(link?.attributes('href')).toBe('https://docs.blueprintchart.com')
+  })
+
   it('renders the GitHub link', () => {
     const w = mountFooter()
     expect(w.text()).toContain('GitHub')
