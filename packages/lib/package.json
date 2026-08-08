@@ -80,7 +80,7 @@
     "@types/chroma-js": "^3.1.2",
     "@types/d3": "^7.4.3",
     "@types/jsdom": "^21.1.7",
-    "peggy": "^4.2.0",
+    "peggy": "^5.1.0",
     "typescript": "^5.9.3",
     "vite": "^6.4.3",
     "vite-plugin-dts": "^5.0.3",
