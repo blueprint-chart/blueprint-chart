@@ -6,7 +6,7 @@ import { BootstrapVueNextResolver } from 'bootstrap-vue-next'
 import Icons from 'unplugin-icons/vite'
 import IconsResolver from 'unplugin-icons/resolver'
 import { fileURLToPath } from 'node:url'
-import bpcSvg from './build/vite-plugin-bpc-svg'
+import bpcSvg from './build/vite-plugin-bpc-svg.ts'
 
 export default defineConfig({
   plugins: [

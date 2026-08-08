@@ -12,8 +12,8 @@ export default defineConfig({
     emptyOutDir: true,
     lib: {
       entry: {
-        index: resolve(__dirname, 'src/render/backends/node-backend.ts'),
-        browser: resolve(__dirname, 'src/render/backends/node-backend.browser.ts'),
+        index: resolve(import.meta.dirname, 'src/render/backends/node-backend.ts'),
+        browser: resolve(import.meta.dirname, 'src/render/backends/node-backend.browser.ts'),
       },
       formats: ['es'],
     },
@@ -35,8 +35,8 @@ export default defineConfig({
       name: 'copy-fonts',
       closeBundle() {
         cpSync(
-          resolve(__dirname, 'src/render/backends/fonts'),
-          resolve(__dirname, 'dist/node-backend/fonts'),
+          resolve(import.meta.dirname, 'src/render/backends/fonts'),
+          resolve(import.meta.dirname, 'dist/node-backend/fonts'),
           { recursive: true },
         )
       },
