@@ -1,14 +1,14 @@
 import { mount } from '@vue/test-utils'
-import CanvasModePickerOption from './CanvasModePickerOption.vue'
+import CanvasModeOption from './CanvasModeOption.vue'
 
-describe('CanvasModePickerOption', () => {
+describe('CanvasModeOption', () => {
   function mountOption(props: { mode: 'blueprint' | 'auto' | 'light' | 'dark', label: string, active: boolean }) {
-    return mount(CanvasModePickerOption, { props })
+    return mount(CanvasModeOption, { props })
   }
 
   it('renders label text', () => {
     const w = mountOption({ mode: 'light', label: 'Light', active: false })
-    expect(w.find('.canvas-mode-picker-option__label').text()).toBe('Light')
+    expect(w.find('.canvas-mode-option__label').text()).toBe('Light')
   })
 
   it('renders swatch subcomponent', () => {
@@ -18,12 +18,12 @@ describe('CanvasModePickerOption', () => {
 
   it('applies active class when active', () => {
     const w = mountOption({ mode: 'blueprint', label: 'Blueprint', active: true })
-    expect(w.find('.canvas-mode-picker-option--active').exists()).toBe(true)
+    expect(w.find('.canvas-mode-option--active').exists()).toBe(true)
   })
 
   it('does not apply active class when inactive', () => {
     const w = mountOption({ mode: 'blueprint', label: 'Blueprint', active: false })
-    expect(w.find('.canvas-mode-picker-option--active').exists()).toBe(false)
+    expect(w.find('.canvas-mode-option--active').exists()).toBe(false)
   })
 
   it('emits select on click', async () => {

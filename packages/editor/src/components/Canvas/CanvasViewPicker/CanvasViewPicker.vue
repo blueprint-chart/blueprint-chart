@@ -1,11 +1,11 @@
 <template>
   <div
-    class="canvas-mode-picker"
+    class="canvas-view-picker"
     @mouseenter="expanded = true"
     @mouseleave="expanded = false"
   >
     <template v-if="expanded">
-      <CanvasModePickerOption
+      <CanvasModeOption
         v-for="opt in options"
         :key="opt.value"
         :mode="opt.value"
@@ -13,24 +13,24 @@
         :active="canvasMode === opt.value"
         @select="select(opt.value)"
       />
-      <div class="canvas-mode-picker__divider" />
-      <div class="canvas-mode-picker__extra">
+      <div class="canvas-view-picker__divider" />
+      <div class="canvas-view-picker__extra">
         <CanvasDimensionsToggle />
-        <span class="canvas-mode-picker__extra__label">Dims</span>
+        <span class="canvas-view-picker__extra__label">Dims</span>
       </div>
     </template>
     <template v-else>
       <!-- Hover expands via the container's mouseenter; click/Enter covers
            touch and keyboard users, who never fire mouseenter. -->
       <button
-        class="canvas-mode-picker__trigger"
+        class="canvas-view-picker__trigger"
         title="Canvas mode"
         aria-label="Canvas mode"
         aria-haspopup="true"
         aria-expanded="false"
         @click="expanded = true"
       >
-        <CanvasModePickerOptionSwatch :mode="canvasMode" />
+        <CanvasModeSwatch :mode="canvasMode" />
       </button>
     </template>
   </div>
@@ -60,7 +60,7 @@ function select(mode: CanvasMode) {
 </script>
 
 <style scoped lang="scss">
-.canvas-mode-picker {
+.canvas-view-picker {
   position: absolute;
   // Host can lift the picker (e.g. above the floating scene-timeline) and align
   // its edge inset with that timeline via --canvas-float-inset. The host can

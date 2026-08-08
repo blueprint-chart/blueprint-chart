@@ -47,7 +47,7 @@
         />
         <FloatingSceneTimeline />
       </div>
-      <CanvasModePicker v-if="chartVisible" />
+      <CanvasViewPicker v-if="chartVisible" />
     </div>
     <PanelShell
       v-model:drawer-open="drawerOpen"

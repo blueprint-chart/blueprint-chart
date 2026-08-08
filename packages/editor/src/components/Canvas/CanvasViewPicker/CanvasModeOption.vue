@@ -1,12 +1,12 @@
 <template>
   <button
-    class="canvas-mode-picker-option"
-    :class="{ 'canvas-mode-picker-option--active': active }"
+    class="canvas-mode-option"
+    :class="{ 'canvas-mode-option--active': active }"
     :title="label"
     @click="$emit('select')"
   >
-    <CanvasModePickerOptionSwatch :mode="mode" />
-    <span class="canvas-mode-picker-option__label">{{ label }}</span>
+    <CanvasModeSwatch :mode="mode" />
+    <span class="canvas-mode-option__label">{{ label }}</span>
   </button>
 </template>
 
@@ -25,7 +25,7 @@ defineEmits<{
 </script>
 
 <style scoped lang="scss">
-.canvas-mode-picker-option {
+.canvas-mode-option {
   display: flex;
   flex-direction: column;
   align-items: center;

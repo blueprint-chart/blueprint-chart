@@ -26,7 +26,7 @@
         :canvas-ref="canvasRef"
         :layout="layout"
       />
-      <CanvasModePicker />
+      <CanvasViewPicker />
     </div>
     <PanelShell
       v-model:drawer-open="drawerOpen"
