@@ -75,3 +75,4 @@ docs/superpowers/
 .worktrees/
 .gstack/
 /tasks/
+graphify-out/
