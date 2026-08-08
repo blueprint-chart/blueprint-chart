@@ -61,7 +61,7 @@ function onKeydown(event: KeyboardEvent, index: number) {
   }
 
   const position = enabled.indexOf(index)
-  let target: number | null = null
+  let target: number | null
 
   switch (event.key) {
     case 'ArrowRight':

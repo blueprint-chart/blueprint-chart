@@ -21,18 +21,18 @@ export type SceneTransitionState = 'idle' | 'committing' | 'animating'
  * `'axis-tick.value'`. The role-matcher (future plan) acts on this tag;
  * v1 stores it without acting on it for cross-type.
  */
-export type FeatureRole =
-  | 'mark-per-category'
-  | 'mark-per-cell'
-  | 'series-path'
-  | 'series-area'
-  | 'series-line'
-  | 'axis-tick.value'
-  | 'axis-tick.category'
-  | 'value-label'
-  | 'annotation.point'
-  | 'annotation.range'
-  | 'annotation.free'
+export type FeatureRole
+  = | 'mark-per-category'
+    | 'mark-per-cell'
+    | 'series-path'
+    | 'series-area'
+    | 'series-line'
+    | 'axis-tick.value'
+    | 'axis-tick.category'
+    | 'value-label'
+    | 'annotation.point'
+    | 'annotation.range'
+    | 'annotation.free'
 
 /** Subset of SVG / HTML attribute values we tween. */
 export type AttrValue = string | number

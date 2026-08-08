@@ -370,8 +370,8 @@ export function generateThumbnail() {
  * Defensive: a render failure caches nothing rather than breaking the gallery.
  */
 export function cacheImagesFromDsl(id: string, dsl: string): void {
-  let svg: string | null = null
-  let preview: string | null = null
+  let svg: string | null
+  let preview: string | null
   try {
     svg = renderThumbnailFromDsl(dsl)
   }

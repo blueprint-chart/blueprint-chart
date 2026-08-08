@@ -103,7 +103,7 @@ export function useDashboardCharts() {
   async function refresh(): Promise<void> {
     const localList = session.listSavedCharts()
     wait.start('dashboard-charts')
-    let cloudList: CloudChartSummary[] = []
+    let cloudList: CloudChartSummary[]
     try {
       cloudList = showCloud.value ? await cloud.listCloud() : []
     }

@@ -192,8 +192,8 @@ export function renderLegend(
   const legendEl = chartArea.querySelector('.bc-legend') as SVGGElement
 
   if (legendEl) {
-    let legendWidth = 0
-    let legendHeight = 0
+    let legendWidth: number
+    let legendHeight: number
     const fullLens = labels.map((l, i) => {
       const s = valueSuffixes[i]
       return s ? l.length + 1 + s.length : l.length

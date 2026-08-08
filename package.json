@@ -12,15 +12,15 @@
     "story:dev": "pnpm --filter @blueprint-chart/ui story:dev"
   },
   "devDependencies": {
-    "@eslint/js": "^9.39.5",
+    "@eslint/js": "^10.0.1",
     "@iconify-json/fluent": "^1.2.55",
     "@playwright/test": "^1.62.1",
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/exec": "^7.1.0",
     "@semantic-release/git": "^10.0.1",
-    "@stylistic/eslint-plugin": "^4.4.1",
+    "@stylistic/eslint-plugin": "^5.10.0",
     "conventional-changelog-conventionalcommits": "^8.0.0",
-    "eslint": "^9.39.5",
+    "eslint": "^10.8.1",
     "eslint-plugin-vue": "^10.10.0",
     "semantic-release": "^24.2.9",
     "typescript": "^5.9.3",

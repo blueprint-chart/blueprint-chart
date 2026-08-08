@@ -15,7 +15,7 @@ export default [
   js.configs.recommended,
   ...tseslint.configs.recommended,
   ...vue.configs['flat/recommended'],
-  stylistic.configs['recommended-flat'],
+  stylistic.configs.recommended,
   {
     files: ['**/*.vue'],
     languageOptions: {

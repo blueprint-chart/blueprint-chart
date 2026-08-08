@@ -9,21 +9,21 @@ export interface ChartRecommendation {
   reason: string
 }
 
-export type Intent =
-  | 'trend'
-  | 'comparison'
-  | 'ranking'
-  | 'composition-over-time'
-  | 'part-to-whole'
-  | 'range'
-  | 'none'
+export type Intent
+  = | 'trend'
+    | 'comparison'
+    | 'ranking'
+    | 'composition-over-time'
+    | 'part-to-whole'
+    | 'range'
+    | 'none'
 
-export type ShapeSignature =
-  | '1cat+1num'
-  | '1cat+Nnum'
-  | '1date+1num'
-  | '1date+Nnum'
-  | 'other'
+export type ShapeSignature
+  = | '1cat+1num'
+    | '1cat+Nnum'
+    | '1date+1num'
+    | '1date+Nnum'
+    | 'other'
 
 export const CHART_LABELS: Record<string, string> = {
   'bar-vertical': 'Vertical Bar Chart',

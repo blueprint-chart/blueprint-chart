@@ -101,18 +101,18 @@ export function extractSceneOverrides(
   scene: SceneNode,
   chartType: string,
 ): {
-    name: string | null
-    chartType: string | undefined
-    properties: Map<string, string | number | boolean>
-    data: DataNode | null
-    chartTypeOptions: Record<string, unknown>
-    colorizes: SceneNode['colorizes']
-    highlights: SceneNode['highlights']
-    areaFills: SceneNode['areaFills']
-    annotations: SceneNode['annotations']
-    series: SceneNode['series']
-    transforms: SceneNode['transforms']
-  } {
+  name: string | null
+  chartType: string | undefined
+  properties: Map<string, string | number | boolean>
+  data: DataNode | null
+  chartTypeOptions: Record<string, unknown>
+  colorizes: SceneNode['colorizes']
+  highlights: SceneNode['highlights']
+  areaFills: SceneNode['areaFills']
+  annotations: SceneNode['annotations']
+  series: SceneNode['series']
+  transforms: SceneNode['transforms']
+} {
   const props = propertyMap(scene.properties)
   const typeOverride = props.get('type') as string | undefined
   const effectiveType = typeOverride ?? chartType

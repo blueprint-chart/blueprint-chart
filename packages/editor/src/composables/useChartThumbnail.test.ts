@@ -7,8 +7,8 @@ describe('cacheImagesFromDsl', () => {
 
   it('caches exactly what the DSL renderers produce, keyed by id', () => {
     const dsl = 'chart bar-vertical\ndata {\n A = 1\n B = 2\n}'
-    let expectedThumb: string | null = null
-    let expectedPreview: string | null = null
+    let expectedThumb: string | null
+    let expectedPreview: string | null
     try {
       expectedThumb = thumb.renderThumbnailFromDsl(dsl)
     }
