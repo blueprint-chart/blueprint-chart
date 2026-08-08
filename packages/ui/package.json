@@ -58,7 +58,7 @@
   "peerDependencies": {
     "@vueuse/core": "^14.2.1",
     "bootstrap": "^5.3",
-    "bootstrap-vue-next": "^0.27",
+    "bootstrap-vue-next": "^0.45",
     "vue": "^3.5",
     "vue-router": "^4 || ^5"
   },
@@ -77,7 +77,7 @@
     "@vue/test-utils": "^2.4.11",
     "@vueuse/core": "^14.4.0",
     "bootstrap": "^5.3.8",
-    "bootstrap-vue-next": "^0.27.0",
+    "bootstrap-vue-next": "^0.45.10",
     "histoire": "^0.17.17",
     "jsdom": "^26.1.0",
     "sass": "^1.102.0",
