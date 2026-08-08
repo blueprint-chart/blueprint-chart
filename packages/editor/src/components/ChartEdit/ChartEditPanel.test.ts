@@ -139,11 +139,24 @@ describe('ChartEditPanel view modes', () => {
     expect(divider.exists()).toBe(true)
   })
 
-  it('closes the options panel when entering split mode and re-docks on preview', async () => {
+  // Only BPC closes the options panel. Chart and split keep it docked so the
+  // frame width stays the same across them, which keeps the floating view
+  // toolbar pixel-stable when the layout changes.
+  it('keeps the options panel docked in split mode', async () => {
     const panel = useEditorPanel()
     panel.viewMode.value = 'preview'
     mountPanel()
     panel.viewMode.value = 'split'
+    await nextTick()
+    expect(panelStoreMock.close).not.toHaveBeenCalled()
+    expect(panelStoreMock.dock).toHaveBeenCalled()
+  })
+
+  it('closes the options panel in dsl mode and re-docks on preview', async () => {
+    const panel = useEditorPanel()
+    panel.viewMode.value = 'preview'
+    mountPanel()
+    panel.viewMode.value = 'dsl'
     await nextTick()
     expect(panelStoreMock.close).toHaveBeenCalled()
     panel.viewMode.value = 'preview'

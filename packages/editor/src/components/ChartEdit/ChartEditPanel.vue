@@ -143,11 +143,14 @@ watch(viewMode, (mode) => {
   if (isNarrow.value) {
     return
   }
-  if (mode === 'preview') {
-    panelStore.dock()
+  // Only BPC closes the options panel. Chart and split keep it docked, so the
+  // canvas frame keeps the same width across them and the floating view toolbar
+  // pinned to that frame's corner does not shift when the layout changes.
+  if (mode === 'dsl') {
+    panelStore.close()
   }
   else {
-    panelStore.close()
+    panelStore.dock()
   }
 })
 
