@@ -24,12 +24,6 @@ const heroBpc = applyBrandLook(sample.dsl)
       class="landing-hero__grain"
       aria-hidden="true"
     />
-    <!-- Very subtle full-bleed drafting grid (the .bc-pool grid ink with the
-         radial mask dropped), a quiet texture over the grain. -->
-    <span
-      class="landing-hero__grid bc-pool"
-      aria-hidden="true"
-    />
     <div class="landing-hero__inner">
       <div class="landing-hero__inner__text">
         <span class="landing-hero__inner__text__eyebrow bc-eyebrow">
@@ -179,16 +173,6 @@ const heroBpc = applyBrandLook(sample.dsl)
     --bc-ring-gap: 4px;
     --bc-ring-radius: var(--bc-radius-md);
     vertical-align: middle;
-  }
-
-  // Full-bleed drafting grid: reuses the .bc-pool grid ink but drops the radial
-  // mask so it spans the whole hero. Sits over the grain, under the content, and
-  // is softened well below the standard --bc-pool-ink so it stays a quiet texture.
-  &__grid {
-    z-index: 0;
-    --bc-pool-ink: rgba(255, 255, 255, 0.015);
-    -webkit-mask-image: none;
-    mask-image: none;
   }
 }
 

@@ -63,12 +63,6 @@ const steps: McpStep[] = [
           Blueprint Chart · Assistant
         </div>
         <div class="landing-mcp__chat__body">
-          <!-- Drafting-grid surface (see _effects.scss): the .bc-pool grid ink
-               fills the full chat body (mask dropped in CSS). Ink flips per theme. -->
-          <span
-            class="bc-pool"
-            aria-hidden="true"
-          />
           <div
             v-for="(msg, i) in messages"
             :key="i"
@@ -223,28 +217,14 @@ const steps: McpStep[] = [
     }
 
     &__body {
-      position: relative;
       padding: 1rem 0.875rem;
       display: flex;
       flex-direction: column;
       gap: 0.875rem;
-
-      // Drafting-grid surface filling the full chat body: reuse the .bc-pool
-      // grid but drop the radial mask so it spans the whole width/height. The
-      // shared --bc-pool-ink is tuned for small faded pools, so soften it well
-      // below that for a full-bleed surface.
-      .bc-pool {
-        --bc-pool-ink: rgba(20, 24, 29, 0.015);
-        z-index: 0;
-        -webkit-mask-image: none;
-        mask-image: none;
-      }
     }
   }
 
   &__msg {
-    position: relative;
-    z-index: 1;
     display: flex;
     align-items: flex-start;
     gap: 0.5rem;
@@ -510,10 +490,6 @@ const steps: McpStep[] = [
       box-shadow: var(--bc-focus-ring);
     }
   }
-}
-
-[data-bs-theme="dark"] .landing-mcp__chat__body .bc-pool {
-  --bc-pool-ink: rgba(255, 255, 255, 0.015);
 }
 
 @media (max-width: 51.25rem) {

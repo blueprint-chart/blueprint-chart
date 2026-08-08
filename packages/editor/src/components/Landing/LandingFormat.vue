@@ -356,11 +356,6 @@ const portabilityCards: PortabilityCard[] = [
 
 @media (max-width: 51.25rem) {
   .landing-format {
-    // The header goes full-width here; drop the lamp so it can't sit under text.
-    &__lamp {
-      display: none;
-    }
-
     &__grid {
       grid-template-columns: 1fr;
     }
