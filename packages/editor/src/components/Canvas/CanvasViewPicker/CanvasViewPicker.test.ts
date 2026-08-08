@@ -1,17 +1,32 @@
 import { mount } from '@vue/test-utils'
 import CanvasViewPicker from './CanvasViewPicker.vue'
 
+const viewMode = ref<string>('preview')
 const canvasMode = ref<string>('blueprint')
+const setViewMode = vi.fn((mode: string) => {
+  viewMode.value = mode
+})
 const setCanvasMode = vi.fn((mode: string) => {
   canvasMode.value = mode
 })
+const isNarrowRef = ref(false)
 
 vi.mock('@/stores/editorPanel', () => ({
   useEditorPanel: () => ({
+    viewMode,
     canvasMode,
+    setViewMode,
     setCanvasMode,
     showDimensions: ref(true),
   }),
+}))
+
+// Keep NavigationToggle (and the rest of the library) real so the rendered
+// segments are exercised; only override the breakpoint so the test controls
+// narrow/wide.
+vi.mock('@blueprint-chart/ui', async importOriginal => ({
+  ...(await importOriginal<typeof import('@blueprint-chart/ui')>()),
+  useBreakpoint: () => ({ isNarrow: isNarrowRef }),
 }))
 
 vi.mock('~icons/ph/ruler', () => ({
@@ -22,12 +37,19 @@ vi.mock('~icons/ph/caret-down', () => ({
   default: { template: '<span class="icon-caret-down" />' },
 }))
 
-describe('CanvasViewPicker', () => {
-  beforeEach(() => {
-    canvasMode.value = 'blueprint'
-    setCanvasMode.mockClear()
-  })
+function segments(w: ReturnType<typeof mount>) {
+  return w.findAll('.navigation-segmented-control__option')
+}
 
+beforeEach(() => {
+  viewMode.value = 'preview'
+  canvasMode.value = 'blueprint'
+  setViewMode.mockClear()
+  setCanvasMode.mockClear()
+  isNarrowRef.value = false
+})
+
+describe('CanvasViewPicker', () => {
   it('renders the trigger with the current canvas swatch and no panel', () => {
     canvasMode.value = 'dark'
     const w = mount(CanvasViewPicker)
@@ -50,8 +72,8 @@ describe('CanvasViewPicker', () => {
     expect(w.find('.canvas-view-picker__panel').exists()).toBe(false)
   })
 
-  // The panel is bigger than the old swatch list and (from Task 3) holds layout
-  // switching, so an accidental pointer pass must not open it.
+  // The panel is bigger than the old swatch list and holds layout switching,
+  // so an accidental pointer pass must not open it.
   it('does not open on hover', async () => {
     const w = mount(CanvasViewPicker)
     await w.find('.canvas-view-picker').trigger('mouseenter')
@@ -131,5 +153,86 @@ describe('CanvasViewPicker', () => {
     await w.find('.canvas-view-picker__trigger').trigger('click')
     await w.find('.canvas-dimensions-toggle').trigger('click')
     expect(w.find('.canvas-view-picker__panel').exists()).toBe(true)
+  })
+})
+
+describe('CanvasViewPicker layout section', () => {
+  it('has no layout section without showLayout', async () => {
+    const w = mount(CanvasViewPicker)
+    await w.find('.canvas-view-picker__trigger').trigger('click')
+    expect(w.find('.navigation-segmented-control').exists()).toBe(false)
+    expect(w.findAll('.canvas-view-picker__label').map(el => el.text())).toEqual(['Canvas'])
+  })
+
+  it('offers exactly Chart, Split and BPC on wide viewports', async () => {
+    const w = mount(CanvasViewPicker, { props: { showLayout: true } })
+    await w.find('.canvas-view-picker__trigger').trigger('click')
+    expect(segments(w).map(el => el.text().trim())).toEqual(['Chart', 'Split', 'BPC'])
+  })
+
+  it('labels both sections when layout is shown', async () => {
+    const w = mount(CanvasViewPicker, { props: { showLayout: true } })
+    await w.find('.canvas-view-picker__trigger').trigger('click')
+    expect(w.findAll('.canvas-view-picker__label').map(el => el.text())).toEqual(['Layout', 'Canvas'])
+  })
+
+  it('renders one distinct icon per layout segment', async () => {
+    const w = mount(CanvasViewPicker, { props: { showLayout: true } })
+    await w.find('.canvas-view-picker__trigger').trigger('click')
+    const [chart, split, dsl] = segments(w)
+    expect(chart.find('.icon-view-chart').exists()).toBe(true)
+    expect(split.find('.icon-view-split').exists()).toBe(true)
+    expect(dsl.find('.icon-view-dsl').exists()).toBe(true)
+  })
+
+  it('drops the Split segment on narrow viewports', async () => {
+    isNarrowRef.value = true
+    const w = mount(CanvasViewPicker, { props: { showLayout: true } })
+    await w.find('.canvas-view-picker__trigger').trigger('click')
+    expect(segments(w).map(el => el.text().trim())).toEqual(['Chart', 'BPC'])
+  })
+
+  it('calls setViewMode and closes when a layout is picked', async () => {
+    const w = mount(CanvasViewPicker, { props: { showLayout: true } })
+    await w.find('.canvas-view-picker__trigger').trigger('click')
+    const split = segments(w).find(el => el.text().trim() === 'Split')
+    expect(split).toBeDefined()
+    await split!.trigger('click')
+    expect(setViewMode).toHaveBeenCalledWith('split')
+    expect(w.find('.canvas-view-picker__panel').exists()).toBe(false)
+  })
+
+  it('shows the current layout icon on the trigger', () => {
+    viewMode.value = 'dsl'
+    const w = mount(CanvasViewPicker, { props: { showLayout: true } })
+    expect(w.find('.canvas-view-picker__trigger .icon-view-dsl').exists()).toBe(true)
+  })
+
+  it('renders no layout icon on the trigger without showLayout', () => {
+    const w = mount(CanvasViewPicker)
+    expect(w.find('.canvas-view-picker__trigger .icon-view-chart').exists()).toBe(false)
+  })
+
+  it('hides the canvas section and the trigger swatch in dsl mode', async () => {
+    viewMode.value = 'dsl'
+    const w = mount(CanvasViewPicker, { props: { showLayout: true } })
+    expect(w.find('.canvas-view-picker__trigger .canvas-mode-swatch').exists()).toBe(false)
+    await w.find('.canvas-view-picker__trigger').trigger('click')
+    expect(w.findAll('.canvas-view-picker__label').map(el => el.text())).toEqual(['Layout'])
+    expect(w.findAll('.canvas-mode-option').length).toBe(0)
+    expect(w.find('.canvas-dimensions-toggle').exists()).toBe(false)
+  })
+
+  it('has no divider when only one section is shown', async () => {
+    viewMode.value = 'dsl'
+    const w = mount(CanvasViewPicker, { props: { showLayout: true } })
+    await w.find('.canvas-view-picker__trigger').trigger('click')
+    expect(w.find('.canvas-view-picker__divider').exists()).toBe(false)
+  })
+
+  it('divides the two sections when both are shown', async () => {
+    const w = mount(CanvasViewPicker, { props: { showLayout: true } })
+    await w.find('.canvas-view-picker__trigger').trigger('click')
+    expect(w.find('.canvas-view-picker__divider').exists()).toBe(true)
   })
 })
