@@ -1,3 +1,5 @@
+import { stripDigitGroupSpaces } from '@blueprint-chart/lib'
+
 export type ColumnType = 'date' | 'number' | 'string'
 
 export interface ParsedData {
@@ -82,7 +84,7 @@ export function isDateValue(value: string): boolean {
 export function cleanNumericValue(value: string): string {
   const match = value.match(/^[<>≤≥~]\s*(.+)$/)
   if (match) {
-    const inner = match[1].replace(/[,%$€£¥₹]/g, '').trim()
+    const inner = stripDigitGroupSpaces(match[1]).replace(/[,%$€£¥₹]/g, '').trim()
     if (inner.length > 0 && !Number.isNaN(Number(inner))) {
       return match[1].trim()
     }
@@ -94,7 +96,7 @@ export function isNumberValue(value: string): boolean {
   if (!value) {
     return false
   }
-  const cleaned = cleanNumericValue(value).replace(/[,%$€£¥₹]/g, '').trim()
+  const cleaned = stripDigitGroupSpaces(cleanNumericValue(value)).replace(/[,%$€£¥₹]/g, '').trim()
   return cleaned.length > 0 && !Number.isNaN(Number(cleaned))
 }
 

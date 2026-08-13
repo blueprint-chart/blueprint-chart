@@ -36,6 +36,16 @@ data {
 }
 ```
 
+Numbers may group their digits with spaces, which is how most locales outside the US write them. Quote the value so the space does not end the number. Any space character works, including the no-break spaces a spreadsheet copy-paste leaves behind:
+
+```bpc
+data {
+  "2024" = "1 559 275"
+}
+```
+
+A `.` is always the decimal separator, so a grouping space is never ambiguous. A comma is neither: it separates multi-series values (below), so write `1234.5`, not `1,234.5`.
+
 For multi-series data, comma-separated values map positionally to series. A leading `series = "A","B",…` row labels each column. The unquoted key `series` inside a `data` block is reserved for this meta-row; quote your labels (`"series" = …`) if you ever need a real data row by that name:
 
 ```bpc

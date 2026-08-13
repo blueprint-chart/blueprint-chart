@@ -19,6 +19,13 @@ describe('parseNumeric', () => {
     expect(parseNumeric('1,000,000')).toBe(1000000)
   })
 
+  it('strips the spaces that group digits', () => {
+    expect(parseNumeric('8 978')).toBe(8978)
+    expect(parseNumeric('1 559 275')).toBe(1559275)
+    expect(parseNumeric('8\u00A0978')).toBe(8978)
+    expect(parseNumeric('8\u202F978')).toBe(8978)
+  })
+
   it('trims whitespace', () => {
     expect(parseNumeric('  42  ')).toBe(42)
   })

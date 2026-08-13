@@ -70,6 +70,7 @@ export { renderLegend } from './charts/legend/legend'
 export { registerChart, getChart, getChartOptions, listCharts } from './charts/registry'
 
 export { parseData, buildChartOptions } from './charts/chart-helpers'
+export { stripDigitGroupSpaces } from './charts/number-parse'
 
 // Recommendations
 export { recommendCharts } from './recommendations/recommend'

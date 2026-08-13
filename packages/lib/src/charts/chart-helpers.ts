@@ -2,21 +2,8 @@ import { resolvePalette } from './palettes'
 import { adjustColorsForBackground } from './contrast'
 import type { ChartData, ChartOptions, ChartTypeOptions } from './types'
 import { parseDateOrNumber } from './date-parse'
+import { parseNumericCell } from './number-parse'
 import { AxisDirection, LabelPosition, LabelRotation, LegendPosition, Anchor, ValueLabelPosition, CrosshairDirection, CrosshairStyle, StackMode, SymbolShape, SymbolShowOn, SymbolStyle } from '../enums'
-
-/**
- * Parse a single numeric cell, returning `undefined` for empty/missing/non-finite
- * inputs so consumers can distinguish "no data" from a literal zero.
- * Callers continue to coalesce via `?? 0` when a numeric fallback is needed.
- */
-function parseCell(raw: string | undefined): number | undefined {
-  const trimmed = raw?.trim()
-  if (!trimmed) {
-    return undefined
-  }
-  const n = Number.parseFloat(trimmed)
-  return Number.isFinite(n) ? n : undefined
-}
 
 export function parseData(raw: string): ChartData {
   const lines = raw.split('\n').map(l => l.trim()).filter(Boolean)
@@ -44,7 +31,7 @@ export function parseData(raw: string): ChartData {
         labels.push(match[1])
         const vals = match[2].split(',')
         for (let s = 0; s < seriesNames.length; s++) {
-          seriesValues[s].push(parseCell(vals[s]))
+          seriesValues[s].push(parseNumericCell(vals[s]))
         }
       }
     }
@@ -65,7 +52,7 @@ export function parseData(raw: string): ChartData {
     const match = line.match(/^"([^"]+)"\s*=\s*(.+)$/)
     if (match) {
       labels.push(match[1])
-      values.push(parseCell(match[2]))
+      values.push(parseNumericCell(match[2]))
     }
   }
 

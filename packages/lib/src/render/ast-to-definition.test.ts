@@ -81,4 +81,21 @@ describe('astToDefinition', () => {
     expect(spy.mock.calls[0][0]).toContain('rolling-average')
     spy.mockRestore()
   })
+
+  // Space-grouped numbers reach parseData still quoted, because
+  // dataEntriesToString re-quotes any value that is not a bare number.
+  it('reads data values whose digits are grouped by no-break spaces', () => {
+    const ast = parse(`chart line {
+  data {
+    "2021-03-01" = "8\u202F978"
+    "2021-06-01" = "53\u202F817"
+    "2021-07-01" = "1\u202F559\u202F275"
+    "2022-01-01" = "10\u202F000"
+    "2024-07-01" = "6\u202F120\u202F163"
+    "2026-07-01" = "289\u202F685"
+  }
+}`)
+    const def = astToDefinition(ast)
+    expect(def.data.values).toEqual([8978, 53817, 1559275, 10000, 6120163, 289685])
+  })
 })

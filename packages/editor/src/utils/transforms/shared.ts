@@ -1,7 +1,9 @@
+import { stripDigitGroupSpaces } from '@blueprint-chart/lib'
+
 import type { ColumnType } from '../data/parser'
 
 export function parseNumeric(v: string): number {
-  return Number(v.replace(/[,%$€£¥₹]/g, '').trim()) || 0
+  return Number(stripDigitGroupSpaces(v).replace(/[,%$€£¥₹]/g, '').trim()) || 0
 }
 
 export function compareValues(a: string, b: string, type: ColumnType): number {

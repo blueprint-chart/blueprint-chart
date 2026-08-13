@@ -81,6 +81,66 @@ describe('parseData', () => {
     // A real 0 remains a real 0.
     expect(data.values[3]).toBe(0)
   })
+
+  // ── Thousands separators: a space groups digits, it never marks a decimal ─
+
+  it('reads space-grouped numbers that reach parseData still quoted', () => {
+    // dataEntriesToString re-quotes any value that is not a bare number, so the
+    // quote characters are still attached by the time parseData sees the cell.
+    const raw = `"A" = "8 978"\n"B" = "1 559 275"`
+    const data = parseData(raw)
+    expect(data.values).toEqual([8978, 1559275])
+  })
+
+  it('accepts every space flavour a locale or spreadsheet emits as a group separator', () => {
+    const raw = [
+      `"plain" = "8 978"`,
+      `"nbsp" = "8\u00A0978"`,
+      `"narrow nbsp" = "8\u202F978"`,
+      `"thin" = "8\u2009978"`,
+      `"figure" = "8\u2007978"`,
+    ].join('\n')
+    const data = parseData(raw)
+    expect(data.values).toEqual([8978, 8978, 8978, 8978, 8978])
+  })
+
+  it('keeps the sign of a negative space-grouped number', () => {
+    const data = parseData(`"A" = "-1 234"`)
+    expect(data.values).toEqual([-1234])
+  })
+
+  it('reads space-grouped numbers in multi-series rows', () => {
+    // Multi-value entries lose their quotes in dataEntriesToString, so these
+    // cells arrive bare, and parseFloat used to truncate them to the first group.
+    const raw = `series = "A","B"\n"Jan" = 8 978,9 000`
+    const data = parseData(raw)
+    expect(data.series![0].values).toEqual([8978])
+    expect(data.series![1].values).toEqual([9000])
+  })
+
+  it('reads a quoted bare number', () => {
+    const data = parseData(`"A" = "8978"`)
+    expect(data.values).toEqual([8978])
+  })
+
+  it('leaves comma and dot alone, since a dot is the decimal separator and a comma groups nothing', () => {
+    const raw = `"dot" = 8.978\n"comma" = "1,234"`
+    const data = parseData(raw)
+    expect(data.values[0]).toBe(8.978)
+    // A comma-grouped value stays missing rather than silently reading as 1.
+    expect(data.values[1]).toBeUndefined()
+  })
+
+  it('still reads percentages, quoted or bare', () => {
+    const raw = `"bare" = 35%\n"quoted" = "35%"`
+    const data = parseData(raw)
+    expect(data.values).toEqual([35, 35])
+  })
+
+  it('rejects a value that only looks numeric at its start', () => {
+    const data = parseData(`"A" = "2 apples"`)
+    expect(data.values[0]).toBeUndefined()
+  })
 })
 
 describe('buildChartOptions', () => {
