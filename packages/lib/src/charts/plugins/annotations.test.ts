@@ -175,6 +175,30 @@ describe('createAnnotationPlugin', () => {
     expect(texts[0].getAttribute('y')).toBe('100')
   })
 
+  it('wraps a long free annotation when no maxWidth is set', () => {
+    const { x, y, data } = makeScales()
+    const long = 'En juillet 2024, deux subventions ont ete attribuees au syndicat departemental de l energie de l Allier'
+
+    const plugin = createAnnotationPlugin(
+      [{ kind: AnnotationKind.Free, text: long, x: 0, y: 0 }],
+      { scaleX: x, scaleY: y, data, width: 200, height: 200 },
+    )
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    plugin.postDraw!(makeChartStub(g) as any, undefined as any)
+
+    const tspans = [...g.querySelectorAll('.bc-annotation-text tspan')]
+    expect(tspans.length).toBeGreaterThan(1)
+    // Each line fits the default budget (40% of the chart width, at the same
+    // 7px-per-character estimate the wrapper uses), except a lone word too
+    // long to break.
+    for (const tspan of tspans) {
+      const line = tspan.textContent ?? ''
+      expect(line.length * 7 <= 200 * 0.4 || !line.includes(' ')).toBe(true)
+    }
+    expect(tspans.map(t => t.textContent).join(' ')).toBe(long)
+  })
+
   it('renders free annotation with px position', () => {
     const { x, y, data } = makeScales()
 
@@ -830,7 +854,10 @@ describe('createAnnotationPlugin', () => {
 
     const texts = g.querySelectorAll('.bc-annotation-text')
     expect(texts).toHaveLength(1)
-    expect(texts[0].textContent).toBe('Horizontal note')
+    // 200px chart: the default wrap budget is 80px, so the label breaks across
+    // two tspans. Rejoin them to assert the text survived intact.
+    const lines = [...texts[0].querySelectorAll('tspan')].map(t => t.textContent)
+    expect(lines.join(' ')).toBe('Horizontal note')
   })
 
   // -----------------------------------------------------------------------

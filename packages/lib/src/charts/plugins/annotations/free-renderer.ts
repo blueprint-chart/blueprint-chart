@@ -1,6 +1,6 @@
 import * as d3 from 'd3'
 import type { AnnotationConfig } from '../../types'
-import { resolvePosition, resolveMaxWidth } from './position-helpers'
+import { resolvePosition, resolveMaxWidth, DEFAULT_MAX_WIDTH_RATIO } from './position-helpers'
 import type { AnnotationContext } from './context'
 import { renderAnnotationText } from './shared'
 
@@ -30,7 +30,7 @@ export function renderFreeAnnotation(
   if (ann.text) {
     renderAnnotationText(annG, ann.text, px, py, {
       textColor: ann.textColor,
-      maxWidth: resolveMaxWidth(ann.maxWidth, ctx.width),
+      maxWidth: resolveMaxWidth(ann.maxWidth, ctx.width) ?? ctx.width * DEFAULT_MAX_WIDTH_RATIO,
       textAnchor: 'middle',
       backgroundColor: ctx.backgroundColor,
       textOutline: ann.textOutline,

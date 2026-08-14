@@ -2,7 +2,7 @@ import * as d3 from 'd3'
 import { CompassDirection, AnnotationLineStyle } from '../../types'
 import type { AnnotationConfig, StrokeStyle } from '../../types'
 import { DIRECTION_VECTORS, computeDirectionOffset } from './direction-helpers'
-import { resolveMaxWidth } from './position-helpers'
+import { resolveMaxWidth, DEFAULT_MAX_WIDTH_RATIO } from './position-helpers'
 import type { AnnotationContext } from './context'
 import {
   computeAnchorPoint,
@@ -116,7 +116,7 @@ export function renderPointAnnotation(
     const textAnchor = inferTextAnchorFromOffset(tx - anchor.x)
     renderAnnotationText(annG, ann.text, clampedX, clampedY - 4, {
       textColor: ann.textColor,
-      maxWidth: resolveMaxWidth(ann.maxWidth, ctx.width),
+      maxWidth: resolveMaxWidth(ann.maxWidth, ctx.width) ?? ctx.width * DEFAULT_MAX_WIDTH_RATIO,
       textAnchor,
       backgroundColor: ctx.backgroundColor,
       textOutline: ann.textOutline,

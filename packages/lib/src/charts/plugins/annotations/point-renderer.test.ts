@@ -58,11 +58,51 @@ describe('renderPointAnnotation', () => {
     expect(fromY).toBeLessThanOrEqual(HEIGHT)
   })
 
+  it('wraps long text onto several lines when no maxWidth is set', () => {
+    const { g, ctx } = setup()
+    const long = 'En juillet 2024, deux subventions ont ete attribuees au syndicat departemental de l energie de l Allier'
+    renderPointAnnotation(g, { target: 'B', text: long } as Ann, ctx, 0)
+    const tspans = [...document.querySelectorAll('.bc-annotation-text tspan')]
+    expect(tspans.length).toBeGreaterThan(1)
+    // Every line stays within the default wrap width (40% of the chart width),
+    // using the same 7px-per-character estimate as the wrapper. A single word
+    // longer than the budget can't be broken, so it gets a line of its own.
+    for (const tspan of tspans) {
+      const line = tspan.textContent ?? ''
+      expect(line.length * 7 <= WIDTH * 0.4 || !line.includes(' ')).toBe(true)
+    }
+    // Wrapping splits on spaces, so the lines rejoin into the original text.
+    expect(tspans.map(t => t.textContent).join(' ')).toBe(long)
+  })
+
   it('honours explicit newlines alongside an explicit maxWidth', () => {
     const { g, ctx } = setup()
     renderPointAnnotation(g, { target: 'B', text: 'Line one\nline two', maxWidth: 300 } as Ann, ctx, 0)
     const lines = [...document.querySelectorAll('.bc-annotation-text tspan')].map(t => t.textContent)
     expect(lines).toEqual(['Line one', 'line two'])
+  })
+
+  it('honours explicit newlines as hard line breaks', () => {
+    const { g, ctx } = setup()
+    renderPointAnnotation(g, { target: 'B', text: 'Line one\nline two' } as Ann, ctx, 0)
+    const lines = [...document.querySelectorAll('.bc-annotation-text tspan')].map(t => t.textContent)
+    expect(lines).toEqual(['Line one', 'line two'])
+  })
+
+  it('wraps within each explicit line when a line is too long', () => {
+    const { g, ctx } = setup()
+    // 160px budget at 7px/char ≈ 22 chars, so the first line breaks in two and
+    // the newline still forces a break before "short".
+    renderPointAnnotation(g, { target: 'B', text: 'aaa bbb ccc ddd eee fff ggg\nshort' } as Ann, ctx, 0)
+    const lines = [...document.querySelectorAll('.bc-annotation-text tspan')].map(t => t.textContent)
+    expect(lines.length).toBeGreaterThan(2)
+    expect(lines.at(-1)).toBe('short')
+  })
+
+  it('leaves short text on a single line', () => {
+    const { g, ctx } = setup()
+    renderPointAnnotation(g, { target: 'B', text: 'peak' } as Ann, ctx, 0)
+    expect(document.querySelectorAll('.bc-annotation-text tspan')).toHaveLength(1)
   })
 
   it('still renders a connecting line for a legacy dy annotation', () => {

@@ -14,6 +14,14 @@ export function resolvePosition(value: number | string, size: number): number {
   return parseFloat(str) || 0
 }
 
+/**
+ * Fraction of the chart width an annotation wraps at when the BPC sets no
+ * explicit `maxWidth`. Unwrapped text runs off the canvas and drags the whole
+ * chart down with it, because `expandSvgToFitAnnotations` grows the viewBox to
+ * cover the overflow and `preserveAspectRatio` then scales everything to fit.
+ */
+export const DEFAULT_MAX_WIDTH_RATIO = 0.4
+
 export function resolveMaxWidth(maxWidth: number | string | undefined, chartWidth: number): number | undefined {
   if (maxWidth == null) {
     return undefined
