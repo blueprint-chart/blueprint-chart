@@ -58,6 +58,13 @@ describe('renderPointAnnotation', () => {
     expect(fromY).toBeLessThanOrEqual(HEIGHT)
   })
 
+  it('honours explicit newlines alongside an explicit maxWidth', () => {
+    const { g, ctx } = setup()
+    renderPointAnnotation(g, { target: 'B', text: 'Line one\nline two', maxWidth: 300 } as Ann, ctx, 0)
+    const lines = [...document.querySelectorAll('.bc-annotation-text tspan')].map(t => t.textContent)
+    expect(lines).toEqual(['Line one', 'line two'])
+  })
+
   it('still renders a connecting line for a legacy dy annotation', () => {
     const { g, ctx } = setup()
     renderPointAnnotation(g, { target: 'B', text: 'peak', dy: -40 } as Ann, ctx, 0)

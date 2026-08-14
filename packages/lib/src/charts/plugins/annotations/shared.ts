@@ -363,29 +363,30 @@ function wrapText(
   text: string,
   maxWidth: number,
 ): void {
-  const words = text.split(/\s+/)
-  let line = ''
   let lineNumber = 0
-
-  for (const word of words) {
-    const test = line ? `${line} ${word}` : word
-    if (line && test.length * 7 > maxWidth) {
-      textEl.append('tspan')
-        .attr('x', textEl.attr('x'))
-        .attr('dy', lineNumber === 0 ? '0' : '1.2em')
-        .text(line)
-      line = word
-      lineNumber++
-    }
-    else {
-      line = test
-    }
-  }
-  if (line) {
+  const emit = (line: string): void => {
     textEl.append('tspan')
       .attr('x', textEl.attr('x'))
       .attr('dy', lineNumber === 0 ? '0' : '1.2em')
       .text(line)
+    lineNumber++
+  }
+
+  // Explicit newlines are hard breaks. Wrap each one to maxWidth on its own so
+  // a `\n` in the BPC survives wrapping instead of collapsing into whitespace.
+  for (const paragraph of text.split('\n')) {
+    let line = ''
+    for (const word of paragraph.split(/\s+/).filter(Boolean)) {
+      const test = line ? `${line} ${word}` : word
+      if (line && test.length * 7 > maxWidth) {
+        emit(line)
+        line = word
+      }
+      else {
+        line = test
+      }
+    }
+    emit(line)
   }
 }
 
