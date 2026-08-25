@@ -2,9 +2,14 @@ name: CI
 
 on:
   push:
-    branches: [main]
   pull_request:
     branches: [main]
+
+# Only the newest run per ref matters; cancel superseded ones so a branch that
+# is pushed repeatedly does not queue behind its own stale runs.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   lint:
