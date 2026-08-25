@@ -60,7 +60,7 @@ export default defineConfig({
   },
   server: {
     host: '0.0.0.0',
-    port: 5555,
+    port: Number(process.env.PORT ?? 5555),
   },
   build: {
     chunkSizeWarningLimit: 1500,

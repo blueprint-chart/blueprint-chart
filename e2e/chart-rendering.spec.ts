@@ -1,4 +1,5 @@
-import { test, expect, type Page } from '@playwright/test'
+import { test, expect } from '@playwright/test'
+import { gotoRender } from './support/render'
 
 /**
  * Chart rendering regression tests.
@@ -109,22 +110,13 @@ const SAMPLES = {
   },
 }
 
-function bpc64(bpc: string): string {
-  return Buffer.from(bpc).toString('base64')
-}
-
-async function gotoChart(page: Page, bpc: string) {
-  await page.goto(`/#/render?bpc64=${bpc64(bpc)}`)
-  await page.waitForSelector('.bc-frame', { timeout: 10_000 })
-}
-
 // ---------------------------------------------------------------------------
 // Frame rendering
 // ---------------------------------------------------------------------------
 
 test.describe('chart frame', () => {
   test('renders frame elements', async ({ page }) => {
-    await gotoChart(page, SAMPLES.barVertical.bpc)
+    await gotoRender(page, SAMPLES.barVertical.bpc)
 
     await expect(page.locator('.bc-frame')).toBeVisible()
     await expect(page.locator('.bc-frame-title')).toHaveText('Letter Frequency')
@@ -138,7 +130,7 @@ test.describe('chart frame', () => {
 
 test.describe('bar chart colors', () => {
   test('bars use the specified colors, not a CSS fallback', async ({ page }) => {
-    await gotoChart(page, SAMPLES.barVertical.bpc)
+    await gotoRender(page, SAMPLES.barVertical.bpc)
 
     const bars = page.locator('.bc-bar')
     const count = await bars.count()
@@ -156,7 +148,7 @@ test.describe('bar chart colors', () => {
   })
 
   test('highlight color overrides the default bar color', async ({ page }) => {
-    await gotoChart(page, SAMPLES.barWithHighlight.bpc)
+    await gotoRender(page, SAMPLES.barWithHighlight.bpc)
 
     const bars = page.locator('.bc-bar')
 
@@ -185,7 +177,7 @@ test.describe('bar chart colors', () => {
   })
 
   test('multi-series bars have distinct colors per series', async ({ page }) => {
-    await gotoChart(page, SAMPLES.barMulti.bpc)
+    await gotoRender(page, SAMPLES.barMulti.bpc)
 
     const bars = page.locator('.bc-bar')
     const fills = await bars.evaluateAll(els =>
@@ -204,7 +196,7 @@ test.describe('bar chart colors', () => {
 
 test.describe('line chart colors', () => {
   test('line paths have distinct stroke colors', async ({ page }) => {
-    await gotoChart(page, SAMPLES.lineMulti.bpc)
+    await gotoRender(page, SAMPLES.lineMulti.bpc)
 
     const lines = page.locator('.bc-line')
     const count = await lines.count()
@@ -219,7 +211,7 @@ test.describe('line chart colors', () => {
   })
 
   test('line paths have fill=none', async ({ page }) => {
-    await gotoChart(page, SAMPLES.lineMulti.bpc)
+    await gotoRender(page, SAMPLES.lineMulti.bpc)
 
     const lines = page.locator('.bc-line')
     const count = await lines.count()
@@ -240,7 +232,7 @@ test.describe('line chart colors', () => {
 
 test.describe('grid lines', () => {
   test('grid lines are visible with a stroke color', async ({ page }) => {
-    await gotoChart(page, SAMPLES.lineWithGrid.bpc)
+    await gotoRender(page, SAMPLES.lineWithGrid.bpc)
 
     const gridLines = page.locator('.bc-grid-line')
     const count = await gridLines.count()
@@ -258,7 +250,7 @@ test.describe('grid lines', () => {
   })
 
   test('grid lines use the muted grid color, not the axis color', async ({ page }) => {
-    await gotoChart(page, SAMPLES.lineWithGrid.bpc)
+    await gotoRender(page, SAMPLES.lineWithGrid.bpc)
 
     const gridLines = page.locator('.bc-grid-line')
     const count = await gridLines.count()
@@ -303,7 +295,7 @@ const LINE_MONTHLY_BPC = `chart line {
 
 test.describe('axes', () => {
   test('axis tick text is visible', async ({ page }) => {
-    await gotoChart(page, SAMPLES.barMulti.bpc)
+    await gotoRender(page, SAMPLES.barMulti.bpc)
 
     const ticks = page.locator('.bc-axis .tick text')
     const count = await ticks.count()
@@ -321,7 +313,7 @@ test.describe('axes', () => {
   for (const viewportWidth of [800, 500, 350]) {
     test(`x-axis labels do not overlap at ${viewportWidth}px viewport`, async ({ page }) => {
       await page.setViewportSize({ width: viewportWidth, height: 500 })
-      await gotoChart(page, LINE_MONTHLY_BPC)
+      await gotoRender(page, LINE_MONTHLY_BPC)
 
       // Collect bounding rects of all horizontal axis tick labels
       const rects = await page.locator('.bc-axis-horizontal .tick text').evaluateAll(
@@ -350,7 +342,7 @@ test.describe('axes', () => {
 
 test.describe('legend', () => {
   test('legend items have correct series colors', async ({ page }) => {
-    await gotoChart(page, SAMPLES.barMulti.bpc)
+    await gotoRender(page, SAMPLES.barMulti.bpc)
 
     const legendRects = page.locator('.bc-legend-item rect')
     const count = await legendRects.count()
@@ -372,7 +364,7 @@ test.describe('legend', () => {
 
 test.describe('donut chart', () => {
   test('arcs have distinct fill colors', async ({ page }) => {
-    await gotoChart(page, SAMPLES.donut.bpc)
+    await gotoRender(page, SAMPLES.donut.bpc)
 
     const arcs = page.locator('.bc-arc')
     const count = await arcs.count()
@@ -404,7 +396,7 @@ const ALL_SAMPLE_BPCS: [string, string][] = [
 test.describe('all chart types render', () => {
   for (const [name, bpc] of ALL_SAMPLE_BPCS) {
     test(`${name} renders a chart`, async ({ page }) => {
-      await gotoChart(page, bpc)
+      await gotoRender(page, bpc)
 
       await expect(page.locator('.bc-frame')).toBeVisible()
       await expect(page.locator('.bc-frame-body svg')).toBeVisible()

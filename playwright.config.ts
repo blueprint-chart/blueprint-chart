@@ -1,5 +1,9 @@
 import { defineConfig } from '@playwright/test'
 
+// Overridable so several worktrees can run e2e side by side without fighting
+// over a single port. Kept in sync with the editor's own vite server default.
+const port = Number(process.env.PORT ?? 5555)
+
 export default defineConfig({
   testDir: './e2e',
   timeout: 60_000,
@@ -15,12 +19,12 @@ export default defineConfig({
     ? [['list'], ['html', { open: 'never' }], ['github']]
     : 'list',
   use: {
-    baseURL: 'http://localhost:5555',
+    baseURL: `http://localhost:${port}`,
     headless: true,
   },
   webServer: {
     command: 'pnpm --filter @blueprint-chart/editor dev',
-    url: 'http://localhost:5555',
+    url: `http://localhost:${port}`,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
     // Give the dev server a chance to shut down, then SIGKILL the process group.

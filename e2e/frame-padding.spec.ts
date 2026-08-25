@@ -1,4 +1,5 @@
-import { test, expect, type Page } from '@playwright/test'
+import { test, expect } from '@playwright/test'
+import { gotoRender } from './support/render'
 
 /**
  * Frame padding regression tests.
@@ -6,15 +7,6 @@ import { test, expect, type Page } from '@playwright/test'
  * Verifies that frame padding is applied only once (on the frame sections)
  * and not doubled by an outer card/container wrapper.
  */
-
-function bpc64(bpc: string): string {
-  return Buffer.from(bpc).toString('base64')
-}
-
-async function gotoChart(page: Page, bpc: string) {
-  await page.goto(`/#/render?bpc64=${bpc64(bpc)}`)
-  await page.waitForSelector('.bc-frame', { timeout: 10_000 })
-}
 
 const PADDED_CHART = `chart bar-vertical {
   title = "Padding Test"
@@ -45,7 +37,7 @@ const PADDED_FRAMED_CHART = `chart bar-vertical {
 
 test.describe('frame padding', () => {
   test('card wrapper has zero padding when frame sections handle padding', async ({ page }) => {
-    await gotoChart(page, PADDED_CHART)
+    await gotoRender(page, PADDED_CHART)
 
     const cardPadding = await page.locator('.render-page__card').evaluate(
       el => getComputedStyle(el).padding,
@@ -54,7 +46,7 @@ test.describe('frame padding', () => {
   })
 
   test('header left padding equals --bc-frame-padding', async ({ page }) => {
-    await gotoChart(page, PADDED_CHART)
+    await gotoRender(page, PADDED_CHART)
 
     const result = await page.locator('.bc-frame').evaluate((frame) => {
       const header = frame.querySelector('.bc-frame-header') as HTMLElement
@@ -67,7 +59,7 @@ test.describe('frame padding', () => {
   })
 
   test('footer bottom padding equals --bc-frame-padding', async ({ page }) => {
-    await gotoChart(page, PADDED_CHART)
+    await gotoRender(page, PADDED_CHART)
 
     const result = await page.locator('.bc-frame').evaluate((frame) => {
       const footer = frame.querySelector('.bc-frame-footer') as HTMLElement
@@ -80,7 +72,7 @@ test.describe('frame padding', () => {
   })
 
   test('body side padding equals --bc-frame-padding, no top/bottom', async ({ page }) => {
-    await gotoChart(page, PADDED_CHART)
+    await gotoRender(page, PADDED_CHART)
 
     const result = await page.locator('.bc-frame').evaluate((frame) => {
       const body = frame.querySelector('.bc-frame-body') as HTMLElement
@@ -102,7 +94,7 @@ test.describe('frame padding', () => {
   })
 
   test('framed theme: header left offset equals body left offset', async ({ page }) => {
-    await gotoChart(page, PADDED_FRAMED_CHART)
+    await gotoRender(page, PADDED_FRAMED_CHART)
 
     const result = await page.locator('.bc-frame').evaluate((frame) => {
       const header = frame.querySelector('.bc-frame-header') as HTMLElement
@@ -121,7 +113,7 @@ test.describe('frame padding', () => {
   })
 
   test('framed theme: footer background extends to frame edge', async ({ page }) => {
-    await gotoChart(page, PADDED_FRAMED_CHART)
+    await gotoRender(page, PADDED_FRAMED_CHART)
 
     const result = await page.locator('.bc-frame').evaluate((frame) => {
       const footer = frame.querySelector('.bc-frame-footer') as HTMLElement
@@ -140,7 +132,7 @@ test.describe('frame padding', () => {
 
 test.describe('theme in BPC', () => {
   test('render route applies theme class from BPC', async ({ page }) => {
-    await gotoChart(page, PADDED_FRAMED_CHART)
+    await gotoRender(page, PADDED_FRAMED_CHART)
 
     const hasThemeClass = await page.locator('.bc-frame').evaluate(
       el => el.classList.contains('bc-theme-blueprint-framed'),
@@ -149,7 +141,7 @@ test.describe('theme in BPC', () => {
   })
 
   test('framed theme renders footer background color', async ({ page }) => {
-    await gotoChart(page, PADDED_FRAMED_CHART)
+    await gotoRender(page, PADDED_FRAMED_CHART)
 
     const footerBg = await page.locator('.bc-frame-footer').evaluate(
       el => getComputedStyle(el).backgroundColor,
@@ -159,7 +151,7 @@ test.describe('theme in BPC', () => {
   })
 
   test('framed theme dark mode: footer background adapts', async ({ page }) => {
-    await gotoChart(page, PADDED_FRAMED_CHART)
+    await gotoRender(page, PADDED_FRAMED_CHART)
     await page.evaluate(() => document.documentElement.setAttribute('data-bs-theme', 'dark'))
 
     const footerBg = await page.locator('.bc-frame-footer').evaluate(
@@ -170,7 +162,7 @@ test.describe('theme in BPC', () => {
   })
 
   test('framed theme dark mode: header border adapts', async ({ page }) => {
-    await gotoChart(page, PADDED_FRAMED_CHART)
+    await gotoRender(page, PADDED_FRAMED_CHART)
     await page.evaluate(() => document.documentElement.setAttribute('data-bs-theme', 'dark'))
 
     const borderBottom = await page.locator('.bc-frame-header').evaluate(
