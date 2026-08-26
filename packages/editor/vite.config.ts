@@ -6,7 +6,23 @@ import { BootstrapVueNextResolver } from 'bootstrap-vue-next'
 import Icons from 'unplugin-icons/vite'
 import IconsResolver from 'unplugin-icons/resolver'
 import { fileURLToPath } from 'node:url'
+import { readdirSync } from 'node:fs'
+import { createRequire } from 'node:module'
+import { dirname } from 'node:path'
 import bpcSvg from './build/vite-plugin-bpc-svg.ts'
+
+const nodeRequire = createRequire(import.meta.url)
+
+// Both unplugin resolvers inject their imports during transform, so Vite's
+// cold-start dependency scanner never sees the packages behind them. See the
+// note on optimizeDeps below for why they have to be pre-declared. Both lists
+// are read from the installed packages rather than pinned, so neither can rot.
+const componentsDir = dirname(nodeRequire.resolve('bootstrap-vue-next/components'))
+const componentEntries = readdirSync(componentsDir, { withFileTypes: true })
+  .filter(entry => entry.isDirectory())
+  .map(entry => `bootstrap-vue-next/components/${entry.name}`)
+const autoImportedEntries: string[] = Object.keys(nodeRequire('./package.json').dependencies)
+  .filter(name => name.startsWith('@codemirror/') || name.startsWith('@lezer/'))
 
 export default defineConfig({
   plugins: [
@@ -63,14 +79,15 @@ export default defineConfig({
     port: Number(process.env.PORT ?? 5555),
   },
   optimizeDeps: {
-    // The BootstrapVueNextResolver injects `bootstrap-vue-next/components/*`
-    // imports during transform, so the cold-start scanner never sees them: the
-    // optimizer discovers them on the first page load, re-bundles, and answers
-    // requests already in flight with 504 Outdated Optimize Dep. A page that
-    // loses that race drops a module out of the eager graph and never boots,
-    // and if the 504 landed before the HMR client connected there is no
-    // full-reload to recover it. Serving the stale chunk instead costs a
-    // duplicated module for one page load; the 504 costs the whole page.
+    // Deps the scanner cannot see are discovered on the first page load instead,
+    // which re-bundles and forces `optimized dependencies changed. reloading`
+    // mid-boot. A page reloaded while booting drops a module out of the fully
+    // eager router graph and never finishes, and a request already in flight for
+    // the superseded chunk gets a 504 Outdated Optimize Dep. Pre-declaring them
+    // keeps the whole set in the optimizer's first pass, so there is no reload.
+    include: [...autoImportedEntries, ...componentEntries],
+    // Belt and braces for anything a future resolver injects: serving the stale
+    // chunk costs a duplicated module for one page load, the 504 costs the page.
     ignoreOutdatedRequests: true,
   },
   build: {
