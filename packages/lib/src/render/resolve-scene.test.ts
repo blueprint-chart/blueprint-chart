@@ -1,8 +1,11 @@
 import { describe, it, expect, vi } from 'vitest'
 import { resolveScene, __resetTransformWarnings } from './resolve-scene'
 import type { ChartDefinition } from './types'
-import { DslNodeType, AnnotationKind, ChartType, SortMode } from '../enums'
+import { DslNodeType, AnnotationKind, ChartType, SortMode, LabelPosition, GridStyle, Interpolation } from '../enums'
 import { convertAnnotations } from '../dsl/converter'
+import { astToDefinition } from './ast-to-definition'
+import { parse } from '../dsl/parser'
+import farmCompass from '../samples/farm-compass.bpc?raw'
 
 function baseDef(overrides: Partial<ChartDefinition> = {}): ChartDefinition {
   return {
@@ -316,5 +319,72 @@ describe('resolveScene', () => {
     expect(spy).toHaveBeenCalledTimes(1)
     expect(spy.mock.calls[0][0]).toContain('mystery')
     spy.mockRestore()
+  })
+})
+
+describe('resolveScene chart-type option resolution', () => {
+  function scene(properties: [string, string][]) {
+    return {
+      type: DslNodeType.Scene,
+      name: null,
+      properties: properties.map(([key, value]) => ({
+        type: DslNodeType.Property, key, value, isPercentage: false,
+      })),
+      data: null,
+      colorizes: [], highlights: [], areaFills: [], annotations: [], series: [], transforms: [],
+    }
+  }
+
+  it('lets a type-switching scene override the option it inherits', () => {
+    const def = baseDef({
+      properties: [],
+      scenes: [scene([['type', ChartType.Line], ['verticalLabelPosition', LabelPosition.Auto]])],
+    })
+    expect(resolveScene(def, undefined).options.verticalLabelPosition).toBe(LabelPosition.Off)
+    expect(resolveScene(def, 0).options.verticalLabelPosition).toBe(LabelPosition.Auto)
+  })
+
+  it('lets a type-switching scene set an option only its own type registers', () => {
+    const def = baseDef({
+      properties: [],
+      scenes: [scene([['type', ChartType.Line], ['interpolation', Interpolation.Linear]])],
+    })
+    expect(resolveScene(def, 0).options.interpolation).toBe(Interpolation.Linear)
+  })
+
+  it('lets a scene override the base type default without a type switch', () => {
+    const def = baseDef({
+      properties: [],
+      scenes: [scene([['verticalLabelPosition', LabelPosition.Auto]])],
+    })
+    expect(resolveScene(def, 0).options.verticalLabelPosition).toBe(LabelPosition.Auto)
+  })
+
+  it('keeps an explicit base property that the scene chart type also registers', () => {
+    const def = baseDef({
+      properties: [{ type: DslNodeType.Property, key: 'verticalGridStyle', value: GridStyle.Dotted, isPercentage: false }],
+      scenes: [scene([['type', ChartType.Line]])],
+    })
+    expect(resolveScene(def, 0).options.verticalGridStyle).toBe(GridStyle.Dotted)
+  })
+
+  // #55 is deliberately NOT fixed by adopting the scene type's registry
+  // defaults: that restyles a scene that asked for nothing. This pins the
+  // inherited option set of every farm-compass scene, five of which set a
+  // chart type and four of which change it.
+  it('does not restyle a farm-compass scene that sets no chart-type option', () => {
+    const def = astToDefinition(parse(farmCompass))
+    const baseOptions = resolveScene(def, undefined).options as Record<string, unknown>
+    expect(def.scenes!.filter(s => s.properties.some(p => p.key === 'type'))).toHaveLength(5)
+
+    def.scenes!.forEach((_, i) => {
+      const explicit = new Set(def.scenes!.slice(0, i + 1).flatMap(s => s.properties.map(p => p.key)))
+      const options = resolveScene(def, i).options as Record<string, unknown>
+      for (const [key, value] of Object.entries(baseOptions)) {
+        if (!explicit.has(key)) {
+          expect({ scene: i, key, value: options[key] }).toEqual({ scene: i, key, value })
+        }
+      }
+    })
   })
 })
