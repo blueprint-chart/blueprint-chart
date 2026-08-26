@@ -1048,3 +1048,55 @@ describe('comment edge cases', () => {
     expect(serialize(ast2)).toBe(out1)
   })
 })
+
+describe('quoted-identifier escaping', () => {
+  const roundTrip = (src: string) => {
+    const ast1 = parse(src)
+    const ast2 = parse(serialize(ast1))
+    expect(ast2).toEqual(ast1)
+  }
+
+  it('round-trips a data key containing a double quote', () => {
+    roundTrip('chart bar-vertical {\n  data {\n    "A \\"B\\"" = 1\n    "C" = 2\n  }\n}')
+  })
+
+  it('round-trips a data key containing a backslash', () => {
+    roundTrip('chart bar-vertical {\n  data {\n    "C:\\\\x" = 1\n  }\n}')
+  })
+
+  it('round-trips a multi-value data key containing a double quote', () => {
+    roundTrip('chart line-multi {\n  data {\n    series = "S1","S2"\n    "A \\"B\\"" = 1,2\n  }\n}')
+  })
+
+  it('round-trips a series name containing a double quote', () => {
+    roundTrip('chart line-multi {\n  data {\n    "A" = 1\n  }\n  series "X \\"Q\\"" {\n    color = "#111111"\n  }\n}')
+  })
+
+  it('round-trips an annotation target containing a double quote', () => {
+    roundTrip('chart bar-vertical {\n  data {\n    "A \\"B\\"" = 1\n  }\n  annotation "A \\"B\\"" {\n    text = "hi"\n  }\n}')
+  })
+
+  it('round-trips a highlight target containing a double quote', () => {
+    roundTrip('chart bar-vertical {\n  data {\n    "A \\"B\\"" = 1\n  }\n  highlight "A \\"B\\""\n}')
+  })
+
+  it('round-trips a colorize target containing a double quote', () => {
+    roundTrip('chart bar-vertical {\n  data {\n    "A \\"B\\"" = 1\n  }\n  colorize "A \\"B\\"" {\n    color = "#111111"\n  }\n}')
+  })
+
+  it('round-trips an area-fill pair containing a double quote', () => {
+    roundTrip('chart line-multi {\n  data {\n    series = "A \\"B\\"","C"\n    "x" = 1,2\n  }\n  area-fill "A \\"B\\"" "C" {\n    color = "#111111"\n  }\n}')
+  })
+
+  it('round-trips a scene name containing a double quote', () => {
+    roundTrip('chart bar-vertical {\n  data {\n    "A" = 1\n  }\n  scene "S \\"1\\"" {\n    sort = descending\n  }\n}')
+  })
+
+  it('round-trips a quoted property key containing a double quote', () => {
+    roundTrip('chart bar-vertical {\n  "we\\"ird" = 1\n  data {\n    "A" = 1\n  }\n}')
+  })
+
+  it('round-trips a data key containing a newline', () => {
+    roundTrip('chart bar-vertical {\n  data {\n    "two\\nlines" = 1\n  }\n}')
+  })
+})

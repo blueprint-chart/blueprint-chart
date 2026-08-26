@@ -1,3 +1,4 @@
+import { quoteDslString } from '@blueprint-chart/lib'
 import type { ColumnType, ParsedData } from '@/composables/useDataParser'
 import { parseBpcData } from '@/composables/useDataParser'
 import { useDataTransforms } from '@/composables/useDataTransforms'
@@ -17,7 +18,7 @@ function formatValue(v: string): string {
   if (/^-?\d+(\.\d+)?%?$/.test(v)) {
     return v
   }
-  return `"${v.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`
+  return quoteDslString(v)
 }
 
 export function serializeTableData(cols: string[], rows: string[][]): string {
@@ -26,17 +27,17 @@ export function serializeTableData(cols: string[], rows: string[][]): string {
       .map((row) => {
         const label = row[0] ?? ''
         const value = row[1] ?? ''
-        return `"${label}" = ${formatValue(value)}`
+        return `${quoteDslString(label)} = ${formatValue(value)}`
       })
       .join('\n')
   }
 
   const seriesNames = cols.slice(1)
-  const header = `series = ${seriesNames.map(n => `"${n}"`).join(',')}`
+  const header = `series = ${seriesNames.map(quoteDslString).join(',')}`
   const lines = rows.map((row) => {
     const label = row[0] ?? ''
     const values = row.slice(1).map(v => formatValue(v ?? '')).join(',')
-    return `"${label}" = ${values}`
+    return `${quoteDslString(label)} = ${values}`
   })
   return [header, ...lines].join('\n')
 }

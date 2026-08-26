@@ -1,6 +1,7 @@
 import type { AnnotationNode, AreaFillNode, ChartNode, DataNode, ColorizeNode, HighlightNode, PropertyNode, SceneNode, SeriesNode, TransformNode } from './types'
 import { getChartOptions } from '../charts/registry'
 import { AnnotationKind } from '../enums'
+import { quoteDslString } from './quoting'
 
 function commentLines(comments: string[] | undefined, indent: string): string[] {
   // A captured comment may contain embedded newlines (multi-line block
@@ -16,16 +17,20 @@ function serializeValue(prop: PropertyNode): string {
     return prop.isPercentage ? `${prop.value}%` : `${prop.value}`
   }
   if (typeof prop.value === 'string' && prop.value.startsWith('#')) {
-    return `"${prop.value}"`
+    return quoteDslString(prop.value)
   }
   if (typeof prop.value === 'string' && /^[a-zA-Z_][a-zA-Z0-9_-]*$/.test(prop.value)) {
     return prop.value
   }
-  return `"${String(prop.value).replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`
+  return quoteDslString(String(prop.value))
+}
+
+function serializeKey(key: string): string {
+  return /^[a-zA-Z_][a-zA-Z0-9_-]*$/.test(key) ? key : quoteDslString(key)
 }
 
 function serializeProperty(prop: PropertyNode, indent: string): string {
-  const key = /^[a-zA-Z_][a-zA-Z0-9_-]*$/.test(prop.key) ? prop.key : `"${prop.key}"`
+  const key = serializeKey(prop.key)
   const line = `${indent}${key} = ${serializeValue(prop)}`
   return [...commentLines(prop.leadingComments, indent), line].join('\n')
 }
@@ -38,20 +43,19 @@ function serializeDataEntry(prop: PropertyNode, indent: string): string {
     line = `${indent}"series" = ${serializeValue(prop)}`
   }
   else if (prop.values && prop.values.length > 1) {
-    const key = prop.key === 'series' && !prop.quotedKey ? prop.key : `"${prop.key}"`
+    const key = prop.key === 'series' && !prop.quotedKey ? prop.key : quoteDslString(prop.key)
     const vals = prop.values.map((v) => {
       if (typeof v === 'number') {
         return `${v}`
       }
-      return `"${String(v).replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`
+      return quoteDslString(String(v))
     })
     line = `${indent}${key} = ${vals.join(',')}`
   }
   else {
     // Inline the single-value case (do NOT call serializeProperty, which would
     // emit this entry's comment a second time).
-    const key = /^[a-zA-Z_][a-zA-Z0-9_-]*$/.test(prop.key) ? prop.key : `"${prop.key}"`
-    line = `${indent}${key} = ${serializeValue(prop)}`
+    line = `${indent}${serializeKey(prop.key)} = ${serializeValue(prop)}`
   }
   return [...commentLines(prop.leadingComments, indent), line].join('\n')
 }
@@ -67,7 +71,7 @@ function serializeData(data: DataNode, indent: string): string {
 
 function serializeColorize(colorize: ColorizeNode, indent: string): string {
   const keyword = colorize.fromHighlight ? 'highlight' : 'colorize'
-  const lines = [...commentLines(colorize.leadingComments, indent), `${indent}${keyword} "${colorize.target}" {`]
+  const lines = [...commentLines(colorize.leadingComments, indent), `${indent}${keyword} ${quoteDslString(colorize.target)} {`]
   for (const prop of colorize.properties) {
     lines.push(serializeProperty(prop, `${indent}  `))
   }
@@ -76,11 +80,11 @@ function serializeColorize(colorize: ColorizeNode, indent: string): string {
 }
 
 function serializeHighlight(highlight: HighlightNode, indent: string): string {
-  return [...commentLines(highlight.leadingComments, indent), `${indent}highlight "${highlight.target}"`].join('\n')
+  return [...commentLines(highlight.leadingComments, indent), `${indent}highlight ${quoteDslString(highlight.target)}`].join('\n')
 }
 
 function serializeAreaFill(areaFill: AreaFillNode, indent: string): string {
-  const lines = [...commentLines(areaFill.leadingComments, indent), `${indent}area-fill "${areaFill.from}" "${areaFill.to}" {`]
+  const lines = [...commentLines(areaFill.leadingComments, indent), `${indent}area-fill ${quoteDslString(areaFill.from)} ${quoteDslString(areaFill.to)} {`]
   for (const prop of areaFill.properties) {
     lines.push(serializeProperty(prop, `${indent}  `))
   }
@@ -108,7 +112,7 @@ function serializeAnnotation(annotation: AnnotationNode, indent: string): string
   }
   // point (default)
   const target = 'target' in annotation ? annotation.target : ''
-  const lines = [...commentLines(annotation.leadingComments, indent), `${indent}annotation "${target}" {`]
+  const lines = [...commentLines(annotation.leadingComments, indent), `${indent}annotation ${quoteDslString(target)} {`]
   for (const prop of annotation.properties) {
     lines.push(serializeProperty(prop, `${indent}  `))
   }
@@ -117,7 +121,7 @@ function serializeAnnotation(annotation: AnnotationNode, indent: string): string
 }
 
 function serializeSeries(series: SeriesNode, indent: string): string {
-  const lines = [...commentLines(series.leadingComments, indent), `${indent}series "${series.name}" {`]
+  const lines = [...commentLines(series.leadingComments, indent), `${indent}series ${quoteDslString(series.name)} {`]
   for (const prop of series.properties) {
     lines.push(serializeProperty(prop, `${indent}  `))
   }
@@ -126,7 +130,7 @@ function serializeSeries(series: SeriesNode, indent: string): string {
 }
 
 function serializeScene(scene: SceneNode, indent: string): string {
-  const header = scene.name != null ? `${indent}scene "${scene.name}" {` : `${indent}scene {`
+  const header = scene.name != null ? `${indent}scene ${quoteDslString(scene.name)} {` : `${indent}scene {`
   const lines = [...commentLines(scene.leadingComments, indent), header]
   for (const prop of scene.properties) {
     lines.push(serializeProperty(prop, `${indent}  `))
@@ -243,7 +247,7 @@ function compactSerializeSeries(
   chartType: string,
   inherited: Map<string, string | number>,
 ): string {
-  const lines = [...commentLines(series.leadingComments, indent), `${indent}series "${series.name}" {`]
+  const lines = [...commentLines(series.leadingComments, indent), `${indent}series ${quoteDslString(series.name)} {`]
   for (const prop of series.properties) {
     if (prop.isPercentage || !redundantInScope(prop.key, prop.value, chartType, inherited)) {
       lines.push(serializeProperty(prop, `${indent}  `))
@@ -261,7 +265,7 @@ function compactSerializeScene(
 ): string {
   const typeProp = scene.properties.find(p => p.key === 'type')
   const effectiveType = typeProp ? String(typeProp.value) : baseChartType
-  const header = scene.name != null ? `${indent}scene "${scene.name}" {` : `${indent}scene {`
+  const header = scene.name != null ? `${indent}scene ${quoteDslString(scene.name)} {` : `${indent}scene {`
   const lines = [...commentLines(scene.leadingComments, indent), header]
   // Scene-scope inherited map for nested series: base effective overlaid with
   // the scene's own (non-redundant or not) option values.

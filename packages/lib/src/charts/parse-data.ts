@@ -1,5 +1,13 @@
 import type { ChartData } from './types'
 import { parseNumericCell } from './number-parse'
+import { unescapeDslString } from '../dsl/quoting'
+
+// A quoted label, escapes included, so `"5\" pipe"` reads as one label instead
+// of terminating at the inner quote.
+const LABEL = '"((?:[^"\\\\]|\\\\.)+)"'
+const NEW_ROW = new RegExp(`^${LABEL}\\s*=\\s*([^"]+)$`)
+const OLD_ROW = new RegExp(`^${LABEL}\\s*=\\s*"([^"]*)"$`)
+const SINGLE_ROW = new RegExp(`^${LABEL}\\s*=\\s*(.+)$`)
 
 export function parseData(raw: string): ChartData {
   const lines = raw.split('\n').map(l => l.trim()).filter(Boolean)
@@ -19,12 +27,12 @@ export function parseData(raw: string): ChartData {
 
     for (let i = 1; i < lines.length; i++) {
       // New format: "Label" = 40,44,42
-      const matchNew = lines[i].match(/^"([^"]+)"\s*=\s*([^"]+)$/)
+      const matchNew = lines[i].match(NEW_ROW)
       // Legacy format: "Label" = "40,44,42"
-      const matchOld = lines[i].match(/^"([^"]+)"\s*=\s*"([^"]*)"$/)
+      const matchOld = lines[i].match(OLD_ROW)
       const match = matchOld ?? matchNew
       if (match) {
-        labels.push(match[1])
+        labels.push(unescapeDslString(match[1]))
         const vals = match[2].split(',')
         for (let s = 0; s < seriesNames.length; s++) {
           seriesValues[s].push(parseNumericCell(vals[s]))
@@ -45,9 +53,9 @@ export function parseData(raw: string): ChartData {
 
   // Single-series format
   for (const line of lines) {
-    const match = line.match(/^"([^"]+)"\s*=\s*(.+)$/)
+    const match = line.match(SINGLE_ROW)
     if (match) {
-      labels.push(match[1])
+      labels.push(unescapeDslString(match[1]))
       values.push(parseNumericCell(match[2]))
     }
   }

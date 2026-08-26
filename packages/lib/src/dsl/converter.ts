@@ -2,6 +2,7 @@ import type { PropertyNode, DataNode, SceneNode, ColorizeNode, HighlightNode, An
 import type { ColorizeConfig, HighlightConfig, AnnotationConfig, PointAnnotationConfig, RangeAnnotationConfig, FreeAnnotationConfig, AreaFillConfig, SeriesOverride } from '../charts/types'
 import { getChartOptions } from '../charts/registry'
 import { AnnotationKind, ChartOptionType, Orientation, RangeAnchor } from '../enums'
+import { quoteDslString } from './quoting'
 
 /**
  * Convert an array of AST property nodes into a key→value map.
@@ -75,20 +76,20 @@ export function dataEntriesToString(data: DataNode): string {
       // data row (quotedKey), never the column meta-row.
       if (e.values && e.values.length > 1) {
         if (e.key === 'series' && !e.quotedKey) {
-          return `series = ${e.values.map(v => `"${v}"`).join(',')}`
+          return `series = ${e.values.map(v => quoteDslString(String(v))).join(',')}`
         }
         const vals = e.values.join(',')
-        return `"${e.key}" = ${vals}`
+        return `${quoteDslString(e.key)} = ${vals}`
       }
       // Legacy single-value entries
       const val = e.isPercentage ? `${e.value}%` : String(e.value)
       if (e.key === 'series' && !e.quotedKey) {
-        return `series = "${val}"`
+        return `series = ${quoteDslString(val)}`
       }
       if (typeof e.value === 'string' && needsQuoting(val)) {
-        return `"${e.key}" = "${val}"`
+        return `${quoteDslString(e.key)} = ${quoteDslString(val)}`
       }
-      return `"${e.key}" = ${val}`
+      return `${quoteDslString(e.key)} = ${val}`
     })
     .join('\n')
 }

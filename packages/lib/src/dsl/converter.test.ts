@@ -708,3 +708,33 @@ describe('convertAnnotations repeat', () => {
     expect(a.repeat).toBe(3)
   })
 })
+
+describe('dataEntriesToString escaping', () => {
+  it('escapes a double quote in a data key', () => {
+    const data: DataNode = { type: DslNodeType.Data, entries: [prop('5" pipe', 12)] }
+    expect(dataEntriesToString(data)).toBe('"5\\" pipe" = 12')
+  })
+
+  it('escapes a backslash in a data key', () => {
+    const data: DataNode = { type: DslNodeType.Data, entries: [prop('C:\\x', 12)] }
+    expect(dataEntriesToString(data)).toBe('"C:\\\\x" = 12')
+  })
+
+  it('escapes a newline in a data key so the row stays on one line', () => {
+    const data: DataNode = { type: DslNodeType.Data, entries: [prop('two\nlines', 12)] }
+    expect(dataEntriesToString(data)).toBe('"two\\nlines" = 12')
+  })
+
+  it('escapes a double quote in a series name', () => {
+    const data: DataNode = {
+      type: DslNodeType.Data,
+      entries: [{ type: DslNodeType.Property, key: 'series', value: 'X "Q"', isPercentage: false, values: ['X "Q"', 'Y'] }],
+    }
+    expect(dataEntriesToString(data)).toBe('series = "X \\"Q\\"","Y"')
+  })
+
+  it('escapes a double quote in a string value', () => {
+    const data: DataNode = { type: DslNodeType.Data, entries: [prop('A', 'say "no"')] }
+    expect(dataEntriesToString(data)).toBe('"A" = "say \\"no\\""')
+  })
+})

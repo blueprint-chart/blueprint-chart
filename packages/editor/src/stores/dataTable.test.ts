@@ -161,6 +161,26 @@ describe('serializeTableData', () => {
     expect(result).toBe('"USA" = "2022-09-25"\n"China" = "2022-10-01"')
   })
 
+  it('escapes a double quote in a row label', () => {
+    const result = serializeTableData(['Label', 'Value'], [['5" pipe', '12']])
+    expect(result).toBe('"5\\" pipe" = 12')
+  })
+
+  it('escapes a backslash in a row label', () => {
+    const result = serializeTableData(['Label', 'Value'], [['C:\\x', '12']])
+    expect(result).toBe('"C:\\\\x" = 12')
+  })
+
+  it('escapes a double quote in a series name', () => {
+    const result = serializeTableData(['Date', 'X "Q"', 'Y'], [['Jan', '1', '2']])
+    expect(result).toContain('series = "X \\"Q\\"","Y"')
+  })
+
+  it('escapes a double quote in a multi-column row label', () => {
+    const result = serializeTableData(['Date', 'X', 'Y'], [['5" pipe', '1', '2']])
+    expect(result).toContain('"5\\" pipe" = 1,2')
+  })
+
   it('produces same output as useDataTable.serialize', () => {
     setActivePinia(createPinia())
     const { loadParsed, serialize } = useDataTable()
