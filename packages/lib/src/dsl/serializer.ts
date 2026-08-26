@@ -13,7 +13,15 @@ function commentLines(comments: string[] | undefined, indent: string): string[] 
 }
 
 function withTrailing(line: string, trailingComment: string | undefined): string {
-  return trailingComment == null ? line : `${line} // ${trailingComment}`
+  if (trailingComment == null) {
+    return line
+  }
+  // A captured comment may span lines (a multi-line block comment sitting on the
+  // member's line). Re-emit that one as a block comment: after `//` its second
+  // line would land on its own and stop parsing.
+  return trailingComment.includes('\n')
+    ? `${line} /* ${trailingComment} */`
+    : `${line} // ${trailingComment}`
 }
 
 function closingBrace(

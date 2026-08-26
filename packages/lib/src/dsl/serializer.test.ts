@@ -1142,6 +1142,15 @@ describe('trailingComments serialization', () => {
     expect(parse(serialize(ast1))).toEqual(ast1)
   })
 
+  it('keeps a multi-line block comment trailing a member parseable', () => {
+    const src = 'chart bar {\n  title = "S" /* one\n  two */\n  data {\n    "A" = 1\n  }\n}'
+    const ast1 = parse(src)
+    expect(ast1.properties[0].trailingComment).toBe('one\n  two')
+    const out1 = serialize(ast1)
+    expect(parse(out1)).toEqual(ast1)
+    expect(serialize(parse(out1))).toBe(out1)
+  })
+
   it('keeps every comment of a six-comment document', () => {
     const src = `chart bar {
   // leading on title
