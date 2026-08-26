@@ -39,8 +39,14 @@ export function makeDefaultFormat(numberFormat?: string): (d: unknown) => string
       if ('data' in d && typeof (d as { data: unknown }).data === 'number') {
         return fmtValue((d as { data: number }).data)
       }
-      // Bar/line datum with label + value
+      // Multi-series datum: named before the label-only form below, which
+      // would otherwise always win and reduce every bar in a group to the
+      // same label. Same shape as the proximity tooltip (proximity.ts:82).
       const obj = d as Record<string, unknown>
+      if ('series' in obj && 'label' in obj && 'value' in obj) {
+        return `${obj.series} – ${obj.label}: ${fmtValue(obj.value)}`
+      }
+      // Bar/line datum with label + value
       if ('label' in obj && 'value' in obj) {
         return `${obj.label}: ${fmtValue(obj.value)}`
       }

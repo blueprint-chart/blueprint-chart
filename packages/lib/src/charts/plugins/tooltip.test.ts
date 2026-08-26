@@ -77,3 +77,16 @@ describe('createTooltipPlugin', () => {
     plugin2.destroy!()
   })
 })
+
+describe('makeDefaultFormat multi-series data', () => {
+  it('names the series on a datum carrying both label and series', () => {
+    const fmt = makeDefaultFormat(',.0f')
+    const bar = { label: 'USA', series: 'Gold', seriesName: 'Gold', value: 40 }
+    expect(fmt(bar)).toBe('Gold – USA: 40')
+  })
+
+  it('keeps the label-only format when there is no series', () => {
+    const fmt = makeDefaultFormat(',.0f')
+    expect(fmt({ label: 'USA', value: 40 })).toBe('USA: 40')
+  })
+})
