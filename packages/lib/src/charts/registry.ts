@@ -316,7 +316,6 @@ function axisOpts(defaults: {
   showHorizontalAxis?: boolean
   valueAxis?: 'vertical' | 'horizontal'
   horizontalRange?: boolean
-  valueAxisZeroBaseline?: boolean
   valueAxisLabelsOff?: boolean
 }): ChartOptionDef[] {
   return [
@@ -329,9 +328,7 @@ function axisOpts(defaults: {
     ...(defaults.valueAxis === 'vertical'
       ? [
           { key: 'verticalScaleType', type: ChartOptionType.Select as const, label: 'Vertical scale', default: ScaleType.Linear, choices: SCALE_TYPE_CHOICES },
-          defaults.valueAxisZeroBaseline
-            ? { key: 'verticalRangeMin', type: ChartOptionType.Text as const, label: 'Vertical min', default: '0', placeholder: 'auto' }
-            : { key: 'verticalRangeMin', type: ChartOptionType.Text as const, label: 'Vertical min', placeholder: 'auto' },
+          { key: 'verticalRangeMin', type: ChartOptionType.Text as const, label: 'Vertical min', placeholder: 'auto' },
           { key: 'verticalRangeMax', type: ChartOptionType.Text as const, label: 'Vertical max', placeholder: 'auto' },
         ]
       : []),
@@ -344,9 +341,7 @@ function axisOpts(defaults: {
     ...(defaults.valueAxis === 'horizontal'
       ? [
           { key: 'horizontalScaleType', type: ChartOptionType.Select as const, label: 'Horizontal scale', default: ScaleType.Linear, choices: SCALE_TYPE_CHOICES },
-          defaults.valueAxisZeroBaseline
-            ? { key: 'horizontalRangeMin', type: ChartOptionType.Text as const, label: 'Horizontal min', default: '0', placeholder: 'auto' }
-            : { key: 'horizontalRangeMin', type: ChartOptionType.Text as const, label: 'Horizontal min', placeholder: 'auto' },
+          { key: 'horizontalRangeMin', type: ChartOptionType.Text as const, label: 'Horizontal min', placeholder: 'auto' },
           { key: 'horizontalRangeMax', type: ChartOptionType.Text as const, label: 'Horizontal max', placeholder: 'auto' },
         ]
       : []),
@@ -360,17 +355,18 @@ function axisOpts(defaults: {
 }
 
 // Vertical bars: value axis is vertical → no vertical grid (direct labels carry value), no horizontal grid, no ticks, no vertical axis line, no value-axis numbers
-const barVerticalAxisOpts = axisOpts({ verticalGrid: GridStyle.None, horizontalGrid: GridStyle.None, showVerticalTicks: false, showHorizontalTicks: false, showVerticalAxis: false, valueAxis: 'vertical', valueAxisZeroBaseline: true, valueAxisLabelsOff: true })
+const barVerticalAxisOpts = axisOpts({ verticalGrid: GridStyle.None, horizontalGrid: GridStyle.None, showVerticalTicks: false, showHorizontalTicks: false, showVerticalAxis: false, valueAxis: 'vertical', valueAxisLabelsOff: true })
 
 // Horizontal bars: value axis is horizontal → no value axis line, no gridlines, no ticks, no value-axis numbers (direct labels carry value)
-const barHorizontalAxisOpts = axisOpts({ verticalGrid: GridStyle.None, horizontalGrid: GridStyle.None, showVerticalTicks: false, showHorizontalTicks: false, showHorizontalAxis: false, valueAxis: 'horizontal', valueAxisZeroBaseline: true, valueAxisLabelsOff: true })
+const barHorizontalAxisOpts = axisOpts({ verticalGrid: GridStyle.None, horizontalGrid: GridStyle.None, showVerticalTicks: false, showHorizontalTicks: false, showHorizontalAxis: false, valueAxis: 'horizontal', valueAxisLabelsOff: true })
 
 // Lines: value axis is vertical → horizontal dashed grid, no vertical grid, no vertical axis line
 const lineAxisOpts = axisOpts({ verticalGrid: GridStyle.Dashed, horizontalGrid: GridStyle.None, showVerticalTicks: false, showHorizontalTicks: false, showVerticalAxis: false, valueAxis: 'vertical', horizontalRange: true })
 
-// Area: same axis layout as line but with value-axis zero baseline per wiki
-// (area charts fill from baseline; misleading without zero).
-const areaAxisOpts = axisOpts({ verticalGrid: GridStyle.Dashed, horizontalGrid: GridStyle.None, showVerticalTicks: false, showHorizontalTicks: false, showVerticalAxis: false, valueAxis: 'vertical', horizontalRange: true, valueAxisZeroBaseline: true })
+// Area: same axis layout as line. The zero baseline the wiki requires for the
+// bar/area family comes from computeLinearDomain, which anchors the data extent
+// at 0, so a range default of '0' would only clip negative data.
+const areaAxisOpts = axisOpts({ verticalGrid: GridStyle.Dashed, horizontalGrid: GridStyle.None, showVerticalTicks: false, showHorizontalTicks: false, showVerticalAxis: false, valueAxis: 'vertical', horizontalRange: true })
 
 // Per-chart-type option overrides based on dataviz best practices.
 // Defaults are audited against the project wiki; see docs/superpowers/specs/2026-05-10-chart-defaults-audit-design.md
@@ -426,11 +422,11 @@ registerChart(ChartType.LineMulti, lineMulti, [colorsOpt, paletteOpt, autoContra
 registerChart(ChartType.Donut, donut, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, legendOffOpt, legendAnchorOpt, legendPositionOpt, autoDirectLabellingOpt, tooltipsOpt, ...donutArcOpts])
 registerChart(ChartType.Pie, pie, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, legendOffOpt, legendAnchorOpt, legendPositionOpt, autoDirectLabellingOpt, tooltipsOpt, ...pieArcOpts])
 
-// Area: same axis layout as line but with value-axis zero baseline (areaAxisOpts), same interaction options
+// Area: same axis layout as line (areaAxisOpts), same interaction options
 registerChart(ChartType.Area, area, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, lineInterpolationOpt, edgePaddingOpt, ...areaAxisOpts, ...lineOpts])
 
 // Areas (multi-series with optional stacking)
-const areaStackedAxisOpts = axisOpts({ verticalGrid: GridStyle.Dashed, horizontalGrid: GridStyle.None, showVerticalTicks: false, showHorizontalTicks: false, showVerticalAxis: false, valueAxis: 'vertical', horizontalRange: true, valueAxisZeroBaseline: true })
+const areaStackedAxisOpts = axisOpts({ verticalGrid: GridStyle.Dashed, horizontalGrid: GridStyle.None, showVerticalTicks: false, showHorizontalTicks: false, showVerticalAxis: false, valueAxis: 'vertical', horizontalRange: true })
 registerChart(ChartType.AreaStacked, areaStacked, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, areaFillOpacityOpt, lineInterpolationOpt, edgePaddingOpt, areaSortModeOpt, stackedOpt, stackPercentOpt, areaLinesOpt, legendOpt, legendAnchorOpt, legendPositionOpt, directLabellingOpt, ...areaStackedAxisOpts, tooltipsOpt, ...lineCrosshairOpts])
 
 // Stacked column: vertical bars stacked

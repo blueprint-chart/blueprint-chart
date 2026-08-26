@@ -652,59 +652,60 @@ export const MATRIX: Matrix = {
   // =========================================================================
   // Concern: AxisScaleRange
   // Primary verdict on scale type and zero-baseline policy.
-  // Wiki: bar/area family MUST start at zero (verticalRangeMin / horizontalRangeMin = 0);
-  //       line charts do NOT need to start at zero (auto is appropriate).
-  // Registry: verticalRangeMin / horizontalRangeMin have no default (placeholder 'auto').
+  // Wiki: bar/area family MUST start at zero; line charts do NOT need to
+  //       start at zero (auto is appropriate).
+  // Registry: verticalRangeMin / horizontalRangeMin have no default (placeholder
+  //       'auto'); the zero baseline is enforced by computeLinearDomain.
   // Scale type defaults to ScaleType.Linear wherever registered — wiki says log is opt-in.
   // =========================================================================
   [Concern.AxisScaleRange]: {
-    // vertical bar; verticalRangeMin default='0' → asserted
+    // vertical bar; verticalRangeMin has no default → asserted
     [ChartType.BarVertical]: {
       status: 'asserted',
       optionKey: 'verticalRangeMin',
-      target: '0',
+      target: undefined,
       rule: RULE_AXIS_ZERO_BAR,
     },
-    // horizontal bar; horizontalRangeMin default='0' → asserted
+    // horizontal bar; horizontalRangeMin has no default → asserted
     [ChartType.BarHorizontal]: {
       status: 'asserted',
       optionKey: 'horizontalRangeMin',
-      target: '0',
+      target: undefined,
       rule: RULE_AXIS_ZERO_BAR,
     },
-    // multi-series vertical bar; verticalRangeMin default='0' → asserted
+    // multi-series vertical bar; verticalRangeMin has no default → asserted
     [ChartType.BarMulti]: {
       status: 'asserted',
       optionKey: 'verticalRangeMin',
-      target: '0',
+      target: undefined,
       rule: RULE_AXIS_ZERO_BAR,
     },
-    // stacked horizontal bar; horizontalRangeMin default='0' → asserted
+    // stacked horizontal bar; horizontalRangeMin has no default → asserted
     [ChartType.BarStacked]: {
       status: 'asserted',
       optionKey: 'horizontalRangeMin',
-      target: '0',
+      target: undefined,
       rule: RULE_AXIS_ZERO_BAR,
     },
-    // split bar; horizontalRangeMin default='0' → asserted
+    // split bar; horizontalRangeMin has no default → asserted
     [ChartType.BarSplit]: {
       status: 'asserted',
       optionKey: 'horizontalRangeMin',
-      target: '0',
+      target: undefined,
       rule: RULE_AXIS_ZERO_BAR,
     },
-    // grouped horizontal bars; horizontalRangeMin default='0' → asserted
+    // grouped horizontal bars; horizontalRangeMin has no default → asserted
     [ChartType.BarGrouped]: {
       status: 'asserted',
       optionKey: 'horizontalRangeMin',
-      target: '0',
+      target: undefined,
       rule: RULE_AXIS_ZERO_BAR,
     },
-    // stacked column; verticalRangeMin default='0' → asserted
+    // stacked column; verticalRangeMin has no default → asserted
     [ChartType.ColumnStacked]: {
       status: 'asserted',
       optionKey: 'verticalRangeMin',
-      target: '0',
+      target: undefined,
       rule: RULE_AXIS_ZERO_BAR,
     },
     // single-series line; verticalRangeMin has no default (auto) → asserted (auto is correct per wiki)
@@ -721,18 +722,18 @@ export const MATRIX: Matrix = {
       target: ScaleType.Linear,
       rule: RULE_HANDBOOK_LINE,
     },
-    // single-series area; verticalRangeMin default='0' → asserted
+    // single-series area; verticalRangeMin has no default → asserted
     [ChartType.Area]: {
       status: 'asserted',
       optionKey: 'verticalRangeMin',
-      target: '0',
+      target: undefined,
       rule: RULE_HANDBOOK_AREA,
     },
-    // stacked area; verticalRangeMin default='0' → asserted
+    // stacked area; verticalRangeMin has no default → asserted
     [ChartType.AreaStacked]: {
       status: 'asserted',
       optionKey: 'verticalRangeMin',
-      target: '0',
+      target: undefined,
       rule: RULE_AXIS_ZERO_BAR,
     },
     // donut; polar chart — no scale range concern

@@ -5,7 +5,8 @@ import { gotoRender } from '../support/render'
 async function verticalTickValues(page): Promise<number[]> {
   return page.evaluate(() => Array.from(
     document.querySelectorAll('.bc-frame .bc-axis-vertical .tick text'),
-    el => Number((el.textContent ?? '').replace(/[^0-9.eE+-]/g, '')),
+    // d3-format writes a unicode minus, which Number() rejects.
+    el => Number((el.textContent ?? '').replace(/\u2212/g, '-').replace(/[^0-9.eE+-]/g, '')),
   ).filter(n => Number.isFinite(n)))
 }
 
@@ -74,5 +75,47 @@ test.describe('G4 axis domain', () => {
       el => el.textContent,
     ))
     expect(labels).toEqual(['2015'])
+  })
+
+  // #17: with no range option set, an all-negative series must widen the
+  // implicit zero baseline downward instead of collapsing to [0, 1].
+  test('an all-negative bar chart draws its bars inside the plot', async ({ page }) => {
+    await gotoRender(page, `chart bar-vertical {
+  data {
+    "Alpha" = -42
+    "Beta" = -63
+  }
+}`)
+    const bars = page.locator('.bc-frame .bc-bar')
+    await expect(bars).toHaveCount(2)
+
+    const heights = await page.evaluate(() => Array.from(
+      document.querySelectorAll('.bc-frame .bc-bar'),
+      el => Number(el.getAttribute('height') ?? '0'),
+    ))
+    const plotHeight = await page.evaluate(() => (
+      document.querySelector('.bc-frame svg')?.getBoundingClientRect().height ?? 0
+    ))
+    expect(Math.max(...heights)).toBeLessThanOrEqual(plotHeight)
+    expect(Math.min(...heights)).toBeGreaterThan(0)
+    expect(heights[1]).toBeGreaterThan(heights[0])
+  })
+
+  // #17: the value axis of an all-negative chart must read negative, not 0…1.
+  test('an all-negative value axis reads negative', async ({ page }) => {
+    await gotoRender(page, `chart bar-vertical {
+  showVerticalAxis = true
+  showVerticalTicks = true
+  verticalLabelPosition = "outside"
+  data {
+    "Alpha" = -42
+    "Beta" = -63
+  }
+}`)
+    await expect(page.locator('.bc-frame .bc-axis-vertical .tick').first()).toBeAttached()
+
+    const ticks = await verticalTickValues(page)
+    expect(Math.min(...ticks)).toBeLessThanOrEqual(-60)
+    expect(Math.max(...ticks)).toBe(0)
   })
 })
