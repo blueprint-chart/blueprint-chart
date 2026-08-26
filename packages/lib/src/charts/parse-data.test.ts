@@ -31,3 +31,17 @@ describe('parseData escaped labels', () => {
     expect(data.series![1].values).toEqual([20])
   })
 })
+
+describe('parseData series header', () => {
+  it('does not split a series name on an inner comma', () => {
+    const data = parseData('series = "Paris, France","Lyon"\n"x" = 1,2\n"y" = 3,4')
+    expect(data.series!.map(s => s.name)).toEqual(['Paris, France', 'Lyon'])
+    expect(data.series![0].values).toEqual([1, 3])
+    expect(data.series![1].values).toEqual([2, 4])
+  })
+
+  it('reads a series name containing an escaped quote', () => {
+    const data = parseData('series = "X \\"Q\\"","Y"\n"a" = 1,2')
+    expect(data.series!.map(s => s.name)).toEqual(['X "Q"', 'Y'])
+  })
+})

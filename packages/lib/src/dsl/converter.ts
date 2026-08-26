@@ -2,7 +2,7 @@ import type { PropertyNode, DataNode, SceneNode, ColorizeNode, HighlightNode, An
 import type { ColorizeConfig, HighlightConfig, AnnotationConfig, PointAnnotationConfig, RangeAnnotationConfig, FreeAnnotationConfig, AreaFillConfig, SeriesOverride } from '../charts/types'
 import { getChartOptions } from '../charts/registry'
 import { AnnotationKind, ChartOptionType, Orientation, RangeAnchor } from '../enums'
-import { quoteDslString } from './quoting'
+import { quoteDslString, splitTopLevelCommas } from './quoting'
 
 /**
  * Convert an array of AST property nodes into a key→value map.
@@ -34,7 +34,7 @@ export function extractChartTypeOptions(
     }
 
     if (def.type === ChartOptionType.Colors) {
-      opts[def.key] = String(raw).split(',').map(s => s.trim()).filter(Boolean)
+      opts[def.key] = splitTopLevelCommas(String(raw)).map(s => s.trim()).filter(Boolean)
     }
     else if (def.type === ChartOptionType.Boolean) {
       if (def.key === 'valueLabels' && String(raw).toLowerCase() === 'percent') {

@@ -1,6 +1,6 @@
 import type { ChartData } from './types'
 import { parseNumericCell } from './number-parse'
-import { unescapeDslString } from '../dsl/quoting'
+import { splitTopLevelCommas, unescapeDslString, unquoteDslString } from '../dsl/quoting'
 
 // A quoted label, escapes included, so `"5\" pipe"` reads as one label instead
 // of terminating at the inner quote.
@@ -17,12 +17,12 @@ export function parseData(raw: string): ChartData {
   // Check for multi-series header
   const seriesMatch = lines[0]?.match(/^series\s*=\s*(.+)$/)
   if (seriesMatch) {
-    const raw = seriesMatch[1].trim()
+    const segments = splitTopLevelCommas(seriesMatch[1].trim())
     // New format: series = "A","B","C" — individually quoted names
     // Legacy format: series = "A,B,C" — single quoted string with commas
-    const seriesNames = raw.includes('","')
-      ? raw.split(',').map(s => s.trim().replace(/^"|"$/g, ''))
-      : raw.replace(/^"|"$/g, '').split(',').map(s => s.trim())
+    const seriesNames = segments.length > 1
+      ? segments.map(unquoteDslString)
+      : unquoteDslString(segments[0]).split(',').map(s => s.trim())
     const seriesValues: (number | undefined)[][] = seriesNames.map(() => [])
 
     for (let i = 1; i < lines.length; i++) {

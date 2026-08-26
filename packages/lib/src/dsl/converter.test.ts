@@ -738,3 +738,19 @@ describe('dataEntriesToString escaping', () => {
     expect(dataEntriesToString(data)).toBe('"A" = "say \\"no\\""')
   })
 })
+
+describe('extractChartTypeOptions colors', () => {
+  it('keeps functional colour notations intact', () => {
+    const opts = extractChartTypeOptions(ChartType.Pie, [
+      prop('colors', 'rgb(230,57,70),rgb(69,123,157),hsl(180, 50%, 40%)'),
+    ])
+    expect(opts.colors).toEqual(['rgb(230,57,70)', 'rgb(69,123,157)', 'hsl(180, 50%, 40%)'])
+  })
+
+  it('still splits a plain hex list', () => {
+    const opts = extractChartTypeOptions(ChartType.Pie, [
+      prop('colors', '#111, #222 , #333'),
+    ])
+    expect(opts.colors).toEqual(['#111', '#222', '#333'])
+  })
+})
