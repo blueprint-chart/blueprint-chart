@@ -164,7 +164,7 @@ function minDeltaE(c: chroma.Color, placed: chroma.Color[]): number {
 /**
  * Candidate replacements for `c`, cheapest first: lightness steps in the
  * direction that preserves background contrast, then the opposite direction,
- * then hue rotations for when lightness is exhausted — two entries of the same
+ * then hue rotations for when lightness is exhausted: two entries of the same
  * hue can be squeezed between a darker and a lighter neighbour with nowhere
  * left to go on the lightness axis.
  */
