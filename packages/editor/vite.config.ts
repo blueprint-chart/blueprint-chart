@@ -62,6 +62,17 @@ export default defineConfig({
     host: '0.0.0.0',
     port: Number(process.env.PORT ?? 5555),
   },
+  optimizeDeps: {
+    // The BootstrapVueNextResolver injects `bootstrap-vue-next/components/*`
+    // imports during transform, so the cold-start scanner never sees them: the
+    // optimizer discovers them on the first page load, re-bundles, and answers
+    // requests already in flight with 504 Outdated Optimize Dep. A page that
+    // loses that race drops a module out of the eager graph and never boots,
+    // and if the 504 landed before the HMR client connected there is no
+    // full-reload to recover it. Serving the stale chunk instead costs a
+    // duplicated module for one page load; the 504 costs the whole page.
+    ignoreOutdatedRequests: true,
+  },
   build: {
     chunkSizeWarningLimit: 1500,
   },
