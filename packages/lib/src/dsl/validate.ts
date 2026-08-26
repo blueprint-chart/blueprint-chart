@@ -478,7 +478,12 @@ export function validateChart(ast: ChartNode): ValidationResult {
     validateSeriesMetaRow(ast.data.entries, warnings)
   }
 
-  // 9. Highlight / colorize targets that resolve to nothing (soft signal).
+  // 9. Rows sharing a category label (soft signal — every row still renders).
+  if (ast.data) {
+    validateDuplicateDataKeys(ast.data.entries, warnings)
+  }
+
+  // 10. Highlight / colorize targets that resolve to nothing (soft signal).
   validateTargets(ast, warnings)
 
   // Scenes: each scene's effective chart type is its `type` override or the
@@ -519,6 +524,32 @@ function validateSeriesMetaRow(entries: PropertyNode[], warnings: ValidationIssu
       message: 'The `series` meta-row must be the first entry in the data block; later rows are ignored and the chart falls back to a single series.',
       suggestion: 'Move the series row to the top of the data block.',
     })
+  }
+}
+
+/**
+ * Rows sharing a category label. The renderer numbers the repeats so none of
+ * them is lost (`numberRepeatedLabels` in charts/parse-data.ts), which is a
+ * visible change to the author's labels, so it is worth naming here: the usual
+ * cause is a pasted table with a repeated key that should have been summed.
+ */
+function validateDuplicateDataKeys(entries: PropertyNode[], warnings: ValidationIssue[]): void {
+  const counts = new Map<string, number>()
+  for (const entry of entries) {
+    if (entry.key === 'series' && !entry.quotedKey) {
+      continue
+    }
+    counts.set(entry.key, (counts.get(entry.key) ?? 0) + 1)
+  }
+  for (const [key, count] of counts) {
+    if (count > 1) {
+      warnings.push({
+        code: 'duplicate-data-key',
+        path: `data.${key}`,
+        message: `${count} rows share the label "${key}", so the chart numbers the repeats "${key} (2)" and up. Rename them, or combine the rows, if they are the same category.`,
+        suggestion: `"${key} (2)"`,
+      })
+    }
   }
 }
 

@@ -9,6 +9,28 @@ const NEW_ROW = new RegExp(`^${LABEL}\\s*=\\s*(.+)$`)
 const OLD_ROW = new RegExp(`^${LABEL}\\s*=\\s*"([^"]*)"$`)
 const SINGLE_ROW = new RegExp(`^${LABEL}\\s*=\\s*(.+)$`)
 
+/**
+ * Number a label that repeats an earlier one: `Alpha`, `Alpha (2)`, `Alpha (3)`.
+ *
+ * Every consumer reads a label as its row's identity — band-scale domains,
+ * data-join keys, `labels.indexOf(...)` lookups — so rows sharing a label used
+ * to collapse into the first one and the rest vanished from the chart with no
+ * error and no visual cue (#22). Numbering keeps every row and shows the author
+ * which ones were duplicated. A name already taken by a literal label is
+ * skipped, so the numbering cannot collide its way back into a lost row.
+ */
+function numberRepeatedLabels(labels: string[]): string[] {
+  const used = new Set<string>()
+  return labels.map((label) => {
+    let unique = label
+    for (let n = 2; used.has(unique); n++) {
+      unique = `${label} (${n})`
+    }
+    used.add(unique)
+    return unique
+  })
+}
+
 export function parseData(raw: string): ChartData {
   const lines = raw.split('\n').map(l => l.trim()).filter(Boolean)
   const labels: string[] = []
@@ -57,7 +79,7 @@ export function parseData(raw: string): ChartData {
     }))
 
     // values array uses first series for single-series charts
-    return { labels, values: (seriesValues[0] ?? []) as number[], series }
+    return { labels: numberRepeatedLabels(labels), values: (seriesValues[0] ?? []) as number[], series }
   }
 
   // Single-series format
@@ -69,5 +91,5 @@ export function parseData(raw: string): ChartData {
     }
   }
 
-  return { labels, values: values as number[] }
+  return { labels: numberRepeatedLabels(labels), values: values as number[] }
 }

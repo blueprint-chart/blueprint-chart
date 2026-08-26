@@ -90,3 +90,24 @@ describe('parseData legacy series header', () => {
     expect(data.series![1].values).toEqual([20, 40])
   })
 })
+
+describe('parseData repeated labels', () => {
+  it('keeps a row whose label repeats an earlier one', () => {
+    const data = parseData('"Alpha" = 42\n"Alpha" = 17\n"Beta" = 63\n"Alpha" = 8')
+    expect(data.labels).toEqual(['Alpha', 'Alpha (2)', 'Beta', 'Alpha (3)'])
+    expect(data.values).toEqual([42, 17, 63, 8])
+  })
+
+  it('keeps every cell of a multi-series row whose label repeats', () => {
+    const data = parseData('series = "A","B"\n"Alpha" = 1,2\n"Alpha" = 3,4')
+    expect(data.labels).toEqual(['Alpha', 'Alpha (2)'])
+    expect(data.series![0].values).toEqual([1, 3])
+    expect(data.series![1].values).toEqual([2, 4])
+  })
+
+  it('skips a number a literal label already took', () => {
+    const data = parseData('"Alpha" = 1\n"Alpha (2)" = 2\n"Alpha" = 3')
+    expect(data.labels).toEqual(['Alpha', 'Alpha (2)', 'Alpha (3)'])
+    expect(data.values).toEqual([1, 2, 3])
+  })
+})

@@ -172,6 +172,23 @@ describe('validateChart', () => {
     })
   })
 
+  describe('duplicate data keys', () => {
+    it('warns which rows share a label and how they are numbered', () => {
+      const entries = [prop('Alpha', 42), prop('Alpha', 17), prop('Beta', 63), prop('Alpha', 8)]
+      const result = validateChart(chart({ data: { type: DslNodeType.Data, entries } }))
+      const warning = result.warnings.find(w => w.code === 'duplicate-data-key')
+      expect(warning).toBeDefined()
+      expect(warning?.path).toBe('data.Alpha')
+      expect(warning?.message).toContain('3 rows')
+      expect(warning?.suggestion).toBe('"Alpha (2)"')
+      expect(result.valid).toBe(true)
+    })
+
+    it('does not warn when every row has its own label', () => {
+      expect(validateChart(chart({ data: data('Alpha', 'Beta') })).warnings).toHaveLength(0)
+    })
+  })
+
   describe('unresolved highlight / colorize targets', () => {
     it('warns when a highlight target matches no category', () => {
       const result = validateChart(chart({
