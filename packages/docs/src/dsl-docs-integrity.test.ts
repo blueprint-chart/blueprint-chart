@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest'
 // docs are pinned to the exact grammar that ships, without a build step.
 import { parse } from '../../lib/src/dsl/parser'
 import { validateChart } from '../../lib/src/dsl/validate'
+import * as enums from '../../lib/src/enums'
 
 // These tests pin the docs (one of the three definitions of the BPC language)
 // to the canonical Peggy parser and to the on-disk sample files. They exist to
@@ -175,4 +176,26 @@ describe('docs integrity', () => {
       })
     }
   })
+})
+
+// The API reference hand-maintains an "authoritative list of enum exports". It
+// drifted: AnnotationAction was listed and never existed, so the documented
+// import was a TS build error.
+describe('api reference enum list', () => {
+  const page = readFileSync(join(DOCS_SRC, 'reference/api/index.md'), 'utf-8')
+  const listed = page
+    .split('\n')
+    .find(l => l.includes('`ChartType`') && l.includes(' · '))
+    ?.match(/`(\w+)`/g)
+    ?.map(m => m.slice(1, -1)) ?? []
+
+  it('finds the enum list', () => {
+    expect(listed.length).toBeGreaterThan(20)
+  })
+
+  for (const name of listed) {
+    it(`exports ${name}`, () => {
+      expect(name in enums, `documented enum is not exported from lib/src/enums: ${name}`).toBe(true)
+    })
+  }
 })

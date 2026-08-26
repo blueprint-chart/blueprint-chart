@@ -71,7 +71,7 @@ PNG export and headless SVG in Node require optional native deps (`jsdom`, `@nap
 
 Authoritative list of enum exports (from `./enums`):
 
-`ChartType` · `AxisDirection` · `ScaleType` · `GridStyle` · `LabelPosition` · `LabelRotation` · `TickPosition` · `FrameSizing` · `CompassDirection` · `AnnotationLineStyle` · `StrokeStyle` · `AnnotationKind` · `AnnotationAction` · `RangeAnchor` · `Orientation` · `SymbolShape` · `SymbolShowOn` · `SymbolStyle` · `SortDirection` · `SortMode` · `LegendPosition` · `Anchor` · `ValueLabelPosition` · `CrosshairDirection` · `CrosshairStyle` · `StackMode` · `LineStyle` · `ChartOptionType` · `DirectLabelMode` · `Interpolation` · `DslNodeType`
+`ChartType` · `AxisDirection` · `ScaleType` · `GridStyle` · `LabelPosition` · `LabelRotation` · `TickPosition` · `FrameSizing` · `CompassDirection` · `AnnotationLineStyle` · `StrokeStyle` · `AnnotationKind` · `RangeAnchor` · `Orientation` · `SymbolShape` · `SymbolShowOn` · `SymbolStyle` · `SortDirection` · `SortMode` · `LegendPosition` · `Anchor` · `ValueLabelPosition` · `CrosshairDirection` · `CrosshairStyle` · `StackMode` · `LineStyle` · `ChartOptionType` · `DirectLabelMode` · `Interpolation` · `DslNodeType`
 
 ## Types
 

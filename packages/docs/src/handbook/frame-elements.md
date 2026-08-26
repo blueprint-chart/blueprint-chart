@@ -45,7 +45,7 @@ A **description** (or subtitle) sits near the top and tells the reader what they
 
 ## How Blueprint Chart applies the frame
 
-Blueprint Chart's `FrameOptions` matches this hierarchy almost one-to-one: title, description, note, source, and credit are all first-class frame fields. The frame layer is independent of the chart layer, so the same frame can wrap any chart type without changing the type's internals. See the [API reference](/reference/api/) for `createFrame` and the frame options.
+Blueprint Chart's `FrameOptions` matches this hierarchy almost one-to-one: title, description, note, source, and byline (the credit slot) are all first-class frame fields. The frame layer is independent of the chart layer, so the same frame can wrap any chart type without changing the type's internals. See the [API reference](/reference/api/) for `createFrame` and the frame options.
 
 A minimal BPC source illustrates the structure:
 
@@ -55,7 +55,7 @@ chart bar-vertical {
   description = "Quarterly revenue, USD millions"
   note        = "Q3 figures preliminary; EMEA excludes Russia"
   source      = "Company filings"
-  credit      = "Chart: Blueprint Chart"
+  byline      = "Chart: Blueprint Chart"
 
   data {
     "AMER" = 142
