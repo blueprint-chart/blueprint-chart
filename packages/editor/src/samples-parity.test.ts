@@ -24,6 +24,12 @@ function extractChartSvg(container: HTMLElement): string {
   // parity check compares chart bodies only.
   const clone = svg.cloneNode(true) as SVGSVGElement
   clone.querySelector('.bc-canvas-bg')?.remove()
+  // role/aria-label/<title>/<desc> come from render-chart's post-render pass,
+  // which the live path below bypasses by calling the renderer directly.
+  clone.removeAttribute('role')
+  clone.removeAttribute('aria-label')
+  clone.querySelector('title')?.remove()
+  clone.querySelector('desc')?.remove()
   return normalizeRandomIds(clone.outerHTML)
 }
 
