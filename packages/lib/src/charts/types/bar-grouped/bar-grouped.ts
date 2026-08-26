@@ -14,11 +14,11 @@ import { createTooltipPlugin } from '../../plugins/tooltip'
 import { createCrosshairPlugin } from '../../plugins/crosshair'
 import { highlightTargetSet, highlightOpacity } from '../../plugins/highlight'
 import { buildColorOverrides } from '../../plugins/colorize'
-import { resolveBarGapPadding } from '../../scale-helpers'
+import { computeLinearDomain, resolveBarGapPadding } from '../../scale-helpers'
 import { ensureClipPath } from '../../clip-path-helper'
 import { featureJoin, getSceneTransition, tweenPlotFrame, type PlotRect } from '../../../transitions'
 import { createPluginHost } from '../../plugins/plugin-host'
-import { Orientation, ValueLabelPosition, LabelPosition } from '../../../enums'
+import { Orientation, ValueLabelPosition, LabelPosition, ScaleType } from '../../../enums'
 import { shouldRenderValueLabel } from '../../value-label-fit'
 import { CATEGORY_LABEL_HEIGHT, categoryLabelLineHeight } from '../../category-label-line'
 
@@ -137,10 +137,9 @@ export function render(
     .range([0, barAreaHeight])
     .padding(0.05)
 
-  const maxValue = d3.max(series.flatMap(s => s.values)) ?? 0
-
-  const x = d3.scaleLinear()
-    .domain([0, maxValue])
+  const [domainMin, domainMax] = computeLinearDomain(series.flatMap(s => s.values), options.horizontalAxis?.range, options.horizontalAxis?.scaleType)
+  const x = (options.horizontalAxis?.scaleType === ScaleType.Log ? d3.scaleSymlog() : d3.scaleLinear())
+    .domain([domainMin, domainMax])
     .nice()
     .range([0, width])
 

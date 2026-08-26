@@ -1,6 +1,6 @@
 import * as d3 from 'd3'
 import 'd3-transition'
-import type { ChartData, ChartOptions } from '../../types'
+import type { AxisOptions, ChartData, ChartOptions } from '../../types'
 import { createFrame } from '../../frame/frame'
 import { createCanvas, contentSize, labelPositionMargins, estimateCategoryLabelWidth, computeMarginDelta } from '../../canvas/canvas'
 import { AxisService } from '../../axis/axis-service'
@@ -12,11 +12,11 @@ import { setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut } from '
 import { setCachedChart, getCachedChart } from '../../transition-cache'
 import { createTooltipPlugin } from '../../plugins/tooltip'
 import { createCrosshairPlugin } from '../../plugins/crosshair'
-import { resolveBarGapPadding } from '../../scale-helpers'
+import { computeLinearDomain, resolveBarGapPadding } from '../../scale-helpers'
 import { ensureClipPath } from '../../clip-path-helper'
 import { featureJoin, getSceneTransition, tweenPlotFrame, type PlotRect } from '../../../transitions'
 import { createPluginHost } from '../../plugins/plugin-host'
-import { Orientation, ValueLabelPosition, LabelPosition } from '../../../enums'
+import { Orientation, ValueLabelPosition, LabelPosition, ScaleType } from '../../../enums'
 import { highlightTargetSet, highlightOpacity } from '../../plugins/highlight'
 import { buildColorOverrides } from '../../plugins/colorize'
 import { shouldRenderValueLabel } from '../../value-label-fit'
@@ -46,7 +46,7 @@ interface PanelLayout {
   seriesIndex: number
   xOffset: number
   panelWidth: number
-  xScale: d3.ScaleLinear<number, number>
+  xScale: d3.ScaleContinuousNumeric<number, number>
 }
 
 function computePanels(
@@ -54,18 +54,19 @@ function computePanels(
   allSeries: { name: string, values: number[] }[],
   totalWidth: number,
   sharedScale: boolean,
+  axis?: AxisOptions,
 ): PanelLayout[] {
   const n = series.length
   if (n === 0) {
     return []
   }
   const panelWidth = Math.max(0, (totalWidth - (n - 1) * PANEL_GAP) / n)
-  const globalMax = sharedScale ? (d3.max(series.flatMap(s => s.values)) ?? 0) : 0
+  const sharedValues = sharedScale ? series.flatMap(s => s.values) : []
 
   return series.map((s, i) => {
-    const panelMax = sharedScale ? globalMax : (d3.max(s.values) ?? 0)
-    const xScale = d3.scaleLinear()
-      .domain([0, panelMax])
+    const [domainMin, domainMax] = computeLinearDomain(sharedScale ? sharedValues : s.values, axis?.range, axis?.scaleType)
+    const xScale = (axis?.scaleType === ScaleType.Log ? d3.scaleSymlog() : d3.scaleLinear())
+      .domain([domainMin, domainMax])
       .nice()
       .range([0, panelWidth])
     return {
@@ -222,7 +223,7 @@ export function render(
   })
 
   const sharedScale = options.sharedScale === true
-  const panels = computePanels(series, allSeries, width, sharedScale)
+  const panels = computePanels(series, allSeries, width, sharedScale, options.horizontalAxis)
 
   // Clip group for bars — stable id per (container, key) so re-renders
   // re-use the same <clipPath> instead of accumulating new ones.

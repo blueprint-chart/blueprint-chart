@@ -16,11 +16,11 @@ import { contrastTextColor } from '../../contrast'
 import { setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut } from '../../motion'
 import { setCachedChart, getCachedChart } from '../../transition-cache'
 import { computeStack, computeStack100 } from '../../stack-helpers'
-import { resolveBarGapPadding } from '../../scale-helpers'
+import { computeLinearDomain, resolveBarGapPadding } from '../../scale-helpers'
 import { ensureClipPath } from '../../clip-path-helper'
 import { featureJoin, getSceneTransition, tweenPlotFrame, type PlotRect } from '../../../transitions'
 import { createPluginHost } from '../../plugins/plugin-host'
-import { StackMode, Orientation, ValueLabelPosition, LabelPosition } from '../../../enums'
+import { StackMode, Orientation, ValueLabelPosition, LabelPosition, ScaleType } from '../../../enums'
 import { highlightTargetSet, highlightOpacity } from '../../plugins/highlight'
 import { buildColorOverrides } from '../../plugins/colorize'
 import { shouldRenderValueLabel } from '../../value-label-fit'
@@ -167,8 +167,12 @@ export function render(
     sortedLabels = totals.map(t => t.label)
   }
 
-  const x = d3.scaleLinear()
-    .domain([minStackedValue, maxStackedValue])
+  const domainValues = isPercent
+    ? [minStackedValue, maxStackedValue]
+    : flatData.flatMap(d => [d.y0, d.y1])
+  const [domainMin, domainMax] = computeLinearDomain(domainValues, options.horizontalAxis?.range, options.horizontalAxis?.scaleType)
+  const x = (options.horizontalAxis?.scaleType === ScaleType.Log ? d3.scaleSymlog() : d3.scaleLinear())
+    .domain([domainMin, domainMax])
     .nice()
     .range([0, width])
 

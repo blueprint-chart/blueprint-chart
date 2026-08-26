@@ -16,10 +16,10 @@ import { setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut } from '
 import { setCachedChart, getCachedChart } from '../../transition-cache'
 import { featureJoin, getSceneTransition, tweenPlotFrame, type PlotRect } from '../../../transitions'
 import { computeStack, computeStack100 } from '../../stack-helpers'
-import { filterLabelsByRange } from '../../scale-helpers'
+import { computeLinearDomain, filterLabelsByRange } from '../../scale-helpers'
 import { expandColorsToSeries, resolveSeriesColor, resolveSeriesInterpolation, isSeriesHidden, resolveSeriesLabelMode } from '../../series-helpers'
 import { spreadLabels } from '../../plugins/arc-labels'
-import { StackMode, SortDirection } from '../../../enums'
+import { StackMode, SortDirection, ScaleType } from '../../../enums'
 import { highlightTargetSet, highlightOpacity } from '../../plugins/highlight'
 import { buildColorOverrides } from '../../plugins/colorize'
 
@@ -194,7 +194,11 @@ export function render(
   const xScale: AnyXScale = pointScale
   const xPos = (i: number) => pointScale(data.labels[i]) ?? 0
 
-  const y = d3.scaleLinear().domain([0, domainMax]).nice().range([height, 0])
+  const [yMin, yMax] = computeLinearDomain(allValues, options.verticalAxis?.range, options.verticalAxis?.scaleType)
+  const y = (options.verticalAxis?.scaleType === ScaleType.Log ? d3.scaleSymlog() : d3.scaleLinear())
+    .domain([yMin, yMax])
+    .nice()
+    .range([height, 0])
 
   axes.attach(chartArea, marginDelta)
   // When stackPercent is on, default the y-axis to show "%" so readers know the

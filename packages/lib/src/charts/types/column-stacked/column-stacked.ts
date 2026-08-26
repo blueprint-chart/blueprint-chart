@@ -15,13 +15,13 @@ import { expandColorsToSeries, resolveSeriesColor, isSeriesHidden, resolveSeries
 import { setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut } from '../../motion'
 import { setCachedChart, getCachedChart } from '../../transition-cache'
 import { computeStack, computeStack100 } from '../../stack-helpers'
-import { resolveBarGapPadding } from '../../scale-helpers'
+import { computeLinearDomain, resolveBarGapPadding } from '../../scale-helpers'
 import { highlightTargetSet, highlightOpacity } from '../../plugins/highlight'
 import { buildColorOverrides } from '../../plugins/colorize'
 import { ensureClipPath } from '../../clip-path-helper'
 import { featureJoin, getSceneTransition, tweenPlotFrame, type PlotRect } from '../../../transitions'
 import { createPluginHost } from '../../plugins/plugin-host'
-import { StackMode } from '../../../enums'
+import { StackMode, ScaleType } from '../../../enums'
 import { percentValueLabel } from '../../format-helpers'
 import { shouldRenderValueLabel } from '../../value-label-fit'
 
@@ -128,7 +128,9 @@ export function render(
   // axis has to reach down to it or the segment renders outside the plot.
   const minStackedValue = isPercent ? Math.min(0, d3.min(flatData, d => d.y0) ?? 0) : 0
 
-  const allValues = [minStackedValue, maxStackedValue]
+  const allValues = isPercent
+    ? [minStackedValue, maxStackedValue]
+    : flatData.flatMap(d => [d.y0, d.y1])
   const vLabelW = estimateVerticalLabelWidth(allValues, options.verticalAxis?.range, options.verticalAxis?.numberFormat, options.verticalAxis?.scaleType)
   const lpMargins = labelPositionMargins(containerWidth, options.verticalAxis?.labelPosition, options.horizontalAxis?.labelPosition, options.verticalAxis?.direction, vLabelW)
 
@@ -177,8 +179,9 @@ export function render(
     .range([0, width])
     .padding(resolveBarGapPadding(options.barGap))
 
-  const y = d3.scaleLinear()
-    .domain([minStackedValue, maxStackedValue])
+  const [domainMin, domainMax] = computeLinearDomain(allValues, options.verticalAxis?.range, options.verticalAxis?.scaleType)
+  const y = (options.verticalAxis?.scaleType === ScaleType.Log ? d3.scaleSymlog() : d3.scaleLinear())
+    .domain([domainMin, domainMax])
     .nice()
     .range([height, 0])
 

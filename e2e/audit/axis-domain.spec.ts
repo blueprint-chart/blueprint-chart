@@ -10,6 +10,27 @@ async function verticalTickValues(page): Promise<number[]> {
   ).filter(n => Number.isFinite(n)))
 }
 
+// Tick label text of the horizontal value axis, parsed back to numbers.
+async function horizontalTickValues(page): Promise<number[]> {
+  return page.evaluate(() => Array.from(
+    document.querySelectorAll('.bc-frame .bc-axis-horizontal .tick text'),
+    el => Number((el.textContent ?? '').replace(/\u2212/g, '-').replace(/[^0-9.eE+-]/g, '')),
+  ).filter(n => Number.isFinite(n)))
+}
+
+// Widest mark as a fraction of the plot width, so a bound that widens the
+// domain has to shorten the marks.
+async function widestMarkRatio(page, selector: string): Promise<number> {
+  return page.evaluate((sel) => {
+    const widest = Math.max(0, ...Array.from(
+      document.querySelectorAll(`.bc-frame ${sel}`),
+      el => Number(el.getAttribute('width') ?? '0'),
+    ))
+    const plotWidth = document.querySelector('.bc-frame svg')?.getBoundingClientRect().width ?? 1
+    return widest / plotWidth
+  }, selector)
+}
+
 // Every numeric coordinate of the first line path, so a flattened or empty
 // series is distinguishable from a series that actually spans the plot.
 async function linePathPoints(page): Promise<number[]> {
@@ -252,6 +273,154 @@ test.describe('G4 axis domain', () => {
     expect(ticks).not.toContain(0)
     for (const t of ticks) {
       expect(Math.log10(t) % 1).toBe(0)
+    }
+  })
+
+  // #27: the range bounds validate on these four types and were then never
+  // read by the renderer, which always scaled to the data max.
+  test('bar-stacked honours horizontalRangeMax', async ({ page }) => {
+    await gotoRender(page, `chart bar-stacked {
+  showHorizontalAxis = true
+  showHorizontalTicks = true
+  horizontalLabelPosition = "outside"
+  horizontalRangeMax = "200"
+  data {
+    series = "Alpha","Beta"
+    "North" = 31,44
+    "South" = 22,29
+  }
+}`)
+    await expect(page.locator('.bc-frame .bc-bar-stacked').first()).toBeAttached()
+
+    expect(Math.max(...await horizontalTickValues(page))).toBe(200)
+    expect(await widestMarkRatio(page, '.bc-bar-stacked')).toBeLessThan(0.3)
+  })
+
+  test('bar-grouped honours horizontalRangeMax', async ({ page }) => {
+    await gotoRender(page, `chart bar-grouped {
+  showHorizontalAxis = true
+  showHorizontalTicks = true
+  horizontalLabelPosition = "outside"
+  horizontalRangeMax = "200"
+  data {
+    series = "Alpha","Beta"
+    "North" = 31,44
+    "South" = 22,29
+  }
+}`)
+    await expect(page.locator('.bc-frame .bc-bar-grouped').first()).toBeAttached()
+
+    expect(Math.max(...await horizontalTickValues(page))).toBe(200)
+    expect(await widestMarkRatio(page, '.bc-bar-grouped')).toBeLessThan(0.3)
+  })
+
+  // bar-split draws no value axis, so the bars carry the proof: each panel is
+  // half the plot, and 44 of 200 fills a quarter of its panel.
+  test('bar-split honours horizontalRangeMax', async ({ page }) => {
+    await gotoRender(page, `chart bar-split {
+  horizontalRangeMax = "200"
+  data {
+    series = "Alpha","Beta"
+    "North" = 31,44
+    "South" = 22,29
+  }
+}`)
+    await expect(page.locator('.bc-frame .bc-bar-split').first()).toBeAttached()
+
+    expect(await widestMarkRatio(page, '.bc-bar-split')).toBeLessThan(0.2)
+  })
+
+  test('column-stacked honours verticalRangeMax', async ({ page }) => {
+    await gotoRender(page, `chart column-stacked {
+  showVerticalAxis = true
+  showVerticalTicks = true
+  verticalLabelPosition = "outside"
+  verticalRangeMax = "200"
+  data {
+    series = "Alpha","Beta"
+    "North" = 31,44
+    "South" = 22,29
+  }
+}`)
+    await expect(page.locator('.bc-frame .bc-bar-stacked').first()).toBeAttached()
+
+    expect(Math.max(...await verticalTickValues(page))).toBe(200)
+  })
+
+  // #27, second symptom: verticalScaleType = log was inert on the stacked
+  // column and the stacked area, so decades of data collapsed into invisible
+  // marks and the value axis carried no tick at all.
+  test('column-stacked honours a log value axis', async ({ page }) => {
+    await gotoRender(page, `chart column-stacked {
+  verticalScaleType = "log"
+  showVerticalAxis = true
+  showVerticalTicks = true
+  verticalLabelPosition = "outside"
+  data {
+    series = "Alpha"
+    "A" = 1
+    "B" = 100
+    "C" = 10000
+  }
+}`)
+    await expect(page.locator('.bc-frame .bc-bar-stacked').first()).toBeAttached()
+
+    const heights = await page.evaluate(() => Array.from(
+      document.querySelectorAll('.bc-frame .bc-bar-stacked'),
+      el => Number(el.getAttribute('height') ?? '0'),
+    ))
+    expect(Math.min(...heights) / Math.max(...heights)).toBeGreaterThan(0.02)
+
+    const ticks = await verticalTickValues(page)
+    expect(ticks.length).toBeGreaterThan(2)
+    expect(ticks).not.toContain(0)
+  })
+
+  test('area-stacked honours a log value axis', async ({ page }) => {
+    await gotoRender(page, `chart area-stacked {
+  verticalScaleType = "log"
+  showVerticalTicks = true
+  data {
+    series = "Alpha"
+    "2015" = 1
+    "2016" = 100
+    "2017" = 10000
+  }
+}`)
+    await expect(page.locator('.bc-frame .bc-area').first()).toBeAttached()
+
+    const ticks = await verticalTickValues(page)
+    expect(ticks.length).toBeGreaterThan(2)
+    expect(ticks).not.toContain(0)
+    for (const t of ticks) {
+      expect(Math.log10(t) % 1).toBe(0)
+    }
+  })
+
+  // #17 on the stacked family: the hard [0, max] domain dropped a negative
+  // segment entirely, leaving a category empty next to its label.
+  test('bar-stacked draws a negative segment', async ({ page }) => {
+    await gotoRender(page, `chart bar-stacked {
+  data {
+    series = "Alpha","Beta"
+    "North" = 31,44
+    "South" = 31,-44
+  }
+}`)
+    await expect(page.locator('.bc-frame .bc-bar-stacked').first()).toBeAttached()
+
+    const marks = await page.evaluate(() => ({
+      bars: Array.from(document.querySelectorAll('.bc-frame .bc-bar-stacked'), el => ({
+        x: Number(el.getAttribute('x') ?? '0'),
+        width: Number(el.getAttribute('width') ?? '0'),
+      })),
+      plotWidth: document.querySelector('.bc-frame svg')?.getBoundingClientRect().width ?? 0,
+    }))
+    expect(marks.bars).toHaveLength(4)
+    for (const bar of marks.bars) {
+      expect(bar.width).toBeGreaterThan(0)
+      expect(bar.x).toBeGreaterThanOrEqual(0)
+      expect(bar.x + bar.width).toBeLessThanOrEqual(marks.plotWidth)
     }
   })
 })
