@@ -19,7 +19,7 @@ import { featureJoin, getSceneTransition, tweenPlotFrame, type PlotRect } from '
 import { createPluginHost } from '../../plugins/plugin-host'
 import { highlightTargetSet, highlightOpacity } from '../../plugins/highlight'
 import { shouldRenderValueLabel } from '../../value-label-fit'
-import { CATEGORY_LABEL_HEIGHT, categoryLabelLineHeight } from '../../category-label-line'
+import { CATEGORY_LABEL_HEIGHT, categoryLabelLineHeight, categoryLabelsNeedTheirOwnLine } from '../../category-label-line'
 
 export const DEFAULT_COLORS = ['#4e79a7']
 const VALUE_LABEL_FONT = '11px sans-serif'
@@ -104,13 +104,7 @@ export function render(
 
   const { body } = createFrame(container, options.frame)
   const containerWidth = contentSize(body).width
-  // On narrow containers, category labels on the vertical axis get hidden
-  // behind bars when positioned "inside" or are explicitly "off".
-  // Auto-switch to categoryLabelLine so labels render above each bar.
-  // Only skip when the user explicitly chose "outside".
-  const autoNarrow = containerWidth > 0
-    && containerWidth < 400
-    && options.verticalAxis?.labelPosition !== 'outside'
+  const autoNarrow = categoryLabelsNeedTheirOwnLine(containerWidth, options.verticalAxis?.labelPosition)
   const useCategoryLabelLine = options.categoryLabelLine === true || autoNarrow
   const vLabelW = estimateCategoryLabelWidth(data.labels)
   const effectiveVLabelPosition = useCategoryLabelLine ? LabelPosition.Off : options.verticalAxis?.labelPosition

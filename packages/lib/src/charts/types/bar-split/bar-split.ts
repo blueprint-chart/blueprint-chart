@@ -22,7 +22,7 @@ import { Orientation, ValueLabelPosition, LabelPosition, ScaleType } from '../..
 import { highlightTargetSet, highlightOpacity } from '../../plugins/highlight'
 import { buildColorOverrides } from '../../plugins/colorize'
 import { shouldRenderValueLabel } from '../../value-label-fit'
-import { CATEGORY_LABEL_HEIGHT, categoryLabelLineHeight } from '../../category-label-line'
+import { CATEGORY_LABEL_HEIGHT, categoryLabelLineHeight, categoryLabelsNeedTheirOwnLine } from '../../category-label-line'
 
 export const DEFAULT_COLORS = [
   '#4e79a7', '#f28e2b', '#e15759', '#76b7b2',
@@ -164,7 +164,10 @@ export function render(
     : requestedLegendPos
   const legendAnchor = options.legendAnchor ?? 'start'
 
-  const useCategoryLabelLine = options.categoryLabelLine === true
+  // Below a phone width the left gutter cannot hold the category labels, so
+  // they move above their bars the way bar-horizontal already does.
+  const autoNarrow = categoryLabelsNeedTheirOwnLine(containerWidth, options.verticalAxis?.labelPosition)
+  const useCategoryLabelLine = options.categoryLabelLine === true || autoNarrow
   const vLabelW = estimateCategoryLabelWidth(data.labels)
   const effectiveVLabelPosition = useCategoryLabelLine ? LabelPosition.Off : options.verticalAxis?.labelPosition
   const lpMargins = labelPositionMargins(
@@ -228,6 +231,8 @@ export function render(
         ...options.verticalAxis,
         labelPosition: useCategoryLabelLine ? LabelPosition.Off : options.verticalAxis?.labelPosition,
         topPadding: margin.top,
+        // Inline labels replace the gutter, so the gutter's axis line goes too.
+        ...(autoNarrow ? { showAxis: false } : {}),
       },
     },
     order: 'horizontal-first',
