@@ -26,6 +26,7 @@ export const DEFAULT_COLORS = [
 
 interface ArcDatum {
   label: string
+  value: number
   arc: d3.PieArcDatum<number>
   color: string
 }
@@ -193,6 +194,7 @@ export function renderArc(
   const pieData = pie(values)
   const arcData: ArcDatum[] = pieData.map((arc, i) => ({
     label: labels[i],
+    value: values[i],
     arc,
     color: colorOverrides.get(labels[i]) ?? colorScale(labels[i]),
   }))

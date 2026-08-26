@@ -4,6 +4,8 @@ import { parse } from '../../../dsl/parser'
 import { astToDefinition } from '../../../render/ast-to-definition'
 import { renderChart } from '../../../render/render-chart'
 import { SortDirection } from '../../../enums'
+import { makeDefaultFormat } from '../../plugins/tooltip'
+import * as d3 from 'd3'
 
 describe('donut chart', () => {
   let container: HTMLElement
@@ -403,5 +405,29 @@ ${rows}
 }`)
     expect(host.querySelectorAll('.bc-arc')).toHaveLength(24)
     expectUsableRadius(host, 400)
+  })
+})
+
+describe('arc tooltips format the slice, not the datum object (#83)', () => {
+  function draw(source: string): HTMLElement {
+    const host = document.createElement('div')
+    document.body.appendChild(host)
+    renderChart(host, astToDefinition(parse(source)))
+    return host
+  }
+
+  const source = `chart pie {
+  tooltips = true
+  data {
+    "Coal" = 34.2
+    "Gas" = 21.8
+  }
+}`
+
+  it('binds a datum the default tooltip format can read', () => {
+    const host = draw(source)
+    const fmt = makeDefaultFormat(',.1f')
+    const texts = [...host.querySelectorAll('.bc-arc')].map(el => fmt(d3.select(el).datum()))
+    expect(texts).toEqual(['Coal: 34.2', 'Gas: 21.8'])
   })
 })
