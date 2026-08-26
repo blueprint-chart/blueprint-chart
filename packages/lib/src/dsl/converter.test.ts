@@ -754,3 +754,70 @@ describe('extractChartTypeOptions colors', () => {
     expect(opts.colors).toEqual(['#111', '#222', '#333'])
   })
 })
+
+describe('extractChartTypeOptions boolean casing', () => {
+  it('reads TRUE and True as true', () => {
+    for (const spelling of ['true', 'TRUE', 'True', 'tRuE']) {
+      const opts = extractChartTypeOptions(ChartType.LineMulti, [prop('legend', spelling)])
+      expect(opts.legend, spelling).toBe(true)
+    }
+  })
+
+  it('reads FALSE and False as false', () => {
+    for (const spelling of ['false', 'FALSE', 'False']) {
+      const opts = extractChartTypeOptions(ChartType.LineMulti, [prop('legend', spelling)])
+      expect(opts.legend, spelling).toBe(false)
+    }
+  })
+
+  it('reads PERCENT as the percent value labels mode', () => {
+    const opts = extractChartTypeOptions(ChartType.BarVertical, [prop('valueLabels', 'PERCENT')])
+    expect(opts.valueLabels).toBe('percent')
+  })
+
+  it('applies the same casing rule to every boolean key of a type', () => {
+    const opts = extractChartTypeOptions(ChartType.BarVertical, [
+      prop('valueLabels', 'TRUE'),
+      prop('tooltips', 'True'),
+      prop('barBackground', 'TRUE'),
+    ])
+    expect(opts.valueLabels).toBe(true)
+    expect(opts.tooltips).toBe(true)
+    expect(opts.barBackground).toBe(true)
+  })
+})
+
+describe('convertAnnotations boolean casing', () => {
+  it('reads TRUE for annotation booleans', () => {
+    const nodes: AnnotationNode[] = [{
+      type: DslNodeType.Annotation,
+      kind: AnnotationKind.Point,
+      target: 'A',
+      properties: [prop('showLine', 'TRUE'), prop('showArrow', 'True'), prop('textOutline', 'TRUE')],
+    }]
+    const [a] = convertAnnotations(nodes)
+    expect(a).toMatchObject({ showLine: true, showArrow: true, textOutline: true })
+  })
+
+  it('reads TRUE for the repeat lifespan', () => {
+    const nodes: AnnotationNode[] = [{
+      type: DslNodeType.Annotation,
+      kind: AnnotationKind.Point,
+      target: 'A',
+      properties: [prop('repeat', 'TRUE')],
+    }]
+    expect(convertAnnotations(nodes)[0].repeat).toBe('always')
+  })
+})
+
+describe('convertSeriesOverrides boolean casing', () => {
+  it('reads TRUE for series booleans', () => {
+    const nodes: SeriesNode[] = [{
+      type: DslNodeType.Series,
+      name: 'A',
+      properties: [prop('hidden', 'TRUE'), prop('lineSymbols', 'True')],
+    }]
+    const [s] = convertSeriesOverrides(nodes)
+    expect(s).toMatchObject({ hidden: true, lineSymbols: true })
+  })
+})

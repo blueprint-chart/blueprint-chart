@@ -5,6 +5,12 @@ import { AnnotationKind, ChartOptionType, Orientation, RangeAnchor } from '../en
 import { quoteDslString, splitTopLevelCommas } from './quoting'
 
 /**
+ * A DSL boolean is case-insensitive: `validate.ts` lowercases before comparing,
+ * so `TRUE` passes validation and must resolve the same way here.
+ */
+export const toBool = (v: unknown) => v === true || String(v).toLowerCase() === 'true'
+
+/**
  * Convert an array of AST property nodes into a key→value map.
  */
 export function propertyMap(properties: PropertyNode[]): Map<string, string | number | boolean> {
@@ -41,7 +47,7 @@ export function extractChartTypeOptions(
         opts[def.key] = 'percent'
       }
       else {
-        opts[def.key] = raw === 'true' || raw === true
+        opts[def.key] = toBool(raw)
       }
     }
     else {
@@ -160,8 +166,6 @@ function readMaxWidth(properties: PropertyNode[]): number | string | undefined {
   return node.value
 }
 
-const toBool = (v: unknown) => v === 'true' || v === true
-
 /**
  * Convert AST highlight nodes to ColorizeConfig objects.
  */
@@ -206,7 +210,7 @@ export function convertAreaFills(nodes: AreaFillNode[]): AreaFillConfig[] {
  */
 function readRepeat(props: Map<string, string | number | boolean>): number | 'always' | undefined {
   const raw = props.get('repeat')
-  if (raw === true || raw === 'true') {
+  if (toBool(raw)) {
     return 'always'
   }
   if (raw === undefined || raw === false || raw === 'false') {

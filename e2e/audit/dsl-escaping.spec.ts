@@ -60,3 +60,17 @@ test.describe('functional colours', () => {
     expect(fills).toEqual(['rgb(230, 57, 70)', 'rgb(69, 123, 157)', 'rgb(42, 157, 143)'])
   })
 })
+
+test.describe('boolean option casing', () => {
+  test('legend = TRUE renders the legend', async ({ page }) => {
+    await gotoRender(page, `chart line-multi {
+  legend = TRUE
+  data {
+    series = "A","B"
+    "2020" = 1,2
+    "2021" = 3,4
+  }
+}`)
+    await expect(page.locator('.bc-legend-item')).toHaveCount(2)
+  })
+})

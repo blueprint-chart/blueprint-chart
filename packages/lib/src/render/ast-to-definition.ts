@@ -10,6 +10,7 @@ import {
   convertAreaFills,
   convertAnnotations,
   convertSeriesOverrides,
+  toBool,
 } from '../dsl/converter'
 import { SortDirection, SortMode } from '../enums'
 
@@ -58,7 +59,7 @@ function buildFrame(props: Map<string, string | number | boolean>): FrameOptions
     byline: getString('byline'),
     note: getString('note'),
     padding: getString('padding'),
-    transparentBackground: transparentBg === true || transparentBg === 'true' || undefined,
+    transparentBackground: toBool(transparentBg) || undefined,
   }
   const anySet = Object.values(frame).some(v => v !== undefined)
   return anySet ? frame : undefined
