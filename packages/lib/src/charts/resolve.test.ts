@@ -13,10 +13,17 @@ describe('getChartTypeDefaults', () => {
     expect(getChartTypeDefaults('not-a-chart')).toEqual({})
   })
 
-  it('memoizes per chart type (same reference on repeat calls)', () => {
+  it('returns equal but independent objects on repeat calls', () => {
     const a = getChartTypeDefaults(ChartType.LineMulti)
     const b = getChartTypeDefaults(ChartType.LineMulti)
-    expect(a).toBe(b)
+    expect(a).toEqual(b)
+    expect(a).not.toBe(b)
+  })
+
+  it('does not let a consumer mutation leak into later calls', () => {
+    const a = getChartTypeDefaults(ChartType.LineMulti)
+    a.verticalGridStyle = GridStyle.Solid
+    expect(getChartTypeDefaults(ChartType.LineMulti).verticalGridStyle).toBe(GridStyle.Dashed)
   })
 })
 

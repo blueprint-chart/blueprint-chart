@@ -13,7 +13,7 @@ export function getChartTypeDefaults(chartType: string): Partial<ChartTypeOption
     }
     defaultsCache[chartType] = cache
   }
-  return defaultsCache[chartType]
+  return { ...defaultsCache[chartType] }
 }
 
 export function resolveChartTypeOptions(
