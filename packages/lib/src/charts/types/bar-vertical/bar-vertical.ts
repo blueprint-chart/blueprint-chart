@@ -23,6 +23,17 @@ import { shouldRenderValueLabel } from '../../value-label-fit'
 
 export const DEFAULT_COLORS = ['#4e79a7']
 const CATEGORY_LABEL_HEIGHT = 13
+const VALUE_LABEL_GAP = 4
+// Cap height of an 11px numeral: the only part of a value label that sits above
+// its baseline, and the reason DEFAULT_MARGIN.top fits exactly one such label.
+const VALUE_LABEL_CAP_PX = 8
+
+/** Plot geometry a value label has to stay inside of. */
+interface LabelBounds {
+  plotHeight: number
+  marginTop: number
+  marginBottom: number
+}
 
 interface BarDatum {
   label: string
@@ -456,6 +467,7 @@ export function render(
         percent: options.valueLabels === 'percent',
         total: d3.sum(barData, d => d.value),
         formatValue: v => vFmt ? vFmt(v) : String(v),
+        bounds: { plotHeight: barAreaHeight, marginTop: margin.top, marginBottom: margin.bottom },
       })
     }
   }
@@ -490,33 +502,28 @@ function valueLabelAttrs(
   x: d3.ScaleBand<string>,
   y: d3.ScaleLinear<number, number> | d3.ScaleSymLog<number, number>,
   pos: ValueLabelPosition,
+  bounds: LabelBounds,
 ) {
-  const barH = Math.abs(y(d.value) - y(0))
-  const isInside = pos === ValueLabelPosition.Inside
   const tx = (x(d.label) ?? 0) + x.bandwidth() / 2
   const anchor = 'middle'
-  let ty: number, baseline: string
-  if (d.value < 0) {
-    if (isInside) {
-      ty = y(d.value) - barH / 2
-      baseline = 'central'
-    }
-    else {
-      ty = y(d.value) + 4
-      baseline = 'hanging'
-    }
+  // Bars are clipped to the plot, so the label follows the visible mark rather
+  // than the raw datum: a value the axis range excludes keeps its label on the
+  // canvas instead of being painted above or below the SVG.
+  const clip = (v: number) => Math.max(0, Math.min(bounds.plotHeight, v))
+  const barTop = clip(Math.min(y(0), y(d.value)))
+  const barBottom = clip(Math.max(y(0), y(d.value)))
+  const negative = d.value < 0
+  const markEnd = y(d.value)
+  const truncated = markEnd < 0 || markEnd > bounds.plotHeight
+  const outsideTy = negative ? barBottom + VALUE_LABEL_GAP : barTop - VALUE_LABEL_GAP
+  const fitsOutside = negative
+    ? outsideTy + VALUE_LABEL_CAP_PX <= bounds.plotHeight + bounds.marginBottom
+    : outsideTy - VALUE_LABEL_CAP_PX >= -bounds.marginTop
+  const isInside = pos === ValueLabelPosition.Inside || truncated || !fitsOutside
+  if (isInside) {
+    return { tx, ty: (barTop + barBottom) / 2, anchor, baseline: 'central', isInside }
   }
-  else {
-    if (isInside) {
-      ty = y(d.value) + barH / 2
-      baseline = 'central'
-    }
-    else {
-      ty = y(d.value) - 4
-      baseline = 'auto'
-    }
-  }
-  return { tx, ty, anchor, baseline, isInside }
+  return { tx, ty: outsideTy, anchor, baseline: negative ? 'hanging' : 'auto', isInside }
 }
 
 function renderValueLabels(
@@ -533,6 +540,7 @@ function renderValueLabels(
     percent?: boolean
     total?: number
     formatValue: (value: number) => string
+    bounds: LabelBounds
   },
 ): void {
   const pos = opts.position ?? ValueLabelPosition.Auto
@@ -575,7 +583,7 @@ function renderValueLabels(
       .attr('class', 'bc-value-label')
       .attr('font-size', '11px'),
     attrs: (d) => {
-      const a = valueLabelAttrs(d, x, y, pos)
+      const a = valueLabelAttrs(d, x, y, pos, opts.bounds)
       return {
         'x': a.tx,
         'y': a.ty,
