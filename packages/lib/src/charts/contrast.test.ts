@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import chroma from 'chroma-js'
+import { listPalettes, resolvePalette } from './palettes'
 import { readableColor, adjustColorsForBackground, contrastTextColor, wcagContrastRatio, wcagLevel } from './contrast'
 
 const MIN_CONTRAST = 4.5
@@ -184,5 +185,83 @@ describe('contrast — N9: invalid input does not throw', () => {
     expect(() => adjustColorsForBackground(['not-a-hex', '#4e79a7'], '#fff')).not.toThrow()
     const result = adjustColorsForBackground(['not-a-hex', '#4e79a7'], '#fff')
     expect(result).toHaveLength(2)
+  })
+})
+
+describe('autoContrast keeps every palette colour distinct (#61)', () => {
+  // The frame backgrounds resolveBackgroundColor actually reports: the light
+  // frame (chart-css.ts:14, tokens.scss:136) and the two dark ones (the
+  // editor's tile at tokens.scss:254 and the embed's body at chart-css.ts:231).
+  const BACKGROUNDS = ['#ffffff', '#0e0e0e', '#1c1c1c']
+
+  // The library's own "distinguishable" threshold (colorblind.ts, MIN_CVD_DELTA_E).
+  const DISTINGUISHABLE = 10
+
+  // Four pure greys cannot all sit 10 dE apart inside the lightness band that
+  // MIN_CONTRAST leaves: on white, 4.5:1 caps luminance at 0.184, and dE2000
+  // compresses near black. Its measured floor is pinned separately below.
+  const NO_ROOM_ON_THE_LIGHTNESS_AXIS = ['Folklore']
+
+  function minPairDeltaE(colors: string[]): number {
+    let min = Infinity
+    for (let i = 0; i < colors.length; i++) {
+      for (let j = i + 1; j < colors.length; j++) {
+        min = Math.min(min, chroma.deltaE(colors[i], colors[j]))
+      }
+    }
+    return min
+  }
+
+  function collapsedPairs(input: readonly string[], output: string[]): string[] {
+    const collapsed: string[] = []
+    for (let i = 0; i < output.length; i++) {
+      for (let j = i + 1; j < output.length; j++) {
+        const before = chroma.deltaE(input[i], input[j])
+        const after = chroma.deltaE(output[i], output[j])
+        if (before >= DISTINGUISHABLE && after < DISTINGUISHABLE) {
+          collapsed.push(`${input[i]}+${input[j]} -> ${output[i]}+${output[j]} dE ${after.toFixed(1)}`)
+        }
+      }
+    }
+    return collapsed
+  }
+
+  for (const bg of BACKGROUNDS) {
+    it(`never merges two distinguishable palette colours on ${bg}`, () => {
+      const offenders: string[] = []
+      for (const palette of listPalettes()) {
+        if (NO_ROOM_ON_THE_LIGHTNESS_AXIS.includes(palette.name)) {
+          continue
+        }
+        const output = adjustColorsForBackground([...palette.colors], bg)
+        const collapsed = collapsedPairs(palette.colors, output)
+        if (collapsed.length > 0) {
+          offenders.push(`${palette.name}: ${collapsed.join(', ')}`)
+        }
+      }
+      expect(offenders).toEqual([])
+    })
+
+    it(`keeps as many distinct colours as it was given on ${bg}`, () => {
+      const offenders: string[] = []
+      for (const palette of listPalettes()) {
+        const output = adjustColorsForBackground([...palette.colors], bg)
+        if (new Set(output).size !== new Set(palette.colors).size) {
+          offenders.push(`${palette.name}: ${palette.colors.join(',')} -> ${output.join(',')}`)
+        }
+      }
+      expect(offenders).toEqual([])
+    })
+
+    it(`keeps the greyscale palette as far apart as the lightness band allows on ${bg}`, () => {
+      const output = adjustColorsForBackground([...resolvePalette('Folklore')!], bg)
+      expect(new Set(output).size).toBe(4)
+      expect(minPairDeltaE(output)).toBeGreaterThanOrEqual(6)
+    })
+  }
+
+  it('separates Durorthod index 1 from index 3 on a light background', () => {
+    const output = adjustColorsForBackground([...resolvePalette('Durorthod')!], '#ffffff')
+    expect(chroma.deltaE(output[1], output[3])).toBeGreaterThanOrEqual(12)
   })
 })

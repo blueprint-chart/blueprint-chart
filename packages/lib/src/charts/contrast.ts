@@ -105,13 +105,16 @@ export function readableColor(color: string, bg: string = '#fff'): string {
 const MIN_ADJACENT_DELTA_E = 12
 const STEP = 0.25
 const MAX_STEPS = 20
+/** Hue rotation increment, in degrees, used once lightness steps are exhausted. */
+const HUE_STEP = 15
 
 /**
  * Adjusts an array of colors so that:
- * 1. Every color is readable against `bg` (WCAG contrast ratio >= 3).
- * 2. Adjacent colors are perceptually distinguishable (deltaE >= 12).
+ * 1. Every color is readable against `bg` (WCAG contrast ratio >= MIN_CONTRAST).
+ * 2. No color is perceptually close to any other (deltaE >= MIN_ADJACENT_DELTA_E).
  *
- * Only lightness is changed — hue and saturation are preserved.
+ * Lightness is changed first; hue rotates only when the lightness axis is
+ * exhausted, so a palette whose entries share a hue still comes out distinct.
  */
 export function adjustColorsForBackground(colors: string[], bg: string): string[] {
   if (colors.length === 0) {
@@ -132,12 +135,11 @@ export function adjustColorsForBackground(colors: string[], bg: string): string[
     return nudgeForBg(chroma(c), safeBg, bgLight)
   })
 
-  // Pass 2 – nudge adjacent colors apart when they are too similar
+  // Pass 2 – push each color away from every color already placed. Comparing
+  // only the immediate predecessor let pass 1 darken an entry onto a
+  // non-adjacent one and merge two distinct series into a single color.
   for (let i = 1; i < adjusted.length; i++) {
-    if (chroma.deltaE(adjusted[i], adjusted[i - 1]) >= MIN_ADJACENT_DELTA_E) {
-      continue
-    }
-    adjusted[i] = nudgeApart(adjusted[i], adjusted[i - 1], safeBg, bgLight)
+    adjusted[i] = separateFrom(adjusted[i], adjusted.slice(0, i), safeBg, bgLight)
   }
 
   return adjusted.map(c => c.hex())
@@ -154,47 +156,54 @@ function nudgeForBg(c: chroma.Color, bg: string, bgLight: boolean): chroma.Color
   return c
 }
 
+/** Smallest CIE2000 distance from `c` to any of the colors already placed. */
+function minDeltaE(c: chroma.Color, placed: chroma.Color[]): number {
+  return placed.reduce((min, p) => Math.min(min, chroma.deltaE(c, p)), Infinity)
+}
+
 /**
- * Push `c` away from `neighbor` by darkening or brightening.
- * Tries the primary direction first (darken on light bg, brighten on dark bg)
- * since that preserves background contrast. Falls back to the opposite
- * direction when the primary one doesn't achieve enough separation.
+ * Candidate replacements for `c`, cheapest first: lightness steps in the
+ * direction that preserves background contrast, then the opposite direction,
+ * then hue rotations for when lightness is exhausted — two entries of the same
+ * hue can be squeezed between a darker and a lighter neighbour with nowhere
+ * left to go on the lightness axis.
  */
-function nudgeApart(
+function* separationCandidates(c: chroma.Color, bgLight: boolean): Generator<chroma.Color> {
+  for (const darken of [bgLight, !bgLight]) {
+    let candidate = c
+    for (let i = 0; i < MAX_STEPS; i++) {
+      candidate = darken ? candidate.darken(STEP) : candidate.brighten(STEP)
+      yield candidate
+    }
+  }
+  for (let deg = HUE_STEP; deg <= 180; deg += HUE_STEP) {
+    yield c.set('hsl.h', `+${deg}`)
+    yield c.set('hsl.h', `-${deg}`)
+  }
+}
+
+/**
+ * Move `c` until it clears MIN_ADJACENT_DELTA_E against every color in
+ * `placed`, keeping the furthest candidate found when nothing clears it. `c`
+ * itself is the baseline, so the result is never closer than the input.
+ */
+function separateFrom(
   c: chroma.Color,
-  neighbor: chroma.Color,
+  placed: chroma.Color[],
   bg: string,
   bgLight: boolean,
 ): chroma.Color {
-  const primary = tryNudgeApart(c, neighbor, bg, bgLight)
-  if (chroma.deltaE(primary, neighbor) >= MIN_ADJACENT_DELTA_E) {
-    return primary
-  }
-
-  const opposite = tryNudgeApart(c, neighbor, bg, !bgLight)
-  if (
-    chroma.deltaE(opposite, neighbor) > chroma.deltaE(primary, neighbor)
-    && chroma.contrast(opposite, bg) >= MIN_CONTRAST
-  ) {
-    return opposite
-  }
-  return primary
-}
-
-function tryNudgeApart(
-  c: chroma.Color,
-  neighbor: chroma.Color,
-  bg: string,
-  darken: boolean,
-): chroma.Color {
   let best = c
-  let bestDist = chroma.deltaE(c, neighbor)
-  let candidate = c
-
-  for (let i = 0; i < MAX_STEPS; i++) {
-    candidate = darken ? candidate.darken(STEP) : candidate.brighten(STEP)
-    const dist = chroma.deltaE(candidate, neighbor)
-    if (dist > bestDist && chroma.contrast(candidate, bg) >= MIN_CONTRAST) {
+  let bestDist = minDeltaE(c, placed)
+  if (bestDist >= MIN_ADJACENT_DELTA_E) {
+    return c
+  }
+  for (const candidate of separationCandidates(c, bgLight)) {
+    if (!chroma.valid(candidate.hex()) || chroma.contrast(candidate, bg) < MIN_CONTRAST) {
+      continue
+    }
+    const dist = minDeltaE(candidate, placed)
+    if (dist > bestDist) {
       best = candidate
       bestDist = dist
     }
@@ -202,6 +211,5 @@ function tryNudgeApart(
       break
     }
   }
-
   return best
 }
