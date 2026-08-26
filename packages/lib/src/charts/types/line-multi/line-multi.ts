@@ -285,7 +285,11 @@ export function render(
         'd': lineGen(d.values) ?? '',
         'fill': 'none',
         'stroke': seriesColorFor(d),
-        'stroke-width': resolveSeriesWidth(d.name, overrides),
+        // `chart.scss` declares `.bc-line { stroke-width: var(--bc-line-stroke-width) }`,
+        // which outranks a presentation attribute, so the per-series width has to
+        // be inline. Inline also survives the bare-SVG export, which the custom
+        // property would not.
+        'style': `stroke-width:${resolveSeriesWidth(d.name, overrides)}`,
         'stroke-dasharray': DASH_MAP[resolveSeriesDash(d.name, overrides)] ?? '',
         'opacity': highlightOpacity(highlightTargets, d.name, 1),
       }

@@ -731,6 +731,21 @@ describe('line-multi chart', () => {
     expect(lineA?.getAttribute('stroke')).toBe('#123456')
   })
 
+  // chart.scss declares `.bc-line { stroke-width: var(--bc-line-stroke-width) }`,
+  // and a stylesheet declaration always beats a presentation attribute, so a
+  // `stroke-width` attribute is dead in the browser. Only an inline style
+  // outranks the stylesheet and still survives a bare-SVG export.
+  it('applies lineWidth via seriesOverrides where the stylesheet cannot outrank it', () => {
+    render(container, data, {
+      seriesOverrides: [{ name: 'Series A', lineWidth: 8 }],
+    })
+    const lines = container.querySelectorAll<SVGPathElement>('.bc-line')
+    const lineA = Array.from(lines).find(l => l.getAttribute('data-series') === '0')
+    const lineB = Array.from(lines).find(l => l.getAttribute('data-series') === '1')
+    expect(lineA?.style.strokeWidth).toBe('8')
+    expect(lineB?.style.strokeWidth).toBe('2')
+  })
+
   it('applies dash style via seriesOverrides', () => {
     render(container, data, {
       seriesOverrides: [{ name: 'Series A', dash: 'dashed' }],
