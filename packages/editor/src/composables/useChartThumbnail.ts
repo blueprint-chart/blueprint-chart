@@ -1,7 +1,6 @@
 import { useChartConfig } from './useChartConfig'
 import { useChartTypeOptions } from './useChartTypeOptions'
 import { useChartSession } from './useChartSession'
-import { useDataTable } from './useDataTable'
 import { useDslOutput } from './useDslOutput'
 import { ChartType, SortDirection, parseData, renderBpc, renderChart } from '@blueprint-chart/lib'
 import type { ChartData, ChartTypeOptions, SeriesOverride } from '@blueprint-chart/lib'
@@ -336,7 +335,7 @@ export function generateThumbnail() {
     return
   }
 
-  const data = parseData(useDataTable().serializeTransformed() ?? config.data.value)
+  const data = parseData(config.data.value)
   const singleSeriesTypes: string[] = [ChartType.BarVertical, ChartType.BarHorizontal, ChartType.Line, ChartType.VerticalBar, ChartType.HorizontalBar]
   if (data.series && data.series.length > 0 && singleSeriesTypes.includes(config.chartType.value)) {
     const match = data.series.find(s => s.name === config.selectedColumn.value)

@@ -38,7 +38,7 @@ function renderLiveEquivalent(container: HTMLElement, dsl: string): void {
   expect(result.success).toBe(true)
 
   const config = useChartConfig()
-  const { currentOptions } = useChartTypeOptions()
+  const { currentOptions, store: optionOverrides } = useChartTypeOptions()
 
   const data = parseData(config.data.value)
   // Mirror useChartPreview single-series collapse for legacy single-series chart types.
@@ -79,6 +79,11 @@ function renderLiveEquivalent(container: HTMLElement, dsl: string): void {
     frame: undefined,
     sort: config.sort.value,
     ...chartOpts,
+    // Mirrors useChartPreview + render-chart: an explicit override wins, the
+    // passthrough is the fallback. Without this line the harness compares two
+    // renders that are both blind to sortMode, which is how a bar-multi
+    // divergence stayed green.
+    sortMode: optionOverrides[config.chartType.value]?.sortMode ?? chartOpts.sortMode,
     colorizes: config.colorizes.value.length > 0 ? config.colorizes.value : undefined,
     highlights: config.highlights.value.length > 0 ? config.highlights.value : undefined,
     areaFills: config.areaFills.value.length > 0 ? config.areaFills.value : undefined,

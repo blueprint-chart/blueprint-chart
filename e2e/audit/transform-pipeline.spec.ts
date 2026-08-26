@@ -43,8 +43,11 @@ test.describe('transform sort reaches every chart type', () => {
 })
 
 test.describe('sortMode reaches the renderer', () => {
-  test('bar-grouped sorts categories by total', async ({ page }) => {
-    await gotoRender(page, `chart bar-grouped {
+  // column-stacked registers sortModeOpt, whose default is SortMode.None, so
+  // this fails unless the DSL property itself reaches the renderer. bar-grouped
+  // would pass either way: registry.ts:387 defaults it to total.
+  test('column-stacked sorts categories by total', async ({ page }) => {
+    await gotoRender(page, `chart column-stacked {
   sortMode = total
   data {
     series = "A","B"
@@ -54,6 +57,6 @@ test.describe('sortMode reaches the renderer', () => {
     "Delta" = 11,12
   }
 }`)
-    await expect.poll(() => categoryLabels(page, 'vertical')).toEqual(['Beta', 'Delta', 'Gamma', 'Alpha'])
+    await expect.poll(() => categoryLabels(page, 'horizontal')).toEqual(['Beta', 'Delta', 'Gamma', 'Alpha'])
   })
 })

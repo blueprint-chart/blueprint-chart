@@ -1,5 +1,7 @@
 import { parseData } from '@blueprint-chart/lib'
 import { useDataTable, serializeTableData } from './dataTable'
+import { TransformType } from '../enums'
+import { SortDirection } from '@blueprint-chart/lib'
 
 // BPC end-to-end tests temporarily excluded — useDslSync depends on
 // useChartTheme which has an incomplete barrel from a prior migration.
@@ -135,6 +137,33 @@ describe('useDataTable', () => {
     const result = serialize()
     expect(result).toBe('"Apples" = 42')
     expect(result).not.toContain('series')
+  })
+
+  it('serialize keeps the source rows a step would transform', () => {
+    const { loadParsed, serialize, serializeTransformed } = useDataTable()
+    loadParsed({
+      columns: ['Name', 'Value'],
+      rows: [['Apples', '42'], ['Bananas', '58']],
+      columnTypes: ['string', 'number'],
+    })
+    useDataTransforms().addStep(TransformType.Sort, { column: 'Value', direction: SortDirection.Descending })
+    expect(serialize()).toBe('"Apples" = 42\n"Bananas" = 58')
+    expect(serializeTransformed()).toBe('"Bananas" = 58\n"Apples" = 42')
+  })
+
+  it('serializeTransformed is null with no steps, so callers keep their own source string', () => {
+    const { loadParsed, serializeTransformed } = useDataTable()
+    loadParsed({
+      columns: ['Name', 'Value'],
+      rows: [['Slice A', '40']],
+      columnTypes: ['string', 'number'],
+    })
+    expect(serializeTransformed()).toBeNull()
+  })
+
+  it('serializeTransformed is null with no rows', () => {
+    useDataTransforms().addStep(TransformType.Sort, { column: 'Value' })
+    expect(useDataTable().serializeTransformed()).toBeNull()
   })
 })
 

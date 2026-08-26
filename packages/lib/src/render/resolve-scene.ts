@@ -237,7 +237,7 @@ export function resolveScene(
   // S2/S9: a scene's own `sortMode` overrides the base one, then any sort
   // transforms accumulated from scenes override both.
   const foldedSortMode = fold.properties.get('sortMode')
-  const sceneSortMode = (Object.values(SortMode) as unknown[]).includes(foldedSortMode)
+  const sceneSortMode = foldedSortMode === SortMode.Total || foldedSortMode === SortMode.WithinGroups || foldedSortMode === SortMode.None
     ? foldedSortMode as SortMode
     : undefined
   const sortMode = applyTransformsToSortMode(fold.transforms, sceneSortMode ?? base.sortMode, `scene ${sceneIndex}`)

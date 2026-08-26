@@ -87,15 +87,13 @@ export function renderChart(
     orch.beginCommit()
   }
 
-  // sortMode precedence, highest first: a `sort` transform (scene, then chart),
-  // an explicit `sortMode` property (scene, then chart), then whatever the
-  // option passthrough resolved. The first two are already folded into
-  // `state.sortMode`, so it wins here and never clobbers the passthrough with
-  // `undefined`.
   renderer(container, state.data, {
     frame,
-    ...chartOpts,
     sort: state.sort,
+    ...chartOpts,
+    // Resolved sortMode (a sort transform, else an explicit property, scene
+    // before chart) wins over the option passthrough, without clobbering it
+    // when nothing resolved.
     sortMode: state.sortMode ?? chartOpts.sortMode,
     colorizes: state.colorizes.length > 0 ? state.colorizes : undefined,
     highlights: state.highlights.length > 0 ? state.highlights : undefined,

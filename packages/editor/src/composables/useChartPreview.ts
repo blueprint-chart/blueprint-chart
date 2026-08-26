@@ -24,7 +24,7 @@ const RESIZE_THROTTLE_MS = 150
 
 export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
   const config = useChartConfig()
-  const { currentOptions } = useChartTypeOptions()
+  const { currentOptions, store: optionOverrides } = useChartTypeOptions()
   const { scenes, activeIndex, activeScene } = useScenes()
   const { columns, rows, columnTypes, serializeTransformed } = useDataTable()
   const { steps, applyStepList, applyTransforms } = useDataTransforms()
@@ -146,7 +146,11 @@ export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
       annotations,
       seriesOverrides,
       sort: resolveSortFromTransforms(scene) ?? config.sort.value,
-      sortMode: mergedOpts.sortMode,
+      // Explicit overrides only. `buildChartOptions` does not pass the registry
+      // default through either, so resolving it here would sort bar-multi and
+      // bar-grouped in the canvas while renderBpc of the same file leaves them
+      // in source order.
+      sortMode: scene?.chartTypeOptions?.sortMode ?? optionOverrides[chartType]?.sortMode,
       theme: chartTheme.value,
     }, {
       transition: isSceneTransition,
@@ -166,9 +170,10 @@ export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
   // Use JSON.stringify to create a stable trigger for deep objects.
   const layoutTrigger = computed(() => JSON.stringify(config.layout.value))
   const optionsTrigger = computed(() => JSON.stringify(currentOptions.value))
+  const stepsTrigger = computed(() => JSON.stringify(steps.value))
 
   watch(
-    [containerRef, config.chartType, config.title, config.data, config.sort, config.description, config.byline, config.note, config.source, config.sourceUrl, config.selectedColumn, config.colorizes, config.highlights, config.areaFills, config.annotations, config.seriesOverrides, steps, layoutTrigger, optionsTrigger, scenes, activeScene, theme, chartTheme],
+    [containerRef, config.chartType, config.title, config.data, config.sort, config.description, config.byline, config.note, config.source, config.sourceUrl, config.selectedColumn, config.colorizes, config.highlights, config.areaFills, config.annotations, config.seriesOverrides, stepsTrigger, layoutTrigger, optionsTrigger, scenes, activeScene, theme, chartTheme],
     render,
     // flush: 'post' ensures Vue has applied the container's style/class bindings
     // (aspect-ratio, flex-direction) before we read them via getComputedStyle.
