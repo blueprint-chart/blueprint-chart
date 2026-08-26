@@ -72,7 +72,7 @@ Every property `bar-multi` accepts, beside the [frame and layout keys](/referenc
 | `verticalNumberFormat` | numberFormat | (unset) |
 | `verticalScaleType` | select: `linear`, `log` | `linear` |
 | `verticalRangeMin` | text | `0` |
-| `verticalRangeMax` | text | `auto` |
+| `verticalRangeMax` | text | (unset) |
 | `showHorizontalAxis` | boolean | `true` |
 | `showHorizontalTicks` | boolean | `false` |
 | `horizontalLabelPosition` | select: `auto`, `inside`, `outside`, `off` | `auto` |

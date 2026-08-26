@@ -78,7 +78,7 @@ Every property `bar-stacked` accepts, beside the [frame and layout keys](/refere
 | `horizontalNumberFormat` | numberFormat | (unset) |
 | `horizontalScaleType` | select: `linear`, `log` | `linear` |
 | `horizontalRangeMin` | text | `0` |
-| `horizontalRangeMax` | text | `auto` |
+| `horizontalRangeMax` | text | (unset) |
 | `valueLabels` | boolean | `true` |
 | `valueLabelPosition` | select: `auto`, `outside`, `inside` | `auto` |
 | `tooltips` | boolean | `false` |

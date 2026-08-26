@@ -25,7 +25,7 @@ function formatType(def: ChartOptionDef): string {
 
 function formatDefault(def: ChartOptionDef): string {
   if (def.default === undefined) {
-    return def.placeholder ? `\`${def.placeholder}\`` : '(unset)'
+    return '(unset)'
   }
   return def.default === '' ? '`""`' : `\`${String(def.default)}\``
 }

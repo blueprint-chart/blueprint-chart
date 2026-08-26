@@ -72,16 +72,16 @@ Every property `line-multi` accepts, beside the [frame and layout keys](/referen
 | `verticalGridStyle` | select: `solid`, `dashed`, `dotted`, `none` | `dashed` |
 | `verticalNumberFormat` | numberFormat | (unset) |
 | `verticalScaleType` | select: `linear`, `log` | `linear` |
-| `verticalRangeMin` | text | `auto` |
-| `verticalRangeMax` | text | `auto` |
+| `verticalRangeMin` | text | (unset) |
+| `verticalRangeMax` | text | (unset) |
 | `showHorizontalAxis` | boolean | `true` |
 | `showHorizontalTicks` | boolean | `false` |
 | `horizontalLabelPosition` | select: `auto`, `inside`, `outside`, `off` | `auto` |
 | `horizontalLabelRotation` | select: `auto`, `horizontal`, `vertical` | `horizontal` |
 | `horizontalGridStyle` | select: `solid`, `dashed`, `dotted`, `none` | `none` |
 | `horizontalNumberFormat` | numberFormat | (unset) |
-| `horizontalRangeMin` | text | `auto` |
-| `horizontalRangeMax` | text | `auto` |
+| `horizontalRangeMin` | text | (unset) |
+| `horizontalRangeMax` | text | (unset) |
 | `valueLabels` | boolean | `false` |
 | `tooltips` | boolean | `false` |
 | `crosshair` | boolean | `true` |

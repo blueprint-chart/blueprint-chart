@@ -69,15 +69,15 @@ Every property `area` accepts, beside the [frame and layout keys](/reference/dsl
 | `verticalNumberFormat` | numberFormat | (unset) |
 | `verticalScaleType` | select: `linear`, `log` | `linear` |
 | `verticalRangeMin` | text | `0` |
-| `verticalRangeMax` | text | `auto` |
+| `verticalRangeMax` | text | (unset) |
 | `showHorizontalAxis` | boolean | `true` |
 | `showHorizontalTicks` | boolean | `false` |
 | `horizontalLabelPosition` | select: `auto`, `inside`, `outside`, `off` | `auto` |
 | `horizontalLabelRotation` | select: `auto`, `horizontal`, `vertical` | `horizontal` |
 | `horizontalGridStyle` | select: `solid`, `dashed`, `dotted`, `none` | `none` |
 | `horizontalNumberFormat` | numberFormat | (unset) |
-| `horizontalRangeMin` | text | `auto` |
-| `horizontalRangeMax` | text | `auto` |
+| `horizontalRangeMin` | text | (unset) |
+| `horizontalRangeMax` | text | (unset) |
 | `valueLabels` | boolean | `false` |
 | `tooltips` | boolean | `false` |
 | `crosshair` | boolean | `true` |
