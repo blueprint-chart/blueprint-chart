@@ -4,6 +4,7 @@ import type { AxisOptions, ChartData, ChartOptions } from '../../types'
 import { createFrame } from '../../frame/frame'
 import { createCanvas, contentSize, labelPositionMargins, estimateCategoryLabelWidth, computeMarginDelta } from '../../canvas/canvas'
 import { AxisService } from '../../axis/axis-service'
+import { renderHorizontalAxis } from '../../axis/horizontal-axis'
 import { renderLegend } from '../../legend/legend'
 import { estimateLegendSize } from '../../legend/legend-size'
 import { contrastTextColor, resolveBackgroundColor } from '../../contrast'
@@ -234,6 +235,18 @@ export function render(
 
   const sharedScale = options.sharedScale === true
   const panels = computePanels(series, allSeries, width, sharedScale, options.horizontalAxis)
+
+  // Value axis — one per panel, since each panel has its own value scale. The
+  // per-type registry defaults (axis off, grid none, labels off) come through
+  // `options.horizontalAxis`, so a chart that asks for none of them gets an
+  // empty axis group, as it did before there was an axis at all.
+  const axisGroup = d3.select(chartArea).append('g').attr('class', 'bc-split-axes')
+  for (const panel of panels) {
+    const panelArea = axisGroup.append('g')
+      .attr('transform', `translate(${panel.xOffset},0)`)
+      .node()!
+    renderHorizontalAxis(panelArea, panel.xScale, height, { ...options.horizontalAxis, width: panel.panelWidth })
+  }
 
   // Clip group for bars — stable id per (container, key) so re-renders
   // re-use the same <clipPath> instead of accumulating new ones.
