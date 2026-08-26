@@ -563,30 +563,11 @@ describe('sizes with a natural floor', () => {
   })
 })
 
-describe('colors values', () => {
-  it('rejects an entry chroma cannot parse', () => {
-    const result = validateChart(chart({
-      chartType: ChartType.Pie,
-      properties: [prop('colors', 'notacolor,#2a9d8f')],
-    }))
-    const issue = result.errors.find(e => e.code === 'invalid-color')
-    expect(issue).toBeDefined()
-    expect(issue?.message).toContain('notacolor')
-  })
-
-  it('rejects a malformed hex', () => {
-    const result = validateChart(chart({
-      chartType: ChartType.Pie,
-      properties: [prop('colors', '#12345')],
-    }))
-    expect(result.errors.some(e => e.code === 'invalid-color')).toBe(true)
-  })
-
-  it('accepts a list of parseable colors', () => {
-    const result = validateChart(chart({
-      chartType: ChartType.Pie,
-      properties: [prop('colors', '#2a9d8f, red, #fff')],
-    }))
-    expect(result.errors).toEqual([])
+describe('an empty frame-choice value means unset', () => {
+  it('accepts theme, player and playerPosition set to an empty string', () => {
+    for (const key of ['theme', 'player', 'playerPosition']) {
+      const result = validateChart(chart({ properties: [prop(key, '')] }))
+      expect(result.errors, key).toEqual([])
+    }
   })
 })

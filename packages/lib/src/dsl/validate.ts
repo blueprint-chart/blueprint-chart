@@ -1,10 +1,9 @@
-import chroma from 'chroma-js'
 import type { ChartNode, SceneNode, PropertyNode, AnnotationNode, TransformNode } from './types'
 import type { ChartOptionDef } from '../charts/types'
 import { getChartOptions, listCharts } from '../charts/registry'
 import { listThemes } from '../charts/themes'
 import { ChartOptionType, AnnotationKind, ANNOTATION_KIND_KEYWORD } from '../enums'
-import { extractChartTypeOptions, propertyMap } from './converter'
+import { propertyMap } from './converter'
 
 /**
  * A single validation finding. `code` is a stable machine-readable identifier,
@@ -33,9 +32,8 @@ export interface ValidationResult {
  *     source, sourceUrl, padding, transparentBackground
  *   - chart-level render fields (ast-to-definition): type, sort, sortMode, theme
  *   - layout-constraints: heightMode, aspectRatio, fixedHeight
- *   - editor layout/player fields (useDslOutput :79, :82, :85, :103, :106,
- *     read back by useDslSync :44-98): sizing, fixedWidth, maxWidth, player,
- *     playerPosition
+ *   - editor layout/player fields (written by useDslOutput, read back by
+ *     useDslSync): sizing, fixedWidth, maxWidth, player, playerPosition
  */
 const FRAME_KEYS = new Set<string>([
   'title',
@@ -62,9 +60,9 @@ const FRAME_KEYS = new Set<string>([
 
 /**
  * Frame keys that only accept a fixed set of values. Theme names come from the
- * theme registry (a name with no stylesheet renders unstyled); the player values
- * are the ones the editor reads back (stores/chartConfig.ts:87-88,
- * useDslSync.ts:88 and :95), and anything else is silently dropped there.
+ * theme registry: a name with no stylesheet renders unstyled. The player values
+ * are the ones the editor's ChartLayout accepts and useDslSync reads back;
+ * anything else is silently dropped there.
  */
 const FRAME_CHOICES = new Map<string, string[]>([
   ['theme', listThemes().map(t => t.name)],
@@ -74,9 +72,8 @@ const FRAME_CHOICES = new Map<string, string[]>([
 
 /**
  * Keys whose value is a length in pixels. A negative one never means what it
- * says: an SVG radius is rejected outright and the symbol disappears
- * (charts/line-symbols.ts), and `height: -400px` is invalid CSS that the
- * browser drops (render/layout-constraints.ts:65-66).
+ * says: renderLineSymbols falls back to the default radius, and
+ * applyLayoutConstraints emits a `height: -400px` the browser drops.
  */
 const NON_NEGATIVE_KEYS = new Set<string>([
   'lineSymbolSize',
@@ -220,35 +217,10 @@ function validateNonNegative(prop: PropertyNode, path: string, errors: Validatio
 }
 
 /**
- * Reject colour entries chroma cannot parse: they render black, or throw out of
- * the whole chart when the list is shorter than the data and gets interpolated.
- * Split through the converter so the entries checked are the ones the renderer
- * will actually receive.
- */
-function validateColors(
-  chartType: string,
-  prop: PropertyNode,
-  path: string,
-  errors: ValidationIssue[],
-): void {
-  const entries = extractChartTypeOptions(chartType, [prop])[prop.key] as string[] | undefined
-  for (const entry of entries ?? []) {
-    if (!chroma.valid(entry)) {
-      errors.push({
-        code: 'invalid-color',
-        path,
-        message: `${prop.key} contains "${entry}", which is not a color.`,
-      })
-    }
-  }
-}
-
-/**
  * Validate a single property against a chart-type option def: boolean values
  * and choice membership. Pushes onto `errors`.
  */
 function validateOptionValue(
-  chartType: string,
   def: ChartOptionDef,
   prop: PropertyNode,
   path: string,
@@ -256,11 +228,6 @@ function validateOptionValue(
 ): void {
   const raw = prop.value
   const str = String(raw).toLowerCase()
-
-  if (def.type === ChartOptionType.Colors) {
-    validateColors(chartType, prop, path, errors)
-    return
-  }
 
   if (def.type === ChartOptionType.Boolean) {
     // Preserve the converter's special case: valueLabels also accepts percent.
@@ -311,7 +278,9 @@ function validateProperties(
     const path = `${basePath}.${prop.key}`
     validateNonNegative(prop, path, errors)
     const frameChoices = FRAME_CHOICES.get(prop.key)
-    if (frameChoices && !frameChoices.includes(String(prop.value))) {
+    // An empty value means "unset" here too: the frame drops an empty theme and
+    // the editor ignores an empty player, exactly as if the key were absent.
+    if (frameChoices && String(prop.value) !== '' && !frameChoices.includes(String(prop.value))) {
       pushInvalidChoice(prop.key, prop.value, frameChoices, path, errors)
     }
     if (FRAME_KEYS.has(prop.key)) {
@@ -327,7 +296,7 @@ function validateProperties(
       })
       continue
     }
-    validateOptionValue(chartType, def, prop, path, errors)
+    validateOptionValue(def, prop, path, errors)
   }
 }
 
