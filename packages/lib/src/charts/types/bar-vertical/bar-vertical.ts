@@ -446,6 +446,7 @@ export function render(
     }
 
     if (options.valueLabels) {
+      const vFmt = buildNumberFormatter(options.verticalAxis?.numberFormat ?? '')
       renderValueLabels(unclippedGroup, barData, x, y, {
         position: options.valueLabelPosition,
         colorOverrides,
@@ -454,6 +455,7 @@ export function render(
         swapLabelValue,
         percent: options.valueLabels === 'percent',
         total: d3.sum(barData, d => d.value),
+        formatValue: v => vFmt ? vFmt(v) : String(v),
       })
     }
   }
@@ -530,6 +532,7 @@ function renderValueLabels(
     swapLabelValue?: boolean
     percent?: boolean
     total?: number
+    formatValue: (value: number) => string
   },
 ): void {
   const pos = opts.position ?? ValueLabelPosition.Auto
@@ -538,7 +541,7 @@ function renderValueLabels(
       ? d.label
       : opts.percent && opts.total !== undefined
         ? percentValueLabel(d.value, opts.total)
-        : String(d.value)
+        : opts.formatValue(d.value)
 
   let labelGroup = parent.select<SVGGElement>('.bc-value-label-group')
   if (labelGroup.empty()) {

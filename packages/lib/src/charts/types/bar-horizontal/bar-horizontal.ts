@@ -106,6 +106,8 @@ export function render(
   // Reserve extra margin for outside value labels
   const valueLabelPos = options.valueLabelPosition ?? ValueLabelPosition.Auto
   const swapLabelValue = options.swapLabelValue === true
+  const hFmt = buildNumberFormatter(options.horizontalAxis?.numberFormat ?? '')
+  const formatValue = (v: number) => hFmt ? hFmt(v) : String(v)
   if (options.valueLabels && valueLabelPos !== ValueLabelPosition.Inside) {
     if (swapLabelValue) {
       // Labels show category names — estimate width from the longest label
@@ -117,8 +119,8 @@ export function render(
       const plottable = data.values.filter(v => Number.isFinite(v))
       const maxVal = Math.max(...plottable)
       const minVal = Math.min(...plottable)
-      const rightLabelW = maxVal > 0 ? estimateValueLabelWidth(String(maxVal)) + VALUE_LABEL_GAP : 0
-      const leftLabelW = minVal < 0 ? estimateValueLabelWidth(String(minVal)) + VALUE_LABEL_GAP : 0
+      const rightLabelW = maxVal > 0 ? estimateValueLabelWidth(formatValue(maxVal)) + VALUE_LABEL_GAP : 0
+      const leftLabelW = minVal < 0 ? estimateValueLabelWidth(formatValue(minVal)) + VALUE_LABEL_GAP : 0
       lpMargins.right = Math.max(lpMargins.right ?? 15, rightLabelW)
       if (leftLabelW > 0) {
         lpMargins.left = (lpMargins.left ?? 50) + leftLabelW
@@ -381,8 +383,6 @@ export function render(
 
     if (options.valueLabels) {
       const pos = valueLabelPos
-      const hFmt = buildNumberFormatter(options.horizontalAxis?.numberFormat ?? '')
-      const formatValue = (v: number) => hFmt ? hFmt(v) : String(v)
       const labelParent = d3.select(chartArea).append('g') as d3.Selection<SVGGElement, unknown, null, undefined>
       labelParent.selectAll<Element, WaterfallDatum>('.bc-value-label')
         .data(waterfallData, d => d.label)
@@ -486,6 +486,7 @@ export function render(
         categoryLabelOffset,
         percent: options.valueLabels === 'percent',
         total: d3.sum(barData, d => d.value),
+        formatValue,
       })
     }
   }
@@ -565,6 +566,7 @@ function renderValueLabels(
     categoryLabelOffset?: number
     percent?: boolean
     total?: number
+    formatValue: (value: number) => string
   },
 ): void {
   const pos = opts.position ?? ValueLabelPosition.Auto
@@ -574,7 +576,7 @@ function renderValueLabels(
       ? d.label
       : opts.percent && opts.total !== undefined
         ? percentValueLabel(d.value, opts.total)
-        : String(d.value)
+        : opts.formatValue(d.value)
 
   // Create a dedicated group for value labels so they sit above bars
   let labelGroup = parent.select<SVGGElement>('.bc-value-label-group')
