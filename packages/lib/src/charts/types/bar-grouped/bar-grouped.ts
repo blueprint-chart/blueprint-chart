@@ -6,7 +6,8 @@ import { createCanvas, contentSize, labelPositionMargins, estimateCategoryLabelW
 import { AxisService } from '../../axis/axis-service'
 import { renderLegend } from '../../legend/legend'
 import { estimateLegendSize } from '../../legend/legend-size'
-import { contrastTextColor } from '../../contrast'
+import { contrastTextColor, resolveBackgroundColor } from '../../contrast'
+import { createAnnotationPlugin, snapshotAnnotations, type AnnotationSnapshot } from '../../plugins/annotations'
 import { expandColorsToSeries, seriesOrImplicit, resolveSeriesColor, isSeriesHidden, resolveSeriesValueLabels, resolveSeriesOpacity } from '../../series-helpers'
 import { setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut } from '../../motion'
 import { setCachedChart, getCachedChart } from '../../transition-cache'
@@ -46,6 +47,7 @@ export function render(
   let fadeOverlay: HTMLElement | null = null
   let priorMargin: { top: number, left: number, right: number, bottom: number } | undefined
   let priorPlotRect: PlotRect | undefined
+  let priorAnnotations: Map<string, AnnotationSnapshot> | undefined
   const axes = AxisService.for(container)
 
   if (transition) {
@@ -58,6 +60,12 @@ export function render(
     }
     else if (cached) {
       fadeOverlay = snapshotForFadeOut(container)
+    }
+    priorAnnotations = new Map()
+    for (const el of container.querySelectorAll('.bc-frame .bc-annotations, .bc-frame .bc-annotations-range')) {
+      for (const [k, v] of snapshotAnnotations(el)) {
+        priorAnnotations.set(k, v)
+      }
     }
     container.replaceChildren()
   }
@@ -285,6 +293,16 @@ export function render(
     chart.use(createCrosshairPlugin({
       width, height, direction: options.crosshairDirection, style: options.crosshairStyle, color: options.crosshairColor, orientation: Orientation.Horizontal,
     }))
+  }
+
+  if (options.annotations?.length) {
+    // A grouped category is a set of bars, so an annotation targets the group's
+    // longest one — the same anchor bar-multi uses for its columns.
+    const annotationData = data.labels.map((l, i) => ({
+      label: l,
+      value: Math.max(0, ...series.map(s => s.values[i] ?? 0)),
+    }))
+    chart.use(createAnnotationPlugin(options.annotations, { scaleX: y0, scaleY: x, data: annotationData, width, height, backgroundColor: resolveBackgroundColor(container), orientation: Orientation.Horizontal, transition, priorAnnotations }))
   }
 
   const drawPlugins = () => chart.draw(flatData)
