@@ -1,6 +1,5 @@
 import * as d3 from 'd3'
 import 'd3-transition'
-import chroma from 'chroma-js'
 import { D3Blueprint } from 'd3-blueprint'
 import type { ChartData, ChartOptions } from '../../types'
 import { setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut } from '../../motion'
@@ -16,6 +15,7 @@ import { resolveBackgroundColor } from '../../contrast'
 import { renderArcLabels, renderInsideArcLabels, renderAutoArcLabels, estimateArcLabelMargins } from '../../plugins/arc-labels'
 import type { ArcLabelDatum } from '../../plugins/arc-labels'
 import { featureJoin, getSceneTransition } from '../../../transitions'
+import { expandColorsToSeries } from '../../series-helpers'
 import { highlightTargetSet, highlightOpacity } from '../../plugins/highlight'
 import { buildColorOverrides } from '../../plugins/colorize'
 
@@ -103,15 +103,8 @@ export function renderArc(
 
   // When the supplied palette has fewer entries than slices, d3.scaleOrdinal
   // recycles colors and two distinct categories end up identical (e.g. the 4-color
-  // Heep palette over 6 browsers paints Chrome and Opera the same blue). Interpolate
-  // through chroma so every slice gets a distinct color.
-  const rawColors = options.colors ?? DEFAULT_COLORS
-  // chroma.scale throws on an entry it cannot parse, which would take the whole
-  // render down, so a bad colour degrades to its default instead.
-  const scaleColors = rawColors.map((c, i) => chroma.valid(c) ? c : DEFAULT_COLORS[i % DEFAULT_COLORS.length])
-  const colors = rawColors.length < labels.length && rawColors.length >= 2
-    ? chroma.scale(scaleColors).mode('lch').colors(labels.length)
-    : rawColors
+  // Heep palette over 6 browsers paints Chrome and Opera the same blue).
+  const colors = expandColorsToSeries(options.colors ?? DEFAULT_COLORS, labels.length)
   const dlMode = typeof options.directLabelling === 'string'
     ? options.directLabelling
     : (options.directLabelling ? DirectLabelMode.Auto : DirectLabelMode.Off)

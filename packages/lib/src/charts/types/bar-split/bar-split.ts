@@ -7,7 +7,7 @@ import { AxisService } from '../../axis/axis-service'
 import { renderLegend } from '../../legend/legend'
 import { estimateLegendSize } from '../../legend/legend-size'
 import { contrastTextColor } from '../../contrast'
-import { resolveSeriesColor, isSeriesHidden, resolveSeriesValueLabels, resolveSeriesOpacity } from '../../series-helpers'
+import { expandColorsToSeries, resolveSeriesColor, isSeriesHidden, resolveSeriesValueLabels, resolveSeriesOpacity } from '../../series-helpers'
 import { setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut } from '../../motion'
 import { setCachedChart, getCachedChart } from '../../transition-cache'
 import { createTooltipPlugin } from '../../plugins/tooltip'
@@ -140,7 +140,7 @@ export function render(
   const allSeries = data.series ?? []
   const series = allSeries.filter(s => !isSeriesHidden(s.name, options.seriesOverrides))
   const seriesNames = series.map(s => s.name)
-  const colors = options.colors ?? DEFAULT_COLORS
+  const colors = expandColorsToSeries(options.colors ?? DEFAULT_COLORS, allSeries.length)
   const overrides = options.seriesOverrides
 
   const showLegend = options.legend !== false

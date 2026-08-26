@@ -11,7 +11,7 @@ import { createAnnotationPlugin, snapshotAnnotations, type AnnotationSnapshot } 
 import { createTooltipPlugin } from '../../plugins/tooltip'
 import { createCrosshairPlugin } from '../../plugins/crosshair'
 import { resolveBackgroundColor } from '../../contrast'
-import { resolveSeriesColor, isSeriesHidden, resolveSeriesValueLabels, resolveSeriesOpacity } from '../../series-helpers'
+import { expandColorsToSeries, resolveSeriesColor, isSeriesHidden, resolveSeriesValueLabels, resolveSeriesOpacity } from '../../series-helpers'
 import { setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut } from '../../motion'
 import { setCachedChart, getCachedChart } from '../../transition-cache'
 import { computeStack, computeStack100 } from '../../stack-helpers'
@@ -102,7 +102,7 @@ export function render(
   const allSeries = data.series ?? []
   const series = allSeries.filter(s => !isSeriesHidden(s.name, options.seriesOverrides))
   const seriesNames = series.map(s => s.name)
-  const colors = options.colors ?? DEFAULT_COLORS
+  const colors = expandColorsToSeries(options.colors ?? DEFAULT_COLORS, allSeries.length)
   const overrides = options.seriesOverrides
 
   // Compute margin adjustments for legend

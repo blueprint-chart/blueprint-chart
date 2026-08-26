@@ -1,4 +1,12 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
+import { listPalettes, resolvePalette } from './palettes'
+import * as lineMulti from './types/line-multi/line-multi'
+import * as barMulti from './types/bar-multi/bar-multi'
+import * as columnStacked from './types/column-stacked/column-stacked'
+import * as barStacked from './types/bar-stacked/bar-stacked'
+import * as areaStacked from './types/area-stacked/area-stacked'
+import * as barGrouped from './types/bar-grouped/bar-grouped'
+import * as barSplit from './types/bar-split/bar-split'
 import { resolveSeriesColor, resolveSeriesDash, resolveSeriesWidth, resolveSeriesInterpolation, isSeriesHidden, resolveSeriesLabelMode, resolveSeriesValueLabels, resolveSeriesOpacity, resolveSeriesLineSymbols } from './series-helpers'
 
 describe('series-helpers', () => {
@@ -132,4 +140,70 @@ describe('series-helpers', () => {
       expect(result).toBeUndefined()
     })
   })
+})
+
+describe('a chart with more series than the palette has colours (#60)', () => {
+  const SERIES_COUNT = 12
+  const labels = ['Q1', 'Q2']
+  const data = {
+    labels,
+    values: [0, 0],
+    series: Array.from({ length: SERIES_COUNT }, (_, i) => ({
+      name: `S${i + 1}`,
+      values: [10 + i, 20 + i],
+    })),
+  }
+
+  const renderers: Array<[string, (c: HTMLElement, o: object) => void, string, string]> = [
+    ['line-multi', (c, o) => lineMulti.render(c, data, o), '.bc-line', 'stroke'],
+    ['bar-multi', (c, o) => barMulti.render(c, data, o), '.bc-bar-multi', 'fill'],
+    ['column-stacked', (c, o) => columnStacked.render(c, data, o), '.bc-bar-stacked', 'fill'],
+    ['bar-stacked', (c, o) => barStacked.render(c, data, o), '.bc-bar-stacked', 'fill'],
+    ['area-stacked', (c, o) => areaStacked.render(c, data, o), '.bc-area', 'fill'],
+    ['bar-grouped', (c, o) => barGrouped.render(c, data, o), '.bc-bar', 'fill'],
+    ['bar-split', (c, o) => barSplit.render(c, data, o), '.bc-bar-split', 'fill'],
+  ]
+
+  function markColors(container: HTMLElement, selector: string, attr: string): string[] {
+    return Array.from(container.querySelectorAll(selector), el => el.getAttribute(attr) ?? '')
+  }
+
+  function withContainer<T>(fn: (c: HTMLElement) => T): T {
+    vi.useFakeTimers()
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    try {
+      return fn(container)
+    }
+    finally {
+      vi.useRealTimers()
+      container.remove()
+    }
+  }
+
+  it(`gives every one of the ${SERIES_COUNT} series a distinct colour, for all shipped palettes`, () => {
+    const offenders: string[] = []
+    for (const palette of listPalettes()) {
+      const colors = withContainer((c) => {
+        lineMulti.render(c, data, { colors: [...palette.colors] })
+        return markColors(c, '.bc-line', 'stroke')
+      })
+      expect(colors).toHaveLength(SERIES_COUNT)
+      if (new Set(colors).size !== SERIES_COUNT) {
+        offenders.push(`${palette.name} (${palette.colors.length} colours): ${new Set(colors).size} distinct`)
+      }
+    }
+    expect(offenders).toEqual([])
+  })
+
+  for (const [name, run, selector, attr] of renderers) {
+    it(`${name} paints no two series the same colour`, () => {
+      const colors = withContainer((c) => {
+        run(c, { colors: [...resolvePalette('Klimt')!] })
+        return markColors(c, selector, attr)
+      })
+      expect(colors.length).toBeGreaterThanOrEqual(SERIES_COUNT)
+      expect(new Set(colors).size).toBe(SERIES_COUNT)
+    })
+  }
 })

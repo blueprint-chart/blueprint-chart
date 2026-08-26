@@ -12,7 +12,7 @@ import { createAnnotationPlugin, snapshotAnnotations, type AnnotationSnapshot } 
 import { createTooltipPlugin } from '../../plugins/tooltip'
 import { createCrosshairPlugin } from '../../plugins/crosshair'
 import { contrastTextColor, readableColor, resolveBackgroundColor } from '../../contrast'
-import { resolveSeriesColor, isSeriesHidden, resolveSeriesValueLabels, resolveSeriesOpacity, resolveSeriesLabelMode } from '../../series-helpers'
+import { expandColorsToSeries, resolveSeriesColor, isSeriesHidden, resolveSeriesValueLabels, resolveSeriesOpacity, resolveSeriesLabelMode } from '../../series-helpers'
 import { setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut } from '../../motion'
 import { setCachedChart, getCachedChart } from '../../transition-cache'
 import { ensureClipPath } from '../../clip-path-helper'
@@ -75,7 +75,7 @@ export function render(
   const allSeries = data.series ?? []
   const series = allSeries.filter(s => !isSeriesHidden(s.name, options.seriesOverrides))
   const seriesNames = series.map(s => s.name)
-  const colors = options.colors ?? DEFAULT_COLORS
+  const colors = expandColorsToSeries(options.colors ?? DEFAULT_COLORS, allSeries.length)
   const overrides = options.seriesOverrides
 
   // Determine global label mode early so margin calculations account for direct labels

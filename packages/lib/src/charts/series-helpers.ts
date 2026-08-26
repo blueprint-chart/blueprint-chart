@@ -1,4 +1,25 @@
+import chroma from 'chroma-js'
 import type { SeriesOverride } from './types'
+
+/**
+ * Extend `colors` so it covers `count` series. `resolveSeriesColor` indexes
+ * modulo the palette length, so a chart with more series than the palette has
+ * colours paints two of them identically in both the plot and the legend;
+ * interpolating through LCH gives every series its own colour, the way the arc
+ * renderer already does for slices. Entries chroma cannot parse are dropped
+ * rather than fed to `chroma.scale`, which throws on them and would take the
+ * whole render down.
+ */
+export function expandColorsToSeries(colors: string[], count: number): string[] {
+  if (count <= colors.length) {
+    return colors
+  }
+  const usable = colors.filter(c => chroma.valid(c))
+  if (usable.length < 2) {
+    return colors
+  }
+  return chroma.scale(usable).mode('lch').colors(count)
+}
 
 function findOverride(name: string, overrides?: SeriesOverride[]): SeriesOverride | undefined {
   return overrides?.find(o => o.name === name)

@@ -17,7 +17,7 @@ import { setCachedChart, getCachedChart } from '../../transition-cache'
 import { featureJoin, getSceneTransition, tweenPlotFrame, type PlotRect } from '../../../transitions'
 import { computeStack, computeStack100 } from '../../stack-helpers'
 import { filterLabelsByRange } from '../../scale-helpers'
-import { resolveSeriesColor, resolveSeriesInterpolation, isSeriesHidden, resolveSeriesLabelMode } from '../../series-helpers'
+import { expandColorsToSeries, resolveSeriesColor, resolveSeriesInterpolation, isSeriesHidden, resolveSeriesLabelMode } from '../../series-helpers'
 import { spreadLabels } from '../../plugins/arc-labels'
 import { StackMode, SortDirection } from '../../../enums'
 import { highlightTargetSet, highlightOpacity } from '../../plugins/highlight'
@@ -87,7 +87,7 @@ export function render(
   const allSeries = data.series ?? []
   const series = allSeries.filter(s => !isSeriesHidden(s.name, options.seriesOverrides))
 
-  const colors = options.colors ?? DEFAULT_COLORS
+  const colors = expandColorsToSeries(options.colors ?? DEFAULT_COLORS, allSeries.length)
   const seriesNames = series.map(s => s.name)
   const overrides = options.seriesOverrides
   const colorOverrides = buildColorOverrides(options.colorizes)

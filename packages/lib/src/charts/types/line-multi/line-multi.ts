@@ -17,7 +17,7 @@ import { renderLineSymbols } from '../../line-symbols'
 import { setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut } from '../../motion'
 import { setCachedChart, getCachedChart } from '../../transition-cache'
 import { featureJoin, getSceneTransition, tweenPlotFrame, type PlotRect } from '../../../transitions'
-import { resolveSeriesColor, resolveSeriesDash, resolveSeriesWidth, resolveSeriesInterpolation, isSeriesHidden, resolveSeriesLabelMode, resolveSeriesValueLabels, resolveSeriesLineSymbols } from '../../series-helpers'
+import { expandColorsToSeries, resolveSeriesColor, resolveSeriesDash, resolveSeriesWidth, resolveSeriesInterpolation, isSeriesHidden, resolveSeriesLabelMode, resolveSeriesValueLabels, resolveSeriesLineSymbols } from '../../series-helpers'
 import { highlightTargetSet, highlightOpacity } from '../../plugins/highlight'
 import { buildColorOverrides } from '../../plugins/colorize'
 import type { LineSymbolConfig } from '../../types'
@@ -98,7 +98,7 @@ export function render(
     })
   }
 
-  const colors = options.colors ?? DEFAULT_COLORS
+  const colors = expandColorsToSeries(options.colors ?? DEFAULT_COLORS, allSeries.length)
   const seriesNames = series.map(s => s.name)
   const colorOverrides = buildColorOverrides(options.colorizes)
 
