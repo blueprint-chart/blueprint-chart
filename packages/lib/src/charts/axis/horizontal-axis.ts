@@ -6,7 +6,7 @@ import { detectDates, type DateGranularity } from '../date-parse'
 import { getDefaultTransitionMs } from '../motion'
 import { buildNumberFormatter } from '../format-helpers'
 import { logTickValues } from '../scale-helpers'
-import { measureMaxTextWidth } from '../text-measure'
+import { measureMaxTextWidth, measureTextWidth } from '../text-measure'
 
 interface AxisDatum {
   placeholder: true
@@ -643,6 +643,10 @@ export class HorizontalAxisChart extends D3Blueprint<AxisDatum[]> {
       // Ensure a previously-rotated axis resets cleanly on rerender.
       target.selectAll('.tick text')
         .attr('transform', null)
+
+      if (effective !== 'off') {
+        clampEdgeLabels(target, availableWidth)
+      }
     }
 
     if (wrapLinesByText && effective !== 'off') {
@@ -662,6 +666,36 @@ export class HorizontalAxisChart extends D3Blueprint<AxisDatum[]> {
       applyGridLines(g, gridStyle, height)
     }
   }
+}
+
+/**
+ * A tick sitting at either end of the plot is centred on its own position, so
+ * half its label hangs outside. At a narrow width the left margin is only a
+ * couple of pixels, so that half is simply chopped off. Anchoring the end
+ * labels inward keeps them whole.
+ */
+function clampEdgeLabels(
+  target: d3.Selection<d3.BaseType, unknown, null, undefined>,
+  availableWidth: number,
+): void {
+  if (!(availableWidth > 0)) {
+    return
+  }
+  target.selectAll<SVGTextElement, unknown>('.tick text').each((_d, i, nodes) => {
+    const text = nodes[i]
+    const tick = text.parentElement as SVGGElement | null
+    const x = Number(/translate\(([-\d.]+)/.exec(tick?.getAttribute('transform') ?? '')?.[1] ?? 'NaN')
+    if (!Number.isFinite(x)) {
+      return
+    }
+    const half = measureTextWidth(text.textContent ?? '', TICK_LABEL_FONT_PX) / 2
+    if (x - half < 0) {
+      d3.select(text).attr('text-anchor', 'start')
+    }
+    else if (x + half > availableWidth) {
+      d3.select(text).attr('text-anchor', 'end')
+    }
+  })
 }
 
 function applyGridLines(g: SVGGElement, style: string, height: number): void {

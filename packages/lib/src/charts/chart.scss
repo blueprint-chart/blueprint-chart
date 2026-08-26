@@ -428,6 +428,16 @@
   // Do NOT set fill in CSS — it would break contrast-based readability.
 }
 
+// An axis label moved inside the plot sits directly on the marks. Painting the
+// stroke first gives it a background the colour of the frame, so it stays
+// readable over a filled band instead of running at about 2:1 contrast.
+.bc-axis-label-inside {
+  paint-order: stroke;
+  stroke: var(--bc-frame-bg, #fff);
+  stroke-width: 3px;
+  stroke-linejoin: round;
+}
+
 // Text painted over a mark is decorative, and it sits exactly where a user
 // aims to hover. Without this it swallows mouseenter and the mark below it
 // gets no tooltip and no crosshair.

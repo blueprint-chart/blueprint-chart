@@ -55,6 +55,15 @@ export const CHART_CSS = `
    height with overflow: hidden; without these rules the frame renders at its
    natural height and is guillotined. Mirrors chart.scss — keep the two in
    sync. */
+/* An axis label moved inside the plot sits directly on the marks; painting the
+   stroke first keeps it readable over a filled band. */
+.bc-axis-label-inside {
+  paint-order: stroke;
+  stroke: var(--bc-frame-bg, #fff);
+  stroke-width: 3px;
+  stroke-linejoin: round;
+}
+
 .bc-frame--constrained {
   flex: 1;
   position: relative;

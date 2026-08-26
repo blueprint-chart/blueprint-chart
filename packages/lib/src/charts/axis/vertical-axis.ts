@@ -115,6 +115,8 @@ export class VerticalAxisChart extends D3Blueprint<AxisDatum[]> {
               const tickTextSel: any = ms > 0
                 ? sel.selectAll('.tick text')
                 : d3.select(axisNode).selectAll('.tick text')
+              // tickTextSel may be a transition, which has no .classed().
+              d3.select(axisNode).selectAll('.tick text').classed('bc-axis-label-inside', true)
               if (direction === AxisDirection.Right) {
                 tickTextSel
                   .attr('x', -padding)
@@ -197,6 +199,7 @@ export class VerticalAxisChart extends D3Blueprint<AxisDatum[]> {
             // Inside labels: position inside the chart area, just above the grid line
             const padding = showAxis ? 4 : 0
 
+            sel.selectAll('.tick text').classed('bc-axis-label-inside', true)
             if (direction === AxisDirection.Right) {
               sel.selectAll('.tick text')
                 .attr('x', -padding)
