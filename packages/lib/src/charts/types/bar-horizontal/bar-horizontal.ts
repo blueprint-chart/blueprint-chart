@@ -25,6 +25,13 @@ const CATEGORY_LABEL_HEIGHT = 13
 const VALUE_LABEL_FONT = '11px sans-serif'
 const VALUE_LABEL_GAP = 4
 
+/** Plot geometry a value label has to stay inside of. */
+interface LabelBounds {
+  plotWidth: number
+  marginLeft: number
+  marginRight: number
+}
+
 interface BarDatum {
   label: string
   value: number
@@ -112,15 +119,18 @@ export function render(
     if (swapLabelValue) {
       // Labels show category names — estimate width from the longest label
       const longestLabel = data.labels.reduce((a, b) => a.length > b.length ? a : b, '')
-      const rightLabelW = estimateValueLabelWidth(longestLabel) + VALUE_LABEL_GAP
+      const rightLabelW = estimateValueLabelWidth(longestLabel) + VALUE_LABEL_GAP * 2
       lpMargins.right = Math.max(lpMargins.right ?? 15, rightLabelW)
     }
     else {
       const plottable = data.values.filter(v => Number.isFinite(v))
       const maxVal = Math.max(...plottable)
       const minVal = Math.min(...plottable)
-      const rightLabelW = maxVal > 0 ? estimateValueLabelWidth(formatValue(maxVal)) + VALUE_LABEL_GAP : 0
-      const leftLabelW = minVal < 0 ? estimateValueLabelWidth(formatValue(minVal)) + VALUE_LABEL_GAP : 0
+      // Two gaps: one between the bar end and the label, one between the label
+      // and the canvas edge, so the widest label is never flush with the edge
+      // where the SVG would clip it mid-number.
+      const rightLabelW = maxVal > 0 ? estimateValueLabelWidth(formatValue(maxVal)) + VALUE_LABEL_GAP * 2 : 0
+      const leftLabelW = minVal < 0 ? estimateValueLabelWidth(formatValue(minVal)) + VALUE_LABEL_GAP * 2 : 0
       lpMargins.right = Math.max(lpMargins.right ?? 15, rightLabelW)
       if (leftLabelW > 0) {
         lpMargins.left = (lpMargins.left ?? 50) + leftLabelW
@@ -487,6 +497,7 @@ export function render(
         percent: options.valueLabels === 'percent',
         total: d3.sum(barData, d => d.value),
         formatValue,
+        bounds: { plotWidth: width, marginLeft: margin.left, marginRight: margin.right },
       })
     }
   }
@@ -522,34 +533,38 @@ function valueLabelAttrs(
   x: d3.ScaleLinear<number, number> | d3.ScaleSymLog<number, number>,
   y: d3.ScaleBand<string>,
   pos: ValueLabelPosition,
-  catOffset = 0,
+  catOffset: number,
+  bounds: LabelBounds,
+  labelWidth: number,
 ) {
-  const isInside = pos === ValueLabelPosition.Inside
   const ty = (y(d.label) ?? 0) + catOffset + (y.bandwidth() - catOffset) / 2
-  let tx: number, anchor: string
-  if (d.value < 0) {
-    const barX = Math.min(x(0), x(d.value))
-    if (isInside) {
-      tx = barX + 4
-      anchor = 'start'
-    }
-    else {
-      tx = barX - 4
-      anchor = 'end'
-    }
+  // Bars are clipped to the plot, so the label follows the visible mark rather
+  // than the raw datum: a value the axis range excludes keeps its label on the
+  // canvas instead of being painted past the edge, where the clip would cut it
+  // mid-number and show a different, believable figure.
+  const clip = (v: number) => Math.max(0, Math.min(bounds.plotWidth, v))
+  const markEnd = x(d.value)
+  const truncated = markEnd < 0 || markEnd > bounds.plotWidth
+  const negative = d.value < 0
+  const barEnd = negative ? Math.min(clip(x(0)), clip(markEnd)) : Math.max(clip(x(0)), clip(markEnd))
+  // Keep the same breathing room against the canvas edge as against the bar:
+  // a label that ends flush with the edge is the one the SVG clips mid-number.
+  const fitsOutside = negative
+    ? barEnd - VALUE_LABEL_GAP - labelWidth >= VALUE_LABEL_GAP - bounds.marginLeft
+    : barEnd + VALUE_LABEL_GAP + labelWidth <= bounds.plotWidth + bounds.marginRight - VALUE_LABEL_GAP
+  // A mark clipped to nothing has no inside to hold the label: fall back to the
+  // outside position, which the clip above has already pulled into the plot.
+  const roomInside = negative ? bounds.plotWidth - barEnd : barEnd
+  const isInside = (pos === ValueLabelPosition.Inside || truncated || !fitsOutside)
+    && roomInside >= labelWidth + VALUE_LABEL_GAP
+  if (isInside) {
+    return negative
+      ? { tx: barEnd + VALUE_LABEL_GAP, ty, anchor: 'start', isInside }
+      : { tx: barEnd - VALUE_LABEL_GAP, ty, anchor: 'end', isInside }
   }
-  else {
-    const barEnd = x(d.value)
-    if (isInside) {
-      tx = barEnd - 4
-      anchor = 'end'
-    }
-    else {
-      tx = barEnd + 4
-      anchor = 'start'
-    }
-  }
-  return { tx, ty, anchor, isInside }
+  return negative
+    ? { tx: barEnd - VALUE_LABEL_GAP, ty, anchor: 'end', isInside }
+    : { tx: barEnd + VALUE_LABEL_GAP, ty, anchor: 'start', isInside }
 }
 
 function renderValueLabels(
@@ -567,6 +582,7 @@ function renderValueLabels(
     percent?: boolean
     total?: number
     formatValue: (value: number) => string
+    bounds: LabelBounds
   },
 ): void {
   const pos = opts.position ?? ValueLabelPosition.Auto
@@ -612,7 +628,7 @@ function renderValueLabels(
       .attr('font-size', '11px')
       .attr('dominant-baseline', 'central'),
     attrs: (d) => {
-      const a = valueLabelAttrs(d, x, y, pos, catOffset)
+      const a = valueLabelAttrs(d, x, y, pos, catOffset, opts.bounds, estimateValueLabelWidth(labelText(d)))
       return {
         'x': a.tx,
         'y': a.ty,

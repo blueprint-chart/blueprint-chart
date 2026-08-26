@@ -519,7 +519,11 @@ function valueLabelAttrs(
   const fitsOutside = negative
     ? outsideTy + VALUE_LABEL_CAP_PX <= bounds.plotHeight + bounds.marginBottom
     : outsideTy - VALUE_LABEL_CAP_PX >= -bounds.marginTop
-  const isInside = pos === ValueLabelPosition.Inside || truncated || !fitsOutside
+  // A mark clipped to nothing has no inside to hold the label: fall back to the
+  // outside position, which the clip above has already pulled into the plot.
+  const roomInside = barBottom - barTop
+  const isInside = (pos === ValueLabelPosition.Inside || truncated || !fitsOutside)
+    && roomInside >= VALUE_LABEL_CAP_PX + VALUE_LABEL_GAP
   if (isInside) {
     return { tx, ty: (barTop + barBottom) / 2, anchor, baseline: 'central', isInside }
   }
