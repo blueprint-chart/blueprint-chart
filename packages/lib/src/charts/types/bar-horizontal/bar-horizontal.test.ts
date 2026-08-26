@@ -903,13 +903,14 @@ describe('bar-horizontal', () => {
         expect(conns).toHaveLength(0)
       })
 
-      it('skips connections when either value is NaN', () => {
+      it('drops a row whose value is not a number and connects the survivors', () => {
         render(container, { labels: ['A', 'B', 'C'], values: [10, Number.NaN, 30] }, {
           waterfall: true,
           connectedColumns: true,
         })
+        expect(container.querySelectorAll('.bc-bar')).toHaveLength(2)
         const conns = container.querySelectorAll('.bc-bar-connection')
-        expect(conns).toHaveLength(0)
+        expect(conns).toHaveLength(1)
       })
 
       it('polygon connects bar value-tips and follows each bar origin', () => {
@@ -1264,6 +1265,125 @@ describe('bar-horizontal', () => {
       // featureJoin always writes the opacity attribute; "no dimming" means
       // every bar is at full opacity (either unset or "1"), never < 1.
       expect(opacities.every(o => o === null || o === '1')).toBe(true)
+    })
+  })
+
+  // ── Value labels, category label line, axis margins (audit G3) ──
+
+  describe('value labels against the SVG edge', () => {
+    // Default headless canvas: 600x400, chart area translated by margin.left.
+    const svgWidth = 600
+
+    function labelExtent(key: string) {
+      const svg = container.querySelector('svg')!
+      const marginLeft = Number(/translate\(([-\d.]+),/.exec(svg.querySelector('g')!.getAttribute('transform')!)![1])
+      const label = container.querySelector(`.bc-value-label[data-bc-key="${key}"]`)!
+      const x = Number(label.getAttribute('x'))
+      const text = label.textContent ?? ''
+      const width = text.length * 6.2
+      const start = label.getAttribute('text-anchor') === 'end' ? x - width : x
+      return { text, left: marginLeft + start, right: marginLeft + start + width }
+    }
+
+    it('keeps the label of an above-range value inside the SVG', () => {
+      render(container, { labels: ['A'], values: [1200000] }, {
+        valueLabels: true,
+        horizontalAxis: { range: { max: 1000000 }, showAxis: true },
+      })
+      const { text, right } = labelExtent('A')
+      expect(text).toBe('1200000')
+      expect(right).toBeLessThanOrEqual(svgWidth)
+    })
+
+    it('keeps a bar-at-axis-max label clear of the right edge', () => {
+      // The reported repro: the label ends flush against the SVG edge, so any
+      // difference between the estimated and the real glyph advance clips it
+      // mid-number and "1200000" reads as "120000".
+      render(container, { labels: ['A'], values: [1200000] }, {
+        valueLabels: true,
+        horizontalAxis: { showAxis: true },
+      })
+      const { text, right } = labelExtent('A')
+      expect(text).toBe('1200000')
+      expect(right).toBeLessThan(svgWidth)
+    })
+
+    it('keeps a formatted label inside the SVG', () => {
+      render(container, { labels: ['A'], values: [1200000] }, {
+        valueLabels: true,
+        horizontalAxis: { numberFormat: '$|,|', showAxis: true },
+      })
+      const { text, right } = labelExtent('A')
+      expect(text).toBe('$1,200,000')
+      expect(right).toBeLessThan(svgWidth)
+    })
+
+    it('leaves an in-range label outside the bar end', () => {
+      render(container, { labels: ['A', 'B'], values: [10, 30] }, { valueLabels: true })
+      const bar = container.querySelector('.bc-bar[data-bc-key="A"]')!
+      const label = container.querySelector('.bc-value-label[data-bc-key="A"]')!
+      const barEnd = Number(bar.getAttribute('x')) + Number(bar.getAttribute('width'))
+      expect(Number(label.getAttribute('x'))).toBeGreaterThan(barEnd)
+      expect(label.getAttribute('text-anchor')).toBe('start')
+    })
+  })
+
+  describe('unparseable values', () => {
+    const gappedData = { labels: ['Alpha', 'Beta'], values: [undefined as unknown as number, 20] }
+
+    it('renders no bar and no label for a cell that is not a number', () => {
+      render(container, gappedData, { valueLabels: true })
+      expect(container.querySelectorAll('.bc-bar')).toHaveLength(1)
+      const labels = Array.from(container.querySelectorAll('.bc-value-label')).map(t => t.textContent)
+      expect(labels).toEqual(['20'])
+    })
+
+    it('emits no NaN geometry', () => {
+      render(container, gappedData, { valueLabels: true })
+      expect(container.querySelector('svg')!.outerHTML).not.toContain('NaN')
+    })
+  })
+
+  describe('value label number format', () => {
+    it('applies horizontalNumberFormat to bar value labels', () => {
+      render(container, { labels: ['A', 'B'], values: [1200000, 400000] }, {
+        valueLabels: true,
+        horizontalAxis: { numberFormat: '$|,|' },
+      })
+      const labels = Array.from(container.querySelectorAll('.bc-value-label')).map(t => t.textContent)
+      expect(labels).toEqual(['$1,200,000', '$400,000'])
+    })
+  })
+
+  describe('categoryLabelLine on a dense chart', () => {
+    const dense = {
+      labels: Array.from({ length: 19 }, (_, i) => `Category ${String(i + 1).padStart(2, '0')}`),
+      values: Array.from({ length: 19 }, (_, i) => (i + 1) * 10),
+    }
+
+    it('keeps every bar visible', () => {
+      render(container, dense, { categoryLabelLine: true })
+      const heights = Array.from(container.querySelectorAll('.bc-bar')).map(b => Number(b.getAttribute('height')))
+      expect(heights).toHaveLength(19)
+      expect(heights.every(h => h > 0)).toBe(true)
+    })
+
+    it('still renders every category label', () => {
+      render(container, dense, { categoryLabelLine: true })
+      expect(container.querySelectorAll('.bc-category-label')).toHaveLength(19)
+    })
+  })
+
+  describe('value axis labels without the axis line', () => {
+    it('keeps the tick labels inside the SVG when showHorizontalAxis is false', () => {
+      render(container, data, { horizontalAxis: { showAxis: false } })
+      const svg = container.querySelector('svg')!
+      const marginTop = Number(/translate\([-\d.]+,([-\d.]+)\)/.exec(svg.querySelector('g')!.getAttribute('transform')!)![1])
+      const axis = container.querySelector('.bc-axis-horizontal')!
+      const axisY = Number(/translate\([-\d.]+,([-\d.]+)\)/.exec(axis.getAttribute('transform')!)![1])
+      const tick = axis.querySelector('.tick text')!
+      const baseline = marginTop + axisY + Number(tick.getAttribute('y'))
+      expect(baseline).toBeLessThanOrEqual(Number(svg.getAttribute('height')))
     })
   })
 })

@@ -95,10 +95,11 @@ export function render(
   const plotRect: PlotRect = { left: margin.left, top: margin.top, width, height: barAreaHeight }
 
   const labels = sortLabels(data, options)
-  const barData: BarDatum[] = labels.map(l => ({
-    label: l,
-    value: data.values[data.labels.indexOf(l)],
-  }))
+  // A cell the parser could not read is a gap, not a zero: it keeps its slot in
+  // the band domain but gets no mark and no label.
+  const barData: BarDatum[] = labels
+    .map(l => ({ label: l, value: data.values[data.labels.indexOf(l)] }))
+    .filter(d => Number.isFinite(d.value))
 
   const swapLabelValue = options.swapLabelValue === true
   const isWaterfall = options.waterfall === true

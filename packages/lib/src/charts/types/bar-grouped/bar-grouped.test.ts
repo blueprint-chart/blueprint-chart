@@ -423,4 +423,23 @@ describe('bar-grouped', () => {
     expect(a?.getAttribute('fill')).toBe('#ff0000')
     expect(other?.getAttribute('fill')).not.toBe('#ff0000')
   })
+
+  // ── categoryLabelLine on a dense chart (audit G3) ──
+
+  describe('categoryLabelLine on a dense chart', () => {
+    it('keeps every bar visible', () => {
+      const labels = Array.from({ length: 19 }, (_, i) => `Category ${String(i + 1).padStart(2, '0')}`)
+      render(container, {
+        labels,
+        values: [],
+        series: [
+          { name: 'S1', values: labels.map(() => 10) },
+          { name: 'S2', values: labels.map(() => 20) },
+        ],
+      }, { categoryLabelLine: true })
+      const heights = Array.from(container.querySelectorAll('.bc-bar')).map(r => Number(r.getAttribute('height')))
+      expect(heights).toHaveLength(38)
+      expect(heights.every(h => h > 0)).toBe(true)
+    })
+  })
 })

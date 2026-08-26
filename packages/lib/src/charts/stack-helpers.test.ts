@@ -201,3 +201,43 @@ describe('computeStack — N3: diverging offsets', () => {
     expect(result[1][0][1]).toBe(30)
   })
 })
+
+describe('computeStack100 — percent stacking with negative values', () => {
+  const diverging: ChartData = {
+    labels: ['North', 'South'],
+    values: [],
+    series: [
+      { name: 'Alpha', values: [31, 31] },
+      { name: 'Beta', values: [44, -44] },
+    ],
+  }
+
+  it('never returns a segment that runs backwards', () => {
+    for (const layer of computeStack100(diverging)) {
+      for (const point of layer) {
+        expect(point[1]).toBeGreaterThanOrEqual(point[0])
+      }
+    }
+  })
+
+  it('keeps every segment within 100% of the baseline', () => {
+    for (const layer of computeStack100(diverging)) {
+      for (const point of layer) {
+        expect(Math.abs(point[0])).toBeLessThanOrEqual(100)
+        expect(Math.abs(point[1])).toBeLessThanOrEqual(100)
+      }
+    }
+  })
+
+  it('normalises a diverging row against the sum of absolute values', () => {
+    const result = computeStack100(diverging)
+    const magnitudes = result.map(layer => layer[1][1] - layer[1][0])
+    expect(magnitudes.reduce((a, b) => a + b, 0)).toBeCloseTo(100, 6)
+  })
+
+  it('puts the negative segment below the baseline', () => {
+    const [, beta] = computeStack100(diverging)
+    expect(beta[1][0]).toBeLessThan(0)
+    expect(beta[1][1]).toBeCloseTo(0, 6)
+  })
+})

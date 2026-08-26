@@ -43,8 +43,20 @@ describe('createCanvas', () => {
 })
 
 describe('labelPositionMargins', () => {
-  it('reduces bottom margin when showHorizontalAxis is false', () => {
+  it('keeps the bottom margin for auto labels when showHorizontalAxis is false', () => {
+    // showAxis only drops the domain line: the axis still draws its tick
+    // labels, so collapsing the bottom margin painted them below the SVG.
     const result = labelPositionMargins(800, undefined, undefined, undefined, undefined, false)
+    expect(result.bottom).toBeUndefined()
+  })
+
+  it('keeps the bottom margin for outside labels when showHorizontalAxis is false', () => {
+    const result = labelPositionMargins(800, undefined, 'outside', undefined, undefined, false)
+    expect(result.bottom).toBeUndefined()
+  })
+
+  it('still collapses the bottom margin when labels are off and the axis is hidden', () => {
+    const result = labelPositionMargins(800, undefined, 'off', undefined, undefined, false)
     expect(result.bottom).toBe(5)
   })
 

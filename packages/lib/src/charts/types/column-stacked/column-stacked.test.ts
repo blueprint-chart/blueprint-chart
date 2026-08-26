@@ -455,4 +455,43 @@ describe('column-stacked', () => {
       expect(gap / widths[0]).toBeCloseTo(0.5, 5)
     })
   })
+
+  // ── Percent stacking with negative values (audit G3) ──
+
+  describe('percent stacking with a negative value', () => {
+    const diverging = {
+      labels: ['North', 'South'],
+      values: [],
+      series: [
+        { name: 'Alpha', values: [31, 31] },
+        { name: 'Beta', values: [44, -44] },
+      ],
+    }
+
+    it('emits no negative rect height', () => {
+      render(container, diverging, { stackMode: StackMode.Percent })
+      const heights = Array.from(container.querySelectorAll('.bc-bar-stacked')).map(r => Number(r.getAttribute('height')))
+      expect(heights).toHaveLength(4)
+      expect(heights.every(h => h >= 0)).toBe(true)
+    })
+
+    it('keeps every segment inside the plot', () => {
+      render(container, diverging, { stackMode: StackMode.Percent })
+      const rects = Array.from(container.querySelectorAll('.bc-bar-stacked'))
+      expect(rects.every(r => Number(r.getAttribute('y')) >= 0)).toBe(true)
+    })
+
+    it('labels no segment above 100%', () => {
+      render(container, diverging, { stackMode: StackMode.Percent, valueLabels: true })
+      const percents = Array.from(container.querySelectorAll('.bc-value-label'))
+        .map(t => Number((t.textContent ?? '').replace('%', '')))
+      expect(percents.every(p => Math.abs(p) <= 100)).toBe(true)
+    })
+
+    it('labels the negative segment with a negative percentage', () => {
+      render(container, diverging, { stackMode: StackMode.Percent, valueLabels: true })
+      const texts = Array.from(container.querySelectorAll('.bc-value-label')).map(t => t.textContent)
+      expect(texts).toContain('-59%')
+    })
+  })
 })

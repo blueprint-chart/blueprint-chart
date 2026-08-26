@@ -114,8 +114,9 @@ export function render(
       lpMargins.right = Math.max(lpMargins.right ?? 15, rightLabelW)
     }
     else {
-      const maxVal = Math.max(...data.values)
-      const minVal = Math.min(...data.values)
+      const plottable = data.values.filter(v => Number.isFinite(v))
+      const maxVal = Math.max(...plottable)
+      const minVal = Math.min(...plottable)
       const rightLabelW = maxVal > 0 ? estimateValueLabelWidth(String(maxVal)) + VALUE_LABEL_GAP : 0
       const leftLabelW = minVal < 0 ? estimateValueLabelWidth(String(minVal)) + VALUE_LABEL_GAP : 0
       lpMargins.right = Math.max(lpMargins.right ?? 15, rightLabelW)
@@ -132,10 +133,11 @@ export function render(
   const marginDelta = computeMarginDelta(priorMargin, margin)
 
   const labels = sortLabels(data, options)
-  const barData: BarDatum[] = labels.map(l => ({
-    label: l,
-    value: data.values[data.labels.indexOf(l)],
-  }))
+  // A cell the parser could not read is a gap, not a zero: it keeps its slot in
+  // the band domain but gets no mark and no label.
+  const barData: BarDatum[] = labels
+    .map(l => ({ label: l, value: data.values[data.labels.indexOf(l)] }))
+    .filter(d => Number.isFinite(d.value))
 
   const isWaterfall = options.waterfall === true
 

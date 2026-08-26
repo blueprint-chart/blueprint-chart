@@ -501,4 +501,57 @@ describe('bar-stacked', () => {
     const cBars = Array.from(bars).filter(b => b.getAttribute('data-series') === cLegend.getAttribute('data-series'))
     expect(cBars).toHaveLength(2)
   })
+
+  // ── Percent stacking with negative values (audit G3) ──
+
+  describe('percent stacking with a negative value', () => {
+    const diverging = {
+      labels: ['North', 'South'],
+      values: [],
+      series: [
+        { name: 'Alpha', values: [31, 31] },
+        { name: 'Beta', values: [44, -44] },
+      ],
+    }
+
+    it('emits no negative rect width', () => {
+      render(container, diverging, { stackMode: StackMode.Percent })
+      const widths = Array.from(container.querySelectorAll('.bc-bar-stacked')).map(r => Number(r.getAttribute('width')))
+      expect(widths).toHaveLength(4)
+      expect(widths.every(w => w >= 0)).toBe(true)
+    })
+
+    it('keeps every segment inside the plot', () => {
+      render(container, diverging, { stackMode: StackMode.Percent })
+      const rects = Array.from(container.querySelectorAll('.bc-bar-stacked'))
+      expect(rects.every(r => Number(r.getAttribute('x')) >= 0)).toBe(true)
+    })
+
+    it('labels no segment above 100%', () => {
+      render(container, diverging, { stackMode: StackMode.Percent, valueLabels: true })
+      const percents = Array.from(container.querySelectorAll('.bc-value-label'))
+        .map(t => Number((t.textContent ?? '').replace('%', '')))
+      expect(percents.every(p => Math.abs(p) <= 100)).toBe(true)
+    })
+
+    it('labels the negative segment with a negative percentage', () => {
+      render(container, diverging, { stackMode: StackMode.Percent, valueLabels: true })
+      const texts = Array.from(container.querySelectorAll('.bc-value-label')).map(t => t.textContent)
+      expect(texts).toContain('-59%')
+    })
+  })
+
+  describe('categoryLabelLine on a dense chart', () => {
+    it('keeps every bar visible', () => {
+      const labels = Array.from({ length: 19 }, (_, i) => `Category ${String(i + 1).padStart(2, '0')}`)
+      render(container, {
+        labels,
+        values: [],
+        series: [{ name: 'S1', values: labels.map(() => 10) }],
+      }, { categoryLabelLine: true })
+      const heights = Array.from(container.querySelectorAll('.bc-bar-stacked')).map(r => Number(r.getAttribute('height')))
+      expect(heights).toHaveLength(19)
+      expect(heights.every(h => h > 0)).toBe(true)
+    })
+  })
 })

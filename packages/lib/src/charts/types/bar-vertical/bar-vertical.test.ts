@@ -777,13 +777,14 @@ describe('bar-vertical', () => {
         expect(conns).toHaveLength(0)
       })
 
-      it('skips connections when either value is NaN', () => {
+      it('drops a row whose value is not a number and connects the survivors', () => {
         render(container, { labels: ['A', 'B', 'C'], values: [10, Number.NaN, 30] }, {
           waterfall: true,
           connectedColumns: true,
         })
+        expect(container.querySelectorAll('.bc-bar')).toHaveLength(2)
         const conns = container.querySelectorAll('.bc-bar-connection')
-        expect(conns).toHaveLength(0)
+        expect(conns).toHaveLength(1)
       })
 
       it('polygon connects bar tops and follows each bar floor', () => {
@@ -1382,6 +1383,88 @@ describe('bar-vertical', () => {
       })
       const allTicks = hAxis.querySelectorAll('.tick')
       expect(allTicks.length).toBe(20)
+    })
+  })
+
+  // ── Value labels: clamped geometry, gaps and number format (audit G3) ──
+
+  describe('value labels against the clipped mark', () => {
+    const plotTop = 0
+    // 400px default SVG height, 12px top margin, 24px bottom margin.
+    const plotBottom = 400 - 12 - 24
+
+    it('keeps the label of an above-range value inside the plot', () => {
+      render(container, { labels: ['A', 'B'], values: [63, 20] }, {
+        valueLabels: true,
+        verticalAxis: { range: { max: 50 } },
+      })
+      const label = container.querySelector('.bc-value-label[data-bc-key="A"]')!
+      expect(label.textContent).toBe('63')
+      const y = Number(label.getAttribute('y'))
+      expect(y).toBeGreaterThanOrEqual(plotTop)
+      expect(y).toBeLessThanOrEqual(plotBottom)
+    })
+
+    it('leaves an in-range label above its bar', () => {
+      render(container, { labels: ['A', 'B'], values: [63, 20] }, {
+        valueLabels: true,
+        verticalAxis: { range: { max: 50 } },
+      })
+      const bar = container.querySelector('.bc-bar[data-bc-key="B"]')!
+      const label = container.querySelector('.bc-value-label[data-bc-key="B"]')!
+      expect(Number(label.getAttribute('y'))).toBeLessThan(Number(bar.getAttribute('y')))
+    })
+
+    it('keeps the label of a below-range value inside the plot', () => {
+      render(container, { labels: ['A', 'B'], values: [17, 40] }, {
+        valueLabels: true,
+        verticalAxis: { range: { min: 20 } },
+      })
+      const label = container.querySelector('.bc-value-label[data-bc-key="A"]')!
+      expect(label.textContent).toBe('17')
+      const y = Number(label.getAttribute('y'))
+      expect(y).toBeGreaterThanOrEqual(plotTop)
+      expect(y).toBeLessThanOrEqual(plotBottom)
+    })
+  })
+
+  describe('unparseable values', () => {
+    const raggedData = { labels: ['Alpha', 'Beta'], values: [undefined as unknown as number, 20] }
+
+    it('renders no bar for a cell that is not a number', () => {
+      render(container, raggedData, { valueLabels: true })
+      const bars = Array.from(container.querySelectorAll('.bc-bar'))
+      expect(bars).toHaveLength(1)
+      expect(bars[0].getAttribute('data-bc-key')).toBe('Beta')
+    })
+
+    it('emits no NaN geometry', () => {
+      render(container, raggedData, { valueLabels: true })
+      const svg = container.querySelector('svg')!.outerHTML
+      expect(svg).not.toContain('NaN')
+    })
+
+    it('omits the value label instead of writing "undefined"', () => {
+      render(container, raggedData, { valueLabels: true })
+      const labels = Array.from(container.querySelectorAll('.bc-value-label')).map(t => t.textContent)
+      expect(labels).toEqual(['20'])
+    })
+
+    it('keeps the category on the axis', () => {
+      render(container, raggedData, { valueLabels: true })
+      const ticks = container.querySelectorAll('.bc-axis-horizontal .tick')
+      expect(ticks).toHaveLength(2)
+    })
+  })
+
+  describe('value label number format', () => {
+    it('applies verticalNumberFormat to bar value labels', () => {
+      render(container, { labels: ['A', 'B'], values: [1200000, 400000] }, {
+        valueLabels: true,
+        verticalAxis: { numberFormat: '$|,|' },
+      })
+      const labels = Array.from(container.querySelectorAll('.bc-value-label')).map(t => t.textContent)
+      expect(labels).toEqual(['$1,200,000', '$400,000'])
     })
   })
 })
