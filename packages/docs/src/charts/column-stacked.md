@@ -6,13 +6,13 @@ title: Stacked column chart
 
 > Stacked vertical column chart for composition over discrete columns; supports percent stacking.
 
-`column-stacked` is the vertical sibling of [`bar-stacked`](./bar-stacked) — each column breaks down into segments. It's the right choice when the x-axis represents a small number of ordered steps (quarters, fiscal years, study cohorts). Honours `stackMode` and `stackPercent`.
+`column-stacked` is the vertical sibling of [`bar-stacked`](./bar-stacked) — each column breaks down into segments. It's the right choice when the x-axis represents a small number of ordered steps (quarters, fiscal years, study cohorts). Set `stackMode = "percent"` for a 100 % composition view. See [Properties](#properties) for every key it accepts.
 
 ## When to use
 
 - Composition over a small number of discrete columns (5–10 quarters, years, or stages)
 - When both the total and the breakdown matter for each column
-- 100 % stacked view (`stackPercent = true`) when readers should focus on relative share
+- 100 % stacked view (`stackMode = "percent"`) when readers should focus on relative share
 
 ## When NOT to use
 
@@ -39,10 +39,54 @@ chart column-stacked {
 ```
 
 
+<!-- options:start -->
+
+## Properties
+
+Every property `column-stacked` accepts, beside the [frame and layout keys](/reference/dsl/properties) every chart shares. Anything absent from this table is rejected by `validateChart` and ignored by the renderer.
+
+| Property | Type | Default |
+| --- | --- | --- |
+| `colors` | colors | (unset) |
+| `colorPalette` | select, see [Palettes](/guide/palettes) | `Blueprint` |
+| `autoContrast` | boolean | `false` |
+| `allowDarkMode` | boolean | `true` |
+| `stackMode` | select: `normal`, `percent` | `normal` |
+| `sortMode` | select: `none`, `total`, `within-groups` | `none` |
+| `legend` | boolean | `true` |
+| `legendAnchor` | select: `start`, `middle`, `end` | `start` |
+| `legendPosition` | select: `top`, `bottom`, `left`, `right` | `top` |
+| `directLabelling` | select: `""`, `auto`, `outside`, `inside` | `""` |
+| `directLabelAnchor` | select: `start`, `middle`, `end` | `middle` |
+| `showVerticalAxis` | boolean | `false` |
+| `verticalAxisDirection` | select: `left`, `right` | `left` |
+| `showVerticalTicks` | boolean | `false` |
+| `verticalLabelPosition` | select: `auto`, `inside`, `outside`, `off` | `off` |
+| `verticalGridStyle` | select: `solid`, `dashed`, `dotted`, `none` | `none` |
+| `verticalNumberFormat` | numberFormat | (unset) |
+| `verticalScaleType` | select: `linear`, `log` | `linear` |
+| `verticalRangeMin` | text | `0` |
+| `verticalRangeMax` | text | `auto` |
+| `showHorizontalAxis` | boolean | `true` |
+| `showHorizontalTicks` | boolean | `false` |
+| `horizontalLabelPosition` | select: `auto`, `inside`, `outside`, `off` | `auto` |
+| `horizontalLabelRotation` | select: `auto`, `horizontal`, `vertical` | `horizontal` |
+| `horizontalGridStyle` | select: `solid`, `dashed`, `dotted`, `none` | `none` |
+| `horizontalNumberFormat` | numberFormat | (unset) |
+| `valueLabels` | boolean | `true` |
+| `valueLabelPosition` | select: `auto`, `outside`, `inside` | `auto` |
+| `tooltips` | boolean | `false` |
+| `crosshair` | boolean | `false` |
+| `crosshairDirection` | select: `both`, `vertical`, `horizontal` | `both` |
+| `crosshairStyle` | select: `solid`, `dashed`, `dotted` | `dashed` |
+| `crosshairColor` | text | `#999` |
+
+<!-- options:end -->
+
 ## Common pitfalls
 
 - Stacking too many series — the top layers float and lose their baseline
-- Switching to `stackPercent = true` without telling the reader hides the change in absolute total
+- Switching to `stackMode = "percent"` without telling the reader hides the change in absolute total
 - Inconsistent segment ordering between columns destroys the visual flow
 
 ## Related types

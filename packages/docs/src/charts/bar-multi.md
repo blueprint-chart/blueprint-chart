@@ -46,6 +46,49 @@ chart bar-multi {
 ```
 
 
+<!-- options:start -->
+
+## Properties
+
+Every property `bar-multi` accepts, beside the [frame and layout keys](/reference/dsl/properties) every chart shares. Anything absent from this table is rejected by `validateChart` and ignored by the renderer.
+
+| Property | Type | Default |
+| --- | --- | --- |
+| `colors` | colors | (unset) |
+| `colorPalette` | select, see [Palettes](/guide/palettes) | `Blueprint` |
+| `autoContrast` | boolean | `false` |
+| `allowDarkMode` | boolean | `true` |
+| `sortMode` | select: `none`, `total`, `within-groups` | `total` |
+| `legend` | boolean | `false` |
+| `legendAnchor` | select: `start`, `middle`, `end` | `start` |
+| `legendPosition` | select: `top`, `bottom`, `left`, `right` | `top` |
+| `directLabelling` | select: `""`, `auto`, `outside`, `inside` | `auto` |
+| `directLabelAnchor` | select: `start`, `middle`, `end` | `middle` |
+| `showVerticalAxis` | boolean | `false` |
+| `verticalAxisDirection` | select: `left`, `right` | `left` |
+| `showVerticalTicks` | boolean | `false` |
+| `verticalLabelPosition` | select: `auto`, `inside`, `outside`, `off` | `off` |
+| `verticalGridStyle` | select: `solid`, `dashed`, `dotted`, `none` | `none` |
+| `verticalNumberFormat` | numberFormat | (unset) |
+| `verticalScaleType` | select: `linear`, `log` | `linear` |
+| `verticalRangeMin` | text | `0` |
+| `verticalRangeMax` | text | `auto` |
+| `showHorizontalAxis` | boolean | `true` |
+| `showHorizontalTicks` | boolean | `false` |
+| `horizontalLabelPosition` | select: `auto`, `inside`, `outside`, `off` | `auto` |
+| `horizontalLabelRotation` | select: `auto`, `horizontal`, `vertical` | `horizontal` |
+| `horizontalGridStyle` | select: `solid`, `dashed`, `dotted`, `none` | `none` |
+| `horizontalNumberFormat` | numberFormat | (unset) |
+| `valueLabels` | boolean | `true` |
+| `valueLabelPosition` | select: `auto`, `outside`, `inside` | `auto` |
+| `tooltips` | boolean | `false` |
+| `crosshair` | boolean | `false` |
+| `crosshairDirection` | select: `both`, `vertical`, `horizontal` | `both` |
+| `crosshairStyle` | select: `solid`, `dashed`, `dotted` | `dashed` |
+| `crosshairColor` | text | `#999` |
+
+<!-- options:end -->
+
 ## Common pitfalls
 
 - Too many bars per group overwhelms the reader; cap at 3–4 series

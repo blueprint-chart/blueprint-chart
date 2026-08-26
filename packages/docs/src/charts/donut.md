@@ -6,7 +6,7 @@ title: Donut chart
 
 > Circular part-to-whole chart with a central label slot.
 
-`donut` is a pie chart with the centre removed, opening a slot for a total, key metric, or icon. Honours `displayAsPercentage`, `showTotal`, `showLabels`, `showValues`, `sliceMax`, and `sliceGroupLabel`.
+`donut` is a pie chart with the centre removed, opening a slot for a total, key metric, or icon. See [Properties](#properties) for every key it accepts.
 
 ## When to use
 
@@ -47,6 +47,32 @@ chart donut {
 }
 ```
 
+
+<!-- options:start -->
+
+## Properties
+
+Every property `donut` accepts, beside the [frame and layout keys](/reference/dsl/properties) every chart shares. Anything absent from this table is rejected by `validateChart` and ignored by the renderer.
+
+| Property | Type | Default |
+| --- | --- | --- |
+| `colors` | colors | (unset) |
+| `colorPalette` | select, see [Palettes](/guide/palettes) | `Blueprint` |
+| `autoContrast` | boolean | `false` |
+| `allowDarkMode` | boolean | `true` |
+| `legend` | boolean | `false` |
+| `legendAnchor` | select: `start`, `middle`, `end` | `start` |
+| `legendPosition` | select: `top`, `bottom`, `left`, `right` | `top` |
+| `directLabelling` | select: `""`, `auto`, `outside`, `inside` | `auto` |
+| `tooltips` | boolean | `false` |
+| `displayAsPercentage` | boolean | `false` |
+| `showTotal` | boolean | `true` |
+| `showLabels` | boolean | `true` |
+| `showValues` | boolean | `true` |
+| `sliceMax` | text | `6` |
+| `sliceGroupLabel` | text | `Others` |
+
+<!-- options:end -->
 
 ## Common pitfalls
 

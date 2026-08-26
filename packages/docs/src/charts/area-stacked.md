@@ -6,7 +6,7 @@ title: Stacked area chart
 
 > Multi-series stacked area chart for composition over time; supports percent stacking.
 
-`area-stacked` layers multiple series on top of each other so readers can see both the individual trends and the cumulative total. Set `stackPercent = true` to switch to a 100 % normalised view. Supports `interpolation`, `lineSymbols`, `crosshair`, and `tooltips`.
+`area-stacked` layers multiple series on top of each other so readers can see both the individual trends and the cumulative total. Set `stackPercent = true` to switch to a 100 % normalised view. See [Properties](#properties) for every key it accepts.
 
 ## When to use
 
@@ -45,6 +45,54 @@ chart area-stacked {
 }
 ```
 
+
+<!-- options:start -->
+
+## Properties
+
+Every property `area-stacked` accepts, beside the [frame and layout keys](/reference/dsl/properties) every chart shares. Anything absent from this table is rejected by `validateChart` and ignored by the renderer.
+
+| Property | Type | Default |
+| --- | --- | --- |
+| `colors` | colors | (unset) |
+| `colorPalette` | select, see [Palettes](/guide/palettes) | `Blueprint` |
+| `autoContrast` | boolean | `false` |
+| `allowDarkMode` | boolean | `true` |
+| `areaFillOpacity` | text | `0.85` |
+| `interpolation` | select: `linear`, `monotoneX`, `step`, `stepBefore`, `stepAfter`, `basis`, `cardinal`, `catmullRom` | `monotoneX` |
+| `edgePadding` | boolean | `false` |
+| `areaSortMode` | select: `none`, `ascending`, `descending` | `none` |
+| `stacked` | boolean | `true` |
+| `stackPercent` | boolean | `false` |
+| `areaLines` | boolean | `true` |
+| `legend` | boolean | `true` |
+| `legendAnchor` | select: `start`, `middle`, `end` | `start` |
+| `legendPosition` | select: `top`, `bottom`, `left`, `right` | `top` |
+| `directLabelling` | select: `""`, `auto`, `outside`, `inside` | `""` |
+| `showVerticalAxis` | boolean | `false` |
+| `verticalAxisDirection` | select: `left`, `right` | `left` |
+| `showVerticalTicks` | boolean | `false` |
+| `verticalLabelPosition` | select: `auto`, `inside`, `outside`, `off` | `auto` |
+| `verticalGridStyle` | select: `solid`, `dashed`, `dotted`, `none` | `dashed` |
+| `verticalNumberFormat` | numberFormat | (unset) |
+| `verticalScaleType` | select: `linear`, `log` | `linear` |
+| `verticalRangeMin` | text | `0` |
+| `verticalRangeMax` | text | `auto` |
+| `showHorizontalAxis` | boolean | `true` |
+| `showHorizontalTicks` | boolean | `false` |
+| `horizontalLabelPosition` | select: `auto`, `inside`, `outside`, `off` | `auto` |
+| `horizontalLabelRotation` | select: `auto`, `horizontal`, `vertical` | `horizontal` |
+| `horizontalGridStyle` | select: `solid`, `dashed`, `dotted`, `none` | `none` |
+| `horizontalNumberFormat` | numberFormat | (unset) |
+| `horizontalRangeMin` | text | `auto` |
+| `horizontalRangeMax` | text | `auto` |
+| `tooltips` | boolean | `false` |
+| `crosshair` | boolean | `true` |
+| `crosshairDirection` | select: `both`, `vertical`, `horizontal` | `vertical` |
+| `crosshairStyle` | select: `solid`, `dashed`, `dotted` | `dashed` |
+| `crosshairColor` | text | `#999` |
+
+<!-- options:end -->
 
 ## Common pitfalls
 

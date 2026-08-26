@@ -6,7 +6,7 @@ title: Pie chart
 
 > Circular part-to-whole chart for very small N.
 
-`pie` divides a circle into proportional slices, each representing a category's share of the whole. Honours `displayAsPercentage`, `showTotal`, `showLabels`, `showValues`, `sliceMax`, and `sliceGroupLabel`.
+`pie` divides a circle into proportional slices, each representing a category's share of the whole. See [Properties](#properties) for every key it accepts.
 
 ## When to use
 
@@ -44,6 +44,32 @@ chart pie {
 }
 ```
 
+
+<!-- options:start -->
+
+## Properties
+
+Every property `pie` accepts, beside the [frame and layout keys](/reference/dsl/properties) every chart shares. Anything absent from this table is rejected by `validateChart` and ignored by the renderer.
+
+| Property | Type | Default |
+| --- | --- | --- |
+| `colors` | colors | (unset) |
+| `colorPalette` | select, see [Palettes](/guide/palettes) | `Blueprint` |
+| `autoContrast` | boolean | `false` |
+| `allowDarkMode` | boolean | `true` |
+| `legend` | boolean | `false` |
+| `legendAnchor` | select: `start`, `middle`, `end` | `start` |
+| `legendPosition` | select: `top`, `bottom`, `left`, `right` | `top` |
+| `directLabelling` | select: `""`, `auto`, `outside`, `inside` | `auto` |
+| `tooltips` | boolean | `false` |
+| `displayAsPercentage` | boolean | `true` |
+| `showTotal` | boolean | `false` |
+| `showLabels` | boolean | `true` |
+| `showValues` | boolean | `true` |
+| `sliceMax` | text | `5` |
+| `sliceGroupLabel` | text | `Others` |
+
+<!-- options:end -->
 
 ## Common pitfalls
 

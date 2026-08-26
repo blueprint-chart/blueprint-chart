@@ -6,6 +6,7 @@ import { describe, expect, it } from 'vitest'
 import { parse } from '../../lib/src/dsl/parser'
 import { validateChart } from '../../lib/src/dsl/validate'
 import * as enums from '../../lib/src/enums'
+import { applyOptionsSection, chartPages } from '../scripts/build-options'
 
 // These tests pin the docs (one of the three definitions of the BPC language)
 // to the canonical Peggy parser and to the on-disk sample files. They exist to
@@ -198,4 +199,20 @@ describe('api reference enum list', () => {
       expect(name in enums, `documented enum is not exported from lib/src/enums: ${name}`).toBe(true)
     })
   }
+})
+
+// The per-type property tables are generated from getChartOptions() by
+// scripts/build-options.ts. Three hand-kept copies of that list used to drift;
+// this asserts the committed pages still match their generator.
+describe('chart-type property tables are generated', () => {
+  it('every chart page is up to date with getChartOptions()', async () => {
+    for (const file of await chartPages()) {
+      const path = join(DOCS_SRC, 'charts', file)
+      const page = readFileSync(path, 'utf-8')
+      expect(
+        applyOptionsSection(page, file.replace(/\.md$/, '')),
+        `${file} is stale: run \`pnpm --filter @blueprint-chart/docs build:options\``,
+      ).toBe(page)
+    }
+  })
 })

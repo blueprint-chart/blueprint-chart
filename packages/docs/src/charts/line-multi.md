@@ -6,7 +6,7 @@ title: Multi-line chart
 
 > Multi-series line chart for comparing several time series or trends.
 
-`line-multi` plots two or more series on shared axes so readers can see divergence, convergence, and ranking shifts over an ordered domain. Supports `interpolation`, `lineSymbols`, `crosshair`, and `tooltips`.
+`line-multi` plots two or more series on shared axes so readers can see divergence, convergence, and ranking shifts over an ordered domain. See [Properties](#properties) for every key it accepts.
 
 ## When to use
 
@@ -45,6 +45,57 @@ chart line-multi {
 }
 ```
 
+
+<!-- options:start -->
+
+## Properties
+
+Every property `line-multi` accepts, beside the [frame and layout keys](/reference/dsl/properties) every chart shares. Anything absent from this table is rejected by `validateChart` and ignored by the renderer.
+
+| Property | Type | Default |
+| --- | --- | --- |
+| `colors` | colors | (unset) |
+| `colorPalette` | select, see [Palettes](/guide/palettes) | `Blueprint` |
+| `autoContrast` | boolean | `false` |
+| `allowDarkMode` | boolean | `true` |
+| `interpolation` | select: `linear`, `monotoneX`, `step`, `stepBefore`, `stepAfter`, `basis`, `cardinal`, `catmullRom` | `monotoneX` |
+| `edgePadding` | boolean | `false` |
+| `sortMode` | select: `none`, `total`, `within-groups` | `none` |
+| `legend` | boolean | `false` |
+| `legendAnchor` | select: `start`, `middle`, `end` | `start` |
+| `legendPosition` | select: `top`, `bottom`, `left`, `right` | `top` |
+| `directLabelling` | select: `""`, `auto`, `outside`, `inside` | `auto` |
+| `showVerticalAxis` | boolean | `false` |
+| `verticalAxisDirection` | select: `left`, `right` | `left` |
+| `showVerticalTicks` | boolean | `false` |
+| `verticalLabelPosition` | select: `auto`, `inside`, `outside`, `off` | `auto` |
+| `verticalGridStyle` | select: `solid`, `dashed`, `dotted`, `none` | `dashed` |
+| `verticalNumberFormat` | numberFormat | (unset) |
+| `verticalScaleType` | select: `linear`, `log` | `linear` |
+| `verticalRangeMin` | text | `auto` |
+| `verticalRangeMax` | text | `auto` |
+| `showHorizontalAxis` | boolean | `true` |
+| `showHorizontalTicks` | boolean | `false` |
+| `horizontalLabelPosition` | select: `auto`, `inside`, `outside`, `off` | `auto` |
+| `horizontalLabelRotation` | select: `auto`, `horizontal`, `vertical` | `horizontal` |
+| `horizontalGridStyle` | select: `solid`, `dashed`, `dotted`, `none` | `none` |
+| `horizontalNumberFormat` | numberFormat | (unset) |
+| `horizontalRangeMin` | text | `auto` |
+| `horizontalRangeMax` | text | `auto` |
+| `valueLabels` | boolean | `false` |
+| `tooltips` | boolean | `false` |
+| `crosshair` | boolean | `true` |
+| `crosshairDirection` | select: `both`, `vertical`, `horizontal` | `vertical` |
+| `crosshairStyle` | select: `solid`, `dashed`, `dotted` | `dashed` |
+| `crosshairColor` | text | `#999` |
+| `lineSymbols` | boolean | `true` |
+| `lineSymbolShape` | select: `circle`, `square`, `diamond`, `triangle`, `triangleDown`, `cross`, `star` | `circle` |
+| `lineSymbolShowOn` | select: `firstLast`, `first`, `last`, `all` | `firstLast` |
+| `lineSymbolStyle` | select: `filled`, `hollow` | `filled` |
+| `lineSymbolSize` | text | `3.5` |
+| `lineSymbolOpacity` | text | `1` |
+
+<!-- options:end -->
 
 ## Common pitfalls
 

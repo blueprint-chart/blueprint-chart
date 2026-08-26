@@ -22,7 +22,7 @@ lineSymbolShape = "diamond"
 
 Property keys may be identifiers (`title`) or strings (`"data-attribute"`).
 
-The full set of recognized property keys per chart type is defined by `ChartTypeOptions` in `@blueprint-chart/lib` and listed in the [API reference](/reference/api/).
+The full set of recognized property keys per chart type is defined by the option defs in `@blueprint-chart/lib` and tabulated on each [chart type page](/charts/), generated from `getChartOptions()` at build time.
 
 ## Data block
 

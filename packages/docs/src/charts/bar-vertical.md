@@ -53,6 +53,52 @@ chart bar-vertical {
 ```
 
 
+<!-- options:start -->
+
+## Properties
+
+Every property `bar-vertical` accepts, beside the [frame and layout keys](/reference/dsl/properties) every chart shares. Anything absent from this table is rejected by `validateChart` and ignored by the renderer.
+
+| Property | Type | Default |
+| --- | --- | --- |
+| `colors` | colors | (unset) |
+| `colorPalette` | select, see [Palettes](/guide/palettes) | `Blueprint` |
+| `autoContrast` | boolean | `false` |
+| `allowDarkMode` | boolean | `true` |
+| `swapLabelValue` | boolean | `false` |
+| `barBackground` | boolean | `false` |
+| `barSeparators` | boolean | `false` |
+| `barGap` | text | `60` |
+| `connectedColumns` | boolean | `false` |
+| `connectionsOpacity` | text | `0.15` |
+| `waterfall` | boolean | `false` |
+| `waterfallTotal` | boolean | `false` |
+| `categoryLabelLine` | boolean | `false` |
+| `showVerticalAxis` | boolean | `false` |
+| `verticalAxisDirection` | select: `left`, `right` | `left` |
+| `showVerticalTicks` | boolean | `false` |
+| `verticalLabelPosition` | select: `auto`, `inside`, `outside`, `off` | `off` |
+| `verticalGridStyle` | select: `solid`, `dashed`, `dotted`, `none` | `none` |
+| `verticalNumberFormat` | numberFormat | (unset) |
+| `verticalScaleType` | select: `linear`, `log` | `linear` |
+| `verticalRangeMin` | text | `0` |
+| `verticalRangeMax` | text | `auto` |
+| `showHorizontalAxis` | boolean | `true` |
+| `showHorizontalTicks` | boolean | `false` |
+| `horizontalLabelPosition` | select: `auto`, `inside`, `outside`, `off` | `auto` |
+| `horizontalLabelRotation` | select: `auto`, `horizontal`, `vertical` | `horizontal` |
+| `horizontalGridStyle` | select: `solid`, `dashed`, `dotted`, `none` | `none` |
+| `horizontalNumberFormat` | numberFormat | (unset) |
+| `valueLabels` | boolean | `true` |
+| `valueLabelPosition` | select: `auto`, `outside`, `inside` | `auto` |
+| `tooltips` | boolean | `false` |
+| `crosshair` | boolean | `false` |
+| `crosshairDirection` | select: `both`, `vertical`, `horizontal` | `both` |
+| `crosshairStyle` | select: `solid`, `dashed`, `dotted` | `dashed` |
+| `crosshairColor` | text | `#999` |
+
+<!-- options:end -->
+
 ## Common pitfalls
 
 - Truncating the y-axis exaggerates differences and misleads readers — always start at zero

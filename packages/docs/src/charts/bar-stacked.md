@@ -6,13 +6,13 @@ title: Stacked bar chart
 
 > Stacked horizontal bar chart for composition within a category, emphasising the total.
 
-`bar-stacked` segments horizontal bars into subcategories, showing both the individual parts and the total. Honours `stackMode` and `stackPercent` — flip to a 100 % view for pure composition.
+`bar-stacked` segments horizontal bars into subcategories, showing both the individual parts and the total. Set `stackMode = "percent"` to flip to a 100 % view for pure composition. See [Properties](#properties) for every key it accepts.
 
 ## When to use
 
 - Showing how a total breaks down into parts
 - Comparing totals across categories while keeping the composition visible
-- 100 % stacked view (`stackPercent = true`) when relative proportions matter more than absolute values
+- 100 % stacked view (`stackMode = "percent"`) when relative proportions matter more than absolute values
 - Categories with long labels that suit the horizontal orientation
 
 ## When NOT to use
@@ -43,6 +43,51 @@ chart bar-stacked {
 }
 ```
 
+
+<!-- options:start -->
+
+## Properties
+
+Every property `bar-stacked` accepts, beside the [frame and layout keys](/reference/dsl/properties) every chart shares. Anything absent from this table is rejected by `validateChart` and ignored by the renderer.
+
+| Property | Type | Default |
+| --- | --- | --- |
+| `colors` | colors | (unset) |
+| `colorPalette` | select, see [Palettes](/guide/palettes) | `Blueprint` |
+| `autoContrast` | boolean | `false` |
+| `allowDarkMode` | boolean | `true` |
+| `stackMode` | select: `normal`, `percent` | `normal` |
+| `sortMode` | select: `none`, `total`, `within-groups` | `none` |
+| `legend` | boolean | `true` |
+| `legendAnchor` | select: `start`, `middle`, `end` | `start` |
+| `legendPosition` | select: `top`, `bottom`, `left`, `right` | `top` |
+| `directLabelling` | select: `""`, `auto`, `outside`, `inside` | `""` |
+| `directLabelAnchor` | select: `start`, `middle`, `end` | `middle` |
+| `categoryLabelLine` | boolean | `false` |
+| `showVerticalAxis` | boolean | `true` |
+| `verticalAxisDirection` | select: `left`, `right` | `left` |
+| `showVerticalTicks` | boolean | `false` |
+| `verticalLabelPosition` | select: `auto`, `inside`, `outside`, `off` | `auto` |
+| `verticalGridStyle` | select: `solid`, `dashed`, `dotted`, `none` | `none` |
+| `verticalNumberFormat` | numberFormat | (unset) |
+| `showHorizontalAxis` | boolean | `false` |
+| `showHorizontalTicks` | boolean | `false` |
+| `horizontalLabelPosition` | select: `auto`, `inside`, `outside`, `off` | `off` |
+| `horizontalLabelRotation` | select: `auto`, `horizontal`, `vertical` | `horizontal` |
+| `horizontalGridStyle` | select: `solid`, `dashed`, `dotted`, `none` | `none` |
+| `horizontalNumberFormat` | numberFormat | (unset) |
+| `horizontalScaleType` | select: `linear`, `log` | `linear` |
+| `horizontalRangeMin` | text | `0` |
+| `horizontalRangeMax` | text | `auto` |
+| `valueLabels` | boolean | `true` |
+| `valueLabelPosition` | select: `auto`, `outside`, `inside` | `auto` |
+| `tooltips` | boolean | `false` |
+| `crosshair` | boolean | `false` |
+| `crosshairDirection` | select: `both`, `vertical`, `horizontal` | `both` |
+| `crosshairStyle` | select: `solid`, `dashed`, `dotted` | `dashed` |
+| `crosshairColor` | text | `#999` |
+
+<!-- options:end -->
 
 ## Common pitfalls
 
