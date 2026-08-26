@@ -88,6 +88,17 @@ describe('useWizard', () => {
     expect(mockReplace).not.toHaveBeenCalled()
   })
 
+  it('replaces rather than pushes on the first move off /new', () => {
+    mockRoute.path = '/new'
+    const { registerCreateSession, next } = useWizard()
+    registerCreateSession(() => 'abc123')
+
+    next()
+
+    expect(mockReplace).toHaveBeenCalledWith('/edit/abc123/visualize')
+    expect(mockPush).not.toHaveBeenCalled()
+  })
+
   it('isFirst and isLast are correct', () => {
     mockRoute.path = '/new'
     const { isFirst, isLast } = useWizard()

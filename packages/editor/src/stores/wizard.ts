@@ -67,11 +67,19 @@ export function useWizard() {
   }
 
   function navigateTo(stepKey: string) {
+    const onExistingChart = !!route?.params?.id
     const id = resolveId()
-    if (id && router) {
-      // push, not replace: the URL changes per step, so Back and Forward have
-      // to walk the wizard rather than leave the chart.
+    if (!id || !router) {
+      return
+    }
+    // Step URLs are pushed so Back and Forward walk the wizard. The first move
+    // off /new replaces instead: that URL does not identify the chart, and
+    // returning to it resets the session that was just created.
+    if (onExistingChart) {
       router.push(stepPath(id, stepKey))
+    }
+    else {
+      router.replace(stepPath(id, stepKey))
     }
   }
 
