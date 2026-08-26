@@ -51,7 +51,7 @@ test.describe('unparseable colors (#58)', () => {
 })
 
 test.describe('negative lineSymbolSize (#26)', () => {
-  test('line keeps its symbols with a non-negative radius', async ({ page }) => {
+  test('line keeps painting its symbols', async ({ page }) => {
     const errors = collectErrors(page)
     await gotoRender(page, NEGATIVE_SYMBOL_LINE)
 
@@ -59,7 +59,8 @@ test.describe('negative lineSymbolSize (#26)', () => {
       els => els.map(el => Number(el.getAttribute('r'))),
     )
     expect(radii).toHaveLength(2)
-    expect(radii.every(r => r >= 0)).toBe(true)
+    // A visible symbol, not a radius of 0 that paints nothing.
+    expect(radii.every(r => r > 0)).toBe(true)
     expect(errors).toEqual([])
   })
 })

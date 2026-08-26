@@ -198,23 +198,31 @@ describe('renderLineSymbols', () => {
     expect(transitionState).toBeTruthy()
   })
 
-  it('clamps a negative size to zero for circles', () => {
+  it('falls back to the default radius when the size is negative', () => {
     const sel = d3.select(g) as unknown as d3.Selection<SVGGElement, unknown, null, undefined>
     renderLineSymbols(sel, points, 3, { symbol: 'circle', showOn: 'all', size: -5 })
 
     const circles = g.querySelectorAll('circle.bc-symbol')
     expect(circles).toHaveLength(3)
     for (const circle of circles) {
-      expect(circle.getAttribute('r')).toBe('0')
+      expect(Number(circle.getAttribute('r'))).toBeGreaterThan(0)
+      expect(circle.getAttribute('r')).toBe('3.5')
     }
   })
 
-  it('clamps a negative size to zero for path symbols', () => {
+  it('falls back to the default radius when the size is zero', () => {
+    const sel = d3.select(g) as unknown as d3.Selection<SVGGElement, unknown, null, undefined>
+    renderLineSymbols(sel, points, 3, { symbol: 'circle', showOn: 'all', size: 0 })
+
+    expect(g.querySelector('circle.bc-symbol')!.getAttribute('r')).toBe('3.5')
+  })
+
+  it('falls back to the default size for path symbols', () => {
     const sel = d3.select(g) as unknown as d3.Selection<SVGGElement, unknown, null, undefined>
     renderLineSymbols(sel, points, 3, { symbol: 'diamond', showOn: 'all', size: -5 })
 
     const paths = g.querySelectorAll('path.bc-symbol')
     expect(paths).toHaveLength(3)
-    expect(paths[0].getAttribute('d')).toBe(d3.symbol().type(d3.symbolDiamond).size(0)())
+    expect(paths[0].getAttribute('d')).toBe(d3.symbol().type(d3.symbolDiamond).size(Math.PI * 3.5 * 3.5)())
   })
 })
