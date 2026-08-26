@@ -1,9 +1,11 @@
-import { quoteDslString } from '@blueprint-chart/lib'
 import type { ColumnType, ParsedData } from '@/composables/useDataParser'
 import { parseBpcData } from '@/composables/useDataParser'
+import { serializeTableData } from '@blueprint-chart/lib'
 import { useDataTransforms } from '@/composables/useDataTransforms'
 import { useScenes } from '@/composables/useScenes'
 import { resolveScene } from '@/utils/scenes'
+
+export { serializeTableData }
 
 export type SourceFormat = 'delimited' | 'bpc'
 
@@ -12,34 +14,6 @@ interface DataTableState {
   rows: string[][]
   rawInput: string
   columnTypes: ColumnType[]
-}
-
-function formatValue(v: string): string {
-  if (/^-?\d+(\.\d+)?%?$/.test(v)) {
-    return v
-  }
-  return quoteDslString(v)
-}
-
-export function serializeTableData(cols: string[], rows: string[][]): string {
-  if (cols.length <= 2) {
-    return rows
-      .map((row) => {
-        const label = row[0] ?? ''
-        const value = row[1] ?? ''
-        return `${quoteDslString(label)} = ${formatValue(value)}`
-      })
-      .join('\n')
-  }
-
-  const seriesNames = cols.slice(1)
-  const header = `series = ${seriesNames.map(quoteDslString).join(',')}`
-  const lines = rows.map((row) => {
-    const label = row[0] ?? ''
-    const values = row.slice(1).map(v => formatValue(v ?? '')).join(',')
-    return `${quoteDslString(label)} = ${values}`
-  })
-  return [header, ...lines].join('\n')
 }
 
 export const useDataTableStore = defineStore('dataTable', () => {

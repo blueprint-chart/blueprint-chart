@@ -1,6 +1,6 @@
-import { stripDigitGroupSpaces } from '@blueprint-chart/lib'
+import { stripDigitGroupSpaces } from '../charts/number-parse'
 
-import type { ColumnType } from '../data/parser'
+import type { ColumnType } from '../recommendations/types'
 
 export function parseNumeric(v: string): number {
   return Number(stripDigitGroupSpaces(v).replace(/[,%$€£¥₹]/g, '').trim()) || 0

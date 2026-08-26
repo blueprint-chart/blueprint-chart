@@ -1,5 +1,5 @@
 import { applyTranspose } from './applyTranspose'
-import type { TransformResult } from '@/stores/dataTransforms'
+import type { TransformResult } from './types'
 
 function make(columns: string[], rows: string[][], columnTypes: string[]): TransformResult {
   return { columns, rows, columnTypes: columnTypes as TransformResult['columnTypes'] }

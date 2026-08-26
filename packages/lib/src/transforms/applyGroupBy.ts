@@ -1,5 +1,5 @@
-import type { ColumnType } from '../data/parser'
-import type { TransformResult } from '@/stores/dataTransforms'
+import type { ColumnType } from '../recommendations/types'
+import type { TransformResult } from './types'
 import { parseNumeric, resolveColumns } from './shared'
 
 const aggregateFns: Record<string, (values: number[]) => number> = {

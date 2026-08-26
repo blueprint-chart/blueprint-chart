@@ -1,5 +1,5 @@
-import type { TransformResult } from '@/stores/dataTransforms'
-import { SortDirection } from '@blueprint-chart/lib'
+import type { TransformResult } from './types'
+import { SortDirection } from '../enums'
 import { compareValues, parseNumeric, resolveColumns } from './shared'
 
 export function applySort(data: TransformResult, config: Record<string, string>): TransformResult {

@@ -1,5 +1,5 @@
-import type { ColumnType } from '../data/parser'
-import type { TransformResult } from '@/stores/dataTransforms'
+import type { ColumnType } from '../recommendations/types'
+import type { TransformResult } from './types'
 import { isTypeCompatible, getOutputType } from './parseOperations'
 import { transformValue } from './transformValue'
 

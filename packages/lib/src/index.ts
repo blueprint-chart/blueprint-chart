@@ -30,6 +30,9 @@ export {
   DirectLabelMode,
   Interpolation,
   DslNodeType,
+  TransformType,
+  FilterCondition,
+  ParseOperationCategory,
 } from './enums'
 export { ANNOTATION_KIND_KEYWORD } from './enums'
 
@@ -101,6 +104,29 @@ export { propertyMap, extractChartTypeOptions, dataEntriesToString, extractScene
 export type { AnnotationNode, PointAnnotationNode, RangeAnnotationNode, FreeAnnotationNode, AreaFillNode, ChartNode, DataNode, ColorizeNode, HighlightNode, PropertyNode, SceneNode, SeriesNode, TransformNode } from './dsl/types'
 export { validateChart } from './dsl/validate'
 export type { ValidationIssue, ValidationResult } from './dsl/validate'
+
+// Data transforms
+export {
+  TRANSFORM_TYPES,
+  applyTransformSteps,
+  applyTransformNodes,
+  applyTransformNodesToChartData,
+  transformNodesToSteps,
+  transformValue,
+  parseOperations,
+  parseOperationMap,
+  isTypeCompatible,
+  getOutputType,
+  NULL_VALUE,
+  parseBpcData,
+  serializeTableData,
+  chartDataToTable,
+  detectColumnTypes,
+  cleanNumericValue,
+  isDateValue,
+  isNumberValue,
+} from './transforms'
+export type { ParseOperation, TransformResult, TransformStep } from './transforms'
 
 // Samples
 export { samples } from './samples'

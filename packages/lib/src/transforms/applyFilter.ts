@@ -1,5 +1,5 @@
-import type { TransformResult } from '@/stores/dataTransforms'
-import { FilterCondition } from '../../enums'
+import type { TransformResult } from './types'
+import { FilterCondition } from '../enums'
 
 function matchesCondition(value: string, condition: string, target: string): boolean {
   if (!target && condition !== FilterCondition.Equals && condition !== FilterCondition.NotEquals) {

@@ -1,30 +1,14 @@
 import type { ColumnType } from '@/utils/data/parser'
-import { applyParse } from '../utils/transforms/applyParse'
-import { applySort } from '../utils/transforms/applySort'
-import { applyFilter } from '../utils/transforms/applyFilter'
-import { applyHideColumns } from '../utils/transforms/applyHideColumns'
-import { applyTranspose } from '../utils/transforms/applyTranspose'
-import { applyRename } from '../utils/transforms/applyRename'
-import { applyGroupBy } from '../utils/transforms/applyGroupBy'
-import { isTypeCompatible, parseOperationMap } from '../utils/transforms/parseOperations'
-import { TransformType } from '../enums'
+import type { TransformResult, TransformStep as TransformStepInput } from '@blueprint-chart/lib'
+import { applyTransformSteps, isTypeCompatible, parseOperationMap, TransformType } from '@blueprint-chart/lib'
 
-export type { ParseOperation } from '../utils/transforms/parseOperations'
-export { parseOperations } from '../utils/transforms/parseOperations'
-export { NULL_VALUE } from '../utils/transforms/applyParse'
+export type { ParseOperation, TransformResult } from '@blueprint-chart/lib'
+export { parseOperations, NULL_VALUE } from '@blueprint-chart/lib'
 
 export { TransformType }
 
-export interface TransformStep {
+export interface TransformStep extends TransformStepInput {
   id: string
-  type: TransformType
-  config: Record<string, string>
-}
-
-export interface TransformResult {
-  columns: string[]
-  rows: string[][]
-  columnTypes: ColumnType[]
 }
 
 export const useDataTransformsStore = defineStore('dataTransforms', () => {
@@ -61,34 +45,7 @@ export const useDataTransformsStore = defineStore('dataTransforms', () => {
   }
 
   function applyStepList(stepList: TransformStep[], columns: string[], rows: string[][], columnTypes: ColumnType[]): TransformResult {
-    let result: TransformResult = { columns: [...columns], rows: rows.map(r => [...r]), columnTypes: [...columnTypes] }
-    for (const step of stepList) {
-      switch (step.type) {
-        case TransformType.Sort:
-          result = applySort(result, step.config)
-          break
-        case TransformType.Filter:
-          result = applyFilter(result, step.config)
-          break
-        case TransformType.HideColumns:
-          result = applyHideColumns(result, step.config)
-          break
-        case TransformType.Transpose:
-          result = applyTranspose(result)
-          break
-        case TransformType.Parse:
-          result = applyParse(result, step.config)
-          break
-        case TransformType.Rename:
-          result = applyRename(result, step.config)
-          break
-        case TransformType.GroupBy:
-          result = applyGroupBy(result, step.config)
-          break
-        // computed is not yet implemented
-      }
-    }
-    return result
+    return applyTransformSteps(stepList, columns, rows, columnTypes)
   }
 
   function applyTransforms(columns: string[], rows: string[][], columnTypes: ColumnType[]): TransformResult {

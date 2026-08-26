@@ -1,12 +1,16 @@
-import { stripDigitGroupSpaces } from '@blueprint-chart/lib'
+import type { TransformResult } from '@blueprint-chart/lib'
+import {
+  cleanNumericValue,
+  detectColumnTypes,
+  isDateValue,
+  isNumberValue,
+  parseBpcData,
+} from '@blueprint-chart/lib'
 
-export type ColumnType = 'date' | 'number' | 'string'
+export type { ColumnType } from '@blueprint-chart/lib'
+export { cleanNumericValue, detectColumnTypes, isDateValue, isNumberValue, parseBpcData }
 
-export interface ParsedData {
-  columns: string[]
-  rows: string[][]
-  columnTypes: ColumnType[]
-}
+export type ParsedData = TransformResult
 
 export function detectDelimiter(raw: string): string {
   const firstLine = raw.split('\n')[0] ?? ''
@@ -47,122 +51,11 @@ function splitRow(line: string, delimiter: string): string[] {
   return cells
 }
 
-const DATE_PATTERNS = [
-  /^\d{4}-\d{2}-\d{2}$/,
-  /^\d{4}-\d{2}$/,
-  /^\d{4}$/,
-  /^\d{1,2}\/\d{1,2}\/\d{2,4}$/,
-  /^\d{1,2}-\d{1,2}-\d{2,4}$/,
-  /^(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{1,2},?\s+\d{4}$/i,
-  /^\d{4}\/\d{2}\/\d{2}$/,
-  /^\d{4}\/\d{2}$/,
-  /^Q[1-4]\s+\d{4}$/,
-]
-
-export function isDateValue(value: string): boolean {
-  if (!value) {
-    return false
-  }
-  for (const pattern of DATE_PATTERNS) {
-    if (pattern.test(value)) {
-      // YYYY-MM and YYYY are valid date-like patterns but Date.parse may not handle them
-      // so we accept them directly when the regex matches
-      if (/^\d{4}(-\d{2})?$/.test(value) || /^\d{4}\/\d{2}$/.test(value) || /^Q[1-4]\s+\d{4}$/.test(value)) {
-        return true
-      }
-      return !Number.isNaN(Date.parse(value))
-    }
-  }
-  return false
-}
-
-/**
- * Strip comparison/approximation prefixes (<, >, ≤, ≥, ~) from numeric values.
- * Returns the cleaned string (e.g. "<1" → "1", "~50" → "50").
- * Non-numeric strings are returned unchanged.
- */
-export function cleanNumericValue(value: string): string {
-  const match = value.match(/^[<>≤≥~]\s*(.+)$/)
-  if (match) {
-    const inner = stripDigitGroupSpaces(match[1]).replace(/[,%$€£¥₹]/g, '').trim()
-    if (inner.length > 0 && !Number.isNaN(Number(inner))) {
-      return match[1].trim()
-    }
-  }
-  return value
-}
-
-export function isNumberValue(value: string): boolean {
-  if (!value) {
-    return false
-  }
-  const cleaned = stripDigitGroupSpaces(cleanNumericValue(value)).replace(/[,%$€£¥₹]/g, '').trim()
-  return cleaned.length > 0 && !Number.isNaN(Number(cleaned))
-}
-
-export function detectColumnTypes(columns: string[], rows: string[][]): ColumnType[] {
-  return columns.map((_, ci) => {
-    const values = rows.map(r => r[ci] ?? '').filter(v => v.length > 0)
-    if (values.length === 0) {
-      return 'string'
-    }
-    if (values.every(isDateValue)) {
-      return 'date'
-    }
-    if (values.every(isNumberValue)) {
-      return 'number'
-    }
-    return 'string'
-  })
-}
-
 export interface ParseDelimitedOptions {
   firstRowIsHeader?: boolean
   delimiter?: 'auto' | ',' | '\t' | ';' | '|'
   decimalSeparator?: '.' | ','
   trimWhitespace?: boolean
-}
-
-export function parseBpcData(raw: string): ParsedData {
-  const lines = raw.split('\n').map(l => l.trim()).filter(Boolean)
-  if (lines.length === 0) {
-    return { columns: [], rows: [], columnTypes: [] }
-  }
-
-  const seriesMatch = lines[0]?.match(/^series\s*=\s*(.+)$/)
-  if (seriesMatch) {
-    const raw = seriesMatch[1].trim()
-    // Individually quoted names: series = "A","B","C"
-    // Single quoted string with commas: series = "A,B,C"
-    const seriesNames = raw.includes('","')
-      ? raw.split(',').map(s => s.trim().replace(/^"|"$/g, ''))
-      : raw.replace(/^"|"$/g, '').split(',').map(s => s.trim())
-    const columns = ['label', ...seriesNames]
-    const rows: string[][] = []
-    for (let i = 1; i < lines.length; i++) {
-      // New format: "Label" = 40,44,42
-      const matchNew = lines[i].match(/^"([^"]+)"\s*=\s*([^"]+)$/)
-      // Legacy format: "Label" = "40,44,42"
-      const matchOld = lines[i].match(/^"([^"]+)"\s*=\s*"([^"]*)"$/)
-      const match = matchOld ?? matchNew
-      if (match) {
-        rows.push([match[1], ...match[2].split(',').map(v => v.trim())])
-      }
-    }
-    const columnTypes = detectColumnTypes(columns, rows)
-    return { columns, rows, columnTypes }
-  }
-
-  const columns = ['label', 'value']
-  const rows: string[][] = []
-  for (const line of lines) {
-    const match = line.match(/^"([^"]+)"\s*=\s*(.+)$/)
-    if (match) {
-      rows.push([match[1], match[2].replace(/%$/, '').trim()])
-    }
-  }
-  const columnTypes = detectColumnTypes(columns, rows)
-  return { columns, rows, columnTypes }
 }
 
 export function serializeDelimited(columns: string[], rows: string[][], delimiter: string = '\t'): string {

@@ -1,4 +1,4 @@
-import type { TransformResult } from '@/stores/dataTransforms'
+import type { TransformResult } from './types'
 import { resolveColumns } from './shared'
 
 export function applyHideColumns(data: TransformResult, config: Record<string, string>): TransformResult {

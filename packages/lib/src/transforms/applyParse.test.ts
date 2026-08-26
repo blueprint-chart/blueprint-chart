@@ -1,5 +1,5 @@
 import { applyParse, NULL_VALUE } from './applyParse'
-import type { TransformResult } from '@/stores/dataTransforms'
+import type { TransformResult } from './types'
 
 function makeData(columns: string[], rows: string[][], columnTypes: string[]): TransformResult {
   return { columns, rows, columnTypes: columnTypes as TransformResult['columnTypes'] }

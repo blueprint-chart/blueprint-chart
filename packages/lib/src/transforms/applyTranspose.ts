@@ -1,5 +1,5 @@
-import type { ColumnType } from '../data/parser'
-import type { TransformResult } from '@/stores/dataTransforms'
+import type { ColumnType } from '../recommendations/types'
+import type { TransformResult } from './types'
 
 export function applyTranspose(data: TransformResult): TransformResult {
   if (data.rows.length === 0 || data.columns.length === 0) {

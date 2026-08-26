@@ -1,5 +1,5 @@
-import type { ColumnType } from '../data/parser'
-import { ParseOperationCategory } from '../../enums'
+import type { ColumnType } from '../recommendations/types'
+import { ParseOperationCategory } from '../enums'
 
 export interface ParseOperation {
   id: string
