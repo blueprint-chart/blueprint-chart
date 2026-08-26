@@ -125,6 +125,18 @@ describe('setupProximityInteraction', () => {
     expect(vLine.style.strokeDasharray).toBe('none')
   })
 
+  // chart.scss declares `.bc-crosshair { stroke: var(--bc-crosshair-color) }`,
+  // and a stylesheet declaration always beats a presentation attribute, so a
+  // `stroke` attribute here is dead: only an inline style paints the colour.
+  it('carries crosshairColor where the stylesheet cannot outrank it', () => {
+    setupProximityInteraction(g, { width: 400, height: 300, points, crosshair: true, crosshairColor: '#ff0000' })
+
+    const vLine = g.querySelector('.bc-crosshair-v') as SVGLineElement
+    const hLine = g.querySelector('.bc-crosshair-h') as SVGLineElement
+    expect(vLine.style.stroke).toBe('#ff0000')
+    expect(hLine.style.stroke).toBe('#ff0000')
+  })
+
   it('sets stroke-dasharray via style for dotted crosshairStyle', () => {
     setupProximityInteraction(g, { width: 400, height: 300, points, crosshair: true, crosshairStyle: CrosshairStyle.Dotted })
 

@@ -49,7 +49,10 @@ describe('createCrosshairPlugin', () => {
     plugin.postDraw!(makeChartStub(g) as any, undefined as any)
 
     const vLine = g.querySelector('.bc-crosshair-v') as SVGLineElement
-    expect(vLine?.getAttribute('stroke')).toBe('#f00')
+    // chart.scss declares `.bc-crosshair { stroke: var(--bc-crosshair-color) }`,
+    // and a stylesheet declaration always beats a presentation attribute, so a
+    // `stroke` attribute here is dead: only an inline style paints the colour.
+    expect(vLine.style.stroke).toBe('#f00')
     expect(vLine.style.strokeDasharray).toBe('2,2')
   })
 
