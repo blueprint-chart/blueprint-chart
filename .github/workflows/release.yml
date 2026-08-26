@@ -71,16 +71,20 @@ jobs:
         uses: cycjimmy/semantic-release-action@v5
         with:
           dry_run: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run == true }}
-          # Run the semantic-release this repo declares (^25.0.9). Without this the
-          # action runs its own bundled 24, whose conventional-changelog-writer is
-          # older than the one conventional-changelog-conventionalcommits@10 needs,
-          # and generateNotes fails with "Missing helper".
+          # semantic_version pins the release runtime to the major this repo
+          # declares (^25.0.9); the action otherwise runs its own bundled 24.
+          # That alone is not enough: the writer that generateNotes resolves is
+          # still older than conventional-changelog-conventionalcommits@10 needs,
+          # so it is installed explicitly. Measured, not reasoned: with only
+          # semantic_version set, run 32982439510 still failed with
+          # 'Missing helper' while logging 'Running semantic-release version 25.0.9'.
           semantic_version: 25
           extra_plugins: |
             @semantic-release/changelog
             @semantic-release/exec
             @semantic-release/git
             conventional-changelog-conventionalcommits@10
+            conventional-changelog-writer@9
         env:
           # npm auth is via OIDC trusted publishing (id-token: write above) — no NODE_AUTH_TOKEN needed.
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
