@@ -46,7 +46,7 @@ export function computeStack(data: ChartData): d3.Series<Record<string, number>,
 
 /**
  * Compute a stacked layout normalized to 100%.
- * Each category's values sum to 100.
+ * Each category's magnitudes sum to 100, negatives below the baseline.
  */
 export function computeStack100(data: ChartData): d3.Series<Record<string, number>, string>[] {
   const series = data.series ?? []
@@ -56,14 +56,21 @@ export function computeStack100(data: ChartData): d3.Series<Record<string, numbe
 
   const seriesNames = series.map(s => s.name)
 
-  // Feed raw values to d3 and let stackOffsetExpand normalise each row to [0, 1].
-  // The previous implementation mixed Math.abs in the denominator with the raw
-  // numerator, so diverging rows didn't sum to 100. stackOffsetExpand keeps the
-  // row sum consistent for both signed and unsigned data.
+  // Normalise each row against the sum of absolute values, not the signed sum:
+  // a row totalling -13 has no meaningful percentage of itself, and dividing by
+  // it produced segments of 338% and -238% whose rects came out with negative
+  // dimensions. Shares are then laid out like any other diverging stack, so a
+  // negative share sits below the baseline instead of running backwards.
+  let hasNegative = false
   const rows = data.labels.map((_label, i) => {
     const row: Record<string, number> = { _index: i }
+    const total = series.reduce((sum, s) => sum + Math.abs(s.values[i] ?? 0), 0)
     series.forEach((s) => {
-      row[s.name] = s.values[i] ?? 0
+      const v = s.values[i] ?? 0
+      if (v < 0) {
+        hasNegative = true
+      }
+      row[s.name] = total > 0 ? (v / total) * 100 : 0
     })
     return row
   })
@@ -71,15 +78,7 @@ export function computeStack100(data: ChartData): d3.Series<Record<string, numbe
   const stack = d3.stack<Record<string, number>>()
     .keys(seriesNames)
     .order(d3.stackOrderNone)
-    .offset(d3.stackOffsetExpand)
+    .offset(hasNegative ? d3.stackOffsetDiverging : d3.stackOffsetNone)
 
-  // d3 returns y0/y1 in [0, 1]; scale to [0, 100] to match the previous API.
-  const result = stack(rows)
-  for (const layer of result) {
-    for (const point of layer) {
-      point[0] *= 100
-      point[1] *= 100
-    }
-  }
-  return result
+  return stack(rows)
 }

@@ -124,8 +124,11 @@ export function render(
   const maxStackedValue = isPercent
     ? 100
     : d3.max(flatData, d => d.y1) ?? 0
+  // Percent stacking puts a negative share below the baseline, so the value
+  // axis has to reach down to it or the segment renders outside the plot.
+  const minStackedValue = isPercent ? Math.min(0, d3.min(flatData, d => d.y0) ?? 0) : 0
 
-  const allValues = [0, maxStackedValue]
+  const allValues = [minStackedValue, maxStackedValue]
   const vLabelW = estimateVerticalLabelWidth(allValues, options.verticalAxis?.range, options.verticalAxis?.numberFormat, options.verticalAxis?.scaleType)
   const lpMargins = labelPositionMargins(containerWidth, options.verticalAxis?.labelPosition, options.horizontalAxis?.labelPosition, options.verticalAxis?.direction, vLabelW)
 
@@ -175,7 +178,7 @@ export function render(
     .padding(resolveBarGapPadding(options.barGap))
 
   const y = d3.scaleLinear()
-    .domain([0, maxStackedValue])
+    .domain([minStackedValue, maxStackedValue])
     .nice()
     .range([height, 0])
 
@@ -303,7 +306,7 @@ export function render(
     const segmentHeight = Math.abs(y(datum.y0) - y(datum.y1))
     const cy = y(datum.y0) - segmentHeight / 2
     const labelText = isPercent
-      ? `${Math.round(datum.value)}%`
+      ? `${Math.round(datum.y0 < 0 ? -datum.value : datum.value)}%`
       : options.valueLabels === 'percent'
         ? percentValueLabel(datum.value, columnTotals.get(datum.label) ?? 0)
         : String(Math.round(datum.value * 100) / 100)
