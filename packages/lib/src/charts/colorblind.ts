@@ -76,7 +76,11 @@ function toSrgb(c: number): number {
  * Returns a hex string.
  */
 export function simulateCvdColor(hex: string, type: CvdType): string {
-  const [r, g, b] = chroma(hex).rgb().map(v => toLinear(v / 255))
+  // An unparseable color paints as black in the browser; chroma() would throw
+  // instead and take the whole caller down (charts/contrast.ts substitutes the
+  // same way).
+  const parsed = chroma.valid(hex) ? chroma(hex) : chroma('#000')
+  const [r, g, b] = parsed.rgb().map(v => toLinear(v / 255))
   const m = CVD_MATRICES[type]
   const sr = toSrgb(m[0] * r + m[1] * g + m[2] * b)
   const sg = toSrgb(m[5] * r + m[6] * g + m[7] * b)

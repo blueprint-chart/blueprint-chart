@@ -41,6 +41,10 @@ describe('simulateCvdColor', () => {
     expect(result).toMatch(/^#[0-9a-f]{6}$/)
   })
 
+  it('treats an unparseable color as black instead of throwing', () => {
+    expect(simulateCvdColor('notacolor', 'protanopia')).toBe(simulateCvdColor('#000000', 'protanopia'))
+  })
+
   it('leaves achromatic colors mostly unchanged', () => {
     const gray = '#808080'
     for (const type of ['protanopia', 'deuteranopia', 'tritanopia'] as CvdType[]) {
@@ -74,6 +78,10 @@ describe('checkCvdColors', () => {
     const issues = checkCvdColors(['#d62728', '#2ca02c'])
     const types = issues.map(i => i.type)
     expect(types.some(t => t === 'protanopia' || t === 'deuteranopia')).toBe(true)
+  })
+
+  it('does not throw when one entry is unparseable', () => {
+    expect(() => checkCvdColors(['notacolor', '#2a9d8f'])).not.toThrow()
   })
 
   it('includes pair details with deltaE', () => {
