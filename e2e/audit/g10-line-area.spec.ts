@@ -101,3 +101,44 @@ test.describe('G10 line/area: a ragged row is a gap, not NaN', () => {
     expect(errors).toEqual([])
   })
 })
+
+// #90: a tooltip is placed once per mousemove and nothing repositions it, so a
+// re-render under a still cursor must tear it down. Left in place it reads the
+// old datum while the crosshair and the highlight dot have moved on, and the
+// chart shows two contradictory readings at once.
+const TOOLTIP_ACROSS_SCENES = `chart line {
+  tooltips = true
+  crosshair = true
+
+  data {
+    "2018" = 10
+    "2019" = 24
+    "2020" = 15
+    "2021" = 31
+  }
+
+  scene "Focus" {
+    title = "Second scene"
+  }
+}`
+
+test.describe('G10 line/area: a tooltip is not stranded by a re-render', () => {
+  test('line clears its tooltip when the chart re-renders under a still cursor', async ({ page }) => {
+    await gotoRender(page, TOOLTIP_ACROSS_SCENES)
+
+    const overlay = page.locator('.bc-frame .bc-proximity-overlay')
+    await expect(overlay).toBeVisible()
+    await overlay.hover()
+    const tooltip = page.locator('.bc-tooltip')
+    await expect(tooltip).toBeVisible()
+
+    // Advance the scene without moving the mouse: a synthetic click leaves the
+    // cursor over the overlay, which is the reported condition.
+    await page.evaluate(() => {
+      document.querySelector<HTMLElement>('[data-scene-player] [aria-label="Next scene"]')!.click()
+    })
+    await page.waitForTimeout(1200)
+
+    await expect(tooltip).toBeHidden()
+  })
+})
