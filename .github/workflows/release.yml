@@ -71,16 +71,16 @@ jobs:
         uses: cycjimmy/semantic-release-action@v5
         with:
           dry_run: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run == true }}
-          # The preset is pinned to the major this repo declares, and the writer it
-          # needs is installed alongside it: unpinned, the preset resolves to a major
-          # that requires conventional-changelog-writer@9 while the action's bundled
-          # semantic-release brings an older one, and generateNotes fails.
+          # Run the semantic-release this repo declares (^25.0.9). Without this the
+          # action runs its own bundled 24, whose conventional-changelog-writer is
+          # older than the one conventional-changelog-conventionalcommits@10 needs,
+          # and generateNotes fails with "Missing helper".
+          semantic_version: 25
           extra_plugins: |
             @semantic-release/changelog
             @semantic-release/exec
             @semantic-release/git
             conventional-changelog-conventionalcommits@10
-            conventional-changelog-writer@9
         env:
           # npm auth is via OIDC trusted publishing (id-token: write above) — no NODE_AUTH_TOKEN needed.
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
