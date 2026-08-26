@@ -129,3 +129,37 @@ export function computeLinearDomain(
 
   return [lo, hi]
 }
+
+/**
+ * Decade tick values (1, 10, 100, ...) for a logarithmic axis, or null when the
+ * scale is not logarithmic or holds no decade.
+ *
+ * d3's symlog scale generates ticks linearly, which on a log axis stacks every
+ * label into the top decade and emits a 0 that a log axis cannot represent.
+ * The domain floor is 0 once `.nice()` has run, so decades start at 1 there.
+ */
+export function logTickValues(
+  scale: { domain: () => unknown[], constant?: () => unknown },
+  maxTicks: number,
+): number[] | null {
+  if (typeof scale.constant !== 'function') {
+    return null
+  }
+  const domain = scale.domain().map(Number).filter(Number.isFinite)
+  const lo = Math.min(...domain)
+  const hi = Math.max(...domain)
+  if (!(hi > 0)) {
+    return null
+  }
+  const first = lo > 0 ? Math.ceil(Math.log10(lo)) : 0
+  const last = Math.floor(Math.log10(hi))
+  const decades: number[] = []
+  for (let k = first; k <= last; k++) {
+    decades.push(10 ** k)
+  }
+  if (decades.length === 0) {
+    return null
+  }
+  const step = Math.ceil(decades.length / Math.max(2, maxTicks))
+  return step > 1 ? decades.filter((_, i) => i % step === 0) : decades
+}

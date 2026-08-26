@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { computeLinearDomain, filterLabelsByRange, resolveBarGapPadding, DEFAULT_BAR_GAP } from './scale-helpers'
+import * as d3 from 'd3'
+import { computeLinearDomain, filterLabelsByRange, logTickValues, resolveBarGapPadding, DEFAULT_BAR_GAP } from './scale-helpers'
 import { ScaleType } from '../enums'
 
 describe('computeLinearDomain', () => {
@@ -235,5 +236,35 @@ describe('resolveBarGapPadding', () => {
   it('falls back to default for non-finite values', () => {
     expect(resolveBarGapPadding(NaN)).toBeCloseTo(60 / 160, 10)
     expect(resolveBarGapPadding(Infinity)).toBeCloseTo(60 / 160, 10)
+  })
+})
+
+describe('logTickValues', () => {
+  it('returns null for a linear scale', () => {
+    expect(logTickValues(d3.scaleLinear().domain([0, 1000000]), 12)).toBeNull()
+  })
+
+  it('returns null for a band scale', () => {
+    expect(logTickValues(d3.scaleBand<string>().domain(['A', 'B']), 12)).toBeNull()
+  })
+
+  it('returns the decades of a symlog domain', () => {
+    const scale = d3.scaleSymlog().domain([0, 1000000])
+    expect(logTickValues(scale, 12)).toEqual([1, 10, 100, 1000, 10000, 100000, 1000000])
+  })
+
+  it('keeps the decades below the data when the domain floor is positive', () => {
+    const scale = d3.scaleSymlog().domain([0.01, 10])
+    expect(logTickValues(scale, 12)).toEqual([0.01, 0.1, 1, 10])
+  })
+
+  it('thins the decades down to maxTicks', () => {
+    const scale = d3.scaleSymlog().domain([0, 1000000])
+    expect(logTickValues(scale, 4)).toEqual([1, 100, 10000, 1000000])
+  })
+
+  it('returns null when the domain holds no decade', () => {
+    expect(logTickValues(d3.scaleSymlog().domain([0, 0.5]), 12)).toBeNull()
+    expect(logTickValues(d3.scaleSymlog().domain([-100, 0]), 12)).toBeNull()
   })
 })

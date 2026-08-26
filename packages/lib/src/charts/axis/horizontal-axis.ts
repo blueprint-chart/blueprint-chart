@@ -5,6 +5,7 @@ import type { AxisOptions } from '../types'
 import { detectDates, type DateGranularity } from '../date-parse'
 import { getDefaultTransitionMs } from '../motion'
 import { buildNumberFormatter } from '../format-helpers'
+import { logTickValues } from '../scale-helpers'
 
 interface AxisDatum {
   placeholder: true
@@ -498,7 +499,13 @@ export class HorizontalAxisChart extends D3Blueprint<AxisDatum[]> {
       }
       else {
         const maxTicks = Math.max(2, Math.floor(availableWidth / MIN_LABEL_SPACING))
-        axisFn.ticks(maxTicks)
+        const decades = logTickValues(rawScale, maxTicks)
+        if (decades) {
+          ticks = decades as unknown as (string & d3.NumberValue)[]
+        }
+        else {
+          axisFn.ticks(maxTicks)
+        }
       }
     }
     if (ticks) {

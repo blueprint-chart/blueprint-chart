@@ -206,4 +206,52 @@ test.describe('G4 axis domain', () => {
     await next.click()
     await expect(gridLines).toHaveCount(0)
   })
+
+  // #19: d3's symlog scale delegates to the linear tick generator, so the
+  // labels bunched into the top decade and the axis carried an impossible 0.
+  test('a log value axis ticks by decade', async ({ page }) => {
+    await gotoRender(page, `chart bar-vertical {
+  verticalScaleType = log
+  showVerticalAxis = true
+  showVerticalTicks = true
+  verticalLabelPosition = "outside"
+  data {
+    "A" = 1
+    "B" = 1000000
+  }
+}`)
+    await expect(page.locator('.bc-frame .bc-axis-vertical .tick').first()).toBeAttached()
+
+    const ticks = await verticalTickValues(page)
+    expect(ticks.length).toBeGreaterThan(2)
+    expect(ticks).not.toContain(0)
+    for (const t of ticks) {
+      expect(Math.log10(t) % 1).toBe(0)
+    }
+  })
+
+  // #19: the horizontal value axis of the bar-horizontal family, same defect.
+  test('a log horizontal value axis ticks by decade', async ({ page }) => {
+    await gotoRender(page, `chart bar-horizontal {
+  horizontalScaleType = log
+  showHorizontalAxis = true
+  showHorizontalTicks = true
+  horizontalLabelPosition = "outside"
+  data {
+    "A" = 1
+    "B" = 1000000
+  }
+}`)
+    await expect(page.locator('.bc-frame .bc-axis-horizontal .tick').first()).toBeAttached()
+
+    const ticks = await page.evaluate(() => Array.from(
+      document.querySelectorAll('.bc-frame .bc-axis-horizontal .tick text'),
+      el => Number((el.textContent ?? '').replace(/\u2212/g, '-').replace(/[^0-9.eE+-]/g, '')),
+    ))
+    expect(ticks.length).toBeGreaterThan(2)
+    expect(ticks).not.toContain(0)
+    for (const t of ticks) {
+      expect(Math.log10(t) % 1).toBe(0)
+    }
+  })
 })
