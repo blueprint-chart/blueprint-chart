@@ -115,7 +115,7 @@ function buildTickFormatter(
 
   if (fmt) {
     // Labels are the band-scale category strings, which a numeric format turns
-    // into NaN — ignore it, as the % branch above already does.
+    // into NaN, so ignore it as the % branch above already does.
     if (labels.length > 0) {
       return null
     }
