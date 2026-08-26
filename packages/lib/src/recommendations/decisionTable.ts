@@ -51,9 +51,11 @@ const TABLE: Record<ShapeSignature, Partial<Record<Intent, CellFn>>> = {
         r('bar-horizontal', 'good', 'Horizontal bars for long labels'),
       ]
     },
+    // A range needs a second numeric column to be the margin. bar-split draws
+    // one panel per series, so on a single column it has no range to show.
     'range': () => [
-      r('bar-split', 'best', 'Diverging bars show a value against a shared baseline'),
-      r('bar-vertical', 'alternative', 'Plain bars if the baseline is zero'),
+      r('bar-vertical', 'best', 'A single numeric column carries no range — plain bars read the value directly'),
+      r('bar-horizontal', 'good', 'Horizontal bars work well for long labels'),
     ],
   },
   '1cat+Nnum': {

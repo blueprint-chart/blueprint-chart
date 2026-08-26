@@ -25,8 +25,8 @@ describe('resolveCell', () => {
   it('1cat+Nnum composition-over-time → column-stacked', () => {
     expect(topType('1cat+Nnum', 'composition-over-time')).toBe('column-stacked')
   })
-  it('range → bar-split for both single and multi numeric', () => {
-    expect(topType('1cat+1num', 'range')).toBe('bar-split')
+  it('range → bar-split only once a second numeric column can be the margin', () => {
+    expect(topType('1cat+1num', 'range')).toBe('bar-vertical')
     expect(topType('1cat+Nnum', 'range')).toBe('bar-split')
   })
   it('1date+Nnum composition-over-time → area-stacked', () => {

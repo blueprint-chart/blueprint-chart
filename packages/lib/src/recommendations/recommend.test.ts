@@ -37,8 +37,16 @@ describe('recommendCharts', () => {
     expect(recs[0]).toMatchObject({ chartType: 'bar-multi', fitness: 'best' })
   })
 
-  it('recommends bar-split when the goal mentions a margin of error', () => {
+  // bar-split draws one panel per series, so a margin of error needs a second
+  // numeric column to be the margin. With one, it has no range to show.
+  it('recommends plain bars for a margin-of-error goal on a single numeric column', () => {
     const recs = recommendCharts(['string', 'number'], 6, 'the polling lead with its margin of error')
+    expect(recs[0]).toMatchObject({ chartType: 'bar-vertical', fitness: 'best' })
+    expect(recs.some(r => r.chartType === 'bar-split')).toBe(false)
+  })
+
+  it('recommends bar-split for a margin-of-error goal on two numeric columns', () => {
+    const recs = recommendCharts(['string', 'number', 'number'], 6, 'the polling lead with its margin of error')
     expect(recs[0]).toMatchObject({ chartType: 'bar-split', fitness: 'best' })
   })
 

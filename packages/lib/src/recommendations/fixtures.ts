@@ -14,7 +14,7 @@ export const RECOMMEND_FIXTURES: RecommendFixture[] = [
   { id: 'browser-market', columnTypes: ['string', 'number'], rowCount: 4, goal: 'each wealth group as a share of the global total', expectedType: 'donut', allowedMiss: true },
   { id: 'co2-emissions', columnTypes: ['string', 'number'], rowCount: 6, goal: 'compare annual CO2 emissions across countries', expectedType: 'bar-vertical' },
   { id: 'coffee-production', columnTypes: ['string', 'number'], rowCount: 8, goal: 'compare coffee production by country', expectedType: 'bar-vertical' },
-  { id: 'election-polls', columnTypes: ['string', 'number'], rowCount: 6, goal: 'the polling lead for each party with its margin of error', expectedType: 'bar-split' },
+  { id: 'election-polls', columnTypes: ['string', 'number', 'number', 'number'], rowCount: 6, goal: 'the polling lead for each party with its margin of error', expectedType: 'bar-split' },
   { id: 'energy-mix-stacked-area', columnTypes: ['date', 'number', 'number', 'number'], rowCount: 20, goal: 'the energy mix composition over time', expectedType: 'area-stacked' },
   { id: 'farm-compass', columnTypes: ['date', 'number', 'number', 'number'], rowCount: 12, goal: 'how the land-use mix changed over time', expectedType: 'area-stacked' },
   { id: 'letter-frequency', columnTypes: ['string', 'number'], rowCount: 26, goal: 'compare how often each letter appears', expectedType: 'bar-vertical' },
