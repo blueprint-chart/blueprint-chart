@@ -115,6 +115,14 @@ chart line {
   showHorizontalAxis = true
   showHorizontalTicks = false
   horizontalGridStyle = "none"
+
+  data {
+    "1980" = 0.26
+    "1990" = 0.45
+    "2000" = 0.39
+    "2010" = 0.73
+    "2024" = 1.28
+  }
 }
 ```
 
