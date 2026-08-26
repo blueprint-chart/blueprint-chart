@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import chroma from 'chroma-js'
 import { resolvePalette, listPalettes } from './palettes'
+import { checkCvdColors } from './colorblind'
 
 /**
  * Machado et al. 2009 severity-1.0 CVD simulation matrices (linear sRGB).
@@ -116,5 +117,47 @@ describe('palettes', () => {
         })
       }
     })
+  })
+})
+
+describe('every shipped palette passes the library colourblind check (#63)', () => {
+  /**
+   * Palettes that are an analogous ramp rather than a categorical set: their
+   * neighbouring entries are meant to read as steps of one progression, and no
+   * edit that keeps each entry inside dE 8 of its published value reaches the
+   * deltaE 10 threshold. The best a search found is pinned as a floor so they
+   * cannot silently get worse.
+   */
+  const RAMPS_THAT_CANNOT_REACH_THE_THRESHOLD: Record<string, number> = {
+    JosefAlbers: 4.4,
+    AgSunset: 5.8,
+    Sunset: 5.7,
+  }
+
+  function worstPairDeltaE(colors: string[]): number {
+    return checkCvdColors(colors)
+      .flatMap(issue => issue.pairs.map(pair => pair.deltaE))
+      .reduce((min, de) => Math.min(min, de), Infinity)
+  }
+
+  it('checkCvdColors is clean for every palette that is not an analogous ramp', () => {
+    const offenders: string[] = []
+    for (const palette of listPalettes()) {
+      if (palette.name in RAMPS_THAT_CANNOT_REACH_THE_THRESHOLD) {
+        continue
+      }
+      const issues = checkCvdColors([...palette.colors])
+      if (issues.length > 0) {
+        const detail = issues.map(i => `${i.type} ${i.pairs.map(p => `${p.a}/${p.b}=${p.deltaE.toFixed(1)}`).join(' ')}`).join('; ')
+        offenders.push(`${palette.name}: ${detail}`)
+      }
+    }
+    expect(offenders).toEqual([])
+  })
+
+  it('keeps the analogous ramps no worse than they are today', () => {
+    for (const [name, floor] of Object.entries(RAMPS_THAT_CANNOT_REACH_THE_THRESHOLD)) {
+      expect(worstPairDeltaE([...resolvePalette(name)!])).toBeGreaterThanOrEqual(floor)
+    }
   })
 })
