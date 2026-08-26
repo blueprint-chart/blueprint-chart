@@ -73,11 +73,12 @@ const FRAME_CHOICES = new Map<string, string[]>([
 
 /**
  * Keys whose value is a length in pixels. A negative one never means what it
- * says: renderLineSymbols falls back to the default radius, and
- * applyLayoutConstraints emits a `height: -400px` the browser drops.
+ * says: renderLineSymbols and renderTargetCircle fall back to the default
+ * radius, and applyLayoutConstraints emits a `height: -400px` the browser drops.
  */
 const NON_NEGATIVE_KEYS = new Set<string>([
   'lineSymbolSize',
+  'circleSize',
   'fixedHeight',
   'fixedWidth',
   'maxWidth',
@@ -358,12 +359,14 @@ function validateAnnotations(
     const allowed = annotationKeysFor(kind)
     const label = annotationLabel(kind)
     for (const prop of a.properties) {
+      const path = `${basePath}.${label}[${i}].${prop.key}`
+      validateNonNegative(prop, path, errors)
       if (allowed.has(prop.key)) {
         continue
       }
       errors.push({
         code: 'unknown-annotation-property',
-        path: `${basePath}.${label}[${i}].${prop.key}`,
+        path,
         message: `Unknown ${label} property "${prop.key}"; it will be silently ignored.`,
         suggestion: nearest(prop.key, allowed),
       })

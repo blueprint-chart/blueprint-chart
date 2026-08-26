@@ -8,6 +8,7 @@ import {
   computeAnchorPoint,
   bboxEdgeToward,
   renderTargetCircle,
+  resolveCircleRadius,
   renderAnnotationText,
   renderConnectingLine,
   scaleXValue,
@@ -146,7 +147,7 @@ export function renderPointAnnotation(
     }
 
     const ltd = lineConfig.showCircle
-      ? (lineConfig.circleSize ?? 4) + (lineConfig.lineTargetDistance ?? 5)
+      ? resolveCircleRadius(lineConfig.circleSize) + (lineConfig.lineTargetDistance ?? 5)
       : (lineConfig.lineTargetDistance ?? 0)
     let toX = anchor.x
     let toY = anchor.y

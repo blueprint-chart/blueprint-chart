@@ -193,6 +193,17 @@ function strokeDashForStyle(style: StrokeStyle): string {
   }
 }
 
+/** Radius the annotation circle falls back to when `circleSize` is absent or unusable. */
+const DEFAULT_CIRCLE_RADIUS = 4
+
+/**
+ * A non-positive radius paints nothing — SVG rejects a negative `r` outright —
+ * so an unusable size resolves to the documented default instead.
+ */
+export function resolveCircleRadius(size?: number): number {
+  return size !== undefined && size > 0 ? size : DEFAULT_CIRCLE_RADIUS
+}
+
 export function renderTargetCircle(
   g: d3.Selection<SVGGElement, unknown, null, undefined>,
   cx: number,
@@ -207,7 +218,7 @@ export function renderTargetCircle(
     .attr('class', 'bc-annotation-circle')
     .attr('cx', cx)
     .attr('cy', cy)
-    .attr('r', opts.size ?? 4)
+    .attr('r', resolveCircleRadius(opts.size))
     .attr('fill', 'none')
     .attr('stroke', opts.color ?? '#666')
     .attr('stroke-width', 1.5)

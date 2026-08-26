@@ -638,6 +638,22 @@ describe('sizes with a natural floor', () => {
     expect(result.errors.some(e => e.code === 'invalid-number')).toBe(true)
   })
 
+  it('rejects a negative annotation circleSize', () => {
+    const result = validateChart(chart({
+      annotations: [pointAnnotation([prop('text', 'neg'), prop('showCircle', 'true'), prop('circleSize', -8)])],
+    }))
+    const issue = result.errors.find(e => e.code === 'invalid-number')
+    expect(issue).toBeDefined()
+    expect(issue?.message).toContain('circleSize')
+  })
+
+  it('accepts a positive annotation circleSize', () => {
+    const result = validateChart(chart({
+      annotations: [pointAnnotation([prop('text', 'ok'), prop('showCircle', 'true'), prop('circleSize', 8)])],
+    }))
+    expect(result.errors).toEqual([])
+  })
+
   it('accepts a percentage maxWidth', () => {
     const result = validateChart(chart({ properties: [prop('maxWidth', '50%')] }))
     expect(result.errors).toEqual([])
