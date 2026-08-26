@@ -6,12 +6,19 @@ import { detectDates, type DateGranularity } from '../date-parse'
 import { getDefaultTransitionMs } from '../motion'
 import { buildNumberFormatter } from '../format-helpers'
 import { logTickValues } from '../scale-helpers'
+import { measureMaxTextWidth } from '../text-measure'
 
 interface AxisDatum {
   placeholder: true
 }
 
 const MIN_LABEL_SPACING = 60
+// Font size tick labels render at (chart.scss, --bc-axis-tick-font-size).
+const TICK_LABEL_FONT_PX = 10
+// Gap kept between two neighbouring tick labels.
+const TICK_LABEL_GAP = 8
+// Floor on the spacing between ticks, so short labels still read as separate.
+const MIN_TICK_SPACING = 16
 // Approximate px per character for SVG axis text (sans-serif ~11–12 px font size).
 // Calibrated against Chromium rendering: "Jan 2024" (8 chars) measures ~88 px.
 const AVG_CHAR_WIDTH_PX = 10
@@ -155,6 +162,19 @@ function maxFormattedLabelWidth(
   return max
 }
 
+function formatLabels(
+  domain: (string | d3.NumberValue | Date)[],
+  formatter: ((d: string | d3.NumberValue) => string) | null,
+): string[] {
+  return domain.map(d => formatter ? formatter(d as string | d3.NumberValue) : String(d))
+}
+
+/** How many labels of this width fit side by side in `availableWidth`. */
+function labelsThatFit(maxLabelWidth: number, availableWidth: number): number {
+  const spacing = Math.max(MIN_TICK_SPACING, Math.ceil(maxLabelWidth) + TICK_LABEL_GAP)
+  return Math.max(2, Math.floor(availableWidth / spacing))
+}
+
 function thinLabels(
   domain: string[],
   availableWidth: number,
@@ -163,24 +183,54 @@ function thinLabels(
   if (domain.length <= 1) {
     return domain
   }
-  const maxWidth = formatter
-    ? maxFormattedLabelWidth(domain, formatter)
-    : domain.reduce((m, l) => Math.max(m, l.length), 0) * AVG_CHAR_WIDTH_PX
-  // Spacing is driven by the longest formatted label plus a small gap. We keep
-  // a modest absolute floor so short labels still have visual separation.
-  const minSpacing = Math.max(16, Math.ceil(maxWidth) + 8)
-  const maxLabels = Math.max(2, Math.floor(availableWidth / minSpacing))
+  const maxLabels = labelsThatFit(
+    measureMaxTextWidth(formatLabels(domain, formatter ?? null), TICK_LABEL_FONT_PX),
+    availableWidth,
+  )
   if (domain.length <= maxLabels) {
     return domain
   }
   const step = Math.ceil(domain.length / maxLabels)
-  const result = domain.filter((_, i) => i % step === 0)
-  // Always append the last label so the axis endpoint (data range end) is visible.
-  const last = domain[domain.length - 1]
-  if (result[result.length - 1] !== last) {
-    result.push(last)
+  const kept: number[] = []
+  for (let i = 0; i < domain.length; i += step) {
+    kept.push(i)
   }
-  return result
+  // Always keep the last label so the axis endpoint (data range end) is visible.
+  // It replaces its predecessor when appending it would leave the two closer
+  // together than the spacing the rest of the axis was thinned to.
+  const lastIndex = domain.length - 1
+  if (kept[kept.length - 1] !== lastIndex) {
+    if (lastIndex - kept[kept.length - 1] < step) {
+      kept.pop()
+    }
+    kept.push(lastIndex)
+  }
+  return kept.map(i => domain[i])
+}
+
+/**
+ * Tick count for a continuous scale, reduced until the formatted labels fit
+ * side by side. A count derived from the width alone overprints as soon as the
+ * labels are wide: a prefix/suffix format renders `$1,200,000.0M` into a 47px
+ * pitch. Each pass asks the scale for its own nice tick values, since the
+ * formatted width depends on the step d3 picks.
+ */
+function fitTickCount(
+  scale: d3.ScaleLinear<number, number> | d3.ScaleSymLog<number, number> | d3.ScaleTime<number, number>,
+  availableWidth: number,
+  formatter: ((d: string | d3.NumberValue) => string) | null,
+): number {
+  let count = Math.max(2, Math.floor(availableWidth / MIN_LABEL_SPACING))
+  while (count > 2) {
+    const ticks = scale.ticks(count)
+    const labels = formatLabels(ticks, formatter ?? (scale.tickFormat(count) as (d: string | d3.NumberValue) => string))
+    const fits = labelsThatFit(measureMaxTextWidth(labels, TICK_LABEL_FONT_PX), availableWidth)
+    if (labels.length <= fits) {
+      break
+    }
+    count = Math.min(count - 1, fits)
+  }
+  return count
 }
 
 /**
@@ -478,19 +528,25 @@ export class HorizontalAxisChart extends D3Blueprint<AxisDatum[]> {
         if (!wrapLinesByText && labelRotation === 'auto') {
           shouldRotate = true
         }
-        // `horizontal` override + can't wrap → labels stay horizontal and may
-        // visibly overlap. We do NOT thin: the user opted into horizontal
-        // layout, and silently dropping bar labels is worse than overlap.
       }
     }
+
+    const effective = labelPos === 'auto' ? 'outside' : labelPos
 
     let ticks = this.config('ticks') as (string & d3.NumberValue)[] | null
     if (!ticks && availableWidth > 0) {
       if (ordinal) {
-        // Continuous (date-like) domains thin to avoid clutter — each label
-        // is a position on a continuous axis, not a category identity.
-        // Discrete domains always show every label.
-        if (continuous) {
+        // Continuous (date-like) domains thin to avoid clutter — each label is
+        // a position on a continuous axis, not a category identity.
+        //
+        // Discrete domains keep every label as long as it is legible. Labels
+        // that stay horizontal because they can neither wrap nor rotate are
+        // thinned as the last step before they would overprint each other:
+        // 40 categories at the default settings render one continuous smear,
+        // and a smear identifies no bar at all, while a thinned axis still
+        // labels one bar in every n and always its first and last.
+        const thinnable = continuous || (!shouldRotate && !wrapLinesByText && effective !== 'off')
+        if (thinnable) {
           const thinned = thinLabels(domain, availableWidth, tickFormatter)
           if (thinned.length < domain.length) {
             ticks = thinned as (string & d3.NumberValue)[]
@@ -504,7 +560,11 @@ export class HorizontalAxisChart extends D3Blueprint<AxisDatum[]> {
           ticks = decades as unknown as (string & d3.NumberValue)[]
         }
         else {
-          axisFn.ticks(maxTicks)
+          axisFn.ticks(fitTickCount(
+            rawScale as d3.ScaleLinear<number, number> | d3.ScaleSymLog<number, number> | d3.ScaleTime<number, number>,
+            availableWidth,
+            tickFormatter,
+          ))
         }
       }
     }
@@ -560,8 +620,6 @@ export class HorizontalAxisChart extends D3Blueprint<AxisDatum[]> {
     if (!this.config('showTicks')) {
       target.selectAll('.tick line').remove()
     }
-
-    const effective = labelPos === 'auto' ? 'outside' : labelPos
 
     if (effective === 'off') {
       target.selectAll('.tick text').remove()

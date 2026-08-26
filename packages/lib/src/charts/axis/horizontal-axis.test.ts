@@ -3,6 +3,10 @@ import * as d3 from 'd3'
 import { HorizontalAxisChart, renderHorizontalAxis, thinLabels, buildTickFormatter, detectDates, willRotateLabels, estimateRotatedAxisHeight, resolveHorizontalAxisBottom, wrapLabel } from './horizontal-axis'
 import { LabelRotation } from '../../enums'
 import { setRenderTransition } from '../motion'
+import { measureTextWidth } from '../text-measure'
+import { parse } from '../../dsl/parser'
+import { astToDefinition } from '../../render/ast-to-definition'
+import { renderChart } from '../../render/render-chart'
 
 describe('renderHorizontalAxis', () => {
   let chartArea: SVGGElement
@@ -302,18 +306,18 @@ describe('HorizontalAxisChart label rotation', () => {
     })
   })
 
-  it('never thins discrete labels when labelRotation is "horizontal" (allows overlap)', () => {
-    // Each label identifies a bar/category — dropping one makes that bar
-    // unreadable. With the explicit `horizontal` override and wrap failing,
-    // we keep every label and let them visibly overlap rather than disappear.
+  it('thins discrete labels that stay horizontal rather than overprinting them', () => {
+    // `horizontal` cannot rotate and these labels cannot wrap, so the only way
+    // to keep them legible is to show one in every n.
     const domain = Array.from({ length: 24 }, (_, i) => `Category ${i + 1}`)
     const axis = renderOrdinal({ domain, width: 400, labelRotation: 'horizontal' })
     const texts = axis.querySelectorAll('.tick text')
     texts.forEach((t) => {
       expect(t.getAttribute('transform')).toBeNull()
     })
-    const allTicks = axis.querySelectorAll('.tick')
-    expect(allTicks.length).toBe(domain.length)
+    expect(texts.length).toBeLessThan(domain.length)
+    expect(texts[0].textContent).toBe('Category 1')
+    expect(texts[texts.length - 1].textContent).toBe('Category 24')
   })
 
   it('never thins discrete rotated labels even at extreme densities', () => {
@@ -714,17 +718,15 @@ describe('thinLabels', () => {
     expect(result[result.length - 1]).toBe('L99')
   })
 
-  it('thins 7-char date labels at widths where tick spacing would cause overlap', () => {
-    // "2024-01" → formatted "Jan 2024" (~64 px rendered). Without content-aware
-    // spacing, 12 labels at 720 px gives 60 px/tick which is under the label width.
+  it('thins date labels at the widths where they would overlap, not before', () => {
+    // "2024-01" formats to "Jan 2024", ~48px wide, so 12 of them fit in 720px
+    // at a 60px pitch and only start colliding as the axis narrows.
     const labels = Array.from({ length: 12 }, (_, i) => `2024-${String(i + 1).padStart(2, '0')}`)
-    // 720px: minSpacing = max(60, ceil(7*7.5*1.2)+8) = 71 → maxLabels=10 → thin
     const result720 = thinLabels(labels, 720)
-    expect(result720.length).toBeLessThan(12)
-    expect(result720.length).toBeGreaterThanOrEqual(2)
-    // 300px: should thin more aggressively
+    expect(result720).toHaveLength(12)
     const result300 = thinLabels(labels, 300)
     expect(result300.length).toBeLessThan(result720.length)
+    expect(result300.length).toBeGreaterThanOrEqual(2)
   })
 
   it('returns single-element arrays unchanged', () => {
@@ -736,12 +738,12 @@ describe('thinLabels', () => {
   })
 
   it('always includes the last label to show the axis endpoint', () => {
-    // 50 labels, 180px → maxLabels = max(2, floor(180/60)) = 3
-    // step = ceil(50/3) = 17 → indices 0, 17, 34, then last (49) appended
+    // 4-char labels measure 24px → spacing 32 → maxLabels floor(180/32) = 5
+    // → step ceil(50/5) = 10 → indices 0, 10, 20, 30, 40, and the endpoint (49)
+    // replaces 40 because 9 apart is closer than the 10 the axis was thinned to.
     const labels = Array.from({ length: 50 }, (_, i) => `${2000 + i}`)
     const result = thinLabels(labels, 180)
-    expect(result).toEqual(['2000', '2017', '2034', '2049'])
-    // The last label is always included so the data range endpoint is visible
+    expect(result).toEqual(['2000', '2010', '2020', '2030', '2049'])
   })
 
   it('shows all single-char labels when they fit naturally per-tick', () => {
@@ -757,15 +759,13 @@ describe('thinLabels', () => {
 
   it('produces progressively coarser steps as width shrinks', () => {
     const labels = Array.from({ length: 12 }, (_, i) => `M${i}`)
-    // maxWidth ~30 → minSpacing 38.
-    // 720px → maxLabels floor(720/38)=18 → all fit.
+    // "M10" measures 18px → spacing 26.
+    // 720px → maxLabels floor(720/26)=27 → all fit.
     expect(thinLabels(labels, 720)).toEqual(labels)
-    // 360px → maxLabels floor(360/38)=9 → step=2 → M0,M2,…,M10 + M11
-    expect(thinLabels(labels, 360)).toEqual(['M0', 'M2', 'M4', 'M6', 'M8', 'M10', 'M11'])
-    // 240px → maxLabels floor(240/38)=6 → step=2 → same as 360
-    expect(thinLabels(labels, 240)).toEqual(['M0', 'M2', 'M4', 'M6', 'M8', 'M10', 'M11'])
-    // 180px → maxLabels floor(180/38)=4 → step=3 → M0,M3,M6,M9 + M11
-    expect(thinLabels(labels, 180)).toEqual(['M0', 'M3', 'M6', 'M9', 'M11'])
+    // 240px → maxLabels floor(240/26)=9 → step=2 → M0,M2,…,M8, endpoint M11
+    expect(thinLabels(labels, 240)).toEqual(['M0', 'M2', 'M4', 'M6', 'M8', 'M11'])
+    // 120px → maxLabels floor(120/26)=4 → step=3 → M0,M3,M6, endpoint M11
+    expect(thinLabels(labels, 120)).toEqual(['M0', 'M3', 'M6', 'M11'])
   })
 })
 
@@ -858,5 +858,93 @@ describe('buildTickFormatter', () => {
   it('ignores % format when labels are not dates', () => {
     const fmt = buildTickFormatter('%b %Y', ['Apple', 'Banana'])
     expect(fmt).toBeNull()
+  })
+})
+
+/** Tick labels are centred on their tick, so two neighbours overlap when the gap
+ *  between their centres is smaller than half of each label's measured width. */
+function overlappingTickPairs(axis: Element, fontSizePx = 10): number {
+  const placed = [...axis.querySelectorAll('.tick')].map((tick) => {
+    const match = /translate\(([-\d.]+)/.exec(tick.getAttribute('transform') ?? '')
+    const text = tick.querySelector('text')?.textContent ?? ''
+    return { x: match ? Number(match[1]) : 0, half: measureTextWidth(text, fontSizePx) / 2 }
+  }).sort((a, b) => a.x - b.x)
+  let overlaps = 0
+  for (let i = 1; i < placed.length; i++) {
+    if (placed[i].x - placed[i - 1].x < placed[i].half + placed[i - 1].half) {
+      overlaps++
+    }
+  }
+  return overlaps
+}
+
+describe('tick density accounts for the formatted label width (#24)', () => {
+  let chartArea: SVGGElement
+
+  beforeEach(() => {
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+    chartArea = document.createElementNS('http://www.w3.org/2000/svg', 'g') as SVGGElement
+    svg.appendChild(chartArea)
+    document.body.appendChild(svg)
+  })
+
+  it('does not overprint wide prefix/suffix labels on a linear axis', () => {
+    const scale = d3.scaleLinear().domain([0, 1200000]).range([0, 610])
+    const g = renderHorizontalAxis(chartArea, scale, 300, { width: 610, numberFormat: '$|,.1f|M' })
+    expect(g.querySelectorAll('.tick').length).toBeGreaterThan(1)
+    expect(overlappingTickPairs(g)).toBe(0)
+  })
+
+  it('does not overprint wide SI labels on a linear axis', () => {
+    const scale = d3.scaleLinear().domain([0, 1200000]).range([0, 610])
+    const g = renderHorizontalAxis(chartArea, scale, 300, { width: 610, numberFormat: '.2s' })
+    expect(overlappingTickPairs(g)).toBe(0)
+  })
+
+  it('still uses the full tick density for short labels', () => {
+    const scale = d3.scaleLinear().domain([0, 100]).range([0, 610])
+    const g = renderHorizontalAxis(chartArea, scale, 300, { width: 610 })
+    expect(g.querySelectorAll('.tick').length).toBeGreaterThanOrEqual(10)
+  })
+})
+
+describe('dense category labels are thinned to fit (#20)', () => {
+  function draw(source: string): HTMLElement {
+    const host = document.createElement('div')
+    document.body.appendChild(host)
+    renderChart(host, astToDefinition(parse(source)))
+    return host
+  }
+
+  function axisOf(host: HTMLElement): Element {
+    return host.querySelector('.bc-axis-horizontal') as Element
+  }
+
+  it('does not overprint 40 categories at the default settings', () => {
+    const rows = Array.from({ length: 40 }, (_, i) => `    "Cat ${i + 1}" = ${10 + i}`).join('\n')
+    const host = draw(`chart bar-vertical {\n  data {\n${rows}\n  }\n}`)
+    const axis = axisOf(host)
+    expect(axis.querySelectorAll('.tick text').length).toBeGreaterThan(1)
+    expect(overlappingTickPairs(axis)).toBe(0)
+  })
+
+  it('keeps the first and last category', () => {
+    const rows = Array.from({ length: 40 }, (_, i) => `    "Cat ${i + 1}" = ${10 + i}`).join('\n')
+    const axis = axisOf(draw(`chart bar-vertical {\n  data {\n${rows}\n  }\n}`))
+    const texts = [...axis.querySelectorAll('.tick text')].map(t => t.textContent)
+    expect(texts[0]).toBe('Cat 1')
+    expect(texts[texts.length - 1]).toBe('Cat 40')
+  })
+
+  it('keeps every label when they all fit', () => {
+    const rows = Array.from({ length: 4 }, (_, i) => `    "Cat ${i + 1}" = ${10 + i}`).join('\n')
+    const axis = axisOf(draw(`chart bar-vertical {\n  data {\n${rows}\n  }\n}`))
+    expect(axis.querySelectorAll('.tick text')).toHaveLength(4)
+  })
+
+  it('does not overprint 120 categories on a line chart', () => {
+    const rows = Array.from({ length: 120 }, (_, i) => `    "Point ${i + 1}" = ${10 + (i % 7)}`).join('\n')
+    const axis = axisOf(draw(`chart line {\n  data {\n${rows}\n  }\n}`))
+    expect(overlappingTickPairs(axis)).toBe(0)
   })
 })

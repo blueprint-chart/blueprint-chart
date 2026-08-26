@@ -1367,9 +1367,9 @@ describe('bar-vertical', () => {
       })
     })
 
-    it('honours horizontalAxis.labelRotation="horizontal" override without dropping any bar labels', () => {
-      // Each label identifies a bar — dropping one makes that bar unreadable.
-      // With horizontal locked and wrap failing, labels overlap rather than disappear.
+    it('thins the labels of horizontalAxis.labelRotation="horizontal" instead of overprinting them', () => {
+      // Horizontal locked and wrap failing: one label in every n stays legible,
+      // where every label at once is a single unreadable smear.
       setContainerWidth(500)
       const manyLabels = {
         labels: Array.from({ length: 20 }, (_, i) => `Category ${i + 1}`),
@@ -1381,8 +1381,9 @@ describe('bar-vertical', () => {
       texts.forEach((t) => {
         expect(t.getAttribute('transform')).toBeNull()
       })
-      const allTicks = hAxis.querySelectorAll('.tick')
-      expect(allTicks.length).toBe(20)
+      expect(texts.length).toBeLessThan(20)
+      expect(texts[0].textContent).toBe('Category 1')
+      expect(texts[texts.length - 1].textContent).toBe('Category 20')
     })
   })
 
