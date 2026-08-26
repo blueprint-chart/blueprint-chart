@@ -1,14 +1,9 @@
 import type { Ref } from 'vue'
-import {
-  exportSvg,
-  exportPng,
-  exportFramePng,
-  exportFrameSvg,
-  getCardPadding,
-  resolveBackground,
-} from '@/utils/export/image'
+import { exportSvg, exportPng, exportFramePng, exportFrameSvg } from '@/utils/export/image'
 
 export function useImageExport(containerRef: Ref<HTMLElement | null>, cardRef?: Ref<HTMLElement | null>) {
+  const error = shallowRef('')
+
   function getSvgElement(): SVGElement | null {
     return containerRef.value?.querySelector('svg') ?? null
   }
@@ -17,9 +12,15 @@ export function useImageExport(containerRef: Ref<HTMLElement | null>, cardRef?: 
     return containerRef.value?.querySelector('.bc-frame') ?? null
   }
 
+  // The card wraps the frame with the export canvas padding and background, so
+  // measuring it keeps both downloads matching what the preview shows.
+  function getExportRoot(): HTMLElement | null {
+    return cardRef?.value ?? getFrameElement()
+  }
+
   function downloadSvg() {
-    // SVG uses pure text extraction — card ref includes padding & background
-    const root = cardRef?.value ?? getFrameElement()
+    error.value = ''
+    const root = getExportRoot()
     if (root) {
       exportFrameSvg(root)
       return
@@ -31,21 +32,25 @@ export function useImageExport(containerRef: Ref<HTMLElement | null>, cardRef?: 
   }
 
   async function downloadPng(scale = 2) {
-    // PNG uses foreignObject — target .bc-frame (card styles break foreignObject)
-    const frame = getFrameElement()
-    if (frame) {
-      const bgColor = cardRef?.value ? resolveBackground(cardRef.value) : undefined
-      const padding = cardRef?.value ? getCardPadding(cardRef.value) : undefined
-      await exportFramePng(frame, scale, 'chart.png', bgColor, padding)
-      return
+    error.value = ''
+    try {
+      const root = getExportRoot()
+      if (root) {
+        await exportFramePng(root, scale)
+        return
+      }
+      const svg = getSvgElement()
+      if (!svg) {
+        return
+      }
+      const { width, height } = svg.getBoundingClientRect()
+      await exportPng(svg, width * scale, height * scale)
     }
-    const svg = getSvgElement()
-    if (!svg) {
-      return
+    catch (e) {
+      // A rejected export used to surface nowhere: the button just looked clicked.
+      error.value = e instanceof Error ? e.message : String(e)
     }
-    const { width, height } = svg.getBoundingClientRect()
-    await exportPng(svg, width * scale, height * scale)
   }
 
-  return { downloadSvg, downloadPng }
+  return { downloadSvg, downloadPng, error }
 }

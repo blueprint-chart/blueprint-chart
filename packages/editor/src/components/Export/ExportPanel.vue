@@ -49,6 +49,7 @@
       <ExportEmbedPanel v-if="exportTab === 'embed'" />
       <ExportDownloadPanel
         v-else-if="exportTab === 'download'"
+        :error="downloadError"
         @download-png="downloadPng"
         @download-svg="downloadSvg"
       />
@@ -98,7 +99,7 @@ const canvasRef = useTemplateRef<HTMLElement>('canvasRef')
 const cardRef = useTemplateRef<HTMLElement>('cardRef')
 const previewRef = useTemplateRef<HTMLElement>('previewRef')
 useChartPreview(previewRef)
-const { downloadSvg, downloadPng } = useImageExport(previewRef, cardRef)
+const { downloadSvg, downloadPng, error: downloadError } = useImageExport(previewRef, cardRef)
 
 const gridOffsetX = shallowRef(0)
 const gridOffsetY = shallowRef(0)

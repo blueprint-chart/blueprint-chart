@@ -136,6 +136,8 @@ export type { ChartSample } from './samples'
 export { renderBpc, renderChart, astToDefinition, resolveScene, render } from './render'
 export type { ChartDefinition, RenderOptions, ResolvedChartState, ChartHandle, RenderApiOptions, OutputOptions } from './render'
 export { ChartParseError, PngBrowserUnsupportedError, MissingNodeRenderDepsError } from './render'
+export { buildFrameSvg } from './render'
+export type { FrameSvgLayout, FrameSvgTextBlock, FrameSvgPlot, ChartAccessibility } from './render'
 
 // Runtime
 export { buildSrcdoc } from './runtime/runtime'

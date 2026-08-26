@@ -1,4 +1,4 @@
-import { exportSvg } from '@/utils/export/image'
+import { exportSvg, buildFrameSvgFromDom } from '@/utils/export/image'
 import { useImageExport } from './useImageExport'
 
 afterEach(() => {
@@ -31,32 +31,6 @@ describe('exportSvg', () => {
   })
 })
 
-describe('exportFramePng scene-player stripping', () => {
-  it('clone with data-scene-player removed mirrors production behavior', () => {
-    // This test validates the pattern used in exportFramePng:
-    // clone the frame, then remove [data-scene-player] before serialization
-    const frame = document.createElement('div')
-    const body = document.createElement('div')
-    body.classList.add('bc-frame-body')
-    body.textContent = 'chart'
-    frame.appendChild(body)
-    const player = document.createElement('div')
-    player.setAttribute('data-scene-player', '')
-    player.textContent = 'player'
-    frame.appendChild(player)
-
-    // Simulate the clone + strip pattern from exportFramePng
-    const clone = frame.cloneNode(true) as HTMLElement
-    clone.querySelectorAll('[data-scene-player]').forEach(el => el.remove())
-
-    expect(clone.querySelector('[data-scene-player]')).toBeNull()
-    expect(clone.textContent).toBe('chart')
-    // Original is not modified
-    expect(frame.querySelector('[data-scene-player]')).not.toBeNull()
-    expect(frame.textContent).toBe('chartplayer')
-  })
-})
-
 describe('useImageExport', () => {
   it('returns downloadSvg and downloadPng functions', () => {
     const containerRef = shallowRef(null)
@@ -77,6 +51,74 @@ describe('useImageExport', () => {
     const containerRef = shallowRef(container)
     const { downloadSvg } = useImageExport(containerRef)
     expect(() => downloadSvg()).not.toThrow()
+    container.remove()
+  })
+})
+
+describe('buildFrameSvgFromDom (#69)', () => {
+  function buildFrame(): HTMLElement {
+    const frame = document.createElement('div')
+    frame.className = 'bc-frame'
+    const title = document.createElement('h3')
+    title.className = 'bc-frame-title'
+    title.textContent = 'Headline here'
+    frame.appendChild(title)
+    const body = document.createElement('div')
+    body.className = 'bc-frame-body'
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+    svg.setAttribute('role', 'img')
+    svg.setAttribute('aria-label', 'Headline here')
+    const desc = document.createElementNS('http://www.w3.org/2000/svg', 'desc')
+    desc.textContent = 'bar vertical chart of 2 categories.'
+    svg.appendChild(desc)
+    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect')
+    rect.setAttribute('class', 'bc-bar')
+    svg.appendChild(rect)
+    body.appendChild(svg)
+    frame.appendChild(body)
+    document.body.appendChild(frame)
+    return frame
+  }
+
+  it('builds a pure-SVG frame with no foreignObject, so the canvas is never tainted', () => {
+    const frame = buildFrame()
+    const built = buildFrameSvgFromDom(frame)
+    frame.remove()
+
+    expect(built).not.toBeNull()
+    expect(built!.markup).not.toContain('foreignObject')
+    expect(built!.markup).toContain('Headline here')
+    expect(built!.markup).toContain('class="bc-bar"')
+  })
+
+  it('carries the chart accessibility metadata onto the exported root', () => {
+    const frame = buildFrame()
+    const built = buildFrameSvgFromDom(frame)
+    frame.remove()
+
+    expect(built!.markup).toMatch(/^<svg[^>]*role="img"/)
+    expect(built!.markup).toMatch(/^<svg[^>]*aria-label="Headline here"/)
+    expect(built!.markup).toContain('<desc>bar vertical chart of 2 categories.</desc>')
+  })
+})
+
+describe('downloadPng error surfacing (#69)', () => {
+  it('reports a failed export instead of silently doing nothing', async () => {
+    const container = document.createElement('div')
+    const frame = document.createElement('div')
+    frame.className = 'bc-frame'
+    frame.appendChild(document.createElementNS('http://www.w3.org/2000/svg', 'svg'))
+    container.appendChild(frame)
+    document.body.appendChild(container)
+    vi.stubGlobal('URL', {
+      createObjectURL: () => { throw new Error('object URL unavailable') },
+      revokeObjectURL: vi.fn(),
+    })
+
+    const { downloadPng, error } = useImageExport(shallowRef(container))
+    await downloadPng()
+
+    expect(error.value).toBe('object URL unavailable')
     container.remove()
   })
 })

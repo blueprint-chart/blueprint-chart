@@ -1,5 +1,12 @@
 <template>
   <div class="export-download-panel">
+    <BAlert
+      :model-value="!!error"
+      variant="danger"
+      class="mb-0"
+    >
+      {{ error }}
+    </BAlert>
     <ExportDownloadFormatCard
       :selected="selectedFormat === 'png'"
       :icon="IPhImage"
@@ -72,6 +79,10 @@ import { useExportPanel } from '@/stores/exportPanel'
 import IPhImage from '~icons/ph/image'
 import IPhFileCode from '~icons/ph/file-code'
 import IPhFileText from '~icons/ph/file-text'
+
+defineProps<{
+  error?: string
+}>()
 
 const exportPanelStore = useExportPanel()
 const { selectedFormat, pngScale, svgInlineFonts, svgMinify, bpcCompact } = storeToRefs(exportPanelStore)

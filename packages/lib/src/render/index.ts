@@ -6,3 +6,6 @@ export type { ChartDefinition, RenderOptions, ResolvedChartState } from './types
 export { render } from './public-render'
 export type { ChartHandle, RenderApiOptions, OutputOptions } from './public-render'
 export { ChartParseError, PngBrowserUnsupportedError, MissingNodeRenderDepsError } from './errors'
+export { buildFrameSvg } from './frame-svg'
+export type { FrameSvgLayout, FrameSvgTextBlock, FrameSvgPlot } from './frame-svg'
+export type { ChartAccessibility } from './chart-a11y'
