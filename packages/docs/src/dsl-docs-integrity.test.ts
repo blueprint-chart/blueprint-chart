@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest'
 // Import the canonical parser from lib source (not the built bundle) so the
 // docs are pinned to the exact grammar that ships, without a build step.
 import { parse } from '../../lib/src/dsl/parser'
+import { validateChart } from '../../lib/src/dsl/validate'
 
 // These tests pin the docs (one of the three definitions of the BPC language)
 // to the canonical Peggy parser and to the on-disk sample files. They exist to
@@ -163,6 +164,14 @@ describe('docs integrity', () => {
       runner(`parses ${label}`, () => {
         const source = wrapFragment(snippet.code)
         expect(() => parse(source), `snippet failed to parse:\n${source}`).not.toThrow()
+      })
+      runner(`validates ${label}`, () => {
+        const source = wrapFragment(snippet.code)
+        const { errors } = validateChart(parse(source))
+        expect(
+          errors.map(e => `${e.code} at ${e.path}: ${e.message}`),
+          `snippet failed semantic validation:\n${source}`,
+        ).toEqual([])
       })
     }
   })
