@@ -37,6 +37,20 @@ describe('renderBpc', () => {
     expect(container.querySelector('svg path')).not.toBeNull()
   })
 
+  it('gives a type-switching scene its own axis label defaults', () => {
+    renderBpc(container, `chart bar-vertical {
+  data {
+    "a" = 10
+    "b" = 20
+  }
+  scene {
+    type = line
+  }
+}`, { sceneIndex: 0 })
+    // line defaults verticalLabelPosition to auto, bar-vertical to off
+    expect(container.querySelectorAll('.bc-axis-vertical .tick text').length).toBeGreaterThan(0)
+  })
+
   it('renders a visible error element on invalid DSL instead of throwing', () => {
     expect(() => renderBpc(container, 'not a chart at all {')).not.toThrow()
     expect(container.querySelector('svg')).toBeNull()

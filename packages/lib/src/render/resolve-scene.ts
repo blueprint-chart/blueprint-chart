@@ -1,10 +1,37 @@
 import type { ChartDefinition, ResolvedChartState } from './types'
-import type { FrameOptions, AnnotationConfig } from '../charts/types'
+import type { ChartTypeOptions, FrameOptions, AnnotationConfig } from '../charts/types'
 import type { SceneNode, ColorizeNode, HighlightNode, AreaFillNode, SeriesNode, TransformNode } from '../dsl/types'
-import { SortMode } from '../enums'
+import { LabelPosition, SortMode } from '../enums'
 import { extractChartTypeOptions, propertyMap, dataEntriesToString, convertColorizes, convertHighlights, convertAreaFills, convertAnnotations, convertSeriesOverrides } from '../dsl/converter'
-import { resolveChartTypeOptions } from '../charts/resolve'
+import { getChartTypeDefaults, resolveChartTypeOptions } from '../charts/resolve'
 import { parseData } from '../charts/chart-helpers'
+
+// A scene that changes chart type keeps every inherited option except the two
+// label positions, whose registry defaults encode whether values are drawn on
+// the mark or on the axis (registry.ts:326 and :339, both keyed off
+// `valueAxisLabelsOff`). Without this a `bar-vertical` base freezes
+// `verticalLabelPosition = off` onto a `line` scene and the y axis loses every
+// tick label. An explicit value, on the base or on the scene, still wins.
+//
+// The rule is reveal-only: a scene type defaulting to `off` never hides labels
+// the base shows. Hiding them would need the scene's `valueLabels` default too,
+// which stays inherited, so the scene would end up with no numbers at all.
+const LABEL_POSITION_KEYS = ['verticalLabelPosition', 'horizontalLabelPosition'] as const
+
+function applySceneLabelPositions(
+  options: Partial<ChartTypeOptions>,
+  chartType: string,
+  explicit: Record<string, unknown>,
+): Partial<ChartTypeOptions> {
+  const defaults = getChartTypeDefaults(chartType) as Record<string, unknown>
+  const result = { ...options } as Record<string, unknown>
+  for (const key of LABEL_POSITION_KEYS) {
+    if (explicit[key] === undefined && defaults[key] !== undefined && defaults[key] !== LabelPosition.Off) {
+      result[key] = defaults[key]
+    }
+  }
+  return result as Partial<ChartTypeOptions>
+}
 
 const warnedTransformTypes = new Set<string>()
 
@@ -157,9 +184,18 @@ export function resolveScene(
     ? parseData(dataEntriesToString(fold.data))
     : base.data
 
-  const options = Object.keys(fold.chartTypeOptions).length > 0
+  const inherited = Object.keys(fold.chartTypeOptions).length > 0
     ? resolveChartTypeOptions(chartType, { ...baseOptions, ...fold.chartTypeOptions })
     : baseOptions
+
+  // `def.options` callers pre-resolve their options, so an explicit value cannot
+  // be told apart from a default there and the label positions are left alone.
+  const options = chartType !== def.chartType && !def.options && def.properties
+    ? applySceneLabelPositions(inherited, chartType, {
+        ...extractChartTypeOptions(chartType, def.properties),
+        ...fold.chartTypeOptions,
+      })
+    : inherited
 
   const colorizes = fold.colorizes.length > 0
     ? convertColorizes(fold.colorizes)

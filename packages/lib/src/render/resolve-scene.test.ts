@@ -322,6 +322,8 @@ describe('resolveScene', () => {
   })
 })
 
+const LABEL_POSITION_KEYS: string[] = ['verticalLabelPosition', 'horizontalLabelPosition']
+
 describe('resolveScene chart-type option resolution', () => {
   function scene(properties: [string, string][]) {
     return {
@@ -350,6 +352,57 @@ describe('resolveScene chart-type option resolution', () => {
       scenes: [scene([['type', ChartType.Line], ['interpolation', Interpolation.Linear]])],
     })
     expect(resolveScene(def, 0).options.interpolation).toBe(Interpolation.Linear)
+  })
+
+  // The narrow #55 rule: exactly the two label positions come from the scene's
+  // own chart type, and nothing else moves. Both halves are asserted here so a
+  // later widening of the fix breaks this test.
+  it('gives a type-switching scene its own label positions and nothing else', () => {
+    const def = baseDef({
+      properties: [],
+      scenes: [scene([['type', ChartType.Line]])],
+    })
+    const base = resolveScene(def, undefined).options as Record<string, unknown>
+    const options = resolveScene(def, 0).options as Record<string, unknown>
+
+    expect(base.verticalLabelPosition).toBe(LabelPosition.Off)
+    expect(options.verticalLabelPosition).toBe(LabelPosition.Auto)
+    expect(options.horizontalLabelPosition).toBe(base.horizontalLabelPosition)
+
+    for (const [key, value] of Object.entries(base)) {
+      if (LABEL_POSITION_KEYS.includes(key)) {
+        continue
+      }
+      expect({ key, value: options[key] }).toEqual({ key, value })
+    }
+  })
+
+  // Reveal-only: the rule may only turn labels on. Both directions are asserted
+  // here so restoring the symmetric rule breaks this test.
+  it('adopts a visible scene label position but never an off one', () => {
+    const toLine = baseDef({
+      chartType: ChartType.BarVertical,
+      properties: [],
+      scenes: [scene([['type', ChartType.Line]])],
+    })
+    expect(resolveScene(toLine, undefined).options.verticalLabelPosition).toBe(LabelPosition.Off)
+    expect(resolveScene(toLine, 0).options.verticalLabelPosition).toBe(LabelPosition.Auto)
+
+    const toBar = baseDef({
+      chartType: ChartType.Line,
+      properties: [],
+      scenes: [scene([['type', ChartType.BarVertical]])],
+    })
+    expect(resolveScene(toBar, undefined).options.verticalLabelPosition).toBe(LabelPosition.Auto)
+    expect(resolveScene(toBar, 0).options.verticalLabelPosition).toBe(LabelPosition.Auto)
+  })
+
+  it('keeps an explicit base label position across a type switch', () => {
+    const def = baseDef({
+      properties: [{ type: DslNodeType.Property, key: 'verticalLabelPosition', value: LabelPosition.Off, isPercentage: false }],
+      scenes: [scene([['type', ChartType.Line]])],
+    })
+    expect(resolveScene(def, 0).options.verticalLabelPosition).toBe(LabelPosition.Off)
   })
 
   it('lets a scene override the base type default without a type switch', () => {
