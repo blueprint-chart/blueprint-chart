@@ -111,3 +111,36 @@ describe('frame chrome in toSvg() (#9)', () => {
     expect(svg).not.toContain('Headline here')
   })
 })
+
+const LEGEND_BPC = `chart line-multi {
+  title = "Headline here"
+  legend = true
+  data {
+    series = "X","Y"
+    "a" = 1, 4
+    "b" = 2, 5
+  }
+}`
+
+describe('theme reaches the rasterised output (#65)', () => {
+  it('paints the dark canvas background into the SVG', async () => {
+    const light = await (await render(FRAMED_BPC)).toSvg({ width: 800, height: 500 })
+    const dark = await (await render(FRAMED_BPC, { theme: 'dark' })).toSvg({ width: 800, height: 500 })
+    expect(light).toContain('fill="#ffffff"')
+    expect(dark).toContain('fill="#1c1c1c"')
+    expect(dark).not.toContain('fill="#ffffff"')
+  })
+
+  it('resolves the dark surface for the chart body, not just the frame', async () => {
+    const dark = await (await render(FRAMED_BPC, { theme: 'dark' })).toSvg({ width: 800, height: 500 })
+    expect(dark).toMatch(/<svg[^>]*color="rgba\(255, 255, 255, 0\.9\)"/)
+  })
+
+  it('themes the legend labels, which read the text colour off the surface', async () => {
+    const legendLabelFill = (svg: string) => svg.match(/<text[^>]*fill="([^"]*)">X<\/text>/)?.[1]
+    const light = await (await render(LEGEND_BPC)).toSvg({ width: 800, height: 500 })
+    const dark = await (await render(LEGEND_BPC, { theme: 'dark' })).toSvg({ width: 800, height: 500 })
+    expect(legendLabelFill(light)).toBe('#333333')
+    expect(legendLabelFill(dark)).toBe('rgba(255, 255, 255, 0.9)')
+  })
+})

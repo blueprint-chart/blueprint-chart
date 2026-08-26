@@ -27,3 +27,10 @@ describe('CHART_CSS frame text colour', () => {
     expect(CHART_CSS).toMatch(/\.bc-frame\s*\{[^}]*\bcolor:\s*var\(--bc-text-color/)
   })
 })
+
+describe('CHART_CSS bc-theme-dark (#65)', () => {
+  it('gives the bc-theme-dark class toHtml() emits a matching rule', () => {
+    expect(CHART_CSS).toMatch(/\.bc-frame\.bc-theme-dark\s*\{[^}]*--bc-frame-bg:\s*#1c1c1c/)
+    expect(CHART_CSS).toMatch(/\.bc-frame\.bc-theme-dark\s*\{[^}]*--bc-text-color:\s*rgba\(255, ?255, ?255/)
+  })
+})

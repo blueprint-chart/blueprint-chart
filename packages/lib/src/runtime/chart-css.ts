@@ -27,6 +27,18 @@ export const CHART_CSS = `
   fill: var(--bc-frame-bg, #fff);
 }
 
+/* \`theme = "dark"\` emits this class on the frame, so it carries the same
+   surface the document-level dark mode does, without depending on an ambient
+   data-bs-theme. Keep in sync with DARK_THEME in render/frame-svg.ts. */
+.bc-frame.bc-theme-dark {
+  --bc-frame-bg: #1c1c1c;
+  --bc-text-color: rgba(255, 255, 255, 0.9);
+  --bc-axis-color: rgba(255, 255, 255, 0.6);
+  --bc-grid-color: #333;
+
+  color: rgba(255, 255, 255, 0.9);
+}
+
 .bc-frame-header {
   padding: var(--bc-frame-padding-top) var(--bc-frame-padding-right) 0 var(--bc-frame-padding-left);
   background: var(--bc-frame-header-bg, transparent);
