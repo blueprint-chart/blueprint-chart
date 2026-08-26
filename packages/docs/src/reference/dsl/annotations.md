@@ -98,7 +98,6 @@ A richer point annotation with a connector line and curved leader:
 
 ```bpc
 annotation "2015" {
-  id = "2o3cx"
   text = "2015 Paris Agreement to limit global warming to 1.5°C "
   maxWidth = 224
   showLine = true

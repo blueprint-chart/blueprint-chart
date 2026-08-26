@@ -652,3 +652,62 @@ describe('an empty frame-choice value means unset', () => {
     }
   })
 })
+
+describe('series override blocks', () => {
+  function seriesNode(props: PropertyNode[]) {
+    return { type: DslNodeType.Series, name: 'A', properties: props } as const
+  }
+
+  it('flags an unknown series property key', () => {
+    const result = validateChart(chart({
+      chartType: ChartType.Line,
+      series: [seriesNode([prop('colour', 'red')])],
+    }))
+    const issue = result.errors.find(e => e.code === 'unknown-series-property')
+    expect(issue).toBeDefined()
+    expect(issue?.path).toBe('chart.series[0].colour')
+    expect(issue?.suggestion).toBe('color')
+  })
+
+  it('flags an interpolation value the renderer does not know', () => {
+    const result = validateChart(chart({
+      chartType: ChartType.Line,
+      series: [seriesNode([prop('interpolation', 'monotone')])],
+    }))
+    const issue = result.errors.find(e => e.code === 'invalid-choice')
+    expect(issue).toBeDefined()
+    expect(issue?.path).toBe('chart.series[0].interpolation')
+    expect(issue?.suggestion).toBe('monotoneX')
+  })
+
+  it('accepts the series keys the converter reads', () => {
+    const result = validateChart(chart({
+      chartType: ChartType.Line,
+      series: [seriesNode([
+        prop('color', '#f00'),
+        prop('lineWidth', 2),
+        prop('dash', '4 2'),
+        prop('interpolation', 'monotoneX'),
+        prop('labelMode', 'auto'),
+        prop('labelText', 'A'),
+        prop('valueLabels', 'percent'),
+        prop('lineSymbols', 'true'),
+        prop('hidden', 'false'),
+        prop('symbolShape', 'circle'),
+        prop('symbolShowOn', 'firstLast'),
+        prop('symbolStyle', 'filled'),
+        prop('symbolSize', 4),
+        prop('symbolOpacity', 0.5),
+      ])],
+    }))
+    expect(result.errors).toEqual([])
+  })
+
+  it('validates series blocks inside a scene', () => {
+    const result = validateChart(chart({
+      chartType: ChartType.Line,
+      scenes: [scene({ series: [seriesNode([prop('interpolation', 'monotone')])] })],
+    }))
+    expect(result.errors.some(e => e.path === 'scene[0].series[0].interpolation')).toBe(true)
+  })
+})

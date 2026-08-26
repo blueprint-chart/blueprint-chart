@@ -1,4 +1,4 @@
-import type { ChartNode, SceneNode, PropertyNode, AnnotationNode, TransformNode } from './types'
+import type { ChartNode, SceneNode, PropertyNode, AnnotationNode, SeriesNode, TransformNode } from './types'
 import type { ChartOptionDef } from '../charts/types'
 import { getChartOptions, listCharts } from '../charts/registry'
 import { listThemes } from '../charts/themes'
@@ -114,6 +114,39 @@ export const POINT_ANNOTATION_KEYS = new Set<string>([
   'circleStyle',
   'circleColor',
 ])
+/**
+ * Series override body property keys, derived from the keys
+ * convertSeriesOverrides() in converter.ts actually reads. Anything not listed
+ * never reaches SeriesOverride, so the renderer cannot honour it.
+ */
+export const SERIES_OVERRIDE_KEYS = new Set<string>([
+  'color',
+  'lineWidth',
+  'dash',
+  'interpolation',
+  'labelMode',
+  'labelText',
+  'valueLabels',
+  'lineSymbols',
+  'hidden',
+  'symbolShape',
+  'symbolShowOn',
+  'symbolStyle',
+  'symbolSize',
+  'symbolOpacity',
+])
+
+/**
+ * Series keys that carry the same enumeration as a differently-named
+ * chart-level option, so their values can be checked against that option's
+ * choices. Keys spelled the same on both sides need no entry.
+ */
+const SERIES_KEY_OPTION = new Map<string, string>([
+  ['symbolShape', 'lineSymbolShape'],
+  ['symbolShowOn', 'lineSymbolShowOn'],
+  ['symbolStyle', 'lineSymbolStyle'],
+])
+
 export const RANGE_ANNOTATION_KEYS = new Set<string>([
   'start',
   'end',
@@ -351,6 +384,38 @@ function validateAnnotations(
   })
 }
 
+/**
+ * Validate series override body keys against the converter's allowlist, and
+ * their values against the chart-type option def that shares the enumeration.
+ */
+function validateSeriesOverrides(
+  chartType: string,
+  series: SeriesNode[],
+  basePath: string,
+  errors: ValidationIssue[],
+): void {
+  const defs = getChartOptions(chartType)
+  series.forEach((s, i) => {
+    for (const prop of s.properties) {
+      const path = `${basePath}.series[${i}].${prop.key}`
+      if (!SERIES_OVERRIDE_KEYS.has(prop.key)) {
+        errors.push({
+          code: 'unknown-series-property',
+          path,
+          message: `Unknown series property "${prop.key}"; it will be silently ignored.`,
+          suggestion: nearest(prop.key, SERIES_OVERRIDE_KEYS),
+        })
+        continue
+      }
+      const def = findDef(defs, SERIES_KEY_OPTION.get(prop.key) ?? prop.key)
+      const allowed = def?.choices?.map(c => c.value)
+      if (allowed?.length && !allowed.includes(String(prop.value))) {
+        pushInvalidChoice(prop.key, prop.value, allowed, path, errors)
+      }
+    }
+  })
+}
+
 /** Validate transform types against the known set. */
 function validateTransforms(
   transforms: TransformNode[],
@@ -459,6 +524,11 @@ export function validateChart(ast: ChartNode): ValidationResult {
 
   // 6. Annotation body keys (chart level).
   validateAnnotations(ast.annotations, 'chart', errors)
+
+  // 6b. Series override body keys (chart level).
+  if (typeKnown) {
+    validateSeriesOverrides(ast.chartType, ast.series, 'chart', errors)
+  }
 
   // 7. Data presence (chart level, unless scenes carry their own data).
   const hasChartData = !!ast.data && ast.data.entries.length > 0
@@ -574,6 +644,7 @@ function validateScene(
   }
   else {
     validateProperties(effectiveType, scene.properties, basePath, errors)
+    validateSeriesOverrides(effectiveType, scene.series, basePath, errors)
   }
 
   validateTransforms(scene.transforms, basePath, errors)

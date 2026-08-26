@@ -8,8 +8,8 @@ Properties are simple key/value pairs:
 
 ```bpc
 title = "Chrome dominates the desktop browser market"
-displayAsPercentage = true
 tooltips = true
+lineSymbolSize = 4
 lineSymbolShape = "diamond"
 ```
 
@@ -80,7 +80,7 @@ data {
 ```bpc
 series "Renewables" {
   color = "#2ca02c"
-  interpolation = "monotone"
+  interpolation = "monotoneX"
 }
 ```
 
