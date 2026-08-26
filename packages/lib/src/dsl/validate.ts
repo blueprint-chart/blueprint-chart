@@ -337,8 +337,8 @@ function validateAnnotations(
     }
     const repeatRaw = propertyMap(a.properties).get('repeat')
     if (repeatRaw !== undefined) {
-      const ok = repeatRaw === 'true' || repeatRaw === 'false'
-        || repeatRaw === true || repeatRaw === false
+      const repeatWord = String(repeatRaw).toLowerCase()
+      const ok = repeatWord === 'true' || repeatWord === 'false'
         || (typeof repeatRaw === 'number' && Number.isInteger(repeatRaw) && repeatRaw >= 1)
       if (!ok) {
         errors.push({

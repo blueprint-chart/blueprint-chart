@@ -476,6 +476,14 @@ describe('annotation id removal and repeat validation', () => {
     }
   })
 
+  it('accepts repeat in any case, matching what the converter reads', () => {
+    for (const r of ['TRUE', 'True', 'FALSE', 'False']) {
+      const ast = parse(`chart line {\n  annotation "2020" { text = "t" repeat = ${r} }\n  data { "2020" = 1 }\n}`)
+      const { errors } = validateChart(ast)
+      expect(errors.filter(e => e.code === 'invalid-annotation-repeat')).toHaveLength(0)
+    }
+  })
+
   it('rejects repeat = 0, negative, or non-integer', () => {
     for (const r of ['0', '-2', '1.5']) {
       const ast = parse(`chart line {\n  annotation "2020" { text = "t" repeat = ${r} }\n  data { "2020" = 1 }\n}`)
