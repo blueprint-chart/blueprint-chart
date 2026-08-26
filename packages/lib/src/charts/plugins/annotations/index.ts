@@ -311,8 +311,24 @@ function applyAnnotationTransitions(
 // Dynamic viewBox expansion
 // ---------------------------------------------------------------------------
 
-function expandSvgToFitAnnotations(svg: SVGSVGElement | null): void {
+/**
+ * Largest viewBox the expansion may grow to, as a multiple of the SVG box.
+ * `preserveAspectRatio` scales the whole chart to fit the expanded viewBox, so
+ * an unbounded expansion turns one misplaced annotation into a thumbnail. The
+ * budget is split between the two sides of each axis, which floors the chart
+ * scale at `1 / MAX_VIEWBOX_GROWTH`; overflow past it is clipped instead.
+ */
+const MAX_VIEWBOX_GROWTH = 1.25
+
+function expandSvgToFitAnnotations(svg: SVGSVGElement | null, deferMs = 0): void {
   if (!svg) {
+    return
+  }
+
+  // Reading `getBBox` while a scene transition is tweening measures incoming
+  // axis labels thousands of px off the plot, so wait for the tween to settle.
+  if (deferMs > 0) {
+    setTimeout(() => expandSvgToFitAnnotations(svg), deferMs)
     return
   }
 
@@ -328,15 +344,17 @@ function expandSvgToFitAnnotations(svg: SVGSVGElement | null): void {
   }
 
   const pad = 8
+  const budgetX = (svgW * (MAX_VIEWBOX_GROWTH - 1)) / 2
+  const budgetY = (svgH * (MAX_VIEWBOX_GROWTH - 1)) / 2
   const rawMinX = totalBBox.x
   const rawMinY = totalBBox.y
   const rawMaxX = totalBBox.x + totalBBox.width
   const rawMaxY = totalBBox.y + totalBBox.height
 
-  const vbMinX = rawMinX < 0 ? rawMinX - pad : 0
-  const vbMinY = rawMinY < 0 ? rawMinY - pad : 0
-  const vbMaxX = rawMaxX > svgW ? rawMaxX + pad : svgW
-  const vbMaxY = rawMaxY > svgH ? rawMaxY + pad : svgH
+  const vbMinX = rawMinX < 0 ? Math.max(rawMinX - pad, -budgetX) : 0
+  const vbMinY = rawMinY < 0 ? Math.max(rawMinY - pad, -budgetY) : 0
+  const vbMaxX = rawMaxX > svgW ? Math.min(rawMaxX + pad, svgW + budgetX) : svgW
+  const vbMaxY = rawMaxY > svgH ? Math.min(rawMaxY + pad, svgH + budgetY) : svgH
 
   const needsExpand = vbMinX < 0 || vbMinY < 0 || vbMaxX > svgW || vbMaxY > svgH
 
@@ -344,6 +362,11 @@ function expandSvgToFitAnnotations(svg: SVGSVGElement | null): void {
     d3.select(svg)
       .attr('viewBox', `${vbMinX} ${vbMinY} ${vbMaxX - vbMinX} ${vbMaxY - vbMinY}`)
       .attr('preserveAspectRatio', 'xMidYMid meet')
+  }
+  else {
+    d3.select(svg)
+      .attr('viewBox', null)
+      .attr('preserveAspectRatio', null)
   }
 }
 
@@ -411,12 +434,13 @@ export function renderAnnotations(
     }
   }
 
+  let settleMs = 0
   if (ctx.transition) {
-    const duration = getTransitionDuration(DEFAULT_TRANSITION_MS)
-    applyAnnotationTransitions(g.node()!, rangeGroup.node()!, oldSnapshots ?? new Map(), duration)
+    settleMs = getTransitionDuration(DEFAULT_TRANSITION_MS)
+    applyAnnotationTransitions(g.node()!, rangeGroup.node()!, oldSnapshots ?? new Map(), settleMs)
   }
 
-  expandSvgToFitAnnotations(svg as SVGSVGElement | null)
+  expandSvgToFitAnnotations(svg as SVGSVGElement | null, settleMs)
 }
 
 // ---------------------------------------------------------------------------
@@ -499,12 +523,13 @@ export function createAnnotationPlugin<TData = unknown>(
         }
       }
 
+      let settleMs = 0
       if (ctx.transition) {
-        const duration = getTransitionDuration(DEFAULT_TRANSITION_MS)
-        applyAnnotationTransitions(g.node()!, rangeGroup.node()!, oldSnapshots ?? new Map(), duration)
+        settleMs = getTransitionDuration(DEFAULT_TRANSITION_MS)
+        applyAnnotationTransitions(g.node()!, rangeGroup.node()!, oldSnapshots ?? new Map(), settleMs)
       }
 
-      expandSvgToFitAnnotations(svg as SVGSVGElement | null)
+      expandSvgToFitAnnotations(svg as SVGSVGElement | null, settleMs)
     },
   }
 }
