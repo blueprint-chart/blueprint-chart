@@ -17,6 +17,7 @@
 <script setup lang="ts">
 import { useEditorPanel } from '@/stores/editorPanel'
 import { useDataTable, serializeTableData } from '@/stores/dataTable'
+import { useChartConfig } from '@/stores/chartConfig'
 import { useChartSession } from '@/stores/chartSession'
 import { useWizard } from '@/stores/wizard'
 import { useParseOptions } from '@/stores/parseOptions'
@@ -27,6 +28,7 @@ const editorPanel = useEditorPanel()
 const { dataView } = storeToRefs(editorPanel)
 const { setDataView } = editorPanel
 const dataTable = useDataTable()
+const config = useChartConfig()
 const { applyDsl } = useDslSync()
 const { loadSample } = useChartSession()
 const { next } = useWizard()
@@ -54,6 +56,10 @@ function reparseData() {
     trimWhitespace: parseOptions.trimWhitespace.value,
   })
   dataTable.loadParsed(parsed)
+  // The chart's `data` block is what gets persisted, and it used to be synced
+  // only on the way to the Visualize step: a reload straight after loading
+  // data reverted to the previous table.
+  config._base.data.value = dataTable.serialize()
 }
 
 function onLoaded(content: string, label: string) {

@@ -19,6 +19,7 @@ vi.mock('@/stores/editorPanel', () => ({
 }))
 
 const columnsRef = ref<string[]>([])
+const baseDataRef = ref('')
 
 vi.mock('@/stores/dataTable', () => ({
   useDataTable: () => ({
@@ -29,6 +30,7 @@ vi.mock('@/stores/dataTable', () => ({
     columnTypes: { value: [] },
     sourceFormat: ref('delimited'),
     sourceLabel: ref(''),
+    serialize: () => '"A" = 1',
   }),
   serializeTableData: vi.fn(() => '"A" = 1'),
 }))
@@ -50,7 +52,8 @@ vi.mock('@/composables/useDslSync', () => ({
 
 vi.mock('@/stores/chartConfig', () => ({
   useChartConfig: () => ({
-    data: ref(''),
+    data: baseDataRef,
+    _base: { data: baseDataRef },
   }),
 }))
 
@@ -157,6 +160,16 @@ describe('DataPanel', () => {
     })
     expect(w.find('.structure-panel').exists()).toBe(true)
     expect(w.find('.upload-card').exists()).toBe(false)
+  })
+
+  it('syncs loaded data into the chart data block, so a save reaches storage', async () => {
+    baseDataRef.value = '"old" = 1'
+    const w = mountPanel()
+
+    w.findComponent('.upload-card').vm.$emit('loaded', 'A\n1', 'test.csv')
+    await nextTick()
+
+    expect(baseDataRef.value).toBe('"A" = 1')
   })
 
   it('switches to structure view when cancel is emitted', async () => {
