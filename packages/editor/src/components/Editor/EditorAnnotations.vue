@@ -307,7 +307,7 @@ function addRange() {
 }
 
 function addFree() {
-  const ann: FreeAnnotationConfig = { kind: AnnotationKind.Free, text: 'Enter an annotation', x: 0, y: 0 }
+  const ann: FreeAnnotationConfig = { kind: AnnotationKind.Free, text: 'Enter an annotation', x: 50, y: 50 }
   const next = [...annotations.value, ann]
   model.value = next
   openIndex.value = next.length - 1

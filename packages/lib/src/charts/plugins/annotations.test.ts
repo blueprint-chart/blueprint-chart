@@ -159,7 +159,7 @@ describe('createAnnotationPlugin', () => {
     const { x, y, data } = makeScales()
 
     const plugin = createAnnotationPlugin(
-      [{ kind: AnnotationKind.Free, text: 'Free note', x: 0, y: 0 }],
+      [{ kind: AnnotationKind.Free, text: 'Free note', x: 50, y: 50 }],
       { scaleX: x, scaleY: y, data, width: 200, height: 200 },
     )
 
@@ -169,9 +169,9 @@ describe('createAnnotationPlugin', () => {
     const texts = g.querySelectorAll('.bc-annotation-text')
     expect(texts).toHaveLength(1)
     expect(texts[0].textContent).toBe('Free note')
-    // 0% center-relative: 200/2 + (0/100)*200 = 100
+    // 50% of 200 = 100
     expect(texts[0].getAttribute('x')).toBe('100')
-    // 0% center-relative: 200/2 + (0/100)*200 = 100 (vertically centered via transform)
+    // 50% of 200 = 100 (vertically centered via transform)
     expect(texts[0].getAttribute('y')).toBe('100')
   })
 
@@ -1187,7 +1187,7 @@ describe('createAnnotationPlugin', () => {
     const dummyLinear = d3.scaleLinear().domain([0, 1]).range([300, 0])
 
     const plugin = createAnnotationPlugin(
-      [{ kind: AnnotationKind.Free, text: 'Pie note', x: 0, y: -25 }],
+      [{ kind: AnnotationKind.Free, text: 'Pie note', x: 50, y: 25 }],
       { scaleX: emptyBand, scaleY: dummyLinear, data: [], width: 300, height: 300 },
     )
 
@@ -1197,9 +1197,9 @@ describe('createAnnotationPlugin', () => {
     const texts = g.querySelectorAll('.bc-annotation-text')
     expect(texts).toHaveLength(1)
     expect(texts[0].textContent).toBe('Pie note')
-    // 0% center-relative of 300 = 150
+    // 50% of 300 = 150
     expect(texts[0].getAttribute('x')).toBe('150')
-    // -25% center-relative of 300 = 150 + (-75) = 75
+    // 25% of 300 = 75
     expect(texts[0].getAttribute('y')).toBe('75')
   })
 })

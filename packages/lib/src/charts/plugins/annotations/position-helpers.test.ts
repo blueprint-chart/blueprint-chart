@@ -2,19 +2,21 @@ import { describe, it, expect } from 'vitest'
 import { resolvePosition, resolveMaxWidth } from './position-helpers'
 
 describe('resolvePosition', () => {
-  it('treats a plain number as a percentage offset from center', () => {
-    // 0% → center of 200 = 100
-    expect(resolvePosition(0, 200)).toBe(100)
-    // 50% → center + 50% of size = 100 + 100 = 200
-    expect(resolvePosition(50, 200)).toBe(200)
-    // -50% → center - 50% of size = 100 - 100 = 0
-    expect(resolvePosition(-50, 200)).toBe(0)
+  it('treats a plain number as a percentage of the plot box', () => {
+    expect(resolvePosition(0, 200)).toBe(0)
+    expect(resolvePosition(50, 200)).toBe(100)
+    expect(resolvePosition(100, 200)).toBe(200)
   })
 
   it('parses a percentage string the same as the numeric equivalent', () => {
     expect(resolvePosition('0%', 200)).toBe(resolvePosition(0, 200))
     expect(resolvePosition('25%', 400)).toBe(resolvePosition(25, 400))
-    expect(resolvePosition('-50%', 200)).toBe(resolvePosition(-50, 200))
+    expect(resolvePosition('100%', 200)).toBe(resolvePosition(100, 200))
+  })
+
+  it('keeps the documented 10%/90% note inside the plot box', () => {
+    expect(resolvePosition('10%', 628)).toBeCloseTo(62.8, 5)
+    expect(resolvePosition('90%', 400)).toBeCloseTo(360, 5)
   })
 
   it('parses a plain pixel string as an absolute value', () => {
