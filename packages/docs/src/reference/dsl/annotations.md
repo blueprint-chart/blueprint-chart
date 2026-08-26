@@ -68,9 +68,11 @@ Three scenes share the same data and successively highlight one country each —
 ```bpc
 area-fill "Lower bound" "Upper bound" {
   color = "#94a3b8"
-  opacity = 0.2
+  opacity = 20
 }
 ```
+
+`opacity` is a percentage from 0 to 100 and defaults to `30`, the same scale as `bgOpacity` on a `range` annotation. `opacity = 0.2` is not a 20 % fill, it is a 0.2 % one, and the band is invisible.
 
 ::: tip
 No bundled sample currently uses `area-fill`. The grammar is documented and parser-tested; the example above is illustrative.
