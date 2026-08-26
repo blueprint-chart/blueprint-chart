@@ -2,6 +2,7 @@ import * as d3 from 'd3'
 import { describe, it, expect, afterEach } from 'vitest'
 import { renderPointAnnotation } from './point-renderer'
 import { AnnotationKind } from '../../../enums'
+import { measureTextWidth } from '../../text-measure'
 import type { AnnotationContext } from './context'
 
 const WIDTH = 400
@@ -64,12 +65,9 @@ describe('renderPointAnnotation', () => {
     renderPointAnnotation(g, { target: 'B', text: long } as Ann, ctx, 0)
     const tspans = [...document.querySelectorAll('.bc-annotation-text tspan')]
     expect(tspans.length).toBeGreaterThan(1)
-    // Every line stays within the default wrap width (40% of the chart width),
-    // using the same 7px-per-character estimate as the wrapper. A single word
-    // longer than the budget can't be broken, so it gets a line of its own.
+    // Every line stays within the default wrap width (40% of the chart width).
     for (const tspan of tspans) {
-      const line = tspan.textContent ?? ''
-      expect(line.length * 7 <= WIDTH * 0.4 || !line.includes(' ')).toBe(true)
+      expect(measureTextWidth(tspan.textContent ?? '', 12)).toBeLessThanOrEqual(WIDTH * 0.4)
     }
     // Wrapping splits on spaces, so the lines rejoin into the original text.
     expect(tspans.map(t => t.textContent).join(' ')).toBe(long)

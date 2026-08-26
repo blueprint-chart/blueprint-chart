@@ -3,6 +3,7 @@ import * as d3 from 'd3'
 import { createAnnotationPlugin, computeDirectionOffset, computeAnchorPoint, bboxEdgeToward, ensureArrowMarker, rotateDirectionForHorizontal, snapshotAnnotations, renderConnectingLine } from './annotations'
 import { makeChartStub } from './test-helpers'
 import { AnnotationKind, AnnotationLineStyle, CompassDirection, Orientation, StrokeStyle } from '../../enums'
+import { measureTextWidth } from '../text-measure'
 
 describe('createAnnotationPlugin', () => {
   let svg: SVGSVGElement
@@ -189,12 +190,9 @@ describe('createAnnotationPlugin', () => {
 
     const tspans = [...g.querySelectorAll('.bc-annotation-text tspan')]
     expect(tspans.length).toBeGreaterThan(1)
-    // Each line fits the default budget (40% of the chart width, at the same
-    // 7px-per-character estimate the wrapper uses), except a lone word too
-    // long to break.
+    // Each line fits the default budget (40% of the chart width).
     for (const tspan of tspans) {
-      const line = tspan.textContent ?? ''
-      expect(line.length * 7 <= 200 * 0.4 || !line.includes(' ')).toBe(true)
+      expect(measureTextWidth(tspan.textContent ?? '', 12)).toBeLessThanOrEqual(200 * 0.4)
     }
     expect(tspans.map(t => t.textContent).join(' ')).toBe(long)
   })

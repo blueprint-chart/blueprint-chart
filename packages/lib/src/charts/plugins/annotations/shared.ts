@@ -4,6 +4,7 @@ import type { CompassDirection } from '../../types'
 import { StrokeStyle, AnnotationLineStyle } from '../../../enums'
 import type { AnnotationContext } from './context'
 import { DIRECTION_VECTORS, RECT_ANCHOR } from './direction-helpers'
+import { measureTextWidth, truncateToWidth } from '../../text-measure'
 
 // ---------------------------------------------------------------------------
 // Scale helpers
@@ -196,6 +197,9 @@ function strokeDashForStyle(style: StrokeStyle): string {
 /** Radius the annotation circle falls back to when `circleSize` is absent or unusable. */
 const DEFAULT_CIRCLE_RADIUS = 4
 
+/** Font size annotation text renders at. */
+const TEXT_FONT_PX = 12
+
 /**
  * A non-positive radius paints nothing — SVG rejects a negative `r` outright —
  * so an unusable size resolves to the documented default instead.
@@ -340,7 +344,7 @@ export function renderAnnotationText(
     .attr('x', x)
     .attr('y', y)
     .attr('text-anchor', anchor)
-    .attr('font-size', '12px')
+    .attr('font-size', `${TEXT_FONT_PX}px`)
     .attr('fill', opts.textColor ?? 'currentColor')
 
   if (showOutline) {
@@ -388,13 +392,22 @@ function wrapText(
   for (const paragraph of text.split('\n')) {
     let line = ''
     for (const word of paragraph.split(/\s+/).filter(Boolean)) {
-      const test = line ? `${line} ${word}` : word
-      if (line && test.length * 7 > maxWidth) {
+      const candidate = line ? `${line} ${word}` : word
+      if (line && measureTextWidth(candidate, TEXT_FONT_PX) > maxWidth) {
         emit(line)
         line = word
       }
       else {
-        line = test
+        line = candidate
+      }
+      // A URL or a CJK sentence offers no whitespace to break on, so a single
+      // token wider than the box is broken mid-string instead of ignoring
+      // maxWidth altogether.
+      let head = truncateToWidth(line, maxWidth, TEXT_FONT_PX, '')
+      while (head !== line) {
+        emit(head)
+        line = line.slice(head.length)
+        head = truncateToWidth(line, maxWidth, TEXT_FONT_PX, '')
       }
     }
     emit(line)
