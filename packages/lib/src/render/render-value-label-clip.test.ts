@@ -42,6 +42,19 @@ function viewport(container: HTMLElement): { width: number, height: number } {
   return { width: Number(svg.getAttribute('width')), height: Number(svg.getAttribute('height')) }
 }
 
+// The plot clipPath is what hides marks outside the domain. A label caught by it
+// is sliced without leaving any trace in the DOM or in getBoundingClientRect, so
+// "20" paints as "0" and the maximum's label vanishes: the ink-box check below
+// cannot see it, and this is the only assertion that can.
+function expectNoLabelInsideAClip(container: HTMLElement): void {
+  const labels = [...container.querySelectorAll('.bc-value-label')]
+  expect(labels.length).toBeGreaterThan(0)
+  for (const label of labels) {
+    const clipped = label.closest('[clip-path]')
+    expect(clipped?.getAttribute('clip-path') ?? null, `clip on "${label.textContent}"`).toBeNull()
+  }
+}
+
 function expectEveryLabelVisible(container: HTMLElement): void {
   const { width, height } = viewport(container)
   const ink = labelInk(container)
@@ -121,6 +134,86 @@ describe('a value label never renders a number the SVG edge can cut', () => {
   }
 }`)
     expect(labelInk(container).map(l => l.text)).toEqual(['17', '40'])
+    expectEveryLabelVisible(container)
+  })
+})
+
+describe('a line or area value label is never cut by the plot clip', () => {
+  let container: HTMLElement
+  beforeEach(() => {
+    container = document.createElement('div')
+    document.body.appendChild(container)
+  })
+
+  it('line: the first, last and maximum labels survive', () => {
+    renderBpc(container, `chart line {
+  valueLabels = true
+  data {
+    "2018" = 20
+    "2019" = 34
+    "2020" = 28
+  }
+}`)
+    expect(labelInk(container).map(l => l.text)).toEqual(['20', '34', '28'])
+    expectNoLabelInsideAClip(container)
+    expectEveryLabelVisible(container)
+  })
+
+  it('area: the first, last and maximum labels survive', () => {
+    renderBpc(container, `chart area {
+  valueLabels = true
+  data {
+    "2018" = 20
+    "2019" = 34
+    "2020" = 28
+  }
+}`)
+    expect(labelInk(container).map(l => l.text)).toEqual(['20', '34', '28'])
+    expectNoLabelInsideAClip(container)
+    expectEveryLabelVisible(container)
+  })
+
+  it('line: a value the range excludes keeps a visible label', () => {
+    renderBpc(container, `chart line {
+  verticalRangeMax = 20
+  valueLabels = true
+  data {
+    "2018" = 34
+    "2019" = 12
+  }
+}`)
+    expect(labelInk(container).map(l => l.text)).toEqual(['34', '12'])
+    expectNoLabelInsideAClip(container)
+    expectEveryLabelVisible(container)
+  })
+
+  it('line-multi: inside axis labels leave no room to overrun the left edge', () => {
+    renderBpc(container, `chart line-multi {
+  verticalLabelPosition = "inside"
+  valueLabels = true
+  data {
+    series = "Revenue"
+    "2018" = 1200000
+    "2019" = 400000
+  }
+}`)
+    expect(labelInk(container).map(l => l.text)).toEqual(['1200000', '400000'])
+    expectNoLabelInsideAClip(container)
+    expectEveryLabelVisible(container)
+  })
+
+  it('line-multi: the first, last and maximum labels survive', () => {
+    renderBpc(container, `chart line-multi {
+  valueLabels = true
+  data {
+    series = "Revenue","Cost"
+    "2018" = 20,12
+    "2019" = 34,18
+    "2020" = 28,15
+  }
+}`)
+    expect(labelInk(container).map(l => l.text).sort()).toEqual(['12', '15', '18', '20', '28', '34'])
+    expectNoLabelInsideAClip(container)
     expectEveryLabelVisible(container)
   })
 })

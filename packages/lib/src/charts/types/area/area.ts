@@ -11,6 +11,7 @@ import { renderAnnotations, snapshotAnnotations, type AnnotationSnapshot } from 
 import { resolveBackgroundColor } from '../../contrast'
 import { setupProximityInteraction, disposeProximityFor } from '../../plugins/proximity'
 import { ensureClipPath } from '../../clip-path-helper'
+import { clampPointLabel } from '../../value-label-fit'
 import { renderLineSymbols } from '../../line-symbols'
 import { setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut } from '../../motion'
 import { getCachedChart, setCachedChart } from '../../transition-cache'
@@ -229,14 +230,19 @@ export function render(
   // Value labels: rendered above each point. Re-derived each render (no tween);
   // they ride the group transform during a resize.
   if (options.valueLabels) {
-    const labelLayer = d3.select(clippedArea).append('g')
+  // The label layer sits outside the plot clip: a clipped label is sliced
+  // mid-number, so 20 paints as 0 and the maximum's label vanishes. It is
+  // inserted where the clipped group held it so the annotation layer and the
+  // proximity overlay keep their z-order above it.
+    const labelLayer = d3.select(chartArea).insert('g', () => clippedArea.nextSibling)
+    const labelPos = (d: AreaDatum) => clampPointLabel(String(d.value), xPos(d), y(d.value) as number, { width, height, margin })
     labelLayer.selectAll<SVGTextElement, AreaDatum>('.bc-value-label')
       .data(areaData, d => d.label)
       .enter()
       .append('text')
       .attr('class', 'bc-value-label')
-      .attr('x', d => xPos(d))
-      .attr('y', d => (y(d.value) as number) - 8)
+      .attr('x', d => labelPos(d).x)
+      .attr('y', d => labelPos(d).y)
       .attr('text-anchor', 'middle')
       .attr('font-size', '11px')
       .attr('fill', 'currentColor')

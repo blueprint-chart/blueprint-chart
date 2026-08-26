@@ -13,6 +13,7 @@ import { renderAnnotations, snapshotAnnotations, type AnnotationSnapshot } from 
 import { resolveBackgroundColor } from '../../contrast'
 import { setupProximityInteraction, disposeProximityFor } from '../../plugins/proximity'
 import { ensureClipPath } from '../../clip-path-helper'
+import { clampPointLabel } from '../../value-label-fit'
 import { renderLineSymbols } from '../../line-symbols'
 import { setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut } from '../../motion'
 import { setCachedChart, getCachedChart } from '../../transition-cache'
@@ -334,19 +335,23 @@ export function render(
     renderAnnotations(chartArea, options.annotations, { scaleX: xScale, scaleY: y, data: annotationData, width, height, backgroundColor: resolveBackgroundColor(container), transition, priorAnnotations })
   }
 
-  // Per-series value labels: render directly so we control which series gets them
-  const vlGroup = d3.select(clippedArea).append('g').attr('class', 'bc-value-labels')
+  // Per-series value labels: render directly so we control which series gets them.
+  // The layer sits outside the plot clip: a clipped label is sliced mid-number, so
+  // 20 paints as 0 and the maximum's label vanishes. It is inserted where the
+  // clipped group held it so the proximity overlay keeps its z-order above it.
+  const vlGroup = d3.select(chartArea).insert('g', () => clippedArea.nextSibling).attr('class', 'bc-value-labels')
   dotData.forEach((dot) => {
     if (!resolveSeriesValueLabels(dot.series, globalValueLabels, overrides)) {
       return
     }
     const cx = xPos(data.labels.indexOf(dot.label))
     const cy = y(dot.value) as number
+    const pos = clampPointLabel(String(dot.value), cx, cy, { width, height, margin })
     vlGroup.append('text')
       .attr('class', 'bc-value-label')
       .attr('data-series', dot.colorIndex)
-      .attr('x', cx)
-      .attr('y', cy - 8)
+      .attr('x', pos.x)
+      .attr('y', pos.y)
       .attr('text-anchor', 'middle')
       .attr('font-size', '11px')
       .attr('fill', 'currentColor')
