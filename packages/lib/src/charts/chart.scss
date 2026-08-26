@@ -428,6 +428,17 @@
   // Do NOT set fill in CSS — it would break contrast-based readability.
 }
 
+// Text painted over a mark is decorative, and it sits exactly where a user
+// aims to hover. Without this it swallows mouseenter and the mark below it
+// gets no tooltip and no crosshair.
+.bc-value-label,
+.bc-direct-label,
+.bc-arc-direct-label,
+.bc-arc-inside-label,
+.bc-arc-label-line {
+  pointer-events: none;
+}
+
 // ---------------------------------------------------------------------------
 // Direct labels (line-multi, bar-multi)
 // ---------------------------------------------------------------------------
