@@ -69,6 +69,7 @@ chart line-multi {
   legend = false
   tooltips = true
   crosshair = true
+  crosshairDirection = "vertical"
   crosshairStyle = "dashed"
 
   annotation "2009" {
@@ -87,7 +88,7 @@ chart line-multi {
 ```
 
 ::: info Progressive disclosure without hiding the story
-The annotation carries the headline (`"Great Recession peak"`) so the chart stands on its own. `tooltips = true` plus `crosshair = true` then layer progressive disclosure on top: hover anywhere on the x-axis and a dashed vertical line aligns the cursor with all four series at once, while the tooltip shows the four percentages for that year. The essential story is never trapped behind a hover.
+The annotation carries the headline (`"Great Recession peak"`) so the chart stands on its own. `tooltips = true` plus `crosshair = true` then layer progressive disclosure on top: hover anywhere in the plot and a dashed vertical line aligns the cursor across all four series, while the tooltip names the nearest point only (`New York – 2009: 9.5`). The tooltip is nearest-point, not a shared readout of every series at that x. The essential story is never trapped behind a hover.
 :::
 
 ## See also
