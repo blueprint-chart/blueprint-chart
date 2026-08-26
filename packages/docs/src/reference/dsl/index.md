@@ -5,7 +5,7 @@ The Blueprint Chart format (`.bpc`) is a declarative text DSL for describing a c
 The canonical grammar lives in [`packages/lib/src/dsl/grammar.peggy`](https://github.com/blueprint-chart/blueprint-chart/blob/main/packages/lib/src/dsl/grammar.peggy). This page is the human-readable specification.
 
 ::: tip Stability
-The DSL is **AST round-trip safe**: `parse(source)` → `serialize(ast)` → `parse(...)` produces an equivalent AST. The round trip is over the AST, not the source text. Comments are parsed as whitespace and are **not** preserved through `serialize`, so a re-serialized document drops any `//` or `/* */` comments the author wrote. Comment attachment is tracked on the [roadmap](https://github.com/blueprint-chart/blueprint-chart/blob/main/ROADMAP.md).
+The DSL is **AST round-trip safe**: `parse(source)` → `serialize(ast)` → `parse(...)` produces an equivalent AST. The round trip is over the AST, not the source text. Comments are attached to the AST node they document and survive `serialize`: the ones written above a member, the one ending a member's line, and the ones after a block's last member. A multi-line comment ending a member's line is re-emitted as a `/* */` block so it still parses.
 :::
 
 ## A minimal example
@@ -94,7 +94,7 @@ Numbers accept an optional leading minus, a fractional part (including a leading
 
 ### Comments
 
-Two comment forms exist. Line comments start with `//` and run to end-of-line. Block comments are delimited by `/*` and `*/` and may span multiple lines. Both are treated as whitespace and carry no meaning in the AST.
+Two comment forms exist. Line comments start with `//` and run to end-of-line. Block comments are delimited by `/*` and `*/` and may span multiple lines. Neither carries meaning for rendering, but both are attached to the AST node they sit above, on the same line as, or at the end of the enclosing block, as `leadingComments`, `trailingComment` and `trailingComments`, so they survive a `parse` then `serialize` round trip.
 
 ## Working with the AST
 
