@@ -212,7 +212,7 @@ export function renderArc(
     key: d => d.label,
     insert: sel => sel.append('path').attr('class', 'bc-arc'),
     attrs: (d) => {
-      const base = { d: arcGen(d.arc) ?? '', fill: d.color }
+      const base = { 'data-series': d.label, 'd': arcGen(d.arc) ?? '', 'fill': d.color }
       return highlightTargets.size > 0
         ? { ...base, opacity: highlightOpacity(highlightTargets, d.label) }
         : base

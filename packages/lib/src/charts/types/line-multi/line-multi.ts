@@ -271,7 +271,7 @@ export function render(
     key: d => d.name,
     insert: sel => sel.append('path').attr('class', 'bc-area'),
     attrs: d => ({
-      'data-series': d.colorIndex,
+      'data-series': d.name,
       'd': areaGen(d.values) ?? '',
       'fill': seriesColorFor(d),
       'opacity': highlightOpacity(highlightTargets, d.name, areaFillOpacity),
@@ -289,7 +289,7 @@ export function render(
       const seriesInterp = resolveSeriesInterpolation(d.name, options.interpolation ?? 'linear', overrides)
       const lineGen = d3.line<number>().curve(resolveCurve(seriesInterp)).defined(plottable).x((_v, i) => xPos(i)).y(v => y(v) as number)
       return {
-        'data-series': d.colorIndex,
+        'data-series': d.name,
         'd': lineGen(d.values) ?? '',
         'fill': 'none',
         'stroke': seriesColorFor(d),
@@ -312,7 +312,7 @@ export function render(
     .enter()
     .append('circle')
     .attr('class', 'bc-dot')
-    .attr('data-series', d => d.colorIndex)
+    .attr('data-series', d => d.series)
     .attr('cx', d => xPos(data.labels.indexOf(d.label)))
     .attr('cy', d => y(d.value) as number)
     .attr('r', 3)
@@ -356,7 +356,7 @@ export function render(
     const pos = clampPointLabel(String(dot.value), cx, cy, { width, height, margin })
     vlGroup.append('text')
       .attr('class', 'bc-value-label')
-      .attr('data-series', dot.colorIndex)
+      .attr('data-series', dot.series)
       .attr('x', pos.x)
       .attr('y', pos.y)
       .attr('text-anchor', 'middle')
@@ -435,7 +435,7 @@ export function render(
     }
     else {
       symbolsGroup = d3.select(chartArea).append('g').attr('class', 'bc-symbols')
-        .attr('data-series', si)
+        .attr('data-series', s.name)
         .attr('data-series-name', s.name) as unknown as d3.Selection<SVGGElement, unknown, null, undefined>
     }
     // Without a matching prior group there is no source position to transition
@@ -473,7 +473,7 @@ export function render(
       d3.select(chartArea)
         .append('text')
         .attr('class', 'bc-direct-label')
-        .attr('data-series', entry.index)
+        .attr('data-series', entry.name)
         .attr('x', labelX)
         .attr('y', resolvedYs[i])
         .attr('dy', '0.35em')

@@ -1,6 +1,9 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { renderLegend } from './legend'
 import { measureTextWidth } from '../text-measure'
+import { parse } from '../../dsl/parser'
+import { astToDefinition } from '../../render/ast-to-definition'
+import { renderChart } from '../../render/render-chart'
 
 describe('renderLegend', () => {
   let chartArea: SVGGElement
@@ -292,5 +295,57 @@ describe('legend item width is measured, not counted (#35)', () => {
       -10, 'top', 'start', 310, 0, 0, ['(42%)'],
     )
     expect(g.querySelector('text')?.textContent).toContain('(42%)')
+  })
+})
+
+describe('marks and legend items share one key space (#86)', () => {
+  function draw(source: string): HTMLElement {
+    const host = document.createElement('div')
+    document.body.appendChild(host)
+    renderChart(host, astToDefinition(parse(source)))
+    return host
+  }
+
+  const body = `  legend = true
+  data {
+    series = "China","India"
+    "2018" = 1.1,2.2
+    "2019" = 1.3,2.4
+  }`
+
+  const arcBody = `  legend = true
+  data {
+    "Coal" = 34.2
+    "Gas" = 21.8
+  }`
+
+  function keys(host: HTMLElement, selector: string): string[] {
+    return [...host.querySelectorAll(selector)]
+      .map(el => el.getAttribute('data-series'))
+      .filter((k): k is string => k !== null)
+  }
+
+  /** Every keyed element outside the legend, which is what legend hover dims. */
+  function markKeys(host: HTMLElement): string[] {
+    return [...host.querySelectorAll('[data-series]')]
+      .filter(el => !el.closest('.bc-legend'))
+      .map(el => el.getAttribute('data-series') as string)
+  }
+
+  it.each([
+    ['line-multi', `chart line-multi {\n${body}\n}`],
+    ['area-stacked', `chart area-stacked {\n${body}\n}`],
+  ])('keys %s marks by series name, as the legend does', (_type, source) => {
+    const host = draw(source)
+    const legendKeys = keys(host, '.bc-legend-item')
+    expect(legendKeys).toEqual(['China', 'India'])
+    const unmatched = [...new Set(markKeys(host))].filter(k => !legendKeys.includes(k))
+    expect(unmatched).toEqual([])
+  })
+
+  it('gives pie arcs a data-series key the legend can match', () => {
+    const host = draw(`chart pie {\n${arcBody}\n}`)
+    const arcKeys = [...host.querySelectorAll('.bc-arc')].map(el => el.getAttribute('data-series'))
+    expect(arcKeys).toEqual(['Coal', 'Gas'])
   })
 })

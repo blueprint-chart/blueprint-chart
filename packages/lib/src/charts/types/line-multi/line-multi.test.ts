@@ -467,8 +467,8 @@ describe('line-multi chart', () => {
     })
     const symbolGroups = container.querySelectorAll('.bc-symbols')
     const seriesAttrs = Array.from(symbolGroups).map(g => g.getAttribute('data-series'))
-    expect(seriesAttrs).toContain('0')
-    expect(seriesAttrs).toContain('1')
+    expect(seriesAttrs).toContain('Series A')
+    expect(seriesAttrs).toContain('Series B')
   })
 
   // ── Sort mode ───────────────────────────────────────────────────
@@ -479,14 +479,14 @@ describe('line-multi chart', () => {
     const lines = container.querySelectorAll('.bc-line')
     // The first rendered line should be the one with higher total (Series B, colorIndex 1)
     const firstDataSeries = lines[0].getAttribute('data-series')
-    expect(firstDataSeries).toBe('1') // Series B has index 1 in allSeries
+    expect(firstDataSeries).toBe('Series B')
   })
 
   it('preserves original order when sortMode is not set', () => {
     render(container, data)
     const lines = container.querySelectorAll('.bc-line')
     const firstDataSeries = lines[0].getAttribute('data-series')
-    expect(firstDataSeries).toBe('0') // Series A comes first
+    expect(firstDataSeries).toBe('Series A')
   })
 
   // ── Direct labelling ────────────────────────────────────────────
@@ -524,8 +524,8 @@ describe('line-multi chart', () => {
     const labels = container.querySelectorAll('.bc-direct-label')
     expect(labels.length).toBe(2)
     const attrs = Array.from(labels).map(el => el.getAttribute('data-series'))
-    expect(attrs).toContain('0')
-    expect(attrs).toContain('1')
+    expect(attrs).toContain('Series A')
+    expect(attrs).toContain('Series B')
   })
 
   // ── Direct label collision avoidance ────────────────────────────
@@ -753,7 +753,7 @@ describe('line-multi chart', () => {
       render(container, ragged)
       const lines = Array.from(container.querySelectorAll('.bc-line'))
       expect(lines).toHaveLength(2)
-      const shortLine = lines.find(l => l.getAttribute('data-series') === '1')!
+      const shortLine = lines.find(l => l.getAttribute('data-series') === 'B')!
       expect((shortLine.getAttribute('d') ?? '').match(/M/g)).toHaveLength(2)
     })
 
@@ -798,7 +798,7 @@ describe('line-multi chart', () => {
       seriesOverrides: [{ name: 'Series A', color: '#123456' }],
     })
     const lines = container.querySelectorAll('.bc-line')
-    const lineA = Array.from(lines).find(l => l.getAttribute('data-series') === '0')
+    const lineA = Array.from(lines).find(l => l.getAttribute('data-series') === 'Series A')
     expect(lineA?.getAttribute('stroke')).toBe('#123456')
   })
 
@@ -811,8 +811,8 @@ describe('line-multi chart', () => {
       seriesOverrides: [{ name: 'Series A', lineWidth: 8 }],
     })
     const lines = container.querySelectorAll<SVGPathElement>('.bc-line')
-    const lineA = Array.from(lines).find(l => l.getAttribute('data-series') === '0')
-    const lineB = Array.from(lines).find(l => l.getAttribute('data-series') === '1')
+    const lineA = Array.from(lines).find(l => l.getAttribute('data-series') === 'Series A')
+    const lineB = Array.from(lines).find(l => l.getAttribute('data-series') === 'Series B')
     expect(lineA?.style.strokeWidth).toBe('8')
     expect(lineB?.style.strokeWidth).toBe('2')
   })
@@ -822,7 +822,7 @@ describe('line-multi chart', () => {
       seriesOverrides: [{ name: 'Series A', dash: 'dashed' }],
     })
     const lines = container.querySelectorAll('.bc-line')
-    const lineA = Array.from(lines).find(l => l.getAttribute('data-series') === '0')
+    const lineA = Array.from(lines).find(l => l.getAttribute('data-series') === 'Series A')
     expect(lineA?.getAttribute('stroke-dasharray')).toBe('8,4')
   })
 
@@ -831,8 +831,8 @@ describe('line-multi chart', () => {
       seriesOverrides: [{ name: 'Series A', interpolation: 'step' }],
     })
     const lines = container.querySelectorAll('.bc-line')
-    const lineA = Array.from(lines).find(l => l.getAttribute('data-series') === '0')
-    const lineB = Array.from(lines).find(l => l.getAttribute('data-series') === '1')
+    const lineA = Array.from(lines).find(l => l.getAttribute('data-series') === 'Series A')
+    const lineB = Array.from(lines).find(l => l.getAttribute('data-series') === 'Series B')
     // Series A should have a different path than Series B due to step interpolation
     expect(lineA?.getAttribute('d')).not.toBe(lineB?.getAttribute('d'))
   })

@@ -275,7 +275,7 @@ export function render(
     key: d => d.name,
     insert: sel => sel.append('path').attr('class', 'bc-area'),
     attrs: d => ({
-      'data-series': d.colorIndex,
+      'data-series': d.name,
       'd': areaGen(d.points) ?? '',
       'fill': seriesColorFor(d),
       'opacity': hasHighlights ? highlightOpacity(highlightTargets, d.name, resolvedOpacity) : resolvedOpacity,
@@ -296,7 +296,7 @@ export function render(
       const seriesInterp = resolveSeriesInterpolation(d.name, options.interpolation ?? 'monotoneX', overrides)
       const lineGen = d3.line<[number, number]>().curve(resolveCurve(seriesInterp)).x((_v, i) => xPos(i)).y(p => p[1])
       return {
-        'data-series': d.colorIndex,
+        'data-series': d.name,
         'd': lineGen(d.points) ?? '',
         'fill': 'none',
         'stroke': seriesColorFor(d),
@@ -391,7 +391,7 @@ export function render(
       d3.select(chartArea)
         .append('text')
         .attr('class', 'bc-direct-label')
-        .attr('data-series', entry.index)
+        .attr('data-series', entry.name)
         .attr('x', labelX)
         .attr('y', resolvedYs[i])
         .attr('dy', '0.35em')
