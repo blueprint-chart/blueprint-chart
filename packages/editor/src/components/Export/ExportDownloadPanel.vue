@@ -4,6 +4,7 @@
       :model-value="!!error"
       variant="danger"
       class="mb-0"
+      role="alert"
     >
       {{ error }}
     </BAlert>

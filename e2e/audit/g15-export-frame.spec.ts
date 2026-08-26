@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs'
 import { test, expect } from '@playwright/test'
 import { gotoRender } from '../support/render'
 
@@ -60,33 +61,60 @@ const EXPORT_DSL = `chart bar-vertical {
 }`
 
 const EXPORT_ID = 'test-g15-png-export'
+// The panel's own default (stores/exportPanel.ts).
+const PNG_SCALE = 2
 
 test.describe('G15 PNG download', () => {
-  test('downloads a PNG instead of failing on a tainted canvas', async ({ page }) => {
+  test('downloads a PNG the browser can decode instead of tainting the canvas', async ({ page }) => {
     const pageErrors: string[] = []
     page.on('pageerror', err => pageErrors.push(err.message))
 
     await page.goto('/')
+    await page.waitForLoadState('networkidle')
     await page.evaluate(({ id, dsl }) => {
       localStorage.setItem(`blueprint-chart:${id}`, dsl)
       localStorage.setItem(`blueprint-chart:${id}:meta`, JSON.stringify({ savedAt: new Date().toISOString() }))
     }, { id: EXPORT_ID, dsl: EXPORT_DSL })
 
     await page.goto(`/#/edit/${EXPORT_ID}/export`)
-    // The route lives in the fragment, so the hop from `/` is a same-document
-    // navigation: reload to actually mount the export step.
-    await page.reload()
-    const preview = page.locator('.export-panel__canvas__preview')
-    await expect(preview.locator('.bc-frame-body svg')).toBeVisible({ timeout: 10_000 })
+    await page.waitForLoadState('networkidle')
+    const card = page.locator('.export-panel__canvas__card')
+    await expect(card.locator('.bc-frame-body svg')).toBeVisible({ timeout: 20_000 })
 
     await page.locator('[title="Download"], [aria-label="Download"]').first().click()
     const pngCard = page.locator('.format-card').filter({ hasText: 'PNG' })
     await expect(pngCard).toBeVisible()
 
-    const download = page.waitForEvent('download', { timeout: 15_000 })
+    const downloading = page.waitForEvent('download', { timeout: 15_000 })
     await pngCard.getByRole('button', { name: 'Download' }).click()
-    expect((await download).suggestedFilename()).toBe('chart.png')
+    const download = await downloading
+    expect(download.suggestedFilename()).toBe('chart.png')
 
-    expect(pageErrors.filter(e => e.includes('Tainted'))).toHaveLength(0)
+    const png = readFileSync(await download.path())
+    expect(png.subarray(0, 8).toString('hex')).toBe('89504e470d0a1a0a')
+    // IHDR width/height, straight off the exported bytes.
+    const box = (await card.boundingBox())!
+    expect(png.readUInt32BE(16)).toBe(Math.ceil(box.width) * PNG_SCALE)
+    expect(png.readUInt32BE(20)).toBe(Math.ceil(box.height) * PNG_SCALE)
+
+    // A blank canvas is still a valid PNG, so decode it back and count colours:
+    // the bars, the axis and the headline text all have to have rasterised.
+    const colours = await page.evaluate(async (base64) => {
+      const bytes = Uint8Array.from(atob(base64), c => c.charCodeAt(0))
+      const bitmap = await createImageBitmap(new Blob([bytes], { type: 'image/png' }))
+      const canvas = new OffscreenCanvas(bitmap.width, bitmap.height)
+      const ctx = canvas.getContext('2d')!
+      ctx.drawImage(bitmap, 0, 0)
+      const { data } = ctx.getImageData(0, 0, bitmap.width, bitmap.height)
+      const seen = new Set<number>()
+      for (let i = 0; i < data.length; i += 4) {
+        seen.add((data[i] << 16) | (data[i + 1] << 8) | data[i + 2])
+      }
+      return seen.size
+    }, png.toString('base64'))
+    expect(colours).toBeGreaterThan(3)
+
+    expect(pageErrors).toEqual([])
+    await expect(page.locator('.export-download-panel .alert')).toBeHidden()
   })
 })
