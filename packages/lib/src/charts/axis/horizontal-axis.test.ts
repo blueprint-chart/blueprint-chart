@@ -948,3 +948,33 @@ describe('dense category labels are thinned to fit (#20)', () => {
     expect(overlappingTickPairs(axis)).toBe(0)
   })
 })
+
+describe('renderHorizontalAxis continuous tick selection', () => {
+  let chartArea: SVGGElement
+
+  beforeEach(() => {
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+    chartArea = document.createElementNS('http://www.w3.org/2000/svg', 'g') as SVGGElement
+    svg.appendChild(chartArea)
+    document.body.appendChild(svg)
+  })
+
+  afterEach(() => {
+    document.body.innerHTML = ''
+  })
+
+  it('ticks a logarithmic horizontal axis by decade', () => {
+    const scale = d3.scaleSymlog<number, number>().domain([1, 10000]).range([0, 600])
+    const g = renderHorizontalAxis(chartArea, scale as never, 300, { width: 600 })
+    const values = [...g.querySelectorAll('.tick')].map(t => Number(t.textContent?.replace(/,/g, '')))
+    expect(values).toEqual([1, 10, 100, 1000, 10000])
+  })
+
+  it('keeps measured tick density on a linear horizontal axis', () => {
+    const scale = d3.scaleLinear<number, number>().domain([0, 100]).range([0, 600])
+    const g = renderHorizontalAxis(chartArea, scale as never, 300, { width: 600 })
+    const ticks = g.querySelectorAll('.tick')
+    expect(ticks.length).toBeGreaterThan(1)
+    expect(overlappingTickPairs(g)).toBe(0)
+  })
+})
