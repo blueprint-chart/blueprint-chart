@@ -1,9 +1,10 @@
 const mockRoute = { path: '/new', params: {} as Record<string, string> }
 const mockReplace = vi.fn()
+const mockPush = vi.fn()
 
 vi.mock('vue-router', () => ({
   useRoute: () => mockRoute,
-  useRouter: () => ({ replace: mockReplace }),
+  useRouter: () => ({ replace: mockReplace, push: mockPush }),
 }))
 
 import { useWizard } from './wizard'
@@ -14,6 +15,7 @@ describe('useWizard', () => {
     mockRoute.path = '/new'
     mockRoute.params = {}
     mockReplace.mockClear()
+    mockPush.mockClear()
   })
 
   it('starts at data step on /new', () => {
@@ -44,20 +46,22 @@ describe('useWizard', () => {
     expect(currentStep.value.key).toBe('export')
   })
 
-  it('next() navigates to next step route', () => {
+  it('next() pushes the next step route so Back returns to this one', () => {
     mockRoute.path = '/edit/abc123/visualize'
     mockRoute.params = { id: 'abc123' }
     const { next } = useWizard()
     next()
-    expect(mockReplace).toHaveBeenCalledWith('/edit/abc123/export')
+    expect(mockPush).toHaveBeenCalledWith('/edit/abc123/export')
+    expect(mockReplace).not.toHaveBeenCalled()
   })
 
-  it('back() navigates to previous step route', () => {
+  it('back() pushes the previous step route', () => {
     mockRoute.path = '/edit/abc123/visualize'
     mockRoute.params = { id: 'abc123' }
     const { back } = useWizard()
     back()
-    expect(mockReplace).toHaveBeenCalledWith('/edit/abc123/data')
+    expect(mockPush).toHaveBeenCalledWith('/edit/abc123/data')
+    expect(mockReplace).not.toHaveBeenCalled()
   })
 
   it('next() does nothing on last step', () => {
@@ -65,22 +69,23 @@ describe('useWizard', () => {
     mockRoute.params = { id: 'abc123' }
     const { next } = useWizard()
     next()
-    expect(mockReplace).not.toHaveBeenCalled()
+    expect(mockPush).not.toHaveBeenCalled()
   })
 
   it('back() does nothing on first step', () => {
     mockRoute.path = '/new'
     const { back } = useWizard()
     back()
-    expect(mockReplace).not.toHaveBeenCalled()
+    expect(mockPush).not.toHaveBeenCalled()
   })
 
-  it('goTo() navigates to the specified step', () => {
+  it('goTo() pushes the specified step', () => {
     mockRoute.path = '/edit/abc123/visualize'
     mockRoute.params = { id: 'abc123' }
     const { goTo } = useWizard()
     goTo(2)
-    expect(mockReplace).toHaveBeenCalledWith('/edit/abc123/export')
+    expect(mockPush).toHaveBeenCalledWith('/edit/abc123/export')
+    expect(mockReplace).not.toHaveBeenCalled()
   })
 
   it('isFirst and isLast are correct', () => {

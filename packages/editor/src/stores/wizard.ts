@@ -69,7 +69,9 @@ export function useWizard() {
   function navigateTo(stepKey: string) {
     const id = resolveId()
     if (id && router) {
-      router.replace(stepPath(id, stepKey))
+      // push, not replace: the URL changes per step, so Back and Forward have
+      // to walk the wizard rather than leave the chart.
+      router.push(stepPath(id, stepKey))
     }
   }
 
