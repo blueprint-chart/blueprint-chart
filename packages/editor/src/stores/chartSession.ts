@@ -128,8 +128,19 @@ function isLegacyPayload(raw: string): boolean {
 export const useChartSessionStore = defineStore('chartSession', () => {
   const sessionId = shallowRef('')
   const lastSavedAt = shallowRef<string | null>(null)
+  const deletedElsewhere = shallowRef(false)
+  /** The last id this tab actually wrote. Its key going missing means the
+   *  chart was deleted elsewhere, not that the session is merely new. */
+  const persistedId = shallowRef('')
   const sheetNumber = ref<string | null>(null)
   const sheetId = ref<string>('')
+
+  let stopWatcher: (() => void) | null = null
+
+  function stopAutoSave() {
+    stopWatcher?.()
+    stopWatcher = null
+  }
 
   const chartConfig = useChartConfig()
   const dataTable = useDataTable()
@@ -139,6 +150,13 @@ export const useChartSessionStore = defineStore('chartSession', () => {
 
   function save() {
     if (!sessionId.value) {
+      return
+    }
+    // Writing a chart this tab has already persisted, whose key is now gone,
+    // would undo a delete the user confirmed as final in another tab.
+    if (persistedId.value === sessionId.value && localStorage.getItem(storageKey(sessionId.value)) === null) {
+      deletedElsewhere.value = true
+      stopAutoSave()
       return
     }
     const { generateDsl } = useDslOutput()
@@ -158,6 +176,7 @@ export const useChartSessionStore = defineStore('chartSession', () => {
     }
     localStorage.setItem(metaKey(sessionId.value), JSON.stringify(meta))
     lastSavedAt.value = now
+    persistedId.value = sessionId.value
   }
 
   function load(id: string): boolean {
@@ -181,18 +200,16 @@ export const useChartSessionStore = defineStore('chartSession', () => {
         return false
       }
 
-      // Load sidecar metadata
-      const metaRaw = localStorage.getItem(metaKey(id))
-      let loadedMeta: SessionMeta | undefined
-      if (metaRaw) {
-        loadedMeta = JSON.parse(metaRaw) as SessionMeta
+      // Load sidecar metadata. An unparseable sidecar reads as absent: the
+      // chart itself is intact, and dropping it over one bad optional byte
+      // makes it unopenable.
+      const loadedMeta = readLocalMeta(id) as SessionMeta
 
-        if (loadedMeta.sourceFormat === 'delimited' && loadedMeta.rawInput) {
-          dataTable.rawInput.value = loadedMeta.rawInput
-          dataTable.sourceFormat.value = 'delimited'
-          if (loadedMeta.sourceLabel) {
-            dataTable.sourceLabel.value = loadedMeta.sourceLabel
-          }
+      if (loadedMeta.sourceFormat === 'delimited' && loadedMeta.rawInput) {
+        dataTable.rawInput.value = loadedMeta.rawInput
+        dataTable.sourceFormat.value = 'delimited'
+        if (loadedMeta.sourceLabel) {
+          dataTable.sourceLabel.value = loadedMeta.sourceLabel
         }
       }
 
@@ -201,14 +218,16 @@ export const useChartSessionStore = defineStore('chartSession', () => {
       // it stands and drop the steps instead of re-deriving from an output; the
       // next save stamps it as v2. Scene transforms are untouched: they were
       // never baked into the data block.
-      if (loadedMeta?.schema !== SCHEMA_VERSION) {
+      if (loadedMeta.schema !== SCHEMA_VERSION) {
         transforms.reset()
       }
 
       sessionId.value = id
-      lastSavedAt.value = (loadedMeta?.savedAt as string | undefined) ?? null
-      sheetNumber.value = loadedMeta?.sheetNumber ?? null
-      sheetId.value = loadedMeta?.sheetId ?? crypto.randomUUID()
+      persistedId.value = id
+      deletedElsewhere.value = false
+      lastSavedAt.value = loadedMeta.savedAt ?? null
+      sheetNumber.value = loadedMeta.sheetNumber ?? null
+      sheetId.value = loadedMeta.sheetId ?? crypto.randomUUID()
       return true
     }
     catch {
@@ -233,6 +252,8 @@ export const useChartSessionStore = defineStore('chartSession', () => {
   }
 
   function resetAll() {
+    deletedElsewhere.value = false
+    persistedId.value = ''
     chartConfig.reset()
     dataTable.reset()
     transforms.reset()
@@ -335,7 +356,8 @@ export const useChartSessionStore = defineStore('chartSession', () => {
   }
 
   function startAutoSave() {
-    watch(
+    stopAutoSave()
+    stopWatcher = watch(
       [
         chartConfig.chartType,
         chartConfig.title,
@@ -408,19 +430,18 @@ export const useChartSessionStore = defineStore('chartSession', () => {
 
         // Raw DSL string — extract metadata with the shared summarizer.
         const summary = summarizeDsl(raw)
-        const metaRaw = localStorage.getItem(metaKey(id))
-        const parsedMeta = metaRaw ? (JSON.parse(metaRaw) as SessionMeta) : null
+        const parsedMeta = readLocalMeta(id) as SessionMeta
         charts.push({
           id,
           title: summary.title,
           description: summary.description,
           chartType: summary.chartType,
-          savedAt: parsedMeta?.savedAt ?? null,
+          savedAt: parsedMeta.savedAt ?? null,
           sceneCount: summary.sceneCount,
           rowCount: summary.rowCount,
           allowDarkMode: summary.allowDarkMode,
-          sheetNumber: parsedMeta?.sheetNumber ?? null,
-          sheetId: parsedMeta?.sheetId ?? '',
+          sheetNumber: parsedMeta.sheetNumber ?? null,
+          sheetId: parsedMeta.sheetId ?? '',
         })
       }
       catch {
@@ -451,6 +472,7 @@ export const useChartSessionStore = defineStore('chartSession', () => {
   return {
     sessionId,
     lastSavedAt,
+    deletedElsewhere,
     sheetNumber,
     sheetId,
     save,
@@ -470,10 +492,11 @@ export const useChartSessionStore = defineStore('chartSession', () => {
 
 export function useChartSession() {
   const store = useChartSessionStore()
-  const { sessionId, lastSavedAt, sheetNumber, sheetId } = storeToRefs(store)
+  const { sessionId, lastSavedAt, deletedElsewhere, sheetNumber, sheetId } = storeToRefs(store)
   return {
     sessionId,
     lastSavedAt,
+    deletedElsewhere,
     sheetNumber,
     sheetId,
     save: store.save,

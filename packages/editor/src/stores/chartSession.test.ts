@@ -460,3 +460,95 @@ describe('legacy documents written before the data block held source data', () =
     expect(renderedData()).toContain('"A" = 1.5271796258079011')
   })
 })
+
+describe('a chart deleted while another tab still holds it', () => {
+  const ID = 'staleTabIdA'
+  const DSL = 'chart donut {\n  title = "Open in the stale tab"\n  data {\n    "A" = 1\n  }\n}\n'
+
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    localStorage.clear()
+    useChartConfig().reset()
+    useDataTable().reset()
+    useDataTransforms().reset()
+    useChartTypeOptions().reset()
+    useScenes().reset()
+  })
+
+  it('is not resurrected by the stale tab next autosave', () => {
+    const session = useChartSession()
+    localStorage.setItem(storageKey(ID), DSL)
+    expect(session.loadChart(ID)).toBe(true)
+
+    // Stands in for the confirmed delete in the other tab.
+    session.deleteChart(ID)
+
+    useChartConfig().title.value = 'Edited after the delete'
+    session.save()
+
+    expect(localStorage.getItem(storageKey(ID))).toBeNull()
+    expect(localStorage.getItem(metaKey(ID))).toBeNull()
+    expect(session.listSavedCharts()).toEqual([])
+  })
+
+  it('tells the tab its chart was removed elsewhere', () => {
+    const session = useChartSession()
+    localStorage.setItem(storageKey(ID), DSL)
+    session.loadChart(ID)
+    expect(session.deletedElsewhere.value).toBe(false)
+
+    session.deleteChart(ID)
+    session.save()
+
+    expect(session.deletedElsewhere.value).toBe(true)
+  })
+
+  it('still writes the first save of a session that was never persisted', () => {
+    const session = useChartSession()
+    session.newChart()
+    session.save()
+
+    expect(localStorage.getItem(storageKey(session.sessionId.value))).not.toBeNull()
+    expect(session.deletedElsewhere.value).toBe(false)
+  })
+})
+
+describe('a malformed :meta sidecar', () => {
+  const ID = 'badMetaIdAA'
+  const DSL = 'chart donut {\n  title = "Intact"\n  data {\n    "A" = 1\n  }\n}\n'
+
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    localStorage.clear()
+    useChartConfig().reset()
+    useDataTable().reset()
+    useDataTransforms().reset()
+    useChartTypeOptions().reset()
+    useScenes().reset()
+    localStorage.setItem(storageKey(ID), DSL)
+    localStorage.setItem(metaKey(ID), '{not json')
+  })
+
+  it('keeps the chart listed in My Charts', () => {
+    const charts = useChartSession().listSavedCharts()
+    expect(charts.map(c => c.id)).toEqual([ID])
+    expect(charts[0].title).toBe('Intact')
+    expect(charts[0].savedAt).toBeNull()
+  })
+
+  it('still opens the chart', () => {
+    const session = useChartSession()
+    expect(session.loadChart(ID)).toBe(true)
+    expect(useChartConfig().title.value).toBe('Intact')
+    expect(session.sessionId.value).toBe(ID)
+  })
+
+  it('reads as unstamped provenance, so the data block is adopted as stored', () => {
+    const withSteps = 'chart bar-vertical {\n  data {\n    "A" = 100\n  }\n\n  transform parse {\n    column = "value"\n    operation = "log"\n  }\n}\n'
+    localStorage.setItem(storageKey(ID), withSteps)
+
+    expect(useChartSession().loadChart(ID)).toBe(true)
+    expect(useDataTransforms().steps.value).toEqual([])
+    expect(useChartConfig().data.value).toContain('"A" = 100')
+  })
+})

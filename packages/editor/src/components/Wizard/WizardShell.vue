@@ -31,7 +31,7 @@ import { useAccount } from '@/stores/account'
 const { currentStep, currentIndex, steps, registerCreateSession } = useWizard()
 const dataTable = useDataTable()
 const config = useChartConfig()
-const { sessionId, createSession, lastSavedAt } = useChartSession()
+const { sessionId, createSession, lastSavedAt, deletedElsewhere } = useChartSession()
 if (accountsEnabled()) {
   useCloudSyncBinding()
 }
@@ -370,7 +370,7 @@ onBeforeRouteLeave(() => {
       <template #start>
         <LayoutBreadcrumb />
         <span
-          v-if="savedLabel && isSavedCompact"
+          v-if="savedLabel && isSavedCompact && !deletedElsewhere"
           class="wizard-shell__saved-dot"
           role="status"
           aria-live="polite"
@@ -388,7 +388,17 @@ onBeforeRouteLeave(() => {
       </template>
       <template #end>
         <BBadge
-          v-if="savedLabel && !isSavedCompact"
+          v-if="deletedElsewhere"
+          variant="danger"
+          pill
+          class="wizard-shell__saved"
+          role="status"
+          aria-live="polite"
+        >
+          Deleted elsewhere. Not saving.
+        </BBadge>
+        <BBadge
+          v-else-if="savedLabel && !isSavedCompact"
           variant="success"
           pill
           class="wizard-shell__saved"
