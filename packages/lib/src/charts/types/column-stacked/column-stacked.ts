@@ -10,7 +10,7 @@ import { estimateLegendSize } from '../../legend/legend-size'
 import { createAnnotationPlugin, snapshotAnnotations, type AnnotationSnapshot } from '../../plugins/annotations'
 import { createTooltipPlugin } from '../../plugins/tooltip'
 import { createCrosshairPlugin } from '../../plugins/crosshair'
-import { resolveBackgroundColor } from '../../contrast'
+import { contrastTextColor, resolveBackgroundColor } from '../../contrast'
 import { expandColorsToSeries, seriesOrImplicit, resolveSeriesColor, isSeriesHidden, resolveSeriesValueLabels, resolveSeriesOpacity } from '../../series-helpers'
 import { setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut } from '../../motion'
 import { setCachedChart, getCachedChart } from '../../transition-cache'
@@ -324,6 +324,8 @@ export function render(
     })) {
       return
     }
+    const segmentColor = colorOverrides.get(datum.seriesName)
+      ?? resolveSeriesColor(datum.seriesName, datum.seriesIndex, colors, overrides)
     vlGroup.append('text')
       .attr('class', 'bc-value-label')
       .attr('data-series', datum.seriesName)
@@ -332,7 +334,7 @@ export function render(
       .attr('text-anchor', 'middle')
       .attr('dominant-baseline', 'central')
       .attr('font-size', '11px')
-      .attr('fill', 'currentColor')
+      .attr('fill', contrastTextColor(segmentColor))
       .text(labelText)
   })
 

@@ -1,6 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { render } from './column-stacked'
 import { StackMode, LabelRotation } from '../../../enums'
+import { wcagContrastRatio, adjustColorsForBackground } from '../../contrast'
+import { listPalettes, resolvePalette } from '../../palettes'
 
 describe('column-stacked', () => {
   let container: HTMLElement
@@ -492,6 +494,66 @@ describe('column-stacked', () => {
       render(container, diverging, { stackMode: StackMode.Percent, valueLabels: true })
       const texts = Array.from(container.querySelectorAll('.bc-value-label')).map(t => t.textContent)
       expect(texts).toContain('-59%')
+    })
+  })
+  // #40: the inside value label used to be painted `currentColor` on every
+  // segment, which reads as #555 in the browser: 1.2:1 on the default palette's
+  // first colour. The label sits on its own segment, so the segment fill is the
+  // background to measure against.
+  describe('inside value label contrast', () => {
+    const AA_RATIO = 4.5
+
+    function labelRatios(host: HTMLElement): { fill: string, label: string, ratio: number }[] {
+      return Array.from(host.querySelectorAll('.bc-value-label')).map((label) => {
+        const seriesName = label.getAttribute('data-series')
+        const segment = host.querySelector(`rect.bc-bar-stacked[data-series="${seriesName}"]`)!
+        const fill = segment.getAttribute('fill') ?? ''
+        return {
+          fill,
+          label: label.getAttribute('fill') ?? '',
+          ratio: wcagContrastRatio(label.getAttribute('fill') ?? '', fill),
+        }
+      })
+    }
+
+    function renderIntoFreshHost(options: Record<string, unknown>): HTMLElement {
+      const host = document.createElement('div')
+      document.body.appendChild(host)
+      render(host, data, options)
+      return host
+    }
+
+    it(`clears ${AA_RATIO}:1 on the default palette`, () => {
+      const host = renderIntoFreshHost({ valueLabels: true, colors: resolvePalette('Blueprint') ?? [] })
+      const ratios = labelRatios(host)
+      expect(ratios).toHaveLength(4)
+      expect(ratios.filter(r => r.ratio < AA_RATIO)).toEqual([])
+    })
+
+    it(`clears ${AA_RATIO}:1 once autoContrast has darkened the fills`, () => {
+      const colors = adjustColorsForBackground(resolvePalette('Blueprint') ?? [], '#ffffff')
+      const ratios = labelRatios(renderIntoFreshHost({ valueLabels: true, colors }))
+      expect(ratios).toHaveLength(4)
+      expect(ratios.filter(r => r.ratio < AA_RATIO)).toEqual([])
+    })
+
+    // Across the whole shipped set, some mid-tones (#888b8d, #cb54d6, ...) top
+    // out at 3.6-4.3:1 because the library picks between #fff and #333 only.
+    // Reaching AA there means changing that choice for every chart type, so
+    // what this asserts is that no segment gets the worse of the two.
+    it('picks the more contrasting of the two label colours on every shipped palette', () => {
+      const offenders: string[] = []
+      for (const palette of listPalettes()) {
+        const ratios = labelRatios(renderIntoFreshHost({ valueLabels: true, colors: palette.colors }))
+        expect(ratios, palette.name).not.toHaveLength(0)
+        for (const { fill, label, ratio } of ratios) {
+          const best = Math.max(wcagContrastRatio('#fff', fill), wcagContrastRatio('#333', fill))
+          if (ratio < best) {
+            offenders.push(`${palette.name} ${label} on ${fill}: ${ratio.toFixed(2)}:1 where ${best.toFixed(2)}:1 was available`)
+          }
+        }
+      }
+      expect(offenders).toEqual([])
     })
   })
 })
