@@ -34,3 +34,21 @@ describe('CHART_CSS bc-theme-dark (#65)', () => {
     expect(CHART_CSS).toMatch(/\.bc-frame\.bc-theme-dark\s*\{[^}]*--bc-text-color:\s*rgba\(255, ?255, ?255/)
   })
 })
+
+describe('CHART_CSS constrained-height layout (#66)', () => {
+  it('carries the frame rule that makes heightMode work', () => {
+    expect(CHART_CSS).toMatch(/\.bc-frame--constrained\s*\{[^}]*position:\s*relative/)
+    expect(CHART_CSS).toMatch(/\.bc-frame--constrained\s*\{[^}]*overflow:\s*hidden/)
+  })
+
+  it('pins the body over the full frame', () => {
+    expect(CHART_CSS).toMatch(/\.bc-frame--constrained\s+\.bc-frame-body\s*\{[^}]*position:\s*absolute/)
+    expect(CHART_CSS).toMatch(/\.bc-frame--constrained\s+\.bc-frame-body\s*\{[^}]*inset:\s*0/)
+  })
+
+  it('floats the header, note and footer above the body', () => {
+    expect(CHART_CSS).toMatch(/\.bc-frame--constrained\s+\.bc-frame-header\s*\{[^}]*z-index:\s*1/)
+    expect(CHART_CSS).toMatch(/\.bc-frame--constrained\s+\.bc-frame-footer\s*\{[^}]*z-index:\s*1/)
+    expect(CHART_CSS).toMatch(/\.bc-frame--constrained\s+\.bc-frame-note\s*\{[^}]*z-index:\s*1/)
+  })
+})

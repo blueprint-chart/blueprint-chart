@@ -50,6 +50,47 @@ export const CHART_CSS = `
   padding: 0 var(--bc-frame-padding-right) 0 var(--bc-frame-padding-left);
 }
 
+/* Constrained-height mode (\`heightMode\` fixed or aspect-ratio). post-render.ts
+   adds .bc-frame--constrained and layout-constraints.ts pins the container
+   height with overflow: hidden; without these rules the frame renders at its
+   natural height and is guillotined. Mirrors chart.scss — keep the two in
+   sync. */
+.bc-frame--constrained {
+  flex: 1;
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.bc-frame--constrained .bc-frame-header {
+  position: relative;
+  z-index: 1;
+  background: var(--bc-frame-header-bg, var(--bc-frame-bg, #fff));
+}
+
+.bc-frame--constrained .bc-frame-body {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.bc-frame--constrained .bc-frame-note {
+  position: absolute;
+  bottom: var(--bc-footer-h, 0);
+  left: 0;
+  right: 0;
+  z-index: 1;
+}
+
+.bc-frame--constrained .bc-frame-footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1;
+}
+
 .bc-frame-title {
   --bc-frame-title-color: var(--bc-text-color, #333);
   --bc-frame-title-font-size: 1.25rem;
