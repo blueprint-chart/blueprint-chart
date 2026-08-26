@@ -817,11 +817,15 @@ describe('buildTickFormatter', () => {
     expect(fmt!('2024-03')).toBe('Mar 2024')
   })
 
-  it('returns d3.format for numeric formats', () => {
-    const labels = ['A', 'B']
-    const fmt = buildTickFormatter(',.0f', labels)
+  it('returns d3.format for numeric formats on a continuous axis', () => {
+    const fmt = buildTickFormatter(',.0f', [])
     expect(fmt).not.toBeNull()
     expect(fmt!(1000 as unknown as string)).toBe('1,000')
+  })
+
+  it('ignores a numeric format when the axis carries category labels', () => {
+    expect(buildTickFormatter(',.0f', ['A', 'B'])).toBeNull()
+    expect(buildTickFormatter(',.0f', ['2015', '2016'])).toBeNull()
   })
 
   it('auto-formats year labels when no format specified', () => {

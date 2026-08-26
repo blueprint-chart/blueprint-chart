@@ -59,6 +59,13 @@ describe('renderVerticalAxis', () => {
     expect(gridLines).toHaveLength(0)
   })
 
+  it('ignores numberFormat on a band scale, whose labels are categories', () => {
+    const band = d3.scaleBand<string>().domain(['Alpha', 'Beta']).range([0, 300])
+    const g = renderVerticalAxis(chartArea, band, 300, { numberFormat: '.0%' })
+    const tickTexts = Array.from(g.querySelectorAll('.tick text')).map(t => t.textContent)
+    expect(tickTexts).toEqual(['Alpha', 'Beta'])
+  })
+
   it('applies numberFormat to tick labels', () => {
     const g = renderVerticalAxis(chartArea, scale, 300, { numberFormat: ',.0f' })
     const tickTexts = Array.from(g.querySelectorAll('.tick text')).map(t => t.textContent)

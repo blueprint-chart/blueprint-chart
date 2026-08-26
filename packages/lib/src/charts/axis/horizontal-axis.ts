@@ -113,6 +113,11 @@ function buildTickFormatter(
   }
 
   if (fmt) {
+    // Labels are the band-scale category strings, which a numeric format turns
+    // into NaN — ignore it, as the % branch above already does.
+    if (labels.length > 0) {
+      return null
+    }
     // Numeric d3.format
     return (buildNumberFormatter(fmt) ?? d3.format(fmt)) as (d: string | d3.NumberValue) => string
   }

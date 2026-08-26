@@ -118,4 +118,59 @@ test.describe('G4 axis domain', () => {
     expect(Math.min(...ticks)).toBeLessThanOrEqual(-60)
     expect(Math.max(...ticks)).toBe(0)
   })
+
+  // #106: a numeric format belongs to the value axis; on the band axis it
+  // formats category strings and every label comes out NaN.
+  test('a numeric format leaves horizontal category labels alone', async ({ page }) => {
+    await gotoRender(page, `chart bar-vertical {
+  horizontalNumberFormat = "$,.0f"
+  data {
+    "Alpha" = 10
+    "Beta" = 20
+  }
+}`)
+    await expect(page.locator('.bc-frame .bc-axis-horizontal .tick').first()).toBeAttached()
+
+    const labels = await page.evaluate(() => Array.from(
+      document.querySelectorAll('.bc-frame .bc-axis-horizontal .tick text'),
+      el => el.textContent,
+    ))
+    expect(labels).toEqual(['Alpha', 'Beta'])
+  })
+
+  // #106: same defect on the vertical band axis of the horizontal-bar family.
+  test('a numeric format leaves vertical category labels alone', async ({ page }) => {
+    await gotoRender(page, `chart bar-horizontal {
+  verticalNumberFormat = ".0%"
+  data {
+    "Alpha" = 10
+    "Beta" = 20
+  }
+}`)
+    await expect(page.locator('.bc-frame .bc-axis-vertical .tick').first()).toBeAttached()
+
+    const labels = await page.evaluate(() => Array.from(
+      document.querySelectorAll('.bc-frame .bc-axis-vertical .tick text'),
+      el => el.textContent,
+    ))
+    expect(labels).toEqual(['Alpha', 'Beta'])
+  })
+
+  // #106: year categories must not be re-formatted as numbers either.
+  test('a numeric format leaves year category labels alone', async ({ page }) => {
+    await gotoRender(page, `chart bar-vertical {
+  horizontalNumberFormat = ",.0f"
+  data {
+    "2015" = 10
+    "2016" = 20
+  }
+}`)
+    await expect(page.locator('.bc-frame .bc-axis-horizontal .tick').first()).toBeAttached()
+
+    const labels = await page.evaluate(() => Array.from(
+      document.querySelectorAll('.bc-frame .bc-axis-horizontal .tick text'),
+      el => el.textContent,
+    ))
+    expect(labels).toEqual(['2015', '2016'])
+  })
 })

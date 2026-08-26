@@ -12,6 +12,11 @@ interface AxisDatum {
 
 const MIN_LABEL_HEIGHT_SPACING = 30
 
+// A band scale carries category strings, which a numeric format turns into NaN.
+function isBandScale(scale: d3.AxisScale<string | d3.NumberValue>): boolean {
+  return typeof (scale as d3.ScaleBand<string>).bandwidth === 'function'
+}
+
 export class VerticalAxisChart extends D3Blueprint<AxisDatum[]> {
   initialize() {
     this.configDefine('scale', { defaultValue: d3.scaleLinear() })
@@ -60,7 +65,7 @@ export class VerticalAxisChart extends D3Blueprint<AxisDatum[]> {
           }
           else {
             const fmt = this.config('numberFormat') as string | null
-            const fmtFn = fmt ? buildNumberFormatter(fmt) : null
+            const fmtFn = fmt && !isBandScale(scale) ? buildNumberFormatter(fmt) : null
             if (fmtFn) {
               axisFn.tickFormat(fmtFn as (d: string | d3.NumberValue) => string)
             }
@@ -154,7 +159,7 @@ export class VerticalAxisChart extends D3Blueprint<AxisDatum[]> {
           }
           else {
             const fmt = this.config('numberFormat') as string | null
-            const fmtFn = fmt ? buildNumberFormatter(fmt) : null
+            const fmtFn = fmt && !isBandScale(scale) ? buildNumberFormatter(fmt) : null
             if (fmtFn) {
               axisFn.tickFormat(fmtFn as (d: string | d3.NumberValue) => string)
             }
