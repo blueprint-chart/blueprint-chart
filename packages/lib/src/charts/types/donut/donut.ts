@@ -165,7 +165,7 @@ export function renderArc(
     // Height may be 0 before the SVG is created; fall back to the default canvas height
     const roughH = (containerInner.height > 0 ? containerInner.height : 400) - 2 * defaultMargin
     const roughRadius = Math.min(roughW, roughH) / 2
-    const arcLabelMargins = estimateArcLabelMargins(labels, roughRadius)
+    const arcLabelMargins = estimateArcLabelMargins(labels, roughRadius, { width: roughW, height: roughH })
     marginOverrides.left = (marginOverrides.left ?? defaultMargin) + arcLabelMargins.left
     marginOverrides.right = (marginOverrides.right ?? defaultMargin) + arcLabelMargins.right
     marginOverrides.top = (marginOverrides.top ?? defaultMargin) + arcLabelMargins.top

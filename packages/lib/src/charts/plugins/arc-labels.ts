@@ -1,5 +1,6 @@
 import * as d3 from 'd3'
 import { contrastTextColor, readableColor } from '../contrast'
+import { measureTextWidth, measureMaxTextWidth } from '../text-measure'
 
 export interface ArcLabelDatum {
   label: string
@@ -21,6 +22,14 @@ const STUB_LENGTH = 18
 
 // Length of the horizontal segment that reaches the text (same for every label)
 const HORIZONTAL_SEG = 20
+
+// Font size the label text renders at (see renderArcLabels' `fontSize` default).
+const LABEL_FONT_PX = 12
+
+// Largest share of a dimension the label columns may claim. Past it the arc
+// stops being the chart: labels that overlap or truncate still communicate,
+// a radius of zero paints nothing at all.
+const MAX_LABEL_MARGIN_SHARE = 0.3
 
 /**
  * Deterministic 1D value spreading.
@@ -261,7 +270,7 @@ export function renderAutoArcLabels(
   for (const d of data) {
     const span = d.endAngle - d.startAngle
     const arcWidth = span * centroidR
-    const labelWidth = d.label.length * 7
+    const labelWidth = measureTextWidth(d.label, fontSize)
     if (arcWidth > labelWidth * 1.2 && span >= MIN_INSIDE_ANGLE) {
       insideData.push(d)
     }
@@ -282,17 +291,30 @@ export function renderAutoArcLabels(
  * Estimate extra margins needed for arc labels beyond what the arc already
  * occupies.  The text column sits at outerRadius + STUB_LENGTH + HORIZONTAL_SEG + 6
  * from centre; we need room for the text itself beyond that.
+ *
+ * `available` is the box the arc has to fit in. The margins are capped against
+ * it, because they are subtracted from the canvas with no other lower bound:
+ * one long label, a phone-width container or twenty slices otherwise leave a
+ * radius of zero and no arcs are painted.
  */
-export function estimateArcLabelMargins(labels: string[], outerRadius: number): { left: number, right: number, top: number, bottom: number } {
+export function estimateArcLabelMargins(
+  labels: string[],
+  outerRadius: number,
+  available: { width: number, height: number } = { width: 0, height: 0 },
+): { left: number, right: number, top: number, bottom: number } {
   if (labels.length === 0) {
     return { left: 0, right: 0, top: 0, bottom: 0 }
   }
-  const maxLen = Math.max(...labels.map(l => l.length))
   // Distance from centre to text column + text gap + text width
-  const extension = STUB_LENGTH + HORIZONTAL_SEG + 6 + 4 + maxLen * 7 + 6
+  const extension = STUB_LENGTH + HORIZONTAL_SEG + 6 + 4 + measureMaxTextWidth(labels, LABEL_FONT_PX) + 6
   // Vertical: enough room for all labels (worst case: all on one side)
-  const maxSide = labels.length
-  const neededHalfH = maxSide * LABEL_GAP / 2
+  const neededHalfH = labels.length * LABEL_GAP / 2
   const vertPad = Math.max(10, neededHalfH - outerRadius + 20)
-  return { left: extension, right: extension, top: vertPad, bottom: vertPad }
+  const horizontal = capMargin(extension, available.width)
+  const vertical = capMargin(vertPad, available.height)
+  return { left: horizontal, right: horizontal, top: vertical, bottom: vertical }
+}
+
+function capMargin(margin: number, available: number): number {
+  return available > 0 ? Math.min(margin, available * MAX_LABEL_MARGIN_SHARE) : margin
 }

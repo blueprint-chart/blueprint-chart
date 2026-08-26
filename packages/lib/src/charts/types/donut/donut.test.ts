@@ -1,5 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { render } from './donut'
+import { parse } from '../../../dsl/parser'
+import { astToDefinition } from '../../../render/ast-to-definition'
+import { renderChart } from '../../../render/render-chart'
 import { SortDirection } from '../../../enums'
 
 describe('donut chart', () => {
@@ -323,5 +326,82 @@ describe('donut chart', () => {
     render(container, data)
     const arcs = container.querySelectorAll('.bc-arc')
     expect(arcs[0].getAttribute('opacity')).toBeNull()
+  })
+})
+
+// ── Arc label margins must never erase the arcs (#29) ─────────────
+
+describe('arc label margins keep a usable radius (#29)', () => {
+  const realGetBoundingClientRect = Element.prototype.getBoundingClientRect
+
+  afterEach(() => {
+    Element.prototype.getBoundingClientRect = realGetBoundingClientRect
+  })
+
+  /** jsdom has no layout engine, so make every element report the viewport under test. */
+  function withViewport(width: number, height: number): void {
+    Element.prototype.getBoundingClientRect = function () {
+      return { x: 0, y: 0, top: 0, left: 0, right: width, bottom: height, width, height, toJSON: () => ({}) } as DOMRect
+    }
+  }
+
+  /** Through the DSL, so the direct-labelling default that reserves the margins applies. */
+  function draw(source: string): HTMLElement {
+    const host = document.createElement('div')
+    document.body.appendChild(host)
+    renderChart(host, astToDefinition(parse(source)))
+    return host
+  }
+
+  /** A donut is usable when its diameter is at least a quarter of the shorter viewport side. */
+  function expectUsableRadius(host: HTMLElement, viewportMin: number): void {
+    expect(Math.min(...outerRadii(host)) * 2).toBeGreaterThan(viewportMin * 0.25)
+  }
+
+  function outerRadii(host: HTMLElement): number[] {
+    return [...host.querySelectorAll('.bc-arc')].map((arc) => {
+      const match = /A\s*([-\d.]+)/.exec(arc.getAttribute('d') ?? '')
+      return match ? Number(match[1]) : 0
+    })
+  }
+
+  it('paints a 2-slice pie whose label is 42 characters', () => {
+    withViewport(600, 400)
+    const host = draw(`chart pie {
+  data {
+    "Households with at least one connected car" = 62
+    "Everyone else" = 38
+  }
+}`)
+    expect(host.querySelectorAll('.bc-arc')).toHaveLength(2)
+    expectUsableRadius(host, 400)
+  })
+
+  it('paints a 5-slice donut with ordinary labels on a 360x640 phone', () => {
+    withViewport(360, 640)
+    const host = draw(`chart donut {
+  data {
+    "Chrome" = 45
+    "Safari" = 25
+    "Firefox" = 15
+    "Edge browser" = 10
+    "Opera mini" = 5
+  }
+}`)
+    expect(host.querySelectorAll('.bc-arc')).toHaveLength(5)
+    expectUsableRadius(host, 360)
+  })
+
+  it('paints 24 slices', () => {
+    withViewport(600, 400)
+    const rows = Array.from({ length: 24 }, (_, i) => `    "Category ${i + 1}" = ${24 - i}`).join('\n')
+    const host = draw(`chart donut {
+  sliceMax = "24"
+  data {
+${rows}
+  }
+}`)
+    expect(host.querySelectorAll('.bc-arc')).toHaveLength(24)
+    expectUsableRadius(host, 400)
   })
 })

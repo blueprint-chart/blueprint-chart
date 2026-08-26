@@ -46,6 +46,25 @@ const DEFAULT_MARGIN: Margin = {
 const DEFAULT_WIDTH = 600
 const DEFAULT_HEIGHT = 400
 
+/**
+ * Smallest share of the canvas the plot area is allowed to keep. Every margin
+ * here is an estimate — a tick label column, an arc label column, a measured
+ * header — and estimates that add up to more than the canvas leave a plot of
+ * zero or less, which paints nothing at all. Scaling the pair back down keeps
+ * their ratio, so the plot stays where the estimate put it, only smaller.
+ */
+const MIN_PLOT_SHARE = 0.25
+
+function fitMargins(total: number, near: number, far: number): [number, number] {
+  const used = near + far
+  const minPlot = total * MIN_PLOT_SHARE
+  if (used <= 0 || total - used >= minPlot) {
+    return [near, far]
+  }
+  const scale = Math.max(0, total - minPlot) / used
+  return [near * scale, far * scale]
+}
+
 class CanvasChart extends D3Blueprint<Margin[]> {
   initialize() {
     this.configDefine('totalWidth', { defaultValue: DEFAULT_WIDTH })
@@ -304,6 +323,9 @@ export function createCanvas(
   const totalWidth = inner.width > 0 ? inner.width : DEFAULT_WIDTH
 
   const totalHeight = inner.height > 0 ? inner.height : DEFAULT_HEIGHT
+
+  ;[m.left, m.right] = fitMargins(totalWidth, m.left, m.right)
+  ;[m.top, m.bottom] = fitMargins(totalHeight, m.top, m.bottom)
 
   const width = totalWidth - m.left - m.right
   const height = totalHeight - m.top - m.bottom
