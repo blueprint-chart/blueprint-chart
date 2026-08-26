@@ -92,9 +92,9 @@ export function parseBpcData(raw: string): TransformResult {
     const rows: string[][] = []
     for (let i = 1; i < lines.length; i++) {
       // New format: "Label" = 40,44,42
-      const matchNew = lines[i].match(/^"([^"]+)"\s*=\s*([^"]+)$/)
+      const matchNew = lines[i].match(/^"([^"]*)"\s*=\s*([^"]+)$/)
       // Legacy format: "Label" = "40,44,42"
-      const matchOld = lines[i].match(/^"([^"]+)"\s*=\s*"([^"]*)"$/)
+      const matchOld = lines[i].match(/^"([^"]*)"\s*=\s*"([^"]*)"$/)
       const match = matchOld ?? matchNew
       if (match) {
         rows.push([match[1], ...match[2].split(',').map(v => v.trim())])
@@ -107,7 +107,7 @@ export function parseBpcData(raw: string): TransformResult {
   const columns = ['label', 'value']
   const rows: string[][] = []
   for (const line of lines) {
-    const match = line.match(/^"([^"]+)"\s*=\s*(.+)$/)
+    const match = line.match(/^"([^"]*)"\s*=\s*(.+)$/)
     if (match) {
       rows.push([match[1], match[2].replace(/%$/, '').trim()])
     }
