@@ -34,6 +34,7 @@ export function useDslSync() {
       config.title.value = String(propMap.get('title') ?? '')
       config.description.value = String(propMap.get('description') ?? '')
       config.byline.value = String(propMap.get('byline') ?? '')
+      config.note.value = String(propMap.get('note') ?? '')
       config.source.value = String(propMap.get('source') ?? '')
       config.sourceUrl.value = String(propMap.get('sourceUrl') ?? '')
 

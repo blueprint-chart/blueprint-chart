@@ -79,6 +79,20 @@ describe('useDslSync', () => {
     expect(config.byline.value).toBe('')
   })
 
+  it('copies the note frame property, which the frame renders', () => {
+    const { applyDsl } = useDslSync()
+    applyDsl(`chart bar-vertical {
+  note = "Margin of error: +/- 3 points"
+
+  data {
+    "A" = 1
+  }
+}
+`)
+
+    expect(useChartConfig().note.value).toBe('Margin of error: +/- 3 points')
+  })
+
   it('returns error on invalid DSL', () => {
     const { applyDsl } = useDslSync()
     const result = applyDsl('this is not valid dsl')
