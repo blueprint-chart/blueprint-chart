@@ -128,6 +128,25 @@ test.describe('G18 editor state, persistence and routing', () => {
     await expect(page).toHaveURL(/#\/edit\/[a-zA-Z0-9]{11}\/visualize$/)
   })
 
+  // #72: the validator already has the error; the gutter never saw it.
+  test('the DSL editor marks an unknown chart type', async ({ page }) => {
+    await page.goto(`/#/copy?bpc64=${urlSafeB64(SEED_BPC)}`)
+    await page.waitForURL(/#\/edit\/[a-zA-Z0-9]{11}\/visualize$/)
+
+    await page.getByRole('button', { name: 'View options' }).click()
+    await page.getByText('BPC', { exact: true }).click()
+
+    const content = page.locator('.cm-content')
+    await expect(content).toBeVisible()
+    await expect(page.locator('.cm-lint-marker-error')).toHaveCount(0)
+
+    await content.click()
+    await page.keyboard.press('ControlOrMeta+a')
+    await page.keyboard.insertText('chart nope-o-gram {\n  data {\n    "A" = 1\n  }\n}\n')
+
+    await expect(page.locator('.cm-lint-marker-error')).toBeVisible()
+  })
+
   // #70: Replace data reported "saved just now" over data that never reached
   // storage, so a reload reverted it.
   test('Replace data survives a reload without visiting Visualize', async ({ page }) => {

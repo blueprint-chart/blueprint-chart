@@ -1,5 +1,6 @@
 import type { Diagnostic } from '@codemirror/lint'
 import type { Text } from '@codemirror/state'
+import { parse, validateChart } from '@blueprint-chart/lib'
 
 export interface DslApplyResult {
   success: boolean
@@ -15,10 +16,36 @@ export function locationToOffset(doc: Text, line: number, column: number): numbe
   return Math.min(Math.max(offset, 0), lineObj.to)
 }
 
+/**
+ * Errors the grammar accepts and the renderer then swallows: an unknown chart
+ * type blanks the preview, an unknown property is dropped. The AST carries no
+ * offsets for them, so they are reported on the chart header.
+ */
+function semanticDiagnostics(doc: Text): Diagnostic[] {
+  let errors
+  try {
+    errors = validateChart(parse(doc.toString())).errors
+  }
+  catch {
+    // Unparseable: the syntax error is reported through the parse result.
+    return []
+  }
+  const header = doc.line(1)
+  return errors.map(issue => ({
+    from: header.from,
+    to: header.to,
+    severity: 'error' as const,
+    message: issue.suggestion ? `${issue.message} Did you mean "${issue.suggestion}"?` : issue.message,
+  }))
+}
+
 /** Map the latest parse result onto CodeMirror lint diagnostics. */
 export function buildDiagnostics(result: DslApplyResult | null, doc: Text): Diagnostic[] {
-  if (!result || result.success) {
+  if (!result) {
     return []
+  }
+  if (result.success) {
+    return semanticDiagnostics(doc)
   }
   const message = result.error ?? 'Invalid DSL'
   if (result.location) {

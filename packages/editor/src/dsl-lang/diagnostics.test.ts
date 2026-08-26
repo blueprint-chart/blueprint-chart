@@ -67,3 +67,40 @@ describe('buildDiagnostics', () => {
     expect(diags[0].from).toBeLessThan(diags[0].to) // visible underline, not a point
   })
 })
+
+describe('buildDiagnostics on semantic errors the parser accepts', () => {
+  const VALID = 'chart bar-vertical {\n  data {\n    "A" = 1\n  }\n}\n'
+
+  it('reports an unknown chart type on the chart header', () => {
+    const doc = docOf('chart nope-o-gram {\n  data {\n    "A" = 1\n  }\n}\n')
+    const [diagnostic, ...rest] = buildDiagnostics({ success: true }, doc)
+
+    expect(rest).toEqual([])
+    expect(diagnostic.severity).toBe('error')
+    expect(diagnostic.message).toContain('nope-o-gram')
+    expect(diagnostic.from).toBe(doc.line(1).from)
+    expect(diagnostic.to).toBe(doc.line(1).to)
+  })
+
+  it('passes on the suggestion the validator already computed', () => {
+    const doc = docOf('chart aera {\n  data {\n    "A" = 1\n  }\n}\n')
+    const [diagnostic] = buildDiagnostics({ success: true }, doc)
+
+    expect(diagnostic.message).toContain('Did you mean "area"?')
+  })
+
+  it('reports an unknown property', () => {
+    const doc = docOf('chart bar-vertical {\n  flurbleWidth = 3\n\n  data {\n    "A" = 1\n  }\n}\n')
+    const messages = buildDiagnostics({ success: true }, doc).map(d => d.message)
+
+    expect(messages.join(' ')).toContain('flurbleWidth')
+  })
+
+  it('stays quiet on a chart with nothing wrong with it', () => {
+    expect(buildDiagnostics({ success: true }, docOf(VALID))).toEqual([])
+  })
+
+  it('stays quiet when the document does not parse, since the parse error is already reported', () => {
+    expect(buildDiagnostics({ success: true }, docOf('!!!'))).toEqual([])
+  })
+})
