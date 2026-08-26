@@ -84,8 +84,8 @@ export function dataEntriesToString(data: DataNode): string {
         if (e.key === 'series' && !e.quotedKey) {
           return `series = ${e.values.map(v => quoteDslString(String(v))).join(',')}`
         }
-        const vals = e.values.join(',')
-        return `${quoteDslString(e.key)} = ${vals}`
+        const vals = e.values.map(v => typeof v === 'number' || !needsQuoting(String(v)) ? String(v) : quoteDslString(String(v)))
+        return `${quoteDslString(e.key)} = ${vals.join(',')}`
       }
       // Legacy single-value entries
       const val = e.isPercentage ? `${e.value}%` : String(e.value)

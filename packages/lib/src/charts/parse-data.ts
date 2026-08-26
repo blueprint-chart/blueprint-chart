@@ -4,7 +4,7 @@ import { splitTopLevelCommas, unescapeDslString, unquoteDslString } from '../dsl
 
 // A quoted label, escapes included, so `"5\" pipe"` reads as one label instead
 // of terminating at the inner quote.
-const LABEL = '"((?:[^"\\\\]|\\\\.)+)"'
+const LABEL = '"((?:[^"\\\\]|\\\\.)*)"'
 const NEW_ROW = new RegExp(`^${LABEL}\\s*=\\s*(.+)$`)
 const OLD_ROW = new RegExp(`^${LABEL}\\s*=\\s*"([^"]*)"$`)
 const SINGLE_ROW = new RegExp(`^${LABEL}\\s*=\\s*(.+)$`)
@@ -18,25 +18,34 @@ export function parseData(raw: string): ChartData {
   const seriesMatch = lines[0]?.match(/^series\s*=\s*(.+)$/)
   if (seriesMatch) {
     const segments = splitTopLevelCommas(seriesMatch[1].trim())
-    // New format: series = "A","B","C" — individually quoted names
-    // Legacy format: series = "A,B,C" — single quoted string with commas
-    const seriesNames = segments.length > 1
+    const rows: { cells: string[], label: string, legacy: boolean }[] = []
+    for (let i = 1; i < lines.length; i++) {
+      // Legacy format: "Label" = "40,44,42". New format: "Label" = 40,44,42
+      const matchOld = lines[i].match(OLD_ROW)
+      const match = matchOld ?? lines[i].match(NEW_ROW)
+      if (match) {
+        rows.push({
+          cells: splitTopLevelCommas(match[2]),
+          label: unescapeDslString(match[1]),
+          legacy: matchOld !== null,
+        })
+      }
+    }
+
+    // New format: series = "A","B","C", individually quoted names.
+    // Legacy format: series = "A,B,C", one quoted string listing the columns,
+    // spelled exactly like a single name containing a comma. Only the legacy
+    // value rows tell the two apart, so require one before splitting:
+    // `series = "Paris, France"` on its own stays one series.
+    const seriesNames = segments.length > 1 || !rows.some(r => r.legacy)
       ? segments.map(unquoteDslString)
       : unquoteDslString(segments[0]).split(',').map(s => s.trim())
     const seriesValues: (number | undefined)[][] = seriesNames.map(() => [])
 
-    for (let i = 1; i < lines.length; i++) {
-      // New format: "Label" = 40,44,42
-      const matchNew = lines[i].match(NEW_ROW)
-      // Legacy format: "Label" = "40,44,42"
-      const matchOld = lines[i].match(OLD_ROW)
-      const match = matchOld ?? matchNew
-      if (match) {
-        labels.push(unescapeDslString(match[1]))
-        const vals = splitTopLevelCommas(match[2])
-        for (let s = 0; s < seriesNames.length; s++) {
-          seriesValues[s].push(parseNumericCell(vals[s]))
-        }
+    for (const row of rows) {
+      labels.push(row.label)
+      for (let s = 0; s < seriesNames.length; s++) {
+        seriesValues[s].push(parseNumericCell(row.cells[s]))
       }
     }
 

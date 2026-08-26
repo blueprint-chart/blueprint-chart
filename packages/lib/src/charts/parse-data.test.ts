@@ -61,3 +61,32 @@ describe('parseData multi-value cells', () => {
     expect(data.series![1].values).toEqual([2])
   })
 })
+
+describe('parseData empty labels', () => {
+  it('keeps a row whose label is empty', () => {
+    const data = parseData('"" = 12\n"B" = 8')
+    expect(data.labels).toEqual(['', 'B'])
+    expect(data.values).toEqual([12, 8])
+  })
+
+  it('keeps a multi-series row whose label is empty', () => {
+    const data = parseData('series = "A","B"\n"" = 1,2')
+    expect(data.labels).toEqual([''])
+    expect(data.series![1].values).toEqual([2])
+  })
+})
+
+describe('parseData legacy series header', () => {
+  it('keeps a lone quoted name containing a comma as one series', () => {
+    const data = parseData('series = "Paris, France"\n"x" = 1\n"y" = 3')
+    expect(data.series!.map(s => s.name)).toEqual(['Paris, France'])
+    expect(data.series![0].values).toEqual([1, 3])
+  })
+
+  it('still splits the legacy column list when the rows are legacy too', () => {
+    const data = parseData('series = "A,B"\n"Jan" = "10,20"\n"Feb" = "30,40"')
+    expect(data.series!.map(s => s.name)).toEqual(['A', 'B'])
+    expect(data.series![0].values).toEqual([10, 30])
+    expect(data.series![1].values).toEqual([20, 40])
+  })
+})

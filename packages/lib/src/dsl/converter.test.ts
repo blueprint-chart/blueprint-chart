@@ -832,3 +832,21 @@ describe('dataEntriesToString multi-value rows', () => {
     expect(data.series![1].values).toEqual([2])
   })
 })
+
+describe('dataEntriesToString multi-value quoting', () => {
+  it('quotes a cell whose text would otherwise split on its own comma', () => {
+    const data: DataNode = {
+      type: DslNodeType.Data,
+      entries: [{ type: DslNodeType.Property, key: 'r1', value: 'a,b', isPercentage: false, values: ['a,b', 2] }],
+    }
+    expect(dataEntriesToString(data)).toBe('"r1" = "a,b",2')
+  })
+
+  it('leaves bare numbers unquoted', () => {
+    const data: DataNode = {
+      type: DslNodeType.Data,
+      entries: [{ type: DslNodeType.Property, key: 'USA', value: 40, isPercentage: false, values: [40, 44] }],
+    }
+    expect(dataEntriesToString(data)).toBe('"USA" = 40,44')
+  })
+})
