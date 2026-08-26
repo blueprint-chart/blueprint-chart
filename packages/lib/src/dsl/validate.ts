@@ -32,6 +32,9 @@ export interface ValidationResult {
  *     source, sourceUrl, padding, transparentBackground
  *   - chart-level render fields (ast-to-definition): type, sort, sortMode, theme
  *   - layout-constraints: heightMode, aspectRatio, fixedHeight
+ *   - editor layout/player fields (useDslOutput :79, :82, :85, :103, :106,
+ *     read back by useDslSync :44-98): sizing, fixedWidth, maxWidth, player,
+ *     playerPosition
  */
 const FRAME_KEYS = new Set<string>([
   'title',
@@ -49,14 +52,23 @@ const FRAME_KEYS = new Set<string>([
   'heightMode',
   'aspectRatio',
   'fixedHeight',
+  'sizing',
+  'fixedWidth',
+  'maxWidth',
+  'player',
+  'playerPosition',
 ])
 
 /**
  * Frame keys that only accept a fixed set of values. Theme names come from the
- * theme registry: a name with no stylesheet renders unstyled instead of failing.
+ * theme registry (a name with no stylesheet renders unstyled); the player values
+ * are the ones the editor reads back (stores/chartConfig.ts:87-88,
+ * useDslSync.ts:88 and :95), and anything else is silently dropped there.
  */
 const FRAME_CHOICES = new Map<string, string[]>([
   ['theme', listThemes().map(t => t.name)],
+  ['player', ['buttons', 'progress-bar', 'dot-stepper', 'minimal-arrows', 'none']],
+  ['playerPosition', ['left', 'center', 'right']],
 ])
 
 /**

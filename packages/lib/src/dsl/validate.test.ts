@@ -505,3 +505,30 @@ describe('theme names', () => {
     expect(result.errors.find(e => e.code === 'invalid-choice')?.suggestion).toBe('blueprint-bold')
   })
 })
+
+describe('layout properties written by the editor', () => {
+  it('accepts the five layout keys useDslOutput emits', () => {
+    const result = validateChart(chart({
+      properties: [
+        prop('sizing', 'fixed'),
+        prop('fixedWidth', 700),
+        prop('maxWidth', 900),
+        prop('player', 'dot-stepper'),
+        prop('playerPosition', 'center'),
+      ],
+    }))
+    expect(result.errors).toEqual([])
+  })
+
+  it('rejects an unknown player with a nearest suggestion', () => {
+    const result = validateChart(chart({ properties: [prop('player', 'dot-steper')] }))
+    const issue = result.errors.find(e => e.code === 'invalid-choice')
+    expect(issue?.path).toBe('chart.player')
+    expect(issue?.suggestion).toBe('dot-stepper')
+  })
+
+  it('rejects an unknown playerPosition', () => {
+    const result = validateChart(chart({ properties: [prop('playerPosition', 'bottom')] }))
+    expect(result.errors.find(e => e.code === 'invalid-choice')?.path).toBe('chart.playerPosition')
+  })
+})
