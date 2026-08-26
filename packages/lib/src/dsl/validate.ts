@@ -1,9 +1,10 @@
+import chroma from 'chroma-js'
 import type { ChartNode, SceneNode, PropertyNode, AnnotationNode, TransformNode } from './types'
 import type { ChartOptionDef } from '../charts/types'
 import { getChartOptions, listCharts } from '../charts/registry'
 import { listThemes } from '../charts/themes'
 import { ChartOptionType, AnnotationKind, ANNOTATION_KIND_KEYWORD } from '../enums'
-import { propertyMap } from './converter'
+import { extractChartTypeOptions, propertyMap } from './converter'
 
 /**
  * A single validation finding. `code` is a stable machine-readable identifier,
@@ -219,10 +220,35 @@ function validateNonNegative(prop: PropertyNode, path: string, errors: Validatio
 }
 
 /**
+ * Reject colour entries chroma cannot parse: they render black, or throw out of
+ * the whole chart when the list is shorter than the data and gets interpolated.
+ * Split through the converter so the entries checked are the ones the renderer
+ * will actually receive.
+ */
+function validateColors(
+  chartType: string,
+  prop: PropertyNode,
+  path: string,
+  errors: ValidationIssue[],
+): void {
+  const entries = extractChartTypeOptions(chartType, [prop])[prop.key] as string[] | undefined
+  for (const entry of entries ?? []) {
+    if (!chroma.valid(entry)) {
+      errors.push({
+        code: 'invalid-color',
+        path,
+        message: `${prop.key} contains "${entry}", which is not a color.`,
+      })
+    }
+  }
+}
+
+/**
  * Validate a single property against a chart-type option def: boolean values
  * and choice membership. Pushes onto `errors`.
  */
 function validateOptionValue(
+  chartType: string,
   def: ChartOptionDef,
   prop: PropertyNode,
   path: string,
@@ -230,6 +256,11 @@ function validateOptionValue(
 ): void {
   const raw = prop.value
   const str = String(raw).toLowerCase()
+
+  if (def.type === ChartOptionType.Colors) {
+    validateColors(chartType, prop, path, errors)
+    return
+  }
 
   if (def.type === ChartOptionType.Boolean) {
     // Preserve the converter's special case: valueLabels also accepts percent.
@@ -296,7 +327,7 @@ function validateProperties(
       })
       continue
     }
-    validateOptionValue(def, prop, path, errors)
+    validateOptionValue(chartType, def, prop, path, errors)
   }
 }
 

@@ -562,3 +562,31 @@ describe('sizes with a natural floor', () => {
     expect(result.errors).toEqual([])
   })
 })
+
+describe('colors values', () => {
+  it('rejects an entry chroma cannot parse', () => {
+    const result = validateChart(chart({
+      chartType: ChartType.Pie,
+      properties: [prop('colors', 'notacolor,#2a9d8f')],
+    }))
+    const issue = result.errors.find(e => e.code === 'invalid-color')
+    expect(issue).toBeDefined()
+    expect(issue?.message).toContain('notacolor')
+  })
+
+  it('rejects a malformed hex', () => {
+    const result = validateChart(chart({
+      chartType: ChartType.Pie,
+      properties: [prop('colors', '#12345')],
+    }))
+    expect(result.errors.some(e => e.code === 'invalid-color')).toBe(true)
+  })
+
+  it('accepts a list of parseable colors', () => {
+    const result = validateChart(chart({
+      chartType: ChartType.Pie,
+      properties: [prop('colors', '#2a9d8f, red, #fff')],
+    }))
+    expect(result.errors).toEqual([])
+  })
+})

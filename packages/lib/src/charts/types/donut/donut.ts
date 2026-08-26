@@ -106,8 +106,11 @@ export function renderArc(
   // Heep palette over 6 browsers paints Chrome and Opera the same blue). Interpolate
   // through chroma so every slice gets a distinct color.
   const rawColors = options.colors ?? DEFAULT_COLORS
+  // chroma.scale throws on an entry it cannot parse, which would take the whole
+  // render down, so a bad colour degrades to its default instead.
+  const scaleColors = rawColors.map((c, i) => chroma.valid(c) ? c : DEFAULT_COLORS[i % DEFAULT_COLORS.length])
   const colors = rawColors.length < labels.length && rawColors.length >= 2
-    ? chroma.scale(rawColors).mode('lch').colors(labels.length)
+    ? chroma.scale(scaleColors).mode('lch').colors(labels.length)
     : rawColors
   const dlMode = typeof options.directLabelling === 'string'
     ? options.directLabelling
