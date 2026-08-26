@@ -82,7 +82,8 @@ export interface ChartLayout {
   heightMode: 'auto' | 'fixed' | 'aspect-ratio'
   fixedHeight: number
   aspectRatio: string
-  padding: number
+  /** A CSS length or shorthand when the DSL gave one; a px count otherwise. */
+  padding: number | string
   transparentBackground: boolean
   playerType: 'buttons' | 'progress-bar' | 'dot-stepper' | 'minimal-arrows' | 'none'
   playerPosition: 'left' | 'center' | 'right'

@@ -1114,3 +1114,44 @@ describe('useDslSync', () => {
     })
   })
 })
+
+describe('useDslSync padding', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    useChartConfig().reset()
+    useChartTypeOptions().reset()
+    useScenes().reset()
+  })
+
+  const apply = (padding: string) => {
+    useDslSync().applyDsl(`chart bar-vertical {
+  padding = ${padding}
+  data {
+    "A" = 1
+  }
+}`)
+    return useChartConfig().layout.value.padding
+  }
+
+  it('keeps a bare number a number', () => {
+    expect(apply('24')).toBe(24)
+  })
+
+  it('keeps a single length with a unit verbatim', () => {
+    expect(apply('"24px"')).toBe('24px')
+  })
+
+  it('keeps a multi-value shorthand verbatim', () => {
+    expect(apply('"24px 32px"')).toBe('24px 32px')
+  })
+
+  it('round-trips a shorthand back out as a quoted value', () => {
+    apply('"24px 32px"')
+    expect(useDslOutput().generateDsl()).toContain('padding = "24px 32px"')
+  })
+
+  it('round-trips a bare number back out unquoted', () => {
+    apply('24')
+    expect(useDslOutput().generateDsl()).toContain('padding = 24')
+  })
+})

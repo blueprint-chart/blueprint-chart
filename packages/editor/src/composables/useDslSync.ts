@@ -76,7 +76,11 @@ export function useDslSync() {
 
       const padding = propMap.get('padding')
       if (padding !== undefined) {
-        ly.padding = Number(padding)
+        // A bare number stays a px count for the numeric control; anything with
+        // a unit or several values is kept verbatim, since coercing it to a
+        // number turns `24px 32px` into NaN and drops the padding entirely.
+        const asNumber = Number(padding)
+        ly.padding = Number.isFinite(asNumber) ? asNumber : String(padding)
       }
 
       const transparentBg = propMap.get('transparentBackground')

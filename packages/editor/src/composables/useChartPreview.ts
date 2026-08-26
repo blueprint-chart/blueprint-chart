@@ -120,6 +120,7 @@ export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
     const seriesOverrides = scene?.seriesOverrides ?? config.seriesOverrides.value
 
     const sp = scene?.properties
+    const layoutPadding = config.layout.value.padding
     const frame = {
       title: (sp?.title as string | undefined) ?? (config.title.value || undefined),
       description: (sp?.description as string | undefined) ?? (config.description.value || undefined),
@@ -127,7 +128,7 @@ export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
       note: config.note.value || undefined,
       source: (sp?.source as string | undefined) ?? (config.source.value || undefined),
       sourceUrl: (sp?.sourceUrl as string | undefined) ?? (config.sourceUrl.value || undefined),
-      padding: `${config.layout.value.padding}px`,
+      padding: typeof layoutPadding === 'number' ? `${layoutPadding}px` : layoutPadding,
       transparentBackground: config.layout.value.transparentBackground || undefined,
     }
 

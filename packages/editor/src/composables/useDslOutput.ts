@@ -4,7 +4,7 @@ import { useChartTypeOptions } from './useChartTypeOptions'
 import { useDataTransforms } from './useDataTransforms'
 import { useScenes } from './useScenes'
 import { useDataTable } from './useDataTable'
-import { getChartOptions, AnnotationKind, SortDirection } from '@blueprint-chart/lib'
+import { getChartOptions, AnnotationKind, SortDirection, quoteDslString } from '@blueprint-chart/lib'
 import type { AnnotationConfig, RangeAnnotationConfig, FreeAnnotationConfig } from '@blueprint-chart/lib'
 import { TransformType } from '../enums'
 import { serializePosition, serializeMaxWidth } from '@/utils/dsl/output'
@@ -94,7 +94,7 @@ export function useDslOutput() {
       output += `  aspectRatio = "${ly.aspectRatio}"\n`
     }
     if (ly.padding !== 16) {
-      output += `  padding = ${ly.padding}\n`
+      output += `  padding = ${typeof ly.padding === 'number' ? ly.padding : quoteDslString(ly.padding)}\n`
     }
     if (ly.transparentBackground) {
       output += `  transparentBackground = true\n`

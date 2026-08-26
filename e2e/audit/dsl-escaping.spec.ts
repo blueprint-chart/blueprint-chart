@@ -15,7 +15,7 @@ test.describe('quoted labels survive the editor round trip', () => {
   })
 
   // Green before the escaping fix: `\\` is not a delimiter for `parseData`, so the
-  // row survived. It guards the other direction — an escape written on the way
+  // row survived. It guards the other direction: an escape written on the way
   // out of `dataEntriesToString` and not read back would now corrupt the label.
   test('a label containing a backslash keeps its row and its text', async ({ page }) => {
     await gotoRender(page, `chart bar-vertical {
@@ -107,5 +107,34 @@ test.describe('newlines in frame text', () => {
 }`)
     await page.locator('.bc-frame-title').evaluate(el => el.style.setProperty('white-space', 'normal'))
     expect(await renderedLines(page, '.bc-frame-title')).toBe(1)
+  })
+})
+
+test.describe('padding shorthand', () => {
+  test('a multi-value padding reaches the frame instead of being dropped', async ({ page }) => {
+    await gotoRender(page, `chart bar-vertical {
+  title = "Shorthand"
+  padding = "24px 32px"
+  data {
+    "A" = 10
+    "B" = 20
+  }
+}`)
+    const sides = await page.locator('.bc-frame').evaluate((frame) => {
+      const header = getComputedStyle(frame.querySelector('.bc-frame-header') as HTMLElement)
+      const body = getComputedStyle(frame.querySelector('.bc-frame-body') as HTMLElement)
+      return {
+        headerTop: header.paddingTop,
+        headerLeft: header.paddingLeft,
+        bodyLeft: body.paddingLeft,
+        bodyRight: body.paddingRight,
+      }
+    })
+    expect(sides).toEqual({
+      headerTop: '24px',
+      headerLeft: '32px',
+      bodyLeft: '32px',
+      bodyRight: '32px',
+    })
   })
 })

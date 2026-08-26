@@ -79,7 +79,7 @@
           <line
             :x1="width.x1"
             :y1="hasDefinedWidth ? bottomPadY : width.y"
-            :x2="width.x1 + layout.padding"
+            :x2="width.x1 + padding"
             :y2="hasDefinedWidth ? bottomPadY : width.y"
           />
           <!-- Left padding outer tick -->
@@ -91,14 +91,14 @@
           />
           <!-- Left padding inner tick -->
           <line
-            :x1="width.x1 + layout.padding"
+            :x1="width.x1 + padding"
             :y1="(hasDefinedWidth ? bottomPadY : width.y) - SERIF"
-            :x2="width.x1 + layout.padding"
+            :x2="width.x1 + padding"
             :y2="(hasDefinedWidth ? bottomPadY : width.y) + SERIF"
           />
           <!-- Left padding label -->
           <text
-            :x="width.x1 + layout.padding / 2"
+            :x="width.x1 + padding / 2"
             :y="(hasDefinedWidth ? bottomPadY : width.y) + SERIF + 12"
             text-anchor="middle"
           >
@@ -107,16 +107,16 @@
 
           <!-- Right padding segment -->
           <line
-            :x1="width.x2 - layout.padding"
+            :x1="width.x2 - padding"
             :y1="hasDefinedWidth ? bottomPadY : width.y"
             :x2="width.x2"
             :y2="hasDefinedWidth ? bottomPadY : width.y"
           />
           <!-- Right padding inner tick -->
           <line
-            :x1="width.x2 - layout.padding"
+            :x1="width.x2 - padding"
             :y1="(hasDefinedWidth ? bottomPadY : width.y) - SERIF"
-            :x2="width.x2 - layout.padding"
+            :x2="width.x2 - padding"
             :y2="(hasDefinedWidth ? bottomPadY : width.y) + SERIF"
           />
           <!-- Right padding outer tick -->
@@ -128,7 +128,7 @@
           />
           <!-- Right padding label -->
           <text
-            :x="width.x2 - layout.padding / 2"
+            :x="width.x2 - padding / 2"
             :y="(hasDefinedWidth ? bottomPadY : width.y) + SERIF + 12"
             text-anchor="middle"
           >
@@ -143,7 +143,7 @@
             :x1="hasDefinedHeight ? leftPadX : height.x"
             :y1="height.y1"
             :x2="hasDefinedHeight ? leftPadX : height.x"
-            :y2="height.y1 + layout.padding"
+            :y2="height.y1 + padding"
           />
           <!-- Top padding outer tick -->
           <line
@@ -155,14 +155,14 @@
           <!-- Top padding inner tick -->
           <line
             :x1="(hasDefinedHeight ? leftPadX : height.x) - SERIF"
-            :y1="height.y1 + layout.padding"
+            :y1="height.y1 + padding"
             :x2="(hasDefinedHeight ? leftPadX : height.x) + SERIF"
-            :y2="height.y1 + layout.padding"
+            :y2="height.y1 + padding"
           />
           <!-- Top padding label -->
           <text
             :x="(hasDefinedHeight ? leftPadX : height.x) - SERIF - 4"
-            :y="height.y1 + layout.padding / 2"
+            :y="height.y1 + padding / 2"
             text-anchor="end"
             dominant-baseline="central"
           >
@@ -172,16 +172,16 @@
           <!-- Bottom padding segment -->
           <line
             :x1="hasDefinedHeight ? leftPadX : height.x"
-            :y1="height.y2 - layout.padding"
+            :y1="height.y2 - padding"
             :x2="hasDefinedHeight ? leftPadX : height.x"
             :y2="height.y2"
           />
           <!-- Bottom padding inner tick -->
           <line
             :x1="(hasDefinedHeight ? leftPadX : height.x) - SERIF"
-            :y1="height.y2 - layout.padding"
+            :y1="height.y2 - padding"
             :x2="(hasDefinedHeight ? leftPadX : height.x) + SERIF"
-            :y2="height.y2 - layout.padding"
+            :y2="height.y2 - padding"
           />
           <!-- Bottom padding outer tick -->
           <line
@@ -193,7 +193,7 @@
           <!-- Bottom padding label -->
           <text
             :x="(hasDefinedHeight ? leftPadX : height.x) - SERIF - 4"
-            :y="height.y2 - layout.padding / 2"
+            :y="height.y2 - padding / 2"
             text-anchor="end"
             dominant-baseline="central"
           >
@@ -268,7 +268,7 @@ const height = computed(() => {
 
 const widthMain = computed(() => {
   const w = width.value
-  const p = props.layout.padding
+  const p = padding.value
   return p > 0 && !hasDefinedWidth.value
     ? { x1: w.x1 + p + GAP, x2: w.x2 - p - GAP }
     : { x1: w.x1, x2: w.x2 }
@@ -276,7 +276,7 @@ const widthMain = computed(() => {
 
 const heightMain = computed(() => {
   const h = height.value
-  const p = props.layout.padding
+  const p = padding.value
   return p > 0 && !hasDefinedHeight.value
     ? { y1: h.y1 + p + GAP, y2: h.y2 - p - GAP }
     : { y1: h.y1, y2: h.y2 }
@@ -284,8 +284,11 @@ const heightMain = computed(() => {
 
 const hasDefinedWidth = computed(() => props.layout.sizing !== 'responsive')
 const hasDefinedHeight = computed(() => props.layout.heightMode !== 'auto')
-const hasPadding = computed(() => props.layout.padding > 0)
-const paddingLabel = computed(() => `${props.layout.padding}px`)
+// The DSL padding may be a CSS length or a shorthand; the ruler needs one number.
+const padding = computed(() => parseFloat(String(props.layout.padding)) || 0)
+const hasPadding = computed(() => padding.value > 0)
+const paddingLabel = computed(() =>
+  typeof props.layout.padding === 'number' ? `${props.layout.padding}px` : props.layout.padding)
 const bottomPadY = computed(() => width.value.y + ROW_SPACING)
 const leftPadX = computed(() => height.value.x - ROW_SPACING)
 
