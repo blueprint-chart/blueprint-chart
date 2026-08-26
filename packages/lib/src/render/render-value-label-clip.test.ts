@@ -19,10 +19,10 @@ interface Ink {
   bottom: number
 }
 
-function labelInk(container: HTMLElement): Ink[] {
+function labelInk(container: HTMLElement, selector = '.bc-value-label'): Ink[] {
   const svg = container.querySelector('svg')!
   const [, mLeft, mTop] = /translate\(([-\d.]+),([-\d.]+)\)/.exec(svg.querySelector('g')!.getAttribute('transform')!)!
-  return [...container.querySelectorAll('.bc-value-label')].map((label) => {
+  return [...container.querySelectorAll(selector)].map((label) => {
     const text = label.textContent ?? ''
     const width = text.length * GENEROUS_GLYPH_PX
     const x = Number(label.getAttribute('x')) + Number(mLeft)
@@ -55,9 +55,9 @@ function expectNoLabelInsideAClip(container: HTMLElement): void {
   }
 }
 
-function expectEveryLabelVisible(container: HTMLElement): void {
+function expectEveryLabelVisible(container: HTMLElement, selector = '.bc-value-label'): void {
   const { width, height } = viewport(container)
-  const ink = labelInk(container)
+  const ink = labelInk(container, selector)
   expect(ink.length).toBeGreaterThan(0)
   for (const box of ink) {
     expect(box.left, `left edge of "${box.text}"`).toBeGreaterThanOrEqual(0)
@@ -245,6 +245,52 @@ describe('the value axis keeps its labels on the canvas', () => {
     for (const tick of ticks) {
       const baseline = Number(mTop) + Number(axisY) + Number(tick.getAttribute('y'))
       expect(baseline, `baseline of "${tick.textContent}"`).toBeLessThanOrEqual(Number(svg.getAttribute('height')))
+    }
+  })
+})
+
+describe('bar-multi stacks its two labels above the bar without clipping either', () => {
+  let container: HTMLElement
+  beforeEach(() => {
+    container = document.createElement('div')
+    document.body.appendChild(container)
+  })
+
+  // #11: bar-multi defaults to direct labels (`directLabelling` auto, legend
+  // off) and value labels on, so both sit above every bar. Nothing reserved
+  // room for them, so the tallest bar's value label was cut by the SVG top.
+  const MEDAL_COUNT = `chart bar-multi {
+  title = "T"
+  data {
+    series = "Gold","Silver","Bronze"
+    "USA" = 40,44,42
+    "China" = 40,27,24
+  }
+}`
+
+  it('keeps the tallest bar\'s value label whole', () => {
+    renderBpc(container, MEDAL_COUNT)
+    expect(labelInk(container).map(l => l.text)).toContain('44')
+    expectEveryLabelVisible(container)
+  })
+
+  it('keeps every direct label whole', () => {
+    renderBpc(container, MEDAL_COUNT)
+    expect(labelInk(container, '.bc-direct-label').map(l => l.text)).toContain('Silver')
+    expectEveryLabelVisible(container, '.bc-direct-label')
+  })
+
+  it('leaves the value label clear of the direct label on the same bar', () => {
+    renderBpc(container, MEDAL_COUNT)
+    const values = labelInk(container)
+    const directs = labelInk(container, '.bc-direct-label')
+    for (const value of values) {
+      for (const direct of directs) {
+        const sameColumn = Math.abs((value.left + value.right) / 2 - (direct.left + direct.right) / 2) < 1
+        if (sameColumn) {
+          expect(value.bottom, `"${value.text}" over "${direct.text}"`).toBeLessThanOrEqual(direct.top)
+        }
+      }
     }
   })
 })

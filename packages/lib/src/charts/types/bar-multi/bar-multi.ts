@@ -28,6 +28,13 @@ export const DEFAULT_COLORS = [
   '#59a14f', '#edc948', '#b07aa1', '#ff9da7',
 ]
 
+/** Gap between a bar's end and the label just outside it. */
+const LABEL_GAP_PX = 4
+/** Gap for the second line, when a direct label already took the first. */
+const STACKED_LABEL_GAP_PX = 16
+/** Cap height of the label text: digits put no ink above it. */
+const LABEL_INK_PX = 8
+
 interface MultiBarDatum {
   label: string
   series: string
@@ -82,6 +89,11 @@ export function render(
   // 'auto' defers to legend when legend is explicitly true; explicit true/truthy forces direct
   const wantsDirect = options.directLabelling === true || (options.directLabelling === 'auto' && options.legend !== true) || (!!options.directLabelling && options.directLabelling !== 'auto')
   const globalLabelMode = wantsDirect ? 'direct' : (options.legend !== false ? 'legend' : 'none')
+  const globalValueLabels = options.valueLabels ?? false
+  const vlPos = options.valueLabelPosition ?? ValueLabelPosition.Auto
+  const dlMode = typeof options.directLabelling === 'string'
+    ? options.directLabelling
+    : (options.directLabelling ? DirectLabelMode.Auto : DirectLabelMode.Off)
 
   // Compute margin adjustments for legend
   const showLegend = options.legend !== false && !wantsDirect
@@ -121,6 +133,19 @@ export function render(
   if (showLegend && legendPos === 'right') {
     marginOverrides.right = (marginOverrides.right ?? 20) + legendSize.width + 10
   }
+  // A label outside a bar's end sits above the plot, and the tallest bar's end
+  // is the plot's top edge, so the top margin is the only thing keeping the
+  // label inside the SVG. Direct labels take the first line and push the value
+  // label onto a second one.
+  const anyDirectLabels = wantsDirect || !!overrides?.some(o => o.labelMode === 'direct')
+  const anyValueLabels = globalValueLabels !== false || !!overrides?.some(o => o.valueLabels)
+  const directLabelsOutside = anyDirectLabels && dlMode !== DirectLabelMode.Inside
+  const valueLabelsOutside = anyValueLabels && vlPos !== ValueLabelPosition.Inside
+  const labelGap = directLabelsOutside && valueLabelsOutside ? STACKED_LABEL_GAP_PX : LABEL_GAP_PX
+  if (directLabelsOutside || valueLabelsOutside) {
+    marginOverrides.top = (marginOverrides.top ?? 0) + labelGap + LABEL_INK_PX
+  }
+
   const { chartArea, width, height, margin } = createCanvas(body, marginOverrides)
   const marginDelta = computeMarginDelta(priorMargin, margin)
   // eslint-disable-next-line prefer-const
@@ -195,8 +220,6 @@ export function render(
       flatData.push({ label, series: positionKey, seriesName: s.name, value: s.values[i], seriesIndex: originalIndex })
     })
   })
-
-  const globalValueLabels = options.valueLabels ?? false
 
   // Clip bars to the chart area so they truncate at axis boundaries.
   // Stable id per (container, key) keeps <defs> from growing on re-renders.
@@ -307,14 +330,8 @@ export function render(
 
   const bgColor = resolveBackgroundColor(container)
 
-  // Parse direct label sub-mode
-  const dlMode = typeof options.directLabelling === 'string'
-    ? options.directLabelling
-    : (options.directLabelling ? DirectLabelMode.Auto : DirectLabelMode.Off)
   const dlAnchor = options.directLabelAnchor ?? 'middle'
 
-  // Resolve value label position
-  const vlPos = options.valueLabelPosition ?? ValueLabelPosition.Auto
   function resolveVlMode(): ValueLabelPosition.Inside | ValueLabelPosition.Outside {
     if (vlPos === ValueLabelPosition.Inside) {
       return ValueLabelPosition.Inside
@@ -387,13 +404,13 @@ export function render(
       if (isNegative) {
         // Place below the bar for negative values
         const dlIsOutside = hasDl && resolveBarDlMode(barHeight) === ValueLabelPosition.Outside
-        cy = dlIsOutside ? barBottom + 16 : barBottom + 4
+        cy = dlIsOutside ? barBottom + STACKED_LABEL_GAP_PX : barBottom + LABEL_GAP_PX
         baseline = 'hanging'
       }
       else {
         // Place above the bar for positive values
         const dlIsOutside = hasDl && resolveBarDlMode(barHeight) === ValueLabelPosition.Outside
-        cy = dlIsOutside ? barTop - 16 : barTop - 4
+        cy = dlIsOutside ? barTop - STACKED_LABEL_GAP_PX : barTop - LABEL_GAP_PX
         baseline = 'auto'
       }
     }
@@ -452,7 +469,7 @@ export function render(
     }
     else {
       labelEl
-        .attr('y', barTop - 4)
+        .attr('y', barTop - LABEL_GAP_PX)
         .attr('fill', readableColor(barColor, bgColor))
     }
   })
