@@ -6,6 +6,7 @@ import { snapshotIfTypeChanged, commitCrossTypeFade, clearCrossTypeMarker } from
 import { applyPostRender } from './post-render'
 import { buildChartAccessibility } from './chart-a11y'
 import { getChart } from '../charts/registry'
+import { resetAxesOnChartTypeChange } from '../charts/axis/axis-service'
 import { buildChartOptions } from '../charts/chart-helpers'
 import { resolveBackgroundColor } from '../charts/contrast'
 import { getSceneTransition } from '../transitions'
@@ -61,6 +62,8 @@ export function renderChart(
   if (!renderer) {
     return
   }
+
+  resetAxesOnChartTypeChange(container, state.chartType)
 
   const overlay = snapshotIfTypeChanged(container, state.chartType, !!options.transition)
   if (overlay) {

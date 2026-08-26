@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach, afterEach, vi } from 'vitest'
 import * as d3 from 'd3'
 import { AxisService } from './axis-service'
+import { setRenderTransition } from '../motion'
 
 // Suppress D3 transition timers that hit jsdom's missing baseVal on SVG transforms
 const origMatchMedia = window.matchMedia
@@ -31,6 +32,8 @@ describe('AxisService', () => {
   })
 
   afterEach(() => {
+    setRenderTransition(false)
+    window.matchMedia = vi.fn().mockReturnValue({ matches: true, addEventListener: vi.fn(), removeEventListener: vi.fn() }) as unknown as typeof window.matchMedia
     // Interrupt all pending D3 transitions to prevent async tween callbacks
     // that hit jsdom's missing SVG baseVal
     d3.select(svg).selectAll('*').interrupt()
@@ -402,6 +405,30 @@ describe('AxisService', () => {
     // Vertical wrapper exists but is hidden
     const vWrapper = chartArea.querySelector('.bc-axis-service-v') as SVGGElement
     expect(vWrapper.style.display).toBe('none')
+  })
+
+  // #82: three rapid scene clicks left the axis group ~23px off the marks.
+  it('clears a transform left behind by an interrupted margin tween', () => {
+    // Motion on: the margin compensation is a tween, not an immediate reset.
+    window.matchMedia = vi.fn().mockReturnValue({ matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() }) as unknown as typeof window.matchMedia
+    setRenderTransition(true)
+
+    const axes = AxisService.for(container)
+    axes.attach(chartArea)
+    const xScale = d3.scaleBand<string>().domain(['A', 'B']).range([0, 400])
+    axes.update({ horizontal: { scale: xScale, height: 300, options: { width: 400 } } })
+
+    // A margin shift starts a compensating tween towards identity…
+    axes.detach()
+    axes.attach(makeChartArea(), { dx: -23, dy: 0 })
+    // …which the next render interrupts before it settles.
+    axes.detach()
+    // The next render's margin barely moves, so no new tween runs.
+    const finalArea = makeChartArea()
+    axes.attach(finalArea, { dx: 0.2, dy: 0 })
+
+    const hWrapper = finalArea.querySelector('.bc-axis-service-h') as SVGGElement
+    expect(hWrapper.getAttribute('transform')).toBeNull()
   })
 
   // ── Lifecycle: detach interrupts pending transitions ────────────

@@ -24,6 +24,23 @@ export interface AxisServiceConfig {
 }
 
 const instances = new WeakMap<HTMLElement, AxisService>()
+const chartTypes = new WeakMap<HTMLElement, string>()
+
+/**
+ * Drop the cached AxisService when a container switches chart type.
+ *
+ * The cache is keyed per container only, so the next type inherits the previous
+ * one's axis DOM, and d3-axis's tick data-join reuses ticks that match by
+ * value, so a type that stripped its tick labels (`labelPosition = off`) leaves
+ * the next type's ticks permanently text-less.
+ */
+export function resetAxesOnChartTypeChange(container: HTMLElement, chartType: string): void {
+  const previous = chartTypes.get(container)
+  chartTypes.set(container, chartType)
+  if (previous !== undefined && previous !== chartType) {
+    instances.get(container)?.destroy()
+  }
+}
 
 export class AxisService {
   private vGroup: SVGGElement | null = null
@@ -105,7 +122,14 @@ export class AxisService {
       // implementation removed every tick unconditionally, which forced d3-axis
       // to treat every tick as an enter and produced a visible fade-in on
       // same-scale scene transitions.
+      //
+      // Clearing the group's own transform matters too: a margin compensation
+      // tween interrupted by the next render leaves the group at an
+      // intermediate translation, and a sub-pixel margin delta below starts no
+      // new tween to correct it.
       for (const group of [this.vGroup!, this.hGroup!]) {
+        d3.select(group).interrupt()
+        group.removeAttribute('transform')
         d3.select(group).selectAll<SVGGElement, unknown>('.tick').interrupt()
       }
 
