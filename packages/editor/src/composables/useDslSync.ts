@@ -1,4 +1,4 @@
-import { parse, propertyMap, extractChartTypeOptions, extractSceneOverrides, dataEntriesToString, convertColorizes, convertHighlights, convertAreaFills, convertAnnotations, convertSeriesOverrides, SortDirection } from '@blueprint-chart/lib'
+import { parse, propertyMap, extractChartTypeOptions, extractSceneOverrides, dataEntriesToString, convertColorizes, convertHighlights, convertAreaFills, convertAnnotations, convertSeriesOverrides, SortDirection, toBool } from '@blueprint-chart/lib'
 import type { DslApplyResult } from '@/dsl-lang/diagnostics'
 import { useChartConfig, layoutDefaults, type ChartLayout } from './useChartConfig'
 import { useChartThemeStore } from './useChartTheme'
@@ -85,7 +85,7 @@ export function useDslSync() {
 
       const transparentBg = propMap.get('transparentBackground')
       if (transparentBg !== undefined) {
-        ly.transparentBackground = transparentBg === true || transparentBg === 'true'
+        ly.transparentBackground = toBool(transparentBg)
       }
 
       const player = propMap.get('player')

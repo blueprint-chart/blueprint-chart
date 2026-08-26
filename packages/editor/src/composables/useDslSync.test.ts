@@ -1155,3 +1155,25 @@ describe('useDslSync padding', () => {
     expect(useDslOutput().generateDsl()).toContain('padding = 24')
   })
 })
+
+describe('useDslSync boolean casing', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    useChartConfig().reset()
+    useChartTypeOptions().reset()
+    useScenes().reset()
+  })
+
+  it('reads TRUE for transparentBackground the way the validator accepts it', () => {
+    for (const spelling of ['true', 'TRUE', 'True']) {
+      useChartConfig().reset()
+      useDslSync().applyDsl(`chart bar-vertical {
+  transparentBackground = ${spelling}
+  data {
+    "A" = 1
+  }
+}`)
+      expect(useChartConfig().layout.value.transparentBackground, spelling).toBe(true)
+    }
+  })
+})
