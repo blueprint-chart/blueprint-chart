@@ -19,8 +19,9 @@ const TICK_LABEL_FONT_PX = 10
 const TICK_LABEL_GAP = 8
 // Floor on the spacing between ticks, so short labels still read as separate.
 const MIN_TICK_SPACING = 16
-// Approximate px per character for SVG axis text (sans-serif ~11–12 px font size).
-// Calibrated against Chromium rendering: "Jan 2024" (8 chars) measures ~88 px.
+// Deliberately generous px-per-character estimate, and the rotate/wrap
+// thresholds below are calibrated against it. Tick density measures the real
+// text instead (see labelsThatFit).
 const AVG_CHAR_WIDTH_PX = 10
 // Labels may visually extend slightly past their per-tick step without being
 // unreadable — the char-width estimate is also a loose upper bound. Treat a
