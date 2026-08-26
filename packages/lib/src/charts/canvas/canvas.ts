@@ -206,15 +206,12 @@ export function labelPositionMargins(
     overrides.top = 35
   }
 
-  if (showHorizontalAxis === false) {
-    overrides.bottom = 5
-  }
-  else if (horizontalLabelPosition === 'inside' || horizontalLabelPosition === 'off') {
-    // Only collapse the bottom margin when the user explicitly opts in. Category
-    // labels on a band scale ('auto') always render outside the chart area —
-    // pushing them inside would overlap with the bars themselves. Reserving the
-    // default 24px keeps them visible at narrow widths instead of clipping
-    // against the SVG bottom edge.
+  if (horizontalLabelPosition === 'inside' || horizontalLabelPosition === 'off') {
+    // Only collapse the bottom margin when the labels themselves go away. Both
+    // 'auto' and 'outside' draw them below the chart area, and hiding the axis
+    // only removes its domain line, so collapsing the margin there painted the
+    // labels below the SVG bottom edge. Category labels on a band scale can't
+    // move inside either: they would overlap the bars.
     overrides.bottom = 5
   }
 
