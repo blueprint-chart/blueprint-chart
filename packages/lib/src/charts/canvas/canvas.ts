@@ -85,8 +85,12 @@ export function estimateVerticalLabelWidth(
   numberFormat?: string | null,
   scaleType?: string,
 ): number {
-  const dataMin = Math.min(0, ...values)
-  const dataMax = Math.max(0, ...values)
+  // A cell the parser could not read arrives as `undefined`; spread into
+  // Math.min/Math.max it makes the domain NaN, which yields no ticks, a width of
+  // 0, and a left margin too small for the axis labels it was meant to reserve.
+  const plottable = values.filter(v => Number.isFinite(v))
+  const dataMin = Math.min(0, ...plottable)
+  const dataMax = Math.max(0, ...plottable)
   const domainMin = range?.min ?? dataMin
   const domainMax = range?.max ?? dataMax
 

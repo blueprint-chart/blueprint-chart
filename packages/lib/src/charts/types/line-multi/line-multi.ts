@@ -202,10 +202,17 @@ export function render(
     renderAreaFills(clippedArea, options.areaFills, series, xPos, data.labels.length, y, curve)
   }
 
+  // A cell the parser could not read, and a ragged row's missing cell, both arrive
+  // as `undefined`. They are gaps, not zeros: the category keeps its slot on the
+  // axis and the mark breaks, rather than reaching the scale and painting NaN.
+  const plottable = (v: number) => Number.isFinite(v)
   // Build flat dot data for tooltips/crosshair
   const dotData: DotDatum[] = []
   series.forEach((s, si) => {
     data.labels.forEach((label, li) => {
+      if (!plottable(s.values[li])) {
+        return
+      }
       dotData.push({ label, value: s.values[li], series: s.name, colorIndex: si })
     })
   })
@@ -228,7 +235,7 @@ export function render(
   const areaFillOpacity = options.areaFillOpacity ?? 0.2
   const seriesColorFor = (d: SeriesDatum) =>
     colorOverrides.get(d.name) ?? resolveSeriesColor(d.name, d.colorIndex, colors, overrides)
-  const areaGen = d3.area<number>().curve(curve).x((_v, i) => xPos(i)).y0(height).y1(v => y(v) as number)
+  const areaGen = d3.area<number>().curve(curve).defined(plottable).x((_v, i) => xPos(i)).y0(height).y1(v => y(v) as number)
 
   // Marks are driven through the SceneTransition orchestrator's featureJoin so
   // they tween (resize) on the same `bc-scene` clock as the frame-geometry tween
@@ -280,7 +287,7 @@ export function render(
     insert: sel => sel.append('path').attr('class', 'bc-line'),
     attrs: (d) => {
       const seriesInterp = resolveSeriesInterpolation(d.name, options.interpolation ?? 'linear', overrides)
-      const lineGen = d3.line<number>().curve(resolveCurve(seriesInterp)).x((_v, i) => xPos(i)).y(v => y(v) as number)
+      const lineGen = d3.line<number>().curve(resolveCurve(seriesInterp)).defined(plottable).x((_v, i) => xPos(i)).y(v => y(v) as number)
       return {
         'data-series': d.colorIndex,
         'd': lineGen(d.values) ?? '',
@@ -414,7 +421,7 @@ export function render(
       cy: y(s.values[li]) as number,
       color: resolveSeriesColor(s.name, si, colors, overrides),
       index: li,
-    }))
+    })).filter(p => Number.isFinite(p.cy))
     // Match prior symbol groups by series name so symbols stay slaved to their
     // line — matching by si would carry an old series' symbols onto a different
     // series in the new scene, making them appear to fly across the chart.
@@ -544,6 +551,7 @@ function renderAreaFills(
     else {
       const areaGen = d3.area<number>()
         .curve(fillCurve)
+        .defined((v, i) => Number.isFinite(v) && Number.isFinite(toSeries.values[i]))
         .x((_v, i) => xPos(i))
         .y0((_v, i) => y(toSeries.values[i]))
         .y1(v => y(v))
@@ -615,15 +623,22 @@ function renderSplitAreaFill(
   }
 
   // Build the list of points including intersection splits
-  // Each point: { x, fromY (pixel), toY (pixel) }
-  const points: AreaPoint[] = []
+  // Each point: { x, fromY (pixel), toY (pixel) }. A `null` marks a gap where one
+  // of the two series has no readable cell: the fill breaks there rather than
+  // spanning it, matching what `.defined()` does for the lines themselves.
+  const points: (AreaPoint | null)[] = []
+  const finite = (i: number) => Number.isFinite(fromValues[i]) && Number.isFinite(toValues[i])
   for (let i = 0; i < n; i++) {
+    if (!finite(i)) {
+      points.push(null)
+      continue
+    }
     const x = xPos(i)
     const fY = y(fromValues[i]) as number
     const tY = y(toValues[i]) as number
     points.push({ x, fromY: fY, toY: tY })
 
-    if (i < n - 1) {
+    if (i < n - 1 && finite(i + 1)) {
       const fY1 = y(fromValues[i + 1]) as number
       const tY1 = y(toValues[i + 1]) as number
       const t = findCrossingT(fY, fY1, tY, tY1)
@@ -644,6 +659,14 @@ function renderSplitAreaFill(
   let currentSign: boolean | null = null // true = positive (from above = fromY < toY in SVG, but fromVal > toVal)
 
   for (const pt of points) {
+    if (!pt) {
+      if (current.length >= 2 && currentSign !== null) {
+        segments.push({ points: current, positive: currentSign })
+      }
+      current = []
+      currentSign = null
+      continue
+    }
     const diff = pt.fromY - pt.toY // negative in SVG means from is above (higher value)
     const isPositive = diff < 0 // fromY < toY means from is higher on screen = from data value > to data value
 

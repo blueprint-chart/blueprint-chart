@@ -294,4 +294,34 @@ describe('area chart', () => {
       expect(svg.querySelectorAll('defs > clipPath')).toHaveLength(1)
     })
   })
+
+  // ── Unparseable cells ────────────────────────────────────────────
+
+  describe('a cell the parser could not read', () => {
+    // `parseNumericCell` returns `undefined` for "45kg" or an empty cell.
+    const holed = { labels: ['Jan', 'Feb', 'Mar'], values: [10, undefined as unknown as number, 15] }
+
+    it('emits no NaN geometry', () => {
+      render(container, holed, { valueLabels: true, lineSymbols: { showOn: 'all' } })
+      expect(container.querySelector('svg')!.outerHTML).not.toContain('NaN')
+    })
+
+    it('breaks the area at the hole instead of drawing through it', () => {
+      render(container, holed)
+      const path = container.querySelector('.bc-line')!
+      expect((path.getAttribute('d') ?? '').match(/M/g)).toHaveLength(2)
+    })
+
+    it('omits the value label instead of writing "undefined"', () => {
+      render(container, holed, { valueLabels: true })
+      const labels = Array.from(container.querySelectorAll('.bc-value-label')).map(t => t.textContent)
+      expect(labels).toEqual(['10', '15'])
+    })
+
+    it('keeps the category on the axis', () => {
+      render(container, holed)
+      const ticks = Array.from(container.querySelectorAll('.bc-axis-horizontal .tick text')).map(t => t.textContent)
+      expect(ticks).toEqual(['Jan', 'Feb', 'Mar'])
+    })
+  })
 })

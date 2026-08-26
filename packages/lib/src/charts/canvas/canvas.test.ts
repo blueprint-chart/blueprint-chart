@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { createCanvas, labelPositionMargins } from './canvas'
+import { createCanvas, labelPositionMargins, estimateVerticalLabelWidth } from './canvas'
 
 describe('createCanvas', () => {
   let body: HTMLElement
@@ -120,5 +120,20 @@ describe('labelPositionMargins', () => {
     // Explicit 'off' label position must NOT receive the inside buffer.
     const result = labelPositionMargins(300, 'off')
     expect(result.left).toBe(0)
+  })
+})
+
+describe('estimateVerticalLabelWidth', () => {
+  // A cell the parser could not read arrives as `undefined`. Spread into
+  // `Math.min`/`Math.max` it produced a NaN domain, no ticks, and a width of 0,
+  // which collapsed the left margin and painted "2018" as "18".
+  it('ignores a cell that is not a number', () => {
+    expect(estimateVerticalLabelWidth([10, undefined as unknown as number, 30]))
+      .toBe(estimateVerticalLabelWidth([10, 30]))
+  })
+
+  it('treats a column of unreadable cells like an empty one', () => {
+    expect(estimateVerticalLabelWidth([undefined as unknown as number]))
+      .toBe(estimateVerticalLabelWidth([]))
   })
 })

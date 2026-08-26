@@ -88,6 +88,11 @@ export function render(
     value: filteredValues[i],
   }))
 
+  // A cell the parser could not read is a gap, not a zero: the category keeps its
+  // slot on the axis, and the mark, the label and the symbol are all skipped
+  // rather than reaching the scale as `undefined` and painting NaN.
+  const plotted = lineData.filter(d => Number.isFinite(d.value))
+
   const pointScale = d3.scalePoint<string>()
     .domain(filteredLabels)
     .range([0, width])
@@ -124,8 +129,9 @@ export function render(
   const areaFill = options.areaFill ?? false
   const areaFillOpacity = options.areaFillOpacity ?? 0.2
 
-  const areaGen = d3.area<LineDatum>().curve(curve).x(d => xPos(d)).y0(height).y1(d => y(d.value) as number)
-  const lineGen = d3.line<LineDatum>().curve(curve).x(d => xPos(d)).y(d => y(d.value) as number)
+  const defined = (d: LineDatum) => Number.isFinite(d.value)
+  const areaGen = d3.area<LineDatum>().curve(curve).defined(defined).x(d => xPos(d)).y0(height).y1(d => y(d.value) as number)
+  const lineGen = d3.line<LineDatum>().curve(curve).defined(defined).x(d => xPos(d)).y(d => y(d.value) as number)
 
   // Marks are driven through the SceneTransition orchestrator's featureJoin so
   // they tween (resize) on the same `bc-scene` clock as the frame-geometry tween
@@ -180,7 +186,7 @@ export function render(
   // count always tracks the current data — they ride the group transform below.
   const dotsLayer = d3.select(clippedArea).append('g')
   dotsLayer.selectAll<SVGCircleElement, LineDatum>('.bc-dot')
-    .data(lineData, d => d.label)
+    .data(plotted, d => d.label)
     .enter()
     .append('circle')
     .attr('class', 'bc-dot')
@@ -211,7 +217,7 @@ export function render(
   }
 
   if (options.tooltips || options.crosshair) {
-    const proximityPoints = lineData.map(d => ({
+    const proximityPoints = plotted.map(d => ({
       cx: xPos(d),
       cy: y(d.value) as number,
       label: d.label,
@@ -242,7 +248,7 @@ export function render(
     const labelLayer = d3.select(chartArea).insert('g', () => clippedArea.nextSibling)
     const labelPos = (d: LineDatum) => clampPointLabel(String(d.value), xPos(d), y(d.value) as number, { width, height, margin })
     labelLayer.selectAll<SVGTextElement, LineDatum>('.bc-value-label')
-      .data(lineData, d => d.label)
+      .data(plotted, d => d.label)
       .enter()
       .append('text')
       .attr('class', 'bc-value-label')
@@ -260,7 +266,7 @@ export function render(
       cy: y(d.value) as number,
       color,
       index: i,
-    }))
+    })).filter(p => Number.isFinite(p.cy))
     let symbolsGroup: d3.Selection<SVGGElement, unknown, null, undefined>
     if (priorSymbolsGroup) {
       chartArea.appendChild(priorSymbolsGroup)

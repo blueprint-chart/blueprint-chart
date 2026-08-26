@@ -731,7 +731,59 @@ describe('line-multi chart', () => {
     expect(labels).toHaveLength(0)
   })
 
-  // ── Series overrides ────────────────────────────────────────────  // ── Series overrides ────────────────────────────────────────────
+  // ── Ragged rows ──────────────────────────────────────────────────
+
+  describe('a row with fewer values than the series meta-row', () => {
+    const ragged = {
+      labels: ['2018', '2019', '2020'],
+      values: [],
+      series: [
+        { name: 'A', values: [1, 3, 5] },
+        // `parse-data` leaves a hole for the missing cell rather than a zero.
+        { name: 'B', values: [2, undefined as unknown as number, 6] },
+      ],
+    }
+
+    it('emits no NaN geometry', () => {
+      render(container, ragged, { valueLabels: true, lineSymbols: { showOn: 'all' } })
+      expect(container.querySelector('svg')!.outerHTML).not.toContain('NaN')
+    })
+
+    it('keeps both lines and breaks the short one at the hole', () => {
+      render(container, ragged)
+      const lines = Array.from(container.querySelectorAll('.bc-line'))
+      expect(lines).toHaveLength(2)
+      const shortLine = lines.find(l => l.getAttribute('data-series') === '1')!
+      expect((shortLine.getAttribute('d') ?? '').match(/M/g)).toHaveLength(2)
+    })
+
+    it('omits the value label instead of writing "undefined"', () => {
+      render(container, ragged, { valueLabels: true })
+      const labels = Array.from(container.querySelectorAll('.bc-value-label')).map(t => t.textContent)
+      expect(labels).not.toContain('undefined')
+      expect(labels).toHaveLength(5)
+    })
+
+    it('emits no NaN geometry for a between-series area fill', () => {
+      render(container, ragged, { areaFills: [{ from: 'A', to: 'B', color: '#cccccc' }] })
+      expect(container.querySelector('svg')!.outerHTML).not.toContain('NaN')
+    })
+
+    it('emits no NaN geometry for a split-colour area fill', () => {
+      render(container, ragged, { areaFills: [{ from: 'A', to: 'B', color: '#cccccc', negativeColor: '#ff0000' }] })
+      expect(container.querySelector('svg')!.outerHTML).not.toContain('NaN')
+    })
+
+    it('keeps the left margin the axis labels need', () => {
+      render(container, ragged)
+      const raggedTransform = container.querySelector('svg > g')!.getAttribute('transform')
+      container.replaceChildren()
+      render(container, { ...ragged, series: [ragged.series[0], { name: 'B', values: [2, 4, 6] }] })
+      expect(raggedTransform).toBe(container.querySelector('svg > g')!.getAttribute('transform'))
+    })
+  })
+
+  // ── Series overrides ────────────────────────────────────────────
 
   it('hides a series via seriesOverrides hidden', () => {
     render(container, data, {
