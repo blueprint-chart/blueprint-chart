@@ -1,3 +1,4 @@
+import { parseData } from '@blueprint-chart/lib'
 import { useDataTable, serializeTableData } from './dataTable'
 
 // BPC end-to-end tests temporarily excluded — useDslSync depends on
@@ -179,6 +180,14 @@ describe('serializeTableData', () => {
   it('escapes a double quote in a multi-column row label', () => {
     const result = serializeTableData(['Date', 'X', 'Y'], [['5" pipe', '1', '2']])
     expect(result).toContain('"5\\" pipe" = 1,2')
+  })
+
+  it('keeps every row when a multi-column cell is a quoted non-numeric value', () => {
+    const result = serializeTableData(['Date', 'X', 'Y'], [['Jan', 'n/a', '2']])
+    expect(result).toContain('"Jan" = "n/a",2')
+    const data = parseData(result)
+    expect(data.labels).toEqual(['Jan'])
+    expect(data.series![1].values).toEqual([2])
   })
 
   it('produces same output as useDataTable.serialize', () => {

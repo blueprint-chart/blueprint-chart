@@ -11,6 +11,8 @@ import {
   convertSeriesOverrides,
 } from './converter'
 import type { PropertyNode, DataNode, SceneNode, ColorizeNode, AnnotationNode, AreaFillNode, SeriesNode } from './types'
+import { parse } from './parser'
+import { parseData } from '../charts/parse-data'
 
 function prop(key: string, value: string | number, isPercentage = false): PropertyNode {
   return { type: DslNodeType.Property, key, value, isPercentage }
@@ -819,5 +821,14 @@ describe('convertSeriesOverrides boolean casing', () => {
     }]
     const [s] = convertSeriesOverrides(nodes)
     expect(s).toMatchObject({ hidden: true, lineSymbols: true })
+  })
+})
+
+describe('dataEntriesToString multi-value rows', () => {
+  it('keeps a row whose multi-value cell is a string containing a quote', () => {
+    const ast = parse('chart line-multi {\n  data {\n    series = "A","B"\n    "r1" = "say \\"no\\"",2\n  }\n}')
+    const data = parseData(dataEntriesToString(ast.data!))
+    expect(data.labels).toEqual(['r1'])
+    expect(data.series![1].values).toEqual([2])
   })
 })

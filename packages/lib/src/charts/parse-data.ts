@@ -5,7 +5,7 @@ import { splitTopLevelCommas, unescapeDslString, unquoteDslString } from '../dsl
 // A quoted label, escapes included, so `"5\" pipe"` reads as one label instead
 // of terminating at the inner quote.
 const LABEL = '"((?:[^"\\\\]|\\\\.)+)"'
-const NEW_ROW = new RegExp(`^${LABEL}\\s*=\\s*([^"]+)$`)
+const NEW_ROW = new RegExp(`^${LABEL}\\s*=\\s*(.+)$`)
 const OLD_ROW = new RegExp(`^${LABEL}\\s*=\\s*"([^"]*)"$`)
 const SINGLE_ROW = new RegExp(`^${LABEL}\\s*=\\s*(.+)$`)
 
@@ -33,7 +33,7 @@ export function parseData(raw: string): ChartData {
       const match = matchOld ?? matchNew
       if (match) {
         labels.push(unescapeDslString(match[1]))
-        const vals = match[2].split(',')
+        const vals = splitTopLevelCommas(match[2])
         for (let s = 0; s < seriesNames.length; s++) {
           seriesValues[s].push(parseNumericCell(vals[s]))
         }

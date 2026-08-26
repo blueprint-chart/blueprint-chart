@@ -45,3 +45,19 @@ describe('parseData series header', () => {
     expect(data.series!.map(s => s.name)).toEqual(['X "Q"', 'Y'])
   })
 })
+
+describe('parseData multi-value cells', () => {
+  it('keeps a row whose multi-value cell contains an escaped quote', () => {
+    const raw = `series = "A","B"\n"r1" = "say \\"no\\"",2`
+    const data = parseData(raw)
+    expect(data.labels).toEqual(['r1'])
+    expect(data.series![1].values).toEqual([2])
+  })
+
+  it('does not shred a multi-value cell on an inner comma', () => {
+    const raw = `series = "A","B"\n"r1" = "a,b",2`
+    const data = parseData(raw)
+    expect(data.labels).toEqual(['r1'])
+    expect(data.series![1].values).toEqual([2])
+  })
+})
