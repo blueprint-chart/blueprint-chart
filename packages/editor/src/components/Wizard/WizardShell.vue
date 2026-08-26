@@ -164,7 +164,8 @@ function resolveSceneDataStr(resolved: ReturnType<typeof resolveScene>, fallback
     return resolved.data
   }
   if (resolved?.transforms?.length && dataTable.columns.value.length > 0) {
-    const out = transforms.applyStepList(resolved.transforms, dataTable.columns.value, dataTable.rows.value, dataTable.columnTypes.value)
+    const base = transforms.applyTransforms(dataTable.columns.value, dataTable.rows.value, dataTable.columnTypes.value)
+    const out = transforms.applyStepList(resolved.transforms, base.columns, base.rows, base.columnTypes)
     return serializeTableData(out.columns, out.rows)
   }
   return fallback
@@ -173,10 +174,11 @@ function resolveSceneDataStr(resolved: ReturnType<typeof resolveScene>, fallback
 function generateSceneThumbnails() {
   const base = config._base
   const result: Record<number, string | null> = {}
+  const baseDataStr = dataTable.serializeTransformed() ?? base.data.value
 
   result[0] = renderOne({
     chartType: base.chartType.value,
-    dataStr: base.data.value,
+    dataStr: baseDataStr,
     typeOpts: baseOptions.value,
     sort: base.sort.value,
     colorizes: base.colorizes.value,
@@ -187,7 +189,7 @@ function generateSceneThumbnails() {
     const resolved = resolveScene(scenes.value, i)
     result[i + 1] = renderOne({
       chartType: resolved?.chartType ?? base.chartType.value,
-      dataStr: resolveSceneDataStr(resolved, base.data.value),
+      dataStr: resolveSceneDataStr(resolved, baseDataStr),
       typeOpts: resolved?.chartTypeOptions
         ? { ...baseOptions.value, ...resolved.chartTypeOptions }
         : baseOptions.value,

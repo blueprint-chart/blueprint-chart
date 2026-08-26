@@ -9,7 +9,7 @@ import { useDataTable } from './useDataTable'
 import { parseBpcData } from './useDataParser'
 import { useScenes, type SceneOverride } from './useScenes'
 
-const VALID_TRANSFORM_TYPES = new Set<TransformType | string>([TransformType.Sort, TransformType.Filter, TransformType.HideColumns, TransformType.Transpose, TransformType.Parse, TransformType.GroupBy, TransformType.Computed, 'pivot'])
+const VALID_TRANSFORM_TYPES = new Set<string>(Object.values(TransformType))
 
 export function useDslSync() {
   const config = useChartConfig()
@@ -140,21 +140,12 @@ export function useDslSync() {
       if (ast.transforms?.length) {
         transforms.reset()
         for (const t of ast.transforms) {
-          if (!VALID_TRANSFORM_TYPES.has(t.transformType as TransformType)) {
+          if (!VALID_TRANSFORM_TYPES.has(t.transformType)) {
             continue
           }
-          const props = propertyMap(t.properties)
           const stepConfig: Record<string, string> = {}
-          for (const [k, v] of props) {
+          for (const [k, v] of propertyMap(t.properties)) {
             stepConfig[k] = String(v)
-          }
-
-          // Last sort transform with direction drives config.sort for the chart renderer
-          if (t.transformType === TransformType.Sort && props.has('direction')) {
-            const dir = String(props.get('direction'))
-            if (dir === SortDirection.Ascending || dir === SortDirection.Descending) {
-              config.sort.value = dir as SortDirection
-            }
           }
 
           transforms.addStep(t.transformType as TransformType, stepConfig)

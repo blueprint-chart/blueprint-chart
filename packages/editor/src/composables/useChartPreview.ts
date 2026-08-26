@@ -26,8 +26,8 @@ export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
   const config = useChartConfig()
   const { currentOptions } = useChartTypeOptions()
   const { scenes, activeIndex, activeScene } = useScenes()
-  const { columns, rows, columnTypes } = useDataTable()
-  const { applyStepList } = useDataTransforms()
+  const { columns, rows, columnTypes, serializeTransformed } = useDataTable()
+  const { steps, applyStepList, applyTransforms } = useDataTransforms()
   const { theme } = useTheme()
   const { chartTheme } = useChartTheme()
 
@@ -59,17 +59,20 @@ export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
     const scene = resolveScene(scenes.value, activeIndex.value)
     const chartType = scene?.chartType ?? config.chartType.value
 
-    // Pre-resolve data: scene data > transforms > base config
+    // Pre-resolve data: scene data > base pipeline + scene transforms > base
+    // pipeline > base config. The base pipeline always runs first: the chart's
+    // `data` block holds the source table, not the pipeline's output.
     let dataStr: string
     if (scene?.data !== undefined) {
       dataStr = scene.data
     }
     else if (scene?.transforms?.length && columns.value.length > 0) {
-      const result = applyStepList(scene.transforms, columns.value, rows.value, columnTypes.value)
+      const base = applyTransforms(columns.value, rows.value, columnTypes.value)
+      const result = applyStepList(scene.transforms, base.columns, base.rows, base.columnTypes)
       dataStr = serializeTableData(result.columns, result.rows)
     }
     else {
-      dataStr = config.data.value
+      dataStr = serializeTransformed() ?? config.data.value
     }
     const data = parseData(dataStr)
 
@@ -165,7 +168,7 @@ export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
   const optionsTrigger = computed(() => JSON.stringify(currentOptions.value))
 
   watch(
-    [containerRef, config.chartType, config.title, config.data, config.sort, config.sortMode, config.description, config.byline, config.note, config.source, config.sourceUrl, config.selectedColumn, config.colorizes, config.highlights, config.areaFills, config.annotations, config.seriesOverrides, layoutTrigger, optionsTrigger, scenes, activeScene, theme, chartTheme],
+    [containerRef, config.chartType, config.title, config.data, config.sort, config.sortMode, config.description, config.byline, config.note, config.source, config.sourceUrl, config.selectedColumn, config.colorizes, config.highlights, config.areaFills, config.annotations, config.seriesOverrides, steps, layoutTrigger, optionsTrigger, scenes, activeScene, theme, chartTheme],
     render,
     // flush: 'post' ensures Vue has applied the container's style/class bindings
     // (aspect-ratio, flex-direction) before we read them via getComputedStyle.

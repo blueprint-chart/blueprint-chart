@@ -107,8 +107,22 @@ export const useDataTableStore = defineStore('dataTable', () => {
     }
   }
 
+  /** The source table, without the pipeline. This is what the chart's `data`
+   *  block holds: writing the transformed table back would make the next load
+   *  re-apply the steps to their own output. */
   function serialize(): string {
-    return serializeTableData(displayColumns.value, displayRows.value)
+    return serializeTableData(state.columns, state.rows)
+  }
+
+  /** The source table with the base pipeline applied — what the chart renders.
+   *  `null` when there is nothing to apply, so callers keep their own source
+   *  string (which preserves percentage cells the table round trip drops). */
+  function serializeTransformed(): string | null {
+    if (steps.value.length === 0 || state.columns.length === 0) {
+      return null
+    }
+    const out = applyTransforms(state.columns, state.rows, state.columnTypes)
+    return serializeTableData(out.columns, out.rows)
   }
 
   function reset() {
@@ -140,6 +154,7 @@ export const useDataTableStore = defineStore('dataTable', () => {
     renameColumn,
     setColumnType,
     serialize,
+    serializeTransformed,
     reset,
     hydrate,
   }
@@ -176,6 +191,7 @@ export function useDataTable() {
     renameColumn: store.renameColumn,
     setColumnType: store.setColumnType,
     serialize: store.serialize,
+    serializeTransformed: store.serializeTransformed,
     reset: store.reset,
     hydrate: store.hydrate,
   }

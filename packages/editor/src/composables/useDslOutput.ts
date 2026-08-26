@@ -3,10 +3,8 @@ import { useChartThemeStore } from './useChartTheme'
 import { useChartTypeOptions } from './useChartTypeOptions'
 import { useDataTransforms } from './useDataTransforms'
 import { useScenes } from './useScenes'
-import { useDataTable } from './useDataTable'
 import { getChartOptions, AnnotationKind, SortDirection, quoteDslString } from '@blueprint-chart/lib'
 import type { AnnotationConfig, RangeAnnotationConfig, FreeAnnotationConfig } from '@blueprint-chart/lib'
-import { TransformType } from '../enums'
 import { serializePosition, serializeMaxWidth } from '@/utils/dsl/output'
 
 function repeatLine(a: AnnotationConfig, indent: string): string {
@@ -26,7 +24,6 @@ export function useDslOutput() {
   const { baseOptions } = useChartTypeOptions()
   const { steps: transformSteps } = useDataTransforms()
   const { scenes } = useScenes()
-  const dataTable = useDataTable()
   const compact = shallowRef(false)
 
   function generateDsl(): string {
@@ -104,6 +101,10 @@ export function useDslOutput() {
     }
     if (ly.playerPosition !== 'left') {
       output += `  playerPosition = "${ly.playerPosition}"\n`
+    }
+
+    if (base.sort.value !== SortDirection.None) {
+      output += `  sort = ${base.sort.value}\n`
     }
 
     if (base.data.value) {
@@ -326,21 +327,6 @@ export function useDslOutput() {
           output += `    ${k} = "${v}"\n`
         }
       }
-      output += `  }\n`
-    }
-
-    if (base.sort.value !== SortDirection.None) {
-      const cols = dataTable.displayColumns.value
-      const valueCols = cols.length > 2 ? cols.slice(1) : cols.length > 1 ? [cols[1]] : [cols[0] ?? '']
-      output += `\n  transform ${TransformType.Sort} {\n`
-      if (valueCols.length > 1) {
-        output += `    columns = "${valueCols.join(',')}"\n`
-        output += `    operation = sum\n`
-      }
-      else {
-        output += `    column = "${valueCols[0]}"\n`
-      }
-      output += `    direction = ${base.sort.value}\n`
       output += `  }\n`
     }
 
