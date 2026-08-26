@@ -33,7 +33,7 @@ test('export embed - farm-compass complex chart has non-empty bpc64 and no recur
   }, { id: CHART_ID, dsl: FARM_COMPASS_DSL })
 
   // Navigate directly to the export step
-  await page.goto(`http://localhost:5555/#/edit/${CHART_ID}/export`)
+  await page.goto(`/#/edit/${CHART_ID}/export`)
   await page.waitForLoadState('networkidle')
 
   // Wait for embed code to appear
