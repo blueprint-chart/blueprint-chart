@@ -67,7 +67,7 @@ export function renderChart(
   }
 
   const bg = resolveBackgroundColor(container)
-  const chartOpts = buildChartOptions(state.options, bg)
+  const chartOpts = buildChartOptions(state.options, bg, state.chartType)
 
   // Frame: thumbnail mode strips frame entirely (null = frameless).
   // Otherwise: always produce a frame with at least padding so the .bc-frame

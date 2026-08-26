@@ -2,7 +2,8 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import * as d3 from 'd3'
 import { renderChart } from './render-chart'
 import { getSceneTransition } from '../transitions'
-import { ChartType } from '../enums'
+import { registerChart } from '../charts/registry'
+import { ChartType, ChartOptionType } from '../enums'
 import type { ChartDefinition } from './types'
 
 function baseDef(overrides: Partial<ChartDefinition> = {}): ChartDefinition {
@@ -75,6 +76,20 @@ describe('renderChart', () => {
     renderChart(container2, defWithRed, { stripColors: true })
     const strippedFill = container2.querySelector('rect:not(.bc-canvas-bg)')?.getAttribute('fill') ?? ''
     expect(strippedFill.toLowerCase()).not.toBe('#ff0000')
+  })
+
+  it('passes an option registered via registerChart to the renderer', () => {
+    const seen: unknown[] = []
+    registerChart('g1-registered-probe', (_container, _data, opts) => {
+      seen.push((opts as Record<string, unknown>).myScale)
+    }, [{ key: 'myScale', type: ChartOptionType.Text, label: 'My scale', default: '1' }])
+
+    renderChart(container, baseDef({
+      chartType: 'g1-registered-probe',
+      options: { myScale: '12' } as never,
+    }))
+
+    expect(seen).toEqual(['12'])
   })
 })
 

@@ -1,8 +1,40 @@
 import { resolvePalette } from './palettes'
 import { adjustColorsForBackground } from './contrast'
+import { getChartOptions } from './registry'
 import type { ChartOptions, ChartTypeOptions } from './types'
 import { buildVerticalAxisOptions, buildHorizontalAxisOptions } from './axis-options'
 import { LegendPosition, Anchor, ValueLabelPosition, CrosshairDirection, CrosshairStyle, StackMode, SymbolShape, SymbolShowOn, SymbolStyle } from '../enums'
+
+// Keys the builders below fold into a differently named or differently typed
+// ChartOptions field, or drop on a falsy value, so copying their raw value
+// would leak a DSL string or a boolean where the renderer expects an object.
+// `sortMode` is excluded too: it reaches the renderer from the chart
+// definition, where the top-level property and the sort transforms also feed in.
+const DERIVED_OPTION_KEYS = new Set<string>([
+  'colors', 'colorPalette', 'autoContrast',
+  'crosshairDirection', 'crosshairStyle', 'crosshairColor',
+  'lineSymbols', 'lineSymbolShape', 'lineSymbolShowOn', 'lineSymbolStyle', 'lineSymbolSize', 'lineSymbolOpacity',
+  'showVerticalTicks', 'showVerticalAxis', 'verticalAxisDirection', 'verticalGridStyle', 'verticalNumberFormat',
+  'verticalScaleType', 'verticalLabelPosition', 'verticalRangeMin', 'verticalRangeMax',
+  'showHorizontalTicks', 'showHorizontalAxis', 'horizontalGridStyle', 'horizontalNumberFormat',
+  'horizontalScaleType', 'horizontalLabelPosition', 'horizontalLabelRotation', 'horizontalRangeMin', 'horizontalRangeMax',
+  'sliceMax', 'barGap', 'connectionsOpacity', 'areaFillOpacity',
+  'sortMode',
+])
+
+function buildRegisteredOptions(opts: Partial<ChartTypeOptions>, chartType?: string): Partial<ChartOptions> {
+  if (!chartType) {
+    return {}
+  }
+  const partial: Record<string, unknown> = {}
+  for (const { key } of getChartOptions(chartType)) {
+    const value = (opts as Record<string, unknown>)[key]
+    if (value !== undefined && !DERIVED_OPTION_KEYS.has(key)) {
+      partial[key] = value
+    }
+  }
+  return partial as Partial<ChartOptions>
+}
 
 function buildChartColors(opts: Partial<ChartTypeOptions>, backgroundColor?: string): Partial<ChartOptions> {
   const partial: Partial<ChartOptions> = {}
@@ -64,8 +96,9 @@ function buildLineSymbolOptions(opts: Partial<ChartTypeOptions>): Partial<ChartO
   }
 }
 
-export function buildChartOptions(opts: Partial<ChartTypeOptions>, backgroundColor?: string): Partial<ChartOptions> {
+export function buildChartOptions(opts: Partial<ChartTypeOptions>, backgroundColor?: string, chartType?: string): Partial<ChartOptions> {
   const result: Partial<ChartOptions> = {
+    ...buildRegisteredOptions(opts, chartType),
     ...buildChartColors(opts, backgroundColor),
     ...buildLegendOptions(opts),
     ...buildVerticalAxisOptions(opts),

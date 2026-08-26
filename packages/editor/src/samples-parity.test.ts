@@ -66,7 +66,7 @@ function renderLiveEquivalent(container: HTMLElement, dsl: string): void {
     throw new Error(`renderLiveEquivalent: no renderer registered for chart type ${config.chartType.value}`)
   }
   const bg = resolveBackgroundColor(container)
-  const chartOpts = buildChartOptions(currentOptions.value, bg)
+  const chartOpts = buildChartOptions(currentOptions.value, bg, config.chartType.value)
 
   const { scenes } = useScenes()
   const annotations = resolveVisibleAnnotations(
