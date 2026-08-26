@@ -85,6 +85,12 @@ describe('makeDefaultFormat multi-series data', () => {
     expect(fmt(bar)).toBe('Gold – USA: 40')
   })
 
+  it('names the series when the datum only carries seriesName', () => {
+    const fmt = makeDefaultFormat(',.0f')
+    const stacked = { label: 'USA', seriesName: 'Gold', seriesIndex: 0, value: 40 }
+    expect(fmt(stacked)).toBe('Gold – USA: 40')
+  })
+
   it('keeps the label-only format when there is no series', () => {
     const fmt = makeDefaultFormat(',.0f')
     expect(fmt({ label: 'USA', value: 40 })).toBe('USA: 40')

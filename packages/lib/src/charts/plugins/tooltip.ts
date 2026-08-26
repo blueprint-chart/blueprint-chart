@@ -42,9 +42,14 @@ export function makeDefaultFormat(numberFormat?: string): (d: unknown) => string
       // Multi-series datum: named before the label-only form below, which
       // would otherwise always win and reduce every bar in a group to the
       // same label. Same shape as the proximity tooltip (proximity.ts:82).
+      // Only bar-multi carries `series`; the other four stacked and grouped
+      // families name it `seriesName`.
       const obj = d as Record<string, unknown>
-      if ('series' in obj && 'label' in obj && 'value' in obj) {
-        return `${obj.series} – ${obj.label}: ${fmtValue(obj.value)}`
+      const series = typeof obj.series === 'string'
+        ? obj.series
+        : typeof obj.seriesName === 'string' ? obj.seriesName : null
+      if (series !== null && 'label' in obj && 'value' in obj) {
+        return `${series} – ${obj.label}: ${fmtValue(obj.value)}`
       }
       // Bar/line datum with label + value
       if ('label' in obj && 'value' in obj) {
