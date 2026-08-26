@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import chroma from 'chroma-js'
 import { resolvePalette, listPalettes } from './palettes'
 import { checkCvdColors } from './colorblind'
+import { wcagContrastRatio } from './contrast'
 
 /**
  * Machado et al. 2009 severity-1.0 CVD simulation matrices (linear sRGB).
@@ -159,5 +160,49 @@ describe('every shipped palette passes the library colourblind check (#63)', () 
     for (const [name, floor] of Object.entries(RAMPS_THAT_CANNOT_REACH_THE_THRESHOLD)) {
       expect(worstPairDeltaE([...resolvePalette(name)!])).toBeGreaterThanOrEqual(floor)
     }
+  })
+})
+
+describe('no shipped palette entry disappears into the frame (#62)', () => {
+  /**
+   * The frame backgrounds a chart actually renders on: the light frame
+   * (chart-css.ts, `--bc-frame-bg: #fff`, and tokens.scss `--bc-tile-bg`), the
+   * editor's dark tile (tokens.scss `--bc-tile-bg: #0e0e0e`) and the embed's
+   * dark body (chart-css.ts `background: #1c1c1c`). `allowDarkMode` defaults to
+   * true (registry.ts), so every entry has to survive all three.
+   */
+  const FRAME_BACKGROUNDS = ['#ffffff', '#0e0e0e', '#1c1c1c']
+
+  /**
+   * WCAG 2.1 SC 1.4.11 asks 3:1 for a non-text graphical object, which against
+   * a white frame caps relative luminance at 0.175 and would flatten every pale
+   * entry in the shipped set to a mid-tone. 1.3:1 is the ratio the audit used to
+   * detect the invisible entries, so it is the floor adopted here.
+   */
+  const MIN_FRAME_RATIO = 1.3
+
+  /**
+   * Entries left below the floor. A neon yellow has to leave yellow to lose
+   * enough luminance, and darkening it collides with Fiesta's orange under CVD;
+   * the top step of a pure greyscale ramp has to travel past the step below it;
+   * and BlueprintBold's chartreuse is the product's own brand colour at 1.25:1,
+   * which is a decision for a human, not a curation pass.
+   */
+  const CANNOT_REACH_THE_FLOOR = new Set(['#ffff14', '#f8f8f8', '#DDF247'])
+
+  it(`every entry clears ${MIN_FRAME_RATIO}:1 against all three frame backgrounds`, () => {
+    const offenders: string[] = []
+    for (const palette of listPalettes()) {
+      for (const color of palette.colors) {
+        if (CANNOT_REACH_THE_FLOOR.has(color)) {
+          continue
+        }
+        const worst = Math.min(...FRAME_BACKGROUNDS.map(bg => wcagContrastRatio(color, bg)))
+        if (worst < MIN_FRAME_RATIO) {
+          offenders.push(`${palette.name} ${color}: ${worst.toFixed(2)}:1`)
+        }
+      }
+    }
+    expect(offenders).toEqual([])
   })
 })
