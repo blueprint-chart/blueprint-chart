@@ -54,10 +54,20 @@ export interface HighlightConfig {
   target: string
 }
 
+/**
+ * An axis range bound. A string keeps the raw DSL value so each axis can parse
+ * it in its own unit space: a number on a value axis, a date on a
+ * date-detected category axis.
+ */
+export interface AxisRange {
+  min?: number | string
+  max?: number | string
+}
+
 export interface AxisOptions {
   direction?: AxisDirection
   scaleType?: ScaleType
-  range?: { min?: number, max?: number }
+  range?: AxisRange
   ticks?: number[]
   showAxis?: boolean
   showTicks?: boolean

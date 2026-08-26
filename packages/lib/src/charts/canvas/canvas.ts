@@ -1,8 +1,10 @@
 import * as d3 from 'd3'
 import 'd3-transition'
 import { D3Blueprint } from 'd3-blueprint'
-import type { Margin } from '../types'
+import type { AxisRange, Margin } from '../types'
 import { buildNumberFormatter } from '../format-helpers'
+import { computeLinearDomain } from '../scale-helpers'
+import type { ScaleType } from '../../enums'
 import { resolveBackgroundColor } from '../contrast'
 
 export interface CanvasElements {
@@ -81,18 +83,11 @@ const D3_AXIS_LABEL_OFFSET = 9
  */
 export function estimateVerticalLabelWidth(
   values: number[],
-  range?: { min?: number, max?: number },
+  range?: AxisRange,
   numberFormat?: string | null,
   scaleType?: string,
 ): number {
-  // A cell the parser could not read arrives as `undefined`; spread into
-  // Math.min/Math.max it makes the domain NaN, which yields no ticks, a width of
-  // 0, and a left margin too small for the axis labels it was meant to reserve.
-  const plottable = values.filter(v => Number.isFinite(v))
-  const dataMin = Math.min(0, ...plottable)
-  const dataMax = Math.max(0, ...plottable)
-  const domainMin = range?.min ?? dataMin
-  const domainMax = range?.max ?? dataMax
+  const [domainMin, domainMax] = computeLinearDomain(values, range, scaleType as ScaleType)
 
   const scale = scaleType === 'log'
     ? d3.scaleSymlog().domain([domainMin, domainMax]).nice()

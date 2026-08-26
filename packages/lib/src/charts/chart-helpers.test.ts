@@ -256,37 +256,30 @@ describe('buildChartOptions', () => {
       verticalRangeMax: '100',
     })
     expect(result.verticalAxis).toBeDefined()
-    expect(result.verticalAxis!.range).toEqual({ min: 0, max: 100 })
+    expect(result.verticalAxis!.range).toEqual({ min: '0', max: '100' })
   })
 
-  it('parses vertical axis range with date strings', () => {
-    const result = buildChartOptions({
-      verticalRangeMin: '2010',
-      verticalRangeMax: '2020',
-    })
-    expect(result.verticalAxis).toBeDefined()
-    expect(result.verticalAxis!.range!.min).toBe(new Date('2010-01-01').getTime())
-    expect(result.verticalAxis!.range!.max).toBe(new Date('2020-01-01').getTime())
-  })
-
-  it('parses vertical axis range with full date strings', () => {
+  it('carries date-string range bounds as written', () => {
     const result = buildChartOptions({
       verticalRangeMin: '2015-06-01',
       verticalRangeMax: '2020-12-31',
     })
     expect(result.verticalAxis).toBeDefined()
-    expect(result.verticalAxis!.range!.min).toBe(new Date('2015-06-01').getTime())
-    expect(result.verticalAxis!.range!.max).toBe(new Date('2020-12-31').getTime())
+    expect(result.verticalAxis!.range).toEqual({ min: '2015-06-01', max: '2020-12-31' })
   })
 
-  it('parses horizontal axis range with date strings', () => {
+  it('carries horizontal axis range bounds as written', () => {
     const result = buildChartOptions({
       horizontalRangeMin: '2010',
       horizontalRangeMax: '2020',
     })
     expect(result.horizontalAxis).toBeDefined()
-    expect(result.horizontalAxis!.range!.min).toBe(new Date('2010-01-01').getTime())
-    expect(result.horizontalAxis!.range!.max).toBe(new Date('2020-01-01').getTime())
+    expect(result.horizontalAxis!.range).toEqual({ min: '2010', max: '2020' })
+  })
+
+  it('drops a range bound that is neither a number nor a date', () => {
+    const result = buildChartOptions({ verticalRangeMax: 'later' })
+    expect(result.verticalAxis?.range).toBeUndefined()
   })
 
   it('maps interpolation option', () => {

@@ -2,6 +2,13 @@ import type { ChartOptions, ChartTypeOptions } from './types'
 import { parseDateOrNumber } from './date-parse'
 import { AxisDirection, LabelPosition, LabelRotation } from '../enums'
 
+// The raw DSL string is kept so each axis can parse the bound in its own unit
+// space (see AxisRange); only unparseable values are dropped here.
+function rangeBound(raw?: string): string | undefined {
+  const trimmed = (raw ?? '').trim()
+  return trimmed && parseDateOrNumber(trimmed) !== undefined ? trimmed : undefined
+}
+
 export function buildVerticalAxisOptions(opts: Partial<ChartTypeOptions>): Partial<ChartOptions> {
   const hasVertical = opts.showVerticalTicks !== undefined
     || opts.verticalGridStyle !== undefined
@@ -41,8 +48,8 @@ export function buildVerticalAxisOptions(opts: Partial<ChartTypeOptions>): Parti
     axis.labelPosition = opts.verticalLabelPosition as LabelPosition
   }
 
-  const vMin = parseDateOrNumber(opts.verticalRangeMin ?? '')
-  const vMax = parseDateOrNumber(opts.verticalRangeMax ?? '')
+  const vMin = rangeBound(opts.verticalRangeMin)
+  const vMax = rangeBound(opts.verticalRangeMax)
   if (vMin !== undefined || vMax !== undefined) {
     axis.range = {}
     if (vMin !== undefined) {
@@ -95,8 +102,8 @@ export function buildHorizontalAxisOptions(opts: Partial<ChartTypeOptions>): Par
     axis.labelRotation = opts.horizontalLabelRotation as LabelRotation
   }
 
-  const hMin = parseDateOrNumber(opts.horizontalRangeMin ?? '')
-  const hMax = parseDateOrNumber(opts.horizontalRangeMax ?? '')
+  const hMin = rangeBound(opts.horizontalRangeMin)
+  const hMax = rangeBound(opts.horizontalRangeMax)
   if (hMin !== undefined || hMax !== undefined) {
     axis.range = {}
     if (hMin !== undefined) {

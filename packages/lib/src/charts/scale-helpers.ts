@@ -1,5 +1,23 @@
-import { parseDateOrNumber } from './date-parse'
+import { detectDates, parseDate, parseDateOrNumber, parseNumberOrDate } from './date-parse'
+import type { AxisRange } from './types'
 import { ScaleType } from '../enums'
+
+function valueBound(bound?: number | string): number | undefined {
+  return typeof bound === 'string' ? parseNumberOrDate(bound) : bound
+}
+
+function labelBound(bound: number | string | undefined, temporal: boolean): number | undefined {
+  if (typeof bound !== 'string') {
+    return bound
+  }
+  const date = parseDate(bound)
+  if (date) {
+    return date.getTime()
+  }
+  // A bare number can't be compared with epoch-ms labels: applying it anyway
+  // drops every row and empties the chart, so a temporal axis ignores it.
+  return temporal ? undefined : parseDateOrNumber(bound)
+}
 
 /**
  * Filter chart labels (and corresponding data) by a horizontal axis range.
@@ -7,9 +25,15 @@ import { ScaleType } from '../enums'
  */
 export function filterLabelsByRange(
   labels: string[],
-  range?: { min?: number, max?: number },
+  range?: AxisRange,
 ): number[] {
   if (!range || (range.min === undefined && range.max === undefined)) {
+    return labels.map((_, i) => i)
+  }
+  const temporal = detectDates(labels) !== null
+  const min = labelBound(range.min, temporal)
+  const max = labelBound(range.max, temporal)
+  if (min === undefined && max === undefined) {
     return labels.map((_, i) => i)
   }
   const indices: number[] = []
@@ -19,10 +43,10 @@ export function filterLabelsByRange(
       indices.push(i) // Keep non-numeric labels
       continue
     }
-    if (range.min !== undefined && numeric < range.min) {
+    if (min !== undefined && numeric < min) {
       continue
     }
-    if (range.max !== undefined && numeric > range.max) {
+    if (max !== undefined && numeric > max) {
       continue
     }
     indices.push(i)
@@ -46,7 +70,7 @@ export function resolveBarGapPadding(barGap?: number): number {
 
 export function computeLinearDomain(
   values: number[],
-  range?: { min?: number, max?: number },
+  range?: AxisRange,
   scaleType?: ScaleType,
 ): [number, number] {
   // Compute min/max via iteration to avoid blowing the argument limit
@@ -83,8 +107,8 @@ export function computeLinearDomain(
     dataMin = posMin
   }
 
-  let lo = range?.min ?? dataMin
-  let hi = range?.max ?? dataMax
+  let lo = valueBound(range?.min) ?? dataMin
+  let hi = valueBound(range?.max) ?? dataMax
 
   // Guard: swap inverted min/max
   if (lo > hi) {

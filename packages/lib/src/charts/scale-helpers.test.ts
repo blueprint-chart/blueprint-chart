@@ -127,6 +127,18 @@ describe('computeLinearDomain', () => {
     expect(hi).toBe(100)
   })
 
+  it('reads a 4-digit string bound as a number, not a year', () => {
+    expect(computeLinearDomain([400, 1600], { max: '2000' })).toEqual([0, 2000])
+  })
+
+  it('reads a date string bound as epoch ms', () => {
+    expect(computeLinearDomain([0], { max: '2000-01-01' })).toEqual([0, Date.UTC(2000, 0, 1)])
+  })
+
+  it('ignores an unparseable string bound', () => {
+    expect(computeLinearDomain([5, 10], { max: 'later' })).toEqual([0, 10])
+  })
+
   it('omitting scaleType preserves backward-compatible behaviour', () => {
     // Existing callers (and earlier tests above) should be unaffected.
     expect(computeLinearDomain([5, 10, 15])).toEqual([0, 15])
@@ -174,6 +186,21 @@ describe('filterLabelsByRange', () => {
     const labels = ['10', '20', '30', '40', '50']
     const indices = filterLabelsByRange(labels, { min: 20, max: 40 })
     expect(indices).toEqual([1, 2, 3])
+  })
+
+  it('filters date labels by a date string bound', () => {
+    const labels = ['2015', '2016', '2017']
+    expect(filterLabelsByRange(labels, { max: '2016' })).toEqual([0, 1])
+  })
+
+  it('ignores a non-date string bound on date labels', () => {
+    const labels = ['2015', '2016']
+    expect(filterLabelsByRange(labels, { max: '950' })).toEqual([0, 1])
+  })
+
+  it('filters numeric labels by a numeric string bound', () => {
+    const labels = ['10', '20', '30']
+    expect(filterLabelsByRange(labels, { min: '20' })).toEqual([1, 2])
   })
 })
 

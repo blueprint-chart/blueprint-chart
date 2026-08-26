@@ -106,6 +106,23 @@ export function parseDateOrNumber(s: string): number | undefined {
   return undefined
 }
 
+/**
+ * Parse a string as a plain number or, failing that, as a date (epoch ms).
+ * Numbers take precedence so a numeric axis bound like "2000" stays the
+ * number 2000 instead of Jan 1 2000.
+ */
+export function parseNumberOrDate(s: string): number | undefined {
+  const trimmed = s.trim()
+  if (!trimmed) {
+    return undefined
+  }
+  const n = Number(trimmed)
+  if (!isNaN(n)) {
+    return n
+  }
+  return parseDate(trimmed)?.getTime()
+}
+
 export function detectDates(labels: string[]): { dates: Date[], granularity: DateGranularity } | null {
   if (labels.length === 0) {
     return null
