@@ -1,5 +1,8 @@
 import { ChartType } from '@blueprint-chart/lib'
-import { generateId, useChartSession, summarizeDsl } from './chartSession'
+import { generateId, useChartSession, summarizeDsl, storageKey, metaKey } from './chartSession'
+import { serializeTableData } from '@/stores/dataTable'
+import { useDslOutput } from '@/composables/useDslOutput'
+import { TransformType } from '@/enums'
 import { useChartConfig } from '@/stores/chartConfig'
 import { useDataTable } from '@/stores/dataTable'
 import { useDataTransforms } from '@/stores/dataTransforms'
@@ -370,5 +373,90 @@ describe('summarizeDsl', () => {
       rowCount: 0,
       allowDarkMode: true,
     })
+  })
+})
+
+// A pre-branch writer stored the pipeline's OUTPUT in the data block and kept
+// the transform blocks beside it. Replayed here by writing the data block the
+// way the old `dataTable.serialize()` did: from the display view.
+describe('legacy documents written before the data block held source data', () => {
+  const ID = 'legacyChart'
+
+  function writeLegacyDocument(): string {
+    setActivePinia(createPinia())
+    const config = useChartConfig()
+    const dataTable = useDataTable()
+    const transforms = useDataTransforms()
+    config.reset()
+    dataTable.reset()
+    transforms.reset()
+    useChartTypeOptions().reset()
+    useScenes().reset()
+
+    config.chartType.value = ChartType.BarVertical
+    dataTable.loadParsed({
+      columns: ['label', 'value'],
+      rows: [['A', '100'], ['B', '50']],
+      columnTypes: ['string', 'number'],
+    })
+    transforms.addStep(TransformType.Parse, { column: 'value', operation: 'log' })
+    config._base.data.value = serializeTableData(dataTable.displayColumns.value, dataTable.displayRows.value)
+
+    const dsl = useDslOutput().generateDsl()
+    localStorage.setItem(storageKey(ID), dsl)
+    localStorage.setItem(metaKey(ID), JSON.stringify({ savedAt: new Date().toISOString() }))
+    return dsl
+  }
+
+  /** What the preview and the wizard thumbnails feed to the renderer. */
+  function renderedData(): string {
+    const dataTable = useDataTable()
+    return dataTable.serializeTransformed() ?? useChartConfig().data.value
+  }
+
+  beforeEach(() => {
+    localStorage.clear()
+  })
+
+  it('renders exactly what it rendered before the branch, with no second application', () => {
+    const legacyDsl = writeLegacyDocument()
+    expect(legacyDsl).toContain('"A" = 4.605170185988092')
+    expect(legacyDsl).toContain('transform parse {')
+
+    setActivePinia(createPinia())
+    expect(useChartSession().loadChart(ID)).toBe(true)
+
+    expect(renderedData()).toBe('"A" = 4.605170185988092\n"B" = 3.912023005428146')
+    expect(useDataTransforms().steps.value).toEqual([])
+  })
+
+  it('saving puts it on the new footing: same data, no stale steps, stamped', () => {
+    writeLegacyDocument()
+
+    setActivePinia(createPinia())
+    const session = useChartSession()
+    session.loadChart(ID)
+    session.save()
+
+    const saved = localStorage.getItem(storageKey(ID)) ?? ''
+    expect(saved).toContain('"A" = 4.605170185988092')
+    expect(saved).not.toContain('transform parse {')
+    expect(JSON.parse(localStorage.getItem(metaKey(ID)) ?? '{}').schema).toBe(2)
+
+    setActivePinia(createPinia())
+    useChartSession().loadChart(ID)
+    expect(renderedData()).toBe('"A" = 4.605170185988092\n"B" = 3.912023005428146')
+  })
+
+  it('a v2 document keeps its pipeline and applies it', () => {
+    const legacyDsl = writeLegacyDocument()
+    localStorage.setItem(metaKey(ID), JSON.stringify({ schema: 2, savedAt: new Date().toISOString() }))
+
+    setActivePinia(createPinia())
+    useChartSession().loadChart(ID)
+
+    expect(useDataTransforms().steps.value).toHaveLength(1)
+    expect(renderedData()).not.toBe(legacyDsl)
+    expect(renderedData()).toContain('"A" = 1.5271796258079011')
   })
 })

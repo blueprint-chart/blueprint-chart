@@ -228,6 +228,15 @@ describe('resolveScene', () => {
     expect(result.transforms).toEqual(lateTransforms)
   })
 
+  it('inherits a chart-type option from a prior scene, so the preview sees a folded sortMode', () => {
+    const scenes = [
+      scene({ chartTypeOptions: { sortMode: 'total' } }),
+      scene({ chartTypeOptions: { legend: true } }),
+    ]
+    const result = resolveScene(scenes, 1)!
+    expect(result.chartTypeOptions).toEqual({ sortMode: 'total', legend: true })
+  })
+
   it('empty annotations array in later scene does not override cascaded annotations', () => {
     const scenes = [
       scene({ annotations: [{ id: 'a1', kind: 'point', target: 'A', text: 'p' }] }),

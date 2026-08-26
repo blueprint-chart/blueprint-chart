@@ -9,7 +9,18 @@ import { parseDelimited } from '@/composables/useDataParser'
 import { deleteThumbnail } from '@/composables/useChartThumbnail'
 import { parse, type ChartSample } from '@blueprint-chart/lib'
 
+/**
+ * Bumped when the meaning of a stored document changes.
+ *
+ * v2: the `data` block holds source data and `transform` blocks are a pipeline
+ * that has not been applied to it yet.
+ * v1 (no marker): `data` held the pipeline's *output* and the blocks were kept
+ * beside it, so re-deriving from it would apply every step a second time.
+ */
+const SCHEMA_VERSION = 2
+
 interface SessionMeta {
+  schema?: number
   savedAt?: string
   rawInput?: string
   sourceLabel?: string
@@ -135,6 +146,7 @@ export const useChartSessionStore = defineStore('chartSession', () => {
 
     const now = new Date().toISOString()
     const meta: SessionMeta = {
+      schema: SCHEMA_VERSION,
       savedAt: now,
       sheetNumber: sheetNumber.value,
       sheetId: sheetId.value,
@@ -182,6 +194,15 @@ export const useChartSessionStore = defineStore('chartSession', () => {
             dataTable.sourceLabel.value = loadedMeta.sourceLabel
           }
         }
+      }
+
+      // Provenance, not content: a pre-v2 document's `data` block is the
+      // pipeline's output, so its steps are already applied. Adopt the data as
+      // it stands and drop the steps instead of re-deriving from an output; the
+      // next save stamps it as v2. Scene transforms are untouched: they were
+      // never baked into the data block.
+      if (loadedMeta?.schema !== SCHEMA_VERSION) {
+        transforms.reset()
       }
 
       sessionId.value = id
