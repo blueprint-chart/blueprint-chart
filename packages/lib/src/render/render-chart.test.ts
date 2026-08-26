@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import * as d3 from 'd3'
 import { renderChart } from './render-chart'
+import { renderBpc } from './render-bpc'
 import { getSceneTransition } from '../transitions'
 import { registerChart } from '../charts/registry'
 import { ChartType, ChartOptionType } from '../enums'
@@ -148,4 +149,74 @@ describe('renderChart + SceneTransition integration', () => {
     warn.mockRestore()
     container.remove()
   })
+})
+
+describe('a re-render leaves no stranded tooltip', () => {
+  // The proximity tooltip is a body-level div positioned once per mousemove
+  // against the highlight dot. Nothing repositions it, so a re-render under a
+  // still cursor must tear it down: left in place it reads the old datum while
+  // the crosshair and the dot have moved, showing two readings at once.
+  const TYPES: Record<string, string> = {
+    'line': `chart line {
+  tooltips = true
+  data {
+    "Jan" = 10
+    "Feb" = 25
+    "Mar" = 15
+  }
+}`,
+    'area': `chart area {
+  tooltips = true
+  data {
+    "Jan" = 10
+    "Feb" = 25
+    "Mar" = 15
+  }
+}`,
+    'line-multi': `chart line-multi {
+  tooltips = true
+  data {
+    series = "A","B"
+    "Jan" = 10,4
+    "Feb" = 25,8
+  }
+}`,
+    'area-stacked': `chart area-stacked {
+  tooltips = true
+  data {
+    series = "A","B"
+    "Jan" = 10,4
+    "Feb" = 25,8
+  }
+}`,
+  }
+
+  let container: HTMLElement
+  beforeEach(() => {
+    document.body.replaceChildren()
+    document.querySelectorAll('.bc-tooltip').forEach(el => el.remove())
+    container = document.createElement('div')
+    document.body.appendChild(container)
+  })
+
+  for (const [type, bpc] of Object.entries(TYPES)) {
+    for (const transition of [false, true]) {
+      it(`${type} clears its tooltip on a re-render (transition=${transition})`, () => {
+        renderBpc(container, bpc)
+        container.querySelector('.bc-proximity-overlay')!
+          .dispatchEvent(new MouseEvent('mousemove', { clientX: 100, clientY: 100, bubbles: true }))
+        const hovered = document.querySelectorAll<HTMLElement>('.bc-tooltip')
+        expect(hovered).toHaveLength(1)
+        expect(hovered[0].style.display).toBe('block')
+        expect(hovered[0].textContent).not.toBe('')
+
+        renderBpc(container, bpc, { transition })
+
+        const after = document.querySelectorAll<HTMLElement>('.bc-tooltip')
+        expect(after).toHaveLength(1)
+        expect(after[0].style.display).not.toBe('block')
+        expect(after[0].textContent).toBe('')
+      })
+    }
+  }
 })
