@@ -76,7 +76,7 @@ Every property `area-stacked` accepts, beside the [frame and layout keys](/refer
 | `verticalGridStyle` | select: `solid`, `dashed`, `dotted`, `none` | `dashed` |
 | `verticalNumberFormat` | numberFormat | (unset) |
 | `verticalScaleType` | select: `linear`, `log` | `linear` |
-| `verticalRangeMin` | text | `0` |
+| `verticalRangeMin` | text | (unset) |
 | `verticalRangeMax` | text | (unset) |
 | `showHorizontalAxis` | boolean | `true` |
 | `showHorizontalTicks` | boolean | `false` |

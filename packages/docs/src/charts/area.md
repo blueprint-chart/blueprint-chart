@@ -68,7 +68,7 @@ Every property `area` accepts, beside the [frame and layout keys](/reference/dsl
 | `verticalGridStyle` | select: `solid`, `dashed`, `dotted`, `none` | `dashed` |
 | `verticalNumberFormat` | numberFormat | (unset) |
 | `verticalScaleType` | select: `linear`, `log` | `linear` |
-| `verticalRangeMin` | text | `0` |
+| `verticalRangeMin` | text | (unset) |
 | `verticalRangeMax` | text | (unset) |
 | `showHorizontalAxis` | boolean | `true` |
 | `showHorizontalTicks` | boolean | `false` |

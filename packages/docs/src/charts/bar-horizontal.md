@@ -87,7 +87,7 @@ Every property `bar-horizontal` accepts, beside the [frame and layout keys](/ref
 | `horizontalGridStyle` | select: `solid`, `dashed`, `dotted`, `none` | `none` |
 | `horizontalNumberFormat` | numberFormat | (unset) |
 | `horizontalScaleType` | select: `linear`, `log` | `linear` |
-| `horizontalRangeMin` | text | `0` |
+| `horizontalRangeMin` | text | (unset) |
 | `horizontalRangeMax` | text | (unset) |
 | `valueLabels` | boolean | `true` |
 | `valueLabelPosition` | select: `auto`, `outside`, `inside` | `auto` |

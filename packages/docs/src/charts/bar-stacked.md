@@ -77,7 +77,7 @@ Every property `bar-stacked` accepts, beside the [frame and layout keys](/refere
 | `horizontalGridStyle` | select: `solid`, `dashed`, `dotted`, `none` | `none` |
 | `horizontalNumberFormat` | numberFormat | (unset) |
 | `horizontalScaleType` | select: `linear`, `log` | `linear` |
-| `horizontalRangeMin` | text | `0` |
+| `horizontalRangeMin` | text | (unset) |
 | `horizontalRangeMax` | text | (unset) |
 | `valueLabels` | boolean | `true` |
 | `valueLabelPosition` | select: `auto`, `outside`, `inside` | `auto` |
