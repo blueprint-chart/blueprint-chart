@@ -4,6 +4,7 @@ import { resolveScene } from './resolve-scene'
 import { applyLayoutConstraints } from './layout-constraints'
 import { snapshotIfTypeChanged, commitCrossTypeFade, clearCrossTypeMarker } from './cross-type-fade'
 import { applyPostRender } from './post-render'
+import { buildChartAccessibility } from './chart-a11y'
 import { getChart } from '../charts/registry'
 import { buildChartOptions } from '../charts/chart-helpers'
 import { resolveBackgroundColor } from '../charts/contrast'
@@ -109,6 +110,9 @@ export function renderChart(
   }
 
   const theme = options.theme ?? state.theme
-  applyPostRender(container, { theme }, layout)
+  applyPostRender(container, {
+    theme,
+    accessibility: buildChartAccessibility(state.chartType, frame, state.data),
+  }, layout)
   commitCrossTypeFade(container, state.chartType, overlay)
 }

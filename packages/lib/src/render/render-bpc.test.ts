@@ -99,12 +99,15 @@ describe('renderBpc canvas background', () => {
   }
 }`
 
-  it('inserts a background rect as the first SVG child by default', () => {
+  it('inserts a background rect as the first rendered SVG child by default', () => {
     renderBpc(container, SRC())
     const svg = container.querySelector('.bc-frame-body svg')!
     const bg = svg.querySelector('.bc-canvas-bg')
     expect(bg).not.toBeNull()
-    expect(svg.firstElementChild).toBe(bg)
+    // <title>/<desc> precede it and paint nothing, so compare against the
+    // first child that actually renders.
+    const rendered = Array.from(svg.children).filter(el => el.tagName !== 'title' && el.tagName !== 'desc')
+    expect(rendered[0]).toBe(bg)
     expect(bg!.getAttribute('fill')).toBeTruthy()
   })
 

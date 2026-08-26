@@ -144,3 +144,18 @@ describe('theme reaches the rasterised output (#65)', () => {
     expect(legendLabelFill(dark)).toBe('rgba(255, 255, 255, 0.9)')
   })
 })
+
+describe('accessibility metadata on the exported SVG (#87)', () => {
+  it('gives the standalone SVG a role, an accessible name and a description', async () => {
+    const svg = await (await render(FRAMED_BPC)).toSvg({ width: 800, height: 500 })
+    expect(svg).toMatch(/^<svg[^>]*role="img"/)
+    expect(svg).toMatch(/^<svg[^>]*aria-label="Headline here"/)
+    expect(svg).toContain('<title>Headline here</title>')
+    expect(svg).toMatch(/<desc>Subtitle here[^<]*<\/desc>/)
+  })
+
+  it('describes the data when the chart carries no description', async () => {
+    const svg = await (await render(BPC)).toSvg({ width: 800, height: 500 })
+    expect(svg).toMatch(/<desc>[^<]*2 categories[^<]*<\/desc>/)
+  })
+})

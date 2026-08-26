@@ -1,7 +1,15 @@
 import type { LayoutResult } from './layout-constraints'
+import { applyChartAccessibility, type ChartAccessibility } from './chart-a11y'
 
 interface PostRenderArgs {
   theme?: string
+  accessibility?: ChartAccessibility
+}
+
+/** The frame footer carries a credit logo SVG, so scope the lookup to the body. */
+function plotSvg(container: HTMLElement): SVGSVGElement | null {
+  const body = container.querySelector('.bc-frame-body')
+  return (body ?? container).querySelector('svg')
 }
 
 export function applyPostRender(
@@ -9,6 +17,10 @@ export function applyPostRender(
   args: PostRenderArgs,
   layout: LayoutResult,
 ): void {
+  const svg = plotSvg(container)
+  if (svg && args.accessibility) {
+    applyChartAccessibility(svg, args.accessibility)
+  }
   const frame = container.querySelector('.bc-frame') as HTMLElement | null
   if (!frame) {
     return

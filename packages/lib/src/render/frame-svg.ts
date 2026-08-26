@@ -1,5 +1,6 @@
 import type { FrameOptions } from '../charts/types'
 import { expandPaddingShorthand } from '../charts/frame/frame'
+import type { ChartAccessibility } from './chart-a11y'
 
 export interface FrameSvgTextBlock {
   text: string
@@ -266,11 +267,13 @@ function renderTextBlock(block: FrameSvgTextBlock, layout: FrameSvgLayout): stri
  * chrome is native `<text>`, so the result survives rasterization and a bare
  * `.svg` file with no stylesheet.
  */
-export function buildFrameSvg(layout: FrameSvgLayout, plotSvg: string): string {
+export function buildFrameSvg(layout: FrameSvgLayout, plotSvg: string, a11y: ChartAccessibility): string {
   return [
     `<svg xmlns="http://www.w3.org/2000/svg" width="${layout.width}" height="${layout.height}"`,
-    ` viewBox="0 0 ${layout.width} ${layout.height}"`,
+    ` viewBox="0 0 ${layout.width} ${layout.height}" role="img" aria-label="${escapeAttribute(a11y.label)}"`,
     ` font-family="${escapeAttribute(layout.fontFamily)}" color="${escapeAttribute(layout.color)}">`,
+    `<title>${escapeText(a11y.label)}</title>`,
+    `<desc>${escapeText(a11y.description)}</desc>`,
     layout.background ? `<rect width="100%" height="100%" fill="${escapeAttribute(layout.background)}"></rect>` : '',
     ...layout.blocks.map(block => renderTextBlock(block, layout)),
     `<g transform="translate(${layout.plot.x},${layout.plot.y})">${plotSvg}</g>`,

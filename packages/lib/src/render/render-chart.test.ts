@@ -220,3 +220,46 @@ describe('a re-render leaves no stranded tooltip', () => {
     }
   }
 })
+
+describe('renderChart accessibility (#87)', () => {
+  let container: HTMLElement
+  beforeEach(() => {
+    container = document.createElement('div')
+    document.body.appendChild(container)
+  })
+
+  function plotSvg(): SVGSVGElement {
+    return container.querySelector('.bc-frame-body svg') as SVGSVGElement
+  }
+
+  it('marks the plot as a single graphic with an accessible name', () => {
+    renderChart(container, baseDef({ frame: { title: 'Coal still generates a third' } }))
+    expect(plotSvg().getAttribute('role')).toBe('img')
+    expect(plotSvg().getAttribute('aria-label')).toBe('Coal still generates a third')
+  })
+
+  it('falls back to the chart type when there is no headline', () => {
+    renderChart(container, baseDef())
+    expect(plotSvg().getAttribute('aria-label')).toBe('bar vertical chart')
+  })
+
+  it('emits title and desc, with the data summary in the description', () => {
+    renderChart(container, baseDef({ frame: { title: 'T', description: 'D' } }))
+    const svg = plotSvg()
+    expect(svg.querySelector('title')?.textContent).toBe('T')
+    const desc = svg.querySelector('desc')?.textContent ?? ''
+    expect(desc).toContain('D')
+    expect(desc).toContain('3 categories')
+    expect(desc).toContain('1 to 3')
+  })
+
+  it('keeps title before desc and does not duplicate them across renders', () => {
+    renderChart(container, baseDef({ frame: { title: 'T' } }))
+    renderChart(container, baseDef({ frame: { title: 'T2' } }))
+    const svg = plotSvg()
+    expect(svg.querySelectorAll('title')).toHaveLength(1)
+    expect(svg.querySelectorAll('desc')).toHaveLength(1)
+    expect(svg.firstElementChild?.tagName).toBe('title')
+    expect(svg.querySelector('title')?.textContent).toBe('T2')
+  })
+})

@@ -6,6 +6,7 @@ import type { ChartDefinition } from './types'
 import { ChartParseError } from './errors'
 import { resolveScene } from './resolve-scene'
 import { layoutFrameSvg, buildFrameSvg, resolveFrameTheme } from './frame-svg'
+import { buildChartAccessibility } from './chart-a11y'
 
 export interface RenderApiOptions {
   theme?: string
@@ -104,7 +105,8 @@ export async function render(source: string, options: RenderApiOptions = {}): Pr
     try {
       applyThemeSurface(container, theme)
       renderInto(container, true)
-      return buildFrameSvg(layout, backend.serializeSvg(container))
+      const a11y = buildChartAccessibility(scene.chartType, scene.frame, scene.data)
+      return buildFrameSvg(layout, backend.serializeSvg(container), a11y)
     }
     finally {
       cleanup()
