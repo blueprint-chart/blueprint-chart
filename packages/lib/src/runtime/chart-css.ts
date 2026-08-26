@@ -39,6 +39,7 @@ export const CHART_CSS = `
   font-size: var(--bc-frame-title-font-size);
   font-weight: bold;
   margin: 0;
+  white-space: pre-line;
 }
 
 .bc-frame-description {
@@ -47,6 +48,7 @@ export const CHART_CSS = `
   color: var(--bc-frame-description-color);
   font-size: var(--bc-frame-description-font-size);
   margin: 0.25rem 0 0;
+  white-space: pre-line;
 }
 
 .bc-frame-footer {
@@ -91,6 +93,10 @@ export const CHART_CSS = `
   --bc-frame-meta-font-size: 0.75rem;
   color: var(--bc-frame-meta-color);
   font-size: var(--bc-frame-meta-font-size);
+}
+
+.bc-frame-byline {
+  white-space: pre-line;
 }
 
 .bc-frame-credit {

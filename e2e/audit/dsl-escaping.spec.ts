@@ -1,3 +1,4 @@
+import type { Page } from '@playwright/test'
 import { test, expect } from '@playwright/test'
 import { gotoRender } from '../support/render'
 
@@ -72,5 +73,39 @@ test.describe('boolean option casing', () => {
   }
 }`)
     await expect(page.locator('.bc-legend-item')).toHaveCount(2)
+  })
+})
+
+test.describe('newlines in frame text', () => {
+  const renderedLines = (page: Page, selector: string) => page.locator(selector).evaluate((el) => {
+    const lineHeight = parseFloat(getComputedStyle(el).lineHeight)
+    return Math.round(el.getBoundingClientRect().height / lineHeight)
+  })
+
+  test('an explicit \\n breaks frame text onto a second line', async ({ page }) => {
+    await gotoRender(page, `chart pie {
+  title = "One\\nTwo"
+  description = "Three\\nFour"
+  byline = "Five\\nSix"
+  data {
+    "A" = 1
+    "B" = 2
+  }
+}`)
+    for (const selector of ['.bc-frame-title', '.bc-frame-description', '.bc-frame-byline']) {
+      expect(await renderedLines(page, selector), selector).toBe(2)
+    }
+  })
+
+  test('the same text collapses to one line without pre-line, proving the measurement', async ({ page }) => {
+    await gotoRender(page, `chart pie {
+  title = "One\\nTwo"
+  data {
+    "A" = 1
+    "B" = 2
+  }
+}`)
+    await page.locator('.bc-frame-title').evaluate(el => el.style.setProperty('white-space', 'normal'))
+    expect(await renderedLines(page, '.bc-frame-title')).toBe(1)
   })
 })

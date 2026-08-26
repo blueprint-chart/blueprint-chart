@@ -139,6 +139,7 @@
   font-size: var(--bc-frame-title-font-size);
   font-weight: var(--bc-frame-title-font-weight);
   margin: 0;
+  white-space: pre-line;
 }
 
 .bc-frame-description {
@@ -148,6 +149,7 @@
   color: var(--bc-frame-description-color);
   font-size: var(--bc-frame-description-font-size);
   margin: 0.25rem 0 0;
+  white-space: pre-line;
 }
 
 // -- Body -------------------------------------------------------------------
@@ -210,6 +212,10 @@
 
   color: var(--bc-frame-meta-color);
   font-size: var(--bc-frame-meta-font-size);
+}
+
+.bc-frame-byline {
+  white-space: pre-line;
 }
 
 .bc-frame-source-prefix {
