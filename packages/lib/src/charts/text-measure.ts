@@ -17,6 +17,11 @@
 
 const SVG_NS = 'http://www.w3.org/2000/svg'
 
+// Same stack as --bc-frame-font-family (chart.scss), which every chart text
+// inherits. Measuring the generic `sans-serif` instead understates the width by
+// a few percent, which is enough to overflow an explicit maxWidth.
+const FONT_FAMILY = 'system-ui, -apple-system, sans-serif'
+
 // East Asian Wide and Fullwidth ranges: one glyph advances a full em.
 const WIDE_GLYPH = /[\u1100-\u115f\u2e80-\ua4cf\ua960-\ua97f\uac00-\ud7a3\uf900-\ufaff\ufe10-\ufe19\ufe30-\ufe6f\uff00-\uff60\uffe0-\uffe6]/
 const WIDE_EM = 1
@@ -57,7 +62,7 @@ function canvasWidth(text: string, fontSizePx: number): number | null {
   if (!ctx) {
     return null
   }
-  ctx.font = `${fontSizePx}px sans-serif`
+  ctx.font = `${fontSizePx}px ${FONT_FAMILY}`
   const width = ctx.measureText(text).width
   return width > 0 ? width : null
 }
