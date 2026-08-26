@@ -72,6 +72,19 @@ const FRAME_CHOICES = new Map<string, string[]>([
 ])
 
 /**
+ * Keys whose value is a length in pixels. A negative one never means what it
+ * says: an SVG radius is rejected outright and the symbol disappears
+ * (charts/line-symbols.ts), and `height: -400px` is invalid CSS that the
+ * browser drops (render/layout-constraints.ts:65-66).
+ */
+const NON_NEGATIVE_KEYS = new Set<string>([
+  'lineSymbolSize',
+  'fixedHeight',
+  'fixedWidth',
+  'maxWidth',
+])
+
+/**
  * Known transform types. The sole implemented transform today is `sort`
  * (see render/ast-to-definition.ts deriveSortModeFromTransforms). Keep this in
  * sync with that converter if more transforms are added.
@@ -190,6 +203,21 @@ function pushInvalidChoice(
   })
 }
 
+/** Reject a negative length on the keys that cannot carry one. */
+function validateNonNegative(prop: PropertyNode, path: string, errors: ValidationIssue[]): void {
+  if (!NON_NEGATIVE_KEYS.has(prop.key)) {
+    return
+  }
+  const num = parseFloat(String(prop.value))
+  if (Number.isFinite(num) && num < 0) {
+    errors.push({
+      code: 'invalid-number',
+      path,
+      message: `${prop.key} must not be negative; got "${prop.value}".`,
+    })
+  }
+}
+
 /**
  * Validate a single property against a chart-type option def: boolean values
  * and choice membership. Pushes onto `errors`.
@@ -250,6 +278,7 @@ function validateProperties(
 
   for (const prop of properties) {
     const path = `${basePath}.${prop.key}`
+    validateNonNegative(prop, path, errors)
     const frameChoices = FRAME_CHOICES.get(prop.key)
     if (frameChoices && !frameChoices.includes(String(prop.value))) {
       pushInvalidChoice(prop.key, prop.value, frameChoices, path, errors)

@@ -532,3 +532,33 @@ describe('layout properties written by the editor', () => {
     expect(result.errors.find(e => e.code === 'invalid-choice')?.path).toBe('chart.playerPosition')
   })
 })
+
+describe('sizes with a natural floor', () => {
+  it('rejects a negative lineSymbolSize', () => {
+    const result = validateChart(chart({
+      chartType: ChartType.Line,
+      properties: [prop('lineSymbolSize', '-5')],
+    }))
+    const issue = result.errors.find(e => e.code === 'invalid-number')
+    expect(issue).toBeDefined()
+    expect(issue?.path).toBe('chart.lineSymbolSize')
+  })
+
+  it('accepts a zero lineSymbolSize', () => {
+    const result = validateChart(chart({
+      chartType: ChartType.Line,
+      properties: [prop('lineSymbolSize', '0')],
+    }))
+    expect(result.errors).toEqual([])
+  })
+
+  it('rejects a negative fixedHeight', () => {
+    const result = validateChart(chart({ properties: [prop('fixedHeight', -400)] }))
+    expect(result.errors.some(e => e.code === 'invalid-number')).toBe(true)
+  })
+
+  it('accepts a percentage maxWidth', () => {
+    const result = validateChart(chart({ properties: [prop('maxWidth', '50%')] }))
+    expect(result.errors).toEqual([])
+  })
+})

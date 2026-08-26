@@ -41,7 +41,8 @@ export function renderLineSymbols(
   const symbol = config.symbol ?? SymbolShape.Circle
   const showOn = config.showOn ?? SymbolShowOn.FirstLast
   const style = config.style ?? SymbolStyle.Filled
-  const size = config.size ?? 3.5
+  // A negative radius is rejected by the SVG parser and drops the symbol.
+  const size = Math.max(0, config.size ?? 3.5)
   const opacity = config.opacity ?? 1
 
   // For hollow style, use white fill so the line behind doesn't show through

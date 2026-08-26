@@ -197,4 +197,24 @@ describe('renderLineSymbols', () => {
     const transitionState = (firstSymbol as any).__transition
     expect(transitionState).toBeTruthy()
   })
+
+  it('clamps a negative size to zero for circles', () => {
+    const sel = d3.select(g) as unknown as d3.Selection<SVGGElement, unknown, null, undefined>
+    renderLineSymbols(sel, points, 3, { symbol: 'circle', showOn: 'all', size: -5 })
+
+    const circles = g.querySelectorAll('circle.bc-symbol')
+    expect(circles).toHaveLength(3)
+    for (const circle of circles) {
+      expect(circle.getAttribute('r')).toBe('0')
+    }
+  })
+
+  it('clamps a negative size to zero for path symbols', () => {
+    const sel = d3.select(g) as unknown as d3.Selection<SVGGElement, unknown, null, undefined>
+    renderLineSymbols(sel, points, 3, { symbol: 'diamond', showOn: 'all', size: -5 })
+
+    const paths = g.querySelectorAll('path.bc-symbol')
+    expect(paths).toHaveLength(3)
+    expect(paths[0].getAttribute('d')).toBe(d3.symbol().type(d3.symbolDiamond).size(0)())
+  })
 })
