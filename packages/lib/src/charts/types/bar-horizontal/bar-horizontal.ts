@@ -24,6 +24,11 @@ import { CATEGORY_LABEL_HEIGHT, categoryLabelLineHeight } from '../../category-l
 export const DEFAULT_COLORS = ['#4e79a7']
 const VALUE_LABEL_FONT = '11px sans-serif'
 const VALUE_LABEL_GAP = 4
+// Floor for a glyph advance. `measureText` is asked about 11px sans-serif while
+// the chart renders in its own font, and it came back ~14% narrow for a
+// seven-digit label: that under-report is what let the SVG edge cut a label
+// mid-number and turn 1200000 into 120000.
+const MIN_GLYPH_ADVANCE_PX = 7
 
 /** Plot geometry a value label has to stay inside of. */
 interface LabelBounds {
@@ -49,16 +54,17 @@ interface WaterfallDatum {
  * Estimate the pixel width of a value label string.
  */
 function estimateValueLabelWidth(text: string): number {
+  const floor = text.length * MIN_GLYPH_ADVANCE_PX
   try {
     const canvas = document.createElement('canvas')
     const ctx = canvas.getContext('2d')
     if (ctx) {
       ctx.font = VALUE_LABEL_FONT
-      return Math.ceil(ctx.measureText(text).width)
+      return Math.max(Math.ceil(ctx.measureText(text).width), floor)
     }
   }
   catch { /* fallback below */ }
-  return text.length * 6.5
+  return floor
 }
 
 export function render(
