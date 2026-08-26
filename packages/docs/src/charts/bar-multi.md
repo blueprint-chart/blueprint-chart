@@ -6,7 +6,7 @@ title: Multi-series bar chart
 
 > Multi-series vertical bar chart for side-by-side comparison of a small group of series.
 
-`bar-multi` places several series next to each other within each category, so readers can compare them at a glance. Honours `sort`, `sortMode`, `valueLabels`, and `valueLabelPosition`.
+`bar-multi` places several series next to each other within each category, so readers can compare them at a glance. Reorder categories with `sortMode`; the top-level `sort` property is read only by `bar-vertical`, `bar-horizontal`, and `donut`. See [Properties](#properties) for every key it accepts.
 
 ## When to use
 

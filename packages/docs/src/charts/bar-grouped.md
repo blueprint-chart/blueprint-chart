@@ -6,7 +6,7 @@ title: Grouped bar chart
 
 > Multi-series grouped vertical bar chart for grouped categorical comparison across a second dimension.
 
-`bar-grouped` clusters bars from several series under each category, exposing a second dimension of comparison. Honours `sort`, `sortMode`, `valueLabels`, and `valueLabelPosition`.
+`bar-grouped` clusters bars from several series under each category, exposing a second dimension of comparison. Reorder categories with `sortMode`; the top-level `sort` property is read only by `bar-vertical`, `bar-horizontal`, and `donut`. See [Properties](#properties) for every key it accepts.
 
 ## When to use
 
