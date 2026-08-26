@@ -20,9 +20,9 @@ import { SortDirection, ValueLabelPosition, LabelPosition } from '../../../enums
 import { featureJoin, getSceneTransition, tweenPlotFrame, type PlotRect } from '../../../transitions'
 import { highlightOpacity } from '../../plugins/highlight'
 import { shouldRenderValueLabel } from '../../value-label-fit'
+import { CATEGORY_LABEL_HEIGHT, categoryLabelLineHeight } from '../../category-label-line'
 
 export const DEFAULT_COLORS = ['#4e79a7']
-const CATEGORY_LABEL_HEIGHT = 13
 const VALUE_LABEL_GAP = 4
 // Cap height of an 11px numeral: the only part of a value label that sits above
 // its baseline, and the reason DEFAULT_MARGIN.top fits exactly one such label.
@@ -98,7 +98,7 @@ export function render(
     }
   }
   const { chartArea, width, height, margin } = createCanvas(body, lpMargins)
-  const categoryLabelOffset = useCategoryLabelLine ? CATEGORY_LABEL_HEIGHT : 0
+  const categoryLabelOffset = useCategoryLabelLine ? categoryLabelLineHeight(height) : 0
   const barAreaHeight = height - categoryLabelOffset
   const marginDelta = computeMarginDelta(priorMargin, margin)
   // Plot rect (clip height = barAreaHeight) cached for the next same-type

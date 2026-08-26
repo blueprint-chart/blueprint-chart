@@ -20,6 +20,7 @@ import { Orientation, ValueLabelPosition, LabelPosition } from '../../../enums'
 import { highlightTargetSet, highlightOpacity } from '../../plugins/highlight'
 import { buildColorOverrides } from '../../plugins/colorize'
 import { shouldRenderValueLabel } from '../../value-label-fit'
+import { CATEGORY_LABEL_HEIGHT, categoryLabelLineHeight } from '../../category-label-line'
 
 export const DEFAULT_COLORS = [
   '#4e79a7', '#f28e2b', '#e15759', '#76b7b2',
@@ -28,7 +29,6 @@ export const DEFAULT_COLORS = [
 
 const PANEL_GAP = 16
 const PANEL_HEADER_HEIGHT = 20
-const CATEGORY_LABEL_HEIGHT = 13
 
 interface SplitBarDatum {
   label: string
@@ -204,7 +204,7 @@ export function render(
     .range([0, height])
     .padding(resolveBarGapPadding(options.barGap))
 
-  const categoryLabelOffset = useCategoryLabelLine ? CATEGORY_LABEL_HEIGHT : 0
+  const categoryLabelOffset = useCategoryLabelLine ? categoryLabelLineHeight(y.bandwidth()) : 0
 
   // Vertical axis only (category labels on the left)
   axes.attach(chartArea, marginDelta)

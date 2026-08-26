@@ -20,13 +20,12 @@ import { featureJoin, getSceneTransition, tweenPlotFrame, type PlotRect } from '
 import { createPluginHost } from '../../plugins/plugin-host'
 import { Orientation, ValueLabelPosition, LabelPosition } from '../../../enums'
 import { shouldRenderValueLabel } from '../../value-label-fit'
+import { CATEGORY_LABEL_HEIGHT, categoryLabelLineHeight } from '../../category-label-line'
 
 export const DEFAULT_COLORS = [
   '#4e79a7', '#f28e2b', '#e15759', '#76b7b2',
   '#59a14f', '#edc948', '#b07aa1', '#ff9da7',
 ]
-
-const CATEGORY_LABEL_HEIGHT = 13
 
 interface GroupedBarDatum {
   label: string
@@ -130,7 +129,7 @@ export function render(
     .paddingInner(resolveBarGapPadding(options.barGap))
     .paddingOuter(0.05)
 
-  const categoryLabelOffset = useCategoryLabelLine ? CATEGORY_LABEL_HEIGHT : 0
+  const categoryLabelOffset = useCategoryLabelLine ? categoryLabelLineHeight(y0.bandwidth()) : 0
   const barAreaHeight = Math.max(0, y0.bandwidth() - categoryLabelOffset)
 
   const y1 = d3.scaleBand<string>()

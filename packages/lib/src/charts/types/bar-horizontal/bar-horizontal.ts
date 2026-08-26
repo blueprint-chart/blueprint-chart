@@ -19,9 +19,9 @@ import { featureJoin, getSceneTransition, tweenPlotFrame, type PlotRect } from '
 import { createPluginHost } from '../../plugins/plugin-host'
 import { highlightOpacity } from '../../plugins/highlight'
 import { shouldRenderValueLabel } from '../../value-label-fit'
+import { CATEGORY_LABEL_HEIGHT, categoryLabelLineHeight } from '../../category-label-line'
 
 export const DEFAULT_COLORS = ['#4e79a7']
-const CATEGORY_LABEL_HEIGHT = 13
 const VALUE_LABEL_FONT = '11px sans-serif'
 const VALUE_LABEL_GAP = 4
 
@@ -141,7 +141,6 @@ export function render(
   const { chartArea, width, height, margin } = createCanvas(body, lpMargins)
   // Plot rect cached for the next same-type transition's frame-geometry `from`.
   const plotRect: PlotRect = { left: margin.left, top: margin.top, width, height }
-  const categoryLabelOffset = useCategoryLabelLine ? CATEGORY_LABEL_HEIGHT : 0
   const marginDelta = computeMarginDelta(priorMargin, margin)
 
   const labels = sortLabels(data, options)
@@ -182,6 +181,8 @@ export function render(
     .domain(allLabels)
     .range([0, height])
     .padding(resolveBarGapPadding(options.barGap))
+
+  const categoryLabelOffset = useCategoryLabelLine ? categoryLabelLineHeight(y.bandwidth()) : 0
 
   const vAxisBase = swapLabelValue && options.valueLabels && !isWaterfall
     ? (() => {

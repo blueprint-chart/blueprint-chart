@@ -24,13 +24,12 @@ import { StackMode, Orientation, ValueLabelPosition, LabelPosition } from '../..
 import { highlightTargetSet, highlightOpacity } from '../../plugins/highlight'
 import { buildColorOverrides } from '../../plugins/colorize'
 import { shouldRenderValueLabel } from '../../value-label-fit'
+import { CATEGORY_LABEL_HEIGHT, categoryLabelLineHeight } from '../../category-label-line'
 
 export const DEFAULT_COLORS = [
   '#4e79a7', '#f28e2b', '#e15759', '#76b7b2',
   '#59a14f', '#edc948', '#b07aa1', '#ff9da7',
 ]
-
-const CATEGORY_LABEL_HEIGHT = 13
 
 interface StackedBarDatum {
   label: string
@@ -201,7 +200,7 @@ export function render(
     ? flatData
     : sortedLabels.flatMap(label => flatData.filter(d => d.label === label))
 
-  const categoryLabelOffset = useCategoryLabelLine ? CATEGORY_LABEL_HEIGHT : 0
+  const categoryLabelOffset = useCategoryLabelLine ? categoryLabelLineHeight(y.bandwidth()) : 0
   const colorOverrides = buildColorOverrides(options.colorizes)
   const highlightTargets = highlightTargetSet(options.highlights)
   const orch = getSceneTransition(container)
