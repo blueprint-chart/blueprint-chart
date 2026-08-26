@@ -7,7 +7,7 @@ import { AxisService } from '../../axis/axis-service'
 import { renderLegend } from '../../legend/legend'
 import { estimateLegendSize } from '../../legend/legend-size'
 import { contrastTextColor } from '../../contrast'
-import { expandColorsToSeries, resolveSeriesColor, isSeriesHidden, resolveSeriesValueLabels, resolveSeriesOpacity } from '../../series-helpers'
+import { expandColorsToSeries, seriesOrImplicit, resolveSeriesColor, isSeriesHidden, resolveSeriesValueLabels, resolveSeriesOpacity } from '../../series-helpers'
 import { setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut } from '../../motion'
 import { setCachedChart, getCachedChart } from '../../transition-cache'
 import { createTooltipPlugin } from '../../plugins/tooltip'
@@ -64,9 +64,11 @@ export function render(
 
   const { body } = createFrame(container, options.frame)
 
-  const allSeries = data.series ?? []
+  const allSeries = seriesOrImplicit(data)
   const series = allSeries.filter(s => !isSeriesHidden(s.name, options.seriesOverrides))
   const seriesNames = series.map(s => s.name)
+  // The implicit single series has no name, so it gets no legend entry.
+  const legendNames = seriesNames.filter(Boolean)
   const colors = expandColorsToSeries(options.colors ?? DEFAULT_COLORS, allSeries.length)
   const overrides = options.seriesOverrides
 
@@ -92,7 +94,7 @@ export function render(
   )
 
   const legendAvailableWidth = Math.max(0, containerWidth - (lpMargins.left ?? 50) - (lpMargins.right ?? 20))
-  const legendSize = showLegend ? estimateLegendSize(seriesNames, legendPos, legendAvailableWidth) : { width: 0, height: 0 }
+  const legendSize = showLegend ? estimateLegendSize(legendNames, legendPos, legendAvailableWidth) : { width: 0, height: 0 }
   const legendH = showLegend ? legendSize.height + 15 : 0
 
   const marginOverrides: Record<string, number> = { ...lpMargins }
@@ -372,8 +374,8 @@ export function render(
   })
 
   // Legend
-  if (showLegend && seriesNames.length > 0) {
-    const legendColors = seriesNames.map((name) => {
+  if (showLegend && legendNames.length > 0) {
+    const legendColors = legendNames.map((name) => {
       const idx = allSeries.findIndex(s => s.name === name)
       return resolveSeriesColor(name, idx, colors, overrides)
     })
@@ -392,6 +394,6 @@ export function render(
     else if (legendPos === 'right') {
       xPos = width + 10
     }
-    renderLegend(chartArea, seriesNames, legendColors, yPos, legendPos, legendAnchor, width, height, xPos, [], { left: margin.left, right: margin.right })
+    renderLegend(chartArea, legendNames, legendColors, yPos, legendPos, legendAnchor, width, height, xPos, [], { left: margin.left, right: margin.right })
   }
 }

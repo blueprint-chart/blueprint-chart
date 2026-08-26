@@ -1,5 +1,19 @@
 import chroma from 'chroma-js'
-import type { SeriesOverride } from './types'
+import type { ChartData, SeriesOverride } from './types'
+
+/**
+ * The series a multi-series renderer should draw. A `data` block with no
+ * `series` meta-row carries its numbers in `values` alone, which left the
+ * stacked, grouped and split renderers with an empty series list and nothing
+ * to draw. Such data is a stack, a group or a panel of one: it gets a single
+ * unnamed series, so every category still renders one bar.
+ */
+export function seriesOrImplicit(data: ChartData): { name: string, values: number[] }[] {
+  if (data.series) {
+    return data.series
+  }
+  return data.values.length > 0 ? [{ name: '', values: data.values }] : []
+}
 
 /**
  * Extend `colors` so it covers `count` series. `resolveSeriesColor` indexes

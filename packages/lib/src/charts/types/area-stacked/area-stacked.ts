@@ -17,7 +17,7 @@ import { setCachedChart, getCachedChart } from '../../transition-cache'
 import { featureJoin, getSceneTransition, tweenPlotFrame, type PlotRect } from '../../../transitions'
 import { computeStack, computeStack100 } from '../../stack-helpers'
 import { computeLinearDomain, filterLabelsByRange } from '../../scale-helpers'
-import { expandColorsToSeries, resolveSeriesColor, resolveSeriesInterpolation, isSeriesHidden, resolveSeriesLabelMode } from '../../series-helpers'
+import { expandColorsToSeries, seriesOrImplicit, resolveSeriesColor, resolveSeriesInterpolation, isSeriesHidden, resolveSeriesLabelMode } from '../../series-helpers'
 import { spreadLabels } from '../../plugins/arc-labels'
 import { StackMode, SortDirection, ScaleType } from '../../../enums'
 import { highlightTargetSet, highlightOpacity } from '../../plugins/highlight'
@@ -84,11 +84,13 @@ export function render(
     data = { labels: filteredLabels, values: rangeIndices.map(i => data.values[i]), series: filteredSeries }
   }
 
-  const allSeries = data.series ?? []
+  const allSeries = seriesOrImplicit(data)
   const series = allSeries.filter(s => !isSeriesHidden(s.name, options.seriesOverrides))
 
   const colors = expandColorsToSeries(options.colors ?? DEFAULT_COLORS, allSeries.length)
   const seriesNames = series.map(s => s.name)
+  // The implicit single series has no name, so it gets no legend entry.
+  const legendNames = seriesNames.filter(Boolean)
   const overrides = options.seriesOverrides
   const colorOverrides = buildColorOverrides(options.colorizes)
 
@@ -164,7 +166,7 @@ export function render(
   // Left/right margins are fixed at this point (they don't depend on legend height).
   const vLabelsInside = lpMargins.top != null
   const legendAvailableWidth = Math.max(0, containerWidth - (lpMargins.left ?? 50) - (lpMargins.right ?? 20) - directLabelW)
-  const legendSize = showLegend ? estimateLegendSize(seriesNames, legendPos, legendAvailableWidth) : { width: 0, height: 0 }
+  const legendSize = showLegend ? estimateLegendSize(legendNames, legendPos, legendAvailableWidth) : { width: 0, height: 0 }
   const legendH = showLegend ? legendSize.height + 15 : 0
   const marginOverrides: Record<string, number> = { ...lpMargins }
   if (showLegend && legendPos === 'top') {
@@ -400,7 +402,7 @@ export function render(
   }
 
   // Legend
-  const legendSeriesNames = seriesNames.filter(name => resolveSeriesLabelMode(name, globalLabelMode, overrides) === 'legend')
+  const legendSeriesNames = legendNames.filter(name => resolveSeriesLabelMode(name, globalLabelMode, overrides) === 'legend')
 
   if (showLegend && legendSeriesNames.length > 0) {
     const legendColors = legendSeriesNames.map((name) => {
