@@ -448,6 +448,11 @@ export function render(
       return
     }
     const lastValue = s.values[lastLabelIdx]
+    // A horizontal range bound can exclude every category, and a ragged row can
+    // leave the last cell empty: either way there is no point to label.
+    if (!Number.isFinite(lastValue)) {
+      return
+    }
     const labelText = overrides?.find(o => o.name === s.name)?.labelText || s.name
     directLabelEntries.push({ name: s.name, index: i, naturalY: y(lastValue) as number, text: labelText })
   })

@@ -712,7 +712,26 @@ describe('line-multi chart', () => {
     expect(axis).not.toBeNull()
   })
 
-  // ── Series overrides ────────────────────────────────────────────
+  // Same unchecked index as area-stacked (#107): with no category left, the
+  // direct label read past the end of the values and placed itself at y="NaN".
+  it('places no direct label when the horizontal range excludes every category', () => {
+    const years = {
+      labels: ['2018', '2019', '2020'],
+      values: [],
+      series: [
+        { name: 'Series A', values: [10, 25, 15] },
+        { name: 'Series B', values: [5, 20, 30] },
+      ],
+    }
+    render(container, years, {
+      directLabelling: 'outside',
+      horizontalAxis: { range: { max: 950 } },
+    })
+    const labels = container.querySelectorAll('.bc-direct-label')
+    expect(labels).toHaveLength(0)
+  })
+
+  // ── Series overrides ────────────────────────────────────────────  // ── Series overrides ────────────────────────────────────────────
 
   it('hides a series via seriesOverrides hidden', () => {
     render(container, data, {

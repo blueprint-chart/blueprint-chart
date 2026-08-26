@@ -272,6 +272,24 @@ describe('area-stacked chart', () => {
 
   // ── Direct labelling vs legend ──────────────────────────────────
 
+  // A range bound that excludes every category leaves no last point for the
+  // direct-label loop to read, and the index came from the unfiltered labels.
+  it('survives directLabelling when the horizontal range excludes every category', () => {
+    const years = {
+      labels: ['2018', '2019', '2020'],
+      values: [0, 0, 0],
+      series: [
+        { name: 'Product A', values: [10, 20, 15] },
+        { name: 'Product B', values: [5, 10, 8] },
+      ],
+    }
+    expect(() => render(container, years, {
+      directLabelling: 'outside',
+      horizontalAxis: { range: { max: 950 } },
+    })).not.toThrow()
+    expect(container.querySelectorAll('.bc-direct-label')).toHaveLength(0)
+  })
+
   it('shows legend (not direct labels) when legend=true and directLabelling=auto', () => {
     render(container, data, { legend: true, directLabelling: 'auto' })
     const legend = container.querySelector('.bc-legend')

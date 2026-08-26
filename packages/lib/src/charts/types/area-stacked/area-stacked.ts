@@ -366,6 +366,11 @@ export function render(
       return
     }
     const lastPoint = stackSeries[lastLabelIdx]
+    // A horizontal range bound can exclude every category, leaving no last point
+    // for the label to sit against.
+    if (!lastPoint) {
+      return
+    }
     const midY = y((lastPoint[0] + lastPoint[1]) / 2) as number
     const labelText = overrides?.find(o => o.name === s.name)?.labelText || s.name
     directLabelEntries.push({ name: s.name, index: i, naturalY: midY, text: labelText })
