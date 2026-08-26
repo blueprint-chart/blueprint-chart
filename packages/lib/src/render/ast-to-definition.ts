@@ -13,12 +13,13 @@ import {
   toBool,
 } from '../dsl/converter'
 import { SortDirection, SortMode } from '../enums'
+import { applyTransformNodes, TRANSFORM_TYPES } from '../transforms'
 
 const warnedTransformTypes = new Set<string>()
 
 /**
- * Apply a list of transforms to derive a sortMode. Unknown transform types
- * are warned about once per process and otherwise ignored. The `sort`
+ * Apply a list of transforms to derive a sortMode. Types outside the pipeline's
+ * set are warned about once per process and otherwise ignored. The `sort`
  * transform maps both ascending and descending directions onto SortMode.Total
  * because the underlying chart types only support total / within-groups / none.
  */
@@ -32,7 +33,7 @@ function deriveSortModeFromTransforms(
     if (t.transformType === 'sort') {
       result = SortMode.Total
     }
-    else if (!warnedTransformTypes.has(t.transformType)) {
+    else if (!TRANSFORM_TYPES.has(t.transformType) && !warnedTransformTypes.has(t.transformType)) {
       warnedTransformTypes.add(t.transformType)
       console.warn(`[blueprint-chart] Unknown transform "${t.transformType}" in ${context}; ignored.`)
     }
@@ -68,7 +69,7 @@ function buildFrame(props: Map<string, string | number | boolean>): FrameOptions
 export function astToDefinition(ast: ChartNode): ChartDefinition {
   const pMap = propertyMap(ast.properties)
   const dataStr = ast.data ? dataEntriesToString(ast.data) : ''
-  const data = parseData(dataStr)
+  const data = parseData(applyTransformNodes(dataStr, ast.transforms))
   const sortRaw = pMap.get('sort')
   const sortStr = sortRaw == null ? undefined : String(sortRaw)
   const sort = sortStr === SortDirection.Ascending || sortStr === SortDirection.Descending
@@ -86,8 +87,7 @@ export function astToDefinition(ast: ChartNode): ChartDefinition {
     sortMode = sortModeRaw as SortMode
   }
 
-  // S9/S2: apply chart-level transforms onto sortMode. The sole supported
-  // transform type today is `sort`; everything else triggers a single warning.
+  // S9/S2: `sort` also maps onto sortMode, for the chart types that read it.
   sortMode = deriveSortModeFromTransforms(ast.transforms, sortMode, 'chart')
 
   return {

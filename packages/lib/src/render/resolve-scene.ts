@@ -5,6 +5,7 @@ import { LabelPosition, SortMode } from '../enums'
 import { extractChartTypeOptions, propertyMap, dataEntriesToString, convertColorizes, convertHighlights, convertAreaFills, convertAnnotations, convertSeriesOverrides } from '../dsl/converter'
 import { getChartTypeDefaults, resolveChartTypeOptions } from '../charts/resolve'
 import { parseData } from '../charts/chart-helpers'
+import { applyTransformNodesToChartData, TRANSFORM_TYPES } from '../transforms'
 
 // A scene that changes chart type keeps every inherited option except the two
 // label positions, whose registry defaults encode whether values are drawn on
@@ -47,7 +48,7 @@ function applyTransformsToSortMode(
       // underlying chart types only support total/within-groups/none.
       result = SortMode.Total
     }
-    else if (!warnedTransformTypes.has(t.transformType)) {
+    else if (!TRANSFORM_TYPES.has(t.transformType) && !warnedTransformTypes.has(t.transformType)) {
       warnedTransformTypes.add(t.transformType)
       console.warn(`[blueprint-chart] Unknown transform "${t.transformType}" in ${context}; ignored.`)
     }
@@ -179,10 +180,13 @@ export function resolveScene(
   const chartType = fold.chartType ?? def.chartType
 
   // S1: when a scene supplies data, re-parse it via the canonical chart-helpers
-  // pipeline so the resolved state reflects scene-level data overrides.
+  // pipeline so the resolved state reflects scene-level data overrides. Its own
+  // transforms then run on top of the base pipeline's output, and a scene that
+  // replaces the data wholesale keeps it as given: both match the editor's
+  // resolution order in useChartPreview.ts.
   const data = fold.data
     ? parseData(dataEntriesToString(fold.data))
-    : base.data
+    : applyTransformNodesToChartData(base.data, fold.transforms)
 
   const inherited = Object.keys(fold.chartTypeOptions).length > 0
     ? resolveChartTypeOptions(chartType, { ...baseOptions, ...fold.chartTypeOptions })

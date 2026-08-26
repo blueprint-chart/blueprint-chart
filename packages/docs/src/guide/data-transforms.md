@@ -116,7 +116,7 @@ transform filter {
 ```
 
 ::: warning No sample uses `transform filter` today
-The block above is synthesized from `packages/editor/src/utils/transforms/applyFilter.ts` rather than copied from a `.bpc` file — none of the 38 shipped samples filter their data on render. Treat the syntax as canonical (it round-trips through the editor) but expect to author it by hand for now.
+The block above is synthesized from `packages/lib/src/transforms/applyFilter.ts` rather than copied from a `.bpc` file — none of the 38 shipped samples filter their data on render. Treat the syntax as canonical (it round-trips through the editor) but expect to author it by hand for now.
 :::
 
 If the target value is empty for any condition other than `equals` / `not-equals`, the filter is a no-op (the row is kept).
@@ -133,7 +133,7 @@ transform group-by {
 ```
 
 ::: warning No sample uses `transform group-by` today
-Synthesized from `packages/editor/src/utils/transforms/applyGroupBy.ts` and `packages/editor/src/enums.ts` (`TransformType.GroupBy = 'group-by'`). Build the step in the editor's Data panel and copy the serialised output if you want a verified starting point.
+Synthesized from `packages/lib/src/transforms/applyGroupBy.ts` and `packages/lib/src/enums.ts` (`TransformType.GroupBy = 'group-by'`). Build the step in the editor's Data panel and copy the serialised output if you want a verified starting point.
 :::
 
 ### Use the pipeline outside the editor
@@ -163,26 +163,27 @@ const { columns, rows, columnTypes } = applyTransforms(
 
 ## API surface
 
-The transform pipeline lives in `@blueprint-chart/editor` rather than `@blueprint-chart/lib`. The `lib` half is the DSL representation:
+The pipeline lives in `@blueprint-chart/lib`, so a headless render of a `.bpc` applies the same steps as the editor:
 
 | Symbol (from `@blueprint-chart/lib`) | One-liner |
 | --- | --- |
 | `TransformNode` (type) | AST node for a `transform <name> { … }` block. |
 | `DslNodeType.Transform` (enum value) | Discriminator on the AST union. |
+| `TransformType` (enum) | `Sort \| Filter \| HideColumns \| Transpose \| Parse \| Rename \| GroupBy \| Computed`. |
+| `TRANSFORM_TYPES` | The set of executed types, and what the validator accepts. |
+| `TransformResult` (type) | `{ columns, rows, columnTypes }` — the value flowing through the chain. |
+| `TransformStep` (type) | `{ type, config }` — one step of the pipeline. |
+| `applyTransformSteps(steps, columns, rows, columnTypes)` | Fold a step list over a table. |
+| `applyTransformNodes(dataStr, nodes)` | Run `transform` AST nodes over a `data { … }` body. |
+| `ParseOperation` / `parseOperations` | Catalogue of `Parse` operations and their accepted input types. |
+| `NULL_VALUE` | Sentinel returned by `Parse` when a cell can't be coerced. |
 
-The `editor` half (used internally by the editor app):
+The editor half is the interactive wrapper around it:
 
 | Symbol (from the editor) | One-liner |
 | --- | --- |
 | `useDataTransforms()` / `useDataTransformsStore()` | Pipeline composable + raw store. |
-| `TransformStep` (type) | `{ id, type, config }` — one row in the pipeline. |
-| `TransformType` (enum) | `Sort \| Filter \| HideColumns \| Transpose \| Parse \| Rename \| GroupBy \| Computed`. |
-| `TransformResult` (type) | `{ columns, rows, columnTypes }` — the value flowing through the chain. |
-| `ParseOperation` / `parseOperations` | Catalogue of `Parse` operations and their accepted input types. |
-| `NULL_VALUE` | Sentinel returned by `Parse` when a cell can't be coerced. |
-
-> [!info] Public-API status
-> The transform pipeline is currently shipped inside `@blueprint-chart/editor` and is consumed by the editor app. It is not re-exported from `@blueprint-chart/lib` today; if you need it in a non-editor consumer, copy `packages/editor/src/utils/transforms/*` or watch for a future move into `lib`.
+| `TransformStep` (type) | The library step plus the `id` the pipeline UI keys rows by. |
 
 ## See also
 

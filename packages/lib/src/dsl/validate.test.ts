@@ -9,6 +9,7 @@ import {
 import { convertAnnotations } from './converter'
 import { listThemes } from '../charts/themes'
 import { parse } from './parser'
+import { TRANSFORM_TYPES } from '../transforms'
 import type { ChartNode, SceneNode, PropertyNode, DataNode, AnnotationNode, TransformNode } from './types'
 
 function prop(key: string, value: string | number | boolean, isPercentage = false): PropertyNode {
@@ -262,6 +263,13 @@ describe('validateChart', () => {
     it('accepts the sort transform', () => {
       const result = validateChart(chart({ transforms: [transform('sort')] }))
       expect(result.valid).toBe(true)
+    })
+
+    it('accepts every transform type the pipeline executes', () => {
+      for (const type of TRANSFORM_TYPES) {
+        const result = validateChart(chart({ transforms: [transform(type)] }))
+        expect(result.errors.find(e => e.code === 'unknown-transform'), type).toBeUndefined()
+      }
     })
 
     it('flags a bogus transform type and lists known types', () => {

@@ -4,6 +4,7 @@ import { getChartOptions, listCharts } from '../charts/registry'
 import { listThemes } from '../charts/themes'
 import { ChartOptionType, AnnotationKind, ANNOTATION_KIND_KEYWORD } from '../enums'
 import { propertyMap } from './converter'
+import { TRANSFORM_TYPES } from '../transforms'
 
 /**
  * A single validation finding. `code` is a stable machine-readable identifier,
@@ -83,11 +84,10 @@ const NON_NEGATIVE_KEYS = new Set<string>([
 ])
 
 /**
- * Known transform types. The sole implemented transform today is `sort`
- * (see render/ast-to-definition.ts deriveSortModeFromTransforms). Keep this in
- * sync with that converter if more transforms are added.
+ * Known transform types: the set the pipeline executes, so the validator cannot
+ * report a step the renderer honours (see transforms/index.ts).
  */
-const KNOWN_TRANSFORM_TYPES = new Set<string>(['sort'])
+const KNOWN_TRANSFORM_TYPES = TRANSFORM_TYPES
 
 /**
  * Per-kind allowlists for annotation body property keys, derived from the keys

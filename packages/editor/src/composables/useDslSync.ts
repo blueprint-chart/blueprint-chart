@@ -1,4 +1,4 @@
-import { parse, propertyMap, extractChartTypeOptions, extractSceneOverrides, dataEntriesToString, convertColorizes, convertHighlights, convertAreaFills, convertAnnotations, convertSeriesOverrides, SortDirection, toBool } from '@blueprint-chart/lib'
+import { parse, propertyMap, extractChartTypeOptions, extractSceneOverrides, dataEntriesToString, convertColorizes, convertHighlights, convertAreaFills, convertAnnotations, convertSeriesOverrides, SortDirection, toBool, TRANSFORM_TYPES } from '@blueprint-chart/lib'
 import type { DslApplyResult } from '@/dsl-lang/diagnostics'
 import { useChartConfig, layoutDefaults, type ChartLayout } from './useChartConfig'
 import { useChartThemeStore } from './useChartTheme'
@@ -9,7 +9,8 @@ import { useDataTable } from './useDataTable'
 import { parseBpcData } from './useDataParser'
 import { useScenes, type SceneOverride } from './useScenes'
 
-const VALID_TRANSFORM_TYPES = new Set<string>(Object.values(TransformType))
+// The pipeline's own set, so a step the renderer executes is never dropped here.
+const VALID_TRANSFORM_TYPES = TRANSFORM_TYPES
 
 export function useDslSync() {
   const config = useChartConfig()
