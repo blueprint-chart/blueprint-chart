@@ -101,8 +101,8 @@ import {
 
 | Symbol | Purpose |
 | --- | --- |
-| `createFrame(options)` | Set up the chart's outer frame (title, description, source, axis labels, note). Returns `FrameElements`. |
-| `createCanvas(options)` | Set up the inner drawing surface. Returns `CanvasElements`. |
+| `createFrame(container, options?)` | Set up the chart's outer frame (title, description, source, axis labels, note) inside `container`. Pass `null` for frameless. Returns `FrameElements`. |
+| `createCanvas(body, margin?)` | Set up the inner drawing surface inside `body` (the frame body element). Returns `CanvasElements`. |
 | `renderVerticalAxis(...)` / `renderHorizontalAxis(...)` | Draw axes with grid lines, ticks, and labels. |
 | `renderLegend(...)` | Draw a chart legend (position + interactivity). |
 
