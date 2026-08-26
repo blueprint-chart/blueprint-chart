@@ -14,6 +14,8 @@ export interface PropertyNode {
   quotedKey?: boolean
   /** `//` comment lines authored immediately above this node, text only (no `//`). */
   leadingComments?: string[]
+  /** `//` comment authored at the end of this node's own line, text only (no `//`). */
+  trailingComment?: string
 }
 
 export interface DataNode {
@@ -21,6 +23,10 @@ export interface DataNode {
   entries: PropertyNode[]
   /** `//` comment lines authored immediately above this node, text only (no `//`). */
   leadingComments?: string[]
+  /** `//` comment authored at the end of this node's own line, text only (no `//`). */
+  trailingComment?: string
+  /** `//` comment lines authored after this block's last member, text only (no `//`). */
+  trailingComments?: string[]
 }
 
 export interface ColorizeNode {
@@ -30,6 +36,10 @@ export interface ColorizeNode {
   fromHighlight?: boolean
   /** `//` comment lines authored immediately above this node, text only (no `//`). */
   leadingComments?: string[]
+  /** `//` comment authored at the end of this node's own line, text only (no `//`). */
+  trailingComment?: string
+  /** `//` comment lines authored after this block's last member, text only (no `//`). */
+  trailingComments?: string[]
 }
 
 export interface HighlightNode {
@@ -38,6 +48,8 @@ export interface HighlightNode {
   properties: PropertyNode[]
   /** `//` comment lines authored immediately above this node, text only (no `//`). */
   leadingComments?: string[]
+  /** `//` comment authored at the end of this node's own line, text only (no `//`). */
+  trailingComment?: string
 }
 
 export interface AreaFillNode {
@@ -47,6 +59,10 @@ export interface AreaFillNode {
   properties: PropertyNode[]
   /** `//` comment lines authored immediately above this node, text only (no `//`). */
   leadingComments?: string[]
+  /** `//` comment authored at the end of this node's own line, text only (no `//`). */
+  trailingComment?: string
+  /** `//` comment lines authored after this block's last member, text only (no `//`). */
+  trailingComments?: string[]
 }
 
 export interface PointAnnotationNode {
@@ -56,6 +72,10 @@ export interface PointAnnotationNode {
   properties: PropertyNode[]
   /** `//` comment lines authored immediately above this node, text only (no `//`). */
   leadingComments?: string[]
+  /** `//` comment authored at the end of this node's own line, text only (no `//`). */
+  trailingComment?: string
+  /** `//` comment lines authored after this block's last member, text only (no `//`). */
+  trailingComments?: string[]
 }
 
 export interface RangeAnnotationNode {
@@ -64,6 +84,10 @@ export interface RangeAnnotationNode {
   properties: PropertyNode[]
   /** `//` comment lines authored immediately above this node, text only (no `//`). */
   leadingComments?: string[]
+  /** `//` comment authored at the end of this node's own line, text only (no `//`). */
+  trailingComment?: string
+  /** `//` comment lines authored after this block's last member, text only (no `//`). */
+  trailingComments?: string[]
 }
 
 export interface FreeAnnotationNode {
@@ -72,6 +96,10 @@ export interface FreeAnnotationNode {
   properties: PropertyNode[]
   /** `//` comment lines authored immediately above this node, text only (no `//`). */
   leadingComments?: string[]
+  /** `//` comment authored at the end of this node's own line, text only (no `//`). */
+  trailingComment?: string
+  /** `//` comment lines authored after this block's last member, text only (no `//`). */
+  trailingComments?: string[]
 }
 
 export type AnnotationNode = PointAnnotationNode | RangeAnnotationNode | FreeAnnotationNode
@@ -82,6 +110,10 @@ export interface SeriesNode {
   properties: PropertyNode[]
   /** `//` comment lines authored immediately above this node, text only (no `//`). */
   leadingComments?: string[]
+  /** `//` comment authored at the end of this node's own line, text only (no `//`). */
+  trailingComment?: string
+  /** `//` comment lines authored after this block's last member, text only (no `//`). */
+  trailingComments?: string[]
 }
 
 export interface SceneNode {
@@ -97,6 +129,10 @@ export interface SceneNode {
   transforms: TransformNode[]
   /** `//` comment lines authored immediately above this node, text only (no `//`). */
   leadingComments?: string[]
+  /** `//` comment authored at the end of this node's own line, text only (no `//`). */
+  trailingComment?: string
+  /** `//` comment lines authored after this block's last member, text only (no `//`). */
+  trailingComments?: string[]
 }
 
 export interface TransformNode {
@@ -105,6 +141,10 @@ export interface TransformNode {
   properties: PropertyNode[]
   /** `//` comment lines authored immediately above this node, text only (no `//`). */
   leadingComments?: string[]
+  /** `//` comment authored at the end of this node's own line, text only (no `//`). */
+  trailingComment?: string
+  /** `//` comment lines authored after this block's last member, text only (no `//`). */
+  trailingComments?: string[]
 }
 
 export interface ChartNode {
@@ -119,4 +159,6 @@ export interface ChartNode {
   series: SeriesNode[]
   scenes: SceneNode[]
   transforms: TransformNode[]
+  /** `//` comment lines authored after this block's last member, text only (no `//`). */
+  trailingComments?: string[]
 }

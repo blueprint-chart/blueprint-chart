@@ -1100,3 +1100,69 @@ describe('quoted-identifier escaping', () => {
     roundTrip('chart bar-vertical {\n  data {\n    "two\\nlines" = 1\n  }\n}')
   })
 })
+
+describe('trailingComments serialization', () => {
+  it('keeps a comment trailing a property', () => {
+    const src = 'chart bar {\n  title = "Sales" // note\n  data {\n    "A" = 1\n  }\n}'
+    const ast1 = parse(src)
+    expect(ast1.properties[0].trailingComment).toBe('note')
+    expect(serialize(ast1)).toContain('// note')
+    expect(parse(serialize(ast1))).toEqual(ast1)
+  })
+
+  it('keeps a comment trailing a data row', () => {
+    const src = 'chart bar {\n  data {\n    "A" = 1 // provisional\n  }\n}'
+    const ast1 = parse(src)
+    expect(ast1.data!.entries[0].trailingComment).toBe('provisional')
+    expect(serialize(ast1)).toContain('// provisional')
+    expect(parse(serialize(ast1))).toEqual(ast1)
+  })
+
+  it('keeps a comment after the last member of a data block', () => {
+    const src = 'chart bar {\n  data {\n    "A" = 1\n    // more to come\n  }\n}'
+    const ast1 = parse(src)
+    expect(ast1.data!.trailingComments).toEqual(['more to come'])
+    expect(serialize(ast1)).toContain('// more to come')
+    expect(parse(serialize(ast1))).toEqual(ast1)
+  })
+
+  it('keeps a comment after the last member of the chart block', () => {
+    const src = 'chart bar {\n  data {\n    "A" = 1\n  }\n  // end of chart\n}'
+    const ast1 = parse(src)
+    expect(ast1.trailingComments).toEqual(['end of chart'])
+    expect(serialize(ast1)).toContain('// end of chart')
+    expect(parse(serialize(ast1))).toEqual(ast1)
+  })
+
+  it('keeps a comment trailing a block property', () => {
+    const src = 'chart bar {\n  data {\n    "A" = 1\n  }\n  colorize "A" {\n    color = "#111111" // brand red\n  }\n}'
+    const ast1 = parse(src)
+    expect(ast1.colorizes[0].properties[0].trailingComment).toBe('brand red')
+    expect(serialize(ast1)).toContain('// brand red')
+    expect(parse(serialize(ast1))).toEqual(ast1)
+  })
+
+  it('keeps every comment of a six-comment document', () => {
+    const src = `chart bar {
+  // leading on title
+  title = "Sales" // trailing on title
+  data {
+    // leading on row
+    "A" = 1 // trailing on row
+    // end of data block
+  }
+  // end of chart
+}`
+    const out = serialize(parse(src))
+    for (const text of [
+      'leading on title',
+      'trailing on title',
+      'leading on row',
+      'trailing on row',
+      'end of data block',
+      'end of chart',
+    ]) {
+      expect(out, text).toContain(`// ${text}`)
+    }
+  })
+})

@@ -12,6 +12,17 @@ function commentLines(comments: string[] | undefined, indent: string): string[] 
   )
 }
 
+function withTrailing(line: string, trailingComment: string | undefined): string {
+  return trailingComment == null ? line : `${line} // ${trailingComment}`
+}
+
+function closingBrace(
+  node: { trailingComment?: string, trailingComments?: string[] },
+  indent: string,
+): string[] {
+  return [...commentLines(node.trailingComments, `${indent}  `), withTrailing(`${indent}}`, node.trailingComment)]
+}
+
 function serializeValue(prop: PropertyNode): string {
   if (typeof prop.value === 'number') {
     return prop.isPercentage ? `${prop.value}%` : `${prop.value}`
@@ -31,7 +42,7 @@ function serializeKey(key: string): string {
 
 function serializeProperty(prop: PropertyNode, indent: string): string {
   const key = serializeKey(prop.key)
-  const line = `${indent}${key} = ${serializeValue(prop)}`
+  const line = withTrailing(`${indent}${key} = ${serializeValue(prop)}`, prop.trailingComment)
   return [...commentLines(prop.leadingComments, indent), line].join('\n')
 }
 
@@ -57,7 +68,7 @@ function serializeDataEntry(prop: PropertyNode, indent: string): string {
     // emit this entry's comment a second time).
     line = `${indent}${serializeKey(prop.key)} = ${serializeValue(prop)}`
   }
-  return [...commentLines(prop.leadingComments, indent), line].join('\n')
+  return [...commentLines(prop.leadingComments, indent), withTrailing(line, prop.trailingComment)].join('\n')
 }
 
 function serializeData(data: DataNode, indent: string): string {
@@ -65,7 +76,7 @@ function serializeData(data: DataNode, indent: string): string {
   for (const entry of data.entries) {
     lines.push(serializeDataEntry(entry, `${indent}  `))
   }
-  lines.push(`${indent}}`)
+  lines.push(...closingBrace(data, indent))
   return lines.join('\n')
 }
 
@@ -75,12 +86,12 @@ function serializeColorize(colorize: ColorizeNode, indent: string): string {
   for (const prop of colorize.properties) {
     lines.push(serializeProperty(prop, `${indent}  `))
   }
-  lines.push(`${indent}}`)
+  lines.push(...closingBrace(colorize, indent))
   return lines.join('\n')
 }
 
 function serializeHighlight(highlight: HighlightNode, indent: string): string {
-  return [...commentLines(highlight.leadingComments, indent), `${indent}highlight ${quoteDslString(highlight.target)}`].join('\n')
+  return [...commentLines(highlight.leadingComments, indent), withTrailing(`${indent}highlight ${quoteDslString(highlight.target)}`, highlight.trailingComment)].join('\n')
 }
 
 function serializeAreaFill(areaFill: AreaFillNode, indent: string): string {
@@ -88,7 +99,7 @@ function serializeAreaFill(areaFill: AreaFillNode, indent: string): string {
   for (const prop of areaFill.properties) {
     lines.push(serializeProperty(prop, `${indent}  `))
   }
-  lines.push(`${indent}}`)
+  lines.push(...closingBrace(areaFill, indent))
   return lines.join('\n')
 }
 
@@ -99,7 +110,7 @@ function serializeAnnotation(annotation: AnnotationNode, indent: string): string
     for (const prop of annotation.properties) {
       lines.push(serializeProperty(prop, `${indent}  `))
     }
-    lines.push(`${indent}}`)
+    lines.push(...closingBrace(annotation, indent))
     return lines.join('\n')
   }
   if (kind === AnnotationKind.Free) {
@@ -107,7 +118,7 @@ function serializeAnnotation(annotation: AnnotationNode, indent: string): string
     for (const prop of annotation.properties) {
       lines.push(serializeProperty(prop, `${indent}  `))
     }
-    lines.push(`${indent}}`)
+    lines.push(...closingBrace(annotation, indent))
     return lines.join('\n')
   }
   // point (default)
@@ -116,7 +127,7 @@ function serializeAnnotation(annotation: AnnotationNode, indent: string): string
   for (const prop of annotation.properties) {
     lines.push(serializeProperty(prop, `${indent}  `))
   }
-  lines.push(`${indent}}`)
+  lines.push(...closingBrace(annotation, indent))
   return lines.join('\n')
 }
 
@@ -125,7 +136,7 @@ function serializeSeries(series: SeriesNode, indent: string): string {
   for (const prop of series.properties) {
     lines.push(serializeProperty(prop, `${indent}  `))
   }
-  lines.push(`${indent}}`)
+  lines.push(...closingBrace(series, indent))
   return lines.join('\n')
 }
 
@@ -156,7 +167,7 @@ function serializeScene(scene: SceneNode, indent: string): string {
   for (const transform of scene.transforms) {
     lines.push(serializeTransform(transform, `${indent}  `))
   }
-  lines.push(`${indent}}`)
+  lines.push(...closingBrace(scene, indent))
   return lines.join('\n')
 }
 
@@ -165,7 +176,7 @@ function serializeTransform(transform: TransformNode, indent: string): string {
   for (const prop of transform.properties) {
     lines.push(serializeProperty(prop, `${indent}  `))
   }
-  lines.push(`${indent}}`)
+  lines.push(...closingBrace(transform, indent))
   return lines.join('\n')
 }
 
@@ -207,7 +218,7 @@ export function serialize(ast: ChartNode): string {
   for (const transform of ast.transforms) {
     lines.push(serializeTransform(transform, '  '))
   }
-  lines.push('}')
+  lines.push(...commentLines(ast.trailingComments, '  '), '}')
   return lines.join('\n')
 }
 
@@ -253,7 +264,7 @@ function compactSerializeSeries(
       lines.push(serializeProperty(prop, `${indent}  `))
     }
   }
-  lines.push(`${indent}}`)
+  lines.push(...closingBrace(series, indent))
   return lines.join('\n')
 }
 
@@ -302,7 +313,7 @@ function compactSerializeScene(
   for (const transform of scene.transforms) {
     lines.push(serializeTransform(transform, `${indent}  `))
   }
-  lines.push(`${indent}}`)
+  lines.push(...closingBrace(scene, indent))
   return lines.join('\n')
 }
 
@@ -339,7 +350,7 @@ export function compactSerializeDeep(ast: ChartNode): string {
   for (const transform of ast.transforms) {
     lines.push(serializeTransform(transform, '  '))
   }
-  lines.push('}')
+  lines.push(...commentLines(ast.trailingComments, '  '), '}')
   return lines.join('\n')
 }
 
@@ -374,6 +385,6 @@ export function compactSerialize(ast: ChartNode): string {
   for (const transform of ast.transforms) {
     lines.push(serializeTransform(transform, '  '))
   }
-  lines.push('}')
+  lines.push(...commentLines(ast.trailingComments, '  '), '}')
   return lines.join('\n')
 }

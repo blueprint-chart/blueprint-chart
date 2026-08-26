@@ -63,7 +63,7 @@ function collectSceneBody(members) {
 }}
 
 Chart
-  = _ "chart" __ chartType:Identifier _ "{" members:ChartMember* _ "}" _
+  = _ "chart" __ chartType:Identifier _ "{" members:ChartMember* trailing:LeadingComments "}" _
   {
     if (countDataBlocks(members) > 1) {
       error('duplicate data block — a chart or scene may define at most one data { } block');
@@ -72,6 +72,7 @@ Chart
     return {
       type: 'chart',
       chartType,
+      ...(trailing.length ? { trailingComments: trailing } : {}),
       properties: body.properties,
       data: body.data,
       colorizes: body.colorizes,
@@ -85,16 +86,16 @@ Chart
   }
 
 ChartMember
-  = comments:LeadingComments m:(DataBlock / Colorize / Highlight / AreaFill / RangeAnnotation / NoteAnnotation / Annotation / Series / Scene / Transform / Property) [ \t]* LineComment? S
-  { if (comments.length) m.leadingComments = comments; return m; }
+  = comments:LeadingComments m:(DataBlock / Colorize / Highlight / AreaFill / RangeAnnotation / NoteAnnotation / Annotation / Series / Scene / Transform / Property) [ \t]* trailing:CommentText? S
+  { if (comments.length) m.leadingComments = comments; if (trailing != null) m.trailingComment = trailing; return m; }
 
 DataBlock
-  = "data" _ "{" entries:DataMember* _ "}"
-  { return { type: 'data', entries }; }
+  = "data" _ "{" entries:DataMember* trailing:LeadingComments "}"
+  { return { type: 'data', entries, ...(trailing.length ? { trailingComments: trailing } : {}) }; }
 
 DataMember
-  = comments:LeadingComments e:(TabularDataEntry / DataEntry) [ \t]* LineComment? S
-  { if (comments.length) e.leadingComments = comments; return e; }
+  = comments:LeadingComments e:(TabularDataEntry / DataEntry) [ \t]* trailing:CommentText? S
+  { if (comments.length) e.leadingComments = comments; if (trailing != null) e.trailingComment = trailing; return e; }
 
 DataEntry
   = key:DataKey _ "=" _ first:PropertyValue rest:("," _ v:PropertyValue { return v; })+
@@ -119,49 +120,49 @@ TabularLabel
   = chars:$([^\t\n\r{}=]+) { return chars.trim(); }
 
 Colorize
-  = "colorize" __ target:String _ "{" _ props:BlockProperty* _ "}"
-  { return { type: 'colorize', target, properties: props }; }
+  = "colorize" __ target:String _ "{" props:BlockProperty* trailing:LeadingComments "}"
+  { return { type: 'colorize', target, properties: props, ...(trailing.length ? { trailingComments: trailing } : {}) }; }
   / "colorize" _ "{"
   { error('colorize needs a quoted target, e.g. colorize "2021" { ... }'); }
 
 Highlight
-  = "highlight" __ target:String _ "{" _ props:BlockProperty* _ "}"
-  { return { type: 'colorize', target, properties: props, fromHighlight: true }; }
+  = "highlight" __ target:String _ "{" props:BlockProperty* trailing:LeadingComments "}"
+  { return { type: 'colorize', target, properties: props, fromHighlight: true, ...(trailing.length ? { trailingComments: trailing } : {}) }; }
   / "highlight" __ target:String !(_ "{")
   { return { type: 'highlight', target, properties: [] }; }
   / "highlight" _ "{"
   { error('highlight needs a quoted target, e.g. highlight "2021" { ... } or highlight "2021"'); }
 
 AreaFill
-  = "area-fill" __ from:String __ to:String _ "{" _ props:BlockProperty* _ "}"
-  { return { type: 'area-fill', from, to, properties: props }; }
+  = "area-fill" __ from:String __ to:String _ "{" props:BlockProperty* trailing:LeadingComments "}"
+  { return { type: 'area-fill', from, to, properties: props, ...(trailing.length ? { trailingComments: trailing } : {}) }; }
   / "area-fill" __ String _ "{"
   { error('area-fill needs two quoted targets, e.g. area-fill "Revenue" "Cost" { ... }'); }
   / "area-fill" _ "{"
   { error('area-fill needs two quoted targets, e.g. area-fill "Revenue" "Cost" { ... }'); }
 
 Annotation
-  = "annotation" __ target:String _ "{" _ props:BlockProperty* _ "}"
-  { return { type: 'annotation', kind: 'point', target, properties: props }; }
+  = "annotation" __ target:String _ "{" props:BlockProperty* trailing:LeadingComments "}"
+  { return { type: 'annotation', kind: 'point', target, properties: props, ...(trailing.length ? { trailingComments: trailing } : {}) }; }
   / "annotation" _ "{"
   { error('annotation needs a quoted target, e.g. annotation "2021" { ... }'); }
 
 RangeAnnotation
-  = "range" _ "{" _ props:BlockProperty* _ "}"
-  { return { type: 'annotation', kind: 'range', properties: props }; }
+  = "range" _ "{" props:BlockProperty* trailing:LeadingComments "}"
+  { return { type: 'annotation', kind: 'range', properties: props, ...(trailing.length ? { trailingComments: trailing } : {}) }; }
 
 NoteAnnotation
-  = "note" _ "{" _ props:BlockProperty* _ "}"
-  { return { type: 'annotation', kind: 'free', properties: props }; }
+  = "note" _ "{" props:BlockProperty* trailing:LeadingComments "}"
+  { return { type: 'annotation', kind: 'free', properties: props, ...(trailing.length ? { trailingComments: trailing } : {}) }; }
 
 Series
-  = "series" __ name:String _ "{" _ props:BlockProperty* _ "}"
-  { return { type: 'series', name, properties: props }; }
+  = "series" __ name:String _ "{" props:BlockProperty* trailing:LeadingComments "}"
+  { return { type: 'series', name, properties: props, ...(trailing.length ? { trailingComments: trailing } : {}) }; }
   / "series" _ "{"
   { error('series needs a quoted name, e.g. series "Revenue" { ... }'); }
 
 Scene
-  = "scene" __ name:String? _ "{" members:SceneMember* _ "}"
+  = "scene" __ name:String? _ "{" members:SceneMember* trailing:LeadingComments "}"
   {
     if (countDataBlocks(members) > 1) {
       error('duplicate data block — a chart or scene may define at most one data { } block');
@@ -170,6 +171,7 @@ Scene
     return {
       type: 'scene',
       name: name ?? null,
+      ...(trailing.length ? { trailingComments: trailing } : {}),
       properties: body.properties,
       data: body.data,
       colorizes: body.colorizes,
@@ -182,15 +184,16 @@ Scene
   }
 
 Transform
-  = "transform" __ transformType:Identifier _ "{" _ props:BlockProperty* _ "}"
-  { return { type: 'transform', transformType, properties: props }; }
+  = "transform" __ transformType:Identifier _ "{" props:BlockProperty* trailing:LeadingComments "}"
+  { return { type: 'transform', transformType, properties: props, ...(trailing.length ? { trailingComments: trailing } : {}) }; }
 
 SceneMember
-  = comments:LeadingComments m:(DataBlock / Colorize / Highlight / AreaFill / RangeAnnotation / NoteAnnotation / Annotation / Series / Transform / Property) [ \t]* LineComment? S
-  { if (comments.length) m.leadingComments = comments; return m; }
+  = comments:LeadingComments m:(DataBlock / Colorize / Highlight / AreaFill / RangeAnnotation / NoteAnnotation / Annotation / Series / Transform / Property) [ \t]* trailing:CommentText? S
+  { if (comments.length) m.leadingComments = comments; if (trailing != null) m.trailingComment = trailing; return m; }
 
 BlockProperty
-  = _ p:Property _ { return p; }
+  = _ p:Property [ \t]* trailing:CommentText? _
+  { if (trailing != null) p.trailingComment = trailing; return p; }
 
 Property
   = key:PropertyKey _ "=" _ value:PropertyValue
