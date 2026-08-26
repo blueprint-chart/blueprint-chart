@@ -1151,6 +1151,22 @@ describe('trailingComments serialization', () => {
     expect(serialize(parse(out1))).toBe(out1)
   })
 
+  it('keeps a comment after the last property of a colorize block', () => {
+    const src = 'chart bar {\n  colorize "A" {\n    color = red\n    // note\n  }\n  data {\n    "A" = 1\n  }\n}'
+    const ast1 = parse(src)
+    expect(ast1.colorizes[0].trailingComments).toEqual(['note'])
+    expect(serialize(ast1)).toContain('// note')
+    expect(parse(serialize(ast1))).toEqual(ast1)
+  })
+
+  it('keeps a comment after the last property of a series block', () => {
+    const src = 'chart line-multi {\n  data {\n    "A" = 1\n  }\n  series "S" {\n    color = red\n    // note\n  }\n}'
+    const ast1 = parse(src)
+    expect(ast1.series[0].trailingComments).toEqual(['note'])
+    expect(serialize(ast1)).toContain('// note')
+    expect(parse(serialize(ast1))).toEqual(ast1)
+  })
+
   it('keeps every comment of a six-comment document', () => {
     const src = `chart bar {
   // leading on title

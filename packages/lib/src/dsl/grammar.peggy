@@ -192,7 +192,7 @@ SceneMember
   { if (comments.length) m.leadingComments = comments; if (trailing != null) m.trailingComment = trailing; return m; }
 
 BlockProperty
-  = _ p:Property [ \t]* trailing:CommentText? _
+  = _ p:Property [ \t]* trailing:CommentText? S
   { if (trailing != null) p.trailingComment = trailing; return p; }
 
 Property
