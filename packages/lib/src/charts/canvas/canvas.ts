@@ -218,14 +218,25 @@ export function labelPositionMargins(
 }
 
 /**
+ * Size a render backend declared on the element itself. A headless container
+ * has no layout engine, so getBoundingClientRect() reads zero there and the
+ * requested width/height would never reach the layout.
+ */
+function declaredSize(el: HTMLElement, key: 'bcContentWidth' | 'bcContentHeight'): number {
+  return parseFloat(el.dataset[key] ?? '') || 0
+}
+
+/**
  * Return the inner content dimensions of an element (excluding CSS padding).
  */
 export function contentSize(el: HTMLElement): { width: number, height: number } {
   const rect = el.getBoundingClientRect()
   const cs = getComputedStyle(el)
+  const width = rect.width - (parseFloat(cs.paddingLeft) || 0) - (parseFloat(cs.paddingRight) || 0)
+  const height = rect.height - (parseFloat(cs.paddingTop) || 0) - (parseFloat(cs.paddingBottom) || 0)
   return {
-    width: rect.width - (parseFloat(cs.paddingLeft) || 0) - (parseFloat(cs.paddingRight) || 0),
-    height: rect.height - (parseFloat(cs.paddingTop) || 0) - (parseFloat(cs.paddingBottom) || 0),
+    width: width > 0 ? width : declaredSize(el, 'bcContentWidth'),
+    height: height > 0 ? height : declaredSize(el, 'bcContentHeight'),
   }
 }
 

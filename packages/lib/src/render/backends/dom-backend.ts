@@ -9,6 +9,8 @@ export function createDomBackend(): RenderBackend {
     createContainer(width: number, height: number) {
       const container = document.createElement('div')
       container.style.cssText = `position:absolute;left:-99999px;top:0;width:${width}px;height:${height}px`
+      container.dataset.bcContentWidth = String(width)
+      container.dataset.bcContentHeight = String(height)
       document.body.appendChild(container)
       return { container, cleanup: () => container.remove() }
     },

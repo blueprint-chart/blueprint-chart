@@ -57,3 +57,20 @@ describe('render() front door (DOM env)', () => {
     expect(html).toContain('bc-frame')
   })
 })
+
+describe('requested output size (#7)', () => {
+  it('sizes a frameless toSvg() to the requested width and height', async () => {
+    const chart = await render(BPC, { frame: false })
+    const svg = await chart.toSvg({ width: 1200, height: 300 })
+    expect(svg).toMatch(/<svg[^>]*width="1200"/)
+    expect(svg).toMatch(/<svg[^>]*height="300"/)
+  })
+
+  it('lays the plot out at the requested size rather than scaling 600x400 up', async () => {
+    const wide = await (await render(BPC, { frame: false })).toSvg({ width: 1200, height: 300 })
+    const tall = await (await render(BPC, { frame: false })).toSvg({ width: 400, height: 800 })
+    expect(wide).toMatch(/<svg[^>]*width="1200"/)
+    expect(tall).toMatch(/<svg[^>]*width="400"/)
+    expect(tall).toMatch(/<svg[^>]*height="800"/)
+  })
+})

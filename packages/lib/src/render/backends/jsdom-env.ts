@@ -34,6 +34,8 @@ export function createJsdomEnv(opts: JsdomEnvOptions): JsdomEnv {
     { pretendToBeVisual: true, virtualConsole: createQuietVirtualConsole() },
   )
   const container = dom.window.document.getElementById('root') as HTMLElement
+  container.dataset.bcContentWidth = String(opts.width)
+  container.dataset.bcContentHeight = String(opts.height)
   return {
     window: dom.window,
     container,
