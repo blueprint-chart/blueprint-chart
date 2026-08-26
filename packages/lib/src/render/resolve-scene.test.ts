@@ -303,6 +303,19 @@ describe('resolveScene', () => {
     expect(resolveScene(def, undefined).annotations[0].key).toBe('base:0:point')
   })
 
+  it('reads a scene-level sortMode override into the resolved state', () => {
+    const def = baseDef({
+      chartType: ChartType.BarGrouped,
+      scenes: [{
+        type: DslNodeType.Scene, name: null, data: null,
+        properties: [{ type: DslNodeType.Property, key: 'sortMode', value: SortMode.Total }],
+        colorizes: [], highlights: [], areaFills: [], annotations: [],
+        series: [], transforms: [],
+      }],
+    })
+    expect(resolveScene(def, 0).sortMode).toBe(SortMode.Total)
+  })
+
   it('warns once per unknown transform type', () => {
     __resetTransformWarnings()
     const spy = vi.spyOn(console, 'warn').mockImplementation(() => undefined)

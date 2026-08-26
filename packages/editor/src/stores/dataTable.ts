@@ -114,7 +114,7 @@ export const useDataTableStore = defineStore('dataTable', () => {
     return serializeTableData(state.columns, state.rows)
   }
 
-  /** The source table with the base pipeline applied — what the chart renders.
+  /** The source table with the base pipeline applied: what the chart renders.
    *  `null` when there is nothing to apply, so callers keep their own source
    *  string (which preserves percentage cells the table round trip drops). */
   function serializeTransformed(): string | null {

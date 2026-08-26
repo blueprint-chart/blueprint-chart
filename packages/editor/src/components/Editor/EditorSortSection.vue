@@ -1,10 +1,11 @@
 <template>
   <FormControlButtonGroup
-    v-if="isMultiChart"
-    v-model="sortMode"
+    v-if="hasSortMode"
+    :model-value="sortMode"
     label="Sort mode"
     :options="sortModeOptions"
     block
+    @update:model-value="value => setOption('sortMode', value as SortMode)"
   />
   <FormControlButtonGroup
     v-else
@@ -17,17 +18,18 @@
 
 <script setup lang="ts">
 import { FormControlButtonGroup } from '@blueprint-chart/ui'
-import { ChartType, SortDirection } from '@blueprint-chart/lib'
+import { SortDirection, SortMode } from '@blueprint-chart/lib'
 import { useChartConfig } from '@/stores/chartConfig'
+import { useChartTypeOptions } from '@/stores/chartTypeOptions'
 import IPhEquals from '~icons/ph/equals'
 import IPhSortAscending from '~icons/ph/sort-ascending'
 import IPhSortDescending from '~icons/ph/sort-descending'
 
-const { sort, sortMode, chartType } = useChartConfig()
+const { sort } = useChartConfig()
+const { currentOptions, availableOptionKeys, setOption } = useChartTypeOptions()
 
-const isMultiChart = computed(() => {
-  return chartType.value === ChartType.BarMulti || chartType.value === ChartType.LineMulti
-})
+const hasSortMode = computed(() => availableOptionKeys.value.includes('sortMode'))
+const sortMode = computed(() => currentOptions.value.sortMode ?? SortMode.None)
 
 const sortOptions = [
   { value: SortDirection.None, text: 'None', icon: IPhEquals },
@@ -36,8 +38,8 @@ const sortOptions = [
 ]
 
 const sortModeOptions = [
-  { value: 'none', text: 'None', icon: IPhEquals },
-  { value: 'total', text: 'By total', icon: IPhSortAscending },
-  { value: 'within-groups', text: 'Within groups', icon: IPhSortAscending },
+  { value: SortMode.None, text: 'None', icon: IPhEquals },
+  { value: SortMode.Total, text: 'By total', icon: IPhSortAscending },
+  { value: SortMode.WithinGroups, text: 'Within groups', icon: IPhSortAscending },
 ]
 </script>

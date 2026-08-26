@@ -41,3 +41,19 @@ test.describe('transform sort reaches every chart type', () => {
     await expect.poll(() => categoryLabels(page, 'horizontal')).toEqual(['Beta', 'Gamma', 'Alpha'])
   })
 })
+
+test.describe('sortMode reaches the renderer', () => {
+  test('bar-grouped sorts categories by total', async ({ page }) => {
+    await gotoRender(page, `chart bar-grouped {
+  sortMode = total
+  data {
+    series = "A","B"
+    "Alpha" = 3,4
+    "Beta" = 20,30
+    "Gamma" = 10,11
+    "Delta" = 11,12
+  }
+}`)
+    await expect.poll(() => categoryLabels(page, 'vertical')).toEqual(['Beta', 'Delta', 'Gamma', 'Alpha'])
+  })
+})

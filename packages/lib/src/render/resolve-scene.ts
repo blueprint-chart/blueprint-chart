@@ -234,8 +234,13 @@ export function resolveScene(
     ? convertSeriesOverrides(fold.seriesOverrides)
     : base.seriesOverrides
 
-  // S2/S9: apply any sort transforms accumulated from scenes onto sortMode.
-  const sortMode = applyTransformsToSortMode(fold.transforms, base.sortMode, `scene ${sceneIndex}`)
+  // S2/S9: a scene's own `sortMode` overrides the base one, then any sort
+  // transforms accumulated from scenes override both.
+  const foldedSortMode = fold.properties.get('sortMode')
+  const sceneSortMode = (Object.values(SortMode) as unknown[]).includes(foldedSortMode)
+    ? foldedSortMode as SortMode
+    : undefined
+  const sortMode = applyTransformsToSortMode(fold.transforms, sceneSortMode ?? base.sortMode, `scene ${sceneIndex}`)
 
   // Apply frame-relevant scene-property overrides to the base frame. The
   // whitelist matches the editor's `useChartPreview.ts` contract: only string

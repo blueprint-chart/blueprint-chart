@@ -146,7 +146,7 @@ export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
       annotations,
       seriesOverrides,
       sort: resolveSortFromTransforms(scene) ?? config.sort.value,
-      sortMode: config.sortMode.value !== 'none' ? config.sortMode.value : undefined,
+      sortMode: mergedOpts.sortMode,
       theme: chartTheme.value,
     }, {
       transition: isSceneTransition,
@@ -168,7 +168,7 @@ export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
   const optionsTrigger = computed(() => JSON.stringify(currentOptions.value))
 
   watch(
-    [containerRef, config.chartType, config.title, config.data, config.sort, config.sortMode, config.description, config.byline, config.note, config.source, config.sourceUrl, config.selectedColumn, config.colorizes, config.highlights, config.areaFills, config.annotations, config.seriesOverrides, steps, layoutTrigger, optionsTrigger, scenes, activeScene, theme, chartTheme],
+    [containerRef, config.chartType, config.title, config.data, config.sort, config.description, config.byline, config.note, config.source, config.sourceUrl, config.selectedColumn, config.colorizes, config.highlights, config.areaFills, config.annotations, config.seriesOverrides, steps, layoutTrigger, optionsTrigger, scenes, activeScene, theme, chartTheme],
     render,
     // flush: 'post' ensures Vue has applied the container's style/class bindings
     // (aspect-ratio, flex-direction) before we read them via getComputedStyle.

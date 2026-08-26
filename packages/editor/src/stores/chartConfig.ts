@@ -111,7 +111,6 @@ export interface ChartConfig {
   sourceUrl: string
   note: string
   sort: SortDirection
-  sortMode: 'total' | 'within-groups' | 'none'
   data: string
   selectedColumn: string
   colorizes: ChartColorize[]
@@ -131,7 +130,6 @@ const defaults: ChartConfig = {
   sourceUrl: '',
   note: '',
   sort: SortDirection.None,
-  sortMode: 'none',
   data: '',
   selectedColumn: '',
   colorizes: [],
@@ -234,7 +232,6 @@ export const useChartConfigStore = defineStore('chartConfig', () => {
   const sourceUrl = scenePropRef(refs.sourceUrl, 'sourceUrl')
   const note = scenePropRef(refs.note, 'note')
   const sort = scenePropRef(refs.sort, 'sort')
-  const sortMode = scenePropRef(refs.sortMode, 'sortMode')
 
   function reset() {
     Object.assign(state, { ...defaults, colorizes: [], highlights: [], areaFills: [], annotations: [], seriesOverrides: [], layout: { ...layoutDefaults } })
@@ -260,7 +257,6 @@ export const useChartConfigStore = defineStore('chartConfig', () => {
     sourceUrl,
     note,
     sort,
-    sortMode,
     // Non-scene-aware refs (layout, selectedColumn)
     layout: refs.layout,
     selectedColumn: refs.selectedColumn,
@@ -290,7 +286,6 @@ export function useChartConfig() {
     sourceUrl: refs.sourceUrl as WritableComputedRef<string>,
     note: refs.note as WritableComputedRef<string>,
     sort: refs.sort as WritableComputedRef<SortDirection>,
-    sortMode: refs.sortMode as WritableComputedRef<'total' | 'within-groups' | 'none'>,
     layout: refs.layout,
     selectedColumn: refs.selectedColumn,
     _base: store._base,
