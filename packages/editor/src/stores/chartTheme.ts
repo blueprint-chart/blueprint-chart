@@ -1,14 +1,14 @@
+import { listThemes } from '@blueprint-chart/lib'
+
 export interface ChartThemeOption {
   value: string
   label: string
   description?: string
 }
 
-export const chartThemeOptions: ChartThemeOption[] = [
-  { value: 'blueprint', label: 'Blueprint', description: 'The default Blueprint Chart theme' },
-  { value: 'blueprint-framed', label: 'Blueprint Framed', description: 'Adds borders and a tinted footer' },
-  { value: 'blueprint-bold', label: 'Blueprint Bold', description: 'Charts on the blueprint canvas with the full brand palette' },
-]
+export const chartThemeOptions: ChartThemeOption[] = listThemes().map(
+  ({ name, label, description }) => ({ value: name, label, description }),
+)
 
 export const useChartThemeStore = defineStore('chartTheme', () => {
   const chartTheme = shallowRef<string>('blueprint')

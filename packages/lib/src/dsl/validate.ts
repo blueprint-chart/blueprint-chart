@@ -1,6 +1,7 @@
 import type { ChartNode, SceneNode, PropertyNode, AnnotationNode, TransformNode } from './types'
 import type { ChartOptionDef } from '../charts/types'
 import { getChartOptions, listCharts } from '../charts/registry'
+import { listThemes } from '../charts/themes'
 import { ChartOptionType, AnnotationKind, ANNOTATION_KIND_KEYWORD } from '../enums'
 import { propertyMap } from './converter'
 
@@ -48,6 +49,14 @@ const FRAME_KEYS = new Set<string>([
   'heightMode',
   'aspectRatio',
   'fixedHeight',
+])
+
+/**
+ * Frame keys that only accept a fixed set of values. Theme names come from the
+ * theme registry: a name with no stylesheet renders unstyled instead of failing.
+ */
+const FRAME_CHOICES = new Map<string, string[]>([
+  ['theme', listThemes().map(t => t.name)],
 ])
 
 /**
@@ -154,6 +163,21 @@ function findDef(defs: ChartOptionDef[], key: string): ChartOptionDef | undefine
   return defs.find(d => d.key === key)
 }
 
+function pushInvalidChoice(
+  key: string,
+  raw: unknown,
+  allowed: string[],
+  path: string,
+  errors: ValidationIssue[],
+): void {
+  errors.push({
+    code: 'invalid-choice',
+    path,
+    message: `${key} must be one of: ${allowed.map(v => `"${v}"`).join(', ')}; got "${raw}".`,
+    suggestion: nearest(String(raw), allowed.filter(v => v !== '')),
+  })
+}
+
 /**
  * Validate a single property against a chart-type option def: boolean values
  * and choice membership. Pushes onto `errors`.
@@ -195,13 +219,7 @@ function validateOptionValue(
     if (String(raw) === '' && allowed.includes('')) {
       return
     }
-    const suggestion = nearest(String(raw), allowed.filter(v => v !== ''))
-    errors.push({
-      code: 'invalid-choice',
-      path,
-      message: `${def.key} must be one of: ${allowed.map(v => `"${v}"`).join(', ')}; got "${raw}".`,
-      suggestion,
-    })
+    pushInvalidChoice(def.key, raw, allowed, path, errors)
   }
 }
 
@@ -220,6 +238,10 @@ function validateProperties(
 
   for (const prop of properties) {
     const path = `${basePath}.${prop.key}`
+    const frameChoices = FRAME_CHOICES.get(prop.key)
+    if (frameChoices && !frameChoices.includes(String(prop.value))) {
+      pushInvalidChoice(prop.key, prop.value, frameChoices, path, errors)
+    }
     if (FRAME_KEYS.has(prop.key)) {
       continue
     }

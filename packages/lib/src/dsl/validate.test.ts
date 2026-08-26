@@ -7,6 +7,7 @@ import {
   FREE_ANNOTATION_KEYS,
 } from './validate'
 import { convertAnnotations } from './converter'
+import { listThemes } from '../charts/themes'
 import { parse } from './parser'
 import type { ChartNode, SceneNode, PropertyNode, DataNode, AnnotationNode, TransformNode } from './types'
 
@@ -125,7 +126,7 @@ describe('validateChart', () => {
           prop('source', 'Src'),
           prop('sourceUrl', 'https://x'),
           prop('note', 'n'),
-          prop('theme', 'dark'),
+          prop('theme', 'blueprint-bold'),
           prop('heightMode', 'aspect-ratio'),
           prop('aspectRatio', '16:9'),
           prop('fixedHeight', 400),
@@ -481,5 +482,26 @@ describe('annotation id removal and repeat validation', () => {
       const { errors } = validateChart(ast)
       expect(errors.some(e => e.code === 'invalid-annotation-repeat')).toBe(true)
     }
+  })
+})
+
+describe('theme names', () => {
+  it('accepts every registered theme', () => {
+    for (const theme of listThemes()) {
+      const result = validateChart(chart({ properties: [prop('theme', theme.name)] }))
+      expect(result.errors, `theme "${theme.name}"`).toEqual([])
+    }
+  })
+
+  it('rejects a theme with no stylesheet', () => {
+    const result = validateChart(chart({ properties: [prop('theme', 'dark')] }))
+    const issue = result.errors.find(e => e.code === 'invalid-choice')
+    expect(issue).toBeDefined()
+    expect(issue?.path).toBe('chart.theme')
+  })
+
+  it('suggests the nearest theme on a casing typo', () => {
+    const result = validateChart(chart({ properties: [prop('theme', 'blueprint-Bold')] }))
+    expect(result.errors.find(e => e.code === 'invalid-choice')?.suggestion).toBe('blueprint-bold')
   })
 })
