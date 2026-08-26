@@ -1,7 +1,7 @@
 import { describe, it, expect, afterEach } from 'vitest'
 import { JSDOM } from 'jsdom'
 import { installTextShim } from '../render/backends/text-shim'
-import { measureTextWidth, measureMaxTextWidth } from './text-measure'
+import { measureTextWidth, measureMaxTextWidth, truncateToWidth } from './text-measure'
 
 describe('measureTextWidth', () => {
   it('scales with the font size', () => {
@@ -31,6 +31,23 @@ describe('measureMaxTextWidth', () => {
   it('returns the widest label, not the last', () => {
     const labels = ['a very long label indeed', 'x']
     expect(measureMaxTextWidth(labels, 12)).toBe(measureTextWidth(labels[0], 12))
+  })
+})
+
+describe('truncateToWidth', () => {
+  it('leaves text that already fits alone', () => {
+    expect(truncateToWidth('short', 1000, 12)).toBe('short')
+  })
+
+  it('cuts to an ellipsis that fits the budget', () => {
+    const budget = 60
+    const truncated = truncateToWidth('a very long label indeed', budget, 12)
+    expect(truncated.endsWith('…')).toBe(true)
+    expect(measureTextWidth(truncated, 12)).toBeLessThanOrEqual(budget)
+  })
+
+  it('keeps at least one character', () => {
+    expect(truncateToWidth('abcdef', 0, 12)).toBe('a…')
   })
 })
 

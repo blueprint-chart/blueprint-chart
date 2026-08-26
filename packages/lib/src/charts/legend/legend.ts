@@ -2,6 +2,7 @@ import * as d3 from 'd3'
 import 'd3-transition'
 import { D3Blueprint } from 'd3-blueprint'
 import { getTransitionDuration } from '../motion'
+import { fitLegendItem, legendColumnWidth } from './legend-size'
 
 const DEFAULT_COLORS = [
   '#4e79a7', '#f28e2b', '#e15759', '#76b7b2',
@@ -40,8 +41,8 @@ class LegendChart extends D3Blueprint<string[]> {
       sel.each(function (this: SVGGElement, d: string, i: number) {
         const item = d3.select(this)
         const suffix = suffixes[i]
-        const fullLen = suffix ? d.length + 1 + suffix.length : d.length
-        const itemWidth = 16 + fullLen * 7 + 12
+        const fitted = fitLegendItem(d, suffix, layout === 'horizontal' ? maxWidth : 0)
+        const itemWidth = fitted.width
 
         if (layout === 'horizontal' && maxWidth > 0 && xOffset > 0 && xOffset + itemWidth > maxWidth) {
           xOffset = 0
@@ -73,11 +74,11 @@ class LegendChart extends D3Blueprint<string[]> {
         textEl.selectAll('tspan').remove()
         if (suffix) {
           textEl.text(null)
-          textEl.append('tspan').attr('font-weight', 'bold').text(d)
-          textEl.append('tspan').text(` ${suffix}`)
+          textEl.append('tspan').attr('font-weight', 'bold').text(fitted.label)
+          textEl.append('tspan').text(fitted.suffix)
         }
         else {
-          textEl.text(d)
+          textEl.text(fitted.label)
         }
         if (layout === 'vertical') {
           yOffset += 20
@@ -194,12 +195,8 @@ export function renderLegend(
   if (legendEl) {
     let legendWidth: number
     let legendHeight: number
-    const fullLens = labels.map((l, i) => {
-      const s = valueSuffixes[i]
-      return s ? l.length + 1 + s.length : l.length
-    })
     if (layout === 'horizontal') {
-      const itemWidths = fullLens.map(len => 16 + len * 7 + 12)
+      const itemWidths = labels.map((l, i) => fitLegendItem(l, valueSuffixes[i], chartWidth).width)
       // Account for wrapping
       let rows = 1
       let rowWidth = 0
@@ -219,8 +216,7 @@ export function renderLegend(
       legendHeight = rows * 20
     }
     else {
-      const maxLen = Math.max(...fullLens)
-      legendWidth = maxLen * 7 + 16 + 8
+      legendWidth = legendColumnWidth(labels.map((l, i) => valueSuffixes[i] ? `${l} ${valueSuffixes[i]}` : l))
       legendHeight = labels.length * 20
     }
 

@@ -99,3 +99,20 @@ export function measureMaxTextWidth(texts: string[], fontSizePx: number): number
   }
   return max
 }
+
+/**
+ * Longest prefix of `text` that fits in `maxWidth`, with `suffix` appended when
+ * anything had to be dropped. Returns `text` unchanged when it already fits.
+ */
+export function truncateToWidth(text: string, maxWidth: number, fontSizePx: number, suffix = '…'): string {
+  if (measureTextWidth(text, fontSizePx) <= maxWidth) {
+    return text
+  }
+  const chars = [...text]
+  const suffixWidth = measureTextWidth(suffix, fontSizePx)
+  let kept = chars.length
+  while (kept > 1 && measureTextWidth(chars.slice(0, kept).join(''), fontSizePx) + suffixWidth > maxWidth) {
+    kept--
+  }
+  return chars.slice(0, kept).join('') + suffix
+}

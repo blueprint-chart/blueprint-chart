@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { renderLegend } from './legend'
+import { measureTextWidth } from '../text-measure'
 
 describe('renderLegend', () => {
   let chartArea: SVGGElement
@@ -37,8 +38,8 @@ describe('renderLegend', () => {
   })
 
   describe('frame alignment', () => {
-    // Legend item width formula: 16 (swatch+gap) + len*7 (text) + 12 (trailing gap)
-    // "A" → 16 + 7 + 12 = 35
+    // Legend item width: 16 (swatch+gap) + measured text + 12 (trailing gap)
+    // "A" → 16 + 6 + 12 = 34
 
     it('aligns horizontal legend start-anchor flush with frame left edge', () => {
       const g = renderLegend(
@@ -51,16 +52,16 @@ describe('renderLegend', () => {
       const g = renderLegend(
         chartArea, ['A'], undefined, -10, 'top', 'end', 400, 300, 0, [], { left: 50, right: 20 },
       )
-      // tx = chartWidth + right - legendWidth = 400 + 20 - 35 = 385
-      expect(g.getAttribute('transform')).toBe('translate(385,-10)')
+      // tx = chartWidth + right - legendWidth = 400 + 20 - 34 = 386
+      expect(g.getAttribute('transform')).toBe('translate(386,-10)')
     })
 
     it('centers horizontal legend middle-anchor within the extended frame', () => {
       const g = renderLegend(
         chartArea, ['A'], undefined, -10, 'top', 'middle', 400, 300, 0, [], { left: 50, right: 20 },
       )
-      // tx = -left + (chartWidth + left + right - legendWidth)/2 = -50 + (400 + 70 - 35)/2 = -50 + 217.5 = 167.5
-      expect(g.getAttribute('transform')).toBe('translate(167.5,-10)')
+      // tx = -left + (chartWidth + left + right - legendWidth)/2 = -50 + (400 + 70 - 34)/2 = -50 + 218 = 168
+      expect(g.getAttribute('transform')).toBe('translate(168,-10)')
     })
 
     it('falls back to chart alignment when no frameInset is provided', () => {
@@ -249,5 +250,47 @@ describe('setupLegendHighlight (via renderLegend)', () => {
     const items = chartArea.querySelectorAll('.bc-legend-item')
     const keys = Array.from(items).map(i => i.getAttribute('data-series'))
     expect(keys).toEqual(['Alpha', 'Beta'])
+  })
+})
+
+describe('legend item width is measured, not counted (#35)', () => {
+  let chartArea: SVGGElement
+
+  beforeEach(() => {
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+    chartArea = document.createElementNS('http://www.w3.org/2000/svg', 'g') as SVGGElement
+    svg.appendChild(chartArea)
+    document.body.appendChild(svg)
+  })
+
+  function itemXs(g: SVGGElement): number[] {
+    return [...g.querySelectorAll('.bc-legend-item')].map((el) => {
+      const match = /translate\(([-\d.]+),/.exec(el.getAttribute('transform') ?? '')
+      return match ? Number(match[1]) : 0
+    })
+  }
+
+  it('advances past a CJK label instead of painting the next swatch on top of it', () => {
+    const labels = ['日本語のラベル', 'Русский текст', '中文標籤']
+    const g = renderLegend(chartArea, labels, undefined, -10, 'top', 'start', 900)
+    const xs = itemXs(g)
+    expect(xs[1] - xs[0]).toBeGreaterThanOrEqual(16 + measureTextWidth(labels[0], 12))
+    expect(xs[2] - xs[1]).toBeGreaterThanOrEqual(16 + measureTextWidth(labels[1], 12))
+  })
+
+  it('truncates a label wider than the row with an ellipsis', () => {
+    const label = 'Federal Government and Local Government Agencies'
+    const g = renderLegend(chartArea, [label], undefined, -10, 'top', 'start', 310)
+    const text = g.querySelector('text')?.textContent ?? ''
+    expect(text.endsWith('…')).toBe(true)
+    expect(16 + measureTextWidth(text, 12) + 12).toBeLessThanOrEqual(310)
+  })
+
+  it('keeps the value suffix when the label is truncated', () => {
+    const g = renderLegend(
+      chartArea, ['Federal Government and Local Government Agencies'], undefined,
+      -10, 'top', 'start', 310, 0, 0, ['(42%)'],
+    )
+    expect(g.querySelector('text')?.textContent).toContain('(42%)')
   })
 })

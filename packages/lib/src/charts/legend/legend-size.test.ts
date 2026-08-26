@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { estimateLegendSize, estimateDirectLabelWidth } from './legend-size'
+import { measureTextWidth } from '../text-measure'
 
 describe('estimateLegendSize', () => {
   it('returns zero dimensions for empty labels', () => {
@@ -9,8 +10,8 @@ describe('estimateLegendSize', () => {
   describe('vertical position (left/right)', () => {
     it('calculates width from the longest label', () => {
       const result = estimateLegendSize(['AB', 'ABCDE'], 'left')
-      // maxLen = 5, width = 5 * 7 + 16 + 8 = 59
-      expect(result.width).toBe(59)
+      // widest is "ABCDE" (30px measured), width = 30 + 16 + 8 = 54
+      expect(result.width).toBe(54)
     })
 
     it('calculates height from the number of labels', () => {
@@ -23,15 +24,15 @@ describe('estimateLegendSize', () => {
   describe('horizontal position (top/bottom)', () => {
     it('returns single row when no available width', () => {
       const result = estimateLegendSize(['Foo', 'Bar'], 'top')
-      // Foo: 16 + 3*7 + 12 = 49, Bar: 16 + 3*7 + 12 = 49
-      expect(result.width).toBe(98)
+      // Foo: 16 + 18 + 12 = 46, Bar: 16 + 18 + 12 = 46
+      expect(result.width).toBe(92)
       expect(result.height).toBe(20)
     })
 
     it('wraps into multiple rows when items exceed available width', () => {
-      // Each label "ABCD" => 16 + 4*7 + 12 = 56px
+      // Each label "ABCD" => 16 + 24 + 12 = 52px
       const result = estimateLegendSize(['ABCD', 'EFGH', 'IJKL'], 'bottom', 120)
-      // Row 1: 56 + 56 = 112 <= 120, Row 2: + 56 = 168 > 120 -> wraps
+      // Row 1: 52 + 52 = 104 <= 120, Row 2: + 52 = 156 > 120 -> wraps
       expect(result.height).toBe(40) // 2 rows
     })
 
@@ -48,12 +49,30 @@ describe('estimateDirectLabelWidth', () => {
   })
 
   it('estimates width from the longest label', () => {
-    // maxLen = 5 ("Hello"), width = 5 * 7 + 10 = 45
-    expect(estimateDirectLabelWidth(['Hi', 'Hello'])).toBe(45)
+    // widest is "Hello" (30px measured), width = 30 + 10 = 40
+    expect(estimateDirectLabelWidth(['Hi', 'Hello'])).toBe(40)
   })
 
   it('handles single-character labels', () => {
-    // maxLen = 1, width = 1 * 7 + 10 = 17
-    expect(estimateDirectLabelWidth(['A'])).toBe(17)
+    // "A" measures 6px, width = 6 + 10 = 16
+    expect(estimateDirectLabelWidth(['A'])).toBe(16)
+  })
+})
+
+describe('reserved size is measured, not counted (#35)', () => {
+  const cjk = '日本語のラベル'
+
+  it('reserves the measured width for a vertical legend of CJK labels', () => {
+    expect(estimateLegendSize([cjk], 'left').width)
+      .toBeGreaterThanOrEqual(measureTextWidth(cjk, 12) + 16 + 8)
+  })
+
+  it('reserves the measured width for a horizontal legend of CJK labels', () => {
+    expect(estimateLegendSize([cjk], 'top').width)
+      .toBeGreaterThanOrEqual(measureTextWidth(cjk, 12) + 16 + 12)
+  })
+
+  it('reserves the measured width for CJK direct labels', () => {
+    expect(estimateDirectLabelWidth([cjk])).toBeGreaterThanOrEqual(measureTextWidth(cjk, 12))
   })
 })
