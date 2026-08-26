@@ -21,48 +21,45 @@ export function renderRangeAnnotation(
     return
   }
 
+  const onCategoryAxis = (ann.orientation ?? Orientation.Vertical) === Orientation.Vertical
+
+  const p1 = onCategoryAxis
+    ? resolveXPosition(ann.start, ctx.scaleX, ann.startAnchor)
+    : resolveYPosition(ann.start, ctx.scaleY)
+  const p2 = onCategoryAxis
+    ? resolveXPosition(ann.end, ctx.scaleX, ann.endAnchor)
+    : resolveYPosition(ann.end, ctx.scaleY)
+
+  // An endpoint that resolves to nothing (a category outside the data, or a
+  // category name on the value axis) draws no band: inventing geometry from the
+  // plot origin highlights a category the author never named.
+  if (p1 === null || p2 === null) {
+    return
+  }
+
   const annG = g.append('g').attr('data-annotation-index', String(index))
   const annotationKey = ann.key
   if (annotationKey) {
     annG.attr('data-annotation-id', annotationKey)
   }
-  const rangeOrientation = ann.orientation ?? Orientation.Vertical
+
+  // The category axis runs vertically on a horizontal chart and horizontally
+  // otherwise, so the band's extent follows whichever axis its endpoints sit on.
+  const extentIsVertical = (ctx.orientation === Orientation.Horizontal) === onCategoryAxis
 
   let x: number, y: number, w: number, h: number
 
-  if (ctx.orientation === Orientation.Horizontal) {
-    if (rangeOrientation === Orientation.Vertical) {
-      const y1 = resolveXPosition(ann.start, ctx.scaleX, ann.startAnchor)
-      const y2 = resolveXPosition(ann.end, ctx.scaleX, ann.endAnchor)
-      y = Math.min(y1, y2)
-      h = Math.abs(y2 - y1)
-      x = 0
-      w = ctx.width
-    }
-    else {
-      const x1 = resolveYPosition(ann.start, ctx.scaleY)
-      const x2 = resolveYPosition(ann.end, ctx.scaleY)
-      x = Math.min(x1, x2)
-      w = Math.abs(x2 - x1)
-      y = 0
-      h = ctx.height
-    }
-  }
-  else if (rangeOrientation === Orientation.Vertical) {
-    const x1 = resolveXPosition(ann.start, ctx.scaleX, ann.startAnchor)
-    const x2 = resolveXPosition(ann.end, ctx.scaleX, ann.endAnchor)
-    x = Math.min(x1, x2)
-    w = Math.abs(x2 - x1)
-    y = 0
-    h = ctx.height
-  }
-  else {
-    const y1 = resolveYPosition(ann.start, ctx.scaleY)
-    const y2 = resolveYPosition(ann.end, ctx.scaleY)
-    y = Math.min(y1, y2)
-    h = Math.abs(y2 - y1)
+  if (extentIsVertical) {
+    y = Math.min(p1, p2)
+    h = Math.abs(p2 - p1)
     x = 0
     w = ctx.width
+  }
+  else {
+    x = Math.min(p1, p2)
+    w = Math.abs(p2 - p1)
+    y = 0
+    h = ctx.height
   }
 
   annG.append('rect')
@@ -75,7 +72,7 @@ export function renderRangeAnnotation(
     .attr('opacity', (ann.bgOpacity ?? 20) / 100)
 
   if (ann.text) {
-    const bandWidth = rangeOrientation === Orientation.Vertical ? w : h
+    const bandWidth = onCategoryAxis ? w : h
     const rangeMaxWidth = resolveMaxWidth(ann.maxWidth, ctx.width) ?? Math.max(bandWidth, 50)
 
     const dir = ann.direction ?? 'center'

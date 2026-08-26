@@ -394,14 +394,39 @@ function wrapText(
 // Scale position helpers (for range/free renderers)
 // ---------------------------------------------------------------------------
 
+/**
+ * Position on a continuous scale, clamped into the scale's range so an
+ * out-of-domain endpoint stops at the edge of the plot instead of being painted
+ * thousands of px off it. `null` when the endpoint is not a finite input for the
+ * scale, which is what a category name reaching the value axis produces.
+ */
+function resolveOnContinuousScale(
+  value: number | string,
+  scale: d3.ScaleLinear<number, number> | d3.ScaleSymLog<number, number>,
+): number | null {
+  const numeric = Number(value)
+  if (!Number.isFinite(numeric)) {
+    return null
+  }
+  return scale.copy().clamp(true)(numeric)
+}
+
+/**
+ * Position of a range endpoint on the category axis, or `null` when the endpoint
+ * does not resolve. Anchoring an unresolved endpoint at the plot origin would
+ * silently highlight a category the author never named.
+ */
 export function resolveXPosition(
   value: number | string,
   scaleX: AnnotationContext['scaleX'],
   anchor: RangeAnchor = RangeAnchor.Center,
-): number {
+): number | null {
   if ('bandwidth' in scaleX) {
     const band = scaleX as d3.ScaleBand<string>
-    const left = band(String(value)) ?? 0
+    const left = band(String(value))
+    if (left === undefined) {
+      return null
+    }
     const bw = band.bandwidth()
     const gap = band.step() - bw
     if (anchor === 'start') {
@@ -413,7 +438,10 @@ export function resolveXPosition(
     return left + bw / 2
   }
   if (isPointScale(scaleX)) {
-    const pos = scaleX(String(value)) ?? 0
+    const pos = scaleX(String(value))
+    if (pos === undefined) {
+      return null
+    }
     const halfStep = scaleX.step() / 2
     if (anchor === 'start') {
       return pos - halfStep
@@ -424,14 +452,19 @@ export function resolveXPosition(
     return pos
   }
   if (isTimeScale(scaleX)) {
-    return scaleX(new Date(String(value))) as number
+    const date = new Date(String(value))
+    if (Number.isNaN(date.getTime())) {
+      return null
+    }
+    return scaleX.copy().clamp(true)(date)
   }
-  return (scaleX as d3.ScaleLinear<number, number>)(Number(value)) as number
+  return resolveOnContinuousScale(value, scaleX as d3.ScaleLinear<number, number>)
 }
 
+/** Position of a range endpoint on the value axis, or `null` when it does not resolve. */
 export function resolveYPosition(
   value: number | string,
   scaleY: d3.ScaleLinear<number, number> | d3.ScaleSymLog<number, number>,
-): number {
-  return scaleY(Number(value))
+): number | null {
+  return resolveOnContinuousScale(value, scaleY)
 }
