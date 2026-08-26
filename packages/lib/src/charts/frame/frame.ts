@@ -242,6 +242,16 @@ function buildFooterRightItems(): FooterItem[] {
   }]
 }
 
+/**
+ * Expand a CSS `padding` shorthand to its four sides. The stylesheet feeds each
+ * side into a separate shorthand slot, so a raw multi-value string would build
+ * an over-long declaration that the browser rejects outright.
+ */
+function expandPaddingShorthand(padding: string): [string, string, string, string] {
+  const [top, right = top, bottom = top, left = right] = padding.trim().split(/\s+/)
+  return [top, right, bottom, left]
+}
+
 export function createFrame(
   container: HTMLElement,
   options?: FrameOptions | null,
@@ -266,6 +276,11 @@ export function createFrame(
 
   if (resolvedOptions.padding) {
     wrapper.style.setProperty('--bc-frame-padding', resolvedOptions.padding)
+    const [top, right, bottom, left] = expandPaddingShorthand(resolvedOptions.padding)
+    wrapper.style.setProperty('--bc-frame-padding-top', top)
+    wrapper.style.setProperty('--bc-frame-padding-right', right)
+    wrapper.style.setProperty('--bc-frame-padding-bottom', bottom)
+    wrapper.style.setProperty('--bc-frame-padding-left', left)
   }
 
   if (resolvedOptions.transparentBackground) {

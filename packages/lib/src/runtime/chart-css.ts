@@ -5,6 +5,12 @@ export const CHART_CSS = `
 .bc-frame {
   --bc-frame-font-family: system-ui, -apple-system, sans-serif;
   --bc-frame-padding: 0;
+  /* Per-side properties so a multi-value \`padding\` shorthand never lands in a
+     single-value shorthand slot, which would invalidate the whole declaration. */
+  --bc-frame-padding-top: var(--bc-frame-padding);
+  --bc-frame-padding-right: var(--bc-frame-padding);
+  --bc-frame-padding-bottom: var(--bc-frame-padding);
+  --bc-frame-padding-left: var(--bc-frame-padding);
   --bc-frame-bg: #fff;
   --bc-text-color: #333;
   font-family: var(--bc-frame-font-family);
@@ -22,14 +28,14 @@ export const CHART_CSS = `
 }
 
 .bc-frame-header {
-  padding: var(--bc-frame-padding) var(--bc-frame-padding) 0;
+  padding: var(--bc-frame-padding-top) var(--bc-frame-padding-right) 0 var(--bc-frame-padding-left);
   background: var(--bc-frame-header-bg, transparent);
   border-bottom: var(--bc-frame-header-border-bottom, none);
   margin-bottom: var(--bc-frame-header-margin-bottom, 0);
 }
 
 .bc-frame-body {
-  padding: 0 var(--bc-frame-padding);
+  padding: 0 var(--bc-frame-padding-right) 0 var(--bc-frame-padding-left);
 }
 
 .bc-frame-title {
@@ -54,7 +60,7 @@ export const CHART_CSS = `
 .bc-frame-footer {
   margin-top: 0.5rem;
   gap: 0.25rem 1rem;
-  padding: var(--bc-frame-footer-padding-top, 0) var(--bc-frame-padding) var(--bc-frame-padding);
+  padding: var(--bc-frame-footer-padding-top, 0) var(--bc-frame-padding-right) var(--bc-frame-padding-bottom) var(--bc-frame-padding-left);
   background: var(--bc-frame-footer-bg, transparent);
   border-top: var(--bc-frame-footer-border-top, none);
 }
@@ -84,7 +90,7 @@ export const CHART_CSS = `
   color: var(--bc-frame-note-color);
   font-size: var(--bc-frame-note-font-size);
   margin: 0;
-  padding: 0 var(--bc-frame-padding);
+  padding: 0 var(--bc-frame-padding-right) 0 var(--bc-frame-padding-left);
 }
 
 .bc-frame-byline,

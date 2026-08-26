@@ -198,3 +198,43 @@ describe('createFrame', () => {
     })
   })
 })
+
+describe('frame padding shorthand', () => {
+  let container: HTMLElement
+
+  beforeEach(() => {
+    container = document.createElement('div')
+  })
+
+  const sides = (wrapper: HTMLElement) => ({
+    top: wrapper.style.getPropertyValue('--bc-frame-padding-top'),
+    right: wrapper.style.getPropertyValue('--bc-frame-padding-right'),
+    bottom: wrapper.style.getPropertyValue('--bc-frame-padding-bottom'),
+    left: wrapper.style.getPropertyValue('--bc-frame-padding-left'),
+  })
+
+  it('expands a single value to all four sides', () => {
+    const { wrapper } = createFrame(container, { padding: '16px' })
+    expect(sides(wrapper)).toEqual({ top: '16px', right: '16px', bottom: '16px', left: '16px' })
+  })
+
+  it('expands a two-value shorthand to block and inline sides', () => {
+    const { wrapper } = createFrame(container, { padding: '24px 32px' })
+    expect(sides(wrapper)).toEqual({ top: '24px', right: '32px', bottom: '24px', left: '32px' })
+  })
+
+  it('expands a three-value shorthand', () => {
+    const { wrapper } = createFrame(container, { padding: '1px 2px 3px' })
+    expect(sides(wrapper)).toEqual({ top: '1px', right: '2px', bottom: '3px', left: '2px' })
+  })
+
+  it('expands a four-value shorthand', () => {
+    const { wrapper } = createFrame(container, { padding: '1px 2px 3px 4px' })
+    expect(sides(wrapper)).toEqual({ top: '1px', right: '2px', bottom: '3px', left: '4px' })
+  })
+
+  it('collapses repeated whitespace between values', () => {
+    const { wrapper } = createFrame(container, { padding: '  24px   32px ' })
+    expect(sides(wrapper)).toEqual({ top: '24px', right: '32px', bottom: '24px', left: '32px' })
+  })
+})
