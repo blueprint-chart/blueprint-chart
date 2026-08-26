@@ -1,9 +1,16 @@
 /** Opacity applied to non-targeted marks when a highlight is active. */
 export const HIGHLIGHT_DIM_OPACITY = 0.35
 
-/** Build the set of highlighted target keys from the DSL highlight directives. */
-export function highlightTargetSet(highlights?: { target: string }[]): Set<string> {
-  return new Set((highlights ?? []).map(h => h.target))
+/**
+ * Build the set of highlighted target keys from the DSL highlight directives,
+ * keeping only the ones present in `keys` (the mark keys the caller will draw).
+ * A target naming a renamed or misspelled category would otherwise leave a
+ * non-empty set that matches no mark, and `highlightOpacity` would dim
+ * everything instead of emphasising anything.
+ */
+export function highlightTargetSet(highlights: { target: string }[] | undefined, keys: Iterable<string>): Set<string> {
+  const known = new Set(keys)
+  return new Set((highlights ?? []).map(h => h.target).filter(t => known.has(t)))
 }
 
 /**

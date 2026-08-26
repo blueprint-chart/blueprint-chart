@@ -18,7 +18,7 @@ import { ensureClipPath } from '../../clip-path-helper'
 import { createPluginHost } from '../../plugins/plugin-host'
 import { SortDirection, ValueLabelPosition, LabelPosition } from '../../../enums'
 import { featureJoin, getSceneTransition, tweenPlotFrame, type PlotRect } from '../../../transitions'
-import { highlightOpacity } from '../../plugins/highlight'
+import { highlightTargetSet, highlightOpacity } from '../../plugins/highlight'
 import { shouldRenderValueLabel } from '../../value-label-fit'
 import { CATEGORY_LABEL_HEIGHT, categoryLabelLineHeight } from '../../category-label-line'
 
@@ -178,7 +178,7 @@ export function render(
   }
 
   const colorOverrides = buildColorOverrides(options.colorizes)
-  const highlightTargets = new Set((options.highlights ?? []).map(h => h.target))
+  const highlightTargets = highlightTargetSet(options.highlights, allLabels)
 
   // Clip bars to the chart area so they truncate at axis boundaries.
   // Stable id per (container, key) keeps <defs> from growing on re-renders.

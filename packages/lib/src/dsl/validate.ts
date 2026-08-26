@@ -371,6 +371,60 @@ function validateTransforms(
 }
 
 /**
+ * Category and series names a highlight or colorize target can resolve to.
+ * Scene data is folded in because a chart-level target applies to every scene,
+ * so a name that only exists in one scene is still resolved.
+ */
+function targetUniverse(ast: ChartNode): Set<string> {
+  const names = new Set<string>()
+  for (const block of [ast.data, ...ast.scenes.map(s => s.data)]) {
+    for (const entry of block?.entries ?? []) {
+      if (entry.key === 'series' && !entry.quotedKey) {
+        for (const v of entry.values ?? [entry.value]) {
+          names.add(String(v))
+        }
+        continue
+      }
+      names.add(entry.key)
+    }
+  }
+  return names
+}
+
+/**
+ * Warn on a highlight or colorize naming something the data does not contain:
+ * the renderer resolves the target against category and series names, so a
+ * renamed category leaves the directive with nothing to act on.
+ */
+function validateTargets(ast: ChartNode, warnings: ValidationIssue[]): void {
+  const names = targetUniverse(ast)
+  if (names.size === 0) {
+    return
+  }
+  const blocks: Array<[string, { target: string }[]]> = [
+    ['highlight', ast.highlights],
+    ['colorize', ast.colorizes],
+    ...ast.scenes.flatMap((s, i): Array<[string, { target: string }[]]> => [
+      [`scene[${i}].highlight`, s.highlights],
+      [`scene[${i}].colorize`, s.colorizes],
+    ]),
+  ]
+  for (const [label, nodes] of blocks) {
+    nodes.forEach((node, i) => {
+      if (names.has(node.target)) {
+        return
+      }
+      warnings.push({
+        code: 'unresolved-target',
+        path: label.startsWith('scene') ? `${label}[${i}]` : `chart.${label}[${i}]`,
+        message: `${label.split('.').pop()} "${node.target}" matches no category or series; it has no effect.`,
+        suggestion: nearest(node.target, names),
+      })
+    })
+  }
+}
+
+/**
  * Validate a chart AST for value-level semantic problems that the renderer
  * would otherwise swallow with silent fallbacks (devex-review finding 6).
  *
@@ -423,6 +477,9 @@ export function validateChart(ast: ChartNode): ValidationResult {
   if (ast.data) {
     validateSeriesMetaRow(ast.data.entries, warnings)
   }
+
+  // 9. Highlight / colorize targets that resolve to nothing (soft signal).
+  validateTargets(ast, warnings)
 
   // Scenes: each scene's effective chart type is its `type` override or the
   // chart's type (mirrors extractSceneOverrides).

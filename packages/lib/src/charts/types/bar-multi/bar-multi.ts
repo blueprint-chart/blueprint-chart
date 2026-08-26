@@ -205,7 +205,7 @@ export function render(
   const clippedGroup = d3.select(chartArea).append('g').attr('clip-path', `url(#${clipId})`)
 
   const orch = getSceneTransition(container)
-  const highlightTargets = highlightTargetSet(options.highlights)
+  const highlightTargets = highlightTargetSet(options.highlights, flatData.map(d => d.seriesName))
   const colorOverrides = buildColorOverrides(options.colorizes)
 
   // Bars — one feature per (category, series) cell, keyed by label + seriesName.

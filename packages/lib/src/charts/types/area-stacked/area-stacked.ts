@@ -20,7 +20,7 @@ import { filterLabelsByRange } from '../../scale-helpers'
 import { resolveSeriesColor, resolveSeriesInterpolation, isSeriesHidden, resolveSeriesLabelMode } from '../../series-helpers'
 import { spreadLabels } from '../../plugins/arc-labels'
 import { StackMode, SortDirection } from '../../../enums'
-import { highlightOpacity } from '../../plugins/highlight'
+import { highlightTargetSet, highlightOpacity } from '../../plugins/highlight'
 import { buildColorOverrides } from '../../plugins/colorize'
 
 export const DEFAULT_COLORS = [
@@ -236,7 +236,7 @@ export function render(
   })
 
   // Build colorize target set for dimming non-targeted series
-  const highlightTargets = new Set((options.highlights ?? []).map(h => h.target))
+  const highlightTargets = highlightTargetSet(options.highlights, stackedAreaData.map(d => d.name))
   const hasHighlights = highlightTargets.size > 0
 
   const resolvedOpacity = options.areaFillOpacity != null ? options.areaFillOpacity : 0.85

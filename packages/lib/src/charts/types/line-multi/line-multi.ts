@@ -18,7 +18,7 @@ import { setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut } from '
 import { setCachedChart, getCachedChart } from '../../transition-cache'
 import { featureJoin, getSceneTransition, tweenPlotFrame, type PlotRect } from '../../../transitions'
 import { resolveSeriesColor, resolveSeriesDash, resolveSeriesWidth, resolveSeriesInterpolation, isSeriesHidden, resolveSeriesLabelMode, resolveSeriesValueLabels, resolveSeriesLineSymbols } from '../../series-helpers'
-import { highlightOpacity } from '../../plugins/highlight'
+import { highlightTargetSet, highlightOpacity } from '../../plugins/highlight'
 import { buildColorOverrides } from '../../plugins/colorize'
 import type { LineSymbolConfig } from '../../types'
 import { SymbolShape, SymbolShowOn, SymbolStyle } from '../../../enums'
@@ -221,7 +221,7 @@ export function render(
   const globalValueLabels = options.valueLabels ?? false
 
   // Build colorize target set for dimming non-targeted series
-  const highlightTargets = new Set((options.highlights ?? []).map(h => h.target))
+  const highlightTargets = highlightTargetSet(options.highlights, seriesNames)
 
   const areaFillOn = options.areaFill ?? false
   const areaFillOpacity = options.areaFillOpacity ?? 0.2

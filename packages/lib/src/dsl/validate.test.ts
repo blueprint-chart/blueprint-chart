@@ -172,6 +172,54 @@ describe('validateChart', () => {
     })
   })
 
+  describe('unresolved highlight / colorize targets', () => {
+    it('warns when a highlight target matches no category', () => {
+      const result = validateChart(chart({
+        data: data('Alpha', 'Beta'),
+        highlights: [{ type: DslNodeType.Highlight, target: 'Betaa', properties: [] }],
+      }))
+      const warning = result.warnings.find(w => w.code === 'unresolved-target')
+      expect(warning).toBeDefined()
+      expect(warning?.path).toBe('chart.highlight[0]')
+      expect(warning?.suggestion).toBe('Beta')
+      expect(result.valid).toBe(true)
+    })
+
+    it('warns when a colorize target matches no category', () => {
+      const result = validateChart(chart({
+        colorizes: [{ type: DslNodeType.Colorize, target: 'Nope', properties: [] }],
+      }))
+      expect(result.warnings.find(w => w.code === 'unresolved-target')?.path).toBe('chart.colorize[0]')
+    })
+
+    it('does not warn for a target that names a category', () => {
+      const result = validateChart(chart({
+        highlights: [{ type: DslNodeType.Highlight, target: 'B', properties: [] }],
+      }))
+      expect(result.warnings).toHaveLength(0)
+    })
+
+    it('does not warn for a target that names a series', () => {
+      const entries = [
+        { ...prop('series', 'Alpha'), values: ['Alpha', 'Beta'] },
+        { ...prop('Q1', 1), values: [1, 2] },
+      ]
+      const result = validateChart(chart({
+        data: { type: DslNodeType.Data, entries },
+        highlights: [{ type: DslNodeType.Highlight, target: 'Beta', properties: [] }],
+      }))
+      expect(result.warnings).toHaveLength(0)
+    })
+
+    it('does not warn when the target only exists in a scene data block', () => {
+      const result = validateChart(chart({
+        highlights: [{ type: DslNodeType.Highlight, target: 'Z', properties: [] }],
+        scenes: [scene({ data: data('Y', 'Z') })],
+      }))
+      expect(result.warnings).toHaveLength(0)
+    })
+  })
+
   describe('boolean-typed options', () => {
     it('flags tooltips = yes', () => {
       const result = validateChart(chart({ properties: [prop('tooltips', 'yes')] }))

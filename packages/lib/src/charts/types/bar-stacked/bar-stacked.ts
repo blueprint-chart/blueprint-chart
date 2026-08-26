@@ -205,7 +205,7 @@ export function render(
 
   const categoryLabelOffset = useCategoryLabelLine ? categoryLabelLineHeight(y.bandwidth()) : 0
   const colorOverrides = buildColorOverrides(options.colorizes)
-  const highlightTargets = highlightTargetSet(options.highlights)
+  const highlightTargets = highlightTargetSet(options.highlights, flatData.map(d => d.seriesName))
   const orch = getSceneTransition(container)
 
   // Bars — one feature per (category, series) segment, keyed by label + seriesName.

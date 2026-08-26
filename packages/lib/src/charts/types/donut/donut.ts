@@ -205,7 +205,7 @@ export function renderArc(
   }))
 
   const orch = getSceneTransition(container)
-  const highlightTargets = highlightTargetSet(options.highlights)
+  const highlightTargets = highlightTargetSet(options.highlights, labels)
 
   // Arc slices — one feature per category, keyed by label.
   const arcLayer = centerGroup.append('g').node()!

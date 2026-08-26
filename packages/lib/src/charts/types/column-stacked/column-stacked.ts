@@ -200,7 +200,7 @@ export function render(
     : sortedLabels.flatMap(label => flatData.filter(d => d.label === label))
 
   const colorOverrides = buildColorOverrides(options.colorizes)
-  const highlightTargets = highlightTargetSet(options.highlights)
+  const highlightTargets = highlightTargetSet(options.highlights, flatData.map(d => d.seriesName))
   const orch = getSceneTransition(container)
 
   // Bars — one feature per (category, series) segment, keyed by label + seriesName.

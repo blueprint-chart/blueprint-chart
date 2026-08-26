@@ -247,7 +247,7 @@ export function render(
 
   const flatData = buildFlatData(panels, sortedLabels, data.labels, allSeries)
 
-  const highlightTargets = highlightTargetSet(options.highlights)
+  const highlightTargets = highlightTargetSet(options.highlights, flatData.map(d => d.seriesName))
   const colorOverrides = buildColorOverrides(options.colorizes)
   const orch = getSceneTransition(container)
 
