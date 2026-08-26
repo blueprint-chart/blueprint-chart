@@ -178,6 +178,25 @@ describe('AxisService', () => {
     expect(gridLines.length).toBeGreaterThan(0)
   })
 
+  it('replaces vertical grid lines on re-render instead of stacking them', () => {
+    const axes = AxisService.for(container)
+    const yScale = d3.scaleLinear().domain([0, 100]).range([300, 0])
+    const xScale = d3.scaleBand<string>().domain(['A']).range([0, 400])
+    const drawWithGrid = (gridStyle: string) => {
+      axes.attach(chartArea)
+      axes.update({
+        vertical: { scale: yScale, height: 300, options: { gridWidth: 400, gridStyle } },
+        horizontal: { scale: xScale, height: 300, options: { width: 400, gridStyle: 'none' } },
+      })
+      return chartArea.querySelectorAll('.bc-grid-line').length
+    }
+
+    const solid = drawWithGrid('solid')
+    expect(solid).toBeGreaterThan(0)
+    expect(drawWithGrid('dashed')).toBe(solid)
+    expect(drawWithGrid('none')).toBe(0)
+  })
+
   it('passes through axis options (gridStyle none produces no grid lines)', () => {
     const axes = AxisService.for(container)
     axes.attach(chartArea)

@@ -242,23 +242,31 @@ export class VerticalAxisChart extends D3Blueprint<AxisDatum[]> {
       return
     }
 
-    if (gridStyle !== GridStyle.None && gridWidth > 0) {
-      // When axis is on the right, grid lines extend leftward
-      const lineWidth = direction === AxisDirection.Right ? -gridWidth : gridWidth
-      applyGridLines(g, gridStyle, lineWidth)
-    }
+    // When axis is on the right, grid lines extend leftward
+    const lineWidth = direction === AxisDirection.Right ? -gridWidth : gridWidth
+    applyGridLines(g, gridStyle, lineWidth)
   }
 }
 
+const GRID_DASH_ARRAY: Partial<Record<string, string>> = {
+  [GridStyle.Dashed]: '4,4',
+  [GridStyle.Dotted]: '1,3',
+}
+
+// A data join rather than an append: re-renders replace the grid instead of
+// stacking a second one, and `none` removes what a previous style drew.
 function applyGridLines(g: SVGGElement, style: string, width: number): void {
   const root = g.ownerSVGElement?.parentElement ?? document.documentElement
   const cs = getComputedStyle(root)
   const gridColor = cs.getPropertyValue('--bc-grid-color').trim() || '#ccc'
+  const data = style === GridStyle.None || width === 0 ? [] : [null]
 
   const ticks = d3.select(g).selectAll<SVGGElement, unknown>('.tick')
   ticks.each(function () {
-    const tick = d3.select(this)
-    const line = tick.append('line')
+    d3.select(this)
+      .selectAll<SVGLineElement, null>('.bc-grid-line')
+      .data(data)
+      .join('line')
       .attr('class', 'bc-grid-line')
       .attr('x1', 0)
       .attr('x2', width)
@@ -266,13 +274,7 @@ function applyGridLines(g: SVGGElement, style: string, width: number): void {
       .attr('y2', 0)
       .attr('stroke', gridColor)
       .attr('stroke-width', 1)
-
-    if (style === GridStyle.Dashed) {
-      line.attr('stroke-dasharray', '4,4')
-    }
-    else if (style === GridStyle.Dotted) {
-      line.attr('stroke-dasharray', '1,3')
-    }
+      .attr('stroke-dasharray', GRID_DASH_ARRAY[style] ?? null)
   })
 }
 

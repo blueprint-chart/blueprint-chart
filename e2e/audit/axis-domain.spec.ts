@@ -173,4 +173,37 @@ test.describe('G4 axis domain', () => {
     ))
     expect(labels).toEqual(['2015', '2016'])
   })
+
+  // #71: the vertical grid was appended on every render, so one grid line per
+  // tick became two, and `none` could not clear what an earlier style drew.
+  test('the vertical grid is joined, not stacked, across renders', async ({ page }) => {
+    await gotoRender(page, `chart bar-vertical {
+  verticalGridStyle = "solid"
+  showVerticalAxis = true
+  showVerticalTicks = true
+  data {
+    "A" = 10
+    "B" = 20
+  }
+  scene "dashed" {
+    verticalGridStyle = "dashed"
+  }
+  scene "off" {
+    verticalGridStyle = "none"
+  }
+}`)
+    const gridLines = page.locator('.bc-frame .bc-axis-vertical .bc-grid-line')
+    const ticks = page.locator('.bc-frame .bc-axis-vertical .tick')
+    const tickCount = await ticks.count()
+    expect(tickCount).toBeGreaterThan(0)
+    await expect(gridLines).toHaveCount(tickCount)
+
+    const next = page.locator('[aria-label="Next scene"]')
+    await next.click()
+    await expect(gridLines.first()).toHaveAttribute('stroke-dasharray', '4,4')
+    await expect(gridLines).toHaveCount(tickCount)
+
+    await next.click()
+    await expect(gridLines).toHaveCount(0)
+  })
 })
