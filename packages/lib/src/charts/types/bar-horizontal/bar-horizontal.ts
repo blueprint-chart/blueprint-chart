@@ -18,17 +18,11 @@ import { SortDirection, ValueLabelPosition, Orientation, LabelPosition } from '.
 import { featureJoin, getSceneTransition, tweenPlotFrame, type PlotRect } from '../../../transitions'
 import { createPluginHost } from '../../plugins/plugin-host'
 import { highlightTargetSet, highlightOpacity } from '../../plugins/highlight'
-import { shouldRenderValueLabel } from '../../value-label-fit'
+import { shouldRenderValueLabel, estimateTextInk } from '../../value-label-fit'
 import { CATEGORY_LABEL_HEIGHT, categoryLabelLineHeight, categoryLabelsNeedTheirOwnLine } from '../../category-label-line'
 
 export const DEFAULT_COLORS = ['#4e79a7']
-const VALUE_LABEL_FONT = '11px sans-serif'
 const VALUE_LABEL_GAP = 4
-// Floor for a glyph advance. `measureText` is asked about 11px sans-serif while
-// the chart renders in its own font, and it came back ~14% narrow for a
-// seven-digit label: that under-report is what let the SVG edge cut a label
-// mid-number and turn 1200000 into 120000.
-const MIN_GLYPH_ADVANCE_PX = 7
 
 /** Plot geometry a value label has to stay inside of. */
 interface LabelBounds {
@@ -48,23 +42,6 @@ interface WaterfallDatum {
   x0: number
   x1: number
   isTotal: boolean
-}
-
-/**
- * Estimate the pixel width of a value label string.
- */
-function estimateValueLabelWidth(text: string): number {
-  const floor = text.length * MIN_GLYPH_ADVANCE_PX
-  try {
-    const canvas = document.createElement('canvas')
-    const ctx = canvas.getContext('2d')
-    if (ctx) {
-      ctx.font = VALUE_LABEL_FONT
-      return Math.max(Math.ceil(ctx.measureText(text).width), floor)
-    }
-  }
-  catch { /* fallback below */ }
-  return floor
 }
 
 export function render(
@@ -119,7 +96,7 @@ export function render(
     if (swapLabelValue) {
       // Labels show category names — estimate width from the longest label
       const longestLabel = data.labels.reduce((a, b) => a.length > b.length ? a : b, '')
-      const rightLabelW = estimateValueLabelWidth(longestLabel) + VALUE_LABEL_GAP * 2
+      const rightLabelW = estimateTextInk(longestLabel) + VALUE_LABEL_GAP * 2
       lpMargins.right = Math.max(lpMargins.right ?? 15, rightLabelW)
     }
     else {
@@ -129,8 +106,8 @@ export function render(
       // Two gaps: one between the bar end and the label, one between the label
       // and the canvas edge, so the widest label is never flush with the edge
       // where the SVG would clip it mid-number.
-      const rightLabelW = maxVal > 0 ? estimateValueLabelWidth(formatValue(maxVal)) + VALUE_LABEL_GAP * 2 : 0
-      const leftLabelW = minVal < 0 ? estimateValueLabelWidth(formatValue(minVal)) + VALUE_LABEL_GAP * 2 : 0
+      const rightLabelW = maxVal > 0 ? estimateTextInk(formatValue(maxVal)) + VALUE_LABEL_GAP * 2 : 0
+      const leftLabelW = minVal < 0 ? estimateTextInk(formatValue(minVal)) + VALUE_LABEL_GAP * 2 : 0
       lpMargins.right = Math.max(lpMargins.right ?? 15, rightLabelW)
       if (leftLabelW > 0) {
         lpMargins.left = (lpMargins.left ?? 50) + leftLabelW
@@ -629,7 +606,7 @@ function renderValueLabels(
       .attr('font-size', '11px')
       .attr('dominant-baseline', 'central'),
     attrs: (d) => {
-      const a = valueLabelAttrs(d, x, y, pos, catOffset, opts.bounds, estimateValueLabelWidth(labelText(d)))
+      const a = valueLabelAttrs(d, x, y, pos, catOffset, opts.bounds, estimateTextInk(labelText(d)))
       return {
         'x': a.tx,
         'y': a.ty,

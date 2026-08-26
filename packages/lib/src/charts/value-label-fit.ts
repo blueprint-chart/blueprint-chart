@@ -49,6 +49,25 @@ const EDGE_GAP = 4
 // sans-serif by ~14% for a seven-digit label (#21), and an under-reported width
 // is what lets the canvas edge cut a label mid-number and turn 20 into 0.
 const MIN_GLYPH_ADVANCE_PX = 7
+const LABEL_FONT = '11px sans-serif'
+
+/**
+ * Pixel width of a text's ink, never below the per-glyph floor: `measureText` is
+ * asked about 11px sans-serif while the chart renders in its own font, so an
+ * under-report is what lets a label cross a boundary it was measured to fit in.
+ */
+export function estimateTextInk(text: string, font = LABEL_FONT): number {
+  const floor = text.length * MIN_GLYPH_ADVANCE_PX
+  try {
+    const ctx = document.createElement('canvas').getContext('2d')
+    if (ctx) {
+      ctx.font = font
+      return Math.max(Math.ceil(ctx.measureText(text).width), floor)
+    }
+  }
+  catch { /* no canvas: the floor stands on its own */ }
+  return floor
+}
 
 export interface LabelViewport {
   /** Plot extent in chart-area coordinates. */

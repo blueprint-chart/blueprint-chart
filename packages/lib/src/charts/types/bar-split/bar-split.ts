@@ -21,7 +21,7 @@ import { createPluginHost } from '../../plugins/plugin-host'
 import { Orientation, ValueLabelPosition, LabelPosition, ScaleType } from '../../../enums'
 import { highlightTargetSet, highlightOpacity } from '../../plugins/highlight'
 import { buildColorOverrides } from '../../plugins/colorize'
-import { shouldRenderValueLabel } from '../../value-label-fit'
+import { shouldRenderValueLabel, estimateTextInk } from '../../value-label-fit'
 import { CATEGORY_LABEL_HEIGHT, categoryLabelLineHeight, categoryLabelsNeedTheirOwnLine } from '../../category-label-line'
 
 export const DEFAULT_COLORS = [
@@ -30,7 +30,29 @@ export const DEFAULT_COLORS = [
 ]
 
 const PANEL_GAP = 16
+const VALUE_LABEL_GAP = 4
 const PANEL_HEADER_HEIGHT = 20
+const PANEL_HEADER_FONT = '600 11px sans-serif'
+const ELLIPSIS = '\u2026'
+
+/**
+ * Shorten a panel header to its own panel's width. Full names past ~9 panels are
+ * wider than the panel, and untrimmed they ran into their neighbours as one
+ * unbroken string with the last one painted off the canvas (#39). The series
+ * colours and the legend still carry the full names.
+ */
+function fitPanelHeader(text: string, panelWidth: number): string {
+  if (estimateTextInk(text, PANEL_HEADER_FONT) <= panelWidth) {
+    return text
+  }
+  let kept = text
+  while (kept.length > 0 && estimateTextInk(kept + ELLIPSIS, PANEL_HEADER_FONT) > panelWidth) {
+    kept = kept.slice(0, -1)
+  }
+  // A panel too narrow for even one glyph still gets the ellipsis: a missing
+  // header reads as a panel that has no name, not as one whose name did not fit.
+  return kept + ELLIPSIS
+}
 
 interface SplitBarDatum {
   label: string
@@ -271,7 +293,7 @@ export function render(
       .attr('font-size', '11px')
       .attr('font-weight', '600')
       .attr('fill', 'currentColor')
-      .text(panel.seriesName)
+      .text(fitPanelHeader(panel.seriesName, panel.panelWidth))
   }
 
   const flatData = buildFlatData(panels, sortedLabels, data.labels, allSeries)
@@ -412,7 +434,15 @@ export function render(
     const barHeight = Math.max(0, y.bandwidth() - categoryLabelOffset)
     const cy = (y(datum.label) ?? 0) + categoryLabelOffset + barHeight / 2
 
+    // A label wider than the room left in its own panel used to be moved before
+    // the bar's start, which put it on the previous panel's bars, or on the
+    // category labels for the leftmost panel: a number read against the wrong
+    // series (#39). It goes inside its own bar instead, and the fit check below
+    // drops it when the bar is too small to hold it either.
+    const fitsOutside = barRight + VALUE_LABEL_GAP + estimateTextInk(String(datum.value))
+      <= panel.xOffset + panel.panelWidth
     const isInside = valueLabelPos === ValueLabelPosition.Inside
+      || !fitsOutside
       || (valueLabelPos === ValueLabelPosition.Auto && datum.barWidth > 30)
 
     if (!shouldRenderValueLabel({
@@ -429,22 +459,13 @@ export function render(
     let anchor: string
     let fill: string
     if (isInside) {
-      tx = barRight - 4
+      tx = barRight - VALUE_LABEL_GAP
       anchor = 'end'
       fill = contrastTextColor(seriesColor)
     }
     else {
-      const outsideX = barRight + 4
-      const panelRight = panel.xOffset + panel.panelWidth
-      if (outsideX + 20 > panelRight) {
-        // Not enough room outside — render before bar start
-        tx = datum.xPos - 4
-        anchor = 'end'
-      }
-      else {
-        tx = outsideX
-        anchor = 'start'
-      }
+      tx = barRight + VALUE_LABEL_GAP
+      anchor = 'start'
       fill = 'currentColor'
     }
 
