@@ -73,18 +73,21 @@ jobs:
           dry_run: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run == true }}
           # semantic_version pins the release runtime to the major this repo
           # declares (^25.0.9); the action otherwise runs its own bundled 24.
-          # That alone is not enough: the writer that generateNotes resolves is
-          # still older than conventional-changelog-conventionalcommits@10 needs,
-          # so it is installed explicitly. Measured, not reasoned: with only
-          # semantic_version set, run 32982439510 still failed with
-          # 'Missing helper' while logging 'Running semantic-release version 25.0.9'.
+          # The preset is pinned to 9 rather than 10 on purpose. Preset 10.3+
+          # plants a poison mainTemplate (@conventional-changelog/template,
+          # createLegacyWriterGuard) that makes conventional-changelog-writer@8
+          # throw 'Missing helper' instead of silently writing an empty
+          # changelog. Only writer 9 ignores it, and no stable
+          # @semantic-release/release-notes-generator ships one: 14.1.1 is the
+          # latest and pins writer ^8, so preset 10 cannot render here at all.
+          # Pinning writer 9 alongside it does not help either, because the
+          # copy generateNotes resolves is nested inside release-notes-generator.
           semantic_version: 25
           extra_plugins: |
             @semantic-release/changelog
             @semantic-release/exec
             @semantic-release/git
-            conventional-changelog-conventionalcommits@10
-            conventional-changelog-writer@9
+            conventional-changelog-conventionalcommits@9
         env:
           # npm auth is via OIDC trusted publishing (id-token: write above) — no NODE_AUTH_TOKEN needed.
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
