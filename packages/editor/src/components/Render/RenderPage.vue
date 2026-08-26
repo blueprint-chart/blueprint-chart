@@ -1,6 +1,18 @@
 <template>
   <div class="render-page">
     <div
+      v-if="error"
+      class="render-page__error"
+    >
+      <p class="render-page__error__message">
+        {{ error }}
+      </p>
+      <RouterLink to="/charts">
+        Go to My Charts
+      </RouterLink>
+    </div>
+    <div
+      v-else
       ref="containerRef"
       class="render-page__card"
       :class="cardClass"
@@ -39,6 +51,7 @@ import { useChartConfig } from '@/stores/chartConfig'
 import { useScenes } from '@/stores/scenes'
 import { useCloudCharts } from '@/stores/cloudCharts'
 import { accountsEnabled } from '@/config/runtimeConfig'
+import { decodeUrlSafeBase64 } from '@/utils/base64'
 
 const route = useRoute()
 const containerRef = useTemplateRef<HTMLElement>('containerRef')
@@ -61,7 +74,7 @@ const playerComponent = computed(() => playerComponentMap[layout.value.playerTyp
 
 const totalScenes = computed(() => scenes.value.length + 1)
 const currentScene = computed(() => activeIndex.value + 2)
-const showPlayer = computed(() => scenes.value.length >= 1)
+const showPlayer = computed(() => scenes.value.length >= 1 && layout.value.playerType !== 'none')
 
 function onSceneChange(scene: number) {
   setActive(scene - 2)
@@ -98,33 +111,33 @@ onBeforeUnmount(() => {
   }
 })
 
-function applyBase64(bpc64: string) {
-  try {
-    const binary = globalThis.atob(bpc64)
-    const bytes = Uint8Array.from(binary, c => c.charCodeAt(0))
-    const dsl = new TextDecoder().decode(bytes)
-    applyDsl(dsl)
-  }
-  catch {
-    // silently fail for invalid input
-  }
-}
+const error = ref('')
 
 onMounted(async () => {
   const id = route.query.id as string | undefined
-  if (id && accountsEnabled()) {
-    const { fetchPublished } = useCloudCharts()
-    const dsl = await fetchPublished(id)
-    if (dsl) {
-      applyDsl(dsl)
+  if (id) {
+    if (accountsEnabled()) {
+      const { fetchPublished } = useCloudCharts()
+      const dsl = await fetchPublished(id)
+      if (dsl) {
+        applyDsl(dsl)
+        return
+      }
     }
+    error.value = 'We could not find that chart. It may have been deleted, or the link may be wrong.'
     return
   }
 
   const bpc64 = route.query.bpc64 as string | undefined
-  if (bpc64) {
-    applyBase64(bpc64)
+  if (!bpc64) {
+    return
   }
+  const dsl = decodeUrlSafeBase64(bpc64)
+  if (dsl === null) {
+    error.value = 'This chart link is damaged, so there is nothing to show. It was probably truncated or re-encoded on the way here.'
+    return
+  }
+  applyDsl(dsl)
 })
 </script>
 
@@ -133,6 +146,20 @@ onMounted(async () => {
   min-height: 100vh;
   box-sizing: border-box;
   background: var(--bs-card-bg);
+
+  &__error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 48px 24px;
+    text-align: center;
+
+    &__message {
+      margin: 0;
+      color: var(--bs-secondary-color);
+    }
+  }
 
   &__card {
     width: 100%;

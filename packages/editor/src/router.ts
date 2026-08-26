@@ -6,6 +6,7 @@ import { useChartSession, storageKey, metaKey } from '@/stores/chartSession'
 import { accountsEnabled } from '@/config/runtimeConfig'
 import { useAccount } from '@/stores/account'
 import { useCloudCharts } from '@/stores/cloudCharts'
+import { decodeUrlSafeBase64 } from '@/utils/base64'
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -54,32 +55,6 @@ async function loadSession(to: { params: { id: string } }) {
   }
   // Accounts off and no local chart → dashboard (unchanged behavior).
   return '/charts'
-}
-
-/**
- * Decode a URL-safe base64 string (RFC 4648 §5: `-`/`_` instead of `+`/`/`,
- * padding optional). Returns the decoded UTF-8 string, or `null` if input is
- * malformed.
- */
-function decodeUrlSafeBase64(raw: string): string | null {
-  if (!raw) {
-    return null
-  }
-  try {
-    const padded = raw.replace(/-/g, '+').replace(/_/g, '/')
-    const padding = padded.length % 4 === 0 ? '' : '='.repeat(4 - (padded.length % 4))
-    // atob returns a binary string; decode it as UTF-8 so BPC sources with
-    // non-ASCII characters (en dashes, currency symbols, etc.) survive intact.
-    const binary = atob(padded + padding)
-    const bytes = new Uint8Array(binary.length)
-    for (let i = 0; i < binary.length; i++) {
-      bytes[i] = binary.charCodeAt(i)
-    }
-    return new TextDecoder().decode(bytes)
-  }
-  catch {
-    return null
-  }
 }
 
 const router = createRouter({
