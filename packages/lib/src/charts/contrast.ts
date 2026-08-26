@@ -199,7 +199,7 @@ function separateFrom(
     return c
   }
   for (const candidate of separationCandidates(c, bgLight)) {
-    if (!chroma.valid(candidate.hex()) || chroma.contrast(candidate, bg) < MIN_CONTRAST) {
+    if (chroma.contrast(candidate, bg) < MIN_CONTRAST) {
       continue
     }
     const dist = minDeltaE(candidate, placed)

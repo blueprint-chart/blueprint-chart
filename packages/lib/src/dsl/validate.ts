@@ -401,23 +401,23 @@ function validateTargets(ast: ChartNode, warnings: ValidationIssue[]): void {
   if (names.size === 0) {
     return
   }
-  const blocks: Array<[string, { target: string }[]]> = [
-    ['highlight', ast.highlights],
-    ['colorize', ast.colorizes],
-    ...ast.scenes.flatMap((s, i): Array<[string, { target: string }[]]> => [
-      [`scene[${i}].highlight`, s.highlights],
-      [`scene[${i}].colorize`, s.colorizes],
+  const blocks: Array<{ basePath: string, keyword: string, nodes: { target: string }[] }> = [
+    { basePath: 'chart', keyword: 'highlight', nodes: ast.highlights },
+    { basePath: 'chart', keyword: 'colorize', nodes: ast.colorizes },
+    ...ast.scenes.flatMap((s, i) => [
+      { basePath: `scene[${i}]`, keyword: 'highlight', nodes: s.highlights },
+      { basePath: `scene[${i}]`, keyword: 'colorize', nodes: s.colorizes },
     ]),
   ]
-  for (const [label, nodes] of blocks) {
+  for (const { basePath, keyword, nodes } of blocks) {
     nodes.forEach((node, i) => {
       if (names.has(node.target)) {
         return
       }
       warnings.push({
         code: 'unresolved-target',
-        path: label.startsWith('scene') ? `${label}[${i}]` : `chart.${label}[${i}]`,
-        message: `${label.split('.').pop()} "${node.target}" matches no category or series; it has no effect.`,
+        path: `${basePath}.${keyword}[${i}]`,
+        message: `${keyword} "${node.target}" matches no category or series; it has no effect.`,
         suggestion: nearest(node.target, names),
       })
     })
