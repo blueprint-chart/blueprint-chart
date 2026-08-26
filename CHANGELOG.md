@@ -1,3 +1,27 @@
+## [2.1.0](https://github.com/blueprint-chart/blueprint-chart/compare/v2.0.0...v2.1.0) (2026-08-26)
+
+### Features
+
+* **lib:** add one shared text measurer for the layout estimators ([3dc169e](https://github.com/blueprint-chart/blueprint-chart/commit/3dc169e6369dd6e0894c48bdc8b09d4dd5510c16)), closes [#24](https://github.com/blueprint-chart/blueprint-chart/issues/24) [#29](https://github.com/blueprint-chart/blueprint-chart/issues/29) [#35](https://github.com/blueprint-chart/blueprint-chart/issues/35) [#46](https://github.com/blueprint-chart/blueprint-chart/issues/46)
+
+### Bug Fixes
+
+* **editor:** copy the note frame property out of the DSL ([8d24b06](https://github.com/blueprint-chart/blueprint-chart/commit/8d24b06979f739ffea079860aa56b0cb33f417f7)), closes [#32](https://github.com/blueprint-chart/blueprint-chart/issues/32)
+* **editor:** keep localStorage from losing or resurrecting a chart ([c1fb143](https://github.com/blueprint-chart/blueprint-chart/commit/c1fb14398dd41813106dbcb554d98b73e16353c4)), closes [#115](https://github.com/blueprint-chart/blueprint-chart/issues/115) [#116](https://github.com/blueprint-chart/blueprint-chart/issues/116)
+* **editor:** keep replace for the first step move off /new ([a188d38](https://github.com/blueprint-chart/blueprint-chart/commit/a188d383b0fd9db99a372960ebff6e6cbb61ea62)), closes [#118](https://github.com/blueprint-chart/blueprint-chart/issues/118)
+* **editor:** make /render decode like /copy and say when it cannot ([ce60d4f](https://github.com/blueprint-chart/blueprint-chart/commit/ce60d4f6ef44b6a77cfc577ac607d44ca4e216cf)), closes [#10](https://github.com/blueprint-chart/blueprint-chart/issues/10) [#56](https://github.com/blueprint-chart/blueprint-chart/issues/56) [#117](https://github.com/blueprint-chart/blueprint-chart/issues/117)
+* **editor:** persist replaced data when it is loaded, not on step change ([6c1d9ec](https://github.com/blueprint-chart/blueprint-chart/commit/6c1d9ecff7d83345da7cf624cdaef355e3bbd640)), closes [#70](https://github.com/blueprint-chart/blueprint-chart/issues/70)
+* **editor:** push wizard steps so browser Back walks them ([6941fe4](https://github.com/blueprint-chart/blueprint-chart/commit/6941fe42895f4ee9307e60313f37f114d4599887)), closes [#118](https://github.com/blueprint-chart/blueprint-chart/issues/118)
+* **editor:** put the validator's semantic errors in the lint gutter ([abba83c](https://github.com/blueprint-chart/blueprint-chart/commit/abba83ce8cfae8a7640f7856f63f192f2b253c9d)), closes [#72](https://github.com/blueprint-chart/blueprint-chart/issues/72)
+* **lib:** choose horizontal tick density from measured label width ([f67e33e](https://github.com/blueprint-chart/blueprint-chart/commit/f67e33ef1f29e47211faaeaacc592639530c9cec)), closes [#24](https://github.com/blueprint-chart/blueprint-chart/issues/24) [#20](https://github.com/blueprint-chart/blueprint-chart/issues/20)
+* **lib:** clamp and clear the annotation viewBox expansion ([eb52612](https://github.com/blueprint-chart/blueprint-chart/commit/eb52612bd23c80a451edd264cb59ea32b155a46f)), closes [#44](https://github.com/blueprint-chart/blueprint-chart/issues/44) [#81](https://github.com/blueprint-chart/blueprint-chart/issues/81)
+* **lib:** keep a usable radius when arc labels claim the canvas ([0d2a392](https://github.com/blueprint-chart/blueprint-chart/commit/0d2a392c8664030e1be346a2ff9ad4182dde1842)), closes [#29](https://github.com/blueprint-chart/blueprint-chart/issues/29)
+* **lib:** measure legend items instead of counting characters ([1a7f192](https://github.com/blueprint-chart/blueprint-chart/commit/1a7f192651133e4d07508a7e06080a1b4886fd01)), closes [#35](https://github.com/blueprint-chart/blueprint-chart/issues/35)
+* **lib:** render a default-sized annotation circle for an unusable circleSize ([322059e](https://github.com/blueprint-chart/blueprint-chart/commit/322059e71297adb0c8482aac087c0dbc7212f97f)), closes [#26](https://github.com/blueprint-chart/blueprint-chart/issues/26) [#121](https://github.com/blueprint-chart/blueprint-chart/issues/121)
+* **lib:** resolve range annotation endpoints or draw no band ([683e077](https://github.com/blueprint-chart/blueprint-chart/commit/683e077f93a811b7394bbb8f6ee0044b99ff4a7a)), closes [#48](https://github.com/blueprint-chart/blueprint-chart/issues/48) [#109](https://github.com/blueprint-chart/blueprint-chart/issues/109) [#47](https://github.com/blueprint-chart/blueprint-chart/issues/47)
+* **lib:** stop reusing one chart type's axes for the next ([07605b4](https://github.com/blueprint-chart/blueprint-chart/commit/07605b44c8f8f033c0346be58f46f2943850cc67)), closes [#55](https://github.com/blueprint-chart/blueprint-chart/issues/55) [#82](https://github.com/blueprint-chart/blueprint-chart/issues/82)
+* **lib:** wrap annotation text with no break opportunity ([600911d](https://github.com/blueprint-chart/blueprint-chart/commit/600911d0cc7e42982d66a1334b4a4d2beff12044)), closes [#46](https://github.com/blueprint-chart/blueprint-chart/issues/46)
+
 ## [2.0.0](https://github.com/blueprint-chart/blueprint-chart/compare/v1.8.3...v2.0.0) (2026-08-26)
 
 ### ⚠ BREAKING CHANGES
