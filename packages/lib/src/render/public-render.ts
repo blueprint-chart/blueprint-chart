@@ -4,6 +4,8 @@ import { createDomBackend } from './backends/dom-backend'
 import type { RenderBackend } from './backends/types'
 import type { ChartDefinition } from './types'
 import { ChartParseError } from './errors'
+import { resolveScene } from './resolve-scene'
+import { layoutFrameSvg, buildFrameSvg } from './frame-svg'
 
 export interface RenderApiOptions {
   theme?: string
@@ -62,29 +64,49 @@ export async function render(source: string, options: RenderApiOptions = {}): Pr
     height: options.height ?? DEFAULT_HEIGHT,
   }
 
-  function renderInto(container: HTMLElement) {
+  function renderInto(container: HTMLElement, thumbnail: boolean) {
     backend.renderToContainer(container, definition, {
       sceneIndex: state.sceneIndex,
-      thumbnail: !frame,
+      thumbnail,
       theme: options.theme,
     })
   }
 
-  const handle: ChartHandle = {
-    async toSvg(opts: OutputOptions = {}): Promise<string> {
-      const { container, cleanup } = backend.createContainer(opts.width ?? state.width, opts.height ?? state.height)
+  /** Renders the plot into a frame laid out as SVG, so the chrome survives a
+   *  bare-SVG export and rasterization. `frame: false` keeps the bare plot. */
+  function composeSvg(opts: OutputOptions): string {
+    const width = opts.width ?? state.width
+    const height = opts.height ?? state.height
+    if (!frame) {
+      const { container, cleanup } = backend.createContainer(width, height)
       try {
-        renderInto(container)
+        renderInto(container, true)
         return backend.serializeSvg(container)
       }
       finally {
         cleanup()
       }
+    }
+    const scene = resolveScene(definition, state.sceneIndex)
+    const layout = layoutFrameSvg({ width, height, frame: scene.frame, theme: options.theme ?? scene.theme })
+    const { container, cleanup } = backend.createContainer(layout.plot.width, layout.plot.height)
+    try {
+      renderInto(container, true)
+      return buildFrameSvg(layout, backend.serializeSvg(container))
+    }
+    finally {
+      cleanup()
+    }
+  }
+
+  const handle: ChartHandle = {
+    async toSvg(opts: OutputOptions = {}): Promise<string> {
+      return composeSvg(opts)
     },
     async toHtml(opts: OutputOptions = {}): Promise<string> {
       const { container, cleanup } = backend.createContainer(opts.width ?? state.width, opts.height ?? state.height)
       try {
-        renderInto(container)
+        renderInto(container, !frame)
         return backend.serializeFrame(container)
       }
       finally {
@@ -92,15 +114,7 @@ export async function render(source: string, options: RenderApiOptions = {}): Pr
       }
     },
     async toPng(opts: OutputOptions = {}): Promise<Uint8Array> {
-      const { container, cleanup } = backend.createContainer(opts.width ?? state.width, opts.height ?? state.height)
-      let svg: string
-      try {
-        renderInto(container)
-        svg = backend.serializeSvg(container)
-      }
-      finally {
-        cleanup()
-      }
+      const svg = composeSvg(opts)
       return backend.rasterizePng(svg, { width: opts.width ?? state.width, height: opts.height ?? state.height })
     },
     mount(target: HTMLElement | string): ChartHandle {
@@ -112,7 +126,7 @@ export async function render(source: string, options: RenderApiOptions = {}): Pr
       if (!el) {
         throw new Error(`Blueprint Chart: mount target "${String(target)}" not found`)
       }
-      renderInto(el as HTMLElement)
+      renderInto(el as HTMLElement, !frame)
       return handle
     },
     scene(index: number): ChartHandle {

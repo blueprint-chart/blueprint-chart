@@ -247,7 +247,7 @@ function buildFooterRightItems(): FooterItem[] {
  * side into a separate shorthand slot, so a raw multi-value string would build
  * an over-long declaration that the browser rejects outright.
  */
-function expandPaddingShorthand(padding: string): [string, string, string, string] {
+export function expandPaddingShorthand(padding: string): [string, string, string, string] {
   const [top, right = top, bottom = top, left = right] = padding.trim().split(/\s+/)
   return [top, right, bottom, left]
 }

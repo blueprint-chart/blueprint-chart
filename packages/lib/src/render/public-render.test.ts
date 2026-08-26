@@ -74,3 +74,40 @@ describe('requested output size (#7)', () => {
     expect(tall).toMatch(/<svg[^>]*height="800"/)
   })
 })
+
+const FRAMED_BPC = `chart bar-vertical {
+  title = "Headline here"
+  description = "Subtitle here"
+  byline = "By Someone"
+  note = "A note"
+  source = "Some Source"
+  data { "a" = 1 "b" = 2 }
+}`
+
+describe('frame chrome in toSvg() (#9)', () => {
+  it('carries the headline, description, byline, note and source', async () => {
+    const svg = await (await render(FRAMED_BPC)).toSvg({ width: 800, height: 500 })
+    expect(svg).toContain('Headline here')
+    expect(svg).toContain('Subtitle here')
+    expect(svg).toContain('By Someone')
+    expect(svg).toContain('A note')
+    expect(svg).toContain('Some Source')
+  })
+
+  it('keeps the framed output at the requested size', async () => {
+    const svg = await (await render(FRAMED_BPC)).toSvg({ width: 800, height: 500 })
+    expect(svg).toMatch(/^<svg[^>]*width="800"/)
+    expect(svg).toMatch(/^<svg[^>]*height="500"/)
+  })
+
+  it('renders the plot inside the frame, below the header', async () => {
+    const svg = await (await render(FRAMED_BPC)).toSvg({ width: 800, height: 500 })
+    expect(svg).toContain('class="bc-bar"')
+    expect(svg).toMatch(/<g transform="translate\(\d+(\.\d+)?,\d+(\.\d+)?\)">\s*<svg/)
+  })
+
+  it('leaves frame: false emitting the bare plot', async () => {
+    const svg = await (await render(FRAMED_BPC, { frame: false })).toSvg({ width: 800, height: 500 })
+    expect(svg).not.toContain('Headline here')
+  })
+})
