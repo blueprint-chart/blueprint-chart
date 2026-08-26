@@ -3,9 +3,12 @@
  * The lib uses canvas only for text measurement with a character-count fallback,
  * so returning a minimal mock is safe.
  */
-HTMLCanvasElement.prototype.getContext = (() => {
-  return {
-    font: '',
-    measureText: (text: string) => ({ width: text.length * 6 }),
-  }
-}) as typeof HTMLCanvasElement.prototype.getContext
+// Skipped under `@vitest-environment node`, where there is no DOM to patch.
+if (typeof HTMLCanvasElement !== 'undefined') {
+  HTMLCanvasElement.prototype.getContext = (() => {
+    return {
+      font: '',
+      measureText: (text: string) => ({ width: text.length * 6 }),
+    }
+  }) as typeof HTMLCanvasElement.prototype.getContext
+}
