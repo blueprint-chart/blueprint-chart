@@ -85,3 +85,17 @@ test('a DSL syntax error is reported, not rendered as a blank page (#129)', asyn
   await expect(message).toContainText('could not be read')
   await expect(message).toContainText('line')
 })
+
+// #141: the payload lives in the URL fragment, so replacing it is a
+// same-document navigation and the page used to keep the first chart.
+test('changing the bpc64 payload re-renders without a reload (#141)', async ({ page }) => {
+  const chartA = `chart bar-vertical {\n  title = "Chart A"\n  data {\n    "Alpha" = 30\n  }\n}`
+  const chartB = `chart bar-vertical {\n  title = "Chart B"\n  data {\n    "Beta" = 50\n  }\n}`
+  const encode = (s: string) => encodeURIComponent(Buffer.from(s, 'utf-8').toString('base64'))
+
+  await gotoRender(page, chartA)
+  await expect(page.locator('.bc-frame')).toContainText('Chart A')
+
+  await page.evaluate(payload => { window.location.hash = `#/render?bpc64=${payload}` }, encode(chartB))
+  await expect(page.locator('.bc-frame')).toContainText('Chart B')
+})

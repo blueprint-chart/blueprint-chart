@@ -165,6 +165,27 @@ describe('useDataTable', () => {
     useDataTransforms().addStep(TransformType.Sort, { column: 'Value' })
     expect(useDataTable().serializeTransformed()).toBeNull()
   })
+
+  // #138: with a scene selected the store holds that scene's steps, so the
+  // display used to run them and then run the resolved list again on top.
+  it('applies a scene step once, not twice', () => {
+    const { loadParsed, displayRows } = useDataTable()
+    loadParsed({
+      columns: ['Name', 'Value'],
+      rows: [['A', '1'], ['B', '2'], ['C', '3']],
+      columnTypes: ['string', 'number'],
+    })
+    const scenes = useScenes()
+    scenes.add()
+    // Transpose is its own inverse, so applying it twice is the identity and a
+    // double application is unmistakable.
+    const step = { id: 's1', type: TransformType.Transpose, config: {} }
+    scenes.update(0, { transforms: [step] })
+    useDataTransforms().hydrate([step])
+    scenes.setActive(0)
+
+    expect(displayRows.value.map(r => r[0])).toEqual(['Value'])
+  })
 })
 
 describe('serializeTableData', () => {

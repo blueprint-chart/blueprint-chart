@@ -113,7 +113,8 @@ onBeforeUnmount(() => {
 
 const error = ref('')
 
-onMounted(async () => {
+async function load() {
+  error.value = ''
   const id = route.query.id as string | undefined
   if (id) {
     if (accountsEnabled()) {
@@ -138,7 +139,12 @@ onMounted(async () => {
     return
   }
   showDsl(dsl)
-})
+}
+
+// The payload lives in the URL, so replacing it is a same-document navigation
+// and the component is never remounted. Without this watch the page kept
+// rendering the previous chart with nothing to say the new one was ignored.
+watch(() => [route.query.bpc64, route.query.id], load, { immediate: true })
 
 /**
  * A syntax error used to leave the page blank, which reads as a broken tool

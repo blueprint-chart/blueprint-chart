@@ -40,16 +40,19 @@ export const useDataTableStore = defineStore('dataTable', () => {
       }
     }
 
+    // One source of truth for what has already been applied. While a scene is
+    // selected the store holds *that scene's* steps, so running the resolved
+    // list on top of them applied the same steps twice and never ran the base
+    // pipeline at all. Compose instead: prior scenes' steps, then the store's.
     let result = { columns: state.columns, rows: state.rows, columnTypes: state.columnTypes }
-    if (steps.value.length > 0) {
-      result = applyTransforms(state.columns, state.rows, state.columnTypes)
+    const inherited = activeIndex.value > 0
+      ? (resolveScene(scenes.value, activeIndex.value - 1)?.transforms ?? [])
+      : []
+    if (inherited.length > 0 && result.columns.length > 0) {
+      result = applyStepList(inherited, result.columns, result.rows, result.columnTypes)
     }
-    // When a scene is active, apply inherited transforms from prior scenes
-    if (activeIndex.value >= 0 && result.columns.length > 0) {
-      const resolved = resolveScene(scenes.value, activeIndex.value)
-      if (resolved?.transforms?.length) {
-        result = applyStepList(resolved.transforms, result.columns, result.rows, result.columnTypes)
-      }
+    if (steps.value.length > 0 && result.columns.length > 0) {
+      result = applyStepList(steps.value, result.columns, result.rows, result.columnTypes)
     }
     return result
   })
