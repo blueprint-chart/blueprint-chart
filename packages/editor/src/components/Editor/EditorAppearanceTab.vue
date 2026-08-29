@@ -45,6 +45,13 @@
     >
       <EditorAreaSection />
     </SettingsSection>
+
+    <SettingsSection
+      title="Sort"
+      :icon="IPhSortAscending"
+    >
+      <EditorSortSection />
+    </SettingsSection>
   </div>
 </template>
 
@@ -60,6 +67,7 @@ import IPhPaintBrush from '~icons/ph/paint-brush'
 import IPhChartBar from '~icons/ph/chart-bar'
 import IPhChartBarHorizontal from '~icons/ph/chart-bar-horizontal'
 import IPhChartLine from '~icons/ph/chart-line'
+import IPhSortAscending from '~icons/ph/sort-ascending'
 
 const { chartType } = useChartConfig()
 const { availableOptionKeys } = useChartTypeOptions()
