@@ -1,18 +1,10 @@
 import { test, expect } from '@playwright/test'
+import { urlSafeB64Encode } from './support/bpc64'
 import { readFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
-
-/**
- * URL-safe base64 encode a UTF-8 string, mirroring `urlSafeB64Encode` in the
- * docs package: standard base64, then `+` -> `-`, `/` -> `_`, strip `=` padding.
- */
-function urlSafeB64Encode(input: string): string {
-  const b64 = Buffer.from(input, 'utf-8').toString('base64')
-  return b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
-}
 
 const STOCK_SAMPLE = readFileSync(
   resolve(__dirname, '../packages/lib/src/samples/stock-price-area.bpc'),

@@ -1,11 +1,7 @@
 import { test, expect } from '@playwright/test'
+import { urlSafeB64Encode } from './support/bpc64'
 
 test.use({ viewport: { width: 360, height: 640 } })
-
-function urlSafeB64Encode(input: string): string {
-  const b64 = Buffer.from(input, 'utf-8').toString('base64')
-  return b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
-}
 
 // #120: at narrow widths the floating undo/redo/view toolbar was absolutely
 // positioned over the canvas frame and hid part of a wrapping headline.
