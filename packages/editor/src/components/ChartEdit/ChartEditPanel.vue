@@ -91,7 +91,7 @@ import FloatingSceneTimeline from '@/components/Scene/FloatingSceneTimeline.vue'
 import { useScenes } from '@/composables/useScenes'
 
 const editorPanel = useEditorPanel()
-const { viewMode, activeTab, canvasMode, showDimensions, splitRatio } = storeToRefs(editorPanel)
+const { viewMode, activeTab, canvasMode, showDimensions, splitRatio } = editorPanel
 const { stopPlayback } = useScenes()
 const { selectTab, setLastNarrowEditTab, setViewMode } = editorPanel
 const { mode: panelMode } = usePanel()

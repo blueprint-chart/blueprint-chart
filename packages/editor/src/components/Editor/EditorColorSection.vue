@@ -133,7 +133,7 @@ import CvdTritanopiaThumb from '@/assets/chart-thumbnails/cvd-tritanopia.bpc'
 
 const { chartType, data, colorizes } = useChartConfig()
 const { currentOptions, availableOptionKeys, setOption } = useChartTypeOptions()
-const { cvdMode } = storeToRefs(useCvdMode())
+const { cvdMode } = useCvdMode()
 
 const hasColorizes = computed(() =>
   ([ChartType.BarVertical, ChartType.BarHorizontal, ChartType.VerticalBar, ChartType.HorizontalBar] as string[]).includes(chartType.value),
@@ -181,9 +181,9 @@ const { lightContrastInfo, darkContrastInfo, cvdInfo } = useColorAccessibility(
 const cvdSafeBadgeRef = useTemplateRef<HTMLElement>('cvdSafeBadgeRef')
 const cvdBadgeRefs = useTemplateRef<HTMLElement[]>('cvdBadgeRefs')
 
-function getCvdBadgeEl(type: CvdType): HTMLElement | undefined {
+function getCvdBadgeEl(type: CvdType): HTMLElement | null {
   const idx = cvdInfo.value?.issues.findIndex(i => i.type === type) ?? -1
-  return idx >= 0 ? cvdBadgeRefs.value[idx] : undefined
+  return idx >= 0 ? cvdBadgeRefs.value?.[idx] ?? null : null
 }
 
 const cvdOptions = [

@@ -88,10 +88,10 @@ export function useAnnotationDrag(
     const hasAnchor = anchorX !== null && anchorY !== null
 
     // Read the line style from the annotation config
-    const lineStyle: string = (ann && 'lineStyle' in ann ? (ann as Record<string, unknown>).lineStyle : 'direct') as string || 'direct'
+    const lineStyle: string = (ann && 'lineStyle' in ann ? (ann as unknown as Record<string, unknown>).lineStyle : 'direct') as string || 'direct'
     // Line target distance: when circle is present, shorten by circle radius + gap
     const lineTargetDist = circleRadius > 0
-      ? circleRadius + ((ann && 'lineTargetDistance' in ann ? (ann as Record<string, unknown>).lineTargetDistance : 5) as number || 5)
+      ? circleRadius + ((ann && 'lineTargetDistance' in ann ? (ann as unknown as Record<string, unknown>).lineTargetDistance : 5) as number || 5)
       : 0
 
     // Record original text position
@@ -108,7 +108,7 @@ export function useAnnotationDrag(
     const pad = 4
 
     // Resolve maxWidth to pixels for the overlay width
-    const rawMaxWidth = ann ? (ann as Record<string, unknown>).maxWidth as number | string | undefined : undefined
+    const rawMaxWidth = ann ? (ann as unknown as Record<string, unknown>).maxWidth as number | string | undefined : undefined
     let overlayWidth = bbox.width
     if (rawMaxWidth != null) {
       const chartWidth = parseFloat(svg.getAttribute('width') || '0')
@@ -322,7 +322,7 @@ export function useAnnotationDrag(
       }
 
       // Config update triggers full re-render — no need to restore DOM manually
-      onUpdate(index!, updated as AnnotationConfig)
+      onUpdate(index!, updated as unknown as AnnotationConfig)
     }
 
     overlay.addEventListener('pointerdown', onPointerDown)

@@ -21,7 +21,7 @@
           :id="`af-from-${id}`"
           :model-value="fill.from"
           :options="seriesOptions"
-          @update:model-value="(v: string) => update('from', v)"
+          @update:model-value="(v) => update('from', v)"
         />
       </BFormGroup>
 
@@ -33,7 +33,7 @@
           :id="`af-to-${id}`"
           :model-value="fill.to"
           :options="seriesOptions"
-          @update:model-value="(v: string) => update('to', v)"
+          @update:model-value="(v) => update('to', v)"
         />
       </BFormGroup>
 
@@ -45,7 +45,7 @@
           :id="`af-color-${id}`"
           type="color"
           :model-value="fill.color ?? '#cccccc'"
-          @update:model-value="(v: string) => update('color', v)"
+          @update:model-value="(v) => update('color', v)"
         />
       </BFormGroup>
 
@@ -53,7 +53,7 @@
         <BFormCheckbox
           :model-value="!!fill.negativeColor"
           switch
-          @update:model-value="(v: boolean) => update('negativeColor', v ? '#f28e2b' : undefined)"
+          @update:model-value="(v) => update('negativeColor', v ? '#f28e2b' : undefined)"
         >
           Use different color for negative differences
         </BFormCheckbox>
@@ -68,7 +68,7 @@
           :id="`af-neg-color-${id}`"
           type="color"
           :model-value="fill.negativeColor"
-          @update:model-value="(v: string) => update('negativeColor', v)"
+          @update:model-value="(v) => update('negativeColor', v)"
         />
       </BFormGroup>
 
@@ -84,7 +84,7 @@
             min="0"
             max="100"
             class="flex-grow-1"
-            @update:model-value="(v: string) => update('opacity', Number(v))"
+            @update:model-value="(v) => update('opacity', Number(v))"
           />
           <small
             class="text-nowrap"
@@ -101,7 +101,7 @@
           :id="`af-interp-${id}`"
           :model-value="fill.interpolation ?? 'linear'"
           :options="interpolationChoices"
-          @update:model-value="(v: string) => update('interpolation', v)"
+          @update:model-value="(v) => update('interpolation', v)"
         />
       </BFormGroup>
     </div>

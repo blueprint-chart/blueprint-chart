@@ -50,7 +50,7 @@ const { isNarrow: isSavedCompact } = useBreakpoint('lg')
 const { isNarrow: isStepperStacked } = useBreakpoint('md')
 const { isNarrow } = useBreakpoint() // defaults to 'md' — matches the panel store
 const editorPanel = useEditorPanel()
-const { dataView } = storeToRefs(editorPanel)
+const { dataView } = editorPanel
 const exportPanel = useExportPanel()
 const scenesSheetOpen = ref(false)
 
@@ -238,7 +238,7 @@ const timelineScenes = computed(() => {
     thumbnail: sceneThumbnails.value[0] ?? null,
     hint: 'base scene',
   }
-  const overrides = scenes.value.map((s, i) => {
+  const overrides = scenes.value.map((_s, i) => {
     const wizardIdx = i + 1
     const dataSource = findDataSourceSceneIndex(scenes.value, i)
     let hint: string

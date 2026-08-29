@@ -38,7 +38,6 @@ describe('useWait', () => {
 
   it('throws when given no function to run', () => {
     const { waitFor } = useWait()
-    // @ts-expect-error deliberately wrong usage
     expect(() => waitFor('id')).toThrow()
   })
 })

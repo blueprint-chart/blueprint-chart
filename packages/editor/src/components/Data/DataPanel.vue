@@ -25,14 +25,14 @@ import { useScenes } from '@/stores/scenes'
 import type { ChartSample } from '@blueprint-chart/lib'
 
 const editorPanel = useEditorPanel()
-const { dataView } = storeToRefs(editorPanel)
+const { dataView } = editorPanel
 const { setDataView } = editorPanel
 const dataTable = useDataTable()
 const config = useChartConfig()
 const { applyDsl } = useDslSync()
 const { loadSample } = useChartSession()
 const { next } = useWizard()
-const parseOptions = storeToRefs(useParseOptions())
+const parseOptions = useParseOptions()
 const { activeScene, activeIndex, update: updateScene } = useScenes()
 const isSceneMode = computed(() => activeScene.value !== null)
 

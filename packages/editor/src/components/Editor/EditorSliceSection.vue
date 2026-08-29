@@ -47,7 +47,7 @@
         id="opt-sliceGroupLabel"
         :model-value="(currentOptions.sliceGroupLabel as string) ?? 'Others'"
         placeholder="Others"
-        @update:model-value="(v: string) => setOption('sliceGroupLabel', v)"
+        @update:model-value="(v) => setOption('sliceGroupLabel', String(v ?? ''))"
       />
     </BFormGroup>
   </div>

@@ -89,6 +89,7 @@
 </template>
 
 <script setup lang="ts">
+import type { ColumnType } from '@/utils/data/parser'
 import { useDataTable } from '@/stores/dataTable'
 import { TransformType } from '@/enums'
 import { useDataTransforms } from '@/stores/dataTransforms'
@@ -116,7 +117,7 @@ const selectedStepIndex = computed(() => steps.value.findIndex(s => s.id === sel
 
 const dataAtStep = computed(() => {
   if (selectedStepIndex.value < 0) {
-    return { columns: [] as string[], columnTypes: [] as string[] }
+    return { columns: [] as string[], columnTypes: [] as ColumnType[] }
   }
   return getColumnsAtStep(selectedStepIndex.value, columns.value, rows.value, columnTypes.value)
 })

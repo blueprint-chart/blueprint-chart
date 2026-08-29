@@ -99,7 +99,6 @@ import PhDownload from '~icons/ph/download'
           :icon-left="PhPlus"
           label="Medium"
           variant="primary"
-          size="md"
         />
         <ButtonIcon
           :icon-left="PhPlus"

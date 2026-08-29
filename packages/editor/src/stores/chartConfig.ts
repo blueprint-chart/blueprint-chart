@@ -1,4 +1,4 @@
-import type { Ref, WritableComputedRef, ToRefs } from 'vue'
+import type { Ref, WritableComputedRef } from 'vue'
 import type { AreaFillConfig, AnnotationConfig, SeriesOverride, HighlightConfig } from '@blueprint-chart/lib'
 import { ChartType, SortDirection } from '@blueprint-chart/lib'
 import { useScenes, type SceneOverride } from '@/stores/scenes'
@@ -72,7 +72,7 @@ function inheritedPropValue<T extends string>(baseVal: T, propKey: string, scene
 export interface ChartColorize {
   target: string
   color: string
-  label: string
+  label?: string
 }
 
 export interface ChartLayout {
@@ -260,8 +260,10 @@ export const useChartConfigStore = defineStore('chartConfig', () => {
     // Non-scene-aware refs (layout, selectedColumn)
     layout: refs.layout,
     selectedColumn: refs.selectedColumn,
-    // Base refs for direct access (markRaw prevents Pinia from unwrapping nested refs)
-    _base: markRaw(refs) as ToRefs<ChartConfig>,
+    // Base refs for direct access (markRaw prevents Pinia from unwrapping
+    // nested refs; keeping the Raw marker in the type stops Pinia's typing
+    // from unwrapping them too)
+    _base: markRaw(refs),
     // Actions
     reset,
     hydrate,

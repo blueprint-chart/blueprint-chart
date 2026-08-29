@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils'
 import type { AnnotationConfig, SeriesOverride } from '@blueprint-chart/lib'
-import { ChartType, SortDirection } from '@blueprint-chart/lib'
+import { AnnotationKind, ChartType, SortDirection, SortMode } from '@blueprint-chart/lib'
 import { TransformType } from '@/enums'
 import { resolveScene, resolveSortFromTransforms } from './useChartPreview'
 import { useChartPreview } from './useChartPreview'
@@ -190,8 +190,8 @@ describe('resolveScene', () => {
   })
 
   it('scene annotations override base annotations', () => {
-    const baseAnnotations: AnnotationConfig[] = [{ id: 'a1', kind: 'point', target: 'A', text: 'p' }]
-    const sceneAnnotations: AnnotationConfig[] = [{ id: 'a2', kind: 'range', start: 0, end: 10 }]
+    const baseAnnotations: AnnotationConfig[] = [{ id: 'a1', kind: AnnotationKind.Point, target: 'A', text: 'p' }]
+    const sceneAnnotations: AnnotationConfig[] = [{ id: 'a2', kind: AnnotationKind.Range, start: 0, end: 10 }]
     const scenes = [
       scene({ annotations: baseAnnotations }),
       scene({ annotations: sceneAnnotations }),
@@ -218,8 +218,8 @@ describe('resolveScene', () => {
   })
 
   it('transforms from later scene replace earlier scene', () => {
-    const earlyTransforms: TransformStep[] = [{ type: TransformType.Filter, column: 'A', value: '1' }]
-    const lateTransforms: TransformStep[] = [{ type: TransformType.Sort, column: 'B', value: 'asc' }]
+    const earlyTransforms: TransformStep[] = [{ id: 't1', type: TransformType.Filter, config: { column: 'A', value: '1' } }]
+    const lateTransforms: TransformStep[] = [{ id: 't2', type: TransformType.Sort, config: { column: 'B', value: 'asc' } }]
     const scenes = [
       scene({ transforms: earlyTransforms }),
       scene({ transforms: lateTransforms }),
@@ -230,7 +230,7 @@ describe('resolveScene', () => {
 
   it('inherits a chart-type option from a prior scene, so the preview sees a folded sortMode', () => {
     const scenes = [
-      scene({ chartTypeOptions: { sortMode: 'total' } }),
+      scene({ chartTypeOptions: { sortMode: SortMode.Total } }),
       scene({ chartTypeOptions: { legend: true } }),
     ]
     const result = resolveScene(scenes, 1)!
@@ -239,30 +239,30 @@ describe('resolveScene', () => {
 
   it('empty annotations array in later scene does not override cascaded annotations', () => {
     const scenes = [
-      scene({ annotations: [{ id: 'a1', kind: 'point', target: 'A', text: 'p' }] }),
+      scene({ annotations: [{ id: 'a1', kind: AnnotationKind.Point, target: 'A', text: 'p' }] }),
       scene({ annotations: [] }),
     ]
     const result = resolveScene(scenes, 1)!
-    expect(result.annotations).toEqual([{ id: 'a1', kind: 'point', target: 'A', text: 'p' }])
+    expect(result.annotations).toEqual([{ id: 'a1', kind: AnnotationKind.Point, target: 'A', text: 'p' }])
   })
 
   it('non-empty annotations in later scene do override earlier scene', () => {
     const scenes = [
-      scene({ annotations: [{ id: 'a1', kind: 'point', target: 'A', text: 'p' }] }),
-      scene({ annotations: [{ id: 'a2', kind: 'point', target: 'B', text: 'q' }] }),
+      scene({ annotations: [{ id: 'a1', kind: AnnotationKind.Point, target: 'A', text: 'p' }] }),
+      scene({ annotations: [{ id: 'a2', kind: AnnotationKind.Point, target: 'B', text: 'q' }] }),
     ]
     const result = resolveScene(scenes, 1)!
-    expect(result.annotations).toEqual([{ id: 'a2', kind: 'point', target: 'B', text: 'q' }])
+    expect(result.annotations).toEqual([{ id: 'a2', kind: AnnotationKind.Point, target: 'B', text: 'q' }])
   })
 
   it('empty annotations in middle scene does not block cascading to later scene', () => {
     const scenes = [
-      scene({ annotations: [{ id: 'a1', kind: 'point', target: 'A', text: 'p' }] }),
+      scene({ annotations: [{ id: 'a1', kind: AnnotationKind.Point, target: 'A', text: 'p' }] }),
       scene({ annotations: [] }),
       scene({}),
     ]
     const result = resolveScene(scenes, 2)!
-    expect(result.annotations).toEqual([{ id: 'a1', kind: 'point', target: 'A', text: 'p' }])
+    expect(result.annotations).toEqual([{ id: 'a1', kind: AnnotationKind.Point, target: 'A', text: 'p' }])
   })
 
   it('seriesOverrides from later scene replace earlier scene', () => {
@@ -357,52 +357,52 @@ describe('annotation filtering', () => {
 
   it('returns all annotations when hiddenIds is undefined', () => {
     const annotations = [
-      { id: 'a', kind: 'point' },
-      { id: 'b', kind: 'range' },
+      { id: 'a', kind: AnnotationKind.Point },
+      { id: 'b', kind: AnnotationKind.Range },
     ]
     expect(filterAnnotations(annotations, undefined)).toEqual(annotations)
   })
 
   it('filters out annotation with matching id', () => {
     const annotations = [
-      { id: 'a', kind: 'point' },
-      { id: 'b', kind: 'range' },
+      { id: 'a', kind: AnnotationKind.Point },
+      { id: 'b', kind: AnnotationKind.Range },
     ]
     const result = filterAnnotations(annotations, new Set(['a']))
-    expect(result).toEqual([{ id: 'b', kind: 'range' }])
+    expect(result).toEqual([{ id: 'b', kind: AnnotationKind.Range }])
   })
 
   it('keeps annotation with no id even when hiddenIds is populated', () => {
     const annotations = [
-      { kind: 'point' },
-      { id: 'b', kind: 'range' },
+      { kind: AnnotationKind.Point },
+      { id: 'b', kind: AnnotationKind.Range },
     ]
     const result = filterAnnotations(annotations, new Set(['b']))
-    expect(result).toEqual([{ kind: 'point' }])
+    expect(result).toEqual([{ kind: AnnotationKind.Point }])
   })
 
   it('keeps annotation with id not in hiddenIds', () => {
     const annotations = [
-      { id: 'x', kind: 'point' },
+      { id: 'x', kind: AnnotationKind.Point },
     ]
     const result = filterAnnotations(annotations, new Set(['y']))
-    expect(result).toEqual([{ id: 'x', kind: 'point' }])
+    expect(result).toEqual([{ id: 'x', kind: AnnotationKind.Point }])
   })
 
   it('filters multiple annotations with different ids', () => {
     const annotations = [
-      { id: 'a', kind: 'point' },
-      { id: 'b', kind: 'range' },
-      { id: 'c', kind: 'free' },
+      { id: 'a', kind: AnnotationKind.Point },
+      { id: 'b', kind: AnnotationKind.Range },
+      { id: 'c', kind: AnnotationKind.Free },
     ]
     const result = filterAnnotations(annotations, new Set(['a', 'c']))
-    expect(result).toEqual([{ id: 'b', kind: 'range' }])
+    expect(result).toEqual([{ id: 'b', kind: AnnotationKind.Range }])
   })
 
   it('empty hiddenIds set filters nothing', () => {
     const annotations = [
-      { id: 'a', kind: 'point' },
-      { id: 'b', kind: 'range' },
+      { id: 'a', kind: AnnotationKind.Point },
+      { id: 'b', kind: AnnotationKind.Range },
     ]
     const result = filterAnnotations(annotations, new Set())
     expect(result).toEqual(annotations)
@@ -422,11 +422,11 @@ describe('base + scene annotation merging', () => {
   }
 
   const baseAnns: AnnotationConfig[] = [
-    { kind: 'point', id: '537sb', target: 'Japan', text: 'Base annotation', showLine: true, showArrow: true },
+    { kind: AnnotationKind.Point, id: '537sb', target: 'Japan', text: 'Base annotation', showLine: true, showArrow: true },
   ]
 
   const scene0Anns: AnnotationConfig[] = [
-    { kind: 'point', id: 'tha5f', target: 'India', text: 'Scene annotation', showLine: true, showArrow: true },
+    { kind: AnnotationKind.Point, id: 'tha5f', target: 'India', text: 'Scene annotation', showLine: true, showArrow: true },
   ]
 
   it('base annotation is present when no scene is active', () => {
@@ -501,8 +501,8 @@ describe('useChartPreview › renderChart annotations windowing', () => {
     const scenesStore = useScenes()
 
     // Base: one annotation with repeat='always', one with default (undefined → only scene 0)
-    const alwaysAnn: AnnotationConfig = { kind: 'point', target: 'A', text: 'always', repeat: 'always' }
-    const defaultAnn: AnnotationConfig = { kind: 'point', target: 'B', text: 'default' }
+    const alwaysAnn: AnnotationConfig = { kind: AnnotationKind.Point, target: 'A', text: 'always', repeat: 'always' }
+    const defaultAnn: AnnotationConfig = { kind: AnnotationKind.Point, target: 'B', text: 'default' }
     config._base.annotations.value = [alwaysAnn, defaultAnn]
 
     // Two scenes; activate index 1 so activeIndex > 0

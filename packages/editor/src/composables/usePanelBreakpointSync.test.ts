@@ -14,7 +14,7 @@ function createMockMatchMedia(initialMatches: boolean) {
       }
     },
   }
-  window.matchMedia = (() => mql) as typeof window.matchMedia
+  window.matchMedia = (() => mql) as unknown as typeof window.matchMedia
   return {
     mql,
     emit: (matches: boolean) => {

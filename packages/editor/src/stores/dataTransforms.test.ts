@@ -1,4 +1,5 @@
 import { TransformType, FilterCondition } from '@/enums'
+import type { TransformStep } from './dataTransforms'
 import { useDataTransforms } from './dataTransforms'
 
 describe('useDataTransforms: state management', () => {
@@ -223,7 +224,7 @@ describe('applyStepList', () => {
 
   it('applies multiple steps in order', () => {
     const { applyStepList } = useDataTransforms()
-    const steps = [
+    const steps: TransformStep[] = [
       { id: '1', type: TransformType.Sort, config: { column: 'Val', direction: 'descending' } },
       { id: '2', type: TransformType.Filter, config: { column: 'Val', condition: FilterCondition.GreaterThan, value: '5' } },
     ]

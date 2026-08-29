@@ -14,7 +14,7 @@ import { useExportSections } from '@/composables/useExportSections'
 
 const { mode: panelMode, toggleMode } = usePanel()
 const exportPanelStore = useExportPanel()
-const { exportTab } = storeToRefs(exportPanelStore)
+const { exportTab } = exportPanelStore
 const { setExportTab } = exportPanelStore
 const { sections } = useExportSections()
 

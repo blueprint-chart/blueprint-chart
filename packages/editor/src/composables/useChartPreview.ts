@@ -77,7 +77,7 @@ export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
     const data = parseData(dataStr)
 
     // Single-series flattening (editor-specific shaping)
-    const singleSeriesTypes = [ChartType.BarVertical, ChartType.BarHorizontal, ChartType.Line, ChartType.VerticalBar, ChartType.HorizontalBar]
+    const singleSeriesTypes: string[] = [ChartType.BarVertical, ChartType.BarHorizontal, ChartType.Line, ChartType.VerticalBar, ChartType.HorizontalBar]
     if (data.series && data.series.length > 0 && singleSeriesTypes.includes(chartType)) {
       const match = data.series.find(s => s.name === config.selectedColumn.value)
       if (match) {

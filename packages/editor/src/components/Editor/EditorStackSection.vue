@@ -8,7 +8,7 @@
         id="opt-stack-mode"
         :model-value="currentOptions.stackMode ?? 'normal'"
         :options="stackModeChoices"
-        @update:model-value="(v) => setOption('stackMode', v)"
+        @update:model-value="(v) => setOption('stackMode', String(v))"
       />
     </BFormGroup>
   </div>

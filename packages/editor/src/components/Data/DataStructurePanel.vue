@@ -81,7 +81,7 @@ import FloatingSceneTimeline from '@/components/Scene/FloatingSceneTimeline.vue'
 
 const { columns, rows, columnTypes } = useDataTable()
 const editorPanel = useEditorPanel()
-const { dataPanelOpen, dataPanelTab } = storeToRefs(editorPanel)
+const { dataPanelOpen, dataPanelTab } = editorPanel
 const { openDataPanel, closeDataPanel, setDataView, setLastNarrowDataTab } = editorPanel
 const { mode: panelMode } = usePanel()
 const { activeScene, activeIndex, scenes } = useScenes()

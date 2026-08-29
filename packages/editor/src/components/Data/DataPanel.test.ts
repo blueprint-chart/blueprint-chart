@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils'
+import { mount, type VueWrapper } from '@vue/test-utils'
 import DataPanel from './DataPanel.vue'
 
 const mockSetDataView = vi.fn()
@@ -166,7 +166,7 @@ describe('DataPanel', () => {
     baseDataRef.value = '"old" = 1'
     const w = mountPanel()
 
-    w.findComponent('.upload-card').vm.$emit('loaded', 'A\n1', 'test.csv')
+    ;(w.findComponent('.upload-card') as VueWrapper).vm.$emit('loaded', 'A\n1', 'test.csv')
     await nextTick()
 
     expect(baseDataRef.value).toBe('"A" = 1')
@@ -177,7 +177,7 @@ describe('DataPanel', () => {
     columnsRef.value = ['A']
     mockSetDataView.mockClear()
     const w = mountPanel()
-    w.findComponent('.upload-card').vm.$emit('cancel')
+    ;(w.findComponent('.upload-card') as VueWrapper).vm.$emit('cancel')
     await nextTick()
     expect(mockSetDataView).toHaveBeenCalledWith('structure')
   })
@@ -200,7 +200,7 @@ describe('DataPanel', () => {
         },
       })
 
-      w.findComponent('.upload-card').vm.$emit('loaded', 'A\n1', 'test.csv')
+      ;(w.findComponent('.upload-card') as VueWrapper).vm.$emit('loaded', 'A\n1', 'test.csv')
       await nextTick()
       expect(mockUpdateScene).toHaveBeenCalledWith(0, { data: '"A" = 1' })
       expect(mockSetDataView).toHaveBeenCalledWith('structure')
@@ -224,7 +224,7 @@ describe('DataPanel', () => {
       })
 
       const sample = { id: 's1', title: 'Test', description: '', chartType: 'bar', tsvData: '', serializedData: '"X" = 5', dsl: '', source: '' }
-      w.findComponent('.upload-card').vm.$emit('sample', sample)
+      ;(w.findComponent('.upload-card') as VueWrapper).vm.$emit('sample', sample)
       await nextTick()
       expect(mockUpdateScene).toHaveBeenCalledWith(0, { data: '"X" = 5' })
       expect(mockSetDataView).toHaveBeenCalledWith('structure')

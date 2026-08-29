@@ -19,7 +19,7 @@ const props = withDefaults(defineProps<{
 })
 
 const editorPanel = useEditorPanel()
-const { dataPanelTab } = storeToRefs(editorPanel)
+const { dataPanelTab } = editorPanel
 const { openDataPanel } = editorPanel
 const { mode: panelMode, toggleMode } = usePanel()
 const { sections } = useDataSections()

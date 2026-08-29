@@ -1,4 +1,4 @@
-import { createRouter, createWebHashHistory } from 'vue-router'
+import { createRouter, createWebHashHistory, type RouteLocationNormalized } from 'vue-router'
 import DashboardPage from '@/components/Dashboard/DashboardPage.vue'
 import WizardShell from '@/components/Wizard/WizardShell.vue'
 import RenderPage from '@/components/Render/RenderPage.vue'
@@ -16,7 +16,7 @@ declare module 'vue-router' {
   }
 }
 
-async function loadSession(to: { params: { id: string } }) {
+async function loadSession(to: RouteLocationNormalized) {
   const { sessionId, loadChart, startAutoSave } = useChartSession()
   const id = to.params.id as string
   // Skip if session is already loaded (navigating between steps)

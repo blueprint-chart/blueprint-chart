@@ -63,7 +63,7 @@ export const useDataTableStore = defineStore('dataTable', () => {
   const displayColumnTypes = computed(() => displayData.value.columnTypes)
   const hasTransforms = computed(() => steps.value.length > 0)
 
-  function loadParsed(parsed: ParsedData, source?: { label?: string }) {
+  function loadParsed(parsed: Omit<ParsedData, 'columnTypes'> & { columnTypes?: ColumnType[] }, source?: { label?: string }) {
     state.columns = [...parsed.columns]
     state.rows = parsed.rows.map(r => [...r])
     state.columnTypes = parsed.columnTypes ? [...parsed.columnTypes] : parsed.columns.map(() => 'string' as ColumnType)

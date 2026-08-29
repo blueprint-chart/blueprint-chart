@@ -11,12 +11,13 @@
 <script setup lang="ts">
 import IPhCopy from '~icons/ph/copy'
 import IPhCheck from '~icons/ph/check'
+import type { ButtonVariant, Size } from 'bootstrap-vue-next'
 
 const props = withDefaults(defineProps<{
   text: string
   label?: string
-  variant?: string
-  size?: string
+  variant?: ButtonVariant
+  size?: Size
 }>(), {
   label: 'Copy',
   variant: 'outline-secondary',

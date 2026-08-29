@@ -32,14 +32,14 @@
 </template>
 
 <script setup lang="ts">
-const model = defineModel<string>({ required: true })
+const model = defineModel<number | string>({ required: true })
 
 withDefaults(defineProps<{
   label: string
   id: string
-  min?: string
-  max?: string
-  step?: string
+  min?: number | string
+  max?: number | string
+  step?: number | string
   suffix?: string
 }>(), {
   min: '0',

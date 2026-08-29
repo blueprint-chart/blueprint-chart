@@ -13,7 +13,7 @@
 import { useEditorPanel } from '@/stores/editorPanel'
 import IPhRuler from '~icons/ph/ruler'
 
-const { showDimensions } = storeToRefs(useEditorPanel())
+const { showDimensions } = useEditorPanel()
 </script>
 
 <style scoped lang="scss">

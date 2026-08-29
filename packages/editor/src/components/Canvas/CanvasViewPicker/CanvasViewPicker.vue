@@ -84,7 +84,7 @@ const props = withDefaults(defineProps<{
 })
 
 const editorPanel = useEditorPanel()
-const { viewMode, canvasMode } = storeToRefs(editorPanel)
+const { viewMode, canvasMode } = editorPanel
 const { setViewMode, setCanvasMode } = editorPanel
 const { isNarrow } = useBreakpoint()
 

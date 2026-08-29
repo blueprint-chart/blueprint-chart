@@ -6,7 +6,7 @@
         :model-value="annotation.text"
         placeholder="Annotation text"
         rows="2"
-        @update:model-value="(v: string) => update('text', v)"
+        @update:model-value="(v) => update('text', v)"
       />
     </BFormGroup>
 

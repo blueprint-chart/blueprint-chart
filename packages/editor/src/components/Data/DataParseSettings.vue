@@ -55,7 +55,7 @@ import { useParseOptions } from '@/stores/parseOptions'
 import { useDataTable } from '@/stores/dataTable'
 
 const parseOptionsStore = useParseOptions()
-const { firstRowIsHeader, delimiter: delimiterRef, decimalSeparator, treatEmptyAsNull, trimWhitespace } = storeToRefs(parseOptionsStore)
+const { firstRowIsHeader, delimiter: delimiterRef, decimalSeparator, treatEmptyAsNull, trimWhitespace } = parseOptionsStore
 const { setOption } = parseOptionsStore
 const { sourceFormat } = useDataTable()
 const delimiterDisabled = computed(() => sourceFormat.value !== 'delimited')

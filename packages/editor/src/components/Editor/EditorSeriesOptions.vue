@@ -16,9 +16,9 @@
     />
 
     <FormControlCheckbox
-      :model-value="currentValueLabels"
+      :model-value="Boolean(currentValueLabels)"
       label="Value labels"
-      @update:model-value="(v) => applyToSelected('valueLabels', v)"
+      @update:model-value="(v) => applyToSelected('valueLabels', v === true)"
     />
 
     <FormControlSliderInput

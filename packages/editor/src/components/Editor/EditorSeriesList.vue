@@ -13,7 +13,7 @@
         switch
         size="sm"
         @click.stop
-        @update:model-value="(v: boolean) => $emit('toggleVisibility', item, !v)"
+        @update:model-value="(v) => $emit('toggleVisibility', item, !v)"
       />
     </template>
   </ListSelectPanel>

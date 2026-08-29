@@ -11,7 +11,7 @@
     <BDropdown
       ref="dropdownRef"
       class="form-control-dropdown__toggle"
-      :size="size"
+      :size="bDropdownSize"
       :menu-class="menuClass ?? 'form-control-dropdown-menu'"
       :class="dropdownClassList"
       :text="selectedOption?.label ?? placeholder ?? ''"
@@ -99,6 +99,9 @@ const props = withDefaults(defineProps<{
 })
 
 const { entries } = useChildEntriesProvider(DropdownEntriesKey)
+
+// 'md' is Bootstrap's default size, expressed by omitting the prop.
+const bDropdownSize = computed(() => props.size === 'md' ? undefined : props.size)
 
 const resolvedOptions = computed(() =>
   entries.value.length > 0 ? entries.value : props.options,

@@ -8,7 +8,7 @@
         :id="`${idPrefix}-shape`"
         :model-value="shape"
         :options="shapeChoices"
-        @update:model-value="$emit('update:shape', $event)"
+        @update:model-value="$emit('update:shape', String($event))"
       />
     </BFormGroup>
 
@@ -33,7 +33,7 @@
       min="0.5"
       max="10"
       step="0.5"
-      @update:model-value="$emit('update:size', $event)"
+      @update:model-value="$emit('update:size', String($event))"
     />
 
     <FormControlSliderInput
@@ -43,7 +43,7 @@
       min="0"
       max="1"
       step="0.1"
-      @update:model-value="$emit('update:opacity', $event)"
+      @update:model-value="$emit('update:opacity', String($event))"
     />
   </div>
 </template>

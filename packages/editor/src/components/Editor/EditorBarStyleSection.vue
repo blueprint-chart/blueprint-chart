@@ -23,7 +23,7 @@
       max="100"
       step="1"
       suffix="%"
-      @update:model-value="onBarGapChange"
+      @update:model-value="(v) => onBarGapChange(String(v))"
     />
 
     <FormControlCheckbox
@@ -42,7 +42,7 @@
       max="100"
       step="1"
       suffix="%"
-      @update:model-value="onOpacityPercentChange"
+      @update:model-value="(v) => onOpacityPercentChange(String(v))"
     />
 
     <FormControlCheckbox

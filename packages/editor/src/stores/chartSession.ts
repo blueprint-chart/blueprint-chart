@@ -237,7 +237,7 @@ export const useChartSessionStore = defineStore('chartSession', () => {
 
   function loadLegacy(id: string, payload: LegacySessionPayload): boolean {
     try {
-      chartConfig.hydrate(payload.chartConfig as Parameters<typeof chartConfig.hydrate>[0])
+      chartConfig.hydrate(payload.chartConfig as unknown as Parameters<typeof chartConfig.hydrate>[0])
       if (payload.dataTable) {
         dataTable.hydrate(payload.dataTable)
       }

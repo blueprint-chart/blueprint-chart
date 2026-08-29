@@ -1,5 +1,5 @@
 import type { RangeAnnotationConfig, FreeAnnotationConfig } from '@blueprint-chart/lib'
-import { ChartType, SortDirection } from '@blueprint-chart/lib'
+import { AnnotationKind, ChartType, SortDirection } from '@blueprint-chart/lib'
 import { TransformType } from '@/enums'
 import { useChartConfig } from './useChartConfig'
 import { useDslSync } from './useDslSync'
@@ -474,7 +474,7 @@ describe('useDslSync', () => {
 
     it('clears annotations when not present', () => {
       const config = useChartConfig()
-      config.annotations.value = [{ kind: 'point', target: 'x', text: 'y' }]
+      config.annotations.value = [{ kind: AnnotationKind.Point, target: 'x', text: 'y' }]
 
       const { applyDsl } = useDslSync()
       applyDsl(`chart line {
@@ -894,11 +894,11 @@ describe('useDslSync', () => {
 
       // Verify parsing
       expect(config._base.annotations.value).toHaveLength(1)
-      expect(config._base.annotations.value[0]).toMatchObject({ kind: 'point', target: 'Japan' })
+      expect(config._base.annotations.value[0]).toMatchObject({ kind: AnnotationKind.Point, target: 'Japan' })
 
       expect(scenes.scenes.value).toHaveLength(2)
       expect(scenes.scenes.value[0].annotations).toHaveLength(1)
-      expect(scenes.scenes.value[0].annotations![0]).toMatchObject({ kind: 'point', target: 'India' })
+      expect(scenes.scenes.value[0].annotations![0]).toMatchObject({ kind: AnnotationKind.Point, target: 'India' })
 
       expect(scenes.scenes.value[1].annotations).toBeUndefined()
 
@@ -909,15 +909,15 @@ describe('useDslSync', () => {
       const resolved = resolveScene(scenes.scenes.value, 1)!
       expect(resolved).not.toBeNull()
       expect(resolved.annotations).toHaveLength(1)
-      expect(resolved.annotations![0]).toMatchObject({ kind: 'point', target: 'India' })
+      expect(resolved.annotations![0]).toMatchObject({ kind: AnnotationKind.Point, target: 'India' })
 
       // Simulate what the render function does via resolveVisibleAnnotations:
       // Both base (Japan) and cascaded scene 0 (India) annotations must be present at scene 1
       const baseAnnotations = config._base.annotations.value
       const mergedAnnotations = [...baseAnnotations, ...(resolved.annotations ?? [])]
       expect(mergedAnnotations).toHaveLength(2)
-      expect(mergedAnnotations[0]).toMatchObject({ kind: 'point', target: 'Japan' })
-      expect(mergedAnnotations[1]).toMatchObject({ kind: 'point', target: 'India' })
+      expect(mergedAnnotations[0]).toMatchObject({ kind: AnnotationKind.Point, target: 'Japan' })
+      expect(mergedAnnotations[1]).toMatchObject({ kind: AnnotationKind.Point, target: 'India' })
     })
   })
 

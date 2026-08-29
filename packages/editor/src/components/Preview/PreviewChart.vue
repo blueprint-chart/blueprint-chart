@@ -84,7 +84,7 @@ onBeforeUnmount(() => {
   (containerRef.value as HTMLElement | null)?.removeEventListener('dblclick', onDblClick)
 })
 
-const { cvdMode } = storeToRefs(useCvdMode())
+const { cvdMode } = useCvdMode()
 const cvdDefsRef = useTemplateRef<SVGElement>('cvdDefsRef')
 
 watch([cvdMode, cvdDefsRef], ([mode, defs]) => {

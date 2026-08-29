@@ -66,7 +66,7 @@ import { useEditorPanel } from '@/stores/editorPanel'
 import IPhMagnifyingGlass from '~icons/ph/magnifying-glass'
 
 const editorPanel = useEditorPanel()
-const { selectedColumnIndex } = storeToRefs(editorPanel)
+const { selectedColumnIndex } = editorPanel
 const { selectColumn } = editorPanel
 const { displayColumns, displayRows, displayColumnTypes } = useDataTable()
 

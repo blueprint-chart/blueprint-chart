@@ -204,19 +204,19 @@ defineExpose({ openIndex })
 const pointAnnotations = computed(() =>
   annotations.value
     .map((ann, index) => ({ ann, index }))
-    .filter(({ ann }) => ann.kind === AnnotationKind.Point),
+    .filter((x): x is { ann: PointAnnotationConfig, index: number } => x.ann.kind === AnnotationKind.Point),
 )
 
 const rangeAnnotations = computed(() =>
   annotations.value
     .map((ann, index) => ({ ann, index }))
-    .filter(({ ann }) => ann.kind === AnnotationKind.Range),
+    .filter((x): x is { ann: RangeAnnotationConfig, index: number } => x.ann.kind === AnnotationKind.Range),
 )
 
 const freeAnnotations = computed(() =>
   annotations.value
     .map((ann, index) => ({ ann, index }))
-    .filter(({ ann }) => ann.kind === AnnotationKind.Free),
+    .filter((x): x is { ann: FreeAnnotationConfig, index: number } => x.ann.kind === AnnotationKind.Free),
 )
 
 function repeatMode(ann: AnnotationConfig): 'never' | 'always' | 'n' {

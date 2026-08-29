@@ -1,4 +1,4 @@
-import { ChartType } from '@blueprint-chart/lib'
+import { AnnotationKind, ChartType, CompassDirection, Orientation } from '@blueprint-chart/lib'
 import { useChartConfig } from './useChartConfig'
 import { useDslOutput } from './useDslOutput'
 import { useChartTypeOptions } from './useChartTypeOptions'
@@ -72,7 +72,7 @@ describe('useDslOutput', () => {
       const config = useChartConfig()
       config.chartType.value = ChartType.Line
       config.annotations.value = [
-        { kind: 'point', target: '2024-Q1', text: 'Peak', showArrow: true, anchorDirection: 'NE', textOffsetX: 30, textOffsetY: -40 },
+        { kind: AnnotationKind.Point, target: '2024-Q1', text: 'Peak', showArrow: true, anchorDirection: CompassDirection.NE, textOffsetX: 30, textOffsetY: -40 },
       ]
 
       const { generateDsl: dsl } = useDslOutput()
@@ -88,7 +88,7 @@ describe('useDslOutput', () => {
       const config = useChartConfig()
       config.chartType.value = ChartType.Line
       config.annotations.value = [
-        { kind: 'range', start: 100, end: 200, orientation: 'vertical', bgColor: '#d3d3d3', bgOpacity: 15 },
+        { kind: AnnotationKind.Range, start: 100, end: 200, orientation: Orientation.Vertical, bgColor: '#d3d3d3', bgOpacity: 15 },
       ]
 
       const { generateDsl: dsl } = useDslOutput()
@@ -104,7 +104,7 @@ describe('useDslOutput', () => {
       const config = useChartConfig()
       config.chartType.value = ChartType.Line
       config.annotations.value = [
-        { kind: 'free', text: 'Context', x: 50, y: 25 },
+        { kind: AnnotationKind.Free, text: 'Context', x: 50, y: 25 },
       ]
 
       const { generateDsl: dsl } = useDslOutput()
@@ -118,7 +118,7 @@ describe('useDslOutput', () => {
       const config = useChartConfig()
       config.chartType.value = ChartType.Line
       config.annotations.value = [
-        { kind: 'free', text: 'Pixel', x: '120px', y: '80px' },
+        { kind: AnnotationKind.Free, text: 'Pixel', x: '120px', y: '80px' },
       ]
 
       const { generateDsl: dsl } = useDslOutput()
@@ -130,7 +130,7 @@ describe('useDslOutput', () => {
       const config = useChartConfig()
       config.chartType.value = ChartType.Line
       config.annotations.value = [
-        { kind: 'point', target: '', text: 'Peak' },
+        { kind: AnnotationKind.Point, target: '', text: 'Peak' },
       ]
 
       const { generateDsl: dsl } = useDslOutput()
@@ -141,7 +141,7 @@ describe('useDslOutput', () => {
       const config = useChartConfig()
       config.chartType.value = ChartType.Line
       config.annotations.value = [
-        { kind: 'point', target: '2024-Q1', text: 'Peak', repeat: 'always' },
+        { kind: AnnotationKind.Point, target: '2024-Q1', text: 'Peak', repeat: 'always' },
       ]
 
       const { generateDsl: dsl } = useDslOutput()
@@ -153,7 +153,7 @@ describe('useDslOutput', () => {
       const config = useChartConfig()
       config.chartType.value = ChartType.Line
       config.annotations.value = [
-        { kind: 'point', target: '2024-Q1', text: 'Peak', repeat: 3 },
+        { kind: AnnotationKind.Point, target: '2024-Q1', text: 'Peak', repeat: 3 },
       ]
 
       const { generateDsl: dsl } = useDslOutput()
@@ -164,7 +164,7 @@ describe('useDslOutput', () => {
       const config = useChartConfig()
       config.chartType.value = ChartType.Line
       config.annotations.value = [
-        { kind: 'point', target: '2024-Q1', text: 'Peak' },
+        { kind: AnnotationKind.Point, target: '2024-Q1', text: 'Peak' },
       ]
 
       const { generateDsl: dsl } = useDslOutput()
@@ -176,7 +176,7 @@ describe('useDslOutput', () => {
       config.chartType.value = ChartType.Line
       config.annotations.value = [
         // id is not on AnnotationConfig in the new schema; cast to test the guard
-        { kind: 'point', target: '2024-Q1', text: 'Peak', id: 'abc12' } as unknown as import('@blueprint-chart/lib').AnnotationConfig,
+        { kind: AnnotationKind.Point, target: '2024-Q1', text: 'Peak', id: 'abc12' } as unknown as import('@blueprint-chart/lib').AnnotationConfig,
       ]
 
       const { generateDsl: dsl } = useDslOutput()
@@ -402,7 +402,7 @@ describe('useDslOutput', () => {
       scenes.add()
       scenes.update(0, {
         annotations: [
-          { kind: 'point', target: '2024-Q1', text: 'Peak', showArrow: true },
+          { kind: AnnotationKind.Point, target: '2024-Q1', text: 'Peak', showArrow: true },
         ],
       })
 
@@ -422,7 +422,7 @@ describe('useDslOutput', () => {
       scenes.add()
       scenes.update(0, {
         annotations: [
-          { kind: 'range', start: 10, end: 90, bgColor: '#ccc' },
+          { kind: AnnotationKind.Range, start: 10, end: 90, bgColor: '#ccc' },
         ],
       })
 
@@ -443,7 +443,7 @@ describe('useDslOutput', () => {
       scenes.add()
       scenes.update(0, {
         annotations: [
-          { kind: 'free', text: 'Note', x: 50, y: 25 },
+          { kind: AnnotationKind.Free, text: 'Note', x: 50, y: 25 },
         ],
       })
 
@@ -464,9 +464,9 @@ describe('useDslOutput', () => {
       scenes.add()
       scenes.update(0, {
         annotations: [
-          { kind: 'point', target: 'X', text: 'Pt' },
-          { kind: 'range', start: 0, end: 100 },
-          { kind: 'free', text: 'Free', x: 10, y: 20 },
+          { kind: AnnotationKind.Point, target: 'X', text: 'Pt' },
+          { kind: AnnotationKind.Range, start: 0, end: 100 },
+          { kind: AnnotationKind.Free, text: 'Free', x: 10, y: 20 },
         ],
       })
 

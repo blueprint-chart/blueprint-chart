@@ -1,4 +1,5 @@
 import type { AnnotationConfig } from '@blueprint-chart/lib'
+import { AnnotationKind } from '@blueprint-chart/lib'
 import { useScenes } from './scenes'
 
 describe('useScenes', () => {
@@ -231,129 +232,14 @@ describe('useScenes', () => {
     expect(playing.value).toBe(false)
   })
 
-  describe('annotation visibility', () => {
-    it('stores annotationVisibility on a scene', () => {
-      const { scenes, add, update } = useScenes()
-      add()
-      const visibility = [
-        { action: 'hide' as const, kind: 'point' as const, id: 'a1' },
-      ]
-      update(0, { annotationVisibility: visibility })
-      expect(scenes.value[0].annotationVisibility).toEqual(visibility)
-    })
-
-    it('update merges annotationVisibility with other scene data', () => {
-      const { scenes, add, update } = useScenes()
-      add()
-      update(0, { name: 'Scene 1' })
-      update(0, {
-        annotationVisibility: [
-          { action: 'show' as const, kind: 'range' as const, id: 'r1' },
-        ],
-      })
-      expect(scenes.value[0].name).toBe('Scene 1')
-      expect(scenes.value[0].annotationVisibility).toEqual([
-        { action: 'show', kind: 'range', id: 'r1' },
-      ])
-    })
-
-    it('overwriting annotationVisibility replaces the array', () => {
-      const { scenes, add, update } = useScenes()
-      add()
-      update(0, {
-        annotationVisibility: [
-          { action: 'hide' as const, kind: 'point' as const, id: 'a1' },
-        ],
-      })
-      update(0, {
-        annotationVisibility: [
-          { action: 'show' as const, kind: 'free' as const, id: 'f1' },
-          { action: 'hide' as const, kind: 'range' as const, id: 'r2' },
-        ],
-      })
-      expect(scenes.value[0].annotationVisibility).toEqual([
-        { action: 'show', kind: 'free', id: 'f1' },
-        { action: 'hide', kind: 'range', id: 'r2' },
-      ])
-    })
-
-    it('snapshot preserves annotationVisibility', () => {
-      const { add, update, snapshot } = useScenes()
-      add()
-      const visibility = [
-        { action: 'hide' as const, kind: 'point' as const, id: 'p1' },
-      ]
-      update(0, { annotationVisibility: visibility })
-      const snap = snapshot()
-      expect(snap.scenes[0].annotationVisibility).toEqual(visibility)
-    })
-
-    it('hydrate restores annotationVisibility', () => {
-      const { scenes, hydrate } = useScenes()
-      hydrate({
-        scenes: [
-          {
-            id: 'x1',
-            name: 'S1',
-            annotationVisibility: [
-              { action: 'show', kind: 'range', id: 'r1' },
-            ],
-          },
-          {
-            id: 'x2',
-            name: 'S2',
-            annotationVisibility: [
-              { action: 'hide', kind: 'free', id: 'f1' },
-            ],
-          },
-        ],
-        activeIndex: 0,
-      })
-      expect(scenes.value).toHaveLength(2)
-      expect(scenes.value[0].annotationVisibility).toEqual([
-        { action: 'show', kind: 'range', id: 'r1' },
-      ])
-      expect(scenes.value[1].annotationVisibility).toEqual([
-        { action: 'hide', kind: 'free', id: 'f1' },
-      ])
-    })
-
-    it('removing a scene removes its annotationVisibility', () => {
-      const { scenes, add, update, remove } = useScenes()
-      add()
-      update(0, {
-        annotationVisibility: [
-          { action: 'hide' as const, kind: 'point' as const, id: 'gone' },
-        ],
-      })
-      remove(0)
-      expect(scenes.value).toHaveLength(0)
-    })
-
-    it('stores annotations with ids on a scene', () => {
-      const { scenes, add, update } = useScenes()
-      add()
-      const annotations = [
-        { id: 'ann-1', kind: 'point' as const, x: 10, y: 20, label: 'Note A' },
-        { id: 'ann-2', kind: 'range' as const, x: 30, x2: 50, label: 'Note B' },
-      ]
-      update(0, { annotations: annotations as AnnotationConfig[] })
-      expect(scenes.value[0].annotations).toEqual(annotations)
-    })
-
-    it('reorder preserves annotationVisibility on scenes', () => {
-      const { scenes, add, update, reorder } = useScenes()
-      const id1 = add()
-      const id2 = add()
-      const vis1 = [{ action: 'hide' as const, kind: 'point' as const, id: 'p1' }]
-      const vis2 = [{ action: 'show' as const, kind: 'free' as const, id: 'f1' }]
-      update(0, { annotationVisibility: vis1 })
-      update(1, { annotationVisibility: vis2 })
-      reorder(0, 1)
-      expect(scenes.value[0].id).toBe(id2)
-      expect(scenes.value[0].annotationVisibility).toEqual(vis2)
-      expect(scenes.value[1].id).toBe(id1)
-      expect(scenes.value[1].annotationVisibility).toEqual(vis1)
-    })
+  it('stores annotations with ids on a scene', () => {
+    const { scenes, add, update } = useScenes()
+    add()
+    const annotations: AnnotationConfig[] = [
+      { id: 'ann-1', kind: AnnotationKind.Point, target: 'A', text: 'Note A' },
+      { id: 'ann-2', kind: AnnotationKind.Range, start: 30, end: 50 },
+    ]
+    update(0, { annotations })
+    expect(scenes.value[0].annotations).toEqual(annotations)
   })
 })

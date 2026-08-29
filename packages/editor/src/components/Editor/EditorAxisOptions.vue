@@ -10,7 +10,7 @@
     >
       <div class="d-flex flex-column gap-2">
         <FormControlCheckbox
-          :model-value="currentOptions.valueLabels ?? false"
+          :model-value="Boolean(currentOptions.valueLabels ?? false)"
           label="Show value labels"
           @update:model-value="(v) => setOption('valueLabels', v)"
         />
@@ -74,6 +74,7 @@ import {
   SettingsSection,
 } from '@blueprint-chart/ui'
 import type { ChartOptionDef } from '@blueprint-chart/lib'
+import { ChartOptionType } from '@blueprint-chart/lib'
 import { useChartTypeOptions, type ChartTypeOptionKey, type ChartTypeOptions } from '@/stores/chartTypeOptions'
 import { useDataTable } from '@/stores/dataTable'
 import IFluentLineSolid from '~icons/fluent/line-horizontal-1-20-filled'
@@ -128,7 +129,7 @@ const { currentOptions, optionDefs, availableOptionKeys, setOption: _setOption }
 // Wrapper for dynamic key/value pairs emitted by AxisGroup — the generic
 // setOption<K> requires a paired key-value type that cannot be statically
 // verified when the key is a runtime ChartTypeOptionKey.
-function setOption(key: ChartTypeOptionKey, value: ChartTypeOptions[ChartTypeOptionKey]) {
+function setOption(key: ChartTypeOptionKey, value: unknown) {
   _setOption(key, value as ChartTypeOptions[typeof key])
 }
 const { displayColumnTypes } = useDataTable()
@@ -152,16 +153,16 @@ function axisDataType(isHorizontal: boolean): string {
   return isValueAxis ? valueColumnType.value : labelColumnType.value
 }
 
-function resolveFormatType(def: ChartOptionDef, isHorizontal: boolean): ChartOptionDef {
+function resolveFormatType(def: ChartOptionDef, isHorizontal: boolean): ChartOptionDef | null {
   if (def.type !== 'numberFormat') {
     return def
   }
   const colType = axisDataType(isHorizontal)
   if (colType === 'date') {
-    return { ...def, type: 'dateFormat', label: def.label.replace(/number\s+format/i, 'Date format') }
+    return { ...def, type: ChartOptionType.DateFormat, label: def.label.replace(/number\s+format/i, 'Date format') }
   }
   if (colType === 'string') {
-    return { ...def, type: '__hidden' as ChartOptionDef['type'] }
+    return null
   }
   return def
 }
@@ -170,14 +171,14 @@ const verticalDefs = computed(() =>
   optionDefs.value
     .filter(d => VERTICAL_KEYS.has(d.key))
     .map(d => resolveFormatType({ ...d, label: shortenLabel(d.label) }, false))
-    .filter(d => d.type !== '__hidden'),
+    .filter((d): d is ChartOptionDef => d !== null),
 )
 
 const horizontalDefs = computed(() =>
   optionDefs.value
     .filter(d => HORIZONTAL_KEYS.has(d.key))
     .map(d => resolveFormatType({ ...d, label: shortenLabel(d.label) }, true))
-    .filter(d => d.type !== '__hidden'),
+    .filter((d): d is ChartOptionDef => d !== null),
 )
 
 const GRID_STYLE_ICONS: Record<string, Component> = {

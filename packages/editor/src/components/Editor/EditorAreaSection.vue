@@ -7,7 +7,7 @@
       min="0"
       max="1"
       step="0.05"
-      @update:model-value="(v) => setOption('areaFillOpacity', v)"
+      @update:model-value="(v) => setOption('areaFillOpacity', String(v))"
     />
 
     <BFormGroup

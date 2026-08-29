@@ -76,7 +76,12 @@ function readFile(file: globalThis.File) {
   const reader = new globalThis.FileReader()
   reader.onload = () => {
     if (typeof reader.result === 'string') {
-      emit(isBpcFile(file) ? 'bpc' : 'loaded', reader.result, file.name)
+      if (isBpcFile(file)) {
+        emit('bpc', reader.result, file.name)
+      }
+      else {
+        emit('loaded', reader.result, file.name)
+      }
     }
   }
   reader.readAsText(file)

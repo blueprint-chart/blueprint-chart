@@ -88,12 +88,12 @@ describe('panel store: cross-route consistency', () => {
 
     await router.push('/data')
     await flushPromises()
-    expect(wrapper.get('[data-test="route-data"]').exists()).toBe(true)
+    expect(wrapper.find('[data-test="route-data"]').exists()).toBe(true)
     expect(wrapper.get('[data-test="docked-width"]').text()).toBe('0.42')
 
     await router.push('/export')
     await flushPromises()
-    expect(wrapper.get('[data-test="route-export"]').exists()).toBe(true)
+    expect(wrapper.find('[data-test="route-export"]').exists()).toBe(true)
     expect(wrapper.get('[data-test="docked-width"]').text()).toBe('0.42')
   })
 

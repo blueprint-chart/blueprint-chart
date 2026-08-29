@@ -13,8 +13,8 @@ describe('exportSvg', () => {
 
     const clickSpy = vi.fn()
     vi.spyOn(document, 'createElement').mockReturnValue({
-      set href(v: string) { /* noop */ },
-      set download(v: string) { /* noop */ },
+      set href(_v: string) { /* noop */ },
+      set download(_v: string) { /* noop */ },
       click: clickSpy,
     } as unknown as HTMLAnchorElement)
 
@@ -24,7 +24,7 @@ describe('exportSvg', () => {
     exportSvg(svg, 'test.svg')
 
     expect(createObjectURL).toHaveBeenCalledOnce()
-    const blob = createObjectURL.mock.calls[0][0] as Blob
+    const blob = (createObjectURL.mock.calls[0] as unknown as [Blob])[0]
     expect(blob.type).toBe('image/svg+xml;charset=utf-8')
     expect(clickSpy).toHaveBeenCalledOnce()
     expect(revokeObjectURL).toHaveBeenCalledWith('blob:mock-url')

@@ -42,17 +42,17 @@ withDefaults(defineProps<{
 const model = defineModel<string>({ required: true })
 
 const tabsRef = useTemplateRef<HTMLElement>('tabsRef')
-let activeTabEl: HTMLElement | null = null
+const activeTabEl = shallowRef<HTMLElement | null>(null)
 
 function scrollActiveTabIntoView() {
   nextTick(() => {
-    if (activeTabEl?.scrollIntoView && tabsRef.value) {
-      activeTabEl.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' })
+    if (activeTabEl.value?.scrollIntoView && tabsRef.value) {
+      activeTabEl.value.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' })
     }
   })
 }
 
-watch(() => activeTabEl, scrollActiveTabIntoView)
+watch(activeTabEl, scrollActiveTabIntoView)
 </script>
 
 <style scoped lang="scss">

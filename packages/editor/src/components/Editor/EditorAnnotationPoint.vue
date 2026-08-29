@@ -6,7 +6,7 @@
         :model-value="annotation.text"
         placeholder="Annotation text"
         rows="2"
-        @update:model-value="(v: string) => update('text', v)"
+        @update:model-value="(v) => update('text', v)"
       />
     </BFormGroup>
 
@@ -14,7 +14,7 @@
       <BFormSelect
         :model-value="annotation.target"
         :options="targetOptions"
-        @update:model-value="(v: string) => update('target', v)"
+        @update:model-value="(v) => update('target', v)"
       />
     </BFormGroup>
 
@@ -85,21 +85,21 @@
               type="number"
               min="1"
               max="10"
-              @update:model-value="(v: string) => update('lineWeight', Number(v))"
+              @update:model-value="(v) => update('lineWeight', Number(v))"
             />
           </BFormGroup>
 
           <FormControlDirectionPicker
             :model-value="annotation.anchorDirection ?? 'N'"
             label="Anchor position"
-            @update:model-value="(v: CompassDirection) => update('anchorDirection', v)"
+            @update:model-value="(v) => update('anchorDirection', v)"
           />
 
           <BFormGroup>
             <BFormCheckbox
               :model-value="annotation.showArrow ?? true"
               switch
-              @update:model-value="(v: boolean) => update('showArrow', v)"
+              @update:model-value="(v) => update('showArrow', v)"
             >
               Show arrow
             </BFormCheckbox>
@@ -109,7 +109,7 @@
             <BFormInput
               :model-value="String(annotation.lineTargetDistance ?? 0)"
               type="number"
-              @update:model-value="(v: string) => update('lineTargetDistance', Number(v))"
+              @update:model-value="(v) => update('lineTargetDistance', Number(v))"
             />
           </BFormGroup>
         </div>
@@ -131,7 +131,7 @@
               :model-value="String(annotation.circleSize ?? 4)"
               type="number"
               min="1"
-              @update:model-value="(v: string) => update('circleSize', Number(v))"
+              @update:model-value="(v) => update('circleSize', Number(v))"
             />
           </BFormGroup>
 
@@ -139,7 +139,7 @@
             <BFormSelect
               :model-value="annotation.circleStyle ?? 'solid'"
               :options="strokeStyleOptions"
-              @update:model-value="(v: string) => update('circleStyle', v)"
+              @update:model-value="(v) => update('circleStyle', v)"
             />
           </BFormGroup>
         </div>
@@ -150,7 +150,7 @@
 
 <script setup lang="ts">
 import type { ComponentPublicInstance } from 'vue'
-import type { PointAnnotationConfig, CompassDirection } from '@blueprint-chart/lib'
+import type { PointAnnotationConfig } from '@blueprint-chart/lib'
 import { FormControlColorInput, FormControlUnitsInput, FormControlDirectionPicker, FormControlCheckbox, FormControlButtonGroup, FormControlButtonGroupEntry } from '@blueprint-chart/ui'
 import IFluentLine from '~icons/fluent/line-horizontal-1-20-filled'
 import IFluentCurveLeft from '~icons/fluent/arrow-hook-up-left-20-filled'

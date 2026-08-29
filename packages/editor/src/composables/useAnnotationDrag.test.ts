@@ -1,5 +1,6 @@
 import type { EffectScope, Ref } from 'vue'
 import type { AnnotationConfig } from '@blueprint-chart/lib'
+import { AnnotationKind } from '@blueprint-chart/lib'
 import { useAnnotationDrag, computeElbowPath, buildPathD, shortenToward, bboxEdgeToward } from './useAnnotationDrag'
 
 function makeSvgContainer(annotations: { id?: string, key?: string, index: number }[]) {
@@ -211,9 +212,9 @@ describe('useAnnotationDrag', () => {
 
     const containerRef = ref<HTMLElement | null>(container)
     const annotations = ref<(AnnotationConfig & { key?: string })[]>([
-      { kind: 'point', target: 'Japan', text: 'Japan', key: 'base:0:point' },
-      { kind: 'point', target: 'India', text: 'India', key: 'base:1:point' },
-      { kind: 'point', target: 'China', text: 'China', key: 'base:2:point' },
+      { kind: AnnotationKind.Point, target: 'Japan', text: 'Japan', key: 'base:0:point' },
+      { kind: AnnotationKind.Point, target: 'India', text: 'India', key: 'base:1:point' },
+      { kind: AnnotationKind.Point, target: 'China', text: 'China', key: 'base:2:point' },
     ])
     const selectedIndex = ref<number | null>(null)
     const onUpdate = vi.fn()
@@ -239,7 +240,7 @@ describe('useAnnotationDrag', () => {
 
     const containerRef = ref<HTMLElement | null>(container)
     const annotations = ref<AnnotationConfig[]>([
-      { kind: 'point', target: 'Japan', text: 'Japan' },
+      { kind: AnnotationKind.Point, target: 'Japan', text: 'Japan' },
     ])
     const selectedIndex = ref<number | null>(null)
     const onUpdate = vi.fn()
@@ -263,8 +264,8 @@ describe('useAnnotationDrag', () => {
 
     const containerRef = ref<HTMLElement | null>(container)
     const annotations = ref<AnnotationConfig[]>([
-      { kind: 'point', target: 'Japan', text: 'Japan', id: 'japan' },
-      { kind: 'point', target: 'China', text: 'China', id: 'missing' },
+      { kind: AnnotationKind.Point, target: 'Japan', text: 'Japan', id: 'japan' },
+      { kind: AnnotationKind.Point, target: 'China', text: 'China', id: 'missing' },
     ])
     const selectedIndex = ref<number | null>(null)
     const onUpdate = vi.fn()

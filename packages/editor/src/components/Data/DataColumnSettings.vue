@@ -90,7 +90,7 @@ import { useEditorPanel } from '@/stores/editorPanel'
 import { useDataTable } from '@/stores/dataTable'
 import type { ColumnType } from '@/composables/useDataParser'
 const editorPanel = useEditorPanel()
-const { selectedColumnIndex } = storeToRefs(editorPanel)
+const { selectedColumnIndex } = editorPanel
 const { selectColumn } = editorPanel
 const { columns, rows, columnTypes, setColumnType } = useDataTable()
 

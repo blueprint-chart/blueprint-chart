@@ -74,14 +74,14 @@ import { useChartConfig } from '@/stores/chartConfig'
 import { useExportSections } from '@/composables/useExportSections'
 
 const editorPanel = useEditorPanel()
-const { canvasMode, showDimensions } = storeToRefs(editorPanel)
+const { canvasMode, showDimensions } = editorPanel
 const { setViewMode } = editorPanel
 const { mode: panelMode } = usePanel()
 
 // Export step always shows preview (no DSL toggle)
 setViewMode('preview')
 const exportPanelStore = useExportPanel()
-const { exportTab } = storeToRefs(exportPanelStore)
+const { exportTab } = exportPanelStore
 const { setExportTab: setExportTabAction, setLastNarrowExportTab } = exportPanelStore
 const { isNarrow } = useBreakpoint()
 
@@ -128,7 +128,7 @@ const canvasStyle = computed<CSSProperties>(() => ({
   '--grid-offset-y': `${gridOffsetY.value}px`,
 } as CSSProperties))
 
-const { lastNarrowExportTab } = storeToRefs(exportPanelStore)
+const { lastNarrowExportTab } = exportPanelStore
 const drawerOpen = computed({
   get: () => !!exportTab.value,
   set: (open) => {

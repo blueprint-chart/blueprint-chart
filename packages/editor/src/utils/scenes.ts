@@ -138,13 +138,13 @@ export function findDataSourceSceneIndex(scenes: SceneOverride[], index: number)
  * Extract sort direction from resolved scene transforms.
  * Returns the direction from the last sort transform, or undefined if none.
  */
-export function resolveSortFromTransforms(scene: SceneOverride | null): string | undefined {
+export function resolveSortFromTransforms(scene: SceneOverride | null): SortDirection | undefined {
   if (!scene?.transforms?.length) {
     return undefined
   }
   for (let i = scene.transforms.length - 1; i >= 0; i--) {
     if (scene.transforms[i].type === TransformType.Sort) {
-      return scene.transforms[i].config?.direction ?? SortDirection.Ascending
+      return (scene.transforms[i].config?.direction as SortDirection | undefined) ?? SortDirection.Ascending
     }
   }
   return undefined

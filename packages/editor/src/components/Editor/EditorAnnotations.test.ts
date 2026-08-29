@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils'
 import { describe, it, expect } from 'vitest'
-import { AnnotationKind } from '@blueprint-chart/lib'
+import { AnnotationKind, type AnnotationConfig } from '@blueprint-chart/lib'
 import EditorAnnotations from './EditorAnnotations.vue'
 
 vi.mock('./EditorAnnotationHeader.vue', () => ({
@@ -34,7 +34,7 @@ vi.mock('@blueprint-chart/ui', async (importOriginal) => {
   }
 })
 
-function mountWith(annotations: object[], showRepeat: boolean) {
+function mountWith(annotations: AnnotationConfig[], showRepeat: boolean) {
   return mount(EditorAnnotations, {
     props: {
       'labels': ['a', 'b'],

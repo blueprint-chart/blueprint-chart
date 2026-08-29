@@ -302,7 +302,7 @@ describe('serializeTableData', () => {
       // Scene 1 has a sort transform
       scenes.hydrate({
         scenes: [
-          { id: '1', name: null, transforms: [{ id: '0', type: 'sort', config: { columns: 'Value', direction: 'ascending' } }] },
+          { id: '1', name: null, transforms: [{ id: '0', type: TransformType.Sort, config: { columns: 'Value', direction: 'ascending' } }] },
           { id: '2', name: null },
         ],
         activeIndex: 1,
@@ -328,7 +328,7 @@ describe('serializeTableData', () => {
 
       scenes.hydrate({
         scenes: [
-          { id: '1', name: null, transforms: [{ id: '0', type: 'sort', config: { columns: 'value' } }] },
+          { id: '1', name: null, transforms: [{ id: '0', type: TransformType.Sort, config: { columns: 'value' } }] },
           { id: '2', name: null },
         ],
         activeIndex: 1,

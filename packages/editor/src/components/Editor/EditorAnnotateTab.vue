@@ -65,7 +65,7 @@ const config = useChartConfig()
 const { chartType, data, areaFills, seriesOverrides } = config
 const { currentOptions } = useChartTypeOptions()
 const globalInterpolation = computed(() => (currentOptions.value.interpolation as string) ?? 'linear')
-const { pendingAnnotationIndex } = storeToRefs(useEditorPanel())
+const { pendingAnnotationIndex } = useEditorPanel()
 const { scenes, activeIndex, activeScene, update: updateScene } = useScenes()
 
 const isSceneActive = computed(() => activeIndex.value >= 0)

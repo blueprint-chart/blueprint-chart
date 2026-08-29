@@ -5,7 +5,7 @@
         ref="textRef"
         :model-value="annotation.text ?? ''"
         placeholder="Optional label"
-        @update:model-value="(v: string) => update('text', v || undefined)"
+        @update:model-value="(v) => update('text', v || undefined)"
       />
     </BFormGroup>
 
@@ -13,7 +13,7 @@
       <BFormSelect
         :model-value="annotation.orientation ?? 'vertical'"
         :options="orientationOptions"
-        @update:model-value="(v: string) => update('orientation', v)"
+        @update:model-value="(v) => update('orientation', v)"
       />
     </BFormGroup>
 
@@ -26,12 +26,12 @@
           v-if="isDiscrete"
           :model-value="String(annotation.start)"
           :options="labelOptions"
-          @update:model-value="(v: string) => update('start', v)"
+          @update:model-value="(v) => update('start', v)"
         />
         <BFormInput
           v-else
           :model-value="String(annotation.start)"
-          @update:model-value="(v: string) => update('start', isNaN(Number(v)) ? v : Number(v))"
+          @update:model-value="(v) => update('start', isNaN(Number(v)) ? v : Number(v))"
         />
       </BFormGroup>
 
@@ -43,12 +43,12 @@
           v-if="isDiscrete"
           :model-value="String(annotation.end)"
           :options="labelOptions"
-          @update:model-value="(v: string) => update('end', v)"
+          @update:model-value="(v) => update('end', v)"
         />
         <BFormInput
           v-else
           :model-value="String(annotation.end)"
-          @update:model-value="(v: string) => update('end', isNaN(Number(v)) ? v : Number(v))"
+          @update:model-value="(v) => update('end', isNaN(Number(v)) ? v : Number(v))"
         />
       </BFormGroup>
     </div>
@@ -142,7 +142,7 @@
       min="0"
       max="100"
       suffix="%"
-      @update:model-value="(v: string) => update('bgOpacity', Number(v))"
+      @update:model-value="(v) => update('bgOpacity', Number(v))"
     />
 
     <template v-if="annotation.text">
@@ -156,7 +156,7 @@
       <FormControlDirectionPicker
         :model-value="annotation.direction ?? 'center'"
         label="Direction"
-        @update:model-value="(v: CompassDirection) => update('direction', v)"
+        @update:model-value="(v) => update('direction', v)"
       />
     </template>
   </div>
@@ -164,7 +164,7 @@
 
 <script setup lang="ts">
 import type { ComponentPublicInstance } from 'vue'
-import type { RangeAnnotationConfig, CompassDirection } from '@blueprint-chart/lib'
+import type { RangeAnnotationConfig } from '@blueprint-chart/lib'
 import { FormControlColorInput, FormControlSliderInput, FormControlDirectionPicker, FormControlDropdown, FormControlDropdownEntry } from '@blueprint-chart/ui'
 import IPhAlignLeft from '~icons/ph/align-left'
 import IPhAlignCenterHorizontal from '~icons/ph/align-center-horizontal'

@@ -25,7 +25,7 @@
         :min="1"
         :max="4"
         :step="1"
-        @update:model-value="pngScale = $event"
+        @update:model-value="pngScale = Number($event)"
       />
     </ExportDownloadFormatCard>
 
@@ -86,7 +86,7 @@ defineProps<{
 }>()
 
 const exportPanelStore = useExportPanel()
-const { selectedFormat, pngScale, svgInlineFonts, svgMinify, bpcCompact } = storeToRefs(exportPanelStore)
+const { selectedFormat, pngScale, svgInlineFonts, svgMinify, bpcCompact } = exportPanelStore
 const { setSelectedFormat } = exportPanelStore
 const { dsl } = useDslOutput()
 

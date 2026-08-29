@@ -1,4 +1,4 @@
-import { ChartType } from '@blueprint-chart/lib'
+import { AnnotationKind, ChartType } from '@blueprint-chart/lib'
 import { useChartConfig } from './chartConfig'
 import { useScenes } from './scenes'
 
@@ -176,10 +176,10 @@ describe('useChartConfig', () => {
     it('annotations reads from base when no scene is active', () => {
       const config = useChartConfig()
       config._base.annotations.value = [
-        { kind: 'point', text: 'Base note', target: 'A' },
+        { kind: AnnotationKind.Point, text: 'Base note', target: 'A' },
       ]
       expect(config.annotations.value).toEqual([
-        { kind: 'point', text: 'Base note', target: 'A' },
+        { kind: AnnotationKind.Point, text: 'Base note', target: 'A' },
       ])
     })
 
@@ -188,17 +188,17 @@ describe('useChartConfig', () => {
       const scenes = useScenes()
 
       config._base.annotations.value = [
-        { kind: 'point', text: 'Base note', target: 'A' },
+        { kind: AnnotationKind.Point, text: 'Base note', target: 'A' },
       ]
 
       scenes.add()
       scenes.update(0, {
-        annotations: [{ kind: 'free', text: 'Scene note', x: 10, y: 20 }],
+        annotations: [{ kind: AnnotationKind.Free, text: 'Scene note', x: 10, y: 20 }],
       })
       scenes.setActive(0)
 
       expect(config.annotations.value).toEqual([
-        { kind: 'free', text: 'Scene note', x: 10, y: 20 },
+        { kind: AnnotationKind.Free, text: 'Scene note', x: 10, y: 20 },
       ])
     })
 
@@ -207,14 +207,14 @@ describe('useChartConfig', () => {
       const scenes = useScenes()
 
       config._base.annotations.value = [
-        { kind: 'point', text: 'Base note', target: 'A' },
+        { kind: AnnotationKind.Point, text: 'Base note', target: 'A' },
       ]
 
       scenes.add()
       scenes.setActive(0)
 
       expect(config.annotations.value).toEqual([
-        { kind: 'point', text: 'Base note', target: 'A' },
+        { kind: AnnotationKind.Point, text: 'Base note', target: 'A' },
       ])
     })
 
@@ -225,11 +225,11 @@ describe('useChartConfig', () => {
 
       const config = useChartConfig()
       config.annotations.value = [
-        { kind: 'free', text: 'Written to scene', x: 5, y: 5 },
+        { kind: AnnotationKind.Free, text: 'Written to scene', x: 5, y: 5 },
       ]
 
       expect(scenes.activeScene.value?.annotations).toEqual([
-        { kind: 'free', text: 'Written to scene', x: 5, y: 5 },
+        { kind: AnnotationKind.Free, text: 'Written to scene', x: 5, y: 5 },
       ])
       expect(config._base.annotations.value).toEqual([])
     })
@@ -237,11 +237,11 @@ describe('useChartConfig', () => {
     it('writing annotations targets base when no scene is active', () => {
       const config = useChartConfig()
       config.annotations.value = [
-        { kind: 'point', text: 'To base', target: 'B' },
+        { kind: AnnotationKind.Point, text: 'To base', target: 'B' },
       ]
 
       expect(config._base.annotations.value).toEqual([
-        { kind: 'point', text: 'To base', target: 'B' },
+        { kind: AnnotationKind.Point, text: 'To base', target: 'B' },
       ])
     })
 
@@ -250,8 +250,8 @@ describe('useChartConfig', () => {
       scenes.add()
       scenes.update(0, {
         annotations: [
-          { kind: 'point', id: 'ann-1', text: 'First', target: 'X' },
-          { kind: 'free', id: 'ann-2', text: 'Second', x: 0, y: 0 },
+          { kind: AnnotationKind.Point, id: 'ann-1', text: 'First', target: 'X' },
+          { kind: AnnotationKind.Free, id: 'ann-2', text: 'Second', x: 0, y: 0 },
         ],
       })
       scenes.setActive(0)
@@ -267,8 +267,8 @@ describe('useChartConfig', () => {
       )
 
       expect(scenes.activeScene.value?.annotations).toEqual([
-        { kind: 'point', id: 'ann-1', text: 'Updated First', target: 'X' },
-        { kind: 'free', id: 'ann-2', text: 'Updated Second', x: 0, y: 0 },
+        { kind: AnnotationKind.Point, id: 'ann-1', text: 'Updated First', target: 'X' },
+        { kind: AnnotationKind.Free, id: 'ann-2', text: 'Updated Second', x: 0, y: 0 },
       ])
     })
 
@@ -277,24 +277,24 @@ describe('useChartConfig', () => {
       const scenes = useScenes()
 
       config._base.annotations.value = [
-        { kind: 'point', text: 'Base stays', target: 'A' },
+        { kind: AnnotationKind.Point, text: 'Base stays', target: 'A' },
       ]
 
       scenes.add()
       scenes.setActive(0)
 
       config.annotations.value = [
-        { kind: 'free', text: 'Scene only', x: 1, y: 2 },
+        { kind: AnnotationKind.Free, text: 'Scene only', x: 1, y: 2 },
       ]
 
       // Deactivate scene
       scenes.setActive(-1)
 
       expect(config.annotations.value).toEqual([
-        { kind: 'point', text: 'Base stays', target: 'A' },
+        { kind: AnnotationKind.Point, text: 'Base stays', target: 'A' },
       ])
       expect(config._base.annotations.value).toEqual([
-        { kind: 'point', text: 'Base stays', target: 'A' },
+        { kind: AnnotationKind.Point, text: 'Base stays', target: 'A' },
       ])
     })
   })
@@ -322,13 +322,13 @@ describe('useChartConfig', () => {
 
       scenes.add()
       scenes.update(0, {
-        annotations: [{ kind: 'point', id: 'p1', text: 'From scene 0', target: 'India' }],
+        annotations: [{ kind: AnnotationKind.Point, id: 'p1', text: 'From scene 0', target: 'India' }],
       })
       scenes.add() // scene 1 has no annotations
 
       scenes.setActive(1)
       expect(config.annotations.value).toEqual([
-        { kind: 'point', id: 'p1', text: 'From scene 0', target: 'India' },
+        { kind: AnnotationKind.Point, id: 'p1', text: 'From scene 0', target: 'India' },
       ])
     })
 
