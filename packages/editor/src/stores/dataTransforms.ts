@@ -16,6 +16,9 @@ export const useDataTransformsStore = defineStore('dataTransforms', () => {
   // While a scene is selected, `steps` holds that scene's pipeline and the
   // chart-level pipeline is stashed here (#145).
   const baseSteps = ref<TransformStep[]>([])
+  // Guards enter/exit idempotence: a deferred watcher re-run or a reset that
+  // races scene deselection must not re-stash or restore an empty stash.
+  let stashed = false
   let nextId = 1
 
   function addStep(type: TransformType, config: Record<string, string> = {}): string {
@@ -106,9 +109,33 @@ export const useDataTransformsStore = defineStore('dataTransforms', () => {
     return null
   }
 
+  /** Swap the chart-level pipeline out for a scene's; no-op stash if one is already held. */
+  function enterScene(sceneSteps: TransformStep[]) {
+    if (!stashed) {
+      baseSteps.value = snapshot()
+      stashed = true
+    }
+    hydrate(sceneSteps)
+  }
+
+  /** Restore the stashed chart-level pipeline and return the scene's steps.
+   *  Returns null when nothing is stashed, so a second call cannot wipe the
+   *  pipeline or write the base steps into a scene. */
+  function exitScene(): TransformStep[] | null {
+    if (!stashed) {
+      return null
+    }
+    const sceneSteps = snapshot()
+    hydrate(baseSteps.value)
+    baseSteps.value = []
+    stashed = false
+    return sceneSteps
+  }
+
   function reset() {
     steps.value = []
     baseSteps.value = []
+    stashed = false
     nextId = 1
   }
 
@@ -124,6 +151,8 @@ export const useDataTransformsStore = defineStore('dataTransforms', () => {
   return {
     steps,
     baseSteps,
+    enterScene,
+    exitScene,
     addStep,
     removeStep,
     updateStep,
@@ -148,6 +177,8 @@ export function useDataTransforms() {
   return {
     steps,
     baseSteps,
+    enterScene: store.enterScene,
+    exitScene: store.exitScene,
     addStep: store.addStep,
     removeStep: store.removeStep,
     updateStep: store.updateStep,

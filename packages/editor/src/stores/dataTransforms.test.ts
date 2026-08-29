@@ -250,3 +250,51 @@ describe('applyStepList', () => {
     expect(result.rows).toEqual([['1'], ['2']])
   })
 })
+
+describe('useDataTransforms: scene stash', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+  })
+
+  it('enterScene stashes the base pipeline and exitScene restores it', () => {
+    const { steps, baseSteps, addStep, enterScene, exitScene } = useDataTransforms()
+    addStep(TransformType.Sort, { column: 'Value' })
+    const scene = [{ id: 's1', type: TransformType.Transpose, config: {} }]
+
+    enterScene(scene)
+    expect(steps.value.map(s => s.type)).toEqual([TransformType.Transpose])
+    expect(baseSteps.value.map(s => s.type)).toEqual([TransformType.Sort])
+
+    const sceneSteps = exitScene()
+    expect(sceneSteps?.map(s => s.type)).toEqual([TransformType.Transpose])
+    expect(steps.value.map(s => s.type)).toEqual([TransformType.Sort])
+    expect(baseSteps.value).toEqual([])
+  })
+
+  it('a second exitScene is a no-op, so a deferred watcher re-run cannot wipe the pipeline', () => {
+    const { steps, addStep, enterScene, exitScene } = useDataTransforms()
+    addStep(TransformType.Sort, { column: 'Value' })
+    enterScene([])
+    exitScene()
+    expect(exitScene()).toBeNull()
+    expect(steps.value.map(s => s.type)).toEqual([TransformType.Sort])
+  })
+
+  it('enterScene while already stashed keeps the original base', () => {
+    const { baseSteps, addStep, enterScene } = useDataTransforms()
+    addStep(TransformType.Sort, { column: 'Value' })
+    enterScene([{ id: 's1', type: TransformType.Transpose, config: {} }])
+    enterScene([{ id: 's2', type: TransformType.Filter, config: { column: 'Value' } }])
+    expect(baseSteps.value.map(s => s.type)).toEqual([TransformType.Sort])
+  })
+
+  it('reset drops the stash, so exitScene after a DSL apply cannot restore stale steps', () => {
+    const { steps, addStep, enterScene, exitScene, reset } = useDataTransforms()
+    addStep(TransformType.Sort, { column: 'Value' })
+    enterScene([])
+    reset()
+    addStep(TransformType.Filter, { column: 'Value' })
+    expect(exitScene()).toBeNull()
+    expect(steps.value.map(s => s.type)).toEqual([TransformType.Filter])
+  })
+})

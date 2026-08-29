@@ -187,8 +187,7 @@ describe('useDataTable', () => {
     expect(displayRows.value.map(r => r[0])).toEqual(['Value'])
   })
 
-  // #145: selecting a scene stashes the base pipeline in baseSteps; the Data
-  // table must still compose base -> inherited -> current.
+  // #145
   it('applies base steps while a scene is selected', () => {
     const { loadParsed, displayRows } = useDataTable()
     loadParsed({
@@ -201,8 +200,7 @@ describe('useDataTable', () => {
 
     const scenes = useScenes()
     scenes.add()
-    transforms.baseSteps.value = transforms.snapshot()
-    transforms.hydrate([])
+    transforms.enterScene([])
     scenes.setActive(0)
 
     expect(displayRows.value.map(r => r[0])).toEqual(['C', 'B', 'A'])

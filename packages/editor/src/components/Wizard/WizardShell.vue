@@ -42,7 +42,6 @@ const { scenes, activeIndex, activeScene, playing, startPlayback, stopPlayback }
 const isSceneMode = computed(() => activeScene.value !== null)
 const { baseOptions } = useChartTypeOptions()
 const transforms = useDataTransforms()
-const { baseSteps } = transforms
 
 const savedAtDate = computed<Date | ''>(() => lastSavedAt.value ? new Date(lastSavedAt.value) : '')
 const savedAgo = useTimeAgo(savedAtDate)
@@ -310,13 +309,13 @@ watch(activeIndex, (newVal, oldVal) => {
     return
   }
   if (oldVal === -1 && newVal >= 0) {
-    baseSteps.value = transforms.snapshot()
-    transforms.hydrate(scenes.value[newVal]?.transforms ?? [])
+    transforms.enterScene(scenes.value[newVal]?.transforms ?? [])
   }
   else if (oldVal >= 0 && newVal === -1) {
-    scenesComposable.update(oldVal, { transforms: transforms.snapshot() })
-    transforms.hydrate(baseSteps.value)
-    baseSteps.value = []
+    const sceneSteps = transforms.exitScene()
+    if (sceneSteps) {
+      scenesComposable.update(oldVal, { transforms: sceneSteps })
+    }
   }
   else if (oldVal >= 0 && newVal >= 0) {
     scenesComposable.update(oldVal, { transforms: transforms.snapshot() })
@@ -332,9 +331,10 @@ onMounted(() => {
 
 function prepareDataForEdit() {
   if (activeIndex.value >= 0) {
-    scenesComposable.update(activeIndex.value, { transforms: transforms.snapshot() })
-    transforms.hydrate(baseSteps.value)
-    baseSteps.value = []
+    const sceneSteps = transforms.exitScene()
+    if (sceneSteps) {
+      scenesComposable.update(activeIndex.value, { transforms: sceneSteps })
+    }
     scenesComposable.setActive(-1)
   }
   config._base.data.value = dataTable.serialize()

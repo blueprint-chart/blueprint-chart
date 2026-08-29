@@ -40,9 +40,8 @@ export const useDataTableStore = defineStore('dataTable', () => {
       }
     }
 
-    // One source of truth for what has already been applied. While a scene is
-    // selected the store holds *that scene's* steps and the chart-level
-    // pipeline sits in baseSteps, so compose base -> inherited -> current.
+    // While a scene is selected the store holds *that scene's* steps and the
+    // chart-level pipeline sits in baseSteps (#145).
     let result = { columns: state.columns, rows: state.rows, columnTypes: state.columnTypes }
     if (activeIndex.value >= 0 && baseSteps.value.length > 0 && result.columns.length > 0) {
       result = applyStepList(baseSteps.value, result.columns, result.rows, result.columnTypes)
