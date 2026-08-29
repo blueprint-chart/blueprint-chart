@@ -662,9 +662,7 @@ export class HorizontalAxisChart extends D3Blueprint<AxisDatum[]> {
       return
     }
 
-    if (gridStyle !== 'none' && height > 0) {
-      applyGridLines(g, gridStyle, height)
-    }
+    applyGridLines(g, gridStyle, height)
   }
 }
 
@@ -698,15 +696,22 @@ function clampEdgeLabels(
   })
 }
 
+// A data join rather than an append, matching the vertical axis: re-renders
+// replace the grid instead of stacking a second one, and `none` removes what a
+// previous style drew. renderHorizontalAxis used to strip .bc-grid-line by hand
+// when handed a prior element, which masked this on that one path only.
 function applyGridLines(g: SVGGElement, style: string, height: number): void {
   const root = g.ownerSVGElement?.parentElement ?? document.documentElement
   const cs = getComputedStyle(root)
   const gridColor = cs.getPropertyValue('--bc-grid-color').trim() || '#ccc'
+  const data = style === 'none' || height <= 0 ? [] : [null]
 
   const ticks = d3.select(g).selectAll<SVGGElement, unknown>('.tick')
   ticks.each(function () {
-    const tick = d3.select(this)
-    const line = tick.append('line')
+    d3.select(this)
+      .selectAll<SVGLineElement, null>('.bc-grid-line')
+      .data(data)
+      .join('line')
       .attr('class', 'bc-grid-line')
       .attr('x1', 0)
       .attr('x2', 0)
@@ -714,14 +719,13 @@ function applyGridLines(g: SVGGElement, style: string, height: number): void {
       .attr('y2', -height)
       .attr('stroke', gridColor)
       .attr('stroke-width', 1)
-
-    if (style === 'dashed') {
-      line.attr('stroke-dasharray', '4,4')
-    }
-    else if (style === 'dotted') {
-      line.attr('stroke-dasharray', '1,3')
-    }
+      .attr('stroke-dasharray', GRID_DASH_ARRAY[style] ?? null)
   })
+}
+
+const GRID_DASH_ARRAY: Partial<Record<string, string>> = {
+  dashed: '4,4',
+  dotted: '1,3',
 }
 
 export function renderHorizontalAxis(
