@@ -42,7 +42,7 @@ chart bar-vertical {
 ```
 
 ::: tip From the sample library
-Adapted from `packages/lib/src/samples/coffee-production.bpc`, the only sample currently shipping with a `transform` block. The rows are shown here unsorted; `transform sort` reorders them to descending before the bar-vertical renderer reads them.
+Adapted from `packages/lib/src/samples/coffee-production.bpc`, the only sample currently shipping with a `transform` block. The sample itself already lists its rows in descending order, so the rows above are deliberately shuffled into alphabetical order to give `transform sort` something to do: it reorders them to descending before the bar-vertical renderer reads them.
 :::
 
 In the editor, the same pipeline is built interactively in the Data panel — each step appears as a card, can be reordered by drag, and is re-applied on every keystroke.

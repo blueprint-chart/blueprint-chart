@@ -208,12 +208,15 @@ export function renderInsideArcLabels(
   const g = parent.append('g').attr('class', 'bc-arc-labels-inside')
   // A slice too narrow to hold its label used to be skipped outright, so a 4%
   // slice was drawn with its name nowhere on the chart. Push it outside, which
-  // is what `auto` already does with the same slice.
+  // is what `auto` already does with the same slice. A label wider than the
+  // band is pushed out for the same reason: inside it would overflow the ring
+  // and be painted in the contrast colour of a fill it no longer sits on.
   const tooNarrow: ArcLabelDatum[] = []
+  const bandThickness = outerRadius - innerRadius
 
   for (const d of data) {
     const span = d.endAngle - d.startAngle
-    if (span < MIN_INSIDE_ANGLE) {
+    if (span < MIN_INSIDE_ANGLE || measureTextWidth(d.label, fontSize) > bandThickness * 2) {
       tooNarrow.push(d)
       continue
     }
@@ -282,11 +285,17 @@ export function renderAutoArcLabels(
   const insideData: ArcLabelDatum[] = []
   const outsideData: ArcLabelDatum[] = []
 
+  // The band's thickness matters as much as the arc's length: a label wider
+  // than the ring overflows past the outer edge, where the contrast colour
+  // picked for the fill underneath is wrong for what it actually lands on
+  // (white on white for a blue slice).
+  const bandThickness = outerRadius - innerRadius
+
   for (const d of data) {
     const span = d.endAngle - d.startAngle
     const arcWidth = span * centroidR
     const labelWidth = measureTextWidth(d.label, fontSize)
-    if (arcWidth > labelWidth * 1.2 && span >= MIN_INSIDE_ANGLE) {
+    if (arcWidth > labelWidth * 1.2 && span >= MIN_INSIDE_ANGLE && labelWidth <= bandThickness * 2) {
       insideData.push(d)
     }
     else {
