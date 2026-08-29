@@ -16,8 +16,10 @@
 <script setup lang="ts">
 import { ButtonUndo, ButtonRedo } from '@blueprint-chart/ui'
 import { useChartHistory } from '@/stores/chartHistory'
+import { useUndoShortcuts } from '@/composables/useUndoShortcuts'
 
 const { canUndo, canRedo, undo, redo } = useChartHistory()
+useUndoShortcuts()
 </script>
 
 <style scoped lang="scss">

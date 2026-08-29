@@ -405,6 +405,7 @@
     "useToString": true,
     "useToggle": true,
     "useTransition": true,
+    "useUndoShortcuts": true,
     "useUrlSearchParams": true,
     "useUserMedia": true,
     "useVModel": true,
