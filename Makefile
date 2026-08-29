@@ -55,6 +55,9 @@ lint-fix: ## Run ESLint with auto-fix
 test: build-lib build-ui ## Run all unit tests once
 	pnpm -r test
 
+typecheck: build-editor ## Typecheck the editor (needs the build's components.d.ts)
+	pnpm --filter @blueprint-chart/editor typecheck
+
 test-lib: ## Run lib tests once
 	pnpm --filter @blueprint-chart/lib test
 
