@@ -1,3 +1,10 @@
+## [2.2.2](https://github.com/blueprint-chart/blueprint-chart/compare/v2.2.1...v2.2.2) (2026-08-29)
+
+### Bug Fixes
+
+* **lib:** place the bottom legend from the granted margin and keep a floor under the label space ([b713218](https://github.com/blueprint-chart/blueprint-chart/commit/b713218bac537a6152b77f1051611b0a4a6dca68))
+* **lib:** reserve category-label space consistently around the legend ([b908e16](https://github.com/blueprint-chart/blueprint-chart/commit/b908e16804030bfb0068034e18d8f8ccd7b67102))
+
 ## [2.2.1](https://github.com/blueprint-chart/blueprint-chart/compare/v2.2.0...v2.2.1) (2026-08-29)
 
 ### Bug Fixes
