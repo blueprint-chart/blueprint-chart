@@ -186,6 +186,40 @@ describe('useDataTable', () => {
 
     expect(displayRows.value.map(r => r[0])).toEqual(['Value'])
   })
+
+  // #145: selecting a scene stashes the base pipeline in baseSteps; the Data
+  // table must still compose base -> inherited -> current.
+  it('applies base steps while a scene is selected', () => {
+    const { loadParsed, displayRows } = useDataTable()
+    loadParsed({
+      columns: ['Name', 'Value'],
+      rows: [['A', '1'], ['B', '2'], ['C', '3']],
+      columnTypes: ['string', 'number'],
+    })
+    const transforms = useDataTransforms()
+    transforms.addStep(TransformType.Sort, { column: 'Value', direction: SortDirection.Descending })
+
+    const scenes = useScenes()
+    scenes.add()
+    transforms.baseSteps.value = transforms.snapshot()
+    transforms.hydrate([])
+    scenes.setActive(0)
+
+    expect(displayRows.value.map(r => r[0])).toEqual(['C', 'B', 'A'])
+  })
+
+  it('ignores stale base steps when no scene is selected', () => {
+    const { loadParsed, displayRows } = useDataTable()
+    loadParsed({
+      columns: ['Name', 'Value'],
+      rows: [['A', '1'], ['B', '2'], ['C', '3']],
+      columnTypes: ['string', 'number'],
+    })
+    const transforms = useDataTransforms()
+    transforms.baseSteps.value = [{ id: '9', type: TransformType.Sort, config: { column: 'Value', direction: SortDirection.Descending } }]
+
+    expect(displayRows.value.map(r => r[0])).toEqual(['A', 'B', 'C'])
+  })
 })
 
 describe('serializeTableData', () => {

@@ -28,7 +28,7 @@ export const useDataTableStore = defineStore('dataTable', () => {
   const sourceLabel = shallowRef('')
   const loadedAt = shallowRef<number | null>(null)
 
-  const { steps, applyTransforms, applyStepList } = useDataTransforms()
+  const { steps, baseSteps, applyTransforms, applyStepList } = useDataTransforms()
   const { activeIndex, scenes } = useScenes()
 
   const displayData = computed(() => {
@@ -41,10 +41,12 @@ export const useDataTableStore = defineStore('dataTable', () => {
     }
 
     // One source of truth for what has already been applied. While a scene is
-    // selected the store holds *that scene's* steps, so running the resolved
-    // list on top of them applied the same steps twice and never ran the base
-    // pipeline at all. Compose instead: prior scenes' steps, then the store's.
+    // selected the store holds *that scene's* steps and the chart-level
+    // pipeline sits in baseSteps, so compose base -> inherited -> current.
     let result = { columns: state.columns, rows: state.rows, columnTypes: state.columnTypes }
+    if (activeIndex.value >= 0 && baseSteps.value.length > 0 && result.columns.length > 0) {
+      result = applyStepList(baseSteps.value, result.columns, result.rows, result.columnTypes)
+    }
     const inherited = activeIndex.value > 0
       ? (resolveScene(scenes.value, activeIndex.value - 1)?.transforms ?? [])
       : []

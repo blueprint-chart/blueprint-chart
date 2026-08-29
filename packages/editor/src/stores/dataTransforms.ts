@@ -13,6 +13,9 @@ export interface TransformStep extends TransformStepInput {
 
 export const useDataTransformsStore = defineStore('dataTransforms', () => {
   const steps = ref<TransformStep[]>([])
+  // While a scene is selected, `steps` holds that scene's pipeline and the
+  // chart-level pipeline is stashed here (#145).
+  const baseSteps = ref<TransformStep[]>([])
   let nextId = 1
 
   function addStep(type: TransformType, config: Record<string, string> = {}): string {
@@ -105,6 +108,7 @@ export const useDataTransformsStore = defineStore('dataTransforms', () => {
 
   function reset() {
     steps.value = []
+    baseSteps.value = []
     nextId = 1
   }
 
@@ -119,6 +123,7 @@ export const useDataTransformsStore = defineStore('dataTransforms', () => {
 
   return {
     steps,
+    baseSteps,
     addStep,
     removeStep,
     updateStep,
@@ -139,9 +144,10 @@ export const useDataTransformsStore = defineStore('dataTransforms', () => {
  */
 export function useDataTransforms() {
   const store = useDataTransformsStore()
-  const { steps } = storeToRefs(store)
+  const { steps, baseSteps } = storeToRefs(store)
   return {
     steps,
+    baseSteps,
     addStep: store.addStep,
     removeStep: store.removeStep,
     updateStep: store.updateStep,

@@ -6,7 +6,7 @@ import { useDataTable } from '@/stores/dataTable'
 import { useChartConfig } from '@/stores/chartConfig'
 import { useChartSession } from '@/stores/chartSession'
 import { useChartTypeOptions } from '@/stores/chartTypeOptions'
-import { useDataTransforms, type TransformStep } from '@/stores/dataTransforms'
+import { useDataTransforms } from '@/stores/dataTransforms'
 import { serializeTableData } from '@/stores/dataTable'
 import { useScenes } from '@/stores/scenes'
 import { resolveScene, resolveSortFromTransforms, findDataSourceSceneIndex } from '@/utils/scenes'
@@ -42,7 +42,7 @@ const { scenes, activeIndex, activeScene, playing, startPlayback, stopPlayback }
 const isSceneMode = computed(() => activeScene.value !== null)
 const { baseOptions } = useChartTypeOptions()
 const transforms = useDataTransforms()
-const baseTransforms = ref<TransformStep[]>([])
+const { baseSteps } = transforms
 
 const savedAtDate = computed<Date | ''>(() => lastSavedAt.value ? new Date(lastSavedAt.value) : '')
 const savedAgo = useTimeAgo(savedAtDate)
@@ -310,12 +310,13 @@ watch(activeIndex, (newVal, oldVal) => {
     return
   }
   if (oldVal === -1 && newVal >= 0) {
-    baseTransforms.value = transforms.snapshot()
+    baseSteps.value = transforms.snapshot()
     transforms.hydrate(scenes.value[newVal]?.transforms ?? [])
   }
   else if (oldVal >= 0 && newVal === -1) {
     scenesComposable.update(oldVal, { transforms: transforms.snapshot() })
-    transforms.hydrate(baseTransforms.value)
+    transforms.hydrate(baseSteps.value)
+    baseSteps.value = []
   }
   else if (oldVal >= 0 && newVal >= 0) {
     scenesComposable.update(oldVal, { transforms: transforms.snapshot() })
@@ -332,7 +333,8 @@ onMounted(() => {
 function prepareDataForEdit() {
   if (activeIndex.value >= 0) {
     scenesComposable.update(activeIndex.value, { transforms: transforms.snapshot() })
-    transforms.hydrate(baseTransforms.value)
+    transforms.hydrate(baseSteps.value)
+    baseSteps.value = []
     scenesComposable.setActive(-1)
   }
   config._base.data.value = dataTable.serialize()
