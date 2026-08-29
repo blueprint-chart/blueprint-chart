@@ -7,7 +7,7 @@ import { useDslSync } from '@/composables/useDslSync'
 import { useDslOutput } from '@/composables/useDslOutput'
 import { parseDelimited } from '@/composables/useDataParser'
 import { deleteThumbnail } from '@/composables/useChartThumbnail'
-import { parse, type ChartSample } from '@blueprint-chart/lib'
+import { parse, type ChartSample, toBool } from '@blueprint-chart/lib'
 
 /**
  * Bumped when the meaning of a stored document changes.
@@ -110,14 +110,14 @@ export function summarizeDsl(dsl: string): DslSummary {
   const dataRows = dataBlock
     ? dataBlock[1].split('\n').filter(l => l.trim() && l.includes('=')).length
     : 0
-  const darkModeMatch = dsl.match(/allowDarkMode\s*=\s*(true|false)/)
+  const darkModeMatch = dsl.match(/allowDarkMode\s*=\s*(true|false)/i)
   return {
     title: titleMatch?.[1] ?? '',
     description: descMatch?.[1] ?? '',
     chartType: typeMatch?.[1] ?? '',
     sceneCount: sceneMatches?.length ?? 0,
     rowCount: dataRows,
-    allowDarkMode: darkModeMatch ? darkModeMatch[1] === 'true' : true,
+    allowDarkMode: darkModeMatch ? toBool(darkModeMatch[1]) : true,
   }
 }
 

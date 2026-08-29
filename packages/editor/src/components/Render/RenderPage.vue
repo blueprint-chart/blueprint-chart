@@ -120,7 +120,7 @@ onMounted(async () => {
       const { fetchPublished } = useCloudCharts()
       const dsl = await fetchPublished(id)
       if (dsl) {
-        applyDsl(dsl)
+        showDsl(dsl)
         return
       }
     }
@@ -137,8 +137,24 @@ onMounted(async () => {
     error.value = 'This chart link is damaged, so there is nothing to show. It was probably truncated or re-encoded on the way here.'
     return
   }
-  applyDsl(dsl)
+  showDsl(dsl)
 })
+
+/**
+ * A syntax error used to leave the page blank, which reads as a broken tool
+ * rather than as a typo. applyDsl already reports the parser's message and
+ * position; show it.
+ */
+function showDsl(dsl: string) {
+  const result = applyDsl(dsl)
+  if (result.success) {
+    return
+  }
+  const where = result.location
+    ? ` (line ${result.location.line}, column ${result.location.column})`
+    : ''
+  error.value = `This chart's source could not be read${where}: ${result.error ?? 'unknown error'}`
+}
 </script>
 
 <style scoped lang="scss">

@@ -1,8 +1,7 @@
 import { useChartConfig } from './useChartConfig'
-import { useChartTypeOptions } from './useChartTypeOptions'
 import { useChartSession } from './useChartSession'
 import { useDslOutput } from './useDslOutput'
-import { ChartType, SortDirection, parseData, renderBpc, renderChart } from '@blueprint-chart/lib'
+import { ChartType, SortDirection, parseData, renderBpc, renderChart, toBool } from '@blueprint-chart/lib'
 import type { ChartData, ChartTypeOptions, SeriesOverride } from '@blueprint-chart/lib'
 import type { ChartColorize } from './useChartConfig'
 
@@ -176,8 +175,8 @@ function withOffscreen(
 }
 
 function dslAllowsDarkMode(dsl: string): boolean {
-  const match = dsl.match(/allowDarkMode\s*=\s*(true|false)/)
-  return match ? match[1] === 'true' : true
+  const match = dsl.match(/allowDarkMode\s*=\s*(true|false)/i)
+  return match ? toBool(match[1]) : true
 }
 
 // ---------------------------------------------------------------------------
@@ -328,39 +327,30 @@ export function renderPreviewFromStorage(raw: string): string | null {
 
 export function generateThumbnail() {
   const config = useChartConfig()
-  const { currentOptions } = useChartTypeOptions()
   const { sessionId } = useChartSession()
 
   if (!sessionId.value || !config.data.value) {
     return
   }
 
-  const data = parseData(config.data.value)
-  const singleSeriesTypes: string[] = [ChartType.BarVertical, ChartType.BarHorizontal, ChartType.Line, ChartType.VerticalBar, ChartType.HorizontalBar]
-  if (data.series && data.series.length > 0 && singleSeriesTypes.includes(config.chartType.value)) {
-    const match = data.series.find(s => s.name === config.selectedColumn.value)
-    if (match) {
-      data.values = match.values
-    }
-    delete data.series
+  // Both artefacts render from the DSL. The thumbnail used to come from live
+  // editor state while the gallery refilled the same cache key from the DSL,
+  // so whichever wrote last decided the card art and it could change with no
+  // edit behind it.
+  const { generateDsl } = useDslOutput()
+  const currentDsl = generateDsl()
+  if (!currentDsl) {
+    return
   }
 
-  const svg = renderThumbnailSvg(config.chartType.value, data, currentOptions.value, config.sort.value, {
-    colorizes: config.colorizes.value.length > 0 ? config.colorizes.value : undefined,
-    seriesOverrides: config.seriesOverrides.value.length > 0 ? config.seriesOverrides.value : undefined,
-  })
+  const svg = renderThumbnailFromDsl(currentDsl)
   if (svg) {
     saveThumbnail(sessionId.value, svg)
   }
 
-  // Preview uses the DSL output for full-frame rendering
-  const { generateDsl } = useDslOutput()
-  const currentDsl = generateDsl()
-  if (currentDsl) {
-    const preview = renderPreviewFromDsl(currentDsl)
-    if (preview) {
-      savePreview(sessionId.value, preview)
-    }
+  const preview = renderPreviewFromDsl(currentDsl)
+  if (preview) {
+    savePreview(sessionId.value, preview)
   }
 }
 

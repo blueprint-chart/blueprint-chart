@@ -66,3 +66,22 @@ test('legend hover highlights one arc instead of doing nothing (#86)', async ({ 
     .poll(async () => page.locator('.bc-arc[data-series="Coal"]').evaluate(el => Number(getComputedStyle(el).opacity)))
     .toBe(1)
 })
+
+// #129: a syntax error used to render a blank page with no diagnostic, which
+// reads as a broken tool rather than as a typo.
+test('a DSL syntax error is reported, not rendered as a blank page (#129)', async ({ page }) => {
+  const broken = `chart bar-vertical {
+  transform sort {
+    columns = "A","B"
+  }
+  data {
+    "Alpha" = 30
+  }
+}`
+  const payload = encodeURIComponent(Buffer.from(broken, 'utf-8').toString('base64'))
+  await page.goto(`/#/render?bpc64=${payload}`)
+  const message = page.locator('.render-page__error__message')
+  await expect(message).toBeVisible()
+  await expect(message).toContainText('could not be read')
+  await expect(message).toContainText('line')
+})
