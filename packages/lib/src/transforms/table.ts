@@ -109,7 +109,10 @@ export function parseBpcData(raw: string): TransformResult {
   for (const line of lines) {
     const match = line.match(/^"([^"]*)"\s*=\s*(.+)$/)
     if (match) {
-      rows.push([match[1], match[2].replace(/%$/, '').trim()])
+      // Keep the unit: stripping it here left serializeTableData nothing to put
+      // back, so a Data pass silently rewrote `40%` as `40`. isNumberValue and
+      // the numeric parsers already tolerate a trailing %.
+      rows.push([match[1], match[2].trim()])
     }
   }
   const columnTypes = detectColumnTypes(columns, rows)

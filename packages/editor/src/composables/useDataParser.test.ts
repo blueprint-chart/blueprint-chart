@@ -414,13 +414,14 @@ describe('parseBpcData', () => {
     expect(result.columnTypes).toEqual(['string', 'number'])
   })
 
-  it('parses percentage values', () => {
+  it('parses percentage values, keeping the unit so a save cannot drop it (#126)', () => {
     const result = parseBpcData('"Apples" = 42%\n"Bananas" = 58%')
     expect(result.columns).toEqual(['label', 'value'])
     expect(result.rows).toEqual([
-      ['Apples', '42'],
-      ['Bananas', '58'],
+      ['Apples', '42%'],
+      ['Bananas', '58%'],
     ])
+    expect(result.columnTypes).toEqual(['string', 'number'])
   })
 
   it('parses multi-series format with series header', () => {
