@@ -2,9 +2,15 @@
   <Transition name="drawer">
     <div
       v-if="open"
+      ref="drawerRef"
       class="layout-bottom-drawer"
       :class="drawerClassList"
       :style="drawerStyle"
+      role="dialog"
+      aria-modal="true"
+      :aria-label="title ?? 'Panel'"
+      tabindex="-1"
+      @keydown="onKeydown"
     >
       <div
         class="layout-bottom-drawer__handle"
@@ -12,13 +18,22 @@
       >
         <div class="layout-bottom-drawer__handle__bar" />
       </div>
-      <div
-        v-if="title"
-        class="layout-bottom-drawer__header"
-      >
-        <h2 class="layout-bottom-drawer__header__title">
+      <div class="layout-bottom-drawer__header">
+        <h2
+          v-if="title"
+          class="layout-bottom-drawer__header__title"
+        >
           {{ title }}
         </h2>
+        <button
+          ref="closeRef"
+          type="button"
+          class="layout-bottom-drawer__header__close"
+          aria-label="Close panel"
+          @click="open = false"
+        >
+          &times;
+        </button>
       </div>
       <div class="layout-bottom-drawer__body">
         <slot />
@@ -28,6 +43,7 @@
   <div
     v-if="open"
     class="layout-bottom-drawer__backdrop"
+    aria-hidden="true"
     @click="open = false"
   />
 </template>
@@ -45,6 +61,60 @@ defineProps<{
 
 const dragOffset = shallowRef(0)
 const isDragging = shallowRef(false)
+
+const drawerRef = useTemplateRef<HTMLElement>('drawerRef')
+const closeRef = useTemplateRef<HTMLElement>('closeRef')
+let previouslyFocused: HTMLElement | null = null
+
+const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+
+function focusable(): HTMLElement[] {
+  return [...(drawerRef.value?.querySelectorAll<HTMLElement>(FOCUSABLE) ?? [])]
+    .filter(el => el.offsetParent !== null || el === closeRef.value)
+}
+
+/**
+ * The drawer covers the page with an opaque backdrop, so without this the Tab
+ * order still walked the page behind it and Escape did nothing: a keyboard user
+ * could neither dismiss the drawer nor reach anything else.
+ */
+function onKeydown(event: KeyboardEvent) {
+  if (event.key === 'Escape') {
+    event.preventDefault()
+    open.value = false
+    return
+  }
+  if (event.key !== 'Tab') {
+    return
+  }
+  const items = focusable()
+  if (items.length === 0) {
+    event.preventDefault()
+    return
+  }
+  const first = items[0]
+  const last = items[items.length - 1]
+  const active = document.activeElement as HTMLElement | null
+  if (event.shiftKey && (active === first || active === drawerRef.value)) {
+    event.preventDefault()
+    last.focus()
+  }
+  else if (!event.shiftKey && active === last) {
+    event.preventDefault()
+    first.focus()
+  }
+}
+
+watch(open, async (isOpen) => {
+  if (isOpen) {
+    previouslyFocused = document.activeElement as HTMLElement | null
+    await nextTick()
+    ;(closeRef.value ?? drawerRef.value)?.focus()
+    return
+  }
+  previouslyFocused?.focus()
+  previouslyFocused = null
+}, { immediate: true })
 
 const drawerClassList = computed(() => ({
   'layout-bottom-drawer--dragging': isDragging.value,
@@ -151,6 +221,17 @@ const drawerStyle = computed<CSSProperties>(() =>
       font-weight: 600;
       margin: 0;
       color: var(--bs-body-color);
+    }
+
+    &__close {
+      margin-left: auto;
+      border: 0;
+      background: transparent;
+      color: var(--bs-body-color);
+      font-size: 1.5rem;
+      line-height: 1;
+      padding: 0 0.25rem;
+      cursor: pointer;
     }
   }
 
