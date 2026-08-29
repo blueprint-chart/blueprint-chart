@@ -159,7 +159,7 @@ export function render(
   const { chartArea, width, height, margin } = createCanvas(body, marginOverrides)
   const marginDelta = computeMarginDelta(priorMargin, margin)
 
-  const [domainMin, domainMax] = computeLinearDomain(allValues, options.verticalAxis?.range, options.verticalAxis?.scaleType)
+  const [domainMin, domainMax] = computeLinearDomain(allValues, options.verticalAxis?.range, options.verticalAxis?.scaleType, false)
 
   const pointScale = d3.scalePoint<string>()
     .domain(data.labels)

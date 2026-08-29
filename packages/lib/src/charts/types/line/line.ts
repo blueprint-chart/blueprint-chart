@@ -101,7 +101,7 @@ export function render(
   const xPos = (d: LineDatum) => pointScale(d.label) ?? 0
 
   const useLog = options.verticalAxis?.scaleType === 'log'
-  const [domainMin, domainMax] = computeLinearDomain(filteredValues, options.verticalAxis?.range, options.verticalAxis?.scaleType)
+  const [domainMin, domainMax] = computeLinearDomain(filteredValues, options.verticalAxis?.range, options.verticalAxis?.scaleType, false)
   const y = useLog
     ? d3.scaleSymlog().domain([domainMin, domainMax]).nice().range([height, 0])
     : d3.scaleLinear().domain([domainMin, domainMax]).nice().range([height, 0])

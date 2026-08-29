@@ -72,13 +72,17 @@ export function computeLinearDomain(
   values: number[],
   range?: AxisRange,
   scaleType?: ScaleType,
+  anchorZero = true,
 ): [number, number] {
   // Compute min/max via iteration to avoid blowing the argument limit
   // (Math.min(0, ...values) overflows at ~64–125k entries).
   // Track both the data extent and whether every finite value is positive,
   // so log scales can opt out of the 0-anchor below.
-  let dataMin = 0
-  let dataMax = 0
+  // Anchored at zero for the bar and area families, where a truncated baseline
+  // exaggerates the differences. Line charts opt out: the wiki says auto is
+  // appropriate there, and a flat series near 1000 is unreadable against 0.
+  let dataMin = anchorZero ? 0 : Infinity
+  let dataMax = anchorZero ? 0 : -Infinity
   let posMin = Infinity
   let allPositive = true
   let hasFinite = false
@@ -105,6 +109,11 @@ export function computeLinearDomain(
   // use min(values) as the floor instead of forcing 0.
   if (scaleType === ScaleType.Log && hasFinite && allPositive) {
     dataMin = posMin
+  }
+
+  if (!hasFinite && !anchorZero) {
+    dataMin = 0
+    dataMax = 0
   }
 
   let lo = valueBound(range?.min) ?? dataMin
