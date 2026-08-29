@@ -55,7 +55,9 @@ describe('a data row is never dropped for sharing its label', () => {
   }
 }`)
     expect(container.querySelectorAll('.bc-bar')).toHaveLength(4)
-    expect([...container.querySelectorAll('.bc-axis-vertical .tick text')].map(t => t.textContent))
+    // Order is the renderer's business (sortMode may reorder); what #22 is about
+    // is that neither row is dropped for sharing a label.
+    expect([...container.querySelectorAll('.bc-axis-vertical .tick text')].map(t => t.textContent).sort())
       .toEqual(['Alpha', 'Alpha (2)'])
   })
 })

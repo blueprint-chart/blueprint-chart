@@ -64,7 +64,7 @@ describe('a horizontal bar chart keeps its category labels on a phone', () => {
     it(`${type}: every category label starts inside the SVG at ${PHONE_WIDTH}px`, () => {
       renderBpc(container, bpc(type))
       const edges = categoryLabelLeftEdges(container)
-      expect(edges.map(e => e.text).filter(Boolean)).toEqual(['Alphabetical', 'Beta'])
+      expect(edges.map(e => e.text).filter(Boolean).sort()).toEqual(['Alphabetical', 'Beta'])
       for (const { text, left } of edges) {
         expect(left, `left edge of "${text}"`).toBeGreaterThanOrEqual(0)
       }

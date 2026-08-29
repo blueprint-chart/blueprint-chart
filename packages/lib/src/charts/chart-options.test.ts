@@ -46,9 +46,9 @@ describe('buildChartOptions option passthrough', () => {
     expect(result.crosshairColor).toBeUndefined()
   })
 
-  it('does not let a chart-type sortMode reach the renderer', () => {
+  it('passes a chart-type sortMode through to the renderer', () => {
     const result = buildChartOptions({ sortMode: SortMode.None }, undefined, ChartType.BarSplit)
-    expect(result.sortMode).toBeUndefined()
+    expect(result.sortMode).toBe(SortMode.None)
   })
 
   it('keeps working with no chart type', () => {

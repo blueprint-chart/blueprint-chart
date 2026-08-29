@@ -8,8 +8,6 @@ import { LegendPosition, Anchor, ValueLabelPosition, CrosshairDirection, Crossha
 // Keys the builders below fold into a differently named or differently typed
 // ChartOptions field, or drop on a falsy value, so copying their raw value
 // would leak a DSL string or a boolean where the renderer expects an object.
-// `sortMode` is excluded too: it reaches the renderer from the chart
-// definition, where the top-level property and the sort transforms also feed in.
 const DERIVED_OPTION_KEYS = new Set<string>([
   'colors', 'colorPalette', 'autoContrast',
   'crosshairDirection', 'crosshairStyle', 'crosshairColor',
@@ -19,7 +17,6 @@ const DERIVED_OPTION_KEYS = new Set<string>([
   'showHorizontalTicks', 'showHorizontalAxis', 'horizontalGridStyle', 'horizontalNumberFormat',
   'horizontalScaleType', 'horizontalLabelPosition', 'horizontalLabelRotation', 'horizontalRangeMin', 'horizontalRangeMax',
   'sliceMax', 'barGap', 'connectionsOpacity', 'areaFillOpacity',
-  'sortMode',
 ])
 
 function buildRegisteredOptions(opts: Partial<ChartTypeOptions>, chartType?: string): Partial<ChartOptions> {
