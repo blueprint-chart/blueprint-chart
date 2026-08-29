@@ -31,6 +31,7 @@ test('side legend keeps category labels legible (#41)', async ({ page }) => {
   const labels = page.locator('.bc-axis-horizontal .tick text')
   await expect(labels.first()).toBeVisible()
   const count = await labels.count()
+  expect(count, 'axis lost its category labels').toBeGreaterThan(0)
   const boxes: Box[] = []
   for (let i = 0; i < count; i++) {
     const box = await labels.nth(i).boundingBox()
@@ -66,8 +67,8 @@ const BOTTOM_LEGEND = (type: string) => `chart ${type} {
   }
 }`
 
-for (const type of ['bar-multi', 'column-stacked']) {
-  test(`bottom legend stays clear of wrapped category labels — ${type} (#41)`, async ({ page }) => {
+for (const type of ['bar-multi', 'column-stacked', 'line-multi', 'area-stacked']) {
+  test(`bottom legend stays clear of wrapped category labels: ${type} (#41)`, async ({ page }) => {
     await page.setViewportSize({ width: 560, height: 480 })
     await gotoRender(page, BOTTOM_LEGEND(type))
     const legend = page.locator('.bc-legend')
@@ -84,3 +85,53 @@ for (const type of ['bar-multi', 'column-stacked']) {
     }
   })
 }
+
+// #41 review: the legend used to be placed from the requested label height,
+// so when fitMargins scales a too-tall bottom margin down (short fixed-height
+// frame + rotated labels) the legend landed past the SVG bottom edge.
+const SHORT_FRAME = `chart bar-multi {
+  legend = true
+  legendPosition = "bottom"
+  heightMode = "fixed"
+  fixedHeight = 220
+  horizontalLabelRotation = "vertical"
+  data {
+    series = "Alpha","Beta"
+    "Uncompromisingly-Long-Unbreakable-Category-One" = 4,6
+    "Another-Unbreakable-Category-Label-Number-Two" = 7,3
+    "Yet-Another-Overlong-Unbreakable-Category-Three" = 5,8
+  }
+}`
+
+test('bottom legend stays inside a short fixed-height frame (#41)', async ({ page }) => {
+  await page.setViewportSize({ width: 420, height: 480 })
+  await gotoRender(page, SHORT_FRAME)
+  const svgBox = (await page.locator('.bc-frame svg').first().boundingBox())!
+  const legend = page.locator('.bc-legend')
+  await expect(legend).toBeVisible()
+  const legendBox = (await legend.boundingBox())!
+  expect(legendBox.y + legendBox.height, 'legend clipped past the svg bottom')
+    .toBeLessThanOrEqual(svgBox.y + svgBox.height + 1)
+})
+
+// #41 review: with hidden axis labels the reserved bottom collapsed to 5px,
+// welding the legend to the axis line instead of keeping the old gap.
+const NO_LABELS = `chart bar-multi {
+  legend = true
+  legendPosition = "bottom"
+  horizontalLabelPosition = "off"
+  data {
+    series = "Alpha","Beta"
+    "A" = 4,6
+    "B" = 7,3
+  }
+}`
+
+test('bottom legend keeps a gap below the plot when labels are off (#41)', async ({ page }) => {
+  await page.setViewportSize({ width: 560, height: 480 })
+  await gotoRender(page, NO_LABELS)
+  const legendBox = (await page.locator('.bc-legend').boundingBox())!
+  const barBoxes = await page.locator('.bc-bar-multi').evaluateAll(els => els.map(el => el.getBoundingClientRect().bottom))
+  const plotBottom = Math.max(...barBoxes)
+  expect(legendBox.y - plotBottom, 'legend welded to the axis').toBeGreaterThanOrEqual(15)
+})

@@ -127,8 +127,8 @@ export function render(
   // bottom legend below the reserved label space instead of on top of it (#41).
   const availableX = Math.max(0, containerWidth - (marginOverrides.left ?? 50) - (marginOverrides.right ?? 20))
   const rotatedBottom = resolveHorizontalAxisBottom(data.labels, availableX, options.horizontalAxis)
-  const bottomLabelH = rotatedBottom ?? (marginOverrides.bottom ?? 24)
-  marginOverrides.bottom = bottomLabelH + (showLegend && legendPos === 'bottom' ? legendH : 0)
+  const bottomLabelH = rotatedBottom ?? Math.max(marginOverrides.bottom ?? 24, 24)
+  marginOverrides.bottom = bottomLabelH + (legendPos === 'bottom' ? legendH : 0)
   // A label outside a bar's end sits above the plot, and the tallest bar's end
   // is the plot's top edge, so the top margin is the only thing keeping the
   // label inside the SVG. Direct labels take the first line and push the value
@@ -488,7 +488,7 @@ export function render(
       yPos = -(legendSize.height + 10 + insideGap)
     }
     else if (legendPos === 'bottom') {
-      yPos = height + bottomLabelH + 1
+      yPos = height + Math.max(margin.bottom - legendH, 0)
     }
     else if (legendPos === 'left') {
       xPos = -(legendSize.width + 10)

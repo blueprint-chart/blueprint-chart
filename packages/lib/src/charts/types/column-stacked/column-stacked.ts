@@ -155,8 +155,8 @@ export function render(
   // bottom legend below the reserved label space instead of on top of it (#41).
   const availableX = Math.max(0, containerWidth - (marginOverrides.left ?? 50) - (marginOverrides.right ?? 20))
   const rotatedBottom = resolveHorizontalAxisBottom(data.labels, availableX, options.horizontalAxis)
-  const bottomLabelH = rotatedBottom ?? (marginOverrides.bottom ?? 24)
-  marginOverrides.bottom = bottomLabelH + (showLegend && legendPos === 'bottom' ? legendH : 0)
+  const bottomLabelH = rotatedBottom ?? Math.max(marginOverrides.bottom ?? 24, 24)
+  marginOverrides.bottom = bottomLabelH + (legendPos === 'bottom' ? legendH : 0)
   const { chartArea, width, height, margin } = createCanvas(body, marginOverrides)
   const marginDelta = computeMarginDelta(priorMargin, margin)
 
@@ -348,7 +348,7 @@ export function render(
       yPos = -(legendSize.height + 10 + insideGap)
     }
     else if (legendPos === 'bottom') {
-      yPos = height + bottomLabelH + 1
+      yPos = height + Math.max(margin.bottom - legendH, 0)
     }
     else if (legendPos === 'left') {
       xPos = -(legendSize.width + 10)
