@@ -242,6 +242,49 @@ function buildFooterRightItems(): FooterItem[] {
   }]
 }
 
+// Frame height kept free for the chart body when the header is clamped (#31).
+const MIN_BODY_H = 80
+
+const CLAMPABLE = '.bc-frame-title, .bc-frame-description'
+
+function lineHeightOf(el: HTMLElement): number {
+  const cs = getComputedStyle(el)
+  const lineHeight = parseFloat(cs.lineHeight)
+  return Number.isFinite(lineHeight) ? lineHeight : parseFloat(cs.fontSize) * 1.2
+}
+
+function unclampHeader(header: HTMLElement) {
+  header.querySelectorAll<HTMLElement>(CLAMPABLE).forEach((el) => {
+    el.style.removeProperty('display')
+    el.style.removeProperty('-webkit-box-orient')
+    el.style.removeProperty('-webkit-line-clamp')
+    el.style.removeProperty('overflow')
+  })
+}
+
+/**
+ * Clamp the header's title and description to the lines that fit in `budget`
+ * pixels, ellipsizing the last visible line, so the footer and the chart body
+ * always keep their room in a constrained frame (#31).
+ */
+function clampHeader(header: HTMLElement, budget: number) {
+  const items = [...header.querySelectorAll<HTMLElement>(CLAMPABLE)]
+  const chrome = header.offsetHeight - items.reduce((sum, el) => sum + el.offsetHeight, 0)
+  let remaining = budget - chrome
+  for (const el of items) {
+    const lines = Math.floor(remaining / lineHeightOf(el))
+    if (lines < 1) {
+      el.style.display = 'none'
+      continue
+    }
+    el.style.display = '-webkit-box'
+    el.style.setProperty('-webkit-box-orient', 'vertical')
+    el.style.setProperty('-webkit-line-clamp', String(lines))
+    el.style.overflow = 'hidden'
+    remaining -= el.offsetHeight
+  }
+}
+
 /**
  * Expand a CSS `padding` shorthand to its four sides. The stylesheet feeds each
  * side into a separate shorthand slot, so a raw multi-value string would build
@@ -302,15 +345,25 @@ export function createFrame(
   // chart content below the header and above the footer without affecting
   // the SVG element size.
   if (container.isConnected) {
+    // Clear any clamp left by a previous constrained render first, so both
+    // the mode check below and the header measurement see the full header.
+    unclampHeader(header)
     const cs = getComputedStyle(container)
     const hasAspect = cs.aspectRatio && cs.aspectRatio !== 'auto' && cs.aspectRatio !== ''
     const isFlexCol = cs.display === 'flex' && cs.flexDirection === 'column'
     if (hasAspect || isFlexCol) {
       // Measure BEFORE adding constrained class — elements are still in
       // normal flow with the correct container width.
-      const headerH = header.offsetHeight
+      let headerH = header.offsetHeight
       const footerH = footer.offsetHeight
       const noteH = note.style.display !== 'none' ? note.offsetHeight : 0
+      // A long wrapped title can eat the whole constrained frame, pushing the
+      // footer onto the header text and leaving no room for the chart (#31).
+      const headerBudget = container.clientHeight - footerH - noteH - MIN_BODY_H
+      if (headerH > headerBudget) {
+        clampHeader(header, headerBudget)
+        headerH = header.offsetHeight
+      }
       wrapper.classList.add('bc-frame--constrained')
       // Header is read live each render so the chart area shrinks when the
       // header grows and expands again when it shrinks. stableTop in

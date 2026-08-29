@@ -70,3 +70,31 @@ test('a constrained aspect ratio still draws a chart (#30)', async ({ page }) =>
   const box = (await arcs.first().boundingBox())!
   expect(box.height, 'the arc has no height').toBeGreaterThan(8)
 })
+
+// #31: the constrained-mode frame header is not reserved — a long wrapped
+// title overflows the frame and the pinned footer paints on top of it.
+const LONG_TITLE = `chart donut {
+  heightMode = "aspect-ratio"
+  aspectRatio = "16:9"
+  title = "An exceedingly long chart title that wraps over many and many lines at a narrow viewport width and used to overflow the whole constrained frame"
+  description = "A description that adds a couple more lines of header text below the already oversized title"
+  source = "UN"
+  data {
+    "A" = 50
+    "B" = 50
+  }
+}`
+
+test('a long title stays clear of the footer in a constrained frame (#31)', async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 640 })
+  await gotoRender(page, LONG_TITLE)
+  const frameBox = (await page.locator('.bc-frame').boundingBox())!
+  const headerBox = (await page.locator('.bc-frame-header').boundingBox())!
+  const footerBox = (await page.locator('.bc-frame-footer').boundingBox())!
+  expect(headerBox.y + headerBox.height, 'header runs into the footer')
+    .toBeLessThanOrEqual(footerBox.y + 1)
+  expect(headerBox.y + headerBox.height, 'header overflows the frame')
+    .toBeLessThanOrEqual(frameBox.y + frameBox.height + 1)
+  const arc = page.locator('.bc-arc').first()
+  await expect(arc, 'no chart is rendered at all').toBeVisible()
+})
