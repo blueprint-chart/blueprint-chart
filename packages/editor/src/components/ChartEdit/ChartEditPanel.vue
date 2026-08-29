@@ -268,6 +268,13 @@ const canvasStyle = computed<CSSProperties>(() => ({
     // Shared edge inset so the floating timeline and the pinned view toolbar
     // sit the same distance from the canvas edge.
     --canvas-float-inset: 0.75rem;
+
+    // Narrow: the chart card spans almost the full width, so a floating
+    // toolbar would paint over the frame title (#120). Stack the frame as a
+    // column and keep the toolbar in flow above the canvas instead.
+    .chart-edit-panel--narrow & {
+      flex-direction: column;
+    }
   }
 
   &__view-toolbar {
@@ -280,6 +287,12 @@ const canvasStyle = computed<CSSProperties>(() => ({
     border-radius: var(--bc-radius-sm);
     padding: 0.25rem;
     box-shadow: none;
+
+    .chart-edit-panel--narrow & {
+      position: static;
+      align-self: flex-end;
+      margin: 0.5rem var(--canvas-float-inset);
+    }
   }
 
   &__divider {
