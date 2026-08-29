@@ -89,7 +89,7 @@
 </template>
 
 <script setup lang="ts">
-import type { ColumnType } from '@/utils/data/parser'
+import type { ColumnType } from '@/composables/useDataParser'
 import { useDataTable } from '@/stores/dataTable'
 import { TransformType } from '@/enums'
 import { useDataTransforms } from '@/stores/dataTransforms'

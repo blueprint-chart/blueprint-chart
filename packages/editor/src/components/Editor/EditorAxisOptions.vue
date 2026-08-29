@@ -10,7 +10,7 @@
     >
       <div class="d-flex flex-column gap-2">
         <FormControlCheckbox
-          :model-value="Boolean(currentOptions.valueLabels ?? false)"
+          :model-value="currentOptions.valueLabels === true"
           label="Show value labels"
           @update:model-value="(v) => setOption('valueLabels', v)"
         />
@@ -154,7 +154,7 @@ function axisDataType(isHorizontal: boolean): string {
 }
 
 function resolveFormatType(def: ChartOptionDef, isHorizontal: boolean): ChartOptionDef | null {
-  if (def.type !== 'numberFormat') {
+  if (def.type !== ChartOptionType.NumberFormat) {
     return def
   }
   const colType = axisDataType(isHorizontal)

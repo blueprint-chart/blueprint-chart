@@ -183,7 +183,7 @@ const cvdBadgeRefs = useTemplateRef<HTMLElement[]>('cvdBadgeRefs')
 
 function getCvdBadgeEl(type: CvdType): HTMLElement | null {
   const idx = cvdInfo.value?.issues.findIndex(i => i.type === type) ?? -1
-  return idx >= 0 ? cvdBadgeRefs.value?.[idx] ?? null : null
+  return cvdBadgeRefs.value?.[idx] ?? null
 }
 
 const cvdOptions = [

@@ -30,7 +30,7 @@ defineProps<{
 }>()
 
 const emit = defineEmits<{
-  'select': [tab: string | number]
+  'select': [tab: string]
   'toggle-mode': []
 }>()
 
@@ -40,7 +40,7 @@ function onSelect(tab: string | number) {
   if (panelMode.value === 'closed') {
     open()
   }
-  emit('select', tab)
+  emit('select', String(tab))
 }
 
 const toggleLabel = computed(() =>

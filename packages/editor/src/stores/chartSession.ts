@@ -33,12 +33,7 @@ interface SessionMeta {
 
 // Legacy payload shape for migration
 interface LegacySessionPayload {
-  chartConfig: {
-    chartType: string
-    title: string
-    description: string
-    [key: string]: unknown
-  }
+  chartConfig: Parameters<ReturnType<typeof useChartConfig>['hydrate']>[0]
   dataTable?: { columns: string[], rows: string[][], rawInput: string }
   wizard?: unknown
   savedAt?: string
@@ -237,7 +232,7 @@ export const useChartSessionStore = defineStore('chartSession', () => {
 
   function loadLegacy(id: string, payload: LegacySessionPayload): boolean {
     try {
-      chartConfig.hydrate(payload.chartConfig as unknown as Parameters<typeof chartConfig.hydrate>[0])
+      chartConfig.hydrate(payload.chartConfig)
       if (payload.dataTable) {
         dataTable.hydrate(payload.dataTable)
       }

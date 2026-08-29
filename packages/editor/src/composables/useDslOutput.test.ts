@@ -175,8 +175,7 @@ describe('useDslOutput', () => {
       const config = useChartConfig()
       config.chartType.value = ChartType.Line
       config.annotations.value = [
-        // id is not on AnnotationConfig in the new schema; cast to test the guard
-        { kind: AnnotationKind.Point, target: '2024-Q1', text: 'Peak', id: 'abc12' } as unknown as import('@blueprint-chart/lib').AnnotationConfig,
+        { kind: AnnotationKind.Point, target: '2024-Q1', text: 'Peak', id: 'abc12' },
       ]
 
       const { generateDsl: dsl } = useDslOutput()

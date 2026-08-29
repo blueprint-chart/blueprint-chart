@@ -2,7 +2,7 @@
   <PanelIconRail
     :active-tab="activeTab"
     :items="items"
-    @select="(tab) => selectTab(String(tab))"
+    @select="selectTab"
     @toggle-mode="toggleMode"
   />
 </template>

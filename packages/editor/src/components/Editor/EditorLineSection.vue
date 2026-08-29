@@ -9,7 +9,7 @@
         id="opt-interpolation"
         :model-value="currentOptions.interpolation ?? 'linear'"
         :options="interpolationChoices"
-        @update:model-value="(v) => setOption('interpolation', String(v))"
+        @update:model-value="(v) => setOption('interpolation', String(v ?? ''))"
       />
     </BFormGroup>
 

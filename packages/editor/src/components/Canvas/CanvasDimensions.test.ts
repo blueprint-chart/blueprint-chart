@@ -1,25 +1,13 @@
 import { mount, type VueWrapper } from '@vue/test-utils'
 import CanvasDimensions from './CanvasDimensions.vue'
-import type { ChartLayout } from '@/stores/chartConfig'
+import { layoutDefaults, type ChartLayout } from '@/stores/chartConfig'
 
 vi.mock('@vueuse/core', () => ({
   useResizeObserver: vi.fn(),
 }))
 
 function defaultLayout(overrides: Partial<ChartLayout> = {}): ChartLayout {
-  return {
-    sizing: 'responsive',
-    fixedWidth: 600,
-    maxWidth: 660,
-    heightMode: 'auto',
-    fixedHeight: 400,
-    aspectRatio: '16:9',
-    padding: 0,
-    transparentBackground: false,
-    playerType: 'buttons',
-    playerPosition: 'left',
-    ...overrides,
-  }
+  return { ...layoutDefaults, sizing: 'responsive', padding: 0, ...overrides }
 }
 
 function createCardEl(): HTMLElement {
