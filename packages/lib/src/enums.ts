@@ -61,6 +61,24 @@ export enum TickPosition {
 }
 
 // --- Frame -------------------------------------------------------------------
+/**
+ * How the frame sizes itself, as the *renderer* names it.
+ *
+ * These are deliberately not the DSL's vocabulary. The `sizing` property in BPC
+ * source takes `responsive`, `fixed` or `max-width`, and the two sets share no
+ * value, so `sizing = standard` in a chart is not valid DSL. The mapping:
+ *
+ * | DSL `sizing` | FrameSizing    | meaning                                 |
+ * |--------------|----------------|-----------------------------------------|
+ * | `responsive` | `Auto`         | fill the container                      |
+ * | `fixed`      | `Standard`     | a fixed width, set by `fixedWidth`      |
+ * | `max-width`  | `Standard`     | fill up to `maxWidth`                   |
+ * | (n/a)        | `AspectRatio`  | reached through `heightMode`, not `sizing` |
+ *
+ * Renaming either side is a breaking change with no automatic migration (it
+ * would mean rewriting user BPC source), so the two vocabularies stay and this
+ * table is the contract. See issue #122.
+ */
 export enum FrameSizing {
   Auto = 'auto',
   Standard = 'standard',

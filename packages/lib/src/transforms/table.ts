@@ -2,7 +2,7 @@ import type { ColumnType } from '../recommendations/types'
 import type { ChartData } from '../charts/types'
 import type { TransformResult } from './types'
 import { stripDigitGroupSpaces } from '../charts/number-parse'
-import { quoteDslString } from '../dsl/quoting'
+import { quoteDslString, splitTopLevelCommas, unquoteDslString, unescapeDslString } from '../dsl/quoting'
 
 const DATE_PATTERNS = [
   /^\d{4}-\d{2}-\d{2}$/,
@@ -15,6 +15,11 @@ const DATE_PATTERNS = [
   /^\d{4}\/\d{2}$/,
   /^Q[1-4]\s+\d{4}$/,
 ]
+
+// Same label pattern as the canonical parser (parse-data.ts:7), so an escaped
+// quote inside a label does not silently drop the row here but not there.
+const ROW = /^"((?:[^"\\]|\\.)*)"\s*=\s*(.+)$/
+const OLD_ROW = /^"((?:[^"\\]|\\.)*)"\s*=\s*"([^"]*)"$/
 
 export function isDateValue(value: string): boolean {
   if (!value) {
@@ -82,41 +87,47 @@ export function parseBpcData(raw: string): TransformResult {
 
   const seriesMatch = lines[0]?.match(/^series\s*=\s*(.+)$/)
   if (seriesMatch) {
-    const raw = seriesMatch[1].trim()
-    // Individually quoted names: series = "A","B","C"
-    // Single quoted string with commas: series = "A,B,C"
-    const seriesNames = raw.includes('","')
-      ? raw.split(',').map(s => s.trim().replace(/^"|"$/g, ''))
-      : raw.replace(/^"|"$/g, '').split(',').map(s => s.trim())
-    const columns = ['label', ...seriesNames]
-    const rows: string[][] = []
+    const segments = splitTopLevelCommas(seriesMatch[1].trim())
+    const parsed: { cells: string[], label: string, legacy: boolean }[] = []
     for (let i = 1; i < lines.length; i++) {
-      // New format: "Label" = 40,44,42
-      const matchNew = lines[i].match(/^"([^"]*)"\s*=\s*([^"]+)$/)
-      // Legacy format: "Label" = "40,44,42"
-      const matchOld = lines[i].match(/^"([^"]*)"\s*=\s*"([^"]*)"$/)
-      const match = matchOld ?? matchNew
+      const matchOld = lines[i].match(OLD_ROW)
+      const match = matchOld ?? lines[i].match(ROW)
       if (match) {
-        rows.push([match[1], ...match[2].split(',').map(v => v.trim())])
+        parsed.push({
+          cells: splitTopLevelCommas(match[2]).map(unquoteDslString),
+          label: unescapeDslString(match[1]),
+          legacy: matchOld !== null,
+        })
       }
     }
-    const columnTypes = detectColumnTypes(columns, rows)
-    return { columns, rows, columnTypes }
+
+    // Same rule as the canonical parser (parse-data.ts:62): `series = "A,B,C"`
+    // is spelled exactly like one name containing a comma, so only a legacy
+    // value row tells the two apart. `series = "Paris, France"` stays one.
+    const seriesNames = segments.length > 1 || !parsed.some(r => r.legacy)
+      ? segments.map(unquoteDslString)
+      : unquoteDslString(segments[0]).split(',').map(n => n.trim())
+
+    const columns = ['label', ...seriesNames]
+    const rows = parsed.map(r => [r.label, ...seriesNames.map((_n, i) => r.cells[i] ?? '')])
+    return withTypes(columns, rows)
   }
 
   const columns = ['label', 'value']
   const rows: string[][] = []
   for (const line of lines) {
-    const match = line.match(/^"([^"]*)"\s*=\s*(.+)$/)
+    const match = line.match(ROW)
     if (match) {
-      // Keep the unit: stripping it here left serializeTableData nothing to put
-      // back, so a Data pass silently rewrote `40%` as `40`. isNumberValue and
-      // the numeric parsers already tolerate a trailing %.
-      rows.push([match[1], match[2].trim()])
+      // Keep a trailing unit: stripping it here left serializeTableData nothing
+      // to put back, so a Data pass silently rewrote `40%` as `40`.
+      rows.push([unescapeDslString(match[1]), unquoteDslString(match[2])])
     }
   }
-  const columnTypes = detectColumnTypes(columns, rows)
-  return { columns, rows, columnTypes }
+  return withTypes(columns, rows)
+}
+
+function withTypes(columns: string[], rows: string[][]): TransformResult {
+  return { columns, rows, columnTypes: detectColumnTypes(columns, rows) }
 }
 
 function formatValue(v: string): string {
@@ -126,7 +137,6 @@ function formatValue(v: string): string {
   return quoteDslString(v)
 }
 
-/** Write a table back as a `data { … }` body. */
 export function serializeTableData(cols: string[], rows: string[][]): string {
   if (cols.length <= 2) {
     return rows
