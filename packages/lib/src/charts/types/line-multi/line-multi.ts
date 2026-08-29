@@ -144,9 +144,6 @@ export function render(
     const insideGap = vLabelsInside ? 15 : 0
     marginOverrides.top = legendH + insideGap
   }
-  if (showLegend && legendPos === 'bottom') {
-    marginOverrides.bottom = (marginOverrides.bottom ?? 24) + legendH
-  }
   if (showLegend && legendPos === 'left') {
     marginOverrides.left = (marginOverrides.left ?? 50) + legendSize.width + 10
   }
@@ -158,15 +155,15 @@ export function render(
   }
 
   // Rotated category labels run down the page, so the bottom margin has to
-  // grow with the longest one or they are clipped to a sliver (#18).
+  // grow with the longest one or they are clipped to a sliver (#18). A bottom
+  // legend then stacks below that label space, not on top of it (#41).
   const rotatedBottom = resolveHorizontalAxisBottom(
     data.labels,
     Math.max(0, contentSize(body).width - (marginOverrides.left ?? 50) - (marginOverrides.right ?? 20)),
     options.horizontalAxis,
   )
-  if (rotatedBottom !== undefined) {
-    marginOverrides.bottom = rotatedBottom
-  }
+  const bottomLabelH = rotatedBottom ?? (marginOverrides.bottom ?? 24)
+  marginOverrides.bottom = bottomLabelH + (showLegend && legendPos === 'bottom' ? legendH : 0)
 
   const { chartArea, width, height, margin } = createCanvas(body, marginOverrides)
   const marginDelta = computeMarginDelta(priorMargin, margin)
@@ -515,7 +512,7 @@ export function render(
       yPos = -(legendSize.height + 10 + insideGap)
     }
     else if (legendPos === 'bottom') {
-      yPos = height + 25
+      yPos = height + bottomLabelH + 1
     }
     else if (legendPos === 'left') {
       xLegendPos = -(legendSize.width + 10)

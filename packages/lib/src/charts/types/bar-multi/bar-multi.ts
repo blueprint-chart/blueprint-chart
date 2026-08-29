@@ -108,13 +108,6 @@ export function render(
   const vLabelW = estimateVerticalLabelWidth(allValues, options.verticalAxis?.range, options.verticalAxis?.numberFormat, options.verticalAxis?.scaleType)
   const lpMargins = labelPositionMargins(containerWidth, options.verticalAxis?.labelPosition, options.horizontalAxis?.labelPosition, options.verticalAxis?.direction, vLabelW)
 
-  // Extend bottom margin when x-axis labels will be rotated.
-  const availableX = Math.max(0, containerWidth - (lpMargins.left ?? 50) - (lpMargins.right ?? 20))
-  const rotatedBottom = resolveHorizontalAxisBottom(data.labels, availableX, options.horizontalAxis)
-  if (rotatedBottom !== undefined) {
-    lpMargins.bottom = rotatedBottom
-  }
-
   const vLabelsInside = lpMargins.top != null
   const legendAvailableWidth = Math.max(0, containerWidth - (lpMargins.left ?? 50) - (lpMargins.right ?? 20))
   const legendSize = showLegend ? estimateLegendSize(seriesNames, legendPos, legendAvailableWidth) : { width: 0, height: 0 }
@@ -124,15 +117,18 @@ export function render(
     const insideGap = vLabelsInside ? 15 : 0
     marginOverrides.top = legendH + insideGap
   }
-  if (showLegend && legendPos === 'bottom') {
-    marginOverrides.bottom = (marginOverrides.bottom ?? 24) + legendH
-  }
   if (showLegend && legendPos === 'left') {
     marginOverrides.left = (marginOverrides.left ?? 50) + legendSize.width + 10
   }
   if (showLegend && legendPos === 'right') {
     marginOverrides.right = (marginOverrides.right ?? 20) + legendSize.width + 10
   }
+  // Decide wrapping/rotation against the post-legend plot width, and stack a
+  // bottom legend below the reserved label space instead of on top of it (#41).
+  const availableX = Math.max(0, containerWidth - (marginOverrides.left ?? 50) - (marginOverrides.right ?? 20))
+  const rotatedBottom = resolveHorizontalAxisBottom(data.labels, availableX, options.horizontalAxis)
+  const bottomLabelH = rotatedBottom ?? (marginOverrides.bottom ?? 24)
+  marginOverrides.bottom = bottomLabelH + (showLegend && legendPos === 'bottom' ? legendH : 0)
   // A label outside a bar's end sits above the plot, and the tallest bar's end
   // is the plot's top edge, so the top margin is the only thing keeping the
   // label inside the SVG. Direct labels take the first line and push the value
@@ -492,7 +488,7 @@ export function render(
       yPos = -(legendSize.height + 10 + insideGap)
     }
     else if (legendPos === 'bottom') {
-      yPos = height + 25
+      yPos = height + bottomLabelH + 1
     }
     else if (legendPos === 'left') {
       xPos = -(legendSize.width + 10)
