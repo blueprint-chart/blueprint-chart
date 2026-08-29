@@ -1,3 +1,12 @@
+## [2.2.1](https://github.com/blueprint-chart/blueprint-chart/compare/v2.2.0...v2.2.1) (2026-08-29)
+
+### Bug Fixes
+
+* **editor:** compose the stashed base pipeline into the Data step while a scene is selected ([370920a](https://github.com/blueprint-chart/blueprint-chart/commit/370920a4114736d073c5a2ba35c26dff4b150c2c))
+* **editor:** keep the view toolbar in flow above the canvas at narrow widths ([2e72d85](https://github.com/blueprint-chart/blueprint-chart/commit/2e72d85857299665c4b8cd35d44cf201255a07ba))
+* **editor:** make the scene stash idempotent so a deferred watcher re-run cannot wipe the pipeline ([ce7140e](https://github.com/blueprint-chart/blueprint-chart/commit/ce7140ef72488f64f73b196e6731ac0ab080c55c))
+* **lib:** clamp the constrained-frame header so the footer and chart keep their room ([091f2c1](https://github.com/blueprint-chart/blueprint-chart/commit/091f2c1b3c9cb29ca64224db103f0025a2d12cdd))
+
 ## [2.2.0](https://github.com/blueprint-chart/blueprint-chart/compare/v2.1.0...v2.2.0) (2026-08-29)
 
 ### Features
