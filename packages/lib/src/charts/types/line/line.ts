@@ -2,6 +2,7 @@ import * as d3 from 'd3'
 import 'd3-transition'
 import type { ChartData, ChartOptions } from '../../types'
 import { createFrame } from '../../frame/frame'
+import { resolveHorizontalAxisBottom } from '../../axis/horizontal-axis'
 import { createCanvas, contentSize, labelPositionMargins, estimateVerticalLabelWidth, computeMarginDelta } from '../../canvas/canvas'
 import { AxisService } from '../../axis/axis-service'
 import type { AnyXScale } from '../../axis/horizontal-axis'
@@ -75,6 +76,16 @@ export function render(
   const containerWidth = contentSize(body).width
   const vLabelW = estimateVerticalLabelWidth(data.values, options.verticalAxis?.range, options.verticalAxis?.numberFormat, options.verticalAxis?.scaleType)
   const lpMargins = labelPositionMargins(containerWidth, options.verticalAxis?.labelPosition, options.horizontalAxis?.labelPosition, options.verticalAxis?.direction, vLabelW)
+  // Rotated category labels run down the page, so the bottom margin has to
+  // grow with the longest one or they are clipped to a sliver (#18).
+  const rotatedBottom = resolveHorizontalAxisBottom(
+    data.labels,
+    Math.max(0, containerWidth - (lpMargins.left ?? 50) - (lpMargins.right ?? 20)),
+    options.horizontalAxis,
+  )
+  if (rotatedBottom !== undefined) {
+    lpMargins.bottom = rotatedBottom
+  }
   const { chartArea, width, height, margin } = createCanvas(body, lpMargins)
   const marginDelta = computeMarginDelta(priorMargin, margin)
 
