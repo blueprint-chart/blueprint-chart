@@ -4,6 +4,7 @@ import { D3Blueprint } from 'd3-blueprint'
 import type { AxisRange, Margin } from '../types'
 import { buildNumberFormatter } from '../format-helpers'
 import { computeLinearDomain } from '../scale-helpers'
+import { measureMaxTextWidth } from '../text-measure'
 import type { ScaleType } from '../../enums'
 import { resolveBackgroundColor } from '../contrast'
 
@@ -42,6 +43,9 @@ const DEFAULT_MARGIN: Margin = {
   bottom: 24,
   left: 50,
 }
+
+// Tick labels render at 10px (chart.scss, --bc-axis-tick-font-size).
+const TICK_LABEL_FONT_PX = 10
 
 const DEFAULT_WIDTH = 600
 const DEFAULT_HEIGHT = 400
@@ -122,26 +126,7 @@ export function estimateVerticalLabelWidth(
     return 0
   }
 
-  try {
-    const canvas = document.createElement('canvas')
-    const ctx = canvas.getContext('2d')
-    if (ctx) {
-      ctx.font = '10px sans-serif'
-      let maxW = 0
-      for (const label of labels) {
-        const w = ctx.measureText(label).width
-        if (w > maxW) {
-          maxW = w
-        }
-      }
-      return Math.ceil(maxW) + LABEL_PADDING + D3_AXIS_LABEL_OFFSET
-    }
-  }
-  catch { /* fallback below */ }
-
-  // Fallback: ~6px per character
-  const maxLen = Math.max(...labels.map(l => l.length))
-  return maxLen * 6 + LABEL_PADDING + D3_AXIS_LABEL_OFFSET
+  return Math.ceil(measureMaxTextWidth(labels, TICK_LABEL_FONT_PX)) + LABEL_PADDING + D3_AXIS_LABEL_OFFSET
 }
 
 /**
@@ -151,24 +136,7 @@ export function estimateCategoryLabelWidth(labels: string[]): number {
   if (labels.length === 0) {
     return 0
   }
-  try {
-    const canvas = document.createElement('canvas')
-    const ctx = canvas.getContext('2d')
-    if (ctx) {
-      ctx.font = '10px sans-serif'
-      let maxW = 0
-      for (const label of labels) {
-        const w = ctx.measureText(label).width
-        if (w > maxW) {
-          maxW = w
-        }
-      }
-      return Math.ceil(maxW) + LABEL_PADDING + D3_AXIS_LABEL_OFFSET
-    }
-  }
-  catch { /* fallback below */ }
-  const maxLen = Math.max(...labels.map(l => l.length))
-  return maxLen * 6 + LABEL_PADDING + D3_AXIS_LABEL_OFFSET
+  return Math.ceil(measureMaxTextWidth(labels, TICK_LABEL_FONT_PX)) + LABEL_PADDING + D3_AXIS_LABEL_OFFSET
 }
 
 /**

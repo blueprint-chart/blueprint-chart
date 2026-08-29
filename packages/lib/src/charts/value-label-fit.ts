@@ -1,10 +1,14 @@
 // Geometric "label if it fits" check for bar value labels (Approach A).
 // Deterministic and render-pass-free, so it behaves identically in the browser
-// and in headless/SSR export. Numbers are short, so the per-character estimate
-// is reliable for them.
+// and in headless/SSR export.
+
+import { measureTextWidth } from './text-measure'
 
 const LABEL_FONT_PX = 11
-const CHAR_WIDTH_PX = 6.2 // avg glyph advance at 11px for the chart font
+// Floor for the measurement below. measureText under-reports the real glyph
+// advance, and headless there is no 2D canvas at all, so the measured value
+// alone would reserve less than the per-character estimate it replaced.
+const CHAR_WIDTH_PX = 6.2
 const LABEL_HEIGHT_PX = LABEL_FONT_PX
 const INSIDE_PAD_X = 8
 const INSIDE_PAD_Y = 4
@@ -20,8 +24,13 @@ export interface ValueLabelFitInput {
   barHeight: number
 }
 
+/**
+ * A per-character estimate held while labels were bare numbers. A number
+ * format adds a prefix and a suffix (`$1,200,000.0M`), and the shared measurer
+ * keeps the `max(measured, floor)` shape that a headless CJK render needs.
+ */
 export function estimateLabelWidth(text: string): number {
-  return text.length * CHAR_WIDTH_PX
+  return Math.max(measureTextWidth(text, LABEL_FONT_PX), text.length * CHAR_WIDTH_PX)
 }
 
 export function shouldRenderValueLabel(input: ValueLabelFitInput): boolean {
