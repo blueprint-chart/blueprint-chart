@@ -200,16 +200,21 @@ const MIN_INSIDE_ANGLE = 0.3
 export function renderInsideArcLabels(
   parent: d3.Selection<SVGGElement, unknown, null, undefined>,
   data: ArcLabelDatum[],
-  opts: { outerRadius: number, innerRadius?: number, chartWidth: number, chartHeight: number, fontSize?: number },
+  opts: { outerRadius: number, innerRadius?: number, chartWidth: number, chartHeight: number, fontSize?: number, bgColor?: string },
 ): void {
   const { outerRadius, innerRadius = 0, fontSize = 12 } = opts
   const centroidR = (innerRadius + outerRadius) / 2
 
   const g = parent.append('g').attr('class', 'bc-arc-labels-inside')
+  // A slice too narrow to hold its label used to be skipped outright, so a 4%
+  // slice was drawn with its name nowhere on the chart. Push it outside, which
+  // is what `auto` already does with the same slice.
+  const tooNarrow: ArcLabelDatum[] = []
 
   for (const d of data) {
     const span = d.endAngle - d.startAngle
     if (span < MIN_INSIDE_ANGLE) {
+      tooNarrow.push(d)
       continue
     }
 
@@ -254,6 +259,16 @@ export function renderInsideArcLabels(
         .text(valueText)
     }
   }
+
+  if (tooNarrow.length > 0) {
+    renderArcLabels(parent, tooNarrow, {
+      outerRadius,
+      chartWidth: opts.chartWidth,
+      chartHeight: opts.chartHeight,
+      fontSize,
+      bgColor: opts.bgColor,
+    })
+  }
 }
 
 export function renderAutoArcLabels(
@@ -280,7 +295,7 @@ export function renderAutoArcLabels(
   }
 
   if (insideData.length > 0) {
-    renderInsideArcLabels(parent, insideData, { outerRadius, innerRadius, chartWidth: opts.chartWidth, chartHeight: opts.chartHeight, fontSize })
+    renderInsideArcLabels(parent, insideData, { outerRadius, innerRadius, chartWidth: opts.chartWidth, chartHeight: opts.chartHeight, fontSize, bgColor })
   }
   if (outsideData.length > 0) {
     renderArcLabels(parent, outsideData, { outerRadius, chartWidth: opts.chartWidth, chartHeight: opts.chartHeight, fontSize, bgColor })

@@ -411,7 +411,9 @@ const lineMultiLineSymbolOpts = [lineMultiLineSymbolsOpt, lineSymbolShapeOpt, li
 const lineOpts = [valueLabelsOpt, tooltipsOpt, ...lineCrosshairOpts, ...lineSymbolOpts]
 // LineMulti uses the symbol-on variant of lineOpts.
 const lineMultiOpts = [valueLabelsOpt, tooltipsOpt, ...lineCrosshairOpts, ...lineMultiLineSymbolOpts]
-const pieArcOpts = [pieDisplayAsPercentageOpt, showTotalOpt, showLabelsOpt, showValuesOpt, pieSliceMaxOpt, sliceGroupLabelOpt]
+// No showTotal: the centre total is drawn in the donut hole, which a pie does
+// not have, so offering it on pie validated a key that could never render.
+const pieArcOpts = [pieDisplayAsPercentageOpt, showLabelsOpt, showValuesOpt, pieSliceMaxOpt, sliceGroupLabelOpt]
 const donutArcOpts = [displayAsPercentageOpt, donutShowTotalOpt, showLabelsOpt, showValuesOpt, sliceMaxOpt, sliceGroupLabelOpt]
 
 registerChart(ChartType.BarVertical, barVertical, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, swapLabelValueOpt, barBackgroundOpt, barSeparatorsOpt, barGapOpt, connectedColumnsOpt, connectionsOpacityOpt, waterfallOpt, waterfallTotalOpt, categoryLabelLineOpt, ...barVerticalAxisOpts, ...barOpts])

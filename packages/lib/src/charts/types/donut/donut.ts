@@ -24,6 +24,15 @@ export const DEFAULT_COLORS = [
   '#59a14f', '#edc948', '#b07aa1', '#ff9da7',
 ]
 
+/**
+ * Arc totals and legend values used to go through `String(v)`, which prints
+ * `0.30000000000000004` for 0.1 + 0.2 and leaves large numbers ungrouped.
+ * d3's default number format groups thousands and drops the float noise.
+ */
+function formatArcValue(v: number): string {
+  return d3.format(',')(Number(v.toPrecision(12)))
+}
+
 interface ArcDatum {
   label: string
   value: number
@@ -88,14 +97,17 @@ export function renderArc(
 
   // Auto-group small slices
   if (options.sliceMax && options.sliceMax > 0 && labels.length > options.sliceMax) {
+    // Keep the largest slices and merge the smallest, which is what the option
+    // documents. Keeping the first n by input order grouped whatever happened
+    // to be listed last, so a big slice could vanish into "Others".
     const keep = options.sliceMax - 1
-    const keptLabels = labels.slice(0, keep)
-    const keptValues = values.slice(0, keep)
-    const restSum = values.slice(keep).reduce((a, b) => a + b, 0)
-    keptLabels.push(options.sliceGroupLabel ?? 'Others')
-    keptValues.push(restSum)
-    labels = keptLabels
-    values = keptValues
+    const ranked = labels
+      .map((label, i) => ({ label, value: values[i], i }))
+      .sort((a, b) => b.value - a.value || a.i - b.i)
+    const kept = ranked.slice(0, keep).sort((a, b) => a.i - b.i)
+    const restSum = ranked.slice(keep).reduce((a, p) => a + p.value, 0)
+    labels = [...kept.map(p => p.label), options.sliceGroupLabel ?? 'Others']
+    values = [...kept.map(p => p.value), restSum]
   }
 
   // Compute percentages
@@ -118,7 +130,7 @@ export function renderArc(
     ? values.map((v, i) => {
         const formatted = options.displayAsPercentage
           ? `${Math.round(percentages[i])}%`
-          : String(v)
+          : formatArcValue(v)
         return `(${formatted})`
       })
     : []
@@ -181,6 +193,20 @@ export function renderArc(
     .domain(labels)
     .range(colors)
 
+  // d3.pie divides by the signed sum, so a negative value stops the angles
+  // partitioning the circle and the arcs overlap. A share of a whole is only
+  // defined for positive values, so the rest are dropped with a warning rather
+  // than drawn wrong.
+  // Zero-valued slices are harmless: d3 gives them a zero sweep. Negative ones
+  // are not, so they are dropped with a warning rather than drawn wrong.
+  if (values.some(v => v < 0)) {
+    const dropped = labels.filter((_l, i) => values[i] < 0)
+    console.warn(`[blueprint-chart] Ignoring ${dropped.length} negative slice(s) on an arc chart: ${dropped.join(', ')}.`)
+    const kept = labels.map((label, i) => ({ label, value: values[i] })).filter(p => p.value >= 0)
+    labels = kept.map(p => p.label)
+    values = kept.map(p => p.value)
+  }
+
   const pie = d3.pie<number>().sort(null)
   const arcGen = d3.arc<d3.PieArcDatum<number>>()
     .innerRadius(innerRadius)
@@ -231,12 +257,26 @@ export function renderArc(
   // Render annotations at chartArea level (not centerGroup) so coordinates
   // are relative to the plot area origin, not the center-translated arc group
   if (options.annotations?.length) {
-    const freeAnnotations = options.annotations.filter(a => a.kind === 'free')
-    if (freeAnnotations.length) {
-      const annPlugin = createAnnotationPlugin(freeAnnotations, {
-        scaleX: d3.scaleBand<string>().domain([]).range([0, width]),
-        scaleY: d3.scaleLinear().domain([0, 1]).range([height, 0]),
-        data: [],
+    const ranged = options.annotations.filter(a => a.kind === 'range')
+    if (ranged.length) {
+      console.warn(`[blueprint-chart] Range annotations have no meaning on an arc chart; ignoring ${ranged.length}.`)
+    }
+    // A slice has no Cartesian position, so a point annotation anchors to its
+    // centroid. The renderer reads x from scaleX(label) and y from
+    // scaleY(value), so the centroid is fed in through both: an ordinal scale
+    // for x, and identity data + scale for y.
+    const centroids = new Map(arcData.map(d => [d.label, arcGen.centroid(d.arc)]))
+    const arcAnnotations = options.annotations.filter(a => a.kind !== 'range')
+    if (arcAnnotations.length) {
+      const annPlugin = createAnnotationPlugin(arcAnnotations, {
+        scaleX: d3.scaleOrdinal<string, number>()
+          .domain([...centroids.keys()])
+          .range([...centroids.values()].map(c => c[0] + width / 2)),
+        scaleY: d3.scaleLinear().domain([0, 1]).range([0, 1]),
+        data: arcData.map(d => ({
+          label: d.label,
+          value: (centroids.get(d.label)?.[1] ?? 0) + height / 2,
+        })),
         width,
         height,
         backgroundColor: resolveBackgroundColor(container),
@@ -277,7 +317,7 @@ export function renderArc(
   // Suppressed when displayAsPercentage is on: the center would always read "Total 100%",
   // which is trivially true for a donut and adds no information.
   if (options.showTotal && innerRadiusRatio > 0 && !options.displayAsPercentage) {
-    const totalText = String(total)
+    const totalText = formatArcValue(total)
     centerGroup.append('text')
       .attr('class', 'bc-arc-total-label')
       .attr('text-anchor', 'middle')

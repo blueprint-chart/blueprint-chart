@@ -63,7 +63,6 @@ Every property `pie` accepts, beside the [frame and layout keys](/reference/dsl/
 | `directLabelling` | select: `""`, `auto`, `outside`, `inside` | `auto` |
 | `tooltips` | boolean | `false` |
 | `displayAsPercentage` | boolean | `true` |
-| `showTotal` | boolean | `false` |
 | `showLabels` | boolean | `true` |
 | `showValues` | boolean | `true` |
 | `sliceMax` | text | `5` |
