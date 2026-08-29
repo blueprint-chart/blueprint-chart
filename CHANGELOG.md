@@ -1,3 +1,33 @@
+## [2.2.0](https://github.com/blueprint-chart/blueprint-chart/compare/v2.1.0...v2.2.0) (2026-08-29)
+
+### Features
+
+* **editor:** add undo and redo keyboard shortcuts ([9ae27a0](https://github.com/blueprint-chart/blueprint-chart/commit/9ae27a0f1a517fe3a74906c1655bbf1cae8a0841))
+
+### Bug Fixes
+
+* **editor:** apply a scene's transform steps once, composed on the inherited ones ([3fea10c](https://github.com/blueprint-chart/blueprint-chart/commit/3fea10c7267d97621615b442d84e4bfbfdf15ea6))
+* **editor:** include the generated type declarations in the typecheck ([3e88c86](https://github.com/blueprint-chart/blueprint-chart/commit/3e88c8663757d78dc5ec8f6b1c41a189b99d4699))
+* **editor:** mount the sort section so sort and sortMode have a control ([bbdd2d5](https://github.com/blueprint-chart/blueprint-chart/commit/bbdd2d54733a816f475fdb00d332cca938ebdc5d))
+* **editor:** read DSL booleans case-insensitively, report parse errors, and render card art from one source ([723ccf0](https://github.com/blueprint-chart/blueprint-chart/commit/723ccf03f1ddf70091c0ec03b861fb60eca58d64))
+* **lib:** give arc slices the value their tooltip prints ([52a3ac5](https://github.com/blueprint-chart/blueprint-chart/commit/52a3ac5fa61c3796d3f72ce44fe27599b0628a8e))
+* **lib:** honour the registered sortMode default when rendering ([cd42893](https://github.com/blueprint-chart/blueprint-chart/commit/cd42893e3c824c1ec18d937291709666e05b927c))
+* **lib:** join the horizontal grid lines instead of appending them ([4c02394](https://github.com/blueprint-chart/blueprint-chart/commit/4c02394014f4484591045f6d9213670cdc3f9768))
+* **lib:** keep a percentage unit through a data table round trip ([8d4f171](https://github.com/blueprint-chart/blueprint-chart/commit/8d4f171983d64ecc1f4e031c5db9a41c67fa2b17))
+* **lib:** keep an inside arc label off a band too thin to hold it ([0b59ad9](https://github.com/blueprint-chart/blueprint-chart/commit/0b59ad95dfa529de3ac9df6e4f5e20e7b0b916f5))
+* **lib:** keep axis labels legible when the plot goes narrow ([cfaa11e](https://github.com/blueprint-chart/blueprint-chart/commit/cfaa11e50cc200d9b5d64545c7614e1f2b28dcdb))
+* **lib:** key line, area and arc marks by series name like the legend ([f3eb586](https://github.com/blueprint-chart/blueprint-chart/commit/f3eb58601571359fb17e6b9f19ba5e584e3a5822))
+* **lib:** let line charts fit their data instead of forcing a zero baseline ([2f9fffc](https://github.com/blueprint-chart/blueprint-chart/commit/2f9fffcb281160fa0e49b1164648b06278b9b6b7))
+* **lib:** make arc charts honest about totals, slices, labels and annotations ([6f24cfa](https://github.com/blueprint-chart/blueprint-chart/commit/6f24cfa05e517ce4955971d804ba33eace6de696))
+* **lib:** measure the last three per-character text estimates ([cbf97b4](https://github.com/blueprint-chart/blueprint-chart/commit/cbf97b4044268d767484b08dab4167780539cb70))
+* **lib:** name the series in a multi-series bar tooltip ([5259075](https://github.com/blueprint-chart/blueprint-chart/commit/525907589b3c85e10c530919da7bf0004842e342))
+* **lib:** read BPC data the same way in the transform pipeline as in the renderer ([2f066b4](https://github.com/blueprint-chart/blueprint-chart/commit/2f066b47e6d1bc412770cdb78420313b0afe385b))
+* **lib:** read the series name the stacked and grouped families actually set ([c6cf0a3](https://github.com/blueprint-chart/blueprint-chart/commit/c6cf0a318c065a5e1bc954b192c6218d557f25a4))
+* **lib:** reserve bottom space for rotated labels on the line and area families ([e37f514](https://github.com/blueprint-chart/blueprint-chart/commit/e37f514b5e7747c8a7f16047e5bce31c666b3a41))
+* **lib:** ship the constrained-height rules the embed runtime was missing ([2ae58d1](https://github.com/blueprint-chart/blueprint-chart/commit/2ae58d1dc9c51363eead5693d7c2b47a8bc6fdb6))
+* **lib:** stop decorative text from swallowing the hover on its own mark ([2acce81](https://github.com/blueprint-chart/blueprint-chart/commit/2acce81957646d9ce52d2d9d7bb3d2887730d722))
+* **ui:** give the bottom drawer dialog semantics, Escape and a close button ([7d65ce2](https://github.com/blueprint-chart/blueprint-chart/commit/7d65ce2f82f91539d1e04b0e6c36f20b2e0c1bd4))
+
 ## [2.1.0](https://github.com/blueprint-chart/blueprint-chart/compare/v2.0.0...v2.1.0) (2026-08-26)
 
 ### Features
