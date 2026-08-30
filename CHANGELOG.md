@@ -1,3 +1,10 @@
+## [2.2.3](https://github.com/blueprint-chart/blueprint-chart/compare/v2.2.2...v2.2.3) (2026-08-30)
+
+### Bug Fixes
+
+* **editor:** apply review fixes to the typecheck sweep ([14c7dcc](https://github.com/blueprint-chart/blueprint-chart/commit/14c7dcc80725ecc54e4563014ef2da46036f19a7))
+* trigger release ([cc6c6c9](https://github.com/blueprint-chart/blueprint-chart/commit/cc6c6c97330bfa9b61b7487ae0c7844d0f39e1f8))
+
 ## [2.2.2](https://github.com/blueprint-chart/blueprint-chart/compare/v2.2.1...v2.2.2) (2026-08-29)
 
 ### Bug Fixes

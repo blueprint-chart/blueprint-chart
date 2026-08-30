@@ -1,6 +1,6 @@
 {
   "name": "@blueprint-chart/ui",
-  "version": "2.2.2",
+  "version": "2.2.3",
   "description": "Vue 3 component library for Blueprint Chart editors and apps.",
   "keywords": [
     "vue",
