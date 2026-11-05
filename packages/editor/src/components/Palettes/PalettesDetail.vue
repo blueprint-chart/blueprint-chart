@@ -65,7 +65,7 @@ const colors = computed({
       <ButtonIcon
         label="Duplicate"
         :icon-left="IPhCopy"
-        variant="outline-secondary"
+        variant="primary"
         size="sm"
         @click="$emit('duplicate')"
       />
@@ -73,7 +73,7 @@ const colors = computed({
         v-if="editable"
         label="Delete"
         :icon-left="IPhTrash"
-        variant="outline-danger"
+        variant="danger"
         size="sm"
         @click="$emit('remove')"
       />
