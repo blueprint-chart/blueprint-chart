@@ -1,5 +1,6 @@
 import type { Session, User } from '@supabase/supabase-js'
 import { getSupabaseClient } from '@/lib/supabaseClient'
+import { accountsEnabled } from '@/config/runtimeConfig'
 import { useCloudChartsStore } from '@/stores/cloudCharts'
 
 export interface AccountUser {
@@ -32,6 +33,7 @@ export const useAccountStore = defineStore('account', () => {
   let initPromise: Promise<void> | null = null
 
   const isSignedIn = computed(() => user.value !== null)
+  const cloudEnabled = computed(() => accountsEnabled() && isSignedIn.value)
 
   async function init(): Promise<void> {
     if (initPromise) {
@@ -97,17 +99,18 @@ export const useAccountStore = defineStore('account', () => {
     signInModalOpen.value = true
   }
 
-  return { user, status, errorMessage, isSignedIn, signInModalOpen, init, signInWithEmail, signOut, resetStatus, openSignInModal }
+  return { user, status, errorMessage, isSignedIn, cloudEnabled, signInModalOpen, init, signInWithEmail, signOut, resetStatus, openSignInModal }
 })
 
 export function useAccount() {
   const store = useAccountStore()
-  const { user, status, errorMessage, isSignedIn, signInModalOpen } = storeToRefs(store)
+  const { user, status, errorMessage, isSignedIn, cloudEnabled, signInModalOpen } = storeToRefs(store)
   return {
     user,
     status,
     errorMessage,
     isSignedIn,
+    cloudEnabled,
     signInModalOpen,
     init: store.init,
     signInWithEmail: store.signInWithEmail,

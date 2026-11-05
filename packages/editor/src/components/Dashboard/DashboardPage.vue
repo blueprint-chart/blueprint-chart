@@ -2,7 +2,6 @@
 import { useRouter } from 'vue-router'
 import { useBreakpoint } from '@blueprint-chart/ui'
 import { usePanelStore } from '@/stores/panel'
-import { accountsEnabled } from '@/config/runtimeConfig'
 import { useAccount } from '@/stores/account'
 import { useCloudCharts } from '@/stores/cloudCharts'
 import { useLocalImport } from '@/composables/useLocalImport'
@@ -26,8 +25,7 @@ const {
   duplicate,
 } = useDashboardCharts()
 
-const { isSignedIn } = useAccount()
-const showCloud = computed(() => accountsEnabled() && isSignedIn.value)
+const { cloudEnabled: showCloud } = useAccount()
 
 const cloud = useCloudCharts()
 const wait = useWait()

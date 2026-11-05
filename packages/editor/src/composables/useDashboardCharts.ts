@@ -10,7 +10,6 @@ import {
 } from '@/stores/chartSession'
 import { useCloudCharts } from '@/stores/cloudCharts'
 import { useAccount } from '@/stores/account'
-import { accountsEnabled } from '@/config/runtimeConfig'
 import {
   getThumbnail,
   saveThumbnail,
@@ -81,7 +80,7 @@ const SORTS: Record<string, (a: UnifiedChartSummary, b: UnifiedChartSummary) => 
 export function useDashboardCharts() {
   const session = useChartSession()
   const cloud = useCloudCharts()
-  const { isSignedIn } = useAccount()
+  const { cloudEnabled: showCloud } = useAccount()
   const wait = useWait()
 
   const charts = ref<UnifiedChartSummary[]>([])
@@ -90,8 +89,6 @@ export function useDashboardCharts() {
   const sortValue = shallowRef('date-desc')
   const loaded = shallowRef(false)
   const empty = computed(() => loaded.value && charts.value.length === 0)
-
-  const showCloud = computed(() => accountsEnabled() && isSignedIn.value)
 
   const sortedCharts = computed(() => {
     const cmp = SORTS[sortValue.value]

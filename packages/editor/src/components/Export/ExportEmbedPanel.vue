@@ -115,7 +115,7 @@ const LIVE_NOTE_PUBLISH = 'Publish to host this chart at a short id. The embed t
 
 const { dsl, generateDsl } = useDslOutput()
 const { layout } = useChartConfig()
-const { isSignedIn, openSignInModal } = useAccount()
+const { isSignedIn, cloudEnabled: eligible, openSignInModal } = useAccount()
 const { sessionId } = useChartSession()
 const { publish, isCloudBacked, isPublished } = useCloudCharts()
 const { saving, saveToCloud } = useCloudSave()
@@ -123,7 +123,6 @@ const { saving, saveToCloud } = useCloudSave()
 // isCloudBacked() reads localStorage and is NOT reactive, so we seed a local
 // ref at mount and flip it ourselves after a successful save. published is
 // likewise seeded from the server on mount.
-const eligible = computed(() => accountsEnabled() && isSignedIn.value)
 const cloudBacked = ref(false)
 const published = ref(false)
 const publishing = ref(false)
