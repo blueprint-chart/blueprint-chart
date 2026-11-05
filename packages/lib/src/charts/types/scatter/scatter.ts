@@ -206,14 +206,14 @@ export function render(
   key?.setAttribute('transform', `translate(${width + sideLegendWidth + KEY_GAP},${height})`)
 
   if (options.tooltips) {
-    const byName = new Map(points.map(p => [p.name, p]))
     const formats = { x: options.horizontalAxis?.numberFormat, y: options.verticalAxis?.numberFormat }
+    const proximityPoints = points.map(p => ({ cx: x(p.x), cy: y(p.y), label: formatScatterTooltip(p, mapping, formats), value: p.y, color: color(p) }))
     setupProximityInteraction(chartArea, {
       width,
       height,
-      points: points.map(p => ({ cx: x(p.x), cy: y(p.y), label: p.name, value: p.y, color: color(p) })),
+      points: proximityPoints,
       nearest: 'xy',
-      format: p => formatScatterTooltip(byName.get(p.label)!, mapping, formats),
+      format: p => p.label,
       container,
     })
   }

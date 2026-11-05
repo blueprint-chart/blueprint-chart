@@ -192,4 +192,31 @@ describe('scatter chart', () => {
     render(container, DATA, { annotations: [{ kind: AnnotationKind.Point, target: 'Chad', text: 'Outlier' }] })
     expect(Array.from(container.querySelectorAll('.bc-point-label')).map(t => t.textContent)).toEqual(['Chad'])
   })
+
+  describe('tooltips', () => {
+    afterEach(() => {
+      document.querySelectorAll('.bc-tooltip').forEach(t => t.remove())
+    })
+
+    const hoverAt = (c: HTMLElement, clientX: number, clientY: number) => {
+      c.querySelector('.bc-proximity-overlay')!.dispatchEvent(new MouseEvent('mousemove', { clientX, clientY }))
+      return document.querySelector('.bc-tooltip')!.textContent
+    }
+    const hoverTooltip = (c: HTMLElement, key: string) => {
+      const circle = points(c).find(p => p.dataset.key === key)!
+      return hoverAt(c, Number(circle.getAttribute('cx')), Number(circle.getAttribute('cy')))
+    }
+
+    it('shows the hovered point with column-labelled values', () => {
+      render(container, DATA, { tooltips: true })
+      expect(hoverTooltip(container, 'Chad')).toBe('Chad\nGDP per capita: 1500\nLife expectancy: 52.8\nPopulation: 18\nContinent: Africa')
+    })
+
+    it('keeps each tooltip tied to its own row when names repeat', () => {
+      const dupes = { ...DATA, labels: ['Same', 'Same'], series: [{ name: 'X', values: [1, 100] }, { name: 'Y', values: [10, 90] }], textColumns: [] }
+      render(container, dupes, { tooltips: true })
+      expect(hoverAt(container, -1e6, 1e6)).toContain('Y: 10')
+      expect(hoverAt(container, 1e6, -1e6)).toContain('Y: 90')
+    })
+  })
 })
