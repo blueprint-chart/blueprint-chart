@@ -29,6 +29,12 @@ describe('LandingPage', () => {
     expect(idx('landing-transforms')).toBeLessThan(idx('landing-scenes'))
   })
 
+  it('renders the footer outside <main> so it keeps the contentinfo landmark', () => {
+    const w = mountPage()
+    expect(w.find('main landing-footer-stub').exists()).toBe(false)
+    expect(w.find('landing-footer-stub').exists()).toBe(true)
+  })
+
   it('renders all sections present in the spine', () => {
     const w = mountPage()
     expect(w.findComponent({ name: 'LandingHero' }).exists()).toBe(true)

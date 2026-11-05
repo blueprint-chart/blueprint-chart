@@ -134,7 +134,7 @@ const cardClassList = computed(() => ({
     box-shadow: var(--bc-selected-ring);
 
     &:has(.gallery-card__meta__title:focus-visible) {
-      box-shadow: var(--bc-focus-ring), var(--bc-selected-ring);
+      box-shadow: var(--bc-selected-ring), 0 0 0 4px var(--bs-body-bg), 0 0 0 6px var(--bs-emphasis-color);
     }
   }
 

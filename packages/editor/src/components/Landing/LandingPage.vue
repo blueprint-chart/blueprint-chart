@@ -31,8 +31,8 @@ import LandingFooter from './LandingFooter.vue'
       <LandingTransforms />
       <LandingScenes />
       <LandingCallout />
-      <LandingFooter />
     </main>
+    <LandingFooter />
   </div>
 </template>
 

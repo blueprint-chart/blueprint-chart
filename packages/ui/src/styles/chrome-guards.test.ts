@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url'
 const root = fileURLToPath(new URL('../../../', import.meta.url))
 
 const SCAN_ROOTS = ['ui/src', 'editor/src', 'docs/src/.vitepress']
+const EXTRA_FILES = ['editor/index.html']
 const SOURCE_EXT = /\.(vue|scss|css|ts)$/
 const SKIPPED_FILE = /\.(test\.ts|story\.vue)$/
 const SKIPPED_PATHS = ['assets/chart-thumbnails', 'assets/images']
@@ -32,6 +33,7 @@ function sourceFiles() {
     .flatMap(scanRoot => walk(join(root, scanRoot)))
     .filter(path => SOURCE_EXT.test(path) && !SKIPPED_FILE.test(path))
     .map(path => relative(root, path).split(sep).join('/'))
+    .concat(EXTRA_FILES)
 }
 
 function offenders(allowlist: string[], pattern: RegExp) {
@@ -143,5 +145,47 @@ describe('motion', () => {
 
   it('wraps literal durations in prefers-reduced-motion: no-preference', () => {
     expect(sourceFiles().flatMap(unguarded)).toEqual([])
+  })
+})
+
+describe('on-primary label', () => {
+  const PRIMARY_FILL = /\{[^{}]*background(?:-color)?:\s*var\(--bs-primary\)[^{}]*\}/g
+  const WHITE_LABEL = /(?:^|[;{\s])color:\s*(?:#fff\b|#ffffff\b|white\b|var\(--bs-white)/i
+
+  it('never sets a white label on a --bs-primary fill (primary is near-white in dark)', () => {
+    const bad = sourceFiles().flatMap(file =>
+      [...readFileSync(join(root, file), 'utf8').matchAll(PRIMARY_FILL)]
+        .filter(([block]) => WHITE_LABEL.test(block))
+        .map(() => file))
+    expect(bad).toEqual([])
+  })
+})
+
+describe('selected and focus rings', () => {
+  it('PanelOpenButton hover uses the strong hover token, not a primary glow', () => {
+    const source = readFileSync(join(root, 'editor/src/components/Panel/PanelOpenButton.vue'), 'utf8')
+    expect(source).not.toContain('--bs-primary-rgb')
+    expect(source).toContain('var(--bc-btn-strong-hover-bg)')
+  })
+
+  it('GalleryCard keeps the selected ring visible when focused', () => {
+    const source = readFileSync(join(root, 'ui/src/components/Gallery/GalleryCard/GalleryCard.vue'), 'utf8')
+    expect(source).not.toMatch(/var\(--bc-focus-ring\),\s*var\(--bc-selected-ring\)/)
+    expect(source).toMatch(/var\(--bc-selected-ring\),\s*0 0 0 4px var\(--bs-body-bg\),\s*0 0 0 6px var\(--bs-emphasis-color\)/)
+  })
+})
+
+describe('docs code and tertiary text', () => {
+  const docsFile = (rel: string) => readFileSync(join(root, 'docs/src/.vitepress', rel), 'utf8')
+
+  it('uses high-contrast Shiki themes', () => {
+    const config = docsFile('config.ts')
+    expect(config).toContain("light: 'github-light-high-contrast'")
+    expect(config).toContain("dark: 'github-dark-high-contrast'")
+  })
+
+  it('bridges --vp-c-text-3 to the shared tertiary token in both themes', () => {
+    const matches = docsFile('theme/style.css').match(/--vp-c-text-3:\s*var\(--bc-text-tertiary\)/g) ?? []
+    expect(matches).toHaveLength(2)
   })
 })
