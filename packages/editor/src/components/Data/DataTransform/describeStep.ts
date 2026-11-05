@@ -1,7 +1,7 @@
 import { TransformType, FilterCondition } from '@/enums'
 import { SortDirection } from '@blueprint-chart/lib'
 
-export function describeStep(step: { type: string, config: Record<string, string> }): string {
+export function describeStep(step: { type: string, config: Record<string, string> }, fallback = 'Configure...'): string {
   if (step.type === TransformType.Sort && step.config.column) {
     return `${step.config.column} ${step.config.direction ?? SortDirection.Ascending}`
   }
@@ -10,7 +10,7 @@ export function describeStep(step: { type: string, config: Record<string, string
   }
   if (step.type === TransformType.HideColumns) {
     const cols = step.config.columns ? step.config.columns.split(',').map(c => c.trim()).filter(Boolean) : []
-    return cols.length > 0 ? `Hiding ${cols.join(', ')}` : 'Configure...'
+    return cols.length > 0 ? `Hiding ${cols.join(', ')}` : fallback
   }
   if (step.type === TransformType.Transpose) {
     return 'Swap rows \u2194 columns'
@@ -32,5 +32,5 @@ export function describeStep(step: { type: string, config: Record<string, string
     }).join(', ')
     return `Group by ${groups} — ${aggs}`
   }
-  return 'Configure...'
+  return fallback
 }

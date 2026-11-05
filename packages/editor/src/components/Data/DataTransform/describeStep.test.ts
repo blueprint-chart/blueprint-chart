@@ -12,4 +12,9 @@ describe('describeStep', () => {
   it('describes a rename step', () => {
     expect(describeStep({ type: 'rename', config: { column: 'a', newName: 'b' } })).toBe('a → b')
   })
+
+  it('returns the given fallback for a step without settings', () => {
+    expect(describeStep({ type: 'sort', config: {} })).toBe('Configure...')
+    expect(describeStep({ type: 'sort', config: {} }, '')).toBe('')
+  })
 })
