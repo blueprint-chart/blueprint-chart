@@ -15,7 +15,13 @@ export const useThemeStore = defineStore('theme', () => {
   })
 
   watch(resolvedTheme, (resolved) => {
+    const freeze = document.createElement('style')
+    freeze.textContent = '*,*::before,*::after{transition:none!important}'
+    document.head.appendChild(freeze)
     document.documentElement.setAttribute('data-bs-theme', resolved)
+    // Reading a computed style forces the repaint with transitions still off
+    globalThis.getComputedStyle(document.body).getPropertyValue('opacity')
+    globalThis.requestAnimationFrame(() => freeze.remove())
   }, { immediate: true })
 
   function cycleTheme(): void {
