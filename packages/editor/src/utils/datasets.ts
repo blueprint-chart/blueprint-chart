@@ -122,3 +122,16 @@ export function collectDatasets(charts: StoredChart[]): Dataset[] {
     })
     .sort((a, b) => byNewest(a.charts[0], b.charts[0]))
 }
+
+export interface DatasetGroup {
+  key: string
+  variants: Dataset[]
+}
+
+export function groupDatasets(datasets: Dataset[]): DatasetGroup[] {
+  const groups = new Map<string, Dataset[]>()
+  for (const dataset of datasets) {
+    groups.set(dataset.data, [...(groups.get(dataset.data) ?? []), dataset])
+  }
+  return [...groups].map(([key, variants]) => ({ key, variants }))
+}

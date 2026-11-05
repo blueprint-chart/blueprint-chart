@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { dataEntriesToString, parse } from '@blueprint-chart/lib'
-import { collectDatasets } from './datasets'
+import { collectDatasets, groupDatasets } from './datasets'
 import type { StoredChart } from './datasets'
 
 const DATA = `  data {
@@ -139,5 +139,18 @@ describe('collectDatasets', () => {
   it('falls back to an empty source label', () => {
     const meta = { schema: 2, sourceFormat: 'delimited', rawInput: 'a\tb\n1\t2' }
     expect(collectDatasets([stored('a', bpc(), meta)])[0].source?.sourceLabel).toBe('')
+  })
+})
+
+describe('groupDatasets', () => {
+  it('groups pipelines that share the same raw data, newest first', () => {
+    const datasets = collectDatasets([
+      stored('sorted', bpc({ extra: SORT }), { schema: 2, savedAt: '2026-11-01T00:00:00Z' }),
+      stored('raw', bpc(), { schema: 2, savedAt: '2026-11-03T00:00:00Z' }),
+      stored('other', bpc({ data: '  data {\n    "A" = 1\n  }' }), { schema: 2, savedAt: '2026-11-02T00:00:00Z' }),
+    ])
+    const groups = groupDatasets(datasets)
+    expect(groups.map(g => g.variants.map(v => v.charts[0].id))).toEqual([['raw', 'sorted'], ['other']])
+    expect(groups[0].key).toBe(datasets[0].data)
   })
 })
