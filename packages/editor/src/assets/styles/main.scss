@@ -226,6 +226,11 @@ body {
   }
 }
 
+// The sidebar draws its own right border.
+.layout-shell__sidebar-offcanvas {
+  --bs-offcanvas-border-width: 0;
+}
+
 .layout-shell__sidebar-offcanvas .offcanvas-body {
   padding: 0;
 }
