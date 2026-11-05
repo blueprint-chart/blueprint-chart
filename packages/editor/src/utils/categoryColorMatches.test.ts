@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { ChartData } from '@blueprint-chart/lib'
+import { ChartType, type ChartData } from '@blueprint-chart/lib'
 import { findCategoryColorMatches } from './categoryColorMatches'
 
 const labelsData: ChartData = { labels: ['France', 'Spain'], values: [1, 2] }
@@ -10,7 +10,7 @@ const seriesData: ChartData = {
 }
 
 const base = {
-  chartType: 'bar',
+  chartType: ChartType.BarVertical as string,
   data: labelsData,
   colorizes: [],
   seriesOverrides: [],
@@ -22,9 +22,10 @@ describe('findCategoryColorMatches', () => {
     expect(findCategoryColorMatches(base)).toEqual([{ target: 'France', color: '#0055A4' }])
   })
 
-  it('uses series names when the data has series', () => {
+  it('uses series names for a series-keyed chart', () => {
     const result = findCategoryColorMatches({
       ...base,
+      chartType: ChartType.BarGrouped,
       data: seriesData,
       categoryColors: [{ name: 'democrats', color: '#0015BC' }],
     })
@@ -41,6 +42,7 @@ describe('findCategoryColorMatches', () => {
       ...base,
       data: seriesData,
       categoryColors: [{ name: 'democrats', color: '#0015BC' }],
+      chartType: ChartType.BarGrouped,
       seriesOverrides: [{ name: 'Democrats', color: '#123456' }],
     })
     expect(result).toEqual([])
@@ -51,12 +53,44 @@ describe('findCategoryColorMatches', () => {
       ...base,
       data: seriesData,
       categoryColors: [{ name: 'democrats', color: '#0015BC' }],
+      chartType: ChartType.BarGrouped,
       seriesOverrides: [{ name: 'Democrats', lineWidth: 2 }],
     })
     expect(result).toEqual([{ target: 'Democrats', color: '#0015BC' }])
   })
 
-  it.each(['area', 'line', 'pie'])('returns [] for %s', (chartType) => {
+  it.each([
+    ChartType.BarMulti,
+    ChartType.BarSplit,
+    ChartType.BarGrouped,
+    ChartType.BarStacked,
+    ChartType.ColumnStacked,
+    ChartType.LineMulti,
+    ChartType.AreaStacked,
+  ])('returns [] for %s with label-only data', (chartType) => {
+    expect(findCategoryColorMatches({ ...base, chartType })).toEqual([])
+  })
+
+  it.each([
+    ChartType.BarVertical,
+    ChartType.BarHorizontal,
+    ChartType.VerticalBar,
+    ChartType.HorizontalBar,
+    ChartType.Donut,
+  ])('matches labels, not series names, for %s', (chartType) => {
+    const result = findCategoryColorMatches({
+      ...base,
+      chartType,
+      data: seriesData,
+      categoryColors: [
+        { name: 'democrats', color: '#0015BC' },
+        { name: '2020', color: '#abcdef' },
+      ],
+    })
+    expect(result).toEqual([{ target: '2020', color: '#abcdef' }])
+  })
+
+  it.each([ChartType.Area, ChartType.Line, ChartType.Pie])('returns [] for %s', (chartType) => {
     expect(findCategoryColorMatches({ ...base, chartType })).toEqual([])
   })
 })

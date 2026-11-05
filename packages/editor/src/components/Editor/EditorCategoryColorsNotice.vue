@@ -1,19 +1,3 @@
-<template>
-  <div
-    v-if="matches.length"
-    class="editor-category-colors-notice d-flex align-items-center justify-content-between gap-2 p-2 rounded bg-body-secondary"
-  >
-    <span class="editor-category-colors-notice__message">{{ message }}</span>
-    <ButtonIcon
-      class="editor-category-colors-notice__apply"
-      label="Apply"
-      size="sm"
-      variant="primary"
-      @click="apply"
-    />
-  </div>
-</template>
-
 <script setup lang="ts">
 import { ButtonIcon } from '@blueprint-chart/ui'
 import { parseData } from '@blueprint-chart/lib'
@@ -40,3 +24,19 @@ function apply() {
   colorizes.value = [...colorizes.value, ...matches.value]
 }
 </script>
+
+<template>
+  <div
+    v-if="matches.length"
+    class="editor-category-colors-notice d-flex align-items-center justify-content-between gap-2 p-2 rounded bg-body-secondary"
+  >
+    <span class="editor-category-colors-notice__message">{{ message }}</span>
+    <ButtonIcon
+      class="editor-category-colors-notice__apply"
+      label="Apply"
+      size="sm"
+      variant="primary"
+      @click="apply"
+    />
+  </div>
+</template>

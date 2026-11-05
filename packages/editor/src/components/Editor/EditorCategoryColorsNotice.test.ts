@@ -8,7 +8,7 @@ import EditorCategoryColorsNotice from './EditorCategoryColorsNotice.vue'
 
 const DATA = '"France" = 10\n"Spain" = 5'
 
-function setup(chartType: string = ChartType.BarGrouped) {
+function setup(chartType: string = ChartType.BarVertical) {
   const pinia = createPinia()
   setActivePinia(pinia)
   useScenes().reset()
@@ -45,6 +45,11 @@ describe('EditorCategoryColorsNotice', () => {
 
   it('is hidden for a line chart', () => {
     const { wrapper } = setup(ChartType.Line)
+    expect(wrapper.find('button').exists()).toBe(false)
+  })
+
+  it('is hidden for a series-keyed chart with label-only data', () => {
+    const { wrapper } = setup(ChartType.BarGrouped)
     expect(wrapper.find('button').exists()).toBe(false)
   })
 
