@@ -13,7 +13,7 @@
 <script setup lang="ts">
 
 defineProps<{
-  colors: string[]
+  colors: readonly string[]
   bordered?: boolean
 }>()
 </script>

@@ -7,7 +7,7 @@ import IPhTrash from '~icons/ph/trash'
 
 const props = defineProps<{
   label: string
-  colors: string[]
+  colors: readonly string[]
   editable: boolean
 }>()
 
@@ -17,7 +17,7 @@ defineEmits<{
   remove: []
 }>()
 
-const { lightContrastInfo, darkContrastInfo, cvdInfo } = useColorAccessibility(() => props.colors, false, true)
+const { lightContrastInfo, darkContrastInfo, cvdInfo } = useColorAccessibility(() => [...props.colors], false, true)
 const cvdIssueLabels = computed(() => cvdInfo.value?.issues.map(issue => issue.shortLabel).join(', '))
 </script>
 

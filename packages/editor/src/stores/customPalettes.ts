@@ -11,7 +11,7 @@ export const CUSTOM_PALETTES_KEY = 'blueprint-chart:palettes'
 
 const HEX = /^#[0-9a-f]{6}$/i
 
-const isValidColors = (colors: string[]) =>
+const isValidColors = (colors: readonly string[]) =>
   colors.length >= 2 && colors.length <= 12 && colors.every(c => HEX.test(c))
 
 const isValidLabel = (label: string) => label.trim().length > 0
@@ -20,7 +20,7 @@ export const useCustomPalettesStore = defineStore('customPalettes', () => {
   const stored = useLocalStorage<CustomPalette[]>(CUSTOM_PALETTES_KEY, [], { writeDefaults: false })
   const palettes = computed(() => Array.isArray(stored.value) ? stored.value : [])
 
-  function create(label: string, colors: string[]): CustomPalette | null {
+  function create(label: string, colors: readonly string[]): CustomPalette | null {
     if (!isValidLabel(label) || !isValidColors(colors)) {
       return null
     }

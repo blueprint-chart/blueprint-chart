@@ -12,7 +12,7 @@ const { palettes, create, update, remove } = useCustomPalettes()
 const builtIns: PaletteEntry[] = listPalettes()
 const editingId = shallowRef<string | null>(null)
 
-function duplicate({ label, colors }: { label: string, colors: string[] }) {
+function duplicate({ label, colors }: { label: string, colors: readonly string[] }) {
   create(`${label} copy`, colors)
 }
 
@@ -21,7 +21,7 @@ function addNew() {
   editingId.value = palette?.id ?? null
 }
 
-const pendingDelete = shallowRef<CustomPalette | null>(null)
+const pendingDelete = shallowRef<Pick<CustomPalette, 'id' | 'label'> | null>(null)
 const confirming = computed({
   get: () => pendingDelete.value !== null,
   set: (open: boolean) => {
@@ -48,7 +48,7 @@ function confirmRemove() {
       <PalettesCardEditor
         v-if="editingId === palette.id"
         class="palettes-grid__item"
-        :model-value="{ label: palette.label, colors: palette.colors }"
+        :model-value="{ label: palette.label, colors: [...palette.colors] }"
         @update:model-value="update(palette.id, $event)"
         @remove="pendingDelete = palette"
         @done="editingId = null"

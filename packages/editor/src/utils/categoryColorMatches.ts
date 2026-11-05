@@ -9,7 +9,7 @@ export function findCategoryColorMatches(input: {
   data: ChartData
   colorizes: ChartColorize[]
   seriesOverrides: SeriesOverride[]
-  categoryColors: CategoryColor[]
+  categoryColors: readonly CategoryColor[]
 }): ChartColorize[] {
   if (UNSUPPORTED_CHART_TYPES.includes(input.chartType)) {
     return []
