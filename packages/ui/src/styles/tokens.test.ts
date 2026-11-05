@@ -13,7 +13,8 @@ const darkBody = css.match(/\[data-bs-theme=["']?dark["']?\],\s*\.dark\s*\{([^}]
 const vars = sass.compileString(
   `@use 'tokens' as t; :root { --primary: #{t.$primary}; --body: #{t.$body-color}; --body-dark: #{t.$body-color-dark};
    --bg: #{t.$body-bg}; --bg-dark: #{t.$body-bg-dark}; --muted: #{t.$body-secondary-color}; --muted-dark: #{t.$body-secondary-color-dark};
-   --tertiary: #{t.$body-tertiary-color}; --tertiary-dark: #{t.$body-tertiary-color-dark}; }`,
+   --tertiary: #{t.$body-tertiary-color}; --tertiary-bg: #{t.$body-tertiary-bg}; --tertiary-bg-dark: #{t.$body-tertiary-bg-dark};
+   --pe-dark: #{t.$primary-text-emphasis-dark}; --ps-dark: #{t.$primary-bg-subtle-dark}; --pb-dark: #{t.$primary-border-subtle-dark}; --tertiary-dark: #{t.$body-tertiary-color-dark}; }`,
   { loadPaths: [currentDir] },
 ).css
 
@@ -119,6 +120,8 @@ describe('tokens.scss - chartreuse accent', () => {
   it.each([
     ['--body', '--bg'], ['--muted', '--bg'], ['--tertiary', '--bg'],
     ['--body-dark', '--bg-dark'], ['--muted-dark', '--bg-dark'], ['--tertiary-dark', '--bg-dark'],
+    ['--tertiary', '--tertiary-bg'], ['--tertiary-dark', '--tertiary-bg-dark'],
+    ['--pe-dark', '--ps-dark'], ['--pe-dark', '--bg-dark'],
   ])('%s on %s reaches 4.5:1', (fg, bg) => {
     expect(contrast(read(vars, fg), read(vars, bg))).toBeGreaterThanOrEqual(4.5)
   })
@@ -130,6 +133,16 @@ describe('tokens.scss - chartreuse accent', () => {
       expect(block()).toMatch(/--bc-selected-ring:\s*0 0 0 2px var\(--bs-emphasis-color\);/)
     },
   )
+
+  it('keeps the dark primary tints visible against the page', () => {
+    expect(contrast(read(vars, '--pb-dark'), read(vars, '--bg-dark'))).toBeGreaterThanOrEqual(1.5)
+    expect(read(vars, '--ps-dark')).not.toBe(read(vars, '--bg-dark'))
+  })
+
+  it('emits the tertiary text color as a runtime token in both blocks', () => {
+    expect(lightBody).toMatch(/--bc-text-tertiary:\s*#6b6b6b/i)
+    expect(darkBody).toMatch(/--bc-text-tertiary:\s*#8f8f8f/i)
+  })
 
   it('declares the strong button hover token per theme', () => {
     expect(lightBody).toMatch(/--bc-btn-strong-hover-bg:\s*#383838/i)

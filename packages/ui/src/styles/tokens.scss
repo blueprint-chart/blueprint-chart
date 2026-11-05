@@ -66,7 +66,7 @@ $body-color:                  #171717 !default;
 $body-color-dark:             #ededed !default;
 $body-secondary-color:        #666666 !default;
 $body-secondary-color-dark:   #a1a1a1 !default;
-$body-tertiary-color:         #737373 !default;
+$body-tertiary-color:         #6b6b6b !default;
 $body-tertiary-color-dark:    #8f8f8f !default;
 
 // Neutral buttons
@@ -78,6 +78,10 @@ $btn-primary-border-dark:     #454545 !default;
 $btn-primary-hover-bg-dark:   #2e2e2e !default;
 $btn-strong-hover-bg:         #383838 !default;
 $btn-strong-hover-bg-dark:    #cccccc !default;
+
+$primary-text-emphasis-dark:  $body-color-dark !default;
+$primary-bg-subtle-dark:      $body-tertiary-bg-dark !default;
+$primary-border-subtle-dark:  $btn-primary-border-dark !default;
 
 // Radius
 $border-radius-sm: 0.25rem !default;
@@ -238,6 +242,7 @@ $spacer-xs: 0.25rem !default;
   --bc-selected-ring: 0 0 0 2px var(--bs-emphasis-color);
 
   --bc-btn-strong-hover-bg: #383838;
+  --bc-text-tertiary: #{$body-tertiary-color};
 
   --bc-shadow-overlay:
     0 8px 24px rgba(0, 0, 0, 0.08),
@@ -317,6 +322,7 @@ $spacer-xs: 0.25rem !default;
   --bc-selected-ring: 0 0 0 2px var(--bs-emphasis-color);
 
   --bc-btn-strong-hover-bg: #cccccc;
+  --bc-text-tertiary: #{$body-tertiary-color-dark};
 
   --bc-shadow-overlay:
     0 8px 24px rgba(0, 0, 0, 0.6),

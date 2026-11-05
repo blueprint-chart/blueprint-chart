@@ -125,3 +125,12 @@ describe('form focus', () => {
     expect(rule).not.toContain('%23171717')
   })
 })
+
+describe('dark primary tints', () => {
+  it('derives Bootstrap primary subtle colors from the neutral ramp, not near-black', () => {
+    const dark = css.match(/\[data-bs-theme=dark\]\s*{([^}]*--bs-primary-bg-subtle[^}]*)}/)?.[1] ?? ''
+    expect(dark).toMatch(/--bs-primary-text-emphasis:\s*#ededed/)
+    expect(dark).toMatch(/--bs-primary-bg-subtle:\s*#1f1f1f/)
+    expect(dark).toMatch(/--bs-primary-border-subtle:\s*#454545/)
+  })
+})
