@@ -242,10 +242,10 @@ body {
 // panel in DOM order, trapping any in-place menu behind it). The teleported
 // menu carries only floating-ui's positioning styles — no z-index — so it
 // falls back to Bootstrap's dropdown default (1000), which is *below* our
-// navbar (1040) and renders behind chrome. Slot it above the navbar but under
-// the offcanvas overlay.
+// navbar (1040) and renders behind chrome. It also opens from the sidebar
+// offcanvas (1055), so it has to sit above that too.
 .account-menu__menu {
-  z-index: 1045;
+  z-index: 1056;
   // Cap to the viewport so the teleported menu never overflows on small
   // screens; floating-ui flip/shift keeps it on-screen and right-aligned.
   max-width: calc(100vw - 1rem);
