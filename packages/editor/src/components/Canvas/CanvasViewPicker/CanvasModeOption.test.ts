@@ -2,7 +2,7 @@ import { mount } from '@vue/test-utils'
 import CanvasModeOption from './CanvasModeOption.vue'
 
 describe('CanvasModeOption', () => {
-  function mountOption(props: { mode: 'blueprint' | 'auto' | 'light' | 'dark', label: string, active: boolean }) {
+  function mountOption(props: { mode: 'auto' | 'light' | 'dark', label: string, active: boolean }) {
     return mount(CanvasModeOption, { props })
   }
 
@@ -17,12 +17,12 @@ describe('CanvasModeOption', () => {
   })
 
   it('applies active class when active', () => {
-    const w = mountOption({ mode: 'blueprint', label: 'Blueprint', active: true })
+    const w = mountOption({ mode: 'auto', label: 'Auto', active: true })
     expect(w.find('.canvas-mode-option--active').exists()).toBe(true)
   })
 
   it('does not apply active class when inactive', () => {
-    const w = mountOption({ mode: 'blueprint', label: 'Blueprint', active: false })
+    const w = mountOption({ mode: 'auto', label: 'Auto', active: false })
     expect(w.find('.canvas-mode-option--active').exists()).toBe(false)
   })
 

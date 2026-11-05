@@ -7,7 +7,7 @@
 
 <script setup lang="ts">
 defineProps<{
-  mode: 'blueprint' | 'auto' | 'light' | 'dark'
+  mode: 'auto' | 'light' | 'dark'
 }>()
 </script>
 
@@ -19,7 +19,7 @@ defineProps<{
   border: 1px solid var(--bs-border-color);
   flex-shrink: 0;
 
-  &--blueprint {
+  &--auto {
     background: var(--bc-canvas-bg);
     background-image:
       linear-gradient(var(--bc-canvas-grid-color) 1px, transparent 1px),
@@ -27,18 +27,12 @@ defineProps<{
     background-size: 8px 8px;
   }
 
-  // Auto resolves to the explicit light/dark surface for the current theme, so
-  // its swatch mirrors that token: #ffffff in light, #000000 in dark.
-  &--auto {
-    background: var(--bc-chrome-bg);
-  }
-
   &--light {
     background: #f0f0f0;
   }
 
   &--dark {
-    background: #000000;
+    background: #0a0a0a;
   }
 }
 </style>

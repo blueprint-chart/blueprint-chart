@@ -206,7 +206,7 @@ const panelClassList = computed(() => ({
 }))
 
 const canvasClassList = computed(() => ({
-  [`chart-edit-panel__canvas--${canvasMode.value}`]: canvasMode.value !== 'blueprint',
+  [`chart-edit-panel__canvas--${canvasMode.value}`]: canvasMode.value !== 'auto',
   // Reserve extra bottom space so the canvas dimension ruler clears the
   // floating timeline when scrolled.
   'chart-edit-panel__canvas--dimensions': chartVisible.value && showDimensions.value,
@@ -356,13 +356,8 @@ const canvasStyle = computed<CSSProperties>(() => ({
       --bc-canvas-dimension-color: rgba(0, 0, 0, 0.3);
     }
 
-    &--auto {
-      background: var(--bs-body-bg);
-      --bc-canvas-dimension-color: color-mix(in srgb, var(--bs-emphasis-color) 30%, transparent);
-    }
-
     &--dark {
-      background: #000000;
+      background: #0a0a0a;
       --bc-canvas-dimension-color: rgba(255, 255, 255, 0.3);
     }
 

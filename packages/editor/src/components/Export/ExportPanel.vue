@@ -156,7 +156,7 @@ const TAB_LABELS: Record<string, string> = {
 const panelTitle = computed(() => TAB_LABELS[exportTab.value] ?? 'Export')
 
 const canvasClassList = computed(() => ({
-  [`export-panel__canvas--${canvasMode.value}`]: canvasMode.value !== 'blueprint',
+  [`export-panel__canvas--${canvasMode.value}`]: canvasMode.value !== 'auto',
 }))
 
 </script>
@@ -203,7 +203,6 @@ const canvasClassList = computed(() => ({
       background-position: var(--grid-offset-x, 0) var(--grid-offset-y, 0);
     }
 
-    &--auto,
     &--light,
     &--dark {
       &::before {
@@ -216,17 +215,8 @@ const canvasClassList = computed(() => ({
       --bc-canvas-dimension-color: rgba(0, 0, 0, 0.3);
     }
 
-    // Auto resolves to the same surface as the explicit light/dark modes for
-    // the current theme: --bc-chrome-bg is #ffffff (light) / #000000 (dark) and
-    // --bs-emphasis-color is #000 (light) / #fff (dark), so the canvas and its
-    // dimension rulers are identical to Light in light theme and Dark in dark.
-    &--auto {
-      background: var(--bc-chrome-bg);
-      --bc-canvas-dimension-color: color-mix(in srgb, var(--bs-emphasis-color) 30%, transparent);
-    }
-
     &--dark {
-      background: #000000;
+      background: #0a0a0a;
       --bc-canvas-dimension-color: rgba(255, 255, 255, 0.3);
     }
 

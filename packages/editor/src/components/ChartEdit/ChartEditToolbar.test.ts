@@ -7,7 +7,7 @@ const isNarrowRef = ref(false)
 vi.mock('@/stores/editorPanel', () => ({
   useEditorPanel: () => ({
     viewMode: ref('preview'),
-    canvasMode: ref('blueprint'),
+    canvasMode: ref('auto'),
     showDimensions: ref(true),
     setViewMode: vi.fn(),
     setCanvasMode: vi.fn(),

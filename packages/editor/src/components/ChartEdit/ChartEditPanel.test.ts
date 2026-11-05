@@ -7,7 +7,7 @@ import { useEditorPanel } from '@/stores/editorPanel'
 const editorPanelState = {
   viewMode: ref('preview'),
   activeTab: ref(''),
-  canvasMode: ref('blueprint'),
+  canvasMode: ref('auto'),
   showDimensions: ref(false),
   splitRatio: ref(0.5),
   selectTab: vi.fn(),
@@ -63,6 +63,16 @@ describe('ChartEditPanel', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
     isNarrowRef.value = false
+  })
+
+  it('adds no mode modifier in auto and one in light', async () => {
+    const panel = useEditorPanel()
+    const w = mountPanel()
+    expect(w.find('.chart-edit-panel__canvas').classes()).not.toContain('chart-edit-panel__canvas--auto')
+    panel.canvasMode.value = 'light'
+    await w.vm.$nextTick()
+    expect(w.find('.chart-edit-panel__canvas').classes()).toContain('chart-edit-panel__canvas--light')
+    panel.canvasMode.value = 'auto'
   })
 
   it('renders the floating timeline as the last canvas child in preview mode', () => {

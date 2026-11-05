@@ -101,7 +101,6 @@ const VIEW_MODES: { value: ViewMode, text: string, icon: Component }[] = [
 ]
 
 const canvasOptions: { value: CanvasMode, label: string }[] = [
-  { value: 'blueprint', label: 'Blueprint' },
   { value: 'auto', label: 'Auto' },
   { value: 'light', label: 'Light' },
   { value: 'dark', label: 'Dark' },

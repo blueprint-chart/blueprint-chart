@@ -1,5 +1,5 @@
 export type ViewMode = 'preview' | 'split' | 'dsl'
-export type CanvasMode = 'blueprint' | 'auto' | 'light' | 'dark'
+export type CanvasMode = 'auto' | 'light' | 'dark'
 export type DataView = 'upload' | 'structure'
 export type DataPanelTab = 'column' | 'transforms' | 'parsing' | 'reco'
 
@@ -7,7 +7,7 @@ export const useEditorPanelStore = defineStore('editorPanel', () => {
   const activeTab = shallowRef('type')
   const viewMode = shallowRef<ViewMode>('preview')
   const splitRatio = shallowRef(0.5)
-  const canvasMode = shallowRef<CanvasMode>('blueprint')
+  const canvasMode = shallowRef<CanvasMode>('auto')
   const showDimensions = shallowRef(true)
   const pendingAnnotationIndex = shallowRef<number | string | null>(null)
   const dataView = shallowRef<DataView>('upload')
@@ -84,7 +84,7 @@ export const useEditorPanelStore = defineStore('editorPanel', () => {
     activeTab.value = 'type'
     viewMode.value = 'preview'
     splitRatio.value = 0.5
-    canvasMode.value = 'blueprint'
+    canvasMode.value = 'auto'
     showDimensions.value = true
     pendingAnnotationIndex.value = null
     dataView.value = 'upload'

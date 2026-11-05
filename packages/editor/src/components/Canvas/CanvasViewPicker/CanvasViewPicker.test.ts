@@ -2,7 +2,7 @@ import { mount } from '@vue/test-utils'
 import CanvasViewPicker from './CanvasViewPicker.vue'
 
 const viewMode = ref<string>('preview')
-const canvasMode = ref<string>('blueprint')
+const canvasMode = ref<string>('auto')
 const setViewMode = vi.fn((mode: string) => {
   viewMode.value = mode
 })
@@ -43,13 +43,24 @@ function segments(w: ReturnType<typeof mount>) {
 
 beforeEach(() => {
   viewMode.value = 'preview'
-  canvasMode.value = 'blueprint'
+  canvasMode.value = 'auto'
   setViewMode.mockClear()
   setCanvasMode.mockClear()
   isNarrowRef.value = false
 })
 
 describe('CanvasViewPicker', () => {
+  it('offers auto, light and dark canvas modes', async () => {
+    const w = mount(CanvasViewPicker)
+    await w.find('.canvas-view-picker__trigger').trigger('click')
+    const swatches = w.findAll('.canvas-mode-option .canvas-mode-swatch')
+    expect(swatches.map(s => s.classes().find(c => c.startsWith('canvas-mode-swatch--')))).toEqual([
+      'canvas-mode-swatch--auto',
+      'canvas-mode-swatch--light',
+      'canvas-mode-swatch--dark',
+    ])
+  })
+
   it('renders the trigger with the current canvas swatch and no panel', () => {
     canvasMode.value = 'dark'
     const w = mount(CanvasViewPicker)
@@ -62,7 +73,7 @@ describe('CanvasViewPicker', () => {
     const w = mount(CanvasViewPicker)
     await w.find('.canvas-view-picker__trigger').trigger('click')
     expect(w.find('.canvas-view-picker__panel').exists()).toBe(true)
-    expect(w.findAll('.canvas-mode-option').length).toBe(4)
+    expect(w.findAll('.canvas-mode-option').length).toBe(3)
   })
 
   it('closes the panel on a second trigger click', async () => {
@@ -126,8 +137,8 @@ describe('CanvasViewPicker', () => {
   it('calls setCanvasMode and closes when a canvas mode is picked', async () => {
     const w = mount(CanvasViewPicker)
     await w.find('.canvas-view-picker__trigger').trigger('click')
-    // Options are Blueprint, Auto, Light, Dark - click "Light".
-    await w.findAll('.canvas-mode-option')[2].trigger('click')
+    // Options are Auto, Light, Dark - click "Light".
+    await w.findAll('.canvas-mode-option')[1].trigger('click')
     expect(setCanvasMode).toHaveBeenCalledWith('light')
     expect(w.find('.canvas-view-picker__panel').exists()).toBe(false)
   })
