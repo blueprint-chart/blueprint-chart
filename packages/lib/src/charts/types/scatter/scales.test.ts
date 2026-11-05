@@ -22,6 +22,10 @@ describe('buildScatterScale', () => {
     }
   })
 
+  it('honors log range bounds when no positive value remains', () => {
+    expect(buildScatterScale(ScaleType.Log, [0, -5], { min: 10, max: 1000 }).domain()).toEqual([10, 1000])
+  })
+
   it('builds a symlog scale that keeps zero', () => {
     expect(buildScatterScale(ScaleType.Symlog, [0, 100]).domain()[0]).toBe(0)
   })
