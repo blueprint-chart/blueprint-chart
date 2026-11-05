@@ -18,7 +18,9 @@ const tooltip = useLazyTooltip()
   <span
     ref="chip"
     class="palettes-card-chip"
+    tabindex="0"
     @mouseenter="tooltip.arm"
+    @focus="tooltip.arm"
   >
     <span
       class="palettes-card-chip__dot"
@@ -53,6 +55,11 @@ const tooltip = useLazyTooltip()
   border-radius: var(--bc-radius-pill);
   cursor: default;
   white-space: nowrap;
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--bc-focus-ring);
+  }
 
   &__dot {
     width: 0.375rem;
