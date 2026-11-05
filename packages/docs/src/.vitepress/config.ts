@@ -32,6 +32,7 @@ export default defineConfig({
   appearance: 'dark',
 
   markdown: {
+    theme: { light: 'github-light-high-contrast', dark: 'github-dark-high-contrast' },
     languageAlias: {
       bpc: 'kotlin',
     },
