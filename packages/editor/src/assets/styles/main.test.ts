@@ -46,6 +46,10 @@ describe('button recipe', () => {
     expect(css).toMatch(/\.btn-primary\s*{[^}]*--bs-btn-bg:\s*#f2f2f2/)
   })
 
+  it('keeps shadows off form controls', () => {
+    expect(css).not.toMatch(/\.form-control\s*{[^}]*box-shadow:\s*var\(--bs-box-shadow-inset\)/)
+  })
+
   it('gives cards a 1px border', () => {
     expect(css).toMatch(/\.card\s*{[^}]*--bs-card-border-width:\s*1px/)
   })
