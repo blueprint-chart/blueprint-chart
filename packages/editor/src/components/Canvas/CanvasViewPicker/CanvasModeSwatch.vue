@@ -32,7 +32,7 @@ defineProps<{
   }
 
   &--dark {
-    background: #0a0a0a;
+    background: #000000;
   }
 }
 </style>

@@ -55,7 +55,7 @@ $border-color-dark: #2e2e2e !default;
 
 // Surface hierarchy (void > tile > elevated)
 $body-bg:                 #ffffff !default;
-$body-bg-dark:            #0a0a0a !default;
+$body-bg-dark:            #000000 !default;
 $body-secondary-bg:       #ffffff !default;
 $body-secondary-bg-dark:  #0a0a0a !default;
 $body-tertiary-bg:        #f2f2f2 !default;
@@ -276,14 +276,14 @@ $spacer-xs: 0.25rem !default;
   --bc-grid-color: #444;
   --bc-text-color: #aaa;
 
-  --bc-canvas-bg: #0a0a0a;
+  --bc-canvas-bg: #000000;
   --bc-canvas-grid-color: rgba(255, 255, 255, 0.05);
   --bc-canvas-grid-color-major: rgba(255, 255, 255, 0.12);
   --bc-canvas-dimension-color: rgba(255, 255, 255, 0.45);
 
-  --bc-chrome-bg: #0a0a0a;
-  --bc-content-bg: #0a0a0a;
-  --bc-tile-bg: #0a0a0a;
+  --bc-chrome-bg: #000000;
+  --bc-content-bg: #000000;
+  --bc-tile-bg: #000000;
   --bc-tile-bg-elevated: #1f1f1f;
   --bc-canvas-glow: none;
 

@@ -104,8 +104,9 @@ describe('tokens.scss - chartreuse accent', () => {
   })
 
   it('locks the neutral dark surface ramp', () => {
-    expect(darkBody).toMatch(/--bc-chrome-bg:\s*#0a0a0a/i)
-    expect(darkBody).toMatch(/--bc-content-bg:\s*#0a0a0a/i)
+    expect(read(vars, '--bg-dark')).toBe('#000000')
+    expect(darkBody).toMatch(/--bc-chrome-bg:\s*#000000/i)
+    expect(darkBody).toMatch(/--bc-content-bg:\s*#000000/i)
     expect(darkBody).toMatch(/--bc-hairline:\s*rgba\(255,\s*255,\s*255,\s*0\.09\)/i)
     expect(darkBody).toMatch(/--bc-hairline-strong:\s*rgba\(255,\s*255,\s*255,\s*0\.15\)/i)
     expect(darkBody).toMatch(/--bc-swipe:[^;]*rgba\(221,\s*242,\s*71,\s*0\.4\)/i)
@@ -150,7 +151,7 @@ describe('tokens.scss - chartreuse accent', () => {
   })
 
   it('flattens the wash: content, tile and chrome equal the page bg', () => {
-    for (const [block, bg, elevated] of [[lightBody, '#ffffff', '#f2f2f2'], [darkBody, '#0a0a0a', '#1f1f1f']]) {
+    for (const [block, bg, elevated] of [[lightBody, '#ffffff', '#f2f2f2'], [darkBody, '#000000', '#1f1f1f']]) {
       for (const name of ['--bc-content-bg', '--bc-tile-bg', '--bc-chrome-bg']) {
         expect(read(block, name)).toBe(bg)
       }
@@ -160,7 +161,7 @@ describe('tokens.scss - chartreuse accent', () => {
 
   it('uses a neutral canvas with a grey grid', () => {
     expect(read(lightBody, '--bc-canvas-bg')).toBe('#ffffff')
-    expect(read(darkBody, '--bc-canvas-bg')).toBe('#0a0a0a')
+    expect(read(darkBody, '--bc-canvas-bg')).toBe('#000000')
     expect(lightBody).toMatch(/--bc-canvas-grid-color:\s*rgba\(0,\s*0,\s*0,/)
     expect(lightBody).toMatch(/--bc-canvas-grid-color-major:\s*rgba\(0,\s*0,\s*0,/)
     expect(darkBody).toMatch(/--bc-canvas-grid-color:\s*rgba\(255,\s*255,\s*255,/)

@@ -216,7 +216,7 @@ const canvasClassList = computed(() => ({
     }
 
     &--dark {
-      background: #0a0a0a;
+      background: #000000;
       --bc-canvas-dimension-color: rgba(255, 255, 255, 0.3);
     }
 
