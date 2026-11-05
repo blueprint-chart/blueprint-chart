@@ -185,3 +185,11 @@ describe('tokens.scss - chartreuse accent', () => {
     }
   })
 })
+
+describe('drawer height', () => {
+  it('keeps vh as the base and upgrades to dvh only under @supports', () => {
+    expect(lightBody).toMatch(/--bc-drawer-height:\s*70vh/)
+    expect(lightBody).not.toMatch(/70dvh/)
+    expect(css).toMatch(/@supports \(height: 1dvh\)\s*\{[^@]*--bc-drawer-height:\s*70dvh/)
+  })
+})
