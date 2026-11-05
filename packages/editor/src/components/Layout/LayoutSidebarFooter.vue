@@ -34,9 +34,9 @@ if (showAccount) {
 const email = computed(() => user.value?.email ?? '')
 const showSignIn = computed(() => showAccount && !isSignedIn.value)
 const wrapperClass = computed(() => isSignedIn.value ? 'layout-sidebar-footer__trigger-wrapper' : 'layout-sidebar-footer__more-wrapper')
-// Lands the menu's bottom edge on the footer's top border: the footer's
-// 0.375rem top padding plus its 1px border (NavigationSidebar.vue).
-const MENU_OFFSET_TO_FOOTER_EDGE = 7
+// Lands the menu's bottom edge on the footer's top edge: the footer's
+// 0.375rem top padding (NavigationSidebar.vue).
+const MENU_OFFSET_TO_FOOTER_EDGE = 6
 
 const toggleClass = computed(() => isSignedIn.value ? 'layout-sidebar-footer__trigger' : 'layout-sidebar-footer__more')
 

@@ -55,8 +55,23 @@ withDefaults(defineProps<{
 }
 
 .navigation-sidebar__footer {
+  position: sticky;
+  bottom: 0;
   margin-top: auto;
   padding: 0.375rem 0;
-  border-top: 1px solid var(--bs-border-color);
+  background: var(--bs-body-bg);
+
+  // Items scrolling under the pinned footer fade out instead of being cut
+  // off at a hard line.
+  &::before {
+    content: "";
+    position: absolute;
+    right: 0;
+    bottom: 100%;
+    left: 0;
+    height: 2rem;
+    background: linear-gradient(to bottom, transparent, var(--bs-body-bg));
+    pointer-events: none;
+  }
 }
 </style>
