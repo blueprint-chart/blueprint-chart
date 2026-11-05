@@ -61,7 +61,7 @@ const emit = defineEmits<{ sync: [] }>()
     background: var(--bs-emphasis-color);
     color: var(--bs-body-bg);
     padding: 0.28rem 0.7rem;
-    font-size: 0.72rem;
+    font-size: var(--bs-font-size-xs);
     font-weight: 500;
     cursor: pointer;
 

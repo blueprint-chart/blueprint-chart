@@ -8,13 +8,19 @@ const root = fileURLToPath(new URL('../../../', import.meta.url))
 const SCAN_ROOTS = ['ui/src', 'editor/src', 'docs/src/.vitepress']
 const SOURCE_EXT = /\.(vue|scss|css|ts)$/
 const SKIPPED_FILE = /\.(test\.ts|story\.vue)$/
-const SKIPPED_DIRS = ['assets/chart-thumbnails', 'assets/images', 'node_modules']
+const SKIPPED_DIRS = ['assets/chart-thumbnails', 'assets/images', '/node_modules', '/dist', '/cache']
+
+function isSkipped(path: string) {
+  const rel = path.split(sep).join('/')
+  return SKIPPED_DIRS.some(skipped => rel.includes(skipped))
+}
 
 function walk(dir: string): string[] {
   return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
     const path = join(dir, entry.name)
-    const rel = path.split(sep).join('/')
-    if (SKIPPED_DIRS.some(skipped => rel.includes(skipped))) return []
+    if (isSkipped(path)) {
+      return []
+    }
     return entry.isDirectory() ? walk(path) : [path]
   })
 }
@@ -31,6 +37,19 @@ function offenders(allowlist: string[], pattern: RegExp) {
     .filter(file => !allowlist.some(allowed => file.startsWith(allowed)))
     .filter(file => pattern.test(readFileSync(join(root, file), 'utf8')))
 }
+
+describe('walker', () => {
+  it('skips build output and dependency directories', () => {
+    expect(isSkipped('docs/src/.vitepress/dist/assets/app.css')).toBe(true)
+    expect(isSkipped('docs/src/.vitepress/cache/deps/chunk.js')).toBe(true)
+    expect(isSkipped('ui/node_modules/vue/index.js')).toBe(true)
+    expect(isSkipped('ui/src/components/App/App.vue')).toBe(false)
+  })
+
+  it('never lists a dist or cache file', () => {
+    expect(sourceFiles().filter(file => /\/(dist|cache)\//.test(file))).toEqual([])
+  })
+})
 
 describe('brand literals', () => {
   const allowlist = [
@@ -64,4 +83,21 @@ describe('brand literals', () => {
       expect(readFileSync(join(root, rel), 'utf8')).toContain('var(--bc-selected-ring)')
     })
   }
+})
+
+describe('type floor', () => {
+  const FONT_SIZE = /font-size:\s*(\d*\.?\d+)(rem|px|em)\b/g
+  const FLOOR = { rem: 0.75, em: 0.75, px: 12 }
+
+  function tooSmall(file: string) {
+    const source = readFileSync(join(root, file), 'utf8')
+    return [...source.matchAll(FONT_SIZE)]
+      .filter(([, value, unit]) => Number(value) < FLOOR[unit as keyof typeof FLOOR])
+      .filter(({ index }) => !/\.bc-frame-[^{]*\{[^{}]*$/.test(source.slice(0, index)))
+      .map(({ index }) => `${file}:${source.slice(0, index).split('\n').length}`)
+  }
+
+  it('has no font-size below 12px', () => {
+    expect(sourceFiles().flatMap(tooSmall)).toEqual([])
+  })
 })

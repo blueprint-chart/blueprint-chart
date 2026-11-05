@@ -59,7 +59,7 @@ defineProps<{
 
     &__tag {
       font-family: "Geist Mono", ui-monospace, monospace;
-      font-size: 0.6875rem;
+      font-size: var(--bs-font-size-xs);
       font-weight: 700;
       letter-spacing: 0.06em;
       color: var(--bc-mark);

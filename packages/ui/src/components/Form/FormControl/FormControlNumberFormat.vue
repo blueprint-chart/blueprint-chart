@@ -276,7 +276,7 @@ const previewSamples = computed(() =>
         }
 
         &__label {
-          font-size: 0.5rem;
+          font-size: var(--bs-font-size-xs);
           font-weight: 600;
           letter-spacing: 0.1em;
           text-transform: uppercase;
@@ -451,7 +451,7 @@ const previewSamples = computed(() =>
         height: 1.75rem;
 
         &__label {
-          font-size: 0.5rem;
+          font-size: var(--bs-font-size-xs);
           font-weight: 600;
           letter-spacing: 0.12em;
           text-transform: uppercase;

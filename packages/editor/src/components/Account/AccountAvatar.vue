@@ -30,6 +30,6 @@ const initial = computed(() => props.email.trim().charAt(0).toUpperCase() || '?'
 
 // sm is the navbar toggle avatar — sized to sit inside the btn-sm toggle with
 // a hairline gap to the button border (toggle inner height ≈ 1.8rem).
-.account-avatar--sm { width: 1.375rem; height: 1.375rem; font-size: 0.6875rem; }
+.account-avatar--sm { width: 1.375rem; height: 1.375rem; font-size: var(--bs-font-size-xs); }
 .account-avatar--md { width: 2.125rem; height: 2.125rem; font-size: 0.9375rem; }
 </style>

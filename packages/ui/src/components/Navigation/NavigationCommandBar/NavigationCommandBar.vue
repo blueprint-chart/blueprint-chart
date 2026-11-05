@@ -90,7 +90,7 @@ defineEmits<{ click: [] }>()
 .navigation-command-bar__kbd {
   margin-left: auto;
   font-family: var(--bs-font-monospace, "Geist Mono", ui-monospace, monospace);
-  font-size: 0.625rem;
+  font-size: var(--bs-font-size-xs);
   // Pinned explicitly so docs (which inherits VitePress's 24px absolute
   // body line-height) renders the chip at the same height as the editor.
   line-height: 1.5;

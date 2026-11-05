@@ -25,7 +25,7 @@ defineProps<{
 }
 
 .navigation-sidebar-group__eyebrow {
-  font-size: 0.5625rem;            // 9px
+  font-size: var(--bs-font-size-xs);
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: var(--bs-tertiary-color);

@@ -89,6 +89,7 @@
   --bs-secondary-color: var(--vp-c-text-2);
   --bs-tertiary-color: var(--vp-c-text-3);
   --bs-font-size-xs: 0.75rem;
+  --bs-font-size-sm: 0.875rem;
 }
 
 .dark {

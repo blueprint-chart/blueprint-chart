@@ -205,7 +205,7 @@ const steps: McpStep[] = [
         border-radius: var(--bc-radius-xs);
         background: var(--bs-primary);
         color: var(--bs-body-bg);
-        font-size: 0.6875rem;
+        font-size: var(--bs-font-size-xs);
         font-weight: 700;
         display: flex;
         align-items: center;
@@ -249,7 +249,7 @@ const steps: McpStep[] = [
     }
 
     &__name {
-      font-size: 0.65rem;
+      font-size: var(--bs-font-size-xs);
       color: var(--bs-tertiary-color);
       padding: 0 0.1875rem;
     }
@@ -263,7 +263,7 @@ const steps: McpStep[] = [
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.6875rem;
+    font-size: var(--bs-font-size-xs);
     font-weight: 600;
 
     &--asst {
