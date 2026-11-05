@@ -1,4 +1,4 @@
-// Tokens come first so $primary, $prussian-*, $font-family-*, $body-bg, etc.
+// Tokens come first so $primary, $font-family-*, $body-bg, etc.
 // are in scope before _overrides.scss and bootstrap consume them.
 @use "sass:color";
 @use "@blueprint-chart/ui/styles/tokens.scss" as *;

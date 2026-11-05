@@ -14,7 +14,7 @@ $box-shadow-lg: 0 12px 24px 0 rgba(0, 0, 0, 0.24) !default;
 
 // Forms — Linear-tight density (controls ~32px tall instead of Bootstrap's 38px)
 $input-bg:                  $body-secondary-bg !default;
-$input-focus-border-color:  $prussian-300 !default;
+$input-focus-border-color:  $body-color !default;
 $input-padding-y:           0.3125rem !default;
 $input-padding-x:           0.625rem !default;
 $input-line-height:         1.4 !default;

@@ -44,7 +44,8 @@ describe('brand literals', () => {
   ]
   const forbidden = [
     '2563A0', '163A65', '102E55', '0A1E3D', '4B90CF', 'A3C9E8', 'E1EEF7', '244a7c',
-    'rgba\\(37, ?99, ?160', 'rgba\\(75, ?144, ?207',
+    'rgba\\(37,\\s*99,\\s*160', 'rgba\\(75,\\s*144,\\s*207', 'rgba\\(163,\\s*201,\\s*232',
+    '\\$prussian-',
     'E4512B', 'F2703F',
     '--bc-accent', '--bc-btn-primary-', 'btn-bc-primary', 'bc-highlight', '--bc-swipe',
   ]
