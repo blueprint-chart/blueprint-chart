@@ -17,6 +17,13 @@ describe('router titles', () => {
     expect(document.title).toBe('Blueprint Chart')
   })
 
+  it('leaves the title alone when the navigation fails', async () => {
+    await router.push('/charts')
+    document.title = 'Stale'
+    await router.push('/charts')
+    expect(document.title).toBe('Stale')
+  })
+
   describe('scrollBehavior', () => {
     const scroll = (to: object) => router.options.scrollBehavior!(to as never, {} as never, null)
 
