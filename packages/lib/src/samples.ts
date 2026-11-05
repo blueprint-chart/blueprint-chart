@@ -20,6 +20,7 @@ import farmCompassBpc from './samples/farm-compass.bpc?raw'
 import co2EmissionsStoryBpc from './samples/co2-emissions-story.bpc?raw'
 import electionPollsBpc from './samples/election-polls.bpc?raw'
 import renewableCapacityBpc from './samples/renewable-capacity.bpc?raw'
+import lifeExpectancyWealthBpc from './samples/life-expectancy-wealth.bpc?raw'
 
 export interface ChartSample {
   id: string
@@ -127,4 +128,6 @@ export const samples: ChartSample[] = [
   // Story (multi-scene)
   buildSample('farm-compass', farmCompassBpc),
   buildSample('co2-emissions-story', co2EmissionsStoryBpc),
+  // Scatter
+  buildSample('life-expectancy-wealth', lifeExpectancyWealthBpc),
 ]
