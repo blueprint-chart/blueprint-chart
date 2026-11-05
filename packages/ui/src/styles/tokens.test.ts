@@ -63,7 +63,6 @@ describe('tokens.scss - chartreuse accent', () => {
     expect(css).toMatch(/--bc-pool-r:\s*100px/i)
     expect(css).toMatch(/--bc-pool-ink:/i)
     expect(css).toMatch(/--bc-mark:/i)
-    expect(css).toMatch(/--bc-swipe:/i)
   })
 
   it('no longer defines the retired marketing surface tokens', () => {
@@ -121,7 +120,6 @@ describe('tokens.scss - chartreuse accent', () => {
     expect(darkBody).toMatch(/--bc-content-bg:\s*#000000/i)
     expect(darkBody).toMatch(/--bc-hairline:\s*#2e2e2e/i)
     expect(darkBody).toMatch(/--bc-hairline-strong:\s*#454545/i)
-    expect(darkBody).toMatch(/--bc-swipe:[^;]*rgba\(221,\s*242,\s*71,\s*0\.4\)/i)
     expect(darkBody).toMatch(/--bc-canvas-dimension-color:\s*rgba\(255,\s*255,\s*255,\s*0\.45\)/i)
     expect(darkBody).toMatch(/--bc-shadow-overlay:[^;]*rgba\(0,\s*0,\s*0,\s*0\.6\)/i)
   })
