@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router'
+import PalettesCategoryTable from './PalettesCategoryTable.vue'
 import PalettesGrid from './PalettesGrid.vue'
 
 const route = useRoute()
@@ -19,7 +20,9 @@ const tabIndex = computed({
       <BTab title="Palettes">
         <PalettesGrid class="palettes-page__grid" />
       </BTab>
-      <BTab title="Category colors" />
+      <BTab title="Category colors">
+        <PalettesCategoryTable class="palettes-page__categories" />
+      </BTab>
     </BTabs>
   </div>
 </template>
