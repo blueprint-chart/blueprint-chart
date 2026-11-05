@@ -66,6 +66,7 @@ describe('hard-coded rings', () => {
     const rule = style.match(/:focus-visible\s*{[^}]*}/)?.[0]
     expect(rule).toContain('var(--bc-focus-ring)')
     expect(rule).not.toContain('rgba(37, 99, 160')
+    expect(rule).not.toContain('outline: none')
   })
 
   it.each(files)('%s uses the focus token', (file) => {
