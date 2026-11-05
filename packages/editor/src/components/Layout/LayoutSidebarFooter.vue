@@ -9,6 +9,7 @@ import IPhSignIn from '~icons/ph/sign-in'
 import IPhMonitor from '~icons/ph/monitor'
 import IPhSun from '~icons/ph/sun'
 import IPhMoon from '~icons/ph/moon'
+import IPhCircleHalf from '~icons/ph/circle-half'
 import AccountAvatar from '@/components/Account/AccountAvatar.vue'
 import AccountSignInModal from '@/components/Account/AccountSignInModal.vue'
 import { useAccount } from '@/stores/account'
@@ -83,6 +84,7 @@ async function onSignOut() {
       placement="top-end"
       :offset="8"
       teleport-to="body"
+      wrapper-class="layout-sidebar-footer__more-wrapper"
       toggle-class="layout-sidebar-footer__more"
       menu-class="layout-sidebar-footer__menu"
     >
@@ -92,7 +94,16 @@ async function onSignOut() {
 
       <template v-if="isSignedIn">
         <BDropdownText>
-          <span class="layout-sidebar-footer__menu__email">{{ email }}</span>
+          <span class="layout-sidebar-footer__menu__header">
+            <AccountAvatar
+              :email="email"
+              size="md"
+            />
+            <span class="layout-sidebar-footer__menu__header__id">
+              <span class="layout-sidebar-footer__menu__header__label">Signed in as</span>
+              <span class="layout-sidebar-footer__menu__header__email">{{ email }}</span>
+            </span>
+          </span>
         </BDropdownText>
         <BDropdownDivider />
         <BDropdownItem @click="goToCharts">
@@ -104,13 +115,20 @@ async function onSignOut() {
             My charts
           </span>
         </BDropdownItem>
+        <BDropdownDivider />
       </template>
 
       <li
         class="layout-sidebar-footer__theme"
         @click.stop
       >
-        <span class="layout-sidebar-footer__theme__label">Theme</span>
+        <span class="layout-sidebar-footer__theme__label">
+          <AppIcon
+            :name="IPhCircleHalf"
+            size="sm"
+          />
+          Theme
+        </span>
         <NavigationSegmentedControl
           :items="themeItems"
           aria-label="Theme"
@@ -181,7 +199,7 @@ async function onSignOut() {
     --bs-btn-active-border-color: var(--bs-border-color);
   }
 
-  :deep(.dropdown) {
+  :deep(.layout-sidebar-footer__more-wrapper) {
     margin-left: auto;
   }
 }
@@ -190,12 +208,27 @@ async function onSignOut() {
   min-width: 15rem;
 }
 
-:global(.layout-sidebar-footer__menu__email) {
-  display: block;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+:global(.layout-sidebar-footer__menu__header) {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+:global(.layout-sidebar-footer__menu__header__id) {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+:global(.layout-sidebar-footer__menu__header__label) {
+  font-size: var(--bs-font-size-xs);
   color: var(--bs-secondary-color);
+}
+
+:global(.layout-sidebar-footer__menu__header__email) {
+  font-weight: 500;
+  color: var(--bs-emphasis-color);
+  overflow-wrap: anywhere;
 }
 
 :global(.layout-sidebar-footer__menu__item) {
@@ -209,9 +242,12 @@ async function onSignOut() {
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  padding: 0.25rem 1rem;
+  padding: var(--bs-dropdown-item-padding-y) var(--bs-dropdown-item-padding-x);
 
   &__label {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
     color: var(--bs-body-color);
   }
 }

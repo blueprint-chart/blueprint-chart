@@ -70,6 +70,33 @@ describe('LayoutSidebarFooter (signed in)', () => {
     expect(text).toContain('Sign out')
   })
 
+  it('groups the menu: identity, navigation, theme, sign out', async () => {
+    const { wrapper } = await mountFooter(true)
+    await openMenu(wrapper)
+    const menu = document.body.querySelector('.layout-sidebar-footer__menu') as HTMLElement
+    const sections = [...menu.children].map((child) => {
+      if (child.querySelector('hr, .dropdown-divider') || child.matches('hr, .dropdown-divider')) {
+        return 'divider'
+      }
+      if (child.querySelector('.layout-sidebar-footer__menu__header')) {
+        return 'identity'
+      }
+      if (child.matches('.layout-sidebar-footer__theme')) {
+        return 'theme'
+      }
+      return child.textContent?.trim()
+    })
+    expect(sections).toEqual(['identity', 'divider', 'My charts', 'divider', 'theme', 'divider', 'Sign out'])
+  })
+
+  it('shows the full email with an avatar in the menu header', async () => {
+    const { wrapper } = await mountFooter(true)
+    await openMenu(wrapper)
+    const header = document.body.querySelector('.layout-sidebar-footer__menu__header') as HTMLElement
+    expect(header.querySelector('.account-avatar')).not.toBeNull()
+    expect(header.querySelector('.layout-sidebar-footer__menu__header__email')?.textContent).toBe('hello@pirhoo.com')
+  })
+
   it('signs out from the menu', async () => {
     const { wrapper } = await mountFooter(true)
     const store = useAccountStore()
