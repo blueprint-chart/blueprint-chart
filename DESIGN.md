@@ -81,9 +81,10 @@ Rules:
 - Neutrals are cool and come from tokens, never ad-hoc hex. Surface hierarchy
   (void > tile > elevated): `--bc-chrome-bg`, `--bc-content-bg`,
   `--bc-tile-bg`, `--bc-tile-bg-elevated`.
-- Hairlines and washes are alpha-based tokens (`--bc-hairline`,
-  `--bc-hairline-strong`, `--bc-wash-soft/firm/input/input-hover`) so they
-  work on any surface in both themes.
+- Hairlines (`--bc-hairline`, `--bc-hairline-strong`) are solid and share
+  their colors with Bootstrap's `--bs-border-color` and button borders, so
+  every border reads the same. Washes (`--bc-wash-soft/firm/input/input-hover`)
+  stay alpha-based so they work on any surface in both themes.
 - Dark mode is a full token swap on `[data-bs-theme="dark"]` (aliased to
   `.dark` for the docs site). Dark surfaces are intense black (`#000000` for void/chrome/content/canvas)
   with a single quiet lift for resting tiles (`#0e0e0e`) and floating surfaces

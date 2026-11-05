@@ -168,6 +168,12 @@ describe('byesky bootstrap layer', () => {
     expect(rule('.modal-backdrop')).toMatch(/--bs-backdrop-opacity:\s*0\.7/)
   })
 
+  it('borders cards, dropdowns and popovers with the regular border color', () => {
+    expect(rule('.card')).toMatch(/--bs-card-border-color:\s*var\(--bs-border-color\)/)
+    expect(rule('.dropdown-menu')).toMatch(/--bs-dropdown-border-color:\s*var\(--bs-border-color\)/)
+    expect(rule('.popover')).toMatch(/--bs-popover-border-color:\s*var\(--bs-border-color\)/)
+  })
+
   it('puts popovers on the tertiary surface without a header fill', () => {
     expect(rule('.popover')).toMatch(/--bs-popover-bg:\s*var\(--bs-tertiary-bg\)/)
     expect(rule('.popover')).toMatch(/--bs-popover-header-bg:\s*transparent/)

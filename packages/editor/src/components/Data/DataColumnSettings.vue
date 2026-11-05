@@ -200,7 +200,7 @@ const benfordDetection = computed(() => {
 
   &__divider {
     border: none;
-    border-top: 1px solid var(--bs-border-color-translucent);
+    border-top: 1px solid var(--bs-border-color);
     margin: 1rem 0;
   }
 

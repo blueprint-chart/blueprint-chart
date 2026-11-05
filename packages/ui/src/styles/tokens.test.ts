@@ -103,12 +103,17 @@ describe('tokens.scss - chartreuse accent', () => {
     expect(css).not.toMatch(/F2703F/i)
   })
 
+  it('draws hairlines with the same colors as bootstrap borders', () => {
+    expect(lightBody).toMatch(/--bc-hairline:\s*#eaeaea/i)
+    expect(lightBody).toMatch(/--bc-hairline-strong:\s*#dedede/i)
+  })
+
   it('locks the neutral dark surface ramp', () => {
     expect(read(vars, '--bg-dark')).toBe('#000000')
     expect(darkBody).toMatch(/--bc-chrome-bg:\s*#000000/i)
     expect(darkBody).toMatch(/--bc-content-bg:\s*#000000/i)
-    expect(darkBody).toMatch(/--bc-hairline:\s*rgba\(255,\s*255,\s*255,\s*0\.09\)/i)
-    expect(darkBody).toMatch(/--bc-hairline-strong:\s*rgba\(255,\s*255,\s*255,\s*0\.15\)/i)
+    expect(darkBody).toMatch(/--bc-hairline:\s*#2e2e2e/i)
+    expect(darkBody).toMatch(/--bc-hairline-strong:\s*#454545/i)
     expect(darkBody).toMatch(/--bc-swipe:[^;]*rgba\(221,\s*242,\s*71,\s*0\.4\)/i)
     expect(darkBody).toMatch(/--bc-canvas-dimension-color:\s*rgba\(255,\s*255,\s*255,\s*0\.45\)/i)
     expect(darkBody).toMatch(/--bc-shadow-overlay:[^;]*rgba\(0,\s*0,\s*0,\s*0\.6\)/i)

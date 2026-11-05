@@ -184,8 +184,8 @@ $spacer-xs: 0.25rem !default;
   --bc-wash-input: rgba(0, 0, 0, 0.03);
   --bc-wash-input-hover: rgba(0, 0, 0, 0.05);
 
-  --bc-hairline: rgba(0, 0, 0, 0.08);
-  --bc-hairline-strong: rgba(0, 0, 0, 0.14);
+  --bc-hairline: #{$border-color};
+  --bc-hairline-strong: #{$btn-primary-border};
 
   // The marker. Interactive emphasis (CTA/hover/selection/focus expression) and
   // editorial emphasis. Always rides a non-color signal (fill/shape/pool). ~4%.
@@ -305,8 +305,8 @@ $spacer-xs: 0.25rem !default;
   --bc-wash-input: rgba(255, 255, 255, 0.03);
   --bc-wash-input-hover: rgba(255, 255, 255, 0.05);
 
-  --bc-hairline: rgba(255, 255, 255, 0.09);
-  --bc-hairline-strong: rgba(255, 255, 255, 0.15);
+  --bc-hairline: #{$border-color-dark};
+  --bc-hairline-strong: #{$btn-primary-border-dark};
 
   --bc-accent: #{$accent};             // same hex; gesture differs, not value
   --bc-accent-ink: #{$prussian-600};   // navy on chartreuse in both themes
