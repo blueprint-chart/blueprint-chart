@@ -16,6 +16,12 @@ import { groupColors, type KeyConfig, renderScatterKey, scatterKeyWidth, sizeLeg
 import { renderLegend } from '../../legend/legend'
 import { estimateLegendSize } from '../../legend/legend-size'
 import { DEFAULT_COLORS } from '../line-multi/line-multi'
+import { AnnotationKind } from '../../../enums'
+import { renderAnnotations } from '../../plugins/annotations'
+import { buildColorOverrides } from '../../plugins/colorize'
+import { highlightOpacity } from '../../plugins/highlight'
+import { highlightedPointNames, resolvePointColor } from './emphasis'
+import { placePointLabels } from './labels'
 
 export const DEFAULT_COLOR = '#4e79a7'
 export const DOT_RADIUS = 4.5
@@ -23,6 +29,7 @@ export const FILL_OPACITY = 0.7
 const KEY_GAP = 10
 const NARROW_THRESHOLD = 350
 const TREND_MODES = ['overall', 'per-group']
+const LABEL_FONT_PX = 11
 
 export function maxBubbleRadius(width: number, height: number): number {
   return Math.min(width, height) / 12
@@ -49,6 +56,13 @@ function radiusScale(points: ScatterPoint[], width: number, height: number) {
   }
   const maxRadius = maxBubbleRadius(width, height)
   return { maxRadius, radiusOf: d3.scaleSqrt().domain([0, maxSize]).range([0, maxRadius]) }
+}
+
+function labelledPoints(points: ScatterPoint[], highlighted: Set<string>, options: ChartOptions): ScatterPoint[] {
+  const annotated = new Set((options.annotations ?? []).flatMap(a => a.kind === AnnotationKind.Point ? [a.target] : []))
+  const chosen = options.showLabels ? points : points.filter(p => highlighted.has(p.name) || annotated.has(p.name))
+  const rank = (p: ScatterPoint) => (highlighted.has(p.name) ? 0 : 1)
+  return d3.sort(chosen, (a, b) => rank(a) - rank(b) || (b.size ?? 0) - (a.size ?? 0))
 }
 
 export function render(
@@ -125,7 +139,9 @@ export function render(
   const clipId = ensureClipPath(svg, container, 'plot', { x: 0, y: 0, width, height })
   const pointLayer = d3.select(chartArea).append('g').attr('clip-path', `url(#${clipId})`).node() as SVGGElement
 
-  const color = (p: ScatterPoint) => (p.group && colors.get(p.group)) || DEFAULT_COLOR
+  const overrides = buildColorOverrides(options.colorizes)
+  const highlighted = highlightedPointNames(points, (options.highlights ?? []).map(h => h.target))
+  const color = (p: ScatterPoint) => resolvePointColor(p, overrides, colors, DEFAULT_COLOR)
   const stroke = resolveBackgroundColor(container)
   const orch = getSceneTransition(container)
   featureJoin<ScatterPoint>(orch, {
@@ -140,11 +156,33 @@ export function render(
       'cy': y(p.y),
       'r': radius(p),
       'fill': color(p),
-      'fill-opacity': FILL_OPACITY,
+      'fill-opacity': highlightOpacity(highlighted, p.name, FILL_OPACITY),
       'stroke': stroke,
       'stroke-width': 1,
     }),
   })
+
+  const labelled = labelledPoints(points, highlighted, options)
+  const labels = placePointLabels(labelled.map(p => ({ key: p.name, text: p.name, cx: x(p.x), cy: y(p.y), r: radius(p) })), { width, height }, LABEL_FONT_PX)
+  // Outside the plot clip so a label near the edge is not sliced.
+  d3.select(chartArea).append('g')
+    .selectAll('text')
+    .data(labels)
+    .join('text')
+    .attr('class', 'bc-point-label')
+    .attr('data-key', l => l.key)
+    .attr('x', l => l.x)
+    .attr('y', l => l.y)
+    .attr('text-anchor', l => l.anchor)
+    .attr('dominant-baseline', 'central')
+    .attr('font-size', LABEL_FONT_PX)
+    .attr('fill', 'currentColor')
+    .text(l => l.key)
+
+  if (options.annotations?.length) {
+    const annotationData = points.map(p => ({ label: p.name, value: p.y, x: p.x }))
+    renderAnnotations(chartArea, options.annotations, { scaleX: x, scaleY: y, data: annotationData, width, height, backgroundColor: stroke, transition })
+  }
 
   const plotRect: PlotRect = { left: margin.left, top: margin.top, width, height }
   tweenPlotFrame(orch, {
@@ -157,7 +195,7 @@ export function render(
   })
 
   if (showLegend) {
-    renderLegend(chartArea, groupNames, groupNames.map(g => colors.get(g)!), legendY(legendPos, legendSize.height + insideGap, legendH, height, margin.bottom), legendPos, legendAnchor, width, height, legendX(legendPos, legendSize.width, width), [], { left: margin.left, right: margin.right })
+    renderLegend(chartArea, groupNames, groupNames.map(g => overrides.get(g) ?? colors.get(g)!), legendY(legendPos, legendSize.height + insideGap, legendH, height, margin.bottom), legendPos, legendAnchor, width, height, legendX(legendPos, legendSize.width, width), [], { left: margin.left, right: margin.right })
   }
 
   const key = renderScatterKey(chartArea, { ...keyContent, radius: radiusOf })

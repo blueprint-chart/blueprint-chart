@@ -1,6 +1,7 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+import { describe, it, expect, beforeAll, beforeEach, afterEach, vi } from 'vitest'
 import { parseData } from '../../parse-data'
-import { LegendPosition, ScaleType } from '../../../enums'
+import { AnnotationKind, LegendPosition, ScaleType } from '../../../enums'
+import { HIGHLIGHT_DIM_OPACITY } from '../../plugins/highlight'
 import { getCachedChart } from '../../transition-cache'
 import { render, DOT_RADIUS, DEFAULT_COLOR } from './scatter'
 
@@ -16,6 +17,11 @@ const points = (c: HTMLElement) => Array.from(c.querySelectorAll<SVGCircleElemen
 
 describe('scatter chart', () => {
   let container: HTMLElement
+
+  beforeAll(() => {
+    // jsdom does not implement SVGElement.getBBox; the annotation plugin calls it.
+    ;(window.SVGElement.prototype as unknown as { getBBox: () => DOMRect }).getBBox = () => ({ x: 0, y: 0, width: 0, height: 0 }) as DOMRect
+  })
 
   beforeEach(() => {
     vi.useFakeTimers()
@@ -133,5 +139,44 @@ describe('scatter chart', () => {
     const key = container.querySelector('.bc-scatter-key')!
     expect(translate(key).x).toBeGreaterThanOrEqual(plotRect.width)
     expect(margin.right).toBeGreaterThan(translate(key).x - plotRect.width)
+  })
+
+  it('labels no point by default', () => {
+    render(container, DATA, {})
+    expect(container.querySelectorAll('.bc-point-label')).toHaveLength(0)
+  })
+
+  it('labels a highlighted point and dims the rest', () => {
+    render(container, DATA, { highlights: [{ target: 'Chad' }] })
+    expect(Array.from(container.querySelectorAll('.bc-point-label')).map(t => t.textContent)).toEqual(['Chad'])
+    expect(container.querySelector('[data-key="France"]')!.getAttribute('fill-opacity')).toBe(String(HIGHLIGHT_DIM_OPACITY))
+    expect(container.querySelector('[data-key="Chad"]')!.getAttribute('fill-opacity')).toBe('0.7')
+  })
+
+  it('labels every point with showLabels', () => {
+    render(container, DATA, { showLabels: true })
+    expect(container.querySelectorAll('.bc-point-label').length).toBeGreaterThan(0)
+  })
+
+  it('colorizes a group', () => {
+    render(container, DATA, { colorizes: [{ target: 'Africa', color: '#000000' }] })
+    expect(container.querySelector('[data-key="Chad"]')!.getAttribute('fill')).toBe('#000000')
+    expect(container.querySelector('[data-key="France"]')!.getAttribute('fill')).not.toBe('#000000')
+    expect(Array.from(container.querySelectorAll('.bc-legend rect')).map(r => r.getAttribute('fill'))[1]).toBe('#000000')
+  })
+
+  it('draws a vertical range annotation on the numeric x-axis', () => {
+    render(container, DATA, { annotations: [{ kind: AnnotationKind.Range, start: 10000, end: 30000 }] })
+    expect(container.querySelector('.bc-annotations-range rect')).not.toBeNull()
+  })
+
+  it('anchors a point annotation on its point', () => {
+    render(container, DATA, { annotations: [{ kind: AnnotationKind.Point, target: 'Chad', text: 'Outlier' }] })
+    expect(container.querySelector('[data-annotation-index="0"]')).not.toBeNull()
+  })
+
+  it('labels a point annotation target', () => {
+    render(container, DATA, { annotations: [{ kind: AnnotationKind.Point, target: 'Chad', text: 'Outlier' }] })
+    expect(Array.from(container.querySelectorAll('.bc-point-label')).map(t => t.textContent)).toEqual(['Chad'])
   })
 })
