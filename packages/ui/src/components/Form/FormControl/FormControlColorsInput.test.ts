@@ -86,3 +86,21 @@ describe('FormControlColorsInput swatch click', () => {
     expect(wrapper.findAll('.form-control-colors-input__tag')).toHaveLength(3)
   })
 })
+
+describe('FormControlColorsInput limits', () => {
+  it('disables remove buttons at the minimum', () => {
+    const wrapper = factory({ modelValue: ['#ff0000', '#00ff00'], min: 2 })
+    const removes = wrapper.findAll('.form-control-colors-input__tag__remove')
+    expect(removes.every(b => b.attributes('disabled') !== undefined)).toBe(true)
+  })
+
+  it('keeps remove buttons enabled above the minimum', () => {
+    const wrapper = factory({ min: 2 })
+    expect(wrapper.find('.form-control-colors-input__tag__remove').attributes('disabled')).toBeUndefined()
+  })
+
+  it('disables the add button at the maximum', () => {
+    const wrapper = factory({ max: 3 })
+    expect(wrapper.find('.btn-add').attributes('disabled')).toBeDefined()
+  })
+})

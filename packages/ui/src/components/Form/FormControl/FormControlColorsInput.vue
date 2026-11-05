@@ -25,6 +25,7 @@
           type="button"
           class="form-control-colors-input__tag__remove"
           :aria-label="`Remove ${color}`"
+          :disabled="atMin"
           @click="removeColor(idx)"
         >
           &times;
@@ -34,6 +35,7 @@
         :id="id"
         ref="addBtnRef"
         size="sm"
+        :disabled="atMax"
         @click="openAdder"
       />
     </div>
@@ -52,10 +54,15 @@ import ButtonAdd from '../../Button/ButtonAdd/ButtonAdd.vue'
 
 const model = defineModel<string[]>({ required: true })
 
-defineProps<{
+const props = defineProps<{
   label: string
   id: string
+  min?: number
+  max?: number
 }>()
+
+const atMin = computed(() => props.min !== undefined && model.value.length <= props.min)
+const atMax = computed(() => props.max !== undefined && model.value.length >= props.max)
 
 const addBtnRef = useTemplateRef<InstanceType<typeof ButtonAdd>>('addBtnRef')
 const editingColor = shallowRef('#4e79a7')
@@ -134,9 +141,14 @@ function onPickerColorChange(color: string) {
       cursor: pointer;
       opacity: 0.6;
 
-      &:hover {
+      &:hover:not(:disabled) {
         opacity: 1;
         color: var(--bs-danger);
+      }
+
+      &:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
       }
     }
   }

@@ -61,6 +61,18 @@ describe('PalettesGrid', () => {
     expect(useCustomPalettes().palettes.value[0].label).toBe('Renamed')
   })
 
+  it('flags an empty name and keeps the stored one', async () => {
+    seed()
+    const wrapper = mountGrid()
+    await select(wrapper.findAllComponents(PalettesCard)[0])
+    const name = wrapper.find('.palettes-detail__body__name input')
+    await name.setValue('  ')
+    expect((name.element as HTMLInputElement).value).toBe('  ')
+    expect(name.classes()).toContain('is-invalid')
+    expect(wrapper.find('.palettes-detail__body__name').text()).toContain('Name can\'t be empty.')
+    expect(useCustomPalettes().palettes.value[0].label).toBe('Seeded')
+  })
+
   it('selecting a built-in palette shows a read-only detail that duplicates it', async () => {
     const wrapper = mountGrid()
     await select(wrapper.findAllComponents(PalettesCard).find(c => c.props('label') === 'Egypt')!)

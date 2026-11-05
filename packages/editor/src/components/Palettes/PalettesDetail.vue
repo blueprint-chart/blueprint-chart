@@ -18,15 +18,24 @@ defineEmits<{
 
 const id = useId()
 
-const label = computed({
-  get: () => palette.value.label,
-  set: value => palette.value = { ...palette.value, label: value },
+const MIN_COLORS = 2
+const MAX_COLORS = 12
+
+const label = shallowRef(palette.value.label)
+const labelValid = computed(() => label.value.trim().length > 0)
+
+watch(label, (value) => {
+  if (labelValid.value) {
+    palette.value = { ...palette.value, label: value }
+  }
 })
 
 const colors = computed({
   get: () => [...palette.value.colors],
   set: value => palette.value = { ...palette.value, colors: value },
 })
+
+const atColorLimit = computed(() => colors.value.length <= MIN_COLORS || colors.value.length >= MAX_COLORS)
 </script>
 
 <template>
@@ -41,17 +50,30 @@ const colors = computed({
           class="palettes-detail__body__name"
           label="Name"
           :label-for="`${id}-label`"
+          :state="labelValid ? null : false"
+          invalid-feedback="Name can't be empty."
         >
           <BFormInput
             :id="`${id}-label`"
             v-model="label"
+            :state="labelValid ? null : false"
           />
         </BFormGroup>
-        <FormControlColorsInput
-          :id="`${id}-colors`"
-          v-model="colors"
-          label="Colors"
-        />
+        <div class="palettes-detail__body__colors">
+          <FormControlColorsInput
+            :id="`${id}-colors`"
+            v-model="colors"
+            label="Colors"
+            :min="MIN_COLORS"
+            :max="MAX_COLORS"
+          />
+          <p
+            v-if="atColorLimit"
+            class="palettes-detail__body__colors__limit"
+          >
+            A palette needs 2 to 12 colors.
+          </p>
+        </div>
       </template>
       <p
         v-else
@@ -101,6 +123,14 @@ const colors = computed({
 
     &__name {
       margin: 0;
+    }
+
+    &__colors {
+      &__limit {
+        margin: 0.25rem 0 0;
+        font-size: var(--bs-font-size-sm);
+        color: var(--bs-secondary-color);
+      }
     }
 
     &__summary {
