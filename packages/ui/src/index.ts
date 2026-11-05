@@ -53,6 +53,7 @@ export { default as DisplayContrastBadge } from './components/Display/DisplayCon
 export { default as DisplayChartType } from './components/Display/DisplayChartType/DisplayChartType.vue'
 export { default as DisplayChartTypeBadge } from './components/Display/DisplayChartTypeBadge/DisplayChartTypeBadge.vue'
 export { getChartTypeLabel } from './utils/chartType'
+export { withoutTransitions } from './utils/withoutTransitions'
 
 export { default as SectionGroup } from './components/Section/SectionGroup/SectionGroup.vue'
 export { default as SectionTitle } from './components/Section/SectionTitle/SectionTitle.vue'
