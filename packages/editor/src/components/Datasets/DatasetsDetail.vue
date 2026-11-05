@@ -228,7 +228,9 @@ function cellClass(ci: number) {
           background: none;
           color: var(--bs-body-color);
           text-align: left;
-          transition: background-color 0.15s ease-out;
+          @media (prefers-reduced-motion: no-preference) {
+            transition: background-color 0.15s ease-out;
+          }
 
           @media (hover: hover) {
             &:hover {
@@ -384,7 +386,9 @@ function cellClass(ci: number) {
             border: 1px solid var(--bc-hairline);
             border-radius: var(--bc-radius-xs);
             background: var(--bc-tile-bg);
-            transition: border-color 0.15s ease-out;
+            @media (prefers-reduced-motion: no-preference) {
+              transition: border-color 0.15s ease-out;
+            }
 
             &__img {
               display: block;

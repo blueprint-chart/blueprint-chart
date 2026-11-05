@@ -94,7 +94,9 @@ const cardClass = computed(() => ({ 'datasets-card--selected': props.selected })
   border: 1px solid var(--bc-hairline);
   border-radius: var(--bc-radius-md);
   cursor: pointer;
-  transition: border-color 0.15s ease-out;
+  @media (prefers-reduced-motion: no-preference) {
+    transition: border-color 0.15s ease-out;
+  }
 
   @media (hover: hover) {
     &:hover {
