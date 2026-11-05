@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { parseData } from '../../parse-data'
 import { ScaleType } from '../../../enums'
-import { render, DOT_RADIUS } from './scatter'
+import { render, DOT_RADIUS, DEFAULT_COLOR } from './scatter'
 
 const DATA = parseData([
   'series = "GDP per capita","Life expectancy","Population","Continent"',
@@ -78,5 +78,33 @@ describe('scatter chart', () => {
   it('keeps every point finite when all x values are equal', () => {
     render(container, parseData('series = "x","y"\n"a" = 5, 1\n"b" = 5, 2\n"c" = 5, 3'), {})
     expect(points(container).every(c => Number.isFinite(Number(c.getAttribute('cx'))))).toBe(true)
+  })
+  const legendLabels = () => Array.from(container.querySelectorAll('.bc-legend text')).map(t => t.textContent)
+
+  it('lists groups in the legend in first-appearance order', () => {
+    render(container, DATA, {})
+    expect(legendLabels()).toEqual(['Europe', 'Africa', 'Asia'])
+  })
+
+  it('shows no group legend without a group column', () => {
+    render(container, DATA, { group: 'none' })
+    expect(container.querySelector('.bc-legend')).toBeNull()
+  })
+
+  it('draws a size legend titled with the size column', () => {
+    render(container, DATA, {})
+    expect(container.querySelector('.bc-size-legend')!.textContent).toContain('Population')
+  })
+
+  it('hides the size legend without a size column', () => {
+    render(container, DATA, { size: 'none' })
+    expect(container.querySelector('.bc-size-legend')).toBeNull()
+  })
+
+  it('colors an ungrouped point with the default color and no legend entry', () => {
+    const d = parseData('series = "x","y","g"\n"a" = 1, 1, "G"\n"b" = 2, 2, ""')
+    render(container, d, {})
+    expect(container.querySelector('[data-key="b"]')!.getAttribute('fill')).toBe(DEFAULT_COLOR)
+    expect(legendLabels()).toEqual(['G'])
   })
 })
