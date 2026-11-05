@@ -43,6 +43,11 @@ describe('PalettesPage', () => {
     expect(activeTab(wrapper).text()).toBe('Category colors')
   })
 
+  it('shows the panel only on the Palettes tab', async () => {
+    expect((await mountAt('/palettes')).wrapper.find('.layout-panel').exists()).toBe(true)
+    expect((await mountAt('/palettes?tab=categories')).wrapper.find('.layout-panel').exists()).toBe(false)
+  })
+
   it('names the primary action after the tab', async () => {
     expect((await mountAt('/palettes')).wrapper.find('.palettes-toolbar__action').text()).toBe('New palette')
     expect((await mountAt('/palettes?tab=categories')).wrapper.find('.palettes-toolbar__action').text()).toBe('Add color')
@@ -53,7 +58,6 @@ describe('PalettesPage', () => {
     await wrapper.find('.palettes-toolbar__action').trigger('click')
     await flushPromises()
     expect(useCustomPalettes().palettes.value).toHaveLength(1)
-    expect(wrapper.findComponent({ name: 'BOffcanvas' }).props('modelValue')).toBe(true)
-    expect((wrapper.find('.palettes-drawer__body__name input').element as HTMLInputElement).value).toBe('New palette')
+    expect((wrapper.find('.palettes-detail__body__name input').element as HTMLInputElement).value).toBe('New palette')
   })
 })

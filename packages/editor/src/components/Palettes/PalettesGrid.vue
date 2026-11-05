@@ -1,33 +1,44 @@
 <script setup lang="ts">
 import { listPalettes } from '@blueprint-chart/lib'
 import type { PaletteEntry } from '@blueprint-chart/lib'
+import { useBreakpoint } from '@blueprint-chart/ui'
 import { useCustomPalettes } from '@/stores/customPalettes'
 import type { CustomPalette } from '@/stores/customPalettes'
+import { usePanelStore } from '@/stores/panel'
 import PalettesCard from './PalettesCard.vue'
-import PalettesDrawer from './PalettesDrawer.vue'
+import PalettesDetail from './PalettesDetail.vue'
+import PalettesEmptyState from './PalettesEmptyState.vue'
 import PalettesNewCard from './PalettesNewCard.vue'
 import PalettesSection from './PalettesSection.vue'
 
 const { palettes, create, update, remove } = useCustomPalettes()
 const builtIns: PaletteEntry[] = listPalettes()
-const editingId = shallowRef<string | null>(null)
+const { isNarrow } = useBreakpoint()
+const panel = usePanelStore()
+const { mode } = storeToRefs(panel)
+
+const selectedKey = shallowRef<string | null>(null)
 const pendingDelete = shallowRef<Pick<CustomPalette, 'id' | 'label'> | null>(null)
+const gallery = useTemplateRef<HTMLElement>('gallery')
 
-const editing = computed(() => palettes.value.find(p => p.id === editingId.value) ?? null)
+const customKey = (id: string) => `custom:${id}`
+const builtInKey = (name: string) => `builtin:${name}`
 
-// Keeps the drawer filled while it slides out after editing stops.
-const drawerPalette = shallowRef<{ label: string, colors: string[] }>({ label: '', colors: [] })
-watch(editing, (palette) => {
-  if (palette) {
-    drawerPalette.value = { label: palette.label, colors: [...palette.colors] }
-  }
-})
+const selectedCustom = computed(() => palettes.value.find(p => customKey(p.id) === selectedKey.value) ?? null)
+const selectedBuiltIn = computed(() => builtIns.find(p => builtInKey(p.name) === selectedKey.value) ?? null)
+const selected = computed(() => selectedCustom.value ?? selectedBuiltIn.value)
+
+const panelTitle = computed(() => selected.value?.label ?? 'Palette details')
+
+const gridClass = computed(() => ({
+  'palettes-grid--narrow': isNarrow.value,
+}))
 
 const drawerOpen = computed({
-  get: () => editing.value !== null,
+  get: () => selected.value !== null,
   set: (open: boolean) => {
     if (!open) {
-      editingId.value = null
+      selectedKey.value = null
     }
   },
 })
@@ -41,9 +52,16 @@ const confirming = computed({
   },
 })
 
-function updateEditing(value: { label: string, colors: string[] }) {
-  if (editing.value) {
-    update(editing.value.id, value)
+function select(key: string) {
+  selectedKey.value = selectedKey.value === key ? null : key
+  if (selectedKey.value && mode.value === 'closed') {
+    panel.open()
+  }
+}
+
+function updateSelected({ label, colors }: { label: string, colors: readonly string[] }) {
+  if (selectedCustom.value) {
+    update(selectedCustom.value.id, { label, colors: [...colors] })
   }
 }
 
@@ -53,12 +71,16 @@ function duplicate({ label, colors }: { label: string, colors: readonly string[]
 
 function addNew() {
   const palette = create('New palette', ['#dd5129', '#0f7ba2'])
-  editingId.value = palette?.id ?? null
+  if (palette) {
+    select(customKey(palette.id))
+  }
 }
 
 function confirmRemove() {
   if (pendingDelete.value) {
-    editingId.value = null
+    if (selectedKey.value === customKey(pendingDelete.value.id)) {
+      selectedKey.value = null
+    }
     remove(pendingDelete.value.id)
   }
 }
@@ -67,50 +89,72 @@ defineExpose({ addNew })
 </script>
 
 <template>
-  <div class="palettes-grid">
-    <PalettesSection
-      title="Your palettes"
-      :count="palettes.length"
+  <div
+    class="palettes-grid"
+    :class="gridClass"
+  >
+    <div
+      ref="gallery"
+      class="palettes-grid__gallery"
     >
-      <PalettesNewCard @click="addNew" />
-      <PalettesCard
-        v-for="palette in palettes"
-        :key="palette.id"
-        :label="palette.label"
-        :colors="palette.colors"
-        editable
-        @duplicate="duplicate(palette)"
-        @edit="editingId = palette.id"
-        @remove="pendingDelete = palette"
-      />
-      <template
-        v-if="!palettes.length"
-        #note
+      <PalettesSection
+        title="Your palettes"
+        :count="palettes.length"
       >
-        <p class="palettes-grid__note">
-          Duplicate a built-in palette or start from scratch.
-        </p>
-      </template>
-    </PalettesSection>
-    <PalettesSection
-      title="Built-in"
-      :count="builtIns.length"
+        <PalettesNewCard @click="addNew" />
+        <PalettesCard
+          v-for="palette in palettes"
+          :key="palette.id"
+          :label="palette.label"
+          :colors="palette.colors"
+          :selected="selectedKey === customKey(palette.id)"
+          editable
+          @select="select(customKey(palette.id))"
+          @duplicate="duplicate(palette)"
+          @remove="pendingDelete = palette"
+        />
+        <template
+          v-if="!palettes.length"
+          #note
+        >
+          <p class="palettes-grid__gallery__note">
+            Duplicate a built-in palette or start from scratch.
+          </p>
+        </template>
+      </PalettesSection>
+      <PalettesSection
+        title="Built-in"
+        :count="builtIns.length"
+      >
+        <PalettesCard
+          v-for="palette in builtIns"
+          :key="palette.name"
+          :label="palette.label"
+          :colors="palette.colors"
+          :selected="selectedKey === builtInKey(palette.name)"
+          :editable="false"
+          @select="select(builtInKey(palette.name))"
+          @duplicate="duplicate(palette)"
+        />
+      </PalettesSection>
+    </div>
+    <PanelShell
+      v-model:drawer-open="drawerOpen"
+      :title="panelTitle"
+      :container-ref="gallery"
+      :show-close="false"
     >
-      <PalettesCard
-        v-for="palette in builtIns"
-        :key="palette.name"
-        :label="palette.label"
-        :colors="palette.colors"
-        :editable="false"
-        @duplicate="duplicate(palette)"
+      <PalettesDetail
+        v-if="selected"
+        :key="selectedKey ?? ''"
+        :model-value="selected"
+        :editable="selectedCustom !== null"
+        @update:model-value="updateSelected"
+        @duplicate="duplicate(selected)"
+        @remove="pendingDelete = selectedCustom"
       />
-    </PalettesSection>
-    <PalettesDrawer
-      v-model:open="drawerOpen"
-      :model-value="drawerPalette"
-      @update:model-value="updateEditing"
-      @remove="pendingDelete = editing"
-    />
+      <PalettesEmptyState v-else-if="mode === 'docked'" />
+    </PanelShell>
     <BModal
       v-model="confirming"
       title="Delete palette"
@@ -126,13 +170,38 @@ defineExpose({ addNew })
 <style scoped lang="scss">
 .palettes-grid {
   display: flex;
-  flex-direction: column;
-  gap: 2.5rem;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
 
-  &__note {
-    margin: 0.75rem 0 0;
-    font-size: var(--bs-font-size-sm);
-    color: var(--bs-secondary-color);
+  &--narrow {
+    flex-direction: column;
   }
+
+  &__gallery {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 2.5rem;
+    min-width: 0;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 1.75rem;
+    position: relative;
+
+    .palettes-grid--narrow & {
+      padding: 1rem;
+    }
+
+    &__note {
+      margin: 0.75rem 0 0;
+      font-size: var(--bs-font-size-sm);
+      color: var(--bs-secondary-color);
+    }
+  }
+}
+
+:deep(.layout-panel__header) {
+  border-bottom: 1px solid var(--bc-hairline);
 }
 </style>

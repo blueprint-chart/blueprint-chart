@@ -1,5 +1,6 @@
 import { nextTick } from 'vue'
 import { mount } from '@vue/test-utils'
+import type { VueWrapper } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import PalettesGrid from './PalettesGrid.vue'
 import PalettesCard from './PalettesCard.vue'
@@ -9,6 +10,17 @@ function mountGrid() {
   const pinia = createPinia()
   setActivePinia(pinia)
   return mount(PalettesGrid, { global: { plugins: [pinia], stubs: { teleport: true } } })
+}
+
+function seed() {
+  localStorage.setItem(CUSTOM_PALETTES_KEY, JSON.stringify([
+    { id: 'seed0000001', label: 'Seeded', colors: ['#112233', '#445566'] },
+  ]))
+}
+
+async function select(card: VueWrapper) {
+  await card.find('.palettes-card__header__text__name__button').trigger('click')
+  await nextTick()
 }
 
 describe('PalettesGrid', () => {
@@ -31,33 +43,52 @@ describe('PalettesGrid', () => {
     expect(useCustomPalettes().palettes.value.map(p => p.label)).toContain('Egypt copy')
   })
 
-  it('edits a palette in a drawer and keeps its card in the grid', async () => {
-    localStorage.setItem(CUSTOM_PALETTES_KEY, JSON.stringify([
-      { id: 'seed0000001', label: 'Seeded', colors: ['#112233', '#445566'] },
-    ]))
+  it('shows the empty state when nothing is selected', () => {
     const wrapper = mountGrid()
-    const drawer = () => wrapper.findComponent({ name: 'BOffcanvas' })
-    expect(drawer().props('modelValue')).toBe(false)
-    await wrapper.findAllComponents(PalettesCard)[0].findAll('button').find(b => b.attributes('aria-label') === 'Edit')!.trigger('click')
-    await nextTick()
-    expect(drawer().props('modelValue')).toBe(true)
-    expect(wrapper.findAllComponents(PalettesCard)[0].props('label')).toBe('Seeded')
-    const name = wrapper.find('.palettes-drawer__body__name input')
+    expect(wrapper.find('.palettes-empty-state').text()).toBe('Select a palette to edit it')
+  })
+
+  it('selecting a custom palette shows its editor in the panel', async () => {
+    seed()
+    const wrapper = mountGrid()
+    const card = wrapper.findAllComponents(PalettesCard)[0]
+    await select(card)
+    expect(card.classes()).toContain('palettes-card--selected')
+    expect(wrapper.find('.palettes-empty-state').exists()).toBe(false)
+    const name = wrapper.find('.palettes-detail__body__name input')
     expect((name.element as HTMLInputElement).value).toBe('Seeded')
     await name.setValue('Renamed')
     expect(useCustomPalettes().palettes.value[0].label).toBe('Renamed')
   })
 
-  it('closes the drawer on Done', async () => {
-    localStorage.setItem(CUSTOM_PALETTES_KEY, JSON.stringify([
-      { id: 'seed0000001', label: 'Seeded', colors: ['#112233', '#445566'] },
-    ]))
+  it('selecting a built-in palette shows a read-only detail that duplicates it', async () => {
     const wrapper = mountGrid()
-    await wrapper.findAllComponents(PalettesCard)[0].findAll('button').find(b => b.attributes('aria-label') === 'Edit')!.trigger('click')
+    await select(wrapper.findAllComponents(PalettesCard).find(c => c.props('label') === 'Egypt')!)
+    const detail = wrapper.find('.palettes-detail')
+    expect(detail.find('input').exists()).toBe(false)
+    expect(wrapper.find('.layout-panel__header').text()).toContain('Egypt')
+    await detail.findAll('button').find(b => b.text() === 'Duplicate')!.trigger('click')
+    expect(useCustomPalettes().palettes.value.map(p => p.label)).toEqual(['Egypt copy'])
+  })
+
+  it('creates a palette from the New palette card and selects it', async () => {
+    const wrapper = mountGrid()
+    await wrapper.find('.palettes-new-card').trigger('click')
     await nextTick()
-    await wrapper.find('.palettes-drawer__footer__done').trigger('click')
+    expect(useCustomPalettes().palettes.value).toHaveLength(1)
+    expect((wrapper.find('.palettes-detail__body__name input').element as HTMLInputElement).value).toBe('New palette')
+  })
+
+  it('deletes the selected palette from the panel after confirming', async () => {
+    seed()
+    const wrapper = mountGrid()
+    await select(wrapper.findAllComponents(PalettesCard)[0])
+    await wrapper.find('.palettes-detail').findAll('button').find(b => b.text() === 'Delete')!.trigger('click')
+    expect(useCustomPalettes().palettes.value).toHaveLength(1)
+    await wrapper.find('.modal-footer .btn-danger').trigger('click')
     await nextTick()
-    expect(wrapper.findComponent({ name: 'BOffcanvas' }).props('modelValue')).toBe(false)
+    expect(useCustomPalettes().palettes.value).toHaveLength(0)
+    expect(wrapper.find('.palettes-empty-state').exists()).toBe(true)
   })
 
   it('asks for confirmation before deleting a custom palette', async () => {

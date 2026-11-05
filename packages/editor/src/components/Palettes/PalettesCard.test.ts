@@ -3,7 +3,7 @@ import PalettesCard from './PalettesCard.vue'
 
 function mountCard(props: { label?: string, colors?: string[], editable?: boolean } = {}) {
   return mount(PalettesCard, {
-    props: { label: 'Test', colors: ['#dd5129', '#0f7ba2'], editable: false, ...props },
+    props: { label: 'Test', colors: ['#dd5129', '#0f7ba2'], editable: false, selected: false, ...props },
   })
 }
 

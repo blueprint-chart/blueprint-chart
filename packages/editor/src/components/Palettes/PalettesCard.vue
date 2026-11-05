@@ -3,27 +3,32 @@ import PalettesCardChips from './PalettesCardChips.vue'
 import PalettesGhostButton from './PalettesGhostButton.vue'
 import PalettesSwatchStrip from './PalettesSwatchStrip.vue'
 import IPhCopy from '~icons/ph/copy'
-import IPhPencilSimple from '~icons/ph/pencil-simple'
 import IPhTrash from '~icons/ph/trash'
 
-defineProps<{
+const props = defineProps<{
   label: string
   colors: readonly string[]
   editable: boolean
+  selected: boolean
 }>()
 
 defineEmits<{
   duplicate: []
-  edit: []
+  select: []
   remove: []
 }>()
 
 const nameId = useId()
+
+const cardClass = computed(() => ({
+  'palettes-card--selected': props.selected,
+}))
 </script>
 
 <template>
   <article
     class="palettes-card"
+    :class="cardClass"
     :aria-labelledby="nameId"
   >
     <PalettesSwatchStrip :colors="colors" />
@@ -33,17 +38,18 @@ const nameId = useId()
           :id="nameId"
           class="palettes-card__header__text__name"
         >
-          {{ label }}
+          <button
+            type="button"
+            class="palettes-card__header__text__name__button"
+            :aria-pressed="selected"
+            @click="$emit('select')"
+          >
+            {{ label }}
+          </button>
         </h3>
         <span class="palettes-card__header__text__count">{{ colors.length }} colors</span>
       </div>
       <div class="palettes-card__header__actions">
-        <PalettesGhostButton
-          v-if="editable"
-          label="Edit"
-          :icon="IPhPencilSimple"
-          @click="$emit('edit')"
-        />
         <PalettesGhostButton
           label="Duplicate"
           :icon="IPhCopy"
@@ -72,12 +78,24 @@ const nameId = useId()
   overflow: hidden;
   background: var(--bc-tile-bg);
   border: 1px solid var(--bc-hairline);
+  position: relative;
   border-radius: var(--bc-radius-md);
+  cursor: pointer;
   transition: border-color var(--bc-duration-base) var(--bc-ease);
 
-  &:hover,
-  &:focus-within {
-    border-color: var(--bc-hairline-strong);
+  @media (hover: hover) {
+    &:hover {
+      border-color: var(--bc-hairline-strong);
+    }
+  }
+
+  &:has(.palettes-card__header__text__name__button:focus-visible) {
+    box-shadow: var(--bc-focus-ring);
+  }
+
+  &--selected {
+    border-color: var(--bs-emphasis-color);
+    box-shadow: var(--bc-selected-ring);
   }
 
   &__header {
@@ -101,6 +119,25 @@ const nameId = useId()
         text-overflow: ellipsis;
         white-space: nowrap;
         color: var(--bs-body-color);
+
+        &__button {
+          max-width: 100%;
+          padding: 0;
+          overflow: hidden;
+          font: inherit;
+          color: inherit;
+          text-align: left;
+          text-overflow: ellipsis;
+          background: none;
+          border: 0;
+          outline: none;
+
+          &::after {
+            position: absolute;
+            inset: 0;
+            content: "";
+          }
+        }
       }
 
       &__count {
@@ -110,6 +147,8 @@ const nameId = useId()
     }
 
     &__actions {
+      position: relative;
+      z-index: 1;
       display: flex;
       flex-shrink: 0;
       gap: 0.125rem;

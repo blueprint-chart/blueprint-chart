@@ -50,15 +50,15 @@ function onAction() {
       :count="count"
       @action="onAction"
     />
-    <div class="palettes-page__content">
-      <PalettesGrid
-        v-if="tab === 'palettes'"
-        ref="grid"
-      />
-      <PalettesCategoryTable
-        v-else
-        ref="table"
-      />
+    <PalettesGrid
+      v-if="tab === 'palettes'"
+      ref="grid"
+    />
+    <div
+      v-else
+      class="palettes-page__categories"
+    >
+      <PalettesCategoryTable ref="table" />
     </div>
   </div>
 </template>
@@ -71,7 +71,7 @@ function onAction() {
   min-height: 0;
   height: 100%;
 
-  &__content {
+  &__categories {
     flex: 1;
     min-height: 0;
     overflow-y: auto;
