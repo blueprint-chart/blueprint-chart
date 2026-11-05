@@ -19,6 +19,7 @@ const TYPE_LABELS: Record<string, string> = {
   [ChartType.BarStacked]: 'Stacked Bars',
   [ChartType.BarSplit]: 'Split Bars',
   [ChartType.BarGrouped]: 'Grouped Bars',
+  [ChartType.Scatter]: 'Scatter',
 }
 
 function rowCount(tsvData: string): number {

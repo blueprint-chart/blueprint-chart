@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs'
 import { resolve, dirname } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import type { Plugin } from 'vite'
+import { resolveScatterMapping, buildScatterPoints } from '@blueprint-chart/lib'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const libSrc = resolve(__dirname, '../../lib/src')
@@ -90,6 +91,7 @@ interface MultiSeriesData {
   labels: string[]
   seriesNames: string[]
   series: number[][] // series[seriesIdx][labelIdx]
+  textColumns: { name: string, values: string[] }[]
 }
 
 type ChartData = SingleSeriesData | MultiSeriesData
@@ -121,7 +123,13 @@ export function extractData(entries: PropertyNode[]): ChartData {
         series[j].push(vals[j] ?? 0)
       }
     }
-    return { kind: 'multi', labels, seriesNames, series }
+    const textColumns = seriesNames.flatMap((name, j) => {
+      const cells = entries.slice(1).map(e => (e.values ?? String(e.value).split(','))[j])
+      return cells.every(cell => typeof cell === 'string' && Number.isNaN(Number(cell)))
+        ? [{ name, values: cells.map(String) }]
+        : []
+    })
+    return { kind: 'multi', labels, seriesNames, series, textColumns }
   }
 
   const labels: string[] = []
@@ -475,6 +483,33 @@ function renderBarStacked(data: ChartData, colors: string[]): string {
   return `<svg viewBox="${RECT_VB}" xmlns="http://www.w3.org/2000/svg">${rects.join('')}</svg>`
 }
 
+function renderScatter(data: ChartData, colors: string[]): string {
+  if (data.kind !== 'multi') {
+    return ''
+  }
+  const textNames = new Set(data.textColumns.map(c => c.name))
+  const series = data.seriesNames.flatMap((name, i) => textNames.has(name) ? [] : [{ name, values: data.series[i] }])
+  const mapping = resolveScatterMapping({ labels: data.labels, values: [], series, textColumns: data.textColumns })
+  const { points } = buildScatterPoints({ labels: data.labels, values: [], series, textColumns: data.textColumns }, mapping, {})
+  if (points.length === 0) {
+    return ''
+  }
+  const xs = points.map(p => p.x)
+  const ys = points.map(p => p.y)
+  const sizes = points.map(p => p.size ?? 1)
+  const xScale = linearScale([Math.min(...xs), Math.max(...xs)], [5, 43])
+  const yScale = linearScale([Math.min(...ys), Math.max(...ys)], [31, 5])
+  const radius = linearScale([Math.min(...sizes), Math.max(...sizes)], [1.5, 3.5])
+  const groups = [...new Set(points.map(p => p.group))]
+
+  const circles = points.map((p) => {
+    const color = colors[groups.indexOf(p.group) % colors.length]
+    return `<circle cx="${xScale(p.x).toFixed(2)}" cy="${yScale(p.y).toFixed(2)}" r="${radius(p.size ?? 1).toFixed(2)}" fill="${color}" fill-opacity="0.7"/>`
+  }).join('')
+
+  return `<svg viewBox="${RECT_VB}" xmlns="http://www.w3.org/2000/svg">${circles}</svg>`
+}
+
 export function renderToSvg(chartType: string, data: ChartData, colors: string[], opts: ThumbnailOptions = { edgePadding: false }): string {
   switch (chartType) {
     case 'bar-vertical': return renderBarVertical(data, colors)
@@ -490,6 +525,7 @@ export function renderToSvg(chartType: string, data: ChartData, colors: string[]
     case 'bar-stacked': return renderBarStacked(data, colors)
     case 'bar-split': return renderBarSplit(data, colors)
     case 'bar-grouped': return renderBarGrouped(data, colors)
+    case 'scatter': return renderScatter(data, colors)
     default: return ''
   }
 }

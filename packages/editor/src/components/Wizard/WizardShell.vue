@@ -24,6 +24,7 @@ import IconPhChartBar from '~icons/ph/chart-bar'
 import IconPhExport from '~icons/ph/export'
 import LayoutPageHeader from '@/components/Layout/LayoutPageHeader.vue'
 import LayoutBreadcrumb from '@/components/Layout/LayoutBreadcrumb.vue'
+import { chartTypeForColumns } from '@/utils/wizardChartType'
 import { accountsEnabled } from '@/config/runtimeConfig'
 import { useCloudCharts } from '@/stores/cloudCharts'
 import { useAccount } from '@/stores/account'
@@ -338,12 +339,11 @@ function prepareDataForEdit() {
     scenesComposable.setActive(-1)
   }
   config._base.data.value = dataTable.serialize()
-  const ct = config._base.chartType.value
-  const isMultiSeries = ct.includes('multi') || ct.includes('stacked') || ct === ChartType.BarSplit || ct === ChartType.BarGrouped
-  if (dataTable.columns.value.length > 2 && !isMultiSeries) {
-    const hasDateLabels = dataTable.columnTypes.value[0] === 'date'
-    config._base.chartType.value = hasDateLabels ? ChartType.LineMulti : ChartType.BarMulti
-  }
+  config._base.chartType.value = chartTypeForColumns(
+    config._base.chartType.value,
+    dataTable.columns.value.length,
+    dataTable.columnTypes.value[0] === 'date',
+  )
 }
 
 registerCreateSession(() => {

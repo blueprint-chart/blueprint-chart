@@ -59,6 +59,7 @@ import BarSplitThumb from '@/assets/chart-thumbnails/bar-split.bpc'
 import BarGroupedThumb from '@/assets/chart-thumbnails/bar-grouped.bpc'
 import DonutThumb from '@/assets/chart-thumbnails/donut.bpc'
 import PieThumb from '@/assets/chart-thumbnails/pie.bpc'
+import ScatterThumb from '@/assets/chart-thumbnails/scatter.bpc'
 
 const { chartType, selectedColumn } = useChartConfig()
 const { currentOptions, availableOptionKeys, setOption } = useChartTypeOptions()
@@ -85,6 +86,7 @@ const chartTypeOptions = [
   { value: ChartType.AreaStacked, label: 'Areas', description: 'Compare and stack multiple area series', visual: markRaw(AreaStackedThumb) },
   { value: ChartType.Donut, label: 'Donut', description: 'Show proportions with a center space', visual: markRaw(DonutThumb) },
   { value: ChartType.Pie, label: 'Pie', description: 'Show parts of a whole', visual: markRaw(PieThumb) },
+  { value: ChartType.Scatter, label: 'Scatter', description: 'Show how two numbers relate across many items', visual: markRaw(ScatterThumb) },
 ]
 
 const singleSeriesTypes: string[] = [ChartType.BarVertical, ChartType.BarHorizontal, ChartType.Line, ChartType.Area, ChartType.VerticalBar, ChartType.HorizontalBar]

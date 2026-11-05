@@ -1,0 +1,18 @@
+chart scatter {
+  data {
+    series = "x","y","size","group"
+    "a" = 1, 2, 8, "north"
+    "b" = 2, 3, 14, "north"
+    "c" = 3, 3.5, 6, "north"
+    "d" = 4, 5, 10, "north"
+    "e" = 2, 6, 12, "south"
+    "f" = 3, 7, 7, "south"
+    "g" = 4.5, 8, 16, "south"
+    "h" = 5, 6.5, 9, "south"
+    "i" = 6, 3, 18, "east"
+    "j" = 7, 4, 11, "east"
+    "k" = 8, 2.5, 7, "east"
+    "l" = 9, 5.5, 15, "east"
+    "m" = 7.5, 7.5, 5, "east"
+  }
+}

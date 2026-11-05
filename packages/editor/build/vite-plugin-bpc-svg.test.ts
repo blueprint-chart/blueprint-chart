@@ -195,3 +195,27 @@ describe('bar thumbnails are unaffected by edgePadding', () => {
     expect(svgA).toBe(svgB)
   })
 })
+
+describe('renderToSvg scatter', () => {
+  const row = (key: string, values: (string | number)[]) => (
+    { type: 'property' as const, key, value: values.join(','), values, isPercentage: false }
+  )
+  const scatterData = extractData([
+    row('series', ['x', 'y', 'size', 'group']),
+    row('a', [1, 2, 10, 'north']),
+    row('b', [3, 4, 20, 'south']),
+    row('c', [5, 1, 30, 'north']),
+  ])
+
+  it('renders one translucent circle per point', () => {
+    const svg = renderToSvg('scatter', scatterData, ['#111', '#222'])
+    expect(svg.match(/<circle/g)).toHaveLength(3)
+    expect(svg).toContain('fill-opacity="0.7"')
+  })
+
+  it('colors circles by group', () => {
+    const svg = renderToSvg('scatter', scatterData, ['#111', '#222'])
+    expect(svg.match(/fill="#111"/g)).toHaveLength(2)
+    expect(svg.match(/fill="#222"/g)).toHaveLength(1)
+  })
+})
