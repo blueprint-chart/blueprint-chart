@@ -5,11 +5,17 @@ vi.mock('@/stores/chartSession', () => ({ useChartSession: () => ({ sessionId: {
 vi.mock('@/components/Dashboard/DashboardPage.vue', () => ({ default: { template: '<div />' } }))
 vi.mock('@/components/Wizard/WizardShell.vue', () => ({ default: { template: '<div />' } }))
 vi.mock('@/components/Render/RenderPage.vue', () => ({ default: { template: '<div />' } }))
+vi.mock('@/components/Palettes/PalettesPage.vue', () => ({ default: { template: '<div />' } }))
 
 describe('router titles', () => {
   it('sets the document title from route meta', async () => {
     await router.push('/charts')
     expect(document.title).toBe('My charts · Blueprint Chart')
+  })
+
+  it('titles the palettes page', async () => {
+    await router.push('/palettes')
+    expect(document.title).toBe('Palettes · Blueprint Chart')
   })
 
   it('falls back to the app name without meta title', async () => {

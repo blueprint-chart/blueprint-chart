@@ -91,6 +91,7 @@ const router = createRouter({
     {
       path: '/palettes',
       component: () => import('@/components/Palettes/PalettesPage.vue'),
+      meta: { title: 'Palettes' },
     },
     {
       path: '/new',
