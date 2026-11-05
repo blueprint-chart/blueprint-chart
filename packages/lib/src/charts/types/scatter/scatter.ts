@@ -21,13 +21,14 @@ export function maxBubbleRadius(width: number, height: number): number {
   return Math.min(width, height) / 12
 }
 
-function radiusScale(points: ScatterPoint[], maxRadius: number): (point: ScatterPoint) => number {
+function radiusScale(points: ScatterPoint[], width: number, height: number) {
   const maxSize = d3.max(points, p => p.size)
   if (maxSize === undefined) {
-    return () => DOT_RADIUS
+    return { maxRadius: DOT_RADIUS, radius: () => DOT_RADIUS }
   }
+  const maxRadius = maxBubbleRadius(width, height)
   const scale = d3.scaleSqrt().domain([0, maxSize]).range([0, maxRadius])
-  return p => scale(p.size ?? 0)
+  return { maxRadius, radius: (p: ScatterPoint) => scale(p.size ?? 0) }
 }
 
 export function render(
@@ -57,11 +58,10 @@ export function render(
   const { chartArea, width, height, margin } = createCanvas(body, margins)
   const marginDelta = computeMarginDelta(cached?.margin, margin)
 
-  const maxRadius = mapping.size ? maxBubbleRadius(width, height) : DOT_RADIUS
+  const { maxRadius, radius } = radiusScale(points, width, height)
   const inset = maxRadius + 1
   x.range([inset, width - inset])
   y.range([height - inset, inset])
-  const radius = radiusScale(points, maxRadius)
 
   axes.attach(chartArea, marginDelta)
   axes.update({

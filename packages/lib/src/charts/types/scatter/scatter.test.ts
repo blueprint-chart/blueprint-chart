@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { parseData } from '../../parse-data'
 import { ScaleType } from '../../../enums'
-import { render } from './scatter'
+import { render, DOT_RADIUS } from './scatter'
 
 const DATA = parseData([
   'series = "GDP per capita","Life expectancy","Population","Continent"',
@@ -41,6 +41,11 @@ describe('scatter chart', () => {
   it('uses uniform dots without a size column', () => {
     render(container, DATA, { size: 'none' })
     expect(new Set(points(container).map(c => c.getAttribute('r')))).toEqual(new Set(['4.5']))
+  })
+
+  it('insets the plot by the dot radius when the size column yields no values', () => {
+    render(container, parseData('series = "x","y"\n"a" = 0, 0\n"b" = 10, 10'), { size: 'missing' })
+    expect(container.querySelector('[data-key="a"]')!.getAttribute('cx')).toBe(String(DOT_RADIUS + 1))
   })
 
   it('encodes size as area and draws the largest first', () => {
