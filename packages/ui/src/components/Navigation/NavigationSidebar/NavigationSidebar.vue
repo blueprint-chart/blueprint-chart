@@ -38,7 +38,7 @@ withDefaults(defineProps<{
   min-height: 0;
   background: var(--bs-body-bg);
   border-right: 1px solid var(--bs-border-color);
-  padding: 0.5rem 0.375rem 0.75rem; // 8px top, 6px sides, 12px bottom
+  padding: 0.5rem 0.375rem 0;       // 8px top, 6px sides
   gap: 0.875rem;                    // 14px between groups
   overflow-y: auto;
 }
@@ -56,7 +56,7 @@ withDefaults(defineProps<{
 
 .navigation-sidebar__footer {
   margin-top: auto;
-  padding: 0.75rem 0.5rem 0;
+  padding: 0.375rem 0;
   border-top: 1px solid var(--bs-border-color);
 }
 </style>
