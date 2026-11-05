@@ -216,6 +216,17 @@ describe('useChartSession', () => {
     expect(charts.map(c => c.id)).toEqual([realId])
   })
 
+  it('listSavedCharts ignores the palettes and category-colors keys', () => {
+    localStorage.clear()
+    localStorage.setItem('blueprint-chart:palettes', JSON.stringify([{ id: 'p1', label: 'P', colors: ['#112233', '#445566'] }]))
+    localStorage.setItem('blueprint-chart:category-colors', JSON.stringify({ a: '#112233' }))
+    const realId = 'realId0001'
+    localStorage.setItem(`blueprint-chart:${realId}`, 'chart line {\n  title = "Real"\n}\n')
+    const session = useChartSession()
+    const charts = session.listSavedCharts()
+    expect(charts.map(c => c.id)).toEqual([realId])
+  })
+
   it('deleteChart removes both DSL and meta keys', () => {
     const session = useChartSession()
     session.newChart()

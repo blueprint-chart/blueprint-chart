@@ -71,7 +71,7 @@ export function storageKey(id: string): string {
  *  state rather than charts. listSavedCharts() must skip these — otherwise the
  *  key is parsed as a phantom chart (e.g. `cloud-index` → an empty chart).
  *  `cloud-index` mirrors CLOUD_INDEX_KEY in cloudCharts.ts. */
-const RESERVED_SLUGS = new Set(['cloud-index'])
+const RESERVED_SLUGS = new Set(['cloud-index', 'palettes', 'category-colors'])
 
 export function metaKey(id: string): string {
   return `blueprint-chart:${id}:meta`
