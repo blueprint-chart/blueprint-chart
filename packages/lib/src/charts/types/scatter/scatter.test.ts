@@ -219,4 +219,35 @@ describe('scatter chart', () => {
       expect(hoverAt(container, 1e6, -1e6)).toContain('Y: 90')
     })
   })
+
+  describe('trend line', () => {
+    it('draws no trend line by default', () => {
+      render(container, DATA, {})
+      expect(container.querySelector('.bc-trend-line')).toBeNull()
+    })
+
+    it('draws one dashed overall trend beneath the points', () => {
+      render(container, DATA, { trend: 'overall' })
+      const lines = container.querySelectorAll('.bc-trend-line')
+      expect(lines).toHaveLength(1)
+      expect(lines[0].getAttribute('stroke-dasharray')).toBe('6 4')
+      const first = container.querySelector('.bc-scatter-point')!
+      expect(lines[0].compareDocumentPosition(first) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+      expect(container.querySelector('.bc-trend-key')).not.toBeNull()
+    })
+
+    it('spans only the fitted x-extent', () => {
+      render(container, DATA, { trend: 'overall' })
+      const xs = points(container).map(c => Number(c.getAttribute('cx')))
+      const d = container.querySelector('.bc-trend-line')!.getAttribute('d')!
+      const [x1, x2] = [...d.matchAll(/[ML]([-\d.]+),/g)].map(m => Number(m[1]))
+      expect(Math.min(x1, x2)).toBeCloseTo(Math.min(...xs))
+      expect(Math.max(x1, x2)).toBeCloseTo(Math.max(...xs))
+    })
+
+    it('skips per-group fits with fewer than 3 points', () => {
+      render(container, DATA, { trend: 'per-group' })
+      expect(container.querySelectorAll('.bc-trend-line')).toHaveLength(0)
+    })
+  })
 })

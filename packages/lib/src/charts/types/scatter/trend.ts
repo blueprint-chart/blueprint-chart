@@ -2,7 +2,12 @@ import type { ScaleType } from '../../../enums'
 import { axisTransform } from './scales'
 import type { ScatterPoint } from './points'
 
-export type TrendMode = 'overall' | 'per-group'
+export const TREND_MODES = ['overall', 'per-group'] as const
+export type TrendMode = typeof TREND_MODES[number]
+
+export function isTrendMode(value: string | undefined): value is TrendMode {
+  return (TREND_MODES as readonly string[]).includes(value ?? '')
+}
 
 export interface TrendSegment { key: string, group?: string, x1: number, y1: number, x2: number, y2: number }
 

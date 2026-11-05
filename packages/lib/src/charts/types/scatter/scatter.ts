@@ -24,13 +24,16 @@ import { disposeProximityFor, setupProximityInteraction } from '../../plugins/pr
 import { highlightedPointNames, resolvePointColor, splitColorOverrides } from './emphasis'
 import { placePointLabels } from './labels'
 import { formatScatterTooltip } from './tooltip'
+import { isTrendMode, trendSegments } from './trend'
 
 export const DEFAULT_COLOR = '#4e79a7'
 export const DOT_RADIUS = 4.5
 export const FILL_OPACITY = 0.7
 const KEY_GAP = 10
 const NARROW_THRESHOLD = 350
-const TREND_MODES = ['overall', 'per-group']
+const TREND_DASH = '6 4'
+const TREND_WIDTH = 1.5
+const OVERALL_TREND_OPACITY = 0.6
 const LABEL_FONT_PX = 11
 
 export function maxBubbleRadius(width: number, height: number): number {
@@ -108,7 +111,7 @@ export function render(
   const keyContent: Omit<KeyConfig, 'radius'> = {
     sizeLabel: mapping.size,
     sizeValues: maxSize === undefined ? [] : sizeLegendValues(maxSize),
-    trend: TREND_MODES.includes(options.trend ?? ''),
+    trend: isTrendMode(options.trend),
   }
   const keyBoundRadius = maxBubbleRadius(containerWidth, contentSize(body).height || containerWidth)
   const keyWidth = scatterKeyWidth({ ...keyContent, radius: d3.scaleSqrt().domain([0, maxSize ?? 1]).range([0, keyBoundRadius]) })
@@ -140,6 +143,7 @@ export function render(
 
   const svg = chartArea.ownerSVGElement!
   const clipId = ensureClipPath(svg, container, 'plot', { x: 0, y: 0, width, height })
+  const trendLayer = d3.select(chartArea).append('g').attr('clip-path', `url(#${clipId})`).node() as SVGGElement
   const pointLayer = d3.select(chartArea).append('g').attr('clip-path', `url(#${clipId})`).node() as SVGGElement
 
   const overrides = splitColorOverrides(points, buildColorOverrides(options.colorizes))
@@ -148,6 +152,23 @@ export function render(
   const color = (p: ScatterPoint) => resolvePointColor(p, overrides.points, shownGroupColors, DEFAULT_COLOR)
   const stroke = resolveBackgroundColor(container)
   const orch = getSceneTransition(container)
+  const trend = isTrendMode(options.trend) ? trendSegments(points, options.trend, scaleTypes).segments : []
+  featureJoin(orch, {
+    role: 'series-line',
+    parent: trendLayer,
+    selector: '.bc-trend-line',
+    data: trend,
+    key: s => s.key,
+    insert: sel => sel.append('path').attr('class', 'bc-trend-line').attr('data-key', s => s.key),
+    attrs: s => ({
+      'd': `M${x(s.x1)},${y(s.y1)}L${x(s.x2)},${y(s.y2)}`,
+      'fill': 'none',
+      'stroke': s.group === undefined ? 'currentColor' : shownGroupColors.get(s.group)!,
+      'stroke-opacity': s.group === undefined ? OVERALL_TREND_OPACITY : 1,
+      'stroke-width': TREND_WIDTH,
+      'stroke-dasharray': TREND_DASH,
+    }),
+  })
   featureJoin<ScatterPoint>(orch, {
     role: 'mark-per-category',
     parent: pointLayer,
