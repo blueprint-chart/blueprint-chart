@@ -353,6 +353,8 @@ declare global {
   const useRefHistory: typeof import('@vueuse/core').useRefHistory
   const useResizeObserver: typeof import('@vueuse/core').useResizeObserver
   const useSSRWidth: typeof import('@vueuse/core').useSSRWidth
+  const useSavedChartPreview: typeof import('./src/composables/useSavedChartPreview').useSavedChartPreview
+  const useSavedChartThumbnails: typeof import('./src/composables/useSavedChartThumbnails').useSavedChartThumbnails
   const useScenes: typeof import('./src/composables/useScenes').useScenes
   const useScenesStore: typeof import('./src/composables/useScenes').useScenesStore
   const useScreenOrientation: typeof import('@vueuse/core').useScreenOrientation

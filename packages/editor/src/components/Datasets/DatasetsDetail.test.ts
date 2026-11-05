@@ -25,9 +25,10 @@ const dataset: Dataset = {
   dsl: '',
 }
 
-function mountDetail(overrides: Partial<Dataset> = {}) {
+function mountDetail(overrides: Partial<Dataset> = {}, variants: Dataset[] = []) {
+  const first = { ...dataset, ...overrides }
   return mount(DatasetsDetail, {
-    props: { dataset: { ...dataset, ...overrides } },
+    props: { group: { key: first.data, variants: [first, ...variants] }, pipeline: first.key, thumbnails: { one: 'data:one' } },
     global: { stubs: { RouterLink: RouterLinkStub } },
   })
 }
@@ -38,10 +39,45 @@ describe('DatasetsDetail', () => {
   })
 
   it('renders one step per dataset step with its description', () => {
-    const items = mountDetail({ steps }).findAll('.datasets-detail__steps__item')
+    const items = mountDetail({ steps }).findAll('.datasets-detail__steps__list__item')
     expect(items).toHaveLength(2)
     expect(items[0].text()).toContain(describeStep(steps[0]))
     expect(items[1].text()).toContain(describeStep(steps[1]))
+  })
+
+  it('hides the description of a step that has no settings', () => {
+    const item = mountDetail({ steps: [{ type: 'sort', config: {} }] }).find('.datasets-detail__steps__list__item')
+    expect(item.text()).toBe('1Sort')
+  })
+
+  it('applies the steps to the preview rows', () => {
+    const firstCell = mountDetail({ steps: [steps[0]] }).find('tbody tr td')
+    expect(firstCell.text()).toBe('Row 7')
+  })
+
+  it('emits newChart from the "Reuse in new chart" button', async () => {
+    const wrapper = mountDetail()
+    await wrapper.findAll('button').find(b => b.text() === 'Reuse in new chart')!.trigger('click')
+    expect(wrapper.emitted('newChart')).toHaveLength(1)
+  })
+
+  it('shows a thumbnail for charts that have one', () => {
+    const images = mountDetail().findAll('.datasets-detail__charts__list__item__link__thumb__img')
+    expect(images.map(i => i.attributes('src'))).toEqual(['data:one'])
+  })
+
+  it('hides the pipeline picker with a single pipeline', () => {
+    expect(mountDetail().find('.datasets-detail__pipelines').exists()).toBe(false)
+  })
+
+  it('switches the steps when another pipeline is picked', async () => {
+    const sorted = { ...dataset, key: 'k2', steps: [steps[0]] }
+    const wrapper = mountDetail({}, [sorted])
+    expect(wrapper.find('.datasets-detail__steps').exists()).toBe(false)
+    await wrapper.findAll('.datasets-detail__pipelines__list__item__button')[1].trigger('click')
+    expect(wrapper.emitted('update:pipeline')).toEqual([['k2']])
+    await wrapper.setProps({ pipeline: 'k2' })
+    expect(wrapper.find('.datasets-detail__steps').text()).toContain('Sort')
   })
 
   it('links to each chart editor', () => {

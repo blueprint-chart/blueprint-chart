@@ -1,4 +1,5 @@
 import { mount, RouterLinkStub, flushPromises } from '@vue/test-utils'
+import { createPinia, setActivePinia } from 'pinia'
 import { computed, shallowRef } from 'vue'
 import { createRouter, createMemoryHistory } from 'vue-router'
 import type { Dataset } from '@/utils/datasets'
@@ -11,11 +12,11 @@ vi.mock('@/composables/useDatasets', () => ({
   useDatasets: () => ({ datasets: computed(() => list.value), refresh: vi.fn(), startChart }),
 }))
 
-function dataset(key: string): Dataset {
+function dataset(key: string, data = `"${key}" = 1`): Dataset {
   return {
     key,
     chartType: 'bar',
-    data: '"A" = 1',
+    data,
     steps: [],
     rowCount: 1,
     columnCount: 2,
@@ -32,11 +33,12 @@ async function mountPage() {
   })
   await router.push('/datasets')
   await router.isReady()
+  setActivePinia(createPinia())
   const push = vi.spyOn(router, 'push')
   const wrapper = mount(DatasetsPage, {
     global: {
       plugins: [router],
-      stubs: { RouterLink: RouterLinkStub, LayoutBreadcrumb: true, DatasetsDetail: true },
+      stubs: { RouterLink: RouterLinkStub, LayoutBreadcrumb: true, DatasetsDetail: true, PanelShell: { template: '<div><slot /></div>' } },
     },
   })
   return { wrapper, push }
@@ -47,10 +49,24 @@ describe('DatasetsPage', () => {
     startChart.mockReset()
   })
 
-  it('renders one row per dataset', async () => {
+  it('renders one card per dataset', async () => {
     list.value = [dataset('a'), dataset('b')]
     const { wrapper } = await mountPage()
-    expect(wrapper.findAll('.datasets-row')).toHaveLength(2)
+    expect(wrapper.findAll('.datasets-card')).toHaveLength(2)
+  })
+
+  it('shows the selected dataset in the panel', async () => {
+    list.value = [dataset('a'), dataset('b')]
+    const { wrapper } = await mountPage()
+    await wrapper.findAll('.datasets-card__header__text__name')[1].trigger('click')
+    expect(wrapper.findComponent({ name: 'DatasetsDetail' }).props('group')).toEqual({ key: list.value[1].data, variants: [list.value[1]] })
+  })
+
+  it('groups pipelines of the same raw data into one card', async () => {
+    list.value = [dataset('a', 'same'), dataset('b', 'same'), dataset('c')]
+    const { wrapper } = await mountPage()
+    expect(wrapper.findAll('.datasets-card')).toHaveLength(2)
+    expect(wrapper.text()).toContain('2 datasets')
   })
 
   it('renders the empty state with no datasets', async () => {
@@ -63,7 +79,7 @@ describe('DatasetsPage', () => {
     list.value = [dataset('a')]
     startChart.mockReturnValue('new-id')
     const { wrapper, push } = await mountPage()
-    await wrapper.findAll('button').find(b => b.text() === 'New chart')!.trigger('click')
+    await wrapper.find('.datasets-card__pipelines__item__action').trigger('click')
     await flushPromises()
     expect(startChart).toHaveBeenCalledWith(list.value[0])
     expect(push).toHaveBeenCalledWith('/edit/new-id/data')
@@ -73,7 +89,7 @@ describe('DatasetsPage', () => {
     list.value = [dataset('a')]
     startChart.mockReturnValue(null)
     const { wrapper, push } = await mountPage()
-    await wrapper.findAll('button').find(b => b.text() === 'New chart')!.trigger('click')
+    await wrapper.find('.datasets-card__pipelines__item__action').trigger('click')
     expect(push).not.toHaveBeenCalled()
   })
 })
