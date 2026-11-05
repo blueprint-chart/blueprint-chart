@@ -90,8 +90,8 @@ const issueUrl = computed(() => {
   text-decoration: none;
 }
 .doc-feedback__link:focus-visible {
-  outline: 2px solid rgba(37, 99, 160, 0.45);
-  outline-offset: 2px;
+  outline: none;
+  box-shadow: var(--bc-focus-ring);
 }
 .doc-feedback__icon {
   width: 1rem;

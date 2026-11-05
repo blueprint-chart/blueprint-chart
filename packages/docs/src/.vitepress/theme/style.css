@@ -83,7 +83,9 @@
 
   /* Bridge text-color vars so components designed against --bs-body-color
    * (e.g. NavigationMarketingBar :slotted(a)) work in the docs context. */
+  --bs-body-bg: var(--vp-c-bg);
   --bs-body-color: var(--vp-c-text-1);
+  --bs-emphasis-color: var(--vp-c-text-1);
   --bs-secondary-color: var(--vp-c-text-2);
   --bs-tertiary-color: var(--vp-c-text-3);
 }
@@ -141,7 +143,9 @@
 
   /* Bridge text-color vars so components designed against --bs-body-color
    * (e.g. NavigationMarketingBar :slotted(a)) work in the docs context. */
+  --bs-body-bg: var(--vp-c-bg);
   --bs-body-color: var(--vp-c-text-1);
+  --bs-emphasis-color: var(--vp-c-text-1);
   --bs-secondary-color: var(--vp-c-text-2);
   --bs-tertiary-color: var(--vp-c-text-3);
 }
@@ -162,7 +166,8 @@
 }
 
 :focus-visible {
-  outline-color: rgba(37, 99, 160, 0.45);
+  outline: none;
+  box-shadow: var(--bc-focus-ring);
 }
 
 /* BpcBlock — code/preview tab switcher styles (component-level, kept) */

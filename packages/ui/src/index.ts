@@ -1,3 +1,4 @@
+export * from './bootstrap-vue-next'
 export { IconSize, ChartType } from './enums'
 export { useChildEntriesProvider, useChildEntry } from './composables/useChildEntries'
 export type { ChildEntriesContext } from './composables/useChildEntries'

@@ -1,5 +1,6 @@
 // Tokens come first so $primary, $prussian-*, $font-family-*, $body-bg, etc.
 // are in scope before _overrides.scss and bootstrap consume them.
+@use "sass:color";
 @use "@blueprint-chart/ui/styles/tokens.scss" as *;
 @use "@blueprint-chart/ui/styles/eyebrow.scss";
 @use "@blueprint-chart/ui/styles/effects.scss";
@@ -34,10 +35,6 @@
 
 // Body-level Bootstrap component overrides (editor-specific, not tokens)
 body {
-  .btn-outline-primary {
-    --bs-btn-bg: rgba(var(--bs-primary-rgb), 0.1);
-  }
-
   // bootstrap-vue-next adds a non-standard .btn-md class to its dropdown
   // toggle. Bootstrap defines no rule for .btn-md, so the cascade should
   // fall back to .btn defaults — but the BFormGroup <fieldset size="md">
@@ -48,24 +45,106 @@ body {
     line-height: var(--bs-btn-line-height);
     padding: var(--bs-btn-padding-y) var(--bs-btn-padding-x);
   }
+}
 
-  // Secondary buttons (filled + outline) adopt the same chrome as the
-  // segmented-control track: subtle wash + hairline border. Hover lifts
-  // to the firmer wash.
-  .btn-secondary,
-  .btn-outline-secondary {
+.btn {
+  --bs-btn-focus-box-shadow: var(--bc-focus-ring);
+  --bs-btn-active-shadow: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .btn:not(:disabled):not(.disabled):not(.btn-group > .btn):not(.input-group > .btn):active {
+    scale: .96;
+  }
+}
+
+.btn-primary {
+  @include button-variant($btn-primary-bg, $btn-primary-border, $body-color, $btn-primary-hover-bg, $btn-primary-border, $body-color);
+}
+
+@each $color in secondary, success, info, warning, danger, light, dark {
+  .btn-#{$color} {
     --bs-btn-color: var(--bs-body-color);
-    --bs-btn-bg: var(--bc-wash-soft);
-    --bs-btn-border-color: var(--bc-hairline);
-    --bs-btn-hover-color: var(--bs-body-color);
-    --bs-btn-hover-bg: var(--bc-wash-firm);
-    --bs-btn-hover-border-color: var(--bc-hairline-strong);
-    --bs-btn-active-color: var(--bs-body-color);
-    --bs-btn-active-bg: var(--bc-wash-firm);
-    --bs-btn-active-border-color: var(--bc-hairline-strong);
-    --bs-btn-disabled-color: var(--bs-secondary-color);
-    --bs-btn-disabled-bg: var(--bc-wash-soft);
-    --bs-btn-disabled-border-color: var(--bc-hairline);
+    --bs-btn-bg: var(--bs-#{$color}-bg-subtle);
+    --bs-btn-border-color: var(--bs-#{$color}-border-subtle);
+    --bs-btn-hover-color: var(--bs-btn-color);
+    --bs-btn-hover-bg: color-mix(in srgb, var(--bs-btn-bg), var(--bs-btn-color) 10%);
+    --bs-btn-hover-border-color: var(--bs-btn-border-color);
+    --bs-btn-active-color: var(--bs-btn-color);
+    --bs-btn-active-bg: var(--bs-btn-hover-bg);
+    --bs-btn-active-border-color: var(--bs-btn-border-color);
+    --bs-btn-disabled-color: var(--bs-btn-color);
+    --bs-btn-disabled-bg: var(--bs-btn-bg);
+    --bs-btn-disabled-border-color: var(--bs-btn-border-color);
+  }
+}
+
+.btn-strong {
+  --bs-btn-color: var(--bs-body-bg);
+  --bs-btn-bg: var(--bs-emphasis-color);
+  --bs-btn-border-color: var(--bs-emphasis-color);
+  --bs-btn-hover-color: var(--bs-body-bg);
+  --bs-btn-hover-bg: var(--bc-btn-strong-hover-bg);
+  --bs-btn-hover-border-color: var(--bc-btn-strong-hover-bg);
+  --bs-btn-active-color: var(--bs-body-bg);
+  --bs-btn-active-bg: var(--bc-btn-strong-hover-bg);
+  --bs-btn-active-border-color: var(--bc-btn-strong-hover-bg);
+  --bs-btn-disabled-color: var(--bs-body-bg);
+  --bs-btn-disabled-bg: var(--bs-emphasis-color);
+  --bs-btn-disabled-border-color: var(--bs-emphasis-color);
+}
+
+[data-bs-theme="dark"] {
+  --bs-primary: #{$body-color-dark};
+  --bs-primary-rgb: #{color.channel($body-color-dark, "red")}, #{color.channel($body-color-dark, "green")}, #{color.channel($body-color-dark, "blue")};
+
+  .btn-primary {
+    @include button-variant($btn-primary-bg-dark, $btn-primary-border-dark, $body-color-dark, $btn-primary-hover-bg-dark, $btn-primary-border-dark, $body-color-dark);
+  }
+
+  .btn-outline-primary {
+    @include button-outline-variant($body-color-dark);
+  }
+
+  .btn-outline-secondary {
+    @include button-outline-variant($body-color-dark);
+    --bs-btn-border-color: #{$body-secondary-color-dark};
+  }
+}
+
+.form-check-input:checked {
+  background-color: $body-color;
+  border-color: $body-color;
+}
+
+.form-check-input:checked[type=checkbox] {
+  --bs-form-check-bg-image: #{escape-svg(url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'><path fill='none' stroke='#{$body-bg}' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/></svg>"))};
+}
+
+.form-check-input:checked[type=radio] {
+  --bs-form-check-bg-image: #{escape-svg(url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'><circle r='2' fill='#{$body-bg}'/></svg>"))};
+}
+
+.form-switch .form-check-input:checked {
+  --bs-form-switch-bg: #{escape-svg(url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'><circle r='3' fill='#{$body-bg}'/></svg>"))};
+}
+
+[data-bs-theme="dark"] {
+  .form-check-input:checked {
+    background-color: $body-color-dark;
+    border-color: $body-color-dark;
+  }
+
+  .form-check-input:checked[type=checkbox] {
+    --bs-form-check-bg-image: #{escape-svg(url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'><path fill='none' stroke='#{$body-bg-dark}' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/></svg>"))};
+  }
+
+  .form-check-input:checked[type=radio] {
+    --bs-form-check-bg-image: #{escape-svg(url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'><circle r='2' fill='#{$body-bg-dark}'/></svg>"))};
+  }
+
+  .form-switch .form-check-input:checked {
+    --bs-form-switch-bg: #{escape-svg(url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'><circle r='3' fill='#{$body-bg-dark}'/></svg>"))};
   }
 }
 

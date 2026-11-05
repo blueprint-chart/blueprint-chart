@@ -65,7 +65,7 @@ function onClick() {
 
   &:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 4px rgba(var(--bs-primary-rgb), 0.32);
+    box-shadow: var(--bc-focus-ring);
   }
 
   &:disabled {
