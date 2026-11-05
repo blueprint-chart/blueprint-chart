@@ -31,6 +31,15 @@ function numberRepeatedLabels(labels: string[]): string[] {
   })
 }
 
+function detectTextColumns(names: string[], rows: { cells: string[] }[]): NonNullable<ChartData['textColumns']> {
+  return names.flatMap((name, s) => {
+    const cells = rows.map(row => row.cells[s]?.trim() ?? '')
+    const filled = cells.filter(cell => unquoteDslString(cell) !== '')
+    const isText = filled.length > 0 && filled.every(cell => parseNumericCell(cell) === undefined)
+    return isText ? [{ name, values: cells.map(cell => unquoteDslString(cell) || undefined) }] : []
+  })
+}
+
 export function parseData(raw: string): ChartData {
   const lines = raw.split('\n').map(l => l.trim()).filter(Boolean)
   const labels: string[] = []
@@ -79,7 +88,13 @@ export function parseData(raw: string): ChartData {
     }))
 
     // values array uses first series for single-series charts
-    return { labels: numberRepeatedLabels(labels), values: (seriesValues[0] ?? []) as number[], series }
+    const textColumns = detectTextColumns(seriesNames, rows)
+    return {
+      labels: numberRepeatedLabels(labels),
+      values: (seriesValues[0] ?? []) as number[],
+      series,
+      ...(textColumns.length && { textColumns }),
+    }
   }
 
   // Single-series format

@@ -42,6 +42,7 @@ export interface ChartData {
   labels: string[]
   values: number[]
   series?: { name: string, values: number[] }[]
+  textColumns?: { name: string, values: (string | undefined)[] }[]
 }
 
 export interface ColorizeConfig {

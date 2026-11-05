@@ -111,3 +111,32 @@ describe('parseData repeated labels', () => {
     expect(data.values).toEqual([1, 2, 3])
   })
 })
+
+describe('text columns', () => {
+  const raw = [
+    'series = "GDP","Life","Continent"',
+    '"France" = 44000, 82.3, "Europe"',
+    '"Chad" = 1500, 52.8, Africa',
+    '"Nowhere" = 10, 20, ""',
+  ].join('\n')
+
+  it('keeps a text column, quoted or bare', () => {
+    expect(parseData(raw).textColumns).toEqual([
+      { name: 'Continent', values: ['Europe', 'Africa', undefined] },
+    ])
+  })
+
+  it('leaves series unchanged for existing charts', () => {
+    const { series } = parseData(raw)
+    expect(series!.map(s => s.name)).toEqual(['GDP', 'Life', 'Continent'])
+    expect(series![2].values).toEqual([undefined, undefined, undefined])
+  })
+
+  it('omits textColumns when every column is numeric', () => {
+    expect(parseData('series = "A","B"\n"x" = 1, 2').textColumns).toBeUndefined()
+  })
+
+  it('treats a mixed column as numeric', () => {
+    expect(parseData('series = "A","B"\n"x" = 1, 2\n"y" = 3, "n/a"').textColumns).toBeUndefined()
+  })
+})
