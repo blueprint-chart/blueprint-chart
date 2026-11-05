@@ -28,6 +28,17 @@ describe('LayoutSidebar', () => {
     expect(wrapper.emitted('searchClick')).toHaveLength(1)
   })
 
+  it('links to each main documentation section', async () => {
+    const wrapper = await mountSidebar()
+    const hrefs = wrapper.findAll('a').map(a => a.attributes('href'))
+    expect(hrefs).toEqual(expect.arrayContaining([
+      'https://docs.blueprintchart.com/guide/getting-started',
+      'https://docs.blueprintchart.com/charts/',
+      'https://docs.blueprintchart.com/handbook/',
+      'https://docs.blueprintchart.com/reference/',
+    ]))
+  })
+
   it('renders the account and theme footer', async () => {
     const wrapper = await mountSidebar()
     expect(wrapper.find('.navigation-sidebar__footer .account-menu-stub').exists()).toBe(true)

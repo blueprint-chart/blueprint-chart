@@ -18,10 +18,20 @@ import IPhHouse from '~icons/ph/house'
 import IPhPresentationChart from '~icons/ph/presentation-chart'
 import IPhPalette from '~icons/ph/palette'
 import IPhGithubLogo from '~icons/ph/github-logo'
-import IPhBookOpen from '~icons/ph/book-open'
 import IPhTable from '~icons/ph/table'
+import IPhCompass from '~icons/ph/compass'
+import IPhChartBar from '~icons/ph/chart-bar'
+import IPhGraduationCap from '~icons/ph/graduation-cap'
+import IPhBracketsCurly from '~icons/ph/brackets-curly'
 
 defineEmits<{ searchClick: [] }>()
+
+const docSections = [
+  { label: 'Guide', href: 'https://docs.blueprintchart.com/guide/getting-started', icon: IPhCompass },
+  { label: 'Charts', href: 'https://docs.blueprintchart.com/charts/', icon: IPhChartBar },
+  { label: 'Handbook', href: 'https://docs.blueprintchart.com/handbook/', icon: IPhGraduationCap },
+  { label: 'Reference', href: 'https://docs.blueprintchart.com/reference/', icon: IPhBracketsCurly },
+]
 
 const route = useRoute()
 const { sortedCharts } = useDashboardGallery()
@@ -107,15 +117,20 @@ const logoSrc = computed(() => resolvedTheme.value === 'dark' ? logoDark : logoL
       />
     </NavigationSidebarGroup>
 
-    <NavigationSidebarGroup eyebrow="Resources">
+    <NavigationSidebarGroup eyebrow="Documentation">
       <NavigationSidebarItem
-        href="https://docs.blueprintchart.com"
-        label="Documentation"
+        v-for="section in docSections"
+        :key="section.href"
+        :href="section.href"
+        :label="section.label"
       >
         <template #icon>
-          <IPhBookOpen />
+          <component :is="section.icon" />
         </template>
       </NavigationSidebarItem>
+    </NavigationSidebarGroup>
+
+    <NavigationSidebarGroup eyebrow="Resources">
       <NavigationSidebarItem
         href="https://github.com/blueprint-chart/blueprint-chart"
         label="GitHub"
