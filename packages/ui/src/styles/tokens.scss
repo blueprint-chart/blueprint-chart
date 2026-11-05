@@ -255,6 +255,8 @@ $spacer-xs: 0.25rem !default;
   --bc-selected-ring: 0 0 0 2px var(--bs-emphasis-color);
 
   --bc-btn-strong-hover-bg: #383838;
+  --bc-text-primary: #{$body-color};
+  --bc-text-secondary: #{$body-secondary-color};
   --bc-text-tertiary: #{$body-tertiary-color};
 
   --bc-shadow-overlay:
@@ -335,6 +337,8 @@ $spacer-xs: 0.25rem !default;
   --bc-selected-ring: 0 0 0 2px var(--bs-emphasis-color);
 
   --bc-btn-strong-hover-bg: #cccccc;
+  --bc-text-primary: #{$body-color-dark};
+  --bc-text-secondary: #{$body-secondary-color-dark};
   --bc-text-tertiary: #{$body-tertiary-color-dark};
 
   --bc-shadow-overlay:

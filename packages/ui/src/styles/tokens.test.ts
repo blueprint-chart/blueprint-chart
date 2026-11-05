@@ -103,6 +103,13 @@ describe('tokens.scss - chartreuse accent', () => {
     expect(css).not.toMatch(/F2703F/i)
   })
 
+  it('exposes body and secondary text colors at runtime', () => {
+    expect(lightBody).toMatch(/--bc-text-primary:\s*#171717/i)
+    expect(lightBody).toMatch(/--bc-text-secondary:\s*#666666/i)
+    expect(darkBody).toMatch(/--bc-text-primary:\s*#ededed/i)
+    expect(darkBody).toMatch(/--bc-text-secondary:\s*#a1a1a1/i)
+  })
+
   it('draws hairlines with the same colors as bootstrap borders', () => {
     expect(lightBody).toMatch(/--bc-hairline:\s*#eaeaea/i)
     expect(lightBody).toMatch(/--bc-hairline-strong:\s*#dedede/i)
