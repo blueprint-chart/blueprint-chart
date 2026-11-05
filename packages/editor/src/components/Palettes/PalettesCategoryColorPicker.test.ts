@@ -1,21 +1,24 @@
-import { mount } from '@vue/test-utils'
+import { mount, type VueWrapper } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import PalettesCategoryColorPicker from './PalettesCategoryColorPicker.vue'
 import { CUSTOM_PALETTES_KEY } from '@/stores/customPalettes'
 
-function mountPicker(modelValue = '#000000') {
+type PickerWrapper = VueWrapper<InstanceType<typeof PalettesCategoryColorPicker>>
+
+let wrapper: PickerWrapper
+
+function mountPicker(modelValue = '#000000'): PickerWrapper {
   const pinia = createPinia()
   setActivePinia(pinia)
   return mount(PalettesCategoryColorPicker, {
     props: {
+      'label': 'Color',
       'modelValue': modelValue,
       'onUpdate:modelValue': (value: string) => wrapper.setProps({ modelValue: value }),
     },
     global: { plugins: [pinia], stubs: { teleport: true } },
   })
 }
-
-let wrapper: ReturnType<typeof mountPicker>
 
 describe('PalettesCategoryColorPicker', () => {
   beforeEach(() => localStorage.clear())

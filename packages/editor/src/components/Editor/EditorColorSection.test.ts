@@ -39,7 +39,7 @@ describe('EditorColorSection custom palettes', () => {
   it('lists your palettes before the built-in ones', () => {
     const { wrapper, id } = setup()
     const palettes = wrapper.findComponent(FormControlPalette).props('palettes')
-    expect(palettes.slice(0, 3).map(p => [p.value, p.group])).toEqual([
+    expect(palettes?.slice(0, 3).map(p => [p.value, p.group])).toEqual([
       ['', 'Your palettes'],
       [`custom:${id}`, 'Your palettes'],
       ['Blueprint', 'Built-in'],
