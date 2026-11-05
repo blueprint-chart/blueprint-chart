@@ -65,7 +65,10 @@ useEventListener(document, 'keydown', (event: globalThis.KeyboardEvent) => {
     v-else
     class="layout-shell layout-shell--app"
   >
-    <aside class="layout-shell__sidebar">
+    <aside
+      v-if="!isNarrow"
+      class="layout-shell__sidebar"
+    >
       <LayoutSidebar @search-click="paletteOpen = true" />
     </aside>
     <div

@@ -115,6 +115,11 @@ describe('LayoutShell — sidebar chrome', () => {
     expect(wrapper.find('.layout-shell__topbar').exists()).toBe(false)
   })
 
+  it('mounts a single sidebar when narrow', async () => {
+    const wrapper = await mountShell()
+    expect(wrapper.findAllComponents({ name: 'LayoutSidebar' })).toHaveLength(1)
+  })
+
   it('keeps the topbar when narrow', async () => {
     const wrapper = await mountShell()
     expect(wrapper.find('.layout-shell__topbar').exists()).toBe(true)
