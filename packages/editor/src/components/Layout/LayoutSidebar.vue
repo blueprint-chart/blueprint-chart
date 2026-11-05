@@ -15,7 +15,7 @@ import AccountMenu from '@/components/Account/AccountMenu.vue'
 import logoLight from '@/assets/images/blueprint-chart-logo.svg'
 import logoDark from '@/assets/images/blueprint-chart-logo-dark.svg'
 import IPhHouse from '~icons/ph/house'
-import IPhSquaresFour from '~icons/ph/squares-four'
+import IPhPresentationChart from '~icons/ph/presentation-chart'
 import IPhGithubLogo from '~icons/ph/github-logo'
 import IPhBookOpen from '~icons/ph/book-open'
 
@@ -68,7 +68,7 @@ const logoSrc = computed(() => resolvedTheme.value === 'dark' ? logoDark : logoL
         :count="sortedCharts.length || undefined"
       >
         <template #icon>
-          <IPhSquaresFour />
+          <IPhPresentationChart />
         </template>
       </NavigationSidebarItem>
     </NavigationSidebarGroup>

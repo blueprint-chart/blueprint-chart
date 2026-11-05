@@ -3,7 +3,7 @@ import { computed, nextTick, useId, useTemplateRef } from 'vue'
 import { useRouter } from 'vue-router'
 import { AppIcon, ButtonIcon, NavigationSegmentedControl, type NavigationSegmentedControlItem } from '@blueprint-chart/ui'
 import IPhDotsThree from '~icons/ph/dots-three'
-import IPhSquaresFour from '~icons/ph/squares-four'
+import IPhPresentationChart from '~icons/ph/presentation-chart'
 import IPhSignOut from '~icons/ph/sign-out'
 import IPhSignIn from '~icons/ph/sign-in'
 import IPhMonitor from '~icons/ph/monitor'
@@ -148,7 +148,7 @@ async function onSignOut() {
       <BDropdownItem @click="goToCharts">
         <span class="account-menu__menu__item">
           <AppIcon
-            :name="IPhSquaresFour"
+            :name="IPhPresentationChart"
             size="sm"
           />
           My charts
