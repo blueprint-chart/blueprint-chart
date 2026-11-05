@@ -1,5 +1,7 @@
 <template>
   <div class="d-flex flex-column gap-3">
+    <EditorCategoryColorsNotice />
+
     <EditorBarAppearance
       v-if="hasColorizes"
       :labels="dataLabels"
@@ -16,7 +18,7 @@
         label="Color palette"
         :model-value="currentOptions.colorPalette ?? ''"
         :palettes="paletteOptions"
-        @update:model-value="(v) => setOption('colorPalette', v)"
+        @update:model-value="onPaletteChange"
       />
       <FormControlColorsInput
         v-if="hasColors && !currentOptions.colorPalette"
@@ -120,11 +122,13 @@ import { FormControlColorsInput, FormControlPalette, FormControlCheckbox, Displa
 import { useChartConfig } from '@/stores/chartConfig'
 import { useChartTypeOptions } from '@/stores/chartTypeOptions'
 import { useCvdMode } from '@/stores/cvdMode'
+import { useCustomPalettes } from '@/stores/customPalettes'
 import { ChartType, parseData, listPalettes, resolvePalette } from '@blueprint-chart/lib'
 import type { CvdType } from '@blueprint-chart/lib'
 import IconPhCheck from '~icons/ph/check'
 import IconPhEye from '~icons/ph/eye'
 import IconPhInfo from '~icons/ph/info'
+import EditorCategoryColorsNotice from './EditorCategoryColorsNotice.vue'
 import { useColorAccessibility } from './useColorAccessibility'
 import CvdNoneThumb from '@/assets/chart-thumbnails/cvd-none.bpc'
 import CvdProtanopiaThumb from '@/assets/chart-thumbnails/cvd-protanopia.bpc'
@@ -134,6 +138,7 @@ import CvdTritanopiaThumb from '@/assets/chart-thumbnails/cvd-tritanopia.bpc'
 const { chartType, data, colorizes } = useChartConfig()
 const { currentOptions, availableOptionKeys, setOption } = useChartTypeOptions()
 const { cvdMode } = useCvdMode()
+const { palettes: customPalettes } = useCustomPalettes()
 
 const hasColorizes = computed(() =>
   ([ChartType.BarVertical, ChartType.BarHorizontal, ChartType.VerticalBar, ChartType.HorizontalBar] as string[]).includes(chartType.value),
@@ -193,14 +198,30 @@ const cvdOptions = [
   { value: 'tritanopia', text: 'Tritanopia', description: 'No blue cones (very rare)', visual: markRaw(CvdTritanopiaThumb) },
 ]
 
-const paletteOptions = [
+const paletteOptions = computed(() => [
   { value: '', label: 'Custom', colors: [] as string[] },
   ...listPalettes().map(p => ({
     value: p.name,
     label: p.label,
     colors: [...p.colors],
   })),
-]
+  ...customPalettes.value.map(p => ({
+    value: `custom:${p.id}`,
+    label: p.label,
+    colors: [...p.colors],
+    group: 'Your palettes',
+  })),
+])
+
+function onPaletteChange(value: string) {
+  const custom = customPalettes.value.find(p => `custom:${p.id}` === value)
+  if (!custom) {
+    setOption('colorPalette', value)
+    return
+  }
+  setOption('colorPalette', '')
+  setOption('colors', [...custom.colors])
+}
 </script>
 
 <style scoped lang="scss">

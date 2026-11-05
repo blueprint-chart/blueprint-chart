@@ -26,20 +26,26 @@
           />
         </span>
       </template>
-      <BDropdownItemButton
-        v-for="palette in resolvedPalettes"
+      <template
+        v-for="palette in listedPalettes"
         :key="palette.value"
-        :active="model === palette.value"
-        @click="selectPalette(palette.value)"
       >
-        <span class="form-control-palette__item">
-          <span class="flex-grow-1">{{ palette.label }}</span>
-          <DisplayPalette
-            :colors="palette.colors"
-            bordered
-          />
-        </span>
-      </BDropdownItemButton>
+        <BDropdownHeader v-if="palette.header">
+          {{ palette.group }}
+        </BDropdownHeader>
+        <BDropdownItemButton
+          :active="model === palette.value"
+          @click="selectPalette(palette.value)"
+        >
+          <span class="form-control-palette__item">
+            <span class="flex-grow-1">{{ palette.label }}</span>
+            <DisplayPalette
+              :colors="palette.colors"
+              bordered
+            />
+          </span>
+        </BDropdownItemButton>
+      </template>
     </BDropdown>
   </BFormGroup>
 </template>
@@ -51,7 +57,7 @@ const model = defineModel<string>({ required: true })
 const props = withDefaults(defineProps<{
   label?: string
   id?: string
-  palettes?: { value: string, label: string, colors: string[] }[]
+  palettes?: { value: string, label: string, colors: string[], group?: string }[]
 }>(), {
   label: undefined,
   id: undefined,
@@ -62,6 +68,12 @@ const { entries } = useChildEntriesProvider(PaletteEntriesKey)
 const resolvedPalettes = computed(() =>
   entries.value.length > 0 ? entries.value : props.palettes,
 )
+
+const listedPalettes = computed(() => resolvedPalettes.value.map((palette, index) => {
+  const { group } = palette as { group?: string }
+  const previous = (resolvedPalettes.value[index - 1] as { group?: string } | undefined)?.group
+  return { ...palette, group, header: !!group && group !== previous }
+}))
 
 const dropdownRef = useTemplateRef<{ hide: () => void, $el: HTMLElement }>('dropdownRef')
 

@@ -66,3 +66,18 @@ describe('FormControlPalette slot entry selection', () => {
     expect(wrapper.find('.form-control-palette__preview__name').text()).toBe('Cool')
   })
 })
+
+describe('FormControlPalette groups', () => {
+  it('renders a header before the first entry of a group', () => {
+    const wrapper = mount(FormControlPalette, {
+      props: {
+        modelValue: 'warm',
+        palettes: [...palettes, { value: 'custom:1', label: 'Mine', colors: ['#111111', '#222222'], group: 'Your palettes' }],
+      },
+      global: { stubs: { Teleport: true } },
+    })
+    const headers = wrapper.findAll('.dropdown-header')
+    expect(headers).toHaveLength(1)
+    expect(headers[0].text()).toBe('Your palettes')
+  })
+})
