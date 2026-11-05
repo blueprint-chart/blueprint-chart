@@ -125,8 +125,7 @@ function onResizeStart(e: PointerEvent) {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  background: var(--bc-content-bg);
-  border-left: 1px solid var(--bc-hairline);
+  border-left: 1px solid var(--bs-border-color);
 
   &.panel-docked--collapsed {
     width: 0 !important;

@@ -41,7 +41,7 @@ defineProps<{
   flex-direction: column;
   flex: 1;
   min-height: 0;
-  background: var(--bc-tile-bg, #ffffff);
+  background: transparent;
 
   &__header {
     display: flex;

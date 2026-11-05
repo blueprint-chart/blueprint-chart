@@ -23,8 +23,8 @@
   gap: 0.75rem;
   min-height: 3.5rem;
   padding: 0 1.25rem;
-  background: var(--bc-tile-bg-elevated);
-  border-bottom: 1px solid var(--bc-hairline);
+  background: var(--bs-body-bg);
+  border-bottom: 1px solid var(--bs-border-color);
   flex-shrink: 0;
 
   &__start {
@@ -80,13 +80,13 @@
     }
 
     &__center {
-      border-top: 1px solid var(--bc-hairline);
+      border-top: 1px solid var(--bs-border-color);
       justify-content: center;
     }
 
     &__end {
       padding-bottom: 0;
-      border-top: 1px solid var(--bc-hairline);
+      border-top: 1px solid var(--bs-border-color);
 
       &:empty {
         display: none;

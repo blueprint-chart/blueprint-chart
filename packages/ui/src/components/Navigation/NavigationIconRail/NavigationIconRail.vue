@@ -55,7 +55,7 @@ function buttonClassList(value: string) {
   width: 48px;
   padding: 0.5rem 0;
   background: transparent;
-  border-left: 1px solid var(--bc-hairline);
+  border-left: 1px solid var(--bs-border-color);
   gap: 0.25rem;
 
   &__button {
@@ -76,8 +76,8 @@ function buttonClassList(value: string) {
     &--active.btn,
     &--active.btn:hover,
     &--active.btn:focus-visible {
-      background: var(--bs-primary);
-      color: var(--bs-white, #fff);
+      background: var(--bs-tertiary-bg);
+      color: var(--bs-emphasis-color);
     }
   }
 

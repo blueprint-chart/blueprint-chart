@@ -63,10 +63,10 @@ defineEmits<{
   width: 100%;
 
   &--floating {
-    background: var(--bc-chrome-bg);
-    border: 1px solid var(--bc-hairline);
-    border-radius: var(--bc-radius-md);
-    box-shadow: var(--bc-shadow-overlay);
+    background: var(--bs-body-bg);
+    border-top: 1px solid var(--bs-border-color);
+    border-radius: 0;
+    box-shadow: none;
   }
 
   &__items {

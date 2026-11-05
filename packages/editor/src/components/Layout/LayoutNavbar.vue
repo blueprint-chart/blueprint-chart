@@ -109,10 +109,9 @@ $grid-breakpoints: (
   gap: 0.5rem;
   height: 2.75rem;
   padding: 0 1.25rem;
-  background: color-mix(in srgb, var(--bc-chrome-bg) 85%, transparent);
+  background: color-mix(in srgb, var(--bs-body-bg) 85%, transparent);
   backdrop-filter: saturate(150%) blur(10px);
   -webkit-backdrop-filter: saturate(150%) blur(10px);
-  border-bottom: 1px solid var(--bc-hairline);
   flex-shrink: 0;
   z-index: 1040;
 }

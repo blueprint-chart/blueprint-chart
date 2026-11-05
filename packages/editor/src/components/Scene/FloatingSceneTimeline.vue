@@ -37,7 +37,7 @@ const { isNarrow } = useBreakpoint()
   // (--fst-canvas-pad-*, set by each canvas; default 0) and --fst-inset re-adds
   // the desired gap. margin-top:auto pins it to the bottom when content is
   // short; position:sticky keeps it pinned while the canvas scrolls.
-  --fst-inset: var(--canvas-float-inset, 0.75rem);
+  --fst-inset: 0px;
   margin-top: auto;
   margin-inline: calc(var(--fst-canvas-pad-x, 0px) * -1 + var(--fst-inset));
   margin-bottom: calc(var(--fst-canvas-pad-y, 0px) * -1 + var(--fst-inset));

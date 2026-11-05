@@ -176,8 +176,8 @@ function onKeydown(event: KeyboardEvent, index: number) {
     }
 
     &--current {
-      color: var(--bs-body-color);
-      border-bottom-color: var(--bs-primary);
+      color: var(--bs-emphasis-color);
+      border-bottom-color: var(--bs-emphasis-color);
       font-weight: 600;
     }
 

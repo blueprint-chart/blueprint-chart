@@ -107,8 +107,8 @@ function rootClass(routerActive: boolean) {
   }
 
   &--active {
-    background: var(--bc-wash-firm);
-    color: var(--bs-body-color);
+    background: var(--bs-tertiary-bg);
+    color: var(--bs-emphasis-color);
     font-weight: 500;
   }
 
@@ -123,7 +123,6 @@ function rootClass(routerActive: boolean) {
 
     .navigation-sidebar-item--active & {
       opacity: 1;
-      color: var(--bs-info);
     }
   }
 

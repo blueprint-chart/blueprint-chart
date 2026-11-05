@@ -106,12 +106,12 @@ $grid-breakpoints: (
 );
 
 .layout-shell {
-  background: var(--bc-content-bg);
+  background: var(--bs-body-bg);
 }
 
 .layout-shell--landing {
   min-height: 100vh;
-  background: var(--bc-chrome-bg);
+  background: var(--bs-body-bg);
 }
 
 .layout-shell--app {
@@ -139,6 +139,11 @@ $grid-breakpoints: (
   min-height: 0;
   min-width: 0;
   overflow: hidden;
+  border-right: 1px solid var(--bs-border-color);
+
+  :deep(.navigation-sidebar) {
+    border-right: 0;
+  }
 
   @include bsbp.media-breakpoint-down(xl, $grid-breakpoints) {
     display: none;
@@ -148,11 +153,12 @@ $grid-breakpoints: (
 .layout-shell__topbar {
   grid-area: topbar;
   min-width: 0;
+  border-bottom: 1px solid var(--bs-border-color);
 }
 
 .layout-shell__main {
   grid-area: main;
-  background: var(--bc-content-bg);
+  background: var(--bs-body-bg);
   background-image: var(--bc-canvas-glow, none);
   overflow: hidden;
   min-width: 0;
