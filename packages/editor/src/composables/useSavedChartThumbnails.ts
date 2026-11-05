@@ -21,15 +21,19 @@ function render(id: string): string | null {
 
 export function useSavedChartThumbnails() {
   const thumbnails = reactive<Record<string, string>>({})
+  const failed = new Set<string>()
 
   function loadThumbnails(ids: string[]) {
     for (const id of ids) {
-      if (thumbnails[id]) {
+      if (thumbnails[id] || failed.has(id)) {
         continue
       }
       const svg = getThumbnail(id) ?? render(id)
       if (svg) {
         thumbnails[id] = svgToDataUrl(svg)
+      }
+      else {
+        failed.add(id)
       }
     }
   }
