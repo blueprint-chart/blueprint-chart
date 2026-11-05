@@ -222,9 +222,9 @@ async function onSignOut() {
     --bs-btn-color: var(--bs-secondary-color);
     --bs-btn-bg: transparent;
     --bs-btn-hover-color: var(--bs-emphasis-color);
-    --bs-btn-hover-bg: var(--bs-tertiary-bg);
+    --bs-btn-hover-bg: var(--bc-wash-soft);
     --bs-btn-active-color: var(--bs-emphasis-color);
-    --bs-btn-active-bg: var(--bs-tertiary-bg);
+    --bs-btn-active-bg: var(--bc-wash-soft);
   }
 
   :deep(.account-menu__more) {
