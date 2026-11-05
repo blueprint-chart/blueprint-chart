@@ -307,6 +307,7 @@ declare global {
   const useIntervalFn: typeof import('@vueuse/core').useIntervalFn
   const useKeyModifier: typeof import('@vueuse/core').useKeyModifier
   const useLastChanged: typeof import('@vueuse/core').useLastChanged
+  const useLazyTooltip: typeof import('./src/composables/useLazyTooltip').useLazyTooltip
   const useLocalImport: typeof import('./src/composables/useLocalImport').useLocalImport
   const useLocalStorage: typeof import('@vueuse/core').useLocalStorage
   const useMagicKeys: typeof import('@vueuse/core').useMagicKeys

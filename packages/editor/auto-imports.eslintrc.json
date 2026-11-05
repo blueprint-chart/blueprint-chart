@@ -321,6 +321,7 @@
     "useIntervalFn": true,
     "useKeyModifier": true,
     "useLastChanged": true,
+    "useLazyTooltip": true,
     "useLocalImport": true,
     "useLocalStorage": true,
     "useMagicKeys": true,

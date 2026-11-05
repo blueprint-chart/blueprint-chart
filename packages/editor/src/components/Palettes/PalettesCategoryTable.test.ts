@@ -11,7 +11,8 @@ function mountTable() {
 
 async function addCategory(wrapper: ReturnType<typeof mountTable>, name: string, color: string) {
   await wrapper.find('.palettes-category-table__form__name').setValue(name)
-  const hex = wrapper.find('.palettes-category-table__form .form-control-color-input__wrapper__field')
+  await wrapper.find('.palettes-category-table__form .palettes-category-color-picker__trigger').trigger('click')
+  const hex = wrapper.find('.palettes-category-table__form .palettes-category-color-picker__panel__input__hex')
   await hex.setValue(color)
   await hex.trigger('change')
   await wrapper.find('.palettes-category-table__form__add').trigger('click')
@@ -53,7 +54,8 @@ describe('PalettesCategoryTable', () => {
   it('changes the color of an existing row', async () => {
     localStorage.setItem(CATEGORY_COLORS_KEY, JSON.stringify([{ name: 'France', color: '#0055A4' }]))
     const wrapper = mountTable()
-    const hex = wrapper.find('.palettes-category-table__row__color .form-control-color-input__wrapper__field')
+    await wrapper.find('.palettes-category-table__row__color .palettes-category-color-picker__trigger').trigger('click')
+    const hex = wrapper.find('.palettes-category-table__row__color .palettes-category-color-picker__panel__input__hex')
     await hex.setValue('#111111')
     await hex.trigger('change')
     await flushPromises()

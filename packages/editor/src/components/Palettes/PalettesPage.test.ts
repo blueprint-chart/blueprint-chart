@@ -1,7 +1,8 @@
 import { flushPromises, mount } from '@vue/test-utils'
-import { createPinia } from 'pinia'
+import { createPinia, setActivePinia } from 'pinia'
 import { createRouter, createMemoryHistory } from 'vue-router'
 import PalettesPage from './PalettesPage.vue'
+import { useCustomPalettes } from '@/stores/customPalettes'
 
 async function mountAt(path: string) {
   const router = createRouter({
@@ -10,21 +11,49 @@ async function mountAt(path: string) {
   })
   await router.push(path)
   await router.isReady()
-  const wrapper = mount(PalettesPage, { global: { plugins: [createPinia(), router] } })
+  const pinia = createPinia()
+  setActivePinia(pinia)
+  const wrapper = mount(PalettesPage, { global: { plugins: [pinia, router], stubs: { teleport: true } } })
   await flushPromises()
-  return wrapper
+  return { wrapper, router }
 }
+
+const activeTab = (wrapper: Awaited<ReturnType<typeof mountAt>>['wrapper']) =>
+  wrapper.find('.navigation-segmented-control__option--active')
 
 describe('PalettesPage', () => {
   beforeEach(() => localStorage.clear())
 
   it('activates the Palettes tab by default', async () => {
-    const wrapper = await mountAt('/palettes')
-    expect(wrapper.find('.nav-link.active').text()).toBe('Palettes')
+    const { wrapper } = await mountAt('/palettes')
+    expect(activeTab(wrapper).text()).toBe('Palettes')
   })
 
   it('activates the Category colors tab from the query', async () => {
-    const wrapper = await mountAt('/palettes?tab=categories')
-    expect(wrapper.find('.nav-link.active').text()).toBe('Category colors')
+    const { wrapper } = await mountAt('/palettes?tab=categories')
+    expect(activeTab(wrapper).text()).toBe('Category colors')
+  })
+
+  it('keeps the selected tab in the URL', async () => {
+    const { wrapper, router } = await mountAt('/palettes')
+    const categories = wrapper.findAll('.navigation-segmented-control__option').find(b => b.text() === 'Category colors')!
+    await categories.trigger('click')
+    await flushPromises()
+    expect(router.currentRoute.value.query.tab).toBe('categories')
+    expect(activeTab(wrapper).text()).toBe('Category colors')
+  })
+
+  it('names the primary action after the tab', async () => {
+    expect((await mountAt('/palettes')).wrapper.find('.palettes-toolbar__action').text()).toBe('New palette')
+    expect((await mountAt('/palettes?tab=categories')).wrapper.find('.palettes-toolbar__action').text()).toBe('Add color')
+  })
+
+  it('creates a palette from the primary action', async () => {
+    const { wrapper } = await mountAt('/palettes')
+    await wrapper.find('.palettes-toolbar__action').trigger('click')
+    await flushPromises()
+    expect(useCustomPalettes().palettes.value).toHaveLength(1)
+    expect(wrapper.findComponent({ name: 'BOffcanvas' }).props('modelValue')).toBe(true)
+    expect((wrapper.find('.palettes-drawer__body__name input').element as HTMLInputElement).value).toBe('New palette')
   })
 })
