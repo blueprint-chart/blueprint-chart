@@ -101,8 +101,8 @@ defineEmits<{
       border-radius: var(--bs-border-radius-sm);
 
       &:focus-visible {
-        outline: none;
-        box-shadow: var(--bc-focus-ring);
+        outline: 2px solid var(--bs-emphasis-color);
+        outline-offset: -2px;
       }
 
       &__icon {

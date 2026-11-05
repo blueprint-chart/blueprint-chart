@@ -37,7 +37,7 @@ test.describe('Scene Timeline', () => {
 
     const items = page.locator('.scene-timeline-item')
     await expect(items).toHaveCount(1)
-    await expect(items.first().locator('.scene-timeline-item__label')).toHaveText('Scene 1')
+    await expect(items.first().locator('.scene-timeline-item__select__label')).toHaveText('Scene 1')
     await expect(items.first()).toHaveClass(/scene-timeline-item--active/)
   })
 
@@ -56,8 +56,8 @@ test.describe('Scene Timeline', () => {
 
     const items = page.locator('.scene-timeline-item')
     await expect(items).toHaveCount(2)
-    await expect(items.nth(0).locator('.scene-timeline-item__label')).toHaveText('Scene 1')
-    await expect(items.nth(1).locator('.scene-timeline-item__label')).toHaveText('Scene 2')
+    await expect(items.nth(0).locator('.scene-timeline-item__select__label')).toHaveText('Scene 1')
+    await expect(items.nth(1).locator('.scene-timeline-item__select__label')).toHaveText('Scene 2')
     // Scene 2 is active
     await expect(items.nth(1)).toHaveClass(/scene-timeline-item--active/)
     await expect(items.nth(0)).not.toHaveClass(/scene-timeline-item--active/)
@@ -98,7 +98,7 @@ test.describe('Scene Timeline', () => {
     await scene2.locator('.scene-timeline-item__remove').click()
 
     await expect(page.locator('.scene-timeline-item')).toHaveCount(1)
-    await expect(page.locator('.scene-timeline-item').first().locator('.scene-timeline-item__label')).toHaveText('Scene 1')
+    await expect(page.locator('.scene-timeline-item').first().locator('.scene-timeline-item__select__label')).toHaveText('Scene 1')
   })
 
   test('switching scenes re-renders the chart without errors', async ({ page }) => {
@@ -306,7 +306,7 @@ test.describe('Scene Timeline', () => {
     await goToVisualizeStep(page)
 
     // Base scene should have a thumbnail
-    const basePreview = page.locator('.scene-timeline-item').first().locator('.scene-timeline-item__preview svg')
+    const basePreview = page.locator('.scene-timeline-item').first().locator('.scene-timeline-item__select__preview svg')
     await expect(basePreview).toBeVisible()
 
     // Add Scene 2
@@ -314,8 +314,8 @@ test.describe('Scene Timeline', () => {
 
     // Both scenes should have thumbnails
     const items = page.locator('.scene-timeline-item')
-    await expect(items.nth(0).locator('.scene-timeline-item__preview svg')).toBeVisible()
-    await expect(items.nth(1).locator('.scene-timeline-item__preview svg')).toBeVisible()
+    await expect(items.nth(0).locator('.scene-timeline-item__select__preview svg')).toBeVisible()
+    await expect(items.nth(1).locator('.scene-timeline-item__select__preview svg')).toBeVisible()
   })
 
   test('timeline is visible on data step when scenes exist', async ({ page }) => {

@@ -11,6 +11,10 @@ import { usePanelBreakpointSync } from '@/composables/usePanelBreakpointSync'
 
 usePanelBreakpointSync()
 
+function focusMain() {
+  document.getElementById('main')?.focus()
+}
+
 const route = useRoute()
 const isLanding = computed(() => route.path === '/')
 
@@ -44,6 +48,7 @@ useEventListener(document, 'keydown', (event: globalThis.KeyboardEvent) => {
   <a
     class="layout-shell__skip-link visually-hidden-focusable"
     href="#main"
+    @click.prevent="focusMain"
   >Skip to content</a>
 
   <!-- Landing renders only the slot — landing supplies its own chrome. -->
@@ -72,6 +77,7 @@ useEventListener(document, 'keydown', (event: globalThis.KeyboardEvent) => {
     </div>
     <main
       id="main"
+      tabindex="-1"
       class="layout-shell__main"
     >
       <slot />

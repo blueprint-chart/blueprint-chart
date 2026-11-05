@@ -20,6 +20,7 @@ import LandingFooter from './LandingFooter.vue'
     <LandingTopNav />
     <main
       id="main"
+      tabindex="-1"
       class="landing-page__frame"
     >
       <LandingHero />

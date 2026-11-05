@@ -1,4 +1,5 @@
-import { createRouter, createWebHashHistory, type RouteLocationNormalized } from 'vue-router'
+import { nextTick } from 'vue'
+import { createRouter, createWebHashHistory, START_LOCATION, type RouteLocationNormalized } from 'vue-router'
 import DashboardPage from '@/components/Dashboard/DashboardPage.vue'
 import WizardShell from '@/components/Wizard/WizardShell.vue'
 import RenderPage from '@/components/Render/RenderPage.vue'
@@ -145,8 +146,16 @@ const router = createRouter({
   ],
 })
 
-router.afterEach((to) => {
+router.afterEach(async (to, from) => {
   document.title = to.meta.title ? `${to.meta.title} · Blueprint Chart` : 'Blueprint Chart'
+  if (from === START_LOCATION) {
+    return
+  }
+  await nextTick()
+  const main = document.getElementById('main')
+  const target = main?.querySelector<HTMLElement>('h1') ?? main
+  target?.setAttribute('tabindex', '-1')
+  target?.focus({ preventScroll: true })
 })
 
 export default router

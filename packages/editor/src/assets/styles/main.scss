@@ -241,3 +241,8 @@ body {
   // screens; floating-ui flip/shift keeps it on-screen and right-aligned.
   width: min(248px, calc(100vw - 1rem));
 }
+
+main[tabindex="-1"]:focus,
+h1[tabindex="-1"]:focus {
+  outline: none;
+}

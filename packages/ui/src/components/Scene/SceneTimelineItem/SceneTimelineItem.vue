@@ -83,17 +83,13 @@ defineEmits<{
     }
 
     &:focus-visible {
-      outline: none;
-      box-shadow: var(--bc-focus-ring);
+      outline: 2px solid var(--bs-emphasis-color);
+      outline-offset: -2px;
     }
 
     .scene-timeline-item--active & {
       border-color: var(--bs-emphasis-color);
       box-shadow: var(--bc-selected-ring);
-    }
-
-    .scene-timeline-item--active &:focus-visible {
-      box-shadow: var(--bc-focus-ring), var(--bc-selected-ring);
     }
 
     &__label {

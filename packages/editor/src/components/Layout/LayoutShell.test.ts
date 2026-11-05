@@ -46,6 +46,18 @@ describe('LayoutShell — skip link', () => {
   })
 })
 
+describe('LayoutShell — skip link activation', () => {
+  it('focuses main without changing the route', async () => {
+    const wrapper = await mountShell('/charts', true)
+    const router = wrapper.vm.$router
+    await wrapper.find('a[href="#main"]').trigger('click')
+    expect(router.currentRoute.value.fullPath).toBe('/charts')
+    expect(document.activeElement).toBe(wrapper.find('main#main').element)
+    expect(wrapper.find('main#main').attributes('tabindex')).toBe('-1')
+    wrapper.unmount()
+  })
+})
+
 describe('LayoutShell — sidebarOpen state', () => {
   it('starts with sidebarOpen=false (offcanvas closed)', async () => {
     const wrapper = await mountShell()
