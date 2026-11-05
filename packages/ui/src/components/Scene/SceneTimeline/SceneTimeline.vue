@@ -78,8 +78,10 @@ defineEmits<{
     min-width: 0;
     // Top padding leaves room for each item's remove badge (which sits at
     // top: -6px); overflow-x:auto also clips the y-axis, so without it the
-    // badge gets truncated.
-    padding: 0.5rem 0 0.25rem;
+    // badge gets truncated. Side padding, cancelled by the negative margin,
+    // keeps the selected and focus rings of the edge items unclipped.
+    padding: 0.5rem 0.25rem 0.25rem;
+    margin-inline: -0.25rem;
 
     &::-webkit-scrollbar {
       display: none;
