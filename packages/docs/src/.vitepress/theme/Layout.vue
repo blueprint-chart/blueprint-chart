@@ -426,9 +426,9 @@ function openSidebar() {
   height: 2rem;
   padding: 0 0.85rem;
   border-radius: 0.375rem;
-  border: 1px solid var(--vp-c-brand-1);
-  background: var(--vp-c-brand-1);
-  color: #fff;
+  border: 1px solid var(--bs-emphasis-color);
+  background: var(--bs-emphasis-color);
+  color: var(--bs-body-bg);
   font-family: var(--vp-font-family-base);
   font-size: var(--bs-font-size-sm);
   font-weight: 600;
@@ -440,8 +440,8 @@ function openSidebar() {
     border-color var(--bc-duration-base, 150ms) var(--bc-ease, ease);
 }
 .docs-btn-primary:hover {
-  background: var(--vp-c-brand-2);
-  border-color: var(--vp-c-brand-2);
+  background: var(--bc-btn-strong-hover-bg);
+  border-color: var(--bc-btn-strong-hover-bg);
 }
 .docs-btn-primary--sm {
   height: 1.75rem;

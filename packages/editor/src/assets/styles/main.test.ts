@@ -81,3 +81,34 @@ describe('hard-coded rings', () => {
     expect(style.match(/--bs-emphasis-color:\s*var\(--vp-c-text-1\)/g)).toHaveLength(2)
   })
 })
+
+describe('strong call sites', () => {
+  const component = (path: string) => read(`../../components/${path}`)
+
+  it.each([
+    'Dashboard/DashboardToolbar.vue',
+    'Account/AccountMenu.vue',
+    'Panel/PanelStepperFooter.vue',
+    'Data/DataUpload/DataUploadCard.vue',
+    'Dashboard/DashboardDetailContent.vue',
+  ])('%s uses the strong variant', (path) => {
+    expect(component(path)).toContain('variant="strong"')
+  })
+
+  it('AccountSignInModal.vue uses btn-strong', () => {
+    expect(component('Account/AccountSignInModal.vue')).toContain('btn-strong')
+  })
+
+  it('DataStructurePanel.vue has no outline-primary', () => {
+    expect(component('Data/DataStructurePanel.vue')).not.toContain('outline-primary')
+  })
+
+  it('docs primary button flips with the theme', () => {
+    const layout = read('../../../../docs/src/.vitepress/theme/Layout.vue')
+    const rule = layout.match(/\.docs-btn-primary\s*{[^}]*}/)![0]
+    const hover = layout.match(/\.docs-btn-primary:hover\s*{[^}]*}/)![0]
+    expect(rule).toContain('background: var(--bs-emphasis-color)')
+    expect(rule).toContain('color: var(--bs-body-bg)')
+    expect(hover).toContain('var(--bc-btn-strong-hover-bg)')
+  })
+})

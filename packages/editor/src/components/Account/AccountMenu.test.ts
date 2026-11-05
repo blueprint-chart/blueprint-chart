@@ -93,10 +93,10 @@ describe('AccountMenu (signed in)', () => {
 })
 
 describe('AccountMenu (signed out)', () => {
-  it('renders a primary Sign in button and no dropdown', async () => {
+  it('renders a strong Sign in button and no dropdown', async () => {
     const { wrapper } = await mountMenu(false)
     expect(wrapper.find('.dropdown-toggle').exists()).toBe(false)
-    const btn = wrapper.find('button.btn-primary')
+    const btn = wrapper.find('button.btn-strong')
     expect(btn.exists()).toBe(true)
     expect(btn.text()).toContain('Sign in')
   })
@@ -104,7 +104,7 @@ describe('AccountMenu (signed out)', () => {
   it('opens the sign-in modal when the Sign in button is clicked', async () => {
     const { wrapper } = await mountMenu(false)
     expect(wrapper.findComponent(AccountSignInModal).props('open')).toBe(false)
-    await wrapper.find('button.btn-primary').trigger('click')
+    await wrapper.find('button.btn-strong').trigger('click')
     expect(wrapper.findComponent(AccountSignInModal).props('open')).toBe(true)
   })
 })

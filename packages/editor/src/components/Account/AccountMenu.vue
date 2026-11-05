@@ -63,7 +63,7 @@
       <ButtonIcon
         :icon-left="IPhSignIn"
         label="Sign in"
-        variant="primary"
+        variant="strong"
         size="sm"
         @click="signInModalOpen = true"
       />

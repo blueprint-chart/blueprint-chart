@@ -91,13 +91,14 @@
               class="upload-card__paste__footer__hint__kbd"
             >{{ k }}</span> paste from spreadsheet
           </div>
-          <button
+          <ButtonIcon
             class="upload-card__paste__footer__btn"
+            label="Load data"
+            variant="strong"
+            size="sm"
             :disabled="!pasteInput.trim()"
             @click="$emit('loaded', pasteInput, 'Pasted')"
-          >
-            Load data
-          </button>
+          />
         </div>
       </div>
       <DataUploadSamples
@@ -109,6 +110,7 @@
 </template>
 
 <script setup lang="ts">
+import { ButtonIcon } from '@blueprint-chart/ui'
 import { useDataTable } from '@/stores/dataTable'
 import { useScenes } from '@/stores/scenes'
 import { resolveScene } from '@/utils/scenes'
@@ -286,31 +288,6 @@ const tabOptions = [
           font-weight: 600;
           color: var(--bs-secondary-color);
           margin: 0 1px;
-        }
-      }
-
-      &__btn {
-        padding: 0.25rem 0.75rem;
-        font-size: var(--bs-font-size-sm);
-        font-weight: 600;
-        color: #fff;
-        background: var(--bs-primary);
-        border: none;
-        border-radius: var(--bs-border-radius);
-        cursor: pointer;
-        font-family: inherit;
-        transition: background 0.15s;
-
-        &:hover:not(:disabled) {
-          filter: brightness(0.9);
-        }
-
-        &:disabled {
-          // Neutral surface, not faded primary: white-on-washed-blue reads
-          // as a rendering bug rather than "not available yet".
-          background: var(--bc-wash-firm, var(--bs-secondary-bg));
-          color: var(--bs-secondary-color);
-          cursor: not-allowed;
         }
       }
     }

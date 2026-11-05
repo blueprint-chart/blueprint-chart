@@ -10,7 +10,7 @@
     <ButtonIcon
       :icon-left="IPhPencilSimple"
       label="Edit chart"
-      variant="primary"
+      variant="strong"
       block
       @click="$emit('edit')"
     />

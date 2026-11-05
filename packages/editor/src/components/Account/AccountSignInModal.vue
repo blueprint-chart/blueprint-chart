@@ -98,7 +98,7 @@
       </p>
       <button
         type="submit"
-        class="btn btn-primary w-100 mt-3"
+        class="btn btn-strong w-100 mt-3"
         :disabled="status === 'sending'"
       >
         <AppIcon

@@ -14,7 +14,7 @@
       :icon-right="IPhCaretRight"
       icon-right-size="1em"
       :label="nextLabel"
-      variant="primary"
+      variant="strong"
       size="sm"
       class="ms-auto"
       @click="next"

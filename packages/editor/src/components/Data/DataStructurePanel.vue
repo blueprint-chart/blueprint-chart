@@ -24,7 +24,7 @@
         <ButtonIcon
           :icon-left="IPhArrowsClockwise"
           label="Replace data"
-          variant="outline-primary"
+          variant="primary"
           size="sm"
           @click="replaceData"
         />

@@ -62,7 +62,7 @@ const layoutItems = computed<NavigationSegmentedControlItem[]>(() => [
       <ButtonIcon
         :icon-left="IPhPlus"
         label="New chart"
-        variant="primary"
+        variant="strong"
         @click="$emit('new')"
       />
     </template>
