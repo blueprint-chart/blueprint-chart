@@ -6,8 +6,8 @@ import type { AnnotationSnapshot } from './snapshots'
 // ---------------------------------------------------------------------------
 
 export interface AnnotationContext {
-  scaleX: d3.ScaleBand<string> | d3.ScalePoint<string> | d3.ScaleTime<number, number> | d3.ScaleLinear<number, number>
-  scaleY: d3.ScaleLinear<number, number> | d3.ScaleSymLog<number, number>
+  scaleX: d3.ScaleBand<string> | d3.ScalePoint<string> | d3.ScaleTime<number, number> | d3.ScaleLinear<number, number> | d3.ScaleLogarithmic<number, number> | d3.ScaleSymLog<number, number>
+  scaleY: d3.ScaleLinear<number, number> | d3.ScaleSymLog<number, number> | d3.ScaleLogarithmic<number, number>
   data: { label: string, value: number }[]
   width: number
   height: number

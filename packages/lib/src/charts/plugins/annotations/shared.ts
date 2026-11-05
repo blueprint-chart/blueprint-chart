@@ -54,9 +54,9 @@ function rectAnchorPoint(
 }
 
 export function computeAnchorPoint(
-  datum: { label: string, value: number },
+  datum: { label: string, value: number, x?: number },
   scaleX: AnnotationContext['scaleX'],
-  scaleY: d3.ScaleLinear<number, number> | d3.ScaleSymLog<number, number>,
+  scaleY: AnnotationContext['scaleY'],
   anchorDirection: CompassDirection,
   orientation?: 'horizontal',
 ): { x: number, y: number } {
@@ -75,7 +75,7 @@ export function computeAnchorPoint(
   }
 
   // Line charts (no bandwidth) — small fixed offsets around data point
-  const px = scaleXValue(scaleX, datum.label)
+  const px = datum.x === undefined ? scaleXValue(scaleX, datum.label) : (scaleX as d3.ScaleLinear<number, number>)(datum.x)
   const py = scaleY(datum.value)
   const offset = 2
   const v = DIRECTION_VECTORS[anchorDirection] ?? DIRECTION_VECTORS.N

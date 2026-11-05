@@ -70,12 +70,13 @@ describe('AxisDirection', () => {
 })
 
 describe('ScaleType', () => {
-  it('has 2 members', () => {
-    expect(enumValues(ScaleType)).toHaveLength(2)
+  it('has 3 members', () => {
+    expect(enumValues(ScaleType)).toHaveLength(3)
   })
   it('values match', () => {
     expect(ScaleType.Linear).toBe('linear')
     expect(ScaleType.Log).toBe('log')
+    expect(ScaleType.Symlog).toBe('symlog')
   })
 })
 

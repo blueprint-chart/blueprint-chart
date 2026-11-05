@@ -116,6 +116,13 @@ export function estimateVerticalLabelWidth(
     ? d3.scaleSymlog().domain([domainMin, domainMax]).nice()
     : d3.scaleLinear().domain([domainMin, domainMax]).nice()
 
+  return estimateScaleLabelWidth(scale, numberFormat)
+}
+
+export function estimateScaleLabelWidth(
+  scale: { ticks: (n?: number) => number[], tickFormat: (n?: number) => (v: number) => string },
+  numberFormat?: string | null,
+): number {
   const ticks = scale.ticks()
   const fmt = numberFormat
     ? (buildNumberFormatter(numberFormat) ?? scale.tickFormat())

@@ -89,7 +89,7 @@ const AUTO_DATE_FORMATS: Record<string, string> = {
   datetime: '%b %-d, %Y %H:%M',
 }
 
-type AnyXScale = d3.ScaleBand<string> | d3.ScalePoint<string> | d3.ScaleLinear<number, number> | d3.ScaleSymLog<number, number> | d3.ScaleTime<number, number>
+type AnyXScale = d3.ScaleBand<string> | d3.ScalePoint<string> | d3.ScaleLinear<number, number> | d3.ScaleSymLog<number, number> | d3.ScaleLogarithmic<number, number> | d3.ScaleTime<number, number>
 
 function isOrdinalScale(scale: AnyXScale): scale is d3.ScaleBand<string> | d3.ScalePoint<string> {
   return typeof (scale as d3.ScaleBand<string>).step === 'function'
@@ -217,7 +217,7 @@ function thinLabels(
  * formatted width depends on the step d3 picks.
  */
 function fitTickCount(
-  scale: d3.ScaleLinear<number, number> | d3.ScaleSymLog<number, number> | d3.ScaleTime<number, number>,
+  scale: d3.ScaleLinear<number, number> | d3.ScaleSymLog<number, number> | d3.ScaleLogarithmic<number, number> | d3.ScaleTime<number, number>,
   availableWidth: number,
   formatter: ((d: string | d3.NumberValue) => string) | null,
 ): number {
@@ -562,7 +562,7 @@ export class HorizontalAxisChart extends D3Blueprint<AxisDatum[]> {
         }
         else {
           axisFn.ticks(fitTickCount(
-            rawScale as d3.ScaleLinear<number, number> | d3.ScaleSymLog<number, number> | d3.ScaleTime<number, number>,
+            rawScale as d3.ScaleLinear<number, number> | d3.ScaleSymLog<number, number> | d3.ScaleLogarithmic<number, number> | d3.ScaleTime<number, number>,
             availableWidth,
             tickFormatter,
           ))

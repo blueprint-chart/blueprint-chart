@@ -33,6 +33,7 @@ export enum AxisDirection {
 export enum ScaleType {
   Linear = 'linear',
   Log = 'log',
+  Symlog = 'symlog',
 }
 
 export enum GridStyle {

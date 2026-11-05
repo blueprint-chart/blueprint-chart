@@ -148,10 +148,10 @@ export function computeLinearDomain(
  * The domain floor is 0 once `.nice()` has run, so decades start at 1 there.
  */
 export function logTickValues(
-  scale: { domain: () => unknown[], constant?: () => unknown },
+  scale: { domain: () => unknown[], constant?: () => unknown, base?: () => unknown },
   maxTicks: number,
 ): number[] | null {
-  if (typeof scale.constant !== 'function') {
+  if (typeof scale.constant !== 'function' && typeof scale.base !== 'function') {
     return null
   }
   const domain = scale.domain().map(Number).filter(Number.isFinite)

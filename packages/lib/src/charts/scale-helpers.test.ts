@@ -268,3 +268,9 @@ describe('logTickValues', () => {
     expect(logTickValues(d3.scaleSymlog().domain([-100, 0]), 12)).toBeNull()
   })
 })
+
+describe('logTickValues with d3.scaleLog', () => {
+  it('returns decade ticks for a d3.scaleLog', () => {
+    expect(logTickValues(d3.scaleLog().domain([100, 100000]), 10)).toEqual([100, 1000, 10000, 100000])
+  })
+})

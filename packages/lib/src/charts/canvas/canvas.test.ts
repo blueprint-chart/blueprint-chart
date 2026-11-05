@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { createCanvas, labelPositionMargins, estimateVerticalLabelWidth } from './canvas'
+import * as d3 from 'd3'
+import { createCanvas, labelPositionMargins, estimateVerticalLabelWidth, estimateScaleLabelWidth } from './canvas'
 
 describe('createCanvas', () => {
   let body: HTMLElement
@@ -135,5 +136,14 @@ describe('estimateVerticalLabelWidth', () => {
   it('treats a column of unreadable cells like an empty one', () => {
     expect(estimateVerticalLabelWidth([undefined as unknown as number]))
       .toBe(estimateVerticalLabelWidth([]))
+  })
+})
+
+describe('estimateScaleLabelWidth', () => {
+  it('estimates label width from the scale it is given', () => {
+    const linear = estimateScaleLabelWidth(d3.scaleLinear().domain([0, 100000]).nice())
+    const log = estimateScaleLabelWidth(d3.scaleLog().domain([1, 100000]))
+    expect(linear).toBeGreaterThan(0)
+    expect(log).toBeGreaterThan(0)
   })
 })
