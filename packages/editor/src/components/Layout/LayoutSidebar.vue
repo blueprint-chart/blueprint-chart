@@ -2,7 +2,6 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import {
-  ButtonIcon,
   NavigationCommandBar,
   NavigationSidebar,
   NavigationSidebarGroup,
@@ -10,39 +9,27 @@ import {
   NavigationWorkspaceSwitcher,
 } from '@blueprint-chart/ui'
 import { useDashboardGallery } from '@/composables/useDashboardGallery'
-import { useTheme, type ThemeMode } from '@/stores/theme'
+import { useTheme } from '@/stores/theme'
 import { usePlatformShortcut } from '@/composables/usePlatformShortcut'
-import { accountsEnabled } from '@/config/runtimeConfig'
-import AccountMenu from '@/components/Account/AccountMenu.vue'
+import LayoutSidebarFooter from '@/components/Layout/LayoutSidebarFooter.vue'
 import logoLight from '@/assets/images/blueprint-chart-logo.svg'
 import logoDark from '@/assets/images/blueprint-chart-logo-dark.svg'
 import IPhHouse from '~icons/ph/house'
 import IPhSquaresFour from '~icons/ph/squares-four'
 import IPhGithubLogo from '~icons/ph/github-logo'
 import IPhBookOpen from '~icons/ph/book-open'
-import IPhSun from '~icons/ph/sun'
-import IPhMoon from '~icons/ph/moon'
-import IPhCircleHalf from '~icons/ph/circle-half'
 
 defineEmits<{ searchClick: [] }>()
 
 const route = useRoute()
 const { sortedCharts } = useDashboardGallery()
-const { theme, cycleTheme, resolvedTheme } = useTheme()
+const { resolvedTheme } = useTheme()
 const shortcut = usePlatformShortcut('k')
-const showAccount = accountsEnabled()
-
-const iconByTheme: Record<ThemeMode, typeof IPhSun> = {
-  light: IPhSun,
-  dark: IPhMoon,
-  auto: IPhCircleHalf,
-}
 
 const recent = computed(() => sortedCharts.value.slice(0, 5))
 const isHome = computed(() => route.path === '/')
 const isCharts = computed(() => route.path.startsWith('/charts'))
 const logoSrc = computed(() => resolvedTheme.value === 'dark' ? logoDark : logoLight)
-const themeIcon = computed(() => iconByTheme[theme.value])
 </script>
 
 <template>
@@ -118,22 +105,7 @@ const themeIcon = computed(() => iconByTheme[theme.value])
     </NavigationSidebarGroup>
 
     <template #footer>
-      <div class="layout-sidebar__footer">
-        <AccountMenu
-          v-if="showAccount"
-          drop-up
-        />
-        <ButtonIcon
-          :icon-left="themeIcon"
-          label="Toggle theme"
-          hide-label
-          square
-          variant="outline-secondary"
-          size="sm"
-          class="layout-sidebar__footer__theme"
-          @click="cycleTheme"
-        />
-      </div>
+      <LayoutSidebarFooter />
     </template>
   </NavigationSidebar>
 </template>
@@ -150,15 +122,5 @@ const themeIcon = computed(() => iconByTheme[theme.value])
 .layout-sidebar__search {
   width: 100%;
   margin-top: 0.75rem;
-}
-
-.layout-sidebar__footer {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-
-  &__theme {
-    margin-left: auto;
-  }
 }
 </style>

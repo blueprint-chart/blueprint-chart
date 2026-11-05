@@ -4,8 +4,7 @@
       <BDropdown
         variant="outline-secondary"
         size="sm"
-        :end="!dropUp"
-        :placement="dropUp ? 'top-start' : undefined"
+        end
         :offset="6"
         teleport-to="body"
         menu-class="account-menu__menu"
@@ -83,8 +82,6 @@ import IPhSignIn from '~icons/ph/sign-in'
 import AccountAvatar from '@/components/Account/AccountAvatar.vue'
 import AccountSignInModal from '@/components/Account/AccountSignInModal.vue'
 import { useAccount } from '@/stores/account'
-
-defineProps<{ dropUp?: boolean }>()
 
 const router = useRouter()
 const { user, isSignedIn, signOut, init, signInModalOpen } = useAccount()

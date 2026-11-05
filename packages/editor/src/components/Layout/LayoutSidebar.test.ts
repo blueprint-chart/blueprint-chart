@@ -3,17 +3,6 @@ import { createTestingPinia } from '@pinia/testing'
 import { createRouter, createMemoryHistory } from 'vue-router'
 import LayoutSidebar from './LayoutSidebar.vue'
 
-const accountsOn = vi.hoisted(() => ({ value: false }))
-
-vi.mock('@/config/runtimeConfig', async (orig) => {
-  const actual = await orig<typeof import('@/config/runtimeConfig')>()
-  return { ...actual, accountsEnabled: () => accountsOn.value }
-})
-
-beforeEach(() => {
-  accountsOn.value = false
-})
-
 async function mountSidebar() {
   const router = createRouter({
     history: createMemoryHistory(),
@@ -26,7 +15,7 @@ async function mountSidebar() {
   await router.isReady()
   return mount(LayoutSidebar, {
     global: {
-      stubs: { 'router-link': RouterLinkStub, 'AccountMenu': { template: '<div class="account-menu-stub" />' } },
+      stubs: { 'router-link': RouterLinkStub, 'LayoutSidebarFooter': { template: '<div class="layout-sidebar-footer-stub" />' } },
       plugins: [createTestingPinia({ createSpy: vi.fn }), router],
     },
   })
@@ -39,19 +28,8 @@ describe('LayoutSidebar', () => {
     expect(wrapper.emitted('searchClick')).toHaveLength(1)
   })
 
-  it('renders the theme toggle in the footer', async () => {
+  it('renders the account and theme footer', async () => {
     const wrapper = await mountSidebar()
-    expect(wrapper.find('.layout-sidebar__footer button[aria-label="Toggle theme"]').exists()).toBe(true)
-  })
-
-  it('renders the account menu in the footer when accounts are enabled', async () => {
-    accountsOn.value = true
-    const wrapper = await mountSidebar()
-    expect(wrapper.find('.layout-sidebar__footer .account-menu-stub').exists()).toBe(true)
-  })
-
-  it('omits the account menu when accounts are disabled', async () => {
-    const wrapper = await mountSidebar()
-    expect(wrapper.find('.account-menu-stub').exists()).toBe(false)
+    expect(wrapper.find('.navigation-sidebar__footer .layout-sidebar-footer-stub').exists()).toBe(true)
   })
 })
