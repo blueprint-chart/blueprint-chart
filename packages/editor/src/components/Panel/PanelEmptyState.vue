@@ -1,18 +1,22 @@
 <template>
-  <div class="dashboard-empty-state">
-    <IPhCursorClick class="dashboard-empty-state__icon" />
-    <p class="dashboard-empty-state__text">
-      Select a chart to see its details
+  <div class="panel-empty-state">
+    <IPhCursorClick class="panel-empty-state__icon" />
+    <p class="panel-empty-state__text">
+      {{ message }}
     </p>
   </div>
 </template>
 
 <script setup lang="ts">
 import IPhCursorClick from '~icons/ph/cursor-click'
+
+defineProps<{
+  message: string
+}>()
 </script>
 
 <style scoped lang="scss">
-.dashboard-empty-state {
+.panel-empty-state {
   display: flex;
   flex-direction: column;
   align-items: center;

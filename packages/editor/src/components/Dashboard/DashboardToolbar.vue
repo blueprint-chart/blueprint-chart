@@ -14,6 +14,7 @@ const props = defineProps<{
   layout: 'grid' | 'row'
   localOnlyCount: number
   syncingAll: boolean
+  empty: boolean
 }>()
 
 defineEmits<{
@@ -48,7 +49,10 @@ const layoutItems = computed<NavigationSegmentedControlItem[]>(() => [
         @sync="$emit('sync')"
       />
     </template>
-    <template #end>
+    <template
+      v-if="!empty"
+      #end
+    >
       <NavigationSegmentedControl
         :items="layoutItems"
         aria-label="View layout"

@@ -149,4 +149,28 @@ describe('useDashboardCharts loading flags', () => {
     expect(calls).toEqual([['dashboard-charts', true], ['dashboard-charts', false]])
     expect(store.get('dashboard-charts')).toBe(false)
   })
+
+  it('is not empty until a load finishes, then empty with no charts', async () => {
+    const dash = useDashboardCharts()
+    expect(dash.empty.value).toBe(false)
+    await dash.refresh()
+    expect(dash.empty.value).toBe(true)
+  })
+
+  it('stays empty through a later refresh', async () => {
+    const dash = useDashboardCharts()
+    await dash.refresh()
+    const seen: boolean[] = []
+    watch(dash.empty, v => seen.push(v), { flush: 'sync' })
+    await dash.refresh()
+    expect(seen).toEqual([])
+    expect(dash.empty.value).toBe(true)
+  })
+
+  it('is not empty once charts are loaded', async () => {
+    localStorage.setItem('blueprint-chart:aaaaaaaaaa', 'chart bar {}')
+    const dash = useDashboardCharts()
+    await dash.refresh()
+    expect(dash.empty.value).toBe(false)
+  })
 })

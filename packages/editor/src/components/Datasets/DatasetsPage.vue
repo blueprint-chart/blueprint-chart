@@ -1,16 +1,18 @@
 <script setup lang="ts">
 import { computed, shallowRef, useTemplateRef, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { useBreakpoint } from '@blueprint-chart/ui'
+import { ButtonIcon, FeedbackEmptyState, useBreakpoint } from '@blueprint-chart/ui'
 import { useDatasets } from '@/composables/useDatasets'
 import { useSavedChartThumbnails } from '@/composables/useSavedChartThumbnails'
 import { groupDatasets } from '@/utils/datasets'
 import type { Dataset, DatasetGroup } from '@/utils/datasets'
 import LayoutPageHeader from '@/components/Layout/LayoutPageHeader.vue'
 import PanelShell from '@/components/Panel/PanelShell.vue'
+import PanelEmptyState from '@/components/Panel/PanelEmptyState.vue'
 import DatasetsCard from './DatasetsCard.vue'
 import DatasetsDetail from './DatasetsDetail.vue'
 import IPhTable from '~icons/ph/table'
+import IPhPlus from '~icons/ph/plus'
 
 const router = useRouter()
 const { isNarrow } = useBreakpoint()
@@ -85,27 +87,24 @@ function newChart(dataset: Dataset) {
             @new-chart="newChart"
           />
         </div>
-        <div
+        <FeedbackEmptyState
           v-else
           class="datasets-page__main__gallery__empty"
+          title="No datasets yet"
+          message="Datasets appear here once a chart has data."
         >
-          <IPhTable
-            class="datasets-page__main__gallery__empty__icon"
-            aria-hidden="true"
-          />
-          <p class="datasets-page__main__gallery__empty__title">
-            No datasets yet
-          </p>
-          <p class="datasets-page__main__gallery__empty__text">
-            Datasets appear here once a chart has data.
-          </p>
-          <RouterLink
-            to="/new"
-            class="datasets-page__main__gallery__empty__link"
-          >
-            New chart
-          </RouterLink>
-        </div>
+          <template #icon>
+            <IPhTable />
+          </template>
+          <template #actions>
+            <ButtonIcon
+              :icon-left="IPhPlus"
+              label="New chart"
+              variant="strong"
+              to="/new"
+            />
+          </template>
+        </FeedbackEmptyState>
       </div>
       <PanelShell
         v-if="groups.length"
@@ -121,12 +120,10 @@ function newChart(dataset: Dataset) {
           :thumbnails="thumbnails"
           @new-chart="newChart"
         />
-        <p
+        <PanelEmptyState
           v-else
-          class="datasets-page__main__hint"
-        >
-          Select a dataset to see its data, steps and charts.
-        </p>
+          message="Select a dataset to see its data, steps and charts."
+        />
       </PanelShell>
     </div>
   </div>
@@ -178,40 +175,8 @@ function newChart(dataset: Dataset) {
       }
 
       &__empty {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 0.5rem;
         padding: 4rem 1rem;
-        text-align: center;
-
-        &__icon {
-          width: 2rem;
-          height: 2rem;
-          color: var(--bs-secondary-color);
-        }
-
-        &__title {
-          margin: 0;
-          font-weight: 600;
-        }
-
-        &__text {
-          margin: 0;
-          font-size: var(--bs-font-size-sm);
-          color: var(--bs-secondary-color);
-        }
-
-        &__link {
-          font-size: var(--bs-font-size-sm);
-        }
       }
-    }
-
-    &__hint {
-      margin: 0;
-      font-size: var(--bs-font-size-sm);
-      color: var(--bs-secondary-color);
     }
   }
 }

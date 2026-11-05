@@ -88,6 +88,8 @@ export function useDashboardCharts() {
   const thumbnails = reactive<Record<string, string>>({})
   const previews = reactive<Record<string, string>>({})
   const sortValue = shallowRef('date-desc')
+  const loaded = shallowRef(false)
+  const empty = computed(() => loaded.value && charts.value.length === 0)
 
   const showCloud = computed(() => accountsEnabled() && isSignedIn.value)
 
@@ -109,6 +111,7 @@ export function useDashboardCharts() {
     }
     finally {
       wait.end('dashboard-charts')
+      loaded.value = true
     }
     charts.value = mergeChartLists(localList, cloudList)
     loadImages()
@@ -259,6 +262,7 @@ export function useDashboardCharts() {
   return {
     charts,
     sortedCharts,
+    empty,
     thumbnails,
     previews,
     sortValue,

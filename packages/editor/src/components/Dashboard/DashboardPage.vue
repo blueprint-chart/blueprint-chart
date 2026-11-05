@@ -15,6 +15,7 @@ const { mode } = storeToRefs(usePanelStore())
 
 const {
   sortedCharts,
+  empty,
   thumbnails,
   previews,
   sortValue,
@@ -155,6 +156,7 @@ onUnmounted(() => {
       :layout="viewLayout"
       :local-only-count="showCloud ? localOnlyCount : 0"
       :syncing-all="syncingAll"
+      :empty="empty"
       @update:sort-value="sortValue = $event"
       @update:layout="viewLayout = $event"
       @new="router.push('/new')"
@@ -171,6 +173,7 @@ onUnmounted(() => {
           :selected-id="selectedChartId"
           :layout="viewLayout"
           :show-cloud="showCloud"
+          :empty="empty"
           @select="selectChart"
           @edit="openChart"
           @sync="syncOne"
@@ -180,6 +183,7 @@ onUnmounted(() => {
       </div>
 
       <PanelShell
+        v-if="!empty"
         v-model:drawer-open="drawerOpen"
         :title="panelTitle"
         :container-ref="galleryRef"
@@ -204,8 +208,9 @@ onUnmounted(() => {
           @delete="deleteSelected"
           @sync="syncSelected"
         />
-        <DashboardEmptyState
+        <PanelEmptyState
           v-else-if="mode === 'docked'"
+          message="Select a chart to see its details"
         />
       </PanelShell>
     </div>

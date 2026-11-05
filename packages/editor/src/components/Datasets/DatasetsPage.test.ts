@@ -69,10 +69,22 @@ describe('DatasetsPage', () => {
     expect(wrapper.text()).toContain('2 datasets')
   })
 
+  it('shows the chart-style empty panel when no dataset is selected', async () => {
+    list.value = [dataset('a')]
+    const { wrapper } = await mountPage()
+    expect(wrapper.find('.panel-empty-state').text()).toBe('Select a dataset to see its data, steps and charts.')
+  })
+
   it('renders the empty state with no datasets', async () => {
     list.value = []
     const { wrapper } = await mountPage()
     expect(wrapper.text()).toContain('No datasets yet')
+  })
+
+  it('links the empty state button to the new chart wizard', async () => {
+    list.value = []
+    const { wrapper } = await mountPage()
+    expect(wrapper.findComponent(RouterLinkStub).props('to')).toBe('/new')
   })
 
   it('starts a chart and routes to its data step', async () => {

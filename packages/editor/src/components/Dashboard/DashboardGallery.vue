@@ -1,5 +1,25 @@
 <template>
+  <FeedbackEmptyState
+    v-if="empty"
+    class="dashboard-gallery dashboard-gallery--empty"
+    title="No charts yet"
+    message="Charts you create or open appear here."
+  >
+    <template #icon>
+      <IPhPresentationChart />
+    </template>
+    <template #actions>
+      <ButtonIcon
+        :icon-left="IPhPlus"
+        label="New chart"
+        variant="strong"
+        to="/new"
+      />
+    </template>
+  </FeedbackEmptyState>
   <GalleryGrid
+    v-else
+    class="dashboard-gallery"
     :layout="layout"
     :aria-busy="listLoading || undefined"
   >
@@ -31,17 +51,14 @@
         @sync="$emit('sync', $event)"
         @open="$emit('open', $event)"
       />
-
-      <FeedbackEmptyState
-        v-if="charts.length === 0"
-        message="No saved charts yet. Create a new chart to get started."
-      />
     </template>
   </GalleryGrid>
 </template>
 
 <script setup lang="ts">
-import { GalleryGrid, GalleryCard, FeedbackEmptyState } from '@blueprint-chart/ui'
+import { ButtonIcon, GalleryGrid, GalleryCard, FeedbackEmptyState } from '@blueprint-chart/ui'
+import IPhPresentationChart from '~icons/ph/presentation-chart'
+import IPhPlus from '~icons/ph/plus'
 import type { UnifiedChartSummary } from '@/composables/useDashboardCharts'
 
 const SKELETON_COUNT = 6
@@ -52,6 +69,7 @@ defineProps<{
   selectedId: string | null
   layout: 'grid' | 'row'
   showCloud: boolean
+  empty: boolean
 }>()
 
 defineEmits<{
@@ -65,3 +83,9 @@ defineEmits<{
 const wait = useWait()
 const listLoading = computed(() => wait.waiting('dashboard-charts'))
 </script>
+
+<style scoped lang="scss">
+.dashboard-gallery--empty {
+  padding: 4rem 1rem;
+}
+</style>
