@@ -52,7 +52,7 @@ describe('useAccount', () => {
     expect(account.status.value).toBe('link-sent')
   })
 
-  it('shows a recoverable message and logs the provider error when sending fails', async () => {
+  it('shows the provider cause and logs the provider error when sending fails', async () => {
     const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
     const providerError = { message: 'rate limit exceeded' }
     auth.signInWithOtp.mockResolvedValue({ error: providerError })
@@ -60,7 +60,7 @@ describe('useAccount', () => {
     await account.init()
     await account.signInWithEmail('a@b.co')
     expect(account.status.value).toBe('error')
-    expect(account.errorMessage.value).toBe('We couldn\'t send the link. Check the address and try again in a minute.')
+    expect(account.errorMessage.value).toBe('We couldn\'t send the link: rate limit exceeded')
     expect(consoleError).toHaveBeenCalledWith(providerError)
   })
 
