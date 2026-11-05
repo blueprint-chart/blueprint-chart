@@ -13,7 +13,15 @@ export function highlightedPointNames(points: ScatterPoint[], targets: string[])
   return selected
 }
 
+export function splitColorOverrides(points: ScatterPoint[], overrides: Map<string, string>) {
+  const names = new Set(points.map(p => p.name))
+  const entries = [...overrides]
+  return {
+    points: new Map(entries.filter(([target]) => names.has(target))),
+    groups: new Map(entries.filter(([target]) => !names.has(target))),
+  }
+}
+
 export function resolvePointColor(point: ScatterPoint, overrides: Map<string, string>, groups: Map<string, string>, fallback: string): string {
-  const group = point.group ?? ''
-  return overrides.get(point.name) ?? overrides.get(group) ?? groups.get(group) ?? fallback
+  return overrides.get(point.name) ?? groups.get(point.group ?? '') ?? fallback
 }

@@ -86,6 +86,7 @@ describe('scatter chart', () => {
     render(container, parseData('series = "x","y"\n"a" = 5, 1\n"b" = 5, 2\n"c" = 5, 3'), {})
     expect(points(container).every(c => Number.isFinite(Number(c.getAttribute('cx'))))).toBe(true)
   })
+  const swatch = (group: string) => container.querySelector(`.bc-legend-item[data-series="${group}"] rect`)!
   const legendLabels = () => Array.from(container.querySelectorAll('.bc-legend text')).map(t => t.textContent)
 
   it('lists groups in the legend in first-appearance order', () => {
@@ -162,7 +163,19 @@ describe('scatter chart', () => {
     render(container, DATA, { colorizes: [{ target: 'Africa', color: '#000000' }] })
     expect(container.querySelector('[data-key="Chad"]')!.getAttribute('fill')).toBe('#000000')
     expect(container.querySelector('[data-key="France"]')!.getAttribute('fill')).not.toBe('#000000')
-    expect(Array.from(container.querySelectorAll('.bc-legend rect')).map(r => r.getAttribute('fill'))[1]).toBe('#000000')
+    expect(swatch('Africa').getAttribute('fill')).toBe('#000000')
+  })
+
+  it('lets a point name beat a group name in colorize', () => {
+    const d = parseData([
+      'series = "x","y","Continent"',
+      '"Chad" = 1, 1, "Africa"',
+      '"Africa" = 2, 2, "Other"',
+    ].join('\n'))
+    render(container, d, { colorizes: [{ target: 'Africa', color: '#000000' }] })
+    expect(container.querySelector('[data-key="Africa"]')!.getAttribute('fill')).toBe('#000000')
+    expect(container.querySelector('[data-key="Chad"]')!.getAttribute('fill')).not.toBe('#000000')
+    expect(swatch('Africa').getAttribute('fill')).not.toBe('#000000')
   })
 
   it('draws a vertical range annotation on the numeric x-axis', () => {

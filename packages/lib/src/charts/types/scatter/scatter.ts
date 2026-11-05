@@ -20,7 +20,7 @@ import { AnnotationKind } from '../../../enums'
 import { renderAnnotations } from '../../plugins/annotations'
 import { buildColorOverrides } from '../../plugins/colorize'
 import { highlightOpacity } from '../../plugins/highlight'
-import { highlightedPointNames, resolvePointColor } from './emphasis'
+import { highlightedPointNames, resolvePointColor, splitColorOverrides } from './emphasis'
 import { placePointLabels } from './labels'
 
 export const DEFAULT_COLOR = '#4e79a7'
@@ -139,9 +139,10 @@ export function render(
   const clipId = ensureClipPath(svg, container, 'plot', { x: 0, y: 0, width, height })
   const pointLayer = d3.select(chartArea).append('g').attr('clip-path', `url(#${clipId})`).node() as SVGGElement
 
-  const overrides = buildColorOverrides(options.colorizes)
+  const overrides = splitColorOverrides(points, buildColorOverrides(options.colorizes))
+  const shownGroupColors = new Map(groupNames.map(g => [g, overrides.groups.get(g) ?? colors.get(g)!]))
   const highlighted = highlightedPointNames(points, (options.highlights ?? []).map(h => h.target))
-  const color = (p: ScatterPoint) => resolvePointColor(p, overrides, colors, DEFAULT_COLOR)
+  const color = (p: ScatterPoint) => resolvePointColor(p, overrides.points, shownGroupColors, DEFAULT_COLOR)
   const stroke = resolveBackgroundColor(container)
   const orch = getSceneTransition(container)
   featureJoin<ScatterPoint>(orch, {
@@ -195,7 +196,7 @@ export function render(
   })
 
   if (showLegend) {
-    renderLegend(chartArea, groupNames, groupNames.map(g => overrides.get(g) ?? colors.get(g)!), legendY(legendPos, legendSize.height + insideGap, legendH, height, margin.bottom), legendPos, legendAnchor, width, height, legendX(legendPos, legendSize.width, width), [], { left: margin.left, right: margin.right })
+    renderLegend(chartArea, groupNames, [...shownGroupColors.values()], legendY(legendPos, legendSize.height + insideGap, legendH, height, margin.bottom), legendPos, legendAnchor, width, height, legendX(legendPos, legendSize.width, width), [], { left: margin.left, right: margin.right })
   }
 
   const key = renderScatterKey(chartArea, { ...keyContent, radius: radiusOf })
