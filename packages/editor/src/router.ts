@@ -89,6 +89,10 @@ const router = createRouter({
       meta: { title: 'Datasets' },
     },
     {
+      path: '/palettes',
+      component: () => import('@/components/Palettes/PalettesPage.vue'),
+    },
+    {
       path: '/new',
       component: WizardShell,
       meta: { title: 'New chart' },

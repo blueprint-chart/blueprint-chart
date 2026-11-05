@@ -16,6 +16,7 @@ import logoLight from '@/assets/images/blueprint-chart-logo.svg'
 import logoDark from '@/assets/images/blueprint-chart-logo-dark.svg'
 import IPhHouse from '~icons/ph/house'
 import IPhPresentationChart from '~icons/ph/presentation-chart'
+import IPhPalette from '~icons/ph/palette'
 import IPhGithubLogo from '~icons/ph/github-logo'
 import IPhBookOpen from '~icons/ph/book-open'
 import IPhTable from '~icons/ph/table'
@@ -31,6 +32,7 @@ const recent = computed(() => sortedCharts.value.slice(0, 5))
 const isHome = computed(() => route.path === '/')
 const isCharts = computed(() => route.path.startsWith('/charts'))
 const isDatasets = computed(() => route.path.startsWith('/datasets'))
+const isPalettes = computed(() => route.path.startsWith('/palettes'))
 const logoSrc = computed(() => resolvedTheme.value === 'dark' ? logoDark : logoLight)
 </script>
 
@@ -80,6 +82,15 @@ const logoSrc = computed(() => resolvedTheme.value === 'dark' ? logoDark : logoL
       >
         <template #icon>
           <IPhTable />
+        </template>
+      </NavigationSidebarItem>
+      <NavigationSidebarItem
+        to="/palettes"
+        label="Palettes"
+        :active="isPalettes"
+      >
+        <template #icon>
+          <IPhPalette />
         </template>
       </NavigationSidebarItem>
     </NavigationSidebarGroup>

@@ -1,0 +1,36 @@
+import { mount } from '@vue/test-utils'
+import PalettesCard from './PalettesCard.vue'
+
+function mountCard(props: { label?: string, colors?: string[], editable?: boolean } = {}) {
+  return mount(PalettesCard, {
+    props: { label: 'Test', colors: ['#dd5129', '#0f7ba2'], editable: false, ...props },
+  })
+}
+
+const buttonTexts = (wrapper: ReturnType<typeof mountCard>) =>
+  wrapper.findAll('button').map(b => b.text())
+
+describe('PalettesCard', () => {
+  it('renders one swatch per color', () => {
+    const wrapper = mountCard({ colors: ['#dd5129', '#0f7ba2', '#43b284'] })
+    expect(wrapper.findAll('.display-color-swatch')).toHaveLength(3)
+  })
+
+  it('shows only Duplicate when not editable', () => {
+    const texts = buttonTexts(mountCard({ editable: false }))
+    expect(texts.some(t => t.includes('Duplicate'))).toBe(true)
+    expect(texts.some(t => t.includes('Edit'))).toBe(false)
+    expect(texts.some(t => t.includes('Delete'))).toBe(false)
+  })
+
+  it('emits duplicate when Duplicate is clicked', async () => {
+    const wrapper = mountCard()
+    await wrapper.findAll('button').find(b => b.text().includes('Duplicate'))!.trigger('click')
+    expect(wrapper.emitted('duplicate')).toHaveLength(1)
+  })
+
+  it('shows a failing light contrast level for near-white colors', () => {
+    const wrapper = mountCard({ colors: ['#ffffff', '#fefefe'] })
+    expect(wrapper.find('.display-contrast-badge--fail').exists()).toBe(true)
+  })
+})
