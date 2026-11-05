@@ -102,12 +102,20 @@ test.describe('landing redesign', () => {
     expect(shadow).toBe('none')
   })
 
-  test('section eyebrow hash uses the Prussian mark, never vermilion', async ({ page }) => {
-    const color = await page.locator('.bc-eyebrow__hash').first()
-      .evaluate(el => getComputedStyle(el).color)
-    // #2563A0 — --bc-mark on light. Chartreuse can't be a thin figure on white,
-    // so small editorial marks fall back to the Prussian brand ink (vermilion retired).
-    expect(color).toBe('rgb(37, 99, 160)')
+  test('section eyebrow hash follows --bc-mark, neither vermilion nor Prussian', async ({ page }) => {
+    const hash = page.locator('.bc-eyebrow__hash').first()
+    const color = await hash.evaluate(el => getComputedStyle(el).color)
+    const mark = await hash.evaluate((el) => {
+      const probe = document.createElement('i')
+      probe.style.color = 'var(--bc-mark)'
+      el.append(probe)
+      const value = getComputedStyle(probe).color
+      probe.remove()
+      return value
+    })
+    expect(color).toBe(mark)
+    expect(color).not.toBe('rgb(37, 99, 160)')
+    expect(color).not.toBe('rgb(224, 82, 6)')
   })
 })
 

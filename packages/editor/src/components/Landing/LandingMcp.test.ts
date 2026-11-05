@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { mount } from '@vue/test-utils'
 import LandingMcp from './LandingMcp.vue'
 
@@ -17,6 +19,11 @@ function mountMcp() {
 }
 
 describe('LandingMcp', () => {
+  it('never paints hard-coded white text on a theme-colored background', () => {
+    const source = readFileSync(resolve(__dirname, 'LandingMcp.vue'), 'utf-8')
+    expect(source).not.toMatch(/color:\s*#fff/i)
+  })
+
   it('renders on the page theme, not a dark island', () => {
     const w = mountMcp()
     expect(w.find('[data-bs-theme]').exists()).toBe(false)

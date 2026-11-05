@@ -204,7 +204,7 @@ const steps: McpStep[] = [
         height: 1.125rem;
         border-radius: var(--bc-radius-xs);
         background: var(--bs-primary);
-        color: #fff;
+        color: var(--bs-body-bg);
         font-size: 0.6875rem;
         font-weight: 700;
         display: flex;
@@ -268,7 +268,7 @@ const steps: McpStep[] = [
 
     &--asst {
       background: var(--bs-primary);
-      color: #fff;
+      color: var(--bs-body-bg);
     }
 
     &--user {
@@ -467,7 +467,7 @@ const steps: McpStep[] = [
     padding: 0.5rem 1rem;
     border-radius: var(--bc-radius-md);
     background: var(--bs-primary);
-    color: #fff;
+    color: var(--bs-body-bg);
     font-size: var(--bs-font-size-sm);
     font-weight: 600;
     text-decoration: none;
