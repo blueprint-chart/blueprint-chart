@@ -57,7 +57,6 @@
         <button
           type="button"
           class="gallery-card__meta__title"
-          :class="{ 'bc-display': serifTitle }"
           @click="emit('click')"
         >
           {{ title }}
@@ -89,7 +88,6 @@ const props = defineProps<{
   selected?: boolean
   layout?: 'grid' | 'row'
   forceLightThumb?: boolean
-  serifTitle?: boolean
   /** Whole-card placeholder: thumb + meta render as skeletons, content ignored. */
   loading?: boolean
   /** Card is real, but the thumb area shimmers until `thumbSrc` arrives. */
@@ -230,11 +228,6 @@ const cardClassList = computed(() => ({
     // scoped 700 above forces synthetic bold that renders like a Times
     // fallback. Let the display face use its native weight, one size up to
     // keep optical parity with the bold sans variant.
-    &__title.bc-display {
-      font-weight: 400;
-      font-size: var(--bs-font-size-md);
-    }
-
     &__subtitle {
       font-size: var(--bs-font-size-xs);
       color: var(--bs-secondary-color);
