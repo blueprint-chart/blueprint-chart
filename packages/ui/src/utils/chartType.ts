@@ -14,6 +14,7 @@ export const CHART_TYPE_LABELS: Partial<Record<ChartType, string>> = {
   [ChartType.AreaStacked]: 'Areas',
   [ChartType.Donut]: 'Donut',
   [ChartType.Pie]: 'Pie',
+  [ChartType.Scatter]: 'Scatter',
 }
 
 export function getChartTypeLabel(chartType: string): string {

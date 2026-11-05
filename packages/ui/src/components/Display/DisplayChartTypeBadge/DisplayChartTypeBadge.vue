@@ -19,6 +19,7 @@ import IPhChartBarHorizontal from '~icons/ph/chart-bar-horizontal'
 import IPhChartLineUp from '~icons/ph/chart-line-up'
 import IPhChartPieSlice from '~icons/ph/chart-pie-slice'
 import IPhChartDonut from '~icons/ph/chart-donut'
+import IPhChartScatter from '~icons/ph/chart-scatter'
 import { ChartType } from '../../../enums'
 import { getChartTypeLabel } from '../../../utils/chartType'
 
@@ -46,6 +47,7 @@ const ICON_MAP: Partial<Record<ChartType, object>> = {
   [ChartType.AreaStacked]: IPhChartLineUp,
   [ChartType.Donut]: IPhChartDonut,
   [ChartType.Pie]: IPhChartPieSlice,
+  [ChartType.Scatter]: IPhChartScatter,
 }
 
 const icon = computed(() => ICON_MAP[props.chartType as ChartType] ?? IPhChartBar)

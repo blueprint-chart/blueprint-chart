@@ -28,4 +28,5 @@ export enum ChartType {
   AreaStacked = 'area-stacked',
   Donut = 'donut',
   Pie = 'pie',
+  Scatter = 'scatter',
 }
