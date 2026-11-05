@@ -6,7 +6,7 @@ import { createCanvas, contentSize, labelPositionMargins, estimateScaleLabelWidt
 import { AxisService } from '../../axis/axis-service'
 import { resolveBackgroundColor } from '../../contrast'
 import { ensureClipPath } from '../../clip-path-helper'
-import { setRenderTransition } from '../../motion'
+import { setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut } from '../../motion'
 import { getCachedChart, setCachedChart } from '../../transition-cache'
 import { featureJoin, getSceneTransition, tweenPlotFrame, type PlotRect } from '../../../transitions'
 import { resolveScatterMapping } from './mapping'
@@ -17,7 +17,7 @@ import { renderLegend } from '../../legend/legend'
 import { estimateLegendSize } from '../../legend/legend-size'
 import { DEFAULT_COLORS } from '../line-multi/line-multi'
 import { AnnotationKind } from '../../../enums'
-import { renderAnnotations } from '../../plugins/annotations'
+import { renderAnnotations, snapshotAnnotations, type AnnotationSnapshot } from '../../plugins/annotations'
 import { buildColorOverrides } from '../../plugins/colorize'
 import { highlightOpacity } from '../../plugins/highlight'
 import { disposeProximityFor, setupProximityInteraction } from '../../plugins/proximity'
@@ -80,8 +80,25 @@ export function render(
   disposeProximityFor(container)
   const axes = AxisService.for(container)
   const cached = transition ? getCachedChart(container) : undefined
+  let priorTrends: Element[] = []
+  let priorPoints: Element[] = []
+  let fadeOverlay: HTMLElement | null = null
+  let priorAnnotations: Map<string, AnnotationSnapshot> | undefined
   if (transition) {
     axes.detach()
+    if (cached?.chartType === 'scatter') {
+      priorTrends = Array.from(container.querySelectorAll('.bc-frame .bc-trend-line'))
+      priorPoints = Array.from(container.querySelectorAll('.bc-frame .bc-scatter-point'))
+    }
+    else if (cached) {
+      fadeOverlay = snapshotForFadeOut(container)
+    }
+    priorAnnotations = new Map()
+    for (const el of container.querySelectorAll('.bc-frame .bc-annotations, .bc-frame .bc-annotations-range')) {
+      for (const [k, v] of snapshotAnnotations(el)) {
+        priorAnnotations.set(k, v)
+      }
+    }
     container.replaceChildren()
   }
 
@@ -145,6 +162,8 @@ export function render(
   const clipId = ensureClipPath(svg, container, 'plot', { x: 0, y: 0, width, height })
   const trendLayer = d3.select(chartArea).append('g').attr('clip-path', `url(#${clipId})`).node() as SVGGElement
   const pointLayer = d3.select(chartArea).append('g').attr('clip-path', `url(#${clipId})`).node() as SVGGElement
+  trendLayer.append(...priorTrends)
+  pointLayer.append(...priorPoints)
 
   const overrides = splitColorOverrides(points, buildColorOverrides(options.colorizes))
   const shownGroupColors = new Map(groupNames.map(g => [g, overrides.groups.get(g) ?? colors.get(g)!]))
@@ -169,6 +188,16 @@ export function render(
       'stroke-dasharray': TREND_DASH,
     }),
   })
+  const pointAttrs = (p: ScatterPoint) => ({
+    'cx': x(p.x),
+    'cy': y(p.y),
+    'r': radius(p),
+    'fill': color(p),
+    'fill-opacity': highlightOpacity(highlighted, p.name, FILL_OPACITY),
+    'stroke': stroke,
+    'stroke-width': 1,
+    'opacity': 1,
+  })
   featureJoin<ScatterPoint>(orch, {
     role: 'mark-per-category',
     parent: pointLayer,
@@ -176,15 +205,9 @@ export function render(
     data: d3.sort(points, p => -radius(p)),
     key: p => p.name,
     insert: sel => sel.append('circle').attr('class', 'bc-scatter-point').attr('data-key', p => p.name),
-    attrs: p => ({
-      'cx': x(p.x),
-      'cy': y(p.y),
-      'r': radius(p),
-      'fill': color(p),
-      'fill-opacity': highlightOpacity(highlighted, p.name, FILL_OPACITY),
-      'stroke': stroke,
-      'stroke-width': 1,
-    }),
+    attrs: pointAttrs,
+    enterFrom: p => ({ ...pointAttrs(p), opacity: 0 }),
+    exitTo: () => ({ opacity: 0 }),
   })
 
   const labelled = labelledPoints(points, highlighted, options)
@@ -206,7 +229,7 @@ export function render(
 
   if (options.annotations?.length) {
     const annotationData = points.map(p => ({ label: p.name, value: p.y, x: p.x }))
-    renderAnnotations(chartArea, options.annotations, { scaleX: x, scaleY: y, data: annotationData, width, height, backgroundColor: stroke, transition })
+    renderAnnotations(chartArea, options.annotations, { scaleX: x, scaleY: y, data: annotationData, width, height, backgroundColor: stroke, transition, priorAnnotations })
   }
 
   const plotRect: PlotRect = { left: margin.left, top: margin.top, width, height }
@@ -240,4 +263,10 @@ export function render(
   }
 
   setCachedChart(container, { chartType: 'scatter', margin, plotRect })
+
+  if (fadeOverlay) {
+    fadeIn(trendLayer)
+    fadeIn(pointLayer)
+    commitFadeOut(container, fadeOverlay)
+  }
 }
