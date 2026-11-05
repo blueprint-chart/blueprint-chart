@@ -1,3 +1,14 @@
+## [2.5.0](https://github.com/blueprint-chart/blueprint-chart/compare/v2.4.0...v2.5.0) (2026-11-05)
+
+### Features
+
+* **editor:** list datasets from cloud charts ([dc10c04](https://github.com/blueprint-chart/blueprint-chart/commit/dc10c042424e185f8ccb02ebb0128b97e8bd29bd))
+* **editor:** render saved chart thumbnails from a given dsl source ([8eb910c](https://github.com/blueprint-chart/blueprint-chart/commit/8eb910cde9286787c74480381b3ce1f436cbec7f))
+
+### Bug Fixes
+
+* **editor:** load owned cloud datasets in one request ([a3146eb](https://github.com/blueprint-chart/blueprint-chart/commit/a3146eb08ebc7525bed8ed21b6b160c19c3b2e01))
+
 ## [2.4.0](https://github.com/blueprint-chart/blueprint-chart/compare/v2.3.0...v2.4.0) (2026-11-05)
 
 ### Features
