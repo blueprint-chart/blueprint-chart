@@ -259,7 +259,7 @@ async function onSave() {
     padding: 0.125rem 0.5rem;
     border-radius: 99px;
     background: var(--bs-primary);
-    color: var(--bs-white, #fff);
+    color: var(--bs-body-bg);
   }
 
   &__note {

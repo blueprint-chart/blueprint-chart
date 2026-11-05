@@ -139,7 +139,7 @@ function onSelect(item: NavigationSegmentedControlItem) {
     // Active option: filled with the primary for clear emphasis.
     &--active {
       background: var(--bs-primary);
-      color: var(--bs-white, #fff);
+      color: var(--bs-body-bg);
       font-weight: 500;
     }
 

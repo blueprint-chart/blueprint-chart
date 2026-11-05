@@ -106,7 +106,7 @@ watch(activeTabEl, scrollActiveTabIntoView)
     &--active:hover,
     &--active:focus-visible {
       background: var(--bs-primary);
-      color: var(--bs-white, #fff);
+      color: var(--bs-body-bg);
       font-weight: 600;
     }
   }

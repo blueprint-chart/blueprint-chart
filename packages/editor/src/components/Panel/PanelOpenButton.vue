@@ -48,7 +48,7 @@ function onClick() {
   border: none;
   border-radius: 999px;
   background: var(--bs-primary);
-  color: var(--bs-white, #fff);
+  color: var(--bs-body-bg);
   font-size: var(--bs-font-size-sm);
   font-weight: 600;
   line-height: 1;
@@ -59,8 +59,7 @@ function onClick() {
     opacity var(--bc-duration-base) var(--bc-ease);
 
   &:hover {
-    background: var(--bs-primary);
-    box-shadow: 0 0 0 4px rgba(var(--bs-primary-rgb), 0.18);
+    background: var(--bc-btn-strong-hover-bg);
   }
 
   &:focus-visible {

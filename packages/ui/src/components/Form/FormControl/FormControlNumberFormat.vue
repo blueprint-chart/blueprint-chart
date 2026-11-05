@@ -420,7 +420,7 @@ const previewSamples = computed(() =>
 
           &--active {
             background: var(--bs-primary);
-            color: #fff;
+            color: var(--bs-body-bg);
             font-weight: 500;
           }
         }

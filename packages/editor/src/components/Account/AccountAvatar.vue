@@ -22,7 +22,7 @@ const initial = computed(() => props.email.trim().charAt(0).toUpperCase() || '?'
   justify-content: center;
   border-radius: 50%;
   background: var(--bs-primary);
-  color: #fff;
+  color: var(--bs-body-bg);
   font-weight: 600;
   line-height: 1;
   flex-shrink: 0;
