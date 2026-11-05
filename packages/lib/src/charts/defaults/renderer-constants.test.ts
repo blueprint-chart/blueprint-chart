@@ -15,6 +15,7 @@ import { DEFAULT_COLORS as COLUMN_STACKED_DEFAULTS } from '../types/column-stack
 import { DEFAULT_COLORS as LINE_MULTI_DEFAULTS } from '../types/line-multi/line-multi'
 import { DEFAULT_COLORS as AREA_STACKED_DEFAULTS } from '../types/area-stacked/area-stacked'
 import { DEFAULT_COLORS as DONUT_DEFAULTS } from '../types/donut/donut'
+import { DEFAULT_COLOR as SCATTER_DEFAULT } from '../types/scatter/scatter'
 
 const ACTUAL: Partial<Record<ChartType, unknown>> = {
   [ChartType.Line]: LINE_DEFAULT,
@@ -29,6 +30,7 @@ const ACTUAL: Partial<Record<ChartType, unknown>> = {
   [ChartType.LineMulti]: LINE_MULTI_DEFAULTS,
   [ChartType.AreaStacked]: AREA_STACKED_DEFAULTS,
   [ChartType.Donut]: DONUT_DEFAULTS,
+  [ChartType.Scatter]: SCATTER_DEFAULT,
 }
 
 describe(`Concern: ${Concern.RendererConstants}`, () => {

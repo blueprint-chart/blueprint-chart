@@ -1,4 +1,4 @@
-import { ChartType, DirectLabelMode, GridStyle, Interpolation, LabelRotation, ScaleType, SortDirection, SortMode, StackMode } from '../../enums'
+import { ChartType, DirectLabelMode, GridStyle, Interpolation, LabelPosition, LabelRotation, ScaleType, SortDirection, SortMode, StackMode } from '../../enums'
 import { Concern } from './types'
 import type { Matrix } from './types'
 
@@ -115,6 +115,7 @@ export const MATRIX: Matrix = {
       target: DirectLabelMode.Auto,
       rule: RULE_DIRECT_LABEL_PREFERRED,
     },
+    [ChartType.Scatter]: { status: 'na', reason: 'scatter labels points via showLabels, not the direct-labelling mode' },
   },
 
   // =========================================================================
@@ -192,6 +193,12 @@ export const MATRIX: Matrix = {
       status: 'asserted',
       optionKey: 'legend',
       target: false,
+      rule: RULE_WHEN_TO_USE_LEGENDS,
+    },
+    [ChartType.Scatter]: {
+      status: 'asserted',
+      optionKey: 'legend',
+      target: true,
       rule: RULE_WHEN_TO_USE_LEGENDS,
     },
   },
@@ -282,6 +289,7 @@ export const MATRIX: Matrix = {
     [ChartType.Donut]: { status: 'na', reason: 'donut uses showLabels/showValues arc options rather than the valueLabels boolean' },
     // pie; valueLabels option is not registered (uses showLabels/showValues/directLabelling instead)
     [ChartType.Pie]: { status: 'na', reason: 'pie uses showLabels/showValues arc options rather than the valueLabels boolean' },
+    [ChartType.Scatter]: { status: 'na', reason: 'scatter has no value labels; points are labelled via showLabels' },
   },
 
   // =========================================================================
@@ -360,6 +368,12 @@ export const MATRIX: Matrix = {
     [ChartType.Donut]: { status: 'na', reason: 'donut is a polar chart with no Cartesian axes' },
     // pie; no axes registered
     [ChartType.Pie]: { status: 'na', reason: 'pie is a polar chart with no Cartesian axes' },
+    [ChartType.Scatter]: {
+      status: 'asserted',
+      optionKey: 'verticalLabelPosition',
+      target: LabelPosition.Auto,
+      rule: RULE_BAR_NO_VALUE_AXIS,
+    },
   },
 
   // =========================================================================
@@ -451,6 +465,12 @@ export const MATRIX: Matrix = {
     [ChartType.Donut]: { status: 'na', reason: 'donut is a polar chart with no Cartesian axes; gridline concern does not apply' },
     // pie; polar chart — no Cartesian axes
     [ChartType.Pie]: { status: 'na', reason: 'pie is a polar chart with no Cartesian axes; gridline concern does not apply' },
+    [ChartType.Scatter]: {
+      status: 'asserted',
+      optionKey: 'verticalGridStyle',
+      target: GridStyle.Dashed,
+      rule: RULE_GRIDLINES_Y_AXIS,
+    },
   },
 
   // =========================================================================
@@ -541,6 +561,12 @@ export const MATRIX: Matrix = {
     [ChartType.Donut]: { status: 'na', reason: 'donut is a polar chart with no Cartesian axes; tick concern does not apply' },
     // pie; polar chart — no Cartesian axes
     [ChartType.Pie]: { status: 'na', reason: 'pie is a polar chart with no Cartesian axes; tick concern does not apply' },
+    [ChartType.Scatter]: {
+      status: 'asserted',
+      optionKey: 'showVerticalTicks',
+      target: false,
+      rule: RULE_TICKS_SUBTLE,
+    },
   },
 
   // =========================================================================
@@ -647,6 +673,12 @@ export const MATRIX: Matrix = {
     [ChartType.Donut]: { status: 'na', reason: 'donut is a polar chart with no Cartesian axes; axis-line concern does not apply' },
     // pie; polar chart — no Cartesian axes
     [ChartType.Pie]: { status: 'na', reason: 'pie is a polar chart with no Cartesian axes; axis-line concern does not apply' },
+    [ChartType.Scatter]: {
+      status: 'asserted',
+      optionKey: 'showVerticalAxis',
+      target: false,
+      rule: RULE_FRAME_MINIMAL,
+    },
   },
 
   // =========================================================================
@@ -740,6 +772,12 @@ export const MATRIX: Matrix = {
     [ChartType.Donut]: { status: 'na', reason: 'donut is a polar chart with no Cartesian axes; scale range concern does not apply' },
     // pie; polar chart — no scale range concern
     [ChartType.Pie]: { status: 'na', reason: 'pie is a polar chart with no Cartesian axes; scale range concern does not apply' },
+    [ChartType.Scatter]: {
+      status: 'asserted',
+      optionKey: 'verticalScaleType',
+      target: ScaleType.Linear,
+      rule: RULE_HANDBOOK_LINE,
+    },
   },
   // =========================================================================
   // Concern: ColorPalette
@@ -855,6 +893,12 @@ export const MATRIX: Matrix = {
       rule: RULE_CVD_SAFE_PALETTE,
       notes: 'Wiki prescribes palette properties (CVD-safe, max-7, no-rainbow, perceptually uniform); does not name a specific identifier. The "Blueprint" palette satisfies these properties — accepted as the canonical default.',
     },
+    [ChartType.Scatter]: {
+      status: 'asserted',
+      optionKey: 'colorPalette',
+      target: 'Blueprint',
+      rule: RULE_CVD_SAFE_PALETTE,
+    },
   },
 
   // =========================================================================
@@ -956,6 +1000,7 @@ export const MATRIX: Matrix = {
     [ChartType.Donut]: { status: 'na', reason: 'donut is a polar chart; crosshair option is not registered for this chart type' },
     // pie; no crosshair option registered
     [ChartType.Pie]: { status: 'na', reason: 'pie is a polar chart; crosshair option is not registered for this chart type' },
+    [ChartType.Scatter]: { status: 'na', reason: 'scatter has no crosshair option; points are read through tooltips' },
   },
 
   // =========================================================================
@@ -1058,6 +1103,12 @@ export const MATRIX: Matrix = {
       target: false,
       rule: RULE_TOOLTIPS_HIDDEN,
     },
+    [ChartType.Scatter]: {
+      status: 'asserted',
+      optionKey: 'tooltips',
+      target: true,
+      rule: RULE_TOOLTIPS_HIDDEN,
+    },
   },
   // =========================================================================
   // Concern: LineInterpolation
@@ -1115,6 +1166,7 @@ export const MATRIX: Matrix = {
     [ChartType.Donut]: { status: 'na', reason: 'polar chart; interpolation does not apply' },
     // pie — polar chart; no interpolation
     [ChartType.Pie]: { status: 'na', reason: 'polar chart; interpolation does not apply' },
+    [ChartType.Scatter]: { status: 'na', reason: 'scatter draws no lines' },
   },
 
   // =========================================================================
@@ -1171,6 +1223,7 @@ export const MATRIX: Matrix = {
     [ChartType.Donut]: { status: 'na', reason: 'polar chart; lineSymbols option is not registered' },
     // pie — polar chart; no line symbols
     [ChartType.Pie]: { status: 'na', reason: 'polar chart; lineSymbols option is not registered' },
+    [ChartType.Scatter]: { status: 'na', reason: 'scatter draws no lines' },
   },
 
   // =========================================================================
@@ -1216,6 +1269,7 @@ export const MATRIX: Matrix = {
     [ChartType.AreaStacked]: { status: 'na', reason: 'not a bar chart; barGap option is not registered' },
     [ChartType.Donut]: { status: 'na', reason: 'polar chart; barGap option is not registered' },
     [ChartType.Pie]: { status: 'na', reason: 'polar chart; barGap option is not registered' },
+    [ChartType.Scatter]: { status: 'na', reason: 'scatter has no bars' },
   },
 
   // =========================================================================
@@ -1263,6 +1317,7 @@ export const MATRIX: Matrix = {
       target: true,
       rule: RULE_PIE_PERCENTAGE,
     },
+    [ChartType.Scatter]: { status: 'na', reason: 'scatter is a Cartesian chart, not polar' },
   },
 
   // =========================================================================
@@ -1309,6 +1364,7 @@ export const MATRIX: Matrix = {
     },
     [ChartType.Donut]: { status: 'na', reason: 'polar chart; stacking options are not registered' },
     [ChartType.Pie]: { status: 'na', reason: 'polar chart; stacking options are not registered' },
+    [ChartType.Scatter]: { status: 'na', reason: 'scatter has no stacking' },
   },
 
   // =========================================================================
@@ -1390,6 +1446,7 @@ export const MATRIX: Matrix = {
     [ChartType.Donut]: { status: 'na', reason: 'sortMode option is not registered for donut; slice ordering is part of PieDonutLayout concern' },
     // pie — sortMode is not registered; slice ordering is handled by PieDonutLayout
     [ChartType.Pie]: { status: 'na', reason: 'sortMode option is not registered for pie; slice ordering is part of PieDonutLayout concern' },
+    [ChartType.Scatter]: { status: 'na', reason: 'scatter has no category order to sort' },
   },
 
   // =========================================================================
@@ -1509,6 +1566,14 @@ export const MATRIX: Matrix = {
     [ChartType.Pie]: {
       status: 'na',
       reason: 'no module-local default-color constant; pie delegates color assignment to the shared arc palette mechanism',
+    },
+    [ChartType.Scatter]: {
+      status: 'asserted',
+      kind: 'rendererConstant',
+      importPath: '../types/scatter/scatter',
+      exportName: 'DEFAULT_COLOR',
+      target: '#4e79a7',
+      rule: RULE_CVD_SAFE_PALETTE,
     },
   },
 }
