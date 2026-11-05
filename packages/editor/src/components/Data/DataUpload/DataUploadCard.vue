@@ -80,14 +80,14 @@
             v-model="pasteInput"
             class="upload-card__paste__wrap__area"
             aria-label="Paste your data"
-            aria-describedby="paste-hint"
+            :aria-describedby="pasteHintId"
             spellcheck="false"
             @paste="onPaste"
           />
         </div>
         <div class="upload-card__paste__footer">
           <div
-            id="paste-hint"
+            :id="pasteHintId"
             class="upload-card__paste__footer__hint"
           >
             <span
@@ -115,11 +115,14 @@
 </template>
 
 <script setup lang="ts">
+import { useId } from 'vue'
 import { ButtonIcon } from '@blueprint-chart/ui'
 import { useDataTable } from '@/stores/dataTable'
 import { useScenes } from '@/stores/scenes'
 import { resolveScene } from '@/utils/scenes'
 import { usePlatformShortcut } from '@/composables/usePlatformShortcut'
+
+const pasteHintId = useId()
 
 // Same platform detection as the navbar's Ctrl/⌘ K hint — the two hints were
 // hardcoded apart (⌘ V vs Ctrl K), so one was wrong on every platform.

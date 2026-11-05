@@ -93,7 +93,7 @@ describe('AccountMenu (signed in)', () => {
       if (child.querySelector('.account-menu__menu__header')) {
         return 'identity'
       }
-      if (child.matches('.account-menu__theme')) {
+      if (child.matches('.account-menu__menu__theme')) {
         return 'theme'
       }
       return child.textContent?.trim()
@@ -125,7 +125,7 @@ describe('AccountMenu (theme)', () => {
   it('offers system, light and dark in the menu and marks the current one', async () => {
     const { wrapper } = await mountMenu(true)
     await openMenu(wrapper)
-    const options = [...document.body.querySelectorAll('.account-menu__theme button')]
+    const options = [...document.body.querySelectorAll('.account-menu__menu__theme button')]
     expect(options.map(o => o.getAttribute('aria-label'))).toEqual(['System', 'Light', 'Dark'])
     expect(options[1].getAttribute('aria-current')).toBe('true')
   })
@@ -133,7 +133,7 @@ describe('AccountMenu (theme)', () => {
   it('switches the theme when an option is picked', async () => {
     const { wrapper } = await mountMenu(true)
     await openMenu(wrapper)
-    const dark = document.body.querySelector('.account-menu__theme button[aria-label="Dark"]') as HTMLElement
+    const dark = document.body.querySelector('.account-menu__menu__theme button[aria-label="Dark"]') as HTMLElement
     dark.click()
     await flushPromises()
     expect(useThemeStore().theme).toBe('dark')
@@ -171,7 +171,7 @@ describe('AccountMenu (navbar)', () => {
     await openMenu(wrapper)
     const text = document.body.textContent ?? ''
     expect(text).toContain('My charts')
-    expect(document.body.querySelector('.account-menu__theme')).not.toBeNull()
+    expect(document.body.querySelector('.account-menu__menu__theme')).not.toBeNull()
     expect(wrapper.findComponent({ name: 'BDropdown' }).props('placement')).toBe('bottom-end')
     expect((document.body.querySelector('.account-menu__menu') as HTMLElement).style.minWidth).toBe('')
   })

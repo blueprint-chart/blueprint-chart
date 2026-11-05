@@ -157,10 +157,10 @@ async function onSignOut() {
       <BDropdownDivider />
 
       <li
-        class="account-menu__theme"
+        class="account-menu__menu__theme"
         @click.stop
       >
-        <span class="account-menu__theme__label">
+        <span class="account-menu__menu__theme__label">
           <AppIcon
             :name="IPhCircleHalf"
             size="sm"
@@ -279,7 +279,7 @@ async function onSignOut() {
   gap: 0.625rem;
 }
 
-.account-menu__theme {
+.account-menu__menu__theme {
   display: flex;
   align-items: center;
   justify-content: space-between;

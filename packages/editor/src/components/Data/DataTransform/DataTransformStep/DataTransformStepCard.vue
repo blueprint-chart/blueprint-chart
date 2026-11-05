@@ -29,7 +29,7 @@
           </span>
           <span
             class="step-card__header__body__text__desc"
-            :class="{ 'step-card__header__body__text__desc--error': error }"
+            :class="descClassList"
           >
             {{ error || description }}
           </span>
@@ -83,6 +83,7 @@ const iconClass = computed(() => meta.value.iconClass)
 const iconComponent = computed(() => meta.value.iconComponent ?? null)
 const iconFallback = computed(() => meta.value.fallback)
 const label = computed(() => meta.value.label)
+const descClassList = computed(() => ({ 'step-card__header__body__text__desc--error': Boolean(props.error) }))
 
 const description = computed(() => {
   const { step } = props
