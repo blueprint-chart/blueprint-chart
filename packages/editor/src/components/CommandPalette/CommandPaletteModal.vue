@@ -192,6 +192,7 @@ function resultClass(index: number) {
   &__results {
     max-height: 24rem;
     overflow-y: auto;
+    overscroll-behavior: contain;
     padding: 0.25rem 0;
   }
 
@@ -208,7 +209,7 @@ function resultClass(index: number) {
     color: inherit;
 
     &--active {
-      background: var(--bs-tertiary-bg);
+      background: color-mix(in srgb, var(--bs-body-color) 8%, transparent);
     }
   }
 

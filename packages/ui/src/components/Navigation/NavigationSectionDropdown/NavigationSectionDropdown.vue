@@ -134,12 +134,14 @@ useEventListener(document, 'mousedown', (event: MouseEvent) => {
   font-weight: 600;
   text-align: left;
   cursor: pointer;
-  transition: background var(--bc-duration-base) var(--bc-ease),
+  transition: background-color var(--bc-duration-base) var(--bc-ease),
               border-color var(--bc-duration-base) var(--bc-ease);
 
-  &:hover {
-    background: var(--bc-wash-firm, var(--bc-wash-soft));
-    border-color: var(--bc-hairline-strong, var(--bc-hairline));
+  @media (hover: hover) {
+    &:hover {
+      background: var(--bc-wash-firm, var(--bc-wash-soft));
+      border-color: var(--bc-hairline-strong, var(--bc-hairline));
+    }
   }
 
   &:focus-visible {
@@ -167,8 +169,10 @@ useEventListener(document, 'mousedown', (event: MouseEvent) => {
   }
 }
 
-.navigation-section-dropdown__trigger:hover .navigation-section-dropdown__caret {
-  opacity: 0.8;
+@media (hover: hover) {
+  .navigation-section-dropdown__trigger:hover .navigation-section-dropdown__caret {
+    opacity: 0.8;
+  }
 }
 
 .navigation-section-dropdown__panel {
@@ -179,9 +183,9 @@ useEventListener(document, 'mousedown', (event: MouseEvent) => {
   margin: 0;
   padding: 0.25rem;
   list-style: none;
-  background: var(--bc-tile-bg);
+  background: var(--bs-tertiary-bg);
   border: 1px solid var(--bc-hairline);
-  border-radius: var(--bc-radius-sm);
+  border-radius: calc(var(--bc-radius-xs) + 0.25rem + 1px);
   box-shadow: var(--bc-shadow-overlay);
   z-index: 50;
 }
@@ -193,11 +197,13 @@ useEventListener(document, 'mousedown', (event: MouseEvent) => {
   color: var(--bs-body-color);
   font-size: var(--bs-font-size-sm);
   text-decoration: none;
-  transition: background var(--bc-duration-base) var(--bc-ease);
+  transition: background-color var(--bc-duration-base) var(--bc-ease);
 
-  &:hover {
-    background: var(--bc-wash-soft);
-    text-decoration: none;
+  @media (hover: hover) {
+    &:hover {
+      background: var(--bc-wash-soft);
+      text-decoration: none;
+    }
   }
 
   &:focus-visible {
@@ -207,7 +213,7 @@ useEventListener(document, 'mousedown', (event: MouseEvent) => {
   }
 
   &--active {
-    background: var(--bc-tile-bg-elevated);
+    background: var(--bc-wash-firm);
     font-weight: 600;
   }
 }

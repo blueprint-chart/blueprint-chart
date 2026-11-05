@@ -172,8 +172,10 @@ async function onSubmit() {
 
   cursor: pointer;
 
-  &:hover {
-    background: var(--bs-tertiary-bg);
+  @media (hover: hover) {
+    &:hover {
+      background: color-mix(in srgb, var(--bs-body-color) 8%, transparent);
+    }
   }
 
   &:focus-visible {
@@ -257,8 +259,10 @@ async function onSubmit() {
   font-weight: 600;
   cursor: pointer;
 
-  &:hover {
-    text-decoration: underline;
+  @media (hover: hover) {
+    &:hover {
+      text-decoration: underline;
+    }
   }
 
   &:focus-visible {

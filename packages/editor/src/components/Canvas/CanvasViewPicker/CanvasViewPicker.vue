@@ -178,8 +178,10 @@ useEventListener(document, 'mousedown', (event: MouseEvent) => {
     cursor: pointer;
     color: var(--bs-body-color);
 
-    &:hover {
-      background: var(--bs-tertiary-bg);
+    @media (hover: hover) {
+      &:hover {
+        background: var(--bs-tertiary-bg);
+      }
     }
 
     &:focus-visible {
@@ -212,7 +214,7 @@ useEventListener(document, 'mousedown', (event: MouseEvent) => {
     right: 0;
     z-index: 50;
     padding: 0.625rem;
-    background: var(--bc-tile-bg);
+    background: var(--bs-tertiary-bg);
     border: 1px solid var(--bc-hairline);
     border-radius: var(--bc-radius-sm);
     box-shadow: var(--bc-shadow-overlay);

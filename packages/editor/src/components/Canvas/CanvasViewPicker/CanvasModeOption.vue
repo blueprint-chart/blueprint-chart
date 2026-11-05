@@ -32,13 +32,16 @@ defineEmits<{
   gap: 0.5rem;
   padding: 0.5rem;
   border: none;
+  border-radius: var(--bc-radius-xs);
   background: none;
   cursor: pointer;
   color: var(--bs-secondary-color);
   transition: background-color var(--bc-duration-base) var(--bc-ease);
 
-  &:hover {
-    background: var(--bs-tertiary-bg);
+  @media (hover: hover) {
+    &:hover {
+      background: color-mix(in srgb, var(--bs-body-color) 8%, transparent);
+    }
   }
 
   &:focus-visible {
