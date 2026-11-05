@@ -15,15 +15,21 @@ const open = shallowRef(false)
 const trigger = useTemplateRef<HTMLElement>('trigger')
 const panel = useTemplateRef<HTMLElement>('panel')
 
-onClickOutside(panel, () => {
-  open.value = false
-}, { ignore: [trigger] })
-
-onKeyStroke('Escape', () => {
-  if (open.value) {
+watch(open, (isOpen, _, onCleanup) => {
+  if (!isOpen) {
+    return
+  }
+  const stopClickOutside = onClickOutside(panel, () => {
+    open.value = false
+  }, { ignore: [trigger] })
+  const stopEscape = onKeyStroke('Escape', () => {
     open.value = false
     trigger.value?.focus()
-  }
+  })
+  onCleanup(() => {
+    stopClickOutside?.()
+    stopEscape()
+  })
 })
 
 const groups = computed(() => [

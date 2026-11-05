@@ -1,3 +1,4 @@
+import { nextTick } from 'vue'
 import { mount, type VueWrapper } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import PalettesCategoryColorPicker from './PalettesCategoryColorPicker.vue'
@@ -22,6 +23,28 @@ function mountPicker(modelValue = '#000000'): PickerWrapper {
 
 describe('PalettesCategoryColorPicker', () => {
   beforeEach(() => localStorage.clear())
+  afterEach(() => vi.restoreAllMocks())
+
+  it('listens for Escape only while open', async () => {
+    const add = vi.spyOn(window, 'addEventListener')
+    const remove = vi.spyOn(window, 'removeEventListener')
+    wrapper = mountPicker()
+    expect(add.mock.calls.some(([type]) => type === 'keydown')).toBe(false)
+    const trigger = wrapper.find('.palettes-category-color-picker__trigger')
+    await trigger.trigger('click')
+    expect(add.mock.calls.some(([type]) => type === 'keydown')).toBe(true)
+    await trigger.trigger('click')
+    expect(remove.mock.calls.some(([type]) => type === 'keydown')).toBe(true)
+  })
+
+  it('closes on Escape', async () => {
+    wrapper = mountPicker()
+    const trigger = wrapper.find('.palettes-category-color-picker__trigger')
+    await trigger.trigger('click')
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))
+    await nextTick()
+    expect(trigger.attributes('aria-expanded')).toBe('false')
+  })
 
   it('opens the swatches from the color button', async () => {
     wrapper = mountPicker('#0055a4')
