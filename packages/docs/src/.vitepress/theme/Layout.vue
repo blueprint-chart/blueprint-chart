@@ -126,7 +126,6 @@ function openSidebar() {
         class="docs-search"
         placeholder="Search docs…"
         :shortcut-label="shortcutLabel"
-        :collapsed="isNarrow"
         @click="openSearch"
       />
       <a
@@ -193,7 +192,6 @@ function openSidebar() {
         class="docs-search docs-search--slim"
         placeholder="Search docs…"
         :shortcut-label="shortcutLabel"
-        :collapsed="isNarrow"
         @click="openSearch"
       />
     </template>
@@ -251,6 +249,14 @@ function openSidebar() {
           class="docs-sidebar-brand__logo"
         >
         <span class="docs-sidebar-brand__name">Blueprint Chart</span>
+      </a>
+      <a
+        class="docs-btn-primary docs-btn-primary--sm docs-sidebar-editor"
+        href="https://blueprintchart.com"
+        target="_blank"
+        rel="noopener"
+      >
+        Open editor <span aria-hidden="true">↗</span>
       </a>
       <NavigationSectionDropdown
         class="docs-sidebar-switcher"

@@ -17,9 +17,9 @@
 
   /* Surfaces — bridge to shared --bc-* tokens */
   --vp-c-bg: var(--bc-tile-bg);
-  --vp-c-bg-alt: var(--bc-content-bg);
+  --vp-c-bg-alt: var(--vp-c-bg);
   --vp-c-bg-elv: var(--bc-tile-bg-elevated);
-  --vp-c-bg-soft: var(--bc-content-bg);
+  --vp-c-bg-soft: var(--vp-c-bg);
 
   --vp-c-text-1: #101112;
   --vp-c-text-2: rgba(16, 17, 18, 0.72);
@@ -88,15 +88,16 @@
   --bs-emphasis-color: var(--vp-c-text-1);
   --bs-secondary-color: var(--vp-c-text-2);
   --bs-tertiary-color: var(--vp-c-text-3);
+  --bs-font-size-xs: 0.75rem;
 }
 
 .dark {
   --vp-c-brand-soft: rgba(255, 255, 255, 0.08);
 
   --vp-c-bg: var(--bc-tile-bg);
-  --vp-c-bg-alt: var(--bc-chrome-bg);
+  --vp-c-bg-alt: var(--vp-c-bg);
   --vp-c-bg-elv: var(--bc-tile-bg-elevated);
-  --vp-c-bg-soft: var(--bc-content-bg);
+  --vp-c-bg-soft: var(--vp-c-bg);
 
   --vp-c-text-1: rgba(255, 255, 255, 0.92);
   --vp-c-text-2: rgba(255, 255, 255, 0.68);
@@ -257,7 +258,7 @@
 .bpc-block__caption {
   color: var(--vp-c-text-3);
   font-family: var(--vp-font-family-mono);
-  font-size: 11px;
+  font-size: 0.75rem;
 }
 
 .bpc-block__editor-link {
@@ -289,7 +290,7 @@
 
 /* Container — hairline right border (no padding fight). */
 .VPSidebar {
-  border-right: 1px solid var(--bc-hairline);
+  border-right: 1px solid var(--vp-c-divider);
 }
 
 /* Groups span the full nav width. VP scopes `.group { width: calc(--vp-sidebar-width - 64px) }`
@@ -311,13 +312,13 @@
   padding-bottom: 0;
 }
 
-/* Group eyebrow — turn level-0 .text into a 9px uppercase tracked label.
+/* Group eyebrow — turn level-0 .text into a 12px uppercase tracked label.
  * `align-self: center` so the eyebrow vertically centers in the flex row
  * next to the (taller) collapse caret instead of stretching to fill it. */
 .VPSidebar .group .VPSidebarItem.level-0 > .item > .text {
-  font-size: 9px;
+  font-size: var(--bs-font-size-xs);
   font-weight: 600;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--bs-tertiary-color);
   line-height: 1.4;
@@ -398,5 +399,29 @@
 @media (min-width: 1440px) {
   .VPSidebar.VPSidebar.VPSidebar {
     width: var(--vp-sidebar-width);
+  }
+}
+
+.VPSidebar .docs-sidebar-editor.docs-sidebar-editor { display: none; }
+
+@media (max-width: 959.98px) {
+  .docs-nav .docs-search.docs-search {
+    width: 1.9375rem;
+    min-width: 0;
+    padding: 0;
+    justify-content: center;
+    gap: 0;
+    flex-shrink: 0;
+  }
+  .docs-search .navigation-command-bar__placeholder,
+  .docs-search .navigation-command-bar__kbd { display: none; }
+}
+
+@media (max-width: 29.99rem) {
+  .docs-nav .navigation-docs-bar__cta-primary { display: none; }
+  .VPSidebar .docs-sidebar-editor.docs-sidebar-editor {
+    display: flex;
+    justify-content: center;
+    margin-top: 0.5rem;
   }
 }
