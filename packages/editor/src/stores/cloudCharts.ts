@@ -59,6 +59,22 @@ export const useCloudChartsStore = defineStore('cloudCharts', () => {
     }))
   }
 
+  async function listCloudCharts(owner: string): Promise<{ id: string, dsl: string, meta: Record<string, unknown> }[]> {
+    const client = await getSupabaseClient()
+    if (!client) {
+      return []
+    }
+    const { data, error } = await client.from('charts').select('id, dsl, meta').eq('owner', owner)
+    if (error || !data) {
+      return []
+    }
+    return data.map(row => ({
+      id: row.id as string,
+      dsl: (row.dsl as string) ?? '',
+      meta: (row.meta as Record<string, unknown>) ?? {},
+    }))
+  }
+
   async function loadCloud(id: string): Promise<{ dsl: string, meta: Record<string, unknown>, owner: string } | null> {
     const client = await getSupabaseClient()
     if (!client) {
@@ -225,13 +241,14 @@ export const useCloudChartsStore = defineStore('cloudCharts', () => {
     return error ? null : input.id
   }
 
-  return { listCloud, loadCloud, pushCloud, deleteCloud, publish, isPublished, fetchPublished, markCloudBacked, isCloudBacked, unmarkCloudBacked, clearLocalSynced, syncCloud }
+  return { listCloud, listCloudCharts, loadCloud, pushCloud, deleteCloud, publish, isPublished, fetchPublished, markCloudBacked, isCloudBacked, unmarkCloudBacked, clearLocalSynced, syncCloud }
 })
 
 export function useCloudCharts() {
   const store = useCloudChartsStore()
   return {
     listCloud: store.listCloud,
+    listCloudCharts: store.listCloudCharts,
     loadCloud: store.loadCloud,
     pushCloud: store.pushCloud,
     deleteCloud: store.deleteCloud,

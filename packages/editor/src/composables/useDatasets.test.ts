@@ -1,4 +1,4 @@
-import { describe, expect, it, beforeEach, vi } from 'vitest'
+import { afterEach, describe, expect, it, beforeEach, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 import { flushPromises } from '@vue/test-utils'
 import { parse } from '@blueprint-chart/lib'
@@ -6,6 +6,7 @@ import { storageKey } from '@/stores/chartSession'
 import { useCloudChartsStore } from '@/stores/cloudCharts'
 import { useAccountStore } from '@/stores/account'
 import * as runtimeConfig from '@/config/runtimeConfig'
+import type { Dataset, StoredChart } from '@/utils/datasets'
 import { useDatasets } from './useDatasets'
 
 const SORT = `  transform sort {
@@ -48,24 +49,101 @@ describe('useDatasets', () => {
     expect(saved.data).toEqual(parse(bpc('First')).data)
     expect(saved.transforms).toHaveLength(1)
   })
-  it('refresh adds datasets from charts only stored in the cloud', async () => {
-    vi.spyOn(runtimeConfig, 'accountsEnabled').mockReturnValue(true)
-    useAccountStore().user = { id: 'me' } as never
-    const cloud = useCloudChartsStore()
-    vi.spyOn(cloud, 'listCloud').mockResolvedValue([
-      { id: 'one', title: 'First', chartType: 'bar', published: false, updatedAt: null },
-      { id: 'remote', title: 'Remote', chartType: 'bar', published: false, updatedAt: null },
-    ])
-    const loadCloud = vi.spyOn(cloud, 'loadCloud').mockResolvedValue({
-      dsl: bpc('Remote').replace('37.4', '12'),
-      meta: { schema: 2, savedAt: '2026-11-02T00:00:00Z' },
-      owner: 'me',
+
+  describe('with cloud charts', () => {
+    const remote = { id: 'remote', dsl: bpc('Remote').replace('37.4', '12'), meta: { schema: 2, savedAt: '2026-11-02T00:00:00Z' } }
+
+    function signIn(id = 'me') {
+      useAccountStore().user = { id } as never
+    }
+
+    function ids(datasets: Dataset[]) {
+      return datasets.map(d => d.charts.map(c => c.id).sort())
+    }
+
+    beforeEach(() => {
+      vi.spyOn(runtimeConfig, 'accountsEnabled').mockReturnValue(true)
+      signIn()
     })
 
-    const { datasets } = useDatasets()
-    await flushPromises()
+    afterEach(() => {
+      vi.restoreAllMocks()
+    })
 
-    expect(loadCloud).toHaveBeenCalledExactlyOnceWith('remote')
-    expect(datasets.value.map(d => d.charts.map(c => c.id).sort())).toEqual([['remote'], ['one', 'two']])
+    it('adds datasets from charts only stored in the cloud with one request', async () => {
+      const listCloudCharts = vi.spyOn(useCloudChartsStore(), 'listCloudCharts').mockResolvedValue([
+        { id: 'one', dsl: bpc('First'), meta: {} },
+        remote,
+      ])
+
+      const { datasets } = useDatasets()
+      await flushPromises()
+
+      expect(listCloudCharts).toHaveBeenCalledOnce()
+      expect(ids(datasets.value)).toEqual([['remote'], ['one', 'two']])
+    })
+
+    it('is loading until the cloud charts arrive', async () => {
+      let resolve: (charts: StoredChart[]) => void = () => {}
+      vi.spyOn(useCloudChartsStore(), 'listCloudCharts').mockReturnValue(new Promise((r) => {
+        resolve = r
+      }))
+
+      const { loading } = useDatasets()
+      expect(loading.value).toBe(true)
+      resolve([remote])
+      await flushPromises()
+
+      expect(loading.value).toBe(false)
+    })
+
+    it('keeps local datasets when the cloud request throws', async () => {
+      vi.spyOn(useCloudChartsStore(), 'listCloudCharts').mockRejectedValue(new Error('offline'))
+
+      const { datasets, loading } = useDatasets()
+      await flushPromises()
+
+      expect(ids(datasets.value)).toEqual([['one', 'two']])
+      expect(loading.value).toBe(false)
+    })
+
+    it('drops remote datasets on sign out', async () => {
+      vi.spyOn(useCloudChartsStore(), 'listCloudCharts').mockResolvedValue([remote])
+      const { datasets } = useDatasets()
+      await flushPromises()
+
+      useAccountStore().user = null
+      await flushPromises()
+
+      expect(ids(datasets.value)).toEqual([['one', 'two']])
+    })
+
+    it('ignores a cloud response that arrives after a newer refresh', async () => {
+      const pending: ((charts: StoredChart[]) => void)[] = []
+      vi.spyOn(useCloudChartsStore(), 'listCloudCharts').mockImplementation(() => new Promise((r) => {
+        pending.push(r)
+      }))
+      const { datasets } = useDatasets()
+      useAccountStore().user = null
+      await flushPromises()
+      signIn('other')
+      await flushPromises()
+
+      pending[1]([])
+      await flushPromises()
+      pending[0]([remote])
+      await flushPromises()
+
+      expect(ids(datasets.value)).toEqual([['one', 'two']])
+    })
+
+    it('exposes the DSL of cloud charts for thumbnails', async () => {
+      vi.spyOn(useCloudChartsStore(), 'listCloudCharts').mockResolvedValue([remote])
+      const { chartDsl } = useDatasets()
+      await flushPromises()
+
+      expect(chartDsl('remote')).toBe(remote.dsl)
+      expect(chartDsl('one')).toBe(bpc('First'))
+    })
   })
 })

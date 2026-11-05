@@ -54,6 +54,15 @@ describe('useCloudCharts', () => {
     ])
   })
 
+  it('lists the DSL and meta of the given owner charts only', async () => {
+    client.__state.updateResult = { data: [{ id: 'aaaaaaaaaaa', dsl: 'chart bar {}', meta: null }], error: null }
+    const store = useCloudCharts()
+    const charts = await store.listCloudCharts('me')
+    const builder = client.from() as unknown as { eq: ReturnType<typeof vi.fn> }
+    expect(builder.eq).toHaveBeenCalledWith('owner', 'me')
+    expect(charts).toEqual([{ id: 'aaaaaaaaaaa', dsl: 'chart bar {}', meta: {} }])
+  })
+
   it('inserts a new chart with an 11-char id', async () => {
     const store = useCloudCharts()
     const id = await store.pushCloud({ dsl: 'chart bar {}', meta: {}, title: 'T', chartType: 'bar' })

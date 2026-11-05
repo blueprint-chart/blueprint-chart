@@ -16,7 +16,7 @@ import IPhPlus from '~icons/ph/plus'
 
 const router = useRouter()
 const { isNarrow } = useBreakpoint()
-const { datasets, startChart } = useDatasets()
+const { datasets, loading, chartDsl, startChart } = useDatasets()
 const { thumbnails, loadThumbnails } = useSavedChartThumbnails()
 
 const groups = computed(() => groupDatasets(datasets.value))
@@ -39,7 +39,7 @@ const drawerOpen = computed({
 
 watch(selected, (group) => {
   if (group) {
-    loadThumbnails(group.variants.flatMap(v => v.charts.map(c => c.id)))
+    loadThumbnails(group.variants.flatMap(v => v.charts.map(c => c.id)), chartDsl)
   }
 })
 
@@ -88,7 +88,7 @@ function newChart(dataset: Dataset) {
           />
         </div>
         <FeedbackEmptyState
-          v-else
+          v-else-if="!loading"
           class="datasets-page__main__gallery__empty"
           title="No datasets yet"
           message="Datasets appear here once a chart has data."

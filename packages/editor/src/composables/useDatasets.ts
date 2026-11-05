@@ -2,54 +2,59 @@ import { computed, shallowRef, watch } from 'vue'
 import { readLocalMeta, storageKey, useChartSession } from '@/stores/chartSession'
 import { useCloudCharts } from '@/stores/cloudCharts'
 import { useAccount } from '@/stores/account'
-import { accountsEnabled } from '@/config/runtimeConfig'
-import { cacheImagesFromDsl, getThumbnail } from '@/composables/useChartThumbnail'
 import { collectDatasets } from '@/utils/datasets'
 import type { Dataset, StoredChart } from '@/utils/datasets'
 
 export function useDatasets() {
   const session = useChartSession()
   const cloud = useCloudCharts()
-  const { isSignedIn } = useAccount()
+  const { cloudEnabled, user } = useAccount()
   const list = shallowRef<Dataset[]>([])
-  const showCloud = computed(() => accountsEnabled() && isSignedIn.value)
+  const remote = shallowRef(new Map<string, string>())
+  const loading = shallowRef(false)
+  let latest = 0
 
-  async function loadRemote(localIds: Set<string>): Promise<StoredChart[]> {
-    const remote = (await cloud.listCloud()).filter(({ id }) => !localIds.has(id))
-    const records = await Promise.all(remote.map(async ({ id }) => {
-      const record = await cloud.loadCloud(id)
-      return record && { id, dsl: record.dsl, meta: record.meta }
-    }))
-    const charts = records.filter(record => record !== null)
-    for (const { id, dsl } of charts) {
-      if (!getThumbnail(id)) {
-        cacheImagesFromDsl(id, dsl)
-      }
+  async function loadRemote(owner: string, localIds: Set<string>): Promise<StoredChart[]> {
+    try {
+      return (await cloud.listCloudCharts(owner)).filter(({ id }) => !localIds.has(id))
     }
-    return charts
+    catch {
+      return []
+    }
   }
 
   async function refresh() {
+    const run = ++latest
     const local = session.listSavedCharts().map(({ id }) => ({
       id,
       dsl: localStorage.getItem(storageKey(id)) ?? '',
       meta: readLocalMeta(id),
     }))
     list.value = collectDatasets(local)
-    if (!showCloud.value) {
+    remote.value = new Map()
+    const owner = cloudEnabled.value ? user.value?.id : undefined
+    loading.value = owner !== undefined
+    if (owner === undefined) {
       return
     }
-    const remote = await loadRemote(new Set(local.map(({ id }) => id)))
-    if (showCloud.value) {
-      list.value = collectDatasets([...local, ...remote])
+    const charts = await loadRemote(owner, new Set(local.map(({ id }) => id)))
+    if (run !== latest) {
+      return
     }
+    list.value = collectDatasets([...local, ...charts])
+    remote.value = new Map(charts.map(({ id, dsl }) => [id, dsl]))
+    loading.value = false
+  }
+
+  function chartDsl(id: string): string | null {
+    return remote.value.get(id) ?? localStorage.getItem(storageKey(id))
   }
 
   function startChart(dataset: Dataset): string | null {
     return session.createFromDsl(dataset.dsl, dataset.source)
   }
 
-  watch(showCloud, () => refresh(), { immediate: true })
+  watch(cloudEnabled, () => refresh(), { immediate: true })
 
-  return { datasets: computed(() => list.value), refresh, startChart }
+  return { datasets: computed(() => list.value), loading: computed(() => loading.value), refresh, chartDsl, startChart }
 }

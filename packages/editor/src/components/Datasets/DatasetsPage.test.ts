@@ -6,10 +6,11 @@ import type { Dataset } from '@/utils/datasets'
 import DatasetsPage from './DatasetsPage.vue'
 
 const list = shallowRef<Dataset[]>([])
+const loading = shallowRef(false)
 const startChart = vi.fn<(dataset: Dataset) => string | null>()
 
 vi.mock('@/composables/useDatasets', () => ({
-  useDatasets: () => ({ datasets: computed(() => list.value), refresh: vi.fn(), startChart }),
+  useDatasets: () => ({ datasets: computed(() => list.value), loading, refresh: vi.fn(), startChart, chartDsl: vi.fn() }),
 }))
 
 function dataset(key: string, data = `"${key}" = 1`): Dataset {
@@ -47,6 +48,7 @@ async function mountPage() {
 describe('DatasetsPage', () => {
   beforeEach(() => {
     startChart.mockReset()
+    loading.value = false
   })
 
   it('renders one card per dataset', async () => {
@@ -79,6 +81,13 @@ describe('DatasetsPage', () => {
     list.value = []
     const { wrapper } = await mountPage()
     expect(wrapper.text()).toContain('No datasets yet')
+  })
+
+  it('hides the empty state while cloud datasets load', async () => {
+    list.value = []
+    loading.value = true
+    const { wrapper } = await mountPage()
+    expect(wrapper.text()).not.toContain('No datasets yet')
   })
 
   it('links the empty state button to the new chart wizard', async () => {
