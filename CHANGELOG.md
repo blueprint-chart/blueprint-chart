@@ -1,3 +1,43 @@
+## [2.4.0](https://github.com/blueprint-chart/blueprint-chart/compare/v2.3.0...v2.4.0) (2026-11-05)
+
+### Features
+
+* **editor:** add category color matcher ([a799063](https://github.com/blueprint-chart/blueprint-chart/commit/a79906350a6b4e55279a1f8d37104466c2bc7b17))
+* **editor:** add category colors store ([1a0651f](https://github.com/blueprint-chart/blueprint-chart/commit/1a0651f60832e1e4c1f06b273db12339e1bfc820))
+* **editor:** add category colors tab ([00649bc](https://github.com/blueprint-chart/blueprint-chart/commit/00649bc1b1d8a31e1495c1137d6f1f67fcb491a3))
+* **editor:** add custom palettes store ([ade0676](https://github.com/blueprint-chart/blueprint-chart/commit/ade0676a1af8e496a9fae2334de6235f6aa559bd))
+* **editor:** add datasets page ([0ec8473](https://github.com/blueprint-chart/blueprint-chart/commit/0ec847382bc9e005d32b026042348912a9f67997))
+* **editor:** add palettes page ([99660ba](https://github.com/blueprint-chart/blueprint-chart/commit/99660baf67aeefbdb2c9164dcd3d7e4ad1d4ee4e))
+* **editor:** add useDatasets composable ([21dd835](https://github.com/blueprint-chart/blueprint-chart/commit/21dd835c3f9c1b433f32b069266cc08e7c0e0f71))
+* **editor:** align the my charts empty state with datasets ([74a1752](https://github.com/blueprint-chart/blueprint-chart/commit/74a17521d3c8e28dab8f918ad52929cd22bdb390))
+* **editor:** apply custom palettes and category colors in the editor ([ff89c5f](https://github.com/blueprint-chart/blueprint-chart/commit/ff89c5f9ccadeaf8b5f5ab5d82c0acc7eeaebeda))
+* **editor:** derive datasets from saved charts ([41a00c1](https://github.com/blueprint-chart/blueprint-chart/commit/41a00c180216209f25f94b00068ed4d5b326ead6))
+* **editor:** edit palettes in the side panel ([80a87d5](https://github.com/blueprint-chart/blueprint-chart/commit/80a87d5adbd3567d4f15e3d305600c435dc9252d))
+* **editor:** group datasets that share the same raw data ([bf56b3b](https://github.com/blueprint-chart/blueprint-chart/commit/bf56b3b31f535d7169ddcbff6117ae67fcd01ee6))
+* **editor:** keep the pasted source when creating a chart from bpc ([5f2ec7c](https://github.com/blueprint-chart/blueprint-chart/commit/5f2ec7c8882fd2da3e5306d47051bf3dfb289b9c))
+* **editor:** let users dismiss or remove applied category colors ([60b4545](https://github.com/blueprint-chart/blueprint-chart/commit/60b45454aab3d8a216c929babd88ddbf5229e871))
+* **editor:** list documentation sections in sidebar ([c99bfde](https://github.com/blueprint-chart/blueprint-chart/commit/c99bfde9cb607a53b5e9de35a48df905f11a7580))
+* **editor:** list your palettes first in the palette picker ([79c8685](https://github.com/blueprint-chart/blueprint-chart/commit/79c8685221ce64844aa9350ee52a085c9d6be916))
+* **editor:** show datasets as cards with pipelines and a detail panel ([5d2b335](https://github.com/blueprint-chart/blueprint-chart/commit/5d2b3359e5dad59d13c7af35aeaafac1e90a61df))
+* **editor:** show Palettes in the breadcrumb ([50e3a5a](https://github.com/blueprint-chart/blueprint-chart/commit/50e3a5a739b1b15f896792dd0deceed6bcf3f511))
+* **ui:** add title, icon and actions to the empty state ([f8f8988](https://github.com/blueprint-chart/blueprint-chart/commit/f8f8988c2ebb9aa7b32a3d22e81e821238f612ad))
+
+### Bug Fixes
+
+* **editor:** accept readonly store state in palettes consumers ([51557cc](https://github.com/blueprint-chart/blueprint-chart/commit/51557cc1872459b54d1ffedb024478fad6c5ca3e))
+* **editor:** confirm before deleting a palette ([0fe52f8](https://github.com/blueprint-chart/blueprint-chart/commit/0fe52f87910af49a367737aa94893d6c149b0b64))
+* **editor:** explain palette edit limits instead of dropping them ([f79826b](https://github.com/blueprint-chart/blueprint-chart/commit/f79826b6b17f9af1be2785fb816f8fb2ffacb512))
+* **editor:** keep the datasets page up on corrupt storage ([bf586f7](https://github.com/blueprint-chart/blueprint-chart/commit/bf586f703c5243be583d6e88c784360c90d260a1))
+* **editor:** make palette chips keyboard reachable ([9654449](https://github.com/blueprint-chart/blueprint-chart/commit/9654449a18dec8e74a35a301f71b29cfdad1f1a1))
+* **editor:** match category colors by the key each chart type colors by ([9aaa3fa](https://github.com/blueprint-chart/blueprint-chart/commit/9aaa3faf41ae5578fce2e7d75b0dc60d342d215c))
+* **editor:** match datasets panel counts and pipelines to what they show ([1093964](https://github.com/blueprint-chart/blueprint-chart/commit/109396414988d4e6f46d56cfd1d1c53456a7d8fe))
+* **editor:** never write a custom palette id into colorPalette ([3de88b1](https://github.com/blueprint-chart/blueprint-chart/commit/3de88b1fef26a82f607a6218875ab5cff7cd2ddd))
+* **editor:** respect reduced motion on dataset card and panel hovers ([8adac1e](https://github.com/blueprint-chart/blueprint-chart/commit/8adac1e06fa48b88991a38815b98607a9b529ce9))
+* **editor:** show relative last used on datasets ([70df07f](https://github.com/blueprint-chart/blueprint-chart/commit/70df07f96589a8e06bd348745f7b2d66b6192309))
+* **editor:** show the picked custom palette in the color picker ([c9edcf0](https://github.com/blueprint-chart/blueprint-chart/commit/c9edcf0ddf51db54f10b02eec429cb7b415bab87))
+* **editor:** stop retrying chart thumbnails that fail to render ([534bce3](https://github.com/blueprint-chart/blueprint-chart/commit/534bce344fa3fcb74ae027874ed5980806126e02))
+* **editor:** title the palettes page ([f51aa83](https://github.com/blueprint-chart/blueprint-chart/commit/f51aa83345f5250c49971c98efb3e5cbaaa9162d))
+
 ## [2.3.0](https://github.com/blueprint-chart/blueprint-chart/compare/v2.2.3...v2.3.0) (2026-11-05)
 
 ### Features
