@@ -108,7 +108,7 @@ describe('collectDatasets', () => {
   it('counts rows and columns of the source table', () => {
     const result = collectDatasets([stored('a', bpc())])
     expect(result[0].rowCount).toBe(3)
-    expect(result[0].columnCount).toBe(2)
+    expect(result[0].columns).toEqual(['label', 'value'])
   })
 
   it('builds a stripped dsl that round-trips', () => {

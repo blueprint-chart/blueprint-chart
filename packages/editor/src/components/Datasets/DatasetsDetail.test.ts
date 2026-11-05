@@ -16,7 +16,7 @@ const dataset: Dataset = {
   data: rows,
   steps: [],
   rowCount: 8,
-  columnCount: 2,
+  columns: ['label', 'value'],
   charts: [
     { id: 'one', title: 'First', savedAt: null },
     { id: 'two', title: '', savedAt: null },
@@ -34,8 +34,26 @@ function mountDetail(overrides: Partial<Dataset> = {}, variants: Dataset[] = [])
 }
 
 describe('DatasetsDetail', () => {
-  it('renders at most 5 preview rows', () => {
-    expect(mountDetail().findAll('tbody tr')).toHaveLength(5)
+  it('renders at most 5 preview rows and says how many there are', () => {
+    const wrapper = mountDetail()
+    expect(wrapper.findAll('tbody tr')).toHaveLength(5)
+    expect(wrapper.find('.datasets-detail__table__caption').text()).toBe('First 5 of 8 rows')
+  })
+
+  it('gives only the row count when every row fits', () => {
+    expect(mountDetail({ steps: [steps[1]] }).find('.datasets-detail__table__caption').text()).toBe('5 rows')
+  })
+
+  it('counts rows and columns after the steps', () => {
+    const chips = mountDetail({ steps: [steps[1]] }).findAll('.dashboard-meta-chip')
+    expect(chips.map(c => c.text())).toEqual(['Rows5', 'Columns2', 'Steps1', 'Charts2'])
+  })
+
+  it('emits newChart with the first pipeline when the picked one is gone', async () => {
+    const wrapper = mountDetail()
+    await wrapper.setProps({ pipeline: 'missing' })
+    await wrapper.findAll('button').find(b => b.text() === 'Reuse in new chart')!.trigger('click')
+    expect(wrapper.emitted('newChart')).toEqual([[wrapper.props('group').variants[0]]])
   })
 
   it('renders one step per dataset step with its description', () => {

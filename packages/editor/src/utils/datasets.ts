@@ -17,7 +17,7 @@ export interface Dataset {
   data: string
   steps: DatasetStep[]
   rowCount: number
-  columnCount: number
+  columns: string[]
   charts: DatasetChart[]
   source: DatasetSource | null
   dsl: string
@@ -54,7 +54,7 @@ interface Entry {
   data: string
   steps: DatasetStep[]
   rowCount: number
-  columnCount: number
+  columns: string[]
   source: DatasetSource | null
   dsl: string
 }
@@ -81,7 +81,7 @@ function buildEntry({ id, dsl, meta }: StoredChart): Entry | null {
     data,
     steps,
     rowCount: table.rows.length,
-    columnCount: table.columns.length,
+    columns: table.columns,
     source: readSource(meta),
     dsl: serialize({ ...ast, properties: [], colorizes: [], highlights: [], areaFills: [], annotations: [], series: [], scenes: [], transforms }),
   }
@@ -114,7 +114,7 @@ export function collectDatasets(charts: StoredChart[]): Dataset[] {
         data: newest.data,
         steps: newest.steps,
         rowCount: newest.rowCount,
-        columnCount: newest.columnCount,
+        columns: newest.columns,
         charts: sorted.map(e => e.chart),
         source: newest.source,
         dsl: newest.dsl,

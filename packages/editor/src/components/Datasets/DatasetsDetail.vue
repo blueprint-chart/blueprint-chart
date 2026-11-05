@@ -3,7 +3,7 @@ import { computed } from 'vue'
 import { ButtonIcon } from '@blueprint-chart/ui'
 import { applyTransformSteps, parseBpcData } from '@blueprint-chart/lib'
 import type { TransformStep } from '@blueprint-chart/lib'
-import type { DatasetGroup } from '@/utils/datasets'
+import type { Dataset, DatasetGroup } from '@/utils/datasets'
 import { describeStep } from '@/components/Data/DataTransform/describeStep'
 import { stepMeta } from '@/components/Data/DataTransform/transformStepIcons'
 import DashboardMetaChip from '@/components/Dashboard/DashboardMetaChip.vue'
@@ -12,7 +12,7 @@ import DatasetsPipeline from './DatasetsPipeline.vue'
 
 const props = defineProps<{ group: DatasetGroup, thumbnails: Record<string, string> }>()
 const pipeline = defineModel<string>('pipeline', { required: true })
-defineEmits<{ newChart: [] }>()
+defineEmits<{ newChart: [variant: Dataset] }>()
 
 const dataset = computed(() => props.group.variants.find(v => v.key === pipeline.value) ?? props.group.variants[0])
 
@@ -26,6 +26,10 @@ const table = computed(() => {
 })
 
 const previewRows = computed(() => table.value.rows.slice(0, 5))
+const caption = computed(() => {
+  const total = `${table.value.rows.length} ${table.value.rows.length === 1 ? 'row' : 'rows'}`
+  return previewRows.value.length < table.value.rows.length ? `First ${previewRows.value.length} of ${total}` : total
+})
 
 const steps = computed(() => dataset.value.steps.map((step, index) => ({
   index,
@@ -34,8 +38,8 @@ const steps = computed(() => dataset.value.steps.map((step, index) => ({
 })))
 
 const chips = computed(() => [
-  { label: 'Rows', value: String(dataset.value.rowCount) },
-  { label: 'Columns', value: String(dataset.value.columnCount) },
+  { label: 'Rows', value: String(table.value.rows.length) },
+  { label: 'Columns', value: String(table.value.columns.length) },
   { label: 'Steps', value: String(dataset.value.steps.length) },
   { label: 'Charts', value: String(dataset.value.charts.length) },
 ])
@@ -85,7 +89,7 @@ function cellClass(ci: number) {
       label="Reuse in new chart"
       variant="strong"
       block
-      @click="$emit('newChart')"
+      @click="$emit('newChart', dataset)"
     />
     <div class="datasets-detail__chips">
       <DashboardMetaChip
@@ -121,6 +125,9 @@ function cellClass(ci: number) {
       <h2 class="datasets-detail__table__heading">
         Data
       </h2>
+      <p class="datasets-detail__table__caption">
+        {{ caption }}
+      </p>
       <div class="datasets-detail__table__scroll">
         <table class="datasets-detail__table__scroll__table table table-sm mb-0">
           <thead>
@@ -301,6 +308,13 @@ function cellClass(ci: number) {
   }
 
   &__table {
+    &__caption {
+      margin: -0.375rem 0 0.5rem;
+      font-size: var(--bs-font-size-xs);
+      color: var(--bs-secondary-color);
+      font-variant-numeric: tabular-nums;
+    }
+
     &__scroll {
       overflow-x: auto;
       border: 1px solid var(--bc-hairline);

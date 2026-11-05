@@ -8,7 +8,7 @@ const dataset: Dataset = {
   data: '"A" = 1',
   steps: [{ type: 'sort', config: { column: 'value', direction: 'descending' } }],
   rowCount: 12,
-  columnCount: 3,
+  columns: ['country', 'bags', 'year'],
   charts: [
     { id: 'one', title: 'Coffee exports', savedAt: '2026-11-01T00:00:00Z' },
     { id: 'two', title: 'Older', savedAt: null },
@@ -34,7 +34,7 @@ describe('DatasetsCard', () => {
 
   it('renders the name, size, columns, pipeline and usage', () => {
     const text = mountCard().text()
-    expect(text).toContain('label, value')
+    expect(text).toContain('country, bags, year')
     expect(text).toContain('Coffee exports')
     expect(text).toContain('12 rows · 3 columns')
     expect(text).toContain('Sort')
@@ -52,11 +52,11 @@ describe('DatasetsCard', () => {
     expect(wrapper.text()).toContain('2 pipelines · 3 charts')
   })
 
-  it('collapses steps past the first into a count', () => {
+  it('collapses all but the last step into a count', () => {
     const steps = ['sort', 'rename', 'filter', 'transpose'].map(type => ({ type, config: {} }))
     const items = mountCard({ steps }).findAll('.datasets-pipeline__step')
-    expect(items.map(i => i.text())).toEqual(['Raw data', 'Sort', '+3'])
-    expect(items[2].attributes('title')).toBe('Rename → Filter → Transpose')
+    expect(items.map(i => i.text())).toEqual(['Raw data', '+3', 'Transpose'])
+    expect(items[1].attributes('title')).toBe('Sort → Rename → Filter')
   })
 
   it('emits select when the title is clicked', async () => {

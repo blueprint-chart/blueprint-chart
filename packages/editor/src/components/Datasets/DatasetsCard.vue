@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { ButtonIcon } from '@blueprint-chart/ui'
-import { parseBpcData } from '@blueprint-chart/lib'
 import type { Dataset, DatasetGroup } from '@/utils/datasets'
 import DatasetsPipeline from './DatasetsPipeline.vue'
 import IPhTable from '~icons/ph/table'
@@ -16,8 +15,8 @@ function plural(count: number, word: string) {
 
 const newest = computed(() => props.group.variants[0])
 const newestChart = computed(() => newest.value.charts[0])
-const size = computed(() => `${plural(newest.value.rowCount, 'row')} · ${plural(newest.value.columnCount, 'column')}`)
-const columns = computed(() => parseBpcData(props.group.key).columns.join(', '))
+const size = computed(() => `${plural(newest.value.rowCount, 'row')} · ${plural(newest.value.columns.length, 'column')}`)
+const columns = computed(() => newest.value.columns.join(', '))
 const usage = computed(() => {
   const charts = props.group.variants.reduce((total, variant) => total + variant.charts.length, 0)
   return `${plural(props.group.variants.length, 'pipeline')} · ${plural(charts, 'chart')}`

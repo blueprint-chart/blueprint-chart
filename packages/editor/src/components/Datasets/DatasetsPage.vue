@@ -41,13 +41,6 @@ watch(selected, (group) => {
   }
 })
 
-function reuseSelected() {
-  const variant = selected.value?.variants.find(v => v.key === pipelineKey.value)
-  if (variant) {
-    newChart(variant)
-  }
-}
-
 function select(group: DatasetGroup) {
   selectedKey.value = group.key
   pipelineKey.value = group.variants[0].key
@@ -120,14 +113,13 @@ function newChart(dataset: Dataset) {
         :title="panelTitle"
         :container-ref="galleryRef"
         :show-close="false"
-        @close="selectedKey = null"
       >
         <DatasetsDetail
           v-if="selected"
           v-model:pipeline="pipelineKey"
           :group="selected"
           :thumbnails="thumbnails"
-          @new-chart="reuseSelected"
+          @new-chart="newChart"
         />
         <p
           v-else

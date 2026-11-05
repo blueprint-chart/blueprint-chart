@@ -19,7 +19,7 @@ function dataset(key: string, data = `"${key}" = 1`): Dataset {
     data,
     steps: [],
     rowCount: 1,
-    columnCount: 2,
+    columns: ['label', 'value'],
     charts: [{ id: key, title: key, savedAt: null }],
     source: null,
     dsl: '',
@@ -83,6 +83,15 @@ describe('DatasetsPage', () => {
     await flushPromises()
     expect(startChart).toHaveBeenCalledWith(list.value[0])
     expect(push).toHaveBeenCalledWith('/edit/new-id/data')
+  })
+
+  it('starts a chart from the pipeline the panel reuses', async () => {
+    list.value = [dataset('a'), dataset('b')]
+    startChart.mockReturnValue('new-id')
+    const { wrapper } = await mountPage()
+    await wrapper.findAll('.datasets-card__header__text__name')[0].trigger('click')
+    wrapper.findComponent({ name: 'DatasetsDetail' }).vm.$emit('newChart', list.value[0])
+    expect(startChart).toHaveBeenCalledWith(list.value[0])
   })
 
   it('stays on the page when no chart is created', async () => {

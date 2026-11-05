@@ -11,8 +11,8 @@ const labels = computed(() => props.steps.map((step, index) => ({
   index,
   label: stepMeta[step.type as TransformStep['type']].label,
 })))
-const shown = computed(() => labels.value.slice(0, props.max))
-const hidden = computed(() => labels.value.slice(props.max))
+const hidden = computed(() => labels.value.slice(0, Math.max(0, labels.value.length - props.max)))
+const shown = computed(() => labels.value.slice(hidden.value.length))
 const hiddenTitle = computed(() => hidden.value.map(step => step.label).join(' â†’ '))
 </script>
 
@@ -25,17 +25,6 @@ const hiddenTitle = computed(() => hidden.value.map(step => step.label).join(' â
       Raw data
     </li>
     <li
-      v-for="step in shown"
-      :key="step.index"
-      class="datasets-pipeline__step"
-    >
-      <IPhArrowRight
-        class="datasets-pipeline__step__arrow"
-        aria-hidden="true"
-      />
-      <span class="datasets-pipeline__step__label">{{ step.label }}</span>
-    </li>
-    <li
       v-if="hidden.length"
       class="datasets-pipeline__step"
       :title="hiddenTitle"
@@ -46,6 +35,17 @@ const hiddenTitle = computed(() => hidden.value.map(step => step.label).join(' â
         aria-hidden="true"
       />
       <span class="datasets-pipeline__step__label datasets-pipeline__step__label--more">+{{ hidden.length }}</span>
+    </li>
+    <li
+      v-for="step in shown"
+      :key="step.index"
+      class="datasets-pipeline__step"
+    >
+      <IPhArrowRight
+        class="datasets-pipeline__step__arrow"
+        aria-hidden="true"
+      />
+      <span class="datasets-pipeline__step__label">{{ step.label }}</span>
     </li>
   </ol>
 </template>
