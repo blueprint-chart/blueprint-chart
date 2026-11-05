@@ -17,6 +17,11 @@ function mountMcp() {
 }
 
 describe('LandingMcp', () => {
+  it('renders on the page theme, not a dark island', () => {
+    const w = mountMcp()
+    expect(w.find('[data-bs-theme]').exists()).toBe(false)
+  })
+
   it('mounts at the mcp anchor', () => {
     const w = mountMcp()
     expect(w.find('section').attributes('id')).toBe('mcp')

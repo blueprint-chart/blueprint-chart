@@ -119,4 +119,8 @@ defineSlots<{
 @media (max-width: 37.5rem) {
   .navigation-marketing-bar__cta-secondary { display: none; }
 }
+
+@media (max-width: 22.5rem) {
+  .navigation-marketing-bar__brand :slotted(a) span { display: none; }
+}
 </style>

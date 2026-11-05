@@ -22,6 +22,11 @@ function mountFormat() {
 }
 
 describe('LandingFormat', () => {
+  it('renders on the page theme, not a dark island', () => {
+    const w = mountFormat()
+    expect(w.find('[data-bs-theme]').exists()).toBe(false)
+  })
+
   it('mounts at the format anchor', () => {
     const w = mountFormat()
     expect(w.find('section').attributes('id')).toBe('format')

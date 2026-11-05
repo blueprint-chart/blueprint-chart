@@ -141,10 +141,7 @@ const steps: McpStep[] = [
           </li>
         </ol>
 
-        <div
-          class="landing-mcp__install"
-          data-bs-theme="dark"
-        >
+        <div class="landing-mcp__install">
           <div class="landing-mcp__install__head">
             <span class="landing-mcp__install__head__dots">
               <span /><span /><span />
@@ -422,8 +419,6 @@ const steps: McpStep[] = [
     border-radius: var(--bc-radius-md);
     overflow: hidden;
     min-width: 0; /* contain the nowrap command so it scrolls instead of widening the column */
-    /* Wrapper is data-bs-theme="dark": give it a dark body so the light
-       command text stays readable on the light page. */
     background: var(--bs-body-bg);
 
     &__head {

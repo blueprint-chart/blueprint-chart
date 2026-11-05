@@ -82,10 +82,7 @@ const portabilityCards: PortabilityCard[] = [
     </LandingSectionHeader>
 
     <div class="landing-format__grid">
-      <div
-        class="landing-format__pane"
-        data-bs-theme="dark"
-      >
+      <div class="landing-format__pane">
         <div class="landing-format__pane__head">
           <span class="landing-format__pane__head__dots">
             <span /><span /><span />
