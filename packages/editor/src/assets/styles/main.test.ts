@@ -134,3 +134,58 @@ describe('dark primary tints', () => {
     expect(dark).toMatch(/--bs-primary-border-subtle:\s*#454545/)
   })
 })
+
+describe('byesky bootstrap layer', () => {
+  const rule = (selector: string) => {
+    const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    return css.match(new RegExp(`(?:^|})\\s*${escaped}\\s*{([^}]*)}`, 'm'))?.[1] ?? ''
+  }
+
+  it('gives floating layers their shadow while keeping form controls flat', () => {
+    expect(rule('.dropdown-menu')).toMatch(/box-shadow:\s*var\(--bs-dropdown-box-shadow\)/)
+    expect(rule('.modal-content')).toMatch(/box-shadow:\s*var\(--bs-modal-box-shadow\)/)
+    expect(rule('.form-control')).not.toMatch(/box-shadow:\s*var\(--bs-box-shadow-inset\)/)
+    expect(rule('.form-select')).not.toMatch(/box-shadow:\s*var\(--bs-box-shadow-inset\)/)
+    expect(rule('.progress,\n.progress-stacked')).toMatch(/--bs-progress-box-shadow:\s*none/)
+    expect(css).not.toMatch(/\.form-range::-webkit-slider-thumb\s*{[^}]*box-shadow:\s*0/)
+    expect(css).not.toMatch(/\.form-range::-webkit-slider-runnable-track\s*{[^}]*box-shadow:\s*var\(--bs-box-shadow-inset\)/)
+    expect(css).not.toMatch(/\.btn-group\.show \.dropdown-toggle\s*{[^}]*box-shadow:\s*inset/)
+    expect(css).not.toMatch(/\.img-thumbnail\s*{[^}]*box-shadow:\s*var/)
+  })
+
+  it('draws dropdowns as rounded panels on the tertiary surface', () => {
+    const dropdown = rule('.dropdown-menu')
+    expect(dropdown).toMatch(/--bs-dropdown-bg:\s*var\(--bs-tertiary-bg\)/)
+    expect(dropdown).toMatch(/--bs-dropdown-padding-x:\s*0\.5rem/)
+    expect(dropdown).toMatch(/--bs-dropdown-item-padding-y:\s*0\.375rem/)
+    expect(css).toMatch(/\.dropdown-menu\s*{\s*--bs-dropdown-item-border-radius:\s*var\(--bs-border-radius-sm\)/)
+  })
+
+  it('frames modals with a hairline and a darker backdrop', () => {
+    expect(rule('.modal')).toMatch(/--bs-modal-border-width:\s*1px/)
+    expect(rule('.modal')).toMatch(/--bs-modal-header-border-width:\s*0/)
+    expect(rule('.modal')).toMatch(/--bs-modal-padding:\s*1\.5rem/)
+    expect(rule('.modal-backdrop')).toMatch(/--bs-backdrop-opacity:\s*0\.7/)
+  })
+
+  it('puts popovers on the tertiary surface without a header fill', () => {
+    expect(rule('.popover')).toMatch(/--bs-popover-bg:\s*var\(--bs-tertiary-bg\)/)
+    expect(rule('.popover')).toMatch(/--bs-popover-header-bg:\s*transparent/)
+  })
+
+  it('tunes badges, progress and switches to the neutral palette', () => {
+    expect(rule('.badge')).toMatch(/--bs-badge-padding-x:\s*0\.45em/)
+    expect(rule('.progress,\n.progress-stacked')).toMatch(/--bs-progress-bg:\s*rgba\(var\(--bs-body-color-rgb\), 0\.25\)/)
+    expect(rule('.form-switch .form-check-input')).toMatch(/--bs-form-switch-bg:\s*url\([^)]*%23666666/)
+  })
+
+  it('rings focus in the emphasis color in both themes', () => {
+    expect(css).toMatch(/\[data-bs-theme=("?)light\1\][^{]*{[^}]*--bs-focus-ring-color:\s*var\(--bs-emphasis-color\)/)
+    expect(css).toMatch(/\[data-bs-theme=("?)dark\1\][^{]*{[^}]*--bs-focus-ring-color:\s*var\(--bs-emphasis-color\)/)
+  })
+
+  it('smooths fonts and softens link underlines', () => {
+    expect(css).toMatch(/-webkit-font-smoothing:\s*antialiased/)
+    expect(rule('a')).toMatch(/text-decoration:\s*underline rgba\(var\(--bs-body-color-rgb\), 0\.15\)/)
+  })
+})

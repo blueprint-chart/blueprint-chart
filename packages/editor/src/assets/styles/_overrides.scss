@@ -7,6 +7,9 @@
 // Bootstrap consumes when it's imported next.
 // ============================================================================
 
+// Shadows are on for floating layers; form controls and progress opt out below
+$enable-shadows: true !default;
+
 // Borders / cards
 $card-border-width: 1px !default;
 $box-shadow:    0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1) !default;
@@ -23,6 +26,17 @@ $input-btn-padding-y:       0.3125rem !default;
 $input-btn-padding-x:       0.625rem !default;
 $form-check-input-checked-bg-color:     $primary !default;
 $form-check-input-checked-border-color: $primary !default;
+$input-box-shadow:          none !default;
+$form-select-box-shadow:    none !default;
+$form-check-input-border:   var(--bs-border-width) solid var(--bs-secondary-color) !default;
+$form-switch-bg-image:      url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'><circle r='3' fill='#{$body-secondary-color}'/></svg>") !default;
+$form-switch-bg-image-dark: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'><circle r='3' fill='#{$body-secondary-color-dark}'/></svg>") !default;
+$component-active-bg:       $primary !default;
+$component-active-color:    #fff !default;
+
+// Focus: the ring color itself flips per theme in main.scss
+$focus-ring-box-shadow: 0 0 0 .25rem var(--bs-focus-ring-color) !default;
+$input-btn-focus-color: var(--bs-focus-ring-color) !default;
 
 // Buttons
 $btn-padding-y: 0.3125rem !default;
@@ -33,9 +47,37 @@ $btn-font-weight: 500 !default;
 $btn-transition: color var(--bc-duration-base) ease-in-out, background-color var(--bc-duration-base) ease-in-out, border-color var(--bc-duration-base) ease-in-out, box-shadow var(--bc-duration-base) ease-in-out, scale var(--bc-duration-base) ease-out !default;
 
 // Floating layers only
-$dropdown-box-shadow: var(--bs-box-shadow-lg) !default;
-$popover-box-shadow:  0 1px 1px #00000005, 0 8px 16px -4px #0000000a, 0 24px 32px -8px #0000000f !default;
+$dropdown-bg:                 var(--bs-tertiary-bg) !default;
+$dropdown-link-hover-bg:      color-mix(in srgb, var(--bs-body-color) 8%, transparent) !default;
+$dropdown-padding-x:          .5rem !default;
+$dropdown-padding-y:          .5rem !default;
+$dropdown-item-padding-y:     .375rem !default;
+$dropdown-item-padding-x:     .5rem !default;
+$dropdown-box-shadow:         var(--bs-box-shadow-lg) !default;
+
+$popover-bg:         var(--bs-tertiary-bg) !default;
+$popover-font-size:  1rem !default;
+$popover-header-bg:  transparent !default;
+$popover-box-shadow: 0 1px 1px #00000005, 0 8px 16px -4px #0000000a, 0 24px 32px -8px #0000000f !default;
+
+$modal-content-border-width:     1px !default;
+$modal-content-border-color:     var(--bs-border-color) !default;
+$modal-header-border-width:      0 !default;
+$modal-inner-padding:            1.5rem !default;
+$modal-backdrop-opacity:         0.7 !default;
 $modal-content-box-shadow-sm-up: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px !default;
+
+// Badges and progress
+$badge-padding-y:     .30em !default;
+$badge-padding-x:     .45em !default;
+$progress-bg:         rgba(var(--bs-body-color-rgb), 0.25) !default;
+$progress-box-shadow: none !default;
+
+// Shadows stay off everything that isn't a floating layer
+$form-range-thumb-box-shadow: none !default;
+$form-range-track-box-shadow: none !default;
+$btn-active-box-shadow:       none !default;
+$thumbnail-box-shadow:        none !default;
 
 // Tables
 $table-cell-padding-y: 0.5rem !default;

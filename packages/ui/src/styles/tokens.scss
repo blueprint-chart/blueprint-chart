@@ -82,6 +82,8 @@ $btn-strong-hover-bg-dark:    #cccccc !default;
 $primary-text-emphasis-dark:  $body-color-dark !default;
 $primary-bg-subtle-dark:      $body-tertiary-bg-dark !default;
 $primary-border-subtle-dark:  $btn-primary-border-dark !default;
+$secondary-bg-subtle-dark:      $body-tertiary-bg-dark !default;
+$secondary-border-subtle-dark:  $border-color-dark !default;
 
 // Radius
 $border-radius-sm: 0.25rem !default;
@@ -93,7 +95,7 @@ $link-color:            $body-color !default;
 $link-hover-color:      $body-color !default;
 $link-color-dark:       $body-color-dark !default;
 $link-hover-color-dark: $body-color-dark !default;
-$link-decoration:       underline !default;
+$link-decoration:       underline rgba(var(--bs-body-color-rgb), 0.15) !default;
 
 // Focus ring
 $focus-ring-opacity: 1 !default;
