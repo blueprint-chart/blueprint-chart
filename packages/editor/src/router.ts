@@ -148,7 +148,7 @@ const router = createRouter({
 
 router.afterEach(async (to, from) => {
   document.title = to.meta.title ? `${to.meta.title} · Blueprint Chart` : 'Blueprint Chart'
-  if (from === START_LOCATION) {
+  if (from === START_LOCATION || to.matched[0]?.components?.default === from.matched[0]?.components?.default) {
     return
   }
   await nextTick()

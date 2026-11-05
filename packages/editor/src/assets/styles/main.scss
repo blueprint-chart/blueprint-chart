@@ -242,7 +242,7 @@ body {
   width: min(248px, calc(100vw - 1rem));
 }
 
-main[tabindex="-1"]:focus,
-h1[tabindex="-1"]:focus {
+main[tabindex="-1"]:focus:not(:focus-visible),
+h1[tabindex="-1"]:focus:not(:focus-visible) {
   outline: none;
 }
