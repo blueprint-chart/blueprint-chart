@@ -17,7 +17,7 @@ import { parse, type ChartSample, toBool } from '@blueprint-chart/lib'
  * v1 (no marker): `data` held the pipeline's *output* and the blocks were kept
  * beside it, so re-deriving from it would apply every step a second time.
  */
-const SCHEMA_VERSION = 2
+export const SCHEMA_VERSION = 2
 
 interface SessionMeta {
   schema?: number
