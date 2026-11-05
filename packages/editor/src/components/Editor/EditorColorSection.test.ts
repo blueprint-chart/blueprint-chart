@@ -36,11 +36,11 @@ describe('EditorColorSection custom palettes', () => {
     })
   })
 
-  it('lists your palettes before the built-in ones', () => {
+  it('lists Custom first, then your palettes, then the built-in ones', () => {
     const { wrapper, id } = setup()
     const palettes = wrapper.findComponent(FormControlPalette).props('palettes')
     expect(palettes?.slice(0, 3).map(p => [p.value, p.group])).toEqual([
-      ['', 'Your palettes'],
+      ['', undefined],
       [`custom:${id}`, 'Your palettes'],
       ['Blueprint', 'Built-in'],
     ])
@@ -60,5 +60,22 @@ describe('EditorColorSection custom palettes', () => {
     wrapper.findComponent(FormControlPalette).vm.$emit('update:modelValue', 'custom:missing')
     await flushPromises()
     expect(options.currentOptions.value.colorPalette).toBe(before)
+  })
+
+  it('shows the custom palette whose colors the chart uses, ignoring case', async () => {
+    const { wrapper, options } = setup()
+    const letters = useCustomPalettes().create('Letters', ['#aabbcc', '#ddeeff'])!
+    options.setOption('colorPalette', '')
+    options.setOption('colors', ['#AABBCC', '#DDEEFF'])
+    await flushPromises()
+    expect(wrapper.findComponent(FormControlPalette).props('modelValue')).toBe(`custom:${letters.id}`)
+  })
+
+  it('shows Custom when the colors match no palette in order', async () => {
+    const { wrapper, options } = setup()
+    options.setOption('colorPalette', '')
+    options.setOption('colors', ['#222222', '#111111', '#333333'])
+    await flushPromises()
+    expect(wrapper.findComponent(FormControlPalette).props('modelValue')).toBe('')
   })
 })

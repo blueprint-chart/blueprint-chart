@@ -16,7 +16,7 @@
         v-if="hasPalette"
         id="opt-palette"
         label="Color palette"
-        :model-value="currentOptions.colorPalette ?? ''"
+        :model-value="paletteValue"
         :palettes="paletteOptions"
         @update:model-value="onPaletteChange"
       />
@@ -198,7 +198,7 @@ const cvdOptions = [
 ]
 
 const paletteOptions = computed(() => [
-  { value: '', label: 'Custom', colors: [] as string[], group: 'Your palettes' },
+  { value: '', label: 'Custom', colors: [] as string[] },
   ...customPalettes.value.map(p => ({
     value: `custom:${p.id}`,
     label: p.label,
@@ -212,6 +212,19 @@ const paletteOptions = computed(() => [
     group: 'Built-in',
   })),
 ])
+
+const sameColors = (a: readonly string[], b: readonly string[]) =>
+  a.length === b.length && a.every((color, i) => color.toLowerCase() === b[i].toLowerCase())
+
+const paletteValue = computed(() => {
+  const name = currentOptions.value.colorPalette as string | undefined
+  if (name) {
+    return name
+  }
+  const colors = (currentOptions.value.colors as string[] | undefined) ?? []
+  const match = customPalettes.value.find(p => sameColors(p.colors, colors))
+  return match ? `custom:${match.id}` : ''
+})
 
 function onPaletteChange(value: string) {
   if (!value.startsWith('custom:')) {
