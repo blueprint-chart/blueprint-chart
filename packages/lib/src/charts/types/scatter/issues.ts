@@ -1,6 +1,6 @@
 import type { AxisRange, ChartData } from '../../types'
 import { ScaleType } from '../../../enums'
-import { nearest } from '../../../dsl/validate'
+import { nearest } from '../../../dsl/suggest'
 import { MAPPING_NONE, numericColumns, resolveScatterMapping } from './mapping'
 import type { ScatterMapping } from './mapping'
 import { buildScatterPoints } from './points'
@@ -67,7 +67,7 @@ function skippedTrends(skipped: string[]): ScatterIssue[] {
 function ignoredLogRanges(scaleTypes: ScaleTypes, ranges: Ranges): ScatterIssue[] {
   return (['x', 'y'] as const).flatMap(axis => (['min', 'max'] as const).flatMap((bound) => {
     const raw = ranges[axis]?.[bound]
-    if (scaleTypes[axis] !== ScaleType.Log || raw === undefined || !(Number(raw) <= 0)) {
+    if (scaleTypes[axis] !== ScaleType.Log || raw === undefined || String(raw).trim() === '' || !(Number(raw) <= 0)) {
       return []
     }
     const property = `${AXIS_PREFIX[axis]}Range${bound === 'min' ? 'Min' : 'Max'}`

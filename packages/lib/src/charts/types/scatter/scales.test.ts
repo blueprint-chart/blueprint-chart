@@ -14,6 +14,11 @@ describe('buildScatterScale', () => {
     expect(buildScatterScale(ScaleType.Log, [100, 1000], { min: 0 }).domain()[0]).toBeGreaterThan(0)
   })
 
+  it('ignores a string range min <= 0 on a log10 axis', () => {
+    const ignored = buildScatterScale(ScaleType.Log, [100, 1000], { min: '0' }).domain()
+    expect(ignored).toEqual(buildScatterScale(ScaleType.Log, [100, 1000]).domain())
+  })
+
   it('keeps a valid log10 domain when no positive value remains', () => {
     for (const values of [[0, -5], []]) {
       const [lo, hi] = buildScatterScale(ScaleType.Log, values).domain()

@@ -70,6 +70,16 @@ describe('scatter chart', () => {
     expect(cx('b')).toBeCloseTo((cx('a') + cx('c')) / 2)
   })
 
+  it('ignores a string range min of 0 on a log x-axis', () => {
+    const d = parseData('series = "x","y"\n"a" = 10, 1\n"b" = 100, 2\n"c" = 1000, 3')
+    const cxs = (range?: { min: string }) => {
+      const c = document.createElement('div')
+      render(c, d, { horizontalAxis: { scaleType: ScaleType.Log, range } })
+      return ['a', 'b', 'c'].map(k => Number(c.querySelector(`[data-key="${k}"]`)!.getAttribute('cx')))
+    }
+    expect(cxs({ min: '0' })).toEqual(cxs())
+  })
+
   it('does not force zero onto the y-axis', () => {
     render(container, DATA, {})
     const ticks = Array.from(container.querySelectorAll('.bc-axis-vertical .tick text')).map(t => t.textContent)

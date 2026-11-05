@@ -6,7 +6,8 @@ import type { AxisRange } from '../../types'
 export type ScatterScale = d3.ScaleLinear<number, number> | d3.ScaleLogarithmic<number, number> | d3.ScaleSymLog<number, number>
 
 function positiveBound(bound?: number | string): number | string | undefined {
-  return typeof bound === 'number' && bound <= 0 ? undefined : bound
+  const value = typeof bound === 'string' && bound.trim() ? Number(bound) : bound
+  return typeof value === 'number' && value <= 0 ? undefined : bound
 }
 
 function buildLogScale(values: number[], range?: AxisRange): ScatterScale {

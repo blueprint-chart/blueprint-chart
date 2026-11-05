@@ -81,6 +81,10 @@ describe('scatterIssues', () => {
     })
   })
 
+  it('does not warn about an empty log range bound', () => {
+    expect(codes(scatterIssues(data, {}, { x: ScaleType.Log }, { x: { min: '', max: ' ' } }))).not.toContain('log-range-ignored')
+  })
+
   it('skips row checks when the mapping is broken', () => {
     expect(codes(scatterIssues(data, { x: 'GPD' }, {}, {}, 'overall'))).toEqual(['unknown-column'])
   })
