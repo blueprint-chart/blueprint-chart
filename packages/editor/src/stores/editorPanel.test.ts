@@ -10,7 +10,7 @@ describe('useEditorPanel', () => {
     expect(store.activeTab).toBe('type')
     expect(store.viewMode).toBe('preview')
     expect(store.canvasMode).toBe('auto')
-    expect(store.showDimensions).toBe(true)
+    expect(store.showDimensions).toBe(false)
     expect(store.pendingAnnotationIndex).toBeNull()
     expect(store.dataView).toBe('upload')
     expect(store.dataPanelTab).toBe('')
@@ -123,7 +123,7 @@ describe('useEditorPanel', () => {
     store.selectTab('axes')
     store.setViewMode('dsl')
     store.setCanvasMode('dark')
-    store.showDimensions = false
+    store.showDimensions = true
     store.setDataView('structure')
     store.openDataPanel('transforms')
     store.selectColumn(3)
@@ -131,7 +131,7 @@ describe('useEditorPanel', () => {
     expect(store.activeTab).toBe('type')
     expect(store.viewMode).toBe('preview')
     expect(store.canvasMode).toBe('auto')
-    expect(store.showDimensions).toBe(true)
+    expect(store.showDimensions).toBe(false)
     expect(store.pendingAnnotationIndex).toBeNull()
     expect(store.dataView).toBe('upload')
     expect(store.dataPanelTab).toBe('')

@@ -8,7 +8,7 @@ export const useEditorPanelStore = defineStore('editorPanel', () => {
   const viewMode = shallowRef<ViewMode>('preview')
   const splitRatio = shallowRef(0.5)
   const canvasMode = shallowRef<CanvasMode>('auto')
-  const showDimensions = shallowRef(true)
+  const showDimensions = shallowRef(false)
   const pendingAnnotationIndex = shallowRef<number | string | null>(null)
   const dataView = shallowRef<DataView>('upload')
   const dataPanelTab = shallowRef<DataPanelTab | ''>('')
@@ -85,7 +85,7 @@ export const useEditorPanelStore = defineStore('editorPanel', () => {
     viewMode.value = 'preview'
     splitRatio.value = 0.5
     canvasMode.value = 'auto'
-    showDimensions.value = true
+    showDimensions.value = false
     pendingAnnotationIndex.value = null
     dataView.value = 'upload'
     dataPanelTab.value = '' as DataPanelTab
