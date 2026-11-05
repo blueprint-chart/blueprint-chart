@@ -28,7 +28,7 @@ test.describe('Narrow viewport - sidebar offcanvas', () => {
     const offcanvas = page.locator('#layout-sidebar-offcanvas')
     await expect(offcanvas).toBeVisible()
     await expect(offcanvas.getByRole('link', { name: 'Home' })).toBeVisible()
-    await expect(offcanvas.getByRole('link', { name: 'My Charts' })).toBeVisible()
+    await expect(offcanvas.getByRole('link', { name: 'My charts' })).toBeVisible()
     await expect(hamburger).toHaveAttribute('aria-expanded', 'true')
   })
 

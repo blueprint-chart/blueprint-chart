@@ -1,9 +1,9 @@
 ---
-title: Color & Palettes
+title: Color & palettes
 bpcBrandDefault: false
 ---
 
-# Color & Palettes
+# Color & palettes
 
 > Palette types, seven key rules, the perceptual-uniformity trap (HCL vs. HSL), ten techniques for reducing color usage, dark mode adjustments, and the components of an organizational palette system.
 
@@ -137,6 +137,6 @@ A single red hue carries semantic weight (warming) while the dashed horizontal g
 ## See also
 
 - [Accessibility](/handbook/accessibility)
-- [Design Principles](/handbook/design-principles)
-- [Anti-Patterns](/handbook/anti-patterns)
-- [Axes & Grid Lines](/handbook/axes)
+- [Design principles](/handbook/design-principles)
+- [Anti-patterns](/handbook/anti-patterns)
+- [Axes & gridlines](/handbook/axes)

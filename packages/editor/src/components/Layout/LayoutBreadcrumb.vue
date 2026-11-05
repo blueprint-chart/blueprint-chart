@@ -12,13 +12,13 @@ const crumbs = computed<Crumb[]>(() => {
   const path = route.path
   if (path.startsWith('/edit/')) {
     const title = config._base.title.value || 'Untitled'
-    return [{ label: 'My Charts', to: '/charts' }, { label: title, heading: true }]
+    return [{ label: 'My charts', to: '/charts' }, { label: title, heading: true }]
   }
   if (path.startsWith('/charts')) {
-    return [{ label: 'My Charts' }]
+    return [{ label: 'My charts' }]
   }
   if (path === '/new') {
-    return [{ label: 'My Charts', to: '/charts' }, { label: 'New chart' }]
+    return [{ label: 'My charts', to: '/charts' }, { label: 'New chart' }]
   }
   return []
 })
@@ -77,7 +77,7 @@ const crumbs = computed<Crumb[]>(() => {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  // Link crumbs are short, fixed wayfinding labels ("My Charts") — keep them
+  // Link crumbs are short, fixed wayfinding labels ("My charts") — keep them
   // whole and let the active crumb (chart title) absorb the truncation.
   flex-shrink: 0;
   transition: color var(--bc-duration-base) var(--bc-ease);

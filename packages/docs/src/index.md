@@ -1,6 +1,6 @@
 ---
 layout: page
-title: Blueprint Chart Docs
+title: Blueprint Chart docs
 aside: false
 outline: false
 editLink: false
@@ -31,6 +31,6 @@ onMounted(() => {
 
 <div style="max-width: 48rem; margin: 6rem auto; padding: 0 1.5rem; text-align: center;">
 
-Redirecting to [**Getting Started**](/guide/getting-started)…
+Redirecting to [**Getting started**](/guide/getting-started)…
 
 </div>

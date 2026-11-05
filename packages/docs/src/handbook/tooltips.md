@@ -1,8 +1,8 @@
 ---
-title: Tooltips & Interaction
+title: Tooltips & interaction
 ---
 
-# Tooltips & Interaction
+# Tooltips & interaction
 
 > Tooltips progressively disclose detail, they never replace critical information. Interaction must be consistent, accessible, and keyboard-reachable. Crosshairs and hover states support — not replace — clear visual hierarchy.
 
@@ -94,6 +94,6 @@ The annotation carries the headline (`"Great Recession peak"`) so the chart stan
 ## See also
 
 - [Accessibility](/handbook/accessibility)
-- [Labels & Legends](/handbook/labels)
+- [Labels & legends](/handbook/labels)
 - [Annotations](/handbook/annotations)
-- [Design Principles](/handbook/design-principles)
+- [Design principles](/handbook/design-principles)

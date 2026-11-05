@@ -6,7 +6,7 @@
     @click="$emit('click')"
   >
     <IconPhPlus class="dashboard-new-card__icon" />
-    <span class="dashboard-new-card__label">New Chart</span>
+    <span class="dashboard-new-card__label">New chart</span>
   </button>
 </template>
 

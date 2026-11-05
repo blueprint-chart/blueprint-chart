@@ -1,8 +1,8 @@
 ---
-title: Frame Elements
+title: Frame elements
 ---
 
-# Frame Elements
+# Frame elements
 
 > A well-structured chart frame has a clear information hierarchy: title, description, chart area, annotations, axis labels, note, source, and credit. Each element has a role and a style treatment that reflects its priority.
 
@@ -94,5 +94,5 @@ A declarative title carries the insight (`"…peaked at 9.1% before retreating t
 
 - [Typography](/handbook/typography)
 - [Annotations](/handbook/annotations)
-- [Design Principles](/handbook/design-principles)
+- [Design principles](/handbook/design-principles)
 - [BPC DSL Specification](/reference/dsl/)

@@ -1,4 +1,4 @@
-# Embedding Charts
+# Embedding charts
 
 Blueprint Chart is **static-first**: every chart is a self-contained artifact independent of any vendor server. There are three ways to put one on a page, and they all run entirely in the browser.
 

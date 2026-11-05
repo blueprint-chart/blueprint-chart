@@ -1,8 +1,8 @@
 ---
-title: Chart Types
+title: Chart types
 ---
 
-# Chart Types
+# Chart types
 
 Blueprint Chart ships 13 chart types organized into four families: bar, line, area, and part-to-whole.
 

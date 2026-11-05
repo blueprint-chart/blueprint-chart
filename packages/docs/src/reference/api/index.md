@@ -1,4 +1,4 @@
-# API Reference
+# API reference
 
 Public surface of [`@blueprint-chart/lib`](https://www.npmjs.com/package/@blueprint-chart/lib). Every symbol on this page is exported from the package root.
 

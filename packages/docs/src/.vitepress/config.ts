@@ -106,10 +106,10 @@ export default defineConfig({
           text: 'Get started',
           collapsed: false,
           items: [
-            { text: 'Getting Started', link: '/guide/getting-started' },
+            { text: 'Getting started', link: '/guide/getting-started' },
             { text: 'Rendering', link: '/guide/rendering' },
             { text: 'Authoring with AI', link: '/guide/mcp' },
-            { text: 'Embedding Charts', link: '/guide/embed' },
+            { text: 'Embedding charts', link: '/guide/embed' },
           ],
         },
         {
@@ -171,7 +171,7 @@ export default defineConfig({
 
       '/handbook/': [
         {
-          text: 'Dataviz Handbook',
+          text: 'Dataviz handbook',
           collapsed: false,
           items: [
             { text: 'Overview', link: '/handbook/' },
@@ -215,7 +215,7 @@ export default defineConfig({
           ],
         },
         {
-          text: 'API Reference',
+          text: 'API reference',
           collapsed: false,
           items: [
             { text: 'Overview', link: '/reference/api/' },

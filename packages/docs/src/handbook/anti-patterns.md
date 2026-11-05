@@ -1,8 +1,8 @@
 ---
-title: Anti-Patterns
+title: Anti-patterns
 ---
 
-# Anti-Patterns
+# Anti-patterns
 
 > A catalog of what goes wrong: misleading practices that distort the truth, design anti-patterns that obscure the story, and the statistical integrity rules that keep charts honest.
 
@@ -18,7 +18,7 @@ title: Anti-Patterns
 | Unnormalized choropleth | Shows population density, not the intended variable | Normalize per capita / per unit |
 | Rainbow color scales | Perceptually non-uniform; meaningless ordering | Use sequential or diverging palettes |
 
-See [Axes & Grid Lines](/handbook/axes) for the baseline rules behind the first row, and [Color & Palettes](/handbook/color) for palette guidance that prevents the last two.
+See [Axes & gridlines](/handbook/axes) for the baseline rules behind the first row, and [Color & palettes](/handbook/color) for palette guidance that prevents the last two.
 
 ## Design anti-patterns
 
@@ -33,7 +33,7 @@ See [Axes & Grid Lines](/handbook/axes) for the baseline rules behind the first 
 | Missing context | Data without comparison has no story | Add reference lines, targets, time comparisons |
 | Stacking many small segments | Impossible to read individual values | Group small segments; use direct comparison |
 
-See [Labels & Legends](/handbook/labels) for direct-labeling technique and [Annotations](/handbook/annotations) for the 3–4 annotation ceiling.
+See [Labels & legends](/handbook/labels) for direct-labeling technique and [Annotations](/handbook/annotations) for the 3–4 annotation ceiling.
 
 ## Statistical integrity
 
@@ -79,7 +79,7 @@ Every anti-pattern traces back to a design principle being violated. If a chart 
 
 ## See also
 
-- [Design Principles](/handbook/design-principles)
-- [Choosing the Right Chart](/handbook/choosing)
-- [Axes & Grid Lines](/handbook/axes)
-- [Color & Palettes](/handbook/color)
+- [Design principles](/handbook/design-principles)
+- [Choosing the right chart](/handbook/choosing)
+- [Axes & gridlines](/handbook/axes)
+- [Color & palettes](/handbook/color)

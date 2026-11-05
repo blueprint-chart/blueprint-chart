@@ -1,8 +1,8 @@
 ---
-title: Data Transforms
+title: Data transforms
 ---
 
-# Data Transforms
+# Data transforms
 
 > A composable pipeline that shapes raw tabular data into the rows the chart actually renders.
 

@@ -64,7 +64,8 @@ export const useAccountStore = defineStore('account', () => {
     })
     if (error) {
       status.value = 'error'
-      errorMessage.value = error.message
+      console.error(error)
+      errorMessage.value = 'We couldn\'t send the link. Check the address and try again in a minute.'
       return
     }
     status.value = 'link-sent'

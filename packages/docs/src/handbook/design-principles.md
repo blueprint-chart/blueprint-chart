@@ -1,8 +1,8 @@
 ---
-title: Design Principles
+title: Design principles
 ---
 
-# Design Principles
+# Design principles
 
 > The core principles behind every good chart: purposefulness, clarity, data-ink ratio, restraint, consistency, starting with grey, the power of comparisons, and the refusal to use 3D.
 
@@ -102,7 +102,7 @@ These principles drive the project's visual defaults: grey axis lines, minimal g
 
 ## See also
 
-- [Color & Palettes](/handbook/color)
-- [Anti-Patterns](/handbook/anti-patterns)
-- [Axes & Grid Lines](/handbook/axes)
-- [Frame Elements](/handbook/frame-elements)
+- [Color & palettes](/handbook/color)
+- [Anti-patterns](/handbook/anti-patterns)
+- [Axes & gridlines](/handbook/axes)
+- [Frame elements](/handbook/frame-elements)

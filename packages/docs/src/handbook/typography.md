@@ -86,7 +86,7 @@ Title under 50 characters, description under 70, single-letter axis labels — n
 
 ## See also
 
-- [Frame Elements](/handbook/frame-elements)
-- [Labels & Legends](/handbook/labels)
+- [Frame elements](/handbook/frame-elements)
+- [Labels & legends](/handbook/labels)
 - [Accessibility](/handbook/accessibility)
-- [Design Principles](/handbook/design-principles)
+- [Design principles](/handbook/design-principles)

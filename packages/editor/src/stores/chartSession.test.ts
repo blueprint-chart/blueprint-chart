@@ -529,7 +529,7 @@ describe('a malformed :meta sidecar', () => {
     localStorage.setItem(metaKey(ID), '{not json')
   })
 
-  it('keeps the chart listed in My Charts', () => {
+  it('keeps the chart listed in My charts', () => {
     const charts = useChartSession().listSavedCharts()
     expect(charts.map(c => c.id)).toEqual([ID])
     expect(charts[0].title).toBe('Intact')

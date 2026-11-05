@@ -103,7 +103,7 @@ Blueprint Chart ships 50+ palettes in `packages/lib/src/charts/palettes.ts`; eac
 
 ## See also
 
-- [Color & Palettes](/handbook/color)
+- [Color & palettes](/handbook/color)
 - [Typography](/handbook/typography)
-- [Tooltips & Interaction](/handbook/tooltips)
-- [Design Principles](/handbook/design-principles)
+- [Tooltips & interaction](/handbook/tooltips)
+- [Design principles](/handbook/design-principles)

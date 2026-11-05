@@ -1,8 +1,8 @@
 ---
-title: Axes & Grid Lines
+title: Axes & gridlines
 ---
 
-# Axes & Grid Lines
+# Axes & gridlines
 
 > When zero matters, when it doesn't, how grid lines should whisper rather than shout, how to format numbers, when to use logarithmic scales, and how aspect ratio silently changes a chart's story.
 
@@ -17,7 +17,7 @@ title: Axes & Grid Lines
 | Scatter plot | **No** | Position encodes the value |
 
 ::: warning
-Truncating the y-axis on a bar or area chart visually exaggerates differences. This is the single most common deceptive pattern in the wild. See [Anti-Patterns](/handbook/anti-patterns).
+Truncating the y-axis on a bar or area chart visually exaggerates differences. This is the single most common deceptive pattern in the wild. See [Anti-patterns](/handbook/anti-patterns).
 :::
 
 ## Grid lines
@@ -132,7 +132,7 @@ The vertical axis line and ticks are off; only dashed horizontal gridlines remai
 
 ## See also
 
-- [Labels & Legends](/handbook/labels)
-- [Anti-Patterns](/handbook/anti-patterns)
-- [Design Principles](/handbook/design-principles)
-- [Frame Elements](/handbook/frame-elements)
+- [Labels & legends](/handbook/labels)
+- [Anti-patterns](/handbook/anti-patterns)
+- [Design principles](/handbook/design-principles)
+- [Frame elements](/handbook/frame-elements)

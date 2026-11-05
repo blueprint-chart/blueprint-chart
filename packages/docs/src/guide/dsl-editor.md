@@ -1,8 +1,8 @@
 ---
-title: DSL Editor
+title: DSL editor
 ---
 
-# DSL Editor
+# DSL editor
 
 > The BPC source editor — CodeMirror 6, a Lezer-generated grammar, syntax highlighting tuned for prose-shaped charts, and two-way sync with the visual panels.
 

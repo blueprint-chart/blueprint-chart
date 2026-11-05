@@ -83,6 +83,7 @@ Public documentation — handbook, guide, BPC DSL spec, lib API reference. Publi
 - Use BootstrapVueNext components and Bootstrap CSS variables wherever possible.
 - Components live in hierarchical directories (e.g., `Editor/EditorPanel.vue`).
 - Design is mobile-first and must support both light and dark mode.
+- UI labels, titles and buttons use sentence case ("New chart", "My charts"); keep proper nouns capitalized.
 - Auto-imports are configured for BootstrapVueNext and Phosphor icons (prefix: `icon-ph-*`).
 - Use `ButtonIcon` instead of raw `BButton` throughout `@blueprint-chart/ui` and `@blueprint-chart/editor`.
 - Container components (e.g., `FormControlButtonGroup`, `FormControlDropdown`, `FormControlPalette`, `NavigationIconRail`, `NavigationStepper`) support both an array prop and a slot-based child entry API via provide/inject (`useChildEntriesProvider` / `useChildEntry`). Slot children take precedence over the array prop.

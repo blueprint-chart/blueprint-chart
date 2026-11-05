@@ -1,8 +1,8 @@
 ---
-title: Dataviz Handbook
+title: Dataviz handbook
 ---
 
-# Dataviz Handbook
+# Dataviz handbook
 
 > An opinionated field guide for designing honest, clear, and accessible charts — the editorial principles behind Blueprint Chart, distilled into a working reference.
 
@@ -27,7 +27,7 @@ Every page in this handbook orbits the same set of principles:
 - **Comparisons make the story** — data in isolation has no meaning.
 - **No 3D, ever** — tilted surfaces lie.
 
-If you read only one page, read [Design Principles](/handbook/design-principles). Everything else is the application of those rules to a specific surface of the chart.
+If you read only one page, read [Design principles](/handbook/design-principles). Everything else is the application of those rules to a specific surface of the chart.
 
 ## One chart that uses every principle
 
@@ -68,24 +68,24 @@ A takeaway title states the insight; a single red hue carries meaning; gridlines
 
 | If you want to... | Read |
 | --- | --- |
-| Decide which chart fits your data | [Choosing the Right Chart](/handbook/choosing) |
-| Internalize the foundations | [Design Principles](/handbook/design-principles) |
-| Avoid the most common mistakes | [Anti-Patterns](/handbook/anti-patterns) |
-| Structure the chart frame | [Frame Elements](/handbook/frame-elements) |
+| Decide which chart fits your data | [Choosing the right chart](/handbook/choosing) |
+| Internalize the foundations | [Design principles](/handbook/design-principles) |
+| Avoid the most common mistakes | [Anti-patterns](/handbook/anti-patterns) |
+| Structure the chart frame | [Frame elements](/handbook/frame-elements) |
 | Type for legibility | [Typography](/handbook/typography) |
-| Pick safe, meaningful color | [Color & Palettes](/handbook/color) |
-| Tame axes and grids | [Axes & Grid Lines](/handbook/axes) |
-| Label directly | [Labels & Legends](/handbook/labels) |
+| Pick safe, meaningful color | [Color & palettes](/handbook/color) |
+| Tame axes and grids | [Axes & gridlines](/handbook/axes) |
+| Label directly | [Labels & legends](/handbook/labels) |
 | Tell the story with annotations | [Annotations](/handbook/annotations) |
-| Design interaction honestly | [Tooltips & Interaction](/handbook/tooltips) |
+| Design interaction honestly | [Tooltips & interaction](/handbook/tooltips) |
 | Make charts accessible to everyone | [Accessibility](/handbook/accessibility) |
 
 ## How this connects to Blueprint Chart
 
-Blueprint Chart is the tool we built to make these principles the path of least resistance: grey defaults, baseline-zero where it matters, CVD-aware palettes, direct labeling, and a frame model that mirrors the hierarchy described here. The handbook is editorial; the [Guide](/guide/getting-started), [DSL Spec](/reference/dsl/), and [API Reference](/reference/api/) are how you put it into practice.
+Blueprint Chart is the tool we built to make these principles the path of least resistance: grey defaults, baseline-zero where it matters, CVD-aware palettes, direct labeling, and a frame model that mirrors the hierarchy described here. The handbook is editorial; the [Guide](/guide/getting-started), [DSL Spec](/reference/dsl/), and [API reference](/reference/api/) are how you put it into practice.
 
 ## See also
 
-- [Choosing the Right Chart](/handbook/choosing)
-- [Design Principles](/handbook/design-principles)
-- [Getting Started](/guide/getting-started)
+- [Choosing the right chart](/handbook/choosing)
+- [Design principles](/handbook/design-principles)
+- [Getting started](/guide/getting-started)

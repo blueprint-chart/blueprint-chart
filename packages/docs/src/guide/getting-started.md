@@ -1,4 +1,4 @@
-# Getting Started
+# Getting started
 
 Welcome to the Blueprint Chart documentation. Jump straight to a section below, or read on for the install quickstart.
 

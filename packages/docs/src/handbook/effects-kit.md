@@ -1,8 +1,8 @@
 ---
-title: Effects Kit
+title: Effects kit
 ---
 
-# Effects Kit
+# Effects kit
 
 > The brand effects kit ported from FIG.07 of the effects kit reference: one law, the ALWAYS / NEVER rules (including the rejected variants), and how each effect maps to a real class or component in `@blueprint-chart/ui`.
 
@@ -39,6 +39,6 @@ Ink and light condense around a point of attention. Everything below is that sen
 
 ## See also
 
-- [Color & Palettes](/handbook/color)
-- [Design Principles](/handbook/design-principles)
-- [Anti-Patterns](/handbook/anti-patterns)
+- [Color & palettes](/handbook/color)
+- [Design principles](/handbook/design-principles)
+- [Anti-patterns](/handbook/anti-patterns)

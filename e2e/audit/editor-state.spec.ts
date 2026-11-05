@@ -90,7 +90,7 @@ test.describe('G18 editor state, persistence and routing', () => {
   })
 
   // #117: the landing page for every stale bookmark.
-  test('an unknown chart id offers a way back to My Charts', async ({ page }) => {
+  test('an unknown chart id offers a way back to My charts', async ({ page }) => {
     await page.goto('/#/render?id=NOSUCHID999')
     await expect(page.locator('.render-page__error')).toBeVisible()
     await expect(page.locator('.render-page')).not.toContainText('No data to preview')

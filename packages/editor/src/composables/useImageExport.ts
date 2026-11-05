@@ -1,6 +1,9 @@
 import type { Ref } from 'vue'
 import { exportSvg, exportPng, exportFramePng, exportFrameSvg } from '@/utils/export/image'
 
+const NO_CHART_MESSAGE = 'There\'s no chart to export yet. Add data first.'
+const PNG_FAILED_MESSAGE = 'Couldn\'t create the PNG. Try a smaller scale, or download SVG instead.'
+
 export function useImageExport(containerRef: Ref<HTMLElement | null>, cardRef?: Ref<HTMLElement | null>) {
   const error = shallowRef('')
 
@@ -41,14 +44,15 @@ export function useImageExport(containerRef: Ref<HTMLElement | null>, cardRef?: 
       }
       const svg = getSvgElement()
       if (!svg) {
+        error.value = NO_CHART_MESSAGE
         return
       }
       const { width, height } = svg.getBoundingClientRect()
       await exportPng(svg, width * scale, height * scale)
     }
     catch (e) {
-      // A rejected export used to surface nowhere: the button just looked clicked.
-      error.value = e instanceof Error ? e.message : String(e)
+      console.error(e)
+      error.value = e instanceof Error && e.message === 'No chart to export' ? NO_CHART_MESSAGE : PNG_FAILED_MESSAGE
     }
   }
 

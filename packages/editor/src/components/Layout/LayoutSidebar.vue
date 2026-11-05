@@ -51,7 +51,7 @@ const logoSrc = computed(() => resolvedTheme.value === 'dark' ? logoDark : logoL
       </NavigationSidebarItem>
       <NavigationSidebarItem
         to="/charts"
-        label="My Charts"
+        label="My charts"
         :active="isCharts"
         :count="sortedCharts.length || undefined"
       >

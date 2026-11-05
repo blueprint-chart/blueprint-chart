@@ -137,7 +137,7 @@ A callout adds the *why* alongside the data ("Surpassed EU in 2023") — a sente
 
 ## See also
 
-- [Frame Elements](/handbook/frame-elements)
-- [Labels & Legends](/handbook/labels)
-- [Design Principles](/handbook/design-principles)
+- [Frame elements](/handbook/frame-elements)
+- [Labels & legends](/handbook/labels)
+- [Design principles](/handbook/design-principles)
 - [BPC DSL Specification](/reference/dsl/annotations)

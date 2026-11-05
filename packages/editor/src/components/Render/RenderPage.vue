@@ -8,7 +8,7 @@
         {{ error }}
       </p>
       <RouterLink to="/charts">
-        Go to My Charts
+        Go to My charts
       </RouterLink>
     </div>
     <div

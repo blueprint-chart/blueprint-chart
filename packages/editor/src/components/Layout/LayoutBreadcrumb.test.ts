@@ -28,14 +28,14 @@ describe('LayoutBreadcrumb', () => {
     expect(wrapper.find('nav[aria-label="Breadcrumb"]').exists()).toBe(true)
   })
 
-  it('shows "My Charts" on /charts', async () => {
+  it('shows "My charts" on /charts', async () => {
     const wrapper = await mountBreadcrumb('/charts')
-    expect(wrapper.text()).toContain('My Charts')
+    expect(wrapper.text()).toContain('My charts')
   })
 
-  it('shows "My Charts / New chart" on /new', async () => {
+  it('shows "My charts / New chart" on /new', async () => {
     const wrapper = await mountBreadcrumb('/new')
-    expect(wrapper.text()).toContain('My Charts')
+    expect(wrapper.text()).toContain('My charts')
     expect(wrapper.text()).toContain('New chart')
   })
 
@@ -43,7 +43,7 @@ describe('LayoutBreadcrumb', () => {
     const wrapper = await mountBreadcrumb('/charts')
     const active = wrapper.find('[aria-current="page"]')
     expect(active.exists()).toBe(true)
-    expect(active.text()).toBe('My Charts')
+    expect(active.text()).toBe('My charts')
   })
 
   it('renders the chart title as the page h1 on edit routes', async () => {

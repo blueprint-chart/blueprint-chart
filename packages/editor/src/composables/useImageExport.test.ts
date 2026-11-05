@@ -118,7 +118,39 @@ describe('downloadPng error surfacing (#69)', () => {
     const { downloadPng, error } = useImageExport(shallowRef(container))
     await downloadPng()
 
-    expect(error.value).toBe('object URL unavailable')
+    expect(error.value).toBe('Couldn\'t create the PNG. Try a smaller scale, or download SVG instead.')
+    container.remove()
+  })
+
+  it('logs the original error to the console', async () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const failure = new Error('Could not create PNG blob')
+    const container = document.createElement('div')
+    const frame = document.createElement('div')
+    frame.className = 'bc-frame'
+    frame.appendChild(document.createElementNS('http://www.w3.org/2000/svg', 'svg'))
+    container.appendChild(frame)
+    document.body.appendChild(container)
+    vi.stubGlobal('URL', {
+      createObjectURL: () => { throw failure },
+      revokeObjectURL: vi.fn(),
+    })
+
+    const { downloadPng } = useImageExport(shallowRef(container))
+    await downloadPng()
+
+    expect(consoleError).toHaveBeenCalledWith(failure)
+    container.remove()
+  })
+
+  it('asks for data first when there is no chart', async () => {
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+
+    const { downloadPng, error } = useImageExport(shallowRef(container))
+    await downloadPng()
+
+    expect(error.value).toBe('There\'s no chart to export yet. Add data first.')
     container.remove()
   })
 })

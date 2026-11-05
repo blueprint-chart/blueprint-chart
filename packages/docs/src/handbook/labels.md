@@ -1,8 +1,8 @@
 ---
-title: Labels & Legends
+title: Labels & legends
 ---
 
-# Labels & Legends
+# Labels & legends
 
 > Direct labeling beats legends wherever possible. When you must use a legend, place it where it helps. Use value labels when precision matters and the layout allows.
 
@@ -36,7 +36,7 @@ Place labels directly on or adjacent to data elements instead of using a separat
 
 ## Value labels
 
-For bar charts, value labels are **on by default** — they replace the value axis entirely, so each bar carries its number directly. The renderer uses an "auto: label if it fits" rule: when a bar or stack segment is too narrow to hold its label legibly, the label is suppressed and the value falls back to the tooltip instead. See [Axes & Grid Lines](/handbook/axes) for the no-value-axis default.
+For bar charts, value labels are **on by default** — they replace the value axis entirely, so each bar carries its number directly. The renderer uses an "auto: label if it fits" rule: when a bar or stack segment is too narrow to hold its label legibly, the label is suppressed and the value falls back to the tooltip instead. See [Axes & gridlines](/handbook/axes) for the no-value-axis default.
 
 For other chart types:
 
@@ -109,5 +109,5 @@ A multi-series bar chart needs a legend to map the three hues to Gold / Silver /
 
 - [Typography](/handbook/typography)
 - [Annotations](/handbook/annotations)
-- [Tooltips & Interaction](/handbook/tooltips)
+- [Tooltips & interaction](/handbook/tooltips)
 - [Accessibility](/handbook/accessibility)

@@ -1,8 +1,8 @@
 ---
-title: Choosing the Right Chart
+title: Choosing the right chart
 ---
 
-# Choosing the Right Chart
+# Choosing the right chart
 
 > Before picking a visualization type, answer three questions about goal, content, and audience. Then pick the simplest chart that answers the question. Increase complexity only when the simpler form cannot convey the insight.
 
@@ -114,7 +114,7 @@ Six categories summing to 100 % — the question is "how big a slice does Chrome
 
 ## See also
 
-- [Design Principles](/handbook/design-principles)
-- [Anti-Patterns](/handbook/anti-patterns)
-- [Frame Elements](/handbook/frame-elements)
+- [Design principles](/handbook/design-principles)
+- [Anti-patterns](/handbook/anti-patterns)
+- [Frame elements](/handbook/frame-elements)
 - [BPC DSL Specification](/reference/dsl/)
