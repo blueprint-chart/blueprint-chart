@@ -76,8 +76,38 @@ describe('scatter scene transitions', () => {
       orch.run(() => render(container, scene, {}, true), { duration: 300 })
       await wait(100)
     }
-    await wait(500)
+    await wait(1000)
     expect(points(container).map(c => c.dataset.key).sort()).toEqual(['Chad', 'France', 'Peru'])
     expect(points(container).map(c => c.getAttribute('opacity'))).toEqual(['1', '1', '1'])
+  })
+
+  it('keeps largest-first draw order when sizes swap rank', () => {
+    const before = parseData('series = "x","y","size"\n"France" = 1, 1, 68\n"Chad" = 2, 2, 18')
+    const after = parseData('series = "x","y","size"\n"France" = 1, 1, 5\n"Chad" = 2, 2, 100\n"Peru" = 3, 3, 50')
+    render(container, before, {})
+    render(container, after, {}, true)
+    expect(points(container).map(c => c.dataset.key)).toEqual(['Chad', 'Peru', 'France'])
+  })
+
+  it('glides matched points and fades exiting ones mid-transition', async () => {
+    const orch = getSceneTransition(container)
+    render(container, DATA, {})
+    const france = container.querySelector('[data-key="France"]')!
+    const start = Number(france.getAttribute('cx'))
+    orch.run(() => render(container, SCENE_2, {}, true), { duration: 300 })
+    const japan = container.querySelector('[data-key="Japan"]')!
+    await wait(150)
+    const mid = Number(france.getAttribute('cx'))
+    const opacity = Number(japan.getAttribute('opacity'))
+    const japanShownMid = japan.isConnected
+    await wait(500)
+    const end = Number(france.getAttribute('cx'))
+    expect(container.querySelector('[data-key="France"]')).toBe(france)
+    expect(mid).toBeGreaterThan(Math.min(start, end))
+    expect(mid).toBeLessThan(Math.max(start, end))
+    expect(japanShownMid).toBe(true)
+    expect(japan.isConnected).toBe(false)
+    expect(opacity).toBeGreaterThan(0)
+    expect(opacity).toBeLessThan(1)
   })
 })

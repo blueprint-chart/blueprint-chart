@@ -163,7 +163,10 @@ export function render(
   const trendLayer = d3.select(chartArea).append('g').attr('clip-path', `url(#${clipId})`).node() as SVGGElement
   const pointLayer = d3.select(chartArea).append('g').attr('clip-path', `url(#${clipId})`).node() as SVGGElement
   trendLayer.append(...priorTrends)
-  pointLayer.append(...priorPoints)
+  const drawOrder = d3.sort(points, p => -radius(p))
+  const drawRank = new Map(drawOrder.map((p, i) => [p.name, i]))
+  // featureJoin never reorders matched nodes, so they must already sit in the new largest-first order.
+  pointLayer.append(...d3.sort(priorPoints, el => drawRank.get(el.getAttribute('data-key')!) ?? Infinity))
 
   const overrides = splitColorOverrides(points, buildColorOverrides(options.colorizes))
   const shownGroupColors = new Map(groupNames.map(g => [g, overrides.groups.get(g) ?? colors.get(g)!]))
@@ -202,7 +205,7 @@ export function render(
     role: 'mark-per-category',
     parent: pointLayer,
     selector: '.bc-scatter-point',
-    data: d3.sort(points, p => -radius(p)),
+    data: drawOrder,
     key: p => p.name,
     insert: sel => sel.append('circle').attr('class', 'bc-scatter-point').attr('data-key', p => p.name),
     attrs: pointAttrs,
