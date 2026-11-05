@@ -118,9 +118,11 @@ const cardClassList = computed(() => ({
   transition: border-color var(--bc-duration-base) var(--bc-ease),
               transform var(--bc-duration-base) var(--bc-ease);
 
-  &:hover {
-    border-color: var(--bc-hairline-strong);
-    transform: translateY(-1px);
+  @media (hover: hover) {
+    &:hover {
+      border-color: var(--bc-hairline-strong);
+      transform: translateY(-1px);
+    }
   }
 
   &:has(.gallery-card__meta__title:focus-visible) {
@@ -148,7 +150,6 @@ const cardClassList = computed(() => ({
 
   &__thumb {
     height: 152px;
-    background: var(--bc-tile-bg-elevated);
     border-bottom: 1px solid var(--bs-border-color);
     display: flex;
     align-items: center;
@@ -179,8 +180,17 @@ const cardClassList = computed(() => ({
       transition: opacity var(--bc-duration-base) ease;
       z-index: 1;
 
-      .gallery-card:hover &,
       .gallery-card:focus-within & {
+        opacity: 1;
+      }
+
+      @media (hover: hover) {
+        .gallery-card:hover & {
+          opacity: 1;
+        }
+      }
+
+      @media (hover: none) {
         opacity: 1;
       }
     }
