@@ -10,6 +10,7 @@ async function mountBreadcrumb(initialPath = '/charts') {
       { path: '/charts', component: { template: '<div />' } },
       { path: '/edit/:id', component: { template: '<div />' } },
       { path: '/new', component: { template: '<div />' } },
+      { path: '/palettes', component: { template: '<div />' } },
     ],
   })
   await router.push(initialPath)
@@ -37,6 +38,11 @@ describe('LayoutBreadcrumb', () => {
     const wrapper = await mountBreadcrumb('/new')
     expect(wrapper.text()).toContain('My charts')
     expect(wrapper.text()).toContain('New chart')
+  })
+
+  it('shows "Palettes" on /palettes', async () => {
+    const wrapper = await mountBreadcrumb('/palettes')
+    expect(wrapper.find('[aria-current="page"]').text()).toBe('Palettes')
   })
 
   it('marks the last crumb with aria-current="page"', async () => {

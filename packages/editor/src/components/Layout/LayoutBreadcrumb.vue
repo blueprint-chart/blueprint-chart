@@ -17,6 +17,9 @@ const crumbs = computed<Crumb[]>(() => {
   if (path.startsWith('/charts')) {
     return [{ label: 'My charts' }]
   }
+  if (path === '/palettes') {
+    return [{ label: 'Palettes' }]
+  }
   if (path === '/new') {
     return [{ label: 'My charts', to: '/charts' }, { label: 'New chart' }]
   }
