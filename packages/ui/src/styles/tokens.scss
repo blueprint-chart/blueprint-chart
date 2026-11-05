@@ -37,6 +37,17 @@ $prussian-300: #4B90CF !default;
 $prussian-100: #A3C9E8 !default;
 $prussian-50:  #E1EEF7 !default;
 
+// Neutral gray ramp (Bootstrap's own is blue-tinted). Feeds $secondary, $light, $dark.
+$gray-100: #fafafa !default;
+$gray-200: #f2f2f2 !default;
+$gray-300: #eaeaea !default;
+$gray-400: #c9c9c9 !default;
+$gray-500: #a8a8a8 !default;
+$gray-600: #666666 !default;
+$gray-700: #454545 !default;
+$gray-800: #383838 !default;
+$gray-900: #171717 !default;
+
 // Theme color aliases (Bootstrap reads these)
 $primary: #171717 !default;
 $success: #2D8659 !default;
