@@ -11,7 +11,7 @@ import {
 import { useDashboardGallery } from '@/composables/useDashboardGallery'
 import { useTheme } from '@/stores/theme'
 import { usePlatformShortcut } from '@/composables/usePlatformShortcut'
-import LayoutSidebarFooter from '@/components/Layout/LayoutSidebarFooter.vue'
+import AccountMenu from '@/components/Account/AccountMenu.vue'
 import logoLight from '@/assets/images/blueprint-chart-logo.svg'
 import logoDark from '@/assets/images/blueprint-chart-logo-dark.svg'
 import IPhHouse from '~icons/ph/house'
@@ -105,7 +105,7 @@ const logoSrc = computed(() => resolvedTheme.value === 'dark' ? logoDark : logoL
     </NavigationSidebarGroup>
 
     <template #footer>
-      <LayoutSidebarFooter />
+      <AccountMenu />
     </template>
   </NavigationSidebar>
 </template>

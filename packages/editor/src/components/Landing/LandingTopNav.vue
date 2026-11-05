@@ -2,24 +2,18 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useMediaQuery } from '@vueuse/core'
 import {
-  ButtonIcon,
   NavigationCommandBar,
   NavigationMarketingBar,
 } from '@blueprint-chart/ui'
-import { useTheme, type ThemeMode } from '@/stores/theme'
+import { useTheme } from '@/stores/theme'
 import { usePlatformShortcut } from '@/composables/usePlatformShortcut'
 import AccountMenu from '@/components/Account/AccountMenu.vue'
-import { accountsEnabled } from '@/config/runtimeConfig'
 import logoLight from '@/assets/images/blueprint-chart-logo.svg'
 import logoDark from '@/assets/images/blueprint-chart-logo-dark.svg'
-import IPhSun from '~icons/ph/sun'
-import IPhMoon from '~icons/ph/moon'
-import IPhCircleHalf from '~icons/ph/circle-half'
 
-const { theme, resolvedTheme, cycleTheme } = useTheme()
+const { resolvedTheme } = useTheme()
 const shortcut = usePlatformShortcut('k')
 const logoSrc = computed(() => resolvedTheme.value === 'dark' ? logoDark : logoLight)
-const showAccount = accountsEnabled()
 
 // Collapses the search bar on narrow viewports (matches the 37.5rem breakpoint
 // used by NavigationMarketingBar for its own narrow layout).
@@ -89,13 +83,6 @@ onMounted(async () => {
 
 onBeforeUnmount(() => observer?.disconnect())
 
-const iconByTheme: Record<ThemeMode, typeof IPhSun> = {
-  light: IPhSun,
-  dark: IPhMoon,
-  auto: IPhCircleHalf,
-}
-const themeIcon = computed(() => iconByTheme[theme.value])
-
 function openSearch() {
   // LayoutShell registers a global ⌘/Ctrl+K listener that opens the command
   // palette. Replay the platform-correct keystroke so the click path matches
@@ -141,16 +128,7 @@ function openSearch() {
         :collapsed="isNarrow"
         @click="openSearch"
       />
-      <ButtonIcon
-        :icon-left="themeIcon"
-        label="Toggle theme"
-        hide-label
-        square
-        variant="primary"
-        size="sm"
-        @click="cycleTheme"
-      />
-      <AccountMenu v-if="showAccount" />
+      <AccountMenu navbar />
     </template>
   </NavigationMarketingBar>
 </template>

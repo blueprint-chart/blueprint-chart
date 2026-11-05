@@ -248,7 +248,7 @@ body {
   z-index: 1045;
   // Cap to the viewport so the teleported menu never overflows on small
   // screens; floating-ui flip/shift keeps it on-screen and right-aligned.
-  width: min(248px, calc(100vw - 1rem));
+  max-width: calc(100vw - 1rem);
 }
 
 main[tabindex="-1"]:focus:not(:focus-visible),

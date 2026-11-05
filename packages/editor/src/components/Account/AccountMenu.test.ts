@@ -1,130 +1,191 @@
 import { mount, RouterLinkStub, flushPromises } from '@vue/test-utils'
 import { createTestingPinia } from '@pinia/testing'
-import { createRouter, createMemoryHistory, type Router } from 'vue-router'
-import { BDropdownItem, BDropdownText } from 'bootstrap-vue-next'
+import { createRouter, createMemoryHistory } from 'vue-router'
 import AccountMenu from './AccountMenu.vue'
-import AccountAvatar from './AccountAvatar.vue'
-import AccountSignInModal from './AccountSignInModal.vue'
 import { useAccountStore } from '@/stores/account'
+import { useThemeStore } from '@/stores/theme'
 
-function makeRouter(): Router {
-  return createRouter({
+const accountsOn = vi.hoisted(() => ({ value: true }))
+
+vi.mock('@/config/runtimeConfig', async (orig) => {
+  const actual = await orig<typeof import('@/config/runtimeConfig')>()
+  return { ...actual, accountsEnabled: () => accountsOn.value }
+})
+
+const mounted: Array<{ unmount: () => void }> = []
+
+beforeEach(() => {
+  accountsOn.value = true
+})
+
+async function mountMenu(signedIn: boolean, props: { navbar?: boolean } = {}) {
+  const router = createRouter({
     history: createMemoryHistory(),
     routes: [{ path: '/charts', component: { template: '<div />' } }],
   })
-}
-
-async function mountMenu(signedIn: boolean) {
-  const router = makeRouter()
   await router.push('/charts')
   await router.isReady()
   const pinia = createTestingPinia({
     createSpy: vi.fn,
+    stubActions: false,
     initialState: {
       account: { user: signedIn ? { id: '1', email: 'hello@pirhoo.com' } : null },
+      theme: { theme: 'light' },
     },
   })
-  // The dropdown menu teleports to <body> (teleport-to="body" in AccountMenu.vue),
-  // so attachTo: document.body must stay in sync — the teleported header/items are
-  // only queryable through the wrapper when the component is attached to the document.
   const wrapper = mount(AccountMenu, {
+    props,
     attachTo: document.body,
     global: {
+      stubs: { 'router-link': RouterLinkStub, 'AccountSignInModal': true },
       plugins: [pinia, router],
-      stubs: { 'router-link': RouterLinkStub },
     },
   })
+  mounted.push(wrapper)
   return { wrapper, router }
 }
 
+async function openMenu(wrapper: Awaited<ReturnType<typeof mountMenu>>['wrapper']) {
+  await wrapper.find('button[aria-label="More options"]').trigger('click')
+  await flushPromises()
+}
+
 afterEach(() => {
+  mounted.splice(0).forEach(wrapper => wrapper.unmount())
   document.body.innerHTML = ''
 })
 
 describe('AccountMenu (signed in)', () => {
-  it('renders an avatar in the toggle with an accessible name carrying the email', async () => {
+  it('makes the whole footer row the menu trigger, with the avatar inside', async () => {
     const { wrapper } = await mountMenu(true)
-    const toggle = wrapper.find('.dropdown-toggle')
-    expect(toggle.exists()).toBe(true)
-    expect(toggle.findComponent(AccountAvatar).exists()).toBe(true)
-    expect(toggle.text()).toContain('hello@pirhoo.com')
+    const trigger = wrapper.find('button[aria-label="More options"]')
+    expect(trigger.classes()).toContain('account-menu__trigger')
+    expect(trigger.find('.account-avatar').exists()).toBe(true)
+    expect(wrapper.findAll('button')).toHaveLength(1)
   })
 
-  it('renders a "Signed in as" header with the email', async () => {
+  it('opens a menu at least as wide as the footer row', async () => {
     const { wrapper } = await mountMenu(true)
-    const header = wrapper.findComponent(BDropdownText)
-    expect(header.text()).toContain('Signed in as')
-    expect(header.text()).toContain('hello@pirhoo.com')
+    const trigger = wrapper.find('button[aria-label="More options"]')
+    Object.defineProperty(trigger.element, 'offsetWidth', { value: 260 })
+    await openMenu(wrapper)
+    const menu = document.body.querySelector('.account-menu__menu') as HTMLElement
+    expect(menu.style.minWidth).toBe('260px')
   })
 
-  it('renders exactly two menu items: My charts and Sign out', async () => {
+  it('lists the email, My charts and Sign out in the menu', async () => {
     const { wrapper } = await mountMenu(true)
-    const items = wrapper.findAllComponents(BDropdownItem)
-    expect(items).toHaveLength(2)
-    expect(items[0].text()).toContain('My charts')
-    expect(items[1].text()).toContain('Sign out')
+    await openMenu(wrapper)
+    const text = document.body.textContent ?? ''
+    expect(text).toContain('hello@pirhoo.com')
+    expect(text).toContain('My charts')
+    expect(text).toContain('Sign out')
   })
 
-  it('navigates to /charts when My charts is clicked', async () => {
-    const { wrapper, router } = await mountMenu(true)
-    const push = vi.spyOn(router, 'push')
-    // BDropdownItem renders an inner <a> or <button>; trigger on that element so the
-    // test fails loudly if that inner element ever disappears.
-    const link = wrapper.findAllComponents(BDropdownItem)[0].find('a, button')
-    expect(link.exists()).toBe(true)
-    await link.trigger('click')
-    expect(push).toHaveBeenCalledWith('/charts')
+  it('groups the menu: identity, navigation, theme, sign out', async () => {
+    const { wrapper } = await mountMenu(true)
+    await openMenu(wrapper)
+    const menu = document.body.querySelector('.account-menu__menu') as HTMLElement
+    const sections = [...menu.children].map((child) => {
+      if (child.querySelector('hr, .dropdown-divider') || child.matches('hr, .dropdown-divider')) {
+        return 'divider'
+      }
+      if (child.querySelector('.account-menu__menu__header')) {
+        return 'identity'
+      }
+      if (child.matches('.account-menu__theme')) {
+        return 'theme'
+      }
+      return child.textContent?.trim()
+    })
+    expect(sections).toEqual(['identity', 'divider', 'My charts', 'divider', 'theme', 'divider', 'Sign out'])
   })
 
-  it('calls signOut and redirects to /charts when Sign out is clicked', async () => {
-    const { wrapper, router } = await mountMenu(true)
+  it('shows the full email with an avatar in the menu header', async () => {
+    const { wrapper } = await mountMenu(true)
+    await openMenu(wrapper)
+    const header = document.body.querySelector('.account-menu__menu__header') as HTMLElement
+    expect(header.querySelector('.account-avatar')).not.toBeNull()
+    expect(header.querySelector('.account-menu__menu__header__email')?.textContent).toBe('hello@pirhoo.com')
+  })
+
+  it('signs out from the menu', async () => {
+    const { wrapper } = await mountMenu(true)
     const store = useAccountStore()
-    const push = vi.spyOn(router, 'push')
-    // BDropdownItem renders an inner <a> or <button>; trigger on that element so the
-    // test fails loudly if that inner element ever disappears.
-    const link = wrapper.findAllComponents(BDropdownItem)[1].find('a, button')
-    expect(link.exists()).toBe(true)
-    await link.trigger('click')
-    // onSignOut awaits signOut() then pushes '/charts'; flush so the post-await push runs.
+    const signOut = vi.spyOn(store, 'signOut').mockResolvedValue()
+    await openMenu(wrapper)
+    const item = [...document.body.querySelectorAll('.dropdown-item')].find(el => el.textContent?.includes('Sign out')) as HTMLElement
+    item.click()
     await flushPromises()
-    expect(store.signOut).toHaveBeenCalled()
-    expect(push).toHaveBeenCalledWith('/charts')
+    expect(signOut).toHaveBeenCalled()
+  })
+})
+
+describe('AccountMenu (theme)', () => {
+  it('offers system, light and dark in the menu and marks the current one', async () => {
+    const { wrapper } = await mountMenu(true)
+    await openMenu(wrapper)
+    const options = [...document.body.querySelectorAll('.account-menu__theme button')]
+    expect(options.map(o => o.getAttribute('aria-label'))).toEqual(['System', 'Light', 'Dark'])
+    expect(options[1].getAttribute('aria-current')).toBe('true')
+  })
+
+  it('switches the theme when an option is picked', async () => {
+    const { wrapper } = await mountMenu(true)
+    await openMenu(wrapper)
+    const dark = document.body.querySelector('.account-menu__theme button[aria-label="Dark"]') as HTMLElement
+    dark.click()
+    await flushPromises()
+    expect(useThemeStore().theme).toBe('dark')
   })
 })
 
 describe('AccountMenu (signed out)', () => {
-  it('renders a strong Sign in button and no dropdown', async () => {
+  it('shows a theme toggle and a full-width Sign in, with no dropdown', async () => {
     const { wrapper } = await mountMenu(false)
-    expect(wrapper.find('.dropdown-toggle').exists()).toBe(false)
-    const btn = wrapper.find('button.btn-strong')
-    expect(btn.exists()).toBe(true)
-    expect(btn.text()).toContain('Sign in')
+    const labels = wrapper.findAll('button').map(button => button.attributes('aria-label') ?? button.text())
+    expect(labels).toEqual(['Toggle theme', 'Sign in'])
+    expect(wrapper.find('button.btn-strong').classes()).toContain('account-menu__sign-in--fill')
+    expect(wrapper.find('.dropdown').exists()).toBe(false)
   })
 
-  it('opens the sign-in modal when the Sign in button is clicked', async () => {
+  it('keeps only the theme toggle when accounts are disabled', async () => {
+    accountsOn.value = false
     const { wrapper } = await mountMenu(false)
-    expect(wrapper.findComponent(AccountSignInModal).props('open')).toBe(false)
-    await wrapper.find('button.btn-strong').trigger('click')
-    expect(wrapper.findComponent(AccountSignInModal).props('open')).toBe(true)
-  })
-})
-
-describe('AccountMenu (session init)', () => {
-  // Locks the "AccountMenu owns init()" contract: the navbar no longer calls it,
-  // so the component must trigger the (memoized) session restore on mount.
-  it('triggers store.init on mount', async () => {
-    await mountMenu(false)
-    const store = useAccountStore()
-    expect(store.init).toHaveBeenCalled()
+    const labels = wrapper.findAll('button').map(button => button.attributes('aria-label') ?? button.text())
+    expect(labels).toEqual(['Toggle theme'])
   })
 })
 
-describe('AccountMenu — shared sign-in modal', () => {
-  it('opens the store-backed modal when the signed-out sign-in button is clicked', async () => {
-    const { wrapper } = await mountMenu(false)
-    const store = useAccountStore()
-    expect(store.signInModalOpen).toBe(false)
-    await wrapper.find('button').trigger('click')
-    expect(store.signInModalOpen).toBe(true)
+describe('AccountMenu (navbar)', () => {
+  it('uses a round avatar trigger instead of the full footer row', async () => {
+    const { wrapper } = await mountMenu(true, { navbar: true })
+    const trigger = wrapper.find('button[aria-label="More options"]')
+    expect(trigger.classes()).toContain('account-menu__more')
+    expect(trigger.find('.account-avatar--sm').exists()).toBe(true)
+    expect(trigger.findAll('svg')).toHaveLength(0)
+  })
+
+  it('opens the same menu below the trigger', async () => {
+    const { wrapper } = await mountMenu(true, { navbar: true })
+    await openMenu(wrapper)
+    const text = document.body.textContent ?? ''
+    expect(text).toContain('My charts')
+    expect(document.body.querySelector('.account-menu__theme')).not.toBeNull()
+    expect(wrapper.findComponent({ name: 'BDropdown' }).props('placement')).toBe('bottom-end')
+    expect((document.body.querySelector('.account-menu__menu') as HTMLElement).style.minWidth).toBe('')
+  })
+
+  it('shows a theme toggle before Sign in and no dropdown when signed out', async () => {
+    const { wrapper } = await mountMenu(false, { navbar: true })
+    const labels = wrapper.findAll('button').map(button => button.attributes('aria-label') ?? button.text())
+    expect(labels).toEqual(['Toggle theme', 'Sign in'])
+    expect(wrapper.find('.dropdown').exists()).toBe(false)
+  })
+
+  it('cycles the theme from the toggle', async () => {
+    const { wrapper } = await mountMenu(false, { navbar: true })
+    await wrapper.find('button[aria-label="Toggle theme"]').trigger('click')
+    expect(useThemeStore().theme).not.toBe('light')
   })
 })

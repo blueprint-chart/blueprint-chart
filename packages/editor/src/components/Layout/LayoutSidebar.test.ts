@@ -15,7 +15,7 @@ async function mountSidebar() {
   await router.isReady()
   return mount(LayoutSidebar, {
     global: {
-      stubs: { 'router-link': RouterLinkStub, 'LayoutSidebarFooter': { template: '<div class="layout-sidebar-footer-stub" />' } },
+      stubs: { 'router-link': RouterLinkStub, 'AccountMenu': { template: '<div class="account-menu-stub" />' } },
       plugins: [createTestingPinia({ createSpy: vi.fn }), router],
     },
   })
@@ -30,6 +30,6 @@ describe('LayoutSidebar', () => {
 
   it('renders the account and theme footer', async () => {
     const wrapper = await mountSidebar()
-    expect(wrapper.find('.navigation-sidebar__footer .layout-sidebar-footer-stub').exists()).toBe(true)
+    expect(wrapper.find('.navigation-sidebar__footer .account-menu-stub').exists()).toBe(true)
   })
 })
