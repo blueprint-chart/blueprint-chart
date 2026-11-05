@@ -112,3 +112,16 @@ describe('strong call sites', () => {
     expect(hover).toContain('var(--bc-btn-strong-hover-bg)')
   })
 })
+
+describe('form focus', () => {
+  it('borders focused controls with the emphasis color', () => {
+    expect(css).toMatch(/\.form-control:focus\s*{[^}]*border-color:\s*var\(--bs-emphasis-color\)/)
+  })
+
+  it('bakes a literal fill into the focused switch thumb', () => {
+    const rule = css.match(/\.form-switch\s+\.form-check-input:focus\s*{[^}]*}/)?.[0] ?? ''
+    expect(rule).toMatch(/--bs-form-switch-bg:\s*url\(/)
+    expect(rule).not.toContain('var(')
+    expect(rule).not.toContain('%23171717')
+  })
+})
