@@ -139,6 +139,14 @@ export function computeLinearDomain(
   return [lo, hi]
 }
 
+function positiveDecades(lo: number, hi: number): number[] {
+  const decades: number[] = []
+  for (let k = lo > 0 ? Math.ceil(Math.log10(lo)) : 0; k <= Math.floor(Math.log10(hi)); k++) {
+    decades.push(10 ** k)
+  }
+  return decades
+}
+
 /**
  * Decade tick values (1, 10, 100, ...) for a logarithmic axis, or null when the
  * scale is not logarithmic or holds no decade.
@@ -160,12 +168,8 @@ export function logTickValues(
   if (!(hi > 0)) {
     return null
   }
-  const first = lo > 0 ? Math.ceil(Math.log10(lo)) : 0
-  const last = Math.floor(Math.log10(hi))
-  const decades: number[] = []
-  for (let k = first; k <= last; k++) {
-    decades.push(10 ** k)
-  }
+  const negative = lo < 0 ? [...positiveDecades(0, -lo).reverse().map(v => -v), 0] : []
+  const decades = [...negative, ...positiveDecades(lo, hi)]
   if (decades.length === 0) {
     return null
   }

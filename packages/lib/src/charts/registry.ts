@@ -36,6 +36,7 @@ import { render as columnStacked } from './types/column-stacked/column-stacked'
 import { render as barStacked } from './types/bar-stacked/bar-stacked'
 import { render as barSplit } from './types/bar-split/bar-split'
 import { render as barGrouped } from './types/bar-grouped/bar-grouped'
+import { render as scatter } from './types/scatter/scatter'
 
 interface ChartRegistryEntry {
   renderer: ChartRenderer
@@ -289,10 +290,15 @@ const interpolationOpt: ChartOptionDef = {
 // - Bar horizontal: vertical grid lines (dashed), no horizontal grid
 // - Line / line multi: horizontal grid lines (dashed), no vertical grid
 
-const SCALE_TYPE_CHOICES = [
-  { value: ScaleType.Linear, text: 'Linear' },
-  { value: ScaleType.Log, text: 'Logarithmic' },
-]
+const SCALE_TYPE_TEXT: Record<ScaleType, string> = {
+  [ScaleType.Linear]: 'Linear',
+  [ScaleType.Log]: 'Logarithmic',
+  [ScaleType.Symlog]: 'Symmetric log',
+}
+
+function scaleTypeChoices(types: ScaleType[]) {
+  return types.map(value => ({ value, text: SCALE_TYPE_TEXT[value] }))
+}
 
 const LABEL_POSITION_CHOICES = [
   { value: LabelPosition.Auto, text: 'Auto' },
@@ -314,10 +320,14 @@ function axisOpts(defaults: {
   showHorizontalTicks: boolean
   showVerticalAxis?: boolean
   showHorizontalAxis?: boolean
-  valueAxis?: 'vertical' | 'horizontal'
+  valueAxis?: 'vertical' | 'horizontal' | 'both'
   horizontalRange?: boolean
   valueAxisLabelsOff?: boolean
+  scaleTypeChoices?: ScaleType[]
 }): ChartOptionDef[] {
+  const scaleChoices = scaleTypeChoices(defaults.scaleTypeChoices ?? [ScaleType.Linear, ScaleType.Log])
+  const verticalValues = defaults.valueAxis === 'vertical' || defaults.valueAxis === 'both'
+  const horizontalValues = defaults.valueAxis === 'horizontal' || defaults.valueAxis === 'both'
   return [
     { key: 'showVerticalAxis', type: ChartOptionType.Boolean, label: 'Show vertical axis', default: defaults.showVerticalAxis ?? true },
     { key: 'verticalAxisDirection', type: ChartOptionType.Select, label: 'Vertical axis side', default: AxisDirection.Left, choices: [{ value: AxisDirection.Left, text: 'Left' }, { value: AxisDirection.Right, text: 'Right' }] },
@@ -325,9 +335,9 @@ function axisOpts(defaults: {
     { key: 'verticalLabelPosition', type: ChartOptionType.Select, label: 'Vertical labels', default: (defaults.valueAxisLabelsOff && defaults.valueAxis === 'vertical') ? LabelPosition.Off : LabelPosition.Auto, choices: LABEL_POSITION_CHOICES },
     { key: 'verticalGridStyle', type: ChartOptionType.Select, label: 'Vertical grid style', default: defaults.verticalGrid, choices: GRID_STYLE_CHOICES },
     { key: 'verticalNumberFormat', type: ChartOptionType.NumberFormat, label: 'Vertical number format' },
-    ...(defaults.valueAxis === 'vertical'
+    ...(verticalValues
       ? [
-          { key: 'verticalScaleType', type: ChartOptionType.Select as const, label: 'Vertical scale', default: ScaleType.Linear, choices: SCALE_TYPE_CHOICES },
+          { key: 'verticalScaleType', type: ChartOptionType.Select as const, label: 'Vertical scale', default: ScaleType.Linear, choices: scaleChoices },
           { key: 'verticalRangeMin', type: ChartOptionType.Text as const, label: 'Vertical min', placeholder: 'auto' },
           { key: 'verticalRangeMax', type: ChartOptionType.Text as const, label: 'Vertical max', placeholder: 'auto' },
         ]
@@ -338,9 +348,9 @@ function axisOpts(defaults: {
     { key: 'horizontalLabelRotation', type: ChartOptionType.Select, label: 'Horizontal label rotation', default: LabelRotation.Horizontal, choices: LABEL_ROTATION_CHOICES },
     { key: 'horizontalGridStyle', type: ChartOptionType.Select, label: 'Horizontal grid style', default: defaults.horizontalGrid, choices: GRID_STYLE_CHOICES },
     { key: 'horizontalNumberFormat', type: ChartOptionType.NumberFormat, label: 'Horizontal number format' },
-    ...(defaults.valueAxis === 'horizontal'
+    ...(horizontalValues
       ? [
-          { key: 'horizontalScaleType', type: ChartOptionType.Select as const, label: 'Horizontal scale', default: ScaleType.Linear, choices: SCALE_TYPE_CHOICES },
+          { key: 'horizontalScaleType', type: ChartOptionType.Select as const, label: 'Horizontal scale', default: ScaleType.Linear, choices: scaleChoices },
           { key: 'horizontalRangeMin', type: ChartOptionType.Text as const, label: 'Horizontal min', placeholder: 'auto' },
           { key: 'horizontalRangeMax', type: ChartOptionType.Text as const, label: 'Horizontal max', placeholder: 'auto' },
         ]
@@ -442,6 +452,27 @@ registerChart(ChartType.BarSplit, barSplit, [colorsOpt, paletteOpt, autoContrast
 
 // Grouped bars: each category rendered as a group of horizontal bars, one per series
 registerChart(ChartType.BarGrouped, barGrouped, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, sortByTotalOpt, legendOpt, legendAnchorOpt, legendPositionOpt, barBackgroundOpt, barSeparatorsOpt, categoryLabelLineOpt, ...barHorizontalAxisOpts, barHorizontalValueLabelsOpt, valueLabelPositionOpt, tooltipsOpt, ...crosshairOpts])
+
+const scatterMappingOpts: ChartOptionDef[] = [
+  { key: 'x', type: ChartOptionType.Text, label: 'X axis', default: '' },
+  { key: 'y', type: ChartOptionType.Text, label: 'Y axis', default: '' },
+  { key: 'size', type: ChartOptionType.Text, label: 'Bubble size', default: '' },
+  { key: 'group', type: ChartOptionType.Text, label: 'Color groups', default: '' },
+]
+const scatterTrendOpt: ChartOptionDef = {
+  key: 'trend',
+  type: ChartOptionType.Select,
+  label: 'Trend line',
+  default: '',
+  choices: [
+    { value: '', text: 'None' },
+    { value: 'overall', text: 'Overall' },
+    { value: 'per-group', text: 'Per group' },
+  ],
+}
+const scatterShowLabelsOpt: ChartOptionDef = { ...showLabelsOpt, default: false, label: 'Label all points' }
+const scatterAxisOpts = axisOpts({ verticalGrid: GridStyle.Dashed, horizontalGrid: GridStyle.Dashed, showVerticalTicks: false, showHorizontalTicks: false, showVerticalAxis: false, valueAxis: 'both', scaleTypeChoices: [ScaleType.Linear, ScaleType.Log, ScaleType.Symlog] })
+registerChart(ChartType.Scatter, scatter, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, ...scatterMappingOpts, scatterTrendOpt, scatterShowLabelsOpt, legendOpt, legendPositionOpt, legendAnchorOpt, { ...tooltipsOpt, default: true }, ...scatterAxisOpts])
 
 // Aliases share the same entry
 registerChart(ChartType.VerticalBar, barVertical, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, swapLabelValueOpt, barBackgroundOpt, barSeparatorsOpt, barGapOpt, connectedColumnsOpt, connectionsOpacityOpt, waterfallOpt, waterfallTotalOpt, categoryLabelLineOpt, ...barVerticalAxisOpts, ...barOpts])

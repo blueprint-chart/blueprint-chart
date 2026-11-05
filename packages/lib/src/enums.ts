@@ -19,6 +19,7 @@ export enum ChartType {
   AreaStacked = 'area-stacked',
   Donut = 'donut',
   Pie = 'pie',
+  Scatter = 'scatter',
   // Aliases (registered separately in registry)
   VerticalBar = 'vertical-bar',
   HorizontalBar = 'horizontal-bar',

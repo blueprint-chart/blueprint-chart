@@ -813,6 +813,14 @@ describe('serializer', () => {
   // ── compactSerialize ─────────────────────────────────────────────
 
   describe('compactSerialize', () => {
+    it('round-trips scatter mapping and trend, omitting auto mapping', () => {
+      const out = compactSerialize(parse('chart scatter {\n  x = "Life expectancy"\n  y = ""\n  trend = "overall"\n  horizontalScaleType = "log"\n  data {\n    series = "GDP","Life expectancy"\n    "France" = 44000, 82.3\n  }\n}'))
+      expect(out).toContain('x = "Life expectancy"')
+      expect(out).toContain('trend = overall')
+      expect(out).toContain('horizontalScaleType = log')
+      expect(out).not.toMatch(/^\s*y =/m)
+    })
+
     it('omits properties matching their registry default', () => {
       const withDefault: ChartNode = {
         type: DslNodeType.Chart,

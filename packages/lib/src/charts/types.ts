@@ -241,6 +241,11 @@ export interface ChartOptions {
   waterfallTotal?: boolean
   sharedScale?: boolean
   categoryLabelLine?: boolean
+  x?: string
+  y?: string
+  size?: string
+  group?: string
+  trend?: string
 }
 
 export type ChartRenderer = (
@@ -332,6 +337,11 @@ export interface ChartTypeOptions {
   waterfallTotal: boolean
   sharedScale: boolean
   categoryLabelLine: boolean
+  x: string
+  y: string
+  size: string
+  group: string
+  trend: string
 }
 
 export type ChartTypeOptionKey = keyof ChartTypeOptions

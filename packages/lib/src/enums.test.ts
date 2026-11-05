@@ -37,8 +37,8 @@ function enumValues(e: Record<string, string>): string[] {
 }
 
 describe('ChartType', () => {
-  it('has 15 members', () => {
-    expect(enumValues(ChartType)).toHaveLength(15)
+  it('has 16 members', () => {
+    expect(enumValues(ChartType)).toHaveLength(16)
   })
   it('values match expected strings', () => {
     expect(ChartType.BarVertical).toBe('bar-vertical')
@@ -54,6 +54,7 @@ describe('ChartType', () => {
     expect(ChartType.AreaStacked).toBe('area-stacked')
     expect(ChartType.Donut).toBe('donut')
     expect(ChartType.Pie).toBe('pie')
+    expect(ChartType.Scatter).toBe('scatter')
     expect(ChartType.VerticalBar).toBe('vertical-bar')
     expect(ChartType.HorizontalBar).toBe('horizontal-bar')
   })

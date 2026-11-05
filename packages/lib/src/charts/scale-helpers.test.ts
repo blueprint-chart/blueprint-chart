@@ -263,6 +263,11 @@ describe('logTickValues', () => {
     expect(logTickValues(scale, 4)).toEqual([1, 100, 10000, 1000000])
   })
 
+  it('labels both sides of a symlog domain that crosses zero', () => {
+    const scale = d3.scaleSymlog().domain([-1000, 100000])
+    expect(logTickValues(scale, 12)).toEqual([-1000, -100, -10, -1, 0, 1, 10, 100, 1000, 10000, 100000])
+  })
+
   it('returns null when the domain holds no decade', () => {
     expect(logTickValues(d3.scaleSymlog().domain([0, 0.5]), 12)).toBeNull()
     expect(logTickValues(d3.scaleSymlog().domain([-100, 0]), 12)).toBeNull()

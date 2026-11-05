@@ -129,4 +129,20 @@ describe('registry', () => {
     expect(opt).toBeDefined()
     expect(opt!.default).toBe(true)
   })
+
+  it('registers scatter with its mapping, trend and scale options', () => {
+    const defs = getChartOptions('scatter')
+    const byKey = Object.fromEntries(defs.map(d => [d.key, d]))
+    expect(byKey.x.default).toBe('')
+    expect(byKey.trend.default).toBe('')
+    expect(byKey.showLabels.default).toBe(false)
+    expect(byKey.tooltips.default).toBe(true)
+    expect(byKey.horizontalScaleType.choices!.map(c => c.value)).toEqual(['linear', 'log', 'symlog'])
+    expect(byKey.verticalScaleType.choices!.map(c => c.value)).toEqual(['linear', 'log', 'symlog'])
+  })
+
+  it('keeps "log" choices unchanged on other charts', () => {
+    const line = getChartOptions('line').find(d => d.key === 'verticalScaleType')!
+    expect(line.choices!.map(c => c.value)).toEqual(['linear', 'log'])
+  })
 })

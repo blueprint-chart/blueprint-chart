@@ -14,6 +14,9 @@ function collapseWhitespace(value: string): string {
 }
 
 function summariseData(kind: string, data: ChartData): string {
+  if (kind === 'scatter chart') {
+    return `${kind} of ${data.labels.length} points.`
+  }
   const series = data.series ?? []
   const values = (series.length > 0 ? series.flatMap(s => s.values) : data.values)
     .filter(value => Number.isFinite(value))
