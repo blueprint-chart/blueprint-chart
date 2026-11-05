@@ -38,4 +38,10 @@ describe('useSavedChartThumbnails', () => {
     expect(thumbnails).toEqual({ cached: 'data:<svg cached/>', fresh: 'data:<svg/>' })
     expect(saveThumbnail).toHaveBeenCalledWith('fresh', '<svg/>')
   })
+  it('renders from the given DSL source', () => {
+    const { thumbnails, loadThumbnails } = useSavedChartThumbnails()
+    loadThumbnails(['remote'], id => (id === 'remote' ? 'chart bar {}' : null))
+    expect(render).toHaveBeenCalledWith('chart bar {}')
+    expect(thumbnails).toEqual({ remote: 'data:<svg/>' })
+  })
 })

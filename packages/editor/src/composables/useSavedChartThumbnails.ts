@@ -2,8 +2,7 @@ import { reactive } from 'vue'
 import { storageKey } from '@/stores/chartSession'
 import { getThumbnail, renderThumbnailFromStorage, saveThumbnail, svgToDataUrl } from '@/composables/useChartThumbnail'
 
-function render(id: string): string | null {
-  const raw = localStorage.getItem(storageKey(id))
+function render(id: string, raw: string | null): string | null {
   if (!raw) {
     return null
   }
@@ -23,12 +22,12 @@ export function useSavedChartThumbnails() {
   const thumbnails = reactive<Record<string, string>>({})
   const failed = new Set<string>()
 
-  function loadThumbnails(ids: string[]) {
+  function loadThumbnails(ids: string[], dslOf: (id: string) => string | null = id => localStorage.getItem(storageKey(id))) {
     for (const id of ids) {
       if (thumbnails[id] || failed.has(id)) {
         continue
       }
-      const svg = getThumbnail(id) ?? render(id)
+      const svg = getThumbnail(id) ?? render(id, dslOf(id))
       if (svg) {
         thumbnails[id] = svgToDataUrl(svg)
       }
