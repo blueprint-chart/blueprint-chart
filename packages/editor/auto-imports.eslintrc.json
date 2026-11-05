@@ -272,6 +272,7 @@
     "useDataTableStore": true,
     "useDataTransforms": true,
     "useDataTransformsStore": true,
+    "useDatasets": true,
     "useDateFormat": true,
     "useDebounce": true,
     "useDebounceFn": true,

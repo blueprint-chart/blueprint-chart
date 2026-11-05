@@ -258,6 +258,7 @@ declare global {
   const useDataTableStore: typeof import('./src/composables/useDataTable').useDataTableStore
   const useDataTransforms: typeof import('./src/composables/useDataTransforms').useDataTransforms
   const useDataTransformsStore: typeof import('./src/composables/useDataTransforms').useDataTransformsStore
+  const useDatasets: typeof import('./src/composables/useDatasets').useDatasets
   const useDateFormat: typeof import('@vueuse/core').useDateFormat
   const useDebounce: typeof import('@vueuse/core').useDebounce
   const useDebounceFn: typeof import('@vueuse/core').useDebounceFn

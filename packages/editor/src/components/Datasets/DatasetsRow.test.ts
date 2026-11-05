@@ -25,11 +25,24 @@ function mountRow() {
 }
 
 describe('DatasetsRow', () => {
+  beforeEach(() => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-11-04T00:00:00Z'))
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
   it('renders the name, size and chart count', () => {
     const text = mountRow().text()
     expect(text).toContain('Coffee exports')
     expect(text).toContain('12 × 3')
     expect(text).toContain('used by 2 charts')
+  })
+
+  it('renders the last used time relative to now', () => {
+    expect(mountRow().text()).toContain('3 days ago')
   })
 
   it('emits newChart when "New chart" is clicked', async () => {

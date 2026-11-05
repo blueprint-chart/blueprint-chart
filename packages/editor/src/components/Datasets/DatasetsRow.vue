@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { ButtonIcon, DisplayDate } from '@blueprint-chart/ui'
+import { ButtonIcon } from '@blueprint-chart/ui'
 import type { Dataset } from '@/utils/datasets'
 import DatasetsDetail from './DatasetsDetail.vue'
 import IPhCaretRight from '~icons/ph/caret-right'
@@ -13,6 +13,8 @@ defineEmits<{ newChart: [] }>()
 const newest = computed(() => props.dataset.charts[0])
 const stepCount = computed(() => `${props.dataset.steps.length} ${props.dataset.steps.length === 1 ? 'step' : 'steps'}`)
 const chartCount = computed(() => `used by ${props.dataset.charts.length} ${props.dataset.charts.length === 1 ? 'chart' : 'charts'}`)
+const savedAtDate = computed<Date | ''>(() => newest.value.savedAt ? new Date(newest.value.savedAt) : '')
+const lastUsed = useTimeAgo(savedAtDate)
 const caretClass = computed(() => ({ 'datasets-row__summary__caret--open': expanded.value }))
 </script>
 
@@ -34,11 +36,10 @@ const caretClass = computed(() => ({ 'datasets-row__summary__caret--open': expan
         <span class="datasets-row__summary__meta__item">{{ dataset.rowCount }} × {{ dataset.columnCount }}</span>
         <span class="datasets-row__summary__meta__item">{{ stepCount }}</span>
         <span class="datasets-row__summary__meta__item">{{ chartCount }}</span>
-        <DisplayDate
+        <span
           v-if="newest.savedAt"
           class="datasets-row__summary__meta__item"
-          :value="newest.savedAt"
-        />
+        >{{ lastUsed }}</span>
       </span>
     </button>
     <ButtonIcon
