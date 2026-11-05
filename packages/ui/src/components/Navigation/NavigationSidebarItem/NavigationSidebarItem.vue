@@ -117,8 +117,8 @@ function rootClass(routerActive: boolean) {
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    width: 0.875rem;
-    height: 0.875rem;
+    width: 1rem;
+    height: 1rem;
     opacity: 0.75;
 
     .navigation-sidebar-item--active & {
