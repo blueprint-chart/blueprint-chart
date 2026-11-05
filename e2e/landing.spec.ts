@@ -115,7 +115,7 @@ test.describe('landing redesign', () => {
     })
     expect(color).toBe(mark)
     expect(color).not.toBe('rgb(37, 99, 160)')
-    expect(color).not.toBe('rgb(224, 82, 6)')
+    expect(color).not.toBe('rgb(228, 81, 43)')
   })
 })
 
