@@ -53,21 +53,17 @@ interface Entry {
   chartType: string
   data: string
   steps: DatasetStep[]
+  rowCount: number
+  columnCount: number
   source: DatasetSource | null
   dsl: string
 }
 
-function toEntry({ id, dsl, meta }: StoredChart): Entry | null {
+function buildEntry({ id, dsl, meta }: StoredChart): Entry | null {
   if (dsl.trimStart().startsWith('{')) {
     return null
   }
-  let ast
-  try {
-    ast = parse(dsl)
-  }
-  catch {
-    return null
-  }
+  const ast = parse(dsl)
   if (!ast.data) {
     return null
   }
@@ -77,13 +73,26 @@ function toEntry({ id, dsl, meta }: StoredChart): Entry | null {
     config: Object.fromEntries([...propertyMap(t.properties)].map(([k, v]) => [k, String(v)])),
   }))
   const title = propertyMap(ast.properties).get('title')
+  const data = dataEntriesToString(ast.data)
+  const table = parseBpcData(data)
   return {
     chart: { id, title: title === undefined ? '' : String(title), savedAt: readSavedAt(meta) },
     chartType: ast.chartType,
-    data: dataEntriesToString(ast.data),
+    data,
     steps,
+    rowCount: table.rows.length,
+    columnCount: table.columns.length,
     source: readSource(meta),
     dsl: serialize({ ...ast, properties: [], colorizes: [], highlights: [], areaFills: [], annotations: [], series: [], scenes: [], transforms }),
+  }
+}
+
+function toEntry(stored: StoredChart): Entry | null {
+  try {
+    return buildEntry(stored)
+  }
+  catch {
+    return null
   }
 }
 
@@ -99,14 +108,13 @@ export function collectDatasets(charts: StoredChart[]): Dataset[] {
     .map(([key, entries]) => {
       const sorted = [...entries].sort((a, b) => byNewest(a.chart, b.chart))
       const newest = sorted[0]
-      const table = parseBpcData(newest.data)
       return {
         key,
         chartType: newest.chartType,
         data: newest.data,
         steps: newest.steps,
-        rowCount: table.rows.length,
-        columnCount: table.columns.length,
+        rowCount: newest.rowCount,
+        columnCount: newest.columnCount,
         charts: sorted.map(e => e.chart),
         source: newest.source,
         dsl: newest.dsl,

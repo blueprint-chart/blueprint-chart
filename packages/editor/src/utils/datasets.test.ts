@@ -55,6 +55,7 @@ describe('collectDatasets', () => {
   it('ignores steps of charts saved before schema v2', () => {
     const result = collectDatasets([stored('a', bpc({ extra: SORT }), { schema: 1 })])
     expect(result[0].steps).toEqual([])
+    expect(parse(result[0].dsl).transforms).toHaveLength(0)
   })
 
   it('groups a pre-v2 chart with a v2 chart that has no steps', () => {
@@ -70,13 +71,22 @@ describe('collectDatasets', () => {
     expect(result[0].steps).toEqual([{ type: 'sort', config: { column: 'value', direction: 'descending' } }])
   })
 
-  it('skips unparseable, legacy JSON and data-less charts', () => {
+  it('skips unparseable, legacy JSON, data-less and corrupt-meta charts', () => {
     const result = collectDatasets([
       stored('a', 'not bpc {'),
       stored('b', '{"chartConfig":{}}'),
       stored('c', bpc({ data: null })),
+      stored('d', bpc(), null as unknown as Record<string, unknown>),
+      stored('ok', bpc()),
     ])
-    expect(result).toEqual([])
+    expect(result).toHaveLength(1)
+    expect(result[0].charts.map(c => c.id)).toEqual(['ok'])
+  })
+
+  it('keeps a chart whose meta is empty', () => {
+    const result = collectDatasets([stored('a', bpc(), {})])
+    expect(result[0].charts[0].savedAt).toBeNull()
+    expect(result[0].steps).toEqual([])
   })
 
   it('keeps charts without savedAt, sorted last', () => {

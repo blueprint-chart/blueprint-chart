@@ -80,7 +80,8 @@ export function metaKey(id: string): string {
 /** Read and parse the JSON meta sidecar for a chart id; {} if absent/corrupt. */
 export function readLocalMeta(id: string): Record<string, unknown> {
   try {
-    return JSON.parse(localStorage.getItem(metaKey(id)) || '{}') as Record<string, unknown>
+    const meta = JSON.parse(localStorage.getItem(metaKey(id)) || '{}')
+    return meta !== null && typeof meta === 'object' && !Array.isArray(meta) ? meta : {}
   }
   catch {
     return {}

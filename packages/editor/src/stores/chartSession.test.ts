@@ -544,6 +544,13 @@ describe('a chart deleted while another tab still holds it', () => {
   })
 })
 
+describe('readLocalMeta', () => {
+  it.each(['null', '5', '[]', '"x"'])('returns {} for the non-object sidecar %s', (text) => {
+    localStorage.setItem(metaKey('nonObjectAA'), text)
+    expect(readLocalMeta('nonObjectAA')).toEqual({})
+  })
+})
+
 describe('a malformed :meta sidecar', () => {
   const ID = 'badMetaIdAA'
   const DSL = 'chart donut {\n  title = "Intact"\n  data {\n    "A" = 1\n  }\n}\n'
