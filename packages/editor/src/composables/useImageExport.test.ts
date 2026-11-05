@@ -143,6 +143,18 @@ describe('downloadPng error surfacing (#69)', () => {
     container.remove()
   })
 
+  it('asks for data first when the SVG download has no chart', () => {
+    const container = document.createElement('div')
+    const frame = document.createElement('div')
+    frame.className = 'bc-frame'
+    container.appendChild(frame)
+
+    const { downloadSvg, error } = useImageExport(shallowRef(container))
+    downloadSvg()
+
+    expect(error.value).toBe('There\'s no chart to export yet. Add data first.')
+  })
+
   it('asks for data first when there is no chart', async () => {
     const container = document.createElement('div')
     document.body.appendChild(container)

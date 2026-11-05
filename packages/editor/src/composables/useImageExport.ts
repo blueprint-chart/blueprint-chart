@@ -21,8 +21,17 @@ export function useImageExport(containerRef: Ref<HTMLElement | null>, cardRef?: 
     return cardRef?.value ?? getFrameElement()
   }
 
+  function hasChart(): boolean {
+    const root = getExportRoot()
+    return Boolean(root ? root.querySelector('svg') : getSvgElement())
+  }
+
   function downloadSvg() {
     error.value = ''
+    if (!hasChart()) {
+      error.value = NO_CHART_MESSAGE
+      return
+    }
     const root = getExportRoot()
     if (root) {
       exportFrameSvg(root)
@@ -36,23 +45,23 @@ export function useImageExport(containerRef: Ref<HTMLElement | null>, cardRef?: 
 
   async function downloadPng(scale = 2) {
     error.value = ''
+    if (!hasChart()) {
+      error.value = NO_CHART_MESSAGE
+      return
+    }
     try {
       const root = getExportRoot()
       if (root) {
         await exportFramePng(root, scale)
         return
       }
-      const svg = getSvgElement()
-      if (!svg) {
-        error.value = NO_CHART_MESSAGE
-        return
-      }
+      const svg = getSvgElement()!
       const { width, height } = svg.getBoundingClientRect()
       await exportPng(svg, width * scale, height * scale)
     }
     catch (e) {
       console.error(e)
-      error.value = e instanceof Error && e.message === 'No chart to export' ? NO_CHART_MESSAGE : PNG_FAILED_MESSAGE
+      error.value = PNG_FAILED_MESSAGE
     }
   }
 
