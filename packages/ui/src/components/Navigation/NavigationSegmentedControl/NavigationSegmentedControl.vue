@@ -85,8 +85,8 @@ function onSelect(item: NavigationSegmentedControlItem) {
   display: inline-flex;
   align-items: center;
   gap: 0;
-  background: var(--bc-wash-soft);
-  border: 1px solid var(--bc-hairline);
+  background: var(--bs-secondary-bg);
+  border: 1px solid var(--bs-border-color);
   border-radius: var(--bc-radius-sm);
 
   // Match Bootstrap `.btn` computed height with the project's Linear-tight
@@ -138,8 +138,8 @@ function onSelect(item: NavigationSegmentedControlItem) {
 
     // Active option: filled with the primary for clear emphasis.
     &--active {
-      background: var(--bs-primary);
-      color: var(--bs-body-bg);
+      background: var(--bs-tertiary-bg);
+      color: var(--bs-emphasis-color);
       font-weight: 500;
     }
 
