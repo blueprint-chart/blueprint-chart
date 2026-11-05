@@ -44,6 +44,13 @@ describe('useCustomPalettes', () => {
     expect(palettes.value).toEqual([])
   })
 
+  it('falls back to [] on non-array storage', () => {
+    localStorage.setItem(CUSTOM_PALETTES_KEY, '{"a":1}')
+    setActivePinia(createPinia())
+    const { palettes } = useCustomPalettes()
+    expect(palettes.value).toEqual([])
+  })
+
   it('update renames and recolors', async () => {
     const { create, update, palettes } = useCustomPalettes()
     const { id } = create('Mine', ['#112233', '#445566'])!
