@@ -1,8 +1,11 @@
 import * as d3 from 'd3'
+import { measureTextWidth } from '../../text-measure'
 import type { ScatterPoint } from './points'
 
 const STEPS = [1, 2, 5]
-const TEXT_SIZE = '11px'
+const TEXT_PX = 11
+const TEXT_SIZE = `${TEXT_PX}px`
+const BASELINE_OFFSET = 8
 const LABEL_GAP = 6
 const ROW_HEIGHT = 16
 const SECTION_GAP = 8
@@ -23,7 +26,7 @@ export function sizeLegendValues(maxSize: number): number[] {
   return nice.slice(-3)
 }
 
-interface KeyConfig {
+export interface KeyConfig {
   sizeLabel?: string
   sizeValues: number[]
   radius: (value: number) => number
@@ -54,7 +57,7 @@ function drawSizeLegend(parent: SVGGElement, { sizeLabel, sizeValues, radius }: 
       .attr('fill', 'none')
       .attr('stroke', 'currentColor')
       .attr('stroke-opacity', 0.6)
-    drawText(g, formatValue(value), maxRadius * 2 + LABEL_GAP, bottom - r * 2 + 8)
+    drawText(g, formatValue(value), maxRadius * 2 + LABEL_GAP, bottom - r * 2 + BASELINE_OFFSET)
   })
 }
 
@@ -68,6 +71,19 @@ function drawTrendKey(parent: SVGGElement): void {
     .attr('stroke', 'currentColor')
     .attr('stroke-dasharray', TREND_DASH)
   drawText(g, 'Trend', TREND_LINE_WIDTH + LABEL_GAP, 10)
+}
+
+export function scatterKeyWidth({ sizeLabel, sizeValues, radius, trend }: KeyConfig): number {
+  const widths = [0]
+  if (sizeValues.length > 0) {
+    const labels = sizeValues.map(formatValue)
+    widths.push(radius(sizeValues[sizeValues.length - 1]) * 2 + LABEL_GAP + Math.max(...labels.map(l => measureTextWidth(l, TEXT_PX))))
+    widths.push(measureTextWidth(sizeLabel ?? '', TEXT_PX))
+  }
+  if (trend) {
+    widths.push(TREND_LINE_WIDTH + LABEL_GAP + measureTextWidth('Trend', TEXT_PX))
+  }
+  return Math.ceil(Math.max(...widths))
 }
 
 export function renderScatterKey(parent: SVGGElement, cfg: KeyConfig): SVGGElement | null {

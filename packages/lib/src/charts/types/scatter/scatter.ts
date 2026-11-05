@@ -12,7 +12,7 @@ import { featureJoin, getSceneTransition, tweenPlotFrame, type PlotRect } from '
 import { resolveScatterMapping } from './mapping'
 import { buildScatterPoints, type ScatterPoint } from './points'
 import { buildScatterScale } from './scales'
-import { groupColors, renderScatterKey, sizeLegendValues } from './legend'
+import { groupColors, type KeyConfig, renderScatterKey, scatterKeyWidth, sizeLegendValues } from './legend'
 import { renderLegend } from '../../legend/legend'
 import { estimateLegendSize } from '../../legend/legend-size'
 import { DEFAULT_COLORS } from '../line-multi/line-multi'
@@ -20,20 +20,35 @@ import { DEFAULT_COLORS } from '../line-multi/line-multi'
 export const DEFAULT_COLOR = '#4e79a7'
 export const DOT_RADIUS = 4.5
 export const FILL_OPACITY = 0.7
-const KEY_INSET = 8
+const KEY_GAP = 10
+const NARROW_THRESHOLD = 350
 const TREND_MODES = ['overall', 'per-group']
 
 export function maxBubbleRadius(width: number, height: number): number {
   return Math.min(width, height) / 12
 }
 
+function legendX(position: string, legendWidth: number, plotWidth: number): number {
+  if (position === 'left') {
+    return -(legendWidth + 10)
+  }
+  return position === 'right' ? plotWidth + 10 : 0
+}
+
+function legendY(position: string, topHeight: number, legendH: number, plotHeight: number, marginBottom: number): number {
+  if (position === 'top') {
+    return -(topHeight + 10)
+  }
+  return position === 'bottom' ? plotHeight + Math.max(marginBottom - legendH, 0) : 0
+}
+
 function radiusScale(points: ScatterPoint[], width: number, height: number) {
   const maxSize = d3.max(points, p => p.size)
   if (maxSize === undefined) {
-    return { maxSize, maxRadius: DOT_RADIUS, radiusOf: () => DOT_RADIUS }
+    return { maxRadius: DOT_RADIUS, radiusOf: () => DOT_RADIUS }
   }
   const maxRadius = maxBubbleRadius(width, height)
-  return { maxSize, maxRadius, radiusOf: d3.scaleSqrt().domain([0, maxSize]).range([0, maxRadius]) }
+  return { maxRadius, radiusOf: d3.scaleSqrt().domain([0, maxSize]).range([0, maxRadius]) }
 }
 
 export function render(
@@ -64,14 +79,37 @@ export function render(
   const colors = groupColors(points, palette)
   const groupNames = [...colors.keys()]
   const showLegend = options.legend !== false && groupNames.length > 0
-  const legendWidth = Math.max(0, containerWidth - (margins.left ?? 50) - (margins.right ?? 20))
-  const legendSize = showLegend ? estimateLegendSize(groupNames, 'top', legendWidth) : { width: 0, height: 0 }
+  const requestedPosition = options.legendPosition ?? 'top'
+  const isSide = requestedPosition === 'left' || requestedPosition === 'right'
+  const legendPos = containerWidth > 0 && containerWidth < NARROW_THRESHOLD && isSide ? 'top' : requestedPosition
+  const legendAnchor = options.legendAnchor ?? 'start'
+  const legendAvailableWidth = Math.max(0, containerWidth - (margins.left ?? 50) - (margins.right ?? 20))
+  const legendSize = showLegend ? estimateLegendSize(groupNames, legendPos, legendAvailableWidth) : { width: 0, height: 0 }
+  const legendH = showLegend ? legendSize.height + 15 : 0
   const insideGap = margins.top != null ? 15 : 0
-  const marginOverrides = showLegend ? { ...margins, top: legendSize.height + 15 + insideGap } : margins
+  const maxSize = d3.max(points, p => p.size)
+  const keyContent: Omit<KeyConfig, 'radius'> = {
+    sizeLabel: mapping.size,
+    sizeValues: maxSize === undefined ? [] : sizeLegendValues(maxSize),
+    trend: TREND_MODES.includes(options.trend ?? ''),
+  }
+  const keyBoundRadius = maxBubbleRadius(containerWidth, contentSize(body).height || containerWidth)
+  const keyWidth = scatterKeyWidth({ ...keyContent, radius: d3.scaleSqrt().domain([0, maxSize ?? 1]).range([0, keyBoundRadius]) })
+  const hasKey = keyContent.sizeValues.length > 0 || keyContent.trend
+  const marginOverrides: Partial<Record<'top' | 'left' | 'right' | 'bottom', number>> = { ...margins }
+  if (showLegend && legendPos === 'top') {
+    marginOverrides.top = legendH + insideGap
+  }
+  if (showLegend && legendPos === 'left') {
+    marginOverrides.left = (margins.left ?? 50) + legendSize.width + 10
+  }
+  const sideLegendWidth = showLegend && legendPos === 'right' ? legendSize.width + 10 : 0
+  marginOverrides.right = (margins.right ?? 20) + sideLegendWidth + (hasKey ? keyWidth + KEY_GAP : 0)
+  marginOverrides.bottom = Math.max(margins.bottom ?? 24, 24) + (showLegend && legendPos === 'bottom' ? legendH : 0)
   const { chartArea, width, height, margin } = createCanvas(body, marginOverrides)
   const marginDelta = computeMarginDelta(cached?.margin, margin)
 
-  const { maxSize, maxRadius, radiusOf } = radiusScale(points, width, height)
+  const { maxRadius, radiusOf } = radiusScale(points, width, height)
   const radius = (p: ScatterPoint) => radiusOf(p.size ?? 0)
   const inset = maxRadius + 1
   x.range([inset, width - inset])
@@ -119,16 +157,11 @@ export function render(
   })
 
   if (showLegend) {
-    renderLegend(chartArea, groupNames, groupNames.map(g => colors.get(g)!), -(legendSize.height + 10 + insideGap), 'top', 'start', width, height, 0, [], { left: margin.left, right: margin.right })
+    renderLegend(chartArea, groupNames, groupNames.map(g => colors.get(g)!), legendY(legendPos, legendSize.height + insideGap, legendH, height, margin.bottom), legendPos, legendAnchor, width, height, legendX(legendPos, legendSize.width, width), [], { left: margin.left, right: margin.right })
   }
 
-  const key = renderScatterKey(chartArea, {
-    sizeLabel: mapping.size,
-    sizeValues: maxSize === undefined ? [] : sizeLegendValues(maxSize),
-    radius: radiusOf,
-    trend: TREND_MODES.includes(options.trend ?? ''),
-  })
-  key?.setAttribute('transform', `translate(${width - KEY_INSET - Math.max(maxRadius * 2 + 36, 90)},${height - KEY_INSET})`)
+  const key = renderScatterKey(chartArea, { ...keyContent, radius: radiusOf })
+  key?.setAttribute('transform', `translate(${width + sideLegendWidth + KEY_GAP},${height})`)
 
   setCachedChart(container, { chartType: 'scatter', margin, plotRect })
 }

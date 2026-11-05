@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { parseData } from '../../parse-data'
-import { ScaleType } from '../../../enums'
+import { LegendPosition, ScaleType } from '../../../enums'
+import { getCachedChart } from '../../transition-cache'
 import { render, DOT_RADIUS, DEFAULT_COLOR } from './scatter'
 
 const DATA = parseData([
@@ -106,5 +107,31 @@ describe('scatter chart', () => {
     render(container, d, {})
     expect(container.querySelector('[data-key="b"]')!.getAttribute('fill')).toBe(DEFAULT_COLOR)
     expect(legendLabels()).toEqual(['G'])
+  })
+  const cached = () => getCachedChart(container) as Required<NonNullable<ReturnType<typeof getCachedChart>>>
+  const translate = (el: Element) => {
+    const [x, y] = /translate\(([^,)]+),?([^)]*)\)/.exec(el.getAttribute('transform')!)!.slice(1).map(Number)
+    return { x, y }
+  }
+
+  it('moves the group legend to the right margin', () => {
+    render(container, DATA, { legendPosition: LegendPosition.Right, size: 'none' })
+    const { plotRect, margin } = cached()
+    expect(translate(container.querySelector('.bc-legend')!).x).toBeGreaterThanOrEqual(plotRect.width)
+    expect(margin.right).toBeGreaterThan(20)
+  })
+
+  it('moves the group legend below the plot', () => {
+    render(container, DATA, { legendPosition: LegendPosition.Bottom, size: 'none' })
+    const { plotRect } = cached()
+    expect(translate(container.querySelector('.bc-legend')!).y).toBeGreaterThanOrEqual(plotRect.height)
+  })
+
+  it('draws the size key outside the plot rect', () => {
+    render(container, DATA, {})
+    const { plotRect, margin } = cached()
+    const key = container.querySelector('.bc-scatter-key')!
+    expect(translate(key).x).toBeGreaterThanOrEqual(plotRect.width)
+    expect(margin.right).toBeGreaterThan(translate(key).x - plotRect.width)
   })
 })
