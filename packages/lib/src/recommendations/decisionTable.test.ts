@@ -41,4 +41,8 @@ describe('resolveCell', () => {
     expect(topType('1date+Nnum', 'part-to-whole')).toBe('area-stacked')
     expect(topType('other', 'comparison')).toBe('bar-vertical')
   })
+
+  it('recommends scatter for a relationship goal', () => {
+    expect(topType('1cat+Nnum', 'relationship', 50)).toBe('scatter')
+  })
 })

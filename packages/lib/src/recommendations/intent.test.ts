@@ -38,4 +38,18 @@ describe('classifyIntent', () => {
   it('returns none when nothing matches', () => {
     expect(classifyIntent('a chart of some data')).toBe('none')
   })
+
+  it.each([
+    'do richer countries tend to live longer',
+    'the correlation between income and life expectancy',
+    'life expectancy plotted against GDP',
+  ])('classifies "%s" as relationship', goal => expect(classifyIntent(goal)).toBe('relationship'))
+
+  it('keeps versus as comparison', () => {
+    expect(classifyIntent('France vs Germany')).toBe('comparison')
+  })
+
+  it('keeps "votes against" share questions as part-to-whole', () => {
+    expect(classifyIntent('share of votes against the bill')).toBe('part-to-whole')
+  })
 })

@@ -16,6 +16,7 @@ export type Intent
     | 'composition-over-time'
     | 'part-to-whole'
     | 'range'
+    | 'relationship'
     | 'none'
 
 export type ShapeSignature
@@ -23,6 +24,7 @@ export type ShapeSignature
     | '1cat+Nnum'
     | '1date+1num'
     | '1date+Nnum'
+    | '1cat+text+Nnum'
     | 'other'
 
 export const CHART_LABELS: Record<string, string> = {
@@ -39,4 +41,5 @@ export const CHART_LABELS: Record<string, string> = {
   'area-stacked': 'Stacked Area Chart',
   'pie': 'Pie Chart',
   'donut': 'Donut Chart',
+  'scatter': 'Scatter Plot',
 }

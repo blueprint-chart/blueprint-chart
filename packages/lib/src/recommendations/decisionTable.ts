@@ -80,10 +80,21 @@ const TABLE: Record<ShapeSignature, Partial<Record<Intent, CellFn>>> = {
       r('bar-stacked', 'good', 'Stacked bars for the same composition'),
       r('area-stacked', 'alternative', 'Stacked area if the periods are continuous time'),
     ],
+    'relationship': () => [
+      r('scatter', 'best', 'Two numeric columns per item — a scatter plot shows how they move together'),
+      r('line-multi', 'alternative', 'Lines if the categories have a natural order'),
+    ],
     'range': () => [
       r('bar-split', 'best', 'Diverging bars show values around a shared baseline'),
       r('bar-multi', 'alternative', 'Grouped bars if there is no shared baseline'),
     ],
+  },
+  '1cat+text+Nnum': {
+    none: () => [
+      r('scatter', 'best', 'A label, a text column and several numbers — plot one number against another'),
+      r('bar-multi', 'alternative', 'Grouped bars if comparing values per row matters more'),
+    ],
+    relationship: rowCount => TABLE['1cat+text+Nnum'].none!(rowCount),
   },
   '1date+1num': {
     'none': () => [

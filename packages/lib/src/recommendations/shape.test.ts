@@ -19,4 +19,12 @@ describe('shapeOf', () => {
     expect(shapeOf(['date', 'date', 'number'], 5)).toBe('other')
     expect(shapeOf(['string'], 5)).toBe('other')
   })
+
+  it('detects label + text + numbers', () => {
+    expect(shapeOf(['string', 'number', 'number', 'number', 'string'], 60)).toBe('1cat+text+Nnum')
+  })
+
+  it('counts a later 4-digit "date" column as a number', () => {
+    expect(shapeOf(['string', 'date', 'number', 'string'], 60)).toBe('1cat+text+Nnum')
+  })
 })
