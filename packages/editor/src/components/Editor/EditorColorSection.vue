@@ -214,9 +214,12 @@ const paletteOptions = computed(() => [
 ])
 
 function onPaletteChange(value: string) {
+  if (!value.startsWith('custom:')) {
+    setOption('colorPalette', value)
+    return
+  }
   const custom = customPalettes.value.find(p => `custom:${p.id}` === value)
   if (!custom) {
-    setOption('colorPalette', value)
     return
   }
   setOption('colorPalette', '')

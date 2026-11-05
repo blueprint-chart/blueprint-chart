@@ -43,4 +43,12 @@ describe('EditorColorSection custom palettes', () => {
     expect(options.currentOptions.value.colors).toEqual(['#111111', '#222222', '#333333'])
     expect(options.currentOptions.value.colorPalette).toBe('')
   })
+
+  it('picking a missing custom palette leaves colorPalette unchanged', async () => {
+    const { wrapper, options } = setup()
+    const before = options.currentOptions.value.colorPalette
+    wrapper.findComponent(FormControlPalette).vm.$emit('update:modelValue', 'custom:missing')
+    await flushPromises()
+    expect(options.currentOptions.value.colorPalette).toBe(before)
+  })
 })
