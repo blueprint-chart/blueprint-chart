@@ -62,7 +62,6 @@ defineProps<{
       font-size: 0.6875rem;
       font-weight: 700;
       letter-spacing: 0.06em;
-      // Brand-mark ink: Prussian on light, chartreuse on dark (see --bc-mark).
       color: var(--bc-mark);
       text-transform: uppercase;
     }

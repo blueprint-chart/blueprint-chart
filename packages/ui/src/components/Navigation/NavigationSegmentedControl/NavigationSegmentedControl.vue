@@ -136,8 +136,7 @@ function onSelect(item: NavigationSegmentedControlItem) {
       color: var(--bs-body-color);
     }
 
-    // Active option: filled with the brand primary for clear emphasis.
-    // White text reads on both light- and dark-mode Prussian (#2563A0).
+    // Active option: filled with the primary for clear emphasis.
     &--active {
       background: var(--bs-primary);
       color: var(--bs-white, #fff);

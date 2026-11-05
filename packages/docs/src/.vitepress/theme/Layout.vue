@@ -417,8 +417,8 @@ function openSidebar() {
   flex-shrink: 0;
 }
 
-/* Primary button — Prussian-500 filled, white text, matches editor's
- * .btn-primary. */
+/* Primary button — emphasis-color filled, body-bg text, matches editor's
+ * .btn-strong. */
 .docs-btn-primary {
   display: inline-flex;
   align-items: center;

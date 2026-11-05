@@ -392,8 +392,6 @@ const steps: McpStep[] = [
       width: 1.4375rem;
       height: 1.4375rem;
       border-radius: 50%;
-      // Brand-mark ink for the step index: Prussian on light (chartreuse can't
-      // be a thin figure on white), chartreuse on dark. Matches the eyebrow.
       border: 1.5px solid var(--bc-mark);
       background: var(--bc-tile-bg);
       color: var(--bc-mark);

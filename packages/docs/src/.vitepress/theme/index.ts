@@ -1,7 +1,7 @@
 // Blueprint Chart — VitePress theme entry.
 //
-// Extends VitePress's default theme and layers the BC brand: Prussian-Blue
-// scale, Geist sans/mono for UI + code, DM Serif Display for hero/display
+// Extends VitePress's default theme and layers the BC brand: black-and-white
+// tokens, Geist sans/mono for UI + code, DM Serif Display for hero/display
 // headings. CSS variable overrides live in `./style.css`.
 //
 // Also registers <BpcBlock> globally so the markdown-it fence rule can

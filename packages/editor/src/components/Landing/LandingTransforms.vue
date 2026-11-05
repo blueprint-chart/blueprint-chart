@@ -314,11 +314,9 @@ const steps: Step[] = [
       flex-shrink: 0;
       transition: all 0.15s;
 
-      // The active step is the brand marker: navy chip + chartreuse digit on
-      // light, chartreuse chip + navy digit on dark (the btn-primary pairing).
       .transforms-demo__step--active & {
-        background: var(--bc-btn-primary-bg);
-        color: var(--bc-btn-primary-fg);
+        background: var(--bs-emphasis-color);
+        color: var(--bs-body-bg);
       }
     }
 
@@ -407,8 +405,6 @@ const steps: Step[] = [
 
       &__wire {
         fill: none;
-        // The data wire glows with brand ink as it flows: Prussian on light,
-        // chartreuse on dark (see --bc-mark). Lights up the pipeline metaphor.
         stroke: var(--bc-mark);
         stroke-width: 1.5;
         stroke-dasharray: 5 4;

@@ -78,6 +78,8 @@ const heroBpc = applyBrandLook(sample.dsl)
 @use "@blueprint-chart/ui/styles/tokens.scss" as tok;
 
 .landing-hero {
+  --bc-mark: var(--bc-accent);
+  --bc-mark-quiet: color-mix(in srgb, var(--bc-accent) 16%, transparent);
   position: relative;
   overflow: hidden;
   padding: 3.5rem clamp(1rem, 5vw, 3.75rem) 4rem;

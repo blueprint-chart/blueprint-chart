@@ -141,8 +141,8 @@ function onActivate() {
   }
 
   &--selected {
-    border-color: rgba(37, 99, 160, 0.6);
-    box-shadow: 0 0 0 1px rgba(37, 99, 160, 0.4);
+    border-color: var(--bs-emphasis-color);
+    box-shadow: var(--bc-selected-ring);
   }
 
   &--loading {

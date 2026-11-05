@@ -178,10 +178,10 @@ function selectOption(value: string) {
 
         --bs-btn-active-color: var(--bs-btn-color);
         --bs-btn-active-bg: var(--bs-btn-bg);
-        --bs-btn-active-border-color: #4B90CF; // $prussian-300
+        --bs-btn-active-border-color: var(--bs-emphasis-color);
 
         &.active, &:active, &.show {
-          box-shadow: 0 0 0 0.25rem rgba(#2563a0, 0.25); // $prussian-500
+          box-shadow: var(--bc-focus-ring);
         }
       }
     }

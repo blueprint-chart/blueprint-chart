@@ -88,9 +88,6 @@ const logoSrc = computed(() => theme.value === 'dark' ? logoDark : logoLight)
     color: var(--bs-tertiary-color);
   }
 
-  // Link-hover highlighter (effects kit, FIG.03), bookending the top nav: the
-  // link rides a chartreuse swipe (ground) on hover, ink stays on top. Full
-  // swipe on light, faint chartreuse ground on dark (see --bc-swipe).
   &__link {
     position: relative;
     isolation: isolate;
@@ -104,7 +101,7 @@ const logoSrc = computed(() => theme.value === 'dark' ? logoDark : logoLight)
       position: absolute;
       inset: 0;
       z-index: -1;
-      background: var(--bc-swipe);
+      background: var(--bs-tertiary-bg);
       transform: scaleX(0);
       transform-origin: left center;
       opacity: 0;

@@ -177,10 +177,6 @@ function openSearch() {
   line-height: 1;
 }
 
-// Active-section highlighter (effects kit, FIG.03). Chartreuse is ground here,
-// never a thin figure: the swipe sits behind the label as a highlighter band,
-// the label ink stays on top. `--bc-swipe` is a full chartreuse swipe on light
-// and a faint chartreuse ground on dark, so the same rule reads on both.
 .landing-topnav__link {
   position: relative;
   // Own stacking context so the negative-z swipe stays behind the label but
@@ -194,7 +190,7 @@ function openSearch() {
     position: absolute;
     inset: 0;
     z-index: -1;
-    background: var(--bc-swipe);
+    background: var(--bs-tertiary-bg);
     transform: scaleX(0);
     transform-origin: left center;
     opacity: 0;

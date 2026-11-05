@@ -80,10 +80,6 @@ const cells: ValueCell[] = [
       color: var(--bs-tertiary-color);
     }
 
-    // Highlighter index tab (effects kit, FIG.03). The cell number sits on a
-    // chartreuse swipe — ground, never a thin figure: the digits stay ink and
-    // ride on top. `--bc-swipe` is a full chartreuse block on light and a faint
-    // chartreuse ground on dark, echoing the top nav's active mark.
     &__index {
       position: relative;
       // Own stacking context so the negative-z swipe stays behind the digits.
@@ -96,7 +92,7 @@ const cells: ValueCell[] = [
         position: absolute;
         inset: 0;
         z-index: -1;
-        background: var(--bc-swipe);
+        background: var(--bs-tertiary-bg);
         opacity: 0.85;
         transition: opacity var(--bc-duration-base) var(--bc-ease);
       }

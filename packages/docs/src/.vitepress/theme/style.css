@@ -5,13 +5,13 @@
   color-scheme: light dark;
 
   /* Brand */
-  --vp-c-brand-1: #2563A0;
-  --vp-c-brand-2: #163A65;
-  --vp-c-brand-3: #102E55;
-  --vp-c-brand-soft: #E1EEF7;
+  --vp-c-brand-1: var(--vp-c-text-1);
+  --vp-c-brand-2: var(--vp-c-text-2);
+  --vp-c-brand-3: var(--vp-c-text-2);
+  --vp-c-brand-soft: rgba(0, 0, 0, 0.05);
   --vp-c-brand: var(--vp-c-brand-1);
-  --vp-c-brand-light: #4B90CF;
-  --vp-c-brand-lighter: #A3C9E8;
+  --vp-c-brand-light: var(--vp-c-text-2);
+  --vp-c-brand-lighter: var(--vp-c-text-3);
   --vp-c-brand-dark: var(--vp-c-brand-2);
   --vp-c-brand-darker: var(--vp-c-brand-3);
 
@@ -51,23 +51,23 @@
   /* Hero gradient — keep as-is */
   --vp-home-hero-name-color: transparent;
   --vp-home-hero-name-background: linear-gradient(
-    120deg, #102E55 0%, #2563A0 45%, #4B90CF 100%
+    120deg, var(--vp-c-text-1) 0%, var(--vp-c-text-2) 100%
   );
   --vp-home-hero-image-background-image: none;
 
   /* Code blocks */
   --vp-code-block-bg: var(--bc-tile-bg-elevated);
-  --vp-code-line-highlight-color: rgba(37, 99, 160, 0.08);
+  --vp-code-line-highlight-color: rgba(0, 0, 0, 0.05);
 
   /* Custom block colors — keep editorial palette */
   --vp-custom-block-tip-border: transparent;
-  --vp-custom-block-tip-text: var(--vp-c-brand-2);
+  --vp-custom-block-tip-text: var(--vp-c-text-1);
   --vp-custom-block-tip-bg: var(--vp-c-brand-soft);
-  --vp-custom-block-tip-code-bg: rgba(37, 99, 160, 0.12);
+  --vp-custom-block-tip-code-bg: rgba(0, 0, 0, 0.08);
   --vp-custom-block-info-border: transparent;
   --vp-custom-block-info-text: var(--vp-c-text-1);
-  --vp-custom-block-info-bg: rgba(75, 144, 207, 0.10);
-  --vp-custom-block-info-code-bg: rgba(75, 144, 207, 0.16);
+  --vp-custom-block-info-bg: var(--vp-c-brand-soft);
+  --vp-custom-block-info-code-bg: rgba(0, 0, 0, 0.08);
   --vp-custom-block-warning-border: transparent;
   --vp-custom-block-warning-text: #8B5E00;
   --vp-custom-block-warning-bg: rgba(212, 166, 58, 0.14);
@@ -91,15 +91,7 @@
 }
 
 .dark {
-  --vp-c-brand-1: #4B90CF;
-  --vp-c-brand-2: #A3C9E8;
-  --vp-c-brand-3: #E1EEF7;
-  --vp-c-brand-soft: #102E55;
-  --vp-c-brand: var(--vp-c-brand-1);
-  --vp-c-brand-light: #A3C9E8;
-  --vp-c-brand-lighter: #E1EEF7;
-  --vp-c-brand-dark: #2563A0;
-  --vp-c-brand-darker: #163A65;
+  --vp-c-brand-soft: rgba(255, 255, 255, 0.08);
 
   --vp-c-bg: var(--bc-tile-bg);
   --vp-c-bg-alt: var(--bc-chrome-bg);
@@ -119,19 +111,19 @@
   --vp-button-brand-active-text: #0a0a0a;
 
   --vp-home-hero-name-background: linear-gradient(
-    120deg, #A3C9E8 0%, #4B90CF 50%, #2563A0 100%
+    120deg, var(--vp-c-text-1) 0%, var(--vp-c-text-2) 100%
   );
   --vp-home-hero-image-background-image: none;
 
   --vp-code-block-bg: var(--bc-tile-bg-elevated);
-  --vp-code-line-highlight-color: rgba(75, 144, 207, 0.10);
+  --vp-code-line-highlight-color: rgba(255, 255, 255, 0.08);
 
-  --vp-custom-block-tip-text: var(--vp-c-brand-2);
-  --vp-custom-block-tip-bg: rgba(37, 99, 160, 0.20);
-  --vp-custom-block-tip-code-bg: rgba(75, 144, 207, 0.20);
+  --vp-custom-block-tip-text: var(--vp-c-text-1);
+  --vp-custom-block-tip-bg: var(--vp-c-brand-soft);
+  --vp-custom-block-tip-code-bg: rgba(255, 255, 255, 0.12);
   --vp-custom-block-info-text: rgba(255, 255, 255, 0.86);
-  --vp-custom-block-info-bg: rgba(75, 144, 207, 0.14);
-  --vp-custom-block-info-code-bg: rgba(75, 144, 207, 0.22);
+  --vp-custom-block-info-bg: var(--vp-c-brand-soft);
+  --vp-custom-block-info-code-bg: rgba(255, 255, 255, 0.12);
   --vp-custom-block-warning-text: #E2BF6A;
   --vp-custom-block-warning-bg: rgba(212, 166, 58, 0.14);
   --vp-custom-block-warning-code-bg: rgba(212, 166, 58, 0.20);

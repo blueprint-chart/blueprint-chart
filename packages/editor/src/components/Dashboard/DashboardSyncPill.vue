@@ -38,8 +38,8 @@ const emit = defineEmits<{ sync: [] }>()
   gap: 0.4rem;
   padding: 0.25rem 0.3rem 0.25rem 0.7rem;
   border-radius: var(--bc-radius-pill);
-  background: #e1eef7; // $prussian-50 — light brand tint
-  color: #102e55; // $prussian-700
+  background: var(--bs-tertiary-bg);
+  color: var(--bs-body-color);
   font-size: 0.78rem;
   font-weight: 500;
   line-height: 1;
@@ -58,15 +58,15 @@ const emit = defineEmits<{ sync: [] }>()
   &__btn {
     border: none;
     border-radius: var(--bc-radius-pill);
-    background: var(--bs-primary);
-    color: #fff;
+    background: var(--bs-emphasis-color);
+    color: var(--bs-body-bg);
     padding: 0.28rem 0.7rem;
     font-size: 0.72rem;
     font-weight: 500;
     cursor: pointer;
 
     &:hover {
-      background: #163a65; // $prussian-600
+      background: var(--bc-btn-strong-hover-bg);
     }
   }
 }

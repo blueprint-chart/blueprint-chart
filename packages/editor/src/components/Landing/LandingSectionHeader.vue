@@ -48,8 +48,6 @@ withDefaults(defineProps<{
 
     :deep(em) {
       font-style: italic;
-      background: var(--bc-swipe);
-      padding: 0 0.1875rem;
     }
   }
 

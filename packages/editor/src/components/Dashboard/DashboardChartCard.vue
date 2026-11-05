@@ -130,6 +130,6 @@ function onStatusClick() {
   // non-interactive (already here); 'cloud' stays clickable to pull it down.
   &--synced { color: #2d8659; cursor: default; }
   &--cloud { color: #2d8659; }
-  &--local { color: #163a65; }
+  &--local { color: var(--bs-secondary-color); }
 }
 </style>

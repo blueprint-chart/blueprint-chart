@@ -48,6 +48,8 @@ import { BcRing } from '@blueprint-chart/ui'
 @use "@blueprint-chart/ui/styles/tokens.scss" as tok;
 
 .landing-callout {
+  --bc-mark: var(--bc-accent);
+  --bc-mark-quiet: color-mix(in srgb, var(--bc-accent) 16%, transparent);
   position: relative;
   overflow: hidden;
   background: var(--bc-content-bg);
