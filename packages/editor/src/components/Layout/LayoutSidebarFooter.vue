@@ -34,6 +34,10 @@ if (showAccount) {
 const email = computed(() => user.value?.email ?? '')
 const showSignIn = computed(() => showAccount && !isSignedIn.value)
 const wrapperClass = computed(() => isSignedIn.value ? 'layout-sidebar-footer__trigger-wrapper' : 'layout-sidebar-footer__more-wrapper')
+// Lands the menu's bottom edge on the footer's top border: the footer's
+// 0.375rem top padding plus its 1px border (NavigationSidebar.vue).
+const MENU_OFFSET_TO_FOOTER_EDGE = 7
+
 const toggleClass = computed(() => isSignedIn.value ? 'layout-sidebar-footer__trigger' : 'layout-sidebar-footer__more')
 
 const themeItems = computed<NavigationSegmentedControlItem[]>(() => THEME_OPTIONS.map(option => ({
@@ -73,7 +77,7 @@ async function onSignOut() {
       no-caret
       aria-label="More options"
       :placement="isSignedIn ? 'top-start' : 'top-end'"
-      :offset="8"
+      :offset="MENU_OFFSET_TO_FOOTER_EDGE"
       teleport-to="body"
       :wrapper-class="wrapperClass"
       :toggle-class="toggleClass"
