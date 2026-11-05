@@ -9,6 +9,7 @@ import { parseDelimited } from '@/composables/useDataParser'
 import { deleteThumbnail } from '@/composables/useChartThumbnail'
 import type { DatasetSource } from '@/utils/datasets'
 import { parse, type ChartSample, toBool } from '@blueprint-chart/lib'
+import { CATEGORY_COLORS_KEY, CUSTOM_PALETTES_KEY } from '@/stores/storageKeys'
 
 /**
  * Bumped when the meaning of a stored document changes.
@@ -67,11 +68,13 @@ export function storageKey(id: string): string {
   return `blueprint-chart:${id}`
 }
 
+const slugOf = (key: string) => key.slice(storageKey('').length)
+
 /** Single-segment slugs under the `blueprint-chart:` namespace that hold app
  *  state rather than charts. listSavedCharts() must skip these — otherwise the
  *  key is parsed as a phantom chart (e.g. `cloud-index` → an empty chart).
  *  `cloud-index` mirrors CLOUD_INDEX_KEY in cloudCharts.ts. */
-const RESERVED_SLUGS = new Set(['cloud-index', 'palettes', 'category-colors'])
+const RESERVED_SLUGS = new Set(['cloud-index', slugOf(CUSTOM_PALETTES_KEY), slugOf(CATEGORY_COLORS_KEY)])
 
 export function metaKey(id: string): string {
   return `blueprint-chart:${id}:meta`

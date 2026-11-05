@@ -1,14 +1,15 @@
 import { useLocalStorage } from '@vueuse/core'
 import { isHexColor } from '@blueprint-chart/ui'
+import { CUSTOM_PALETTES_KEY } from './storageKeys'
 import { generateId } from './chartSession'
+
+export { CUSTOM_PALETTES_KEY }
 
 export interface CustomPalette {
   id: string
   label: string
   colors: string[]
 }
-
-export const CUSTOM_PALETTES_KEY = 'blueprint-chart:palettes'
 
 const isValidColors = (colors: readonly string[]) =>
   colors.length >= 2 && colors.length <= 12 && colors.every(isHexColor)

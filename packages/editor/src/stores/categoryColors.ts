@@ -1,12 +1,13 @@
 import { useLocalStorage } from '@vueuse/core'
 import { isHexColor } from '@blueprint-chart/ui'
+import { CATEGORY_COLORS_KEY } from './storageKeys'
+
+export { CATEGORY_COLORS_KEY }
 
 export interface CategoryColor {
   name: string
   color: string
 }
-
-export const CATEGORY_COLORS_KEY = 'blueprint-chart:category-colors'
 
 export const normalizeCategory = (name: string) => name.trim().toLowerCase()
 
