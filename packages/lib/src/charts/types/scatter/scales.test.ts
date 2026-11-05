@@ -14,6 +14,14 @@ describe('buildScatterScale', () => {
     expect(buildScatterScale(ScaleType.Log, [100, 1000], { min: 0 }).domain()[0]).toBeGreaterThan(0)
   })
 
+  it('keeps a valid log10 domain when no positive value remains', () => {
+    for (const values of [[0, -5], []]) {
+      const [lo, hi] = buildScatterScale(ScaleType.Log, values).domain()
+      expect(lo).toBeGreaterThan(0)
+      expect(Number.isFinite(hi)).toBe(true)
+    }
+  })
+
   it('builds a symlog scale that keeps zero', () => {
     expect(buildScatterScale(ScaleType.Symlog, [0, 100]).domain()[0]).toBe(0)
   })

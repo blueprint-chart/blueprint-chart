@@ -11,7 +11,11 @@ function positiveBound(bound?: number | string): number | string | undefined {
 
 function buildLogScale(values: number[], range?: AxisRange): ScatterScale {
   const positiveRange = range && { min: positiveBound(range.min), max: positiveBound(range.max) }
-  const domain = computeLinearDomain(values.filter(v => v > 0), positiveRange, ScaleType.Log, false)
+  const positives = values.filter(v => v > 0)
+  if (positives.length === 0) {
+    return d3.scaleLog().domain([1, 10])
+  }
+  const domain = computeLinearDomain(positives, positiveRange, ScaleType.Log, false)
   return d3.scaleLog().domain(domain).nice()
 }
 

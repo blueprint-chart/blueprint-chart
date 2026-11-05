@@ -145,5 +145,6 @@ describe('estimateScaleLabelWidth', () => {
     const log = estimateScaleLabelWidth(d3.scaleLog().domain([1, 100000]))
     expect(linear).toBeGreaterThan(0)
     expect(log).toBeGreaterThan(0)
+    expect(log).not.toBe(linear)
   })
 })
