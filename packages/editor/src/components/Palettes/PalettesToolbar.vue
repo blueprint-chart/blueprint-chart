@@ -43,7 +43,7 @@ const actionLabel = computed(() => tab.value === 'palettes' ? 'New palette' : 'A
         class="palettes-toolbar__action"
         :icon-left="IPhPlus"
         :label="actionLabel"
-        variant="primary"
+        variant="strong"
         @click="$emit('action')"
       />
     </template>
