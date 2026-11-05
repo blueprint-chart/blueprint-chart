@@ -84,7 +84,7 @@
     <div class="d-flex gap-2 justify-content-end">
       <BButton
         v-if="selected.length > 1"
-        variant="outline-secondary"
+        variant="primary"
         size="sm"
         @click="copyFromFirst"
       >

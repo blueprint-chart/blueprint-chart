@@ -5,7 +5,7 @@
       :icon-left="IPhCaretLeft"
       icon-left-size="1em"
       :label="prevLabel"
-      variant="outline-secondary"
+      variant="primary"
       size="sm"
       @click="back"
     />

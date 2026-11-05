@@ -2,21 +2,21 @@
   <div class="border rounded overflow-hidden bg-body-tertiary p-2">
     <div class="d-flex gap-1 mb-2">
       <BButton
-        variant="outline-secondary"
+        variant="primary"
         size="sm"
         @click="selectAll"
       >
         All
       </BButton>
       <BButton
-        variant="outline-secondary"
+        variant="primary"
         size="sm"
         @click="selectNone"
       >
         None
       </BButton>
       <BButton
-        variant="outline-secondary"
+        variant="primary"
         size="sm"
         @click="selectInvert"
       >

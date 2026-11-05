@@ -27,7 +27,7 @@
           class="form-control-units-input__row__group__dropdown"
           :text="unitPart"
           size="sm"
-          variant="outline-secondary"
+          variant="primary"
           end
         >
           <BDropdownItem

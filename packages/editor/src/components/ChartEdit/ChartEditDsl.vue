@@ -11,7 +11,7 @@
         tooltip-label="Remove options already at their default value"
         hide-label
         square
-        variant="outline-secondary"
+        variant="primary"
         size="sm"
         :disabled="!canPurge"
         @click="purge"

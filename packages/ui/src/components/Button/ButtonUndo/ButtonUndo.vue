@@ -4,7 +4,7 @@
     label="Undo"
     hide-label
     square
-    variant="outline-secondary"
+    variant="primary"
     size="sm"
     :disabled="disabled"
     @click="$emit('click')"

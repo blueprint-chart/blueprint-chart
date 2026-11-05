@@ -10,7 +10,7 @@
       class="form-control-palette__toggle"
       toggle-class="d-flex align-items-center"
       :menu-class="['form-control-dropdown-menu']"
-      variant="outline-secondary"
+      variant="primary"
       teleport-to="body"
       @shown="matchMenuWidth"
     >

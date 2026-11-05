@@ -29,7 +29,7 @@ const logoSrc = computed(() => resolvedTheme.value === 'dark' ? logoDark : logoL
         hide-label
         square
         size="sm"
-        variant="outline-secondary"
+        variant="primary"
         aria-haspopup="dialog"
         :aria-expanded="sidebarOpen ? 'true' : 'false'"
         aria-controls="layout-sidebar-offcanvas"

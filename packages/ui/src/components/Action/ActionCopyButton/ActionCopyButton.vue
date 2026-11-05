@@ -20,7 +20,7 @@ const props = withDefaults(defineProps<{
   size?: Size
 }>(), {
   label: 'Copy',
-  variant: 'outline-secondary',
+  variant: 'primary',
   size: 'sm',
 })
 

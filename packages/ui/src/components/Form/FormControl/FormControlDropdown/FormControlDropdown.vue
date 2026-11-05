@@ -17,7 +17,7 @@
       :text="selectedOption?.label ?? placeholder ?? ''"
       :disabled="disabled"
       teleport-to="body"
-      variant="outline-secondary"
+      variant="primary"
       :auto-close="autoClose"
       @show="matchMenuWidth"
       @shown="matchMenuWidth"

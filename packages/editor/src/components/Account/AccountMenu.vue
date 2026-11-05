@@ -2,7 +2,7 @@
   <div class="account-menu">
     <template v-if="isSignedIn">
       <BDropdown
-        variant="outline-secondary"
+        variant="primary"
         size="sm"
         end
         :offset="6"

@@ -28,7 +28,7 @@ useUndoShortcuts()
   align-items: center;
   gap: 0.25rem;
 
-  :deep(.btn-outline-secondary) {
+  :deep(.btn-primary) {
     border-color: transparent;
     background: transparent;
 

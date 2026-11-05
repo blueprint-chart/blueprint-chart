@@ -2,7 +2,7 @@
   <ButtonIcon
     :icon-left="PhPlus"
     :label="label"
-    variant="outline-secondary"
+    variant="primary"
     class="button-add"
     :class="{ 'button-add--sm': size === 'sm' }"
     @click="$emit('click')"

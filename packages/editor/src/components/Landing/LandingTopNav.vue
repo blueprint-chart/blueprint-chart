@@ -146,7 +146,7 @@ function openSearch() {
         label="Toggle theme"
         hide-label
         square
-        variant="outline-secondary"
+        variant="primary"
         size="sm"
         @click="cycleTheme"
       />
