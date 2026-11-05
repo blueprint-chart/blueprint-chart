@@ -38,9 +38,9 @@ $prussian-100: #A3C9E8 !default;
 $prussian-50:  #E1EEF7 !default;
 
 // Theme color aliases (Bootstrap reads these)
-$primary: $prussian-500 !default;
+$primary: #171717 !default;
 $success: #2D8659 !default;
-$info:    $prussian-300 !default;
+$info:    #6900ff !default;
 $warning: #D4A63A !default;
 $danger:  #C94044 !default;
 
@@ -50,28 +50,53 @@ $chartreuse-400: #DDF247 !default;
 $accent: $chartreuse-400 !default;
 
 // Borders
-$border-color:      #dcdce0 !default;
+$border-color:      #eaeaea !default;
 $border-color-dark: #2e2e2e !default;
 
 // Surface hierarchy (void > tile > elevated)
-$body-bg:                 #f3f3f4 !default;
-$body-bg-dark:            #000000 !default;
+$body-bg:                 #ffffff !default;
+$body-bg-dark:            #0a0a0a !default;
 $body-secondary-bg:       #ffffff !default;
-$body-secondary-bg-dark:  #0e0e0e !default;
-$body-tertiary-bg:        #f8f8fa !default;
-$body-tertiary-bg-dark:   #161616 !default;
+$body-secondary-bg-dark:  #0a0a0a !default;
+$body-tertiary-bg:        #f2f2f2 !default;
+$body-tertiary-bg-dark:   #1f1f1f !default;
+
+// Text
+$body-color:                  #171717 !default;
+$body-color-dark:             #ededed !default;
+$body-secondary-color:        #666666 !default;
+$body-secondary-color-dark:   #a1a1a1 !default;
+$body-tertiary-color:         #737373 !default;
+$body-tertiary-color-dark:    #8f8f8f !default;
+
+// Neutral buttons
+$btn-primary-bg:              $body-tertiary-bg !default;
+$btn-primary-border:          #dedede !default;
+$btn-primary-hover-bg:        #eaeaea !default;
+$btn-primary-bg-dark:         $body-tertiary-bg-dark !default;
+$btn-primary-border-dark:     #454545 !default;
+$btn-primary-hover-bg-dark:   #2e2e2e !default;
+$btn-strong-hover-bg:         #383838 !default;
+$btn-strong-hover-bg-dark:    #cccccc !default;
+
+// Radius
+$border-radius-sm: 0.25rem !default;
+$border-radius:    0.5rem !default;
+$border-radius-lg: 0.75rem !default;
 
 // Links
-$link-color:            $primary !default;
-$link-hover-color:      $prussian-600 !default;
-$link-color-dark:       $prussian-300 !default;
-$link-hover-color-dark: $prussian-100 !default;
+$link-color:            $body-color !default;
+$link-hover-color:      $body-color !default;
+$link-color-dark:       $body-color-dark !default;
+$link-hover-color-dark: $body-color-dark !default;
+$link-decoration:       underline !default;
 
 // Focus ring
+$focus-ring-opacity: 1 !default;
 $focus-ring-color: rgba($primary, 0.25) !default;
 
 // Code text
-$code-color: $prussian-600 !default;
+$code-color: $body-color !default;
 
 // Bootstrap SCSS font-size primitive (Bootstrap uses this name)
 $font-size-xs: 0.6875rem !default;
@@ -113,28 +138,28 @@ $spacer-xs: 0.25rem !default;
   --bs-font-size-2xl: 2.375rem;  // 38px — dashboard title
   --bs-font-size-hero: 4rem;     // 64px — landing hero h1 (unchanged)
 
-  --bc-syn-keyword: #2563A0;
-  --bc-syn-string: #2D8659;
+  --bc-syn-keyword: #7928ca;
+  --bc-syn-string: #067647;
   --bc-syn-number: #8B5E00;
-  --bc-syn-identifier: #555;
-  --bc-syn-punct: #888;
-  --bc-syn-comment: #999;
+  --bc-syn-identifier: #444444;
+  --bc-syn-punct: #666666;
+  --bc-syn-comment: #6b6b6b;
   --bc-axis-color: #333;
   --bc-grid-color: #e0e0e0;
   --bc-text-color: #555;
   --bc-brand-1: #5b6abf;
   --bc-brand-2: #3c8dbc;
 
-  --bc-canvas-bg: #244a7c;
-  --bc-canvas-grid-color: rgba(255, 255, 255, 0.06);
-  --bc-canvas-grid-color-major: rgba(255, 255, 255, 0.15);
+  --bc-canvas-bg: #ffffff;
+  --bc-canvas-grid-color: rgba(0, 0, 0, 0.06);
+  --bc-canvas-grid-color-major: rgba(0, 0, 0, 0.15);
   --bc-canvas-grid-size: 20px;
-  --bc-canvas-dimension-color: rgba(255, 255, 255, 0.55);
+  --bc-canvas-dimension-color: rgba(0, 0, 0, 0.55);
 
   --bc-chrome-bg: #ffffff;
-  --bc-content-bg: #E9EBEF;
+  --bc-content-bg: #ffffff;
   --bc-tile-bg: #ffffff;
-  --bc-tile-bg-elevated: #f5f5f7;
+  --bc-tile-bg-elevated: #f2f2f2;
   --bc-canvas-glow: none;
 
   --bc-wash-soft: rgba(0, 0, 0, 0.04);
@@ -152,7 +177,7 @@ $spacer-xs: 0.25rem !default;
 
   // Grid pool (see _effects.scss). Ink reads on any surface, not just canvas.
   --bc-pool-r: 100px;
-  --bc-pool-ink: #{rgba($prussian-300, 0.33)}; // drafting-blue grid on light
+  --bc-pool-ink: rgba(0, 0, 0, 0.2);
 
   // Light ink for forced-dark marketing islands (hero, closing band). These are
   // island constants: the same value in both themes, so they are not overridden
@@ -166,10 +191,8 @@ $spacer-xs: 0.25rem !default;
   // on the dark marketing islands (see .btn-bc-primary:focus-visible below).
   --bc-focus-ring-marketing: 0 0 0 3px #{rgba($prussian-300, 0.9)};
 
-  // Editorial mark ink: chartreuse can't be a thin figure on white, so small
-  // marks (eyebrow #/dot) fall back to Prussian on light, chartreuse on dark.
-  --bc-mark: #{$prussian-500};
-  --bc-mark-quiet: #{rgba($prussian-500, 0.14)};
+  --bc-mark: #666666;
+  --bc-mark-quiet: rgba(0, 0, 0, 0.08);
 
   // Primary button fill/ink pair. Flips per theme so .btn-bc-primary always
   // resolves at the nearest theme (see _effects.scss), instead of a
@@ -193,10 +216,10 @@ $spacer-xs: 0.25rem !default;
   --bc-frame-radius: var(--bc-radius-lg);
 
   --bc-radius-pill: 999px;
-  --bc-radius-xs: 4px;
-  --bc-radius-sm: 6px;
-  --bc-radius-md: 8px;
-  --bc-radius-lg: 12px;
+  --bc-radius-xs: 0.25rem;
+  --bc-radius-sm: 0.25rem;
+  --bc-radius-md: 0.5rem;
+  --bc-radius-lg: 0.75rem;
 
   --bc-drawer-height: 70vh;
 
@@ -209,7 +232,12 @@ $spacer-xs: 0.25rem !default;
   --bc-duration-base: 150ms;
   --bc-duration-slow: 250ms;
 
-  --bc-focus-ring: 0 0 0 2px rgba(37, 99, 160, 0.4);
+  // Declared in both theme blocks so the body-bg/emphasis vars re-resolve at
+  // the nearest theme: a :root-only value would paint a light ring in a dark island.
+  --bc-focus-ring: 0 0 0 2px var(--bs-body-bg), 0 0 0 4px var(--bs-emphasis-color);
+  --bc-selected-ring: 0 0 0 2px var(--bs-emphasis-color);
+
+  --bc-btn-strong-hover-bg: #383838;
 
   --bc-shadow-overlay:
     0 8px 24px rgba(0, 0, 0, 0.08),
@@ -232,27 +260,26 @@ $spacer-xs: 0.25rem !default;
 // duplicating the dark palette.
 [data-bs-theme="dark"],
 .dark {
-  --bc-syn-keyword: #6CA6D6;
+  --bc-syn-keyword: #c4a1ff;
   --bc-syn-string: #6BBF8B;
   --bc-syn-number: #D4A63A;
-  --bc-syn-identifier: #b0b0b0;
-  --bc-syn-punct: #777;
-  --bc-syn-comment: #666;
+  --bc-syn-identifier: #d4d4d4;
+  --bc-syn-punct: #a1a1a1;
+  --bc-syn-comment: #8f8f8f;
 
   --bc-axis-color: #ccc;
   --bc-grid-color: #444;
   --bc-text-color: #aaa;
 
-  // Dark canvas is true black; the white grid lines carry the blueprint.
-  --bc-canvas-bg: #000000;
+  --bc-canvas-bg: #0a0a0a;
   --bc-canvas-grid-color: rgba(255, 255, 255, 0.05);
   --bc-canvas-grid-color-major: rgba(255, 255, 255, 0.12);
   --bc-canvas-dimension-color: rgba(255, 255, 255, 0.45);
 
-  --bc-chrome-bg: #000000;
-  --bc-content-bg: #000000;
-  --bc-tile-bg: #0e0e0e;
-  --bc-tile-bg-elevated: #161616;
+  --bc-chrome-bg: #0a0a0a;
+  --bc-content-bg: #0a0a0a;
+  --bc-tile-bg: #0a0a0a;
+  --bc-tile-bg-elevated: #1f1f1f;
   --bc-canvas-glow: none;
 
   --bc-wash-soft: rgba(255, 255, 255, 0.03);
@@ -265,9 +292,9 @@ $spacer-xs: 0.25rem !default;
 
   --bc-accent: #{$accent};             // same hex; gesture differs, not value
   --bc-accent-ink: #{$prussian-600};   // navy on chartreuse in both themes
-  --bc-pool-ink: #{rgba($prussian-100, 0.32)}; // paper-blue grid on true black
-  --bc-mark: #{$accent};               // chartreuse is ink on dark
-  --bc-mark-quiet: #{rgba($accent, 0.18)};
+  --bc-pool-ink: rgba(255, 255, 255, 0.28);
+  --bc-mark: #a1a1a1;
+  --bc-mark-quiet: rgba(255, 255, 255, 0.12);
 
   // On dark, chartreuse is ink (text) so the swipe stays a translucent ground
   // behind normal text rather than a bold block. Alpha 0.4 makes the band
@@ -286,9 +313,10 @@ $spacer-xs: 0.25rem !default;
   --bc-btn-primary-bg: #{$accent};
   --bc-btn-primary-fg: #{$prussian-600};
 
-  // Brighter Prussian so the focus ring clears the 3:1 floor on the #000 field
-  // (mirrors what --bc-focus-ring-marketing already does for primary buttons).
-  --bc-focus-ring: 0 0 0 2px #{rgba($prussian-300, 0.6)};
+  --bc-focus-ring: 0 0 0 2px var(--bs-body-bg), 0 0 0 4px var(--bs-emphasis-color);
+  --bc-selected-ring: 0 0 0 2px var(--bs-emphasis-color);
+
+  --bc-btn-strong-hover-bg: #cccccc;
 
   --bc-shadow-overlay:
     0 8px 24px rgba(0, 0, 0, 0.6),
