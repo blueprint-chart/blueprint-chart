@@ -55,10 +55,12 @@ afterEach(() => {
 })
 
 describe('LayoutSidebarFooter (signed in)', () => {
-  it('shows the avatar alone, without a name', async () => {
+  it('makes the whole footer row the menu trigger, with the avatar inside', async () => {
     const { wrapper } = await mountFooter(true)
-    expect(wrapper.find('.layout-sidebar-footer__identity .account-avatar').exists()).toBe(true)
-    expect(wrapper.find('.layout-sidebar-footer__identity').text()).toBe('H')
+    const trigger = wrapper.find('button[aria-label="More options"]')
+    expect(trigger.classes()).toContain('layout-sidebar-footer__trigger')
+    expect(trigger.find('.account-avatar').exists()).toBe(true)
+    expect(wrapper.findAll('button')).toHaveLength(1)
   })
 
   it('lists the email, My charts and Sign out in the menu', async () => {
@@ -132,6 +134,7 @@ describe('LayoutSidebarFooter (signed out)', () => {
   it('shows a Sign in button and keeps the theme menu', async () => {
     const { wrapper } = await mountFooter(false)
     expect(wrapper.find('button.btn-strong').text()).toContain('Sign in')
+    expect(wrapper.find('button[aria-label="More options"]').classes()).not.toContain('layout-sidebar-footer__trigger')
     await openMenu(wrapper)
     expect(document.body.querySelector('.layout-sidebar-footer__theme')).not.toBeNull()
     expect(document.body.textContent).not.toContain('Sign out')

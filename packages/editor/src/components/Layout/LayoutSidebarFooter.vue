@@ -33,6 +33,8 @@ if (showAccount) {
 
 const email = computed(() => user.value?.email ?? '')
 const showSignIn = computed(() => showAccount && !isSignedIn.value)
+const wrapperClass = computed(() => isSignedIn.value ? 'layout-sidebar-footer__trigger-wrapper' : 'layout-sidebar-footer__more-wrapper')
+const toggleClass = computed(() => isSignedIn.value ? 'layout-sidebar-footer__trigger' : 'layout-sidebar-footer__more')
 
 const themeItems = computed<NavigationSegmentedControlItem[]>(() => THEME_OPTIONS.map(option => ({
   ...option,
@@ -56,17 +58,8 @@ async function onSignOut() {
 
 <template>
   <div class="layout-sidebar-footer">
-    <div
-      v-if="isSignedIn"
-      class="layout-sidebar-footer__identity"
-    >
-      <AccountAvatar
-        :email="email"
-        size="md"
-      />
-    </div>
     <ButtonIcon
-      v-else-if="showSignIn"
+      v-if="showSignIn"
       :icon-left="IPhSignIn"
       label="Sign in"
       variant="strong"
@@ -79,14 +72,19 @@ async function onSignOut() {
       size="sm"
       no-caret
       aria-label="More options"
-      placement="top-end"
+      :placement="isSignedIn ? 'top-start' : 'top-end'"
       :offset="8"
       teleport-to="body"
-      wrapper-class="layout-sidebar-footer__more-wrapper"
-      toggle-class="layout-sidebar-footer__more"
+      :wrapper-class="wrapperClass"
+      :toggle-class="toggleClass"
       menu-class="layout-sidebar-footer__menu"
     >
       <template #button-content>
+        <AccountAvatar
+          v-if="isSignedIn"
+          :email="email"
+          size="md"
+        />
         <AppIcon :name="IPhDotsThree" />
       </template>
 
@@ -164,11 +162,25 @@ async function onSignOut() {
   gap: 0.5rem;
   min-width: 0;
 
-  &__identity {
+  :deep(.layout-sidebar-footer__trigger-wrapper) {
+    flex: 1;
+    min-width: 0;
+  }
+
+  :deep(.layout-sidebar-footer__trigger) {
     display: flex;
     align-items: center;
-    gap: 0.625rem;
-    min-width: 0;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0.375rem;
+    border: 0;
+    border-radius: var(--bs-border-radius);
+    --bs-btn-color: var(--bs-secondary-color);
+    --bs-btn-bg: transparent;
+    --bs-btn-hover-color: var(--bs-emphasis-color);
+    --bs-btn-hover-bg: var(--bs-tertiary-bg);
+    --bs-btn-active-color: var(--bs-emphasis-color);
+    --bs-btn-active-bg: var(--bs-tertiary-bg);
   }
 
   :deep(.layout-sidebar-footer__more) {
