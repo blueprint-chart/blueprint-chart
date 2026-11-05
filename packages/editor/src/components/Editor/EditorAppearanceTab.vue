@@ -47,6 +47,22 @@
     </SettingsSection>
 
     <SettingsSection
+      v-if="hasScatter"
+      title="Columns"
+      :icon="IPhTable"
+    >
+      <EditorScatterColumns />
+    </SettingsSection>
+
+    <SettingsSection
+      v-if="hasScatter"
+      title="Points"
+      :icon="IPhChartScatter"
+    >
+      <EditorScatterPoints />
+    </SettingsSection>
+
+    <SettingsSection
       title="Sort"
       :icon="IPhSortAscending"
     >
@@ -68,6 +84,8 @@ import IPhChartBar from '~icons/ph/chart-bar'
 import IPhChartBarHorizontal from '~icons/ph/chart-bar-horizontal'
 import IPhChartLine from '~icons/ph/chart-line'
 import IPhSortAscending from '~icons/ph/sort-ascending'
+import IPhTable from '~icons/ph/table'
+import IPhChartScatter from '~icons/ph/chart-scatter'
 
 const { chartType } = useChartConfig()
 const { availableOptionKeys } = useChartTypeOptions()
@@ -93,6 +111,8 @@ const hasBarStyle = computed(() =>
   || availableOptionKeys.value.includes('connectedColumns')
   || availableOptionKeys.value.includes('categoryLabelLine'),
 )
+
+const hasScatter = computed(() => availableOptionKeys.value.includes('trend'))
 
 const hasSlice = computed(() => availableOptionKeys.value.includes('displayAsPercentage'))
 </script>
