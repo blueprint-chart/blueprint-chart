@@ -7,6 +7,7 @@ import { useDslSync } from '@/composables/useDslSync'
 import { useDslOutput } from '@/composables/useDslOutput'
 import { parseDelimited } from '@/composables/useDataParser'
 import { deleteThumbnail } from '@/composables/useChartThumbnail'
+import type { DatasetSource } from '@/utils/datasets'
 import { parse, type ChartSample, toBool } from '@blueprint-chart/lib'
 
 /**
@@ -320,8 +321,9 @@ export const useChartSessionStore = defineStore('chartSession', () => {
    * Validates the source via `parse()` before mutating any store state.
    * Returns the new sessionId on success, or `null` if the input is empty
    * or fails to parse — in which case no session is created.
+   * A `source` replaces the BPC data as the stored pasted source.
    */
-  function createFromDsl(dsl: string): string | null {
+  function createFromDsl(dsl: string, source?: DatasetSource | null): string | null {
     if (!dsl) {
       return null
     }
@@ -340,6 +342,12 @@ export const useChartSessionStore = defineStore('chartSession', () => {
       // Defensive: applyDsl re-parses internally; if it fails here, roll back.
       resetAll()
       return null
+    }
+
+    if (source) {
+      dataTable.rawInput.value = source.rawInput
+      dataTable.sourceFormat.value = 'delimited'
+      dataTable.sourceLabel.value = source.sourceLabel
     }
 
     sessionId.value = generateId()

@@ -1,5 +1,5 @@
 import { ChartType } from '@blueprint-chart/lib'
-import { generateId, useChartSession, summarizeDsl, storageKey, metaKey } from './chartSession'
+import { generateId, useChartSession, summarizeDsl, storageKey, metaKey, readLocalMeta } from './chartSession'
 import { serializeTableData } from '@/stores/dataTable'
 import { useDslOutput } from '@/composables/useDslOutput'
 import { TransformType } from '@/enums'
@@ -288,6 +288,37 @@ describe('useChartSession', () => {
     const config = useChartConfig()
     expect(config.title.value).toBe('Legacy Chart')
     expect(config.chartType.value).toBe(ChartType.BarHorizontal)
+  })
+})
+
+describe('createFromDsl', () => {
+  const BPC = 'chart bar-horizontal {\n  data {\n    "A" = 1\n  }\n}\n'
+
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    localStorage.clear()
+    useChartConfig().reset()
+    useDataTable().reset()
+    useDataTransforms().reset()
+    useChartTypeOptions().reset()
+    useScenes().reset()
+  })
+
+  it('stores the pasted source in the meta sidecar', () => {
+    const id = useChartSession().createFromDsl(BPC, { rawInput: 'a,b\n1,2', sourceLabel: 'gdp.csv' })
+
+    expect(readLocalMeta(id!)).toMatchObject({
+      schema: 2,
+      rawInput: 'a,b\n1,2',
+      sourceLabel: 'gdp.csv',
+      sourceFormat: 'delimited',
+    })
+  })
+
+  it('without a source keeps the bpc source', () => {
+    const id = useChartSession().createFromDsl(BPC)
+
+    expect(readLocalMeta(id!)).not.toHaveProperty('rawInput')
   })
 })
 
