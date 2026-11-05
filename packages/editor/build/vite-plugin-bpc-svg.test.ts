@@ -218,4 +218,13 @@ describe('renderToSvg scatter', () => {
     expect(svg.match(/fill="#111"/g)).toHaveLength(2)
     expect(svg.match(/fill="#222"/g)).toHaveLength(1)
   })
+
+  it('draws no circle for a row with a missing y', () => {
+    const data = extractData([
+      row('series', ['x', 'y', 'group']),
+      row('a', [1, 2, 'north']),
+      row('b', [3, 'n/a', 'south']),
+    ])
+    expect(renderToSvg('scatter', data, ['#111']).match(/<circle/g)).toHaveLength(1)
+  })
 })

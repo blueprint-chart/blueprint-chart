@@ -74,7 +74,6 @@ export { registerChart, getChart, getChartOptions, listCharts } from './charts/r
 
 export { parseData, buildChartOptions } from './charts/chart-helpers'
 export { stripDigitGroupSpaces } from './charts/number-parse'
-export { buildScatterPoints, type ScatterPoint, type DropReason, type DroppedRow } from './charts/types/scatter/points'
 export { resolveScatterMapping, numericColumns, MAPPING_NONE, type ScatterMapping } from './charts/types/scatter/mapping'
 
 // Recommendations
