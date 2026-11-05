@@ -55,10 +55,10 @@ afterEach(() => {
 })
 
 describe('LayoutSidebarFooter (signed in)', () => {
-  it('shows the avatar and the name from the email', async () => {
+  it('shows the avatar alone, without a name', async () => {
     const { wrapper } = await mountFooter(true)
     expect(wrapper.find('.layout-sidebar-footer__identity .account-avatar').exists()).toBe(true)
-    expect(wrapper.find('.layout-sidebar-footer__identity__name').text()).toBe('hello')
+    expect(wrapper.find('.layout-sidebar-footer__identity').text()).toBe('H')
   })
 
   it('lists the email, My charts and Sign out in the menu', async () => {

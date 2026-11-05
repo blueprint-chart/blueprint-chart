@@ -32,7 +32,6 @@ if (showAccount) {
 }
 
 const email = computed(() => user.value?.email ?? '')
-const displayName = computed(() => email.value.split('@')[0])
 const showSignIn = computed(() => showAccount && !isSignedIn.value)
 
 const themeItems = computed<NavigationSegmentedControlItem[]>(() => THEME_OPTIONS.map(option => ({
@@ -65,7 +64,6 @@ async function onSignOut() {
         :email="email"
         size="md"
       />
-      <span class="layout-sidebar-footer__identity__name">{{ displayName }}</span>
     </div>
     <ButtonIcon
       v-else-if="showSignIn"
@@ -171,14 +169,6 @@ async function onSignOut() {
     align-items: center;
     gap: 0.625rem;
     min-width: 0;
-
-    &__name {
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      font-weight: 500;
-      color: var(--bs-emphasis-color);
-    }
   }
 
   :deep(.layout-sidebar-footer__more) {
