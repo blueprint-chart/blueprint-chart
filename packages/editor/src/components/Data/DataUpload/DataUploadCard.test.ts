@@ -87,6 +87,15 @@ describe('DataUploadCard', () => {
     expect(w.find('.upload-card__paste').exists()).toBe(true)
   })
 
+  it('names the paste textarea and describes it with an existing hint', () => {
+    const w = mountCard()
+    const area = w.find('.upload-card__paste__wrap__area')
+    expect(area.attributes('aria-label')).toBe('Paste your data')
+    const describedBy = area.attributes('aria-describedby')
+    expect(describedBy).toBeTruthy()
+    expect(w.find(`#${describedBy}`).exists()).toBe(true)
+  })
+
   it('has centered container', () => {
     const w = mountCard()
     expect(w.find('.upload-card').exists()).toBe(true)

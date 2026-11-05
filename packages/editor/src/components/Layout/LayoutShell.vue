@@ -41,6 +41,11 @@ useEventListener(document, 'keydown', (event: globalThis.KeyboardEvent) => {
 </script>
 
 <template>
+  <a
+    class="layout-shell__skip-link visually-hidden-focusable"
+    href="#main"
+  >Skip to content</a>
+
   <!-- Landing renders only the slot — landing supplies its own chrome. -->
   <div
     v-if="isLanding"
@@ -65,7 +70,10 @@ useEventListener(document, 'keydown', (event: globalThis.KeyboardEvent) => {
         @toggle-sidebar="sidebarOpen = !sidebarOpen"
       />
     </div>
-    <main class="layout-shell__main">
+    <main
+      id="main"
+      class="layout-shell__main"
+    >
       <slot />
     </main>
 
@@ -107,6 +115,18 @@ $grid-breakpoints: (
 
 .layout-shell {
   background: var(--bs-body-bg);
+}
+
+.layout-shell__skip-link:focus {
+  position: fixed;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: 2000;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--bs-border-radius);
+  background: var(--bs-body-bg);
+  color: var(--bs-body-color);
+  box-shadow: var(--bc-focus-ring);
 }
 
 .layout-shell--landing {

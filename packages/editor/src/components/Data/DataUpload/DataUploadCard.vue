@@ -79,12 +79,17 @@
             ref="pasteArea"
             v-model="pasteInput"
             class="upload-card__paste__wrap__area"
+            aria-label="Paste your data"
+            aria-describedby="paste-hint"
             spellcheck="false"
             @paste="onPaste"
           />
         </div>
         <div class="upload-card__paste__footer">
-          <div class="upload-card__paste__footer__hint">
+          <div
+            id="paste-hint"
+            class="upload-card__paste__footer__hint"
+          >
             <span
               v-for="k in pasteKeyChips"
               :key="k"
@@ -233,7 +238,6 @@ const tabOptions = [
         font-family: var(--bs-font-monospace);
         font-size: var(--bs-font-size-sm);
         color: var(--bs-secondary-color);
-        opacity: 0.5;
         pointer-events: none;
         white-space: pre;
         line-height: 1.6;
@@ -254,7 +258,6 @@ const tabOptions = [
 
         &::placeholder {
           color: var(--bs-secondary-color);
-          opacity: 0.5;
         }
       }
     }

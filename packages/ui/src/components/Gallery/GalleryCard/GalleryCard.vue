@@ -2,12 +2,7 @@
   <div
     class="gallery-card"
     :class="cardClassList"
-    :role="loading ? undefined : 'button'"
-    :tabindex="loading ? -1 : 0"
     :aria-hidden="loading ? 'true' : undefined"
-    @click="onActivate"
-    @keydown.enter="onActivate"
-    @keydown.space.prevent="onActivate"
   >
     <div
       class="gallery-card__thumb"
@@ -29,14 +24,12 @@
       <div
         v-if="$slots.status && !loading"
         class="gallery-card__thumb__status"
-        @click.stop
       >
         <slot name="status" />
       </div>
       <div
         v-if="$slots.actions && !loading"
         class="gallery-card__thumb__actions"
-        @click.stop
       >
         <slot name="actions" />
       </div>
@@ -61,12 +54,14 @@
         </div>
       </template>
       <template v-else>
-        <div
+        <button
+          type="button"
           class="gallery-card__meta__title"
           :class="{ 'bc-display': serifTitle }"
+          @click="emit('click')"
         >
           {{ title }}
-        </div>
+        </button>
         <div
           v-if="subtitle"
           class="gallery-card__meta__subtitle"
@@ -110,12 +105,6 @@ const cardClassList = computed(() => ({
   'gallery-card--row': props.layout === 'row',
   'gallery-card--loading': props.loading,
 }))
-
-function onActivate() {
-  if (!props.loading) {
-    emit('click')
-  }
-}
 </script>
 
 <style scoped lang="scss">
@@ -127,22 +116,26 @@ function onActivate() {
   cursor: pointer;
   display: flex;
   flex-direction: column;
+  position: relative;
   transition: border-color var(--bc-duration-base) var(--bc-ease),
               transform var(--bc-duration-base) var(--bc-ease);
-  outline: none;
 
   &:hover {
     border-color: var(--bc-hairline-strong);
     transform: translateY(-1px);
   }
 
-  &:focus-visible {
+  &:has(.gallery-card__meta__title:focus-visible) {
     box-shadow: var(--bc-focus-ring);
   }
 
   &--selected {
     border-color: var(--bs-emphasis-color);
     box-shadow: var(--bc-selected-ring);
+
+    &:has(.gallery-card__meta__title:focus-visible) {
+      box-shadow: var(--bc-focus-ring), var(--bc-selected-ring);
+    }
   }
 
   &--loading {
@@ -186,6 +179,7 @@ function onActivate() {
       gap: 0.25rem;
       opacity: 0;
       transition: opacity 0.15s ease;
+      z-index: 1;
 
       .gallery-card:hover &,
       .gallery-card:focus-within & {
@@ -210,6 +204,10 @@ function onActivate() {
     flex: 1;
 
     &__title {
+      padding: 0;
+      border: 0;
+      background: none;
+      text-align: left;
       font-size: var(--bs-font-size-sm);
       font-weight: 700;
       color: var(--bs-body-color);
@@ -219,6 +217,13 @@ function onActivate() {
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
+      outline: none;
+
+      &::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+      }
     }
 
     // Serif title variant: DM Serif Display ships a 400 face only, so the

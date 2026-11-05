@@ -57,14 +57,12 @@ onMounted(() => {
 
 <template>
   <div class="samples-grid">
-    <div
+    <button
       v-for="sample in sampleCards"
       :key="sample.id"
+      type="button"
       class="sample-card"
-      role="button"
-      tabindex="0"
       @click="$emit('select', sample)"
-      @keydown.enter="$emit('select', sample)"
     >
       <div class="sample-card__thumb">
         <img
@@ -84,7 +82,7 @@ onMounted(() => {
           {{ sample.rowCount }} rows
         </div>
       </div>
-    </div>
+    </button>
   </div>
 </template>
 
@@ -106,10 +104,18 @@ onMounted(() => {
   transition: all 0.15s;
   background: var(--bs-body-bg);
   overflow: hidden;
+  padding: 0;
+  color: inherit;
+  text-align: left;
 
   &:hover {
     border-color: var(--bs-primary-border-subtle);
     background: var(--bs-primary-bg-subtle);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--bc-focus-ring);
   }
 
   &__thumb {

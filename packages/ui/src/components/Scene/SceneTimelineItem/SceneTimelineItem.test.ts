@@ -6,35 +6,35 @@ describe('SceneTimelineItem', () => {
     const wrapper = mount(SceneTimelineItem, {
       props: { name: null, index: 2 },
     })
-    expect(wrapper.find('.scene-timeline-item__label').text()).toBe('Scene 3')
+    expect(wrapper.find('.scene-timeline-item__select__label').text()).toBe('Scene 3')
   })
 
   it('renders scene name when provided', () => {
     const wrapper = mount(SceneTimelineItem, {
       props: { name: 'Intro', index: 0 },
     })
-    expect(wrapper.find('.scene-timeline-item__name').text()).toBe('Intro')
+    expect(wrapper.find('.scene-timeline-item__select__name').text()).toBe('Intro')
   })
 
   it('does not render name element when name is null', () => {
     const wrapper = mount(SceneTimelineItem, {
       props: { name: null, index: 0 },
     })
-    expect(wrapper.find('.scene-timeline-item__name').exists()).toBe(false)
+    expect(wrapper.find('.scene-timeline-item__select__name').exists()).toBe(false)
   })
 
   it('renders thumbnail SVG when provided', () => {
     const wrapper = mount(SceneTimelineItem, {
       props: { name: null, index: 0, thumbnail: '<svg viewBox="0 0 600 400"><rect fill="red"/></svg>' },
     })
-    expect(wrapper.find('.scene-timeline-item__preview').html()).toContain('<svg')
+    expect(wrapper.find('.scene-timeline-item__select__preview').html()).toContain('<svg')
   })
 
   it('shows empty preview when no thumbnail', () => {
     const wrapper = mount(SceneTimelineItem, {
       props: { name: null, index: 0 },
     })
-    const preview = wrapper.find('.scene-timeline-item__preview')
+    const preview = wrapper.find('.scene-timeline-item__select__preview')
     expect(preview.exists()).toBe(true)
     expect(preview.html()).not.toContain('<svg')
   })
@@ -57,7 +57,7 @@ describe('SceneTimelineItem', () => {
     const wrapper = mount(SceneTimelineItem, {
       props: { name: null, index: 0 },
     })
-    await wrapper.trigger('click')
+    await wrapper.find('.scene-timeline-item__select').trigger('click')
     expect(wrapper.emitted('select')).toHaveLength(1)
   })
 
@@ -65,9 +65,15 @@ describe('SceneTimelineItem', () => {
     const wrapper = mount(SceneTimelineItem, {
       props: { name: null, index: 0, removable: true },
     })
-    await wrapper.find('.scene-timeline-item__remove').trigger('click')
+    await wrapper.find('button[aria-label="Remove scene 1"]').trigger('click')
     expect(wrapper.emitted('remove')).toHaveLength(1)
     expect(wrapper.emitted('select')).toBeUndefined()
+  })
+
+  it('does not nest interactive controls', () => {
+    const wrapper = mount(SceneTimelineItem, { props: { name: null, index: 0 } })
+    expect(wrapper.findAll('[role=button]')).toHaveLength(0)
+    expect(wrapper.findAll('button button')).toHaveLength(0)
   })
 
   it('hides remove button when removable is false', () => {

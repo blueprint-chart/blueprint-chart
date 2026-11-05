@@ -18,7 +18,10 @@ import LandingFooter from './LandingFooter.vue'
          and any BcRing reference them by id. -->
     <StippleDefs />
     <LandingTopNav />
-    <div class="landing-page__frame">
+    <main
+      id="main"
+      class="landing-page__frame"
+    >
       <LandingHero />
       <LandingValuePropStrip />
       <LandingMcp />
@@ -28,7 +31,7 @@ import LandingFooter from './LandingFooter.vue'
       <LandingScenes />
       <LandingCallout />
       <LandingFooter />
-    </div>
+    </main>
   </div>
 </template>
 

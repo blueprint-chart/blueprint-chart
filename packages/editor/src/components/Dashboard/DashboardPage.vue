@@ -146,6 +146,9 @@ onUnmounted(() => {
 
 <template>
   <div class="dashboard-page-wrapper d-flex flex-column flex-grow-1">
+    <h1 class="dashboard-page-wrapper__title visually-hidden">
+      My charts
+    </h1>
     <DashboardToolbar
       :chart-count="sortedCharts.length"
       :sort-value="sortValue"

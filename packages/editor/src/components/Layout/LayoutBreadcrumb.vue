@@ -3,7 +3,7 @@ import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useChartConfig } from '@/stores/chartConfig'
 
-type Crumb = { label: string, to?: string }
+type Crumb = { label: string, to?: string, heading?: boolean }
 
 const route = useRoute()
 const config = useChartConfig()
@@ -12,7 +12,7 @@ const crumbs = computed<Crumb[]>(() => {
   const path = route.path
   if (path.startsWith('/edit/')) {
     const title = config._base.title.value || 'Untitled'
-    return [{ label: 'My Charts', to: '/charts' }, { label: title }]
+    return [{ label: 'My Charts', to: '/charts' }, { label: title, heading: true }]
   }
   if (path.startsWith('/charts')) {
     return [{ label: 'My Charts' }]
@@ -41,11 +41,14 @@ const crumbs = computed<Crumb[]>(() => {
       >
         {{ crumb.label }}
       </router-link>
-      <span
+      <component
+        :is="crumb.heading ? 'h1' : 'span'"
         v-else
         class="layout-breadcrumb__crumb layout-breadcrumb__crumb--active"
         :aria-current="i === crumbs.length - 1 ? 'page' : undefined"
-      >{{ crumb.label }}</span>
+      >
+        {{ crumb.label }}
+      </component>
       <span
         v-if="i < crumbs.length - 1"
         class="layout-breadcrumb__crumb-sep"
@@ -65,6 +68,10 @@ const crumbs = computed<Crumb[]>(() => {
 }
 
 .layout-breadcrumb__crumb {
+  margin: 0;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
   color: var(--bs-secondary-color);
   text-decoration: none;
   white-space: nowrap;

@@ -2,36 +2,43 @@
   <div
     class="step-card"
     :class="{ 'step-card--active': active, 'step-card--error': error }"
-    @click="$emit('select')"
   >
-    <div class="step-card__number">
-      {{ index + 1 }}
-    </div>
-    <div class="step-card__body">
-      <span
-        class="step-card__body__icon"
-        :class="iconClass"
-      >
-        <component
-          :is="iconComponent"
-          v-if="iconComponent"
-        />
-        <span v-else>{{ iconFallback }}</span>
+    <button
+      type="button"
+      class="step-card__header"
+      :aria-expanded="active"
+      @click="$emit('select')"
+    >
+      <span class="step-card__header__number">
+        {{ index + 1 }}
       </span>
-      <div class="step-card__body__text">
-        <div class="step-card__body__text__name">
-          {{ label }}
-        </div>
-        <div
-          class="step-card__body__text__desc"
-          :class="{ 'step-card__body__text__desc--error': error }"
+      <span class="step-card__header__body">
+        <span
+          class="step-card__header__body__icon"
+          :class="iconClass"
         >
-          {{ error || description }}
-        </div>
-      </div>
-    </div>
+          <component
+            :is="iconComponent"
+            v-if="iconComponent"
+          />
+          <span v-else>{{ iconFallback }}</span>
+        </span>
+        <span class="step-card__header__body__text">
+          <span class="step-card__header__body__text__name">
+            {{ label }}
+          </span>
+          <span
+            class="step-card__header__body__text__desc"
+            :class="{ 'step-card__header__body__text__desc--error': error }"
+          >
+            {{ error || description }}
+          </span>
+        </span>
+      </span>
+    </button>
     <div class="step-card__actions">
       <button
+        type="button"
         class="step-card__actions__btn"
         aria-label="Remove step"
         @click.stop="$emit('delete')"
@@ -47,7 +54,6 @@
     <div
       v-if="active && $slots.default"
       class="step-card__config"
-      @click.stop
     >
       <slot />
     </div>
@@ -125,7 +131,6 @@ const description = computed(() => {
   background: var(--bs-body-bg);
   overflow: hidden;
   transition: all 0.15s;
-  cursor: pointer;
 
   &:hover {
     border-color: var(--bs-primary-border-subtle);
@@ -151,113 +156,134 @@ const description = computed(() => {
     }
   }
 
-  &__number {
-    width: 2rem;
-    min-width: 2rem;
-    background: var(--bs-tertiary-bg);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: var(--bs-font-size-xs);
-    font-weight: 700;
-    color: var(--bs-secondary-color);
-    border-right: 1px solid var(--bs-border-color);
-
-    .step-card--active & {
-      background: var(--bs-primary-bg-subtle);
-      color: var(--bs-primary);
-    }
-
-    .step-card--error & {
-      background: var(--bs-danger-bg-subtle);
-      color: var(--bs-danger);
-    }
-  }
-
-  &__body {
+  &__header {
     flex: 1;
     min-width: 0;
-    padding: 0.5rem 0.75rem;
     display: flex;
-    align-items: center;
-    gap: 0.5rem;
+    align-items: stretch;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
 
-    &__icon {
-      width: 1.75rem;
-      height: 1.75rem;
-      border-radius: 0.25rem;
+    &:focus-visible {
+      outline: none;
+      box-shadow: inset var(--bc-focus-ring);
+    }
+
+    &__number {
+      width: 2rem;
+      min-width: 2rem;
+      background: var(--bs-tertiary-bg);
       display: flex;
       align-items: center;
       justify-content: center;
-      flex-shrink: 0;
       font-size: var(--bs-font-size-xs);
       font-weight: 700;
+      color: var(--bs-secondary-color);
+      border-right: 1px solid var(--bs-border-color);
 
-      :deep(svg) {
-        width: 1rem;
-        height: 1rem;
-      }
-
-      &--sort {
-        background: var(--bs-warning-bg-subtle);
-        color: var(--bs-warning-text-emphasis);
-      }
-
-      &--filter {
-        background: var(--bs-danger-bg-subtle);
-        color: var(--bs-danger-text-emphasis);
-      }
-
-      &--hide-columns {
-        background: var(--bs-secondary-bg);
-        color: var(--bs-secondary-text-emphasis);
-      }
-
-      &--transpose {
-        background: var(--bs-info-bg-subtle);
-        color: var(--bs-info-text-emphasis);
-      }
-
-      &--parse {
-        background: var(--bs-success-bg-subtle);
-        color: var(--bs-success-text-emphasis);
-      }
-
-      &--rename {
+      .step-card--active & {
         background: var(--bs-primary-bg-subtle);
-        color: var(--bs-primary-text-emphasis);
+        color: var(--bs-primary);
       }
 
-      &--group {
-        background: hsl(270 90% 95%);
-        color: hsl(270 70% 50%);
-      }
-
-      &--computed {
-        background: var(--bs-info-bg-subtle);
-        color: var(--bs-info-text-emphasis);
+      .step-card--error & {
+        background: var(--bs-danger-bg-subtle);
+        color: var(--bs-danger);
       }
     }
 
-    &__text {
+    &__body {
       flex: 1;
       min-width: 0;
+      padding: 0.5rem 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
 
-      &__name {
-        font-size: var(--bs-font-size-sm);
-        font-weight: 600;
-        color: var(--bs-body-color);
+      &__icon {
+        width: 1.75rem;
+        height: 1.75rem;
+        border-radius: 0.25rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        font-size: var(--bs-font-size-xs);
+        font-weight: 700;
+
+        :deep(svg) {
+          width: 1rem;
+          height: 1rem;
+        }
+
+        &--sort {
+          background: var(--bs-warning-bg-subtle);
+          color: var(--bs-warning-text-emphasis);
+        }
+
+        &--filter {
+          background: var(--bs-danger-bg-subtle);
+          color: var(--bs-danger-text-emphasis);
+        }
+
+        &--hide-columns {
+          background: var(--bs-secondary-bg);
+          color: var(--bs-secondary-text-emphasis);
+        }
+
+        &--transpose {
+          background: var(--bs-info-bg-subtle);
+          color: var(--bs-info-text-emphasis);
+        }
+
+        &--parse {
+          background: var(--bs-success-bg-subtle);
+          color: var(--bs-success-text-emphasis);
+        }
+
+        &--rename {
+          background: var(--bs-primary-bg-subtle);
+          color: var(--bs-primary-text-emphasis);
+        }
+
+        &--group {
+          background: hsl(270 90% 95%);
+          color: hsl(270 70% 50%);
+        }
+
+        &--computed {
+          background: var(--bs-info-bg-subtle);
+          color: var(--bs-info-text-emphasis);
+        }
       }
 
-      &__desc {
-        font-size: var(--bs-font-size-xs);
-        color: var(--bs-secondary-color);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+      &__text {
+        flex: 1;
+        min-width: 0;
+        display: block;
 
-        &--error {
-          color: var(--bs-danger);
+        &__name {
+          display: block;
+          font-size: var(--bs-font-size-sm);
+          font-weight: 600;
+          color: var(--bs-body-color);
+        }
+
+        &__desc {
+          display: block;
+          font-size: var(--bs-font-size-xs);
+          color: var(--bs-secondary-color);
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+
+          &--error {
+            color: var(--bs-danger);
+          }
         }
       }
     }
@@ -283,7 +309,8 @@ const description = computed(() => {
       opacity: 0;
       transition: all 0.1s;
 
-      .step-card:hover & {
+      .step-card:hover &,
+      &:focus-visible {
         opacity: 1;
       }
 

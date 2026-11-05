@@ -1,16 +1,13 @@
 <template>
-  <div
+  <button
+    type="button"
     class="dashboard-new-card"
     :class="cardClassList"
-    role="button"
-    tabindex="0"
     @click="$emit('click')"
-    @keydown.enter="$emit('click')"
-    @keydown.space.prevent="$emit('click')"
   >
     <IconPhPlus class="dashboard-new-card__icon" />
     <span class="dashboard-new-card__label">New Chart</span>
-  </div>
+  </button>
 </template>
 
 <script setup lang="ts">
@@ -48,6 +45,8 @@ const cardClassList = computed(() => ({
               border-color var(--bc-duration-base) var(--bc-ease),
               background var(--bc-duration-base) var(--bc-ease);
   outline: none;
+  padding: 0;
+  width: 100%;
 
   &:hover {
     border-color: var(--bs-primary);

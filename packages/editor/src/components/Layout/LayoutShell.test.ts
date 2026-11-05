@@ -14,7 +14,7 @@ beforeEach(() => {
   isNarrowRef.value = true
 })
 
-async function mountShell(initialPath = '/charts') {
+async function mountShell(initialPath = '/charts', attach = false) {
   const router = createRouter({
     history: createMemoryHistory(),
     routes: [
@@ -26,6 +26,7 @@ async function mountShell(initialPath = '/charts') {
   await router.push(initialPath)
   await router.isReady()
   return mount(LayoutShell, {
+    attachTo: attach ? document.body : undefined,
     slots: { default: '<div class="slot-content">slot</div>' },
     global: {
       stubs: { 'router-link': RouterLinkStub, 'BOffcanvas': { template: '<div class="b-offcanvas-stub" :data-open="modelValue"><slot /></div>', props: ['modelValue', 'placement', 'noHeader'] } },
@@ -33,6 +34,17 @@ async function mountShell(initialPath = '/charts') {
     },
   })
 }
+
+describe('LayoutShell — skip link', () => {
+  it('renders the skip link first and targets main', async () => {
+    const wrapper = await mountShell('/charts', true)
+    const first = document.body.querySelector('a, button, input, [tabindex]') as HTMLElement
+    expect(first.getAttribute('href')).toBe('#main')
+    expect(first.textContent?.trim()).toBe('Skip to content')
+    expect(wrapper.find('main#main').exists()).toBe(true)
+    wrapper.unmount()
+  })
+})
 
 describe('LayoutShell — sidebarOpen state', () => {
   it('starts with sidebarOpen=false (offcanvas closed)', async () => {

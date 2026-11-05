@@ -20,7 +20,7 @@ describe('SceneTimeline', () => {
       props: { scenes: twoScenes, activeIndex: 0 },
     })
     const items = wrapper.findAllComponents({ name: 'SceneTimelineItem' })
-    await items[1].trigger('click')
+    await items[1].find('.scene-timeline-item__select').trigger('click')
     expect(wrapper.emitted('update:activeIndex')?.[0]).toEqual([1])
   })
 

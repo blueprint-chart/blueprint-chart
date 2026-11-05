@@ -16,12 +16,12 @@ interface StepMeta {
 }
 
 export const stepMeta: Record<TransformType, StepMeta> = {
-  [TransformType.Sort]: { iconClass: 'step-card__body__icon--sort', iconComponent: IPhSortAscending, fallback: 'S', label: 'Sort' },
-  [TransformType.Filter]: { iconClass: 'step-card__body__icon--filter', iconComponent: IPhFunnel, fallback: 'F', label: 'Filter' },
-  [TransformType.HideColumns]: { iconClass: 'step-card__body__icon--hide-columns', iconComponent: IPhEyeSlash, fallback: 'H', label: 'Hide Columns' },
-  [TransformType.Transpose]: { iconClass: 'step-card__body__icon--transpose', iconComponent: IPhArrowsClockwise, fallback: 'T', label: 'Transpose' },
-  [TransformType.Parse]: { iconClass: 'step-card__body__icon--parse', iconComponent: IPhWrench, fallback: 'P', label: 'Parse' },
-  [TransformType.Rename]: { iconClass: 'step-card__body__icon--rename', iconComponent: IPhPencilSimple, fallback: 'R', label: 'Rename' },
-  [TransformType.GroupBy]: { iconClass: 'step-card__body__icon--group', iconComponent: IPhStack, fallback: 'G', label: 'Group By' },
-  [TransformType.Computed]: { iconClass: 'step-card__body__icon--computed', fallback: 'C', label: 'Computed' },
+  [TransformType.Sort]: { iconClass: 'step-card__header__body__icon--sort', iconComponent: IPhSortAscending, fallback: 'S', label: 'Sort' },
+  [TransformType.Filter]: { iconClass: 'step-card__header__body__icon--filter', iconComponent: IPhFunnel, fallback: 'F', label: 'Filter' },
+  [TransformType.HideColumns]: { iconClass: 'step-card__header__body__icon--hide-columns', iconComponent: IPhEyeSlash, fallback: 'H', label: 'Hide Columns' },
+  [TransformType.Transpose]: { iconClass: 'step-card__header__body__icon--transpose', iconComponent: IPhArrowsClockwise, fallback: 'T', label: 'Transpose' },
+  [TransformType.Parse]: { iconClass: 'step-card__header__body__icon--parse', iconComponent: IPhWrench, fallback: 'P', label: 'Parse' },
+  [TransformType.Rename]: { iconClass: 'step-card__header__body__icon--rename', iconComponent: IPhPencilSimple, fallback: 'R', label: 'Rename' },
+  [TransformType.GroupBy]: { iconClass: 'step-card__header__body__icon--group', iconComponent: IPhStack, fallback: 'G', label: 'Group By' },
+  [TransformType.Computed]: { iconClass: 'step-card__header__body__icon--computed', fallback: 'C', label: 'Computed' },
 }

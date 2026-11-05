@@ -13,6 +13,7 @@ declare module 'vue-router' {
     bare?: boolean
     /** Set by /copy beforeEnter so the route component can router.replace() to it. */
     copyTarget?: string
+    title?: string
   }
 }
 
@@ -79,10 +80,12 @@ const router = createRouter({
     {
       path: '/charts',
       component: DashboardPage,
+      meta: { title: 'My charts' },
     },
     {
       path: '/new',
       component: WizardShell,
+      meta: { title: 'New chart' },
       beforeEnter: () => {
         const { prepareNew } = useChartSession()
         prepareNew()
@@ -119,16 +122,19 @@ const router = createRouter({
     {
       path: '/edit/:id/data',
       component: WizardShell,
+      meta: { title: 'Data' },
       beforeEnter: loadSession,
     },
     {
       path: '/edit/:id/visualize',
       component: WizardShell,
+      meta: { title: 'Visualize' },
       beforeEnter: loadSession,
     },
     {
       path: '/edit/:id/export',
       component: WizardShell,
+      meta: { title: 'Export' },
       beforeEnter: loadSession,
     },
     {
@@ -137,6 +143,10 @@ const router = createRouter({
       meta: { bare: true },
     },
   ],
+})
+
+router.afterEach((to) => {
+  document.title = to.meta.title ? `${to.meta.title} · Blueprint Chart` : 'Blueprint Chart'
 })
 
 export default router

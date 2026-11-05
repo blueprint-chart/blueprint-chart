@@ -46,6 +46,11 @@ describe('LayoutBreadcrumb', () => {
     expect(active.text()).toBe('My Charts')
   })
 
+  it('renders the chart title as the page h1 on edit routes', async () => {
+    const wrapper = await mountBreadcrumb('/edit/abc')
+    expect(wrapper.find('h1').text()).toBe('Untitled')
+  })
+
   it('renders nothing on unmatched routes', async () => {
     const wrapper = await mountBreadcrumb('/unknown')
     expect(wrapper.find('nav[aria-label="Breadcrumb"]').exists()).toBe(false)

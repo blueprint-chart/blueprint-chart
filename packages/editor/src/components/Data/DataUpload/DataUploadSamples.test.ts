@@ -26,6 +26,12 @@ function mountSamples() {
 }
 
 describe('DataUploadSamples', () => {
+  it('renders sample cards as native buttons', () => {
+    const w = mountSamples()
+    const cards = w.findAll('button.sample-card[type="button"]')
+    expect(cards).toHaveLength(2)
+  })
+
   it('renders a card for each sample', () => {
     const w = mountSamples()
     const cards = w.findAll('.sample-card')

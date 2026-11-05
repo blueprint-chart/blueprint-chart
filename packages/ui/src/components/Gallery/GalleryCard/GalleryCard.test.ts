@@ -29,14 +29,26 @@ describe('GalleryCard', () => {
 
   it('emits click on click', async () => {
     const wrapper = mount(GalleryCard, { props: { title: 'My Chart' } })
-    await wrapper.trigger('click')
+    await wrapper.find('button.gallery-card__meta__title').trigger('click')
     expect(wrapper.emitted('click')).toHaveLength(1)
   })
 
-  it('emits click on Enter key', async () => {
-    const wrapper = mount(GalleryCard, { props: { title: 'My Chart' } })
-    await wrapper.trigger('keydown.enter')
-    expect(wrapper.emitted('click')).toHaveLength(1)
+  it('is not itself a button and nests no buttons', () => {
+    const wrapper = mount(GalleryCard, {
+      props: { title: 'My Chart' },
+      slots: { actions: '<button class="act">Edit</button>' },
+    })
+    expect(wrapper.attributes('role')).toBeUndefined()
+    expect(wrapper.element.querySelectorAll('button button')).toHaveLength(0)
+  })
+
+  it('does not emit click when Enter is pressed on an action', async () => {
+    const wrapper = mount(GalleryCard, {
+      props: { title: 'My Chart' },
+      slots: { actions: '<button class="act">Edit</button>' },
+    })
+    await wrapper.find('.act').trigger('keydown.enter')
+    expect(wrapper.emitted('click')).toBeUndefined()
   })
 
   it('renders thumb image when thumbSrc is provided', () => {
@@ -169,7 +181,7 @@ describe('GalleryCard loading states', () => {
 
   it('emits click normally when not loading', async () => {
     const wrapper = mount(GalleryCard, { props: { title: 'T' } })
-    await wrapper.trigger('click')
+    await wrapper.find('button.gallery-card__meta__title').trigger('click')
     expect(wrapper.emitted('click')).toHaveLength(1)
   })
 })
