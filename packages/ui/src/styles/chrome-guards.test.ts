@@ -8,11 +8,13 @@ const root = fileURLToPath(new URL('../../../', import.meta.url))
 const SCAN_ROOTS = ['ui/src', 'editor/src', 'docs/src/.vitepress']
 const SOURCE_EXT = /\.(vue|scss|css|ts)$/
 const SKIPPED_FILE = /\.(test\.ts|story\.vue)$/
-const SKIPPED_DIRS = ['assets/chart-thumbnails', 'assets/images', '/node_modules', '/dist', '/cache']
+const SKIPPED_PATHS = ['assets/chart-thumbnails', 'assets/images']
+const SKIPPED_SEGMENTS = ['node_modules', 'dist', 'cache']
 
 function isSkipped(path: string) {
   const rel = path.split(sep).join('/')
-  return SKIPPED_DIRS.some(skipped => rel.includes(skipped))
+  return SKIPPED_PATHS.some(skipped => rel.includes(skipped))
+    || rel.split('/').some(segment => SKIPPED_SEGMENTS.includes(segment))
 }
 
 function walk(dir: string): string[] {
@@ -44,6 +46,8 @@ describe('walker', () => {
     expect(isSkipped('docs/src/.vitepress/cache/deps/chunk.js')).toBe(true)
     expect(isSkipped('ui/node_modules/vue/index.js')).toBe(true)
     expect(isSkipped('ui/src/components/App/App.vue')).toBe(false)
+    expect(isSkipped('ui/src/distribution/Chart.vue')).toBe(false)
+    expect(isSkipped('editor/src/stores/cacheStore.ts')).toBe(false)
   })
 
   it('never lists a dist or cache file', () => {
@@ -99,5 +103,45 @@ describe('type floor', () => {
 
   it('has no font-size below 12px', () => {
     expect(sourceFiles().flatMap(tooSmall)).toEqual([])
+  })
+})
+
+describe('motion', () => {
+  const LITERAL_DURATION = /(?:transition|animation)(?:-duration)?:[^;{}]*\b\d*\.?\d+m?s\b/g
+  const NO_PREFERENCE = /prefers-reduced-motion:\s*no-preference/
+
+  function enclosingHeaders(source: string, index: number) {
+    const headers: string[] = []
+    let start = 0
+    for (let i = 0; i < index; i++) {
+      if (source[i] === '{') {
+        headers.push(source.slice(start, i))
+        start = i + 1
+      }
+      else if (source[i] === '}') {
+        headers.pop()
+        start = i + 1
+      }
+      else if (source[i] === ';') {
+        start = i + 1
+      }
+    }
+    return headers
+  }
+
+  function unguarded(file: string) {
+    const full = readFileSync(join(root, file), 'utf8')
+    const styleStart = file.endsWith('.vue') ? Math.max(full.indexOf('<style'), 0) : 0
+    const source = full.slice(styleStart)
+    if (file.endsWith('.ts')) {
+      return []
+    }
+    return [...source.matchAll(LITERAL_DURATION)]
+      .filter(({ index }) => !enclosingHeaders(source, index).some(header => NO_PREFERENCE.test(header)))
+      .map(({ index }) => `${file}:${full.slice(0, styleStart + index).split('\n').length}`)
+  }
+
+  it('wraps literal durations in prefers-reduced-motion: no-preference', () => {
+    expect(sourceFiles().flatMap(unguarded)).toEqual([])
   })
 })

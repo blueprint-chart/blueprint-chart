@@ -148,6 +148,7 @@ $grid-breakpoints: (
     'sidebar topbar'
     'sidebar main';
   height: 100vh;
+  height: 100dvh;
   overflow: hidden;
 
   // Narrow viewports: collapse to single column, hide sidebar.

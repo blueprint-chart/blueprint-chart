@@ -51,7 +51,7 @@ const actionClassList = computed(() => ({
   border: 1px solid var(--bs-border-color);
   background: var(--bc-tile-bg);
   cursor: pointer;
-  transition: all 0.13s;
+  transition: all var(--bc-duration-base);
   text-align: left;
   width: 100%;
 

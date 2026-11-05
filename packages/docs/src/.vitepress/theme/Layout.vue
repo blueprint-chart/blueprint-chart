@@ -394,9 +394,9 @@ function openSidebar() {
   white-space: nowrap;
   cursor: pointer;
   transition:
-    background var(--bc-duration-base, 150ms) var(--bc-ease, ease),
-    border-color var(--bc-duration-base, 150ms) var(--bc-ease, ease),
-    color var(--bc-duration-base, 150ms) var(--bc-ease, ease);
+    background var(--bc-duration-base) var(--bc-ease),
+    border-color var(--bc-duration-base) var(--bc-ease),
+    color var(--bc-duration-base) var(--bc-ease);
 }
 .docs-btn-outline:hover {
   background: var(--bc-wash-firm, rgba(0, 0, 0, 0.06));
@@ -442,8 +442,8 @@ function openSidebar() {
   cursor: pointer;
   text-decoration: none;
   transition:
-    background var(--bc-duration-base, 150ms) var(--bc-ease, ease),
-    border-color var(--bc-duration-base, 150ms) var(--bc-ease, ease);
+    background var(--bc-duration-base) var(--bc-ease),
+    border-color var(--bc-duration-base) var(--bc-ease);
 }
 .docs-btn-primary:hover {
   background: var(--bc-btn-strong-hover-bg);

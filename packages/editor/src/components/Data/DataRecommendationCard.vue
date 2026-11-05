@@ -87,7 +87,7 @@ const fitnessLabel = computed(() => {
   border-radius: var(--bs-border-radius);
   overflow: hidden;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: all var(--bc-duration-base);
   background: var(--bs-body-bg);
   color: var(--bs-body-color);
   text-align: left;

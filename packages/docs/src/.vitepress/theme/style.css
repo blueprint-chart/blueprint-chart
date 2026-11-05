@@ -194,7 +194,7 @@
   letter-spacing: 0.01em;
   color: var(--vp-c-text-2);
   cursor: pointer;
-  transition: color 0.15s ease, background-color 0.15s ease;
+  transition: color var(--bc-duration-base) ease, background-color var(--bc-duration-base) ease;
 }
 
 .bpc-block__tab:hover:not(:disabled) { color: var(--vp-c-text-1); }
@@ -270,12 +270,12 @@
   color: var(--vp-c-brand-1);
   text-decoration: none;
   font-weight: 500;
-  transition: color 0.15s ease;
+  transition: color var(--bc-duration-base) ease;
 }
 
 .bpc-block__editor-link:hover { color: var(--vp-c-brand-2); }
 
-.bpc-block__editor-link__glyph { transition: transform 0.15s ease; }
+.bpc-block__editor-link__glyph { transition: transform var(--bc-duration-base) ease; }
 
 .bpc-block__editor-link:hover .bpc-block__editor-link__glyph {
   transform: translateX(2px);

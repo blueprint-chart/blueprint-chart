@@ -101,7 +101,7 @@ onMounted(() => {
   border: 1px solid var(--bs-border-color);
   border-radius: var(--bs-border-radius);
   cursor: pointer;
-  transition: all 0.15s;
+  transition: all var(--bc-duration-base);
   background: var(--bs-body-bg);
   overflow: hidden;
   padding: 0;

@@ -104,10 +104,10 @@ const tiles: Tile[] = [
   text-decoration: none;
   overflow: hidden;
   transition:
-    border-color var(--bc-duration-base, 150ms) var(--bc-ease, ease),
-    transform var(--bc-duration-base, 150ms) var(--bc-ease, ease),
-    box-shadow var(--bc-duration-base, 150ms) var(--bc-ease, ease),
-    background var(--bc-duration-base, 150ms) var(--bc-ease, ease);
+    border-color var(--bc-duration-base) var(--bc-ease),
+    transform var(--bc-duration-base) var(--bc-ease),
+    box-shadow var(--bc-duration-base) var(--bc-ease),
+    background var(--bc-duration-base) var(--bc-ease);
 }
 
 .section-tile:hover {
@@ -151,8 +151,8 @@ const tiles: Tile[] = [
   opacity: 0;
   transform: translateX(-0.25rem);
   transition:
-    opacity var(--bc-duration-base, 150ms) var(--bc-ease, ease),
-    transform var(--bc-duration-base, 150ms) var(--bc-ease, ease);
+    opacity var(--bc-duration-base) var(--bc-ease),
+    transform var(--bc-duration-base) var(--bc-ease);
   color: var(--vp-c-brand-1);
 }
 

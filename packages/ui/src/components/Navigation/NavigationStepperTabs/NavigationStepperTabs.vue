@@ -165,7 +165,7 @@ function onKeydown(event: KeyboardEvent, index: number) {
     font-weight: 500;
     padding: 10px 12px;
     border-bottom: 2px solid transparent;
-    transition: color var(--bc-duration-base, 150ms) var(--bc-ease, cubic-bezier(0.4, 0, 0.2, 1));
+    transition: color var(--bc-duration-base) var(--bc-ease);
 
     &:hover:not(&--disabled):not(&--current) {
       color: var(--bs-body-color);

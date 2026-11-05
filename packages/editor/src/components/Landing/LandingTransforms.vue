@@ -283,7 +283,7 @@ const steps: Step[] = [
     border-right: 1px solid var(--bc-hairline);
     background: var(--bc-content-bg);
     cursor: pointer;
-    transition: background 0.15s;
+    transition: background var(--bc-duration-base);
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -312,7 +312,7 @@ const steps: Step[] = [
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
-      transition: all 0.15s;
+      transition: all var(--bc-duration-base);
 
       .transforms-demo__step--active & {
         background: var(--bs-emphasis-color);
@@ -409,7 +409,9 @@ const steps: Step[] = [
         stroke-width: 1.5;
         stroke-dasharray: 5 4;
         stroke-linecap: round;
-        animation: wire-flow 1s linear infinite;
+        @media (prefers-reduced-motion: no-preference) {
+          animation: wire-flow 1s linear infinite;
+        }
       }
 
       &__dot {

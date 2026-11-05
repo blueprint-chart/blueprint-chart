@@ -113,7 +113,7 @@ function onFileSelect(e: globalThis.Event) {
   justify-content: center;
   padding: 2rem 1.5rem;
   cursor: pointer;
-  transition: background 0.15s;
+  transition: background var(--bc-duration-base);
   min-height: 180px;
 
   &:hover {
@@ -155,7 +155,7 @@ function onFileSelect(e: globalThis.Event) {
     border-radius: var(--bs-border-radius);
     cursor: pointer;
     font-family: inherit;
-    transition: all 0.15s;
+    transition: all var(--bc-duration-base);
 
     &:hover {
       border-color: var(--bs-primary);

@@ -130,7 +130,7 @@ const description = computed(() => {
   border-radius: var(--bs-border-radius);
   background: var(--bs-body-bg);
   overflow: hidden;
-  transition: all 0.15s;
+  transition: all var(--bc-duration-base);
 
   &:hover {
     border-color: var(--bs-primary-border-subtle);
@@ -307,7 +307,7 @@ const description = computed(() => {
       align-items: center;
       justify-content: center;
       opacity: 0;
-      transition: all 0.1s;
+      transition: all var(--bc-duration-fast);
 
       .step-card:hover &,
       &:focus-visible {

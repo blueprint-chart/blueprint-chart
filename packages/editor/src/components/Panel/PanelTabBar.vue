@@ -89,7 +89,7 @@ watch(activeTabEl, scrollActiveTabIntoView)
     background: transparent;
     color: var(--bs-secondary-color);
     border-radius: var(--bc-radius-xs);
-    transition: background-color 0.15s, color 0.15s, font-weight 0.15s;
+    transition: background-color var(--bc-duration-base), color var(--bc-duration-base), font-weight var(--bc-duration-base);
 
     &__icon {
       width: 1rem;

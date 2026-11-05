@@ -68,7 +68,7 @@ const router = createRouter({
     }
     // Smooth-scroll to in-page anchor (e.g. landing section links)
     if (to.hash) {
-      return { el: to.hash, behavior: 'smooth' }
+      return { el: to.hash, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }
     }
     // Default: scroll to top on every route change
     return { top: 0 }

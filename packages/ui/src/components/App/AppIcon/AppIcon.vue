@@ -159,20 +159,22 @@ const classList = computed(() => {
     }
   }
 
-  &--spin :deep(svg) {
-    animation: app-icon-spin var(--app-icon-spin-duration, 1s) linear infinite;
-  }
+  @media (prefers-reduced-motion: no-preference) {
+    &--spin :deep(svg) {
+      animation: app-icon-spin var(--app-icon-spin-duration, 1s) linear infinite;
+    }
 
-  &--spin-reverse :deep(svg) {
-    animation: app-icon-spin-reverse var(--app-icon-spin-duration, 1s) linear infinite;
-  }
+    &--spin-reverse :deep(svg) {
+      animation: app-icon-spin-reverse var(--app-icon-spin-duration, 1s) linear infinite;
+    }
 
-  &--beat :deep(svg) {
-    animation: app-icon-beat var(--app-icon-beat-duration, 1s) ease-in-out infinite;
-  }
+    &--beat :deep(svg) {
+      animation: app-icon-beat var(--app-icon-beat-duration, 1s) ease-in-out infinite;
+    }
 
-  &--fade :deep(svg) {
-    animation: app-icon-fade var(--app-icon-fade-duration, 1s) ease-in-out infinite;
+    &--fade :deep(svg) {
+      animation: app-icon-fade var(--app-icon-fade-duration, 1s) ease-in-out infinite;
+    }
   }
 }
 </style>

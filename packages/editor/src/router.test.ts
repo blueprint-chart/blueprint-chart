@@ -17,6 +17,24 @@ describe('router titles', () => {
     expect(document.title).toBe('Blueprint Chart')
   })
 
+  describe('scrollBehavior', () => {
+    const scroll = (to: object) => router.options.scrollBehavior!(to as never, {} as never, null)
+
+    afterEach(() => {
+      vi.unstubAllGlobals()
+    })
+
+    it('smooth-scrolls to hashes by default', async () => {
+      vi.stubGlobal('matchMedia', () => ({ matches: false }))
+      expect(await scroll({ hash: '#features' })).toMatchObject({ behavior: 'smooth' })
+    })
+
+    it('does not animate hash scrolling under reduced motion', async () => {
+      vi.stubGlobal('matchMedia', (query: string) => ({ matches: query === '(prefers-reduced-motion: reduce)' }))
+      expect(await scroll({ hash: '#features' })).toMatchObject({ behavior: 'auto' })
+    })
+  })
+
   describe('focus management', () => {
     afterEach(() => {
       document.body.innerHTML = ''

@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test'
 
-const ROUTES = ['/']
+const ROUTES = ['/', '/charts', '/new']
 const THEMES = ['light', 'dark']
 
 for (const theme of THEMES) {

@@ -221,7 +221,7 @@ function setAggFn(col: string, fn: string) {
         border: 1px solid var(--bs-border-color);
         border-radius: var(--bs-border-radius);
         background: var(--bs-body-bg);
-        transition: all 0.15s;
+        transition: all var(--bc-duration-base);
 
         &:hover {
           border-color: var(--bs-primary);

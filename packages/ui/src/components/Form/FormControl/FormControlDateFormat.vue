@@ -148,7 +148,7 @@ watch(() => model.value, (val) => {
         align-items: center;
         padding: 0.375rem 0.625rem;
         cursor: pointer;
-        transition: background 0.1s ease;
+        transition: background var(--bc-duration-fast) ease;
         gap: 0.5rem;
 
         &:hover {
@@ -220,7 +220,7 @@ watch(() => model.value, (val) => {
         font-size: var(--bs-font-size-sm);
         color: var(--bs-body-color);
         outline: none;
-        transition: border-color 0.12s ease, box-shadow 0.12s ease;
+        transition: border-color var(--bc-duration-fast) ease, box-shadow var(--bc-duration-fast) ease;
 
         &:focus {
           border-color: var(--bs-primary);

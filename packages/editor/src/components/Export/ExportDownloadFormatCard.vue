@@ -69,7 +69,7 @@ defineEmits<{
   border: 1px solid var(--bs-border-color);
   border-radius: var(--bs-border-radius);
   background: var(--bs-body-bg);
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition: border-color var(--bc-duration-base), box-shadow var(--bc-duration-base);
 
   &:hover {
     border-color: var(--bs-primary-border-subtle);

@@ -186,6 +186,7 @@ const tabOptions = [
   align-items: center;
   justify-content: center;
   min-height: calc(100vh - 200px);
+  min-height: calc(100dvh - 200px);
   max-width: 640px;
   margin: 0 auto;
   padding: 2rem 0;
@@ -218,7 +219,7 @@ const tabOptions = [
     background: none;
     border: none;
     cursor: pointer;
-    transition: opacity 0.15s;
+    transition: opacity var(--bc-duration-base);
 
     &:hover {
       opacity: 0.8;
@@ -306,7 +307,7 @@ const tabOptions = [
   overflow: hidden;
   background: var(--bs-body-bg);
   box-shadow: var(--bs-card-box-shadow);
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition: border-color var(--bc-duration-slow), box-shadow var(--bc-duration-slow);
 
   &:focus-within {
     border-color: var(--bs-primary);
@@ -338,7 +339,7 @@ const tabOptions = [
       align-items: center;
       justify-content: center;
       gap: 0.375rem;
-      transition: all 0.15s;
+      transition: all var(--bc-duration-base);
       position: relative;
 
       &:hover {

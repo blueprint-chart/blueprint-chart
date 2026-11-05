@@ -65,7 +65,7 @@ function buttonClassList(value: string) {
       border: none;
       background: transparent;
       color: var(--bs-secondary-color);
-      transition: background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+      transition: background-color var(--bc-duration-base) ease, color var(--bc-duration-base) ease, box-shadow var(--bc-duration-base) ease;
     }
 
     &:hover.btn {
@@ -99,7 +99,7 @@ function buttonClassList(value: string) {
       border: none;
       background: transparent;
       color: var(--bs-secondary-color);
-      transition: color 0.15s ease, opacity 0.15s ease;
+      transition: color var(--bc-duration-base) ease, opacity var(--bc-duration-base) ease;
 
       &:hover {
         background: transparent;

@@ -54,9 +54,9 @@ function onClick() {
   line-height: 1;
   cursor: pointer;
   transition:
-    background-color var(--bc-duration-base, 0.15s) var(--bc-ease, ease),
-    box-shadow var(--bc-duration-base, 0.15s) var(--bc-ease, ease),
-    opacity var(--bc-duration-base, 0.15s) var(--bc-ease, ease);
+    background-color var(--bc-duration-base) var(--bc-ease),
+    box-shadow var(--bc-duration-base) var(--bc-ease),
+    opacity var(--bc-duration-base) var(--bc-ease);
 
   &:hover {
     background: var(--bs-primary);

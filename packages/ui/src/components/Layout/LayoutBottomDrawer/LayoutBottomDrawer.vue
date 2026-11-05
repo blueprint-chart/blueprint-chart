@@ -175,7 +175,7 @@ const drawerStyle = computed<CSSProperties>(() =>
   box-shadow: var(--bc-shadow-overlay);
   border: 1px solid var(--bc-hairline);
   overflow: hidden;
-  transition: transform 0.25s ease;
+  transition: transform var(--bc-duration-slow) var(--bc-ease);
   will-change: transform;
 
   &--dragging {
@@ -244,11 +244,19 @@ const drawerStyle = computed<CSSProperties>(() =>
 
 .drawer-enter-active,
 .drawer-leave-active {
-  transition: transform 0.25s ease;
+  transition: transform var(--bc-duration-slow) var(--bc-ease), opacity var(--bc-duration-slow) var(--bc-ease);
 }
 
 .drawer-enter-from,
 .drawer-leave-to {
-  transform: translateY(100%);
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .drawer-enter-from,
+  .drawer-leave-to {
+    opacity: 1;
+    transform: translateY(100%);
+  }
 }
 </style>

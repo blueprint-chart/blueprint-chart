@@ -30,7 +30,7 @@ $btn-padding-x: 0.75rem !default;
 $btn-font-size: 0.8125rem !default;
 $btn-box-shadow: 0 0 0 transparent !default;
 $btn-font-weight: 500 !default;
-$btn-transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out, scale .15s ease-out !default;
+$btn-transition: color var(--bc-duration-base) ease-in-out, background-color var(--bc-duration-base) ease-in-out, border-color var(--bc-duration-base) ease-in-out, box-shadow var(--bc-duration-base) ease-in-out, scale var(--bc-duration-base) ease-out !default;
 
 // Floating layers only
 $dropdown-box-shadow: var(--bs-box-shadow-lg) !default;

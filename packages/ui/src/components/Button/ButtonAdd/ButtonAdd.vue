@@ -35,7 +35,7 @@ defineEmits<{
     border: 1px dashed var(--bs-border-color);
     border-radius: var(--bs-border-radius);
     font-size: var(--bs-font-size-sm);
-    transition: all 0.15s ease;
+    transition: all var(--bc-duration-base) ease;
     text-align: center;
 
     --bs-btn-bg: transparent;

@@ -28,7 +28,7 @@ const { showDimensions } = useEditorPanel()
   background: none;
   cursor: pointer;
   color: var(--bs-secondary-color);
-  transition: background-color 0.15s, color 0.15s;
+  transition: background-color var(--bc-duration-base), color var(--bc-duration-base);
 
   &:hover {
     background: var(--bs-tertiary-bg);

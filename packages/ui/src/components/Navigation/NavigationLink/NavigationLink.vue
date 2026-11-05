@@ -54,7 +54,7 @@ function rootClass(routerActive: boolean) {
   font-weight: 500;
   color: var(--bs-secondary-color);
   text-decoration: none;
-  transition: color 0.12s ease, background-color 0.12s ease;
+  transition: color var(--bc-duration-fast) ease, background-color var(--bc-duration-fast) ease;
 
   &:hover {
     color: var(--bs-body-color);

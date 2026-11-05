@@ -68,7 +68,7 @@ const rectStyle = computed(() => {
     pointer-events: none;
     background: var(--bs-primary);
     opacity: 0.35;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all var(--bc-duration-slow) var(--bc-ease);
   }
 
   &__crosshair-h {
@@ -92,7 +92,7 @@ const rectStyle = computed(() => {
     border-radius: var(--rect-radius);
     width: var(--rect-w);
     height: var(--rect-h);
-    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition: all var(--bc-duration-slow) cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 }
 </style>

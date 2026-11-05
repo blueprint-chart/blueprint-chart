@@ -66,7 +66,7 @@ function dotClass(ct: ColumnType | undefined): string {
   font-size: var(--bs-font-size-sm);
   font-weight: 600;
   cursor: pointer;
-  transition: filter 0.15s, border-color 0.15s, box-shadow 0.15s;
+  transition: filter var(--bc-duration-base), border-color var(--bc-duration-base), box-shadow var(--bc-duration-base);
 
   &:hover {
     filter: brightness(0.95);

@@ -110,7 +110,7 @@ function onSelect(type: string) {
       padding: 0.5rem 0.75rem;
       cursor: pointer;
       font-size: var(--bs-font-size-sm);
-      transition: background 0.1s;
+      transition: background var(--bc-duration-fast);
       border: none;
       background: none;
       width: 100%;

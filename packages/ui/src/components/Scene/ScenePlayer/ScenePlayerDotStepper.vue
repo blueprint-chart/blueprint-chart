@@ -133,7 +133,7 @@ defineEmits<{
     cursor: pointer;
     flex-shrink: 0;
     padding: 0;
-    transition: background 0.15s ease;
+    transition: background var(--bc-duration-base) ease;
 
     &:hover {
       background: var(--bc-scene-player-accent-hover, #1e4888);
@@ -154,7 +154,7 @@ defineEmits<{
       cursor: pointer;
       background: var(--bc-scene-player-track, #e2e0db);
       opacity: 0.4;
-      transition: width 0.2s ease, background 0.2s ease, opacity 0.2s ease;
+      transition: width var(--bc-duration-slow) ease, background var(--bc-duration-slow) ease, opacity var(--bc-duration-slow) ease;
 
       &--completed {
         background: var(--bc-scene-player-accent, #2c5aa0);

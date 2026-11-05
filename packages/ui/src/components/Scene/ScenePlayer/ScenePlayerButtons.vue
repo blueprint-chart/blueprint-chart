@@ -100,7 +100,7 @@ defineEmits<{
       font-size: var(--bs-font-size-sm);
       font-weight: 500;
       cursor: pointer;
-      transition: border-color 0.15s, color 0.15s;
+      transition: border-color var(--bc-duration-base), color var(--bc-duration-base);
       line-height: 1.4;
 
       &:hover:not(:disabled) {

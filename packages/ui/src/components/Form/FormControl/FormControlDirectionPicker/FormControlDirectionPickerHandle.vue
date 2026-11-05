@@ -34,7 +34,7 @@ const shapeClass = computed(() => `direction-picker-handle--${props.shape}`)
   z-index: 4;
   padding: 0;
   transform: translate(-50%, -50%);
-  transition: all 0.12s;
+  transition: all var(--bc-duration-fast);
 
   &:hover {
     border-color: var(--bs-primary);

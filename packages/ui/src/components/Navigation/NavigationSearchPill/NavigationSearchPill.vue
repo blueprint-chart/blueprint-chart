@@ -59,7 +59,7 @@ const rootClass = computed(() => ({
   color: var(--bs-secondary-color);
   font-size: 0.875rem;
   cursor: pointer;
-  transition: background-color 0.12s ease, color 0.12s ease;
+  transition: background-color var(--bc-duration-fast) ease, color var(--bc-duration-fast) ease;
 
   &:hover {
     background: var(--bs-tertiary-bg);

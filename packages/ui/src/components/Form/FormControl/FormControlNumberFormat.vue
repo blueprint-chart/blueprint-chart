@@ -329,7 +329,7 @@ const previewSamples = computed(() =>
           border-radius: 4px;
           color: var(--bs-secondary-color);
           cursor: pointer;
-          transition: all 0.12s ease;
+          transition: all var(--bc-duration-fast) ease;
           line-height: 1.6;
 
           &:hover {
@@ -375,7 +375,7 @@ const previewSamples = computed(() =>
           font-size: var(--bs-font-size-sm);
           color: var(--bs-body-color);
           outline: none;
-          transition: border-color 0.12s ease, box-shadow 0.12s ease;
+          transition: border-color var(--bc-duration-fast) ease, box-shadow var(--bc-duration-fast) ease;
 
           &:focus {
             border-color: var(--bs-primary);
@@ -406,7 +406,7 @@ const previewSamples = computed(() =>
           border-right: 1px solid var(--bs-border-color);
           color: var(--bs-secondary-color);
           cursor: pointer;
-          transition: all 0.12s ease;
+          transition: all var(--bc-duration-fast) ease;
           white-space: nowrap;
 
           &:last-child {

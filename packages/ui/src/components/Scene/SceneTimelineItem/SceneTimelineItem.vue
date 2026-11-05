@@ -144,7 +144,7 @@ defineEmits<{
     font-size: var(--bs-font-size-xs);
     line-height: 1;
     opacity: 0;
-    transition: opacity 0.15s ease;
+    transition: opacity var(--bc-duration-base) ease;
     cursor: pointer;
     z-index: 1;
 

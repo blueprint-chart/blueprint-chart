@@ -178,7 +178,7 @@ const cardClassList = computed(() => ({
       display: flex;
       gap: 0.25rem;
       opacity: 0;
-      transition: opacity 0.15s ease;
+      transition: opacity var(--bc-duration-base) ease;
       z-index: 1;
 
       .gallery-card:hover &,

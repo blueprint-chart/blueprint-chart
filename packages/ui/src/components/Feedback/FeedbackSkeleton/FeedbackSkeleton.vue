@@ -50,7 +50,9 @@ const style = computed(() => ({
       var(--bc-hairline),
       transparent
     );
-    animation: feedback-skeleton-shimmer 1.4s ease-in-out infinite;
+    @media (prefers-reduced-motion: no-preference) {
+      animation: feedback-skeleton-shimmer 1.4s ease-in-out infinite;
+    }
   }
 }
 
