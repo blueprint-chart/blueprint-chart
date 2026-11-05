@@ -210,8 +210,11 @@ useEventListener(document, 'mousedown', (event: MouseEvent) => {
 
   &__panel {
     position: absolute;
-    top: calc(100% + 0.25rem);
-    right: 0;
+    // Both hosts (ChartEditToolbar, ExportPanel) wrap the picker in a box with
+    // 0.25rem padding and a 1px border: align the panel to that box, not to
+    // the bare trigger.
+    top: calc(100% + 0.25rem + 1px + 0.25rem);
+    right: calc(-0.25rem - 1px);
     z-index: 50;
     padding: 0.625rem;
     background: var(--bs-tertiary-bg);

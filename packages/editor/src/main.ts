@@ -41,7 +41,7 @@ async function bootstrap(): Promise<void> {
   const pinia = createPinia()
   pinia.use(piniaPluginPersistedstate)
 
-  createApp(App).use(pinia).use(router).use(createBootstrap()).mount('#app')
+  createApp(App).use(pinia).use(router).use(createBootstrap({ components: { BDropdown: { offset: 4 } } })).mount('#app')
 }
 
 void bootstrap()
