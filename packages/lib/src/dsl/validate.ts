@@ -1,9 +1,12 @@
-import type { ChartNode, SceneNode, PropertyNode, AnnotationNode, SeriesNode, TransformNode } from './types'
+import type { ChartNode, DataNode, SceneNode, PropertyNode, AnnotationNode, SeriesNode, TransformNode } from './types'
 import type { ChartOptionDef } from '../charts/types'
 import { getChartOptions, listCharts } from '../charts/registry'
 import { listThemes } from '../charts/themes'
-import { ChartOptionType, AnnotationKind, ANNOTATION_KIND_KEYWORD } from '../enums'
-import { propertyMap } from './converter'
+import { ChartOptionType, ChartType, ScaleType, AnnotationKind, ANNOTATION_KIND_KEYWORD } from '../enums'
+import { dataEntriesToString, propertyMap } from './converter'
+import { parseData } from '../charts/parse-data'
+import { scatterIssues } from '../charts/types/scatter/issues'
+import type { ScatterIssue } from '../charts/types/scatter/issues'
 import { TRANSFORM_TYPES } from '../transforms'
 
 /**
@@ -171,27 +174,20 @@ export const FREE_ANNOTATION_KEYS = new Set<string>([
   'textOutline',
 ])
 
-/** Levenshtein edit distance between two strings. */
+/** Edit distance between two strings, counting a swap of adjacent characters as one edit. */
 function levenshtein(a: string, b: string): number {
-  const m = a.length
-  const n = b.length
-  if (m === 0) {
-    return n
-  }
-  if (n === 0) {
-    return m
-  }
-  let prev = Array.from({ length: n + 1 }, (_, i) => i)
-  let curr = new Array<number>(n + 1)
-  for (let i = 1; i <= m; i++) {
-    curr[0] = i
-    for (let j = 1; j <= n; j++) {
+  const rows = [Array.from({ length: b.length + 1 }, (_, j) => j)]
+  for (let i = 1; i <= a.length; i++) {
+    rows.push([i])
+    for (let j = 1; j <= b.length; j++) {
       const cost = a[i - 1] === b[j - 1] ? 0 : 1
-      curr[j] = Math.min(curr[j - 1] + 1, prev[j] + 1, prev[j - 1] + cost)
+      rows[i][j] = Math.min(rows[i][j - 1] + 1, rows[i - 1][j] + 1, rows[i - 1][j - 1] + cost)
+      if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) {
+        rows[i][j] = Math.min(rows[i][j], rows[i - 2][j - 2] + 1)
+      }
     }
-    [prev, curr] = [curr, prev]
   }
-  return prev[n]
+  return rows[a.length][b.length]
 }
 
 /**
@@ -199,7 +195,7 @@ function levenshtein(a: string, b: string): number {
  * when nothing is close enough (distance must be < half the value length, and
  * at most 3 edits) to avoid noisy suggestions.
  */
-function nearest(value: string, candidates: Iterable<string>): string | undefined {
+export function nearest(value: string, candidates: Iterable<string>): string | undefined {
   let best: string | undefined
   let bestDist = Infinity
   for (const c of candidates) {
@@ -454,6 +450,11 @@ function targetUniverse(ast: ChartNode): Set<string> {
         continue
       }
       names.add(entry.key)
+      for (const v of entry.values ?? [entry.value]) {
+        if (typeof v === 'string') {
+          names.add(v)
+        }
+      }
     }
   }
   return names
@@ -559,10 +560,18 @@ export function validateChart(ast: ChartNode): ValidationResult {
   // 10. Highlight / colorize targets that resolve to nothing (soft signal).
   validateTargets(ast, warnings)
 
+  if (ast.chartType === ChartType.Scatter) {
+    validateScatterData(ast.data, ast.properties, 'chart', 'data', errors, warnings)
+  }
+
   // Scenes: each scene's effective chart type is its `type` override or the
   // chart's type (mirrors extractSceneOverrides).
   ast.scenes.forEach((scene, i) => {
     validateScene(scene, ast.chartType, i, errors)
+    const sceneType = scene.properties.find(p => p.key === 'type')?.value ?? ast.chartType
+    if (sceneType === ChartType.Scatter) {
+      validateScatterData(scene.data, [...ast.properties, ...scene.properties], `scene[${i}]`, `scene[${i}].data`, errors, warnings)
+    }
   })
 
   return { valid: errors.length === 0, errors, warnings }
@@ -652,4 +661,32 @@ function validateScene(
 
   validateTransforms(scene.transforms, basePath, errors)
   validateAnnotations(scene.annotations, basePath, errors)
+}
+
+function validateScatterData(
+  data: DataNode | null | undefined,
+  properties: PropertyNode[],
+  basePath: string,
+  dataPath: string,
+  errors: ValidationIssue[],
+  warnings: ValidationIssue[],
+): void {
+  if (!data || data.entries.length === 0) {
+    return
+  }
+  const props = propertyMap(properties)
+  const text = (key: string) => (props.has(key) ? String(props.get(key)) : undefined)
+  const scaleType = (key: string) => text(key) as ScaleType | undefined
+  const range = (prefix: string) => ({ min: text(`${prefix}RangeMin`), max: text(`${prefix}RangeMax`) })
+  const overrides = { x: text('x'), y: text('y'), size: text('size'), group: text('group') }
+  const scaleTypes = { x: scaleType('horizontalScaleType'), y: scaleType('verticalScaleType') }
+  const ranges = { x: range('horizontal'), y: range('vertical') }
+  for (const issue of scatterIssues(parseData(dataEntriesToString(data)), overrides, scaleTypes, ranges, text('trend'))) {
+    const target = issue.severity === 'error' ? errors : warnings
+    target.push(toValidationIssue(issue, issue.key ? `${basePath}.${issue.key}` : dataPath))
+  }
+}
+
+function toValidationIssue({ code, message, suggestion }: ScatterIssue, path: string): ValidationIssue {
+  return { code, path, message, ...(suggestion && { suggestion }) }
 }

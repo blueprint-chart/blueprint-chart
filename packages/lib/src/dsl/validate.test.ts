@@ -727,3 +727,36 @@ describe('series override blocks', () => {
     expect(result.errors.some(e => e.path === 'scene[0].series[0].interpolation')).toBe(true)
   })
 })
+
+describe('scatter validation', () => {
+  const chart = (body: string) => validateChart(parse(`chart scatter {\n${body}\n  data {\n    series = "GDP","Life","Continent"\n    "France" = 44000, 82.3, "Europe"\n    "Chad" = 1500, "", "Africa"\n  }\n}`))
+
+  it('errors on a mapping that names no column, with a suggestion', () => {
+    const { errors } = chart('  x = "GPD"')
+    expect(errors).toContainEqual(expect.objectContaining({ code: 'unknown-column', path: 'chart.x', suggestion: 'GDP' }))
+  })
+  it('warns about dropped rows', () => {
+    expect(chart('').warnings).toContainEqual(expect.objectContaining({ code: 'dropped-rows', message: '1 row not drawn: "Chad" (missing y).' }))
+  })
+  it('warns when a trend cannot be fitted', () => {
+    expect(chart('  trend = "overall"').warnings).toContainEqual(expect.objectContaining({ code: 'trend-skipped' }))
+  })
+  it('resolves a group name as a highlight target', () => {
+    expect(chart('  highlight "Africa"').warnings.map(w => w.code)).not.toContain('unresolved-target')
+  })
+  it('errors with a single numeric column', () => {
+    const { errors } = validateChart(parse('chart scatter {\n  data {\n    "a" = 1\n  }\n}'))
+    expect(errors.map(e => e.code)).toContain('scatter-missing-y')
+  })
+  it('warns about a log range bound at or below zero', () => {
+    expect(chart('  horizontalScaleType = "log"\n  horizontalRangeMin = 0').warnings.map(w => w.code)).toContain('log-range-ignored')
+  })
+  it('validates scene data with scene properties over chart properties', () => {
+    const r = validateChart(parse('chart scatter {\n  data {\n    series = "a","b"\n    "p" = 1, 2\n  }\n  scene {\n    x = "zz"\n    data {\n      series = "a","b"\n      "p" = 1, 2\n    }\n  }\n}'))
+    expect(r.errors).toContainEqual(expect.objectContaining({ code: 'unknown-column', path: 'scene[0].x' }))
+  })
+  it('adds no scatter issues to other chart types', () => {
+    const r = validateChart(parse('chart bar-vertical {\n  data {\n    "a" = 1\n  }\n}'))
+    expect(r).toEqual({ valid: true, errors: [], warnings: [] })
+  })
+})
