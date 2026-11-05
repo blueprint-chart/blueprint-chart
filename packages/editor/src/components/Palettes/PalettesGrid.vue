@@ -21,9 +21,21 @@ function addNew() {
   editingId.value = palette?.id ?? null
 }
 
-function removePalette(palette: CustomPalette) {
-  editingId.value = null
-  remove(palette.id)
+const pendingDelete = shallowRef<CustomPalette | null>(null)
+const confirming = computed({
+  get: () => pendingDelete.value !== null,
+  set: (open: boolean) => {
+    if (!open) {
+      pendingDelete.value = null
+    }
+  },
+})
+
+function confirmRemove() {
+  if (pendingDelete.value) {
+    editingId.value = null
+    remove(pendingDelete.value.id)
+  }
 }
 </script>
 
@@ -38,7 +50,7 @@ function removePalette(palette: CustomPalette) {
         class="palettes-grid__item"
         :model-value="{ label: palette.label, colors: palette.colors }"
         @update:model-value="update(palette.id, $event)"
-        @remove="removePalette(palette)"
+        @remove="pendingDelete = palette"
         @done="editingId = null"
       />
       <PalettesCard
@@ -49,7 +61,7 @@ function removePalette(palette: CustomPalette) {
         editable
         @duplicate="duplicate(palette)"
         @edit="editingId = palette.id"
-        @remove="removePalette(palette)"
+        @remove="pendingDelete = palette"
       />
     </template>
     <BCard class="palettes-grid__item palettes-grid__new">
@@ -69,6 +81,15 @@ function removePalette(palette: CustomPalette) {
       :editable="false"
       @duplicate="duplicate(palette)"
     />
+    <BModal
+      v-model="confirming"
+      title="Delete palette"
+      ok-title="Delete"
+      ok-variant="danger"
+      @ok="confirmRemove"
+    >
+      Delete "{{ pendingDelete?.label }}"? Charts that use its colors keep them.
+    </BModal>
   </div>
 </template>
 

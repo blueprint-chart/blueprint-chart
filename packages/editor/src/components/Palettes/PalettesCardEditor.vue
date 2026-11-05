@@ -11,7 +11,6 @@ defineEmits<{
 }>()
 
 const id = useId()
-const confirming = shallowRef(false)
 
 const label = computed({
   get: () => model.value.label,
@@ -55,18 +54,9 @@ const colors = computed({
         :icon-left="IPhTrash"
         variant="outline-danger"
         size="sm"
-        @click="confirming = true"
+        @click="$emit('remove')"
       />
     </div>
-    <BModal
-      v-model="confirming"
-      title="Delete palette"
-      ok-title="Delete"
-      ok-variant="danger"
-      @ok="$emit('remove')"
-    >
-      Delete "{{ model.label }}"? Charts that use its colors keep them.
-    </BModal>
   </BCard>
 </template>
 

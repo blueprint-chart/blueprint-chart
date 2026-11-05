@@ -8,7 +8,7 @@ import { CUSTOM_PALETTES_KEY, useCustomPalettes } from '@/stores/customPalettes'
 function mountGrid() {
   const pinia = createPinia()
   setActivePinia(pinia)
-  return mount(PalettesGrid, { global: { plugins: [pinia] } })
+  return mount(PalettesGrid, { global: { plugins: [pinia], stubs: { teleport: true } } })
 }
 
 describe('PalettesGrid', () => {
@@ -29,5 +29,18 @@ describe('PalettesGrid', () => {
     await duplicate.trigger('click')
     await nextTick()
     expect(useCustomPalettes().palettes.value.map(p => p.label)).toContain('Egypt copy')
+  })
+
+  it('asks for confirmation before deleting a custom palette', async () => {
+    localStorage.setItem(CUSTOM_PALETTES_KEY, JSON.stringify([
+      { id: 'seed0000001', label: 'Seeded', colors: ['#112233', '#445566'] },
+    ]))
+    const wrapper = mountGrid()
+    const card = wrapper.findAllComponents(PalettesCard)[0]
+    await card.findAll('button').find(b => b.text().includes('Delete'))!.trigger('click')
+    expect(useCustomPalettes().palettes.value).toHaveLength(1)
+    await wrapper.find('.modal-footer .btn-danger').trigger('click')
+    await nextTick()
+    expect(useCustomPalettes().palettes.value).toHaveLength(0)
   })
 })
