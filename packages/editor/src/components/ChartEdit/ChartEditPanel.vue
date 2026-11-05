@@ -25,7 +25,6 @@
         ref="canvasRef"
         class="chart-edit-panel__canvas"
         :class="canvasClassList"
-        :style="canvasStyle"
       >
         <div
           ref="cardRef"
@@ -228,25 +227,6 @@ const panelTitle = computed(() => TAB_LABELS[activeTab.value] ?? 'Panel')
 const canvasRef = useTemplateRef<HTMLElement>('canvasRef')
 const cardRef = useTemplateRef<HTMLElement>('cardRef')
 
-const gridOffsetX = shallowRef(0)
-const gridOffsetY = shallowRef(0)
-
-function updateGridOffset() {
-  const card = cardRef.value
-  if (card) {
-    gridOffsetX.value = card.offsetLeft
-    gridOffsetY.value = card.offsetTop
-  }
-}
-
-useResizeObserver(canvasRef, updateGridOffset)
-useResizeObserver(cardRef, updateGridOffset)
-
-const canvasStyle = computed<CSSProperties>(() => ({
-  '--grid-offset-x': `${gridOffsetX.value}px`,
-  '--grid-offset-y': `${gridOffsetY.value}px`,
-} as CSSProperties))
-
 </script>
 
 <style scoped lang="scss">
@@ -323,22 +303,7 @@ const canvasStyle = computed<CSSProperties>(() => ({
     // the timeline consistent with it).
     overscroll-behavior: none;
     position: relative;
-    // The blueprint grid is painted as the canvas background with
-    // `background-attachment: local` so it tiles across the FULL scrollable
-    // content (not just the visible viewport) and scrolls with it.
     background-color: var(--bc-canvas-bg);
-    background-image:
-      linear-gradient(var(--bc-canvas-grid-color-major) 1px, transparent 1px),
-      linear-gradient(90deg, var(--bc-canvas-grid-color-major) 1px, transparent 1px),
-      linear-gradient(var(--bc-canvas-grid-color) 1px, transparent 1px),
-      linear-gradient(90deg, var(--bc-canvas-grid-color) 1px, transparent 1px);
-    background-size:
-      calc(var(--bc-canvas-grid-size) * 5) calc(var(--bc-canvas-grid-size) * 5),
-      calc(var(--bc-canvas-grid-size) * 5) calc(var(--bc-canvas-grid-size) * 5),
-      var(--bc-canvas-grid-size) var(--bc-canvas-grid-size),
-      var(--bc-canvas-grid-size) var(--bc-canvas-grid-size);
-    background-position: var(--grid-offset-x, 0) var(--grid-offset-y, 0);
-    background-attachment: local;
 
     .chart-edit-panel--narrow & {
       --fst-canvas-pad-x: 1rem;
@@ -369,7 +334,8 @@ const canvasStyle = computed<CSSProperties>(() => ({
       // --fixed / --constrained-height override with `flex: none` as needed.
       flex-shrink: 0;
       background: var(--bs-body-bg);
-      border-radius: var(--bc-radius-sm);
+      border: 1px solid var(--bc-frame-border);
+      border-radius: var(--bc-frame-radius);
       overflow: auto;
 
       &--fixed {

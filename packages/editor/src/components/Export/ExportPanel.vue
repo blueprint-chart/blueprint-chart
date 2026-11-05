@@ -7,7 +7,6 @@
       ref="canvasRef"
       class="export-panel__canvas"
       :class="canvasClassList"
-      :style="canvasStyle"
     >
       <div
         ref="cardRef"
@@ -65,7 +64,6 @@
 </template>
 
 <script setup lang="ts">
-import type { CSSProperties } from 'vue'
 import { useBreakpoint } from '@blueprint-chart/ui'
 import { useEditorPanel } from '@/stores/editorPanel'
 import { usePanel } from '@/stores/panel'
@@ -100,33 +98,6 @@ const cardRef = useTemplateRef<HTMLElement>('cardRef')
 const previewRef = useTemplateRef<HTMLElement>('previewRef')
 useChartPreview(previewRef)
 const { downloadSvg, downloadPng, error: downloadError } = useImageExport(previewRef, cardRef)
-
-const gridOffsetX = shallowRef(0)
-const gridOffsetY = shallowRef(0)
-
-let gridRafId = 0
-function updateGridOffset() {
-  globalThis.cancelAnimationFrame(gridRafId)
-  gridRafId = globalThis.requestAnimationFrame(() => {
-    const card = cardRef.value
-    if (card) {
-      const x = card.offsetLeft
-      const y = card.offsetTop
-      if (x !== gridOffsetX.value || y !== gridOffsetY.value) {
-        gridOffsetX.value = x
-        gridOffsetY.value = y
-      }
-    }
-  })
-}
-
-useResizeObserver(canvasRef, updateGridOffset)
-useResizeObserver(cardRef, updateGridOffset)
-
-const canvasStyle = computed<CSSProperties>(() => ({
-  '--grid-offset-x': `${gridOffsetX.value}px`,
-  '--grid-offset-y': `${gridOffsetY.value}px`,
-} as CSSProperties))
 
 const { lastNarrowExportTab } = exportPanelStore
 const drawerOpen = computed({
@@ -185,31 +156,6 @@ const canvasClassList = computed(() => ({
       padding: 1rem;
     }
 
-    &::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      background-image:
-        linear-gradient(var(--bc-canvas-grid-color-major) 1px, transparent 1px),
-        linear-gradient(90deg, var(--bc-canvas-grid-color-major) 1px, transparent 1px),
-        linear-gradient(var(--bc-canvas-grid-color) 1px, transparent 1px),
-        linear-gradient(90deg, var(--bc-canvas-grid-color) 1px, transparent 1px);
-      background-size:
-        calc(var(--bc-canvas-grid-size) * 5) calc(var(--bc-canvas-grid-size) * 5),
-        calc(var(--bc-canvas-grid-size) * 5) calc(var(--bc-canvas-grid-size) * 5),
-        var(--bc-canvas-grid-size) var(--bc-canvas-grid-size),
-        var(--bc-canvas-grid-size) var(--bc-canvas-grid-size);
-      background-position: var(--grid-offset-x, 0) var(--grid-offset-y, 0);
-    }
-
-    &--light,
-    &--dark {
-      &::before {
-        display: none;
-      }
-    }
-
     &--light {
       background: #ffffff;
       --bc-canvas-dimension-color: rgba(0, 0, 0, 0.3);
@@ -224,8 +170,8 @@ const canvasClassList = computed(() => ({
     position: relative;
     z-index: 1;
     background: var(--bs-card-bg);
-    border: 1px solid var(--bs-border-color);
-    border-radius: var(--bs-border-radius-sm);
+    border: 1px solid var(--bc-frame-border);
+    border-radius: var(--bc-frame-radius);
     overflow: auto;
     box-shadow: var(--bs-card-box-shadow);
 

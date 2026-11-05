@@ -20,15 +20,11 @@ defineProps<{
   flex-shrink: 0;
 
   &--auto {
-    background: var(--bc-canvas-bg);
-    background-image:
-      linear-gradient(var(--bc-canvas-grid-color) 1px, transparent 1px),
-      linear-gradient(90deg, var(--bc-canvas-grid-color) 1px, transparent 1px);
-    background-size: 8px 8px;
+    background: linear-gradient(135deg, #ffffff 50%, #000000 50%);
   }
 
   &--light {
-    background: #f0f0f0;
+    background: #ffffff;
   }
 
   &--dark {
