@@ -8,14 +8,19 @@ import EditorCategoryColorsNotice from './EditorCategoryColorsNotice.vue'
 
 const DATA = '"France" = 10\n"Spain" = 5'
 
-function setup(chartType: string = ChartType.BarVertical) {
+const SERIES_DATA = 'series = "France","Spain"\n"2020" = 1,2'
+
+const button = (wrapper: ReturnType<typeof setup>['wrapper'], name: string) =>
+  wrapper.findAll('button').find(b => b.text() === name || b.attributes('aria-label') === name)
+
+function setup(chartType: string = ChartType.BarVertical, data = DATA) {
   const pinia = createPinia()
   setActivePinia(pinia)
   useScenes().reset()
   const config = useChartConfig()
   config.reset()
   config.chartType.value = chartType
-  config.data.value = DATA
+  config.data.value = data
   useCategoryColors().add('France', '#0055A4')
   const wrapper = mount(EditorCategoryColorsNotice, { global: { plugins: [pinia] } })
   return { config, wrapper }
@@ -69,5 +74,40 @@ describe('EditorCategoryColorsNotice', () => {
       { target: 'France', color: '#0055A4' },
     ])
     expect(config._base.colorizes.value).toEqual([{ target: 'France', color: '#ff0000' }])
+  })
+
+  describe('applied state', () => {
+    it('shows the applied count on a chart type without a colorize list', async () => {
+      const { wrapper } = setup(ChartType.BarGrouped, SERIES_DATA)
+      await button(wrapper, 'Apply')!.trigger('click')
+      await flushPromises()
+      expect(wrapper.text()).toContain('1 category color applied')
+      expect(button(wrapper, 'Remove')).toBeDefined()
+    })
+
+    it('remove deletes exactly the applied entries', async () => {
+      const { config, wrapper } = setup(ChartType.BarGrouped, SERIES_DATA)
+      config.colorizes.value = [{ target: 'Spain', color: '#ff0000' }]
+      await button(wrapper, 'Apply')!.trigger('click')
+      await flushPromises()
+      await button(wrapper, 'Remove')!.trigger('click')
+      await flushPromises()
+      expect(config.colorizes.value).toEqual([{ target: 'Spain', color: '#ff0000' }])
+    })
+
+    it('stays hidden where the colorize list already shows them', async () => {
+      const { wrapper } = setup()
+      await button(wrapper, 'Apply')!.trigger('click')
+      await flushPromises()
+      expect(wrapper.text()).not.toContain('applied')
+    })
+  })
+
+  it('dismiss hides the offer', async () => {
+    const { config, wrapper } = setup()
+    await button(wrapper, 'Dismiss')!.trigger('click')
+    await flushPromises()
+    expect(wrapper.find('.editor-category-colors-notice').exists()).toBe(false)
+    expect(config.colorizes.value).toEqual([])
   })
 })

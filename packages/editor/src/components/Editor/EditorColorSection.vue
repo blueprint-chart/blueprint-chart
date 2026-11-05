@@ -123,13 +123,14 @@ import { useChartConfig } from '@/stores/chartConfig'
 import { useChartTypeOptions } from '@/stores/chartTypeOptions'
 import { useCvdMode } from '@/stores/cvdMode'
 import { useCustomPalettes } from '@/stores/customPalettes'
-import { ChartType, parseData, listPalettes, resolvePalette } from '@blueprint-chart/lib'
+import { parseData, listPalettes, resolvePalette } from '@blueprint-chart/lib'
 import type { CvdType } from '@blueprint-chart/lib'
 import IconPhCheck from '~icons/ph/check'
 import IconPhEye from '~icons/ph/eye'
 import IconPhInfo from '~icons/ph/info'
 import EditorCategoryColorsNotice from './EditorCategoryColorsNotice.vue'
 import { useColorAccessibility } from './useColorAccessibility'
+import { hasColorizeList } from '@/utils/categoryColorMatches'
 import CvdNoneThumb from '@/assets/chart-thumbnails/cvd-none.bpc'
 import CvdProtanopiaThumb from '@/assets/chart-thumbnails/cvd-protanopia.bpc'
 import CvdDeuteranopiaThumb from '@/assets/chart-thumbnails/cvd-deuteranopia.bpc'
@@ -140,9 +141,7 @@ const { currentOptions, availableOptionKeys, setOption } = useChartTypeOptions()
 const { cvdMode } = useCvdMode()
 const { palettes: customPalettes } = useCustomPalettes()
 
-const hasColorizes = computed(() =>
-  ([ChartType.BarVertical, ChartType.BarHorizontal, ChartType.VerticalBar, ChartType.HorizontalBar] as string[]).includes(chartType.value),
-)
+const hasColorizes = computed(() => hasColorizeList(chartType.value))
 
 const hasColors = computed(() => availableOptionKeys.value.includes('colors'))
 const hasPalette = computed(() => availableOptionKeys.value.includes('colorPalette'))
