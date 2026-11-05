@@ -1,4 +1,5 @@
 import { useLocalStorage } from '@vueuse/core'
+import { isHexColor } from '@blueprint-chart/ui'
 import { generateId } from './chartSession'
 
 export interface CustomPalette {
@@ -9,10 +10,8 @@ export interface CustomPalette {
 
 export const CUSTOM_PALETTES_KEY = 'blueprint-chart:palettes'
 
-const HEX = /^#[0-9a-f]{6}$/i
-
 const isValidColors = (colors: readonly string[]) =>
-  colors.length >= 2 && colors.length <= 12 && colors.every(c => HEX.test(c))
+  colors.length >= 2 && colors.length <= 12 && colors.every(isHexColor)
 
 const isValidLabel = (label: string) => label.trim().length > 0
 

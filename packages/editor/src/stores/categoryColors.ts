@@ -1,4 +1,5 @@
 import { useLocalStorage } from '@vueuse/core'
+import { isHexColor } from '@blueprint-chart/ui'
 
 export interface CategoryColor {
   name: string
@@ -6,8 +7,6 @@ export interface CategoryColor {
 }
 
 export const CATEGORY_COLORS_KEY = 'blueprint-chart:category-colors'
-
-const HEX = /^#[0-9a-f]{6}$/i
 
 export const normalizeCategory = (name: string) => name.trim().toLowerCase()
 
@@ -18,7 +17,7 @@ export const useCategoryColorsStore = defineStore('categoryColors', () => {
   const indexOf = (name: string) => categoryColors.value.findIndex(c => normalizeCategory(c.name) === normalizeCategory(name))
 
   function add(name: string, color: string): boolean {
-    if (!normalizeCategory(name) || !HEX.test(color) || indexOf(name) !== -1) {
+    if (!normalizeCategory(name) || !isHexColor(color) || indexOf(name) !== -1) {
       return false
     }
     stored.value = [...categoryColors.value, { name: name.trim(), color }]
@@ -27,7 +26,7 @@ export const useCategoryColorsStore = defineStore('categoryColors', () => {
 
   function update(name: string, color: string): boolean {
     const index = indexOf(name)
-    if (index === -1 || !HEX.test(color)) {
+    if (index === -1 || !isHexColor(color)) {
       return false
     }
     stored.value = categoryColors.value.map((c, i) => i === index ? { ...c, color } : c)

@@ -27,6 +27,7 @@
 </template>
 
 <script setup lang="ts">
+import { isHexColor } from '../../../../utils/isHexColor'
 
 const model = defineModel<string>({ required: true })
 
@@ -39,14 +40,14 @@ const swatchRef = useTemplateRef<HTMLElement>('swatchRef')
 
 function onInput(e: Event) {
   const value = (e.target as HTMLInputElement).value.trim()
-  if (/^#[0-9a-fA-F]{6}$/.test(value)) {
+  if (isHexColor(value)) {
     model.value = value
   }
 }
 
 function onChange(e: Event) {
   const value = (e.target as HTMLInputElement).value.trim()
-  if (/^#[0-9a-fA-F]{6}$/.test(value)) {
+  if (isHexColor(value)) {
     model.value = value
   }
   else {

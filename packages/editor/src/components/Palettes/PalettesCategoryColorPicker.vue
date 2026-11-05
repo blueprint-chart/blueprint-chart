@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { listPalettes } from '@blueprint-chart/lib'
+import { isHexColor } from '@blueprint-chart/ui'
 import { useCustomPalettes } from '@/stores/customPalettes'
 
 const model = defineModel<string>({ required: true })
@@ -30,11 +31,9 @@ const groups = computed(() => [
   ...listPalettes().map(({ name, label, colors }) => ({ key: name, label, colors })),
 ])
 
-const HEX = /^#[0-9a-fA-F]{6}$/
-
 function onHexInput(event: Event) {
   const value = (event.target as HTMLInputElement).value.trim()
-  if (HEX.test(value)) {
+  if (isHexColor(value)) {
     model.value = value
   }
 }

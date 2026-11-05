@@ -54,6 +54,7 @@ export { default as DisplayChartType } from './components/Display/DisplayChartTy
 export { default as DisplayChartTypeBadge } from './components/Display/DisplayChartTypeBadge/DisplayChartTypeBadge.vue'
 export { getChartTypeLabel } from './utils/chartType'
 export { withoutTransitions } from './utils/withoutTransitions'
+export { isHexColor } from './utils/isHexColor'
 
 export { default as SectionGroup } from './components/Section/SectionGroup/SectionGroup.vue'
 export { default as SectionTitle } from './components/Section/SectionTitle/SectionTitle.vue'
