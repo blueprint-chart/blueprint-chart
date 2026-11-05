@@ -18,6 +18,7 @@ import IPhHouse from '~icons/ph/house'
 import IPhPresentationChart from '~icons/ph/presentation-chart'
 import IPhGithubLogo from '~icons/ph/github-logo'
 import IPhBookOpen from '~icons/ph/book-open'
+import IPhTable from '~icons/ph/table'
 
 defineEmits<{ searchClick: [] }>()
 
@@ -29,6 +30,7 @@ const shortcut = usePlatformShortcut('k')
 const recent = computed(() => sortedCharts.value.slice(0, 5))
 const isHome = computed(() => route.path === '/')
 const isCharts = computed(() => route.path.startsWith('/charts'))
+const isDatasets = computed(() => route.path.startsWith('/datasets'))
 const logoSrc = computed(() => resolvedTheme.value === 'dark' ? logoDark : logoLight)
 </script>
 
@@ -69,6 +71,15 @@ const logoSrc = computed(() => resolvedTheme.value === 'dark' ? logoDark : logoL
       >
         <template #icon>
           <IPhPresentationChart />
+        </template>
+      </NavigationSidebarItem>
+      <NavigationSidebarItem
+        to="/datasets"
+        label="Datasets"
+        :active="isDatasets"
+      >
+        <template #icon>
+          <IPhTable />
         </template>
       </NavigationSidebarItem>
     </NavigationSidebarGroup>

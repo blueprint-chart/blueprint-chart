@@ -32,4 +32,10 @@ describe('LayoutSidebar', () => {
     const wrapper = await mountSidebar()
     expect(wrapper.find('.navigation-sidebar__footer .account-menu-stub').exists()).toBe(true)
   })
+
+  it('links to the datasets page', async () => {
+    const wrapper = await mountSidebar()
+    const link = wrapper.findAllComponents(RouterLinkStub).find(l => l.props('to') === '/datasets')
+    expect(link?.text()).toContain('Datasets')
+  })
 })

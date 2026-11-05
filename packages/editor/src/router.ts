@@ -84,6 +84,11 @@ const router = createRouter({
       meta: { title: 'My charts' },
     },
     {
+      path: '/datasets',
+      component: () => import('@/components/Datasets/DatasetsPage.vue'),
+      meta: { title: 'Datasets' },
+    },
+    {
       path: '/new',
       component: WizardShell,
       meta: { title: 'New chart' },
