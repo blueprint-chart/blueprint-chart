@@ -23,13 +23,16 @@ describe('FormControlButtonGroup rendering', () => {
     expect(buttons).toHaveLength(3)
   })
 
-  it('applies primary variant to selected option', () => {
+  it('marks the selected option like a segmented control, without outline buttons', () => {
     const wrapper = mount(FormControlButtonGroup, {
       props: { modelValue: 'center', label: 'Align', options },
     })
     const buttons = wrapper.findAll('.form-control-button-group__container__buttons .btn')
-    expect(buttons[1].classes()).toContain('btn-primary')
-    expect(buttons[0].classes()).toContain('btn-outline-primary')
+    expect(buttons[1].classes()).toContain('form-control-button-group__container__buttons__option--active')
+    expect(buttons[1].attributes('aria-pressed')).toBe('true')
+    expect(buttons[0].classes()).not.toContain('form-control-button-group__container__buttons__option--active')
+    expect(buttons[0].attributes('aria-pressed')).toBe('false')
+    expect(wrapper.find('.btn-outline-primary').exists()).toBe(false)
   })
 
   it('emits update:modelValue on button click', async () => {

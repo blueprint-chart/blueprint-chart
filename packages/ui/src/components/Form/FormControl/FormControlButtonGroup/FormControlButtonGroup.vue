@@ -29,7 +29,9 @@
           :hide-tooltip="!opt.description"
           :tooltip-label="opt.description"
           :show-tooltip-force="!!opt.description"
-          :variant="model === opt.value ? 'primary' : 'outline-primary'"
+          variant="primary"
+          :class="optionClassList(opt.value)"
+          :aria-pressed="model === opt.value"
           :tabindex="overflowed ? -1 : undefined"
           @click="model = opt.value"
         >
@@ -90,6 +92,10 @@ const buttonsClassList = computed(() => ({
   'form-control-button-group__container__buttons--block': props.block,
 }))
 
+function optionClassList(value: string) {
+  return { 'form-control-button-group__container__buttons__option--active': model.value === value }
+}
+
 const dropdownOptions = computed(() =>
   resolvedOptions.value.map(o => ({
     value: o.value,
@@ -127,6 +133,39 @@ useResizeObserver(containerRef, checkOverflow)
     }
 
     &__buttons {
+      gap: 2px;
+      padding: 2px;
+      background: var(--bs-secondary-bg);
+      border: 1px solid var(--bs-border-color);
+      border-radius: var(--bc-radius-sm);
+
+      &:deep(.btn) {
+        --bs-btn-bg: transparent;
+        --bs-btn-border-color: transparent;
+        --bs-btn-color: var(--bs-secondary-color);
+        --bs-btn-hover-bg: transparent;
+        --bs-btn-hover-border-color: transparent;
+        --bs-btn-hover-color: var(--bs-body-color);
+        --bs-btn-active-bg: var(--bs-tertiary-bg);
+        --bs-btn-active-border-color: transparent;
+        --bs-btn-active-color: var(--bs-emphasis-color);
+      }
+
+      // Tripled class outranks Bootstrap's .btn-group corner-squaring rules
+      &:deep(.btn.btn.btn) {
+        margin-left: 0;
+        border-radius: var(--bc-radius-xs);
+      }
+
+      &:deep(.form-control-button-group__container__buttons__option--active) {
+        --bs-btn-bg: var(--bs-tertiary-bg);
+        --bs-btn-color: var(--bs-emphasis-color);
+        --bs-btn-hover-bg: var(--bs-tertiary-bg);
+        --bs-btn-hover-color: var(--bs-emphasis-color);
+
+        font-weight: 500;
+      }
+
       &--block {
         width: 100%;
 
