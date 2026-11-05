@@ -113,14 +113,6 @@ defineExpose({ addNew })
           @duplicate="duplicate(palette)"
           @remove="pendingDelete = palette"
         />
-        <template
-          v-if="!palettes.length"
-          #note
-        >
-          <p class="palettes-grid__gallery__note">
-            Duplicate a built-in palette or start from scratch.
-          </p>
-        </template>
       </PalettesSection>
       <PalettesSection
         title="Built-in"
@@ -191,12 +183,6 @@ defineExpose({ addNew })
 
     .palettes-grid--narrow & {
       padding: 1rem;
-    }
-
-    &__note {
-      margin: 0.75rem 0 0;
-      font-size: var(--bs-font-size-sm);
-      color: var(--bs-secondary-color);
     }
   }
 }

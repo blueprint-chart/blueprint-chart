@@ -24,7 +24,6 @@ const titleId = useId()
     <div class="palettes-section__grid">
       <slot />
     </div>
-    <slot name="note" />
   </section>
 </template>
 
