@@ -317,12 +317,12 @@ const cardRef = useTemplateRef<HTMLElement>('cardRef')
     }
 
     &--light {
-      background: #ffffff;
+      background: #f5f5f5;
       --bc-canvas-dimension-color: rgba(0, 0, 0, 0.3);
     }
 
     &--dark {
-      background: #000000;
+      background: #0d0d0d;
       --bc-canvas-dimension-color: rgba(255, 255, 255, 0.3);
     }
 

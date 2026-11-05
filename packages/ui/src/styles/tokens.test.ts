@@ -172,8 +172,8 @@ describe('tokens.scss - chartreuse accent', () => {
   })
 
   it('uses a neutral canvas with a grey grid', () => {
-    expect(read(lightBody, '--bc-canvas-bg')).toBe('#ffffff')
-    expect(read(darkBody, '--bc-canvas-bg')).toBe('#000000')
+    expect(read(lightBody, '--bc-canvas-bg')).toBe('#f5f5f5')
+    expect(read(darkBody, '--bc-canvas-bg')).toBe('#0d0d0d')
     expect(lightBody).toMatch(/--bc-canvas-grid-color:\s*rgba\(0,\s*0,\s*0,/)
     expect(lightBody).toMatch(/--bc-canvas-grid-color-major:\s*rgba\(0,\s*0,\s*0,/)
     expect(darkBody).toMatch(/--bc-canvas-grid-color:\s*rgba\(255,\s*255,\s*255,/)
