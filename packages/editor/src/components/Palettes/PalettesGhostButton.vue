@@ -1,9 +1,6 @@
 <script setup lang="ts">
 import type { Component } from 'vue'
 import { ButtonIcon } from '@blueprint-chart/ui'
-import { useLazyTooltip } from '@/composables/useLazyTooltip'
-
-defineOptions({ inheritAttrs: false })
 
 const props = defineProps<{
   label: string
@@ -14,34 +11,18 @@ const props = defineProps<{
 const classList = computed(() => ({
   'palettes-ghost-button--danger': props.danger,
 }))
-
-const button = useTemplateRef<InstanceType<typeof ButtonIcon>>('button')
-const tooltip = useLazyTooltip()
 </script>
 
 <template>
   <ButtonIcon
-    v-bind="$attrs"
-    ref="button"
     class="palettes-ghost-button"
     :class="classList"
     :label="label"
     :icon-left="icon"
     hide-label
-    hide-tooltip
     square
     variant="link"
     size="sm"
-    @mouseenter="tooltip.arm"
-    @focus="tooltip.arm"
-  />
-  <BTooltip
-    v-if="tooltip.mounted.value"
-    v-model="tooltip.shown.value"
-    teleport-to="body"
-    :target="button?.$el"
-    :title="label"
-    placement="top"
   />
 </template>
 

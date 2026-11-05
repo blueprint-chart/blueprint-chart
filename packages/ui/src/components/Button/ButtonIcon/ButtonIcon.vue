@@ -6,8 +6,9 @@
     class="button-icon"
     :class="classList"
     :aria-label="tooltipText"
-    @mouseenter="currentHover = true"
+    @mouseenter="onMouseenter"
     @mouseleave="currentHover = false"
+    @focus="armTooltip"
   >
     <slot name="start" />
     <AppIcon
@@ -47,7 +48,8 @@
     />
     <slot name="end" />
     <BTooltip
-      v-if="hasTooltip"
+      v-if="hasTooltip && tooltipArmed"
+      v-model="tooltipShown"
       teleport-to="body"
       :delay="tooltipDelay"
       :boundary-padding="20"
@@ -127,6 +129,23 @@ function click(name: 'icon-right') {
 }
 
 const currentHover = shallowRef(false)
+
+// Pages with hundreds of buttons mount slowly, so each tooltip mounts on the
+// first hover or focus of its button and shows right away.
+const tooltipArmed = shallowRef(false)
+const tooltipShown = shallowRef(false)
+
+function armTooltip() {
+  if (!tooltipArmed.value) {
+    tooltipArmed.value = true
+    tooltipShown.value = true
+  }
+}
+
+function onMouseenter() {
+  currentHover.value = true
+  armTooltip()
+}
 
 const buttonId = computed(() => props.id ?? `button-icon-${++_uid}`)
 
