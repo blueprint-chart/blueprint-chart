@@ -1,6 +1,7 @@
 import type { Diagnostic } from '@codemirror/lint'
 import type { Text } from '@codemirror/state'
 import { parse, validateChart } from '@blueprint-chart/lib'
+import type { ValidationIssue } from '@blueprint-chart/lib'
 
 export interface DslApplyResult {
   success: boolean
@@ -22,21 +23,25 @@ export function locationToOffset(doc: Text, line: number, column: number): numbe
  * offsets for them, so they are reported on the chart header.
  */
 function semanticDiagnostics(doc: Text): Diagnostic[] {
-  let errors
+  let validation
   try {
-    errors = validateChart(parse(doc.toString())).errors
+    validation = validateChart(parse(doc.toString()))
   }
   catch {
     // Unparseable: the syntax error is reported through the parse result.
     return []
   }
   const header = doc.line(1)
-  return errors.map(issue => ({
+  const toDiagnostic = (severity: 'error' | 'warning') => (issue: ValidationIssue): Diagnostic => ({
     from: header.from,
     to: header.to,
-    severity: 'error' as const,
+    severity,
     message: issue.suggestion ? `${issue.message} Did you mean "${issue.suggestion}"?` : issue.message,
-  }))
+  })
+  return [
+    ...validation.errors.map(toDiagnostic('error')),
+    ...validation.warnings.map(toDiagnostic('warning')),
+  ]
 }
 
 /** Map the latest parse result onto CodeMirror lint diagnostics. */

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { EditorState } from '@codemirror/state'
+import { EditorState, Text } from '@codemirror/state'
 import { buildDiagnostics, locationToOffset } from './diagnostics'
 
 function docOf(text: string) {
@@ -31,6 +31,12 @@ describe('buildDiagnostics', () => {
 
   it('returns no diagnostics on success', () => {
     expect(buildDiagnostics({ success: true }, doc)).toEqual([])
+  })
+
+  it('reports validation warnings as lint warnings', () => {
+    const doc = Text.of(['chart bar-vertical {', '  highlight "Nope"', '  data {', '    "a" = 1', '  }', '}'])
+    const diags = buildDiagnostics({ success: true }, doc)
+    expect(diags).toContainEqual(expect.objectContaining({ severity: 'warning' }))
   })
 
   it('returns no diagnostics for a null result', () => {
