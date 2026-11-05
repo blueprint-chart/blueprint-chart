@@ -107,16 +107,18 @@ const tiles: Tile[] = [
     border-color var(--bc-duration-base) var(--bc-ease),
     transform var(--bc-duration-base) var(--bc-ease),
     box-shadow var(--bc-duration-base) var(--bc-ease),
-    background var(--bc-duration-base) var(--bc-ease);
+    background-color var(--bc-duration-base) var(--bc-ease);
 }
 
-.section-tile:hover {
-  border-color: var(--vp-c-brand-1);
-  background: var(--bc-tile-bg-elevated, var(--vp-c-bg-elv));
-  box-shadow: var(--bc-tile-shadow, 0 6px 24px rgba(0, 0, 0, 0.08));
-  transform: translateY(-2px);
-  text-decoration: none;
-  color: var(--vp-c-text-1);
+@media (hover: hover) {
+  .section-tile:hover {
+    border-color: var(--vp-c-brand-1);
+    background: var(--bc-tile-bg-elevated, var(--vp-c-bg-elv));
+    box-shadow: var(--bc-tile-shadow, 0 6px 24px rgba(0, 0, 0, 0.08));
+    transform: translateY(-2px);
+    text-decoration: none;
+    color: var(--vp-c-text-1);
+  }
 }
 
 .section-tile__icon {
@@ -131,9 +133,11 @@ const tiles: Tile[] = [
   font-size: 1.25rem;
 }
 
-.section-tile:hover .section-tile__icon {
-  background: var(--vp-c-brand-1);
-  color: #fff;
+@media (hover: hover) {
+  .section-tile:hover .section-tile__icon {
+    background: var(--vp-c-brand-1);
+    color: var(--vp-c-bg);
+  }
 }
 
 .section-tile__title {
@@ -156,9 +160,11 @@ const tiles: Tile[] = [
   color: var(--vp-c-brand-1);
 }
 
-.section-tile:hover .section-tile__arrow {
-  opacity: 1;
-  transform: translateX(0);
+@media (hover: hover) {
+  .section-tile:hover .section-tile__arrow {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 .section-tile__details {

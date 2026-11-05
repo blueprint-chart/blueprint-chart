@@ -123,24 +123,22 @@ useEventListener(document, 'mousedown', (event: MouseEvent) => {
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
-  width: 100%;
-  padding: 0.375rem 0.75rem;
-  background: var(--bc-wash-soft);
-  border: 1px solid var(--bc-hairline);
+  max-width: 100%;
+  padding: 0.25rem 0.375rem;
+  background: transparent;
+  border: 0;
   border-radius: var(--bc-radius-xs);
   color: var(--bs-body-color);
   font-family: inherit;
-  font-size: var(--bs-font-size-sm);
-  font-weight: 600;
+  font-size: inherit;
+  font-weight: inherit;
   text-align: left;
   cursor: pointer;
-  transition: background-color var(--bc-duration-base) var(--bc-ease),
-              border-color var(--bc-duration-base) var(--bc-ease);
+  transition: background-color var(--bc-duration-base) var(--bc-ease);
 
   @media (hover: hover) {
     &:hover {
-      background: var(--bc-wash-firm, var(--bc-wash-soft));
-      border-color: var(--bc-hairline-strong, var(--bc-hairline));
+      background: var(--bc-wash-soft);
     }
   }
 
@@ -178,8 +176,8 @@ useEventListener(document, 'mousedown', (event: MouseEvent) => {
 .navigation-section-dropdown__panel {
   position: absolute;
   top: calc(100% + 0.25rem);
-  left: 0;
   right: 0;
+  min-width: 10rem;
   margin: 0;
   padding: 0.25rem;
   list-style: none;
@@ -196,6 +194,7 @@ useEventListener(document, 'mousedown', (event: MouseEvent) => {
   border-radius: var(--bc-radius-xs);
   color: var(--bs-body-color);
   font-size: var(--bs-font-size-sm);
+  font-weight: 400;
   text-decoration: none;
   transition: background-color var(--bc-duration-base) var(--bc-ease);
 
@@ -214,7 +213,7 @@ useEventListener(document, 'mousedown', (event: MouseEvent) => {
 
   &--active {
     background: var(--bc-wash-firm);
-    font-weight: 600;
+    font-weight: 500;
   }
 }
 </style>

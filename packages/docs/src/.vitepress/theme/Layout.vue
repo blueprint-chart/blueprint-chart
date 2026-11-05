@@ -187,14 +187,6 @@ function openSidebar() {
         <span class="docs-brand__name">Blueprint Chart</span>
       </a>
     </template>
-    <template #actions>
-      <NavigationCommandBar
-        class="docs-search docs-search--slim"
-        placeholder="Search docs…"
-        :shortcut-label="shortcutLabel"
-        @click="openSearch"
-      />
-    </template>
     <template #cta-primary>
       <button
         class="docs-btn-primary docs-btn-primary--sm"
@@ -238,18 +230,36 @@ function openSidebar() {
       v-if="!isHome"
       #sidebar-nav-before
     >
-      <a
-        href="/"
-        class="docs-sidebar-brand"
-        aria-label="Blueprint Chart home"
-      >
-        <img
-          :src="logoSrc"
-          alt=""
-          class="docs-sidebar-brand__logo"
+      <div class="docs-sidebar-brand">
+        <a
+          href="/"
+          class="docs-sidebar-brand__home"
+          aria-label="Blueprint Chart home"
         >
-        <span class="docs-sidebar-brand__name">Blueprint Chart</span>
-      </a>
+          <img
+            :src="logoSrc"
+            alt=""
+            class="docs-sidebar-brand__logo"
+          >
+          <span class="docs-sidebar-brand__name">Blueprint Chart</span>
+        </a>
+        <span
+          class="docs-sidebar-brand__slash"
+          aria-hidden="true"
+        >/</span>
+        <NavigationSectionDropdown
+          class="docs-sidebar-switcher"
+          :sections="sections"
+          :active-link="current?.link"
+          trigger-label="Switch section"
+        />
+      </div>
+      <NavigationCommandBar
+        class="docs-sidebar-search"
+        placeholder="Search docs…"
+        :shortcut-label="shortcutLabel"
+        @click="openSearch"
+      />
       <a
         class="docs-btn-primary docs-btn-primary--sm docs-sidebar-editor"
         href="https://blueprintchart.com"
@@ -258,12 +268,6 @@ function openSidebar() {
       >
         Open editor <span aria-hidden="true">↗</span>
       </a>
-      <NavigationSectionDropdown
-        class="docs-sidebar-switcher"
-        :sections="sections"
-        :active-link="current?.link"
-        trigger-label="Switch section"
-      />
     </template>
 
     <template
@@ -325,27 +329,35 @@ function openSidebar() {
 .docs-sidebar-brand {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.375rem;
+  min-width: 0;
   padding: 0 1.5rem 1rem;
-  color: var(--bs-body-color);
-  text-decoration: none;
   font-weight: 600;
   font-size: var(--bs-font-size-sm);
   white-space: nowrap;
 }
-.docs-sidebar-brand:hover { color: var(--bs-body-color); text-decoration: none; }
+.docs-sidebar-brand__home {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--bs-body-color);
+  text-decoration: none;
+}
+@media (hover: hover) {
+  .docs-sidebar-brand__home:hover { color: var(--bs-body-color); text-decoration: none; }
+}
+.docs-sidebar-brand__slash {
+  color: var(--bs-tertiary-color);
+  font-weight: 400;
+}
 .docs-sidebar-brand__logo {
   height: 1.125rem;
   width: auto;
   display: block;
 }
 
-/* Section switcher — matches sidebar item width (no horizontal margin so it
- * spans the same column as VPSidebarItem pills, sized by .VPSidebar's
- * `padding-left/right: 0.375rem`). More breathing room above the brand,
- * tight to the first group below. */
 .docs-sidebar-switcher {
-  margin: 1rem 0 0.25rem;
+  min-width: 0;
 }
 </style>
 
@@ -394,15 +406,17 @@ function openSidebar() {
   white-space: nowrap;
   cursor: pointer;
   transition:
-    background var(--bc-duration-base) var(--bc-ease),
+    background-color var(--bc-duration-base) var(--bc-ease),
     border-color var(--bc-duration-base) var(--bc-ease),
     color var(--bc-duration-base) var(--bc-ease);
 }
-.docs-btn-outline:hover {
-  background: var(--bc-wash-firm, rgba(0, 0, 0, 0.06));
-  border-color: var(--bc-hairline-strong, rgba(0, 0, 0, 0.14));
-  color: var(--vp-c-text-1);
-  text-decoration: none;
+@media (hover: hover) {
+  .docs-btn-outline:hover {
+    background: var(--bc-wash-firm, rgba(0, 0, 0, 0.06));
+    border-color: var(--bc-hairline-strong, rgba(0, 0, 0, 0.14));
+    color: var(--vp-c-text-1);
+    text-decoration: none;
+  }
 }
 .docs-btn-outline--sm {
   height: 1.75rem;
@@ -442,12 +456,14 @@ function openSidebar() {
   cursor: pointer;
   text-decoration: none;
   transition:
-    background var(--bc-duration-base) var(--bc-ease),
+    background-color var(--bc-duration-base) var(--bc-ease),
     border-color var(--bc-duration-base) var(--bc-ease);
 }
-.docs-btn-primary:hover {
-  background: var(--bc-btn-strong-hover-bg);
-  border-color: var(--bc-btn-strong-hover-bg);
+@media (hover: hover) {
+  .docs-btn-primary:hover {
+    background: var(--bc-btn-strong-hover-bg);
+    border-color: var(--bc-btn-strong-hover-bg);
+  }
 }
 .docs-btn-primary--sm {
   height: 1.75rem;

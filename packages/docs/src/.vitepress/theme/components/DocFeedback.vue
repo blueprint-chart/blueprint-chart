@@ -79,15 +79,17 @@ const issueUrl = computed(() => {
   text-decoration: none;
   white-space: nowrap;
   transition:
-    background var(--bc-duration-base) var(--bc-ease),
+    background-color var(--bc-duration-base) var(--bc-ease),
     border-color var(--bc-duration-base) var(--bc-ease),
     color var(--bc-duration-base) var(--bc-ease);
 }
-.doc-feedback__link:hover {
-  background: var(--bc-wash-firm, rgba(0, 0, 0, 0.06));
-  border-color: var(--bc-hairline-strong, rgba(0, 0, 0, 0.14));
-  color: var(--vp-c-text-1);
-  text-decoration: none;
+@media (hover: hover) {
+  .doc-feedback__link:hover {
+    background: var(--bc-wash-firm, rgba(0, 0, 0, 0.06));
+    border-color: var(--bc-hairline-strong, rgba(0, 0, 0, 0.14));
+    color: var(--vp-c-text-1);
+    text-decoration: none;
+  }
 }
 .doc-feedback__link:focus-visible {
   outline: none;

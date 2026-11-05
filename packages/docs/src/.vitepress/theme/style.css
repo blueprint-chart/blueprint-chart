@@ -21,13 +21,22 @@
   --vp-c-bg-elv: var(--bc-tile-bg-elevated);
   --vp-c-bg-soft: var(--vp-c-bg);
 
-  --vp-c-text-1: #101112;
-  --vp-c-text-2: rgba(16, 17, 18, 0.72);
+  --vp-c-text-1: var(--bc-text-primary);
+  --vp-c-text-2: var(--bc-text-secondary);
   --vp-c-text-3: var(--bc-text-tertiary);
+
+  --vp-c-gray-1: var(--bc-hairline-strong);
+  --vp-c-gray-2: var(--bc-hairline);
+  --vp-c-gray-3: var(--bc-tile-bg-elevated);
+  --vp-c-gray-soft: var(--bc-wash-firm);
 
   --vp-c-divider: var(--bc-hairline);
   --vp-c-gutter: var(--bc-hairline);
-  --vp-c-border: var(--bc-hairline);
+  --vp-c-border: var(--bc-hairline-strong);
+
+  --vp-local-search-bg: var(--vp-c-bg-elv);
+  --vp-local-search-result-bg: var(--vp-c-bg-elv);
+  --vp-local-search-result-selected-bg: var(--vp-c-bg-elv);
 
   /* Fonts */
   --vp-font-family-base:
@@ -88,6 +97,7 @@
   --bs-emphasis-color: var(--vp-c-text-1);
   --bs-secondary-color: var(--vp-c-text-2);
   --bs-tertiary-color: var(--vp-c-text-3);
+  --bs-tertiary-bg: var(--bc-tile-bg-elevated);
   --bs-font-size-xs: 0.75rem;
   --bs-font-size-sm: 0.875rem;
 }
@@ -100,9 +110,14 @@
   --vp-c-bg-elv: var(--bc-tile-bg-elevated);
   --vp-c-bg-soft: var(--vp-c-bg);
 
-  --vp-c-text-1: rgba(255, 255, 255, 0.92);
-  --vp-c-text-2: rgba(255, 255, 255, 0.68);
+  --vp-c-text-1: var(--bc-text-primary);
+  --vp-c-text-2: var(--bc-text-secondary);
   --vp-c-text-3: var(--bc-text-tertiary);
+
+  --vp-c-gray-1: var(--bc-hairline-strong);
+  --vp-c-gray-2: var(--bc-hairline);
+  --vp-c-gray-3: var(--bc-tile-bg-elevated);
+  --vp-c-gray-soft: var(--bc-wash-firm);
 
   --vp-c-divider: var(--bc-hairline);
   --vp-c-gutter: var(--bc-hairline);
@@ -142,6 +157,7 @@
   --bs-emphasis-color: var(--vp-c-text-1);
   --bs-secondary-color: var(--vp-c-text-2);
   --bs-tertiary-color: var(--vp-c-text-3);
+  --bs-tertiary-bg: var(--bc-tile-bg-elevated);
 }
 
 /* Display utility — kept (used by hero) */
@@ -167,8 +183,8 @@
 /* BpcBlock — code/preview tab switcher styles (component-level, kept) */
 .bpc-block {
   margin: 16px 0;
-  border: 1px solid var(--vp-c-divider);
-  border-radius: 8px;
+  border: 1px solid var(--bc-frame-border);
+  border-radius: var(--bc-frame-radius);
   overflow: hidden;
   background: var(--vp-c-bg);
 }
@@ -197,7 +213,9 @@
   transition: color var(--bc-duration-base) ease, background-color var(--bc-duration-base) ease;
 }
 
-.bpc-block__tab:hover:not(:disabled) { color: var(--vp-c-text-1); }
+@media (hover: hover) {
+  .bpc-block__tab:hover:not(:disabled) { color: var(--vp-c-text-1); }
+}
 .bpc-block__tab.is-active {
   background: var(--vp-c-bg);
   color: var(--vp-c-text-1);
@@ -273,12 +291,14 @@
   transition: color var(--bc-duration-base) ease;
 }
 
-.bpc-block__editor-link:hover { color: var(--vp-c-brand-2); }
-
 .bpc-block__editor-link__glyph { transition: transform var(--bc-duration-base) ease; }
 
-.bpc-block__editor-link:hover .bpc-block__editor-link__glyph {
-  transform: translateX(2px);
+@media (hover: hover) {
+  .bpc-block__editor-link:hover { color: var(--vp-c-brand-2); }
+
+  .bpc-block__editor-link:hover .bpc-block__editor-link__glyph {
+    transform: translateX(2px);
+  }
 }
 
 .bpc-block--code-only .bpc-block__tabs { display: none; }
@@ -299,6 +319,7 @@
  * the group should fill the available space. */
 .VPSidebar > .nav > .group {
   width: 100%;
+  padding-top: 0;
 }
 
 /* Group spacing — remove VP's between-group top border + padding; 14px gap.
@@ -319,10 +340,10 @@
 .VPSidebar .group .VPSidebarItem.level-0 > .item > .text {
   font-size: var(--bs-font-size-xs);
   font-weight: 600;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--bs-tertiary-color);
-  line-height: 1.4;
+  line-height: 1.5;
   padding: 6px 8px 4px;
   align-self: center;
 }
@@ -333,23 +354,31 @@
 .VPSidebar .VPSidebarItem .item > .link {
   padding: 5px 8px;
   border-radius: var(--bc-radius-sm);
-  transition: background var(--bc-duration-base) var(--bc-ease);
+  transition: background-color var(--bc-duration-base) var(--bc-ease);
 }
 .VPSidebar .VPSidebarItem .item > .link > .text {
   padding: 0;
-  line-height: 1.4;
+  line-height: 1.5;
+  font-size: var(--bs-font-size-md);
+  font-weight: 400;
 }
-.VPSidebar .VPSidebarItem .item > .link:hover {
-  background: var(--bc-wash-soft);
+.VPSidebar .VPSidebarItem.level-0 > .items {
+  display: grid;
+  gap: 1px;
+}
+@media (hover: hover) {
+  .VPSidebar .VPSidebarItem .item > .link:hover {
+    background: var(--bc-wash-soft);
+  }
 }
 
-/* Active item — filled pill, body-color text via local --vp-c-brand-1 redef,
+/* Active item — filled pill, emphasis-color text via local --vp-c-brand-1 redef,
  * weight 500. Redefining the variable inside the active link's scope makes
- * VP's `.text { color: var(--vp-c-brand-1) }` resolve to body color without
+ * VP's `.text { color: var(--vp-c-brand-1) }` resolve to emphasis color without
  * fighting (0,7,0) specificity on .text itself. */
 .VPSidebar .VPSidebarItem.is-active > .item > .link {
-  background: var(--bc-wash-firm);
-  --vp-c-brand-1: var(--bs-body-color);
+  background: var(--bs-tertiary-bg);
+  --vp-c-brand-1: var(--bs-emphasis-color);
 }
 .VPSidebar .VPSidebarItem.is-active > .item > .link > .text {
   font-weight: 500;
@@ -362,6 +391,7 @@
 
 /* Caret — quiet affordance. */
 .VPSidebar .VPSidebarItem > .item > .caret {
+  height: auto;
   opacity: 0.5;
   color: var(--bs-tertiary-color);
 }
@@ -377,9 +407,11 @@
   height: var(--vp-nav-height, 44px);
   padding: 0 8px;
 }
+.VPSidebar .docs-sidebar-brand__home {
+  padding: 0.25rem;
+}
 .VPSidebar .docs-sidebar-brand__logo {
   height: 1.25rem;
-  margin: 0.25rem;
 }
 
 /* Container padding — tighter horizontal (0.375rem, editor parity with
@@ -401,6 +433,11 @@
   .VPSidebar.VPSidebar.VPSidebar {
     width: var(--vp-sidebar-width);
   }
+}
+
+.VPSidebar .docs-sidebar-search {
+  width: calc(100% - 1rem);
+  margin: 0.25rem 0.5rem 1.25rem;
 }
 
 .VPSidebar .docs-sidebar-editor.docs-sidebar-editor { display: none; }
