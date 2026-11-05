@@ -166,9 +166,12 @@ export function serializeTableData(cols: string[], rows: string[][]): string {
 export function chartDataToTable(data: ChartData): TransformResult {
   const cell = (v: number | undefined) => (v == null || !Number.isFinite(v) ? '' : String(v))
   const columns = ['label', ...(data.series ? data.series.map(s => s.name) : ['value'])]
+  const textByName = new Map(data.textColumns?.map(c => [c.name, c.values]))
+  const seriesCell = (name: string, values: (number | undefined)[], i: number) =>
+    textByName.has(name) ? (textByName.get(name)?.[i] ?? '') : cell(values[i])
   const rows = data.labels.map((label, i) => [
     label,
-    ...(data.series ? data.series.map(s => cell(s.values[i])) : [cell(data.values[i])]),
+    ...(data.series ? data.series.map(s => seriesCell(s.name, s.values, i)) : [cell(data.values[i])]),
   ])
   return { columns, rows, columnTypes: detectColumnTypes(columns, rows) }
 }
