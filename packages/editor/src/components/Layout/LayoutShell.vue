@@ -66,12 +66,14 @@ useEventListener(document, 'keydown', (event: globalThis.KeyboardEvent) => {
     class="layout-shell layout-shell--app"
   >
     <aside class="layout-shell__sidebar">
-      <LayoutSidebar />
+      <LayoutSidebar @search-click="paletteOpen = true" />
     </aside>
-    <div class="layout-shell__topbar">
+    <div
+      v-if="isNarrow"
+      class="layout-shell__topbar"
+    >
       <LayoutNavbar
         :sidebar-open="sidebarOpen"
-        @search-click="paletteOpen = true"
         @toggle-sidebar="sidebarOpen = !sidebarOpen"
       />
     </div>
@@ -92,7 +94,7 @@ useEventListener(document, 'keydown', (event: globalThis.KeyboardEvent) => {
       aria-label="Workspace navigation"
       class="layout-shell__sidebar-offcanvas"
     >
-      <LayoutSidebar>
+      <LayoutSidebar @search-click="paletteOpen = true">
         <template #trailing>
           <ButtonClose @click="sidebarOpen = false" />
         </template>
@@ -143,10 +145,8 @@ $grid-breakpoints: (
 .layout-shell--app {
   display: grid;
   grid-template-columns: 17rem 1fr; // 272px — matches VP's --vp-sidebar-width
-  grid-template-rows: 2.75rem 1fr;
-  grid-template-areas:
-    'sidebar topbar'
-    'sidebar main';
+  grid-template-rows: 1fr;
+  grid-template-areas: 'sidebar main';
   height: 100vh;
   height: 100dvh;
   overflow: hidden;
@@ -155,6 +155,7 @@ $grid-breakpoints: (
   // The sidebar is reachable via the offcanvas (LayoutNavbar hamburger).
   @include bsbp.media-breakpoint-down(xl, $grid-breakpoints) {
     grid-template-columns: 1fr;
+    grid-template-rows: 2.75rem 1fr;
     grid-template-areas:
       'topbar'
       'main';

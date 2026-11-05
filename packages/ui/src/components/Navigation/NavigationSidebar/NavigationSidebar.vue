@@ -20,6 +20,12 @@ withDefaults(defineProps<{
     <div class="navigation-sidebar__body">
       <slot />
     </div>
+    <div
+      v-if="$slots.footer"
+      class="navigation-sidebar__footer"
+    >
+      <slot name="footer" />
+    </div>
   </nav>
 </template>
 
@@ -46,5 +52,11 @@ withDefaults(defineProps<{
   display: flex;
   flex-direction: column;
   gap: 0.875rem;
+}
+
+.navigation-sidebar__footer {
+  margin-top: auto;
+  padding: 0.75rem 0.5rem 0;
+  border-top: 1px solid var(--bs-border-color);
 }
 </style>

@@ -23,15 +23,11 @@ async function mountNavbar(initialPath = '/charts') {
 }
 
 describe('LayoutNavbar', () => {
-  it('renders the ⌘K command bar', async () => {
+  it('leaves search, theme and account to the sidebar', async () => {
     const wrapper = await mountNavbar()
-    expect(wrapper.find('.navigation-command-bar').exists()).toBe(true)
-  })
-
-  it('emits searchClick when the command bar is pressed', async () => {
-    const wrapper = await mountNavbar()
-    await wrapper.find('.navigation-command-bar').trigger('click')
-    expect(wrapper.emitted('searchClick')).toHaveLength(1)
+    expect(wrapper.find('.navigation-command-bar').exists()).toBe(false)
+    expect(wrapper.find('button[aria-label="Toggle theme"]').exists()).toBe(false)
+    expect(wrapper.find('.account-menu').exists()).toBe(false)
   })
 
   it('renders the workspace switcher only in the leading cluster (sidebar owns primary identity)', async () => {
@@ -44,17 +40,6 @@ describe('LayoutNavbar', () => {
   it('does not render a Breadcrumb landmark (moved to contextual header)', async () => {
     const wrapper = await mountNavbar('/charts')
     expect(wrapper.find('nav[aria-label="Breadcrumb"]').exists()).toBe(false)
-  })
-
-  it('renders the command bar to the left of the theme toggle', async () => {
-    const wrapper = await mountNavbar('/charts')
-    const header = wrapper.find('header.layout-navbar')
-    const html = header.html()
-    const searchIdx = html.indexOf('navigation-command-bar')
-    const themeIdx = html.indexOf('aria-label="Toggle theme"')
-    expect(searchIdx).toBeGreaterThan(-1)
-    expect(themeIdx).toBeGreaterThan(-1)
-    expect(searchIdx).toBeLessThan(themeIdx)
   })
 
   it('renders the leading cluster (hamburger + workspace switcher) with d-xl-none', async () => {

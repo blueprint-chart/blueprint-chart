@@ -29,7 +29,7 @@ async function mountShell(initialPath = '/charts', attach = false) {
     attachTo: attach ? document.body : undefined,
     slots: { default: '<div class="slot-content">slot</div>' },
     global: {
-      stubs: { 'router-link': RouterLinkStub, 'BOffcanvas': { template: '<div class="b-offcanvas-stub" :data-open="modelValue"><slot /></div>', props: ['modelValue', 'placement', 'noHeader'] } },
+      stubs: { 'router-link': RouterLinkStub, 'BOffcanvas': { template: '<div class="b-offcanvas-stub" :data-open="modelValue"><slot /></div>', props: ['modelValue', 'placement', 'noHeader'] }, 'CommandPaletteModal': { name: 'CommandPaletteModal', template: '<div />', props: ['open'] } },
       plugins: [createTestingPinia({ createSpy: vi.fn }), router],
     },
   })
@@ -105,5 +105,26 @@ describe('LayoutShell — sidebarOpen state', () => {
     isNarrowRef.value = false
     const wrapper = await mountShell()
     expect(wrapper.find('.b-offcanvas-stub').exists()).toBe(false)
+  })
+})
+
+describe('LayoutShell — sidebar chrome', () => {
+  it('drops the topbar when wide', async () => {
+    isNarrowRef.value = false
+    const wrapper = await mountShell()
+    expect(wrapper.find('.layout-shell__topbar').exists()).toBe(false)
+  })
+
+  it('keeps the topbar when narrow', async () => {
+    const wrapper = await mountShell()
+    expect(wrapper.find('.layout-shell__topbar').exists()).toBe(true)
+  })
+
+  it('opens the command palette from the sidebar search', async () => {
+    isNarrowRef.value = false
+    const wrapper = await mountShell()
+    await wrapper.findComponent({ name: 'LayoutSidebar' }).vm.$emit('searchClick')
+    await nextTick()
+    expect(wrapper.findComponent({ name: 'CommandPaletteModal' }).props('open')).toBe(true)
   })
 })
