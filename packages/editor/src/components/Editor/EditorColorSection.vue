@@ -199,17 +199,18 @@ const cvdOptions = [
 ]
 
 const paletteOptions = computed(() => [
-  { value: '', label: 'Custom', colors: [] as string[] },
-  ...listPalettes().map(p => ({
-    value: p.name,
-    label: p.label,
-    colors: [...p.colors],
-  })),
+  { value: '', label: 'Custom', colors: [] as string[], group: 'Your palettes' },
   ...customPalettes.value.map(p => ({
     value: `custom:${p.id}`,
     label: p.label,
     colors: [...p.colors],
     group: 'Your palettes',
+  })),
+  ...listPalettes().map(p => ({
+    value: p.name,
+    label: p.label,
+    colors: [...p.colors],
+    group: 'Built-in',
   })),
 ])
 
