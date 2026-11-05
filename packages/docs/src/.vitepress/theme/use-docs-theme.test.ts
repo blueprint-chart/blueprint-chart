@@ -27,6 +27,20 @@ function setMatchMedia(dark: boolean) {
 }
 
 describe('useDocsTheme', () => {
+  it('disables transitions while the theme attribute flips, then restores them', async () => {
+    vi.useFakeTimers({ toFake: ['requestAnimationFrame'] })
+    const { theme } = useDocsTheme()
+    vi.advanceTimersToNextFrame()
+
+    theme.value = theme.value === 'dark' ? 'light' : 'dark'
+    await nextTick()
+
+    expect(document.head.innerHTML).toContain('transition:none!important')
+    vi.advanceTimersToNextFrame()
+    expect(document.head.innerHTML).not.toContain('transition:none!important')
+    vi.useRealTimers()
+  })
+
   beforeEach(() => {
     localStorage.clear()
     document.documentElement.removeAttribute('data-bs-theme')

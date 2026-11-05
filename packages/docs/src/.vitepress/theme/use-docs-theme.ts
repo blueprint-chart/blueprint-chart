@@ -1,6 +1,7 @@
 import { computed, ref, watch } from 'vue'
 import { useMediaQuery, useStorage } from '@vueuse/core'
 import { useData } from 'vitepress'
+import { withoutTransitions } from '@blueprint-chart/ui'
 
 export type DocsThemeMode = 'light' | 'dark' | 'auto'
 
@@ -58,10 +59,14 @@ export function useDocsTheme() {
   watch(
     resolvedTheme,
     (resolved) => {
-      if (typeof document !== 'undefined') {
-        document.documentElement.setAttribute('data-bs-theme', resolved)
+      if (typeof document === 'undefined') {
+        isDark.value = resolved === 'dark'
+        return
       }
-      isDark.value = resolved === 'dark'
+      withoutTransitions(() => {
+        document.documentElement.setAttribute('data-bs-theme', resolved)
+        isDark.value = resolved === 'dark'
+      })
     },
     { immediate: true },
   )
