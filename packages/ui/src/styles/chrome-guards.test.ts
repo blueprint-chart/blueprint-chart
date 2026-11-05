@@ -180,8 +180,8 @@ describe('docs code and tertiary text', () => {
 
   it('uses high-contrast Shiki themes', () => {
     const config = docsFile('config.ts')
-    expect(config).toContain("light: 'github-light-high-contrast'")
-    expect(config).toContain("dark: 'github-dark-high-contrast'")
+    expect(config).toContain('light: \'github-light-high-contrast\'')
+    expect(config).toContain('dark: \'github-dark-high-contrast\'')
   })
 
   it('bridges --vp-c-text-3 to the shared tertiary token in both themes', () => {
