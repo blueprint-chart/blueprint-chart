@@ -26,6 +26,10 @@ const css = sass.compile(here('./main.scss'), {
 }).css
 
 describe('button recipe', () => {
+  it('does not scale buttons on press', () => {
+    expect(css).not.toMatch(/\.btn[^{]*:active\s*{\s*scale:/)
+  })
+
   it('rings every button with the shared focus token', () => {
     expect(css).toMatch(/\.btn\s*{[^}]*--bs-btn-focus-box-shadow:\s*var\(--bc-focus-ring\)/)
     expect(css).not.toMatch(/--bs-btn-focus-shadow-rgb:\s*37,\s*99,\s*160/)

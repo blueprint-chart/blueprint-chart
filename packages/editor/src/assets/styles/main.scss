@@ -67,12 +67,6 @@ body {
   --bs-btn-active-shadow: none;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .btn:not(:disabled):not(.disabled):not(.btn-group > .btn):not(.input-group > .btn):active {
-    scale: .96;
-  }
-}
-
 .btn-primary {
   @include button-variant($btn-primary-bg, $btn-primary-border, $body-color, $btn-primary-hover-bg, $btn-primary-border, $body-color);
 }
