@@ -38,6 +38,7 @@ function ensureStyles(): void {
       font-size: 13px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.12);
       z-index: 9999;
+      white-space: pre-line;
       display: none;
     }
   `
@@ -58,6 +59,7 @@ export interface ProximityOptions {
   height: number
   points: ProximityPoint[]
   tooltip?: boolean
+  nearest?: 'x' | 'xy'
   crosshair?: boolean
   crosshairDirection?: 'both' | 'vertical' | 'horizontal'
   crosshairStyle?: 'solid' | 'dashed' | 'dotted'
@@ -99,6 +101,7 @@ export function setupProximityInteraction(
     height,
     points,
     tooltip = true,
+    nearest: nearestMode = 'x',
     crosshair = false,
     crosshairDirection = CrosshairDirection.Both,
     crosshairStyle = CrosshairStyle.Dashed,
@@ -183,7 +186,12 @@ export function setupProximityInteraction(
     .attr('fill', 'none')
     .attr('pointer-events', 'all')
 
+  const delaunay = nearestMode === 'xy' ? d3.Delaunay.from(points, p => p.cx, p => p.cy) : null
+
   function findNearest(mouseX: number, mouseY: number): ProximityPoint | null {
+    if (delaunay) {
+      return points[delaunay.find(mouseX, mouseY)]
+    }
     if (xPositions.length === 0) {
       return null
     }

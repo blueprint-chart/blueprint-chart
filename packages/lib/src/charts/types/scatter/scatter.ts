@@ -20,8 +20,10 @@ import { AnnotationKind } from '../../../enums'
 import { renderAnnotations } from '../../plugins/annotations'
 import { buildColorOverrides } from '../../plugins/colorize'
 import { highlightOpacity } from '../../plugins/highlight'
+import { disposeProximityFor, setupProximityInteraction } from '../../plugins/proximity'
 import { highlightedPointNames, resolvePointColor, splitColorOverrides } from './emphasis'
 import { placePointLabels } from './labels'
+import { formatScatterTooltip } from './tooltip'
 
 export const DEFAULT_COLOR = '#4e79a7'
 export const DOT_RADIUS = 4.5
@@ -72,6 +74,7 @@ export function render(
   transition = false,
 ): void {
   setRenderTransition(transition)
+  disposeProximityFor(container)
   const axes = AxisService.for(container)
   const cached = transition ? getCachedChart(container) : undefined
   if (transition) {
@@ -201,6 +204,19 @@ export function render(
 
   const key = renderScatterKey(chartArea, { ...keyContent, radius: radiusOf })
   key?.setAttribute('transform', `translate(${width + sideLegendWidth + KEY_GAP},${height})`)
+
+  if (options.tooltips) {
+    const byName = new Map(points.map(p => [p.name, p]))
+    const formats = { x: options.horizontalAxis?.numberFormat, y: options.verticalAxis?.numberFormat }
+    setupProximityInteraction(chartArea, {
+      width,
+      height,
+      points: points.map(p => ({ cx: x(p.x), cy: y(p.y), label: p.name, value: p.y, color: color(p) })),
+      nearest: 'xy',
+      format: p => formatScatterTooltip(byName.get(p.label)!, mapping, formats),
+      container,
+    })
+  }
 
   setCachedChart(container, { chartType: 'scatter', margin, plotRect })
 }

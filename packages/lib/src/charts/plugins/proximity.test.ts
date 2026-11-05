@@ -262,6 +262,28 @@ describe('setupProximityInteraction', () => {
     cleanup()
   })
 
+  describe('nearest', () => {
+    const column = [
+      { cx: 100, cy: 10, label: 'A', value: 1, color: '#f00' },
+      { cx: 102, cy: 200, label: 'B', value: 2, color: '#0f0' },
+    ]
+
+    function hover(nearest?: 'x' | 'xy'): string {
+      setupProximityInteraction(g, { width: 400, height: 300, points: column, nearest })
+      const event = new MouseEvent('mousemove', { clientX: 100.5, clientY: 195 })
+      g.querySelector('.bc-proximity-overlay')!.dispatchEvent(event)
+      return document.querySelector('.bc-tooltip')!.textContent!
+    }
+
+    it('picks the nearest x column by default', () => {
+      expect(hover()).toBe('A: 1')
+    })
+
+    it('picks the nearest point in 2D with nearest="xy"', () => {
+      expect(hover('xy')).toBe('B: 2')
+    })
+  })
+
   // ── Per-container cleanup registry ───────────────────────────────
 
   describe('disposeProximityFor', () => {
