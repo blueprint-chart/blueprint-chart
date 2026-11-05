@@ -49,4 +49,14 @@ describe('PalettesCategoryTable', () => {
     expect(wrapper.find('.palettes-category-table__row').exists()).toBe(false)
     expect(useCategoryColors().categoryColors.value).toHaveLength(0)
   })
+
+  it('changes the color of an existing row', async () => {
+    localStorage.setItem(CATEGORY_COLORS_KEY, JSON.stringify([{ name: 'France', color: '#0055A4' }]))
+    const wrapper = mountTable()
+    const hex = wrapper.find('.palettes-category-table__row__color .form-control-color-input__wrapper__field')
+    await hex.setValue('#111111')
+    await hex.trigger('change')
+    await flushPromises()
+    expect(useCategoryColors().categoryColors.value).toEqual([{ name: 'France', color: '#111111' }])
+  })
 })
