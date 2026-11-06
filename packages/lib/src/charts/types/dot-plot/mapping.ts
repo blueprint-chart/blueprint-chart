@@ -1,9 +1,10 @@
+import { DotStyle } from '../../../enums'
 import type { ChartData } from '../../types'
 import { MAPPING_NONE, numericColumns } from '../scatter/mapping'
 
 export type DotPlotMode = 'single' | 'dumbbell' | 'range'
 
-export interface DotPlotMapping { low?: string, high?: string }
+export interface DotPlotMapping { dotStyle?: DotStyle, low?: string, high?: string }
 
 export interface ResolvedDotPlot {
   mode: DotPlotMode
@@ -31,11 +32,14 @@ function resolveRole(columns: string[], role: 'low' | 'high', override?: string)
 
 export function resolveDotPlotMapping(data: ChartData, overrides: DotPlotMapping = {}): ResolvedDotPlot {
   const columns = numericColumns(data)
+  if (overrides.dotStyle !== DotStyle.Range) {
+    return { mode: columns.length > 1 ? 'dumbbell' : 'single', values: columns, ignored: [] }
+  }
   const low = resolveRole(columns, 'low', overrides.low)
   const high = resolveRole(columns.filter(name => name !== low), 'high', overrides.high)
   const [value, ...ignored] = columns.filter(name => name !== low && name !== high)
   if (low && high && value) {
     return { mode: 'range', values: [value], low, high, ignored }
   }
-  return { mode: columns.length > 1 ? 'dumbbell' : 'single', values: columns, ignored: [] }
+  return { mode: 'single', values: [value ?? columns[0]].filter(Boolean), ignored: [] }
 }

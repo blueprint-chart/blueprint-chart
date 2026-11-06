@@ -13,6 +13,7 @@ import type {
   SymbolStyle,
   SortDirection,
   SortMode,
+  DotStyle,
   LegendPosition,
   Anchor,
   ValueLabelPosition,
@@ -246,6 +247,7 @@ export interface ChartOptions {
   size?: string
   group?: string
   trend?: string
+  dotStyle?: DotStyle
   low?: string
   high?: string
   arrows?: boolean
@@ -345,6 +347,7 @@ export interface ChartTypeOptions {
   size: string
   group: string
   trend: string
+  dotStyle: DotStyle
   low: string
   high: string
   arrows: boolean

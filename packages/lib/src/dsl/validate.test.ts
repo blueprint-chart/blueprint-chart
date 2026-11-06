@@ -769,6 +769,11 @@ describe('dot plot validation', () => {
     expect(errors).toEqual([])
     expect(warnings).toContainEqual(expect.objectContaining({ code: 'unknown-column', path: 'chart.low', suggestion: 'Low' }))
   })
+  it('reads dotStyle to check range columns', () => {
+    const noRange = 'data {\n    series = "Poll","Margin"\n    "SPD" = 14,2\n  }'
+    const r = validateChart(parse(`chart dot-plot {\n  dotStyle = "range"\n  ${noRange}\n}`))
+    expect(r.warnings).toContainEqual(expect.objectContaining({ code: 'missing-range-columns', path: 'data' }))
+  })
   it('warns about dropped rows in a scene typed dot-plot', () => {
     const r = validateChart(parse(`chart bar-vertical {\n  data {\n    "a" = 1\n  }\n  scene {\n    type = "dot-plot"\n    ${data}\n  }\n}`))
     expect(r.warnings).toContainEqual(expect.objectContaining({ code: 'dropped-rows', path: 'scene[0].data' }))

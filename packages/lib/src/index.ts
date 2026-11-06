@@ -19,6 +19,7 @@ export {
   SymbolStyle,
   SortDirection,
   SortMode,
+  DotStyle,
   LegendPosition,
   Anchor,
   ValueLabelPosition,

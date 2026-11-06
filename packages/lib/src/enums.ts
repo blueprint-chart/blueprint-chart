@@ -172,6 +172,11 @@ export enum SortDirection {
   None = 'none',
 }
 
+export enum DotStyle {
+  Dumbbell = 'dumbbell',
+  Range = 'range',
+}
+
 export enum SortMode {
   Total = 'total',
   WithinGroups = 'within-groups',

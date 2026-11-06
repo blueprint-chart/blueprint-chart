@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { ScaleType, SortMode } from '../../../enums'
+import { DotStyle, ScaleType, SortMode } from '../../../enums'
 import { parseData } from '../../parse-data'
 import type { ChartData } from '../../types'
 import { resolveDotPlotMapping } from './mapping'
@@ -8,6 +8,7 @@ import type { DotPlotRow } from './rows'
 
 const DUMBBELL = parseData('series = "2015","2024"\n"a" = 10,30\n"b" = 50,40\n"c" = 20,60')
 const resolved = (d: ChartData) => resolveDotPlotMapping(d)
+const resolvedRange = (d: ChartData) => resolveDotPlotMapping(d, { dotStyle: DotStyle.Range })
 
 describe('buildDotPlotRows', () => {
   it('builds one row per label with values in column order', () => {
@@ -15,7 +16,7 @@ describe('buildDotPlotRows', () => {
   })
   it('carries low and high in range mode', () => {
     const d = parseData('series = "Poll","High","Low"\n"SPD" = 14,16,12')
-    expect(buildDotPlotRows(d, resolved(d)).rows[0]).toEqual({ name: 'SPD', values: [14], low: 12, high: 16 })
+    expect(buildDotPlotRows(d, resolvedRange(d)).rows[0]).toEqual({ name: 'SPD', values: [14], low: 12, high: 16 })
   })
   it('drops a row with an empty value cell instead of drawing 0', () => {
     const d = parseData('series = "2015","2024"\n"a" = 10,\n"b" = 1,2')
@@ -23,11 +24,11 @@ describe('buildDotPlotRows', () => {
   })
   it('drops a row with a missing low or high', () => {
     const d = parseData('series = "Poll","High","Low"\n"a" = 14,,12')
-    expect(buildDotPlotRows(d, resolved(d)).dropped).toEqual([{ name: 'a', reason: 'missing-range' }])
+    expect(buildDotPlotRows(d, resolvedRange(d)).dropped).toEqual([{ name: 'a', reason: 'missing-range' }])
   })
   it('drops non-positive values on a log axis', () => {
     const d = parseData('series = "Poll","High","Low"\n"a" = 14,16,0')
-    expect(buildDotPlotRows(d, resolved(d), ScaleType.Log).dropped).toEqual([{ name: 'a', reason: 'non-positive-log' }])
+    expect(buildDotPlotRows(d, resolvedRange(d), ScaleType.Log).dropped).toEqual([{ name: 'a', reason: 'non-positive-log' }])
   })
 })
 

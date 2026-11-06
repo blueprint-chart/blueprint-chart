@@ -13,6 +13,7 @@ import {
   SymbolShowOn,
   SymbolStyle,
   SortMode,
+  DotStyle,
   StackMode,
   SortDirection,
   Interpolation,
@@ -479,6 +480,16 @@ const dotPlotMappingOpts: ChartOptionDef[] = [
   { key: 'low', type: ChartOptionType.Text, label: 'Low column', default: '' },
   { key: 'high', type: ChartOptionType.Text, label: 'High column', default: '' },
 ]
+const dotStyleOpt: ChartOptionDef = {
+  key: 'dotStyle',
+  type: ChartOptionType.Select,
+  label: 'Style',
+  default: DotStyle.Dumbbell,
+  choices: [
+    { value: DotStyle.Dumbbell, text: 'Dumbbell' },
+    { value: DotStyle.Range, text: 'Range' },
+  ],
+}
 const arrowsOpt: ChartOptionDef = { key: 'arrows', type: ChartOptionType.Boolean, label: 'Arrows', default: false }
 const dotPlotSortModeOpt: ChartOptionDef = {
   ...sortModeOpt,
@@ -490,7 +501,7 @@ const dotPlotSortModeOpt: ChartOptionDef = {
   ],
 }
 const dotPlotAxisOpts = axisOpts({ verticalGrid: GridStyle.None, horizontalGrid: GridStyle.Dashed, showVerticalTicks: false, showHorizontalTicks: false, showHorizontalAxis: false, valueAxis: 'horizontal' })
-registerChart(ChartType.DotPlot, dotPlot, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, ...dotPlotMappingOpts, arrowsOpt, dotPlotSortModeOpt, legendOpt, legendPositionOpt, legendAnchorOpt, categoryLabelLineOpt, ...dotPlotAxisOpts, valueLabelsOpt, { ...tooltipsOpt, default: true }])
+registerChart(ChartType.DotPlot, dotPlot, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, dotStyleOpt, ...dotPlotMappingOpts, arrowsOpt, dotPlotSortModeOpt, legendOpt, legendPositionOpt, legendAnchorOpt, categoryLabelLineOpt, ...dotPlotAxisOpts, valueLabelsOpt, { ...tooltipsOpt, default: true }])
 
 // Aliases share the same entry
 registerChart(ChartType.VerticalBar, barVertical, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, swapLabelValueOpt, barBackgroundOpt, barSeparatorsOpt, barGapOpt, connectedColumnsOpt, connectionsOpacityOpt, waterfallOpt, waterfallTotalOpt, categoryLabelLineOpt, ...barVerticalAxisOpts, ...barOpts])

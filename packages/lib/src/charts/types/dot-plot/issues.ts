@@ -1,4 +1,4 @@
-import { ScaleType } from '../../../enums'
+import { DotStyle, ScaleType } from '../../../enums'
 import { nearest } from '../../../dsl/suggest'
 import type { ChartData } from '../../types'
 import { MAPPING_NONE } from '../scatter/mapping'
@@ -55,11 +55,19 @@ function ignoredColumns(values: string[], ignored: string[]): DotPlotIssue[] {
   return [{ code: 'ignored-columns', severity: 'warning', message: `Range mode uses ${quoted(values)} as the value and ignores ${quoted(ignored)}.` }]
 }
 
+function missingRangeColumns(overrides: DotPlotMapping, mode: string): DotPlotIssue[] {
+  if (overrides.dotStyle !== DotStyle.Range || mode === 'range') {
+    return []
+  }
+  return [{ code: 'missing-range-columns', severity: 'warning', message: 'Range style needs a low and a high column. Pick them in low and high.' }]
+}
+
 export function dotPlotIssues(data: ChartData, overrides: DotPlotMapping, scaleType?: ScaleType): DotPlotIssue[] {
   const resolved = resolveDotPlotMapping(data, overrides)
   const { rows, dropped } = buildDotPlotRows(data, resolved, scaleType)
   return [
     ...unknownColumns(data, overrides),
+    ...missingRangeColumns(overrides, resolved.mode),
     ...droppedRows(dropped, DROP_REASONS),
     ...(resolved.mode === 'range' ? valuesOutsideRange(rows) : []),
     ...ignoredColumns(resolved.values, resolved.ignored),

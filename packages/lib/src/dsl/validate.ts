@@ -2,7 +2,7 @@ import type { ChartNode, DataNode, SceneNode, PropertyNode, AnnotationNode, Seri
 import type { ChartOptionDef } from '../charts/types'
 import { getChartOptions, listCharts } from '../charts/registry'
 import { listThemes } from '../charts/themes'
-import { ChartOptionType, ChartType, ScaleType, AnnotationKind, ANNOTATION_KIND_KEYWORD } from '../enums'
+import { ChartOptionType, ChartType, DotStyle, ScaleType, AnnotationKind, ANNOTATION_KIND_KEYWORD } from '../enums'
 import { nearest } from './suggest'
 import { dataEntriesToString, propertyMap } from './converter'
 import { parseData } from '../charts/parse-data'
@@ -668,7 +668,7 @@ function validateDotPlotData(
   }
   const props = propertyMap(properties)
   const text = (key: string) => (props.has(key) ? String(props.get(key)) : undefined)
-  const overrides = { low: text('low'), high: text('high') }
+  const overrides = { dotStyle: text('dotStyle') as DotStyle | undefined, low: text('low'), high: text('high') }
   for (const issue of dotPlotIssues(parseData(dataEntriesToString(data)), overrides, text('horizontalScaleType') as ScaleType | undefined)) {
     warnings.push(toValidationIssue(issue, issue.key ? `${basePath}.${issue.key}` : dataPath))
   }

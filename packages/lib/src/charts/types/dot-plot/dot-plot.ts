@@ -62,7 +62,7 @@ export function render(
     container.replaceChildren()
   }
 
-  const resolved = resolveDotPlotMapping(data, { low: options.low, high: options.high })
+  const resolved = resolveDotPlotMapping(data, { dotStyle: options.dotStyle, low: options.low, high: options.high })
   const scaleType = options.horizontalAxis?.scaleType
   const built = buildDotPlotRows(data, resolved, scaleType)
   const rows = sortDotPlotRows(built.rows, options.sortMode, resolved.mode)

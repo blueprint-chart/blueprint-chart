@@ -19,6 +19,7 @@ import {
   SymbolStyle,
   SortDirection,
   SortMode,
+  DotStyle,
   LegendPosition,
   Anchor,
   ValueLabelPosition,
@@ -255,6 +256,12 @@ describe('SortDirection', () => {
     expect(SortDirection.Ascending).toBe('ascending')
     expect(SortDirection.Descending).toBe('descending')
     expect(SortDirection.None).toBe('none')
+  })
+})
+
+describe('DotStyle', () => {
+  it('has dumbbell and range', () => {
+    expect(enumValues(DotStyle)).toEqual(['dumbbell', 'range'])
   })
 })
 

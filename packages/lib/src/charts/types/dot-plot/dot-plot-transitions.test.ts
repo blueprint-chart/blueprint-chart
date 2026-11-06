@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest'
 import { parseData } from '../../parse-data'
 import { getSceneTransition } from '../../../transitions'
-import { SortMode } from '../../../enums'
+import { DotStyle, SortMode } from '../../../enums'
 import { HIGHLIGHT_DIM_OPACITY } from '../../plugins/highlight'
 import { render as renderBarVertical } from '../bar-vertical/bar-vertical'
 import { render } from './dot-plot'
@@ -9,6 +9,7 @@ import { render } from './dot-plot'
 // Kept apart from dot-plot.test.ts: its fake timers leave d3-timer waiting on a frame that never fires, so tweens here would freeze.
 const RANGE = parseData('series = "Poll","High","Low"\n"CDU/CSU" = 29,32,27\n"Greens" = 22,25,20\n"SPD" = 14,16,12')
 const RANGE_SCENE_2 = parseData('series = "Poll","High","Low"\n"CDU/CSU" = 25,28,22\n"Greens" = 12,15,10\n"SPD" = 26,29,23')
+const RANGE_STYLE = { dotStyle: DotStyle.Range }
 const DUMBBELL = parseData('series = "2015","2024"\n"a" = 10,30\n"b" = 50,40\n"c" = 20,60')
 const wait = (ms: number) => new Promise(r => setTimeout(r, ms))
 
@@ -30,14 +31,14 @@ describe('dot plot scene transitions', () => {
   })
 
   it('keeps the same dot element across scenes', async () => {
-    render(container, RANGE, {})
+    render(container, RANGE, RANGE_STYLE)
     const before = container.querySelector('.bc-dot[data-key="SPD|Poll"]')
-    render(container, RANGE_SCENE_2, {}, true)
+    render(container, RANGE_SCENE_2, RANGE_STYLE, true)
     expect(container.querySelector('.bc-dot[data-key="SPD|Poll"]')).toBe(before)
   })
 
   it('fades range bars out when the next scene is a dumbbell', async () => {
-    render(container, RANGE, {})
+    render(container, RANGE, RANGE_STYLE)
     render(container, parseData('series = "2017","2021"\n"SPD" = 20,26\n"Greens" = 9,15'), {}, true)
     await wait(1200)
     expect(container.querySelectorAll('.bc-dot-range')).toHaveLength(0)
@@ -46,16 +47,16 @@ describe('dot plot scene transitions', () => {
 
   it('cross-fades from another chart type', () => {
     renderBarVertical(container, parseData('"a" = 1'), {})
-    render(container, RANGE, {}, true)
+    render(container, RANGE, RANGE_STYLE, true)
     expect(container.querySelectorAll('.bc-dot')).toHaveLength(3)
   })
 
   it('glides a kept dot mid-transition', async () => {
     const orch = getSceneTransition(container)
-    render(container, RANGE, {})
+    render(container, RANGE, RANGE_STYLE)
     const dot = container.querySelector('.bc-dot[data-key="SPD|Poll"]')!
     const start = Number(dot.getAttribute('cx'))
-    orch.run(() => render(container, RANGE_SCENE_2, {}, true), { duration: 1500 })
+    orch.run(() => render(container, RANGE_SCENE_2, RANGE_STYLE, true), { duration: 1500 })
     await wait(150)
     const mid = Number(dot.getAttribute('cx'))
     await wait(1700)
@@ -81,20 +82,20 @@ describe('dot plot scene transitions', () => {
   it('moves the dim to the newly highlighted row, then clears it', async () => {
     const orch = getSceneTransition(container)
     const opacity = (row: string) => container.querySelector(`.bc-dot[data-key="${row}|Poll"]`)!.getAttribute('opacity')
-    render(container, RANGE, { highlights: [{ target: 'SPD' }] })
-    orch.run(() => render(container, RANGE, { highlights: [{ target: 'Greens' }] }, true), { duration: 300 })
+    render(container, RANGE, { ...RANGE_STYLE, highlights: [{ target: 'SPD' }] })
+    orch.run(() => render(container, RANGE, { ...RANGE_STYLE, highlights: [{ target: 'Greens' }] }, true), { duration: 300 })
     await wait(800)
     expect(opacity('SPD')).toBe(String(HIGHLIGHT_DIM_OPACITY))
     expect(opacity('Greens')).toBe('1')
-    orch.run(() => render(container, RANGE, {}, true), { duration: 300 })
+    orch.run(() => render(container, RANGE, RANGE_STYLE, true), { duration: 300 })
     await wait(800)
     expect(['CDU/CSU', 'Greens', 'SPD'].map(opacity)).toEqual(['1', '1', '1'])
   })
 
   it('updates value label text on kept and entering rows', () => {
-    render(container, RANGE, { valueLabels: true })
+    render(container, RANGE, { ...RANGE_STYLE, valueLabels: true })
     const kept = container.querySelector('.bc-dot-label[data-key="SPD|range"]')!
-    render(container, parseData('series = "Poll","High","Low"\n"SPD" = 20,22,18\n"FDP" = 10,12,8'), { valueLabels: true }, true)
+    render(container, parseData('series = "Poll","High","Low"\n"SPD" = 20,22,18\n"FDP" = 10,12,8'), { ...RANGE_STYLE, valueLabels: true }, true)
     expect(kept.textContent).toBe('20')
     expect(container.querySelector('.bc-dot-label[data-key="FDP|range"]')!.textContent).toBe('10')
   })
@@ -110,9 +111,9 @@ describe('dot plot scene transitions', () => {
 
   it('leaves no ghost marks after rapid scene changes', async () => {
     const orch = getSceneTransition(container)
-    render(container, RANGE, {})
+    render(container, RANGE, RANGE_STYLE)
     for (const scene of [DUMBBELL, RANGE, DUMBBELL]) {
-      orch.run(() => render(container, scene, {}, true), { duration: 300 })
+      orch.run(() => render(container, scene, scene === RANGE ? RANGE_STYLE : {}, true), { duration: 300 })
       await wait(100)
     }
     await wait(1000)

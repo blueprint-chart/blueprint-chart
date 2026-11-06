@@ -148,6 +148,8 @@ describe('registry', () => {
 
   it('registers dot-plot with mapping, arrows and its sort choices', () => {
     const byKey = Object.fromEntries(getChartOptions('dot-plot').map(d => [d.key, d]))
+    expect(byKey.dotStyle.default).toBe('dumbbell')
+    expect(byKey.dotStyle.choices!.map(c => c.value)).toEqual(['dumbbell', 'range'])
     expect(byKey.low.default).toBe('')
     expect(byKey.high.default).toBe('')
     expect(byKey.arrows.default).toBe(false)
