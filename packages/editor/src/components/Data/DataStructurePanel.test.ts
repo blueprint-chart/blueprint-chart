@@ -49,6 +49,7 @@ vi.mock('@blueprint-chart/ui', () => ({
   LayoutBottomDrawer: { template: '<div class="drawer-stub"><slot /></div>', props: ['modelValue'] },
   ButtonIcon: { template: '<button class="btn-icon-stub"><slot /></button>', props: ['iconLeft', 'label', 'variant', 'size'] },
   useBreakpoint: () => ({ isNarrow: ref(false) }),
+  getChartTypeLabel: (chartType: string) => chartType,
 }))
 
 const commonStubs = {

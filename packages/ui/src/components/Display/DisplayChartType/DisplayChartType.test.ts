@@ -22,9 +22,9 @@ describe('DisplayChartType', () => {
     const expected: Record<string, string> = {
       [ChartType.BarVertical]: 'Columns',
       [ChartType.BarHorizontal]: 'Bars',
-      [ChartType.BarMulti]: 'Grouped Columns',
-      [ChartType.ColumnStacked]: 'Stacked Columns',
-      [ChartType.BarStacked]: 'Stacked Bars',
+      [ChartType.BarMulti]: 'Grouped columns',
+      [ChartType.ColumnStacked]: 'Stacked columns',
+      [ChartType.BarStacked]: 'Stacked bars',
       [ChartType.Line]: 'Line',
       [ChartType.LineMulti]: 'Lines',
       [ChartType.Area]: 'Area',

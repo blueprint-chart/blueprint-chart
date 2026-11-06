@@ -47,6 +47,7 @@ vi.mock('@/composables/useChartEditSections', () => ({
 const isNarrowRef = ref(false)
 vi.mock('@blueprint-chart/ui', () => ({
   useBreakpoint: () => ({ isNarrow: isNarrowRef }),
+  getChartTypeLabel: (chartType: string) => chartType,
 }))
 
 vi.mock('@vueuse/core', () => ({

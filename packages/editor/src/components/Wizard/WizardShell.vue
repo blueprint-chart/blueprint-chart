@@ -10,7 +10,7 @@ import { serializeTableData } from '@/stores/dataTable'
 import { useScenes } from '@/stores/scenes'
 import { resolveScene, resolveSortFromTransforms, findDataSourceSceneIndex } from '@/utils/scenes'
 import type { ChartColorize } from '@/stores/chartConfig'
-import { ChartType, SortDirection, parseData } from '@blueprint-chart/lib'
+import { SortDirection, parseData } from '@blueprint-chart/lib'
 import type { SeriesOverride } from '@blueprint-chart/lib'
 import { BBadge } from 'bootstrap-vue-next'
 import { NavigationStepperTabs, SceneList, LayoutBottomDrawer, useBreakpoint } from '@blueprint-chart/ui'
@@ -24,6 +24,7 @@ import IconPhExport from '~icons/ph/export'
 import LayoutPageHeader from '@/components/Layout/LayoutPageHeader.vue'
 import LayoutBreadcrumb from '@/components/Layout/LayoutBreadcrumb.vue'
 import { chartTypeForColumns } from '@/utils/wizardChartType'
+import { SINGLE_SERIES_TYPES } from '@/utils/chart/chartRender'
 import { accountsEnabled } from '@/config/runtimeConfig'
 import { useCloudCharts } from '@/stores/cloudCharts'
 import { useAccount } from '@/stores/account'
@@ -132,7 +133,6 @@ function addScene() {
 }
 
 const sceneThumbnails = ref<Record<number, string | null>>({})
-const singleSeriesTypes: string[] = [ChartType.BarVertical, ChartType.BarHorizontal, ChartType.Line, ChartType.VerticalBar, ChartType.HorizontalBar]
 
 type RenderOneOpts = {
   chartType: string
@@ -145,7 +145,7 @@ type RenderOneOpts = {
 
 function renderOne(opts: RenderOneOpts): string | null {
   const data = parseData(opts.dataStr)
-  if (data.series?.length && singleSeriesTypes.includes(opts.chartType)) {
+  if (data.series?.length && SINGLE_SERIES_TYPES.includes(opts.chartType)) {
     const match = data.series.find(s => s.name === config._base.selectedColumn.value)
     if (match) {
       data.values = match.values

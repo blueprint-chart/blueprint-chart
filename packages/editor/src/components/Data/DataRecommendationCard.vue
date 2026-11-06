@@ -27,25 +27,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Component } from 'vue'
-import { ChartType } from '@blueprint-chart/lib'
-import BarVerticalThumb from '@/assets/chart-thumbnails/bar-vertical.bpc'
-import BarHorizontalThumb from '@/assets/chart-thumbnails/bar-horizontal.bpc'
-import BarMultiThumb from '@/assets/chart-thumbnails/bar-multi.bpc'
-import LineThumb from '@/assets/chart-thumbnails/line.bpc'
-import LineMultiThumb from '@/assets/chart-thumbnails/line-multi.bpc'
-import DonutThumb from '@/assets/chart-thumbnails/donut.bpc'
-import PieThumb from '@/assets/chart-thumbnails/pie.bpc'
-
-const THUMB_MAP: Record<string, Component> = {
-  [ChartType.BarVertical]: markRaw(BarVerticalThumb),
-  [ChartType.BarHorizontal]: markRaw(BarHorizontalThumb),
-  [ChartType.BarMulti]: markRaw(BarMultiThumb),
-  [ChartType.Line]: markRaw(LineThumb),
-  [ChartType.LineMulti]: markRaw(LineMultiThumb),
-  [ChartType.Donut]: markRaw(DonutThumb),
-  [ChartType.Pie]: markRaw(PieThumb),
-}
+import { CHART_TYPE_THUMBNAILS } from '@/components/Editor/editorChartTypeGroups'
 
 const props = defineProps<{
   chartType: string
@@ -56,7 +38,7 @@ const props = defineProps<{
 
 defineEmits<{ select: [chartType: string] }>()
 
-const thumbComponent = computed(() => THUMB_MAP[props.chartType])
+const thumbComponent = computed(() => CHART_TYPE_THUMBNAILS[props.chartType])
 
 const badgeClass = computed(() => {
   if (props.fitness === 'best') {

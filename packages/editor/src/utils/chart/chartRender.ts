@@ -33,7 +33,7 @@ export type ChartRender
   = | { kind: 'empty' }
     | { kind: 'chart', definition: ChartDefinition, allowDarkMode: boolean }
 
-const singleSeriesTypes: string[] = [ChartType.BarVertical, ChartType.BarHorizontal, ChartType.Line, ChartType.VerticalBar, ChartType.HorizontalBar]
+export const SINGLE_SERIES_TYPES: string[] = [ChartType.BarVertical, ChartType.BarHorizontal, ChartType.Line, ChartType.VerticalBar, ChartType.HorizontalBar]
 
 function resolveDataString(s: RenderSnapshot, scene: SceneOverride | null): string {
   // Scene data > base pipeline + scene transforms > base pipeline > base
@@ -60,7 +60,7 @@ export function buildChartRender(s: RenderSnapshot): ChartRender {
   const chartType = scene?.chartType ?? s.chartType
   const data = parseData(resolveDataString(s, scene))
 
-  if (data.series && data.series.length > 0 && singleSeriesTypes.includes(chartType)) {
+  if (data.series && data.series.length > 0 && SINGLE_SERIES_TYPES.includes(chartType)) {
     const match = data.series.find(series => series.name === s.selectedColumn)
     if (match) {
       data.values = match.values
