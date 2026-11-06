@@ -1,3 +1,9 @@
+## [2.5.1](https://github.com/blueprint-chart/blueprint-chart/compare/v2.5.0...v2.5.1) (2026-11-06)
+
+### Bug Fixes
+
+* **editor:** list only owned charts in my charts ([58b96b6](https://github.com/blueprint-chart/blueprint-chart/commit/58b96b6a8aa4ce624abac3933a565629d770f7e5))
+
 ## [2.5.0](https://github.com/blueprint-chart/blueprint-chart/compare/v2.4.0...v2.5.0) (2026-11-05)
 
 ### Features
