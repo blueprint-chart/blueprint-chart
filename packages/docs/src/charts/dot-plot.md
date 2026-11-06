@@ -93,7 +93,13 @@ Range mode turns on when both a `low` and a `high` column resolve. Every other n
 
 ## Labels
 
-Value labels are off by default. `valueLabels = true` shows the value next to the outermost dot in a dumbbell and next to the range bar in range mode. The legend appears for dumbbells only, with one entry per value column.
+Value labels are off by default. `valueLabels = true` adds them:
+
+- Single: the value sits to the right of the dot.
+- Dumbbell: the lowest dot is labeled on its left and the highest on its right. Dots in between get no label.
+- Range: one label to the right of the bar. It shows the value of the dot, not the low or high number.
+
+The legend appears for dumbbells only, with one entry per value column.
 
 ## Highlight and colorize
 
@@ -202,6 +208,7 @@ Every property `dot-plot` accepts, beside the [frame and layout keys](/reference
 - Using `gap` sort on a single value or a range: it falls back to `value`
 - Naming a column `Max` or `Min` and getting range mode by surprise: set `low = "none"` to turn it off
 - Reading the arrow as a trend: it only points from the first column to the last
+- Using a log axis with values, lows or highs at or below 0: those rows are not drawn and are reported
 - Too many value columns: past three or four, the legend and the dots stop reading clearly
 
 ## Related types
