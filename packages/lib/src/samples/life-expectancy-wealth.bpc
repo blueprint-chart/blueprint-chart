@@ -74,12 +74,12 @@ chart scatter {
   annotation "Nigeria" {
     text = "17 years below the trend"
     showLine = true
-    anchorDirection = N
+    anchorDirection = SW
     textOffsetX = -60
     textOffsetY = 50
-    lineStyle = curve-left
-    showArrow = true
-    repeat = 1
+    lineStyle = elbow
+    showArrow = false
+    lineTargetDistance = 10
   }
 
   scene "1990" {
