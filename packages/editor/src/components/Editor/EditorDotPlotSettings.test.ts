@@ -35,6 +35,19 @@ describe('EditorDotPlotSettings', () => {
     expect(values).toContain('Low')
   })
 
+  it('clears high when low takes the same column', async () => {
+    currentOptions.value = { dotStyle: 'range', high: 'Poll' }
+    await mount(EditorDotPlotSettings).find('#dot-plot-low').setValue('Poll')
+    expect(setOption).toHaveBeenCalledWith('low', 'Poll')
+    expect(setOption).toHaveBeenCalledWith('high', '')
+  })
+
+  it('keeps high when low takes another column', async () => {
+    currentOptions.value = { dotStyle: 'range', high: 'Poll' }
+    await mount(EditorDotPlotSettings).find('#dot-plot-low').setValue('High')
+    expect(setOption).not.toHaveBeenCalledWith('high', '')
+  })
+
   it('hides the low and high pickers in dumbbell style', () => {
     currentOptions.value = {}
     const wrapper = mount(EditorDotPlotSettings)

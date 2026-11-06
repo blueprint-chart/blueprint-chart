@@ -39,6 +39,13 @@ function buildOptions(role: RangeRole, detected?: string) {
   return [{ value: '', text: `${detected ?? 'None'} (auto)` }, ...columnOptions]
 }
 
+function setRole(role: RangeRole, value: string) {
+  setOption(role, value)
+  if (role === 'low' && currentOptions.value.high === (value || detectedLow.value)) {
+    setOption('high', '')
+  }
+}
+
 function buildField(role: RangeRole, detected?: string) {
   const value = currentOptions.value[role] ?? ''
   return { role, label: ROLE_LABELS[role], value: value === detected ? '' : value, options: buildOptions(role, detected) }
@@ -76,7 +83,7 @@ function buildField(role: RangeRole, detected?: string) {
           :id="`dot-plot-${field.role}`"
           :model-value="field.value"
           :options="field.options"
-          @update:model-value="(value) => setOption(field.role, String(value ?? ''))"
+          @update:model-value="(value) => setRole(field.role, String(value ?? ''))"
         />
       </BFormGroup>
     </template>
