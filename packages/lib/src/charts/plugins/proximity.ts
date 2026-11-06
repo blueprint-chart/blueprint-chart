@@ -52,6 +52,7 @@ export interface ProximityPoint {
   value: number
   series?: string
   color: string
+  r?: number
 }
 
 export interface ProximityOptions {
@@ -228,6 +229,7 @@ export function setupProximityInteraction(
     highlightDot
       .attr('cx', nearest.cx)
       .attr('cy', nearest.cy)
+      .attr('r', nearest.r ?? 6)
       .attr('stroke', nearest.color)
       .style('display', null)
 

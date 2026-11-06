@@ -37,6 +37,7 @@ const TREND_DASH = '6 4'
 const TREND_WIDTH = 1.5
 const OVERALL_TREND_OPACITY = 0.6
 const LABEL_FONT_PX = 11
+const HOVER_RING_GAP = 3
 
 export function maxBubbleRadius(width: number, height: number): number {
   return Math.min(width, height) / 12
@@ -278,7 +279,7 @@ export function render(
 
   if (options.tooltips) {
     const formats = { x: options.horizontalAxis?.numberFormat, y: options.verticalAxis?.numberFormat }
-    const proximityPoints = points.map(p => ({ cx: x(p.x), cy: y(p.y), label: formatScatterTooltip(p, mapping, formats), value: p.y, color: color(p) }))
+    const proximityPoints = points.map(p => ({ cx: x(p.x), cy: y(p.y), label: formatScatterTooltip(p, mapping, formats), value: p.y, color: color(p), r: radius(p) + HOVER_RING_GAP }))
     setupProximityInteraction(chartArea, {
       width,
       height,

@@ -252,6 +252,14 @@ describe('scatter chart', () => {
       expect(hoverTooltip(container, 'Chad')).toBe('Chad\nGDP per capita: 1500\nLife expectancy: 52.8\nPopulation: 18\nContinent: Africa')
     })
 
+    it('rings the hovered bubble just outside its edge', () => {
+      render(container, DATA, { tooltips: true })
+      const nigeria = points(container).find(p => p.dataset.key === 'Nigeria')!
+      hoverTooltip(container, 'Nigeria')
+      const ring = container.querySelector('.bc-proximity-dot')!
+      expect(Number(ring.getAttribute('r'))).toBe(Number(nigeria.getAttribute('r')) + 3)
+    })
+
     it('keeps each tooltip tied to its own row when names repeat', () => {
       const dupes = { ...DATA, labels: ['Same', 'Same'], series: [{ name: 'X', values: [1, 100] }, { name: 'Y', values: [10, 90] }], textColumns: [] }
       render(container, dupes, { tooltips: true })
