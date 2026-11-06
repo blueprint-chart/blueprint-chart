@@ -1,0 +1,22 @@
+chart dot-plot {
+  title = "Zimbabwe gained over 16 years of life expectancy since 2000, the United States under 1"
+  description = "Life expectancy at birth in years, 2000 and 2022, for 10 countries"
+  source = "World Bank"
+  sourceUrl = "https://data.worldbank.org/indicator/SP.DYN.LE00.IN"
+  arrows = true
+  sortMode = "gap"
+
+  data {
+    series = "2000","2022"
+    "Zimbabwe" = 46.0, 62.4
+    "Ethiopia" = 50.9, 66.9
+    "Nigeria" = 47.1, 54.1
+    "India" = 62.7, 71.7
+    "Russia" = 65.5, 72.5
+    "South Africa" = 58.4, 65.5
+    "China" = 72.3, 78.2
+    "Japan" = 81.1, 84.0
+    "Germany" = 77.9, 80.6
+    "United States" = 76.6, 77.4
+  }
+}

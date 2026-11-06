@@ -1,4 +1,4 @@
-chart bar-split {
+chart dot-plot {
   title = "CDU/CSU led German polls at 29 % ahead of the 2021 election"
   description = "How Germany would vote in the September 2021 federal election, according to polling in the previous June"
   source = "FG Wahlen"

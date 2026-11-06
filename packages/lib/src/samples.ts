@@ -21,6 +21,7 @@ import co2EmissionsStoryBpc from './samples/co2-emissions-story.bpc?raw'
 import electionPollsBpc from './samples/election-polls.bpc?raw'
 import renewableCapacityBpc from './samples/renewable-capacity.bpc?raw'
 import lifeExpectancyWealthBpc from './samples/life-expectancy-wealth.bpc?raw'
+import lifeExpectancyGainsBpc from './samples/life-expectancy-gains.bpc?raw'
 
 export interface ChartSample {
   id: string
@@ -121,8 +122,6 @@ export const samples: ChartSample[] = [
   buildSample('quarterly-stacked-columns', quarterlyStackedColumnsBpc),
   // Bar Stacked
   buildSample('population-stacked-bar', populationStackedBarBpc),
-  // Bar Split
-  buildSample('election-polls', electionPollsBpc),
   // Bar Grouped
   buildSample('renewable-capacity', renewableCapacityBpc),
   // Story (multi-scene)
@@ -130,4 +129,7 @@ export const samples: ChartSample[] = [
   buildSample('co2-emissions-story', co2EmissionsStoryBpc),
   // Scatter
   buildSample('life-expectancy-wealth', lifeExpectancyWealthBpc),
+  // Dot plot
+  buildSample('election-polls', electionPollsBpc),
+  buildSample('life-expectancy-gains', lifeExpectancyGainsBpc),
 ]
