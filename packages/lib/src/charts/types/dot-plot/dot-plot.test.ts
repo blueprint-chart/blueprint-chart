@@ -85,7 +85,9 @@ describe('dot plot chart', () => {
 
   it('opens the arrowhead when arrows is on', () => {
     render(container, DUMBBELL, { arrows: true })
-    expect(collapsed(head(container, 'a'))).toBe(false)
+    const h = head(container, 'a')
+    expect(collapsed(h)).toBe(false)
+    expect(h[1]).not.toBe(h[5])
   })
 
   it('points the arrow from the first column to the last, even when it decreases', () => {

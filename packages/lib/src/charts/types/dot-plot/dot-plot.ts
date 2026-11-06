@@ -168,9 +168,9 @@ export function render(
     attrs: (r) => {
       const [start, end] = d3.extent(r.values).map(v => x(v!))
       const cy = rowY(r.name)
-      const { tipX, armX, armY } = arrowhead(x(r.values[0]), x(r.values.at(-1)!), cy, options.arrows === true)
+      const { tipX, armX, armOffset } = arrowhead(x(r.values[0]), x(r.values.at(-1)!), options.arrows === true)
       return {
-        'd': `M${start},${cy}L${end},${cy}M${armX},${armY}L${tipX},${cy}L${armX},${armY}`,
+        'd': `M${start},${cy}L${end},${cy}M${armX},${cy - armOffset}L${tipX},${cy}L${armX},${cy + armOffset}`,
         'fill': 'none',
         'stroke': 'currentColor',
         'stroke-opacity': LINE_STROKE_OPACITY,
@@ -252,10 +252,10 @@ export function render(
   }
 }
 
-function arrowhead(firstX: number, lastX: number, cy: number, enabled: boolean) {
+function arrowhead(firstX: number, lastX: number, enabled: boolean) {
   const dir = enabled ? Math.sign(lastX - firstX) : 0
   const tipX = lastX - dir * DOT_RADIUS
-  return { tipX, armX: tipX - dir * ARROW_SIZE, armY: cy - (dir === 0 ? 0 : ARROW_SIZE) }
+  return { tipX, armX: tipX - dir * ARROW_SIZE, armOffset: dir === 0 ? 0 : ARROW_SIZE }
 }
 
 function buildLabels(
