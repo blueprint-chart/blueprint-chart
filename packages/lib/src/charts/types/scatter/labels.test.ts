@@ -36,6 +36,17 @@ describe('placePointLabels', () => {
     expect(intersects(lineBox(a, 'China'), lineBox(b, 'Poland'))).toBe(false)
   })
 
+  it('keeps stacked labels apart in fonts with a taller line box', () => {
+    const c: LabelCandidate[] = [
+      { key: 'a', text: 'Colombia', cx: 100, cy: 100, r: 0 },
+      { key: 'b', text: 'Iran', cx: 100, cy: 113.5, r: 0 },
+    ]
+    const [a, b] = placePointLabels(c, { width: 400, height: 300 }, FONT)
+    // WenQuanYi Zen Hei lays an 11px label out in a 14px line box.
+    const lineBox = (label: PlacedLabel, text: string) => ({ ...box(label, text), top: label.y - 7, bottom: label.y + 7 })
+    expect(intersects(lineBox(a, 'Colombia'), lineBox(b, 'Iran'))).toBe(false)
+  })
+
   it('keeps a gap between labels instead of letting them touch', () => {
     const widthA = measureTextWidth('Italy', FONT)
     const c: LabelCandidate[] = [

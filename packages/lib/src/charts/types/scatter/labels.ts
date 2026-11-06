@@ -9,8 +9,9 @@ interface Box { left: number, right: number, top: number, bottom: number }
 const GAP = 3
 // Rendered glyphs run a pixel or two wider than measured, so touching boxes would visibly collide.
 const LABEL_PAD = 2
-// A browser lays text out in a line box taller than its font size (13px for 11px).
-const LINE_HEIGHT_EM = 1.2
+// A browser lays text out in a line box taller than its font size: 13px for 11px
+// in DejaVu Sans, 14px in WenQuanYi Zen Hei.
+const LINE_HEIGHT_EM = 1.3
 
 function placements(c: LabelCandidate, fontPx: number): PlacedLabel[] {
   const { key, cx, cy, r } = c
