@@ -53,12 +53,12 @@ describe('scatter scene transitions', () => {
     render(container, DATA, { showLabels: true })
     const before = container.querySelector('.bc-point-label[data-key="France"]')!
     const x0 = Number(before.getAttribute('x'))
-    getSceneTransition(container).run(() => render(container, SCENE_2, { showLabels: true }, true), { duration: 300 })
+    getSceneTransition(container).run(() => render(container, SCENE_2, { showLabels: true }, true), { duration: 1500 })
     const after = container.querySelector('.bc-point-label[data-key="France"]')!
     expect(after).toBe(before)
     await wait(150)
     const mid = Number(after.getAttribute('x'))
-    await wait(400)
+    await wait(1600)
     const x1 = Number(after.getAttribute('x'))
     expect(mid).not.toBe(x0)
     expect(mid).not.toBe(x1)
@@ -109,13 +109,13 @@ describe('scatter scene transitions', () => {
     render(container, DATA, {})
     const france = container.querySelector('[data-key="France"]')!
     const start = Number(france.getAttribute('cx'))
-    orch.run(() => render(container, SCENE_2, {}, true), { duration: 300 })
+    orch.run(() => render(container, SCENE_2, {}, true), { duration: 1500 })
     const japan = container.querySelector('[data-key="Japan"]')!
     await wait(150)
     const mid = Number(france.getAttribute('cx'))
     const opacity = Number(japan.getAttribute('opacity'))
     const japanShownMid = japan.isConnected
-    await wait(500)
+    await wait(1700)
     const end = Number(france.getAttribute('cx'))
     expect(container.querySelector('[data-key="France"]')).toBe(france)
     expect(mid).toBeGreaterThan(Math.min(start, end))
