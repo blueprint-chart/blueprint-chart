@@ -3,12 +3,13 @@ import { mount, type VueWrapper } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import PalettesCategoryColorPicker from './PalettesCategoryColorPicker.vue'
 import { CUSTOM_PALETTES_KEY } from '@/stores/customPalettes'
+import { ColorSwatchGroupsKey } from '@blueprint-chart/ui'
 
 type PickerWrapper = VueWrapper<InstanceType<typeof PalettesCategoryColorPicker>>
 
 let wrapper: PickerWrapper
 
-function mountPicker(modelValue = '#000000'): PickerWrapper {
+function mountPicker(modelValue = '#000000', provide: Record<symbol, unknown> = {}): PickerWrapper {
   const pinia = createPinia()
   setActivePinia(pinia)
   return mount(PalettesCategoryColorPicker, {
@@ -17,7 +18,7 @@ function mountPicker(modelValue = '#000000'): PickerWrapper {
       'modelValue': modelValue,
       'onUpdate:modelValue': (value: string) => wrapper.setProps({ modelValue: value }),
     },
-    global: { plugins: [pinia], stubs: { teleport: true } },
+    global: { plugins: [pinia], stubs: { teleport: true }, provide },
   })
 }
 
@@ -61,7 +62,7 @@ describe('PalettesCategoryColorPicker', () => {
     ]))
     wrapper = mountPicker()
     await wrapper.find('.palettes-category-color-picker__trigger').trigger('click')
-    const titles = wrapper.findAll('.palettes-category-color-picker__panel__group__title')
+    const titles = wrapper.findAll('.form-control-color-input-swatches__group__title')
     expect(titles[0].text()).toBe('Seeded')
     expect(titles.length).toBeGreaterThan(1)
   })
@@ -72,7 +73,30 @@ describe('PalettesCategoryColorPicker', () => {
     ]))
     wrapper = mountPicker()
     await wrapper.find('.palettes-category-color-picker__trigger').trigger('click')
-    await wrapper.findAll('.palettes-category-color-picker__panel__group__swatch')[1].trigger('click')
+    await wrapper.findAll('.form-control-color-input-swatches__group__swatch')[1].trigger('click')
     expect(wrapper.props('modelValue')).toBe('#445566')
+  })
+
+  it('uses the shared color picker instead of the native one', async () => {
+    wrapper = mountPicker('#0055a4')
+    await wrapper.find('.palettes-category-color-picker__trigger').trigger('click')
+    expect(wrapper.find('.form-control-color-input-picker').exists()).toBe(true)
+    expect(wrapper.find('input[type="color"]').exists()).toBe(false)
+  })
+
+  it('closes after picking a swatch', async () => {
+    wrapper = mountPicker()
+    const trigger = wrapper.find('.palettes-category-color-picker__trigger')
+    await trigger.trigger('click')
+    await wrapper.find('.form-control-color-input-swatches__group__swatch').trigger('click')
+    expect(trigger.attributes('aria-expanded')).toBe('false')
+  })
+
+  it('does not offer the category colors being edited', async () => {
+    const appGroups = ref([{ label: 'Category colors', swatches: [{ name: 'France', color: '#0055a4' }] }])
+    wrapper = mountPicker('#000000', { [ColorSwatchGroupsKey as symbol]: appGroups })
+    await wrapper.find('.palettes-category-color-picker__trigger').trigger('click')
+    const titles = wrapper.findAll('.form-control-color-input-swatches__group__title').map(title => title.text())
+    expect(titles).not.toContain('Category colors')
   })
 })
