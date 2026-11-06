@@ -229,19 +229,19 @@ test.describe('Scene Timeline', () => {
     await page.locator('[aria-label="Chart Type"]').click()
 
     // Verify base type shows "Columns" (bar-vertical)
-    const toggleBtn = page.locator('.form-control-dropdown__toggle .dropdown-toggle')
-    await expect(toggleBtn).toContainText('Columns')
+    const columnsRadio = page.locator('input[name="chart-type"][value="bar-vertical"]')
+    const barsRadio = page.locator('input[name="chart-type"][value="bar-horizontal"]')
+    await expect(columnsRadio).toBeChecked()
 
     // Add Scene 2
     await page.locator('.button-add').click()
     await expect(page.locator('.scene-timeline-item')).toHaveCount(2)
 
     // Change chart type to bar-horizontal ("Bars") while on Scene 2
-    await toggleBtn.click()
-    await page.locator('.form-control-dropdown-item__content__text__label', { hasText: 'Bars' }).first().click()
+    await page.locator('label', { has: barsRadio }).click()
 
-    // Verify dropdown now shows "Bars"
-    await expect(toggleBtn).toContainText('Bars')
+    // Verify picker now shows "Bars"
+    await expect(barsRadio).toBeChecked()
 
     // Get the current URL (includes session ID for reload)
     const url = page.url()
@@ -263,11 +263,11 @@ test.describe('Scene Timeline', () => {
     await page.locator('[aria-label="Chart Type"]').click()
 
     // Scene 1 (base) should still be "Columns" (bar-vertical)
-    await expect(toggleBtn).toContainText('Columns')
+    await expect(columnsRadio).toBeChecked()
 
     // Click Scene 2 and verify it shows "Bars" (bar-horizontal)
     await page.locator('.scene-timeline-item').nth(1).click()
-    await expect(toggleBtn).toContainText('Bars')
+    await expect(barsRadio).toBeChecked()
   })
 
   test('new scene does not get unnecessary data block after navigating to Data step', async ({ page }) => {
