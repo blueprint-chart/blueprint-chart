@@ -159,7 +159,7 @@ function cardClassList(choice: ChartTypeChoice) {
             position: absolute;
             top: 0.375rem;
             left: 0.375rem;
-            font-size: 0.625rem;
+            font-size: 0.75rem;
             font-weight: 600;
             line-height: 1rem;
             padding: 0 0.375rem;
@@ -176,7 +176,7 @@ function cardClassList(choice: ChartTypeChoice) {
             place-items: center;
             width: 1rem;
             height: 1rem;
-            font-size: 0.625rem;
+            font-size: 0.75rem;
             border-radius: 50%;
             background: var(--bs-emphasis-color);
             color: var(--bs-body-bg);
