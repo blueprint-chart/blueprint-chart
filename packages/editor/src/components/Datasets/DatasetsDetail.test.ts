@@ -28,8 +28,8 @@ const dataset: Dataset = {
 function mountDetail(overrides: Partial<Dataset> = {}, variants: Dataset[] = []) {
   const first = { ...dataset, ...overrides }
   return mount(DatasetsDetail, {
-    props: { group: { key: first.data, variants: [first, ...variants] }, pipeline: first.key, thumbnails: { one: 'data:one' } },
-    global: { stubs: { RouterLink: RouterLinkStub } },
+    props: { group: { key: first.data, variants: [first, ...variants] }, pipeline: first.key, dsls: { one: 'chart bar {}' } },
+    global: { stubs: { RouterLink: RouterLinkStub, ChartThumbnail: true } },
   })
 }
 
@@ -79,9 +79,10 @@ describe('DatasetsDetail', () => {
     expect(wrapper.emitted('newChart')).toHaveLength(1)
   })
 
-  it('shows a thumbnail for charts that have one', () => {
-    const images = mountDetail().findAll('.datasets-detail__charts__list__item__link__thumb__img')
-    expect(images.map(i => i.attributes('src'))).toEqual(['data:one'])
+  it('renders a ChartThumbnail per related chart with its dsl', () => {
+    const wrapper = mountDetail()
+    const thumbs = wrapper.findAllComponents({ name: 'ChartThumbnail' })
+    expect(thumbs.map(t => t.props('dsl'))).toEqual(['chart bar {}', undefined])
   })
 
   it('hides the pipeline picker with a single pipeline', () => {

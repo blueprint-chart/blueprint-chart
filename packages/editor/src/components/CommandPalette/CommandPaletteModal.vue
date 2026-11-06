@@ -2,8 +2,7 @@
 import { BFormInput, BModal } from 'bootstrap-vue-next'
 import { useRouter, useRoute } from 'vue-router'
 import IconPhMagnifyingGlass from '~icons/ph/magnifying-glass'
-import { useChartSession, type SavedChartSummary } from '@/stores/chartSession'
-import { getThumbnail, svgToDataUrl } from '@/composables/useChartThumbnail'
+import { useChartSession, readLocalDsl, type SavedChartSummary } from '@/stores/chartSession'
 
 const open = defineModel<boolean>('open', { required: true })
 
@@ -27,12 +26,12 @@ const results = computed<SavedChartSummary[]>(() => {
   )
 })
 
-const thumbnails = computed<Record<string, string>>(() => {
+const dsls = computed<Record<string, string>>(() => {
   const map: Record<string, string> = {}
   for (const chart of charts.value) {
-    const svg = getThumbnail(chart.id)
-    if (svg) {
-      map[chart.id] = svgToDataUrl(svg)
+    const dsl = readLocalDsl(chart.id)
+    if (dsl) {
+      map[chart.id] = dsl
     }
   }
   return map
@@ -140,12 +139,12 @@ function resultClass(index: number) {
           @click="goTo(chart.id)"
           @mousemove="selectedIndex = index"
         >
-          <img
-            v-if="thumbnails[chart.id]"
-            :src="thumbnails[chart.id]"
+          <span
+            v-if="dsls[chart.id]"
             class="command-palette-modal__thumb"
-            alt=""
           >
+            <ChartThumbnail :dsl="dsls[chart.id]" />
+          </span>
           <div class="command-palette-modal__meta">
             <span class="command-palette-modal__title">{{ chart.title || 'Untitled' }}</span>
             <span class="command-palette-modal__desc">{{ chart.description }}</span>
@@ -215,9 +214,10 @@ function resultClass(index: number) {
 
   &__thumb {
     width: 3rem;
-    height: auto;
+    aspect-ratio: 4 / 3;
     flex-shrink: 0;
     display: block;
+    overflow: hidden;
   }
 
   &__meta {

@@ -367,7 +367,6 @@
     "useRefHistory": true,
     "useResizeObserver": true,
     "useSSRWidth": true,
-    "useSavedChartThumbnails": true,
     "useScenes": true,
     "useScenesStore": true,
     "useScreenOrientation": true,

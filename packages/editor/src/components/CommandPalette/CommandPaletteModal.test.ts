@@ -37,6 +37,7 @@ vi.mock('@/stores/chartSession', () => ({
       { id: 'b2', title: 'China CO₂', description: 'Emissions trend', chartType: 'bar', savedAt: '2026-05-14T10:00:00Z', sceneCount: 1, rowCount: 20, allowDarkMode: true },
     ],
   }),
+  readLocalDsl: (id: string) => (id === 'a1' ? 'chart line {}' : null),
 }))
 
 function mountModal(open = true) {
@@ -44,6 +45,7 @@ function mountModal(open = true) {
     props: { open },
     global: {
       plugins: [createTestingPinia({ createSpy: vi.fn }), router],
+      stubs: { ChartThumbnail: true },
     },
     attachTo: document.body,
   })
@@ -103,6 +105,13 @@ describe('CommandPaletteModal', () => {
     const items = wrapper.findAll('[role="option"]')
     expect(items.length).toBeGreaterThan(0)
     expect(items[0].text()).toContain('Facebook decline')
+  })
+
+  it('renders a ChartThumbnail for recent charts', async () => {
+    const wrapper = mountModal(true)
+    await flushPromises()
+    const thumbs = wrapper.findAllComponents({ name: 'ChartThumbnail' })
+    expect(thumbs.map(t => t.props('dsl'))).toEqual(['chart line {}'])
   })
 
   it('shows a no-results message when the query has no matches', async () => {

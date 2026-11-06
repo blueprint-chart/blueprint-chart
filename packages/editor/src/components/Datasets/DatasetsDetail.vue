@@ -10,7 +10,7 @@ import DashboardMetaChip from '@/components/Dashboard/DashboardMetaChip.vue'
 import IPhPlus from '~icons/ph/plus'
 import DatasetsPipeline from './DatasetsPipeline.vue'
 
-const props = defineProps<{ group: DatasetGroup, thumbnails: Record<string, string> }>()
+const props = defineProps<{ group: DatasetGroup, dsls: Record<string, string> }>()
 const pipeline = defineModel<string>('pipeline', { required: true })
 defineEmits<{ newChart: [variant: Dataset] }>()
 
@@ -177,12 +177,7 @@ function cellClass(ci: number) {
             class="datasets-detail__charts__list__item__link"
           >
             <span class="datasets-detail__charts__list__item__link__thumb">
-              <img
-                v-if="thumbnails[chart.id]"
-                :src="thumbnails[chart.id]"
-                alt=""
-                class="datasets-detail__charts__list__item__link__thumb__img"
-              >
+              <ChartThumbnail :dsl="dsls[chart.id]" />
             </span>
             <span class="datasets-detail__charts__list__item__link__title">{{ chart.title || 'Untitled' }}</span>
           </RouterLink>
@@ -382,19 +377,12 @@ function cellClass(ci: number) {
           &__thumb {
             display: block;
             aspect-ratio: 4 / 3;
-            padding: 0.375rem;
+            overflow: hidden;
             border: 1px solid var(--bc-hairline);
             border-radius: var(--bc-radius-xs);
             background: var(--bc-tile-bg);
             @media (prefers-reduced-motion: no-preference) {
               transition: border-color 0.15s ease-out;
-            }
-
-            &__img {
-              display: block;
-              width: 100%;
-              height: 100%;
-              object-fit: contain;
             }
           }
 

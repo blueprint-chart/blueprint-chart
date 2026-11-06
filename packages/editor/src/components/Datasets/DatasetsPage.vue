@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { computed, shallowRef, useTemplateRef, watch } from 'vue'
+import { computed, shallowRef, useTemplateRef } from 'vue'
 import { useRouter } from 'vue-router'
 import { ButtonIcon, FeedbackEmptyState, useBreakpoint } from '@blueprint-chart/ui'
 import { useDatasets } from '@/composables/useDatasets'
-import { useSavedChartThumbnails } from '@/composables/useSavedChartThumbnails'
+import { readLocalDsl } from '@/stores/chartSession'
 import { groupDatasets } from '@/utils/datasets'
 import type { Dataset, DatasetGroup } from '@/utils/datasets'
 import LayoutPageHeader from '@/components/Layout/LayoutPageHeader.vue'
@@ -16,8 +16,7 @@ import IPhPlus from '~icons/ph/plus'
 
 const router = useRouter()
 const { isNarrow } = useBreakpoint()
-const { datasets, loading, chartDsl, startChart } = useDatasets()
-const { thumbnails, loadThumbnails } = useSavedChartThumbnails()
+const { datasets, loading, startChart } = useDatasets()
 
 const groups = computed(() => groupDatasets(datasets.value))
 const selectedKey = shallowRef<string | null>(null)
@@ -37,10 +36,15 @@ const drawerOpen = computed({
   },
 })
 
-watch(selected, (group) => {
-  if (group) {
-    loadThumbnails(group.variants.flatMap(v => v.charts.map(c => c.id)), chartDsl)
+const dsls = computed(() => {
+  const map: Record<string, string> = {}
+  for (const chart of selected.value?.variants.flatMap(v => v.charts) ?? []) {
+    const dsl = readLocalDsl(chart.id)
+    if (dsl) {
+      map[chart.id] = dsl
+    }
   }
+  return map
 })
 
 function select(group: DatasetGroup) {
@@ -117,7 +121,7 @@ function newChart(dataset: Dataset) {
           v-if="selected"
           v-model:pipeline="pipelineKey"
           :group="selected"
-          :thumbnails="thumbnails"
+          :dsls="dsls"
           @new-chart="newChart"
         />
         <PanelEmptyState
