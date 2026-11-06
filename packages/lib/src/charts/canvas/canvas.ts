@@ -37,7 +37,7 @@ export function computeMarginDelta(
   }
 }
 
-const DEFAULT_MARGIN: Margin = {
+export const DEFAULT_MARGIN: Margin = {
   top: 12,
   right: 20,
   bottom: 24,
@@ -47,8 +47,8 @@ const DEFAULT_MARGIN: Margin = {
 // Tick labels render at 10px (chart.scss, --bc-axis-tick-font-size).
 const TICK_LABEL_FONT_PX = 10
 
-const DEFAULT_WIDTH = 600
-const DEFAULT_HEIGHT = 400
+export const DEFAULT_WIDTH = 600
+export const DEFAULT_HEIGHT = 400
 
 /**
  * Smallest share of the canvas the plot area is allowed to keep. Every margin

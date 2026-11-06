@@ -2,7 +2,7 @@ import * as d3 from 'd3'
 import 'd3-transition'
 import type { ChartData, ChartOptions } from '../../types'
 import { createFrame } from '../../frame/frame'
-import { createCanvas, contentSize, labelPositionMargins, estimateScaleLabelWidth, computeMarginDelta } from '../../canvas/canvas'
+import { createCanvas, contentSize, labelPositionMargins, estimateScaleLabelWidth, computeMarginDelta, DEFAULT_MARGIN, DEFAULT_WIDTH, DEFAULT_HEIGHT } from '../../canvas/canvas'
 import { AxisService } from '../../axis/axis-service'
 import { resolveBackgroundColor } from '../../contrast'
 import { ensureClipPath } from '../../clip-path-helper'
@@ -29,7 +29,7 @@ import { isTrendMode, trendSegments } from './trend'
 export const DEFAULT_COLOR = '#4e79a7'
 export const DOT_RADIUS = 4.5
 export const FILL_OPACITY = 0.7
-const KEY_GAP = 10
+const KEY_GAP = 16
 const NARROW_THRESHOLD = 350
 // Room for half a tick label, so the end gridlines' labels clear the legend.
 const Y_EDGE_PAD = 8
@@ -121,29 +121,41 @@ export function render(
   const isSide = requestedPosition === 'left' || requestedPosition === 'right'
   const legendPos = containerWidth > 0 && containerWidth < NARROW_THRESHOLD && isSide ? 'top' : requestedPosition
   const legendAnchor = options.legendAnchor ?? 'start'
-  const legendAvailableWidth = Math.max(0, containerWidth - (margins.left ?? 50) - (margins.right ?? 20))
-  const legendSize = showLegend ? estimateLegendSize(groupNames, legendPos, legendAvailableWidth) : { width: 0, height: 0 }
-  const legendH = showLegend ? legendSize.height + 15 : 0
-  const insideGap = margins.top != null ? 15 : 0
   const maxSize = d3.max(points, p => p.size)
   const keyContent: Omit<KeyConfig, 'radius'> = {
     sizeLabel: mapping.size,
     sizeValues: maxSize === undefined ? [] : sizeLegendValues(maxSize),
     trend: isTrendMode(options.trend),
   }
-  const keyBoundRadius = maxBubbleRadius(containerWidth, contentSize(body).height || containerWidth)
-  const keyWidth = scatterKeyWidth({ ...keyContent, radius: d3.scaleSqrt().domain([0, maxSize ?? 1]).range([0, keyBoundRadius]) })
   const hasKey = keyContent.sizeValues.length > 0 || keyContent.trend
-  const marginOverrides: Partial<Record<'top' | 'left' | 'right' | 'bottom', number>> = { ...margins }
-  if (showLegend && legendPos === 'top') {
-    marginOverrides.top = legendH + insideGap
+  const keyRadius = (plotWidth: number, plotHeight: number) => d3.scaleSqrt().domain([0, maxSize ?? 1]).range([0, maxBubbleRadius(plotWidth, plotHeight)])
+  const frameWidth = containerWidth > 0 ? containerWidth : DEFAULT_WIDTH
+  const frameHeight = contentSize(body).height || DEFAULT_HEIGHT
+  const insideGap = margins.top != null ? 15 : 0
+  const baseRight = margins.right ?? DEFAULT_MARGIN.right
+  const marginOverrides: Partial<Record<'top' | 'left' | 'right' | 'bottom', number>> = { ...margins, right: baseRight }
+  let legendSize = { width: 0, height: 0 }
+  let legendH = 0
+  let sideLegendWidth = 0
+  // Legend rows, key width and plot size depend on each other: the legend wraps
+  // at the plot width, the key's circles scale with the plot. A few passes settle them.
+  for (let pass = 0; pass < 3; pass++) {
+    const left = marginOverrides.left ?? DEFAULT_MARGIN.left
+    const plotWidth = Math.max(0, frameWidth - left - marginOverrides.right!)
+    legendSize = showLegend ? estimateLegendSize(groupNames, legendPos, plotWidth) : { width: 0, height: 0 }
+    legendH = showLegend ? legendSize.height + 15 : 0
+    if (showLegend && legendPos === 'top') {
+      marginOverrides.top = legendH + insideGap
+    }
+    if (showLegend && legendPos === 'left') {
+      marginOverrides.left = (margins.left ?? 50) + legendSize.width + 10
+    }
+    sideLegendWidth = showLegend && legendPos === 'right' ? legendSize.width + 10 : 0
+    marginOverrides.bottom = Math.max(margins.bottom ?? 24, 24) + (showLegend && legendPos === 'bottom' ? legendH : 0)
+    const plotHeight = frameHeight - (marginOverrides.top ?? DEFAULT_MARGIN.top) - marginOverrides.bottom
+    const keyWidth = hasKey ? scatterKeyWidth({ ...keyContent, radius: keyRadius(plotWidth, plotHeight) }) : 0
+    marginOverrides.right = sideLegendWidth + (hasKey ? KEY_GAP + keyWidth : baseRight)
   }
-  if (showLegend && legendPos === 'left') {
-    marginOverrides.left = (margins.left ?? 50) + legendSize.width + 10
-  }
-  const sideLegendWidth = showLegend && legendPos === 'right' ? legendSize.width + 10 : 0
-  marginOverrides.right = (margins.right ?? 20) + sideLegendWidth + (hasKey ? keyWidth + KEY_GAP : 0)
-  marginOverrides.bottom = Math.max(margins.bottom ?? 24, 24) + (showLegend && legendPos === 'bottom' ? legendH : 0)
   const { chartArea, width, height, margin } = createCanvas(body, marginOverrides)
   const marginDelta = computeMarginDelta(cached?.margin, margin)
 
@@ -251,7 +263,8 @@ export function render(
   }
 
   const key = renderScatterKey(chartArea, { ...keyContent, radius: radiusOf })
-  key?.setAttribute('transform', `translate(${width + sideLegendWidth + KEY_GAP},${height})`)
+  const drawnKeyWidth = scatterKeyWidth({ ...keyContent, radius: radiusOf })
+  key?.setAttribute('transform', `translate(${Math.max(width + sideLegendWidth + KEY_GAP, width + margin.right - drawnKeyWidth)},${height})`)
 
   if (options.tooltips) {
     const formats = { x: options.horizontalAxis?.numberFormat, y: options.verticalAxis?.numberFormat }

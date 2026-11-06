@@ -3,7 +3,9 @@ import { parseData } from '../../parse-data'
 import { AnnotationKind, LegendPosition, ScaleType } from '../../../enums'
 import { HIGHLIGHT_DIM_OPACITY } from '../../plugins/highlight'
 import { getCachedChart } from '../../transition-cache'
-import { render, DOT_RADIUS, DEFAULT_COLOR } from './scatter'
+import * as d3 from 'd3'
+import { render, DOT_RADIUS, DEFAULT_COLOR, maxBubbleRadius } from './scatter'
+import { scatterKeyWidth, sizeLegendValues } from './legend'
 
 const DATA = parseData([
   'series = "GDP per capita","Life expectancy","Population","Continent"',
@@ -150,6 +152,28 @@ describe('scatter chart', () => {
     const key = container.querySelector('.bc-scatter-key')!
     expect(translate(key).x).toBeGreaterThanOrEqual(plotRect.width)
     expect(margin.right).toBeGreaterThan(translate(key).x - plotRect.width)
+  })
+
+  it('ends the size key at the right edge, a small gap from the plot', () => {
+    render(container, DATA, {})
+    const { plotRect, margin } = cached()
+    const key = container.querySelector('.bc-scatter-key')!
+    const radius = d3.scaleSqrt().domain([0, 213]).range([0, maxBubbleRadius(plotRect.width, plotRect.height)])
+    const keyWidth = scatterKeyWidth({ sizeLabel: 'Population', sizeValues: sizeLegendValues(213), radius, trend: false })
+    expect(translate(key).x - plotRect.width).toBe(16)
+    expect(translate(key).x + keyWidth).toBeCloseTo(plotRect.width + margin.right, 0)
+  })
+
+  it('keeps a gap between a wrapping group legend and the plot', () => {
+    const groups = ['Latin America and Caribbean', 'East Asia and Pacific', 'South Asia', 'Sub-Saharan Africa', 'Europe and Central Asia', 'Middle East and North Africa']
+    const data = parseData([
+      'series = "x","y","Population","Region"',
+      ...groups.map((g, i) => `"P${i}" = ${i + 1}, ${i + 2}, ${(i + 1) * 100}, "${g}"`),
+    ].join('\n'))
+    render(container, data, {})
+    const legend = container.querySelector('.bc-legend')!
+    const lastRowY = Math.max(...Array.from(legend.querySelectorAll('.bc-legend-item'), item => translate(item).y))
+    expect(translate(legend).y + lastRowY + 14).toBeLessThanOrEqual(-8)
   })
 
   it('labels no point by default', () => {
