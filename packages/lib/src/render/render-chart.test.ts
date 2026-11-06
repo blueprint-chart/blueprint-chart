@@ -124,6 +124,25 @@ describe('renderChart + SceneTransition integration', () => {
     container.remove()
   })
 
+  it('continues an in-flight scene tween when a plain re-render arrives mid-tween', () => {
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    renderChart(container, minimalBarVerticalDefinition([10, 20]), { transition: false })
+    renderChart(container, minimalBarVerticalDefinition([40, 5]), { transition: true })
+    const orch = getSceneTransition(container)
+    expect(orch.state).toBe('animating')
+    const tweeningBar = container.querySelector('.bc-bar')
+
+    renderChart(container, minimalBarVerticalDefinition([40, 5]), { transition: false })
+
+    expect(container.querySelector('.bc-bar')).toBe(tweeningBar)
+    expect(orch.state).toBe('animating')
+
+    orch.destroy()
+    d3.select(container).selectAll('*').interrupt()
+    container.remove()
+  })
+
   it('warns once and falls back to snap when an unknown transitionMode is passed', () => {
     const container = document.createElement('div')
     document.body.appendChild(container)

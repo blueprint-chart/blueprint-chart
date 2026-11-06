@@ -17,7 +17,10 @@ export function renderChart(
   definition: ChartDefinition,
   options: RenderOptions = {},
 ): void {
-  if (!options.transition) {
+  // A plain re-render landing mid-tween (a resize, say) retargets the tween
+  // from where the marks are instead of snapping them to the end state.
+  const transition = !!options.transition || getSceneTransition(container).state === 'animating'
+  if (!transition) {
     // Cancel any in-flight scene transition before wiping the DOM, otherwise its
     // element-bound tweens keep ticking against detached nodes and the
     // orchestrator stays `animating` (so the next featureJoin snaps instead of
@@ -31,7 +34,7 @@ export function renderChart(
   // Without this, a previous chart would linger when scenes/state cycle into
   // an empty-data state.
   if (definition.data.labels.length === 0) {
-    if (options.transition) {
+    if (transition) {
       getSceneTransition(container).interrupt()
       container.replaceChildren()
       clearCrossTypeMarker(container)
@@ -65,7 +68,7 @@ export function renderChart(
 
   resetAxesOnChartTypeChange(container, state.chartType)
 
-  const overlay = snapshotIfTypeChanged(container, state.chartType, !!options.transition)
+  const overlay = snapshotIfTypeChanged(container, state.chartType, transition)
   if (overlay) {
     container.replaceChildren()
   }
@@ -87,7 +90,7 @@ export function renderChart(
   }
 
   const orch = getSceneTransition(container)
-  if (options.transition) {
+  if (transition) {
     orch.beginCommit()
   }
 
@@ -104,9 +107,9 @@ export function renderChart(
     areaFills: state.areaFills.length > 0 ? state.areaFills : undefined,
     annotations: state.annotations.length > 0 ? state.annotations : undefined,
     seriesOverrides: state.seriesOverrides.length > 0 ? state.seriesOverrides : undefined,
-  }, !!options.transition)
+  }, transition)
 
-  if (options.transition) {
+  if (transition) {
     // Run the orchestrator clock at the per-renderer mark duration so every
     // feature (marks, frame geometry, annotations) eases together.
     orch.commit({ duration: getDefaultTransitionMs(), mode: options.transitionMode })
