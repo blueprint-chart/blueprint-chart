@@ -125,10 +125,6 @@ chart scatter {
 
   highlight "Nigeria"
 
-  scene "2019" {
-    highlight "Nigeria"
-  }
-
   scene "1990" {
     title = "In 1990 the same countries were poorer and lived shorter lives"
     data {

@@ -57,8 +57,7 @@ test.describe('scatter scenes', () => {
     await page.emulateMedia({ reducedMotion: 'no-preference' })
     await gotoRender(page, SAMPLE)
     const next = page.locator('.bc-frame [aria-label="Next scene"]')
-    await next.click()
-    await expect(page.locator('.bc-frame')).toContainText('Richer countries live longer')
+    await expect(page.locator(points)).toHaveCount(60)
     await page.waitForTimeout(1500)
 
     await page.evaluate(() => {
