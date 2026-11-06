@@ -26,17 +26,16 @@
         class="chart-edit-panel__canvas"
         :class="canvasClassList"
       >
-        <div
+        <ChartCard
           ref="cardRef"
           class="chart-edit-panel__canvas__card"
-          :class="cardClass"
-          :style="cardStyle"
+          :layout="layout"
         >
           <PreviewChart />
-        </div>
+        </ChartCard>
         <CanvasDimensions
           v-if="showDimensions"
-          :card-ref="cardRef"
+          :card-ref="cardRef?.el ?? null"
           :canvas-ref="canvasRef"
           :layout="layout"
         />
@@ -86,6 +85,7 @@ import { useEditorPanel } from '@/stores/editorPanel'
 import { usePanel, usePanelStore } from '@/stores/panel'
 import { useChartConfig } from '@/stores/chartConfig'
 import { useChartEditSections } from '@/composables/useChartEditSections'
+import ChartCard from '@/components/Chart/ChartCard.vue'
 import FloatingSceneTimeline from '@/components/Scene/FloatingSceneTimeline.vue'
 import { useScenes } from '@/composables/useScenes'
 
@@ -98,7 +98,6 @@ const panelStore = usePanelStore()
 const { isNarrow } = useBreakpoint()
 
 const { layout } = useChartConfig()
-const { cardClass, cardStyle } = useCanvasCardStyle(layout, 'chart-edit-panel__canvas__card')
 const { sections } = useChartEditSections()
 
 const drawerOpen = computed({
@@ -225,7 +224,7 @@ const TAB_LABELS: Record<string, string> = {
 const panelTitle = computed(() => TAB_LABELS[activeTab.value] ?? 'Panel')
 
 const canvasRef = useTemplateRef<HTMLElement>('canvasRef')
-const cardRef = useTemplateRef<HTMLElement>('cardRef')
+const cardRef = useTemplateRef<InstanceType<typeof ChartCard>>('cardRef')
 
 </script>
 
@@ -325,47 +324,6 @@ const cardRef = useTemplateRef<HTMLElement>('cardRef')
       background: #0d0d0d;
       --bc-canvas-dimension-color: rgba(255, 255, 255, 0.3);
     }
-
-    &__card {
-      position: relative;
-      z-index: 1;
-      // Keep the card at its natural height so the CANVAS scrolls (with the
-      // floating timeline pinned), rather than the card scrolling internally.
-      // --fixed / --constrained-height override with `flex: none` as needed.
-      flex-shrink: 0;
-      background: var(--bs-body-bg);
-      border: 1px solid var(--bc-frame-border);
-      border-radius: var(--bc-frame-radius);
-      overflow: auto;
-
-      &--fixed {
-        flex: none;
-        margin: 0 auto;
-      }
-
-      &--max-width {
-        margin: 0 auto;
-        width: 100%;
-      }
-
-      &--transparent {
-        background: transparent;
-      }
-
-      &--constrained-height {
-        flex: none;
-        display: flex;
-        flex-direction: column;
-
-        :deep(.w-100.h-100) {
-          flex: 1;
-          min-height: 0;
-          display: flex;
-          flex-direction: column;
-        }
-      }
-    }
-
   }
 
   &__canvas__dsl {

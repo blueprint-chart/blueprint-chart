@@ -55,7 +55,7 @@ vi.mock('@vueuse/core', () => ({
 
 function mountPanel() {
   return shallowMount(ChartEditPanel, {
-    global: { plugins: [createPinia()] },
+    global: { plugins: [createPinia()], stubs: { ChartCard: false } },
   })
 }
 
