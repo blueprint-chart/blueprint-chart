@@ -213,7 +213,7 @@ export function labelPositionMargins(
 
 /**
  * Size a render backend declared on the element itself. A headless container
- * has no layout engine, so clientWidth/clientHeight read zero there and the
+ * has no layout engine, so getBoundingClientRect() reads zero there and the
  * requested width/height would never reach the layout.
  */
 function declaredSize(el: HTMLElement, key: 'bcContentWidth' | 'bcContentHeight'): number {
@@ -224,9 +224,15 @@ function declaredSize(el: HTMLElement, key: 'bcContentWidth' | 'bcContentHeight'
  * Return the inner content dimensions of an element (excluding CSS padding).
  */
 export function contentSize(el: HTMLElement): { width: number, height: number } {
+  const rect = el.getBoundingClientRect()
+  // A CSS transform (a scaled thumbnail) shrinks the rect but not the layout
+  // box; only then fall back to the integer-rounded client size.
+  const transformed = el.offsetWidth > 0 && (Math.abs(rect.width - el.offsetWidth) >= 1 || Math.abs(rect.height - el.offsetHeight) >= 1)
+  const outerWidth = transformed ? el.clientWidth : rect.width
+  const outerHeight = transformed ? el.clientHeight : rect.height
   const cs = getComputedStyle(el)
-  const width = el.clientWidth - (parseFloat(cs.paddingLeft) || 0) - (parseFloat(cs.paddingRight) || 0)
-  const height = el.clientHeight - (parseFloat(cs.paddingTop) || 0) - (parseFloat(cs.paddingBottom) || 0)
+  const width = outerWidth - (parseFloat(cs.paddingLeft) || 0) - (parseFloat(cs.paddingRight) || 0)
+  const height = outerHeight - (parseFloat(cs.paddingTop) || 0) - (parseFloat(cs.paddingBottom) || 0)
   return {
     width: width > 0 ? width : declaredSize(el, 'bcContentWidth'),
     height: height > 0 ? height : declaredSize(el, 'bcContentHeight'),

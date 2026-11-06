@@ -51,8 +51,9 @@ describe('a horizontal bar chart keeps its category labels on a phone', () => {
   beforeEach(() => {
     container = document.createElement('div')
     document.body.appendChild(container)
-    vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(PHONE_WIDTH)
-    vi.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(400)
+    vi.spyOn(Element.prototype, 'getBoundingClientRect').mockReturnValue({
+      x: 0, y: 0, width: PHONE_WIDTH, height: 400, top: 0, left: 0, right: PHONE_WIDTH, bottom: 400, toJSON: () => ({}),
+    } as DOMRect)
   })
 
   afterEach(() => {

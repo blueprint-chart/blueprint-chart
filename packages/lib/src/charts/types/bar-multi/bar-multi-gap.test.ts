@@ -3,9 +3,12 @@ import { render } from './bar-multi'
 
 describe('bar-multi huge gap diagnostics', () => {
   let container: HTMLElement
+  let rectSpy: ReturnType<typeof vi.spyOn>
+
   function setContainerSize(w: number, h: number) {
-    vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(w)
-    vi.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(h)
+    rectSpy = vi.spyOn(Element.prototype, 'getBoundingClientRect').mockReturnValue({
+      width: w, height: h, x: 0, y: 0, top: 0, left: 0, bottom: h, right: w, toJSON: () => ({}),
+    })
   }
 
   beforeEach(() => {
@@ -16,7 +19,7 @@ describe('bar-multi huge gap diagnostics', () => {
 
   afterEach(() => {
     vi.useRealTimers()
-    vi.restoreAllMocks()
+    rectSpy?.mockRestore()
   })
 
   it('paris-medals wrap does not leave huge gap between axis labels and chart bottom', () => {

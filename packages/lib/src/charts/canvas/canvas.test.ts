@@ -153,8 +153,20 @@ describe('contentSize', () => {
   it('reads the layout size of a container scaled by a CSS transform', () => {
     const el = document.createElement('div')
     el.getBoundingClientRect = () => ({ x: 0, y: 0, top: 0, left: 0, right: 125, bottom: 80, width: 125, height: 80, toJSON: () => ({}) })
+    Object.defineProperty(el, 'offsetWidth', { value: 626 })
+    Object.defineProperty(el, 'offsetHeight', { value: 400 })
     Object.defineProperty(el, 'clientWidth', { value: 626 })
     Object.defineProperty(el, 'clientHeight', { value: 400 })
     expect(contentSize(el)).toEqual({ width: 626, height: 400 })
+  })
+
+  it('keeps the fractional size of an untransformed container', () => {
+    const el = document.createElement('div')
+    el.getBoundingClientRect = () => ({ x: 0, y: 0, top: 0, left: 0, right: 300.6, bottom: 200.4, width: 300.6, height: 200.4, toJSON: () => ({}) })
+    Object.defineProperty(el, 'offsetWidth', { value: 301 })
+    Object.defineProperty(el, 'offsetHeight', { value: 200 })
+    Object.defineProperty(el, 'clientWidth', { value: 301 })
+    Object.defineProperty(el, 'clientHeight', { value: 200 })
+    expect(contentSize(el)).toEqual({ width: 300.6, height: 200.4 })
   })
 })
