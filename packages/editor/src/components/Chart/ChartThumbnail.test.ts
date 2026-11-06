@@ -58,6 +58,7 @@ describe('ChartThumbnail', () => {
     const wrapper = mountThumbnail(chart(''))
     await flushPromises()
     expect(wrapper.find('.bc-frame').exists()).toBe(false)
+    expect(wrapper.find('.chart-card').exists()).toBe(false)
   })
 
   it('forces light on charts that disallow dark mode', async () => {
