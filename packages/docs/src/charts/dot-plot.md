@@ -6,7 +6,7 @@ title: Dot plot chart
 
 > One dot per row on a shared value axis, with optional ranges and gaps between values.
 
-`dot-plot` puts categories on the vertical axis and values on a horizontal axis. With one value column it draws one dot per row. With two or more it joins the dots with a line (a dumbbell). With `low` and `high` columns it draws a soft bar behind the dot to show a range. The mode comes from your columns: there is no `mode` property. See [Properties](#properties) for every key it accepts.
+`dot-plot` puts categories on the vertical axis and values on a horizontal axis. With one value column it draws one dot per row. With two or more it joins the dots with a line (a dumbbell). With `dotStyle = "range"` it draws one dot per row with a soft bar from a `low` to a `high` column. The style is always yours to pick: column names never change it. See [Properties](#properties) for every key it accepts.
 
 ## When to use
 
@@ -22,7 +22,7 @@ title: Dot plot chart
 
 ## Data shape
 
-Each row is one category. Number columns become dots, or the range bounds in range mode.
+Each row is one category. Number columns become dots, or the range bounds in range style.
 
 A single value column draws one dot per row.
 
@@ -50,10 +50,12 @@ chart dot-plot {
 }
 ```
 
-A `low` column and a `high` column plus one value column draw range mode: one dot with a translucent bar from low to high.
+`dotStyle = "range"` with a `low` column, a `high` column and one value column draws one dot with a translucent bar from low to high.
 
 ```bpc
 chart dot-plot {
+  dotStyle = "range"
+
   data {
     series = "Poll","High","Low"
     "CDU/CSU" = 29,32,27
@@ -63,25 +65,24 @@ chart dot-plot {
 }
 ```
 
-## Column mapping
+## Style and column mapping
 
-Range mode turns on when both a `low` and a `high` column resolve. Every other numeric column is a value column.
+`dotStyle` picks the style: `dumbbell` (the default) or `range`. In dumbbell style every numeric column is a dot, including columns named `High` or `Low`, and `low` and `high` are ignored. In range style, `low` and `high` pick the bounds and the first other numeric column is the dot.
 
-| Property | Role | Inferred from |
+| Property | Role | Preselected from |
 | --- | --- | --- |
 | `low` | Lower end of the range bar | Numeric column named `low`, `lower`, `min` or `minimum` |
 | `high` | Upper end of the range bar | Numeric column named `high`, `upper`, `max` or `maximum` |
 
-- Detection ignores case and matches whole words. `Lower bound` and `Max` match, `Lowland` does not.
+- Preselection only happens in range style. It ignores case and matches whole words. `Lower bound` and `Max` match, `Lowland` does not.
 - `low = "Margin low"` names a column yourself. A name that matches no column is reported, with a suggestion when one is close.
-- `low = "none"` or `high = "none"` turns the role off, even when a column name would match.
-- Both or neither: with only one of the two, range mode stays off and that column counts as a value column. A `low` and `high` pair with no value column falls back to a dumbbell between them.
-- Range mode needs a third numeric column for the dot. If there are more, the first is the value and the rest are ignored, with a warning.
-- Rows with a missing value, or a missing low or high in range mode, are not drawn and are reported. A value outside its low to high range is drawn and reported.
+- If range style cannot find both a `low` and a `high` column, it draws plain dots of the value and warns that the range columns are missing.
+- Range style needs a third numeric column for the dot. If there are more, the first is the value and the rest are ignored, with a warning.
+- Rows with a missing value, or a missing low or high in range style, are not drawn and are reported. A value outside its low to high range is drawn and reported.
 
 ## Arrows
 
-`arrows = true` draws the row line as an arrow from the first value column to the last one, in series order. With `series = "2015","2024"` the arrow points from 2015 to 2024, whichever is larger. Arrows apply to dumbbells only and are ignored in single and range modes. They are off by default.
+`arrows = true` draws the row line as an arrow from the first value column to the last one, in series order. With `series = "2015","2024"` the arrow points from 2015 to 2024, whichever is larger. Arrows apply to dumbbells only and are ignored in range style. They are off by default.
 
 ## Sorting
 
@@ -110,7 +111,7 @@ The legend appears for dumbbells only, with one entry per value column.
 
 ## Scenes
 
-Rows are matched by name across [scenes](/reference/dsl/scenes-and-transforms). Dots, lines and range bars glide to their new positions, including when a scene changes the mode. Keep row names identical between scenes so rows move instead of being replaced.
+Rows are matched by name across [scenes](/reference/dsl/scenes-and-transforms). Dots, lines and range bars glide to their new positions, including when a scene changes the style. Keep row names identical between scenes so rows move instead of being replaced.
 
 ## Example
 
@@ -141,7 +142,7 @@ chart dot-plot {
 }
 ```
 
-The range mode sample is `packages/lib/src/samples/election-polls.bpc`.
+The range style sample is `packages/lib/src/samples/election-polls.bpc`.
 
 ```bpc
 chart dot-plot {
@@ -150,6 +151,7 @@ chart dot-plot {
   source = "FG Wahlen"
   sourceUrl = "https://www.forschungsgruppe.de"
   note = "Margin of error at 10%: +/- 2 percentage points; at 40%: +/- 3 percentage points"
+  dotStyle = "range"
 
   data {
     series = "Poll","High","Low"
@@ -175,6 +177,7 @@ Every property `dot-plot` accepts, beside the [frame and layout keys](/reference
 | `colorPalette` | select, see [Palettes](/guide/palettes) | `Blueprint` |
 | `autoContrast` | boolean | `false` |
 | `allowDarkMode` | boolean | `true` |
+| `dotStyle` | select: `dumbbell`, `range` | `dumbbell` |
 | `low` | text | `""` |
 | `high` | text | `""` |
 | `arrows` | boolean | `false` |
@@ -206,7 +209,7 @@ Every property `dot-plot` accepts, beside the [frame and layout keys](/reference
 ## Common pitfalls
 
 - Using `gap` sort on a single value or a range: it falls back to `value`
-- Naming a column `Max` or `Min` and getting range mode by surprise: set `low = "none"` to turn it off
+- Expecting range bars from columns named `High` and `Low` without setting `dotStyle = "range"`: they draw as dumbbell dots instead
 - Reading the arrow as a trend: it only points from the first column to the last
 - Using a log axis with values, lows or highs at or below 0: those rows are not drawn and are reported
 - Too many value columns: past three or four, the legend and the dots stop reading clearly
