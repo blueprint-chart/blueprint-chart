@@ -7,10 +7,12 @@ export interface PlacedLabel { key: string, x: number, y: number, anchor: 'start
 interface Box { left: number, right: number, top: number, bottom: number }
 
 const GAP = 3
+// A browser lays text out in a line box taller than its font size (13px for 11px).
+const LINE_HEIGHT_EM = 1.2
 
 function placements(c: LabelCandidate, fontPx: number): PlacedLabel[] {
   const { key, cx, cy, r } = c
-  const half = fontPx / 2
+  const half = fontPx * LINE_HEIGHT_EM / 2
   return [
     { key, x: cx + r + GAP, y: cy, anchor: 'start' },
     { key, x: cx - r - GAP, y: cy, anchor: 'end' },
@@ -22,7 +24,8 @@ function placements(c: LabelCandidate, fontPx: number): PlacedLabel[] {
 function boxOf(label: PlacedLabel, width: number, fontPx: number): Box {
   const shift = { start: 0, middle: width / 2, end: width }[label.anchor]
   const left = label.x - shift
-  return { left, right: left + width, top: label.y - fontPx / 2, bottom: label.y + fontPx / 2 }
+  const half = fontPx * LINE_HEIGHT_EM / 2
+  return { left, right: left + width, top: label.y - half, bottom: label.y + half }
 }
 
 function overlaps(a: Box, b: Box): boolean {

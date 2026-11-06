@@ -25,6 +25,17 @@ describe('placePointLabels', () => {
     expect(placed.length).toBeLessThan(c.length)
   })
 
+  it('keeps the rendered line boxes apart, not just the em boxes', () => {
+    const c: LabelCandidate[] = [
+      { key: 'a', text: 'China', cx: 100, cy: 100, r: 0 },
+      { key: 'b', text: 'Poland', cx: 100, cy: 112, r: 0 },
+    ]
+    const [a, b] = placePointLabels(c, { width: 400, height: 300 }, FONT)
+    // A browser lays an 11px label out in a ~13px line box.
+    const lineBox = (label: PlacedLabel, text: string) => ({ ...box(label, text), top: label.y - FONT * 0.6, bottom: label.y + FONT * 0.6 })
+    expect(intersects(lineBox(a, 'China'), lineBox(b, 'Poland'))).toBe(false)
+  })
+
   it('places a lone label to the right of its bubble', () => {
     const [label] = placePointLabels([{ key: 'a', text: 'Chad', cx: 50, cy: 50, r: 5 }], { width: 400, height: 300 }, FONT)
     expect(label.anchor).toBe('start')
