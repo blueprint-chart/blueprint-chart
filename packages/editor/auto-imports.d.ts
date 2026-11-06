@@ -9,6 +9,7 @@
 export {}
 declare global {
   const ButtonGroupEntriesKey: typeof import('../ui/src/composables/injection-keys').ButtonGroupEntriesKey
+  const ColorSwatchGroupsKey: typeof import('../ui/src/composables/injection-keys').ColorSwatchGroupsKey
   const DropdownEntriesKey: typeof import('../ui/src/composables/injection-keys').DropdownEntriesKey
   const EffectScope: typeof import('vue').EffectScope
   const IconRailEntriesKey: typeof import('../ui/src/composables/injection-keys').IconRailEntriesKey
@@ -287,6 +288,7 @@ declare global {
   const useFullscreen: typeof import('@vueuse/core').useFullscreen
   const useGamepad: typeof import('@vueuse/core').useGamepad
   const useGeolocation: typeof import('@vueuse/core').useGeolocation
+  const useHexColorField: typeof import('../ui/src/composables/useHexColorField').useHexColorField
   const useId: typeof import('vue').useId
   const useIdle: typeof import('@vueuse/core').useIdle
   const useImage: typeof import('@vueuse/core').useImage
@@ -471,6 +473,9 @@ declare global {
   // @ts-ignore
   export type { UseSheetNumber } from './src/composables/useSheetNumber'
   import('./src/composables/useSheetNumber')
+  // @ts-ignore
+  export type { ColorSwatchGroup } from '../ui/src/composables/injection-keys'
+  import('../ui/src/composables/injection-keys')
   // @ts-ignore
   export type { ChildEntriesContext } from '../ui/src/composables/useChildEntries'
   import('../ui/src/composables/useChildEntries')

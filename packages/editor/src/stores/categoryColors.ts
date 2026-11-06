@@ -1,5 +1,5 @@
 import { useLocalStorage } from '@vueuse/core'
-import { isHexColor } from '@blueprint-chart/ui'
+import { isHexColor, type ColorSwatchGroup } from '@blueprint-chart/ui'
 import { CATEGORY_COLORS_KEY } from './storageKeys'
 
 export { CATEGORY_COLORS_KEY }
@@ -45,4 +45,11 @@ export function useCategoryColors() {
   const store = useCategoryColorsStore()
   const { categoryColors } = storeToRefs(store)
   return { categoryColors, add: store.add, update: store.update, remove: store.remove }
+}
+
+export function useCategoryColorSwatchGroups() {
+  const { categoryColors } = useCategoryColors()
+  return computed<ColorSwatchGroup[]>(() => [
+    { label: 'Category colors', swatches: categoryColors.value },
+  ])
 }

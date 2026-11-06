@@ -1,6 +1,6 @@
 import { nextTick } from 'vue'
 import { createPinia, setActivePinia } from 'pinia'
-import { CATEGORY_COLORS_KEY, normalizeCategory, useCategoryColors } from './categoryColors'
+import { CATEGORY_COLORS_KEY, normalizeCategory, useCategoryColors, useCategoryColorSwatchGroups } from './categoryColors'
 
 const stored = () => JSON.parse(localStorage.getItem(CATEGORY_COLORS_KEY)!)
 
@@ -81,5 +81,19 @@ describe('useCategoryColors', () => {
     setActivePinia(createPinia())
     const { categoryColors } = useCategoryColors()
     expect(categoryColors.value).toEqual([])
+  })
+})
+
+describe('useCategoryColorSwatchGroups', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    localStorage.clear()
+  })
+
+  it('exposes the category colors as one swatch group', () => {
+    useCategoryColors().add('France', '#0055A4')
+    expect(useCategoryColorSwatchGroups().value).toEqual([
+      { label: 'Category colors', swatches: [{ name: 'France', color: '#0055A4' }] },
+    ])
   })
 })
