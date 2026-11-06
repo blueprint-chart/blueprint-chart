@@ -1,3 +1,9 @@
+## [2.9.0](https://github.com/blueprint-chart/blueprint-chart/compare/v2.8.0...v2.9.0) (2026-11-06)
+
+### Features
+
+* **ui:** edit a color by clicking its pill in the colors input ([5e0ca75](https://github.com/blueprint-chart/blueprint-chart/commit/5e0ca75ed98fc0582f3b213b0314a82df55d1c34))
+
 ## [2.8.0](https://github.com/blueprint-chart/blueprint-chart/compare/v2.7.0...v2.8.0) (2026-11-06)
 
 ### Features
