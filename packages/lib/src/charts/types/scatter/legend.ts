@@ -11,6 +11,8 @@ const ROW_HEIGHT = 16
 const SECTION_GAP = 8
 const TREND_LINE_WIDTH = 24
 const TREND_DASH = '4 3'
+// A browser lays an 11px label out in a ~13px line box.
+const LABEL_LINE_PX = TEXT_PX * 1.2
 const formatValue = d3.format('~s')
 
 export function groupColors(points: ScatterPoint[], palette: string[]): Map<string, string> {
@@ -42,13 +44,24 @@ function drawText(parent: d3.Selection<SVGGElement, unknown, null, undefined>, t
     .text(text)
 }
 
+function legibleSizeValues(sizeValues: number[], radius: (value: number) => number): number[] {
+  const kept: number[] = []
+  for (const value of [...sizeValues].reverse()) {
+    const previous = kept[kept.length - 1]
+    if (previous === undefined || 2 * (radius(previous) - radius(value)) >= LABEL_LINE_PX) {
+      kept.push(value)
+    }
+  }
+  return kept.reverse()
+}
+
 function drawSizeLegend(parent: SVGGElement, { sizeLabel, sizeValues, radius }: KeyConfig, bottom: number): void {
   const g = d3.select(parent).append('g').attr('class', 'bc-size-legend')
   const maxRadius = radius(sizeValues[sizeValues.length - 1])
   if (sizeLabel) {
     drawText(g, sizeLabel, 0, bottom - maxRadius * 2 - LABEL_GAP)
   }
-  sizeValues.forEach((value) => {
+  legibleSizeValues(sizeValues, radius).forEach((value) => {
     const r = radius(value)
     g.append('circle')
       .attr('cx', maxRadius)

@@ -32,6 +32,22 @@ describe('scatter legend helpers', () => {
     expect(renderScatterKey(g, { sizeValues: [], radius: () => 1, trend: false })).toBeNull()
   })
 
+  it('drops a size label that would collide with a larger one', () => {
+    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g')
+    const radius = (v: number) => 12 * Math.sqrt(v / 1000)
+    renderScatterKey(g, { sizeValues: [200, 500, 1000], radius, trend: false })
+    const ys = Array.from(g.querySelectorAll('.bc-size-legend text'), t => Number(t.getAttribute('y'))).sort((a, b) => a - b)
+    expect(ys.length).toBeGreaterThanOrEqual(2)
+    ys.slice(1).forEach((y, i) => expect(y - ys[i]).toBeGreaterThanOrEqual(13))
+  })
+
+  it('keeps every size label when the bubbles are large enough', () => {
+    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g')
+    const radius = (v: number) => 40 * Math.sqrt(v / 1000)
+    renderScatterKey(g, { sizeValues: [200, 500, 1000], radius, trend: false })
+    expect(g.querySelectorAll('.bc-size-legend circle')).toHaveLength(3)
+  })
+
   it('draws a trend key without a size legend', () => {
     const g = document.createElementNS('http://www.w3.org/2000/svg', 'g')
     renderScatterKey(g, { sizeValues: [], radius: () => 1, trend: true })
