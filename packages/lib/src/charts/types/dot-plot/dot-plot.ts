@@ -10,6 +10,10 @@ import { resolveBackgroundColor } from '../../contrast'
 import { ensureClipPath } from '../../clip-path-helper'
 import { expandColorsToSeries } from '../../series-helpers'
 import { setRenderTransition, snapshotForFadeOut, commitFadeOut, fadeIn } from '../../motion'
+import { setupProximityInteraction, disposeProximityFor } from '../../plugins/proximity'
+import { highlightTargetSet, highlightOpacity } from '../../plugins/highlight'
+import { buildColorOverrides } from '../../plugins/colorize'
+import { buildNumberFormatter } from '../../format-helpers'
 import { setCachedChart, getCachedChart } from '../../transition-cache'
 import { featureJoin, getSceneTransition, tweenPlotFrame, type PlotRect } from '../../../transitions'
 import { LabelPosition } from '../../../enums'
@@ -17,6 +21,7 @@ import { CATEGORY_LABEL_HEIGHT, categoryLabelLineHeight, categoryLabelsNeedTheir
 import { buildScatterScale } from '../scatter/scales'
 import { DEFAULT_COLORS } from '../line-multi/line-multi'
 import { resolveDotPlotMapping } from './mapping'
+import { formatDotPlotTooltip } from './tooltip'
 import { buildDotPlotRows, sortDotPlotRows, type DotPlotRow } from './rows'
 
 export const DEFAULT_COLOR = '#4e79a7'
@@ -25,8 +30,11 @@ const RANGE_FILL_OPACITY = 0.25
 const LINE_STROKE_OPACITY = 0.4
 const LINE_WIDTH = 2
 const NARROW_THRESHOLD = 350
+const ARROW_SIZE = 5
+const LABEL_GAP = 6
 
 interface DotDatum { row: string, column: string, value: number, color: string }
+interface LabelDatum { key: string, row: string, series?: string, text: string, x: number, anchor: 'start' | 'end' }
 
 export function render(
   container: HTMLElement,
@@ -34,6 +42,7 @@ export function render(
   options: ChartOptions = {},
   transition = false,
 ): void {
+  disposeProximityFor(container)
   setRenderTransition(transition)
   const axes = AxisService.for(container)
   const cached = transition ? getCachedChart(container) : undefined
@@ -124,6 +133,9 @@ export function render(
   const dotLayer = layer()
   const stroke = resolveBackgroundColor(container)
   const orch = getSceneTransition(container)
+  const targets = highlightTargetSet(options.highlights, rows.map(r => r.name))
+  const opacityOf = (row: string) => highlightOpacity(targets, row)
+  const colorOverrides = buildColorOverrides(options.colorizes)
 
   const rangeRows = rows.filter(r => r.low !== undefined)
   featureJoin<DotPlotRow>(orch, {
@@ -134,14 +146,14 @@ export function render(
     key: r => r.name,
     insert: sel => sel.append('rect').attr('class', 'bc-dot-range').attr('data-key', r => r.name),
     attrs: r => ({
-      'x': x(r.low!),
+      'x': Math.min(x(r.low!), x(r.high!)),
       'y': rowY(r.name) - DOT_RADIUS,
-      'width': Math.max(0, x(r.high!) - x(r.low!)),
+      'width': Math.abs(x(r.high!) - x(r.low!)),
       'height': DOT_RADIUS * 2,
       'rx': DOT_RADIUS,
-      'fill': columnColor(0),
+      'fill': colorOverrides.get(r.name) ?? columnColor(0),
       'fill-opacity': RANGE_FILL_OPACITY,
-      'opacity': 1,
+      'opacity': opacityOf(r.name),
     }),
   })
 
@@ -154,15 +166,16 @@ export function render(
     key: r => r.name,
     insert: sel => sel.append('path').attr('class', 'bc-dot-line').attr('data-key', r => r.name),
     attrs: (r) => {
-      const [start, tip] = d3.extent(r.values).map(v => x(v!))
+      const [start, end] = d3.extent(r.values).map(v => x(v!))
       const cy = rowY(r.name)
+      const { tipX, armX, armY } = arrowhead(x(r.values[0]), x(r.values.at(-1)!), cy, options.arrows === true)
       return {
-        'd': `M${start},${cy}L${tip},${cy}M${tip},${cy}L${tip},${cy}L${tip},${cy}`,
+        'd': `M${start},${cy}L${end},${cy}M${armX},${armY}L${tipX},${cy}L${armX},${armY}`,
         'fill': 'none',
         'stroke': 'currentColor',
         'stroke-opacity': LINE_STROKE_OPACITY,
         'stroke-width': LINE_WIDTH,
-        'opacity': 1,
+        'opacity': opacityOf(r.name),
       }
     },
   })
@@ -180,12 +193,30 @@ export function render(
       'cx': x(d.value),
       'cy': rowY(d.row),
       'r': DOT_RADIUS,
-      'fill': d.color,
+      'fill': colorOverrides.get(d.row) ?? d.color,
       'stroke': stroke,
       'stroke-width': 1,
-      'opacity': 1,
+      'opacity': opacityOf(d.row),
     }),
   })
+
+  const labelLayer = d3.select(chartArea).append('g').node()!
+  if (options.valueLabels) {
+    const fmt = buildNumberFormatter(options.horizontalAxis?.numberFormat ?? '') ?? String
+    renderValueLabels(orch, labelLayer, buildLabels(rows, columns, resolved.mode, x, fmt), rowY, opacityOf)
+  }
+
+  if (options.tooltips) {
+    const rowByName = new Map(rows.map(r => [r.name, r]))
+    setupProximityInteraction(chartArea, {
+      width,
+      height,
+      points: dots.map(d => ({ cx: x(d.value), cy: rowY(d.row), label: formatDotPlotTooltip(rowByName.get(d.row)!, resolved, options.horizontalAxis?.numberFormat), value: d.value, color: d.color, r: DOT_RADIUS })),
+      nearest: 'xy',
+      format: p => p.label,
+      container,
+    })
+  }
 
   if (useCategoryLabelLine) {
     const labelGroup = d3.select(chartArea).append('g').attr('class', 'bc-category-labels')
@@ -216,6 +247,73 @@ export function render(
 
   if (fadeOverlay) {
     fadeIn(plotLayer.node()!)
+    fadeIn(labelLayer)
     commitFadeOut(container, fadeOverlay)
   }
+}
+
+function arrowhead(firstX: number, lastX: number, cy: number, enabled: boolean) {
+  const dir = enabled ? Math.sign(lastX - firstX) : 0
+  const tipX = lastX - dir * DOT_RADIUS
+  return { tipX, armX: tipX - dir * ARROW_SIZE, armY: cy - (dir === 0 ? 0 : ARROW_SIZE) }
+}
+
+function buildLabels(
+  rows: DotPlotRow[],
+  columns: string[],
+  mode: string,
+  x: (v: number) => number,
+  fmt: (v: number) => string,
+): LabelDatum[] {
+  return rows.flatMap((r): LabelDatum[] => {
+    if (mode === 'range') {
+      return [{ key: `${r.name}|range`, row: r.name, text: fmt(r.values[0]), x: Math.max(x(r.low!), x(r.high!)) + LABEL_GAP, anchor: 'start' }]
+    }
+    const order = columns.map((_, i) => i).sort((a, b) => r.values[a] - r.values[b])
+    const ends = order.length > 1 ? [order[0], order.at(-1)!] : order
+    return ends.map((i, n): LabelDatum => {
+      const left = ends.length > 1 && n === 0
+      return {
+        key: `${r.name}|${columns[i]}`,
+        row: r.name,
+        series: columns[i],
+        text: fmt(r.values[i]),
+        x: x(r.values[i]) + (left ? -1 : 1) * (DOT_RADIUS + LABEL_GAP),
+        anchor: left ? 'end' : 'start',
+      }
+    })
+  })
+}
+
+function renderValueLabels(
+  orch: ReturnType<typeof getSceneTransition>,
+  parent: SVGGElement,
+  labels: LabelDatum[],
+  rowY: (name: string) => number,
+  opacityOf: (row: string) => number,
+): void {
+  featureJoin<LabelDatum>(orch, {
+    role: 'value-label',
+    parent,
+    selector: '.bc-dot-label',
+    data: labels,
+    key: l => l.key,
+    insert: sel => sel.append('text')
+      .attr('class', 'bc-dot-label')
+      .attr('data-key', l => l.key)
+      .attr('font-size', '11px')
+      .attr('dominant-baseline', 'central')
+      .text(l => l.text),
+    attrs: l => ({
+      ...(l.series ? { 'data-series': l.series } : {}),
+      'x': l.x,
+      'y': rowY(l.row),
+      'text-anchor': l.anchor,
+      'fill': 'currentColor',
+      'opacity': opacityOf(l.row),
+    }),
+  })
+  d3.select(parent).selectAll<SVGTextElement, LabelDatum>('.bc-dot-label')
+    .data(labels, l => l.key)
+    .text(l => l.text)
 }

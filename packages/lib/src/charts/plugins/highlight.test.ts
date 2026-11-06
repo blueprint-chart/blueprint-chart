@@ -10,6 +10,7 @@ import * as barStacked from '../types/bar-stacked/bar-stacked'
 import * as columnStacked from '../types/column-stacked/column-stacked'
 import * as lineMulti from '../types/line-multi/line-multi'
 import * as areaStacked from '../types/area-stacked/area-stacked'
+import * as dotPlot from '../types/dot-plot/dot-plot'
 import { HIGHLIGHT_DIM_OPACITY, highlightTargetSet, highlightOpacity } from './highlight'
 
 describe('highlight helper', () => {
@@ -63,6 +64,7 @@ describe('a highlight target that matches nothing (#64)', () => {
     ['bar-stacked', (c, o) => barStacked.render(c, seriesData, o)],
     ['column-stacked', (c, o) => columnStacked.render(c, seriesData, o)],
     ['line-multi', (c, o) => lineMulti.render(c, seriesData, o)],
+    ['dot-plot', (c, o) => dotPlot.render(c, categoryData, o)],
     ['area-stacked', (c, o) => areaStacked.render(c, { ...seriesData, values: [0, 0] }, o)],
   ]
 
@@ -94,7 +96,7 @@ describe('a highlight target that matches nothing (#64)', () => {
       const container = document.createElement('div')
       document.body.appendChild(container)
       try {
-        const target = name === 'bar-vertical' || name === 'bar-horizontal' || name === 'donut' || name === 'pie'
+        const target = name === 'bar-vertical' || name === 'bar-horizontal' || name === 'donut' || name === 'pie' || name === 'dot-plot'
           ? 'Alpha'
           : 'Product A'
         run(container, { highlights: [{ target }] })
