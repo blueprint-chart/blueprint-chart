@@ -14,6 +14,10 @@ describe('fitCard', () => {
     expect(fitCard({ width: 2000, height: 2000 }, { width: 600, height: 400 }, 10).scale).toBe(1)
   })
 
+  it('shrinks the padding in a tiny box', () => {
+    expect(fitCard({ width: 48, height: 36 }, { width: 640, height: 400 }, 12).scale).toBeGreaterThan(0.06)
+  })
+
   it('returns scale 0 for a zero-size box', () => {
     expect(fitCard({ width: 0, height: 0 }, { width: 600, height: 400 }, 10)).toEqual({ scale: 0, x: 0, y: 0 })
   })

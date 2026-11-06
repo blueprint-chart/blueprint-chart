@@ -17,9 +17,10 @@ export function thumbnailWidth(layout: ChartLayout): number {
   return THUMBNAIL_RESPONSIVE_WIDTH
 }
 
-export function fitCard(box: Size, card: Size, padding: number): { scale: number, x: number, y: number } {
+export function fitCard(box: Size, card: Size, maxPadding: number): { scale: number, x: number, y: number } {
+  const padding = Math.min(maxPadding, box.width / 16, box.height / 16)
   const scale = Math.min(1, (box.width - padding * 2) / card.width, (box.height - padding * 2) / card.height)
-  if (!(scale > 0)) {
+  if (!(scale > 0) || !(card.width > 0) || !(card.height > 0)) {
     return { scale: 0, x: 0, y: 0 }
   }
   return {
