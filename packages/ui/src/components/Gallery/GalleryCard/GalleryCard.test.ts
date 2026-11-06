@@ -129,6 +129,31 @@ describe('GalleryCard', () => {
   })
 })
 
+describe('GalleryCard #thumb slot', () => {
+  it('renders the thumb slot instead of the image', () => {
+    const wrapper = mount(GalleryCard, {
+      props: { title: 'X', thumbSrc: 'data:image/svg+xml,x' },
+      slots: { thumb: '<div class="probe" />' },
+    })
+    expect(wrapper.find('.gallery-card__thumb .probe').exists()).toBe(true)
+    expect(wrapper.find('.gallery-card__thumb__img').exists()).toBe(false)
+  })
+
+  it('adds the slotted modifier', () => {
+    const wrapper = mount(GalleryCard, {
+      props: { title: 'X' },
+      slots: { thumb: '<div class="probe" />' },
+    })
+    expect(wrapper.find('.gallery-card__thumb').classes()).toContain('gallery-card__thumb--slotted')
+  })
+
+  it('keeps the image when no slot is given', () => {
+    const wrapper = mount(GalleryCard, { props: { title: 'X', thumbSrc: 'data:image/svg+xml,x' } })
+    expect(wrapper.find('.gallery-card__thumb__img').exists()).toBe(true)
+    expect(wrapper.find('.gallery-card__thumb').classes()).not.toContain('gallery-card__thumb--slotted')
+  })
+})
+
 describe('GalleryCard #status slot', () => {
   it('renders status slot content on the thumbnail', () => {
     const wrapper = mount(GalleryCard, {

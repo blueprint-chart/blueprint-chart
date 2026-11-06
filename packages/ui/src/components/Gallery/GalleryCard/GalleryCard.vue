@@ -6,14 +6,19 @@
   >
     <div
       class="gallery-card__thumb"
+      :class="thumbClassList"
       :data-bs-theme="forceLightThumb ? 'light' : undefined"
     >
       <FeedbackSkeleton
-        v-if="loading || (thumbLoading && !thumbSrc)"
+        v-if="loading || (thumbLoading && !thumbSrc && !$slots.thumb)"
         class="gallery-card__thumb__skeleton"
         width="100%"
         height="100%"
         radius="0"
+      />
+      <slot
+        v-else-if="$slots.thumb"
+        name="thumb"
       />
       <img
         v-else-if="thumbSrc"
@@ -103,6 +108,12 @@ const cardClassList = computed(() => ({
   'gallery-card--row': props.layout === 'row',
   'gallery-card--loading': props.loading,
 }))
+
+const slots = useSlots()
+
+const thumbClassList = computed(() => ({
+  'gallery-card__thumb--slotted': !props.loading && !!slots.thumb,
+}))
 </script>
 
 <style scoped lang="scss">
@@ -157,6 +168,10 @@ const cardClassList = computed(() => ({
     padding: 0.875rem;
     overflow: hidden;
     position: relative;
+
+    &--slotted {
+      padding: 0;
+    }
 
     &__img {
       width: 100%;
@@ -276,6 +291,10 @@ const cardClassList = computed(() => ({
       border-right: 1px solid var(--bs-border-color);
       padding: 0.625rem;
       flex-shrink: 0;
+
+      &--slotted {
+        padding: 0;
+      }
     }
 
     .gallery-card__meta {
