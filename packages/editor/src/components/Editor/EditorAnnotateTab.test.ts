@@ -107,6 +107,13 @@ describe('EditorAnnotateTab', () => {
     expect(w.find('.stub-highlight-section').exists()).toBe(true)
   })
 
+  it('offers the highlight section on a dot plot', async () => {
+    chartTypeRef.value = 'dot-plot'
+    const w = mount(EditorAnnotateTab)
+    await nextTick()
+    expect(w.find('.stub-highlight-section').exists()).toBe(true)
+  })
+
   it('renders one EditorAnnotations group when no scene is active', async () => {
     baseAnnotationsRef.value = [
       { kind: AnnotationKind.Point, target: 'a', text: 'Base annotation' },

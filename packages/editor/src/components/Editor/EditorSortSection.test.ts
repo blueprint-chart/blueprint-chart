@@ -6,12 +6,14 @@ import EditorSortSection from './EditorSortSection.vue'
 const mockSetOption = vi.fn()
 const availableOptionKeys = ref<string[]>([])
 const currentOptions = ref<Record<string, unknown>>({})
+const optionDefs = ref<Record<string, unknown>[]>([])
 const sort = ref('none')
 
 vi.mock('@/stores/chartTypeOptions', () => ({
   useChartTypeOptions: () => ({
     currentOptions,
     availableOptionKeys,
+    optionDefs,
     setOption: mockSetOption,
   }),
 }))
@@ -22,6 +24,7 @@ vi.mock('@/stores/chartConfig', () => ({
 
 vi.mock('@blueprint-chart/ui', () => ({
   FormControlButtonGroup: {
+    name: 'FormControlButtonGroup',
     template: '<div :data-label="label" :data-value="modelValue" @click="$emit(\'update:modelValue\', \'total\')" />',
     props: ['modelValue', 'label', 'options', 'block'],
     emits: ['update:modelValue'],
@@ -33,6 +36,7 @@ describe('EditorSortSection (#127)', () => {
     mockSetOption.mockClear()
     availableOptionKeys.value = []
     currentOptions.value = {}
+    optionDefs.value = []
     sort.value = 'none'
   })
 
@@ -48,6 +52,31 @@ describe('EditorSortSection (#127)', () => {
     const wrapper = mount(EditorSortSection)
     await wrapper.find('[data-label="Sort mode"]').trigger('click')
     expect(mockSetOption).toHaveBeenCalledWith('sortMode', 'total')
+  })
+
+  describe('with the dot plot sortMode def', () => {
+    beforeEach(() => {
+      availableOptionKeys.value = ['sortMode']
+      optionDefs.value = [{
+        key: 'sortMode',
+        default: 'value',
+        choices: [{ value: 'none', text: 'None' }, { value: 'value', text: 'By value' }, { value: 'gap', text: 'By gap' }],
+      }]
+    })
+
+    it('lists the choices of the registry def', () => {
+      const group = mount(EditorSortSection).findComponent({ name: 'FormControlButtonGroup' })
+      expect((group.props('options') as { text: string }[]).map(o => o.text)).toEqual(['None', 'By value', 'By gap'])
+    })
+
+    it('selects the def default when sortMode is unset', () => {
+      expect(mount(EditorSortSection).find('[data-label="Sort mode"]').attributes('data-value')).toBe('value')
+    })
+
+    it('keeps an explicit none', () => {
+      currentOptions.value = { sortMode: 'none' }
+      expect(mount(EditorSortSection).find('[data-label="Sort mode"]').attributes('data-value')).toBe('none')
+    })
   })
 
   it('falls back to a plain sort direction when the type has no sortMode', () => {

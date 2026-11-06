@@ -26,10 +26,11 @@ import IPhSortAscending from '~icons/ph/sort-ascending'
 import IPhSortDescending from '~icons/ph/sort-descending'
 
 const { sort } = useChartConfig()
-const { currentOptions, availableOptionKeys, setOption } = useChartTypeOptions()
+const { currentOptions, availableOptionKeys, optionDefs, setOption } = useChartTypeOptions()
 
 const hasSortMode = computed(() => availableOptionKeys.value.includes('sortMode'))
-const sortMode = computed(() => currentOptions.value.sortMode ?? SortMode.None)
+const sortModeDef = computed(() => optionDefs.value.find(def => def.key === 'sortMode'))
+const sortMode = computed(() => currentOptions.value.sortMode ?? sortModeDef.value?.default ?? SortMode.None)
 
 const sortOptions = [
   { value: SortDirection.None, text: 'None', icon: IPhEquals },
@@ -37,9 +38,9 @@ const sortOptions = [
   { value: SortDirection.Descending, text: 'Descending', icon: IPhSortDescending },
 ]
 
-const sortModeOptions = [
-  { value: SortMode.None, text: 'None', icon: IPhEquals },
-  { value: SortMode.Total, text: 'By total', icon: IPhSortAscending },
-  { value: SortMode.WithinGroups, text: 'Within groups', icon: IPhSortAscending },
-]
+const sortModeOptions = computed(() => (sortModeDef.value?.choices ?? []).map(({ value, text }) => ({
+  value,
+  text,
+  icon: value === SortMode.None ? IPhEquals : IPhSortDescending,
+})))
 </script>

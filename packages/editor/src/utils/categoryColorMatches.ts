@@ -62,6 +62,7 @@ const COLORIZE_LIST_CHART_TYPES: string[] = [
   ChartType.BarHorizontal,
   ChartType.VerticalBar,
   ChartType.HorizontalBar,
+  ChartType.DotPlot,
 ]
 
 export const hasColorizeList = (chartType: string) => COLORIZE_LIST_CHART_TYPES.includes(chartType)

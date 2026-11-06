@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { ChartType, type ChartData } from '@blueprint-chart/lib'
-import { findCategoryColorMatches } from './categoryColorMatches'
+import { findCategoryColorMatches, hasColorizeList } from './categoryColorMatches'
 
 const labelsData: ChartData = { labels: ['France', 'Spain'], values: [1, 2] }
 const seriesData: ChartData = {
@@ -92,5 +92,11 @@ describe('findCategoryColorMatches', () => {
 
   it.each([ChartType.Area, ChartType.Line, ChartType.Pie])('returns [] for %s', (chartType) => {
     expect(findCategoryColorMatches({ ...base, chartType })).toEqual([])
+  })
+})
+
+describe('hasColorizeList', () => {
+  it('offers per-row colorize for dot plots', () => {
+    expect(hasColorizeList(ChartType.DotPlot)).toBe(true)
   })
 })

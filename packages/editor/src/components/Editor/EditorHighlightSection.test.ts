@@ -3,17 +3,18 @@ import { describe, it, expect } from 'vitest'
 import EditorHighlightSection from './EditorHighlightSection.vue'
 
 const chartTypeRef = ref('scatter')
+const dataRef = ref([
+  'series = "GDP per capita","Life expectancy","Population","Region"',
+  '"France" = 53449, 82.8, 67.4, "Europe"',
+  '"Nigeria" = 8362, 53.0, 209.5, "Africa"',
+  '"Kenya" = 5172, 62.9, 51.2, "Africa"',
+].join('\n'))
 const optionsRef = ref<Record<string, unknown>>({})
 
 vi.mock('@/stores/chartConfig', () => ({
   useChartConfig: () => ({
     chartType: chartTypeRef,
-    data: ref([
-      'series = "GDP per capita","Life expectancy","Population","Region"',
-      '"France" = 53449, 82.8, 67.4, "Europe"',
-      '"Nigeria" = 8362, 53.0, 209.5, "Africa"',
-      '"Kenya" = 5172, 62.9, 51.2, "Africa"',
-    ].join('\n')),
+    data: dataRef,
     highlights: ref([{ target: 'Nigeria' }]),
   }),
 }))
@@ -41,5 +42,13 @@ describe('EditorHighlightSection on a scatter chart', () => {
   it('offers no group when the group encoding is off', () => {
     optionsRef.value = { group: 'none' }
     expect(items()).toEqual(['France', 'Nigeria', 'Kenya'])
+  })
+})
+
+describe('EditorHighlightSection on a dot plot', () => {
+  it('offers the row labels, not the column names', () => {
+    chartTypeRef.value = 'dot-plot'
+    dataRef.value = 'series = "Poll","High","Low"\n"SPD" = 14,16,12'
+    expect(items()).toEqual(['SPD'])
   })
 })

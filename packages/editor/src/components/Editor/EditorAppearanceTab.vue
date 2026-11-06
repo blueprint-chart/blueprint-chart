@@ -63,6 +63,14 @@
     </SettingsSection>
 
     <SettingsSection
+      v-if="hasDotPlot"
+      title="Dots"
+      :icon="IPhTable"
+    >
+      <EditorDotPlotSettings />
+    </SettingsSection>
+
+    <SettingsSection
       title="Sort"
       :icon="IPhSortAscending"
     >
@@ -113,6 +121,7 @@ const hasBarStyle = computed(() =>
 )
 
 const hasScatter = computed(() => availableOptionKeys.value.includes('trend'))
+const hasDotPlot = computed(() => availableOptionKeys.value.includes('arrows'))
 
 const hasSlice = computed(() => availableOptionKeys.value.includes('displayAsPercentage'))
 </script>
