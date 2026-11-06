@@ -158,9 +158,11 @@ export function renderPointAnnotation(
       if (len > 0) {
         const rawToX = anchor.x - (dx / len) * ltd
         const rawToY = anchor.y - (dy / len) * ltd
+        // A bar keeps the tip on its centre line; a point has no edge to align to.
+        const onBar = 'bandwidth' in ctx.scaleX
         const v = DIRECTION_VECTORS[anchorDir] ?? DIRECTION_VECTORS.N
-        toX = Math.abs(v.dx) > 0.01 ? rawToX : anchor.x
-        toY = Math.abs(v.dy) > 0.01 ? rawToY : anchor.y
+        toX = !onBar || Math.abs(v.dx) > 0.01 ? rawToX : anchor.x
+        toY = !onBar || Math.abs(v.dy) > 0.01 ? rawToY : anchor.y
       }
     }
 

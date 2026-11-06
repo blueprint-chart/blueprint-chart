@@ -109,6 +109,22 @@ describe('renderPointAnnotation', () => {
     expect(document.querySelector('.bc-annotation-line')).not.toBeNull()
   })
 
+  it('stops a point connector lineTargetDistance short of its target, along the line', () => {
+    const { g, ctx } = setup()
+    const scatterCtx: AnnotationContext = {
+      ...ctx,
+      scaleX: d3.scaleLinear().domain([0, 100]).range([0, WIDTH]),
+      data: [{ label: 'P', value: 15, x: 50 }],
+    }
+    const ann = { target: 'P', text: 'low', showArrow: true, anchorDirection: 'N', textOffsetX: -60, textOffsetY: 50, lineTargetDistance: 30 } as Ann
+    renderPointAnnotation(g, ann, scatterCtx, 0)
+    const line = document.querySelector('.bc-annotation-line')!
+    const [fromX, fromY, toX, toY] = ['from-x', 'from-y', 'to-x', 'to-y'].map(k => Number(line.getAttribute(`data-line-${k}`)))
+    const anchor = { x: 200, y: 148 }
+    expect(Math.hypot(toX - anchor.x, toY - anchor.y)).toBeCloseTo(30)
+    expect(Math.hypot(fromX - toX, fromY - toY) + 30).toBeCloseTo(Math.hypot(fromX - anchor.x, fromY - anchor.y))
+  })
+
   it('uses the internal key for data-annotation-id', () => {
     const { g, ctx } = setup()
     const ann = { kind: AnnotationKind.Point, target: 'A', text: 'hi', key: 's0:0:point' } as Ann
