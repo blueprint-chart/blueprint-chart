@@ -57,6 +57,17 @@ describe('useChartTypeOptions', () => {
     expect(currentOptions.value.colors).toEqual(['#aaa', '#bbb'])
   })
 
+  it('does not carry a sort mode the new type has no choice for', () => {
+    const config = useChartConfig()
+    const { setOption, currentOptions } = useChartTypeOptions()
+
+    config.chartType.value = ChartType.BarMulti
+    setOption('sortMode', 'total')
+
+    config.chartType.value = ChartType.DotPlot
+    expect(currentOptions.value.sortMode).toBe('value')
+  })
+
   it('does not overwrite existing stored values on switch', () => {
     const config = useChartConfig()
     const { setOption, currentOptions } = useChartTypeOptions()

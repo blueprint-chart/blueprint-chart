@@ -131,16 +131,21 @@ export const useChartTypeOptionsStore = defineStore('chartTypeOptions', () => {
       return
     }
 
-    const supported = getChartOptions(newType).map(d => d.key as ChartTypeOptionKey)
-    if (supported.length === 0) {
+    const defs = getChartOptions(newType)
+    if (defs.length === 0) {
       return
+    }
+    const supported = defs.map(d => d.key as ChartTypeOptionKey)
+    const hasChoice = (key: ChartTypeOptionKey) => {
+      const choices = defs.find(d => d.key === key)?.choices
+      return !choices || choices.some(c => c.value === oldEffective[key])
     }
 
     // Resolve what the new type already has (base + scene)
     const newBase = store[newType] ?? {}
 
     for (const key of supported) {
-      if (!(key in oldEffective)) {
+      if (!(key in oldEffective) || !hasChoice(key)) {
         continue
       }
 
