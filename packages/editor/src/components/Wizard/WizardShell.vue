@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { Component } from 'vue'
-import { onBeforeRouteLeave } from 'vue-router'
 import { useWizard } from '@/stores/wizard'
 import { useDataTable } from '@/stores/dataTable'
 import { useChartConfig } from '@/stores/chartConfig'
@@ -359,10 +358,6 @@ watch(() => currentStep.value.key, (newKey, oldKey) => {
   if (oldKey === 'data' && newKey === 'edit' && sessionId.value) {
     prepareDataForEdit()
   }
-})
-
-onBeforeRouteLeave(() => {
-  generateThumbnail()
 })
 </script>
 

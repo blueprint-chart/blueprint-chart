@@ -6,6 +6,7 @@ import App from './App.vue'
 import router from './router'
 import { resolveSupabaseConfig, accountsEnabled } from './config/runtimeConfig'
 import { getSupabaseClient } from './lib/supabaseClient'
+import { purgeLegacyImageCache } from './utils/purgeLegacyImageCache'
 import './assets/styles/main.scss'
 
 /**
@@ -40,6 +41,8 @@ async function bootstrap(): Promise<void> {
 
   const pinia = createPinia()
   pinia.use(piniaPluginPersistedstate)
+
+  purgeLegacyImageCache()
 
   createApp(App).use(pinia).use(router).use(createBootstrap({ components: { BDropdown: { offset: 4 } } })).mount('#app')
 }

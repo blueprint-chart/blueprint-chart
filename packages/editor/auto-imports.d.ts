@@ -26,7 +26,6 @@ declare global {
   const beforeAll: typeof import('vitest').beforeAll
   const beforeEach: typeof import('vitest').beforeEach
   const buildPathD: typeof import('./src/composables/useAnnotationDrag').buildPathD
-  const cacheImagesFromDsl: typeof import('./src/composables/useChartThumbnail').cacheImagesFromDsl
   const chai: typeof import('vitest').chai
   const chartThemeOptions: typeof import('./src/composables/useChartTheme').chartThemeOptions
   const checkBenford: typeof import('./src/composables/useBenfordCheck').checkBenford
@@ -59,8 +58,6 @@ declare global {
   const defineAsyncComponent: typeof import('vue').defineAsyncComponent
   const defineComponent: typeof import('vue').defineComponent
   const defineStore: typeof import('pinia').defineStore
-  const deletePreview: typeof import('./src/composables/useChartThumbnail').deletePreview
-  const deleteThumbnail: typeof import('./src/composables/useChartThumbnail').deleteThumbnail
   const describe: typeof import('vitest').describe
   const detectColumnTypes: typeof import('./src/composables/useDataParser').detectColumnTypes
   const detectDelimiter: typeof import('./src/composables/useDataParser').detectDelimiter
@@ -73,13 +70,10 @@ declare global {
   const exportSvg: typeof import('./src/composables/useImageExport').exportSvg
   const extendRef: typeof import('@vueuse/core').extendRef
   const generateId: typeof import('./src/composables/useChartSession').generateId
-  const generateThumbnail: typeof import('./src/composables/useChartThumbnail').generateThumbnail
   const getActivePinia: typeof import('pinia').getActivePinia
   const getCurrentInstance: typeof import('vue').getCurrentInstance
   const getCurrentScope: typeof import('vue').getCurrentScope
   const getCurrentWatcher: typeof import('vue').getCurrentWatcher
-  const getPreview: typeof import('./src/composables/useChartThumbnail').getPreview
-  const getThumbnail: typeof import('./src/composables/useChartThumbnail').getThumbnail
   const h: typeof import('vue').h
   const ignorableWatch: typeof import('@vueuse/core').ignorableWatch
   const inject: typeof import('vue').inject
@@ -146,17 +140,12 @@ declare global {
   const refThrottled: typeof import('@vueuse/core').refThrottled
   const refWithControl: typeof import('@vueuse/core').refWithControl
   const renderDsl: typeof import('./src/composables/useChartFromDsl').renderDsl
-  const renderPreviewFromDsl: typeof import('./src/composables/useChartThumbnail').renderPreviewFromDsl
-  const renderPreviewFromStorage: typeof import('./src/composables/useChartThumbnail').renderPreviewFromStorage
   const renderThumbnailFromDsl: typeof import('./src/composables/useChartThumbnail').renderThumbnailFromDsl
-  const renderThumbnailFromStorage: typeof import('./src/composables/useChartThumbnail').renderThumbnailFromStorage
   const renderThumbnailSvg: typeof import('./src/composables/useChartThumbnail').renderThumbnailSvg
   const resolveComponent: typeof import('vue').resolveComponent
   const resolveRef: typeof import('@vueuse/core').resolveRef
   const resolveScene: typeof import('./src/composables/useChartPreview').resolveScene
   const resolveSortFromTransforms: typeof import('./src/composables/useChartPreview').resolveSortFromTransforms
-  const savePreview: typeof import('./src/composables/useChartThumbnail').savePreview
-  const saveThumbnail: typeof import('./src/composables/useChartThumbnail').saveThumbnail
   const sceneTimelineKey: typeof import('./src/composables/sceneTimelineContext').sceneTimelineKey
   const serializeDelimited: typeof import('./src/composables/useDataParser').serializeDelimited
   const serializeTableData: typeof import('./src/composables/useDataTable').serializeTableData

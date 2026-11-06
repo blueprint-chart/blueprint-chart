@@ -6,7 +6,6 @@ import { useScenes } from '@/stores/scenes'
 import { useDslSync } from '@/composables/useDslSync'
 import { useDslOutput } from '@/composables/useDslOutput'
 import { parseDelimited } from '@/composables/useDataParser'
-import { deleteThumbnail } from '@/composables/useChartThumbnail'
 import type { DatasetSource } from '@/utils/datasets'
 import { randomUUID } from '@/utils/uuid'
 import { parse, type ChartSample, toBool } from '@blueprint-chart/lib'
@@ -479,7 +478,6 @@ export const useChartSessionStore = defineStore('chartSession', () => {
   function deleteChart(id: string) {
     localStorage.removeItem(storageKey(id))
     localStorage.removeItem(metaKey(id))
-    deleteThumbnail(id)
   }
 
   return {

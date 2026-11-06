@@ -1,6 +1,5 @@
 import { getSupabaseClient } from '@/lib/supabaseClient'
 import { generateId, storageKey, useChartSessionStore } from '@/stores/chartSession'
-import { deletePreview } from '@/composables/useChartThumbnail'
 
 // Kept in sync with RESERVED_SLUGS in chartSession.ts, which skips this slug so
 // the index key never surfaces as a phantom chart in listSavedCharts().
@@ -213,7 +212,6 @@ export const useCloudChartsStore = defineStore('cloudCharts', () => {
     for (const id of readCloudIndex()) {
       if (localStorage.getItem(storageKey(id)) !== null) {
         session.deleteChart(id)
-        deletePreview(id)
       }
     }
     writeCloudIndex(new Set())
