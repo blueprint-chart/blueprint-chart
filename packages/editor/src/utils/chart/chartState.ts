@@ -4,6 +4,7 @@ import { layoutDefaults, type ChartColorize, type ChartLayout } from '@/composab
 import type { ChartTypeOptions } from '@/composables/useChartTypeOptions'
 import type { SceneOverride } from '@/composables/useScenes'
 import { TransformType } from '@/enums'
+import type { ChartConfig } from '@/stores/chartConfig'
 
 type Properties = ReturnType<typeof propertyMap>
 
@@ -145,6 +146,19 @@ function parseScene(sceneNode: Parameters<typeof extractSceneOverrides>[0], char
     scene.properties = sceneProps
   }
   return scene
+}
+
+/** Stored charts are DSL, or a pre-DSL `{ "chartConfig": ... }` JSON payload. */
+export function parseStoredChartState(raw: string): ChartState {
+  if (!raw.trimStart().startsWith('{')) {
+    return parseChartState(raw)
+  }
+  const { chartConfig } = JSON.parse(raw) as { chartConfig: Partial<ChartConfig> }
+  return {
+    ...parseChartState(`chart ${chartConfig.chartType} {}`),
+    ...chartConfig,
+    layout: { ...layoutDefaults, ...chartConfig.layout },
+  } as ChartState
 }
 
 export function parseChartState(dsl: string): ChartState {

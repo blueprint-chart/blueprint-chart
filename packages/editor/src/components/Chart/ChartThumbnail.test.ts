@@ -16,12 +16,15 @@ const chart = (body: string, data = '"A" = 1\n    "B" = 2') => `chart bar-vertic
   }
 }`
 
+let intersect: (isIntersecting: boolean) => void = () => {}
+
 function stubIntersectionObserver(intersecting: boolean) {
   vi.stubGlobal('IntersectionObserver', class {
     constructor(private callback: IntersectionObserverCallback) {}
     observe(target: Element) {
+      intersect = isIntersecting => this.callback([{ isIntersecting, target } as IntersectionObserverEntry], this as unknown as IntersectionObserver)
       if (intersecting) {
-        this.callback([{ isIntersecting: true, target } as IntersectionObserverEntry], this as unknown as IntersectionObserver)
+        intersect(true)
       }
     }
 
@@ -30,8 +33,10 @@ function stubIntersectionObserver(intersecting: boolean) {
   })
 }
 
+const errorHandler = vi.fn()
+
 function mountThumbnail(dsl: string) {
-  return mount(ChartThumbnail, { props: { dsl }, attachTo: document.body })
+  return mount(ChartThumbnail, { props: { dsl }, attachTo: document.body, global: { config: { errorHandler } } })
 }
 
 describe('ChartThumbnail', () => {
@@ -39,6 +44,7 @@ describe('ChartThumbnail', () => {
     setActivePinia(createPinia())
     stubIntersectionObserver(true)
     vi.mocked(renderChart).mockClear()
+    errorHandler.mockClear()
   })
 
   afterEach(() => {
@@ -109,4 +115,22 @@ describe('ChartThumbnail', () => {
     await flushPromises()
     expect(wrapper.find('.chart-card').classes()).toContain('chart-card--transparent')
   })
+
+  it('renders a legacy JSON payload', async () => {
+    const legacy = JSON.stringify({ chartConfig: { chartType: 'bar-vertical', title: 'Legacy title', data: '"A" = 1\n"B" = 2' } })
+    const wrapper = mountThumbnail(legacy)
+    await flushPromises()
+    expect(wrapper.find('.bc-frame').text()).toContain('Legacy title')
+  })
+
+  it('swallows a render failure', async () => {
+    vi.mocked(renderChart).mockImplementationOnce(() => {
+      throw new Error('boom')
+    })
+    const wrapper = mountThumbnail(chart(''))
+    await flushPromises()
+    expect(errorHandler).not.toHaveBeenCalled()
+    expect(wrapper.find('.chart-thumbnail').exists()).toBe(true)
+  })
+
 })

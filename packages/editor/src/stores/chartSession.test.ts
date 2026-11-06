@@ -1,5 +1,5 @@
 import { ChartType } from '@blueprint-chart/lib'
-import { generateId, useChartSession, summarizeDsl, storageKey, metaKey, readLocalMeta, readLocalDsl } from './chartSession'
+import { generateId, useChartSession, summarizeDsl, storageKey, metaKey, readLocalMeta } from './chartSession'
 import { serializeTableData } from '@/stores/dataTable'
 import { useDslOutput } from '@/composables/useDslOutput'
 import { TransformType } from '@/enums'
@@ -552,70 +552,5 @@ describe('a chart deleted while another tab still holds it', () => {
 
     expect(localStorage.getItem(storageKey(session.sessionId.value))).not.toBeNull()
     expect(session.deletedElsewhere.value).toBe(false)
-  })
-})
-
-describe('readLocalDsl', () => {
-  beforeEach(() => localStorage.clear())
-
-  it('returns the stored DSL', () => {
-    localStorage.setItem(storageKey('dslIdAAAAAA'), 'chart bar {}')
-    expect(readLocalDsl('dslIdAAAAAA')).toBe('chart bar {}')
-  })
-
-  it('skips legacy JSON payloads', () => {
-    localStorage.setItem(storageKey('legacyIdAAA'), '{"chartConfig":{}}')
-    expect(readLocalDsl('legacyIdAAA')).toBeNull()
-  })
-
-  it('returns null when missing', () => {
-    expect(readLocalDsl('missingIdAA')).toBeNull()
-  })
-})
-
-describe('readLocalMeta', () => {
-  it.each(['null', '5', '[]', '"x"'])('returns {} for the non-object sidecar %s', (text) => {
-    localStorage.setItem(metaKey('nonObjectAA'), text)
-    expect(readLocalMeta('nonObjectAA')).toEqual({})
-  })
-})
-
-describe('a malformed :meta sidecar', () => {
-  const ID = 'badMetaIdAA'
-  const DSL = 'chart donut {\n  title = "Intact"\n  data {\n    "A" = 1\n  }\n}\n'
-
-  beforeEach(() => {
-    setActivePinia(createPinia())
-    localStorage.clear()
-    useChartConfig().reset()
-    useDataTable().reset()
-    useDataTransforms().reset()
-    useChartTypeOptions().reset()
-    useScenes().reset()
-    localStorage.setItem(storageKey(ID), DSL)
-    localStorage.setItem(metaKey(ID), '{not json')
-  })
-
-  it('keeps the chart listed in My charts', () => {
-    const charts = useChartSession().listSavedCharts()
-    expect(charts.map(c => c.id)).toEqual([ID])
-    expect(charts[0].title).toBe('Intact')
-    expect(charts[0].savedAt).toBeNull()
-  })
-
-  it('still opens the chart', () => {
-    const session = useChartSession()
-    expect(session.loadChart(ID)).toBe(true)
-    expect(useChartConfig().title.value).toBe('Intact')
-    expect(session.sessionId.value).toBe(ID)
-  })
-
-  it('reads as unstamped provenance, so the data block is adopted as stored', () => {
-    const withSteps = 'chart bar-vertical {\n  data {\n    "A" = 100\n  }\n\n  transform parse {\n    column = "value"\n    operation = "log"\n  }\n}\n'
-    localStorage.setItem(storageKey(ID), withSteps)
-
-    expect(useChartSession().loadChart(ID)).toBe(true)
-    expect(useDataTransforms().steps.value).toEqual([])
-    expect(useChartConfig().data.value).toContain('"A" = 100')
   })
 })

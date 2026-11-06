@@ -37,7 +37,7 @@ vi.mock('@/stores/chartSession', () => ({
       { id: 'b2', title: 'China CO₂', description: 'Emissions trend', chartType: 'bar', savedAt: '2026-05-14T10:00:00Z', sceneCount: 1, rowCount: 20, allowDarkMode: true },
     ],
   }),
-  readLocalDsl: (id: string) => (id === 'a1' ? 'chart line {}' : null),
+  storageKey: (id: string) => `chart:${id}`,
 }))
 
 function mountModal(open = true) {
@@ -55,6 +55,7 @@ describe('CommandPaletteModal', () => {
   beforeEach(async () => {
     await router.push('/')
     localStorage.clear()
+    localStorage.setItem('chart:a1', 'chart line {}')
   })
 
   it('renders the input when open is true', async () => {

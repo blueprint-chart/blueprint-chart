@@ -2,7 +2,7 @@
 import type { CSSProperties } from 'vue'
 import { renderChart } from '@blueprint-chart/lib'
 import { useTheme } from '@/composables/useTheme'
-import { parseChartState } from '@/utils/chart/chartState'
+import { parseStoredChartState } from '@/utils/chart/chartState'
 import { buildChartRender, snapshotFromState } from '@/utils/chart/chartRender'
 import ChartCard from './ChartCard.vue'
 import { fitCard, thumbnailWidth } from './chartThumbnailFit'
@@ -26,19 +26,21 @@ const { stop } = useIntersectionObserver(root, ([entry]) => {
   }
 })
 
-const state = computed(() => {
+const parsed = computed(() => {
   if (!props.dsl || !visible.value) {
     return null
   }
   try {
-    return parseChartState(props.dsl)
+    const state = parseStoredChartState(props.dsl)
+    return { state, render: buildChartRender(snapshotFromState(state)) }
   }
   catch {
     return null
   }
 })
 
-const chartRender = computed(() => state.value && buildChartRender(snapshotFromState(state.value)))
+const state = computed(() => parsed.value?.state)
+const chartRender = computed(() => parsed.value?.render)
 const forceLight = computed(() => chartRender.value?.kind === 'chart' && !chartRender.value.allowDarkMode)
 
 const fit = shallowRef({ scale: 0, x: 0, y: 0 })
@@ -66,7 +68,12 @@ function draw() {
   if (!visible.value || !container.value || r?.kind !== 'chart') {
     return
   }
-  renderChart(container.value, r.definition, { transition: false, ignoreLayout: true })
+  try {
+    renderChart(container.value, r.definition, { transition: false, ignoreLayout: true })
+  }
+  catch {
+    container.value.replaceChildren()
+  }
 }
 
 watch([chartRender, resolvedTheme, container, visible], draw, { flush: 'post' })

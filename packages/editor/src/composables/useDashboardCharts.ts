@@ -6,7 +6,6 @@ import {
   storageKey,
   metaKey,
   readLocalMeta,
-  readLocalDsl,
   summarizeDsl,
 } from '@/stores/chartSession'
 import { useCloudCharts } from '@/stores/cloudCharts'
@@ -112,7 +111,7 @@ export function useDashboardCharts() {
         void loadCloudDsl(chart.id)
         continue
       }
-      const dsl = readLocalDsl(chart.id)
+      const dsl = localStorage.getItem(storageKey(chart.id))
       if (dsl) {
         dsls[chart.id] = dsl
       }
