@@ -1,4 +1,13 @@
 import { test, expect } from '@playwright/test'
+import { readFileSync } from 'node:fs'
+import { dirname, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
+import { gotoRender } from './support/render'
+
+const SAMPLE = readFileSync(
+  resolve(dirname(fileURLToPath(import.meta.url)), '../packages/lib/src/samples/life-expectancy-wealth.bpc'),
+  'utf-8',
+)
 
 const TSV = [
   'Country\tGDP per capita\tLife expectancy\tPopulation\tContinent',
@@ -40,5 +49,35 @@ test.describe('scatter authoring', () => {
 
     await page.locator('#scatter-trend').selectOption({ label: 'Overall' })
     await expect(page.locator('.bc-frame-body path.bc-trend-line')).toHaveCount(1)
+  })
+})
+
+test.describe('scatter scenes', () => {
+  test('points glide to their new position when the scene title changes length', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'no-preference' })
+    await gotoRender(page, SAMPLE)
+    const next = page.locator('.bc-frame [aria-label="Next scene"]')
+    await next.click()
+    await expect(page.locator('.bc-frame')).toContainText('Richer countries live longer')
+    await page.waitForTimeout(1500)
+
+    await page.evaluate(() => {
+      const w = window as unknown as { cxTrace: string[] }
+      w.cxTrace = []
+      const start = performance.now()
+      const tick = () => {
+        w.cxTrace.push(document.querySelector('circle.bc-scatter-point[data-key="China"]')?.getAttribute('cx') ?? '')
+        if (performance.now() - start < 1000) {
+          requestAnimationFrame(tick)
+        }
+      }
+      requestAnimationFrame(tick)
+    })
+    await next.click()
+    await expect(page.locator('.bc-frame')).toContainText('In 1990')
+    await expect.poll(() => page.evaluate(() => (window as unknown as { cxTrace: string[] }).cxTrace.length), { timeout: 3000 }).toBeGreaterThan(30)
+
+    const distinct = await page.evaluate(() => new Set((window as unknown as { cxTrace: string[] }).cxTrace).size)
+    expect(distinct).toBeGreaterThan(5)
   })
 })
