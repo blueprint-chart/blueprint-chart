@@ -41,6 +41,7 @@ export const AUDITED_CHART_TYPES: readonly ChartType[] = [
   ChartType.Donut,
   ChartType.Pie,
   ChartType.Scatter,
+  ChartType.DotPlot,
 ]
 
 // Status of an audit cell. Mirrors the spec's verdict workflow:

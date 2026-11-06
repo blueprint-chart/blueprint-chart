@@ -116,6 +116,7 @@ export const MATRIX: Matrix = {
       rule: RULE_DIRECT_LABEL_PREFERRED,
     },
     [ChartType.Scatter]: { status: 'na', reason: 'scatter labels points via showLabels, not the direct-labelling mode' },
+    [ChartType.DotPlot]: { status: 'na', reason: 'dot plot labels values via valueLabels; directLabelling is not registered' },
   },
 
   // =========================================================================
@@ -200,6 +201,13 @@ export const MATRIX: Matrix = {
       optionKey: 'legend',
       target: true,
       rule: RULE_WHEN_TO_USE_LEGENDS,
+    },
+    [ChartType.DotPlot]: {
+      status: 'asserted',
+      optionKey: 'legend',
+      target: true,
+      rule: RULE_WHEN_TO_USE_LEGENDS,
+      notes: 'The legend only shows in dumbbell mode, where color names the value columns.',
     },
   },
 
@@ -290,6 +298,13 @@ export const MATRIX: Matrix = {
     // pie; valueLabels option is not registered (uses showLabels/showValues/directLabelling instead)
     [ChartType.Pie]: { status: 'na', reason: 'pie uses showLabels/showValues arc options rather than the valueLabels boolean' },
     [ChartType.Scatter]: { status: 'na', reason: 'scatter has no value labels; points are labelled via showLabels' },
+    [ChartType.DotPlot]: {
+      status: 'asserted',
+      optionKey: 'valueLabels',
+      target: false,
+      rule: RULE_VALUE_LABELS,
+      notes: 'The horizontal axis carries the values; labels are opt-in.',
+    },
   },
 
   // =========================================================================
@@ -373,6 +388,12 @@ export const MATRIX: Matrix = {
       optionKey: 'verticalLabelPosition',
       target: LabelPosition.Auto,
       rule: RULE_BAR_NO_VALUE_AXIS,
+    },
+    [ChartType.DotPlot]: {
+      status: 'asserted',
+      optionKey: 'horizontalLabelRotation',
+      target: LabelRotation.Horizontal,
+      rule: RULE_NEVER_ROTATE,
     },
   },
 
@@ -471,6 +492,13 @@ export const MATRIX: Matrix = {
       target: GridStyle.Dashed,
       rule: RULE_GRIDLINES_Y_AXIS,
     },
+    [ChartType.DotPlot]: {
+      status: 'asserted',
+      optionKey: 'horizontalGridStyle',
+      target: GridStyle.Dashed,
+      rule: RULE_GRIDLINES_Y_AXIS,
+      notes: 'The value axis is horizontal, so its grid is the one that aids reading.',
+    },
   },
 
   // =========================================================================
@@ -564,6 +592,12 @@ export const MATRIX: Matrix = {
     [ChartType.Scatter]: {
       status: 'asserted',
       optionKey: 'showVerticalTicks',
+      target: false,
+      rule: RULE_TICKS_SUBTLE,
+    },
+    [ChartType.DotPlot]: {
+      status: 'asserted',
+      optionKey: 'showHorizontalTicks',
       target: false,
       rule: RULE_TICKS_SUBTLE,
     },
@@ -679,6 +713,12 @@ export const MATRIX: Matrix = {
       target: false,
       rule: RULE_FRAME_MINIMAL,
     },
+    [ChartType.DotPlot]: {
+      status: 'asserted',
+      optionKey: 'showHorizontalAxis',
+      target: false,
+      rule: RULE_FRAME_MINIMAL,
+    },
   },
 
   // =========================================================================
@@ -777,6 +817,13 @@ export const MATRIX: Matrix = {
       optionKey: 'verticalScaleType',
       target: ScaleType.Linear,
       rule: RULE_HANDBOOK_LINE,
+    },
+    [ChartType.DotPlot]: {
+      status: 'asserted',
+      optionKey: 'horizontalScaleType',
+      target: ScaleType.Linear,
+      rule: RULE_HANDBOOK_LINE,
+      notes: 'Dots encode position, not length, so like lines they need no zero baseline.',
     },
   },
   // =========================================================================
@@ -899,6 +946,12 @@ export const MATRIX: Matrix = {
       target: 'Blueprint',
       rule: RULE_CVD_SAFE_PALETTE,
     },
+    [ChartType.DotPlot]: {
+      status: 'asserted',
+      optionKey: 'colorPalette',
+      target: 'Blueprint',
+      rule: RULE_CVD_SAFE_PALETTE,
+    },
   },
 
   // =========================================================================
@@ -1001,6 +1054,7 @@ export const MATRIX: Matrix = {
     // pie; no crosshair option registered
     [ChartType.Pie]: { status: 'na', reason: 'pie is a polar chart; crosshair option is not registered for this chart type' },
     [ChartType.Scatter]: { status: 'na', reason: 'scatter has no crosshair option; points are read through tooltips' },
+    [ChartType.DotPlot]: { status: 'na', reason: 'dot plot has no crosshair option; dots are read through tooltips' },
   },
 
   // =========================================================================
@@ -1109,6 +1163,12 @@ export const MATRIX: Matrix = {
       target: true,
       rule: RULE_TOOLTIPS_HIDDEN,
     },
+    [ChartType.DotPlot]: {
+      status: 'asserted',
+      optionKey: 'tooltips',
+      target: true,
+      rule: RULE_TOOLTIPS_HIDDEN,
+    },
   },
   // =========================================================================
   // Concern: LineInterpolation
@@ -1167,6 +1227,7 @@ export const MATRIX: Matrix = {
     // pie — polar chart; no interpolation
     [ChartType.Pie]: { status: 'na', reason: 'polar chart; interpolation does not apply' },
     [ChartType.Scatter]: { status: 'na', reason: 'scatter draws no lines' },
+    [ChartType.DotPlot]: { status: 'na', reason: 'dot plot connectors are straight segments' },
   },
 
   // =========================================================================
@@ -1224,6 +1285,7 @@ export const MATRIX: Matrix = {
     // pie — polar chart; no line symbols
     [ChartType.Pie]: { status: 'na', reason: 'polar chart; lineSymbols option is not registered' },
     [ChartType.Scatter]: { status: 'na', reason: 'scatter draws no lines' },
+    [ChartType.DotPlot]: { status: 'na', reason: 'dot plot draws dots, not line symbols' },
   },
 
   // =========================================================================
@@ -1270,6 +1332,7 @@ export const MATRIX: Matrix = {
     [ChartType.Donut]: { status: 'na', reason: 'polar chart; barGap option is not registered' },
     [ChartType.Pie]: { status: 'na', reason: 'polar chart; barGap option is not registered' },
     [ChartType.Scatter]: { status: 'na', reason: 'scatter has no bars' },
+    [ChartType.DotPlot]: { status: 'na', reason: 'dot plot has no bars' },
   },
 
   // =========================================================================
@@ -1318,6 +1381,7 @@ export const MATRIX: Matrix = {
       rule: RULE_PIE_PERCENTAGE,
     },
     [ChartType.Scatter]: { status: 'na', reason: 'scatter is a Cartesian chart, not polar' },
+    [ChartType.DotPlot]: { status: 'na', reason: 'dot plot is a Cartesian chart, not polar' },
   },
 
   // =========================================================================
@@ -1365,6 +1429,7 @@ export const MATRIX: Matrix = {
     [ChartType.Donut]: { status: 'na', reason: 'polar chart; stacking options are not registered' },
     [ChartType.Pie]: { status: 'na', reason: 'polar chart; stacking options are not registered' },
     [ChartType.Scatter]: { status: 'na', reason: 'scatter has no stacking' },
+    [ChartType.DotPlot]: { status: 'na', reason: 'dot plot has no stacking' },
   },
 
   // =========================================================================
@@ -1447,6 +1512,12 @@ export const MATRIX: Matrix = {
     // pie — sortMode is not registered; slice ordering is handled by PieDonutLayout
     [ChartType.Pie]: { status: 'na', reason: 'sortMode option is not registered for pie; slice ordering is part of PieDonutLayout concern' },
     [ChartType.Scatter]: { status: 'na', reason: 'scatter has no category order to sort' },
+    [ChartType.DotPlot]: {
+      status: 'asserted',
+      optionKey: 'sortMode',
+      target: SortMode.Value,
+      rule: RULE_SORT_DESCENDING,
+    },
   },
 
   // =========================================================================
@@ -1571,6 +1642,14 @@ export const MATRIX: Matrix = {
       status: 'asserted',
       kind: 'rendererConstant',
       importPath: '../types/scatter/scatter',
+      exportName: 'DEFAULT_COLOR',
+      target: '#4e79a7',
+      rule: RULE_CVD_SAFE_PALETTE,
+    },
+    [ChartType.DotPlot]: {
+      status: 'asserted',
+      kind: 'rendererConstant',
+      importPath: '../types/dot-plot/dot-plot',
       exportName: 'DEFAULT_COLOR',
       target: '#4e79a7',
       rule: RULE_CVD_SAFE_PALETTE,
