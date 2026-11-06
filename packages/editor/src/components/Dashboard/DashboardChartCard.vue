@@ -2,13 +2,18 @@
   <GalleryCard
     :title="chart.title || 'Untitled'"
     :subtitle="chart.description"
-    :thumb-src="thumbSrc"
     :thumb-loading="thumbLoading"
     :selected="selected"
     :layout="layout"
-    :force-light-thumb="!chart.allowDarkMode"
     @click="$emit('select', chart.id)"
   >
+    <template
+      v-if="dsl"
+      #thumb
+    >
+      <ChartThumbnail :dsl="dsl" />
+    </template>
+
     <template #status>
       <button
         v-if="showCloud"
@@ -61,13 +66,13 @@ const wait = useWait()
 
 const props = withDefaults(defineProps<{
   chart: UnifiedChartSummary
-  thumbSrc?: string
+  dsl?: string
   selected: boolean
   layout: 'grid' | 'row'
   /** Whether cloud sync is available (accounts on + signed in). When false the
    *  sync-state pill is hidden — there's no cloud to sync to. */
   showCloud?: boolean
-}>(), { thumbSrc: undefined, showCloud: true })
+}>(), { dsl: undefined, showCloud: true })
 
 const thumbLoading = computed(() => wait.waiting(`chart-media:${props.chart.id}`))
 

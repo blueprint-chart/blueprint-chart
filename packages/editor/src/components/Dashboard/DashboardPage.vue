@@ -15,8 +15,7 @@ const { mode } = storeToRefs(usePanelStore())
 const {
   sortedCharts,
   empty,
-  thumbnails,
-  previews,
+  dsls,
   sortValue,
   localOnlyCount,
   refresh,
@@ -31,7 +30,7 @@ const cloud = useCloudCharts()
 const wait = useWait()
 const previewLoading = computed(() =>
   selectedChartId.value
-    ? wait.waiting(`chart-media:${selectedChartId.value}`) && !previews[selectedChartId.value]
+    ? wait.waiting(`chart-media:${selectedChartId.value}`) && !dsls[selectedChartId.value]
     : false,
 )
 const importer = useLocalImport({
@@ -167,7 +166,7 @@ onUnmounted(() => {
       >
         <DashboardGallery
           :charts="sortedCharts"
-          :thumbnails="thumbnails"
+          :dsls="dsls"
           :selected-id="selectedChartId"
           :layout="viewLayout"
           :show-cloud="showCloud"
@@ -192,9 +191,8 @@ onUnmounted(() => {
           v-if="selectedChart"
           :title="selectedChart.title || 'Untitled'"
           :subtitle="selectedChart.description"
-          :preview-src="selectedChartId ? previews[selectedChartId] : undefined"
+          :dsl="dsls[selectedChart.id]"
           :preview-loading="previewLoading"
-          :force-light-theme="selectedChart ? !selectedChart.allowDarkMode : false"
           :chart-type="selectedChart.chartType"
           :saved-at="selectedChart.savedAt ?? undefined"
           :scene-count="selectedChart.sceneCount"

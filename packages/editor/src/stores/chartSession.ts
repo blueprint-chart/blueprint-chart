@@ -126,6 +126,11 @@ function isLegacyPayload(raw: string): boolean {
   return raw.trimStart().startsWith('{')
 }
 
+export function readLocalDsl(id: string): string | null {
+  const raw = localStorage.getItem(storageKey(id))
+  return raw && !isLegacyPayload(raw) ? raw : null
+}
+
 export const useChartSessionStore = defineStore('chartSession', () => {
   const sessionId = shallowRef('')
   const lastSavedAt = shallowRef<string | null>(null)

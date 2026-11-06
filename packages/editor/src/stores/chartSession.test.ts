@@ -1,5 +1,5 @@
 import { ChartType } from '@blueprint-chart/lib'
-import { generateId, useChartSession, summarizeDsl, storageKey, metaKey, readLocalMeta } from './chartSession'
+import { generateId, useChartSession, summarizeDsl, storageKey, metaKey, readLocalMeta, readLocalDsl } from './chartSession'
 import { serializeTableData } from '@/stores/dataTable'
 import { useDslOutput } from '@/composables/useDslOutput'
 import { TransformType } from '@/enums'
@@ -552,6 +552,24 @@ describe('a chart deleted while another tab still holds it', () => {
 
     expect(localStorage.getItem(storageKey(session.sessionId.value))).not.toBeNull()
     expect(session.deletedElsewhere.value).toBe(false)
+  })
+})
+
+describe('readLocalDsl', () => {
+  beforeEach(() => localStorage.clear())
+
+  it('returns the stored DSL', () => {
+    localStorage.setItem(storageKey('dslIdAAAAAA'), 'chart bar {}')
+    expect(readLocalDsl('dslIdAAAAAA')).toBe('chart bar {}')
+  })
+
+  it('skips legacy JSON payloads', () => {
+    localStorage.setItem(storageKey('legacyIdAAA'), '{"chartConfig":{}}')
+    expect(readLocalDsl('legacyIdAAA')).toBeNull()
+  })
+
+  it('returns null when missing', () => {
+    expect(readLocalDsl('missingIdAA')).toBeNull()
   })
 })
 

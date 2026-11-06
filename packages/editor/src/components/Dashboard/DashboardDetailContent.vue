@@ -16,8 +16,7 @@
     />
 
     <DashboardDetailPreview
-      :src="previewSrc"
-      :force-light-theme="forceLightTheme"
+      :dsl="dsl"
       :loading="previewLoading"
     />
 
@@ -55,9 +54,8 @@ import type { SyncState } from '@/composables/useDashboardCharts'
 defineProps<{
   title: string
   subtitle?: string
-  previewSrc?: string
+  dsl?: string
   previewLoading?: boolean
-  forceLightTheme?: boolean
   chartType: string
   savedAt?: string
   sceneCount: number

@@ -42,7 +42,7 @@
         v-for="chart in charts"
         :key="chart.id"
         :chart="chart"
-        :thumb-src="thumbnails[chart.id]"
+        :dsl="dsls[chart.id]"
         :selected="selectedId === chart.id"
         :layout="layout"
         :show-cloud="showCloud"
@@ -65,7 +65,7 @@ const SKELETON_COUNT = 6
 
 defineProps<{
   charts: UnifiedChartSummary[]
-  thumbnails: Record<string, string>
+  dsls: Record<string, string>
   selectedId: string | null
   layout: 'grid' | 'row'
   showCloud: boolean

@@ -6,21 +6,11 @@ import {
   storageKey,
   metaKey,
   readLocalMeta,
+  readLocalDsl,
   summarizeDsl,
 } from '@/stores/chartSession'
 import { useCloudCharts } from '@/stores/cloudCharts'
 import { useAccount } from '@/stores/account'
-import {
-  getThumbnail,
-  saveThumbnail,
-  getPreview,
-  savePreview,
-  deletePreview,
-  renderThumbnailFromStorage,
-  renderPreviewFromStorage,
-  cacheImagesFromDsl,
-  svgToDataUrl,
-} from '@/composables/useChartThumbnail'
 
 export type SyncState = 'local' | 'synced' | 'cloud'
 
@@ -84,8 +74,7 @@ export function useDashboardCharts() {
   const wait = useWait()
 
   const charts = ref<UnifiedChartSummary[]>([])
-  const thumbnails = reactive<Record<string, string>>({})
-  const previews = reactive<Record<string, string>>({})
+  const dsls = reactive<Record<string, string>>({})
   const sortValue = shallowRef('date-desc')
   const loaded = shallowRef(false)
   const empty = computed(() => loaded.value && charts.value.length === 0)
@@ -112,79 +101,32 @@ export function useDashboardCharts() {
       loaded.value = true
     }
     charts.value = mergeChartLists(localList, cloudList)
-    loadImages()
+    loadDsls()
   }
 
-  /** Render/cache thumbnails + previews. Local & synced read from localStorage;
-   *  cloud-only fetch their DSL once, render, cache, and enrich metadata. */
-  function loadImages(): void {
+  /** Local & synced read their DSL from localStorage; cloud-only fetch it
+   *  once and enrich their metadata. */
+  function loadDsls(): void {
     for (const chart of charts.value) {
       if (chart.syncState === 'cloud') {
-        void loadCloudImages(chart.id)
+        void loadCloudDsl(chart.id)
         continue
       }
-      const cachedThumb = getThumbnail(chart.id)
-      const cachedPreview = getPreview(chart.id)
-      if (cachedThumb) {
-        thumbnails[chart.id] = svgToDataUrl(cachedThumb)
+      const dsl = readLocalDsl(chart.id)
+      if (dsl) {
+        dsls[chart.id] = dsl
       }
-      if (cachedPreview) {
-        previews[chart.id] = svgToDataUrl(cachedPreview)
-      }
-      if (cachedThumb && cachedPreview) {
-        continue
-      }
-      const raw = localStorage.getItem(storageKey(chart.id))
-      if (!raw) {
-        continue
-      }
-      try {
-        if (!cachedThumb) {
-          const svg = renderThumbnailFromStorage(raw)
-          if (svg) {
-            saveThumbnail(chart.id, svg)
-            thumbnails[chart.id] = svgToDataUrl(svg)
-          }
-        }
-        if (!cachedPreview) {
-          const preview = renderPreviewFromStorage(raw)
-          if (preview) {
-            savePreview(chart.id, preview)
-            previews[chart.id] = svgToDataUrl(preview)
-          }
-        }
-      }
-      catch { /* skip corrupt entries */ }
     }
   }
 
-  async function loadCloudImages(id: string): Promise<void> {
-    const cachedThumb = getThumbnail(id)
-    const cachedPreview = getPreview(id)
-    if (cachedThumb) {
-      thumbnails[id] = svgToDataUrl(cachedThumb)
-    }
-    if (cachedPreview) {
-      previews[id] = svgToDataUrl(cachedPreview)
-    }
-    if (cachedThumb && cachedPreview) {
-      return
-    }
+  async function loadCloudDsl(id: string): Promise<void> {
     wait.start(`chart-media:${id}`)
     try {
       const record = await cloud.loadCloud(id)
       if (!record) {
         return
       }
-      cacheImagesFromDsl(id, record.dsl)
-      const t = getThumbnail(id)
-      const p = getPreview(id)
-      if (t) {
-        thumbnails[id] = svgToDataUrl(t)
-      }
-      if (p) {
-        previews[id] = svgToDataUrl(p)
-      }
+      dsls[id] = record.dsl
       // Enrich cloud-only metadata now that we have the DSL.
       const summary = summarizeDsl(record.dsl)
       const idx = charts.value.findIndex(c => c.id === id)
@@ -230,9 +172,7 @@ export function useDashboardCharts() {
       cloud.unmarkCloudBacked(id)
     }
     session.deleteChart(id) // removes localStorage entry, meta, thumbnail
-    deletePreview(id)
-    delete thumbnails[id]
-    delete previews[id]
+    delete dsls[id]
     await refresh()
   }
 
@@ -261,8 +201,7 @@ export function useDashboardCharts() {
     charts,
     sortedCharts,
     empty,
-    thumbnails,
-    previews,
+    dsls,
     sortValue,
     localOnlyCount,
     refresh,
