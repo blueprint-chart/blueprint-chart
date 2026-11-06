@@ -16,7 +16,7 @@ vi.mock('@/stores/chartConfig', () => ({
 describe('EditorDotPlotSettings', () => {
   beforeEach(() => {
     setOption.mockClear()
-    currentOptions.value = {}
+    currentOptions.value = { dotStyle: 'range' }
     data.value = 'series = "Poll","High","Low"\n"SPD" = 14,16,12'
   })
 
@@ -29,16 +29,30 @@ describe('EditorDotPlotSettings', () => {
   })
 
   it('leaves the low column out of the high options', async () => {
-    currentOptions.value = { low: 'Poll' }
-    const values = mount(EditorDotPlotSettings).findAll('#dot-plot-high option').map(o => o.element.value)
+    currentOptions.value = { dotStyle: 'range', low: 'Poll' }
+    const values = mount(EditorDotPlotSettings).findAll('#dot-plot-high option').map(o => (o.element as HTMLOptionElement).value)
     expect(values).not.toContain('Poll')
     expect(values).toContain('Low')
   })
 
-  it('offers None to turn range mode off', async () => {
+  it('hides the low and high pickers in dumbbell style', () => {
+    currentOptions.value = {}
     const wrapper = mount(EditorDotPlotSettings)
-    await wrapper.find('#dot-plot-low').setValue('none')
-    expect(setOption).toHaveBeenCalledWith('low', 'none')
+    expect(wrapper.find('#dot-plot-low').exists()).toBe(false)
+    expect(wrapper.find('#dot-plot-high').exists()).toBe(false)
+  })
+
+  it('switches the style explicitly', async () => {
+    currentOptions.value = {}
+    const group = mount(EditorDotPlotSettings).findComponent({ name: 'FormControlButtonGroup' })
+    expect(group.props('modelValue')).toBe('dumbbell')
+    await group.vm.$emit('update:modelValue', 'range')
+    expect(setOption).toHaveBeenCalledWith('dotStyle', 'range')
+  })
+
+  it('does not offer None, the style turns range off', () => {
+    const values = mount(EditorDotPlotSettings).findAll('#dot-plot-low option').map(o => (o.element as HTMLOptionElement).value)
+    expect(values).not.toContain('none')
   })
 
   it('shows None (auto) when nothing is detected', () => {
@@ -47,6 +61,7 @@ describe('EditorDotPlotSettings', () => {
   })
 
   it('toggles arrows', async () => {
+    currentOptions.value = {}
     const wrapper = mount(EditorDotPlotSettings)
     await wrapper.find('.editor-dot-plot-settings__arrows input').setValue(true)
     expect(setOption).toHaveBeenCalledWith('arrows', true)

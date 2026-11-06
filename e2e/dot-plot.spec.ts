@@ -15,6 +15,7 @@ const TSV = [
 
 const SCENES = `chart dot-plot {
   title = "Polls"
+  dotStyle = "range"
   data {
     series = "Poll","High","Low"
     "CDU/CSU" = 29,32,27
@@ -59,7 +60,7 @@ const opacities = (page: import('@playwright/test').Page, selector: string) =>
   page.locator(selector).evaluateAll(marks => marks.map(mark => [mark.getAttribute('data-key')!.split('|')[0], mark.getAttribute('opacity')]))
 
 test.describe('dot plot authoring', () => {
-  test('pasted data becomes a range plot the settings and highlight drive', async ({ page }) => {
+  test('pasted data stays a dumbbell until the range style is picked', async ({ page }) => {
     await page.goto('/#/new')
     await page.locator('textarea').fill(TSV)
     await page.locator('button', { hasText: 'Load data' }).click()
@@ -69,12 +70,10 @@ test.describe('dot plot authoring', () => {
     await page.locator('[aria-label="Chart Type"]').click()
     await page.locator('.form-control-dropdown__toggle .dropdown-toggle').click()
     await page.locator('.form-control-dropdown-item__content__text__label', { hasText: 'Dot plot' }).first().click()
-    await expect(page.locator(ranges)).toHaveCount(6)
-
-    await page.locator('[aria-label="Style"]').click()
-    await page.locator('#dot-plot-low').selectOption({ label: 'None' })
     await expect(page.locator(ranges)).toHaveCount(0)
     await expect(page.locator(lines)).toHaveCount(6)
+
+    await page.locator('[aria-label="Style"]').click()
 
     const collapsed = (d: string) => {
       const [anchor, tip] = d.split('M')[2].split('L').map(point => point.trim())
@@ -85,8 +84,9 @@ test.describe('dot plot authoring', () => {
     await page.locator('.editor-dot-plot-settings__arrows label').click()
     await expect.poll(async () => collapsed((await firstLine.getAttribute('d'))!)).toBe(false)
 
-    await page.locator('#dot-plot-low').selectOption({ value: '' })
+    await page.locator('.editor-dot-plot-settings__style').getByRole('button', { name: 'Range' }).click()
     await expect(page.locator(ranges)).toHaveCount(6)
+    await expect(page.locator('#dot-plot-low')).toHaveValue('')
 
     await page.locator('[aria-label="Annotate"]').click()
     await page.locator('.form-control-checkbox', { hasText: 'Highlight specific items' }).locator('label').click()

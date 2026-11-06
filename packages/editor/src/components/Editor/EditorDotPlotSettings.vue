@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { FormControlCheckbox } from '@blueprint-chart/ui'
-import { detectRangeColumn, MAPPING_NONE, numericColumns, parseData } from '@blueprint-chart/lib'
+import { FormControlButtonGroup, FormControlButtonGroupEntry, FormControlCheckbox } from '@blueprint-chart/ui'
+import { detectRangeColumn, DotStyle, numericColumns, parseData } from '@blueprint-chart/lib'
 import { useChartConfig } from '@/stores/chartConfig'
 import { useChartTypeOptions } from '@/stores/chartTypeOptions'
 
@@ -11,12 +11,11 @@ const ROLE_LABELS: Record<RangeRole, string> = { low: 'Low column', high: 'High 
 const { data } = useChartConfig()
 const { currentOptions, setOption } = useChartTypeOptions()
 
+const dotStyle = computed(() => currentOptions.value.dotStyle ?? DotStyle.Dumbbell)
+const isRange = computed(() => dotStyle.value === DotStyle.Range)
 const columns = computed(() => numericColumns(parseData(data.value)))
 const detectedLow = computed(() => detectRangeColumn(columns.value, 'low'))
-const effectiveLow = computed(() => {
-  const low = currentOptions.value.low
-  return low === MAPPING_NONE ? undefined : low || detectedLow.value
-})
+const effectiveLow = computed(() => currentOptions.value.low || detectedLow.value)
 const detectedHigh = computed(() => detectRangeColumn(columns.value.filter(name => name !== effectiveLow.value), 'high'))
 const fields = computed(() => [
   buildField('low', detectedLow.value),
@@ -26,7 +25,7 @@ const fields = computed(() => [
 function buildOptions(role: RangeRole, detected?: string) {
   const excluded = role === 'high' ? effectiveLow.value : undefined
   const columnOptions = columns.value.filter(name => name !== detected && name !== excluded).map(name => ({ value: name, text: name }))
-  return [{ value: '', text: `${detected ?? 'None'} (auto)` }, ...columnOptions, { value: MAPPING_NONE, text: 'None' }]
+  return [{ value: '', text: `${detected ?? 'None'} (auto)` }, ...columnOptions]
 }
 
 function buildField(role: RangeRole, detected?: string) {
@@ -37,22 +36,42 @@ function buildField(role: RangeRole, detected?: string) {
 
 <template>
   <div class="editor-dot-plot-settings d-flex flex-column gap-3">
-    <BFormGroup
-      v-for="field in fields"
-      :key="field.role"
-      class="editor-dot-plot-settings__field"
-      :label="field.label"
-      :label-for="`dot-plot-${field.role}`"
+    <FormControlButtonGroup
+      class="editor-dot-plot-settings__style"
+      :model-value="dotStyle"
+      label="Style"
+      block
+      @update:model-value="(value: string) => setOption('dotStyle', value as DotStyle)"
     >
-      <BFormSelect
-        :id="`dot-plot-${field.role}`"
-        :model-value="field.value"
-        :options="field.options"
-        @update:model-value="(value) => setOption(field.role, String(value ?? ''))"
+      <FormControlButtonGroupEntry
+        :value="DotStyle.Dumbbell"
+        text="Dumbbell"
       />
-    </BFormGroup>
+      <FormControlButtonGroupEntry
+        :value="DotStyle.Range"
+        text="Range"
+      />
+    </FormControlButtonGroup>
+
+    <template v-if="isRange">
+      <BFormGroup
+        v-for="field in fields"
+        :key="field.role"
+        class="editor-dot-plot-settings__field"
+        :label="field.label"
+        :label-for="`dot-plot-${field.role}`"
+      >
+        <BFormSelect
+          :id="`dot-plot-${field.role}`"
+          :model-value="field.value"
+          :options="field.options"
+          @update:model-value="(value) => setOption(field.role, String(value ?? ''))"
+        />
+      </BFormGroup>
+    </template>
 
     <FormControlCheckbox
+      v-else
       class="editor-dot-plot-settings__arrows"
       :model-value="currentOptions.arrows ?? false"
       label="Arrows"
