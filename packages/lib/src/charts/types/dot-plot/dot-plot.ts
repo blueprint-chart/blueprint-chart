@@ -230,7 +230,7 @@ export function render(
     setupProximityInteraction(chartArea, {
       width,
       height,
-      points: dots.map(d => ({ cx: x(d.value), cy: rowY(d.row), label: formatDotPlotTooltip(rowByName.get(d.row)!, resolved, options.horizontalAxis?.numberFormat), value: d.value, color: d.color, r: DOT_RADIUS })),
+      points: dots.map(d => ({ cx: x(d.value), cy: rowY(d.row), label: formatDotPlotTooltip(rowByName.get(d.row)!, resolved, options.horizontalAxis?.numberFormat), value: d.value, color: colorOverrides.get(d.row) ?? d.color, r: DOT_RADIUS })),
       nearest: 'xy',
       format: p => p.label,
       container,
