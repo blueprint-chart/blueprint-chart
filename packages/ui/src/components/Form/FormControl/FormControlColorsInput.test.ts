@@ -1,4 +1,4 @@
-import { shallowMount } from '@vue/test-utils'
+import { flushPromises, shallowMount } from '@vue/test-utils'
 import FormControlColorsInput from './FormControlColorsInput.vue'
 
 const stubs = {
@@ -29,7 +29,7 @@ describe('FormControlColorsInput rendering', () => {
 
   it('displays hex values in tags', () => {
     const wrapper = factory()
-    const hexSpans = wrapper.findAll('.form-control-colors-input__tag__hex')
+    const hexSpans = wrapper.findAll('.form-control-colors-input__tag__edit__hex')
     expect(hexSpans[0].text()).toBe('#ff0000')
     expect(hexSpans[1].text()).toBe('#00ff00')
     expect(hexSpans[2].text()).toBe('#0000ff')
@@ -76,14 +76,67 @@ describe('FormControlColorsInput remove', () => {
   })
 })
 
-describe('FormControlColorsInput swatch click', () => {
-  it('opens picker on swatch button click', async () => {
+describe('FormControlColorsInput edit', () => {
+  it('opens the picker on the clicked color from its hex label', async () => {
     const wrapper = factory()
-    const swatchBtns = wrapper.findAll('.form-control-colors-input__tag__swatch-btn')
-    await swatchBtns[0].trigger('click')
-    // Verify the component didn't crash and the picker state updated
-    // (popover is stubbed, so we just confirm no errors and no unexpected emissions)
-    expect(wrapper.findAll('.form-control-colors-input__tag')).toHaveLength(3)
+    const editBtn = wrapper.find('button[aria-label="Edit #00ff00"]')
+    expect(editBtn.text()).toContain('#00ff00')
+    await editBtn.trigger('click')
+    const popover = wrapper.findComponent({ name: 'FormControlColorInputPopover' })
+    expect(popover.props('open')).toBe(true)
+    expect(popover.props('modelValue')).toBe('#00ff00')
+  })
+
+  it('anchors the picker under the start of the clicked pill', async () => {
+    const wrapper = factory()
+    await wrapper.find('button[aria-label="Edit #00ff00"]').trigger('click')
+    const popover = wrapper.findComponent({ name: 'FormControlColorInputPopover' })
+    expect(popover.props('target')).toBe(wrapper.findAll('.form-control-colors-input__tag')[1].element)
+    expect(popover.props('placement')).toBe('bottom-start')
+  })
+
+  it('only ignores outside clicks on the edit button, not the whole pill', async () => {
+    const wrapper = factory()
+    const editBtn = wrapper.find('button[aria-label="Edit #00ff00"]')
+    await editBtn.trigger('click')
+    expect(wrapper.findComponent({ name: 'FormControlColorInputPopover' }).props('ignore')).toBe(editBtn.element)
+  })
+
+  it('closes the picker when the edited color is removed', async () => {
+    const wrapper = factory()
+    wrapper.setProps({ 'onUpdate:modelValue': (value: string[]) => wrapper.setProps({ modelValue: value }) })
+    await wrapper.find('button[aria-label="Edit #00ff00"]').trigger('click')
+    await wrapper.find('button[aria-label="Remove #00ff00"]').trigger('click')
+    expect(wrapper.findComponent({ name: 'FormControlColorInputPopover' }).props('open')).toBe(false)
+  })
+
+  it('closes the picker when the parent replaces the edited color', async () => {
+    const wrapper = factory()
+    await wrapper.find('button[aria-label="Edit #00ff00"]').trigger('click')
+    await wrapper.setProps({ modelValue: ['#ff0000', '#123456', '#0000ff'] })
+    expect(wrapper.findComponent({ name: 'FormControlColorInputPopover' }).props('open')).toBe(false)
+  })
+
+  it('keeps the picker open while it edits the color itself', async () => {
+    const wrapper = factory()
+    wrapper.setProps({ 'onUpdate:modelValue': (value: string[]) => wrapper.setProps({ modelValue: value }) })
+    await wrapper.find('button[aria-label="Edit #00ff00"]').trigger('click')
+    const popover = wrapper.findComponent({ name: 'FormControlColorInputPopover' })
+    popover.vm.$emit('update:modelValue', '#abcdef')
+    await flushPromises()
+    expect(wrapper.props('modelValue')).toEqual(['#ff0000', '#abcdef', '#0000ff'])
+    expect(popover.props('open')).toBe(true)
+  })
+})
+
+describe('FormControlColorsInput add', () => {
+  it('centers the picker under the add button', async () => {
+    const wrapper = factory()
+    await wrapper.find('.btn-add').trigger('click')
+    const popover = wrapper.findComponent({ name: 'FormControlColorInputPopover' })
+    expect(popover.props('open')).toBe(true)
+    expect(popover.props('target')).toBe(wrapper.find('.btn-add').element)
+    expect(popover.props('placement')).toBe('bottom')
   })
 })
 

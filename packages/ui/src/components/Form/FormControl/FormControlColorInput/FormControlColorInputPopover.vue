@@ -2,7 +2,7 @@
   <BPopover
     v-model="open"
     :target="target"
-    placement="bottom"
+    :placement="placement"
     teleport-to="body"
     strategy="fixed"
     :click="!manual"
@@ -20,6 +20,7 @@
 
 <script setup lang="ts">
 import type { OnClickOutsideOptions } from '@vueuse/core'
+import type { PopoverPlacement } from 'bootstrap-vue-next'
 import { BPopover } from 'bootstrap-vue-next'
 import FormControlColorInputPicker from './FormControlColorInputPicker.vue'
 
@@ -27,9 +28,12 @@ const model = defineModel<string>({ required: true })
 
 const props = withDefaults(defineProps<{
   target: HTMLElement | null
+  ignore?: HTMLElement | null
   manual?: boolean
+  placement?: PopoverPlacement
 }>(), {
   manual: false,
+  placement: 'bottom',
 })
 
 const open = defineModel<boolean>('open', { default: false })
@@ -37,7 +41,7 @@ const contentRef = useTemplateRef<HTMLElement>('contentRef')
 
 const clickOutsideOptions: OnClickOutsideOptions = {
   detectIframe: true,
-  ignore: () => [props.target],
+  ignore: () => [props.ignore ?? props.target],
 }
 onClickOutside(contentRef, () => {
   if (props.manual) {

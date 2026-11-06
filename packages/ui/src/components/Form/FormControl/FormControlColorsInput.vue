@@ -12,15 +12,16 @@
       >
         <button
           type="button"
-          class="form-control-colors-input__tag__swatch-btn"
+          class="form-control-colors-input__tag__edit"
+          :aria-label="`Edit ${color}`"
           @click="openPicker(idx, $event)"
         >
           <DisplayColorSwatch
             :color="color"
             size="sm"
           />
+          <span class="form-control-colors-input__tag__edit__hex">{{ color }}</span>
         </button>
-        <span class="form-control-colors-input__tag__hex">{{ color }}</span>
         <button
           type="button"
           class="form-control-colors-input__tag__remove"
@@ -43,6 +44,8 @@
       v-model:open="pickerOpen"
       :model-value="editingColor"
       :target="editingTarget"
+      :ignore="editingTrigger"
+      :placement="editingPlacement"
       manual
       @update:model-value="onPickerColorChange"
     />
@@ -67,20 +70,31 @@ const atMax = computed(() => props.max !== undefined && model.value.length >= pr
 const addBtnRef = useTemplateRef<InstanceType<typeof ButtonAdd>>('addBtnRef')
 const editingColor = shallowRef('#4e79a7')
 const editingIndex = shallowRef(-1)
+const editingTrigger = ref<HTMLElement | null>(null)
 const editingTarget = ref<HTMLElement | null>(null)
 const pickerOpen = shallowRef(false)
+
+const editingPlacement = computed(() => editingIndex.value >= 0 ? 'bottom-start' : 'bottom')
+
+watch(() => model.value[editingIndex.value], (color) => {
+  if (editingIndex.value >= 0 && color !== editingColor.value) {
+    pickerOpen.value = false
+  }
+})
 
 function openPicker(idx: number, event: MouseEvent) {
   editingIndex.value = idx
   editingColor.value = model.value[idx]
-  editingTarget.value = event.currentTarget as HTMLElement
+  editingTrigger.value = event.currentTarget as HTMLElement
+  editingTarget.value = editingTrigger.value.closest<HTMLElement>('.form-control-colors-input__tag')
   pickerOpen.value = true
 }
 
 function openAdder() {
   editingIndex.value = -1
   editingColor.value = '#4e79a7'
-  editingTarget.value = (addBtnRef.value as unknown as { $el: HTMLElement })?.$el ?? null
+  editingTrigger.value = (addBtnRef.value as unknown as { $el: HTMLElement })?.$el ?? null
+  editingTarget.value = editingTrigger.value
   pickerOpen.value = true
 }
 
@@ -117,18 +131,25 @@ function onPickerColorChange(color: string) {
     background: var(--bs-tertiary-bg);
     line-height: 1;
 
-    &__swatch-btn {
+    &__edit {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
       background: none;
       border: none;
       padding: 0;
       cursor: pointer;
       line-height: 1;
-    }
 
-    &__hex {
-      font-family: var(--bs-font-monospace);
-      font-size: var(--bs-font-size-sm);
-      color: var(--bs-body-color);
+      &__hex {
+        font-family: var(--bs-font-monospace);
+        font-size: var(--bs-font-size-sm);
+        color: var(--bs-body-color);
+      }
+
+      &:hover &__hex {
+        text-decoration: underline;
+      }
     }
 
     &__remove {
