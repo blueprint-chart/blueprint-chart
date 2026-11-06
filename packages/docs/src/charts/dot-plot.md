@@ -120,7 +120,7 @@ From `packages/lib/src/samples/life-expectancy-gains.bpc`. A dumbbell with arrow
 chart dot-plot {
   title = "Zimbabwe gained over 16 years of life expectancy since 2000, the United States under 1"
   description = "Life expectancy at birth in years, 2000 and 2022, for 10 countries"
-  source = "World Bank"
+  source = "World Bank, World Development Indicators"
   sourceUrl = "https://data.worldbank.org/indicator/SP.DYN.LE00.IN"
   arrows = true
   sortMode = "gap"
