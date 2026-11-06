@@ -23,6 +23,7 @@ Blueprint Chart is built for AI coding agents and developers. An agent writes a 
 - [bar-vertical](https://docs.blueprintchart.com/charts/bar-vertical) · [bar-horizontal](https://docs.blueprintchart.com/charts/bar-horizontal) · [bar-multi](https://docs.blueprintchart.com/charts/bar-multi) · [bar-grouped](https://docs.blueprintchart.com/charts/bar-grouped) · [bar-stacked](https://docs.blueprintchart.com/charts/bar-stacked) · [bar-split](https://docs.blueprintchart.com/charts/bar-split)
 - [column-stacked](https://docs.blueprintchart.com/charts/column-stacked)
 - [pie](https://docs.blueprintchart.com/charts/pie) · [donut](https://docs.blueprintchart.com/charts/donut)
+- [scatter](https://docs.blueprintchart.com/charts/scatter)
 
 ## Choosing & craft (handbook)
 - [Choosing the right chart](https://docs.blueprintchart.com/handbook/choosing): match data shape and goal to a chart type

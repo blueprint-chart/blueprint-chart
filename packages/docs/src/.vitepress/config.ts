@@ -168,6 +168,13 @@ export default defineConfig({
             { text: 'Donut', link: '/charts/donut' },
           ],
         },
+        {
+          text: 'Relationship',
+          collapsed: false,
+          items: [
+            { text: 'Scatter', link: '/charts/scatter' },
+          ],
+        },
       ],
 
       '/handbook/': [

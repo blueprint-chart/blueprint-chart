@@ -63,7 +63,7 @@ chart <chartType> {
 }
 ```
 
-Where `<chartType>` is one of the registered chart-type identifiers (`line`, `bar-vertical`, `bar-horizontal`, `bar-grouped`, `bar-stacked`, `bar-multi`, `bar-split`, `column-stacked`, `area`, `area-stacked`, `line-multi`, `pie`, `donut`). The authoritative list is exported as `ChartType` from [`@blueprint-chart/lib`](/reference/api/).
+Where `<chartType>` is one of the registered chart-type identifiers (`line`, `bar-vertical`, `bar-horizontal`, `bar-grouped`, `bar-stacked`, `bar-multi`, `bar-split`, `column-stacked`, `area`, `area-stacked`, `line-multi`, `pie`, `donut`, `scatter`). The authoritative list is exported as `ChartType` from [`@blueprint-chart/lib`](/reference/api/).
 
 ## Lexical grammar
 
