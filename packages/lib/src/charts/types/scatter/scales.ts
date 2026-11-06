@@ -37,3 +37,31 @@ export function axisTransform(type: ScaleType | undefined): { forward: (v: numbe
       return { forward: v => v, inverse: t => t }
   }
 }
+
+/**
+ * Widest `[start, end]` pixel range that keeps every bubble inside
+ * `[0, length]`, and both ends of the domain at least `edgePad` from the edges. Only the bubbles that reach an edge cost
+ * margin, so a large bubble in the middle of the cloud reserves none.
+ */
+export function fitRange(scale: ScatterScale, items: { value: number, r: number }[], length: number, edgePad = 0): [number, number] {
+  const unit = scale.copy().range([0, 1])
+  const spots = [{ t: 0, r: edgePad }, { t: 1, r: edgePad }, ...items.map(({ value, r }) => ({ t: unit(value), r }))]
+  const startFor = (span: number) => Math.max(...spots.map(s => s.r - s.t * span))
+  const fits = (span: number) => {
+    const start = startFor(span)
+    return spots.every(s => start + s.t * span + s.r <= length)
+  }
+  let low = 0
+  let high = length
+  for (let i = 0; i < 40; i++) {
+    const mid = (low + high) / 2
+    if (fits(mid)) {
+      low = mid
+    }
+    else {
+      high = mid
+    }
+  }
+  const start = startFor(low)
+  return [start, start + low]
+}

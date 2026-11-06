@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import type * as d3 from 'd3'
 import { ScaleType } from '../../../enums'
-import { axisTransform, buildScatterScale } from './scales'
+import { axisTransform, buildScatterScale, fitRange } from './scales'
 
 describe('buildScatterScale', () => {
   it('builds a true log10 scale that skips non-positive values', () => {
@@ -46,5 +46,33 @@ describe('axisTransform', () => {
       const { forward, inverse } = axisTransform(t)
       expect(inverse(forward(250))).toBeCloseTo(250)
     }
+  })
+})
+
+describe('fitRange', () => {
+  const scale = () => buildScatterScale(undefined, [0, 100])
+
+  it('reserves no margin for a big bubble in the middle', () => {
+    const [lo, hi] = fitRange(scale(), [{ value: 50, r: 40 }, { value: 0, r: 2 }, { value: 100, r: 2 }], 500)
+    expect(lo).toBeCloseTo(2, 5)
+    expect(hi).toBeCloseTo(498, 5)
+  })
+
+  it('keeps every bubble inside the plot', () => {
+    const items = [{ value: 0, r: 30 }, { value: 10, r: 45 }, { value: 95, r: 20 }, { value: 100, r: 5 }]
+    const s = scale()
+    s.range(fitRange(s, items, 400))
+    for (const { value, r } of items) {
+      expect(s(value) - r).toBeGreaterThanOrEqual(-1e-6)
+      expect(s(value) + r).toBeLessThanOrEqual(400 + 1e-6)
+    }
+  })
+})
+
+describe('fitRange edge padding', () => {
+  it('keeps the domain ends clear of the plot edges by the requested pad', () => {
+    const [lo, hi] = fitRange(buildScatterScale(undefined, [0, 100]), [{ value: 50, r: 10 }], 300, 8)
+    expect(lo).toBeCloseTo(8, 5)
+    expect(hi).toBeCloseTo(292, 5)
   })
 })

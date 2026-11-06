@@ -11,7 +11,7 @@ import { getCachedChart, setCachedChart } from '../../transition-cache'
 import { featureJoin, getSceneTransition, tweenPlotFrame, type PlotRect } from '../../../transitions'
 import { resolveScatterMapping } from './mapping'
 import { buildScatterPoints, type ScatterPoint } from './points'
-import { buildScatterScale } from './scales'
+import { buildScatterScale, fitRange } from './scales'
 import { groupColors, type KeyConfig, renderScatterKey, scatterKeyWidth, sizeLegendValues } from './legend'
 import { renderLegend } from '../../legend/legend'
 import { estimateLegendSize } from '../../legend/legend-size'
@@ -31,6 +31,8 @@ export const DOT_RADIUS = 4.5
 export const FILL_OPACITY = 0.7
 const KEY_GAP = 10
 const NARROW_THRESHOLD = 350
+// Room for half a tick label, so the end gridlines' labels clear the legend.
+const Y_EDGE_PAD = 8
 const TREND_DASH = '6 4'
 const TREND_WIDTH = 1.5
 const OVERALL_TREND_OPACITY = 0.6
@@ -57,10 +59,9 @@ function legendY(position: string, topHeight: number, legendH: number, plotHeigh
 function radiusScale(points: ScatterPoint[], width: number, height: number) {
   const maxSize = d3.max(points, p => p.size)
   if (maxSize === undefined) {
-    return { maxRadius: DOT_RADIUS, radiusOf: () => DOT_RADIUS }
+    return () => DOT_RADIUS
   }
-  const maxRadius = maxBubbleRadius(width, height)
-  return { maxRadius, radiusOf: d3.scaleSqrt().domain([0, maxSize]).range([0, maxRadius]) }
+  return d3.scaleSqrt().domain([0, maxSize]).range([0, maxBubbleRadius(width, height)])
 }
 
 function labelledPoints(points: ScatterPoint[], highlighted: Set<string>, options: ChartOptions): ScatterPoint[] {
@@ -146,11 +147,11 @@ export function render(
   const { chartArea, width, height, margin } = createCanvas(body, marginOverrides)
   const marginDelta = computeMarginDelta(cached?.margin, margin)
 
-  const { maxRadius, radiusOf } = radiusScale(points, width, height)
+  const radiusOf = radiusScale(points, width, height)
   const radius = (p: ScatterPoint) => radiusOf(p.size ?? 0)
-  const inset = maxRadius + 1
-  x.range([inset, width - inset])
-  y.range([height - inset, inset])
+  x.range(fitRange(x, points.map(p => ({ value: p.x, r: radius(p) + 1 })), width))
+  const [bottom, top] = fitRange(y, points.map(p => ({ value: p.y, r: radius(p) + 1 })), height, Y_EDGE_PAD)
+  y.range([height - bottom, height - top])
 
   axes.attach(chartArea, marginDelta)
   axes.update({
