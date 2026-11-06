@@ -3,6 +3,7 @@ import type { D3Blueprint, Plugin } from 'd3-blueprint'
 import type { AnnotationConfig } from '../../types'
 import { AnnotationKind, AnnotationLineStyle } from '../../../enums'
 import { getTransitionDuration, DEFAULT_TRANSITION_MS } from '../../motion'
+import { BC_TRANSITION_NAME } from '../../../transitions/types'
 import type { AnnotationContext } from './context'
 import { snapshotAnnotations, readLineGeometry } from './snapshots'
 import type { AnnotationSnapshot, LineGeometry } from './snapshots'
@@ -319,6 +320,11 @@ function applyAnnotationTransitions(
  * scale at `1 / MAX_VIEWBOX_GROWTH`; overflow past it is clipped instead.
  */
 const MAX_VIEWBOX_GROWTH = 1.25
+const SETTLE_RETRY_MS = 16
+
+function isTweening(svg: SVGSVGElement): boolean {
+  return Array.from(svg.querySelectorAll('*')).some(el => d3.active(el, BC_TRANSITION_NAME))
+}
 
 function expandSvgToFitAnnotations(svg: SVGSVGElement | null, deferMs = 0): void {
   if (!svg) {
@@ -327,8 +333,10 @@ function expandSvgToFitAnnotations(svg: SVGSVGElement | null, deferMs = 0): void
 
   // Reading `getBBox` while a scene transition is tweening measures incoming
   // axis labels thousands of px off the plot, so wait for the tween to settle.
+  // The timer can fire a frame before the tween ends, while exiting ticks are
+  // still off the plot, hence the re-check.
   if (deferMs > 0) {
-    setTimeout(() => expandSvgToFitAnnotations(svg), deferMs)
+    setTimeout(() => expandSvgToFitAnnotations(svg, isTweening(svg) ? SETTLE_RETRY_MS : 0), deferMs)
     return
   }
 

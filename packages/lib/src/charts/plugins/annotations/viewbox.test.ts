@@ -97,4 +97,33 @@ describe('viewBox expansion for annotations', () => {
     vi.advanceTimersByTime(1000)
     expect(svg.getAttribute('viewBox')).toBeNull()
   })
+
+  it('keeps waiting while a scene tween outlasts the settle delay', () => {
+    const exiting = document.createElementNS('http://www.w3.org/2000/svg', 'text')
+    g.appendChild(exiting)
+    d3.select(exiting).transition('bc-scene').duration(800).attr('x', -270).remove()
+    stubBBox(svg, { x: -280, y: 0, width: SVG_W + 280, height: SVG_H })
+
+    const p = createAnnotationPlugin(
+      [{ kind: AnnotationKind.Free, text: 'note', x: 10, y: 90 }],
+      {
+        scaleX: d3.scaleBand<string>().domain(['A']).range([0, SVG_W]),
+        scaleY: d3.scaleLinear().domain([0, 100]).range([SVG_H, 0]),
+        data: [{ label: 'A', value: 50 }],
+        width: SVG_W,
+        height: SVG_H,
+        transition: true,
+      },
+    )
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    p.postDraw!(makeChartStub(g) as any, undefined as any)
+
+    vi.advanceTimersByTime(600)
+    expect(svg.getAttribute('viewBox')).toBeNull()
+
+    d3.select(exiting).interrupt('bc-scene').remove()
+    stubBBox(svg, { x: -50, y: 0, width: SVG_W + 50, height: SVG_H })
+    vi.advanceTimersByTime(100)
+    expect(svg.getAttribute('viewBox')).toBe(`-58 0 ${SVG_W + 58} ${SVG_H}`)
+  })
 })
