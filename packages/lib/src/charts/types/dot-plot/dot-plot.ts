@@ -20,7 +20,7 @@ import { LabelPosition } from '../../../enums'
 import { CATEGORY_LABEL_HEIGHT, categoryLabelLineHeight, categoryLabelsNeedTheirOwnLine } from '../../category-label-line'
 import { buildScatterScale } from '../scatter/scales'
 import { DEFAULT_COLORS } from '../line-multi/line-multi'
-import { resolveDotPlotMapping } from './mapping'
+import { resolveDotPlotMapping, type DotPlotMode } from './mapping'
 import { formatDotPlotTooltip } from './tooltip'
 import { buildDotPlotRows, sortDotPlotRows, type DotPlotRow } from './rows'
 
@@ -280,7 +280,7 @@ function arrowhead(firstX: number, lastX: number, enabled: boolean) {
 function buildLabels(
   rows: DotPlotRow[],
   columns: string[],
-  mode: string,
+  mode: DotPlotMode,
   x: (v: number) => number,
   fmt: (v: number) => string,
 ): LabelDatum[] {
