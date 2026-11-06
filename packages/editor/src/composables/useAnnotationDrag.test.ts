@@ -256,6 +256,32 @@ describe('useAnnotationDrag', () => {
     expect(overlay).toBeTruthy()
   })
 
+  it('redraws the connector line while dragging, before the pointer is released', async () => {
+    const container = makeSvgContainer([{ index: 0 }])
+    const g = container.querySelector('g')!
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'path')
+    line.classList.add('bc-annotation-line')
+    line.setAttribute('d', 'M 100 105 L 200 200')
+    g.appendChild(line)
+
+    const annotations = ref<AnnotationConfig[]>([
+      { kind: AnnotationKind.Point, target: 'Japan', text: 'Japan', showLine: true },
+    ])
+    const selectedIndex = ref<number | null>(null)
+    scope.run(() => useAnnotationDrag(ref(container), annotations, selectedIndex, vi.fn()))
+    selectedIndex.value = 0
+    await flush()
+
+    const overlay = g.querySelector('rect')!
+    overlay.setPointerCapture = () => {}
+    overlay.dispatchEvent(new MouseEvent('pointerdown', { clientX: 0, clientY: 0 }))
+    overlay.dispatchEvent(new MouseEvent('pointermove', { clientX: 30, clientY: 0 }))
+    overlay.dispatchEvent(new MouseEvent('pointermove', { clientX: 60, clientY: 0 }))
+
+    expect(g.querySelector('text')!.getAttribute('x')).toBe('160')
+    expect(line.getAttribute('d')).not.toBe('M 100 105 L 200 200')
+  })
+
   it('does not create overlay when id-based lookup finds no match', async () => {
     // SVG only has "japan", but we select annotation with id "missing"
     const container = makeSvgContainer([
