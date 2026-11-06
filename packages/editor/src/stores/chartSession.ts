@@ -8,6 +8,7 @@ import { useDslOutput } from '@/composables/useDslOutput'
 import { parseDelimited } from '@/composables/useDataParser'
 import { deleteThumbnail } from '@/composables/useChartThumbnail'
 import type { DatasetSource } from '@/utils/datasets'
+import { randomUUID } from '@/utils/uuid'
 import { parse, type ChartSample, toBool } from '@blueprint-chart/lib'
 import { CATEGORY_COLORS_KEY, CUSTOM_PALETTES_KEY } from '@/stores/storageKeys'
 
@@ -227,7 +228,7 @@ export const useChartSessionStore = defineStore('chartSession', () => {
       deletedElsewhere.value = false
       lastSavedAt.value = loadedMeta.savedAt ?? null
       sheetNumber.value = loadedMeta.sheetNumber ?? null
-      sheetId.value = loadedMeta.sheetId ?? crypto.randomUUID()
+      sheetId.value = loadedMeta.sheetId ?? randomUUID()
       return true
     }
     catch {
@@ -243,7 +244,7 @@ export const useChartSessionStore = defineStore('chartSession', () => {
       }
       sessionId.value = id
       sheetNumber.value = null
-      sheetId.value = crypto.randomUUID()
+      sheetId.value = randomUUID()
       return true
     }
     catch {
@@ -266,7 +267,7 @@ export const useChartSessionStore = defineStore('chartSession', () => {
     resetAll()
     lastSavedAt.value = null
     sheetNumber.value = null
-    sheetId.value = crypto.randomUUID()
+    sheetId.value = randomUUID()
   }
 
   function assignSheetNumber() {
@@ -302,7 +303,7 @@ export const useChartSessionStore = defineStore('chartSession', () => {
     resetAll()
     sessionId.value = generateId()
     sheetNumber.value = null
-    sheetId.value = crypto.randomUUID()
+    sheetId.value = randomUUID()
   }
 
   function loadSample(sample: ChartSample) {
@@ -356,7 +357,7 @@ export const useChartSessionStore = defineStore('chartSession', () => {
 
     sessionId.value = generateId()
     sheetNumber.value = null
-    sheetId.value = crypto.randomUUID()
+    sheetId.value = randomUUID()
     save()
     startAutoSave()
     return sessionId.value
