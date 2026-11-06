@@ -30,7 +30,7 @@ const { currentOptions, availableOptionKeys, optionDefs, setOption } = useChartT
 
 const hasSortMode = computed(() => availableOptionKeys.value.includes('sortMode'))
 const sortModeDef = computed(() => optionDefs.value.find(def => def.key === 'sortMode'))
-const sortMode = computed(() => currentOptions.value.sortMode ?? sortModeDef.value?.default ?? SortMode.None)
+const sortMode = computed(() => currentOptions.value.sortMode ?? SortMode.None)
 
 const sortOptions = [
   { value: SortDirection.None, text: 'None', icon: IPhEquals },
@@ -41,6 +41,6 @@ const sortOptions = [
 const sortModeOptions = computed(() => (sortModeDef.value?.choices ?? []).map(({ value, text }) => ({
   value,
   text,
-  icon: value === SortMode.None ? IPhEquals : IPhSortDescending,
+  icon: value === SortMode.None ? IPhEquals : IPhSortAscending,
 })))
 </script>

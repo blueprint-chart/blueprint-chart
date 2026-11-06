@@ -69,10 +69,6 @@ describe('EditorSortSection (#127)', () => {
       expect((group.props('options') as { text: string }[]).map(o => o.text)).toEqual(['None', 'By value', 'By gap'])
     })
 
-    it('selects the def default when sortMode is unset', () => {
-      expect(mount(EditorSortSection).find('[data-label="Sort mode"]').attributes('data-value')).toBe('value')
-    })
-
     it('keeps an explicit none', () => {
       currentOptions.value = { sortMode: 'none' }
       expect(mount(EditorSortSection).find('[data-label="Sort mode"]').attributes('data-value')).toBe('none')
