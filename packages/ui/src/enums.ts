@@ -29,4 +29,5 @@ export enum ChartType {
   Donut = 'donut',
   Pie = 'pie',
   Scatter = 'scatter',
+  DotPlot = 'dot-plot',
 }
