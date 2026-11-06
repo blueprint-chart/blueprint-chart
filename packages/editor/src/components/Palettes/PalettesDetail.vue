@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ButtonIcon, FormControlColorsInput } from '@blueprint-chart/ui'
+import { FormControlColorsInput } from '@blueprint-chart/ui'
 import PalettesCardChips from './PalettesCardChips.vue'
 import PalettesSwatchStrip from './PalettesSwatchStrip.vue'
 import IPhCopy from '~icons/ph/copy'
@@ -83,23 +83,24 @@ const atColorLimit = computed(() => colors.value.length <= MIN_COLORS || colors.
       </p>
       <PalettesCardChips :colors="colors" />
     </div>
-    <div class="palettes-detail__actions">
-      <ButtonIcon
+    <PanelActions>
+      <PanelActionRow
+        :icon="IPhCopy"
         label="Duplicate"
-        :icon-left="IPhCopy"
-        variant="primary"
-        size="sm"
+        description="Create a copy to edit"
+        data-test="duplicate"
         @click="$emit('duplicate')"
       />
-      <ButtonIcon
+      <PanelActionRow
         v-if="editable"
-        label="Delete"
-        :icon-left="IPhTrash"
-        variant="danger"
-        size="sm"
+        :icon="IPhTrash"
+        label="Delete palette"
+        description="This cannot be undone"
+        danger
+        data-test="delete"
         @click="$emit('remove')"
       />
-    </div>
+    </PanelActions>
   </div>
 </template>
 
@@ -140,11 +141,5 @@ const atColorLimit = computed(() => colors.value.length <= MIN_COLORS || colors.
     }
   }
 
-  &__actions {
-    display: flex;
-    gap: 0.5rem;
-    padding-top: 1rem;
-    border-top: 1px solid var(--bc-hairline);
-  }
 }
 </style>

@@ -79,7 +79,7 @@ describe('PalettesGrid', () => {
     const detail = wrapper.find('.palettes-detail')
     expect(detail.find('input').exists()).toBe(false)
     expect(wrapper.find('.layout-panel__header').text()).toContain('Egypt')
-    await detail.findAll('button').find(b => b.text() === 'Duplicate')!.trigger('click')
+    await detail.find('[data-test="duplicate"]').trigger('click')
     expect(useCustomPalettes().palettes.value.map(p => p.label)).toEqual(['Egypt copy'])
   })
 
@@ -95,7 +95,7 @@ describe('PalettesGrid', () => {
     seed()
     const wrapper = mountGrid()
     await select(wrapper.findAllComponents(PalettesCard)[0])
-    await wrapper.find('.palettes-detail').findAll('button').find(b => b.text() === 'Delete')!.trigger('click')
+    await wrapper.find('.palettes-detail [data-test="delete"]').trigger('click')
     expect(useCustomPalettes().palettes.value).toHaveLength(1)
     await wrapper.find('.modal-footer .btn-danger').trigger('click')
     await nextTick()
@@ -109,7 +109,7 @@ describe('PalettesGrid', () => {
     ]))
     const wrapper = mountGrid()
     const card = wrapper.findAllComponents(PalettesCard)[0]
-    await card.findAll('button').find(b => b.attributes('aria-label') === 'Delete')!.trigger('click')
+    await card.findAll('button').find(b => b.attributes('aria-label') === 'Delete palette')!.trigger('click')
     expect(useCustomPalettes().palettes.value).toHaveLength(1)
     await wrapper.find('.modal-footer .btn-danger').trigger('click')
     await nextTick()

@@ -57,7 +57,7 @@ const cardClass = computed(() => ({
         />
         <PalettesGhostButton
           v-if="editable"
-          label="Delete"
+          label="Delete palette"
           :icon="IPhTrash"
           danger
           @click="$emit('remove')"
