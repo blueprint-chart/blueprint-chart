@@ -1,3 +1,28 @@
+## [2.7.0](https://github.com/blueprint-chart/blueprint-chart/compare/v2.6.0...v2.7.0) (2026-11-06)
+
+### Features
+
+* **editor:** add a live ChartThumbnail that mirrors the editor canvas ([aea16e5](https://github.com/blueprint-chart/blueprint-chart/commit/aea16e50526c6701fdba2b43793a8ae5ff3eb356))
+* **editor:** show live thumbnails for dataset charts and the command palette ([0a8ce29](https://github.com/blueprint-chart/blueprint-chart/commit/0a8ce29fcd224b9cdb49d159aa1b7fec7cfa8307))
+* **editor:** show live thumbnails in the charts list and side panel ([a9be0d4](https://github.com/blueprint-chart/blueprint-chart/commit/a9be0d4957a080086cc1ae6104a8b2b73008a28f))
+* **ui:** let GalleryCard take a custom thumbnail slot ([87740a0](https://github.com/blueprint-chart/blueprint-chart/commit/87740a082ae93e987446d42c3f1a793e7f30470b))
+
+### Bug Fixes
+
+* **editor:** keep cloud dataset chart thumbnails ([9d3ae8a](https://github.com/blueprint-chart/blueprint-chart/commit/9d3ae8a259bf0db3fde73a70db992bf567d446c0))
+* **editor:** keep the thumbnail scale at 0 for an empty card ([85925d2](https://github.com/blueprint-chart/blueprint-chart/commit/85925d24adc0432cb3a6b8b1c8a2fd6d4403022a))
+* **editor:** refetch a cloud chart once its cloud copy changes ([e4021ed](https://github.com/blueprint-chart/blueprint-chart/commit/e4021ed8a53b7b7aca58fe24a46a27cac45bd281))
+* **editor:** render legacy charts in thumbnails and survive render errors ([189998e](https://github.com/blueprint-chart/blueprint-chart/commit/189998eda3794fc6812f912ed2275922ee356d8a))
+* **editor:** shrink thumbnail padding in small boxes ([0892176](https://github.com/blueprint-chart/blueprint-chart/commit/0892176f6cb726ca8a2e1ff6a3662ae713b15a85))
+* **lib:** keep fractional body sizes unless a transform scales the chart ([173a038](https://github.com/blueprint-chart/blueprint-chart/commit/173a03835e8588b09f1b8503f064041e5337988b))
+* **lib:** measure the chart body in layout pixels, not transformed ones ([d27b90b](https://github.com/blueprint-chart/blueprint-chart/commit/d27b90b8fdba2170482899784bf88b574077addb))
+
+### Performance Improvements
+
+* **editor:** keep only visible thumbnails rendered ([71aa2db](https://github.com/blueprint-chart/blueprint-chart/commit/71aa2db7730de2ff244386bc7f11d622417e147c))
+* **editor:** parse thumbnails only once they are visible ([a299b36](https://github.com/blueprint-chart/blueprint-chart/commit/a299b362137de6f944fbead6f5f510eb3f4be748))
+* **editor:** reuse loaded cloud chart DSLs on refresh ([40c20f4](https://github.com/blueprint-chart/blueprint-chart/commit/40c20f40b6e625d85968f143b8c69bf68c2b8f36))
+
 ## [2.6.0](https://github.com/blueprint-chart/blueprint-chart/compare/v2.5.1...v2.6.0) (2026-11-06)
 
 ### Features
