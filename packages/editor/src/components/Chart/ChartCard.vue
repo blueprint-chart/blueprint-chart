@@ -1,14 +1,3 @@
-<template>
-  <div
-    ref="el"
-    class="chart-card"
-    :class="cardClass"
-    :style="cardStyle"
-  >
-    <slot />
-  </div>
-</template>
-
 <script setup lang="ts">
 import type { ChartLayout } from '@/composables/useChartConfig'
 import { useCanvasCardStyle } from '@/composables/useCanvasCardStyle'
@@ -20,6 +9,17 @@ const { cardClass, cardStyle } = useCanvasCardStyle(toRef(props, 'layout'), 'cha
 
 defineExpose({ el })
 </script>
+
+<template>
+  <div
+    ref="el"
+    class="chart-card"
+    :class="cardClass"
+    :style="cardStyle"
+  >
+    <slot />
+  </div>
+</template>
 
 <style lang="scss" scoped>
 .chart-card {

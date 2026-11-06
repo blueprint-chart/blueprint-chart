@@ -88,4 +88,10 @@ describe('buildChartRender parity', () => {
     expect(useDslSync().applyDsl(dsl).success).toBe(true)
     expect(buildChartRender(snapshotFromState(parseChartState(dsl)))).toEqual(buildChartRender(readRenderSnapshot()))
   })
+
+  it('hides scene-only annotations in the base state', () => {
+    const { dsl } = inline.find(c => c.name === 'scenes with a scene-only annotation')!
+    const render = buildChartRender(snapshotFromState(parseChartState(dsl)))
+    expect(render.kind === 'chart' && render.definition.annotations).toEqual([])
+  })
 })

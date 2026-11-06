@@ -178,7 +178,7 @@ export function useDashboardCharts() {
       await cloud.deleteCloud(id)
       cloud.unmarkCloudBacked(id)
     }
-    session.deleteChart(id) // removes localStorage entry, meta, thumbnail
+    session.deleteChart(id) // removes localStorage entry, meta
     delete dsls[id]
     await refresh()
   }

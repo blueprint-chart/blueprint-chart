@@ -203,7 +203,7 @@ export const useCloudChartsStore = defineStore('cloudCharts', () => {
     writeCloudIndex(ids)
   }
 
-  /** Remove the local copies (DSL, meta, thumbnail, preview) of every synced
+  /** Remove the local copies (DSL, meta) of every synced
    *  chart — i.e. cloud-backed charts that still have a local entry — and clear
    *  the cloud index. Local-only charts (absent from the index) are untouched.
    *  Used on sign-out so synced charts don't linger on a shared device. */
