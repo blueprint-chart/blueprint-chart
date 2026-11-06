@@ -15,4 +15,8 @@ describe('chartTypeForColumns', () => {
   it('keeps scatter when data has more than two columns', () => {
     expect(chartTypeForColumns(ChartType.Scatter, 5, false)).toBe(ChartType.Scatter)
   })
+
+  it('keeps dot plot when data has more than two columns', () => {
+    expect(chartTypeForColumns(ChartType.DotPlot, 4, false)).toBe(ChartType.DotPlot)
+  })
 })

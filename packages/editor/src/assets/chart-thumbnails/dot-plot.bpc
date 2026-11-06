@@ -1,0 +1,10 @@
+chart dot-plot {
+  data {
+    series = "a","b"
+    "Alpha" = 12,28
+    "Beta"  = 30,18
+    "Gamma" = 20,34
+    "Delta" = 26,14
+    "Epsilon" = 10,22
+  }
+}

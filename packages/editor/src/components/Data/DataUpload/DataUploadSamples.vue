@@ -20,6 +20,7 @@ const TYPE_LABELS: Record<string, string> = {
   [ChartType.BarSplit]: 'Split Bars',
   [ChartType.BarGrouped]: 'Grouped Bars',
   [ChartType.Scatter]: 'Scatter',
+  [ChartType.DotPlot]: 'Dot plot',
 }
 
 function rowCount(tsvData: string): number {

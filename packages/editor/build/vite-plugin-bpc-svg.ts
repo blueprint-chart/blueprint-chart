@@ -518,6 +518,26 @@ function renderScatter(data: ChartData, colors: string[]): string {
   return `<svg viewBox="${RECT_VB}" xmlns="http://www.w3.org/2000/svg">${circles}</svg>`
 }
 
+function renderDotPlot(data: ChartData, colors: string[]): string {
+  if (data.kind !== 'multi') {
+    return ''
+  }
+  const { labels, series } = data
+  const all = series.flat()
+  const xScale = linearScale([Math.min(...all), Math.max(...all)], [4, 44])
+  const { bandWidth, positions } = bandPositions(labels.length, [2, 34])
+
+  const marks = labels.map((_, li) => {
+    const values = series.map(s => s[li])
+    const y = (positions[li] + bandWidth / 2).toFixed(2)
+    const line = `<line x1="${xScale(Math.min(...values)).toFixed(2)}" y1="${y}" x2="${xScale(Math.max(...values)).toFixed(2)}" y2="${y}" stroke="#adb5bd" stroke-width="0.8"/>`
+    const dots = values.map((v, si) => `<circle cx="${xScale(v).toFixed(2)}" cy="${y}" r="2" fill="${colors[si % colors.length]}"/>`)
+    return line + dots.join('')
+  })
+
+  return `<svg viewBox="${RECT_VB}" xmlns="http://www.w3.org/2000/svg">${marks.join('')}</svg>`
+}
+
 export function renderToSvg(chartType: string, data: ChartData, colors: string[], opts: ThumbnailOptions = { edgePadding: false }): string {
   switch (chartType) {
     case 'bar-vertical': return renderBarVertical(data, colors)
@@ -534,6 +554,7 @@ export function renderToSvg(chartType: string, data: ChartData, colors: string[]
     case 'bar-split': return renderBarSplit(data, colors)
     case 'bar-grouped': return renderBarGrouped(data, colors)
     case 'scatter': return renderScatter(data, colors)
+    case 'dot-plot': return renderDotPlot(data, colors)
     default: return ''
   }
 }

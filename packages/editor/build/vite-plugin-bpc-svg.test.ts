@@ -228,3 +228,15 @@ describe('renderToSvg scatter', () => {
     expect(renderToSvg('scatter', data, ['#111']).match(/<circle/g)).toHaveLength(1)
   })
 })
+
+describe('dot-plot thumbnails', () => {
+  it('draws a dot per value and a line per row', () => {
+    const svg = renderToSvg('dot-plot', multiData, ['#f00', '#0f0', '#00f'])
+    expect([...svg.matchAll(/<circle/g)]).toHaveLength(15)
+    expect([...svg.matchAll(/<line/g)]).toHaveLength(5)
+  })
+
+  it('returns empty string for single-series data', () => {
+    expect(renderToSvg('dot-plot', singleData, ['#f00'])).toBe('')
+  })
+})
