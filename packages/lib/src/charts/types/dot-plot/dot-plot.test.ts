@@ -152,6 +152,26 @@ describe('dot plot chart', () => {
     expect(Number(label.getAttribute('x'))).toBeGreaterThan(Number(bar.getAttribute('x')) + Number(bar.getAttribute('width')))
   })
 
+  it('reserves room inside the plot for value labels at both ends', () => {
+    const extent = () => all(container, '.bc-dot').map(d => Number(d.getAttribute('cx')))
+    render(container, DUMBBELL, {})
+    const bare = extent()
+    container.replaceChildren()
+    render(container, DUMBBELL, { valueLabels: true })
+    const labelled = extent()
+    expect(Math.min(...labelled)).toBeGreaterThan(Math.min(...bare))
+    expect(Math.max(...labelled)).toBeLessThan(Math.max(...bare))
+  })
+
+  it('reserves room only on the right for range labels', () => {
+    const extent = () => all(container, '.bc-dot-range').map(d => Number(d.getAttribute('x')))
+    render(container, RANGE, RANGE_STYLE)
+    const bare = Math.min(...extent())
+    container.replaceChildren()
+    render(container, RANGE, { ...RANGE_STYLE, valueLabels: true })
+    expect(Math.min(...extent())).toBe(bare)
+  })
+
   it('dims every mark of rows that are not highlighted', () => {
     render(container, DUMBBELL, { highlights: [{ target: 'a' }], valueLabels: true })
     const opacity = (s: string) => container.querySelector(s)!.getAttribute('opacity')

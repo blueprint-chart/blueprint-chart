@@ -14,6 +14,7 @@ import { setupProximityInteraction, disposeProximityFor } from '../../plugins/pr
 import { highlightTargetSet, highlightOpacity } from '../../plugins/highlight'
 import { buildColorOverrides } from '../../plugins/colorize'
 import { buildNumberFormatter } from '../../format-helpers'
+import { measureMaxTextWidth } from '../../text-measure'
 import { setCachedChart, getCachedChart } from '../../transition-cache'
 import { featureJoin, getSceneTransition, tweenPlotFrame, type PlotRect } from '../../../transitions'
 import { ArrowDirection, LabelPosition } from '../../../enums'
@@ -32,6 +33,7 @@ const LINE_WIDTH = 2
 const NARROW_THRESHOLD = 350
 const ARROW_SIZE = 5
 const LABEL_GAP = 6
+const LABEL_FONT_SIZE = 11
 
 interface DotDatum { row: string, column: string, value: number, color: string }
 interface LabelDatum { key: string, row: string, series?: string, text: string, x: number, anchor: 'start' | 'end' }
@@ -113,7 +115,9 @@ export function render(
   const categoryLabelOffset = useCategoryLabelLine ? categoryLabelLineHeight(y.bandwidth()) : 0
   const rowY = (name: string) => (y(name) ?? 0) + categoryLabelOffset + (y.bandwidth() - categoryLabelOffset) / 2
   const allNumbers = rows.flatMap(r => [...r.values, ...(r.low === undefined ? [] : [r.low, r.high!])])
-  const x = buildScatterScale(scaleType, allNumbers, options.horizontalAxis?.range).range([0, width])
+  const fmt = buildNumberFormatter(options.horizontalAxis?.numberFormat ?? '') ?? String
+  const labelRoom = options.valueLabels ? labelRoomFor(rows, resolved.mode, fmt, width) : 0
+  const x = buildScatterScale(scaleType, allNumbers, options.horizontalAxis?.range).range([isDumbbell ? labelRoom : 0, width - labelRoom])
 
   axes.attach(chartArea, marginDelta)
   axes.update({
@@ -224,7 +228,6 @@ export function render(
 
   const labelLayer = d3.select(chartArea).append('g').node()!
   labelLayer.append(...prior.labels)
-  const fmt = buildNumberFormatter(options.horizontalAxis?.numberFormat ?? '') ?? String
   const labels = options.valueLabels ? buildLabels(rows, columns, resolved.mode, x, fmt) : []
   renderValueLabels(orch, labelLayer, labels, rowY, opacityOf)
 
@@ -272,6 +275,12 @@ export function render(
     fadeIn(labelLayer)
     commitFadeOut(container, fadeOverlay)
   }
+}
+
+function labelRoomFor(rows: DotPlotRow[], mode: DotPlotMode, fmt: (v: number) => string, width: number): number {
+  const texts = rows.flatMap(r => r.values).map(fmt)
+  const room = measureMaxTextWidth(texts, LABEL_FONT_SIZE) + LABEL_GAP + (mode === 'range' ? 0 : DOT_RADIUS)
+  return Math.min(room, width / 4)
 }
 
 function arrowhead(edgeX: number, direction: number, enabled: boolean) {
@@ -335,7 +344,7 @@ function renderValueLabels(
     insert: sel => sel.append('text')
       .attr('class', 'bc-dot-label')
       .attr('data-key', l => l.key)
-      .attr('font-size', '11px')
+      .attr('font-size', `${LABEL_FONT_SIZE}px`)
       .attr('dominant-baseline', 'central')
       .text(l => l.text),
     attrs: labelAttrs,
