@@ -1315,16 +1315,13 @@ describe('bar-vertical', () => {
   // ── X-axis label rotation ────────────────────────────────────────
 
   describe('x-axis label rotation', () => {
-    let rectSpy: ReturnType<typeof vi.spyOn>
-
     function setContainerWidth(w: number) {
-      rectSpy = vi.spyOn(Element.prototype, 'getBoundingClientRect').mockReturnValue({
-        width: w, height: 400, x: 0, y: 0, top: 0, left: 0, bottom: 400, right: w, toJSON: () => ({}),
-      })
+      vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(w)
+      vi.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(400)
     }
 
     afterEach(() => {
-      rectSpy?.mockRestore()
+      vi.restoreAllMocks()
     })
 
     it('rotates x-axis labels when labels do not fit horizontally', () => {

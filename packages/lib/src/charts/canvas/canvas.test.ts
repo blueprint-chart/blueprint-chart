@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import * as d3 from 'd3'
-import { createCanvas, labelPositionMargins, estimateVerticalLabelWidth, estimateScaleLabelWidth } from './canvas'
+import { createCanvas, contentSize, labelPositionMargins, estimateVerticalLabelWidth, estimateScaleLabelWidth } from './canvas'
 
 describe('createCanvas', () => {
   let body: HTMLElement
@@ -146,5 +146,15 @@ describe('estimateScaleLabelWidth', () => {
     expect(linear).toBeGreaterThan(0)
     expect(log).toBeGreaterThan(0)
     expect(log).not.toBe(linear)
+  })
+})
+
+describe('contentSize', () => {
+  it('reads the layout size of a container scaled by a CSS transform', () => {
+    const el = document.createElement('div')
+    el.getBoundingClientRect = () => ({ x: 0, y: 0, top: 0, left: 0, right: 125, bottom: 80, width: 125, height: 80, toJSON: () => ({}) })
+    Object.defineProperty(el, 'clientWidth', { value: 626 })
+    Object.defineProperty(el, 'clientHeight', { value: 400 })
+    expect(contentSize(el)).toEqual({ width: 626, height: 400 })
   })
 })

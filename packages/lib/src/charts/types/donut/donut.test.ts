@@ -334,17 +334,14 @@ describe('donut chart', () => {
 // ── Arc label margins must never erase the arcs (#29) ─────────────
 
 describe('arc label margins keep a usable radius (#29)', () => {
-  const realGetBoundingClientRect = Element.prototype.getBoundingClientRect
-
   afterEach(() => {
-    Element.prototype.getBoundingClientRect = realGetBoundingClientRect
+    vi.restoreAllMocks()
   })
 
   /** jsdom has no layout engine, so make every element report the viewport under test. */
   function withViewport(width: number, height: number): void {
-    Element.prototype.getBoundingClientRect = function () {
-      return { x: 0, y: 0, top: 0, left: 0, right: width, bottom: height, width, height, toJSON: () => ({}) } as DOMRect
-    }
+    vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(width)
+    vi.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(height)
   }
 
   /** Through the DSL, so the direct-labelling default that reserves the margins applies. */

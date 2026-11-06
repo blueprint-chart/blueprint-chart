@@ -1,19 +1,16 @@
-import { describe, it, expect, afterEach } from 'vitest'
+import { describe, it, expect, afterEach, vi } from 'vitest'
 import { parse } from '../../dsl/parser'
 import { astToDefinition } from '../../render/ast-to-definition'
 import { renderChart } from '../../render/render-chart'
 
-const realGetBoundingClientRect = Element.prototype.getBoundingClientRect
-
 afterEach(() => {
-  Element.prototype.getBoundingClientRect = realGetBoundingClientRect
+  vi.restoreAllMocks()
   document.body.innerHTML = ''
 })
 
 function withViewport(width: number, height: number): void {
-  Element.prototype.getBoundingClientRect = function () {
-    return { x: 0, y: 0, top: 0, left: 0, right: width, bottom: height, width, height, toJSON: () => ({}) } as DOMRect
-  }
+  vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(width)
+  vi.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(height)
 }
 
 function draw(source: string): HTMLElement {
