@@ -1,11 +1,19 @@
 <script setup lang="ts">
+import { ChartType } from '@blueprint-chart/lib'
 import { useChartConfig } from '@/stores/chartConfig'
 import { useChartRecommendations } from '@/composables/useChartRecommendations'
 import { CHART_TYPE_GROUPS, type ChartTypeChoice } from './editorChartTypeGroups'
-import IPhCheck from '~icons/ph/check-bold'
+import IPhCheck from '~icons/ph/check'
+
+const ALIASES: Record<string, string> = {
+  [ChartType.VerticalBar]: ChartType.BarVertical,
+  [ChartType.HorizontalBar]: ChartType.BarHorizontal,
+}
 
 const { chartType } = useChartConfig()
 const { recommendations } = useChartRecommendations()
+
+const currentType = computed(() => ALIASES[chartType.value] ?? chartType.value)
 
 const bestMatchTypes = computed(() => {
   return recommendations.value.filter(rec => rec.fitness === 'best').map(rec => rec.chartType)
@@ -16,7 +24,13 @@ function isBestMatch(choice: ChartTypeChoice) {
 }
 
 function isSelected(choice: ChartTypeChoice) {
-  return chartType.value === choice.value
+  return currentType.value === choice.value
+}
+
+function pick(choice: ChartTypeChoice) {
+  if (!isSelected(choice)) {
+    chartType.value = choice.value
+  }
 }
 
 function cardClassList(choice: ChartTypeChoice) {
@@ -37,19 +51,16 @@ function cardClassList(choice: ChartTypeChoice) {
         {{ group.title }}
       </legend>
       <div class="editor-chart-type-picker__group__list">
-        <label
+        <button
           v-for="choice in group.choices"
           :key="choice.value"
+          type="button"
+          :value="choice.value"
+          :aria-pressed="isSelected(choice)"
           class="editor-chart-type-picker__group__list__card"
           :class="cardClassList(choice)"
+          @click="pick(choice)"
         >
-          <input
-            v-model="chartType"
-            type="radio"
-            name="chart-type"
-            :value="choice.value"
-            class="editor-chart-type-picker__group__list__card__input visually-hidden"
-          >
           <span
             class="editor-chart-type-picker__group__list__card__preview"
             aria-hidden="true"
@@ -58,10 +69,7 @@ function cardClassList(choice: ChartTypeChoice) {
               v-if="isBestMatch(choice)"
               class="editor-chart-type-picker__group__list__card__preview__badge"
             >Best match</span>
-            <span
-              v-if="isSelected(choice)"
-              class="editor-chart-type-picker__group__list__card__preview__check"
-            >
+            <span class="editor-chart-type-picker__group__list__card__preview__check">
               <IPhCheck />
             </span>
             <span class="editor-chart-type-picker__group__list__card__preview__thumb">
@@ -75,7 +83,7 @@ function cardClassList(choice: ChartTypeChoice) {
               class="visually-hidden"
             >(best match)</span>
           </span>
-        </label>
+        </button>
       </div>
     </fieldset>
   </div>
@@ -107,6 +115,9 @@ function cardClassList(choice: ChartTypeChoice) {
         display: flex;
         flex-direction: column;
         overflow: hidden;
+        padding: 0;
+        text-align: start;
+        color: inherit;
         border: 1px solid var(--bs-border-color-translucent);
         border-radius: 0.5rem;
         background: var(--bs-body-bg);
@@ -117,16 +128,16 @@ function cardClassList(choice: ChartTypeChoice) {
           border-color: var(--bs-secondary-color);
         }
 
-        &:has(:checked) {
+        &[aria-pressed="true"] {
           border-color: var(--bs-emphasis-color);
         }
 
-        &:has(:focus-visible) {
+        &:focus-visible {
           outline: 2px solid var(--bs-focus-ring-color);
           outline-offset: 2px;
         }
 
-        &:not(:hover, :has(:checked)) &__preview__thumb {
+        &:not(:hover, [aria-pressed="true"]) &__preview__thumb {
           filter: grayscale(1);
           opacity: 0.55;
         }
@@ -161,7 +172,7 @@ function cardClassList(choice: ChartTypeChoice) {
             position: absolute;
             top: 0.375rem;
             right: 0.375rem;
-            display: grid;
+            display: none;
             place-items: center;
             width: 1rem;
             height: 1rem;
@@ -169,6 +180,10 @@ function cardClassList(choice: ChartTypeChoice) {
             border-radius: 50%;
             background: var(--bs-emphasis-color);
             color: var(--bs-body-bg);
+          }
+
+          .editor-chart-type-picker__group__list__card[aria-pressed="true"] &__check {
+            display: grid;
           }
 
           &__thumb {

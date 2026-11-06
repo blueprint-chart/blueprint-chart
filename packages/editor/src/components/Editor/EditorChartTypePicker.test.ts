@@ -2,19 +2,10 @@ import { mount } from '@vue/test-utils'
 import EditorChartTypePicker from './EditorChartTypePicker.vue'
 
 const chartType = ref('bar-vertical')
-const selectedColumn = ref('')
 const recommendations = ref([{ chartType: 'line', label: 'Line', fitness: 'best', reason: '' }])
 
 vi.mock('@/stores/chartConfig', () => ({
-  useChartConfig: () => ({ chartType, selectedColumn }),
-}))
-
-vi.mock('@/stores/chartTypeOptions', () => ({
-  useChartTypeOptions: () => ({ currentOptions: ref({}), availableOptionKeys: ref(['stackMode']), setOption: vi.fn() }),
-}))
-
-vi.mock('@/stores/dataTable', () => ({
-  useDataTable: () => ({ columns: ref(['Label', 'Sales', 'Profit']) }),
+  useChartConfig: () => ({ chartType }),
 }))
 
 vi.mock('@/composables/useChartRecommendations', () => ({
@@ -26,9 +17,9 @@ describe('EditorChartTypePicker', () => {
     chartType.value = 'bar-vertical'
   })
 
-  it('shows every chart type as a radio card', () => {
+  it('shows every chart type as a card', () => {
     const wrapper = mount(EditorChartTypePicker)
-    expect(wrapper.findAll('input[type="radio"]')).toHaveLength(14)
+    expect(wrapper.findAll('button')).toHaveLength(14)
   })
 
   it('groups chart types by purpose', () => {
@@ -37,34 +28,35 @@ describe('EditorChartTypePicker', () => {
     expect(headings).toEqual(['Compare categories', 'Parts of a whole', 'Change over time', 'Relationships'])
   })
 
-  it('checks the current chart type', () => {
+  it('presses only the current chart type', () => {
     const wrapper = mount(EditorChartTypePicker)
-    const checked = wrapper.find<HTMLInputElement>('input[type="radio"]:checked')
-    expect(checked.element.value).toBe('bar-vertical')
+    const pressed = wrapper.findAll<HTMLButtonElement>('button[aria-pressed="true"]')
+    expect(pressed.map(b => b.element.value)).toEqual(['bar-vertical'])
   })
 
-  it('switches the chart type when a card is picked', async () => {
+  it('presses the canonical card for an aliased chart type', () => {
+    chartType.value = 'vertical-bar'
     const wrapper = mount(EditorChartTypePicker)
-    await wrapper.find('input[value="scatter"]').setValue()
+    const pressed = wrapper.findAll<HTMLButtonElement>('button[aria-pressed="true"]')
+    expect(pressed.map(b => b.element.value)).toEqual(['bar-vertical'])
+  })
+
+  it('keeps an aliased chart type when its card is clicked again', async () => {
+    chartType.value = 'vertical-bar'
+    const wrapper = mount(EditorChartTypePicker)
+    await wrapper.find('button[value="bar-vertical"]').trigger('click')
+    expect(chartType.value).toBe('vertical-bar')
+  })
+
+  it('switches the chart type when a card is clicked', async () => {
+    const wrapper = mount(EditorChartTypePicker)
+    await wrapper.find('button[value="scatter"]').trigger('click')
     expect(chartType.value).toBe('scatter')
   })
 
   it('tags the best match for the current data', () => {
     const wrapper = mount(EditorChartTypePicker)
     const tagged = wrapper.findAll('.editor-chart-type-picker__group__list__card--best')
-    expect(tagged.map(card => card.find('input').element.value)).toEqual(['line'])
-  })
-
-  it('leaves column and stack settings to the style tab', () => {
-    const wrapper = mount(EditorChartTypePicker)
-    expect(wrapper.find('#column-select').exists()).toBe(false)
-    expect(wrapper.find('#opt-stack-mode').exists()).toBe(false)
-  })
-
-  it('marks only the selected card with a check', () => {
-    const wrapper = mount(EditorChartTypePicker)
-    const checks = wrapper.findAll('.editor-chart-type-picker__group__list__card__preview__check')
-    expect(checks).toHaveLength(1)
-    expect(checks[0].element.closest('label')!.querySelector('input')!.value).toBe('bar-vertical')
+    expect(tagged.map(card => (card.element as HTMLButtonElement).value)).toEqual(['line'])
   })
 })

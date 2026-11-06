@@ -32,8 +32,7 @@ test.describe('scatter authoring', () => {
     await expect(page.locator('.bc-frame-body svg')).toBeVisible()
 
     await page.locator('[aria-label="Chart Type"]').click()
-    await page.locator('.form-control-dropdown__toggle .dropdown-toggle').click()
-    await page.locator('.form-control-dropdown-item__content__text__label', { hasText: 'Scatter' }).first().click()
+    await page.locator('.editor-chart-type-picker button[value="scatter"]').click()
 
     await expect(page.locator(points)).toHaveCount(8)
     const legend = page.locator('.bc-frame .bc-legend')
