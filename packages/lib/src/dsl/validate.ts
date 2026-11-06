@@ -7,7 +7,7 @@ import { nearest } from './suggest'
 import { dataEntriesToString, propertyMap } from './converter'
 import { parseData } from '../charts/parse-data'
 import { scatterIssues } from '../charts/types/scatter/issues'
-import type { ScatterIssue } from '../charts/types/scatter/issues'
+import { dotPlotIssues } from '../charts/types/dot-plot/issues'
 import { TRANSFORM_TYPES } from '../transforms'
 
 /**
@@ -526,6 +526,9 @@ export function validateChart(ast: ChartNode): ValidationResult {
   if (ast.chartType === ChartType.Scatter) {
     validateScatterData(ast.data, ast.properties, 'chart', 'data', errors, warnings)
   }
+  if (ast.chartType === ChartType.DotPlot) {
+    validateDotPlotData(ast.data, ast.properties, 'chart', 'data', warnings)
+  }
 
   // Scenes: each scene's effective chart type is its `type` override or the
   // chart's type (mirrors extractSceneOverrides).
@@ -534,6 +537,9 @@ export function validateChart(ast: ChartNode): ValidationResult {
     const sceneType = scene.properties.find(p => p.key === 'type')?.value ?? ast.chartType
     if (sceneType === ChartType.Scatter) {
       validateScatterData(scene.data, [...ast.properties, ...scene.properties], `scene[${i}]`, `scene[${i}].data`, errors, warnings)
+    }
+    if (sceneType === ChartType.DotPlot) {
+      validateDotPlotData(scene.data, [...ast.properties, ...scene.properties], `scene[${i}]`, `scene[${i}].data`, warnings)
     }
   })
 
@@ -650,6 +656,24 @@ function validateScatterData(
   }
 }
 
-function toValidationIssue({ code, message, suggestion }: ScatterIssue, path: string): ValidationIssue {
+function validateDotPlotData(
+  data: DataNode | null | undefined,
+  properties: PropertyNode[],
+  basePath: string,
+  dataPath: string,
+  warnings: ValidationIssue[],
+): void {
+  if (!data || data.entries.length === 0) {
+    return
+  }
+  const props = propertyMap(properties)
+  const text = (key: string) => (props.has(key) ? String(props.get(key)) : undefined)
+  const overrides = { low: text('low'), high: text('high') }
+  for (const issue of dotPlotIssues(parseData(dataEntriesToString(data)), overrides, text('horizontalScaleType') as ScaleType | undefined)) {
+    warnings.push(toValidationIssue(issue, issue.key ? `${basePath}.${issue.key}` : dataPath))
+  }
+}
+
+function toValidationIssue({ code, message, suggestion }: { code: string, message: string, suggestion?: string }, path: string): ValidationIssue {
   return { code, path, message, ...(suggestion && { suggestion }) }
 }

@@ -760,3 +760,17 @@ describe('scatter validation', () => {
     expect(r).toEqual({ valid: true, errors: [], warnings: [] })
   })
 })
+
+describe('dot plot validation', () => {
+  const data = 'data {\n    series = "Poll","High","Low"\n    "SPD" = 14,16,12\n    "AfD" = "",20,15\n  }'
+
+  it('warns on a mapping that names no column, with a suggestion', () => {
+    const { warnings, errors } = validateChart(parse(`chart dot-plot {\n  low = "Lwo"\n  ${data}\n}`))
+    expect(errors).toEqual([])
+    expect(warnings).toContainEqual(expect.objectContaining({ code: 'unknown-column', path: 'chart.low', suggestion: 'Low' }))
+  })
+  it('warns about dropped rows in a scene typed dot-plot', () => {
+    const r = validateChart(parse(`chart bar-vertical {\n  data {\n    "a" = 1\n  }\n  scene {\n    type = "dot-plot"\n    ${data}\n  }\n}`))
+    expect(r.warnings).toContainEqual(expect.objectContaining({ code: 'dropped-rows', path: 'scene[0].data' }))
+  })
+})

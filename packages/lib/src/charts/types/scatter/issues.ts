@@ -19,7 +19,7 @@ type ScaleTypes = { x?: ScaleType, y?: ScaleType }
 type Ranges = { x?: AxisRange, y?: AxisRange }
 
 const MAPPING_KEYS = ['x', 'y', 'size', 'group'] as const
-const MAX_LISTED_ROWS = 5
+export const MAX_LISTED_ROWS = 5
 
 const DROP_REASONS: Record<DropReason, string> = {
   'missing-x': 'missing x',
@@ -31,7 +31,7 @@ const DROP_REASONS: Record<DropReason, string> = {
 
 const AXIS_PREFIX = { x: 'horizontal', y: 'vertical' } as const
 
-function columnNames(data: ChartData): string[] {
+export function columnNames(data: ChartData): string[] {
   return [...numericColumns(data), ...(data.textColumns ?? []).map(c => c.name)]
 }
 
@@ -46,11 +46,11 @@ function unknownColumns(data: ChartData, overrides: ScatterMapping): ScatterIssu
   })
 }
 
-function droppedRows(dropped: { name: string, reason: DropReason }[]): ScatterIssue[] {
+export function droppedRows<R extends string>(dropped: { name: string, reason: R }[], reasons: Record<R, string>): { code: 'dropped-rows', severity: 'warning', message: string }[] {
   if (!dropped.length) {
     return []
   }
-  const listed = dropped.slice(0, MAX_LISTED_ROWS).map(d => `"${d.name}" (${DROP_REASONS[d.reason]})`)
+  const listed = dropped.slice(0, MAX_LISTED_ROWS).map(d => `"${d.name}" (${reasons[d.reason]})`)
   const more = dropped.length - listed.length
   const rows = `${dropped.length} ${dropped.length === 1 ? 'row' : 'rows'}`
   return [{ code: 'dropped-rows', severity: 'warning', message: `${rows} not drawn: ${listed.join(', ')}${more > 0 ? `, and ${more} more` : ''}.` }]
@@ -87,5 +87,5 @@ export function scatterIssues(data: ChartData, overrides: ScatterMapping, scaleT
   }
   const { points, dropped } = buildScatterPoints(data, mapping, scaleTypes)
   const skipped = isTrendMode(trend) ? trendSegments(points, trend, scaleTypes).skipped : []
-  return [...droppedRows(dropped), ...skippedTrends(skipped), ...logRanges]
+  return [...droppedRows(dropped, DROP_REASONS), ...skippedTrends(skipped), ...logRanges]
 }
