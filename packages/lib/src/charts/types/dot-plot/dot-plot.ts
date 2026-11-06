@@ -46,10 +46,17 @@ export function render(
   setRenderTransition(transition)
   const axes = AxisService.for(container)
   const cached = transition ? getCachedChart(container) : undefined
+  const prior = { ranges: [] as Element[], lines: [] as Element[], dots: [] as Element[], labels: [] as Element[] }
   let fadeOverlay: HTMLElement | null = null
   if (transition) {
     axes.detach()
-    if (cached) {
+    if (cached?.chartType === 'dot-plot') {
+      prior.ranges = Array.from(container.querySelectorAll('.bc-frame .bc-dot-range'))
+      prior.lines = Array.from(container.querySelectorAll('.bc-frame .bc-dot-line'))
+      prior.dots = Array.from(container.querySelectorAll('.bc-frame .bc-dot'))
+      prior.labels = Array.from(container.querySelectorAll('.bc-frame .bc-dot-label'))
+    }
+    else if (cached) {
       fadeOverlay = snapshotForFadeOut(container)
     }
     container.replaceChildren()
@@ -131,6 +138,9 @@ export function render(
   const rangeLayer = layer()
   const lineLayer = layer()
   const dotLayer = layer()
+  rangeLayer.append(...prior.ranges)
+  lineLayer.append(...prior.lines)
+  dotLayer.append(...prior.dots)
   const stroke = resolveBackgroundColor(container)
   const orch = getSceneTransition(container)
   const targets = highlightTargetSet(options.highlights, rows.map(r => r.name))
@@ -138,6 +148,16 @@ export function render(
   const colorOverrides = buildColorOverrides(options.colorizes)
 
   const rangeRows = rows.filter(r => r.low !== undefined)
+  const rangeAttrs = (r: DotPlotRow) => ({
+    'x': Math.min(x(r.low!), x(r.high!)),
+    'y': rowY(r.name) - DOT_RADIUS,
+    'width': Math.abs(x(r.high!) - x(r.low!)),
+    'height': DOT_RADIUS * 2,
+    'rx': DOT_RADIUS,
+    'fill': colorOverrides.get(r.name) ?? columnColor(0),
+    'fill-opacity': RANGE_FILL_OPACITY,
+    'opacity': opacityOf(r.name),
+  })
   featureJoin<DotPlotRow>(orch, {
     role: 'mark-per-category',
     parent: rangeLayer,
@@ -145,19 +165,25 @@ export function render(
     data: rangeRows,
     key: r => r.name,
     insert: sel => sel.append('rect').attr('class', 'bc-dot-range').attr('data-key', r => r.name),
-    attrs: r => ({
-      'x': Math.min(x(r.low!), x(r.high!)),
-      'y': rowY(r.name) - DOT_RADIUS,
-      'width': Math.abs(x(r.high!) - x(r.low!)),
-      'height': DOT_RADIUS * 2,
-      'rx': DOT_RADIUS,
-      'fill': colorOverrides.get(r.name) ?? columnColor(0),
-      'fill-opacity': RANGE_FILL_OPACITY,
-      'opacity': opacityOf(r.name),
-    }),
+    attrs: rangeAttrs,
+    enterFrom: r => ({ ...rangeAttrs(r), opacity: 0 }),
+    exitTo: () => ({ opacity: 0 }),
   })
 
   const lineRows = isDumbbell ? rows : []
+  const lineAttrs = (r: DotPlotRow) => {
+    const [start, end] = d3.extent(r.values).map(v => x(v!))
+    const cy = rowY(r.name)
+    const { tipX, armX, armOffset } = arrowhead(x(r.values[0]), x(r.values.at(-1)!), options.arrows === true)
+    return {
+      'd': `M${start},${cy}L${end},${cy}M${armX},${cy - armOffset}L${tipX},${cy}L${armX},${cy + armOffset}`,
+      'fill': 'none',
+      'stroke': 'currentColor',
+      'stroke-opacity': LINE_STROKE_OPACITY,
+      'stroke-width': LINE_WIDTH,
+      'opacity': opacityOf(r.name),
+    }
+  }
   featureJoin<DotPlotRow>(orch, {
     role: 'series-line',
     parent: lineLayer,
@@ -165,46 +191,39 @@ export function render(
     data: lineRows,
     key: r => r.name,
     insert: sel => sel.append('path').attr('class', 'bc-dot-line').attr('data-key', r => r.name),
-    attrs: (r) => {
-      const [start, end] = d3.extent(r.values).map(v => x(v!))
-      const cy = rowY(r.name)
-      const { tipX, armX, armOffset } = arrowhead(x(r.values[0]), x(r.values.at(-1)!), options.arrows === true)
-      return {
-        'd': `M${start},${cy}L${end},${cy}M${armX},${cy - armOffset}L${tipX},${cy}L${armX},${cy + armOffset}`,
-        'fill': 'none',
-        'stroke': 'currentColor',
-        'stroke-opacity': LINE_STROKE_OPACITY,
-        'stroke-width': LINE_WIDTH,
-        'opacity': opacityOf(r.name),
-      }
-    },
+    attrs: lineAttrs,
+    enterFrom: r => ({ ...lineAttrs(r), opacity: 0 }),
+    exitTo: () => ({ opacity: 0 }),
   })
 
   const dots: DotDatum[] = rows.flatMap(r => columns.map((column, i) => ({ row: r.name, column, value: r.values[i], color: columnColor(i) })))
+  const dotAttrs = (d: DotDatum) => ({
+    'data-series': d.column,
+    'cx': x(d.value),
+    'cy': rowY(d.row),
+    'r': DOT_RADIUS,
+    'fill': colorOverrides.get(d.row) ?? d.color,
+    'stroke': stroke,
+    'stroke-width': 1,
+    'opacity': opacityOf(d.row),
+  })
   featureJoin<DotDatum>(orch, {
     role: 'mark-per-cell',
     parent: dotLayer,
     selector: '.bc-dot',
     data: dots,
-    key: d => `${d.row}|${d.column}`,
+    key: d => `${d.row}\0${d.column}`,
     insert: sel => sel.append('circle').attr('class', 'bc-dot').attr('data-key', d => `${d.row}|${d.column}`),
-    attrs: d => ({
-      'data-series': d.column,
-      'cx': x(d.value),
-      'cy': rowY(d.row),
-      'r': DOT_RADIUS,
-      'fill': colorOverrides.get(d.row) ?? d.color,
-      'stroke': stroke,
-      'stroke-width': 1,
-      'opacity': opacityOf(d.row),
-    }),
+    attrs: dotAttrs,
+    enterFrom: d => ({ ...dotAttrs(d), opacity: 0 }),
+    exitTo: () => ({ opacity: 0 }),
   })
 
   const labelLayer = d3.select(chartArea).append('g').node()!
-  if (options.valueLabels) {
-    const fmt = buildNumberFormatter(options.horizontalAxis?.numberFormat ?? '') ?? String
-    renderValueLabels(orch, labelLayer, buildLabels(rows, columns, resolved.mode, x, fmt), rowY, opacityOf)
-  }
+  labelLayer.append(...prior.labels)
+  const fmt = buildNumberFormatter(options.horizontalAxis?.numberFormat ?? '') ?? String
+  const labels = options.valueLabels ? buildLabels(rows, columns, resolved.mode, x, fmt) : []
+  renderValueLabels(orch, labelLayer, labels, rowY, opacityOf)
 
   if (options.tooltips) {
     const rowByName = new Map(rows.map(r => [r.name, r]))
@@ -235,7 +254,7 @@ export function render(
   }
 
   const plotRect: PlotRect = { left: margin.left, top: margin.top, width, height }
-  tweenPlotFrame(orch, { svg, clipId, group: chartArea, from: cached?.plotRect, to: plotRect, active: false })
+  tweenPlotFrame(orch, { svg, clipId, group: chartArea, from: cached?.chartType === 'dot-plot' ? cached.plotRect : undefined, to: plotRect, active: transition })
 
   if (showLegend) {
     const legendX = legendPos === 'left' ? -(legendSize.width + 10) : legendPos === 'right' ? width + 10 : 0
@@ -292,6 +311,14 @@ function renderValueLabels(
   rowY: (name: string) => number,
   opacityOf: (row: string) => number,
 ): void {
+  const labelAttrs = (l: LabelDatum) => ({
+    ...(l.series ? { 'data-series': l.series } : {}),
+    'x': l.x,
+    'y': rowY(l.row),
+    'text-anchor': l.anchor,
+    'fill': 'currentColor',
+    'opacity': opacityOf(l.row),
+  })
   featureJoin<LabelDatum>(orch, {
     role: 'value-label',
     parent,
@@ -304,14 +331,9 @@ function renderValueLabels(
       .attr('font-size', '11px')
       .attr('dominant-baseline', 'central')
       .text(l => l.text),
-    attrs: l => ({
-      ...(l.series ? { 'data-series': l.series } : {}),
-      'x': l.x,
-      'y': rowY(l.row),
-      'text-anchor': l.anchor,
-      'fill': 'currentColor',
-      'opacity': opacityOf(l.row),
-    }),
+    attrs: labelAttrs,
+    enterFrom: l => ({ ...labelAttrs(l), opacity: 0 }),
+    exitTo: () => ({ opacity: 0 }),
   })
   d3.select(parent).selectAll<SVGTextElement, LabelDatum>('.bc-dot-label')
     .data(labels, l => l.key)
