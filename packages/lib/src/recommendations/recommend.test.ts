@@ -37,8 +37,7 @@ describe('recommendCharts', () => {
     expect(recs[0]).toMatchObject({ chartType: 'bar-multi', fitness: 'best' })
   })
 
-  // bar-split draws one panel per series, so a margin of error needs a second
-  // numeric column to be the margin. With one, it has no range to show.
+  // a margin of error needs a second numeric column to be the margin, so one column gets plain bars
   it('recommends plain bars for a margin-of-error goal on a single numeric column', () => {
     const recs = recommendCharts(['string', 'number'], 6, 'the polling lead with its margin of error')
     expect(recs[0]).toMatchObject({ chartType: 'bar-vertical', fitness: 'best' })
