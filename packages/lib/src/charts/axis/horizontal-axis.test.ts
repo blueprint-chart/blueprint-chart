@@ -128,6 +128,24 @@ describe('HorizontalAxisChart merge:transition feature parity', () => {
     expect(tickLines).toHaveLength(0)
   })
 
+  it('drops hidden axis parts as soon as a scene transition starts', () => {
+    const chart = new HorizontalAxisChart(d3.select(chartArea))
+    chart.config({ scale, height: 300, width: 300, labels: ['A', 'B', 'C'], showAxis: false, showTicks: false, labelPosition: 'off' })
+    chart.draw([{ placeholder: true }])
+
+    setRenderTransition(true)
+    try {
+      chart.draw([{ placeholder: true }])
+      const axisEl = chartArea.querySelector('.bc-axis-horizontal')!
+      expect(axisEl.querySelector('.domain')).toBeNull()
+      expect(axisEl.querySelectorAll('.tick line:not(.bc-grid-line)')).toHaveLength(0)
+      expect(axisEl.querySelectorAll('.tick text')).toHaveLength(0)
+    }
+    finally {
+      setRenderTransition(false)
+    }
+  })
+
   it('removes tick labels on merge render when labelPosition is off', () => {
     const chart = new HorizontalAxisChart(d3.select(chartArea))
     chart.config({ scale, height: 300, width: 300, labels: ['A', 'B', 'C'], labelPosition: 'off' })
