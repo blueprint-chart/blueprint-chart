@@ -7,6 +7,8 @@ export interface PlacedLabel { key: string, x: number, y: number, anchor: 'start
 interface Box { left: number, right: number, top: number, bottom: number }
 
 const GAP = 3
+// Rendered glyphs run a pixel or two wider than measured, so touching boxes would visibly collide.
+const LABEL_PAD = 2
 // A browser lays text out in a line box taller than its font size (13px for 11px).
 const LINE_HEIGHT_EM = 1.2
 
@@ -29,7 +31,7 @@ function boxOf(label: PlacedLabel, width: number, fontPx: number): Box {
 }
 
 function overlaps(a: Box, b: Box): boolean {
-  return a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom
+  return a.left < b.right + LABEL_PAD && b.left < a.right + LABEL_PAD && a.top < b.bottom && b.top < a.bottom
 }
 
 export function placePointLabels(candidates: LabelCandidate[], bounds: { width: number, height: number }, fontPx: number): PlacedLabel[] {

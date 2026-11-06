@@ -36,6 +36,20 @@ describe('placePointLabels', () => {
     expect(intersects(lineBox(a, 'China'), lineBox(b, 'Poland'))).toBe(false)
   })
 
+  it('keeps a gap between labels instead of letting them touch', () => {
+    const widthA = measureTextWidth('Italy', FONT)
+    const c: LabelCandidate[] = [
+      { key: 'a', text: 'Italy', cx: 100, cy: 100, r: 0 },
+      { key: 'b', text: 'Spain', cx: 100 + widthA, cy: 100, r: 0 },
+    ]
+    const text = new Map(c.map(d => [d.key, d.text]))
+    const boxes = placePointLabels(c, { width: 400, height: 300 }, FONT).map(p => box(p, text.get(p.key)!))
+    boxes.forEach((a, i) => boxes.slice(i + 1).forEach((b) => {
+      const sameRow = a.top < b.bottom && b.top < a.bottom
+      expect(!sameRow || Math.max(b.left - a.right, a.left - b.right) >= 2).toBe(true)
+    }))
+  })
+
   it('places a lone label to the right of its bubble', () => {
     const [label] = placePointLabels([{ key: 'a', text: 'Chad', cx: 50, cy: 50, r: 5 }], { width: 400, height: 300 }, FONT)
     expect(label.anchor).toBe('start')
