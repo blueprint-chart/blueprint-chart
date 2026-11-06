@@ -15,8 +15,8 @@ export interface ResolvedDotPlot {
 }
 
 const RANGE_PATTERNS = {
-  low: /\b(low|lower|min|minimum)\b/i,
-  high: /\b(high|upper|max|maximum)\b/i,
+  low: /(?<![a-z\d])(low|lower|min|minimum)(?![a-z\d])/i,
+  high: /(?<![a-z\d])(high|upper|max|maximum)(?![a-z\d])/i,
 }
 
 export function detectRangeColumn(columns: string[], role: 'low' | 'high'): string | undefined {

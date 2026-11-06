@@ -12,6 +12,10 @@ describe('detectRangeColumn', () => {
     expect(detectRangeColumn(['Lowland', 'Maximal'], 'low')).toBeUndefined()
     expect(detectRangeColumn(['Lowland', 'Maximal'], 'high')).toBeUndefined()
   })
+  it('matches snake_case column names', () => {
+    expect(detectRangeColumn(['estimate', 'ci_low', 'ci_high'], 'low')).toBe('ci_low')
+    expect(detectRangeColumn(['estimate', 'low_95', 'high_95'], 'high')).toBe('high_95')
+  })
 })
 
 describe('resolveDotPlotMapping', () => {
