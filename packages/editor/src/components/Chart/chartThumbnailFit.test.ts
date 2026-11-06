@@ -17,6 +17,10 @@ describe('fitCard', () => {
   it('returns scale 0 for a zero-size box', () => {
     expect(fitCard({ width: 0, height: 0 }, { width: 600, height: 400 }, 10)).toEqual({ scale: 0, x: 0, y: 0 })
   })
+
+  it('returns scale 0 for an empty card in a box with no room', () => {
+    expect(fitCard({ width: 24, height: 24 }, { width: 0, height: 0 }, 12)).toEqual({ scale: 0, x: 0, y: 0 })
+  })
 })
 
 describe('thumbnailWidth', () => {

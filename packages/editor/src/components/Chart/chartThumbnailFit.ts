@@ -18,7 +18,10 @@ export function thumbnailWidth(layout: ChartLayout): number {
 }
 
 export function fitCard(box: Size, card: Size, padding: number): { scale: number, x: number, y: number } {
-  const scale = Math.max(0, Math.min(1, (box.width - padding * 2) / card.width, (box.height - padding * 2) / card.height))
+  const scale = Math.min(1, (box.width - padding * 2) / card.width, (box.height - padding * 2) / card.height)
+  if (!(scale > 0)) {
+    return { scale: 0, x: 0, y: 0 }
+  }
   return {
     scale,
     x: Math.max(0, (box.width - card.width * scale) / 2),
