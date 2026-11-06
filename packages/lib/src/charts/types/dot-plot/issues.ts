@@ -38,7 +38,7 @@ function unknownColumns(data: ChartData, overrides: DotPlotMapping): DotPlotIssu
 }
 
 function valuesOutsideRange(rows: { name: string, values: number[], low?: number, high?: number }[]): DotPlotIssue[] {
-  const outside = rows.filter(({ values: [value], low = -Infinity, high = Infinity }) => value < low || value > high)
+  const outside = rows.filter(({ values: [value], low = -Infinity, high = Infinity }) => value < Math.min(low, high) || value > Math.max(low, high))
   if (!outside.length) {
     return []
   }
