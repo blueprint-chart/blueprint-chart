@@ -37,6 +37,7 @@ import { render as barStacked } from './types/bar-stacked/bar-stacked'
 import { render as barSplit } from './types/bar-split/bar-split'
 import { render as barGrouped } from './types/bar-grouped/bar-grouped'
 import { render as scatter } from './types/scatter/scatter'
+import { render as dotPlot } from './types/dot-plot/dot-plot'
 
 interface ChartRegistryEntry {
   renderer: ChartRenderer
@@ -473,6 +474,23 @@ const scatterTrendOpt: ChartOptionDef = {
 const scatterShowLabelsOpt: ChartOptionDef = { ...showLabelsOpt, default: false, label: 'Label all points' }
 const scatterAxisOpts = axisOpts({ verticalGrid: GridStyle.Dashed, horizontalGrid: GridStyle.Dashed, showVerticalTicks: false, showHorizontalTicks: false, showVerticalAxis: false, valueAxis: 'both', scaleTypeChoices: [ScaleType.Linear, ScaleType.Log, ScaleType.Symlog] })
 registerChart(ChartType.Scatter, scatter, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, ...scatterMappingOpts, scatterTrendOpt, scatterShowLabelsOpt, legendOpt, legendPositionOpt, legendAnchorOpt, { ...tooltipsOpt, default: true }, ...scatterAxisOpts])
+
+const dotPlotMappingOpts: ChartOptionDef[] = [
+  { key: 'low', type: ChartOptionType.Text, label: 'Low column', default: '' },
+  { key: 'high', type: ChartOptionType.Text, label: 'High column', default: '' },
+]
+const arrowsOpt: ChartOptionDef = { key: 'arrows', type: ChartOptionType.Boolean, label: 'Arrows', default: false }
+const dotPlotSortModeOpt: ChartOptionDef = {
+  ...sortModeOpt,
+  default: SortMode.Value,
+  choices: [
+    { value: SortMode.None, text: 'None' },
+    { value: SortMode.Value, text: 'By value' },
+    { value: SortMode.Gap, text: 'By gap' },
+  ],
+}
+const dotPlotAxisOpts = axisOpts({ verticalGrid: GridStyle.None, horizontalGrid: GridStyle.Dashed, showVerticalTicks: false, showHorizontalTicks: false, showHorizontalAxis: false, valueAxis: 'horizontal' })
+registerChart(ChartType.DotPlot, dotPlot, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, ...dotPlotMappingOpts, arrowsOpt, dotPlotSortModeOpt, legendOpt, legendPositionOpt, legendAnchorOpt, categoryLabelLineOpt, ...dotPlotAxisOpts, valueLabelsOpt, { ...tooltipsOpt, default: true }])
 
 // Aliases share the same entry
 registerChart(ChartType.VerticalBar, barVertical, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, swapLabelValueOpt, barBackgroundOpt, barSeparatorsOpt, barGapOpt, connectedColumnsOpt, connectionsOpacityOpt, waterfallOpt, waterfallTotalOpt, categoryLabelLineOpt, ...barVerticalAxisOpts, ...barOpts])

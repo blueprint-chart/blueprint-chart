@@ -145,4 +145,15 @@ describe('registry', () => {
     const line = getChartOptions('line').find(d => d.key === 'verticalScaleType')!
     expect(line.choices!.map(c => c.value)).toEqual(['linear', 'log'])
   })
+
+  it('registers dot-plot with mapping, arrows and its sort choices', () => {
+    const byKey = Object.fromEntries(getChartOptions('dot-plot').map(d => [d.key, d]))
+    expect(byKey.low.default).toBe('')
+    expect(byKey.high.default).toBe('')
+    expect(byKey.arrows.default).toBe(false)
+    expect(byKey.sortMode.default).toBe('value')
+    expect(byKey.sortMode.choices!.map(c => c.value)).toEqual(['none', 'value', 'gap'])
+    expect(byKey.horizontalScaleType.choices!.map(c => c.value)).toEqual(['linear', 'log'])
+    expect(byKey.tooltips.default).toBe(true)
+  })
 })
