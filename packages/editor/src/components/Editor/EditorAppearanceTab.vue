@@ -1,6 +1,14 @@
 <template>
   <div class="d-flex flex-column gap-4">
     <SettingsSection
+      v-if="hasColumnChoice"
+      title="Columns"
+      :icon="IPhTable"
+    >
+      <EditorDataColumnSection />
+    </SettingsSection>
+
+    <SettingsSection
       title="Theme"
       :icon="IPhPaintBrush"
     >
@@ -28,6 +36,14 @@
       :icon="barStyleIcon"
     >
       <EditorBarStyleSection />
+    </SettingsSection>
+
+    <SettingsSection
+      v-if="hasStack"
+      title="Stacking"
+      :icon="IPhStack"
+    >
+      <EditorStackSection />
     </SettingsSection>
 
     <SettingsSection
@@ -84,6 +100,7 @@ import { SettingsSection } from '@blueprint-chart/ui'
 import { ChartType } from '@blueprint-chart/lib'
 import { useChartConfig } from '@/stores/chartConfig'
 import { useChartTypeOptions } from '@/stores/chartTypeOptions'
+import { useDataTable } from '@/stores/dataTable'
 import IPhPalette from '~icons/ph/palette'
 import IPhLineSegments from '~icons/ph/line-segments'
 import IPhChartPieSlice from '~icons/ph/chart-pie-slice'
@@ -94,9 +111,19 @@ import IPhChartLine from '~icons/ph/chart-line'
 import IPhSortAscending from '~icons/ph/sort-ascending'
 import IPhTable from '~icons/ph/table'
 import IPhChartScatter from '~icons/ph/chart-scatter'
+import IPhStack from '~icons/ph/stack'
 
 const { chartType } = useChartConfig()
 const { availableOptionKeys } = useChartTypeOptions()
+const dataTable = useDataTable()
+
+const SINGLE_SERIES_TYPES: string[] = [ChartType.BarVertical, ChartType.BarHorizontal, ChartType.Line, ChartType.Area, ChartType.VerticalBar, ChartType.HorizontalBar]
+
+const hasColumnChoice = computed(() => {
+  return SINGLE_SERIES_TYPES.includes(chartType.value) && dataTable.columns.value.length > 2
+})
+
+const hasStack = computed(() => availableOptionKeys.value.includes('stackMode'))
 
 const barStyleIcon = computed(() =>
   chartType.value.includes('horizontal') || chartType.value === ChartType.BarStacked || chartType.value === ChartType.BarSplit || chartType.value === ChartType.BarGrouped
