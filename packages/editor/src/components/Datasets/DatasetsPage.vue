@@ -3,7 +3,6 @@ import { computed, shallowRef, useTemplateRef } from 'vue'
 import { useRouter } from 'vue-router'
 import { ButtonIcon, FeedbackEmptyState, useBreakpoint } from '@blueprint-chart/ui'
 import { useDatasets } from '@/composables/useDatasets'
-import { readLocalDsl } from '@/stores/chartSession'
 import { groupDatasets } from '@/utils/datasets'
 import type { Dataset, DatasetGroup } from '@/utils/datasets'
 import LayoutPageHeader from '@/components/Layout/LayoutPageHeader.vue'
@@ -16,7 +15,7 @@ import IPhPlus from '~icons/ph/plus'
 
 const router = useRouter()
 const { isNarrow } = useBreakpoint()
-const { datasets, loading, startChart } = useDatasets()
+const { datasets, loading, chartDsl, startChart } = useDatasets()
 
 const groups = computed(() => groupDatasets(datasets.value))
 const selectedKey = shallowRef<string | null>(null)
@@ -39,7 +38,7 @@ const drawerOpen = computed({
 const dsls = computed(() => {
   const map: Record<string, string> = {}
   for (const chart of selected.value?.variants.flatMap(v => v.charts) ?? []) {
-    const dsl = readLocalDsl(chart.id)
+    const dsl = chartDsl(chart.id)
     if (dsl) {
       map[chart.id] = dsl
     }

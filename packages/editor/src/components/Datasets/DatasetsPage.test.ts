@@ -8,9 +8,10 @@ import DatasetsPage from './DatasetsPage.vue'
 const list = shallowRef<Dataset[]>([])
 const loading = shallowRef(false)
 const startChart = vi.fn<(dataset: Dataset) => string | null>()
+const chartDsl = vi.fn<(id: string) => string | null>()
 
 vi.mock('@/composables/useDatasets', () => ({
-  useDatasets: () => ({ datasets: computed(() => list.value), loading, refresh: vi.fn(), startChart, chartDsl: vi.fn() }),
+  useDatasets: () => ({ datasets: computed(() => list.value), loading, refresh: vi.fn(), startChart, chartDsl }),
 }))
 
 function dataset(key: string, data = `"${key}" = 1`): Dataset {
@@ -48,6 +49,7 @@ async function mountPage() {
 describe('DatasetsPage', () => {
   beforeEach(() => {
     startChart.mockReset()
+    chartDsl.mockReset()
     loading.value = false
   })
 
@@ -62,6 +64,14 @@ describe('DatasetsPage', () => {
     const { wrapper } = await mountPage()
     await wrapper.findAll('.datasets-card__header__text__name')[1].trigger('click')
     expect(wrapper.findComponent({ name: 'DatasetsDetail' }).props('group')).toEqual({ key: list.value[1].data, variants: [list.value[1]] })
+  })
+
+  it('passes DSLs that only exist in the cloud to the panel', async () => {
+    list.value = [dataset('a')]
+    chartDsl.mockImplementation(id => (id === 'a' ? 'chart bar {}' : null))
+    const { wrapper } = await mountPage()
+    await wrapper.find('.datasets-card__header__text__name').trigger('click')
+    expect(wrapper.findComponent({ name: 'DatasetsDetail' }).props('dsls')).toEqual({ a: 'chart bar {}' })
   })
 
   it('groups pipelines of the same raw data into one card', async () => {
