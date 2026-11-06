@@ -227,6 +227,7 @@ export function render(
     enterFrom: p => ({ ...pointAttrs(p), opacity: 0 }),
     exitTo: () => ({ opacity: 0 }),
   })
+  d3.select(pointLayer).selectAll<SVGCircleElement, ScatterPoint>('.bc-scatter-point').attr('data-series', p => p.group ?? null)
 
   const labelled = labelledPoints(points, highlighted, options)
   const labels = placePointLabels(labelled.map(p => ({ key: p.name, text: p.name, cx: x(p.x), cy: y(p.y), r: radius(p) })), { width, height }, LABEL_FONT_PX)

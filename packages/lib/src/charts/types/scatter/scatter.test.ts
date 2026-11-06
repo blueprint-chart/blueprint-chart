@@ -101,6 +101,12 @@ describe('scatter chart', () => {
   const swatch = (group: string) => container.querySelector(`.bc-legend-item[data-series="${group}"] rect`)!
   const legendLabels = () => Array.from(container.querySelectorAll('.bc-legend text')).map(t => t.textContent)
 
+  it('tags each point with its group so a legend hover dims the other groups', () => {
+    render(container, DATA, {})
+    const groups = Object.fromEntries(points(container).map(c => [c.dataset.key, c.getAttribute('data-series')]))
+    expect(groups).toEqual({ France: 'Europe', Germany: 'Europe', Chad: 'Africa', Nigeria: 'Africa', Japan: 'Asia' })
+  })
+
   it('lists groups in the legend in first-appearance order', () => {
     render(container, DATA, {})
     expect(legendLabels()).toEqual(['Europe', 'Africa', 'Asia'])
