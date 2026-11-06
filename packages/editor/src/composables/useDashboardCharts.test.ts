@@ -139,6 +139,24 @@ describe('useDashboardCharts actions', () => {
     expect(dash.charts.value[0].sceneCount).toBe(1)
   })
 
+  it('reuses a loaded cloud-only DSL on the next refresh', async () => {
+    vi.spyOn(runtimeConfig, 'accountsEnabled').mockReturnValue(true)
+    useAccountStore().user = { id: 'me' } as never
+    const store = useCloudChartsStore()
+    vi.spyOn(store, 'listCloud').mockResolvedValue([
+      { id: 'cloudonly003', title: 'Remote', chartType: 'bar', published: false, updatedAt: '2026-02-01' },
+    ])
+    const loadCloud = vi.spyOn(store, 'loadCloud').mockResolvedValue({ dsl: 'chart bar {\n  scene "A" {}\n}', meta: {} } as never)
+    const dash = useDashboardCharts()
+    await dash.refresh()
+    await vi.waitFor(() => expect(dash.dsls.cloudonly003).toBeDefined())
+
+    await dash.refresh()
+
+    expect(loadCloud).toHaveBeenCalledOnce()
+    expect(dash.charts.value[0].sceneCount).toBe(1)
+  })
+
   it('remove of a local-only chart never calls the cloud', async () => {
     seedLocal('localid0003')
     const dash = useDashboardCharts()
