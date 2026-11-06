@@ -1,5 +1,5 @@
 import { mergeChartLists, type UnifiedChartSummary } from './useDashboardCharts'
-import type { SavedChartSummary } from '@/stores/chartSession'
+import { storageKey, type SavedChartSummary } from '@/stores/chartSession'
 import type { CloudChartSummary } from '@/stores/cloudCharts'
 
 function local(id: string, over: Partial<SavedChartSummary> = {}): SavedChartSummary {
@@ -155,6 +155,46 @@ describe('useDashboardCharts actions', () => {
 
     expect(loadCloud).toHaveBeenCalledOnce()
     expect(dash.charts.value[0].sceneCount).toBe(1)
+  })
+
+  it('fetches a cloud-only DSL again once the cloud copy changes', async () => {
+    vi.spyOn(runtimeConfig, 'accountsEnabled').mockReturnValue(true)
+    useAccountStore().user = { id: 'me' } as never
+    const store = useCloudChartsStore()
+    const listCloud = vi.spyOn(store, 'listCloud').mockResolvedValue([
+      { id: 'cloudonly004', title: 'Remote', chartType: 'bar', published: false, updatedAt: '2026-02-01' },
+    ])
+    const loadCloud = vi.spyOn(store, 'loadCloud').mockResolvedValue({ dsl: 'chart bar {}', meta: {} } as never)
+    const dash = useDashboardCharts()
+    await dash.refresh()
+    await vi.waitFor(() => expect(dash.dsls.cloudonly004).toBe('chart bar {}'))
+
+    listCloud.mockResolvedValue([
+      { id: 'cloudonly004', title: 'Remote', chartType: 'bar', published: false, updatedAt: '2026-03-01' },
+    ])
+    loadCloud.mockResolvedValue({ dsl: 'chart line {}', meta: {} } as never)
+    await dash.refresh()
+
+    await vi.waitFor(() => expect(dash.dsls.cloudonly004).toBe('chart line {}'))
+  })
+
+  it('fetches the cloud DSL once the local copy is gone', async () => {
+    vi.spyOn(runtimeConfig, 'accountsEnabled').mockReturnValue(true)
+    useAccountStore().user = { id: 'me' } as never
+    localStorage.setItem(storageKey('syncedAAA05'), 'chart bar {}')
+    const store = useCloudChartsStore()
+    vi.spyOn(store, 'listCloud').mockResolvedValue([
+      { id: 'syncedAAA05', title: 'Remote', chartType: 'bar', published: false, updatedAt: '2026-02-01' },
+    ])
+    vi.spyOn(store, 'loadCloud').mockResolvedValue({ dsl: 'chart line {}', meta: {} } as never)
+    const dash = useDashboardCharts()
+    await dash.refresh()
+    expect(dash.dsls.syncedAAA05).toBe('chart bar {}')
+
+    localStorage.removeItem(storageKey('syncedAAA05'))
+    await dash.refresh()
+
+    await vi.waitFor(() => expect(dash.dsls.syncedAAA05).toBe('chart line {}'))
   })
 
   it('remove of a local-only chart never calls the cloud', async () => {

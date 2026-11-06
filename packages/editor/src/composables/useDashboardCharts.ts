@@ -74,6 +74,7 @@ export function useDashboardCharts() {
 
   const charts = ref<UnifiedChartSummary[]>([])
   const dsls = reactive<Record<string, string>>({})
+  const cloudVersions = new Map<string, string | null>()
   const sortValue = shallowRef('date-desc')
   const loaded = shallowRef(false)
   const empty = computed(() => loaded.value && charts.value.length === 0)
@@ -108,9 +109,10 @@ export function useDashboardCharts() {
   function loadDsls(): void {
     for (const chart of charts.value) {
       if (chart.syncState === 'cloud') {
-        void loadCloudDsl(chart.id)
+        void loadCloudDsl(chart.id, chart.savedAt)
         continue
       }
+      cloudVersions.delete(chart.id)
       const dsl = localStorage.getItem(storageKey(chart.id))
       if (dsl) {
         dsls[chart.id] = dsl
@@ -132,8 +134,8 @@ export function useDashboardCharts() {
     }
   }
 
-  async function loadCloudDsl(id: string): Promise<void> {
-    if (dsls[id]) {
+  async function loadCloudDsl(id: string, version: string | null): Promise<void> {
+    if (dsls[id] && cloudVersions.get(id) === version) {
       enrichCloudSummary(id, dsls[id])
       return
     }
@@ -144,6 +146,7 @@ export function useDashboardCharts() {
         return
       }
       dsls[id] = record.dsl
+      cloudVersions.set(id, version)
       enrichCloudSummary(id, record.dsl)
     }
     finally {
