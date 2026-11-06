@@ -2,18 +2,19 @@
 import { useChartConfig } from '@/stores/chartConfig'
 import { useDataTable } from '@/stores/dataTable'
 
-const { chartType, selectedColumn } = useChartConfig()
+const { selectedColumn } = useChartConfig()
 const dataTable = useDataTable()
 
-const columnChoices = computed(() => {
-  return dataTable.columns.value.slice(1).map(c => ({ value: c, text: c }))
-})
+const valueColumns = computed(() => dataTable.columns.value.slice(1))
 
-watch([chartType, () => dataTable.columns.value], () => {
-  if (!selectedColumn.value && columnChoices.value.length > 0) {
-    selectedColumn.value = columnChoices.value[0].value
-  }
-}, { immediate: true })
+const columnChoices = computed(() => valueColumns.value.map(c => ({ value: c, text: c })))
+
+const column = computed({
+  get: () => valueColumns.value.includes(selectedColumn.value) ? selectedColumn.value : valueColumns.value[0],
+  set: (value: string) => {
+    selectedColumn.value = value
+  },
+})
 </script>
 
 <template>
@@ -23,7 +24,7 @@ watch([chartType, () => dataTable.columns.value], () => {
   >
     <BFormSelect
       id="column-select"
-      v-model="selectedColumn"
+      v-model="column"
       :options="columnChoices"
     />
   </BFormGroup>

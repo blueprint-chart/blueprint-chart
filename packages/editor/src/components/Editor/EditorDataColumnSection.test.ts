@@ -1,20 +1,21 @@
 import { mount } from '@vue/test-utils'
 import EditorDataColumnSection from './EditorDataColumnSection.vue'
 
-const chartType = ref('bar-vertical')
 const selectedColumn = ref('')
+const columns = ref(['Label', 'Sales', 'Profit'])
 
 vi.mock('@/stores/chartConfig', () => ({
-  useChartConfig: () => ({ chartType, selectedColumn }),
+  useChartConfig: () => ({ selectedColumn }),
 }))
 
 vi.mock('@/stores/dataTable', () => ({
-  useDataTable: () => ({ columns: ref(['Label', 'Sales', 'Profit']) }),
+  useDataTable: () => ({ columns }),
 }))
 
 describe('EditorDataColumnSection', () => {
   beforeEach(() => {
     selectedColumn.value = ''
+    columns.value = ['Label', 'Sales', 'Profit']
   })
 
   it('lists every value column', () => {
@@ -22,9 +23,18 @@ describe('EditorDataColumnSection', () => {
     expect(wrapper.findAll('#column-select option').map(o => o.text())).toEqual(['Sales', 'Profit'])
   })
 
-  it('defaults to the first value column', () => {
-    mount(EditorDataColumnSection)
-    expect(selectedColumn.value).toBe('Sales')
+  it('shows the first value column when none is picked, without storing it', () => {
+    const wrapper = mount(EditorDataColumnSection)
+    expect(wrapper.find<HTMLSelectElement>('#column-select').element.value).toBe('Sales')
+    expect(selectedColumn.value).toBe('')
+  })
+
+  it('falls back to the first value column when the picked one is gone', async () => {
+    selectedColumn.value = 'Sales'
+    const wrapper = mount(EditorDataColumnSection)
+    columns.value = ['Label', 'Revenue', 'Cost']
+    await nextTick()
+    expect(wrapper.find<HTMLSelectElement>('#column-select').element.value).toBe('Revenue')
   })
 
   it('switches the plotted column', async () => {
