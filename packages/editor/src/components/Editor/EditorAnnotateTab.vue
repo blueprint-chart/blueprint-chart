@@ -70,7 +70,7 @@ const { scenes, activeIndex, activeScene, update: updateScene } = useScenes()
 
 const isSceneActive = computed(() => activeIndex.value >= 0)
 
-const HIGHLIGHT_TYPES: string[] = [ChartType.BarVertical, ChartType.BarHorizontal, ChartType.LineMulti, ChartType.AreaStacked]
+const HIGHLIGHT_TYPES: string[] = [ChartType.BarVertical, ChartType.BarHorizontal, ChartType.LineMulti, ChartType.AreaStacked, ChartType.Scatter]
 const hasHighlight = computed(() => HIGHLIGHT_TYPES.includes(chartType.value))
 
 // showRepeat = true whenever any scenes exist (repeat controls make sense even

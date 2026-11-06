@@ -54,10 +54,11 @@ vi.mock('@/composables/useAnnotationDrag', () => ({
 const baseAnnotationsRef = ref<object[]>([])
 const scenesRef = ref<object[]>([])
 const activeIndexRef = ref(-1)
+const chartTypeRef = ref('line')
 
 vi.mock('@/stores/chartConfig', () => ({
   useChartConfig: () => ({
-    chartType: ref('line'),
+    chartType: chartTypeRef,
     data: ref(''),
     areaFills: ref([]),
     seriesOverrides: ref([]),
@@ -96,6 +97,14 @@ describe('EditorAnnotateTab', () => {
     baseAnnotationsRef.value = []
     scenesRef.value = []
     activeIndexRef.value = -1
+    chartTypeRef.value = 'line'
+  })
+
+  it('offers the highlight section on a scatter chart', async () => {
+    chartTypeRef.value = 'scatter'
+    const w = mount(EditorAnnotateTab)
+    await nextTick()
+    expect(w.find('.stub-highlight-section').exists()).toBe(true)
   })
 
   it('renders one EditorAnnotations group when no scene is active', async () => {
