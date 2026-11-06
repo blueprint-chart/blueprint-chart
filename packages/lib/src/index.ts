@@ -75,6 +75,7 @@ export { registerChart, getChart, getChartOptions, listCharts } from './charts/r
 export { parseData, buildChartOptions } from './charts/chart-helpers'
 export { stripDigitGroupSpaces } from './charts/number-parse'
 export { resolveScatterMapping, numericColumns, MAPPING_NONE, type ScatterMapping } from './charts/types/scatter/mapping'
+export { resolveDotPlotMapping, detectRangeColumn, type DotPlotMapping, type DotPlotMode, type ResolvedDotPlot } from './charts/types/dot-plot/mapping'
 
 // Recommendations
 export { recommendCharts } from './recommendations/recommend'

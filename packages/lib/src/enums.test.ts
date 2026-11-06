@@ -37,11 +37,12 @@ function enumValues(e: Record<string, string>): string[] {
 }
 
 describe('ChartType', () => {
-  it('has 16 members', () => {
-    expect(enumValues(ChartType)).toHaveLength(16)
+  it('has 17 members', () => {
+    expect(enumValues(ChartType)).toHaveLength(17)
   })
   it('values match expected strings', () => {
     expect(ChartType.BarVertical).toBe('bar-vertical')
+    expect(ChartType.DotPlot).toBe('dot-plot')
     expect(ChartType.BarHorizontal).toBe('bar-horizontal')
     expect(ChartType.BarMulti).toBe('bar-multi')
     expect(ChartType.ColumnStacked).toBe('column-stacked')
@@ -258,13 +259,15 @@ describe('SortDirection', () => {
 })
 
 describe('SortMode', () => {
-  it('has 3 members', () => {
-    expect(enumValues(SortMode)).toHaveLength(3)
+  it('has 5 members', () => {
+    expect(enumValues(SortMode)).toHaveLength(5)
   })
   it('values match', () => {
     expect(SortMode.Total).toBe('total')
     expect(SortMode.WithinGroups).toBe('within-groups')
     expect(SortMode.None).toBe('none')
+    expect(SortMode.Value).toBe('value')
+    expect(SortMode.Gap).toBe('gap')
   })
 })
 

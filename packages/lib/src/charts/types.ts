@@ -246,6 +246,9 @@ export interface ChartOptions {
   size?: string
   group?: string
   trend?: string
+  low?: string
+  high?: string
+  arrows?: boolean
 }
 
 export type ChartRenderer = (
@@ -342,6 +345,9 @@ export interface ChartTypeOptions {
   size: string
   group: string
   trend: string
+  low: string
+  high: string
+  arrows: boolean
 }
 
 export type ChartTypeOptionKey = keyof ChartTypeOptions

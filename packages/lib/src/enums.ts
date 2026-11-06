@@ -20,6 +20,7 @@ export enum ChartType {
   Donut = 'donut',
   Pie = 'pie',
   Scatter = 'scatter',
+  DotPlot = 'dot-plot',
   // Aliases (registered separately in registry)
   VerticalBar = 'vertical-bar',
   HorizontalBar = 'horizontal-bar',
@@ -175,6 +176,8 @@ export enum SortMode {
   Total = 'total',
   WithinGroups = 'within-groups',
   None = 'none',
+  Value = 'value',
+  Gap = 'gap',
 }
 
 export enum LegendPosition {
