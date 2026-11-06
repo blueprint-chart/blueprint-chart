@@ -45,9 +45,9 @@ describe('recommendCharts', () => {
     expect(recs.some(r => r.chartType === 'bar-split')).toBe(false)
   })
 
-  it('recommends bar-split for a margin-of-error goal on two numeric columns', () => {
+  it('recommends dot-plot for a margin-of-error goal on two numeric columns', () => {
     const recs = recommendCharts(['string', 'number', 'number'], 6, 'the polling lead with its margin of error')
-    expect(recs[0]).toMatchObject({ chartType: 'bar-split', fitness: 'best' })
+    expect(recs[0]).toMatchObject({ chartType: 'dot-plot', fitness: 'best' })
   })
 
   it('recommends area-stacked for a date + N numbers composition-over-time goal', () => {

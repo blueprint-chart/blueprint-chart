@@ -85,8 +85,8 @@ const TABLE: Record<ShapeSignature, Partial<Record<Intent, CellFn>>> = {
       r('line-multi', 'alternative', 'Lines if the categories have a natural order'),
     ],
     'range': () => [
-      r('bar-split', 'best', 'Diverging bars show values around a shared baseline'),
-      r('bar-multi', 'alternative', 'Grouped bars if there is no shared baseline'),
+      r('dot-plot', 'best', 'A dot with a bar from low to high shows each value with its margin'),
+      r('bar-split', 'alternative', 'Split bars if each bound should read as its own panel'),
     ],
   },
   '1cat+text+Nnum': {

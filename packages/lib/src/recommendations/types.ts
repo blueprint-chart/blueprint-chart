@@ -34,6 +34,7 @@ export const CHART_LABELS: Record<string, string> = {
   'bar-grouped': 'Grouped Bar Chart',
   'bar-stacked': 'Stacked Bar Chart',
   'bar-split': 'Diverging Bar Chart',
+  'dot-plot': 'Dot Plot',
   'column-stacked': 'Stacked Column Chart',
   'line': 'Line Chart',
   'line-multi': 'Multi-Line Chart',
