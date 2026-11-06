@@ -23,14 +23,15 @@ const fields = computed(() => [
   buildField('high', detectedHigh.value),
 ])
 
-function buildOptions(detected?: string) {
-  const columnOptions = columns.value.filter(name => name !== detected).map(name => ({ value: name, text: name }))
+function buildOptions(role: RangeRole, detected?: string) {
+  const excluded = role === 'high' ? effectiveLow.value : undefined
+  const columnOptions = columns.value.filter(name => name !== detected && name !== excluded).map(name => ({ value: name, text: name }))
   return [{ value: '', text: `${detected ?? 'None'} (auto)` }, ...columnOptions, { value: MAPPING_NONE, text: 'None' }]
 }
 
 function buildField(role: RangeRole, detected?: string) {
   const value = currentOptions.value[role] ?? ''
-  return { role, label: ROLE_LABELS[role], value: value === detected ? '' : value, options: buildOptions(detected) }
+  return { role, label: ROLE_LABELS[role], value: value === detected ? '' : value, options: buildOptions(role, detected) }
 }
 </script>
 

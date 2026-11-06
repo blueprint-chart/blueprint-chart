@@ -28,6 +28,13 @@ describe('EditorDotPlotSettings', () => {
     expect(mount(EditorDotPlotSettings).find('#dot-plot-high option').text()).toBe('High (auto)')
   })
 
+  it('leaves the low column out of the high options', async () => {
+    currentOptions.value = { low: 'Poll' }
+    const values = mount(EditorDotPlotSettings).findAll('#dot-plot-high option').map(o => o.element.value)
+    expect(values).not.toContain('Poll')
+    expect(values).toContain('Low')
+  })
+
   it('offers None to turn range mode off', async () => {
     const wrapper = mount(EditorDotPlotSettings)
     await wrapper.find('#dot-plot-low').setValue('none')
