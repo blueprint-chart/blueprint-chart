@@ -1,14 +1,6 @@
-import { nextTick } from 'vue'
 import { mount } from '@vue/test-utils'
+import ChartThumbnail from '@/components/Chart/ChartThumbnail.vue'
 import DataUploadSamples from './DataUploadSamples.vue'
-
-const FAKE_SVG = '<svg xmlns="http://www.w3.org/2000/svg"></svg>'
-const FAKE_DATA_URL = 'data:image/svg+xml;base64,abc'
-
-vi.mock('@/composables/useChartThumbnail', () => ({
-  renderThumbnailFromDsl: vi.fn((dsl: string) => (dsl ? FAKE_SVG : null)),
-  svgToDataUrl: vi.fn(() => FAKE_DATA_URL),
-}))
 
 vi.mock('@blueprint-chart/lib', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@blueprint-chart/lib')>()
@@ -26,6 +18,10 @@ function mountSamples() {
 }
 
 describe('DataUploadSamples', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+  })
+
   it('renders sample cards as native buttons', () => {
     const w = mountSamples()
     const cards = w.findAll('button.sample-card[type="button"]')
@@ -64,20 +60,9 @@ describe('DataUploadSamples', () => {
     expect(sample).toHaveProperty('dsl')
   })
 
-  it('renders chart thumbnail images after mount', async () => {
+  it('renders a live thumbnail of each sample DSL', () => {
     const w = mountSamples()
-    await nextTick()
-    const images = w.findAll('.sample-card__thumb__img')
-    expect(images.length).toBe(2)
-    expect(images[0].attributes('src')).toBe(FAKE_DATA_URL)
-    expect(images[1].attributes('src')).toBe(FAKE_DATA_URL)
-  })
-
-  it('sets alt text on thumbnail images', async () => {
-    const w = mountSamples()
-    await nextTick()
-    const images = w.findAll('.sample-card__thumb__img')
-    expect(images[0].attributes('alt')).toBe('Test Chart')
-    expect(images[1].attributes('alt')).toBe('Another Chart')
+    const thumbs = w.findAllComponents(ChartThumbnail)
+    expect(thumbs.map(t => t.props('dsl'))).toEqual(['chart bar-vertical {}', 'chart line {}'])
   })
 })

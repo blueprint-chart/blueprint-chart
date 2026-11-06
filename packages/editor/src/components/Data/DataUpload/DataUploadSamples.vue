@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ChartType, samples } from '@blueprint-chart/lib'
 import type { ChartSample } from '@blueprint-chart/lib'
-import { renderThumbnailFromDsl, svgToDataUrl } from '@/composables/useChartThumbnail'
+import ChartThumbnail from '@/components/Chart/ChartThumbnail.vue'
 
 defineEmits<{ select: [sample: ChartSample] }>()
 
@@ -30,30 +30,15 @@ function rowCount(tsvData: string): number {
 interface SampleCard extends ChartSample {
   typeLabel: string
   rowCount: number
-  thumbSrc: string | undefined
 }
-
-const thumbDataUrls = reactive(new Map<string, string>())
 
 const sampleCards = computed<SampleCard[]>(() =>
   samples.map(s => ({
     ...s,
     typeLabel: TYPE_LABELS[s.chartType] ?? s.chartType,
     rowCount: rowCount(s.tsvData),
-    thumbSrc: thumbDataUrls.get(s.id),
   })),
 )
-
-onMounted(() => {
-  for (const sample of samples) {
-    if (sample.dsl) {
-      const svg = renderThumbnailFromDsl(sample.dsl)
-      if (svg) {
-        thumbDataUrls.set(sample.id, svgToDataUrl(svg))
-      }
-    }
-  }
-})
 </script>
 
 <template>
@@ -66,12 +51,7 @@ onMounted(() => {
       @click="$emit('select', sample)"
     >
       <div class="sample-card__thumb">
-        <img
-          v-if="sample.thumbSrc"
-          class="sample-card__thumb__img"
-          :src="sample.thumbSrc"
-          :alt="sample.title"
-        >
+        <ChartThumbnail :dsl="sample.dsl" />
       </div>
       <div class="sample-card__info">
         <div class="sample-card__info__name">
@@ -122,17 +102,7 @@ onMounted(() => {
   &__thumb {
     aspect-ratio: 3 / 2;
     overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0.5rem;
     background: var(--bs-tertiary-bg);
-
-    &__img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-    }
   }
 
   &__info {

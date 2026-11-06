@@ -1,10 +1,6 @@
-import { SortDirection, renderBpc, renderChart, toBool } from '@blueprint-chart/lib'
+import { SortDirection, renderChart } from '@blueprint-chart/lib'
 import type { ChartData, ChartTypeOptions, SeriesOverride } from '@blueprint-chart/lib'
 import type { ChartColorize } from './useChartConfig'
-
-export function svgToDataUrl(svg: string): string {
-  return `data:image/svg+xml;base64,${globalThis.btoa(unescape(encodeURIComponent(svg)))}`
-}
 
 // ---------------------------------------------------------------------------
 // Offscreen helpers
@@ -70,16 +66,11 @@ function withOffscreen(
   height: number | null,
   extraCss: string,
   fn: (container: HTMLElement) => string | null,
-  options?: { forceLightTheme?: boolean },
 ): string | null {
   const container = document.createElement('div')
   const heightCss = height ? `height:${height}px;` : ''
   container.style.cssText = `position:fixed;left:-9999px;top:0;width:${width}px;${heightCss}overflow:hidden;`
   container.id = id
-
-  if (options?.forceLightTheme) {
-    container.setAttribute('data-bs-theme', 'light')
-  }
 
   const style = document.createElement('style')
   style.textContent = extraCss
@@ -96,11 +87,6 @@ function withOffscreen(
   }
 }
 
-function dslAllowsDarkMode(dsl: string): boolean {
-  const match = dsl.match(/allowDarkMode\s*=\s*(true|false)/i)
-  return match ? toBool(match[1]) : true
-}
-
 // ---------------------------------------------------------------------------
 // Thumbnail rendering (chart body only, no frame)
 // ---------------------------------------------------------------------------
@@ -113,19 +99,6 @@ const THUMB_CSS = [
   `#__bc_thumb .bc-frame-header, #__bc_thumb .bc-frame-footer { display:none; }`,
   `#__bc_thumb .bc-frame-body { flex:1; min-height:0; }`,
 ].join('\n')
-
-function shouldForceLightTheme(dsl: string): boolean {
-  const isDark = document.documentElement.getAttribute('data-bs-theme') === 'dark'
-  return isDark && !dslAllowsDarkMode(dsl)
-}
-
-export function renderThumbnailFromDsl(dsl: string): string | null {
-  const forceLight = shouldForceLightTheme(dsl)
-  return withOffscreen('__bc_thumb', THUMB_W, THUMB_H, THUMB_CSS, (container) => {
-    renderBpc(container, dsl, { thumbnail: true })
-    return extractSvg(container)
-  }, { forceLightTheme: forceLight })
-}
 
 export function renderThumbnailSvg(
   chartType: string,
