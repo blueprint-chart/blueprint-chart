@@ -175,6 +175,13 @@ export default defineConfig({
             { text: 'Scatter', link: '/charts/scatter' },
           ],
         },
+        {
+          text: 'Ranges and gaps',
+          collapsed: false,
+          items: [
+            { text: 'Dot plot', link: '/charts/dot-plot' },
+          ],
+        },
       ],
 
       '/handbook/': [

@@ -26,7 +26,7 @@ const tiles: Tile[] = [
   {
     icon: IPhChartBar,
     title: 'Charts',
-    details: 'The catalogue of 14 chart types across the bar, line, area, part-to-whole, and relationship families.',
+    details: 'The catalogue of 15 chart types across the bar, line, area, part-to-whole, relationship, and ranges and gaps families.',
     link: '/charts/',
   },
   {

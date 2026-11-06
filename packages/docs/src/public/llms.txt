@@ -24,6 +24,7 @@ Blueprint Chart is built for AI coding agents and developers. An agent writes a 
 - [column-stacked](https://docs.blueprintchart.com/charts/column-stacked)
 - [pie](https://docs.blueprintchart.com/charts/pie) · [donut](https://docs.blueprintchart.com/charts/donut)
 - [scatter](https://docs.blueprintchart.com/charts/scatter)
+- [dot-plot](https://docs.blueprintchart.com/charts/dot-plot)
 
 ## Choosing & craft (handbook)
 - [Choosing the right chart](https://docs.blueprintchart.com/handbook/choosing): match data shape and goal to a chart type

@@ -21,7 +21,7 @@ const SECTIONS: { group: string, title: string, order: string[] }[] = [
   { group: 'guide', title: 'Guide', order: ['getting-started', 'mcp', 'dsl-editor', 'scenes', 'data-transforms', 'embed', 'palettes', 'accessibility'] },
   { group: 'reference/dsl', title: 'DSL reference', order: ['index', 'properties', 'annotations', 'scenes-and-transforms'] },
   { group: 'reference/api', title: 'API reference', order: ['index'] },
-  { group: 'charts', title: 'Chart types', order: ['index', 'line', 'line-multi', 'area', 'area-stacked', 'bar-vertical', 'bar-horizontal', 'bar-multi', 'bar-grouped', 'bar-stacked', 'bar-split', 'column-stacked', 'pie', 'donut', 'scatter'] },
+  { group: 'charts', title: 'Chart types', order: ['index', 'line', 'line-multi', 'area', 'area-stacked', 'bar-vertical', 'bar-horizontal', 'bar-multi', 'bar-grouped', 'bar-stacked', 'bar-split', 'column-stacked', 'pie', 'donut', 'scatter', 'dot-plot'] },
   { group: 'handbook', title: 'Handbook', order: ['index', 'choosing', 'color', 'accessibility', 'annotations', 'labels', 'axes', 'tooltips', 'typography', 'anti-patterns', 'design-principles', 'frame-elements'] },
 ]
 

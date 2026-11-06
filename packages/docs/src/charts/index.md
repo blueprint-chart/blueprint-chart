@@ -4,7 +4,7 @@ title: Chart types
 
 # Chart types
 
-Blueprint Chart ships 14 chart types organized into five families: bar, line, area, part-to-whole, and relationship.
+Blueprint Chart ships 15 chart types organized into six families: bar, line, area, part-to-whole, relationship, and ranges and gaps.
 
 ## Bar family
 
@@ -34,6 +34,10 @@ Blueprint Chart ships 14 chart types organized into five families: bar, line, ar
 ## Relationship
 
 - [`scatter`](./scatter): points placed by two numeric values; optional bubble size and color groups
+
+## Ranges and gaps
+
+- [`dot-plot`](./dot-plot): one dot per row; a line for gaps between values, or a bar for ranges
 
 ::: tip Choosing the right chart
 Not sure which type fits your data? Start with the decision framework in the [choosing the right chart](/handbook/choosing) handbook entry.
