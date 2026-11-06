@@ -602,12 +602,11 @@ export class HorizontalAxisChart extends D3Blueprint<AxisDatum[]> {
     // Mirrors the vertical-axis fix from the previous spec (commit 17584357).
     // For ms === 0 (initial render or transitions disabled), use a plain
     // selection on axisNode; falling back to `sel` if axisNode is unexpectedly null.
-    const target = ms > 0
-      ? sel
-      : (axisNode ? d3.select(axisNode) : sel)
+    const node = axisNode ? d3.select(axisNode) : sel
+    const target = ms > 0 ? sel : node
 
     if (!this.config('showAxis')) {
-      target.select('.domain').remove()
+      node.select('.domain').remove()
     }
     else if (phase === 'enter') {
       // Move the domain line to y=0 when the vertical domain crosses zero
@@ -619,11 +618,11 @@ export class HorizontalAxisChart extends D3Blueprint<AxisDatum[]> {
     }
 
     if (!this.config('showTicks')) {
-      target.selectAll('.tick line').remove()
+      node.selectAll('.tick line').remove()
     }
 
     if (effective === 'off') {
-      target.selectAll('.tick text').remove()
+      node.selectAll('.tick text').remove()
     }
     else if (effective === 'inside') {
       target.selectAll('.tick text').attr('y', 0).attr('dy', '-0.6em')
