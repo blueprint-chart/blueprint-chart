@@ -53,6 +53,14 @@ for (const theme of ['light', 'dark']) {
         ).filter(Boolean))).toEqual([])
       })
 
+      test('no two groups share a legend color', async ({ page }) => {
+        const fills = await page.locator('.bc-frame .bc-legend rect').evaluateAll(
+          rects => rects.map(rect => rect.getAttribute('fill')),
+        )
+        expect(fills.length).toBeGreaterThan(1)
+        expect(new Set(fills).size).toBe(fills.length)
+      })
+
       test('no two point labels overlap', async ({ page }) => {
         const boxes = await page.locator('.bc-frame text.bc-point-label').evaluateAll(
           labels => labels.map((label) => {

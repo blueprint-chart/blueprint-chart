@@ -108,8 +108,8 @@ chart scatter {
   data {
     series = "GDP per capita","Life expectancy","Population","Region"
     "Bangladesh" = 6838, 72.6, 164.9, "South Asia"
-    "Brazil" = 18019, 75.8, 207.5, "Latin America & Caribbean"
-    "Canada" = 57584, 82.2, 37.6, "North America"
+    "Brazil" = 18019, 75.8, 207.5, "Americas"
+    "Canada" = 57584, 82.2, 37.6, "Americas"
     "China" = 18821, 77.9, 1407.7, "East Asia & Pacific"
     "Egypt" = 15027, 71.2, 107.6, "Middle East, North Africa, Afghanistan & Pakistan"
     "Ethiopia" = 2438, 65.7, 115.7, "Sub-Saharan Africa"
@@ -117,10 +117,10 @@ chart scatter {
     "India" = 7702, 70.7, 1389.0, "South Asia"
     "Japan" = 46055, 84.4, 126.6, "East Asia & Pacific"
     "Kenya" = 5172, 62.9, 51.2, "Sub-Saharan Africa"
-    "Mexico" = 21704, 74.5, 125.8, "Latin America & Caribbean"
+    "Mexico" = 21704, 74.5, 125.8, "Americas"
     "Nigeria" = 8362, 53.0, 209.5, "Sub-Saharan Africa"
     "Norway" = 90773, 83.0, 5.3, "Europe & Central Asia"
-    "United States" = 69121, 78.8, 330.2, "North America"
+    "United States" = 69121, 78.8, 330.2, "Americas"
   }
 
   highlight "Nigeria"
@@ -134,8 +134,8 @@ chart scatter {
     data {
       series = "GDP per capita","Life expectancy","Population","Region"
       "Bangladesh" = 2070, 55.8, 111.6, "South Asia"
-      "Brazil" = 12633, 65.9, 149.1, "Latin America & Caribbean"
-      "Canada" = 40475, 77.4, 27.7, "North America"
+      "Brazil" = 12633, 65.9, 149.1, "Americas"
+      "Canada" = 40475, 77.4, 27.7, "Americas"
       "China" = 1667, 68.2, 1135.2, "East Asia & Pacific"
       "Egypt" = 8007, 62.5, 58.4, "Middle East, North Africa, Afghanistan & Pakistan"
       "Ethiopia" = 874, 45.1, 47.6, "Sub-Saharan Africa"
@@ -143,10 +143,10 @@ chart scatter {
       "India" = 2140, 58.6, 865.0, "South Asia"
       "Japan" = 36138, 78.8, 123.5, "East Asia & Pacific"
       "Kenya" = 4177, 58.3, 22.9, "Sub-Saharan Africa"
-      "Mexico" = 17170, 69.0, 82.8, "Latin America & Caribbean"
+      "Mexico" = 17170, 69.0, 82.8, "Americas"
       "Nigeria" = 5424, 45.7, 97.1, "Sub-Saharan Africa"
       "Norway" = 56608, 76.5, 4.2, "Europe & Central Asia"
-      "United States" = 44384, 75.2, 249.6, "North America"
+      "United States" = 44384, 75.2, 249.6, "Americas"
     }
   }
 }
