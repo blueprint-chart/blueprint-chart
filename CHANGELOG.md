@@ -1,3 +1,11 @@
+## [2.8.0](https://github.com/blueprint-chart/blueprint-chart/compare/v2.7.0...v2.8.0) (2026-11-06)
+
+### Features
+
+* **editor:** offer category colors as swatches in the color picker ([7e6758c](https://github.com/blueprint-chart/blueprint-chart/commit/7e6758cfb0ee5fa4340409761d1acfcbd47c82e7))
+* **editor:** use the shared color picker for category colors ([1b40f83](https://github.com/blueprint-chart/blueprint-chart/commit/1b40f835f1d35fcb7ebdd30cc35deb075ccb8386))
+* **ui:** replace vue-color with a built-in color picker ([5063ef2](https://github.com/blueprint-chart/blueprint-chart/commit/5063ef219c32977b1e46fedec77b0e666ef4bb6b))
+
 ## [2.7.0](https://github.com/blueprint-chart/blueprint-chart/compare/v2.6.0...v2.7.0) (2026-11-06)
 
 ### Features
