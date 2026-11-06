@@ -174,11 +174,10 @@ export function render(
   const lineAttrs = (r: DotPlotRow) => {
     const [start, end] = d3.extent(r.values).map(v => x(v!))
     const cy = rowY(r.name)
-    const firstX = x(r.values[0])
-    const lastX = x(r.values.at(-1)!)
+    const dir = Math.sign(r.values.at(-1)! - r.values[0])
     const arrows = options.arrows ?? ArrowDirection.None
-    const head = arrowhead(firstX, lastX, arrows === ArrowDirection.Forward || arrows === ArrowDirection.Both)
-    const tail = arrowhead(lastX, firstX, arrows === ArrowDirection.Backward || arrows === ArrowDirection.Both)
+    const head = arrowhead(dir > 0 ? end : start, dir, arrows === ArrowDirection.Forward || arrows === ArrowDirection.Both)
+    const tail = arrowhead(dir > 0 ? start : end, -dir, arrows === ArrowDirection.Backward || arrows === ArrowDirection.Both)
     return {
       'd': `M${start},${cy}L${end},${cy}${arrowheadPath(head, cy)}${arrowheadPath(tail, cy)}`,
       'fill': 'none',
@@ -275,9 +274,9 @@ export function render(
   }
 }
 
-function arrowhead(fromX: number, toX: number, enabled: boolean) {
-  const dir = enabled ? Math.sign(toX - fromX) : 0
-  const tipX = toX - dir * DOT_RADIUS
+function arrowhead(edgeX: number, direction: number, enabled: boolean) {
+  const dir = enabled ? direction : 0
+  const tipX = edgeX - dir * DOT_RADIUS
   return { tipX, armX: tipX - dir * ARROW_SIZE, armOffset: dir === 0 ? 0 : ARROW_SIZE }
 }
 

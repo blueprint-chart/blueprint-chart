@@ -129,6 +129,11 @@ describe('dot plot chart', () => {
     expect(container.querySelector('.bc-dot-line[data-key="a"]')!.getAttribute('d')).not.toContain('NaN')
   })
 
+  it('puts the forward arrowhead at the line end when the last column is in the middle', () => {
+    render(container, parseData('series = "2000","2010","2022"\n"a" = 10,30,20\n"b" = 0,40,5'), { arrows: ArrowDirection.Forward })
+    expect(head(container, 'a')[2]).toBeGreaterThan(dotX(container, 'a|2022'))
+  })
+
   it('ignores arrows in range mode', () => {
     render(container, RANGE, { ...RANGE_STYLE, arrows: ArrowDirection.Both })
     expect(container.querySelector('.bc-dot-line')).toBeNull()
