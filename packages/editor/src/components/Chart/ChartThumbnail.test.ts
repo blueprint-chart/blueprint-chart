@@ -133,4 +133,14 @@ describe('ChartThumbnail', () => {
     expect(wrapper.find('.chart-thumbnail').exists()).toBe(true)
   })
 
+  it('drops the chart once it leaves the viewport', async () => {
+    const wrapper = mountThumbnail(chart(''))
+    await flushPromises()
+    intersect(false)
+    await flushPromises()
+    expect(wrapper.find('.chart-card').exists()).toBe(false)
+    intersect(true)
+    await flushPromises()
+    expect(wrapper.find('.bc-frame').exists()).toBe(true)
+  })
 })

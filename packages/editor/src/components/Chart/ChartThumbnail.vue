@@ -18,16 +18,15 @@ const card = useTemplateRef<InstanceType<typeof ChartCard>>('card')
 const container = useTemplateRef<HTMLElement>('container')
 const cardEl = computed(() => card.value?.el)
 
+const seen = shallowRef(false)
 const visible = shallowRef(false)
-const { stop } = useIntersectionObserver(root, ([entry]) => {
-  if (entry?.isIntersecting) {
-    visible.value = true
-    stop()
-  }
+useIntersectionObserver(root, ([entry]) => {
+  visible.value = !!entry?.isIntersecting
+  seen.value ||= visible.value
 })
 
 const parsed = computed(() => {
-  if (!props.dsl || !visible.value) {
+  if (!props.dsl || !seen.value) {
     return null
   }
   try {
@@ -39,7 +38,7 @@ const parsed = computed(() => {
   }
 })
 
-const state = computed(() => parsed.value?.state)
+const state = computed(() => visible.value ? parsed.value?.state : null)
 const chartRender = computed(() => parsed.value?.render)
 const forceLight = computed(() => chartRender.value?.kind === 'chart' && !chartRender.value.allowDarkMode)
 

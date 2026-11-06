@@ -28,7 +28,7 @@ const results = computed<SavedChartSummary[]>(() => {
 
 const dsls = computed<Record<string, string>>(() => {
   const map: Record<string, string> = {}
-  for (const chart of charts.value) {
+  for (const chart of results.value) {
     const dsl = localStorage.getItem(storageKey(chart.id))
     if (dsl) {
       map[chart.id] = dsl
