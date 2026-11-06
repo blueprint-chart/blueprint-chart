@@ -1,3 +1,9 @@
+## [2.10.0](https://github.com/blueprint-chart/blueprint-chart/compare/v2.9.0...v2.10.0) (2026-11-06)
+
+### Features
+
+* **editor:** show palette actions like chart actions ([98ca84d](https://github.com/blueprint-chart/blueprint-chart/commit/98ca84d3af8a89bc4cd4cff9e1d05d1103037bb4))
+
 ## [2.9.0](https://github.com/blueprint-chart/blueprint-chart/compare/v2.8.0...v2.9.0) (2026-11-06)
 
 ### Features
