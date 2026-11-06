@@ -1,8 +1,6 @@
 import { DotStyle, ScaleType } from '../../../enums'
-import { nearest } from '../../../dsl/suggest'
 import type { ChartData } from '../../types'
-import { MAPPING_NONE } from '../scatter/mapping'
-import { columnNames, droppedRows, MAX_LISTED_ROWS } from '../scatter/issues'
+import { droppedRows, MAX_LISTED_ROWS, unknownColumns } from '../scatter/issues'
 import { resolveDotPlotMapping } from './mapping'
 import type { DotPlotMapping } from './mapping'
 import { buildDotPlotRows } from './rows'
@@ -25,17 +23,6 @@ const DROP_REASONS: Record<DotPlotDropReason, string> = {
 }
 
 const quoted = (names: string[]) => names.map(name => `"${name}"`).join(', ')
-
-function unknownColumns(data: ChartData, overrides: DotPlotMapping): DotPlotIssue[] {
-  const names = columnNames(data)
-  return MAPPING_KEYS.flatMap((key) => {
-    const name = overrides[key]
-    if (!name || name === MAPPING_NONE || names.includes(name)) {
-      return []
-    }
-    return [{ code: 'unknown-column', severity: 'warning' as const, key, message: `${key} names "${name}", which is not a column.`, suggestion: nearest(name, names) }]
-  })
-}
 
 function valuesOutsideRange(rows: { name: string, values: number[], low?: number, high?: number }[]): DotPlotIssue[] {
   const outside = rows.filter(({ values: [value], low = -Infinity, high = Infinity }) => value < Math.min(low, high) || value > Math.max(low, high))
@@ -66,7 +53,7 @@ export function dotPlotIssues(data: ChartData, overrides: DotPlotMapping, scaleT
   const resolved = resolveDotPlotMapping(data, overrides)
   const { rows, dropped } = buildDotPlotRows(data, resolved, scaleType)
   return [
-    ...unknownColumns(data, overrides),
+    ...unknownColumns(data, overrides, MAPPING_KEYS, 'warning'),
     ...missingRangeColumns(overrides, resolved.mode),
     ...droppedRows(dropped, DROP_REASONS),
     ...(resolved.mode === 'range' ? valuesOutsideRange(rows) : []),

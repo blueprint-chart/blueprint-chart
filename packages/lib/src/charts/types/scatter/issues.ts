@@ -35,14 +35,14 @@ export function columnNames(data: ChartData): string[] {
   return [...numericColumns(data), ...(data.textColumns ?? []).map(c => c.name)]
 }
 
-function unknownColumns(data: ChartData, overrides: ScatterMapping): ScatterIssue[] {
+export function unknownColumns<K extends string, S extends 'error' | 'warning'>(data: ChartData, overrides: Partial<Record<K, string>>, keys: readonly K[], severity: S) {
   const names = columnNames(data)
-  return MAPPING_KEYS.flatMap((key) => {
+  return keys.flatMap((key) => {
     const name = overrides[key]
     if (!name || name === MAPPING_NONE || names.includes(name)) {
       return []
     }
-    return [{ code: 'unknown-column', severity: 'error' as const, key, message: `${key} names "${name}", which is not a column.`, suggestion: nearest(name, names) }]
+    return [{ code: 'unknown-column', severity, key, message: `${key} names "${name}", which is not a column.`, suggestion: nearest(name, names) }]
   })
 }
 
@@ -76,7 +76,7 @@ function ignoredLogRanges(scaleTypes: ScaleTypes, ranges: Ranges): ScatterIssue[
 }
 
 export function scatterIssues(data: ChartData, overrides: ScatterMapping, scaleTypes: ScaleTypes, ranges: Ranges, trend?: string): ScatterIssue[] {
-  const unknown = unknownColumns(data, overrides)
+  const unknown = unknownColumns(data, overrides, MAPPING_KEYS, 'error')
   const mapping = resolveScatterMapping(data, overrides)
   if (!mapping.y) {
     return [...unknown, { code: 'scatter-missing-y', severity: 'error', key: 'y', message: 'Scatter needs at least two numeric columns.' }]

@@ -10,7 +10,7 @@ export interface DroppedRow { name: string, reason: DropReason }
 
 type ScaleTypes = { x?: ScaleType, y?: ScaleType }
 
-function numericColumn(data: ChartData, name?: string): number[] | undefined {
+export function numericColumn(data: ChartData, name?: string): number[] | undefined {
   if (!name) {
     return undefined
   }

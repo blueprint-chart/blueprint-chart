@@ -1,5 +1,6 @@
 import { ScaleType, SortMode } from '../../../enums'
 import type { ChartData } from '../../types'
+import { numericColumn } from '../scatter/points'
 import type { DotPlotMode, ResolvedDotPlot } from './mapping'
 
 export interface DotPlotRow { name: string, values: number[], low?: number, high?: number }
@@ -7,13 +8,6 @@ export interface DotPlotRow { name: string, values: number[], low?: number, high
 export type DotPlotDropReason = 'missing-value' | 'missing-range' | 'non-positive-log'
 
 type DroppedRow = { name: string, reason: DotPlotDropReason }
-
-function numericColumn(data: ChartData, name?: string): number[] {
-  if (!name) {
-    return []
-  }
-  return (data.series ? data.series.find(s => s.name === name)?.values : data.values) ?? []
-}
 
 function isNumber(value: number | undefined): value is number {
   return typeof value === 'number' && Number.isFinite(value)
@@ -31,9 +25,9 @@ function dropReason(row: DotPlotRow, resolved: ResolvedDotPlot, scaleType?: Scal
 }
 
 export function buildDotPlotRows(data: ChartData, resolved: ResolvedDotPlot, scaleType?: ScaleType): { rows: DotPlotRow[], dropped: DroppedRow[] } {
-  const columns = resolved.values.map(name => numericColumn(data, name))
-  const lows = numericColumn(data, resolved.low)
-  const highs = numericColumn(data, resolved.high)
+  const columns = resolved.values.map(name => numericColumn(data, name) ?? [])
+  const lows = numericColumn(data, resolved.low) ?? []
+  const highs = numericColumn(data, resolved.high) ?? []
   const rows: DotPlotRow[] = []
   const dropped: DroppedRow[] = []
 
