@@ -8,7 +8,9 @@ export {
   PaletteEntriesKey,
   IconRailEntriesKey,
   ToggleEntriesKey,
+  ColorSwatchGroupsKey,
 } from './composables/injection-keys'
+export type { ColorSwatchGroup } from './composables/injection-keys'
 export { useBreakpoint } from './composables/useBreakpoint'
 export { BOOTSTRAP_BREAKPOINTS } from './utils/bootstrapBreakpoints'
 export type { BootstrapBreakpoint } from './utils/bootstrapBreakpoints'
@@ -26,6 +28,7 @@ export { default as BcRing } from './components/Effect/BcRing/BcRing.vue'
 export { default as FormControlCheckbox } from './components/Form/FormControl/FormControlCheckbox.vue'
 export { default as FormControlColorInput } from './components/Form/FormControl/FormControlColorInput/FormControlColorInput.vue'
 export { default as FormControlColorInputPopover } from './components/Form/FormControl/FormControlColorInput/FormControlColorInputPopover.vue'
+export { default as FormControlColorInputPicker } from './components/Form/FormControl/FormControlColorInput/FormControlColorInputPicker.vue'
 export { default as FormControlDirectionPicker } from './components/Form/FormControl/FormControlDirectionPicker/FormControlDirectionPicker.vue'
 export { default as FormControlColorsInput } from './components/Form/FormControl/FormControlColorsInput.vue'
 export { default as FormControlButtonGroup } from './components/Form/FormControl/FormControlButtonGroup/FormControlButtonGroup.vue'

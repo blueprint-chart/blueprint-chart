@@ -1,4 +1,4 @@
-import type { Component, InjectionKey } from 'vue'
+import type { Component, InjectionKey, Ref } from 'vue'
 import type { ChildEntriesContext } from './useChildEntries'
 import type { FormControlDropdownOption } from '../components/Form/FormControl/FormControlDropdown/FormControlDropdown.vue'
 
@@ -21,3 +21,10 @@ export const IconRailEntriesKey: InjectionKey<
 export const ToggleEntriesKey: InjectionKey<
   ChildEntriesContext<{ value: string, text: string, icon?: Component, title?: string, disabled?: boolean }>
 > = Symbol('ToggleEntries')
+
+export interface ColorSwatchGroup {
+  label: string
+  swatches: readonly { name: string, color: string }[]
+}
+
+export const ColorSwatchGroupsKey: InjectionKey<Ref<ColorSwatchGroup[]>> = Symbol('ColorSwatchGroups')

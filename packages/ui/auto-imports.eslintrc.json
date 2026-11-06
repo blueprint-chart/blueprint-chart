@@ -2,6 +2,8 @@
   "globals": {
     "ButtonGroupEntriesKey": true,
     "ChildEntriesContext": true,
+    "ColorSwatchGroup": true,
+    "ColorSwatchGroupsKey": true,
     "Component": true,
     "ComponentPublicInstance": true,
     "ComputedRef": true,
@@ -200,6 +202,7 @@
     "useFullscreen": true,
     "useGamepad": true,
     "useGeolocation": true,
+    "useHexColorField": true,
     "useId": true,
     "useIdle": true,
     "useImage": true,

@@ -89,3 +89,13 @@ describe('FormControlColorInput validation', () => {
     expect(wrapper.emitted('update:modelValue')).toBeUndefined()
   })
 })
+
+describe('FormControlColorInput short hex', () => {
+  it('expands a 3-digit hex on change', async () => {
+    const wrapper = factory()
+    const input = wrapper.find('input')
+    input.element.value = '#f00'
+    await input.trigger('change')
+    expect(wrapper.emitted('update:modelValue')![0]).toEqual(['#ff0000'])
+  })
+})

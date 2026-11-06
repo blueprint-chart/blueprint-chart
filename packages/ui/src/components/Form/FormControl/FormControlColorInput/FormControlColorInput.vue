@@ -15,8 +15,8 @@
         :id="id"
         class="form-control form-control-color-input__wrapper__field"
         :value="model"
-        @input="onInput"
-        @change="onChange"
+        @input="onHexInput"
+        @change="onHexChange"
       >
     </div>
     <FormControlColorInputPopover
@@ -27,7 +27,7 @@
 </template>
 
 <script setup lang="ts">
-import { isHexColor } from '../../../../utils/isHexColor'
+import { useHexColorField } from '../../../../composables/useHexColorField'
 
 const model = defineModel<string>({ required: true })
 
@@ -38,22 +38,7 @@ defineProps<{
 
 const swatchRef = useTemplateRef<HTMLElement>('swatchRef')
 
-function onInput(e: Event) {
-  const value = (e.target as HTMLInputElement).value.trim()
-  if (isHexColor(value)) {
-    model.value = value
-  }
-}
-
-function onChange(e: Event) {
-  const value = (e.target as HTMLInputElement).value.trim()
-  if (isHexColor(value)) {
-    model.value = value
-  }
-  else {
-    (e.target as HTMLInputElement).value = model.value
-  }
-}
+const { onHexInput, onHexChange } = useHexColorField(model)
 </script>
 
 <style scoped lang="scss">

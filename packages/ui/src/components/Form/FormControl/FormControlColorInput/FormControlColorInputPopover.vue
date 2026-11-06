@@ -7,19 +7,13 @@
     strategy="fixed"
     :click="!manual"
     :manual="manual"
-    custom-class="color-picker-popover"
+    class="color-picker-popover"
   >
-    <div ref="contentRef">
-      <TwitterPicker
-        v-model="model"
-        triangle="hide"
-        class="mb-3"
-      />
-      <HueSlider
-        :model-value="hue"
-        class="color-picker-popover__hue"
-        @update:model-value="onHueChange"
-      />
+    <div
+      ref="contentRef"
+      class="form-control-color-input-popover"
+    >
+      <FormControlColorInputPicker v-model="model" />
     </div>
   </BPopover>
 </template>
@@ -27,8 +21,7 @@
 <script setup lang="ts">
 import type { OnClickOutsideOptions } from '@vueuse/core'
 import { BPopover } from 'bootstrap-vue-next'
-import { TwitterPicker, HueSlider, tinycolor } from 'vue-color'
-import 'vue-color/style.css'
+import FormControlColorInputPicker from './FormControlColorInputPicker.vue'
 
 const model = defineModel<string>({ required: true })
 
@@ -51,40 +44,14 @@ onClickOutside(contentRef, () => {
     open.value = false
   }
 }, clickOutsideOptions)
-
-const hue = computed(() => {
-  const tc = tinycolor(model.value)
-  return tc.toHsv().h
-})
-
-function onHueChange(h: number) {
-  const hex = tinycolor({ h, s: 1, v: 1 }).toHexString()
-  model.value = hex
-}
 </script>
 
-<style lang="scss">
-.color-picker-popover {
-  max-width: none;
+<style scoped lang="scss">
+:global(.popover.color-picker-popover) {
+  --bs-popover-max-width: none;
+}
 
-  .vc-twitter-picker {
-    width: 252px !important;
-    margin-right: -6px;
-    box-shadow: none !important;
-    border: none !important;
-    background: transparent !important;
-
-    .vc-editable-input {
-      float: right;
-    }
-
-    .body {
-      padding: 0;
-    }
-  }
-
-  &__hue {
-    max-width: 100%;
-  }
+.form-control-color-input-popover {
+  width: 15rem;
 }
 </style>
