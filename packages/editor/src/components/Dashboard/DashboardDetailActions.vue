@@ -1,16 +1,13 @@
 <template>
   <div class="dashboard-detail-actions">
-    <div class="dashboard-detail-actions__title">
-      Actions
-    </div>
-    <div class="dashboard-detail-actions__list">
-      <DashboardActionRow
+    <PanelActions>
+      <PanelActionRow
         :icon="IPhCopy"
         label="Duplicate"
         description="Create a copy to edit"
         @click="$emit('duplicate')"
       />
-      <DashboardActionRow
+      <PanelActionRow
         :icon="IPhTrash"
         label="Delete chart"
         :description="deleteHint"
@@ -18,7 +15,7 @@
         data-test="delete"
         @click="confirming = true"
       />
-    </div>
+    </PanelActions>
 
     <BModal
       v-model="confirming"
@@ -79,21 +76,7 @@ function onConfirm() {
 
 <style scoped lang="scss">
 .dashboard-detail-actions {
-  &__title {
-    font-size: var(--bs-font-size-xs);
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--bs-secondary-color);
-    margin-bottom: 0.625rem;
-    margin-top: 1rem;
-  }
-
-  &__list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.375rem;
-  }
+  margin-top: 1rem;
 
   &__confirm-text {
     font-size: var(--bs-font-size-sm);

@@ -1,20 +1,21 @@
 <template>
   <button
-    class="dashboard-action-row"
+    type="button"
+    class="panel-action-row"
     :class="actionClassList"
     @click="$emit('click')"
   >
     <component
       :is="icon"
-      class="dashboard-action-row__icon"
+      class="panel-action-row__icon"
     />
     <div>
-      <div class="dashboard-action-row__label">
+      <div class="panel-action-row__label">
         {{ label }}
       </div>
       <div
         v-if="description"
-        class="dashboard-action-row__description"
+        class="panel-action-row__description"
       >
         {{ description }}
       </div>
@@ -37,12 +38,12 @@ defineEmits<{
 }>()
 
 const actionClassList = computed(() => ({
-  'dashboard-action-row--danger': props.danger,
+  'panel-action-row--danger': props.danger,
 }))
 </script>
 
 <style scoped lang="scss">
-.dashboard-action-row {
+.panel-action-row {
   display: flex;
   align-items: center;
   gap: 0.625rem;
@@ -65,8 +66,8 @@ const actionClassList = computed(() => ({
       background: color-mix(in srgb, var(--bs-danger) 5%, transparent);
     }
 
-    .dashboard-action-row__icon,
-    .dashboard-action-row__label {
+    .panel-action-row__icon,
+    .panel-action-row__label {
       color: var(--bs-danger);
     }
   }
