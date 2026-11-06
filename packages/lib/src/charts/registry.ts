@@ -14,6 +14,7 @@ import {
   SymbolStyle,
   SortMode,
   DotStyle,
+  ArrowDirection,
   StackMode,
   SortDirection,
   Interpolation,
@@ -490,7 +491,18 @@ const dotStyleOpt: ChartOptionDef = {
     { value: DotStyle.Range, text: 'Range' },
   ],
 }
-const arrowsOpt: ChartOptionDef = { key: 'arrows', type: ChartOptionType.Boolean, label: 'Arrows', default: false }
+const arrowsOpt: ChartOptionDef = {
+  key: 'arrows',
+  type: ChartOptionType.Select,
+  label: 'Arrows',
+  default: ArrowDirection.None,
+  choices: [
+    { value: ArrowDirection.None, text: 'None' },
+    { value: ArrowDirection.Forward, text: 'Forward' },
+    { value: ArrowDirection.Backward, text: 'Backward' },
+    { value: ArrowDirection.Both, text: 'Both' },
+  ],
+}
 const dotPlotSortModeOpt: ChartOptionDef = {
   ...sortModeOpt,
   default: SortMode.Value,

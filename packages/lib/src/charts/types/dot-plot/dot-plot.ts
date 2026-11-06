@@ -16,7 +16,7 @@ import { buildColorOverrides } from '../../plugins/colorize'
 import { buildNumberFormatter } from '../../format-helpers'
 import { setCachedChart, getCachedChart } from '../../transition-cache'
 import { featureJoin, getSceneTransition, tweenPlotFrame, type PlotRect } from '../../../transitions'
-import { LabelPosition } from '../../../enums'
+import { ArrowDirection, LabelPosition } from '../../../enums'
 import { CATEGORY_LABEL_HEIGHT, categoryLabelLineHeight, categoryLabelsNeedTheirOwnLine } from '../../category-label-line'
 import { buildScatterScale } from '../scatter/scales'
 import { DEFAULT_COLORS } from '../line-multi/line-multi'
@@ -174,9 +174,13 @@ export function render(
   const lineAttrs = (r: DotPlotRow) => {
     const [start, end] = d3.extent(r.values).map(v => x(v!))
     const cy = rowY(r.name)
-    const { tipX, armX, armOffset } = arrowhead(x(r.values[0]), x(r.values.at(-1)!), options.arrows === true)
+    const firstX = x(r.values[0])
+    const lastX = x(r.values.at(-1)!)
+    const arrows = options.arrows ?? ArrowDirection.None
+    const head = arrowhead(firstX, lastX, arrows === ArrowDirection.Forward || arrows === ArrowDirection.Both)
+    const tail = arrowhead(lastX, firstX, arrows === ArrowDirection.Backward || arrows === ArrowDirection.Both)
     return {
-      'd': `M${start},${cy}L${end},${cy}M${armX},${cy - armOffset}L${tipX},${cy}L${armX},${cy + armOffset}`,
+      'd': `M${start},${cy}L${end},${cy}${arrowheadPath(head, cy)}${arrowheadPath(tail, cy)}`,
       'fill': 'none',
       'stroke': 'currentColor',
       'stroke-opacity': LINE_STROKE_OPACITY,
@@ -271,10 +275,14 @@ export function render(
   }
 }
 
-function arrowhead(firstX: number, lastX: number, enabled: boolean) {
-  const dir = enabled ? Math.sign(lastX - firstX) : 0
-  const tipX = lastX - dir * DOT_RADIUS
+function arrowhead(fromX: number, toX: number, enabled: boolean) {
+  const dir = enabled ? Math.sign(toX - fromX) : 0
+  const tipX = toX - dir * DOT_RADIUS
   return { tipX, armX: tipX - dir * ARROW_SIZE, armOffset: dir === 0 ? 0 : ARROW_SIZE }
+}
+
+function arrowheadPath({ tipX, armX, armOffset }: ReturnType<typeof arrowhead>, cy: number) {
+  return `M${armX},${cy - armOffset}L${tipX},${cy}L${armX},${cy + armOffset}`
 }
 
 function buildLabels(

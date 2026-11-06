@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll, beforeEach, afterEach, vi } from 'vitest'
 import { parseData } from '../../parse-data'
-import { DotStyle, ScaleType, SortMode } from '../../../enums'
+import { ArrowDirection, DotStyle, ScaleType, SortMode } from '../../../enums'
 import { HIGHLIGHT_DIM_OPACITY } from '../../plugins/highlight'
 import { render } from './dot-plot'
 
@@ -76,35 +76,61 @@ describe('dot plot chart', () => {
     expect(all(container, '.bc-dot')).toHaveLength(1)
   })
 
-  const head = (c: HTMLElement, row: string) => c.querySelector(`.bc-dot-line[data-key="${row}"]`)!.getAttribute('d')!.split('M')[2].match(/-?[\d.]+/g)!.map(Number)
+  const heads = (c: HTMLElement, row: string) => c.querySelector(`.bc-dot-line[data-key="${row}"]`)!.getAttribute('d')!.split('M').slice(2).map(h => h.match(/-?[\d.]+/g)!.map(Number))
+  const head = (c: HTMLElement, row: string) => heads(c, row)[0]
+  const tail = (c: HTMLElement, row: string) => heads(c, row)[1]
   const collapsed = (h: number[]) => h[0] === h[2] && h[1] === h[3] && h[4] === h[2] && h[5] === h[3]
+  const dotX = (c: HTMLElement, key: string) => Number(c.querySelector(`.bc-dot[data-key="${key}"]`)!.getAttribute('cx'))
 
-  it('keeps the arrowhead collapsed when arrows is off', () => {
+  it('keeps both arrowheads collapsed by default', () => {
     render(container, DUMBBELL, {})
     expect(collapsed(head(container, 'a'))).toBe(true)
+    expect(collapsed(tail(container, 'a'))).toBe(true)
   })
 
-  it('opens the arrowhead when arrows is on', () => {
-    render(container, DUMBBELL, { arrows: true })
+  it('keeps both arrowheads collapsed with none', () => {
+    render(container, DUMBBELL, { arrows: ArrowDirection.None })
+    expect(collapsed(head(container, 'a'))).toBe(true)
+    expect(collapsed(tail(container, 'a'))).toBe(true)
+  })
+
+  it('opens only the head at the last column going forward', () => {
+    render(container, DUMBBELL, { arrows: ArrowDirection.Forward })
     const h = head(container, 'a')
     expect(collapsed(h)).toBe(false)
     expect(h[1]).not.toBe(h[5])
+    expect(collapsed(tail(container, 'a'))).toBe(true)
   })
 
   it('points the arrow from the first column to the last, even when it decreases', () => {
-    render(container, DUMBBELL, { arrows: true })
+    render(container, DUMBBELL, { arrows: ArrowDirection.Forward })
     const h = head(container, 'b')
     expect(h[0]).toBeGreaterThan(h[2])
   })
 
-  it('keeps the arrowhead collapsed when first and last values are equal', () => {
-    render(container, parseData('series = "2015","2024"\n"a" = 10,10\n"b" = 1,2'), { arrows: true })
+  it('points the arrow back at the first column going backward', () => {
+    render(container, DUMBBELL, { arrows: ArrowDirection.Backward })
     expect(collapsed(head(container, 'a'))).toBe(true)
+    const t = tail(container, 'a')
+    expect(collapsed(t)).toBe(false)
+    expect(Math.abs(t[2] - dotX(container, 'a|2015'))).toBeLessThan(Math.abs(t[2] - dotX(container, 'a|2024')))
+  })
+
+  it('opens both arrowheads with both', () => {
+    render(container, DUMBBELL, { arrows: ArrowDirection.Both })
+    expect(collapsed(head(container, 'a'))).toBe(false)
+    expect(collapsed(tail(container, 'a'))).toBe(false)
+  })
+
+  it('keeps the arrowheads collapsed when first and last values are equal', () => {
+    render(container, parseData('series = "2015","2024"\n"a" = 10,10\n"b" = 1,2'), { arrows: ArrowDirection.Both })
+    expect(collapsed(head(container, 'a'))).toBe(true)
+    expect(collapsed(tail(container, 'a'))).toBe(true)
     expect(container.querySelector('.bc-dot-line[data-key="a"]')!.getAttribute('d')).not.toContain('NaN')
   })
 
   it('ignores arrows in range mode', () => {
-    render(container, RANGE, { ...RANGE_STYLE, arrows: true })
+    render(container, RANGE, { ...RANGE_STYLE, arrows: ArrowDirection.Both })
     expect(container.querySelector('.bc-dot-line')).toBeNull()
   })
 

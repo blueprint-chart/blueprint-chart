@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest'
 import { parseData } from '../../parse-data'
 import { getSceneTransition } from '../../../transitions'
-import { DotStyle, SortMode } from '../../../enums'
+import { ArrowDirection, DotStyle, SortMode } from '../../../enums'
 import { HIGHLIGHT_DIM_OPACITY } from '../../plugins/highlight'
 import { render as renderBarVertical } from '../bar-vertical/bar-vertical'
 import { render } from './dot-plot'
@@ -67,10 +67,10 @@ describe('dot plot scene transitions', () => {
 
   it('glides a dumbbell line, arrowhead included, when a gap opens', async () => {
     const orch = getSceneTransition(container)
-    render(container, parseData('series = "2015","2024"\n"a" = 10,10\n"b" = 1,2'), { arrows: true })
+    render(container, parseData('series = "2015","2024"\n"a" = 10,10\n"b" = 1,2'), { arrows: ArrowDirection.Forward })
     const line = container.querySelector('.bc-dot-line[data-key="a"]')!
     const start = line.getAttribute('d')
-    orch.run(() => render(container, parseData('series = "2015","2024"\n"a" = 10,30\n"b" = 1,2'), { arrows: true }, true), { duration: 1500 })
+    orch.run(() => render(container, parseData('series = "2015","2024"\n"a" = 10,30\n"b" = 1,2'), { arrows: ArrowDirection.Forward }, true), { duration: 1500 })
     await wait(150)
     const mid = line.getAttribute('d')
     await wait(1700)

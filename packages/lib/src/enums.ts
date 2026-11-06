@@ -172,6 +172,13 @@ export enum SortDirection {
   None = 'none',
 }
 
+export enum ArrowDirection {
+  None = 'none',
+  Forward = 'forward',
+  Backward = 'backward',
+  Both = 'both',
+}
+
 export enum DotStyle {
   Dumbbell = 'dumbbell',
   Range = 'range',

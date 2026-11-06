@@ -3,7 +3,7 @@ chart dot-plot {
   description = "Life expectancy at birth in years, 2000 and 2022, for 10 countries"
   source = "World Bank, World Development Indicators"
   sourceUrl = "https://data.worldbank.org/indicator/SP.DYN.LE00.IN"
-  arrows = true
+  arrows = "forward"
   sortMode = "gap"
 
   data {

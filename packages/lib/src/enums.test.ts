@@ -20,6 +20,7 @@ import {
   SortDirection,
   SortMode,
   DotStyle,
+  ArrowDirection,
   LegendPosition,
   Anchor,
   ValueLabelPosition,
@@ -262,6 +263,12 @@ describe('SortDirection', () => {
 describe('DotStyle', () => {
   it('has dumbbell and range', () => {
     expect(enumValues(DotStyle)).toEqual(['dumbbell', 'range'])
+  })
+})
+
+describe('ArrowDirection', () => {
+  it('has none, forward, backward and both', () => {
+    expect(enumValues(ArrowDirection)).toEqual(['none', 'forward', 'backward', 'both'])
   })
 })
 

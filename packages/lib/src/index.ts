@@ -20,6 +20,7 @@ export {
   SortDirection,
   SortMode,
   DotStyle,
+  ArrowDirection,
   LegendPosition,
   Anchor,
   ValueLabelPosition,

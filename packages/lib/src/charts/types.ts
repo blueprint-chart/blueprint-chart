@@ -14,6 +14,7 @@ import type {
   SortDirection,
   SortMode,
   DotStyle,
+  ArrowDirection,
   LegendPosition,
   Anchor,
   ValueLabelPosition,
@@ -250,7 +251,7 @@ export interface ChartOptions {
   dotStyle?: DotStyle
   low?: string
   high?: string
-  arrows?: boolean
+  arrows?: ArrowDirection
 }
 
 export type ChartRenderer = (
@@ -350,7 +351,7 @@ export interface ChartTypeOptions {
   dotStyle: DotStyle
   low: string
   high: string
-  arrows: boolean
+  arrows: ArrowDirection
 }
 
 export type ChartTypeOptionKey = keyof ChartTypeOptions
