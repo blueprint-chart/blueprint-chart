@@ -44,7 +44,7 @@ describe('EditorDotPlotSettings', () => {
 
   it('switches the style explicitly', async () => {
     currentOptions.value = {}
-    const group = mount(EditorDotPlotSettings).findComponent({ name: 'FormControlButtonGroup' })
+    const group = mount(EditorDotPlotSettings).findAllComponents({ name: 'FormControlButtonGroup' }).find(g => g.classes('editor-dot-plot-settings__style'))!
     expect(group.props('modelValue')).toBe('dumbbell')
     await group.vm.$emit('update:modelValue', 'range')
     expect(setOption).toHaveBeenCalledWith('dotStyle', 'range')
@@ -60,10 +60,29 @@ describe('EditorDotPlotSettings', () => {
     expect(mount(EditorDotPlotSettings).find('#dot-plot-high option').text()).toBe('None (auto)')
   })
 
-  it('toggles arrows', async () => {
-    currentOptions.value = {}
-    const wrapper = mount(EditorDotPlotSettings)
-    await wrapper.find('.editor-dot-plot-settings__arrows input').setValue(true)
-    expect(setOption).toHaveBeenCalledWith('arrows', true)
+  describe('arrows', () => {
+    const arrowsGroup = (wrapper: ReturnType<typeof mount>) => wrapper.findAllComponents({ name: 'FormControlButtonGroup' }).find(group => group.classes('editor-dot-plot-settings__arrows'))!
+    const entryTexts = (wrapper: ReturnType<typeof mount>) => arrowsGroup(wrapper).findAllComponents({ name: 'FormControlButtonGroupEntry' }).map(entry => entry.props('text'))
+
+    beforeEach(() => {
+      currentOptions.value = {}
+      data.value = 'series = "2015","2024"\n"a" = 1,2'
+    })
+
+    it('labels the directions without column names', () => {
+      expect(entryTexts(mount(EditorDotPlotSettings))).toEqual(['None', 'Forward', 'Backward', 'Both'])
+    })
+
+    it('gives every direction an icon', () => {
+      const icons = arrowsGroup(mount(EditorDotPlotSettings)).findAllComponents({ name: 'FormControlButtonGroupEntry' }).map(entry => entry.props('iconLeft'))
+      expect(icons.every(Boolean)).toBe(true)
+    })
+
+    it('stores the picked direction', async () => {
+      const group = arrowsGroup(mount(EditorDotPlotSettings))
+      expect(group.props('modelValue')).toBe('none')
+      await group.vm.$emit('update:modelValue', 'backward')
+      expect(setOption).toHaveBeenCalledWith('arrows', 'backward')
+    })
   })
 })

@@ -81,7 +81,7 @@ test.describe('dot plot authoring', () => {
     }
     const firstLine = page.locator(lines).first()
     expect(collapsed((await firstLine.getAttribute('d'))!)).toBe(true)
-    await page.locator('.editor-dot-plot-settings__arrows label').click()
+    await page.locator('.editor-dot-plot-settings__arrows').getByRole('button', { name: 'Forward' }).click()
     await expect.poll(async () => collapsed((await firstLine.getAttribute('d'))!)).toBe(false)
 
     await page.locator('.editor-dot-plot-settings__style').getByRole('button', { name: 'Range' }).click()

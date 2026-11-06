@@ -1,12 +1,23 @@
 <script setup lang="ts">
-import { FormControlButtonGroup, FormControlButtonGroupEntry, FormControlCheckbox } from '@blueprint-chart/ui'
-import { detectRangeColumn, DotStyle, numericColumns, parseData } from '@blueprint-chart/lib'
+import { FormControlButtonGroup, FormControlButtonGroupEntry } from '@blueprint-chart/ui'
+import { ArrowDirection, detectRangeColumn, DotStyle, numericColumns, parseData } from '@blueprint-chart/lib'
+import IPhArrowLeft from '~icons/ph/arrow-left'
+import IPhArrowRight from '~icons/ph/arrow-right'
+import IPhArrowsLeftRight from '~icons/ph/arrows-left-right'
+import IPhMinus from '~icons/ph/minus'
 import { useChartConfig } from '@/stores/chartConfig'
 import { useChartTypeOptions } from '@/stores/chartTypeOptions'
 
 type RangeRole = 'low' | 'high'
 
 const ROLE_LABELS: Record<RangeRole, string> = { low: 'Low column', high: 'High column' }
+
+const ARROW_ENTRIES = [
+  { value: ArrowDirection.None, text: 'None', icon: IPhMinus },
+  { value: ArrowDirection.Forward, text: 'Forward', icon: IPhArrowRight },
+  { value: ArrowDirection.Backward, text: 'Backward', icon: IPhArrowLeft },
+  { value: ArrowDirection.Both, text: 'Both', icon: IPhArrowsLeftRight },
+]
 
 const { data } = useChartConfig()
 const { currentOptions, setOption } = useChartTypeOptions()
@@ -70,12 +81,21 @@ function buildField(role: RangeRole, detected?: string) {
       </BFormGroup>
     </template>
 
-    <FormControlCheckbox
+    <FormControlButtonGroup
       v-else
       class="editor-dot-plot-settings__arrows"
-      :model-value="currentOptions.arrows ?? false"
+      :model-value="currentOptions.arrows ?? ArrowDirection.None"
       label="Arrows"
-      @update:model-value="(value) => setOption('arrows', value)"
-    />
+      block
+      @update:model-value="(value: string) => setOption('arrows', value as ArrowDirection)"
+    >
+      <FormControlButtonGroupEntry
+        v-for="entry in ARROW_ENTRIES"
+        :key="entry.value"
+        :value="entry.value"
+        :text="entry.text"
+        :icon-left="entry.icon"
+      />
+    </FormControlButtonGroup>
   </div>
 </template>
