@@ -38,7 +38,7 @@ export interface CloudChartInput {
 }
 
 export const useCloudChartsStore = defineStore('cloudCharts', () => {
-  async function listCloud(): Promise<CloudChartSummary[]> {
+  async function listCloud(owner: string): Promise<CloudChartSummary[]> {
     const client = await getSupabaseClient()
     if (!client) {
       return []
@@ -46,6 +46,7 @@ export const useCloudChartsStore = defineStore('cloudCharts', () => {
     const { data, error } = await client
       .from('charts')
       .select('id, title, chart_type, published, updated_at')
+      .eq('owner', owner)
       .order('updated_at', { ascending: false })
     if (error || !data) {
       return []

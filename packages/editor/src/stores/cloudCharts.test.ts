@@ -42,13 +42,14 @@ describe('useCloudCharts', () => {
     vi.spyOn(clientModule, 'getSupabaseClient').mockResolvedValue(client as never)
   })
 
-  it('lists cloud charts ordered by updated_at', async () => {
+  it('lists the given owner cloud charts ordered by updated_at', async () => {
     client.__state.rows = [
       { id: 'aaaaaaaaaaa', title: 'One', chart_type: 'bar', published: false, updated_at: '2026-01-02' },
     ]
     const store = useCloudCharts()
-    const list = await store.listCloud()
-    expect(client.from).toHaveBeenCalledWith('charts')
+    const list = await store.listCloud('me')
+    const builder = client.from() as unknown as { eq: ReturnType<typeof vi.fn> }
+    expect(builder.eq).toHaveBeenCalledWith('owner', 'me')
     expect(list).toEqual([
       { id: 'aaaaaaaaaaa', title: 'One', chartType: 'bar', published: false, updatedAt: '2026-01-02' },
     ])

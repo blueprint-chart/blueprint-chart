@@ -80,7 +80,7 @@ const SORTS: Record<string, (a: UnifiedChartSummary, b: UnifiedChartSummary) => 
 export function useDashboardCharts() {
   const session = useChartSession()
   const cloud = useCloudCharts()
-  const { cloudEnabled: showCloud } = useAccount()
+  const { cloudEnabled: showCloud, user } = useAccount()
   const wait = useWait()
 
   const charts = ref<UnifiedChartSummary[]>([])
@@ -104,7 +104,7 @@ export function useDashboardCharts() {
     wait.start('dashboard-charts')
     let cloudList: CloudChartSummary[]
     try {
-      cloudList = showCloud.value ? await cloud.listCloud() : []
+      cloudList = showCloud.value && user.value ? await cloud.listCloud(user.value.id) : []
     }
     finally {
       wait.end('dashboard-charts')
