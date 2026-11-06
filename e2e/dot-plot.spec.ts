@@ -49,6 +49,12 @@ const dots = `${frame} circle.bc-dot`
 const ranges = `${frame} rect.bc-dot-range`
 const lines = `${frame} path.bc-dot-line`
 
+const expectOnlySpdLit = (page: import('@playwright/test').Page, selector: string, count: number) =>
+  expect.poll(async () => {
+    const marks = await opacities(page, selector)
+    return marks.length === count ? marks.filter(([row, opacity]) => opacity !== (row === 'SPD' ? '1' : '0.35')) : 'wrong count'
+  }).toEqual([])
+
 const opacities = (page: import('@playwright/test').Page, selector: string) =>
   page.locator(selector).evaluateAll(marks => marks.map(mark => [mark.getAttribute('data-key')!.split('|')[0], mark.getAttribute('opacity')]))
 
@@ -79,14 +85,15 @@ test.describe('dot plot authoring', () => {
     await page.locator('.editor-dot-plot-settings__arrows label').click()
     await expect.poll(async () => collapsed((await firstLine.getAttribute('d'))!)).toBe(false)
 
+    await page.locator('#dot-plot-low').selectOption({ value: '' })
+    await expect(page.locator(ranges)).toHaveCount(6)
+
     await page.locator('[aria-label="Annotate"]').click()
     await page.locator('.form-control-checkbox', { hasText: 'Highlight specific items' }).locator('label').click()
     await page.locator('.list-item-row', { hasText: 'SPD' }).first().click()
 
-    await expect.poll(async () => (await opacities(page, dots)).filter(([row, opacity]) => row !== 'SPD' && opacity === '0.35').length).toBeGreaterThan(0)
-    for (const [row, opacity] of await opacities(page, dots)) {
-      expect(opacity, `dot ${row}`).toBe(row === 'SPD' ? '1' : '0.35')
-    }
+    await expectOnlySpdLit(page, dots, 6)
+    await expectOnlySpdLit(page, ranges, 6)
   })
 })
 
@@ -100,11 +107,8 @@ test.describe('dot plot scenes', () => {
   test('the highlight dims the other rows and the next scene clears it', async ({ page }) => {
     await page.locator('.bc-frame [aria-label="Next scene"]').click()
     await expect(page.locator('.bc-frame')).toContainText('SPD in focus')
-    await expect.poll(async () => (await opacities(page, ranges)).map(([, opacity]) => opacity))
-      .toEqual(PARTIES.map(row => row === 'SPD' ? '1' : '0.35'))
-    for (const [row, opacity] of await opacities(page, dots)) {
-      expect(opacity, `dot ${row}`).toBe(row === 'SPD' ? '1' : '0.35')
-    }
+    await expectOnlySpdLit(page, dots, 6)
+    await expectOnlySpdLit(page, ranges, 6)
 
     await page.locator('.bc-frame [aria-label="Next scene"]').click()
     await expect(page.locator('.bc-frame')).toContainText('A month later')

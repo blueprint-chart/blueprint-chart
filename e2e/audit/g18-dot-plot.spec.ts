@@ -7,8 +7,8 @@ import { gotoRender } from '../support/render'
 const samples = resolve(dirname(fileURLToPath(import.meta.url)), '../../packages/lib/src/samples')
 
 const VARIANTS = [
-  { name: 'election-polls', dots: 6, legend: [] as string[] },
-  { name: 'life-expectancy-gains', dots: 20, legend: ['2000', '2022'] },
+  { name: 'election-polls', dots: 6, shape: 'rect.bc-dot-range', shapes: 6, legend: [] as string[] },
+  { name: 'life-expectancy-gains', dots: 20, shape: 'path.bc-dot-line', shapes: 10, legend: ['2000', '2022'] },
 ].map(variant => ({ ...variant, bpc: readFileSync(resolve(samples, `${variant.name}.bpc`), 'utf-8') }))
 
 const shapes = {
@@ -18,13 +18,17 @@ const shapes = {
 }
 
 for (const theme of ['light', 'dark']) {
-  for (const { name, bpc, dots, legend } of VARIANTS) {
+  for (const { name, bpc, dots, shape, shapes: shapeCount, legend } of VARIANTS) {
     test.describe(`G18 dot plot: ${name}, ${theme} theme`, () => {
       test.beforeEach(async ({ page }) => {
         await page.addInitScript(mode => localStorage.setItem('bc-theme', JSON.stringify({ theme: mode })), theme)
         await gotoRender(page, bpc)
         await expect(page.locator('.bc-frame circle.bc-dot')).toHaveCount(dots)
         await expect.poll(() => page.evaluate(() => document.documentElement.getAttribute('data-bs-theme'))).toBe(theme)
+      })
+
+      test('the sample renders its range bars or lines', async ({ page }) => {
+        await expect(page.locator(`.bc-frame ${shape}`)).toHaveCount(shapeCount)
       })
 
       test('no dot, line or range geometry is NaN or empty', async ({ page }) => {
