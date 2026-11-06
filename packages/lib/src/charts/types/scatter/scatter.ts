@@ -83,6 +83,7 @@ export function render(
   const cached = transition ? getCachedChart(container) : undefined
   let priorTrends: Element[] = []
   let priorPoints: Element[] = []
+  let priorLabels: Element[] = []
   let fadeOverlay: HTMLElement | null = null
   let priorAnnotations: Map<string, AnnotationSnapshot> | undefined
   if (transition) {
@@ -90,6 +91,7 @@ export function render(
     if (cached?.chartType === 'scatter') {
       priorTrends = Array.from(container.querySelectorAll('.bc-frame .bc-trend-line'))
       priorPoints = Array.from(container.querySelectorAll('.bc-frame .bc-scatter-point'))
+      priorLabels = Array.from(container.querySelectorAll('.bc-frame .bc-point-label'))
     }
     else if (cached) {
       fadeOverlay = snapshotForFadeOut(container)
@@ -229,19 +231,26 @@ export function render(
   const labelled = labelledPoints(points, highlighted, options)
   const labels = placePointLabels(labelled.map(p => ({ key: p.name, text: p.name, cx: x(p.x), cy: y(p.y), r: radius(p) })), { width, height }, LABEL_FONT_PX)
   // Outside the plot clip so a label near the edge is not sliced.
-  d3.select(chartArea).append('g')
-    .selectAll('text')
-    .data(labels)
-    .join('text')
-    .attr('class', 'bc-point-label')
-    .attr('data-key', l => l.key)
-    .attr('x', l => l.x)
-    .attr('y', l => l.y)
-    .attr('text-anchor', l => l.anchor)
-    .attr('dominant-baseline', 'central')
-    .attr('font-size', LABEL_FONT_PX)
-    .attr('fill', 'currentColor')
-    .text(l => l.key)
+  const labelLayer = d3.select(chartArea).append('g').node() as SVGGElement
+  labelLayer.append(...priorLabels)
+  const labelAttrs = (l: typeof labels[number]) => ({ 'x': l.x, 'y': l.y, 'text-anchor': l.anchor, 'opacity': 1 })
+  featureJoin(orch, {
+    role: 'value-label',
+    parent: labelLayer,
+    selector: '.bc-point-label',
+    data: labels,
+    key: l => l.key,
+    insert: sel => sel.append('text')
+      .attr('class', 'bc-point-label')
+      .attr('data-key', l => l.key)
+      .attr('dominant-baseline', 'central')
+      .attr('font-size', LABEL_FONT_PX)
+      .attr('fill', 'currentColor')
+      .text(l => l.key),
+    attrs: labelAttrs,
+    enterFrom: l => ({ ...labelAttrs(l), opacity: 0 }),
+    exitTo: () => ({ opacity: 0 }),
+  })
 
   if (options.annotations?.length) {
     const annotationData = points.map(p => ({ label: p.name, value: p.y, x: p.x }))

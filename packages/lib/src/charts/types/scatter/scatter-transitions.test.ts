@@ -49,6 +49,21 @@ describe('scatter scene transitions', () => {
     expect(after.getAttribute('cx')).not.toBe(cx0)
   })
 
+  it('slides a point label along with its bubble', async () => {
+    render(container, DATA, { showLabels: true })
+    const before = container.querySelector('.bc-point-label[data-key="France"]')!
+    const x0 = Number(before.getAttribute('x'))
+    getSceneTransition(container).run(() => render(container, SCENE_2, { showLabels: true }, true), { duration: 300 })
+    const after = container.querySelector('.bc-point-label[data-key="France"]')!
+    expect(after).toBe(before)
+    await wait(150)
+    const mid = Number(after.getAttribute('x'))
+    await wait(400)
+    const x1 = Number(after.getAttribute('x'))
+    expect(mid).not.toBe(x0)
+    expect(mid).not.toBe(x1)
+  })
+
   it('enters new points and removes exited ones', () => {
     render(container, DATA, {})
     render(container, SCENE_2, {}, true)
