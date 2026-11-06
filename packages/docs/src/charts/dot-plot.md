@@ -82,7 +82,14 @@ chart dot-plot {
 
 ## Arrows
 
-`arrows = true` draws the row line as an arrow from the first value column to the last one, in series order. With `series = "2015","2024"` the arrow points from 2015 to 2024, whichever is larger. Arrows apply to dumbbells only and are ignored in range style. They are off by default.
+`arrows` turns the row line into an arrow. Directions follow the series order, not the values, so with `series = "2015","2024"` a forward arrow points from 2015 to 2024 whichever is larger.
+
+- `none` (default): a plain line.
+- `forward`: an arrowhead at the last column, pointing away from the first.
+- `backward`: an arrowhead at the first column, pointing away from the last.
+- `both`: arrowheads at both ends.
+
+Arrows apply to dumbbells only and are ignored in range style.
 
 ## Sorting
 
@@ -123,7 +130,7 @@ chart dot-plot {
   description = "Life expectancy at birth in years, 2000 and 2022, for 10 countries"
   source = "World Bank, World Development Indicators"
   sourceUrl = "https://data.worldbank.org/indicator/SP.DYN.LE00.IN"
-  arrows = true
+  arrows = "forward"
   sortMode = "gap"
 
   data {
@@ -180,7 +187,7 @@ Every property `dot-plot` accepts, beside the [frame and layout keys](/reference
 | `dotStyle` | select: `dumbbell`, `range` | `dumbbell` |
 | `low` | text | `""` |
 | `high` | text | `""` |
-| `arrows` | boolean | `false` |
+| `arrows` | select: `none`, `forward`, `backward`, `both` | `none` |
 | `sortMode` | select: `none`, `value`, `gap` | `value` |
 | `legend` | boolean | `true` |
 | `legendPosition` | select: `top`, `bottom`, `left`, `right` | `top` |
