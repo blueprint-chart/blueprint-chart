@@ -104,7 +104,8 @@ export function useDashboardCharts() {
     wait.start('dashboard-charts')
     let cloudList: CloudChartSummary[]
     try {
-      cloudList = showCloud.value && user.value ? await cloud.listCloud(user.value.id) : []
+      const owner = showCloud.value ? user.value?.id : undefined
+      cloudList = owner === undefined ? [] : await cloud.listCloud(owner)
     }
     finally {
       wait.end('dashboard-charts')

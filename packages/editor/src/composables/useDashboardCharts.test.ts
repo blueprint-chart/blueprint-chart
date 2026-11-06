@@ -44,7 +44,9 @@ describe('mergeChartLists', () => {
 })
 
 import { useDashboardCharts } from './useDashboardCharts'
-import { useCloudCharts } from '@/stores/cloudCharts'
+import { useCloudCharts, useCloudChartsStore } from '@/stores/cloudCharts'
+import { useAccountStore } from '@/stores/account'
+import * as runtimeConfig from '@/config/runtimeConfig'
 import * as clientModule from '@/lib/supabaseClient'
 
 /** Minimal chainable Supabase mock; upsert/delete chains resolve { error: null }. */
@@ -100,6 +102,16 @@ describe('useDashboardCharts actions', () => {
     expect(client.__builder.delete).toHaveBeenCalled()
     expect(localStorage.getItem('blueprint-chart:localid0002')).toBeNull()
     expect(useCloudCharts().isCloudBacked('localid0002')).toBe(false)
+  })
+
+  it('refresh lists the signed-in user cloud charts only', async () => {
+    vi.spyOn(runtimeConfig, 'accountsEnabled').mockReturnValue(true)
+    useAccountStore().user = { id: 'me' } as never
+    const listCloud = vi.spyOn(useCloudChartsStore(), 'listCloud').mockResolvedValue([])
+
+    await useDashboardCharts().refresh()
+
+    expect(listCloud).toHaveBeenCalledExactlyOnceWith('me')
   })
 
   it('remove of a local-only chart never calls the cloud', async () => {

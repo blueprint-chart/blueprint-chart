@@ -38,20 +38,22 @@ export interface CloudChartInput {
 }
 
 export const useCloudChartsStore = defineStore('cloudCharts', () => {
-  async function listCloud(owner: string): Promise<CloudChartSummary[]> {
+  async function selectOwned(owner: string, columns: string): Promise<Record<string, unknown>[]> {
     const client = await getSupabaseClient()
     if (!client) {
       return []
     }
     const { data, error } = await client
       .from('charts')
-      .select('id, title, chart_type, published, updated_at')
+      .select(columns)
       .eq('owner', owner)
       .order('updated_at', { ascending: false })
-    if (error || !data) {
-      return []
-    }
-    return data.map(row => ({
+    return error || !data ? [] : data as unknown as Record<string, unknown>[]
+  }
+
+  async function listCloud(owner: string): Promise<CloudChartSummary[]> {
+    const rows = await selectOwned(owner, 'id, title, chart_type, published, updated_at')
+    return rows.map(row => ({
       id: row.id as string,
       title: (row.title as string) ?? '',
       chartType: (row.chart_type as string) ?? '',
@@ -61,15 +63,8 @@ export const useCloudChartsStore = defineStore('cloudCharts', () => {
   }
 
   async function listCloudCharts(owner: string): Promise<{ id: string, dsl: string, meta: Record<string, unknown> }[]> {
-    const client = await getSupabaseClient()
-    if (!client) {
-      return []
-    }
-    const { data, error } = await client.from('charts').select('id, dsl, meta').eq('owner', owner)
-    if (error || !data) {
-      return []
-    }
-    return data.map(row => ({
+    const rows = await selectOwned(owner, 'id, dsl, meta')
+    return rows.map(row => ({
       id: row.id as string,
       dsl: (row.dsl as string) ?? '',
       meta: (row.meta as Record<string, unknown>) ?? {},

@@ -42,25 +42,31 @@ describe('useCloudCharts', () => {
     vi.spyOn(clientModule, 'getSupabaseClient').mockResolvedValue(client as never)
   })
 
+  function ownedRows(owner: string, rows: Record<string, unknown>[]) {
+    const builder = client.from() as unknown as Record<string, ReturnType<typeof vi.fn>>
+    client.from.mockClear()
+    const owned = { order: vi.fn(() => Promise.resolve({ data: rows, error: null })) }
+    builder.order.mockResolvedValue({ data: [], error: null })
+    builder.eq.mockImplementation((column: string, value: string) => (column === 'owner' && value === owner ? owned : builder))
+    return owned
+  }
+
   it('lists the given owner cloud charts ordered by updated_at', async () => {
-    client.__state.rows = [
+    const owned = ownedRows('me', [
       { id: 'aaaaaaaaaaa', title: 'One', chart_type: 'bar', published: false, updated_at: '2026-01-02' },
-    ]
-    const store = useCloudCharts()
-    const list = await store.listCloud('me')
-    const builder = client.from() as unknown as { eq: ReturnType<typeof vi.fn> }
-    expect(builder.eq).toHaveBeenCalledWith('owner', 'me')
+    ])
+    const list = await useCloudCharts().listCloud('me')
+    expect(client.from).toHaveBeenCalledExactlyOnceWith('charts')
+    expect(owned.order).toHaveBeenCalledWith('updated_at', { ascending: false })
     expect(list).toEqual([
       { id: 'aaaaaaaaaaa', title: 'One', chartType: 'bar', published: false, updatedAt: '2026-01-02' },
     ])
   })
 
   it('lists the DSL and meta of the given owner charts only', async () => {
-    client.__state.updateResult = { data: [{ id: 'aaaaaaaaaaa', dsl: 'chart bar {}', meta: null }], error: null }
-    const store = useCloudCharts()
-    const charts = await store.listCloudCharts('me')
-    const builder = client.from() as unknown as { eq: ReturnType<typeof vi.fn> }
-    expect(builder.eq).toHaveBeenCalledWith('owner', 'me')
+    ownedRows('me', [{ id: 'aaaaaaaaaaa', dsl: 'chart bar {}', meta: null }])
+    const charts = await useCloudCharts().listCloudCharts('me')
+    expect(client.from).toHaveBeenCalledExactlyOnceWith('charts')
     expect(charts).toEqual([{ id: 'aaaaaaaaaaa', dsl: 'chart bar {}', meta: {} }])
   })
 
