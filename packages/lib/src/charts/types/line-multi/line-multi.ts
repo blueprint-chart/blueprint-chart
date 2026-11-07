@@ -23,7 +23,8 @@ import { expandColorsToSeries, resolveSeriesColor, resolveSeriesDash, resolveSer
 import { highlightTargetSet, highlightOpacity } from '../../plugins/highlight'
 import { buildColorOverrides } from '../../plugins/colorize'
 import type { LineSymbolConfig } from '../../types'
-import { SymbolShape, SymbolShowOn, SymbolStyle } from '../../../enums'
+import { SymbolShape, SymbolShowOn, SymbolStyle, SortMode, SortDirection } from '../../../enums'
+import { sortByValue } from '../../sort-helpers'
 import { spreadLabels } from '../../plugins/arc-labels'
 import { DEFAULT_COLORS } from '../../palettes'
 
@@ -87,13 +88,8 @@ export function render(
   const allSeries = data.series ?? []
   let series = allSeries.filter(s => !isSeriesHidden(s.name, options.seriesOverrides))
 
-  // Sort series by total values when sortMode is 'total' or 'within-groups'
-  if (options.sortMode === 'total' || options.sortMode === 'within-groups') {
-    series = [...series].sort((a, b) => {
-      const totalA = a.values.reduce((sum, v) => sum + v, 0)
-      const totalB = b.values.reduce((sum, v) => sum + v, 0)
-      return totalB - totalA
-    })
+  if (options.sortMode === SortMode.Total || options.sortMode === SortMode.WithinGroups) {
+    series = sortByValue(series, s => s.values.reduce((sum, v) => sum + v, 0), SortDirection.Descending)
   }
 
   const colors = expandColorsToSeries(options.colors ?? DEFAULT_COLORS, allSeries.length)

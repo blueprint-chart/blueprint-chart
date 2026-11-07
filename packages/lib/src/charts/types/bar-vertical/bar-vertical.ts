@@ -16,7 +16,8 @@ import { setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut } from '
 import { getCachedChart, setCachedChart } from '../../transition-cache'
 import { ensureClipPath } from '../../clip-path-helper'
 import { createPluginHost } from '../../plugins/plugin-host'
-import { SortDirection, ValueLabelPosition, LabelPosition } from '../../../enums'
+import { ValueLabelPosition, LabelPosition } from '../../../enums'
+import { sortByValue } from '../../sort-helpers'
 import { featureJoin, getSceneTransition, tweenPlotFrame, type PlotRect } from '../../../transitions'
 import { highlightTargetSet, highlightOpacity } from '../../plugins/highlight'
 import { shouldRenderValueLabel } from '../../value-label-fit'
@@ -106,7 +107,7 @@ export function render(
   // transition's frame-geometry `from`, and used by the tween below.
   const plotRect: PlotRect = { left: margin.left, top: margin.top, width, height: barAreaHeight }
 
-  const labels = sortLabels(data, options)
+  const labels = sortByValue(data.labels, (_, i) => data.values[i], options.sort)
   // A cell the parser could not read is a gap, not a zero: it keeps its slot in
   // the band domain but gets no mark and no label.
   const barData: BarDatum[] = labels
@@ -604,15 +605,4 @@ function renderValueLabels(
   labelGroup.selectAll<SVGTextElement, BarDatum>('.bc-value-label')
     .data(visibleData, (d: BarDatum) => d.label)
     .text(labelText)
-}
-
-function sortLabels(data: ChartData, options: ChartOptions): string[] {
-  const paired = data.labels.map((l, i) => ({ label: l, value: data.values[i] }))
-  if (options.sort === SortDirection.Ascending) {
-    paired.sort((a, b) => a.value - b.value)
-  }
-  else if (options.sort === SortDirection.Descending) {
-    paired.sort((a, b) => b.value - a.value)
-  }
-  return paired.map(p => p.label)
 }

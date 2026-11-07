@@ -14,7 +14,8 @@ import { buildColorOverrides } from '../../plugins/colorize'
 import { setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut } from '../../motion'
 import { getCachedChart, setCachedChart } from '../../transition-cache'
 import { ensureClipPath } from '../../clip-path-helper'
-import { SortDirection, ValueLabelPosition, Orientation, LabelPosition } from '../../../enums'
+import { ValueLabelPosition, Orientation, LabelPosition } from '../../../enums'
+import { sortByValue } from '../../sort-helpers'
 import { featureJoin, getSceneTransition, tweenPlotFrame, type PlotRect } from '../../../transitions'
 import { createPluginHost } from '../../plugins/plugin-host'
 import { highlightTargetSet, highlightOpacity } from '../../plugins/highlight'
@@ -120,7 +121,7 @@ export function render(
   const plotRect: PlotRect = { left: margin.left, top: margin.top, width, height }
   const marginDelta = computeMarginDelta(priorMargin, margin)
 
-  const labels = sortLabels(data, options)
+  const labels = sortByValue(data.labels, (_, i) => data.values[i], options.sort)
   // A cell the parser could not read is a gap, not a zero: it keeps its slot in
   // the band domain but gets no mark and no label.
   const barData: BarDatum[] = labels
@@ -623,15 +624,4 @@ function renderValueLabels(
   labelGroup.selectAll<SVGTextElement, BarDatum>('.bc-value-label')
     .data(visibleData, (d: BarDatum) => d.label)
     .text(labelText)
-}
-
-function sortLabels(data: ChartData, options: ChartOptions): string[] {
-  const paired = data.labels.map((l, i) => ({ label: l, value: data.values[i] }))
-  if (options.sort === SortDirection.Ascending) {
-    paired.sort((a, b) => a.value - b.value)
-  }
-  else if (options.sort === SortDirection.Descending) {
-    paired.sort((a, b) => b.value - a.value)
-  }
-  return paired.map(p => p.label)
 }

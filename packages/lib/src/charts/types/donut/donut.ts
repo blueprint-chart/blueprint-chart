@@ -4,7 +4,7 @@ import { D3Blueprint } from 'd3-blueprint'
 import type { ChartData, ChartOptions } from '../../types'
 import { setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut } from '../../motion'
 import { getCachedChart, setCachedChart } from '../../transition-cache'
-import { SortDirection, DirectLabelMode } from '../../../enums'
+import { DirectLabelMode } from '../../../enums'
 import { createFrame } from '../../frame/frame'
 import { createCanvas, contentSize } from '../../canvas/canvas'
 import { renderLegend } from '../../legend/legend'
@@ -16,6 +16,7 @@ import { renderArcLabels, renderInsideArcLabels, renderAutoArcLabels, estimateAr
 import type { ArcLabelDatum } from '../../plugins/arc-labels'
 import { featureJoin, getSceneTransition } from '../../../transitions'
 import { expandColorsToSeries } from '../../series-helpers'
+import { sortByValue } from '../../sort-helpers'
 import { highlightTargetSet, highlightOpacity } from '../../plugins/highlight'
 import { buildColorOverrides } from '../../plugins/colorize'
 import { DEFAULT_COLORS } from '../../palettes'
@@ -82,15 +83,9 @@ export function renderArc(
 
   const { body } = createFrame(container, options.frame)
 
-  // Sort data
-  let labels = [...data.labels]
-  let values = [...data.values]
-  if (options.sort === SortDirection.Ascending || options.sort === SortDirection.Descending) {
-    const pairs = labels.map((l, i) => ({ label: l, value: values[i] }))
-    pairs.sort((a, b) => options.sort === SortDirection.Ascending ? a.value - b.value : b.value - a.value)
-    labels = pairs.map(p => p.label)
-    values = pairs.map(p => p.value)
-  }
+  const order = sortByValue(data.labels.map((_, i) => i), i => data.values[i], options.sort)
+  let labels = order.map(i => data.labels[i])
+  let values = order.map(i => data.values[i])
 
   // Auto-group small slices
   if (options.sliceMax && options.sliceMax > 0 && labels.length > options.sliceMax) {

@@ -12,6 +12,7 @@ import { createCrosshairPlugin } from '../../plugins/crosshair'
 import { resolveBackgroundColor } from '../../contrast'
 import { percentValueLabel } from '../../format-helpers'
 import { expandColorsToSeries, seriesOrImplicit, resolveSeriesColor, isSeriesHidden, resolveSeriesValueLabels, resolveSeriesOpacity } from '../../series-helpers'
+import { sortByValue, labelTotal } from '../../sort-helpers'
 import { contrastTextColor } from '../../contrast'
 import { setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut } from '../../motion'
 import { setCachedChart, getCachedChart } from '../../transition-cache'
@@ -20,7 +21,7 @@ import { computeLinearDomain, resolveBarGapPadding } from '../../scale-helpers'
 import { ensureClipPath } from '../../clip-path-helper'
 import { featureJoin, getSceneTransition, tweenPlotFrame, type PlotRect } from '../../../transitions'
 import { createPluginHost } from '../../plugins/plugin-host'
-import { StackMode, Orientation, ValueLabelPosition, LabelPosition, ScaleType } from '../../../enums'
+import { StackMode, Orientation, ValueLabelPosition, LabelPosition, ScaleType, SortMode, SortDirection } from '../../../enums'
 import { highlightTargetSet, highlightOpacity } from '../../plugins/highlight'
 import { buildColorOverrides } from '../../plugins/colorize'
 import { shouldRenderValueLabel } from '../../value-label-fit'
@@ -156,17 +157,9 @@ export function render(
   const { chartArea, width, height, margin } = createCanvas(body, marginOverrides)
   const marginDelta = computeMarginDelta(priorMargin, margin)
 
-  // Sort labels by total when sortMode is 'total'
-  let sortedLabels = data.labels
-  if (options.sortMode === 'total') {
-    const totals = data.labels.map((label, i) => ({
-      label,
-      index: i,
-      total: series.reduce((sum, s) => sum + (s.values[i] ?? 0), 0),
-    }))
-    totals.sort((a, b) => b.total - a.total)
-    sortedLabels = totals.map(t => t.label)
-  }
+  const sortedLabels = options.sortMode === SortMode.Total
+    ? sortByValue(data.labels, (_, i) => labelTotal(series, i), SortDirection.Descending)
+    : data.labels
 
   const domainValues = isPercent
     ? [minStackedValue, maxStackedValue]

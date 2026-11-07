@@ -19,6 +19,7 @@ import { featureJoin, getSceneTransition, tweenPlotFrame, type PlotRect } from '
 import { computeStack, computeStack100 } from '../../stack-helpers'
 import { computeLinearDomain, filterLabelsByRange } from '../../scale-helpers'
 import { expandColorsToSeries, seriesOrImplicit, resolveSeriesColor, resolveSeriesInterpolation, isSeriesHidden, resolveSeriesLabelMode } from '../../series-helpers'
+import { sortByValue } from '../../sort-helpers'
 import { spreadLabels } from '../../plugins/arc-labels'
 import { StackMode, SortDirection, ScaleType } from '../../../enums'
 import { highlightTargetSet, highlightOpacity } from '../../plugins/highlight'
@@ -112,15 +113,10 @@ export function render(
   const areaSortMode = options.areaSortMode ?? SortDirection.None
   const showAreaLines = options.areaLines !== false
 
-  // Sort series by total if requested
-  const sortedSeries = [...series]
-  if (areaSortMode !== SortDirection.None) {
-    const totals = new Map(sortedSeries.map(s => [s.name, s.values.reduce((a, b) => a + b, 0)]))
-    sortedSeries.sort((a, b) => {
-      const diff = (totals.get(a.name) ?? 0) - (totals.get(b.name) ?? 0)
-      return areaSortMode === SortDirection.Ascending ? diff : -diff
-    })
-  }
+  const areaSortDirection = areaSortMode === SortDirection.None || areaSortMode === SortDirection.Ascending
+    ? areaSortMode
+    : SortDirection.Descending
+  const sortedSeries = sortByValue(series, s => s.values.reduce((a, b) => a + b, 0), areaSortDirection)
 
   const filteredData: ChartData = { labels: data.labels, values: data.values, series: sortedSeries }
   const stackedSeries = isPercent ? computeStack100(filteredData) : computeStack(filteredData)

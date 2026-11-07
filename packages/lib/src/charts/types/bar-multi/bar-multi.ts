@@ -13,10 +13,11 @@ import { createTooltipPlugin } from '../../plugins/tooltip'
 import { createCrosshairPlugin } from '../../plugins/crosshair'
 import { contrastTextColor, readableColor, resolveBackgroundColor } from '../../contrast'
 import { expandColorsToSeries, resolveSeriesColor, isSeriesHidden, resolveSeriesValueLabels, resolveSeriesOpacity, resolveSeriesLabelMode } from '../../series-helpers'
+import { sortByValue, labelTotal } from '../../sort-helpers'
 import { setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut } from '../../motion'
 import { setCachedChart, getCachedChart } from '../../transition-cache'
 import { ensureClipPath } from '../../clip-path-helper'
-import { ValueLabelPosition, DirectLabelMode } from '../../../enums'
+import { ValueLabelPosition, DirectLabelMode, SortMode, SortDirection } from '../../../enums'
 import { shouldRenderValueLabel } from '../../value-label-fit'
 import { featureJoin, getSceneTransition, tweenPlotFrame, type PlotRect } from '../../../transitions'
 import { createPluginHost } from '../../plugins/plugin-host'
@@ -148,17 +149,9 @@ export function render(
     domainMin -= span * 0.1
   }
 
-  // Sort labels by total (sum across series) when sortMode is 'total'
-  let sortedLabels = data.labels
-  if (options.sortMode === 'total') {
-    const totals = data.labels.map((label, i) => ({
-      label,
-      index: i,
-      total: series.reduce((sum, s) => sum + (s.values[i] ?? 0), 0),
-    }))
-    totals.sort((a, b) => b.total - a.total)
-    sortedLabels = totals.map(t => t.label)
-  }
+  const sortedLabels = options.sortMode === SortMode.Total
+    ? sortByValue(data.labels, (_, i) => labelTotal(series, i), SortDirection.Descending)
+    : data.labels
 
   const x0 = d3.scaleBand<string>()
     .domain(sortedLabels)

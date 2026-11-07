@@ -1,4 +1,5 @@
-import { ScaleType, SortMode } from '../../../enums'
+import { ScaleType, SortMode, SortDirection } from '../../../enums'
+import { sortByValue } from '../../sort-helpers'
 import type { ChartData } from '../../types'
 import { numericColumn } from '../scatter/points'
 import type { DotPlotMode, ResolvedDotPlot } from './mapping'
@@ -55,5 +56,5 @@ export function sortDotPlotRows(rows: DotPlotRow[], sortMode: SortMode | undefin
   const key = sortMode === SortMode.Gap && mode === 'dumbbell'
     ? (row: DotPlotRow) => row.values[row.values.length - 1] - row.values[0]
     : (row: DotPlotRow) => row.values[0]
-  return [...rows].sort((a, b) => key(b) - key(a))
+  return sortByValue(rows, key, SortDirection.Descending)
 }
