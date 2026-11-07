@@ -8,6 +8,7 @@ const editorPanelState = {
   viewMode: ref('preview'),
   activeTab: ref(''),
   canvasMode: ref('auto'),
+  resolvedCanvasMode: ref<'light' | 'dark'>('light'),
   showDimensions: ref(false),
   splitRatio: ref(0.5),
   selectTab: vi.fn(),
@@ -66,14 +67,14 @@ describe('ChartEditPanel', () => {
     isNarrowRef.value = false
   })
 
-  it('adds no mode modifier in auto and one in light', async () => {
-    const panel = useEditorPanel()
+  it('adds the resolved canvas mode modifier', async () => {
     const w = mountPanel()
-    expect(w.find('.chart-edit-panel__canvas').classes()).not.toContain('chart-edit-panel__canvas--auto')
-    panel.canvasMode.value = 'light'
-    await w.vm.$nextTick()
     expect(w.find('.chart-edit-panel__canvas').classes()).toContain('chart-edit-panel__canvas--light')
-    panel.canvasMode.value = 'auto'
+    editorPanelState.resolvedCanvasMode.value = 'dark'
+    await w.vm.$nextTick()
+    expect(w.find('.chart-edit-panel__canvas').classes()).toContain('chart-edit-panel__canvas--dark')
+    expect(w.find('.chart-edit-panel__canvas').classes()).not.toContain('chart-edit-panel__canvas--auto')
+    editorPanelState.resolvedCanvasMode.value = 'light'
   })
 
   it('renders the floating timeline as the last canvas child in preview mode', () => {

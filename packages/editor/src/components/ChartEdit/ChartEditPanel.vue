@@ -90,7 +90,7 @@ import FloatingSceneTimeline from '@/components/Scene/FloatingSceneTimeline.vue'
 import { useScenes } from '@/composables/useScenes'
 
 const editorPanel = useEditorPanel()
-const { viewMode, activeTab, canvasMode, showDimensions, splitRatio } = editorPanel
+const { viewMode, activeTab, resolvedCanvasMode, showDimensions, splitRatio } = editorPanel
 const { stopPlayback } = useScenes()
 const { selectTab, setLastNarrowEditTab, setViewMode } = editorPanel
 const { mode: panelMode } = usePanel()
@@ -204,7 +204,7 @@ const panelClassList = computed(() => ({
 }))
 
 const canvasClassList = computed(() => ({
-  [`chart-edit-panel__canvas--${canvasMode.value}`]: canvasMode.value !== 'auto',
+  [`chart-edit-panel__canvas--${resolvedCanvasMode.value}`]: true,
   // Reserve extra bottom space so the canvas dimension ruler clears the
   // floating timeline when scrolled.
   'chart-edit-panel__canvas--dimensions': chartVisible.value && showDimensions.value,
@@ -317,12 +317,12 @@ const cardRef = useTemplateRef<InstanceType<typeof ChartCard>>('cardRef')
 
     &--light {
       background: #f5f5f5;
-      --bc-canvas-dimension-color: rgba(0, 0, 0, 0.3);
+      --bc-canvas-dimension-color: rgba(0, 0, 0, 0.55);
     }
 
     &--dark {
       background: #0d0d0d;
-      --bc-canvas-dimension-color: rgba(255, 255, 255, 0.3);
+      --bc-canvas-dimension-color: rgba(255, 255, 255, 0.45);
     }
   }
 

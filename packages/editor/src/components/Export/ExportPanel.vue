@@ -183,7 +183,7 @@ const canvasClassList = computed(() => `export-panel__canvas--${resolvedCanvasMo
 
     &--light {
       background: #f5f5f5;
-      --bc-canvas-dimension-color: rgba(0, 0, 0, 0.3);
+      --bc-canvas-dimension-color: rgba(0, 0, 0, 0.55);
       --export-panel-skeleton-fill: rgba(0, 0, 0, 0.08);
       --export-article-page-bg: #fff;
       --export-article-ink: rgba(0, 0, 0, 0.45);
@@ -191,7 +191,7 @@ const canvasClassList = computed(() => `export-panel__canvas--${resolvedCanvasMo
 
     &--dark {
       background: #0d0d0d;
-      --bc-canvas-dimension-color: rgba(255, 255, 255, 0.3);
+      --bc-canvas-dimension-color: rgba(255, 255, 255, 0.45);
       --export-panel-skeleton-fill: rgba(237, 237, 237, 0.09);
       --export-article-page-bg: #000;
       --export-article-ink: rgba(237, 237, 237, 0.5);
