@@ -94,7 +94,7 @@ export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
     const r = buildChartRender(readRenderSnapshot())
 
     const card = containerRef.value.parentElement
-    if (r.kind === 'chart' && !r.allowDarkMode) {
+    if (r.kind === 'chart' && !r.allowDarkMode && resolvedCanvasMode.value === 'dark') {
       card?.setAttribute('data-bs-theme', 'light')
     }
     else {

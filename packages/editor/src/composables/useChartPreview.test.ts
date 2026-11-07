@@ -551,13 +551,23 @@ describe('useChartPreview › card theme', () => {
     config.reset()
     config._base.data.value = '"A" = 10\n"B" = 20'
     config._base.chartType.value = ChartType.BarVertical
+    useThemeStore().theme = 'dark'
   })
 
   afterEach(() => {
     card.remove()
   })
 
-  it('forces the card light when dark mode is not allowed', async () => {
+  it('leaves the card alone on a light canvas when dark mode is not allowed', async () => {
+    useThemeStore().theme = 'light'
+    useChartTypeOptions().setOption('allowDarkMode', false)
+    const wrapper = mountPreview()
+    await nextTick()
+    expect(card.hasAttribute('data-bs-theme')).toBe(false)
+    wrapper.unmount()
+  })
+
+  it('forces the card light on a dark canvas when dark mode is not allowed', async () => {
     useChartTypeOptions().setOption('allowDarkMode', false)
     const wrapper = mountPreview()
     await nextTick()
