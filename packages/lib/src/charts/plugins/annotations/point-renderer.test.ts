@@ -1,7 +1,7 @@
 import * as d3 from 'd3'
 import { describe, it, expect, afterEach } from 'vitest'
 import { renderPointAnnotation } from './point-renderer'
-import { AnnotationKind } from '../../../enums'
+import { AnnotationKind, CompassDirection } from '../../../enums'
 import { measureTextWidth } from '../../text-measure'
 import type { AnnotationContext } from './context'
 
@@ -132,5 +132,40 @@ describe('renderPointAnnotation', () => {
     const annGEl = document.querySelector('[data-annotation-index="0"]')
     expect(annGEl).not.toBeNull()
     expect(annGEl!.getAttribute('data-annotation-id')).toBe('s0:0:point')
+  })
+})
+
+describe('renderPointAnnotation with markCenter', () => {
+  function setupWithMark() {
+    const { g, ctx } = setup()
+    ctx.markCenter = l => l === 'B' ? { x: 120, y: 80 } : undefined
+    return { g, ctx }
+  }
+
+  it('anchors the target circle around the mark centre, not the bar', () => {
+    const { g, ctx } = setupWithMark()
+    renderPointAnnotation(g, { target: 'B', text: 'peak', showCircle: true, anchorDirection: CompassDirection.N } as Ann, ctx, 0)
+    const circle = document.querySelector('.bc-annotation-circle')!
+    expect(Number(circle.getAttribute('cx'))).toBeCloseTo(120)
+    expect(Number(circle.getAttribute('cy'))).toBeCloseTo(78)
+  })
+
+  it('offsets the anchor toward the anchor direction', () => {
+    const { g, ctx } = setupWithMark()
+    renderPointAnnotation(g, { target: 'B', text: 'peak', showCircle: true, anchorDirection: CompassDirection.E } as Ann, ctx, 0)
+    expect(Number(document.querySelector('.bc-annotation-circle')!.getAttribute('cx'))).toBeCloseTo(122)
+  })
+
+  it('pulls the line tip back along the line, not onto a bar centre line', () => {
+    const { g, ctx } = setupWithMark()
+    renderPointAnnotation(g, { target: 'B', text: 'peak', showArrow: true, lineTargetDistance: 10, textOffsetX: -40, textOffsetY: 0, anchorDirection: CompassDirection.N } as Ann, ctx, 0)
+    const toX = Number(document.querySelector('.bc-annotation-line')!.getAttribute('data-line-to-x'))
+    expect(toX).toBeLessThan(120)
+  })
+
+  it('draws nothing when markCenter does not know the target', () => {
+    const { g, ctx } = setupWithMark()
+    renderPointAnnotation(g, { target: 'A', text: 'x' } as Ann, ctx, 0)
+    expect(document.querySelector('[data-annotation-index]')).toBeNull()
   })
 })

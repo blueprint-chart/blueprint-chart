@@ -76,10 +76,13 @@ export function computeAnchorPoint(
 
   // Line charts (no bandwidth) — small fixed offsets around data point
   const px = datum.x === undefined ? scaleXValue(scaleX, datum.label) : (scaleX as d3.ScaleLinear<number, number>)(datum.x)
-  const py = scaleY(datum.value)
+  return pointAnchor({ x: px, y: scaleY(datum.value) }, anchorDirection)
+}
+
+export function pointAnchor(center: { x: number, y: number }, anchorDirection: CompassDirection): { x: number, y: number } {
   const offset = 2
   const v = DIRECTION_VECTORS[anchorDirection] ?? DIRECTION_VECTORS.N
-  return { x: px + v.dx * offset, y: py + v.dy * offset }
+  return { x: center.x + v.dx * offset, y: center.y + v.dy * offset }
 }
 
 // ---------------------------------------------------------------------------

@@ -14,6 +14,8 @@ export interface AnnotationContext {
   backgroundColor?: string
   orientation?: 'horizontal'
   transition?: boolean
+  /** Centre of the mark a label names, for charts whose marks are dots on a band (dot plot). */
+  markCenter?: (label: string) => { x: number, y: number } | undefined
   /** Pre-computed snapshots of old annotation positions (captured before DOM is cleared). */
   priorAnnotations?: Map<string, AnnotationSnapshot>
 }

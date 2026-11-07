@@ -6,6 +6,7 @@ import { resolveMaxWidth, DEFAULT_MAX_WIDTH_RATIO } from './position-helpers'
 import type { AnnotationContext } from './context'
 import {
   computeAnchorPoint,
+  pointAnchor,
   bboxEdgeToward,
   renderTargetCircle,
   resolveCircleRadius,
@@ -59,8 +60,10 @@ export function renderPointAnnotation(
     return
   }
 
-  const datum = ctx.data.find(d => d.label === target)
-  if (!datum) {
+  const markCenter = ctx.markCenter?.(target)
+  const datum = ctx.markCenter ? undefined : ctx.data.find(d => d.label === target)
+  const center = markCenter ?? (datum && datumCenter(datum, ctx.scaleX, ctx.scaleY))
+  if (!center) {
     return
   }
 
@@ -72,19 +75,19 @@ export function renderPointAnnotation(
 
   const lineConfig = ann as { showLine?: boolean, showArrow?: boolean, lineStyle?: AnnotationLineStyle, lineWeight?: number, lineTargetDistance?: number, showCircle?: boolean, circleSize?: number, anchorDirection?: CompassDirection, textOffsetX?: number, textOffsetY?: number }
   const anchorDir = lineConfig.anchorDirection ?? CompassDirection.N
-  const anchor = computeAnchorPoint(datum, ctx.scaleX, ctx.scaleY, anchorDir, ctx.orientation)
+  const anchor = datum ? computeAnchorPoint(datum, ctx.scaleX, ctx.scaleY, anchorDir, ctx.orientation) : pointAnchor(center, anchorDir)
 
   let tx: number
   let ty: number
   const legacyAnn = ann as unknown as Record<string, unknown>
 
   if (legacyAnn.dx != null || legacyAnn.dy != null) {
-    const { x: cx, y: cy } = datumCenter(datum, ctx.scaleX, ctx.scaleY)
+    const { x: cx, y: cy } = center
     tx = cx + (Number(legacyAnn.dx) || 40)
     ty = cy + (Number(legacyAnn.dy) || -40)
   }
   else if (legacyAnn.direction != null && legacyAnn.textOffsetX == null) {
-    const { x: cx, y: cy } = datumCenter(datum, ctx.scaleX, ctx.scaleY)
+    const { x: cx, y: cy } = center
     const direction = legacyAnn.direction as CompassDirection
     const distance = (legacyAnn.anchorDistance as number | undefined) ?? 60
     const offset = computeDirectionOffset(direction, distance)
@@ -159,7 +162,7 @@ export function renderPointAnnotation(
         const rawToX = anchor.x - (dx / len) * ltd
         const rawToY = anchor.y - (dy / len) * ltd
         // A bar keeps the tip on its centre line; a point has no edge to align to.
-        const onBar = 'bandwidth' in ctx.scaleX
+        const onBar = !markCenter && 'bandwidth' in ctx.scaleX
         const v = DIRECTION_VECTORS[anchorDir] ?? DIRECTION_VECTORS.N
         toX = !onBar || Math.abs(v.dx) > 0.01 ? rawToX : anchor.x
         toY = !onBar || Math.abs(v.dy) > 0.01 ? rawToY : anchor.y
