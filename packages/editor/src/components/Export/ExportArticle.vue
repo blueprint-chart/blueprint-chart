@@ -78,10 +78,11 @@ $export-article-serif: Georgia, "Times New Roman", serif;
 
 .export-article {
   width: 100%;
+  min-width: min-content;
   max-width: 960px;
   margin: 0 auto;
   padding-bottom: 2.5rem;
-  background: var(--export-article-page-bg, var(--bs-body-bg));
+  background: var(--bs-body-bg);
   border-radius: var(--bc-frame-radius);
   box-shadow: var(--bs-box-shadow-sm);
 
@@ -92,7 +93,7 @@ $export-article-serif: Georgia, "Times New Roman", serif;
   &__masthead,
   &__column__header,
   &__column__paragraph {
-    color: var(--export-article-ink, color-mix(in srgb, currentColor 50%, transparent));
+    color: color-mix(in srgb, var(--bs-body-color) 50%, transparent);
     user-select: none;
   }
 
@@ -101,7 +102,7 @@ $export-article-serif: Georgia, "Times New Roman", serif;
     align-items: center;
     justify-content: space-between;
     padding: 1rem 1.5rem;
-    border-bottom: 1px solid var(--export-panel-skeleton-fill, var(--bs-border-color));
+    border-bottom: 1px solid color-mix(in srgb, var(--bs-body-color) 9%, transparent);
 
     &__links {
       display: flex;
@@ -113,6 +114,8 @@ $export-article-serif: Georgia, "Times New Roman", serif;
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
+    box-sizing: content-box;
+    min-width: min-content;
     max-width: 680px;
     margin: 0 auto;
     padding: 2rem 1.5rem 0;
