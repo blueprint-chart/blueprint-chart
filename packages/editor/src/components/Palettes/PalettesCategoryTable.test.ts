@@ -1,4 +1,4 @@
-import { flushPromises, mount } from '@vue/test-utils'
+import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import PalettesCategoryTable from './PalettesCategoryTable.vue'
 import { CATEGORY_COLORS_KEY, useCategoryColors } from '@/stores/categoryColors'
@@ -18,6 +18,8 @@ async function addCategory(wrapper: ReturnType<typeof mountTable>, name: string,
   await wrapper.find('.palettes-category-table__form__add').trigger('click')
   await flushPromises()
 }
+
+enableAutoUnmount(afterEach)
 
 describe('PalettesCategoryTable', () => {
   beforeEach(() => localStorage.clear())
