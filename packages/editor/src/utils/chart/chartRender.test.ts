@@ -6,7 +6,7 @@ const emptySnapshot: RenderSnapshot = {
   scenes: [],
   activeIndex: -1,
   chartType: 'bar-vertical',
-  text: { title: '', description: '', byline: '', note: '', source: '', sourceUrl: '' },
+  text: { title: '', description: '', altText: '', byline: '', note: '', source: '', sourceUrl: '' },
   layout: layoutDefaults,
   sort: SortDirection.None,
   data: '',

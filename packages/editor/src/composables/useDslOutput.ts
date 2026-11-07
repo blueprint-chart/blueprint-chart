@@ -35,6 +35,9 @@ export function useDslOutput() {
     if (base.description.value) {
       output += `  description = "${base.description.value}"\n`
     }
+    if (base.altText.value) {
+      output += `  altText = ${quoteDslString(base.altText.value)}\n`
+    }
     if (base.byline.value) {
       output += `  byline = "${base.byline.value}"\n`
     }
@@ -407,7 +410,7 @@ export function useDslOutput() {
       if (scene.properties) {
         for (const [k, v] of Object.entries(scene.properties)) {
           if (typeof v === 'string') {
-            output += `    ${k} = "${v}"\n`
+            output += `    ${k} = ${quoteDslString(v)}\n`
           }
           else {
             output += `    ${k} = ${v}\n`

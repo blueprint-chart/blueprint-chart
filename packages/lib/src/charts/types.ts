@@ -89,6 +89,7 @@ export interface AxisOptions {
 export interface FrameOptions {
   title?: string
   description?: string
+  altText?: string
   byline?: string
   note?: string
   source?: string

@@ -251,7 +251,7 @@ export function resolveScene(
   // fields that are safe to vary per scene appear here. Layout/style fields
   // like `padding`, `showCredit`, `transparentBackground` are intentionally
   // excluded because they would cause layout shifts mid-transition.
-  const FRAME_PROPERTY_KEYS = ['title', 'description', 'source', 'sourceUrl', 'byline', 'note'] as const
+  const FRAME_PROPERTY_KEYS = ['title', 'description', 'altText', 'source', 'sourceUrl', 'byline', 'note'] as const
   const frameOverrides: Partial<FrameOptions> = {}
   for (const k of FRAME_PROPERTY_KEYS) {
     const v = fold.properties.get(k)

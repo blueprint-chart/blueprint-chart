@@ -369,6 +369,7 @@ export const useChartSessionStore = defineStore('chartSession', () => {
         chartConfig.chartType,
         chartConfig.title,
         chartConfig.description,
+        chartConfig.altText,
         chartConfig.byline,
         chartConfig.note,
         chartConfig.source,

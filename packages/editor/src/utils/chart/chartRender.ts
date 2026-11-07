@@ -12,7 +12,7 @@ export interface RenderSnapshot {
   scenes: SceneOverride[]
   activeIndex: number
   chartType: string
-  text: { title: string, description: string, byline: string, note: string, source: string, sourceUrl: string }
+  text: { title: string, description: string, altText: string, byline: string, note: string, source: string, sourceUrl: string }
   layout: ChartLayout
   sort: SortDirection
   data: string
@@ -86,6 +86,7 @@ export function buildChartRender(s: RenderSnapshot): ChartRender {
       frame: {
         title: (sp?.title as string | undefined) ?? (s.text.title || undefined),
         description: (sp?.description as string | undefined) ?? (s.text.description || undefined),
+        altText: (sp?.altText as string | undefined) ?? (s.text.altText || undefined),
         byline: s.text.byline || undefined,
         note: s.text.note || undefined,
         source: (sp?.source as string | undefined) ?? (s.text.source || undefined),
@@ -119,6 +120,7 @@ export function snapshotFromState(state: ChartState): RenderSnapshot {
     text: {
       title: state.title,
       description: state.description,
+      altText: state.altText,
       byline: state.byline,
       note: state.note,
       source: state.source,

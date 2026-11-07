@@ -26,6 +26,7 @@ export function useDslSync() {
       config.chartType.value = state.chartType
       config.title.value = state.title
       config.description.value = state.description
+      config.altText.value = state.altText
       config.byline.value = state.byline
       config.note.value = state.note
       config.source.value = state.source

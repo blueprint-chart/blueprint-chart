@@ -25,6 +25,19 @@
     </BFormGroup>
 
     <BFormGroup
+      label="Alt text"
+      label-for="prop-alt-text"
+    >
+      <BFormTextarea
+        id="prop-alt-text"
+        v-model="altText"
+        placeholder="Describe the chart for screen readers"
+        rows="2"
+        max-rows="5"
+      />
+    </BFormGroup>
+
+    <BFormGroup
       label="Byline"
       label-for="prop-byline"
     >
@@ -76,5 +89,5 @@
 <script setup lang="ts">
 import { useChartConfig } from '@/stores/chartConfig'
 
-const { title, description, byline, note, source, sourceUrl } = useChartConfig()
+const { title, description, altText, byline, note, source, sourceUrl } = useChartConfig()
 </script>

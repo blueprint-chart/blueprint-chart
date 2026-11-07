@@ -55,6 +55,7 @@ function buildFrame(props: Map<string, string | number | boolean>): FrameOptions
   const frame: FrameOptions = {
     title: getString('title'),
     description: getString('description'),
+    altText: getString('altText'),
     source: getString('source'),
     sourceUrl: getString('sourceUrl'),
     byline: getString('byline'),

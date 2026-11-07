@@ -3,7 +3,7 @@ import type { ChartData, FrameOptions } from '../charts/types'
 export interface ChartAccessibility {
   /** Accessible name: what a screen reader announces for the graphic. */
   label: string
-  /** Long description: the author's own, then a summary of the plotted data. */
+  /** Long description: the author's alt text, else their description then a summary of the plotted data. */
   description: string
 }
 
@@ -38,9 +38,10 @@ export function buildChartAccessibility(
   const kind = `${chartType.replace(/-/g, ' ')} chart`
   const title = frame?.title ? collapseWhitespace(frame.title) : ''
   const description = frame?.description ? collapseWhitespace(frame.description) : ''
+  const altText = frame?.altText ? collapseWhitespace(frame.altText) : ''
   return {
     label: title || kind,
-    description: [description, summariseData(kind, data)].filter(Boolean).join(' '),
+    description: altText || [description, summariseData(kind, data)].filter(Boolean).join(' '),
   }
 }
 

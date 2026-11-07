@@ -38,6 +38,7 @@ export const useChartHistoryStore = defineStore('chartHistory', () => {
         chartType: config.chartType,
         title: config.title,
         description: config.description,
+        altText: config.altText,
         byline: config.byline,
         note: config.note,
         source: config.source,
@@ -87,6 +88,7 @@ export const useChartHistoryStore = defineStore('chartHistory', () => {
         chartType: chartConfig.chartType.value,
         title: chartConfig.title.value,
         description: chartConfig.description.value,
+        altText: chartConfig.altText.value,
         byline: chartConfig.byline.value,
         note: chartConfig.note.value,
         source: chartConfig.source.value,
@@ -134,7 +136,7 @@ export const useChartHistoryStore = defineStore('chartHistory', () => {
 
         watch(
           [
-            chartConfig.chartType, chartConfig.title, chartConfig.description,
+            chartConfig.chartType, chartConfig.title, chartConfig.description, chartConfig.altText,
             chartConfig.byline, chartConfig.note, chartConfig.source, chartConfig.sourceUrl,
             chartConfig.sort, chartConfig.data, chartConfig.selectedColumn,
             chartConfig.colorizes, chartConfig.highlights, chartConfig.areaFills, chartConfig.annotations,

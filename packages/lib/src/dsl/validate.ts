@@ -33,7 +33,7 @@ export interface ValidationResult {
  * Property keys that are read by the frame/render/layout code rather than by a
  * chart-type option def, so they are always allowed on a chart (and on scenes).
  * Built by grepping the property reads in src/render and src/charts/frame:
- *   - frame (ast-to-definition buildFrame): title, description, byline, note,
+ *   - frame (ast-to-definition buildFrame): title, description, altText, byline, note,
  *     source, sourceUrl, padding, transparentBackground
  *   - chart-level render fields (ast-to-definition): type, sort, sortMode, theme
  *   - layout-constraints: heightMode, aspectRatio, fixedHeight
@@ -43,6 +43,7 @@ export interface ValidationResult {
 const FRAME_KEYS = new Set<string>([
   'title',
   'description',
+  'altText',
   'byline',
   'note',
   'source',

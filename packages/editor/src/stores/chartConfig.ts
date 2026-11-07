@@ -106,6 +106,7 @@ export interface ChartConfig {
   chartType: string
   title: string
   description: string
+  altText: string
   byline: string
   source: string
   sourceUrl: string
@@ -125,6 +126,7 @@ const defaults: ChartConfig = {
   chartType: ChartType.BarVertical,
   title: '',
   description: '',
+  altText: '',
   byline: '',
   source: '',
   sourceUrl: '',
@@ -227,6 +229,7 @@ export const useChartConfigStore = defineStore('chartConfig', () => {
   const seriesOverrides = sceneDirectRef(refs.seriesOverrides, 'seriesOverrides')
   const title = scenePropRef(refs.title, 'title')
   const description = scenePropRef(refs.description, 'description')
+  const altText = scenePropRef(refs.altText, 'altText')
   const byline = scenePropRef(refs.byline, 'byline')
   const source = scenePropRef(refs.source, 'source')
   const sourceUrl = scenePropRef(refs.sourceUrl, 'sourceUrl')
@@ -252,6 +255,7 @@ export const useChartConfigStore = defineStore('chartConfig', () => {
     seriesOverrides,
     title,
     description,
+    altText,
     byline,
     source,
     sourceUrl,
@@ -283,6 +287,7 @@ export function useChartConfig() {
     seriesOverrides: refs.seriesOverrides as WritableComputedRef<SeriesOverride[]>,
     title: refs.title as WritableComputedRef<string>,
     description: refs.description as WritableComputedRef<string>,
+    altText: refs.altText as WritableComputedRef<string>,
     byline: refs.byline as WritableComputedRef<string>,
     source: refs.source as WritableComputedRef<string>,
     sourceUrl: refs.sourceUrl as WritableComputedRef<string>,

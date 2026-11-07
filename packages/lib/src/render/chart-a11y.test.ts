@@ -15,4 +15,12 @@ describe('buildChartAccessibility', () => {
   it('summarises a scatter as points', () => {
     expect(buildChartAccessibility('scatter', null, DATA).description).toBe('scatter chart of 5 points.')
   })
+  it('uses author alt text instead of the generated description', () => {
+    const a11y = buildChartAccessibility('scatter', { title: 'Wealth', description: 'Ignored', altText: '  Rich countries\n live longer.  ' }, DATA)
+    expect(a11y).toEqual({ label: 'Wealth', description: 'Rich countries live longer.' })
+  })
+
+  it('falls back to the generated description when alt text is blank', () => {
+    expect(buildChartAccessibility('scatter', { description: 'Mine', altText: '  ' }, DATA).description).toBe('Mine scatter chart of 5 points.')
+  })
 })

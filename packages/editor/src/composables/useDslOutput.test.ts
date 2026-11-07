@@ -353,6 +353,25 @@ describe('useDslOutput', () => {
       expect(sceneBlock).toContain('type = bar-horizontal')
     })
 
+    it('round-trips alt text with quotes and newlines at chart and scene level', () => {
+      const baseAltText = 'Say "hi"\nto the chart'
+      const sceneAltText = 'Scene "two"\nzooms in'
+      const config = useChartConfig()
+      config.chartType.value = ChartType.BarVertical
+      config.altText.value = baseAltText
+      const scenes = useScenes()
+      scenes.add()
+      scenes.update(0, { properties: { altText: sceneAltText } })
+
+      const output = useDslOutput().generateDsl()
+      useScenes().reset()
+      useChartConfig().reset()
+
+      expect(useDslSync().applyDsl(output).success).toBe(true)
+      expect(useChartConfig()._base.altText.value).toBe(baseAltText)
+      expect(useScenes().scenes.value[0].properties?.altText).toBe(sceneAltText)
+    })
+
     it('new scene does not get a data block from base data', () => {
       const config = useChartConfig()
       config.chartType.value = ChartType.BarVertical

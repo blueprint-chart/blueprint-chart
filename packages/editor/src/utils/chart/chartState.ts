@@ -15,6 +15,7 @@ export interface ChartState {
   chartType: string
   title: string
   description: string
+  altText: string
   byline: string
   note: string
   source: string
@@ -183,6 +184,7 @@ export function parseChartState(dsl: string): ChartState {
     chartType: ast.chartType,
     title: String(propMap.get('title') ?? ''),
     description: String(propMap.get('description') ?? ''),
+    altText: String(propMap.get('altText') ?? ''),
     byline: String(propMap.get('byline') ?? ''),
     note: String(propMap.get('note') ?? ''),
     source: String(propMap.get('source') ?? ''),
