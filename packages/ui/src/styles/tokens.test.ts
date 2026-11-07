@@ -174,6 +174,10 @@ describe('tokens.scss - chartreuse accent', () => {
     expect(read(darkBody, '--bc-frame-border')).toBe('var(--bc-hairline)')
   })
 
+  it('gives the nested light section rule zero specificity so a light canvas keeps its own background', () => {
+    expect(css).toMatch(/:where\(\[data-bs-theme=["']?dark["']?\] \[data-bs-theme=["']?light["']?\]\)\s*\{/)
+  })
+
   it('uses a neutral canvas with a grey grid', () => {
     expect(read(lightBody, '--bc-canvas-bg')).toBe('#f5f5f5')
     expect(read(darkBody, '--bc-canvas-bg')).toBe('#0d0d0d')

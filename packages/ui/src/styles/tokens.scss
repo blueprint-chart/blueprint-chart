@@ -257,8 +257,9 @@ $spacer-xs: 0.25rem !default;
 // When [data-bs-theme="light"] is applied to a nested element (e.g. the
 // preview card when dark mode is disallowed), propagate the light color +
 // background so inherited text/currentColor inside SVGs also switch to the
-// light palette.
-[data-bs-theme="dark"] [data-bs-theme="light"] {
+// light palette. Zero specificity so a component's own background (the light
+// canvas) still wins.
+:where([data-bs-theme="dark"] [data-bs-theme="light"]) {
   color: var(--bs-body-color);
   background-color: var(--bs-card-bg);
 }
