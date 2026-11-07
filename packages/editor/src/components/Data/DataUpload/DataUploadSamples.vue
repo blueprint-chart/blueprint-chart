@@ -187,11 +187,6 @@ const visibleSampleCards = computed<SampleCard[]>(() => {
       aspect-ratio: 3 / 2;
       background: var(--bs-tertiary-bg);
       border-bottom: 1px solid var(--bs-border-color-translucent);
-      transition: background-color var(--bc-duration-base) ease;
-
-      .data-upload-samples__card:hover & {
-        background: var(--bs-secondary-bg);
-      }
 
       &__thumb {
         transition: filter var(--bc-duration-base) ease, opacity var(--bc-duration-base) ease;
