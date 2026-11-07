@@ -81,6 +81,7 @@ Every property `column-stacked` accepts, beside the [frame and layout keys](/ref
 | `crosshairDirection` | select: `both`, `vertical`, `horizontal` | `both` |
 | `crosshairStyle` | select: `solid`, `dashed`, `dotted` | `dashed` |
 | `crosshairColor` | text | `#999` |
+| `showTotal` | boolean | `false` |
 
 <!-- options:end -->
 
@@ -89,6 +90,7 @@ Every property `column-stacked` accepts, beside the [frame and layout keys](/ref
 - Stacking too many series — the top layers float and lose their baseline
 - Switching to `stackMode = "percent"` without telling the reader hides the change in absolute total
 - Inconsistent segment ordering between columns destroys the visual flow
+- `showTotal` labels the sum of the positive segments only; negative segments are left out and a column with no positive value gets no total. It is off in percent mode, where every total would read 100 %
 
 ## Related types
 

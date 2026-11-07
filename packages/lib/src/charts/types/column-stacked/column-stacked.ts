@@ -294,6 +294,10 @@ export function render(
   const innerEnd = (d: StackedBarDatum) => d.y0 < 0 ? d.y1 : d.y0
   const outerEnd = (d: StackedBarDatum) => d.y0 < 0 ? d.y0 : d.y1
   const segmentBeyond = new Map(sortedFlatData.filter(d => d.value !== 0).map(d => [d.label + '\0' + innerEnd(d), d]))
+  const showTotal = options.showTotal === true && !isPercent
+  const formatNumber = (v: number) => options.verticalAxis?.numberFormat
+    ? formatValueLabel(v, options.verticalAxis.numberFormat)
+    : String(Math.round(v * 100) / 100)
   const vlGroup = d3.select(chartArea).append('g').attr('class', 'bc-value-labels')
   sortedFlatData.forEach((datum) => {
     if (!resolveSeriesValueLabels(datum.seriesName, globalValueLabels, overrides)) {
@@ -305,9 +309,7 @@ export function render(
       ? `${Math.round(datum.y0 < 0 ? -datum.value : datum.value)}%`
       : options.valueLabels === 'percent'
         ? percentValueLabel(datum.value, columnTotals.get(datum.label) ?? 0)
-        : options.verticalAxis?.numberFormat
-          ? formatValueLabel(datum.value, options.verticalAxis.numberFormat)
-          : String(Math.round(datum.value * 100) / 100)
+        : formatNumber(datum.value)
     const fitsInside = shouldRenderValueLabel({
       text: labelText,
       placement: 'inside',
@@ -320,6 +322,9 @@ export function render(
       || (valueLabelPos === ValueLabelPosition.Auto && !fitsInside && !next)
     if (placeOutside) {
       const below = datum.y0 < 0
+      if (showTotal && !below && !next) {
+        return
+      }
       const edge = y(outerEnd(datum))
       const labelY = edge + (below ? OUTSIDE_LABEL_GAP + LABEL_HEIGHT : -OUTSIDE_LABEL_GAP)
       const room = next
@@ -362,6 +367,25 @@ export function render(
       .attr('fill', contrastTextColor(segmentColor))
       .text(labelText)
   })
+
+  // Totals cover the positive stack only: negative segments hang below the
+  // baseline, so a net sum would label a point the column never reaches.
+  if (showTotal) {
+    for (const [label, total] of columnTotals) {
+      if (total <= 0) {
+        continue
+      }
+      vlGroup.append('text')
+        .attr('class', 'bc-total-label')
+        .attr('x', (x(label) ?? 0) + x.bandwidth() / 2)
+        .attr('y', y(total) - OUTSIDE_LABEL_GAP)
+        .attr('text-anchor', 'middle')
+        .attr('font-size', '11px')
+        .attr('font-weight', 'bold')
+        .attr('fill', 'currentColor')
+        .text(formatNumber(total))
+    }
+  }
 
   // Legend
   if (showLegend && legendNames.length > 0) {

@@ -137,6 +137,10 @@ describe('registry', () => {
     expect(getChartOptions(chartType).map(o => o.key)).toContain('verticalNumberFormat')
   })
 
+  it('column-stacked has showTotal option', () => {
+    expect(getChartOptions(ChartType.ColumnStacked).map(o => o.key)).toContain('showTotal')
+  })
+
   it('pie has displayAsPercentage defaulting to true', () => {
     const options = getChartOptions(ChartType.Pie)
     const opt = options.find(o => o.key === 'displayAsPercentage')

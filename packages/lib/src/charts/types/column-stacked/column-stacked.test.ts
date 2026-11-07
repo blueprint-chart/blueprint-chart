@@ -175,6 +175,36 @@ describe('column-stacked', () => {
     expect(texts).toEqual(expect.arrayContaining(['$10.0', '$20.0', '$15.0', '$25.0']))
   })
 
+  describe('showTotal', () => {
+    const totals = () => Array.from(container.querySelectorAll('.bc-total-label')).map(l => l.textContent)
+
+    it('draws one total per column with the vertical number format', () => {
+      render(container, data, { showTotal: true, verticalAxis: { numberFormat: '$|,.1f|' } })
+      expect(totals()).toEqual(['$25.0', '$45.0'])
+    })
+
+    it('draws no totals by default', () => {
+      render(container, data)
+      expect(totals()).toEqual([])
+    })
+
+    it('sums only the positive stack and skips all-negative columns', () => {
+      render(container, { labels: ['Q1', 'Q2'], values: [], series: [{ name: 'A', values: [10, -4] }, { name: 'B', values: [-3, -2] }, { name: 'C', values: [5, -1] }] }, { showTotal: true })
+      expect(totals()).toEqual(['15'])
+    })
+
+    it('draws no totals in percent mode', () => {
+      render(container, data, { showTotal: true, stackMode: StackMode.Percent })
+      expect(totals()).toEqual([])
+    })
+
+    it('drops the top segment outside label so it does not overlap the total', () => {
+      render(container, data, { showTotal: true, valueLabels: true, valueLabelPosition: ValueLabelPosition.Outside })
+      expect(container.querySelectorAll('.bc-value-label[data-series="Product B"]')).toHaveLength(0)
+      expect(totals()).toEqual(['25', '45'])
+    })
+  })
+
   it('rounds value labels to two decimals without a number format', () => {
     render(container, { labels: ['Q1'], values: [], series: [{ name: 'A', values: [10.456] }, { name: 'B', values: [5] }] }, { valueLabels: true })
     expect(container.querySelector('.bc-value-label[data-series="A"]')?.textContent).toBe('10.46')

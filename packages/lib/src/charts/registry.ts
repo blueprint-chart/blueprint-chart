@@ -446,7 +446,7 @@ const areaStackedAxisOpts = axisOpts({ verticalGrid: GridStyle.Dashed, horizonta
 registerChart(ChartType.AreaStacked, areaStacked, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, areaFillOpacityOpt, lineInterpolationOpt, edgePaddingOpt, areaSortModeOpt, stackedOpt, stackPercentOpt, areaLinesOpt, legendOpt, legendAnchorOpt, legendPositionOpt, directLabellingOpt, ...areaStackedAxisOpts, tooltipsOpt, ...lineCrosshairOpts])
 
 // Stacked column: vertical bars stacked
-registerChart(ChartType.ColumnStacked, columnStacked, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, barGapOpt, stackModeOpt, sortModeOpt, legendOpt, legendAnchorOpt, legendPositionOpt, directLabellingOpt, directLabelAnchorOpt, ...barVerticalAxisOpts, ...barOpts])
+registerChart(ChartType.ColumnStacked, columnStacked, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, barGapOpt, stackModeOpt, sortModeOpt, legendOpt, legendAnchorOpt, legendPositionOpt, directLabellingOpt, directLabelAnchorOpt, ...barVerticalAxisOpts, ...barOpts, showTotalOpt])
 
 // Stacked bar: horizontal bars stacked
 registerChart(ChartType.BarStacked, barStacked, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, barGapOpt, stackModeOpt, sortModeOpt, legendOpt, legendAnchorOpt, legendPositionOpt, directLabellingOpt, directLabelAnchorOpt, categoryLabelLineOpt, ...barHorizontalAxisOpts, ...barHorizontalOpts])
