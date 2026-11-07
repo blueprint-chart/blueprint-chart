@@ -168,6 +168,18 @@ describe('DataUploadCard', () => {
     expect(w.emitted('cancel')).toBeTruthy()
   })
 
+  it('offers file and paste tabs only', () => {
+    const w = mountCard()
+    const tabs = w.findAll('.input-card__tabs__tab')
+    expect(tabs.map(tab => tab.text())).toEqual(['File', 'Paste'])
+  })
+
+  it('shows the sample gallery below the input card without picking a tab', () => {
+    const w = mountCard()
+    expect(w.find('.upload-card__samples__divider').text()).toBe('or start from a sample')
+    expect(w.find('.upload-card__samples .samples').exists()).toBe(true)
+  })
+
   it('emits sample event when DataUploadSamples emits select', async () => {
     const w = mount(DataUploadCard, {
       global: {
@@ -183,10 +195,6 @@ describe('DataUploadCard', () => {
         },
       },
     })
-    // Switch to samples tab
-    const tabs = w.findAll('.input-card__tabs__tab')
-    await tabs[2].trigger('click')
-    // Re-mount with samples visible — the stub auto-emits on setup
     await w.vm.$nextTick()
     const emitted = w.emitted('sample')
     expect(emitted).toBeTruthy()

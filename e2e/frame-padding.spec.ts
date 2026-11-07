@@ -176,7 +176,6 @@ test.describe('editor card padding', () => {
   test('editor card has zero padding (frame sections handle it)', async ({ page }) => {
     // Load a sample chart via the samples flow
     await page.goto('/#/new')
-    await page.getByRole('button', { name: 'Samples' }).click()
     await page.getByRole('button', { name: 'E is the most frequent letter' }).click()
     await page.waitForSelector('.bc-frame', { timeout: 10_000 })
 

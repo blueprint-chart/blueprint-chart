@@ -24,26 +24,31 @@ describe('DataUploadSamples', () => {
 
   it('renders sample cards as native buttons', () => {
     const w = mountSamples()
-    const cards = w.findAll('button.sample-card[type="button"]')
+    const cards = w.findAll('button.data-upload-samples__card[type="button"]')
     expect(cards).toHaveLength(2)
   })
 
   it('renders a card for each sample', () => {
     const w = mountSamples()
-    const cards = w.findAll('.sample-card')
+    const cards = w.findAll('.data-upload-samples__card')
     expect(cards.length).toBe(2)
+  })
+
+  it('wraps the cards in a block named after the component', () => {
+    const w = mountSamples()
+    expect(w.classes()).toContain('data-upload-samples')
   })
 
   it('displays sample title', () => {
     const w = mountSamples()
-    const cards = w.findAll('.sample-card')
+    const cards = w.findAll('.data-upload-samples__card')
     expect(cards[0].text()).toContain('Test Chart')
     expect(cards[1].text()).toContain('Another Chart')
   })
 
   it('displays row count and chart type label', () => {
     const w = mountSamples()
-    const cards = w.findAll('.sample-card')
+    const cards = w.findAll('.data-upload-samples__card')
     expect(cards[0].text()).toContain('2 rows')
     expect(cards[0].text()).toContain('Columns')
     expect(cards[1].text()).toContain('Line')
@@ -51,7 +56,7 @@ describe('DataUploadSamples', () => {
 
   it('emits select with full ChartSample on click', async () => {
     const w = mountSamples()
-    await w.findAll('.sample-card')[0].trigger('click')
+    await w.findAll('.data-upload-samples__card')[0].trigger('click')
     const emitted = w.emitted('select')!
     expect(emitted).toHaveLength(1)
     const sample = emitted[0][0] as { id: string, tsvData: string, dsl: string }

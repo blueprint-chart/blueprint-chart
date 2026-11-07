@@ -5,7 +5,7 @@
       Add your data
     </h1>
     <p class="upload-card__subtitle">
-      Drop a file, paste from a spreadsheet, or pick a sample dataset
+      Drop a file or paste from a spreadsheet
     </p>
     <button
       v-if="columns.length > 0"
@@ -34,7 +34,7 @@
             stroke-width="2"
           ><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12" /></svg>
           <svg
-            v-else-if="tab.value === 'paste'"
+            v-else
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -46,13 +46,6 @@
             height="4"
             rx="1"
           /><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /></svg>
-          <svg
-            v-else
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          ><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" /></svg>
           {{ tab.text }}
         </button>
       </div>
@@ -63,7 +56,7 @@
         @drag-state="isDragOver = $event"
       />
       <div
-        v-else-if="activeTab === 'paste'"
+        v-else
         class="upload-card__paste"
       >
         <div class="upload-card__paste__wrap">
@@ -106,11 +99,19 @@
           />
         </div>
       </div>
-      <DataUploadSamples
-        v-else-if="activeTab === 'samples'"
-        @select="$emit('sample', $event)"
-      />
     </div>
+    <section
+      class="upload-card__samples"
+      :aria-labelledby="samplesHeadingId"
+    >
+      <h2
+        :id="samplesHeadingId"
+        class="upload-card__samples__divider"
+      >
+        or start from a sample
+      </h2>
+      <DataUploadSamples @select="$emit('sample', $event)" />
+    </section>
   </div>
 </template>
 
@@ -123,6 +124,7 @@ import { resolveScene } from '@/utils/scenes'
 import { usePlatformShortcut } from '@/composables/usePlatformShortcut'
 
 const pasteHintId = useId()
+const samplesHeadingId = useId()
 
 // Same platform detection as the navbar's Ctrl/⌘ K hint — the two hints were
 // hardcoded apart (⌘ V vs Ctrl K), so one was wrong on every platform.
@@ -178,7 +180,6 @@ function onPaste(e: globalThis.ClipboardEvent) {
 const tabOptions = [
   { value: 'file', text: 'File' },
   { value: 'paste', text: 'Paste' },
-  { value: 'samples', text: 'Samples' },
 ]
 </script>
 
@@ -190,7 +191,7 @@ const tabOptions = [
   justify-content: center;
   min-height: calc(100vh - 200px);
   min-height: calc(100dvh - 200px);
-  max-width: 640px;
+  max-width: 960px;
   margin: 0 auto;
   padding: 2rem 0;
 
@@ -226,6 +227,29 @@ const tabOptions = [
 
     &:hover {
       opacity: 0.8;
+    }
+  }
+
+  &__samples {
+    width: 100%;
+    margin-top: 2rem;
+
+    &__divider {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+      font-size: var(--bs-font-size-sm);
+      font-weight: 400;
+      color: var(--bs-secondary-color);
+
+      &::before,
+      &::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: var(--bs-border-color-translucent);
+      }
     }
   }
 
@@ -305,6 +329,7 @@ const tabOptions = [
 
 .input-card {
   width: 100%;
+  max-width: 560px;
   border: 1px solid var(--bs-border-color);
   border-radius: 0.625rem;
   overflow: hidden;
