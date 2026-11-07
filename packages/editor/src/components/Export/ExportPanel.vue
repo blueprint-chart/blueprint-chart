@@ -8,17 +8,19 @@
       class="export-panel__canvas"
       :class="canvasClassList"
     >
-      <div
-        ref="cardRef"
-        class="export-panel__canvas__card"
-        :class="cardClass"
-        :style="cardStyle"
-      >
+      <ExportArticle :bare="previewContext === 'card'">
         <div
-          ref="previewRef"
-          class="export-panel__canvas__preview w-100 h-100"
-        />
-      </div>
+          ref="cardRef"
+          class="export-panel__canvas__card"
+          :class="cardClass"
+          :style="cardStyle"
+        >
+          <div
+            ref="previewRef"
+            class="export-panel__canvas__preview w-100 h-100"
+          />
+        </div>
+      </ExportArticle>
       <CanvasDimensions
         v-if="showDimensions"
         :card-ref="cardRef"
@@ -26,7 +28,16 @@
         :layout="layout"
       />
       <div class="export-panel__view-toolbar">
-        <CanvasViewPicker />
+        <CanvasViewPicker extra-label="Preview">
+          <template #default="{ close }">
+            <NavigationToggle
+              v-model="previewContextModel"
+              :options="PREVIEW_OPTIONS"
+              size="sm"
+              @update:model-value="close"
+            />
+          </template>
+        </CanvasViewPicker>
       </div>
     </div>
     <PanelShell
@@ -64,10 +75,10 @@
 </template>
 
 <script setup lang="ts">
-import { useBreakpoint } from '@blueprint-chart/ui'
+import { useBreakpoint, NavigationToggle } from '@blueprint-chart/ui'
 import { useEditorPanel } from '@/stores/editorPanel'
 import { usePanel } from '@/stores/panel'
-import { useExportPanel, type ExportTab } from '@/stores/exportPanel'
+import { useExportPanel, type ExportTab, type PreviewContext } from '@/stores/exportPanel'
 import { useChartConfig } from '@/stores/chartConfig'
 import { useExportSections } from '@/composables/useExportSections'
 
@@ -82,6 +93,17 @@ const exportPanelStore = useExportPanel()
 const { exportTab } = exportPanelStore
 const { setExportTab: setExportTabAction, setLastNarrowExportTab } = exportPanelStore
 const { isNarrow } = useBreakpoint()
+const { previewContext, setPreviewContext } = exportPanelStore
+
+const PREVIEW_OPTIONS = [
+  { value: 'card', text: 'Card' },
+  { value: 'article', text: 'Article' },
+]
+
+const previewContextModel = computed({
+  get: () => previewContext.value,
+  set: value => setPreviewContext(value as PreviewContext),
+})
 
 watch(panelMode, (mode) => {
   if (mode === 'drawer' && exportTab.value) {
@@ -159,11 +181,19 @@ const canvasClassList = computed(() => ({
     &--light {
       background: #f5f5f5;
       --bc-canvas-dimension-color: rgba(0, 0, 0, 0.3);
+
+      :deep(.feedback-skeleton) {
+        background: rgba(0, 0, 0, 0.08);
+      }
     }
 
     &--dark {
       background: #0d0d0d;
       --bc-canvas-dimension-color: rgba(255, 255, 255, 0.3);
+
+      :deep(.feedback-skeleton) {
+        background: rgba(255, 255, 255, 0.1);
+      }
     }
 
     &__card {
