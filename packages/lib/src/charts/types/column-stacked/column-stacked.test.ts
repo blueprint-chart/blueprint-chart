@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { render } from './column-stacked'
-import { StackMode, LabelRotation } from '../../../enums'
+import { StackMode, LabelRotation, ValueLabelPosition } from '../../../enums'
 import { wcagContrastRatio, adjustColorsForBackground } from '../../contrast'
 import { listPalettes, resolvePalette } from '../../palettes'
 
@@ -167,6 +167,73 @@ describe('column-stacked', () => {
     const labels = container.querySelectorAll('.bc-value-label')
     // One label per stacked segment = 4
     expect(labels).toHaveLength(4)
+  })
+
+  const labelFor = (series: string, index: number) =>
+    container.querySelectorAll(`.bc-value-label[data-series="${series}"]`)[index] as SVGTextElement
+  const barFor = (series: string, index: number) =>
+    container.querySelectorAll(`.bc-bar-stacked[data-series="${series}"]`)[index] as SVGRectElement
+
+  it('places value labels above each segment with valueLabelPosition outside', () => {
+    render(container, data, { valueLabels: true, valueLabelPosition: ValueLabelPosition.Outside })
+    const label = labelFor('Product B', 1)
+    expect(label.getAttribute('dominant-baseline')).toBe('auto')
+    expect(label.getAttribute('fill')).toBe('currentColor')
+    expect(Number(label.getAttribute('y'))).toBeLessThan(Number(barFor('Product B', 1).getAttribute('y')))
+  })
+
+  it('skips zero-value segments with valueLabelPosition outside', () => {
+    const withZero = { labels: ['Q1'], values: [], series: [
+      { name: 'Product A', values: [10] },
+      { name: 'Product B', values: [0] },
+      { name: 'Product C', values: [10] },
+    ] }
+    render(container, withZero, { valueLabels: true, valueLabelPosition: ValueLabelPosition.Outside })
+    expect(container.querySelectorAll('.bc-value-label[data-series="Product B"]')).toHaveLength(0)
+  })
+
+  it('keeps value labels centered in each segment with valueLabelPosition inside', () => {
+    render(container, data, { valueLabels: true, valueLabelPosition: ValueLabelPosition.Inside })
+    const baselines = Array.from(container.querySelectorAll('.bc-value-label')).map(l => l.getAttribute('dominant-baseline'))
+    expect(baselines).toEqual(['central', 'central', 'central', 'central'])
+  })
+
+  it('moves a top segment label that does not fit inside above the column in auto mode', () => {
+    const thinTop = { labels: ['Q1'], values: [], series: [
+      { name: 'Product A', values: [1000] },
+      { name: 'Product B', values: [1] },
+    ] }
+    render(container, thinTop, { valueLabels: true })
+    const label = labelFor('Product B', 0)
+    expect(label.getAttribute('dominant-baseline')).toBe('auto')
+    expect(Number(label.getAttribute('y'))).toBeLessThan(Number(barFor('Product B', 0).getAttribute('y')))
+    expect(labelFor('Product A', 0).getAttribute('dominant-baseline')).toBe('central')
+  })
+
+  const bottomOf = (bar: SVGRectElement) => Number(bar.getAttribute('y')) + Number(bar.getAttribute('height'))
+  const diverging = { labels: ['Q1'], values: [], series: [
+    { name: 'Product A', values: [10] },
+    { name: 'Product B', values: [-10] },
+    { name: 'Product C', values: [-10] },
+  ] }
+
+  it('places negative segment value labels below each segment with valueLabelPosition outside', () => {
+    render(container, diverging, { valueLabels: true, valueLabelPosition: ValueLabelPosition.Outside })
+    const label = labelFor('Product B', 0)
+    expect(Number(label.getAttribute('y'))).toBeGreaterThan(bottomOf(barFor('Product B', 0)))
+    expect(Number(labelFor('Product C', 0).getAttribute('y'))).toBeGreaterThan(bottomOf(barFor('Product C', 0)))
+  })
+
+  it('moves a bottom negative segment label that does not fit inside below the column in auto mode', () => {
+    const thinBottom = { labels: ['Q1'], values: [], series: [
+      { name: 'Product A', values: [1000] },
+      { name: 'Product B', values: [-500] },
+      { name: 'Product C', values: [-1] },
+    ] }
+    render(container, thinBottom, { valueLabels: true })
+    const label = labelFor('Product C', 0)
+    expect(label.getAttribute('dominant-baseline')).toBe('auto')
+    expect(Number(label.getAttribute('y'))).toBeGreaterThan(bottomOf(barFor('Product C', 0)))
   })
 
   it('does not render value labels by default', () => {

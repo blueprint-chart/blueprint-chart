@@ -22,10 +22,13 @@ import { buildColorOverrides } from '../../plugins/colorize'
 import { ensureClipPath } from '../../clip-path-helper'
 import { featureJoin, getSceneTransition, tweenPlotFrame, type PlotRect } from '../../../transitions'
 import { createPluginHost } from '../../plugins/plugin-host'
-import { StackMode, ScaleType, SortMode, SortDirection } from '../../../enums'
+import { StackMode, ScaleType, SortMode, SortDirection, ValueLabelPosition } from '../../../enums'
 import { percentValueLabel } from '../../format-helpers'
 import { shouldRenderValueLabel } from '../../value-label-fit'
 import { DEFAULT_COLORS } from '../../palettes'
+
+const LABEL_HEIGHT = 11
+const OUTSIDE_LABEL_GAP = 4
 
 interface StackedBarDatum {
   label: string
@@ -286,7 +289,11 @@ export function render(
 
   // Value labels
   const globalValueLabels = options.valueLabels ?? false
+  const valueLabelPos = options.valueLabelPosition ?? ValueLabelPosition.Auto
   const columnTotals = d3.rollup(sortedFlatData, vs => d3.max(vs, d => d.y1) ?? 0, d => d.label)
+  const innerEnd = (d: StackedBarDatum) => d.y0 < 0 ? d.y1 : d.y0
+  const outerEnd = (d: StackedBarDatum) => d.y0 < 0 ? d.y0 : d.y1
+  const segmentBeyond = new Map(sortedFlatData.filter(d => d.value !== 0).map(d => [d.label + '\0' + innerEnd(d), d]))
   const vlGroup = d3.select(chartArea).append('g').attr('class', 'bc-value-labels')
   sortedFlatData.forEach((datum) => {
     if (!resolveSeriesValueLabels(datum.seriesName, globalValueLabels, overrides)) {
@@ -294,19 +301,50 @@ export function render(
     }
     const cx = (x(datum.label) ?? 0) + x.bandwidth() / 2
     const segmentHeight = Math.abs(y(datum.y0) - y(datum.y1))
-    const cy = y(datum.y0) - segmentHeight / 2
     const labelText = isPercent
       ? `${Math.round(datum.y0 < 0 ? -datum.value : datum.value)}%`
       : options.valueLabels === 'percent'
         ? percentValueLabel(datum.value, columnTotals.get(datum.label) ?? 0)
         : String(Math.round(datum.value * 100) / 100)
-    if (!shouldRenderValueLabel({
+    const fitsInside = shouldRenderValueLabel({
       text: labelText,
       placement: 'inside',
       orientation: 'vertical',
       barWidth: x.bandwidth(),
       barHeight: segmentHeight,
-    })) {
+    })
+    const next = segmentBeyond.get(datum.label + '\0' + outerEnd(datum))
+    const placeOutside = valueLabelPos === ValueLabelPosition.Outside
+      || (valueLabelPos === ValueLabelPosition.Auto && !fitsInside && !next)
+    if (placeOutside) {
+      const below = datum.y0 < 0
+      const edge = y(outerEnd(datum))
+      const labelY = edge + (below ? OUTSIDE_LABEL_GAP + LABEL_HEIGHT : -OUTSIDE_LABEL_GAP)
+      const room = next
+        ? Math.abs(y(next.y1) - y(next.y0))
+        : below ? height + margin.bottom - edge : edge + margin.top
+      if (datum.value === 0 || room < LABEL_HEIGHT + OUTSIDE_LABEL_GAP || !shouldRenderValueLabel({
+        text: labelText,
+        placement: 'outside',
+        orientation: 'vertical',
+        barWidth: x.bandwidth(),
+        barHeight: segmentHeight,
+      })) {
+        return
+      }
+      vlGroup.append('text')
+        .attr('class', 'bc-value-label')
+        .attr('data-series', datum.seriesName)
+        .attr('x', cx)
+        .attr('y', labelY)
+        .attr('text-anchor', 'middle')
+        .attr('dominant-baseline', 'auto')
+        .attr('font-size', '11px')
+        .attr('fill', 'currentColor')
+        .text(labelText)
+      return
+    }
+    if (!fitsInside) {
       return
     }
     const segmentColor = colorOverrides.get(datum.seriesName)
@@ -315,7 +353,7 @@ export function render(
       .attr('class', 'bc-value-label')
       .attr('data-series', datum.seriesName)
       .attr('x', cx)
-      .attr('y', cy)
+      .attr('y', y(datum.y0) - segmentHeight / 2)
       .attr('text-anchor', 'middle')
       .attr('dominant-baseline', 'central')
       .attr('font-size', '11px')
