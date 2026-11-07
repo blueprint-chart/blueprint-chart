@@ -41,6 +41,7 @@
 <script setup lang="ts">
 import type { Component } from 'vue'
 import { useRoute } from 'vue-router'
+import { RESIZE_MESSAGE } from '@blueprint-chart/lib'
 import {
   ScenePlayerButtons,
   ScenePlayerProgressBar,
@@ -58,6 +59,12 @@ const containerRef = useTemplateRef<HTMLElement>('containerRef')
 
 const { applyDsl } = useDslSync()
 useChartPreview(containerRef)
+useResizeObserver(containerRef, ([entry]) => {
+  const height = Math.ceil(entry.target.getBoundingClientRect().height)
+  if (height > 0) {
+    window.parent.postMessage({ type: RESIZE_MESSAGE, height }, '*')
+  }
+})
 
 const { layout } = useChartConfig()
 const { cardClass, cardStyle } = useCanvasCardStyle(layout, 'render-page__card')

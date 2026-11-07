@@ -100,6 +100,7 @@
 </template>
 
 <script setup lang="ts">
+import { RESIZE_MESSAGE } from '@blueprint-chart/lib'
 import ExportEmbedBlock from './ExportEmbedBlock.vue'
 import { useChartConfig } from '@/stores/chartConfig'
 import { useAccount } from '@/stores/account'
@@ -191,17 +192,19 @@ function toBase64(str: string): string {
   return globalThis.btoa(binary)
 }
 
+const RESIZE_SCRIPT = `<script>(function(f){addEventListener("message",function(e){var d=e.data;if(e.source===f.contentWindow&&d&&d.type==="${RESIZE_MESSAGE}")f.style.height=d.height+"px"})})(document.currentScript.previousElementSibling)</` + 'script>'
+
 const selfRenderUrl = computed(() => {
   const bpc64 = toBase64(dsl.value || generateDsl())
   return `${baseUrl.value}#/render?bpc64=${encodeURIComponent(bpc64)}`
 })
 const selfSnippet = computed(() =>
-  `<iframe src="${selfRenderUrl.value}" ${sizeAttrs.value} frameborder="0"></iframe>`,
+  `<iframe src="${selfRenderUrl.value}" ${sizeAttrs.value} frameborder="0"></iframe>${RESIZE_SCRIPT}`,
 )
 
 const liveRenderUrl = computed(() => `${baseUrl.value}#/render?id=${sessionId.value}`)
 const liveSnippet = computed(() =>
-  `<iframe src="${liveRenderUrl.value}" ${sizeAttrs.value} frameborder="0"></iframe>`,
+  `<iframe src="${liveRenderUrl.value}" ${sizeAttrs.value} frameborder="0"></iframe>${RESIZE_SCRIPT}`,
 )
 
 async function onTogglePublish() {

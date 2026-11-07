@@ -145,6 +145,7 @@ export type { FrameSvgLayout, FrameSvgTextBlock, FrameSvgPlot, ChartAccessibilit
 
 // Runtime
 export { buildSrcdoc } from './runtime/runtime'
+export { RESIZE_MESSAGE } from './runtime/messages'
 
 // Transitions (orchestrator, feature-join primitive, snapshot helper)
 export {

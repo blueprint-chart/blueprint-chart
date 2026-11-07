@@ -225,3 +225,36 @@ describe('ExportEmbedPanel — four states', () => {
     expect(wrapper.text()).not.toContain('Live link')
   })
 })
+
+describe('ExportEmbedPanel — self-resizing snippet', () => {
+  afterEach(() => {
+    document.body.innerHTML = ''
+    vi.restoreAllMocks()
+  })
+
+  function pasteSnippet(snippet: string): HTMLIFrameElement {
+    const host = document.createElement('div')
+    host.innerHTML = snippet
+    const iframe = host.querySelector('iframe')!
+    document.body.append(iframe)
+    const script = document.createElement('script')
+    script.textContent = host.querySelector('script')!.textContent
+    document.body.append(script)
+    return iframe
+  }
+
+  it('keeps an initial height and resizes only from its own iframe', async () => {
+    vi.spyOn(runtimeConfig, 'accountsEnabled').mockReturnValue(false)
+    const wrapper = await mountPanel()
+    await nextTick()
+    const snippet = wrapper.find('.copy-stub').attributes('data-text')!
+    const iframe = pasteSnippet(snippet)
+    expect(iframe.getAttribute('height')).toBe('400')
+
+    window.dispatchEvent(new MessageEvent('message', { data: { type: 'blueprint-chart-resize', height: 999 }, source: window }))
+    expect(iframe.style.height).toBe('')
+
+    window.dispatchEvent(new MessageEvent('message', { data: { type: 'blueprint-chart-resize', height: 321 }, source: iframe.contentWindow }))
+    expect(iframe.style.height).toBe('321px')
+  })
+})
