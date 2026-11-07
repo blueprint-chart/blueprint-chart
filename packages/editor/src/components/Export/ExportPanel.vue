@@ -173,6 +173,11 @@ const canvasClassList = computed(() => ({
     overflow: auto;
     position: relative;
     background: var(--bc-canvas-bg);
+    --export-panel-skeleton-fill: color-mix(in srgb, var(--bs-body-color) 9%, transparent);
+
+    :deep(.feedback-skeleton) {
+      background: var(--export-panel-skeleton-fill);
+    }
 
     .export-panel--narrow & {
       padding: 1rem;
@@ -181,19 +186,13 @@ const canvasClassList = computed(() => ({
     &--light {
       background: #f5f5f5;
       --bc-canvas-dimension-color: rgba(0, 0, 0, 0.3);
-
-      :deep(.feedback-skeleton) {
-        background: rgba(0, 0, 0, 0.08);
-      }
+      --export-panel-skeleton-fill: rgba(0, 0, 0, 0.08);
     }
 
     &--dark {
       background: #0d0d0d;
       --bc-canvas-dimension-color: rgba(255, 255, 255, 0.3);
-
-      :deep(.feedback-skeleton) {
-        background: rgba(255, 255, 255, 0.1);
-      }
+      --export-panel-skeleton-fill: rgba(255, 255, 255, 0.1);
     }
 
     &__card {
