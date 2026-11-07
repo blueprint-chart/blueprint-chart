@@ -169,6 +169,17 @@ describe('column-stacked', () => {
     expect(labels).toHaveLength(4)
   })
 
+  it('formats value labels with the vertical number format', () => {
+    render(container, data, { valueLabels: true, verticalAxis: { numberFormat: '$|,.1f|' } })
+    const texts = Array.from(container.querySelectorAll('.bc-value-label')).map(l => l.textContent)
+    expect(texts).toEqual(expect.arrayContaining(['$10.0', '$20.0', '$15.0', '$25.0']))
+  })
+
+  it('rounds value labels to two decimals without a number format', () => {
+    render(container, { labels: ['Q1'], values: [], series: [{ name: 'A', values: [10.456] }, { name: 'B', values: [5] }] }, { valueLabels: true })
+    expect(container.querySelector('.bc-value-label[data-series="A"]')?.textContent).toBe('10.46')
+  })
+
   const labelFor = (series: string, index: number) =>
     container.querySelectorAll(`.bc-value-label[data-series="${series}"]`)[index] as SVGTextElement
   const barFor = (series: string, index: number) =>

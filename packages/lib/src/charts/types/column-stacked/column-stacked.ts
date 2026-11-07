@@ -23,7 +23,7 @@ import { ensureClipPath } from '../../clip-path-helper'
 import { featureJoin, getSceneTransition, tweenPlotFrame, type PlotRect } from '../../../transitions'
 import { createPluginHost } from '../../plugins/plugin-host'
 import { StackMode, ScaleType, SortMode, SortDirection, ValueLabelPosition } from '../../../enums'
-import { percentValueLabel } from '../../format-helpers'
+import { formatValueLabel, percentValueLabel } from '../../format-helpers'
 import { shouldRenderValueLabel } from '../../value-label-fit'
 import { DEFAULT_COLORS } from '../../palettes'
 
@@ -305,7 +305,9 @@ export function render(
       ? `${Math.round(datum.y0 < 0 ? -datum.value : datum.value)}%`
       : options.valueLabels === 'percent'
         ? percentValueLabel(datum.value, columnTotals.get(datum.label) ?? 0)
-        : String(Math.round(datum.value * 100) / 100)
+        : options.verticalAxis?.numberFormat
+          ? formatValueLabel(datum.value, options.verticalAxis.numberFormat)
+          : String(Math.round(datum.value * 100) / 100)
     const fitsInside = shouldRenderValueLabel({
       text: labelText,
       placement: 'inside',

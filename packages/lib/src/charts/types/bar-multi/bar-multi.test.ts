@@ -119,6 +119,12 @@ describe('bar-multi', () => {
     expect(labels).toHaveLength(4)
   })
 
+  it('formats value labels with the vertical number format', () => {
+    render(container, data, { valueLabels: true, verticalAxis: { numberFormat: '$|,.1f|' } })
+    const texts = Array.from(container.querySelectorAll('.bc-value-label')).map(l => l.textContent)
+    expect(texts).toEqual(expect.arrayContaining(['$10.0', '$20.0', '$15.0', '$25.0']))
+  })
+
   it('does not render value labels by default', () => {
     render(container, data)
     const labels = container.querySelectorAll('.bc-value-label')

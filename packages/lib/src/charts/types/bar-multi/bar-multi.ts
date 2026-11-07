@@ -24,6 +24,7 @@ import { createPluginHost } from '../../plugins/plugin-host'
 import { highlightTargetSet, highlightOpacity } from '../../plugins/highlight'
 import { buildColorOverrides } from '../../plugins/colorize'
 import { DEFAULT_COLORS } from '../../palettes'
+import { formatValueLabel } from '../../format-helpers'
 
 /** Gap between a bar's end and the label just outside it. */
 const LABEL_GAP_PX = 4
@@ -400,8 +401,9 @@ export function render(
       }
     }
 
+    const valueText = formatValueLabel(datum.value, options.verticalAxis?.numberFormat)
     if (!shouldRenderValueLabel({
-      text: String(datum.value),
+      text: valueText,
       placement: vlMode === ValueLabelPosition.Inside ? 'inside' : 'outside',
       orientation: 'vertical',
       barWidth: x1.bandwidth(),
@@ -419,7 +421,7 @@ export function render(
       .attr('dominant-baseline', baseline)
       .attr('font-size', '11px')
       .attr('fill', fill)
-      .text(String(datum.value))
+      .text(valueText)
   })
 
   // Direct labels — mode-aware positioning
