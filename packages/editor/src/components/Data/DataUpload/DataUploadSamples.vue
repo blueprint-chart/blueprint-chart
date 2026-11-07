@@ -1,28 +1,11 @@
 <script setup lang="ts">
-import { ChartType, samples } from '@blueprint-chart/lib'
+import { samples } from '@blueprint-chart/lib'
 import type { ChartSample } from '@blueprint-chart/lib'
 import ChartThumbnail from '@/components/Chart/ChartThumbnail.vue'
-import { CHART_TYPE_GROUPS, type ChartTypeGroup } from '@/components/Editor/editorChartTypeGroups'
+import { getChartTypeLabel } from '@blueprint-chart/ui'
+import { CHART_TYPE_GROUPS } from '@/components/Editor/editorChartTypeGroups'
 
 defineEmits<{ select: [sample: ChartSample] }>()
-
-const TYPE_LABELS: Record<string, string> = {
-  [ChartType.BarVertical]: 'Columns',
-  [ChartType.BarHorizontal]: 'Bars',
-  [ChartType.BarMulti]: 'Grouped Columns',
-  [ChartType.Line]: 'Line',
-  [ChartType.LineMulti]: 'Lines',
-  [ChartType.Donut]: 'Donut',
-  [ChartType.Pie]: 'Pie',
-  [ChartType.Area]: 'Area',
-  [ChartType.AreaStacked]: 'Stacked Area',
-  [ChartType.ColumnStacked]: 'Stacked Columns',
-  [ChartType.BarStacked]: 'Stacked Bars',
-  [ChartType.BarSplit]: 'Split Bars',
-  [ChartType.BarGrouped]: 'Grouped Bars',
-  [ChartType.Scatter]: 'Scatter',
-  [ChartType.DotPlot]: 'Dot plot',
-}
 
 function rowCount(tsvData: string): number {
   const lines = tsvData.split('\n').filter(l => l.trim().length > 0)
@@ -37,7 +20,7 @@ interface SampleCard extends ChartSample {
 const sampleCards = computed<SampleCard[]>(() =>
   samples.map(s => ({
     ...s,
-    typeLabel: TYPE_LABELS[s.chartType] ?? s.chartType,
+    typeLabel: getChartTypeLabel(s.chartType),
     rowCount: rowCount(s.tsvData),
   })),
 )
@@ -46,25 +29,22 @@ const ALL_SAMPLES = 'all'
 
 const activeFilter = shallowRef(ALL_SAMPLES)
 
-function groupHasChartType(group: ChartTypeGroup, chartType: string): boolean {
-  return group.choices.some(choice => choice.value === chartType)
-}
+const GROUP_BY_CHART_TYPE = new Map(
+  CHART_TYPE_GROUPS.flatMap(group => group.choices.map(choice => [choice.value, group.title])),
+)
 
-function groupHasSamples(group: ChartTypeGroup): boolean {
-  return samples.some(sample => groupHasChartType(group, sample.chartType))
-}
+const SAMPLE_GROUPS = new Set(samples.map(sample => GROUP_BY_CHART_TYPE.get(sample.chartType)))
 
-const filters = computed(() => [
+const filters = [
   { key: ALL_SAMPLES, label: `All ${samples.length}` },
-  ...CHART_TYPE_GROUPS.filter(groupHasSamples).map(group => ({ key: group.title, label: group.title })),
-])
+  ...CHART_TYPE_GROUPS.filter(group => SAMPLE_GROUPS.has(group.title)).map(group => ({ key: group.title, label: group.title })),
+]
 
 const visibleSampleCards = computed<SampleCard[]>(() => {
-  const activeGroup = CHART_TYPE_GROUPS.find(group => group.title === activeFilter.value)
-  if (!activeGroup) {
+  if (activeFilter.value === ALL_SAMPLES) {
     return sampleCards.value
   }
-  return sampleCards.value.filter(card => groupHasChartType(activeGroup, card.chartType))
+  return sampleCards.value.filter(card => GROUP_BY_CHART_TYPE.get(card.chartType) === activeFilter.value)
 })
 </script>
 
