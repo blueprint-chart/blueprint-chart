@@ -7,6 +7,14 @@
       @update:model-value="(v) => setOption('displayAsPercentage', v)"
     />
 
+    <FormControlNumberFormat
+      v-if="has('verticalNumberFormat')"
+      id="opt-verticalNumberFormat"
+      label="Number format"
+      :model-value="(currentOptions.verticalNumberFormat as string) ?? ''"
+      @update:model-value="(v) => setOption('verticalNumberFormat', v)"
+    />
+
     <FormControlCheckbox
       v-if="has('showTotal')"
       :model-value="currentOptions.showTotal ?? false"
@@ -55,7 +63,7 @@
 
 <script setup lang="ts">
 import { useChartTypeOptions, type ChartTypeOptionKey } from '@/stores/chartTypeOptions'
-import { FormControlCheckbox, FormControlSliderInput } from '@blueprint-chart/ui'
+import { FormControlCheckbox, FormControlNumberFormat, FormControlSliderInput } from '@blueprint-chart/ui'
 
 const { currentOptions, availableOptionKeys, setOption } = useChartTypeOptions()
 

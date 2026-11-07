@@ -426,8 +426,9 @@ const lineOpts = [valueLabelsOpt, tooltipsOpt, ...lineCrosshairOpts, ...lineSymb
 const lineMultiOpts = [valueLabelsOpt, tooltipsOpt, ...lineCrosshairOpts, ...lineMultiLineSymbolOpts]
 // No showTotal: the centre total is drawn in the donut hole, which a pie does
 // not have, so offering it on pie validated a key that could never render.
-const pieArcOpts = [pieDisplayAsPercentageOpt, showLabelsOpt, showValuesOpt, pieSliceMaxOpt, sliceGroupLabelOpt]
-const donutArcOpts = [displayAsPercentageOpt, donutShowTotalOpt, showLabelsOpt, showValuesOpt, sliceMaxOpt, sliceGroupLabelOpt]
+const arcNumberFormatOpt: ChartOptionDef = { key: 'verticalNumberFormat', type: ChartOptionType.NumberFormat, label: 'Number format' }
+const pieArcOpts = [pieDisplayAsPercentageOpt, arcNumberFormatOpt, showLabelsOpt, showValuesOpt, pieSliceMaxOpt, sliceGroupLabelOpt]
+const donutArcOpts = [displayAsPercentageOpt, arcNumberFormatOpt, donutShowTotalOpt, showLabelsOpt, showValuesOpt, sliceMaxOpt, sliceGroupLabelOpt]
 
 registerChart(ChartType.BarVertical, barVertical, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, swapLabelValueOpt, barBackgroundOpt, barSeparatorsOpt, barGapOpt, connectedColumnsOpt, connectionsOpacityOpt, waterfallOpt, waterfallTotalOpt, categoryLabelLineOpt, ...barVerticalAxisOpts, ...barOpts])
 registerChart(ChartType.BarHorizontal, barHorizontal, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, swapLabelValueOpt, barBackgroundOpt, barSeparatorsOpt, barGapOpt, connectedColumnsOpt, connectionsOpacityOpt, waterfallOpt, waterfallTotalOpt, categoryLabelLineOpt, ...barHorizontalAxisOpts, ...barHorizontalOpts])

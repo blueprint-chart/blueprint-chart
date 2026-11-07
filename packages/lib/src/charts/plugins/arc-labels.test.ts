@@ -142,6 +142,7 @@ function makePieData(values: number[], labels: string[]): ArcLabelDatum[] {
   return pieData.map((d, i) => ({
     label: labels[i],
     value: d.data,
+    valueText: String(d.data),
     startAngle: d.startAngle,
     endAngle: d.endAngle,
     color: colors[i % colors.length],
@@ -164,7 +165,7 @@ describe('renderArcLabels', () => {
     const g = createSvgGroup()
     // midAngle ≈ 0.785 (< π) → right side
     const data: ArcLabelDatum[] = [{
-      label: 'Right', value: 25, startAngle: 0, endAngle: Math.PI / 2,
+      label: 'Right', value: 25, valueText: '25', startAngle: 0, endAngle: Math.PI / 2,
       color: '#4e79a7',
     }]
     renderArcLabels(g, data, { outerRadius: 100, chartWidth: 400, chartHeight: 300 })
@@ -177,7 +178,7 @@ describe('renderArcLabels', () => {
     const g = createSvgGroup()
     // midAngle ≈ 4.71 (> π) → left side
     const data: ArcLabelDatum[] = [{
-      label: 'Left', value: 25, startAngle: Math.PI * 1.25, endAngle: Math.PI * 1.75,
+      label: 'Left', value: 25, valueText: '25', startAngle: Math.PI * 1.25, endAngle: Math.PI * 1.75,
       color: '#e15759',
     }]
     renderArcLabels(g, data, { outerRadius: 100, chartWidth: 400, chartHeight: 300 })
@@ -195,7 +196,7 @@ describe('renderArcLabels', () => {
   it('skips datum when both showLabel and showValue are false', () => {
     const g = createSvgGroup()
     const data: ArcLabelDatum[] = [{
-      label: 'Hidden', value: 50, startAngle: 0, endAngle: Math.PI / 2,
+      label: 'Hidden', value: 50, valueText: '50', startAngle: 0, endAngle: Math.PI / 2,
       color: '#4e79a7', showLabel: false, showValue: false,
     }]
     renderArcLabels(g, data, { outerRadius: 100, chartWidth: 400, chartHeight: 300 })
@@ -203,11 +204,11 @@ describe('renderArcLabels', () => {
     expect(g.selectAll('.bc-arc-label-line').size()).toBe(0)
   })
 
-  it('renders percentage text when displayAsPercentage is true', () => {
+  it('renders the precomputed value text', () => {
     const g = createSvgGroup()
     const data: ArcLabelDatum[] = [{
       label: 'Pct', value: 30, startAngle: 0, endAngle: 1,
-      color: '#4e79a7', displayAsPercentage: true, percentage: 30,
+      color: '#4e79a7', valueText: '30%',
     }]
     renderArcLabels(g, data, { outerRadius: 100, chartWidth: 400, chartHeight: 300 })
 
@@ -220,7 +221,7 @@ describe('renderArcLabels', () => {
   it('renders only value tspan when showLabel is false', () => {
     const g = createSvgGroup()
     const data: ArcLabelDatum[] = [{
-      label: 'NoLabel', value: 42, startAngle: 0, endAngle: 1,
+      label: 'NoLabel', value: 42, valueText: '42', startAngle: 0, endAngle: 1,
       color: '#4e79a7', showLabel: false, showValue: true,
     }]
     renderArcLabels(g, data, { outerRadius: 100, chartWidth: 400, chartHeight: 300 })
@@ -234,7 +235,7 @@ describe('renderArcLabels', () => {
   it('renders only label tspan when showValue is false', () => {
     const g = createSvgGroup()
     const data: ArcLabelDatum[] = [{
-      label: 'OnlyLabel', value: 42, startAngle: 0, endAngle: 1,
+      label: 'OnlyLabel', value: 42, valueText: '42', startAngle: 0, endAngle: 1,
       color: '#4e79a7', showLabel: true, showValue: false,
     }]
     renderArcLabels(g, data, { outerRadius: 100, chartWidth: 400, chartHeight: 300 })

@@ -66,6 +66,7 @@ Every property `donut` accepts, beside the [frame and layout keys](/reference/ds
 | `directLabelling` | select: `""`, `auto`, `outside`, `inside` | `auto` |
 | `tooltips` | boolean | `false` |
 | `displayAsPercentage` | boolean | `false` |
+| `verticalNumberFormat` | numberFormat | (unset) |
 | `showTotal` | boolean | `true` |
 | `showLabels` | boolean | `true` |
 | `showValues` | boolean | `true` |

@@ -8,8 +8,7 @@ export interface ArcLabelDatum {
   startAngle: number
   endAngle: number
   color: string
-  percentage?: number
-  displayAsPercentage?: boolean
+  valueText: string
   showLabel?: boolean
   showValue?: boolean
 }
@@ -178,14 +177,11 @@ export function renderArcLabels(
       }
 
       if (showValue) {
-        const valueText = p.displayAsPercentage && p.percentage != null
-          ? `${Math.round(p.percentage)}%`
-          : String(p.value)
         text.append('tspan')
           .attr('x', textX)
           .attr('dy', showLabel ? '1.2em' : '0.35em')
           .attr('fill', 'var(--bc-text-color, #666)')
-          .text(valueText)
+          .text(p.valueText)
       }
     })
   }
@@ -251,15 +247,12 @@ export function renderInsideArcLabels(
     }
 
     if (showValue) {
-      const valueText = d.displayAsPercentage && d.percentage != null
-        ? `${Math.round(d.percentage)}%`
-        : String(d.value)
       text.append('tspan')
         .attr('x', cx)
         .attr('dy', showLabel ? '1.2em' : '0em')
         .attr('fill', textColor)
         .attr('opacity', 0.85)
-        .text(valueText)
+        .text(d.valueText)
     }
   }
 

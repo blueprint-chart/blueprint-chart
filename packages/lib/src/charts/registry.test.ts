@@ -133,6 +133,10 @@ describe('registry', () => {
     expect(keys).toContain('valueLabelPosition')
   })
 
+  it.each([ChartType.Pie, ChartType.Donut])('%s has verticalNumberFormat option', (chartType) => {
+    expect(getChartOptions(chartType).map(o => o.key)).toContain('verticalNumberFormat')
+  })
+
   it('pie has displayAsPercentage defaulting to true', () => {
     const options = getChartOptions(ChartType.Pie)
     const opt = options.find(o => o.key === 'displayAsPercentage')

@@ -20,7 +20,7 @@ import { sortByValue } from '../../sort-helpers'
 import { highlightTargetSet, highlightOpacity } from '../../plugins/highlight'
 import { buildColorOverrides } from '../../plugins/colorize'
 import { DEFAULT_COLORS } from '../../palettes'
-import { formatValueLabel } from '../../format-helpers'
+import { formatValueLabel, parseNumberFormat } from '../../format-helpers'
 
 /**
  * Arc totals and legend values used to go through `String(v)`, which prints
@@ -105,6 +105,11 @@ export function renderArc(
   // Compute percentages
   const total = values.reduce((a, b) => a + b, 0)
   const percentages = values.map(v => total > 0 ? (v / total) * 100 : 0)
+  const numberFormat = options.verticalAxis?.numberFormat
+  const isD3Percent = parseNumberFormat(numberFormat || '.0%').d3Spec.endsWith('%')
+  const valueText = (v: number, i: number) => options.displayAsPercentage
+    ? formatValueLabel(isD3Percent ? percentages[i] / 100 : percentages[i], numberFormat || '.0%')
+    : numberFormat ? formatValueLabel(v, numberFormat) : formatArcValue(v)
 
   // When the supplied palette has fewer entries than slices, d3.scaleOrdinal
   // recycles colors and two distinct categories end up identical (e.g. the 4-color
@@ -119,12 +124,7 @@ export function renderArc(
   // Build legend value suffixes when showValues is on and labels are shown as legend
   const showValuesInLegend = (options.showValues ?? true) && !useDirectLabels
   const legendSuffixes = showValuesInLegend
-    ? values.map((v, i) => {
-        const formatted = options.displayAsPercentage
-          ? `${Math.round(percentages[i])}%`
-          : formatArcValue(v)
-        return `(${formatted})`
-      })
+    ? values.map((v, i) => `(${valueText(v, i)})`)
     : []
 
   // Compute margin adjustments for legend
@@ -286,8 +286,7 @@ export function renderArc(
       startAngle: d.startAngle,
       endAngle: d.endAngle,
       color: colorScale(labels[i]),
-      percentage: percentages[i],
-      displayAsPercentage: options.displayAsPercentage,
+      valueText: valueText(d.data, i),
       showLabel: options.showLabels ?? true,
       showValue: options.showValues ?? true,
     }))
@@ -309,7 +308,7 @@ export function renderArc(
   // Suppressed when displayAsPercentage is on: the center would always read "Total 100%",
   // which is trivially true for a donut and adds no information.
   if (options.showTotal && innerRadiusRatio > 0 && !options.displayAsPercentage) {
-    const totalText = formatArcValue(total)
+    const totalText = numberFormat ? formatValueLabel(total, numberFormat) : formatArcValue(total)
     centerGroup.append('text')
       .attr('class', 'bc-arc-total-label')
       .attr('text-anchor', 'middle')

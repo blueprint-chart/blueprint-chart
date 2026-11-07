@@ -112,7 +112,22 @@ describe('donut chart', () => {
     expect(allText.some(t => t.includes('%'))).toBe(true)
   })
 
+  it('formats value labels and legend values with the vertical number format', () => {
+    render(container, data, { directLabelling: 'inside', verticalAxis: { numberFormat: '$|,.1f|' } })
+    const labels = Array.from(container.querySelectorAll('.bc-arc-inside-label')).map(t => t.textContent)
+    expect(labels.some(t => t!.includes('$30.0'))).toBe(true)
+    container.innerHTML = ''
+    render(container, data, { legend: true, verticalAxis: { numberFormat: '$|,.1f|' } })
+    const legend = Array.from(container.querySelectorAll('.bc-legend-item')).map(el => el.textContent)
+    expect(legend.some(t => t!.includes('($30.0)'))).toBe(true)
+  })
+
   // ── Show total ────────────────────────────────────────────────────
+
+  it('formats the center total with the vertical number format', () => {
+    render(container, data, { showTotal: true, verticalAxis: { numberFormat: '$|,.1f|' } })
+    expect(container.querySelector('.bc-arc-total-value')!.textContent).toBe('$100.0')
+  })
 
   it('shows center total when showTotal is true', () => {
     render(container, data, { showTotal: true })

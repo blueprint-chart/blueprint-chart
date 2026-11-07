@@ -336,6 +336,18 @@ describe('pie chart', () => {
     expect(texts[2]).toContain('Others')
   })
 
+  it('formats percentage labels with the vertical number format', () => {
+    render(container, { labels: ['X', 'Y'], values: [4.6, 95.4] }, { displayAsPercentage: true, directLabelling: 'outside', verticalAxis: { numberFormat: '.1%' } })
+    const texts = Array.from(container.querySelectorAll('.bc-arc-direct-label')).map(t => t.textContent)
+    expect(texts.some(t => t!.includes('4.6%'))).toBe(true)
+  })
+
+  it('formats percentage labels with an editor suffix number format', () => {
+    render(container, { labels: ['X', 'Y'], values: [4.6, 95.4] }, { displayAsPercentage: true, directLabelling: 'outside', verticalAxis: { numberFormat: '|.1f|%' } })
+    const texts = Array.from(container.querySelectorAll('.bc-arc-direct-label')).map(t => t.textContent)
+    expect(texts.some(t => t!.includes('4.6%'))).toBe(true)
+  })
+
   it('combines displayAsPercentage with sliceMax', () => {
     const manyData = {
       labels: ['A', 'B', 'C', 'D'],
