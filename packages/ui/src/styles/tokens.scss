@@ -281,6 +281,11 @@ $spacer-xs: 0.25rem !default;
   --bc-grid-color: #444;
   --bc-text-color: #aaa;
 
+  // Re-declared from the light block: a var() alias resolves where it is
+  // declared, so a dark section inside a light page would inherit light values.
+  --bs-card-bg: var(--bc-tile-bg);
+  --bc-frame-border: var(--bc-hairline);
+
   --bc-canvas-bg: #0d0d0d;
   --bc-canvas-grid-color: rgba(255, 255, 255, 0.05);
   --bc-canvas-grid-color-major: rgba(255, 255, 255, 0.12);

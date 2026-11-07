@@ -169,6 +169,11 @@ describe('tokens.scss - chartreuse accent', () => {
     }
   })
 
+  it('re-declares theme-dependent aliases in the dark block so a dark section nested in a light page resolves them', () => {
+    expect(read(darkBody, '--bs-card-bg')).toBe('var(--bc-tile-bg)')
+    expect(read(darkBody, '--bc-frame-border')).toBe('var(--bc-hairline)')
+  })
+
   it('uses a neutral canvas with a grey grid', () => {
     expect(read(lightBody, '--bc-canvas-bg')).toBe('#f5f5f5')
     expect(read(darkBody, '--bc-canvas-bg')).toBe('#0d0d0d')
