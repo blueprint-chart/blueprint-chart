@@ -70,4 +70,24 @@ describe('DataUploadSamples', () => {
     const thumbs = w.findAllComponents(ChartThumbnail)
     expect(thumbs.map(t => t.props('dsl'))).toEqual(['chart bar-vertical {}', 'chart line {}'])
   })
+
+  it('offers an all filter plus one filter per chart family that has samples', () => {
+    const w = mountSamples()
+    const filters = w.findAll('.data-upload-samples__filters__filter')
+    expect(filters.map(filter => filter.text())).toEqual(['All 2', 'Compare categories', 'Change over time'])
+  })
+
+  it('selects the all filter by default', () => {
+    const w = mountSamples()
+    const filters = w.findAll('.data-upload-samples__filters__filter')
+    expect(filters.map(filter => filter.attributes('aria-pressed'))).toEqual(['true', 'false', 'false'])
+  })
+
+  it('shows only the samples of the picked family', async () => {
+    const w = mountSamples()
+    await w.findAll('.data-upload-samples__filters__filter')[2].trigger('click')
+    const cards = w.findAll('.data-upload-samples__card')
+    expect(cards.map(card => card.text())).toEqual([expect.stringContaining('Another Chart')])
+    expect(w.findAll('.data-upload-samples__filters__filter')[2].attributes('aria-pressed')).toBe('true')
+  })
 })

@@ -2,6 +2,7 @@
 import { ChartType, samples } from '@blueprint-chart/lib'
 import type { ChartSample } from '@blueprint-chart/lib'
 import ChartThumbnail from '@/components/Chart/ChartThumbnail.vue'
+import { CHART_TYPE_GROUPS, type ChartTypeGroup } from '@/components/Editor/editorChartTypeGroups'
 
 defineEmits<{ select: [sample: ChartSample] }>()
 
@@ -40,12 +41,53 @@ const sampleCards = computed<SampleCard[]>(() =>
     rowCount: rowCount(s.tsvData),
   })),
 )
+
+const ALL_SAMPLES = 'all'
+
+const activeFilter = shallowRef(ALL_SAMPLES)
+
+function groupHasChartType(group: ChartTypeGroup, chartType: string): boolean {
+  return group.choices.some(choice => choice.value === chartType)
+}
+
+function groupHasSamples(group: ChartTypeGroup): boolean {
+  return samples.some(sample => groupHasChartType(group, sample.chartType))
+}
+
+const filters = computed(() => [
+  { key: ALL_SAMPLES, label: `All ${samples.length}` },
+  ...CHART_TYPE_GROUPS.filter(groupHasSamples).map(group => ({ key: group.title, label: group.title })),
+])
+
+const visibleSampleCards = computed<SampleCard[]>(() => {
+  const activeGroup = CHART_TYPE_GROUPS.find(group => group.title === activeFilter.value)
+  if (!activeGroup) {
+    return sampleCards.value
+  }
+  return sampleCards.value.filter(card => groupHasChartType(activeGroup, card.chartType))
+})
 </script>
 
 <template>
   <div class="data-upload-samples">
+    <div
+      class="data-upload-samples__filters"
+      role="group"
+      aria-label="Filter samples by chart family"
+    >
+      <button
+        v-for="filter in filters"
+        :key="filter.key"
+        type="button"
+        class="data-upload-samples__filters__filter"
+        :aria-pressed="filter.key === activeFilter"
+        @click="activeFilter = filter.key"
+      >
+        {{ filter.label }}
+      </button>
+    </div>
     <button
-      v-for="sample in sampleCards"
+      v-for="sample in visibleSampleCards"
       :key="sample.id"
       type="button"
       class="data-upload-samples__card"
@@ -76,6 +118,42 @@ const sampleCards = computed<SampleCard[]>(() =>
   grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
   gap: 0.75rem;
   width: 100%;
+
+  &__filters {
+    display: flex;
+    flex-wrap: wrap;
+    grid-column: 1 / -1;
+    gap: 0.375rem;
+
+    &__filter {
+      padding: 0.1875rem 0.625rem;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      line-height: 1.25rem;
+      color: var(--bs-secondary-color);
+      background: var(--bs-body-bg);
+      border: 1px solid var(--bs-border-color-translucent);
+      border-radius: var(--bs-border-radius-pill);
+      cursor: pointer;
+      transition: border-color var(--bc-duration-base) ease, color var(--bc-duration-base) ease;
+
+      &:hover {
+        color: var(--bs-body-color);
+        border-color: var(--bs-secondary-color);
+      }
+
+      &:focus-visible {
+        outline: 2px solid var(--bs-focus-ring-color);
+        outline-offset: 2px;
+      }
+
+      &[aria-pressed="true"] {
+        color: var(--bs-body-bg);
+        background: var(--bs-emphasis-color);
+        border-color: var(--bs-emphasis-color);
+      }
+    }
+  }
 
   &__card {
     display: flex;
