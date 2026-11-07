@@ -68,13 +68,12 @@ describe('ChartEditPanel', () => {
     isNarrowRef.value = false
   })
 
-  it('adds the resolved canvas mode modifier', async () => {
+  it('themes the canvas with the canvas theme', async () => {
     const w = mountPanel()
-    expect(w.find('.chart-edit-panel__canvas').classes()).toContain('chart-edit-panel__canvas--light')
+    expect(w.find('.chart-edit-panel__canvas').attributes('data-bs-theme')).toBe('light')
     editorPanelState.resolvedCanvasMode.value = 'dark'
     await w.vm.$nextTick()
-    expect(w.find('.chart-edit-panel__canvas').classes()).toContain('chart-edit-panel__canvas--dark')
-    expect(w.find('.chart-edit-panel__canvas').classes()).not.toContain('chart-edit-panel__canvas--auto')
+    expect(w.find('.chart-edit-panel__canvas').attributes('data-bs-theme')).toBe('dark')
     editorPanelState.resolvedCanvasMode.value = 'light'
   })
 

@@ -7,6 +7,7 @@
       ref="canvasRef"
       class="export-panel__canvas"
       :class="canvasClassList"
+      :data-bs-theme="resolvedCanvasMode"
     >
       <ExportArticle :bare="previewContext === 'card'">
         <div
@@ -28,7 +29,10 @@
         :canvas-ref="canvasRef"
         :layout="layout"
       />
-      <div class="export-panel__view-toolbar">
+      <div
+        class="export-panel__view-toolbar"
+        :data-bs-theme="resolvedTheme"
+      >
         <CanvasViewPicker extra-label="Preview">
           <template #default="{ close }">
             <NavigationToggle
@@ -78,6 +82,7 @@
 <script setup lang="ts">
 import { useBreakpoint, NavigationToggle } from '@blueprint-chart/ui'
 import { useEditorPanel } from '@/stores/editorPanel'
+import { useTheme } from '@/stores/theme'
 import { usePanel } from '@/stores/panel'
 import { useExportPanel, type ExportTab, type PreviewContext } from '@/stores/exportPanel'
 import { useChartConfig } from '@/stores/chartConfig'
@@ -85,6 +90,7 @@ import { useExportSections } from '@/composables/useExportSections'
 
 const editorPanel = useEditorPanel()
 const { resolvedCanvasMode, showDimensions } = editorPanel
+const { resolvedTheme } = useTheme()
 const { setViewMode } = editorPanel
 const { mode: panelMode } = usePanel()
 
@@ -150,7 +156,6 @@ const TAB_LABELS: Record<string, string> = {
 const panelTitle = computed(() => TAB_LABELS[exportTab.value] ?? 'Export')
 
 const canvasClassList = computed(() => ({
-  [`export-panel__canvas--${resolvedCanvasMode.value}`]: true,
   'export-panel__canvas--flush': isNarrow.value && previewContext.value === 'article',
 }))
 
@@ -187,16 +192,6 @@ const canvasClassList = computed(() => ({
 
     .export-panel--narrow &--flush {
       padding: 0;
-    }
-
-    &--light {
-      background: #f5f5f5;
-      --bc-canvas-dimension-color: rgba(0, 0, 0, 0.55);
-    }
-
-    &--dark {
-      background: #0d0d0d;
-      --bc-canvas-dimension-color: rgba(255, 255, 255, 0.45);
     }
 
     &__card {

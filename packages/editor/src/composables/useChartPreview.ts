@@ -4,8 +4,8 @@ import { useChartTypeOptions } from './useChartTypeOptions'
 import { useScenes } from './useScenes'
 import { useDataTable } from './useDataTable'
 import { useDataTransforms } from './useDataTransforms'
-import { useTheme } from './useTheme'
 import { useChartTheme } from './useChartTheme'
+import { useEditorPanel } from '@/stores/editorPanel'
 import { renderChart } from '@blueprint-chart/lib'
 import { resolveScene, resolveSortFromTransforms } from '@/utils/scenes'
 import { buildChartRender, type RenderSnapshot } from '@/utils/chart/chartRender'
@@ -63,7 +63,7 @@ export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
   const { currentOptions } = useChartTypeOptions()
   const { scenes, activeScene } = useScenes()
   const { steps } = useDataTransforms()
-  const { theme } = useTheme()
+  const { resolvedCanvasMode } = useEditorPanel()
   const { chartTheme } = useChartTheme()
 
   // Track previous active scene ref to detect scene navigation.
@@ -93,19 +93,17 @@ export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
     const rawScene = activeScene.value
     const r = buildChartRender(readRenderSnapshot())
 
+    const card = containerRef.value.parentElement
+    if (r.kind === 'chart' && !r.allowDarkMode) {
+      card?.setAttribute('data-bs-theme', 'light')
+    }
+    else {
+      card?.removeAttribute('data-bs-theme')
+    }
+
     if (r.kind === 'empty') {
       showPlaceholder(containerRef.value, 'No data to preview')
       return
-    }
-
-    const card = containerRef.value.parentElement
-    if (card) {
-      if (!r.allowDarkMode && theme.value !== 'light') {
-        card.setAttribute('data-bs-theme', 'light')
-      }
-      else {
-        card.removeAttribute('data-bs-theme')
-      }
     }
 
     // Detect scene change for transition flag; lib handles cross-type fade itself.
@@ -132,7 +130,7 @@ export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
   const stepsTrigger = computed(() => JSON.stringify(steps.value))
 
   watch(
-    [containerRef, config.chartType, config.title, config.data, config.sort, config.description, config.byline, config.note, config.source, config.sourceUrl, config.selectedColumn, config.colorizes, config.highlights, config.areaFills, config.annotations, config.seriesOverrides, stepsTrigger, layoutTrigger, optionsTrigger, scenes, activeScene, theme, chartTheme],
+    [containerRef, config.chartType, config.title, config.data, config.sort, config.description, config.byline, config.note, config.source, config.sourceUrl, config.selectedColumn, config.colorizes, config.highlights, config.areaFills, config.annotations, config.seriesOverrides, stepsTrigger, layoutTrigger, optionsTrigger, scenes, activeScene, resolvedCanvasMode, chartTheme],
     render,
     // flush: 'post' ensures Vue has applied the container's style/class bindings
     // (aspect-ratio, flex-direction) before we read them via getComputedStyle.

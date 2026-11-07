@@ -1,3 +1,4 @@
+import type { PropType } from 'vue'
 import { mount } from '@vue/test-utils'
 import type { AnnotationConfig, SeriesOverride } from '@blueprint-chart/lib'
 import { AnnotationKind, ChartType, SortDirection, SortMode } from '@blueprint-chart/lib'
@@ -8,6 +9,9 @@ import { useChartConfig } from '@/stores/chartConfig'
 import { useScenes } from '@/stores/scenes'
 import type { SceneOverride } from './useScenes'
 import type { TransformStep } from './useDataTransforms'
+import { useThemeStore } from '@/stores/theme'
+import { useEditorPanel } from '@/stores/editorPanel'
+import { useChartTypeOptions } from '@/stores/chartTypeOptions'
 
 const { mockRenderChart } = vi.hoisted(() => ({ mockRenderChart: vi.fn() }))
 
@@ -468,6 +472,18 @@ describe('base + scene annotation merging', () => {
   })
 })
 
+const PreviewHost = defineComponent({
+  props: { container: { type: Object as PropType<HTMLElement>, required: true } },
+  setup(props) {
+    useChartPreview(toRef(props, 'container'))
+    return () => h('div')
+  },
+})
+
+function mountPreviewOn(container: HTMLElement) {
+  return mount(PreviewHost, { props: { container }, attachTo: document.body })
+}
+
 describe('useChartPreview › renderChart annotations windowing', () => {
   // Minimal data string that parseData turns into non-empty labels
   const DATA = '"A" = 10\n"B" = 20'
@@ -475,15 +491,7 @@ describe('useChartPreview › renderChart annotations windowing', () => {
   function mountPreview() {
     const container = document.createElement('div')
     document.body.appendChild(container)
-    const containerRef = ref<HTMLElement | null>(container)
-    const Comp = defineComponent({
-      setup() {
-        useChartPreview(containerRef)
-        return () => h('div')
-      },
-    })
-    const wrapper = mount(Comp, { attachTo: document.body })
-    return { wrapper, container }
+    return { wrapper: mountPreviewOn(container), container }
   }
 
   beforeEach(() => {
@@ -522,5 +530,79 @@ describe('useChartPreview › renderChart annotations windowing', () => {
     expect(annotations).toHaveLength(1)
     expect(annotations[0].key).toBe('base:0:point')
     expect(annotations[0].text).toBe('always')
+  })
+})
+
+describe('useChartPreview › card theme', () => {
+  let card: HTMLElement
+
+  function mountPreview() {
+    card = document.createElement('div')
+    const container = document.createElement('div')
+    card.appendChild(container)
+    document.body.appendChild(card)
+    return mountPreviewOn(container)
+  }
+
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    mockRenderChart.mockClear()
+    const config = useChartConfig()
+    config.reset()
+    config._base.data.value = '"A" = 10\n"B" = 20'
+    config._base.chartType.value = ChartType.BarVertical
+  })
+
+  afterEach(() => {
+    card.remove()
+  })
+
+  it('forces the card light when dark mode is not allowed', async () => {
+    useChartTypeOptions().setOption('allowDarkMode', false)
+    const wrapper = mountPreview()
+    await nextTick()
+    expect(card.getAttribute('data-bs-theme')).toBe('light')
+    wrapper.unmount()
+  })
+
+  it('lets the card inherit the canvas theme when dark mode is allowed', async () => {
+    useChartTypeOptions().setOption('allowDarkMode', true)
+    const wrapper = mountPreview()
+    await nextTick()
+    expect(card.hasAttribute('data-bs-theme')).toBe(false)
+    wrapper.unmount()
+  })
+
+  it('updates the card when dark mode is toggled after mount', async () => {
+    const wrapper = mountPreview()
+    await nextTick()
+    useChartTypeOptions().setOption('allowDarkMode', false)
+    await nextTick()
+    expect(card.getAttribute('data-bs-theme')).toBe('light')
+    useChartTypeOptions().setOption('allowDarkMode', true)
+    await nextTick()
+    expect(card.hasAttribute('data-bs-theme')).toBe(false)
+    wrapper.unmount()
+  })
+
+  it('re-renders when the canvas theme changes after mount', async () => {
+    useThemeStore().theme = 'light'
+    const wrapper = mountPreview()
+    await nextTick()
+    mockRenderChart.mockClear()
+    useEditorPanel().setCanvasMode('dark')
+    await nextTick()
+    expect(mockRenderChart).toHaveBeenCalled()
+    wrapper.unmount()
+  })
+
+  it('clears the forced theme when the data is emptied', async () => {
+    useChartTypeOptions().setOption('allowDarkMode', false)
+    const wrapper = mountPreview()
+    await nextTick()
+    useChartConfig()._base.data.value = ''
+    await nextTick()
+    expect(card.hasAttribute('data-bs-theme')).toBe(false)
+    wrapper.unmount()
   })
 })
