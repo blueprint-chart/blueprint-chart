@@ -105,12 +105,15 @@ export function renderThumbnailSvg(
   data: ChartData,
   typeOpts: Partial<ChartTypeOptions>,
   sort: SortDirection,
-  options?: { colorizes?: ChartColorize[], seriesOverrides?: SeriesOverride[] },
+  options?: { colorizes?: ChartColorize[], seriesOverrides?: SeriesOverride[], theme?: 'light' | 'dark' },
 ): string | null {
   if (data.labels.length === 0) {
     return null
   }
   return withOffscreen('__bc_thumb', THUMB_W, THUMB_H, THUMB_CSS, (container) => {
+    if (options?.theme) {
+      container.setAttribute('data-bs-theme', typeOpts.allowDarkMode === false ? 'light' : options.theme)
+    }
     renderChart(container, {
       chartType,
       data,
@@ -119,6 +122,8 @@ export function renderThumbnailSvg(
       colorizes: options?.colorizes,
       seriesOverrides: options?.seriesOverrides,
     }, { thumbnail: true })
+    // Baked in so the thumbnail keeps its own theme wherever the tile is shown.
+    container.querySelector('svg')?.style.setProperty('background', getComputedStyle(container).getPropertyValue('--bs-tertiary-bg'))
     return extractSvg(container)
   })
 }

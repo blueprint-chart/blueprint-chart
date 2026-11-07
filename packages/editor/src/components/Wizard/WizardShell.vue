@@ -51,7 +51,7 @@ const { isNarrow: isSavedCompact } = useBreakpoint('lg')
 const { isNarrow: isStepperStacked } = useBreakpoint('md')
 const { isNarrow } = useBreakpoint() // defaults to 'md' — matches the panel store
 const editorPanel = useEditorPanel()
-const { dataView } = editorPanel
+const { dataView, resolvedCanvasMode } = editorPanel
 const exportPanel = useExportPanel()
 const scenesSheetOpen = ref(false)
 
@@ -155,6 +155,7 @@ function renderOne(opts: RenderOneOpts): string | null {
   return renderThumbnailSvg(opts.chartType, data, opts.typeOpts, opts.sort as SortDirection, {
     colorizes: opts.colorizes?.length ? opts.colorizes : undefined,
     seriesOverrides: opts.seriesOverrides?.length ? opts.seriesOverrides : undefined,
+    theme: resolvedCanvasMode.value,
   })
 }
 
@@ -206,7 +207,7 @@ const debouncedGenerateThumbnails = useDebounceFn(generateSceneThumbnails, 300)
 watch(
   [() => scenes.value, config._base.chartType, config._base.data, config._base.sort,
     config._base.colorizes, config._base.seriesOverrides, config._base.selectedColumn,
-    baseOptions, currentStep],
+    baseOptions, currentStep, resolvedCanvasMode],
   () => {
     if (currentStep.value.key === 'edit') {
       debouncedGenerateThumbnails()
