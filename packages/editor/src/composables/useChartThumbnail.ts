@@ -1,4 +1,4 @@
-import { SortDirection, renderChart } from '@blueprint-chart/lib'
+import { SortDirection, renderChart, resolveBackgroundColor } from '@blueprint-chart/lib'
 import type { ChartData, ChartTypeOptions, SeriesOverride } from '@blueprint-chart/lib'
 import type { ChartColorize } from './useChartConfig'
 
@@ -105,25 +105,23 @@ export function renderThumbnailSvg(
   data: ChartData,
   typeOpts: Partial<ChartTypeOptions>,
   sort: SortDirection,
-  options?: { colorizes?: ChartColorize[], seriesOverrides?: SeriesOverride[], theme?: 'light' | 'dark' },
+  options: { colorizes?: ChartColorize[], seriesOverrides?: SeriesOverride[], theme: 'light' | 'dark' },
 ): string | null {
   if (data.labels.length === 0) {
     return null
   }
   return withOffscreen('__bc_thumb', THUMB_W, THUMB_H, THUMB_CSS, (container) => {
-    if (options?.theme) {
-      container.setAttribute('data-bs-theme', typeOpts.allowDarkMode === false ? 'light' : options.theme)
-    }
+    container.setAttribute('data-bs-theme', (typeOpts.allowDarkMode ?? true) ? options.theme : 'light')
     renderChart(container, {
       chartType,
       data,
       options: typeOpts,
       sort,
-      colorizes: options?.colorizes,
-      seriesOverrides: options?.seriesOverrides,
+      colorizes: options.colorizes,
+      seriesOverrides: options.seriesOverrides,
     }, { thumbnail: true })
     // Baked in so the thumbnail keeps its own theme wherever the tile is shown.
-    container.querySelector('svg')?.style.setProperty('background', getComputedStyle(container).getPropertyValue('--bs-tertiary-bg'))
+    container.querySelector('svg')?.style.setProperty('background', resolveBackgroundColor(container.querySelector('.bc-frame')))
     return extractSvg(container)
   })
 }
