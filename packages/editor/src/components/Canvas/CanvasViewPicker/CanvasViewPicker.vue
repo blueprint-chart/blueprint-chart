@@ -29,6 +29,13 @@
       v-if="open"
       class="canvas-view-picker__panel"
     >
+      <template v-if="$slots.default">
+        <div class="canvas-view-picker__label">
+          {{ extraLabel }}
+        </div>
+        <slot :close="close" />
+        <div class="canvas-view-picker__divider" />
+      </template>
       <template v-if="showLayout">
         <div class="canvas-view-picker__label">
           Layout
@@ -79,9 +86,15 @@ import type { CanvasMode, ViewMode } from '@/stores/editorPanel'
 // The export step has no view modes, so the LAYOUT section is opt-in.
 const props = withDefaults(defineProps<{
   showLayout?: boolean
+  extraLabel?: string
 }>(), {
   showLayout: false,
+  extraLabel: undefined,
 })
+
+defineSlots<{
+  default?: (props: { close: () => void }) => unknown
+}>()
 
 const editorPanel = useEditorPanel()
 const { viewMode, canvasMode } = editorPanel
@@ -89,6 +102,10 @@ const { setViewMode, setCanvasMode } = editorPanel
 const { isNarrow } = useBreakpoint()
 
 const open = shallowRef(false)
+function close() {
+  open.value = false
+}
+
 const root = useTemplateRef<HTMLElement>('root')
 const triggerRef = useTemplateRef<HTMLElement>('triggerRef')
 

@@ -168,6 +168,28 @@ describe('CanvasViewPicker', () => {
   })
 })
 
+describe('CanvasViewPicker extra section', () => {
+  it('renders an extra labelled section from the slot, before the canvas section', async () => {
+    const w = mount(CanvasViewPicker, {
+      props: { extraLabel: 'Preview' },
+      slots: { default: '<div class="extra-probe" />' },
+    })
+    await w.find('.canvas-view-picker__trigger').trigger('click')
+    const labels = w.findAll('.canvas-view-picker__label').map(l => l.text())
+    expect(labels).toEqual(['Preview', 'Canvas'])
+    expect(w.find('.extra-probe').exists()).toBe(true)
+  })
+
+  it('lets the slot close the panel', async () => {
+    const w = mount(CanvasViewPicker, {
+      slots: { default: `<template #default="{ close }"><button class="extra-close" @click="close" /></template>` },
+    })
+    await w.find('.canvas-view-picker__trigger').trigger('click')
+    await w.find('.extra-close').trigger('click')
+    expect(w.find('.canvas-view-picker__panel').exists()).toBe(false)
+  })
+})
+
 describe('CanvasViewPicker layout section', () => {
   it('has no layout section without showLayout', async () => {
     const w = mount(CanvasViewPicker)
