@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { buildChartOptions } from './chart-options'
 import { registerChart } from './registry'
+import { adjustColorsForBackground } from './contrast'
 import { ChartType, ChartOptionType, SortMode } from '../enums'
 
 describe('buildChartOptions option passthrough', () => {
@@ -59,5 +60,11 @@ describe('buildChartOptions option passthrough', () => {
 
   it('keeps working with no chart type', () => {
     expect(buildChartOptions({ legend: true }).legend).toBe(true)
+  })
+
+  it('adjusts negativeColor for the background when autoContrast is on', () => {
+    const result = buildChartOptions({ autoContrast: true, negativeColor: '#ffff00' }, '#ffffff', ChartType.BarVertical)
+    expect(result.negativeColor).toBe(adjustColorsForBackground(['#ffff00'], '#ffffff')[0])
+    expect(result.negativeColor).not.toBe('#ffff00')
   })
 })

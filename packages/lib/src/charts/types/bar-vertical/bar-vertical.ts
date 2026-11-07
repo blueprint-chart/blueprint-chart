@@ -180,6 +180,8 @@ export function render(
   }
 
   const colorOverrides = buildColorOverrides(options.colorizes)
+  const barColor = (label: string, value: number) =>
+    colorOverrides.get(label) ?? ((value < 0 && options.negativeColor) || (options.colors ?? DEFAULT_COLORS)[0])
   const highlightTargets = highlightTargetSet(options.highlights, allLabels)
 
   // Clip bars to the chart area so they truncate at axis boundaries.
@@ -227,7 +229,6 @@ export function render(
   // Connection areas between adjacent bars — filled polygon between bar tops,
   // appended to clippedGroup before the bars so they stay below in z-order.
   if (!isWaterfall && options.connectedColumns && barData.length > 1) {
-    const connColors = options.colors ?? DEFAULT_COLORS
     const connOpacity = options.connectionsOpacity ?? 0.15
     for (let i = 0; i < barData.length - 1; i++) {
       const curr = barData[i]
@@ -244,8 +245,8 @@ export function render(
       const yCurrTop = Math.min(y(0), y(curr.value))
       const yNextTop = Math.min(y(0), y(next.value))
       const yBottom = y(0)
-      const fillLeft = colorOverrides.get(curr.label) ?? connColors[0]
-      const fillRight = colorOverrides.get(next.label) ?? connColors[0]
+      const fillLeft = barColor(curr.label, curr.value)
+      const fillRight = barColor(next.label, next.value)
       let fillAttr: string
       if (fillLeft === fillRight) {
         fillAttr = fillLeft
@@ -274,13 +275,11 @@ export function render(
 
   if (isWaterfall) {
     // Waterfall mode: render bars with cumulative offsets directly
-    const colors = options.colors ?? DEFAULT_COLORS
     const totalColor = '#333'
 
     // Connection areas between adjacent waterfall bars — appended before
     // connector lines & bars so they paint below in z-order.
     if (options.connectedColumns && waterfallData.length > 1) {
-      const connColors = options.colors ?? DEFAULT_COLORS
       const connOpacity = options.connectionsOpacity ?? 0.15
       for (let i = 0; i < waterfallData.length - 1; i++) {
         const curr = waterfallData[i]
@@ -301,8 +300,8 @@ export function render(
         const yNextTop = y(next.y1)
         const yCurrBottom = y(curr.y0)
         const yNextBottom = y(next.y0)
-        const fillLeft = colorOverrides.get(curr.label) ?? connColors[0]
-        const fillRight = colorOverrides.get(next.label) ?? connColors[0]
+        const fillLeft = barColor(curr.label, curr.value)
+        const fillRight = barColor(next.label, next.value)
         let fillAttr: string
         if (fillLeft === fillRight) {
           fillAttr = fillLeft
@@ -357,7 +356,7 @@ export function render(
         if (d.isTotal) {
           return totalColor
         }
-        return colorOverrides.get(d.label) ?? colors[0]
+        return barColor(d.label, d.value)
       })
       .attr('opacity', (d: WaterfallDatum) => highlightTargets.size > 0 ? highlightOpacity(highlightTargets, d.label) : null)
 
@@ -383,7 +382,7 @@ export function render(
         .attr('dominant-baseline', pos === ValueLabelPosition.Inside ? 'central' : 'auto')
         .attr('fill', (d: WaterfallDatum) => {
           if (pos === ValueLabelPosition.Inside) {
-            return contrastTextColor(d.isTotal ? totalColor : colorOverrides.get(d.label) ?? colors[0])
+            return contrastTextColor(d.isTotal ? totalColor : barColor(d.label, d.value))
           }
           return 'currentColor'
         })
@@ -414,7 +413,7 @@ export function render(
         y: Math.min(y(0), y(d.value)),
         width: x.bandwidth(),
         height: Math.abs(y(d.value) - y(0)),
-        fill: colorOverrides.get(d.label) ?? (options.colors ?? DEFAULT_COLORS)[0],
+        fill: barColor(d.label, d.value),
         opacity: highlightOpacity(highlightTargets, d.label),
       }),
     })
@@ -460,8 +459,7 @@ export function render(
     if (options.valueLabels) {
       renderValueLabels(unclippedGroup, barData, x, y, {
         position: options.valueLabelPosition,
-        colorOverrides,
-        colors: options.colors ?? DEFAULT_COLORS,
+        barColor,
         transition,
         swapLabelValue,
         percent: options.valueLabels === 'percent',
@@ -537,8 +535,7 @@ function renderValueLabels(
   y: d3.ScaleLinear<number, number> | d3.ScaleSymLog<number, number>,
   opts: {
     position?: ValueLabelPosition
-    colorOverrides: Map<string, string>
-    colors: string[]
+    barColor: (label: string, value: number) => string
     transition: boolean
     swapLabelValue?: boolean
     percent?: boolean
@@ -594,7 +591,7 @@ function renderValueLabels(
         'text-anchor': a.anchor,
         'dominant-baseline': a.baseline,
         'fill': a.isInside
-          ? contrastTextColor(opts.colorOverrides.get(d.label) ?? opts.colors[0])
+          ? contrastTextColor(opts.barColor(d.label, d.value))
           : 'currentColor',
       }
     },

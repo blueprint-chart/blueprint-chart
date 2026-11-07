@@ -125,6 +125,29 @@ describe('bar-vertical', () => {
     expect(fills.every(f => f === '#4e79a7')).toBe(true)
   })
 
+  it('fills negative bars with negativeColor when set', () => {
+    render(container, { labels: ['A', 'B'], values: [10, -5] }, { negativeColor: '#e15759' })
+    const fills = Array.from(container.querySelectorAll('.bc-bar')).map(b => b.getAttribute('fill'))
+    expect(fills).toEqual(['#4e79a7', '#e15759'])
+  })
+
+  it('fills negative bars like positives when negativeColor is unset', () => {
+    render(container, { labels: ['A', 'B'], values: [10, -5] })
+    const fills = Array.from(container.querySelectorAll('.bc-bar')).map(b => b.getAttribute('fill'))
+    expect(fills).toEqual(['#4e79a7', '#4e79a7'])
+  })
+
+  it('fills negative waterfall steps with negativeColor', () => {
+    render(container, { labels: ['A', 'B'], values: [10, -5] }, { waterfall: true, waterfallTotal: true, negativeColor: '#e15759' })
+    const fills = Array.from(container.querySelectorAll('.bc-bar')).map(b => b.getAttribute('fill'))
+    expect(fills).toEqual(['#4e79a7', '#e15759', '#333'])
+  })
+
+  it('fills connections next to negative bars with negativeColor', () => {
+    render(container, { labels: ['A', 'B'], values: [-10, -5] }, { connectedColumns: true, negativeColor: '#e15759' })
+    expect(container.querySelector('.bc-bar-connection')!.getAttribute('fill')).toBe('#e15759')
+  })
+
   // ── Sort ─────────────────────────────────────────────────────────
 
   it('sorts bars in descending order', () => {

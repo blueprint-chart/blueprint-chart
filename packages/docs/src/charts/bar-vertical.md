@@ -66,6 +66,7 @@ Every property `bar-vertical` accepts, beside the [frame and layout keys](/refer
 | `autoContrast` | boolean | `false` |
 | `allowDarkMode` | boolean | `true` |
 | `swapLabelValue` | boolean | `false` |
+| `negativeColor` | text | `""` |
 | `barBackground` | boolean | `false` |
 | `barSeparators` | boolean | `false` |
 | `barGap` | text | `60` |

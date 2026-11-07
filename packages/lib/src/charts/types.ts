@@ -248,6 +248,7 @@ export interface ChartOptions {
   barGap?: number
   connectedColumns?: boolean
   connectionsOpacity?: number
+  negativeColor?: string
   stackMode?: StackMode
   edgePadding?: boolean
   waterfall?: boolean
@@ -352,6 +353,7 @@ export interface ChartTypeOptions {
   barGap: string
   connectedColumns: boolean
   connectionsOpacity: string
+  negativeColor: string
   stackMode: string
   stacked: boolean
   stackPercent: boolean

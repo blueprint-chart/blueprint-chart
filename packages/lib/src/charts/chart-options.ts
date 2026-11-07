@@ -49,6 +49,10 @@ function buildChartColors(opts: Partial<ChartTypeOptions>, backgroundColor?: str
     partial.colors = adjustColorsForBackground(partial.colors, backgroundColor)
   }
 
+  if (opts.autoContrast && backgroundColor && opts.negativeColor) {
+    partial.negativeColor = adjustColorsForBackground([opts.negativeColor], backgroundColor)[0]
+  }
+
   if (opts.allowDarkMode !== undefined) {
     partial.allowDarkMode = opts.allowDarkMode
   }

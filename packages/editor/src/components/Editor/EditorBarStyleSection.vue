@@ -8,6 +8,21 @@
     />
 
     <FormControlCheckbox
+      v-if="hasNegativeColor"
+      :model-value="!!currentOptions.negativeColor"
+      label="Different color for negative values"
+      @update:model-value="(v) => setOption('negativeColor', v ? DEFAULT_COLORS[2] : '')"
+    />
+
+    <FormControlColorInput
+      v-if="hasNegativeColor && currentOptions.negativeColor"
+      id="opt-negative-color"
+      label="Negative color"
+      :model-value="currentOptions.negativeColor"
+      @update:model-value="(v) => setOption('negativeColor', v)"
+    />
+
+    <FormControlCheckbox
       v-if="hasBarSeparators"
       :model-value="currentOptions.barSeparators ?? false"
       label="Bar separators"
@@ -70,12 +85,13 @@
 
 <script setup lang="ts">
 import { useChartTypeOptions } from '@/stores/chartTypeOptions'
-import { FormControlCheckbox, FormControlSliderInput } from '@blueprint-chart/ui'
-import { DEFAULT_BAR_GAP } from '@blueprint-chart/lib'
+import { FormControlCheckbox, FormControlColorInput, FormControlSliderInput } from '@blueprint-chart/ui'
+import { DEFAULT_BAR_GAP, DEFAULT_COLORS } from '@blueprint-chart/lib'
 
 const { currentOptions, availableOptionKeys, setOption } = useChartTypeOptions()
 
 const hasBarBackground = computed(() => availableOptionKeys.value.includes('barBackground'))
+const hasNegativeColor = computed(() => availableOptionKeys.value.includes('negativeColor'))
 const hasBarSeparators = computed(() => availableOptionKeys.value.includes('barSeparators'))
 const hasBarGap = computed(() => availableOptionKeys.value.includes('barGap'))
 const hasConnectedColumns = computed(() => availableOptionKeys.value.includes('connectedColumns'))

@@ -87,7 +87,7 @@ export type { ChartRecommendation, RecommendationFitness, ColumnType, Intent, Sh
 
 export { getChartTypeDefaults, resolveChartTypeOptions } from './charts/resolve'
 export { resolveBarGapPadding, DEFAULT_BAR_GAP } from './charts/scale-helpers'
-export { resolvePalette, listPalettes } from './charts/palettes'
+export { DEFAULT_COLORS, resolvePalette, listPalettes } from './charts/palettes'
 export type { PaletteEntry } from './charts/palettes'
 export { listThemes } from './charts/themes'
 export type { ThemeEntry } from './charts/themes'

@@ -24,6 +24,11 @@ vi.mock('@blueprint-chart/ui', () => ({
     props: ['modelValue', 'id', 'label', 'min', 'max', 'step', 'suffix'],
     emits: ['update:modelValue'],
   },
+  FormControlColorInput: {
+    template: '<input type="color" :data-id="id" :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" />',
+    props: ['modelValue', 'id', 'label'],
+    emits: ['update:modelValue'],
+  },
 }))
 
 describe('EditorBarStyleSection', () => {
@@ -206,6 +211,38 @@ describe('EditorBarStyleSection', () => {
         await slider.setValue('200')
         expect(mockSetOption).toHaveBeenCalledWith('connectionsOpacity', '1')
       })
+    })
+  })
+
+  describe('negativeColor', () => {
+    it('does not render when the option is absent', () => {
+      availableOptionKeys.value = ['barBackground']
+      const w = mount(EditorBarStyleSection)
+      expect(w.find('[data-label="Different color for negative values"]').exists()).toBe(false)
+    })
+
+    it('sets a default negative color when toggled on', async () => {
+      availableOptionKeys.value = ['negativeColor']
+      const w = mount(EditorBarStyleSection)
+      await w.find('[data-label="Different color for negative values"]').setValue(true)
+      expect(mockSetOption).toHaveBeenCalledWith('negativeColor', '#e15759')
+    })
+
+    it('shows the color input only when a negative color is set', async () => {
+      availableOptionKeys.value = ['negativeColor']
+      const w = mount(EditorBarStyleSection)
+      expect(w.find('[data-id="opt-negative-color"]').exists()).toBe(false)
+      currentOptions.value = { negativeColor: '#123456' }
+      await nextTick()
+      expect((w.find('[data-id="opt-negative-color"]').element as HTMLInputElement).value).toBe('#123456')
+    })
+
+    it('clears the negative color when toggled off', async () => {
+      availableOptionKeys.value = ['negativeColor']
+      currentOptions.value = { negativeColor: '#123456' }
+      const w = mount(EditorBarStyleSection)
+      await w.find('[data-label="Different color for negative values"]').setValue(false)
+      expect(mockSetOption).toHaveBeenCalledWith('negativeColor', '')
     })
   })
 })

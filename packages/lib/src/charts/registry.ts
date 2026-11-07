@@ -253,6 +253,7 @@ const barBackgroundOpt: ChartOptionDef = { key: 'barBackground', type: ChartOpti
 const barGapOpt: ChartOptionDef = { key: 'barGap', type: ChartOptionType.Text, label: 'Bar gap', default: String(DEFAULT_BAR_GAP), placeholder: String(DEFAULT_BAR_GAP) }
 const barSeparatorsOpt: ChartOptionDef = { key: 'barSeparators', type: ChartOptionType.Boolean, label: 'Bar separators', default: false }
 const connectedColumnsOpt: ChartOptionDef = { key: 'connectedColumns', type: ChartOptionType.Boolean, label: 'Connected columns', default: false }
+const negativeColorOpt: ChartOptionDef = { key: 'negativeColor', type: ChartOptionType.Text, label: 'Negative color', default: '' }
 const connectionsOpacityOpt: ChartOptionDef = { key: 'connectionsOpacity', type: ChartOptionType.Text, label: 'Opacity', default: '0.15', placeholder: '0.15' }
 const swapLabelValueOpt: ChartOptionDef = { key: 'swapLabelValue', type: ChartOptionType.Boolean, label: 'Swap labels and values', default: false }
 const stackModeOpt: ChartOptionDef = {
@@ -466,7 +467,7 @@ const arcNumberFormatOpt: ChartOptionDef = { key: 'verticalNumberFormat', type: 
 const pieArcOpts = [pieDisplayAsPercentageOpt, arcNumberFormatOpt, showLabelsOpt, showValuesOpt, pieSliceMaxOpt, sliceGroupLabelOpt]
 const donutArcOpts = [displayAsPercentageOpt, arcNumberFormatOpt, donutShowTotalOpt, ...donutCenterOpts, showLabelsOpt, showValuesOpt, sliceMaxOpt, sliceGroupLabelOpt]
 
-registerChart(ChartType.BarVertical, barVertical, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, swapLabelValueOpt, barBackgroundOpt, barSeparatorsOpt, barGapOpt, connectedColumnsOpt, connectionsOpacityOpt, waterfallOpt, waterfallTotalOpt, categoryLabelLineOpt, ...barVerticalAxisOpts, ...barOpts])
+registerChart(ChartType.BarVertical, barVertical, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, swapLabelValueOpt, negativeColorOpt, barBackgroundOpt, barSeparatorsOpt, barGapOpt, connectedColumnsOpt, connectionsOpacityOpt, waterfallOpt, waterfallTotalOpt, categoryLabelLineOpt, ...barVerticalAxisOpts, ...barOpts])
 registerChart(ChartType.BarHorizontal, barHorizontal, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, swapLabelValueOpt, barBackgroundOpt, barSeparatorsOpt, barGapOpt, connectedColumnsOpt, connectionsOpacityOpt, waterfallOpt, waterfallTotalOpt, categoryLabelLineOpt, ...barHorizontalAxisOpts, ...barHorizontalOpts])
 registerChart(ChartType.BarMulti, barMulti, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, barGapOpt, ...sortByTotalOpts, legendOffOpt, legendAnchorOpt, legendPositionOpt, autoDirectLabellingOpt, directLabelAnchorOpt, ...barVerticalAxisOpts, ...barOpts])
 registerChart(ChartType.Line, line, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, lineInterpolationOpt, edgePaddingOpt, ...lineAxisOpts, ...lineOpts, valueLabelPointsOpt, valueLabelEveryOpt])
@@ -567,5 +568,5 @@ const dotPlotAxisOpts = axisOpts({ verticalGrid: GridStyle.None, horizontalGrid:
 registerChart(ChartType.DotPlot, dotPlot, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, dotStyleOpt, ...dotPlotMappingOpts, arrowsOpt, dotPlotSortModeOpt, sortReverseOpt, legendOpt, legendPositionOpt, legendAnchorOpt, categoryLabelLineOpt, ...dotPlotAxisOpts, valueLabelsOpt, dotLabelsOpt, { ...tooltipsOpt, default: true }])
 
 // Aliases share the same entry
-registerChart(ChartType.VerticalBar, barVertical, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, swapLabelValueOpt, barBackgroundOpt, barSeparatorsOpt, barGapOpt, connectedColumnsOpt, connectionsOpacityOpt, waterfallOpt, waterfallTotalOpt, categoryLabelLineOpt, ...barVerticalAxisOpts, ...barOpts])
+registerChart(ChartType.VerticalBar, barVertical, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, swapLabelValueOpt, negativeColorOpt, barBackgroundOpt, barSeparatorsOpt, barGapOpt, connectedColumnsOpt, connectionsOpacityOpt, waterfallOpt, waterfallTotalOpt, categoryLabelLineOpt, ...barVerticalAxisOpts, ...barOpts])
 registerChart(ChartType.HorizontalBar, barHorizontal, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, swapLabelValueOpt, barBackgroundOpt, barSeparatorsOpt, barGapOpt, connectedColumnsOpt, connectionsOpacityOpt, waterfallOpt, waterfallTotalOpt, categoryLabelLineOpt, ...barHorizontalAxisOpts, ...barHorizontalOpts])
