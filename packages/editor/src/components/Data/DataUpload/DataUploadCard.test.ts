@@ -180,6 +180,19 @@ describe('DataUploadCard', () => {
     expect(w.find('.upload-card__samples .samples').exists()).toBe(true)
   })
 
+  it('hides the sample gallery when data is already loaded', () => {
+    columnsRef.value = ['a', 'b']
+    const w = mountCard()
+    expect(w.find('.upload-card__samples').exists()).toBe(false)
+  })
+
+  it('hides the sample gallery when editing a scene', () => {
+    scenesRef.value = [{ id: 's1' }]
+    activeIndexRef.value = 0
+    const w = mountCard()
+    expect(w.find('.upload-card__samples').exists()).toBe(false)
+  })
+
   it('emits sample event when DataUploadSamples emits select', async () => {
     const w = mount(DataUploadCard, {
       global: {

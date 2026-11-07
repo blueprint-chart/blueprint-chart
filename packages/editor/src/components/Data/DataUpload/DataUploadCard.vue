@@ -101,6 +101,7 @@
       </div>
     </div>
     <section
+      v-if="showSamples"
       class="upload-card__samples"
       :aria-labelledby="samplesHeadingId"
     >
@@ -147,6 +148,8 @@ function hasSceneData(): boolean {
   const resolved = resolveScene(scenes.value, activeIndex.value)
   return !!resolved?.data
 }
+
+const showSamples = computed(() => columns.value.length === 0 && activeIndex.value < 0)
 
 function getInitialPasteInput(): string {
   // When a scene provides custom data, show that data as TSV
