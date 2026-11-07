@@ -33,7 +33,7 @@
         <FormControlButtonGroup
           v-if="currentOptions.valueLabels && dotLabelsDef && currentOptions.dotStyle !== DotStyle.Range"
           :label="dotLabelsDef.label"
-          :model-value="currentOptions.dotLabels ?? dotLabelsDef.default"
+          :model-value="currentOptions.dotLabels ?? 'both'"
           :options="dotLabelsDef.choices"
           block
           @update:model-value="(v) => setOption('dotLabels', v)"
