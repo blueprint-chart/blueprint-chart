@@ -23,6 +23,7 @@
       </ExportArticle>
       <CanvasDimensions
         v-if="showDimensions"
+        :key="previewContext"
         :card-ref="cardRef"
         :canvas-ref="canvasRef"
         :layout="layout"
