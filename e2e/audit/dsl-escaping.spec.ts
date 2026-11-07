@@ -77,10 +77,13 @@ test.describe('boolean option casing', () => {
 })
 
 test.describe('newlines in frame text', () => {
-  const renderedLines = (page: Page, selector: string) => page.locator(selector).evaluate((el) => {
+  const renderedLines = (page: Page, selector: string, whiteSpace?: string) => page.locator(selector).evaluate((el, whiteSpace) => {
+    if (whiteSpace) {
+      el.style.setProperty('white-space', whiteSpace)
+    }
     const lineHeight = parseFloat(getComputedStyle(el).lineHeight)
     return Math.round(el.getBoundingClientRect().height / lineHeight)
-  })
+  }, whiteSpace)
 
   test('an explicit \\n breaks frame text onto a second line', async ({ page }) => {
     await gotoRender(page, `chart pie {
@@ -105,8 +108,7 @@ test.describe('newlines in frame text', () => {
     "B" = 2
   }
 }`)
-    await page.locator('.bc-frame-title').evaluate(el => el.style.setProperty('white-space', 'normal'))
-    expect(await renderedLines(page, '.bc-frame-title')).toBe(1)
+    expect(await renderedLines(page, '.bc-frame-title', 'normal')).toBe(1)
   })
 })
 
