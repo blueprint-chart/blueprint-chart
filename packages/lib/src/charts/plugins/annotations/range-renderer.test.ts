@@ -1,7 +1,7 @@
 import * as d3 from 'd3'
 import { describe, it, expect, afterEach } from 'vitest'
 import { renderRangeAnnotation } from './range-renderer'
-import { AnnotationKind, Orientation } from '../../../enums'
+import { AnnotationKind, Orientation, RangeAnchor } from '../../../enums'
 import type { AnnotationContext } from './context'
 
 const WIDTH = 400
@@ -93,5 +93,44 @@ describe('renderRangeAnnotation', () => {
     const height = Number(rect!.getAttribute('height'))
     expect(y).toBe(0)
     expect(y + height).toBeCloseTo(ctx.scaleY(20) as number, 5)
+  })
+})
+
+describe('renderRangeAnnotation with markCenter', () => {
+  function setupWithMark(): { g: d3.Selection<SVGGElement, unknown, null, undefined>, ctx: AnnotationContext } {
+    const g = d3.select(document.body).append('svg').append<SVGGElement>('g')
+    const centres: Record<string, number> = { a: 60, b: 160, c: 260 }
+    const ctx: AnnotationContext = {
+      scaleX: d3.scaleBand<string>().domain(['a', 'b', 'c']).range([0, 300]),
+      scaleY: d3.scaleLinear().domain([0, 100]).range([0, 400]),
+      data: [],
+      orientation: Orientation.Horizontal,
+      width: 400,
+      height: 300,
+      markCenter: l => ({ x: 0, y: centres[l]! }),
+    }
+    return { g, ctx }
+  }
+
+  it('centres a category endpoint on the mark centre line', () => {
+    const { g, ctx } = setupWithMark()
+    renderRangeAnnotation(g, range({ start: 'a', end: 'c' }), ctx, 0)
+    const rect = document.querySelector('.bc-annotation-range')!
+    expect(Number(rect.getAttribute('y'))).toBeCloseTo(60)
+    expect(Number(rect.getAttribute('height'))).toBeCloseTo(200)
+  })
+
+  it('keeps start and end anchors on the band edges', () => {
+    const { g, ctx } = setupWithMark()
+    renderRangeAnnotation(g, range({ start: 'a', end: 'c', startAnchor: RangeAnchor.Start, endAnchor: RangeAnchor.End }), ctx, 0)
+    const rect = document.querySelector('.bc-annotation-range')!
+    expect(Number(rect.getAttribute('y'))).toBeCloseTo(0)
+    expect(Number(rect.getAttribute('height'))).toBeCloseTo(300)
+  })
+
+  it('draws the same band when endpoints are given bottom to top', () => {
+    const { g, ctx } = setupWithMark()
+    renderRangeAnnotation(g, range({ start: 'c', end: 'a' }), ctx, 0)
+    expect(Number(document.querySelector('.bc-annotation-range')!.getAttribute('y'))).toBeCloseTo(60)
   })
 })

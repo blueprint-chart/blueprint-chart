@@ -1,10 +1,18 @@
 import * as d3 from 'd3'
 import type { AnnotationConfig } from '../../types'
-import { AnnotationKind, Orientation } from '../../../enums'
+import { AnnotationKind, Orientation, RangeAnchor } from '../../../enums'
 import { DIRECTION_VECTORS } from './direction-helpers'
 import { resolveMaxWidth } from './position-helpers'
 import type { AnnotationContext } from './context'
 import { resolveXPosition, resolveYPosition, renderAnnotationText } from './shared'
+
+function categoryPosition(value: number | string, anchor: RangeAnchor | undefined, ctx: AnnotationContext): number | null {
+  const center = (anchor ?? RangeAnchor.Center) === RangeAnchor.Center ? ctx.markCenter?.(String(value)) : undefined
+  if (center) {
+    return ctx.orientation === Orientation.Horizontal ? center.y : center.x
+  }
+  return resolveXPosition(value, ctx.scaleX, anchor)
+}
 
 // ---------------------------------------------------------------------------
 // Range annotation renderer
@@ -24,10 +32,10 @@ export function renderRangeAnnotation(
   const onCategoryAxis = (ann.orientation ?? Orientation.Vertical) === Orientation.Vertical
 
   const p1 = onCategoryAxis
-    ? resolveXPosition(ann.start, ctx.scaleX, ann.startAnchor)
+    ? categoryPosition(ann.start, ann.startAnchor, ctx)
     : resolveYPosition(ann.start, ctx.scaleY)
   const p2 = onCategoryAxis
-    ? resolveXPosition(ann.end, ctx.scaleX, ann.endAnchor)
+    ? categoryPosition(ann.end, ann.endAnchor, ctx)
     : resolveYPosition(ann.end, ctx.scaleY)
 
   // An endpoint that resolves to nothing (a category outside the data, or a
