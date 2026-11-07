@@ -231,7 +231,12 @@ function applyLineMoveTransition(
 
 function markPosition(el: Element): [number, number] {
   const [x, y] = el.tagName === 'circle' ? ['cx', 'cy'] : ['x', 'y']
-  return [Number(el.getAttribute(x)), Number(el.getAttribute(y))]
+  const position: [number, number] = [Number(el.getAttribute(x)), Number(el.getAttribute(y))]
+  for (const [, tx, ty] of (el.getAttribute('transform') ?? '').matchAll(/translate\(([^,\s)]+)[,\s]*([^)]*)\)/g)) {
+    position[0] += Number(tx)
+    position[1] += Number(ty) || 0
+  }
+  return position
 }
 
 function applyMarkMoveTransition(el: Element, prev: Element, durationMs: number): void {
@@ -246,7 +251,7 @@ function applyMarkMoveTransition(el: Element, prev: Element, durationMs: number)
   const at = (k: number) => `translate(${dx * k}, ${dy * k})${end ? ` ${end}` : ''}`
   d3.select(el)
     .attr('transform', at(1))
-    .transition()
+    .transition(BC_TRANSITION_NAME)
     .duration(durationMs)
     .ease(d3.easeCubicInOut)
     .attrTween('transform', () => (t: number) => at(1 - t))
@@ -256,7 +261,7 @@ const RANGE_GEOMETRY = ['x', 'y', 'width', 'height'] as const
 
 function applyRangeMoveTransition(rect: Element, prev: Element, durationMs: number): void {
   const sel = d3.select(rect)
-  const transition = sel.transition().duration(durationMs).ease(d3.easeCubicInOut)
+  const transition = sel.transition(BC_TRANSITION_NAME).duration(durationMs).ease(d3.easeCubicInOut)
   for (const attr of RANGE_GEOMETRY) {
     transition.attr(attr, rect.getAttribute(attr))
     sel.attr(attr, prev.getAttribute(attr))
@@ -294,9 +299,10 @@ function applyAnnotationTransitions(
         applyLineMoveTransition(lineEl, old.line, durationMs)
       }
 
-      for (const child of el.querySelectorAll('.bc-annotation-text, .bc-annotation-circle')) {
-        const prev = old.element.querySelector(`.${child.getAttribute('class')}`)
-        if (prev) {
+      for (const selector of ['.bc-annotation-text', '.bc-annotation-circle']) {
+        const child = el.querySelector(selector)
+        const prev = old.element.querySelector(selector)
+        if (child && prev) {
           applyMarkMoveTransition(child, prev, durationMs)
         }
       }

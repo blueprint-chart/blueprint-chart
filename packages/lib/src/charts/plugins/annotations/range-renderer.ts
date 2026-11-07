@@ -106,6 +106,9 @@ export function renderRangeAnnotation(
     const textTarget = labelGroup
       ? labelGroup.append('g').attr('data-annotation-index', String(index))
       : annG
+    if (labelGroup && annotationKey) {
+      textTarget.attr('data-annotation-id', `${annotationKey}:label`)
+    }
 
     renderAnnotationText(textTarget, ann.text, textX, textY, {
       textColor: ann.textColor,

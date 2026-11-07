@@ -1,5 +1,5 @@
 import * as d3 from 'd3'
-import { describe, it, expect, beforeAll, afterEach } from 'vitest'
+import { describe, it, expect, beforeAll, afterAll, afterEach } from 'vitest'
 import { renderAnnotations } from './index'
 import { AnnotationKind, Orientation } from '../../../enums'
 import type { AnnotationConfig } from '../../types'
@@ -7,6 +7,13 @@ import type { AnnotationContext } from './context'
 
 const point: AnnotationConfig = { kind: AnnotationKind.Point, key: 'p', target: 'B', text: 'peak', showArrow: true }
 const range: AnnotationConfig = { kind: AnnotationKind.Range, key: 'r', orientation: Orientation.Horizontal, start: 20, end: 40 }
+const getBBox = (window.SVGElement.prototype as unknown as { getBBox?: () => DOMRect }).getBBox
+
+function drawnPosition(el: Element): [number, number] {
+  const shift = [...(el.getAttribute('transform') ?? '').matchAll(/translate\(([^,]+),([^)]+)\)/g)]
+    .reduce(([x, y], [, tx, ty]) => [x + Number(tx), y + Number(ty)], [0, 0])
+  return [Number(el.getAttribute('x')) + shift[0], Number(el.getAttribute('y')) + shift[1]]
+}
 
 function ctx(max: number, transition: boolean): AnnotationContext {
   return {
@@ -26,13 +33,18 @@ describe('renderAnnotations scene transitions', () => {
     ;(window.SVGElement.prototype as unknown as { getBBox: () => DOMRect }).getBBox = () => ({ x: 0, y: 0, width: 0, height: 0 }) as DOMRect
   })
 
+  afterAll(() => {
+    ;(window.SVGElement.prototype as unknown as { getBBox: typeof getBBox }).getBBox = getBBox
+  })
+
   afterEach(() => {
     document.body.replaceChildren()
   })
 
-  function renderTwice(annotations: AnnotationConfig[]) {
+  function renderTwice(annotations: AnnotationConfig[], midTween?: (g: SVGGElement) => void) {
     g = d3.select(document.body).append('svg').attr('width', 400).attr('height', 300).append('g').node()!
     renderAnnotations(g, annotations, ctx(30, false))
+    midTween?.(g)
     const before = g.cloneNode(true) as SVGGElement
     renderAnnotations(g, annotations, ctx(60, true))
     return before
@@ -51,5 +63,21 @@ describe('renderAnnotations scene transitions', () => {
     const rect = g.querySelector('.bc-annotation-range')!
     expect(rect.getAttribute('y')).toBe(before.querySelector('.bc-annotation-range')!.getAttribute('y'))
     expect(rect.getAttribute('height')).toBe(before.querySelector('.bc-annotation-range')!.getAttribute('height'))
+  })
+
+  it('starts a moved range label from its previous position', () => {
+    const before = renderTwice([{ ...range, text: 'band' }])
+    const [oldX, oldY] = drawnPosition(before.querySelector('.bc-annotation-text')!)
+    const [x, y] = drawnPosition(g.querySelector('.bc-annotation-text')!)
+    expect(x).toBeCloseTo(oldX)
+    expect(y).toBeCloseTo(oldY)
+  })
+
+  it('starts a label caught mid-tween from where it is drawn', () => {
+    const before = renderTwice([point], g => g.querySelector('.bc-annotation-text')!.setAttribute('transform', 'translate(30, 0)'))
+    const [oldX, oldY] = drawnPosition(before.querySelector('.bc-annotation-text')!)
+    const [x, y] = drawnPosition(g.querySelector('.bc-annotation-text')!)
+    expect(x).toBeCloseTo(oldX)
+    expect(y).toBeCloseTo(oldY)
   })
 })
