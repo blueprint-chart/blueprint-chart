@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { render } from './bar-split'
+import { ValueLabelPosition } from '../../../enums'
 
 describe('bar-split', () => {
   let container: HTMLElement
@@ -314,5 +315,34 @@ describe('bar-split', () => {
     const other = bars.find(b => b.getAttribute('data-series') === 'High')
     expect(a?.getAttribute('fill')).toBe('#ff0000')
     expect(other?.getAttribute('fill')).not.toBe('#ff0000')
+  })
+  it('grows signed bars from the zero baseline of their panel', () => {
+    render(container, { labels: ['Gain', 'Loss'], values: [], series: [{ name: 'Swing', values: [10, -10] }] })
+    const [gain, loss] = Array.from(container.querySelectorAll('.bc-bar-split'))
+      .map(b => ({ x: Number(b.getAttribute('x')), width: Number(b.getAttribute('width')) }))
+    expect(loss.width).toBeGreaterThan(0)
+    expect(gain.width).toBeCloseTo(loss.width)
+    expect(gain.x).toBeCloseTo(loss.x + loss.width)
+  })
+
+  it('places value labels of negative bars on the bar side of the baseline', () => {
+    render(container, { labels: ['Gain', 'Loss', 'Dip'], values: [], series: [{ name: 'Swing', values: [10, -10, -1] }] }, { valueLabelPosition: ValueLabelPosition.Outside })
+    const baseline = Math.max(...Array.from(container.querySelectorAll('.bc-bar-split')).map(b => Number(b.getAttribute('x'))))
+    const labels = Array.from(container.querySelectorAll('.bc-value-label'))
+    const dip = labels.find(l => l.textContent === '-1')
+    expect(Number(dip?.getAttribute('x'))).toBeLessThan(baseline)
+    expect(dip?.getAttribute('text-anchor')).toBe('end')
+  })
+
+  it('keeps every bar inside its panel when the axis range excludes zero', () => {
+    render(container, { labels: ['X', 'Y'], values: [], series: [{ name: 'A', values: [60, 100] }, { name: 'B', values: [70, 90] }] }, { horizontalAxis: { range: { min: 50 } } })
+    const bars = Array.from(container.querySelectorAll('.bc-bar-split'))
+      .map(b => ({ series: b.getAttribute('data-series'), x: Number(b.getAttribute('x')), width: Number(b.getAttribute('width')) }))
+    const [a, b] = ['A', 'B'].map(name => bars.filter(bar => bar.series === name))
+    const panelBStart = Math.min(...b.map(bar => bar.x))
+    for (const bar of a) {
+      expect(bar.x).toBeGreaterThanOrEqual(0)
+      expect(bar.x + bar.width).toBeLessThan(panelBStart)
+    }
   })
 })

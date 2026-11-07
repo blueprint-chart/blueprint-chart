@@ -112,17 +112,18 @@ function buildFlatData(
     if (!s) {
       continue
     }
+    const scale = panel.xScale.copy().clamp(true)
     for (const label of sortedLabels) {
       const li = originalLabels.indexOf(label)
       const value = li >= 0 ? (s.values[li] ?? 0) : 0
-      const barWidth = Math.max(0, panel.xScale(value) - panel.xScale(0))
+      const [x0, x1] = [scale(0), scale(value)]
       result.push({
         label,
         seriesName: panel.seriesName,
         seriesIndex: panel.seriesIndex,
         value,
-        xPos: panel.xOffset,
-        barWidth,
+        xPos: panel.xOffset + Math.min(x0, x1),
+        barWidth: Math.abs(x1 - x0),
       })
     }
   }
@@ -420,7 +421,10 @@ export function render(
     }
 
     const seriesColor = resolveSeriesColor(datum.seriesName, datum.seriesIndex, colors, overrides)
-    const barRight = datum.xPos + datum.barWidth
+    const isNegative = datum.value < 0
+    const barEnd = isNegative ? datum.xPos : datum.xPos + datum.barWidth
+    const outward = isNegative ? -1 : 1
+    const labelInk = estimateTextInk(String(datum.value))
     const barHeight = Math.max(0, y.bandwidth() - categoryLabelOffset)
     const cy = (y(datum.label) ?? 0) + categoryLabelOffset + barHeight / 2
 
@@ -429,8 +433,9 @@ export function render(
     // category labels for the leftmost panel: a number read against the wrong
     // series (#39). It goes inside its own bar instead, and the fit check below
     // drops it when the bar is too small to hold it either.
-    const fitsOutside = barRight + VALUE_LABEL_GAP + estimateTextInk(String(datum.value))
-      <= panel.xOffset + panel.panelWidth
+    const fitsOutside = isNegative
+      ? barEnd - VALUE_LABEL_GAP - labelInk >= panel.xOffset
+      : barEnd + VALUE_LABEL_GAP + labelInk <= panel.xOffset + panel.panelWidth
     const isInside = valueLabelPos === ValueLabelPosition.Inside
       || !fitsOutside
       || (valueLabelPos === ValueLabelPosition.Auto && datum.barWidth > 30)
@@ -445,19 +450,10 @@ export function render(
       return
     }
 
-    let tx: number
-    let anchor: string
-    let fill: string
-    if (isInside) {
-      tx = barRight - VALUE_LABEL_GAP
-      anchor = 'end'
-      fill = contrastTextColor(seriesColor)
-    }
-    else {
-      tx = barRight + VALUE_LABEL_GAP
-      anchor = 'start'
-      fill = 'currentColor'
-    }
+    const direction = isInside ? -outward : outward
+    const tx = barEnd + direction * VALUE_LABEL_GAP
+    const anchor = direction < 0 ? 'end' : 'start'
+    const fill = isInside ? contrastTextColor(seriesColor) : 'currentColor'
 
     vlGroup.append('text')
       .attr('class', 'bc-value-label')
