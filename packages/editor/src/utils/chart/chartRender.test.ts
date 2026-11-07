@@ -1,6 +1,7 @@
 import { SortDirection } from '@blueprint-chart/lib'
 import { layoutDefaults } from '@/composables/useChartConfig'
-import { buildChartRender, type RenderSnapshot } from './chartRender'
+import { buildChartRender, snapshotFromState, type RenderSnapshot } from './chartRender'
+import { parseChartState } from './chartState'
 
 const emptySnapshot: RenderSnapshot = {
   scenes: [],
@@ -26,5 +27,11 @@ const emptySnapshot: RenderSnapshot = {
 describe('buildChartRender', () => {
   it('returns empty when the data has no labels', () => {
     expect(buildChartRender(emptySnapshot)).toEqual({ kind: 'empty' })
+  })
+
+  it('passes the getTheData flag from the DSL to the frame', () => {
+    const state = parseChartState('chart bar-vertical {\n  getTheData = true\n  data {\n    "a" = 1\n  }\n}')
+    const render = buildChartRender(snapshotFromState(state))
+    expect(render.kind === 'chart' && render.definition.frame?.getTheData).toBe(true)
   })
 })

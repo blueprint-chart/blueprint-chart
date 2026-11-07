@@ -83,6 +83,11 @@ function parseLayout(propMap: Properties): ChartLayout {
     ly.transparentBackground = toBool(transparentBg)
   }
 
+  const getTheData = propMap.get('getTheData')
+  if (getTheData !== undefined) {
+    ly.getTheData = toBool(getTheData)
+  }
+
   const player = propMap.get('player')
   const validPlayerTypes = ['buttons', 'progress-bar', 'dot-stepper', 'minimal-arrows', 'none']
   if (player && validPlayerTypes.includes(String(player))) {

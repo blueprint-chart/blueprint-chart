@@ -83,11 +83,22 @@
         placeholder="https://..."
       />
     </BFormGroup>
+
+    <FormControlCheckbox
+      v-model="getTheData"
+      label="Show “Get the data” link"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
+import { FormControlCheckbox } from '@blueprint-chart/ui'
 import { useChartConfig } from '@/stores/chartConfig'
 
-const { title, description, altText, byline, note, source, sourceUrl } = useChartConfig()
+const { title, description, altText, byline, note, source, sourceUrl, layout } = useChartConfig()
+
+const getTheData = computed({
+  get: () => layout.value.getTheData,
+  set: (v) => { layout.value.getTheData = v },
+})
 </script>

@@ -353,6 +353,13 @@ describe('useDslOutput', () => {
       expect(sceneBlock).toContain('type = bar-horizontal')
     })
 
+    it('emits getTheData when the footer data link is on', () => {
+      const config = useChartConfig()
+      config.chartType.value = ChartType.BarVertical
+      config.layout.value.getTheData = true
+      expect(useDslOutput().generateDsl()).toContain('  getTheData = true\n')
+    })
+
     it('round-trips alt text with quotes and newlines at chart and scene level', () => {
       const baseAltText = 'Say "hi"\nto the chart'
       const sceneAltText = 'Scene "two"\nzooms in'

@@ -85,6 +85,7 @@ export interface ChartLayout {
   /** A CSS length or shorthand when the DSL gave one; a px count otherwise. */
   padding: number | string
   transparentBackground: boolean
+  getTheData: boolean
   playerType: 'buttons' | 'progress-bar' | 'dot-stepper' | 'minimal-arrows' | 'none'
   playerPosition: 'left' | 'center' | 'right'
 }
@@ -98,6 +99,7 @@ export const layoutDefaults: ChartLayout = {
   aspectRatio: '16:9',
   padding: 16,
   transparentBackground: false,
+  getTheData: false,
   playerType: 'buttons',
   playerPosition: 'left',
 }

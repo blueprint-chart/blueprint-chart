@@ -93,6 +93,7 @@ export function buildChartRender(s: RenderSnapshot): ChartRender {
         sourceUrl: (sp?.sourceUrl as string | undefined) ?? (s.text.sourceUrl || undefined),
         padding: typeof layoutPadding === 'number' ? `${layoutPadding}px` : layoutPadding,
         transparentBackground: s.layout.transparentBackground || undefined,
+        getTheData: s.layout.getTheData || undefined,
       },
       colorizes: scene?.colorizes ?? s.colorizes,
       highlights: scene ? (scene.highlights ?? []) : s.baseHighlights,
