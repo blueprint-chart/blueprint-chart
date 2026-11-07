@@ -55,6 +55,7 @@ Every property `bar-split` accepts, beside the [frame and layout keys](/referenc
 | `colorPalette` | select, see [Palettes](/guide/palettes) | `Blueprint` |
 | `autoContrast` | boolean | `false` |
 | `allowDarkMode` | boolean | `true` |
+| `barGap` | text | `60` |
 | `sharedScale` | boolean | `false` |
 | `sortMode` | select: `none`, `total`, `within-groups` | `none` |
 | `legend` | boolean | `true` |

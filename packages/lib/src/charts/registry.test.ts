@@ -105,6 +105,16 @@ describe('registry', () => {
     expect(opt).toBeDefined()
   })
 
+  it.each([ChartType.BarMulti, ChartType.ColumnStacked, ChartType.BarStacked, ChartType.BarSplit, ChartType.BarGrouped])('%s has barGap option', (chartType) => {
+    const keys = getChartOptions(chartType).map(o => o.key)
+    expect(keys).toContain('barGap')
+  })
+
+  it('area has areaFillOpacity option defaulting to the renderer fill', () => {
+    const opt = getChartOptions(ChartType.Area).find(o => o.key === 'areaFillOpacity')
+    expect(opt?.default).toBe('0.25')
+  })
+
   it('area-stacked does not have stackMode option', () => {
     const options = getChartOptions(ChartType.AreaStacked)
     const keys = options.map(o => o.key)

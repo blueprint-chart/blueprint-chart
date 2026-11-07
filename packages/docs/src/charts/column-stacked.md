@@ -51,6 +51,7 @@ Every property `column-stacked` accepts, beside the [frame and layout keys](/ref
 | `colorPalette` | select, see [Palettes](/guide/palettes) | `Blueprint` |
 | `autoContrast` | boolean | `false` |
 | `allowDarkMode` | boolean | `true` |
+| `barGap` | text | `60` |
 | `stackMode` | select: `normal`, `percent` | `normal` |
 | `sortMode` | select: `none`, `total`, `within-groups` | `none` |
 | `legend` | boolean | `true` |

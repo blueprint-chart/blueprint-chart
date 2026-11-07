@@ -20,18 +20,30 @@
       @update:model-value="(v) => setOption('edgePadding', v)"
     />
 
+    <FormControlSliderInput
+      v-if="hasAreaFillOpacity"
+      id="opt-area-fill-opacity"
+      :model-value="String(currentOptions.areaFillOpacity ?? '0.25')"
+      label="Fill opacity"
+      min="0"
+      max="1"
+      step="0.05"
+      @update:model-value="(v) => setOption('areaFillOpacity', String(v))"
+    />
+
     <EditorLineSymbols v-if="hasLineSymbols" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { useChartTypeOptions } from '@/stores/chartTypeOptions'
-import { FormControlCheckbox } from '@blueprint-chart/ui'
+import { FormControlCheckbox, FormControlSliderInput } from '@blueprint-chart/ui'
 
 const { currentOptions, availableOptionKeys, setOption } = useChartTypeOptions()
 
 const hasInterpolation = computed(() => availableOptionKeys.value.includes('interpolation'))
 const hasEdgePadding = computed(() => availableOptionKeys.value.includes('edgePadding'))
+const hasAreaFillOpacity = computed(() => availableOptionKeys.value.includes('areaFillOpacity'))
 const hasLineSymbols = computed(() => availableOptionKeys.value.includes('lineSymbols'))
 
 const interpolationChoices = [

@@ -58,6 +58,7 @@ Every property `bar-multi` accepts, beside the [frame and layout keys](/referenc
 | `colorPalette` | select, see [Palettes](/guide/palettes) | `Blueprint` |
 | `autoContrast` | boolean | `false` |
 | `allowDarkMode` | boolean | `true` |
+| `barGap` | text | `60` |
 | `sortMode` | select: `none`, `total`, `within-groups` | `total` |
 | `legend` | boolean | `false` |
 | `legendAnchor` | select: `start`, `middle`, `end` | `start` |

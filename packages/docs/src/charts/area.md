@@ -59,6 +59,7 @@ Every property `area` accepts, beside the [frame and layout keys](/reference/dsl
 | `colorPalette` | select, see [Palettes](/guide/palettes) | `Blueprint` |
 | `autoContrast` | boolean | `false` |
 | `allowDarkMode` | boolean | `true` |
+| `areaFillOpacity` | text | `0.25` |
 | `interpolation` | select: `linear`, `monotoneX`, `step`, `stepBefore`, `stepAfter`, `basis`, `cardinal`, `catmullRom` | `monotoneX` |
 | `edgePadding` | boolean | `false` |
 | `showVerticalAxis` | boolean | `false` |
@@ -96,7 +97,7 @@ Every property `area` accepts, beside the [frame and layout keys](/reference/dsl
 ## Common pitfalls
 
 - The y-axis must start at zero — the filled area encodes magnitude
-- The fill sits at 0.25 opacity so the line stays readable, and `area` exposes no key to change it; [`area-stacked`](./area-stacked) does, via `areaFillOpacity`
+- The fill sits at 0.25 opacity by default (`areaFillOpacity`) so the line stays readable
 - Don't stack two area charts by overlapping them; reach for [`area-stacked`](./area-stacked)
 
 ## Related types

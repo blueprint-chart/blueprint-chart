@@ -1291,9 +1291,9 @@ export const MATRIX: Matrix = {
   // =========================================================================
   // Concern: BarLayout
   // Primary verdict on 'barGap' (default String(DEFAULT_BAR_GAP) = '60').
-  // barGapOpt is registered only for BarVertical and BarHorizontal; all other
-  // chart types (including BarMulti, BarStacked, BarGrouped, ColumnStacked) do
-  // not register barGapOpt → na for those.
+  // barGapOpt is registered for BarVertical, BarHorizontal, BarMulti,
+  // BarStacked, BarSplit, BarGrouped and ColumnStacked; other chart types
+  // do not register it → na for those.
   // Wiki: 30–50% spacing between bars. DEFAULT_BAR_GAP=60 maps to ~37.5% of the
   // total band width (60/(160) ≈ 0.375) — within the prescribed range → asserted.
   // Secondary bar options (barBackground, barSeparators, connectedColumns,
@@ -1314,16 +1314,41 @@ export const MATRIX: Matrix = {
       target: '60',
       rule: RULE_BAR_SPACING,
     },
-    // multi-series bar; barGapOpt is not registered for this chart type
-    [ChartType.BarMulti]: { status: 'na', reason: 'barGap option is not registered for bar-multi; group spacing is handled differently' },
-    // stacked horizontal bar; barGapOpt is not registered (uses barHorizontalAxisOpts/barHorizontalOpts)
-    [ChartType.BarStacked]: { status: 'na', reason: 'barGap option is not registered for bar-stacked; stacked bars share a fixed band' },
-    // split bar; barGapOpt is not registered
-    [ChartType.BarSplit]: { status: 'na', reason: 'barGap option is not registered for bar-split; each panel has its own fixed layout' },
-    // grouped horizontal bars; barGapOpt is not registered
-    [ChartType.BarGrouped]: { status: 'na', reason: 'barGap option is not registered for bar-grouped; within-group spacing is not user-configurable' },
-    // stacked column; barGapOpt is not registered
-    [ChartType.ColumnStacked]: { status: 'na', reason: 'barGap option is not registered for column-stacked; stacked columns share a fixed band' },
+    // multi-series bar; barGap='60' → same reasoning → asserted
+    [ChartType.BarMulti]: {
+      status: 'asserted',
+      optionKey: 'barGap',
+      target: '60',
+      rule: RULE_BAR_SPACING,
+    },
+    // stacked horizontal bar; barGap='60' → same reasoning → asserted
+    [ChartType.BarStacked]: {
+      status: 'asserted',
+      optionKey: 'barGap',
+      target: '60',
+      rule: RULE_BAR_SPACING,
+    },
+    // split bar; barGap='60' → same reasoning → asserted
+    [ChartType.BarSplit]: {
+      status: 'asserted',
+      optionKey: 'barGap',
+      target: '60',
+      rule: RULE_BAR_SPACING,
+    },
+    // grouped horizontal bars; barGap='60' → same reasoning → asserted
+    [ChartType.BarGrouped]: {
+      status: 'asserted',
+      optionKey: 'barGap',
+      target: '60',
+      rule: RULE_BAR_SPACING,
+    },
+    // stacked column; barGap='60' → same reasoning → asserted
+    [ChartType.ColumnStacked]: {
+      status: 'asserted',
+      optionKey: 'barGap',
+      target: '60',
+      rule: RULE_BAR_SPACING,
+    },
     // line charts — not bar charts; no barGap
     [ChartType.Line]: { status: 'na', reason: 'not a bar chart; barGap option is not registered' },
     [ChartType.LineMulti]: { status: 'na', reason: 'not a bar chart; barGap option is not registered' },
