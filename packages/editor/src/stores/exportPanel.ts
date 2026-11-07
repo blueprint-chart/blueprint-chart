@@ -5,6 +5,10 @@ export type ExportTab = 'embed' | 'download' | ''
 export type DownloadFormat = 'png' | 'svg' | 'bpc'
 export type PreviewContext = 'card' | 'article'
 
+function readPreviewContext(stored: string): PreviewContext {
+  return stored === 'card' ? 'card' : 'article'
+}
+
 export const useExportPanelStore = defineStore('exportPanel', () => {
   const exportTab = shallowRef<ExportTab>('embed')
   const selectedFormat = shallowRef<DownloadFormat>('png')
@@ -14,7 +18,10 @@ export const useExportPanelStore = defineStore('exportPanel', () => {
   const bpcIncludeData = shallowRef(true)
   const bpcCompact = shallowRef(false)
   const lastNarrowExportTab = shallowRef<Exclude<ExportTab, ''>>('embed')
-  const previewContext = useLocalStorage<PreviewContext>(EXPORT_PREVIEW_CONTEXT_KEY, 'article', { writeDefaults: false })
+  const previewContext = useLocalStorage<PreviewContext>(EXPORT_PREVIEW_CONTEXT_KEY, 'article', {
+    writeDefaults: false,
+    serializer: { read: readPreviewContext, write: context => context },
+  })
 
   function setExportTab(tab: ExportTab) {
     exportTab.value = tab
@@ -41,7 +48,6 @@ export const useExportPanelStore = defineStore('exportPanel', () => {
     bpcIncludeData.value = true
     bpcCompact.value = false
     lastNarrowExportTab.value = 'embed'
-    previewContext.value = 'article'
   }
 
   return {

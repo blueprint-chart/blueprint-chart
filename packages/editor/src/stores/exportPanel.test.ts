@@ -1,4 +1,5 @@
 import { useExportPanelStore, useExportPanelStore as useExportPanel } from './exportPanel'
+import { EXPORT_PREVIEW_CONTEXT_KEY } from './storageKeys'
 
 describe('useExportPanel', () => {
   beforeEach(() => {
@@ -35,13 +36,25 @@ describe('useExportPanel', () => {
     store.setSelectedFormat('bpc')
     store.pngScale = 4
     store.svgInlineFonts = true
-    store.setPreviewContext('card')
     store.reset()
     expect(store.exportTab).toBe('embed')
     expect(store.selectedFormat).toBe('png')
     expect(store.pngScale).toBe(2)
     expect(store.svgInlineFonts).toBe(false)
-    expect(store.previewContext).toBe('article')
+  })
+
+  it('keeps the remembered preview context on reset', async () => {
+    const store = useExportPanel()
+    store.setPreviewContext('card')
+    store.reset()
+    await nextTick()
+    expect(store.previewContext).toBe('card')
+    expect(localStorage.getItem(EXPORT_PREVIEW_CONTEXT_KEY)).toBe('card')
+  })
+
+  it('falls back to article when the stored preview context is unknown', () => {
+    localStorage.setItem(EXPORT_PREVIEW_CONTEXT_KEY, 'page')
+    expect(useExportPanel().previewContext).toBe('article')
   })
 
   it('shares state across calls', () => {
