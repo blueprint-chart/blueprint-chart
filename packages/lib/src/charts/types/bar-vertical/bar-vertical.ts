@@ -21,8 +21,9 @@ import { featureJoin, getSceneTransition, tweenPlotFrame, type PlotRect } from '
 import { highlightTargetSet, highlightOpacity } from '../../plugins/highlight'
 import { shouldRenderValueLabel } from '../../value-label-fit'
 import { CATEGORY_LABEL_HEIGHT, categoryLabelLineHeight } from '../../category-label-line'
+import { DEFAULT_COLORS as DEFAULT_PALETTE } from '../../palettes'
 
-export const DEFAULT_COLORS = ['#4e79a7']
+export const DEFAULT_COLORS = [DEFAULT_PALETTE[0]]
 const VALUE_LABEL_GAP = 4
 // Cap height of an 11px numeral: the only part of a value label that sits above
 // its baseline, and the reason DEFAULT_MARGIN.top fits exactly one such label.

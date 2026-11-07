@@ -20,8 +20,9 @@ import { createPluginHost } from '../../plugins/plugin-host'
 import { highlightTargetSet, highlightOpacity } from '../../plugins/highlight'
 import { shouldRenderValueLabel, estimateTextInk } from '../../value-label-fit'
 import { CATEGORY_LABEL_HEIGHT, categoryLabelLineHeight, categoryLabelsNeedTheirOwnLine } from '../../category-label-line'
+import { DEFAULT_COLORS as DEFAULT_PALETTE } from '../../palettes'
 
-export const DEFAULT_COLORS = ['#4e79a7']
+export const DEFAULT_COLORS = [DEFAULT_PALETTE[0]]
 const VALUE_LABEL_GAP = 4
 
 /** Plot geometry a value label has to stay inside of. */

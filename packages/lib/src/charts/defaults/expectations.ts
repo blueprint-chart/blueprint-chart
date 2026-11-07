@@ -1522,9 +1522,9 @@ export const MATRIX: Matrix = {
 
   // =========================================================================
   // Concern: RendererConstants
-  // Module-local DEFAULT_COLOR / DEFAULT_COLORS constants in each chart-type
-  // file. These are not registered option keys — they are renderer-internal
-  // fallbacks used when no colors option is supplied at call time.
+  // DEFAULT_COLOR / DEFAULT_COLORS fallbacks used when no colors option is
+  // supplied at call time. Multi-series charts share palettes.ts
+  // DEFAULT_COLORS; single-color charts derive from its first entry.
   //
   // All 12 colour-bearing chart types share the same Tableau-10 derived
   // palette (#4e79a7 … #ff9da7). This palette is CVD-safe (blue–orange lead,
@@ -1573,7 +1573,7 @@ export const MATRIX: Matrix = {
     [ChartType.BarMulti]: {
       status: 'asserted',
       kind: 'rendererConstant',
-      importPath: '../types/bar-multi/bar-multi',
+      importPath: '../palettes',
       exportName: 'DEFAULT_COLORS',
       target: ['#4e79a7', '#f28e2b', '#e15759', '#76b7b2', '#59a14f', '#edc948', '#b07aa1', '#ff9da7'],
       rule: RULE_CVD_SAFE_PALETTE,
@@ -1581,7 +1581,7 @@ export const MATRIX: Matrix = {
     [ChartType.BarGrouped]: {
       status: 'asserted',
       kind: 'rendererConstant',
-      importPath: '../types/bar-grouped/bar-grouped',
+      importPath: '../palettes',
       exportName: 'DEFAULT_COLORS',
       target: ['#4e79a7', '#f28e2b', '#e15759', '#76b7b2', '#59a14f', '#edc948', '#b07aa1', '#ff9da7'],
       rule: RULE_CVD_SAFE_PALETTE,
@@ -1589,7 +1589,7 @@ export const MATRIX: Matrix = {
     [ChartType.BarSplit]: {
       status: 'asserted',
       kind: 'rendererConstant',
-      importPath: '../types/bar-split/bar-split',
+      importPath: '../palettes',
       exportName: 'DEFAULT_COLORS',
       target: ['#4e79a7', '#f28e2b', '#e15759', '#76b7b2', '#59a14f', '#edc948', '#b07aa1', '#ff9da7'],
       rule: RULE_CVD_SAFE_PALETTE,
@@ -1597,7 +1597,7 @@ export const MATRIX: Matrix = {
     [ChartType.BarStacked]: {
       status: 'asserted',
       kind: 'rendererConstant',
-      importPath: '../types/bar-stacked/bar-stacked',
+      importPath: '../palettes',
       exportName: 'DEFAULT_COLORS',
       target: ['#4e79a7', '#f28e2b', '#e15759', '#76b7b2', '#59a14f', '#edc948', '#b07aa1', '#ff9da7'],
       rule: RULE_CVD_SAFE_PALETTE,
@@ -1605,7 +1605,7 @@ export const MATRIX: Matrix = {
     [ChartType.ColumnStacked]: {
       status: 'asserted',
       kind: 'rendererConstant',
-      importPath: '../types/column-stacked/column-stacked',
+      importPath: '../palettes',
       exportName: 'DEFAULT_COLORS',
       target: ['#4e79a7', '#f28e2b', '#e15759', '#76b7b2', '#59a14f', '#edc948', '#b07aa1', '#ff9da7'],
       rule: RULE_CVD_SAFE_PALETTE,
@@ -1613,7 +1613,7 @@ export const MATRIX: Matrix = {
     [ChartType.LineMulti]: {
       status: 'asserted',
       kind: 'rendererConstant',
-      importPath: '../types/line-multi/line-multi',
+      importPath: '../palettes',
       exportName: 'DEFAULT_COLORS',
       target: ['#4e79a7', '#f28e2b', '#e15759', '#76b7b2', '#59a14f', '#edc948', '#b07aa1', '#ff9da7'],
       rule: RULE_CVD_SAFE_PALETTE,
@@ -1621,7 +1621,7 @@ export const MATRIX: Matrix = {
     [ChartType.AreaStacked]: {
       status: 'asserted',
       kind: 'rendererConstant',
-      importPath: '../types/area-stacked/area-stacked',
+      importPath: '../palettes',
       exportName: 'DEFAULT_COLORS',
       target: ['#4e79a7', '#f28e2b', '#e15759', '#76b7b2', '#59a14f', '#edc948', '#b07aa1', '#ff9da7'],
       rule: RULE_CVD_SAFE_PALETTE,
@@ -1629,7 +1629,7 @@ export const MATRIX: Matrix = {
     [ChartType.Donut]: {
       status: 'asserted',
       kind: 'rendererConstant',
-      importPath: '../types/donut/donut',
+      importPath: '../palettes',
       exportName: 'DEFAULT_COLORS',
       target: ['#4e79a7', '#f28e2b', '#e15759', '#76b7b2', '#59a14f', '#edc948', '#b07aa1', '#ff9da7'],
       rule: RULE_CVD_SAFE_PALETTE,

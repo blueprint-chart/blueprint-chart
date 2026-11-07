@@ -15,7 +15,7 @@ import { buildScatterScale, fitRange } from './scales'
 import { groupColors, type KeyConfig, renderScatterKey, scatterKeyWidth, sizeLegendValues } from './legend'
 import { renderLegend } from '../../legend/legend'
 import { estimateLegendSize } from '../../legend/legend-size'
-import { DEFAULT_COLORS } from '../line-multi/line-multi'
+import { DEFAULT_COLORS } from '../../palettes'
 import { AnnotationKind } from '../../../enums'
 import { renderAnnotations, snapshotAnnotations, type AnnotationSnapshot } from '../../plugins/annotations'
 import { buildColorOverrides } from '../../plugins/colorize'
@@ -26,7 +26,7 @@ import { placePointLabels } from './labels'
 import { formatScatterTooltip } from './tooltip'
 import { isTrendMode, trendSegments } from './trend'
 
-export const DEFAULT_COLOR = '#4e79a7'
+export const DEFAULT_COLOR = DEFAULT_COLORS[0]
 export const DOT_RADIUS = 4.5
 export const FILL_OPACITY = 0.7
 const KEY_GAP = 16

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import chroma from 'chroma-js'
-import { resolvePalette, listPalettes } from './palettes'
+import { resolvePalette, listPalettes, DEFAULT_COLORS } from './palettes'
 import { checkCvdColors } from './colorblind'
 import { wcagContrastRatio } from './contrast'
 
@@ -61,6 +61,10 @@ function minPairwiseDeltaE(colors: string[]): number {
 const MIN_CVD_DELTA_E = 10
 
 describe('palettes', () => {
+  it('exposes the default chart palette', () => {
+    expect(DEFAULT_COLORS).toEqual(['#4e79a7', '#f28e2b', '#e15759', '#76b7b2', '#59a14f', '#edc948', '#b07aa1', '#ff9da7'])
+  })
+
   it('resolves Blueprint palette by name', () => {
     const colors = resolvePalette('Blueprint')
     expect(colors).toBeDefined()

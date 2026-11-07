@@ -18,11 +18,7 @@ import { featureJoin, getSceneTransition } from '../../../transitions'
 import { expandColorsToSeries } from '../../series-helpers'
 import { highlightTargetSet, highlightOpacity } from '../../plugins/highlight'
 import { buildColorOverrides } from '../../plugins/colorize'
-
-export const DEFAULT_COLORS = [
-  '#4e79a7', '#f28e2b', '#e15759', '#76b7b2',
-  '#59a14f', '#edc948', '#b07aa1', '#ff9da7',
-]
+import { DEFAULT_COLORS } from '../../palettes'
 
 /**
  * Arc totals and legend values used to go through `String(v)`, which prints

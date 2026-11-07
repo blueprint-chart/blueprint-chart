@@ -22,11 +22,7 @@ import { createPluginHost } from '../../plugins/plugin-host'
 import { Orientation, ValueLabelPosition, LabelPosition, ScaleType } from '../../../enums'
 import { shouldRenderValueLabel } from '../../value-label-fit'
 import { CATEGORY_LABEL_HEIGHT, categoryLabelLineHeight, categoryLabelsNeedTheirOwnLine } from '../../category-label-line'
-
-export const DEFAULT_COLORS = [
-  '#4e79a7', '#f28e2b', '#e15759', '#76b7b2',
-  '#59a14f', '#edc948', '#b07aa1', '#ff9da7',
-]
+import { DEFAULT_COLORS } from '../../palettes'
 
 interface GroupedBarDatum {
   label: string

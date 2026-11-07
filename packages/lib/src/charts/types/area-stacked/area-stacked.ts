@@ -23,11 +23,7 @@ import { spreadLabels } from '../../plugins/arc-labels'
 import { StackMode, SortDirection, ScaleType } from '../../../enums'
 import { highlightTargetSet, highlightOpacity } from '../../plugins/highlight'
 import { buildColorOverrides } from '../../plugins/colorize'
-
-export const DEFAULT_COLORS = [
-  '#4e79a7', '#f28e2b', '#e15759', '#76b7b2',
-  '#59a14f', '#edc948', '#b07aa1', '#ff9da7',
-]
+import { DEFAULT_COLORS } from '../../palettes'
 
 interface StackedAreaDatum {
   name: string

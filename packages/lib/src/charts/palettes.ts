@@ -6,6 +6,11 @@ export interface PaletteEntry {
   colors: readonly string[]
 }
 
+export const DEFAULT_COLORS = [
+  '#4e79a7', '#f28e2b', '#e15759', '#76b7b2',
+  '#59a14f', '#edc948', '#b07aa1', '#ff9da7',
+]
+
 const PALETTES: PaletteEntry[] = [
   { name: 'Blueprint', label: 'Blueprint', colors: ['#2563A0', '#D4A63A', '#C94044', '#2D8659', '#4B90CF', '#163A65'] },
   { name: 'BlueprintBold', label: 'Blueprint Bold', colors: ['#2563A0', '#DDF247', '#C94044', '#2D8659', '#D4A63A', '#163A65'] },

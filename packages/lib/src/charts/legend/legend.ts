@@ -3,11 +3,7 @@ import 'd3-transition'
 import { D3Blueprint } from 'd3-blueprint'
 import { getTransitionDuration } from '../motion'
 import { fitLegendItem, legendColumnWidth } from './legend-size'
-
-const DEFAULT_COLORS = [
-  '#4e79a7', '#f28e2b', '#e15759', '#76b7b2',
-  '#59a14f', '#edc948', '#b07aa1', '#ff9da7',
-]
+import { DEFAULT_COLORS } from '../palettes'
 
 const HOVER_DELAY = 200
 const DIM_OPACITY = 0.2

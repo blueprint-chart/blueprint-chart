@@ -7,14 +7,7 @@ import { DEFAULT_COLOR as LINE_DEFAULT } from '../types/line/line'
 import { DEFAULT_COLOR as AREA_DEFAULT } from '../types/area/area'
 import { DEFAULT_COLORS as BAR_VERTICAL_DEFAULTS } from '../types/bar-vertical/bar-vertical'
 import { DEFAULT_COLORS as BAR_HORIZONTAL_DEFAULTS } from '../types/bar-horizontal/bar-horizontal'
-import { DEFAULT_COLORS as BAR_MULTI_DEFAULTS } from '../types/bar-multi/bar-multi'
-import { DEFAULT_COLORS as BAR_GROUPED_DEFAULTS } from '../types/bar-grouped/bar-grouped'
-import { DEFAULT_COLORS as BAR_SPLIT_DEFAULTS } from '../types/bar-split/bar-split'
-import { DEFAULT_COLORS as BAR_STACKED_DEFAULTS } from '../types/bar-stacked/bar-stacked'
-import { DEFAULT_COLORS as COLUMN_STACKED_DEFAULTS } from '../types/column-stacked/column-stacked'
-import { DEFAULT_COLORS as LINE_MULTI_DEFAULTS } from '../types/line-multi/line-multi'
-import { DEFAULT_COLORS as AREA_STACKED_DEFAULTS } from '../types/area-stacked/area-stacked'
-import { DEFAULT_COLORS as DONUT_DEFAULTS } from '../types/donut/donut'
+import { DEFAULT_COLORS } from '../palettes'
 import { DEFAULT_COLOR as SCATTER_DEFAULT } from '../types/scatter/scatter'
 import { DEFAULT_COLOR as DOT_PLOT_DEFAULT } from '../types/dot-plot/dot-plot'
 
@@ -23,14 +16,14 @@ const ACTUAL: Partial<Record<ChartType, unknown>> = {
   [ChartType.Area]: AREA_DEFAULT,
   [ChartType.BarVertical]: BAR_VERTICAL_DEFAULTS,
   [ChartType.BarHorizontal]: BAR_HORIZONTAL_DEFAULTS,
-  [ChartType.BarMulti]: BAR_MULTI_DEFAULTS,
-  [ChartType.BarGrouped]: BAR_GROUPED_DEFAULTS,
-  [ChartType.BarSplit]: BAR_SPLIT_DEFAULTS,
-  [ChartType.BarStacked]: BAR_STACKED_DEFAULTS,
-  [ChartType.ColumnStacked]: COLUMN_STACKED_DEFAULTS,
-  [ChartType.LineMulti]: LINE_MULTI_DEFAULTS,
-  [ChartType.AreaStacked]: AREA_STACKED_DEFAULTS,
-  [ChartType.Donut]: DONUT_DEFAULTS,
+  [ChartType.BarMulti]: DEFAULT_COLORS,
+  [ChartType.BarGrouped]: DEFAULT_COLORS,
+  [ChartType.BarSplit]: DEFAULT_COLORS,
+  [ChartType.BarStacked]: DEFAULT_COLORS,
+  [ChartType.ColumnStacked]: DEFAULT_COLORS,
+  [ChartType.LineMulti]: DEFAULT_COLORS,
+  [ChartType.AreaStacked]: DEFAULT_COLORS,
+  [ChartType.Donut]: DEFAULT_COLORS,
   [ChartType.Scatter]: SCATTER_DEFAULT,
   [ChartType.DotPlot]: DOT_PLOT_DEFAULT,
 }

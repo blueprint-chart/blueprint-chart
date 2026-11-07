@@ -17,8 +17,9 @@ import { renderLineSymbols } from '../../line-symbols'
 import { setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut } from '../../motion'
 import { getCachedChart, setCachedChart } from '../../transition-cache'
 import { featureJoin, getSceneTransition, tweenPlotFrame, type PlotRect } from '../../../transitions'
+import { DEFAULT_COLORS } from '../../palettes'
 
-export const DEFAULT_COLOR = '#4e79a7'
+export const DEFAULT_COLOR = DEFAULT_COLORS[0]
 
 interface AreaDatum {
   label: string

@@ -21,13 +21,13 @@ import { featureJoin, getSceneTransition, tweenPlotFrame, type PlotRect } from '
 import { ArrowDirection, LabelPosition } from '../../../enums'
 import { CATEGORY_LABEL_HEIGHT, categoryLabelLineHeight, categoryLabelsNeedTheirOwnLine } from '../../category-label-line'
 import { buildScatterScale } from '../scatter/scales'
-import { DEFAULT_COLORS } from '../line-multi/line-multi'
+import { DEFAULT_COLORS } from '../../palettes'
 import { resolveDotPlotMapping, type DotPlotMode } from './mapping'
 import { formatDotPlotTooltip } from './tooltip'
 import { buildDotPlotRows, sortDotPlotRows, type DotPlotRow } from './rows'
 import { dotPlotAnnotationContext } from './annotations'
 
-export const DEFAULT_COLOR = '#4e79a7'
+export const DEFAULT_COLOR = DEFAULT_COLORS[0]
 export const DOT_RADIUS = 5
 const RANGE_FILL_OPACITY = 0.25
 const LINE_STROKE_OPACITY = 0.4
