@@ -1,10 +1,15 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { FeedbackSkeleton } from '@blueprint-chart/ui'
+import { FeedbackSkeleton, useBreakpoint } from '@blueprint-chart/ui'
 
 const props = withDefaults(defineProps<{ bare?: boolean }>(), { bare: false })
 
-const rootClass = computed(() => ({ 'export-article--bare': props.bare }))
+const { isNarrow } = useBreakpoint()
+
+const rootClass = computed(() => ({
+  'export-article--bare': props.bare,
+  'export-article--narrow': isNarrow.value,
+}))
 
 const MASTHEAD_LINK_WIDTHS = ['2.5rem', '3rem', '2.25rem']
 
@@ -20,7 +25,7 @@ const BODY_PARAGRAPHS = [
     :class="rootClass"
   >
     <div
-      v-if="!bare"
+      v-if="!bare && !isNarrow"
       class="export-article__masthead"
       aria-hidden="true"
     >
@@ -90,6 +95,12 @@ $export-article-serif: Georgia, "Times New Roman", serif;
     display: contents;
   }
 
+  &--narrow {
+    padding-bottom: 1.5rem;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
   &__masthead,
   &__column__header,
   &__column__paragraph {
@@ -124,6 +135,11 @@ $export-article-serif: Georgia, "Times New Roman", serif;
       display: contents;
     }
 
+    .export-article--narrow & {
+      gap: 1.25rem;
+      padding: 1.25rem 1rem 0;
+    }
+
     &__header {
       display: flex;
       flex-direction: column;
@@ -151,6 +167,10 @@ $export-article-serif: Georgia, "Times New Roman", serif;
         font-family: $export-article-serif;
         font-size: 1.125rem;
         line-height: 1.45;
+
+        .export-article--narrow & {
+          font-size: 1rem;
+        }
       }
 
       &__byline {

@@ -1,6 +1,13 @@
 import { mount } from '@vue/test-utils'
 import ExportArticle from './ExportArticle.vue'
 
+const isNarrow = vi.hoisted(() => ({ value: false }))
+
+vi.mock('@blueprint-chart/ui', async importOriginal => ({
+  ...await importOriginal<typeof import('@blueprint-chart/ui')>(),
+  useBreakpoint: () => ({ isNarrow: ref(isNarrow.value) }),
+}))
+
 const slot = { default: '<div class="probe" />' }
 
 function columnChildren(wrapper: ReturnType<typeof mount>) {
@@ -8,6 +15,10 @@ function columnChildren(wrapper: ReturnType<typeof mount>) {
 }
 
 describe('ExportArticle', () => {
+  afterEach(() => {
+    isNarrow.value = false
+  })
+
   it('frames the slot in a page with a site header', () => {
     const w = mount(ExportArticle, { slots: slot })
     expect(w.find('.export-article__masthead').exists()).toBe(true)
@@ -65,5 +76,18 @@ describe('ExportArticle', () => {
   it('does not animate the skeleton bars', () => {
     const w = mount(ExportArticle, { slots: slot })
     expect(w.find('.feedback-skeleton--animated').exists()).toBe(false)
+  })
+
+  it('runs edge to edge without a masthead on narrow screens', () => {
+    isNarrow.value = true
+    const w = mount(ExportArticle, { slots: slot })
+    expect(w.classes()).toContain('export-article--narrow')
+    expect(w.find('.export-article__masthead').exists()).toBe(false)
+  })
+
+  it('keeps the masthead on wide screens', () => {
+    const w = mount(ExportArticle, { slots: slot })
+    expect(w.classes()).not.toContain('export-article--narrow')
+    expect(w.find('.export-article__masthead').exists()).toBe(true)
   })
 })

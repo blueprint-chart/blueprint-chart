@@ -149,7 +149,10 @@ const TAB_LABELS: Record<string, string> = {
 
 const panelTitle = computed(() => TAB_LABELS[exportTab.value] ?? 'Export')
 
-const canvasClassList = computed(() => `export-panel__canvas--${resolvedCanvasMode.value}`)
+const canvasClassList = computed(() => ({
+  [`export-panel__canvas--${resolvedCanvasMode.value}`]: true,
+  'export-panel__canvas--flush': isNarrow.value && previewContext.value === 'article',
+}))
 
 </script>
 
@@ -180,6 +183,10 @@ const canvasClassList = computed(() => `export-panel__canvas--${resolvedCanvasMo
 
     .export-panel--narrow & {
       padding: 1rem;
+    }
+
+    .export-panel--narrow &--flush {
+      padding: 0;
     }
 
     &--light {
