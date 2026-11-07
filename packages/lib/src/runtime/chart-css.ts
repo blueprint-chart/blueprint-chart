@@ -235,6 +235,8 @@ export const CHART_CSS = `
   padding: 6px 10px;
   font-size: 13px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  max-width: var(--bc-tooltip-max-width, 240px);
+  overflow-wrap: break-word;
   z-index: 9999;
   display: none;
 }

@@ -473,6 +473,7 @@
   --bc-tooltip-padding: 6px 10px;
   --bc-tooltip-font-size: 13px;
   --bc-tooltip-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  --bc-tooltip-max-width: 240px;
 
   position: absolute;
   pointer-events: none;
@@ -483,6 +484,8 @@
   padding: var(--bc-tooltip-padding);
   font-size: var(--bc-tooltip-font-size);
   box-shadow: var(--bc-tooltip-shadow);
+  max-width: var(--bc-tooltip-max-width);
+  overflow-wrap: break-word;
   z-index: 9999;
   display: none;
 }
