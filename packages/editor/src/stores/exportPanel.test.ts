@@ -2,6 +2,7 @@ import { useExportPanelStore, useExportPanelStore as useExportPanel } from './ex
 
 describe('useExportPanel', () => {
   beforeEach(() => {
+    localStorage.clear()
     setActivePinia(createPinia())
   })
 
@@ -58,6 +59,13 @@ describe('useExportPanel', () => {
     const store = useExportPanel()
     store.setPreviewContext('card')
     expect(store.previewContext).toBe('card')
+  })
+
+  it('remembers the preview context across sessions', async () => {
+    useExportPanel().setPreviewContext('card')
+    await nextTick()
+    setActivePinia(createPinia())
+    expect(useExportPanel().previewContext).toBe('card')
   })
 })
 

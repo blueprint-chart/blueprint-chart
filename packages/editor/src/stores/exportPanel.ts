@@ -1,3 +1,6 @@
+import { useLocalStorage } from '@vueuse/core'
+import { EXPORT_PREVIEW_CONTEXT_KEY } from './storageKeys'
+
 export type ExportTab = 'embed' | 'download' | ''
 export type DownloadFormat = 'png' | 'svg' | 'bpc'
 export type PreviewContext = 'card' | 'article'
@@ -11,7 +14,7 @@ export const useExportPanelStore = defineStore('exportPanel', () => {
   const bpcIncludeData = shallowRef(true)
   const bpcCompact = shallowRef(false)
   const lastNarrowExportTab = shallowRef<Exclude<ExportTab, ''>>('embed')
-  const previewContext = shallowRef<PreviewContext>('article')
+  const previewContext = useLocalStorage<PreviewContext>(EXPORT_PREVIEW_CONTEXT_KEY, 'article', { writeDefaults: false })
 
   function setExportTab(tab: ExportTab) {
     exportTab.value = tab
