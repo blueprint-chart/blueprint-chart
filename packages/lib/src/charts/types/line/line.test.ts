@@ -254,6 +254,42 @@ describe('line chart', () => {
       expect(texts).toContain('15')
     })
 
+    it('labels only the first and last points with firstLast', () => {
+      render(container, data, { valueLabels: true, valueLabelPoints: 'firstLast' })
+      const texts = Array.from(container.querySelectorAll('.bc-value-label')).map(l => l.textContent)
+      expect(texts).toEqual(['10', '15'])
+    })
+
+    it('labels only the last point with last', () => {
+      render(container, data, { valueLabels: true, valueLabelPoints: 'last' })
+      const texts = Array.from(container.querySelectorAll('.bc-value-label')).map(l => l.textContent)
+      expect(texts).toEqual(['15'])
+    })
+
+    it('labels every Nth point with everyN', () => {
+      const five = { labels: ['a', 'b', 'c', 'd', 'e'], values: [1, 2, 3, 4, 5] }
+      render(container, five, { valueLabels: true, valueLabelPoints: 'everyN', valueLabelEvery: 2 })
+      const texts = Array.from(container.querySelectorAll('.bc-value-label')).map(l => l.textContent)
+      expect(texts).toEqual(['1', '3', '5'])
+    })
+
+    it('keeps the everyN stride on categories across a gap', () => {
+      const gapped = { labels: ['a', 'b', 'c', 'd', 'e'], values: [1, NaN, 3, 4, 5] }
+      render(container, gapped, { valueLabels: true, valueLabelPoints: 'everyN', valueLabelEvery: 2 })
+      const texts = Array.from(container.querySelectorAll('.bc-value-label')).map(l => l.textContent)
+      expect(texts).toEqual(['1', '3', '5'])
+    })
+
+    it('formats value labels with the vertical number format', () => {
+      render(container, { labels: ['a'], values: [1234.5] }, { valueLabels: true, verticalAxis: { numberFormat: '$|,.0f|' } })
+      expect(container.querySelector('.bc-value-label')?.textContent).toBe('$1,235')
+    })
+
+    it('colors value labels with the line color', () => {
+      render(container, data, { valueLabels: true, colors: ['#ff0000'] })
+      expect(container.querySelector('.bc-value-label')?.getAttribute('fill')).toBe('#ff0000')
+    })
+
     it('value labels are positioned near their dots', () => {
       render(container, data, { valueLabels: true })
       const labels = container.querySelectorAll('.bc-value-label')

@@ -22,6 +22,22 @@
           block
           @update:model-value="(v) => setOption('valueLabelPosition', v)"
         />
+        <FormControlButtonGroup
+          v-if="currentOptions.valueLabels && valueLabelPointsDef"
+          :label="valueLabelPointsDef.label"
+          :model-value="currentOptions.valueLabelPoints ?? 'all'"
+          :options="valueLabelPointsDef.choices"
+          block
+          @update:model-value="(v) => setOption('valueLabelPoints', v)"
+        />
+        <FormControlTextInput
+          v-if="currentOptions.valueLabels && valueLabelEveryDef && currentOptions.valueLabelPoints === 'everyN'"
+          id="opt-valueLabelEvery"
+          :label="valueLabelEveryDef.label"
+          :placeholder="valueLabelEveryDef.placeholder"
+          :model-value="currentOptions.valueLabelEvery ?? ''"
+          @update:model-value="(v) => setOption('valueLabelEvery', v)"
+        />
         <FormControlCheckbox
           v-if="currentOptions.valueLabels && hasSwapLabelValue"
           :model-value="currentOptions.swapLabelValue ?? false"
@@ -94,6 +110,8 @@ import IPhTextAa from '~icons/ph/text-aa'
 
 const hasValueLabels = computed(() => availableOptionKeys.value.includes('valueLabels'))
 const hasSwapLabelValue = computed(() => availableOptionKeys.value.includes('swapLabelValue'))
+const valueLabelPointsDef = computed(() => optionDefs.value.find(d => d.key === 'valueLabelPoints'))
+const valueLabelEveryDef = computed(() => optionDefs.value.find(d => d.key === 'valueLabelEvery'))
 
 const valueLabelPositionChoices = [
   { value: 'auto', text: 'Auto', icon: IPhMagicWand },

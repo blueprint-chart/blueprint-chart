@@ -15,7 +15,8 @@ import { resolveBackgroundColor } from '../../contrast'
 import { setupProximityInteraction, disposeProximityFor } from '../../plugins/proximity'
 import { ensureClipPath } from '../../clip-path-helper'
 import { clampPointLabel } from '../../value-label-fit'
-import { renderLineSymbols } from '../../line-symbols'
+import { formatValueLabel } from '../../format-helpers'
+import { renderLineSymbols, shouldShowValueLabel } from '../../line-symbols'
 import { setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut } from '../../motion'
 import { setCachedChart, getCachedChart } from '../../transition-cache'
 import { featureJoin, getSceneTransition, tweenPlotFrame, type PlotRect } from '../../../transitions'
@@ -348,13 +349,15 @@ export function render(
   // 20 paints as 0 and the maximum's label vanishes. It is inserted where the
   // clipped group held it so the proximity overlay keeps its z-order above it.
   const vlGroup = d3.select(chartArea).insert('g', () => clippedArea.nextSibling).attr('class', 'bc-value-labels')
-  dotData.forEach((dot) => {
-    if (!resolveSeriesValueLabels(dot.series, globalValueLabels, overrides)) {
+  d3.group(dotData, d => d.series).forEach(dots => dots.forEach((dot, i) => {
+    const categoryIndex = data.labels.indexOf(dot.label)
+    if (!resolveSeriesValueLabels(dot.series, globalValueLabels, overrides) || !shouldShowValueLabel(i, dots.length, categoryIndex, options.valueLabelPoints, options.valueLabelEvery)) {
       return
     }
-    const cx = xPos(data.labels.indexOf(dot.label))
+    const cx = xPos(categoryIndex)
     const cy = y(dot.value) as number
-    const pos = clampPointLabel(String(dot.value), cx, cy, { width, height, margin })
+    const text = formatValueLabel(dot.value, options.verticalAxis?.numberFormat)
+    const pos = clampPointLabel(text, cx, cy, { width, height, margin })
     vlGroup.append('text')
       .attr('class', 'bc-value-label')
       .attr('data-series', dot.series)
@@ -362,9 +365,10 @@ export function render(
       .attr('y', pos.y)
       .attr('text-anchor', 'middle')
       .attr('font-size', '11px')
-      .attr('fill', 'currentColor')
-      .text(String(dot.value))
-  })
+      .attr('fill', seriesColorFor({ name: dot.series, values: [], colorIndex: dot.colorIndex }))
+      .attr('opacity', highlightOpacity(highlightTargets, dot.series, 1))
+      .text(text)
+  }))
 
   if (options.tooltips || options.crosshair) {
     const proximityPoints = dotData.map(d => ({

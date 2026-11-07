@@ -16,7 +16,7 @@ const DERIVED_OPTION_KEYS = new Set<string>([
   'verticalScaleType', 'verticalLabelPosition', 'verticalRangeMin', 'verticalRangeMax',
   'showHorizontalTicks', 'showHorizontalAxis', 'horizontalGridStyle', 'horizontalNumberFormat',
   'horizontalScaleType', 'horizontalLabelPosition', 'horizontalLabelRotation', 'horizontalRangeMin', 'horizontalRangeMax',
-  'sliceMax', 'barGap', 'connectionsOpacity', 'areaFillOpacity',
+  'sliceMax', 'barGap', 'valueLabelEvery', 'connectionsOpacity', 'areaFillOpacity',
 ])
 
 function buildRegisteredOptions(opts: Partial<ChartTypeOptions>, chartType?: string): Partial<ChartOptions> {
@@ -143,6 +143,10 @@ export function buildChartOptions(opts: Partial<ChartTypeOptions>, backgroundCol
   }
   if (opts.swapLabelValue !== undefined) {
     result.swapLabelValue = opts.swapLabelValue
+  }
+  const valueLabelEvery = parseInt(opts.valueLabelEvery ?? '', 10)
+  if (valueLabelEvery > 0) {
+    result.valueLabelEvery = valueLabelEvery
   }
   const sliceMax = parseInt(opts.sliceMax ?? '', 10)
   if (!isNaN(sliceMax) && sliceMax > 0) {

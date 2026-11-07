@@ -1,6 +1,6 @@
 import * as d3 from 'd3'
 import 'd3-transition'
-import type { LineSymbolConfig } from './types'
+import type { ChartOptions, LineSymbolConfig } from './types'
 import { SymbolShape, SymbolShowOn, SymbolStyle } from '../enums'
 import { getDefaultTransitionMs } from './motion'
 
@@ -29,6 +29,16 @@ export function shouldShowSymbol(
     case SymbolShowOn.All:
     default: return true
   }
+}
+
+export function shouldShowValueLabel(
+  index: number,
+  total: number,
+  categoryIndex: number,
+  points: ChartOptions['valueLabelPoints'],
+  every = 2,
+): boolean {
+  return points === 'everyN' ? categoryIndex % every === 0 : shouldShowSymbol(index, total, points)
 }
 
 export function renderLineSymbols(

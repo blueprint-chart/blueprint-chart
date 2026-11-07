@@ -137,6 +137,10 @@ describe('registry', () => {
     expect(getChartOptions(chartType).map(o => o.key)).toContain('verticalNumberFormat')
   })
 
+  it.each([ChartType.Line, ChartType.LineMulti])('%s has valueLabelPoints and valueLabelEvery options', (chartType) => {
+    expect(getChartOptions(chartType).map(o => o.key)).toEqual(expect.arrayContaining(['valueLabelPoints', 'valueLabelEvery']))
+  })
+
   it('column-stacked has showTotal option', () => {
     expect(getChartOptions(ChartType.ColumnStacked).map(o => o.key)).toContain('showTotal')
   })

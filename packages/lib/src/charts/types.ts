@@ -215,6 +215,8 @@ export interface ChartOptions {
   areaLines?: boolean
   valueLabels?: boolean | 'percent'
   valueLabelPosition?: ValueLabelPosition
+  valueLabelPoints?: SymbolShowOn | 'everyN'
+  valueLabelEvery?: number
   tooltips?: boolean
   crosshair?: boolean
   crosshairDirection?: CrosshairDirection
@@ -306,6 +308,8 @@ export interface ChartTypeOptions {
   horizontalRangeMax: string
   valueLabels: boolean | 'percent'
   valueLabelPosition: string
+  valueLabelPoints: string
+  valueLabelEvery: string
   tooltips: boolean
   crosshair: boolean
   crosshairDirection: string

@@ -51,6 +51,12 @@ describe('buildChartOptions option passthrough', () => {
     expect(result.sortMode).toBe(SortMode.None)
   })
 
+  it('parses valueLabelEvery to a positive integer', () => {
+    expect(buildChartOptions({ valueLabelEvery: '3' }, undefined, 'line').valueLabelEvery).toBe(3)
+    expect(buildChartOptions({ valueLabelEvery: '0' }, undefined, 'line').valueLabelEvery).toBeUndefined()
+    expect(buildChartOptions({ valueLabelPoints: 'last' }, undefined, 'line').valueLabelPoints).toBe('last')
+  })
+
   it('keeps working with no chart type', () => {
     expect(buildChartOptions({ legend: true }).legend).toBe(true)
   })

@@ -94,6 +94,8 @@ Every property `line-multi` accepts, beside the [frame and layout keys](/referen
 | `lineSymbolStyle` | select: `filled`, `hollow` | `filled` |
 | `lineSymbolSize` | text | `3.5` |
 | `lineSymbolOpacity` | text | `1` |
+| `valueLabelPoints` | select: `all`, `firstLast`, `last`, `everyN` | `all` |
+| `valueLabelEvery` | text | `2` |
 
 <!-- options:end -->
 

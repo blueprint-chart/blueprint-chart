@@ -13,11 +13,12 @@ import { resolveBackgroundColor } from '../../contrast'
 import { setupProximityInteraction, disposeProximityFor } from '../../plugins/proximity'
 import { ensureClipPath } from '../../clip-path-helper'
 import { clampPointLabel } from '../../value-label-fit'
-import { renderLineSymbols } from '../../line-symbols'
+import { renderLineSymbols, shouldShowValueLabel } from '../../line-symbols'
 import { setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut } from '../../motion'
 import { getCachedChart, setCachedChart } from '../../transition-cache'
 import { featureJoin, getSceneTransition, tweenPlotFrame, type PlotRect } from '../../../transitions'
 import { DEFAULT_COLORS } from '../../palettes'
+import { formatValueLabel } from '../../format-helpers'
 
 export const DEFAULT_COLOR = DEFAULT_COLORS[0]
 
@@ -258,9 +259,11 @@ export function render(
   // inserted where the clipped group held it so the annotation layer and the
   // proximity overlay keep their z-order above it.
     const labelLayer = d3.select(chartArea).insert('g', () => clippedArea.nextSibling)
-    const labelPos = (d: LineDatum) => clampPointLabel(String(d.value), xPos(d), y(d.value) as number, { width, height, margin })
+    const labelText = (d: LineDatum) => formatValueLabel(d.value, options.verticalAxis?.numberFormat)
+    const labelPos = (d: LineDatum) => clampPointLabel(labelText(d), xPos(d), y(d.value) as number, { width, height, margin })
+    const labelled = plotted.filter((d, i) => shouldShowValueLabel(i, plotted.length, lineData.indexOf(d), options.valueLabelPoints, options.valueLabelEvery))
     labelLayer.selectAll<SVGTextElement, LineDatum>('.bc-value-label')
-      .data(plotted, d => d.label)
+      .data(labelled, d => d.label)
       .enter()
       .append('text')
       .attr('class', 'bc-value-label')
@@ -268,8 +271,8 @@ export function render(
       .attr('y', d => labelPos(d).y)
       .attr('text-anchor', 'middle')
       .attr('font-size', '11px')
-      .attr('fill', 'currentColor')
-      .text(d => String(d.value))
+      .attr('fill', color)
+      .text(labelText)
   }
 
   if (options.lineSymbols) {

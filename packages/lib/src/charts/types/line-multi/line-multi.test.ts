@@ -846,6 +846,40 @@ describe('line-multi chart', () => {
     expect(labels).toHaveLength(3)
   })
 
+  it('labels the last point of each series with last', () => {
+    render(container, data, { valueLabels: true, valueLabelPoints: 'last' })
+    const texts = Array.from(container.querySelectorAll('.bc-value-label')).map(l => l.textContent)
+    expect(texts).toEqual(['15', '30'])
+  })
+
+  it('labels the same categories in every series with everyN despite gaps', () => {
+    const gapped = {
+      labels: ['a', 'b', 'c', 'd'],
+      series: [{ name: 'A', values: [1, 2, 3, 4] }, { name: 'B', values: [NaN, 6, 7, 8] }],
+    }
+    render(container, gapped, { valueLabels: true, valueLabelPoints: 'everyN', valueLabelEvery: 2 })
+    const texts = Array.from(container.querySelectorAll('.bc-value-label')).map(l => l.textContent)
+    expect(texts).toEqual(['1', '3', '7'])
+  })
+
+  it('dims value labels of non-highlighted series', () => {
+    render(container, data, { valueLabels: true, valueLabelPoints: 'first', highlights: [{ target: 'Series A' }] })
+    const opacities = Array.from(container.querySelectorAll('.bc-value-label')).map(l => l.getAttribute('opacity'))
+    expect(opacities).toEqual(['1', '0.35'])
+  })
+
+  it('formats value labels with the vertical number format', () => {
+    render(container, data, { valueLabels: true, valueLabelPoints: 'first', verticalAxis: { numberFormat: '|.1f|%' } })
+    const texts = Array.from(container.querySelectorAll('.bc-value-label')).map(l => l.textContent)
+    expect(texts).toEqual(['10.0%', '5.0%'])
+  })
+
+  it('colors each value label with its series color', () => {
+    render(container, data, { valueLabels: true, valueLabelPoints: 'first', colors: ['#ff0000', '#00ff00'] })
+    const fills = Array.from(container.querySelectorAll('.bc-value-label')).map(l => l.getAttribute('fill'))
+    expect(fills).toEqual(['#ff0000', '#00ff00'])
+  })
+
   // ── Clip path ───────────────────────────────────────────────────
 
   it('creates a clip path for the chart content', () => {

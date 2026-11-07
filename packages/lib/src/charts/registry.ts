@@ -172,6 +172,19 @@ const crosshairStyleOpt: ChartOptionDef = {
   ],
 }
 const crosshairColorOpt: ChartOptionDef = { key: 'crosshairColor', type: ChartOptionType.Text, label: 'Crosshair color', default: '#999', placeholder: '#999' }
+const valueLabelPointsOpt: ChartOptionDef = {
+  key: 'valueLabelPoints',
+  type: ChartOptionType.Select,
+  label: 'Show on',
+  default: SymbolShowOn.All,
+  choices: [
+    { value: SymbolShowOn.All, text: 'All' },
+    { value: SymbolShowOn.FirstLast, text: 'First & last' },
+    { value: SymbolShowOn.Last, text: 'Last' },
+    { value: 'everyN', text: 'Every N' },
+  ],
+}
+const valueLabelEveryOpt: ChartOptionDef = { key: 'valueLabelEvery', type: ChartOptionType.Text, label: 'Every', default: '2', placeholder: '2' }
 const lineSymbolsOpt: ChartOptionDef = { key: 'lineSymbols', type: ChartOptionType.Boolean, label: 'Show line symbols', default: false }
 const lineSymbolShapeOpt: ChartOptionDef = {
   key: 'lineSymbolShape',
@@ -433,8 +446,8 @@ const donutArcOpts = [displayAsPercentageOpt, arcNumberFormatOpt, donutShowTotal
 registerChart(ChartType.BarVertical, barVertical, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, swapLabelValueOpt, barBackgroundOpt, barSeparatorsOpt, barGapOpt, connectedColumnsOpt, connectionsOpacityOpt, waterfallOpt, waterfallTotalOpt, categoryLabelLineOpt, ...barVerticalAxisOpts, ...barOpts])
 registerChart(ChartType.BarHorizontal, barHorizontal, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, swapLabelValueOpt, barBackgroundOpt, barSeparatorsOpt, barGapOpt, connectedColumnsOpt, connectionsOpacityOpt, waterfallOpt, waterfallTotalOpt, categoryLabelLineOpt, ...barHorizontalAxisOpts, ...barHorizontalOpts])
 registerChart(ChartType.BarMulti, barMulti, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, barGapOpt, sortByTotalOpt, legendOffOpt, legendAnchorOpt, legendPositionOpt, autoDirectLabellingOpt, directLabelAnchorOpt, ...barVerticalAxisOpts, ...barOpts])
-registerChart(ChartType.Line, line, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, lineInterpolationOpt, edgePaddingOpt, ...lineAxisOpts, ...lineOpts])
-registerChart(ChartType.LineMulti, lineMulti, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, lineInterpolationOpt, edgePaddingOpt, sortModeOpt, legendOffOpt, legendAnchorOpt, legendPositionOpt, autoDirectLabellingOpt, ...lineAxisOpts, ...lineMultiOpts])
+registerChart(ChartType.Line, line, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, lineInterpolationOpt, edgePaddingOpt, ...lineAxisOpts, ...lineOpts, valueLabelPointsOpt, valueLabelEveryOpt])
+registerChart(ChartType.LineMulti, lineMulti, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, lineInterpolationOpt, edgePaddingOpt, sortModeOpt, legendOffOpt, legendAnchorOpt, legendPositionOpt, autoDirectLabellingOpt, ...lineAxisOpts, ...lineMultiOpts, valueLabelPointsOpt, valueLabelEveryOpt])
 registerChart(ChartType.Donut, donut, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, legendOffOpt, legendAnchorOpt, legendPositionOpt, autoDirectLabellingOpt, tooltipsOpt, ...donutArcOpts])
 registerChart(ChartType.Pie, pie, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, legendOffOpt, legendAnchorOpt, legendPositionOpt, autoDirectLabellingOpt, tooltipsOpt, ...pieArcOpts])
 
