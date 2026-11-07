@@ -155,9 +155,11 @@ function isVisible(card: SampleCard): boolean {
       outline-offset: 2px;
     }
 
-    &:not(:hover, :focus-visible) &__preview__thumb {
-      filter: grayscale(1);
-      opacity: 0.55;
+    @media (hover: hover) {
+      &:not(:hover, :focus-visible) &__preview__thumb {
+        filter: grayscale(1);
+        opacity: 0.55;
+      }
     }
 
     &__preview {
