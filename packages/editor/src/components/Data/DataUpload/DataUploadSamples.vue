@@ -40,12 +40,9 @@ const filters = [
   ...CHART_TYPE_GROUPS.filter(group => SAMPLE_GROUPS.has(group.title)).map(group => ({ key: group.title, label: group.title })),
 ]
 
-const visibleSampleCards = computed<SampleCard[]>(() => {
-  if (activeFilter.value === ALL_SAMPLES) {
-    return sampleCards.value
-  }
-  return sampleCards.value.filter(card => GROUP_BY_CHART_TYPE.get(card.chartType) === activeFilter.value)
-})
+function isVisible(card: SampleCard): boolean {
+  return activeFilter.value === ALL_SAMPLES || GROUP_BY_CHART_TYPE.get(card.chartType) === activeFilter.value
+}
 </script>
 
 <template>
@@ -67,7 +64,8 @@ const visibleSampleCards = computed<SampleCard[]>(() => {
       </button>
     </div>
     <button
-      v-for="sample in visibleSampleCards"
+      v-for="sample in sampleCards"
+      v-show="isVisible(sample)"
       :key="sample.id"
       type="button"
       class="data-upload-samples__card"

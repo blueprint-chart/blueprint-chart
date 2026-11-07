@@ -86,8 +86,13 @@ describe('DataUploadSamples', () => {
   it('shows only the samples of the picked family', async () => {
     const w = mountSamples()
     await w.findAll('.data-upload-samples__filters__filter')[2].trigger('click')
-    const cards = w.findAll('.data-upload-samples__card')
+    const cards = w.findAll('.data-upload-samples__card').filter(card => card.isVisible())
     expect(cards.map(card => card.text())).toEqual([expect.stringContaining('Another Chart')])
     expect(w.findAll('.data-upload-samples__filters__filter')[2].attributes('aria-pressed')).toBe('true')
+  })
+  it('keeps every thumbnail mounted when switching filters', async () => {
+    const w = mountSamples()
+    await w.findAll('.data-upload-samples__filters__filter')[2].trigger('click')
+    expect(w.findAllComponents(ChartThumbnail)).toHaveLength(2)
   })
 })
