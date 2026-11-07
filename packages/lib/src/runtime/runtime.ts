@@ -1,3 +1,4 @@
+import { darkSchemeQuery } from '../charts/themes'
 import { CHART_CSS } from './chart-css'
 import { ERROR_MESSAGE, RESIZE_MESSAGE, isErrorMessage, readResizeHeight } from './messages'
 
@@ -32,6 +33,7 @@ function detectRuntimeUrl(): string {
 // `message` listeners on `window` (HMR, multi-script-tag pages, etc.).
 const iframeHandlers = new Map<HTMLIFrameElement, (e: MessageEvent) => void>()
 let rootMessageHandler: ((e: MessageEvent) => void) | null = null
+const schemeUnsubscribers: Array<() => void> = []
 
 function ensureRootMessageHandler(): void {
   if (rootMessageHandler) {
@@ -62,6 +64,7 @@ export function teardownBlueprint(): void {
     rootMessageHandler = null
   }
   iframeHandlers.clear()
+  schemeUnsubscribers.splice(0).forEach(unsubscribe => unsubscribe())
 }
 
 function processScript(script: HTMLScriptElement): void {
@@ -78,7 +81,21 @@ function processScript(script: HTMLScriptElement): void {
 
   script.parentNode?.insertBefore(iframe, script)
 
-  iframe.srcdoc = buildSrcdoc(dsl, RUNTIME_URL)
+  const hostTheme = script.closest('[data-bs-theme]')?.getAttribute('data-bs-theme')
+  if (hostTheme === 'light' || hostTheme === 'dark') {
+    iframe.srcdoc = buildSrcdoc(dsl, RUNTIME_URL, hostTheme)
+  }
+  else {
+    const query = darkSchemeQuery()
+    const applyScheme = () => {
+      iframe.srcdoc = buildSrcdoc(dsl, RUNTIME_URL, query?.matches ? 'dark' : 'light')
+    }
+    applyScheme()
+    if (query) {
+      query.addEventListener('change', applyScheme)
+      schemeUnsubscribers.push(() => query.removeEventListener('change', applyScheme))
+    }
+  }
 
   const onMessage = (e: MessageEvent) => {
     const height = readResizeHeight(e.data)

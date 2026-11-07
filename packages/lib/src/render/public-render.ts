@@ -7,6 +7,7 @@ import { ChartParseError } from './errors'
 import { resolveScene } from './resolve-scene'
 import { layoutFrameSvg, buildFrameSvg, resolveFrameTheme } from './frame-svg'
 import { buildChartAccessibility } from './chart-a11y'
+import { darkSchemeQuery } from '../charts/themes'
 
 export interface RenderApiOptions {
   theme?: string
@@ -74,12 +75,34 @@ export async function render(source: string, options: RenderApiOptions = {}): Pr
     container.style.setProperty('--bc-text-color', color)
   }
 
-  function renderInto(container: HTMLElement, thumbnail: boolean) {
+  const requestedTheme = options.theme === 'auto' ? undefined : options.theme
+  const schemeQuery = requestedTheme ? null : darkSchemeQuery()
+
+  function resolveTheme(sceneTheme?: string): string | undefined {
+    return requestedTheme ?? sceneTheme ?? (schemeQuery?.matches ? 'dark' : undefined)
+  }
+
+  function renderInto(container: HTMLElement, thumbnail: boolean, sceneIndex: number | undefined) {
     backend.renderToContainer(container, definition, {
-      sceneIndex: state.sceneIndex,
+      sceneIndex,
       thumbnail,
-      theme: options.theme,
+      theme: resolveTheme(resolveScene(definition, sceneIndex).theme),
     })
+  }
+
+  const mountedScenes = new Map<HTMLElement, number | undefined>()
+  function onSchemeChange() {
+    mountedScenes.forEach((sceneIndex, el) => {
+      if (el.isConnected) {
+        renderInto(el, !frame, sceneIndex)
+      }
+      else {
+        mountedScenes.delete(el)
+      }
+    })
+    if (!mountedScenes.size) {
+      schemeQuery?.removeEventListener('change', onSchemeChange)
+    }
   }
 
   /** Renders the plot into a frame laid out as SVG, so the chrome survives a
@@ -88,12 +111,12 @@ export async function render(source: string, options: RenderApiOptions = {}): Pr
     const width = opts.width ?? state.width
     const height = opts.height ?? state.height
     const scene = resolveScene(definition, state.sceneIndex)
-    const theme = options.theme ?? scene.theme
+    const theme = resolveTheme(scene.theme)
     if (!frame) {
       const { container, cleanup } = backend.createContainer(width, height)
       try {
         applyThemeSurface(container, theme)
-        renderInto(container, true)
+        renderInto(container, true, state.sceneIndex)
         return backend.serializeSvg(container)
       }
       finally {
@@ -104,7 +127,7 @@ export async function render(source: string, options: RenderApiOptions = {}): Pr
     const { container, cleanup } = backend.createContainer(layout.plot.width, layout.plot.height)
     try {
       applyThemeSurface(container, theme)
-      renderInto(container, true)
+      renderInto(container, true, state.sceneIndex)
       const a11y = buildChartAccessibility(scene.chartType, scene.frame, scene.data)
       return buildFrameSvg(layout, backend.serializeSvg(container), a11y)
     }
@@ -120,7 +143,7 @@ export async function render(source: string, options: RenderApiOptions = {}): Pr
     async toHtml(opts: OutputOptions = {}): Promise<string> {
       const { container, cleanup } = backend.createContainer(opts.width ?? state.width, opts.height ?? state.height)
       try {
-        renderInto(container, !frame)
+        renderInto(container, !frame, state.sceneIndex)
         return backend.serializeFrame(container)
       }
       finally {
@@ -140,7 +163,11 @@ export async function render(source: string, options: RenderApiOptions = {}): Pr
       if (!el) {
         throw new Error(`Blueprint Chart: mount target "${String(target)}" not found`)
       }
-      renderInto(el as HTMLElement, !frame)
+      renderInto(el as HTMLElement, !frame, state.sceneIndex)
+      if (schemeQuery && !mountedScenes.size) {
+        schemeQuery.addEventListener('change', onSchemeChange)
+      }
+      mountedScenes.set(el as HTMLElement, state.sceneIndex)
       return handle
     },
     scene(index: number): ChartHandle {

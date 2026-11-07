@@ -121,6 +121,57 @@ describe('initBlueprint', () => {
     expect(iframe.srcdoc).toContain('bc-frame-title')
   })
 
+  describe('color scheme', () => {
+    let listeners: Array<() => void>
+    let matches: boolean
+
+    beforeEach(() => {
+      listeners = []
+      matches = true
+      window.matchMedia = vi.fn(() => ({
+        get matches() {
+          return matches
+        },
+        addEventListener: (_: string, fn: () => void) => listeners.push(fn),
+        removeEventListener: (_: string, fn: () => void) => listeners.splice(listeners.indexOf(fn), 1),
+      }) as unknown as MediaQueryList)
+    })
+
+    afterEach(() => {
+      delete (window as Partial<Window>).matchMedia
+    })
+
+    const SCRIPT = '<script type="application/blueprint-chart">chart bar { data { "A" = 10 } }</script>'
+
+    it('follows prefers-color-scheme live when the host sets no theme', () => {
+      document.body.innerHTML = SCRIPT
+      initBlueprint()
+
+      const iframe = document.querySelector('.blueprint-chart-iframe') as HTMLIFrameElement
+      expect(iframe.srcdoc).toContain('<html data-bs-theme="dark">')
+      matches = false
+      listeners.forEach(fn => fn())
+      expect(iframe.srcdoc).not.toContain('<html data-bs-theme="dark">')
+    })
+
+    it('keeps an explicit host data-bs-theme over the reader preference', () => {
+      document.body.innerHTML = `<div data-bs-theme="light">${SCRIPT}</div>`
+      initBlueprint()
+
+      const iframe = document.querySelector('.blueprint-chart-iframe') as HTMLIFrameElement
+      expect(iframe.srcdoc).not.toContain('<html data-bs-theme="dark">')
+      expect(listeners).toHaveLength(0)
+    })
+
+    it('stops following the color scheme after teardown', () => {
+      document.body.innerHTML = SCRIPT
+      initBlueprint()
+      teardownBlueprint()
+
+      expect(listeners).toHaveLength(0)
+    })
+  })
+
   // ── Empty runtime URL hardening ──────────────────────────────────
 
   it('does not emit an empty-src script tag when runtimeUrl is empty', () => {

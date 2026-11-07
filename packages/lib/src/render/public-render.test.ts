@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll } from 'vitest'
+import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest'
 import { render } from './public-render'
 import { ChartParseError, PngBrowserUnsupportedError } from './errors'
 
@@ -157,5 +157,83 @@ describe('accessibility metadata on the exported SVG (#87)', () => {
   it('describes the data when the chart carries no description', async () => {
     const svg = await (await render(BPC)).toSvg({ width: 800, height: 500 })
     expect(svg).toMatch(/<desc>[^<]*2 categories[^<]*<\/desc>/)
+  })
+})
+
+describe('render() color scheme', () => {
+  let listeners: Array<() => void>
+  let matches: boolean
+
+  function stubScheme(dark: boolean) {
+    listeners = []
+    matches = dark
+    window.matchMedia = vi.fn(() => ({
+      get matches() {
+        return matches
+      },
+      addEventListener: (_: string, fn: () => void) => listeners.push(fn),
+      removeEventListener: (_: string, fn: () => void) => listeners.splice(listeners.indexOf(fn), 1),
+    }) as unknown as MediaQueryList)
+  }
+
+  function mountedEl() {
+    const el = document.createElement('div')
+    document.body.appendChild(el)
+    return el
+  }
+
+  afterEach(() => {
+    delete (window as Partial<Window>).matchMedia
+  })
+
+  it('renders dark when the reader prefers dark and no theme is set', async () => {
+    stubScheme(true)
+    const html = await (await render(BPC)).toHtml()
+    expect(html).toContain('bc-theme-dark')
+  })
+
+  it('treats theme "auto" like no theme', async () => {
+    stubScheme(true)
+    const html = await (await render(BPC, { theme: 'auto' })).toHtml()
+    expect(html).toContain('bc-theme-dark')
+    expect(html).not.toContain('bc-theme-auto')
+  })
+
+  it('keeps an explicit theme over the reader preference', async () => {
+    stubScheme(true)
+    const html = await (await render(BPC, { theme: 'blueprint-framed' })).toHtml()
+    expect(html).toContain('bc-theme-blueprint-framed')
+    expect(html).not.toContain('bc-theme-dark')
+  })
+
+  it('mount() follows a live color scheme change', async () => {
+    stubScheme(false)
+    const el = document.createElement('div')
+    document.body.appendChild(el)
+    ;(await render(BPC)).mount(el)
+    expect(el.querySelector('.bc-theme-dark')).toBeNull()
+    matches = true
+    listeners.forEach(fn => fn())
+    expect(el.querySelector('.bc-theme-dark')).not.toBeNull()
+  })
+  it('mount() re-renders each element with the scene it was mounted with', async () => {
+    stubScheme(false)
+    const a = mountedEl()
+    const b = mountedEl()
+    ;(await render(BPC)).mount(a).scene(0).mount(b)
+    matches = true
+    listeners.forEach(fn => fn())
+    expect(a.querySelector('path.bc-line')).toBeNull()
+    expect(b.querySelector('path.bc-line')).not.toBeNull()
+  })
+
+  it('mount() listens once per handle and drops detached elements', async () => {
+    stubScheme(false)
+    const el = mountedEl()
+    ;(await render(BPC)).mount(el).mount(el)
+    expect(listeners).toHaveLength(1)
+    el.remove()
+    listeners.forEach(fn => fn())
+    expect(listeners).toHaveLength(0)
   })
 })

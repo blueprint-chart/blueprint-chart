@@ -16,3 +16,9 @@ const THEMES: ThemeEntry[] = [
 export function listThemes(): ThemeEntry[] {
   return THEMES
 }
+
+export function darkSchemeQuery(): MediaQueryList | null {
+  return typeof window === 'undefined' || typeof window.matchMedia !== 'function'
+    ? null
+    : window.matchMedia('(prefers-color-scheme: dark)')
+}
