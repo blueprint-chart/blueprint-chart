@@ -1,5 +1,6 @@
 export type ExportTab = 'embed' | 'download' | ''
 export type DownloadFormat = 'png' | 'svg' | 'bpc'
+export type PreviewContext = 'card' | 'article'
 
 export const useExportPanelStore = defineStore('exportPanel', () => {
   const exportTab = shallowRef<ExportTab>('embed')
@@ -10,6 +11,7 @@ export const useExportPanelStore = defineStore('exportPanel', () => {
   const bpcIncludeData = shallowRef(true)
   const bpcCompact = shallowRef(false)
   const lastNarrowExportTab = shallowRef<Exclude<ExportTab, ''>>('embed')
+  const previewContext = shallowRef<PreviewContext>('article')
 
   function setExportTab(tab: ExportTab) {
     exportTab.value = tab
@@ -23,6 +25,10 @@ export const useExportPanelStore = defineStore('exportPanel', () => {
     lastNarrowExportTab.value = tab
   }
 
+  function setPreviewContext(context: PreviewContext) {
+    previewContext.value = context
+  }
+
   function reset() {
     exportTab.value = 'embed'
     selectedFormat.value = 'png'
@@ -32,6 +38,7 @@ export const useExportPanelStore = defineStore('exportPanel', () => {
     bpcIncludeData.value = true
     bpcCompact.value = false
     lastNarrowExportTab.value = 'embed'
+    previewContext.value = 'article'
   }
 
   return {
@@ -43,9 +50,11 @@ export const useExportPanelStore = defineStore('exportPanel', () => {
     bpcIncludeData,
     bpcCompact,
     lastNarrowExportTab,
+    previewContext,
     setExportTab,
     setSelectedFormat,
     setLastNarrowExportTab,
+    setPreviewContext,
     reset,
   }
 })
@@ -61,6 +70,7 @@ export function useExportPanel() {
     bpcIncludeData,
     bpcCompact,
     lastNarrowExportTab,
+    previewContext,
   } = storeToRefs(store)
   return {
     exportTab,
@@ -71,9 +81,11 @@ export function useExportPanel() {
     bpcIncludeData,
     bpcCompact,
     lastNarrowExportTab,
+    previewContext,
     setExportTab: store.setExportTab,
     setSelectedFormat: store.setSelectedFormat,
     setLastNarrowExportTab: store.setLastNarrowExportTab,
+    setPreviewContext: store.setPreviewContext,
     reset: store.reset,
   }
 }

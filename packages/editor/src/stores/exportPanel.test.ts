@@ -34,11 +34,13 @@ describe('useExportPanel', () => {
     store.setSelectedFormat('bpc')
     store.pngScale = 4
     store.svgInlineFonts = true
+    store.setPreviewContext('card')
     store.reset()
     expect(store.exportTab).toBe('embed')
     expect(store.selectedFormat).toBe('png')
     expect(store.pngScale).toBe(2)
     expect(store.svgInlineFonts).toBe(false)
+    expect(store.previewContext).toBe('article')
   })
 
   it('shares state across calls', () => {
@@ -46,6 +48,16 @@ describe('useExportPanel', () => {
     const b = useExportPanel()
     a.setExportTab('download')
     expect(b.exportTab).toBe('download')
+  })
+
+  it('defaults the preview context to article', () => {
+    expect(useExportPanel().previewContext).toBe('article')
+  })
+
+  it('sets the preview context', () => {
+    const store = useExportPanel()
+    store.setPreviewContext('card')
+    expect(store.previewContext).toBe('card')
   })
 })
 
