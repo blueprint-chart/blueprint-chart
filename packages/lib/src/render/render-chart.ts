@@ -86,7 +86,7 @@ export function renderChart(
   }
   else {
     const padding = state.frame?.padding ?? options.padding ?? '16px'
-    frame = { ...(state.frame ?? {}), padding }
+    frame = { ...(state.frame ?? {}), padding, data: state.data }
   }
 
   const orch = getSceneTransition(container)

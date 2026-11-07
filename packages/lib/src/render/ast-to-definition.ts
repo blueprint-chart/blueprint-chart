@@ -62,6 +62,7 @@ function buildFrame(props: Map<string, string | number | boolean>): FrameOptions
     note: getString('note'),
     padding: getString('padding'),
     transparentBackground: toBool(transparentBg) || undefined,
+    getTheData: toBool(props.get('getTheData')) || undefined,
   }
   const anySet = Object.values(frame).some(v => v !== undefined)
   return anySet ? frame : undefined

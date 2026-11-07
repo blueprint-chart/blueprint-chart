@@ -156,7 +156,8 @@ export const CHART_CSS = `
 }
 
 .bc-frame-byline,
-.bc-frame-source {
+.bc-frame-source,
+.bc-frame-get-the-data {
   --bc-frame-meta-color: var(--bc-text-color, #888);
   --bc-frame-meta-font-size: 0.75rem;
   color: var(--bc-frame-meta-color);

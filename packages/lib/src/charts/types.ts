@@ -98,6 +98,8 @@ export interface FrameOptions {
   aspectRatio?: number
   padding?: string
   transparentBackground?: boolean
+  getTheData?: boolean
+  data?: ChartData
 }
 
 export interface AreaFillConfig {

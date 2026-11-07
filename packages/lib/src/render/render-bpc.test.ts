@@ -18,6 +18,32 @@ describe('renderBpc', () => {
     expect(container.querySelector('svg')).not.toBeNull()
   })
 
+  it('adds a "Get the data" CSV link to the footer when getTheData is set', () => {
+    renderBpc(container, `chart bar-multi {
+  getTheData = true
+  data {
+    series = "Share, %","Say \\"hi\\""
+    "Paris, France" = 1,2
+    "Line\\nbreak" = 3,4
+  }
+}`)
+    const link = container.querySelector<HTMLAnchorElement>('.bc-frame-footer-left a[download]')
+    expect(link?.textContent).toBe('Get the data')
+    expect(link?.download).toBe('data.csv')
+    expect(decodeURIComponent(link!.href.replace('data:text/csv;charset=utf-8,', ''))).toBe(
+      'Label,"Share, %","Say ""hi"""\n"Paris, France",1,2\n"Line\nbreak",3,4',
+    )
+  })
+
+  it('omits the "Get the data" link by default', () => {
+    renderBpc(container, `chart bar-vertical {
+  data {
+    "a" = 1
+  }
+}`)
+    expect(container.querySelector('.bc-frame-footer a[download]')).toBeNull()
+  })
+
   it('does nothing when bpc is empty', () => {
     renderBpc(container, '')
     expect(container.querySelector('svg')).toBeNull()

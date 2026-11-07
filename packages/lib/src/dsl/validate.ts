@@ -34,7 +34,7 @@ export interface ValidationResult {
  * chart-type option def, so they are always allowed on a chart (and on scenes).
  * Built by grepping the property reads in src/render and src/charts/frame:
  *   - frame (ast-to-definition buildFrame): title, description, altText, byline, note,
- *     source, sourceUrl, padding, transparentBackground
+ *     source, sourceUrl, padding, transparentBackground, getTheData
  *   - chart-level render fields (ast-to-definition): type, sort, sortMode, theme
  *   - layout-constraints: heightMode, aspectRatio, fixedHeight
  *   - editor layout/player fields (written by useDslOutput, read back by
@@ -50,6 +50,7 @@ const FRAME_KEYS = new Set<string>([
   'sourceUrl',
   'padding',
   'transparentBackground',
+  'getTheData',
   'type',
   'sort',
   'sortMode',
