@@ -109,7 +109,7 @@
         :id="samplesHeadingId"
         class="upload-card__samples__divider"
       >
-        or start from a sample
+        Or start from a sample
       </h2>
       <DataUploadSamples @select="$emit('sample', $event)" />
     </section>

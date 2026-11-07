@@ -176,7 +176,7 @@ describe('DataUploadCard', () => {
 
   it('shows the sample gallery below the input card without picking a tab', () => {
     const w = mountCard()
-    expect(w.find('.upload-card__samples__divider').text()).toBe('or start from a sample')
+    expect(w.find('.upload-card__samples__divider').text()).toBe('Or start from a sample')
     expect(w.find('.upload-card__samples .samples').exists()).toBe(true)
   })
 
