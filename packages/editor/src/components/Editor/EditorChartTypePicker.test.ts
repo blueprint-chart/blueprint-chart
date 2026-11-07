@@ -19,7 +19,7 @@ describe('EditorChartTypePicker', () => {
 
   it('shows every chart type as a card', () => {
     const wrapper = mount(EditorChartTypePicker)
-    expect(wrapper.findAll('button')).toHaveLength(14)
+    expect(wrapper.findAll('button')).toHaveLength(15)
   })
 
   it('groups chart types by purpose', () => {

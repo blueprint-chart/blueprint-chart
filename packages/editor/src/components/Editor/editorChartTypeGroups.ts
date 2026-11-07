@@ -16,6 +16,7 @@ import BarGroupedThumb from '@/assets/chart-thumbnails/bar-grouped.bpc'
 import DonutThumb from '@/assets/chart-thumbnails/donut.bpc'
 import PieThumb from '@/assets/chart-thumbnails/pie.bpc'
 import ScatterThumb from '@/assets/chart-thumbnails/scatter.bpc'
+import DotPlotThumb from '@/assets/chart-thumbnails/dot-plot.bpc'
 
 export const CHART_TYPE_THUMBNAILS: Record<string, Component> = {
   [ChartType.BarVertical]: markRaw(BarVerticalThumb),
@@ -32,6 +33,7 @@ export const CHART_TYPE_THUMBNAILS: Record<string, Component> = {
   [ChartType.Area]: markRaw(AreaThumb),
   [ChartType.AreaStacked]: markRaw(AreaStackedThumb),
   [ChartType.Scatter]: markRaw(ScatterThumb),
+  [ChartType.DotPlot]: markRaw(DotPlotThumb),
 }
 
 export interface ChartTypeChoice {
@@ -52,7 +54,7 @@ function choices(...types: ChartType[]): ChartTypeChoice[] {
 export const CHART_TYPE_GROUPS: ChartTypeGroup[] = [
   {
     title: 'Compare categories',
-    choices: choices(ChartType.BarVertical, ChartType.BarHorizontal, ChartType.BarMulti, ChartType.BarGrouped, ChartType.BarSplit),
+    choices: choices(ChartType.BarVertical, ChartType.BarHorizontal, ChartType.BarMulti, ChartType.BarGrouped, ChartType.BarSplit, ChartType.DotPlot),
   },
   {
     title: 'Parts of a whole',

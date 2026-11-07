@@ -68,8 +68,7 @@ test.describe('dot plot authoring', () => {
     await expect(page.locator(`${frame} svg`)).toBeVisible()
 
     await page.locator('[aria-label="Chart Type"]').click()
-    await page.locator('.form-control-dropdown__toggle .dropdown-toggle').click()
-    await page.locator('.form-control-dropdown-item__content__text__label', { hasText: 'Dot plot' }).first().click()
+    await page.locator('.editor-chart-type-picker button[value="dot-plot"]').click()
     await expect(page.locator(ranges)).toHaveCount(0)
     await expect(page.locator(lines)).toHaveCount(6)
 
