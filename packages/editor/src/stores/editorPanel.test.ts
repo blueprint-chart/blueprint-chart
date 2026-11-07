@@ -6,6 +6,10 @@ describe('useEditorPanel', () => {
     setActivePinia(createPinia())
   })
 
+  afterEach(() => {
+    document.documentElement.removeAttribute('data-bs-theme')
+  })
+
   it('has correct defaults', () => {
     const store = useEditorPanel()
     expect(store.activeTab).toBe('type')
