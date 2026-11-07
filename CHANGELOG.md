@@ -1,3 +1,14 @@
+## [2.12.0](https://github.com/blueprint-chart/blueprint-chart/compare/v2.11.0...v2.12.0) (2026-11-07)
+
+### Features
+
+* **lib:** register barGap and areaFillOpacity on types whose renderers read them ([13fa2cf](https://github.com/blueprint-chart/blueprint-chart/commit/13fa2cfb715a8e82afc06e13d991b89179a48965))
+
+### Bug Fixes
+
+* **lib:** grow bar-split bars from the zero baseline for signed values ([b23c967](https://github.com/blueprint-chart/blueprint-chart/commit/b23c9671e0e82e629a92cef9a91ca0d658493ea5))
+* **lib:** honor valueLabelPosition in column-stacked ([5486581](https://github.com/blueprint-chart/blueprint-chart/commit/5486581fb065dae88332e2f61dc0248e71789a9e))
+
 ## [2.11.0](https://github.com/blueprint-chart/blueprint-chart/compare/v2.10.0...v2.11.0) (2026-11-07)
 
 ### Features
