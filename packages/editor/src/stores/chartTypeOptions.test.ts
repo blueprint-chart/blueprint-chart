@@ -1,4 +1,4 @@
-import { ChartType, getChartOptions } from '@blueprint-chart/lib'
+import { ChartType, getChartOptions, SortMode } from '@blueprint-chart/lib'
 import { useChartConfig } from '@/stores/chartConfig'
 import { useChartTypeOptions } from './chartTypeOptions'
 import { useScenes } from './scenes'
@@ -62,10 +62,10 @@ describe('useChartTypeOptions', () => {
     const { setOption, currentOptions } = useChartTypeOptions()
 
     config.chartType.value = ChartType.BarMulti
-    setOption('sortMode', 'total')
+    setOption('sortMode', SortMode.Total)
 
     config.chartType.value = ChartType.DotPlot
-    expect(currentOptions.value.sortMode).toBe('value')
+    expect(currentOptions.value.sortMode).toBe(SortMode.Value)
   })
 
   it('does not overwrite existing stored values on switch', () => {
