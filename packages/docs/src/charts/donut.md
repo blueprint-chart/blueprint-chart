@@ -68,6 +68,10 @@ Every property `donut` accepts, beside the [frame and layout keys](/reference/ds
 | `displayAsPercentage` | boolean | `false` |
 | `verticalNumberFormat` | numberFormat | (unset) |
 | `showTotal` | boolean | `true` |
+| `centerLabel` | select: `total`, `slice`, `custom` | `total` |
+| `centerSlice` | text | `""` |
+| `centerText` | text | `""` |
+| `totalLabel` | text | `Total` |
 | `showLabels` | boolean | `true` |
 | `showValues` | boolean | `true` |
 | `sliceMax` | text | `6` |

@@ -135,6 +135,18 @@ export function buildChartOptions(opts: Partial<ChartTypeOptions>, backgroundCol
   if (opts.showTotal !== undefined) {
     result.showTotal = opts.showTotal
   }
+  if (opts.centerLabel) {
+    result.centerLabel = opts.centerLabel
+  }
+  if (opts.centerSlice !== undefined) {
+    result.centerSlice = opts.centerSlice
+  }
+  if (opts.centerText !== undefined) {
+    result.centerText = opts.centerText
+  }
+  if (opts.totalLabel !== undefined) {
+    result.totalLabel = opts.totalLabel
+  }
   if (opts.showLabels !== undefined) {
     result.showLabels = opts.showLabels
   }

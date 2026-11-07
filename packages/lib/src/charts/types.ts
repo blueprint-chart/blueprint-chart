@@ -232,6 +232,10 @@ export interface ChartOptions {
   seriesOverrides?: SeriesOverride[]
   displayAsPercentage?: boolean
   showTotal?: boolean
+  centerLabel?: string
+  centerSlice?: string
+  centerText?: string
+  totalLabel?: string
   showLabels?: boolean
   showValues?: boolean
   sliceMax?: number
@@ -329,6 +333,10 @@ export interface ChartTypeOptions {
   lineSymbolOpacity: string
   displayAsPercentage: boolean
   showTotal: boolean
+  centerLabel: string
+  centerSlice: string
+  centerText: string
+  totalLabel: string
   showLabels: boolean
   showValues: boolean
   swapLabelValue: boolean

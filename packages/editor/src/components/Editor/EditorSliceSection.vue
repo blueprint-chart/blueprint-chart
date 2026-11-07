@@ -22,6 +22,57 @@
       @update:model-value="(v) => setOption('showTotal', v)"
     />
 
+    <template v-if="showCenterControls">
+      <BFormGroup
+        label="Center label"
+        label-for="opt-centerLabel"
+      >
+        <BFormSelect
+          id="opt-centerLabel"
+          :model-value="centerLabel"
+          :options="centerLabelChoices"
+          @update:model-value="(v) => setOption('centerLabel', String(v))"
+        />
+      </BFormGroup>
+
+      <BFormGroup
+        v-if="centerLabel === 'total'"
+        label="Total label"
+        label-for="opt-totalLabel"
+      >
+        <BFormInput
+          id="opt-totalLabel"
+          :model-value="(currentOptions.totalLabel as string) ?? 'Total'"
+          placeholder="Total"
+          @update:model-value="(v) => setOption('totalLabel', String(v ?? ''))"
+        />
+      </BFormGroup>
+
+      <BFormGroup
+        v-if="centerLabel === 'slice'"
+        label="Center slice"
+        label-for="opt-centerSlice"
+      >
+        <BFormInput
+          id="opt-centerSlice"
+          :model-value="(currentOptions.centerSlice as string) ?? ''"
+          @update:model-value="(v) => setOption('centerSlice', String(v ?? ''))"
+        />
+      </BFormGroup>
+
+      <BFormGroup
+        v-if="centerLabel === 'custom'"
+        label="Center text"
+        label-for="opt-centerText"
+      >
+        <BFormInput
+          id="opt-centerText"
+          :model-value="(currentOptions.centerText as string) ?? ''"
+          @update:model-value="(v) => setOption('centerText', String(v ?? ''))"
+        />
+      </BFormGroup>
+    </template>
+
     <FormControlCheckbox
       v-if="has('showLabels')"
       :model-value="currentOptions.showLabels ?? true"
@@ -65,7 +116,11 @@
 import { useChartTypeOptions, type ChartTypeOptionKey } from '@/stores/chartTypeOptions'
 import { FormControlCheckbox, FormControlNumberFormat, FormControlSliderInput } from '@blueprint-chart/ui'
 
-const { currentOptions, availableOptionKeys, setOption } = useChartTypeOptions()
+const { currentOptions, optionDefs, availableOptionKeys, setOption } = useChartTypeOptions()
+
+const centerLabelChoices = computed(() => optionDefs.value.find(d => d.key === 'centerLabel')?.choices ?? [])
+const centerLabel = computed(() => (currentOptions.value.centerLabel as string) || 'total')
+const showCenterControls = computed(() => has('centerLabel') && !!currentOptions.value.showTotal)
 
 function has(key: string) {
   return availableOptionKeys.value.includes(key as ChartTypeOptionKey)

@@ -423,6 +423,22 @@ const pieDisplayAsPercentageOpt: ChartOptionDef = { ...displayAsPercentageOpt, d
 const pieSliceMaxOpt: ChartOptionDef = { ...sliceMaxOpt, default: '5' }
 // Donut: show total in center ("show a primary metric in the center when meaningful")
 const donutShowTotalOpt: ChartOptionDef = { ...showTotalOpt, default: true }
+const donutCenterOpts: ChartOptionDef[] = [
+  {
+    key: 'centerLabel',
+    type: ChartOptionType.Select,
+    label: 'Center label',
+    default: 'total',
+    choices: [
+      { value: 'total', text: 'Total' },
+      { value: 'slice', text: 'Slice share' },
+      { value: 'custom', text: 'Custom text' },
+    ],
+  },
+  { key: 'centerSlice', type: ChartOptionType.Text, label: 'Center slice', default: '' },
+  { key: 'centerText', type: ChartOptionType.Text, label: 'Center text', default: '' },
+  { key: 'totalLabel', type: ChartOptionType.Text, label: 'Total label', default: 'Total', placeholder: 'Total' },
+]
 
 // Direct labelling default Auto for multi-series charts where the wiki prescribes
 // "label each series directly" (multi-series bar, donut, pie). Combined with legendOffOpt
@@ -448,7 +464,7 @@ const lineMultiOpts = [valueLabelsOpt, tooltipsOpt, ...lineCrosshairOpts, ...lin
 // not have, so offering it on pie validated a key that could never render.
 const arcNumberFormatOpt: ChartOptionDef = { key: 'verticalNumberFormat', type: ChartOptionType.NumberFormat, label: 'Number format' }
 const pieArcOpts = [pieDisplayAsPercentageOpt, arcNumberFormatOpt, showLabelsOpt, showValuesOpt, pieSliceMaxOpt, sliceGroupLabelOpt]
-const donutArcOpts = [displayAsPercentageOpt, arcNumberFormatOpt, donutShowTotalOpt, showLabelsOpt, showValuesOpt, sliceMaxOpt, sliceGroupLabelOpt]
+const donutArcOpts = [displayAsPercentageOpt, arcNumberFormatOpt, donutShowTotalOpt, ...donutCenterOpts, showLabelsOpt, showValuesOpt, sliceMaxOpt, sliceGroupLabelOpt]
 
 registerChart(ChartType.BarVertical, barVertical, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, swapLabelValueOpt, barBackgroundOpt, barSeparatorsOpt, barGapOpt, connectedColumnsOpt, connectionsOpacityOpt, waterfallOpt, waterfallTotalOpt, categoryLabelLineOpt, ...barVerticalAxisOpts, ...barOpts])
 registerChart(ChartType.BarHorizontal, barHorizontal, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, swapLabelValueOpt, barBackgroundOpt, barSeparatorsOpt, barGapOpt, connectedColumnsOpt, connectionsOpacityOpt, waterfallOpt, waterfallTotalOpt, categoryLabelLineOpt, ...barHorizontalAxisOpts, ...barHorizontalOpts])

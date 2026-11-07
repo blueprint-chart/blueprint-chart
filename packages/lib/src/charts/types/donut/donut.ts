@@ -87,6 +87,20 @@ export function renderArc(
   let labels = order.map(i => data.labels[i])
   let values = order.map(i => data.values[i])
 
+  // d3.pie divides by the signed sum, so a negative value stops the angles
+  // partitioning the circle and the arcs overlap. A share of a whole is only
+  // defined for positive values, so the rest are dropped with a warning rather
+  // than drawn wrong.
+  // Zero-valued slices are harmless: d3 gives them a zero sweep. Negative ones
+  // are not, so they are dropped with a warning rather than drawn wrong.
+  if (values.some(v => v < 0)) {
+    const dropped = labels.filter((_l, i) => values[i] < 0)
+    console.warn(`[blueprint-chart] Ignoring ${dropped.length} negative slice(s) on an arc chart: ${dropped.join(', ')}.`)
+    const kept = labels.map((label, i) => ({ label, value: values[i] })).filter(p => p.value >= 0)
+    labels = kept.map(p => p.label)
+    values = kept.map(p => p.value)
+  }
+
   // Auto-group small slices
   if (options.sliceMax && options.sliceMax > 0 && labels.length > options.sliceMax) {
     // Keep the largest slices and merge the smallest, which is what the option
@@ -184,20 +198,6 @@ export function renderArc(
   const colorScale = d3.scaleOrdinal<string>()
     .domain(labels)
     .range(colors)
-
-  // d3.pie divides by the signed sum, so a negative value stops the angles
-  // partitioning the circle and the arcs overlap. A share of a whole is only
-  // defined for positive values, so the rest are dropped with a warning rather
-  // than drawn wrong.
-  // Zero-valued slices are harmless: d3 gives them a zero sweep. Negative ones
-  // are not, so they are dropped with a warning rather than drawn wrong.
-  if (values.some(v => v < 0)) {
-    const dropped = labels.filter((_l, i) => values[i] < 0)
-    console.warn(`[blueprint-chart] Ignoring ${dropped.length} negative slice(s) on an arc chart: ${dropped.join(', ')}.`)
-    const kept = labels.map((label, i) => ({ label, value: values[i] })).filter(p => p.value >= 0)
-    labels = kept.map(p => p.label)
-    values = kept.map(p => p.value)
-  }
 
   const pie = d3.pie<number>().sort(null)
   const arcGen = d3.arc<d3.PieArcDatum<number>>()
@@ -307,24 +307,32 @@ export function renderArc(
   // Center total (only for donut — innerRadiusRatio > 0).
   // Suppressed when displayAsPercentage is on: the center would always read "Total 100%",
   // which is trivially true for a donut and adds no information.
-  if (options.showTotal && innerRadiusRatio > 0 && !options.displayAsPercentage) {
-    const totalText = numberFormat ? formatValueLabel(total, numberFormat) : formatArcValue(total)
-    centerGroup.append('text')
-      .attr('class', 'bc-arc-total-label')
-      .attr('text-anchor', 'middle')
-      .attr('dy', '-0.3em')
-      .attr('font-size', '11px')
-      .attr('fill', 'var(--bc-text-color, #555)')
-      .attr('opacity', 0.7)
-      .text('Total')
+  const centerMode = options.centerLabel ?? 'total'
+  if (options.showTotal && innerRadiusRatio > 0 && !(centerMode === 'total' && options.displayAsPercentage)) {
+    const sliceIndex = Math.max(0, labels.indexOf(options.centerSlice ?? ''))
+    const [caption, valueText] = centerMode === 'slice'
+      ? [labels[sliceIndex], formatValueLabel(percentages[sliceIndex] / 100, '.0%')]
+      : centerMode === 'custom'
+        ? ['', options.centerText ?? '']
+        : [options.totalLabel ?? 'Total', numberFormat ? formatValueLabel(total, numberFormat) : formatArcValue(total)]
+    if (caption) {
+      centerGroup.append('text')
+        .attr('class', 'bc-arc-total-label')
+        .attr('text-anchor', 'middle')
+        .attr('dy', '-0.3em')
+        .attr('font-size', '11px')
+        .attr('fill', 'var(--bc-text-color, #555)')
+        .attr('opacity', 0.7)
+        .text(caption)
+    }
     centerGroup.append('text')
       .attr('class', 'bc-arc-total-value')
       .attr('text-anchor', 'middle')
-      .attr('dy', '1em')
+      .attr('dy', caption ? '1em' : '0.35em')
       .attr('font-size', '18px')
       .attr('font-weight', 'bold')
       .attr('fill', 'var(--bc-text-color, #555)')
-      .text(totalText)
+      .text(valueText)
   }
 
   if (showLegend) {

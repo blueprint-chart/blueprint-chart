@@ -139,6 +139,34 @@ describe('donut chart', () => {
     expect(totalValue?.textContent).toBe('100')
   })
 
+  it('renames the center total label', () => {
+    render(container, data, { showTotal: true, totalLabel: 'Sum' })
+    expect(container.querySelector('.bc-arc-total-label')!.textContent).toBe('Sum')
+  })
+
+  it('shows the chosen slice share in the center', () => {
+    render(container, data, { showTotal: true, centerLabel: 'slice', centerSlice: 'B' })
+    expect(container.querySelector('.bc-arc-total-label')!.textContent).toBe('B')
+    expect(container.querySelector('.bc-arc-total-value')!.textContent).toBe('50%')
+  })
+
+  it('computes the center slice share without dropped negative slices', () => {
+    vi.spyOn(console, 'warn').mockImplementation(() => {})
+    render(container, { labels: ['A', 'B', 'C'], values: [-10, 30, 70] }, { showTotal: true, centerLabel: 'slice', centerSlice: 'C' })
+    expect(container.querySelector('.bc-arc-total-value')!.textContent).toBe('70%')
+  })
+
+  it('shows the slice share even when displayAsPercentage is on', () => {
+    render(container, data, { showTotal: true, displayAsPercentage: true, centerLabel: 'slice', centerSlice: 'B' })
+    expect(container.querySelector('.bc-arc-total-value')!.textContent).toBe('50%')
+  })
+
+  it('shows custom center text without a caption', () => {
+    render(container, data, { showTotal: true, centerLabel: 'custom', centerText: 'Hello' })
+    expect(container.querySelector('.bc-arc-total-label')).toBeNull()
+    expect(container.querySelector('.bc-arc-total-value')!.textContent).toBe('Hello')
+  })
+
   it('does not show center total by default', () => {
     render(container, data)
     const totalValue = container.querySelector('.bc-arc-total-value')
