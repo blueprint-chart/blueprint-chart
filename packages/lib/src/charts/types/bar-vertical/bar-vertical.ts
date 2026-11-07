@@ -10,7 +10,7 @@ import { createTooltipPlugin } from '../../plugins/tooltip'
 import { createCrosshairPlugin } from '../../plugins/crosshair'
 import { createAnnotationPlugin, snapshotAnnotations, type AnnotationSnapshot } from '../../plugins/annotations'
 import { resolveBackgroundColor, contrastTextColor } from '../../contrast'
-import { buildNumberFormatter, percentValueLabel } from '../../format-helpers'
+import { formatValueLabel, percentValueLabel } from '../../format-helpers'
 import { buildColorOverrides } from '../../plugins/colorize'
 import { setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut } from '../../motion'
 import { getCachedChart, setCachedChart } from '../../transition-cache'
@@ -362,8 +362,7 @@ export function render(
 
     if (options.valueLabels) {
       const pos = options.valueLabelPosition ?? ValueLabelPosition.Auto
-      const vFmt = buildNumberFormatter(options.verticalAxis?.numberFormat ?? '')
-      const formatValue = (v: number) => vFmt ? vFmt(v) : String(v)
+      const formatValue = (v: number) => formatValueLabel(v, options.verticalAxis?.numberFormat)
       unclippedGroup.selectAll<Element, WaterfallDatum>('.bc-value-label')
         .data(waterfallData, d => d.label)
         .enter()
@@ -458,7 +457,6 @@ export function render(
     }
 
     if (options.valueLabels) {
-      const vFmt = buildNumberFormatter(options.verticalAxis?.numberFormat ?? '')
       renderValueLabels(unclippedGroup, barData, x, y, {
         position: options.valueLabelPosition,
         colorOverrides,
@@ -467,7 +465,7 @@ export function render(
         swapLabelValue,
         percent: options.valueLabels === 'percent',
         total: d3.sum(barData, d => d.value),
-        formatValue: v => vFmt ? vFmt(v) : String(v),
+        formatValue: v => formatValueLabel(v, options.verticalAxis?.numberFormat),
         bounds: { plotHeight: barAreaHeight, marginTop: margin.top, marginBottom: margin.bottom },
       })
     }

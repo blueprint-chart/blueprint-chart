@@ -1,5 +1,5 @@
 import * as d3 from 'd3'
-import { parseNumberFormat, buildNumberFormatter, safeD3Spec } from './format-helpers'
+import { parseNumberFormat, buildNumberFormatter, safeD3Spec, formatValueLabel } from './format-helpers'
 
 describe('safeD3Spec', () => {
   it('passes through valid d3-format strings', () => {
@@ -116,5 +116,16 @@ describe('percentValueLabel', () => {
   it('returns 0% for a non-positive total', () => {
     expect(percentValueLabel(5, 0)).toBe('0%')
     expect(percentValueLabel(5, -1)).toBe('0%')
+  })
+})
+
+describe('formatValueLabel', () => {
+  it('applies the number format string', () => {
+    expect(formatValueLabel(1234.5, '$|,.0f|M')).toBe('$1,235M')
+  })
+
+  it('falls back to String for an empty or missing format', () => {
+    expect(formatValueLabel(0.1 + 0.2, '')).toBe('0.30000000000000004')
+    expect(formatValueLabel(-7)).toBe('-7')
   })
 })

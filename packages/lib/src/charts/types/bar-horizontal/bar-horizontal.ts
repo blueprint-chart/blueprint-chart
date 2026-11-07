@@ -9,7 +9,7 @@ import { createTooltipPlugin } from '../../plugins/tooltip'
 import { createCrosshairPlugin } from '../../plugins/crosshair'
 import { createAnnotationPlugin, snapshotAnnotations, type AnnotationSnapshot } from '../../plugins/annotations'
 import { resolveBackgroundColor, contrastTextColor } from '../../contrast'
-import { buildNumberFormatter, percentValueLabel } from '../../format-helpers'
+import { formatValueLabel, percentValueLabel } from '../../format-helpers'
 import { buildColorOverrides } from '../../plugins/colorize'
 import { setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut } from '../../motion'
 import { getCachedChart, setCachedChart } from '../../transition-cache'
@@ -91,8 +91,7 @@ export function render(
   // Reserve extra margin for outside value labels
   const valueLabelPos = options.valueLabelPosition ?? ValueLabelPosition.Auto
   const swapLabelValue = options.swapLabelValue === true
-  const hFmt = buildNumberFormatter(options.horizontalAxis?.numberFormat ?? '')
-  const formatValue = (v: number) => hFmt ? hFmt(v) : String(v)
+  const formatValue = (v: number) => formatValueLabel(v, options.horizontalAxis?.numberFormat)
   if (options.valueLabels && valueLabelPos !== ValueLabelPosition.Inside) {
     if (swapLabelValue) {
       // Labels show category names — estimate width from the longest label

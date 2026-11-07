@@ -14,7 +14,7 @@ import { setupProximityInteraction, disposeProximityFor } from '../../plugins/pr
 import { highlightTargetSet, highlightOpacity } from '../../plugins/highlight'
 import { buildColorOverrides } from '../../plugins/colorize'
 import { renderAnnotations, snapshotAnnotations, type AnnotationSnapshot } from '../../plugins/annotations'
-import { buildNumberFormatter } from '../../format-helpers'
+import { formatValueLabel } from '../../format-helpers'
 import { measureMaxTextWidth } from '../../text-measure'
 import { setCachedChart, getCachedChart } from '../../transition-cache'
 import { featureJoin, getSceneTransition, tweenPlotFrame, type PlotRect } from '../../../transitions'
@@ -123,7 +123,7 @@ export function render(
   const categoryLabelOffset = useCategoryLabelLine ? categoryLabelLineHeight(y.bandwidth()) : 0
   const rowY = (name: string) => (y(name) ?? 0) + categoryLabelOffset + (y.bandwidth() - categoryLabelOffset) / 2
   const allNumbers = rows.flatMap(r => [...r.values, ...(r.low === undefined ? [] : [r.low, r.high!])])
-  const fmt = buildNumberFormatter(options.horizontalAxis?.numberFormat ?? '') ?? String
+  const fmt = (v: number) => formatValueLabel(v, options.horizontalAxis?.numberFormat)
   const labelRoom = options.valueLabels ? labelRoomFor(rows, resolved.mode, fmt, width) : 0
   const x = buildScatterScale(scaleType, allNumbers, options.horizontalAxis?.range).range([isDumbbell ? labelRoom : 0, width - labelRoom])
 

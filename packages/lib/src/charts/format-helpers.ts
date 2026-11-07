@@ -75,6 +75,10 @@ export function buildNumberFormatter(fmt: string): ((value: number | { valueOf()
   return (value: number | { valueOf(): number }) => `${prefix}${d3Fn(value)}${suffix}`
 }
 
+export function formatValueLabel(value: number, format?: string): string {
+  return (buildNumberFormatter(format ?? '') ?? String)(value)
+}
+
 /** Render `value` as an integer percentage of `total`, e.g. 10/60 → "17%". 0% when total ≤ 0. */
 export function percentValueLabel(value: number, total: number): string {
   if (!Number.isFinite(total) || total <= 0) {

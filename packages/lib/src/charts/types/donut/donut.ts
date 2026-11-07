@@ -19,6 +19,7 @@ import { expandColorsToSeries } from '../../series-helpers'
 import { highlightTargetSet, highlightOpacity } from '../../plugins/highlight'
 import { buildColorOverrides } from '../../plugins/colorize'
 import { DEFAULT_COLORS } from '../../palettes'
+import { formatValueLabel } from '../../format-helpers'
 
 /**
  * Arc totals and legend values used to go through `String(v)`, which prints
@@ -26,7 +27,7 @@ import { DEFAULT_COLORS } from '../../palettes'
  * d3's default number format groups thousands and drops the float noise.
  */
 function formatArcValue(v: number): string {
-  return d3.format(',')(Number(v.toPrecision(12)))
+  return formatValueLabel(Number(v.toPrecision(12)), ',')
 }
 
 interface ArcDatum {
