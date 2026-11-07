@@ -19,9 +19,13 @@
   --bc-frame-footer-padding-top: 0.625rem;
 }
 
-[data-bs-theme="dark"] .bc-theme-blueprint-framed {
-  --bc-frame-header-border-bottom: 1px solid #333;
+// @scope stops at a nested light subtree (a light canvas or a card with dark
+// mode disallowed inside a dark app), which a descendant selector cannot do.
+@scope ([data-bs-theme="dark"]) to ([data-bs-theme="light"]) {
+  :scope .bc-theme-blueprint-framed {
+    --bc-frame-header-border-bottom: 1px solid #333;
 
-  --bc-frame-footer-bg: #1c1c1c;
-  --bc-frame-footer-border-top: 1px solid #333;
+    --bc-frame-footer-bg: #1c1c1c;
+    --bc-frame-footer-border-top: 1px solid #333;
+  }
 }
