@@ -1,3 +1,11 @@
+## [2.15.0](https://github.com/blueprint-chart/blueprint-chart/compare/v2.14.0...v2.15.0) (2026-11-07)
+
+### Features
+
+* **lib:** add area fill baseline option to fill down to zero on line and area charts ([9b284a7](https://github.com/blueprint-chart/blueprint-chart/commit/9b284a7cfc9e46e8ccbcfa3f677a47ba16f11046))
+* **lib:** add custom tick values to value axes ([1eea693](https://github.com/blueprint-chart/blueprint-chart/commit/1eea6930fb7ce1153adf8dd075c88e2396d5585e))
+* **lib:** connect line gaps for all or selected series ([9d19fa5](https://github.com/blueprint-chart/blueprint-chart/commit/9d19fa5e02f2376a068f01075da915440546274d))
+
 ## [2.14.0](https://github.com/blueprint-chart/blueprint-chart/compare/v2.13.0...v2.14.0) (2026-11-07)
 
 ### Features
