@@ -95,9 +95,12 @@ Arrows apply to dumbbells only and are ignored in range style.
 
 `sortMode` orders the rows. The default is `value`.
 
-- `value` sorts by the first value column, largest first.
+- `value` sorts by the last value column, largest first.
 - `gap` sorts by the last value column minus the first, largest first. Outside a dumbbell it falls back to `value`.
+- `change` sorts by the percent change from the first value column to the last, largest first. Rows starting at 0 count as no change. Outside a dumbbell it falls back to `value`.
 - `none` keeps the order of your data.
+
+Set `sortReverse = true` to put the smallest first.
 
 ## Labels
 
@@ -198,7 +201,8 @@ Every property `dot-plot` accepts, beside the [frame and layout keys](/reference
 | `low` | text | `""` |
 | `high` | text | `""` |
 | `arrows` | select: `none`, `forward`, `backward`, `both` | `none` |
-| `sortMode` | select: `none`, `value`, `gap` | `value` |
+| `sortMode` | select: `none`, `value`, `gap`, `change` | `value` |
+| `sortReverse` | boolean | `false` |
 | `legend` | boolean | `true` |
 | `legendPosition` | select: `top`, `bottom`, `left`, `right` | `top` |
 | `legendAnchor` | select: `start`, `middle`, `end` | `start` |
@@ -225,7 +229,7 @@ Every property `dot-plot` accepts, beside the [frame and layout keys](/reference
 
 ## Common pitfalls
 
-- Using `gap` sort on a single value or a range: it falls back to `value`
+- Using `gap` or `change` sort on a single value or a range: it falls back to `value`
 - Expecting range bars from columns named `High` and `Low` without setting `dotStyle = "range"`: they draw as dumbbell dots instead
 - Reading the arrow as a trend: it only points from the first column to the last
 - Using a log axis with values, lows or highs at or below 0: those rows are not drawn and are reported

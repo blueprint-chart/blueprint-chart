@@ -35,19 +35,29 @@ describe('buildDotPlotRows', () => {
 describe('sortDotPlotRows', () => {
   const { rows } = buildDotPlotRows(DUMBBELL, resolved(DUMBBELL))
   const names = (r: DotPlotRow[]) => r.map(x => x.name)
-  it('sorts by the first value column, largest first, by default', () => {
-    expect(names(sortDotPlotRows(rows, undefined, 'dumbbell'))).toEqual(['b', 'c', 'a'])
+  it('sorts by the last value column, largest first, by default', () => {
+    expect(names(sortDotPlotRows(rows, {}, 'dumbbell'))).toEqual(['c', 'b', 'a'])
   })
-  it('keeps source order with none', () => {
-    expect(names(sortDotPlotRows(rows, SortMode.None, 'dumbbell'))).toEqual(['a', 'b', 'c'])
+  it('sorts by the last value column, smallest first, when reversed', () => {
+    expect(names(sortDotPlotRows(rows, { sortMode: SortMode.Value, sortReverse: true }, 'dumbbell'))).toEqual(['a', 'b', 'c'])
+  })
+  it('keeps source order with none, even when reversed', () => {
+    expect(names(sortDotPlotRows(rows, { sortMode: SortMode.None, sortReverse: true }, 'dumbbell'))).toEqual(['a', 'b', 'c'])
   })
   it('sorts by last minus first with gap', () => {
-    expect(names(sortDotPlotRows(rows, SortMode.Gap, 'dumbbell'))).toEqual(['c', 'a', 'b'])
+    expect(names(sortDotPlotRows(rows, { sortMode: SortMode.Gap }, 'dumbbell'))).toEqual(['c', 'a', 'b'])
   })
-  it('falls back to value for gap outside dumbbell mode', () => {
-    expect(names(sortDotPlotRows(rows, SortMode.Gap, 'range'))).toEqual(['b', 'c', 'a'])
+  it('sorts by percent change from first to last column', () => {
+    const d = parseData('series = "2015","2024"\n"a" = 10,30\n"b" = 50,40\n"c" = 100,150\n"z" = 0,5')
+    const r = buildDotPlotRows(d, resolved(d)).rows
+    expect(names(sortDotPlotRows(r, { sortMode: SortMode.Change }, 'dumbbell'))).toEqual(['a', 'c', 'z', 'b'])
+    expect(names(sortDotPlotRows(r, { sortMode: SortMode.Change, sortReverse: true }, 'dumbbell'))).toEqual(['b', 'z', 'c', 'a'])
+  })
+  it('falls back to value for gap and change outside dumbbell mode', () => {
+    expect(names(sortDotPlotRows(rows, { sortMode: SortMode.Gap }, 'range'))).toEqual(['c', 'b', 'a'])
+    expect(names(sortDotPlotRows(rows, { sortMode: SortMode.Change }, 'range'))).toEqual(['c', 'b', 'a'])
   })
   it('sorts by value when given a sort mode from another chart type', () => {
-    expect(names(sortDotPlotRows(rows, SortMode.Total, 'dumbbell'))).toEqual(['b', 'c', 'a'])
+    expect(names(sortDotPlotRows(rows, { sortMode: SortMode.Total }, 'dumbbell'))).toEqual(['c', 'b', 'a'])
   })
 })

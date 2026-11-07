@@ -49,12 +49,20 @@ export function buildDotPlotRows(data: ChartData, resolved: ResolvedDotPlot, sca
   return { rows, dropped }
 }
 
-export function sortDotPlotRows(rows: DotPlotRow[], sortMode: SortMode | undefined, mode: DotPlotMode): DotPlotRow[] {
+function percentChange(row: DotPlotRow): number {
+  const first = row.values[0]
+  return first ? (row.values[row.values.length - 1] - first) / Math.abs(first) : 0
+}
+
+export function sortDotPlotRows(rows: DotPlotRow[], { sortMode, sortReverse }: { sortMode?: SortMode, sortReverse?: boolean }, mode: DotPlotMode): DotPlotRow[] {
   if (sortMode === SortMode.None) {
     return [...rows]
   }
-  const key = sortMode === SortMode.Gap && mode === 'dumbbell'
-    ? (row: DotPlotRow) => row.values[row.values.length - 1] - row.values[0]
-    : (row: DotPlotRow) => row.values[0]
-  return sortByValue(rows, key, SortDirection.Descending)
+  const last = (row: DotPlotRow) => row.values[row.values.length - 1]
+  const key = mode !== 'dumbbell'
+    ? last
+    : sortMode === SortMode.Gap
+      ? (row: DotPlotRow) => last(row) - row.values[0]
+      : sortMode === SortMode.Change ? percentChange : last
+  return sortByValue(rows, key, sortReverse ? SortDirection.Ascending : SortDirection.Descending)
 }

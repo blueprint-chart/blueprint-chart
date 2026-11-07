@@ -47,11 +47,11 @@ describe('dot plot chart', () => {
     expect(container.querySelector('.bc-legend')).toBeNull()
   })
 
-  it('puts the largest first value on top by default', () => {
+  it('puts the largest last value on top by default', () => {
     render(container, DUMBBELL, {})
     const cy = (row: string) => Number(container.querySelector(`.bc-dot[data-key="${row}|2015"]`)!.getAttribute('cy'))
-    expect(cy('b')).toBeLessThan(cy('c'))
-    expect(cy('c')).toBeLessThan(cy('a'))
+    expect(cy('c')).toBeLessThan(cy('b'))
+    expect(cy('b')).toBeLessThan(cy('a'))
   })
 
   it('orders rows by gap with sortMode gap', () => {

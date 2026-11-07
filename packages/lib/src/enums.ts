@@ -191,6 +191,7 @@ export enum SortMode {
   None = 'none',
   Value = 'value',
   Gap = 'gap',
+  Change = 'change',
 }
 
 export enum LegendPosition {

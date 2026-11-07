@@ -75,7 +75,7 @@ export function render(
   const resolved = resolveDotPlotMapping(data, { dotStyle: options.dotStyle, low: options.low, high: options.high })
   const scaleType = options.horizontalAxis?.scaleType
   const built = buildDotPlotRows(data, resolved, scaleType)
-  const rows = sortDotPlotRows(built.rows, options.sortMode, resolved.mode)
+  const rows = sortDotPlotRows(built.rows, options, resolved.mode)
   const columns = resolved.values
   const isDumbbell = resolved.mode === 'dumbbell'
   const palette = expandColorsToSeries(options.colors ?? DEFAULT_COLORS, columns.length)
