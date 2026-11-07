@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { render } from './bar-multi'
-import { ValueLabelPosition, DirectLabelMode, LabelRotation } from '../../../enums'
+import { ValueLabelPosition, DirectLabelMode, LabelRotation, SortMode } from '../../../enums'
 
 describe('bar-multi', () => {
   let container: HTMLElement
@@ -431,6 +431,18 @@ describe('bar-multi', () => {
     const bars = container.querySelectorAll('.bc-bar-multi')
     // Only Product A bars: 2 labels x 1 series = 2
     expect(bars).toHaveLength(2)
+  })
+
+  it('sorts categories by a hidden series', () => {
+    const crossing = { ...data, series: [{ name: 'Product A', values: [20, 10] }, data.series[1]] }
+    render(container, crossing, {
+      sortMode: SortMode.Series,
+      sortSeries: 'Product B',
+      seriesOverrides: [{ name: 'Product B', hidden: true }],
+    })
+    const x = (label: string) => Number(Array.from(container.querySelectorAll<SVGRectElement & { __data__: { label: string } }>('.bc-bar-multi'))
+      .find(b => b.__data__.label === label)!.getAttribute('x'))
+    expect(x('Q2')).toBeLessThan(x('Q1'))
   })
 
   it('applies opacity override to series', () => {

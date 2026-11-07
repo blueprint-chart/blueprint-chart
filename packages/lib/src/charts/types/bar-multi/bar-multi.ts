@@ -13,11 +13,11 @@ import { createTooltipPlugin } from '../../plugins/tooltip'
 import { createCrosshairPlugin } from '../../plugins/crosshair'
 import { contrastTextColor, readableColor, resolveBackgroundColor } from '../../contrast'
 import { expandColorsToSeries, resolveSeriesColor, isSeriesHidden, resolveSeriesValueLabels, resolveSeriesOpacity, resolveSeriesLabelMode } from '../../series-helpers'
-import { sortByValue, labelTotal } from '../../sort-helpers'
+import { sortCategories, withinGroupSlots } from '../../sort-helpers'
 import { setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut } from '../../motion'
 import { setCachedChart, getCachedChart } from '../../transition-cache'
 import { ensureClipPath } from '../../clip-path-helper'
-import { ValueLabelPosition, DirectLabelMode, SortMode, SortDirection } from '../../../enums'
+import { ValueLabelPosition, DirectLabelMode, SortMode } from '../../../enums'
 import { shouldRenderValueLabel } from '../../value-label-fit'
 import { featureJoin, getSceneTransition, tweenPlotFrame, type PlotRect } from '../../../transitions'
 import { createPluginHost } from '../../plugins/plugin-host'
@@ -150,9 +150,7 @@ export function render(
     domainMin -= span * 0.1
   }
 
-  const sortedLabels = options.sortMode === SortMode.Total
-    ? sortByValue(data.labels, (_, i) => labelTotal(series, i), SortDirection.Descending)
-    : data.labels
+  const sortedLabels = sortCategories(data.labels, allSeries, options)
 
   const x0 = d3.scaleBand<string>()
     .domain(sortedLabels)
@@ -184,25 +182,13 @@ export function render(
       .attr('stroke', '#666').attr('stroke-width', 1)
   }
 
-  // Build per-group rank map for within-groups sorting
-  const withinGroupRank = new Map<string, string>()
-  if (options.sortMode === 'within-groups') {
-    data.labels.forEach((label, i) => {
-      const items = series.map(s => ({ name: s.name, value: s.values[i] }))
-      items.sort((a, b) => b.value - a.value)
-      items.forEach((item, rank) => {
-        withinGroupRank.set(`${label}\0${item.name}`, seriesNames[rank])
-      })
-    })
-  }
+  const slotOf = options.sortMode === SortMode.WithinGroups ? withinGroupSlots(data.labels, series) : null
 
   const flatData: MultiBarDatum[] = []
   data.labels.forEach((label, i) => {
     series.forEach((s) => {
       const originalIndex = allSeries.findIndex(a => a.name === s.name)
-      const positionKey = options.sortMode === 'within-groups'
-        ? (withinGroupRank.get(`${label}\0${s.name}`) ?? s.name)
-        : s.name
+      const positionKey = slotOf ? slotOf(label, s.name) : s.name
       flatData.push({ label, series: positionKey, seriesName: s.name, value: s.values[i], seriesIndex: originalIndex })
     })
   })

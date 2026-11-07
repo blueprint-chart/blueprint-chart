@@ -10,7 +10,7 @@ import { estimateLegendSize } from '../../legend/legend-size'
 import { contrastTextColor, resolveBackgroundColor } from '../../contrast'
 import { createAnnotationPlugin, snapshotAnnotations, type AnnotationSnapshot } from '../../plugins/annotations'
 import { expandColorsToSeries, seriesOrImplicit, resolveSeriesColor, isSeriesHidden, resolveSeriesValueLabels, resolveSeriesOpacity } from '../../series-helpers'
-import { sortByValue, labelTotal } from '../../sort-helpers'
+import { sortCategories } from '../../sort-helpers'
 import { setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut } from '../../motion'
 import { setCachedChart, getCachedChart } from '../../transition-cache'
 import { createTooltipPlugin } from '../../plugins/tooltip'
@@ -19,7 +19,7 @@ import { computeLinearDomain, resolveBarGapPadding } from '../../scale-helpers'
 import { ensureClipPath } from '../../clip-path-helper'
 import { featureJoin, getSceneTransition, tweenPlotFrame, type PlotRect } from '../../../transitions'
 import { createPluginHost } from '../../plugins/plugin-host'
-import { Orientation, ValueLabelPosition, LabelPosition, ScaleType, SortMode, SortDirection } from '../../../enums'
+import { Orientation, ValueLabelPosition, LabelPosition, ScaleType } from '../../../enums'
 import { highlightTargetSet, highlightOpacity } from '../../plugins/highlight'
 import { buildColorOverrides } from '../../plugins/colorize'
 import { shouldRenderValueLabel, estimateTextInk } from '../../value-label-fit'
@@ -102,7 +102,7 @@ function computePanels(
 
 function buildFlatData(
   panels: PanelLayout[],
-  sortedLabels: string[],
+  sortedLabels: readonly string[],
   originalLabels: string[],
   allSeries: { name: string, values: number[] }[],
 ): SplitBarDatum[] {
@@ -223,9 +223,7 @@ export function render(
   const { chartArea, width, height, margin } = createCanvas(body, marginOverrides)
   const marginDelta = computeMarginDelta(priorMargin, margin)
 
-  const sortedLabels = options.sortMode === SortMode.Total
-    ? sortByValue(data.labels, (_, i) => labelTotal(series, i), SortDirection.Descending)
-    : data.labels
+  const sortedLabels = sortCategories(data.labels, allSeries, options)
 
   const y = d3.scaleBand<string>()
     .domain(sortedLabels)

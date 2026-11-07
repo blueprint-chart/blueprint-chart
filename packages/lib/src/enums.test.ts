@@ -273,8 +273,8 @@ describe('ArrowDirection', () => {
 })
 
 describe('SortMode', () => {
-  it('has 5 members', () => {
-    expect(enumValues(SortMode)).toHaveLength(5)
+  it('has 6 members', () => {
+    expect(enumValues(SortMode)).toHaveLength(6)
   })
   it('values match', () => {
     expect(SortMode.Total).toBe('total')
@@ -282,6 +282,7 @@ describe('SortMode', () => {
     expect(SortMode.None).toBe('none')
     expect(SortMode.Value).toBe('value')
     expect(SortMode.Gap).toBe('gap')
+    expect(SortMode.Series).toBe('series')
   })
 })
 

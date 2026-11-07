@@ -82,3 +82,23 @@ export function computeStack100(data: ChartData): d3.Series<Record<string, numbe
 
   return stack(rows)
 }
+
+export function restackWithinGroups<T extends { label: string, y0: number, y1: number }>(segments: readonly T[]): T[] {
+  const cursors = new Map<string, { up: number, down: number }>()
+  const bySize = [...segments].sort((a, b) => (b.y1 - b.y0) - (a.y1 - a.y0))
+  const placed = new Map<T, T>()
+  for (const d of bySize) {
+    const cursor = cursors.get(d.label) ?? { up: 0, down: 0 }
+    cursors.set(d.label, cursor)
+    const size = d.y1 - d.y0
+    if (d.y0 < 0) {
+      placed.set(d, { ...d, y1: cursor.down, y0: cursor.down - size })
+      cursor.down -= size
+    }
+    else {
+      placed.set(d, { ...d, y0: cursor.up, y1: cursor.up + size })
+      cursor.up += size
+    }
+  }
+  return segments.map(d => placed.get(d)!)
+}

@@ -237,6 +237,13 @@ const sortModeOpt: ChartOptionDef = {
     { value: SortMode.WithinGroups, text: 'Within groups' },
   ],
 }
+const barSortModeOpt: ChartOptionDef = {
+  ...sortModeOpt,
+  choices: [...sortModeOpt.choices!, { value: SortMode.Series, text: 'By series' }],
+}
+const sortSeriesOpt: ChartOptionDef = { key: 'sortSeries', type: ChartOptionType.Select, label: 'Sort by series', default: '' }
+const sortReverseOpt: ChartOptionDef = { key: 'sortReverse', type: ChartOptionType.Boolean, label: 'Reverse order', default: false }
+const barSortOpts = [barSortModeOpt, sortSeriesOpt, sortReverseOpt]
 
 const edgePaddingOpt: ChartOptionDef = { key: 'edgePadding', type: ChartOptionType.Boolean, label: 'Edge padding', default: false }
 const waterfallOpt: ChartOptionDef = { key: 'waterfall', type: ChartOptionType.Boolean, label: 'Waterfall', default: false }
@@ -406,7 +413,7 @@ const lineCrosshairToggleOpt: ChartOptionDef = { ...crosshairOpt, default: true 
 // Multi-line: symbols on by default ("combine color + shape for CVD distinguishability").
 const lineMultiLineSymbolsOpt: ChartOptionDef = { ...lineSymbolsOpt, default: true }
 // Multi-series and grouped bars: sort by total descending ("sort horizontal bars by value").
-const sortByTotalOpt: ChartOptionDef = { ...sortModeOpt, default: SortMode.Total }
+const sortByTotalOpts = [{ ...barSortModeOpt, default: SortMode.Total }, sortSeriesOpt, sortReverseOpt]
 // Horizontal bars: value labels at end of bar are a best practice for readability
 const barHorizontalValueLabelsOpt: ChartOptionDef = { ...valueLabelsOpt, default: true }
 // Bar charts default to direct value labels on each bar (no value axis).
@@ -445,7 +452,7 @@ const donutArcOpts = [displayAsPercentageOpt, arcNumberFormatOpt, donutShowTotal
 
 registerChart(ChartType.BarVertical, barVertical, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, swapLabelValueOpt, barBackgroundOpt, barSeparatorsOpt, barGapOpt, connectedColumnsOpt, connectionsOpacityOpt, waterfallOpt, waterfallTotalOpt, categoryLabelLineOpt, ...barVerticalAxisOpts, ...barOpts])
 registerChart(ChartType.BarHorizontal, barHorizontal, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, swapLabelValueOpt, barBackgroundOpt, barSeparatorsOpt, barGapOpt, connectedColumnsOpt, connectionsOpacityOpt, waterfallOpt, waterfallTotalOpt, categoryLabelLineOpt, ...barHorizontalAxisOpts, ...barHorizontalOpts])
-registerChart(ChartType.BarMulti, barMulti, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, barGapOpt, sortByTotalOpt, legendOffOpt, legendAnchorOpt, legendPositionOpt, autoDirectLabellingOpt, directLabelAnchorOpt, ...barVerticalAxisOpts, ...barOpts])
+registerChart(ChartType.BarMulti, barMulti, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, barGapOpt, ...sortByTotalOpts, legendOffOpt, legendAnchorOpt, legendPositionOpt, autoDirectLabellingOpt, directLabelAnchorOpt, ...barVerticalAxisOpts, ...barOpts])
 registerChart(ChartType.Line, line, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, lineInterpolationOpt, edgePaddingOpt, ...lineAxisOpts, ...lineOpts, valueLabelPointsOpt, valueLabelEveryOpt])
 registerChart(ChartType.LineMulti, lineMulti, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, lineInterpolationOpt, edgePaddingOpt, sortModeOpt, legendOffOpt, legendAnchorOpt, legendPositionOpt, autoDirectLabellingOpt, ...lineAxisOpts, ...lineMultiOpts, valueLabelPointsOpt, valueLabelEveryOpt])
 registerChart(ChartType.Donut, donut, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, legendOffOpt, legendAnchorOpt, legendPositionOpt, autoDirectLabellingOpt, tooltipsOpt, ...donutArcOpts])
@@ -459,16 +466,16 @@ const areaStackedAxisOpts = axisOpts({ verticalGrid: GridStyle.Dashed, horizonta
 registerChart(ChartType.AreaStacked, areaStacked, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, areaFillOpacityOpt, lineInterpolationOpt, edgePaddingOpt, areaSortModeOpt, stackedOpt, stackPercentOpt, areaLinesOpt, legendOpt, legendAnchorOpt, legendPositionOpt, directLabellingOpt, ...areaStackedAxisOpts, tooltipsOpt, ...lineCrosshairOpts])
 
 // Stacked column: vertical bars stacked
-registerChart(ChartType.ColumnStacked, columnStacked, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, barGapOpt, stackModeOpt, sortModeOpt, legendOpt, legendAnchorOpt, legendPositionOpt, directLabellingOpt, directLabelAnchorOpt, ...barVerticalAxisOpts, ...barOpts, showTotalOpt])
+registerChart(ChartType.ColumnStacked, columnStacked, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, barGapOpt, stackModeOpt, ...barSortOpts, legendOpt, legendAnchorOpt, legendPositionOpt, directLabellingOpt, directLabelAnchorOpt, ...barVerticalAxisOpts, ...barOpts, showTotalOpt])
 
 // Stacked bar: horizontal bars stacked
-registerChart(ChartType.BarStacked, barStacked, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, barGapOpt, stackModeOpt, sortModeOpt, legendOpt, legendAnchorOpt, legendPositionOpt, directLabellingOpt, directLabelAnchorOpt, categoryLabelLineOpt, ...barHorizontalAxisOpts, ...barHorizontalOpts])
+registerChart(ChartType.BarStacked, barStacked, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, barGapOpt, stackModeOpt, ...barSortOpts, legendOpt, legendAnchorOpt, legendPositionOpt, directLabellingOpt, directLabelAnchorOpt, categoryLabelLineOpt, ...barHorizontalAxisOpts, ...barHorizontalOpts])
 
 // Split bars: each series rendered as its own panel of horizontal bars
-registerChart(ChartType.BarSplit, barSplit, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, barGapOpt, sharedScaleOpt, sortModeOpt, legendOpt, legendAnchorOpt, legendPositionOpt, categoryLabelLineOpt, ...barHorizontalAxisOpts, barHorizontalValueLabelsOpt, valueLabelPositionOpt, tooltipsOpt, ...crosshairOpts])
+registerChart(ChartType.BarSplit, barSplit, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, barGapOpt, sharedScaleOpt, ...barSortOpts, legendOpt, legendAnchorOpt, legendPositionOpt, categoryLabelLineOpt, ...barHorizontalAxisOpts, barHorizontalValueLabelsOpt, valueLabelPositionOpt, tooltipsOpt, ...crosshairOpts])
 
 // Grouped bars: each category rendered as a group of horizontal bars, one per series
-registerChart(ChartType.BarGrouped, barGrouped, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, barGapOpt, sortByTotalOpt, legendOpt, legendAnchorOpt, legendPositionOpt, barBackgroundOpt, barSeparatorsOpt, categoryLabelLineOpt, ...barHorizontalAxisOpts, barHorizontalValueLabelsOpt, valueLabelPositionOpt, tooltipsOpt, ...crosshairOpts])
+registerChart(ChartType.BarGrouped, barGrouped, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, barGapOpt, ...sortByTotalOpts, legendOpt, legendAnchorOpt, legendPositionOpt, barBackgroundOpt, barSeparatorsOpt, categoryLabelLineOpt, ...barHorizontalAxisOpts, barHorizontalValueLabelsOpt, valueLabelPositionOpt, tooltipsOpt, ...crosshairOpts])
 
 const scatterMappingOpts: ChartOptionDef[] = [
   { key: 'x', type: ChartOptionType.Text, label: 'X axis', default: '' },

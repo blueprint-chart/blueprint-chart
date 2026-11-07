@@ -57,7 +57,9 @@ Every property `bar-split` accepts, beside the [frame and layout keys](/referenc
 | `allowDarkMode` | boolean | `true` |
 | `barGap` | text | `60` |
 | `sharedScale` | boolean | `false` |
-| `sortMode` | select: `none`, `total`, `within-groups` | `none` |
+| `sortMode` | select: `none`, `total`, `within-groups`, `series` | `none` |
+| `sortSeries` | select | `""` |
+| `sortReverse` | boolean | `false` |
 | `legend` | boolean | `true` |
 | `legendAnchor` | select: `start`, `middle`, `end` | `start` |
 | `legendPosition` | select: `top`, `bottom`, `left`, `right` | `top` |

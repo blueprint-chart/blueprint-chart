@@ -58,7 +58,9 @@ Every property `bar-stacked` accepts, beside the [frame and layout keys](/refere
 | `allowDarkMode` | boolean | `true` |
 | `barGap` | text | `60` |
 | `stackMode` | select: `normal`, `percent` | `normal` |
-| `sortMode` | select: `none`, `total`, `within-groups` | `none` |
+| `sortMode` | select: `none`, `total`, `within-groups`, `series` | `none` |
+| `sortSeries` | select | `""` |
+| `sortReverse` | boolean | `false` |
 | `legend` | boolean | `true` |
 | `legendAnchor` | select: `start`, `middle`, `end` | `start` |
 | `legendPosition` | select: `top`, `bottom`, `left`, `right` | `top` |

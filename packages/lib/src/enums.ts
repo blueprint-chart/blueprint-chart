@@ -187,6 +187,7 @@ export enum DotStyle {
 export enum SortMode {
   Total = 'total',
   WithinGroups = 'within-groups',
+  Series = 'series',
   None = 'none',
   Value = 'value',
   Gap = 'gap',

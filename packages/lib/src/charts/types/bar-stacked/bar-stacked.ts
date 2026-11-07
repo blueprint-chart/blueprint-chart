@@ -12,16 +12,16 @@ import { createCrosshairPlugin } from '../../plugins/crosshair'
 import { resolveBackgroundColor } from '../../contrast'
 import { percentValueLabel } from '../../format-helpers'
 import { expandColorsToSeries, seriesOrImplicit, resolveSeriesColor, isSeriesHidden, resolveSeriesValueLabels, resolveSeriesOpacity } from '../../series-helpers'
-import { sortByValue, labelTotal } from '../../sort-helpers'
+import { sortCategories } from '../../sort-helpers'
 import { contrastTextColor } from '../../contrast'
 import { setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut } from '../../motion'
 import { setCachedChart, getCachedChart } from '../../transition-cache'
-import { computeStack, computeStack100 } from '../../stack-helpers'
+import { computeStack, computeStack100, restackWithinGroups } from '../../stack-helpers'
 import { computeLinearDomain, resolveBarGapPadding } from '../../scale-helpers'
 import { ensureClipPath } from '../../clip-path-helper'
 import { featureJoin, getSceneTransition, tweenPlotFrame, type PlotRect } from '../../../transitions'
 import { createPluginHost } from '../../plugins/plugin-host'
-import { StackMode, Orientation, ValueLabelPosition, LabelPosition, ScaleType, SortMode, SortDirection } from '../../../enums'
+import { StackMode, Orientation, ValueLabelPosition, LabelPosition, ScaleType, SortMode } from '../../../enums'
 import { highlightTargetSet, highlightOpacity } from '../../plugins/highlight'
 import { buildColorOverrides } from '../../plugins/colorize'
 import { shouldRenderValueLabel } from '../../value-label-fit'
@@ -119,7 +119,8 @@ export function render(
 
   const isPercent = options.stackMode === StackMode.Percent
   const stacked = isPercent ? computeStack100(filteredData) : computeStack(filteredData)
-  const flatData = flattenStack(stacked, data.labels, allSeries)
+  const stackedData = flattenStack(stacked, data.labels, allSeries)
+  const flatData = options.sortMode === SortMode.WithinGroups ? restackWithinGroups(stackedData) : stackedData
 
   const maxStackedValue = isPercent
     ? 100
@@ -157,9 +158,7 @@ export function render(
   const { chartArea, width, height, margin } = createCanvas(body, marginOverrides)
   const marginDelta = computeMarginDelta(priorMargin, margin)
 
-  const sortedLabels = options.sortMode === SortMode.Total
-    ? sortByValue(data.labels, (_, i) => labelTotal(series, i), SortDirection.Descending)
-    : data.labels
+  const sortedLabels = sortCategories(data.labels, allSeries, options)
 
   const domainValues = isPercent
     ? [minStackedValue, maxStackedValue]

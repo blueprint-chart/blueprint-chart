@@ -59,7 +59,9 @@ Every property `bar-multi` accepts, beside the [frame and layout keys](/referenc
 | `autoContrast` | boolean | `false` |
 | `allowDarkMode` | boolean | `true` |
 | `barGap` | text | `60` |
-| `sortMode` | select: `none`, `total`, `within-groups` | `total` |
+| `sortMode` | select: `none`, `total`, `within-groups`, `series` | `total` |
+| `sortSeries` | select | `""` |
+| `sortReverse` | boolean | `false` |
 | `legend` | boolean | `false` |
 | `legendAnchor` | select: `start`, `middle`, `end` | `start` |
 | `legendPosition` | select: `top`, `bottom`, `left`, `right` | `top` |

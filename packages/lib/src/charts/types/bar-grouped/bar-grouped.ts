@@ -9,7 +9,7 @@ import { estimateLegendSize } from '../../legend/legend-size'
 import { contrastTextColor, resolveBackgroundColor } from '../../contrast'
 import { createAnnotationPlugin, snapshotAnnotations, type AnnotationSnapshot } from '../../plugins/annotations'
 import { expandColorsToSeries, seriesOrImplicit, resolveSeriesColor, isSeriesHidden, resolveSeriesValueLabels, resolveSeriesOpacity } from '../../series-helpers'
-import { sortByValue, labelTotal } from '../../sort-helpers'
+import { sortCategories, withinGroupSlots } from '../../sort-helpers'
 import { setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut } from '../../motion'
 import { setCachedChart, getCachedChart } from '../../transition-cache'
 import { createTooltipPlugin } from '../../plugins/tooltip'
@@ -20,7 +20,7 @@ import { computeLinearDomain, resolveBarGapPadding } from '../../scale-helpers'
 import { ensureClipPath } from '../../clip-path-helper'
 import { featureJoin, getSceneTransition, tweenPlotFrame, type PlotRect } from '../../../transitions'
 import { createPluginHost } from '../../plugins/plugin-host'
-import { Orientation, ValueLabelPosition, LabelPosition, ScaleType, SortMode, SortDirection } from '../../../enums'
+import { Orientation, ValueLabelPosition, LabelPosition, ScaleType, SortMode } from '../../../enums'
 import { shouldRenderValueLabel } from '../../value-label-fit'
 import { CATEGORY_LABEL_HEIGHT, categoryLabelLineHeight, categoryLabelsNeedTheirOwnLine } from '../../category-label-line'
 import { DEFAULT_COLORS } from '../../palettes'
@@ -28,6 +28,7 @@ import { DEFAULT_COLORS } from '../../palettes'
 interface GroupedBarDatum {
   label: string
   seriesName: string
+  slot: string
   seriesIndex: number
   value: number
 }
@@ -122,9 +123,7 @@ export function render(
   const { chartArea, width, height, margin } = createCanvas(body, marginOverrides)
   const marginDelta = computeMarginDelta(priorMargin, margin)
 
-  const sortedLabels = options.sortMode === SortMode.Total
-    ? sortByValue(data.labels, (_, i) => labelTotal(series, i), SortDirection.Descending)
-    : data.labels
+  const sortedLabels = sortCategories(data.labels, allSeries, options)
 
   const y0 = d3.scaleBand<string>()
     .domain(sortedLabels)
@@ -201,6 +200,7 @@ export function render(
   }
 
   // Build flat data: one datum per (label, series) pair
+  const slotOf = options.sortMode === SortMode.WithinGroups ? withinGroupSlots(data.labels, series) : null
   const flatData: GroupedBarDatum[] = []
   for (const label of sortedLabels) {
     const li = data.labels.indexOf(label)
@@ -209,6 +209,7 @@ export function render(
       flatData.push({
         label,
         seriesName: s.name,
+        slot: slotOf ? slotOf(label, s.name) : s.name,
         seriesIndex: si,
         value: li >= 0 ? (s.values[li] ?? 0) : 0,
       })
@@ -248,7 +249,7 @@ export function render(
       const base: Record<string, string | number> = {
         'data-series': d.seriesName,
         'x': x(0),
-        'y': (y0(d.label) ?? 0) + categoryLabelOffset + (y1(d.seriesName) ?? 0),
+        'y': (y0(d.label) ?? 0) + categoryLabelOffset + (y1(d.slot) ?? 0),
         'width': Math.max(0, x(d.value) - x(0)),
         'height': y1.bandwidth(),
         'fill': seriesColor,
@@ -345,7 +346,7 @@ export function render(
     const seriesColor = resolveSeriesColor(datum.seriesName, datum.seriesIndex, colors, overrides)
     const barWidth = Math.max(0, x(datum.value) - x(0))
     const barRight = x(0) + barWidth
-    const cy = (y0(datum.label) ?? 0) + categoryLabelOffset + (y1(datum.seriesName) ?? 0) + y1.bandwidth() / 2
+    const cy = (y0(datum.label) ?? 0) + categoryLabelOffset + (y1(datum.slot) ?? 0) + y1.bandwidth() / 2
 
     const isInside = valueLabelPos === ValueLabelPosition.Inside
       || (valueLabelPos === ValueLabelPosition.Auto && barWidth > 30)

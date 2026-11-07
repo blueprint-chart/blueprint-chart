@@ -200,6 +200,8 @@ export interface ChartOptions {
   horizontalAxis?: AxisOptions
   sort?: SortDirection
   sortMode?: SortMode
+  sortSeries?: string
+  sortReverse?: boolean
   colorizes?: ColorizeConfig[]
   highlights?: HighlightConfig[]
   colors?: string[]
@@ -334,6 +336,8 @@ export interface ChartTypeOptions {
   autoContrast: boolean
   allowDarkMode: boolean
   sortMode: SortMode
+  sortSeries: string
+  sortReverse: boolean
   barBackground: boolean
   barSeparators: boolean
   barGap: string

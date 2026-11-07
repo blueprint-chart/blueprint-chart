@@ -55,7 +55,9 @@ Every property `bar-grouped` accepts, beside the [frame and layout keys](/refere
 | `autoContrast` | boolean | `false` |
 | `allowDarkMode` | boolean | `true` |
 | `barGap` | text | `60` |
-| `sortMode` | select: `none`, `total`, `within-groups` | `total` |
+| `sortMode` | select: `none`, `total`, `within-groups`, `series` | `total` |
+| `sortSeries` | select | `""` |
+| `sortReverse` | boolean | `false` |
 | `legend` | boolean | `true` |
 | `legendAnchor` | select: `start`, `middle`, `end` | `start` |
 | `legendPosition` | select: `top`, `bottom`, `left`, `right` | `top` |

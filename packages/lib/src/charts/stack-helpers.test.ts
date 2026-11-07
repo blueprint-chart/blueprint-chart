@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { computeStack, computeStack100 } from './stack-helpers'
+import { computeStack, computeStack100, restackWithinGroups } from './stack-helpers'
 import type { ChartData } from './types'
 
 describe('computeStack', () => {
@@ -239,5 +239,30 @@ describe('computeStack100 — percent stacking with negative values', () => {
     const [, beta] = computeStack100(diverging)
     expect(beta[1][0]).toBeLessThan(0)
     expect(beta[1][1]).toBeCloseTo(0, 6)
+  })
+})
+
+describe('restackWithinGroups', () => {
+  it('stacks the largest segment first within each category', () => {
+    const result = restackWithinGroups([
+      { label: 'A', seriesName: 'S1', y0: 0, y1: 10 },
+      { label: 'A', seriesName: 'S2', y0: 10, y1: 40 },
+      { label: 'B', seriesName: 'S1', y0: 0, y1: 5 },
+      { label: 'B', seriesName: 'S2', y0: 5, y1: 7 },
+    ])
+    expect(result.map(d => [d.label, d.seriesName, d.y0, d.y1])).toEqual([
+      ['A', 'S1', 30, 40],
+      ['A', 'S2', 0, 30],
+      ['B', 'S1', 0, 5],
+      ['B', 'S2', 5, 7],
+    ])
+  })
+
+  it('stacks negative segments downward from zero by size', () => {
+    const result = restackWithinGroups([
+      { label: 'A', seriesName: 'S1', y0: -2, y1: 0 },
+      { label: 'A', seriesName: 'S2', y0: -10, y1: -2 },
+    ])
+    expect(result.map(d => [d.y0, d.y1])).toEqual([[-10, -8], [-8, 0]])
   })
 })

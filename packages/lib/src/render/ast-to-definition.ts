@@ -85,7 +85,7 @@ export function astToDefinition(ast: ChartNode): ChartDefinition {
   // for the option-resolver path; keeping both keeps callers consistent.
   const sortModeRaw = pMap.get('sortMode')
   let sortMode: SortMode | undefined
-  if (sortModeRaw === SortMode.Total || sortModeRaw === SortMode.WithinGroups || sortModeRaw === SortMode.None) {
+  if (Object.values(SortMode).includes(sortModeRaw as SortMode)) {
     sortMode = sortModeRaw as SortMode
   }
 
