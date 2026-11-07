@@ -128,11 +128,11 @@ export function renderPointAnnotation(
   }
 
   const isLegacy = legacyAnn.dx != null || legacyAnn.dy != null
-  // An arrowhead needs a connector to orient it, so showArrow implies showLine
-  // for modern annotations (legacy dx/dy already defaults showLine on).
+  // An arrowhead needs a connector to orient it, so an unset showLine follows
+  // showArrow for modern annotations (legacy dx/dy already defaults showLine on).
   const showLine = isLegacy
     ? (lineConfig.showLine !== false)
-    : (lineConfig.showLine === true || lineConfig.showArrow === true)
+    : (lineConfig.showLine ?? lineConfig.showArrow === true)
   if (showLine) {
     let lineStart = { x: clampedX, y: clampedY }
     let departVertical = false

@@ -38,6 +38,12 @@ describe('renderPointAnnotation', () => {
     expect(line!.getAttribute('marker-end')).toBeTruthy()
   })
 
+  it('renders no connecting line when showLine is turned off, even with showArrow', () => {
+    const { g, ctx } = setup()
+    renderPointAnnotation(g, { target: 'B', text: 'peak', showLine: false, showArrow: true } as Ann, ctx, 0)
+    expect(document.querySelector('.bc-annotation-line')).toBeNull()
+  })
+
   it('renders no connecting line when neither showLine nor showArrow is set', () => {
     const { g, ctx } = setup()
     renderPointAnnotation(g, { target: 'B', text: 'peak' } as Ann, ctx, 0)
