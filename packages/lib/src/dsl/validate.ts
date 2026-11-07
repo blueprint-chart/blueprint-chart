@@ -136,6 +136,7 @@ export const SERIES_OVERRIDE_KEYS = new Set<string>([
   'valueLabels',
   'lineSymbols',
   'hidden',
+  'connectGaps',
   'symbolShape',
   'symbolShowOn',
   'symbolStyle',

@@ -60,6 +60,12 @@
       </BFormGroup>
 
       <FormControlCheckbox
+        :model-value="currentConnectGaps"
+        label="Connect gaps"
+        @update:model-value="(v) => applyToSelected('connectGaps', v)"
+      />
+
+      <FormControlCheckbox
         :model-value="currentLineSymbols"
         label="Line symbols"
         @update:model-value="(v) => applyToSelected('lineSymbols', v)"
@@ -110,6 +116,7 @@ const props = defineProps<{
   overrides: SeriesOverride[]
   colors: string[]
   chartType: string
+  globalConnectGaps?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -135,6 +142,7 @@ const currentInterpolation = computed(() => firstSelected()?.interpolation ?? 'g
 const currentLabelMode = computed(() => firstSelected()?.labelMode ?? 'global')
 const currentValueLabels = computed(() => firstSelected()?.valueLabels ?? false)
 const currentLineSymbols = computed(() => firstSelected()?.lineSymbols ?? false)
+const currentConnectGaps = computed(() => firstSelected()?.connectGaps ?? props.globalConnectGaps ?? false)
 const currentSymbolShape = computed(() => firstSelected()?.symbolShape ?? 'circle')
 const currentSymbolShowOn = computed(() => firstSelected()?.symbolShowOn ?? 'firstLast')
 const currentSymbolStyle = computed(() => firstSelected()?.symbolStyle ?? 'filled')

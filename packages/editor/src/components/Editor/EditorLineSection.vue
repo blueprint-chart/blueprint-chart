@@ -20,6 +20,13 @@
       @update:model-value="(v) => setOption('edgePadding', v)"
     />
 
+    <FormControlCheckbox
+      v-if="hasConnectGaps"
+      :model-value="currentOptions.connectGaps ?? false"
+      label="Connect gaps"
+      @update:model-value="(v) => setOption('connectGaps', v)"
+    />
+
     <FormControlSliderInput
       v-if="hasAreaFillOpacity"
       id="opt-area-fill-opacity"
@@ -43,6 +50,7 @@ const { currentOptions, availableOptionKeys, setOption } = useChartTypeOptions()
 
 const hasInterpolation = computed(() => availableOptionKeys.value.includes('interpolation'))
 const hasEdgePadding = computed(() => availableOptionKeys.value.includes('edgePadding'))
+const hasConnectGaps = computed(() => availableOptionKeys.value.includes('connectGaps'))
 const hasAreaFillOpacity = computed(() => availableOptionKeys.value.includes('areaFillOpacity'))
 const hasLineSymbols = computed(() => availableOptionKeys.value.includes('lineSymbols'))
 

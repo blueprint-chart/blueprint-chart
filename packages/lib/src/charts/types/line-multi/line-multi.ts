@@ -237,7 +237,12 @@ export function render(
   const areaFillOpacity = options.areaFillOpacity ?? 0.2
   const seriesColorFor = (d: SeriesDatum) =>
     colorOverrides.get(d.name) ?? resolveSeriesColor(d.name, d.colorIndex, colors, overrides)
-  const areaGen = d3.area<number>().curve(curve).defined(plottable).x((_v, i) => xPos(i)).y0(height).y1(v => y(v) as number)
+  const pointsFor = (d: SeriesDatum) => {
+    const points = d.values.map((v, i): [number, number] => [i, v])
+    const connectGaps = overrides?.find(o => o.name === d.name)?.connectGaps ?? options.connectGaps
+    return connectGaps ? points.filter(p => plottable(p[1])) : points
+  }
+  const areaGen = d3.area<[number, number]>().curve(curve).defined(p => plottable(p[1])).x(p => xPos(p[0])).y0(height).y1(p => y(p[1]) as number)
 
   // Marks are driven through the SceneTransition orchestrator's featureJoin so
   // they tween (resize) on the same `bc-scene` clock as the frame-geometry tween
@@ -274,7 +279,7 @@ export function render(
     insert: sel => sel.append('path').attr('class', 'bc-area'),
     attrs: d => ({
       'data-series': d.name,
-      'd': areaGen(d.values) ?? '',
+      'd': areaGen(pointsFor(d)) ?? '',
       'fill': seriesColorFor(d),
       'opacity': highlightOpacity(highlightTargets, d.name, areaFillOpacity),
     }),
@@ -289,10 +294,10 @@ export function render(
     insert: sel => sel.append('path').attr('class', 'bc-line'),
     attrs: (d) => {
       const seriesInterp = resolveSeriesInterpolation(d.name, options.interpolation ?? 'linear', overrides)
-      const lineGen = d3.line<number>().curve(resolveCurve(seriesInterp)).defined(plottable).x((_v, i) => xPos(i)).y(v => y(v) as number)
+      const lineGen = d3.line<[number, number]>().curve(resolveCurve(seriesInterp)).defined(p => plottable(p[1])).x(p => xPos(p[0])).y(p => y(p[1]) as number)
       return {
         'data-series': d.name,
-        'd': lineGen(d.values) ?? '',
+        'd': lineGen(pointsFor(d)) ?? '',
         'fill': 'none',
         'stroke': seriesColorFor(d),
         // `chart.scss` declares `.bc-line { stroke-width: var(--bc-line-stroke-width) }`,

@@ -212,6 +212,9 @@ export function buildChartOptions(opts: Partial<ChartTypeOptions>, backgroundCol
   if (opts.edgePadding !== undefined) {
     result.edgePadding = opts.edgePadding
   }
+  if (opts.connectGaps !== undefined) {
+    result.connectGaps = opts.connectGaps
+  }
   if (opts.waterfall !== undefined) {
     result.waterfall = opts.waterfall
   }

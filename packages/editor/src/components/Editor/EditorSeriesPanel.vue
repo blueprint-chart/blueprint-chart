@@ -22,6 +22,7 @@
         :overrides="seriesOverrides"
         :colors="colors"
         :chart-type="chartType"
+        :global-connect-gaps="currentOptions.connectGaps"
         @update:overrides="seriesOverrides = $event"
       />
     </SectionCard>

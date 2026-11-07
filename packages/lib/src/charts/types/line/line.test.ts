@@ -501,6 +501,16 @@ describe('line chart', () => {
       expect(path?.getAttribute('d')).toBeTruthy()
     })
 
+    it('breaks the line at a gap by default', () => {
+      render(container, { labels: ['a', 'b', 'c', 'd'], values: [1, NaN, 3, 4] }, {})
+      expect((container.querySelector('.bc-line')!.getAttribute('d') ?? '').match(/M/g)).toHaveLength(2)
+    })
+
+    it('connects the line across a gap with connectGaps', () => {
+      render(container, { labels: ['a', 'b', 'c', 'd'], values: [1, NaN, 3, 4] }, { connectGaps: true })
+      expect((container.querySelector('.bc-line')!.getAttribute('d') ?? '').match(/M/g)).toHaveLength(1)
+    })
+
     it('renders when custom min > max (inverted range)', () => {
       render(container, data, { verticalAxis: { range: { min: 50, max: 5 } } })
       const path = container.querySelector('.bc-line')

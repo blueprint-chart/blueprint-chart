@@ -757,6 +757,26 @@ describe('line-multi chart', () => {
       expect((shortLine.getAttribute('d') ?? '').match(/M/g)).toHaveLength(2)
     })
 
+    it('connects the short line across the hole with connectGaps', () => {
+      render(container, ragged, { connectGaps: true })
+      const shortLine = container.querySelector('.bc-line[data-series="B"]')!
+      expect((shortLine.getAttribute('d') ?? '').match(/M/g)).toHaveLength(1)
+    })
+
+    it('connects only the series whose override sets connectGaps', () => {
+      const twoGaps = { ...ragged, series: [{ name: 'A', values: [1, NaN, 5] }, ragged.series[1]] }
+      render(container, twoGaps, { seriesOverrides: [{ name: 'B', connectGaps: true }] })
+      const moves = (name: string) => (container.querySelector(`.bc-line[data-series="${name}"]`)!.getAttribute('d') ?? '').match(/M/g)
+      expect(moves('A')).toHaveLength(2)
+      expect(moves('B')).toHaveLength(1)
+    })
+
+    it('lets a series override opt out of a global connectGaps', () => {
+      render(container, ragged, { connectGaps: true, seriesOverrides: [{ name: 'B', connectGaps: false }] })
+      const shortLine = container.querySelector('.bc-line[data-series="B"]')!
+      expect((shortLine.getAttribute('d') ?? '').match(/M/g)).toHaveLength(2)
+    })
+
     it('omits the value label instead of writing "undefined"', () => {
       render(container, ragged, { valueLabels: true })
       const labels = Array.from(container.querySelectorAll('.bc-value-label')).map(t => t.textContent)

@@ -145,6 +145,7 @@ export function render(
   const defined = (d: LineDatum) => Number.isFinite(d.value)
   const areaGen = d3.area<LineDatum>().curve(curve).defined(defined).x(d => xPos(d)).y0(height).y1(d => y(d.value) as number)
   const lineGen = d3.line<LineDatum>().curve(curve).defined(defined).x(d => xPos(d)).y(d => y(d.value) as number)
+  const gapsFor = (points: LineDatum[]) => options.connectGaps ? points.filter(defined) : points
 
   // Marks are driven through the SceneTransition orchestrator's featureJoin so
   // they tween (resize) on the same `bc-scene` clock as the frame-geometry tween
@@ -174,7 +175,7 @@ export function render(
     key: d => d.name,
     insert: sel => sel.append('path').attr('class', 'bc-area'),
     attrs: d => ({
-      d: areaGen(d.points) ?? '',
+      d: areaGen(gapsFor(d.points)) ?? '',
       fill: color,
       opacity: areaFillOpacity,
     }),
@@ -188,7 +189,7 @@ export function render(
     key: d => d.name,
     insert: sel => sel.append('path').attr('class', 'bc-line'),
     attrs: d => ({
-      d: lineGen(d.points) ?? '',
+      d: lineGen(gapsFor(d.points)) ?? '',
       fill: 'none',
       stroke: color,
     }),

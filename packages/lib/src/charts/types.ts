@@ -192,6 +192,7 @@ export interface SeriesOverride {
   symbolOpacity?: number
   opacity?: number
   hidden?: boolean
+  connectGaps?: boolean
 }
 
 export interface ChartOptions {
@@ -251,6 +252,7 @@ export interface ChartOptions {
   negativeColor?: string
   stackMode?: StackMode
   edgePadding?: boolean
+  connectGaps?: boolean
   waterfall?: boolean
   waterfallTotal?: boolean
   sharedScale?: boolean
@@ -363,6 +365,7 @@ export interface ChartTypeOptions {
   areaLines: boolean
   areaFillOpacity: string
   edgePadding: boolean
+  connectGaps: boolean
   waterfall: boolean
   waterfallTotal: boolean
   sharedScale: boolean

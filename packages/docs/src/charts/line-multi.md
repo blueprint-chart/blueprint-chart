@@ -60,6 +60,7 @@ Every property `line-multi` accepts, beside the [frame and layout keys](/referen
 | `allowDarkMode` | boolean | `true` |
 | `interpolation` | select: `linear`, `monotoneX`, `step`, `stepBefore`, `stepAfter`, `basis`, `cardinal`, `catmullRom` | `monotoneX` |
 | `edgePadding` | boolean | `false` |
+| `connectGaps` | boolean | `false` |
 | `sortMode` | select: `none`, `total`, `within-groups` | `none` |
 | `legend` | boolean | `false` |
 | `legendAnchor` | select: `start`, `middle`, `end` | `start` |

@@ -376,6 +376,9 @@ export function convertSeriesOverrides(nodes: SeriesNode[]): SeriesOverride[] {
     if (p.has('hidden')) {
       override.hidden = toBool(p.get('hidden'))
     }
+    if (p.has('connectGaps')) {
+      override.connectGaps = toBool(p.get('connectGaps'))
+    }
     if (p.has('symbolShape')) {
       override.symbolShape = String(p.get('symbolShape'))
     }

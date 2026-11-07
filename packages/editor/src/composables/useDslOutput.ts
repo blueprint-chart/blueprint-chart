@@ -377,6 +377,10 @@ export function useDslOutput() {
         output += `    hidden = ${
           s.hidden}\n`
       }
+      if (s.connectGaps !== undefined) {
+        output += `    connectGaps = ${
+          s.connectGaps}\n`
+      }
       if (s.symbolShape) {
         output += `    symbolShape = "${
           s.symbolShape}"\n`
