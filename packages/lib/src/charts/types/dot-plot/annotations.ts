@@ -16,8 +16,8 @@ export function dotPlotAnnotationContext(
     orientation: Orientation.Horizontal,
     data: [],
     markCenter: (name) => {
-      const row = byName.get(name)
-      return row && { x: d3.max(row.values, v => x(v))!, y: rowY(name) }
+      const right = d3.max(byName.get(name)?.values ?? [], v => x(v))
+      return right === undefined ? undefined : { x: right, y: rowY(name) }
     },
   }
 }
