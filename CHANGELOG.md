@@ -1,3 +1,18 @@
+## [2.14.0](https://github.com/blueprint-chart/blueprint-chart/compare/v2.13.0...v2.14.0) (2026-11-07)
+
+### Features
+
+* **lib:** add donut center label options for slice share, custom text and total caption ([35076b6](https://github.com/blueprint-chart/blueprint-chart/commit/35076b66929c29514a73c9001c725cd75a17cd4b))
+* **lib:** add dot plot label choices for start, end, difference and change ([cb15293](https://github.com/blueprint-chart/blueprint-chart/commit/cb15293a7fd851322a557f35ea03af46bd70d4b8))
+* **lib:** add negative color option to vertical bar charts ([51eec75](https://github.com/blueprint-chart/blueprint-chart/commit/51eec75209c9a9d01e27366679eebbe131787056))
+* **lib:** sort dot plot rows by last column or percent change ([a5ff41f](https://github.com/blueprint-chart/blueprint-chart/commit/a5ff41f28b9d21af0d8c237d6ffe0dd9421145d7))
+* **lib:** sort multi-series bars by series with reverse and within-groups ([08b4f70](https://github.com/blueprint-chart/blueprint-chart/commit/08b4f703845f298551570435f4c8a34489493640))
+
+### Bug Fixes
+
+* **editor:** shorten the get the data toggle label ([b1b56cc](https://github.com/blueprint-chart/blueprint-chart/commit/b1b56cc2daa25353065e1e8ad7e7abfcbba20870))
+* **editor:** type the dot plot labels fallback as a string ([a14b95a](https://github.com/blueprint-chart/blueprint-chart/commit/a14b95a58b29aaebf29ff772495e65f44b49d9af))
+
 ## [2.13.0](https://github.com/blueprint-chart/blueprint-chart/compare/v2.12.0...v2.13.0) (2026-11-07)
 
 ### Features
