@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll, beforeEach, afterEach, vi } from 'vitest'
 import { parseData } from '../../parse-data'
-import { ArrowDirection, DotStyle, ScaleType, SortMode } from '../../../enums'
+import { AnnotationKind, ArrowDirection, CompassDirection, DotStyle, Orientation, ScaleType, SortMode } from '../../../enums'
 import { HIGHLIGHT_DIM_OPACITY } from '../../plugins/highlight'
 import { render } from './dot-plot'
 
@@ -204,5 +204,62 @@ describe('dot plot chart', () => {
     expect(Number(bar.getAttribute('width'))).toBeGreaterThan(0)
     expect(x).toBeLessThan(cx)
     expect(x + Number(bar.getAttribute('width'))).toBeGreaterThan(cx)
+  })
+
+  describe('annotations', () => {
+    const dot = (row: string, col: string) => container.querySelector(`.bc-dot[data-key="${row}|${col}"]`)!
+    const circle = () => container.querySelector('.bc-annotation-circle')!
+    const pt = (target: string) => ({ kind: AnnotationKind.Point as const, target, text: target, showCircle: true, anchorDirection: CompassDirection.N })
+
+    it('anchors a point on the rightmost dot of a dumbbell row', () => {
+      render(container, DUMBBELL, { annotations: [pt('a')] })
+      expect(Number(circle().getAttribute('cx'))).toBeCloseTo(Number(dot('a', '2024').getAttribute('cx')))
+      expect(Number(circle().getAttribute('cy'))).toBeCloseTo(Number(dot('a', '2024').getAttribute('cy')) - 2)
+    })
+
+    it('anchors on the first column when its value is the larger one', () => {
+      render(container, DUMBBELL, { annotations: [pt('b')] })
+      expect(Number(circle().getAttribute('cx'))).toBeCloseTo(Number(dot('b', '2015').getAttribute('cx')))
+    })
+
+    it('anchors on the value dot in range style, not the bar end', () => {
+      render(container, RANGE, { ...RANGE_STYLE, annotations: [pt('SPD')] })
+      expect(Number(circle().getAttribute('cx'))).toBeCloseTo(Number(dot('SPD', 'Poll').getAttribute('cx')))
+    })
+
+    it('follows the dots when category labels sit on their own line', () => {
+      render(container, DUMBBELL, { categoryLabelLine: true, annotations: [pt('c')] })
+      expect(Number(circle().getAttribute('cy'))).toBeCloseTo(Number(dot('c', '2024').getAttribute('cy')) - 2)
+    })
+
+    it('draws a row range from the top dot line to the bottom one', () => {
+      render(container, DUMBBELL, { annotations: [{ kind: AnnotationKind.Range, start: 'b', end: 'a' }] })
+      const rect = container.querySelector('.bc-annotation-range')!
+      expect(Number(rect.getAttribute('y'))).toBeCloseTo(Number(dot('b', '2015').getAttribute('cy')))
+    })
+
+    it('draws a value range across the plot height', () => {
+      render(container, DUMBBELL, { annotations: [{ kind: AnnotationKind.Range, orientation: Orientation.Horizontal, start: 20, end: 40 }] })
+      const rect = container.querySelector('.bc-annotation-range')!
+      expect(Number(rect.getAttribute('x'))).toBeCloseTo(Number(dot('c', '2015').getAttribute('cx')))
+      expect(Number(rect.getAttribute('y'))).toBe(0)
+    })
+
+    it('writes no NaN for a value range from 0 on a log axis', () => {
+      render(container, DUMBBELL, { horizontalAxis: { scaleType: ScaleType.Log }, annotations: [{ kind: AnnotationKind.Range, orientation: Orientation.Horizontal, start: 0, end: 40 }] })
+      expect(container.querySelector('.bc-annotations-range')!.innerHTML).not.toContain('NaN')
+    })
+
+    it('places a free annotation by plot percentage', () => {
+      render(container, DUMBBELL, { annotations: [{ kind: AnnotationKind.Free, x: '50%', y: '50%', text: 'note' }] })
+      expect(container.querySelector('.bc-annotation-text')).not.toBeNull()
+    })
+
+    it('skips a point on a row the log axis dropped', () => {
+      const data = parseData('"a" = 0\n"b" = 10')
+      expect(() => render(container, data, { horizontalAxis: { scaleType: ScaleType.Log }, annotations: [pt('a')] })).not.toThrow()
+      expect(container.querySelector('.bc-annotations')).not.toBeNull()
+      expect(container.querySelector('.bc-annotations [data-annotation-index]')).toBeNull()
+    })
   })
 })

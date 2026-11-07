@@ -13,6 +13,7 @@ import { setRenderTransition, snapshotForFadeOut, commitFadeOut, fadeIn } from '
 import { setupProximityInteraction, disposeProximityFor } from '../../plugins/proximity'
 import { highlightTargetSet, highlightOpacity } from '../../plugins/highlight'
 import { buildColorOverrides } from '../../plugins/colorize'
+import { renderAnnotations } from '../../plugins/annotations'
 import { buildNumberFormatter } from '../../format-helpers'
 import { measureMaxTextWidth } from '../../text-measure'
 import { setCachedChart, getCachedChart } from '../../transition-cache'
@@ -24,6 +25,7 @@ import { DEFAULT_COLORS } from '../line-multi/line-multi'
 import { resolveDotPlotMapping, type DotPlotMode } from './mapping'
 import { formatDotPlotTooltip } from './tooltip'
 import { buildDotPlotRows, sortDotPlotRows, type DotPlotRow } from './rows'
+import { dotPlotAnnotationContext } from './annotations'
 
 export const DEFAULT_COLOR = '#4e79a7'
 export const DOT_RADIUS = 5
@@ -230,6 +232,10 @@ export function render(
   labelLayer.append(...prior.labels)
   const labels = options.valueLabels ? buildLabels(rows, columns, resolved.mode, x, fmt) : []
   renderValueLabels(orch, labelLayer, labels, rowY, opacityOf)
+
+  if (options.annotations?.length) {
+    renderAnnotations(chartArea, options.annotations, { ...dotPlotAnnotationContext(rows, x, y, rowY), width, height, backgroundColor: stroke, transition })
+  }
 
   if (options.tooltips) {
     const tooltipByRow = new Map(rows.map(r => [r.name, formatDotPlotTooltip(r, resolved, options.horizontalAxis?.numberFormat)]))
