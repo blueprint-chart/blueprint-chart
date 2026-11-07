@@ -86,7 +86,7 @@
 
     <FormControlCheckbox
       v-model="getTheData"
-      label="Show “Get the data” link"
+      label="Download the data"
     />
   </div>
 </template>
