@@ -3,18 +3,54 @@ import ExportArticle from './ExportArticle.vue'
 
 const slot = { default: '<div class="probe" />' }
 
+function columnChildren(wrapper: ReturnType<typeof mount>) {
+  return Array.from(wrapper.get('.export-article__column').element.children)
+}
+
 describe('ExportArticle', () => {
-  it('wraps the slot with skeleton bars', () => {
+  it('frames the slot in a page with a site header', () => {
     const w = mount(ExportArticle, { slots: slot })
-    expect(w.find('.probe').exists()).toBe(true)
-    expect(w.findAll('.feedback-skeleton').length).toBeGreaterThan(0)
-    expect(w.findAll('.export-article__paragraph').length).toBe(3)
+    expect(w.find('.export-article__masthead').exists()).toBe(true)
+    expect(w.find('.export-article__column .probe').exists()).toBe(true)
+  })
+
+  it('renders a headline and a byline above the slot', () => {
+    const w = mount(ExportArticle, { slots: slot })
+    expect(w.get('.export-article__column__header__headline').text()).not.toBe('')
+    expect(w.get('.export-article__column__header__byline').text()).not.toBe('')
+  })
+
+  it('renders the header right before the slot', () => {
+    const w = mount(ExportArticle, { slots: slot })
+    const children = columnChildren(w)
+    const probeIndex = children.findIndex(el => el.classList.contains('probe'))
+    expect(children[probeIndex - 1].classList).toContain('export-article__column__header')
+  })
+
+  it('renders body paragraphs after the slot', () => {
+    const w = mount(ExportArticle, { slots: slot })
+    const children = columnChildren(w)
+    const probeIndex = children.findIndex(el => el.classList.contains('probe'))
+    const after = children.slice(probeIndex + 1)
+    expect(after.length).toBeGreaterThan(0)
+    expect(after.every(el => el.classList.contains('export-article__column__paragraph'))).toBe(true)
+  })
+
+  it('hides the placeholder content from assistive technologies', () => {
+    const w = mount(ExportArticle, { slots: slot })
+    expect(w.get('.export-article__masthead').attributes('aria-hidden')).toBe('true')
+    expect(w.get('.export-article__column__header').attributes('aria-hidden')).toBe('true')
+    w.findAll('.export-article__column__paragraph').forEach((paragraph) => {
+      expect(paragraph.attributes('aria-hidden')).toBe('true')
+    })
   })
 
   it('renders only the slot when bare', () => {
     const w = mount(ExportArticle, { props: { bare: true }, slots: slot })
     expect(w.find('.probe').exists()).toBe(true)
-    expect(w.find('.feedback-skeleton').exists()).toBe(false)
+    expect(w.find('.export-article__masthead').exists()).toBe(false)
+    expect(w.find('.export-article__column__header').exists()).toBe(false)
+    expect(w.find('.export-article__column__paragraph').exists()).toBe(false)
     expect(w.classes()).toContain('export-article--bare')
   })
 
