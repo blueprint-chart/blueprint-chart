@@ -32,3 +32,32 @@ test('the view toolbar does not paint over the chart title at 360px (#120)', asy
   const toolbarBox = (await toolbar.boundingBox())!
   expect(overlapArea(titleBox, toolbarBox), 'toolbar paints over the title').toBe(0)
 })
+
+test('the view toolbar floats on the canvas right above the chart at 360px', async ({ page }) => {
+  await page.goto(`/#/copy?bpc64=${urlSafeB64Encode(LONG_TITLE)}`)
+  await page.waitForURL(/#\/edit\/[a-zA-Z0-9]{11}\/visualize$/)
+
+  const card = page.locator('.chart-edit-panel__canvas__card')
+  await expect(card).toBeVisible()
+  const canvasBox = (await page.locator('.chart-edit-panel__canvas').boundingBox())!
+  const toolbarBox = (await page.locator('.chart-edit-toolbar').boundingBox())!
+  const cardBox = (await card.boundingBox())!
+
+  expect(toolbarBox.y, 'toolbar sits on the canvas').toBeGreaterThanOrEqual(canvasBox.y)
+  expect(cardBox.y - (toolbarBox.y + toolbarBox.height), 'gap between toolbar and chart').toBeLessThanOrEqual(12)
+})
+
+test('the view toolbar stays clear of the code at 360px', async ({ page }) => {
+  await page.goto(`/#/copy?bpc64=${urlSafeB64Encode(LONG_TITLE)}`)
+  await page.waitForURL(/#\/edit\/[a-zA-Z0-9]{11}\/visualize$/)
+
+  await page.locator('.chart-edit-toolbar [aria-label="View options"]').click()
+  await page.locator('.canvas-view-picker').getByText('BPC', { exact: true }).click()
+  await page.keyboard.press('Escape')
+
+  const code = page.locator('.chart-edit-dsl')
+  await expect(code).toBeVisible()
+  const codeBox = (await code.boundingBox())!
+  const toolbarBox = (await page.locator('.chart-edit-toolbar').boundingBox())!
+  expect(overlapArea(codeBox, toolbarBox), 'toolbar paints over the code').toBe(0)
+})

@@ -6,8 +6,15 @@
     <!-- Non-scrolling frame: the canvas scrolls inside it, but the view
          toolbar is pinned to the frame so it stays put (like the floating
          timeline). -->
-    <div class="chart-edit-panel__canvas-frame">
-      <ChartEditToolbar class="chart-edit-panel__view-toolbar" />
+    <div
+      class="chart-edit-panel__canvas-frame"
+      :class="canvasFrameClassList"
+      :style="canvasFrameStyle"
+    >
+      <ChartEditToolbar
+        ref="toolbarRef"
+        class="chart-edit-panel__view-toolbar"
+      />
 
       <ChartEditDsl
         v-if="dslVisible"
@@ -224,6 +231,12 @@ const TAB_LABELS: Record<string, string> = {
 const panelTitle = computed(() => TAB_LABELS[activeTab.value] ?? 'Panel')
 
 const canvasRef = useTemplateRef<HTMLElement>('canvasRef')
+const toolbarRef = useTemplateRef('toolbarRef')
+const { height: toolbarHeight } = useElementSize(toolbarRef, undefined, { box: 'border-box' })
+const canvasFrameClassList = computed(() => ({
+  'chart-edit-panel__canvas-frame--code-only': !chartVisible.value,
+}))
+const canvasFrameStyle = computed(() => ({ '--canvas-toolbar-height': `${toolbarHeight.value}px` }))
 const cardRef = useTemplateRef<InstanceType<typeof ChartCard>>('cardRef')
 
 </script>
@@ -248,9 +261,6 @@ const cardRef = useTemplateRef<InstanceType<typeof ChartCard>>('cardRef')
     // sit the same distance from the canvas edge.
     --canvas-float-inset: 0.75rem;
 
-    // Narrow: the chart card spans almost the full width, so a floating
-    // toolbar would paint over the frame title (#120). Stack the frame as a
-    // column and keep the toolbar in flow above the canvas instead.
     .chart-edit-panel--narrow & {
       flex-direction: column;
     }
@@ -267,7 +277,8 @@ const cardRef = useTemplateRef<InstanceType<typeof ChartCard>>('cardRef')
     padding: 0.25rem;
     box-shadow: none;
 
-    .chart-edit-panel--narrow & {
+    // Narrow code-only view: a floating toolbar would cover the first lines.
+    .chart-edit-panel--narrow .chart-edit-panel__canvas-frame--code-only & {
       position: static;
       align-self: flex-end;
       margin: 0.5rem var(--canvas-float-inset);
@@ -304,9 +315,13 @@ const cardRef = useTemplateRef<InstanceType<typeof ChartCard>>('cardRef')
     position: relative;
     background-color: var(--bc-canvas-bg);
 
+    // Narrow: the chart card spans almost the full width, so the floating
+    // toolbar would paint over the frame title (#120). Start the card right
+    // below the toolbar instead.
     .chart-edit-panel--narrow & {
       --fst-canvas-pad-x: 1rem;
       --fst-canvas-pad-y: 1rem;
+      padding-top: calc(var(--canvas-float-inset) + var(--canvas-toolbar-height) + 0.5rem);
     }
 
     // When the dimension ruler is shown it extends ~60px below the card, so

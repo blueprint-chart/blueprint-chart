@@ -53,6 +53,7 @@ vi.mock('@blueprint-chart/ui', () => ({
 
 vi.mock('@vueuse/core', () => ({
   useResizeObserver: vi.fn(),
+  useElementSize: () => ({ width: ref(0), height: ref(0) }),
 }))
 
 function mountPanel() {
