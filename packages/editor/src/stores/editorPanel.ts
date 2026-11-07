@@ -1,3 +1,5 @@
+import { useThemeStore } from './theme'
+
 export type ViewMode = 'preview' | 'split' | 'dsl'
 export type CanvasMode = 'auto' | 'light' | 'dark'
 export type DataView = 'upload' | 'structure'
@@ -16,6 +18,13 @@ export const useEditorPanelStore = defineStore('editorPanel', () => {
   const selectedColumnIndex = shallowRef(-1)
   const lastNarrowEditTab = shallowRef<string>('type')
   const lastNarrowDataTab = shallowRef<DataPanelTab>('column')
+  const themeStore = useThemeStore()
+  const resolvedCanvasMode = computed<Exclude<CanvasMode, 'auto'>>(() => {
+    if (canvasMode.value === 'auto') {
+      return themeStore.resolvedTheme
+    }
+    return canvasMode.value
+  })
 
   function selectTab(tab: string) {
     activeTab.value = tab
@@ -100,6 +109,7 @@ export const useEditorPanelStore = defineStore('editorPanel', () => {
     viewMode,
     splitRatio,
     canvasMode,
+    resolvedCanvasMode,
     showDimensions,
     pendingAnnotationIndex,
     dataView,
@@ -132,6 +142,7 @@ export function useEditorPanel() {
     viewMode,
     splitRatio,
     canvasMode,
+    resolvedCanvasMode,
     showDimensions,
     pendingAnnotationIndex,
     dataView,
@@ -146,6 +157,7 @@ export function useEditorPanel() {
     viewMode,
     splitRatio,
     canvasMode,
+    resolvedCanvasMode,
     showDimensions,
     pendingAnnotationIndex,
     dataView,

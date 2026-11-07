@@ -84,7 +84,7 @@ import { useChartConfig } from '@/stores/chartConfig'
 import { useExportSections } from '@/composables/useExportSections'
 
 const editorPanel = useEditorPanel()
-const { canvasMode, showDimensions } = editorPanel
+const { resolvedCanvasMode, showDimensions } = editorPanel
 const { setViewMode } = editorPanel
 const { mode: panelMode } = usePanel()
 
@@ -149,9 +149,7 @@ const TAB_LABELS: Record<string, string> = {
 
 const panelTitle = computed(() => TAB_LABELS[exportTab.value] ?? 'Export')
 
-const canvasClassList = computed(() => ({
-  [`export-panel__canvas--${canvasMode.value}`]: canvasMode.value !== 'auto',
-}))
+const canvasClassList = computed(() => `export-panel__canvas--${resolvedCanvasMode.value}`)
 
 </script>
 
@@ -174,7 +172,6 @@ const canvasClassList = computed(() => ({
     overflow: auto;
     position: relative;
     background: var(--bc-canvas-bg);
-    --export-panel-skeleton-fill: color-mix(in srgb, var(--bs-body-color) 9%, transparent);
 
     :deep(.feedback-skeleton) {
       background: var(--export-panel-skeleton-fill);

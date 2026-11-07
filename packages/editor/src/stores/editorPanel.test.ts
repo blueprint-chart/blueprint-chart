@@ -1,4 +1,5 @@
 import { useEditorPanelStore as useEditorPanel } from './editorPanel'
+import { useThemeStore } from './theme'
 
 describe('useEditorPanel', () => {
   beforeEach(() => {
@@ -50,6 +51,21 @@ describe('useEditorPanel', () => {
     const store = useEditorPanel()
     store.setCanvasMode('dark')
     expect(store.canvasMode).toBe('dark')
+  })
+
+  it('resolves the auto canvas mode to the app theme', () => {
+    const store = useEditorPanel()
+    useThemeStore().theme = 'dark'
+    expect(store.resolvedCanvasMode).toBe('dark')
+    useThemeStore().theme = 'light'
+    expect(store.resolvedCanvasMode).toBe('light')
+  })
+
+  it('keeps an explicit canvas mode regardless of the app theme', () => {
+    const store = useEditorPanel()
+    useThemeStore().theme = 'dark'
+    store.setCanvasMode('light')
+    expect(store.resolvedCanvasMode).toBe('light')
   })
 
   it('setDataView updates dataView', () => {
