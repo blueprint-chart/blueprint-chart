@@ -278,6 +278,17 @@ const sliceMaxOpt: ChartOptionDef = { key: 'sliceMax', type: ChartOptionType.Tex
 const sliceGroupLabelOpt: ChartOptionDef = { key: 'sliceGroupLabel', type: ChartOptionType.Text, label: 'Group label', default: 'Others', placeholder: 'Others' }
 
 const areaFillOpacityOpt: ChartOptionDef = { key: 'areaFillOpacity', type: ChartOptionType.Text, label: 'Opacity', default: '0.85', placeholder: '0.85' }
+const areaFillOpt: ChartOptionDef = { key: 'areaFill', type: ChartOptionType.Boolean, label: 'Area fill', default: false }
+const areaFillBaselineOpt: ChartOptionDef = {
+  key: 'areaFillBaseline',
+  type: ChartOptionType.Select,
+  label: 'Fill to',
+  default: 'bottom',
+  choices: [
+    { value: 'bottom', text: 'Plot bottom' },
+    { value: 'zero', text: 'Zero' },
+  ],
+}
 const stackedOpt: ChartOptionDef = { key: 'stacked', type: ChartOptionType.Boolean, label: 'Stack areas', default: true }
 const stackPercentOpt: ChartOptionDef = { key: 'stackPercent', type: ChartOptionType.Boolean, label: 'Stack to 100%', default: false }
 const areaLinesOpt: ChartOptionDef = { key: 'areaLines', type: ChartOptionType.Boolean, label: 'Separate areas with lines', default: true }
@@ -473,13 +484,13 @@ const donutArcOpts = [displayAsPercentageOpt, arcNumberFormatOpt, donutShowTotal
 registerChart(ChartType.BarVertical, barVertical, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, swapLabelValueOpt, negativeColorOpt, barBackgroundOpt, barSeparatorsOpt, barGapOpt, connectedColumnsOpt, connectionsOpacityOpt, waterfallOpt, waterfallTotalOpt, categoryLabelLineOpt, ...barVerticalAxisOpts, ...barOpts])
 registerChart(ChartType.BarHorizontal, barHorizontal, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, swapLabelValueOpt, barBackgroundOpt, barSeparatorsOpt, barGapOpt, connectedColumnsOpt, connectionsOpacityOpt, waterfallOpt, waterfallTotalOpt, categoryLabelLineOpt, ...barHorizontalAxisOpts, ...barHorizontalOpts])
 registerChart(ChartType.BarMulti, barMulti, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, barGapOpt, ...sortByTotalOpts, legendOffOpt, legendAnchorOpt, legendPositionOpt, autoDirectLabellingOpt, directLabelAnchorOpt, ...barVerticalAxisOpts, ...barOpts])
-registerChart(ChartType.Line, line, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, lineInterpolationOpt, edgePaddingOpt, connectGapsOpt, ...lineAxisOpts, ...lineOpts, valueLabelPointsOpt, valueLabelEveryOpt])
+registerChart(ChartType.Line, line, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, lineInterpolationOpt, edgePaddingOpt, connectGapsOpt, areaFillOpt, areaFillBaselineOpt, ...lineAxisOpts, ...lineOpts, valueLabelPointsOpt, valueLabelEveryOpt])
 registerChart(ChartType.LineMulti, lineMulti, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, lineInterpolationOpt, edgePaddingOpt, connectGapsOpt, sortModeOpt, legendOffOpt, legendAnchorOpt, legendPositionOpt, autoDirectLabellingOpt, ...lineAxisOpts, ...lineMultiOpts, valueLabelPointsOpt, valueLabelEveryOpt])
 registerChart(ChartType.Donut, donut, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, legendOffOpt, legendAnchorOpt, legendPositionOpt, autoDirectLabellingOpt, tooltipsOpt, ...donutArcOpts])
 registerChart(ChartType.Pie, pie, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, legendOffOpt, legendAnchorOpt, legendPositionOpt, autoDirectLabellingOpt, tooltipsOpt, ...pieArcOpts])
 
 // Area: same axis layout as line (areaAxisOpts), same interaction options
-registerChart(ChartType.Area, area, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, { ...areaFillOpacityOpt, default: '0.25', placeholder: '0.25' }, lineInterpolationOpt, edgePaddingOpt, ...areaAxisOpts, ...lineOpts])
+registerChart(ChartType.Area, area, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, { ...areaFillOpacityOpt, default: '0.25', placeholder: '0.25' }, areaFillBaselineOpt, lineInterpolationOpt, edgePaddingOpt, ...areaAxisOpts, ...lineOpts])
 
 // Areas (multi-series with optional stacking)
 const areaStackedAxisOpts = axisOpts({ verticalGrid: GridStyle.Dashed, horizontalGrid: GridStyle.None, showVerticalTicks: false, showHorizontalTicks: false, showVerticalAxis: false, valueAxis: 'vertical', horizontalRange: true })

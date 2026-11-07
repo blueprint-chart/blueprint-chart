@@ -27,6 +27,14 @@
       @update:model-value="(v) => setOption('connectGaps', v)"
     />
 
+    <FormControlCheckbox
+      v-if="hasAreaFill"
+      id="opt-area-fill"
+      :model-value="currentOptions.areaFill ?? false"
+      label="Area fill"
+      @update:model-value="(v) => setOption('areaFill', v)"
+    />
+
     <FormControlSliderInput
       v-if="hasAreaFillOpacity"
       id="opt-area-fill-opacity"
@@ -37,6 +45,19 @@
       step="0.05"
       @update:model-value="(v) => setOption('areaFillOpacity', String(v))"
     />
+
+    <BFormGroup
+      v-if="hasAreaFillBaseline"
+      label="Fill to"
+      label-for="opt-area-fill-baseline"
+    >
+      <BFormSelect
+        id="opt-area-fill-baseline"
+        :model-value="currentOptions.areaFillBaseline ?? 'bottom'"
+        :options="areaFillBaselineChoices"
+        @update:model-value="(v) => setOption('areaFillBaseline', String(v ?? ''))"
+      />
+    </BFormGroup>
 
     <EditorLineSymbols v-if="hasLineSymbols" />
   </div>
@@ -51,7 +72,9 @@ const { currentOptions, availableOptionKeys, setOption } = useChartTypeOptions()
 const hasInterpolation = computed(() => availableOptionKeys.value.includes('interpolation'))
 const hasEdgePadding = computed(() => availableOptionKeys.value.includes('edgePadding'))
 const hasConnectGaps = computed(() => availableOptionKeys.value.includes('connectGaps'))
+const hasAreaFill = computed(() => availableOptionKeys.value.includes('areaFill'))
 const hasAreaFillOpacity = computed(() => availableOptionKeys.value.includes('areaFillOpacity'))
+const hasAreaFillBaseline = computed(() => availableOptionKeys.value.includes('areaFillBaseline'))
 const hasLineSymbols = computed(() => availableOptionKeys.value.includes('lineSymbols'))
 
 const interpolationChoices = [
@@ -63,5 +86,10 @@ const interpolationChoices = [
   { value: 'basis', text: 'Basis' },
   { value: 'cardinal', text: 'Cardinal' },
   { value: 'catmullRom', text: 'Catmull-Rom' },
+]
+
+const areaFillBaselineChoices = [
+  { value: 'bottom', text: 'Plot bottom' },
+  { value: 'zero', text: 'Zero' },
 ]
 </script>

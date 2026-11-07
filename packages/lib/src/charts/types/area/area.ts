@@ -139,7 +139,7 @@ export function render(
   const areaFillOpacity = options.areaFillOpacity ?? 0.25
 
   const defined = (d: AreaDatum) => Number.isFinite(d.value)
-  const areaGen = d3.area<AreaDatum>().curve(curve).defined(defined).x(d => xPos(d)).y0(height).y1(d => y(d.value) as number)
+  const areaGen = d3.area<AreaDatum>().curve(curve).defined(defined).x(d => xPos(d)).y0(options.areaFillBaseline === 'zero' ? y(0) as number : height).y1(d => y(d.value) as number)
   const lineGen = d3.line<AreaDatum>().curve(curve).defined(defined).x(d => xPos(d)).y(d => y(d.value) as number)
 
   // Marks are driven through the SceneTransition orchestrator's featureJoin so

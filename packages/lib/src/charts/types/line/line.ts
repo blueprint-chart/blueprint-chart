@@ -143,7 +143,7 @@ export function render(
   const areaFillOpacity = options.areaFillOpacity ?? 0.2
 
   const defined = (d: LineDatum) => Number.isFinite(d.value)
-  const areaGen = d3.area<LineDatum>().curve(curve).defined(defined).x(d => xPos(d)).y0(height).y1(d => y(d.value) as number)
+  const areaGen = d3.area<LineDatum>().curve(curve).defined(defined).x(d => xPos(d)).y0(options.areaFillBaseline === 'zero' ? y(0) as number : height).y1(d => y(d.value) as number)
   const lineGen = d3.line<LineDatum>().curve(curve).defined(defined).x(d => xPos(d)).y(d => y(d.value) as number)
   const gapsFor = (points: LineDatum[]) => options.connectGaps ? points.filter(defined) : points
 

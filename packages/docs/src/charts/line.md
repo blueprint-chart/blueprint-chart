@@ -62,6 +62,8 @@ Every property `line` accepts, beside the [frame and layout keys](/reference/dsl
 | `interpolation` | select: `linear`, `monotoneX`, `step`, `stepBefore`, `stepAfter`, `basis`, `cardinal`, `catmullRom` | `monotoneX` |
 | `edgePadding` | boolean | `false` |
 | `connectGaps` | boolean | `false` |
+| `areaFill` | boolean | `false` |
+| `areaFillBaseline` | select: `bottom`, `zero` | `bottom` |
 | `showVerticalAxis` | boolean | `false` |
 | `verticalAxisDirection` | select: `left`, `right` | `left` |
 | `showVerticalTicks` | boolean | `false` |

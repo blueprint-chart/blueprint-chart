@@ -35,6 +35,17 @@ describe('area chart', () => {
     expect(line?.getAttribute('d')).toBeTruthy()
   })
 
+  it('fills down to zero instead of the plot bottom when areaFillBaseline is zero', () => {
+    const negative = { labels: ['Jan', 'Feb', 'Mar'], values: [-10, 20, 10] }
+    const baselineY = (el: Element | null) => Number(/,(-?[\d.]+)Z$/.exec(el?.getAttribute('d') ?? '')?.[1])
+    render(container, negative, { interpolation: 'linear' })
+    const bottom = baselineY(container.querySelector('.bc-area'))
+    const zeroContainer = document.body.appendChild(document.createElement('div'))
+    render(zeroContainer, negative, { interpolation: 'linear', areaFillBaseline: 'zero' })
+    const zero = baselineY(zeroContainer.querySelector('.bc-area'))
+    expect(zero).toBeLessThan(bottom)
+  })
+
   it('renders dots for each data point', () => {
     render(container, data)
     const dots = container.querySelectorAll('.bc-dot')

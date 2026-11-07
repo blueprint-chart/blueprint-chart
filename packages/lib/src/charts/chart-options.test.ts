@@ -52,6 +52,12 @@ describe('buildChartOptions option passthrough', () => {
     expect(result.sortMode).toBe(SortMode.None)
   })
 
+  it('passes areaFill and areaFillBaseline through to line charts', () => {
+    const result = buildChartOptions({ areaFill: true, areaFillBaseline: 'zero' }, undefined, ChartType.Line)
+    expect(result.areaFill).toBe(true)
+    expect(result.areaFillBaseline).toBe('zero')
+  })
+
   it('parses valueLabelEvery to a positive integer', () => {
     expect(buildChartOptions({ valueLabelEvery: '3' }, undefined, 'line').valueLabelEvery).toBe(3)
     expect(buildChartOptions({ valueLabelEvery: '0' }, undefined, 'line').valueLabelEvery).toBeUndefined()

@@ -14,7 +14,11 @@ vi.mock('@/stores/chartTypeOptions', () => ({
 }))
 
 vi.mock('@blueprint-chart/ui', () => ({
-  FormControlCheckbox: { template: '<input type="checkbox" />' },
+  FormControlCheckbox: {
+    template: '<input type="checkbox" :data-id="id" @change="$emit(\'update:modelValue\', $event.target.checked)" />',
+    props: ['id'],
+    emits: ['update:modelValue'],
+  },
   FormControlSliderInput: {
     template: '<input type="range" :data-id="id" :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" />',
     props: ['modelValue', 'id'],
@@ -43,5 +47,19 @@ describe('EditorLineSection', () => {
     availableOptionKeys.value = ['interpolation']
     const w = mount(EditorLineSection)
     expect(w.find('[data-id="opt-area-fill-opacity"]').exists()).toBe(false)
+  })
+
+  it('sets the fill baseline when areaFillBaseline is available', async () => {
+    availableOptionKeys.value = ['areaFillBaseline']
+    const w = mount(EditorLineSection)
+    await w.find('#opt-area-fill-baseline').setValue('zero')
+    expect(mockSetOption).toHaveBeenCalledWith('areaFillBaseline', 'zero')
+  })
+
+  it('toggles the area fill when areaFill is available', async () => {
+    availableOptionKeys.value = ['areaFill']
+    const w = mount(EditorLineSection)
+    await w.find('[data-id="opt-area-fill"]').setValue(true)
+    expect(mockSetOption).toHaveBeenCalledWith('areaFill', true)
   })
 })

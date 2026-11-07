@@ -60,6 +60,7 @@ Every property `area` accepts, beside the [frame and layout keys](/reference/dsl
 | `autoContrast` | boolean | `false` |
 | `allowDarkMode` | boolean | `true` |
 | `areaFillOpacity` | text | `0.25` |
+| `areaFillBaseline` | select: `bottom`, `zero` | `bottom` |
 | `interpolation` | select: `linear`, `monotoneX`, `step`, `stepBefore`, `stepAfter`, `basis`, `cardinal`, `catmullRom` | `monotoneX` |
 | `edgePadding` | boolean | `false` |
 | `showVerticalAxis` | boolean | `false` |

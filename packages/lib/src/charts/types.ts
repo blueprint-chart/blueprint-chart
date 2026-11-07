@@ -214,6 +214,7 @@ export interface ChartOptions {
   directLabelAnchor?: Anchor
   areaFill?: boolean
   areaFillOpacity?: number
+  areaFillBaseline?: 'bottom' | 'zero'
   areaFills?: AreaFillConfig[]
   stacked?: boolean
   stackPercent?: boolean
@@ -363,7 +364,9 @@ export interface ChartTypeOptions {
   stackPercent: boolean
   areaSortMode: string
   areaLines: boolean
+  areaFill: boolean
   areaFillOpacity: string
+  areaFillBaseline: string
   edgePadding: boolean
   connectGaps: boolean
   waterfall: boolean
