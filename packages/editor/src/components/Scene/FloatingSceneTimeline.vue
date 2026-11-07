@@ -44,6 +44,7 @@ const { isNarrow } = useBreakpoint()
   position: sticky;
   bottom: calc(var(--fst-inset) - var(--fst-canvas-pad-y, 0px));
   z-index: 5; // above the canvas grid/card, below panel overlays (z-index:10)
+  background: transparent; // its app theme can differ from the canvas, see tokens.scss nested light rule
   pointer-events: none; // let empty gaps pass clicks through to the canvas
 
   > * {

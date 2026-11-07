@@ -47,7 +47,7 @@
           :canvas-ref="canvasRef"
           :layout="layout"
         />
-        <FloatingSceneTimeline />
+        <FloatingSceneTimeline :data-bs-theme="resolvedTheme" />
       </div>
     </div>
     <PanelShell
@@ -90,6 +90,7 @@
 import type { CSSProperties } from 'vue'
 import { useBreakpoint } from '@blueprint-chart/ui'
 import { useEditorPanel } from '@/stores/editorPanel'
+import { useTheme } from '@/stores/theme'
 import { usePanel, usePanelStore } from '@/stores/panel'
 import { useChartConfig } from '@/stores/chartConfig'
 import { useChartEditSections } from '@/composables/useChartEditSections'
@@ -99,6 +100,7 @@ import { useScenes } from '@/composables/useScenes'
 
 const editorPanel = useEditorPanel()
 const { viewMode, activeTab, resolvedCanvasMode, showDimensions, splitRatio } = editorPanel
+const { resolvedTheme } = useTheme()
 const { stopPlayback } = useScenes()
 const { selectTab, setLastNarrowEditTab, setViewMode } = editorPanel
 const { mode: panelMode } = usePanel()

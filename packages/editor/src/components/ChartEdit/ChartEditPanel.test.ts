@@ -21,6 +21,10 @@ vi.mock('@/stores/editorPanel', () => ({
   useEditorPanel: () => editorPanelState,
 }))
 
+vi.mock('@/stores/theme', () => ({
+  useTheme: () => ({ resolvedTheme: ref('light') }),
+}))
+
 const panelStoreMock = vi.hoisted(() => ({ dock: vi.fn(), close: vi.fn() }))
 
 vi.mock('@/stores/panel', () => ({
