@@ -11,13 +11,21 @@
         @update:model-value="(v) => setOption('stackMode', String(v ?? ''))"
       />
     </BFormGroup>
+
+    <FormControlCheckbox
+      v-if="availableOptionKeys.includes('showTotal') && currentOptions.stackMode !== 'percent'"
+      :model-value="currentOptions.showTotal ?? false"
+      label="Show total"
+      @update:model-value="(v) => setOption('showTotal', v)"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { useChartTypeOptions } from '@/stores/chartTypeOptions'
+import { FormControlCheckbox } from '@blueprint-chart/ui'
 
-const { currentOptions, setOption } = useChartTypeOptions()
+const { currentOptions, availableOptionKeys, setOption } = useChartTypeOptions()
 
 const stackModeChoices = [
   { value: 'normal', text: 'Normal' },
