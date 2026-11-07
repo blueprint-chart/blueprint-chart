@@ -229,6 +229,40 @@ function applyLineMoveTransition(
   }
 }
 
+function markPosition(el: Element): [number, number] {
+  const [x, y] = el.tagName === 'circle' ? ['cx', 'cy'] : ['x', 'y']
+  return [Number(el.getAttribute(x)), Number(el.getAttribute(y))]
+}
+
+function applyMarkMoveTransition(el: Element, prev: Element, durationMs: number): void {
+  const [oldX, oldY] = markPosition(prev)
+  const [newX, newY] = markPosition(el)
+  const dx = oldX - newX
+  const dy = oldY - newY
+  if (Math.abs(dx) <= 0.5 && Math.abs(dy) <= 0.5) {
+    return
+  }
+  const end = el.getAttribute('transform')
+  const at = (k: number) => `translate(${dx * k}, ${dy * k})${end ? ` ${end}` : ''}`
+  d3.select(el)
+    .attr('transform', at(1))
+    .transition()
+    .duration(durationMs)
+    .ease(d3.easeCubicInOut)
+    .attrTween('transform', () => (t: number) => at(1 - t))
+}
+
+const RANGE_GEOMETRY = ['x', 'y', 'width', 'height'] as const
+
+function applyRangeMoveTransition(rect: Element, prev: Element, durationMs: number): void {
+  const sel = d3.select(rect)
+  const transition = sel.transition().duration(durationMs).ease(d3.easeCubicInOut)
+  for (const attr of RANGE_GEOMETRY) {
+    transition.attr(attr, rect.getAttribute(attr))
+    sel.attr(attr, prev.getAttribute(attr))
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Apply annotation transitions
 // ---------------------------------------------------------------------------
@@ -260,23 +294,18 @@ function applyAnnotationTransitions(
         applyLineMoveTransition(lineEl, old.line, durationMs)
       }
 
-      try {
-        const newRect = (el as SVGGraphicsElement).getBBox()
-        const dx = old.rect.x - newRect.x
-        const dy = old.rect.y - newRect.y
-        if (Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5) {
-          const children = el.querySelectorAll('.bc-annotation-text, .bc-annotation-circle')
-          for (const child of children) {
-            const g = child as SVGElement
-            g.style.transition = 'none'
-            g.setAttribute('transform', `translate(${dx}, ${dy})`)
-            void g.getBoundingClientRect()
-            g.style.transition = `transform ${durationMs}ms ease`
-            g.setAttribute('transform', 'translate(0, 0)')
-          }
+      for (const child of el.querySelectorAll('.bc-annotation-text, .bc-annotation-circle')) {
+        const prev = old.element.querySelector(`.${child.getAttribute('class')}`)
+        if (prev) {
+          applyMarkMoveTransition(child, prev, durationMs)
         }
       }
-      catch { /* getBBox may fail */ }
+
+      const rect = el.querySelector('.bc-annotation-range')
+      const prevRect = old.element.querySelector('.bc-annotation-range')
+      if (rect && prevRect) {
+        applyRangeMoveTransition(rect, prevRect, durationMs)
+      }
     }
     else {
       const lineEl = el.querySelector('.bc-annotation-line') as SVGElement | null
