@@ -79,4 +79,18 @@ describe('EditorAxisOptions value labels', () => {
     const w = mount(EditorAxisOptions)
     expect(w.find('select[data-label="Show on"]').exists()).toBe(false)
   })
+
+  it('sets dotLabels from the dot plot labels choices', async () => {
+    optionDefs.value = [{ key: 'dotLabels', type: 'select', label: 'Labels', choices: [{ value: 'both', text: 'Both' }, { value: 'change', text: '% change' }] }]
+    const w = mount(EditorAxisOptions)
+    await w.find('select[data-label="Labels"]').setValue('change')
+    expect(mockSetOption).toHaveBeenCalledWith('dotLabels', 'change')
+  })
+
+  it('hides the dot plot labels choices in range style', () => {
+    optionDefs.value = [{ key: 'dotLabels', type: 'select', label: 'Labels', choices: [{ value: 'both', text: 'Both' }] }]
+    currentOptions.value = { valueLabels: true, dotStyle: 'range' }
+    const w = mount(EditorAxisOptions)
+    expect(w.find('select[data-label="Labels"]').exists()).toBe(false)
+  })
 })

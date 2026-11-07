@@ -49,7 +49,7 @@ export function buildDotPlotRows(data: ChartData, resolved: ResolvedDotPlot, sca
   return { rows, dropped }
 }
 
-function percentChange(row: DotPlotRow): number {
+export function percentChange(row: DotPlotRow): number {
   const first = row.values[0]
   return first ? (row.values[row.values.length - 1] - first) / Math.abs(first) : 0
 }

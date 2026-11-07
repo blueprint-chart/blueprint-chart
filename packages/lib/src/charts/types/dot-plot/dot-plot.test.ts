@@ -144,6 +144,40 @@ describe('dot plot chart', () => {
     expect(all(container, '.bc-dot-label[data-key^="a|"]').map(l => l.textContent)).toEqual(['10', '30'])
   })
 
+  it('labels only the first column dot with dotLabels start', () => {
+    render(container, DUMBBELL, { valueLabels: true, dotLabels: 'start' })
+    expect(all(container, '.bc-dot-label[data-key^="b|"]').map(l => l.textContent)).toEqual(['50'])
+  })
+
+  it('labels only the last column dot with dotLabels end', () => {
+    render(container, DUMBBELL, { valueLabels: true, dotLabels: 'end' })
+    expect(all(container, '.bc-dot-label[data-key^="b|"]').map(l => l.textContent)).toEqual(['40'])
+  })
+
+  it('labels the difference past the rightmost dot with dotLabels difference', () => {
+    render(container, DUMBBELL, { valueLabels: true, dotLabels: 'difference', horizontalAxis: { numberFormat: '$,.0f' } })
+    const texts = (row: string) => all(container, `.bc-dot-label[data-key^="${row}|"]`).map(l => l.textContent)
+    expect(texts('a')).toEqual(['+$20'])
+    expect(texts('b')).toEqual(['−$10'])
+    const label = container.querySelector('.bc-dot-label[data-key^="b|"]')!
+    expect(Number(label.getAttribute('x'))).toBeGreaterThan(dotX(container, 'b|2015'))
+  })
+
+  it('labels the percent change with dotLabels change', () => {
+    render(container, DUMBBELL, { valueLabels: true, dotLabels: 'change' })
+    expect(all(container, '.bc-dot-label').map(l => l.textContent)).toEqual(['+200%', '−20%', '+200%'])
+  })
+
+  it('rounds floating-point noise out of the difference label', () => {
+    render(container, parseData('series = "2015","2024"\n"a" = 1.1,1.3'), { valueLabels: true, dotLabels: 'difference' })
+    expect(container.querySelector('.bc-dot-label')!.textContent).toBe('+0.2')
+  })
+
+  it('skips the percent change label when the first value is 0', () => {
+    render(container, parseData('series = "2015","2024"\n"a" = 0,50\n"b" = 10,20'), { valueLabels: true, dotLabels: 'change' })
+    expect(all(container, '.bc-dot-label').map(l => l.textContent)).toEqual(['+100%'])
+  })
+
   it('labels a range row once, past the high end', () => {
     render(container, RANGE, { ...RANGE_STYLE, valueLabels: true })
     const label = container.querySelector('.bc-dot-label[data-key="SPD|range"]')!

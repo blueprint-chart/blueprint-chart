@@ -534,8 +534,21 @@ const dotPlotSortModeOpt: ChartOptionDef = {
     { value: SortMode.Change, text: 'By % change' },
   ],
 }
+const dotLabelsOpt: ChartOptionDef = {
+  key: 'dotLabels',
+  type: ChartOptionType.Select,
+  label: 'Labels',
+  default: 'both',
+  choices: [
+    { value: 'both', text: 'Both' },
+    { value: 'start', text: 'Start' },
+    { value: 'end', text: 'End' },
+    { value: 'difference', text: 'Difference' },
+    { value: 'change', text: '% change' },
+  ],
+}
 const dotPlotAxisOpts = axisOpts({ verticalGrid: GridStyle.None, horizontalGrid: GridStyle.Dashed, showVerticalTicks: false, showHorizontalTicks: false, showHorizontalAxis: false, valueAxis: 'horizontal' })
-registerChart(ChartType.DotPlot, dotPlot, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, dotStyleOpt, ...dotPlotMappingOpts, arrowsOpt, dotPlotSortModeOpt, sortReverseOpt, legendOpt, legendPositionOpt, legendAnchorOpt, categoryLabelLineOpt, ...dotPlotAxisOpts, valueLabelsOpt, { ...tooltipsOpt, default: true }])
+registerChart(ChartType.DotPlot, dotPlot, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, dotStyleOpt, ...dotPlotMappingOpts, arrowsOpt, dotPlotSortModeOpt, sortReverseOpt, legendOpt, legendPositionOpt, legendAnchorOpt, categoryLabelLineOpt, ...dotPlotAxisOpts, valueLabelsOpt, dotLabelsOpt, { ...tooltipsOpt, default: true }])
 
 // Aliases share the same entry
 registerChart(ChartType.VerticalBar, barVertical, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, swapLabelValueOpt, barBackgroundOpt, barSeparatorsOpt, barGapOpt, connectedColumnsOpt, connectionsOpacityOpt, waterfallOpt, waterfallTotalOpt, categoryLabelLineOpt, ...barVerticalAxisOpts, ...barOpts])

@@ -24,7 +24,7 @@ import { buildScatterScale } from '../scatter/scales'
 import { DEFAULT_COLORS } from '../../palettes'
 import { resolveDotPlotMapping, type DotPlotMode } from './mapping'
 import { formatDotPlotTooltip } from './tooltip'
-import { buildDotPlotRows, sortDotPlotRows, type DotPlotRow } from './rows'
+import { buildDotPlotRows, percentChange, sortDotPlotRows, type DotPlotRow } from './rows'
 import { dotPlotAnnotationContext } from './annotations'
 
 export const DEFAULT_COLOR = DEFAULT_COLORS[0]
@@ -38,6 +38,7 @@ const LABEL_GAP = 6
 const LABEL_FONT_SIZE = 11
 
 interface DotDatum { row: string, column: string, value: number, color: string }
+interface LabelPick { key: string, i: number, left: boolean, text: string, series?: string }
 interface LabelDatum { key: string, row: string, series?: string, text: string, x: number, anchor: 'start' | 'end' }
 
 export function render(
@@ -124,7 +125,8 @@ export function render(
   const rowY = (name: string) => (y(name) ?? 0) + categoryLabelOffset + (y.bandwidth() - categoryLabelOffset) / 2
   const allNumbers = rows.flatMap(r => [...r.values, ...(r.low === undefined ? [] : [r.low, r.high!])])
   const fmt = (v: number) => formatValueLabel(v, options.horizontalAxis?.numberFormat)
-  const labelRoom = options.valueLabels ? labelRoomFor(rows, resolved.mode, fmt, width) : 0
+  const labelPicks = (r: DotPlotRow) => pickDumbbellLabels(r, columns, options.dotLabels, fmt)
+  const labelRoom = options.valueLabels ? labelRoomFor(rows, resolved.mode, labelPicks, fmt, width) : 0
   const x = buildScatterScale(scaleType, allNumbers, options.horizontalAxis?.range).range([isDumbbell ? labelRoom : 0, width - labelRoom])
 
   axes.attach(chartArea, marginDelta)
@@ -236,7 +238,7 @@ export function render(
 
   const labelLayer = d3.select(chartArea).append('g').node()!
   labelLayer.append(...prior.labels)
-  const labels = options.valueLabels ? buildLabels(rows, columns, resolved.mode, x, fmt) : []
+  const labels = options.valueLabels ? buildLabels(rows, resolved.mode, labelPicks, x, fmt) : []
   renderValueLabels(orch, labelLayer, labels, rowY, opacityOf)
 
   if (options.annotations?.length) {
@@ -289,8 +291,8 @@ export function render(
   }
 }
 
-function labelRoomFor(rows: DotPlotRow[], mode: DotPlotMode, fmt: (v: number) => string, width: number): number {
-  const texts = rows.flatMap(r => r.values).map(fmt)
+function labelRoomFor(rows: DotPlotRow[], mode: DotPlotMode, picks: (r: DotPlotRow) => LabelPick[], fmt: (v: number) => string, width: number): number {
+  const texts = mode === 'range' ? rows.map(r => fmt(r.values[0])) : rows.flatMap(picks).map(p => p.text)
   const room = measureMaxTextWidth(texts, LABEL_FONT_SIZE) + LABEL_GAP + (mode === 'range' ? 0 : DOT_RADIUS)
   return Math.min(room, width / 4)
 }
@@ -305,10 +307,26 @@ function arrowheadPath({ tipX, armX, armOffset }: ReturnType<typeof arrowhead>, 
   return `M${armX},${cy - armOffset}L${tipX},${cy}L${armX},${cy + armOffset}`
 }
 
+function pickDumbbellLabels(r: DotPlotRow, columns: string[], dotLabels: ChartOptions['dotLabels'], fmt: (v: number) => string): LabelPick[] {
+  const order = r.values.map((_, i) => i).sort((a, b) => r.values[a] - r.values[b])
+  const low = order[0]
+  const high = order.at(-1)!
+  const valueAt = (i: number): LabelPick => ({ key: `${r.name}|${columns[i]}`, i, left: i === low && low !== high, text: fmt(r.values[i]), series: columns[i] })
+  const summary = (text: string): LabelPick[] => [{ key: `${r.name}|${dotLabels}`, i: high, left: false, text }]
+  const difference = Number((r.values[r.values.length - 1] - r.values[0]).toPrecision(12))
+  switch (dotLabels) {
+    case 'start': return [valueAt(0)]
+    case 'end': return [valueAt(r.values.length - 1)]
+    case 'difference': return summary(`${difference > 0 ? '+' : ''}${fmt(difference)}`)
+    case 'change': return r.values[0] === 0 ? [] : summary(formatValueLabel(percentChange(r), '+.0%'))
+    default: return (low === high ? [low] : [low, high]).map(valueAt)
+  }
+}
+
 function buildLabels(
   rows: DotPlotRow[],
-  columns: string[],
   mode: DotPlotMode,
+  picks: (r: DotPlotRow) => LabelPick[],
   x: (v: number) => number,
   fmt: (v: number) => string,
 ): LabelDatum[] {
@@ -316,19 +334,14 @@ function buildLabels(
     if (mode === 'range') {
       return [{ key: `${r.name}|range`, row: r.name, text: fmt(r.values[0]), x: Math.max(x(r.low!), x(r.high!)) + LABEL_GAP, anchor: 'start' }]
     }
-    const order = columns.map((_, i) => i).sort((a, b) => r.values[a] - r.values[b])
-    const ends = order.length > 1 ? [order[0], order.at(-1)!] : order
-    return ends.map((i, n): LabelDatum => {
-      const left = ends.length > 1 && n === 0
-      return {
-        key: `${r.name}|${columns[i]}`,
-        row: r.name,
-        series: columns[i],
-        text: fmt(r.values[i]),
-        x: x(r.values[i]) + (left ? -1 : 1) * (DOT_RADIUS + LABEL_GAP),
-        anchor: left ? 'end' : 'start',
-      }
-    })
+    return picks(r).map(({ key, i, left, text, series }): LabelDatum => ({
+      key,
+      row: r.name,
+      series,
+      text,
+      x: x(r.values[i]) + (left ? -1 : 1) * (DOT_RADIUS + LABEL_GAP),
+      anchor: left ? 'end' : 'start',
+    }))
   })
 }
 

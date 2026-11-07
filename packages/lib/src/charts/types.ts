@@ -259,6 +259,7 @@ export interface ChartOptions {
   low?: string
   high?: string
   arrows?: ArrowDirection
+  dotLabels?: 'both' | 'start' | 'end' | 'difference' | 'change'
 }
 
 export type ChartRenderer = (
@@ -363,6 +364,7 @@ export interface ChartTypeOptions {
   low: string
   high: string
   arrows: ArrowDirection
+  dotLabels: string
 }
 
 export type ChartTypeOptionKey = keyof ChartTypeOptions

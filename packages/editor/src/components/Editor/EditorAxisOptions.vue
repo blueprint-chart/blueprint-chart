@@ -30,6 +30,14 @@
           block
           @update:model-value="(v) => setOption('valueLabelPoints', v)"
         />
+        <FormControlButtonGroup
+          v-if="currentOptions.valueLabels && dotLabelsDef && currentOptions.dotStyle !== DotStyle.Range"
+          :label="dotLabelsDef.label"
+          :model-value="currentOptions.dotLabels ?? dotLabelsDef.default"
+          :options="dotLabelsDef.choices"
+          block
+          @update:model-value="(v) => setOption('dotLabels', v)"
+        />
         <FormControlTextInput
           v-if="currentOptions.valueLabels && valueLabelEveryDef && currentOptions.valueLabelPoints === 'everyN'"
           id="opt-valueLabelEvery"
@@ -90,7 +98,7 @@ import {
   SettingsSection,
 } from '@blueprint-chart/ui'
 import type { ChartOptionDef } from '@blueprint-chart/lib'
-import { ChartOptionType } from '@blueprint-chart/lib'
+import { ChartOptionType, DotStyle } from '@blueprint-chart/lib'
 import { useChartTypeOptions, type ChartTypeOptionKey, type ChartTypeOptions } from '@/stores/chartTypeOptions'
 import { useDataTable } from '@/stores/dataTable'
 import IFluentLineSolid from '~icons/fluent/line-horizontal-1-20-filled'
@@ -111,6 +119,7 @@ import IPhTextAa from '~icons/ph/text-aa'
 const hasValueLabels = computed(() => availableOptionKeys.value.includes('valueLabels'))
 const hasSwapLabelValue = computed(() => availableOptionKeys.value.includes('swapLabelValue'))
 const valueLabelPointsDef = computed(() => optionDefs.value.find(d => d.key === 'valueLabelPoints'))
+const dotLabelsDef = computed(() => optionDefs.value.find(d => d.key === 'dotLabels'))
 const valueLabelEveryDef = computed(() => optionDefs.value.find(d => d.key === 'valueLabelEvery'))
 
 const valueLabelPositionChoices = [
