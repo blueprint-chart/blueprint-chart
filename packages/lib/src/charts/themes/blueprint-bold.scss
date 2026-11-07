@@ -21,13 +21,12 @@
 // Keep in sync with the mirrored block in src/runtime/chart-css.ts.
 // ============================================================================
 
-// @scope stops at a nested light subtree (a light canvas or a card with dark
-// mode disallowed inside a dark app), which a descendant selector cannot do.
-@scope ([data-bs-theme="dark"]) to ([data-bs-theme="light"]) {
-  :scope .bc-frame.bc-theme-blueprint-bold {
-    --bc-frame-bg: #000000;
-    --bc-text-color: rgba(255, 255, 255, 0.95);
-    --bc-axis-color: rgba(255, 255, 255, 0.7);
-    --bc-grid-color: rgba(255, 255, 255, 0.12);
-  }
+// The :not() stops the overrides at a light section nested in a dark page (a
+// light canvas, or a card with dark mode disallowed). It misses a dark section
+// nested again inside that light one, which nothing renders today.
+[data-bs-theme="dark"] .bc-frame.bc-theme-blueprint-bold:not([data-bs-theme="dark"] [data-bs-theme="light"] *) {
+  --bc-frame-bg: #000000;
+  --bc-text-color: rgba(255, 255, 255, 0.95);
+  --bc-axis-color: rgba(255, 255, 255, 0.7);
+  --bc-grid-color: rgba(255, 255, 255, 0.12);
 }

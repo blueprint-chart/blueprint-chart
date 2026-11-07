@@ -5,20 +5,24 @@ describe('CHART_CSS blueprint-bold theme', () => {
   it('is light/dark responsive: adds no canvas override in light mode', () => {
     // The only blueprint-bold rule is dark-scoped; light mode inherits the
     // default white canvas. So there is no unscoped (light) rule.
-    expect(CHART_CSS).not.toMatch(/\n\.bc-frame\.bc-theme-blueprint-bold\s*\{/)
+    expect(CHART_CSS).not.toMatch(/\n\.bc-frame\.bc-theme-blueprint-bold[^{]*\{/)
   })
 
   it('renders on a black brand canvas in dark mode (overriding the base dark frame default)', () => {
-    expect(CHART_CSS).toMatch(/\[data-bs-theme="dark"\]\s*\.bc-frame\.bc-theme-blueprint-bold\s*\{[^}]*--bc-frame-bg:\s*#000000/)
+    expect(CHART_CSS).toMatch(/\[data-bs-theme="dark"\]\s*\.bc-frame\.bc-theme-blueprint-bold[^{]*\{[^}]*--bc-frame-bg:\s*#000000/)
   })
 
   it('uses white-family grid, axis and text colours on the dark canvas', () => {
-    expect(CHART_CSS).toMatch(/\[data-bs-theme="dark"\]\s*\.bc-frame\.bc-theme-blueprint-bold\s*\{[^}]*--bc-grid-color:\s*rgba\(255, ?255, ?255/)
-    expect(CHART_CSS).toMatch(/\[data-bs-theme="dark"\]\s*\.bc-frame\.bc-theme-blueprint-bold\s*\{[^}]*--bc-text-color:\s*rgba\(255, ?255, ?255/)
+    expect(CHART_CSS).toMatch(/\[data-bs-theme="dark"\]\s*\.bc-frame\.bc-theme-blueprint-bold[^{]*\{[^}]*--bc-grid-color:\s*rgba\(255, ?255, ?255/)
+    expect(CHART_CSS).toMatch(/\[data-bs-theme="dark"\]\s*\.bc-frame\.bc-theme-blueprint-bold[^{]*\{[^}]*--bc-text-color:\s*rgba\(255, ?255, ?255/)
   })
 
   it('qualifies the dark selector with .bc-frame so it outranks the base dark frame default', () => {
     expect(CHART_CSS).toContain('.bc-frame.bc-theme-blueprint-bold')
+  })
+
+  it('stops the dark overrides at a light section nested in a dark page', () => {
+    expect(CHART_CSS).toContain('[data-bs-theme="dark"] .bc-frame.bc-theme-blueprint-bold:not([data-bs-theme="dark"] [data-bs-theme="light"] *)')
   })
 })
 
