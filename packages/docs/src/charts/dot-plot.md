@@ -120,6 +120,16 @@ The legend appears for dumbbells only, with one entry per value column.
 
 Rows are matched by name across [scenes](/reference/dsl/scenes-and-transforms). Dots, lines and range bars glide to their new positions, including when a scene changes the style. Keep row names identical between scenes so rows move instead of being replaced.
 
+## Annotations
+
+[Annotations](/reference/dsl/annotations) work on dot plots:
+
+- A point annotation targets a row by its name.
+- On a dumbbell, it lands on the row's rightmost dot.
+- In range style, it lands on the value dot.
+- A range with row names runs from the first row's dots to the last row's dots. Set `startAnchor` and `endAnchor` to cover the whole rows.
+- A range with numbers spans those values.
+
 ## Example
 
 From `packages/lib/src/samples/life-expectancy-gains.bpc`. A dumbbell with arrows, sorted by gap.
