@@ -13,7 +13,7 @@ import { setRenderTransition, snapshotForFadeOut, commitFadeOut, fadeIn } from '
 import { setupProximityInteraction, disposeProximityFor } from '../../plugins/proximity'
 import { highlightTargetSet, highlightOpacity } from '../../plugins/highlight'
 import { buildColorOverrides } from '../../plugins/colorize'
-import { renderAnnotations } from '../../plugins/annotations'
+import { renderAnnotations, snapshotAnnotations, type AnnotationSnapshot } from '../../plugins/annotations'
 import { buildNumberFormatter } from '../../format-helpers'
 import { measureMaxTextWidth } from '../../text-measure'
 import { setCachedChart, getCachedChart } from '../../transition-cache'
@@ -52,6 +52,7 @@ export function render(
   const cached = transition ? getCachedChart(container) : undefined
   const prior = { ranges: [] as Element[], lines: [] as Element[], dots: [] as Element[], labels: [] as Element[] }
   let fadeOverlay: HTMLElement | null = null
+  const priorAnnotations = new Map<string, AnnotationSnapshot>()
   if (transition) {
     axes.detach()
     if (cached?.chartType === 'dot-plot') {
@@ -62,6 +63,11 @@ export function render(
     }
     else if (cached) {
       fadeOverlay = snapshotForFadeOut(container)
+    }
+    for (const el of container.querySelectorAll('.bc-frame .bc-annotations, .bc-frame .bc-annotations-range')) {
+      for (const [k, v] of snapshotAnnotations(el)) {
+        priorAnnotations.set(k, v)
+      }
     }
     container.replaceChildren()
   }
@@ -234,7 +240,7 @@ export function render(
   renderValueLabels(orch, labelLayer, labels, rowY, opacityOf)
 
   if (options.annotations?.length) {
-    renderAnnotations(chartArea, options.annotations, { ...dotPlotAnnotationContext(rows, x, y, rowY), width, height, backgroundColor: stroke, transition })
+    renderAnnotations(chartArea, options.annotations, { ...dotPlotAnnotationContext(rows, x, y, rowY), width, height, backgroundColor: stroke, transition, priorAnnotations })
   }
 
   if (options.tooltips) {

@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest'
 import { parseData } from '../../parse-data'
 import { getSceneTransition } from '../../../transitions'
-import { ArrowDirection, DotStyle, SortMode } from '../../../enums'
+import { AnnotationKind, ArrowDirection, DotStyle, SortMode } from '../../../enums'
 import { HIGHLIGHT_DIM_OPACITY } from '../../plugins/highlight'
 import { render as renderBarVertical } from '../bar-vertical/bar-vertical'
 import { render } from './dot-plot'
@@ -12,6 +12,8 @@ const RANGE_SCENE_2 = parseData('series = "Poll","High","Low"\n"CDU/CSU" = 25,28
 const RANGE_STYLE = { dotStyle: DotStyle.Range }
 const DUMBBELL = parseData('series = "2015","2024"\n"a" = 10,30\n"b" = 50,40\n"c" = 20,60')
 const wait = (ms: number) => new Promise(r => setTimeout(r, ms))
+const ann = { kind: AnnotationKind.Point as const, key: 'k', target: 'SPD', text: 'SPD', showArrow: true }
+const getBBox = (window.SVGElement.prototype as unknown as { getBBox?: () => DOMRect }).getBBox
 
 describe('dot plot scene transitions', () => {
   let container: HTMLElement
@@ -19,10 +21,12 @@ describe('dot plot scene transitions', () => {
   // jsdom has no SVGElement.transform; d3 reads it to tween axis transforms.
   beforeAll(() => {
     Object.defineProperty(window.SVGElement.prototype, 'transform', { configurable: true, get: () => ({ baseVal: { consolidate: () => null } }) })
+    ;(window.SVGElement.prototype as unknown as { getBBox: () => DOMRect }).getBBox = () => ({ x: 0, y: 0, width: 0, height: 0 }) as DOMRect
   })
 
   afterAll(() => {
     delete (window.SVGElement.prototype as { transform?: unknown }).transform
+    ;(window.SVGElement.prototype as unknown as { getBBox: typeof getBBox }).getBBox = getBBox
   })
 
   beforeEach(() => {
@@ -120,5 +124,22 @@ describe('dot plot scene transitions', () => {
     expect(container.querySelectorAll('.bc-dot')).toHaveLength(6)
     expect(container.querySelectorAll('.bc-dot-range')).toHaveLength(0)
     expect([...container.querySelectorAll('.bc-dot, .bc-dot-line')].map(el => el.getAttribute('opacity'))).toEqual(Array(9).fill('1'))
+  })
+
+  it('tweens a keyed annotation line from its previous scene position', async () => {
+    render(container, RANGE, { ...RANGE_STYLE, annotations: [ann] })
+    const oldToX = container.querySelector('g[data-annotation-id="k"] .bc-annotation-line')!.getAttribute('data-line-to-x')!
+    render(container, RANGE_SCENE_2, { ...RANGE_STYLE, annotations: [ann] }, true)
+    const d = container.querySelector('g[data-annotation-id="k"] .bc-annotation-line')!.getAttribute('d')!
+    expect(d).toContain(oldToX)
+    await wait(1200)
+  })
+
+  it('tweens a keyed annotation coming from another chart type', async () => {
+    renderBarVertical(container, parseData('"SPD" = 5\n"Greens" = 9'), { annotations: [ann] })
+    const oldToX = container.querySelector('g[data-annotation-id="k"] .bc-annotation-line')!.getAttribute('data-line-to-x')!
+    render(container, RANGE, { ...RANGE_STYLE, annotations: [ann] }, true)
+    expect(container.querySelector('g[data-annotation-id="k"] .bc-annotation-line')!.getAttribute('d')).toContain(oldToX)
+    await wait(1200)
   })
 })
