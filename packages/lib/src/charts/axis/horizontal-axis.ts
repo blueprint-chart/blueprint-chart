@@ -5,7 +5,7 @@ import type { AxisOptions } from '../types'
 import { detectDates, type DateGranularity } from '../date-parse'
 import { getDefaultTransitionMs } from '../motion'
 import { buildNumberFormatter } from '../format-helpers'
-import { logTickValues } from '../scale-helpers'
+import { logTickValues, ticksInDomain } from '../scale-helpers'
 import { measureMaxTextWidth, measureTextWidth } from '../text-measure'
 
 interface AxisDatum {
@@ -534,7 +534,8 @@ export class HorizontalAxisChart extends D3Blueprint<AxisDatum[]> {
 
     const effective = labelPos === 'auto' ? 'outside' : labelPos
 
-    let ticks = this.config('ticks') as (string & d3.NumberValue)[] | null
+    const customTicks = this.config('ticks') as (string & d3.NumberValue)[] | null
+    let ticks = customTicks && ticksInDomain(rawScale, customTicks)
     if (!ticks && availableWidth > 0) {
       if (ordinal) {
         // Continuous (date-like) domains thin to avoid clutter — each label is

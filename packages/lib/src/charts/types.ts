@@ -313,10 +313,12 @@ export interface ChartTypeOptions {
   verticalLabelPosition: string
   verticalRangeMin: string
   verticalRangeMax: string
+  verticalTickValues: string
   horizontalLabelPosition: string
   horizontalLabelRotation: string
   horizontalRangeMin: string
   horizontalRangeMax: string
+  horizontalTickValues: string
   valueLabels: boolean | 'percent'
   valueLabelPosition: string
   valueLabelPoints: string

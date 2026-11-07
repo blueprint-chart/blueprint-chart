@@ -79,6 +79,7 @@ Every property `bar-grouped` accepts, beside the [frame and layout keys](/refere
 | `horizontalScaleType` | select: `linear`, `log` | `linear` |
 | `horizontalRangeMin` | text | (unset) |
 | `horizontalRangeMax` | text | (unset) |
+| `horizontalTickValues` | text | (unset) |
 | `valueLabels` | boolean | `true` |
 | `valueLabelPosition` | select: `auto`, `outside`, `inside` | `auto` |
 | `tooltips` | boolean | `false` |

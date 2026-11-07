@@ -9,7 +9,13 @@ function rangeBound(raw?: string): string | undefined {
   return trimmed && parseDateOrNumber(trimmed) !== undefined ? trimmed : undefined
 }
 
+function tickValues(raw?: string): number[] | undefined {
+  const ticks = (raw ?? '').split(/[\s,]+/).filter(Boolean).map(Number).filter(Number.isFinite)
+  return ticks.length ? ticks : undefined
+}
+
 export function buildVerticalAxisOptions(opts: Partial<ChartTypeOptions>): Partial<ChartOptions> {
+  const verticalTicks = tickValues(opts.verticalTickValues)
   const hasVertical = opts.showVerticalTicks !== undefined
     || opts.verticalGridStyle !== undefined
     || opts.verticalNumberFormat !== undefined
@@ -18,6 +24,7 @@ export function buildVerticalAxisOptions(opts: Partial<ChartTypeOptions>): Parti
     || opts.verticalScaleType !== undefined
     || opts.verticalLabelPosition !== undefined
     || opts.verticalRangeMin
+    || verticalTicks
     || opts.verticalRangeMax
 
   if (!hasVertical) {
@@ -60,10 +67,15 @@ export function buildVerticalAxisOptions(opts: Partial<ChartTypeOptions>): Parti
     }
   }
 
+  if (verticalTicks) {
+    axis.ticks = verticalTicks
+  }
+
   return { verticalAxis: axis }
 }
 
 export function buildHorizontalAxisOptions(opts: Partial<ChartTypeOptions>): Partial<ChartOptions> {
+  const horizontalTicks = tickValues(opts.horizontalTickValues)
   const hasHorizontal = opts.showHorizontalTicks !== undefined
     || opts.horizontalGridStyle !== undefined
     || opts.horizontalNumberFormat !== undefined
@@ -72,6 +84,7 @@ export function buildHorizontalAxisOptions(opts: Partial<ChartTypeOptions>): Par
     || opts.horizontalLabelPosition !== undefined
     || opts.horizontalLabelRotation !== undefined
     || opts.horizontalRangeMin
+    || horizontalTicks
     || opts.horizontalRangeMax
 
   if (!hasHorizontal) {
@@ -112,6 +125,10 @@ export function buildHorizontalAxisOptions(opts: Partial<ChartTypeOptions>): Par
     if (hMax !== undefined) {
       axis.range.max = hMax
     }
+  }
+
+  if (horizontalTicks) {
+    axis.ticks = horizontalTicks
   }
 
   return { horizontalAxis: axis }

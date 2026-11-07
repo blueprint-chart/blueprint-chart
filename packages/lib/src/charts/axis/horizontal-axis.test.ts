@@ -20,6 +20,13 @@ describe('renderHorizontalAxis', () => {
     scale = d3.scaleBand<string>().domain(['A', 'B', 'C']).range([0, 300]).padding(0.1)
   })
 
+  it('drops custom ticks outside the scale domain', () => {
+    const linear = d3.scaleLinear().domain([0, 100]).range([0, 300])
+    const g = renderHorizontalAxis(chartArea, linear, 300, { ticks: [-10, 0, 50, 100, 150] })
+    const tickTexts = Array.from(g.querySelectorAll('.tick text')).map(t => t.textContent)
+    expect(tickTexts).toEqual(['0', '50', '100'])
+  })
+
   it('creates a horizontal axis group', () => {
     const g = renderHorizontalAxis(chartArea, scale, 300)
     expect(g.classList.contains('bc-axis-horizontal')).toBe(true)

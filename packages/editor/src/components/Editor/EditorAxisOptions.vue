@@ -138,6 +138,7 @@ const VERTICAL_KEYS = new Set([
   'verticalScaleType',
   'verticalRangeMin',
   'verticalRangeMax',
+  'verticalTickValues',
 ])
 
 const HORIZONTAL_KEYS = new Set([
@@ -149,6 +150,7 @@ const HORIZONTAL_KEYS = new Set([
   'horizontalScaleType',
   'horizontalRangeMin',
   'horizontalRangeMax',
+  'horizontalTickValues',
 ])
 
 const { currentOptions, optionDefs, availableOptionKeys, setOption: _setOption } = useChartTypeOptions()

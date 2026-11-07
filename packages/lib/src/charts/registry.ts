@@ -364,6 +364,7 @@ function axisOpts(defaults: {
           { key: 'verticalScaleType', type: ChartOptionType.Select as const, label: 'Vertical scale', default: ScaleType.Linear, choices: scaleChoices },
           { key: 'verticalRangeMin', type: ChartOptionType.Text as const, label: 'Vertical min', placeholder: 'auto' },
           { key: 'verticalRangeMax', type: ChartOptionType.Text as const, label: 'Vertical max', placeholder: 'auto' },
+          { key: 'verticalTickValues', type: ChartOptionType.Text as const, label: 'Vertical tick values', placeholder: '0, 50, 100' },
         ]
       : []),
     { key: 'showHorizontalAxis', type: ChartOptionType.Boolean, label: 'Show horizontal axis', default: defaults.showHorizontalAxis ?? true },
@@ -377,6 +378,7 @@ function axisOpts(defaults: {
           { key: 'horizontalScaleType', type: ChartOptionType.Select as const, label: 'Horizontal scale', default: ScaleType.Linear, choices: scaleChoices },
           { key: 'horizontalRangeMin', type: ChartOptionType.Text as const, label: 'Horizontal min', placeholder: 'auto' },
           { key: 'horizontalRangeMax', type: ChartOptionType.Text as const, label: 'Horizontal max', placeholder: 'auto' },
+          { key: 'horizontalTickValues', type: ChartOptionType.Text as const, label: 'Horizontal tick values', placeholder: '0, 50, 100' },
         ]
       : []),
     ...(defaults.horizontalRange

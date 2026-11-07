@@ -5,7 +5,7 @@ import type { AxisOptions } from '../types'
 import { AxisDirection, GridStyle, LabelPosition } from '../../enums'
 import { getDefaultTransitionMs } from '../motion'
 import { buildNumberFormatter } from '../format-helpers'
-import { logTickValues } from '../scale-helpers'
+import { logTickValues, ticksInDomain } from '../scale-helpers'
 
 interface AxisDatum {
   placeholder: true
@@ -54,7 +54,7 @@ export class VerticalAxisChart extends D3Blueprint<AxisDatum[]> {
           }
           const ticks = this.config('ticks') as number[] | null
           if (ticks) {
-            axisFn.tickValues(ticks as unknown as (string & d3.NumberValue)[])
+            axisFn.tickValues(ticksInDomain(scale, ticks) as unknown as (string & d3.NumberValue)[])
           }
           else if (availableHeight > 0) {
             const maxTicks = Math.max(2, Math.floor(availableHeight / MIN_LABEL_HEIGHT_SPACING))
@@ -155,7 +155,7 @@ export class VerticalAxisChart extends D3Blueprint<AxisDatum[]> {
 
           const ticks = this.config('ticks') as number[] | null
           if (ticks) {
-            axisFn.tickValues(ticks as unknown as (string & d3.NumberValue)[])
+            axisFn.tickValues(ticksInDomain(scale, ticks) as unknown as (string & d3.NumberValue)[])
           }
           else if (availableHeight > 0) {
             const maxTicks = Math.max(2, Math.floor(availableHeight / MIN_LABEL_HEIGHT_SPACING))

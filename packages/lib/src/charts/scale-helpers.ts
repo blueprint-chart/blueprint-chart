@@ -172,3 +172,13 @@ export function logTickValues(
   const step = Math.ceil(decades.length / Math.max(2, maxTicks))
   return step > 1 ? decades.filter((_, i) => i % step === 0) : decades
 }
+
+export function ticksInDomain<T>(scale: { domain: () => unknown[] }, ticks: T[]): T[] {
+  const domain = scale.domain().map(Number)
+  if (!domain.every(Number.isFinite)) {
+    return ticks
+  }
+  const lo = Math.min(...domain)
+  const hi = Math.max(...domain)
+  return ticks.filter(t => Number(t) >= lo && Number(t) <= hi)
+}

@@ -66,6 +66,12 @@ describe('renderVerticalAxis', () => {
     expect(tickTexts).toEqual(['Alpha', 'Beta'])
   })
 
+  it('drops custom ticks outside the scale domain', () => {
+    const g = renderVerticalAxis(chartArea, scale, 300, { ticks: [-10, 0, 50, 100, 150] })
+    const tickTexts = Array.from(g.querySelectorAll('.tick text')).map(t => t.textContent)
+    expect(tickTexts).toEqual(['0', '50', '100'])
+  })
+
   it('applies numberFormat to tick labels', () => {
     const g = renderVerticalAxis(chartArea, scale, 300, { numberFormat: ',.0f' })
     const tickTexts = Array.from(g.querySelectorAll('.tick text')).map(t => t.textContent)

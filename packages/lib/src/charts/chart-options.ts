@@ -13,9 +13,9 @@ const DERIVED_OPTION_KEYS = new Set<string>([
   'crosshairDirection', 'crosshairStyle', 'crosshairColor',
   'lineSymbols', 'lineSymbolShape', 'lineSymbolShowOn', 'lineSymbolStyle', 'lineSymbolSize', 'lineSymbolOpacity',
   'showVerticalTicks', 'showVerticalAxis', 'verticalAxisDirection', 'verticalGridStyle', 'verticalNumberFormat',
-  'verticalScaleType', 'verticalLabelPosition', 'verticalRangeMin', 'verticalRangeMax',
+  'verticalScaleType', 'verticalLabelPosition', 'verticalRangeMin', 'verticalRangeMax', 'verticalTickValues',
   'showHorizontalTicks', 'showHorizontalAxis', 'horizontalGridStyle', 'horizontalNumberFormat',
-  'horizontalScaleType', 'horizontalLabelPosition', 'horizontalLabelRotation', 'horizontalRangeMin', 'horizontalRangeMax',
+  'horizontalScaleType', 'horizontalLabelPosition', 'horizontalLabelRotation', 'horizontalRangeMin', 'horizontalRangeMax', 'horizontalTickValues',
   'sliceMax', 'barGap', 'valueLabelEvery', 'connectionsOpacity', 'areaFillOpacity',
 ])
 

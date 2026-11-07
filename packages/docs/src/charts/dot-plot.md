@@ -222,6 +222,7 @@ Every property `dot-plot` accepts, beside the [frame and layout keys](/reference
 | `horizontalScaleType` | select: `linear`, `log` | `linear` |
 | `horizontalRangeMin` | text | (unset) |
 | `horizontalRangeMax` | text | (unset) |
+| `horizontalTickValues` | text | (unset) |
 | `valueLabels` | boolean | `false` |
 | `dotLabels` | select: `both`, `start`, `end`, `difference`, `change` | `both` |
 | `tooltips` | boolean | `true` |

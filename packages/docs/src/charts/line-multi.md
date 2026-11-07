@@ -74,6 +74,7 @@ Every property `line-multi` accepts, beside the [frame and layout keys](/referen
 | `verticalScaleType` | select: `linear`, `log` | `linear` |
 | `verticalRangeMin` | text | (unset) |
 | `verticalRangeMax` | text | (unset) |
+| `verticalTickValues` | text | (unset) |
 | `showHorizontalAxis` | boolean | `true` |
 | `showHorizontalTicks` | boolean | `false` |
 | `horizontalLabelPosition` | select: `auto`, `inside`, `outside`, `off` | `auto` |

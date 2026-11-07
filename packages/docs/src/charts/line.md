@@ -70,6 +70,7 @@ Every property `line` accepts, beside the [frame and layout keys](/reference/dsl
 | `verticalScaleType` | select: `linear`, `log` | `linear` |
 | `verticalRangeMin` | text | (unset) |
 | `verticalRangeMax` | text | (unset) |
+| `verticalTickValues` | text | (unset) |
 | `showHorizontalAxis` | boolean | `true` |
 | `showHorizontalTicks` | boolean | `false` |
 | `horizontalLabelPosition` | select: `auto`, `inside`, `outside`, `off` | `auto` |

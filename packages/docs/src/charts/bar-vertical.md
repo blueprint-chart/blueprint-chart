@@ -84,6 +84,7 @@ Every property `bar-vertical` accepts, beside the [frame and layout keys](/refer
 | `verticalScaleType` | select: `linear`, `log` | `linear` |
 | `verticalRangeMin` | text | (unset) |
 | `verticalRangeMax` | text | (unset) |
+| `verticalTickValues` | text | (unset) |
 | `showHorizontalAxis` | boolean | `true` |
 | `showHorizontalTicks` | boolean | `false` |
 | `horizontalLabelPosition` | select: `auto`, `inside`, `outside`, `off` | `auto` |

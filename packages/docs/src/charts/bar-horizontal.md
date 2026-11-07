@@ -89,6 +89,7 @@ Every property `bar-horizontal` accepts, beside the [frame and layout keys](/ref
 | `horizontalScaleType` | select: `linear`, `log` | `linear` |
 | `horizontalRangeMin` | text | (unset) |
 | `horizontalRangeMax` | text | (unset) |
+| `horizontalTickValues` | text | (unset) |
 | `valueLabels` | boolean | `true` |
 | `valueLabelPosition` | select: `auto`, `outside`, `inside` | `auto` |
 | `tooltips` | boolean | `false` |

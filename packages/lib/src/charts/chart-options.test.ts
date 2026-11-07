@@ -58,6 +58,18 @@ describe('buildChartOptions option passthrough', () => {
     expect(buildChartOptions({ valueLabelPoints: 'last' }, undefined, 'line').valueLabelPoints).toBe('last')
   })
 
+  it('parses custom tick values into the axis ticks', () => {
+    const result = buildChartOptions(
+      { verticalTickValues: '0, 50, abc,100', horizontalTickValues: '1 2' },
+      undefined,
+      ChartType.Scatter,
+    )
+    expect(result.verticalAxis?.ticks).toEqual([0, 50, 100])
+    expect(result.horizontalAxis?.ticks).toEqual([1, 2])
+    expect((result as Record<string, unknown>).verticalTickValues).toBeUndefined()
+    expect(buildChartOptions({ verticalTickValues: ' ' }, undefined, ChartType.Line).verticalAxis).toBeUndefined()
+  })
+
   it('keeps working with no chart type', () => {
     expect(buildChartOptions({ legend: true }).legend).toBe(true)
   })

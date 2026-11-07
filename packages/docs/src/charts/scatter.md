@@ -179,6 +179,7 @@ Every property `scatter` accepts, beside the [frame and layout keys](/reference/
 | `verticalScaleType` | select: `linear`, `log`, `symlog` | `linear` |
 | `verticalRangeMin` | text | (unset) |
 | `verticalRangeMax` | text | (unset) |
+| `verticalTickValues` | text | (unset) |
 | `showHorizontalAxis` | boolean | `true` |
 | `showHorizontalTicks` | boolean | `false` |
 | `horizontalLabelPosition` | select: `auto`, `inside`, `outside`, `off` | `auto` |
@@ -188,6 +189,7 @@ Every property `scatter` accepts, beside the [frame and layout keys](/reference/
 | `horizontalScaleType` | select: `linear`, `log`, `symlog` | `linear` |
 | `horizontalRangeMin` | text | (unset) |
 | `horizontalRangeMax` | text | (unset) |
+| `horizontalTickValues` | text | (unset) |
 
 <!-- options:end -->
 
