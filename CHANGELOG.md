@@ -1,3 +1,18 @@
+## [2.13.0](https://github.com/blueprint-chart/blueprint-chart/compare/v2.12.0...v2.13.0) (2026-11-07)
+
+### Features
+
+* **editor:** add get the data link toggle to the text panel ([eb15f3f](https://github.com/blueprint-chart/blueprint-chart/commit/eb15f3ff6f81e94b32507d08e98546872e1e5253))
+* **editor:** add show total toggle to the stacking section ([d5b8674](https://github.com/blueprint-chart/blueprint-chart/commit/d5b86744bb757682e3a09987af8cbba60f4b33e3))
+* **editor:** make the copied iframe embed snippet resize itself ([dab09e0](https://github.com/blueprint-chart/blueprint-chart/commit/dab09e0e559d00ae3a6bc00f1d8569a453394417))
+* let authors write the chart alt text ([4b88b86](https://github.com/blueprint-chart/blueprint-chart/commit/4b88b864e3f6aceb3da9cedba05f1daa12181dab))
+* **lib:** add opt-in get the data footer link with csv download ([53fcf0b](https://github.com/blueprint-chart/blueprint-chart/commit/53fcf0bb9b66076a361497538eb3d5272e136d74))
+* **lib:** add showTotal labels above column-stacked columns ([ffa33c1](https://github.com/blueprint-chart/blueprint-chart/commit/ffa33c1ab4188f78065cc332be76a2311d8405f6))
+* **lib:** add value label point selection, format and color to line charts ([6ecd699](https://github.com/blueprint-chart/blueprint-chart/commit/6ecd699c7a9f832a92f453efc8496e963ed82242))
+* **lib:** add value-label number format to pie and donut ([1f8684e](https://github.com/blueprint-chart/blueprint-chart/commit/1f8684e0f9cc089b60208a04f1d30a4b9222ba75))
+* **lib:** apply vertical number format to bar-multi and column-stacked value labels ([4ce22a0](https://github.com/blueprint-chart/blueprint-chart/commit/4ce22a0b47dd823a49f5ef670e54653302c827f5))
+* **lib:** follow prefers-color-scheme when no theme is set ([de8ba48](https://github.com/blueprint-chart/blueprint-chart/commit/de8ba4854858be071af5df804f530b0713b0bf8f))
+
 ## [2.12.0](https://github.com/blueprint-chart/blueprint-chart/compare/v2.11.0...v2.12.0) (2026-11-07)
 
 ### Features
