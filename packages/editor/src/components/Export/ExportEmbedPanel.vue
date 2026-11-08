@@ -199,7 +199,7 @@ function toBase64(str: string): string {
 
 const RESIZE_SCRIPT = `<script>(function(f){addEventListener("message",function(e){var d=e.data;if(e.source===f.contentWindow&&d&&d.type==="${RESIZE_MESSAGE}")f.style.height=d.height+"px"})})(document.currentScript.previousElementSibling)</` + 'script>'
 
-const resizeScript = computed(() => (autoResize.value ? RESIZE_SCRIPT : ''))
+const resizeScript = computed(() => (autoResize.value ? `\n${RESIZE_SCRIPT}` : ''))
 
 const selfRenderUrl = computed(() => {
   const bpc64 = toBase64(dsl.value || generateDsl())

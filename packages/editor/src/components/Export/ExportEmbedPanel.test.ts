@@ -258,6 +258,13 @@ describe('ExportEmbedPanel — self-resizing snippet', () => {
     expect(iframe.style.height).toBe('321px')
   })
 
+  it('puts the resize script on its own line', async () => {
+    vi.spyOn(runtimeConfig, 'accountsEnabled').mockReturnValue(false)
+    const wrapper = await mountPanel()
+    await nextTick()
+    expect(wrapper.find('.copy-stub').attributes('data-text')).toContain('</iframe>\n<script>')
+  })
+
   it('drops the resize script when auto-resize is turned off', async () => {
     vi.spyOn(runtimeConfig, 'accountsEnabled').mockReturnValue(false)
     const wrapper = await mountPanel()
