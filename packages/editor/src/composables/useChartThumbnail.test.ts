@@ -34,9 +34,20 @@ describe('renderThumbnailSvg', () => {
     expect(themeAtRender(undefined, 'dark')).toBe('dark')
   })
 
-  it('bakes the frame background the labels were tuned against', () => {
+  it('paints the themed card surface before rendering the frameless chart', () => {
+    let surface = ''
     mockRenderChart.mockImplementationOnce((container: HTMLElement) => {
-      container.innerHTML = '<div class="bc-frame" style="background-color: rgb(1, 2, 3)"><svg></svg></div>'
+      surface = container.style.backgroundColor
+      container.innerHTML = '<svg></svg>'
+    })
+    renderThumbnailSvg(ChartType.BarVertical, DATA, {}, SortDirection.None, { theme: 'dark' })
+    expect(surface).toBe('var(--bs-card-bg)')
+  })
+
+  it('bakes the container background the labels were tuned against', () => {
+    mockRenderChart.mockImplementationOnce((container: HTMLElement) => {
+      container.style.backgroundColor = 'rgb(1, 2, 3)'
+      container.innerHTML = '<svg></svg>'
     })
     const svg = renderThumbnailSvg(ChartType.BarVertical, DATA, {}, SortDirection.None, { theme: 'dark' })
     expect(svg).toContain('background: rgb(1, 2, 3)')

@@ -112,6 +112,8 @@ export function renderThumbnailSvg(
   }
   return withOffscreen('__bc_thumb', THUMB_W, THUMB_H, THUMB_CSS, (container) => {
     container.setAttribute('data-bs-theme', (typeOpts.allowDarkMode ?? true) ? options.theme : 'light')
+    // Thumbnails render frameless, so no .bc-frame carries the themed surface.
+    container.style.backgroundColor = 'var(--bs-card-bg)'
     renderChart(container, {
       chartType,
       data,
@@ -121,7 +123,7 @@ export function renderThumbnailSvg(
       seriesOverrides: options.seriesOverrides,
     }, { thumbnail: true })
     // Baked in so the thumbnail keeps its own theme wherever the tile is shown.
-    container.querySelector('svg')?.style.setProperty('background', resolveBackgroundColor(container.querySelector('.bc-frame')))
+    container.querySelector('svg')?.style.setProperty('background', resolveBackgroundColor(container))
     return extractSvg(container)
   })
 }
