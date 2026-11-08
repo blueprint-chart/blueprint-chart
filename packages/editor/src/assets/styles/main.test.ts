@@ -130,6 +130,12 @@ describe('form focus', () => {
   })
 })
 
+describe('form check focus', () => {
+  it('separates the ring from the checked box with a body-colored gap', () => {
+    expect(css).toMatch(/\.form-check-input:focus\s*{[^}]*box-shadow:\s*var\(--bc-focus-ring\)/)
+  })
+})
+
 describe('dark primary tints', () => {
   it('derives Bootstrap primary subtle colors from the neutral ramp, not near-black', () => {
     const dark = css.match(/\[data-bs-theme=dark\]\s*{([^}]*--bs-primary-bg-subtle[^}]*)}/)?.[1] ?? ''

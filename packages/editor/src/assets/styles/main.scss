@@ -134,6 +134,10 @@ body {
   --bs-form-check-bg-image: #{escape-svg(url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'><circle r='2' fill='#{$body-bg}'/></svg>"))};
 }
 
+.form-check-input:focus {
+  box-shadow: var(--bc-focus-ring);
+}
+
 .form-switch .form-check-input:checked {
   --bs-form-switch-bg: #{escape-svg(url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'><circle r='3' fill='#{$body-bg}'/></svg>"))};
 }
