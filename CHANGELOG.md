@@ -1,3 +1,10 @@
+## [2.17.0](https://github.com/blueprint-chart/blueprint-chart/compare/v2.16.0...v2.17.0) (2026-11-08)
+
+### Features
+
+* **editor:** move the auto-resize toggle into each embed block with a description ([04b15b1](https://github.com/blueprint-chart/blueprint-chart/commit/04b15b150b7967c9048e0c8d65c280bfbe23837a))
+* **editor:** put the embed resize script on its own line ([012b324](https://github.com/blueprint-chart/blueprint-chart/commit/012b3249d6814e4134c0d70a6ab8dff05135d656))
+
 ## [2.16.0](https://github.com/blueprint-chart/blueprint-chart/compare/v2.15.0...v2.16.0) (2026-11-08)
 
 ### Features
