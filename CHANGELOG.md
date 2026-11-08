@@ -1,3 +1,14 @@
+## [2.16.0](https://github.com/blueprint-chart/blueprint-chart/compare/v2.15.0...v2.16.0) (2026-11-08)
+
+### Features
+
+* **editor:** make the embed auto-resize script optional ([06d12c5](https://github.com/blueprint-chart/blueprint-chart/commit/06d12c5c31492886d480d330227986de8e0cd55b))
+
+### Bug Fixes
+
+* **editor:** offset the form check focus ring from the checked box ([20677be](https://github.com/blueprint-chart/blueprint-chart/commit/20677be4e38f31b6bab2babb4a2ef39eff9f6586))
+* **editor:** paint the canvas surface behind frameless scene thumbnails ([e3ab408](https://github.com/blueprint-chart/blueprint-chart/commit/e3ab408d5f86c18f0f962e3ca3131f6ce1e2029d))
+
 ## [2.15.0](https://github.com/blueprint-chart/blueprint-chart/compare/v2.14.0...v2.15.0) (2026-11-07)
 
 ### Features
