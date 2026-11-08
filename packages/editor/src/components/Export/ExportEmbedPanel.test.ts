@@ -257,4 +257,16 @@ describe('ExportEmbedPanel — self-resizing snippet', () => {
     window.dispatchEvent(new MessageEvent('message', { data: { type: 'blueprint-chart-resize', height: 321 }, source: iframe.contentWindow }))
     expect(iframe.style.height).toBe('321px')
   })
+
+  it('drops the resize script when auto-resize is turned off', async () => {
+    vi.spyOn(runtimeConfig, 'accountsEnabled').mockReturnValue(false)
+    const wrapper = await mountPanel()
+    await nextTick()
+    expect(wrapper.find('.copy-stub').attributes('data-text')).toContain('<script>')
+
+    await wrapper.find('.export-embed-panel__auto-resize input').setValue(false)
+    const snippet = wrapper.find('.copy-stub').attributes('data-text')!
+    expect(snippet).not.toContain('<script>')
+    expect(snippet).toMatch(/<\/iframe>$/)
+  })
 })

@@ -1,5 +1,12 @@
 <template>
   <div class="export-embed-panel">
+    <BFormCheckbox
+      v-model="autoResize"
+      class="export-embed-panel__auto-resize"
+      switch
+    >
+      Auto-resize height
+    </BFormCheckbox>
     <!-- Live link leads once the chart can use it -->
     <template v-if="state === 'published'">
       <ExportEmbedBlock
@@ -127,6 +134,7 @@ const { saving, saveToCloud } = useCloudSave()
 const cloudBacked = ref(false)
 const published = ref(false)
 const publishing = ref(false)
+const autoResize = shallowRef(true)
 
 const state = computed<'no-cloud' | 'signed-out' | 'not-saved' | 'not-published' | 'published'>(() => {
   // No cloud configured: there is nothing to sign into, so skip the hint entirely.
@@ -194,17 +202,19 @@ function toBase64(str: string): string {
 
 const RESIZE_SCRIPT = `<script>(function(f){addEventListener("message",function(e){var d=e.data;if(e.source===f.contentWindow&&d&&d.type==="${RESIZE_MESSAGE}")f.style.height=d.height+"px"})})(document.currentScript.previousElementSibling)</` + 'script>'
 
+const resizeScript = computed(() => (autoResize.value ? RESIZE_SCRIPT : ''))
+
 const selfRenderUrl = computed(() => {
   const bpc64 = toBase64(dsl.value || generateDsl())
   return `${baseUrl.value}#/render?bpc64=${encodeURIComponent(bpc64)}`
 })
 const selfSnippet = computed(() =>
-  `<iframe src="${selfRenderUrl.value}" ${sizeAttrs.value} frameborder="0"></iframe>${RESIZE_SCRIPT}`,
+  `<iframe src="${selfRenderUrl.value}" ${sizeAttrs.value} frameborder="0"></iframe>${resizeScript.value}`,
 )
 
 const liveRenderUrl = computed(() => `${baseUrl.value}#/render?id=${sessionId.value}`)
 const liveSnippet = computed(() =>
-  `<iframe src="${liveRenderUrl.value}" ${sizeAttrs.value} frameborder="0"></iframe>${RESIZE_SCRIPT}`,
+  `<iframe src="${liveRenderUrl.value}" ${sizeAttrs.value} frameborder="0"></iframe>${resizeScript.value}`,
 )
 
 async function onTogglePublish() {
