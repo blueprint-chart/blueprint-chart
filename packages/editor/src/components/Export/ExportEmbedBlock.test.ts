@@ -17,6 +17,7 @@ function mountBlock(props = {}) {
       snippet: '<iframe src="https://x/#/render?id=abc"></iframe>',
       permalink: 'https://x/#/render?id=abc',
       copyEmbedLabel: 'Copy live embed',
+      autoResize: true,
       ...props,
     },
   })
@@ -56,6 +57,7 @@ describe('ExportEmbedBlock', () => {
         snippet: '<iframe />',
         permalink: 'p',
         copyEmbedLabel: 'Copy',
+        autoResize: true,
       },
       slots: { 'header-action': '<button class="unpub">Unpublish</button>' },
     })

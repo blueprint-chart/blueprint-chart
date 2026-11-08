@@ -1,15 +1,9 @@
 <template>
   <div class="export-embed-panel">
-    <BFormCheckbox
-      v-model="autoResize"
-      class="export-embed-panel__auto-resize"
-      switch
-    >
-      Auto-resize height
-    </BFormCheckbox>
     <!-- Live link leads once the chart can use it -->
     <template v-if="state === 'published'">
       <ExportEmbedBlock
+        v-model:auto-resize="autoResize"
         label="Live link"
         recommended
         emphasis="primary"
@@ -31,6 +25,7 @@
       </ExportEmbedBlock>
       <hr>
       <ExportEmbedBlock
+        v-model:auto-resize="autoResize"
         label="Or use a self-contained copy"
         :note="SELF_NOTE_SECONDARY"
         :snippet="selfSnippet"
@@ -59,6 +54,7 @@
       </div>
       <hr>
       <ExportEmbedBlock
+        v-model:auto-resize="autoResize"
         label="Or use a self-contained copy"
         :note="SELF_NOTE_SECONDARY"
         :snippet="selfSnippet"
@@ -70,6 +66,7 @@
     <!-- Self-contained leads when the live link is unavailable -->
     <template v-else>
       <ExportEmbedBlock
+        v-model:auto-resize="autoResize"
         label="Embed code"
         emphasis="primary"
         :note="SELF_NOTE_LEAD"

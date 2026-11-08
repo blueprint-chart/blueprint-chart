@@ -39,12 +39,38 @@
         Open in new tab
       </a>
     </div>
+    <div class="export-embed-block__auto-resize">
+      <div class="export-embed-block__auto-resize__text">
+        <label
+          :for="autoResizeId"
+          class="form-label export-embed-block__auto-resize__text__title"
+        >Auto-resize height</label>
+        <p
+          :id="autoResizeNoteId"
+          class="export-embed-block__auto-resize__text__note"
+        >
+          Adds a small script so the frame grows to fit the chart. Turn it off if your site strips scripts.
+        </p>
+      </div>
+      <BFormCheckbox
+        :id="autoResizeId"
+        v-model="autoResize"
+        :aria-describedby="autoResizeNoteId"
+        class="export-embed-block__auto-resize__switch"
+        switch
+      />
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { useId } from 'vue'
 import { ActionCopyButton, AppIcon } from '@blueprint-chart/ui'
 import IPhArrowSquareOut from '~icons/ph/arrow-square-out'
+
+const autoResize = defineModel<boolean>('autoResize', { required: true })
+const autoResizeId = useId()
+const autoResizeNoteId = useId()
 
 withDefaults(defineProps<{
   label: string
@@ -121,6 +147,37 @@ withDefaults(defineProps<{
 
     > * {
       flex: 1;
+    }
+  }
+
+  &__auto-resize {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-top: 0.25rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--bs-border-color);
+
+    &__text {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.375rem;
+
+      &__title {
+        margin: 0;
+      }
+
+      &__note {
+        margin: 0;
+        font-size: var(--bs-font-size-sm);
+        color: var(--bs-secondary-color);
+        line-height: 1.5;
+      }
+    }
+
+    &__switch {
+      margin: 0;
     }
   }
 

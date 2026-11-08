@@ -264,7 +264,7 @@ describe('ExportEmbedPanel — self-resizing snippet', () => {
     await nextTick()
     expect(wrapper.find('.copy-stub').attributes('data-text')).toContain('<script>')
 
-    await wrapper.find('.export-embed-panel__auto-resize input').setValue(false)
+    await wrapper.find('.export-embed-block__auto-resize input').setValue(false)
     const snippet = wrapper.find('.copy-stub').attributes('data-text')!
     expect(snippet).not.toContain('<script>')
     expect(snippet).toMatch(/<\/iframe>$/)
