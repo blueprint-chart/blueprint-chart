@@ -779,3 +779,22 @@ describe('dot plot validation', () => {
     expect(r.warnings).toContainEqual(expect.objectContaining({ code: 'dropped-rows', path: 'scene[0].data' }))
   })
 })
+
+describe('scene playback keys', () => {
+  it('accepts autoplay, sceneDuration and loop on the chart', () => {
+    const result = validateChart(chart({ properties: [prop('autoplay', 'true'), prop('sceneDuration', 5), prop('loop', 'true')] }))
+    expect(result.errors).toEqual([])
+  })
+  it.each([0, 10.5, 'fast'])('flags sceneDuration %s', (value) => {
+    const result = validateChart(chart({ properties: [prop('sceneDuration', value)] }))
+    const issue = result.errors.find(e => e.code === 'invalid-number')
+    expect(issue?.path).toBe('chart.sceneDuration')
+    expect(issue?.message).toBe(`sceneDuration must be a number of seconds from 1 to 10; got "${value}".`)
+  })
+  it.each(['autoplay', 'sceneDuration', 'loop'])('flags %s inside a scene', (key) => {
+    const result = validateChart(chart({ scenes: [scene({ properties: [prop(key, key === 'sceneDuration' ? 5 : 'true')] })] }))
+    const issue = result.errors.find(e => e.code === 'chart-level-only')
+    expect(issue?.path).toBe(`scene[0].${key}`)
+    expect(issue?.message).toBe(`${key} applies to the whole chart, so it has no effect inside a scene.`)
+  })
+})

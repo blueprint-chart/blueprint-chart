@@ -9,6 +9,7 @@ import { parseData } from '../charts/parse-data'
 import { scatterIssues } from '../charts/types/scatter/issues'
 import { dotPlotIssues } from '../charts/types/dot-plot/issues'
 import { TRANSFORM_TYPES } from '../transforms'
+import { SCENE_DURATION_MIN, SCENE_DURATION_MAX } from '../runtime/playback'
 
 /**
  * A single validation finding. `code` is a stable machine-readable identifier,
@@ -38,7 +39,8 @@ export interface ValidationResult {
  *   - chart-level render fields (ast-to-definition): type, sort, sortMode, theme
  *   - layout-constraints: heightMode, aspectRatio, fixedHeight
  *   - editor layout/player fields (written by useDslOutput, read back by
- *     useDslSync): sizing, fixedWidth, maxWidth, player, playerPosition
+ *     useDslSync): sizing, fixedWidth, maxWidth, player, playerPosition, autoplay,
+ *     sceneDuration, loop
  */
 const FRAME_KEYS = new Set<string>([
   'title',
@@ -63,7 +65,12 @@ const FRAME_KEYS = new Set<string>([
   'maxWidth',
   'player',
   'playerPosition',
+  'autoplay',
+  'sceneDuration',
+  'loop',
 ])
+
+const CHART_ONLY_KEYS = new Set<string>(['autoplay', 'sceneDuration', 'loop'])
 
 /**
  * Frame keys that only accept a fixed set of values. Theme names come from the
@@ -212,6 +219,23 @@ function validateNonNegative(prop: PropertyNode, path: string, errors: Validatio
   }
 }
 
+function validateSceneDuration(prop: PropertyNode, path: string, errors: ValidationIssue[]): void {
+  if (prop.key !== 'sceneDuration') {
+    return
+  }
+  const value = prop.value
+  const isNumber = typeof value === 'number'
+  const inRange = isNumber && value >= SCENE_DURATION_MIN && value <= SCENE_DURATION_MAX
+  if (inRange) {
+    return
+  }
+  errors.push({
+    code: 'invalid-number',
+    path,
+    message: `sceneDuration must be a number of seconds from ${SCENE_DURATION_MIN} to ${SCENE_DURATION_MAX}; got "${value}".`,
+  })
+}
+
 /**
  * Validate a single property against a chart-type option def: boolean values
  * and choice membership. Pushes onto `errors`.
@@ -273,6 +297,7 @@ function validateProperties(
   for (const prop of properties) {
     const path = `${basePath}.${prop.key}`
     validateNonNegative(prop, path, errors)
+    validateSceneDuration(prop, path, errors)
     const frameChoices = FRAME_CHOICES.get(prop.key)
     // An empty value means "unset" here too: the frame drops an empty theme and
     // the editor ignores an empty player, exactly as if the key were absent.
@@ -616,6 +641,16 @@ function validateScene(
   const basePath = `scene[${index}]`
   const typeOverride = scene.properties.find(p => p.key === 'type')?.value
   const effectiveType = typeOverride != null ? String(typeOverride) : chartType
+
+  for (const prop of scene.properties) {
+    if (CHART_ONLY_KEYS.has(prop.key)) {
+      errors.push({
+        code: 'chart-level-only',
+        path: `${basePath}.${prop.key}`,
+        message: `${prop.key} applies to the whole chart, so it has no effect inside a scene.`,
+      })
+    }
+  }
 
   // A scene type override that names an unknown chart type is itself an error.
   if (typeOverride != null && !listCharts().includes(effectiveType)) {
