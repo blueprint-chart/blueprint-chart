@@ -65,7 +65,7 @@ chart bar-horizontal {
 This is `packages/lib/src/samples/co2-emissions-story.bpc` verbatim. The first three scenes keep the same base data and only shift the title and highlight; the fourth swaps in per-capita data for a closing reframe.
 :::
 
-Open this in the editor to see the scene timeline appear automatically; embed it on a page and readers get a Previous / Next nav.
+Open this in the editor to see the scene timeline appear automatically; embed it on a page and readers get the same scene player in the chart footer.
 
 ## How it works
 
@@ -74,9 +74,9 @@ A scene block accepts the same member set as the top-level chart. At parse time,
 At render time:
 
 1. The runtime collects the chart's scenes into a `SceneDefinition[]`.
-2. `createSceneController(container, scenes, onSceneChange)` injects a small `<nav>` (Previous / Next / counter) into the container.
+2. The embed mounts the scene player chosen with `player` (`buttons` by default) in the chart footer, as the editor does.
 3. On every scene change, the callback re-renders the chart with `transition = true`, which triggers the motion helpers (`snapshotForFadeOut`, `commitFadeOut`, `fadeIn`) and animates the crossfade.
-4. `goTo(index)` clamps and wraps so `goTo(-1)` cycles to the last scene.
+4. Previous is disabled on the first scene and Next on the last; Play steps through every scene once, then stops.
 
 The pipeline that runs per scene is the same eleven-step sequence documented in [Embedding](/guide/embed) and the DSL spec — scene overrides are merged at step 3 (transforms), so everything downstream sees the post-scene state.
 
