@@ -8,14 +8,18 @@
  * `commitFadeOut` / `fadeIn`. This file can be deleted once those move too.
  */
 
+export function prefersReducedMotion(): boolean {
+  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
+    return false
+  }
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches
+}
+
 /**
  * Returns 0 when the user prefers reduced motion, otherwise returns the input duration.
  */
 export function getTransitionDuration(ms: number): number {
-  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
-    return ms
-  }
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : ms
+  return prefersReducedMotion() ? 0 : ms
 }
 
 export const DEFAULT_TRANSITION_MS = 500

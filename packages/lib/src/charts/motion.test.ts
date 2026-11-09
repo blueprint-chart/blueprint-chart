@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest'
-import { getTransitionDuration, getDefaultTransitionMs, setRenderTransition, DEFAULT_TRANSITION_MS, fadeIn, snapshotForFadeOut, commitFadeOut } from './motion'
+import { prefersReducedMotion, getTransitionDuration, getDefaultTransitionMs, setRenderTransition, DEFAULT_TRANSITION_MS, fadeIn, snapshotForFadeOut, commitFadeOut } from './motion'
 
 describe('getTransitionDuration', () => {
   afterEach(() => {
@@ -285,5 +285,23 @@ describe('commitFadeOut', () => {
 
     // JSDOM has no animate, so overlay is removed immediately
     expect(container.contains(overlay)).toBe(false)
+  })
+})
+
+describe('prefersReducedMotion', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  it('returns true when the media query matches', () => {
+    vi.stubGlobal('window', {
+      matchMedia: vi.fn().mockReturnValue({ matches: true }),
+    })
+    expect(prefersReducedMotion()).toBe(true)
+  })
+
+  it('returns false when matchMedia is undefined', () => {
+    vi.stubGlobal('window', {})
+    expect(prefersReducedMotion()).toBe(false)
   })
 })
