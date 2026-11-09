@@ -580,3 +580,71 @@ describe('a chart deleted while another tab still holds it', () => {
     expect(session.deletedElsewhere.value).toBe(false)
   })
 })
+
+describe('autosave during scene playback', () => {
+  const loopSettings = { autoplay: false, sceneDuration: 1, loop: true }
+
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    localStorage.clear()
+    vi.useFakeTimers()
+    useChartConfig().reset()
+    useDataTable().reset()
+    useDataTransforms().reset()
+    useChartTypeOptions().reset()
+    useScenes().reset()
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
+  async function startLoopingScenes() {
+    const session = useChartSession()
+    session.createSession()
+    const scenes = useScenes()
+    scenes.add()
+    scenes.add()
+    scenes.update(0, { properties: { title: 'Scene one' } })
+    scenes.update(1, { properties: { title: 'Scene two' } })
+    await nextTick()
+    const savedBefore = session.lastSavedAt.value
+    scenes.startPlayback(() => loopSettings)
+    return { session, scenes, savedBefore }
+  }
+
+  it('does not save while scenes play, even when looping', async () => {
+    const { session, savedBefore } = await startLoopingScenes()
+
+    for (let step = 0; step < 6; step++) {
+      vi.advanceTimersByTime(1000)
+      await nextTick()
+    }
+
+    expect(session.lastSavedAt.value).toBe(savedBefore)
+  })
+
+  it('saves an edit made while scenes play', async () => {
+    const { session, savedBefore } = await startLoopingScenes()
+    vi.advanceTimersByTime(1000)
+    await nextTick()
+
+    useChartConfig().layout.value.sceneDuration = 7
+    await nextTick()
+
+    expect(session.lastSavedAt.value).not.toBe(savedBefore)
+    expect(localStorage.getItem(storageKey(session.sessionId.value))).toContain('sceneDuration = 7')
+  })
+
+  it('saves an edit made once playback stops', async () => {
+    const { session, scenes, savedBefore } = await startLoopingScenes()
+    vi.advanceTimersByTime(1000)
+    await nextTick()
+    scenes.stopPlayback()
+
+    useChartConfig().title.value = 'Edited after playback'
+    await nextTick()
+
+    expect(session.lastSavedAt.value).not.toBe(savedBefore)
+  })
+})

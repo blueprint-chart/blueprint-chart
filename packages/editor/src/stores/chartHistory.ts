@@ -1,6 +1,7 @@
 import { useChartConfig, type ChartConfig, layoutDefaults } from '@/stores/chartConfig'
 import { useChartTypeOptions, type ChartTypeOptions } from '@/stores/chartTypeOptions'
 import { useChartSession } from '@/stores/chartSession'
+import { useScenes } from '@/stores/scenes'
 
 export interface StateSnapshot {
   config: ChartConfig
@@ -82,6 +83,7 @@ export const useChartHistoryStore = defineStore('chartHistory', () => {
     const chartConfig = useChartConfig()
     const { store, hydrate: hydrateOptions } = useChartTypeOptions()
     const { sessionId } = useChartSession()
+    const { playing } = useScenes()
 
     function currentSnap(): string {
       return takeSnapshot({
@@ -145,6 +147,11 @@ export const useChartHistoryStore = defineStore('chartHistory', () => {
           ],
           () => {
             if (isRestoring || !activeSessionId) {
+              return
+            }
+            // A playback frame is not an edit, but the next edit must undo to the frame on screen.
+            if (playing.value) {
+              getHistory(activeSessionId).currentState = currentSnap()
               return
             }
             pushState(currentSnap())

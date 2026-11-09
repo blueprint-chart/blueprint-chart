@@ -1,3 +1,8 @@
+import { useChartHistory } from '@/stores/chartHistory'
+import { useChartConfig } from '@/stores/chartConfig'
+import { useChartSession } from '@/stores/chartSession'
+import { useScenes } from '@/stores/scenes'
+
 // useChartHistory is tightly coupled to provide/inject (useChartConfig,
 // useChartTypeOptions, useChartSession).  Instead of testing the composable
 // directly we test the pure helper logic that drives it: pushState, undo,
@@ -147,5 +152,60 @@ describe('chart history undo/redo logic', () => {
     expect(h.undoStack).toHaveLength(MAX_HISTORY)
     // Oldest entries should have been shifted off
     expect(h.undoStack[0]).toBe('state-10')
+  })
+})
+
+describe('chart history during scene playback', () => {
+  const loopSettings = { autoplay: false, sceneDuration: 1, loop: true }
+
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    localStorage.clear()
+    vi.useFakeTimers()
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
+  async function startLoopingScenes() {
+    useChartSession().newChart()
+    const history = useChartHistory()
+    const scenes = useScenes()
+    scenes.add()
+    scenes.add()
+    scenes.update(0, { properties: { title: 'Scene one' } })
+    scenes.update(1, { properties: { title: 'Scene two' } })
+    await nextTick()
+    scenes.startPlayback(() => loopSettings)
+    return { history, scenes }
+  }
+
+  it('records no step while scenes play, even when looping', async () => {
+    const { history } = await startLoopingScenes()
+
+    for (let step = 0; step < 6; step++) {
+      vi.advanceTimersByTime(1000)
+      await nextTick()
+    }
+
+    expect(history.canUndo.value).toBe(false)
+  })
+
+  it('records an edit made once playback stops as a single step', async () => {
+    const { history, scenes } = await startLoopingScenes()
+    vi.advanceTimersByTime(1000)
+    await nextTick()
+    scenes.stopPlayback()
+    await nextTick()
+
+    const config = useChartConfig()
+    config.title.value = 'Edited after playback'
+    await nextTick()
+    expect(history.canUndo.value).toBe(true)
+
+    history.undo()
+    await nextTick()
+    expect(history.canUndo.value).toBe(false)
   })
 })
