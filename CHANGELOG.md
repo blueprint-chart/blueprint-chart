@@ -1,3 +1,23 @@
+## [2.18.0](https://github.com/blueprint-chart/blueprint-chart/compare/v2.17.1...v2.18.0) (2026-11-09)
+
+### Features
+
+* **lib:** add plain-DOM scene players matching the editor ([e40aee0](https://github.com/blueprint-chart/blueprint-chart/commit/e40aee0aae454ff4cd8c7c6a0ab8adb94070f208))
+* **lib:** add scene playback to the embedded player ([b29868a](https://github.com/blueprint-chart/blueprint-chart/commit/b29868a6ae0601d435288974c10fb533b9c6280b))
+* **lib:** add shared scene player stylesheet ([c1eae56](https://github.com/blueprint-chart/blueprint-chart/commit/c1eae5658b53f2f7784cbc68152c9b86380b6e6d))
+* **lib:** render the editor scene player in embedded charts ([d027c65](https://github.com/blueprint-chart/blueprint-chart/commit/d027c65af685b90d89ba8402d2943f0ab9ad900f))
+
+### Bug Fixes
+
+* **build:** keep auto-imports out of the built lib ([fc806c1](https://github.com/blueprint-chart/blueprint-chart/commit/fc806c1557e7ae7d57e2ae41781b4cf532ed65f6))
+* **lib:** dispatch player actions on data attributes and keep focus in the player ([bf74239](https://github.com/blueprint-chart/blueprint-chart/commit/bf74239bdb5d8245d1ab65b1302c88f4e05e33f7))
+* **lib:** keep focus on the player when a scene re-renders the frame ([1220422](https://github.com/blueprint-chart/blueprint-chart/commit/12204225abb6e665c31fa2c1f0a053da6b1b9474))
+* **lib:** keep the light player inside a light preview on a dark page ([3ba4821](https://github.com/blueprint-chart/blueprint-chart/commit/3ba4821faefe33d7c95132e099d078cf256264eb))
+* **lib:** leave room for the player in constrained embedded charts ([d5a7d51](https://github.com/blueprint-chart/blueprint-chart/commit/d5a7d511108e7a25fadb98549ef11e22c9941404))
+* **lib:** report errors from the embed's constrained re-render ([4da7fc6](https://github.com/blueprint-chart/blueprint-chart/commit/4da7fc634b69a95993c8af9ee211abf27a0e4a8e))
+* **ui:** share scene player styles with lib and fix dark mode ([2c28c5f](https://github.com/blueprint-chart/blueprint-chart/commit/2c28c5f94f294fbd2d75554d33102972779357e2))
+* **ui:** ship scene player styles in the built stylesheet ([eb529b2](https://github.com/blueprint-chart/blueprint-chart/commit/eb529b25505cfcebf598d930ff7042db503aeae6))
+
 ## [2.17.1](https://github.com/blueprint-chart/blueprint-chart/compare/v2.17.0...v2.17.1) (2026-11-09)
 
 ### Bug Fixes
