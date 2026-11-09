@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { initBlueprint, teardownBlueprint, buildSrcdoc } from './runtime'
+import { PLAYER_CSS } from './player-css'
 
 describe('initBlueprint', () => {
   beforeEach(() => {
@@ -87,23 +88,37 @@ describe('initBlueprint', () => {
     expect(srcdoc).toContain('blueprint-chart-container')
   })
 
-  it('wires a scene controller over the base chart and every scene', () => {
-    const srcdoc = buildSrcdoc(
-      'chart bar { data { "A" = 10 } scene "One" { title = "1" } scene "Two" { title = "2" } }',
-      'https://example.com/blueprint-runtime.js',
-    )
+  describe('scene player', () => {
+    const SRC = 'chart bar { data { "A" = 10 } scene "One" { title = "1" } scene "Two" { title = "2" } }'
+    const RUNTIME = 'https://example.com/blueprint-runtime.js'
+    const withProps = (props: string) => SRC.replace('data', `${props} data`)
 
-    expect(srcdoc).toContain('BlueprintChart.createSceneController')
-    expect(srcdoc).toContain('var __BPC_SCENES__ = 2;')
-  })
+    it('inlines the player stylesheet', () => {
+      expect(buildSrcdoc(SRC, RUNTIME)).toContain(`<style>${PLAYER_CSS}</style>`)
+    })
 
-  it('skips the scene controller when the chart has no scenes', () => {
-    const srcdoc = buildSrcdoc(
-      'chart bar { data { "A" = 10 } }',
-      'https://example.com/blueprint-runtime.js',
-    )
+    it('mounts the default player over the base chart and every scene', () => {
+      const srcdoc = buildSrcdoc(SRC, RUNTIME)
+      expect(srcdoc).toContain('BlueprintChart.mountScenePlayer')
+      expect(srcdoc).toContain('var __BPC_PLAYER__ = {"type":"buttons","position":"left","total":3};')
+      expect(srcdoc).not.toContain('createSceneController')
+    })
 
-    expect(srcdoc).toContain('var __BPC_SCENES__ = 0;')
+    it('passes the chosen player and position', () => {
+      expect(buildSrcdoc(withProps('player = "dot-stepper" playerPosition = "right"'), RUNTIME))
+        .toContain('var __BPC_PLAYER__ = {"type":"dot-stepper","position":"right","total":3};')
+    })
+
+    it.each(['player = "carousel"', 'player = ""'])('falls back to buttons for %s', (props) => {
+      expect(buildSrcdoc(withProps(props), RUNTIME)).toContain('"type":"buttons","position":"left"')
+    })
+
+    it.each([
+      ['no scenes', 'chart bar { data { "A" = 10 } }'],
+      ['player none', withProps('player = "none"')],
+    ])('mounts no player with %s', (_label, dsl) => {
+      expect(buildSrcdoc(dsl, RUNTIME)).toContain('var __BPC_PLAYER__ = null;')
+    })
   })
 
   it('inlines the DSL as a JS string with < escaped so it cannot break out', () => {

@@ -2,6 +2,8 @@ import { darkSchemeQuery } from '../charts/themes'
 import { parse } from '../dsl/parser'
 import { CHART_CSS } from './chart-css'
 import { ERROR_MESSAGE, RESIZE_MESSAGE, isErrorMessage, readResizeHeight } from './messages'
+import { PLAYER_CSS } from './player-css'
+import type { PlayerConfig, PlayerPosition, PlayerType } from './player'
 
 // URL of the currently-executing runtime bundle, captured at module eval time
 // (valid while the IIFE runs synchronously on the host page). Each generated
@@ -122,13 +124,31 @@ function processScript(script: HTMLScriptElement): void {
  */
 export type EmbedTheme = 'light' | 'dark'
 
-function countScenes(dsl: string): number {
+const PLAYER_TYPES: readonly PlayerType[] = ['buttons', 'progress-bar', 'dot-stepper', 'minimal-arrows']
+const PLAYER_POSITIONS: readonly PlayerPosition[] = ['left', 'center', 'right']
+
+function pickChoice<T extends string>(value: unknown, choices: readonly T[], fallback: T): T {
+  const match = choices.find(choice => choice === value)
+  return match ?? fallback
+}
+
+function readPlayerConfig(dsl: string): PlayerConfig | null {
+  let ast
   try {
-    return parse(dsl).scenes.length
+    ast = parse(dsl)
   }
   catch {
-    return 0
+    // An unparsable chart renders its own error message; no player then.
+    return null
   }
+  const properties = new Map(ast.properties.map(property => [property.key, property.value]))
+  const player = properties.get('player')
+  if (!ast.scenes.length || player === 'none') {
+    return null
+  }
+  const type = pickChoice(player, PLAYER_TYPES, 'buttons')
+  const position = pickChoice(properties.get('playerPosition'), PLAYER_POSITIONS, 'left')
+  return { type, position, total: ast.scenes.length + 1 }
 }
 
 export function buildSrcdoc(dsl: string, runtimeUrl: string, theme?: EmbedTheme): string {
@@ -146,9 +166,9 @@ export function buildSrcdoc(dsl: string, runtimeUrl: string, theme?: EmbedTheme)
         'try {',
         '  var chart = document.getElementById("chart");',
         '  window.BlueprintChart.renderBpc(chart, __BPC_SRC__);',
-        '  if (__BPC_SCENES__) {',
-        '    window.BlueprintChart.createSceneController(document.body, new Array(__BPC_SCENES__ + 1).fill({ name: "" }), function (_scene, i) {',
-        '      window.BlueprintChart.renderBpc(chart, __BPC_SRC__, { sceneIndex: i ? i - 1 : undefined, transition: true });',
+        '  if (__BPC_PLAYER__) {',
+        '    window.BlueprintChart.mountScenePlayer(chart, __BPC_PLAYER__, function (step) {',
+        '      window.BlueprintChart.renderBpc(chart, __BPC_SRC__, { sceneIndex: step > 1 ? step - 2 : undefined, transition: true });',
         '    });',
         '  }',
         '}',
@@ -164,12 +184,14 @@ export function buildSrcdoc(dsl: string, runtimeUrl: string, theme?: EmbedTheme)
     '<!DOCTYPE html>',
     `${htmlOpenTag}<head>`,
     `<style>${CHART_CSS}</style>`,
+    `<style>${PLAYER_CSS}</style>`,
     '</head><body>',
     '<div id="chart" class="blueprint-chart-container"></div>',
     runtimeScriptTag,
     '<script>',
     `var __BPC_SRC__ = ${serializeForScript(dsl)};`,
-    `var __BPC_SCENES__ = ${countScenes(dsl)};`,
+    // Safe unescaped: only enum values and a number.
+    `var __BPC_PLAYER__ = ${JSON.stringify(readPlayerConfig(dsl))};`,
     'function notifySize() {',
     '  var h = document.documentElement.scrollHeight;',
     `  parent.postMessage({ type: "${RESIZE_MESSAGE}", height: h }, "*");`,
