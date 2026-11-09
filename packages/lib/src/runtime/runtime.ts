@@ -1,4 +1,5 @@
 import { darkSchemeQuery } from '../charts/themes'
+import { parse } from '../dsl/parser'
 import { CHART_CSS } from './chart-css'
 import { ERROR_MESSAGE, RESIZE_MESSAGE, isErrorMessage, readResizeHeight } from './messages'
 
@@ -121,6 +122,15 @@ function processScript(script: HTMLScriptElement): void {
  */
 export type EmbedTheme = 'light' | 'dark'
 
+function countScenes(dsl: string): number {
+  try {
+    return parse(dsl).scenes.length
+  }
+  catch {
+    return 0
+  }
+}
+
 export function buildSrcdoc(dsl: string, runtimeUrl: string, theme?: EmbedTheme): string {
   const runtimeScriptTag = runtimeUrl
     ? `<script src="${escapeAttr(runtimeUrl)}"></script>`
@@ -134,7 +144,13 @@ export function buildSrcdoc(dsl: string, runtimeUrl: string, theme?: EmbedTheme)
   const bootstrap = runtimeUrl
     ? [
         'try {',
-        '  window.BlueprintChart.renderBpc(document.getElementById("chart"), __BPC_SRC__);',
+        '  var chart = document.getElementById("chart");',
+        '  window.BlueprintChart.renderBpc(chart, __BPC_SRC__);',
+        '  if (__BPC_SCENES__) {',
+        '    window.BlueprintChart.createSceneController(document.body, new Array(__BPC_SCENES__ + 1).fill({ name: "" }), function (_scene, i) {',
+        '      window.BlueprintChart.renderBpc(chart, __BPC_SRC__, { sceneIndex: i ? i - 1 : undefined, transition: true });',
+        '    });',
+        '  }',
         '}',
         'catch (e) {',
         `  parent.postMessage({ type: "${ERROR_MESSAGE}", message: String(e) }, "*");`,
@@ -153,6 +169,7 @@ export function buildSrcdoc(dsl: string, runtimeUrl: string, theme?: EmbedTheme)
     runtimeScriptTag,
     '<script>',
     `var __BPC_SRC__ = ${serializeForScript(dsl)};`,
+    `var __BPC_SCENES__ = ${countScenes(dsl)};`,
     'function notifySize() {',
     '  var h = document.documentElement.scrollHeight;',
     `  parent.postMessage({ type: "${RESIZE_MESSAGE}", height: h }, "*");`,

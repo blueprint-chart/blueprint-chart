@@ -87,6 +87,25 @@ describe('initBlueprint', () => {
     expect(srcdoc).toContain('blueprint-chart-container')
   })
 
+  it('wires a scene controller over the base chart and every scene', () => {
+    const srcdoc = buildSrcdoc(
+      'chart bar { data { "A" = 10 } scene "One" { title = "1" } scene "Two" { title = "2" } }',
+      'https://example.com/blueprint-runtime.js',
+    )
+
+    expect(srcdoc).toContain('BlueprintChart.createSceneController')
+    expect(srcdoc).toContain('var __BPC_SCENES__ = 2;')
+  })
+
+  it('skips the scene controller when the chart has no scenes', () => {
+    const srcdoc = buildSrcdoc(
+      'chart bar { data { "A" = 10 } }',
+      'https://example.com/blueprint-runtime.js',
+    )
+
+    expect(srcdoc).toContain('var __BPC_SCENES__ = 0;')
+  })
+
   it('inlines the DSL as a JS string with < escaped so it cannot break out', () => {
     document.body.innerHTML = `
       <script type="application/blueprint-chart"><img onerror="alert(1)"> test</script>
