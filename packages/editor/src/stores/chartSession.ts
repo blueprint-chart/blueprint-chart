@@ -228,6 +228,7 @@ export const useChartSessionStore = defineStore('chartSession', () => {
       lastSavedAt.value = loadedMeta.savedAt ?? null
       sheetNumber.value = loadedMeta.sheetNumber ?? null
       sheetId.value = loadedMeta.sheetId ?? randomUUID()
+      scenesComposable.armAutoplay()
       return true
     }
     catch {
@@ -244,6 +245,7 @@ export const useChartSessionStore = defineStore('chartSession', () => {
       sessionId.value = id
       sheetNumber.value = null
       sheetId.value = randomUUID()
+      scenesComposable.armAutoplay()
       return true
     }
     catch {
@@ -313,6 +315,7 @@ export const useChartSessionStore = defineStore('chartSession', () => {
 
     const { applyDsl } = useDslSync()
     applyDsl(sample.dsl)
+    scenesComposable.armAutoplay()
   }
 
   function loadChart(id: string): boolean {
@@ -357,6 +360,7 @@ export const useChartSessionStore = defineStore('chartSession', () => {
     sessionId.value = generateId()
     sheetNumber.value = null
     sheetId.value = randomUUID()
+    scenesComposable.armAutoplay()
     save()
     startAutoSave()
     return sessionId.value

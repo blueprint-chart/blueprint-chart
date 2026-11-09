@@ -157,6 +157,27 @@ describe('useChartSession', () => {
     expect(session.loadChart(id)).toBe(true)
   })
 
+  it('arms autoplay when a chart is loaded', () => {
+    const session = useChartSession()
+    session.newChart()
+    session.save()
+    const id = session.sessionId.value
+    session.loadChart(id)
+    expect(useScenes().autoplayArmed.value).toBe(true)
+  })
+
+  it('arms autoplay when a sample is loaded', () => {
+    const session = useChartSession()
+    session.loadSample({ tsvData: 'a\tb\nx\t1', dsl: 'chart bar-horizontal {\n}' } as Parameters<typeof session.loadSample>[0])
+    expect(useScenes().autoplayArmed.value).toBe(true)
+  })
+
+  it('does not arm autoplay for a new chart', () => {
+    const session = useChartSession()
+    session.newChart()
+    expect(useScenes().autoplayArmed.value).toBe(false)
+  })
+
   it('save includes savedAt timestamp in meta', () => {
     const session = useChartSession()
     session.newChart()
@@ -324,6 +345,11 @@ describe('createFromDsl', () => {
       sourceLabel: 'gdp.csv',
       sourceFormat: 'delimited',
     })
+  })
+
+  it('arms autoplay', () => {
+    useChartSession().createFromDsl(BPC)
+    expect(useScenes().autoplayArmed.value).toBe(true)
   })
 
   it('without a source keeps the bpc source', () => {

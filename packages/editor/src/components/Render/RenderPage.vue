@@ -68,7 +68,7 @@ useResizeObserver(containerRef, ([entry]) => {
 
 const { layout } = useChartConfig()
 const { cardClass, cardStyle } = useCanvasCardStyle(layout, 'render-page__card')
-const { scenes, activeIndex, playing, setActive, nextScene, previousScene, stopPlayback } = useScenes()
+const { scenes, activeIndex, playing, setActive, nextScene, previousScene, stopPlayback, armAutoplay } = useScenes()
 const { play } = useScenePlayback()
 useScenesAutoplay({ whenVisible: containerRef })
 
@@ -163,6 +163,7 @@ watch(() => [route.query.bpc64, route.query.id], load, { immediate: true })
 function showDsl(dsl: string) {
   const result = applyDsl(dsl)
   if (result.success) {
+    armAutoplay()
     return
   }
   const where = result.location

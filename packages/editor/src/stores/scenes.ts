@@ -38,6 +38,7 @@ export const useScenesStore = defineStore('scenes', () => {
   const scenes = ref<SceneOverride[]>([])
   const activeIndex = shallowRef(-1)
   const playing = shallowRef(false)
+  const autoplayArmed = shallowRef(false)
 
   let playback: Playback | null = null
 
@@ -76,6 +77,7 @@ export const useScenesStore = defineStore('scenes', () => {
 
   function setActive(index: number) {
     stopPlayback()
+    disarmAutoplay()
     if (index === activeIndex.value) {
       return
     }
@@ -115,6 +117,7 @@ export const useScenesStore = defineStore('scenes', () => {
     if (playing.value) {
       return
     }
+    disarmAutoplay()
     playback = createPlayback({
       total: () => scenes.value.length + 1,
       current: () => activeIndex.value + 2,
@@ -134,8 +137,17 @@ export const useScenesStore = defineStore('scenes', () => {
     playback = null
   }
 
+  function armAutoplay() {
+    autoplayArmed.value = true
+  }
+
+  function disarmAutoplay() {
+    autoplayArmed.value = false
+  }
+
   function reset() {
     stopPlayback()
+    disarmAutoplay()
     scenes.value = []
     activeIndex.value = -1
   }
@@ -157,6 +169,7 @@ export const useScenesStore = defineStore('scenes', () => {
     scenes,
     activeIndex,
     playing,
+    autoplayArmed,
     activeScene,
     add,
     remove,
@@ -167,6 +180,8 @@ export const useScenesStore = defineStore('scenes', () => {
     reorder,
     startPlayback,
     stopPlayback,
+    armAutoplay,
+    disarmAutoplay,
     reset,
     snapshot,
     hydrate,
@@ -175,11 +190,12 @@ export const useScenesStore = defineStore('scenes', () => {
 
 export function useScenes() {
   const store = useScenesStore()
-  const { scenes, activeIndex, playing, activeScene } = storeToRefs(store)
+  const { scenes, activeIndex, playing, autoplayArmed, activeScene } = storeToRefs(store)
   return {
     scenes,
     activeIndex,
     playing,
+    autoplayArmed: readonly(autoplayArmed),
     activeScene,
     add: store.add,
     remove: store.remove,
@@ -190,6 +206,8 @@ export function useScenes() {
     reorder: store.reorder,
     startPlayback: store.startPlayback,
     stopPlayback: store.stopPlayback,
+    armAutoplay: store.armAutoplay,
+    disarmAutoplay: store.disarmAutoplay,
     reset: store.reset,
     snapshot: store.snapshot,
     hydrate: store.hydrate,

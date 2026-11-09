@@ -23,23 +23,22 @@ export function useScenePlayback() {
 
 export function useScenesAutoplay(options: { whenVisible?: Readonly<Ref<HTMLElement | null>> } = {}) {
   const { layout } = useChartConfig()
-  const { scenes, playing, activeIndex } = useScenes()
+  const { scenes, autoplayArmed, disarmAutoplay } = useScenes()
   const { play } = useScenePlayback()
-  const shouldAutoplay = computed(() => layout.value.autoplay && scenes.value.length > 0)
 
-  function playWhenVisible(element: HTMLElement, onCleanup: (fn: () => void) => void) {
-    const disconnect = onceVisible(element, play)
-    const stopWatching = watch([playing, activeIndex], disconnect)
-    onCleanup(() => {
-      disconnect()
-      stopWatching()
-    })
+  function canAutoplay() {
+    const hasScenes = scenes.value.length > 0
+    return layout.value.autoplay && hasScenes && !prefersReducedMotion()
   }
 
   watch(
-    [shouldAutoplay, () => options.whenVisible?.value],
-    ([autoplay, element], _, onCleanup) => {
-      if (!autoplay || prefersReducedMotion()) {
+    [autoplayArmed, () => options.whenVisible?.value],
+    ([armed, element], _, onCleanup) => {
+      if (!armed) {
+        return
+      }
+      if (!canAutoplay()) {
+        disarmAutoplay()
         return
       }
       if (!options.whenVisible) {
@@ -47,9 +46,25 @@ export function useScenesAutoplay(options: { whenVisible?: Readonly<Ref<HTMLElem
         return
       }
       if (element) {
-        playWhenVisible(element, onCleanup)
+        const disconnect = onceVisible(element, play)
+        onCleanup(disconnect)
       }
     },
     { immediate: true },
+  )
+
+  if (options.whenVisible) {
+    return
+  }
+
+  // A replaced layout object means a load, a DSL edit or an undo, not a tick.
+  watch(
+    () => [layout.value, layout.value.autoplay] as const,
+    ([current, autoplay], [previous, wasAutoplay]) => {
+      const ticked = current === previous && autoplay && !wasAutoplay
+      if (ticked && canAutoplay()) {
+        play()
+      }
+    },
   )
 }
