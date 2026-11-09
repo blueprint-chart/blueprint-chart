@@ -11,6 +11,7 @@
       class="bc-scene-player__nav-btn"
       :disabled="!wrap && current <= 1"
       aria-label="Previous scene"
+      data-action="previous"
       @click="$emit('previous')"
     >
       <!-- eslint-disable-next-line vue/max-attributes-per-line -->
@@ -32,6 +33,7 @@
       class="bc-scene-player__nav-btn"
       :disabled="!wrap && current >= total"
       aria-label="Next scene"
+      data-action="next"
       @click="$emit('next')"
     >
       <!-- eslint-disable-next-line vue/max-attributes-per-line -->

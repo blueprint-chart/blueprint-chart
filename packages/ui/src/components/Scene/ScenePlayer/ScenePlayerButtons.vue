@@ -11,6 +11,7 @@
         :class="{ 'bc-scene-player__btn-group__btn--disabled': current <= 1 }"
         :disabled="current <= 1"
         aria-label="Previous scene"
+        data-action="previous"
         @click.stop="$emit('previous')"
       >
         <!-- eslint-disable-next-line vue/max-attributes-per-line -->
@@ -23,6 +24,7 @@
         :class="{ 'bc-scene-player__btn-group__btn--disabled': current >= total }"
         :disabled="current >= total"
         aria-label="Next scene"
+        data-action="next"
         @click.stop="$emit('next')"
       >
         Next

@@ -38,8 +38,8 @@ function playButton(size: number, playing: boolean): string {
   return `<button type="button" class="bc-scene-player__play-btn" aria-label="${label}">${playIcon(size, playing)}</button>`
 }
 
-function navButton(label: string, icon: string, isDisabled: boolean): string {
-  return `<button type="button" class="bc-scene-player__nav-btn"${disabledAttribute(isDisabled)} aria-label="${label}">${icon}</button>`
+function navButton(action: 'previous' | 'next', label: string, icon: string, isDisabled: boolean): string {
+  return `<button type="button" class="bc-scene-player__nav-btn"${disabledAttribute(isDisabled)} aria-label="${label}" data-action="${action}">${icon}</button>`
 }
 
 function stepButtons(block: string, { current, total }: PlayerState): string {
@@ -60,8 +60,8 @@ function buttonsHtml(state: PlayerState): string {
   const nextClass = isLast ? ' bc-scene-player__btn-group__btn--disabled' : ''
   return `<div class="bc-scene-player bc-scene-player--buttons bc-scene-player--${state.position}" data-scene-player>`
     + '<div class="bc-scene-player__btn-group">'
-    + `<button type="button" class="bc-scene-player__btn-group__btn${previousClass}"${disabledAttribute(isFirst)} aria-label="Previous scene">${BACK_ICON} Back</button>`
-    + `<button type="button" class="bc-scene-player__btn-group__btn bc-scene-player__btn-group__btn--next${nextClass}"${disabledAttribute(isLast)} aria-label="Next scene">Next ${FORWARD_ICON}</button>`
+    + `<button type="button" class="bc-scene-player__btn-group__btn${previousClass}"${disabledAttribute(isFirst)} aria-label="Previous scene" data-action="previous">${BACK_ICON} Back</button>`
+    + `<button type="button" class="bc-scene-player__btn-group__btn bc-scene-player__btn-group__btn--next${nextClass}"${disabledAttribute(isLast)} aria-label="Next scene" data-action="next">Next ${FORWARD_ICON}</button>`
     + '</div>'
     + `<span class="bc-scene-player__counter">${state.current} / ${state.total}</span>`
     + '</div>'
@@ -69,19 +69,19 @@ function buttonsHtml(state: PlayerState): string {
 
 function dotStepperHtml(state: PlayerState): string {
   return `<div class="bc-scene-player bc-scene-player--dot-stepper bc-scene-player--${state.position}" data-scene-player>`
-    + navButton('Previous scene', PREVIOUS_ARROW, state.current <= 1)
+    + navButton('previous', 'Previous scene', PREVIOUS_ARROW, state.current <= 1)
     + playButton(11, state.playing)
     + `<div class="bc-scene-player__dots">${stepButtons('bc-scene-player__dots__dot', state)}</div>`
-    + navButton('Next scene', NEXT_ARROW, state.current >= state.total)
+    + navButton('next', 'Next scene', NEXT_ARROW, state.current >= state.total)
     + '</div>'
 }
 
 function minimalArrowsHtml(state: PlayerState): string {
   return `<div class="bc-scene-player bc-scene-player--minimal-arrows bc-scene-player--${state.position}" data-scene-player>`
     + `<span class="bc-scene-player__counter">${state.current}/${state.total}</span>`
-    + navButton('Previous scene', PREVIOUS_ARROW, state.current <= 1)
+    + navButton('previous', 'Previous scene', PREVIOUS_ARROW, state.current <= 1)
     + playButton(9, state.playing)
-    + navButton('Next scene', NEXT_ARROW, state.current >= state.total)
+    + navButton('next', 'Next scene', NEXT_ARROW, state.current >= state.total)
     + '</div>'
 }
 
@@ -172,7 +172,18 @@ export function mountScenePlayer(chart: HTMLElement, config: PlayerConfig, onSte
     onStep(step)
     attachToFooter()
     render()
-    focusedControl?.focus()
+    restoreFocus(focusedControl)
+  }
+
+  // A step can disable the focused button (Next on the last scene), and
+  // focus() on a disabled button drops focus to <body>.
+  function restoreFocus(control: HTMLElement | null): void {
+    if (!control) {
+      return
+    }
+    const fallback = root.querySelector<HTMLElement>('button:not(:disabled)')
+    const target = control.matches(':disabled') ? fallback : control
+    target?.focus()
   }
 
   function findFocusedControl(): HTMLElement | null {
@@ -227,14 +238,14 @@ export function mountScenePlayer(chart: HTMLElement, config: PlayerConfig, onSte
     if (!button) {
       return
     }
-    const label = button.getAttribute('aria-label')
+    const action = button.dataset.action
     if (button.classList.contains('bc-scene-player__play-btn')) {
       togglePlayback()
     }
-    else if (label === 'Previous scene') {
+    else if (action === 'previous') {
       go(state.current - 1)
     }
-    else if (label === 'Next scene') {
+    else if (action === 'next') {
       go(state.current + 1)
     }
     else if (button.matches(STEP_SELECTOR)) {
@@ -253,5 +264,5 @@ export function mountScenePlayer(chart: HTMLElement, config: PlayerConfig, onSte
 
   root.addEventListener('click', onClick)
   attachToFooter()
-  new MutationObserver(attachToFooter).observe(chart, { childList: true, subtree: true })
+  new MutationObserver(attachToFooter).observe(chart, { childList: true })
 }

@@ -61,6 +61,24 @@ describe('mountScenePlayer navigation', () => {
     expect(button.isConnected).toBe(true)
   })
 
+  it('moves focus to an enabled control when Next gets disabled', () => {
+    const { next, root } = setup('dot-stepper', 2)
+    const button = next()
+    button.focus()
+    button.click()
+    expect(button.disabled).toBe(true)
+    expect(root?.contains(document.activeElement)).toBe(true)
+    expect((document.activeElement as HTMLButtonElement).disabled).toBe(false)
+  })
+
+  it.each(['buttons', 'dot-stepper', 'minimal-arrows'] as PlayerType[])('steps on %s Next whatever its label says', (type) => {
+    const { next, onStep } = setup(type)
+    const button = next()
+    button.setAttribute('aria-label', 'Scène suivante')
+    button.click()
+    expect(onStep).toHaveBeenCalledWith(2)
+  })
+
   it('keeps focus on Next when the step re-render rebuilds the frame', () => {
     const chart = document.createElement('div')
     chart.innerHTML = '<div class="bc-frame-footer"></div>'
