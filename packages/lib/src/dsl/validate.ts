@@ -82,6 +82,8 @@ const FRAME_CHOICES = new Map<string, string[]>([
   ['theme', listThemes().map(t => t.name)],
   ['player', ['buttons', 'progress-bar', 'dot-stepper', 'minimal-arrows', 'none']],
   ['playerPosition', ['left', 'center', 'right']],
+  ['autoplay', ['true', 'false']],
+  ['loop', ['true', 'false']],
 ])
 
 /**
@@ -642,6 +644,7 @@ function validateScene(
   const typeOverride = scene.properties.find(p => p.key === 'type')?.value
   const effectiveType = typeOverride != null ? String(typeOverride) : chartType
 
+  const sceneProperties = scene.properties.filter(prop => !CHART_ONLY_KEYS.has(prop.key))
   for (const prop of scene.properties) {
     if (CHART_ONLY_KEYS.has(prop.key)) {
       errors.push({
@@ -662,7 +665,7 @@ function validateScene(
     })
   }
   else {
-    validateProperties(effectiveType, scene.properties, basePath, errors)
+    validateProperties(effectiveType, sceneProperties, basePath, errors)
     validateSeriesOverrides(effectiveType, scene.series, basePath, errors)
   }
 

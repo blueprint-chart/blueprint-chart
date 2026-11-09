@@ -797,4 +797,13 @@ describe('scene playback keys', () => {
     expect(issue?.path).toBe(`scene[0].${key}`)
     expect(issue?.message).toBe(`${key} applies to the whole chart, so it has no effect inside a scene.`)
   })
+  it.each(['autoplay', 'loop'])('flags a non-boolean %s', (key) => {
+    const result = validateChart(chart({ properties: [prop(key, 'yes')] }))
+    const issue = result.errors.find(e => e.code === 'invalid-choice')
+    expect(issue?.path).toBe(`chart.${key}`)
+  })
+  it('reports a bad sceneDuration inside a scene once', () => {
+    const result = validateChart(chart({ scenes: [scene({ properties: [prop('sceneDuration', 20)] })] }))
+    expect(result.errors.map(e => e.code)).toEqual(['chart-level-only'])
+  })
 })
