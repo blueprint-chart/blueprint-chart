@@ -7,6 +7,10 @@
       @update:model-value="model = $event as boolean"
     >
       <slot>{{ label }}</slot>
+      <small
+        v-if="description"
+        class="form-control-checkbox__input__description"
+      >{{ description }}</small>
     </BFormCheckbox>
     <slot
       v-if="model"
@@ -20,5 +24,20 @@ const model = defineModel<boolean>({ required: true })
 
 defineProps<{
   label?: string
+  description?: string
 }>()
 </script>
+
+<style lang="scss" scoped>
+.form-control-checkbox {
+  &__input {
+    &__description {
+      display: block;
+      margin-top: 0.125rem;
+      color: var(--bs-secondary-color);
+      font-size: 0.875em;
+      line-height: 1.4;
+    }
+  }
+}
+</style>
