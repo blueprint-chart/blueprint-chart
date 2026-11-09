@@ -1,7 +1,8 @@
 import type { ChartColorize } from '@/stores/chartConfig'
 import type { ChartTypeOptions } from '@/stores/chartTypeOptions'
 import type { TransformStep } from '@/stores/dataTransforms'
-import type { AreaFillConfig, AnnotationConfig, SeriesOverride, HighlightConfig } from '@blueprint-chart/lib'
+import type { AreaFillConfig, AnnotationConfig, SeriesOverride, HighlightConfig, Playback, PlaybackSettings } from '@blueprint-chart/lib'
+import { createPlayback } from '@blueprint-chart/lib'
 
 export interface SceneOverride {
   id: string
@@ -38,7 +39,7 @@ export const useScenesStore = defineStore('scenes', () => {
   const activeIndex = shallowRef(-1)
   const playing = shallowRef(false)
 
-  let playbackTimer: ReturnType<typeof setInterval> | null = null
+  let playback: Playback | null = null
 
   const activeScene = computed<SceneOverride | null>(() => {
     if (activeIndex.value < 0 || activeIndex.value >= scenes.value.length) {
@@ -74,6 +75,7 @@ export const useScenesStore = defineStore('scenes', () => {
   }
 
   function setActive(index: number) {
+    stopPlayback()
     if (index === activeIndex.value) {
       return
     }
@@ -109,32 +111,27 @@ export const useScenesStore = defineStore('scenes', () => {
     }
   }
 
-  function startPlayback() {
+  function startPlayback(settings: () => PlaybackSettings) {
     if (playing.value) {
       return
     }
-    playing.value = true
-    if (scenes.value.length === 0) {
-      return
-    }
-    // Start from base (Scene 1)
-    activeIndex.value = -1
-    playbackTimer = setInterval(() => {
-      if (activeIndex.value < scenes.value.length - 1) {
-        activeIndex.value++
-      }
-      else {
-        stopPlayback()
-      }
-    }, 3000)
+    playback = createPlayback({
+      total: () => scenes.value.length + 1,
+      current: () => activeIndex.value + 2,
+      go: (step) => {
+        activeIndex.value = step - 2
+      },
+      settings,
+      onChange: (value) => {
+        playing.value = value
+      },
+    })
+    playback.play()
   }
 
   function stopPlayback() {
-    playing.value = false
-    if (playbackTimer !== null) {
-      clearInterval(playbackTimer)
-      playbackTimer = null
-    }
+    playback?.stop()
+    playback = null
   }
 
   function reset() {

@@ -17,7 +17,7 @@
       @update:current="onSceneChange"
       @previous="previousScene"
       @next="nextScene"
-      @play="startPlayback"
+      @play="play"
       @pause="stopPlayback"
     />
   </Teleport>
@@ -108,7 +108,9 @@ const cvdFilterStyle = computed(() => {
 
 // Scene player
 const { layout } = useChartConfig()
-const { scenes, activeIndex, playing, setActive, nextScene, previousScene, startPlayback, stopPlayback } = useScenes()
+const { scenes, activeIndex, playing, setActive, nextScene, previousScene, stopPlayback } = useScenes()
+const { play } = useScenePlayback()
+useScenesAutoplay()
 
 const playerTarget = ref<HTMLElement | null>(null)
 

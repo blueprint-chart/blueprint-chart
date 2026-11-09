@@ -39,7 +39,8 @@ if (accountsEnabled()) {
 const { markCloudBacked } = useCloudCharts()
 const { isSignedIn } = useAccount()
 const scenesComposable = useScenes()
-const { scenes, activeIndex, activeScene, playing, startPlayback, stopPlayback } = scenesComposable
+const { scenes, activeIndex, activeScene, playing, stopPlayback } = scenesComposable
+const { play } = useScenePlayback()
 const isSceneMode = computed(() => activeScene.value !== null)
 const { baseOptions } = useChartTypeOptions()
 const transforms = useDataTransforms()
@@ -301,7 +302,7 @@ provide(sceneTimelineKey, {
   onSelect: onTimelineSelect,
   onAdd: addScene,
   onRemove: onTimelineRemove,
-  onPlay: startPlayback,
+  onPlay: play,
   onPause: stopPlayback,
 })
 
@@ -426,7 +427,7 @@ watch(() => currentStep.value.key, (newKey, oldKey) => {
         :panel-disabled="panelDisabled"
         :scenes-sheet-open="scenesSheetOpen"
         @update:active-index="onTimelineSelect"
-        @play="startPlayback"
+        @play="play"
         @pause="stopPlayback"
         @expand-timeline="onExpandTimeline"
         @open-panel="onOpenPanel"
@@ -443,7 +444,7 @@ watch(() => currentStep.value.key, (newKey, oldKey) => {
           @update:active-index="onTimelineSelectFromSheet"
           @add="addScene"
           @remove="onTimelineRemove"
-          @play="startPlayback"
+          @play="play"
           @pause="stopPlayback"
         />
       </LayoutBottomDrawer>

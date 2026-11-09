@@ -142,12 +142,14 @@ describe('useScenes', () => {
   })
 
   describe('playback', () => {
+    const settings = { autoplay: false, sceneDuration: 3, loop: false }
+
     it('starts playback from base', () => {
       const { add, startPlayback, activeIndex, playing } = useScenes()
       add()
       add()
       add()
-      startPlayback()
+      startPlayback(() => settings)
       expect(playing.value).toBe(true)
       expect(activeIndex.value).toBe(-1)
       vi.advanceTimersByTime(3000)
@@ -158,7 +160,7 @@ describe('useScenes', () => {
       const { add, startPlayback, activeIndex, playing } = useScenes()
       add()
       add()
-      startPlayback()
+      startPlayback(() => settings)
       vi.advanceTimersByTime(3000)
       expect(activeIndex.value).toBe(0)
       vi.advanceTimersByTime(3000)
@@ -171,7 +173,7 @@ describe('useScenes', () => {
       const { add, startPlayback, stopPlayback, playing } = useScenes()
       add()
       add()
-      startPlayback()
+      startPlayback(() => settings)
       stopPlayback()
       expect(playing.value).toBe(false)
     })
@@ -180,10 +182,71 @@ describe('useScenes', () => {
       const { add, startPlayback, activeIndex } = useScenes()
       add()
       add()
-      startPlayback()
-      startPlayback()
+      startPlayback(() => settings)
+      startPlayback(() => settings)
       vi.advanceTimersByTime(3000)
       expect(activeIndex.value).toBe(0)
+    })
+
+    it('plays at sceneDuration', () => {
+      const { add, startPlayback, activeIndex } = useScenes()
+      add()
+      add()
+      const slow = { ...settings, sceneDuration: 5 }
+      startPlayback(() => slow)
+      vi.advanceTimersByTime(4999)
+      expect(activeIndex.value).toBe(-1)
+      vi.advanceTimersByTime(1)
+      expect(activeIndex.value).toBe(0)
+    })
+
+    it('loops back to the base chart', () => {
+      const { add, startPlayback, activeIndex, playing } = useScenes()
+      add()
+      const looping = { ...settings, loop: true }
+      startPlayback(() => looping)
+      vi.advanceTimersByTime(3000)
+      expect(activeIndex.value).toBe(0)
+      vi.advanceTimersByTime(3000)
+      expect(activeIndex.value).toBe(-1)
+      expect(playing.value).toBe(true)
+    })
+
+    it('never steps out of range when scenes are deleted while playing', () => {
+      const { add, remove, startPlayback, activeIndex, scenes } = useScenes()
+      add()
+      add()
+      add()
+      const looping = { ...settings, loop: true }
+      startPlayback(() => looping)
+      vi.advanceTimersByTime(9000)
+      expect(activeIndex.value).toBe(2)
+      remove(2)
+      remove(1)
+      vi.advanceTimersByTime(3000)
+      expect(activeIndex.value).toBe(-1)
+      vi.advanceTimersByTime(3000)
+      expect(activeIndex.value).toBe(0)
+      expect(activeIndex.value).toBeLessThan(scenes.value.length)
+    })
+
+    it.each(['nextScene', 'previousScene'] as const)('stops playback on %s', (method) => {
+      const store = useScenes()
+      store.add()
+      store.add()
+      store.startPlayback(() => settings)
+      vi.advanceTimersByTime(3000)
+      store[method]()
+      expect(store.playing.value).toBe(false)
+    })
+
+    it('stops playback on setActive', () => {
+      const { add, setActive, startPlayback, playing } = useScenes()
+      add()
+      add()
+      startPlayback(() => settings)
+      setActive(1)
+      expect(playing.value).toBe(false)
     })
   })
 
@@ -216,7 +279,7 @@ describe('useScenes', () => {
     const { add, startPlayback, playing, hydrate } = useScenes()
     add()
     add()
-    startPlayback()
+    startPlayback(() => ({ autoplay: false, sceneDuration: 3, loop: false }))
     hydrate({ scenes: [], activeIndex: -1 })
     expect(playing.value).toBe(false)
   })
