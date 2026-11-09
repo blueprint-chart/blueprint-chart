@@ -8,6 +8,7 @@ const mockLoadParsed = vi.fn()
 const mockApplyDsl = vi.fn()
 const mockNext = vi.fn()
 const mockUpdateScene = vi.fn()
+const mockArmAutoplay = vi.fn()
 const dataViewRef = ref('upload')
 const rawInputRef = ref('')
 const activeSceneRef = ref<{ id: string, name: string | null } | null>(null)
@@ -42,6 +43,7 @@ vi.mock('@/stores/scenes', () => ({
     activeScene: activeSceneRef,
     activeIndex: activeIndexRef,
     update: mockUpdateScene,
+    armAutoplay: mockArmAutoplay,
     scenes: ref([]),
   }),
 }))
@@ -105,6 +107,7 @@ function mountPanel() {
   mockSetDataView.mockClear()
   mockLoadParsed.mockClear()
   mockUpdateScene.mockClear()
+  mockArmAutoplay.mockClear()
   return mount(DataPanel, {
     global: {
       stubs: {
@@ -172,6 +175,22 @@ describe('DataPanel', () => {
     await nextTick()
 
     expect(baseDataRef.value).toBe('"A" = 1')
+  })
+
+  it('arms autoplay when a Blueprint file loads', async () => {
+    mockApplyDsl.mockReturnValueOnce({ success: true })
+    const w = mountPanel()
+    uploadCard(w).vm.$emit('bpc', 'chart donut {}', 'chart.bpc')
+    await nextTick()
+    expect(mockArmAutoplay).toHaveBeenCalledTimes(1)
+  })
+
+  it('does not arm autoplay when a Blueprint file fails to load', async () => {
+    mockApplyDsl.mockReturnValueOnce({ success: false })
+    const w = mountPanel()
+    uploadCard(w).vm.$emit('bpc', 'not a chart', 'broken.bpc')
+    await nextTick()
+    expect(mockArmAutoplay).not.toHaveBeenCalled()
   })
 
   it('switches to structure view when cancel is emitted', async () => {
