@@ -165,9 +165,22 @@ export function mountScenePlayer(chart: HTMLElement, config: PlayerConfig, onSte
     if (step < 1 || step > state.total || step === state.current) {
       return
     }
+    const focusedControl = findFocusedControl()
     state.current = step
-    render()
+    // onStep re-renders the chart, which rebuilds the frame and detaches the
+    // player: re-attach before patching so focus and transitions survive.
     onStep(step)
+    attachToFooter()
+    render()
+    focusedControl?.focus()
+  }
+
+  function findFocusedControl(): HTMLElement | null {
+    const active = document.activeElement
+    if (active instanceof HTMLElement && root.contains(active)) {
+      return active
+    }
+    return null
   }
 
   function togglePlayback(): void {

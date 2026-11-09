@@ -60,6 +60,19 @@ describe('mountScenePlayer navigation', () => {
     expect(document.activeElement).toBe(button)
     expect(button.isConnected).toBe(true)
   })
+
+  it('keeps focus on Next when the step re-render rebuilds the frame', () => {
+    const chart = document.createElement('div')
+    chart.innerHTML = '<div class="bc-frame-footer"></div>'
+    document.body.appendChild(chart)
+    const rebuildFrame = () => chart.innerHTML = '<div class="bc-frame-footer"></div>'
+    mountScenePlayer(chart, { type: 'dot-stepper', position: 'left', total: 4 }, rebuildFrame)
+    const button = chart.querySelector<HTMLButtonElement>('[aria-label="Next scene"]')!
+    button.focus()
+    button.click()
+    expect(button.isConnected).toBe(true)
+    expect(document.activeElement).toBe(button)
+  })
 })
 
 describe('mountScenePlayer playback', () => {
