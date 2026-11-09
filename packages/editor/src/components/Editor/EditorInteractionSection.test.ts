@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils'
+import { mount, type VueWrapper } from '@vue/test-utils'
 import EditorInteractionSection from './EditorInteractionSection.vue'
 
 const scenes = ref<unknown[]>([])
@@ -73,7 +73,7 @@ describe('EditorInteractionSection playback controls', () => {
   it('clamps the duration to 1 to 10 and ignores non-numbers and a cleared box', async () => {
     scenes.value = [{}]
     const w = mount(EditorInteractionSection)
-    const slider = w.findComponent('[data-id="layout-scene-duration"]')
+    const slider = w.findComponent('[data-id="layout-scene-duration"]') as VueWrapper
     slider.vm.$emit('update:modelValue', '50')
     expect(layout.value.sceneDuration).toBe(10)
     slider.vm.$emit('update:modelValue', '')
