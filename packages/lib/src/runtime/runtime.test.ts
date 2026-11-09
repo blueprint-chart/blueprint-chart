@@ -100,7 +100,7 @@ describe('initBlueprint', () => {
     it('mounts the default player over the base chart and every scene', () => {
       const srcdoc = buildSrcdoc(SRC, RUNTIME)
       expect(srcdoc).toContain('BlueprintChart.mountScenePlayer')
-      expect(srcdoc).toContain('var __BPC_PLAYER__ = {"type":"buttons","position":"left","total":3};')
+      expect(srcdoc).toContain('var __BPC_PLAYER__ = {"type":"buttons","position":"left","total":3,"autoplay":false,"sceneDuration":3,"loop":false};')
       expect(srcdoc).not.toContain('createSceneController')
     })
 
@@ -119,7 +119,22 @@ describe('initBlueprint', () => {
 
     it('passes the chosen player and position', () => {
       expect(buildSrcdoc(withProps('player = "dot-stepper" playerPosition = "right"'), RUNTIME))
-        .toContain('var __BPC_PLAYER__ = {"type":"dot-stepper","position":"right","total":3};')
+        .toContain('var __BPC_PLAYER__ = {"type":"dot-stepper","position":"right","total":3,"autoplay":false,"sceneDuration":3,"loop":false};')
+    })
+
+    it('passes the default playback settings', () => {
+      expect(buildSrcdoc(withProps(''), RUNTIME)).toContain(
+        'var __BPC_PLAYER__ = {"type":"buttons","position":"left","total":3,"autoplay":false,"sceneDuration":3,"loop":false};')
+    })
+
+    it('passes autoplay, pace and loop', () => {
+      expect(buildSrcdoc(withProps('autoplay = true sceneDuration = 5 loop = true'), RUNTIME))
+        .toContain('"autoplay":true,"sceneDuration":5,"loop":true}')
+    })
+
+    it('keeps autoplay but drops loop with player none', () => {
+      expect(buildSrcdoc(withProps('player = "none" autoplay = true loop = true'), RUNTIME))
+        .toContain('{"type":"none","position":"left","total":3,"autoplay":true,"sceneDuration":3,"loop":false}')
     })
 
     it.each(['player = "carousel"', 'player = ""'])('falls back to buttons for %s', (props) => {
@@ -128,7 +143,6 @@ describe('initBlueprint', () => {
 
     it.each([
       ['no scenes', 'chart bar { data { "A" = 10 } }'],
-      ['player none', withProps('player = "none"')],
     ])('mounts no player with %s', (_label, dsl) => {
       expect(buildSrcdoc(dsl, RUNTIME)).toContain('var __BPC_PLAYER__ = null;')
     })

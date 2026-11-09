@@ -1,3 +1,7 @@
+import { prefersReducedMotion } from '../charts/motion'
+import { createPlayback, onceVisible } from './playback'
+import type { PlaybackSettings } from './playback'
+
 export type PlayerType = 'buttons' | 'progress-bar' | 'dot-stepper' | 'minimal-arrows'
 export type PlayerPosition = 'left' | 'center' | 'right'
 
@@ -8,13 +12,12 @@ export interface PlayerState {
   position: PlayerPosition
 }
 
-export interface PlayerConfig {
-  type: PlayerType
+export interface PlayerConfig extends PlaybackSettings {
+  type: PlayerType | 'none'
   position: PlayerPosition
   total: number
 }
 
-const PLAYBACK_INTERVAL_MS = 3000
 const STEP_SELECTOR = '.bc-scene-player__dots__dot, .bc-scene-player__segments__segment'
 
 const BACK_ICON = '<svg width="8" height="12" viewBox="0 0 8 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 1.5L1.5 6l4 4.5" /></svg>'
@@ -153,11 +156,14 @@ function patchElement(target: Element, source: Element): void {
 
 export function mountScenePlayer(chart: HTMLElement, config: PlayerConfig, onStep: (step: number) => void): void {
   const state: PlayerState = { current: 1, total: config.total, playing: false, position: config.position }
-  const root = htmlToElement(scenePlayerHtml(config.type, state))
-  let timer: ReturnType<typeof setInterval> | undefined
+  const playerType = config.type === 'none' ? null : config.type
+  const root = htmlToElement(scenePlayerHtml(playerType ?? 'buttons', state))
 
   function render(): void {
-    const fresh = htmlToElement(scenePlayerHtml(config.type, state))
+    if (!playerType) {
+      return
+    }
+    const fresh = htmlToElement(scenePlayerHtml(playerType, state))
     patchElement(root, fresh)
   }
 
@@ -174,6 +180,18 @@ export function mountScenePlayer(chart: HTMLElement, config: PlayerConfig, onSte
     render()
     restoreFocus(focusedControl)
   }
+
+  const settings: PlaybackSettings = { ...config, loop: config.loop && playerType !== null }
+  const playback = createPlayback({
+    total: () => state.total,
+    current: () => state.current,
+    go,
+    settings: () => settings,
+    onChange: (playing) => {
+      state.playing = playing
+      render()
+    },
+  })
 
   // A step can disable the focused button (Next on the last scene), and
   // focus() on a disabled button drops focus to <body>.
@@ -196,36 +214,11 @@ export function mountScenePlayer(chart: HTMLElement, config: PlayerConfig, onSte
 
   function togglePlayback(): void {
     if (state.playing) {
-      pause()
+      playback.stop()
     }
     else {
-      play()
+      playback.play()
     }
-  }
-
-  function play(): void {
-    if (state.playing) {
-      return
-    }
-    state.playing = true
-    render()
-    go(1)
-    timer = setInterval(tick, PLAYBACK_INTERVAL_MS)
-  }
-
-  function tick(): void {
-    if (state.current < state.total) {
-      go(state.current + 1)
-    }
-    else {
-      pause()
-    }
-  }
-
-  function pause(): void {
-    state.playing = false
-    clearInterval(timer)
-    render()
   }
 
   function stepOf(button: Element): number {
@@ -234,6 +227,7 @@ export function mountScenePlayer(chart: HTMLElement, config: PlayerConfig, onSte
   }
 
   function onClick(event: Event): void {
+    stopAutoplayWatch()
     const button = (event.target as Element).closest('button')
     if (!button) {
       return
@@ -243,12 +237,15 @@ export function mountScenePlayer(chart: HTMLElement, config: PlayerConfig, onSte
       togglePlayback()
     }
     else if (action === 'previous') {
+      playback.stop()
       go(state.current - 1)
     }
     else if (action === 'next') {
+      playback.stop()
       go(state.current + 1)
     }
     else if (button.matches(STEP_SELECTOR)) {
+      playback.stop()
       go(stepOf(button))
     }
   }
@@ -262,6 +259,14 @@ export function mountScenePlayer(chart: HTMLElement, config: PlayerConfig, onSte
     }
   }
 
+  let stopAutoplayWatch = () => {}
+  const autoplays = config.autoplay && !prefersReducedMotion()
+  if (autoplays) {
+    stopAutoplayWatch = onceVisible(chart, playback.play)
+  }
+  if (!playerType) {
+    return
+  }
   root.addEventListener('click', onClick)
   attachToFooter()
   new MutationObserver(attachToFooter).observe(chart, { childList: true })

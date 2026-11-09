@@ -2,6 +2,7 @@ import { darkSchemeQuery } from '../charts/themes'
 import { parse } from '../dsl/parser'
 import { CHART_CSS } from './chart-css'
 import { ERROR_MESSAGE, RESIZE_MESSAGE, isErrorMessage, readResizeHeight } from './messages'
+import { readPlaybackSettings } from './playback'
 import { PLAYER_CSS } from './player-css'
 import type { PlayerConfig, PlayerPosition, PlayerType } from './player'
 
@@ -143,12 +144,15 @@ function readPlayerConfig(dsl: string): PlayerConfig | null {
   }
   const properties = new Map(ast.properties.map(property => [property.key, property.value]))
   const player = properties.get('player')
-  if (!ast.scenes.length || player === 'none') {
+  if (!ast.scenes.length) {
     return null
   }
-  const type = pickChoice(player, PLAYER_TYPES, 'buttons')
+  const hidden = player === 'none'
+  const type = hidden ? 'none' : pickChoice(player, PLAYER_TYPES, 'buttons')
   const position = pickChoice(properties.get('playerPosition'), PLAYER_POSITIONS, 'left')
-  return { type, position, total: ast.scenes.length + 1 }
+  const settings = readPlaybackSettings(properties)
+  const loop = settings.loop && !hidden
+  return { type, position, total: ast.scenes.length + 1, ...settings, loop }
 }
 
 export function buildSrcdoc(dsl: string, runtimeUrl: string, theme?: EmbedTheme): string {

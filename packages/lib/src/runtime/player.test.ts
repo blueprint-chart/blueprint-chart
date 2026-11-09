@@ -1,22 +1,62 @@
 import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest'
 import { mountScenePlayer } from './player'
 import type { PlayerType } from './player'
+import type { PlaybackSettings } from './playback'
 
-function setup(type: PlayerType = 'dot-stepper', total = 4) {
+class FakeObserver {
+  static instances: FakeObserver[] = []
+  connected = true
+  disconnect = vi.fn(() => {
+    this.connected = false
+  })
+
+  observe = vi.fn()
+  constructor(public callback: IntersectionObserverCallback) {
+    FakeObserver.instances.push(this)
+  }
+
+  reveal() {
+    if (!this.connected) {
+      return
+    }
+    const entry = { isIntersecting: true, intersectionRatio: 1 } as IntersectionObserverEntry
+    this.callback([entry], this as unknown as IntersectionObserver)
+  }
+}
+
+function reveal() {
+  FakeObserver.instances.forEach(observer => observer.reveal())
+}
+
+function stubReducedMotion(matches: boolean) {
+  vi.stubGlobal('matchMedia', () => ({ matches }))
+}
+
+function setup(type: PlayerType | 'none' = 'dot-stepper', total = 4, settings: Partial<PlaybackSettings> = {}) {
   const chart = document.createElement('div')
   chart.innerHTML = '<div class="bc-frame-footer"></div>'
   document.body.appendChild(chart)
   const onStep = vi.fn()
-  mountScenePlayer(chart, { type, position: 'left', total }, onStep)
+  const playback = { autoplay: false, sceneDuration: 3, loop: false, ...settings }
+  mountScenePlayer(chart, { type, position: 'left', total, ...playback }, onStep)
   const root = chart.querySelector<HTMLElement>('[data-scene-player]')
   const next = () => chart.querySelector<HTMLButtonElement>('[aria-label="Next scene"]')!
   const dots = () => chart.querySelectorAll<HTMLButtonElement>('.bc-scene-player__dots__dot, .bc-scene-player__segments__segment')
   return { chart, onStep, root, next, dots }
 }
 
+beforeEach(() => {
+  FakeObserver.instances = []
+  vi.stubGlobal('IntersectionObserver', FakeObserver)
+  stubReducedMotion(false)
+})
+
 afterEach(() => {
   document.body.innerHTML = ''
+  vi.unstubAllGlobals()
 })
+
+const PLAYBACK_DEFAULTS = { autoplay: false, sceneDuration: 3, loop: false }
 
 describe('mountScenePlayer navigation', () => {
   it('mounts into the frame footer without stepping', () => {
@@ -84,7 +124,7 @@ describe('mountScenePlayer navigation', () => {
     chart.innerHTML = '<div class="bc-frame-footer"></div>'
     document.body.appendChild(chart)
     const rebuildFrame = () => chart.innerHTML = '<div class="bc-frame-footer"></div>'
-    mountScenePlayer(chart, { type: 'dot-stepper', position: 'left', total: 4 }, rebuildFrame)
+    mountScenePlayer(chart, { type: 'dot-stepper', position: 'left', total: 4, ...PLAYBACK_DEFAULTS }, rebuildFrame)
     const button = chart.querySelector<HTMLButtonElement>('[aria-label="Next scene"]')!
     button.focus()
     button.click()
@@ -132,13 +172,100 @@ describe('mountScenePlayer playback', () => {
     expect(onStep).not.toHaveBeenCalled()
   })
 
-  it('keeps playing after a manual jump', () => {
-    const { chart, dots, onStep } = setup()
+  const label = (chart: HTMLElement) => playButton(chart).getAttribute('aria-label')
+
+  it('plays at the chart pace', () => {
+    const { chart, onStep } = setup('dot-stepper', 4, { sceneDuration: 5 })
     playButton(chart).click()
-    dots()[2].click()
-    expect(onStep).toHaveBeenLastCalledWith(3)
+    expect(label(chart)).toBe('Pause')
+    vi.advanceTimersByTime(4900)
+    expect(onStep).not.toHaveBeenCalled()
+    vi.advanceTimersByTime(100)
+    expect(onStep.mock.calls).toEqual([[2]])
+  })
+
+  it('loops back to step 1 with loop', () => {
+    const { chart, onStep } = setup('dot-stepper', 2, { loop: true })
+    playButton(chart).click()
     vi.advanceTimersByTime(3000)
-    expect(onStep).toHaveBeenLastCalledWith(4)
+    expect(onStep).toHaveBeenLastCalledWith(2)
+    vi.advanceTimersByTime(3000)
+    expect(onStep).toHaveBeenLastCalledWith(1)
+    expect(label(chart)).toBe('Pause')
+  })
+
+  it.each([
+    ['Next', 'next'],
+    ['Back', 'previous'],
+    ['a dot', 'dot'],
+  ])('stops playing when the reader clicks %s', (_label, control) => {
+    const { chart, onStep, next, dots } = setup('dot-stepper', 4)
+    playButton(chart).click()
+    vi.advanceTimersByTime(3000)
+    expect(onStep).toHaveBeenLastCalledWith(2)
+    const targets: Record<string, () => HTMLElement> = {
+      next,
+      previous: () => chart.querySelector<HTMLElement>('[aria-label="Previous scene"]')!,
+      dot: () => dots()[2],
+    }
+    targets[control]().click()
+    onStep.mockClear()
+    vi.advanceTimersByTime(9000)
+    expect(onStep).not.toHaveBeenCalled()
+    expect(label(chart)).toBe('Play')
+  })
+
+  it('autoplays once the chart is half visible', () => {
+    const { chart, onStep } = setup('dot-stepper', 4, { autoplay: true })
+    vi.advanceTimersByTime(3000)
+    expect(onStep).not.toHaveBeenCalled()
+    expect(label(chart)).toBe('Play')
+    reveal()
+    expect(label(chart)).toBe('Pause')
+    vi.advanceTimersByTime(2900)
+    expect(onStep).not.toHaveBeenCalled()
+    vi.advanceTimersByTime(100)
+    expect(onStep.mock.calls).toEqual([[2]])
+  })
+
+  it('does not autoplay with reduced motion, but Play still works', () => {
+    stubReducedMotion(true)
+    const { chart, onStep, dots } = setup('dot-stepper', 4, { autoplay: true })
+    dots()[2].click()
+    onStep.mockClear()
+    reveal()
+    vi.advanceTimersByTime(3000)
+    expect(onStep).not.toHaveBeenCalled()
+    playButton(chart).click()
+    expect(onStep).toHaveBeenCalledWith(1)
+    vi.advanceTimersByTime(3000)
+    expect(onStep).toHaveBeenLastCalledWith(2)
+  })
+
+  it('does not autoplay after the reader already pressed Play', () => {
+    const { chart, onStep } = setup('dot-stepper', 4, { autoplay: true })
+    playButton(chart).click()
+    playButton(chart).click()
+    onStep.mockClear()
+    reveal()
+    vi.advanceTimersByTime(3000)
+    expect(onStep).not.toHaveBeenCalled()
+    expect(label(chart)).toBe('Play')
+  })
+
+  it('autoplays with player none, without mounting controls, and ignores loop', () => {
+    const { chart, onStep } = setup('none', 2, { autoplay: true, loop: true })
+    expect(chart.querySelector('[data-scene-player]')).toBeNull()
+    vi.advanceTimersByTime(3000)
+    expect(onStep).not.toHaveBeenCalled()
+    reveal()
+    vi.advanceTimersByTime(2900)
+    expect(onStep).not.toHaveBeenCalled()
+    vi.advanceTimersByTime(100)
+    expect(onStep.mock.calls).toEqual([[2]])
+    onStep.mockClear()
+    vi.advanceTimersByTime(3000)
+    expect(onStep).not.toHaveBeenCalled()
   })
 
   it('moves to the new footer when a scene re-render rebuilds it, and keeps playing', async () => {
@@ -157,7 +284,7 @@ describe('mountScenePlayer playback', () => {
     const chart = document.createElement('div')
     chart.innerHTML = '<div class="bc-error">Could not render</div>'
     document.body.appendChild(chart)
-    expect(() => mountScenePlayer(chart, { type: 'buttons', position: 'left', total: 3 }, vi.fn())).not.toThrow()
+    expect(() => mountScenePlayer(chart, { type: 'buttons', position: 'left', total: 3, ...PLAYBACK_DEFAULTS }, vi.fn())).not.toThrow()
     expect(chart.querySelector('[data-scene-player]')).toBeNull()
     expect(chart.textContent).toBe('Could not render')
     chart.insertAdjacentHTML('beforeend', '<div class="bc-frame-footer"></div>')
