@@ -3,7 +3,7 @@ import { useChartThemeStore } from './useChartTheme'
 import { useChartTypeOptions } from './useChartTypeOptions'
 import { useDataTransforms } from './useDataTransforms'
 import { useScenes } from './useScenes'
-import { getChartOptions, AnnotationKind, SortDirection, quoteDslString } from '@blueprint-chart/lib'
+import { getChartOptions, DEFAULT_SCENE_DURATION, AnnotationKind, SortDirection, quoteDslString } from '@blueprint-chart/lib'
 import type { AnnotationConfig, RangeAnnotationConfig, FreeAnnotationConfig } from '@blueprint-chart/lib'
 import { serializePosition, serializeMaxWidth } from '@/utils/dsl/output'
 
@@ -107,6 +107,15 @@ export function useDslOutput() {
     }
     if (ly.playerPosition !== 'left') {
       output += `  playerPosition = "${ly.playerPosition}"\n`
+    }
+    if (ly.autoplay) {
+      output += `  autoplay = true\n`
+    }
+    if (ly.sceneDuration !== DEFAULT_SCENE_DURATION) {
+      output += `  sceneDuration = ${ly.sceneDuration}\n`
+    }
+    if (ly.loop) {
+      output += `  loop = true\n`
     }
 
     if (base.sort.value !== SortDirection.None) {

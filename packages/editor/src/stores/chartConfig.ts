@@ -1,6 +1,6 @@
 import type { Ref, WritableComputedRef } from 'vue'
 import type { AreaFillConfig, AnnotationConfig, SeriesOverride, HighlightConfig } from '@blueprint-chart/lib'
-import { ChartType, SortDirection } from '@blueprint-chart/lib'
+import { ChartType, DEFAULT_SCENE_DURATION, SortDirection } from '@blueprint-chart/lib'
 import { useScenes, type SceneOverride } from '@/stores/scenes'
 
 export function deepEqual(a: unknown, b: unknown): boolean {
@@ -88,6 +88,9 @@ export interface ChartLayout {
   getTheData: boolean
   playerType: 'buttons' | 'progress-bar' | 'dot-stepper' | 'minimal-arrows' | 'none'
   playerPosition: 'left' | 'center' | 'right'
+  autoplay: boolean
+  sceneDuration: number
+  loop: boolean
 }
 
 export const layoutDefaults: ChartLayout = {
@@ -102,6 +105,9 @@ export const layoutDefaults: ChartLayout = {
   getTheData: false,
   playerType: 'buttons',
   playerPosition: 'left',
+  autoplay: false,
+  sceneDuration: DEFAULT_SCENE_DURATION,
+  loop: false,
 }
 
 export interface ChartConfig {

@@ -531,6 +531,38 @@ describe('useDslOutput', () => {
       expect(dsl()).toContain('player = "dot-stepper"')
     })
 
+    it('omits playback keys at their defaults', () => {
+      const config = useChartConfig()
+      config.chartType.value = ChartType.BarVertical
+
+      const { generateDsl: dsl } = useDslOutput()
+      const output = dsl()
+      expect(output).not.toContain('autoplay')
+      expect(output).not.toContain('sceneDuration')
+      expect(output).not.toContain('loop')
+    })
+
+    it('serializes non-default playback keys', () => {
+      const config = useChartConfig()
+      config.chartType.value = ChartType.BarVertical
+      config._base.layout.value = { ...config._base.layout.value, autoplay: true, sceneDuration: 5, loop: true }
+
+      const { generateDsl: dsl } = useDslOutput()
+      const output = dsl()
+      expect(output).toContain('  autoplay = true\n')
+      expect(output).toContain('  sceneDuration = 5\n')
+      expect(output).toContain('  loop = true\n')
+    })
+
+    it('serializes a fractional scene duration', () => {
+      const config = useChartConfig()
+      config.chartType.value = ChartType.BarVertical
+      config._base.layout.value = { ...config._base.layout.value, sceneDuration: 2.5 }
+
+      const { generateDsl: dsl } = useDslOutput()
+      expect(dsl()).toContain('  sceneDuration = 2.5\n')
+    })
+
     it('scene annotation round-trip through DSL', () => {
       const { applyDsl } = useDslSync()
       applyDsl(`chart line {

@@ -1,4 +1,4 @@
-import { parse, propertyMap, extractChartTypeOptions, extractSceneOverrides, dataEntriesToString, convertColorizes, convertHighlights, convertAreaFills, convertAnnotations, convertSeriesOverrides, SortDirection, toBool, TRANSFORM_TYPES } from '@blueprint-chart/lib'
+import { parse, propertyMap, readPlaybackSettings, extractChartTypeOptions, extractSceneOverrides, dataEntriesToString, convertColorizes, convertHighlights, convertAreaFills, convertAnnotations, convertSeriesOverrides, SortDirection, toBool, TRANSFORM_TYPES } from '@blueprint-chart/lib'
 import type { AnnotationConfig, AreaFillConfig, HighlightConfig, SeriesOverride } from '@blueprint-chart/lib'
 import { layoutDefaults, type ChartColorize, type ChartLayout } from '@/composables/useChartConfig'
 import type { ChartTypeOptions } from '@/composables/useChartTypeOptions'
@@ -99,6 +99,11 @@ function parseLayout(propMap: Properties): ChartLayout {
   if (playerPos && validPositions.includes(String(playerPos) as typeof validPositions[number])) {
     ly.playerPosition = String(playerPos) as ChartLayout['playerPosition']
   }
+
+  const playback = readPlaybackSettings(propMap)
+  ly.autoplay = playback.autoplay
+  ly.sceneDuration = playback.sceneDuration
+  ly.loop = playback.loop
 
   return { ...layoutDefaults, ...ly }
 }

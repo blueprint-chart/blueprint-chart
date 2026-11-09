@@ -1006,6 +1006,41 @@ describe('useDslSync', () => {
     })
   })
 
+  describe('scene playback', () => {
+    it('parses autoplay, sceneDuration and loop from DSL', () => {
+      const { applyDsl } = useDslSync()
+      applyDsl(`chart bar-horizontal {
+  autoplay = true
+  sceneDuration = 5
+  loop = true
+}`)
+
+      const layout = useChartConfig().layout.value
+      expect(layout.autoplay).toBe(true)
+      expect(layout.sceneDuration).toBe(5)
+      expect(layout.loop).toBe(true)
+    })
+
+    it('falls back to 3 for an out-of-range sceneDuration', () => {
+      const { applyDsl } = useDslSync()
+      applyDsl(`chart bar-horizontal {
+  sceneDuration = 42
+}`)
+
+      expect(useChartConfig().layout.value.sceneDuration).toBe(3)
+    })
+
+    it('round-trips sceneDuration through DSL', () => {
+      const { applyDsl } = useDslSync()
+      applyDsl(`chart bar-horizontal {
+  sceneDuration = 5
+}`)
+
+      const { generateDsl: dsl } = useDslOutput()
+      expect(dsl()).toContain('  sceneDuration = 5\n')
+    })
+  })
+
   describe('scene sort transform inheritance', () => {
     it('sort transform from scene 1 cascades to scene 2 via resolveScene', () => {
       const { applyDsl } = useDslSync()
