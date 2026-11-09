@@ -22,8 +22,8 @@ vi.mock('@/stores/scenes', () => ({
 
 vi.mock('@blueprint-chart/ui', () => ({
   FormControlCheckbox: {
-    template: '<input type="checkbox" :data-label="label" :checked="modelValue" @change="$emit(\'update:modelValue\', $event.target.checked)" />',
-    props: ['modelValue', 'label'],
+    template: '<input type="checkbox" :data-label="label" :data-description="description" :checked="modelValue" @change="$emit(\'update:modelValue\', $event.target.checked)" />',
+    props: ['modelValue', 'label', 'description'],
     emits: ['update:modelValue'],
   },
   FormControlSliderInput: {
@@ -52,13 +52,11 @@ describe('EditorInteractionSection playback controls', () => {
     expect(w.find('[data-label="Seconds per scene"]').exists()).toBe(true)
   })
 
-  it('notes that autoplay does not run in the editor', async () => {
+  it('describes autoplay as not running in the editor', () => {
     scenes.value = [{}]
     const w = mount(EditorInteractionSection)
-    expect(w.text()).not.toContain('not in the editor')
-    layout.value.autoplay = true
-    await w.vm.$nextTick()
-    expect(w.text()).toContain('Plays when readers scroll to the chart, not in the editor.')
+    const checkbox = w.find('[data-label="Play automatically"]')
+    expect(checkbox.attributes('data-description')).toBe('When the chart comes into view. Never in the editor.')
   })
 
   it('writes autoplay and loop to the layout', async () => {
