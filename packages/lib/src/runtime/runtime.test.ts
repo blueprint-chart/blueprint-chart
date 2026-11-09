@@ -104,11 +104,17 @@ describe('initBlueprint', () => {
       expect(srcdoc).not.toContain('createSceneController')
     })
 
-    it('re-renders once the frame has measured the footer with the player in it', () => {
+    it('re-renders a constrained frame once it has measured the footer with the player in it', () => {
       const srcdoc = buildSrcdoc(SRC, RUNTIME)
       const mountAt = srcdoc.indexOf('BlueprintChart.mountScenePlayer')
-      const rerender = 'requestAnimationFrame(function () { window.BlueprintChart.renderBpc(chart, __BPC_SRC__); });'
-      expect(srcdoc.indexOf(rerender)).toBeGreaterThan(mountAt)
+      expect(srcdoc.indexOf('requestAnimationFrame(rerenderConstrained)')).toBeGreaterThan(mountAt)
+      expect(srcdoc).toContain('if (!chart.querySelector(".bc-frame--constrained")) {')
+    })
+
+    it('reports an error thrown by the constrained re-render', () => {
+      const srcdoc = buildSrcdoc(SRC, RUNTIME)
+      const rerender = srcdoc.slice(srcdoc.indexOf('function rerenderConstrained'))
+      expect(rerender).toMatch(/try \{[^}]*renderBpc[^}]*\}\s*catch \(e\) \{\s*reportError\(e\)/)
     })
 
     it('passes the chosen player and position', () => {
