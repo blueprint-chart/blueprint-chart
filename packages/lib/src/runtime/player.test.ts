@@ -263,9 +263,11 @@ describe('mountScenePlayer playback', () => {
     expect(onStep).not.toHaveBeenCalled()
     vi.advanceTimersByTime(100)
     expect(onStep.mock.calls).toEqual([[2]])
+    expect(chart.querySelector('[data-scene-player]')).toBeNull()
     onStep.mockClear()
     vi.advanceTimersByTime(3000)
     expect(onStep).not.toHaveBeenCalled()
+    expect(chart.querySelector('[data-scene-player]')).toBeNull()
   })
 
   it('moves to the new footer when a scene re-render rebuilds it, and keeps playing', async () => {

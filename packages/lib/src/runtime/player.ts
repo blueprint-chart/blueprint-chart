@@ -253,6 +253,9 @@ export function mountScenePlayer(chart: HTMLElement, config: PlayerConfig, onSte
   // A scene re-render rebuilds the chart frame, footer included, so the
   // player follows the footer around as PreviewChart.vue does in the editor.
   function attachToFooter(): void {
+    if (!playerType) {
+      return
+    }
     const footer = chart.querySelector('.bc-frame-footer')
     if (footer && root.parentElement !== footer) {
       footer.appendChild(root)
