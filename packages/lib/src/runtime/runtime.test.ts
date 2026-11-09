@@ -104,6 +104,13 @@ describe('initBlueprint', () => {
       expect(srcdoc).not.toContain('createSceneController')
     })
 
+    it('re-renders once the frame has measured the footer with the player in it', () => {
+      const srcdoc = buildSrcdoc(SRC, RUNTIME)
+      const mountAt = srcdoc.indexOf('BlueprintChart.mountScenePlayer')
+      const rerender = 'requestAnimationFrame(function () { window.BlueprintChart.renderBpc(chart, __BPC_SRC__); });'
+      expect(srcdoc.indexOf(rerender)).toBeGreaterThan(mountAt)
+    })
+
     it('passes the chosen player and position', () => {
       expect(buildSrcdoc(withProps('player = "dot-stepper" playerPosition = "right"'), RUNTIME))
         .toContain('var __BPC_PLAYER__ = {"type":"dot-stepper","position":"right","total":3};')
