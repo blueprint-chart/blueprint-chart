@@ -14,6 +14,7 @@ export interface PlayerConfig {
   total: number
 }
 
+const PLAYBACK_INTERVAL_MS = 3000
 const STEP_SELECTOR = '.bc-scene-player__dots__dot, .bc-scene-player__segments__segment'
 
 const BACK_ICON = '<svg width="8" height="12" viewBox="0 0 8 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 1.5L1.5 6l4 4.5" /></svg>'
@@ -153,6 +154,7 @@ function patchElement(target: Element, source: Element): void {
 export function mountScenePlayer(chart: HTMLElement, config: PlayerConfig, onStep: (step: number) => void): void {
   const state: PlayerState = { current: 1, total: config.total, playing: false, position: config.position }
   const root = htmlToElement(scenePlayerHtml(config.type, state))
+  let timer: ReturnType<typeof setInterval> | undefined
 
   function render(): void {
     const fresh = htmlToElement(scenePlayerHtml(config.type, state))
@@ -178,13 +180,27 @@ export function mountScenePlayer(chart: HTMLElement, config: PlayerConfig, onSte
   }
 
   function play(): void {
+    if (state.playing) {
+      return
+    }
     state.playing = true
     render()
     go(1)
+    timer = setInterval(tick, PLAYBACK_INTERVAL_MS)
+  }
+
+  function tick(): void {
+    if (state.current < state.total) {
+      go(state.current + 1)
+    }
+    else {
+      pause()
+    }
   }
 
   function pause(): void {
     state.playing = false
+    clearInterval(timer)
     render()
   }
 
@@ -213,6 +229,16 @@ export function mountScenePlayer(chart: HTMLElement, config: PlayerConfig, onSte
     }
   }
 
+  // A scene re-render rebuilds the chart frame, footer included, so the
+  // player follows the footer around as PreviewChart.vue does in the editor.
+  function attachToFooter(): void {
+    const footer = chart.querySelector('.bc-frame-footer')
+    if (footer && root.parentElement !== footer) {
+      footer.appendChild(root)
+    }
+  }
+
   root.addEventListener('click', onClick)
-  chart.querySelector('.bc-frame-footer')?.appendChild(root)
+  attachToFooter()
+  new MutationObserver(attachToFooter).observe(chart, { childList: true, subtree: true })
 }
