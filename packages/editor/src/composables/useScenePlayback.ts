@@ -31,6 +31,18 @@ export function useScenesAutoplay(options: { whenVisible?: Readonly<Ref<HTMLElem
     return layout.value.autoplay && hasScenes && !prefersReducedMotion()
   }
 
+  // Another chart may have loaded, still armed, while the observer waited.
+  function playIfStillAllowed() {
+    if (!autoplayArmed.value) {
+      return
+    }
+    if (!canAutoplay()) {
+      disarmAutoplay()
+      return
+    }
+    play()
+  }
+
   watch(
     [autoplayArmed, () => options.whenVisible?.value],
     ([armed, element], _, onCleanup) => {
@@ -46,7 +58,7 @@ export function useScenesAutoplay(options: { whenVisible?: Readonly<Ref<HTMLElem
         return
       }
       if (element) {
-        const disconnect = onceVisible(element, play)
+        const disconnect = onceVisible(element, playIfStillAllowed)
         onCleanup(disconnect)
       }
     },

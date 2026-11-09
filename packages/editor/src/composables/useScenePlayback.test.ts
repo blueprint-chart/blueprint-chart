@@ -147,6 +147,17 @@ describe('useScenePlayback', () => {
     expect(playing.value).toBe(true)
   })
 
+  it('does not autoplay a newly loaded chart without autoplay when an older chart becomes visible', async () => {
+    const { playing } = useScenes()
+    loadChart()
+    const whenVisible = shallowRef<HTMLElement | null>(document.createElement('div'))
+    mountPlayback({ whenVisible })
+    loadChart({ autoplay: false })
+    await nextTick()
+    reveal()
+    expect(playing.value).toBe(false)
+  })
+
   it('does not autoplay after the reader already played and paused', async () => {
     const { playing, stopPlayback } = useScenes()
     loadChart()
