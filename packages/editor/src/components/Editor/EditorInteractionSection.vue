@@ -55,6 +55,26 @@
         :options="playerPositionOptions"
         block
       />
+
+      <FormControlCheckbox
+        v-model="autoplay"
+        label="Play automatically"
+      />
+
+      <FormControlCheckbox
+        v-model="loop"
+        label="Loop"
+      />
+
+      <FormControlSliderInput
+        id="layout-scene-duration"
+        v-model="sceneDuration"
+        label="Seconds per scene"
+        :min="SCENE_DURATION_MIN"
+        :max="SCENE_DURATION_MAX"
+        step="0.5"
+        suffix="s"
+      />
     </template>
   </div>
 </template>
@@ -63,7 +83,8 @@
 import { useChartTypeOptions } from '@/stores/chartTypeOptions'
 import { useChartConfig } from '@/stores/chartConfig'
 import { useScenes } from '@/stores/scenes'
-import { FormControlCheckbox, FormControlColorInput, FormControlButtonGroup, FormControlDropdown } from '@blueprint-chart/ui'
+import { FormControlCheckbox, FormControlColorInput, FormControlButtonGroup, FormControlDropdown, FormControlSliderInput } from '@blueprint-chart/ui'
+import { SCENE_DURATION_MIN, SCENE_DURATION_MAX } from '@blueprint-chart/lib'
 import IPhArrowsOutCardinal from '~icons/ph/arrows-out-cardinal'
 import IPhArrowsVertical from '~icons/ph/arrows-vertical'
 import IPhArrowsHorizontal from '~icons/ph/arrows-horizontal'
@@ -98,6 +119,21 @@ const playerType = computed({
 const playerPosition = computed({
   get: () => layout.value.playerPosition,
   set: (v) => { layout.value.playerPosition = v },
+})
+
+const autoplay = computed({
+  get: () => layout.value.autoplay,
+  set: (v) => { layout.value.autoplay = v },
+})
+
+const loop = computed({
+  get: () => layout.value.loop,
+  set: (v) => { layout.value.loop = v },
+})
+
+const sceneDuration = computed({
+  get: () => layout.value.sceneDuration,
+  set: (v) => { layout.value.sceneDuration = Number(v) },
 })
 
 const playerTypeOptions = [
