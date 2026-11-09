@@ -67,6 +67,8 @@ This is `packages/lib/src/samples/co2-emissions-story.bpc` verbatim. The first t
 
 Open this in the editor to see the scene timeline appear automatically; embed it on a page and readers get the same scene player in the chart footer.
 
+Set `autoplay = true` to start playback without a click. It starts when the chart scrolls into view, or on load in the editor preview, and never when the reader's system asks for reduced motion. `sceneDuration` and `loop` also apply when the reader presses Play. Any Back, Next or dot click stops playback. See [Scene playback](/reference/dsl/properties#scene-playback) for the keys.
+
 ## How it works
 
 A scene block accepts the same member set as the top-level chart. At parse time, each `scene` becomes a `SceneNode` in the AST. The DSL converter merges scene members on top of the base chart to produce the **effective** `ChartData` and `ChartOptions` for that scene.
@@ -76,7 +78,7 @@ At render time:
 1. The runtime collects the chart's scenes into a `SceneDefinition[]`.
 2. The embed mounts the scene player chosen with `player` (`buttons` by default) in the chart footer, as the editor does.
 3. On every scene change, the callback re-renders the chart with `transition = true`, which triggers the motion helpers (`snapshotForFadeOut`, `commitFadeOut`, `fadeIn`) and animates the crossfade.
-4. Previous is disabled on the first scene and Next on the last; Play steps through every scene once, then stops.
+4. Previous is disabled on the first scene and Next on the last; Play steps through every scene once, then stops, unless `loop = true`.
 
 The pipeline that runs per scene is the same eleven-step sequence documented in [Embedding](/guide/embed) and the DSL spec — scene overrides are merged at step 3 (transforms), so everything downstream sees the post-scene state.
 

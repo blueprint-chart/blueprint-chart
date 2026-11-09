@@ -24,6 +24,25 @@ Property keys may be identifiers (`title`) or strings (`"data-attribute"`).
 
 The full set of recognized property keys per chart type is defined by the option defs in `@blueprint-chart/lib` and tabulated on each [chart type page](/charts/), generated from `getChartOptions()` at build time.
 
+### Scene playback
+
+Three chart-level keys control how scenes play:
+
+| Key | Type | Default | Meaning |
+| --- | --- | --- | --- |
+| `autoplay` | boolean | `false` | Start playback on its own. |
+| `sceneDuration` | number, seconds | `3` | Time each scene stays on screen. |
+| `loop` | boolean | `false` | After the last scene, go back to the first and keep playing. |
+
+```bpc
+player = "dot-stepper"
+autoplay = true
+sceneDuration = 5
+loop = true
+```
+
+`sceneDuration` defaults to 3 seconds and accepts 1 to 10. These keys apply to the whole chart and are rejected inside a `scene` block.
+
 ## Data block
 
 The `data` block carries the chart's primary values.
