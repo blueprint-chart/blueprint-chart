@@ -90,10 +90,8 @@ describe('createPlayback', () => {
     vi.advanceTimersByTime(3000)
     expect(steps).toEqual([1, 2])
     settings.sceneDuration = 1
-    vi.advanceTimersByTime(3000)
-    expect(steps).toEqual([1, 2, 3])
     vi.advanceTimersByTime(1000)
-    expect(steps).toEqual([1, 2, 3, 4])
+    expect(steps).toEqual([1, 2, 3])
   })
 
   it('stops instead of stepping out of range when total shrinks', () => {
@@ -105,6 +103,17 @@ describe('createPlayback', () => {
     vi.advanceTimersByTime(3000)
     expect(steps).toEqual([1, 2, 3])
     expect(changes).toEqual([true, false])
+  })
+
+  it('goes back to step 1 and keeps playing when total shrinks with loop on', () => {
+    const { playback, steps, changes, setTotal } = setup(4, { loop: true })
+    playback.play()
+    vi.advanceTimersByTime(6000)
+    expect(steps).toEqual([1, 2, 3])
+    setTotal(2)
+    vi.advanceTimersByTime(3000)
+    expect(steps).toEqual([1, 2, 3, 1])
+    expect(changes).toEqual([true])
   })
 
   it('ignores play while playing and stop while stopped', () => {

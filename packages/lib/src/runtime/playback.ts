@@ -39,37 +39,43 @@ export function readPlaybackSettings(properties: ReadonlyMap<string, unknown>): 
   return { autoplay, sceneDuration, loop }
 }
 
+const POLL_MS = 100
+
 export function createPlayback(options: PlaybackOptions): Playback {
   let playing = false
-  let timer: ReturnType<typeof setTimeout> | undefined
+  let timer: ReturnType<typeof setInterval> | undefined
+  let sceneStart = 0
 
   function stop() {
     if (!playing) {
       return
     }
     playing = false
-    clearTimeout(timer)
+    clearInterval(timer)
     options.onChange(false)
   }
 
-  function schedule() {
-    const delay = options.settings().sceneDuration * 1000
-    timer = setTimeout(tick, delay)
+  function goTo(step: number) {
+    sceneStart = Date.now()
+    options.go(step)
   }
 
   function tick() {
+    const elapsed = Date.now() - sceneStart
+    const due = options.settings().sceneDuration * 1000
+    if (elapsed < due) {
+      return
+    }
     const current = options.current()
     if (current < options.total()) {
-      options.go(current + 1)
+      goTo(current + 1)
     }
     else if (options.settings().loop) {
-      options.go(1)
+      goTo(1)
     }
     else {
       stop()
-      return
     }
-    schedule()
   }
 
   function play() {
@@ -78,8 +84,8 @@ export function createPlayback(options: PlaybackOptions): Playback {
     }
     playing = true
     options.onChange(true)
-    options.go(1)
-    schedule()
+    goTo(1)
+    timer = setInterval(tick, POLL_MS)
   }
 
   return { play, stop }
