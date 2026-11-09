@@ -31,6 +31,9 @@ export default defineConfig({
     AutoImport({
       imports: ['vue', '@vueuse/core', 'pinia'],
       dirs: ['src/composables', '../ui/src/composables'],
+      // The workspace lib resolves to packages/lib/dist, outside node_modules, so the
+      // default exclude misses it and minified names like `h` get a Vue import injected.
+      exclude: [/[\\/]node_modules[\\/]/, /[\\/]lib[\\/]dist[\\/]/],
       dts: 'auto-imports.d.ts',
       eslintrc: { enabled: true, filepath: 'auto-imports.eslintrc.json' },
     }),
