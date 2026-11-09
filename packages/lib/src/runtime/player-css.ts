@@ -2,7 +2,7 @@ export const PLAYER_CSS = `
 /* Blueprint Chart — Scene player styles, shared by the editor and the embed.
    Light colors live in var() fallbacks; only dark mode defines the tokens. */
 
-[data-bs-theme="dark"] .bc-frame {
+[data-bs-theme="dark"] .bc-frame:not([data-bs-theme="dark"] [data-bs-theme="light"] *) {
   --bc-scene-player-text: #e6e6e6;
   --bc-scene-player-muted: #a8a5a0;
   --bc-scene-player-border: #6b6966;

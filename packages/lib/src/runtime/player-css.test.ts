@@ -12,6 +12,10 @@ describe('PLAYER_CSS', () => {
     }
   })
 
+  it('stops the page-level dark tokens at a light section nested in a dark page', () => {
+    expect(PLAYER_CSS).toContain('[data-bs-theme="dark"] .bc-frame:not([data-bs-theme="dark"] [data-bs-theme="light"] *) {')
+  })
+
   it('declares tokens only in the two dark rules, so light mode keeps the fallbacks', () => {
     expect(PLAYER_CSS.match(/--bc-scene-player-text:/g)).toHaveLength(2)
   })
