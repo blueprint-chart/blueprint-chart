@@ -35,6 +35,8 @@
 </template>
 
 <script setup lang="ts">
+import { useScenePlayerStyles } from '../../../composables/useScenePlayerStyles'
+
 const current = defineModel<number>('current', { required: true })
 
 withDefaults(defineProps<{
@@ -52,81 +54,6 @@ defineEmits<{
   previous: []
   next: []
 }>()
+
+useScenePlayerStyles()
 </script>
-
-<style scoped lang="scss">
-.bc-scene-player {
-  &--buttons {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    padding: 0.25rem 0 0;
-    width: 100%;
-
-    &.bc-scene-player--left {
-      justify-content: flex-start;
-      gap: 16px;
-
-      .bc-scene-player__counter {
-        margin-left: auto;
-      }
-    }
-
-    &.bc-scene-player--center {
-      justify-content: center;
-      gap: 16px;
-    }
-
-    &.bc-scene-player--right {
-      justify-content: flex-end;
-      gap: 16px;
-    }
-  }
-
-  &__btn-group {
-    display: flex;
-    gap: 6px;
-
-    &__btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      padding: 6px 14px;
-      border-radius: 6px;
-      border: 1px solid var(--bc-scene-player-border, currentColor);
-      background: none;
-      color: var(--bc-scene-player-muted);
-      font-size: var(--bs-font-size-sm);
-      font-weight: 500;
-      cursor: pointer;
-      transition: border-color var(--bc-duration-base), color var(--bc-duration-base);
-      line-height: 1.4;
-
-      &:hover:not(:disabled) {
-        border-color: var(--bc-scene-player-border-hover);
-        background: var(--bc-scene-player-background-hover, rgba(0, 0, 0, 0.04));
-        color: var(--bc-scene-player-text);
-      }
-
-      &--next {
-        color: var(--bc-scene-player-text);
-        font-weight: 600;
-      }
-
-      &--disabled {
-        opacity: 0.35;
-        cursor: default;
-      }
-    }
-  }
-
-  &__counter {
-    font-size: var(--bs-font-size-sm);
-    font-weight: 500;
-    color: var(--bc-scene-player-muted, #9b9893);
-    white-space: nowrap;
-    font-variant-numeric: tabular-nums;
-  }
-}
-</style>

@@ -252,6 +252,7 @@ declare global {
   const useRefHistory: typeof import('@vueuse/core').useRefHistory
   const useResizeObserver: typeof import('@vueuse/core').useResizeObserver
   const useSSRWidth: typeof import('@vueuse/core').useSSRWidth
+  const useScenePlayerStyles: typeof import('./src/composables/useScenePlayerStyles').useScenePlayerStyles
   const useScreenOrientation: typeof import('@vueuse/core').useScreenOrientation
   const useScreenSafeArea: typeof import('@vueuse/core').useScreenSafeArea
   const useScriptTag: typeof import('@vueuse/core').useScriptTag

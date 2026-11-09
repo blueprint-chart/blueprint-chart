@@ -54,6 +54,8 @@
 </template>
 
 <script setup lang="ts">
+import { useScenePlayerStyles } from '../../../composables/useScenePlayerStyles'
+
 const current = defineModel<number>('current', { required: true })
 
 withDefaults(defineProps<{
@@ -71,106 +73,6 @@ defineEmits<{
   previous: []
   next: []
 }>()
+
+useScenePlayerStyles()
 </script>
-
-<style scoped lang="scss">
-.bc-scene-player {
-  &--dot-stepper {
-    display: flex;
-    align-items: center;
-    gap: 0.375rem;
-    padding: 0.25rem 0 0;
-    width: 100%;
-
-    &.bc-scene-player--left {
-      justify-content: flex-start;
-    }
-
-    &.bc-scene-player--center {
-      justify-content: center;
-    }
-
-    &.bc-scene-player--right {
-      justify-content: flex-end;
-    }
-  }
-
-  &__nav-btn {
-    width: 24px;
-    height: 24px;
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: none;
-    border: 1px solid var(--bc-scene-player-border, #e2e0db);
-    color: var(--bc-scene-player-muted, #9b9893);
-    cursor: pointer;
-    flex-shrink: 0;
-    padding: 0;
-
-    &:hover:not(:disabled) {
-      border-color: var(--bc-scene-player-border-hover, #6b6966);
-      color: var(--bc-scene-player-text, #1a1a1a);
-    }
-
-    &:disabled {
-      opacity: 0.3;
-      cursor: default;
-    }
-  }
-
-  &__play-btn {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--bc-scene-player-accent, #2c5aa0);
-    border: none;
-    color: #fff;
-    cursor: pointer;
-    flex-shrink: 0;
-    padding: 0;
-    transition: background var(--bc-duration-base) ease;
-
-    &:hover {
-      background: var(--bc-scene-player-accent-hover, #1e4888);
-    }
-  }
-
-  &__dots {
-    display: flex;
-    gap: 6px;
-    align-items: center;
-
-    &__dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 4px;
-      border: none;
-      padding: 0;
-      cursor: pointer;
-      background: var(--bc-scene-player-track, #e2e0db);
-      opacity: 0.4;
-      transition: width var(--bc-duration-slow) ease, background var(--bc-duration-slow) ease, opacity var(--bc-duration-slow) ease;
-
-      &--completed {
-        background: var(--bc-scene-player-accent, #2c5aa0);
-        opacity: 1;
-      }
-
-      &--active {
-        width: 20px;
-        background: var(--bc-scene-player-accent, #2c5aa0);
-        opacity: 1;
-      }
-
-      &:hover {
-        opacity: 0.8;
-      }
-    }
-  }
-}
-</style>

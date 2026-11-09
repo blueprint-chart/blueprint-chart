@@ -34,6 +34,8 @@
 </template>
 
 <script setup lang="ts">
+import { useScenePlayerStyles } from '../../../composables/useScenePlayerStyles'
+
 const current = defineModel<number>('current', { required: true })
 
 withDefaults(defineProps<{
@@ -49,79 +51,6 @@ defineEmits<{
   play: []
   pause: []
 }>()
+
+useScenePlayerStyles()
 </script>
-
-<style scoped lang="scss">
-.bc-scene-player {
-  &--progress-bar {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.25rem 0 0;
-    width: 100%;
-  }
-
-  &__play-btn {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--bc-scene-player-accent, #2c5aa0);
-    border: none;
-    color: #fff;
-    cursor: pointer;
-    flex-shrink: 0;
-    padding: 0;
-    transition: background var(--bc-duration-base) ease;
-
-    &:hover {
-      background: var(--bc-scene-player-accent-hover, #1e4888);
-    }
-  }
-
-  &__segments {
-    flex: 1;
-    display: flex;
-    gap: 3px;
-    align-items: center;
-
-    &__segment {
-      flex: 1;
-      height: 4px;
-      border-radius: 2px;
-      border: none;
-      padding: 0;
-      cursor: pointer;
-      background: var(--bc-scene-player-track, #e2e0db);
-      opacity: 0.45;
-      transition: height var(--bc-duration-slow) ease, background var(--bc-duration-slow) ease, opacity var(--bc-duration-slow) ease;
-
-      &--completed {
-        background: var(--bc-scene-player-accent, #2c5aa0);
-        opacity: 1;
-      }
-
-      &--active {
-        height: 6px;
-        background: var(--bc-scene-player-accent, #2c5aa0);
-        opacity: 1;
-      }
-
-      &:hover {
-        opacity: 0.8;
-      }
-    }
-  }
-
-  &__counter {
-    font-size: var(--bs-font-size-xs);
-    font-weight: 500;
-    color: var(--bc-scene-player-muted, #9b9893);
-    white-space: nowrap;
-    font-variant-numeric: tabular-nums;
-    flex-shrink: 0;
-  }
-}
-</style>
