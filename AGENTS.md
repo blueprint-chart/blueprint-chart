@@ -62,7 +62,7 @@ Public documentation — handbook, guide, BPC DSL spec, lib API reference. Publi
 ## Dependencies Between Packages
 
 - `lib` has no workspace dependencies (pure TS + D3)
-- `ui` depends on Vue + Bootstrap (no workspace deps)
+- `ui` depends on Vue + Bootstrap; `workspace:lib` is a **devDependency** only, for stories, tests, and the scene player stylesheet bundled into `dist/style.css` at build time
 - `editor` depends on `workspace:lib` and `workspace:ui`
 - `docs` depends on `workspace:lib` and `workspace:ui` as **devDependencies** only — they're consumed at build time (API reference, live samples) but not bundled into the published package
 

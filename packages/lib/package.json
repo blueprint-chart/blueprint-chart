@@ -48,12 +48,14 @@
       "default": "./dist/runtime.js"
     },
     "./charts.scss": "./src/charts/chart.scss",
+    "./player.css": "./src/runtime/player.css",
     "./src/charts/chart.scss": "./src/charts/chart.scss",
     "./embed-runtime.js": "./dist/lib/lib.iife.js"
   },
   "files": [
     "dist",
     "src/charts/chart.scss",
+    "src/runtime/player.css",
     "README.md",
     "LICENSE"
   ],

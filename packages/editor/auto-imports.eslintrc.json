@@ -357,7 +357,6 @@
     "useRefHistory": true,
     "useResizeObserver": true,
     "useSSRWidth": true,
-    "useScenePlayerStyles": true,
     "useScenes": true,
     "useScenesStore": true,
     "useScreenOrientation": true,

@@ -45,7 +45,7 @@
 </template>
 
 <script setup lang="ts">
-import { useScenePlayerStyles } from '../../../composables/useScenePlayerStyles'
+import '@blueprint-chart/lib/player.css'
 
 const current = defineModel<number>('current', { required: true })
 
@@ -71,5 +71,4 @@ defineEmits<{
   next: []
 }>()
 
-useScenePlayerStyles()
 </script>

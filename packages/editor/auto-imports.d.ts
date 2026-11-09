@@ -348,7 +348,6 @@ declare global {
   const useSSRWidth: typeof import('@vueuse/core').useSSRWidth
   const useSavedChartPreview: typeof import('./src/composables/useSavedChartPreview').useSavedChartPreview
   const useSavedChartThumbnails: typeof import('./src/composables/useSavedChartThumbnails').useSavedChartThumbnails
-  const useScenePlayerStyles: typeof import('../ui/src/composables/useScenePlayerStyles').useScenePlayerStyles
   const useScenes: typeof import('./src/composables/useScenes').useScenes
   const useScenesStore: typeof import('./src/composables/useScenes').useScenesStore
   const useScreenOrientation: typeof import('@vueuse/core').useScreenOrientation

@@ -9,4 +9,3 @@
 export { buildSrcdoc } from './runtime/runtime'
 export type { EmbedTheme } from './runtime/runtime'
 export { readResizeHeight, isErrorMessage, RESIZE_MESSAGE, ERROR_MESSAGE } from './runtime/messages'
-export { PLAYER_CSS } from './runtime/player-css'

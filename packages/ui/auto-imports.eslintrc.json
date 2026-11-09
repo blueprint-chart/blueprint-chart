@@ -250,7 +250,6 @@
     "useRefHistory": true,
     "useResizeObserver": true,
     "useSSRWidth": true,
-    "useScenePlayerStyles": true,
     "useScreenOrientation": true,
     "useScreenSafeArea": true,
     "useScriptTag": true,

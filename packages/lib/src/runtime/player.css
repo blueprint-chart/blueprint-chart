@@ -1,0 +1,278 @@
+/* Blueprint Chart — Scene player styles, shared by the editor and the embed.
+   Light colors live in var() fallbacks; only dark mode defines the tokens. */
+
+[data-bs-theme="dark"] .bc-frame:not([data-bs-theme="dark"] [data-bs-theme="light"] *),
+.bc-frame.bc-theme-dark {
+  --bc-scene-player-text: #e6e6e6;
+  --bc-scene-player-muted: #a8a5a0;
+  --bc-scene-player-border: #6b6966;
+  --bc-scene-player-border-hover: #a8a5a0;
+  --bc-scene-player-background-hover: rgba(255, 255, 255, 0.06);
+  --bc-scene-player-track: #6b6966;
+  --bc-scene-player-accent: #4a7fd0;
+  --bc-scene-player-accent-hover: #5b8fdc;
+}
+
+.bc-scene-player--buttons {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0.25rem 0 0;
+  width: 100%;
+}
+
+.bc-scene-player--buttons.bc-scene-player--left {
+  justify-content: flex-start;
+  gap: 16px;
+}
+
+.bc-scene-player--buttons.bc-scene-player--left .bc-scene-player__counter {
+  margin-left: auto;
+}
+
+.bc-scene-player--buttons.bc-scene-player--center {
+  justify-content: center;
+  gap: 16px;
+}
+
+.bc-scene-player--buttons.bc-scene-player--right {
+  justify-content: flex-end;
+  gap: 16px;
+}
+
+.bc-scene-player--dot-stepper,
+.bc-scene-player--minimal-arrows {
+  display: flex;
+  align-items: center;
+  padding: 0.25rem 0 0;
+  width: 100%;
+}
+
+.bc-scene-player--dot-stepper {
+  gap: 0.375rem;
+}
+
+.bc-scene-player--minimal-arrows {
+  gap: 4px;
+}
+
+.bc-scene-player--dot-stepper.bc-scene-player--left,
+.bc-scene-player--minimal-arrows.bc-scene-player--left {
+  justify-content: flex-start;
+}
+
+.bc-scene-player--dot-stepper.bc-scene-player--center,
+.bc-scene-player--minimal-arrows.bc-scene-player--center {
+  justify-content: center;
+}
+
+.bc-scene-player--dot-stepper.bc-scene-player--right,
+.bc-scene-player--minimal-arrows.bc-scene-player--right {
+  justify-content: flex-end;
+}
+
+.bc-scene-player--progress-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0 0;
+  width: 100%;
+}
+
+.bc-scene-player__btn-group {
+  display: flex;
+  gap: 6px;
+}
+
+.bc-scene-player__btn-group__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: 1px solid var(--bc-scene-player-border, currentColor);
+  background: none;
+  color: var(--bc-scene-player-muted);
+  font-size: var(--bs-font-size-sm, 0.875rem);
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color var(--bc-duration-base, 150ms), color var(--bc-duration-base, 150ms);
+  line-height: 1.4;
+}
+
+.bc-scene-player__btn-group__btn:hover:not(:disabled) {
+  border-color: var(--bc-scene-player-border-hover);
+  background: var(--bc-scene-player-background-hover, rgba(0, 0, 0, 0.04));
+  color: var(--bc-scene-player-text);
+}
+
+.bc-scene-player__btn-group__btn--next {
+  color: var(--bc-scene-player-text);
+  font-weight: 600;
+}
+
+.bc-scene-player__btn-group__btn--disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.bc-scene-player__nav-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: 1px solid var(--bc-scene-player-border, #e2e0db);
+  color: var(--bc-scene-player-muted, #9b9893);
+  cursor: pointer;
+  flex-shrink: 0;
+  padding: 0;
+}
+
+.bc-scene-player__nav-btn:hover:not(:disabled) {
+  border-color: var(--bc-scene-player-border-hover, #6b6966);
+  color: var(--bc-scene-player-text, #1a1a1a);
+}
+
+.bc-scene-player__nav-btn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.bc-scene-player__play-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bc-scene-player-accent, #2c5aa0);
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  flex-shrink: 0;
+  padding: 0;
+  transition: background var(--bc-duration-base, 150ms) ease;
+}
+
+.bc-scene-player__play-btn:hover {
+  background: var(--bc-scene-player-accent-hover, #1e4888);
+}
+
+.bc-scene-player--dot-stepper .bc-scene-player__play-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+}
+
+.bc-scene-player--minimal-arrows .bc-scene-player__play-btn {
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+}
+
+.bc-scene-player--progress-bar .bc-scene-player__play-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+}
+
+.bc-scene-player__dots {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.bc-scene-player__dots__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 4px;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  background: var(--bc-scene-player-track, #e2e0db);
+  opacity: 0.4;
+  transition: width var(--bc-duration-slow, 250ms) ease, background var(--bc-duration-slow, 250ms) ease, opacity var(--bc-duration-slow, 250ms) ease;
+}
+
+.bc-scene-player__dots__dot--completed {
+  background: var(--bc-scene-player-accent, #2c5aa0);
+  opacity: 1;
+}
+
+.bc-scene-player__dots__dot--active {
+  width: 20px;
+  background: var(--bc-scene-player-accent, #2c5aa0);
+  opacity: 1;
+}
+
+.bc-scene-player__dots__dot:hover {
+  opacity: 0.8;
+}
+
+.bc-scene-player__segments {
+  flex: 1;
+  display: flex;
+  gap: 3px;
+  align-items: center;
+}
+
+.bc-scene-player__segments__segment {
+  flex: 1;
+  height: 4px;
+  border-radius: 2px;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  background: var(--bc-scene-player-track, #e2e0db);
+  opacity: 0.45;
+  transition: height var(--bc-duration-slow, 250ms) ease, background var(--bc-duration-slow, 250ms) ease, opacity var(--bc-duration-slow, 250ms) ease;
+}
+
+.bc-scene-player__segments__segment--completed {
+  background: var(--bc-scene-player-accent, #2c5aa0);
+  opacity: 1;
+}
+
+.bc-scene-player__segments__segment--active {
+  height: 6px;
+  background: var(--bc-scene-player-accent, #2c5aa0);
+  opacity: 1;
+}
+
+.bc-scene-player__segments__segment:hover {
+  opacity: 0.8;
+}
+
+.bc-scene-player__counter {
+  font-weight: 500;
+  color: var(--bc-scene-player-muted, #9b9893);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.bc-scene-player--buttons .bc-scene-player__counter {
+  font-size: var(--bs-font-size-sm, 0.875rem);
+}
+
+.bc-scene-player--minimal-arrows .bc-scene-player__counter {
+  font-size: var(--bs-font-size-xs, 0.75rem);
+  margin-right: 4px;
+}
+
+.bc-scene-player--minimal-arrows .bc-scene-player__counter--end {
+  margin-right: 0;
+  margin-left: 4px;
+}
+
+.bc-scene-player--progress-bar .bc-scene-player__counter {
+  font-size: var(--bs-font-size-xs, 0.75rem);
+  flex-shrink: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bc-scene-player,
+  .bc-scene-player * {
+    transition: none;
+  }
+}

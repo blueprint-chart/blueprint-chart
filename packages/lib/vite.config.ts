@@ -38,6 +38,8 @@ export default defineConfig({
     globals: true,
     passWithNoTests: true,
     setupFiles: ['src/test-setup.ts'],
+    // Vitest blanks CSS files, `?raw` imports included; PLAYER_CSS needs the real text.
+    css: { include: [/player\.css/] },
     // The unified render() front door reaches the Node backend via the
     // conditional subpath export `@blueprint-chart/lib/internal/node-backend`,
     // which resolves to `dist/node-backend/` only after a build. Under vitest we

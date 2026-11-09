@@ -4,20 +4,20 @@ import { PLAYER_CSS } from './player-css'
 const TOKENS = ['text', 'muted', 'border', 'border-hover', 'background-hover', 'track', 'accent', 'accent-hover']
 
 describe('PLAYER_CSS', () => {
-  it.each(['[data-bs-theme="dark"] .bc-frame', '.bc-frame.bc-theme-dark'])('defines every dark token under %s', (selector) => {
-    const escaped = selector.replace(/[.[\]"]/g, m => `\\${m}`)
-    const block = PLAYER_CSS.match(new RegExp(`${escaped}[^{]*\\{([^}]*)\\}`))?.[1] ?? ''
+  it('defines every dark token once, for both the page theme and the chart theme', () => {
+    const block = PLAYER_CSS.match(/\.bc-frame\.bc-theme-dark\s*\{([^}]*)\}/)?.[1] ?? ''
+    expect(PLAYER_CSS).toMatch(/\[data-bs-theme="dark"\] \.bc-frame:not\([^{]*\),\s*\.bc-frame\.bc-theme-dark\s*\{/)
     for (const token of TOKENS) {
       expect(block).toMatch(new RegExp(`--bc-scene-player-${token}:`))
     }
   })
 
   it('stops the page-level dark tokens at a light section nested in a dark page', () => {
-    expect(PLAYER_CSS).toContain('[data-bs-theme="dark"] .bc-frame:not([data-bs-theme="dark"] [data-bs-theme="light"] *) {')
+    expect(PLAYER_CSS).toContain('[data-bs-theme="dark"] .bc-frame:not([data-bs-theme="dark"] [data-bs-theme="light"] *),')
   })
 
-  it('declares tokens only in the two dark rules, so light mode keeps the fallbacks', () => {
-    expect(PLAYER_CSS.match(/--bc-scene-player-text:/g)).toHaveLength(2)
+  it('declares tokens only in the dark rule, so light mode keeps the fallbacks', () => {
+    expect(PLAYER_CSS.match(/--bc-scene-player-text:/g)).toHaveLength(1)
   })
 
   it('gives every Bootstrap and duration variable a fallback', () => {

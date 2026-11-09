@@ -3,7 +3,6 @@ import ScenePlayerProgressBar from './ScenePlayerProgressBar.vue'
 import ScenePlayerDotStepper from './ScenePlayerDotStepper.vue'
 import ScenePlayerMinimalArrows from './ScenePlayerMinimalArrows.vue'
 import ScenePlayerButtons from './ScenePlayerButtons.vue'
-import { PLAYER_CSS } from '@blueprint-chart/lib/embed'
 
 describe('ScenePlayerProgressBar', () => {
   it('renders correct number of segments', () => {
@@ -383,19 +382,5 @@ describe('ScenePlayerButtons', () => {
       props: { total: 2, current: 1 },
     })
     expect(wrapper.find('.bc-scene-player--left').exists()).toBe(true)
-  })
-})
-
-describe('scene player styles', () => {
-  beforeEach(() => document.head.querySelectorAll('style[data-bc-scene-player]').forEach(el => el.remove()))
-
-  it('inserts PLAYER_CSS once per document, whatever the number of players', () => {
-    mount(ScenePlayerButtons, { props: { total: 3, current: 1 } })
-    mount(ScenePlayerDotStepper, { props: { total: 3, current: 1 } })
-    mount(ScenePlayerProgressBar, { props: { total: 3, current: 1 } })
-    mount(ScenePlayerMinimalArrows, { props: { total: 3, current: 1 } })
-    const styles = document.head.querySelectorAll('style[data-bc-scene-player]')
-    expect(styles).toHaveLength(1)
-    expect(styles[0].textContent).toBe(PLAYER_CSS)
   })
 })
