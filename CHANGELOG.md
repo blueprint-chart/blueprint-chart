@@ -1,3 +1,32 @@
+## [2.19.0](https://github.com/blueprint-chart/blueprint-chart/compare/v2.18.0...v2.19.0) (2026-11-09)
+
+### Features
+
+* **editor:** add autoplay, loop and pace controls to the scene player panel ([c189ffb](https://github.com/blueprint-chart/blueprint-chart/commit/c189ffb0af7c27bbccc29f487ba602653f01522a))
+* **editor:** autoplay, pace and loop in the preview and render page ([e8f7f91](https://github.com/blueprint-chart/blueprint-chart/commit/e8f7f91414c3598659b6b90a964498444e7fd0ba))
+* **editor:** do not autoplay scenes in the editor preview ([a757906](https://github.com/blueprint-chart/blueprint-chart/commit/a757906398a8e80332c8407b7fabf8b6b775578b))
+* **editor:** read and write scene playback properties ([8d45ce6](https://github.com/blueprint-chart/blueprint-chart/commit/8d45ce6165be86719ec82d0280a865905c914f0b))
+* **lib:** add a shared scene playback helper ([91bfef5](https://github.com/blueprint-chart/blueprint-chart/commit/91bfef53eb2aed39497a8603737a44b56283a25e))
+* **lib:** autoplay, pace and loop in the embedded scene player ([df03a95](https://github.com/blueprint-chart/blueprint-chart/commit/df03a95b7ddb632cbbd7fad63acddbfa8f714c95))
+* **lib:** validate scene playback properties ([9c49cbc](https://github.com/blueprint-chart/blueprint-chart/commit/9c49cbc23a6517c549f7d09428fabc1eb523c54a))
+* **ui:** add a description to FormControlCheckbox ([f4d7394](https://github.com/blueprint-chart/blueprint-chart/commit/f4d7394d27d8853837080345e7f4328397827e1c))
+
+### Bug Fixes
+
+* **editor:** autoplay charts imported from a file ([31e6f46](https://github.com/blueprint-chart/blueprint-chart/commit/31e6f46e5ce5203c28f6eb41c49cbcac51ed6100))
+* **editor:** autoplay once per chart load ([8ead9b0](https://github.com/blueprint-chart/blueprint-chart/commit/8ead9b083850eeb45a9947fef5c6fc7ee5ec70d5))
+* **editor:** do not autosave or record history during scene playback ([a6f13db](https://github.com/blueprint-chart/blueprint-chart/commit/a6f13db94755dccae2ed41d6af9d4ff137319d00))
+* **editor:** keep the scene duration within 1 to 10 seconds ([1c1fba7](https://github.com/blueprint-chart/blueprint-chart/commit/1c1fba77998ba8db3a8ff44dd14ec21e0a83ee0e))
+* **editor:** let the scene duration box be cleared ([126df71](https://github.com/blueprint-chart/blueprint-chart/commit/126df71318d0f3a72999cd1b07118299269bb734))
+* **editor:** re-check autoplay when the render page chart becomes visible ([e327b89](https://github.com/blueprint-chart/blueprint-chart/commit/e327b897fd32978726efcc660b9a15d26de2af5a))
+* **editor:** show the autoplay note under its switch label ([58d2eb1](https://github.com/blueprint-chart/blueprint-chart/commit/58d2eb134678474b435ba9789901bf932513fd96))
+* **editor:** stop scene playback on unmount and record edits made during it ([b1e7236](https://github.com/blueprint-chart/blueprint-chart/commit/b1e7236cdb594eff03f10464c4a1039a53fe4e79))
+* **lib:** apply a new scene duration to the pending scene ([92d021f](https://github.com/blueprint-chart/blueprint-chart/commit/92d021f625d005b59be82028b8a23d8146027190))
+* **lib:** fall back to 3 s for a non-number scene duration ([4ad2016](https://github.com/blueprint-chart/blueprint-chart/commit/4ad2016b036cd96ba17000398478f9c584fd20a9))
+* **lib:** harden scene playback timing and autoplay visibility ([c9a90ae](https://github.com/blueprint-chart/blueprint-chart/commit/c9a90aea7862817e54afbf85b47048d401f80237))
+* **lib:** mount no controls for player none during autoplay ([d119fcc](https://github.com/blueprint-chart/blueprint-chart/commit/d119fcc9c34db77872022fdce06f0457aca3665d))
+* **lib:** validate scene playback keys once and as booleans ([3f8b7ad](https://github.com/blueprint-chart/blueprint-chart/commit/3f8b7ad22c8db6f2fa34a6c9dc165d51459e9615))
+
 ## [2.18.0](https://github.com/blueprint-chart/blueprint-chart/compare/v2.17.1...v2.18.0) (2026-11-09)
 
 ### Features
