@@ -24,12 +24,11 @@ export interface Playback {
 }
 
 function readSceneDuration(raw: unknown): number {
-  if (raw === '' || raw === null || raw === undefined) {
+  if (typeof raw !== 'number') {
     return DEFAULT_SCENE_DURATION
   }
-  const value = Number(raw)
-  const inRange = value >= SCENE_DURATION_MIN && value <= SCENE_DURATION_MAX
-  return inRange ? value : DEFAULT_SCENE_DURATION
+  const inRange = raw >= SCENE_DURATION_MIN && raw <= SCENE_DURATION_MAX
+  return inRange ? raw : DEFAULT_SCENE_DURATION
 }
 
 export function readPlaybackSettings(properties: ReadonlyMap<string, unknown>): PlaybackSettings {

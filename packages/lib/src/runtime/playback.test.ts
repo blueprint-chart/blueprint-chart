@@ -12,7 +12,7 @@ describe('readPlaybackSettings', () => {
     expect(readPlaybackSettings(map)).toEqual({ autoplay: true, sceneDuration: 5, loop: true })
   })
 
-  it.each([0, 0.5, 11, 'fast', ''])('falls back to 3 s for sceneDuration %s', (value) => {
+  it.each([0, 0.5, 11, 'fast', '', '5', true])('falls back to 3 s for sceneDuration %s', (value) => {
     expect(readPlaybackSettings(new Map([['sceneDuration', value]])).sceneDuration).toBe(3)
   })
 
