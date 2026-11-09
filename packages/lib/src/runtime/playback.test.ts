@@ -19,6 +19,11 @@ describe('readPlaybackSettings', () => {
   it.each([1, 10, 2.5])('accepts the in-range duration %s', (value) => {
     expect(readPlaybackSettings(new Map([['sceneDuration', value]])).sceneDuration).toBe(value)
   })
+
+  it('drops loop with player none', () => {
+    const map = new Map<string, unknown>([['loop', true], ['player', 'none']])
+    expect(readPlaybackSettings(map).loop).toBe(false)
+  })
 })
 
 describe('createPlayback', () => {
@@ -90,6 +95,7 @@ describe('createPlayback', () => {
     vi.advanceTimersByTime(3000)
     expect(steps).toEqual([1, 2])
     settings.sceneDuration = 1
+    playback.refresh()
     vi.advanceTimersByTime(1000)
     expect(steps).toEqual([1, 2, 3])
   })
@@ -114,6 +120,34 @@ describe('createPlayback', () => {
     vi.advanceTimersByTime(3000)
     expect(steps).toEqual([1, 2, 3, 1])
     expect(changes).toEqual([true])
+  })
+
+  it('waits for a longer sceneDuration set during a scene', () => {
+    const { playback, steps, settings } = setup(5)
+    playback.play()
+    settings.sceneDuration = 5
+    vi.advanceTimersByTime(4999)
+    expect(steps).toEqual([1])
+    vi.advanceTimersByTime(1)
+    expect(steps).toEqual([1, 2])
+  })
+
+  it('wakes up once per scene instead of polling', () => {
+    const { playback } = setup(3)
+    const start = Date.now()
+    playback.play()
+    vi.advanceTimersToNextTimer()
+    expect(Date.now() - start).toBe(3000)
+  })
+
+  it('stops when only the base step is left, even with loop on', () => {
+    const { playback, steps, changes, setTotal } = setup(2, { loop: true })
+    playback.play()
+    vi.advanceTimersByTime(3000)
+    setTotal(1)
+    vi.advanceTimersByTime(3000)
+    expect(steps).toEqual([1, 2])
+    expect(changes).toEqual([true, false])
   })
 
   it('ignores play while playing and stop while stopped', () => {
@@ -143,11 +177,13 @@ describe('onceVisible', () => {
       observers.push(this)
     }
 
-    emit(isIntersecting: boolean, intersectionRatio: number) {
+    emit(isIntersecting: boolean, intersectionRatio: number, visibleHeight = 0, viewportHeight: number | null = 1000) {
       if (!this.connected) {
         return
       }
-      const entry = { isIntersecting, intersectionRatio } as IntersectionObserverEntry
+      const intersectionRect = { height: visibleHeight } as DOMRectReadOnly
+      const rootBounds = viewportHeight === null ? null : { height: viewportHeight } as DOMRectReadOnly
+      const entry = { isIntersecting, intersectionRatio, intersectionRect, rootBounds } as IntersectionObserverEntry
       this.callback([entry], this as unknown as IntersectionObserver)
     }
   }
@@ -166,7 +202,6 @@ describe('onceVisible', () => {
     const target = document.createElement('div')
     onceVisible(target, callback)
     const [observer] = observers
-    expect(observer.options?.threshold).toBe(0.5)
     expect(observer.observe).toHaveBeenCalledWith(target)
     observer.emit(true, 0.2)
     expect(callback).not.toHaveBeenCalled()
@@ -174,6 +209,35 @@ describe('onceVisible', () => {
     observer.emit(true, 0.8)
     expect(callback).toHaveBeenCalledTimes(1)
     expect(observer.disconnect).toHaveBeenCalled()
+  })
+
+  it('calls back when a target taller than twice the viewport fills half of it', () => {
+    const callback = vi.fn()
+    onceVisible(document.createElement('div'), callback)
+    const [observer] = observers
+    observer.emit(true, 0.2, 280, 650)
+    expect(callback).not.toHaveBeenCalled()
+    observer.emit(true, 0.3, 420, 650)
+    expect(callback).toHaveBeenCalledTimes(1)
+  })
+
+  it('uses the screen height for a tall target in a sandboxed iframe', () => {
+    vi.stubGlobal('innerHeight', 1400)
+    vi.stubGlobal('screen', { height: 800 })
+    const callback = vi.fn()
+    onceVisible(document.createElement('div'), callback)
+    const [observer] = observers
+    observer.emit(true, 0.25, 350, null)
+    expect(callback).not.toHaveBeenCalled()
+    observer.emit(true, 0.3, 420, null)
+    expect(callback).toHaveBeenCalledTimes(1)
+  })
+
+  it('calls back right away without IntersectionObserver', () => {
+    vi.stubGlobal('IntersectionObserver', undefined)
+    const callback = vi.fn()
+    onceVisible(document.createElement('div'), callback)
+    expect(callback).toHaveBeenCalledTimes(1)
   })
 
   it('never calls back after the returned disconnect is called', () => {

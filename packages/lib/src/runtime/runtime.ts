@@ -147,12 +147,10 @@ function readPlayerConfig(dsl: string): PlayerConfig | null {
   if (!ast.scenes.length) {
     return null
   }
-  const hidden = player === 'none'
-  const type = hidden ? 'none' : pickChoice(player, PLAYER_TYPES, 'buttons')
+  const type = player === 'none' ? 'none' : pickChoice(player, PLAYER_TYPES, 'buttons')
   const position = pickChoice(properties.get('playerPosition'), PLAYER_POSITIONS, 'left')
   const settings = readPlaybackSettings(properties)
-  const loop = settings.loop && !hidden
-  return { type, position, total: ast.scenes.length + 1, ...settings, loop }
+  return { type, position, total: ast.scenes.length + 1, ...settings }
 }
 
 export function buildSrcdoc(dsl: string, runtimeUrl: string, theme?: EmbedTheme): string {

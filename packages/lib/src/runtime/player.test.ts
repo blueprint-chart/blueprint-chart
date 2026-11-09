@@ -253,8 +253,8 @@ describe('mountScenePlayer playback', () => {
     expect(label(chart)).toBe('Play')
   })
 
-  it('autoplays with player none, without mounting controls, and ignores loop', () => {
-    const { chart, onStep } = setup('none', 2, { autoplay: true, loop: true })
+  it('autoplays with player none, without mounting controls', () => {
+    const { chart, onStep } = setup('none', 2, { autoplay: true })
     expect(chart.querySelector('[data-scene-player]')).toBeNull()
     vi.advanceTimersByTime(3000)
     expect(onStep).not.toHaveBeenCalled()

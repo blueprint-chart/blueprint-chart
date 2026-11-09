@@ -181,12 +181,11 @@ export function mountScenePlayer(chart: HTMLElement, config: PlayerConfig, onSte
     restoreFocus(focusedControl)
   }
 
-  const settings: PlaybackSettings = { ...config, loop: config.loop && playerType !== null }
   const playback = createPlayback({
     total: () => state.total,
     current: () => state.current,
     go,
-    settings: () => settings,
+    settings: () => config,
     onChange: (playing) => {
       state.playing = playing
       render()

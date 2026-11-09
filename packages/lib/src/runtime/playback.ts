@@ -21,6 +21,7 @@ export interface PlaybackOptions {
 export interface Playback {
   play(): void
   stop(): void
+  refresh(): void
 }
 
 function readSceneDuration(raw: unknown): number {
@@ -33,16 +34,17 @@ function readSceneDuration(raw: unknown): number {
 
 export function readPlaybackSettings(properties: ReadonlyMap<string, unknown>): PlaybackSettings {
   const autoplay = toBool(properties.get('autoplay'))
-  const loop = toBool(properties.get('loop'))
+  const hasPlayer = properties.get('player') !== 'none'
+  const loop = toBool(properties.get('loop')) && hasPlayer
   const sceneDuration = readSceneDuration(properties.get('sceneDuration'))
   return { autoplay, sceneDuration, loop }
 }
 
-const POLL_MS = 100
+const VISIBILITY_THRESHOLDS = [0, 0.1, 0.2, 0.3, 0.4, 0.5]
 
 export function createPlayback(options: PlaybackOptions): Playback {
   let playing = false
-  let timer: ReturnType<typeof setInterval> | undefined
+  let timer: ReturnType<typeof setTimeout> | undefined
   let sceneStart = 0
 
   function stop() {
@@ -50,26 +52,40 @@ export function createPlayback(options: PlaybackOptions): Playback {
       return
     }
     playing = false
-    clearInterval(timer)
+    clearTimeout(timer)
     options.onChange(false)
+  }
+
+  function refresh() {
+    if (!playing) {
+      return
+    }
+    clearTimeout(timer)
+    const elapsed = Date.now() - sceneStart
+    const due = options.settings().sceneDuration * 1000
+    const remaining = Math.max(due - elapsed, 0)
+    timer = setTimeout(tick, remaining)
   }
 
   function goTo(step: number) {
     sceneStart = Date.now()
     options.go(step)
+    refresh()
   }
 
   function tick() {
     const elapsed = Date.now() - sceneStart
     const due = options.settings().sceneDuration * 1000
     if (elapsed < due) {
+      refresh()
       return
     }
     const current = options.current()
-    if (current < options.total()) {
+    const total = options.total()
+    if (current < total) {
       goTo(current + 1)
     }
-    else if (options.settings().loop) {
+    else if (options.settings().loop && total > 1) {
       goTo(1)
     }
     else {
@@ -84,21 +100,36 @@ export function createPlayback(options: PlaybackOptions): Playback {
     playing = true
     options.onChange(true)
     goTo(1)
-    timer = setInterval(tick, POLL_MS)
   }
 
-  return { play, stop }
+  return { play, stop, refresh }
+}
+
+function isHalfVisible(entry: IntersectionObserverEntry): boolean {
+  if (!entry.isIntersecting) {
+    return false
+  }
+  if (entry.intersectionRatio >= 0.5) {
+    return true
+  }
+  // A sandboxed embed gets no rootBounds, and its innerHeight is the chart's own height.
+  const fallbackHeight = Math.min(window.innerHeight, window.screen.height)
+  const viewportHeight = entry.rootBounds?.height ?? fallbackHeight
+  return entry.intersectionRect.height >= viewportHeight / 2
 }
 
 export function onceVisible(target: Element, callback: () => void): () => void {
+  if (typeof IntersectionObserver === 'undefined') {
+    callback()
+    return () => {}
+  }
   const observer = new IntersectionObserver((entries) => {
-    const visible = entries.some(entry => entry.isIntersecting && entry.intersectionRatio >= 0.5)
-    if (!visible) {
+    if (!entries.some(isHalfVisible)) {
       return
     }
     observer.disconnect()
     callback()
-  }, { threshold: 0.5 })
+  }, { threshold: VISIBILITY_THRESHOLDS })
   observer.observe(target)
   return () => observer.disconnect()
 }
