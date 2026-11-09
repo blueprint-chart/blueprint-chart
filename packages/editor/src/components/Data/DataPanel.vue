@@ -33,7 +33,7 @@ const { applyDsl } = useDslSync()
 const { loadSample } = useChartSession()
 const { next } = useWizard()
 const parseOptions = useParseOptions()
-const { activeScene, activeIndex, update: updateScene, armAutoplay } = useScenes()
+const { activeScene, activeIndex, update: updateScene } = useScenes()
 const isSceneMode = computed(() => activeScene.value !== null)
 
 onMounted(() => {
@@ -83,10 +83,7 @@ function onLoaded(content: string, label: string) {
 }
 
 function onBpcLoaded(content: string, label: string) {
-  const result = applyDsl(content)
-  if (result.success) {
-    armAutoplay()
-  }
+  applyDsl(content)
   dataTable.sourceLabel.value = label || 'Blueprint file'
   next()
 }

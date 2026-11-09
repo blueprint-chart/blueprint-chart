@@ -70,7 +70,7 @@ const { layout } = useChartConfig()
 const { cardClass, cardStyle } = useCanvasCardStyle(layout, 'render-page__card')
 const { scenes, activeIndex, playing, setActive, nextScene, previousScene, stopPlayback, armAutoplay } = useScenes()
 const { play } = useScenePlayback()
-useScenesAutoplay({ whenVisible: containerRef })
+useScenesAutoplay(containerRef)
 
 const playerComponentMap: Record<string, Component> = {
   'buttons': ScenePlayerButtons,

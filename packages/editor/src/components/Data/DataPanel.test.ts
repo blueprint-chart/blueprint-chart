@@ -177,18 +177,10 @@ describe('DataPanel', () => {
     expect(baseDataRef.value).toBe('"A" = 1')
   })
 
-  it('arms autoplay when a Blueprint file loads', async () => {
+  it('does not arm autoplay when a Blueprint file loads in the editor', async () => {
     mockApplyDsl.mockReturnValueOnce({ success: true })
     const w = mountPanel()
     uploadCard(w).vm.$emit('bpc', 'chart donut {}', 'chart.bpc')
-    await nextTick()
-    expect(mockArmAutoplay).toHaveBeenCalledTimes(1)
-  })
-
-  it('does not arm autoplay when a Blueprint file fails to load', async () => {
-    mockApplyDsl.mockReturnValueOnce({ success: false })
-    const w = mountPanel()
-    uploadCard(w).vm.$emit('bpc', 'not a chart', 'broken.bpc')
     await nextTick()
     expect(mockArmAutoplay).not.toHaveBeenCalled()
   })

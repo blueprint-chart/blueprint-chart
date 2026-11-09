@@ -52,6 +52,15 @@ describe('EditorInteractionSection playback controls', () => {
     expect(w.find('[data-label="Seconds per scene"]').exists()).toBe(true)
   })
 
+  it('notes that autoplay does not run in the editor', async () => {
+    scenes.value = [{}]
+    const w = mount(EditorInteractionSection)
+    expect(w.text()).not.toContain('not in the editor')
+    layout.value.autoplay = true
+    await w.vm.$nextTick()
+    expect(w.text()).toContain('Plays when readers scroll to the chart, not in the editor.')
+  })
+
   it('writes autoplay and loop to the layout', async () => {
     scenes.value = [{}]
     const layoutBefore = layout.value

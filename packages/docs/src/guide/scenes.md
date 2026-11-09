@@ -67,7 +67,7 @@ This is `packages/lib/src/samples/co2-emissions-story.bpc` verbatim. The first t
 
 Open this in the editor to see the scene timeline appear automatically; embed it on a page and readers get the same scene player in the chart footer.
 
-Set `autoplay = true` to start playback without a click. It starts when the chart scrolls into view, or on load in the editor preview, and never when the reader's system asks for reduced motion. `sceneDuration` and `loop` also apply when the reader presses Play. Any Back, Next or dot click stops playback. See [Scene playback](/reference/dsl/properties#scene-playback) for the keys.
+Set `autoplay = true` to start playback without a click. It starts when the chart scrolls into view, never in the editor preview, and never when the reader's system asks for reduced motion. `sceneDuration` and `loop` also apply when the reader presses Play. Any Back, Next or dot click stops playback. See [Scene playback](/reference/dsl/properties#scene-playback) for the keys.
 
 ## How it works
 

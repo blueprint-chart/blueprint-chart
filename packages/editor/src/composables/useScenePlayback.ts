@@ -24,7 +24,7 @@ export function useScenePlayback() {
   return { play }
 }
 
-export function useScenesAutoplay(options: { whenVisible?: Readonly<Ref<HTMLElement | null>> } = {}) {
+export function useScenesAutoplay(whenVisible: Readonly<Ref<HTMLElement | null>>) {
   const { layout } = useChartConfig()
   const { scenes, autoplayArmed, disarmAutoplay } = useScenes()
   const { play } = useScenePlayback()
@@ -47,7 +47,7 @@ export function useScenesAutoplay(options: { whenVisible?: Readonly<Ref<HTMLElem
   }
 
   watch(
-    [autoplayArmed, () => options.whenVisible?.value],
+    [autoplayArmed, whenVisible],
     ([armed, element], _, onCleanup) => {
       if (!armed) {
         return
@@ -56,30 +56,11 @@ export function useScenesAutoplay(options: { whenVisible?: Readonly<Ref<HTMLElem
         disarmAutoplay()
         return
       }
-      if (!options.whenVisible) {
-        play()
-        return
-      }
       if (element) {
         const disconnect = onceVisible(element, playIfStillAllowed)
         onCleanup(disconnect)
       }
     },
     { immediate: true },
-  )
-
-  if (options.whenVisible) {
-    return
-  }
-
-  // A replaced layout object means a load, a DSL edit or an undo, not a tick.
-  watch(
-    () => [layout.value, layout.value.autoplay] as const,
-    ([current, autoplay], [previous, wasAutoplay]) => {
-      const ticked = current === previous && autoplay && !wasAutoplay
-      if (ticked && canAutoplay()) {
-        play()
-      }
-    },
   )
 }

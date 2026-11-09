@@ -110,7 +110,6 @@ const cvdFilterStyle = computed(() => {
 const { layout } = useChartConfig()
 const { scenes, activeIndex, playing, setActive, nextScene, previousScene, stopPlayback } = useScenes()
 const { play } = useScenePlayback()
-useScenesAutoplay()
 
 const playerTarget = ref<HTMLElement | null>(null)
 

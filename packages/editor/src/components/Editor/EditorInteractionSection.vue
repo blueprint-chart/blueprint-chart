@@ -60,6 +60,12 @@
         v-model="autoplay"
         label="Play automatically"
       />
+      <p
+        v-if="autoplay"
+        class="form-text mt-n2 mb-0"
+      >
+        Plays when readers scroll to the chart, not in the editor.
+      </p>
 
       <FormControlCheckbox
         v-model="loop"
