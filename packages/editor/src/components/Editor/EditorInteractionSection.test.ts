@@ -54,11 +54,13 @@ describe('EditorInteractionSection playback controls', () => {
 
   it('writes autoplay and loop to the layout', async () => {
     scenes.value = [{}]
+    const layoutBefore = layout.value
     const w = mount(EditorInteractionSection)
     await w.find('[data-label="Play automatically"]').setValue(true)
     await w.find('[data-label="Loop"]').setValue(true)
     expect(layout.value.autoplay).toBe(true)
     expect(layout.value.loop).toBe(true)
+    expect(layout.value).toBe(layoutBefore)
   })
 
   it('writes the slider value as a number', async () => {
@@ -66,6 +68,19 @@ describe('EditorInteractionSection playback controls', () => {
     const w = mount(EditorInteractionSection)
     await w.find('[data-id="layout-scene-duration"]').setValue('4.5')
     expect(layout.value.sceneDuration).toBe(4.5)
+  })
+
+  it('clamps the duration to 1 to 10 and ignores non-numbers', async () => {
+    scenes.value = [{}]
+    const w = mount(EditorInteractionSection)
+    const slider = w.findComponent('[data-id="layout-scene-duration"]')
+    slider.vm.$emit('update:modelValue', '50')
+    expect(layout.value.sceneDuration).toBe(10)
+    slider.vm.$emit('update:modelValue', '')
+    expect(layout.value.sceneDuration).toBe(1)
+    slider.vm.$emit('update:modelValue', '4')
+    slider.vm.$emit('update:modelValue', 'abc')
+    expect(layout.value.sceneDuration).toBe(4)
   })
 
   it('bounds the slider to 1 to 10 in 0.5 s steps', () => {

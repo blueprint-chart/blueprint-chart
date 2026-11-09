@@ -133,7 +133,14 @@ const loop = computed({
 
 const sceneDuration = computed({
   get: () => layout.value.sceneDuration,
-  set: (v) => { layout.value.sceneDuration = Number(v) },
+  set: (v) => {
+    const seconds = Number(v)
+    if (!Number.isFinite(seconds)) {
+      return
+    }
+    const clamped = Math.min(SCENE_DURATION_MAX, Math.max(SCENE_DURATION_MIN, seconds))
+    layout.value.sceneDuration = clamped
+  },
 })
 
 const playerTypeOptions = [
