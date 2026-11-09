@@ -192,6 +192,17 @@ describe('chart history during scene playback', () => {
     expect(history.canUndo.value).toBe(false)
   })
 
+  it('records an edit made while scenes play', async () => {
+    const { history } = await startLoopingScenes()
+    vi.advanceTimersByTime(1000)
+    await nextTick()
+
+    useChartConfig().title.value = 'Edited during playback'
+    await nextTick()
+
+    expect(history.canUndo.value).toBe(true)
+  })
+
   it('records an edit made once playback stops as a single step', async () => {
     const { history, scenes } = await startLoopingScenes()
     vi.advanceTimersByTime(1000)

@@ -59,6 +59,10 @@ function mountPlayback(options?: Parameters<typeof useScenesAutoplay>[0]) {
   return { wrapper, play: () => play() }
 }
 
+function layout() {
+  return useChartConfig().layout.value
+}
+
 describe('useScenePlayback', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
@@ -207,6 +211,27 @@ describe('useScenePlayback', () => {
     expect(layout.value.autoplay).toBe(true)
     expect(activeIndex.value).toBe(0)
     expect(playing.value).toBe(false)
+  })
+
+  it('stops playing when the component that started it unmounts', () => {
+    const { playing } = useScenes()
+    loadChart({ autoplay: false, scenes: 1 })
+    layout().loop = true
+    const { wrapper, play } = mountPlayback()
+    play()
+    wrapper.unmount()
+    expect(playing.value).toBe(false)
+  })
+
+  it('applies a shorter sceneDuration to the scene on screen', async () => {
+    const { activeIndex } = useScenes()
+    loadChart({ autoplay: false, scenes: 2 })
+    const { play } = mountPlayback()
+    play()
+    layout().sceneDuration = 1
+    await nextTick()
+    vi.advanceTimersByTime(1000)
+    expect(activeIndex.value).toBe(0)
   })
 
   it('stays paused when the preview is remounted', async () => {

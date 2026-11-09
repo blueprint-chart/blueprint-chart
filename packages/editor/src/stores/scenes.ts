@@ -41,6 +41,7 @@ export const useScenesStore = defineStore('scenes', () => {
   const autoplayArmed = shallowRef(false)
 
   let playback: Playback | null = null
+  let stopDurationWatch = () => {}
 
   const activeScene = computed<SceneOverride | null>(() => {
     if (activeIndex.value < 0 || activeIndex.value >= scenes.value.length) {
@@ -127,8 +128,12 @@ export const useScenesStore = defineStore('scenes', () => {
       settings,
       onChange: (value) => {
         playing.value = value
+        if (!value) {
+          stopDurationWatch()
+        }
       },
     })
+    stopDurationWatch = watch(() => settings().sceneDuration, () => playback?.refresh())
     playback.play()
   }
 

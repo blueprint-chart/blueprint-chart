@@ -1,18 +1,21 @@
 import type { Ref } from 'vue'
 import type { PlaybackSettings } from '@blueprint-chart/lib'
-import { onceVisible, prefersReducedMotion } from '@blueprint-chart/lib'
+import { onceVisible, prefersReducedMotion, readPlaybackSettings } from '@blueprint-chart/lib'
 import { useChartConfig } from '@/stores/chartConfig'
 import { useScenes } from '@/stores/scenes'
 
 export function useScenePlayback() {
   const { layout } = useChartConfig()
-  const { startPlayback } = useScenes()
+  const { startPlayback, stopPlayback } = useScenes()
 
   function settings(): PlaybackSettings {
     const { autoplay, sceneDuration, loop, playerType } = layout.value
-    const hasPlayer = playerType !== 'none'
-    return { autoplay, sceneDuration, loop: loop && hasPlayer }
+    const entries = Object.entries({ autoplay, sceneDuration, loop, player: playerType })
+    const properties = new Map(entries)
+    return readPlaybackSettings(properties)
   }
+
+  onScopeDispose(stopPlayback)
 
   function play() {
     startPlayback(settings)

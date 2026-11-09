@@ -83,7 +83,7 @@ export const useChartHistoryStore = defineStore('chartHistory', () => {
     const chartConfig = useChartConfig()
     const { store, hydrate: hydrateOptions } = useChartTypeOptions()
     const { sessionId } = useChartSession()
-    const { playing } = useScenes()
+    const { playing, activeIndex } = useScenes()
 
     function currentSnap(): string {
       return takeSnapshot({
@@ -144,13 +144,15 @@ export const useChartHistoryStore = defineStore('chartHistory', () => {
             chartConfig.colorizes, chartConfig.highlights, chartConfig.areaFills, chartConfig.annotations,
             chartConfig.layout,
             () => JSON.stringify(store),
+            activeIndex,
           ],
-          () => {
+          (sources, previousSources) => {
             if (isRestoring || !activeSessionId) {
               return
             }
             // A playback frame is not an edit, but the next edit must undo to the frame on screen.
-            if (playing.value) {
+            const sceneChanged = sources.at(-1) !== previousSources.at(-1)
+            if (playing.value && sceneChanged) {
               getHistory(activeSessionId).currentState = currentSnap()
               return
             }

@@ -366,15 +366,11 @@ export const useChartSessionStore = defineStore('chartSession', () => {
     return sessionId.value
   }
 
-  // A playback frame moves the scene-aware refs but leaves the saved DSL as is.
-  function saveUnlessPlaybackFrame() {
-    if (scenesComposable.playing.value) {
-      const { generateDsl } = useDslOutput()
-      const dsl = generateDsl()
-      const saved = localStorage.getItem(storageKey(sessionId.value))
-      if (dsl === saved) {
-        return
-      }
+  // A playback frame moves activeIndex and the scene-aware refs but leaves the saved DSL as is.
+  function saveUnlessPlaybackFrame(sources: unknown[], previousSources: unknown[]) {
+    const sceneChanged = sources.at(-1) !== previousSources.at(-1)
+    if (scenesComposable.playing.value && sceneChanged) {
+      return
     }
     save()
   }
@@ -407,6 +403,7 @@ export const useChartSessionStore = defineStore('chartSession', () => {
         transforms.steps,
         scenesComposable.scenes,
         () => chartTypeOptions.store,
+        scenesComposable.activeIndex,
       ],
       saveUnlessPlaybackFrame,
       { deep: true, flush: 'post' },
