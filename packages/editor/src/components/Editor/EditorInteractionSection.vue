@@ -133,7 +133,10 @@ const loop = computed({
 
 const sceneDuration = computed({
   get: () => layout.value.sceneDuration,
-  set: (v) => {
+  set: (v: number | string) => {
+    if (v === '') {
+      return
+    }
     const seconds = Number(v)
     if (!Number.isFinite(seconds)) {
       return

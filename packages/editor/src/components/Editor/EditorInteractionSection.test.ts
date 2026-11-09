@@ -70,14 +70,14 @@ describe('EditorInteractionSection playback controls', () => {
     expect(layout.value.sceneDuration).toBe(4.5)
   })
 
-  it('clamps the duration to 1 to 10 and ignores non-numbers', async () => {
+  it('clamps the duration to 1 to 10 and ignores non-numbers and a cleared box', async () => {
     scenes.value = [{}]
     const w = mount(EditorInteractionSection)
     const slider = w.findComponent('[data-id="layout-scene-duration"]')
     slider.vm.$emit('update:modelValue', '50')
     expect(layout.value.sceneDuration).toBe(10)
     slider.vm.$emit('update:modelValue', '')
-    expect(layout.value.sceneDuration).toBe(1)
+    expect(layout.value.sceneDuration).toBe(10)
     slider.vm.$emit('update:modelValue', '4')
     slider.vm.$emit('update:modelValue', 'abc')
     expect(layout.value.sceneDuration).toBe(4)
