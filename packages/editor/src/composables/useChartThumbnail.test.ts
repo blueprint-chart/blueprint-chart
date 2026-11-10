@@ -1,5 +1,7 @@
-import { ChartType, SortDirection } from '@blueprint-chart/lib'
-import { renderThumbnailSvg } from './useChartThumbnail'
+import { ChartType } from '@blueprint-chart/lib'
+import { snapshotFromState } from '@/utils/chart/chartRender'
+import { parseChartState } from '@/utils/chart/chartState'
+import { renderSceneThumbnails, renderThumbnailSvg } from './useChartThumbnail'
 
 const { mockRenderChart } = vi.hoisted(() => ({ mockRenderChart: vi.fn() }))
 
@@ -16,7 +18,7 @@ function themeAtRender(allowDarkMode: boolean | undefined, theme: 'light' | 'dar
     seen = container.getAttribute('data-bs-theme')
     container.innerHTML = '<svg></svg>'
   })
-  renderThumbnailSvg(ChartType.BarVertical, DATA, { allowDarkMode }, SortDirection.None, { theme })
+  renderThumbnailSvg({ chartType: ChartType.BarVertical, data: DATA, options: { allowDarkMode } }, theme)
   return seen
 }
 
@@ -40,7 +42,7 @@ describe('renderThumbnailSvg', () => {
       surface = container.style.backgroundColor
       container.innerHTML = '<svg></svg>'
     })
-    renderThumbnailSvg(ChartType.BarVertical, DATA, {}, SortDirection.None, { theme: 'dark' })
+    renderThumbnailSvg({ chartType: ChartType.BarVertical, data: DATA }, 'dark')
     expect(surface).toBe('var(--bs-card-bg)')
   })
 
@@ -49,7 +51,34 @@ describe('renderThumbnailSvg', () => {
       container.style.backgroundColor = 'rgb(1, 2, 3)'
       container.innerHTML = '<svg></svg>'
     })
-    const svg = renderThumbnailSvg(ChartType.BarVertical, DATA, {}, SortDirection.None, { theme: 'dark' })
+    const svg = renderThumbnailSvg({ chartType: ChartType.BarVertical, data: DATA }, 'dark')
     expect(svg).toContain('background: rgb(1, 2, 3)')
+  })
+})
+
+describe('renderSceneThumbnails', () => {
+  it('keeps the bar column and overlays on the base and scene thumbnails', () => {
+    const state = parseChartState(`chart bar-vertical {
+  overlay "Low" "High" {
+    pattern = stripes
+  }
+  data {
+    series = "Value","Low","High"
+    "A" = 2,1,3
+  }
+  scene "First" {
+    title = "First"
+  }
+}`)
+    mockRenderChart.mockClear()
+    mockRenderChart.mockImplementation((container: HTMLElement) => {
+      container.innerHTML = '<svg></svg>'
+    })
+    renderSceneThumbnails(snapshotFromState(state), 'light')
+    const definitions = mockRenderChart.mock.calls.map(call => call[1])
+    const seriesNames = definitions.map(d => d.data.series?.map((s: { name: string }) => s.name))
+    const overlayColumns = definitions.map(d => d.overlays?.map((o: { columns: string[] }) => o.columns))
+    expect(seriesNames).toEqual([['Value', 'Low', 'High'], ['Value', 'Low', 'High']])
+    expect(overlayColumns).toEqual([[['Low', 'High']], [['Low', 'High']]])
   })
 })

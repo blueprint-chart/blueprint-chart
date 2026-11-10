@@ -1,6 +1,6 @@
-import { SortDirection, renderChart, resolveBackgroundColor } from '@blueprint-chart/lib'
-import type { ChartData, ChartTypeOptions, SeriesOverride } from '@blueprint-chart/lib'
-import type { ChartColorize } from './useChartConfig'
+import { renderChart, resolveBackgroundColor } from '@blueprint-chart/lib'
+import type { ChartDefinition } from '@blueprint-chart/lib'
+import { buildChartRender, type RenderSnapshot } from '@/utils/chart/chartRender'
 
 // ---------------------------------------------------------------------------
 // Offscreen helpers
@@ -100,30 +100,22 @@ const THUMB_CSS = [
   `#__bc_thumb .bc-frame-body { flex:1; min-height:0; }`,
 ].join('\n')
 
-export function renderThumbnailSvg(
-  chartType: string,
-  data: ChartData,
-  typeOpts: Partial<ChartTypeOptions>,
-  sort: SortDirection,
-  options: { colorizes?: ChartColorize[], seriesOverrides?: SeriesOverride[], theme: 'light' | 'dark' },
-): string | null {
-  if (data.labels.length === 0) {
-    return null
-  }
+export function renderThumbnailSvg(definition: ChartDefinition, theme: 'light' | 'dark'): string | null {
   return withOffscreen('__bc_thumb', THUMB_W, THUMB_H, THUMB_CSS, (container) => {
-    container.setAttribute('data-bs-theme', (typeOpts.allowDarkMode ?? true) ? options.theme : 'light')
+    container.setAttribute('data-bs-theme', (definition.options?.allowDarkMode ?? true) ? theme : 'light')
     // Thumbnails render frameless, so no .bc-frame carries the themed surface.
     container.style.backgroundColor = 'var(--bs-card-bg)'
-    renderChart(container, {
-      chartType,
-      data,
-      options: typeOpts,
-      sort,
-      colorizes: options.colorizes,
-      seriesOverrides: options.seriesOverrides,
-    }, { thumbnail: true })
+    renderChart(container, definition, { thumbnail: true })
     // Baked in so the thumbnail keeps its own theme wherever the tile is shown.
     container.querySelector('svg')?.style.setProperty('background', resolveBackgroundColor(container))
     return extractSvg(container)
+  })
+}
+
+export function renderSceneThumbnails(snapshot: RenderSnapshot, theme: 'light' | 'dark'): (string | null)[] {
+  const indexes = [-1, ...snapshot.scenes.keys()]
+  return indexes.map((activeIndex) => {
+    const render = buildChartRender({ ...snapshot, activeIndex })
+    return render.kind === 'chart' ? renderThumbnailSvg(render.definition, theme) : null
   })
 }

@@ -1,4 +1,6 @@
-import type { Ref } from 'vue'
+import type { Ref, ToRefs } from 'vue'
+import type { ChartConfig } from './useChartConfig'
+import type { ChartTypeOptions } from './useChartTypeOptions'
 import { useChartConfig } from './useChartConfig'
 import { useChartTypeOptions } from './useChartTypeOptions'
 import { useScenes } from './useScenes'
@@ -12,42 +14,57 @@ import { buildChartRender, type RenderSnapshot } from '@/utils/chart/chartRender
 
 export { resolveScene, resolveSortFromTransforms }
 
-export function readRenderSnapshot(): RenderSnapshot {
+type ConfigRefs = ToRefs<ChartConfig>
+
+function snapshotFrom(source: ConfigRefs, activeIndex: number, currentOptions: Partial<ChartTypeOptions>): RenderSnapshot {
   const config = useChartConfig()
-  const { currentOptions, store: optionOverrides } = useChartTypeOptions()
-  const { scenes, activeIndex } = useScenes()
+  const { store: optionOverrides } = useChartTypeOptions()
+  const { scenes } = useScenes()
   const { columns, rows, columnTypes } = useDataTable()
   const { steps } = useDataTransforms()
   const { chartTheme } = useChartTheme()
   return {
     scenes: scenes.value,
-    activeIndex: activeIndex.value,
-    chartType: config.chartType.value,
+    activeIndex,
+    chartType: source.chartType.value,
     text: {
-      title: config.title.value,
-      description: config.description.value,
-      altText: config.altText.value,
-      byline: config.byline.value,
-      note: config.note.value,
-      source: config.source.value,
-      sourceUrl: config.sourceUrl.value,
+      title: source.title.value,
+      description: source.description.value,
+      altText: source.altText.value,
+      byline: source.byline.value,
+      note: source.note.value,
+      source: source.source.value,
+      sourceUrl: source.sourceUrl.value,
     },
-    layout: config.layout.value,
-    sort: config.sort.value,
-    data: config.data.value,
-    selectedColumn: config.selectedColumn.value,
-    colorizes: config.colorizes.value,
-    areaFills: config.areaFills.value,
-    overlays: config.overlays.value,
-    seriesOverrides: config.seriesOverrides.value,
+    layout: source.layout.value,
+    sort: source.sort.value,
+    data: source.data.value,
+    selectedColumn: source.selectedColumn.value,
+    colorizes: source.colorizes.value,
+    areaFills: source.areaFills.value,
+    overlays: source.overlays.value,
+    seriesOverrides: source.seriesOverrides.value,
     baseHighlights: config._base.highlights.value,
     baseAnnotations: config._base.annotations.value,
-    currentOptions: currentOptions.value,
+    currentOptions,
     optionOverrides,
     table: { columns: columns.value, rows: rows.value, columnTypes: columnTypes.value },
     steps: steps.value,
     chartTheme: chartTheme.value,
   }
+}
+
+export function readRenderSnapshot(): RenderSnapshot {
+  const config = useChartConfig()
+  const { currentOptions } = useChartTypeOptions()
+  const { activeIndex } = useScenes()
+  return snapshotFrom(config as ConfigRefs, activeIndex.value, currentOptions.value)
+}
+
+export function readBaseRenderSnapshot(): RenderSnapshot {
+  const { _base } = useChartConfig()
+  const { baseOptions } = useChartTypeOptions()
+  return snapshotFrom(_base, -1, baseOptions.value)
 }
 
 function showPlaceholder(el: HTMLElement, message: string) {

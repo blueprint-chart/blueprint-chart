@@ -6,12 +6,8 @@ import { useChartConfig } from '@/stores/chartConfig'
 import { useChartSession } from '@/stores/chartSession'
 import { useChartTypeOptions } from '@/stores/chartTypeOptions'
 import { useDataTransforms } from '@/stores/dataTransforms'
-import { serializeTableData } from '@/stores/dataTable'
 import { useScenes } from '@/stores/scenes'
-import { resolveScene, resolveSortFromTransforms, findDataSourceSceneIndex } from '@/utils/scenes'
-import type { ChartColorize } from '@/stores/chartConfig'
-import { SortDirection, parseData } from '@blueprint-chart/lib'
-import type { SeriesOverride } from '@blueprint-chart/lib'
+import { resolveScene, findDataSourceSceneIndex } from '@/utils/scenes'
 import { BBadge } from 'bootstrap-vue-next'
 import { NavigationStepperTabs, SceneList, LayoutBottomDrawer, useBreakpoint } from '@blueprint-chart/ui'
 import LayoutNarrowDock from '@/components/Layout/LayoutNarrowDock.vue'
@@ -24,7 +20,6 @@ import IconPhExport from '~icons/ph/export'
 import LayoutPageHeader from '@/components/Layout/LayoutPageHeader.vue'
 import LayoutBreadcrumb from '@/components/Layout/LayoutBreadcrumb.vue'
 import { chartTypeForColumns } from '@/utils/wizardChartType'
-import { SINGLE_SERIES_TYPES } from '@/utils/chart/chartRender'
 import { accountsEnabled } from '@/config/runtimeConfig'
 import { useCloudCharts } from '@/stores/cloudCharts'
 import { useAccount } from '@/stores/account'
@@ -44,6 +39,7 @@ const { play } = useScenePlayback()
 const isSceneMode = computed(() => activeScene.value !== null)
 const { baseOptions } = useChartTypeOptions()
 const transforms = useDataTransforms()
+const { chartTheme } = useChartTheme()
 
 const savedAtDate = computed<Date | ''>(() => lastSavedAt.value ? new Date(lastSavedAt.value) : '')
 const savedAgo = useTimeAgo(savedAtDate)
@@ -133,74 +129,10 @@ function addScene() {
   scenesComposable.setActive(scenes.value.length - 1)
 }
 
-const sceneThumbnails = ref<Record<number, string | null>>({})
-
-type RenderOneOpts = {
-  chartType: string
-  dataStr: string
-  typeOpts: object
-  sort: string
-  colorizes?: ChartColorize[]
-  seriesOverrides?: SeriesOverride[]
-}
-
-function renderOne(opts: RenderOneOpts): string | null {
-  const data = parseData(opts.dataStr)
-  if (data.series?.length && SINGLE_SERIES_TYPES.includes(opts.chartType)) {
-    const match = data.series.find(s => s.name === config._base.selectedColumn.value)
-    if (match) {
-      data.values = match.values
-    }
-    delete data.series
-  }
-  return renderThumbnailSvg(opts.chartType, data, opts.typeOpts, opts.sort as SortDirection, {
-    colorizes: opts.colorizes?.length ? opts.colorizes : undefined,
-    seriesOverrides: opts.seriesOverrides?.length ? opts.seriesOverrides : undefined,
-    theme: resolvedCanvasMode.value,
-  })
-}
-
-function resolveSceneDataStr(resolved: ReturnType<typeof resolveScene>, fallback: string): string {
-  if (resolved?.data !== undefined) {
-    return resolved.data
-  }
-  if (resolved?.transforms?.length && dataTable.columns.value.length > 0) {
-    const base = transforms.applyTransforms(dataTable.columns.value, dataTable.rows.value, dataTable.columnTypes.value)
-    const out = transforms.applyStepList(resolved.transforms, base.columns, base.rows, base.columnTypes)
-    return serializeTableData(out.columns, out.rows)
-  }
-  return fallback
-}
+const sceneThumbnails = ref<(string | null)[]>([])
 
 function generateSceneThumbnails() {
-  const base = config._base
-  const result: Record<number, string | null> = {}
-  const baseDataStr = dataTable.serializeTransformed() ?? base.data.value
-
-  result[0] = renderOne({
-    chartType: base.chartType.value,
-    dataStr: baseDataStr,
-    typeOpts: baseOptions.value,
-    sort: base.sort.value,
-    colorizes: base.colorizes.value,
-    seriesOverrides: base.seriesOverrides.value,
-  })
-
-  for (let i = 0; i < scenes.value.length; i++) {
-    const resolved = resolveScene(scenes.value, i)
-    result[i + 1] = renderOne({
-      chartType: resolved?.chartType ?? base.chartType.value,
-      dataStr: resolveSceneDataStr(resolved, baseDataStr),
-      typeOpts: resolved?.chartTypeOptions
-        ? { ...baseOptions.value, ...resolved.chartTypeOptions }
-        : baseOptions.value,
-      sort: resolveSortFromTransforms(resolved) ?? base.sort.value,
-      colorizes: resolved?.colorizes ?? base.colorizes.value,
-      seriesOverrides: resolved?.seriesOverrides ?? base.seriesOverrides.value,
-    })
-  }
-
-  sceneThumbnails.value = result
+  sceneThumbnails.value = renderSceneThumbnails(readBaseRenderSnapshot(), resolvedCanvasMode.value)
 }
 
 const debouncedGenerateThumbnails = useDebounceFn(generateSceneThumbnails, 300)
@@ -208,7 +140,8 @@ const debouncedGenerateThumbnails = useDebounceFn(generateSceneThumbnails, 300)
 watch(
   [() => scenes.value, config._base.chartType, config._base.data, config._base.sort,
     config._base.colorizes, config._base.seriesOverrides, config._base.selectedColumn,
-    baseOptions, currentStep, resolvedCanvasMode],
+    config._base.overlays, config._base.areaFills, config._base.highlights, config._base.annotations,
+    baseOptions, chartTheme, currentStep, resolvedCanvasMode],
   () => {
     if (currentStep.value.key === 'edit') {
       debouncedGenerateThumbnails()

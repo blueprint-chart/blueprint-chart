@@ -131,6 +131,7 @@ declare global {
   const reactiveComputed: typeof import('@vueuse/core').reactiveComputed
   const reactiveOmit: typeof import('@vueuse/core').reactiveOmit
   const reactivePick: typeof import('@vueuse/core').reactivePick
+  const readBaseRenderSnapshot: typeof import('./src/composables/useChartPreview').readBaseRenderSnapshot
   const readRenderSnapshot: typeof import('./src/composables/useChartPreview').readRenderSnapshot
   const readonly: typeof import('vue').readonly
   const ref: typeof import('vue').ref
@@ -141,6 +142,7 @@ declare global {
   const refThrottled: typeof import('@vueuse/core').refThrottled
   const refWithControl: typeof import('@vueuse/core').refWithControl
   const renderDsl: typeof import('./src/composables/useChartFromDsl').renderDsl
+  const renderSceneThumbnails: typeof import('./src/composables/useChartThumbnail').renderSceneThumbnails
   const renderThumbnailFromDsl: typeof import('./src/composables/useChartThumbnail').renderThumbnailFromDsl
   const renderThumbnailSvg: typeof import('./src/composables/useChartThumbnail').renderThumbnailSvg
   const resolveComponent: typeof import('vue').resolveComponent
