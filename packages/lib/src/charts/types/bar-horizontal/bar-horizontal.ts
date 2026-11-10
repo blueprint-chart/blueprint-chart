@@ -184,7 +184,9 @@ export function render(
     .padding(resolveBarGapPadding(options.barGap))
 
   const categoryLabelOffset = useCategoryLabelLine ? categoryLabelLineHeight(y.bandwidth()) : 0
-  const overlayGeometry: OverlayGeometry = { orientation: 'horizontal', band: y, bandInset: categoryLabelOffset, value: x, base: overlayBase }
+  const overlaySlotStart = (label: string) => (y(label) ?? 0) + categoryLabelOffset
+  const overlaySlotSize = y.bandwidth() - categoryLabelOffset
+  const overlayGeometry: OverlayGeometry = { orientation: 'horizontal', slotStart: overlaySlotStart, slotSize: overlaySlotSize, value: x, base: overlayBase }
 
   const vAxisBase = swapLabelValue && options.valueLabels && !isWaterfall
     ? (() => {
@@ -238,7 +240,7 @@ export function render(
   // also deterministic across renders for the same container.
   const idSuffix = clipId.replace(/^bc-clip-/, '')
   const clippedGroup = d3.select(chartArea).append('g').attr('clip-path', `url(#${clipId})`)
-  const mountOverlays = () => mountOverlayLayer(container, clippedGroup.node()!, priorOverlays, resolved.overlays, overlayLabels, overlayRows, overlayGeometry)
+  const mountOverlays = () => mountOverlayLayer(container, clippedGroup.node()!, priorOverlays, resolved.overlays, overlayLabels, overlayRows, () => overlayGeometry)
   const tooltipFormat = overlayTooltipFormat(resolved.overlays, data.labels, options.horizontalAxis?.numberFormat)
 
   // Bar backgrounds — full-size rects behind each bar at low opacity
@@ -550,7 +552,7 @@ export function render(
 
   if (wantsDirectLabels) {
     const labelGroup = d3.select(chartArea).append('g').attr('class', 'bc-overlay-labels').node()!
-    drawOverlayDirectLabels(labelGroup, resolved.overlays, overlayLabels, overlayRows, overlayGeometry)
+    drawOverlayDirectLabels(labelGroup, resolved.overlays, overlayLabels, overlayRows, () => overlayGeometry)
   }
 
   if (keyLayout.show) {

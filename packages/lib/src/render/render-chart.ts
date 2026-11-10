@@ -119,7 +119,7 @@ export function renderChart(
   const theme = options.theme ?? state.theme
   applyPostRender(container, {
     theme,
-    accessibility: buildChartAccessibility(state.chartType, frame, state.data, state.overlays),
+    accessibility: buildChartAccessibility(state.chartType, frame, state.data, state.overlays, state.options.stackMode),
   }, layout)
   commitCrossTypeFade(container, state.chartType, overlay)
 }

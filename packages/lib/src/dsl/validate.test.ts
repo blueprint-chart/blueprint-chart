@@ -830,4 +830,10 @@ describe('overlay validation', () => {
     expect(result.warnings.some(x => x.code === 'overlay-unknown-column')).toBe(true)
     expect(result.errors.some(x => x.code.startsWith('overlay-'))).toBe(false)
   })
+
+  it('warns that a percent stack drops overlays', () => {
+    const ast = parse(`chart bar-stacked {\n  stackMode = "percent"\n  overlay "T" {}\n  data {\n    series = "V","W","T"\n    "A" = 1,2,3\n  }\n}`)
+    const w = validateChart(ast).warnings.filter(x => x.code === 'overlay-percent-stack')
+    expect(w).toHaveLength(1)
+  })
 })

@@ -591,7 +591,7 @@ function validateOverlays(ast: ChartNode, warnings: ValidationIssue[]): void {
   const baseRaw = ast.data ? dataEntriesToString(ast.data) : undefined
   const pushIssues = (sceneIndex: number | undefined, basePath: string, rawData: string | undefined) => {
     const state = resolveScene(definition, sceneIndex)
-    const issues = overlayIssues(state.data, state.overlays ?? [], state.chartType, rawData)
+    const issues = overlayIssues(state.data, state.overlays ?? [], state.chartType, rawData, state.options.stackMode)
     for (const issue of issues) {
       const dedupKey = `${issue.code}|${issue.message}`
       if (seen.has(dedupKey)) {

@@ -9,7 +9,9 @@ import { renderLegend } from '../legend/legend'
 import { makeDefaultFormat } from '../plugins/tooltip'
 import { formatValueLabel } from '../format-helpers'
 
-export const OVERLAY_CHART_TYPES: ReadonlySet<string> = new Set(['bar-vertical', 'bar-horizontal'])
+export const OVERLAY_CHART_TYPES: ReadonlySet<string> = new Set(['bar-vertical', 'bar-horizontal', 'bar-multi', 'bar-grouped', 'bar-split', 'bar-stacked', 'column-stacked'])
+export const OVERLAY_SERIES_CHART_TYPES: ReadonlySet<string> = new Set(['bar-multi', 'bar-grouped', 'bar-split'])
+export const OVERLAY_STACKED_CHART_TYPES: ReadonlySet<string> = new Set(['bar-stacked', 'column-stacked'])
 
 export interface ResolvedOverlay {
   key: string
@@ -64,7 +66,13 @@ function isDrawable(config: OverlayConfig, byName: Map<string, Column>): boolean
   return !config.hidden && sizeOk && allExist
 }
 
-export function resolveOverlays(data: ChartData, overlays: OverlayConfig[] | undefined): { data: ChartData, overlays: ResolvedOverlay[] } {
+function targetBar(config: OverlayConfig, barNames: string[]): string {
+  const bar = config.bar
+  const named = bar !== undefined && barNames.includes(bar)
+  return named ? bar : barNames[0]
+}
+
+export function resolveOverlays(data: ChartData, overlays: OverlayConfig[] | undefined, chartType = 'bar-vertical', stackMode?: string): { data: ChartData, overlays: ResolvedOverlay[] } {
   if (!overlays?.length || !data.series) {
     return { data, overlays: [] }
   }
@@ -84,8 +92,21 @@ export function resolveOverlays(data: ChartData, overlays: OverlayConfig[] | und
   const ranges = resolved.filter(overlay => overlay.kind === 'range')
   const values = resolved.filter(overlay => overlay.kind === 'value')
   const [bar] = remaining
-  const series = remaining.length > 1 ? remaining : []
-  return { data: { ...data, values: bar.values, series }, overlays: [...ranges, ...values] }
+  const isSeries = OVERLAY_SERIES_CHART_TYPES.has(chartType)
+  const isStacked = OVERLAY_STACKED_CHART_TYPES.has(chartType)
+  const ordered = [...ranges, ...values]
+  if (!isSeries && !isStacked) {
+    const series = remaining.length > 1 ? remaining : []
+    return { data: { ...data, values: bar.values, series }, overlays: ordered }
+  }
+  const split = { ...data, values: bar.values, series: remaining }
+  if (isStacked) {
+    const kept = stackMode === 'percent' ? [] : ordered
+    return { data: split, overlays: kept }
+  }
+  const barNames = remaining.map(column => column.name)
+  const targeted = ordered.map(overlay => ({ ...overlay, bar: targetBar(overlays[overlay.order], barNames) }))
+  return { data: split, overlays: targeted }
 }
 
 export interface BarCue {
@@ -122,8 +143,8 @@ export function barCue(overlays: ResolvedOverlay[], row: number, barValue: numbe
 
 export interface OverlayGeometry {
   orientation: 'vertical' | 'horizontal'
-  band: d3.ScaleBand<string>
-  bandInset: number
+  slotStart: (label: string) => number
+  slotSize: number
   value: (v: number) => number
   base: (rowIndex: number) => number
 }
@@ -135,6 +156,7 @@ interface OverlayCell {
   low: number
   high: number
   fill: string
+  geom: OverlayGeometry
 }
 
 const VALUE_STROKE_WIDTH = 3
@@ -259,36 +281,35 @@ function underBarsGroup(layer: SVGGElement): SVGGElement {
   return group as SVGGElement
 }
 
-function overlayCells(overlays: ResolvedOverlay[], labels: string[], rows: number[], patternIds: Map<string, string>): OverlayCell[] {
+type OverlayGeometryFor = (overlay: ResolvedOverlay) => OverlayGeometry | null
+
+function overlayCells(overlays: ResolvedOverlay[], labels: string[], rows: number[], patternIds: Map<string, string>, geometryFor: OverlayGeometryFor): OverlayCell[] {
   const cells: OverlayCell[] = []
   for (const overlay of overlays) {
+    const geom = geometryFor(overlay)
+    if (!geom) {
+      continue
+    }
     const patternId = patternIds.get(overlay.key)
     const fill = patternId ? `url(#${patternId})` : overlay.color
     labels.forEach((label, index) => {
       const low = overlay.low[rows[index]]
       const high = overlay.high[rows[index]]
       if (Number.isFinite(low) && Number.isFinite(high)) {
-        cells.push({ key: `${overlay.key}|${label}`, overlay, label, low, high, fill })
+        cells.push({ key: `${overlay.key}|${label}`, overlay, label, low, high, fill, geom })
       }
     })
   }
   return cells
 }
 
-function bandStart(cell: OverlayCell, geom: OverlayGeometry): number {
-  return (geom.band(cell.label) ?? 0) + geom.bandInset
-}
-
-function bandSize(geom: OverlayGeometry): number {
-  return geom.band.bandwidth() - geom.bandInset
-}
-
-function rangeAttrs(cell: OverlayCell, geom: OverlayGeometry, rowOf: Map<string, number>) {
+function rangeAttrs(cell: OverlayCell, rowOf: Map<string, number>) {
+  const geom = cell.geom
   const offset = geom.base(rowOf.get(cell.label) ?? 0)
   const first = geom.value(offset + cell.high)
   const second = geom.value(offset + cell.low)
-  const start = bandStart(cell, geom)
-  const size = bandSize(geom)
+  const start = geom.slotStart(cell.label)
+  const size = geom.slotSize
   const from = Math.min(first, second)
   const length = Math.abs(second - first)
   const style = { 'fill': cell.fill, 'fill-opacity': cell.overlay.opacity, 'opacity': 1 }
@@ -298,11 +319,12 @@ function rangeAttrs(cell: OverlayCell, geom: OverlayGeometry, rowOf: Map<string,
   return { x: start, width: size, y: from, height: length, ...style }
 }
 
-function valueAttrs(cell: OverlayCell, geom: OverlayGeometry, rowOf: Map<string, number>) {
+function valueAttrs(cell: OverlayCell, rowOf: Map<string, number>) {
+  const geom = cell.geom
   const offset = geom.base(rowOf.get(cell.label) ?? 0)
   const position = geom.value(offset + cell.low)
-  const start = bandStart(cell, geom)
-  const end = start + bandSize(geom)
+  const start = geom.slotStart(cell.label)
+  const end = start + geom.slotSize
   const style = { 'stroke': cell.overlay.color, 'stroke-width': VALUE_STROKE_WIDTH, 'stroke-opacity': cell.overlay.opacity, 'opacity': 1 }
   if (geom.orientation === 'horizontal') {
     return { x1: position, x2: position, y1: start, y2: end, ...style }
@@ -323,18 +345,18 @@ export function overlayGroups(layer: SVGGElement): { ranges: SVGGElement, values
   return { ranges, values }
 }
 
-export function drawOverlays(container: HTMLElement, layer: SVGGElement, overlays: ResolvedOverlay[], labels: string[], rows: number[], geom: OverlayGeometry): void {
+export function drawOverlays(container: HTMLElement, layer: SVGGElement, overlays: ResolvedOverlay[], labels: string[], rows: number[], geometryFor: OverlayGeometryFor): void {
   const groups = overlayGroups(layer)
   const orch = getSceneTransition(container)
   const patternIds = drawStripePatterns(layer, overlays)
-  const cells = overlayCells(overlays, labels, rows, patternIds)
+  const cells = overlayCells(overlays, labels, rows, patternIds, geometryFor)
   const rowOf = new Map(labels.map((label, index) => [label, rows[index]] as const))
   const allRanges = cells.filter(cell => cell.overlay.kind === 'range')
   const ranges = allRanges.filter(cell => cell.overlay.pattern !== 'stripes')
   const striped = allRanges.filter(cell => cell.overlay.pattern === 'stripes')
   const values = cells.filter(cell => cell.overlay.kind === 'value')
   const faded = (attrs: Record<string, string | number>) => ({ ...attrs, opacity: 0 })
-  drawStripedRanges(container, layer, striped, geom, rowOf)
+  drawStripedRanges(container, layer, striped, rowOf)
   featureJoin<OverlayCell>(orch, {
     role: 'mark-per-cell',
     parent: groups.ranges,
@@ -344,8 +366,8 @@ export function drawOverlays(container: HTMLElement, layer: SVGGElement, overlay
     insert: sel => sel.append('rect')
       .attr('class', 'bc-overlay bc-overlay-range')
       .attr('data-series', (cell: OverlayCell) => cell.overlay.title),
-    attrs: cell => rangeAttrs(cell, geom, rowOf),
-    enterFrom: cell => faded(rangeAttrs(cell, geom, rowOf)),
+    attrs: cell => rangeAttrs(cell, rowOf),
+    enterFrom: cell => faded(rangeAttrs(cell, rowOf)),
     exitTo: () => ({ opacity: 0 }),
   })
   featureJoin<OverlayCell>(orch, {
@@ -357,13 +379,13 @@ export function drawOverlays(container: HTMLElement, layer: SVGGElement, overlay
     insert: sel => sel.append('line')
       .attr('class', 'bc-overlay bc-overlay-value')
       .attr('data-series', (cell: OverlayCell) => cell.overlay.title),
-    attrs: cell => valueAttrs(cell, geom, rowOf),
-    enterFrom: cell => faded(valueAttrs(cell, geom, rowOf)),
+    attrs: cell => valueAttrs(cell, rowOf),
+    enterFrom: cell => faded(valueAttrs(cell, rowOf)),
     exitTo: () => ({ opacity: 0 }),
   })
 }
 
-function drawStripedRanges(container: HTMLElement, layer: SVGGElement, cells: OverlayCell[], geom: OverlayGeometry, rowOf: Map<string, number>): void {
+function drawStripedRanges(container: HTMLElement, layer: SVGGElement, cells: OverlayCell[], rowOf: Map<string, number>): void {
   const parent = layer.parentNode as SVGGElement
   const hasMask = Boolean(layer.ownerSVGElement?.querySelector(`mask[id="bc-overlay-mask-${clipSuffix(layer)}"]`))
   if (!cells.length && !hasMask) {
@@ -380,8 +402,8 @@ function drawStripedRanges(container: HTMLElement, layer: SVGGElement, cells: Ov
     insert: sel => sel.append('rect')
       .attr('class', 'bc-overlay bc-overlay-range bc-overlay-stripes')
       .attr('data-series', (cell: OverlayCell) => cell.overlay.title),
-    attrs: cell => rangeAttrs(cell, geom, rowOf),
-    enterFrom: cell => faded(rangeAttrs(cell, geom, rowOf)),
+    attrs: cell => rangeAttrs(cell, rowOf),
+    enterFrom: cell => faded(rangeAttrs(cell, rowOf)),
     exitTo: () => ({ opacity: 0 }),
   })
   const mask = ensureBarMask(layer)
@@ -389,7 +411,7 @@ function drawStripedRanges(container: HTMLElement, layer: SVGGElement, cells: Ov
     return
   }
   const holeAttrs = (cell: OverlayCell) => {
-    const { x, y, width, height } = rangeAttrs(cell, geom, rowOf)
+    const { x, y, width, height } = rangeAttrs(cell, rowOf)
     return { x, y, width, height, opacity: 1 }
   }
   featureJoin<OverlayCell>(orch, {
@@ -414,7 +436,7 @@ function drawStripedRanges(container: HTMLElement, layer: SVGGElement, cells: Ov
   }
 }
 
-export function mountOverlayLayer(container: HTMLElement, parent: SVGGElement, prior: Element[], overlays: ResolvedOverlay[], labels: string[], rows: number[], geom: OverlayGeometry): void {
+export function mountOverlayLayer(container: HTMLElement, parent: SVGGElement, prior: Element[], overlays: ResolvedOverlay[], labels: string[], rows: number[], geometryFor: OverlayGeometryFor): void {
   if (!overlays.length) {
     return
   }
@@ -427,21 +449,24 @@ export function mountOverlayLayer(container: HTMLElement, parent: SVGGElement, p
     const target = isRange ? rangeTarget : groups.values
     target.appendChild(el)
   }
-  drawOverlays(container, layer, overlays, labels, rows, geom)
+  drawOverlays(container, layer, overlays, labels, rows, geometryFor)
 }
 
 const DIRECT_LABEL_GAP = 6
 
-export function drawOverlayDirectLabels(group: SVGGElement, overlays: ResolvedOverlay[], labels: string[], rows: number[], geom: OverlayGeometry): void {
+export function drawOverlayDirectLabels(group: SVGGElement, overlays: ResolvedOverlay[], labels: string[], rows: number[], geometryFor: OverlayGeometryFor): void {
   const label = labels[0]
   const row = rows[0]
   if (label === undefined) {
     return
   }
-  const offset = geom.base(row)
-  const barThickness = geom.band.bandwidth() - geom.bandInset
-  const centre = (geom.band(label) ?? 0) + geom.bandInset + barThickness / 2
   for (const overlay of overlays) {
+    const geom = geometryFor(overlay)
+    if (!geom) {
+      continue
+    }
+    const offset = geom.base(row)
+    const centre = geom.slotStart(label) + geom.slotSize / 2
     const low = overlay.low[row]
     const high = overlay.high[row]
     if (!Number.isFinite(low) || !Number.isFinite(high)) {
@@ -514,21 +539,41 @@ function cueConfigIssues(overlay: OverlayConfig, key: string): OverlayIssue[] {
   return issues
 }
 
-function targetConflictIssues(overlays: OverlayConfig[]): OverlayIssue[] {
+function targetConflictIssues(overlays: OverlayConfig[], barOf: (overlay: OverlayConfig) => string | undefined): OverlayIssue[] {
   const issues: OverlayIssue[] = []
-  let seen = false
+  const seen = new Set<string | undefined>()
   overlays.forEach((overlay, index) => {
     const isValue = overlay.columns.length === 1
     const hasColor = overlay.aboveColor !== undefined || overlay.belowColor !== undefined
     if (!isValue || overlay.hidden || !hasColor) {
       return
     }
-    if (seen) {
+    const bar = barOf(overlay)
+    if (seen.has(bar)) {
       issues.push({ code: 'overlay-target-conflict', key: `overlay[${index}]`, message: 'Only the first value overlay with a target color colors the bars, so this one is ignored.' })
     }
-    seen = true
+    seen.add(bar)
   })
   return issues
+}
+
+function barKeyIssues(overlay: OverlayConfig, index: number, isSeries: boolean, barNames: string[]): OverlayIssue[] {
+  const key = `overlay[${index}]`
+  const [first] = barNames
+  if (!isSeries) {
+    return overlay.bar === undefined ? [] : [{ code: 'overlay-bar-ignored', key, message: 'The bar key only applies to bar-multi, bar-grouped and bar-split charts, so it is ignored here.' }]
+  }
+  if (!first) {
+    return []
+  }
+  if (overlay.bar === undefined) {
+    return [{ code: 'overlay-bar-missing', key, message: `This overlay names no bar, so it goes on "${first}".` }]
+  }
+  if (barNames.includes(overlay.bar)) {
+    return []
+  }
+  const suggestion = nearest(overlay.bar, barNames)
+  return [{ code: 'overlay-bar-unknown', key, message: `Bar "${overlay.bar}" is not a bar series, so this overlay goes on "${first}".`, ...(suggestion && { suggestion }) }]
 }
 
 function overlayConfigIssues(overlay: OverlayConfig, index: number, data: ChartData, rawData: string | undefined): OverlayIssue[] {
@@ -556,17 +601,26 @@ function overlayConfigIssues(overlay: OverlayConfig, index: number, data: ChartD
   return issues
 }
 
-export function overlayIssues(data: ChartData, overlays: OverlayConfig[], chartType: string, rawData?: string): OverlayIssue[] {
+export function overlayIssues(data: ChartData, overlays: OverlayConfig[], chartType: string, rawData?: string, stackMode?: string): OverlayIssue[] {
   if (!overlays.length) {
     return []
   }
   if (!OVERLAY_CHART_TYPES.has(chartType)) {
-    return [{ code: 'overlay-unsupported-type', key: 'overlay[0]', message: `Overlays only draw on bar-vertical and bar-horizontal charts, not ${chartType}.` }]
+    return [{ code: 'overlay-unsupported-type', key: 'overlay[0]', message: `Overlays only draw on bar-vertical, bar-horizontal, bar-multi, bar-grouped, bar-split, bar-stacked and column-stacked charts, not ${chartType}.` }]
   }
-  const issues = overlays.flatMap((overlay, index) => overlayConfigIssues(overlay, index, data, rawData))
-  issues.push(...targetConflictIssues(overlays))
   const names = data.series?.map(column => column.name) ?? []
   const claimed = new Set(overlays.flatMap(overlay => overlay.columns))
+  const barNames = names.filter(name => !claimed.has(name))
+  const isSeries = OVERLAY_SERIES_CHART_TYPES.has(chartType)
+  const barOf = (overlay: OverlayConfig) => isSeries ? targetBar(overlay, barNames) : undefined
+  const issues = overlays.flatMap((overlay, index) => overlayConfigIssues(overlay, index, data, rawData))
+  const barIssues = overlays.flatMap((overlay, index) => barKeyIssues(overlay, index, isSeries, barNames))
+  issues.push(...barIssues)
+  issues.push(...targetConflictIssues(overlays, barOf))
+  const isPercentStack = OVERLAY_STACKED_CHART_TYPES.has(chartType) && stackMode === 'percent'
+  if (isPercentStack) {
+    issues.push({ code: 'overlay-percent-stack', message: 'Overlays do not draw on a percent stack, so they are ignored.' })
+  }
   const leavesNoBar = names.length > 0 && names.every(name => claimed.has(name))
   if (leavesNoBar) {
     issues.push({ code: 'overlay-no-bar', message: 'Overlays use every column, so no bar is left to draw.' })

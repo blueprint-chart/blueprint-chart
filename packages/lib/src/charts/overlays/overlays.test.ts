@@ -248,3 +248,65 @@ describe('overlayKeyEntries', () => {
     expect(titles).toEqual(['Above T', 'Missed'])
   })
 })
+
+describe('overlay families', () => {
+  const MEDALS = 'series = "Gold low","Gold","Gold high","Silver"\n"A" = 1,2,3,4'
+  const range = (extra: Partial<OverlayConfig> = {}): OverlayConfig => ({ columns: ['Gold low', 'Gold high'], ...extra })
+  const codes = (issues: { code: string }[]) => issues.map(issue => issue.code)
+
+  it('targets the first remaining series on a series type without bar', () => {
+    const r = resolveOverlays(parseData(MEDALS), [range()], 'bar-multi')
+    expect(r.data.series?.map(s => s.name)).toEqual(['Gold', 'Silver'])
+    expect(r.overlays[0].bar).toBe('Gold')
+  })
+
+  it('targets the named series, falling back on an unknown one', () => {
+    const silver = resolveOverlays(parseData(MEDALS), [range({ bar: 'Silver' })], 'bar-multi')
+    const bronze = resolveOverlays(parseData(MEDALS), [range({ bar: 'Bronze' })], 'bar-multi')
+    expect(silver.overlays[0].bar).toBe('Silver')
+    expect(bronze.overlays[0].bar).toBe('Gold')
+  })
+
+  it('keeps a single remaining column as series on a stacked type, without bar', () => {
+    const d = parseData('series = "Gold low","Gold","Gold high"\n"A" = 1,2,3')
+    const r = resolveOverlays(d, [range({ bar: 'Gold' })], 'bar-stacked')
+    expect(r.data.series?.map(s => s.name)).toEqual(['Gold'])
+    expect(r.overlays[0].bar).toBeUndefined()
+  })
+
+  it('drops every overlay on a percent stack but still claims its columns', () => {
+    const r = resolveOverlays(parseData(MEDALS), [range()], 'bar-stacked', 'percent')
+    expect(r.overlays).toEqual([])
+    expect(r.data.series?.map(s => s.name)).toEqual(['Gold', 'Silver'])
+  })
+
+  it('flags a missing bar on a series type', () => {
+    expect(codes(overlayIssues(parseData(MEDALS), [range()], 'bar-multi'))).toContain('overlay-bar-missing')
+  })
+
+  it('flags an unknown bar with a suggestion', () => {
+    const issues = overlayIssues(parseData(MEDALS), [range({ bar: 'Silvr' })], 'bar-multi')
+    const issue = issues.find(i => i.code === 'overlay-bar-unknown')
+    expect(issue?.suggestion).toBe('Silver')
+  })
+
+  it.each(['bar-vertical', 'bar-stacked'])('flags bar as ignored on %s', (chartType) => {
+    expect(codes(overlayIssues(parseData(MEDALS), [range({ bar: 'Gold' })], chartType))).toContain('overlay-bar-ignored')
+  })
+
+  it('flags overlays on a percent stack', () => {
+    expect(codes(overlayIssues(parseData(MEDALS), [range()], 'column-stacked', undefined, 'percent'))).toContain('overlay-percent-stack')
+  })
+
+  it('stays quiet for a series overlay naming a bar', () => {
+    expect(overlayIssues(parseData(MEDALS), [range({ bar: 'Gold' })], 'bar-grouped')).toEqual([])
+  })
+
+  it('only conflicts colored value overlays on the same bar', () => {
+    const d = parseData('series = "Gold","Silver","T1","T2"\n"A" = 1,2,3,4')
+    const apart = [{ columns: ['T1'], bar: 'Gold', aboveColor: 'g' }, { columns: ['T2'], bar: 'Silver', aboveColor: 'g' }]
+    const together = [{ columns: ['T1'], bar: 'Gold', aboveColor: 'g' }, { columns: ['T2'], aboveColor: 'g' }]
+    expect(codes(overlayIssues(d, apart, 'bar-multi'))).not.toContain('overlay-target-conflict')
+    expect(codes(overlayIssues(d, together, 'bar-multi'))).toContain('overlay-target-conflict')
+  })
+})

@@ -36,13 +36,14 @@ export function buildChartAccessibility(
   frame: FrameOptions | null | undefined,
   data: ChartData,
   overlays?: OverlayConfig[],
+  stackMode?: string,
 ): ChartAccessibility {
   const kind = `${chartType.replace(/-/g, ' ')} chart`
   const title = frame?.title ? collapseWhitespace(frame.title) : ''
   const description = frame?.description ? collapseWhitespace(frame.description) : ''
   const altText = frame?.altText ? collapseWhitespace(frame.altText) : ''
   const hasOverlays = OVERLAY_CHART_TYPES.has(chartType)
-  const resolved = resolveOverlays(data, hasOverlays ? overlays : undefined)
+  const resolved = resolveOverlays(data, hasOverlays ? overlays : undefined, chartType, stackMode)
   const includes = resolved.overlays.map(overlay => `Includes ${collapseWhitespace(overlay.title)}.`)
   const fades = resolved.overlays
     .filter(overlay => overlay.kind === 'range' && overlay.muteRef !== undefined && Number.isFinite(overlay.muteRef))
