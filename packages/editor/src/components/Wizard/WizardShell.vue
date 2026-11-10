@@ -344,6 +344,7 @@ function prepareDataForEdit() {
     config._base.chartType.value,
     dataTable.columns.value.length,
     dataTable.columnTypes.value[0] === 'date',
+    config._base.overlays.value,
   )
 }
 
