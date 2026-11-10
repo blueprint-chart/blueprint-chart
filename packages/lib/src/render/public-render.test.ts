@@ -237,3 +237,22 @@ describe('render() color scheme', () => {
     expect(listeners).toHaveLength(0)
   })
 })
+
+describe('render() text alternative with overlays', () => {
+  it('toSvg describes overlays in the desc', async () => {
+    const source = `chart bar-vertical {
+  data {
+    series = "Low","V","High"
+    "A" = 8,10,12
+    "B" = 18,20,22
+  }
+  overlay "Low" "High" {
+    title = "Band"
+  }
+}`
+    const chart = await render(source)
+    const svg = await chart.toSvg()
+    const outerDesc = svg.match(/<desc>(.*?)<\/desc>/)![1]
+    expect(outerDesc).toContain('Includes Band.')
+  })
+})

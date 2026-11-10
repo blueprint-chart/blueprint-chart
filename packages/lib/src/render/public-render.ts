@@ -128,7 +128,7 @@ export async function render(source: string, options: RenderApiOptions = {}): Pr
     try {
       applyThemeSurface(container, theme)
       renderInto(container, true, state.sceneIndex)
-      const a11y = buildChartAccessibility(scene.chartType, scene.frame, scene.data)
+      const a11y = buildChartAccessibility(scene.chartType, scene.frame, scene.data, scene.overlays)
       return buildFrameSvg(layout, backend.serializeSvg(container), a11y)
     }
     finally {
