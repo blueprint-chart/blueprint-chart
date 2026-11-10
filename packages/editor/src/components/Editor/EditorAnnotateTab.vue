@@ -45,6 +45,17 @@
         :global-interpolation="globalInterpolation"
       />
     </SettingsSection>
+
+    <SettingsSection
+      v-if="hasOverlays"
+      title="Overlays"
+      :icon="IPhRows"
+    >
+      <EditorOverlays
+        v-model="overlays"
+        :columns="numericColumns"
+      />
+    </SettingsSection>
   </div>
 </template>
 
@@ -54,15 +65,17 @@ import { useChartTypeOptions } from '@/stores/chartTypeOptions'
 import { usePreviewContainer } from '@/stores/previewContainer'
 import { useEditorPanel } from '@/stores/editorPanel'
 import { useScenes } from '@/stores/scenes'
-import { ChartType, parseData } from '@blueprint-chart/lib'
+import { ChartType, OVERLAY_CHART_TYPES, parseData } from '@blueprint-chart/lib'
 import type { AnnotationConfig } from '@blueprint-chart/lib'
 import { SettingsSection } from '@blueprint-chart/ui'
 import IPhDropHalf from '~icons/ph/drop-half'
 import IPhHighlighterCircle from '~icons/ph/highlighter-circle'
+import IPhRows from '~icons/ph/rows'
 import EditorAnnotations from './EditorAnnotations.vue'
+import EditorOverlays from './EditorOverlays.vue'
 
 const config = useChartConfig()
-const { chartType, data, areaFills, seriesOverrides } = config
+const { chartType, data, areaFills, overlays, seriesOverrides } = config
 const { currentOptions } = useChartTypeOptions()
 const globalInterpolation = computed(() => (currentOptions.value.interpolation as string) ?? 'linear')
 const { pendingAnnotationIndex } = useEditorPanel()
@@ -98,6 +111,9 @@ const isMultiLine = computed(() => chartType.value === ChartType.LineMulti)
 const parsed = computed(() => parseData(data.value))
 const dataLabels = computed(() => parsed.value.labels)
 const seriesNames = computed(() => parsed.value.series?.map(s => s.name) ?? [])
+const hasOverlays = computed(() => OVERLAY_CHART_TYPES.has(chartType.value))
+const textColumnNames = computed(() => new Set(parsed.value.textColumns?.map(c => c.name)))
+const numericColumns = computed(() => seriesNames.value.filter(name => !textColumnNames.value.has(name)))
 
 // Template refs for both EditorAnnotations instances
 const baseAnnotationsRef = ref<InstanceType<typeof EditorAnnotations> | null>(null)

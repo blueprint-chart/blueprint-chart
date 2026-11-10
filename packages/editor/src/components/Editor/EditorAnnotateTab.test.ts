@@ -40,6 +40,15 @@ vi.mock('./EditorAreaFills.vue', () => ({
   },
 }))
 
+vi.mock('./EditorOverlays.vue', () => ({
+  default: {
+    name: 'EditorOverlays',
+    template: '<div class="stub-overlays" :data-columns="columns.join(\'|\')" />',
+    props: ['modelValue', 'columns'],
+    emits: ['update:modelValue'],
+  },
+}))
+
 vi.mock('@/stores/previewContainer', () => ({
   usePreviewContainer: () => ({
     containerRef: ref(null),
@@ -55,12 +64,14 @@ const baseAnnotationsRef = ref<object[]>([])
 const scenesRef = ref<object[]>([])
 const activeIndexRef = ref(-1)
 const chartTypeRef = ref('line')
+const dataRef = ref('')
 
 vi.mock('@/stores/chartConfig', () => ({
   useChartConfig: () => ({
     chartType: chartTypeRef,
-    data: ref(''),
+    data: dataRef,
     areaFills: ref([]),
+    overlays: ref([]),
     seriesOverrides: ref([]),
     _base: {
       annotations: baseAnnotationsRef,
@@ -98,6 +109,34 @@ describe('EditorAnnotateTab', () => {
     scenesRef.value = []
     activeIndexRef.value = -1
     chartTypeRef.value = 'line'
+    dataRef.value = ''
+  })
+
+  it('shows the Overlays section on a vertical bar chart', async () => {
+    chartTypeRef.value = 'bar-vertical'
+    const w = mount(EditorAnnotateTab)
+    await nextTick()
+    expect(w.find('.stub-overlays').exists()).toBe(true)
+    expect(w.text()).toContain('Overlays')
+  })
+
+  it('hides the Overlays section on a line chart', async () => {
+    chartTypeRef.value = 'line'
+    const w = mount(EditorAnnotateTab)
+    await nextTick()
+    expect(w.find('.stub-overlays').exists()).toBe(false)
+  })
+
+  it('lists only numeric columns', async () => {
+    chartTypeRef.value = 'bar-vertical'
+    dataRef.value = [
+      'series = "Sales","Region","Target"',
+      '"Q1" = 10, "North", 12',
+      '"Q2" = 20, "South", 18',
+    ].join('\n')
+    const w = mount(EditorAnnotateTab)
+    await nextTick()
+    expect(w.find('.stub-overlays').attributes('data-columns')).toBe('Sales|Target')
   })
 
   it('offers the highlight section on a scatter chart', async () => {

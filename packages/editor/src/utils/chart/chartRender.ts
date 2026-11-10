@@ -1,4 +1,4 @@
-import { applyTransformSteps, ChartType, parseData, resolveChartTypeOptions, serializeTableData } from '@blueprint-chart/lib'
+import { applyTransformSteps, ChartType, OVERLAY_CHART_TYPES, parseData, resolveChartTypeOptions, serializeTableData } from '@blueprint-chart/lib'
 import type { AnnotationConfig, AreaFillConfig, ChartDefinition, HighlightConfig, OverlayConfig, SeriesOverride, SortDirection } from '@blueprint-chart/lib'
 import type { ChartColorize, ChartLayout } from '@/composables/useChartConfig'
 import type { ChartTypeOptions } from '@/composables/useChartTypeOptions'
@@ -61,7 +61,9 @@ export function buildChartRender(s: RenderSnapshot): ChartRender {
   const chartType = scene?.chartType ?? s.chartType
   const data = parseData(resolveDataString(s, scene))
 
-  if (data.series && data.series.length > 0 && SINGLE_SERIES_TYPES.includes(chartType)) {
+  const overlays = scene?.overlays ?? s.overlays
+  const keepsColumns = OVERLAY_CHART_TYPES.has(chartType) && overlays.length > 0
+  if (data.series && data.series.length > 0 && SINGLE_SERIES_TYPES.includes(chartType) && !keepsColumns) {
     const match = data.series.find(series => series.name === s.selectedColumn)
     if (match) {
       data.values = match.values
@@ -99,7 +101,7 @@ export function buildChartRender(s: RenderSnapshot): ChartRender {
       colorizes: scene?.colorizes ?? s.colorizes,
       highlights: scene ? (scene.highlights ?? []) : s.baseHighlights,
       areaFills: scene?.areaFills ?? s.areaFills,
-      overlays: scene?.overlays ?? s.overlays,
+      overlays,
       annotations: resolveVisibleAnnotations(s.baseAnnotations, s.scenes, s.activeIndex)
         .map(v => ({ ...v.config, key: v.key })),
       seriesOverrides: scene?.seriesOverrides ?? s.seriesOverrides,
