@@ -1536,6 +1536,26 @@ describe('bar-horizontal', () => {
       })
     })
 
+    describe('overlay thickness', () => {
+      it('draws a solid range at the bar thickness', () => {
+        render(container, overlayData, { overlays: [{ columns: ['Min', 'Max'] }], directLabelling: '' })
+        const range = overlayEls('rect.bc-overlay-range')[0]
+        const bar = overlayEls('.bc-bar')[0]
+        expect(Number(range.getAttribute('y'))).toBeCloseTo(Number(bar.getAttribute('y')), 3)
+        expect(Number(range.getAttribute('height'))).toBeCloseTo(Number(bar.getAttribute('height')), 3)
+      })
+
+      it('draws a value marker at the bar thickness', () => {
+        render(container, overlayData, { overlays: [{ columns: ['Last'] }], directLabelling: '' })
+        const marker = overlayEls('line.bc-overlay-value')[0]
+        const bar = overlayEls('.bc-bar')[0]
+        const start = Number(bar.getAttribute('y'))
+        const end = start + Number(bar.getAttribute('height'))
+        expect(Number(marker.getAttribute('y1'))).toBeCloseTo(start, 3)
+        expect(Number(marker.getAttribute('y2'))).toBeCloseTo(end, 3)
+      })
+    })
+
     it('positions waterfall overlays from the floating base', () => {
       const steps = {
         labels: ['A', 'B'],
@@ -1641,7 +1661,8 @@ describe('bar-horizontal', () => {
         const barY = Number(bar.getAttribute('y'))
         const barHeight = Number(bar.getAttribute('height'))
         const rangeY = Number(ranges[index].getAttribute('y'))
-        expect(rangeY).toBeCloseTo(barY - barHeight * 0.15, 3)
+        expect(rangeY).toBeCloseTo(barY, 3)
+        expect(Number(ranges[index].getAttribute('height'))).toBeCloseTo(barHeight, 3)
       })
     })
 

@@ -97,7 +97,6 @@ interface OverlayCell {
 }
 
 const VALUE_STROKE_WIDTH = 3
-const OVERHANG_RATIO = 0.15
 const STRIPE_SIZE = 6
 
 export function overlayDomainValues(overlays: ResolvedOverlay[], rows: number[], base: (rowIndex: number) => number): number[] {
@@ -235,18 +234,12 @@ function overlayCells(overlays: ResolvedOverlay[], labels: string[], rows: numbe
   return cells
 }
 
-function overhangOf(cell: OverlayCell): number {
-  return cell.overlay.pattern === 'stripes' ? 0 : OVERHANG_RATIO
-}
-
 function bandStart(cell: OverlayCell, geom: OverlayGeometry): number {
-  const overhang = geom.band.bandwidth() * overhangOf(cell)
-  return (geom.band(cell.label) ?? 0) + geom.bandInset - overhang
+  return (geom.band(cell.label) ?? 0) + geom.bandInset
 }
 
-function bandSize(cell: OverlayCell, geom: OverlayGeometry): number {
-  const bandwidth = geom.band.bandwidth()
-  return bandwidth * (1 + overhangOf(cell) * 2) - geom.bandInset
+function bandSize(geom: OverlayGeometry): number {
+  return geom.band.bandwidth() - geom.bandInset
 }
 
 function rangeAttrs(cell: OverlayCell, geom: OverlayGeometry, rowOf: Map<string, number>) {
@@ -254,7 +247,7 @@ function rangeAttrs(cell: OverlayCell, geom: OverlayGeometry, rowOf: Map<string,
   const first = geom.value(offset + cell.high)
   const second = geom.value(offset + cell.low)
   const start = bandStart(cell, geom)
-  const size = bandSize(cell, geom)
+  const size = bandSize(geom)
   const from = Math.min(first, second)
   const length = Math.abs(second - first)
   const style = { 'fill': cell.fill, 'fill-opacity': cell.overlay.opacity, 'opacity': 1 }
@@ -268,7 +261,7 @@ function valueAttrs(cell: OverlayCell, geom: OverlayGeometry, rowOf: Map<string,
   const offset = geom.base(rowOf.get(cell.label) ?? 0)
   const position = geom.value(offset + cell.low)
   const start = bandStart(cell, geom)
-  const end = start + bandSize(cell, geom)
+  const end = start + bandSize(geom)
   const style = { 'stroke': cell.overlay.color, 'stroke-width': VALUE_STROKE_WIDTH, 'stroke-opacity': cell.overlay.opacity, 'opacity': 1 }
   if (geom.orientation === 'horizontal') {
     return { x1: position, x2: position, y1: start, y2: end, ...style }
