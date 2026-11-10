@@ -150,9 +150,9 @@ export function render(
     ? waterfallData.filter(d => !d.isTotal).map(d => d.label)
     : labels
   const overlayRows = overlayLabels.map(label => data.labels.indexOf(label))
-  const waterfallBase = new Map(waterfallData
-    .filter(d => !d.isTotal)
-    .map(d => [data.labels.indexOf(d.label), d.y0] as const))
+  const waterfallSteps = waterfallData.filter(d => !d.isTotal)
+  const waterfallBaseEntries = waterfallSteps.map(d => [data.labels.indexOf(d.label), d.y0] as const)
+  const waterfallBase = new Map(waterfallBaseEntries)
   const overlayBase = (row: number) => isWaterfall ? (waterfallBase.get(row) ?? 0) : 0
   const barDomainValues = isWaterfall
     ? waterfallData.flatMap(d => [d.y0, d.y1])
