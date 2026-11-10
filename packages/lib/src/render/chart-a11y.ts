@@ -1,4 +1,5 @@
-import type { ChartData, FrameOptions } from '../charts/types'
+import type { ChartData, FrameOptions, OverlayConfig } from '../charts/types'
+import { OVERLAY_CHART_TYPES, resolveOverlays } from '../charts/overlays/overlays'
 
 export interface ChartAccessibility {
   /** Accessible name: what a screen reader announces for the graphic. */
@@ -34,14 +35,19 @@ export function buildChartAccessibility(
   chartType: string,
   frame: FrameOptions | null | undefined,
   data: ChartData,
+  overlays?: OverlayConfig[],
 ): ChartAccessibility {
   const kind = `${chartType.replace(/-/g, ' ')} chart`
   const title = frame?.title ? collapseWhitespace(frame.title) : ''
   const description = frame?.description ? collapseWhitespace(frame.description) : ''
   const altText = frame?.altText ? collapseWhitespace(frame.altText) : ''
+  const hasOverlays = OVERLAY_CHART_TYPES.has(chartType)
+  const resolved = resolveOverlays(data, hasOverlays ? overlays : undefined)
+  const includes = resolved.overlays.map(overlay => `Includes ${collapseWhitespace(overlay.title)}.`)
+  const summary = summariseData(kind, resolved.data)
   return {
     label: title || kind,
-    description: altText || [description, summariseData(kind, data)].filter(Boolean).join(' '),
+    description: altText || [description, summary, ...includes].filter(Boolean).join(' '),
   }
 }
 

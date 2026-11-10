@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { parseData } from '../charts/parse-data'
 import { buildChartAccessibility } from './chart-a11y'
+import type { OverlayConfig } from '../charts/types'
 
 const DATA = parseData([
   'series = "GDP per capita","Life expectancy","Population","Continent"',
@@ -22,5 +23,43 @@ describe('buildChartAccessibility', () => {
 
   it('falls back to the generated description when alt text is blank', () => {
     expect(buildChartAccessibility('scatter', { description: 'Mine', altText: '  ' }, DATA).description).toBe('Mine scatter chart of 5 points.')
+  })
+
+  describe('overlays', () => {
+    const BAR_DATA = parseData([
+      'series = "Sales","Low","High","Target"',
+      '"A" = 10, 8, 12, 15',
+      '"B" = 20, 18, 22, 25',
+    ].join('\n'))
+    const OVERLAYS: OverlayConfig[] = [
+      { columns: ['Low', 'High'], title: '95% confidence interval' },
+      { columns: ['Target'], title: '2022' },
+    ]
+
+    it('mentions each overlay by title', () => {
+      const a11y = buildChartAccessibility('bar-vertical', null, BAR_DATA, OVERLAYS)
+      expect(a11y.description).toBe('bar vertical chart of 2 categories, values from 10 to 20. Includes 95% confidence interval. Includes 2022.')
+    })
+
+    it('lets altText win', () => {
+      const a11y = buildChartAccessibility('bar-vertical', { altText: 'Sales by year.' }, BAR_DATA, OVERLAYS)
+      expect(a11y.description).toBe('Sales by year.')
+    })
+
+    it('ignores overlays on other chart types', () => {
+      const a11y = buildChartAccessibility('line', null, BAR_DATA, OVERLAYS)
+      expect(a11y.description).not.toContain('Includes')
+    })
+
+    it('summarises the bar series when the overlay names the first column', () => {
+      const data = parseData([
+        'series = "Low","V","High"',
+        '"A" = 8, 10, 12',
+        '"B" = 18, 20, 22',
+      ].join('\n'))
+      const overlays: OverlayConfig[] = [{ columns: ['Low', 'High'], title: 'Band' }]
+      const a11y = buildChartAccessibility('bar-vertical', null, data, overlays)
+      expect(a11y.description).toBe('bar vertical chart of 2 categories, values from 10 to 20. Includes Band.')
+    })
   })
 })
