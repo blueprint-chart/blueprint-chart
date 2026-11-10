@@ -155,15 +155,68 @@ function drawStripePatterns(layer: SVGGElement, overlays: ResolvedOverlay[]): Ma
       .attr('width', STRIPE_SIZE)
       .attr('height', STRIPE_SIZE)
       .attr('patternTransform', 'rotate(45)')
-    pattern.append('line')
-      .attr('x1', 0)
-      .attr('y1', 0)
-      .attr('x2', 0)
-      .attr('y2', STRIPE_SIZE)
-      .attr('stroke', overlay.color)
-      .attr('stroke-width', 2)
+    pattern.append('rect')
+      .attr('width', STRIPE_SIZE / 2)
+      .attr('height', STRIPE_SIZE)
+      .attr('fill', overlay.color)
   })
   return ids
+}
+
+const MASK_EXTENT = 100_000
+
+function ensureBarMask(layer: SVGGElement): { id: string, holes: SVGGElement } | null {
+  const svg = layer.ownerSVGElement
+  if (!svg) {
+    return null
+  }
+  const suffix = clipSuffix(layer)
+  const id = `bc-overlay-mask-${suffix}`
+  const existing = svg.querySelector<SVGMaskElement>(`mask[id="${id}"]`)
+  if (existing) {
+    return { id, holes: existing.querySelector<SVGGElement>('.bc-overlay-mask-ranges')! }
+  }
+  const defs = d3.select(svg).select<SVGDefsElement>('defs')
+  const mask = defs.append('mask')
+    .attr('id', id)
+    .attr('maskUnits', 'userSpaceOnUse')
+    .attr('x', -MASK_EXTENT)
+    .attr('y', -MASK_EXTENT)
+    .attr('width', MASK_EXTENT * 2)
+    .attr('height', MASK_EXTENT * 2)
+  const gapsId = `bc-overlay-gaps-${suffix}`
+  const gaps = mask.append('pattern')
+    .attr('id', gapsId)
+    .attr('patternUnits', 'userSpaceOnUse')
+    .attr('width', STRIPE_SIZE)
+    .attr('height', STRIPE_SIZE)
+    .attr('patternTransform', 'rotate(45)')
+  gaps.append('rect').attr('width', STRIPE_SIZE).attr('height', STRIPE_SIZE).attr('fill', 'black')
+  gaps.append('rect').attr('width', STRIPE_SIZE / 2).attr('height', STRIPE_SIZE).attr('fill', 'white')
+  mask.append('rect')
+    .attr('x', -MASK_EXTENT)
+    .attr('y', -MASK_EXTENT)
+    .attr('width', MASK_EXTENT * 2)
+    .attr('height', MASK_EXTENT * 2)
+    .attr('fill', 'white')
+  const holes = mask.append('g').attr('class', 'bc-overlay-mask-ranges').attr('fill', `url(#${gapsId})`).node()!
+  return { id, holes }
+}
+
+function underBarsGroup(layer: SVGGElement): SVGGElement {
+  const parent = layer.parentNode as SVGGElement
+  const existing = parent.querySelector<SVGGElement>(':scope > .bc-overlays-under')
+  if (existing) {
+    return existing
+  }
+  let anchor: Element | null = parent.querySelector('.bc-bar') ?? layer
+  while (anchor && anchor.parentNode !== parent) {
+    anchor = anchor.parentElement
+  }
+  const group = document.createElementNS('http://www.w3.org/2000/svg', 'g')
+  group.setAttribute('class', 'bc-overlays-under')
+  parent.insertBefore(group, anchor)
+  return group as SVGGElement
 }
 
 function overlayCells(overlays: ResolvedOverlay[], labels: string[], rows: number[], patternIds: Map<string, string>): OverlayCell[] {
@@ -182,14 +235,18 @@ function overlayCells(overlays: ResolvedOverlay[], labels: string[], rows: numbe
   return cells
 }
 
+function overhangOf(cell: OverlayCell): number {
+  return cell.overlay.pattern === 'stripes' ? 0 : OVERHANG_RATIO
+}
+
 function bandStart(cell: OverlayCell, geom: OverlayGeometry): number {
-  const overhang = geom.band.bandwidth() * OVERHANG_RATIO
+  const overhang = geom.band.bandwidth() * overhangOf(cell)
   return (geom.band(cell.label) ?? 0) + geom.bandInset - overhang
 }
 
-function bandSize(geom: OverlayGeometry): number {
+function bandSize(cell: OverlayCell, geom: OverlayGeometry): number {
   const bandwidth = geom.band.bandwidth()
-  return bandwidth * (1 + OVERHANG_RATIO * 2) - geom.bandInset
+  return bandwidth * (1 + overhangOf(cell) * 2) - geom.bandInset
 }
 
 function rangeAttrs(cell: OverlayCell, geom: OverlayGeometry, rowOf: Map<string, number>) {
@@ -197,7 +254,7 @@ function rangeAttrs(cell: OverlayCell, geom: OverlayGeometry, rowOf: Map<string,
   const first = geom.value(offset + cell.high)
   const second = geom.value(offset + cell.low)
   const start = bandStart(cell, geom)
-  const size = bandSize(geom)
+  const size = bandSize(cell, geom)
   const from = Math.min(first, second)
   const length = Math.abs(second - first)
   const style = { 'fill': cell.fill, 'fill-opacity': cell.overlay.opacity, 'opacity': 1 }
@@ -211,7 +268,7 @@ function valueAttrs(cell: OverlayCell, geom: OverlayGeometry, rowOf: Map<string,
   const offset = geom.base(rowOf.get(cell.label) ?? 0)
   const position = geom.value(offset + cell.low)
   const start = bandStart(cell, geom)
-  const end = start + bandSize(geom)
+  const end = start + bandSize(cell, geom)
   const style = { 'stroke': cell.overlay.color, 'stroke-width': VALUE_STROKE_WIDTH, 'stroke-opacity': cell.overlay.opacity, 'opacity': 1 }
   if (geom.orientation === 'horizontal') {
     return { x1: position, x2: position, y1: start, y2: end, ...style }
@@ -238,9 +295,12 @@ export function drawOverlays(container: HTMLElement, layer: SVGGElement, overlay
   const patternIds = drawStripePatterns(layer, overlays)
   const cells = overlayCells(overlays, labels, rows, patternIds)
   const rowOf = new Map(labels.map((label, index) => [label, rows[index]] as const))
-  const ranges = cells.filter(cell => cell.overlay.kind === 'range')
+  const allRanges = cells.filter(cell => cell.overlay.kind === 'range')
+  const ranges = allRanges.filter(cell => cell.overlay.pattern !== 'stripes')
+  const striped = allRanges.filter(cell => cell.overlay.pattern === 'stripes')
   const values = cells.filter(cell => cell.overlay.kind === 'value')
   const faded = (attrs: Record<string, string | number>) => ({ ...attrs, opacity: 0 })
+  drawStripedRanges(container, layer, striped, geom, rowOf)
   featureJoin<OverlayCell>(orch, {
     role: 'mark-per-cell',
     parent: groups.ranges,
@@ -269,6 +329,57 @@ export function drawOverlays(container: HTMLElement, layer: SVGGElement, overlay
   })
 }
 
+function drawStripedRanges(container: HTMLElement, layer: SVGGElement, cells: OverlayCell[], geom: OverlayGeometry, rowOf: Map<string, number>): void {
+  const parent = layer.parentNode as SVGGElement
+  const hasMask = Boolean(layer.ownerSVGElement?.querySelector(`mask[id="bc-overlay-mask-${clipSuffix(layer)}"]`))
+  if (!cells.length && !hasMask) {
+    return
+  }
+  const orch = getSceneTransition(container)
+  const faded = (attrs: Record<string, string | number>) => ({ ...attrs, opacity: 0 })
+  featureJoin<OverlayCell>(orch, {
+    role: 'mark-per-cell',
+    parent: underBarsGroup(layer),
+    selector: '.bc-overlay-range',
+    data: cells,
+    key: cell => cell.key,
+    insert: sel => sel.append('rect')
+      .attr('class', 'bc-overlay bc-overlay-range bc-overlay-stripes')
+      .attr('data-series', (cell: OverlayCell) => cell.overlay.title),
+    attrs: cell => rangeAttrs(cell, geom, rowOf),
+    enterFrom: cell => faded(rangeAttrs(cell, geom, rowOf)),
+    exitTo: () => ({ opacity: 0 }),
+  })
+  const mask = ensureBarMask(layer)
+  if (!mask) {
+    return
+  }
+  const holeAttrs = (cell: OverlayCell) => {
+    const { x, y, width, height } = rangeAttrs(cell, geom, rowOf)
+    return { x, y, width, height, opacity: 1 }
+  }
+  featureJoin<OverlayCell>(orch, {
+    role: 'mark-per-cell',
+    parent: mask.holes,
+    selector: '.bc-overlay-mask-range',
+    data: cells,
+    key: cell => cell.key,
+    insert: sel => sel.append('rect').attr('class', 'bc-overlay-mask-range'),
+    attrs: holeAttrs,
+    enterFrom: cell => faded(holeAttrs(cell)),
+    exitTo: () => ({ opacity: 0 }),
+  })
+  const bars = parent.querySelectorAll('.bc-bar')
+  for (const bar of bars) {
+    if (cells.length) {
+      bar.setAttribute('mask', `url(#${mask.id})`)
+    }
+    else {
+      bar.removeAttribute('mask')
+    }
+  }
+}
+
 export function mountOverlayLayer(container: HTMLElement, parent: SVGGElement, prior: Element[], overlays: ResolvedOverlay[], labels: string[], rows: number[], geom: OverlayGeometry): void {
   if (!overlays.length) {
     return
@@ -276,8 +387,10 @@ export function mountOverlayLayer(container: HTMLElement, parent: SVGGElement, p
   const layer = d3.select(parent).append('g').attr('class', 'bc-overlays').node()!
   const groups = overlayGroups(layer)
   for (const el of prior) {
+    const isStriped = el.classList.contains('bc-overlay-stripes')
     const isRange = el.classList.contains('bc-overlay-range')
-    const target = isRange ? groups.ranges : groups.values
+    const rangeTarget = isStriped ? underBarsGroup(layer) : groups.ranges
+    const target = isRange ? rangeTarget : groups.values
     target.appendChild(el)
   }
   drawOverlays(container, layer, overlays, labels, rows, geom)

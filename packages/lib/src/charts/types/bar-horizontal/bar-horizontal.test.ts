@@ -1500,6 +1500,42 @@ describe('bar-horizontal', () => {
       expect(container.querySelector('defs pattern')).not.toBeNull()
     })
 
+    describe('striped ranges as a mask', () => {
+      const striped = [{ columns: ['Min', 'Max'], pattern: 'stripes' as const }]
+
+      it('masks every bar with the stripes of the ranges', () => {
+        render(container, overlayData, { overlays: striped, directLabelling: '' })
+        const bars = overlayEls('.bc-bar')
+        const maskRef = bars[0].getAttribute('mask') ?? ''
+        const maskId = maskRef.replace(/^url\(#/, '').replace(/\)$/, '')
+        const holes = container.querySelectorAll(`mask[id="${maskId}"] rect.bc-overlay-mask-range`)
+        expect(maskRef).toMatch(/^url\(#bc-overlay-mask-/)
+        expect(bars.every(bar => bar.getAttribute('mask') === maskRef)).toBe(true)
+        expect(holes).toHaveLength(3)
+      })
+
+      it('draws striped ranges under the bars', () => {
+        render(container, overlayData, { overlays: striped, directLabelling: '' })
+        const range = overlayEls('rect.bc-overlay-range')[0]
+        const bar = overlayEls('.bc-bar')[0]
+        const isBefore = Boolean(range.compareDocumentPosition(bar) & Node.DOCUMENT_POSITION_FOLLOWING)
+        expect(isBefore).toBe(true)
+      })
+
+      it('draws striped ranges at the bar thickness', () => {
+        render(container, overlayData, { overlays: striped, directLabelling: '' })
+        const range = overlayEls('rect.bc-overlay-range')[0]
+        const bar = overlayEls('.bc-bar')[0]
+        expect(Number(range.getAttribute('y'))).toBeCloseTo(Number(bar.getAttribute('y')), 3)
+        expect(Number(range.getAttribute('height'))).toBeCloseTo(Number(bar.getAttribute('height')), 3)
+      })
+
+      it('leaves bars unmasked with a solid range', () => {
+        render(container, overlayData, { overlays: [{ columns: ['Min', 'Max'] }], directLabelling: '' })
+        expect(overlayEls('.bc-bar')[0].hasAttribute('mask')).toBe(false)
+      })
+    })
+
     it('positions waterfall overlays from the floating base', () => {
       const steps = {
         labels: ['A', 'B'],
@@ -1660,7 +1696,7 @@ describe('bar-horizontal', () => {
         const striped = [{ columns: ['Min', 'Max'], title: '95% CI', pattern: 'stripes' }]
         render(container, overlayData, { overlays: striped, directLabelling: '' })
         render(container, overlayData, { overlays: striped, directLabelling: '' })
-        const patterns = container.querySelectorAll('defs pattern')
+        const patterns = container.querySelectorAll('defs pattern[data-overlay-key]')
         const swatch = container.querySelector('.bc-legend-item rect')!
         const mark = container.querySelector('rect.bc-overlay-range')!
         expect(patterns).toHaveLength(1)
