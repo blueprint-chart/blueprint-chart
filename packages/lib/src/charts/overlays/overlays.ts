@@ -20,6 +20,13 @@ export interface ResolvedOverlay {
   pattern: 'solid' | 'stripes'
   low: number[]
   high: number[]
+  order: number
+  bar?: string
+  muteRef?: number
+  aboveColor?: string
+  belowColor?: string
+  aboveTitle?: string
+  belowTitle?: string
 }
 
 type Column = NonNullable<ChartData['series']>[number]
@@ -32,7 +39,7 @@ function toNumber(cell: number | undefined): number {
   return typeof cell === 'number' ? cell : Number.NaN
 }
 
-function resolveOverlay(config: OverlayConfig, columns: Column[]): ResolvedOverlay {
+function resolveOverlay(config: OverlayConfig, columns: Column[], order: number): ResolvedOverlay {
   const kind = columns.length === 2 ? 'range' : 'value'
   const first = columns[0].values.map(toNumber)
   const second = (columns[1]?.values ?? columns[0].values).map(toNumber)
@@ -47,7 +54,8 @@ function resolveOverlay(config: OverlayConfig, columns: Column[]): ResolvedOverl
   const key = config.columns.join('\u001f')
   const color = config.color ?? DEFAULT_COLOR
   const title = config.title ?? defaultTitle
-  return { key, kind, title, color, opacity, pattern, low, high }
+  const { muteIfCrosses: muteRef, aboveColor, belowColor, aboveTitle, belowTitle } = config
+  return { key, kind, title, color, opacity, pattern, low, high, order, muteRef, aboveColor, belowColor, aboveTitle, belowTitle }
 }
 
 function isDrawable(config: OverlayConfig, byName: Map<string, Column>): boolean {
@@ -67,16 +75,49 @@ export function resolveOverlays(data: ChartData, overlays: OverlayConfig[] | und
   if (!remaining.length) {
     return { data, overlays: [] }
   }
-  const drawable = overlays.filter(config => isDrawable(config, byName))
-  const resolved = drawable.map((config) => {
+  const indexed = overlays.map((config, order) => ({ config, order }))
+  const drawable = indexed.filter(({ config }) => isDrawable(config, byName))
+  const resolved = drawable.map(({ config, order }) => {
     const columns = config.columns.map(name => byName.get(name))
-    return resolveOverlay(config, columns as Column[])
+    return resolveOverlay(config, columns as Column[], order)
   })
   const ranges = resolved.filter(overlay => overlay.kind === 'range')
   const values = resolved.filter(overlay => overlay.kind === 'value')
   const [bar] = remaining
   const series = remaining.length > 1 ? remaining : []
   return { data: { ...data, values: bar.values, series }, overlays: [...ranges, ...values] }
+}
+
+export interface BarCue {
+  faded: boolean
+  color?: string
+}
+
+function crossesRef(overlay: ResolvedOverlay, row: number): boolean {
+  const ref = overlay.muteRef
+  const low = overlay.low[row]
+  const high = overlay.high[row]
+  if (overlay.kind !== 'range' || ref === undefined || !Number.isFinite(ref)) {
+    return false
+  }
+  return Number.isFinite(low) && Number.isFinite(high) && low <= ref && ref <= high
+}
+
+function targetColor(overlay: ResolvedOverlay | undefined, row: number, barValue: number): string | undefined {
+  const marker = overlay?.low[row]
+  if (!overlay || marker === undefined || !Number.isFinite(marker)) {
+    return undefined
+  }
+  return barValue >= marker ? overlay.aboveColor : overlay.belowColor
+}
+
+export function barCue(overlays: ResolvedOverlay[], row: number, barValue: number, bar?: string): BarCue {
+  const own = overlays.filter(overlay => overlay.bar === bar)
+  const faded = own.some(overlay => crossesRef(overlay, row))
+  const colored = own.filter(overlay => overlay.kind === 'value' && (overlay.aboveColor || overlay.belowColor))
+  const [first] = colored.sort((a, b) => a.order - b.order)
+  const color = targetColor(first, row, barValue)
+  return { faded, color }
 }
 
 export interface OverlayGeometry {

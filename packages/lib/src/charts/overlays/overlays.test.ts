@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { parseData } from '../parse-data'
 import type { OverlayConfig } from '../types'
-import { overlayIssues, resolveOverlays } from './overlays'
+import { barCue, overlayIssues, resolveOverlays } from './overlays'
 
 const RAW = 'series = "Value","Min","Max","Last"\n"A" = 5,2,8,6\n"B" = 4,1,9,3'
 
@@ -185,5 +185,47 @@ describe('cue issues', () => {
     const issues = overlayIssues(data, [{ columns: ['V2'], aboveColor: 'red' }, { columns: ['Lo'], aboveColor: 'blue' }], 'bar-vertical')
     const conflicts = issues.filter(issue => issue.code === 'overlay-target-conflict')
     expect(conflicts.map(issue => issue.key)).toEqual(['overlay[1]'])
+  })
+})
+
+describe('barCue', () => {
+  const CUE_RAW = 'series = "V","Lo","Hi","T"\n"A" = 5,1,9,5\n"B" = 0,-2,0,1\n"C" = -1,NaN,3,NaN'
+  const cues = (overlays: OverlayConfig[], barValues = [5, 0, -1]) => {
+    const resolved = resolveOverlays(parseData(CUE_RAW), overlays).overlays
+    return barValues.map((value, row) => barCue(resolved, row, value))
+  }
+
+  it('fades rows whose range includes the reference, inclusive, never on a missing end', () => {
+    const result = cues([{ columns: ['Lo', 'Hi'], muteIfCrosses: 0 }])
+    expect(result.map(cue => cue.faded)).toEqual([false, true, false])
+  })
+
+  it('never fades without muteIfCrosses', () => {
+    const result = cues([{ columns: ['Lo', 'Hi'] }])
+    expect(result.map(cue => cue.faded)).toEqual([false, false, false])
+  })
+
+  it('colors by target, equal counts as above, missing marker has no color', () => {
+    const result = cues([{ columns: ['T'], aboveColor: 'g', belowColor: 'r' }])
+    expect(result.map(cue => cue.color)).toEqual(['g', 'r', undefined])
+  })
+
+  it('leaves the unset side uncolored', () => {
+    const result = cues([{ columns: ['T'], belowColor: 'r' }])
+    expect(result[0].color).toBeUndefined()
+  })
+
+  it('lets the first value overlay in DSL order decide', () => {
+    const raw = 'series = "V","T1","T2"\n"A" = 5,5,5'
+    const resolved = resolveOverlays(parseData(raw), [
+      { columns: ['T1'], aboveColor: 'first' },
+      { columns: ['T2'], aboveColor: 'second' },
+    ]).overlays
+    expect(barCue(resolved, 0, 5).color).toBe('first')
+  })
+
+  it('never fades for a hidden overlay', () => {
+    const result = cues([{ columns: ['Lo', 'Hi'], muteIfCrosses: 0, hidden: true }])
+    expect(result.map(cue => cue.faded)).toEqual([false, false, false])
   })
 })

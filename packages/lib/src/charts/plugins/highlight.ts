@@ -1,6 +1,9 @@
 /** Opacity applied to non-targeted marks when a highlight is active. */
 export const HIGHLIGHT_DIM_OPACITY = 0.35
 
+/** Opacity applied to a bar a range overlay marks as crossing its reference. */
+export const CUE_FADE_OPACITY = 0.45
+
 /**
  * Build the set of highlighted target keys from the DSL highlight directives,
  * keeping only the ones present in `keys` (the mark keys the caller will draw).
