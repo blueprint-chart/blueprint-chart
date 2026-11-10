@@ -81,6 +81,7 @@ export function resolveOverlays(data: ChartData, overlays: OverlayConfig[] | und
 export interface OverlayGeometry {
   orientation: 'vertical' | 'horizontal'
   band: d3.ScaleBand<string>
+  bandInset: number
   value: (v: number) => number
   base: (rowIndex: number) => number
 }
@@ -182,11 +183,12 @@ function overlayCells(overlays: ResolvedOverlay[], labels: string[], rows: numbe
 
 function bandStart(cell: OverlayCell, geom: OverlayGeometry): number {
   const overhang = geom.band.bandwidth() * OVERHANG_RATIO
-  return (geom.band(cell.label) ?? 0) - overhang
+  return (geom.band(cell.label) ?? 0) + geom.bandInset - overhang
 }
 
 function bandSize(geom: OverlayGeometry): number {
-  return geom.band.bandwidth() * (1 + OVERHANG_RATIO * 2)
+  const bandwidth = geom.band.bandwidth()
+  return bandwidth * (1 + OVERHANG_RATIO * 2) - geom.bandInset
 }
 
 function rangeAttrs(cell: OverlayCell, geom: OverlayGeometry, rowOf: Map<string, number>) {
@@ -289,7 +291,8 @@ export function drawOverlayDirectLabels(group: SVGGElement, overlays: ResolvedOv
     return
   }
   const offset = geom.base(row)
-  const centre = (geom.band(label) ?? 0) + geom.band.bandwidth() / 2
+  const barThickness = geom.band.bandwidth() - geom.bandInset
+  const centre = (geom.band(label) ?? 0) + geom.bandInset + barThickness / 2
   for (const overlay of overlays) {
     const low = overlay.low[row]
     const high = overlay.high[row]

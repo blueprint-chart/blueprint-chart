@@ -1674,6 +1674,36 @@ describe('bar-horizontal', () => {
       })
     })
 
+    describe('under a category label line', () => {
+      function centreOf(el: Element, startAttr: string, sizeAttr: string): number {
+        const start = Number(el.getAttribute(startAttr))
+        const size = Number(el.getAttribute(sizeAttr))
+        return start + size / 2
+      }
+
+      it('centres the range on the bar, not the band', () => {
+        render(container, overlayData, { overlays: rangeAndValue, categoryLabelLine: true, directLabelling: '' })
+        const bar = container.querySelector('.bc-bar')!
+        const range = overlayEls('rect.bc-overlay-range')[0]
+        expect(centreOf(range, 'y', 'height')).toBeCloseTo(centreOf(bar, 'y', 'height'), 3)
+      })
+
+      it('centres the value marker on the bar, not the band', () => {
+        render(container, overlayData, { overlays: rangeAndValue, categoryLabelLine: true, directLabelling: '' })
+        const bar = container.querySelector('.bc-bar')!
+        const marker = overlayEls('line.bc-overlay-value')[0]
+        const markerCentre = (Number(marker.getAttribute('y1')) + Number(marker.getAttribute('y2'))) / 2
+        expect(markerCentre).toBeCloseTo(centreOf(bar, 'y', 'height'), 3)
+      })
+
+      it('centres the direct label on the bar, not the band', () => {
+        render(container, overlayData, { overlays: titled, categoryLabelLine: true })
+        const bar = container.querySelector('.bc-bar')!
+        const label = overlayEls('text.bc-overlay-label')[0]
+        expect(Number(label.getAttribute('y'))).toBeCloseTo(centreOf(bar, 'y', 'height'), 3)
+      })
+    })
+
     describe('direct labels', () => {
       it('labels overlays directly on the first row by default', () => {
         render(container, overlayData, { overlays: titled })

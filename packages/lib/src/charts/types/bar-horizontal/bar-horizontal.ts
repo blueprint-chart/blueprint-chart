@@ -125,7 +125,9 @@ export function render(
   const directLabels = (options.directLabelling ?? DirectLabelMode.Auto) as string | boolean
   const wantsDirectLabels = Boolean(directLabels) && resolved.overlays.length > 0
   if (wantsDirectLabels) {
-    lpMargins.right = Math.max(lpMargins.right ?? 15, directLabelWidth(resolved.overlays))
+    const reservedRight = lpMargins.right ?? 15
+    const labelWidth = directLabelWidth(resolved.overlays)
+    lpMargins.right = Math.max(reservedRight, labelWidth)
   }
   const keyLayout = overlayKeyLayout(wantsDirectLabels ? [] : resolved.overlays, options, containerWidth, lpMargins, false)
   const { chartArea, width, height, margin } = createCanvas(body, keyLayout.margins)
@@ -158,13 +160,12 @@ export function render(
 
   // Normal: x = scaleLinear (values), y = scaleBand (labels)
   const useLog = options.horizontalAxis?.scaleType === 'log'
-  const overlayLabels = isWaterfall
-    ? waterfallData.filter(d => !d.isTotal).map(d => d.label)
-    : labels
+  const steps = waterfallData.filter(d => !d.isTotal)
+  const stepLabels = steps.map(d => d.label)
+  const overlayLabels = isWaterfall ? stepLabels : labels
   const overlayRows = overlayLabels.map(label => data.labels.indexOf(label))
-  const waterfallBase = new Map(waterfallData
-    .filter(d => !d.isTotal)
-    .map(d => [data.labels.indexOf(d.label), d.x0] as const))
+  const baseEntries = steps.map(d => [data.labels.indexOf(d.label), d.x0] as const)
+  const waterfallBase = new Map(baseEntries)
   const overlayBase = (row: number) => isWaterfall ? (waterfallBase.get(row) ?? 0) : 0
   const barDomainValues = isWaterfall
     ? waterfallData.flatMap(d => [d.x0, d.x1])
@@ -181,8 +182,8 @@ export function render(
     .range([0, height])
     .padding(resolveBarGapPadding(options.barGap))
 
-  const overlayGeometry: OverlayGeometry = { orientation: 'horizontal', band: y, value: x, base: overlayBase }
   const categoryLabelOffset = useCategoryLabelLine ? categoryLabelLineHeight(y.bandwidth()) : 0
+  const overlayGeometry: OverlayGeometry = { orientation: 'horizontal', band: y, bandInset: categoryLabelOffset, value: x, base: overlayBase }
 
   const vAxisBase = swapLabelValue && options.valueLabels && !isWaterfall
     ? (() => {

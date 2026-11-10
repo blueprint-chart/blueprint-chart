@@ -289,7 +289,7 @@ export function render(
   // Unclipped group for value labels so they are never truncated at chart edges
   const unclippedGroup = d3.select(chartArea).append('g')
 
-  const overlayGeometry: OverlayGeometry = { orientation: 'vertical', band: x, value: y, base: overlayBase }
+  const overlayGeometry: OverlayGeometry = { orientation: 'vertical', band: x, bandInset: 0, value: y, base: overlayBase }
   const mountOverlays = () => mountOverlayLayer(container, clippedGroup.node()!, priorOverlays, resolved.overlays, overlayLabels, overlayRows, overlayGeometry)
   const tooltipFormat = overlayTooltipFormat(resolved.overlays, data.labels, options.verticalAxis?.numberFormat)
 
