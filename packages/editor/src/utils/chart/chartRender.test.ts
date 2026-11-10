@@ -14,6 +14,7 @@ const emptySnapshot: RenderSnapshot = {
   selectedColumn: '',
   colorizes: [],
   areaFills: [],
+  overlays: [],
   seriesOverrides: [],
   baseHighlights: [],
   baseAnnotations: [],

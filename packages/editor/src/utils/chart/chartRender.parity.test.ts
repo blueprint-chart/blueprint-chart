@@ -67,6 +67,26 @@ const inline = [
   }
 }`,
   },
+  {
+    name: 'chart and scene overlays',
+    dsl: `chart bar-vertical {
+  data {
+    "A" = 1
+    "B" = 2
+    "C" = 3
+  }
+  overlay "A" "B" {
+    title = "Band"
+    opacity = 30
+    pattern = stripes
+  }
+  scene "First" {
+    overlay "C" {
+      color = "#ff0000"
+    }
+  }
+}`,
+  },
 ]
 
 const cases = [
@@ -87,6 +107,17 @@ describe('buildChartRender parity', () => {
   it.each(cases)('matches the store-backed render for $name', ({ dsl }) => {
     expect(useDslSync().applyDsl(dsl).success).toBe(true)
     expect(buildChartRender(snapshotFromState(parseChartState(dsl)))).toEqual(buildChartRender(readRenderSnapshot()))
+  })
+
+  it('carries overlays into the editor-side render', () => {
+    const { dsl } = inline.find(c => c.name === 'chart and scene overlays')!
+    expect(useDslSync().applyDsl(dsl).success).toBe(true)
+    const stateRender = buildChartRender(snapshotFromState(parseChartState(dsl)))
+    const storeRender = buildChartRender(readRenderSnapshot())
+    const stateOverlays = stateRender.kind === 'chart' ? stateRender.definition.overlays : undefined
+    const storeOverlays = storeRender.kind === 'chart' ? storeRender.definition.overlays : undefined
+    expect(stateOverlays).toHaveLength(1)
+    expect(storeOverlays).toHaveLength(1)
   })
 
   it('hides scene-only annotations in the base state', () => {

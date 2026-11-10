@@ -21,6 +21,27 @@ describe('parseChartState', () => {
     expect(parseChartState(chart('')).chartTheme).toBe('blueprint')
   })
 
+  it('reads chart and scene overlays', () => {
+    const state = parseChartState(chart(`
+  data {
+    "A" = 1
+    "B" = 2
+  }
+  overlay "A" "B" {
+    title = "Band"
+    opacity = 30
+    pattern = stripes
+  }
+  scene {
+    overlay "B" {
+      color = "#ff0000"
+    }
+  }`))
+
+    expect(state.overlays).toEqual([{ columns: ['A', 'B'], title: 'Band', opacity: 30, pattern: 'stripes' }])
+    expect(state.scenes[0].overlays).toEqual([{ columns: ['B'], color: '#ff0000' }])
+  })
+
   it('reads layout over defaults', () => {
     const state = parseChartState(chart(`
   sizing = fixed

@@ -20,4 +20,10 @@ describe('sceneOverrideToSceneNode', () => {
     const node = sceneOverrideToSceneNode({ id: 's', name: 'S', annotations: [] })
     expect('annotationVisibility' in node).toBe(false)
   })
+
+  it('carries scene overlays onto the node', () => {
+    const overlays = [{ columns: ['A', 'B'], title: 'Band', opacity: 30 }]
+    const node = sceneOverrideToSceneNode({ id: 's1', name: null, overlays })
+    expect(node.overlays).toEqual(overlays)
+  })
 })

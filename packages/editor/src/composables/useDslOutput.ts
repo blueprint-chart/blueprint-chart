@@ -4,7 +4,7 @@ import { useChartTypeOptions } from './useChartTypeOptions'
 import { useDataTransforms } from './useDataTransforms'
 import { useScenes } from './useScenes'
 import { getChartOptions, DEFAULT_SCENE_DURATION, AnnotationKind, SortDirection, quoteDslString } from '@blueprint-chart/lib'
-import type { AnnotationConfig, RangeAnnotationConfig, FreeAnnotationConfig } from '@blueprint-chart/lib'
+import type { AnnotationConfig, OverlayConfig, RangeAnnotationConfig, FreeAnnotationConfig } from '@blueprint-chart/lib'
 import { serializePosition, serializeMaxWidth } from '@/utils/dsl/output'
 
 function repeatLine(a: AnnotationConfig, indent: string): string {
@@ -15,6 +15,32 @@ function repeatLine(a: AnnotationConfig, indent: string): string {
     return `${indent}repeat = ${a.repeat}\n`
   }
   return ''
+}
+
+function overlayBlock(overlay: OverlayConfig, indent: string): string {
+  if (overlay.columns.length === 0) {
+    return ''
+  }
+  const columns = overlay.columns.map(quoteDslString).join(' ')
+  const inner = `${indent}  `
+  let block = `\n${indent}overlay ${columns} {\n`
+  if (overlay.title) {
+    block += `${inner}title = ${quoteDslString(overlay.title)}\n`
+  }
+  if (overlay.color) {
+    block += `${inner}color = ${quoteDslString(overlay.color)}\n`
+  }
+  if (overlay.opacity !== undefined) {
+    block += `${inner}opacity = ${overlay.opacity}\n`
+  }
+  if (overlay.pattern) {
+    block += `${inner}pattern = ${overlay.pattern}\n`
+  }
+  if (overlay.hidden !== undefined) {
+    block += `${inner}hidden = ${overlay.hidden}\n`
+  }
+  block += `${indent}}\n`
+  return block
 }
 
 export function useDslOutput() {
@@ -177,6 +203,10 @@ export function useDslOutput() {
           af.interpolation}"\n`
       }
       output += `  }\n`
+    }
+
+    for (const overlay of base.overlays.value) {
+      output += overlayBlock(overlay, '  ')
     }
 
     for (const a of base.annotations.value) {
@@ -492,6 +522,11 @@ export function useDslOutput() {
             output += `      color = "${af.color}"\n`
           }
           output += `    }\n`
+        }
+      }
+      if (scene.overlays) {
+        for (const overlay of scene.overlays) {
+          output += overlayBlock(overlay, '    ')
         }
       }
       if (scene.annotations) {

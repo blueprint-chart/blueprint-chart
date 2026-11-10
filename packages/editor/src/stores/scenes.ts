@@ -1,7 +1,7 @@
 import type { ChartColorize } from '@/stores/chartConfig'
 import type { ChartTypeOptions } from '@/stores/chartTypeOptions'
 import type { TransformStep } from '@/stores/dataTransforms'
-import type { AreaFillConfig, AnnotationConfig, SeriesOverride, HighlightConfig, Playback, PlaybackSettings } from '@blueprint-chart/lib'
+import type { AreaFillConfig, OverlayConfig, AnnotationConfig, SeriesOverride, HighlightConfig, Playback, PlaybackSettings } from '@blueprint-chart/lib'
 import { createPlayback } from '@blueprint-chart/lib'
 
 export interface SceneOverride {
@@ -14,6 +14,7 @@ export interface SceneOverride {
   colorizes?: ChartColorize[]
   highlights?: HighlightConfig[]
   areaFills?: AreaFillConfig[]
+  overlays?: OverlayConfig[]
   annotations?: AnnotationConfig[]
   seriesOverrides?: SeriesOverride[]
   transforms?: TransformStep[]

@@ -100,6 +100,9 @@ export function resolveScene(scenes: SceneOverride[], index: number): SceneOverr
     if (s.areaFills !== undefined && s.areaFills.length > 0) {
       resolved.areaFills = s.areaFills
     }
+    if (s.overlays !== undefined && s.overlays.length > 0) {
+      resolved.overlays = s.overlays
+    }
     if (s.annotations !== undefined && s.annotations.length > 0) {
       resolved.annotations = s.annotations
     }

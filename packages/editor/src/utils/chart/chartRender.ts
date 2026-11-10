@@ -1,5 +1,5 @@
 import { applyTransformSteps, ChartType, parseData, resolveChartTypeOptions, serializeTableData } from '@blueprint-chart/lib'
-import type { AnnotationConfig, AreaFillConfig, ChartDefinition, HighlightConfig, SeriesOverride, SortDirection } from '@blueprint-chart/lib'
+import type { AnnotationConfig, AreaFillConfig, ChartDefinition, HighlightConfig, OverlayConfig, SeriesOverride, SortDirection } from '@blueprint-chart/lib'
 import type { ChartColorize, ChartLayout } from '@/composables/useChartConfig'
 import type { ChartTypeOptions } from '@/composables/useChartTypeOptions'
 import { parseBpcData, type ColumnType } from '@/composables/useDataParser'
@@ -19,6 +19,7 @@ export interface RenderSnapshot {
   selectedColumn: string
   colorizes: ChartColorize[]
   areaFills: AreaFillConfig[]
+  overlays: OverlayConfig[]
   seriesOverrides: SeriesOverride[]
   baseHighlights: HighlightConfig[]
   baseAnnotations: AnnotationConfig[]
@@ -98,6 +99,7 @@ export function buildChartRender(s: RenderSnapshot): ChartRender {
       colorizes: scene?.colorizes ?? s.colorizes,
       highlights: scene ? (scene.highlights ?? []) : s.baseHighlights,
       areaFills: scene?.areaFills ?? s.areaFills,
+      overlays: scene?.overlays ?? s.overlays,
       annotations: resolveVisibleAnnotations(s.baseAnnotations, s.scenes, s.activeIndex)
         .map(v => ({ ...v.config, key: v.key })),
       seriesOverrides: scene?.seriesOverrides ?? s.seriesOverrides,
@@ -133,6 +135,7 @@ export function snapshotFromState(state: ChartState): RenderSnapshot {
     selectedColumn: '',
     colorizes: state.colorizes,
     areaFills: state.areaFills,
+    overlays: state.overlays,
     seriesOverrides: state.seriesOverrides,
     baseHighlights: state.highlights,
     baseAnnotations: state.annotations,

@@ -220,3 +220,25 @@ describe('chart history during scene playback', () => {
     expect(history.canUndo.value).toBe(false)
   })
 })
+
+describe('chart history overlays', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    localStorage.clear()
+  })
+
+  it('undo restores the previous overlays', async () => {
+    useChartSession().newChart()
+    const history = useChartHistory()
+    const config = useChartConfig()
+    config.overlays.value = [{ columns: ['A'] }]
+    await nextTick()
+    config.overlays.value = [{ columns: ['A', 'B'], title: 'Band' }]
+    await nextTick()
+
+    history.undo()
+    await nextTick()
+
+    expect(config.overlays.value).toEqual([{ columns: ['A'] }])
+  })
+})

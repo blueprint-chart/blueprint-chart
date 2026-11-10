@@ -38,6 +38,7 @@ export function readRenderSnapshot(): RenderSnapshot {
     selectedColumn: config.selectedColumn.value,
     colorizes: config.colorizes.value,
     areaFills: config.areaFills.value,
+    overlays: config.overlays.value,
     seriesOverrides: config.seriesOverrides.value,
     baseHighlights: config._base.highlights.value,
     baseAnnotations: config._base.annotations.value,
@@ -131,7 +132,7 @@ export function useChartPreview(containerRef: Ref<HTMLElement | null>) {
   const stepsTrigger = computed(() => JSON.stringify(steps.value))
 
   watch(
-    [containerRef, config.chartType, config.title, config.data, config.sort, config.description, config.altText, config.byline, config.note, config.source, config.sourceUrl, config.selectedColumn, config.colorizes, config.highlights, config.areaFills, config.annotations, config.seriesOverrides, stepsTrigger, layoutTrigger, optionsTrigger, scenes, activeScene, resolvedCanvasMode, chartTheme],
+    [containerRef, config.chartType, config.title, config.data, config.sort, config.description, config.altText, config.byline, config.note, config.source, config.sourceUrl, config.selectedColumn, config.colorizes, config.highlights, config.areaFills, config.overlays, config.annotations, config.seriesOverrides, stepsTrigger, layoutTrigger, optionsTrigger, scenes, activeScene, resolvedCanvasMode, chartTheme],
     render,
     // flush: 'post' ensures Vue has applied the container's style/class bindings
     // (aspect-ratio, flex-direction) before we read them via getComputedStyle.

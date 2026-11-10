@@ -67,6 +67,48 @@ describe('useDslOutput', () => {
     })
   })
 
+  describe('overlay serialization', () => {
+    it('emits overlay blocks with every key', () => {
+      const config = useChartConfig()
+      config.chartType.value = ChartType.BarVertical
+      config.overlays.value = [
+        { columns: ['Min', 'Max'], title: 'CI "95"', opacity: 30, pattern: 'stripes', hidden: true },
+      ]
+
+      const { generateDsl: dsl } = useDslOutput()
+      const expected = 'overlay "Min" "Max" {\n    title = "CI \\"95\\""\n    opacity = 30\n    pattern = stripes\n    hidden = true\n  }'
+      expect(dsl()).toContain(expected)
+    })
+
+    it('emits an overlay with only columns', () => {
+      const config = useChartConfig()
+      config.chartType.value = ChartType.BarVertical
+      config.overlays.value = [{ columns: ['Last'] }]
+
+      const { generateDsl: dsl } = useDslOutput()
+      expect(dsl()).toContain('overlay "Last" {\n  }')
+    })
+
+    it('emits scene overlays with every key inside the scene', () => {
+      const config = useChartConfig()
+      config.chartType.value = ChartType.BarVertical
+      const scenes = useScenes()
+      scenes.add()
+      scenes.update(0, {
+        overlays: [{ columns: ['A', 'B'], title: 'Band', color: '#ff0000', opacity: 20, pattern: 'stripes' }],
+      })
+
+      const { generateDsl: dsl } = useDslOutput()
+      const output = dsl()
+      const sceneBody = output.slice(output.indexOf('scene {'))
+      expect(sceneBody).toContain('overlay "A" "B"')
+      expect(sceneBody).toContain('title = "Band"')
+      expect(sceneBody).toContain('color = "#ff0000"')
+      expect(sceneBody).toContain('opacity = 20')
+      expect(sceneBody).toContain('pattern = stripes')
+    })
+  })
+
   describe('annotation serialization', () => {
     it('emits point annotation blocks', () => {
       const config = useChartConfig()

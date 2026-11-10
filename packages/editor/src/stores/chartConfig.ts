@@ -1,5 +1,5 @@
 import type { Ref, WritableComputedRef } from 'vue'
-import type { AreaFillConfig, AnnotationConfig, SeriesOverride, HighlightConfig } from '@blueprint-chart/lib'
+import type { AreaFillConfig, OverlayConfig, AnnotationConfig, SeriesOverride, HighlightConfig } from '@blueprint-chart/lib'
 import { ChartType, DEFAULT_SCENE_DURATION, SortDirection } from '@blueprint-chart/lib'
 import { useScenes, type SceneOverride } from '@/stores/scenes'
 
@@ -125,6 +125,7 @@ export interface ChartConfig {
   colorizes: ChartColorize[]
   highlights: HighlightConfig[]
   areaFills: AreaFillConfig[]
+  overlays: OverlayConfig[]
   annotations: AnnotationConfig[]
   seriesOverrides: SeriesOverride[]
   layout: ChartLayout
@@ -145,12 +146,13 @@ const defaults: ChartConfig = {
   colorizes: [],
   highlights: [],
   areaFills: [],
+  overlays: [],
   annotations: [],
   seriesOverrides: [],
   layout: { ...layoutDefaults },
 }
 
-type DirectSceneKey = 'chartType' | 'data' | 'colorizes' | 'highlights' | 'areaFills' | 'annotations' | 'seriesOverrides'
+type DirectSceneKey = 'chartType' | 'data' | 'colorizes' | 'highlights' | 'areaFills' | 'overlays' | 'annotations' | 'seriesOverrides'
 
 function sceneDirectRef<T>(baseRef: Ref<T>, sceneKey: DirectSceneKey): WritableComputedRef<T> {
   return computed({
@@ -233,6 +235,7 @@ export const useChartConfigStore = defineStore('chartConfig', () => {
   const colorizes = sceneDirectRef(refs.colorizes, 'colorizes')
   const highlights = sceneDirectRef(refs.highlights, 'highlights')
   const areaFills = sceneDirectRef(refs.areaFills, 'areaFills')
+  const overlays = sceneDirectRef(refs.overlays, 'overlays')
   const annotations = sceneDirectRef(refs.annotations, 'annotations')
   const seriesOverrides = sceneDirectRef(refs.seriesOverrides, 'seriesOverrides')
   const title = scenePropRef(refs.title, 'title')
@@ -245,7 +248,7 @@ export const useChartConfigStore = defineStore('chartConfig', () => {
   const sort = scenePropRef(refs.sort, 'sort')
 
   function reset() {
-    Object.assign(state, { ...defaults, colorizes: [], highlights: [], areaFills: [], annotations: [], seriesOverrides: [], layout: { ...layoutDefaults } })
+    Object.assign(state, { ...defaults, colorizes: [], highlights: [], areaFills: [], overlays: [], annotations: [], seriesOverrides: [], layout: { ...layoutDefaults } })
   }
 
   function hydrate(config: ChartConfig) {
@@ -259,6 +262,7 @@ export const useChartConfigStore = defineStore('chartConfig', () => {
     colorizes,
     highlights,
     areaFills,
+    overlays,
     annotations,
     seriesOverrides,
     title,
@@ -291,6 +295,7 @@ export function useChartConfig() {
     colorizes: refs.colorizes as WritableComputedRef<ChartColorize[]>,
     highlights: refs.highlights as WritableComputedRef<HighlightConfig[]>,
     areaFills: refs.areaFills as WritableComputedRef<AreaFillConfig[]>,
+    overlays: refs.overlays as WritableComputedRef<OverlayConfig[]>,
     annotations: refs.annotations as WritableComputedRef<AnnotationConfig[]>,
     seriesOverrides: refs.seriesOverrides as WritableComputedRef<SeriesOverride[]>,
     title: refs.title as WritableComputedRef<string>,

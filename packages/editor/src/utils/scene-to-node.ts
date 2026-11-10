@@ -35,7 +35,7 @@ export function sceneOverrideToSceneNode(override: SceneOverride): SceneNode {
     colorizes: (override.colorizes ?? []) as never,
     highlights: (override.highlights ?? []) as never,
     areaFills: (override.areaFills ?? []) as never,
-    overlays: [],
+    overlays: (override.overlays ?? []) as never,
     annotations: (override.annotations ?? []) as never,
     series: (override.seriesOverrides ?? []) as never,
     transforms: (override.transforms ?? []) as never,

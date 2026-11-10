@@ -1,5 +1,5 @@
-import { parse, propertyMap, readPlaybackSettings, extractChartTypeOptions, extractSceneOverrides, dataEntriesToString, convertColorizes, convertHighlights, convertAreaFills, convertAnnotations, convertSeriesOverrides, SortDirection, toBool, TRANSFORM_TYPES } from '@blueprint-chart/lib'
-import type { AnnotationConfig, AreaFillConfig, HighlightConfig, SeriesOverride } from '@blueprint-chart/lib'
+import { parse, propertyMap, readPlaybackSettings, extractChartTypeOptions, extractSceneOverrides, dataEntriesToString, convertColorizes, convertHighlights, convertAreaFills, convertOverlays, convertAnnotations, convertSeriesOverrides, SortDirection, toBool, TRANSFORM_TYPES } from '@blueprint-chart/lib'
+import type { AnnotationConfig, AreaFillConfig, HighlightConfig, OverlayConfig, SeriesOverride } from '@blueprint-chart/lib'
 import { layoutDefaults, type ChartColorize, type ChartLayout } from '@/composables/useChartConfig'
 import type { ChartTypeOptions } from '@/composables/useChartTypeOptions'
 import type { SceneOverride } from '@/composables/useScenes'
@@ -28,6 +28,7 @@ export interface ChartState {
   colorizes: ChartColorize[]
   highlights: HighlightConfig[]
   areaFills: AreaFillConfig[]
+  overlays: OverlayConfig[]
   annotations: AnnotationConfig[]
   seriesOverrides: SeriesOverride[]
   transforms: { type: TransformType, config: Record<string, string> }[]
@@ -132,6 +133,9 @@ function parseScene(sceneNode: Parameters<typeof extractSceneOverrides>[0], char
   if (extracted.areaFills.length > 0) {
     scene.areaFills = convertAreaFills(extracted.areaFills)
   }
+  if (extracted.overlays.length > 0) {
+    scene.overlays = convertOverlays(extracted.overlays)
+  }
   if (extracted.annotations.length > 0) {
     scene.annotations = convertAnnotations(extracted.annotations)
   }
@@ -207,6 +211,7 @@ export function parseChartState(dsl: string): ChartState {
     colorizes: ast.colorizes ? convertColorizes(ast.colorizes) : [],
     highlights: ast.highlights ? convertHighlights(ast.highlights) : [],
     areaFills: ast.areaFills ? convertAreaFills(ast.areaFills) : [],
+    overlays: ast.overlays ? convertOverlays(ast.overlays) : [],
     annotations: ast.annotations ? convertAnnotations(ast.annotations) : [],
     seriesOverrides: ast.series ? convertSeriesOverrides(ast.series) : [],
     transforms,

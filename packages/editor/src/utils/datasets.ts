@@ -83,7 +83,7 @@ function buildEntry({ id, dsl, meta }: StoredChart): Entry | null {
     rowCount: table.rows.length,
     columns: table.columns,
     source: readSource(meta),
-    dsl: serialize({ ...ast, properties: [], colorizes: [], highlights: [], areaFills: [], annotations: [], series: [], scenes: [], transforms }),
+    dsl: serialize({ ...ast, properties: [], colorizes: [], highlights: [], areaFills: [], overlays: [], annotations: [], series: [], scenes: [], transforms }),
   }
 }
 

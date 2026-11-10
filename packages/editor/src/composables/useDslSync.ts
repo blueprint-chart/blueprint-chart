@@ -53,6 +53,7 @@ export function useDslSync() {
       config.colorizes.value = state.colorizes
       config.highlights.value = state.highlights
       config.areaFills.value = state.areaFills
+      config.overlays.value = state.overlays
       config.annotations.value = state.annotations
       config.seriesOverrides.value = state.seriesOverrides
 
