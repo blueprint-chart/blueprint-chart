@@ -74,7 +74,8 @@ export function resolveOverlays(data: ChartData, overlays: OverlayConfig[] | und
   })
   const ranges = resolved.filter(overlay => overlay.kind === 'range')
   const values = resolved.filter(overlay => overlay.kind === 'value')
-  const [bar, ...series] = remaining
+  const [bar] = remaining
+  const series = remaining.length > 1 ? remaining : []
   return { data: { ...data, values: bar.values, series }, overlays: [...ranges, ...values] }
 }
 

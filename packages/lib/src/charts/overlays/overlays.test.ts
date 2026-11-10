@@ -15,10 +15,10 @@ describe('resolveOverlays', () => {
     expect(resolveOverlays(d, [{ columns: ['Low', 'High'] }]).data.values).toEqual([2])
   })
 
-  it('keeps the remaining columns as series', () => {
+  it('keeps the bar column in series next to unclaimed extras', () => {
     const data = parseData(RAW)
     const r = resolveOverlays(data, [{ columns: ['Min', 'Max'] }])
-    expect(r.data.series?.map(s => s.name)).toEqual(['Last'])
+    expect(r.data.series?.map(s => s.name)).toEqual(['Value', 'Last'])
   })
 
   it('keeps a hidden overlay\'s columns out of the bars but draws nothing', () => {
