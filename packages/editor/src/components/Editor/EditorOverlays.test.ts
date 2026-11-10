@@ -142,45 +142,53 @@ describe('EditorOverlayItem cues', () => {
     expect(w.text()).not.toContain('Fade bars when the range includes')
   })
 
-  it('shows the cue color fields on a value overlay only', () => {
+  function findCheckbox(w: ReturnType<typeof mountItem>, label: string) {
+    return w.findAll('input[type="checkbox"]').find(c => c.element.closest('.form-check')?.textContent?.includes(label))!
+  }
+
+  it('shows the cue toggles on a value overlay only', () => {
     const value = mountItem({ columns: ['Target'] })
-    expect(value.text()).toContain('Above color')
-    expect(value.text()).toContain('Below color')
+    expect(value.text()).toContain('Color bars that reach this value')
+    expect(value.text()).toContain('Color bars below this value')
+    expect(value.text()).not.toContain('Above color')
     const range = mountItem({ columns: rangeColumns })
-    expect(range.text()).not.toContain('Above color')
+    expect(range.text()).not.toContain('Color bars that reach this value')
   })
 
-  it('shows each title field only once its color is set, and clearing the color drops both', async () => {
+  it('ticking a cue toggle sets a color, then the title field appears', async () => {
     const w = mountItem({ columns: ['Target'] })
-    expect(w.text()).not.toContain('Above title')
-    expect(w.text()).not.toContain('Below title')
-    await w.setProps({ overlay: { columns: ['Target'], aboveColor: '#00aa00', belowColor: '#aa0000' } })
+    await findCheckbox(w, 'Color bars that reach this value').setValue(true)
+    const next = lastEmitted(w)
+    expect(next.aboveColor).toBeTruthy()
+    await w.setProps({ overlay: next })
+    expect(w.text()).toContain('Above color')
     expect(w.text()).toContain('Above title')
-    expect(w.text()).toContain('Below title')
     await findInput(w, 'Above title').setValue('Met')
     expect(lastEmitted(w).aboveTitle).toBe('Met')
-    await findInput(w, 'Below title').setValue('Missed')
-    expect(lastEmitted(w).belowTitle).toBe('Missed')
   })
 
-  it('removes the color and its title when the color is cleared', async () => {
+  it('unticking a cue toggle removes the color and its title only', async () => {
     const overlay: OverlayConfig = { columns: ['Target'], aboveColor: '#00aa00', aboveTitle: 'Met', belowColor: '#aa0000', belowTitle: 'Missed' }
     const w = mountItem(overlay)
-    const colors = w.findAllComponents({ name: 'FormControlColorInput' })
-    const above = colors.find(c => c.props('label') === 'Above color')!
-    above.vm.$emit('update:modelValue', '')
-    await nextTick()
+    await findCheckbox(w, 'Color bars that reach this value').setValue(false)
     const next = lastEmitted(w)
     expect('aboveColor' in next).toBe(false)
     expect('aboveTitle' in next).toBe(false)
     expect(next.belowColor).toBe('#aa0000')
     expect(next.belowTitle).toBe('Missed')
-    const below = colors.find(c => c.props('label') === 'Below color')!
-    below.vm.$emit('update:modelValue', '')
-    await nextTick()
-    const cleared = lastEmitted(w)
-    expect('belowColor' in cleared).toBe(false)
-    expect('belowTitle' in cleared).toBe(false)
+    await w.setProps({ overlay: next })
+    await findCheckbox(w, 'Color bars below this value').setValue(false)
+    expect(Object.keys(lastEmitted(w))).toEqual(['columns'])
+  })
+
+  it('accepts a negative muteIfCrosses and keeps the key on a lone minus', async () => {
+    const w = mountItem({ columns: rangeColumns })
+    await findInput(w, 'Fade bars when the range includes').setValue('-0.5')
+    expect(lastEmitted(w).muteIfCrosses).toBe(-0.5)
+    await w.setProps({ overlay: lastEmitted(w) })
+    const before = w.emitted('update:overlay')!.length
+    await findInput(w, 'Fade bars when the range includes').setValue('-')
+    expect(w.emitted('update:overlay')!.length).toBe(before)
   })
 
   it('drops muteIfCrosses when a range switches to value', async () => {

@@ -78,7 +78,14 @@
       />
 
       <template v-if="!isRange">
+        <FormControlCheckbox
+          :model-value="!!overlay.aboveColor"
+          label="Color bars that reach this value"
+          @update:model-value="(v) => setCueColor('aboveColor', 'aboveTitle', v ? DEFAULT_COLORS[0] : '')"
+        />
+
         <FormControlColorInput
+          v-if="overlay.aboveColor"
           :id="`overlay-above-color-${id}`"
           v-model="aboveColor"
           label="Above color"
@@ -91,7 +98,14 @@
           label="Above title"
         />
 
+        <FormControlCheckbox
+          :model-value="!!overlay.belowColor"
+          label="Color bars below this value"
+          @update:model-value="(v) => setCueColor('belowColor', 'belowTitle', v ? DEFAULT_COLORS[2] : '')"
+        />
+
         <FormControlColorInput
+          v-if="overlay.belowColor"
           :id="`overlay-below-color-${id}`"
           v-model="belowColor"
           label="Below color"
@@ -109,10 +123,12 @@
 </template>
 
 <script setup lang="ts">
+import { DEFAULT_COLORS } from '@blueprint-chart/lib'
 import type { OverlayConfig } from '@blueprint-chart/lib'
 import {
   ButtonIcon,
   FormControlButtonGroup,
+  FormControlCheckbox,
   FormControlColorInput,
   FormControlDropdown,
   FormControlSliderInput,
@@ -191,15 +207,12 @@ function switchKind(next: string) {
 }
 
 function setCueColor(colorKey: 'aboveColor' | 'belowColor', titleKey: 'aboveTitle' | 'belowTitle', value: string) {
-  const copy: Record<string, unknown> = { ...overlay.value }
   if (value) {
-    copy[colorKey] = value
+    overlay.value = { ...overlay.value, [colorKey]: value }
+    return
   }
-  else {
-    delete copy[colorKey]
-    delete copy[titleKey]
-  }
-  overlay.value = copy as unknown as OverlayConfig
+  const { [colorKey]: _color, [titleKey]: _title, ...rest } = overlay.value
+  overlay.value = rest
 }
 
 function toggleHidden() {
@@ -234,9 +247,14 @@ const pattern = computed({
 const muteIfCrosses = computed({
   get: () => overlay.value.muteIfCrosses?.toString() ?? '',
   set: (v) => {
+    if (v.trim() === '') {
+      update('muteIfCrosses', undefined)
+      return
+    }
     const parsed = Number(v)
-    const isNumber = v.trim() !== '' && Number.isFinite(parsed)
-    update('muteIfCrosses', isNumber ? parsed : undefined)
+    if (Number.isFinite(parsed)) {
+      update('muteIfCrosses', parsed)
+    }
   },
 })
 
