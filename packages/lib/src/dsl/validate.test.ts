@@ -809,3 +809,25 @@ describe('scene playback keys', () => {
     expect(result.errors.map(e => e.code)).toEqual(['chart-level-only'])
   })
 })
+
+describe('overlay validation', () => {
+  it('warns once for an overlay whose column a scene\'s data drops', () => {
+    const ast = parse(`chart bar-vertical {\n  overlay "Min" "Max" {}\n  data {\n    series = "V","Min","Max"\n    "A" = 1,0,2\n  }\n  scene "s" {\n    data {\n      series = "V","Min"\n      "A" = 1,0\n    }\n  }\n}`)
+    const w = validateChart(ast).warnings.filter(x => x.code === 'overlay-unknown-column')
+    expect(w).toHaveLength(1)
+    expect(w[0].path).toBe('scene[0].overlay[0]')
+  })
+
+  it('does not warn for a valid overlay', () => {
+    const ast = parse(`chart bar-vertical {\n  overlay "Min" "Max" {}\n  data {\n    series = "V","Min","Max"\n    "A" = 1,0,2\n  }\n}`)
+    const w = validateChart(ast).warnings.filter(x => x.code.startsWith('overlay-'))
+    expect(w).toEqual([])
+  })
+
+  it('keeps the chart valid: overlay issues are warnings, never errors', () => {
+    const ast = parse(`chart bar-vertical {\n  overlay "Nope" {}\n  data {\n    series = "V","Min"\n    "A" = 1,0\n  }\n}`)
+    const result = validateChart(ast)
+    expect(result.warnings.some(x => x.code === 'overlay-unknown-column')).toBe(true)
+    expect(result.errors.some(x => x.code.startsWith('overlay-'))).toBe(false)
+  })
+})

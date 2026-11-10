@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { parseData } from '../parse-data'
-import { resolveOverlays } from './overlays'
+import { overlayIssues, resolveOverlays } from './overlays'
 
 const RAW = 'series = "Value","Min","Max","Last"\n"A" = 5,2,8,6\n"B" = 4,1,9,3'
 
@@ -68,5 +68,77 @@ describe('resolveOverlays', () => {
     const overlays = [{ columns: ['A'] }, { columns: ['B', 'C'] }, { columns: ['D'] }]
     const titles = resolveOverlays(data, overlays).overlays.map(o => o.title)
     expect(titles).toEqual(['B to C', 'A', 'D'])
+  })
+})
+
+describe('resolveOverlays options', () => {
+  it('resolves pattern stripes on a range to stripes', () => {
+    const [range] = resolveOverlays(parseData(RAW), [{ columns: ['Min', 'Max'], pattern: 'stripes' }]).overlays
+    expect(range.pattern).toBe('stripes')
+  })
+
+  it('resolves pattern stripes on a value overlay to solid', () => {
+    const [value] = resolveOverlays(parseData(RAW), [{ columns: ['Last'], pattern: 'stripes' }]).overlays
+    expect(value.pattern).toBe('solid')
+  })
+
+  it('lets explicit title, color and opacity override the defaults', () => {
+    const config = { columns: ['Min', 'Max'], title: 'Spread', color: '#f00', opacity: 50 }
+    const [range] = resolveOverlays(parseData(RAW), [config]).overlays
+    expect(range.title).toBe('Spread')
+    expect(range.color).toBe('#f00')
+    expect(range.opacity).toBe(0.5)
+  })
+})
+
+describe('overlayIssues', () => {
+  const data = parseData(RAW)
+  const codes = (issues: { code: string }[]) => issues.map(issue => issue.code)
+
+  it('flags an unsupported chart type', () => {
+    const issues = overlayIssues(data, [{ columns: ['Min', 'Max'] }], 'line')
+    expect(codes(issues)).toContain('overlay-unsupported-type')
+  })
+
+  it('flags an unknown column with a suggestion', () => {
+    const issues = overlayIssues(data, [{ columns: ['Mni', 'Max'] }], 'bar-vertical')
+    const issue = issues.find(i => i.code === 'overlay-unknown-column')
+    expect(issue?.message).toContain('Mni')
+    expect(issue?.suggestion).toBe('Min')
+  })
+
+  it('flags overlays that leave no bar', () => {
+    const issues = overlayIssues(data, [{ columns: ['Value', 'Min'] }, { columns: ['Max', 'Last'] }], 'bar-vertical')
+    expect(codes(issues)).toContain('overlay-no-bar')
+  })
+
+  it('flags more than two columns', () => {
+    const issues = overlayIssues(data, [{ columns: ['Min', 'Max', 'Last'] }], 'bar-vertical')
+    expect(codes(issues)).toContain('overlay-too-many-columns')
+  })
+
+  it('flags a pattern on a one-column overlay', () => {
+    const issues = overlayIssues(data, [{ columns: ['Last'], pattern: 'stripes' }], 'bar-vertical')
+    expect(codes(issues)).toContain('overlay-pattern-on-value')
+  })
+
+  it('stays quiet for a valid overlay', () => {
+    const issues = overlayIssues(data, [{ columns: ['Min', 'Max'] }], 'bar-vertical', RAW)
+    expect(issues).toEqual([])
+  })
+
+  it('flags a non-numeric cell but not an empty one', () => {
+    const raw = 'series = "Value","Min","Max"\n"A" = 5,2,8\n"B" = 4,,n/a'
+    const issues = overlayIssues(parseData(raw), [{ columns: ['Min', 'Max'] }], 'bar-vertical', raw)
+    const cells = issues.filter(i => i.code === 'overlay-non-numeric-cell')
+    expect(cells).toHaveLength(1)
+    expect(cells[0].message).toContain('Max')
+    expect(cells[0].message).toContain('B')
+  })
+
+  it('skips the cell check without raw text', () => {
+    const raw = 'series = "Value","Min","Max"\n"A" = 5,2,n/a'
+    const issues = overlayIssues(parseData(raw), [{ columns: ['Min', 'Max'] }], 'bar-vertical')
+    expect(codes(issues)).not.toContain('overlay-non-numeric-cell')
   })
 })

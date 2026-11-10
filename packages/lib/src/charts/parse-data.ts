@@ -40,6 +40,29 @@ function detectTextColumns(names: string[], rows: { cells: string[] }[]): NonNul
   })
 }
 
+export interface SeriesRow {
+  cells: string[]
+  label: string
+  legacy: boolean
+}
+
+export function readSeriesRows(lines: string[]): SeriesRow[] {
+  const rows: SeriesRow[] = []
+  for (let i = 1; i < lines.length; i++) {
+    // Legacy format: "Label" = "40,44,42". New format: "Label" = 40,44,42
+    const matchOld = lines[i].match(OLD_ROW)
+    const match = matchOld ?? lines[i].match(NEW_ROW)
+    if (match) {
+      rows.push({
+        cells: splitTopLevelCommas(match[2]),
+        label: unescapeDslString(match[1]),
+        legacy: matchOld !== null,
+      })
+    }
+  }
+  return rows
+}
+
 export function parseData(raw: string): ChartData {
   const lines = raw.split('\n').map(l => l.trim()).filter(Boolean)
   const labels: string[] = []
@@ -49,19 +72,7 @@ export function parseData(raw: string): ChartData {
   const seriesMatch = lines[0]?.match(/^series\s*=\s*(.+)$/)
   if (seriesMatch) {
     const segments = splitTopLevelCommas(seriesMatch[1].trim())
-    const rows: { cells: string[], label: string, legacy: boolean }[] = []
-    for (let i = 1; i < lines.length; i++) {
-      // Legacy format: "Label" = "40,44,42". New format: "Label" = 40,44,42
-      const matchOld = lines[i].match(OLD_ROW)
-      const match = matchOld ?? lines[i].match(NEW_ROW)
-      if (match) {
-        rows.push({
-          cells: splitTopLevelCommas(match[2]),
-          label: unescapeDslString(match[1]),
-          legacy: matchOld !== null,
-        })
-      }
-    }
+    const rows = readSeriesRows(lines)
 
     // New format: series = "A","B","C", individually quoted names.
     // Legacy format: series = "A,B,C", one quoted string listing the columns,

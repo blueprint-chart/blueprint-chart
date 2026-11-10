@@ -7,6 +7,9 @@ import { nearest } from './suggest'
 import { dataEntriesToString, propertyMap } from './converter'
 import { parseData } from '../charts/parse-data'
 import { scatterIssues } from '../charts/types/scatter/issues'
+import { overlayIssues } from '../charts/overlays/overlays'
+import { astToDefinition } from '../render/ast-to-definition'
+import { resolveScene } from '../render/resolve-scene'
 import { dotPlotIssues } from '../charts/types/dot-plot/issues'
 import { TRANSFORM_TYPES } from '../transforms'
 import { SCENE_DURATION_MIN, SCENE_DURATION_MAX } from '../runtime/playback'
@@ -573,7 +576,39 @@ export function validateChart(ast: ChartNode): ValidationResult {
     }
   })
 
+  validateOverlays(ast, warnings)
+
   return { valid: errors.length === 0, errors, warnings }
+}
+
+function validateOverlays(ast: ChartNode, warnings: ValidationIssue[]): void {
+  const hasOverlays = ast.overlays.length > 0 || ast.scenes.some(scene => scene.overlays.length > 0)
+  if (!hasOverlays) {
+    return
+  }
+  const definition = astToDefinition(ast)
+  const seen = new Set<string>()
+  const baseRaw = ast.data ? dataEntriesToString(ast.data) : undefined
+  const pushIssues = (sceneIndex: number | undefined, basePath: string, rawData: string | undefined) => {
+    const state = resolveScene(definition, sceneIndex)
+    const issues = overlayIssues(state.data, state.overlays ?? [], state.chartType, rawData)
+    for (const issue of issues) {
+      const dedupKey = `${issue.code}|${issue.message}`
+      if (seen.has(dedupKey)) {
+        continue
+      }
+      seen.add(dedupKey)
+      warnings.push(toValidationIssue(issue, `${basePath}.${issue.key ?? 'overlay'}`))
+    }
+  }
+  pushIssues(undefined, 'chart', baseRaw)
+  let raw = baseRaw
+  ast.scenes.forEach((scene, i) => {
+    if (scene.data) {
+      raw = dataEntriesToString(scene.data)
+    }
+    pushIssues(i, `scene[${i}]`, raw)
+  })
 }
 
 /**
