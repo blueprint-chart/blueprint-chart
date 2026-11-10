@@ -140,8 +140,8 @@ function setColumn(index: number, name: string) {
 function switchKind(next: string) {
   const [first] = overlay.value.columns
   if (next === 'value') {
-    update('columns', [first])
-    update('pattern', undefined)
+    const { pattern: _pattern, ...rest } = overlay.value
+    overlay.value = { ...rest, columns: [first] }
     return
   }
   const unused = props.columns.find(name => !overlay.value.columns.includes(name))

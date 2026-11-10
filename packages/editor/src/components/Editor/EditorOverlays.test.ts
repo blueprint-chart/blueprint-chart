@@ -118,3 +118,19 @@ describe('EditorOverlayItem', () => {
     expect(w.emitted('remove')).toHaveLength(1)
   })
 })
+
+describe('EditorOverlays under a real v-model parent', () => {
+  it('switches a range overlay back to a single column and drops the pattern', async () => {
+    const overlays = ref<OverlayConfig[]>([{ columns: ['Target', 'Budget'], pattern: 'stripes' }])
+    const Parent = defineComponent({
+      components: { EditorOverlays },
+      setup: () => ({ overlays, columns }),
+      template: '<EditorOverlays v-model="overlays" :columns="columns" />',
+    })
+    const w = mount(Parent)
+    const value = w.findAll('button').find(b => b.text() === 'Value')!
+    await value.trigger('click')
+    await nextTick()
+    expect(overlays.value).toEqual([{ columns: ['Target'] }])
+  })
+})
