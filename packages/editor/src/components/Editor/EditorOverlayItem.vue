@@ -82,6 +82,7 @@ import {
   FormControlSliderInput,
   FormControlTextInput,
 } from '@blueprint-chart/ui'
+import { nextOverlayColumn } from '@/utils/chart/overlayColumns'
 import IPhEye from '~icons/ph/eye'
 import IPhEyeSlash from '~icons/ph/eye-slash'
 import IPhTrash from '~icons/ph/trash'
@@ -93,6 +94,7 @@ const DEFAULT_RANGE_OPACITY = 30
 const props = defineProps<{
   id: number
   columns: string[]
+  claimed?: string[]
 }>()
 
 defineEmits<{
@@ -144,7 +146,8 @@ function switchKind(next: string) {
     overlay.value = { ...rest, columns: [first] }
     return
   }
-  const unused = props.columns.find(name => !overlay.value.columns.includes(name))
+  const claimed = [...(props.claimed ?? []), ...overlay.value.columns]
+  const unused = nextOverlayColumn(props.columns, claimed)
   if (unused) {
     update('columns', [first, unused])
   }

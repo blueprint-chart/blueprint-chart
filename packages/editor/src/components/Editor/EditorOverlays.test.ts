@@ -134,3 +134,33 @@ describe('EditorOverlays under a real v-model parent', () => {
     expect(overlays.value).toEqual([{ columns: ['Target'] }])
   })
 })
+
+describe('EditorOverlays column rule under a real v-model parent', () => {
+  const salesColumns = ['Sales', 'Low', 'High']
+
+  function mountParent(initial: OverlayConfig[]) {
+    const overlays = ref<OverlayConfig[]>(initial)
+    const Parent = defineComponent({
+      components: { EditorOverlays },
+      setup: () => ({ overlays, columns: salesColumns }),
+      template: '<EditorOverlays v-model="overlays" :columns="columns" />',
+    })
+    const w = mount(Parent)
+    return { w, overlays }
+  }
+
+  it('keeps the bar free when a value overlay becomes a range', async () => {
+    const { w, overlays } = mountParent([{ columns: ['Low'] }])
+    const range = w.findAll('button').find(b => b.text() === 'Range')!
+    await range.trigger('click')
+    await nextTick()
+    expect(overlays.value[0].columns).toEqual(['Low', 'High'])
+  })
+
+  it('does not reuse a claimed column on a second Add', async () => {
+    const { w, overlays } = mountParent([{ columns: ['Low'] }])
+    await w.find('.button-add').trigger('click')
+    await nextTick()
+    expect(overlays.value[1].columns).toEqual(['High'])
+  })
+})

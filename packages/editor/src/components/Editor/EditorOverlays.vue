@@ -7,6 +7,7 @@
         :key="i"
         :overlay="overlay"
         :columns="columns"
+        :claimed="claimed"
         @update:overlay="(value) => updateAt(i, value)"
         @remove="remove(i)"
       />
@@ -22,6 +23,7 @@
 <script setup lang="ts">
 import type { OverlayConfig } from '@blueprint-chart/lib'
 import { ButtonAdd } from '@blueprint-chart/ui'
+import { nextOverlayColumn } from '@/utils/chart/overlayColumns'
 import EditorOverlayItem from './EditorOverlayItem.vue'
 
 const props = defineProps<{
@@ -30,6 +32,8 @@ const props = defineProps<{
 
 const model = defineModel<OverlayConfig[]>({ required: true })
 
+const claimed = computed(() => model.value.flatMap(overlay => overlay.columns))
+
 function updateAt(index: number, value: OverlayConfig) {
   const copy = [...model.value]
   copy[index] = value
@@ -37,7 +41,8 @@ function updateAt(index: number, value: OverlayConfig) {
 }
 
 function add() {
-  const column = props.columns[1] ?? props.columns[0]
+  const onlyColumn = props.columns.length === 1 ? props.columns[0] : undefined
+  const column = nextOverlayColumn(props.columns, claimed.value) ?? onlyColumn
   if (!column) {
     return
   }
