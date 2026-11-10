@@ -1,4 +1,4 @@
-import { samples, parseData, getChart, buildChartOptions, resolveBackgroundColor, ChartType } from '@blueprint-chart/lib'
+import { samples, parseData, getChart, buildChartOptions, resolveBackgroundColor, ChartType, OVERLAY_CHART_TYPES } from '@blueprint-chart/lib'
 import { renderDsl } from './composables/useChartFromDsl'
 import { useDslSync } from './composables/useDslSync'
 import { useChartConfig } from './composables/useChartConfig'
@@ -12,6 +12,7 @@ function normalizeRandomIds(html: string): string {
   return html
     .replace(/bc-clip-[a-zA-Z0-9]+/g, 'bc-clip-TEST')
     .replace(/bc-arrow-[a-zA-Z0-9]+/g, 'bc-arrow-TEST')
+    .replace(/bc-overlay-stripes-\d+-\d+/g, 'bc-overlay-stripes-TEST')
 }
 
 function extractChartSvg(container: HTMLElement): string {
@@ -55,7 +56,8 @@ function renderLiveEquivalent(container: HTMLElement, dsl: string): void {
     ChartType.VerticalBar,
     ChartType.HorizontalBar,
   ]
-  if (data.series && data.series.length > 0 && singleSeriesTypes.includes(config.chartType.value)) {
+  const keepsColumns = OVERLAY_CHART_TYPES.has(config.chartType.value) && config.overlays.value.length > 0
+  if (data.series && data.series.length > 0 && singleSeriesTypes.includes(config.chartType.value) && !keepsColumns) {
     const match = data.series.find(s => s.name === config.selectedColumn.value)
     if (match) {
       data.values = match.values
@@ -95,6 +97,7 @@ function renderLiveEquivalent(container: HTMLElement, dsl: string): void {
     areaFills: config.areaFills.value.length > 0 ? config.areaFills.value : undefined,
     annotations: annotations.length > 0 ? annotations : undefined,
     seriesOverrides: config.seriesOverrides.value.length > 0 ? config.seriesOverrides.value : undefined,
+    overlays: config.overlays.value,
   })
 }
 
