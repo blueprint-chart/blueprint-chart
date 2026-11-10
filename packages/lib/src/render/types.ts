@@ -6,6 +6,7 @@ import type {
   ColorizeConfig,
   HighlightConfig,
   AreaFillConfig,
+  OverlayConfig,
   AnnotationConfig,
   SeriesOverride,
   FrameOptions,
@@ -22,6 +23,7 @@ export interface ChartDefinition {
   colorizes?: ColorizeConfig[]
   highlights?: HighlightConfig[]
   areaFills?: AreaFillConfig[]
+  overlays?: OverlayConfig[]
   annotations?: AnnotationConfig[]
   seriesOverrides?: SeriesOverride[]
   scenes?: SceneNode[]
@@ -54,6 +56,7 @@ export interface ResolvedChartState {
   colorizes: ColorizeConfig[]
   highlights: HighlightConfig[]
   areaFills: AreaFillConfig[]
+  overlays: OverlayConfig[]
   annotations: AnnotationConfig[]
   seriesOverrides: SeriesOverride[]
   sort?: SortDirection

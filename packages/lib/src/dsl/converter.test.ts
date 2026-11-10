@@ -7,6 +7,7 @@ import {
   extractSceneOverrides,
   convertColorizes,
   convertAreaFills,
+  convertOverlays,
   convertAnnotations,
   convertSeriesOverrides,
 } from './converter'
@@ -852,5 +853,16 @@ describe('dataEntriesToString multi-value quoting', () => {
       entries: [{ type: DslNodeType.Property, key: 'USA', value: 40, isPercentage: false, values: [40, 44] }],
     }
     expect(dataEntriesToString(data)).toBe('"USA" = 40,44')
+  })
+})
+
+describe('convertOverlays', () => {
+  it('converts overlay keys, leaving absent ones undefined', () => {
+    const ast = parse('chart bar-vertical {\n  overlay "Min" "Max" {\n    opacity = 40\n    pattern = stripes\n    hidden = true\n  }\n  overlay "Last" {}\n}')
+    const result = convertOverlays(ast.overlays)
+    expect(result).toEqual([
+      { columns: ['Min', 'Max'], opacity: 40, pattern: 'stripes', hidden: true },
+      { columns: ['Last'] },
+    ])
   })
 })

@@ -111,6 +111,15 @@ export interface AreaFillConfig {
   interpolation?: string
 }
 
+export interface OverlayConfig {
+  columns: string[]
+  title?: string
+  color?: string
+  opacity?: number
+  pattern?: 'solid' | 'stripes'
+  hidden?: boolean
+}
+
 export interface AnnotationLineConfig {
   anchorDirection?: CompassDirection
   textOffsetX?: number
@@ -216,6 +225,7 @@ export interface ChartOptions {
   areaFillOpacity?: number
   areaFillBaseline?: 'bottom' | 'zero'
   areaFills?: AreaFillConfig[]
+  overlays?: OverlayConfig[]
   stacked?: boolean
   stackPercent?: boolean
   areaSortMode?: string

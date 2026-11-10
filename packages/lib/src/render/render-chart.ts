@@ -105,6 +105,7 @@ export function renderChart(
     colorizes: state.colorizes.length > 0 ? state.colorizes : undefined,
     highlights: state.highlights.length > 0 ? state.highlights : undefined,
     areaFills: state.areaFills.length > 0 ? state.areaFills : undefined,
+    overlays: state.overlays.length > 0 ? state.overlays : undefined,
     annotations: state.annotations.length > 0 ? state.annotations : undefined,
     seriesOverrides: state.seriesOverrides.length > 0 ? state.seriesOverrides : undefined,
   }, transition)

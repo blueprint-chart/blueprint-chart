@@ -1,8 +1,8 @@
 import type { ChartDefinition, ResolvedChartState } from './types'
 import type { ChartTypeOptions, FrameOptions, AnnotationConfig } from '../charts/types'
-import type { SceneNode, ColorizeNode, HighlightNode, AreaFillNode, SeriesNode, TransformNode } from '../dsl/types'
+import type { SceneNode, ColorizeNode, HighlightNode, AreaFillNode, OverlayNode, SeriesNode, TransformNode } from '../dsl/types'
 import { LabelPosition, SortMode } from '../enums'
-import { extractChartTypeOptions, propertyMap, dataEntriesToString, convertColorizes, convertHighlights, convertAreaFills, convertAnnotations, convertSeriesOverrides } from '../dsl/converter'
+import { extractChartTypeOptions, propertyMap, dataEntriesToString, convertColorizes, convertHighlights, convertAreaFills, convertOverlays, convertAnnotations, convertSeriesOverrides } from '../dsl/converter'
 import { getChartTypeDefaults, resolveChartTypeOptions } from '../charts/resolve'
 import { parseData } from '../charts/chart-helpers'
 import { applyTransformNodesToChartData, TRANSFORM_TYPES } from '../transforms'
@@ -69,6 +69,7 @@ interface SceneFold {
   colorizes: ColorizeNode[]
   highlights: HighlightNode[]
   areaFills: AreaFillNode[]
+  overlays: OverlayNode[]
   seriesOverrides: SeriesNode[]
   transforms: TransformNode[]
 }
@@ -80,6 +81,7 @@ function emptyFold(): SceneFold {
     colorizes: [],
     highlights: [],
     areaFills: [],
+    overlays: [],
     seriesOverrides: [],
     transforms: [],
   }
@@ -112,6 +114,9 @@ function foldScenes(scenes: SceneNode[], index: number, baseChartType: string): 
     }
     if (s.areaFills.length > 0) {
       fold.areaFills = s.areaFills
+    }
+    if (s.overlays.length > 0) {
+      fold.overlays = s.overlays
     }
     if (s.series.length > 0) {
       fold.seriesOverrides = s.series
@@ -162,6 +167,7 @@ export function resolveScene(
     colorizes: def.colorizes ?? [],
     highlights: def.highlights ?? [],
     areaFills: def.areaFills ?? [],
+    overlays: def.overlays ?? [],
     annotations: (def.annotations ?? []).map((config, i) => ({
       ...config,
       key: config.key ?? `base:${i}:${config.kind}`,
@@ -214,6 +220,9 @@ export function resolveScene(
   const areaFills = fold.areaFills.length > 0
     ? convertAreaFills(fold.areaFills)
     : base.areaFills
+  const overlays = fold.overlays.length > 0
+    ? convertOverlays(fold.overlays)
+    : base.overlays
 
   // Top-level annotations belong to the base chart — the first frame, before
   // scene 0 — so they anchor at -1: with no repeat they show only on the base
@@ -272,6 +281,7 @@ export function resolveScene(
     colorizes,
     highlights,
     areaFills,
+    overlays,
     annotations,
     seriesOverrides,
     sortMode,

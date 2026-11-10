@@ -51,6 +51,7 @@ export type {
   AxisOptions,
   FrameOptions,
   AreaFillConfig,
+  OverlayConfig,
   AnnotationConfig,
   PointAnnotationConfig,
   RangeAnnotationConfig,
@@ -107,7 +108,7 @@ export { toBool } from './dsl/converter'
 export { DEFAULT_SCENE_DURATION, SCENE_DURATION_MIN, SCENE_DURATION_MAX, readPlaybackSettings, createPlayback, onceVisible } from './runtime/playback'
 export type { PlaybackSettings, PlaybackOptions, Playback } from './runtime/playback'
 export { prefersReducedMotion } from './charts/motion'
-export { propertyMap, extractChartTypeOptions, dataEntriesToString, extractSceneOverrides, convertColorizes, convertHighlights, convertAreaFills, convertAnnotations, convertSeriesOverrides } from './dsl/converter'
+export { propertyMap, extractChartTypeOptions, dataEntriesToString, extractSceneOverrides, convertColorizes, convertHighlights, convertAreaFills, convertOverlays, convertAnnotations, convertSeriesOverrides } from './dsl/converter'
 export type { AnnotationNode, PointAnnotationNode, RangeAnnotationNode, FreeAnnotationNode, AreaFillNode, ChartNode, DataNode, ColorizeNode, HighlightNode, OverlayNode, PropertyNode, SceneNode, SeriesNode, TransformNode } from './dsl/types'
 export { validateChart } from './dsl/validate'
 export type { ValidationIssue, ValidationResult } from './dsl/validate'

@@ -11,6 +11,7 @@ export type {
   AxisOptions,
   FrameOptions,
   AreaFillConfig,
+  OverlayConfig,
   AnnotationConfig,
   LineSymbolConfig,
   SeriesOverride,

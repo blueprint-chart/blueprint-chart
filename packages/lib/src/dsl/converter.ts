@@ -1,5 +1,5 @@
-import type { PropertyNode, DataNode, SceneNode, ColorizeNode, HighlightNode, AnnotationNode, SeriesNode, AreaFillNode } from './types'
-import type { ColorizeConfig, HighlightConfig, AnnotationConfig, PointAnnotationConfig, RangeAnnotationConfig, FreeAnnotationConfig, AreaFillConfig, SeriesOverride } from '../charts/types'
+import type { PropertyNode, DataNode, SceneNode, ColorizeNode, HighlightNode, AnnotationNode, SeriesNode, AreaFillNode, OverlayNode } from './types'
+import type { ColorizeConfig, HighlightConfig, AnnotationConfig, PointAnnotationConfig, RangeAnnotationConfig, FreeAnnotationConfig, AreaFillConfig, OverlayConfig, SeriesOverride } from '../charts/types'
 import { getChartOptions } from '../charts/registry'
 import { AnnotationKind, ChartOptionType, Orientation, RangeAnchor } from '../enums'
 import { quoteDslString, splitTopLevelCommas } from './quoting'
@@ -116,6 +116,7 @@ export function extractSceneOverrides(
   colorizes: SceneNode['colorizes']
   highlights: SceneNode['highlights']
   areaFills: SceneNode['areaFills']
+  overlays: SceneNode['overlays']
   annotations: SceneNode['annotations']
   series: SceneNode['series']
   transforms: SceneNode['transforms']
@@ -133,6 +134,7 @@ export function extractSceneOverrides(
     colorizes: scene.colorizes,
     highlights: scene.highlights,
     areaFills: scene.areaFills,
+    overlays: scene.overlays,
     annotations: scene.annotations,
     series: scene.series,
     transforms: scene.transforms,
@@ -198,6 +200,29 @@ export function convertAreaFills(nodes: AreaFillNode[]): AreaFillConfig[] {
       opacity: p.has('opacity') ? Number(p.get('opacity')) : undefined,
       interpolation: p.has('interpolation') ? String(p.get('interpolation')) : undefined,
     }
+  })
+}
+
+export function convertOverlays(nodes: OverlayNode[]): OverlayConfig[] {
+  return nodes.map((node) => {
+    const p = propertyMap(node.properties)
+    const overlay: OverlayConfig = { columns: node.columns }
+    if (p.has('title')) {
+      overlay.title = String(p.get('title'))
+    }
+    if (p.has('color')) {
+      overlay.color = String(p.get('color'))
+    }
+    if (p.has('opacity')) {
+      overlay.opacity = Number(p.get('opacity'))
+    }
+    if (p.has('pattern')) {
+      overlay.pattern = String(p.get('pattern')) as OverlayConfig['pattern']
+    }
+    if (p.has('hidden')) {
+      overlay.hidden = toBool(p.get('hidden'))
+    }
+    return overlay
   })
 }
 

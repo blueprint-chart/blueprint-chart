@@ -48,7 +48,7 @@ describe('resolveScene', () => {
         name: null,
         properties: [{ type: DslNodeType.Property, key: 'type', value: ChartType.Line, isPercentage: false }],
         data: null,
-        colorizes: [], highlights: [], areaFills: [], annotations: [], series: [], transforms: [],
+        colorizes: [], highlights: [], areaFills: [], overlays: [], annotations: [], series: [], transforms: [],
       }],
     })
     const state = resolveScene(def, 0)
@@ -62,12 +62,12 @@ describe('resolveScene', () => {
         {
           type: DslNodeType.Scene, name: null, properties: [], data: null,
           colorizes: [], highlights: [{ type: DslNodeType.Highlight, target: 's0' }],
-          areaFills: [], annotations: [], series: [], transforms: [],
+          areaFills: [], overlays: [], annotations: [], series: [], transforms: [],
         },
         {
           type: DslNodeType.Scene, name: null, properties: [], data: null,
           colorizes: [], highlights: [],
-          areaFills: [], annotations: [], series: [], transforms: [],
+          areaFills: [], overlays: [], annotations: [], series: [], transforms: [],
         },
       ],
     })
@@ -99,6 +99,7 @@ describe('resolveScene', () => {
       colorizes: [],
       highlights: [],
       areaFills: [],
+      overlays: [],
       annotations,
 
       series: [],
@@ -196,7 +197,7 @@ describe('resolveScene', () => {
         data: { type: DslNodeType.Data, entries: [
           { type: DslNodeType.Property, key: 'x', value: '1', isPercentage: false },
         ] },
-        colorizes: [], highlights: [], areaFills: [], annotations: [], series: [], transforms: [],
+        colorizes: [], highlights: [], areaFills: [], overlays: [], annotations: [], series: [], transforms: [],
       }],
     })
     expect(resolveScene(def, 0).colorizes).toEqual([])
@@ -211,7 +212,7 @@ describe('resolveScene', () => {
         data: { type: DslNodeType.Data, entries: [
           { type: DslNodeType.Property, key: 'A', value: 99, isPercentage: false },
         ] },
-        colorizes: [], highlights: [], areaFills: [], annotations: [], series: [], transforms: [],
+        colorizes: [], highlights: [], areaFills: [], overlays: [], annotations: [], series: [], transforms: [],
       }],
     })
     const state = resolveScene(def, 0)
@@ -224,7 +225,7 @@ describe('resolveScene', () => {
     const def = baseDef({
       scenes: [{
         type: DslNodeType.Scene, name: null, properties: [], data: null,
-        colorizes: [], highlights: [], areaFills: [], annotations: [],
+        colorizes: [], highlights: [], areaFills: [], overlays: [], annotations: [],
         series: [],
         transforms: [{
           type: DslNodeType.Transform, transformType: 'sort',
@@ -245,7 +246,7 @@ describe('resolveScene', () => {
       scenes: [{
         type: DslNodeType.Scene, name: null, data: null,
         properties: [{ type: DslNodeType.Property, key: 'title', value: 'SceneTitle', isPercentage: false }],
-        colorizes: [], highlights: [], areaFills: [], annotations: [], series: [], transforms: [],
+        colorizes: [], highlights: [], areaFills: [], overlays: [], annotations: [], series: [], transforms: [],
       }],
     })
     const state = resolveScene(def, 0)
@@ -259,7 +260,7 @@ describe('resolveScene', () => {
       scenes: [{
         type: DslNodeType.Scene, name: null, data: null,
         properties: [{ type: DslNodeType.Property, key: 'description', value: 'SceneDesc', isPercentage: false }],
-        colorizes: [], highlights: [], areaFills: [], annotations: [], series: [], transforms: [],
+        colorizes: [], highlights: [], areaFills: [], overlays: [], annotations: [], series: [], transforms: [],
       }],
     })
     const state = resolveScene(def, 0)
@@ -273,7 +274,7 @@ describe('resolveScene', () => {
       scenes: [{
         type: DslNodeType.Scene, name: null, data: null,
         properties: [{ type: DslNodeType.Property, key: 'padding', value: '32px', isPercentage: false }],
-        colorizes: [], highlights: [], areaFills: [], annotations: [], series: [], transforms: [],
+        colorizes: [], highlights: [], areaFills: [], overlays: [], annotations: [], series: [], transforms: [],
       }],
     })
     const state = resolveScene(def, 0)
@@ -309,7 +310,7 @@ describe('resolveScene', () => {
       scenes: [{
         type: DslNodeType.Scene, name: null, data: null,
         properties: [{ type: DslNodeType.Property, key: 'sortMode', value: SortMode.Total }],
-        colorizes: [], highlights: [], areaFills: [], annotations: [],
+        colorizes: [], highlights: [], areaFills: [], overlays: [], annotations: [],
         series: [], transforms: [],
       }],
     })
@@ -322,7 +323,7 @@ describe('resolveScene', () => {
     const defWithUnknown = baseDef({
       scenes: [{
         type: DslNodeType.Scene, name: null, properties: [], data: null,
-        colorizes: [], highlights: [], areaFills: [], annotations: [],
+        colorizes: [], highlights: [], areaFills: [], overlays: [], annotations: [],
         series: [],
         transforms: [{ type: DslNodeType.Transform, transformType: 'mystery', properties: [] }],
       }],
@@ -346,7 +347,7 @@ describe('resolveScene chart-type option resolution', () => {
         type: DslNodeType.Property, key, value, isPercentage: false,
       })),
       data: null,
-      colorizes: [], highlights: [], areaFills: [], annotations: [], series: [], transforms: [],
+      colorizes: [], highlights: [], areaFills: [], overlays: [], annotations: [], series: [], transforms: [],
     }
   }
 
@@ -452,5 +453,32 @@ describe('resolveScene chart-type option resolution', () => {
         }
       }
     })
+  })
+})
+
+describe('resolveScene overlays', () => {
+  const head = 'chart bar-vertical {\n  overlay "A" {}\n'
+
+  function build(body: string) {
+    const ast = parse(head + body + '}')
+    return astToDefinition(ast)
+  }
+
+  it('inherits chart overlays in a scene that declares none', () => {
+    const def = build('  scene "S" {\n  }\n')
+    const state = resolveScene(def, 0)
+    expect(state.overlays).toEqual([{ columns: ['A'] }])
+  })
+
+  it('replaces inherited overlays with a scene list', () => {
+    const def = build('  scene "S" {\n    overlay "B" {}\n  }\n')
+    const state = resolveScene(def, 0)
+    expect(state.overlays).toEqual([{ columns: ['B'] }])
+  })
+
+  it('keeps the inherited list when a later scene declares none', () => {
+    const def = build('  scene "S1" {\n    overlay "B" {}\n  }\n  scene "S2" {\n  }\n')
+    const state = resolveScene(def, 1)
+    expect(state.overlays).toEqual([{ columns: ['B'] }])
   })
 })
