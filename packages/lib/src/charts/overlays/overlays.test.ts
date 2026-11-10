@@ -216,11 +216,13 @@ describe('barCue', () => {
   })
 
   it('lets the first value overlay in DSL order decide', () => {
-    const raw = 'series = "V","T1","T2"\n"A" = 5,5,5'
+    const raw = 'series = "V","T1","Lo","Hi","T2"\n"A" = 5,5,1,9,5'
     const resolved = resolveOverlays(parseData(raw), [
       { columns: ['T1'], aboveColor: 'first' },
+      { columns: ['Lo', 'Hi'] },
       { columns: ['T2'], aboveColor: 'second' },
     ]).overlays
+    expect(resolved.map(overlay => overlay.order)).toEqual([1, 0, 2])
     expect(barCue(resolved, 0, 5).color).toBe('first')
   })
 
