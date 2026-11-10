@@ -25,6 +25,7 @@ import { buildColorOverrides } from '../../plugins/colorize'
 import { shouldRenderValueLabel, estimateTextInk } from '../../value-label-fit'
 import { CATEGORY_LABEL_HEIGHT, categoryLabelLineHeight, categoryLabelsNeedTheirOwnLine } from '../../category-label-line'
 import { DEFAULT_COLORS } from '../../palettes'
+import { resolveOverlays, overlayDomainValues, overlayTooltipFormat, mountOverlayLayer, type OverlayGeometry, type ResolvedOverlay } from '../../overlays/overlays'
 
 const PANEL_GAP = 16
 const VALUE_LABEL_GAP = 4
@@ -75,6 +76,7 @@ function computePanels(
   allSeries: { name: string, values: number[] }[],
   totalWidth: number,
   sharedScale: boolean,
+  extraValues: Map<string, number[]>,
   axis?: AxisOptions,
 ): PanelLayout[] {
   const n = series.length
@@ -82,10 +84,11 @@ function computePanels(
     return []
   }
   const panelWidth = Math.max(0, (totalWidth - (n - 1) * PANEL_GAP) / n)
-  const sharedValues = sharedScale ? series.flatMap(s => s.values) : []
+  const valuesOf = (s: { name: string, values: number[] }) => [...s.values, ...(extraValues.get(s.name) ?? [])]
+  const sharedValues = sharedScale ? series.flatMap(valuesOf) : []
 
   return series.map((s, i) => {
-    const [domainMin, domainMax] = computeLinearDomain(sharedScale ? sharedValues : s.values, axis?.range, axis?.scaleType)
+    const [domainMin, domainMax] = computeLinearDomain(sharedScale ? sharedValues : valuesOf(s), axis?.range, axis?.scaleType)
     const xScale = (axis?.scaleType === ScaleType.Log ? d3.scaleSymlog() : d3.scaleLinear())
       .domain([domainMin, domainMax])
       .nice()
@@ -132,7 +135,7 @@ function buildFlatData(
 
 export function render(
   container: HTMLElement,
-  data: ChartData,
+  rawData: ChartData,
   options: ChartOptions = {},
   transition = false,
 ): void {
@@ -143,6 +146,7 @@ export function render(
   let priorMargin: { top: number, left: number, right: number, bottom: number } | undefined
   let priorPlotRect: PlotRect | undefined
   let priorAnnotations: Map<string, AnnotationSnapshot> | undefined
+  let priorOverlays: Element[] = []
   const axes = AxisService.for(container)
 
   if (transition) {
@@ -152,6 +156,7 @@ export function render(
     axes.detach()
     if (cached?.chartType === 'bar-split') {
       priorBars = Array.from(container.querySelectorAll('.bc-frame .bc-bar-split'))
+      priorOverlays = Array.from(container.querySelectorAll('.bc-frame .bc-overlay'))
     }
     else if (cached) {
       fadeOverlay = snapshotForFadeOut(container)
@@ -167,6 +172,8 @@ export function render(
 
   const { body } = createFrame(container, options.frame)
 
+  const resolved = resolveOverlays(rawData, options.overlays, 'bar-split')
+  const data = resolved.data
   const allSeries = seriesOrImplicit(data)
   const series = allSeries.filter(s => !isSeriesHidden(s.name, options.seriesOverrides))
   const seriesNames = series.map(s => s.name)
@@ -250,7 +257,13 @@ export function render(
   })
 
   const sharedScale = options.sharedScale === true
-  const panels = computePanels(series, allSeries, width, sharedScale, options.horizontalAxis)
+  const overlayRows = data.labels.map((_, i) => i)
+  const extraValues = new Map<string, number[]>()
+  for (const name of seriesNames) {
+    const own = resolved.overlays.filter(o => o.bar === name)
+    extraValues.set(name, overlayDomainValues(own, overlayRows, () => 0))
+  }
+  const panels = computePanels(series, allSeries, width, sharedScale, extraValues, options.horizontalAxis)
 
   // Value axis — one per panel, since each panel has its own value scale. The
   // per-type registry defaults (axis off, grid none, labels off) come through
@@ -352,9 +365,20 @@ export function render(
   // Plugins host — kept on the legacy D3Blueprint API. The draw is deferred into
   // the commit flush (when transitioning) so plugins bind after featureJoin has
   // created the `.bc-bar-split` marks, not before.
+  const geometryFor = (overlay: ResolvedOverlay): OverlayGeometry | null => {
+    const panel = panels.find(p => p.seriesName === overlay.bar)
+    if (!panel) {
+      return null
+    }
+    const slotStart = (label: string) => (y(label) ?? 0) + categoryLabelOffset
+    const value = (v: number) => panel.xOffset + panel.xScale(v)
+    return { orientation: 'horizontal', slotStart, slotSize: y.bandwidth() - categoryLabelOffset, value, base: () => 0 }
+  }
+  mountOverlayLayer(container, clippedGroup.node()!, priorOverlays, resolved.overlays, data.labels, overlayRows, geometryFor)
+  const tooltipFormat = overlayTooltipFormat(resolved.overlays, data.labels, options.horizontalAxis?.numberFormat)
   const chart = createPluginHost(clippedGroup)
   if (options.tooltips) {
-    chart.use(createTooltipPlugin({ numberFormat: options.verticalAxis?.numberFormat }))
+    chart.use(createTooltipPlugin({ numberFormat: options.verticalAxis?.numberFormat, format: tooltipFormat }))
   }
   if (options.crosshair) {
     chart.use(createCrosshairPlugin({

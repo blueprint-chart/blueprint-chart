@@ -345,4 +345,60 @@ describe('bar-split', () => {
       expect(bar.x + bar.width).toBeLessThan(panelBStart)
     }
   })
+
+  describe('overlays', () => {
+    const overlayData = {
+      labels: ['A', 'B'],
+      values: [],
+      series: [
+        { name: 'Gold', values: [5, 8] },
+        { name: 'Gold low', values: [4, 6] },
+        { name: 'Gold high', values: [7, 9] },
+        { name: 'Silver', values: [3, 4] },
+      ],
+    }
+    const range = [{ columns: ['Gold low', 'Gold high'], bar: 'Gold' }]
+    const tall = { ...overlayData, series: overlayData.series.map(s => s.name === 'Gold high' ? { ...s, values: [40, 40] } : s) }
+
+    function tickTexts(panelIndex: number): string[] {
+      const groups = container.querySelectorAll('.bc-split-axes > g')
+      return Array.from(groups[panelIndex].querySelectorAll('text')).map(t => t.textContent ?? '')
+    }
+
+    it('draws the range inside its bar series panel only', () => {
+      render(container, overlayData, { overlays: range })
+      const rects = Array.from(container.querySelectorAll('rect.bc-overlay-range'))
+      const goldBar = container.querySelector('.bc-bar[data-series="Gold"]')!
+      const silverBar = container.querySelector('.bc-bar[data-series="Silver"]')!
+      const goldStart = Number(goldBar.getAttribute('x'))
+      const silverStart = Number(silverBar.getAttribute('x'))
+      expect(rects).toHaveLength(2)
+      for (const rect of rects) {
+        const x = Number(rect.getAttribute('x'))
+        const right = x + Number(rect.getAttribute('width'))
+        expect(x).toBeGreaterThanOrEqual(goldStart)
+        expect(right).toBeLessThanOrEqual(silverStart)
+      }
+    })
+
+    it('grows only the bar series axis with independent scales', () => {
+      const axis = { horizontalAxis: { showAxis: true, labelPosition: 'bottom' } } as never
+      render(container, overlayData, { ...(axis as object), overlays: range })
+      const silverBefore = tickTexts(1)
+      const goldBefore = tickTexts(0)
+      container.replaceChildren()
+      render(container, tall, { ...(axis as object), overlays: range })
+      expect(tickTexts(1)).toEqual(silverBefore)
+      expect(tickTexts(0)).not.toEqual(goldBefore)
+    })
+
+    it('grows every panel with a shared scale', () => {
+      const axis = { horizontalAxis: { showAxis: true, labelPosition: 'bottom' }, sharedScale: true } as never
+      render(container, overlayData, { ...(axis as object), overlays: range })
+      const silverBefore = tickTexts(1)
+      container.replaceChildren()
+      render(container, tall, { ...(axis as object), overlays: range })
+      expect(tickTexts(1)).not.toEqual(silverBefore)
+    })
+  })
 })
