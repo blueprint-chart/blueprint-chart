@@ -6,7 +6,7 @@ import { createCanvas, contentSize, labelPositionMargins, estimateCategoryLabelW
 import { AxisService } from '../../axis/axis-service'
 import { computeLinearDomain, resolveBarGapPadding } from '../../scale-helpers'
 import { createTooltipPlugin } from '../../plugins/tooltip'
-import { resolveOverlays, barCue, overlayDomainValues, overlayTooltipFormat, mountOverlayLayer, drawOverlayLegend, drawOverlayDirectLabels, type OverlayGeometry, type ResolvedOverlay } from '../../overlays/overlays'
+import { resolveOverlays, barCue, overlayDomainValues, overlayTooltipFormat, mountOverlayLayer, drawOverlayLegend, overlayKeyEntries, drawOverlayDirectLabels, type OverlayGeometry, type ResolvedOverlay } from '../../overlays/overlays'
 import { overlayKeyLayout } from '../../overlays/overlay-key'
 import { createCrosshairPlugin } from '../../plugins/crosshair'
 import { createAnnotationPlugin, snapshotAnnotations, type AnnotationSnapshot } from '../../plugins/annotations'
@@ -129,7 +129,8 @@ export function render(
     const labelWidth = directLabelWidth(resolved.overlays)
     lpMargins.right = Math.max(reservedRight, labelWidth)
   }
-  const keyLayout = overlayKeyLayout(wantsDirectLabels ? [] : resolved.overlays, options, containerWidth, lpMargins, false)
+  const keyEntries = overlayKeyEntries(resolved.overlays, !wantsDirectLabels)
+  const keyLayout = overlayKeyLayout(keyEntries, options, containerWidth, lpMargins, false)
   const { chartArea, width, height, margin } = createCanvas(body, keyLayout.margins)
   // Plot rect cached for the next same-type transition's frame-geometry `from`.
   const plotRect: PlotRect = { left: margin.left, top: margin.top, width, height }
@@ -554,7 +555,7 @@ export function render(
 
   if (keyLayout.show) {
     const placement = keyLayout.place(width, height, margin)
-    drawOverlayLegend(chartArea, resolved.overlays, placement)
+    drawOverlayLegend(chartArea, keyEntries, placement)
   }
 
   setCachedChart(container, { chartType: 'bar-horizontal', margin, plotRect })

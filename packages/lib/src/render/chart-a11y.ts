@@ -44,10 +44,16 @@ export function buildChartAccessibility(
   const hasOverlays = OVERLAY_CHART_TYPES.has(chartType)
   const resolved = resolveOverlays(data, hasOverlays ? overlays : undefined)
   const includes = resolved.overlays.map(overlay => `Includes ${collapseWhitespace(overlay.title)}.`)
+  const fades = resolved.overlays
+    .filter(overlay => overlay.kind === 'range' && overlay.muteRef !== undefined && Number.isFinite(overlay.muteRef))
+    .map(overlay => `Faded bars: ${collapseWhitespace(overlay.title)} includes ${overlay.muteRef}.`)
+  const targets = resolved.overlays
+    .filter(overlay => overlay.kind === 'value' && (overlay.aboveColor !== undefined || overlay.belowColor !== undefined))
+    .map(overlay => `Bars are colored by whether they reach ${collapseWhitespace(overlay.title)}.`)
   const summary = summariseData(kind, resolved.data)
   return {
     label: title || kind,
-    description: altText || [description, summary, ...includes].filter(Boolean).join(' '),
+    description: altText || [description, summary, ...includes, ...fades, ...targets].filter(Boolean).join(' '),
   }
 }
 

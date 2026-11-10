@@ -34,4 +34,17 @@ describe('bar-vertical overlay key hover', () => {
     expect(range.style.opacity).toBe('1')
     expect(value.style.opacity).toBe('0.2')
   })
+
+  it('lists cue entries after their overlay', () => {
+    const overlays = [
+      { columns: ['Min', 'Max'], title: 'Lo to Hi' },
+      { columns: ['Last'], title: 'T', aboveColor: '#00ff00', belowColor: '#ff0000', belowTitle: 'Missed' },
+    ]
+    render(container, data, { overlays })
+    const items = Array.from(container.querySelectorAll('.bc-legend-item'))
+    const labels = items.map(item => item.textContent)
+    expect(labels).toEqual(['Lo to Hi', 'T', 'Above T', 'Missed'])
+    const swatch = items[2].querySelector('rect')!
+    expect(swatch.getAttribute('fill')).toBe('#00ff00')
+  })
 })

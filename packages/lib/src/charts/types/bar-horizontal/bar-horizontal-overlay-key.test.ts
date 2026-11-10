@@ -34,4 +34,19 @@ describe('bar-horizontal overlay key hover', () => {
     expect(range.style.opacity).toBe('1')
     expect(value.style.opacity).toBe('0.2')
   })
+
+  const cueOverlays = [{ columns: ['Last'], title: 'T', aboveColor: '#00ff00', belowColor: '#ff0000', belowTitle: 'Missed' }]
+
+  it('keeps the overlay as a direct label and lists only cue entries in the key', () => {
+    render(container, data, { overlays: cueOverlays })
+    const direct = Array.from(container.querySelectorAll('.bc-overlay-label')).map(node => node.textContent)
+    const keys = Array.from(container.querySelectorAll('.bc-legend-item')).map(node => node.textContent)
+    expect(direct).toContain('T')
+    expect(keys).toEqual(['Above T', 'Missed'])
+  })
+
+  it('hides cue entries when legend is false', () => {
+    render(container, data, { overlays: cueOverlays, legend: false })
+    expect(container.querySelectorAll('.bc-legend-item').length).toBe(0)
+  })
 })

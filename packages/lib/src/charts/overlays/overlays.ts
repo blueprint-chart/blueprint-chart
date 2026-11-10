@@ -610,13 +610,45 @@ function styleKeySwatch(swatch: SVGRectElement, overlay: ResolvedOverlay): void 
     .attr('fill-opacity', overlay.opacity)
 }
 
-export function drawOverlayLegend(chartArea: SVGGElement, overlays: ResolvedOverlay[], placement: OverlayLegendPlacement): void {
-  const titles = overlays.map(overlay => overlay.title)
-  const colors = overlays.map(overlay => overlay.color)
+export interface OverlayKeyEntry {
+  title: string
+  color: string
+  overlay?: ResolvedOverlay
+}
+
+function cueKeyEntries(overlay: ResolvedOverlay): OverlayKeyEntry[] {
+  const entries: OverlayKeyEntry[] = []
+  if (overlay.aboveColor !== undefined) {
+    entries.push({ title: overlay.aboveTitle ?? `Above ${overlay.title}`, color: overlay.aboveColor })
+  }
+  if (overlay.belowColor !== undefined) {
+    entries.push({ title: overlay.belowTitle ?? `Below ${overlay.title}`, color: overlay.belowColor })
+  }
+  return entries
+}
+
+export function overlayKeyEntries(overlays: ResolvedOverlay[], withOverlayTitles = true): OverlayKeyEntry[] {
+  const ordered = [...overlays].sort((a, b) => a.order - b.order)
+  return ordered.flatMap((overlay) => {
+    const own = withOverlayTitles ? [{ title: overlay.title, color: overlay.color, overlay }] : []
+    const cues = overlay.kind === 'value' ? cueKeyEntries(overlay) : []
+    return [...own, ...cues]
+  })
+}
+
+const NO_SERIES = { names: [], colors: [] }
+
+export function drawOverlayLegend(chartArea: SVGGElement, entries: OverlayKeyEntry[], placement: OverlayLegendPlacement, series: { names: string[], colors: string[] } = NO_SERIES): void {
+  const titles = [...series.names, ...entries.map(entry => entry.title)]
+  const colors = [...series.colors, ...entries.map(entry => entry.color)]
   const { y, position, anchor, width, height, x, inset } = placement
   renderLegend(chartArea, titles, colors, y, position, anchor, width, height, x, [], inset)
   const swatches = chartArea.querySelectorAll<SVGRectElement>('.bc-legend-item rect')
-  overlays.forEach((overlay, index) => styleKeySwatch(swatches[index], overlay))
+  entries.forEach((entry, index) => {
+    if (entry.overlay) {
+      styleKeySwatch(swatches[series.names.length + index], entry.overlay)
+    }
+  })
 }
 
 export function overlayTooltipFormat(overlays: ResolvedOverlay[], rowLabels: string[], numberFormat?: string): ((datum: unknown) => string) | undefined {

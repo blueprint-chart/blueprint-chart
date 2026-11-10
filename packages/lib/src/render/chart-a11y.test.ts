@@ -51,6 +51,25 @@ describe('buildChartAccessibility', () => {
       expect(a11y.description).not.toContain('Includes')
     })
 
+    it('describes the cues', () => {
+      const overlays: OverlayConfig[] = [
+        { columns: ['Low', 'High'], title: '90% confidence interval', muteIfCrosses: 0 },
+        { columns: ['Target'], title: '2% target', aboveColor: '#00ff00' },
+      ]
+      const a11y = buildChartAccessibility('bar-vertical', null, BAR_DATA, overlays)
+      expect(a11y.description).toContain('Faded bars: 90% confidence interval includes 0.')
+      expect(a11y.description).toContain('Bars are colored by whether they reach 2% target.')
+    })
+
+    it('leaves the cues out when altText is set', () => {
+      const overlays: OverlayConfig[] = [
+        { columns: ['Low', 'High'], title: '90% confidence interval', muteIfCrosses: 0 },
+        { columns: ['Target'], title: '2% target', aboveColor: '#00ff00' },
+      ]
+      const a11y = buildChartAccessibility('bar-vertical', { altText: 'Mine.' }, BAR_DATA, overlays)
+      expect(a11y.description).toBe('Mine.')
+    })
+
     it('summarises the bar series when the overlay names the first column', () => {
       const data = parseData([
         'series = "Low","V","High"',

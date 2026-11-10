@@ -1,7 +1,7 @@
 import { resolvePalette } from './palettes'
 import { adjustColorsForBackground } from './contrast'
 import { getChartOptions } from './registry'
-import type { ChartOptions, ChartTypeOptions } from './types'
+import type { ChartOptions, ChartTypeOptions, OverlayConfig } from './types'
 import { buildVerticalAxisOptions, buildHorizontalAxisOptions } from './axis-options'
 import { LegendPosition, Anchor, ValueLabelPosition, CrosshairDirection, CrosshairStyle, StackMode, SymbolShape, SymbolShowOn, SymbolStyle } from '../enums'
 
@@ -226,4 +226,22 @@ export function buildChartOptions(opts: Partial<ChartTypeOptions>, backgroundCol
   }
 
   return result
+}
+
+function contrastColor(color: string | undefined, backgroundColor: string): string | undefined {
+  if (color === undefined) {
+    return undefined
+  }
+  return adjustColorsForBackground([color], backgroundColor)[0]
+}
+
+export function contrastOverlayColors(overlays: OverlayConfig[], opts: Partial<ChartTypeOptions>, backgroundColor?: string): OverlayConfig[] {
+  if (!opts.autoContrast || !backgroundColor) {
+    return overlays
+  }
+  return overlays.map((overlay) => {
+    const aboveColor = contrastColor(overlay.aboveColor, backgroundColor)
+    const belowColor = contrastColor(overlay.belowColor, backgroundColor)
+    return { ...overlay, aboveColor, belowColor }
+  })
 }

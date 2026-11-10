@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { parseData } from '../parse-data'
 import type { OverlayConfig } from '../types'
-import { barCue, overlayIssues, resolveOverlays } from './overlays'
+import { barCue, overlayIssues, overlayKeyEntries, resolveOverlays } from './overlays'
 
 const RAW = 'series = "Value","Min","Max","Last"\n"A" = 5,2,8,6\n"B" = 4,1,9,3'
 
@@ -229,5 +229,22 @@ describe('barCue', () => {
   it('never fades for a hidden overlay', () => {
     const result = cues([{ columns: ['Lo', 'Hi'], muteIfCrosses: 0, hidden: true }])
     expect(result.map(cue => cue.faded)).toEqual([false, false, false])
+  })
+})
+
+describe('overlayKeyEntries', () => {
+  const overlays = resolveOverlays(parseData(RAW), [
+    { columns: ['Min', 'Max'], title: 'Lo to Hi' },
+    { columns: ['Last'], title: 'T', aboveColor: '#00ff00', belowColor: '#ff0000', belowTitle: 'Missed' },
+  ]).overlays
+
+  it('puts each cue entry after its overlay', () => {
+    const titles = overlayKeyEntries(overlays).map(entry => entry.title)
+    expect(titles).toEqual(['Lo to Hi', 'T', 'Above T', 'Missed'])
+  })
+
+  it('drops overlay entries when direct labels carry them', () => {
+    const titles = overlayKeyEntries(overlays, false).map(entry => entry.title)
+    expect(titles).toEqual(['Above T', 'Missed'])
   })
 })

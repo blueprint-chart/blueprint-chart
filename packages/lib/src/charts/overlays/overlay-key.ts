@@ -1,6 +1,6 @@
 import type { ChartOptions } from '../types'
 import { estimateLegendSize } from '../legend/legend-size'
-import type { OverlayLegendPlacement, ResolvedOverlay } from './overlays'
+import type { OverlayKeyEntry, OverlayLegendPlacement } from './overlays'
 
 export type Margins = Partial<Record<'top' | 'bottom' | 'left' | 'right', number>>
 
@@ -13,10 +13,10 @@ export interface OverlayKeyLayout {
 const NARROW_KEY_WIDTH = 350
 const KEY_ANCHOR = 'start'
 
-export function overlayKeyLayout(overlays: ResolvedOverlay[], options: ChartOptions, containerWidth: number, lpMargins: Margins, hasCategoryLabelLine: boolean): OverlayKeyLayout {
-  const show = overlays.length > 0 && options.legend !== false
+export function overlayKeyLayout(entries: OverlayKeyEntry[], options: ChartOptions, containerWidth: number, lpMargins: Margins, hasCategoryLabelLine: boolean): OverlayKeyLayout {
+  const show = entries.length > 0 && options.legend !== false
   const margins: Margins = { ...lpMargins }
-  const titles = overlays.map(overlay => overlay.title)
+  const titles = entries.map(entry => entry.title)
   const requested = options.legendPosition ?? 'top'
   const isSide = requested === 'left' || requested === 'right'
   const isNarrow = containerWidth > 0 && containerWidth < NARROW_KEY_WIDTH

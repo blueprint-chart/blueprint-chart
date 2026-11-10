@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { buildChartOptions } from './chart-options'
+import { buildChartOptions, contrastOverlayColors } from './chart-options'
 import { registerChart } from './registry'
 import { adjustColorsForBackground } from './contrast'
 import { ChartType, ChartOptionType, SortMode } from '../enums'
@@ -84,5 +84,18 @@ describe('buildChartOptions option passthrough', () => {
     const result = buildChartOptions({ autoContrast: true, negativeColor: '#ffff00' }, '#ffffff', ChartType.BarVertical)
     expect(result.negativeColor).toBe(adjustColorsForBackground(['#ffff00'], '#ffffff')[0])
     expect(result.negativeColor).not.toBe('#ffff00')
+  })
+
+  it('adjusts overlay cue colors for the background when autoContrast is on', () => {
+    const overlays = [{ columns: ['T'], aboveColor: '#111111', belowColor: '#222222' }]
+    const result = contrastOverlayColors(overlays, { autoContrast: true }, '#000000')
+    expect(result[0].aboveColor).not.toBe('#111111')
+    expect(result[0].belowColor).not.toBe('#222222')
+  })
+
+  it('leaves overlay cue colors alone when autoContrast is off', () => {
+    const overlays = [{ columns: ['T'], aboveColor: '#111111' }]
+    const result = contrastOverlayColors(overlays, {}, '#000000')
+    expect(result).toEqual(overlays)
   })
 })

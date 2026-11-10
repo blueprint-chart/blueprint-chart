@@ -7,7 +7,7 @@ import { resolveHorizontalAxisBottom } from '../../axis/horizontal-axis'
 import { AxisService } from '../../axis/axis-service'
 import { computeLinearDomain, resolveBarGapPadding } from '../../scale-helpers'
 import { createTooltipPlugin } from '../../plugins/tooltip'
-import { resolveOverlays, barCue, overlayDomainValues, overlayTooltipFormat, mountOverlayLayer, drawOverlayLegend, type OverlayGeometry } from '../../overlays/overlays'
+import { resolveOverlays, barCue, overlayDomainValues, overlayTooltipFormat, mountOverlayLayer, drawOverlayLegend, overlayKeyEntries, type OverlayGeometry } from '../../overlays/overlays'
 import { overlayKeyLayout } from '../../overlays/overlay-key'
 import { createCrosshairPlugin } from '../../plugins/crosshair'
 import { createAnnotationPlugin, snapshotAnnotations, type AnnotationSnapshot } from '../../plugins/annotations'
@@ -105,7 +105,8 @@ export function render(
       lpMargins.bottom = rotatedBottom
     }
   }
-  const keyLayout = overlayKeyLayout(resolved.overlays, options, containerWidth, lpMargins, useCategoryLabelLine)
+  const keyEntries = overlayKeyEntries(resolved.overlays)
+  const keyLayout = overlayKeyLayout(keyEntries, options, containerWidth, lpMargins, useCategoryLabelLine)
   const { chartArea, width, height, margin } = createCanvas(body, keyLayout.margins)
   const categoryLabelOffset = useCategoryLabelLine ? categoryLabelLineHeight(height) : 0
   const barAreaHeight = height - categoryLabelOffset
@@ -533,7 +534,7 @@ export function render(
 
   if (keyLayout.show) {
     const placement = keyLayout.place(width, height, margin)
-    drawOverlayLegend(chartArea, resolved.overlays, placement)
+    drawOverlayLegend(chartArea, keyEntries, placement)
   }
 
   setCachedChart(container, { chartType: 'bar-vertical', margin, plotRect })

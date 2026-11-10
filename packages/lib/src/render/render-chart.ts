@@ -7,7 +7,7 @@ import { applyPostRender } from './post-render'
 import { buildChartAccessibility } from './chart-a11y'
 import { getChart } from '../charts/registry'
 import { resetAxesOnChartTypeChange } from '../charts/axis/axis-service'
-import { buildChartOptions } from '../charts/chart-helpers'
+import { buildChartOptions, contrastOverlayColors } from '../charts/chart-helpers'
 import { resolveBackgroundColor } from '../charts/contrast'
 import { getSceneTransition } from '../transitions'
 import { getDefaultTransitionMs } from '../charts/motion'
@@ -105,7 +105,7 @@ export function renderChart(
     colorizes: state.colorizes.length > 0 ? state.colorizes : undefined,
     highlights: state.highlights.length > 0 ? state.highlights : undefined,
     areaFills: state.areaFills.length > 0 ? state.areaFills : undefined,
-    overlays: state.overlays.length > 0 ? state.overlays : undefined,
+    overlays: state.overlays.length > 0 ? contrastOverlayColors(state.overlays, state.options, bg) : undefined,
     annotations: state.annotations.length > 0 ? state.annotations : undefined,
     seriesOverrides: state.seriesOverrides.length > 0 ? state.seriesOverrides : undefined,
   }, transition)
