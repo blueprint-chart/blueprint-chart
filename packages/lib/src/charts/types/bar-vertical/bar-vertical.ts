@@ -6,7 +6,8 @@ import { createCanvas, contentSize, labelPositionMargins, estimateVerticalLabelW
 import { resolveHorizontalAxisBottom } from '../../axis/horizontal-axis'
 import { AxisService } from '../../axis/axis-service'
 import { computeLinearDomain, resolveBarGapPadding } from '../../scale-helpers'
-import { createTooltipPlugin } from '../../plugins/tooltip'
+import { createTooltipPlugin, makeDefaultFormat } from '../../plugins/tooltip'
+import { resolveOverlays, overlayDomainValues, overlayTooltipLines, drawOverlays, type OverlayGeometry, type ResolvedOverlay } from '../../overlays/overlays'
 import { createCrosshairPlugin } from '../../plugins/crosshair'
 import { createAnnotationPlugin, snapshotAnnotations, type AnnotationSnapshot } from '../../plugins/annotations'
 import { resolveBackgroundColor, contrastTextColor } from '../../contrast'
@@ -52,7 +53,7 @@ interface WaterfallDatum {
 
 export function render(
   container: HTMLElement,
-  data: ChartData,
+  rawData: ChartData,
   options: ChartOptions = {},
   transition = false,
 ): void {
@@ -64,6 +65,7 @@ export function render(
   // Prior bar rects, re-inserted into the featureJoin layer so the data-join
   // matches them as updates: that gives the resize tween its "from" shape.
   let priorBars: Element[] = []
+  let priorOverlays: Element[] = []
   const axes = AxisService.for(container)
   if (transition) {
     const cached = getCachedChart(container)
@@ -72,6 +74,7 @@ export function render(
     axes.detach()
     if (cached?.chartType === 'bar-vertical') {
       priorBars = Array.from(container.querySelectorAll('.bc-frame .bc-bar'))
+      priorOverlays = Array.from(container.querySelectorAll('.bc-frame .bc-overlay'))
     }
     else if (cached) {
       fadeOverlay = snapshotForFadeOut(container)
@@ -87,6 +90,8 @@ export function render(
   }
 
   const { body } = createFrame(container, options.frame)
+  const resolved = resolveOverlays(rawData, options.overlays)
+  const data = resolved.data
   const containerWidth = contentSize(body).width
   const useCategoryLabelLine = options.categoryLabelLine === true
   const vLabelW = estimateVerticalLabelWidth(data.values, options.verticalAxis?.range, options.verticalAxis?.numberFormat, options.verticalAxis?.scaleType)
@@ -139,9 +144,18 @@ export function render(
     .padding(resolveBarGapPadding(options.barGap))
 
   const useLog = options.verticalAxis?.scaleType === 'log'
-  const domainValues = isWaterfall
+  const overlayLabels = isWaterfall
+    ? waterfallData.filter(d => !d.isTotal).map(d => d.label)
+    : labels
+  const overlayRows = overlayLabels.map(label => data.labels.indexOf(label))
+  const waterfallBase = new Map(waterfallData
+    .filter(d => !d.isTotal)
+    .map(d => [data.labels.indexOf(d.label), d.y0] as const))
+  const overlayBase = (row: number) => isWaterfall ? (waterfallBase.get(row) ?? 0) : 0
+  const barDomainValues = isWaterfall
     ? waterfallData.flatMap(d => [d.y0, d.y1])
     : barData.map(d => d.value)
+  const domainValues = [...barDomainValues, ...overlayDomainValues(resolved.overlays, overlayRows, overlayBase)]
   // eslint-disable-next-line prefer-const
   let [domainMin, domainMax] = computeLinearDomain(domainValues, options.verticalAxis?.range, options.verticalAxis?.scaleType)
   // Extend domain to leave room for value labels below negative bars
@@ -273,6 +287,19 @@ export function render(
   // Unclipped group for value labels so they are never truncated at chart edges
   const unclippedGroup = d3.select(chartArea).append('g')
 
+  const overlayGeometry: OverlayGeometry = { orientation: 'vertical', band: x, value: y, base: overlayBase }
+  const mountOverlays = () => {
+    if (!resolved.overlays.length) {
+      return
+    }
+    const layer = clippedGroup.append('g').attr('class', 'bc-overlays').node()!
+    for (const el of priorOverlays) {
+      layer.appendChild(el)
+    }
+    drawOverlays(container, layer, resolved.overlays, overlayLabels, overlayRows, overlayGeometry, transition)
+  }
+  const tooltipFormat = overlayTooltipFormat(resolved.overlays, data.labels, options.verticalAxis?.numberFormat)
+
   if (isWaterfall) {
     // Waterfall mode: render bars with cumulative offsets directly
     const totalColor = '#333'
@@ -360,6 +387,8 @@ export function render(
       })
       .attr('opacity', (d: WaterfallDatum) => highlightTargets.size > 0 ? highlightOpacity(highlightTargets, d.label) : null)
 
+    mountOverlays()
+
     if (options.valueLabels) {
       const pos = options.valueLabelPosition ?? ValueLabelPosition.Auto
       const formatValue = (v: number) => formatValueLabel(v, options.verticalAxis?.numberFormat)
@@ -417,6 +446,7 @@ export function render(
         opacity: highlightOpacity(highlightTargets, d.label),
       }),
     })
+    mountOverlays()
 
     // Frame-geometry tween: ease the plot origin (chart-area transform) + clip
     // from the prior scene's cached rect to this one on the SAME orchestrator
@@ -438,7 +468,7 @@ export function render(
     // featureJoin has created the marks, not before.
     const chart = createPluginHost(clippedGroup)
     if (options.tooltips) {
-      chart.use(createTooltipPlugin({ numberFormat: options.verticalAxis?.numberFormat }))
+      chart.use(createTooltipPlugin({ numberFormat: options.verticalAxis?.numberFormat, format: tooltipFormat }))
     }
     if (options.crosshair) {
       chart.use(createCrosshairPlugin({
@@ -492,6 +522,20 @@ export function render(
   if (fadeOverlay) {
     fadeIn(clippedGroup.node()!)
     commitFadeOut(container, fadeOverlay)
+  }
+}
+
+function overlayTooltipFormat(overlays: ResolvedOverlay[], rowLabels: string[], numberFormat?: string): ((datum: unknown) => string) | undefined {
+  if (!overlays.length) {
+    return undefined
+  }
+  const base = makeDefaultFormat(numberFormat)
+  const formatNumber = (v: number) => formatValueLabel(v, numberFormat)
+  return (datum: unknown) => {
+    const label = (datum as BarDatum).label
+    const row = rowLabels.indexOf(label)
+    const lines = overlayTooltipLines(overlays, row, formatNumber)
+    return [base(datum), ...lines].join('\n')
   }
 }
 

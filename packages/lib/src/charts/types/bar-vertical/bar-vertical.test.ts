@@ -1491,4 +1491,220 @@ describe('bar-vertical', () => {
       expect(labels).toEqual(['$1,200,000', '$400,000'])
     })
   })
+
+  describe('overlays', () => {
+    const overlayData = {
+      labels: ['A', 'B', 'C'],
+      values: [5, 8, 6],
+      series: [
+        { name: 'V', values: [5, 8, 6] },
+        { name: 'Min', values: [4, 6, 5] },
+        { name: 'Max', values: [7, 9, 8] },
+        { name: 'Last', values: [6, 7, 5] },
+      ],
+    }
+    const rangeAndValue = [
+      { columns: ['Min', 'Max'] },
+      { columns: ['Last'] },
+    ]
+
+    function overlayEls(selector: string): Element[] {
+      return Array.from(container.querySelectorAll(selector))
+    }
+
+    it('draws one range rect and one value line per row', () => {
+      render(container, overlayData, { overlays: rangeAndValue })
+      const ranges = overlayEls('rect.bc-overlay.bc-overlay-range')
+      const values = overlayEls('line.bc-overlay.bc-overlay-value')
+      expect(ranges).toHaveLength(3)
+      expect(values).toHaveLength(3)
+      expect(ranges[0].getAttribute('data-series')).toBe('Min to Max')
+      expect(values[0].getAttribute('data-series')).toBe('Last')
+    })
+
+    it('grows the value axis to include an overlay above every bar', () => {
+      const tall = {
+        labels: ['A', 'B'],
+        values: [10, 8],
+        series: [
+          { name: 'V', values: [10, 8] },
+          { name: 'Min', values: [20, 20] },
+          { name: 'Max', values: [40, 40] },
+        ],
+      }
+      render(container, tall, { overlays: [{ columns: ['Min', 'Max'] }] })
+      const range = overlayEls('rect.bc-overlay-range')[0]
+      const top = Number(range.getAttribute('y'))
+      expect(top).toBeGreaterThanOrEqual(0)
+    })
+
+    it('lets an explicit axis range clip the overlay', () => {
+      const tall = {
+        labels: ['A', 'B'],
+        values: [10, 8],
+        series: [
+          { name: 'V', values: [10, 8] },
+          { name: 'Min', values: [20, 20] },
+          { name: 'Max', values: [40, 40] },
+        ],
+      }
+      render(container, tall, {
+        overlays: [{ columns: ['Min', 'Max'] }],
+        verticalAxis: { range: { max: 10 } },
+      })
+      const range = overlayEls('rect.bc-overlay-range')[0]
+      expect(range).toBeDefined()
+      expect(range.closest('[clip-path]')).not.toBeNull()
+    })
+
+    it('skips an overlay on a row with an empty cell', () => {
+      const gap = {
+        labels: ['A', 'B', 'C'],
+        values: [5, 8, 6],
+        series: [
+          { name: 'V', values: [5, 8, 6] },
+          { name: 'Min', values: [4, 6, 5] },
+          { name: 'Max', values: [7, undefined, 8] },
+        ],
+      } as never
+      render(container, gap, { overlays: [{ columns: ['Min', 'Max'] }] })
+      expect(overlayEls('rect.bc-overlay-range')).toHaveLength(2)
+    })
+
+    it('draws ranges under value markers', () => {
+      render(container, overlayData, { overlays: rangeAndValue })
+      const layer = container.querySelector('.bc-overlays')!
+      const children = Array.from(layer.children)
+      const firstRange = children.findIndex(el => el.classList.contains('bc-overlay-range'))
+      const firstValue = children.findIndex(el => el.classList.contains('bc-overlay-value'))
+      expect(firstRange).toBeGreaterThanOrEqual(0)
+      expect(firstRange).toBeLessThan(firstValue)
+    })
+
+    it('uses currentColor by default', () => {
+      render(container, overlayData, { overlays: rangeAndValue })
+      const range = overlayEls('rect.bc-overlay-range')[0]
+      const value = overlayEls('line.bc-overlay-value')[0]
+      expect(range.getAttribute('fill')).toBe('currentColor')
+      expect(value.getAttribute('stroke')).toBe('currentColor')
+    })
+
+    it('uses a stripes pattern', () => {
+      render(container, overlayData, { overlays: [{ columns: ['Min', 'Max'], pattern: 'stripes' }] })
+      const range = overlayEls('rect.bc-overlay-range')[0]
+      const fill = range.getAttribute('fill') ?? ''
+      expect(fill).toMatch(/^url\(#bc-overlay-stripes-/)
+      expect(container.querySelector('defs pattern')).not.toBeNull()
+    })
+
+    it('positions waterfall overlays from the floating base', () => {
+      const steps = {
+        labels: ['A', 'B'],
+        values: [10, 5],
+        series: [
+          { name: 'V', values: [10, 5] },
+          { name: 'Last', values: [2, 3] },
+        ],
+      }
+      render(container, steps, { waterfall: true, overlays: [{ columns: ['Last'] }] })
+      const bar = container.querySelector('.bc-bar')!
+      const barTop = Number(bar.getAttribute('y'))
+      const barHeight = Number(bar.getAttribute('height'))
+      const pixelsPerUnit = barHeight / 10
+      const markers = overlayEls('line.bc-overlay-value')
+      const secondY = Number(markers[1].getAttribute('y1'))
+      const expected = barTop - 3 * pixelsPerUnit
+      expect(secondY).toBeCloseTo(expected, 3)
+    })
+
+    it('reads the bar from the first column no overlay names', () => {
+      const wrapped = {
+        labels: ['A', 'B', 'C'],
+        values: [1, 2, 3],
+        series: [
+          { name: 'Low', values: [1, 2, 3] },
+          { name: 'V', values: [10, 30, 20] },
+          { name: 'High', values: [12, 33, 25] },
+        ],
+      }
+      render(container, wrapped, { overlays: [{ columns: ['Low', 'High'] }] })
+      const overlayHeights = overlayEls('.bc-bar').map(b => Number(b.getAttribute('height')))
+      const other = document.createElement('div')
+      document.body.appendChild(other)
+      render(other, { labels: ['A', 'B', 'C'], values: [10, 30, 20] })
+      const plainHeights = Array.from(other.querySelectorAll('.bc-bar')).map(b => Number(b.getAttribute('height')))
+      expect(overlayHeights).toHaveLength(3)
+      const ratio = (hs: number[]) => hs.map(h => h / hs[0])
+      const plainRatios = ratio(plainHeights)
+      ratio(overlayHeights).forEach((r, i) => expect(r).toBeCloseTo(plainRatios[i], 6))
+    })
+
+    it('adds overlay lines to the bar tooltip', () => {
+      const single = {
+        labels: ['A'],
+        values: [5],
+        series: [
+          { name: 'V', values: [5] },
+          { name: 'Min', values: [4] },
+          { name: 'Max', values: [7] },
+          { name: 'Last', values: [6] },
+        ],
+      }
+      render(container, single, {
+        tooltips: true,
+        overlays: [
+          { columns: ['Min', 'Max'], title: '95% CI' },
+          { columns: ['Last'], title: '2022' },
+        ],
+      })
+      const bar = container.querySelector('.bc-bar')!
+      bar.dispatchEvent(new MouseEvent('mouseenter'))
+      const tooltip = document.querySelector('.bc-tooltip')
+      expect(tooltip?.textContent).toBe('A: 5\n95% CI: 4 to 7\n2022: 6')
+      tooltip?.remove()
+      document.getElementById('bc-tooltip-styles')?.remove()
+    })
+
+    it('fades an overlay in when a scene adds it', () => {
+      render(container, overlayData)
+      render(container, overlayData, { overlays: rangeAndValue }, true)
+      const entered = overlayEls('.bc-overlay')
+      expect(entered.length).toBeGreaterThan(0)
+      expect(entered[0].getAttribute('data-bc-role')).toBe('mark-per-cell')
+    })
+
+    it('moves overlays with their row when sorted', () => {
+      const unsorted = {
+        labels: ['A', 'B', 'C'],
+        values: [10, 30, 20],
+        series: [
+          { name: 'V', values: [10, 30, 20] },
+          { name: 'Min', values: [9, 28, 18] },
+          { name: 'Max', values: [11, 32, 22] },
+        ],
+      }
+      render(container, unsorted, { sort: SortDirection.Descending, overlays: [{ columns: ['Min', 'Max'] }] })
+      const bars = overlayEls('.bc-bar')
+      const ranges = overlayEls('rect.bc-overlay-range')
+      expect(ranges).toHaveLength(3)
+      bars.forEach((bar, index) => {
+        const barX = Number(bar.getAttribute('x'))
+        const barWidth = Number(bar.getAttribute('width'))
+        const rangeX = Number(ranges[index].getAttribute('x'))
+        expect(rangeX).toBeCloseTo(barX - barWidth * 0.15, 3)
+      })
+    })
+
+    it('exports overlay columns in "Get the data"', () => {
+      render(container, overlayData, { frame: { getTheData: true, data: overlayData }, overlays: rangeAndValue })
+      const link = container.querySelector<HTMLAnchorElement>('.bc-frame-footer-left a[download]')
+      const csv = decodeURIComponent(link!.href.replace('data:text/csv;charset=utf-8,', ''))
+      expect(csv.split('\n')[0]).toBe('Label,V,Min,Max,Last')
+    })
+
+    it('draws nothing without overlays', () => {
+      render(container, overlayData)
+      expect(container.querySelector('.bc-overlay')).toBeNull()
+    })
+  })
 })

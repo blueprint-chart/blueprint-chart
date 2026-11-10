@@ -1,4 +1,6 @@
+import * as d3 from 'd3'
 import type { ChartData, OverlayConfig } from '../types'
+import { featureJoin, getSceneTransition } from '../../transitions'
 import { nearest } from '../../dsl/suggest'
 import { unquoteDslString } from '../../dsl/quoting'
 import { parseNumericCell } from '../number-parse'
@@ -71,6 +73,165 @@ export function resolveOverlays(data: ChartData, overlays: OverlayConfig[] | und
   const values = resolved.filter(overlay => overlay.kind === 'value')
   const [bar, ...series] = remaining
   return { data: { ...data, values: bar.values, series }, overlays: [...ranges, ...values] }
+}
+
+export interface OverlayGeometry {
+  orientation: 'vertical' | 'horizontal'
+  band: d3.ScaleBand<string>
+  value: (v: number) => number
+  base: (rowIndex: number) => number
+}
+
+interface OverlayCell {
+  key: string
+  overlay: ResolvedOverlay
+  label: string
+  low: number
+  high: number
+  fill: string
+}
+
+const VALUE_STROKE_WIDTH = 3
+const OVERHANG_RATIO = 0.15
+const STRIPE_SIZE = 6
+
+export function overlayDomainValues(overlays: ResolvedOverlay[], rows: number[], base: (rowIndex: number) => number): number[] {
+  const values: number[] = []
+  for (const overlay of overlays) {
+    for (const row of rows) {
+      const offset = base(row)
+      const low = overlay.low[row]
+      const high = overlay.high[row]
+      if (Number.isFinite(low) && Number.isFinite(high)) {
+        values.push(offset + low, offset + high)
+      }
+    }
+  }
+  return values
+}
+
+export function overlayTooltipLines(overlays: ResolvedOverlay[], rowIndex: number, format: (v: number) => string): string[] {
+  const lines: string[] = []
+  for (const overlay of overlays) {
+    const low = overlay.low[rowIndex]
+    const high = overlay.high[rowIndex]
+    if (!Number.isFinite(low) || !Number.isFinite(high)) {
+      continue
+    }
+    const text = overlay.kind === 'range' ? `${format(low)} to ${format(high)}` : format(low)
+    lines.push(`${overlay.title}: ${text}`)
+  }
+  return lines
+}
+
+function clipSuffix(layer: SVGGElement): string {
+  const clipAttr = layer.closest('[clip-path]')?.getAttribute('clip-path') ?? ''
+  return clipAttr.replace(/^url\(#bc-clip-/, '').replace(/\)$/, '')
+}
+
+function drawStripePatterns(layer: SVGGElement, overlays: ResolvedOverlay[]): Map<string, string> {
+  const ids = new Map<string, string>()
+  const svg = layer.ownerSVGElement
+  if (!svg) {
+    return ids
+  }
+  const suffix = clipSuffix(layer)
+  const existing = d3.select(svg).select<SVGDefsElement>('defs')
+  const defs = existing.empty() ? d3.select(svg).append<SVGDefsElement>('defs') : existing
+  const stripes = overlays.filter(overlay => overlay.pattern === 'stripes')
+  stripes.forEach((overlay, index) => {
+    const id = `bc-overlay-stripes-${suffix}-${index}`
+    ids.set(overlay.key, id)
+    defs.select(`#${id}`).remove()
+    const pattern = defs.append('pattern')
+      .attr('id', id)
+      .attr('patternUnits', 'userSpaceOnUse')
+      .attr('width', STRIPE_SIZE)
+      .attr('height', STRIPE_SIZE)
+      .attr('patternTransform', 'rotate(45)')
+    pattern.append('line')
+      .attr('x1', 0)
+      .attr('y1', 0)
+      .attr('x2', 0)
+      .attr('y2', STRIPE_SIZE)
+      .attr('stroke', overlay.color)
+      .attr('stroke-width', 2)
+  })
+  return ids
+}
+
+function overlayCells(overlays: ResolvedOverlay[], labels: string[], rows: number[], patternIds: Map<string, string>): OverlayCell[] {
+  const cells: OverlayCell[] = []
+  for (const overlay of overlays) {
+    const patternId = patternIds.get(overlay.key)
+    const fill = patternId ? `url(#${patternId})` : overlay.color
+    labels.forEach((label, index) => {
+      const low = overlay.low[rows[index]]
+      const high = overlay.high[rows[index]]
+      if (Number.isFinite(low) && Number.isFinite(high)) {
+        cells.push({ key: `${overlay.key}|${label}`, overlay, label, low, high, fill })
+      }
+    })
+  }
+  return cells
+}
+
+function overlayBounds(cell: OverlayCell, geom: OverlayGeometry): { start: number, size: number } {
+  const bandwidth = geom.band.bandwidth()
+  const overhang = bandwidth * OVERHANG_RATIO
+  const start = (geom.band(cell.label) ?? 0) - overhang
+  return { start, size: bandwidth + overhang * 2 }
+}
+
+function rangeAttrs(cell: OverlayCell, geom: OverlayGeometry, rowOf: Map<string, number>) {
+  const offset = geom.base(rowOf.get(cell.label) ?? 0)
+  const top = geom.value(offset + cell.high)
+  const bottom = geom.value(offset + cell.low)
+  const { start, size } = overlayBounds(cell, geom)
+  return { 'x': start, 'width': size, 'y': Math.min(top, bottom), 'height': Math.abs(bottom - top), 'fill': cell.fill, 'fill-opacity': cell.overlay.opacity, 'opacity': 1 }
+}
+
+function valueAttrs(cell: OverlayCell, geom: OverlayGeometry, rowOf: Map<string, number>) {
+  const offset = geom.base(rowOf.get(cell.label) ?? 0)
+  const position = geom.value(offset + cell.low)
+  const { start, size } = overlayBounds(cell, geom)
+  return { 'x1': start, 'x2': start + size, 'y1': position, 'y2': position, 'stroke': cell.overlay.color, 'stroke-width': VALUE_STROKE_WIDTH, 'stroke-opacity': cell.overlay.opacity, 'opacity': 1 }
+}
+
+export function drawOverlays(container: HTMLElement, layer: SVGGElement, overlays: ResolvedOverlay[], labels: string[], rows: number[], geom: OverlayGeometry, _transition: boolean): void {
+  const orch = getSceneTransition(container)
+  const patternIds = drawStripePatterns(layer, overlays)
+  const cells = overlayCells(overlays, labels, rows, patternIds)
+  const rowOf = new Map(labels.map((label, index) => [label, rows[index]] as const))
+  const ranges = cells.filter(cell => cell.overlay.kind === 'range')
+  const values = cells.filter(cell => cell.overlay.kind === 'value')
+  const faded = (attrs: Record<string, string | number>) => ({ ...attrs, opacity: 0 })
+  featureJoin<OverlayCell>(orch, {
+    role: 'mark-per-cell',
+    parent: layer,
+    selector: '.bc-overlay-range',
+    data: ranges,
+    key: cell => cell.key,
+    insert: sel => sel.append('rect')
+      .attr('class', 'bc-overlay bc-overlay-range')
+      .attr('data-series', (cell: OverlayCell) => cell.overlay.title),
+    attrs: cell => rangeAttrs(cell, geom, rowOf),
+    enterFrom: cell => faded(rangeAttrs(cell, geom, rowOf)),
+    exitTo: () => ({ opacity: 0 }),
+  })
+  featureJoin<OverlayCell>(orch, {
+    role: 'mark-per-cell',
+    parent: layer,
+    selector: '.bc-overlay-value',
+    data: values,
+    key: cell => cell.key,
+    insert: sel => sel.append('line')
+      .attr('class', 'bc-overlay bc-overlay-value')
+      .attr('data-series', (cell: OverlayCell) => cell.overlay.title),
+    attrs: cell => valueAttrs(cell, geom, rowOf),
+    enterFrom: cell => faded(valueAttrs(cell, geom, rowOf)),
+    exitTo: () => ({ opacity: 0 }),
+  })
 }
 
 export interface OverlayIssue {
