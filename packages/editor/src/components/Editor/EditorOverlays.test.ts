@@ -13,7 +13,7 @@ const columns = ['Sales', 'Target', 'Budget']
 
 function mountList(overlays: OverlayConfig[] = []) {
   return mount(EditorOverlays, {
-    props: { modelValue: overlays, columns },
+    props: { modelValue: overlays, columns, targetsSeries: false },
     global: {
       stubs: {
         EditorOverlayItem: {
@@ -231,7 +231,7 @@ describe('EditorOverlays under a real v-model parent', () => {
     const Parent = defineComponent({
       components: { EditorOverlays },
       setup: () => ({ overlays, columns }),
-      template: '<EditorOverlays v-model="overlays" :columns="columns" />',
+      template: '<EditorOverlays v-model="overlays" :columns="columns" :targets-series="false" />',
     })
     const w = mount(Parent)
     const value = w.findAll('button').find(b => b.text() === 'Value')!
@@ -249,7 +249,7 @@ describe('EditorOverlays column rule under a real v-model parent', () => {
     const Parent = defineComponent({
       components: { EditorOverlays },
       setup: () => ({ overlays, columns: salesColumns }),
-      template: '<EditorOverlays v-model="overlays" :columns="columns" />',
+      template: '<EditorOverlays v-model="overlays" :columns="columns" :targets-series="false" />',
     })
     const w = mount(Parent)
     return { w, overlays }
@@ -268,5 +268,40 @@ describe('EditorOverlays column rule under a real v-model parent', () => {
     await w.find('.button-add').trigger('click')
     await nextTick()
     expect(overlays.value[1].columns).toEqual(['High'])
+  })
+})
+
+describe('EditorOverlays bar picker', () => {
+  const medalColumns = ['Gold', 'Silver', 'Bronze']
+
+  function mountSeries(targetsSeries: boolean, initial: OverlayConfig[]) {
+    const overlays = ref<OverlayConfig[]>(initial)
+    const Parent = defineComponent({
+      components: { EditorOverlays },
+      setup: () => ({ overlays, columns: medalColumns, targetsSeries }),
+      template: '<EditorOverlays v-model="overlays" :columns="columns" :targets-series="targetsSeries" />',
+    })
+    const w = mount(Parent)
+    return { w, overlays }
+  }
+
+  function barField(w: ReturnType<typeof mount>) {
+    return w.findAllComponents({ name: 'FormControlDropdown' }).find(c => c.props('label') === 'Bar')
+  }
+
+  it('offers the unclaimed columns and emits the picked bar', async () => {
+    const { w, overlays } = mountSeries(true, [{ columns: ['Gold'] }])
+    const field = barField(w)!
+    const options = field.props('options') as { value: string }[]
+    expect(options.map(o => o.value)).toEqual(['Silver', 'Bronze'])
+    expect(field.text()).toContain('Silver')
+    field.vm.$emit('update:modelValue', 'Silver')
+    await nextTick()
+    expect(overlays.value[0].bar).toBe('Silver')
+  })
+
+  it('hides the Bar field when the type has no series', () => {
+    const { w } = mountSeries(false, [{ columns: ['Gold'] }])
+    expect(barField(w)).toBeUndefined()
   })
 })

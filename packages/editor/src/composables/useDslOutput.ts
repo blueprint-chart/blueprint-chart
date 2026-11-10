@@ -24,6 +24,9 @@ function overlayBlock(overlay: OverlayConfig, indent: string): string {
   const columns = overlay.columns.map(quoteDslString).join(' ')
   const inner = `${indent}  `
   let block = `\n${indent}overlay ${columns} {\n`
+  if (overlay.bar) {
+    block += `${inner}bar = ${quoteDslString(overlay.bar)}\n`
+  }
   if (overlay.title) {
     block += `${inner}title = ${quoteDslString(overlay.title)}\n`
   }

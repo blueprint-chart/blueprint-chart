@@ -8,6 +8,7 @@
         :overlay="overlay"
         :columns="columns"
         :claimed="claimed"
+        :bars="bars"
         @update:overlay="(value) => updateAt(i, value)"
         @remove="remove(i)"
       />
@@ -28,11 +29,14 @@ import EditorOverlayItem from './EditorOverlayItem.vue'
 
 const props = defineProps<{
   columns: string[]
+  targetsSeries: boolean
 }>()
 
 const model = defineModel<OverlayConfig[]>({ required: true })
 
 const claimed = computed(() => model.value.flatMap(overlay => overlay.columns))
+const unclaimed = computed(() => props.columns.filter(name => !claimed.value.includes(name)))
+const bars = computed(() => props.targetsSeries ? unclaimed.value : undefined)
 
 function updateAt(index: number, value: OverlayConfig) {
   const copy = [...model.value]

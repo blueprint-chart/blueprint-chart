@@ -54,6 +54,7 @@
       <EditorOverlays
         v-model="overlays"
         :columns="numericColumns"
+        :targets-series="targetsSeries"
       />
     </SettingsSection>
   </div>
@@ -65,7 +66,7 @@ import { useChartTypeOptions } from '@/stores/chartTypeOptions'
 import { usePreviewContainer } from '@/stores/previewContainer'
 import { useEditorPanel } from '@/stores/editorPanel'
 import { useScenes } from '@/stores/scenes'
-import { ChartType, OVERLAY_CHART_TYPES, parseData } from '@blueprint-chart/lib'
+import { ChartType, OVERLAY_CHART_TYPES, OVERLAY_SERIES_CHART_TYPES, parseData } from '@blueprint-chart/lib'
 import type { AnnotationConfig } from '@blueprint-chart/lib'
 import { SettingsSection } from '@blueprint-chart/ui'
 import IPhDropHalf from '~icons/ph/drop-half'
@@ -112,6 +113,7 @@ const parsed = computed(() => parseData(data.value))
 const dataLabels = computed(() => parsed.value.labels)
 const seriesNames = computed(() => parsed.value.series?.map(s => s.name) ?? [])
 const hasOverlays = computed(() => OVERLAY_CHART_TYPES.has(chartType.value))
+const targetsSeries = computed(() => OVERLAY_SERIES_CHART_TYPES.has(chartType.value))
 const textColumnNames = computed(() => new Set(parsed.value.textColumns?.map(c => c.name)))
 const numericColumns = computed(() => seriesNames.value.filter(name => !textColumnNames.value.has(name)))
 

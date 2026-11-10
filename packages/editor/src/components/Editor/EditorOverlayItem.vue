@@ -41,6 +41,16 @@
         @update:model-value="(v) => setColumn(i, v)"
       />
 
+      <FormControlDropdown
+        v-if="bars"
+        :id="`overlay-bar-${id}`"
+        :model-value="bar"
+        label="Bar"
+        :options="barOptions"
+        block
+        @update:model-value="(v) => update('bar', v)"
+      />
+
       <FormControlTextInput
         :id="`overlay-title-${id}`"
         v-model="title"
@@ -147,6 +157,7 @@ const props = defineProps<{
   id: number
   columns: string[]
   claimed?: string[]
+  bars?: string[]
 }>()
 
 defineEmits<{
@@ -170,6 +181,8 @@ const defaultOpacity = computed(() => isRange.value ? DEFAULT_RANGE_OPACITY : DE
 const defaultTitle = computed(() => overlay.value.columns.join(isRange.value ? ' to ' : ''))
 const heading = computed(() => overlay.value.title ?? defaultTitle.value)
 const columnOptions = computed(() => props.columns.map(name => ({ value: name, label: name })))
+const barOptions = computed(() => (props.bars ?? []).map(name => ({ value: name, label: name })))
+const bar = computed(() => overlay.value.bar ?? props.bars?.[0] ?? '')
 const columnSlots = computed(() => isRange.value ? [{ label: 'From' }, { label: 'To' }] : [{ label: 'Column' }])
 const visibilityIcon = computed(() => overlay.value.hidden ? IPhEyeSlash : IPhEye)
 const visibilityLabel = computed(() => overlay.value.hidden ? 'Show overlay' : 'Hide overlay')

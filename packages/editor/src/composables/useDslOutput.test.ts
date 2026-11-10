@@ -92,6 +92,15 @@ describe('useDslOutput', () => {
       expect(dsl()).toContain(expected)
     })
 
+    it('emits the bar key first, before the title', () => {
+      const config = useChartConfig()
+      config.chartType.value = ChartType.BarMulti
+      config.overlays.value = [{ columns: ['Gold'], bar: 'Silver', title: 'Goal' }]
+
+      const { generateDsl: dsl } = useDslOutput()
+      expect(dsl()).toContain('overlay "Gold" {\n    bar = "Silver"\n    title = "Goal"\n  }')
+    })
+
     it('emits an overlay with only columns', () => {
       const config = useChartConfig()
       config.chartType.value = ChartType.BarVertical

@@ -44,7 +44,7 @@ vi.mock('./EditorOverlays.vue', () => ({
   default: {
     name: 'EditorOverlays',
     template: '<div class="stub-overlays" :data-columns="columns.join(\'|\')" />',
-    props: ['modelValue', 'columns'],
+    props: ['modelValue', 'columns', 'targetsSeries'],
     emits: ['update:modelValue'],
   },
 }))
@@ -118,6 +118,21 @@ describe('EditorAnnotateTab', () => {
     await nextTick()
     expect(w.find('.stub-overlays').exists()).toBe(true)
     expect(w.text()).toContain('Overlays')
+  })
+
+  it.each(['bar-vertical', 'bar-horizontal', 'bar-multi', 'bar-grouped', 'bar-split', 'bar-stacked', 'column-stacked'])('shows the Overlays section on %s', async (type) => {
+    chartTypeRef.value = type
+    const w = mount(EditorAnnotateTab)
+    await nextTick()
+    expect(w.find('.stub-overlays').exists()).toBe(true)
+  })
+
+  it.each([['bar-multi', true], ['bar-split', true], ['bar-stacked', false], ['bar-vertical', false]])('passes targetsSeries for %s', async (type, expected) => {
+    chartTypeRef.value = type
+    const w = mount(EditorAnnotateTab)
+    await nextTick()
+    const stub = w.findComponent({ name: 'EditorOverlays' })
+    expect(stub.props('targetsSeries')).toBe(expected)
   })
 
   it('hides the Overlays section on a line chart', async () => {

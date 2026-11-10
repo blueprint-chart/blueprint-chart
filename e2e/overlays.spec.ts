@@ -33,4 +33,36 @@ test.describe('overlays authoring', () => {
     await page.keyboard.press('Escape')
     await expect(page.locator('.chart-edit-dsl')).toContainText('overlay "')
   })
+
+  test('adds a range overlay on one series of a multi-series bar chart', async ({ page }) => {
+    const medals = [
+      'Nation\tGold\tSilver\tBronze',
+      'USA\t40\t44\t42',
+      'China\t40\t27\t24',
+      'Japan\t20\t12\t13',
+      'Great Britain\t14\t22\t29',
+      'Australia\t18\t19\t16',
+      'France\t16\t26\t22',
+    ].join('\n')
+    await page.goto('/#/new')
+    await page.locator('textarea').fill(medals)
+    await page.locator('button', { hasText: 'Load data' }).click()
+    await page.locator('.navigation-stepper-tabs__step', { hasText: 'Visualize' }).click()
+    await expect(page.locator(`${frame} svg`)).toBeVisible()
+
+    await page.locator('[aria-label="Chart Type"]').click()
+    await page.locator('.editor-chart-type-picker button[value="bar-multi"]').click()
+
+    await page.locator('[aria-label="Annotate"]').click()
+    const section = page.locator('.settings-section', { hasText: 'Overlays' })
+    await section.getByRole('button', { name: 'Add' }).click()
+    await section.getByRole('button', { name: 'Range' }).click()
+
+    const bar = section.locator('.form-control-dropdown', { hasText: 'Bar' })
+    await expect(bar).toBeVisible()
+    await bar.locator('button').click()
+    await page.locator('.dropdown-menu.show .form-control-dropdown-item__content__text__label', { hasText: 'Gold' }).click()
+
+    await expect(page.locator(`${frame} .bc-overlay-range`)).toHaveCount(6)
+  })
 })
