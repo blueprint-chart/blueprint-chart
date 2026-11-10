@@ -10,6 +10,7 @@ import { makeDefaultFormat } from '../plugins/tooltip'
 import { formatValueLabel } from '../format-helpers'
 import { estimateTextInk } from '../value-label-fit'
 import { DirectLabelMode } from '../../enums'
+import { contrastTextColor } from '../contrast'
 
 export const OVERLAY_CHART_TYPES: ReadonlySet<string> = new Set(['bar-vertical', 'bar-horizontal', 'bar-multi', 'bar-grouped', 'bar-split', 'bar-stacked', 'column-stacked'])
 export const OVERLAY_SERIES_CHART_TYPES: ReadonlySet<string> = new Set(['bar-multi', 'bar-grouped', 'bar-split'])
@@ -141,6 +142,21 @@ export function barCue(overlays: ResolvedOverlay[], row: number, barValue: numbe
   const [first] = colored.sort((a, b) => a.order - b.order)
   const color = targetColor(first, row, barValue)
   return { faded, color }
+}
+
+export function cueLabelFill(cue: BarCue, colorized: boolean, color: string): string {
+  if (cue.faded) {
+    return 'currentColor'
+  }
+  if (colorized) {
+    return contrastTextColor(color)
+  }
+  return contrastTextColor(cue.color ?? color)
+}
+
+export function stackRowTotals(series: { values: number[] }[], rowCount: number): number[] {
+  const rows = Array.from({ length: rowCount }, (_, row) => row)
+  return rows.map(row => d3.sum(series, s => s.values[row]))
 }
 
 export interface OverlayGeometry {

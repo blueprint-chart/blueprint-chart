@@ -12,7 +12,6 @@ import { resolveBackgroundColor } from '../../contrast'
 import { percentValueLabel } from '../../format-helpers'
 import { expandColorsToSeries, seriesOrImplicit, resolveSeriesColor, isSeriesHidden, resolveSeriesValueLabels, resolveSeriesOpacity } from '../../series-helpers'
 import { sortCategories } from '../../sort-helpers'
-import { contrastTextColor } from '../../contrast'
 import { setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut } from '../../motion'
 import { setCachedChart, getCachedChart } from '../../transition-cache'
 import { computeStack, computeStack100, restackWithinGroups } from '../../stack-helpers'
@@ -26,7 +25,7 @@ import { buildColorOverrides } from '../../plugins/colorize'
 import { shouldRenderValueLabel } from '../../value-label-fit'
 import { CATEGORY_LABEL_HEIGHT, categoryLabelLineHeight, categoryLabelsNeedTheirOwnLine } from '../../category-label-line'
 import { DEFAULT_COLORS } from '../../palettes'
-import { resolveOverlays, barCue, overlayDomainValues, overlayTooltipFormat, mountOverlayLayer, drawOverlayLegend, planOverlayLabels, drawOverlayDirectLabelGroup, type OverlayGeometry } from '../../overlays/overlays'
+import { resolveOverlays, barCue, cueLabelFill, stackRowTotals, overlayDomainValues, overlayTooltipFormat, mountOverlayLayer, drawOverlayLegend, planOverlayLabels, drawOverlayDirectLabelGroup, type OverlayGeometry } from '../../overlays/overlays'
 
 interface StackedBarDatum {
   label: string
@@ -214,20 +213,15 @@ export function render(
 
   const categoryLabelOffset = useCategoryLabelLine ? categoryLabelLineHeight(y.bandwidth()) : 0
   const colorOverrides = buildColorOverrides(options.colorizes)
-  const rowTotals = data.labels.map((_, row) => d3.sum(series, s => s.values[row]))
-  const cueFor = (d: { label: string, seriesName: string }) => {
+  const rowTotals = stackRowTotals(series, data.labels.length)
+  const cueFor = (d: { label: string }) => {
     const row = data.labels.indexOf(d.label)
     return barCue(resolved.overlays, row, rowTotals[row])
   }
   const insideLabelFill = (d: { label: string, seriesName: string }, seriesColor: string) => {
     const cue = cueFor(d)
-    if (cue.faded) {
-      return 'currentColor'
-    }
-    if (colorOverrides.has(d.seriesName)) {
-      return contrastTextColor(seriesColor)
-    }
-    return contrastTextColor(cue.color ?? seriesColor)
+    const colorized = colorOverrides.has(d.seriesName)
+    return cueLabelFill(cue, colorized, seriesColor)
   }
   const highlightTargets = highlightTargetSet(options.highlights, flatData.map(d => d.seriesName))
   const orch = getSceneTransition(container)

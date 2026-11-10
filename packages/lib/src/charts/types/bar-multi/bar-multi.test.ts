@@ -799,6 +799,12 @@ describe('bar-multi', () => {
       seriesBars('Silver').forEach(bar => expect(bar.getAttribute('opacity')).toBeNull())
     })
 
+    it('uses currentColor for an inside label on a faded bar', () => {
+      render(container, cueData, { overlays: mute, valueLabels: true, valueLabelPosition: ValueLabelPosition.Inside })
+      const labels = container.querySelectorAll('.bc-value-label[data-series="Gold"]')
+      expect(labels[0].getAttribute('fill')).toBe('currentColor')
+    })
+
     it('brings the bar back to full opacity when a scene drops the cue', () => {
       render(container, cueData, { overlays: mute })
       render(container, cueData, { overlays: [{ columns: ['Gold low', 'Gold high'], bar: 'Gold' }] }, true)

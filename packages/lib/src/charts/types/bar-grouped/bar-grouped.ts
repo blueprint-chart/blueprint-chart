@@ -5,7 +5,7 @@ import { createFrame } from '../../frame/frame'
 import { createCanvas, contentSize, labelPositionMargins, estimateCategoryLabelWidth, computeMarginDelta } from '../../canvas/canvas'
 import { AxisService } from '../../axis/axis-service'
 import { estimateLegendSize } from '../../legend/legend-size'
-import { contrastTextColor, resolveBackgroundColor } from '../../contrast'
+import { resolveBackgroundColor } from '../../contrast'
 import { createAnnotationPlugin, snapshotAnnotations, type AnnotationSnapshot } from '../../plugins/annotations'
 import { expandColorsToSeries, seriesOrImplicit, resolveSeriesColor, isSeriesHidden, resolveSeriesValueLabels, resolveSeriesOpacity } from '../../series-helpers'
 import { sortCategories, withinGroupSlots } from '../../sort-helpers'
@@ -23,7 +23,7 @@ import { Orientation, ValueLabelPosition, LabelPosition, ScaleType, SortMode } f
 import { shouldRenderValueLabel } from '../../value-label-fit'
 import { CATEGORY_LABEL_HEIGHT, categoryLabelLineHeight, categoryLabelsNeedTheirOwnLine } from '../../category-label-line'
 import { DEFAULT_COLORS } from '../../palettes'
-import { resolveOverlays, barCue, overlayDomainValues, overlayTooltipFormat, mountOverlayLayer, drawOverlayLegend, planOverlayLabels, drawOverlayDirectLabelGroup, type OverlayGeometry, type ResolvedOverlay } from '../../overlays/overlays'
+import { resolveOverlays, barCue, cueLabelFill, overlayDomainValues, overlayTooltipFormat, mountOverlayLayer, drawOverlayLegend, planOverlayLabels, drawOverlayDirectLabelGroup, type OverlayGeometry, type ResolvedOverlay } from '../../overlays/overlays'
 
 interface GroupedBarDatum {
   label: string
@@ -228,16 +228,14 @@ export function render(
 
   const highlightTargets = highlightTargetSet(options.highlights, flatData.map(d => d.seriesName))
   const colorOverrides = buildColorOverrides(options.colorizes)
-  const cueFor = (d: { label: string, value: number, seriesName: string }) => barCue(resolved.overlays, data.labels.indexOf(d.label), d.value, d.seriesName)
+  const cueFor = (d: { label: string, value: number, seriesName: string }) => {
+    const row = data.labels.indexOf(d.label)
+    return barCue(resolved.overlays, row, d.value, d.seriesName)
+  }
   const insideLabelFill = (d: { label: string, value: number, seriesName: string }, seriesColor: string) => {
     const cue = cueFor(d)
-    if (cue.faded) {
-      return 'currentColor'
-    }
-    if (colorOverrides.has(d.seriesName)) {
-      return contrastTextColor(seriesColor)
-    }
-    return contrastTextColor(cue.color ?? seriesColor)
+    const colorized = colorOverrides.has(d.seriesName)
+    return cueLabelFill(cue, colorized, seriesColor)
   }
   const orch = getSceneTransition(container)
 

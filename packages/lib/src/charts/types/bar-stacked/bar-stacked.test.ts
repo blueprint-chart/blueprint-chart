@@ -671,24 +671,24 @@ describe('bar-stacked', () => {
 
   describe('overlay cues', () => {
     const cueData = {
-      labels: ['A', 'B'],
+      labels: ['A', 'B', 'C'],
       values: [],
       series: [
-        { name: 'X', values: [5, 4] },
-        { name: 'Y', values: [-2, 4] },
-        { name: 'T', values: [3, 9] },
+        { name: 'X', values: [5, 4, 6] },
+        { name: 'Y', values: [-2, 4, -2] },
+        { name: 'T', values: [3, 9, 5] },
       ],
     }
     const colors = [{ columns: ['T'], aboveColor: '#00ff00', belowColor: '#ff0000' }]
     const mute = [{ columns: ['Lo', 'Hi'], muteIfCrosses: 7 }]
     const muteData = {
       ...cueData,
-      series: [...cueData.series, { name: 'Lo', values: [2, 6] }, { name: 'Hi', values: [4, 8] }],
+      series: [...cueData.series, { name: 'Lo', values: [2, 6, 0] }, { name: 'Hi', values: [4, 8, 1] }],
     }
 
     function rowBars(row: number): Element[] {
-      const bars = Array.from(container.querySelectorAll('.bc-bar'))
-      return bars.filter((_, i) => i % 2 === row)
+      const names = ['X', 'Y']
+      return names.map(name => container.querySelectorAll(`.bc-bar[data-series="${name}"]`)[row])
     }
 
     function rowFills(row: number): (string | null)[] {
@@ -701,10 +701,21 @@ describe('bar-stacked', () => {
       expect(rowFills(1)).toEqual(['#ff0000', '#ff0000'])
     })
 
+    it('compares the net total, not the positive sum', () => {
+      render(container, cueData, { overlays: colors })
+      expect(rowFills(2)).toEqual(['#ff0000', '#ff0000'])
+    })
+
     it('fades every segment of the crossing row', () => {
       render(container, muteData, { overlays: mute })
       rowBars(1).forEach(bar => expect(bar.getAttribute('opacity')).toBe('0.45'))
       rowBars(0).forEach(bar => expect(bar.getAttribute('opacity')).toBeNull())
+    })
+
+    it('uses currentColor for an inside label on a faded segment', () => {
+      render(container, muteData, { overlays: mute, valueLabels: true, valueLabelPosition: ValueLabelPosition.Inside })
+      const labels = container.querySelectorAll('.bc-value-label[data-series="X"]')
+      expect(labels[1].getAttribute('fill')).toBe('currentColor')
     })
 
     it('brings the row back to full opacity when a scene drops the cue', () => {

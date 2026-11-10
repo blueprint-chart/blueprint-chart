@@ -9,7 +9,7 @@ import { estimateLegendSize } from '../../legend/legend-size'
 import { createAnnotationPlugin, snapshotAnnotations, type AnnotationSnapshot } from '../../plugins/annotations'
 import { createTooltipPlugin } from '../../plugins/tooltip'
 import { createCrosshairPlugin } from '../../plugins/crosshair'
-import { contrastTextColor, resolveBackgroundColor } from '../../contrast'
+import { resolveBackgroundColor } from '../../contrast'
 import { expandColorsToSeries, seriesOrImplicit, resolveSeriesColor, isSeriesHidden, resolveSeriesValueLabels, resolveSeriesOpacity } from '../../series-helpers'
 import { sortCategories } from '../../sort-helpers'
 import { setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut } from '../../motion'
@@ -25,7 +25,7 @@ import { StackMode, ScaleType, SortMode, ValueLabelPosition } from '../../../enu
 import { formatValueLabel, percentValueLabel } from '../../format-helpers'
 import { shouldRenderValueLabel } from '../../value-label-fit'
 import { DEFAULT_COLORS } from '../../palettes'
-import { resolveOverlays, barCue, overlayDomainValues, overlayTooltipFormat, mountOverlayLayer, drawOverlayLegend, overlayKeyEntries, type OverlayGeometry } from '../../overlays/overlays'
+import { resolveOverlays, barCue, cueLabelFill, stackRowTotals, overlayDomainValues, overlayTooltipFormat, mountOverlayLayer, drawOverlayLegend, overlayKeyEntries, type OverlayGeometry } from '../../overlays/overlays'
 
 const LABEL_HEIGHT = 11
 const OUTSIDE_LABEL_GAP = 4
@@ -200,20 +200,15 @@ export function render(
     : sortedLabels.flatMap(label => flatData.filter(d => d.label === label))
 
   const colorOverrides = buildColorOverrides(options.colorizes)
-  const rowTotals = data.labels.map((_, row) => d3.sum(series, s => s.values[row]))
-  const cueFor = (d: { label: string, seriesName: string }) => {
+  const rowTotals = stackRowTotals(series, data.labels.length)
+  const cueFor = (d: { label: string }) => {
     const row = data.labels.indexOf(d.label)
     return barCue(resolved.overlays, row, rowTotals[row])
   }
   const insideLabelFill = (d: { label: string, seriesName: string }, seriesColor: string) => {
     const cue = cueFor(d)
-    if (cue.faded) {
-      return 'currentColor'
-    }
-    if (colorOverrides.has(d.seriesName)) {
-      return contrastTextColor(seriesColor)
-    }
-    return contrastTextColor(cue.color ?? seriesColor)
+    const colorized = colorOverrides.has(d.seriesName)
+    return cueLabelFill(cue, colorized, seriesColor)
   }
   const highlightTargets = highlightTargetSet(options.highlights, flatData.map(d => d.seriesName))
   const orch = getSceneTransition(container)

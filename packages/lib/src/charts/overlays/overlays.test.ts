@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { parseData } from '../parse-data'
 import type { OverlayConfig } from '../types'
-import { barCue, overlayIssues, overlayKeyEntries, resolveOverlays } from './overlays'
+import { barCue, cueLabelFill, overlayIssues, overlayKeyEntries, resolveOverlays, stackRowTotals } from './overlays'
 
 const RAW = 'series = "Value","Min","Max","Last"\n"A" = 5,2,8,6\n"B" = 4,1,9,3'
 
@@ -308,5 +308,24 @@ describe('overlay families', () => {
     const together = [{ columns: ['T1'], bar: 'Gold', aboveColor: 'g' }, { columns: ['T2'], aboveColor: 'g' }]
     expect(codes(overlayIssues(d, apart, 'bar-multi'))).not.toContain('overlay-target-conflict')
     expect(codes(overlayIssues(d, together, 'bar-multi'))).toContain('overlay-target-conflict')
+  })
+})
+
+describe('cueLabelFill', () => {
+  it('uses currentColor on a faded bar', () => {
+    expect(cueLabelFill({ faded: true }, false, '#000000')).toBe('currentColor')
+  })
+
+  it('contrasts against the cue color unless the bar is colorized', () => {
+    const cue = { faded: false, color: '#ffffff' }
+    expect(cueLabelFill(cue, false, '#000000')).toBe(cueLabelFill({ faded: false }, false, '#ffffff'))
+    expect(cueLabelFill(cue, true, '#000000')).toBe(cueLabelFill({ faded: false }, false, '#000000'))
+  })
+})
+
+describe('stackRowTotals', () => {
+  it('sums every series per row, negatives included', () => {
+    const series = [{ values: [6, 1] }, { values: [-2, 1] }]
+    expect(stackRowTotals(series, 2)).toEqual([4, 2])
   })
 })
