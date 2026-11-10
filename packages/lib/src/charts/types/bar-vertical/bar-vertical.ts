@@ -7,9 +7,10 @@ import { resolveHorizontalAxisBottom } from '../../axis/horizontal-axis'
 import { AxisService } from '../../axis/axis-service'
 import { computeLinearDomain, resolveBarGapPadding } from '../../scale-helpers'
 import { createTooltipPlugin, makeDefaultFormat } from '../../plugins/tooltip'
-import { resolveOverlays, overlayDomainValues, overlayTooltipLines, drawOverlays, overlayGroups, type OverlayGeometry, type ResolvedOverlay } from '../../overlays/overlays'
+import { resolveOverlays, overlayDomainValues, overlayTooltipLines, drawOverlays, drawOverlayLegend, overlayGroups, type OverlayGeometry, type OverlayLegendPlacement, type ResolvedOverlay } from '../../overlays/overlays'
 import { createCrosshairPlugin } from '../../plugins/crosshair'
 import { createAnnotationPlugin, snapshotAnnotations, type AnnotationSnapshot } from '../../plugins/annotations'
+import { estimateLegendSize } from '../../legend/legend-size'
 import { resolveBackgroundColor, contrastTextColor } from '../../contrast'
 import { formatValueLabel, percentValueLabel } from '../../format-helpers'
 import { buildColorOverrides } from '../../plugins/colorize'
@@ -104,7 +105,8 @@ export function render(
       lpMargins.bottom = rotatedBottom
     }
   }
-  const { chartArea, width, height, margin } = createCanvas(body, lpMargins)
+  const keyLayout = overlayKeyLayout(resolved.overlays, options, containerWidth, lpMargins, useCategoryLabelLine)
+  const { chartArea, width, height, margin } = createCanvas(body, keyLayout.margins)
   const categoryLabelOffset = useCategoryLabelLine ? categoryLabelLineHeight(height) : 0
   const barAreaHeight = height - categoryLabelOffset
   const marginDelta = computeMarginDelta(priorMargin, margin)
@@ -520,6 +522,11 @@ export function render(
     }
   }
 
+  if (keyLayout.show) {
+    const placement = keyLayout.place(width, height, margin)
+    drawOverlayLegend(chartArea, resolved.overlays, placement)
+  }
+
   setCachedChart(container, { chartType: 'bar-vertical', margin, plotRect })
 
   if (fadeOverlay) {
@@ -649,4 +656,57 @@ function renderValueLabels(
   labelGroup.selectAll<SVGTextElement, BarDatum>('.bc-value-label')
     .data(visibleData, (d: BarDatum) => d.label)
     .text(labelText)
+}
+
+type Margins = Partial<Record<'top' | 'bottom' | 'left' | 'right', number>>
+
+interface OverlayKeyLayout {
+  show: boolean
+  margins: Margins
+  place: (width: number, height: number, margin: { left: number, right: number, bottom: number }) => OverlayLegendPlacement
+}
+
+const NARROW_KEY_WIDTH = 350
+const KEY_ANCHOR = 'start'
+
+function overlayKeyLayout(overlays: ResolvedOverlay[], options: ChartOptions, containerWidth: number, lpMargins: Margins, hasCategoryLabelLine: boolean): OverlayKeyLayout {
+  const show = overlays.length > 0 && options.legend !== false
+  const margins: Margins = { ...lpMargins }
+  const titles = overlays.map(overlay => overlay.title)
+  const requested = options.legendPosition ?? 'top'
+  const isSide = requested === 'left' || requested === 'right'
+  const isNarrow = containerWidth > 0 && containerWidth < NARROW_KEY_WIDTH
+  const position = isNarrow && isSide ? 'top' : requested
+  const availableWidth = Math.max(0, containerWidth - (lpMargins.left ?? 50) - (lpMargins.right ?? 20))
+  const size = show ? estimateLegendSize(titles, position, availableWidth) : { width: 0, height: 0 }
+  const legendH = show ? size.height + 15 : 0
+  const insideGap = lpMargins.top != null ? 15 : 0
+  if (show && position === 'top') {
+    margins.top = legendH + insideGap
+  }
+  if (show && position === 'left') {
+    margins.left = (margins.left ?? 50) + size.width + 10
+  }
+  if (show && position === 'right') {
+    margins.right = (margins.right ?? 20) + size.width + 10
+  }
+  if (show && position === 'bottom') {
+    const labelH = hasCategoryLabelLine ? 0 : Math.max(margins.bottom ?? 24, 24)
+    margins.bottom = labelH + legendH
+  }
+  const place = (width: number, height: number, margin: { left: number, right: number, bottom: number }): OverlayLegendPlacement => {
+    const inset = { left: margin.left, right: margin.right }
+    const base = { position, anchor: KEY_ANCHOR, width, height, inset }
+    if (position === 'top') {
+      return { ...base, x: 0, y: -(size.height + 10 + insideGap) }
+    }
+    if (position === 'bottom') {
+      return { ...base, x: 0, y: height + Math.max(margin.bottom - legendH, 0) }
+    }
+    if (position === 'left') {
+      return { ...base, x: -(size.width + 10), y: 0 }
+    }
+    return { ...base, x: width + 10, y: 0 }
+  }
+  return { show, margins, place }
 }

@@ -65,6 +65,8 @@ Every property `bar-vertical` accepts, beside the [frame and layout keys](/refer
 | `colorPalette` | select, see [Palettes](/guide/palettes) | `Blueprint` |
 | `autoContrast` | boolean | `false` |
 | `allowDarkMode` | boolean | `true` |
+| `legend` | boolean | `true` |
+| `legendPosition` | select: `top`, `bottom`, `left`, `right` | `top` |
 | `swapLabelValue` | boolean | `false` |
 | `negativeColor` | text | `""` |
 | `barBackground` | boolean | `false` |

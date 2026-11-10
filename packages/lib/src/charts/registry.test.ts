@@ -105,6 +105,12 @@ describe('registry', () => {
     expect(opt).toBeDefined()
   })
 
+  it('bar-vertical has legend and legendPosition options', () => {
+    const keys = getChartOptions(ChartType.BarVertical).map(o => o.key)
+    expect(keys).toContain('legend')
+    expect(keys).toContain('legendPosition')
+  })
+
   it.each([ChartType.BarMulti, ChartType.ColumnStacked, ChartType.BarStacked, ChartType.BarSplit, ChartType.BarGrouped])('%s has barGap option', (chartType) => {
     const keys = getChartOptions(chartType).map(o => o.key)
     expect(keys).toContain('barGap')

@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { render } from './bar-vertical'
 import { buildChartOptions } from '../../chart-helpers'
-import { SortDirection, ValueLabelPosition, GridStyle, LabelRotation } from '../../../enums'
+import { SortDirection, ValueLabelPosition, GridStyle, LabelRotation, LegendPosition } from '../../../enums'
 
 describe('bar-vertical', () => {
   let container: HTMLElement
@@ -1709,6 +1709,52 @@ describe('bar-vertical', () => {
       const link = container.querySelector<HTMLAnchorElement>('.bc-frame-footer-left a[download]')
       const csv = decodeURIComponent(link!.href.replace('data:text/csv;charset=utf-8,', ''))
       expect(csv.split('\n')[0]).toBe('Label,V,Min,Max,Last')
+    })
+
+    describe('key', () => {
+      const titled = [
+        { columns: ['Min', 'Max'], title: '95% CI' },
+        { columns: ['Last'], title: '2022' },
+      ]
+
+      function legendY(): number {
+        const legend = container.querySelector('.bc-legend')!
+        const transform = legend.getAttribute('transform') ?? ''
+        const match = transform.match(/translate\(\s*(-?[\d.]+)[\s,]+(-?[\d.]+)\s*\)/)
+        return Number(match![2])
+      }
+
+      it('shows one key entry per visible overlay, above the chart', () => {
+        render(container, overlayData, { overlays: titled })
+        const items = Array.from(container.querySelectorAll('.bc-legend-item'))
+        const texts = items.map(item => item.textContent)
+        expect(items).toHaveLength(2)
+        expect(texts).toEqual(['95% CI', '2022'])
+        expect(legendY()).toBeLessThan(0)
+      })
+
+      it('hides the key with legend = false', () => {
+        render(container, overlayData, { overlays: titled, legend: false })
+        expect(container.querySelector('.bc-legend')).toBeNull()
+      })
+
+      it('moves the key with legendPosition = bottom', () => {
+        render(container, overlayData, { overlays: titled, legendPosition: LegendPosition.Bottom })
+        const axis = container.querySelector('.bc-bar')!
+        const plotHeight = Number(axis.getAttribute('y')) + Number(axis.getAttribute('height'))
+        expect(legendY()).toBeGreaterThan(plotHeight)
+      })
+
+      it('draws a line swatch for a value overlay', () => {
+        render(container, overlayData, { overlays: [{ columns: ['Last'], title: '2022' }] })
+        const swatch = container.querySelector('.bc-legend-item rect')!
+        expect(swatch.getAttribute('height')).toBe('3')
+      })
+
+      it('draws no key when there are no overlays', () => {
+        render(container, overlayData)
+        expect(container.querySelector('.bc-legend')).toBeNull()
+      })
     })
 
     it('draws nothing without overlays', () => {

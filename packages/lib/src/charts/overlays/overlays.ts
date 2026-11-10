@@ -5,6 +5,7 @@ import { nearest } from '../../dsl/suggest'
 import { unquoteDslString } from '../../dsl/quoting'
 import { parseNumericCell } from '../number-parse'
 import { readSeriesTable, splitDataLines } from '../parse-data'
+import { renderLegend } from '../legend/legend'
 
 export const OVERLAY_CHART_TYPES: ReadonlySet<string> = new Set(['bar-vertical', 'bar-horizontal'])
 
@@ -316,4 +317,67 @@ export function overlayIssues(data: ChartData, overlays: OverlayConfig[], chartT
     issues.push({ code: 'overlay-no-bar', message: 'Overlays use every column, so no bar is left to draw.' })
   }
   return issues
+}
+
+export interface OverlayLegendPlacement {
+  x: number
+  y: number
+  position: string
+  anchor: string
+  width: number
+  height: number
+  inset: { left: number, right: number }
+}
+
+const KEY_SWATCH_SIZE = 12
+const KEY_LINE_HEIGHT = 3
+let keyPatternCount = 0
+
+function keyStripePattern(svg: SVGSVGElement, overlay: ResolvedOverlay): string {
+  keyPatternCount += 1
+  const id = `bc-overlay-key-stripes-${keyPatternCount}`
+  const existing = d3.select(svg).select<SVGDefsElement>('defs')
+  const defs = existing.empty() ? d3.select(svg).append<SVGDefsElement>('defs') : existing
+  const pattern = defs.append('pattern')
+    .attr('id', id)
+    .attr('class', 'bc-overlay-key-pattern')
+    .attr('patternUnits', 'userSpaceOnUse')
+    .attr('width', STRIPE_SIZE)
+    .attr('height', STRIPE_SIZE)
+    .attr('patternTransform', 'rotate(45)')
+  pattern.append('line')
+    .attr('x1', 0)
+    .attr('y1', 0)
+    .attr('x2', 0)
+    .attr('y2', STRIPE_SIZE)
+    .attr('stroke', overlay.color)
+    .attr('stroke-width', 2)
+  return id
+}
+
+function styleKeySwatch(swatch: SVGRectElement, overlay: ResolvedOverlay): void {
+  const selection = d3.select(swatch)
+  if (overlay.kind === 'value') {
+    selection
+      .attr('y', (KEY_SWATCH_SIZE - KEY_LINE_HEIGHT) / 2)
+      .attr('height', KEY_LINE_HEIGHT)
+      .attr('fill', overlay.color)
+      .attr('fill-opacity', overlay.opacity)
+    return
+  }
+  const svg = swatch.ownerSVGElement
+  const usesPattern = overlay.pattern === 'stripes' && svg
+  const fill = usesPattern ? `url(#${keyStripePattern(svg, overlay)})` : overlay.color
+  selection
+    .attr('fill', fill)
+    .attr('fill-opacity', overlay.opacity)
+}
+
+export function drawOverlayLegend(chartArea: SVGGElement, overlays: ResolvedOverlay[], placement: OverlayLegendPlacement): void {
+  const titles = overlays.map(overlay => overlay.title)
+  const colors = overlays.map(overlay => overlay.color)
+  const { y, position, anchor, width, height, x, inset } = placement
+  renderLegend(chartArea, titles, colors, y, position, anchor, width, height, x, [], inset)
+  const swatches = chartArea.querySelectorAll<SVGRectElement>('.bc-legend-item rect')
+  overlays.forEach((overlay, index) => styleKeySwatch(swatches[index], overlay))
 }
