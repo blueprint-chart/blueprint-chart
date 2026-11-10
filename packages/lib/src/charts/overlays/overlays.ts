@@ -146,6 +146,7 @@ function drawStripePatterns(layer: SVGGElement, overlays: ResolvedOverlay[]): Ma
     defs.select(`#${id}`).remove()
     const pattern = defs.append('pattern')
       .attr('id', id)
+      .attr('data-overlay-key', overlay.key)
       .attr('patternUnits', 'userSpaceOnUse')
       .attr('width', STRIPE_SIZE)
       .attr('height', STRIPE_SIZE)
@@ -331,28 +332,11 @@ export interface OverlayLegendPlacement {
 
 const KEY_SWATCH_SIZE = 12
 const KEY_LINE_HEIGHT = 3
-let keyPatternCount = 0
 
-function keyStripePattern(svg: SVGSVGElement, overlay: ResolvedOverlay): string {
-  keyPatternCount += 1
-  const id = `bc-overlay-key-stripes-${keyPatternCount}`
-  const existing = d3.select(svg).select<SVGDefsElement>('defs')
-  const defs = existing.empty() ? d3.select(svg).append<SVGDefsElement>('defs') : existing
-  const pattern = defs.append('pattern')
-    .attr('id', id)
-    .attr('class', 'bc-overlay-key-pattern')
-    .attr('patternUnits', 'userSpaceOnUse')
-    .attr('width', STRIPE_SIZE)
-    .attr('height', STRIPE_SIZE)
-    .attr('patternTransform', 'rotate(45)')
-  pattern.append('line')
-    .attr('x1', 0)
-    .attr('y1', 0)
-    .attr('x2', 0)
-    .attr('y2', STRIPE_SIZE)
-    .attr('stroke', overlay.color)
-    .attr('stroke-width', 2)
-  return id
+function sharedStripePatternId(svg: SVGSVGElement | null, overlay: ResolvedOverlay): string | undefined {
+  const patterns = Array.from(svg?.querySelectorAll('defs pattern[data-overlay-key]') ?? [])
+  const match = patterns.find(pattern => pattern.getAttribute('data-overlay-key') === overlay.key)
+  return match?.id
 }
 
 function styleKeySwatch(swatch: SVGRectElement, overlay: ResolvedOverlay): void {
@@ -365,9 +349,8 @@ function styleKeySwatch(swatch: SVGRectElement, overlay: ResolvedOverlay): void 
       .attr('fill-opacity', overlay.opacity)
     return
   }
-  const svg = swatch.ownerSVGElement
-  const usesPattern = overlay.pattern === 'stripes' && svg
-  const fill = usesPattern ? `url(#${keyStripePattern(svg, overlay)})` : overlay.color
+  const patternId = overlay.pattern === 'stripes' ? sharedStripePatternId(swatch.ownerSVGElement, overlay) : undefined
+  const fill = patternId ? `url(#${patternId})` : overlay.color
   selection
     .attr('fill', fill)
     .attr('fill-opacity', overlay.opacity)

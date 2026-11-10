@@ -1751,6 +1751,18 @@ describe('bar-vertical', () => {
         expect(swatch.getAttribute('height')).toBe('3')
       })
 
+      it('shares one stripes pattern between the marks and the key across re-renders', () => {
+        const striped = [{ columns: ['Min', 'Max'], title: '95% CI', pattern: 'stripes' }]
+        render(container, overlayData, { overlays: striped })
+        render(container, overlayData, { overlays: striped })
+        const patterns = container.querySelectorAll('defs pattern')
+        const swatch = container.querySelector('.bc-legend-item rect')!
+        const mark = container.querySelector('rect.bc-overlay-range')!
+        expect(patterns).toHaveLength(1)
+        expect(swatch.getAttribute('fill')).toBe(`url(#${patterns[0].id})`)
+        expect(mark.getAttribute('fill')).toBe(swatch.getAttribute('fill'))
+      })
+
       it('draws no key when there are no overlays', () => {
         render(container, overlayData)
         expect(container.querySelector('.bc-legend')).toBeNull()
