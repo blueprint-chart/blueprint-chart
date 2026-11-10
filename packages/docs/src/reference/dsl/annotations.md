@@ -1,6 +1,6 @@
 # DSL — Color directives & annotations
 
-Two families of named blocks that target specific data values to draw the eye: **color directives** (`colorize`, `highlight`, `area-fill`) recolor or emphasize parts of the chart, and **annotations** (`annotation`, `range`, `note`) attach text and shapes to data points, ranges, or absolute positions. Both share the same "named block with a body" shape, and `highlight` is the verb scenes use to switch emphasis — see [Scenes & transforms](/reference/dsl/scenes-and-transforms).
+Two families of named blocks that target specific data values to draw the eye: **color directives** (`colorize`, `highlight`, `area-fill`, `overlay`) recolor, emphasize or layer reference marks on parts of the chart, and **annotations** (`annotation`, `range`, `note`) attach text and shapes to data points, ranges, or absolute positions. Both share the same "named block with a body" shape, and `highlight` is the verb scenes use to switch emphasis — see [Scenes & transforms](/reference/dsl/scenes-and-transforms).
 
 ## Color directives
 
@@ -9,6 +9,7 @@ Two families of named blocks that target specific data values to draw the eye: *
 | `colorize "<target>" { … }` | Apply a color rule to a target (axis label, value label, etc.). |
 | `highlight "<target>" { … }` or `highlight "<target>"` | Emphasize a data point or series. The short form has no body. |
 | `area-fill "<from>" "<to>" { … }` | Fill the area between two series with a color (line / area charts). |
+| `overlay "<col>" { … }` or `overlay "<from>" "<to>" { … }` | Draw a value mark or a range band on each bar (bar-vertical / bar-horizontal). |
 
 ### `colorize`
 
@@ -76,6 +77,39 @@ area-fill "Lower bound" "Upper bound" {
 
 ::: tip
 No bundled sample currently uses `area-fill`. The grammar is documented and parser-tested; the example above is illustrative.
+:::
+
+### `overlay`
+
+```bpc
+overlay "Low (90% CI)" "High (90% CI)" {
+  title = "90% confidence interval"
+  pattern = stripes
+  color = "#64748b"
+}
+
+overlay "2021 to 2022" {
+  title = "Change, 2021 to 2022"
+  color = "#e15759"
+}
+```
+
+Overlays sit on each bar of `bar-vertical` and `bar-horizontal` charts. They read their values from extra columns of the `data` block, and the first column that no overlay claims stays the bar.
+
+The number of columns sets the type: one column draws a value mark (a line across the bar), two columns draw a range band between the two values, whichever is lower or higher.
+
+| Key | Applies to | Meaning |
+| --- | --- | --- |
+| `title` | both | Name shown in the key and the tooltip. Defaults to the column name (`<from> to <to>` for a range). |
+| `color` | both | Any CSS color. Defaults to the text color. |
+| `opacity` | both | Percentage from 0 to 100. Defaults to `100` for a value and `30` for a range. |
+| `pattern` | range only | `solid` (default) or `stripes`. |
+| `hidden` | both | Keeps the overlay in the DSL but does not draw it. |
+
+Problems such as an unknown column, a non-numeric cell, three or more columns, `pattern` on a value overlay, no column left for the bars, or a chart type other than the two bar types are reported as warnings with an `overlay-` code.
+
+::: info From `packages/lib/src/samples/household-income-change.bpc`
+The bars are the 2022 to 2023 change in real median household income. A striped range overlay shows the 90% confidence interval (estimate plus or minus the margin of error) and a value overlay marks the previous year's change.
 :::
 
 ## Annotations

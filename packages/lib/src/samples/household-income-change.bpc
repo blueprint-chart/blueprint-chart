@@ -1,0 +1,27 @@
+chart bar-vertical {
+  title = "Real income gains in 2023 were statistically clear only for White households"
+  description = "Change in real median household income by race and Hispanic origin of householder, percent"
+  source = "U.S. Census Bureau, Income in the United States: 2023 (P60-282), Table A-1. Prior year: Income in the United States: 2022 (P60-279), Table A-1"
+  sourceUrl = "https://www2.census.gov/library/publications/2024/demo/p60-282.pdf"
+  note = "Striped band is the 90% confidence interval (estimate plus or minus margin of error). Line is the 2021 to 2022 change."
+
+  overlay "Low (90% CI)" "High (90% CI)" {
+    title = "90% confidence interval"
+    pattern = stripes
+    color = "#64748b"
+  }
+
+  overlay "2021 to 2022" {
+    title = "Change, 2021 to 2022"
+    color = "#e15759"
+  }
+
+  data {
+    series = "Change, 2022 to 2023","Low (90% CI)","High (90% CI)","2021 to 2022"
+    "White" = 5.4,3.8,7.0,-3.5
+    "White, not Hispanic" = 5.7,4.07,7.33,-3.6
+    "Black" = 2.8,-0.85,6.45,1.5
+    "Asian" = -0.2,-4.89,4.49,-0.6
+    "Hispanic (any race)" = 0.4,-2.37,3.17,0.5
+  }
+}

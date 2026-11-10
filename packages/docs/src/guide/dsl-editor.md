@@ -75,7 +75,7 @@ The CodeMirror 6 stack pulls in `@codemirror/view`, `@codemirror/state`, `@codem
 - `bpcHighlighter` — a `syntaxHighlighting` extension pre-wired to the class-based highlighter.
 - `highlightDsl(code)` — one-shot server-style highlight, used by read-only previews; returns HTML.
 
-The Lezer parser tags DSL keywords (`chart`, `data`, `colorize`, `highlight`, `area-fill`, `annotation`, `range`, `note`, `series`, `scene`, `transform`) and lexical tokens (`Identifier`, `String`, `Number`, `Percentage`, `Equals`, `LineComment`, braces). Each tag maps to a token class in `packages/editor/src/dsl-lang/highlight.scss`, with separate light- and dark-mode rules driven by the `--bc-syn-*` CSS custom properties.
+The Lezer parser tags DSL keywords (`chart`, `data`, `colorize`, `highlight`, `area-fill`, `overlay`, `annotation`, `range`, `note`, `series`, `scene`, `transform`) and lexical tokens (`Identifier`, `String`, `Number`, `Percentage`, `Equals`, `LineComment`, braces). Each tag maps to a token class in `packages/editor/src/dsl-lang/highlight.scss`, with separate light- and dark-mode rules driven by the `--bc-syn-*` CSS custom properties.
 
 ## Two-way sync between DSL and panels
 

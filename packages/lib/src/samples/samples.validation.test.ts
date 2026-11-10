@@ -28,6 +28,16 @@ describe('sample .bpc files', () => {
     expect(bpcFiles.length).toBeGreaterThan(0)
   })
 
+  it('includes household-income-change with no overlay issues', () => {
+    const file = 'household-income-change.bpc'
+    expect(bpcFiles).toContain(file)
+    const content = readFileSync(join(SAMPLES_DIR, file), 'utf-8')
+    const result = validateChart(parse(content))
+    const overlayWarnings = result.warnings.filter(i => i.code.startsWith('overlay-'))
+    expect(overlayWarnings).toEqual([])
+    expect(result.errors).toEqual([])
+  })
+
   for (const file of bpcFiles) {
     describe(file, () => {
       const content = readFileSync(join(SAMPLES_DIR, file), 'utf-8')

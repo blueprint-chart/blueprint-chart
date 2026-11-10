@@ -103,6 +103,12 @@ Every property `bar-horizontal` accepts, beside the [frame and layout keys](/ref
 
 <!-- options:end -->
 
+## Overlays
+
+Overlays add reference marks on each bar: a value mark (one extra column) or a range band (two extra columns), such as a confidence interval or last year's value. Overlay columns are not bars, so they never add bars or change the category count. With `waterfall`, each overlay is drawn relative to the running total at the start of its step, so the marks follow the floating bars. By default (`directLabelling = auto`) overlays are labelled directly on the first bar; set `directLabelling = ""` to show a key instead.
+
+See [`overlay`](/reference/dsl/annotations#overlay) for the keys and an example.
+
 ## Common pitfalls
 
 - Forgetting to sort — an unranked horizontal bar chart loses most of its power

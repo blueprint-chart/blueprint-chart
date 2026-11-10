@@ -57,7 +57,7 @@ chart <chartType> {
   <properties>
   <data block>
   <series>
-  <colorize / highlight / area-fill / annotation / range / note>
+  <colorize / highlight / area-fill / overlay / annotation / range / note>
   <scenes>
   <transforms>
 }
@@ -134,5 +134,5 @@ Every snippet across these DSL pages is taken verbatim from a runnable sample in
 The rest of the DSL specification is split across three chapter pages:
 
 - [Properties & data](/reference/dsl/properties) — value-bearing constructs.
-- [Color directives & annotations](/reference/dsl/annotations) — `colorize`, `highlight`, `area-fill`, and the three annotation kinds.
+- [Color directives & annotations](/reference/dsl/annotations) — `colorize`, `highlight`, `area-fill`, `overlay`, and the three annotation kinds.
 - [Scenes & transforms](/reference/dsl/scenes-and-transforms) — story-level constructs and data-pipeline operations.

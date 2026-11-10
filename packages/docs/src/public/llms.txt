@@ -12,7 +12,7 @@ Blueprint Chart is built for AI coding agents and developers. An agent writes a 
 ## DSL reference
 - [DSL reference](https://docs.blueprintchart.com/reference/dsl/): the complete `.bpc` grammar
 - [Properties](https://docs.blueprintchart.com/reference/dsl/properties): every chart property and its meaning
-- [Annotations](https://docs.blueprintchart.com/reference/dsl/annotations): callouts, highlights, direct labels
+- [Annotations](https://docs.blueprintchart.com/reference/dsl/annotations): callouts, highlights, direct labels, overlays
 - [Scenes & transforms](https://docs.blueprintchart.com/reference/dsl/scenes-and-transforms): multi-state narrative charts and data transforms
 - [API reference](https://docs.blueprintchart.com/reference/api/): the rendering library API
 

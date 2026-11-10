@@ -22,6 +22,7 @@ import electionPollsBpc from './samples/election-polls.bpc?raw'
 import renewableCapacityBpc from './samples/renewable-capacity.bpc?raw'
 import lifeExpectancyWealthBpc from './samples/life-expectancy-wealth.bpc?raw'
 import lifeExpectancyGainsBpc from './samples/life-expectancy-gains.bpc?raw'
+import householdIncomeChangeBpc from './samples/household-income-change.bpc?raw'
 
 export interface ChartSample {
   id: string
@@ -100,6 +101,7 @@ export const samples: ChartSample[] = [
   buildSample('letter-frequency', letterFrequencyBpc),
   buildSample('co2-emissions', co2EmissionsBpc),
   buildSample('coffee-production', coffeeProductionBpc),
+  buildSample('household-income-change', householdIncomeChangeBpc),
   // Bar Horizontal
   buildSample('spoken-languages', spokenLanguagesBpc),
   // Bar Multi
