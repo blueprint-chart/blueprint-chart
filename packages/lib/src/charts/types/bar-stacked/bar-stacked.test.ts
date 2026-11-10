@@ -651,6 +651,13 @@ describe('bar-stacked', () => {
       expect(legendTexts()).toEqual(['A', 'B'])
     })
 
+    it('puts the direct label on the first displayed row', () => {
+      render(container, keyData, { overlays: keyTarget, directLabelling: true, sortReverse: true })
+      const label = container.querySelector('.bc-overlay-label')!
+      const xs = Array.from(container.querySelectorAll('line.bc-overlay-value')).map(line => Number(line.getAttribute('x1')))
+      expect(Number(label.getAttribute('x'))).toBeCloseTo(Math.min(...xs) + 6, 3)
+    })
+
     it('lists the target in the key when direct labelling is off', () => {
       render(container, keyData, { overlays: keyTarget, directLabelling: false })
       expect(legendTexts()).toEqual(['A', 'B', 'Target'])

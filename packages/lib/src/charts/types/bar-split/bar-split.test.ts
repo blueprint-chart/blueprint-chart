@@ -419,13 +419,20 @@ describe('bar-split', () => {
     }
     const keyRange = [{ columns: ['Gold low', 'Gold high'], bar: 'Gold' }]
 
-    it('places the direct label beyond the range in its panel', () => {
-      render(container, keyData, { overlays: keyRange })
+    it('direct-labels a range in the last panel beyond its far end', () => {
+      const lastPanel = [{ columns: ['Gold low', 'Gold high'], bar: 'Silver' }]
+      render(container, keyData, { overlays: lastPanel })
       const label = container.querySelector('.bc-overlay-label')!
       const rect = container.querySelector('rect.bc-overlay-range')!
       const farEnd = Number(rect.getAttribute('x')) + Number(rect.getAttribute('width'))
       expect(Number(label.getAttribute('x'))).toBeGreaterThan(farEnd)
       expect(legendTexts()).toEqual(['Gold', 'Silver'])
+    })
+
+    it('lists a range in the key when its panel is not the last', () => {
+      render(container, keyData, { overlays: keyRange })
+      expect(container.querySelector('.bc-overlay-label')).toBeNull()
+      expect(legendTexts()).toEqual(['Gold', 'Silver', 'Gold low to Gold high'])
     })
 
     it('lists the range in the key when direct labelling is off', () => {

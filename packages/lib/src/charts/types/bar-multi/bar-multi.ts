@@ -100,7 +100,12 @@ export function render(
   // Compute margin adjustments for legend
   const keyEntries = overlayKeyEntries(resolved.overlays)
   const showLegend = options.legend !== false && (!wantsDirect || keyEntries.length > 0)
-  const estimateNames = wantsDirect ? [] : seriesNames
+  const legendSeriesNames = seriesNames.filter((name) => {
+    return resolveSeriesLabelMode(name, globalLabelMode, overrides) === 'legend'
+  })
+  const estimateNames = wantsDirect ? legendSeriesNames : seriesNames
+  const keyTitles = keyEntries.map(entry => entry.title)
+  const estimateTitles = [...estimateNames, ...keyTitles]
   const containerWidth = contentSize(body).width
   const NARROW_THRESHOLD = 350
   const requestedLegendPos = options.legendPosition ?? 'top'
@@ -114,7 +119,7 @@ export function render(
 
   const vLabelsInside = lpMargins.top != null
   const legendAvailableWidth = Math.max(0, containerWidth - (lpMargins.left ?? 50) - (lpMargins.right ?? 20))
-  const legendSize = showLegend ? estimateLegendSize([...estimateNames, ...keyEntries.map(entry => entry.title)], legendPos, legendAvailableWidth) : { width: 0, height: 0 }
+  const legendSize = showLegend ? estimateLegendSize(estimateTitles, legendPos, legendAvailableWidth) : { width: 0, height: 0 }
   const legendH = showLegend ? legendSize.height + 15 : 0
   const marginOverrides: Record<string, number> = { ...lpMargins }
   if (showLegend && legendPos === 'top') {
@@ -463,11 +468,6 @@ export function render(
         .attr('y', barTop - LABEL_GAP_PX)
         .attr('fill', readableColor(barColor, bgColor))
     }
-  })
-
-  // Legend: filter to series whose label mode resolves to 'legend'
-  const legendSeriesNames = seriesNames.filter((name) => {
-    return resolveSeriesLabelMode(name, globalLabelMode, overrides) === 'legend'
   })
 
   if (showLegend && (legendSeriesNames.length > 0 || keyEntries.length > 0)) {

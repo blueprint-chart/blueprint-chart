@@ -20,13 +20,13 @@ import { computeLinearDomain, resolveBarGapPadding } from '../../scale-helpers'
 import { ensureClipPath } from '../../clip-path-helper'
 import { featureJoin, getSceneTransition, tweenPlotFrame, type PlotRect } from '../../../transitions'
 import { createPluginHost } from '../../plugins/plugin-host'
-import { StackMode, Orientation, ValueLabelPosition, LabelPosition, ScaleType, SortMode, DirectLabelMode } from '../../../enums'
+import { StackMode, Orientation, ValueLabelPosition, LabelPosition, ScaleType, SortMode } from '../../../enums'
 import { highlightTargetSet, highlightOpacity } from '../../plugins/highlight'
 import { buildColorOverrides } from '../../plugins/colorize'
 import { shouldRenderValueLabel } from '../../value-label-fit'
 import { CATEGORY_LABEL_HEIGHT, categoryLabelLineHeight, categoryLabelsNeedTheirOwnLine } from '../../category-label-line'
 import { DEFAULT_COLORS } from '../../palettes'
-import { resolveOverlays, overlayDomainValues, overlayTooltipFormat, mountOverlayLayer, drawOverlayLegend, overlayKeyEntries, drawOverlayDirectLabels, directLabelWidth, type OverlayGeometry } from '../../overlays/overlays'
+import { resolveOverlays, overlayDomainValues, overlayTooltipFormat, mountOverlayLayer, drawOverlayLegend, planOverlayLabels, drawOverlayDirectLabelGroup, type OverlayGeometry } from '../../overlays/overlays'
 
 interface StackedBarDatum {
   label: string
@@ -143,12 +143,10 @@ export function render(
   const lpMargins = labelPositionMargins(containerWidth, effectiveVLabelPosition, options.horizontalAxis?.labelPosition, options.verticalAxis?.direction, vLabelW, options.horizontalAxis?.showAxis)
 
   const vLabelsInside = lpMargins.top != null
-  const wantsDirectLabels = Boolean(options.directLabelling ?? DirectLabelMode.Auto) && resolved.overlays.length > 0
-  if (wantsDirectLabels) {
-    lpMargins.right = Math.max(lpMargins.right ?? 15, directLabelWidth(resolved.overlays))
-  }
-  const keyEntries = overlayKeyEntries(resolved.overlays, !wantsDirectLabels)
-  const legendTitles = [...legendNames, ...keyEntries.map(entry => entry.title)]
+  const labelPlan = planOverlayLabels(resolved.overlays, options.directLabelling, lpMargins)
+  const keyEntries = labelPlan.keyEntries
+  const keyTitles = keyEntries.map(entry => entry.title)
+  const legendTitles = [...legendNames, ...keyTitles]
   const legendAvailableWidth = Math.max(0, containerWidth - (lpMargins.left ?? 50) - (lpMargins.right ?? 20))
   const legendSize = showLegend ? estimateLegendSize(legendTitles, legendPos, legendAvailableWidth) : { width: 0, height: 0 }
   const legendH = showLegend ? legendSize.height + 15 : 0
@@ -461,11 +459,8 @@ export function render(
     }
   })
 
-  // Legend
-  if (wantsDirectLabels) {
-    const labelGroup = d3.select(chartArea).append('g').attr('class', 'bc-overlay-labels').node()!
-    drawOverlayDirectLabels(labelGroup, resolved.overlays, data.labels, overlayRows, () => geometry)
-  }
+  const directRows = sortedLabels.map(label => data.labels.indexOf(label))
+  drawOverlayDirectLabelGroup(chartArea, labelPlan.direct, sortedLabels, directRows, () => geometry)
 
   if (showLegend && legendTitles.length > 0) {
     const legendColors = legendNames.map((name) => {

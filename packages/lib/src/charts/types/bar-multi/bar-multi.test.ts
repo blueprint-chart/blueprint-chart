@@ -755,6 +755,17 @@ describe('bar-multi', () => {
       expect(swatch.getAttribute('fill-opacity')).toBe('0.3')
     })
 
+    it('shows only the range in the key when series are direct-labelled', () => {
+      render(container, keyData, { overlays: keyRange, directLabelling: true })
+      expect(legendTexts()).toEqual(['Gold low to Gold high'])
+    })
+
+    it('keeps legend-mode series in the key next to the range', () => {
+      const overrides = [{ name: 'Silver', labelMode: 'legend' }]
+      render(container, keyData, { overlays: keyRange, directLabelling: true, seriesOverrides: overrides })
+      expect(legendTexts()).toEqual(['Silver', 'Gold low to Gold high'])
+    })
+
     it('hides the key with legend false', () => {
       render(container, keyData, { overlays: keyRange, legend: false })
       expect(container.querySelectorAll('.bc-legend-item')).toHaveLength(0)

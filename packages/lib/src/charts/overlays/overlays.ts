@@ -9,6 +9,7 @@ import { renderLegend } from '../legend/legend'
 import { makeDefaultFormat } from '../plugins/tooltip'
 import { formatValueLabel } from '../format-helpers'
 import { estimateTextInk } from '../value-label-fit'
+import { DirectLabelMode } from '../../enums'
 
 export const OVERLAY_CHART_TYPES: ReadonlySet<string> = new Set(['bar-vertical', 'bar-horizontal', 'bar-multi', 'bar-grouped', 'bar-split', 'bar-stacked', 'column-stacked'])
 export const OVERLAY_SERIES_CHART_TYPES: ReadonlySet<string> = new Set(['bar-multi', 'bar-grouped', 'bar-split'])
@@ -461,7 +462,7 @@ export function directLabelWidth(overlays: ResolvedOverlay[]): number {
   return Math.max(...widths) + DIRECT_LABEL_PADDING
 }
 
-export function drawOverlayDirectLabels(group: SVGGElement, overlays: ResolvedOverlay[], labels: string[], rows: number[], geometryFor: OverlayGeometryFor): void {
+export function drawOverlayDirectLabels(group: SVGGElement, overlays: ResolvedOverlay[], labels: readonly string[], rows: number[], geometryFor: OverlayGeometryFor): void {
   const label = labels[0]
   const row = rows[0]
   if (label === undefined) {
@@ -688,13 +689,40 @@ function cueKeyEntries(overlay: ResolvedOverlay): OverlayKeyEntry[] {
   return entries
 }
 
-export function overlayKeyEntries(overlays: ResolvedOverlay[], withOverlayTitles = true): OverlayKeyEntry[] {
+export function overlayKeyEntries(overlays: ResolvedOverlay[], withOverlayTitles = true, directLabelled: ResolvedOverlay[] = []): OverlayKeyEntry[] {
   const ordered = [...overlays].sort((a, b) => a.order - b.order)
   return ordered.flatMap((overlay) => {
-    const own = withOverlayTitles ? [{ title: overlay.title, color: overlay.color, overlay }] : []
+    const titled = withOverlayTitles && !directLabelled.includes(overlay)
+    const own = titled ? [{ title: overlay.title, color: overlay.color, overlay }] : []
     const cues = overlay.kind === 'value' ? cueKeyEntries(overlay) : []
     return [...own, ...cues]
   })
+}
+
+export interface OverlayLabelPlan {
+  direct: ResolvedOverlay[]
+  keyEntries: OverlayKeyEntry[]
+}
+
+export function planOverlayLabels(overlays: ResolvedOverlay[], directLabelling: string | boolean | undefined, lpMargins: { right?: number }, eligible: ResolvedOverlay[] = overlays): OverlayLabelPlan {
+  const mode = directLabelling ?? DirectLabelMode.Auto
+  const wantsDirect = Boolean(mode)
+  const direct = wantsDirect ? eligible : []
+  if (direct.length > 0) {
+    const reservedRight = lpMargins.right ?? 15
+    const labelWidth = directLabelWidth(direct)
+    lpMargins.right = Math.max(reservedRight, labelWidth)
+  }
+  const keyEntries = overlayKeyEntries(overlays, true, direct)
+  return { direct, keyEntries }
+}
+
+export function drawOverlayDirectLabelGroup(chartArea: SVGGElement, direct: ResolvedOverlay[], labels: readonly string[], rows: number[], geometryFor: OverlayGeometryFor): void {
+  if (direct.length === 0) {
+    return
+  }
+  const group = d3.select(chartArea).append('g').attr('class', 'bc-overlay-labels').node()!
+  drawOverlayDirectLabels(group, direct, labels, rows, geometryFor)
 }
 
 const NO_SERIES = { names: [], colors: [] }
