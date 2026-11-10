@@ -16,7 +16,7 @@ import { setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut } from '
 import { setCachedChart, getCachedChart } from '../../transition-cache'
 import { computeStack, computeStack100, restackWithinGroups } from '../../stack-helpers'
 import { computeLinearDomain, resolveBarGapPadding } from '../../scale-helpers'
-import { highlightTargetSet, highlightOpacity } from '../../plugins/highlight'
+import { highlightTargetSet, highlightOpacity, CUE_FADE_OPACITY } from '../../plugins/highlight'
 import { buildColorOverrides } from '../../plugins/colorize'
 import { ensureClipPath } from '../../clip-path-helper'
 import { featureJoin, getSceneTransition, tweenPlotFrame, type PlotRect } from '../../../transitions'
@@ -25,7 +25,7 @@ import { StackMode, ScaleType, SortMode, ValueLabelPosition } from '../../../enu
 import { formatValueLabel, percentValueLabel } from '../../format-helpers'
 import { shouldRenderValueLabel } from '../../value-label-fit'
 import { DEFAULT_COLORS } from '../../palettes'
-import { resolveOverlays, overlayDomainValues, overlayTooltipFormat, mountOverlayLayer, drawOverlayLegend, overlayKeyEntries, type OverlayGeometry } from '../../overlays/overlays'
+import { resolveOverlays, barCue, overlayDomainValues, overlayTooltipFormat, mountOverlayLayer, drawOverlayLegend, overlayKeyEntries, type OverlayGeometry } from '../../overlays/overlays'
 
 const LABEL_HEIGHT = 11
 const OUTSIDE_LABEL_GAP = 4
@@ -200,6 +200,21 @@ export function render(
     : sortedLabels.flatMap(label => flatData.filter(d => d.label === label))
 
   const colorOverrides = buildColorOverrides(options.colorizes)
+  const rowTotals = data.labels.map((_, row) => d3.sum(series, s => s.values[row]))
+  const cueFor = (d: { label: string, seriesName: string }) => {
+    const row = data.labels.indexOf(d.label)
+    return barCue(resolved.overlays, row, rowTotals[row])
+  }
+  const insideLabelFill = (d: { label: string, seriesName: string }, seriesColor: string) => {
+    const cue = cueFor(d)
+    if (cue.faded) {
+      return 'currentColor'
+    }
+    if (colorOverrides.has(d.seriesName)) {
+      return contrastTextColor(seriesColor)
+    }
+    return contrastTextColor(cue.color ?? seriesColor)
+  }
   const highlightTargets = highlightTargetSet(options.highlights, flatData.map(d => d.seriesName))
   const orch = getSceneTransition(container)
 
@@ -227,7 +242,8 @@ export function render(
     key: d => d.label + '\0' + d.seriesName,
     insert: sel => sel.append('rect').attr('class', 'bc-bar bc-bar-stacked'),
     attrs: (d) => {
-      const seriesColor = colorOverrides.get(d.seriesName) ?? resolveSeriesColor(d.seriesName, d.seriesIndex, colors, overrides)
+      const cue = cueFor(d)
+      const seriesColor = colorOverrides.get(d.seriesName) ?? cue.color ?? resolveSeriesColor(d.seriesName, d.seriesIndex, colors, overrides)
       const seriesOpacity = resolveSeriesOpacity(d.seriesName, overrides)
       const base: Record<string, string | number> = {
         'data-series': d.seriesName,
@@ -240,7 +256,10 @@ export function render(
       if (seriesOpacity < 1) {
         base['fill-opacity'] = seriesOpacity
       }
-      if (highlightTargets.size > 0) {
+      if (cue.faded) {
+        base.opacity = CUE_FADE_OPACITY * highlightOpacity(highlightTargets, d.seriesName)
+      }
+      else if (highlightTargets.size > 0) {
         base.opacity = highlightOpacity(highlightTargets, d.seriesName)
       }
       return base
@@ -380,7 +399,7 @@ export function render(
       .attr('text-anchor', 'middle')
       .attr('dominant-baseline', 'central')
       .attr('font-size', '11px')
-      .attr('fill', contrastTextColor(segmentColor))
+      .attr('fill', insideLabelFill(datum, segmentColor))
       .text(labelText)
   })
 

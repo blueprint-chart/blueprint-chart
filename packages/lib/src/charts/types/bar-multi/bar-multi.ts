@@ -20,11 +20,11 @@ import { ValueLabelPosition, DirectLabelMode, SortMode } from '../../../enums'
 import { shouldRenderValueLabel } from '../../value-label-fit'
 import { featureJoin, getSceneTransition, tweenPlotFrame, type PlotRect } from '../../../transitions'
 import { createPluginHost } from '../../plugins/plugin-host'
-import { highlightTargetSet, highlightOpacity } from '../../plugins/highlight'
+import { highlightTargetSet, highlightOpacity, CUE_FADE_OPACITY } from '../../plugins/highlight'
 import { buildColorOverrides } from '../../plugins/colorize'
 import { DEFAULT_COLORS } from '../../palettes'
 import { formatValueLabel } from '../../format-helpers'
-import { resolveOverlays, overlayDomainValues, overlayTooltipFormat, mountOverlayLayer, drawOverlayLegend, overlayKeyEntries, type OverlayGeometry, type ResolvedOverlay } from '../../overlays/overlays'
+import { resolveOverlays, barCue, overlayDomainValues, overlayTooltipFormat, mountOverlayLayer, drawOverlayLegend, overlayKeyEntries, type OverlayGeometry, type ResolvedOverlay } from '../../overlays/overlays'
 
 /** Gap between a bar's end and the label just outside it. */
 const LABEL_GAP_PX = 4
@@ -215,6 +215,17 @@ export function render(
   const orch = getSceneTransition(container)
   const highlightTargets = highlightTargetSet(options.highlights, flatData.map(d => d.seriesName))
   const colorOverrides = buildColorOverrides(options.colorizes)
+  const cueFor = (d: { label: string, value: number, seriesName: string }) => barCue(resolved.overlays, data.labels.indexOf(d.label), d.value, d.seriesName)
+  const insideLabelFill = (d: { label: string, value: number, seriesName: string }, seriesColor: string) => {
+    const cue = cueFor(d)
+    if (cue.faded) {
+      return 'currentColor'
+    }
+    if (colorOverrides.has(d.seriesName)) {
+      return contrastTextColor(seriesColor)
+    }
+    return contrastTextColor(cue.color ?? seriesColor)
+  }
 
   // Bars — one feature per (category, series) cell, keyed by label + seriesName.
   const barLayer = clippedGroup.append('g').node()!
@@ -238,6 +249,7 @@ export function render(
     key: d => `${d.label}\0${d.seriesName}`,
     insert: sel => sel.append('rect').attr('class', 'bc-bar bc-bar-multi'),
     attrs: (d) => {
+      const cue = cueFor(d)
       const seriesColor = resolveSeriesColor(d.seriesName, d.seriesIndex, colors, overrides)
       const seriesOpacity = resolveSeriesOpacity(d.seriesName, overrides)
       const base: Record<string, string | number> = {
@@ -246,14 +258,18 @@ export function render(
         'y': Math.min(y(0), y(d.value)),
         'width': x1.bandwidth(),
         'height': Math.abs(y(d.value) - y(0)),
-        'fill': colorOverrides.get(d.seriesName) ?? seriesColor,
+        'fill': colorOverrides.get(d.seriesName) ?? cue.color ?? seriesColor,
       }
       if (seriesOpacity < 1) {
         base['fill-opacity'] = seriesOpacity
       }
-      return highlightTargets.size > 0
-        ? { ...base, opacity: highlightOpacity(highlightTargets, d.seriesName) }
-        : base
+      if (cue.faded) {
+        base.opacity = CUE_FADE_OPACITY * highlightOpacity(highlightTargets, d.seriesName)
+      }
+      else if (highlightTargets.size > 0) {
+        base.opacity = highlightOpacity(highlightTargets, d.seriesName)
+      }
+      return base
     },
   })
 
@@ -382,7 +398,7 @@ export function render(
     let baseline: string
     if (vlMode === ValueLabelPosition.Inside) {
       const barColor = resolveSeriesColor(datum.seriesName, datum.seriesIndex, colors, overrides)
-      fill = contrastTextColor(barColor)
+      fill = insideLabelFill(datum, barColor)
       baseline = 'central'
       // When direct labels are also inside, offset below the direct label
       const dlIsInside = hasDl && resolveBarDlMode(barHeight) === ValueLabelPosition.Inside

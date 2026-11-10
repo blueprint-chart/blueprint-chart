@@ -668,4 +668,60 @@ describe('bar-stacked', () => {
       expect(container.querySelectorAll('.bc-legend-item')).toHaveLength(0)
     })
   })
+
+  describe('overlay cues', () => {
+    const cueData = {
+      labels: ['A', 'B'],
+      values: [],
+      series: [
+        { name: 'X', values: [5, 4] },
+        { name: 'Y', values: [-2, 4] },
+        { name: 'T', values: [3, 9] },
+      ],
+    }
+    const colors = [{ columns: ['T'], aboveColor: '#00ff00', belowColor: '#ff0000' }]
+    const mute = [{ columns: ['Lo', 'Hi'], muteIfCrosses: 7 }]
+    const muteData = {
+      ...cueData,
+      series: [...cueData.series, { name: 'Lo', values: [2, 6] }, { name: 'Hi', values: [4, 8] }],
+    }
+
+    function rowBars(row: number): Element[] {
+      const bars = Array.from(container.querySelectorAll('.bc-bar'))
+      return bars.filter((_, i) => i % 2 === row)
+    }
+
+    function rowFills(row: number): (string | null)[] {
+      return rowBars(row).map(bar => bar.getAttribute('fill'))
+    }
+
+    it('colors every segment of a row by the net total', () => {
+      render(container, cueData, { overlays: colors })
+      expect(rowFills(0)).toEqual(['#00ff00', '#00ff00'])
+      expect(rowFills(1)).toEqual(['#ff0000', '#ff0000'])
+    })
+
+    it('fades every segment of the crossing row', () => {
+      render(container, muteData, { overlays: mute })
+      rowBars(1).forEach(bar => expect(bar.getAttribute('opacity')).toBe('0.45'))
+      rowBars(0).forEach(bar => expect(bar.getAttribute('opacity')).toBeNull())
+    })
+
+    it('brings the row back to full opacity when a scene drops the cue', () => {
+      render(container, muteData, { overlays: mute })
+      render(container, muteData, { overlays: [{ columns: ['Lo', 'Hi'] }] }, true)
+      rowBars(1).forEach(bar => expect(bar.getAttribute('opacity')).toBeNull())
+    })
+
+    it('applies no cue on a percent stack', () => {
+      render(container, cueData, { overlays: colors, stackMode: StackMode.Percent })
+      rowBars(0).forEach(bar => expect(bar.getAttribute('fill')).not.toBe('#00ff00'))
+      rowBars(1).forEach(bar => expect(bar.getAttribute('fill')).not.toBe('#ff0000'))
+    })
+
+    it('lets colorize win over the target color', () => {
+      render(container, cueData, { overlays: colors, colorizes: [{ target: 'X', color: '#0000ff' }] })
+      expect(rowFills(0)).toEqual(['#0000ff', '#00ff00'])
+    })
+  })
 })

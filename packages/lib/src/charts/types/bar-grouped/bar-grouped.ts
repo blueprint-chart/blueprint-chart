@@ -13,7 +13,7 @@ import { setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut } from '
 import { setCachedChart, getCachedChart } from '../../transition-cache'
 import { createTooltipPlugin } from '../../plugins/tooltip'
 import { createCrosshairPlugin } from '../../plugins/crosshair'
-import { highlightTargetSet, highlightOpacity } from '../../plugins/highlight'
+import { highlightTargetSet, highlightOpacity, CUE_FADE_OPACITY } from '../../plugins/highlight'
 import { buildColorOverrides } from '../../plugins/colorize'
 import { computeLinearDomain, resolveBarGapPadding } from '../../scale-helpers'
 import { ensureClipPath } from '../../clip-path-helper'
@@ -23,7 +23,7 @@ import { Orientation, ValueLabelPosition, LabelPosition, ScaleType, SortMode } f
 import { shouldRenderValueLabel } from '../../value-label-fit'
 import { CATEGORY_LABEL_HEIGHT, categoryLabelLineHeight, categoryLabelsNeedTheirOwnLine } from '../../category-label-line'
 import { DEFAULT_COLORS } from '../../palettes'
-import { resolveOverlays, overlayDomainValues, overlayTooltipFormat, mountOverlayLayer, drawOverlayLegend, planOverlayLabels, drawOverlayDirectLabelGroup, type OverlayGeometry, type ResolvedOverlay } from '../../overlays/overlays'
+import { resolveOverlays, barCue, overlayDomainValues, overlayTooltipFormat, mountOverlayLayer, drawOverlayLegend, planOverlayLabels, drawOverlayDirectLabelGroup, type OverlayGeometry, type ResolvedOverlay } from '../../overlays/overlays'
 
 interface GroupedBarDatum {
   label: string
@@ -228,6 +228,17 @@ export function render(
 
   const highlightTargets = highlightTargetSet(options.highlights, flatData.map(d => d.seriesName))
   const colorOverrides = buildColorOverrides(options.colorizes)
+  const cueFor = (d: { label: string, value: number, seriesName: string }) => barCue(resolved.overlays, data.labels.indexOf(d.label), d.value, d.seriesName)
+  const insideLabelFill = (d: { label: string, value: number, seriesName: string }, seriesColor: string) => {
+    const cue = cueFor(d)
+    if (cue.faded) {
+      return 'currentColor'
+    }
+    if (colorOverrides.has(d.seriesName)) {
+      return contrastTextColor(seriesColor)
+    }
+    return contrastTextColor(cue.color ?? seriesColor)
+  }
   const orch = getSceneTransition(container)
 
   // Bars — one feature per (category, series) cell, keyed by label + seriesName.
@@ -254,7 +265,8 @@ export function render(
     key: d => d.label + '\0' + d.seriesName,
     insert: sel => sel.append('rect').attr('class', 'bc-bar bc-bar-grouped'),
     attrs: (d) => {
-      const seriesColor = colorOverrides.get(d.seriesName) ?? resolveSeriesColor(d.seriesName, d.seriesIndex, colors, overrides)
+      const cue = cueFor(d)
+      const seriesColor = colorOverrides.get(d.seriesName) ?? cue.color ?? resolveSeriesColor(d.seriesName, d.seriesIndex, colors, overrides)
       const seriesOpacity = resolveSeriesOpacity(d.seriesName, overrides)
       const base: Record<string, string | number> = {
         'data-series': d.seriesName,
@@ -267,7 +279,10 @@ export function render(
       if (seriesOpacity < 1) {
         base['fill-opacity'] = seriesOpacity
       }
-      if (highlightTargets.size > 0) {
+      if (cue.faded) {
+        base.opacity = CUE_FADE_OPACITY * highlightOpacity(highlightTargets, d.seriesName)
+      }
+      else if (highlightTargets.size > 0) {
         base.opacity = highlightOpacity(highlightTargets, d.seriesName)
       }
       return base
@@ -387,7 +402,7 @@ export function render(
     if (isInside) {
       tx = barRight - 4
       anchor = 'end'
-      fill = contrastTextColor(seriesColor)
+      fill = insideLabelFill(datum, seriesColor)
     }
     else {
       tx = barRight + 4

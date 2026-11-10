@@ -19,12 +19,12 @@ import { ensureClipPath } from '../../clip-path-helper'
 import { featureJoin, getSceneTransition, tweenPlotFrame, type PlotRect } from '../../../transitions'
 import { createPluginHost } from '../../plugins/plugin-host'
 import { Orientation, ValueLabelPosition, LabelPosition, ScaleType } from '../../../enums'
-import { highlightTargetSet, highlightOpacity } from '../../plugins/highlight'
+import { highlightTargetSet, highlightOpacity, CUE_FADE_OPACITY } from '../../plugins/highlight'
 import { buildColorOverrides } from '../../plugins/colorize'
 import { shouldRenderValueLabel, estimateTextInk } from '../../value-label-fit'
 import { CATEGORY_LABEL_HEIGHT, categoryLabelLineHeight, categoryLabelsNeedTheirOwnLine } from '../../category-label-line'
 import { DEFAULT_COLORS } from '../../palettes'
-import { resolveOverlays, overlayDomainValues, overlayTooltipFormat, mountOverlayLayer, drawOverlayLegend, planOverlayLabels, drawOverlayDirectLabelGroup, type OverlayGeometry, type ResolvedOverlay } from '../../overlays/overlays'
+import { resolveOverlays, barCue, overlayDomainValues, overlayTooltipFormat, mountOverlayLayer, drawOverlayLegend, planOverlayLabels, drawOverlayDirectLabelGroup, type OverlayGeometry, type ResolvedOverlay } from '../../overlays/overlays'
 
 const PANEL_GAP = 16
 const VALUE_LABEL_GAP = 4
@@ -307,6 +307,17 @@ export function render(
 
   const highlightTargets = highlightTargetSet(options.highlights, flatData.map(d => d.seriesName))
   const colorOverrides = buildColorOverrides(options.colorizes)
+  const cueFor = (d: { label: string, value: number, seriesName: string }) => barCue(resolved.overlays, data.labels.indexOf(d.label), d.value, d.seriesName)
+  const insideLabelFill = (d: { label: string, value: number, seriesName: string }, seriesColor: string) => {
+    const cue = cueFor(d)
+    if (cue.faded) {
+      return 'currentColor'
+    }
+    if (colorOverrides.has(d.seriesName)) {
+      return contrastTextColor(seriesColor)
+    }
+    return contrastTextColor(cue.color ?? seriesColor)
+  }
   const orch = getSceneTransition(container)
 
   // Bars — one feature per (category, series) cell, keyed by label + seriesName.
@@ -333,7 +344,8 @@ export function render(
     key: d => d.label + '\0' + d.seriesName,
     insert: sel => sel.append('rect').attr('class', 'bc-bar bc-bar-split'),
     attrs: (d) => {
-      const seriesColor = colorOverrides.get(d.seriesName) ?? resolveSeriesColor(d.seriesName, d.seriesIndex, colors, overrides)
+      const cue = cueFor(d)
+      const seriesColor = colorOverrides.get(d.seriesName) ?? cue.color ?? resolveSeriesColor(d.seriesName, d.seriesIndex, colors, overrides)
       const seriesOpacity = resolveSeriesOpacity(d.seriesName, overrides)
       const base: Record<string, string | number> = {
         'data-series': d.seriesName,
@@ -346,7 +358,10 @@ export function render(
       if (seriesOpacity < 1) {
         base['fill-opacity'] = seriesOpacity
       }
-      if (highlightTargets.size > 0) {
+      if (cue.faded) {
+        base.opacity = CUE_FADE_OPACITY * highlightOpacity(highlightTargets, d.seriesName)
+      }
+      else if (highlightTargets.size > 0) {
         base.opacity = highlightOpacity(highlightTargets, d.seriesName)
       }
       return base
@@ -480,7 +495,7 @@ export function render(
     const direction = isInside ? -outward : outward
     const tx = barEnd + direction * VALUE_LABEL_GAP
     const anchor = direction < 0 ? 'end' : 'start'
-    const fill = isInside ? contrastTextColor(seriesColor) : 'currentColor'
+    const fill = isInside ? insideLabelFill(datum, seriesColor) : 'currentColor'
 
     vlGroup.append('text')
       .attr('class', 'bc-value-label')

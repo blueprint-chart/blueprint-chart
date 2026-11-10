@@ -550,4 +550,60 @@ describe('bar-grouped', () => {
       expect(container.querySelectorAll('.bc-legend-item')).toHaveLength(0)
     })
   })
+
+  describe('overlay cues', () => {
+    const cueData = {
+      labels: ['A', 'B'],
+      values: [],
+      series: [
+        { name: 'Gold', values: [5, 8] },
+        { name: 'Gold low', values: [4, 6] },
+        { name: 'Gold high', values: [7, 9] },
+        { name: 'Silver', values: [3, 4] },
+        { name: 'T', values: [4, 9] },
+      ],
+    }
+    const mute = [{ columns: ['Gold low', 'Gold high'], bar: 'Gold', muteIfCrosses: 5 }]
+    const target = [{ columns: ['T'], bar: 'Gold', aboveColor: '#00ff00' }]
+
+    function seriesBars(name: string): Element[] {
+      return Array.from(container.querySelectorAll(`.bc-bar[data-series="${name}"]`))
+    }
+
+    it('fades only the crossing bar of the target series', () => {
+      render(container, cueData, { overlays: mute })
+      const [a, b] = seriesBars('Gold')
+      expect(a.getAttribute('opacity')).toBe('0.45')
+      expect(b.getAttribute('opacity')).toBeNull()
+      seriesBars('Silver').forEach(bar => expect(bar.getAttribute('opacity')).toBeNull())
+    })
+
+    it('brings the bar back to full opacity when a scene drops the cue', () => {
+      render(container, cueData, { overlays: mute })
+      render(container, cueData, { overlays: [{ columns: ['Gold low', 'Gold high'], bar: 'Gold' }] }, true)
+      const [a] = seriesBars('Gold')
+      expect(a.getAttribute('opacity')).toBeNull()
+    })
+
+    it('colors only the target series bar that reaches the marker', () => {
+      render(container, cueData, { overlays: target })
+      const [a, b] = seriesBars('Gold')
+      expect(a.getAttribute('fill')).toBe('#00ff00')
+      expect(b.getAttribute('fill')).not.toBe('#00ff00')
+      seriesBars('Silver').forEach(bar => expect(bar.getAttribute('fill')).not.toBe('#00ff00'))
+    })
+
+    it('lets colorize win over the target color', () => {
+      render(container, cueData, { overlays: target, colorizes: [{ target: 'Gold', color: '#0000ff' }] })
+      const [a] = seriesBars('Gold')
+      expect(a.getAttribute('fill')).toBe('#0000ff')
+    })
+
+    it('keeps the series color in the legend swatch', () => {
+      render(container, cueData, { overlays: target })
+      const swatch = container.querySelector('.bc-legend-item[data-series="Gold"] rect, .bc-legend-item[data-series="Gold"] circle')
+      const [, b] = seriesBars('Gold')
+      expect(swatch?.getAttribute('fill')).toBe(b.getAttribute('fill'))
+    })
+  })
 })
