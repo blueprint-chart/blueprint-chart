@@ -1161,6 +1161,27 @@ describe('overlay serialization', () => {
   })
 })
 
+describe('overlay cue serialization', () => {
+  it('round-trips the cue keys', () => {
+    const src = [
+      'chart bar-vertical {',
+      '  overlay "Lo" "Hi" {',
+      '    muteIfCrosses = 0',
+      '  }',
+      '  overlay "T" {',
+      '    aboveColor = "#2a9d8f"',
+      '    belowColor = "#e15759"',
+      '    aboveTitle = Met',
+      '    belowTitle = Missed',
+      '    bar = Gold',
+      '  }',
+      '}',
+    ].join('\n')
+    const output = serialize(parse(src))
+    expect(output).toBe(src)
+  })
+})
+
 describe('trailingComments serialization', () => {
   it('keeps a comment trailing a property', () => {
     const src = 'chart bar {\n  title = "Sales" // note\n  data {\n    "A" = 1\n  }\n}'

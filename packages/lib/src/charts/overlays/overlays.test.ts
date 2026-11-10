@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { parseData } from '../parse-data'
+import type { OverlayConfig } from '../types'
 import { overlayIssues, resolveOverlays } from './overlays'
 
 const RAW = 'series = "Value","Min","Max","Last"\n"A" = 5,2,8,6\n"B" = 4,1,9,3'
@@ -156,5 +157,33 @@ describe('overlayIssues', () => {
     const raw = 'series = "Note","Value","Min","Max"\n"A" = "hello","world",2,8'
     const issues = overlayIssues(resolved, [{ columns: ['Min', 'Max'] }], 'bar-vertical', raw)
     expect(issues).toEqual([])
+  })
+})
+
+describe('cue issues', () => {
+  const data = parseData('series = "V2","Lo","Hi"\n"A" = 5,2,8\n"B" = 4,1,9')
+  const codes = (issues: { code: string }[]) => issues.map(issue => issue.code)
+  const run = (configs: OverlayConfig[]) => codes(overlayIssues(data, configs, 'bar-vertical'))
+
+  it('flags muteIfCrosses on a value overlay', () => {
+    expect(run([{ columns: ['V2'], muteIfCrosses: 0 }])).toContain('overlay-mute-on-value')
+  })
+
+  it.each(['aboveColor', 'belowColor', 'aboveTitle', 'belowTitle'])('flags %s on a range overlay', (key) => {
+    expect(run([{ columns: ['Lo', 'Hi'], [key]: 'red' }])).toContain('overlay-target-on-range')
+  })
+
+  it('flags a non-numeric muteIfCrosses', () => {
+    expect(run([{ columns: ['Lo', 'Hi'], muteIfCrosses: Number.NaN }])).toContain('overlay-mute-not-number')
+  })
+
+  it('flags a target title without a color', () => {
+    expect(run([{ columns: ['V2'], aboveTitle: 'x' }])).toContain('overlay-title-without-color')
+  })
+
+  it('flags a second value overlay with a target color', () => {
+    const issues = overlayIssues(data, [{ columns: ['V2'], aboveColor: 'red' }, { columns: ['Lo'], aboveColor: 'blue' }], 'bar-vertical')
+    const conflicts = issues.filter(issue => issue.code === 'overlay-target-conflict')
+    expect(conflicts.map(issue => issue.key)).toEqual(['overlay[1]'])
   })
 })

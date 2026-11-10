@@ -118,6 +118,12 @@ export interface OverlayConfig {
   opacity?: number
   pattern?: 'solid' | 'stripes'
   hidden?: boolean
+  muteIfCrosses?: number
+  aboveColor?: string
+  belowColor?: string
+  aboveTitle?: string
+  belowTitle?: string
+  bar?: string
 }
 
 export interface AnnotationLineConfig {

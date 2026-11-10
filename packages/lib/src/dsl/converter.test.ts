@@ -865,4 +865,14 @@ describe('convertOverlays', () => {
       { columns: ['Last'] },
     ])
   })
+
+  it('reads the cue keys', () => {
+    const range = parse('chart bar-vertical {\n  overlay "Lo" "Hi" {\n    muteIfCrosses = 0\n  }\n}')
+    expect(convertOverlays(range.overlays)).toEqual([{ columns: ['Lo', 'Hi'], muteIfCrosses: 0 }])
+    const source = 'chart bar-vertical {\n  overlay "T" {\n    aboveColor = "#2a9d8f"\n    belowColor = "#e15759"\n    aboveTitle = "Met"\n    belowTitle = "Missed"\n    bar = "Gold"\n  }\n}'
+    const value = parse(source)
+    expect(convertOverlays(value.overlays)).toEqual([
+      { columns: ['T'], aboveColor: '#2a9d8f', belowColor: '#e15759', aboveTitle: 'Met', belowTitle: 'Missed', bar: 'Gold' },
+    ])
+  })
 })

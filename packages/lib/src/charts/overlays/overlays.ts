@@ -449,6 +449,47 @@ function nonNumericCells(overlay: OverlayConfig, rawData: string, key: string): 
   return issues
 }
 
+const TARGET_KEYS = ['aboveColor', 'belowColor', 'aboveTitle', 'belowTitle'] as const
+
+function cueConfigIssues(overlay: OverlayConfig, key: string): OverlayIssue[] {
+  const issues: OverlayIssue[] = []
+  const isRange = overlay.columns.length === 2
+  const isValue = overlay.columns.length === 1
+  if (overlay.muteIfCrosses !== undefined && isValue) {
+    issues.push({ code: 'overlay-mute-on-value', key, message: 'Fading only applies to a range overlay, so muteIfCrosses is ignored here.' })
+  }
+  if (overlay.muteIfCrosses !== undefined && Number.isNaN(overlay.muteIfCrosses)) {
+    issues.push({ code: 'overlay-mute-not-number', key, message: 'muteIfCrosses needs a number, so no bar fades.' })
+  }
+  const hasTarget = TARGET_KEYS.some(name => overlay[name] !== undefined)
+  if (hasTarget && isRange) {
+    issues.push({ code: 'overlay-target-on-range', key, message: 'Target colors and titles only apply to a value overlay, so they are ignored here.' })
+  }
+  const hasTitle = overlay.aboveTitle !== undefined || overlay.belowTitle !== undefined
+  const hasColor = overlay.aboveColor !== undefined || overlay.belowColor !== undefined
+  if (hasTitle && !hasColor && isValue) {
+    issues.push({ code: 'overlay-title-without-color', key, message: 'A target title needs a target color, so it is ignored here.' })
+  }
+  return issues
+}
+
+function targetConflictIssues(overlays: OverlayConfig[]): OverlayIssue[] {
+  const issues: OverlayIssue[] = []
+  let seen = false
+  overlays.forEach((overlay, index) => {
+    const isValue = overlay.columns.length === 1
+    const hasColor = overlay.aboveColor !== undefined || overlay.belowColor !== undefined
+    if (!isValue || overlay.hidden || !hasColor) {
+      return
+    }
+    if (seen) {
+      issues.push({ code: 'overlay-target-conflict', key: `overlay[${index}]`, message: 'Only the first value overlay with a target color colors the bars, so this one is ignored.' })
+    }
+    seen = true
+  })
+  return issues
+}
+
 function overlayConfigIssues(overlay: OverlayConfig, index: number, data: ChartData, rawData: string | undefined): OverlayIssue[] {
   const key = `overlay[${index}]`
   const issues: OverlayIssue[] = []
@@ -466,6 +507,7 @@ function overlayConfigIssues(overlay: OverlayConfig, index: number, data: ChartD
     issues.push({ code: 'overlay-pattern-on-value', key, message: 'Pattern only applies to a range overlay, so this one stays solid.' })
   }
   const isRange = overlay.columns.length === 2
+  issues.push(...cueConfigIssues(overlay, key))
   const allExist = overlay.columns.every(name => names.includes(name))
   if (isRange && allExist && rawData !== undefined && !overlay.hidden) {
     issues.push(...nonNumericCells(overlay, rawData, key))
@@ -481,6 +523,7 @@ export function overlayIssues(data: ChartData, overlays: OverlayConfig[], chartT
     return [{ code: 'overlay-unsupported-type', key: 'overlay[0]', message: `Overlays only draw on bar-vertical and bar-horizontal charts, not ${chartType}.` }]
   }
   const issues = overlays.flatMap((overlay, index) => overlayConfigIssues(overlay, index, data, rawData))
+  issues.push(...targetConflictIssues(overlays))
   const names = data.series?.map(column => column.name) ?? []
   const claimed = new Set(overlays.flatMap(overlay => overlay.columns))
   const leavesNoBar = names.length > 0 && names.every(name => claimed.has(name))
