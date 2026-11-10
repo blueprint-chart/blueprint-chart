@@ -217,8 +217,12 @@ export function render(
   const colorOverrides = buildColorOverrides(options.colorizes)
   const highlightTargets = highlightTargetSet(options.highlights, allLabels)
   const cueFor = (label: string, value: number) => barCue(resolved.overlays, data.labels.indexOf(label), value)
-  const barColor = (label: string, value: number) =>
-    colorOverrides.get(label) ?? cueFor(label, value).color ?? (options.colors ?? DEFAULT_COLORS)[0]
+  const barColor = (label: string, value: number) => {
+    const override = colorOverrides.get(label)
+    const cue = cueFor(label, value)
+    const palette = (options.colors ?? DEFAULT_COLORS)[0]
+    return override ?? cue.color ?? palette
+  }
   const barOpacity = (label: string, value: number) => {
     const base = highlightOpacity(highlightTargets, label)
     return cueFor(label, value).faded ? CUE_FADE_OPACITY * base : base
@@ -401,10 +405,11 @@ export function render(
       })
       .attr('opacity', (d: WaterfallDatum) => {
         const faded = !d.isTotal && cueFor(d.label, d.value).faded
+        const highlight = highlightOpacity(highlightTargets, d.label)
         if (faded) {
-          return barOpacity(d.label, d.value)
+          return CUE_FADE_OPACITY * highlight
         }
-        return highlightTargets.size > 0 ? highlightOpacity(highlightTargets, d.label) : null
+        return highlightTargets.size > 0 ? highlight : null
       })
 
     mountOverlays()

@@ -1262,7 +1262,7 @@ describe('bar-vertical', () => {
 
   describe('barGap', () => {
     function measure() {
-      const bars = Array.from(container.querySelectorAll('.bc-frame .bc-bar'))
+      const bars = Array.from(container.querySelectorAll('.bc-bar'))
       const xs = bars.map(b => Number(b.getAttribute('x')))
       const widths = bars.map(b => Number(b.getAttribute('width')))
       return { bars, xs, widths }
@@ -1457,7 +1457,7 @@ describe('bar-vertical', () => {
 
     it('renders no bar for a cell that is not a number', () => {
       render(container, raggedData, { valueLabels: true })
-      const bars = Array.from(container.querySelectorAll('.bc-frame .bc-bar'))
+      const bars = Array.from(container.querySelectorAll('.bc-bar'))
       expect(bars).toHaveLength(1)
       expect(bars[0].getAttribute('data-bc-key')).toBe('Beta')
     })
@@ -1903,6 +1903,14 @@ describe('bar-vertical', () => {
         })
       })
     }
+
+    it('never fades or recolors a waterfall total bar', () => {
+      const overlays = [{ columns: ['Lo', 'Hi'], muteIfCrosses: 0 }, target]
+      render(container, cueData, { waterfall: true, waterfallTotal: true, overlays })
+      const total = Array.from(container.querySelectorAll('.bc-bar')).slice(-3)[2]
+      expect(opacityOf(total)).toBe(1)
+      expect(total.getAttribute('fill')).toBe('#333')
+    })
 
     it('fades a waterfall bar from the raw delta range, not the running base', () => {
       const deltas = {

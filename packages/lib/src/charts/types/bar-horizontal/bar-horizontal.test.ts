@@ -1177,7 +1177,7 @@ describe('bar-horizontal', () => {
 
   describe('barGap', () => {
     function measure() {
-      const bars = Array.from(container.querySelectorAll('.bc-frame .bc-bar'))
+      const bars = Array.from(container.querySelectorAll('.bc-bar'))
       const ys = bars.map(b => Number(b.getAttribute('y')))
       const heights = bars.map(b => Number(b.getAttribute('height')))
       return { bars, ys, heights }
@@ -1702,7 +1702,7 @@ describe('bar-horizontal', () => {
 
       it('moves the key with legendPosition = bottom', () => {
         render(container, overlayData, { overlays: titled, legendPosition: LegendPosition.Bottom, directLabelling: '' })
-        const bars = Array.from(container.querySelectorAll('.bc-frame .bc-bar'))
+        const bars = Array.from(container.querySelectorAll('.bc-bar'))
         const plotHeight = Math.max(...bars.map(b => Number(b.getAttribute('y')) + Number(b.getAttribute('height'))))
         expect(legendY()).toBeGreaterThan(plotHeight)
       })
@@ -1869,6 +1869,14 @@ describe('bar-horizontal', () => {
         })
       })
     }
+
+    it('never fades or recolors a waterfall total bar', () => {
+      const overlays = [{ columns: ['Lo', 'Hi'], muteIfCrosses: 0 }, target]
+      render(container, cueData, { waterfall: true, waterfallTotal: true, overlays })
+      const total = Array.from(container.querySelectorAll('.bc-bar')).slice(-3)[2]
+      expect(opacityOf(total)).toBe(1)
+      expect(total.getAttribute('fill')).toBe('#333')
+    })
 
     it('fades a waterfall bar from the raw delta range, not the running base', () => {
       const deltas = {
