@@ -1,4 +1,4 @@
-import type { AnnotationNode, AreaFillNode, ChartNode, DataNode, ColorizeNode, HighlightNode, PropertyNode, SceneNode, SeriesNode, TransformNode } from './types'
+import type { AnnotationNode, AreaFillNode, ChartNode, DataNode, ColorizeNode, HighlightNode, OverlayNode, PropertyNode, SceneNode, SeriesNode, TransformNode } from './types'
 import { getChartOptions } from '../charts/registry'
 import { AnnotationKind } from '../enums'
 import { quoteDslString } from './quoting'
@@ -111,6 +111,16 @@ function serializeAreaFill(areaFill: AreaFillNode, indent: string): string {
   return lines.join('\n')
 }
 
+function serializeOverlay(overlay: OverlayNode, indent: string): string {
+  const columns = overlay.columns.map(quoteDslString).join(' ')
+  const lines = [...commentLines(overlay.leadingComments, indent), `${indent}overlay ${columns} {`]
+  for (const prop of overlay.properties) {
+    lines.push(serializeProperty(prop, `${indent}  `))
+  }
+  lines.push(...closingBrace(overlay, indent))
+  return lines.join('\n')
+}
+
 function serializeAnnotation(annotation: AnnotationNode, indent: string): string {
   const kind = annotation.kind ?? AnnotationKind.Point
   if (kind === AnnotationKind.Range) {
@@ -166,6 +176,9 @@ function serializeScene(scene: SceneNode, indent: string): string {
   for (const areaFill of scene.areaFills) {
     lines.push(serializeAreaFill(areaFill, `${indent}  `))
   }
+  for (const overlay of scene.overlays) {
+    lines.push(serializeOverlay(overlay, `${indent}  `))
+  }
   for (const annotation of scene.annotations) {
     lines.push(serializeAnnotation(annotation, `${indent}  `))
   }
@@ -213,6 +226,9 @@ export function serialize(ast: ChartNode): string {
   }
   for (const areaFill of ast.areaFills) {
     lines.push(serializeAreaFill(areaFill, '  '))
+  }
+  for (const overlay of ast.overlays) {
+    lines.push(serializeOverlay(overlay, '  '))
   }
   for (const annotation of ast.annotations) {
     lines.push(serializeAnnotation(annotation, '  '))
@@ -312,6 +328,9 @@ function compactSerializeScene(
   for (const areaFill of scene.areaFills) {
     lines.push(serializeAreaFill(areaFill, `${indent}  `))
   }
+  for (const overlay of scene.overlays) {
+    lines.push(serializeOverlay(overlay, `${indent}  `))
+  }
   for (const annotation of scene.annotations) {
     lines.push(serializeAnnotation(annotation, `${indent}  `))
   }
@@ -344,6 +363,9 @@ export function compactSerializeDeep(ast: ChartNode): string {
   }
   for (const areaFill of ast.areaFills) {
     lines.push(serializeAreaFill(areaFill, '  '))
+  }
+  for (const overlay of ast.overlays) {
+    lines.push(serializeOverlay(overlay, '  '))
   }
   for (const annotation of ast.annotations) {
     lines.push(serializeAnnotation(annotation, '  '))
@@ -380,6 +402,9 @@ export function compactSerialize(ast: ChartNode): string {
   }
   for (const areaFill of ast.areaFills) {
     lines.push(serializeAreaFill(areaFill, '  '))
+  }
+  for (const overlay of ast.overlays) {
+    lines.push(serializeOverlay(overlay, '  '))
   }
   for (const annotation of ast.annotations) {
     lines.push(serializeAnnotation(annotation, '  '))

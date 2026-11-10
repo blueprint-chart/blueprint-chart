@@ -14,6 +14,7 @@ function collectBody(members) {
     colorizes: [],
     highlights: [],
     areaFills: [],
+    overlays: [],
     annotations: [],
     series: [],
     scenes: [],
@@ -26,6 +27,7 @@ function collectBody(members) {
       case 'colorize':   result.colorizes.push(m);  break;
       case 'highlight':  result.highlights.push(m); break;
       case 'area-fill':  result.areaFills.push(m);  break;
+      case 'overlay':    result.overlays.push(m);   break;
       case 'annotation': result.annotations.push(m);break;
       case 'series':     result.series.push(m);     break;
       case 'scene':      result.scenes.push(m);     break;
@@ -42,6 +44,7 @@ function collectSceneBody(members) {
     colorizes: [],
     highlights: [],
     areaFills: [],
+    overlays: [],
     annotations: [],
     series: [],
     transforms: [],
@@ -53,6 +56,7 @@ function collectSceneBody(members) {
       case 'colorize':   result.colorizes.push(m);  break;
       case 'highlight':  result.highlights.push(m); break;
       case 'area-fill':  result.areaFills.push(m);  break;
+      case 'overlay':    result.overlays.push(m);   break;
       case 'annotation': result.annotations.push(m);break;
       case 'series':     result.series.push(m);     break;
       case 'transform':  result.transforms.push(m); break;
@@ -78,6 +82,7 @@ Chart
       colorizes: body.colorizes,
       highlights: body.highlights,
       areaFills: body.areaFills,
+      overlays: body.overlays,
       annotations: body.annotations,
       series: body.series,
       scenes: body.scenes,
@@ -86,7 +91,7 @@ Chart
   }
 
 ChartMember
-  = comments:LeadingComments m:(DataBlock / Colorize / Highlight / AreaFill / RangeAnnotation / NoteAnnotation / Annotation / Series / Scene / Transform / Property) [ \t]* trailing:CommentText? S
+  = comments:LeadingComments m:(DataBlock / Colorize / Highlight / AreaFill / Overlay / RangeAnnotation / NoteAnnotation / Annotation / Series / Scene / Transform / Property) [ \t]* trailing:CommentText? S
   { if (comments.length) m.leadingComments = comments; if (trailing != null) m.trailingComment = trailing; return m; }
 
 DataBlock
@@ -141,6 +146,12 @@ AreaFill
   / "area-fill" _ "{"
   { error('area-fill needs two quoted targets, e.g. area-fill "Revenue" "Cost" { ... }'); }
 
+Overlay
+  = "overlay" columns:(__ s:String { return s; })+ _ "{" props:BlockProperty* trailing:LeadingComments "}"
+  { return { type: 'overlay', columns, properties: props, ...(trailing.length ? { trailingComments: trailing } : {}) }; }
+  / "overlay" _ "{"
+  { error('overlay needs one or two quoted columns, e.g. overlay "Min" "Max" { ... }'); }
+
 Annotation
   = "annotation" __ target:String _ "{" props:BlockProperty* trailing:LeadingComments "}"
   { return { type: 'annotation', kind: 'point', target, properties: props, ...(trailing.length ? { trailingComments: trailing } : {}) }; }
@@ -177,6 +188,7 @@ Scene
       colorizes: body.colorizes,
       highlights: body.highlights,
       areaFills: body.areaFills,
+      overlays: body.overlays,
       annotations: body.annotations,
       series: body.series,
       transforms: body.transforms,
@@ -188,7 +200,7 @@ Transform
   { return { type: 'transform', transformType, properties: props, ...(trailing.length ? { trailingComments: trailing } : {}) }; }
 
 SceneMember
-  = comments:LeadingComments m:(DataBlock / Colorize / Highlight / AreaFill / RangeAnnotation / NoteAnnotation / Annotation / Series / Transform / Property) [ \t]* trailing:CommentText? S
+  = comments:LeadingComments m:(DataBlock / Colorize / Highlight / AreaFill / Overlay / RangeAnnotation / NoteAnnotation / Annotation / Series / Transform / Property) [ \t]* trailing:CommentText? S
   { if (comments.length) m.leadingComments = comments; if (trailing != null) m.trailingComment = trailing; return m; }
 
 BlockProperty

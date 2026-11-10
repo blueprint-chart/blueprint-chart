@@ -440,6 +440,37 @@ describe('parser', () => {
     })
   })
 
+  describe('overlay', () => {
+    it('parses a value overlay', () => {
+      const ast = parse('chart bar-vertical {\n  overlay "Last year" {\n    title = "2022"\n  }\n}')
+      expect(ast.overlays).toEqual([{ type: 'overlay', columns: ['Last year'], properties: [{ type: 'property', key: 'title', value: '2022', isPercentage: false }] }])
+    })
+
+    it('parses a range overlay with an empty body', () => {
+      const ast = parse('chart bar-vertical {\n  overlay "Min" "Max" {}\n}')
+      expect(ast.overlays[0].columns).toEqual(['Min', 'Max'])
+    })
+
+    it('keeps a third column so validation can warn', () => {
+      const ast = parse('chart bar-vertical {\n  overlay "A" "B" "C" {}\n}')
+      expect(ast.overlays[0].columns).toEqual(['A', 'B', 'C'])
+    })
+
+    it('parses overlays inside a scene', () => {
+      const ast = parse('chart bar-vertical {\n  scene "s" {\n    overlay "Min" "Max" {}\n  }\n}')
+      expect(ast.scenes[0].overlays[0].columns).toEqual(['Min', 'Max'])
+    })
+
+    it('defaults overlays to an empty list', () => {
+      const ast = parse('chart bar-vertical {\n}')
+      expect(ast.overlays).toEqual([])
+    })
+
+    it('rejects an overlay without a quoted column', () => {
+      expect(() => parse('chart bar-vertical {\n  overlay {}\n}')).toThrow(/overlay needs one or two quoted columns/)
+    })
+  })
+
   describe('area-fill block', () => {
     it('parses area-fill with two targets and properties', () => {
       const ast = parse(`chart line-multi {

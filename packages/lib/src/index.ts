@@ -108,7 +108,7 @@ export { DEFAULT_SCENE_DURATION, SCENE_DURATION_MIN, SCENE_DURATION_MAX, readPla
 export type { PlaybackSettings, PlaybackOptions, Playback } from './runtime/playback'
 export { prefersReducedMotion } from './charts/motion'
 export { propertyMap, extractChartTypeOptions, dataEntriesToString, extractSceneOverrides, convertColorizes, convertHighlights, convertAreaFills, convertAnnotations, convertSeriesOverrides } from './dsl/converter'
-export type { AnnotationNode, PointAnnotationNode, RangeAnnotationNode, FreeAnnotationNode, AreaFillNode, ChartNode, DataNode, ColorizeNode, HighlightNode, PropertyNode, SceneNode, SeriesNode, TransformNode } from './dsl/types'
+export type { AnnotationNode, PointAnnotationNode, RangeAnnotationNode, FreeAnnotationNode, AreaFillNode, ChartNode, DataNode, ColorizeNode, HighlightNode, OverlayNode, PropertyNode, SceneNode, SeriesNode, TransformNode } from './dsl/types'
 export { validateChart } from './dsl/validate'
 export type { ValidationIssue, ValidationResult } from './dsl/validate'
 

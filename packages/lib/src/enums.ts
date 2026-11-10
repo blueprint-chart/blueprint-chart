@@ -274,6 +274,7 @@ export enum DslNodeType {
   Colorize = 'colorize',
   Highlight = 'highlight',
   AreaFill = 'area-fill',
+  Overlay = 'overlay',
   Annotation = 'annotation',
   Series = 'series',
   Scene = 'scene',

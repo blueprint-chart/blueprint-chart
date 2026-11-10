@@ -585,6 +585,7 @@ describe('extractSceneOverrides', () => {
       data: null,
       colorizes: [],
       areaFills: [],
+      overlays: [],
       annotations: [],
 
       series: [],
@@ -605,6 +606,7 @@ describe('extractSceneOverrides', () => {
       data: null,
       colorizes: [],
       areaFills: [],
+      overlays: [],
       annotations: [],
 
       series: [],
@@ -628,6 +630,7 @@ describe('extractSceneOverrides', () => {
         target: 'A',
         properties: [prop('color', '#f00')],
       }],
+      overlays: [],
       areaFills: [{
         type: DslNodeType.AreaFill,
         from: 'A',
@@ -668,6 +671,7 @@ describe('extractSceneOverrides', () => {
       data: null,
       colorizes: [],
       areaFills: [],
+      overlays: [],
       annotations: [],
 
       series: [],

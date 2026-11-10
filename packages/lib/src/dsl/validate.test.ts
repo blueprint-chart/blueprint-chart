@@ -38,6 +38,7 @@ function chart(overrides: Partial<ChartNode> = {}): ChartNode {
     colorizes: [],
     highlights: [],
     areaFills: [],
+    overlays: [],
     annotations: [],
 
     series: [],
@@ -56,6 +57,7 @@ function scene(overrides: Partial<SceneNode> = {}): SceneNode {
     colorizes: [],
     highlights: [],
     areaFills: [],
+    overlays: [],
     annotations: [],
 
     series: [],

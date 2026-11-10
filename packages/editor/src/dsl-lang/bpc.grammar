@@ -6,6 +6,7 @@ ChartMember {
   DataBlock |
   Colorize |
   AreaFill |
+  Overlay |
   RangeAnnotation |
   NoteAnnotation |
   Annotation |
@@ -26,6 +27,7 @@ ValueList { PropertyValue ("," PropertyValue)+ }
 Colorize { (kw<"colorize"> | kw<"highlight">) String ("{" Property* "}")? }
 
 AreaFill { kw<"area-fill"> String String "{" Property* "}" }
+Overlay { kw<"overlay"> String+ "{" Property* "}" }
 
 Annotation { kw<"annotation"> String "{" Property* "}" }
 
@@ -54,6 +56,7 @@ SceneMember {
   DataBlock |
   Colorize |
   AreaFill |
+  Overlay |
   RangeAnnotation |
   NoteAnnotation |
   Annotation |

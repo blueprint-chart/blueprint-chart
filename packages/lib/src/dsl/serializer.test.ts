@@ -14,6 +14,7 @@ describe('serializer', () => {
       colorizes: [],
       highlights: [],
       areaFills: [],
+      overlays: [],
       annotations: [],
 
       series: [],
@@ -35,6 +36,7 @@ describe('serializer', () => {
       colorizes: [],
       highlights: [],
       areaFills: [],
+      overlays: [],
       annotations: [],
 
       series: [],
@@ -61,6 +63,7 @@ describe('serializer', () => {
       colorizes: [],
       highlights: [],
       areaFills: [],
+      overlays: [],
       annotations: [],
 
       series: [],
@@ -88,6 +91,7 @@ describe('serializer', () => {
       }],
       highlights: [],
       areaFills: [],
+      overlays: [],
       annotations: [],
 
       series: [],
@@ -109,6 +113,7 @@ describe('serializer', () => {
       colorizes: [],
       highlights: [],
       areaFills: [],
+      overlays: [],
       annotations: [],
 
       series: [],
@@ -128,6 +133,7 @@ describe('serializer', () => {
         }],
         highlights: [],
         areaFills: [],
+        overlays: [],
         annotations: [],
 
         series: [],
@@ -151,6 +157,7 @@ describe('serializer', () => {
       colorizes: [],
       highlights: [],
       areaFills: [],
+      overlays: [],
       annotations: [],
 
       series: [],
@@ -164,6 +171,7 @@ describe('serializer', () => {
         colorizes: [],
         highlights: [],
         areaFills: [],
+        overlays: [],
         annotations: [],
 
         series: [],
@@ -185,6 +193,7 @@ describe('serializer', () => {
       colorizes: [],
       highlights: [],
       areaFills: [],
+      overlays: [],
       annotations: [],
 
       series: [],
@@ -196,6 +205,7 @@ describe('serializer', () => {
         colorizes: [],
         highlights: [],
         areaFills: [],
+        overlays: [],
         annotations: [],
 
         series: [{
@@ -232,6 +242,7 @@ describe('serializer', () => {
       colorizes: [],
       highlights: [],
       areaFills: [],
+      overlays: [],
       annotations: [{
         type: DslNodeType.Annotation,
         kind: AnnotationKind.Point,
@@ -265,6 +276,7 @@ describe('serializer', () => {
       colorizes: [],
       highlights: [],
       areaFills: [],
+      overlays: [],
       annotations: [],
 
       series: [],
@@ -298,6 +310,7 @@ describe('serializer', () => {
       data: null,
       colorizes: [],
       highlights: [],
+      overlays: [],
       areaFills: [{
         type: DslNodeType.AreaFill,
         from: 'Revenue',
@@ -328,6 +341,7 @@ describe('serializer', () => {
       colorizes: [],
       highlights: [],
       areaFills: [],
+      overlays: [],
       annotations: [{
         type: DslNodeType.Annotation,
         kind: AnnotationKind.Range,
@@ -356,6 +370,7 @@ describe('serializer', () => {
       colorizes: [],
       highlights: [],
       areaFills: [],
+      overlays: [],
       annotations: [{
         type: DslNodeType.Annotation,
         kind: AnnotationKind.Free,
@@ -385,6 +400,7 @@ describe('serializer', () => {
       colorizes: [],
       highlights: [],
       areaFills: [],
+      overlays: [],
       annotations: [],
 
       series: [
@@ -415,6 +431,7 @@ describe('serializer', () => {
       colorizes: [],
       highlights: [],
       areaFills: [],
+      overlays: [],
       annotations: [],
 
       series: [],
@@ -443,6 +460,7 @@ describe('serializer', () => {
       colorizes: [],
       highlights: [],
       areaFills: [],
+      overlays: [],
       annotations: [],
 
       series: [],
@@ -464,6 +482,7 @@ describe('serializer', () => {
       colorizes: [],
       highlights: [],
       areaFills: [],
+      overlays: [],
       annotations: [],
 
       series: [],
@@ -489,6 +508,7 @@ describe('serializer', () => {
       }],
       highlights: [],
       areaFills: [],
+      overlays: [],
       annotations: [],
 
       series: [],
@@ -511,6 +531,7 @@ describe('serializer', () => {
       colorizes: [],
       highlights: [],
       areaFills: [],
+      overlays: [],
       annotations: [],
 
       series: [],
@@ -531,6 +552,7 @@ describe('serializer', () => {
       colorizes: [],
       highlights: [],
       areaFills: [],
+      overlays: [],
       annotations: [],
 
       series: [],
@@ -541,6 +563,7 @@ describe('serializer', () => {
         data: null,
         colorizes: [],
         highlights: [],
+        overlays: [],
         areaFills: [{
           type: DslNodeType.AreaFill,
           from: 'A',
@@ -756,6 +779,7 @@ describe('serializer', () => {
       colorizes: [],
       highlights: [{ type: DslNodeType.Highlight, target: 'Apple' }],
       areaFills: [],
+      overlays: [],
       annotations: [],
 
       series: [],
@@ -775,6 +799,7 @@ describe('serializer', () => {
       colorizes: [],
       highlights: [],
       areaFills: [],
+      overlays: [],
       annotations: [],
 
       series: [],
@@ -786,6 +811,7 @@ describe('serializer', () => {
         colorizes: [],
         highlights: [{ type: DslNodeType.Highlight, target: 'Banana' }],
         areaFills: [],
+        overlays: [],
         annotations: [],
 
         series: [],
@@ -833,6 +859,7 @@ describe('serializer', () => {
         colorizes: [],
         highlights: [],
         areaFills: [],
+        overlays: [],
         annotations: [],
 
         series: [],
@@ -858,6 +885,7 @@ describe('serializer', () => {
         colorizes: [],
         highlights: [],
         areaFills: [],
+        overlays: [],
         annotations: [],
 
         series: [],
@@ -884,6 +912,7 @@ describe('serializer', () => {
         }],
         highlights: [],
         areaFills: [],
+        overlays: [],
         annotations: [],
 
         series: [],
@@ -904,6 +933,7 @@ describe('serializer', () => {
         colorizes: [],
         highlights: [],
         areaFills: [],
+        overlays: [],
         annotations: [],
 
         series: [],
@@ -1106,6 +1136,28 @@ describe('quoted-identifier escaping', () => {
 
   it('round-trips a data key containing a newline', () => {
     roundTrip('chart bar-vertical {\n  data {\n    "two\\nlines" = 1\n  }\n}')
+  })
+})
+
+describe('overlay serialization', () => {
+  it('round-trips value, range and scene overlays with comments', () => {
+    const src = [
+      'chart bar-vertical {',
+      '  // last year',
+      '  overlay "Last year" {',
+      '    title = 2022',
+      '  }',
+      '  overlay "Min" "Max" {',
+      '    pattern = stripes // dashed',
+      '  }',
+      '  scene "s" {',
+      '    overlay "Min" "Max" {',
+      '    }',
+      '  }',
+      '}',
+    ].join('\n')
+    const output = serialize(parse(src))
+    expect(output).toBe(src)
   })
 })
 

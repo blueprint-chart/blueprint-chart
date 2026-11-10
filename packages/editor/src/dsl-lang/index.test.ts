@@ -56,6 +56,11 @@ describe('highlightDsl', () => {
     expect(html).toContain('<span class="tok-keyword">area-fill</span>')
   })
 
+  it('highlights the overlay keyword', () => {
+    const html = highlightDsl('chart bar-vertical {\noverlay "Min" "Max" {\n}\n}')
+    expect(html).toContain('<span class="tok-keyword">overlay</span>')
+  })
+
   it('highlights annotation as a keyword', () => {
     const html = highlightDsl('chart line {\nscene "s" {\nannotation "abc12" {\nrepeat = true\n}\n}\n}')
     expect(html).toContain('<span class="tok-keyword">annotation</span>')

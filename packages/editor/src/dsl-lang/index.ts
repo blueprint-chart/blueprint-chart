@@ -39,6 +39,7 @@ const bpcParser = parser.configure({
       'colorize': t.keyword,
       'highlight': t.keyword,
       'area-fill': t.keyword,
+      'overlay': t.keyword,
       'annotation': t.keyword,
       'range': t.keyword,
       'note': t.keyword,

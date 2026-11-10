@@ -408,8 +408,8 @@ describe('Interpolation', () => {
 })
 
 describe('DslNodeType', () => {
-  it('has 10 members', () => {
-    expect(enumValues(DslNodeType)).toHaveLength(10)
+  it('has 11 members', () => {
+    expect(enumValues(DslNodeType)).toHaveLength(11)
   })
   it('values match', () => {
     expect(DslNodeType.Property).toBe('property')

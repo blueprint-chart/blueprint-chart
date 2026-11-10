@@ -65,6 +65,18 @@ export interface AreaFillNode {
   trailingComments?: string[]
 }
 
+export interface OverlayNode {
+  type: DslNodeType.Overlay
+  columns: string[]
+  properties: PropertyNode[]
+  /** `//` comment lines authored immediately above this node, text only (no `//`). */
+  leadingComments?: string[]
+  /** `//` comment authored at the end of this node's own line, text only (no `//`). */
+  trailingComment?: string
+  /** `//` comment lines authored after this block's last member, text only (no `//`). */
+  trailingComments?: string[]
+}
+
 export interface PointAnnotationNode {
   type: DslNodeType.Annotation
   kind: AnnotationKind.Point
@@ -124,6 +136,7 @@ export interface SceneNode {
   colorizes: ColorizeNode[]
   highlights: HighlightNode[]
   areaFills: AreaFillNode[]
+  overlays: OverlayNode[]
   annotations: AnnotationNode[]
   series: SeriesNode[]
   transforms: TransformNode[]
@@ -155,6 +168,7 @@ export interface ChartNode {
   colorizes: ColorizeNode[]
   highlights: HighlightNode[]
   areaFills: AreaFillNode[]
+  overlays: OverlayNode[]
   annotations: AnnotationNode[]
   series: SeriesNode[]
   scenes: SceneNode[]
