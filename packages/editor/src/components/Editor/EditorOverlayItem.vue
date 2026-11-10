@@ -244,9 +244,12 @@ const pattern = computed({
   set: v => update('pattern', v),
 })
 
+const muteText = shallowRef(overlay.value.muteIfCrosses?.toString() ?? '')
+
 const muteIfCrosses = computed({
-  get: () => overlay.value.muteIfCrosses?.toString() ?? '',
+  get: () => muteText.value,
   set: (v) => {
+    muteText.value = v
     if (v.trim() === '') {
       update('muteIfCrosses', undefined)
       return
@@ -256,6 +259,13 @@ const muteIfCrosses = computed({
       update('muteIfCrosses', parsed)
     }
   },
+})
+
+watch(() => overlay.value.muteIfCrosses, (value) => {
+  const typed = muteText.value.trim() === '' ? undefined : Number(muteText.value)
+  if (typed !== value && !Number.isNaN(typed)) {
+    muteText.value = value?.toString() ?? ''
+  }
 })
 
 const aboveColor = computed({

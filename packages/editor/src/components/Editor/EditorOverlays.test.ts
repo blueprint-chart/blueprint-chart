@@ -181,6 +181,22 @@ describe('EditorOverlayItem cues', () => {
     expect(Object.keys(lastEmitted(w))).toEqual(['columns'])
   })
 
+  it('keeps what the user types while entering -0.5 keystroke by keystroke', async () => {
+    const w = mountItem({ columns: rangeColumns })
+    const steps = [['-', undefined], ['-0', -0], ['-0.', -0], ['-0.5', -0.5]] as const
+    for (const [text, expected] of steps) {
+      await findInput(w, 'Fade bars when the range includes').setValue(text)
+      const emitted = w.emitted('update:overlay')
+      if (emitted) {
+        await w.setProps({ overlay: lastEmitted(w) })
+      }
+      expect(findInput(w, 'Fade bars when the range includes').element.value).toBe(text)
+      if (expected !== undefined) {
+        expect(Object.is(lastEmitted(w).muteIfCrosses, expected)).toBe(true)
+      }
+    }
+  })
+
   it('accepts a negative muteIfCrosses and keeps the key on a lone minus', async () => {
     const w = mountItem({ columns: rangeColumns })
     await findInput(w, 'Fade bars when the range includes').setValue('-0.5')
