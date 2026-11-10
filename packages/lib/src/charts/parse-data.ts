@@ -63,25 +63,37 @@ export function readSeriesRows(lines: string[]): SeriesRow[] {
   return rows
 }
 
+export function splitDataLines(raw: string): string[] {
+  return raw.split('\n').map(l => l.trim()).filter(Boolean)
+}
+
+export function readSeriesTable(lines: string[]): { names: string[], rows: SeriesRow[] } | undefined {
+  const seriesMatch = lines[0]?.match(/^series\s*=\s*(.+)$/)
+  if (!seriesMatch) {
+    return undefined
+  }
+  const segments = splitTopLevelCommas(seriesMatch[1].trim())
+  const rows = readSeriesRows(lines)
+  // New format: series = "A","B","C", individually quoted names.
+  // Legacy format: series = "A,B,C", one quoted string listing the columns,
+  // spelled exactly like a single name containing a comma. Only the legacy
+  // value rows tell the two apart, so require one before splitting:
+  // `series = "Paris, France"` on its own stays one series.
+  const names = segments.length > 1 || !rows.some(r => r.legacy)
+    ? segments.map(unquoteDslString)
+    : unquoteDslString(segments[0]).split(',').map(s => s.trim())
+  return { names, rows }
+}
+
 export function parseData(raw: string): ChartData {
-  const lines = raw.split('\n').map(l => l.trim()).filter(Boolean)
+  const lines = splitDataLines(raw)
   const labels: string[] = []
   const values: (number | undefined)[] = []
 
   // Check for multi-series header
-  const seriesMatch = lines[0]?.match(/^series\s*=\s*(.+)$/)
-  if (seriesMatch) {
-    const segments = splitTopLevelCommas(seriesMatch[1].trim())
-    const rows = readSeriesRows(lines)
-
-    // New format: series = "A","B","C", individually quoted names.
-    // Legacy format: series = "A,B,C", one quoted string listing the columns,
-    // spelled exactly like a single name containing a comma. Only the legacy
-    // value rows tell the two apart, so require one before splitting:
-    // `series = "Paris, France"` on its own stays one series.
-    const seriesNames = segments.length > 1 || !rows.some(r => r.legacy)
-      ? segments.map(unquoteDslString)
-      : unquoteDslString(segments[0]).split(',').map(s => s.trim())
+  const table = readSeriesTable(lines)
+  if (table) {
+    const { names: seriesNames, rows } = table
     const seriesValues: (number | undefined)[][] = seriesNames.map(() => [])
 
     for (const row of rows) {

@@ -2,7 +2,7 @@ import type { ChartData, OverlayConfig } from '../types'
 import { nearest } from '../../dsl/suggest'
 import { unquoteDslString } from '../../dsl/quoting'
 import { parseNumericCell } from '../number-parse'
-import { readSeriesRows } from '../parse-data'
+import { readSeriesTable, splitDataLines } from '../parse-data'
 
 export const OVERLAY_CHART_TYPES: ReadonlySet<string> = new Set(['bar-vertical', 'bar-horizontal'])
 
@@ -80,14 +80,18 @@ export interface OverlayIssue {
   suggestion?: string
 }
 
-function nonNumericCells(overlay: OverlayConfig, data: ChartData, rawData: string, key: string): OverlayIssue[] {
-  const names = data.series?.map(column => column.name) ?? []
-  const lines = rawData.split('\n').map(line => line.trim()).filter(Boolean)
-  const rows = readSeriesRows(lines)
+function nonNumericCells(overlay: OverlayConfig, rawData: string, key: string): OverlayIssue[] {
+  const table = readSeriesTable(splitDataLines(rawData))
+  if (!table) {
+    return []
+  }
   const issues: OverlayIssue[] = []
   for (const name of overlay.columns) {
-    const index = names.indexOf(name)
-    for (const row of rows) {
+    const index = table.names.indexOf(name)
+    if (index === -1) {
+      continue
+    }
+    for (const row of table.rows) {
       const cell = row.cells[index]
       const text = cell === undefined ? '' : unquoteDslString(cell)
       if (text !== '' && parseNumericCell(cell) === undefined) {
@@ -117,7 +121,7 @@ function overlayConfigIssues(overlay: OverlayConfig, index: number, data: ChartD
   const isRange = overlay.columns.length === 2
   const allExist = overlay.columns.every(name => names.includes(name))
   if (isRange && allExist && rawData !== undefined && !overlay.hidden) {
-    issues.push(...nonNumericCells(overlay, data, rawData, key))
+    issues.push(...nonNumericCells(overlay, rawData, key))
   }
   return issues
 }

@@ -141,4 +141,20 @@ describe('overlayIssues', () => {
     const issues = overlayIssues(parseData(raw), [{ columns: ['Min', 'Max'] }], 'bar-vertical')
     expect(codes(issues)).not.toContain('overlay-non-numeric-cell')
   })
+
+  it('reads cells by raw column name when transforms shifted the columns', () => {
+    const resolved = parseData('series = "Value","Min","Max"\n"A" = 5,2,8')
+    const raw = 'series = "Note","Value","Min","Max"\n"A" = "x",5,2,n/a'
+    const issues = overlayIssues(resolved, [{ columns: ['Min', 'Max'] }], 'bar-vertical', raw)
+    const cells = issues.filter(i => i.code === 'overlay-non-numeric-cell')
+    expect(cells).toHaveLength(1)
+    expect(cells[0].message).toContain('Max')
+  })
+
+  it('does not warn on a neighbouring raw column', () => {
+    const resolved = parseData('series = "Value","Min","Max"\n"A" = 5,2,8')
+    const raw = 'series = "Note","Value","Min","Max"\n"A" = "hello","world",2,8'
+    const issues = overlayIssues(resolved, [{ columns: ['Min', 'Max'] }], 'bar-vertical', raw)
+    expect(issues).toEqual([])
+  })
 })
