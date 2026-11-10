@@ -68,6 +68,42 @@
         :options="patternOptions"
         block
       />
+
+      <FormControlTextInput
+        v-if="isRange"
+        :id="`overlay-mute-${id}`"
+        v-model="muteIfCrosses"
+        label="Fade bars when the range includes"
+        placeholder="e.g. 0"
+      />
+
+      <template v-if="!isRange">
+        <FormControlColorInput
+          :id="`overlay-above-color-${id}`"
+          v-model="aboveColor"
+          label="Above color"
+        />
+
+        <FormControlTextInput
+          v-if="overlay.aboveColor"
+          :id="`overlay-above-title-${id}`"
+          v-model="aboveTitle"
+          label="Above title"
+        />
+
+        <FormControlColorInput
+          :id="`overlay-below-color-${id}`"
+          v-model="belowColor"
+          label="Below color"
+        />
+
+        <FormControlTextInput
+          v-if="overlay.belowColor"
+          :id="`overlay-below-title-${id}`"
+          v-model="belowTitle"
+          label="Below title"
+        />
+      </template>
     </div>
   </div>
 </template>
@@ -142,15 +178,28 @@ function setColumn(index: number, name: string) {
 function switchKind(next: string) {
   const [first] = overlay.value.columns
   if (next === 'value') {
-    const { pattern: _pattern, ...rest } = overlay.value
+    const { pattern: _pattern, muteIfCrosses: _mute, ...rest } = overlay.value
     overlay.value = { ...rest, columns: [first] }
     return
   }
   const claimed = [...(props.claimed ?? []), ...overlay.value.columns]
   const unused = nextOverlayColumn(props.columns, claimed)
   if (unused) {
-    update('columns', [first, unused])
+    const { aboveColor: _ac, belowColor: _bc, aboveTitle: _at, belowTitle: _bt, ...rest } = overlay.value
+    overlay.value = { ...rest, columns: [first, unused] }
   }
+}
+
+function setCueColor(colorKey: 'aboveColor' | 'belowColor', titleKey: 'aboveTitle' | 'belowTitle', value: string) {
+  const copy: Record<string, unknown> = { ...overlay.value }
+  if (value) {
+    copy[colorKey] = value
+  }
+  else {
+    delete copy[colorKey]
+    delete copy[titleKey]
+  }
+  overlay.value = copy as unknown as OverlayConfig
 }
 
 function toggleHidden() {
@@ -180,6 +229,35 @@ const opacity = computed({
 const pattern = computed({
   get: () => overlay.value.pattern ?? 'solid',
   set: v => update('pattern', v),
+})
+
+const muteIfCrosses = computed({
+  get: () => overlay.value.muteIfCrosses?.toString() ?? '',
+  set: (v) => {
+    const parsed = Number(v)
+    const isNumber = v.trim() !== '' && Number.isFinite(parsed)
+    update('muteIfCrosses', isNumber ? parsed : undefined)
+  },
+})
+
+const aboveColor = computed({
+  get: () => overlay.value.aboveColor ?? '',
+  set: v => setCueColor('aboveColor', 'aboveTitle', v),
+})
+
+const belowColor = computed({
+  get: () => overlay.value.belowColor ?? '',
+  set: v => setCueColor('belowColor', 'belowTitle', v),
+})
+
+const aboveTitle = computed({
+  get: () => overlay.value.aboveTitle ?? '',
+  set: v => update('aboveTitle', v || undefined),
+})
+
+const belowTitle = computed({
+  get: () => overlay.value.belowTitle ?? '',
+  set: v => update('belowTitle', v || undefined),
 })
 </script>
 

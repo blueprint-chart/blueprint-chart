@@ -80,6 +80,18 @@ describe('useDslOutput', () => {
       expect(dsl()).toContain(expected)
     })
 
+    it('emits cue keys in order between pattern and hidden', () => {
+      const config = useChartConfig()
+      config.chartType.value = ChartType.BarVertical
+      config.overlays.value = [
+        { columns: ['Last'], hidden: true, belowTitle: 'Under', belowColor: '#aa0000', aboveTitle: 'Over', aboveColor: '#00aa00', muteIfCrosses: 0, pattern: 'solid' },
+      ]
+
+      const { generateDsl: dsl } = useDslOutput()
+      const expected = 'overlay "Last" {\n    pattern = solid\n    muteIfCrosses = 0\n    aboveColor = "#00aa00"\n    aboveTitle = "Over"\n    belowColor = "#aa0000"\n    belowTitle = "Under"\n    hidden = true\n  }'
+      expect(dsl()).toContain(expected)
+    })
+
     it('emits an overlay with only columns', () => {
       const config = useChartConfig()
       config.chartType.value = ChartType.BarVertical

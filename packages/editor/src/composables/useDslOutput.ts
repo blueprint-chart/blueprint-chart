@@ -36,6 +36,21 @@ function overlayBlock(overlay: OverlayConfig, indent: string): string {
   if (overlay.pattern) {
     block += `${inner}pattern = ${overlay.pattern}\n`
   }
+  if (overlay.muteIfCrosses !== undefined) {
+    block += `${inner}muteIfCrosses = ${overlay.muteIfCrosses}\n`
+  }
+  if (overlay.aboveColor) {
+    block += `${inner}aboveColor = ${quoteDslString(overlay.aboveColor)}\n`
+  }
+  if (overlay.aboveTitle) {
+    block += `${inner}aboveTitle = ${quoteDslString(overlay.aboveTitle)}\n`
+  }
+  if (overlay.belowColor) {
+    block += `${inner}belowColor = ${quoteDslString(overlay.belowColor)}\n`
+  }
+  if (overlay.belowTitle) {
+    block += `${inner}belowTitle = ${quoteDslString(overlay.belowTitle)}\n`
+  }
   if (overlay.hidden !== undefined) {
     block += `${inner}hidden = ${overlay.hidden}\n`
   }

@@ -119,6 +119,88 @@ describe('EditorOverlayItem', () => {
   })
 })
 
+describe('EditorOverlayItem cues', () => {
+  const rangeColumns = ['Target', 'Budget']
+
+  function findInput(w: ReturnType<typeof mountItem>, label: string) {
+    const group = w.findAll('fieldset').find(f => f.text().startsWith(label))!
+    return group.find('input')
+  }
+
+  it('emits muteIfCrosses from the range field and removes it when cleared', async () => {
+    const w = mountItem({ columns: rangeColumns })
+    const input = findInput(w, 'Fade bars when the range includes')
+    await input.setValue('0')
+    expect(lastEmitted(w).muteIfCrosses).toBe(0)
+    await w.setProps({ overlay: lastEmitted(w) })
+    await findInput(w, 'Fade bars when the range includes').setValue('')
+    expect('muteIfCrosses' in lastEmitted(w)).toBe(false)
+  })
+
+  it('hides the fade field on a value overlay', () => {
+    const w = mountItem({ columns: ['Target'] })
+    expect(w.text()).not.toContain('Fade bars when the range includes')
+  })
+
+  it('shows the cue color fields on a value overlay only', () => {
+    const value = mountItem({ columns: ['Target'] })
+    expect(value.text()).toContain('Above color')
+    expect(value.text()).toContain('Below color')
+    const range = mountItem({ columns: rangeColumns })
+    expect(range.text()).not.toContain('Above color')
+  })
+
+  it('shows each title field only once its color is set, and clearing the color drops both', async () => {
+    const w = mountItem({ columns: ['Target'] })
+    expect(w.text()).not.toContain('Above title')
+    expect(w.text()).not.toContain('Below title')
+    await w.setProps({ overlay: { columns: ['Target'], aboveColor: '#00aa00', belowColor: '#aa0000' } })
+    expect(w.text()).toContain('Above title')
+    expect(w.text()).toContain('Below title')
+    await findInput(w, 'Above title').setValue('Met')
+    expect(lastEmitted(w).aboveTitle).toBe('Met')
+    await findInput(w, 'Below title').setValue('Missed')
+    expect(lastEmitted(w).belowTitle).toBe('Missed')
+  })
+
+  it('removes the color and its title when the color is cleared', async () => {
+    const overlay: OverlayConfig = { columns: ['Target'], aboveColor: '#00aa00', aboveTitle: 'Met', belowColor: '#aa0000', belowTitle: 'Missed' }
+    const w = mountItem(overlay)
+    const colors = w.findAllComponents({ name: 'FormControlColorInput' })
+    const above = colors.find(c => c.props('label') === 'Above color')!
+    above.vm.$emit('update:modelValue', '')
+    await nextTick()
+    const next = lastEmitted(w)
+    expect('aboveColor' in next).toBe(false)
+    expect('aboveTitle' in next).toBe(false)
+    expect(next.belowColor).toBe('#aa0000')
+    expect(next.belowTitle).toBe('Missed')
+    const below = colors.find(c => c.props('label') === 'Below color')!
+    below.vm.$emit('update:modelValue', '')
+    await nextTick()
+    const cleared = lastEmitted(w)
+    expect('belowColor' in cleared).toBe(false)
+    expect('belowTitle' in cleared).toBe(false)
+  })
+
+  it('drops muteIfCrosses when a range switches to value', async () => {
+    const w = mountItem({ columns: rangeColumns, muteIfCrosses: 0 })
+    const value = w.findAll('button').find(b => b.text() === 'Value')!
+    await value.trigger('click')
+    expect('muteIfCrosses' in lastEmitted(w)).toBe(false)
+  })
+
+  it('drops the four target keys when a value switches to range', async () => {
+    const overlay: OverlayConfig = { columns: ['Target'], aboveColor: '#00aa00', belowColor: '#aa0000', aboveTitle: 'A', belowTitle: 'B' }
+    const w = mountItem(overlay)
+    const range = w.findAll('button').find(b => b.text() === 'Range')!
+    await range.trigger('click')
+    const next = lastEmitted(w)
+    expect(next.columns).toHaveLength(2)
+    expect(Object.keys(next).sort()).toEqual(['columns'])
+  })
+})
+
 describe('EditorOverlays under a real v-model parent', () => {
   it('switches a range overlay back to a single column and drops the pattern', async () => {
     const overlays = ref<OverlayConfig[]>([{ columns: ['Target', 'Budget'], pattern: 'stripes' }])
