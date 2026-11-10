@@ -24,6 +24,7 @@ import { Orientation, ValueLabelPosition, LabelPosition, ScaleType, SortMode } f
 import { shouldRenderValueLabel } from '../../value-label-fit'
 import { CATEGORY_LABEL_HEIGHT, categoryLabelLineHeight, categoryLabelsNeedTheirOwnLine } from '../../category-label-line'
 import { DEFAULT_COLORS } from '../../palettes'
+import { resolveOverlays, overlayDomainValues, overlayTooltipFormat, mountOverlayLayer, type OverlayGeometry, type ResolvedOverlay } from '../../overlays/overlays'
 
 interface GroupedBarDatum {
   label: string
@@ -35,7 +36,7 @@ interface GroupedBarDatum {
 
 export function render(
   container: HTMLElement,
-  data: ChartData,
+  rawData: ChartData,
   options: ChartOptions = {},
   transition = false,
 ): void {
@@ -46,6 +47,7 @@ export function render(
   let priorMargin: { top: number, left: number, right: number, bottom: number } | undefined
   let priorPlotRect: PlotRect | undefined
   let priorAnnotations: Map<string, AnnotationSnapshot> | undefined
+  let priorOverlays: Element[] = []
   const axes = AxisService.for(container)
 
   if (transition) {
@@ -55,6 +57,7 @@ export function render(
     axes.detach()
     if (cached?.chartType === 'bar-grouped') {
       priorBars = Array.from(container.querySelectorAll('.bc-frame .bc-bar-grouped'))
+      priorOverlays = Array.from(container.querySelectorAll('.bc-frame .bc-overlay'))
     }
     else if (cached) {
       fadeOverlay = snapshotForFadeOut(container)
@@ -70,6 +73,8 @@ export function render(
 
   const { body } = createFrame(container, options.frame)
 
+  const resolved = resolveOverlays(rawData, options.overlays, 'bar-grouped')
+  const data = resolved.data
   const allSeries = seriesOrImplicit(data)
   const series = allSeries.filter(s => !isSeriesHidden(s.name, options.seriesOverrides))
   const seriesNames = series.map(s => s.name)
@@ -139,7 +144,9 @@ export function render(
     .range([0, barAreaHeight])
     .padding(0.05)
 
-  const [domainMin, domainMax] = computeLinearDomain(series.flatMap(s => s.values), options.horizontalAxis?.range, options.horizontalAxis?.scaleType)
+  const overlayRows = data.labels.map((_, i) => i)
+  const domainValues = [...series.flatMap(s => s.values), ...overlayDomainValues(resolved.overlays, overlayRows, () => 0)]
+  const [domainMin, domainMax] = computeLinearDomain(domainValues, options.horizontalAxis?.range, options.horizontalAxis?.scaleType)
   const x = (options.horizontalAxis?.scaleType === ScaleType.Log ? d3.scaleSymlog() : d3.scaleLinear())
     .domain([domainMin, domainMax])
     .nice()
@@ -281,9 +288,19 @@ export function render(
   // Plugins host — kept on the legacy D3Blueprint API. The draw is deferred into
   // the commit flush (when transitioning) so plugins bind after featureJoin has
   // created the `.bc-bar-grouped` marks, not before.
+  const geometryFor = (overlay: ResolvedOverlay): OverlayGeometry | null => {
+    const bar = overlay.bar ?? ''
+    if (!seriesNames.includes(bar)) {
+      return null
+    }
+    const slotStart = (label: string) => (y0(label) ?? 0) + categoryLabelOffset + (y1(bar) ?? 0)
+    return { orientation: 'horizontal', slotStart, slotSize: y1.bandwidth(), value: x, base: () => 0 }
+  }
+  mountOverlayLayer(container, clippedGroup.node()!, priorOverlays, resolved.overlays, data.labels, overlayRows, geometryFor)
+  const tooltipFormat = overlayTooltipFormat(resolved.overlays, data.labels, options.horizontalAxis?.numberFormat)
   const chart = createPluginHost(clippedGroup)
   if (options.tooltips) {
-    chart.use(createTooltipPlugin({ numberFormat: options.verticalAxis?.numberFormat }))
+    chart.use(createTooltipPlugin({ numberFormat: options.verticalAxis?.numberFormat, format: tooltipFormat }))
   }
   if (options.crosshair) {
     chart.use(createCrosshairPlugin({

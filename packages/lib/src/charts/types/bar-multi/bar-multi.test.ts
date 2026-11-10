@@ -659,4 +659,75 @@ describe('bar-multi', () => {
       expect(ratioWide).toBeCloseTo(expected, 5)
     })
   })
+
+  describe('overlays', () => {
+    const overlayData = {
+      labels: ['A', 'B'],
+      values: [],
+      series: [
+        { name: 'Gold', values: [5, 8] },
+        { name: 'Gold low', values: [4, 6] },
+        { name: 'Gold high', values: [7, 9] },
+        { name: 'Silver', values: [3, 4] },
+      ],
+    }
+    const range = [{ columns: ['Gold low', 'Gold high'], bar: 'Gold' }]
+
+    function rangeRects(): Element[] {
+      return Array.from(container.querySelectorAll('rect.bc-overlay-range'))
+    }
+
+    function goldBars(): Element[] {
+      return Array.from(container.querySelectorAll('.bc-bar[data-series="Gold"]'))
+    }
+
+    it('draws a range at the slot of its bar series', () => {
+      render(container, overlayData, { overlays: range })
+      const rects = rangeRects()
+      const bars = goldBars()
+      expect(rects).toHaveLength(2)
+      rects.forEach((rect, i) => {
+        expect(rect.getAttribute('x')).toBe(bars[i].getAttribute('x'))
+        expect(rect.getAttribute('width')).toBe(bars[i].getAttribute('width'))
+      })
+    })
+
+    it('does not draw the overlay columns as bars', () => {
+      render(container, overlayData, { overlays: range })
+      expect(container.querySelector('.bc-bar[data-series="Gold low"]')).toBeNull()
+      expect(container.querySelector('.bc-bar[data-series="Gold high"]')).toBeNull()
+    })
+
+    it('grows the value axis to include the overlay', () => {
+      const tall = { ...overlayData, series: overlayData.series.map(s => s.name === 'Gold high' ? { ...s, values: [40, 40] } : s) }
+      render(container, tall, { overlays: range })
+      const rect = rangeRects()[0]
+      const top = Number(rect.getAttribute('y'))
+      expect(top).toBeGreaterThanOrEqual(0)
+    })
+
+    it('draws nothing when the target series is hidden', () => {
+      const hidden = [{ name: 'Gold', hidden: true }]
+      expect(() => render(container, overlayData, { overlays: range, seriesOverrides: hidden })).not.toThrow()
+      expect(rangeRects()).toHaveLength(0)
+    })
+
+    it('reuses the range element across scenes', () => {
+      render(container, overlayData, { overlays: range })
+      const before = rangeRects()[0]
+      const moved = { ...overlayData, series: overlayData.series.map(s => s.name === 'Gold high' ? { ...s, values: [9, 9] } : s) }
+      render(container, moved, { overlays: range }, true)
+      expect(rangeRects()[0]).toBe(before)
+    })
+
+    it('adds the overlay to the tooltip', () => {
+      render(container, overlayData, { tooltips: true, overlays: [{ columns: ['Gold low', 'Gold high'], bar: 'Gold', title: 'Gold low to Gold high' }] })
+      const bar = container.querySelector('.bc-bar')!
+      bar.dispatchEvent(new MouseEvent('mouseenter'))
+      const tooltip = document.querySelector('.bc-tooltip')
+      expect(tooltip?.textContent).toContain('Gold low to Gold high: 4 to 7')
+      tooltip?.remove()
+      document.getElementById('bc-tooltip-styles')?.remove()
+    })
+  })
 })

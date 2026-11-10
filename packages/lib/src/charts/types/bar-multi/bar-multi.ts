@@ -25,6 +25,7 @@ import { highlightTargetSet, highlightOpacity } from '../../plugins/highlight'
 import { buildColorOverrides } from '../../plugins/colorize'
 import { DEFAULT_COLORS } from '../../palettes'
 import { formatValueLabel } from '../../format-helpers'
+import { resolveOverlays, overlayDomainValues, overlayTooltipFormat, mountOverlayLayer, type OverlayGeometry, type ResolvedOverlay } from '../../overlays/overlays'
 
 /** Gap between a bar's end and the label just outside it. */
 const LABEL_GAP_PX = 4
@@ -43,7 +44,7 @@ interface MultiBarDatum {
 
 export function render(
   container: HTMLElement,
-  data: ChartData,
+  rawData: ChartData,
   options: ChartOptions = {},
   transition = false,
 ): void {
@@ -55,6 +56,7 @@ export function render(
   // matches them as updates: that gives the resize tween its "from" shape.
   let priorBars: Element[] = []
   let priorPlotRect: PlotRect | undefined
+  let priorOverlays: Element[] = []
   const axes = AxisService.for(container)
   if (transition) {
     const cached = getCachedChart(container)
@@ -63,6 +65,7 @@ export function render(
     axes.detach()
     if (cached?.chartType === 'bar-multi') {
       priorBars = Array.from(container.querySelectorAll('.bc-frame .bc-bar-multi'))
+      priorOverlays = Array.from(container.querySelectorAll('.bc-frame .bc-overlay'))
     }
     else if (cached) {
       fadeOverlay = snapshotForFadeOut(container)
@@ -77,6 +80,8 @@ export function render(
   }
   const { body } = createFrame(container, options.frame)
 
+  const resolved = resolveOverlays(rawData, options.overlays, 'bar-multi')
+  const data = resolved.data
   const allSeries = data.series ?? []
   const series = allSeries.filter(s => !isSeriesHidden(s.name, options.seriesOverrides))
   const seriesNames = series.map(s => s.name)
@@ -142,8 +147,10 @@ export function render(
 
   const { chartArea, width, height, margin } = createCanvas(body, marginOverrides)
   const marginDelta = computeMarginDelta(priorMargin, margin)
+  const overlayRows = data.labels.map((_, i) => i)
+  const domainValues = [...allValues, ...overlayDomainValues(resolved.overlays, overlayRows, () => 0)]
   // eslint-disable-next-line prefer-const
-  let [domainMin, domainMax] = computeLinearDomain(allValues, options.verticalAxis?.range, options.verticalAxis?.scaleType)
+  let [domainMin, domainMax] = computeLinearDomain(domainValues, options.verticalAxis?.range, options.verticalAxis?.scaleType)
   // Extend domain to leave room for value labels below negative bars
   if (options.valueLabels && domainMin < 0 && options.verticalAxis?.range?.min == null) {
     const span = domainMax - domainMin
@@ -262,9 +269,19 @@ export function render(
   // Plugins host — kept on the legacy D3Blueprint API. The draw is deferred into
   // the commit flush (when transitioning) so plugins bind after featureJoin has
   // created the `.bc-bar-multi` marks, not before.
+  const geometryFor = (overlay: ResolvedOverlay): OverlayGeometry | null => {
+    const bar = overlay.bar ?? ''
+    if (!seriesNames.includes(bar)) {
+      return null
+    }
+    const slotStart = (label: string) => (x0(label) ?? 0) + (x1(bar) ?? 0)
+    return { orientation: 'vertical', slotStart, slotSize: x1.bandwidth(), value: y, base: () => 0 }
+  }
+  mountOverlayLayer(container, clippedGroup.node()!, priorOverlays, resolved.overlays, data.labels, overlayRows, geometryFor)
+  const tooltipFormat = overlayTooltipFormat(resolved.overlays, data.labels, options.verticalAxis?.numberFormat)
   const chart = createPluginHost(clippedGroup)
   if (options.tooltips) {
-    chart.use(createTooltipPlugin({ numberFormat: options.verticalAxis?.numberFormat }))
+    chart.use(createTooltipPlugin({ numberFormat: options.verticalAxis?.numberFormat, format: tooltipFormat }))
   }
   if (options.crosshair) {
     chart.use(createCrosshairPlugin({
