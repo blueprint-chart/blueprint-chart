@@ -6,7 +6,7 @@ import { createCanvas, contentSize, labelPositionMargins, estimateCategoryLabelW
 import { AxisService } from '../../axis/axis-service'
 import { computeLinearDomain, resolveBarGapPadding } from '../../scale-helpers'
 import { createTooltipPlugin } from '../../plugins/tooltip'
-import { resolveOverlays, overlayDomainValues, overlayTooltipFormat, mountOverlayLayer, drawOverlayLegend, drawOverlayDirectLabels, type OverlayGeometry, type ResolvedOverlay } from '../../overlays/overlays'
+import { resolveOverlays, barCue, overlayDomainValues, overlayTooltipFormat, mountOverlayLayer, drawOverlayLegend, drawOverlayDirectLabels, type OverlayGeometry, type ResolvedOverlay } from '../../overlays/overlays'
 import { overlayKeyLayout } from '../../overlays/overlay-key'
 import { createCrosshairPlugin } from '../../plugins/crosshair'
 import { createAnnotationPlugin, snapshotAnnotations, type AnnotationSnapshot } from '../../plugins/annotations'
@@ -20,7 +20,7 @@ import { ValueLabelPosition, Orientation, LabelPosition, DirectLabelMode } from 
 import { sortByValue } from '../../sort-helpers'
 import { featureJoin, getSceneTransition, tweenPlotFrame, type PlotRect } from '../../../transitions'
 import { createPluginHost } from '../../plugins/plugin-host'
-import { highlightTargetSet, highlightOpacity } from '../../plugins/highlight'
+import { highlightTargetSet, highlightOpacity, CUE_FADE_OPACITY } from '../../plugins/highlight'
 import { shouldRenderValueLabel, estimateTextInk } from '../../value-label-fit'
 import { CATEGORY_LABEL_HEIGHT, categoryLabelLineHeight, categoryLabelsNeedTheirOwnLine } from '../../category-label-line'
 import { DEFAULT_COLORS as DEFAULT_PALETTE } from '../../palettes'
@@ -216,6 +216,13 @@ export function render(
 
   const colorOverrides = buildColorOverrides(options.colorizes)
   const highlightTargets = highlightTargetSet(options.highlights, allLabels)
+  const cueFor = (label: string, value: number) => barCue(resolved.overlays, data.labels.indexOf(label), value)
+  const barColor = (label: string, value: number) =>
+    colorOverrides.get(label) ?? cueFor(label, value).color ?? (options.colors ?? DEFAULT_COLORS)[0]
+  const barOpacity = (label: string, value: number) => {
+    const base = highlightOpacity(highlightTargets, label)
+    return cueFor(label, value).faded ? CUE_FADE_OPACITY * base : base
+  }
 
   // Clip bars to the chart area so they truncate at axis boundaries.
   // Stable id per (container, key) keeps <defs> from growing on re-renders.
@@ -308,7 +315,6 @@ export function render(
   }
 
   if (isWaterfall) {
-    const colors = options.colors ?? DEFAULT_COLORS
     const totalColor = '#333'
 
     // Connection areas between adjacent waterfall bars — appended before
@@ -391,9 +397,15 @@ export function render(
         if (d.isTotal) {
           return totalColor
         }
-        return colorOverrides.get(d.label) ?? colors[0]
+        return barColor(d.label, d.value)
       })
-      .attr('opacity', (d: WaterfallDatum) => highlightTargets.size > 0 ? highlightOpacity(highlightTargets, d.label) : null)
+      .attr('opacity', (d: WaterfallDatum) => {
+        const faded = !d.isTotal && cueFor(d.label, d.value).faded
+        if (faded) {
+          return barOpacity(d.label, d.value)
+        }
+        return highlightTargets.size > 0 ? highlightOpacity(highlightTargets, d.label) : null
+      })
 
     mountOverlays()
 
@@ -418,7 +430,10 @@ export function render(
         .attr('text-anchor', pos === ValueLabelPosition.Inside ? 'end' : 'start')
         .attr('fill', (d: WaterfallDatum) => {
           if (pos === ValueLabelPosition.Inside) {
-            return contrastTextColor(d.isTotal ? totalColor : colorOverrides.get(d.label) ?? colors[0])
+            if (!d.isTotal && cueFor(d.label, d.value).faded) {
+              return 'currentColor'
+            }
+            return contrastTextColor(d.isTotal ? totalColor : barColor(d.label, d.value))
           }
           return 'currentColor'
         })
@@ -449,8 +464,8 @@ export function render(
         y: (y(d.label) ?? 0) + categoryLabelOffset,
         width: Math.abs(x(d.value) - x(0)),
         height: y.bandwidth() - categoryLabelOffset,
-        fill: colorOverrides.get(d.label) ?? (options.colors ?? DEFAULT_COLORS)[0],
-        opacity: highlightOpacity(highlightTargets, d.label),
+        fill: barColor(d.label, d.value),
+        opacity: barOpacity(d.label, d.value),
       }),
     })
     mountOverlays()
@@ -496,8 +511,8 @@ export function render(
       const labelParent = d3.select(chartArea).append('g') as d3.Selection<SVGGElement, unknown, null, undefined>
       renderValueLabels(labelParent, barData, x, y, {
         position: valueLabelPos,
-        colorOverrides,
-        colors: options.colors ?? DEFAULT_COLORS,
+        barColor,
+        isFaded: d => cueFor(d.label, d.value).faded,
         transition,
         swapLabelValue,
         categoryLabelOffset,
@@ -596,8 +611,8 @@ function renderValueLabels(
   y: d3.ScaleBand<string>,
   opts: {
     position?: ValueLabelPosition
-    colorOverrides: Map<string, string>
-    colors: string[]
+    barColor: (label: string, value: number) => string
+    isFaded: (d: BarDatum) => boolean
     transition: boolean
     swapLabelValue?: boolean
     categoryLabelOffset?: number
@@ -655,8 +670,8 @@ function renderValueLabels(
         'x': a.tx,
         'y': a.ty,
         'text-anchor': a.anchor,
-        'fill': a.isInside
-          ? contrastTextColor(opts.colorOverrides.get(d.label) ?? opts.colors[0])
+        'fill': a.isInside && !opts.isFaded(d)
+          ? contrastTextColor(opts.barColor(d.label, d.value))
           : 'currentColor',
       }
     },

@@ -1177,7 +1177,7 @@ describe('bar-horizontal', () => {
 
   describe('barGap', () => {
     function measure() {
-      const bars = Array.from(container.querySelectorAll('.bc-bar'))
+      const bars = Array.from(container.querySelectorAll('.bc-frame .bc-bar'))
       const ys = bars.map(b => Number(b.getAttribute('y')))
       const heights = bars.map(b => Number(b.getAttribute('height')))
       return { bars, ys, heights }
@@ -1702,7 +1702,7 @@ describe('bar-horizontal', () => {
 
       it('moves the key with legendPosition = bottom', () => {
         render(container, overlayData, { overlays: titled, legendPosition: LegendPosition.Bottom, directLabelling: '' })
-        const bars = Array.from(container.querySelectorAll('.bc-bar'))
+        const bars = Array.from(container.querySelectorAll('.bc-frame .bc-bar'))
         const plotHeight = Math.max(...bars.map(b => Number(b.getAttribute('y')) + Number(b.getAttribute('height'))))
         expect(legendY()).toBeGreaterThan(plotHeight)
       })
@@ -1795,6 +1795,95 @@ describe('bar-horizontal', () => {
         const names = overlayEls('text.bc-overlay-label').map(el => el.getAttribute('data-series'))
         expect(names).toEqual(['2022'])
       })
+    })
+  })
+
+  describe('overlay cues', () => {
+    const cueData = {
+      labels: ['A', 'B'],
+      values: [5.4, 2.8],
+      series: [
+        { name: 'V', values: [5.4, 2.8] },
+        { name: 'Lo', values: [3.8, -0.85] },
+        { name: 'Hi', values: [7.0, 6.45] },
+        { name: 'T', values: [5, 3] },
+      ],
+    }
+    const mute = [{ columns: ['Lo', 'Hi'], muteIfCrosses: 0 }]
+    const target = { columns: ['T'], aboveColor: '#00ff00', belowColor: '#ff0000' }
+
+    function bar(label: string): Element {
+      const bars = Array.from(container.querySelectorAll('.bc-bar')).slice(-2)
+      const index = ['A', 'B'].indexOf(label)
+      return bars[index]
+    }
+
+    function opacityOf(el: Element): number {
+      return Number(el.getAttribute('opacity') ?? 1)
+    }
+
+    for (const waterfall of [false, true]) {
+      describe(waterfall ? 'waterfall' : 'plain', () => {
+        const base = { waterfall }
+
+        it('fades only the bar whose range crosses the reference', () => {
+          render(container, cueData, { ...base, overlays: mute })
+          expect(opacityOf(bar('B'))).toBe(0.45)
+          expect(opacityOf(bar('A'))).toBe(1)
+        })
+
+        it('keeps the range rect at full opacity', () => {
+          render(container, cueData, { ...base, overlays: mute })
+          const ranges = container.querySelectorAll('rect.bc-overlay-range')
+          const second = ranges[1]
+          expect(Number(second.getAttribute('opacity') ?? 1)).toBe(1)
+        })
+
+        it('multiplies the fade by the highlight dim', () => {
+          render(container, cueData, { ...base, overlays: mute, highlights: [{ target: 'A' }] })
+          expect(opacityOf(bar('B'))).toBeCloseTo(0.45 * 0.35)
+        })
+
+        it('uses currentColor for an inside label on a faded bar', () => {
+          render(container, cueData, { ...base, overlays: mute, valueLabels: true, valueLabelPosition: ValueLabelPosition.Inside })
+          const labels = container.querySelectorAll('.bc-value-label')
+          expect(labels[1].getAttribute('fill')).toBe('currentColor')
+        })
+
+        it('colors bars by the target', () => {
+          render(container, cueData, { ...base, overlays: [target] })
+          expect(bar('A').getAttribute('fill')).toBe('#00ff00')
+          expect(bar('B').getAttribute('fill')).toBe('#ff0000')
+        })
+
+        it('lets colorize win over the target color', () => {
+          render(container, cueData, { ...base, overlays: [target], colorizes: [{ target: 'B', color: '#0000ff' }] })
+          expect(bar('B').getAttribute('fill')).toBe('#0000ff')
+        })
+
+        it('restores full opacity when a scene drops the cue', () => {
+          render(container, cueData, { ...base, overlays: mute })
+          render(container, cueData, { ...base, overlays: [{ columns: ['Lo', 'Hi'] }], transition: true })
+          vi.advanceTimersByTime(5000)
+          expect(opacityOf(bar('B'))).toBe(1)
+        })
+      })
+    }
+
+    it('fades a waterfall bar from the raw delta range, not the running base', () => {
+      const deltas = {
+        labels: ['A', 'B'],
+        values: [10, 2],
+        series: [
+          { name: 'V', values: [10, 2] },
+          { name: 'Lo', values: [8, -1] },
+          { name: 'Hi', values: [12, 3] },
+        ],
+      }
+      const overlays = [{ columns: ['Lo', 'Hi'], muteIfCrosses: 0 }]
+      render(container, deltas, { waterfall: true, overlays })
+      expect(opacityOf(bar('A'))).toBe(1)
+      expect(opacityOf(bar('B'))).toBe(0.45)
     })
   })
 })

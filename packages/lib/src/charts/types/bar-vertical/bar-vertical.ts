@@ -7,7 +7,7 @@ import { resolveHorizontalAxisBottom } from '../../axis/horizontal-axis'
 import { AxisService } from '../../axis/axis-service'
 import { computeLinearDomain, resolveBarGapPadding } from '../../scale-helpers'
 import { createTooltipPlugin } from '../../plugins/tooltip'
-import { resolveOverlays, overlayDomainValues, overlayTooltipFormat, mountOverlayLayer, drawOverlayLegend, type OverlayGeometry } from '../../overlays/overlays'
+import { resolveOverlays, barCue, overlayDomainValues, overlayTooltipFormat, mountOverlayLayer, drawOverlayLegend, type OverlayGeometry } from '../../overlays/overlays'
 import { overlayKeyLayout } from '../../overlays/overlay-key'
 import { createCrosshairPlugin } from '../../plugins/crosshair'
 import { createAnnotationPlugin, snapshotAnnotations, type AnnotationSnapshot } from '../../plugins/annotations'
@@ -21,7 +21,7 @@ import { createPluginHost } from '../../plugins/plugin-host'
 import { ValueLabelPosition, LabelPosition } from '../../../enums'
 import { sortByValue } from '../../sort-helpers'
 import { featureJoin, getSceneTransition, tweenPlotFrame, type PlotRect } from '../../../transitions'
-import { highlightTargetSet, highlightOpacity } from '../../plugins/highlight'
+import { highlightTargetSet, highlightOpacity, CUE_FADE_OPACITY } from '../../plugins/highlight'
 import { shouldRenderValueLabel } from '../../value-label-fit'
 import { CATEGORY_LABEL_HEIGHT, categoryLabelLineHeight } from '../../category-label-line'
 import { DEFAULT_COLORS as DEFAULT_PALETTE } from '../../palettes'
@@ -196,8 +196,13 @@ export function render(
   }
 
   const colorOverrides = buildColorOverrides(options.colorizes)
+  const cueFor = (label: string, value: number) => barCue(resolved.overlays, data.labels.indexOf(label), value)
   const barColor = (label: string, value: number) =>
-    colorOverrides.get(label) ?? ((value < 0 && options.negativeColor) || (options.colors ?? DEFAULT_COLORS)[0])
+    colorOverrides.get(label) ?? cueFor(label, value).color ?? ((value < 0 && options.negativeColor) || (options.colors ?? DEFAULT_COLORS)[0])
+  const barOpacity = (label: string, value: number) => {
+    const base = highlightOpacity(highlightTargets, label)
+    return cueFor(label, value).faded ? CUE_FADE_OPACITY * base : base
+  }
   const highlightTargets = highlightTargetSet(options.highlights, allLabels)
 
   // Clip bars to the chart area so they truncate at axis boundaries.
@@ -378,7 +383,13 @@ export function render(
         }
         return barColor(d.label, d.value)
       })
-      .attr('opacity', (d: WaterfallDatum) => highlightTargets.size > 0 ? highlightOpacity(highlightTargets, d.label) : null)
+      .attr('opacity', (d: WaterfallDatum) => {
+        const faded = !d.isTotal && cueFor(d.label, d.value).faded
+        if (faded) {
+          return barOpacity(d.label, d.value)
+        }
+        return highlightTargets.size > 0 ? highlightOpacity(highlightTargets, d.label) : null
+      })
 
     mountOverlays()
 
@@ -404,6 +415,9 @@ export function render(
         .attr('dominant-baseline', pos === ValueLabelPosition.Inside ? 'central' : 'auto')
         .attr('fill', (d: WaterfallDatum) => {
           if (pos === ValueLabelPosition.Inside) {
+            if (!d.isTotal && cueFor(d.label, d.value).faded) {
+              return 'currentColor'
+            }
             return contrastTextColor(d.isTotal ? totalColor : barColor(d.label, d.value))
           }
           return 'currentColor'
@@ -436,7 +450,7 @@ export function render(
         width: x.bandwidth(),
         height: Math.abs(y(d.value) - y(0)),
         fill: barColor(d.label, d.value),
-        opacity: highlightOpacity(highlightTargets, d.label),
+        opacity: barOpacity(d.label, d.value),
       }),
     })
     mountOverlays()
@@ -483,6 +497,7 @@ export function render(
       renderValueLabels(unclippedGroup, barData, x, y, {
         position: options.valueLabelPosition,
         barColor,
+        isFaded: d => cueFor(d.label, d.value).faded,
         transition,
         swapLabelValue,
         percent: options.valueLabels === 'percent',
@@ -564,6 +579,7 @@ function renderValueLabels(
   opts: {
     position?: ValueLabelPosition
     barColor: (label: string, value: number) => string
+    isFaded: (d: BarDatum) => boolean
     transition: boolean
     swapLabelValue?: boolean
     percent?: boolean
@@ -618,7 +634,7 @@ function renderValueLabels(
         'y': a.ty,
         'text-anchor': a.anchor,
         'dominant-baseline': a.baseline,
-        'fill': a.isInside
+        'fill': a.isInside && !opts.isFaded(d)
           ? contrastTextColor(opts.barColor(d.label, d.value))
           : 'currentColor',
       }
