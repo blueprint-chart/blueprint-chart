@@ -36,13 +36,13 @@ test.describe('overlays authoring', () => {
 
   test('adds a range overlay on one series of a multi-series bar chart', async ({ page }) => {
     const medals = [
-      'Nation\tGold\tSilver\tBronze',
-      'USA\t40\t44\t42',
-      'China\t40\t27\t24',
-      'Japan\t20\t12\t13',
-      'Great Britain\t14\t22\t29',
-      'Australia\t18\t19\t16',
-      'France\t16\t26\t22',
+      'Nation\tGold\tSilver\tBronze\tTotal',
+      'USA\t40\t44\t42\t126',
+      'China\t40\t27\t24\t91',
+      'Japan\t20\t12\t13\t45',
+      'Great Britain\t14\t22\t29\t65',
+      'Australia\t18\t19\t16\t53',
+      'France\t16\t26\t22\t64',
     ].join('\n')
     await page.goto('/#/new')
     await page.locator('textarea').fill(medals)
@@ -61,8 +61,13 @@ test.describe('overlays authoring', () => {
     const bar = section.locator('.form-control-dropdown', { hasText: 'Bar' })
     await expect(bar).toBeVisible()
     await bar.locator('button').click()
-    await page.locator('.dropdown-menu.show .form-control-dropdown-item__content__text__label', { hasText: 'Gold' }).click()
+    await page.locator('.dropdown-menu.show .form-control-dropdown-item__content__text__label', { hasText: 'Total' }).click()
 
     await expect(page.locator(`${frame} .bc-overlay-range`)).toHaveCount(6)
+
+    await page.locator('.chart-edit-toolbar [aria-label="View options"]').click()
+    await page.locator('.canvas-view-picker').getByText('BPC', { exact: true }).click()
+    await page.keyboard.press('Escape')
+    await expect(page.locator('.chart-edit-dsl')).toContainText('bar = "Total"')
   })
 })

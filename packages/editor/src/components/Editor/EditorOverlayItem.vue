@@ -42,7 +42,7 @@
       />
 
       <FormControlDropdown
-        v-if="bars"
+        v-if="bars?.length"
         :id="`overlay-bar-${id}`"
         :model-value="bar"
         label="Bar"

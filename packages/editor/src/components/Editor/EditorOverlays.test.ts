@@ -304,4 +304,15 @@ describe('EditorOverlays bar picker', () => {
     const { w } = mountSeries(false, [{ columns: ['Gold'] }])
     expect(barField(w)).toBeUndefined()
   })
+
+  it('shows the stored bar instead of the first option', () => {
+    const { w } = mountSeries(true, [{ columns: ['Gold'], bar: 'Bronze' }])
+    const field = barField(w)!
+    expect(field.props('modelValue')).toBe('Bronze')
+  })
+
+  it('hides the Bar field when no column is left', () => {
+    const { w } = mountSeries(true, [{ columns: ['Gold', 'Silver'] }, { columns: ['Bronze'] }])
+    expect(barField(w)).toBeUndefined()
+  })
 })
