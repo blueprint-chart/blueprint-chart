@@ -5,7 +5,6 @@ import { createFrame } from '../../frame/frame'
 import { createCanvas, contentSize, labelPositionMargins, estimateCategoryLabelWidth, computeMarginDelta } from '../../canvas/canvas'
 import { AxisService } from '../../axis/axis-service'
 import { renderHorizontalAxis } from '../../axis/horizontal-axis'
-import { renderLegend } from '../../legend/legend'
 import { estimateLegendSize } from '../../legend/legend-size'
 import { contrastTextColor, resolveBackgroundColor } from '../../contrast'
 import { createAnnotationPlugin, snapshotAnnotations, type AnnotationSnapshot } from '../../plugins/annotations'
@@ -19,13 +18,13 @@ import { computeLinearDomain, resolveBarGapPadding } from '../../scale-helpers'
 import { ensureClipPath } from '../../clip-path-helper'
 import { featureJoin, getSceneTransition, tweenPlotFrame, type PlotRect } from '../../../transitions'
 import { createPluginHost } from '../../plugins/plugin-host'
-import { Orientation, ValueLabelPosition, LabelPosition, ScaleType } from '../../../enums'
+import { Orientation, ValueLabelPosition, LabelPosition, ScaleType, DirectLabelMode } from '../../../enums'
 import { highlightTargetSet, highlightOpacity } from '../../plugins/highlight'
 import { buildColorOverrides } from '../../plugins/colorize'
 import { shouldRenderValueLabel, estimateTextInk } from '../../value-label-fit'
 import { CATEGORY_LABEL_HEIGHT, categoryLabelLineHeight, categoryLabelsNeedTheirOwnLine } from '../../category-label-line'
 import { DEFAULT_COLORS } from '../../palettes'
-import { resolveOverlays, overlayDomainValues, overlayTooltipFormat, mountOverlayLayer, type OverlayGeometry, type ResolvedOverlay } from '../../overlays/overlays'
+import { resolveOverlays, overlayDomainValues, overlayTooltipFormat, mountOverlayLayer, drawOverlayLegend, overlayKeyEntries, drawOverlayDirectLabels, directLabelWidth, type OverlayGeometry, type ResolvedOverlay } from '../../overlays/overlays'
 
 const PANEL_GAP = 16
 const VALUE_LABEL_GAP = 4
@@ -209,8 +208,14 @@ export function render(
   // Reserve space for panel headers above the chart area
   lpMargins.top = (lpMargins.top ?? 12) + PANEL_HEADER_HEIGHT
 
+  const wantsDirectLabels = Boolean(options.directLabelling ?? DirectLabelMode.Auto) && resolved.overlays.length > 0
+  if (wantsDirectLabels) {
+    lpMargins.right = Math.max(lpMargins.right ?? 15, directLabelWidth(resolved.overlays))
+  }
+  const keyEntries = overlayKeyEntries(resolved.overlays, !wantsDirectLabels)
+  const legendTitles = [...legendNames, ...keyEntries.map(entry => entry.title)]
   const legendAvailableWidth = Math.max(0, containerWidth - (lpMargins.left ?? 50) - (lpMargins.right ?? 20))
-  const legendSize = showLegend ? estimateLegendSize(legendNames, legendPos, legendAvailableWidth) : { width: 0, height: 0 }
+  const legendSize = showLegend ? estimateLegendSize(legendTitles, legendPos, legendAvailableWidth) : { width: 0, height: 0 }
   const legendH = showLegend ? legendSize.height + 15 : 0
 
   const marginOverrides: Record<string, number> = { ...lpMargins }
@@ -490,7 +495,12 @@ export function render(
   })
 
   // Legend
-  if (showLegend && legendNames.length > 0) {
+  if (wantsDirectLabels) {
+    const labelGroup = d3.select(chartArea).append('g').attr('class', 'bc-overlay-labels').node()!
+    drawOverlayDirectLabels(labelGroup, resolved.overlays, data.labels, overlayRows, geometryFor)
+  }
+
+  if (showLegend && legendTitles.length > 0) {
     const legendColors = legendNames.map((name) => {
       const idx = allSeries.findIndex(s => s.name === name)
       return resolveSeriesColor(name, idx, colors, overrides)
@@ -510,6 +520,7 @@ export function render(
     else if (legendPos === 'right') {
       xPos = width + 10
     }
-    renderLegend(chartArea, legendNames, legendColors, yPos, legendPos, legendAnchor, width, height, xPos, [], { left: margin.left, right: margin.right })
+    const placement = { position: legendPos, anchor: legendAnchor, width, height, x: xPos, y: yPos, inset: { left: margin.left, right: margin.right } }
+    drawOverlayLegend(chartArea, keyEntries, placement, { names: legendNames, colors: legendColors })
   }
 }

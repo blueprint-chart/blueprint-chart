@@ -5,7 +5,6 @@ import { createFrame } from '../../frame/frame'
 import { createCanvas, contentSize, labelPositionMargins, estimateVerticalLabelWidth, computeMarginDelta } from '../../canvas/canvas'
 import { resolveHorizontalAxisBottom } from '../../axis/horizontal-axis'
 import { AxisService } from '../../axis/axis-service'
-import { renderLegend } from '../../legend/legend'
 import { estimateLegendSize } from '../../legend/legend-size'
 import { computeLinearDomain, resolveBarGapPadding } from '../../scale-helpers'
 import { createAnnotationPlugin, snapshotAnnotations, type AnnotationSnapshot } from '../../plugins/annotations'
@@ -25,7 +24,7 @@ import { highlightTargetSet, highlightOpacity } from '../../plugins/highlight'
 import { buildColorOverrides } from '../../plugins/colorize'
 import { DEFAULT_COLORS } from '../../palettes'
 import { formatValueLabel } from '../../format-helpers'
-import { resolveOverlays, overlayDomainValues, overlayTooltipFormat, mountOverlayLayer, type OverlayGeometry, type ResolvedOverlay } from '../../overlays/overlays'
+import { resolveOverlays, overlayDomainValues, overlayTooltipFormat, mountOverlayLayer, drawOverlayLegend, overlayKeyEntries, type OverlayGeometry, type ResolvedOverlay } from '../../overlays/overlays'
 
 /** Gap between a bar's end and the label just outside it. */
 const LABEL_GAP_PX = 4
@@ -99,7 +98,9 @@ export function render(
     : (options.directLabelling ? DirectLabelMode.Auto : DirectLabelMode.Off)
 
   // Compute margin adjustments for legend
-  const showLegend = options.legend !== false && !wantsDirect
+  const keyEntries = overlayKeyEntries(resolved.overlays)
+  const showLegend = options.legend !== false && (!wantsDirect || keyEntries.length > 0)
+  const estimateNames = wantsDirect ? [] : seriesNames
   const containerWidth = contentSize(body).width
   const NARROW_THRESHOLD = 350
   const requestedLegendPos = options.legendPosition ?? 'top'
@@ -113,7 +114,7 @@ export function render(
 
   const vLabelsInside = lpMargins.top != null
   const legendAvailableWidth = Math.max(0, containerWidth - (lpMargins.left ?? 50) - (lpMargins.right ?? 20))
-  const legendSize = showLegend ? estimateLegendSize(seriesNames, legendPos, legendAvailableWidth) : { width: 0, height: 0 }
+  const legendSize = showLegend ? estimateLegendSize([...estimateNames, ...keyEntries.map(entry => entry.title)], legendPos, legendAvailableWidth) : { width: 0, height: 0 }
   const legendH = showLegend ? legendSize.height + 15 : 0
   const marginOverrides: Record<string, number> = { ...lpMargins }
   if (showLegend && legendPos === 'top') {
@@ -469,7 +470,7 @@ export function render(
     return resolveSeriesLabelMode(name, globalLabelMode, overrides) === 'legend'
   })
 
-  if (showLegend && legendSeriesNames.length > 0) {
+  if (showLegend && (legendSeriesNames.length > 0 || keyEntries.length > 0)) {
     const legendColors = legendSeriesNames.map((name) => {
       const idx = allSeries.findIndex(s => s.name === name)
       return resolveSeriesColor(name, idx, colors, overrides)
@@ -490,6 +491,7 @@ export function render(
     else if (legendPos === 'right') {
       xPos = width + 10
     }
-    renderLegend(chartArea, legendSeriesNames, legendColors, yPos, legendPos, legendAnchor, width, height, xPos, [], { left: margin.left, right: margin.right })
+    const placement = { position: legendPos, anchor: legendAnchor, width, height, x: xPos, y: yPos, inset: { left: margin.left, right: margin.right } }
+    drawOverlayLegend(chartArea, keyEntries, placement, { names: legendSeriesNames, colors: legendColors })
   }
 }

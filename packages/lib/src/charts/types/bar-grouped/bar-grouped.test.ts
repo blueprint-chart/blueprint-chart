@@ -515,4 +515,39 @@ describe('bar-grouped', () => {
       document.getElementById('bc-tooltip-styles')?.remove()
     })
   })
+
+  describe('overlay key', () => {
+    function legendTexts(): (string | null)[] {
+      return Array.from(container.querySelectorAll('.bc-legend-item')).map(node => node.textContent)
+    }
+
+    const keyData = {
+      labels: ['A', 'B'],
+      values: [],
+      series: [
+        { name: 'Gold', values: [5, 8] },
+        { name: 'Gold low', values: [4, 6] },
+        { name: 'Gold high', values: [7, 9] },
+        { name: 'Silver', values: [3, 4] },
+      ],
+    }
+    const keyRange = [{ columns: ['Gold low', 'Gold high'], bar: 'Gold' }]
+
+    it('lists the range after the series when direct labelling is off', () => {
+      render(container, keyData, { overlays: keyRange, directLabelling: false })
+      expect(legendTexts()).toEqual(['Gold', 'Silver', 'Gold low to Gold high'])
+    })
+
+    it('labels the range directly and keeps it out of the key', () => {
+      render(container, keyData, { overlays: keyRange, directLabelling: true })
+      const label = container.querySelector('.bc-overlay-label')!
+      expect(label.textContent).toBe('Gold low to Gold high')
+      expect(legendTexts()).toEqual(['Gold', 'Silver'])
+    })
+
+    it('hides the key with legend false', () => {
+      render(container, keyData, { overlays: keyRange, legend: false })
+      expect(container.querySelectorAll('.bc-legend-item')).toHaveLength(0)
+    })
+  })
 })

@@ -730,4 +730,34 @@ describe('bar-multi', () => {
       document.getElementById('bc-tooltip-styles')?.remove()
     })
   })
+
+  describe('overlay key', () => {
+    function legendTexts(): (string | null)[] {
+      return Array.from(container.querySelectorAll('.bc-legend-item')).map(node => node.textContent)
+    }
+
+    const keyData = {
+      labels: ['A', 'B'],
+      values: [],
+      series: [
+        { name: 'Gold', values: [5, 8] },
+        { name: 'Gold low', values: [4, 6] },
+        { name: 'Gold high', values: [7, 9] },
+        { name: 'Silver', values: [3, 4] },
+      ],
+    }
+    const keyRange = [{ columns: ['Gold low', 'Gold high'], bar: 'Gold' }]
+
+    it('lists the range after the series, styled as a range', () => {
+      render(container, keyData, { overlays: keyRange })
+      expect(legendTexts()).toEqual(['Gold', 'Silver', 'Gold low to Gold high'])
+      const swatch = container.querySelectorAll('.bc-legend-item rect')[2]
+      expect(swatch.getAttribute('fill-opacity')).toBe('0.3')
+    })
+
+    it('hides the key with legend false', () => {
+      render(container, keyData, { overlays: keyRange, legend: false })
+      expect(container.querySelectorAll('.bc-legend-item')).toHaveLength(0)
+    })
+  })
 })

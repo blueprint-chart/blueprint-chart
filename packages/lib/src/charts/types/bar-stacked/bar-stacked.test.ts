@@ -627,4 +627,38 @@ describe('bar-stacked', () => {
       expect(lowEdge).toBeGreaterThanOrEqual(-0.001)
     })
   })
+
+  describe('overlay key', () => {
+    function legendTexts(): (string | null)[] {
+      return Array.from(container.querySelectorAll('.bc-legend-item')).map(node => node.textContent)
+    }
+
+    const keyData = {
+      labels: ['A', 'B'],
+      values: [],
+      series: [
+        { name: 'A', values: [5, 3] },
+        { name: 'B', values: [2, 4] },
+        { name: 'Target', values: [9, 6] },
+      ],
+    }
+    const keyTarget = [{ columns: ['Target'] }]
+
+    it('labels the target directly and keeps it out of the key', () => {
+      render(container, keyData, { overlays: keyTarget, directLabelling: true })
+      const label = container.querySelector('.bc-overlay-label')!
+      expect(label.textContent).toBe('Target')
+      expect(legendTexts()).toEqual(['A', 'B'])
+    })
+
+    it('lists the target in the key when direct labelling is off', () => {
+      render(container, keyData, { overlays: keyTarget, directLabelling: false })
+      expect(legendTexts()).toEqual(['A', 'B', 'Target'])
+    })
+
+    it('hides the key with legend false', () => {
+      render(container, keyData, { overlays: keyTarget, legend: false })
+      expect(container.querySelectorAll('.bc-legend-item')).toHaveLength(0)
+    })
+  })
 })

@@ -690,7 +690,6 @@ describe('column-stacked', () => {
       render(container, overlayData, { overlays: target })
       expect(markers()).toHaveLength(2)
       expect(container.querySelector('.bc-bar[data-series="Target"]')).toBeNull()
-      expect(container.querySelector('.bc-legend')?.textContent ?? '').not.toContain('Target')
     })
 
     it('spans the full stack thickness', () => {
@@ -736,6 +735,35 @@ describe('column-stacked', () => {
       const lowEdge = Number(range.getAttribute('y'))
       const bottom = lowEdge + Number(range.getAttribute('height'))
       expect(bottom).toBeLessThanOrEqual(plotExtent() + 0.001)
+    })
+  })
+
+  describe('overlay key', () => {
+    function legendTexts(): (string | null)[] {
+      return Array.from(container.querySelectorAll('.bc-legend-item')).map(node => node.textContent)
+    }
+
+    const keyData = {
+      labels: ['A', 'B'],
+      values: [],
+      series: [
+        { name: 'A', values: [5, 3] },
+        { name: 'B', values: [2, 4] },
+        { name: 'Target', values: [9, 6] },
+      ],
+    }
+    const keyTarget = [{ columns: ['Target'] }]
+
+    it('lists the target with a line swatch', () => {
+      render(container, keyData, { overlays: keyTarget })
+      expect(legendTexts()).toEqual(['A', 'B', 'Target'])
+      const swatch = container.querySelectorAll('.bc-legend-item rect')[2]
+      expect(swatch.getAttribute('height')).toBe('3')
+    })
+
+    it('hides the key with legend false', () => {
+      render(container, keyData, { overlays: keyTarget, legend: false })
+      expect(container.querySelectorAll('.bc-legend-item')).toHaveLength(0)
     })
   })
 })

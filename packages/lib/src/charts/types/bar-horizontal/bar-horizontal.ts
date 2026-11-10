@@ -6,7 +6,7 @@ import { createCanvas, contentSize, labelPositionMargins, estimateCategoryLabelW
 import { AxisService } from '../../axis/axis-service'
 import { computeLinearDomain, resolveBarGapPadding } from '../../scale-helpers'
 import { createTooltipPlugin } from '../../plugins/tooltip'
-import { resolveOverlays, barCue, overlayDomainValues, overlayTooltipFormat, mountOverlayLayer, drawOverlayLegend, overlayKeyEntries, drawOverlayDirectLabels, type OverlayGeometry, type ResolvedOverlay } from '../../overlays/overlays'
+import { resolveOverlays, barCue, overlayDomainValues, overlayTooltipFormat, mountOverlayLayer, drawOverlayLegend, overlayKeyEntries, drawOverlayDirectLabels, directLabelWidth, type OverlayGeometry } from '../../overlays/overlays'
 import { overlayKeyLayout } from '../../overlays/overlay-key'
 import { createCrosshairPlugin } from '../../plugins/crosshair'
 import { createAnnotationPlugin, snapshotAnnotations, type AnnotationSnapshot } from '../../plugins/annotations'
@@ -566,11 +566,6 @@ export function render(
     fadeIn(clippedGroup.node()!)
     commitFadeOut(container, fadeOverlay)
   }
-}
-
-function directLabelWidth(overlays: ResolvedOverlay[]): number {
-  const widths = overlays.map(overlay => estimateTextInk(overlay.title))
-  return Math.max(...widths) + VALUE_LABEL_GAP * 2
 }
 
 function valueLabelAttrs(

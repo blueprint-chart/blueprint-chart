@@ -401,4 +401,41 @@ describe('bar-split', () => {
       expect(tickTexts(1)).not.toEqual(silverBefore)
     })
   })
+
+  describe('overlay key', () => {
+    function legendTexts(): (string | null)[] {
+      return Array.from(container.querySelectorAll('.bc-legend-item')).map(node => node.textContent)
+    }
+
+    const keyData = {
+      labels: ['A', 'B'],
+      values: [],
+      series: [
+        { name: 'Gold', values: [5, 8] },
+        { name: 'Gold low', values: [4, 6] },
+        { name: 'Gold high', values: [7, 9] },
+        { name: 'Silver', values: [3, 4] },
+      ],
+    }
+    const keyRange = [{ columns: ['Gold low', 'Gold high'], bar: 'Gold' }]
+
+    it('places the direct label beyond the range in its panel', () => {
+      render(container, keyData, { overlays: keyRange })
+      const label = container.querySelector('.bc-overlay-label')!
+      const rect = container.querySelector('rect.bc-overlay-range')!
+      const farEnd = Number(rect.getAttribute('x')) + Number(rect.getAttribute('width'))
+      expect(Number(label.getAttribute('x'))).toBeGreaterThan(farEnd)
+      expect(legendTexts()).toEqual(['Gold', 'Silver'])
+    })
+
+    it('lists the range in the key when direct labelling is off', () => {
+      render(container, keyData, { overlays: keyRange, directLabelling: false })
+      expect(legendTexts()).toEqual(['Gold', 'Silver', 'Gold low to Gold high'])
+    })
+
+    it('hides the key with legend false', () => {
+      render(container, keyData, { overlays: keyRange, legend: false })
+      expect(container.querySelectorAll('.bc-legend-item')).toHaveLength(0)
+    })
+  })
 })

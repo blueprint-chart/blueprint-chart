@@ -8,6 +8,7 @@ import { readSeriesTable, splitDataLines } from '../parse-data'
 import { renderLegend } from '../legend/legend'
 import { makeDefaultFormat } from '../plugins/tooltip'
 import { formatValueLabel } from '../format-helpers'
+import { estimateTextInk } from '../value-label-fit'
 
 export const OVERLAY_CHART_TYPES: ReadonlySet<string> = new Set(['bar-vertical', 'bar-horizontal', 'bar-multi', 'bar-grouped', 'bar-split', 'bar-stacked', 'column-stacked'])
 export const OVERLAY_SERIES_CHART_TYPES: ReadonlySet<string> = new Set(['bar-multi', 'bar-grouped', 'bar-split'])
@@ -453,6 +454,12 @@ export function mountOverlayLayer(container: HTMLElement, parent: SVGGElement, p
 }
 
 const DIRECT_LABEL_GAP = 6
+const DIRECT_LABEL_PADDING = 8
+
+export function directLabelWidth(overlays: ResolvedOverlay[]): number {
+  const widths = overlays.map(overlay => estimateTextInk(overlay.title))
+  return Math.max(...widths) + DIRECT_LABEL_PADDING
+}
 
 export function drawOverlayDirectLabels(group: SVGGElement, overlays: ResolvedOverlay[], labels: string[], rows: number[], geometryFor: OverlayGeometryFor): void {
   const label = labels[0]
