@@ -1573,8 +1573,7 @@ describe('bar-vertical', () => {
 
     it('draws ranges under value markers', () => {
       render(container, overlayData, { overlays: rangeAndValue })
-      const layer = container.querySelector('.bc-overlays')!
-      const children = Array.from(layer.children)
+      const children = overlayEls('.bc-overlay')
       const firstRange = children.findIndex(el => el.classList.contains('bc-overlay-range'))
       const firstValue = children.findIndex(el => el.classList.contains('bc-overlay-value'))
       expect(firstRange).toBeGreaterThanOrEqual(0)
@@ -1671,6 +1670,16 @@ describe('bar-vertical', () => {
       const entered = overlayEls('.bc-overlay')
       expect(entered.length).toBeGreaterThan(0)
       expect(entered[0].getAttribute('data-bc-role')).toBe('mark-per-cell')
+    })
+
+    it('keeps ranges under value markers when a scene adds a range', () => {
+      render(container, overlayData, { overlays: [{ columns: ['Last'] }] })
+      render(container, overlayData, { overlays: rangeAndValue }, true)
+      const all = overlayEls('.bc-overlay')
+      const lastRange = all.map(el => el.classList.contains('bc-overlay-range')).lastIndexOf(true)
+      const firstValue = all.findIndex(el => el.classList.contains('bc-overlay-value'))
+      expect(lastRange).toBeGreaterThanOrEqual(0)
+      expect(lastRange).toBeLessThan(firstValue)
     })
 
     it('moves overlays with their row when sorted', () => {

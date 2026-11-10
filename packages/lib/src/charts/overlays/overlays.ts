@@ -198,7 +198,21 @@ function valueAttrs(cell: OverlayCell, geom: OverlayGeometry, rowOf: Map<string,
   return { 'x1': start, 'x2': start + size, 'y1': position, 'y2': position, 'stroke': cell.overlay.color, 'stroke-width': VALUE_STROKE_WIDTH, 'stroke-opacity': cell.overlay.opacity, 'opacity': 1 }
 }
 
-export function drawOverlays(container: HTMLElement, layer: SVGGElement, overlays: ResolvedOverlay[], labels: string[], rows: number[], geom: OverlayGeometry, _transition: boolean): void {
+export function overlayGroups(layer: SVGGElement): { ranges: SVGGElement, values: SVGGElement } {
+  const group = (name: string) => {
+    const existing = layer.querySelector<SVGGElement>(`:scope > .${name}`)
+    if (existing) {
+      return existing
+    }
+    return d3.select(layer).append('g').attr('class', name).node()!
+  }
+  const ranges = group('bc-overlays-ranges')
+  const values = group('bc-overlays-values')
+  return { ranges, values }
+}
+
+export function drawOverlays(container: HTMLElement, layer: SVGGElement, overlays: ResolvedOverlay[], labels: string[], rows: number[], geom: OverlayGeometry): void {
+  const groups = overlayGroups(layer)
   const orch = getSceneTransition(container)
   const patternIds = drawStripePatterns(layer, overlays)
   const cells = overlayCells(overlays, labels, rows, patternIds)
@@ -208,7 +222,7 @@ export function drawOverlays(container: HTMLElement, layer: SVGGElement, overlay
   const faded = (attrs: Record<string, string | number>) => ({ ...attrs, opacity: 0 })
   featureJoin<OverlayCell>(orch, {
     role: 'mark-per-cell',
-    parent: layer,
+    parent: groups.ranges,
     selector: '.bc-overlay-range',
     data: ranges,
     key: cell => cell.key,
@@ -221,7 +235,7 @@ export function drawOverlays(container: HTMLElement, layer: SVGGElement, overlay
   })
   featureJoin<OverlayCell>(orch, {
     role: 'mark-per-cell',
-    parent: layer,
+    parent: groups.values,
     selector: '.bc-overlay-value',
     data: values,
     key: cell => cell.key,

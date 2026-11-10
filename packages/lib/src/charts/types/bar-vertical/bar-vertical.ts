@@ -7,7 +7,7 @@ import { resolveHorizontalAxisBottom } from '../../axis/horizontal-axis'
 import { AxisService } from '../../axis/axis-service'
 import { computeLinearDomain, resolveBarGapPadding } from '../../scale-helpers'
 import { createTooltipPlugin, makeDefaultFormat } from '../../plugins/tooltip'
-import { resolveOverlays, overlayDomainValues, overlayTooltipLines, drawOverlays, type OverlayGeometry, type ResolvedOverlay } from '../../overlays/overlays'
+import { resolveOverlays, overlayDomainValues, overlayTooltipLines, drawOverlays, overlayGroups, type OverlayGeometry, type ResolvedOverlay } from '../../overlays/overlays'
 import { createCrosshairPlugin } from '../../plugins/crosshair'
 import { createAnnotationPlugin, snapshotAnnotations, type AnnotationSnapshot } from '../../plugins/annotations'
 import { resolveBackgroundColor, contrastTextColor } from '../../contrast'
@@ -293,10 +293,13 @@ export function render(
       return
     }
     const layer = clippedGroup.append('g').attr('class', 'bc-overlays').node()!
+    const groups = overlayGroups(layer)
     for (const el of priorOverlays) {
-      layer.appendChild(el)
+      const isRange = el.classList.contains('bc-overlay-range')
+      const target = isRange ? groups.ranges : groups.values
+      target.appendChild(el)
     }
-    drawOverlays(container, layer, resolved.overlays, overlayLabels, overlayRows, overlayGeometry, transition)
+    drawOverlays(container, layer, resolved.overlays, overlayLabels, overlayRows, overlayGeometry)
   }
   const tooltipFormat = overlayTooltipFormat(resolved.overlays, data.labels, options.verticalAxis?.numberFormat)
 
