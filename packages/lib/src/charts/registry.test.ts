@@ -111,6 +111,15 @@ describe('registry', () => {
     expect(keys).toContain('legendPosition')
   })
 
+  it('bar-horizontal has directLabelling defaulting to auto, plus legend and legendPosition', () => {
+    const options = getChartOptions(ChartType.BarHorizontal)
+    const keys = options.map(o => o.key)
+    const directLabel = options.find(o => o.key === 'directLabelling')
+    expect(directLabel?.default).toBe(DirectLabelMode.Auto)
+    expect(keys).toContain('legend')
+    expect(keys).toContain('legendPosition')
+  })
+
   it.each([ChartType.BarMulti, ChartType.ColumnStacked, ChartType.BarStacked, ChartType.BarSplit, ChartType.BarGrouped])('%s has barGap option', (chartType) => {
     const keys = getChartOptions(chartType).map(o => o.key)
     expect(keys).toContain('barGap')

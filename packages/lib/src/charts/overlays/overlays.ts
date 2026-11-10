@@ -6,6 +6,8 @@ import { unquoteDslString } from '../../dsl/quoting'
 import { parseNumericCell } from '../number-parse'
 import { readSeriesTable, splitDataLines } from '../parse-data'
 import { renderLegend } from '../legend/legend'
+import { makeDefaultFormat } from '../plugins/tooltip'
+import { formatValueLabel } from '../format-helpers'
 
 export const OVERLAY_CHART_TYPES: ReadonlySet<string> = new Set(['bar-vertical', 'bar-horizontal'])
 
@@ -178,26 +180,40 @@ function overlayCells(overlays: ResolvedOverlay[], labels: string[], rows: numbe
   return cells
 }
 
-function overlayBounds(cell: OverlayCell, geom: OverlayGeometry): { start: number, size: number } {
-  const bandwidth = geom.band.bandwidth()
-  const overhang = bandwidth * OVERHANG_RATIO
-  const start = (geom.band(cell.label) ?? 0) - overhang
-  return { start, size: bandwidth + overhang * 2 }
+function bandStart(cell: OverlayCell, geom: OverlayGeometry): number {
+  const overhang = geom.band.bandwidth() * OVERHANG_RATIO
+  return (geom.band(cell.label) ?? 0) - overhang
+}
+
+function bandSize(geom: OverlayGeometry): number {
+  return geom.band.bandwidth() * (1 + OVERHANG_RATIO * 2)
 }
 
 function rangeAttrs(cell: OverlayCell, geom: OverlayGeometry, rowOf: Map<string, number>) {
   const offset = geom.base(rowOf.get(cell.label) ?? 0)
-  const top = geom.value(offset + cell.high)
-  const bottom = geom.value(offset + cell.low)
-  const { start, size } = overlayBounds(cell, geom)
-  return { 'x': start, 'width': size, 'y': Math.min(top, bottom), 'height': Math.abs(bottom - top), 'fill': cell.fill, 'fill-opacity': cell.overlay.opacity, 'opacity': 1 }
+  const first = geom.value(offset + cell.high)
+  const second = geom.value(offset + cell.low)
+  const start = bandStart(cell, geom)
+  const size = bandSize(geom)
+  const from = Math.min(first, second)
+  const length = Math.abs(second - first)
+  const style = { 'fill': cell.fill, 'fill-opacity': cell.overlay.opacity, 'opacity': 1 }
+  if (geom.orientation === 'horizontal') {
+    return { x: from, width: length, y: start, height: size, ...style }
+  }
+  return { x: start, width: size, y: from, height: length, ...style }
 }
 
 function valueAttrs(cell: OverlayCell, geom: OverlayGeometry, rowOf: Map<string, number>) {
   const offset = geom.base(rowOf.get(cell.label) ?? 0)
   const position = geom.value(offset + cell.low)
-  const { start, size } = overlayBounds(cell, geom)
-  return { 'x1': start, 'x2': start + size, 'y1': position, 'y2': position, 'stroke': cell.overlay.color, 'stroke-width': VALUE_STROKE_WIDTH, 'stroke-opacity': cell.overlay.opacity, 'opacity': 1 }
+  const start = bandStart(cell, geom)
+  const end = start + bandSize(geom)
+  const style = { 'stroke': cell.overlay.color, 'stroke-width': VALUE_STROKE_WIDTH, 'stroke-opacity': cell.overlay.opacity, 'opacity': 1 }
+  if (geom.orientation === 'horizontal') {
+    return { x1: position, x2: position, y1: start, y2: end, ...style }
+  }
+  return { x1: start, x2: end, y1: position, y2: position, ...style }
 }
 
 export function overlayGroups(layer: SVGGElement): { ranges: SVGGElement, values: SVGGElement } {
@@ -248,6 +264,50 @@ export function drawOverlays(container: HTMLElement, layer: SVGGElement, overlay
     enterFrom: cell => faded(valueAttrs(cell, geom, rowOf)),
     exitTo: () => ({ opacity: 0 }),
   })
+}
+
+export function mountOverlayLayer(container: HTMLElement, parent: SVGGElement, prior: Element[], overlays: ResolvedOverlay[], labels: string[], rows: number[], geom: OverlayGeometry): void {
+  if (!overlays.length) {
+    return
+  }
+  const layer = d3.select(parent).append('g').attr('class', 'bc-overlays').node()!
+  const groups = overlayGroups(layer)
+  for (const el of prior) {
+    const isRange = el.classList.contains('bc-overlay-range')
+    const target = isRange ? groups.ranges : groups.values
+    target.appendChild(el)
+  }
+  drawOverlays(container, layer, overlays, labels, rows, geom)
+}
+
+const DIRECT_LABEL_GAP = 6
+
+export function drawOverlayDirectLabels(group: SVGGElement, overlays: ResolvedOverlay[], labels: string[], rows: number[], geom: OverlayGeometry): void {
+  const label = labels[0]
+  const row = rows[0]
+  if (label === undefined) {
+    return
+  }
+  const offset = geom.base(row)
+  const centre = (geom.band(label) ?? 0) + geom.band.bandwidth() / 2
+  for (const overlay of overlays) {
+    const low = overlay.low[row]
+    const high = overlay.high[row]
+    if (!Number.isFinite(low) || !Number.isFinite(high)) {
+      continue
+    }
+    const farEnd = geom.value(offset + high)
+    d3.select(group).append('text')
+      .attr('class', 'bc-overlay-label')
+      .attr('data-series', overlay.title)
+      .attr('x', farEnd + DIRECT_LABEL_GAP)
+      .attr('y', centre)
+      .attr('text-anchor', 'start')
+      .attr('dominant-baseline', 'central')
+      .attr('font-size', '11px')
+      .attr('fill', overlay.color)
+      .text(overlay.title)
+  }
 }
 
 export interface OverlayIssue {
@@ -363,4 +423,18 @@ export function drawOverlayLegend(chartArea: SVGGElement, overlays: ResolvedOver
   renderLegend(chartArea, titles, colors, y, position, anchor, width, height, x, [], inset)
   const swatches = chartArea.querySelectorAll<SVGRectElement>('.bc-legend-item rect')
   overlays.forEach((overlay, index) => styleKeySwatch(swatches[index], overlay))
+}
+
+export function overlayTooltipFormat(overlays: ResolvedOverlay[], rowLabels: string[], numberFormat?: string): ((datum: unknown) => string) | undefined {
+  if (!overlays.length) {
+    return undefined
+  }
+  const base = makeDefaultFormat(numberFormat)
+  const formatNumber = (v: number) => formatValueLabel(v, numberFormat)
+  return (datum: unknown) => {
+    const label = (datum as { label: string }).label
+    const row = rowLabels.indexOf(label)
+    const lines = overlayTooltipLines(overlays, row, formatNumber)
+    return [base(datum), ...lines].join('\n')
+  }
 }

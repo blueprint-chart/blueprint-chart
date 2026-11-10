@@ -65,6 +65,9 @@ Every property `bar-horizontal` accepts, beside the [frame and layout keys](/ref
 | `colorPalette` | select, see [Palettes](/guide/palettes) | `Blueprint` |
 | `autoContrast` | boolean | `false` |
 | `allowDarkMode` | boolean | `true` |
+| `legend` | boolean | `true` |
+| `legendPosition` | select: `top`, `bottom`, `left`, `right` | `top` |
+| `directLabelling` | select: `""`, `auto`, `outside`, `inside` | `auto` |
 | `swapLabelValue` | boolean | `false` |
 | `barBackground` | boolean | `false` |
 | `barSeparators` | boolean | `false` |

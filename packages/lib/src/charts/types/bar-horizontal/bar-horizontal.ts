@@ -6,6 +6,8 @@ import { createCanvas, contentSize, labelPositionMargins, estimateCategoryLabelW
 import { AxisService } from '../../axis/axis-service'
 import { computeLinearDomain, resolveBarGapPadding } from '../../scale-helpers'
 import { createTooltipPlugin } from '../../plugins/tooltip'
+import { resolveOverlays, overlayDomainValues, overlayTooltipFormat, mountOverlayLayer, drawOverlayLegend, drawOverlayDirectLabels, type OverlayGeometry, type ResolvedOverlay } from '../../overlays/overlays'
+import { overlayKeyLayout } from '../../overlays/overlay-key'
 import { createCrosshairPlugin } from '../../plugins/crosshair'
 import { createAnnotationPlugin, snapshotAnnotations, type AnnotationSnapshot } from '../../plugins/annotations'
 import { resolveBackgroundColor, contrastTextColor } from '../../contrast'
@@ -14,7 +16,7 @@ import { buildColorOverrides } from '../../plugins/colorize'
 import { setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut } from '../../motion'
 import { getCachedChart, setCachedChart } from '../../transition-cache'
 import { ensureClipPath } from '../../clip-path-helper'
-import { ValueLabelPosition, Orientation, LabelPosition } from '../../../enums'
+import { ValueLabelPosition, Orientation, LabelPosition, DirectLabelMode } from '../../../enums'
 import { sortByValue } from '../../sort-helpers'
 import { featureJoin, getSceneTransition, tweenPlotFrame, type PlotRect } from '../../../transitions'
 import { createPluginHost } from '../../plugins/plugin-host'
@@ -48,7 +50,7 @@ interface WaterfallDatum {
 
 export function render(
   container: HTMLElement,
-  data: ChartData,
+  rawData: ChartData,
   options: ChartOptions = {},
   transition = false,
 ): void {
@@ -59,6 +61,7 @@ export function render(
   // Prior bar rects, re-inserted into the featureJoin layer so the data-join
   // matches them as updates: that gives the resize tween its "from" shape.
   let priorBars: Element[] = []
+  let priorOverlays: Element[] = []
   let priorPlotRect: PlotRect | undefined
   const axes = AxisService.for(container)
   if (transition) {
@@ -68,6 +71,7 @@ export function render(
     axes.detach()
     if (cached?.chartType === 'bar-horizontal') {
       priorBars = Array.from(container.querySelectorAll('.bc-frame .bc-bar'))
+      priorOverlays = Array.from(container.querySelectorAll('.bc-frame .bc-overlay'))
     }
     else if (cached) {
       fadeOverlay = snapshotForFadeOut(container)
@@ -82,6 +86,8 @@ export function render(
   }
 
   const { body } = createFrame(container, options.frame)
+  const resolved = resolveOverlays(rawData, options.overlays)
+  const data = resolved.data
   const containerWidth = contentSize(body).width
   const autoNarrow = categoryLabelsNeedTheirOwnLine(containerWidth, options.verticalAxis?.labelPosition)
   const useCategoryLabelLine = options.categoryLabelLine === true || autoNarrow
@@ -116,7 +122,13 @@ export function render(
     }
   }
 
-  const { chartArea, width, height, margin } = createCanvas(body, lpMargins)
+  const directLabels = (options.directLabelling ?? DirectLabelMode.Auto) as string | boolean
+  const wantsDirectLabels = Boolean(directLabels) && resolved.overlays.length > 0
+  if (wantsDirectLabels) {
+    lpMargins.right = Math.max(lpMargins.right ?? 15, directLabelWidth(resolved.overlays))
+  }
+  const keyLayout = overlayKeyLayout(wantsDirectLabels ? [] : resolved.overlays, options, containerWidth, lpMargins, false)
+  const { chartArea, width, height, margin } = createCanvas(body, keyLayout.margins)
   // Plot rect cached for the next same-type transition's frame-geometry `from`.
   const plotRect: PlotRect = { left: margin.left, top: margin.top, width, height }
   const marginDelta = computeMarginDelta(priorMargin, margin)
@@ -146,9 +158,18 @@ export function render(
 
   // Normal: x = scaleLinear (values), y = scaleBand (labels)
   const useLog = options.horizontalAxis?.scaleType === 'log'
-  const domainValues = isWaterfall
+  const overlayLabels = isWaterfall
+    ? waterfallData.filter(d => !d.isTotal).map(d => d.label)
+    : labels
+  const overlayRows = overlayLabels.map(label => data.labels.indexOf(label))
+  const waterfallBase = new Map(waterfallData
+    .filter(d => !d.isTotal)
+    .map(d => [data.labels.indexOf(d.label), d.x0] as const))
+  const overlayBase = (row: number) => isWaterfall ? (waterfallBase.get(row) ?? 0) : 0
+  const barDomainValues = isWaterfall
     ? waterfallData.flatMap(d => [d.x0, d.x1])
     : barData.map(d => d.value)
+  const domainValues = [...barDomainValues, ...overlayDomainValues(resolved.overlays, overlayRows, overlayBase)]
   const [domainMin, domainMax] = computeLinearDomain(domainValues, options.horizontalAxis?.range, options.horizontalAxis?.scaleType)
   const x = useLog
     ? d3.scaleSymlog().domain([domainMin, domainMax]).nice().range([0, width])
@@ -160,6 +181,7 @@ export function render(
     .range([0, height])
     .padding(resolveBarGapPadding(options.barGap))
 
+  const overlayGeometry: OverlayGeometry = { orientation: 'horizontal', band: y, value: x, base: overlayBase }
   const categoryLabelOffset = useCategoryLabelLine ? categoryLabelLineHeight(y.bandwidth()) : 0
 
   const vAxisBase = swapLabelValue && options.valueLabels && !isWaterfall
@@ -203,6 +225,8 @@ export function render(
   // also deterministic across renders for the same container.
   const idSuffix = clipId.replace(/^bc-clip-/, '')
   const clippedGroup = d3.select(chartArea).append('g').attr('clip-path', `url(#${clipId})`)
+  const mountOverlays = () => mountOverlayLayer(container, clippedGroup.node()!, priorOverlays, resolved.overlays, overlayLabels, overlayRows, overlayGeometry)
+  const tooltipFormat = overlayTooltipFormat(resolved.overlays, data.labels, options.horizontalAxis?.numberFormat)
 
   // Bar backgrounds — full-size rects behind each bar at low opacity
   if (options.barBackground) {
@@ -370,6 +394,8 @@ export function render(
       })
       .attr('opacity', (d: WaterfallDatum) => highlightTargets.size > 0 ? highlightOpacity(highlightTargets, d.label) : null)
 
+    mountOverlays()
+
     if (options.valueLabels) {
       const pos = valueLabelPos
       const labelParent = d3.select(chartArea).append('g') as d3.Selection<SVGGElement, unknown, null, undefined>
@@ -426,6 +452,7 @@ export function render(
         opacity: highlightOpacity(highlightTargets, d.label),
       }),
     })
+    mountOverlays()
 
     // Frame-geometry tween: ease the plot origin (chart-area transform) + clip
     // from the prior scene's rect to the new one on the SAME orchestrator clock,
@@ -445,7 +472,7 @@ export function render(
     // has created the `.bc-bar` marks, not before.
     const chart = createPluginHost(clippedGroup)
     if (options.tooltips) {
-      chart.use(createTooltipPlugin({ numberFormat: options.horizontalAxis?.numberFormat }))
+      chart.use(createTooltipPlugin({ numberFormat: options.horizontalAxis?.numberFormat, format: tooltipFormat }))
     }
     if (options.crosshair) {
       chart.use(createCrosshairPlugin({
@@ -499,12 +526,27 @@ export function render(
     }
   }
 
+  if (wantsDirectLabels) {
+    const labelGroup = d3.select(chartArea).append('g').attr('class', 'bc-overlay-labels').node()!
+    drawOverlayDirectLabels(labelGroup, resolved.overlays, overlayLabels, overlayRows, overlayGeometry)
+  }
+
+  if (keyLayout.show) {
+    const placement = keyLayout.place(width, height, margin)
+    drawOverlayLegend(chartArea, resolved.overlays, placement)
+  }
+
   setCachedChart(container, { chartType: 'bar-horizontal', margin, plotRect })
 
   if (fadeOverlay) {
     fadeIn(clippedGroup.node()!)
     commitFadeOut(container, fadeOverlay)
   }
+}
+
+function directLabelWidth(overlays: ResolvedOverlay[]): number {
+  const widths = overlays.map(overlay => estimateTextInk(overlay.title))
+  return Math.max(...widths) + VALUE_LABEL_GAP * 2
 }
 
 function valueLabelAttrs(
