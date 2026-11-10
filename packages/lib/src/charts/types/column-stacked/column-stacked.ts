@@ -26,6 +26,7 @@ import { StackMode, ScaleType, SortMode, ValueLabelPosition } from '../../../enu
 import { formatValueLabel, percentValueLabel } from '../../format-helpers'
 import { shouldRenderValueLabel } from '../../value-label-fit'
 import { DEFAULT_COLORS } from '../../palettes'
+import { resolveOverlays, overlayDomainValues, overlayTooltipFormat, mountOverlayLayer, type OverlayGeometry } from '../../overlays/overlays'
 
 const LABEL_HEIGHT = 11
 const OUTSIDE_LABEL_GAP = 4
@@ -65,7 +66,7 @@ function flattenStack(
 
 export function render(
   container: HTMLElement,
-  data: ChartData,
+  rawData: ChartData,
   options: ChartOptions = {},
   transition = false,
 ): void {
@@ -74,6 +75,7 @@ export function render(
   let priorBars: Element[] = []
   let fadeOverlay: HTMLElement | null = null
   let priorAnnotations: Map<string, AnnotationSnapshot> | undefined
+  let priorOverlays: Element[] = []
   let priorMargin: { top: number, left: number, right: number, bottom: number } | undefined
   let priorPlotRect: PlotRect | undefined
   const axes = AxisService.for(container)
@@ -84,6 +86,7 @@ export function render(
     axes.detach()
     if (cached?.chartType === 'column-stacked') {
       priorBars = Array.from(container.querySelectorAll('.bc-frame .bc-bar-stacked'))
+      priorOverlays = Array.from(container.querySelectorAll('.bc-frame .bc-overlay'))
     }
     else if (cached) {
       fadeOverlay = snapshotForFadeOut(container)
@@ -99,6 +102,9 @@ export function render(
 
   const { body } = createFrame(container, options.frame)
 
+  const resolved = resolveOverlays(rawData, options.overlays, 'column-stacked', options.stackMode)
+  const data = resolved.data
+  const overlayRows = data.labels.map((_, i) => i)
   const allSeries = seriesOrImplicit(data)
   const series = allSeries.filter(s => !isSeriesHidden(s.name, options.seriesOverrides))
   const seriesNames = series.map(s => s.name)
@@ -131,9 +137,10 @@ export function render(
   // axis has to reach down to it or the segment renders outside the plot.
   const minStackedValue = isPercent ? Math.min(0, d3.min(flatData, d => d.y0) ?? 0) : 0
 
-  const allValues = isPercent
+  const stackValues = isPercent
     ? [minStackedValue, maxStackedValue]
     : flatData.flatMap(d => [d.y0, d.y1])
+  const allValues = [...stackValues, ...overlayDomainValues(resolved.overlays, overlayRows, () => 0)]
   const vLabelW = estimateVerticalLabelWidth(allValues, options.verticalAxis?.range, options.verticalAxis?.numberFormat, options.verticalAxis?.scaleType)
   const lpMargins = labelPositionMargins(containerWidth, options.verticalAxis?.labelPosition, options.horizontalAxis?.labelPosition, options.verticalAxis?.direction, vLabelW)
 
@@ -257,9 +264,18 @@ export function render(
   // Plugins host — kept on the legacy D3Blueprint API. The draw is deferred into
   // the commit flush (when transitioning) so plugins bind after featureJoin has
   // created the `.bc-bar-stacked` marks, not before.
+  const geometry: OverlayGeometry = {
+    orientation: 'vertical',
+    slotStart: label => x(label) ?? 0,
+    slotSize: x.bandwidth(),
+    value: y,
+    base: () => 0,
+  }
+  mountOverlayLayer(container, clippedGroup.node()!, priorOverlays, resolved.overlays, data.labels, overlayRows, () => geometry)
+  const tooltipFormat = overlayTooltipFormat(resolved.overlays, data.labels, options.verticalAxis?.numberFormat)
   const chart = createPluginHost(clippedGroup)
   if (options.tooltips) {
-    chart.use(createTooltipPlugin({ numberFormat: options.verticalAxis?.numberFormat }))
+    chart.use(createTooltipPlugin({ numberFormat: options.verticalAxis?.numberFormat, format: tooltipFormat }))
   }
   if (options.crosshair) {
     chart.use(createCrosshairPlugin({

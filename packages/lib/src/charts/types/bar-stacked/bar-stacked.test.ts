@@ -554,4 +554,77 @@ describe('bar-stacked', () => {
       expect(heights.every(h => h > 0)).toBe(true)
     })
   })
+
+  describe('overlays', () => {
+    const overlayData = {
+      labels: ['A', 'B'],
+      values: [],
+      series: [
+        { name: 'A', values: [5, 3] },
+        { name: 'B', values: [2, 4] },
+        { name: 'Target', values: [9, 6] },
+      ],
+    }
+    const target = [{ columns: ['Target'] }]
+
+    function markers(): Element[] {
+      return Array.from(container.querySelectorAll('line.bc-overlay-value'))
+    }
+
+    function plotExtent(): number {
+      const clip = container.querySelector('clipPath rect')!
+      return Number(clip.getAttribute('width'))
+    }
+
+    it('draws one marker per category and keeps the target out of the stack', () => {
+      render(container, overlayData, { overlays: target })
+      expect(markers()).toHaveLength(2)
+      expect(container.querySelector('.bc-bar[data-series="Target"]')).toBeNull()
+      expect(container.querySelector('.bc-legend')?.textContent ?? '').not.toContain('Target')
+    })
+
+    it('spans the full stack thickness', () => {
+      render(container, overlayData, { overlays: target })
+      const marker = markers()[0]
+      const bars = Array.from(container.querySelectorAll('.bc-bar-stacked')).filter(b => b.getAttribute('data-series') === 'A' || b.getAttribute('data-series') === 'B')
+      const first = bars[0]
+      const start = Number(marker.getAttribute('y1'))
+      const end = Number(marker.getAttribute('y2'))
+      const barStart = Number(first.getAttribute('y'))
+      const barSize = Number(first.getAttribute('height'))
+      expect(start).toBeCloseTo(barStart, 3)
+      expect(end - start).toBeCloseTo(barSize, 3)
+    })
+
+    it('grows the value axis to include the overlay', () => {
+      const tall = { ...overlayData, series: overlayData.series.map(s => s.name === 'Target' ? { ...s, values: [30, 30] } : s) }
+      render(container, tall, { overlays: target })
+      const position = Number(markers()[0].getAttribute('x1'))
+      const inside = position >= 0 && position <= plotExtent() + 0.001
+      expect(inside).toBe(true)
+    })
+
+    it('drops overlays in percent mode and keeps the target out of the stack', () => {
+      render(container, overlayData, { overlays: target, stackMode: StackMode.Percent })
+      expect(container.querySelector('.bc-overlay')).toBeNull()
+      expect(container.querySelector('.bc-bar[data-series="Target"]')).toBeNull()
+    })
+
+    it('extends the domain below zero for a negative overlay', () => {
+      const negative = {
+        labels: ['A', 'B'],
+        values: [],
+        series: [
+          { name: 'A', values: [5, 3] },
+          { name: 'B', values: [-2, 4] },
+          { name: 'Lo', values: [-5, 0] },
+          { name: 'Hi', values: [1, 6] },
+        ],
+      }
+      render(container, negative, { overlays: [{ columns: ['Lo', 'Hi'] }] })
+      const range = container.querySelector('rect.bc-overlay-range')!
+      const lowEdge = Number(range.getAttribute('x'))
+      expect(lowEdge).toBeGreaterThanOrEqual(-0.001)
+    })
+  })
 })
