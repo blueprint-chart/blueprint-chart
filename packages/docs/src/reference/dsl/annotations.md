@@ -115,6 +115,7 @@ The number of columns sets the type: one column draws a value mark (a line acros
 | `belowColor` | value only | Fills bars below the mark. |
 | `aboveTitle` | value only | Key label for `aboveColor`. Defaults to `Above <title>`. |
 | `belowTitle` | value only | Key label for `belowColor`. Defaults to `Below <title>`. |
+| `repeat` | both | How long the overlay lasts in a scene story, same values as an annotation's `repeat`. See [Scenes & transforms](/reference/dsl/scenes-and-transforms). |
 
 Problems such as an unknown column, a non-numeric cell, three or more columns, `pattern` on a value overlay, a cue key on the wrong kind of overlay, an unknown `bar`, no column left for the bars, or a chart type without bars are reported as warnings with an `overlay-` code.
 

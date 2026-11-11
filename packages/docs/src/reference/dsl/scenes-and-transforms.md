@@ -1,6 +1,6 @@
 # DSL — Scenes & transforms
 
-Story-level constructs: **scenes** compose multiple visualisation states into a stepable narrative, and **transforms** describe data-pipeline operations applied before rendering. Scenes can override almost any chart member, including chart `type` and `data`. Annotation lifetime is controlled with the `repeat` property on the annotation itself.
+Story-level constructs: **scenes** compose multiple visualisation states into a stepable narrative, and **transforms** describe data-pipeline operations applied before rendering. Scenes can override almost any chart member, including chart `type` and `data`. Annotation and overlay lifetime is controlled with the `repeat` property on the annotation or overlay itself.
 
 ## Scenes
 
@@ -70,15 +70,15 @@ A "story" can transition between chart types — here from a stacked area to a s
 
 Scenes accept the same member set as the top-level chart.
 
-Annotation lifetime is governed by the `repeat` property on each annotation, not by scene-level verbs:
+Annotation and overlay lifetime is governed by the `repeat` property on each annotation or overlay, not by scene-level verbs:
 
 | Value | Meaning |
 | --- | --- |
-| `repeat = false` (or omitted) | Show only in the scene where the annotation is declared (default). |
+| `repeat = false` (or omitted) | Show only in the scene where it is declared (default). |
 | `repeat = N` | Show in the declaring scene plus the next `N` scenes, so `repeat = 1` spans 2 scenes and `repeat = 3` spans 4. `N` must be a positive integer. |
 | `repeat = true` | Show in the declaring scene and every scene after it. |
 
-A top-level annotation (declared on the chart, outside any scene) anchors at the base chart frame: with no `repeat` it shows only on that first frame, and `repeat` carries it forward into the following scenes.
+A top-level annotation or overlay (declared on the chart, outside any scene) anchors at the base chart frame: with no `repeat` it shows only on that first frame, and `repeat` carries it forward into the following scenes.
 
 ## Transforms
 
