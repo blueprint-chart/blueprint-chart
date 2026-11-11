@@ -150,6 +150,21 @@ describe('useChartConfig', () => {
     })
   })
 
+  describe('overlays are not scene-aware', () => {
+    it('reads and writes base overlays while a scene with overlays is active', () => {
+      const scenes = useScenes()
+      scenes.add()
+      scenes.update(0, { overlays: [{ columns: ['Scene'] }] })
+      scenes.setActive(0)
+      const config = useChartConfig()
+      config._base.overlays.value = [{ columns: ['Base'] }]
+      expect(config.overlays.value).toEqual([{ columns: ['Base'] }])
+      config.overlays.value = [{ columns: ['Edited'] }]
+      expect(config._base.overlays.value).toEqual([{ columns: ['Edited'] }])
+      expect(scenes.activeScene.value?.overlays).toEqual([{ columns: ['Scene'] }])
+    })
+  })
+
   describe('layout player defaults', () => {
     it('has playerType default of buttons', () => {
       const config = useChartConfig()

@@ -152,7 +152,7 @@ const defaults: ChartConfig = {
   layout: { ...layoutDefaults },
 }
 
-type DirectSceneKey = 'chartType' | 'data' | 'colorizes' | 'highlights' | 'areaFills' | 'overlays' | 'annotations' | 'seriesOverrides'
+type DirectSceneKey = 'chartType' | 'data' | 'colorizes' | 'highlights' | 'areaFills' | 'annotations' | 'seriesOverrides'
 
 function sceneDirectRef<T>(baseRef: Ref<T>, sceneKey: DirectSceneKey): WritableComputedRef<T> {
   return computed({
@@ -235,7 +235,6 @@ export const useChartConfigStore = defineStore('chartConfig', () => {
   const colorizes = sceneDirectRef(refs.colorizes, 'colorizes')
   const highlights = sceneDirectRef(refs.highlights, 'highlights')
   const areaFills = sceneDirectRef(refs.areaFills, 'areaFills')
-  const overlays = sceneDirectRef(refs.overlays, 'overlays')
   const annotations = sceneDirectRef(refs.annotations, 'annotations')
   const seriesOverrides = sceneDirectRef(refs.seriesOverrides, 'seriesOverrides')
   const title = scenePropRef(refs.title, 'title')
@@ -262,7 +261,7 @@ export const useChartConfigStore = defineStore('chartConfig', () => {
     colorizes,
     highlights,
     areaFills,
-    overlays,
+    overlays: refs.overlays,
     annotations,
     seriesOverrides,
     title,
