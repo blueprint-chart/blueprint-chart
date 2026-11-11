@@ -23,7 +23,7 @@ import { Orientation, ValueLabelPosition, LabelPosition, ScaleType, SortMode } f
 import { shouldRenderValueLabel, estimateTextInk } from '../../value-label-fit'
 import { CATEGORY_LABEL_HEIGHT, categoryLabelLineHeight, categoryLabelsNeedTheirOwnLine } from '../../category-label-line'
 import { DEFAULT_COLORS } from '../../palettes'
-import { resolveOverlays, barCue, cueLabelFill, overlayDomainValues, overlayTooltipFormat, mountOverlayLayer, drawOverlayLegend, planOverlayLabels, drawOverlayDirectLabelGroup, clearingGeometry, type OverlayGeometry, type ResolvedOverlay } from '../../overlays/overlays'
+import { resolveOverlays, barCue, rowIndex, cueLabelFill, overlayDomainValues, overlayTooltipFormat, mountOverlayLayer, drawOverlayLegend, planOverlayLabels, drawOverlayDirectLabelGroup, clearingGeometry, type OverlayGeometry, type ResolvedOverlay } from '../../overlays/overlays'
 
 interface GroupedBarDatum {
   label: string
@@ -233,8 +233,9 @@ export function render(
 
   const highlightTargets = highlightTargetSet(options.highlights, flatData.map(d => d.seriesName))
   const colorOverrides = buildColorOverrides(options.colorizes)
+  const rowOf = rowIndex(data.labels)
   const cueFor = (d: { label: string, value: number, seriesName: string }) => {
-    const row = data.labels.indexOf(d.label)
+    const row = rowOf.get(d.label) ?? -1
     return barCue(resolved.overlays, row, d.value, d.seriesName)
   }
   const insideLabelFill = (d: { label: string, value: number, seriesName: string }, seriesColor: string) => {

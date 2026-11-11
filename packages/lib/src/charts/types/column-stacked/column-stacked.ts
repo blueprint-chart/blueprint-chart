@@ -25,7 +25,7 @@ import { StackMode, ScaleType, SortMode, ValueLabelPosition } from '../../../enu
 import { formatValueLabel, percentValueLabel } from '../../format-helpers'
 import { shouldRenderValueLabel } from '../../value-label-fit'
 import { DEFAULT_COLORS } from '../../palettes'
-import { resolveOverlays, barCue, cueLabelFill, stackRowTotals, overlayDomainValues, overlayTooltipFormat, mountOverlayLayer, drawOverlayLegend, overlayKeyEntries, type OverlayGeometry } from '../../overlays/overlays'
+import { resolveOverlays, barCue, rowIndex, cueLabelFill, stackRowTotals, overlayDomainValues, overlayTooltipFormat, mountOverlayLayer, drawOverlayLegend, overlayKeyEntries, type OverlayGeometry } from '../../overlays/overlays'
 
 const LABEL_HEIGHT = 11
 const OUTSIDE_LABEL_GAP = 4
@@ -201,8 +201,9 @@ export function render(
 
   const colorOverrides = buildColorOverrides(options.colorizes)
   const rowTotals = stackRowTotals(series, data.labels.length)
+  const rowOf = rowIndex(data.labels)
   const cueFor = (d: { label: string }) => {
-    const row = data.labels.indexOf(d.label)
+    const row = rowOf.get(d.label) ?? -1
     return barCue(resolved.overlays, row, rowTotals[row])
   }
   const insideLabelFill = (d: { label: string, seriesName: string }, seriesColor: string) => {

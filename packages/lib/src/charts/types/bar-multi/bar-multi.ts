@@ -24,7 +24,7 @@ import { highlightTargetSet, highlightOpacity, CUE_FADE_OPACITY } from '../../pl
 import { buildColorOverrides } from '../../plugins/colorize'
 import { DEFAULT_COLORS } from '../../palettes'
 import { formatValueLabel } from '../../format-helpers'
-import { resolveOverlays, barCue, cueLabelFill, overlayDomainValues, overlayTooltipFormat, mountOverlayLayer, drawOverlayLegend, overlayKeyEntries, type OverlayGeometry, type ResolvedOverlay } from '../../overlays/overlays'
+import { resolveOverlays, barCue, rowIndex, cueLabelFill, overlayDomainValues, overlayTooltipFormat, mountOverlayLayer, drawOverlayLegend, overlayKeyEntries, type OverlayGeometry, type ResolvedOverlay } from '../../overlays/overlays'
 
 /** Gap between a bar's end and the label just outside it. */
 const LABEL_GAP_PX = 4
@@ -215,8 +215,9 @@ export function render(
   const orch = getSceneTransition(container)
   const highlightTargets = highlightTargetSet(options.highlights, flatData.map(d => d.seriesName))
   const colorOverrides = buildColorOverrides(options.colorizes)
+  const rowOf = rowIndex(data.labels)
   const cueFor = (d: { label: string, value: number, seriesName: string }) => {
-    const row = data.labels.indexOf(d.label)
+    const row = rowOf.get(d.label) ?? -1
     return barCue(resolved.overlays, row, d.value, d.seriesName)
   }
   const insideLabelFill = (d: { label: string, value: number, seriesName: string }, seriesColor: string) => {

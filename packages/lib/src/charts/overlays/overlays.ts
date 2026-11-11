@@ -135,6 +135,11 @@ function targetColor(overlay: ResolvedOverlay | undefined, row: number, barValue
   return barValue >= marker ? overlay.aboveColor : overlay.belowColor
 }
 
+export function rowIndex(labels: readonly string[]): Map<string, number> {
+  const entries = labels.map((label, row) => [label, row] as const)
+  return new Map(entries)
+}
+
 export function barCue(overlays: ResolvedOverlay[], row: number, barValue: number, bar?: string): BarCue {
   const own = overlays.filter(overlay => overlay.bar === bar)
   const faded = own.some(overlay => crossesRef(overlay, row))

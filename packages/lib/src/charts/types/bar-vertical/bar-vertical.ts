@@ -7,7 +7,7 @@ import { resolveHorizontalAxisBottom } from '../../axis/horizontal-axis'
 import { AxisService } from '../../axis/axis-service'
 import { computeLinearDomain, resolveBarGapPadding } from '../../scale-helpers'
 import { createTooltipPlugin } from '../../plugins/tooltip'
-import { resolveOverlays, barCue, overlayDomainValues, overlayTooltipFormat, mountOverlayLayer, drawOverlayLegend, overlayKeyEntries, type OverlayGeometry } from '../../overlays/overlays'
+import { resolveOverlays, barCue, rowIndex, overlayDomainValues, overlayTooltipFormat, mountOverlayLayer, drawOverlayLegend, overlayKeyEntries, type OverlayGeometry } from '../../overlays/overlays'
 import { overlayKeyLayout } from '../../overlays/overlay-key'
 import { createCrosshairPlugin } from '../../plugins/crosshair'
 import { createAnnotationPlugin, snapshotAnnotations, type AnnotationSnapshot } from '../../plugins/annotations'
@@ -197,7 +197,8 @@ export function render(
   }
 
   const colorOverrides = buildColorOverrides(options.colorizes)
-  const cueFor = (label: string, value: number) => barCue(resolved.overlays, data.labels.indexOf(label), value)
+  const rowOf = rowIndex(data.labels)
+  const cueFor = (label: string, value: number) => barCue(resolved.overlays, rowOf.get(label) ?? -1, value)
   const barColor = (label: string, value: number) => {
     const override = colorOverrides.get(label)
     const cue = cueFor(label, value)

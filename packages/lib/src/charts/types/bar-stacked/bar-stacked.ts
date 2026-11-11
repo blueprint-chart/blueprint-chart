@@ -25,7 +25,7 @@ import { buildColorOverrides } from '../../plugins/colorize'
 import { shouldRenderValueLabel } from '../../value-label-fit'
 import { CATEGORY_LABEL_HEIGHT, categoryLabelLineHeight, categoryLabelsNeedTheirOwnLine } from '../../category-label-line'
 import { DEFAULT_COLORS } from '../../palettes'
-import { resolveOverlays, barCue, cueLabelFill, stackRowTotals, overlayDomainValues, overlayTooltipFormat, mountOverlayLayer, drawOverlayLegend, planOverlayLabels, drawOverlayDirectLabelGroup, clearingGeometry, type OverlayGeometry } from '../../overlays/overlays'
+import { resolveOverlays, barCue, rowIndex, cueLabelFill, stackRowTotals, overlayDomainValues, overlayTooltipFormat, mountOverlayLayer, drawOverlayLegend, planOverlayLabels, drawOverlayDirectLabelGroup, clearingGeometry, type OverlayGeometry } from '../../overlays/overlays'
 
 interface StackedBarDatum {
   label: string
@@ -218,8 +218,9 @@ export function render(
   const categoryLabelOffset = useCategoryLabelLine ? categoryLabelLineHeight(y.bandwidth()) : 0
   const colorOverrides = buildColorOverrides(options.colorizes)
   const rowTotals = stackRowTotals(series, data.labels.length)
+  const rowOf = rowIndex(data.labels)
   const cueFor = (d: { label: string }) => {
-    const row = data.labels.indexOf(d.label)
+    const row = rowOf.get(d.label) ?? -1
     return barCue(resolved.overlays, row, rowTotals[row])
   }
   const insideLabelFill = (d: { label: string, seriesName: string }, seriesColor: string) => {
