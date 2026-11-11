@@ -5,6 +5,20 @@ export function nextOverlayColumn(columns: string[], claimed: Iterable<string>, 
   const candidates = free.filter(name => name !== keptBar)
   const start = after === undefined ? -1 : columns.indexOf(after)
   const following = candidates.find(name => columns.indexOf(name) > start)
-  const reusable = columns.filter(name => taken.has(name) && name !== after)
-  return following ?? candidates[0] ?? reusable[0]
+  return following ?? candidates[0]
+}
+
+export function leastUsedColumn(columns: string[], claimed: string[]): string | undefined {
+  const uses = (name: string) => claimed.filter(taken => taken === name).length
+  const reusable = columns.filter(name => uses(name) > 0)
+  const fewest = Math.min(...reusable.map(uses))
+  return reusable.find(name => uses(name) === fewest)
+}
+
+export function numberedTitle(column: string, titles: string[]): string {
+  let number = 2
+  while (titles.includes(`${column} ${number}`)) {
+    number += 1
+  }
+  return `${column} ${number}`
 }

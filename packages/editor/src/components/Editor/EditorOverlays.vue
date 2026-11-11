@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { OverlayConfig } from '@blueprint-chart/lib'
 import { ButtonAdd } from '@blueprint-chart/ui'
-import { nextOverlayColumn } from '@/utils/chart/overlayColumns'
+import { leastUsedColumn, nextOverlayColumn, numberedTitle } from '@/utils/chart/overlayColumns'
 import EditorOverlayItem from './EditorOverlayItem.vue'
 
 const props = defineProps<{
@@ -18,7 +18,8 @@ const model = defineModel<OverlayConfig[]>({ required: true })
 const claimed = computed(() => [...model.value.flatMap(overlay => overlay.columns), ...(props.reserved ?? [])])
 const unclaimed = computed(() => props.columns.filter(name => !claimed.value.includes(name)))
 const bars = computed(() => props.targetsSeries ? unclaimed.value : undefined)
-const nextColumn = computed(() => nextOverlayColumn(props.columns, claimed.value, props.barColumn))
+const freeColumn = computed(() => nextOverlayColumn(props.columns, claimed.value, props.barColumn))
+const nextColumn = computed(() => freeColumn.value ?? leastUsedColumn(props.columns, claimed.value))
 
 const keys = new WeakMap<OverlayConfig, number>()
 let lastKey = 0
@@ -49,9 +50,10 @@ function add() {
     return
   }
   const overlay: OverlayConfig = { columns: [column] }
-  const uses = claimed.value.filter(name => name === column).length
-  if (uses > 0) {
-    overlay.title = `${column} ${uses + 1}`
+  const listed = model.value.some(existing => existing.columns.includes(column))
+  if (listed) {
+    const titles = model.value.flatMap(existing => existing.title ?? [])
+    overlay.title = numberedTitle(column, titles)
   }
   const bar = unclaimed.value.find(name => name !== column)
   if (props.targetsSeries && bar) {

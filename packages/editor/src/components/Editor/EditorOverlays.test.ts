@@ -68,6 +68,30 @@ describe('EditorOverlays', () => {
     expect(emitted[0][0]).toEqual([{ columns: ['Target'] }, { columns: ['Budget'] }, { columns: ['Target'], title: 'Target 2' }])
   })
 
+  it('never repeats an existing title when it reuses a column', async () => {
+    const w = mountList([{ columns: ['Target'] }, { columns: ['Target'], title: 'Target 3' }, { columns: ['Budget'] }, { columns: ['Budget'] }])
+    await w.find('.button-add').trigger('click')
+    const emitted = w.emitted('update:modelValue')!
+    const added = (emitted[0][0] as OverlayConfig[]).at(-1)
+    expect(added).toEqual({ columns: ['Target'], title: 'Target 2' })
+  })
+
+  it('reuses the least used column', async () => {
+    const w = mountList([{ columns: ['Target'] }, { columns: ['Target'] }, { columns: ['Budget'] }])
+    await w.find('.button-add').trigger('click')
+    const emitted = w.emitted('update:modelValue')!
+    const added = (emitted[0][0] as OverlayConfig[]).at(-1)
+    expect(added?.columns).toEqual(['Budget'])
+  })
+
+  it('numbers no title for a column only another group uses', async () => {
+    const w = mountList([])
+    await w.setProps({ reserved: ['Target', 'Budget'] })
+    await w.find('.button-add').trigger('click')
+    const emitted = w.emitted('update:modelValue')!
+    expect(emitted[0][0]).toEqual([{ columns: ['Target'] }])
+  })
+
   it('never adds an overlay with an empty column', async () => {
     const w = mountList()
     await w.setProps({ columns: [] })
@@ -95,6 +119,13 @@ describe('EditorOverlayItem', () => {
     expect(next.columns).toHaveLength(2)
     expect(next.columns).not.toContain('')
     expect(new Set(next.columns).size).toBe(2)
+  })
+
+  it('never pairs a range with a column another overlay uses', async () => {
+    const w = mount(EditorOverlayItem, { props: { id: 0, overlay: { columns: ['Target'] }, columns, claimed: ['Budget'] } })
+    const range = w.findAll('button').find(b => b.text() === 'Range')!
+    await range.trigger('click')
+    expect(w.emitted('update:overlay')).toBeUndefined()
   })
 
   it('switches a range overlay back to value', async () => {
