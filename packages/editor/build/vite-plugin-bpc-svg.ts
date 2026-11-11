@@ -634,7 +634,21 @@ function renderDotPlot(data: ChartData, colors: string[], opts: ThumbnailOptions
   return svgDoc(horizontalFrame(box, labels, ys, ticks), marks.join(''))
 }
 
+function compactDoc(svg: string, opts: ThumbnailOptions): string {
+  const box = plotBox(opts)
+  const marks = svg.split('<g class="bpc-marks">')[1].slice(0, -'</g></svg>'.length)
+  const withoutGlow = marks.replace(/<[^>]*filter="[^"]*"[^>]*\/>/g, '')
+  const tile = `<rect width="${LAYOUT.width}" height="${LAYOUT.height}" rx="6" fill="var(--bc-thumb-bg)"/>`
+  const baseline = `<line x1="${box.left}" x2="${box.right}" y1="${box.bottom}" y2="${box.bottom}" ${AXIS_ATTRS}/>`
+  return svgDoc(tile + baseline, withoutGlow)
+}
+
 export function renderToSvg(chartType: string, data: ChartData, colors: string[], opts: ThumbnailOptions = { edgePadding: false, compact: false }): string {
+  const svg = renderFull(chartType, data, colors, opts)
+  return opts.compact && svg ? compactDoc(svg, opts) : svg
+}
+
+function renderFull(chartType: string, data: ChartData, colors: string[], opts: ThumbnailOptions): string {
   switch (chartType) {
     case 'bar-vertical': return renderBarVertical(data, colors, opts)
     case 'bar-horizontal': return renderBarHorizontal(data, colors, opts)

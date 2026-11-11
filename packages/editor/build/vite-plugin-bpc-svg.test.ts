@@ -395,3 +395,21 @@ describe('pie and donut thumbnails', () => {
     expect(svg).toMatch(/font-weight="700"[^>]*>35%<\/text>/)
   })
 })
+
+describe('compact thumbnails', () => {
+  const cvd = extractData([
+    { type: 'property', key: 'series', value: 'A,B,C', values: ['A', 'B', 'C'], isPercentage: false },
+    { type: 'property', key: '1', value: '15,12,18', values: [15, 12, 18], isPercentage: false },
+  ])
+  const svg = renderToSvg('bar-multi', cvd, ['#345b9f', '#c5b23f', '#887c40'], { edgePadding: false, compact: true })
+
+  it('keeps literal colors and draws only tile, baseline and bars', () => {
+    expect(svg).toContain('fill="#345b9f"')
+    expect(svg).not.toContain('var(--bc-thumb-series')
+    expect(svg).not.toContain('<text')
+    expect(svg).not.toContain('<circle')
+    expect(svg).not.toContain('filter=')
+    expect(svg).toContain('fill="var(--bc-thumb-bg)"')
+    expect(svg.match(/<line/g)).toHaveLength(1)
+  })
+})
