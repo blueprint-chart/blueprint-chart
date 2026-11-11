@@ -108,22 +108,22 @@ describe('resolveVisibleAnnotations', () => {
 describe('resolveVisibleOverlays', () => {
   const scenes = [{ id: 's0', name: null, overlays: [{ columns: ['S0'] }] }, { id: 's1', name: null }, { id: 's2', name: null }]
 
-  it('shows every base overlay on the base frame', () => {
-    expect(resolveVisibleOverlays([{ columns: ['A'] }], scenes, -1)).toEqual([{ columns: ['A'] }])
+  it('shows every base overlay on the base frame, scene ones hidden', () => {
+    expect(resolveVisibleOverlays([{ columns: ['A'] }], scenes, -1)).toEqual([{ columns: ['A'] }, { columns: ['S0'], hidden: true }])
   })
 
-  it('drops a base overlay with no repeat from the scenes', () => {
-    expect(resolveVisibleOverlays([{ columns: ['A'] }], scenes, 1)).toEqual([])
+  it('keeps a base overlay with no repeat in the scenes, hidden, so its column stays claimed', () => {
+    expect(resolveVisibleOverlays([{ columns: ['A'] }], scenes, 1)).toEqual([{ columns: ['A'], hidden: true }, { columns: ['S0'], hidden: true }])
   })
 
   it('carries a base overlay into the next N scenes, or every scene with always', () => {
     const base = [{ columns: ['N'], repeat: 1 }, { columns: ['All'], repeat: 'always' as const }]
     expect(resolveVisibleOverlays(base, scenes, 0).map(o => o.columns[0])).toEqual(['N', 'All', 'S0'])
-    expect(resolveVisibleOverlays(base, scenes, 2).map(o => o.columns[0])).toEqual(['All'])
+    expect(resolveVisibleOverlays(base, scenes, 2).filter(o => !o.hidden).map(o => o.columns[0])).toEqual(['All'])
   })
 
   it('shows a scene overlay with no repeat only in its own scene', () => {
     expect(resolveVisibleOverlays([], scenes, 0).map(o => o.columns[0])).toEqual(['S0'])
-    expect(resolveVisibleOverlays([], scenes, 1)).toEqual([])
+    expect(resolveVisibleOverlays([], scenes, 1)).toEqual([{ columns: ['S0'], hidden: true }])
   })
 })

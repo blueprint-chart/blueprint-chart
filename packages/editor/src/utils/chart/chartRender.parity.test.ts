@@ -116,8 +116,8 @@ describe('buildChartRender parity', () => {
     const storeRender = buildChartRender(readRenderSnapshot())
     const stateOverlays = stateRender.kind === 'chart' ? stateRender.definition.overlays : undefined
     const storeOverlays = storeRender.kind === 'chart' ? storeRender.definition.overlays : undefined
-    expect(stateOverlays).toHaveLength(1)
-    expect(storeOverlays).toHaveLength(1)
+    expect(stateOverlays?.filter(overlay => !overlay.hidden)).toHaveLength(1)
+    expect(storeOverlays).toEqual(stateOverlays)
   })
 
   it('hides scene-only annotations in the base state', () => {

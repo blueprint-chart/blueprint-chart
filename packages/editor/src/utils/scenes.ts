@@ -1,4 +1,4 @@
-import { SortDirection } from '@blueprint-chart/lib'
+import { SortDirection, repeatVisible, sceneOverlays } from '@blueprint-chart/lib'
 import type { AnnotationConfig, OverlayConfig } from '@blueprint-chart/lib'
 import { TransformType } from '../enums'
 import type { SceneOverride } from '@/composables/useScenes'
@@ -7,19 +7,6 @@ export interface VisibleAnnotation {
   config: AnnotationConfig
   key: string
   anchor: number
-}
-
-// `repeat` is the number of EXTRA frames beyond the annotation's own
-// (undefined/absent → 0 → shows once); visible across [anchor, anchor + extra].
-function repeatVisibleAt(anchor: number, repeat: number | 'always' | undefined, index: number): boolean {
-  if (index < anchor) {
-    return false
-  }
-  if (repeat === 'always') {
-    return true
-  }
-  const extra = typeof repeat === 'number' ? repeat : 0
-  return index <= anchor + extra
 }
 
 /**
@@ -40,7 +27,7 @@ export function resolveVisibleAnnotations(
   // frame, `repeat = N` carries them into the next N-1 scenes, and `always`
   // shows them everywhere. With no scenes there is just the base frame.
   baseAnnotations.forEach((config, i) => {
-    if (repeatVisibleAt(-1, config.repeat, activeIndex)) {
+    if (repeatVisible(-1, config.repeat, activeIndex)) {
       result.push({ config, key: `base:${i}:${config.kind}`, anchor: -1 })
     }
   })
@@ -48,7 +35,7 @@ export function resolveVisibleAnnotations(
     for (let j = 0; j <= activeIndex && j < scenes.length; j++) {
       const anns = scenes[j].annotations ?? []
       anns.forEach((config, i) => {
-        if (repeatVisibleAt(j, config.repeat, activeIndex)) {
+        if (repeatVisible(j, config.repeat, activeIndex)) {
           result.push({ config, key: `s${j}:${i}:${config.kind}`, anchor: j })
         }
       })
@@ -58,20 +45,16 @@ export function resolveVisibleAnnotations(
 }
 
 /**
- * Overlays visible at `activeIndex` under the `repeat` rule. Base overlays
- * anchor at the base frame (-1), a scene's overlays at that scene's index.
+ * Overlays of the frame at `activeIndex` under the `repeat` rule, with the ones
+ * it does not show kept as hidden overlays so their columns stay claimed.
  */
 export function resolveVisibleOverlays(
   baseOverlays: OverlayConfig[],
   scenes: SceneOverride[],
   activeIndex: number,
 ): OverlayConfig[] {
-  const visible = baseOverlays.filter(config => repeatVisibleAt(-1, config.repeat, activeIndex))
-  for (let j = 0; j <= activeIndex && j < scenes.length; j++) {
-    const sceneOverlays = scenes[j].overlays ?? []
-    visible.push(...sceneOverlays.filter(config => repeatVisibleAt(j, config.repeat, activeIndex)))
-  }
-  return visible
+  const sceneLists = scenes.map(scene => scene.overlays ?? [])
+  return sceneOverlays(baseOverlays, sceneLists, activeIndex)
 }
 
 /**
