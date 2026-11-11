@@ -92,7 +92,7 @@ Every property `bar-split` accepts, beside the [frame and layout keys](/referenc
 
 ## Overlays
 
-Overlays add a value mark (one extra column) or a range band (two extra columns) to the bars of one series, named with `bar`. The overlay draws in that series' panel, on the panel's scale, and the panel grows to fit it. Overlay columns are not series, so they never add bars. Without `bar`, or with an unknown name, an overlay goes on the first series and validation warns.
+Overlays add a value mark (one extra column) or a range band (two extra columns) to the bars of one series, named with `bar`. The overlay draws in that series' panel, on the panel's scale, and the panel grows to fit it. With direct labelling on, an overlay title is labelled directly only when its bar is the last panel; otherwise the title goes in the key. Overlay columns are not series, so they never add bars. Without `bar`, or with an unknown name, an overlay goes on the first series and validation warns.
 
 Cues apply to that series only. `muteIfCrosses` on a range overlay fades the series' bar in each category whose range includes the number. `aboveColor` and `belowColor` on a value overlay recolor that bar by whether it reaches the mark. A recolored bar loses its series color, but the series keeps its color in the key.
 

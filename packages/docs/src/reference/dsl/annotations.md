@@ -109,8 +109,8 @@ The number of columns sets the type: one column draws a value mark (a line acros
 | `opacity` | both | Percentage from 0 to 100. Defaults to `100` for a value and `30` for a range. |
 | `pattern` | range only | `solid` (default) or `stripes`. |
 | `hidden` | both | Keeps the overlay in the DSL but does not draw it. A hidden overlay has no cue. |
-| `bar` | both | The series the overlay sits on. Multi-series charts only. |
-| `muteIfCrosses` | range only | A number. Fades every bar whose range on that row includes it, ends included. |
+| `bar` | both | The series the overlay sits on. Multi-series charts only: on single-series and stacked charts it is ignored and validation warns. A missing or unknown `bar` falls back to the first series, with a warning. |
+| `muteIfCrosses` | range only | A number. Fades every bar whose range on that row includes it, ends included. A row with a missing range end never fades. |
 | `aboveColor` | value only | Fills bars that reach the mark (equal counts as reaching). |
 | `belowColor` | value only | Fills bars below the mark. |
 | `aboveTitle` | value only | Key label for `aboveColor`. Defaults to `Above <title>`. |
