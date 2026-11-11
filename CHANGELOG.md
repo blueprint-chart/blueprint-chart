@@ -1,3 +1,36 @@
+## [2.21.0](https://github.com/blueprint-chart/blueprint-chart/compare/v2.20.0...v2.21.0) (2026-11-11)
+
+### Features
+
+* **editor:** compact thumbnail tile for color vision previews ([422bf16](https://github.com/blueprint-chart/blueprint-chart/commit/422bf16ef6099603ab78c0657547b7462fe12b4b))
+* **editor:** full color thumbnail cards with brand best match badge ([d513624](https://github.com/blueprint-chart/blueprint-chart/commit/d5136249fd567ec28bdf265b75efd8ebc269ab4e))
+* **editor:** horizontal bar and dot plot thumbnails with axis and labels ([df57504](https://github.com/blueprint-chart/blueprint-chart/commit/df57504943b6c8ce8f392d106632a661189beb48))
+* **editor:** line, area and scatter thumbnails with glowing hero line ([8c496f1](https://github.com/blueprint-chart/blueprint-chart/commit/8c496f1e752ae5276ecf7abbea5b83e732d8b28f))
+* **editor:** offer the whisker overlay pattern ([492ae0b](https://github.com/blueprint-chart/blueprint-chart/commit/492ae0b5323103c8ea480cddaf0fa3a01deb8613))
+* **editor:** pie and donut thumbnails with percentage legend ([b72fe8f](https://github.com/blueprint-chart/blueprint-chart/commit/b72fe8f6b28858d89e69725fc9f0cc4fc67e8cfd))
+* **editor:** show only the version in the landing eyebrow ([14830d6](https://github.com/blueprint-chart/blueprint-chart/commit/14830d6328e3069279d746b0bc91efc0071ed294))
+* **editor:** show the version on the homepage and in the sidebar ([dab96e6](https://github.com/blueprint-chart/blueprint-chart/commit/dab96e62ae6faacd346e391285abcde774bd2fb8))
+* **editor:** theme tokens and per-instance ids for chart thumbnails ([7a740f7](https://github.com/blueprint-chart/blueprint-chart/commit/7a740f7c8e086c132914356e5e0138cd3fedd6c4))
+* **editor:** vertical bar thumbnails with axis, labels and hero bar ([e8a9c1e](https://github.com/blueprint-chart/blueprint-chart/commit/e8a9c1e7bf84fc0dedb0e81a9de47a95dd1a7379))
+* **lib:** clear the whisker with series value labels ([9e28a5c](https://github.com/blueprint-chart/blueprint-chart/commit/9e28a5c778192494c210d6ced52fe79fa6e5958c))
+* **lib:** clear the whisker with stacked labels and totals ([38cbcb6](https://github.com/blueprint-chart/blueprint-chart/commit/38cbcb6263205cb18edd35095d3f5e11372dc791))
+* **lib:** draw range overlays as whiskers ([94701aa](https://github.com/blueprint-chart/blueprint-chart/commit/94701aac1506c8ed66c556c6d84fac6b9c421c24))
+* **lib:** place bar value labels past the whisker ([89ea720](https://github.com/blueprint-chart/blueprint-chart/commit/89ea7209ae1bce470335d77ef77f4e619ab0b342))
+* **lib:** resolve the whisker pattern on range overlays ([fc41a38](https://github.com/blueprint-chart/blueprint-chart/commit/fc41a38f5be9cc10b04d8316f7e7b905a16bcea6))
+* **lib:** stripe the margin of error bands in the election sample ([60ddd68](https://github.com/blueprint-chart/blueprint-chart/commit/60ddd68dc983c17a0b6dac7d88fd48e0287a985c))
+
+### Bug Fixes
+
+* **ci:** build the editor after the release version bump ([ac5c5d8](https://github.com/blueprint-chart/blueprint-chart/commit/ac5c5d8dfbff7cb21e9a276cc58369b6fdcadb69))
+* **editor:** keep the version lowercase and evenly spaced in the hero eyebrow ([3b9ce45](https://github.com/blueprint-chart/blueprint-chart/commit/3b9ce45a16070b5850afc47ab3b008f71b4d7aa2))
+* **editor:** render no thumbnail for empty chart data ([d7e8fe4](https://github.com/blueprint-chart/blueprint-chart/commit/d7e8fe43dd03376de43b070cb40bde946cca6ddf))
+* **lib:** animate whiskers and stripe holes across scenes ([e2a9de9](https://github.com/blueprint-chart/blueprint-chart/commit/e2a9de966970ba2e74bb6a54539875adb2f0d610))
+* **lib:** drop split value labels with no room past the whisker ([70bda79](https://github.com/blueprint-chart/blueprint-chart/commit/70bda795989d2f8753a3a66a88129f6de3d18080))
+* **lib:** keep stripe patterns and masks consistent across scenes ([443f4a0](https://github.com/blueprint-chart/blueprint-chart/commit/443f4a0d347a94f7dbff4c12200b12e77685ad28))
+* **lib:** keep whisker-pushed waterfall labels on the canvas ([861d9f1](https://github.com/blueprint-chart/blueprint-chart/commit/861d9f1e4e7c4660cbba864b51208b9b988b11ca))
+* **lib:** reserve room for whisker labels on grouped bars ([6093cab](https://github.com/blueprint-chart/blueprint-chart/commit/6093cabeafa9403db9a7d093f5677a4380d6f559))
+* **ui:** move thumbnail theme tokens into the ui tokens ([0d4d02a](https://github.com/blueprint-chart/blueprint-chart/commit/0d4d02ac84530b6d613ad1b38cf750fa9af4a969))
+
 ## [2.20.0](https://github.com/blueprint-chart/blueprint-chart/compare/v2.19.0...v2.20.0) (2026-11-11)
 
 ### Features
