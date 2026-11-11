@@ -99,11 +99,11 @@ export function render(
 
   // Compute margin adjustments for legend
   const keyEntries = overlayKeyEntries(resolved.overlays)
-  const showLegend = options.legend !== false && (!wantsDirect || keyEntries.length > 0)
+  const showLegend = keyEntries.length > 0 || (options.legend !== false && !wantsDirect)
   const legendSeriesNames = seriesNames.filter((name) => {
     return resolveSeriesLabelMode(name, globalLabelMode, overrides) === 'legend'
   })
-  const estimateNames = wantsDirect ? legendSeriesNames : seriesNames
+  const estimateNames = wantsDirect || options.legend === false ? legendSeriesNames : seriesNames
   const keyTitles = keyEntries.map(entry => entry.title)
   const estimateTitles = [...estimateNames, ...keyTitles]
   const containerWidth = contentSize(body).width

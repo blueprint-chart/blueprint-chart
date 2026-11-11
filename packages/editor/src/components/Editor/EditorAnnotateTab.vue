@@ -52,7 +52,7 @@
       :icon="IPhRows"
     >
       <EditorOverlays
-        v-model="overlayList"
+        v-model="overlays"
         :columns="numericColumns"
         :targets-series="targetsSeries"
       />
@@ -77,7 +77,7 @@ import EditorOverlays from './EditorOverlays.vue'
 
 const config = useChartConfig()
 const { chartType, data, areaFills, overlays, seriesOverrides } = config
-const { currentOptions, setOption } = useChartTypeOptions()
+const { currentOptions } = useChartTypeOptions()
 const globalInterpolation = computed(() => (currentOptions.value.interpolation as string) ?? 'linear')
 const { pendingAnnotationIndex } = useEditorPanel()
 const { scenes, activeIndex, activeScene, update: updateScene } = useScenes()
@@ -114,17 +114,6 @@ const dataLabels = computed(() => parsed.value.labels)
 const seriesNames = computed(() => parsed.value.series?.map(s => s.name) ?? [])
 const hasOverlays = computed(() => OVERLAY_CHART_TYPES.has(chartType.value))
 const targetsSeries = computed(() => OVERLAY_SERIES_CHART_TYPES.has(chartType.value))
-// bar-multi hides its legend by default, and overlay titles and cue colors only show in the key.
-const overlayList = computed({
-  get: () => overlays.value,
-  set: (next) => {
-    const isFirst = overlays.value.length === 0 && next.length > 0
-    if (isFirst && chartType.value === ChartType.BarMulti) {
-      setOption('legend', true)
-    }
-    overlays.value = next
-  },
-})
 const textColumnNames = computed(() => new Set(parsed.value.textColumns?.map(c => c.name)))
 const numericColumns = computed(() => seriesNames.value.filter(name => !textColumnNames.value.has(name)))
 

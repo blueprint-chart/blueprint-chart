@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { render } from './bar-multi'
 import { contrastTextColor } from '../../contrast'
+import { renderBpc } from '../../../render/render-bpc'
 import { ValueLabelPosition, DirectLabelMode, LabelRotation, SortMode } from '../../../enums'
 
 describe('bar-multi', () => {
@@ -767,9 +768,14 @@ describe('bar-multi', () => {
       expect(legendTexts()).toEqual(['Silver', 'Gold low to Gold high'])
     })
 
-    it('hides the key with legend false', () => {
+    it('keeps the overlay key but drops the series with legend false', () => {
       render(container, keyData, { overlays: keyRange, legend: false })
-      expect(container.querySelectorAll('.bc-legend-item')).toHaveLength(0)
+      expect(legendTexts()).toEqual(['Gold low to Gold high'])
+    })
+
+    it('shows the overlay key with the registry defaults', () => {
+      renderBpc(container, 'chart bar-multi {\n  overlay "Gold low" "Gold high" {\n    bar = "Gold"\n  }\n  data {\n    series = "Gold","Gold low","Gold high","Silver"\n    "A" = 5,4,7,3\n  }\n}')
+      expect(legendTexts()).toEqual(['Gold low to Gold high'])
     })
   })
 

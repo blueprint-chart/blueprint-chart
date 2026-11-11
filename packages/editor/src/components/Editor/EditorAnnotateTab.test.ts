@@ -138,18 +138,6 @@ describe('EditorAnnotateTab', () => {
     expect(stub.props('targetsSeries')).toBe(expected)
   })
 
-  it.each([['bar-multi', 1], ['bar-grouped', 0]])('turns the legend on when the first overlay lands on %s', async (type, calls) => {
-    setOptionSpy.mockClear()
-    chartTypeRef.value = type
-    const w = mount(EditorAnnotateTab)
-    await nextTick()
-    const stub = w.findComponent({ name: 'EditorOverlays' })
-    stub.vm.$emit('update:modelValue', [{ columns: ['Target'] }])
-    await nextTick()
-    const legendCalls = setOptionSpy.mock.calls.filter(([key, value]) => key === 'legend' && value === true)
-    expect(legendCalls).toHaveLength(calls)
-  })
-
   it('hides the Overlays section on a line chart', async () => {
     chartTypeRef.value = 'line'
     const w = mount(EditorAnnotateTab)

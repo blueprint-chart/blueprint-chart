@@ -99,7 +99,7 @@ Overlays add a value mark (one extra column) or a range band (two extra columns)
 
 Cues apply to that series only. `muteIfCrosses` on a range overlay fades the series' bar in each category whose range includes the number. `aboveColor` and `belowColor` on a value overlay recolor that bar by whether it reaches the mark. A recolored bar loses its series color, but the series keeps its color in the key.
 
-Overlay titles and cue colors are named only in the key, and `bar-multi` hides its key by default. Set `legend = true` on a chart with overlays. The editor turns it on when you add the first overlay.
+The overlay key always shows on `bar-multi`, even with `legend = false`. `legend` only controls the series names.
 
 From `packages/lib/src/samples/election-margin.bpc`. Each candidate gets a margin of error band on their own bar.
 
