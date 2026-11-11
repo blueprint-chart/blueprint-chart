@@ -191,7 +191,10 @@ export function render(
       return x(0)
     }
     const start = overlayBase(row)
-    const barEnd = Math.min(width, Math.max(x(start), x(start + datum.value)))
+    const startX = x(start)
+    const endX = x(start + datum.value)
+    const farEdge = Math.max(startX, endX)
+    const barEnd = Math.min(width, farEdge)
     if (!options.valueLabels) {
       return barEnd
     }

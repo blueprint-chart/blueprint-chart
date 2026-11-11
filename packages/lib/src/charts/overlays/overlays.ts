@@ -749,8 +749,10 @@ export function clearingGeometry(geometryFor: OverlayGeometryFor, barValue: (ove
     const clear = (row: number) => {
       const value = barValue(overlay, row)
       const zero = geom.value(0)
-      const barEnd = Number.isFinite(value) ? Math.max(zero, geom.value(value)) : zero
-      return Math.max(barEnd, labelEnd(overlay, row) ?? barEnd)
+      const valueEnd = Number.isFinite(value) ? geom.value(value) : zero
+      const barEnd = Math.max(zero, valueEnd)
+      const textEnd = labelEnd(overlay, row) ?? barEnd
+      return Math.max(barEnd, textEnd)
     }
     return { ...geom, clear }
   }
