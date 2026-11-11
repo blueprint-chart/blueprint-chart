@@ -7,7 +7,7 @@ import { getChartOptions, DEFAULT_SCENE_DURATION, AnnotationKind, SortDirection,
 import type { AnnotationConfig, OverlayConfig, RangeAnnotationConfig, FreeAnnotationConfig } from '@blueprint-chart/lib'
 import { serializePosition, serializeMaxWidth } from '@/utils/dsl/output'
 
-function repeatLine(a: AnnotationConfig, indent: string): string {
+function repeatLine(a: AnnotationConfig | OverlayConfig, indent: string): string {
   if (a.repeat === 'always') {
     return `${indent}repeat = true\n`
   }
@@ -57,6 +57,7 @@ function overlayBlock(overlay: OverlayConfig, indent: string): string {
   if (overlay.hidden !== undefined) {
     block += `${inner}hidden = ${overlay.hidden}\n`
   }
+  block += repeatLine(overlay, inner)
   block += `${indent}}\n`
   return block
 }

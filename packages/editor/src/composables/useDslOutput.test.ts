@@ -110,6 +110,15 @@ describe('useDslOutput', () => {
       expect(dsl()).toContain('overlay "Last" {\n  }')
     })
 
+    it.each([[3, 'repeat = 3'], ['always' as const, 'repeat = true']])('emits repeat = %s on an overlay', (repeat, line) => {
+      const config = useChartConfig()
+      config.chartType.value = ChartType.BarVertical
+      config.overlays.value = [{ columns: ['Last'], repeat }]
+
+      const { generateDsl: dsl } = useDslOutput()
+      expect(dsl()).toContain(`overlay "Last" {\n    ${line}\n  }`)
+    })
+
     it('emits scene overlays with every key inside the scene', () => {
       const config = useChartConfig()
       config.chartType.value = ChartType.BarVertical
