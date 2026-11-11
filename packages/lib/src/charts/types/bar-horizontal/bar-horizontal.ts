@@ -459,7 +459,8 @@ export function render(
             return right - 4
           }
           const edge = d.isTotal ? undefined : labelEdge(d.label, right, 1)
-          return (edge ?? right) + 4
+          const from = edge === undefined ? right : Math.max(0, Math.min(width, edge))
+          return from + 4
         })
         .attr('text-anchor', pos === ValueLabelPosition.Inside ? 'end' : 'start')
         .attr('fill', (d: WaterfallDatum) => {

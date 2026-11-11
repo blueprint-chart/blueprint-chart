@@ -1490,9 +1490,34 @@ describe('bar-vertical', () => {
     })
 
     it('places a waterfall label past the whisker cap', () => {
-      render(container, whisker('5,2,8'), { valueLabels: true, overlays, waterfall: true })
+      render(container, whisker('5,2,8'), { valueLabels: true, overlays, waterfall: true, verticalAxis: { range: { min: 0, max: 10 } } })
       const top = stem()[1]
       expect(Number(label().getAttribute('y'))).toBeCloseTo(top - 5)
+    })
+
+    it('keeps a waterfall label on the canvas when the axis range cuts the whisker', () => {
+      render(container, whisker('5,2,8'), { valueLabels: true, overlays, waterfall: true, verticalAxis: { range: { min: 0, max: 6 } } })
+      expect(Number(label().getAttribute('y'))).toBeGreaterThanOrEqual(-12 + 8)
+    })
+
+    function labelTop(): number {
+      const transform = container.querySelector('svg g')!.getAttribute('transform')!
+      const marginTop = Number(/translate\([-\d.]+,([-\d.]+)\)/.exec(transform)![1])
+      return marginTop + Number(label().getAttribute('y')) - 8
+    }
+
+    it.each([
+      { height: 400, legend: true },
+      { height: 40, legend: true },
+      { height: 400, legend: false },
+      { height: 40, legend: false },
+    ])('keeps the label inside the SVG when the whisker reaches the domain max ($height px, legend $legend)', ({ height, legend }) => {
+      const rectSpy = vi.spyOn(Element.prototype, 'getBoundingClientRect').mockReturnValue({
+        width: 600, height, x: 0, y: 0, top: 0, left: 0, bottom: height, right: 600, toJSON: () => ({}),
+      })
+      render(container, whisker('5,2,8'), { valueLabels: true, overlays, legend })
+      rectSpy.mockRestore()
+      expect(labelTop()).toBeGreaterThanOrEqual(0)
     })
   })
 

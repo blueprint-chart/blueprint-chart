@@ -425,7 +425,8 @@ export function render(
             return top + barH / 2
           }
           const edge = d.isTotal ? undefined : labelEdge(d.label, top, -1)
-          return (edge ?? top) - 4
+          const from = edge === undefined ? top : Math.max(0, Math.min(barAreaHeight, edge))
+          return from - 4
         })
         .attr('text-anchor', 'middle')
         .attr('dominant-baseline', pos === ValueLabelPosition.Inside ? 'central' : 'auto')
@@ -590,7 +591,11 @@ function valueLabelAttrs(
   if (isInside) {
     return { tx, ty: (barTop + barBottom) / 2, anchor, baseline: 'central', isInside }
   }
-  return { tx, ty: outsideTy, anchor, baseline: negative ? 'hanging' : 'auto', isInside }
+  const lowestTy = VALUE_LABEL_CAP_PX - bounds.marginTop
+  const highestTy = bounds.plotHeight + bounds.marginBottom - VALUE_LABEL_CAP_PX
+  const fittedTy = Math.min(highestTy, Math.max(lowestTy, outsideTy))
+  const ty = edge === undefined ? outsideTy : fittedTy
+  return { tx, ty, anchor, baseline: negative ? 'hanging' : 'auto', isInside }
 }
 
 function renderValueLabels(

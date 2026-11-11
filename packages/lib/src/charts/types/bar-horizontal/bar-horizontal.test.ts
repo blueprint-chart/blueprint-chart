@@ -1989,9 +1989,15 @@ describe('bar-horizontal', () => {
     })
 
     it('places a waterfall label past the whisker cap', () => {
-      render(container, whisker('5,2,8'), { valueLabels: true, overlays, waterfall: true })
+      render(container, whisker('5,2,8'), { valueLabels: true, overlays, waterfall: true, horizontalAxis: { range: { min: 0, max: 10 } } })
       const right = stem()[0]
       expect(Number(label().getAttribute('x'))).toBeCloseTo(right + 5)
+    })
+
+    it('keeps a waterfall label on the canvas when the axis range cuts the whisker', () => {
+      render(container, whisker('5,2,8'), { valueLabels: true, overlays, waterfall: true, horizontalAxis: { range: { min: 0, max: 6 } } })
+      const x = Number(label().getAttribute('x'))
+      expect(marginLeft() + x).toBeLessThanOrEqual(svgWidth - 8)
     })
   })
 })
