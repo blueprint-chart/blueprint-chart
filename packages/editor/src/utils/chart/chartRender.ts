@@ -5,7 +5,7 @@ import type { ChartTypeOptions } from '@/composables/useChartTypeOptions'
 import { parseBpcData, type ColumnType } from '@/composables/useDataParser'
 import type { TransformStep } from '@/composables/useDataTransforms'
 import type { SceneOverride } from '@/composables/useScenes'
-import { resolveScene, resolveSortFromTransforms, resolveVisibleAnnotations } from '@/utils/scenes'
+import { resolveScene, resolveSortFromTransforms, resolveVisibleAnnotations, resolveVisibleOverlays } from '@/utils/scenes'
 import type { ChartState } from './chartState'
 
 export interface RenderSnapshot {
@@ -61,7 +61,7 @@ export function buildChartRender(s: RenderSnapshot): ChartRender {
   const chartType = scene?.chartType ?? s.chartType
   const data = parseData(resolveDataString(s, scene))
 
-  const overlays = scene?.overlays ?? s.overlays
+  const overlays = resolveVisibleOverlays(s.overlays, s.scenes, s.activeIndex)
   const keepsColumns = OVERLAY_CHART_TYPES.has(chartType) && overlays.length > 0
   const claimed = overlays.flatMap(overlay => overlay.columns)
   const selected = data.series?.find(series => series.name === s.selectedColumn && !claimed.includes(series.name))

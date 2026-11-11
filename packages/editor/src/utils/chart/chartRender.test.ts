@@ -36,6 +36,13 @@ describe('buildChartRender', () => {
     expect(render.kind === 'chart' && render.definition.frame?.getTheData).toBe(true)
   })
 
+  it('drops a base overlay with no repeat from a scene', () => {
+    const data = 'series = "A","B"\n"x" = 1,2'
+    const scenes = [{ id: 's0', name: null }]
+    const render = buildChartRender({ ...emptySnapshot, data, scenes, activeIndex: 0, overlays: [{ columns: ['B'] }] })
+    expect(render.kind === 'chart' && render.definition.overlays).toEqual([])
+  })
+
   it('draws the selected column as the bar of a single-series chart with overlays', () => {
     const data = 'series = "A","B","C"\n"x" = 1,2,3'
     const render = buildChartRender({ ...emptySnapshot, data, selectedColumn: 'B', overlays: [{ columns: ['C'] }] })

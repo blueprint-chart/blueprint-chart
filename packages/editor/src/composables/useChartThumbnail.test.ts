@@ -61,6 +61,7 @@ describe('renderSceneThumbnails', () => {
     const state = parseChartState(`chart bar-vertical {
   overlay "Low" "High" {
     pattern = stripes
+    repeat = true
   }
   data {
     series = "Value","Low","High"

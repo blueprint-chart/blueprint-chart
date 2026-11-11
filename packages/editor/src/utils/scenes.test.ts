@@ -47,7 +47,7 @@ describe('findDataSourceSceneIndex', () => {
 
 import { describe, it, expect } from 'vitest'
 import { AnnotationKind } from '@blueprint-chart/lib'
-import { resolveVisibleAnnotations } from './scenes'
+import { resolveVisibleAnnotations, resolveVisibleOverlays } from './scenes'
 import type { SceneOverride as SceneOverrideForAnnotations } from '@/composables/useScenes'
 
 function point(text: string, repeat?: number | 'always') {
@@ -102,5 +102,28 @@ describe('resolveVisibleAnnotations', () => {
     expect(resolveVisibleAnnotations([point('n', 1)], scenes, -1).map(v => v.key)).toEqual(['base:0:point'])
     expect(resolveVisibleAnnotations([point('n', 1)], scenes, 0).map(v => v.key)).toEqual(['base:0:point'])
     expect(resolveVisibleAnnotations([point('n', 1)], scenes, 1)).toEqual([])
+  })
+})
+
+describe('resolveVisibleOverlays', () => {
+  const scenes = [{ id: 's0', name: null, overlays: [{ columns: ['S0'] }] }, { id: 's1', name: null }, { id: 's2', name: null }]
+
+  it('shows every base overlay on the base frame', () => {
+    expect(resolveVisibleOverlays([{ columns: ['A'] }], scenes, -1)).toEqual([{ columns: ['A'] }])
+  })
+
+  it('drops a base overlay with no repeat from the scenes', () => {
+    expect(resolveVisibleOverlays([{ columns: ['A'] }], scenes, 1)).toEqual([])
+  })
+
+  it('carries a base overlay into the next N scenes, or every scene with always', () => {
+    const base = [{ columns: ['N'], repeat: 1 }, { columns: ['All'], repeat: 'always' as const }]
+    expect(resolveVisibleOverlays(base, scenes, 0).map(o => o.columns[0])).toEqual(['N', 'All', 'S0'])
+    expect(resolveVisibleOverlays(base, scenes, 2).map(o => o.columns[0])).toEqual(['All'])
+  })
+
+  it('shows a scene overlay with no repeat only in its own scene', () => {
+    expect(resolveVisibleOverlays([], scenes, 0).map(o => o.columns[0])).toEqual(['S0'])
+    expect(resolveVisibleOverlays([], scenes, 1)).toEqual([])
   })
 })

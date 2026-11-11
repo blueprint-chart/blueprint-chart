@@ -1,5 +1,5 @@
 import { SortDirection } from '@blueprint-chart/lib'
-import type { AnnotationConfig } from '@blueprint-chart/lib'
+import type { AnnotationConfig, OverlayConfig } from '@blueprint-chart/lib'
 import { TransformType } from '../enums'
 import type { SceneOverride } from '@/composables/useScenes'
 
@@ -58,6 +58,23 @@ export function resolveVisibleAnnotations(
 }
 
 /**
+ * Overlays visible at `activeIndex` under the `repeat` rule. Base overlays
+ * anchor at the base frame (-1), a scene's overlays at that scene's index.
+ */
+export function resolveVisibleOverlays(
+  baseOverlays: OverlayConfig[],
+  scenes: SceneOverride[],
+  activeIndex: number,
+): OverlayConfig[] {
+  const visible = baseOverlays.filter(config => repeatVisibleAt(-1, config.repeat, activeIndex))
+  for (let j = 0; j <= activeIndex && j < scenes.length; j++) {
+    const sceneOverlays = scenes[j].overlays ?? []
+    visible.push(...sceneOverlays.filter(config => repeatVisibleAt(j, config.repeat, activeIndex)))
+  }
+  return visible
+}
+
+/**
  * Fold scenes 0..index into a single resolved override.
  * Each field uses "last scene that defined it" semantics, so scene N
  * inherits anything set by scenes 0..N-1 that it doesn't override itself.
@@ -99,9 +116,6 @@ export function resolveScene(scenes: SceneOverride[], index: number): SceneOverr
     }
     if (s.areaFills !== undefined && s.areaFills.length > 0) {
       resolved.areaFills = s.areaFills
-    }
-    if (s.overlays !== undefined && s.overlays.length > 0) {
-      resolved.overlays = s.overlays
     }
     if (s.annotations !== undefined && s.annotations.length > 0) {
       resolved.annotations = s.annotations

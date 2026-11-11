@@ -42,7 +42,7 @@ function snapshotFrom(source: ConfigRefs, activeIndex: number, currentOptions: P
     selectedColumn: source.selectedColumn.value,
     colorizes: source.colorizes.value,
     areaFills: source.areaFills.value,
-    overlays: source.overlays.value,
+    overlays: config._base.overlays.value,
     seriesOverrides: source.seriesOverrides.value,
     baseHighlights: config._base.highlights.value,
     baseAnnotations: config._base.annotations.value,
