@@ -6,6 +6,7 @@ vi.mock('@/components/Dashboard/DashboardPage.vue', () => ({ default: { template
 vi.mock('@/components/Wizard/WizardShell.vue', () => ({ default: { template: '<div />' } }))
 vi.mock('@/components/Render/RenderPage.vue', () => ({ default: { template: '<div />' } }))
 vi.mock('@/components/Palettes/PalettesPage.vue', () => ({ default: { template: '<div />' } }))
+vi.mock('@/components/Landing/LandingPage.vue', () => ({ default: { template: '<div />' } }))
 
 describe('router titles', () => {
   it('sets the document title from route meta', async () => {
