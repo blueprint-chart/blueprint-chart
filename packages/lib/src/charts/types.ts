@@ -116,7 +116,7 @@ export interface OverlayConfig {
   title?: string
   color?: string
   opacity?: number
-  pattern?: 'solid' | 'stripes'
+  pattern?: 'solid' | 'stripes' | 'whisker'
   hidden?: boolean
   muteIfCrosses?: number
   aboveColor?: string

@@ -97,6 +97,27 @@ describe('resolveOverlays options', () => {
     expect(value.pattern).toBe('solid')
   })
 
+  it('resolves pattern whisker on a range to whisker', () => {
+    const [range] = resolveOverlays(parseData(RAW), [{ columns: ['Min', 'Max'], pattern: 'whisker' }]).overlays
+    expect(range.pattern).toBe('whisker')
+  })
+
+  it('resolves pattern whisker on a value overlay to solid', () => {
+    const [value] = resolveOverlays(parseData(RAW), [{ columns: ['Last'], pattern: 'whisker' }]).overlays
+    expect(value.pattern).toBe('solid')
+  })
+
+  it('defaults a whisker to full opacity', () => {
+    const [range] = resolveOverlays(parseData(RAW), [{ columns: ['Min', 'Max'], pattern: 'whisker' }]).overlays
+    expect(range.opacity).toBe(1)
+  })
+
+  it('keeps an explicit opacity and color on a whisker', () => {
+    const config = { columns: ['Min', 'Max'], pattern: 'whisker' as const, opacity: 40, color: '#f00' }
+    const [range] = resolveOverlays(parseData(RAW), [config]).overlays
+    expect(range).toMatchObject({ opacity: 0.4, color: '#f00' })
+  })
+
   it('lets explicit title, color and opacity override the defaults', () => {
     const config = { columns: ['Min', 'Max'], title: 'Spread', color: '#f00', opacity: 50 }
     const [range] = resolveOverlays(parseData(RAW), [config]).overlays
@@ -113,6 +134,11 @@ describe('overlayIssues', () => {
   it('flags an unsupported chart type', () => {
     const issues = overlayIssues(data, [{ columns: ['Min', 'Max'] }], 'line')
     expect(codes(issues)).toContain('overlay-unsupported-type')
+  })
+
+  it('flags a whisker pattern on a value overlay', () => {
+    const issues = overlayIssues(data, [{ columns: ['Last'], pattern: 'whisker' }], 'bar-vertical')
+    expect(codes(issues)).toContain('overlay-pattern-on-value')
   })
 
   it('flags an unknown column with a suggestion', () => {

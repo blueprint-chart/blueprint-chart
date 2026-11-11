@@ -866,6 +866,12 @@ describe('convertOverlays', () => {
     ])
   })
 
+  it('converts a whisker pattern', () => {
+    const ast = parse('chart bar-vertical {\n  overlay "Min" "Max" {\n    pattern = whisker\n  }\n}')
+    const result = convertOverlays(ast.overlays)
+    expect(result).toEqual([{ columns: ['Min', 'Max'], pattern: 'whisker' }])
+  })
+
   it('reads the cue keys', () => {
     const range = parse('chart bar-vertical {\n  overlay "Lo" "Hi" {\n    muteIfCrosses = 0\n  }\n}')
     expect(convertOverlays(range.overlays)).toEqual([{ columns: ['Lo', 'Hi'], muteIfCrosses: 0 }])

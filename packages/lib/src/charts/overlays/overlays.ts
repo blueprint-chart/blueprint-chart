@@ -24,7 +24,7 @@ export interface ResolvedOverlay {
   title: string
   color: string
   opacity: number
-  pattern: 'solid' | 'stripes'
+  pattern: 'solid' | 'stripes' | 'whisker'
   low: number[]
   high: number[]
   order: number
@@ -41,6 +41,7 @@ type Column = NonNullable<ChartData['series']>[number]
 const DEFAULT_COLOR = 'currentColor'
 const DEFAULT_VALUE_OPACITY = 100
 const DEFAULT_RANGE_OPACITY = 30
+const DEFAULT_WHISKER_OPACITY = 100
 
 function toNumber(cell: number | undefined): number {
   return typeof cell === 'number' ? cell : Number.NaN
@@ -54,10 +55,11 @@ function resolveOverlay(config: OverlayConfig, columns: Column[], order: number,
   const high = first.map((value, row) => Math.max(value, second[row]))
   const names = columns.map(column => column.name)
   const defaultTitle = kind === 'range' ? names.join(' to ') : names[0]
-  const defaultOpacity = kind === 'range' ? DEFAULT_RANGE_OPACITY : DEFAULT_VALUE_OPACITY
+  const isRange = kind === 'range'
+  const pattern = isRange && (config.pattern === 'stripes' || config.pattern === 'whisker') ? config.pattern : 'solid'
+  const rangeOpacity = pattern === 'whisker' ? DEFAULT_WHISKER_OPACITY : DEFAULT_RANGE_OPACITY
+  const defaultOpacity = kind === 'range' ? rangeOpacity : DEFAULT_VALUE_OPACITY
   const opacity = (config.opacity ?? defaultOpacity) / 100
-  const isStripes = kind === 'range' && config.pattern === 'stripes'
-  const pattern = isStripes ? 'stripes' : 'solid'
   const color = config.color ?? DEFAULT_COLOR
   const title = config.title ?? defaultTitle
   const { muteIfCrosses: muteRef, aboveColor, belowColor, aboveTitle, belowTitle } = config

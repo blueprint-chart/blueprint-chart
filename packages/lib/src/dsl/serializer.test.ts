@@ -1161,6 +1161,20 @@ describe('overlay serialization', () => {
   })
 })
 
+describe('overlay whisker serialization', () => {
+  it('round-trips the whisker pattern', () => {
+    const src = [
+      'chart bar-vertical {',
+      '  overlay "Min" "Max" {',
+      '    pattern = whisker',
+      '  }',
+      '}',
+    ].join('\n')
+    const output = serialize(parse(src))
+    expect(output).toBe(src)
+  })
+})
+
 describe('overlay cue serialization', () => {
   it('round-trips the cue keys', () => {
     const src = [
