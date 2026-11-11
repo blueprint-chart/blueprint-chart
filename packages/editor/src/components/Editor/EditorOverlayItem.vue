@@ -57,8 +57,9 @@ const visibilityIcon = computed(() => overlay.value.hidden ? IPhEyeSlash : IPhEy
 const visibilityLabel = computed(() => overlay.value.hidden ? 'Show overlay' : 'Hide overlay')
 
 const HIDDEN_TITLE_WARNING = 'The legend is off, so this title is hidden.'
-const aboveDescription = computed(() => props.legendHidden && overlay.value.aboveColor ? HIDDEN_TITLE_WARNING : undefined)
-const belowDescription = computed(() => props.legendHidden && overlay.value.belowColor ? HIDDEN_TITLE_WARNING : undefined)
+function hiddenTitleWarning(color?: string): string | undefined {
+  return props.legendHidden && color ? HIDDEN_TITLE_WARNING : undefined
+}
 
 function update(key: keyof OverlayConfig, value: unknown) {
   const copy: Record<string, unknown> = { ...overlay.value }
@@ -302,7 +303,7 @@ const belowTitle = computed({
         <FormControlCheckbox
           :model-value="!!overlay.aboveColor"
           label="Color bars that reach this value"
-          :description="aboveDescription"
+          :description="hiddenTitleWarning(overlay.aboveColor)"
           @update:model-value="(v) => setCueColor('aboveColor', 'aboveTitle', v ? DEFAULT_COLORS[4] : '')"
         />
 
@@ -323,7 +324,7 @@ const belowTitle = computed({
         <FormControlCheckbox
           :model-value="!!overlay.belowColor"
           label="Color bars below this value"
-          :description="belowDescription"
+          :description="hiddenTitleWarning(overlay.belowColor)"
           @update:model-value="(v) => setCueColor('belowColor', 'belowTitle', v ? DEFAULT_COLORS[2] : '')"
         />
 
