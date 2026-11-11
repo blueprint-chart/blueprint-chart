@@ -503,10 +503,10 @@ registerChart(ChartType.ColumnStacked, columnStacked, [colorsOpt, paletteOpt, au
 registerChart(ChartType.BarStacked, barStacked, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, barGapOpt, stackModeOpt, ...barSortOpts, legendOpt, legendAnchorOpt, legendPositionOpt, directLabellingOpt, directLabelAnchorOpt, categoryLabelLineOpt, ...barHorizontalAxisOpts, ...barHorizontalOpts])
 
 // Split bars: each series rendered as its own panel of horizontal bars
-registerChart(ChartType.BarSplit, barSplit, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, barGapOpt, sharedScaleOpt, ...barSortOpts, legendOpt, legendAnchorOpt, legendPositionOpt, categoryLabelLineOpt, ...barHorizontalAxisOpts, barHorizontalValueLabelsOpt, valueLabelPositionOpt, tooltipsOpt, ...crosshairOpts])
+registerChart(ChartType.BarSplit, barSplit, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, barGapOpt, sharedScaleOpt, ...barSortOpts, legendOpt, legendAnchorOpt, legendPositionOpt, autoDirectLabellingOpt, categoryLabelLineOpt, ...barHorizontalAxisOpts, barHorizontalValueLabelsOpt, valueLabelPositionOpt, tooltipsOpt, ...crosshairOpts])
 
 // Grouped bars: each category rendered as a group of horizontal bars, one per series
-registerChart(ChartType.BarGrouped, barGrouped, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, barGapOpt, ...sortByTotalOpts, legendOpt, legendAnchorOpt, legendPositionOpt, barBackgroundOpt, barSeparatorsOpt, categoryLabelLineOpt, ...barHorizontalAxisOpts, barHorizontalValueLabelsOpt, valueLabelPositionOpt, tooltipsOpt, ...crosshairOpts])
+registerChart(ChartType.BarGrouped, barGrouped, [colorsOpt, paletteOpt, autoContrastOpt, allowDarkModeOpt, barGapOpt, ...sortByTotalOpts, legendOpt, legendAnchorOpt, legendPositionOpt, autoDirectLabellingOpt, barBackgroundOpt, barSeparatorsOpt, categoryLabelLineOpt, ...barHorizontalAxisOpts, barHorizontalValueLabelsOpt, valueLabelPositionOpt, tooltipsOpt, ...crosshairOpts])
 
 const scatterMappingOpts: ChartOptionDef[] = [
   { key: 'x', type: ChartOptionType.Text, label: 'X axis', default: '' },

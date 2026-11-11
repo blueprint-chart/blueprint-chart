@@ -61,6 +61,7 @@ Every property `bar-grouped` accepts, beside the [frame and layout keys](/refere
 | `legend` | boolean | `true` |
 | `legendAnchor` | select: `start`, `middle`, `end` | `start` |
 | `legendPosition` | select: `top`, `bottom`, `left`, `right` | `top` |
+| `directLabelling` | select: `""`, `auto`, `outside`, `inside` | `auto` |
 | `barBackground` | boolean | `false` |
 | `barSeparators` | boolean | `false` |
 | `categoryLabelLine` | boolean | `false` |

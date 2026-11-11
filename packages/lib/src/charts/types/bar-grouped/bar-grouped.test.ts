@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { render } from './bar-grouped'
+import { renderBpc } from '../../../render/render-bpc'
 
 describe('bar-grouped', () => {
   let container: HTMLElement
@@ -604,6 +605,36 @@ describe('bar-grouped', () => {
       const swatch = container.querySelector('.bc-legend-item[data-series="Gold"] rect, .bc-legend-item[data-series="Gold"] circle')
       const [, b] = seriesBars('Gold')
       expect(swatch?.getAttribute('fill')).toBe(b.getAttribute('fill'))
+    })
+  })
+
+  describe('directLabelling from the DSL', () => {
+    function source(lines: string[]): string {
+      const data = '  data {\n    series = "Gold","Gold low","Gold high","Silver"\n    "A" = 5,4,7,3\n    "B" = 8,6,9,4\n  }'
+      return ['chart bar-grouped {', ...lines, data, '}'].join('\n')
+    }
+    const overlay = ['  overlay "Gold low" "Gold high" {', '    bar = "Gold"', '  }']
+
+    function legendTexts(): (string | null)[] {
+      return Array.from(container.querySelectorAll('.bc-legend-item')).map(node => node.textContent)
+    }
+
+    it('labels the overlay directly by default', () => {
+      renderBpc(container, source(overlay))
+      expect(container.querySelectorAll('.bc-overlay-label')).toHaveLength(1)
+    })
+
+    it('moves the overlay title to the key with directLabelling = ""', () => {
+      renderBpc(container, source(['  directLabelling = ""', ...overlay]))
+      expect(container.querySelector('.bc-overlay-label')).toBeNull()
+      expect(legendTexts()).toContain('Gold low to Gold high')
+    })
+
+    it('renders the same without overlays whatever directLabelling says', () => {
+      renderBpc(container, source([]))
+      const auto = container.innerHTML
+      renderBpc(container, source(['  directLabelling = ""']))
+      expect(container.innerHTML).toBe(auto)
     })
   })
 })

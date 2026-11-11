@@ -63,6 +63,7 @@ Every property `bar-split` accepts, beside the [frame and layout keys](/referenc
 | `legend` | boolean | `true` |
 | `legendAnchor` | select: `start`, `middle`, `end` | `start` |
 | `legendPosition` | select: `top`, `bottom`, `left`, `right` | `top` |
+| `directLabelling` | select: `""`, `auto`, `outside`, `inside` | `auto` |
 | `categoryLabelLine` | boolean | `false` |
 | `showVerticalAxis` | boolean | `true` |
 | `verticalAxisDirection` | select: `left`, `right` | `left` |
