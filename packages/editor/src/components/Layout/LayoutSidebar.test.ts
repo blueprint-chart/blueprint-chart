@@ -39,6 +39,13 @@ describe('LayoutSidebar', () => {
     ]))
   })
 
+  it('links the version to its release notes', async () => {
+    const wrapper = await mountSidebar()
+    const link = wrapper.findAll('a').find(a => a.attributes('href')?.includes('/releases/tag/'))
+    expect(link?.text()).toMatch(/^v\d+\.\d+\.\d+$/)
+    expect(link?.attributes('href')).toBe(`https://github.com/blueprint-chart/blueprint-chart/releases/tag/${link?.text()}`)
+  })
+
   it('renders the account and theme footer', async () => {
     const wrapper = await mountSidebar()
     expect(wrapper.find('.navigation-sidebar__footer .account-menu-stub').exists()).toBe(true)

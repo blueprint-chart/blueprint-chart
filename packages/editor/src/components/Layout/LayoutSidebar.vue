@@ -11,6 +11,7 @@ import {
 import { useDashboardGallery } from '@/composables/useDashboardGallery'
 import { useTheme } from '@/stores/theme'
 import { usePlatformShortcut } from '@/composables/usePlatformShortcut'
+import { appVersion, releaseNotesUrl } from '@/config/version'
 import AccountMenu from '@/components/Account/AccountMenu.vue'
 import logoLight from '@/assets/images/blueprint-chart-logo.svg'
 import logoDark from '@/assets/images/blueprint-chart-logo-dark.svg'
@@ -23,6 +24,7 @@ import IPhCompass from '~icons/ph/compass'
 import IPhChartBar from '~icons/ph/chart-bar'
 import IPhGraduationCap from '~icons/ph/graduation-cap'
 import IPhBracketsCurly from '~icons/ph/brackets-curly'
+import IPhTag from '~icons/ph/tag'
 
 defineEmits<{ searchClick: [] }>()
 
@@ -137,6 +139,14 @@ const logoSrc = computed(() => resolvedTheme.value === 'dark' ? logoDark : logoL
       >
         <template #icon>
           <IPhGithubLogo />
+        </template>
+      </NavigationSidebarItem>
+      <NavigationSidebarItem
+        :href="releaseNotesUrl"
+        :label="appVersion"
+      >
+        <template #icon>
+          <IPhTag />
         </template>
       </NavigationSidebarItem>
     </NavigationSidebarGroup>

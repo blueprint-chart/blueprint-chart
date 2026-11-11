@@ -23,8 +23,12 @@ const componentEntries = readdirSync(componentsDir, { withFileTypes: true })
   .map(entry => `bootstrap-vue-next/components/${entry.name}`)
 const autoImportedEntries: string[] = Object.keys(nodeRequire('./package.json').dependencies)
   .filter(name => name.startsWith('@codemirror/') || name.startsWith('@lezer/'))
+const appVersion: string = nodeRequire('./package.json').version
 
 export default defineConfig({
+  define: {
+    __APP_VERSION__: JSON.stringify(appVersion),
+  },
   plugins: [
     bpcSvg(),
     vue(),

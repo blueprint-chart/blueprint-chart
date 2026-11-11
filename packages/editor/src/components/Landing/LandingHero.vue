@@ -2,6 +2,7 @@
 import { BcRing } from '@blueprint-chart/ui'
 import { samples } from '@blueprint-chart/lib'
 import { useChartSession } from '@/stores/chartSession'
+import { appVersion, releaseNotesUrl } from '@/config/version'
 import { applyBrandLook } from './brand-look'
 
 // Nothing to visit when there are no saved charts, so the ghost CTA only shows
@@ -31,7 +32,13 @@ const heroBpc = applyBrandLook(sample.dsl)
             class="bc-eyebrow__dot"
             aria-hidden="true"
           />
-          Open source · MIT
+          Open source · MIT ·
+          <a
+            :href="releaseNotesUrl"
+            class="landing-hero__inner__text__eyebrow__version"
+            target="_blank"
+            rel="noopener noreferrer"
+          >{{ appVersion }}</a>
         </span>
         <h1 class="landing-hero__inner__text__h1">
           The open chart format<br><em>AI writes.</em>
@@ -110,6 +117,11 @@ const heroBpc = applyBrandLook(sample.dsl)
     &__text {
       &__eyebrow {
         margin-bottom: 1.25rem;
+
+        &__version {
+          color: inherit;
+          text-underline-offset: 0.2em;
+        }
       }
 
       &__h1 {

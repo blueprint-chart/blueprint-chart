@@ -9,6 +9,8 @@ interface ImportMeta {
   readonly env: ImportMetaEnv
 }
 
+declare const __APP_VERSION__: string
+
 interface Window {
   /** Optional inline runtime config injected via a <script> tag before app boot. */
   __BC_CONFIG__?: {
