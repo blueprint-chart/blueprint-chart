@@ -13,6 +13,7 @@ function normalizeRandomIds(html: string): string {
     .replace(/bc-clip-[a-zA-Z0-9]+/g, 'bc-clip-TEST')
     .replace(/bc-arrow-[a-zA-Z0-9]+/g, 'bc-arrow-TEST')
     .replace(/bc-overlay-stripes-\d+-\d+/g, 'bc-overlay-stripes-TEST')
+    .replace(/bc-overlay-(mask|gaps)-\d+/g, 'bc-overlay-$1-TEST')
 }
 
 function extractChartSvg(container: HTMLElement): string {
