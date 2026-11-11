@@ -483,6 +483,9 @@ export function render(
     const fitsOutside = isNegative
       ? outsideFrom - VALUE_LABEL_GAP - labelInk >= panel.xOffset
       : outsideFrom + VALUE_LABEL_GAP + labelInk <= panel.xOffset + panel.panelWidth
+    if (edge !== undefined && valueLabelPos === ValueLabelPosition.Auto && !fitsOutside) {
+      return
+    }
     const isInside = valueLabelPos === ValueLabelPosition.Inside
       || !fitsOutside
       || (edge === undefined && valueLabelPos === ValueLabelPosition.Auto && datum.barWidth > 30)

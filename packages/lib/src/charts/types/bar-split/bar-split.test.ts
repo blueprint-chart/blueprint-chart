@@ -593,5 +593,37 @@ describe('bar-split', () => {
       render(container, whiskerData, { valueLabels: true, valueLabelPosition: ValueLabelPosition.Inside, overlays, ...axis })
       expect(label('Value').getAttribute('text-anchor')).toBe('end')
     })
+
+    describe('with the whisker at the panel max', () => {
+      const edgeData = {
+        labels: ['A', 'B'],
+        values: [],
+        series: [
+          { name: 'Value', values: [50, 30] },
+          { name: 'Other', values: [50, 30] },
+          { name: 'Low', values: [40, Number.NaN] },
+          { name: 'High', values: [80, Number.NaN] },
+        ],
+      }
+
+      function valueLabels(): Element[] {
+        return Array.from(container.querySelectorAll('.bc-value-label[data-series="Value"]'))
+      }
+
+      it('drops an auto label with no room past the whisker', () => {
+        render(container, edgeData, { valueLabels: true, overlays })
+        expect(valueLabels().map(node => node.textContent)).toEqual(['30'])
+      })
+
+      it('keeps a row without a whisker inside its wide bar', () => {
+        render(container, edgeData, { valueLabels: true, overlays })
+        expect(valueLabels()[0].getAttribute('text-anchor')).toBe('end')
+      })
+
+      it('keeps an explicit inside label', () => {
+        render(container, edgeData, { valueLabels: true, valueLabelPosition: ValueLabelPosition.Inside, overlays })
+        expect(valueLabels().map(node => node.textContent)).toEqual(['50', '30'])
+      })
+    })
   })
 })
