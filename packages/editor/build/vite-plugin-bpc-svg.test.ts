@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { extractOptions, extractData, extractColors, niceTicks, renderToSvg, THEME_COLORS, type ChartNode } from './vite-plugin-bpc-svg'
+import { extractOptions, extractData, extractColors, niceTicks, renderToSvg, ID_TOKEN, THEME_COLORS, type ChartNode } from './vite-plugin-bpc-svg'
 
 function prop(key: string, value: string | number): ChartNode['properties'][0] {
   return { type: 'property', key, value, isPercentage: false }
@@ -18,6 +18,8 @@ const multiData = extractData([
   { type: 'property' as const, key: 'D', value: '16,9,15', values: [16, 9, 15], isPercentage: false },
   { type: 'property' as const, key: 'E', value: '13,16,18', values: [13, 16, 18], isPercentage: false },
 ])
+
+const marksOf = (svg: string) => svg.split('<g class="bpc-marks">')[1]
 
 function parsePolylineXCoords(svg: string): number[] {
   const points = svg.match(/points="([^"]+)"/)
@@ -83,14 +85,14 @@ describe('niceTicks', () => {
 
 describe('line thumbnails respect edgePadding', () => {
   it('renders edge-to-edge when edgePadding is false', () => {
-    const svg = renderToSvg('line', singleData, ['#000'], { edgePadding: false })
+    const svg = renderToSvg('line', singleData, ['#000'], { edgePadding: false, compact: false })
     const xs = parsePolylineXCoords(svg)
     expect(xs[0]).toBeCloseTo(2)
     expect(xs[xs.length - 1]).toBeCloseTo(46)
   })
 
   it('adds padding when edgePadding is true', () => {
-    const svg = renderToSvg('line', singleData, ['#000'], { edgePadding: true })
+    const svg = renderToSvg('line', singleData, ['#000'], { edgePadding: true, compact: false })
     const xs = parsePolylineXCoords(svg)
     expect(xs[0]).toBeGreaterThan(4)
     expect(xs[xs.length - 1]).toBeLessThan(44)
@@ -99,7 +101,7 @@ describe('line thumbnails respect edgePadding', () => {
 
 describe('line-multi thumbnails respect edgePadding', () => {
   it('renders edge-to-edge when edgePadding is false', () => {
-    const svg = renderToSvg('line-multi', multiData, ['#f00', '#0f0', '#00f'], { edgePadding: false })
+    const svg = renderToSvg('line-multi', multiData, ['#f00', '#0f0', '#00f'], { edgePadding: false, compact: false })
     const allPolylines = [...svg.matchAll(/points="([^"]+)"/g)]
     for (const match of allPolylines) {
       const xs = match[1].split(' ').map(p => parseFloat(p.split(',')[0]))
@@ -109,7 +111,7 @@ describe('line-multi thumbnails respect edgePadding', () => {
   })
 
   it('adds padding when edgePadding is true', () => {
-    const svg = renderToSvg('line-multi', multiData, ['#f00', '#0f0', '#00f'], { edgePadding: true })
+    const svg = renderToSvg('line-multi', multiData, ['#f00', '#0f0', '#00f'], { edgePadding: true, compact: false })
     const allPolylines = [...svg.matchAll(/points="([^"]+)"/g)]
     for (const match of allPolylines) {
       const xs = match[1].split(' ').map(p => parseFloat(p.split(',')[0]))
@@ -121,14 +123,14 @@ describe('line-multi thumbnails respect edgePadding', () => {
 
 describe('area thumbnails respect edgePadding', () => {
   it('renders edge-to-edge when edgePadding is false', () => {
-    const svg = renderToSvg('area', singleData, ['#000'], { edgePadding: false })
+    const svg = renderToSvg('area', singleData, ['#000'], { edgePadding: false, compact: false })
     const xs = parsePolylineXCoords(svg)
     expect(xs[0]).toBeCloseTo(2)
     expect(xs[xs.length - 1]).toBeCloseTo(46)
   })
 
   it('adds padding when edgePadding is true', () => {
-    const svg = renderToSvg('area', singleData, ['#000'], { edgePadding: true })
+    const svg = renderToSvg('area', singleData, ['#000'], { edgePadding: true, compact: false })
     const xs = parsePolylineXCoords(svg)
     expect(xs[0]).toBeGreaterThan(4)
     expect(xs[xs.length - 1]).toBeLessThan(44)
@@ -137,7 +139,7 @@ describe('area thumbnails respect edgePadding', () => {
 
 describe('area-stacked thumbnails respect edgePadding', () => {
   it('renders edge-to-edge when edgePadding is false', () => {
-    const svg = renderToSvg('area-stacked', multiData, ['#f00', '#0f0', '#00f'], { edgePadding: false })
+    const svg = renderToSvg('area-stacked', multiData, ['#f00', '#0f0', '#00f'], { edgePadding: false, compact: false })
     // Check that path coordinates start at x=2 and end at x=46
     const paths = [...svg.matchAll(/d="M ([^"]+)"/g)]
     expect(paths.length).toBeGreaterThan(0)
@@ -149,7 +151,7 @@ describe('area-stacked thumbnails respect edgePadding', () => {
   })
 
   it('adds padding when edgePadding is true', () => {
-    const svg = renderToSvg('area-stacked', multiData, ['#f00', '#0f0', '#00f'], { edgePadding: true })
+    const svg = renderToSvg('area-stacked', multiData, ['#f00', '#0f0', '#00f'], { edgePadding: true, compact: false })
     const paths = [...svg.matchAll(/d="M ([^"]+)"/g)]
     expect(paths.length).toBeGreaterThan(0)
     for (const match of paths) {
@@ -213,14 +215,14 @@ describe('bar-grouped thumbnails', () => {
 
 describe('bar thumbnails are unaffected by edgePadding', () => {
   it('bar-vertical produces identical SVG regardless of edgePadding', () => {
-    const svgA = renderToSvg('bar-vertical', singleData, ['#000'], { edgePadding: false })
-    const svgB = renderToSvg('bar-vertical', singleData, ['#000'], { edgePadding: true })
+    const svgA = renderToSvg('bar-vertical', singleData, ['#000'], { edgePadding: false, compact: false })
+    const svgB = renderToSvg('bar-vertical', singleData, ['#000'], { edgePadding: true, compact: false })
     expect(svgA).toBe(svgB)
   })
 
   it('bar-horizontal produces identical SVG regardless of edgePadding', () => {
-    const svgA = renderToSvg('bar-horizontal', singleData, ['#000'], { edgePadding: false })
-    const svgB = renderToSvg('bar-horizontal', singleData, ['#000'], { edgePadding: true })
+    const svgA = renderToSvg('bar-horizontal', singleData, ['#000'], { edgePadding: false, compact: false })
+    const svgB = renderToSvg('bar-horizontal', singleData, ['#000'], { edgePadding: true, compact: false })
     expect(svgA).toBe(svgB)
   })
 })
@@ -267,5 +269,54 @@ describe('dot-plot thumbnails', () => {
 
   it('returns empty string for single-series data', () => {
     expect(renderToSvg('dot-plot', singleData, ['#f00'])).toBe('')
+  })
+})
+
+describe('bar-vertical thumbnails', () => {
+  const data = extractData([prop('2023', 13), prop('2024', 28), prop('2025', 19)])
+  const svg = renderToSvg('bar-vertical', data, THEME_COLORS)
+
+  it('uses the 96 by 64 viewBox', () => {
+    expect(svg).toContain('viewBox="0 0 96 64"')
+  })
+
+  it('labels categories and four value ticks', () => {
+    for (const text of ['2023', '2024', '2025', '0', '10', '20', '30']) {
+      expect(svg).toContain(`>${text}</text>`)
+    }
+  })
+
+  it('draws the largest bar as the glowing hero and the others in the second color', () => {
+    const marks = marksOf(svg)
+    expect(marks.match(/fill="var\(--bc-thumb-series-0\)"/g)).toHaveLength(2)
+    expect(marks.match(/fill="var\(--bc-thumb-series-1\)"[^>]*fill-opacity="0.6"/g)).toHaveLength(2)
+    expect(marks).toContain(`filter="url(#${ID_TOKEN}f)"`)
+  })
+
+  it('picks a single hero when two bars tie for the maximum', () => {
+    const tie = extractData([prop('A', 20), prop('B', 20), prop('C', 5)])
+    const marks = marksOf(renderToSvg('bar-vertical', tie, THEME_COLORS))
+    expect(marks.match(/filter=/g)).toHaveLength(1)
+  })
+
+  it('renders all-zero data without NaN', () => {
+    const zeros = extractData([prop('A', 0), prop('B', 0)])
+    expect(renderToSvg('bar-vertical', zeros, THEME_COLORS)).not.toContain('NaN')
+  })
+})
+
+describe('bar-multi and column-stacked thumbnails', () => {
+  it('draws one rect per value in series colors, without glow', () => {
+    for (const type of ['bar-multi', 'column-stacked']) {
+      const marks = marksOf(renderToSvg(type, multiData, THEME_COLORS))
+      expect(marks.match(/<rect/g)).toHaveLength(15)
+      expect(marks).toContain('var(--bc-thumb-series-2)')
+      expect(marks).not.toContain('filter=')
+    }
+  })
+
+  it('stacks columns up to the nice maximum', () => {
+    const svg = renderToSvg('column-stacked', multiData, THEME_COLORS)
+    expect(svg).toContain('>60</text>')
   })
 })

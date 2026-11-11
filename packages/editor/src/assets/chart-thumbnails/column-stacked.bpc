@@ -1,9 +1,9 @@
 chart column-stacked {
   data {
-    series = "X","Y"
-    "A" = 4,3
-    "B" = 6,5
-    "C" = 5,4
-    "D" = 7,6
+    series = "A","B"
+    "Q1" = 9,7
+    "Q2" = 14,11
+    "Q3" = 11,9
+    "Q4" = 16,13
   }
 }
