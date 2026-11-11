@@ -1,0 +1,49 @@
+chart bar-horizontal {
+  title = "Every NATO ally but Slovenia expects to spend at least 2% of GDP on core defence in 2026"
+  description = "Core defence expenditure as a share of real GDP, 2026 estimates, percent"
+  source = "NATO, Defence Investment of NATO Countries (2014-2026), Table 3"
+  sourceUrl = "https://www.nato.int/content/dam/nato/webready/documents/finance/def-exp-2026-en.pdf"
+  note = "Figures are NATO estimates. Slovenia's figure dates from before its new government's review of defence spending."
+  sort = descending
+
+  overlay "Target" {
+    title = "2% guideline"
+    aboveColor = "#2a9d8f"
+    belowColor = "#e15759"
+  }
+
+  data {
+    series = "Share of GDP","Target"
+    "Lithuania" = 5.33,2
+    "Estonia" = 5.10,2
+    "Latvia" = 4.92,2
+    "Poland" = 4.68,2
+    "Greece" = 3.65,2
+    "Denmark" = 3.49,2
+    "Sweden" = 3.22,2
+    "Norway" = 3.17,2
+    "United States" = 3.17,2
+    "Türkiye" = 2.85,2
+    "Germany" = 2.69,2
+    "Finland" = 2.65,2
+    "Netherlands" = 2.58,2
+    "United Kingdom" = 2.56,2
+    "Romania" = 2.43,2
+    "Bulgaria" = 2.22,2
+    "France" = 2.22,2
+    "Montenegro" = 2.17,2
+    "Albania" = 2.15,2
+    "Canada" = 2.13,2
+    "Italy" = 2.10,2
+    "Portugal" = 2.10,2
+    "Hungary" = 2.09,2
+    "North Macedonia" = 2.09,2
+    "Croatia" = 2.03,2
+    "Luxembourg" = 2.03,2
+    "Slovak Republic" = 2.02,2
+    "Czechia" = 2.01,2
+    "Belgium" = 2.00,2
+    "Spain" = 2.00,2
+    "Slovenia" = 1.61,2
+  }
+}
