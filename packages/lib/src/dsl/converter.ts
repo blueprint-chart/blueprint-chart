@@ -223,7 +223,8 @@ export function convertOverlays(nodes: OverlayNode[]): OverlayConfig[] {
       overlay.hidden = toBool(p.get('hidden'))
     }
     if (p.has('muteIfCrosses')) {
-      overlay.muteIfCrosses = Number(p.get('muteIfCrosses'))
+      const mute = p.get('muteIfCrosses')
+      overlay.muteIfCrosses = typeof mute === 'number' ? mute : Number.NaN
     }
     const stringKeys = ['aboveColor', 'belowColor', 'aboveTitle', 'belowTitle', 'bar'] as const
     for (const key of stringKeys) {

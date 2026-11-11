@@ -875,4 +875,16 @@ describe('convertOverlays', () => {
       { columns: ['T'], aboveColor: '#2a9d8f', belowColor: '#e15759', aboveTitle: 'Met', belowTitle: 'Missed', bar: 'Gold' },
     ])
   })
+
+  it.each(['""', 'true'])('reads a non-numeric muteIfCrosses = %s as NaN', (value) => {
+    const ast = parse(`chart bar-vertical {\n  overlay "Lo" "Hi" {\n    muteIfCrosses = ${value}\n  }\n}`)
+    const [overlay] = convertOverlays(ast.overlays)
+    expect(overlay.muteIfCrosses).toBeNaN()
+  })
+
+  it('reads a negative muteIfCrosses as a number', () => {
+    const ast = parse('chart bar-vertical {\n  overlay "Lo" "Hi" {\n    muteIfCrosses = -0.5\n  }\n}')
+    const [overlay] = convertOverlays(ast.overlays)
+    expect(overlay.muteIfCrosses).toBe(-0.5)
+  })
 })
