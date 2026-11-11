@@ -1,4 +1,7 @@
 import { describe, it, expect } from 'vitest'
+import { mount } from '@vue/test-utils'
+import LineThumb from '../src/assets/chart-thumbnails/line.bpc'
+import AreaThumb from '../src/assets/chart-thumbnails/area.bpc'
 import { extractOptions, extractData, extractColors, niceTicks, renderToSvg, ID_TOKEN, THEME_COLORS, type ChartNode } from './vite-plugin-bpc-svg'
 
 function prop(key: string, value: string | number): ChartNode['properties'][0] {
@@ -21,12 +24,14 @@ const multiData = extractData([
 
 const marksOf = (svg: string) => svg.split('<g class="bpc-marks">')[1]
 
-function parsePolylineXCoords(svg: string): number[] {
-  const points = svg.match(/points="([^"]+)"/)
-  if (!points) {
-    return []
-  }
-  return points[1].split(' ').map(p => parseFloat(p.split(',')[0]))
+function pathXCoords(svg: string): number[] {
+  const d = marksOf(svg).match(/<path d="([^"]+)" fill="none"/)
+  return d ? d[1].split(/[ML]/).filter(Boolean).map(p => parseFloat(p.split(',')[0])) : []
+}
+
+function allLineXCoords(svg: string): number[][] {
+  return [...marksOf(svg).matchAll(/<path d="([^"]+)" fill="none"/g)]
+    .map(m => m[1].split(/[ML]/).filter(Boolean).map(p => parseFloat(p.split(',')[0])))
 }
 
 describe('extractOptions', () => {
@@ -85,80 +90,98 @@ describe('niceTicks', () => {
 
 describe('line thumbnails respect edgePadding', () => {
   it('renders edge-to-edge when edgePadding is false', () => {
-    const svg = renderToSvg('line', singleData, ['#000'], { edgePadding: false, compact: false })
-    const xs = parsePolylineXCoords(svg)
-    expect(xs[0]).toBeCloseTo(2)
-    expect(xs[xs.length - 1]).toBeCloseTo(46)
+    const svg = renderToSvg('line', singleData, THEME_COLORS, { edgePadding: false, compact: false })
+    const xs = pathXCoords(svg)
+    expect(xs[0]).toBeCloseTo(12)
+    expect(xs.at(-1)).toBeCloseTo(90)
   })
 
   it('adds padding when edgePadding is true', () => {
-    const svg = renderToSvg('line', singleData, ['#000'], { edgePadding: true, compact: false })
-    const xs = parsePolylineXCoords(svg)
-    expect(xs[0]).toBeGreaterThan(4)
-    expect(xs[xs.length - 1]).toBeLessThan(44)
+    const svg = renderToSvg('line', singleData, THEME_COLORS, { edgePadding: true, compact: false })
+    const xs = pathXCoords(svg)
+    expect(xs[0]).toBeGreaterThan(14)
+    expect(xs.at(-1)).toBeLessThan(88)
+  })
+
+  it('puts the end-point circle on the last point when edgePadding is true', () => {
+    const svg = renderToSvg('line', singleData, THEME_COLORS, { edgePadding: true, compact: false })
+    const xs = pathXCoords(svg)
+    const cx = parseFloat(marksOf(svg).match(/<circle cx="([^"]+)"/)![1])
+    expect(cx).toBeCloseTo(xs.at(-1)!)
   })
 })
 
 describe('line-multi thumbnails respect edgePadding', () => {
   it('renders edge-to-edge when edgePadding is false', () => {
-    const svg = renderToSvg('line-multi', multiData, ['#f00', '#0f0', '#00f'], { edgePadding: false, compact: false })
-    const allPolylines = [...svg.matchAll(/points="([^"]+)"/g)]
-    for (const match of allPolylines) {
-      const xs = match[1].split(' ').map(p => parseFloat(p.split(',')[0]))
-      expect(xs[0]).toBeCloseTo(2)
-      expect(xs[xs.length - 1]).toBeCloseTo(46)
+    const svg = renderToSvg('line-multi', multiData, THEME_COLORS, { edgePadding: false, compact: false })
+    const lines = allLineXCoords(svg)
+    expect(lines.length).toBeGreaterThan(0)
+    for (const xs of lines) {
+      expect(xs[0]).toBeCloseTo(12)
+      expect(xs.at(-1)).toBeCloseTo(90)
     }
   })
 
   it('adds padding when edgePadding is true', () => {
-    const svg = renderToSvg('line-multi', multiData, ['#f00', '#0f0', '#00f'], { edgePadding: true, compact: false })
-    const allPolylines = [...svg.matchAll(/points="([^"]+)"/g)]
-    for (const match of allPolylines) {
-      const xs = match[1].split(' ').map(p => parseFloat(p.split(',')[0]))
-      expect(xs[0]).toBeGreaterThan(4)
-      expect(xs[xs.length - 1]).toBeLessThan(44)
+    const svg = renderToSvg('line-multi', multiData, THEME_COLORS, { edgePadding: true, compact: false })
+    const lines = allLineXCoords(svg)
+    expect(lines.length).toBeGreaterThan(0)
+    for (const xs of lines) {
+      expect(xs[0]).toBeGreaterThan(14)
+      expect(xs.at(-1)).toBeLessThan(88)
     }
+  })
+
+  it('glows only the hero line of a multi line chart', () => {
+    const marks = marksOf(renderToSvg('line-multi', multiData, THEME_COLORS))
+    expect(marks.match(/filter=/g)).toHaveLength(1)
   })
 })
 
 describe('area thumbnails respect edgePadding', () => {
   it('renders edge-to-edge when edgePadding is false', () => {
-    const svg = renderToSvg('area', singleData, ['#000'], { edgePadding: false, compact: false })
-    const xs = parsePolylineXCoords(svg)
-    expect(xs[0]).toBeCloseTo(2)
-    expect(xs[xs.length - 1]).toBeCloseTo(46)
+    const svg = renderToSvg('area', singleData, THEME_COLORS, { edgePadding: false, compact: false })
+    const xs = pathXCoords(svg)
+    expect(xs[0]).toBeCloseTo(12)
+    expect(xs.at(-1)).toBeCloseTo(90)
   })
 
   it('adds padding when edgePadding is true', () => {
-    const svg = renderToSvg('area', singleData, ['#000'], { edgePadding: true, compact: false })
-    const xs = parsePolylineXCoords(svg)
-    expect(xs[0]).toBeGreaterThan(4)
-    expect(xs[xs.length - 1]).toBeLessThan(44)
+    const svg = renderToSvg('area', singleData, THEME_COLORS, { edgePadding: true, compact: false })
+    const xs = pathXCoords(svg)
+    expect(xs[0]).toBeGreaterThan(14)
+    expect(xs.at(-1)).toBeLessThan(88)
+  })
+
+  it('fills the area with the per-instance gradient and glows the line', () => {
+    const marks = marksOf(renderToSvg('area', singleData, THEME_COLORS))
+    expect(marks).toContain(`fill="url(#${ID_TOKEN}g)"`)
+    expect(marks).toContain(`filter="url(#${ID_TOKEN}f)"`)
   })
 })
 
 describe('area-stacked thumbnails respect edgePadding', () => {
+  const firstXs = (svg: string) => [...marksOf(svg).matchAll(/d="M([^"]+)"/g)]
+    .map(m => parseFloat(m[1].split(/[ML]\s*/).filter(Boolean)[0].split(',')[0]))
+
   it('renders edge-to-edge when edgePadding is false', () => {
-    const svg = renderToSvg('area-stacked', multiData, ['#f00', '#0f0', '#00f'], { edgePadding: false, compact: false })
-    // Check that path coordinates start at x=2 and end at x=46
-    const paths = [...svg.matchAll(/d="M ([^"]+)"/g)]
-    expect(paths.length).toBeGreaterThan(0)
-    for (const match of paths) {
-      const coords = match[1].split(/[ML]\s*/).filter(Boolean)
-      const firstX = parseFloat(coords[0].split(',')[0])
-      expect(firstX).toBeCloseTo(2)
+    const xs = firstXs(renderToSvg('area-stacked', multiData, THEME_COLORS, { edgePadding: false, compact: false }))
+    expect(xs.length).toBeGreaterThan(0)
+    for (const x of xs) {
+      expect(x).toBeCloseTo(12)
     }
   })
 
   it('adds padding when edgePadding is true', () => {
-    const svg = renderToSvg('area-stacked', multiData, ['#f00', '#0f0', '#00f'], { edgePadding: true, compact: false })
-    const paths = [...svg.matchAll(/d="M ([^"]+)"/g)]
-    expect(paths.length).toBeGreaterThan(0)
-    for (const match of paths) {
-      const coords = match[1].split(/[ML]\s*/).filter(Boolean)
-      const firstX = parseFloat(coords[0].split(',')[0])
-      expect(firstX).toBeGreaterThan(4)
+    const xs = firstXs(renderToSvg('area-stacked', multiData, THEME_COLORS, { edgePadding: true, compact: false }))
+    expect(xs.length).toBeGreaterThan(0)
+    for (const x of xs) {
+      expect(x).toBeGreaterThan(14)
     }
+  })
+
+  it('does not glow stacked areas', () => {
+    expect(marksOf(renderToSvg('area-stacked', multiData, THEME_COLORS))).not.toContain('filter=')
   })
 })
 
@@ -235,15 +258,19 @@ describe('renderToSvg scatter', () => {
   ])
 
   it('renders one translucent circle per point', () => {
-    const svg = renderToSvg('scatter', scatterData, ['#111', '#222'])
-    expect(svg.match(/<circle/g)).toHaveLength(3)
-    expect(svg).toContain('fill-opacity="0.7"')
+    const marks = marksOf(renderToSvg('scatter', scatterData, THEME_COLORS))
+    expect(marks.match(/<circle/g)).toHaveLength(3)
+    expect(marks).toContain('fill-opacity="0.85"')
   })
 
   it('colors circles by group', () => {
-    const svg = renderToSvg('scatter', scatterData, ['#111', '#222'])
-    expect(svg.match(/fill="#111"/g)).toHaveLength(2)
-    expect(svg.match(/fill="#222"/g)).toHaveLength(1)
+    const marks = marksOf(renderToSvg('scatter', scatterData, THEME_COLORS))
+    expect(marks.match(/fill="var\(--bc-thumb-series-0\)"/g)).toHaveLength(2)
+    expect(marks.match(/fill="var\(--bc-thumb-series-1\)"/g)).toHaveLength(1)
+  })
+
+  it('labels the x axis with nice ticks', () => {
+    expect(renderToSvg('scatter', scatterData, THEME_COLORS)).toContain('>6</text>')
   })
 
   it('draws no circle for a row with a missing y', () => {
@@ -252,7 +279,7 @@ describe('renderToSvg scatter', () => {
       row('a', [1, 2, 'north']),
       row('b', [3, 'n/a', 'south']),
     ])
-    expect(renderToSvg('scatter', data, ['#111']).match(/<circle/g)).toHaveLength(1)
+    expect(marksOf(renderToSvg('scatter', data, ['#111'])).match(/<circle/g)).toHaveLength(1)
   })
 })
 
@@ -338,5 +365,15 @@ describe('horizontal thumbnails', () => {
   it('draws the dot-plot hero series larger', () => {
     const marks = marksOf(renderToSvg('dot-plot', multiData, THEME_COLORS))
     expect(marks.match(/r="2.6"/g)).toHaveLength(5)
+  })
+})
+
+describe('thumbnail ids', () => {
+  it('gives each mounted instance its own ids', () => {
+    const wrappers = [mount(LineThumb), mount(LineThumb), mount(AreaThumb)]
+    const ids = wrappers.flatMap(w => [...w.html().matchAll(/id="([^"]+)"/g)].map(m => m[1]))
+    expect(ids.length).toBeGreaterThan(0)
+    expect(new Set(ids).size).toBe(ids.length)
+    expect(wrappers.map(w => w.html()).join('')).not.toContain(ID_TOKEN)
   })
 })

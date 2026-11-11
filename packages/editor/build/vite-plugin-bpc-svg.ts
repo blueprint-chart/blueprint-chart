@@ -278,7 +278,28 @@ function verticalFrame(box: PlotBox, categoryLabels: string[], categoryXs: numbe
   return grid + tickLabels + baseline + categories
 }
 
-const RECT_VB = '0 0 48 36'
+function linePath(xs: number[], ys: number[]): string {
+  return xs.map((x, i) => `${i ? 'L' : 'M'}${fmt(x)},${fmt(ys[i])}`).join(' ')
+}
+
+function heroLine(xs: number[], ys: number[], color: string, areaBottom?: number): string {
+  const d = linePath(xs, ys)
+  const closing = areaBottom === undefined ? '' : ` L${fmt(xs.at(-1)!)},${areaBottom} L${fmt(xs[0])},${areaBottom} Z`
+  const area = closing ? `<path d="${d}${closing}" fill="url(#${ID_TOKEN}g)"/>` : ''
+  const glow = `<path d="${d}" fill="none" stroke="${color}" stroke-width="2.6" filter="url(#${ID_TOKEN}f)" opacity="var(--bc-thumb-glow)"/>`
+  const line = `<path d="${d}" fill="none" stroke="${color}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>`
+  const end = `<circle cx="${fmt(xs.at(-1)!)}" cy="${fmt(ys.at(-1)!)}" r="2" fill="var(--bc-thumb-bg)" stroke="${color}" stroke-width="1.2"/>`
+  return area + glow + line + end
+}
+
+function lineLayout(count: number, maxVal: number, opts: ThumbnailOptions) {
+  const box = plotBox(opts)
+  const ticks = niceTicks(maxVal)
+  const y = valueY(box, ticks)
+  const xs = pointPositions(count, [box.left, box.right], opts.edgePadding ? 0.6 : 0)
+  return { box, ticks, y, xs }
+}
+
 const CIRC_VB = '0 0 40 40'
 
 function renderBarVertical(data: ChartData, colors: string[], opts: ThumbnailOptions): string {
@@ -355,14 +376,9 @@ function renderLine(data: ChartData, colors: string[], opts: ThumbnailOptions): 
     return ''
   }
   const { labels, values } = data
-  const maxVal = Math.max(...values)
-  const minVal = Math.min(...values)
-  const yScale = linearScale([minVal, maxVal], [32, 4])
-  const xs = pointPositions(labels.length, [2, 46], opts.edgePadding ? 0.6 : 0)
-
-  const points = values.map((v, i) => `${xs[i].toFixed(2)},${yScale(v).toFixed(2)}`).join(' ')
-
-  return `<svg viewBox="${RECT_VB}" xmlns="http://www.w3.org/2000/svg"><polyline points="${points}" fill="none" stroke="${colors[0]}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+  const { box, ticks, y, xs } = lineLayout(labels.length, Math.max(0, ...values), opts)
+  const ys = values.map(y)
+  return svgDoc(verticalFrame(box, labels, xs, ticks), heroLine(xs, ys, colors[0]), glowDefs())
 }
 
 function renderLineMulti(data: ChartData, colors: string[], opts: ThumbnailOptions): string {
@@ -370,18 +386,13 @@ function renderLineMulti(data: ChartData, colors: string[], opts: ThumbnailOptio
     return ''
   }
   const { labels, series } = data
-  const allVals = series.flat()
-  const maxVal = Math.max(...allVals)
-  const minVal = Math.min(...allVals)
-  const yScale = linearScale([minVal, maxVal], [32, 4])
-  const xs = pointPositions(labels.length, [2, 46], opts.edgePadding ? 0.6 : 0)
-
-  const lines = series.map((vals, si) => {
-    const points = vals.map((v, i) => `${xs[i].toFixed(2)},${yScale(v).toFixed(2)}`).join(' ')
-    return `<polyline points="${points}" fill="none" stroke="${colors[si % colors.length]}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>`
-  }).join('')
-
-  return `<svg viewBox="${RECT_VB}" xmlns="http://www.w3.org/2000/svg">${lines}</svg>`
+  const { box, ticks, y, xs } = lineLayout(labels.length, Math.max(0, ...series.flat()), opts)
+  const others = series.slice(1).map((vals, i) => {
+    const d = linePath(xs, vals.map(y))
+    return `<path d="${d}" fill="none" stroke="${colors[(i + 1) % colors.length]}" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0.85"/>`
+  })
+  const hero = heroLine(xs, series[0].map(y), colors[0])
+  return svgDoc(verticalFrame(box, labels, xs, ticks), others.join('') + hero, glowDefs())
 }
 
 function arcPath(cx: number, cy: number, r: number, startAngle: number, endAngle: number): string {
@@ -433,16 +444,9 @@ function renderArea(data: ChartData, colors: string[], opts: ThumbnailOptions): 
     return ''
   }
   const { labels, values } = data
-  const maxVal = Math.max(...values)
-  const minVal = Math.min(0, ...values)
-  const yScale = linearScale([minVal, maxVal], [32, 4])
-  const xs = pointPositions(labels.length, [2, 46], opts.edgePadding ? 0.6 : 0)
-
-  const linePoints = values.map((v, i) => `${xs[i].toFixed(2)},${yScale(v).toFixed(2)}`)
-  const areaPath = `M ${linePoints[0]} ${linePoints.slice(1).map(p => `L ${p}`).join(' ')} L ${xs[values.length - 1].toFixed(2)},34 L ${xs[0].toFixed(2)},34 Z`
-  const polyPoints = linePoints.join(' ')
-
-  return `<svg viewBox="${RECT_VB}" xmlns="http://www.w3.org/2000/svg"><path d="${areaPath}" fill="${colors[0]}" opacity="0.3"/><polyline points="${polyPoints}" fill="none" stroke="${colors[0]}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+  const { box, ticks, y, xs } = lineLayout(labels.length, Math.max(0, ...values), opts)
+  const ys = values.map(y)
+  return svgDoc(verticalFrame(box, labels, xs, ticks), heroLine(xs, ys, colors[0], box.bottom), glowDefs())
 }
 
 function renderAreaStacked(data: ChartData, colors: string[], opts: ThumbnailOptions): string {
@@ -450,29 +454,21 @@ function renderAreaStacked(data: ChartData, colors: string[], opts: ThumbnailOpt
     return ''
   }
   const { labels, series } = data
-  const stacked: number[][] = series.map(() => labels.map(() => 0))
-  for (let li = 0; li < labels.length; li++) {
-    let cumulative = 0
-    for (let si = 0; si < series.length; si++) {
-      cumulative += series[si][li]
-      stacked[si][li] = cumulative
-    }
-  }
-  const maxVal = Math.max(...stacked[stacked.length - 1])
-  const yScale = linearScale([0, maxVal], [32, 4])
-  const xs = pointPositions(labels.length, [2, 46], opts.edgePadding ? 0.6 : 0)
-
-  const areas: string[] = []
-  for (let si = series.length - 1; si >= 0; si--) {
-    const topPoints = labels.map((_, li) => `${xs[li].toFixed(2)},${yScale(stacked[si][li]).toFixed(2)}`)
-    const bottomPoints = si === 0
-      ? labels.map((_, li) => `${xs[li].toFixed(2)},34`).reverse()
-      : labels.map((_, li) => `${xs[li].toFixed(2)},${yScale(stacked[si - 1][li]).toFixed(2)}`).reverse()
-    const d = `M ${topPoints[0]} ${topPoints.slice(1).map(p => `L ${p}`).join(' ')} ${bottomPoints.map(p => `L ${p}`).join(' ')} Z`
-    areas.push(`<path d="${d}" fill="${colors[si % colors.length]}" opacity="0.7"/>`)
-  }
-
-  return `<svg viewBox="${RECT_VB}" xmlns="http://www.w3.org/2000/svg">${areas.join('')}</svg>`
+  const totals = labels.map((_, li) => series.reduce((sum, s) => sum + s[li], 0))
+  const { box, ticks, y, xs } = lineLayout(labels.length, Math.max(0, ...totals), opts)
+  const cumulative = labels.map(() => 0)
+  const layers = series.map((vals, si) => {
+    const lower = cumulative.map(y)
+    vals.forEach((v, li) => {
+      cumulative[li] += v
+    })
+    const upper = cumulative.map(y)
+    const top = xs.map((x, li) => `${fmt(x)},${fmt(upper[li])}`)
+    const bottom = xs.map((x, li) => `${fmt(x)},${fmt(lower[li])}`).reverse()
+    const opacity = si > 0 ? 0.75 : 0.95
+    return `<path d="M${top.join(' L')} L${bottom.join(' L')} Z" fill="${colors[si % colors.length]}" fill-opacity="${opacity}" stroke="var(--bc-thumb-bg)" stroke-width="0.6"/>`
+  })
+  return svgDoc(verticalFrame(box, labels, xs, ticks), layers.join(''))
 }
 
 function renderColumnStacked(data: ChartData, colors: string[], opts: ThumbnailOptions): string {
@@ -585,7 +581,7 @@ function scatterPoints(data: MultiSeriesData) {
   })
 }
 
-function renderScatter(data: ChartData, colors: string[]): string {
+function renderScatter(data: ChartData, colors: string[], opts: ThumbnailOptions): string {
   if (data.kind !== 'multi') {
     return ''
   }
@@ -593,20 +589,21 @@ function renderScatter(data: ChartData, colors: string[]): string {
   if (points.length === 0) {
     return ''
   }
-  const xs = points.map(p => p.x)
-  const ys = points.map(p => p.y)
+  const box = plotBox(opts)
   const sizes = points.map(p => p.size)
-  const xScale = linearScale([Math.min(...xs), Math.max(...xs)], [5, 43])
-  const yScale = linearScale([Math.min(...ys), Math.max(...ys)], [31, 5])
-  const radius = linearScale([Math.min(...sizes), Math.max(...sizes)], [1.5, 3.5])
+  const xTicks = niceTicks(Math.max(0, ...points.map(p => p.x)))
+  const yTicks = niceTicks(Math.max(0, ...points.map(p => p.y)))
+  const x = valueX(box, xTicks)
+  const y = valueY(box, yTicks)
+  const radius = linearScale([Math.min(...sizes), Math.max(...sizes)], [1.6, 3])
   const groups = [...new Set(points.map(p => p.group))]
-
   const circles = points.map((p) => {
     const color = colors[groups.indexOf(p.group) % colors.length]
-    return `<circle cx="${xScale(p.x).toFixed(2)}" cy="${yScale(p.y).toFixed(2)}" r="${radius(p.size).toFixed(2)}" fill="${color}" fill-opacity="0.7"/>`
-  }).join('')
-
-  return `<svg viewBox="${RECT_VB}" xmlns="http://www.w3.org/2000/svg">${circles}</svg>`
+    return `<circle cx="${fmt(x(p.x))}" cy="${fmt(y(p.y))}" r="${fmt(radius(p.size))}" fill="${color}" fill-opacity="0.85" stroke="var(--bc-thumb-bg)" stroke-width="0.5"/>`
+  })
+  const tickLabels = xTicks.map(t => String(fmt(t)))
+  const frame = verticalFrame(box, tickLabels, xTicks.map(x), yTicks)
+  return svgDoc(frame, circles.join(''))
 }
 
 function renderDotPlot(data: ChartData, colors: string[], opts: ThumbnailOptions): string {
@@ -644,7 +641,7 @@ export function renderToSvg(chartType: string, data: ChartData, colors: string[]
     case 'bar-stacked': return renderBarStacked(data, colors, opts)
     case 'bar-split': return renderBarSplit(data, colors, opts)
     case 'bar-grouped': return renderBarGrouped(data, colors, opts)
-    case 'scatter': return renderScatter(data, colors)
+    case 'scatter': return renderScatter(data, colors, opts)
     case 'dot-plot': return renderDotPlot(data, colors, opts)
     default: return ''
   }
