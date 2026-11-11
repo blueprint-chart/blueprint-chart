@@ -144,14 +144,11 @@ export function barCue(overlays: ResolvedOverlay[], row: number, barValue: numbe
   return { faded, color }
 }
 
-export function cueLabelFill(cue: BarCue, colorized: boolean, color: string): string {
+export function cueLabelFill(cue: BarCue, colorize: string | undefined, color: string): string {
   if (cue.faded) {
     return 'currentColor'
   }
-  if (colorized) {
-    return contrastTextColor(color)
-  }
-  return contrastTextColor(cue.color ?? color)
+  return contrastTextColor(colorize ?? cue.color ?? color)
 }
 
 export function stackRowTotals(series: { values: number[] }[], rowCount: number): number[] {

@@ -840,6 +840,13 @@ describe('bar-multi', () => {
       expect(a.getAttribute('fill')).toBe('#0000ff')
     })
 
+    it('picks the inside label color against the colorized fill', () => {
+      const colorizes = [{ target: 'Gold', color: '#000033' }]
+      render(container, cueData, { overlays: target, colorizes, colors: ['#ffff99'], valueLabels: true, valueLabelPosition: 'inside' })
+      const label = container.querySelector('.bc-value-label[data-series="Gold"]')
+      expect(label?.getAttribute('fill')).toBe('#fff')
+    })
+
     it('keeps the series color in the legend swatch', () => {
       render(container, cueData, { overlays: target })
       const swatch = container.querySelector('.bc-legend-item[data-series="Gold"] rect, .bc-legend-item[data-series="Gold"] circle')

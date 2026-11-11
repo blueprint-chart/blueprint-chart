@@ -221,8 +221,8 @@ export function render(
   }
   const insideLabelFill = (d: { label: string, value: number, seriesName: string }, seriesColor: string) => {
     const cue = cueFor(d)
-    const colorized = colorOverrides.has(d.seriesName)
-    return cueLabelFill(cue, colorized, seriesColor)
+    const colorize = colorOverrides.get(d.seriesName)
+    return cueLabelFill(cue, colorize, seriesColor)
   }
 
   // Bars — one feature per (category, series) cell, keyed by label + seriesName.

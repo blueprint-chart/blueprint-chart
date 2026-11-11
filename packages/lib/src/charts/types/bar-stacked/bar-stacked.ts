@@ -220,8 +220,8 @@ export function render(
   }
   const insideLabelFill = (d: { label: string, seriesName: string }, seriesColor: string) => {
     const cue = cueFor(d)
-    const colorized = colorOverrides.has(d.seriesName)
-    return cueLabelFill(cue, colorized, seriesColor)
+    const colorize = colorOverrides.get(d.seriesName)
+    return cueLabelFill(cue, colorize, seriesColor)
   }
   const highlightTargets = highlightTargetSet(options.highlights, flatData.map(d => d.seriesName))
   const orch = getSceneTransition(container)
