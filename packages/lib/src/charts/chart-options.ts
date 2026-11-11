@@ -1,3 +1,4 @@
+import chroma from 'chroma-js'
 import { resolvePalette } from './palettes'
 import { adjustColorsForBackground } from './contrast'
 import { getChartOptions } from './registry'
@@ -229,8 +230,8 @@ export function buildChartOptions(opts: Partial<ChartTypeOptions>, backgroundCol
 }
 
 function contrastColor(color: string | undefined, backgroundColor: string): string | undefined {
-  if (color === undefined) {
-    return undefined
+  if (color === undefined || !chroma.valid(color)) {
+    return color
   }
   return adjustColorsForBackground([color], backgroundColor)[0]
 }
@@ -240,8 +241,9 @@ export function contrastOverlayColors(overlays: OverlayConfig[], opts: Partial<C
     return overlays
   }
   return overlays.map((overlay) => {
+    const color = contrastColor(overlay.color, backgroundColor)
     const aboveColor = contrastColor(overlay.aboveColor, backgroundColor)
     const belowColor = contrastColor(overlay.belowColor, backgroundColor)
-    return { ...overlay, aboveColor, belowColor }
+    return { ...overlay, color, aboveColor, belowColor }
   })
 }

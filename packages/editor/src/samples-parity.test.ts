@@ -1,4 +1,4 @@
-import { samples, parseData, getChart, buildChartOptions, resolveBackgroundColor, ChartType, OVERLAY_CHART_TYPES } from '@blueprint-chart/lib'
+import { samples, parseData, getChart, buildChartOptions, resolveBackgroundColor, ChartType, OVERLAY_CHART_TYPES, contrastOverlayColors } from '@blueprint-chart/lib'
 import { renderDsl } from './composables/useChartFromDsl'
 import { useDslSync } from './composables/useDslSync'
 import { useChartConfig } from './composables/useChartConfig'
@@ -97,7 +97,7 @@ function renderLiveEquivalent(container: HTMLElement, dsl: string): void {
     areaFills: config.areaFills.value.length > 0 ? config.areaFills.value : undefined,
     annotations: annotations.length > 0 ? annotations : undefined,
     seriesOverrides: config.seriesOverrides.value.length > 0 ? config.seriesOverrides.value : undefined,
-    overlays: config.overlays.value,
+    overlays: contrastOverlayColors(config.overlays.value, currentOptions.value, bg),
   })
 }
 

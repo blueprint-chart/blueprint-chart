@@ -93,6 +93,19 @@ describe('buildChartOptions option passthrough', () => {
     expect(result[0].belowColor).not.toBe('#222222')
   })
 
+  it('adjusts the overlay color for the background when autoContrast is on', () => {
+    const overlays = [{ columns: ['T'], color: '#111111' }]
+    const result = contrastOverlayColors(overlays, { autoContrast: true }, '#000000')
+    expect(result[0].color).toBe(adjustColorsForBackground(['#111111'], '#000000')[0])
+    expect(result[0].color).not.toBe('#111111')
+  })
+
+  it('keeps currentColor on an overlay when autoContrast is on', () => {
+    const overlays = [{ columns: ['T'], color: 'currentColor' }]
+    const result = contrastOverlayColors(overlays, { autoContrast: true }, '#000000')
+    expect(result[0].color).toBe('currentColor')
+  })
+
   it('leaves overlay cue colors alone when autoContrast is off', () => {
     const overlays = [{ columns: ['T'], aboveColor: '#111111' }]
     const result = contrastOverlayColors(overlays, {}, '#000000')

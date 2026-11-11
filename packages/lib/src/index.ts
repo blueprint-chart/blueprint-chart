@@ -75,7 +75,7 @@ export { renderLegend } from './charts/legend/legend'
 
 export { registerChart, getChart, getChartOptions, listCharts } from './charts/registry'
 
-export { parseData, buildChartOptions } from './charts/chart-helpers'
+export { parseData, buildChartOptions, contrastOverlayColors } from './charts/chart-helpers'
 export { stripDigitGroupSpaces } from './charts/number-parse'
 export { resolveScatterMapping, numericColumns, MAPPING_NONE, type ScatterMapping } from './charts/types/scatter/mapping'
 export { resolveDotPlotMapping, detectRangeColumn, type DotPlotMapping, type DotPlotMode, type ResolvedDotPlot } from './charts/types/dot-plot/mapping'
