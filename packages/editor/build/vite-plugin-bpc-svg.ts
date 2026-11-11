@@ -138,18 +138,6 @@ function linearScale(domain: [number, number], range: [number, number]) {
   return (v: number) => r0 + ((v - d0) / span) * (r1 - r0)
 }
 
-function bandPositions(count: number, range: [number, number], padding = 0.2) {
-  const [r0, r1] = range
-  const total = r1 - r0
-  const step = total / count
-  const bandWidth = step * (1 - padding)
-  const offset = (step - bandWidth) / 2
-  return {
-    bandWidth,
-    positions: Array.from({ length: count }, (_, i) => r0 + i * step + offset),
-  }
-}
-
 function pointPositions(count: number, range: [number, number], padding: number): number[] {
   const [r0, r1] = range
   const width = r1 - r0
@@ -242,6 +230,37 @@ function dotRow(y: number, from: number, to: number): string {
   return dots.join('')
 }
 
+function dotColumn(x: number, from: number, to: number): string {
+  const dots: string[] = []
+  for (let y = from; y <= to; y += GRID_SPACING) {
+    dots.push(`<circle cx="${fmt(x)}" cy="${fmt(y)}" r="0.55" fill="var(--bc-thumb-grid)"/>`)
+  }
+  return dots.join('')
+}
+
+function valueX(box: PlotBox, ticks: number[]) {
+  return linearScale([0, ticks[3]], [box.left, box.right])
+}
+
+function horizontalGrid(box: PlotBox): string {
+  const columns = [0, 1, 2, 3].map(k => box.left + ((box.right - box.left) * k) / 3)
+  return columns.map(x => dotColumn(x, box.top, box.bottom)).join('')
+}
+
+function leftAxis(x: number, box: PlotBox): string {
+  return `<line x1="${fmt(x)}" x2="${fmt(x)}" y1="${box.top}" y2="${box.bottom}" ${AXIS_ATTRS}/>`
+}
+
+function categoryLabelsLeft(box: PlotBox, categoryLabels: string[], categoryYs: number[]): string {
+  return categoryLabels.map((l, i) => label(box.left - 2.5, categoryYs[i] + 1.6, 'end', l)).join('')
+}
+
+function horizontalFrame(box: PlotBox, categoryLabels: string[], categoryYs: number[], ticks: number[]): string {
+  const x = valueX(box, ticks)
+  const tickLabels = ticks.map(t => label(x(t), LAYOUT.height - 4, 'middle', fmt(t))).join('')
+  return horizontalGrid(box) + categoryLabelsLeft(box, categoryLabels, categoryYs) + leftAxis(box.left, box) + tickLabels
+}
+
 function sparseLabels(labels: string[]): string[] {
   if (labels.length <= 4) {
     return labels
@@ -285,21 +304,26 @@ function renderBarVertical(data: ChartData, colors: string[], opts: ThumbnailOpt
   return svgDoc(verticalFrame(box, labels, xs, ticks), bars.join(''), glowDefs())
 }
 
-function renderBarHorizontal(data: ChartData, colors: string[]): string {
+function renderBarHorizontal(data: ChartData, colors: string[], opts: ThumbnailOptions): string {
   if (data.kind !== 'single') {
     return ''
   }
   const { labels, values } = data
-  const maxVal = Math.max(...values)
-  const scale = linearScale([0, maxVal], [0, 42])
-  const { bandWidth, positions } = bandPositions(labels.length, [2, 34])
-
-  const rects = values.map((v, i) => {
-    const w = scale(v)
-    return `<rect x="2" y="${positions[i]}" width="${w}" height="${bandWidth}" fill="${colors[0]}" rx="0.5"/>`
-  }).join('')
-
-  return `<svg viewBox="${RECT_VB}" xmlns="http://www.w3.org/2000/svg">${rects}</svg>`
+  const box = plotBox(opts)
+  const maxVal = Math.max(0, ...values)
+  const ticks = niceTicks(maxVal)
+  const x = valueX(box, ticks)
+  const ys = bandCenters(labels.length, box.top, box.bottom)
+  const barHeight = fmt(((box.bottom - box.top) / labels.length) * 0.6)
+  const hero = values.indexOf(maxVal)
+  const bars = values.map((v, i) => {
+    const geometry = `x="${box.left}" y="${fmt(ys[i] - barHeight / 2)}" width="${fmt(x(v) - box.left)}" height="${barHeight}" rx="1.2"`
+    if (i === hero) {
+      return glowCopy(`<rect ${geometry} fill="${colors[0]}"/>`)
+    }
+    return `<rect ${geometry} fill="${colors[1 % colors.length]}" fill-opacity="0.6"/>`
+  })
+  return svgDoc(horizontalFrame(box, labels, ys, ticks), bars.join(''), glowDefs())
 }
 
 function renderBarMulti(data: ChartData, colors: string[], opts: ThumbnailOptions): string {
@@ -476,78 +500,77 @@ function renderColumnStacked(data: ChartData, colors: string[], opts: ThumbnailO
   return svgDoc(verticalFrame(box, labels, xs, ticks), rects.join(''))
 }
 
-function renderBarSplit(data: ChartData, colors: string[]): string {
+function renderBarSplit(data: ChartData, colors: string[], opts: ThumbnailOptions): string {
   if (data.kind !== 'multi') {
     return ''
   }
-  const { labels, series } = data
-  const n = series.length
-  const gap = 2
-  const leftMargin = 2
-  const totalWidth = 48 - leftMargin * 2
-  const panelWidth = (totalWidth - (n - 1) * gap) / n
-  const maxVal = Math.max(...series.flat())
-  const scale = linearScale([0, maxVal], [0, panelWidth])
-  const { bandWidth, positions } = bandPositions(labels.length, [2, 34])
-
+  const { labels, series, seriesNames } = data
+  const box = plotBox(opts)
+  const gap = 3
+  const panelWidth = (box.right - box.left - gap * (series.length - 1)) / series.length
+  const ticks = niceTicks(Math.max(0, ...series.flat()))
+  const x = linearScale([0, ticks[3]], [0, panelWidth])
+  const ys = bandCenters(labels.length, box.top, box.bottom)
+  const barHeight = ((box.bottom - box.top) / labels.length) * 0.6
+  const frame: string[] = [horizontalGrid(box), categoryLabelsLeft(box, labels, ys)]
   const rects: string[] = []
-  for (let si = 0; si < n; si++) {
-    const xOffset = leftMargin + si * (panelWidth + gap)
+  for (let si = 0; si < series.length; si++) {
+    const panelLeft = box.left + si * (panelWidth + gap)
+    frame.push(leftAxis(panelLeft, box))
+    frame.push(label(panelLeft + panelWidth / 2, LAYOUT.height - 4, 'middle', seriesNames[si]))
     for (let li = 0; li < labels.length; li++) {
-      const w = scale(series[si][li])
-      rects.push(`<rect x="${xOffset.toFixed(2)}" y="${positions[li].toFixed(2)}" width="${w.toFixed(2)}" height="${bandWidth.toFixed(2)}" fill="${colors[si % colors.length]}" rx="0.5"/>`)
+      rects.push(`<rect x="${fmt(panelLeft)}" y="${fmt(ys[li] - barHeight / 2)}" width="${fmt(x(series[si][li]))}" height="${fmt(barHeight)}" rx="1" fill="${colors[si % colors.length]}"/>`)
     }
   }
-
-  return `<svg viewBox="${RECT_VB}" xmlns="http://www.w3.org/2000/svg">${rects.join('')}</svg>`
+  return svgDoc(frame.join(''), rects.join(''))
 }
 
-function renderBarGrouped(data: ChartData, colors: string[]): string {
+function renderBarGrouped(data: ChartData, colors: string[], opts: ThumbnailOptions): string {
   if (data.kind !== 'multi') {
     return ''
   }
   const { labels, series } = data
-  const allVals = series.flat()
-  const maxVal = Math.max(...allVals)
-  const scale = linearScale([0, maxVal], [0, 42])
-  const seriesCount = series.length
-  const { bandWidth: groupHeight, positions: groupPositions } = bandPositions(labels.length, [2, 34], 0.15)
-  const barHeight = groupHeight / seriesCount
-
+  const box = plotBox(opts)
+  const ticks = niceTicks(Math.max(0, ...series.flat()))
+  const x = valueX(box, ticks)
+  const step = (box.bottom - box.top) / labels.length
+  const groupHeight = step * 0.8
+  const barHeight = groupHeight / series.length
   const rects: string[] = []
   for (let li = 0; li < labels.length; li++) {
-    for (let si = 0; si < seriesCount; si++) {
-      const w = scale(series[si][li])
-      const y = groupPositions[li] + si * barHeight
-      rects.push(`<rect x="2" y="${y.toFixed(2)}" width="${w.toFixed(2)}" height="${(barHeight * 0.9).toFixed(2)}" fill="${colors[si % colors.length]}" rx="0.5"/>`)
-    }
-  }
-
-  return `<svg viewBox="${RECT_VB}" xmlns="http://www.w3.org/2000/svg">${rects.join('')}</svg>`
-}
-
-function renderBarStacked(data: ChartData, colors: string[]): string {
-  if (data.kind !== 'multi') {
-    return ''
-  }
-  const { labels, series } = data
-  const totals = labels.map((_, li) => series.reduce((sum, s) => sum + s[li], 0))
-  const maxVal = Math.max(...totals)
-  const scale = linearScale([0, maxVal], [0, 42])
-  const { bandWidth, positions } = bandPositions(labels.length, [2, 34])
-
-  const rects: string[] = []
-  for (let li = 0; li < labels.length; li++) {
-    let cumWidth = 0
+    const groupTop = box.top + step * li + (step - groupHeight) / 2
     for (let si = 0; si < series.length; si++) {
-      const w = scale(series[si][li])
-      const x = 2 + cumWidth
-      rects.push(`<rect x="${x.toFixed(2)}" y="${positions[li].toFixed(2)}" width="${w.toFixed(2)}" height="${bandWidth.toFixed(2)}" fill="${colors[si % colors.length]}" rx="0.5"/>`)
-      cumWidth += w
+      const y = fmt(groupTop + si * barHeight + 0.3)
+      rects.push(`<rect x="${box.left}" y="${y}" width="${fmt(x(series[si][li]) - box.left)}" height="${fmt(barHeight - 0.6)}" rx="0.8" fill="${colors[si % colors.length]}"/>`)
     }
   }
+  const ys = bandCenters(labels.length, box.top, box.bottom)
+  return svgDoc(horizontalFrame(box, labels, ys, ticks), rects.join(''))
+}
 
-  return `<svg viewBox="${RECT_VB}" xmlns="http://www.w3.org/2000/svg">${rects.join('')}</svg>`
+function renderBarStacked(data: ChartData, colors: string[], opts: ThumbnailOptions): string {
+  if (data.kind !== 'multi') {
+    return ''
+  }
+  const { labels, series } = data
+  const box = plotBox(opts)
+  const totals = labels.map((_, li) => series.reduce((sum, s) => sum + s[li], 0))
+  const ticks = niceTicks(Math.max(0, ...totals))
+  const x = valueX(box, ticks)
+  const ys = bandCenters(labels.length, box.top, box.bottom)
+  const barHeight = ((box.bottom - box.top) / labels.length) * 0.6
+  const rects: string[] = []
+  for (let li = 0; li < labels.length; li++) {
+    let acc = 0
+    for (let si = 0; si < series.length; si++) {
+      const gap = si > 0 ? 0.5 : 0
+      const left = x(acc) + gap
+      const width = Math.max(0, x(acc + series[si][li]) - left)
+      rects.push(`<rect x="${fmt(left)}" y="${fmt(ys[li] - barHeight / 2)}" width="${fmt(width)}" height="${fmt(barHeight)}" rx="1" fill="${colors[si % colors.length]}"/>`)
+      acc += series[si][li]
+    }
+  }
+  return svgDoc(horizontalFrame(box, labels, ys, ticks), rects.join(''))
 }
 
 function scatterPoints(data: MultiSeriesData) {
@@ -586,30 +609,30 @@ function renderScatter(data: ChartData, colors: string[]): string {
   return `<svg viewBox="${RECT_VB}" xmlns="http://www.w3.org/2000/svg">${circles}</svg>`
 }
 
-function renderDotPlot(data: ChartData, colors: string[]): string {
+function renderDotPlot(data: ChartData, colors: string[], opts: ThumbnailOptions): string {
   if (data.kind !== 'multi') {
     return ''
   }
   const { labels, series } = data
-  const all = series.flat()
-  const xScale = linearScale([Math.min(...all), Math.max(...all)], [4, 44])
-  const { bandWidth, positions } = bandPositions(labels.length, [2, 34])
-
+  const box = plotBox(opts)
+  const ticks = niceTicks(Math.max(0, ...series.flat()))
+  const x = valueX(box, ticks)
+  const ys = bandCenters(labels.length, box.top, box.bottom)
   const marks = labels.map((_, li) => {
     const values = series.map(s => s[li])
-    const y = (positions[li] + bandWidth / 2).toFixed(2)
-    const line = `<line x1="${xScale(Math.min(...values)).toFixed(2)}" y1="${y}" x2="${xScale(Math.max(...values)).toFixed(2)}" y2="${y}" stroke="#adb5bd" stroke-width="0.8"/>`
-    const dots = values.map((v, si) => `<circle cx="${xScale(v).toFixed(2)}" cy="${y}" r="2" fill="${colors[si % colors.length]}"/>`)
-    return line + dots.join('')
+    const y = fmt(ys[li])
+    const connector = `<line x1="${fmt(x(Math.min(...values)))}" x2="${fmt(x(Math.max(...values)))}" y1="${y}" y2="${y}" stroke="var(--bc-thumb-axis)" stroke-width="1.4" stroke-linecap="round"/>`
+    const others = values.slice(1).map((v, i) => `<circle cx="${fmt(x(v))}" cy="${y}" r="2.2" fill="${colors[(i + 1) % colors.length]}"/>`)
+    const hero = `<circle cx="${fmt(x(values[0]))}" cy="${y}" r="2.6" fill="${colors[0]}" stroke="var(--bc-thumb-bg)" stroke-width="0.6"/>`
+    return connector + others.join('') + hero
   })
-
-  return `<svg viewBox="${RECT_VB}" xmlns="http://www.w3.org/2000/svg">${marks.join('')}</svg>`
+  return svgDoc(horizontalFrame(box, labels, ys, ticks), marks.join(''))
 }
 
 export function renderToSvg(chartType: string, data: ChartData, colors: string[], opts: ThumbnailOptions = { edgePadding: false, compact: false }): string {
   switch (chartType) {
     case 'bar-vertical': return renderBarVertical(data, colors, opts)
-    case 'bar-horizontal': return renderBarHorizontal(data, colors)
+    case 'bar-horizontal': return renderBarHorizontal(data, colors, opts)
     case 'bar-multi': return renderBarMulti(data, colors, opts)
     case 'line': return renderLine(data, colors, opts)
     case 'line-multi': return renderLineMulti(data, colors, opts)
@@ -618,11 +641,11 @@ export function renderToSvg(chartType: string, data: ChartData, colors: string[]
     case 'area': return renderArea(data, colors, opts)
     case 'area-stacked': return renderAreaStacked(data, colors, opts)
     case 'column-stacked': return renderColumnStacked(data, colors, opts)
-    case 'bar-stacked': return renderBarStacked(data, colors)
-    case 'bar-split': return renderBarSplit(data, colors)
-    case 'bar-grouped': return renderBarGrouped(data, colors)
+    case 'bar-stacked': return renderBarStacked(data, colors, opts)
+    case 'bar-split': return renderBarSplit(data, colors, opts)
+    case 'bar-grouped': return renderBarGrouped(data, colors, opts)
     case 'scatter': return renderScatter(data, colors)
-    case 'dot-plot': return renderDotPlot(data, colors)
+    case 'dot-plot': return renderDotPlot(data, colors, opts)
     default: return ''
   }
 }

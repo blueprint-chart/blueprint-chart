@@ -164,10 +164,9 @@ describe('area-stacked thumbnails respect edgePadding', () => {
 
 describe('bar-split thumbnails', () => {
   it('renders one rect group per series panel', () => {
-    const svg = renderToSvg('bar-split', multiData, ['#f00', '#0f0', '#00f'])
-    const rects = [...svg.matchAll(/<rect/g)]
+    const marks = marksOf(renderToSvg('bar-split', multiData, THEME_COLORS))
     // 3 series × 5 labels (A–E) = 15 rects
-    expect(rects.length).toBe(15)
+    expect(marks.match(/<rect/g)).toHaveLength(15)
   })
 
   it('returns empty string for single-series data', () => {
@@ -176,20 +175,18 @@ describe('bar-split thumbnails', () => {
   })
 
   it('panels are positioned left-to-right without overlap', () => {
-    const svg = renderToSvg('bar-split', multiData, ['#f00', '#0f0', '#00f'])
-    const xValues = [...svg.matchAll(/x="([^"]+)"/g)].map(m => parseFloat(m[1]))
+    const marks = marksOf(renderToSvg('bar-split', multiData, THEME_COLORS))
+    const xValues = [...marks.matchAll(/x="([^"]+)"/g)].map(m => parseFloat(m[1]))
     const uniqueXOrigins = [...new Set(xValues.map(x => Math.round(x)))]
-    // Each panel starts at a different x offset
     expect(uniqueXOrigins.length).toBeGreaterThan(1)
   })
 })
 
 describe('bar-grouped thumbnails', () => {
   it('renders one rect per series per label', () => {
-    const svg = renderToSvg('bar-grouped', multiData, ['#f00', '#0f0', '#00f'])
-    const rects = [...svg.matchAll(/<rect/g)]
+    const marks = marksOf(renderToSvg('bar-grouped', multiData, THEME_COLORS))
     // 3 series × 5 labels (A–E) = 15 rects
-    expect(rects.length).toBe(15)
+    expect(marks.match(/<rect/g)).toHaveLength(15)
   })
 
   it('returns empty string for single-series data', () => {
@@ -198,18 +195,17 @@ describe('bar-grouped thumbnails', () => {
   })
 
   it('bars within each group use distinct y positions', () => {
-    const svg = renderToSvg('bar-grouped', multiData, ['#f00', '#0f0', '#00f'])
-    const yValues = [...svg.matchAll(/y="([^"]+)"/g)].map(m => parseFloat(m[1]))
+    const marks = marksOf(renderToSvg('bar-grouped', multiData, THEME_COLORS))
+    const yValues = [...marks.matchAll(/y="([^"]+)"/g)].map(m => parseFloat(m[1]))
     const uniqueYs = new Set(yValues.map(y => Math.round(y)))
-    // 3 series × 5 groups = 15 rects, all y positions should differ within groups
     expect(uniqueYs.size).toBeGreaterThan(5)
   })
 
   it('uses series colors', () => {
-    const svg = renderToSvg('bar-grouped', multiData, ['#f00', '#0f0', '#00f'])
-    expect(svg).toContain('#f00')
-    expect(svg).toContain('#0f0')
-    expect(svg).toContain('#00f')
+    const marks = marksOf(renderToSvg('bar-grouped', multiData, THEME_COLORS))
+    expect(marks).toContain('var(--bc-thumb-series-0)')
+    expect(marks).toContain('var(--bc-thumb-series-1)')
+    expect(marks).toContain('var(--bc-thumb-series-2)')
   })
 })
 
@@ -262,9 +258,9 @@ describe('renderToSvg scatter', () => {
 
 describe('dot-plot thumbnails', () => {
   it('draws a dot per value and a line per row', () => {
-    const svg = renderToSvg('dot-plot', multiData, ['#f00', '#0f0', '#00f'])
-    expect([...svg.matchAll(/<circle/g)]).toHaveLength(15)
-    expect([...svg.matchAll(/<line/g)]).toHaveLength(5)
+    const marks = marksOf(renderToSvg('dot-plot', multiData, THEME_COLORS))
+    expect(marks.match(/<circle/g)).toHaveLength(15)
+    expect(marks.match(/<line/g)).toHaveLength(5)
   })
 
   it('returns empty string for single-series data', () => {
@@ -318,5 +314,29 @@ describe('bar-multi and column-stacked thumbnails', () => {
   it('stacks columns up to the nice maximum', () => {
     const svg = renderToSvg('column-stacked', multiData, THEME_COLORS)
     expect(svg).toContain('>60</text>')
+  })
+})
+
+describe('horizontal thumbnails', () => {
+  it('draws a left axis and category labels', () => {
+    const data = extractData([prop('FR', 18), prop('US', 28), prop('UK', 12), prop('DE', 23)])
+    const svg = renderToSvg('bar-horizontal', data, THEME_COLORS)
+    expect(svg).toContain('x1="12" x2="12"')
+    for (const text of ['FR', 'US', 'UK', 'DE', '30']) {
+      expect(svg).toContain(`>${text}</text>`)
+    }
+    expect(marksOf(svg).match(/filter=/g)).toHaveLength(1)
+  })
+
+  it('labels each bar-split panel with its series name', () => {
+    const svg = renderToSvg('bar-split', multiData, THEME_COLORS)
+    for (const name of ['X', 'Y', 'Z']) {
+      expect(svg).toContain(`>${name}</text>`)
+    }
+  })
+
+  it('draws the dot-plot hero series larger', () => {
+    const marks = marksOf(renderToSvg('dot-plot', multiData, THEME_COLORS))
+    expect(marks.match(/r="2.6"/g)).toHaveLength(5)
   })
 })

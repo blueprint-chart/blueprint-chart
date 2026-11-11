@@ -2,10 +2,10 @@ chart bar-split {
   valueLabels = true
 
   data {
-    series = "A","B","C"
-    "Alpha" = 29,32,27
-    "Beta"  = 22,25,20
-    "Gamma" = 14,16,12
-    "Delta" = 10,12,8
+    series = "X","Y","Z"
+    "A" = 27,29,25
+    "B" = 20,23,19
+    "C" = 13,15,12
+    "D" = 9,11,8
   }
 }

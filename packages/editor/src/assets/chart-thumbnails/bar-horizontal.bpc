@@ -1,8 +1,8 @@
 chart bar-horizontal {
   data {
-    "A" = 14
-    "B" = 22
-    "C" = 9
-    "D" = 18
+    "FR" = 18
+    "US" = 28
+    "UK" = 12
+    "DE" = 23
   }
 }

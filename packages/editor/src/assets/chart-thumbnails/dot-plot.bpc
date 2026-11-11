@@ -1,10 +1,9 @@
 chart dot-plot {
   data {
-    series = "a","b"
-    "Alpha" = 12,28
-    "Beta"  = 30,18
-    "Gamma" = 20,34
-    "Delta" = 26,14
-    "Epsilon" = 10,22
+    series = "2025","2015"
+    "A" = 19,3
+    "B" = 10,22
+    "C" = 28,12
+    "D" = 5,17
   }
 }
