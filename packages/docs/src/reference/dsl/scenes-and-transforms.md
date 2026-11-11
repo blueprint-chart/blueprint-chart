@@ -80,6 +80,8 @@ Annotation and overlay lifetime is governed by the `repeat` property on each ann
 
 A top-level annotation or overlay (declared on the chart, outside any scene) anchors at the base chart frame: with no `repeat` it shows only on that first frame, and `repeat` carries it forward into the following scenes.
 
+An overlay's columns stay overlay columns in every frame, even where the overlay is not shown, so they never turn into bars.
+
 ## Transforms
 
 Transforms describe data-pipeline operations applied before rendering.
