@@ -409,6 +409,19 @@ export function drawOverlays(container: HTMLElement, layer: SVGGElement, overlay
   })
 }
 
+const SHAPE_ATTRS = ['x', 'y', 'width', 'height', 'opacity']
+
+function rectShapes(group: SVGGElement, selector: string): Map<string, Record<string, string>> {
+  const shapes = new Map<string, Record<string, string>>()
+  d3.select(group).selectAll<SVGRectElement, OverlayCell>(selector).each(function (cell) {
+    const entries = SHAPE_ATTRS.map(name => [name, this.getAttribute(name)])
+    const present = entries.filter(([, value]) => value !== null)
+    const shape = Object.fromEntries(present)
+    shapes.set(cell.key, shape)
+  })
+  return shapes
+}
+
 function drawStripedRanges(container: HTMLElement, layer: SVGGElement, cells: OverlayCell[], rowOf: Map<string, number>): void {
   const parent = layer.parentNode as SVGGElement
   const hasMask = Boolean(layer.ownerSVGElement?.querySelector(`mask[id="bc-overlay-mask-${clipSuffix(layer)}"]`))
@@ -417,9 +430,11 @@ function drawStripedRanges(container: HTMLElement, layer: SVGGElement, cells: Ov
   }
   const orch = getSceneTransition(container)
   const faded = (attrs: Record<string, string | number>) => ({ ...attrs, opacity: 0 })
+  const under = underBarsGroup(layer)
+  const priorShapes = rectShapes(under, '.bc-overlay-stripes')
   featureJoin<OverlayCell>(orch, {
     role: 'mark-per-cell',
-    parent: underBarsGroup(layer),
+    parent: under,
     selector: '.bc-overlay-range',
     data: cells,
     key: cell => cell.key,
@@ -443,10 +458,15 @@ function drawStripedRanges(container: HTMLElement, layer: SVGGElement, cells: Ov
     parent: mask.holes,
     selector: '.bc-overlay-mask-range',
     data: cells,
-    key: cell => cell.key,
+    // Its own key: sharing the striped rect's key would make each one the
+    // other's transition predecessor, freezing whichever tweens first.
+    key: cell => `hole|${cell.key}`,
     insert: sel => sel.append('rect').attr('class', 'bc-overlay-mask-range'),
     attrs: holeAttrs,
-    enterFrom: cell => faded(holeAttrs(cell)),
+    enterFrom: (cell) => {
+      const prior = priorShapes.get(cell.key)
+      return prior ?? faded(holeAttrs(cell))
+    },
     exitTo: () => ({ opacity: 0 }),
   })
   const bars = parent.querySelectorAll('.bc-bar')

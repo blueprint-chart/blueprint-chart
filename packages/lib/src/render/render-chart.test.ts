@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeAll, afterAll, beforeEach, vi } from 'vitest'
 import * as d3 from 'd3'
 import { renderChart } from './render-chart'
 import { renderBpc } from './render-bpc'
@@ -166,6 +166,79 @@ describe('renderChart + SceneTransition integration', () => {
     d3.select(container).interrupt()
     d3.select(container).selectAll('*').interrupt()
     warn.mockRestore()
+    container.remove()
+  })
+})
+
+describe('striped range overlays across scenes', () => {
+  // jsdom has no SVGElement.transform; d3 reads it to tween axis transforms.
+  beforeAll(() => {
+    Object.defineProperty(window.SVGElement.prototype, 'transform', { configurable: true, get: () => ({ baseVal: { consolidate: () => null } }) })
+  })
+
+  afterAll(() => {
+    delete (window.SVGElement.prototype as { transform?: unknown }).transform
+  })
+
+  it('moves a repeated striped range overlay with its bar on a scene change', async () => {
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const bpc = `chart bar-vertical {
+      data {
+        series = "V","Lo","Hi"
+        "A" = 2,1,3
+        "B" = 5,4,6
+      }
+      overlay "Lo" "Hi" {
+        pattern = stripes
+        repeat = true
+      }
+      scene {
+        transform sort {
+          direction = "descending"
+          columns = "V"
+        }
+      }
+    }`
+    renderBpc(container, bpc)
+    renderBpc(container, bpc, { sceneIndex: 0, transition: true })
+    await new Promise(resolve => setTimeout(resolve, 1500))
+
+    const bars = Array.from(container.querySelectorAll('.bc-bar'))
+    const ranges = Array.from(container.querySelectorAll('.bc-overlay-stripes'))
+    const barX = bars.map(bar => bar.getAttribute('x'))
+    const rangeX = ranges.map(range => range.getAttribute('x'))
+    expect(rangeX).toEqual(barX)
+
+    getSceneTransition(container).destroy()
+    container.remove()
+  })
+
+  it('fades in a striped range overlay and its bar mask when a scene adds it', async () => {
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const bpc = `chart bar-vertical {
+      data {
+        series = "V","Lo","Hi"
+        "A" = 2,1,3
+        "B" = 5,4,6
+      }
+      scene {
+        overlay "Lo" "Hi" {
+          pattern = stripes
+        }
+      }
+    }`
+    renderBpc(container, bpc)
+    renderBpc(container, bpc, { sceneIndex: 0, transition: true })
+    await new Promise(resolve => setTimeout(resolve, 1500))
+
+    const ranges = Array.from(container.querySelectorAll('.bc-overlay-stripes'))
+    const holes = Array.from(container.querySelectorAll('.bc-overlay-mask-range'))
+    const opacities = [...ranges, ...holes].map(el => el.getAttribute('opacity'))
+    expect(opacities).toEqual(['1', '1', '1', '1'])
+
+    getSceneTransition(container).destroy()
     container.remove()
   })
 })
