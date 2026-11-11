@@ -555,9 +555,9 @@ function cueConfigIssues(overlay: OverlayConfig, key: string): OverlayIssue[] {
   if (hasTarget && isRange) {
     issues.push({ code: 'overlay-target-on-range', key, message: 'Target colors and titles only apply to a value overlay, so they are ignored here.' })
   }
-  const hasTitle = overlay.aboveTitle !== undefined || overlay.belowTitle !== undefined
-  const hasColor = overlay.aboveColor !== undefined || overlay.belowColor !== undefined
-  if (hasTitle && !hasColor && isValue) {
+  const aboveUntinted = overlay.aboveTitle !== undefined && overlay.aboveColor === undefined
+  const belowUntinted = overlay.belowTitle !== undefined && overlay.belowColor === undefined
+  if ((aboveUntinted || belowUntinted) && isValue) {
     issues.push({ code: 'overlay-title-without-color', key, message: 'A target title needs a target color, so it is ignored here.' })
   }
   return issues

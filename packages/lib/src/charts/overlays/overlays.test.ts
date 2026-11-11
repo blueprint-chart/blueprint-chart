@@ -181,6 +181,17 @@ describe('cue issues', () => {
     expect(run([{ columns: ['V2'], aboveTitle: 'x' }])).toContain('overlay-title-without-color')
   })
 
+  it.each([
+    { aboveTitle: 'x', belowColor: 'red' },
+    { belowTitle: 'x', aboveColor: 'red' },
+  ])('flags a target title whose own color is missing: %o', (keys) => {
+    expect(run([{ columns: ['V2'], ...keys }])).toContain('overlay-title-without-color')
+  })
+
+  it('accepts a target title with its own color', () => {
+    expect(run([{ columns: ['V2'], aboveTitle: 'x', aboveColor: 'red' }])).not.toContain('overlay-title-without-color')
+  })
+
   it('flags a second value overlay with a target color', () => {
     const issues = overlayIssues(data, [{ columns: ['V2'], aboveColor: 'red' }, { columns: ['Lo'], aboveColor: 'blue' }], 'bar-vertical')
     const conflicts = issues.filter(issue => issue.code === 'overlay-target-conflict')
