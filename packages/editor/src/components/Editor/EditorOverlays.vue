@@ -48,6 +48,10 @@ function add() {
     return
   }
   const overlay: OverlayConfig = { columns: [column] }
+  const uses = claimed.value.filter(name => name === column).length
+  if (uses > 0) {
+    overlay.title = `${column} ${uses + 1}`
+  }
   const bar = unclaimed.value.find(name => name !== column)
   if (props.targetsSeries && bar) {
     overlay.bar = bar

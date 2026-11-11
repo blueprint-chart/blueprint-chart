@@ -5,5 +5,6 @@ export function nextOverlayColumn(columns: string[], claimed: Iterable<string>, 
   const candidates = free.filter(name => name !== keptBar)
   const start = after === undefined ? -1 : columns.indexOf(after)
   const following = candidates.find(name => columns.indexOf(name) > start)
-  return following ?? candidates[0]
+  const reusable = columns.filter(name => taken.has(name) && name !== after)
+  return following ?? candidates[0] ?? reusable[0]
 }
