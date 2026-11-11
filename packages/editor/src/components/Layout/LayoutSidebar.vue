@@ -11,7 +11,7 @@ import {
 import { useDashboardGallery } from '@/composables/useDashboardGallery'
 import { useTheme } from '@/stores/theme'
 import { usePlatformShortcut } from '@/composables/usePlatformShortcut'
-import { appVersion, releaseNotesUrl } from '@/config/version'
+import { appVersion, releaseNotesUrl, repositoryUrl } from '@/config/version'
 import AccountMenu from '@/components/Account/AccountMenu.vue'
 import logoLight from '@/assets/images/blueprint-chart-logo.svg'
 import logoDark from '@/assets/images/blueprint-chart-logo-dark.svg'
@@ -134,7 +134,7 @@ const logoSrc = computed(() => resolvedTheme.value === 'dark' ? logoDark : logoL
 
     <NavigationSidebarGroup eyebrow="Resources">
       <NavigationSidebarItem
-        href="https://github.com/blueprint-chart/blueprint-chart"
+        :href="repositoryUrl"
         label="GitHub"
       >
         <template #icon>

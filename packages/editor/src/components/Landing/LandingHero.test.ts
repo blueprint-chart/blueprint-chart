@@ -38,9 +38,9 @@ describe('LandingHero', () => {
 
   it('links the version in the eyebrow to its release notes', () => {
     const w = mountHero()
-    const link = w.find('.landing-hero__inner__text__eyebrow__version')
-    expect(link.text()).toMatch(/^v\d+\.\d+\.\d+$/)
-    expect(link.attributes('href')).toBe(`https://github.com/blueprint-chart/blueprint-chart/releases/tag/${link.text()}`)
+    const link = w.find('.landing-hero__inner__text__eyebrow__label__version')
+    expect(link.text()).toBe(`v${__APP_VERSION__}`)
+    expect(link.attributes('href')).toBe(`https://github.com/blueprint-chart/blueprint-chart/releases/tag/v${__APP_VERSION__}`)
     expect(link.attributes('target')).toBe('_blank')
   })
 
