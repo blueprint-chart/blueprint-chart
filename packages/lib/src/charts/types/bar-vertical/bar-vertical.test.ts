@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { render } from './bar-vertical'
 import { buildChartOptions } from '../../chart-helpers'
+import { parseData } from '../../parse-data'
 import { SortDirection, ValueLabelPosition, GridStyle, LabelRotation, LegendPosition } from '../../../enums'
 
 describe('bar-vertical', () => {
@@ -1449,6 +1450,49 @@ describe('bar-vertical', () => {
       const y = Number(label.getAttribute('y'))
       expect(y).toBeGreaterThanOrEqual(plotTop)
       expect(y).toBeLessThanOrEqual(plotBottom)
+    })
+  })
+
+  describe('whisker value labels', () => {
+    const overlays = [{ columns: ['Low', 'High'], pattern: 'whisker' as const }]
+    const whisker = (row: string) => parseData(`series = "Value","Low","High"\n"A" = ${row}`)
+
+    function stem(): number[] {
+      const d = container.querySelector('.bc-overlay-whisker')!.getAttribute('d')!
+      return d.match(/-?[\d.]+/g)!.map(Number)
+    }
+
+    function label(): Element {
+      return container.querySelector('.bc-value-label')!
+    }
+
+    it('places an auto label past the high end of the whisker', () => {
+      render(container, whisker('5,2,8'), { valueLabels: true, overlays, verticalAxis: { range: { min: 0, max: 10 } } })
+      const top = stem()[1]
+      expect(Number(label().getAttribute('y'))).toBeCloseTo(top - 5)
+    })
+
+    it('places a negative bar label past the low end of the whisker', () => {
+      render(container, whisker('-5,-8,-2'), { valueLabels: true, overlays })
+      const bottom = stem()[7]
+      expect(Number(label().getAttribute('y'))).toBeCloseTo(bottom + 5)
+      expect(label().getAttribute('dominant-baseline')).toBe('hanging')
+    })
+
+    it('keeps an explicit inside label inside the bar', () => {
+      render(container, whisker('5,2,8'), { valueLabels: true, valueLabelPosition: ValueLabelPosition.Inside, overlays })
+      expect(label().getAttribute('dominant-baseline')).toBe('central')
+    })
+
+    it('keeps the label on the canvas when the axis range cuts the whisker', () => {
+      render(container, whisker('5,2,8'), { valueLabels: true, overlays, verticalAxis: { range: { min: 0, max: 6 } } })
+      expect(Number(label().getAttribute('y'))).toBeGreaterThanOrEqual(-12 + 8)
+    })
+
+    it('places a waterfall label past the whisker cap', () => {
+      render(container, whisker('5,2,8'), { valueLabels: true, overlays, waterfall: true })
+      const top = stem()[1]
+      expect(Number(label().getAttribute('y'))).toBeCloseTo(top - 5)
     })
   })
 

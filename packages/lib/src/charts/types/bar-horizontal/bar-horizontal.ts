@@ -6,7 +6,7 @@ import { createCanvas, contentSize, labelPositionMargins, estimateCategoryLabelW
 import { AxisService } from '../../axis/axis-service'
 import { computeLinearDomain, resolveBarGapPadding } from '../../scale-helpers'
 import { createTooltipPlugin } from '../../plugins/tooltip'
-import { resolveOverlays, barCue, rowIndex, overlayDomainValues, overlayTooltipFormat, mountOverlayLayer, drawOverlayLegend, planOverlayLabels, drawOverlayDirectLabelGroup, type OverlayGeometry } from '../../overlays/overlays'
+import { resolveOverlays, barCue, rowIndex, overlayDomainValues, overlayTooltipFormat, mountOverlayLayer, drawOverlayLegend, planOverlayLabels, drawOverlayDirectLabelGroup, whiskerEdge, type OverlayGeometry } from '../../overlays/overlays'
 import { overlayKeyLayout } from '../../overlays/overlay-key'
 import { createCrosshairPlugin } from '../../plugins/crosshair'
 import { createAnnotationPlugin, snapshotAnnotations, type AnnotationSnapshot } from '../../plugins/annotations'
@@ -187,6 +187,11 @@ export function render(
   const overlaySlotSize = y.bandwidth() - categoryLabelOffset
   const labelTextOpts = { swapLabelValue, percent: options.valueLabels === 'percent', total: d3.sum(barData, d => d.value), formatValue }
   const labelBounds = { plotWidth: width, marginLeft: margin.left, marginRight: margin.right }
+  const labelEdge = (label: string, barEnd: number, outward: 1 | -1) => {
+    const row = data.labels.indexOf(label)
+    return whiskerEdge(resolved.overlays, row, undefined, { value: x, base: overlayBase }, barEnd, outward)
+  }
+  const barLabelEdge = (d: BarDatum) => labelEdge(d.label, x(d.value), d.value < 0 ? -1 : 1)
   const rowClear = (row: number): number => {
     const datum = barData.find(d => d.label === data.labels[row])
     if (!datum) {
@@ -201,7 +206,7 @@ export function render(
       return barEnd
     }
     const ink = estimateTextInk(valueLabelText(datum, labelTextOpts))
-    const attrs = valueLabelAttrs(datum, x, y, valueLabelPos, categoryLabelOffset, labelBounds, ink)
+    const attrs = valueLabelAttrs(datum, x, y, valueLabelPos, categoryLabelOffset, labelBounds, ink, barLabelEdge(datum))
     const isOutsideRight = !attrs.isInside && attrs.anchor === 'start'
     return isOutsideRight ? Math.max(barEnd, attrs.tx + ink) : barEnd
   }
@@ -453,7 +458,8 @@ export function render(
           if (pos === ValueLabelPosition.Inside) {
             return right - 4
           }
-          return right + 4
+          const edge = d.isTotal ? undefined : labelEdge(d.label, right, 1)
+          return (edge ?? right) + 4
         })
         .attr('text-anchor', pos === ValueLabelPosition.Inside ? 'end' : 'start')
         .attr('fill', (d: WaterfallDatum) => {
@@ -550,6 +556,7 @@ export function render(
         total: labelTextOpts.total,
         formatValue,
         bounds: labelBounds,
+        edge: barLabelEdge,
       })
     }
   }
@@ -605,6 +612,7 @@ function valueLabelAttrs(
   catOffset: number,
   bounds: LabelBounds,
   labelWidth: number,
+  edge: number | undefined,
 ) {
   const ty = (y(d.label) ?? 0) + catOffset + (y.bandwidth() - catOffset) / 2
   // Bars are clipped to the plot, so the label follows the visible mark rather
@@ -624,16 +632,17 @@ function valueLabelAttrs(
   // A mark clipped to nothing has no inside to hold the label: fall back to the
   // outside position, which the clip above has already pulled into the plot.
   const roomInside = negative ? bounds.plotWidth - barEnd : barEnd
-  const isInside = (pos === ValueLabelPosition.Inside || truncated || !fitsOutside)
+  const isInside = (pos === ValueLabelPosition.Inside || (edge === undefined && (truncated || !fitsOutside)))
     && roomInside >= labelWidth + VALUE_LABEL_GAP
   if (isInside) {
     return negative
       ? { tx: barEnd + VALUE_LABEL_GAP, ty, anchor: 'start', isInside }
       : { tx: barEnd - VALUE_LABEL_GAP, ty, anchor: 'end', isInside }
   }
+  const outsideFrom = edge === undefined ? barEnd : clip(edge)
   return negative
-    ? { tx: barEnd - VALUE_LABEL_GAP, ty, anchor: 'end', isInside }
-    : { tx: barEnd + VALUE_LABEL_GAP, ty, anchor: 'start', isInside }
+    ? { tx: outsideFrom - VALUE_LABEL_GAP, ty, anchor: 'end', isInside }
+    : { tx: outsideFrom + VALUE_LABEL_GAP, ty, anchor: 'start', isInside }
 }
 
 function renderValueLabels(
@@ -653,6 +662,7 @@ function renderValueLabels(
     total?: number
     formatValue: (value: number) => string
     bounds: LabelBounds
+    edge: (d: BarDatum) => number | undefined
   },
 ): void {
   const pos = opts.position ?? ValueLabelPosition.Auto
@@ -686,7 +696,7 @@ function renderValueLabels(
       .attr('font-size', '11px')
       .attr('dominant-baseline', 'central'),
     attrs: (d) => {
-      const a = valueLabelAttrs(d, x, y, pos, catOffset, opts.bounds, estimateTextInk(labelText(d)))
+      const a = valueLabelAttrs(d, x, y, pos, catOffset, opts.bounds, estimateTextInk(labelText(d)), opts.edge(d))
       return {
         'x': a.tx,
         'y': a.ty,

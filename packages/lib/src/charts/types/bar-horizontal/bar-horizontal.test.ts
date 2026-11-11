@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { render } from './bar-horizontal'
 import { SortDirection, ValueLabelPosition, LegendPosition } from '../../../enums'
 import { estimateTextInk } from '../../value-label-fit'
+import { parseData } from '../../parse-data'
 
 describe('bar-horizontal', () => {
   let container: HTMLElement
@@ -1940,6 +1941,57 @@ describe('bar-horizontal', () => {
       render(container, deltas, { waterfall: true, overlays })
       expect(opacityOf(bar('A'))).toBe(1)
       expect(opacityOf(bar('B'))).toBe(0.45)
+    })
+  })
+
+  describe('whisker value labels', () => {
+    const overlays = [{ columns: ['Low', 'High'], pattern: 'whisker' as const }]
+    const whisker = (row: string) => parseData(`series = "Value","Low","High"\n"A" = ${row}`)
+    const svgWidth = 600
+
+    function stem(): number[] {
+      const d = container.querySelector('.bc-overlay-whisker')!.getAttribute('d')!
+      return d.match(/-?[\d.]+/g)!.map(Number)
+    }
+
+    function label(): Element {
+      return container.querySelector('.bc-value-label')!
+    }
+
+    function marginLeft(): number {
+      const transform = container.querySelector('svg g')!.getAttribute('transform')!
+      return Number(/translate\(([-\d.]+),/.exec(transform)![1])
+    }
+
+    it('places an auto label past the high end of the whisker', () => {
+      render(container, whisker('5,2,8'), { valueLabels: true, overlays, horizontalAxis: { range: { min: 0, max: 10 } } })
+      const right = stem()[0]
+      expect(Number(label().getAttribute('x'))).toBeCloseTo(right + 5)
+      expect(label().getAttribute('text-anchor')).toBe('start')
+    })
+
+    it('places a negative bar label past the low end of the whisker', () => {
+      render(container, whisker('-5,-8,-2'), { valueLabels: true, overlays, horizontalAxis: { range: { min: -10, max: 0 } } })
+      const left = stem()[6]
+      expect(Number(label().getAttribute('x'))).toBeCloseTo(left - 5)
+      expect(label().getAttribute('text-anchor')).toBe('end')
+    })
+
+    it('keeps an explicit inside label inside the bar', () => {
+      render(container, whisker('5,2,8'), { valueLabels: true, valueLabelPosition: ValueLabelPosition.Inside, overlays })
+      expect(label().getAttribute('text-anchor')).toBe('end')
+    })
+
+    it('keeps the label on the canvas when the axis range cuts the whisker', () => {
+      render(container, whisker('5,2,8'), { valueLabels: true, overlays, horizontalAxis: { range: { min: 0, max: 6 } } })
+      const x = Number(label().getAttribute('x'))
+      expect(marginLeft() + x).toBeLessThanOrEqual(svgWidth - 8)
+    })
+
+    it('places a waterfall label past the whisker cap', () => {
+      render(container, whisker('5,2,8'), { valueLabels: true, overlays, waterfall: true })
+      const right = stem()[0]
+      expect(Number(label().getAttribute('x'))).toBeCloseTo(right + 5)
     })
   })
 })

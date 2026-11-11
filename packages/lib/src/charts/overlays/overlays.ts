@@ -422,6 +422,22 @@ function whiskerAttrs(cell: OverlayCell, rowOf: Map<string, number>) {
   return { 'd': d, 'fill': 'none', 'stroke': cell.overlay.color, 'stroke-width': WHISKER_STROKE_WIDTH, 'stroke-opacity': cell.overlay.opacity, 'opacity': 1 }
 }
 
+/** Far pixel a value label must clear on this row and bar, past the outer whisker cap, or undefined when no whisker sits there. */
+export function whiskerEdge(overlays: ResolvedOverlay[], row: number, bar: string | undefined, geom: Pick<OverlayGeometry, 'value' | 'base'>, barEnd: number, outward: 1 | -1): number | undefined {
+  const offset = geom.base(row)
+  const ends = overlays
+    .filter(overlay => overlay.pattern === 'whisker' && overlay.bar === bar)
+    .filter(overlay => Number.isFinite(overlay.low[row]) && Number.isFinite(overlay.high[row]))
+    .flatMap(overlay => [overlay.low[row], overlay.high[row]])
+    .map(value => geom.value(offset + value) + outward * WHISKER_STROKE_WIDTH / 2)
+  if (!ends.length) {
+    return undefined
+  }
+  const reaches = [barEnd, ...ends].map(pixel => pixel * outward)
+  const reach = Math.max(...reaches)
+  return reach * outward
+}
+
 export function overlayGroups(layer: SVGGElement): { ranges: SVGGElement, whiskers: SVGGElement, values: SVGGElement } {
   const group = (name: string) => {
     const existing = layer.querySelector<SVGGElement>(`:scope > .${name}`)

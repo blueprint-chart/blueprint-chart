@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { parseData } from '../parse-data'
 import type { OverlayConfig } from '../types'
-import { barCue, cueLabelFill, overlayIssues, overlayKeyEntries, overlayTooltipFormat, resolveOverlays, stackRowTotals } from './overlays'
+import { barCue, cueLabelFill, overlayIssues, overlayKeyEntries, overlayTooltipFormat, resolveOverlays, stackRowTotals, whiskerEdge, type ResolvedOverlay } from './overlays'
 
 const RAW = 'series = "Value","Min","Max","Last"\n"A" = 5,2,8,6\n"B" = 4,1,9,3'
 
@@ -374,6 +374,35 @@ describe('cueLabelFill', () => {
     expect(onWhite).not.toBe(onBlack)
     expect(cueLabelFill(cue, undefined, '#000000')).toBe(onWhite)
     expect(cueLabelFill(cue, '#000000', '#ffffff')).toBe(onBlack)
+  })
+})
+
+describe('whiskerEdge', () => {
+  const geom = { value: (v: number) => v * 10, base: () => 0 }
+
+  function range(low: number, high: number, pattern: ResolvedOverlay['pattern'] = 'whisker', bar?: string): ResolvedOverlay {
+    return { key: 'k', kind: 'range', title: 't', color: 'currentColor', opacity: 1, pattern, low: [low], high: [high], order: 0, bar }
+  }
+
+  it('returns the whisker end pushed past the stroke along the outward direction', () => {
+    expect(whiskerEdge([range(2, 8)], 0, undefined, geom, 50, 1)).toBe(81)
+    expect(whiskerEdge([range(2, 8)], 0, undefined, geom, 50, -1)).toBe(19)
+  })
+
+  it('ignores a whisker on another bar', () => {
+    expect(whiskerEdge([range(2, 8, 'whisker', 'Other')], 0, 'Value', geom, 50, 1)).toBeUndefined()
+  })
+
+  it('ignores a row with an empty cell', () => {
+    expect(whiskerEdge([range(Number.NaN, Number.NaN)], 0, undefined, geom, 50, 1)).toBeUndefined()
+  })
+
+  it('ignores a solid range', () => {
+    expect(whiskerEdge([range(2, 8, 'solid')], 0, undefined, geom, 50, 1)).toBeUndefined()
+  })
+
+  it('keeps the bar end when the whisker stops short of it', () => {
+    expect(whiskerEdge([range(2, 4)], 0, undefined, geom, 50, 1)).toBe(50)
   })
 })
 

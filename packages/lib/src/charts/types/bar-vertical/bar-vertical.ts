@@ -7,7 +7,7 @@ import { resolveHorizontalAxisBottom } from '../../axis/horizontal-axis'
 import { AxisService } from '../../axis/axis-service'
 import { computeLinearDomain, resolveBarGapPadding } from '../../scale-helpers'
 import { createTooltipPlugin } from '../../plugins/tooltip'
-import { resolveOverlays, barCue, rowIndex, overlayDomainValues, overlayTooltipFormat, mountOverlayLayer, drawOverlayLegend, overlayKeyEntries, type OverlayGeometry } from '../../overlays/overlays'
+import { resolveOverlays, barCue, rowIndex, overlayDomainValues, overlayTooltipFormat, mountOverlayLayer, drawOverlayLegend, overlayKeyEntries, whiskerEdge, type OverlayGeometry } from '../../overlays/overlays'
 import { overlayKeyLayout } from '../../overlays/overlay-key'
 import { createCrosshairPlugin } from '../../plugins/crosshair'
 import { createAnnotationPlugin, snapshotAnnotations, type AnnotationSnapshot } from '../../plugins/annotations'
@@ -306,6 +306,10 @@ export function render(
   const overlaySlotStart = (label: string) => x(label) ?? 0
   const overlayGeometry: OverlayGeometry = { orientation: 'vertical', slotStart: overlaySlotStart, slotSize: x.bandwidth(), value: y, base: overlayBase }
   const mountOverlays = () => mountOverlayLayer(container, clippedGroup.node()!, priorOverlays, resolved.overlays, overlayLabels, overlayRows, () => overlayGeometry)
+  const labelEdge = (label: string, barEnd: number, outward: 1 | -1) => {
+    const row = rowOf.get(label) ?? -1
+    return whiskerEdge(resolved.overlays, row, undefined, overlayGeometry, barEnd, outward)
+  }
   const tooltipFormat = overlayTooltipFormat(resolved.overlays, data.labels, options.verticalAxis?.numberFormat)
 
   if (isWaterfall) {
@@ -420,7 +424,8 @@ export function render(
           if (pos === ValueLabelPosition.Inside) {
             return top + barH / 2
           }
-          return top - 4
+          const edge = d.isTotal ? undefined : labelEdge(d.label, top, -1)
+          return (edge ?? top) - 4
         })
         .attr('text-anchor', 'middle')
         .attr('dominant-baseline', pos === ValueLabelPosition.Inside ? 'central' : 'auto')
@@ -517,6 +522,7 @@ export function render(
         total: d3.sum(barData, d => d.value),
         formatValue: v => formatValueLabel(v, options.verticalAxis?.numberFormat),
         bounds: { plotHeight: barAreaHeight, marginTop: margin.top, marginBottom: margin.bottom },
+        edge: d => labelEdge(d.label, y(d.value), d.value < 0 ? 1 : -1),
       })
     }
   }
@@ -557,6 +563,7 @@ function valueLabelAttrs(
   y: d3.ScaleLinear<number, number> | d3.ScaleSymLog<number, number>,
   pos: ValueLabelPosition,
   bounds: LabelBounds,
+  edge: number | undefined,
 ) {
   const tx = (x(d.label) ?? 0) + x.bandwidth() / 2
   const anchor = 'middle'
@@ -569,14 +576,16 @@ function valueLabelAttrs(
   const negative = d.value < 0
   const markEnd = y(d.value)
   const truncated = markEnd < 0 || markEnd > bounds.plotHeight
-  const outsideTy = negative ? barBottom + VALUE_LABEL_GAP : barTop - VALUE_LABEL_GAP
+  const barEnd = negative ? barBottom : barTop
+  const outsideFrom = edge === undefined ? barEnd : clip(edge)
+  const outsideTy = negative ? outsideFrom + VALUE_LABEL_GAP : outsideFrom - VALUE_LABEL_GAP
   const fitsOutside = negative
     ? outsideTy + VALUE_LABEL_CAP_PX <= bounds.plotHeight + bounds.marginBottom
     : outsideTy - VALUE_LABEL_CAP_PX >= -bounds.marginTop
   // A mark clipped to nothing has no inside to hold the label: fall back to the
   // outside position, which the clip above has already pulled into the plot.
   const roomInside = barBottom - barTop
-  const isInside = (pos === ValueLabelPosition.Inside || truncated || !fitsOutside)
+  const isInside = (pos === ValueLabelPosition.Inside || (edge === undefined && (truncated || !fitsOutside)))
     && roomInside >= VALUE_LABEL_CAP_PX + VALUE_LABEL_GAP
   if (isInside) {
     return { tx, ty: (barTop + barBottom) / 2, anchor, baseline: 'central', isInside }
@@ -600,6 +609,7 @@ function renderValueLabels(
     total?: number
     formatValue: (value: number) => string
     bounds: LabelBounds
+    edge: (d: BarDatum) => number | undefined
   },
 ): void {
   const pos = opts.position ?? ValueLabelPosition.Auto
@@ -635,7 +645,7 @@ function renderValueLabels(
       .attr('class', 'bc-value-label')
       .attr('font-size', '11px'),
     attrs: (d) => {
-      const a = valueLabelAttrs(d, x, y, pos, opts.bounds)
+      const a = valueLabelAttrs(d, x, y, pos, opts.bounds, opts.edge(d))
       return {
         'x': a.tx,
         'y': a.ty,
