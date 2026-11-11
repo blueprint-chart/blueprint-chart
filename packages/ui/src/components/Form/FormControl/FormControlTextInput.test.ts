@@ -26,4 +26,19 @@ describe('FormControlTextInput', () => {
     expect(suffix.exists()).toBe(true)
     expect(suffix.text()).toBe('px')
   })
+
+  it('shows the error and marks the input invalid', () => {
+    const wrapper = mount(FormControlTextInput, {
+      props: { modelValue: 'abc', label: 'Value', id: 'test-input', error: 'Enter a number' },
+    })
+    expect(wrapper.text()).toContain('Enter a number')
+    expect(wrapper.find('input').classes()).toContain('is-invalid')
+  })
+
+  it('shows no error by default', () => {
+    const wrapper = mount(FormControlTextInput, {
+      props: { modelValue: 'abc', label: 'Value', id: 'test-input' },
+    })
+    expect(wrapper.find('input').classes()).not.toContain('is-invalid')
+  })
 })
