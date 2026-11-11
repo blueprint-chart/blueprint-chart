@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils'
+import { DEFAULT_COLORS } from '@blueprint-chart/lib'
 import type { OverlayConfig } from '@blueprint-chart/lib'
 import EditorOverlays from './EditorOverlays.vue'
 import EditorOverlayItem from './EditorOverlayItem.vue'
@@ -165,6 +166,17 @@ describe('EditorOverlayItem cues', () => {
     expect(w.text()).toContain('Above title')
     await findInput(w, 'Above title').setValue('Met')
     expect(lastEmitted(w).aboveTitle).toBe('Met')
+  })
+
+  it('defaults both cue colors away from the default bar color', async () => {
+    const w = mountItem({ columns: ['Target'] })
+    await findCheckbox(w, 'Color bars that reach this value').setValue(true)
+    const above = lastEmitted(w).aboveColor
+    await findCheckbox(w, 'Color bars below this value').setValue(true)
+    const below = lastEmitted(w).belowColor
+    expect(above).not.toBe(DEFAULT_COLORS[0])
+    expect(below).not.toBe(DEFAULT_COLORS[0])
+    expect(above).not.toBe(below)
   })
 
   it('unticking a cue toggle removes the color and its title only', async () => {

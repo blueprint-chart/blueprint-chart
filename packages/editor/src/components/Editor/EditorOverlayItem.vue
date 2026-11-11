@@ -91,7 +91,7 @@
         <FormControlCheckbox
           :model-value="!!overlay.aboveColor"
           label="Color bars that reach this value"
-          @update:model-value="(v) => setCueColor('aboveColor', 'aboveTitle', v ? DEFAULT_COLORS[0] : '')"
+          @update:model-value="(v) => setCueColor('aboveColor', 'aboveTitle', v ? DEFAULT_COLORS[4] : '')"
         />
 
         <FormControlColorInput
