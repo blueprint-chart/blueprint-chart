@@ -426,7 +426,10 @@ const SHAPE_ATTRS = ['x', 'y', 'width', 'height', 'opacity']
 
 function rectShapes(group: SVGGElement, selector: string): Map<string, Record<string, string>> {
   const shapes = new Map<string, Record<string, string>>()
-  d3.select(group).selectAll<SVGRectElement, OverlayCell>(selector).each(function (cell) {
+  d3.select(group).selectAll<SVGRectElement, OverlayCell | undefined>(selector).each(function (cell) {
+    if (!cell) {
+      return
+    }
     const entries = SHAPE_ATTRS.map(name => [name, this.getAttribute(name)])
     const present = entries.filter(([, value]) => value !== null)
     const shape = Object.fromEntries(present)
