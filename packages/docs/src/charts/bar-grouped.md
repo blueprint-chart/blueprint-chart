@@ -90,6 +90,14 @@ Every property `bar-grouped` accepts, beside the [frame and layout keys](/refere
 
 <!-- options:end -->
 
+## Overlays
+
+Overlays add a value mark (one extra column) or a range band (two extra columns) to the bars of one series, named with `bar`. Overlay columns are not series, so they never add bars. Without `bar`, or with an unknown name, an overlay goes on the first series and validation warns.
+
+Cues apply to that series only. `muteIfCrosses` on a range overlay fades the series' bar in each category whose range includes the number. `aboveColor` and `belowColor` on a value overlay recolor that bar by whether it reaches the mark. A recolored bar loses its series color, but the series keeps its color in the key.
+
+See [`overlay`](/reference/dsl/annotations#overlay) for the keys and an example.
+
 ## Common pitfalls
 
 - Too many bars per group overwhelms the reader — keep series to three or fewer

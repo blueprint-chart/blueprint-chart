@@ -107,7 +107,63 @@ Every property `bar-horizontal` accepts, beside the [frame and layout keys](/ref
 
 Overlays add reference marks on each bar: a value mark (one extra column) or a range band (two extra columns), such as a confidence interval or last year's value. Overlay columns are not bars, so they never add bars or change the category count. With `waterfall`, each overlay is drawn relative to the running total at the start of its step, so the marks follow the floating bars. By default (`directLabelling = auto`) overlays are labelled directly on the first bar; set `directLabelling = ""` to show a key instead.
 
+Cues change the bars themselves. On a range overlay, `muteIfCrosses = 0` fades every bar whose range includes zero. On a value overlay, `aboveColor` and `belowColor` color each bar by whether it reaches its mark, and add matching entries to the key. The cue entries go in the key even when overlay titles are labelled directly.
+
 See [`overlay`](/reference/dsl/annotations#overlay) for the keys and an example.
+
+From `packages/lib/src/samples/nato-defence-spending.bpc`. A value overlay marks the 2% guideline and colors each ally by whether it reaches it.
+
+```bpc
+chart bar-horizontal {
+  title = "Every NATO ally but Slovenia expects to spend at least 2% of GDP on core defence in 2026"
+  description = "Core defence expenditure as a share of real GDP, 2026 estimates, percent"
+  source = "NATO, Defence Investment of NATO Countries (2014-2026), Table 3"
+  sourceUrl = "https://www.nato.int/content/dam/nato/webready/documents/finance/def-exp-2026-en.pdf"
+  note = "Figures are NATO estimates. Slovenia's figure dates from before its new government's review of defence spending."
+  sort = descending
+
+  overlay "Target" {
+    title = "2% guideline"
+    aboveColor = "#2a9d8f"
+    belowColor = "#e15759"
+  }
+
+  data {
+    series = "Share of GDP","Target"
+    "Lithuania" = 5.33,2
+    "Estonia" = 5.10,2
+    "Latvia" = 4.92,2
+    "Poland" = 4.68,2
+    "Greece" = 3.65,2
+    "Denmark" = 3.49,2
+    "Sweden" = 3.22,2
+    "Norway" = 3.17,2
+    "United States" = 3.17,2
+    "Türkiye" = 2.85,2
+    "Germany" = 2.69,2
+    "Finland" = 2.65,2
+    "Netherlands" = 2.58,2
+    "United Kingdom" = 2.56,2
+    "Romania" = 2.43,2
+    "Bulgaria" = 2.22,2
+    "France" = 2.22,2
+    "Montenegro" = 2.17,2
+    "Albania" = 2.15,2
+    "Canada" = 2.13,2
+    "Italy" = 2.10,2
+    "Portugal" = 2.10,2
+    "Hungary" = 2.09,2
+    "North Macedonia" = 2.09,2
+    "Croatia" = 2.03,2
+    "Luxembourg" = 2.03,2
+    "Slovak Republic" = 2.02,2
+    "Czechia" = 2.01,2
+    "Belgium" = 2.00,2
+    "Spain" = 2.00,2
+    "Slovenia" = 1.61,2
+  }
+}
+```
 
 ## Common pitfalls
 

@@ -9,7 +9,7 @@ Two families of named blocks that target specific data values to draw the eye: *
 | `colorize "<target>" { … }` | Apply a color rule to a target (axis label, value label, etc.). |
 | `highlight "<target>" { … }` or `highlight "<target>"` | Emphasize a data point or series. The short form has no body. |
 | `area-fill "<from>" "<to>" { … }` | Fill the area between two series with a color (line / area charts). |
-| `overlay "<col>" { … }` or `overlay "<from>" "<to>" { … }` | Draw a value mark or a range band on each bar (bar-vertical / bar-horizontal). |
+| `overlay "<col>" { … }` or `overlay "<from>" "<to>" { … }` | Draw a value mark or a range band on each bar of a bar or column chart. |
 
 ### `colorize`
 
@@ -94,7 +94,11 @@ overlay "2021 to 2022" {
 }
 ```
 
-Overlays sit on each bar of `bar-vertical` and `bar-horizontal` charts. They read their values from extra columns of the `data` block, and the first column that no overlay claims stays the bar.
+Overlays sit on the bars of the seven bar and column charts: `bar-vertical`, `bar-horizontal`, `bar-multi`, `bar-grouped`, `bar-split`, `bar-stacked` and `column-stacked`. They read their values from extra columns of the `data` block. Columns that no overlay claims stay bars.
+
+- **Single series** (`bar-vertical`, `bar-horizontal`): the first unclaimed column is the bar, and every overlay sits on it.
+- **Multi-series** (`bar-multi`, `bar-grouped`, `bar-split`): each overlay sits on one series, named with `bar`. Without `bar`, or with an unknown name, it goes on the first series. On `bar-split` it draws in that series' panel.
+- **Stacked** (`bar-stacked`, `column-stacked`): an overlay spans the whole stack and its values sit on the value axis. Cues compare against the stack total, the sum of the row's visible values. A percent stack (`stackMode = "percent"`) draws no overlay.
 
 The number of columns sets the type: one column draws a value mark (a line across the bar), two columns draw a range band between the two values, whichever is lower or higher.
 
@@ -104,13 +108,74 @@ The number of columns sets the type: one column draws a value mark (a line acros
 | `color` | both | Any CSS color. Defaults to the text color. |
 | `opacity` | both | Percentage from 0 to 100. Defaults to `100` for a value and `30` for a range. |
 | `pattern` | range only | `solid` (default) or `stripes`. |
-| `hidden` | both | Keeps the overlay in the DSL but does not draw it. |
+| `hidden` | both | Keeps the overlay in the DSL but does not draw it. A hidden overlay has no cue. |
+| `bar` | both | The series the overlay sits on. Multi-series charts only. |
+| `muteIfCrosses` | range only | A number. Fades every bar whose range on that row includes it, ends included. |
+| `aboveColor` | value only | Fills bars that reach the mark (equal counts as reaching). |
+| `belowColor` | value only | Fills bars below the mark. |
+| `aboveTitle` | value only | Key label for `aboveColor`. Defaults to `Above <title>`. |
+| `belowTitle` | value only | Key label for `belowColor`. Defaults to `Below <title>`. |
 
-Problems such as an unknown column, a non-numeric cell, three or more columns, `pattern` on a value overlay, no column left for the bars, or a chart type other than the two bar types are reported as warnings with an `overlay-` code.
+Problems such as an unknown column, a non-numeric cell, three or more columns, `pattern` on a value overlay, a cue key on the wrong kind of overlay, an unknown `bar`, no column left for the bars, or a chart type without bars are reported as warnings with an `overlay-` code.
 
 ::: info From `packages/lib/src/samples/household-income-change.bpc`
 The bars are the 2022 to 2023 change in real median household income. A striped range overlay shows the 90% confidence interval (estimate plus or minus the margin of error) and a value overlay marks the previous year's change.
 :::
+
+#### `bar`
+
+```bpc
+overlay "Harris low" "Harris high" {
+  bar = "Harris"
+  title = "Harris margin of error"
+  color = "#1f3d5c"
+}
+```
+
+::: info From `packages/lib/src/samples/election-margin.bpc`
+On `bar-multi`, each candidate gets a range overlay on their own bar.
+:::
+
+#### `muteIfCrosses`
+
+```bpc
+overlay "Low (90% CI)" "High (90% CI)" {
+  title = "90% confidence interval"
+  pattern = stripes
+  color = "#64748b"
+  muteIfCrosses = 0
+}
+```
+
+::: info From `packages/lib/src/samples/household-income-change.bpc`
+Bars whose interval includes zero fade to 45% opacity, so the changes that are not statistically clear read as uncertain. Only the bar fades: the overlay and the labels keep their strength. The fade has no key entry, so explain it in `note`.
+:::
+
+#### `aboveColor` and `belowColor`
+
+```bpc
+overlay "Target" {
+  title = "2% guideline"
+  aboveColor = "#2a9d8f"
+  belowColor = "#e15759"
+}
+```
+
+::: info From `packages/lib/src/samples/nato-defence-spending.bpc`
+Each bar is colored by whether it reaches its row's mark. The key gets "Above 2% guideline" and "Below 2% guideline" entries after the overlay's own. Either key works alone: the other side keeps its normal color. `colorize` wins over these colors, and they win over `negativeColor`. With several value overlays, the first one with a color key colors the bars.
+:::
+
+#### `aboveTitle` and `belowTitle`
+
+```bpc
+overlay "Target" {
+  title = "2% guideline"
+  aboveColor = "#2a9d8f"
+  aboveTitle = "Meets the guideline"
+}
+```
+
+Renames the key entry of a cue color. Without its color, a title is ignored.
 
 ## Annotations
 

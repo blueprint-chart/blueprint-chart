@@ -3,12 +3,13 @@ chart bar-vertical {
   description = "Change in real median household income by race and Hispanic origin of householder, percent"
   source = "U.S. Census Bureau, Income in the United States: 2023 (P60-282), Table A-1. Prior year: Income in the United States: 2022 (P60-279), Table A-1"
   sourceUrl = "https://www2.census.gov/library/publications/2024/demo/p60-282.pdf"
-  note = "Striped band is the 90% confidence interval (estimate plus or minus margin of error). Line is the 2021 to 2022 change."
+  note = "Striped band is the 90% confidence interval (estimate plus or minus margin of error). Line is the 2021 to 2022 change. Faded bars have an interval that includes zero, so their change is not statistically clear."
 
   overlay "Low (90% CI)" "High (90% CI)" {
     title = "90% confidence interval"
     pattern = stripes
     color = "#64748b"
+    muteIfCrosses = 0
   }
 
   overlay "2021 to 2022" {

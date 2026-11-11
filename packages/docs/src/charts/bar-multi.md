@@ -93,6 +93,52 @@ Every property `bar-multi` accepts, beside the [frame and layout keys](/referenc
 
 <!-- options:end -->
 
+## Overlays
+
+Overlays add a value mark (one extra column) or a range band (two extra columns) to the bars of one series, named with `bar`. Overlay columns are not series, so they never add bars. Without `bar`, or with an unknown name, an overlay goes on the first series and validation warns.
+
+Cues apply to that series only. `muteIfCrosses` on a range overlay fades the series' bar in each category whose range includes the number. `aboveColor` and `belowColor` on a value overlay recolor that bar by whether it reaches the mark. A recolored bar loses its series color, but the series keeps its color in the key.
+
+From `packages/lib/src/samples/election-margin.bpc`. Each candidate gets a margin of error band on their own bar.
+
+```bpc
+chart bar-multi {
+  title = "Harris and Trump were within the margin of error in all seven swing states"
+  description = "Final Emerson College Polling surveys of likely voters, October 30 to November 2, 2024, percent"
+  source = "Emerson College Polling and The Hill, November 2024 final swing state polls"
+  sourceUrl = "https://emersoncollegepolling.com/november-2024-final-swing-state-polls-too-close-to-call-election-for-president/"
+  note = "Each band is the poll share plus or minus the state survey's credibility interval, from 3 to 3.4 points."
+  colors = "#4e79a7, #e15759"
+  legend = true
+  directLabelling = ""
+
+  overlay "Harris low" "Harris high" {
+    bar = "Harris"
+    title = "Harris margin of error"
+    color = "#1f3d5c"
+  }
+
+  overlay "Trump low" "Trump high" {
+    bar = "Trump"
+    title = "Trump margin of error"
+    color = "#7a1f20"
+  }
+
+  data {
+    series = "Harris","Trump","Harris low","Harris high","Trump low","Trump high"
+    "Arizona" = 48,50,44.8,51.2,46.8,53.2
+    "Georgia" = 49,50,45.6,52.4,46.6,53.4
+    "Michigan" = 50,48,46.6,53.4,44.6,51.4
+    "Nevada" = 48,48,44.7,51.3,44.7,51.3
+    "North Carolina" = 48,49,44.7,51.3,45.7,52.3
+    "Pennsylvania" = 48,49,45,51,46,52
+    "Wisconsin" = 49,49,45.6,52.4,45.6,52.4
+  }
+}
+```
+
+See [`overlay`](/reference/dsl/annotations#overlay) for the keys and an example.
+
 ## Common pitfalls
 
 - Too many bars per group overwhelms the reader; cap at 3–4 series

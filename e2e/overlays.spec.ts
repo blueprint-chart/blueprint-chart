@@ -70,4 +70,19 @@ test.describe('overlays authoring', () => {
     await page.keyboard.press('Escape')
     await expect(page.locator('.chart-edit-dsl')).toContainText('bar = "Total"')
   })
+
+  test('fades a bar when its range includes the fade value', async ({ page }) => {
+    await page.goto('/#/new')
+    await page.getByRole('button', { name: 'Real income gains in 2023' }).click()
+    await expect(page.locator(`${frame} svg`)).toBeVisible()
+
+    await page.locator('[aria-label="Annotate"]').click()
+    const fade = page.getByLabel('Fade bars when the range includes')
+    const faded = page.locator(`${frame} .bc-bar[opacity="0.45"]`)
+    await fade.fill('')
+    await expect(faded).toHaveCount(0)
+
+    await fade.fill('0')
+    await expect(faded).not.toHaveCount(0)
+  })
 })

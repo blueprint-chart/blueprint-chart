@@ -88,6 +88,14 @@ Every property `column-stacked` accepts, beside the [frame and layout keys](/ref
 
 <!-- options:end -->
 
+## Overlays
+
+Overlays add a value mark (one extra column) or a range band (two extra columns) across each whole stack. Their values sit on the value axis, and overlay columns never add segments. A percent stack (`stackMode = "percent"`) draws no overlay and validation warns.
+
+Cues compare against the stack total, the sum of the row's visible values. `muteIfCrosses` on a range overlay fades every segment of a stack whose range includes the number. `aboveColor` and `belowColor` on a value overlay recolor every segment of the stack with one color, by whether the total reaches the mark. The series keep their colors in the key.
+
+See [`overlay`](/reference/dsl/annotations#overlay) for the keys and an example.
+
 ## Common pitfalls
 
 - Stacking too many series — the top layers float and lose their baseline

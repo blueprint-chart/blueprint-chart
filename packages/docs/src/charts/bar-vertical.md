@@ -107,6 +107,8 @@ Every property `bar-vertical` accepts, beside the [frame and layout keys](/refer
 
 Overlays add reference marks on each bar: a value mark (one extra column) or a range band (two extra columns), such as a confidence interval or last year's value. Overlay columns are not bars, so they never add bars or change the category count. With `waterfall`, each overlay is drawn relative to the running total at the start of its step, so the marks follow the floating bars. Overlay entries appear in a key under the chart.
 
+Cues change the bars themselves. On a range overlay, `muteIfCrosses = 0` fades every bar whose range includes zero. On a value overlay, `aboveColor` and `belowColor` color each bar by whether it reaches its mark, and add matching entries to the key.
+
 See [`overlay`](/reference/dsl/annotations#overlay) for the keys and an example.
 
 ## Common pitfalls
