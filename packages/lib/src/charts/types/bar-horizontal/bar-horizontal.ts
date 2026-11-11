@@ -18,7 +18,7 @@ import { getCachedChart, setCachedChart } from '../../transition-cache'
 import { ensureClipPath } from '../../clip-path-helper'
 import { ValueLabelPosition, Orientation, LabelPosition } from '../../../enums'
 import { sortByValue } from '../../sort-helpers'
-import { featureJoin, getSceneTransition, tweenPlotFrame, type PlotRect } from '../../../transitions'
+import { featureJoin, getSceneTransition, tweenPlotFrame, type PlotRect, type SceneTransition } from '../../../transitions'
 import { createPluginHost } from '../../plugins/plugin-host'
 import { highlightTargetSet, highlightOpacity, CUE_FADE_OPACITY } from '../../plugins/highlight'
 import { shouldRenderValueLabel, estimateTextInk } from '../../value-label-fit'
@@ -62,6 +62,7 @@ export function render(
   // matches them as updates: that gives the resize tween its "from" shape.
   let priorBars: Element[] = []
   let priorOverlays: Element[] = []
+  let priorValueLabels: Element[] = []
   let priorPlotRect: PlotRect | undefined
   const axes = AxisService.for(container)
   if (transition) {
@@ -72,6 +73,7 @@ export function render(
     if (cached?.chartType === 'bar-horizontal') {
       priorBars = Array.from(container.querySelectorAll('.bc-frame .bc-bar'))
       priorOverlays = Array.from(container.querySelectorAll('.bc-frame .bc-overlay'))
+      priorValueLabels = Array.from(container.querySelectorAll('.bc-frame .bc-value-label-group'))
     }
     else if (cached) {
       fadeOverlay = snapshotForFadeOut(container)
@@ -535,7 +537,9 @@ export function render(
     if (options.valueLabels) {
       // Render value labels in an unclipped group so outside labels aren't truncated
       const labelParent = d3.select(chartArea).append('g') as d3.Selection<SVGGElement, unknown, null, undefined>
+      labelParent.node()!.append(...priorValueLabels)
       renderValueLabels(labelParent, barData, x, y, {
+        orch,
         position: valueLabelPos,
         barColor,
         isFaded: d => cueFor(d.label, d.value).faded,
@@ -640,6 +644,7 @@ function renderValueLabels(
   opts: {
     position?: ValueLabelPosition
     barColor: (label: string, value: number) => string
+    orch: SceneTransition
     isFaded: (d: BarDatum) => boolean
     transition: boolean
     swapLabelValue?: boolean
@@ -660,13 +665,6 @@ function renderValueLabels(
     labelGroup = parent.append('g').attr('class', 'bc-value-label-group')
   }
 
-  // Resolve the container from the parent's owner. The parent here is the
-  // unclipped group, which is mounted under the chartArea inside the chart's
-  // SVG root, inside the chart container <div>.
-  const ownerSvg = parent.node()!.ownerSVGElement
-  const container = ownerSvg?.parentElement as HTMLElement
-  const orch = getSceneTransition(container)
-
   const visibleData = barData.filter(d =>
     shouldRenderValueLabel({
       text: labelText(d),
@@ -677,7 +675,7 @@ function renderValueLabels(
     }),
   )
 
-  featureJoin<BarDatum>(orch, {
+  featureJoin<BarDatum>(opts.orch, {
     role: 'value-label',
     parent: labelGroup.node()!,
     selector: '.bc-value-label',
