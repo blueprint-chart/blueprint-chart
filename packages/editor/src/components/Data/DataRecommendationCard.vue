@@ -90,23 +90,17 @@ const fitnessLabel = computed(() => {
 
   &__preview {
     height: 6rem;
-    background: var(--bs-tertiary-bg);
+    background: var(--bc-thumb-bg);
     display: flex;
     align-items: center;
     justify-content: center;
     border-bottom: 1px solid var(--bs-border-color);
     overflow: hidden;
 
-    .reco-card--best & {
-      background: var(--bs-success-bg-subtle);
-      border-bottom-color: var(--bs-success-bg-subtle);
-    }
-
     &__thumb-svg {
       width: 100%;
       height: 100%;
       padding: 0.5rem;
-      opacity: 0.8;
 
       :deep(svg) {
         width: 100%;
@@ -136,8 +130,8 @@ const fitnessLabel = computed(() => {
         border-radius: 0.25rem;
 
         &--best {
-          background: var(--bs-success-bg-subtle);
-          color: var(--bs-success-text-emphasis);
+          background: var(--bc-thumb-badge-bg);
+          color: var(--bc-thumb-badge-ink);
         }
 
         &--good {

@@ -130,6 +130,7 @@ function cardClassList(choice: ChartTypeChoice) {
 
         &[aria-pressed="true"] {
           border-color: var(--bs-emphasis-color);
+          box-shadow: 0 0 0 1px var(--bs-emphasis-color);
         }
 
         &:focus-visible {
@@ -137,23 +138,13 @@ function cardClassList(choice: ChartTypeChoice) {
           outline-offset: 2px;
         }
 
-        &:not(:hover, [aria-pressed="true"]) &__preview__thumb {
-          filter: grayscale(1);
-          opacity: 0.55;
-        }
-
         &__preview {
           position: relative;
           display: block;
           height: 4.75rem;
-          padding: 1.5rem 0.875rem 0.5rem;
-          background: var(--bs-tertiary-bg);
+          padding: 0.75rem 0.375rem 0.125rem;
+          background: var(--bc-thumb-bg);
           border-bottom: 1px solid var(--bs-border-color-translucent);
-          transition: background-color var(--bc-duration-base) ease;
-
-          .editor-chart-type-picker__group__list__card:hover & {
-            background: var(--bs-secondary-bg);
-          }
 
           &__badge {
             position: absolute;
@@ -164,8 +155,8 @@ function cardClassList(choice: ChartTypeChoice) {
             line-height: 1rem;
             padding: 0 0.375rem;
             border-radius: var(--bs-border-radius-pill);
-            background: var(--bs-emphasis-color);
-            color: var(--bs-body-bg);
+            background: var(--bc-thumb-badge-bg);
+            color: var(--bc-thumb-badge-ink);
           }
 
           &__check {
@@ -190,7 +181,6 @@ function cardClassList(choice: ChartTypeChoice) {
             display: block;
             width: 100%;
             height: 100%;
-            transition: filter var(--bc-duration-base) ease, opacity var(--bc-duration-base) ease;
 
             :deep(svg) {
               width: 100%;
