@@ -44,7 +44,7 @@ vi.mock('./EditorOverlays.vue', () => ({
   default: {
     name: 'EditorOverlays',
     template: '<div class="stub-overlays" :data-columns="columns.join(\'|\')" />',
-    props: ['modelValue', 'columns', 'targetsSeries'],
+    props: ['modelValue', 'columns', 'targetsSeries', 'barColumn'],
     emits: ['update:modelValue'],
   },
 }))
@@ -73,6 +73,7 @@ vi.mock('@/stores/chartConfig', () => ({
     areaFills: ref([]),
     overlays: ref([]),
     seriesOverrides: ref([]),
+    selectedColumn: ref('Target'),
     _base: {
       annotations: baseAnnotationsRef,
     },
@@ -136,6 +137,14 @@ describe('EditorAnnotateTab', () => {
     await nextTick()
     const stub = w.findComponent({ name: 'EditorOverlays' })
     expect(stub.props('targetsSeries')).toBe(expected)
+  })
+
+  it.each([['bar-vertical', 'Target'], ['bar-stacked', undefined], ['bar-multi', undefined]])('passes the selected column as the bar on %s', async (type, expected) => {
+    chartTypeRef.value = type
+    const w = mount(EditorAnnotateTab)
+    await nextTick()
+    const stub = w.findComponent({ name: 'EditorOverlays' })
+    expect(stub.props('barColumn')).toBe(expected)
   })
 
   it('hides the Overlays section on a line chart', async () => {

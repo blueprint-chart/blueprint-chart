@@ -24,6 +24,7 @@ const props = defineProps<{
   columns: string[]
   claimed?: string[]
   bars?: string[]
+  barColumn?: string
 }>()
 
 defineEmits<{
@@ -78,7 +79,8 @@ function switchKind(next: string) {
     return
   }
   const claimed = [...(props.claimed ?? []), ...overlay.value.columns]
-  const unused = nextOverlayColumn(props.columns, claimed)
+  const keptBar = props.bars ? bar.value : props.barColumn
+  const unused = nextOverlayColumn(props.columns, claimed, keptBar, first)
   if (unused) {
     const { aboveColor: _ac, belowColor: _bc, aboveTitle: _at, belowTitle: _bt, ...rest } = overlay.value
     overlay.value = { ...rest, columns: [first, unused] }

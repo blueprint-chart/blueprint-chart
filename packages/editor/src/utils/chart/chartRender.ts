@@ -63,6 +63,12 @@ export function buildChartRender(s: RenderSnapshot): ChartRender {
 
   const overlays = scene?.overlays ?? s.overlays
   const keepsColumns = OVERLAY_CHART_TYPES.has(chartType) && overlays.length > 0
+  const claimed = overlays.flatMap(overlay => overlay.columns)
+  const selected = data.series?.find(series => series.name === s.selectedColumn && !claimed.includes(series.name))
+  if (data.series && selected && SINGLE_SERIES_TYPES.includes(chartType) && keepsColumns) {
+    const others = data.series.filter(series => series !== selected)
+    data.series = [selected, ...others]
+  }
   if (data.series && data.series.length > 0 && SINGLE_SERIES_TYPES.includes(chartType) && !keepsColumns) {
     const match = data.series.find(series => series.name === s.selectedColumn)
     if (match) {

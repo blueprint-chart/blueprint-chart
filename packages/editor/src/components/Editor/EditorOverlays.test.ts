@@ -275,6 +275,19 @@ describe('EditorOverlays column rule under a real v-model parent', () => {
     expect(overlays.value[0].columns).toEqual(['Low', 'High'])
   })
 
+  it('never takes the selected bar column for a new overlay', async () => {
+    const overlays = ref<OverlayConfig[]>([])
+    const Parent = defineComponent({
+      components: { EditorOverlays },
+      setup: () => ({ overlays, columns: ['A', 'B', 'C'] }),
+      template: '<EditorOverlays v-model="overlays" :columns="columns" :targets-series="false" bar-column="B" />',
+    })
+    const w = mount(Parent)
+    await w.find('.button-add').trigger('click')
+    await nextTick()
+    expect(overlays.value[0].columns).toEqual(['A'])
+  })
+
   it('does not reuse a claimed column on a second Add', async () => {
     const { w, overlays } = mountParent([{ columns: ['Low'] }])
     await w.find('.button-add').trigger('click')
@@ -317,6 +330,20 @@ describe('EditorOverlays bar picker', () => {
     await w.find('.button-add').trigger('click')
     await nextTick()
     expect(overlays.value).toEqual([{ columns: ['Silver'], bar: 'Gold' }])
+  })
+
+  it('takes the column after the value for the upper bound of a range', async () => {
+    const overlays = ref<OverlayConfig[]>([{ columns: ['Low'], bar: 'A' }])
+    const Parent = defineComponent({
+      components: { EditorOverlays },
+      setup: () => ({ overlays, columns: ['A', 'B', 'Low', 'High'] }),
+      template: '<EditorOverlays v-model="overlays" :columns="columns" targets-series />',
+    })
+    const w = mount(Parent)
+    const range = w.findAll('button').find(b => b.text() === 'Range')!
+    await range.trigger('click')
+    await nextTick()
+    expect(overlays.value[0].columns).toEqual(['Low', 'High'])
   })
 
   it('hides the Bar field when the type has no series', () => {

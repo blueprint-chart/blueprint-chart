@@ -35,4 +35,11 @@ describe('buildChartRender', () => {
     const render = buildChartRender(snapshotFromState(state))
     expect(render.kind === 'chart' && render.definition.frame?.getTheData).toBe(true)
   })
+
+  it('draws the selected column as the bar of a single-series chart with overlays', () => {
+    const data = 'series = "A","B","C"\n"x" = 1,2,3'
+    const render = buildChartRender({ ...emptySnapshot, data, selectedColumn: 'B', overlays: [{ columns: ['C'] }] })
+    const names = render.kind === 'chart' ? render.definition.data.series?.map(column => column.name) : []
+    expect(names).toEqual(['B', 'A', 'C'])
+  })
 })

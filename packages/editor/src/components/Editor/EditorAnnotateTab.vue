@@ -55,6 +55,7 @@
         v-model="overlays"
         :columns="numericColumns"
         :targets-series="targetsSeries"
+        :bar-column="barColumn"
       />
     </SettingsSection>
   </div>
@@ -66,6 +67,7 @@ import { useChartTypeOptions } from '@/stores/chartTypeOptions'
 import { usePreviewContainer } from '@/stores/previewContainer'
 import { useEditorPanel } from '@/stores/editorPanel'
 import { useScenes } from '@/stores/scenes'
+import { SINGLE_SERIES_TYPES } from '@/utils/chart/chartRender'
 import { ChartType, OVERLAY_CHART_TYPES, OVERLAY_SERIES_CHART_TYPES, parseData } from '@blueprint-chart/lib'
 import type { AnnotationConfig } from '@blueprint-chart/lib'
 import { SettingsSection } from '@blueprint-chart/ui'
@@ -76,7 +78,7 @@ import EditorAnnotations from './EditorAnnotations.vue'
 import EditorOverlays from './EditorOverlays.vue'
 
 const config = useChartConfig()
-const { chartType, data, areaFills, overlays, seriesOverrides } = config
+const { chartType, data, areaFills, overlays, seriesOverrides, selectedColumn } = config
 const { currentOptions } = useChartTypeOptions()
 const globalInterpolation = computed(() => (currentOptions.value.interpolation as string) ?? 'linear')
 const { pendingAnnotationIndex } = useEditorPanel()
@@ -114,6 +116,7 @@ const dataLabels = computed(() => parsed.value.labels)
 const seriesNames = computed(() => parsed.value.series?.map(s => s.name) ?? [])
 const hasOverlays = computed(() => OVERLAY_CHART_TYPES.has(chartType.value))
 const targetsSeries = computed(() => OVERLAY_SERIES_CHART_TYPES.has(chartType.value))
+const barColumn = computed(() => SINGLE_SERIES_TYPES.includes(chartType.value) ? selectedColumn.value : undefined)
 const textColumnNames = computed(() => new Set(parsed.value.textColumns?.map(c => c.name)))
 const numericColumns = computed(() => seriesNames.value.filter(name => !textColumnNames.value.has(name)))
 

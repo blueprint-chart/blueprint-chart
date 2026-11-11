@@ -7,6 +7,7 @@ import EditorOverlayItem from './EditorOverlayItem.vue'
 const props = defineProps<{
   columns: string[]
   targetsSeries: boolean
+  barColumn?: string
 }>()
 
 const model = defineModel<OverlayConfig[]>({ required: true })
@@ -23,7 +24,7 @@ function updateAt(index: number, value: OverlayConfig) {
 
 function add() {
   const onlyColumn = props.columns.length === 1 ? props.columns[0] : undefined
-  const column = nextOverlayColumn(props.columns, claimed.value) ?? onlyColumn
+  const column = nextOverlayColumn(props.columns, claimed.value, props.barColumn) ?? onlyColumn
   if (!column) {
     return
   }
@@ -53,6 +54,7 @@ function remove(index: number) {
         :columns="columns"
         :claimed="claimed"
         :bars="bars"
+        :bar-column="barColumn"
         @update:overlay="(value) => updateAt(i, value)"
         @remove="remove(i)"
       />
