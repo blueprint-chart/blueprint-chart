@@ -459,7 +459,11 @@ export function render(
             return right - 4
           }
           const edge = d.isTotal ? undefined : labelEdge(d.label, right, 1)
-          const from = edge === undefined ? right : Math.max(0, Math.min(width, edge))
+          if (edge === undefined) {
+            return right + 4
+          }
+          const capped = Math.min(width, edge)
+          const from = Math.max(0, capped)
           return from + 4
         })
         .attr('text-anchor', pos === ValueLabelPosition.Inside ? 'end' : 'start')

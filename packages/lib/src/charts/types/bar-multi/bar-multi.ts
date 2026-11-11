@@ -385,7 +385,8 @@ export function render(
     if (edge === undefined) {
       return barEnd
     }
-    return Math.max(0, Math.min(height, edge))
+    const capped = Math.min(height, edge)
+    return Math.max(0, capped)
   }
 
   // Per-series value labels

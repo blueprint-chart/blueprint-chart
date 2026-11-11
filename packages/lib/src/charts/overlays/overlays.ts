@@ -58,7 +58,7 @@ function resolveOverlay(config: OverlayConfig, columns: Column[], order: number,
   const isRange = kind === 'range'
   const pattern = isRange && (config.pattern === 'stripes' || config.pattern === 'whisker') ? config.pattern : 'solid'
   const rangeOpacity = pattern === 'whisker' ? DEFAULT_WHISKER_OPACITY : DEFAULT_RANGE_OPACITY
-  const defaultOpacity = kind === 'range' ? rangeOpacity : DEFAULT_VALUE_OPACITY
+  const defaultOpacity = isRange ? rangeOpacity : DEFAULT_VALUE_OPACITY
   const opacity = (config.opacity ?? defaultOpacity) / 100
   const color = config.color ?? DEFAULT_COLOR
   const title = config.title ?? defaultTitle

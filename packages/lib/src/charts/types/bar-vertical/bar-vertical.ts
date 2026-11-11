@@ -425,7 +425,11 @@ export function render(
             return top + barH / 2
           }
           const edge = d.isTotal ? undefined : labelEdge(d.label, top, -1)
-          const from = edge === undefined ? top : Math.max(0, Math.min(barAreaHeight, edge))
+          if (edge === undefined) {
+            return top - 4
+          }
+          const capped = Math.min(barAreaHeight, edge)
+          const from = Math.max(0, capped)
           return from - 4
         })
         .attr('text-anchor', 'middle')
@@ -593,7 +597,8 @@ function valueLabelAttrs(
   }
   const lowestTy = VALUE_LABEL_CAP_PX - bounds.marginTop
   const highestTy = bounds.plotHeight + bounds.marginBottom - VALUE_LABEL_CAP_PX
-  const fittedTy = Math.min(highestTy, Math.max(lowestTy, outsideTy))
+  const raisedTy = Math.max(lowestTy, outsideTy)
+  const fittedTy = Math.min(highestTy, raisedTy)
   const ty = edge === undefined ? outsideTy : fittedTy
   return { tx, ty, anchor, baseline: negative ? 'hanging' : 'auto', isInside }
 }
