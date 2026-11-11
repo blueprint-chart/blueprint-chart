@@ -9,11 +9,12 @@ const props = defineProps<{
   targetsSeries: boolean
   barColumn?: string
   showRepeat?: boolean
+  reserved?: string[]
 }>()
 
 const model = defineModel<OverlayConfig[]>({ required: true })
 
-const claimed = computed(() => model.value.flatMap(overlay => overlay.columns))
+const claimed = computed(() => [...model.value.flatMap(overlay => overlay.columns), ...(props.reserved ?? [])])
 const unclaimed = computed(() => props.columns.filter(name => !claimed.value.includes(name)))
 const bars = computed(() => props.targetsSeries ? unclaimed.value : undefined)
 const nextColumn = computed(() => nextOverlayColumn(props.columns, claimed.value, props.barColumn))

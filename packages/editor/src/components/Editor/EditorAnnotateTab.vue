@@ -57,6 +57,7 @@
         :targets-series="targetsSeries"
         :bar-column="barColumn"
         :show-repeat="showRepeat"
+        :reserved="reservedForBase"
       />
     </SettingsSection>
 
@@ -71,6 +72,7 @@
         :targets-series="targetsSeries"
         :bar-column="barColumn"
         :show-repeat="showRepeat"
+        :reserved="reservedForScene"
       />
     </SettingsSection>
   </div>
@@ -83,6 +85,7 @@ import { usePreviewContainer } from '@/stores/previewContainer'
 import { useEditorPanel } from '@/stores/editorPanel'
 import { useScenes } from '@/stores/scenes'
 import { SINGLE_SERIES_TYPES } from '@/utils/chart/chartRender'
+import { resolveVisibleOverlays } from '@/utils/scenes'
 import { ChartType, OVERLAY_CHART_TYPES, OVERLAY_SERIES_CHART_TYPES, parseData } from '@blueprint-chart/lib'
 import type { AnnotationConfig, OverlayConfig } from '@blueprint-chart/lib'
 import { SettingsSection } from '@blueprint-chart/ui'
@@ -137,6 +140,19 @@ const sceneOverlays = computed<OverlayConfig[]>({
     }
   },
 })
+
+const shownOverlays = computed(() => {
+  const resolved = resolveVisibleOverlays(baseOverlays.value, scenes.value, activeIndex.value)
+  return resolved.filter(overlay => !overlay.hidden)
+})
+
+function columnsShownOutside(own: OverlayConfig[]): string[] {
+  const others = shownOverlays.value.filter(overlay => !own.includes(overlay))
+  return others.flatMap(overlay => overlay.columns)
+}
+
+const reservedForBase = computed(() => columnsShownOutside(baseOverlays.value))
+const reservedForScene = computed(() => columnsShownOutside(sceneOverlays.value))
 
 const isMultiLine = computed(() => chartType.value === ChartType.LineMulti)
 

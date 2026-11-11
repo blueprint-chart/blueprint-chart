@@ -47,6 +47,12 @@ describe('EditorOverlays', () => {
     expect(emitted[0][0]).toEqual([{ columns: ['Target'] }])
   })
 
+  it('skips the columns other visible overlays use', async () => {
+    const w = mount(EditorOverlays, { props: { modelValue: [], columns, targetsSeries: false, reserved: ['Target'] } })
+    await w.find('.button-add').trigger('click')
+    expect(w.emitted('update:modelValue')![0][0]).toEqual([{ columns: ['Budget'] }])
+  })
+
   it('disables Add when the only column is the bar', async () => {
     const w = mountList()
     await w.setProps({ columns: ['Sales'] })

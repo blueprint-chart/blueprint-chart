@@ -44,7 +44,7 @@ vi.mock('./EditorOverlays.vue', () => ({
   default: {
     name: 'EditorOverlays',
     template: '<div class="stub-overlays" :data-columns="columns.join(\'|\')" :data-show-repeat="String(showRepeat)" :data-model-length="String(modelValue?.length ?? 0)" />',
-    props: ['modelValue', 'columns', 'targetsSeries', 'barColumn', 'showRepeat'],
+    props: ['modelValue', 'columns', 'targetsSeries', 'barColumn', 'showRepeat', 'reserved'],
     emits: ['update:modelValue'],
   },
 }))
@@ -160,6 +160,17 @@ describe('EditorAnnotateTab', () => {
     const groups = w.findAll('.stub-overlays')
     expect(groups.map(g => g.attributes('data-model-length'))).toEqual(['1', '2'])
     expect(groups.map(g => g.attributes('data-show-repeat'))).toEqual(['true', 'true'])
+  })
+
+  it('reserves the columns each overlay group shares with the other', async () => {
+    chartTypeRef.value = 'bar-vertical'
+    baseOverlaysRef.value = [{ columns: ['Target'], repeat: 'always' }, { columns: ['Gone'] }]
+    scenesRef.value = [{ id: 'scene1', name: null, overlays: [{ columns: ['Sales'] }] }]
+    activeIndexRef.value = 0
+    const w = mount(EditorAnnotateTab)
+    await nextTick()
+    const groups = w.findAllComponents({ name: 'EditorOverlays' })
+    expect(groups.map(g => g.props('reserved'))).toEqual([['Sales'], ['Target']])
   })
 
   it('renders one overlay group without repeat when there are no scenes', async () => {
