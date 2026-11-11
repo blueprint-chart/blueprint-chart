@@ -300,6 +300,13 @@ describe('EditorOverlays bar picker', () => {
     expect(overlays.value[0].bar).toBe('Silver')
   })
 
+  it('writes the first free series as the bar of a new overlay', async () => {
+    const { w, overlays } = mountSeries(true, [])
+    await w.find('.button-add').trigger('click')
+    await nextTick()
+    expect(overlays.value).toEqual([{ columns: ['Silver'], bar: 'Gold' }])
+  })
+
   it('hides the Bar field when the type has no series', () => {
     const { w } = mountSeries(false, [{ columns: ['Gold'] }])
     expect(barField(w)).toBeUndefined()

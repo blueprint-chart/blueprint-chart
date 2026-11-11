@@ -50,7 +50,12 @@ function add() {
   if (!column) {
     return
   }
-  model.value = [...model.value, { columns: [column] }]
+  const overlay: OverlayConfig = { columns: [column] }
+  const bar = unclaimed.value.find(name => name !== column)
+  if (props.targetsSeries && bar) {
+    overlay.bar = bar
+  }
+  model.value = [...model.value, overlay]
 }
 
 function remove(index: number) {
