@@ -88,7 +88,7 @@ import { useEditorPanel } from '@/stores/editorPanel'
 import { useScenes } from '@/stores/scenes'
 import { SINGLE_SERIES_TYPES } from '@/utils/chart/chartRender'
 import { resolveVisibleOverlays } from '@/utils/scenes'
-import { ChartType, OVERLAY_CHART_TYPES, OVERLAY_SERIES_CHART_TYPES, parseData } from '@blueprint-chart/lib'
+import { ChartType, OVERLAY_CHART_TYPES, OVERLAY_KEY_CHART_TYPES, OVERLAY_SERIES_CHART_TYPES, parseData } from '@blueprint-chart/lib'
 import type { AnnotationConfig, OverlayConfig } from '@blueprint-chart/lib'
 import { SettingsSection } from '@blueprint-chart/ui'
 import IPhDropHalf from '~icons/ph/drop-half'
@@ -163,7 +163,7 @@ const dataLabels = computed(() => parsed.value.labels)
 const seriesNames = computed(() => parsed.value.series?.map(s => s.name) ?? [])
 const hasOverlays = computed(() => OVERLAY_CHART_TYPES.has(chartType.value))
 const targetsSeries = computed(() => OVERLAY_SERIES_CHART_TYPES.has(chartType.value))
-const showsOverlayKey = computed(() => chartType.value === ChartType.BarMulti)
+const showsOverlayKey = computed(() => OVERLAY_KEY_CHART_TYPES.has(chartType.value))
 const baseLegendHidden = computed(() => baseOptions.value.legend === false && !showsOverlayKey.value)
 const sceneLegendHidden = computed(() => currentOptions.value.legend === false && !showsOverlayKey.value)
 const barColumn = computed(() => SINGLE_SERIES_TYPES.includes(chartType.value) ? selectedColumn.value : undefined)

@@ -14,6 +14,8 @@ import { contrastTextColor } from '../contrast'
 
 export const OVERLAY_CHART_TYPES: ReadonlySet<string> = new Set(['bar-vertical', 'bar-horizontal', 'bar-multi', 'bar-grouped', 'bar-split', 'bar-stacked', 'column-stacked'])
 export const OVERLAY_SERIES_CHART_TYPES: ReadonlySet<string> = new Set(['bar-multi', 'bar-grouped', 'bar-split'])
+/** Chart types that draw the overlay key even when the legend is off. */
+export const OVERLAY_KEY_CHART_TYPES: ReadonlySet<string> = new Set(['bar-multi'])
 export const OVERLAY_STACKED_CHART_TYPES: ReadonlySet<string> = new Set(['bar-stacked', 'column-stacked'])
 
 export interface ResolvedOverlay {
