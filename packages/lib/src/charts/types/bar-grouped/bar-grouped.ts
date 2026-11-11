@@ -111,6 +111,10 @@ export function render(
   const plottedValues = series.flatMap(s => s.values).filter(Number.isFinite)
   const widestValueLabel = d3.max(plottedValues, v => estimateTextInk(String(v))) ?? 0
   const valueLabelRoom = valueLabelsOutside ? widestValueLabel + 4 : 0
+  const hasWhisker = overlays.some(overlay => overlay.pattern === 'whisker')
+  if (hasWhisker) {
+    lpMargins.right = Math.max(lpMargins.right ?? 20, valueLabelRoom)
+  }
   const labelPlan = planOverlayLabels(overlays, options.directLabelling, lpMargins, overlays, valueLabelRoom)
   const keyEntries = labelPlan.keyEntries
   const keyTitles = keyEntries.map(entry => entry.title)
@@ -416,7 +420,11 @@ export function render(
       tx = outsideFrom + 4
       anchor = 'start'
       fill = 'currentColor'
-      valueLabelEnds.set(`${datum.label}\0${datum.seriesName}`, tx + estimateTextInk(String(datum.value)))
+      const inkEnd = tx + estimateTextInk(String(datum.value))
+      if (edge !== undefined && inkEnd > width + margin.right) {
+        return
+      }
+      valueLabelEnds.set(`${datum.label}\0${datum.seriesName}`, inkEnd)
     }
 
     vlGroup.append('text')

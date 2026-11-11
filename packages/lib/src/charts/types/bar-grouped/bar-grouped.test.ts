@@ -713,5 +713,26 @@ describe('bar-grouped', () => {
       const plotWidth = Number(container.querySelector('clipPath rect')!.getAttribute('width'))
       expect(Number(label('Value').getAttribute('x'))).toBeLessThanOrEqual(plotWidth + 4)
     })
+
+    it('keeps a whisker label inside the SVG when the whisker reaches the axis end', () => {
+      const wideData = {
+        labels: ['A'],
+        values: [],
+        series: [
+          { name: 'Value', values: [1234567] },
+          { name: 'Other', values: [400] },
+          { name: 'Low', values: [1100000] },
+          { name: 'High', values: [1400000] },
+        ],
+      }
+      render(container, wideData, { valueLabels: true, overlays, legend: false, directLabelling: false })
+      const svgWidth = Number(container.querySelector('svg')!.getAttribute('width'))
+      const valueLabel = label('Value')
+      const chartArea = valueLabel.parentElement!.parentElement!
+      const transform = chartArea.getAttribute('transform')!
+      const marginLeft = Number(transform.match(/-?[\d.]+/)![0])
+      const end = marginLeft + Number(valueLabel.getAttribute('x')) + estimateTextInk(valueLabel.textContent!)
+      expect(end).toBeLessThanOrEqual(svgWidth)
+    })
   })
 })
