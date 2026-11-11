@@ -79,9 +79,12 @@ vi.mock('@/stores/chartConfig', () => ({
   }),
 }))
 
+const setOptionSpy = vi.fn()
+
 vi.mock('@/stores/chartTypeOptions', () => ({
   useChartTypeOptions: () => ({
     currentOptions: ref({ interpolation: 'linear' }),
+    setOption: setOptionSpy,
   }),
 }))
 
@@ -133,6 +136,18 @@ describe('EditorAnnotateTab', () => {
     await nextTick()
     const stub = w.findComponent({ name: 'EditorOverlays' })
     expect(stub.props('targetsSeries')).toBe(expected)
+  })
+
+  it.each([['bar-multi', 1], ['bar-grouped', 0]])('turns the legend on when the first overlay lands on %s', async (type, calls) => {
+    setOptionSpy.mockClear()
+    chartTypeRef.value = type
+    const w = mount(EditorAnnotateTab)
+    await nextTick()
+    const stub = w.findComponent({ name: 'EditorOverlays' })
+    stub.vm.$emit('update:modelValue', [{ columns: ['Target'] }])
+    await nextTick()
+    const legendCalls = setOptionSpy.mock.calls.filter(([key, value]) => key === 'legend' && value === true)
+    expect(legendCalls).toHaveLength(calls)
   })
 
   it('hides the Overlays section on a line chart', async () => {
