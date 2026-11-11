@@ -106,8 +106,8 @@ The number of columns sets the type: one column draws a value mark (a line acros
 | --- | --- | --- |
 | `title` | both | Name shown in the key and the tooltip. Defaults to the column name (`<from> to <to>` for a range). |
 | `color` | both | Any CSS color. Defaults to the text color. |
-| `opacity` | both | Percentage from 0 to 100. Defaults to `100` for a value and `30` for a range. |
-| `pattern` | range only | `solid` (default) or `stripes`. |
+| `opacity` | both | Percentage from 0 to 100. Defaults to `100` for a value and a whisker, `30` for a band. |
+| `pattern` | range only | `solid` (default), `stripes` or `whisker`. |
 | `hidden` | both | Keeps the overlay in the DSL but does not draw it. A hidden overlay has no cue. |
 | `bar` | both | The series the overlay sits on. Multi-series charts only: on single-series and stacked charts it is ignored and validation warns. A missing or unknown `bar` falls back to the first series, with a warning. |
 | `muteIfCrosses` | range only | A number. Fades every bar whose range on that row includes it, ends included. A row with a missing range end never fades. |
@@ -116,6 +116,16 @@ The number of columns sets the type: one column draws a value mark (a line acros
 | `aboveTitle` | value only | Key label for `aboveColor`. Defaults to `Above <title>`. |
 | `belowTitle` | value only | Key label for `belowColor`. Defaults to `Below <title>`. |
 | `repeat` | both | How long the overlay lasts in a scene story, same values as an annotation's `repeat`. See [Scenes & transforms](/reference/dsl/scenes-and-transforms). |
+
+A whisker draws the range as an error bar, suited to a margin of error or a confidence interval.
+
+```bpc
+overlay "Harris low" "Harris high" {
+  title = "Harris margin of error"
+  bar = "Harris"
+  pattern = whisker
+}
+```
 
 Problems such as an unknown column, a non-numeric cell, three or more columns, `pattern` on a value overlay, a cue key on the wrong kind of overlay, an unknown `bar`, no column left for the bars, or a chart type without bars are reported as warnings with an `overlay-` code.
 
