@@ -15,7 +15,6 @@ import IPhEye from '~icons/ph/eye'
 import IPhEyeSlash from '~icons/ph/eye-slash'
 import IPhTrash from '~icons/ph/trash'
 
-const DEFAULT_COLOR = '#6c757d'
 const DEFAULT_VALUE_OPACITY = 100
 const DEFAULT_RANGE_OPACITY = 30
 
@@ -111,8 +110,8 @@ const title = computed({
 })
 
 const color = computed({
-  get: () => overlay.value.color ?? DEFAULT_COLOR,
-  set: v => update('color', v),
+  get: () => overlay.value.color ?? '',
+  set: v => update('color', v || undefined),
 })
 
 const opacity = computed({

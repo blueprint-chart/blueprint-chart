@@ -113,6 +113,11 @@ describe('EditorOverlayItem', () => {
     expect(w.text()).toContain('Pattern')
   })
 
+  it('leaves the color field empty when the overlay has no color', () => {
+    const w = mountItem({ columns: ['Target'] })
+    expect((w.find('#overlay-color-0').element as HTMLInputElement).value).toBe('')
+  })
+
   it('emits remove from the delete button', async () => {
     const w = mountItem({ columns: ['Target'] })
     await w.find('button[aria-label="Delete overlay"]').trigger('click')
