@@ -32,15 +32,12 @@ const heroBpc = applyBrandLook(sample.dsl)
             class="bc-eyebrow__dot"
             aria-hidden="true"
           />
-          <span class="landing-hero__inner__text__eyebrow__label">
-            Open source · MIT ·
-            <a
-              :href="releaseNotesUrl"
-              class="landing-hero__inner__text__eyebrow__label__version"
-              target="_blank"
-              rel="noopener noreferrer"
-            >{{ appVersion }}</a>
-          </span>
+          <a
+            :href="releaseNotesUrl"
+            class="landing-hero__inner__text__eyebrow__version"
+            target="_blank"
+            rel="noopener noreferrer"
+          >{{ appVersion }}</a>
         </span>
         <h1 class="landing-hero__inner__text__h1">
           The open chart format<br><em>AI writes.</em>
@@ -120,12 +117,10 @@ const heroBpc = applyBrandLook(sample.dsl)
       &__eyebrow {
         margin-bottom: 1.25rem;
 
-        &__label {
-          &__version {
-            color: inherit;
-            text-transform: none;
-            text-underline-offset: 0.2em;
-          }
+        &__version {
+          color: var(--bc-marketing-ink);
+          text-transform: none;
+          text-underline-offset: 0.2em;
         }
       }
 

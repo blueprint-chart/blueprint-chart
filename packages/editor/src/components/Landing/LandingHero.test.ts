@@ -31,14 +31,14 @@ describe('LandingHero', () => {
     expect(w.find('.landing-hero__inner__text__h1').text()).toContain('AI writes')
   })
 
-  it('renders the eyebrow', () => {
+  it('renders only the version in the eyebrow', () => {
     const w = mountHero()
-    expect(w.find('.landing-hero__inner__text__eyebrow').text()).toContain('Open source')
+    expect(w.find('.landing-hero__inner__text__eyebrow').text()).toBe(`v${__APP_VERSION__}`)
   })
 
   it('links the version in the eyebrow to its release notes', () => {
     const w = mountHero()
-    const link = w.find('.landing-hero__inner__text__eyebrow__label__version')
+    const link = w.find('.landing-hero__inner__text__eyebrow__version')
     expect(link.text()).toBe(`v${__APP_VERSION__}`)
     expect(link.attributes('href')).toBe(`https://github.com/blueprint-chart/blueprint-chart/releases/tag/v${__APP_VERSION__}`)
     expect(link.attributes('target')).toBe('_blank')
