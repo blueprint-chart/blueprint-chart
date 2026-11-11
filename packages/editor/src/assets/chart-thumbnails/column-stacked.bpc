@@ -1,5 +1,4 @@
 chart column-stacked {
-  colorPalette = Blueprint
   data {
     series = "X","Y"
     "A" = 4,3

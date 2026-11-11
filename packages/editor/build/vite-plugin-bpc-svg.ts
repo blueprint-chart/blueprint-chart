@@ -1,43 +1,19 @@
 import { readFileSync } from 'node:fs'
-import { resolve, dirname } from 'node:path'
+import { resolve, dirname, basename } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import type { Plugin } from 'vite'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const libSrc = resolve(__dirname, '../../lib/src')
 
-const DEFAULT_COLORS = ['#6878E8', '#E07B38', '#B83B5E', '#F0C33E', '#2DAA90', '#503880']
+export const ID_TOKEN = '__BPC_ID__'
 
-// Palette lookup inlined to avoid importing @blueprint-chart/lib at the Node level.
-// Only the palette names we actually reference in thumbnails matter, but we include
-// all of them so any .bpc file works.
-const PALETTE_MAP: Record<string, readonly string[]> = Object.create(null)
-
-function loadPaletteMap() {
-  if (Object.keys(PALETTE_MAP).length > 0) {
-    return
-  }
-  // Read the palettes source to extract the data.
-  const src = readFileSync(resolve(libSrc, 'charts/palettes.ts'), 'utf-8')
-  // Extract palette entries using regex - each line looks like:
-  // { name: 'X', label: 'Y', colors: ['#...', ...] },
-  const re = /\{\s*name:\s*'([^']+)',\s*label:\s*'[^']+',\s*colors:\s*\[([^\]]+)\]\s*\}/g
-  let m
-  while ((m = re.exec(src)) !== null) {
-    const name = m[1]
-    const colors = m[2].match(/'#[0-9a-fA-F]+'/g)?.map(c => c.slice(1, -1)) ?? []
-    PALETTE_MAP[name] = colors
-  }
-}
-
-function resolvePalette(paletteName: string | undefined): string[] | undefined {
-  if (!paletteName) {
-    return undefined
-  }
-  loadPaletteMap()
-  const scheme = PALETTE_MAP[paletteName]
-  return scheme ? [...scheme] : undefined
-}
+export const THEME_COLORS = [
+  'var(--bc-thumb-series-0)',
+  'var(--bc-thumb-series-1)',
+  'var(--bc-thumb-series-2)',
+  'var(--bc-thumb-series-3)',
+]
 
 // Load the PEG.js parser via dynamic import
 let parserPromise: Promise<(input: string) => ChartNode> | null = null
@@ -73,6 +49,7 @@ export interface ChartNode {
 
 export interface ThumbnailOptions {
   edgePadding: boolean
+  compact: boolean
 }
 
 // ---------------------------------------------------------------------------
@@ -98,7 +75,8 @@ type ChartData = SingleSeriesData | MultiSeriesData
 export function extractOptions(chart: ChartNode): ThumbnailOptions {
   const edgePaddingProp = chart.properties.find(p => p.key === 'edgePadding')
   const edgePadding = edgePaddingProp ? String(edgePaddingProp.value) === 'true' : false
-  return { edgePadding }
+  const compact = chart.properties.some(p => p.key === 'colors')
+  return { edgePadding, compact }
 }
 
 export function extractData(entries: PropertyNode[]): ChartData {
@@ -140,21 +118,13 @@ export function extractData(entries: PropertyNode[]): ChartData {
   return { kind: 'single', labels, values }
 }
 
-function extractColors(chart: ChartNode): string[] {
+export function extractColors(chart: ChartNode): string[] {
   const colorsProp = chart.properties.find(p => p.key === 'colors')
-  if (colorsProp) {
-    return colorsProp.values
-      ? colorsProp.values.map(c => String(c).trim())
-      : String(colorsProp.value).split(',').map(c => c.trim())
+  if (!colorsProp) {
+    return THEME_COLORS
   }
-  const paletteProp = chart.properties.find(p => p.key === 'colorPalette')
-  if (paletteProp) {
-    const colors = resolvePalette(String(paletteProp.value))
-    if (colors) {
-      return colors
-    }
-  }
-  return DEFAULT_COLORS
+  const raw = colorsProp.values ?? String(colorsProp.value).split(',')
+  return raw.map(c => String(c).trim())
 }
 
 // ---------------------------------------------------------------------------
@@ -190,6 +160,17 @@ function pointPositions(count: number, range: [number, number], padding: number)
   const step = width / (count - 1 + padding * 2)
   const offset = padding * step
   return Array.from({ length: count }, (_, i) => r0 + offset + i * step)
+}
+
+export function niceTicks(max: number): number[] {
+  if (max <= 0) {
+    return [0, 1, 2, 3]
+  }
+  const target = max / 3
+  const magnitude = 10 ** Math.floor(Math.log10(target))
+  const candidates = [1, 2, 3, 5, 10].map(m => m * magnitude)
+  const step = candidates.find(c => c * 3 >= max - 1e-9) ?? candidates[4]
+  return [0, step, step * 2, step * 3]
 }
 
 // ---------------------------------------------------------------------------
@@ -538,7 +519,7 @@ function renderDotPlot(data: ChartData, colors: string[]): string {
   return `<svg viewBox="${RECT_VB}" xmlns="http://www.w3.org/2000/svg">${marks.join('')}</svg>`
 }
 
-export function renderToSvg(chartType: string, data: ChartData, colors: string[], opts: ThumbnailOptions = { edgePadding: false }): string {
+export function renderToSvg(chartType: string, data: ChartData, colors: string[], opts: ThumbnailOptions = { edgePadding: false, compact: false }): string {
   switch (chartType) {
     case 'bar-vertical': return renderBarVertical(data, colors)
     case 'bar-horizontal': return renderBarHorizontal(data, colors)
@@ -580,6 +561,7 @@ export default function bpcSvgPlugin(): Plugin {
       const colors = extractColors(ast)
       const opts = extractOptions(ast)
       const svg = renderToSvg(ast.chartType, data, colors, opts)
+      const name = basename(id, '.bpc')
 
       // Escape backticks and backslashes for template literal
       const escaped = svg.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$/g, '\\$')
@@ -587,7 +569,14 @@ export default function bpcSvgPlugin(): Plugin {
       return {
         code: `
 import { h } from 'vue'
-export default { render() { return h('div', { innerHTML: \`${escaped}\`, style: 'width:100%;height:100%' }) } }
+const svg = \`${escaped}\`
+let count = 0
+export default {
+  setup() {
+    const html = svg.replaceAll('${ID_TOKEN}', \`bpc-${name}-\${count++}-\`)
+    return () => h('div', { innerHTML: html, style: 'width:100%;height:100%' })
+  },
+}
 `,
         map: null,
       }

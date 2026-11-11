@@ -1,5 +1,4 @@
 chart area {
-  colorPalette = Blueprint
 
   data {
     "A" = 3

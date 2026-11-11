@@ -205,3 +205,15 @@ describe('byesky bootstrap layer', () => {
     expect(rule('a')).toMatch(/text-decoration:\s*underline rgba\(var\(--bs-body-color-rgb\), 0\.15\)/)
   })
 })
+
+describe('thumbnail tokens', () => {
+  it('defines the dark thumbnail palette', () => {
+    expect(css).toMatch(/\[data-bs-theme="?dark"?\]\s*{[^}]*--bc-thumb-bg:\s*#000000/i)
+    expect(css).toMatch(/\[data-bs-theme="?dark"?\]\s*{[^}]*--bc-thumb-series-0:\s*#DDF247/i)
+  })
+
+  it('defines the light thumbnail palette with blueprint blue as hero', () => {
+    expect(css).toMatch(/\[data-bs-theme="?light"?\]\s*{[^}]*--bc-thumb-bg:\s*#FFFFFF/i)
+    expect(css).toMatch(/\[data-bs-theme="?light"?\]\s*{[^}]*--bc-thumb-series-0:\s*#2563A0/i)
+  })
+})

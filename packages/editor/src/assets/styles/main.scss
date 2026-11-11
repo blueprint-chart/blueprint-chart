@@ -20,6 +20,39 @@
   --bs-focus-ring-color: var(--bs-emphasis-color);
 }
 
+:root,
+[data-bs-theme="light"] {
+  --bc-thumb-bg: #FFFFFF;
+  --bc-thumb-grid: #DCDCDC;
+  --bc-thumb-axis: #C7C7C7;
+  --bc-thumb-label: #8F8F8F;
+  --bc-thumb-ink: #171717;
+  --bc-thumb-series-0: #{$prussian-500};
+  --bc-thumb-series-1: #{$warning};
+  --bc-thumb-series-2: #{$danger};
+  --bc-thumb-series-3: #{$success};
+  --bc-thumb-glow: 0.35;
+  --bc-thumb-area-opacity: 0.245;
+  --bc-thumb-badge-bg: #{$prussian-600};
+  --bc-thumb-badge-ink: #FFFFFF;
+}
+
+[data-bs-theme="dark"] {
+  --bc-thumb-bg: #000000;
+  --bc-thumb-grid: #2E2E2E;
+  --bc-thumb-axis: #404040;
+  --bc-thumb-label: #6B6B6B;
+  --bc-thumb-ink: #EDEDED;
+  --bc-thumb-series-0: #{$chartreuse-400};
+  --bc-thumb-series-1: #{$prussian-300};
+  --bc-thumb-series-2: #{$danger};
+  --bc-thumb-series-3: #{$warning};
+  --bc-thumb-glow: 0.7;
+  --bc-thumb-area-opacity: 0.49;
+  --bc-thumb-badge-bg: #{$chartreuse-400};
+  --bc-thumb-badge-ink: #{$prussian-600};
+}
+
 // Bootstrap reads this custom property but never declares it from Sass
 .dropdown-menu {
   --bs-dropdown-item-border-radius: var(--bs-border-radius-sm);

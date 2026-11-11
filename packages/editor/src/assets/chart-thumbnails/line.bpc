@@ -1,5 +1,4 @@
 chart line {
-  colorPalette = Blueprint
   data {
     "A" = 4
     "B" = 10

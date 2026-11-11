@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { extractOptions, extractData, renderToSvg, type ChartNode } from './vite-plugin-bpc-svg'
+import { extractOptions, extractData, extractColors, niceTicks, renderToSvg, THEME_COLORS, type ChartNode } from './vite-plugin-bpc-svg'
 
 function prop(key: string, value: string | number): ChartNode['properties'][0] {
   return { type: 'property', key, value, isPercentage: false }
@@ -30,7 +30,7 @@ function parsePolylineXCoords(svg: string): number[] {
 describe('extractOptions', () => {
   it('defaults edgePadding to false when not specified', () => {
     const chart: ChartNode = { type: 'chart', chartType: 'line', properties: [], data: null }
-    expect(extractOptions(chart)).toEqual({ edgePadding: false })
+    expect(extractOptions(chart)).toEqual({ edgePadding: false, compact: false })
   })
 
   it('parses edgePadding = false', () => {
@@ -49,6 +49,35 @@ describe('extractOptions', () => {
       data: null,
     }
     expect(extractOptions(chart).edgePadding).toBe(true)
+  })
+
+  it('marks charts with explicit colors as compact', () => {
+    const chart: ChartNode = { type: 'chart', chartType: 'bar-multi', properties: [prop('colors', '#111,#222')], data: null }
+    expect(extractOptions(chart)).toEqual({ edgePadding: false, compact: true })
+  })
+})
+
+describe('extractColors', () => {
+  it('uses theme variables when no colors are given', () => {
+    const chart: ChartNode = { type: 'chart', chartType: 'line', properties: [prop('colorPalette', 'Blueprint')], data: null }
+    expect(extractColors(chart)).toEqual(THEME_COLORS)
+  })
+
+  it('keeps explicit colors literal', () => {
+    const chart: ChartNode = { type: 'chart', chartType: 'bar-multi', properties: [prop('colors', '#111,#222')], data: null }
+    expect(extractColors(chart)).toEqual(['#111', '#222'])
+  })
+})
+
+describe('niceTicks', () => {
+  it.each([
+    [28, [0, 10, 20, 30]],
+    [24, [0, 10, 20, 30]],
+    [8, [0, 3, 6, 9]],
+    [6, [0, 2, 4, 6]],
+    [0, [0, 1, 2, 3]],
+  ])('rounds %d to four ticks', (max, ticks) => {
+    expect(niceTicks(max)).toEqual(ticks)
   })
 })
 

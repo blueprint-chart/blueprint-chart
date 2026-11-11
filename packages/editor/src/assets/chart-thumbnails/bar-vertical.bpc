@@ -1,5 +1,4 @@
 chart bar-vertical {
-  colorPalette = Blueprint
   data {
     "A" = 8
     "B" = 18
