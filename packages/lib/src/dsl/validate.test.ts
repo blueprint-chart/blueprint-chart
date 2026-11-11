@@ -815,7 +815,24 @@ describe('overlay validation', () => {
     const ast = parse(`chart bar-vertical {\n  overlay "Min" "Max" {\n    repeat = true\n  }\n  data {\n    series = "V","Min","Max"\n    "A" = 1,0,2\n  }\n  scene "s" {\n    data {\n      series = "V","Min"\n      "A" = 1,0\n    }\n  }\n}`)
     const w = validateChart(ast).warnings.filter(x => x.code === 'overlay-unknown-column')
     expect(w).toHaveLength(1)
-    expect(w[0].path).toBe('scene[0].overlay[0]')
+    expect(w[0].path).toBe('chart.overlay[0]')
+  })
+
+  it('does not warn about an overlay a scene does not show', () => {
+    const ast = parse(`chart bar-vertical {\n  overlay "Min" "Max" {}\n  data {\n    series = "V","Min","Max"\n    "A" = 1,0,2\n  }\n  scene "s" {\n    data {\n      series = "V","Min"\n      "A" = 1,0\n    }\n  }\n}`)
+    expect(validateChart(ast).warnings.filter(x => x.code === 'overlay-unknown-column')).toEqual([])
+  })
+
+  it('points a scene overlay warning at the scene\'s own overlay', () => {
+    const ast = parse(`chart bar-multi {\n  overlay "T1" {\n    bar = "A"\n    repeat = true\n  }\n  data {\n    series = "A","B","T1","T2"\n    "x" = 1,2,3,4\n  }\n  scene "s" {\n    overlay "T2" {}\n  }\n}`)
+    const paths = validateChart(ast).warnings.filter(x => x.code === 'overlay-bar-missing').map(x => x.path)
+    expect(paths).toEqual(['scene[0].overlay[0]'])
+  })
+
+  it('warns for a chart overlay and a scene overlay that share a message', () => {
+    const ast = parse(`chart bar-multi {\n  overlay "T1" {}\n  data {\n    series = "A","B","T1","T2"\n    "x" = 1,2,3,4\n  }\n  scene "s" {\n    overlay "T2" {}\n  }\n}`)
+    const paths = validateChart(ast).warnings.filter(x => x.code === 'overlay-bar-missing').map(x => x.path)
+    expect(paths).toEqual(['chart.overlay[0]', 'scene[0].overlay[0]'])
   })
 
   it('warns for every overlay that shares the same issue', () => {

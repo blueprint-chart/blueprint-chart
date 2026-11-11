@@ -1,15 +1,15 @@
 import type { ChartNode, DataNode, SceneNode, PropertyNode, AnnotationNode, OverlayNode, SeriesNode, TransformNode } from './types'
-import type { ChartOptionDef } from '../charts/types'
+import type { ChartOptionDef, OverlayConfig } from '../charts/types'
 import { getChartOptions, listCharts } from '../charts/registry'
 import { listThemes } from '../charts/themes'
 import { ChartOptionType, ChartType, DotStyle, ScaleType, AnnotationKind, ANNOTATION_KIND_KEYWORD } from '../enums'
 import { nearest } from './suggest'
-import { dataEntriesToString, propertyMap } from './converter'
+import { convertOverlays, dataEntriesToString, propertyMap } from './converter'
 import { parseData } from '../charts/parse-data'
 import { scatterIssues } from '../charts/types/scatter/issues'
 import { overlayIssues } from '../charts/overlays/overlays'
 import { astToDefinition } from '../render/ast-to-definition'
-import { resolveScene, resolveScenes } from '../render/resolve-scene'
+import { resolveScene, resolveScenes, sceneOverlays } from '../render/resolve-scene'
 import type { ResolvedChartState } from '../render/types'
 import { dotPlotIssues } from '../charts/types/dot-plot/issues'
 import { TRANSFORM_TYPES } from '../transforms'
@@ -600,26 +600,39 @@ function validateOverlays(ast: ChartNode, warnings: ValidationIssue[]): void {
     return
   }
   const definition = astToDefinition(ast)
+  const baseOverlays = definition.overlays ?? []
+  const sceneLists = ast.scenes.map(scene => convertOverlays(scene.overlays))
+  const declaredAt = new Map<OverlayConfig, string>()
+  baseOverlays.forEach((overlay, i) => declaredAt.set(overlay, `chart.overlay[${i}]`))
+  sceneLists.forEach((list, j) => {
+    list.forEach((overlay, i) => declaredAt.set(overlay, `scene[${j}].overlay[${i}]`))
+  })
   const seen = new Set<string>()
-  const pushIssues = (state: ResolvedChartState, basePath: string, rawData: string | undefined) => {
-    const issues = overlayIssues(state.data, state.overlays ?? [], state.chartType, rawData, state.options.stackMode)
+  const pushIssues = (state: ResolvedChartState, index: number, framePath: string, rawData: string | undefined) => {
+    const overlays = sceneOverlays(baseOverlays, sceneLists, index)
+    const issues = overlayIssues(state.data, overlays, state.chartType, rawData, state.options.stackMode)
     for (const issue of issues) {
-      const dedupKey = `${issue.code}|${issue.key}|${issue.message}`
+      const position = issue.key?.match(/^overlay\[(\d+)\]$/)?.[1]
+      const path = position === undefined ? `${framePath}.overlay` : declaredAt.get(overlays[Number(position)])
+      if (path === undefined) {
+        continue
+      }
+      const dedupKey = `${issue.code}|${path}|${issue.message}`
       if (seen.has(dedupKey)) {
         continue
       }
       seen.add(dedupKey)
-      warnings.push(toValidationIssue(issue, `${basePath}.${issue.key ?? 'overlay'}`))
+      warnings.push(toValidationIssue(issue, path))
     }
   }
   let raw = ast.data ? dataEntriesToString(ast.data) : undefined
-  pushIssues(resolveScene(definition, undefined), 'chart', raw)
+  pushIssues(resolveScene(definition, undefined), -1, 'chart', raw)
   const states = resolveScenes(definition)
   ast.scenes.forEach((scene, i) => {
     if (scene.data) {
       raw = dataEntriesToString(scene.data)
     }
-    pushIssues(states[i], `scene[${i}]`, raw)
+    pushIssues(states[i], i, `scene[${i}]`, raw)
   })
 }
 
