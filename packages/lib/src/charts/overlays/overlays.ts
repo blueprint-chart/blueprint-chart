@@ -482,10 +482,30 @@ function rectShapes(group: SVGGElement, selector: string): Map<string, Record<st
   return shapes
 }
 
+function seedLeavingHoles(holes: SVGGElement, under: SVGGElement, cells: OverlayCell[], priorShapes: Map<string, Record<string, string>>): void {
+  const keys = new Set(cells.map(cell => cell.key))
+  const priorCells = d3.select(under).selectAll<SVGRectElement, OverlayCell | undefined>('.bc-overlay-stripes').data()
+  for (const cell of priorCells) {
+    if (!cell || keys.has(cell.key)) {
+      continue
+    }
+    const hole = d3.select(holes).append('rect').attr('class', 'bc-overlay-mask-range').datum(cell)
+    const shape = priorShapes.get(cell.key) ?? {}
+    for (const [name, value] of Object.entries(shape)) {
+      hole.attr(name, value)
+    }
+  }
+}
+
 function drawStripedRanges(container: HTMLElement, layer: SVGGElement, cells: OverlayCell[], rowOf: Map<string, number>): void {
   const parent = layer.parentNode as SVGGElement
+  const bars = parent.querySelectorAll('.bc-bar')
   const hasMask = Boolean(layer.ownerSVGElement?.querySelector(`mask[id="bc-overlay-mask-${clipSuffix(layer)}"]`))
-  if (!cells.length && !hasMask) {
+  const hasPriorStripes = Boolean(parent.querySelector('.bc-overlays-under .bc-overlay-stripes'))
+  if (!cells.length && !hasMask && !hasPriorStripes) {
+    for (const bar of bars) {
+      bar.removeAttribute('mask')
+    }
     return
   }
   const orch = getSceneTransition(container)
@@ -509,6 +529,9 @@ function drawStripedRanges(container: HTMLElement, layer: SVGGElement, cells: Ov
   if (!mask) {
     return
   }
+  if (!hasMask) {
+    seedLeavingHoles(mask.holes, under, cells, priorShapes)
+  }
   const holeAttrs = (cell: OverlayCell) => {
     const { x, y, width, height } = rangeAttrs(cell, rowOf)
     return { x, y, width, height, opacity: 1 }
@@ -529,19 +552,13 @@ function drawStripedRanges(container: HTMLElement, layer: SVGGElement, cells: Ov
     },
     exitTo: () => ({ opacity: 0 }),
   })
-  const bars = parent.querySelectorAll('.bc-bar')
   for (const bar of bars) {
-    if (cells.length) {
-      bar.setAttribute('mask', `url(#${mask.id})`)
-    }
-    else {
-      bar.removeAttribute('mask')
-    }
+    bar.setAttribute('mask', `url(#${mask.id})`)
   }
 }
 
 export function mountOverlayLayer(container: HTMLElement, parent: SVGGElement, prior: Element[], overlays: ResolvedOverlay[], labels: string[], rows: number[], geometryFor: OverlayGeometryFor): void {
-  if (!overlays.length) {
+  if (!overlays.length && !prior.length) {
     return
   }
   const layer = d3.select(parent).append('g').attr('class', 'bc-overlays').node()!
