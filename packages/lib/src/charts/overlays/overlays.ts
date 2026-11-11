@@ -778,9 +778,10 @@ export function overlayTooltipFormat(overlays: ResolvedOverlay[], rowLabels: str
   const base = makeDefaultFormat(numberFormat)
   const formatNumber = (v: number) => formatValueLabel(v, numberFormat)
   return (datum: unknown) => {
-    const label = (datum as { label: string }).label
+    const { label, seriesName } = datum as { label: string, seriesName?: string }
     const row = rowLabels.indexOf(label)
-    const lines = overlayTooltipLines(overlays, row, formatNumber)
+    const own = overlays.filter(overlay => overlay.bar === undefined || overlay.bar === seriesName)
+    const lines = overlayTooltipLines(own, row, formatNumber)
     return [base(datum), ...lines].join('\n')
   }
 }

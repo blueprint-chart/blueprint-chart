@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { parseData } from '../parse-data'
 import type { OverlayConfig } from '../types'
-import { barCue, cueLabelFill, overlayIssues, overlayKeyEntries, resolveOverlays, stackRowTotals } from './overlays'
+import { barCue, cueLabelFill, overlayIssues, overlayKeyEntries, overlayTooltipFormat, resolveOverlays, stackRowTotals } from './overlays'
 
 const RAW = 'series = "Value","Min","Max","Last"\n"A" = 5,2,8,6\n"B" = 4,1,9,3'
 
@@ -338,5 +338,24 @@ describe('stackRowTotals', () => {
   it('sums every series per row, negatives included', () => {
     const series = [{ values: [6, 1] }, { values: [-2, 1] }]
     expect(stackRowTotals(series, 2)).toEqual([4, 2])
+  })
+})
+
+describe('overlayTooltipFormat', () => {
+  const raw = 'series = "A","B","Goal"\n"X" = 5,7,15'
+
+  it('lists an overlay only on the bar it targets', () => {
+    const data = parseData(raw)
+    const { overlays } = resolveOverlays(data, [{ columns: ['Goal'], bar: 'A', title: 'Target' }], 'bar-grouped')
+    const format = overlayTooltipFormat(overlays, data.labels)!
+    expect(format({ label: 'X', value: 5, seriesName: 'A' })).toContain('Target: 15')
+    expect(format({ label: 'X', value: 7, seriesName: 'B' })).not.toContain('Target')
+  })
+
+  it('lists every overlay when the chart has no target bars', () => {
+    const data = parseData(raw)
+    const { overlays } = resolveOverlays(data, [{ columns: ['Goal'], title: 'Target' }], 'bar-stacked')
+    const format = overlayTooltipFormat(overlays, data.labels)!
+    expect(format({ label: 'X', value: 5, seriesName: 'B' })).toContain('Target: 15')
   })
 })
