@@ -202,6 +202,18 @@ describe('EditorOverlayItem cues', () => {
     expect('muteIfCrosses' in lastEmitted(w)).toBe(false)
   })
 
+  it('warns when the fade value is not a number', async () => {
+    const w = mountItem({ columns: rangeColumns })
+    await findInput(w, 'Fade bars when the range includes').setValue('abc')
+    expect(w.text()).toContain('Enter a number')
+  })
+
+  it('does not warn on a lone minus while typing a negative number', async () => {
+    const w = mountItem({ columns: rangeColumns })
+    await findInput(w, 'Fade bars when the range includes').setValue('-')
+    expect(w.text()).not.toContain('Enter a number')
+  })
+
   it('hides the fade field on a value overlay', () => {
     const w = mountItem({ columns: ['Target'] })
     expect(w.text()).not.toContain('Fade bars when the range includes')

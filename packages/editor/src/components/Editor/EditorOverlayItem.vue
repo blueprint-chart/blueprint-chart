@@ -185,6 +185,15 @@ const muteIfCrosses = computed({
   },
 })
 
+const muteError = computed(() => {
+  const text = muteText.value.trim()
+  const isPartial = /^-?\.?$/.test(text)
+  if (isPartial || Number.isFinite(Number(text))) {
+    return undefined
+  }
+  return 'Enter a number'
+})
+
 watch(() => overlay.value.muteIfCrosses, (value) => {
   const typed = muteText.value.trim() === '' ? undefined : Number(muteText.value)
   if (typed !== value && !Number.isNaN(typed)) {
@@ -300,6 +309,7 @@ const belowTitle = computed({
         v-model="muteIfCrosses"
         label="Fade bars when the range includes"
         placeholder="e.g. 0"
+        :error="muteError"
       />
 
       <template v-if="!isRange">
