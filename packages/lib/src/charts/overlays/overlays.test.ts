@@ -338,13 +338,16 @@ describe('overlay families', () => {
 
 describe('cueLabelFill', () => {
   it('uses currentColor on a faded bar', () => {
-    expect(cueLabelFill({ faded: true }, false, '#000000')).toBe('currentColor')
+    expect(cueLabelFill({ faded: true }, undefined, '#000000')).toBe('currentColor')
   })
 
   it('contrasts against the cue color unless the bar is colorized', () => {
     const cue = { faded: false, color: '#ffffff' }
-    expect(cueLabelFill(cue, false, '#000000')).toBe(cueLabelFill({ faded: false }, false, '#ffffff'))
-    expect(cueLabelFill(cue, true, '#000000')).toBe(cueLabelFill({ faded: false }, false, '#000000'))
+    const onWhite = cueLabelFill({ faded: false }, undefined, '#ffffff')
+    const onBlack = cueLabelFill({ faded: false }, undefined, '#000000')
+    expect(onWhite).not.toBe(onBlack)
+    expect(cueLabelFill(cue, undefined, '#000000')).toBe(onWhite)
+    expect(cueLabelFill(cue, '#000000', '#ffffff')).toBe(onBlack)
   })
 })
 
