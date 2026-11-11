@@ -1,7 +1,7 @@
 export { renderBpc } from './render-bpc'
 export { renderChart } from './render-chart'
 export { astToDefinition } from './ast-to-definition'
-export { resolveScene } from './resolve-scene'
+export { resolveScene, sceneOverlays, repeatVisible } from './resolve-scene'
 export type { ChartDefinition, RenderOptions, ResolvedChartState } from './types'
 export { render } from './public-render'
 export type { ChartHandle, RenderApiOptions, OutputOptions } from './public-render'

@@ -142,7 +142,7 @@ export { samples } from './samples'
 export type { ChartSample } from './samples'
 
 // Unified render API
-export { renderBpc, renderChart, astToDefinition, resolveScene, render } from './render'
+export { renderBpc, renderChart, astToDefinition, resolveScene, sceneOverlays, repeatVisible, render } from './render'
 export type { ChartDefinition, RenderOptions, ResolvedChartState, ChartHandle, RenderApiOptions, OutputOptions } from './render'
 export { ChartParseError, PngBrowserUnsupportedError, MissingNodeRenderDepsError } from './render'
 export { buildFrameSvg } from './render'

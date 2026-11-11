@@ -122,7 +122,7 @@ function foldScene(fold: SceneFold, s: SceneNode, baseChartType: string): void {
 // `repeat` is the number of EXTRA frames an annotation or overlay carries into
 // beyond its own (undefined/absent → 0 → shows once). So it is visible across
 // [anchor, anchor + extra] inclusive.
-function repeatVisible(anchor: number, repeat: number | 'always' | undefined, index: number): boolean {
+export function repeatVisible(anchor: number, repeat: number | 'always' | undefined, index: number): boolean {
   if (index < anchor) {
     return false
   }
@@ -138,31 +138,22 @@ interface Anchored<T> {
   config: T
 }
 
-interface AnchoredItems {
-  annotations: Anchored<AnnotationConfig>[]
-  overlays: Anchored<OverlayConfig>[]
-}
-
 // Top-level annotations and overlays belong to the base chart, the first frame
 // before scene 0, so they anchor at -1: with no repeat they show only on the
 // base render (sceneIndex == null), `repeat = N` carries them into the first N
 // scenes, and `always` shows them in every scene. Scene items anchor at their
 // own scene index.
-function anchorItems(def: ChartDefinition, scenes: SceneNode[]): AnchoredItems {
+function anchorAnnotations(def: ChartDefinition, scenes: SceneNode[]): Anchored<AnnotationConfig>[] {
   const annotations: Anchored<AnnotationConfig>[] = (def.annotations ?? []).map((config, i) => ({
     anchor: -1,
     config: { ...config, key: config.key ?? `base:${i}:${config.kind}` },
   }))
-  const overlays: Anchored<OverlayConfig>[] = (def.overlays ?? []).map(config => ({ anchor: -1, config }))
   scenes.forEach((scene, j) => {
     convertAnnotations(scene.annotations).forEach((config, i) => {
       annotations.push({ anchor: j, config: { ...config, key: config.key ?? `s${j}:${i}:${config.kind}` } })
     })
-    for (const config of convertOverlays(scene.overlays)) {
-      overlays.push({ anchor: j, config })
-    }
   })
-  return { annotations, overlays }
+  return annotations
 }
 
 function visibleAt<T extends { repeat?: number | 'always' }>(items: Anchored<T>[], index: number): T[] {
@@ -170,7 +161,35 @@ function visibleAt<T extends { repeat?: number | 'always' }>(items: Anchored<T>[
   return visible.map(({ config }) => config)
 }
 
-function resolveBase(def: ChartDefinition): ResolvedChartState {
+/**
+ * Overlays of the frame at `index` (-1 for the base frame), anchored like
+ * annotations. An overlay the frame does not show stays in the list as a
+ * hidden overlay so its columns remain claimed and never turn into bars.
+ * A column already claimed by a shown overlay gets no hidden duplicate.
+ */
+export function sceneOverlays(base: OverlayConfig[], scenes: OverlayConfig[][], index: number): OverlayConfig[] {
+  const sceneAnchored = scenes.flatMap((list, anchor) => list.map(config => ({ anchor, config })))
+  const baseAnchored = base.map(config => ({ anchor: -1, config }))
+  const anchored = [...baseAnchored, ...sceneAnchored]
+  const visible = visibleAt(anchored, index)
+  const claimed = new Set(visible.flatMap(config => config.columns))
+  return anchored.flatMap(({ config }) => {
+    if (visible.includes(config)) {
+      return [config]
+    }
+    if (config.columns.some(name => claimed.has(name))) {
+      return []
+    }
+    config.columns.forEach(name => claimed.add(name))
+    return [{ columns: config.columns, hidden: true }]
+  })
+}
+
+function sceneOverlayLists(def: ChartDefinition): OverlayConfig[][] {
+  return (def.scenes ?? []).map(scene => convertOverlays(scene.overlays))
+}
+
+function resolveBase(def: ChartDefinition, overlayLists: OverlayConfig[][]): ResolvedChartState {
   const baseOptions = def.options ?? (def.properties
     ? resolveChartTypeOptions(def.chartType, extractChartTypeOptions(def.chartType, def.properties))
     : {})
@@ -183,7 +202,7 @@ function resolveBase(def: ChartDefinition): ResolvedChartState {
     colorizes: def.colorizes ?? [],
     highlights: def.highlights ?? [],
     areaFills: def.areaFills ?? [],
-    overlays: def.overlays ?? [],
+    overlays: sceneOverlays(def.overlays ?? [], overlayLists, -1),
     annotations: (def.annotations ?? []).map((config, i) => ({
       ...config,
       key: config.key ?? `base:${i}:${config.kind}`,
@@ -199,7 +218,8 @@ export function resolveScene(
   def: ChartDefinition,
   sceneIndex: number | undefined,
 ): ResolvedChartState {
-  const base = resolveBase(def)
+  const overlayLists = sceneOverlayLists(def)
+  const base = resolveBase(def, overlayLists)
   if (sceneIndex == null || !def.scenes || sceneIndex < 0 || sceneIndex >= def.scenes.length) {
     return base
   }
@@ -208,7 +228,7 @@ export function resolveScene(
   for (const scene of scenes) {
     foldScene(fold, scene, def.chartType)
   }
-  return resolveFolded(def, base, fold, anchorItems(def, scenes), sceneIndex)
+  return resolveFolded(def, base, fold, { annotations: anchorAnnotations(def, scenes), overlayLists }, sceneIndex)
 }
 
 /**
@@ -217,12 +237,13 @@ export function resolveScene(
  */
 export function resolveScenes(def: ChartDefinition): ResolvedChartState[] {
   const scenes = def.scenes ?? []
-  const base = resolveBase(def)
-  const anchored = anchorItems(def, scenes)
+  const overlayLists = sceneOverlayLists(def)
+  const base = resolveBase(def, overlayLists)
+  const items = { annotations: anchorAnnotations(def, scenes), overlayLists }
   const fold = emptyFold()
   return scenes.map((scene, i) => {
     foldScene(fold, scene, def.chartType)
-    return resolveFolded(def, base, fold, anchored, i)
+    return resolveFolded(def, base, fold, items, i)
   })
 }
 
@@ -230,7 +251,7 @@ function resolveFolded(
   def: ChartDefinition,
   base: ResolvedChartState,
   fold: SceneFold,
-  anchored: AnchoredItems,
+  items: { annotations: Anchored<AnnotationConfig>[], overlayLists: OverlayConfig[][] },
   sceneIndex: number,
 ): ResolvedChartState {
   const baseOptions = base.options
@@ -269,8 +290,8 @@ function resolveFolded(
   const areaFills = fold.areaFills.length > 0
     ? convertAreaFills(fold.areaFills)
     : base.areaFills
-  const overlays = visibleAt(anchored.overlays, sceneIndex)
-  const annotations = visibleAt(anchored.annotations, sceneIndex)
+  const overlays = sceneOverlays(def.overlays ?? [], items.overlayLists, sceneIndex)
+  const annotations = visibleAt(items.annotations, sceneIndex)
 
   const seriesOverrides = fold.seriesOverrides.length > 0
     ? convertSeriesOverrides(fold.seriesOverrides)

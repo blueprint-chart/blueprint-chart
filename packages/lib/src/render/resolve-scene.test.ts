@@ -467,14 +467,25 @@ describe('resolveScene overlays', () => {
   it('shows a chart overlay with no repeat only on the base frame', () => {
     const def = build('  scene "S" {\n  }\n')
     expect(resolveScene(def, undefined).overlays).toEqual([{ columns: ['A'] }])
-    expect(resolveScene(def, 0).overlays).toEqual([])
+    expect(resolveScene(def, 0).overlays).toEqual([{ columns: ['A'], hidden: true }])
+  })
+
+  it('keeps one claim per column when a scene redeclares a hidden overlay', () => {
+    const def = build('  scene "S" {\n    overlay "A" {\n      title = "Scene"\n    }\n  }\n')
+    expect(resolveScene(def, 0).overlays).toEqual([{ columns: ['A'], title: 'Scene' }])
+  })
+
+  it('claims a later scene overlay column, hidden, in earlier scenes', () => {
+    const def = build('  scene "S1" {\n  }\n  scene "S2" {\n    overlay "B" {}\n  }\n')
+    expect(resolveScene(def, 0).overlays).toEqual([{ columns: ['A'], hidden: true }, { columns: ['B'], hidden: true }])
   })
 
   it('carries a chart overlay into the next N scenes with repeat = N', () => {
     const ast = parse('chart bar-vertical {\n  overlay "A" {\n    repeat = 2\n  }\n  scene "S1" {\n  }\n  scene "S2" {\n  }\n  scene "S3" {\n  }\n}')
     const def = astToDefinition(ast)
     const seen = [0, 1, 2].map(i => resolveScene(def, i).overlays.map(o => o.columns[0]))
-    expect(seen).toEqual([['A'], ['A'], []])
+    expect(seen).toEqual([['A'], ['A'], ['A']])
+    expect(resolveScene(def, 2).overlays[0].hidden).toBe(true)
   })
 
   it('shows a chart overlay in every scene with repeat = true', () => {
@@ -485,8 +496,8 @@ describe('resolveScene overlays', () => {
 
   it('shows a scene overlay with no repeat only in its own scene', () => {
     const def = build('  scene "S1" {\n    overlay "B" {}\n  }\n  scene "S2" {\n  }\n')
-    expect(resolveScene(def, 0).overlays.map(o => o.columns[0])).toEqual(['B'])
-    expect(resolveScene(def, 1).overlays).toEqual([])
+    expect(resolveScene(def, 0).overlays.map(o => o.columns[0])).toEqual(['A', 'B'])
+    expect(resolveScene(def, 1).overlays).toEqual([{ columns: ['A'], hidden: true }, { columns: ['B'], hidden: true }])
   })
 
   it('keeps a repeating chart overlay next to a scene overlay', () => {
