@@ -300,8 +300,6 @@ function lineLayout(count: number, maxVal: number, opts: ThumbnailOptions) {
   return { box, ticks, y, xs }
 }
 
-const CIRC_VB = '0 0 40 40'
-
 function renderBarVertical(data: ChartData, colors: string[], opts: ThumbnailOptions): string {
   if (data.kind !== 'single') {
     return ''
@@ -395,6 +393,8 @@ function renderLineMulti(data: ChartData, colors: string[], opts: ThumbnailOptio
   return svgDoc(verticalFrame(box, labels, xs, ticks), others.join('') + hero, glowDefs())
 }
 
+const RING = { cx: 32, cy: 32, outerR: 24, innerR: 15 }
+
 function arcPath(cx: number, cy: number, r: number, startAngle: number, endAngle: number): string {
   const x1 = cx + r * Math.cos(startAngle)
   const y1 = cy + r * Math.sin(startAngle)
@@ -402,6 +402,26 @@ function arcPath(cx: number, cy: number, r: number, startAngle: number, endAngle
   const y2 = cy + r * Math.sin(endAngle)
   const largeArc = endAngle - startAngle > Math.PI ? 1 : 0
   return `${x1.toFixed(3)} ${y1.toFixed(3)} A ${r} ${r} 0 ${largeArc} 1 ${x2.toFixed(3)} ${y2.toFixed(3)}`
+}
+
+function sliceShape(start: number, end: number, innerR: number): string {
+  const { cx, cy, outerR } = RING
+  const outerArc = arcPath(cx, cy, outerR, start, end)
+  if (innerR === 0) {
+    return `M ${cx} ${cy} L ${outerArc} Z`
+  }
+  const largeArc = end - start > Math.PI ? 1 : 0
+  const innerEnd = `${fmt(cx + innerR * Math.cos(end))} ${fmt(cy + innerR * Math.sin(end))}`
+  const innerStart = `${fmt(cx + innerR * Math.cos(start))} ${fmt(cy + innerR * Math.sin(start))}`
+  return `M ${outerArc} L ${innerEnd} A ${innerR} ${innerR} 0 ${largeArc} 0 ${innerStart} Z`
+}
+
+function shareLegend(percents: number[], colors: string[]): string {
+  return percents.map((p, i) => {
+    const top = 15 + i * 9.5
+    const swatch = `<rect x="64" y="${fmt(top)}" width="4" height="4" rx="1" fill="${colors[i % colors.length]}"/>`
+    return swatch + label(71, top + 3.6, 'start', `${p}%`)
+  }).join('')
 }
 
 function renderPieOrDonut(data: ChartData, colors: string[], donut: boolean): string {
@@ -413,30 +433,18 @@ function renderPieOrDonut(data: ChartData, colors: string[], donut: boolean): st
   if (total === 0) {
     return ''
   }
-
-  const cx = 20, cy = 20, outerR = 18
-  const innerR = donut ? outerR * 0.6 : 0
+  const innerR = donut ? RING.innerR : 0
+  const percents = values.map(v => Math.round((v / total) * 100))
   let angle = -Math.PI / 2
-
-  const paths = values.map((v, i) => {
-    const sliceAngle = (v / total) * 2 * Math.PI
+  const slices = values.map((v, i) => {
     const start = angle
-    const end = angle + sliceAngle
-    angle = end
-
-    if (innerR > 0) {
-      const outerArc = arcPath(cx, cy, outerR, start, end)
-      const ix1 = cx + innerR * Math.cos(end)
-      const iy1 = cy + innerR * Math.sin(end)
-      return `<path d="M ${outerArc} L ${ix1.toFixed(3)} ${iy1.toFixed(3)} A ${innerR} ${innerR} 0 ${sliceAngle > Math.PI ? 1 : 0} 0 ${(cx + innerR * Math.cos(start)).toFixed(3)} ${(cy + innerR * Math.sin(start)).toFixed(3)} Z" fill="${colors[i % colors.length]}"/>`
-    }
-    else {
-      const outerArc = arcPath(cx, cy, outerR, start, end)
-      return `<path d="M ${cx} ${cy} L ${outerArc} Z" fill="${colors[i % colors.length]}"/>`
-    }
-  }).join('')
-
-  return `<svg viewBox="${CIRC_VB}" xmlns="http://www.w3.org/2000/svg">${paths}</svg>`
+    angle += (v / total) * 2 * Math.PI
+    return `<path d="${sliceShape(start, angle, innerR)}" fill="${colors[i % colors.length]}" stroke="var(--bc-thumb-bg)" stroke-width="1"/>`
+  })
+  const mainShare = Math.max(...percents)
+  const center = `<text x="${RING.cx}" y="${RING.cy + 2.5}" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="7.5" font-weight="700" fill="var(--bc-thumb-ink)">${mainShare}%</text>`
+  const marks = slices.join('') + (donut ? center : '')
+  return svgDoc(shareLegend(percents, colors), marks)
 }
 
 function renderArea(data: ChartData, colors: string[], opts: ThumbnailOptions): string {

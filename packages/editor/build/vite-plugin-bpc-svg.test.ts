@@ -377,3 +377,21 @@ describe('thumbnail ids', () => {
     expect(wrappers.map(w => w.html()).join('')).not.toContain(ID_TOKEN)
   })
 })
+
+describe('pie and donut thumbnails', () => {
+  const shares = extractData([prop('A', 35), prop('B', 25), prop('C', 22), prop('D', 18)])
+
+  it('shows a percentage legend and no axis', () => {
+    const svg = renderToSvg('pie', shares, THEME_COLORS)
+    for (const text of ['35%', '25%', '22%', '18%']) {
+      expect(svg).toContain(`>${text}</text>`)
+    }
+    expect(svg).not.toContain('<line')
+    expect(marksOf(svg).match(/<path/g)).toHaveLength(4)
+  })
+
+  it('shows the main share in the donut center', () => {
+    const svg = renderToSvg('donut', shares, THEME_COLORS)
+    expect(svg).toMatch(/font-weight="700"[^>]*>35%<\/text>/)
+  })
+})
