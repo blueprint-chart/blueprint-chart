@@ -10,6 +10,7 @@ const props = defineProps<{
   barColumn?: string
   showRepeat?: boolean
   reserved?: string[]
+  legendHidden?: boolean
 }>()
 
 const model = defineModel<OverlayConfig[]>({ required: true })
@@ -79,6 +80,7 @@ function remove(index: number) {
         :bars="bars"
         :bar-column="barColumn"
         :show-repeat="showRepeat"
+        :legend-hidden="legendHidden"
         @update:overlay="(value) => updateAt(i, value)"
         @remove="remove(i)"
       />

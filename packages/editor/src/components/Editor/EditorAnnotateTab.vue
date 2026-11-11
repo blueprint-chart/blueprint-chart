@@ -58,6 +58,7 @@
         :bar-column="barColumn"
         :show-repeat="showRepeat"
         :reserved="reservedForBase"
+        :legend-hidden="baseLegendHidden"
       />
     </SettingsSection>
 
@@ -73,6 +74,7 @@
         :bar-column="barColumn"
         :show-repeat="showRepeat"
         :reserved="reservedForScene"
+        :legend-hidden="sceneLegendHidden"
       />
     </SettingsSection>
   </div>
@@ -97,7 +99,7 @@ import EditorOverlays from './EditorOverlays.vue'
 
 const config = useChartConfig()
 const { chartType, data, areaFills, seriesOverrides, selectedColumn } = config
-const { currentOptions } = useChartTypeOptions()
+const { currentOptions, baseOptions } = useChartTypeOptions()
 const globalInterpolation = computed(() => (currentOptions.value.interpolation as string) ?? 'linear')
 const { pendingAnnotationIndex } = useEditorPanel()
 const { scenes, activeIndex, activeScene, update: updateScene } = useScenes()
@@ -161,6 +163,9 @@ const dataLabels = computed(() => parsed.value.labels)
 const seriesNames = computed(() => parsed.value.series?.map(s => s.name) ?? [])
 const hasOverlays = computed(() => OVERLAY_CHART_TYPES.has(chartType.value))
 const targetsSeries = computed(() => OVERLAY_SERIES_CHART_TYPES.has(chartType.value))
+const showsOverlayKey = computed(() => chartType.value === ChartType.BarMulti)
+const baseLegendHidden = computed(() => baseOptions.value.legend === false && !showsOverlayKey.value)
+const sceneLegendHidden = computed(() => currentOptions.value.legend === false && !showsOverlayKey.value)
 const barColumn = computed(() => SINGLE_SERIES_TYPES.includes(chartType.value) ? selectedColumn.value : undefined)
 const textColumnNames = computed(() => new Set(parsed.value.textColumns?.map(c => c.name)))
 const numericColumns = computed(() => seriesNames.value.filter(name => !textColumnNames.value.has(name)))

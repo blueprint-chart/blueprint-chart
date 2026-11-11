@@ -44,7 +44,7 @@ vi.mock('./EditorOverlays.vue', () => ({
   default: {
     name: 'EditorOverlays',
     template: '<div class="stub-overlays" :data-columns="columns.join(\'|\')" :data-show-repeat="String(showRepeat)" :data-model-length="String(modelValue?.length ?? 0)" />',
-    props: ['modelValue', 'columns', 'targetsSeries', 'barColumn', 'showRepeat', 'reserved'],
+    props: ['modelValue', 'columns', 'targetsSeries', 'barColumn', 'showRepeat', 'reserved', 'legendHidden'],
     emits: ['update:modelValue'],
   },
 }))
@@ -83,10 +83,13 @@ vi.mock('@/stores/chartConfig', () => ({
 }))
 
 const setOptionSpy = vi.fn()
+const currentOptionsRef = ref<Record<string, unknown>>({ interpolation: 'linear' })
+const baseOptionsRef = ref<Record<string, unknown>>({ interpolation: 'linear' })
 
 vi.mock('@/stores/chartTypeOptions', () => ({
   useChartTypeOptions: () => ({
-    currentOptions: ref({ interpolation: 'linear' }),
+    currentOptions: currentOptionsRef,
+    baseOptions: baseOptionsRef,
     setOption: setOptionSpy,
   }),
 }))
@@ -117,6 +120,19 @@ describe('EditorAnnotateTab', () => {
     activeIndexRef.value = -1
     chartTypeRef.value = 'line'
     dataRef.value = ''
+    currentOptionsRef.value = { interpolation: 'linear' }
+    baseOptionsRef.value = { interpolation: 'linear' }
+  })
+
+  it('reads the base legend for base overlays and the scene legend for scene overlays', async () => {
+    chartTypeRef.value = 'bar-vertical'
+    scenesRef.value = [{ id: 'scene1', name: null }]
+    activeIndexRef.value = 0
+    currentOptionsRef.value = { legend: false }
+    const w = mount(EditorAnnotateTab)
+    await nextTick()
+    const groups = w.findAllComponents({ name: 'EditorOverlays' })
+    expect(groups.map(g => g.props('legendHidden'))).toEqual([false, true])
   })
 
   it('shows the Overlays section on a vertical bar chart', async () => {

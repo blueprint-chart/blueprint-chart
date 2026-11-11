@@ -185,6 +185,16 @@ describe('EditorOverlayItem cues', () => {
     expect(lastEmitted(w).aboveTitle).toBe('Met')
   })
 
+  it('warns that the cue titles are hidden while the legend is off', async () => {
+    const overlay: OverlayConfig = { columns: ['Target'], aboveColor: '#00aa00' }
+    const w = mount(EditorOverlayItem, { props: { id: 0, overlay, columns } })
+    const warning = 'The legend is off, so this title is hidden.'
+    expect(w.text()).not.toContain(warning)
+    await w.setProps({ legendHidden: true })
+    const matches = w.text().split(warning).length - 1
+    expect(matches).toBe(1)
+  })
+
   it('defaults both cue colors away from the default bar color', async () => {
     const w = mountItem({ columns: ['Target'] })
     await findCheckbox(w, 'Color bars that reach this value').setValue(true)
