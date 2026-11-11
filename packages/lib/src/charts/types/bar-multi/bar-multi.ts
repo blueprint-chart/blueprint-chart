@@ -10,7 +10,7 @@ import { computeLinearDomain, resolveBarGapPadding } from '../../scale-helpers'
 import { createAnnotationPlugin, snapshotAnnotations, type AnnotationSnapshot } from '../../plugins/annotations'
 import { createTooltipPlugin } from '../../plugins/tooltip'
 import { createCrosshairPlugin } from '../../plugins/crosshair'
-import { contrastTextColor, readableColor, resolveBackgroundColor } from '../../contrast'
+import { readableColor, resolveBackgroundColor } from '../../contrast'
 import { expandColorsToSeries, resolveSeriesColor, isSeriesHidden, resolveSeriesValueLabels, resolveSeriesOpacity, resolveSeriesLabelMode } from '../../series-helpers'
 import { sortCategories, withinGroupSlots } from '../../sort-helpers'
 import { setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut } from '../../motion'
@@ -472,7 +472,7 @@ export function render(
       const ly = insideLabelY(barTop, barHeight, dlAnchor)
       labelEl
         .attr('y', ly)
-        .attr('fill', contrastTextColor(barColor))
+        .attr('fill', insideLabelFill(datum, barColor))
       if (dlAnchor === 'middle') {
         labelEl.attr('dominant-baseline', 'central')
       }

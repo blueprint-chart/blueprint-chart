@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { render } from './bar-multi'
+import { contrastTextColor } from '../../contrast'
 import { ValueLabelPosition, DirectLabelMode, LabelRotation, SortMode } from '../../../enums'
 
 describe('bar-multi', () => {
@@ -803,6 +804,19 @@ describe('bar-multi', () => {
       render(container, cueData, { overlays: mute, valueLabels: true, valueLabelPosition: ValueLabelPosition.Inside })
       const labels = container.querySelectorAll('.bc-value-label[data-series="Gold"]')
       expect(labels[0].getAttribute('fill')).toBe('currentColor')
+    })
+
+    it('uses currentColor for an inside direct label on a faded bar', () => {
+      render(container, cueData, { overlays: mute, directLabelling: DirectLabelMode.Inside })
+      const labels = container.querySelectorAll('.bc-direct-label[data-series="Gold"]')
+      expect(labels[0].getAttribute('fill')).toBe('currentColor')
+    })
+
+    it('contrasts an inside direct label against the cue color', () => {
+      const light = [{ columns: ['T'], bar: 'Gold', aboveColor: '#ffff00' }]
+      render(container, cueData, { overlays: light, directLabelling: DirectLabelMode.Inside })
+      const labels = container.querySelectorAll('.bc-direct-label[data-series="Gold"]')
+      expect(labels[0].getAttribute('fill')).toBe(contrastTextColor('#ffff00'))
     })
 
     it('brings the bar back to full opacity when a scene drops the cue', () => {
