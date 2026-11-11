@@ -6,6 +6,8 @@ import { convertAnnotations } from '../dsl/converter'
 import { astToDefinition } from './ast-to-definition'
 import { parse } from '../dsl/parser'
 import farmCompass from '../samples/farm-compass.bpc?raw'
+import { resolveOverlays } from '../charts/overlays/overlays'
+import { parseData } from '../charts/parse-data'
 
 function baseDef(overrides: Partial<ChartDefinition> = {}): ChartDefinition {
   return {
@@ -470,9 +472,17 @@ describe('resolveScene overlays', () => {
     expect(resolveScene(def, 0).overlays).toEqual([{ columns: ['A'], hidden: true }])
   })
 
-  it('keeps one claim per column when a scene redeclares a hidden overlay', () => {
+  it('keeps a hidden claim next to a scene overlay that redeclares its column', () => {
     const def = build('  scene "S" {\n    overlay "A" {\n      title = "Scene"\n    }\n  }\n')
-    expect(resolveScene(def, 0).overlays).toEqual([{ columns: ['A'], title: 'Scene' }])
+    expect(resolveScene(def, 0).overlays).toEqual([{ columns: ['A'], hidden: true }, { columns: ['A'], title: 'Scene' }])
+  })
+
+  it('keeps the key of a scene overlay sharing its column once the chart overlay stops repeating', () => {
+    const ast = parse('chart bar-vertical {\n  overlay "A" {\n    repeat = 1\n  }\n  scene "S1" {\n    overlay "A" {\n      title = "Scene"\n      repeat = 1\n    }\n  }\n  scene "S2" {\n  }\n}')
+    const def = astToDefinition(ast)
+    const data = parseData('series = "V","A"\n"x" = 1,2')
+    const keyAt = (index: number) => resolveOverlays(data, resolveScene(def, index).overlays).overlays.find(overlay => overlay.title === 'Scene')?.key
+    expect(keyAt(1)).toBe(keyAt(0))
   })
 
   it('claims a later scene overlay column, hidden, in earlier scenes', () => {

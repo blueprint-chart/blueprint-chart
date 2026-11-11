@@ -165,24 +165,15 @@ function visibleAt<T extends { repeat?: number | 'always' }>(items: Anchored<T>[
  * Overlays of the frame at `index` (-1 for the base frame), anchored like
  * annotations. An overlay the frame does not show stays in the list as a
  * hidden overlay so its columns remain claimed and never turn into bars.
- * A column already claimed by a shown overlay gets no hidden duplicate.
+ * Every frame lists every overlay at the same position, so an overlay keeps
+ * its key across frames.
  */
 export function sceneOverlays(base: OverlayConfig[], scenes: OverlayConfig[][], index: number): OverlayConfig[] {
   const sceneAnchored = scenes.flatMap((list, anchor) => list.map(config => ({ anchor, config })))
   const baseAnchored = base.map(config => ({ anchor: -1, config }))
   const anchored = [...baseAnchored, ...sceneAnchored]
   const visible = visibleAt(anchored, index)
-  const claimed = new Set(visible.flatMap(config => config.columns))
-  return anchored.flatMap(({ config }) => {
-    if (visible.includes(config)) {
-      return [config]
-    }
-    if (config.columns.some(name => claimed.has(name))) {
-      return []
-    }
-    config.columns.forEach(name => claimed.add(name))
-    return [{ columns: config.columns, hidden: true }]
-  })
+  return anchored.map(({ config }) => visible.includes(config) ? config : { columns: config.columns, hidden: true })
 }
 
 function sceneOverlayLists(def: ChartDefinition): OverlayConfig[][] {
