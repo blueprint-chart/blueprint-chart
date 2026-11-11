@@ -494,12 +494,12 @@ describe('bar-grouped', () => {
       expect(end).toBeLessThanOrEqual(plotWidth + 0.001)
     })
 
-    it('lists the overlay in the key when its target series is hidden', () => {
+    it('leaves the overlay out of the key when its target series is hidden', () => {
       const hidden = [{ name: 'Gold', hidden: true }]
       render(container, overlayData, { overlays: range, seriesOverrides: hidden })
       const keyTexts = Array.from(container.querySelectorAll('.bc-legend-item')).map(node => node.textContent)
       expect(container.querySelector('.bc-overlay-label')).toBeNull()
-      expect(keyTexts).toContain('Gold low to Gold high')
+      expect(keyTexts).not.toContain('Gold low to Gold high')
     })
 
     it('draws nothing when the target series is hidden', () => {
@@ -558,6 +558,11 @@ describe('bar-grouped', () => {
       ],
     }
     const keyRange = [{ columns: ['Gold low', 'Gold high'], bar: 'Gold' }]
+
+    it('leaves an overlay on a hidden series out of the key', () => {
+      render(container, keyData, { overlays: keyRange, directLabelling: false, seriesOverrides: [{ name: 'Gold', hidden: true }] })
+      expect(legendTexts()).toEqual(['Silver'])
+    })
 
     it('lists the range after the series when direct labelling is off', () => {
       render(container, keyData, { overlays: keyRange, directLabelling: false })

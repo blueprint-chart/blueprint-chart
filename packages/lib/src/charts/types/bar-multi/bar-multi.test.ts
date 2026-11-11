@@ -757,6 +757,14 @@ describe('bar-multi', () => {
       expect(swatch.getAttribute('fill-opacity')).toBe('0.3')
     })
 
+    it('leaves an overlay on a hidden series out of the key and the axis', () => {
+      const tall = { ...keyData, series: keyData.series.map(s => s.name === 'Gold high' ? { ...s, values: [500, 500] } : s) }
+      render(container, tall, { overlays: keyRange, seriesOverrides: [{ name: 'Gold', hidden: true }] })
+      expect(legendTexts()).toEqual(['Silver'])
+      const ticks = Array.from(container.querySelectorAll('.bc-axis-vertical .tick text')).map(node => Number(node.textContent))
+      expect(Math.max(...ticks)).toBeLessThan(100)
+    })
+
     it('shows only the range in the key when series are direct-labelled', () => {
       render(container, keyData, { overlays: keyRange, directLabelling: true })
       expect(legendTexts()).toEqual(['Gold low to Gold high'])

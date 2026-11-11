@@ -452,6 +452,11 @@ describe('bar-split', () => {
       expect(legendTexts()).toEqual(['Gold', 'Silver', 'Gold low to Gold high'])
     })
 
+    it('leaves an overlay on a hidden series out of the key', () => {
+      render(container, keyData, { overlays: keyRange, directLabelling: false, seriesOverrides: [{ name: 'Gold', hidden: true }] })
+      expect(legendTexts()).toEqual(['Silver'])
+    })
+
     it('lists the range in the key when direct labelling is off', () => {
       render(container, keyData, { overlays: keyRange, directLabelling: false })
       expect(legendTexts()).toEqual(['Gold', 'Silver', 'Gold low to Gold high'])

@@ -77,6 +77,7 @@ export function render(
   const allSeries = seriesOrImplicit(data)
   const series = allSeries.filter(s => !isSeriesHidden(s.name, options.seriesOverrides))
   const seriesNames = series.map(s => s.name)
+  const overlays = resolved.overlays.filter(overlay => seriesNames.includes(overlay.bar ?? ''))
   // The implicit single series has no name, so it gets no legend entry.
   const legendNames = seriesNames.filter(Boolean)
   const colors = expandColorsToSeries(options.colors ?? DEFAULT_COLORS, allSeries.length)
@@ -106,12 +107,11 @@ export function render(
     options.horizontalAxis?.showAxis,
   )
 
-  const visibleTargets = resolved.overlays.filter(overlay => seriesNames.includes(overlay.bar ?? ''))
   const valueLabelsOutside = (options.valueLabels ?? true) && options.valueLabelPosition !== ValueLabelPosition.Inside
   const plottedValues = series.flatMap(s => s.values).filter(Number.isFinite)
   const widestValueLabel = d3.max(plottedValues, v => estimateTextInk(String(v))) ?? 0
   const valueLabelRoom = valueLabelsOutside ? widestValueLabel + 4 : 0
-  const labelPlan = planOverlayLabels(resolved.overlays, options.directLabelling, lpMargins, visibleTargets, valueLabelRoom)
+  const labelPlan = planOverlayLabels(overlays, options.directLabelling, lpMargins, overlays, valueLabelRoom)
   const keyEntries = labelPlan.keyEntries
   const keyTitles = keyEntries.map(entry => entry.title)
   const legendTitles = [...legendNames, ...keyTitles]
@@ -153,7 +153,7 @@ export function render(
     .padding(0.05)
 
   const overlayRows = data.labels.map((_, i) => i)
-  const domainValues = [...series.flatMap(s => s.values), ...overlayDomainValues(resolved.overlays, overlayRows, () => 0)]
+  const domainValues = [...series.flatMap(s => s.values), ...overlayDomainValues(overlays, overlayRows, () => 0)]
   const [domainMin, domainMax] = computeLinearDomain(domainValues, options.horizontalAxis?.range, options.horizontalAxis?.scaleType)
   const x = (options.horizontalAxis?.scaleType === ScaleType.Log ? d3.scaleSymlog() : d3.scaleLinear())
     .domain([domainMin, domainMax])
@@ -236,7 +236,7 @@ export function render(
   const rowOf = rowIndex(data.labels)
   const cueFor = (d: { label: string, value: number, seriesName: string }) => {
     const row = rowOf.get(d.label) ?? -1
-    return barCue(resolved.overlays, row, d.value, d.seriesName)
+    return barCue(overlays, row, d.value, d.seriesName)
   }
   const insideLabelFill = (d: { label: string, value: number, seriesName: string }, seriesColor: string) => {
     const cue = cueFor(d)
@@ -318,8 +318,8 @@ export function render(
     const slotStart = (label: string) => (y0(label) ?? 0) + categoryLabelOffset + (y1(bar) ?? 0)
     return { orientation: 'horizontal', slotStart, slotSize: y1.bandwidth(), value: x, base: () => 0 }
   }
-  mountOverlayLayer(container, clippedGroup.node()!, priorOverlays, resolved.overlays, data.labels, overlayRows, geometryFor)
-  const tooltipFormat = overlayTooltipFormat(resolved.overlays, data.labels, options.horizontalAxis?.numberFormat)
+  mountOverlayLayer(container, clippedGroup.node()!, priorOverlays, overlays, data.labels, overlayRows, geometryFor)
+  const tooltipFormat = overlayTooltipFormat(overlays, data.labels, options.horizontalAxis?.numberFormat)
   const chart = createPluginHost(clippedGroup)
   if (options.tooltips) {
     chart.use(createTooltipPlugin({ numberFormat: options.verticalAxis?.numberFormat, format: tooltipFormat }))

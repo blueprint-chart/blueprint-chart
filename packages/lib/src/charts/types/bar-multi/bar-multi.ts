@@ -84,6 +84,7 @@ export function render(
   const allSeries = data.series ?? []
   const series = allSeries.filter(s => !isSeriesHidden(s.name, options.seriesOverrides))
   const seriesNames = series.map(s => s.name)
+  const overlays = resolved.overlays.filter(overlay => seriesNames.includes(overlay.bar ?? ''))
   const colors = expandColorsToSeries(options.colors ?? DEFAULT_COLORS, allSeries.length)
   const overrides = options.seriesOverrides
 
@@ -98,7 +99,7 @@ export function render(
     : (options.directLabelling ? DirectLabelMode.Auto : DirectLabelMode.Off)
 
   // Compute margin adjustments for legend
-  const keyEntries = overlayKeyEntries(resolved.overlays)
+  const keyEntries = overlayKeyEntries(overlays)
   const showLegend = keyEntries.length > 0 || (options.legend !== false && !wantsDirect)
   const legendSeriesNames = seriesNames.filter((name) => {
     return resolveSeriesLabelMode(name, globalLabelMode, overrides) === 'legend'
@@ -154,7 +155,7 @@ export function render(
   const { chartArea, width, height, margin } = createCanvas(body, marginOverrides)
   const marginDelta = computeMarginDelta(priorMargin, margin)
   const overlayRows = data.labels.map((_, i) => i)
-  const domainValues = [...allValues, ...overlayDomainValues(resolved.overlays, overlayRows, () => 0)]
+  const domainValues = [...allValues, ...overlayDomainValues(overlays, overlayRows, () => 0)]
   // eslint-disable-next-line prefer-const
   let [domainMin, domainMax] = computeLinearDomain(domainValues, options.verticalAxis?.range, options.verticalAxis?.scaleType)
   // Extend domain to leave room for value labels below negative bars
@@ -218,7 +219,7 @@ export function render(
   const rowOf = rowIndex(data.labels)
   const cueFor = (d: { label: string, value: number, seriesName: string }) => {
     const row = rowOf.get(d.label) ?? -1
-    return barCue(resolved.overlays, row, d.value, d.seriesName)
+    return barCue(overlays, row, d.value, d.seriesName)
   }
   const insideLabelFill = (d: { label: string, value: number, seriesName: string }, seriesColor: string) => {
     const cue = cueFor(d)
@@ -298,8 +299,8 @@ export function render(
     const slotStart = (label: string) => (x0(label) ?? 0) + (x1(bar) ?? 0)
     return { orientation: 'vertical', slotStart, slotSize: x1.bandwidth(), value: y, base: () => 0 }
   }
-  mountOverlayLayer(container, clippedGroup.node()!, priorOverlays, resolved.overlays, data.labels, overlayRows, geometryFor)
-  const tooltipFormat = overlayTooltipFormat(resolved.overlays, data.labels, options.verticalAxis?.numberFormat)
+  mountOverlayLayer(container, clippedGroup.node()!, priorOverlays, overlays, data.labels, overlayRows, geometryFor)
+  const tooltipFormat = overlayTooltipFormat(overlays, data.labels, options.verticalAxis?.numberFormat)
   const chart = createPluginHost(clippedGroup)
   if (options.tooltips) {
     chart.use(createTooltipPlugin({ numberFormat: options.verticalAxis?.numberFormat, format: tooltipFormat }))

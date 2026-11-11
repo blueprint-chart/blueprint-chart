@@ -176,6 +176,7 @@ export function render(
   const allSeries = seriesOrImplicit(data)
   const series = allSeries.filter(s => !isSeriesHidden(s.name, options.seriesOverrides))
   const seriesNames = series.map(s => s.name)
+  const overlays = resolved.overlays.filter(overlay => seriesNames.includes(overlay.bar ?? ''))
   // The implicit single series has no name, so it gets no legend entry.
   const legendNames = seriesNames.filter(Boolean)
   const colors = expandColorsToSeries(options.colors ?? DEFAULT_COLORS, allSeries.length)
@@ -209,8 +210,8 @@ export function render(
   lpMargins.top = (lpMargins.top ?? 12) + PANEL_HEADER_HEIGHT
 
   const lastPanel = seriesNames[seriesNames.length - 1]
-  const lastPanelOverlays = resolved.overlays.filter(overlay => overlay.bar === lastPanel)
-  const labelPlan = planOverlayLabels(resolved.overlays, options.directLabelling, lpMargins, lastPanelOverlays)
+  const lastPanelOverlays = overlays.filter(overlay => overlay.bar === lastPanel)
+  const labelPlan = planOverlayLabels(overlays, options.directLabelling, lpMargins, lastPanelOverlays)
   const keyEntries = labelPlan.keyEntries
   const keyTitles = keyEntries.map(entry => entry.title)
   const legendTitles = [...legendNames, ...keyTitles]
@@ -265,7 +266,7 @@ export function render(
   const overlayRows = data.labels.map((_, i) => i)
   const extraValues = new Map<string, number[]>()
   for (const name of seriesNames) {
-    const own = resolved.overlays.filter(o => o.bar === name)
+    const own = overlays.filter(o => o.bar === name)
     extraValues.set(name, overlayDomainValues(own, overlayRows, () => 0))
   }
   const panels = computePanels(series, allSeries, width, sharedScale, extraValues, options.horizontalAxis)
@@ -310,7 +311,7 @@ export function render(
   const rowOf = rowIndex(data.labels)
   const cueFor = (d: { label: string, value: number, seriesName: string }) => {
     const row = rowOf.get(d.label) ?? -1
-    return barCue(resolved.overlays, row, d.value, d.seriesName)
+    return barCue(overlays, row, d.value, d.seriesName)
   }
   const insideLabelFill = (d: { label: string, value: number, seriesName: string }, seriesColor: string) => {
     const cue = cueFor(d)
@@ -393,8 +394,8 @@ export function render(
     const value = (v: number) => panel.xOffset + panel.xScale(v)
     return { orientation: 'horizontal', slotStart, slotSize: y.bandwidth() - categoryLabelOffset, value, base: () => 0 }
   }
-  mountOverlayLayer(container, clippedGroup.node()!, priorOverlays, resolved.overlays, data.labels, overlayRows, geometryFor)
-  const tooltipFormat = overlayTooltipFormat(resolved.overlays, data.labels, options.horizontalAxis?.numberFormat)
+  mountOverlayLayer(container, clippedGroup.node()!, priorOverlays, overlays, data.labels, overlayRows, geometryFor)
+  const tooltipFormat = overlayTooltipFormat(overlays, data.labels, options.horizontalAxis?.numberFormat)
   const chart = createPluginHost(clippedGroup)
   if (options.tooltips) {
     chart.use(createTooltipPlugin({ numberFormat: options.verticalAxis?.numberFormat, format: tooltipFormat }))
