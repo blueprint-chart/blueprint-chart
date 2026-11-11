@@ -49,16 +49,6 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
       - run: make install
       - run: make build
-      - name: Upload package dists
-        uses: actions/upload-artifact@v7
-        with:
-          name: dist
-          path: |
-            packages/lib/dist
-            packages/ui/dist
-            packages/editor/dist
-          if-no-files-found: error
-          retention-days: 1
       - name: Upload docs dist
         uses: actions/upload-artifact@v7
         with:
@@ -92,6 +82,18 @@ jobs:
           # npm auth is via OIDC trusted publishing (id-token: write above) — no NODE_AUTH_TOKEN needed.
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_CONFIG_PROVENANCE: 'true'
+      # After Semantic Release: its prepareCmd rebuilds the editor with the bumped version.
+      - name: Upload package dists
+        if: ${{ steps.semantic.outputs.new_release_published == 'true' }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: dist
+          path: |
+            packages/lib/dist
+            packages/ui/dist
+            packages/editor/dist
+          if-no-files-found: error
+          retention-days: 1
 
   deploy-pages:
     name: Deploy editor to blueprintchart.com

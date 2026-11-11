@@ -6,7 +6,7 @@
     ["@semantic-release/release-notes-generator", { "preset": "conventionalcommits" }],
     ["@semantic-release/changelog", { "changelogFile": "CHANGELOG.md" }],
     ["@semantic-release/exec", {
-      "prepareCmd": "pnpm -r exec -- npm version ${nextRelease.version} --no-git-tag-version --allow-same-version && node scripts/verify-release-versions.mjs v${nextRelease.version}",
+      "prepareCmd": "pnpm -r exec -- npm version ${nextRelease.version} --no-git-tag-version --allow-same-version && node scripts/verify-release-versions.mjs v${nextRelease.version} && pnpm --filter @blueprint-chart/editor build",
       "publishCmd": "pnpm -r publish --access public --no-git-checks --provenance"
     }],
     ["@semantic-release/git", {
