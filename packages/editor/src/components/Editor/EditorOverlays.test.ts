@@ -47,13 +47,17 @@ describe('EditorOverlays', () => {
     expect(emitted[0][0]).toEqual([{ columns: ['Target'] }])
   })
 
-  it('falls back to the only column when there is one', async () => {
+  it('disables Add when the only column is the bar', async () => {
     const w = mountList()
     await w.setProps({ columns: ['Sales'] })
+    expect(w.find('.button-add').attributes('disabled')).toBeDefined()
     await w.find('.button-add').trigger('click')
-    const emitted = w.emitted('update:modelValue')!
-    const created = (emitted[0][0] as OverlayConfig[])[0]
-    expect(created.columns).toEqual(['Sales'])
+    expect(w.emitted('update:modelValue')).toBeUndefined()
+  })
+
+  it('disables Add once every free column is taken', async () => {
+    const w = mountList([{ columns: ['Target'] }, { columns: ['Budget'] }])
+    expect(w.find('.button-add').attributes('disabled')).toBeDefined()
   })
 
   it('never adds an overlay with an empty column', async () => {

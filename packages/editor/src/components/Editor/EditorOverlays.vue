@@ -15,6 +15,7 @@ const model = defineModel<OverlayConfig[]>({ required: true })
 const claimed = computed(() => model.value.flatMap(overlay => overlay.columns))
 const unclaimed = computed(() => props.columns.filter(name => !claimed.value.includes(name)))
 const bars = computed(() => props.targetsSeries ? unclaimed.value : undefined)
+const nextColumn = computed(() => nextOverlayColumn(props.columns, claimed.value, props.barColumn))
 
 const keys = new WeakMap<OverlayConfig, number>()
 let lastKey = 0
@@ -30,6 +31,8 @@ function keyOf(overlay: OverlayConfig): number {
   return lastKey
 }
 
+const items = computed(() => model.value.map(overlay => ({ overlay, key: keyOf(overlay) })))
+
 function updateAt(index: number, value: OverlayConfig) {
   keys.set(toRaw(value), keyOf(model.value[index]))
   const copy = [...model.value]
@@ -38,8 +41,7 @@ function updateAt(index: number, value: OverlayConfig) {
 }
 
 function add() {
-  const onlyColumn = props.columns.length === 1 ? props.columns[0] : undefined
-  const column = nextOverlayColumn(props.columns, claimed.value, props.barColumn) ?? onlyColumn
+  const column = nextColumn.value
   if (!column) {
     return
   }
@@ -62,9 +64,9 @@ function remove(index: number) {
   <div class="editor-overlays">
     <div class="editor-overlays__list">
       <EditorOverlayItem
-        v-for="(overlay, i) in model"
+        v-for="({ overlay, key }, i) in items"
         :id="i"
-        :key="keyOf(overlay)"
+        :key="key"
         :overlay="overlay"
         :columns="columns"
         :claimed="claimed"
@@ -76,7 +78,7 @@ function remove(index: number) {
     </div>
     <ButtonAdd
       label="Add"
-      :disabled="!columns.length"
+      :disabled="!nextColumn"
       @click="add"
     />
   </div>
