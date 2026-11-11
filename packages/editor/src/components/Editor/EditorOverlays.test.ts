@@ -156,6 +156,22 @@ describe('EditorOverlayItem', () => {
     expect(w.text()).toContain('Pattern')
   })
 
+  it('offers the whisker pattern on a range overlay and emits it', async () => {
+    const w = mountItem({ columns: ['Target', 'Budget'] })
+    const whisker = w.findAll('button').find(b => b.text() === 'Whisker')!
+    await whisker.trigger('click')
+    expect(lastEmitted(w).pattern).toBe('whisker')
+  })
+
+  it('defaults the opacity to 100 for a whisker and 30 for stripes', () => {
+    const whisker = mountItem({ columns: ['Target', 'Budget'], pattern: 'whisker' })
+    const whiskerInput = whisker.find('#overlay-opacity-0')
+    expect((whiskerInput.element as HTMLInputElement).value).toBe('100')
+    const stripes = mountItem({ columns: ['Target', 'Budget'], pattern: 'stripes' })
+    const stripesInput = stripes.find('#overlay-opacity-0')
+    expect((stripesInput.element as HTMLInputElement).value).toBe('30')
+  })
+
   it('leaves the color field empty when the overlay has no color', () => {
     const w = mountItem({ columns: ['Target'] })
     expect((w.find('#overlay-color-0').element as HTMLInputElement).value).toBe('')

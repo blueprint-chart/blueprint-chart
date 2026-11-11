@@ -18,6 +18,7 @@ import IPhTrash from '~icons/ph/trash'
 
 const DEFAULT_VALUE_OPACITY = 100
 const DEFAULT_RANGE_OPACITY = 30
+const DEFAULT_WHISKER_OPACITY = 100
 
 const props = defineProps<{
   id: number
@@ -43,10 +44,12 @@ const kindOptions = [
 const patternOptions = [
   { value: 'solid', text: 'Solid' },
   { value: 'stripes', text: 'Stripes' },
+  { value: 'whisker', text: 'Whisker' },
 ]
 
 const isRange = computed(() => overlay.value.columns.length === 2)
-const defaultOpacity = computed(() => isRange.value ? DEFAULT_RANGE_OPACITY : DEFAULT_VALUE_OPACITY)
+const rangeOpacity = computed(() => overlay.value.pattern === 'whisker' ? DEFAULT_WHISKER_OPACITY : DEFAULT_RANGE_OPACITY)
+const defaultOpacity = computed(() => isRange.value ? rangeOpacity.value : DEFAULT_VALUE_OPACITY)
 const defaultTitle = computed(() => overlay.value.columns.join(isRange.value ? ' to ' : ''))
 const heading = computed(() => overlay.value.title ?? defaultTitle.value)
 const columnOptions = computed(() => props.columns.map(name => ({ value: name, label: name })))

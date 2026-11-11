@@ -68,6 +68,15 @@ describe('useDslOutput', () => {
   })
 
   describe('overlay serialization', () => {
+    it('emits the whisker pattern', () => {
+      const config = useChartConfig()
+      config.chartType.value = ChartType.BarVertical
+      config.overlays.value = [{ columns: ['Min', 'Max'], pattern: 'whisker' }]
+
+      const { generateDsl: dsl } = useDslOutput()
+      expect(dsl()).toContain('pattern = whisker')
+    })
+
     it('emits overlay blocks with every key', () => {
       const config = useChartConfig()
       config.chartType.value = ChartType.BarVertical
