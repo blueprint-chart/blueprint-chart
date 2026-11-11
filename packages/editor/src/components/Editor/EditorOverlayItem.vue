@@ -9,6 +9,7 @@ import {
   FormControlDropdown,
   FormControlSliderInput,
   FormControlTextInput,
+  NavigationSegmentedControl,
 } from '@blueprint-chart/ui'
 import { nextOverlayColumn } from '@/utils/chart/overlayColumns'
 import IPhEye from '~icons/ph/eye'
@@ -24,6 +25,7 @@ const props = defineProps<{
   claimed?: string[]
   bars?: string[]
   barColumn?: string
+  showRepeat?: boolean
 }>()
 
 defineEmits<{
@@ -97,6 +99,39 @@ function setCueColor(colorKey: 'aboveColor' | 'belowColor', titleKey: 'aboveTitl
 
 function toggleHidden() {
   update('hidden', overlay.value.hidden ? undefined : true)
+}
+
+const repeatMode = computed(() => {
+  if (overlay.value.repeat === 'always') {
+    return 'always'
+  }
+  return typeof overlay.value.repeat === 'number' ? 'n' : 'never'
+})
+
+const repeatItems = computed(() => [
+  { key: 'never', text: 'Never', active: repeatMode.value === 'never' },
+  { key: 'always', text: 'Always', active: repeatMode.value === 'always' },
+  { key: 'n', text: 'For N', active: repeatMode.value === 'n' },
+])
+
+const repeatCount = computed(() => typeof overlay.value.repeat === 'number' ? overlay.value.repeat : 1)
+
+function setRepeat(key: string) {
+  if (key === 'always') {
+    update('repeat', 'always')
+    return
+  }
+  if (key === 'n') {
+    update('repeat', repeatCount.value)
+    return
+  }
+  update('repeat', undefined)
+}
+
+function setRepeatCount(event: Event) {
+  const typed = Number((event.target as HTMLInputElement).value)
+  const count = Math.floor(typed) || 1
+  update('repeat', Math.max(1, count))
 }
 
 const kind = computed({
@@ -299,6 +334,28 @@ const belowTitle = computed({
           label="Below title"
         />
       </template>
+
+      <BFormGroup
+        v-if="showRepeat"
+        label="Repeat"
+      >
+        <div class="editor-overlay-item__body__repeat">
+          <NavigationSegmentedControl
+            :items="repeatItems"
+            aria-label="Repeat"
+            size="sm"
+            @select="setRepeat"
+          />
+          <input
+            v-if="repeatMode === 'n'"
+            :id="`overlay-repeat-${id}`"
+            type="number"
+            min="1"
+            :value="repeatCount"
+            @input="setRepeatCount"
+          >
+        </div>
+      </BFormGroup>
     </div>
   </div>
 </template>
@@ -334,6 +391,12 @@ const belowTitle = computed({
     flex-direction: column;
     gap: 0.5rem;
     padding: 0.5rem;
+
+    &__repeat {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
   }
 }
 </style>

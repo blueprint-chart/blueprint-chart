@@ -8,6 +8,7 @@ const props = defineProps<{
   columns: string[]
   targetsSeries: boolean
   barColumn?: string
+  showRepeat?: boolean
 }>()
 
 const model = defineModel<OverlayConfig[]>({ required: true })
@@ -72,6 +73,7 @@ function remove(index: number) {
         :claimed="claimed"
         :bars="bars"
         :bar-column="barColumn"
+        :show-repeat="showRepeat"
         @update:overlay="(value) => updateAt(i, value)"
         @remove="remove(i)"
       />

@@ -52,10 +52,25 @@
       :icon="IPhRows"
     >
       <EditorOverlays
-        v-model="overlays"
+        v-model="baseOverlays"
         :columns="numericColumns"
         :targets-series="targetsSeries"
         :bar-column="barColumn"
+        :show-repeat="showRepeat"
+      />
+    </SettingsSection>
+
+    <SettingsSection
+      v-if="hasOverlays && isSceneActive"
+      title="Overlays in this scene"
+      :icon="IPhRows"
+    >
+      <EditorOverlays
+        v-model="sceneOverlays"
+        :columns="numericColumns"
+        :targets-series="targetsSeries"
+        :bar-column="barColumn"
+        :show-repeat="showRepeat"
       />
     </SettingsSection>
   </div>
@@ -69,7 +84,7 @@ import { useEditorPanel } from '@/stores/editorPanel'
 import { useScenes } from '@/stores/scenes'
 import { SINGLE_SERIES_TYPES } from '@/utils/chart/chartRender'
 import { ChartType, OVERLAY_CHART_TYPES, OVERLAY_SERIES_CHART_TYPES, parseData } from '@blueprint-chart/lib'
-import type { AnnotationConfig } from '@blueprint-chart/lib'
+import type { AnnotationConfig, OverlayConfig } from '@blueprint-chart/lib'
 import { SettingsSection } from '@blueprint-chart/ui'
 import IPhDropHalf from '~icons/ph/drop-half'
 import IPhHighlighterCircle from '~icons/ph/highlighter-circle'
@@ -78,7 +93,7 @@ import EditorAnnotations from './EditorAnnotations.vue'
 import EditorOverlays from './EditorOverlays.vue'
 
 const config = useChartConfig()
-const { chartType, data, areaFills, overlays, seriesOverrides, selectedColumn } = config
+const { chartType, data, areaFills, seriesOverrides, selectedColumn } = config
 const { currentOptions } = useChartTypeOptions()
 const globalInterpolation = computed(() => (currentOptions.value.interpolation as string) ?? 'linear')
 const { pendingAnnotationIndex } = useEditorPanel()
@@ -105,6 +120,20 @@ const sceneAnnotations = computed<AnnotationConfig[]>({
   set: (val) => {
     if (activeIndex.value >= 0) {
       updateScene(activeIndex.value, { annotations: val.length > 0 ? val : undefined })
+    }
+  },
+})
+
+const baseOverlays = computed<OverlayConfig[]>({
+  get: () => config._base.overlays.value,
+  set: (val) => { config._base.overlays.value = val },
+})
+
+const sceneOverlays = computed<OverlayConfig[]>({
+  get: () => activeScene.value?.overlays ?? [],
+  set: (val) => {
+    if (activeIndex.value >= 0) {
+      updateScene(activeIndex.value, { overlays: val.length > 0 ? val : undefined })
     }
   },
 })

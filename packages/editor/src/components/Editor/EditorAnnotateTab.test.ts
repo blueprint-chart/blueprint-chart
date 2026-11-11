@@ -43,8 +43,8 @@ vi.mock('./EditorAreaFills.vue', () => ({
 vi.mock('./EditorOverlays.vue', () => ({
   default: {
     name: 'EditorOverlays',
-    template: '<div class="stub-overlays" :data-columns="columns.join(\'|\')" />',
-    props: ['modelValue', 'columns', 'targetsSeries', 'barColumn'],
+    template: '<div class="stub-overlays" :data-columns="columns.join(\'|\')" :data-show-repeat="String(showRepeat)" :data-model-length="String(modelValue?.length ?? 0)" />',
+    props: ['modelValue', 'columns', 'targetsSeries', 'barColumn', 'showRepeat'],
     emits: ['update:modelValue'],
   },
 }))
@@ -61,6 +61,7 @@ vi.mock('@/composables/useAnnotationDrag', () => ({
 
 // Store state shared across tests — reset in beforeEach
 const baseAnnotationsRef = ref<object[]>([])
+const baseOverlaysRef = ref<object[]>([])
 const scenesRef = ref<object[]>([])
 const activeIndexRef = ref(-1)
 const chartTypeRef = ref('line')
@@ -76,6 +77,7 @@ vi.mock('@/stores/chartConfig', () => ({
     selectedColumn: ref('Target'),
     _base: {
       annotations: baseAnnotationsRef,
+      overlays: baseOverlaysRef,
     },
   }),
 }))
@@ -110,6 +112,7 @@ vi.mock('@/stores/scenes', () => ({
 describe('EditorAnnotateTab', () => {
   beforeEach(() => {
     baseAnnotationsRef.value = []
+    baseOverlaysRef.value = []
     scenesRef.value = []
     activeIndexRef.value = -1
     chartTypeRef.value = 'line'
@@ -145,6 +148,28 @@ describe('EditorAnnotateTab', () => {
     await nextTick()
     const stub = w.findComponent({ name: 'EditorOverlays' })
     expect(stub.props('barColumn')).toBe(expected)
+  })
+
+  it('renders base + this-scene overlay groups with repeat when a scene is active', async () => {
+    chartTypeRef.value = 'bar-vertical'
+    baseOverlaysRef.value = [{ columns: ['Target'] }]
+    scenesRef.value = [{ id: 'scene1', name: null, overlays: [{ columns: ['Sales'] }, { columns: ['Budget'] }] }]
+    activeIndexRef.value = 0
+    const w = mount(EditorAnnotateTab)
+    await nextTick()
+    const groups = w.findAll('.stub-overlays')
+    expect(groups.map(g => g.attributes('data-model-length'))).toEqual(['1', '2'])
+    expect(groups.map(g => g.attributes('data-show-repeat'))).toEqual(['true', 'true'])
+  })
+
+  it('renders one overlay group without repeat when there are no scenes', async () => {
+    chartTypeRef.value = 'bar-vertical'
+    baseOverlaysRef.value = [{ columns: ['Target'] }]
+    const w = mount(EditorAnnotateTab)
+    await nextTick()
+    const groups = w.findAll('.stub-overlays')
+    expect(groups.map(g => g.attributes('data-show-repeat'))).toEqual(['false'])
+    expect(groups[0].attributes('data-model-length')).toBe('1')
   })
 
   it('hides the Overlays section on a line chart', async () => {

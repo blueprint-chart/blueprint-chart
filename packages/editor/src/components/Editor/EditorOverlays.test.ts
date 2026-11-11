@@ -403,4 +403,22 @@ describe('EditorOverlays bar picker', () => {
     const { w } = mountSeries(true, [{ columns: ['Gold', 'Silver'] }, { columns: ['Bronze'] }])
     expect(barField(w)).toBeUndefined()
   })
+
+  it('hides the repeat control unless asked', () => {
+    const w = mountItem({ columns: ['Target'] })
+    expect(w.find('[aria-label="Repeat"]').exists()).toBe(false)
+  })
+
+  it.each([['Always', 'always'], ['For N', 1], ['Never', undefined]])('sets repeat from %s', async (text, expected) => {
+    const w = mount(EditorOverlayItem, { props: { id: 0, overlay: { columns: ['Target'], repeat: 2 }, columns, showRepeat: true } })
+    const button = w.find('[aria-label="Repeat"]').findAll('button').find(b => b.text() === text)!
+    await button.trigger('click')
+    expect(lastEmitted(w).repeat).toBe(expected === 1 ? 2 : expected)
+  })
+
+  it('sets the repeat count from the number field', async () => {
+    const w = mount(EditorOverlayItem, { props: { id: 0, overlay: { columns: ['Target'], repeat: 2 }, columns, showRepeat: true } })
+    await w.find('input[type="number"]').setValue('4')
+    expect(lastEmitted(w).repeat).toBe(4)
+  })
 })
