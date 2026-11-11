@@ -413,3 +413,9 @@ describe('compact thumbnails', () => {
     expect(svg.match(/<line/g)).toHaveLength(1)
   })
 })
+
+describe('empty data', () => {
+  it.each(['line', 'line-multi', 'area', 'area-stacked', 'bar-vertical', 'bar-multi'])('renders nothing for an empty %s', (type) => {
+    expect(renderToSvg(type, extractData([]), THEME_COLORS)).toBe('')
+  })
+})

@@ -644,6 +644,9 @@ function compactDoc(svg: string, opts: ThumbnailOptions): string {
 }
 
 export function renderToSvg(chartType: string, data: ChartData, colors: string[], opts: ThumbnailOptions = { edgePadding: false, compact: false }): string {
+  if (data.labels.length === 0) {
+    return ''
+  }
   const svg = renderFull(chartType, data, colors, opts)
   return opts.compact && svg ? compactDoc(svg, opts) : svg
 }
