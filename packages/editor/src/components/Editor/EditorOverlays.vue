@@ -16,7 +16,22 @@ const claimed = computed(() => model.value.flatMap(overlay => overlay.columns))
 const unclaimed = computed(() => props.columns.filter(name => !claimed.value.includes(name)))
 const bars = computed(() => props.targetsSeries ? unclaimed.value : undefined)
 
+const keys = new WeakMap<OverlayConfig, number>()
+let lastKey = 0
+
+function keyOf(overlay: OverlayConfig): number {
+  const raw = toRaw(overlay)
+  const known = keys.get(raw)
+  if (known !== undefined) {
+    return known
+  }
+  lastKey += 1
+  keys.set(raw, lastKey)
+  return lastKey
+}
+
 function updateAt(index: number, value: OverlayConfig) {
+  keys.set(toRaw(value), keyOf(model.value[index]))
   const copy = [...model.value]
   copy[index] = value
   model.value = copy
@@ -49,7 +64,7 @@ function remove(index: number) {
       <EditorOverlayItem
         v-for="(overlay, i) in model"
         :id="i"
-        :key="i"
+        :key="keyOf(overlay)"
         :overlay="overlay"
         :columns="columns"
         :claimed="claimed"

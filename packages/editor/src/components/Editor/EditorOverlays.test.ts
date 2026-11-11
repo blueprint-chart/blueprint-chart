@@ -253,6 +253,39 @@ describe('EditorOverlays under a real v-model parent', () => {
   })
 })
 
+describe('EditorOverlays item identity', () => {
+  it('does not hand typed fade text to the next overlay after a delete', async () => {
+    const overlays = ref<OverlayConfig[]>([{ columns: ['Target', 'Budget'] }, { columns: ['Budget', 'Target'] }])
+    const Parent = defineComponent({
+      components: { EditorOverlays },
+      setup: () => ({ overlays, columns }),
+      template: '<EditorOverlays v-model="overlays" :columns="columns" :targets-series="false" />',
+    })
+    const w = mount(Parent)
+    const fadeInputs = () => w.findAll('input').filter(i => i.attributes('id')?.startsWith('overlay-mute-'))
+    await fadeInputs()[0].setValue('-')
+    await w.find('button[aria-label="Delete overlay"]').trigger('click')
+    await nextTick()
+    expect(overlays.value).toHaveLength(1)
+    expect((fadeInputs()[0].element as HTMLInputElement).value).toBe('')
+  })
+
+  it('keeps the item mounted while its overlay is edited', async () => {
+    const overlays = ref<OverlayConfig[]>([{ columns: ['Target', 'Budget'] }])
+    const Parent = defineComponent({
+      components: { EditorOverlays },
+      setup: () => ({ overlays, columns }),
+      template: '<EditorOverlays v-model="overlays" :columns="columns" :targets-series="false" />',
+    })
+    const w = mount(Parent)
+    const before = w.findComponent(EditorOverlayItem).vm.$.uid
+    await w.find('input[id^="overlay-title-"]').setValue('Band')
+    await nextTick()
+    expect(overlays.value[0].title).toBe('Band')
+    expect(w.findComponent(EditorOverlayItem).vm.$.uid).toBe(before)
+  })
+})
+
 describe('EditorOverlays column rule under a real v-model parent', () => {
   const salesColumns = ['Sales', 'Low', 'High']
 
