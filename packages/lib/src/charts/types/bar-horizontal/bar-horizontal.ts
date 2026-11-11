@@ -6,7 +6,7 @@ import { createCanvas, contentSize, labelPositionMargins, estimateCategoryLabelW
 import { AxisService } from '../../axis/axis-service'
 import { computeLinearDomain, resolveBarGapPadding } from '../../scale-helpers'
 import { createTooltipPlugin } from '../../plugins/tooltip'
-import { resolveOverlays, barCue, overlayDomainValues, overlayTooltipFormat, mountOverlayLayer, drawOverlayLegend, overlayKeyEntries, drawOverlayDirectLabels, directLabelWidth, type OverlayGeometry } from '../../overlays/overlays'
+import { resolveOverlays, barCue, overlayDomainValues, overlayTooltipFormat, mountOverlayLayer, drawOverlayLegend, planOverlayLabels, drawOverlayDirectLabelGroup, type OverlayGeometry } from '../../overlays/overlays'
 import { overlayKeyLayout } from '../../overlays/overlay-key'
 import { createCrosshairPlugin } from '../../plugins/crosshair'
 import { createAnnotationPlugin, snapshotAnnotations, type AnnotationSnapshot } from '../../plugins/annotations'
@@ -16,7 +16,7 @@ import { buildColorOverrides } from '../../plugins/colorize'
 import { setRenderTransition, fadeIn, snapshotForFadeOut, commitFadeOut } from '../../motion'
 import { getCachedChart, setCachedChart } from '../../transition-cache'
 import { ensureClipPath } from '../../clip-path-helper'
-import { ValueLabelPosition, Orientation, LabelPosition, DirectLabelMode } from '../../../enums'
+import { ValueLabelPosition, Orientation, LabelPosition } from '../../../enums'
 import { sortByValue } from '../../sort-helpers'
 import { featureJoin, getSceneTransition, tweenPlotFrame, type PlotRect } from '../../../transitions'
 import { createPluginHost } from '../../plugins/plugin-host'
@@ -99,12 +99,14 @@ export function render(
   const valueLabelPos = options.valueLabelPosition ?? ValueLabelPosition.Auto
   const swapLabelValue = options.swapLabelValue === true
   const formatValue = (v: number) => formatValueLabel(v, options.horizontalAxis?.numberFormat)
+  let valueLabelRoom = 0
   if (options.valueLabels && valueLabelPos !== ValueLabelPosition.Inside) {
     if (swapLabelValue) {
       // Labels show category names — estimate width from the longest label
       const longestLabel = data.labels.reduce((a, b) => a.length > b.length ? a : b, '')
       const rightLabelW = estimateTextInk(longestLabel) + VALUE_LABEL_GAP * 2
       lpMargins.right = Math.max(lpMargins.right ?? 15, rightLabelW)
+      valueLabelRoom = rightLabelW
     }
     else {
       const plottable = data.values.filter(v => Number.isFinite(v))
@@ -116,20 +118,15 @@ export function render(
       const rightLabelW = maxVal > 0 ? estimateTextInk(formatValue(maxVal)) + VALUE_LABEL_GAP * 2 : 0
       const leftLabelW = minVal < 0 ? estimateTextInk(formatValue(minVal)) + VALUE_LABEL_GAP * 2 : 0
       lpMargins.right = Math.max(lpMargins.right ?? 15, rightLabelW)
+      valueLabelRoom = rightLabelW
       if (leftLabelW > 0) {
         lpMargins.left = (lpMargins.left ?? 50) + leftLabelW
       }
     }
   }
 
-  const directLabels = (options.directLabelling ?? DirectLabelMode.Auto) as string | boolean
-  const wantsDirectLabels = Boolean(directLabels) && resolved.overlays.length > 0
-  if (wantsDirectLabels) {
-    const reservedRight = lpMargins.right ?? 15
-    const labelWidth = directLabelWidth(resolved.overlays)
-    lpMargins.right = Math.max(reservedRight, labelWidth)
-  }
-  const keyEntries = overlayKeyEntries(resolved.overlays, !wantsDirectLabels)
+  const labelPlan = planOverlayLabels(resolved.overlays, options.directLabelling, lpMargins, resolved.overlays, valueLabelRoom)
+  const keyEntries = labelPlan.keyEntries
   const keyLayout = overlayKeyLayout(keyEntries, options, containerWidth, lpMargins, false)
   const { chartArea, width, height, margin } = createCanvas(body, keyLayout.margins)
   // Plot rect cached for the next same-type transition's frame-geometry `from`.
@@ -186,7 +183,24 @@ export function render(
   const categoryLabelOffset = useCategoryLabelLine ? categoryLabelLineHeight(y.bandwidth()) : 0
   const overlaySlotStart = (label: string) => (y(label) ?? 0) + categoryLabelOffset
   const overlaySlotSize = y.bandwidth() - categoryLabelOffset
-  const overlayGeometry: OverlayGeometry = { orientation: 'horizontal', slotStart: overlaySlotStart, slotSize: overlaySlotSize, value: x, base: overlayBase }
+  const labelTextOpts = { swapLabelValue, percent: options.valueLabels === 'percent', total: d3.sum(barData, d => d.value), formatValue }
+  const labelBounds = { plotWidth: width, marginLeft: margin.left, marginRight: margin.right }
+  const rowClear = (row: number): number => {
+    const datum = barData.find(d => d.label === data.labels[row])
+    if (!datum) {
+      return x(0)
+    }
+    const start = overlayBase(row)
+    const barEnd = Math.min(width, Math.max(x(start), x(start + datum.value)))
+    if (!options.valueLabels) {
+      return barEnd
+    }
+    const ink = estimateTextInk(valueLabelText(datum, labelTextOpts))
+    const attrs = valueLabelAttrs(datum, x, y, valueLabelPos, categoryLabelOffset, labelBounds, ink)
+    const isOutsideRight = !attrs.isInside && attrs.anchor === 'start'
+    return isOutsideRight ? Math.max(barEnd, attrs.tx + ink) : barEnd
+  }
+  const overlayGeometry: OverlayGeometry = { orientation: 'horizontal', slotStart: overlaySlotStart, slotSize: overlaySlotSize, value: x, base: overlayBase, clear: rowClear }
 
   const vAxisBase = swapLabelValue && options.valueLabels && !isWaterfall
     ? (() => {
@@ -524,10 +538,10 @@ export function render(
         transition,
         swapLabelValue,
         categoryLabelOffset,
-        percent: options.valueLabels === 'percent',
-        total: d3.sum(barData, d => d.value),
+        percent: labelTextOpts.percent,
+        total: labelTextOpts.total,
         formatValue,
-        bounds: { plotWidth: width, marginLeft: margin.left, marginRight: margin.right },
+        bounds: labelBounds,
       })
     }
   }
@@ -550,10 +564,7 @@ export function render(
     }
   }
 
-  if (wantsDirectLabels) {
-    const labelGroup = d3.select(chartArea).append('g').attr('class', 'bc-overlay-labels').node()!
-    drawOverlayDirectLabels(labelGroup, resolved.overlays, overlayLabels, overlayRows, () => overlayGeometry)
-  }
+  drawOverlayDirectLabelGroup(chartArea, labelPlan.direct, overlayLabels, overlayRows, () => overlayGeometry)
 
   if (keyLayout.show) {
     const placement = keyLayout.place(width, height, margin)
@@ -566,6 +577,16 @@ export function render(
     fadeIn(clippedGroup.node()!)
     commitFadeOut(container, fadeOverlay)
   }
+}
+
+function valueLabelText(d: BarDatum, opts: { swapLabelValue?: boolean, percent?: boolean, total?: number, formatValue: (value: number) => string }): string {
+  if (opts.swapLabelValue) {
+    return d.label
+  }
+  if (opts.percent && opts.total !== undefined) {
+    return percentValueLabel(d.value, opts.total)
+  }
+  return opts.formatValue(d.value)
 }
 
 function valueLabelAttrs(
@@ -627,12 +648,7 @@ function renderValueLabels(
 ): void {
   const pos = opts.position ?? ValueLabelPosition.Auto
   const catOffset = opts.categoryLabelOffset ?? 0
-  const labelText = (d: BarDatum) =>
-    opts.swapLabelValue
-      ? d.label
-      : opts.percent && opts.total !== undefined
-        ? percentValueLabel(d.value, opts.total)
-        : opts.formatValue(d.value)
+  const labelText = (d: BarDatum) => valueLabelText(d, opts)
 
   // Create a dedicated group for value labels so they sit above bars
   let labelGroup = parent.select<SVGGElement>('.bc-value-label-group')

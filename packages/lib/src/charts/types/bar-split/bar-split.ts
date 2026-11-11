@@ -24,7 +24,7 @@ import { buildColorOverrides } from '../../plugins/colorize'
 import { shouldRenderValueLabel, estimateTextInk } from '../../value-label-fit'
 import { CATEGORY_LABEL_HEIGHT, categoryLabelLineHeight, categoryLabelsNeedTheirOwnLine } from '../../category-label-line'
 import { DEFAULT_COLORS } from '../../palettes'
-import { resolveOverlays, barCue, cueLabelFill, overlayDomainValues, overlayTooltipFormat, mountOverlayLayer, drawOverlayLegend, planOverlayLabels, drawOverlayDirectLabelGroup, type OverlayGeometry, type ResolvedOverlay } from '../../overlays/overlays'
+import { resolveOverlays, barCue, cueLabelFill, overlayDomainValues, overlayTooltipFormat, mountOverlayLayer, drawOverlayLegend, planOverlayLabels, drawOverlayDirectLabelGroup, clearingGeometry, type OverlayGeometry, type ResolvedOverlay } from '../../overlays/overlays'
 
 const PANEL_GAP = 16
 const VALUE_LABEL_GAP = 4
@@ -450,6 +450,7 @@ export function render(
   const globalValueLabels = options.valueLabels ?? true
   const valueLabelPos = options.valueLabelPosition ?? ValueLabelPosition.Auto
   const vlGroup = d3.select(chartArea).append('g').attr('class', 'bc-value-labels')
+  const valueLabelEnds = new Map<string, number>()
 
   flatData.forEach((datum) => {
     if (!resolveSeriesValueLabels(datum.seriesName, globalValueLabels, overrides)) {
@@ -493,6 +494,9 @@ export function render(
     const direction = isInside ? -outward : outward
     const tx = barEnd + direction * VALUE_LABEL_GAP
     const anchor = direction < 0 ? 'end' : 'start'
+    if (anchor === 'start') {
+      valueLabelEnds.set(`${datum.label}\0${datum.seriesName}`, tx + labelInk)
+    }
     const fill = isInside ? insideLabelFill(datum, seriesColor) : 'currentColor'
 
     vlGroup.append('text')
@@ -508,7 +512,9 @@ export function render(
   })
 
   const directRows = sortedLabels.map(label => data.labels.indexOf(label))
-  drawOverlayDirectLabelGroup(chartArea, labelPlan.direct, sortedLabels, directRows, geometryFor)
+  const barValue = (overlay: ResolvedOverlay, row: number) => series.find(s => s.name === overlay.bar)?.values[row] ?? 0
+  const labelEnd = (overlay: ResolvedOverlay, row: number) => valueLabelEnds.get(`${data.labels[row]}\0${overlay.bar}`)
+  drawOverlayDirectLabelGroup(chartArea, labelPlan.direct, sortedLabels, directRows, clearingGeometry(geometryFor, barValue, labelEnd))
 
   if (showLegend && legendTitles.length > 0) {
     const legendColors = legendNames.map((name) => {

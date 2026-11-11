@@ -162,6 +162,7 @@ export interface OverlayGeometry {
   slotSize: number
   value: (v: number) => number
   base: (rowIndex: number) => number
+  clear?: (rowIndex: number) => number
 }
 
 interface OverlayCell {
@@ -475,25 +476,26 @@ export function directLabelWidth(overlays: ResolvedOverlay[]): number {
   return Math.max(...widths) + DIRECT_LABEL_PADDING
 }
 
+function hasValueAt(overlay: ResolvedOverlay, row: number): boolean {
+  return Number.isFinite(overlay.low[row]) && Number.isFinite(overlay.high[row])
+}
+
+function hasAnyValue(overlay: ResolvedOverlay): boolean {
+  return overlay.low.some((_, row) => hasValueAt(overlay, row))
+}
+
 export function drawOverlayDirectLabels(group: SVGGElement, overlays: ResolvedOverlay[], labels: readonly string[], rows: number[], geometryFor: OverlayGeometryFor): void {
-  const label = labels[0]
-  const row = rows[0]
-  if (label === undefined) {
-    return
-  }
   for (const overlay of overlays) {
     const geom = geometryFor(overlay)
-    if (!geom) {
+    const index = rows.findIndex(row => hasValueAt(overlay, row))
+    if (!geom || index < 0) {
       continue
     }
+    const row = rows[index]
     const offset = geom.base(row)
-    const centre = geom.slotStart(label) + geom.slotSize / 2
-    const low = overlay.low[row]
-    const high = overlay.high[row]
-    if (!Number.isFinite(low) || !Number.isFinite(high)) {
-      continue
-    }
-    const farEnd = geom.value(offset + high)
+    const centre = geom.slotStart(labels[index]) + geom.slotSize / 2
+    const overlayEnd = geom.value(offset + overlay.high[row])
+    const farEnd = Math.max(overlayEnd, geom.clear?.(row) ?? overlayEnd)
     d3.select(group).append('text')
       .attr('class', 'bc-overlay-label')
       .attr('data-series', overlay.title)
@@ -717,17 +719,33 @@ export interface OverlayLabelPlan {
   keyEntries: OverlayKeyEntry[]
 }
 
-export function planOverlayLabels(overlays: ResolvedOverlay[], directLabelling: string | boolean | undefined, lpMargins: { right?: number }, eligible: ResolvedOverlay[] = overlays): OverlayLabelPlan {
+export function planOverlayLabels(overlays: ResolvedOverlay[], directLabelling: string | boolean | undefined, lpMargins: { right?: number }, eligible: ResolvedOverlay[] = overlays, valueLabelRoom = 0): OverlayLabelPlan {
   const mode = directLabelling ?? DirectLabelMode.Auto
   const wantsDirect = Boolean(mode)
-  const direct = wantsDirect ? eligible : []
+  const direct = wantsDirect ? eligible.filter(hasAnyValue) : []
   if (direct.length > 0) {
     const reservedRight = lpMargins.right ?? 15
     const labelWidth = directLabelWidth(direct)
-    lpMargins.right = Math.max(reservedRight, labelWidth)
+    lpMargins.right = Math.max(reservedRight, valueLabelRoom + labelWidth)
   }
   const keyEntries = overlayKeyEntries(overlays, true, direct)
   return { direct, keyEntries }
+}
+
+export function clearingGeometry(geometryFor: OverlayGeometryFor, barValue: (overlay: ResolvedOverlay, row: number) => number, labelEnd: (overlay: ResolvedOverlay, row: number) => number | undefined): OverlayGeometryFor {
+  return (overlay) => {
+    const geom = geometryFor(overlay)
+    if (!geom) {
+      return null
+    }
+    const clear = (row: number) => {
+      const value = barValue(overlay, row)
+      const zero = geom.value(0)
+      const barEnd = Number.isFinite(value) ? Math.max(zero, geom.value(value)) : zero
+      return Math.max(barEnd, labelEnd(overlay, row) ?? barEnd)
+    }
+    return { ...geom, clear }
+  }
 }
 
 export function drawOverlayDirectLabelGroup(chartArea: SVGGElement, direct: ResolvedOverlay[], labels: readonly string[], rows: number[], geometryFor: OverlayGeometryFor): void {

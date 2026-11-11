@@ -20,10 +20,10 @@ import { ensureClipPath } from '../../clip-path-helper'
 import { featureJoin, getSceneTransition, tweenPlotFrame, type PlotRect } from '../../../transitions'
 import { createPluginHost } from '../../plugins/plugin-host'
 import { Orientation, ValueLabelPosition, LabelPosition, ScaleType, SortMode } from '../../../enums'
-import { shouldRenderValueLabel } from '../../value-label-fit'
+import { shouldRenderValueLabel, estimateTextInk } from '../../value-label-fit'
 import { CATEGORY_LABEL_HEIGHT, categoryLabelLineHeight, categoryLabelsNeedTheirOwnLine } from '../../category-label-line'
 import { DEFAULT_COLORS } from '../../palettes'
-import { resolveOverlays, barCue, cueLabelFill, overlayDomainValues, overlayTooltipFormat, mountOverlayLayer, drawOverlayLegend, planOverlayLabels, drawOverlayDirectLabelGroup, type OverlayGeometry, type ResolvedOverlay } from '../../overlays/overlays'
+import { resolveOverlays, barCue, cueLabelFill, overlayDomainValues, overlayTooltipFormat, mountOverlayLayer, drawOverlayLegend, planOverlayLabels, drawOverlayDirectLabelGroup, clearingGeometry, type OverlayGeometry, type ResolvedOverlay } from '../../overlays/overlays'
 
 interface GroupedBarDatum {
   label: string
@@ -106,7 +106,12 @@ export function render(
     options.horizontalAxis?.showAxis,
   )
 
-  const labelPlan = planOverlayLabels(resolved.overlays, options.directLabelling, lpMargins)
+  const visibleTargets = resolved.overlays.filter(overlay => seriesNames.includes(overlay.bar ?? ''))
+  const valueLabelsOutside = (options.valueLabels ?? true) && options.valueLabelPosition !== ValueLabelPosition.Inside
+  const plottedValues = series.flatMap(s => s.values).filter(Number.isFinite)
+  const widestValueLabel = d3.max(plottedValues, v => estimateTextInk(String(v))) ?? 0
+  const valueLabelRoom = valueLabelsOutside ? widestValueLabel + 4 : 0
+  const labelPlan = planOverlayLabels(resolved.overlays, options.directLabelling, lpMargins, visibleTargets, valueLabelRoom)
   const keyEntries = labelPlan.keyEntries
   const keyTitles = keyEntries.map(entry => entry.title)
   const legendTitles = [...legendNames, ...keyTitles]
@@ -370,6 +375,7 @@ export function render(
   const globalValueLabels = options.valueLabels ?? true
   const valueLabelPos = options.valueLabelPosition ?? ValueLabelPosition.Auto
   const vlGroup = d3.select(chartArea).append('g').attr('class', 'bc-value-labels')
+  const valueLabelEnds = new Map<string, number>()
 
   flatData.forEach((datum) => {
     if (!resolveSeriesValueLabels(datum.seriesName, globalValueLabels, overrides)) {
@@ -406,6 +412,7 @@ export function render(
       tx = barRight + 4
       anchor = 'start'
       fill = 'currentColor'
+      valueLabelEnds.set(`${datum.label}\0${datum.seriesName}`, tx + estimateTextInk(String(datum.value)))
     }
 
     vlGroup.append('text')
@@ -421,7 +428,9 @@ export function render(
   })
 
   const directRows = sortedLabels.map(label => data.labels.indexOf(label))
-  drawOverlayDirectLabelGroup(chartArea, labelPlan.direct, sortedLabels, directRows, geometryFor)
+  const barValue = (overlay: ResolvedOverlay, row: number) => series.find(s => s.name === overlay.bar)?.values[row] ?? 0
+  const labelEnd = (overlay: ResolvedOverlay, row: number) => valueLabelEnds.get(`${data.labels[row]}\0${overlay.bar}`)
+  drawOverlayDirectLabelGroup(chartArea, labelPlan.direct, sortedLabels, directRows, clearingGeometry(geometryFor, barValue, labelEnd))
 
   if (showLegend && legendTitles.length > 0) {
     const legendColors = legendNames.map((name) => {

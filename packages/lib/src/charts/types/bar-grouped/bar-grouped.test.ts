@@ -1,5 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { render } from './bar-grouped'
+import { estimateTextInk } from '../../value-label-fit'
+import { ValueLabelPosition } from '../../../enums'
 import { renderBpc } from '../../../render/render-bpc'
 
 describe('bar-grouped', () => {
@@ -492,6 +494,14 @@ describe('bar-grouped', () => {
       expect(end).toBeLessThanOrEqual(plotWidth + 0.001)
     })
 
+    it('lists the overlay in the key when its target series is hidden', () => {
+      const hidden = [{ name: 'Gold', hidden: true }]
+      render(container, overlayData, { overlays: range, seriesOverrides: hidden })
+      const keyTexts = Array.from(container.querySelectorAll('.bc-legend-item')).map(node => node.textContent)
+      expect(container.querySelector('.bc-overlay-label')).toBeNull()
+      expect(keyTexts).toContain('Gold low to Gold high')
+    })
+
     it('draws nothing when the target series is hidden', () => {
       const hidden = [{ name: 'Gold', hidden: true }]
       expect(() => render(container, overlayData, { overlays: range, seriesOverrides: hidden })).not.toThrow()
@@ -514,6 +524,21 @@ describe('bar-grouped', () => {
       expect(tooltip?.textContent).toContain('Gold low to Gold high: 4 to 7')
       tooltip?.remove()
       document.getElementById('bc-tooltip-styles')?.remove()
+    })
+  })
+
+  describe('overlay direct label placement', () => {
+    function rightEdges(): number[] {
+      const bars = Array.from(container.querySelectorAll('.bc-bar')).map(bar => Number(bar.getAttribute('x')) + Number(bar.getAttribute('width')))
+      const visibleLabels = Array.from(container.querySelectorAll('.bc-value-label')).filter(label => label.getAttribute('opacity') !== '0' && label.getAttribute('text-anchor') === 'start')
+      const labelEnds = visibleLabels.map(label => Number(label.getAttribute('x')) + estimateTextInk(label.textContent ?? ''))
+      return [...bars, ...labelEnds]
+    }
+
+    it('starts the direct label past the bar and its outside value label', () => {
+      render(container, { labels: ['A'], values: [], series: [{ name: 'Gold', values: [20] }, { name: 'Silver', values: [3] }, { name: 'T', values: [5] }] }, { overlays: [{ columns: ['T'], bar: 'Gold', title: 'Target' }], valueLabels: true, valueLabelPosition: ValueLabelPosition.Outside })
+      const label = container.querySelector('text.bc-overlay-label')!
+      expect(Number(label.getAttribute('x'))).toBeGreaterThan(Math.max(...rightEdges()))
     })
   })
 

@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { render } from './bar-horizontal'
 import { SortDirection, ValueLabelPosition, LegendPosition } from '../../../enums'
+import { estimateTextInk } from '../../value-label-fit'
 
 describe('bar-horizontal', () => {
   let container: HTMLElement
@@ -1780,7 +1781,7 @@ describe('bar-horizontal', () => {
         expect(names).toEqual(['95% CI', '2022'])
       })
 
-      it('skips the direct label when the first row has no overlay value', () => {
+      it('moves the direct label to the first row with an overlay value', () => {
         const gap = {
           labels: ['A', 'B', 'C'],
           values: [5, 8, 6],
@@ -1792,8 +1793,55 @@ describe('bar-horizontal', () => {
           ],
         } as never
         render(container, gap, { overlays: titled })
-        const names = overlayEls('text.bc-overlay-label').map(el => el.getAttribute('data-series'))
-        expect(names).toEqual(['2022'])
+        const [ci, last] = overlayEls('text.bc-overlay-label')
+        expect(ci.getAttribute('data-series')).toBe('95% CI')
+        expect(Number(ci.getAttribute('y'))).toBeGreaterThan(Number(last.getAttribute('y')))
+      })
+
+      it('lists an overlay with no value in the key instead', () => {
+        const empty = {
+          labels: ['A', 'B'],
+          values: [5, 8],
+          series: [
+            { name: 'V', values: [5, 8] },
+            { name: 'Last', values: [undefined, undefined] },
+          ],
+        } as never
+        render(container, empty, { overlays: [{ columns: ['Last'], title: '2022' }] })
+        const keyTexts = overlayEls('.bc-legend-item').map(el => el.textContent)
+        expect(keyTexts).toEqual(['2022'])
+      })
+
+      it('starts the direct label past the end of a longer bar', () => {
+        const short = {
+          labels: ['A'],
+          values: [20],
+          series: [
+            { name: 'V', values: [20] },
+            { name: 'Last', values: [15] },
+          ],
+        }
+        render(container, short, { overlays: [{ columns: ['Last'], title: '2022' }] })
+        const bar = container.querySelector('.bc-bar')!
+        const barEnd = Number(bar.getAttribute('x')) + Number(bar.getAttribute('width'))
+        const label = overlayEls('text.bc-overlay-label')[0]
+        expect(Number(label.getAttribute('x'))).toBeGreaterThan(barEnd)
+      })
+
+      it('starts the direct label past an outside value label', () => {
+        const short = {
+          labels: ['A', 'B'],
+          values: [20, 5],
+          series: [
+            { name: 'V', values: [20, 5] },
+            { name: 'Last', values: [15, 4] },
+          ],
+        }
+        render(container, short, { overlays: [{ columns: ['Last'], title: '2022' }], valueLabels: true, valueLabelPosition: ValueLabelPosition.Outside })
+        const valueLabel = container.querySelector('.bc-value-label')!
+        const valueLabelEnd = Number(valueLabel.getAttribute('x')) + estimateTextInk(valueLabel.textContent ?? '')
+        const label = overlayEls('text.bc-overlay-label')[0]
+        expect(Number(label.getAttribute('x'))).toBeGreaterThan(valueLabelEnd)
       })
     })
   })

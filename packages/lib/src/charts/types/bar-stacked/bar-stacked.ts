@@ -25,7 +25,7 @@ import { buildColorOverrides } from '../../plugins/colorize'
 import { shouldRenderValueLabel } from '../../value-label-fit'
 import { CATEGORY_LABEL_HEIGHT, categoryLabelLineHeight, categoryLabelsNeedTheirOwnLine } from '../../category-label-line'
 import { DEFAULT_COLORS } from '../../palettes'
-import { resolveOverlays, barCue, cueLabelFill, stackRowTotals, overlayDomainValues, overlayTooltipFormat, mountOverlayLayer, drawOverlayLegend, planOverlayLabels, drawOverlayDirectLabelGroup, type OverlayGeometry } from '../../overlays/overlays'
+import { resolveOverlays, barCue, cueLabelFill, stackRowTotals, overlayDomainValues, overlayTooltipFormat, mountOverlayLayer, drawOverlayLegend, planOverlayLabels, drawOverlayDirectLabelGroup, clearingGeometry, type OverlayGeometry } from '../../overlays/overlays'
 
 interface StackedBarDatum {
   label: string
@@ -142,7 +142,11 @@ export function render(
   const lpMargins = labelPositionMargins(containerWidth, effectiveVLabelPosition, options.horizontalAxis?.labelPosition, options.verticalAxis?.direction, vLabelW, options.horizontalAxis?.showAxis)
 
   const vLabelsInside = lpMargins.top != null
-  const labelPlan = planOverlayLabels(resolved.overlays, options.directLabelling, lpMargins)
+  const valueLabelsOutside = Boolean(options.valueLabels) && options.valueLabelPosition !== ValueLabelPosition.Inside
+  const plottedValues = series.flatMap(s => s.values).filter(Number.isFinite)
+  const widestValueLabel = d3.max(plottedValues, v => String(Math.round(v * 100) / 100).length * 6.5 + 8) ?? 0
+  const valueLabelRoom = valueLabelsOutside ? widestValueLabel + 4 : 0
+  const labelPlan = planOverlayLabels(resolved.overlays, options.directLabelling, lpMargins, resolved.overlays, valueLabelRoom)
   const keyEntries = labelPlan.keyEntries
   const keyTitles = keyEntries.map(entry => entry.title)
   const legendTitles = [...legendNames, ...keyTitles]
@@ -473,7 +477,9 @@ export function render(
   })
 
   const directRows = sortedLabels.map(label => data.labels.indexOf(label))
-  drawOverlayDirectLabelGroup(chartArea, labelPlan.direct, sortedLabels, directRows, () => geometry)
+  const stackEnd = (_overlay: unknown, row: number) => columnTotals.get(data.labels[row]) ?? 0
+  const labelEnd = (_overlay: unknown, row: number) => labelEndByRow.get(data.labels[row])
+  drawOverlayDirectLabelGroup(chartArea, labelPlan.direct, sortedLabels, directRows, clearingGeometry(() => geometry, stackEnd, labelEnd))
 
   if (showLegend && legendTitles.length > 0) {
     const legendColors = legendNames.map((name) => {

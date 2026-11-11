@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { render } from './bar-split'
+import { estimateTextInk } from '../../value-label-fit'
 import { renderBpc } from '../../../render/render-bpc'
 import { ValueLabelPosition } from '../../../enums'
 
@@ -400,6 +401,21 @@ describe('bar-split', () => {
       container.replaceChildren()
       render(container, tall, { ...(axis as object), overlays: range })
       expect(tickTexts(1)).not.toEqual(silverBefore)
+    })
+  })
+
+  describe('overlay direct label placement', () => {
+    function rightEdges(): number[] {
+      const bars = Array.from(container.querySelectorAll('.bc-bar')).map(bar => Number(bar.getAttribute('x')) + Number(bar.getAttribute('width')))
+      const visibleLabels = Array.from(container.querySelectorAll('.bc-value-label')).filter(label => label.getAttribute('opacity') !== '0' && label.getAttribute('text-anchor') === 'start')
+      const labelEnds = visibleLabels.map(label => Number(label.getAttribute('x')) + estimateTextInk(label.textContent ?? ''))
+      return [...bars, ...labelEnds]
+    }
+
+    it('starts the direct label past the bar and its outside value label', () => {
+      render(container, { labels: ['A'], values: [], series: [{ name: 'Gold', values: [3] }, { name: 'Silver', values: [20] }, { name: 'T', values: [5] }] }, { overlays: [{ columns: ['T'], bar: 'Silver', title: 'Target' }], valueLabels: true, valueLabelPosition: ValueLabelPosition.Outside })
+      const label = container.querySelector('text.bc-overlay-label')!
+      expect(Number(label.getAttribute('x'))).toBeGreaterThan(Math.max(...rightEdges()))
     })
   })
 

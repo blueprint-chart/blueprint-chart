@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { render } from './bar-stacked'
+import { estimateTextInk } from '../../value-label-fit'
 import { StackMode, ValueLabelPosition } from '../../../enums'
 
 describe('bar-stacked', () => {
@@ -628,6 +629,21 @@ describe('bar-stacked', () => {
     })
   })
 
+  describe('overlay direct label placement', () => {
+    function rightEdges(): number[] {
+      const bars = Array.from(container.querySelectorAll('.bc-bar')).map(bar => Number(bar.getAttribute('x')) + Number(bar.getAttribute('width')))
+      const visibleLabels = Array.from(container.querySelectorAll('.bc-value-label')).filter(label => label.getAttribute('opacity') !== '0' && label.getAttribute('text-anchor') === 'start')
+      const labelEnds = visibleLabels.map(label => Number(label.getAttribute('x')) + estimateTextInk(label.textContent ?? ''))
+      return [...bars, ...labelEnds]
+    }
+
+    it('starts the direct label past the bar and its outside value label', () => {
+      render(container, { labels: ['A'], values: [], series: [{ name: 'Gold', values: [10] }, { name: 'Silver', values: [10] }, { name: 'T', values: [8] }] }, { overlays: [{ columns: ['T'], title: 'Target' }], valueLabels: true, valueLabelPosition: ValueLabelPosition.Outside })
+      const label = container.querySelector('text.bc-overlay-label')!
+      expect(Number(label.getAttribute('x'))).toBeGreaterThan(Math.max(...rightEdges()))
+    })
+  })
+
   describe('overlay key', () => {
     function legendTexts(): (string | null)[] {
       return Array.from(container.querySelectorAll('.bc-legend-item')).map(node => node.textContent)
@@ -654,8 +670,10 @@ describe('bar-stacked', () => {
     it('puts the direct label on the first displayed row', () => {
       render(container, keyData, { overlays: keyTarget, directLabelling: true, sortReverse: true })
       const label = container.querySelector('.bc-overlay-label')!
-      const xs = Array.from(container.querySelectorAll('line.bc-overlay-value')).map(line => Number(line.getAttribute('x1')))
-      expect(Number(label.getAttribute('x'))).toBeCloseTo(Math.min(...xs) + 6, 3)
+      const lines = Array.from(container.querySelectorAll('line.bc-overlay-value'))
+      const secondRow = lines.reduce((low, line) => Number(line.getAttribute('x1')) < Number(low.getAttribute('x1')) ? line : low)
+      const centre = (Number(secondRow.getAttribute('y1')) + Number(secondRow.getAttribute('y2'))) / 2
+      expect(Number(label.getAttribute('y'))).toBeCloseTo(centre, 3)
     })
 
     it('lists the target in the key when direct labelling is off', () => {
