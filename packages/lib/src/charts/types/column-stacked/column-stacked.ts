@@ -25,7 +25,7 @@ import { StackMode, ScaleType, SortMode, ValueLabelPosition } from '../../../enu
 import { formatValueLabel, percentValueLabel } from '../../format-helpers'
 import { shouldRenderValueLabel } from '../../value-label-fit'
 import { DEFAULT_COLORS } from '../../palettes'
-import { resolveOverlays, barCue, rowIndex, cueLabelFill, stackRowTotals, overlayDomainValues, overlayTooltipFormat, mountOverlayLayer, drawOverlayLegend, overlayKeyEntries, type OverlayGeometry } from '../../overlays/overlays'
+import { resolveOverlays, barCue, rowIndex, cueLabelFill, stackRowTotals, overlayDomainValues, overlayTooltipFormat, mountOverlayLayer, drawOverlayLegend, overlayKeyEntries, whiskerEdge, type OverlayGeometry } from '../../overlays/overlays'
 
 const LABEL_HEIGHT = 11
 const OUTSIDE_LABEL_GAP = 4
@@ -329,6 +329,15 @@ export function render(
   const formatNumber = (v: number) => options.verticalAxis?.numberFormat
     ? formatValueLabel(v, options.verticalAxis.numberFormat)
     : String(Math.round(v * 100) / 100)
+  const clearWhisker = (label: string, end: number, below: boolean) => {
+    const row = data.labels.indexOf(label)
+    const outward = below ? 1 : -1
+    const edge = whiskerEdge(resolved.overlays, row, undefined, geometry, end, outward)
+    if (edge === undefined) {
+      return end
+    }
+    return below ? Math.min(height, edge) : Math.max(0, edge)
+  }
   const vlGroup = d3.select(chartArea).append('g').attr('class', 'bc-value-labels')
   sortedFlatData.forEach((datum) => {
     if (!resolveSeriesValueLabels(datum.seriesName, globalValueLabels, overrides)) {
@@ -356,7 +365,8 @@ export function render(
       if (showTotal && !below && !next) {
         return
       }
-      const edge = y(outerEnd(datum))
+      const end = y(outerEnd(datum))
+      const edge = next ? end : clearWhisker(datum.label, end, below)
       const labelY = edge + (below ? OUTSIDE_LABEL_GAP + LABEL_HEIGHT : -OUTSIDE_LABEL_GAP)
       const room = next
         ? Math.abs(y(next.y1) - y(next.y0))
@@ -406,10 +416,11 @@ export function render(
       if (total <= 0) {
         continue
       }
+      const top = clearWhisker(label, y(total), false)
       vlGroup.append('text')
         .attr('class', 'bc-total-label')
         .attr('x', (x(label) ?? 0) + x.bandwidth() / 2)
-        .attr('y', y(total) - OUTSIDE_LABEL_GAP)
+        .attr('y', top - OUTSIDE_LABEL_GAP)
         .attr('text-anchor', 'middle')
         .attr('font-size', '11px')
         .attr('font-weight', 'bold')

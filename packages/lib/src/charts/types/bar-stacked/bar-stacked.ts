@@ -25,7 +25,7 @@ import { buildColorOverrides } from '../../plugins/colorize'
 import { shouldRenderValueLabel } from '../../value-label-fit'
 import { CATEGORY_LABEL_HEIGHT, categoryLabelLineHeight, categoryLabelsNeedTheirOwnLine } from '../../category-label-line'
 import { DEFAULT_COLORS } from '../../palettes'
-import { resolveOverlays, barCue, rowIndex, cueLabelFill, stackRowTotals, overlayDomainValues, overlayTooltipFormat, mountOverlayLayer, drawOverlayLegend, planOverlayLabels, drawOverlayDirectLabelGroup, clearingGeometry, type OverlayGeometry } from '../../overlays/overlays'
+import { resolveOverlays, barCue, rowIndex, cueLabelFill, stackRowTotals, overlayDomainValues, overlayTooltipFormat, mountOverlayLayer, drawOverlayLegend, planOverlayLabels, drawOverlayDirectLabelGroup, clearingGeometry, whiskerEdge, type OverlayGeometry } from '../../overlays/overlays'
 
 interface StackedBarDatum {
   label: string
@@ -379,6 +379,11 @@ export function render(
   const columnTotals = d3.rollup(sortedFlatData, vs => d3.max(vs, d => d.y1) ?? 0, d => d.label)
 
   const vlGroup = d3.select(chartArea).append('g').attr('class', 'bc-value-labels')
+  const clearWhisker = (label: string, end: number) => {
+    const row = data.labels.indexOf(label)
+    const edge = whiskerEdge(resolved.overlays, row, undefined, geometry, end, 1)
+    return edge === undefined ? end : Math.min(width, edge)
+  }
   sortedFlatData.forEach((datum) => {
     if (!resolveSeriesValueLabels(datum.seriesName, globalValueLabels, overrides)) {
       return
@@ -429,7 +434,9 @@ export function render(
         appendHiddenLabel()
       }
       else {
-        const labelStartX = x(datum.y1) + 4
+        const segmentEnd = x(datum.y1)
+        const labelFrom = isLastInRow ? clearWhisker(datum.label, segmentEnd) : segmentEnd
+        const labelStartX = labelFrom + 4
         const prevEnd = labelEndByRow.get(datum.label) ?? 0
         const nextWidth = nextSegWidthPx.get(datum.label + '\0' + datum.seriesName)
         const overlaps = labelStartX < prevEnd

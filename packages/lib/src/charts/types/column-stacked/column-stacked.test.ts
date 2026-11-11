@@ -833,4 +833,52 @@ describe('column-stacked', () => {
       expect(rowFills(0)).toEqual(['#0000ff', '#00ff00'])
     })
   })
+
+  describe('whisker value labels', () => {
+    const whiskerData = {
+      labels: ['A'],
+      values: [],
+      series: [
+        { name: 'First', values: [50] },
+        { name: 'Second', values: [30] },
+        { name: 'Low', values: [60] },
+        { name: 'High', values: [95] },
+      ],
+    }
+    const overlays = [{ columns: ['Low', 'High'], pattern: 'whisker' as const }]
+    const axis = { verticalAxis: { range: { min: 0, max: 100 } } }
+
+    function stemTop(): number {
+      const d = container.querySelector('.bc-overlay-whisker')!.getAttribute('d')!
+      return d.match(/-?[\d.]+/g)!.map(Number)[1]
+    }
+
+    function labelY(series: string): number {
+      return Number(container.querySelector(`.bc-value-label[data-series="${series}"]`)!.getAttribute('y'))
+    }
+
+    it('places the total past the whisker cap', () => {
+      render(container, whiskerData, { showTotal: true, overlays, ...axis })
+      const total = container.querySelector('.bc-total-label')!
+      expect(Number(total.getAttribute('y'))).toBeCloseTo(stemTop() - 1 - 4)
+    })
+
+    it('places the last outside segment label past the whisker cap', () => {
+      render(container, whiskerData, { valueLabels: true, valueLabelPosition: ValueLabelPosition.Outside, overlays, ...axis })
+      expect(labelY('Second')).toBeCloseTo(stemTop() - 1 - 4)
+    })
+
+    it('keeps an inner segment label where it was', () => {
+      render(container, whiskerData, { valueLabels: true, valueLabelPosition: ValueLabelPosition.Outside, ...axis })
+      const before = labelY('First')
+      render(container, whiskerData, { valueLabels: true, valueLabelPosition: ValueLabelPosition.Outside, overlays, ...axis })
+      expect(labelY('First')).toBeCloseTo(before)
+    })
+
+    it('keeps the total on the plot when the axis range cuts the whisker', () => {
+      render(container, whiskerData, { showTotal: true, overlays, verticalAxis: { range: { min: 0, max: 85 } } })
+      const total = container.querySelector('.bc-total-label')!
+      expect(Number(total.getAttribute('y'))).toBeGreaterThanOrEqual(-4)
+    })
+  })
 })

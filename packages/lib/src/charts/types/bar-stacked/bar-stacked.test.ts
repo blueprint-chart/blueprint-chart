@@ -753,4 +753,47 @@ describe('bar-stacked', () => {
       expect(rowFills(0)).toEqual(['#0000ff', '#00ff00'])
     })
   })
+
+  describe('whisker value labels', () => {
+    const whiskerData = {
+      labels: ['A'],
+      values: [],
+      series: [
+        { name: 'First', values: [50] },
+        { name: 'Second', values: [30] },
+        { name: 'Low', values: [60] },
+        { name: 'High', values: [95] },
+      ],
+    }
+    const overlays = [{ columns: ['Low', 'High'], pattern: 'whisker' as const }]
+    const axis = { horizontalAxis: { range: { min: 0, max: 100 } } }
+    const outside = { valueLabels: true, valueLabelPosition: ValueLabelPosition.Outside }
+
+    function stemRight(): number {
+      const d = container.querySelector('.bc-overlay-whisker')!.getAttribute('d')!
+      return d.match(/-?[\d.]+/g)!.map(Number)[0]
+    }
+
+    function labelX(series: string): number {
+      return Number(container.querySelector(`.bc-value-label[data-series="${series}"]`)!.getAttribute('x'))
+    }
+
+    it('places the last segment label past the whisker cap', () => {
+      render(container, whiskerData, { ...outside, overlays, ...axis })
+      expect(labelX('Second')).toBeCloseTo(stemRight() + 5)
+    })
+
+    it('keeps an earlier segment label where it was', () => {
+      render(container, whiskerData, { ...outside, ...axis })
+      const before = labelX('First')
+      render(container, whiskerData, { ...outside, overlays, ...axis })
+      expect(labelX('First')).toBeCloseTo(before)
+    })
+
+    it('keeps the label on the plot when the axis range cuts the whisker', () => {
+      render(container, whiskerData, { ...outside, overlays, horizontalAxis: { range: { min: 0, max: 85 } } })
+      const plotWidth = Number(container.querySelector('clipPath rect')!.getAttribute('width'))
+      expect(labelX('Second')).toBeLessThanOrEqual(plotWidth + 4)
+    })
+  })
 })
