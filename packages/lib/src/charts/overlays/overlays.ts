@@ -198,6 +198,9 @@ interface OverlayCell {
 }
 
 const VALUE_STROKE_WIDTH = 3
+const WHISKER_STROKE_WIDTH = 2
+const WHISKER_CAP_SHARE = 0.4
+const WHISKER_CAP_MAX = 12
 const STRIPE_SIZE = 6
 
 export function overlayDomainValues(overlays: ResolvedOverlay[], rows: number[], base: (rowIndex: number) => number): number[] {
@@ -373,7 +376,29 @@ function valueAttrs(cell: OverlayCell, rowOf: Map<string, number>) {
   return { x1: start, x2: end, y1: position, y2: position, ...style }
 }
 
-export function overlayGroups(layer: SVGGElement): { ranges: SVGGElement, values: SVGGElement } {
+function whiskerPath(segments: [number, number][][], orientation: OverlayGeometry['orientation']): string {
+  const place = ([along, across]: [number, number]) => orientation === 'horizontal' ? `${across},${along}` : `${along},${across}`
+  return segments.map(([from, to]) => `M${place(from)}L${place(to)}`).join('')
+}
+
+function whiskerAttrs(cell: OverlayCell, rowOf: Map<string, number>) {
+  const geom = cell.geom
+  const offset = geom.base(rowOf.get(cell.label) ?? 0)
+  const high = geom.value(offset + cell.high)
+  const low = geom.value(offset + cell.low)
+  const center = geom.slotStart(cell.label) + geom.slotSize / 2
+  const cap = Math.min(geom.slotSize * WHISKER_CAP_SHARE, WHISKER_CAP_MAX)
+  const half = cap / 2
+  const segments: [number, number][][] = [
+    [[center - half, high], [center + half, high]],
+    [[center, high], [center, low]],
+    [[center - half, low], [center + half, low]],
+  ]
+  const d = whiskerPath(segments, geom.orientation)
+  return { 'd': d, 'fill': 'none', 'stroke': cell.overlay.color, 'stroke-width': WHISKER_STROKE_WIDTH, 'stroke-opacity': cell.overlay.opacity, 'opacity': 1 }
+}
+
+export function overlayGroups(layer: SVGGElement): { ranges: SVGGElement, whiskers: SVGGElement, values: SVGGElement } {
   const group = (name: string) => {
     const existing = layer.querySelector<SVGGElement>(`:scope > .${name}`)
     if (existing) {
@@ -382,8 +407,9 @@ export function overlayGroups(layer: SVGGElement): { ranges: SVGGElement, values
     return d3.select(layer).append('g').attr('class', name).node()!
   }
   const ranges = group('bc-overlays-ranges')
+  const whiskers = group('bc-overlays-whiskers')
   const values = group('bc-overlays-values')
-  return { ranges, values }
+  return { ranges, whiskers, values }
 }
 
 export function drawOverlays(container: HTMLElement, layer: SVGGElement, overlays: ResolvedOverlay[], labels: string[], rows: number[], geometryFor: OverlayGeometryFor): void {
@@ -393,7 +419,8 @@ export function drawOverlays(container: HTMLElement, layer: SVGGElement, overlay
   const cells = overlayCells(overlays, labels, rows, patternIds, geometryFor)
   const rowOf = new Map(labels.map((label, index) => [label, rows[index]] as const))
   const allRanges = cells.filter(cell => cell.overlay.kind === 'range')
-  const ranges = allRanges.filter(cell => cell.overlay.pattern !== 'stripes')
+  const ranges = allRanges.filter(cell => cell.overlay.pattern === 'solid')
+  const whiskers = allRanges.filter(cell => cell.overlay.pattern === 'whisker')
   const striped = allRanges.filter(cell => cell.overlay.pattern === 'stripes')
   const values = cells.filter(cell => cell.overlay.kind === 'value')
   const faded = (attrs: Record<string, string | number>) => ({ ...attrs, opacity: 0 })
@@ -409,6 +436,19 @@ export function drawOverlays(container: HTMLElement, layer: SVGGElement, overlay
       .attr('data-series', (cell: OverlayCell) => cell.overlay.title),
     attrs: cell => rangeAttrs(cell, rowOf),
     enterFrom: cell => faded(rangeAttrs(cell, rowOf)),
+    exitTo: () => ({ opacity: 0 }),
+  })
+  featureJoin<OverlayCell>(orch, {
+    role: 'mark-per-cell',
+    parent: groups.whiskers,
+    selector: '.bc-overlay-whisker',
+    data: whiskers,
+    key: cell => cell.key,
+    insert: sel => sel.append('path')
+      .attr('class', 'bc-overlay bc-overlay-whisker')
+      .attr('data-series', (cell: OverlayCell) => cell.overlay.title),
+    attrs: cell => whiskerAttrs(cell, rowOf),
+    enterFrom: cell => faded(whiskerAttrs(cell, rowOf)),
     exitTo: () => ({ opacity: 0 }),
   })
   featureJoin<OverlayCell>(orch, {
@@ -509,8 +549,10 @@ export function mountOverlayLayer(container: HTMLElement, parent: SVGGElement, p
   for (const el of prior) {
     const isStriped = el.classList.contains('bc-overlay-stripes')
     const isRange = el.classList.contains('bc-overlay-range')
+    const isWhisker = el.classList.contains('bc-overlay-whisker')
     const rangeTarget = isStriped ? underBarsGroup(layer) : groups.ranges
-    const target = isRange ? rangeTarget : groups.values
+    const valueTarget = isWhisker ? groups.whiskers : groups.values
+    const target = isRange ? rangeTarget : valueTarget
     target.appendChild(el)
   }
   drawOverlays(container, layer, overlays, labels, rows, geometryFor)
@@ -711,6 +753,7 @@ export interface OverlayLegendPlacement {
 
 const KEY_SWATCH_SIZE = 12
 const KEY_LINE_HEIGHT = 3
+const KEY_WHISKER_PATH = 'M3,1L9,1M6,1L6,11M3,11L9,11'
 
 function sharedStripePatternId(svg: SVGSVGElement | null, overlay: ResolvedOverlay): string | undefined {
   const patterns = Array.from(svg?.querySelectorAll('defs pattern[data-overlay-key]') ?? [])
@@ -726,6 +769,20 @@ function styleKeySwatch(swatch: SVGRectElement, overlay: ResolvedOverlay): void 
       .attr('height', KEY_LINE_HEIGHT)
       .attr('fill', overlay.color)
       .attr('fill-opacity', overlay.opacity)
+    return
+  }
+  if (overlay.pattern === 'whisker') {
+    selection.attr('fill', 'none')
+    const x = Number(selection.attr('x') ?? 0)
+    const y = Number(selection.attr('y') ?? 0)
+    d3.select(swatch.parentNode as SVGGElement).insert('path', 'rect + *')
+      .attr('class', 'bc-overlay-key-whisker')
+      .attr('transform', `translate(${x},${y})`)
+      .attr('d', KEY_WHISKER_PATH)
+      .attr('fill', 'none')
+      .attr('stroke', overlay.color)
+      .attr('stroke-width', WHISKER_STROKE_WIDTH)
+      .attr('stroke-opacity', overlay.opacity)
     return
   }
   const patternId = overlay.pattern === 'stripes' ? sharedStripePatternId(swatch.ownerSVGElement, overlay) : undefined
