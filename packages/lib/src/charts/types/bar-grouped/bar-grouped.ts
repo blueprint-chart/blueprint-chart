@@ -23,7 +23,7 @@ import { Orientation, ValueLabelPosition, LabelPosition, ScaleType, SortMode } f
 import { shouldRenderValueLabel, estimateTextInk } from '../../value-label-fit'
 import { CATEGORY_LABEL_HEIGHT, categoryLabelLineHeight, categoryLabelsNeedTheirOwnLine } from '../../category-label-line'
 import { DEFAULT_COLORS } from '../../palettes'
-import { resolveOverlays, barCue, rowIndex, cueLabelFill, overlayDomainValues, overlayTooltipFormat, mountOverlayLayer, drawOverlayLegend, planOverlayLabels, drawOverlayDirectLabelGroup, clearingGeometry, type OverlayGeometry, type ResolvedOverlay } from '../../overlays/overlays'
+import { resolveOverlays, barCue, rowIndex, cueLabelFill, overlayDomainValues, overlayTooltipFormat, mountOverlayLayer, drawOverlayLegend, planOverlayLabels, drawOverlayDirectLabelGroup, clearingGeometry, whiskerEdge, type OverlayGeometry, type ResolvedOverlay } from '../../overlays/overlays'
 
 interface GroupedBarDatum {
   label: string
@@ -387,9 +387,11 @@ export function render(
     const barWidth = Math.max(0, x(datum.value) - x(0))
     const barRight = x(0) + barWidth
     const cy = (y0(datum.label) ?? 0) + categoryLabelOffset + (y1(datum.slot) ?? 0) + y1.bandwidth() / 2
+    const row = rowOf.get(datum.label) ?? -1
+    const edge = whiskerEdge(overlays, row, datum.seriesName, { value: x, base: () => 0 }, barRight, 1)
 
     const isInside = valueLabelPos === ValueLabelPosition.Inside
-      || (valueLabelPos === ValueLabelPosition.Auto && barWidth > 30)
+      || (edge === undefined && valueLabelPos === ValueLabelPosition.Auto && barWidth > 30)
 
     if (!shouldRenderValueLabel({
       text: String(datum.value),
@@ -410,7 +412,8 @@ export function render(
       fill = insideLabelFill(datum, seriesColor)
     }
     else {
-      tx = barRight + 4
+      const outsideFrom = edge === undefined ? barRight : Math.min(width, edge)
+      tx = outsideFrom + 4
       anchor = 'start'
       fill = 'currentColor'
       valueLabelEnds.set(`${datum.label}\0${datum.seriesName}`, tx + estimateTextInk(String(datum.value)))

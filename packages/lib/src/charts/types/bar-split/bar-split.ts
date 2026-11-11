@@ -24,7 +24,7 @@ import { buildColorOverrides } from '../../plugins/colorize'
 import { shouldRenderValueLabel, estimateTextInk } from '../../value-label-fit'
 import { CATEGORY_LABEL_HEIGHT, categoryLabelLineHeight, categoryLabelsNeedTheirOwnLine } from '../../category-label-line'
 import { DEFAULT_COLORS } from '../../palettes'
-import { resolveOverlays, barCue, rowIndex, cueLabelFill, overlayDomainValues, overlayTooltipFormat, mountOverlayLayer, drawOverlayLegend, planOverlayLabels, drawOverlayDirectLabelGroup, clearingGeometry, type OverlayGeometry, type ResolvedOverlay } from '../../overlays/overlays'
+import { resolveOverlays, barCue, rowIndex, cueLabelFill, overlayDomainValues, overlayTooltipFormat, mountOverlayLayer, drawOverlayLegend, planOverlayLabels, drawOverlayDirectLabelGroup, clearingGeometry, whiskerEdge, type OverlayGeometry, type ResolvedOverlay } from '../../overlays/overlays'
 
 const PANEL_GAP = 16
 const VALUE_LABEL_GAP = 4
@@ -470,6 +470,10 @@ export function render(
     const labelInk = estimateTextInk(String(datum.value))
     const barHeight = Math.max(0, y.bandwidth() - categoryLabelOffset)
     const cy = (y(datum.label) ?? 0) + categoryLabelOffset + barHeight / 2
+    const row = rowOf.get(datum.label) ?? -1
+    const value = (v: number) => panel.xOffset + panel.xScale(v)
+    const edge = whiskerEdge(overlays, row, datum.seriesName, { value, base: () => 0 }, barEnd, outward)
+    const outsideFrom = edge ?? barEnd
 
     // A label wider than the room left in its own panel used to be moved before
     // the bar's start, which put it on the previous panel's bars, or on the
@@ -477,11 +481,11 @@ export function render(
     // series (#39). It goes inside its own bar instead, and the fit check below
     // drops it when the bar is too small to hold it either.
     const fitsOutside = isNegative
-      ? barEnd - VALUE_LABEL_GAP - labelInk >= panel.xOffset
-      : barEnd + VALUE_LABEL_GAP + labelInk <= panel.xOffset + panel.panelWidth
+      ? outsideFrom - VALUE_LABEL_GAP - labelInk >= panel.xOffset
+      : outsideFrom + VALUE_LABEL_GAP + labelInk <= panel.xOffset + panel.panelWidth
     const isInside = valueLabelPos === ValueLabelPosition.Inside
       || !fitsOutside
-      || (valueLabelPos === ValueLabelPosition.Auto && datum.barWidth > 30)
+      || (edge === undefined && valueLabelPos === ValueLabelPosition.Auto && datum.barWidth > 30)
 
     if (!shouldRenderValueLabel({
       text: String(datum.value),
@@ -494,7 +498,8 @@ export function render(
     }
 
     const direction = isInside ? -outward : outward
-    const tx = barEnd + direction * VALUE_LABEL_GAP
+    const labelFrom = isInside ? barEnd : outsideFrom
+    const tx = labelFrom + direction * VALUE_LABEL_GAP
     const anchor = direction < 0 ? 'end' : 'start'
     if (anchor === 'start') {
       valueLabelEnds.set(`${datum.label}\0${datum.seriesName}`, tx + labelInk)

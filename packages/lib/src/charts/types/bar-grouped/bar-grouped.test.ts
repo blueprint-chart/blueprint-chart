@@ -667,4 +667,51 @@ describe('bar-grouped', () => {
       expect(container.innerHTML).toBe(auto)
     })
   })
+
+  describe('whisker value labels', () => {
+    const whiskerData = {
+      labels: ['A'],
+      values: [],
+      series: [
+        { name: 'Value', values: [50] },
+        { name: 'Other', values: [50] },
+        { name: 'Low', values: [40] },
+        { name: 'High', values: [80] },
+      ],
+    }
+    const overlays = [{ columns: ['Low', 'High'], bar: 'Value', pattern: 'whisker' as const }]
+    const axis = { horizontalAxis: { range: { min: 0, max: 100 } } }
+
+    function stem(): number[] {
+      const d = container.querySelector('.bc-overlay-whisker')!.getAttribute('d')!
+      return d.match(/-?[\d.]+/g)!.map(Number)
+    }
+
+    function label(series: string): Element {
+      return container.querySelector(`.bc-value-label[data-series="${series}"]`)!
+    }
+
+    it('places a wide bar label past the whisker', () => {
+      render(container, whiskerData, { valueLabels: true, overlays, ...axis })
+      const right = stem()[0]
+      expect(Number(label('Value').getAttribute('x'))).toBeCloseTo(right + 5)
+      expect(label('Value').getAttribute('text-anchor')).toBe('start')
+    })
+
+    it('keeps the neighbor label inside its wide bar', () => {
+      render(container, whiskerData, { valueLabels: true, overlays, ...axis })
+      expect(label('Other').getAttribute('text-anchor')).toBe('end')
+    })
+
+    it('keeps an explicit inside label inside the bar', () => {
+      render(container, whiskerData, { valueLabels: true, valueLabelPosition: ValueLabelPosition.Inside, overlays, ...axis })
+      expect(label('Value').getAttribute('text-anchor')).toBe('end')
+    })
+
+    it('keeps the label on the plot edge when the axis range cuts the whisker', () => {
+      render(container, whiskerData, { valueLabels: true, overlays, horizontalAxis: { range: { min: 0, max: 60 } } })
+      const plotWidth = Number(container.querySelector('clipPath rect')!.getAttribute('width'))
+      expect(Number(label('Value').getAttribute('x'))).toBeLessThanOrEqual(plotWidth + 4)
+    })
+  })
 })

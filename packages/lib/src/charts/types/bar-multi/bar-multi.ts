@@ -24,7 +24,7 @@ import { highlightTargetSet, highlightOpacity, CUE_FADE_OPACITY } from '../../pl
 import { buildColorOverrides } from '../../plugins/colorize'
 import { DEFAULT_COLORS } from '../../palettes'
 import { formatValueLabel } from '../../format-helpers'
-import { resolveOverlays, barCue, rowIndex, cueLabelFill, overlayDomainValues, overlayTooltipFormat, mountOverlayLayer, drawOverlayLegend, overlayKeyEntries, type OverlayGeometry, type ResolvedOverlay } from '../../overlays/overlays'
+import { resolveOverlays, barCue, rowIndex, cueLabelFill, overlayDomainValues, overlayTooltipFormat, mountOverlayLayer, drawOverlayLegend, overlayKeyEntries, whiskerEdge, type OverlayGeometry, type ResolvedOverlay } from '../../overlays/overlays'
 
 /** Gap between a bar's end and the label just outside it. */
 const LABEL_GAP_PX = 4
@@ -379,6 +379,15 @@ export function render(
     return barTop + barHeight / 2 // middle
   }
 
+  const labelEdge = (datum: { label: string, seriesName: string }, barEnd: number, outward: 1 | -1) => {
+    const row = rowOf.get(datum.label) ?? -1
+    const edge = whiskerEdge(overlays, row, datum.seriesName, { value: y, base: () => 0 }, barEnd, outward)
+    if (edge === undefined) {
+      return barEnd
+    }
+    return Math.max(0, Math.min(height, edge))
+  }
+
   // Per-series value labels
   const vlGroup = d3.select(chartArea).append('g').attr('class', 'bc-value-labels')
   flatData.forEach((datum) => {
@@ -415,13 +424,15 @@ export function render(
       if (isNegative) {
         // Place below the bar for negative values
         const dlIsOutside = hasDl && resolveBarDlMode(barHeight) === ValueLabelPosition.Outside
-        cy = dlIsOutside ? barBottom + STACKED_LABEL_GAP_PX : barBottom + LABEL_GAP_PX
+        const below = labelEdge(datum, barBottom, 1)
+        cy = dlIsOutside ? below + STACKED_LABEL_GAP_PX : below + LABEL_GAP_PX
         baseline = 'hanging'
       }
       else {
         // Place above the bar for positive values
         const dlIsOutside = hasDl && resolveBarDlMode(barHeight) === ValueLabelPosition.Outside
-        cy = dlIsOutside ? barTop - STACKED_LABEL_GAP_PX : barTop - LABEL_GAP_PX
+        const above = labelEdge(datum, barTop, -1)
+        cy = dlIsOutside ? above - STACKED_LABEL_GAP_PX : above - LABEL_GAP_PX
         baseline = 'auto'
       }
     }
@@ -481,7 +492,7 @@ export function render(
     }
     else {
       labelEl
-        .attr('y', barTop - LABEL_GAP_PX)
+        .attr('y', labelEdge(datum, barTop, -1) - LABEL_GAP_PX)
         .attr('fill', readableColor(barColor, bgColor))
     }
   })

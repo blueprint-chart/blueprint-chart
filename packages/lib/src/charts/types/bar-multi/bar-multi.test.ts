@@ -880,4 +880,48 @@ describe('bar-multi', () => {
       expect(swatch?.getAttribute('fill')).toBe(b.getAttribute('fill'))
     })
   })
+
+  describe('whisker value labels', () => {
+    const whiskerData = {
+      labels: ['A'],
+      values: [],
+      series: [
+        { name: 'Value', values: [50] },
+        { name: 'Other', values: [50] },
+        { name: 'Low', values: [40] },
+        { name: 'High', values: [80] },
+      ],
+    }
+    const overlays = [{ columns: ['Low', 'High'], bar: 'Value', pattern: 'whisker' as const }]
+    const axis = { verticalAxis: { range: { min: 0, max: 100 } } }
+
+    function stem(): number[] {
+      const d = container.querySelector('.bc-overlay-whisker')!.getAttribute('d')!
+      return d.match(/-?[\d.]+/g)!.map(Number)
+    }
+
+    function label(series: string): Element {
+      return container.querySelector(`.bc-value-label[data-series="${series}"]`)!
+    }
+
+    it('places the value label above the whisker', () => {
+      render(container, whiskerData, { valueLabels: true, overlays, ...axis })
+      const top = stem()[1]
+      expect(Number(label('Value').getAttribute('y'))).toBeCloseTo(top - 1 - 4)
+    })
+
+    it('keeps the neighbor label on its own bar', () => {
+      render(container, whiskerData, { valueLabels: true, overlays, ...axis })
+      const bar = container.querySelector('.bc-bar[data-series="Other"]')!
+      expect(Number(label('Other').getAttribute('y'))).toBeCloseTo(Number(bar.getAttribute('y')) - 4)
+    })
+
+    it('stacks the direct label and the value label above the whisker', () => {
+      render(container, whiskerData, { valueLabels: true, directLabelling: true, overlays, ...axis })
+      const top = stem()[1]
+      const direct = container.querySelector('.bc-direct-label[data-series="Value"]')!
+      expect(Number(direct.getAttribute('y'))).toBeCloseTo(top - 1 - 4)
+      expect(Number(label('Value').getAttribute('y'))).toBeCloseTo(top - 1 - 16)
+    })
+  })
 })
