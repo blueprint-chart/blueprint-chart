@@ -226,6 +226,9 @@ function drawStripePatterns(layer: SVGGElement, overlays: ResolvedOverlay[]): Ma
     const id = `bc-overlay-stripes-${suffix}-${index}`
     ids.set(overlay.key, id)
     defs.select(`#${id}`).remove()
+    defs.selectAll('pattern').filter(function () {
+      return (this as Element).getAttribute('data-overlay-key') === overlay.key
+    }).remove()
     const pattern = defs.append('pattern')
       .attr('id', id)
       .attr('data-overlay-key', overlay.key)

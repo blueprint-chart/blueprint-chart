@@ -1820,6 +1820,17 @@ describe('bar-vertical', () => {
         expect(mark.getAttribute('fill')).toBe(swatch.getAttribute('fill'))
       })
 
+      it('colors the key from the current pattern after a stripes overlay moves up', () => {
+        const red = { columns: ['Min', 'Max'], title: 'A', pattern: 'stripes' as const, color: '#ff0000' }
+        const green = { columns: ['Last', 'Max'], title: 'B', pattern: 'stripes' as const, color: '#00ff00' }
+        render(container, overlayData, { overlays: [red, green] })
+        render(container, overlayData, { overlays: [{ ...green, color: '#0000ff' }] })
+        const swatch = container.querySelector('.bc-legend-item rect')!
+        const id = swatch.getAttribute('fill')!.slice(5, -1)
+        const stripe = container.querySelector(`pattern[id="${id}"] rect`)!
+        expect(stripe.getAttribute('fill')).toBe('#0000ff')
+      })
+
       it('draws no key when there are no overlays', () => {
         render(container, overlayData)
         expect(container.querySelector('.bc-legend')).toBeNull()
