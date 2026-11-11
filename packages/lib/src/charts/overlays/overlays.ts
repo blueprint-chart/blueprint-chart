@@ -254,19 +254,43 @@ function drawStripePatterns(layer: SVGGElement, overlays: ResolvedOverlay[]): Ma
     defs.selectAll('pattern').filter(function () {
       return (this as Element).getAttribute('data-overlay-key') === overlay.key
     }).remove()
-    const pattern = defs.append('pattern')
-      .attr('id', id)
-      .attr('data-overlay-key', overlay.key)
-      .attr('patternUnits', 'userSpaceOnUse')
-      .attr('width', STRIPE_SIZE)
-      .attr('height', STRIPE_SIZE)
-      .attr('patternTransform', 'rotate(45)')
-    pattern.append('rect')
-      .attr('width', STRIPE_SIZE / 2)
-      .attr('height', STRIPE_SIZE)
-      .attr('fill', overlay.color)
+    appendStripePattern(defs.node()!, id, overlay)
   })
+  keepLeavingStripePatterns(layer, defs.node()!, ids)
   return ids
+}
+
+function appendStripePattern(defs: SVGDefsElement, id: string, overlay: ResolvedOverlay): void {
+  const pattern = d3.select(defs).append('pattern')
+    .attr('id', id)
+    .attr('data-overlay-key', overlay.key)
+    .attr('patternUnits', 'userSpaceOnUse')
+    .attr('width', STRIPE_SIZE)
+    .attr('height', STRIPE_SIZE)
+    .attr('patternTransform', 'rotate(45)')
+  pattern.append('rect')
+    .attr('width', STRIPE_SIZE / 2)
+    .attr('height', STRIPE_SIZE)
+    .attr('fill', overlay.color)
+}
+
+function keepLeavingStripePatterns(layer: SVGGElement, defs: SVGDefsElement, ids: Map<string, string>): void {
+  const parent = layer.parentNode as SVGGElement
+  const suffix = clipSuffix(layer)
+  const leavingIds = new Map<string, string>()
+  const bands = d3.select(parent).selectAll<SVGRectElement, OverlayCell | undefined>('.bc-overlays-under .bc-overlay-stripes')
+  bands.each(function (cell) {
+    if (!cell || ids.has(cell.overlay.key)) {
+      return
+    }
+    let id = leavingIds.get(cell.overlay.key)
+    if (!id) {
+      id = `bc-overlay-stripes-${suffix}-leaving-${leavingIds.size}`
+      leavingIds.set(cell.overlay.key, id)
+      appendStripePattern(defs, id, cell.overlay)
+    }
+    this.setAttribute('fill', `url(#${id})`)
+  })
 }
 
 const MASK_EXTENT = 100_000
@@ -497,15 +521,20 @@ function seedLeavingHoles(holes: SVGGElement, under: SVGGElement, cells: Overlay
   }
 }
 
+function clearBarMasks(parent: SVGGElement): void {
+  const bars = parent.querySelectorAll('.bc-bar[mask]')
+  for (const bar of bars) {
+    bar.removeAttribute('mask')
+  }
+}
+
 function drawStripedRanges(container: HTMLElement, layer: SVGGElement, cells: OverlayCell[], rowOf: Map<string, number>): void {
   const parent = layer.parentNode as SVGGElement
   const bars = parent.querySelectorAll('.bc-bar')
   const hasMask = Boolean(layer.ownerSVGElement?.querySelector(`mask[id="bc-overlay-mask-${clipSuffix(layer)}"]`))
   const hasPriorStripes = Boolean(parent.querySelector('.bc-overlays-under .bc-overlay-stripes'))
   if (!cells.length && !hasMask && !hasPriorStripes) {
-    for (const bar of bars) {
-      bar.removeAttribute('mask')
-    }
+    clearBarMasks(parent)
     return
   }
   const orch = getSceneTransition(container)
@@ -559,6 +588,7 @@ function drawStripedRanges(container: HTMLElement, layer: SVGGElement, cells: Ov
 
 export function mountOverlayLayer(container: HTMLElement, parent: SVGGElement, prior: Element[], overlays: ResolvedOverlay[], labels: string[], rows: number[], geometryFor: OverlayGeometryFor): void {
   if (!overlays.length && !prior.length) {
+    clearBarMasks(parent)
     return
   }
   const layer = d3.select(parent).append('g').attr('class', 'bc-overlays').node()!

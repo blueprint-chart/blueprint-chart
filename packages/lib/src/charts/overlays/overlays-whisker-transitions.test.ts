@@ -136,18 +136,25 @@ describe('whisker overlays across scenes', () => {
     const midHole = hole ? opacity(hole) : null
     const midMaskId = bar.getAttribute('mask')?.slice(5, -1)
     const midMask = container.querySelector(`mask[id="${midMaskId}"]`)
+    const band = container.querySelector('.bc-overlay-stripes')
+    const bandPatternId = band?.getAttribute('fill')?.slice(5, -1)
+    const midBandPattern = container.querySelector(`pattern[id="${bandPatternId}"]`)
     await wait(1500)
     expect(midHole).toBeGreaterThan(0)
     expect(midHole).toBeLessThan(1)
     expect(midMask).not.toBeNull()
+    expect(midBandPattern).not.toBeNull()
     expect(container.querySelector('.bc-overlay-mask-range')).toBeNull()
   })
 
-  it('drops the bar mask once the faded stripe holes are gone', async () => {
+  it.each([
+    { pattern: 'whisker', overlays: whisker },
+    { pattern: 'no overlay', overlays: [] },
+  ])('drops the bar mask once the faded stripe holes are gone, going to $pattern', async ({ overlays }) => {
     render(container, parseData(LOW_HIGH), { overlays: stripes })
-    scene(LOW_HIGH, { overlays: whisker })
+    scene(LOW_HIGH, { overlays })
     await wait(1800)
-    scene(LOW_HIGH, { overlays: whisker })
+    scene(LOW_HIGH, { overlays })
     await wait(1800)
     const masked = container.querySelectorAll('.bc-bar[mask]')
     expect(masked).toHaveLength(0)
