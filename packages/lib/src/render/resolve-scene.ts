@@ -1,6 +1,6 @@
 import type { ChartDefinition, ResolvedChartState } from './types'
-import type { ChartTypeOptions, FrameOptions, AnnotationConfig } from '../charts/types'
-import type { SceneNode, ColorizeNode, HighlightNode, AreaFillNode, OverlayNode, SeriesNode, TransformNode } from '../dsl/types'
+import type { ChartTypeOptions, FrameOptions, AnnotationConfig, OverlayConfig } from '../charts/types'
+import type { SceneNode, ColorizeNode, HighlightNode, AreaFillNode, SeriesNode, TransformNode } from '../dsl/types'
 import { LabelPosition, SortMode } from '../enums'
 import { extractChartTypeOptions, propertyMap, dataEntriesToString, convertColorizes, convertHighlights, convertAreaFills, convertOverlays, convertAnnotations, convertSeriesOverrides } from '../dsl/converter'
 import { getChartTypeDefaults, resolveChartTypeOptions } from '../charts/resolve'
@@ -69,7 +69,6 @@ interface SceneFold {
   colorizes: ColorizeNode[]
   highlights: HighlightNode[]
   areaFills: AreaFillNode[]
-  overlays: OverlayNode[]
   seriesOverrides: SeriesNode[]
   transforms: TransformNode[]
 }
@@ -81,58 +80,47 @@ function emptyFold(): SceneFold {
     colorizes: [],
     highlights: [],
     areaFills: [],
-    overlays: [],
     seriesOverrides: [],
     transforms: [],
   }
 }
 
-function foldScenes(scenes: SceneNode[], index: number, baseChartType: string): SceneFold {
-  const fold = emptyFold()
-  for (let i = 0; i <= index; i++) {
-    const s = scenes[i]
-    const sProps = propertyMap(s.properties)
-    const typeOverride = sProps.get('type') as string | undefined
-    if (typeOverride) {
-      fold.chartType = typeOverride
-    }
-    const effectiveType = fold.chartType ?? baseChartType
-    if (s.data) {
-      fold.data = s.data
-    }
-    const sceneTypeOpts = extractChartTypeOptions(effectiveType, s.properties)
-    fold.chartTypeOptions = { ...fold.chartTypeOptions, ...sceneTypeOpts }
-    if (s.colorizes.length > 0) {
-      fold.colorizes = s.colorizes
-    }
-    else if (s.data) {
-      fold.colorizes = []
-    }
-    // highlights are scene-only: only the target scene's highlights apply
-    if (i === index) {
-      fold.highlights = s.highlights
-    }
-    if (s.areaFills.length > 0) {
-      fold.areaFills = s.areaFills
-    }
-    if (s.overlays.length > 0) {
-      fold.overlays = s.overlays
-    }
-    if (s.series.length > 0) {
-      fold.seriesOverrides = s.series
-    }
-    if (s.transforms.length > 0) {
-      fold.transforms = [...fold.transforms, ...s.transforms]
-    }
-    for (const [k, v] of sProps) {
-      fold.properties.set(k, v)
-    }
+function foldScene(fold: SceneFold, s: SceneNode, baseChartType: string): void {
+  const sProps = propertyMap(s.properties)
+  const typeOverride = sProps.get('type') as string | undefined
+  if (typeOverride) {
+    fold.chartType = typeOverride
   }
-  return fold
+  const effectiveType = fold.chartType ?? baseChartType
+  if (s.data) {
+    fold.data = s.data
+  }
+  const sceneTypeOpts = extractChartTypeOptions(effectiveType, s.properties)
+  fold.chartTypeOptions = { ...fold.chartTypeOptions, ...sceneTypeOpts }
+  if (s.colorizes.length > 0) {
+    fold.colorizes = s.colorizes
+  }
+  else if (s.data) {
+    fold.colorizes = []
+  }
+  // highlights are scene-only: the last folded scene is the target one
+  fold.highlights = s.highlights
+  if (s.areaFills.length > 0) {
+    fold.areaFills = s.areaFills
+  }
+  if (s.series.length > 0) {
+    fold.seriesOverrides = s.series
+  }
+  if (s.transforms.length > 0) {
+    fold.transforms = [...fold.transforms, ...s.transforms]
+  }
+  for (const [k, v] of sProps) {
+    fold.properties.set(k, v)
+  }
 }
 
-// `repeat` is the number of EXTRA frames an annotation carries into beyond its
-// own (undefined/absent → 0 → shows once). So it is visible across
+// `repeat` is the number of EXTRA frames an annotation or overlay carries into
+// beyond its own (undefined/absent → 0 → shows once). So it is visible across
 // [anchor, anchor + extra] inclusive.
 function repeatVisible(anchor: number, repeat: number | 'always' | undefined, index: number): boolean {
   if (index < anchor) {
@@ -145,21 +133,49 @@ function repeatVisible(anchor: number, repeat: number | 'always' | undefined, in
   return index <= anchor + extra
 }
 
-interface AnchoredAnnotation {
+interface Anchored<T> {
   anchor: number
-  key: string
-  config: AnnotationConfig
+  config: T
 }
 
-export function resolveScene(
-  def: ChartDefinition,
-  sceneIndex: number | undefined,
-): ResolvedChartState {
+interface AnchoredItems {
+  annotations: Anchored<AnnotationConfig>[]
+  overlays: Anchored<OverlayConfig>[]
+}
+
+// Top-level annotations and overlays belong to the base chart, the first frame
+// before scene 0, so they anchor at -1: with no repeat they show only on the
+// base render (sceneIndex == null), `repeat = N` carries them into the first N
+// scenes, and `always` shows them in every scene. Scene items anchor at their
+// own scene index.
+function anchorItems(def: ChartDefinition, scenes: SceneNode[]): AnchoredItems {
+  const annotations: Anchored<AnnotationConfig>[] = (def.annotations ?? []).map((config, i) => ({
+    anchor: -1,
+    config: { ...config, key: config.key ?? `base:${i}:${config.kind}` },
+  }))
+  const overlays: Anchored<OverlayConfig>[] = (def.overlays ?? []).map(config => ({ anchor: -1, config }))
+  scenes.forEach((scene, j) => {
+    convertAnnotations(scene.annotations).forEach((config, i) => {
+      annotations.push({ anchor: j, config: { ...config, key: config.key ?? `s${j}:${i}:${config.kind}` } })
+    })
+    for (const config of convertOverlays(scene.overlays)) {
+      overlays.push({ anchor: j, config })
+    }
+  })
+  return { annotations, overlays }
+}
+
+function visibleAt<T extends { repeat?: number | 'always' }>(items: Anchored<T>[], index: number): T[] {
+  const visible = items.filter(({ anchor, config }) => repeatVisible(anchor, config.repeat, index))
+  return visible.map(({ config }) => config)
+}
+
+function resolveBase(def: ChartDefinition): ResolvedChartState {
   const baseOptions = def.options ?? (def.properties
     ? resolveChartTypeOptions(def.chartType, extractChartTypeOptions(def.chartType, def.properties))
     : {})
 
-  const base: ResolvedChartState = {
+  return {
     chartType: def.chartType,
     data: def.data,
     options: baseOptions,
@@ -177,12 +193,47 @@ export function resolveScene(
     sortMode: def.sortMode,
     theme: def.theme,
   }
+}
 
+export function resolveScene(
+  def: ChartDefinition,
+  sceneIndex: number | undefined,
+): ResolvedChartState {
+  const base = resolveBase(def)
   if (sceneIndex == null || !def.scenes || sceneIndex < 0 || sceneIndex >= def.scenes.length) {
     return base
   }
+  const scenes = def.scenes.slice(0, sceneIndex + 1)
+  const fold = emptyFold()
+  for (const scene of scenes) {
+    foldScene(fold, scene, def.chartType)
+  }
+  return resolveFolded(def, base, fold, anchorItems(def, scenes), sceneIndex)
+}
 
-  const fold = foldScenes(def.scenes, sceneIndex, def.chartType)
+/**
+ * Resolve every scene of `def` in one pass, folding each scene once. Same
+ * result as calling `resolveScene(def, i)` for each index.
+ */
+export function resolveScenes(def: ChartDefinition): ResolvedChartState[] {
+  const scenes = def.scenes ?? []
+  const base = resolveBase(def)
+  const anchored = anchorItems(def, scenes)
+  const fold = emptyFold()
+  return scenes.map((scene, i) => {
+    foldScene(fold, scene, def.chartType)
+    return resolveFolded(def, base, fold, anchored, i)
+  })
+}
+
+function resolveFolded(
+  def: ChartDefinition,
+  base: ResolvedChartState,
+  fold: SceneFold,
+  anchored: AnchoredItems,
+  sceneIndex: number,
+): ResolvedChartState {
+  const baseOptions = base.options
   const chartType = fold.chartType ?? def.chartType
 
   // S1: when a scene supplies data, re-parse it via the canonical chart-helpers
@@ -213,35 +264,13 @@ export function resolveScene(
       ? []
       : base.colorizes
 
-  const highlights = sceneIndex != null
-    ? convertHighlights(fold.highlights)
-    : base.highlights
+  const highlights = convertHighlights(fold.highlights)
 
   const areaFills = fold.areaFills.length > 0
     ? convertAreaFills(fold.areaFills)
     : base.areaFills
-  const overlays = fold.overlays.length > 0
-    ? convertOverlays(fold.overlays)
-    : base.overlays
-
-  // Top-level annotations belong to the base chart — the first frame, before
-  // scene 0 — so they anchor at -1: with no repeat they show only on the base
-  // render (sceneIndex == null, handled above), `repeat = N` carries them into
-  // the first N-1 scenes, and `always` shows them in every scene. Scene
-  // annotations anchor at their own scene index.
-  const anchored: AnchoredAnnotation[] = (def.annotations ?? []).map((config, i) => ({
-    anchor: -1,
-    key: config.key ?? `base:${i}:${config.kind}`,
-    config,
-  }))
-  for (let j = 0; j <= sceneIndex; j++) {
-    convertAnnotations(def.scenes[j].annotations).forEach((config, i) => {
-      anchored.push({ anchor: j, key: config.key ?? `s${j}:${i}:${config.kind}`, config })
-    })
-  }
-  const annotations = anchored
-    .filter(({ anchor, config }) => repeatVisible(anchor, config.repeat, sceneIndex))
-    .map(({ key, config }) => ({ ...config, key }))
+  const overlays = visibleAt(anchored.overlays, sceneIndex)
+  const annotations = visibleAt(anchored.annotations, sceneIndex)
 
   const seriesOverrides = fold.seriesOverrides.length > 0
     ? convertSeriesOverrides(fold.seriesOverrides)

@@ -876,6 +876,12 @@ describe('convertOverlays', () => {
     ])
   })
 
+  it('reads repeat like an annotation does', () => {
+    const ast = parse('chart bar-vertical {\n  overlay "A" {\n    repeat = true\n  }\n  overlay "B" {\n    repeat = 2\n  }\n  overlay "C" {\n    repeat = false\n  }\n}')
+    const repeats = convertOverlays(ast.overlays).map(overlay => overlay.repeat)
+    expect(repeats).toEqual(['always', 2, undefined])
+  })
+
   it.each(['""', 'true'])('reads a non-numeric muteIfCrosses = %s as NaN', (value) => {
     const ast = parse(`chart bar-vertical {\n  overlay "Lo" "Hi" {\n    muteIfCrosses = ${value}\n  }\n}`)
     const [overlay] = convertOverlays(ast.overlays)

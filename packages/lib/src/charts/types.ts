@@ -124,6 +124,8 @@ export interface OverlayConfig {
   aboveTitle?: string
   belowTitle?: string
   bar?: string
+  /** How many extra scenes this overlay carries into, or 'always'. Absent: its own frame only. */
+  repeat?: number | 'always'
 }
 
 export interface AnnotationLineConfig {

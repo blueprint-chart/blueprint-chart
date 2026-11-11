@@ -1,4 +1,4 @@
-import type { ChartNode, DataNode, SceneNode, PropertyNode, AnnotationNode, SeriesNode, TransformNode } from './types'
+import type { ChartNode, DataNode, SceneNode, PropertyNode, AnnotationNode, OverlayNode, SeriesNode, TransformNode } from './types'
 import type { ChartOptionDef } from '../charts/types'
 import { getChartOptions, listCharts } from '../charts/registry'
 import { listThemes } from '../charts/themes'
@@ -363,19 +363,30 @@ function validateAnnotations(
         suggestion: nearest(prop.key, allowed),
       })
     }
-    const repeatRaw = propertyMap(a.properties).get('repeat')
-    if (repeatRaw !== undefined) {
-      const repeatWord = String(repeatRaw).toLowerCase()
-      const ok = repeatWord === 'true' || repeatWord === 'false'
-        || (typeof repeatRaw === 'number' && Number.isInteger(repeatRaw) && repeatRaw >= 1)
-      if (!ok) {
-        errors.push({
-          code: 'invalid-annotation-repeat',
-          message: `repeat must be false, true, or a positive integer (got ${String(repeatRaw)})`,
-          path: `${basePath}.${label}[${i}].repeat`,
-        })
-      }
-    }
+    validateRepeat(a.properties, 'invalid-annotation-repeat', `${basePath}.${label}[${i}].repeat`, errors)
+  })
+}
+
+function validateRepeat(properties: PropertyNode[], code: string, path: string, errors: ValidationIssue[]): void {
+  const repeatRaw = propertyMap(properties).get('repeat')
+  if (repeatRaw === undefined) {
+    return
+  }
+  const repeatWord = String(repeatRaw).toLowerCase()
+  const ok = repeatWord === 'true' || repeatWord === 'false'
+    || (typeof repeatRaw === 'number' && Number.isInteger(repeatRaw) && repeatRaw >= 1)
+  if (!ok) {
+    errors.push({
+      code,
+      message: `repeat must be false, true, or a positive integer (got ${String(repeatRaw)})`,
+      path,
+    })
+  }
+}
+
+function validateOverlayRepeats(overlays: OverlayNode[], basePath: string, errors: ValidationIssue[]): void {
+  overlays.forEach((overlay, i) => {
+    validateRepeat(overlay.properties, 'invalid-overlay-repeat', `${basePath}.overlay[${i}].repeat`, errors)
   })
 }
 
@@ -524,6 +535,7 @@ export function validateChart(ast: ChartNode): ValidationResult {
 
   // 6. Annotation body keys (chart level).
   validateAnnotations(ast.annotations, 'chart', errors)
+  validateOverlayRepeats(ast.overlays, 'chart', errors)
 
   // 6b. Series override body keys (chart level).
   if (typeKnown) {
@@ -706,6 +718,7 @@ function validateScene(
 
   validateTransforms(scene.transforms, basePath, errors)
   validateAnnotations(scene.annotations, basePath, errors)
+  validateOverlayRepeats(scene.overlays, basePath, errors)
 }
 
 function validateScatterData(

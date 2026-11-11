@@ -812,7 +812,7 @@ describe('scene playback keys', () => {
 
 describe('overlay validation', () => {
   it('warns once for an overlay whose column a scene\'s data drops', () => {
-    const ast = parse(`chart bar-vertical {\n  overlay "Min" "Max" {}\n  data {\n    series = "V","Min","Max"\n    "A" = 1,0,2\n  }\n  scene "s" {\n    data {\n      series = "V","Min"\n      "A" = 1,0\n    }\n  }\n}`)
+    const ast = parse(`chart bar-vertical {\n  overlay "Min" "Max" {\n    repeat = true\n  }\n  data {\n    series = "V","Min","Max"\n    "A" = 1,0,2\n  }\n  scene "s" {\n    data {\n      series = "V","Min"\n      "A" = 1,0\n    }\n  }\n}`)
     const w = validateChart(ast).warnings.filter(x => x.code === 'overlay-unknown-column')
     expect(w).toHaveLength(1)
     expect(w[0].path).toBe('scene[0].overlay[0]')
@@ -841,5 +841,23 @@ describe('overlay validation', () => {
     const ast = parse(`chart bar-stacked {\n  stackMode = "percent"\n  overlay "T" {}\n  data {\n    series = "V","W","T"\n    "A" = 1,2,3\n  }\n}`)
     const w = validateChart(ast).warnings.filter(x => x.code === 'overlay-percent-stack')
     expect(w).toHaveLength(1)
+  })
+})
+
+describe('overlay repeat validation', () => {
+  it('accepts repeat = true / false / positive int', () => {
+    for (const r of ['true', 'false', '3']) {
+      const ast = parse(`chart bar-vertical {\n  overlay "T" { repeat = ${r} }\n  scene "s" {\n    overlay "T" { repeat = ${r} }\n  }\n}`)
+      const { errors } = validateChart(ast)
+      expect(errors.filter(e => e.code === 'invalid-overlay-repeat')).toHaveLength(0)
+    }
+  })
+
+  it('rejects repeat = 0, negative, or non-integer on chart and scene overlays', () => {
+    for (const r of ['0', '-2', '1.5']) {
+      const ast = parse(`chart bar-vertical {\n  overlay "T" { repeat = ${r} }\n  scene "s" {\n    overlay "T" { repeat = ${r} }\n  }\n}`)
+      const paths = validateChart(ast).errors.filter(e => e.code === 'invalid-overlay-repeat').map(e => e.path)
+      expect(paths).toEqual(['chart.overlay[0].repeat', 'scene[0].overlay[0].repeat'])
+    }
   })
 })

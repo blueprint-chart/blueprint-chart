@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { resolveScene, __resetTransformWarnings } from './resolve-scene'
+import { resolveScene, resolveScenes, __resetTransformWarnings } from './resolve-scene'
 import type { ChartDefinition } from './types'
 import { DslNodeType, AnnotationKind, ChartType, SortMode, LabelPosition, GridStyle, Interpolation } from '../enums'
 import { convertAnnotations } from '../dsl/converter'
@@ -464,21 +464,46 @@ describe('resolveScene overlays', () => {
     return astToDefinition(ast)
   }
 
-  it('inherits chart overlays in a scene that declares none', () => {
+  it('shows a chart overlay with no repeat only on the base frame', () => {
     const def = build('  scene "S" {\n  }\n')
-    const state = resolveScene(def, 0)
-    expect(state.overlays).toEqual([{ columns: ['A'] }])
+    expect(resolveScene(def, undefined).overlays).toEqual([{ columns: ['A'] }])
+    expect(resolveScene(def, 0).overlays).toEqual([])
   })
 
-  it('replaces inherited overlays with a scene list', () => {
-    const def = build('  scene "S" {\n    overlay "B" {}\n  }\n')
-    const state = resolveScene(def, 0)
-    expect(state.overlays).toEqual([{ columns: ['B'] }])
+  it('carries a chart overlay into the next N scenes with repeat = N', () => {
+    const ast = parse('chart bar-vertical {\n  overlay "A" {\n    repeat = 2\n  }\n  scene "S1" {\n  }\n  scene "S2" {\n  }\n  scene "S3" {\n  }\n}')
+    const def = astToDefinition(ast)
+    const seen = [0, 1, 2].map(i => resolveScene(def, i).overlays.map(o => o.columns[0]))
+    expect(seen).toEqual([['A'], ['A'], []])
   })
 
-  it('keeps the inherited list when a later scene declares none', () => {
+  it('shows a chart overlay in every scene with repeat = true', () => {
+    const ast = parse('chart bar-vertical {\n  overlay "A" {\n    repeat = true\n  }\n  scene "S1" {\n  }\n  scene "S2" {\n  }\n}')
+    const def = astToDefinition(ast)
+    expect(resolveScene(def, 1).overlays.map(o => o.columns[0])).toEqual(['A'])
+  })
+
+  it('shows a scene overlay with no repeat only in its own scene', () => {
     const def = build('  scene "S1" {\n    overlay "B" {}\n  }\n  scene "S2" {\n  }\n')
-    const state = resolveScene(def, 1)
-    expect(state.overlays).toEqual([{ columns: ['B'] }])
+    expect(resolveScene(def, 0).overlays.map(o => o.columns[0])).toEqual(['B'])
+    expect(resolveScene(def, 1).overlays).toEqual([])
+  })
+
+  it('keeps a repeating chart overlay next to a scene overlay', () => {
+    const ast = parse('chart bar-vertical {\n  overlay "A" {\n    repeat = true\n  }\n  scene "S" {\n    overlay "B" {}\n  }\n}')
+    const def = astToDefinition(ast)
+    expect(resolveScene(def, 0).overlays.map(o => o.columns[0])).toEqual(['A', 'B'])
+  })
+})
+
+describe('resolveScenes', () => {
+  it('matches resolveScene for every scene', () => {
+    const ast = parse(farmCompass)
+    const def = astToDefinition(ast)
+    const all = resolveScenes(def)
+    expect(all).toHaveLength(def.scenes!.length)
+    all.forEach((state, i) => {
+      expect(state).toEqual(resolveScene(def, i))
+    })
   })
 })

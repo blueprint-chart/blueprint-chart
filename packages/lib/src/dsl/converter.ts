@@ -232,12 +232,16 @@ export function convertOverlays(nodes: OverlayNode[]): OverlayConfig[] {
         overlay[key] = String(p.get(key))
       }
     }
+    const repeat = readRepeat(p)
+    if (repeat !== undefined) {
+      overlay.repeat = repeat
+    }
     return overlay
   })
 }
 
 /**
- * Read an annotation's `repeat` lifespan from its properties. `repeat` counts
+ * Read an annotation's or overlay's `repeat` lifespan from its properties. `repeat` counts
  * the EXTRA scenes the annotation carries into beyond its own:
  * `true` → 'always'; `false`/absent → once (undefined, no extra); a positive
  * integer N → N additional scenes (so the annotation shows on N+1 scenes total).
