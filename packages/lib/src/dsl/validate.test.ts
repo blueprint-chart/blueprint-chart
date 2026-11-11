@@ -818,6 +818,12 @@ describe('overlay validation', () => {
     expect(w[0].path).toBe('scene[0].overlay[0]')
   })
 
+  it('warns for every overlay that shares the same issue', () => {
+    const ast = parse(`chart bar-multi {\n  overlay "T1" {}\n  overlay "T2" {}\n  data {\n    series = "A","B","T1","T2"\n    "x" = 1,2,3,4\n  }\n}`)
+    const w = validateChart(ast).warnings.filter(x => x.code === 'overlay-bar-missing')
+    expect(w.map(x => x.path)).toEqual(['chart.overlay[0]', 'chart.overlay[1]'])
+  })
+
   it('does not warn for a valid overlay', () => {
     const ast = parse(`chart bar-vertical {\n  overlay "Min" "Max" {}\n  data {\n    series = "V","Min","Max"\n    "A" = 1,0,2\n  }\n}`)
     const w = validateChart(ast).warnings.filter(x => x.code.startsWith('overlay-'))

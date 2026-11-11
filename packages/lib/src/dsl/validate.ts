@@ -593,7 +593,7 @@ function validateOverlays(ast: ChartNode, warnings: ValidationIssue[]): void {
     const state = resolveScene(definition, sceneIndex)
     const issues = overlayIssues(state.data, state.overlays ?? [], state.chartType, rawData, state.options.stackMode)
     for (const issue of issues) {
-      const dedupKey = `${issue.code}|${issue.message}`
+      const dedupKey = `${issue.code}|${issue.key}|${issue.message}`
       if (seen.has(dedupKey)) {
         continue
       }
