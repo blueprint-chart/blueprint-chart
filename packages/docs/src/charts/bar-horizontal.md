@@ -119,7 +119,7 @@ chart bar-horizontal {
   description = "Core defence expenditure as a share of real GDP, 2026 estimates, percent"
   source = "NATO, Defence Investment of NATO Countries (2014-2026), Table 3"
   sourceUrl = "https://www.nato.int/content/dam/nato/webready/documents/finance/def-exp-2026-en.pdf"
-  note = "Figures are NATO estimates. Slovenia's figure dates from before its new government's review of defence spending."
+  note = "Figures are NATO estimates. Iceland has no armed forces and is not in NATO's tables. Slovenia's figure dates from before its new government's review of defence spending."
   sort = descending
 
   overlay "Target" {
