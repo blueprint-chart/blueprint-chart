@@ -9,7 +9,8 @@ import { parseData } from '../charts/parse-data'
 import { scatterIssues } from '../charts/types/scatter/issues'
 import { overlayIssues } from '../charts/overlays/overlays'
 import { astToDefinition } from '../render/ast-to-definition'
-import { resolveScene } from '../render/resolve-scene'
+import { resolveScene, resolveScenes } from '../render/resolve-scene'
+import type { ResolvedChartState } from '../render/types'
 import { dotPlotIssues } from '../charts/types/dot-plot/issues'
 import { TRANSFORM_TYPES } from '../transforms'
 import { SCENE_DURATION_MIN, SCENE_DURATION_MAX } from '../runtime/playback'
@@ -600,9 +601,7 @@ function validateOverlays(ast: ChartNode, warnings: ValidationIssue[]): void {
   }
   const definition = astToDefinition(ast)
   const seen = new Set<string>()
-  const baseRaw = ast.data ? dataEntriesToString(ast.data) : undefined
-  const pushIssues = (sceneIndex: number | undefined, basePath: string, rawData: string | undefined) => {
-    const state = resolveScene(definition, sceneIndex)
+  const pushIssues = (state: ResolvedChartState, basePath: string, rawData: string | undefined) => {
     const issues = overlayIssues(state.data, state.overlays ?? [], state.chartType, rawData, state.options.stackMode)
     for (const issue of issues) {
       const dedupKey = `${issue.code}|${issue.key}|${issue.message}`
@@ -613,13 +612,14 @@ function validateOverlays(ast: ChartNode, warnings: ValidationIssue[]): void {
       warnings.push(toValidationIssue(issue, `${basePath}.${issue.key ?? 'overlay'}`))
     }
   }
-  pushIssues(undefined, 'chart', baseRaw)
-  let raw = baseRaw
+  let raw = ast.data ? dataEntriesToString(ast.data) : undefined
+  pushIssues(resolveScene(definition, undefined), 'chart', raw)
+  const states = resolveScenes(definition)
   ast.scenes.forEach((scene, i) => {
     if (scene.data) {
       raw = dataEntriesToString(scene.data)
     }
-    pushIssues(i, `scene[${i}]`, raw)
+    pushIssues(states[i], `scene[${i}]`, raw)
   })
 }
 
