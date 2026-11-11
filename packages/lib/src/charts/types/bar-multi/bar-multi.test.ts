@@ -694,6 +694,18 @@ describe('bar-multi', () => {
       })
     })
 
+    it('keeps the stripes of two overlays that share their columns', () => {
+      const shared = [
+        { columns: ['Gold low', 'Gold high'], bar: 'Gold', pattern: 'stripes' as const, color: '#ff0000' },
+        { columns: ['Gold low', 'Gold high'], bar: 'Silver', pattern: 'stripes' as const, color: '#00ff00' },
+      ]
+      render(container, overlayData, { overlays: shared })
+      const fills = rangeRects().map(rect => rect.getAttribute('fill')!)
+      const patternIds = fills.map(fill => fill.slice('url(#'.length, -1))
+      const colors = patternIds.map(id => container.querySelector(`pattern[id="${id}"] rect`)?.getAttribute('fill'))
+      expect(colors.sort()).toEqual(['#00ff00', '#00ff00', '#ff0000', '#ff0000'])
+    })
+
     it('does not draw the overlay columns as bars', () => {
       render(container, overlayData, { overlays: range })
       expect(container.querySelector('.bc-bar[data-series="Gold low"]')).toBeNull()

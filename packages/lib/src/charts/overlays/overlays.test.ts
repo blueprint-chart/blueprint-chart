@@ -22,6 +22,20 @@ describe('resolveOverlays', () => {
     expect(r.data.series?.map(s => s.name)).toEqual(['Value', 'Last'])
   })
 
+  it('keeps the key of a shared-column overlay when the first one is hidden', () => {
+    const data = parseData(RAW)
+    const shown = resolveOverlays(data, [{ columns: ['Last'] }, { columns: ['Last'] }]).overlays
+    const afterHide = resolveOverlays(data, [{ columns: ['Last'], hidden: true }, { columns: ['Last'] }]).overlays
+    expect(afterHide.map(overlay => overlay.key)).toEqual([shown[1].key])
+  })
+
+  it('never gives a shared-column overlay the key of another column', () => {
+    const d = parseData('series = "Value","T","T#1"\n"A" = 5,2,8')
+    const configs = [{ columns: ['T'] }, { columns: ['T'] }, { columns: ['T#1'] }]
+    const keys = resolveOverlays(d, configs).overlays.map(overlay => overlay.key)
+    expect(new Set(keys).size).toBe(3)
+  })
+
   it('keeps a hidden overlay\'s columns out of the bars but draws nothing', () => {
     const d = parseData('series = "Low","Value","High"\n"A" = 1,2,3')
     const r = resolveOverlays(d, [{ columns: ['Low', 'High'], hidden: true }])

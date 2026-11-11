@@ -44,7 +44,7 @@ function toNumber(cell: number | undefined): number {
   return typeof cell === 'number' ? cell : Number.NaN
 }
 
-function resolveOverlay(config: OverlayConfig, columns: Column[], order: number): ResolvedOverlay {
+function resolveOverlay(config: OverlayConfig, columns: Column[], order: number, key: string): ResolvedOverlay {
   const kind = columns.length === 2 ? 'range' : 'value'
   const first = columns[0].values.map(toNumber)
   const second = (columns[1]?.values ?? columns[0].values).map(toNumber)
@@ -56,7 +56,6 @@ function resolveOverlay(config: OverlayConfig, columns: Column[], order: number)
   const opacity = (config.opacity ?? defaultOpacity) / 100
   const isStripes = kind === 'range' && config.pattern === 'stripes'
   const pattern = isStripes ? 'stripes' : 'solid'
-  const key = config.columns.join('\u001f')
   const color = config.color ?? DEFAULT_COLOR
   const title = config.title ?? defaultTitle
   const { muteIfCrosses: muteRef, aboveColor, belowColor, aboveTitle, belowTitle } = config
@@ -75,6 +74,19 @@ function targetBar(config: OverlayConfig, barNames: string[]): string {
   return named ? bar : barNames[0]
 }
 
+// Counted over every config, hidden ones included, so hiding an overlay never
+// renames the next one sharing its columns. The record separator cannot occur
+// in a column name, so a suffixed key never matches another column's key.
+function overlayKeys(overlays: OverlayConfig[]): string[] {
+  const seen = new Map<string, number>()
+  return overlays.map((config) => {
+    const base = config.columns.join('\u001f')
+    const count = seen.get(base) ?? 0
+    seen.set(base, count + 1)
+    return count === 0 ? base : `${base}\u001e${count}`
+  })
+}
+
 export function resolveOverlays(data: ChartData, overlays: OverlayConfig[] | undefined, chartType = 'bar-vertical', stackMode?: string): { data: ChartData, overlays: ResolvedOverlay[] } {
   if (!overlays?.length || !data.series) {
     return { data, overlays: [] }
@@ -88,9 +100,10 @@ export function resolveOverlays(data: ChartData, overlays: OverlayConfig[] | und
   }
   const indexed = overlays.map((config, order) => ({ config, order }))
   const drawable = indexed.filter(({ config }) => isDrawable(config, byName))
+  const keys = overlayKeys(overlays)
   const resolved = drawable.map(({ config, order }) => {
     const columns = config.columns.map(name => byName.get(name))
-    return resolveOverlay(config, columns as Column[], order)
+    return resolveOverlay(config, columns as Column[], order, keys[order])
   })
   const ranges = resolved.filter(overlay => overlay.kind === 'range')
   const values = resolved.filter(overlay => overlay.kind === 'value')
