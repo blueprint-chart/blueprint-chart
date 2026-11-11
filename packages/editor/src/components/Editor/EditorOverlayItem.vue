@@ -1,137 +1,3 @@
-<template>
-  <div class="editor-overlay-item">
-    <div class="editor-overlay-item__header">
-      <small class="editor-overlay-item__header__title">{{ heading }}</small>
-      <div class="editor-overlay-item__header__actions">
-        <ButtonIcon
-          :icon-left="visibilityIcon"
-          :label="visibilityLabel"
-          variant="link"
-          size="sm"
-          hide-label
-          @click="toggleHidden"
-        />
-        <ButtonIcon
-          :icon-left="IPhTrash"
-          label="Delete overlay"
-          variant="link"
-          size="sm"
-          hide-label
-          @click="$emit('remove')"
-        />
-      </div>
-    </div>
-
-    <div class="editor-overlay-item__body">
-      <FormControlButtonGroup
-        v-model="kind"
-        label="Type"
-        :options="kindOptions"
-        block
-      />
-
-      <FormControlDropdown
-        v-for="(slot, i) in columnSlots"
-        :id="`overlay-column-${id}-${i}`"
-        :key="slot.label"
-        :model-value="overlay.columns[i]"
-        :label="slot.label"
-        :options="columnOptions"
-        block
-        @update:model-value="(v) => setColumn(i, v)"
-      />
-
-      <FormControlDropdown
-        v-if="bars?.length"
-        :id="`overlay-bar-${id}`"
-        :model-value="bar"
-        label="Bar"
-        :options="barOptions"
-        block
-        @update:model-value="(v) => update('bar', v)"
-      />
-
-      <FormControlTextInput
-        :id="`overlay-title-${id}`"
-        v-model="title"
-        label="Title"
-        :placeholder="defaultTitle"
-      />
-
-      <FormControlColorInput
-        :id="`overlay-color-${id}`"
-        v-model="color"
-        label="Color"
-      />
-
-      <FormControlSliderInput
-        :id="`overlay-opacity-${id}`"
-        v-model="opacity"
-        label="Opacity"
-        suffix="%"
-      />
-
-      <FormControlButtonGroup
-        v-if="isRange"
-        v-model="pattern"
-        label="Pattern"
-        :options="patternOptions"
-        block
-      />
-
-      <FormControlTextInput
-        v-if="isRange"
-        :id="`overlay-mute-${id}`"
-        v-model="muteIfCrosses"
-        label="Fade bars when the range includes"
-        placeholder="e.g. 0"
-      />
-
-      <template v-if="!isRange">
-        <FormControlCheckbox
-          :model-value="!!overlay.aboveColor"
-          label="Color bars that reach this value"
-          @update:model-value="(v) => setCueColor('aboveColor', 'aboveTitle', v ? DEFAULT_COLORS[4] : '')"
-        />
-
-        <FormControlColorInput
-          v-if="overlay.aboveColor"
-          :id="`overlay-above-color-${id}`"
-          v-model="aboveColor"
-          label="Above color"
-        />
-
-        <FormControlTextInput
-          v-if="overlay.aboveColor"
-          :id="`overlay-above-title-${id}`"
-          v-model="aboveTitle"
-          label="Above title"
-        />
-
-        <FormControlCheckbox
-          :model-value="!!overlay.belowColor"
-          label="Color bars below this value"
-          @update:model-value="(v) => setCueColor('belowColor', 'belowTitle', v ? DEFAULT_COLORS[2] : '')"
-        />
-
-        <FormControlColorInput
-          v-if="overlay.belowColor"
-          :id="`overlay-below-color-${id}`"
-          v-model="belowColor"
-          label="Below color"
-        />
-
-        <FormControlTextInput
-          v-if="overlay.belowColor"
-          :id="`overlay-below-title-${id}`"
-          v-model="belowTitle"
-          label="Below title"
-        />
-      </template>
-    </div>
-  </div>
-</template>
-
 <script setup lang="ts">
 import { DEFAULT_COLORS } from '@blueprint-chart/lib'
 import type { OverlayConfig } from '@blueprint-chart/lib'
@@ -301,6 +167,140 @@ const belowTitle = computed({
   set: v => update('belowTitle', v || undefined),
 })
 </script>
+
+<template>
+  <div class="editor-overlay-item">
+    <div class="editor-overlay-item__header">
+      <small class="editor-overlay-item__header__title">{{ heading }}</small>
+      <div class="editor-overlay-item__header__actions">
+        <ButtonIcon
+          :icon-left="visibilityIcon"
+          :label="visibilityLabel"
+          variant="link"
+          size="sm"
+          hide-label
+          @click="toggleHidden"
+        />
+        <ButtonIcon
+          :icon-left="IPhTrash"
+          label="Delete overlay"
+          variant="link"
+          size="sm"
+          hide-label
+          @click="$emit('remove')"
+        />
+      </div>
+    </div>
+
+    <div class="editor-overlay-item__body">
+      <FormControlButtonGroup
+        v-model="kind"
+        label="Type"
+        :options="kindOptions"
+        block
+      />
+
+      <FormControlDropdown
+        v-for="(slot, i) in columnSlots"
+        :id="`overlay-column-${id}-${i}`"
+        :key="slot.label"
+        :model-value="overlay.columns[i]"
+        :label="slot.label"
+        :options="columnOptions"
+        block
+        @update:model-value="(v) => setColumn(i, v)"
+      />
+
+      <FormControlDropdown
+        v-if="bars?.length"
+        :id="`overlay-bar-${id}`"
+        :model-value="bar"
+        label="Bar"
+        :options="barOptions"
+        block
+        @update:model-value="(v) => update('bar', v)"
+      />
+
+      <FormControlTextInput
+        :id="`overlay-title-${id}`"
+        v-model="title"
+        label="Title"
+        :placeholder="defaultTitle"
+      />
+
+      <FormControlColorInput
+        :id="`overlay-color-${id}`"
+        v-model="color"
+        label="Color"
+      />
+
+      <FormControlSliderInput
+        :id="`overlay-opacity-${id}`"
+        v-model="opacity"
+        label="Opacity"
+        suffix="%"
+      />
+
+      <FormControlButtonGroup
+        v-if="isRange"
+        v-model="pattern"
+        label="Pattern"
+        :options="patternOptions"
+        block
+      />
+
+      <FormControlTextInput
+        v-if="isRange"
+        :id="`overlay-mute-${id}`"
+        v-model="muteIfCrosses"
+        label="Fade bars when the range includes"
+        placeholder="e.g. 0"
+      />
+
+      <template v-if="!isRange">
+        <FormControlCheckbox
+          :model-value="!!overlay.aboveColor"
+          label="Color bars that reach this value"
+          @update:model-value="(v) => setCueColor('aboveColor', 'aboveTitle', v ? DEFAULT_COLORS[4] : '')"
+        />
+
+        <FormControlColorInput
+          v-if="overlay.aboveColor"
+          :id="`overlay-above-color-${id}`"
+          v-model="aboveColor"
+          label="Above color"
+        />
+
+        <FormControlTextInput
+          v-if="overlay.aboveColor"
+          :id="`overlay-above-title-${id}`"
+          v-model="aboveTitle"
+          label="Above title"
+        />
+
+        <FormControlCheckbox
+          :model-value="!!overlay.belowColor"
+          label="Color bars below this value"
+          @update:model-value="(v) => setCueColor('belowColor', 'belowTitle', v ? DEFAULT_COLORS[2] : '')"
+        />
+
+        <FormControlColorInput
+          v-if="overlay.belowColor"
+          :id="`overlay-below-color-${id}`"
+          v-model="belowColor"
+          label="Below color"
+        />
+
+        <FormControlTextInput
+          v-if="overlay.belowColor"
+          :id="`overlay-below-title-${id}`"
+          v-model="belowTitle"
+          label="Below title"
+        />
+      </template>
+    </div>
+  </div>
+</template>
 
 <style scoped lang="scss">
 .editor-overlay-item {

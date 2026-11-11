@@ -1,26 +1,3 @@
-<template>
-  <div class="editor-overlays">
-    <div class="editor-overlays__list">
-      <EditorOverlayItem
-        v-for="(overlay, i) in model"
-        :id="i"
-        :key="i"
-        :overlay="overlay"
-        :columns="columns"
-        :claimed="claimed"
-        :bars="bars"
-        @update:overlay="(value) => updateAt(i, value)"
-        @remove="remove(i)"
-      />
-    </div>
-    <ButtonAdd
-      label="Add"
-      :disabled="!columns.length"
-      @click="add"
-    />
-  </div>
-</template>
-
 <script setup lang="ts">
 import type { OverlayConfig } from '@blueprint-chart/lib'
 import { ButtonAdd } from '@blueprint-chart/ui'
@@ -64,6 +41,29 @@ function remove(index: number) {
   model.value = copy
 }
 </script>
+
+<template>
+  <div class="editor-overlays">
+    <div class="editor-overlays__list">
+      <EditorOverlayItem
+        v-for="(overlay, i) in model"
+        :id="i"
+        :key="i"
+        :overlay="overlay"
+        :columns="columns"
+        :claimed="claimed"
+        :bars="bars"
+        @update:overlay="(value) => updateAt(i, value)"
+        @remove="remove(i)"
+      />
+    </div>
+    <ButtonAdd
+      label="Add"
+      :disabled="!columns.length"
+      @click="add"
+    />
+  </div>
+</template>
 
 <style scoped lang="scss">
 .editor-overlays {
