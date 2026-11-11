@@ -12,12 +12,14 @@ chart bar-multi {
     bar = "Harris"
     title = "Harris margin of error"
     color = "#1f3d5c"
+    pattern = stripes
   }
 
   overlay "Trump low" "Trump high" {
     bar = "Trump"
     title = "Trump margin of error"
     color = "#7a1f20"
+    pattern = stripes
   }
 
   data {

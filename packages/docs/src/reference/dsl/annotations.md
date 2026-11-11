@@ -130,6 +130,7 @@ overlay "Harris low" "Harris high" {
   bar = "Harris"
   title = "Harris margin of error"
   color = "#1f3d5c"
+  pattern = stripes
 }
 ```
 
