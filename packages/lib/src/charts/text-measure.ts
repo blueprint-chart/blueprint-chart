@@ -57,23 +57,24 @@ function canvasContext(): CanvasRenderingContext2D | null {
   return cachedContext
 }
 
-function canvasWidth(text: string, fontSizePx: number): number | null {
+function canvasWidth(text: string, fontSizePx: number, fontWeight: number | string): number | null {
   const ctx = canvasContext()
   if (!ctx) {
     return null
   }
-  ctx.font = `${fontSizePx}px ${FONT_FAMILY}`
+  ctx.font = `${fontWeight} ${fontSizePx}px ${FONT_FAMILY}`
   const width = ctx.measureText(text).width
   return width > 0 ? width : null
 }
 
-function svgTextWidth(text: string, fontSizePx: number): number | null {
+function svgTextWidth(text: string, fontSizePx: number, fontWeight: number | string): number | null {
   if (typeof document === 'undefined' || typeof document.createElementNS !== 'function') {
     return null
   }
   const svg = document.createElementNS(SVG_NS, 'svg')
   const node = document.createElementNS(SVG_NS, 'text') as SVGTextContentElement
   node.setAttribute('font-size', String(fontSizePx))
+  node.setAttribute('font-weight', String(fontWeight))
   node.textContent = text
   svg.appendChild(node)
   if (typeof node.getComputedTextLength !== 'function') {
@@ -84,20 +85,20 @@ function svgTextWidth(text: string, fontSizePx: number): number | null {
   return width > 0 ? width : null
 }
 
-/** Rendered width of `text` in px at `fontSizePx`, in the chart font. */
-export function measureTextWidth(text: string, fontSizePx: number): number {
+/** Rendered width of `text` in px at `fontSizePx` and `fontWeight`, in the chart font. */
+export function measureTextWidth(text: string, fontSizePx: number, fontWeight: number | string = 'normal'): number {
   if (text === '') {
     return 0
   }
-  const measured = canvasWidth(text, fontSizePx) ?? svgTextWidth(text, fontSizePx) ?? 0
+  const measured = canvasWidth(text, fontSizePx, fontWeight) ?? svgTextWidth(text, fontSizePx, fontWeight) ?? 0
   return Math.max(measured, estimateWidth(text, fontSizePx))
 }
 
 /** Rendered width of the widest of `texts`, or 0 when there are none. */
-export function measureMaxTextWidth(texts: string[], fontSizePx: number): number {
+export function measureMaxTextWidth(texts: string[], fontSizePx: number, fontWeight: number | string = 'normal'): number {
   let max = 0
   for (const text of texts) {
-    const width = measureTextWidth(text, fontSizePx)
+    const width = measureTextWidth(text, fontSizePx, fontWeight)
     if (width > max) {
       max = width
     }

@@ -78,6 +78,12 @@ describe('measureTextWidth on the node backend', () => {
     })
   })
 
+  it('measures bold text wider than regular text', () => {
+    withShimmedJsdom(() => {
+      expect(measureTextWidth('Series label', 12, 600)).toBeGreaterThan(measureTextWidth('Series label', 12))
+    })
+  })
+
   it('still reserves the full width for CJK, whose glyphs the bundled font lacks', () => {
     withShimmedJsdom(() => {
       expect(measureTextWidth('日本語のラベル', 12)).toBeGreaterThan(measureTextWidth('abcdefg', 12) * 1.5)

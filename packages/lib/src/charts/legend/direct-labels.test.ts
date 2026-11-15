@@ -43,10 +43,11 @@ describe('layoutDirectLabels', () => {
     expect(lines).toEqual([[word]])
     expect(width).toBe(measureTextWidth(word, 12) + 10)
   })
-  it('keeps one line when 3 lines are not enough', () => {
-    const name = 'aa bb cc dd ee ff gg hh ii jj kk ll mm nn oo pp'
-    const { lines } = layoutDirectLabels([name], 120)
-    expect(lines).toEqual([[name]])
+  it('wraps past 3 lines rather than keeping one long line', () => {
+    const name = 'A very long series name that needs more than three lines to fit in'
+    const { lines, width } = layoutDirectLabels([name], 400)
+    expect(lines[0].length).toBeGreaterThan(3)
+    expect(width).toBeLessThanOrEqual(400 * 0.25 + 10)
   })
 })
 
@@ -72,6 +73,13 @@ describe('spreadWrappedLabels', () => {
     const sorted = [...ys].sort((a, b) => a - b)
     expect(ys).toEqual(sorted)
   })
+  it('keeps every label inside the plot when they are taller than the range', () => {
+    const ys = spreadWrappedLabels([10, 30, 50], [3, 3, 3], 0, 60)
+    ys.forEach((y) => {
+      expect(y).toBeGreaterThanOrEqual(14)
+      expect(y).toBeLessThanOrEqual(60 - 14)
+    })
+  })
 })
 
 describe('drawDirectLabel', () => {
@@ -83,7 +91,8 @@ describe('drawDirectLabel', () => {
     const text = g.querySelector('text.bc-direct-label')!
     expect(text.getAttribute('data-series')).toBe('A')
     expect(text.getAttribute('fill')).toBe('red')
-    expect(text.getAttribute('font-size')).toBe('11px')
+    expect(text.getAttribute('font-size')).toBe('12')
+    expect(text.getAttribute('font-weight')).toBe('600')
     expect([...text.querySelectorAll('tspan')].map(t => t.textContent?.trim())).toEqual(['one', 'two', 'three'])
     expect(text.textContent).toBe('one two three')
     expect(Number(text.getAttribute('y'))).toBe(100 - 14)
