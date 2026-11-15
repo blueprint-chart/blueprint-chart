@@ -4,8 +4,9 @@ import { spreadLabels } from '../plugins/arc-labels'
 
 export const NARROW_THRESHOLD = 350
 
-const FONT_PX = 11
-const LINE_HEIGHT_PX = 13
+const FONT_PX = 12
+const RENDERED_FONT_SIZE = '11px'
+const LINE_HEIGHT_PX = 14
 const LINE_END_GAP_PX = 10
 const MIN_CENTRE_GAP_PX = 14
 const MAX_WIDTH_SHARE = 0.25
@@ -26,7 +27,8 @@ export function wantsDirectLabels(
 ): boolean {
   if (directLabelling === 'auto') {
     const isNarrow = containerWidth > 0 && containerWidth < NARROW_THRESHOLD
-    return legend !== true && !isNarrow
+    const wantsLegend = legend === true || (isNarrow && legend !== false)
+    return !wantsLegend
   }
   return !!directLabelling
 }
@@ -80,7 +82,7 @@ export function drawDirectLabel(parent: SVGGElement, label: DirectLabel): void {
   text.setAttribute('data-series', label.series)
   text.setAttribute('x', String(label.x))
   text.setAttribute('y', String(label.y - blockHeight / 2))
-  text.setAttribute('font-size', `${FONT_PX}px`)
+  text.setAttribute('font-size', RENDERED_FONT_SIZE)
   text.setAttribute('fill', label.color)
   label.lines.forEach((line, index) => {
     const tspan = document.createElementNS(SVG_NS, 'tspan')

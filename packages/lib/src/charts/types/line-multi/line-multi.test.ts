@@ -1085,5 +1085,31 @@ describe('line-multi chart', () => {
       const third = container.querySelector('.bc-direct-label[data-series="Third series"]')!
       expect(third.querySelectorAll('tspan').length).toBeGreaterThanOrEqual(2)
     })
+
+    it('keeps wrapped labels from overlapping when series end at the same value', () => {
+      stubWidth(600)
+      const tied = {
+        labels: ['Start', 'End'],
+        values: [],
+        series: [
+          { name: 'First series with a long name', values: [50, 30] },
+          { name: 'Second series with a long name', values: [20, 30] },
+          { name: 'Third series', values: [10, 30] },
+        ],
+      }
+      render(container, tied, { directLabelling: 'auto' })
+      const texts = [...container.querySelectorAll('.bc-direct-label')]
+      const boxes = texts.map((text) => {
+        const count = text.querySelectorAll('tspan').length
+        const centre = Number(text.getAttribute('y')) + (count - 1) * 14 / 2
+        return { count, centre }
+      })
+      boxes.sort((a, b) => a.centre - b.centre)
+      expect(boxes).toHaveLength(3)
+      for (let i = 1; i < boxes.length; i++) {
+        const needed = (boxes[i - 1].count * 14 + boxes[i].count * 14) / 2
+        expect(boxes[i].centre - boxes[i - 1].centre).toBeGreaterThanOrEqual(needed)
+      }
+    })
   })
 })

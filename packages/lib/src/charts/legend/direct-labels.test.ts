@@ -14,6 +14,7 @@ describe('wantsDirectLabels', () => {
   it('keeps auto direct when width is unknown', () => expect(wantsDirectLabels('auto', undefined, 0)).toBe(true))
   it('keeps outside direct under 350 px', () => expect(wantsDirectLabels('outside', undefined, 200)).toBe(true))
   it('keeps true direct under 350 px', () => expect(wantsDirectLabels(true, undefined, 200)).toBe(true))
+  it('keeps auto direct when the legend is explicitly off under 350 px', () => expect(wantsDirectLabels('auto', false, 200)).toBe(true))
   it('defers auto to an explicit legend', () => expect(wantsDirectLabels('auto', true, 800)).toBe(false))
   it('is off for empty string (DirectLabelMode.Off)/undefined/false', () => {
     expect(wantsDirectLabels('', undefined, 800)).toBe(false)
@@ -28,7 +29,7 @@ describe('layoutDirectLabels', () => {
     const name = 'First series with a long name'
     const { lines, width } = layoutDirectLabels([name], 0)
     expect(lines).toEqual([[name]])
-    expect(width).toBe(measureTextWidth(name, 11) + 10)
+    expect(width).toBe(measureTextWidth(name, 12) + 10)
   })
   it('wraps a long name within 25% of the width', () => {
     const { lines, width } = layoutDirectLabels(['First series with a long name', 'Third'], 400)
@@ -40,7 +41,7 @@ describe('layoutDirectLabels', () => {
     const word = 'Supercalifragilisticexpialidocious'
     const { lines, width } = layoutDirectLabels([word], 200)
     expect(lines).toEqual([[word]])
-    expect(width).toBe(measureTextWidth(word, 11) + 10)
+    expect(width).toBe(measureTextWidth(word, 12) + 10)
   })
   it('keeps one line when 3 lines are not enough', () => {
     const name = 'aa bb cc dd ee ff gg hh ii jj kk ll mm nn oo pp'
@@ -55,8 +56,8 @@ describe('spreadWrappedLabels', () => {
   })
   it('keeps a 3-line label clear of its 1-line neighbours', () => {
     const ys = spreadWrappedLabels([100, 100, 100], [1, 3, 1], 0, 300)
-    expect(ys[1] - ys[0]).toBeGreaterThanOrEqual((13 + 39) / 2)
-    expect(ys[2] - ys[1]).toBeGreaterThanOrEqual((39 + 13) / 2)
+    expect(ys[1] - ys[0]).toBeGreaterThanOrEqual((14 + 42) / 2)
+    expect(ys[2] - ys[1]).toBeGreaterThanOrEqual((42 + 14) / 2)
   })
 })
 
@@ -71,6 +72,7 @@ describe('drawDirectLabel', () => {
     expect(text.getAttribute('fill')).toBe('red')
     expect(text.getAttribute('font-size')).toBe('11px')
     expect([...text.querySelectorAll('tspan')].map(t => t.textContent)).toEqual(['one', 'two', 'three'])
-    expect(Number(text.getAttribute('y'))).toBe(100 - 13)
+    expect(Number(text.getAttribute('y'))).toBe(100 - 14)
+    expect([...text.querySelectorAll('tspan')].map(t => t.getAttribute('dy'))).toEqual(['0.35em', '14', '14'])
   })
 })
