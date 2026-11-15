@@ -157,10 +157,21 @@ function formatLabels(
   return domain.map(d => formatter ? formatter(d as string | d3.NumberValue) : String(d))
 }
 
-/** Widest label that leaves a readable gap to its neighbours at this density. */
-function labelFitWidth(availableWidth: number, count: number): number {
+/**
+ * Widest label that leaves a readable gap to its neighbours at this density.
+ * Two ticks sitting on both plot edges have their labels anchored inward (see
+ * clampEdgeLabels), so they split the whole width instead of a centred slot.
+ */
+function labelFitWidth(availableWidth: number, count: number, edgeTicks = false): number {
+  if (edgeTicks && count === 2) {
+    return (availableWidth - TICK_LABEL_GAP) / 2
+  }
   const perTick = availableWidth / count
   return perTick - TICK_LABEL_GAP
+}
+
+function hasEdgeTicks(scale: d3.ScaleBand<string> | d3.ScalePoint<string>): boolean {
+  return scale.bandwidth() === 0 && scale.padding() === 0
 }
 
 /** How many labels of this width fit side by side in `availableWidth`. */
@@ -245,6 +256,7 @@ function willRotateLabels(
   availableWidth: number,
   labelRotation: string,
   formatter?: ((d: string | d3.NumberValue) => string) | null,
+  edgeTicks = false,
 ): boolean {
   if (domain.length <= 1 || availableWidth <= 0) {
     return false
@@ -260,7 +272,7 @@ function willRotateLabels(
     return false
   }
   const maxWidth = maxFormattedLabelWidth(domain, formatter ?? null)
-  const fitWidth = labelFitWidth(availableWidth, domain.length)
+  const fitWidth = labelFitWidth(availableWidth, domain.length, edgeTicks)
   return maxWidth > fitWidth
 }
 
@@ -312,6 +324,7 @@ function resolveHorizontalAxisBottom(
     numberFormat?: string | null
     labelPosition?: string
     tickFormat?: ((label: string) => string) | null
+    edgeTicks?: boolean
   } = {},
   defaultBottom = 24,
 ): number | undefined {
@@ -332,7 +345,7 @@ function resolveHorizontalAxisBottom(
   const continuous = labelRotation !== 'vertical' && detectDates(labels) !== null
 
   if (!continuous && labels.length > 1) {
-    const fitWidth = labelFitWidth(availableWidth, labels.length)
+    const fitWidth = labelFitWidth(availableWidth, labels.length, options.edgeTicks)
     const maxLabelWidth = maxFormattedLabelWidth(labels, tickFormatter)
     const overflows = maxLabelWidth > fitWidth
 
@@ -346,7 +359,7 @@ function resolveHorizontalAxisBottom(
     }
   }
 
-  const rotate = willRotateLabels(labels, availableWidth, labelRotation, tickFormatter)
+  const rotate = willRotateLabels(labels, availableWidth, labelRotation, tickFormatter, options.edgeTicks)
   if (!rotate) {
     return undefined
   }
@@ -505,7 +518,8 @@ export class HorizontalAxisChart extends D3Blueprint<AxisDatum[]> {
     let shouldRotate = false
 
     if (ordinal && !continuous && domain.length > 1 && availableWidth > 0) {
-      const fitWidth = labelFitWidth(availableWidth, domain.length)
+      const edgeTicks = hasEdgeTicks(rawScale)
+      const fitWidth = labelFitWidth(availableWidth, domain.length, edgeTicks)
       const maxLabelWidth = maxFormattedLabelWidth(domain, tickFormatter)
       const overflows = maxLabelWidth > fitWidth
 

@@ -83,7 +83,7 @@ export function render(
   const rotatedBottom = resolveHorizontalAxisBottom(
     data.labels,
     Math.max(0, containerWidth - (lpMargins.left ?? 50) - (lpMargins.right ?? 20)),
-    options.horizontalAxis,
+    { ...options.horizontalAxis, edgeTicks: !options.edgePadding },
   )
   if (rotatedBottom !== undefined) {
     lpMargins.bottom = rotatedBottom

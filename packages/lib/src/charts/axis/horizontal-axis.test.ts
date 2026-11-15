@@ -546,6 +546,21 @@ describe('HorizontalAxisChart label rotation', () => {
       })
     })
 
+    it('lets the two edge labels of a slope chart share the whole plot width', () => {
+      // Two points at both plot edges: the labels anchor inward and split the
+      // width, so each gets (130 - 8) / 2 = 61 px. "Considered" is 60 px.
+      const domain = ['Considered the most effective', 'Seen as acting the most today']
+      const scale = d3.scalePoint<string>().domain(domain).range([0, 130])
+      const chart = new HorizontalAxisChart(d3.select(chartArea))
+      chart.config({ scale, height: 300, width: 130, labels: domain, labelRotation: 'horizontal' })
+      chart.draw([{ placeholder: true }])
+      const texts = [...chartArea.querySelectorAll('.bc-axis-horizontal .tick text')]
+      expect(texts).toHaveLength(2)
+      texts.forEach((t) => {
+        expect(t.querySelectorAll('tspan').length).toBeGreaterThanOrEqual(2)
+      })
+    })
+
     it('does not rotate labels that fit by measured width in auto mode', () => {
       const domain = ['Considered', 'Effective']
       const labelWidth = measureTextWidth('Considered', 10)
@@ -723,6 +738,12 @@ describe('resolveHorizontalAxisBottom', () => {
     expect(result!).toBeGreaterThan(20)
     // Wrap height (~2 lines × 14 + padding) is much less than rotated height
     expect(result!).toBeLessThan(80)
+  })
+
+  it('reserves wrapped height for two edge labels sharing the plot width (#155)', () => {
+    const labels = ['Considered the most effective', 'Seen as acting the most today']
+    const result = resolveHorizontalAxisBottom(labels, 130, { labelRotation: 'horizontal', edgeTicks: true })
+    expect(result).toBe(3 * 14 + 10)
   })
 
   it('returns undefined when wrap fits within default bottom', () => {

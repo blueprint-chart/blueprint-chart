@@ -153,7 +153,7 @@ export function render(
   const rotatedBottom = resolveHorizontalAxisBottom(
     data.labels,
     Math.max(0, containerWidth - (marginOverrides.left ?? 50) - (marginOverrides.right ?? 20)),
-    options.horizontalAxis,
+    { ...options.horizontalAxis, edgeTicks: !options.edgePadding },
   )
   const bottomLabelH = rotatedBottom ?? Math.max(marginOverrides.bottom ?? 24, 24)
   marginOverrides.bottom = bottomLabelH + (legendPos === 'bottom' ? legendH : 0)
