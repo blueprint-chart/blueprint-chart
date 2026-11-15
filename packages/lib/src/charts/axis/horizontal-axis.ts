@@ -159,12 +159,18 @@ function formatLabels(
 
 /**
  * Widest label that leaves a readable gap to its neighbours at this density.
- * Two ticks sitting on both plot edges have their labels anchored inward (see
- * clampEdgeLabels), so they split the whole width instead of a centred slot.
+ * Ticks sitting on both plot edges have their labels anchored inward (see
+ * clampEdgeLabels): two of them split the whole width instead of a centred slot.
  */
 function labelFitWidth(availableWidth: number, count: number, edgeTicks = false): number {
   if (edgeTicks && count === 2) {
     return (availableWidth - TICK_LABEL_GAP) / 2
+  }
+  // An edge label anchored inward spans its whole width on one side of the
+  // first step, against half of its centred neighbour: 1.5 w + gap <= step.
+  if (edgeTicks && count > 2) {
+    const step = availableWidth / (count - 1)
+    return (step - TICK_LABEL_GAP) / 1.5
   }
   const perTick = availableWidth / count
   return perTick - TICK_LABEL_GAP
@@ -646,13 +652,12 @@ export class HorizontalAxisChart extends D3Blueprint<AxisDatum[]> {
       target.selectAll('.tick text')
         .attr('transform', null)
 
+      if (wrapLinesByText && effective !== 'off') {
+        applyWrappedTickLabels(target, wrapLinesByText)
+      }
       if (effective !== 'off') {
         clampEdgeLabels(target, availableWidth)
       }
-    }
-
-    if (wrapLinesByText && effective !== 'off') {
-      applyWrappedTickLabels(target, wrapLinesByText)
     }
   }
 
@@ -688,7 +693,7 @@ function clampEdgeLabels(
     if (!Number.isFinite(x)) {
       return
     }
-    const half = measureTextWidth(text.textContent ?? '', TICK_LABEL_FONT_PX) / 2
+    const half = widestLineWidth(text) / 2
     if (x - half < 0) {
       d3.select(text).attr('text-anchor', 'start')
     }
@@ -696,6 +701,12 @@ function clampEdgeLabels(
       d3.select(text).attr('text-anchor', 'end')
     }
   })
+}
+
+function widestLineWidth(text: SVGTextElement): number {
+  const tspans = [...text.querySelectorAll('tspan')]
+  const lines = tspans.length > 0 ? tspans.map(t => t.textContent ?? '') : [text.textContent ?? '']
+  return measureMaxTextWidth(lines, TICK_LABEL_FONT_PX)
 }
 
 // A data join rather than an append, matching the vertical axis: re-renders

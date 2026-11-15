@@ -561,6 +561,23 @@ describe('HorizontalAxisChart label rotation', () => {
       })
     })
 
+    it('keeps the inward-anchored edge labels of a line chart clear of their neighbours', () => {
+      const domain = Array.from({ length: 6 }, (_, i) => `Category name ${i}`)
+      const scale = d3.scalePoint<string>().domain(domain).range([0, 600])
+      const chart = new HorizontalAxisChart(d3.select(chartArea))
+      chart.config({ scale, height: 300, width: 600, labels: domain, labelRotation: 'horizontal' })
+      chart.draw([{ placeholder: true }])
+      const axis = chartArea.querySelector('.bc-axis-horizontal')!
+      expect(overlappingLabelPairs(axis)).toBe(0)
+    })
+
+    it('anchors a wrapped edge label by its widest line, not its full text', () => {
+      const domain = Array.from({ length: 6 }, (_, i) => `Column Label ${i + 1}`)
+      const axis = renderOrdinal({ domain, width: 348 })
+      expect(axis.querySelectorAll('tspan').length).toBeGreaterThan(0)
+      expect(overlappingLabelPairs(axis)).toBe(0)
+    })
+
     it('does not rotate labels that fit by measured width in auto mode', () => {
       const domain = ['Considered', 'Effective']
       const labelWidth = measureTextWidth('Considered', 10)
@@ -932,6 +949,35 @@ describe('buildTickFormatter', () => {
     expect(fmt).toBeNull()
   })
 })
+
+/** Neighbouring tick labels whose rendered extents overlap, honouring each
+ *  label's text-anchor and measuring wrapped labels by their widest line. */
+function overlappingLabelPairs(axis: Element, fontSizePx = 10): number {
+  const extents = [...axis.querySelectorAll('.tick')].map((tick) => {
+    const match = /translate\(([-\d.]+)/.exec(tick.getAttribute('transform') ?? '')
+    const x = match ? Number(match[1]) : 0
+    const text = tick.querySelector('text')!
+    const tspans = [...text.querySelectorAll('tspan')]
+    const lines = tspans.length > 0 ? tspans.map(t => t.textContent ?? '') : [text.textContent ?? '']
+    const widths = lines.map(line => measureTextWidth(line, fontSizePx))
+    const width = Math.max(...widths)
+    const anchor = text.getAttribute('text-anchor')
+    if (anchor === 'start') {
+      return [x, x + width]
+    }
+    if (anchor === 'end') {
+      return [x - width, x]
+    }
+    return [x - width / 2, x + width / 2]
+  }).sort((a, b) => a[0] - b[0])
+  let overlaps = 0
+  for (let i = 1; i < extents.length; i++) {
+    if (extents[i][0] < extents[i - 1][1]) {
+      overlaps++
+    }
+  }
+  return overlaps
+}
 
 /** Tick labels are centred on their tick, so two neighbours overlap when the gap
  *  between their centres is smaller than half of each label's measured width. */
