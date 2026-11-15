@@ -410,6 +410,33 @@ describe('arc label margins keep a usable radius (#29)', () => {
     })
   }
 
+  const browsers = `  data {
+    "Chrome" = 45
+    "Safari" = 25
+    "Firefox" = 15
+  }`
+
+  it('switches a donut with auto direct labels to a legend under 350 px', () => {
+    withViewport(340, 600)
+    const host = draw(`chart donut {\n${browsers}\n}`)
+    expect(host.querySelector('.bc-arc-labels, .bc-arc-labels-inside')).toBeNull()
+    expect(host.querySelector('.bc-legend')).not.toBeNull()
+  })
+
+  it('switches a pie with auto direct labels to a legend under 350 px', () => {
+    withViewport(340, 600)
+    const host = draw(`chart pie {\n${browsers}\n}`)
+    expect(host.querySelector('.bc-arc-labels, .bc-arc-labels-inside')).toBeNull()
+    expect(host.querySelector('.bc-legend')).not.toBeNull()
+  })
+
+  it('keeps outside arc labels on a donut under 350 px', () => {
+    withViewport(340, 600)
+    const host = draw(`chart donut {\n  directLabelling = "outside"\n${browsers}\n}`)
+    expect(host.querySelector('.bc-arc-labels')).not.toBeNull()
+    expect(host.querySelector('.bc-legend')).toBeNull()
+  })
+
   it('paints a 2-slice pie whose label is 42 characters', () => {
     withViewport(600, 400)
     const host = draw(`chart pie {

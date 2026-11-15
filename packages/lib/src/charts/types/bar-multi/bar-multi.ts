@@ -6,6 +6,7 @@ import { createCanvas, contentSize, labelPositionMargins, estimateVerticalLabelW
 import { resolveHorizontalAxisBottom } from '../../axis/horizontal-axis'
 import { AxisService } from '../../axis/axis-service'
 import { estimateLegendSize } from '../../legend/legend-size'
+import { NARROW_THRESHOLD, wantsDirectLabels } from '../../legend/direct-labels'
 import { computeLinearDomain, resolveBarGapPadding } from '../../scale-helpers'
 import { createAnnotationPlugin, snapshotAnnotations, type AnnotationSnapshot } from '../../plugins/annotations'
 import { createTooltipPlugin } from '../../plugins/tooltip'
@@ -88,10 +89,10 @@ export function render(
   const colors = expandColorsToSeries(options.colors ?? DEFAULT_COLORS, allSeries.length)
   const overrides = options.seriesOverrides
 
-  // Determine global label mode early so margin calculations account for direct labels
-  // 'auto' defers to legend when legend is explicitly true; explicit true/truthy forces direct
-  const wantsDirect = options.directLabelling === true || (options.directLabelling === 'auto' && options.legend !== true) || (!!options.directLabelling && options.directLabelling !== 'auto')
-  const globalLabelMode = wantsDirect ? 'direct' : (options.legend !== false ? 'legend' : 'none')
+  const containerWidth = contentSize(body).width
+  const wantsDirect = wantsDirectLabels(options.directLabelling, options.legend, containerWidth)
+  const legendWanted = options.legend !== false || options.directLabelling === 'auto'
+  const globalLabelMode = wantsDirect ? 'direct' : (legendWanted ? 'legend' : 'none')
   const globalValueLabels = options.valueLabels ?? false
   const vlPos = options.valueLabelPosition ?? ValueLabelPosition.Auto
   const dlMode = typeof options.directLabelling === 'string'
@@ -100,15 +101,13 @@ export function render(
 
   // Compute margin adjustments for legend
   const keyEntries = overlayKeyEntries(overlays)
-  const showLegend = keyEntries.length > 0 || (options.legend !== false && !wantsDirect)
+  const showLegend = keyEntries.length > 0 || (legendWanted && !wantsDirect)
   const legendSeriesNames = seriesNames.filter((name) => {
     return resolveSeriesLabelMode(name, globalLabelMode, overrides) === 'legend'
   })
-  const estimateNames = wantsDirect || options.legend === false ? legendSeriesNames : seriesNames
+  const estimateNames = wantsDirect || !legendWanted ? legendSeriesNames : seriesNames
   const keyTitles = keyEntries.map(entry => entry.title)
   const estimateTitles = [...estimateNames, ...keyTitles]
-  const containerWidth = contentSize(body).width
-  const NARROW_THRESHOLD = 350
   const requestedLegendPos = options.legendPosition ?? 'top'
   const legendPos = (containerWidth > 0 && containerWidth < NARROW_THRESHOLD && (requestedLegendPos === 'left' || requestedLegendPos === 'right'))
     ? 'top'

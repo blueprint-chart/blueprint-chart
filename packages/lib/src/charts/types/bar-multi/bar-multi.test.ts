@@ -508,6 +508,19 @@ describe('bar-multi', () => {
       rectSpy?.mockRestore()
     })
 
+    it('switches auto direct labels to a legend under 350 px with the default legend off', () => {
+      setContainerWidth(340)
+      render(container, data, { directLabelling: 'auto', legend: false })
+      expect(container.querySelectorAll('.bc-direct-label')).toHaveLength(0)
+      expect(container.querySelector('.bc-legend')).not.toBeNull()
+    })
+
+    it('keeps outside direct labels under 350 px', () => {
+      setContainerWidth(340)
+      render(container, data, { directLabelling: 'outside', legend: false })
+      expect(container.querySelectorAll('.bc-direct-label').length).toBeGreaterThan(0)
+    })
+
     it('rotates x-axis labels when labels do not fit horizontally', () => {
       setContainerWidth(500)
       const manyLabels = {
