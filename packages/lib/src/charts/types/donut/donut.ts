@@ -9,7 +9,7 @@ import { createFrame } from '../../frame/frame'
 import { createCanvas, contentSize } from '../../canvas/canvas'
 import { renderLegend } from '../../legend/legend'
 import { estimateLegendSize } from '../../legend/legend-size'
-import { NARROW_THRESHOLD, wantsDirectLabels } from '../../legend/direct-labels'
+import { NARROW_THRESHOLD, resolveLabelMode } from '../../legend/direct-labels'
 import { createTooltipPlugin } from '../../plugins/tooltip'
 import { createAnnotationPlugin, snapshotAnnotations, type AnnotationSnapshot } from '../../plugins/annotations'
 import { resolveBackgroundColor } from '../../contrast'
@@ -134,8 +134,8 @@ export function renderArc(
     ? options.directLabelling
     : (options.directLabelling ? DirectLabelMode.Auto : DirectLabelMode.Off)
   const containerWidth = contentSize(body).width
-  const useDirectLabels = wantsDirectLabels(dlMode, options.legend, containerWidth)
-  const legendWanted = options.legend !== false || dlMode === DirectLabelMode.Auto
+  const labelMode = resolveLabelMode(options.directLabelling, options.legend, containerWidth)
+  const useDirectLabels = labelMode.wantsDirect
 
   // Build legend value suffixes when showValues is on and labels are shown as legend
   const showValuesInLegend = (options.showValues ?? true) && !useDirectLabels
@@ -144,7 +144,7 @@ export function renderArc(
     : []
 
   // Compute margin adjustments for legend
-  const showLegend = legendWanted && !useDirectLabels
+  const showLegend = labelMode.showLegend
   const requestedLegendPos = options.legendPosition ?? 'top'
   // On narrow containers, move side legends to top to preserve chart space
   const legendPos = (containerWidth > 0 && containerWidth < NARROW_THRESHOLD && (requestedLegendPos === 'left' || requestedLegendPos === 'right'))

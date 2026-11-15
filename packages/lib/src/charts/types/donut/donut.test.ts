@@ -430,6 +430,15 @@ describe('arc label margins keep a usable radius (#29)', () => {
     expect(host.querySelector('.bc-legend')).not.toBeNull()
   })
 
+  it('keeps direct labels on a donut under 350 px when directLabelling is true', () => {
+    withViewport(340, 600)
+    const host = document.createElement('div')
+    document.body.appendChild(host)
+    render(host, { labels: ['Chrome', 'Safari', 'Firefox'], values: [45, 25, 15] }, { directLabelling: true, legend: false })
+    expect(host.querySelector('.bc-arc-labels, .bc-arc-labels-inside')).not.toBeNull()
+    expect(host.querySelector('.bc-legend')).toBeNull()
+  })
+
   it('keeps outside arc labels on a donut under 350 px', () => {
     withViewport(340, 600)
     const host = draw(`chart donut {\n  directLabelling = "outside"\n${browsers}\n}`)

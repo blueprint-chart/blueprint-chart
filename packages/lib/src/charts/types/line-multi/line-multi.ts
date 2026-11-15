@@ -8,7 +8,7 @@ import { AxisService } from '../../axis/axis-service'
 import type { AnyXScale } from '../../axis/horizontal-axis'
 import { renderLegend } from '../../legend/legend'
 import { estimateLegendSize } from '../../legend/legend-size'
-import { NARROW_THRESHOLD, wantsDirectLabels, layoutDirectLabels, spreadWrappedLabels, drawDirectLabel } from '../../legend/direct-labels'
+import { NARROW_THRESHOLD, resolveLabelMode, layoutSeriesDirectLabels, spreadWrappedLabels, drawDirectLabel } from '../../legend/direct-labels'
 import { computeLinearDomain, filterLabelsByRange } from '../../scale-helpers'
 import { resolveCurve } from '../../curves'
 import { renderAnnotations, snapshotAnnotations, type AnnotationSnapshot } from '../../plugins/annotations'
@@ -100,10 +100,7 @@ export function render(
   // Determine global label mode early so margin calculations account for per-series overrides
   const overrides = options.seriesOverrides
   const containerWidth = contentSize(body).width
-  const wantsDirect = wantsDirectLabels(options.directLabelling, options.legend, containerWidth)
-  const legendWanted = options.legend !== false || options.directLabelling === 'auto'
-  const showLegend = legendWanted && !wantsDirect
-  const globalLabelMode = wantsDirect ? 'direct' : (showLegend ? 'legend' : 'none')
+  const { showLegend, globalLabelMode } = resolveLabelMode(options.directLabelling, options.legend, containerWidth)
 
   // Collect series that will have direct labels (global or per-series override)
   const directLabelNames = seriesNames.filter((name) => {
@@ -125,10 +122,9 @@ export function render(
   const allValues = series.flatMap(s => s.values)
   const vLabelW = estimateVerticalLabelWidth(allValues, options.verticalAxis?.range, options.verticalAxis?.numberFormat, options.verticalAxis?.scaleType)
   const lpMargins = labelPositionMargins(containerWidth, options.verticalAxis?.labelPosition, options.horizontalAxis?.labelPosition, options.verticalAxis?.direction, vLabelW)
-  const directTexts = directLabelNames.map(name => overrides?.find(o => o.name === name)?.labelText || name)
-  const directLayout = layoutDirectLabels(directTexts, containerWidth)
+  const directLayout = layoutSeriesDirectLabels(directLabelNames, overrides, containerWidth)
   const directLabelW = directLayout.width
-  const directLinesByName = new Map(directLabelNames.map((name, i) => [name, directLayout.lines[i]]))
+  const directLinesByName = directLayout.linesByName
 
   const vLabelsInside = lpMargins.top != null
   const legendAvailableWidth = Math.max(0, containerWidth - (lpMargins.left ?? 50) - (lpMargins.right ?? 20) - directLabelW)

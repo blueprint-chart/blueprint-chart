@@ -8,7 +8,7 @@ import { AxisService } from '../../axis/axis-service'
 import type { AnyXScale } from '../../axis/horizontal-axis'
 import { renderLegend } from '../../legend/legend'
 import { estimateLegendSize } from '../../legend/legend-size'
-import { NARROW_THRESHOLD, wantsDirectLabels, layoutDirectLabels, spreadWrappedLabels, drawDirectLabel } from '../../legend/direct-labels'
+import { NARROW_THRESHOLD, resolveLabelMode, layoutSeriesDirectLabels, spreadWrappedLabels, drawDirectLabel } from '../../legend/direct-labels'
 import { resolveCurve } from '../../curves'
 import { renderAnnotations, snapshotAnnotations, type AnnotationSnapshot } from '../../plugins/annotations'
 import { resolveBackgroundColor } from '../../contrast'
@@ -94,10 +94,7 @@ export function render(
 
   // Determine global label mode for legend/direct label sizing
   const containerWidth = contentSize(body).width
-  const wantsDirect = wantsDirectLabels(options.directLabelling, options.legend, containerWidth)
-  const legendWanted = options.legend !== false || options.directLabelling === 'auto'
-  const showLegend = legendWanted && !wantsDirect
-  const globalLabelMode = wantsDirect ? 'direct' : (showLegend ? 'legend' : 'none')
+  const { showLegend, globalLabelMode } = resolveLabelMode(options.directLabelling, options.legend, containerWidth)
   const directLabelNames = seriesNames.filter(name => resolveSeriesLabelMode(name, globalLabelMode, overrides) === 'direct')
 
   const requestedLegendPos = options.legendPosition ?? 'top'
@@ -152,10 +149,9 @@ export function render(
     ?? (isPercent ? '|d|%' : undefined)
   const vLabelW = estimateVerticalLabelWidth(allValues, options.verticalAxis?.range, effectiveYNumberFormat, options.verticalAxis?.scaleType)
   const lpMargins = labelPositionMargins(containerWidth, options.verticalAxis?.labelPosition, options.horizontalAxis?.labelPosition, options.verticalAxis?.direction, vLabelW)
-  const directTexts = directLabelNames.map(name => overrides?.find(o => o.name === name)?.labelText || name)
-  const directLayout = layoutDirectLabels(directTexts, containerWidth)
+  const directLayout = layoutSeriesDirectLabels(directLabelNames, overrides, containerWidth)
   const directLabelW = directLayout.width
-  const directLinesByName = new Map(directLabelNames.map((name, i) => [name, directLayout.lines[i]]))
+  const directLinesByName = directLayout.linesByName
 
   // Estimate legend size using the actual chart-area width so wrapping matches rendering.
   // Left/right margins are fixed at this point (they don't depend on legend height).

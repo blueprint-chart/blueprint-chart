@@ -6,7 +6,7 @@ import { createCanvas, contentSize, labelPositionMargins, estimateVerticalLabelW
 import { resolveHorizontalAxisBottom } from '../../axis/horizontal-axis'
 import { AxisService } from '../../axis/axis-service'
 import { estimateLegendSize } from '../../legend/legend-size'
-import { NARROW_THRESHOLD, wantsDirectLabels } from '../../legend/direct-labels'
+import { NARROW_THRESHOLD, resolveLabelMode } from '../../legend/direct-labels'
 import { computeLinearDomain, resolveBarGapPadding } from '../../scale-helpers'
 import { createAnnotationPlugin, snapshotAnnotations, type AnnotationSnapshot } from '../../plugins/annotations'
 import { createTooltipPlugin } from '../../plugins/tooltip'
@@ -90,9 +90,8 @@ export function render(
   const overrides = options.seriesOverrides
 
   const containerWidth = contentSize(body).width
-  const wantsDirect = wantsDirectLabels(options.directLabelling, options.legend, containerWidth)
-  const legendWanted = options.legend !== false || options.directLabelling === 'auto'
-  const globalLabelMode = wantsDirect ? 'direct' : (legendWanted ? 'legend' : 'none')
+  const labelMode = resolveLabelMode(options.directLabelling, options.legend, containerWidth)
+  const { wantsDirect, legendWanted, globalLabelMode } = labelMode
   const globalValueLabels = options.valueLabels ?? false
   const vlPos = options.valueLabelPosition ?? ValueLabelPosition.Auto
   const dlMode = typeof options.directLabelling === 'string'
@@ -101,7 +100,7 @@ export function render(
 
   // Compute margin adjustments for legend
   const keyEntries = overlayKeyEntries(overlays)
-  const showLegend = keyEntries.length > 0 || (legendWanted && !wantsDirect)
+  const showLegend = keyEntries.length > 0 || labelMode.showLegend
   const legendSeriesNames = seriesNames.filter((name) => {
     return resolveSeriesLabelMode(name, globalLabelMode, overrides) === 'legend'
   })
