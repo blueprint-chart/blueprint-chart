@@ -40,11 +40,12 @@ function wrapLabel(
   maxWidthPx: number,
   maxLines: number = MAX_WRAP_LINES,
   fontPx: number = TICK_LABEL_FONT_PX,
+  fontWeight: number | string = 'normal',
 ): string[] | null {
   if (label === '') {
     return ['']
   }
-  const labelWidth = measureTextWidth(label, fontPx)
+  const labelWidth = measureTextWidth(label, fontPx, fontWeight)
   if (labelWidth <= maxWidthPx) {
     return [label]
   }
@@ -55,12 +56,12 @@ function wrapLabel(
   const lines: string[] = []
   let current = ''
   for (const word of words) {
-    const wordWidth = measureTextWidth(word, fontPx)
+    const wordWidth = measureTextWidth(word, fontPx, fontWeight)
     if (wordWidth > maxWidthPx) {
       return null
     }
     const candidate = current ? `${current} ${word}` : word
-    const candidateWidth = measureTextWidth(candidate, fontPx)
+    const candidateWidth = measureTextWidth(candidate, fontPx, fontWeight)
     if (candidateWidth <= maxWidthPx) {
       current = candidate
     }
@@ -163,22 +164,30 @@ function formatLabels(
 }
 
 /**
- * Widest label that leaves a readable gap to its neighbours at this density.
- * Ticks sitting on both plot edges have their labels anchored inward (see
- * clampEdgeLabels): two of them split the whole width instead of a centred slot.
+ * Widest label, per tick, that leaves a readable gap to its neighbours at this
+ * density. Ticks sitting on both plot edges have their labels anchored inward
+ * (see clampEdgeLabels): two of them split the whole width instead of a centred slot.
  */
-function labelFitWidth(availableWidth: number, count: number, edgeTicks = false): number {
+function labelFitWidths(availableWidth: number, count: number, edgeTicks = false): number[] {
   if (edgeTicks && count === 2) {
-    return (availableWidth - TICK_LABEL_GAP) / 2
+    const half = (availableWidth - TICK_LABEL_GAP) / 2
+    return [half, half]
   }
   // An edge label anchored inward spans its whole width on one side of the
   // first step, against half of its centred neighbour: 1.5 w + gap <= step.
+  // Labels further in only share a centred slot with their neighbours.
   if (edgeTicks && count > 2) {
     const step = availableWidth / (count - 1)
-    return (step - TICK_LABEL_GAP) / 1.5
+    const slot = step - TICK_LABEL_GAP
+    const nearEdge = slot / 1.5
+    return Array.from({ length: count }, (_, i) => (i <= 1 || i >= count - 2) ? nearEdge : slot)
   }
-  const perTick = availableWidth / count
-  return perTick - TICK_LABEL_GAP
+  const perTick = availableWidth / count - TICK_LABEL_GAP
+  return Array.from({ length: count }, () => perTick)
+}
+
+function labelsOverflow(labels: string[], fitWidths: number[]): boolean {
+  return labels.some((label, i) => measureTextWidth(label, TICK_LABEL_FONT_PX) > fitWidths[i])
 }
 
 function hasEdgeTicks(scale: d3.ScaleBand<string> | d3.ScalePoint<string>): boolean {
@@ -282,9 +291,9 @@ function willRotateLabels(
   if (detectDates(domain)) {
     return false
   }
-  const maxWidth = maxFormattedLabelWidth(domain, formatter ?? null)
-  const fitWidth = labelFitWidth(availableWidth, domain.length, edgeTicks)
-  return maxWidth > fitWidth
+  const labels = formatLabels(domain, formatter ?? null)
+  const fitWidths = labelFitWidths(availableWidth, domain.length, edgeTicks)
+  return labelsOverflow(labels, fitWidths)
 }
 
 /**
@@ -355,22 +364,23 @@ function resolveHorizontalAxisBottom(
   // rotates and falls through to the rotated-height path below.
   const continuous = labelRotation !== 'vertical' && detectDates(labels) !== null
 
-  if (!continuous && labels.length > 1) {
-    const fitWidth = labelFitWidth(availableWidth, labels.length, options.edgeTicks)
-    const maxLabelWidth = maxFormattedLabelWidth(labels, tickFormatter)
-    const overflows = maxLabelWidth > fitWidth
+  if (continuous || labels.length <= 1) {
+    return undefined
+  }
+  const formatted = formatLabels(labels, tickFormatter)
+  const fitWidths = labelFitWidths(availableWidth, labels.length, options.edgeTicks)
+  const overflows = labelsOverflow(formatted, fitWidths)
 
-    if (labelRotation !== 'vertical' && overflows) {
-      // Wrap is preferred over rotation when it can fit.
-      const wrapped = tryWrapAll(labels, fitWidth, tickFormatter)
-      if (wrapped) {
-        const wrappedH = estimateWrappedAxisHeight(Array.from(wrapped.values()))
-        return wrappedH > defaultBottom ? wrappedH : undefined
-      }
+  if (labelRotation !== 'vertical' && overflows) {
+    // Wrap is preferred over rotation when it can fit.
+    const wrapped = tryWrapAll(labels, fitWidths, tickFormatter)
+    if (wrapped) {
+      const wrappedH = estimateWrappedAxisHeight(Array.from(wrapped.values()))
+      return wrappedH > defaultBottom ? wrappedH : undefined
     }
   }
 
-  const rotate = willRotateLabels(labels, availableWidth, labelRotation, tickFormatter, options.edgeTicks)
+  const rotate = labelRotation === 'vertical' || (overflows && labelRotation !== 'horizontal')
   if (!rotate) {
     return undefined
   }
@@ -379,7 +389,7 @@ function resolveHorizontalAxisBottom(
 }
 
 /**
- * Attempt to wrap every domain label to fit within `perTickWidth`. Returns a
+ * Attempt to wrap every domain label to fit within its entry in `fitWidths`. Returns a
  * Map keyed by the domain value (what d3-axis binds to each tick's datum),
  * to the wrapped lines. Keying by datum survives d3 transitions that animate
  * text content while `applyWrappedTickLabels` runs synchronously after.
@@ -388,14 +398,14 @@ function resolveHorizontalAxisBottom(
  */
 function tryWrapAll(
   domain: string[],
-  perTickWidth: number,
+  fitWidths: number[],
   formatter: ((d: string | d3.NumberValue) => string) | null,
 ): Map<string, string[]> | null {
   const map = new Map<string, string[]>()
   let anySplit = false
-  for (const d of domain) {
+  for (const [i, d] of domain.entries()) {
     const text = formatter ? formatter(d) : d
-    const wrapped = wrapLabel(text, perTickWidth)
+    const wrapped = wrapLabel(text, fitWidths[i])
     if (wrapped === null) {
       return null
     }
@@ -530,15 +540,15 @@ export class HorizontalAxisChart extends D3Blueprint<AxisDatum[]> {
 
     if (ordinal && !continuous && domain.length > 1 && availableWidth > 0) {
       const edgeTicks = hasEdgeTicks(rawScale)
-      const fitWidth = labelFitWidth(availableWidth, domain.length, edgeTicks)
-      const maxLabelWidth = maxFormattedLabelWidth(domain, tickFormatter)
-      const overflows = maxLabelWidth > fitWidth
+      const fitWidths = labelFitWidths(availableWidth, domain.length, edgeTicks)
+      const formatted = formatLabels(domain, tickFormatter)
+      const overflows = labelsOverflow(formatted, fitWidths)
 
       if (labelRotation === 'vertical') {
         shouldRotate = true
       }
       else if (overflows) {
-        wrapLinesByText = tryWrapAll(domain, fitWidth, tickFormatter)
+        wrapLinesByText = tryWrapAll(domain, fitWidths, tickFormatter)
         if (!wrapLinesByText && labelRotation === 'auto') {
           shouldRotate = true
         }
@@ -704,6 +714,9 @@ function clampEdgeLabels(
     }
     else if (x + half > availableWidth) {
       d3.select(text).attr('text-anchor', 'end')
+    }
+    else {
+      d3.select(text).attr('text-anchor', null)
     }
   })
 }

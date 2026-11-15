@@ -578,6 +578,32 @@ describe('HorizontalAxisChart label rotation', () => {
       expect(overlappingLabelPairs(axis)).toBe(0)
     })
 
+    it('does not rotate a middle label that fits its centred slot on an edge-ticked axis', () => {
+      const domain = ['A', 'B', 'Category', 'D', 'E', 'F']
+      const scale = d3.scalePoint<string>().domain(domain).range([0, 300])
+      const chart = new HorizontalAxisChart(d3.select(chartArea))
+      chart.config({ scale, height: 300, width: 300, labels: domain, labelRotation: 'auto' })
+      chart.draw([{ placeholder: true }])
+      const axis = chartArea.querySelector('.bc-axis-horizontal')!
+      axis.querySelectorAll('.tick text').forEach((t) => {
+        expect(t.getAttribute('transform')).toBeNull()
+      })
+      expect(overlappingLabelPairs(axis)).toBe(0)
+      expect(resolveHorizontalAxisBottom(domain, 300, { edgeTicks: true })).toBeUndefined()
+    })
+
+    it('re-centres an edge label once its tick moves inside the plot', () => {
+      const domain = ['Category name A', 'B', 'C']
+      const scale = d3.scalePoint<string>().domain(domain).range([0, 300])
+      const chart = new HorizontalAxisChart(d3.select(chartArea))
+      chart.config({ scale, height: 300, width: 300, labels: domain, labelRotation: 'horizontal' })
+      chart.draw([{ placeholder: true }])
+      chart.config({ scale: scale.copy().padding(1) })
+      chart.draw([{ placeholder: true }])
+      const first = chartArea.querySelector('.bc-axis-horizontal .tick text')!
+      expect(first.getAttribute('text-anchor') ?? 'middle').toBe('middle')
+    })
+
     it('does not rotate labels that fit by measured width in auto mode', () => {
       const domain = ['Considered', 'Effective']
       const labelWidth = measureTextWidth('Considered', 10)
