@@ -374,10 +374,10 @@ describe('HorizontalAxisChart label rotation', () => {
   })
 
   it('wraps multi-word labels instead of rotating when wrap fits (auto)', () => {
-    // 6 labels at 600 px → 100 px per tick. "Column Label N" ≈ 140 px overflows,
-    // but each word ≤ 60 px fits. Should wrap instead of rotate.
+    // 6 labels at 348 px → 50 px of room per label. "Column Label N" ≈ 84 px
+    // overflows, but each word ≤ 36 px fits. Should wrap instead of rotate.
     const domain = Array.from({ length: 6 }, (_, i) => `Column Label ${i + 1}`)
-    const axis = renderOrdinal({ domain, width: 600 })
+    const axis = renderOrdinal({ domain, width: 348 })
     const texts = axis.querySelectorAll('.tick text')
     expect(texts.length).toBe(6)
     texts.forEach((t) => {
@@ -390,7 +390,7 @@ describe('HorizontalAxisChart label rotation', () => {
     // First tspan must be at the default text baseline (matches single-line labels).
     // Parent text `dy` is cleared so tspan dy is absolute from `y`.
     const domain = Array.from({ length: 6 }, (_, i) => `Column Label ${i + 1}`)
-    const axis = renderOrdinal({ domain, width: 600 })
+    const axis = renderOrdinal({ domain, width: 348 })
     const wrapped = Array.from(axis.querySelectorAll('.tick text'))
       .find(t => t.querySelectorAll('tspan').length >= 2) as SVGTextElement
     expect(wrapped).toBeDefined()
@@ -408,11 +408,11 @@ describe('HorizontalAxisChart label rotation', () => {
 
   it('uses up to 3 wrap lines before giving up (avoids premature rotation)', () => {
     // 3-word label at a width where 2 lines would fail but 3 lines succeed.
-    // "AAA BBB CCC" → 11 chars × 10 = 110 px per label.
-    // 5 labels at 250 px → 50 px per tick. Each word = 30 px fits. Whole = 110 overflows.
-    // 2 lines: best packing "AAA BBB" (70 > 50) ... fails. 3 lines: ["AAA","BBB","CCC"].
+    // "AAA BBB CCC0" ≈ 72 px per label.
+    // 5 labels at 190 px → 30 px of room per label. Each word ≤ 24 px fits.
+    // 2 lines: best packing "AAA BBB" (42 > 30) ... fails. 3 lines: ["AAA","BBB","CCC0"].
     const domain = Array.from({ length: 5 }, (_, i) => `AAA BBB CCC${i}`)
-    const axis = renderOrdinal({ domain, width: 250 })
+    const axis = renderOrdinal({ domain, width: 190 })
     const texts = axis.querySelectorAll('.tick text')
     texts.forEach((t) => {
       expect(t.getAttribute('transform')).toBeNull()
@@ -444,7 +444,7 @@ describe('HorizontalAxisChart label rotation', () => {
   it('still wraps under labelRotation=horizontal override when wrap fits', () => {
     // Horizontal forbids rotation but allows wrapping (still a horizontal layout)
     const domain = Array.from({ length: 6 }, (_, i) => `Column Label ${i + 1}`)
-    const axis = renderOrdinal({ domain, width: 600, labelRotation: 'horizontal' })
+    const axis = renderOrdinal({ domain, width: 348, labelRotation: 'horizontal' })
     const texts = axis.querySelectorAll('.tick text')
     texts.forEach((t) => {
       expect(t.getAttribute('transform')).toBeNull()
@@ -464,9 +464,9 @@ describe('HorizontalAxisChart label rotation', () => {
 
   it('keeps wrap across rerenders (merge:transition path)', () => {
     const domain = Array.from({ length: 6 }, (_, i) => `Column Label ${i + 1}`)
-    const scale = d3.scaleBand<string>().domain(domain).range([0, 600]).padding(0.1)
+    const scale = d3.scaleBand<string>().domain(domain).range([0, 348]).padding(0.1)
     const chart = new HorizontalAxisChart(d3.select(chartArea))
-    chart.config({ scale, height: 300, width: 600, labels: domain, labelRotation: 'auto' })
+    chart.config({ scale, height: 300, width: 348, labels: domain, labelRotation: 'auto' })
     chart.draw([{ placeholder: true }])
     chart.draw([{ placeholder: true }])
     const axis = chartArea.querySelector('.bc-axis-horizontal')!
@@ -534,46 +534,72 @@ describe('HorizontalAxisChart label rotation', () => {
       expect(t.getAttribute('transform')).toBeNull()
     })
   })
+
+  describe('real label width (#155)', () => {
+    it('wraps long labels in a narrow plot instead of overprinting them', () => {
+      const domain = ['Considered the most effective', 'Seen as acting the most today']
+      const axis = renderOrdinal({ domain, width: 140, labelRotation: 'horizontal' })
+      const texts = [...axis.querySelectorAll('.tick text')]
+      expect(texts).toHaveLength(2)
+      texts.forEach((t) => {
+        expect(t.querySelectorAll('tspan').length).toBeGreaterThanOrEqual(2)
+      })
+    })
+
+    it('does not rotate labels that fit by measured width in auto mode', () => {
+      const domain = ['Considered', 'Effective']
+      const labelWidth = measureTextWidth('Considered', 10)
+      const width = (Math.ceil(labelWidth) + 8) * 2
+      const axis = renderOrdinal({ domain, width, labelRotation: 'auto' })
+      axis.querySelectorAll('.tick text').forEach((t) => {
+        expect(t.getAttribute('transform')).toBeNull()
+      })
+    })
+  })
 })
 
 describe('wrapLabel', () => {
   it('returns the label as a single line when it already fits', () => {
-    // "Hello" ≈ 5×10 = 50 px, maxWidth 100 → fits
+    // "Hello" ≈ 30 px, maxWidth 100 → fits
     expect(wrapLabel('Hello', 100)).toEqual(['Hello'])
   })
 
   it('splits multi-word labels across lines when whole label does not fit', () => {
-    // "Hello World" ≈ 110 px, doesn't fit in 80px; split → ['Hello', 'World']
-    expect(wrapLabel('Hello World', 80)).toEqual(['Hello', 'World'])
+    // "Hello World" ≈ 66 px, doesn't fit in 48px; split → ['Hello', 'World']
+    expect(wrapLabel('Hello World', 48)).toEqual(['Hello', 'World'])
   })
 
   it('packs short words together greedily', () => {
-    // "A B C D" ≈ 70 px fits in 100 → no split
-    // "A B C D E" ≈ 90 px fits in 100 → no split
+    // "A B C D E" ≈ 54 px fits in 100 → no split
     expect(wrapLabel('A B C D E', 100)).toEqual(['A B C D E'])
   })
 
   it('returns null when a single word exceeds max width', () => {
-    // "Supercalifragilistic" = 20 chars × 10 = 200 px, won't fit in 100
+    // "Supercalifragilistic" ≈ 120 px, won't fit in 100
     expect(wrapLabel('Supercalifragilistic', 100)).toBeNull()
   })
 
   it('returns null when content requires more than maxLines', () => {
-    // 4 words, each ~30 px, maxWidth 40 → each on own line → 4 lines > 2
-    expect(wrapLabel('aa bb cc dd', 30, 2)).toBeNull()
+    // 4 words, each ~12 px, maxWidth 18 → each on own line → 4 lines > 2
+    expect(wrapLabel('aa bb cc dd', 18, 2)).toBeNull()
   })
 
   it('defaults to 3 lines (rotation should be a last resort)', () => {
     // Without explicit maxLines, default allows up to 3 lines.
-    expect(wrapLabel('aa bb cc', 30)).toEqual(['aa', 'bb', 'cc'])
+    expect(wrapLabel('aa bb cc', 18)).toEqual(['aa', 'bb', 'cc'])
   })
 
   it('respects a custom maxLines of 3', () => {
-    expect(wrapLabel('aa bb cc', 30, 3)).toEqual(['aa', 'bb', 'cc'])
+    expect(wrapLabel('aa bb cc', 18, 3)).toEqual(['aa', 'bb', 'cc'])
   })
 
   it('returns single empty line for empty input', () => {
     expect(wrapLabel('', 100)).toEqual([''])
+  })
+
+  it('accepts a word that fits by measured width (#155)', () => {
+    const wordWidth = measureTextWidth('Considered', 10)
+    expect(wrapLabel('Considered the', wordWidth + 1)).toEqual(['Considered', 'the'])
   })
 })
 
@@ -688,11 +714,11 @@ describe('resolveHorizontalAxisBottom', () => {
   })
 
   it('returns extended height for wrap when wrap would apply (no rotation)', () => {
-    // Multi-word labels that wrap (no rotation). 3-word label at 600 px / 6 = 100 px
-    // per tick → "Column Label N" wraps to 2 lines. Default bottom 20 is too tight;
+    // Multi-word labels that wrap (no rotation). 3-word label at 348 px / 6 → 50 px
+    // of room → "Column Label N" wraps to 2 lines. Default bottom 20 is too tight;
     // must extend to fit wrapped lines.
     const labels = Array.from({ length: 6 }, (_, i) => `Column Label ${i + 1}`)
-    const result = resolveHorizontalAxisBottom(labels, 600, {}, 20)
+    const result = resolveHorizontalAxisBottom(labels, 348, {}, 20)
     expect(result).toBeDefined()
     expect(result!).toBeGreaterThan(20)
     // Wrap height (~2 lines × 14 + padding) is much less than rotated height
@@ -702,7 +728,7 @@ describe('resolveHorizontalAxisBottom', () => {
   it('returns undefined when wrap fits within default bottom', () => {
     // Default bottom 60 is ample for 2-line wrap (~34 px) — no extension needed
     const labels = Array.from({ length: 6 }, (_, i) => `Column Label ${i + 1}`)
-    expect(resolveHorizontalAxisBottom(labels, 600, {}, 60)).toBeUndefined()
+    expect(resolveHorizontalAxisBottom(labels, 348, {}, 60)).toBeUndefined()
   })
 })
 

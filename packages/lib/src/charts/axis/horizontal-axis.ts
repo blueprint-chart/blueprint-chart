@@ -19,15 +19,6 @@ const TICK_LABEL_FONT_PX = 10
 const TICK_LABEL_GAP = 8
 // Floor on the spacing between ticks, so short labels still read as separate.
 const MIN_TICK_SPACING = 16
-// Deliberately generous px-per-character estimate, and the rotate/wrap
-// thresholds below are calibrated against it. Tick density measures the real
-// text instead (see labelsThatFit).
-const AVG_CHAR_WIDTH_PX = 10
-// Labels may visually extend slightly past their per-tick step without being
-// unreadable — the char-width estimate is also a loose upper bound. Treat a
-// label as "fitting" when it's within this multiple of the per-tick width so
-// we don't rotate or wrap on marginal overflow.
-const LABEL_FIT_TOLERANCE = 1.3
 // Extra padding above/below rotated labels for the tick mark and breathing room.
 const ROTATED_LABEL_PADDING_PX = 12
 // Default max wrap lines for auto line-breaking of multi-word labels.
@@ -48,7 +39,8 @@ function wrapLabel(label: string, maxWidthPx: number, maxLines: number = MAX_WRA
   if (label === '') {
     return ['']
   }
-  if (label.length * AVG_CHAR_WIDTH_PX <= maxWidthPx) {
+  const labelWidth = measureTextWidth(label, TICK_LABEL_FONT_PX)
+  if (labelWidth <= maxWidthPx) {
     return [label]
   }
   const words = label.split(/\s+/).filter(Boolean)
@@ -58,11 +50,13 @@ function wrapLabel(label: string, maxWidthPx: number, maxLines: number = MAX_WRA
   const lines: string[] = []
   let current = ''
   for (const word of words) {
-    if (word.length * AVG_CHAR_WIDTH_PX > maxWidthPx) {
+    const wordWidth = measureTextWidth(word, TICK_LABEL_FONT_PX)
+    if (wordWidth > maxWidthPx) {
       return null
     }
     const candidate = current ? `${current} ${word}` : word
-    if (candidate.length * AVG_CHAR_WIDTH_PX <= maxWidthPx) {
+    const candidateWidth = measureTextWidth(candidate, TICK_LABEL_FONT_PX)
+    if (candidateWidth <= maxWidthPx) {
       current = candidate
     }
     else {
@@ -152,15 +146,8 @@ function maxFormattedLabelWidth(
   domain: string[],
   formatter: ((d: string | d3.NumberValue) => string) | null,
 ): number {
-  let max = 0
-  for (const l of domain) {
-    const text = formatter ? formatter(l) : l
-    const w = text.length * AVG_CHAR_WIDTH_PX
-    if (w > max) {
-      max = w
-    }
-  }
-  return max
+  const labels = formatLabels(domain, formatter)
+  return measureMaxTextWidth(labels, TICK_LABEL_FONT_PX)
 }
 
 function formatLabels(
@@ -168,6 +155,12 @@ function formatLabels(
   formatter: ((d: string | d3.NumberValue) => string) | null,
 ): string[] {
   return domain.map(d => formatter ? formatter(d as string | d3.NumberValue) : String(d))
+}
+
+/** Widest label that leaves a readable gap to its neighbours at this density. */
+function labelFitWidth(availableWidth: number, count: number): number {
+  const perTick = availableWidth / count
+  return perTick - TICK_LABEL_GAP
 }
 
 /** How many labels of this width fit side by side in `availableWidth`. */
@@ -267,8 +260,8 @@ function willRotateLabels(
     return false
   }
   const maxWidth = maxFormattedLabelWidth(domain, formatter ?? null)
-  const perTickWidth = availableWidth / domain.length
-  return maxWidth > perTickWidth * LABEL_FIT_TOLERANCE
+  const fitWidth = labelFitWidth(availableWidth, domain.length)
+  return maxWidth > fitWidth
 }
 
 /**
@@ -339,16 +332,12 @@ function resolveHorizontalAxisBottom(
   const continuous = labelRotation !== 'vertical' && detectDates(labels) !== null
 
   if (!continuous && labels.length > 1) {
-    const perTick = availableWidth / labels.length
-    const fitWidth = perTick * LABEL_FIT_TOLERANCE
+    const fitWidth = labelFitWidth(availableWidth, labels.length)
     const maxLabelWidth = maxFormattedLabelWidth(labels, tickFormatter)
     const overflows = maxLabelWidth > fitWidth
 
     if (labelRotation !== 'vertical' && overflows) {
-      // Wrap is preferred over rotation when it can fit. Wrap against
-      // `fitWidth` (not the strict step) so single words that only marginally
-      // overflow are accepted as one line instead of failing wrap and falling
-      // through to rotation.
+      // Wrap is preferred over rotation when it can fit.
       const wrapped = tryWrapAll(labels, fitWidth, tickFormatter)
       if (wrapped) {
         const wrappedH = estimateWrappedAxisHeight(Array.from(wrapped.values()))
@@ -516,8 +505,7 @@ export class HorizontalAxisChart extends D3Blueprint<AxisDatum[]> {
     let shouldRotate = false
 
     if (ordinal && !continuous && domain.length > 1 && availableWidth > 0) {
-      const perTickWidth = availableWidth / domain.length
-      const fitWidth = perTickWidth * LABEL_FIT_TOLERANCE
+      const fitWidth = labelFitWidth(availableWidth, domain.length)
       const maxLabelWidth = maxFormattedLabelWidth(domain, tickFormatter)
       const overflows = maxLabelWidth > fitWidth
 
