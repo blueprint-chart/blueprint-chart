@@ -182,7 +182,7 @@ function hasEdgeTicks(scale: d3.ScaleBand<string> | d3.ScalePoint<string>): bool
 
 /** How many labels of this width fit side by side in `availableWidth`. */
 function labelsThatFit(maxLabelWidth: number, availableWidth: number): number {
-  const spacing = Math.max(MIN_TICK_SPACING, Math.ceil(maxLabelWidth) + TICK_LABEL_GAP)
+  const spacing = Math.max(MIN_TICK_SPACING, maxLabelWidth + TICK_LABEL_GAP)
   return Math.max(2, Math.floor(availableWidth / spacing))
 }
 
