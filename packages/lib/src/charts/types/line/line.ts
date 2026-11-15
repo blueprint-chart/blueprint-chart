@@ -78,10 +78,13 @@ export function render(
   const containerWidth = contentSize(body).width
   const vLabelW = estimateVerticalLabelWidth(data.values, options.verticalAxis?.range, options.verticalAxis?.numberFormat, options.verticalAxis?.scaleType)
   const lpMargins = labelPositionMargins(containerWidth, options.verticalAxis?.labelPosition, options.horizontalAxis?.labelPosition, options.verticalAxis?.direction, vLabelW)
+  // Filter labels by horizontal axis range
+  const rangeIndices = filterLabelsByRange(data.labels, options.horizontalAxis?.range)
+  const filteredLabels = rangeIndices.map(i => data.labels[i])
   // Rotated category labels run down the page, so the bottom margin has to
   // grow with the longest one or they are clipped to a sliver (#18).
   const rotatedBottom = resolveHorizontalAxisBottom(
-    data.labels,
+    filteredLabels,
     Math.max(0, containerWidth - (lpMargins.left ?? 50) - (lpMargins.right ?? 20)),
     { ...options.horizontalAxis, edgeTicks: !options.edgePadding },
   )
@@ -91,9 +94,6 @@ export function render(
   const { chartArea, width, height, margin } = createCanvas(body, lpMargins)
   const marginDelta = computeMarginDelta(priorMargin, margin)
 
-  // Filter labels by horizontal axis range
-  const rangeIndices = filterLabelsByRange(data.labels, options.horizontalAxis?.range)
-  const filteredLabels = rangeIndices.map(i => data.labels[i])
   const filteredValues = rangeIndices.map(i => data.values[i])
 
   const lineData: LineDatum[] = filteredLabels.map((l, i) => ({

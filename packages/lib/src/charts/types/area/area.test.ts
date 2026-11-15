@@ -335,4 +335,19 @@ describe('area chart', () => {
       expect(ticks).toEqual(['Jan', 'Feb', 'Mar'])
     })
   })
+
+  it('reserves the bottom margin for the labels left after the range filter', () => {
+    const rectSpy = vi.spyOn(Element.prototype, 'getBoundingClientRect').mockReturnValue({
+      width: 200, height: 400, x: 0, y: 0, top: 0, left: 0, bottom: 400, right: 200, toJSON: () => ({}),
+    } as DOMRect)
+    const filtered = document.createElement('div')
+    const direct = document.createElement('div')
+    document.body.append(filtered, direct)
+    const labels = ['1000000.25', '2000000.25', '3000000.25']
+    render(filtered, { labels, values: [1, 2, 3] }, { horizontalAxis: { labelRotation: 'auto', range: { min: 2000000 } } })
+    render(direct, { labels: labels.slice(1), values: [2, 3] }, { horizontalAxis: { labelRotation: 'auto' } })
+    rectSpy.mockRestore()
+    const axisTransform = (root: Element) => root.querySelector('.bc-axis-horizontal')?.getAttribute('transform')
+    expect(axisTransform(filtered)).toBe(axisTransform(direct))
+  })
 })
