@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { estimateLegendSize, estimateDirectLabelWidth } from './legend-size'
+import { estimateLegendSize } from './legend-size'
 import { measureTextWidth } from '../text-measure'
 
 describe('estimateLegendSize', () => {
@@ -43,22 +43,6 @@ describe('estimateLegendSize', () => {
   })
 })
 
-describe('estimateDirectLabelWidth', () => {
-  it('returns 0 for empty labels', () => {
-    expect(estimateDirectLabelWidth([])).toBe(0)
-  })
-
-  it('estimates width from the longest label', () => {
-    // widest is "Hello" (30px measured), width = 30 + 10 = 40
-    expect(estimateDirectLabelWidth(['Hi', 'Hello'])).toBe(40)
-  })
-
-  it('handles single-character labels', () => {
-    // "A" measures 6px, width = 6 + 10 = 16
-    expect(estimateDirectLabelWidth(['A'])).toBe(16)
-  })
-})
-
 describe('reserved size is measured, not counted (#35)', () => {
   const cjk = '日本語のラベル'
 
@@ -70,9 +54,5 @@ describe('reserved size is measured, not counted (#35)', () => {
   it('reserves the measured width for a horizontal legend of CJK labels', () => {
     expect(estimateLegendSize([cjk], 'top').width)
       .toBeGreaterThanOrEqual(measureTextWidth(cjk, 12) + 16 + 12)
-  })
-
-  it('reserves the measured width for CJK direct labels', () => {
-    expect(estimateDirectLabelWidth([cjk])).toBeGreaterThanOrEqual(measureTextWidth(cjk, 12))
   })
 })

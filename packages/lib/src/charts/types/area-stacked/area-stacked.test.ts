@@ -541,4 +541,44 @@ describe('area-stacked chart', () => {
       expect(svg.querySelectorAll('defs > clipPath')).toHaveLength(1)
     })
   })
+
+  describe('wrapped direct labels', () => {
+    let rectSpy: ReturnType<typeof vi.spyOn>
+
+    const wide = {
+      labels: ['Considered the most effective', 'Seen as acting the most today'],
+      values: [],
+      series: [
+        { name: 'First series with a long name', values: [53, 48] },
+        { name: 'Second series with a long name', values: [25, 15] },
+        { name: 'Third series', values: [5, 27] },
+      ],
+    }
+
+    function stubWidth(width: number) {
+      rectSpy = vi.spyOn(Element.prototype, 'getBoundingClientRect').mockReturnValue({
+        width, height: 400, x: 0, y: 0, top: 0, left: 0, bottom: 400, right: width, toJSON: () => ({}),
+      } as DOMRect)
+    }
+
+    afterEach(() => {
+      rectSpy.mockRestore()
+    })
+
+    it('wraps a long series name onto several lines at 600 px', () => {
+      stubWidth(600)
+      render(container, wide, { directLabelling: 'auto' })
+      const first = container.querySelector('.bc-direct-label[data-series="First series with a long name"]')!
+      expect(first.querySelectorAll('tspan').length).toBeGreaterThanOrEqual(2)
+      const third = container.querySelector('.bc-direct-label[data-series="Third series"]')!
+      expect(third.querySelectorAll('tspan')).toHaveLength(1)
+    })
+
+    it('switches auto to a legend under 350 px', () => {
+      stubWidth(340)
+      render(container, wide, { directLabelling: 'auto' })
+      expect(container.querySelectorAll('.bc-direct-label')).toHaveLength(0)
+      expect(container.querySelector('.bc-legend')).not.toBeNull()
+    })
+  })
 })

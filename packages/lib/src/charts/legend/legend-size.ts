@@ -76,11 +76,3 @@ export function estimateLegendSize(
   maxRowWidth = Math.max(maxRowWidth, rowWidth)
   return { width: maxRowWidth, height: rows * ROW_HEIGHT }
 }
-
-export function estimateDirectLabelWidth(labels: string[]): number {
-  if (labels.length === 0) {
-    return 0
-  }
-  // measured label width + gap from the line endpoint
-  return measureMaxTextWidth(labels, LABEL_FONT_PX) + 10
-}

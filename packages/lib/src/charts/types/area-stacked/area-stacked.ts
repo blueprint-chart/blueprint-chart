@@ -7,7 +7,8 @@ import { createCanvas, contentSize, labelPositionMargins, estimateVerticalLabelW
 import { AxisService } from '../../axis/axis-service'
 import type { AnyXScale } from '../../axis/horizontal-axis'
 import { renderLegend } from '../../legend/legend'
-import { estimateLegendSize, estimateDirectLabelWidth } from '../../legend/legend-size'
+import { estimateLegendSize } from '../../legend/legend-size'
+import { NARROW_THRESHOLD, wantsDirectLabels, layoutDirectLabels, spreadWrappedLabels, drawDirectLabel } from '../../legend/direct-labels'
 import { resolveCurve } from '../../curves'
 import { renderAnnotations, snapshotAnnotations, type AnnotationSnapshot } from '../../plugins/annotations'
 import { resolveBackgroundColor } from '../../contrast'
@@ -20,7 +21,6 @@ import { computeStack, computeStack100 } from '../../stack-helpers'
 import { computeLinearDomain, filterLabelsByRange } from '../../scale-helpers'
 import { expandColorsToSeries, seriesOrImplicit, resolveSeriesColor, resolveSeriesInterpolation, isSeriesHidden, resolveSeriesLabelMode } from '../../series-helpers'
 import { sortByValue } from '../../sort-helpers'
-import { spreadLabels } from '../../plugins/arc-labels'
 import { StackMode, SortDirection, ScaleType } from '../../../enums'
 import { highlightTargetSet, highlightOpacity } from '../../plugins/highlight'
 import { buildColorOverrides } from '../../plugins/colorize'
@@ -93,14 +93,12 @@ export function render(
   const colorOverrides = buildColorOverrides(options.colorizes)
 
   // Determine global label mode for legend/direct label sizing
-  // 'auto' defers to legend when legend is explicitly true; explicit true/truthy forces direct
-  const wantsDirect = options.directLabelling === true || (options.directLabelling === 'auto' && options.legend !== true) || (!!options.directLabelling && options.directLabelling !== 'auto')
+  const containerWidth = contentSize(body).width
+  const wantsDirect = wantsDirectLabels(options.directLabelling, options.legend, containerWidth)
   const globalLabelMode = wantsDirect ? 'direct' : (options.legend !== false ? 'legend' : 'none')
   const directLabelNames = seriesNames.filter(name => resolveSeriesLabelMode(name, globalLabelMode, overrides) === 'direct')
 
   const showLegend = options.legend !== false && !wantsDirect
-  const containerWidth = contentSize(body).width
-  const NARROW_THRESHOLD = 350
   const requestedLegendPos = options.legendPosition ?? 'top'
   const legendPos = (containerWidth > 0 && containerWidth < NARROW_THRESHOLD && (requestedLegendPos === 'left' || requestedLegendPos === 'right'))
     ? 'top'
@@ -153,7 +151,10 @@ export function render(
     ?? (isPercent ? '|d|%' : undefined)
   const vLabelW = estimateVerticalLabelWidth(allValues, options.verticalAxis?.range, effectiveYNumberFormat, options.verticalAxis?.scaleType)
   const lpMargins = labelPositionMargins(containerWidth, options.verticalAxis?.labelPosition, options.horizontalAxis?.labelPosition, options.verticalAxis?.direction, vLabelW)
-  const directLabelW = directLabelNames.length > 0 ? estimateDirectLabelWidth(directLabelNames) : 0
+  const directTexts = directLabelNames.map(name => overrides?.find(o => o.name === name)?.labelText || name)
+  const directLayout = layoutDirectLabels(directTexts, containerWidth)
+  const directLabelW = directLayout.width
+  const directLinesByName = new Map(directLabelNames.map((name, i) => [name, directLayout.lines[i]]))
 
   // Estimate legend size using the actual chart-area width so wrapping matches rendering.
   // Left/right margins are fixed at this point (they don't depend on legend height).
@@ -362,7 +363,7 @@ export function render(
   // Direct labels
   const lastLabelIdx = data.labels.length - 1
   const labelX = xPos(lastLabelIdx) + 6
-  const directLabelEntries: { name: string, index: number, naturalY: number, text: string }[] = []
+  const directLabelEntries: { name: string, index: number, naturalY: number }[] = []
   series.forEach((s, i) => {
     const seriesLabelMode = resolveSeriesLabelMode(s.name, globalLabelMode, overrides)
     if (seriesLabelMode !== 'direct') {
@@ -379,26 +380,18 @@ export function render(
       return
     }
     const midY = y((lastPoint[0] + lastPoint[1]) / 2) as number
-    const labelText = overrides?.find(o => o.name === s.name)?.labelText || s.name
-    directLabelEntries.push({ name: s.name, index: i, naturalY: midY, text: labelText })
+    directLabelEntries.push({ name: s.name, index: i, naturalY: midY })
   })
 
   if (directLabelEntries.length > 0) {
     directLabelEntries.sort((a, b) => a.naturalY - b.naturalY)
     const naturalYs = directLabelEntries.map(e => e.naturalY)
-    const DIRECT_LABEL_GAP = 14
-    const resolvedYs = spreadLabels(naturalYs, 0, height, DIRECT_LABEL_GAP)
+    const lineCounts = directLabelEntries.map(e => directLinesByName.get(e.name)!.length)
+    const resolvedYs = spreadWrappedLabels(naturalYs, lineCounts, 0, height)
     directLabelEntries.forEach((entry, i) => {
-      d3.select(chartArea)
-        .append('text')
-        .attr('class', 'bc-direct-label')
-        .attr('data-series', entry.name)
-        .attr('x', labelX)
-        .attr('y', resolvedYs[i])
-        .attr('dy', '0.35em')
-        .attr('font-size', '11px')
-        .attr('fill', resolveSeriesColor(entry.name, entry.index, colors, overrides))
-        .text(entry.text)
+      const lines = directLinesByName.get(entry.name)!
+      const color = resolveSeriesColor(entry.name, entry.index, colors, overrides)
+      drawDirectLabel(chartArea, { series: entry.name, lines, x: labelX, y: resolvedYs[i], color })
     })
   }
 
