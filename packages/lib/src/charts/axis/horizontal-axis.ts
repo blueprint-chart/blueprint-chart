@@ -35,11 +35,16 @@ const WRAP_LABEL_PADDING_PX = 10
  * either because a single word exceeds the width or the content requires more
  * than `maxLines`. Used to avoid rotating labels when wrapping suffices.
  */
-function wrapLabel(label: string, maxWidthPx: number, maxLines: number = MAX_WRAP_LINES): string[] | null {
+function wrapLabel(
+  label: string,
+  maxWidthPx: number,
+  maxLines: number = MAX_WRAP_LINES,
+  fontPx: number = TICK_LABEL_FONT_PX,
+): string[] | null {
   if (label === '') {
     return ['']
   }
-  const labelWidth = measureTextWidth(label, TICK_LABEL_FONT_PX)
+  const labelWidth = measureTextWidth(label, fontPx)
   if (labelWidth <= maxWidthPx) {
     return [label]
   }
@@ -50,12 +55,12 @@ function wrapLabel(label: string, maxWidthPx: number, maxLines: number = MAX_WRA
   const lines: string[] = []
   let current = ''
   for (const word of words) {
-    const wordWidth = measureTextWidth(word, TICK_LABEL_FONT_PX)
+    const wordWidth = measureTextWidth(word, fontPx)
     if (wordWidth > maxWidthPx) {
       return null
     }
     const candidate = current ? `${current} ${word}` : word
-    const candidateWidth = measureTextWidth(candidate, TICK_LABEL_FONT_PX)
+    const candidateWidth = measureTextWidth(candidate, fontPx)
     if (candidateWidth <= maxWidthPx) {
       current = candidate
     }
