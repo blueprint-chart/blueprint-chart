@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { render } from './line-multi'
 import { LabelPosition } from '../../../enums'
+import { measureTextWidth } from '../../text-measure'
 
 describe('line-multi chart', () => {
   let container: HTMLElement
@@ -977,6 +978,58 @@ describe('line-multi chart', () => {
       }
       const svg = container.querySelector('svg')!
       expect(svg.querySelectorAll('defs > clipPath')).toHaveLength(1)
+    })
+  })
+
+  describe('slope chart with direct labels on a phone (#155)', () => {
+    let rectSpy: ReturnType<typeof vi.spyOn>
+
+    const slope = {
+      labels: ['Considered the most effective', 'Seen as acting the most today'],
+      values: [],
+      series: [
+        { name: 'First series with a long name', values: [53, 48] },
+        { name: 'Second series with a long name', values: [25, 15] },
+        { name: 'Third series', values: [5, 27] },
+      ],
+    }
+
+    function labelExtent(text: Element): [number, number] {
+      const tick = text.parentElement!
+      const x = Number(/translate\(([-\d.]+)/.exec(tick.getAttribute('transform') ?? '')![1])
+      const lines = [...text.querySelectorAll('tspan')].map(t => t.textContent ?? '')
+      const widths = lines.map(line => measureTextWidth(line, 10))
+      const width = Math.max(...widths)
+      const anchor = text.getAttribute('text-anchor')
+      if (anchor === 'start') {
+        return [x, x + width]
+      }
+      if (anchor === 'end') {
+        return [x - width, x]
+      }
+      return [x - width / 2, x + width / 2]
+    }
+
+    beforeEach(() => {
+      rectSpy = vi.spyOn(Element.prototype, 'getBoundingClientRect').mockReturnValue({
+        width: 337, height: 400, x: 0, y: 0, top: 0, left: 0, bottom: 400, right: 337, toJSON: () => ({}),
+      } as DOMRect)
+    })
+
+    afterEach(() => {
+      rectSpy.mockRestore()
+    })
+
+    it('wraps the two x labels so they do not overlap', () => {
+      render(container, slope, { directLabelling: 'auto', interpolation: 'linear' })
+      const texts = [...container.querySelectorAll('.bc-axis-horizontal .tick text')]
+      expect(texts).toHaveLength(2)
+      texts.forEach((t) => {
+        expect(t.querySelectorAll('tspan').length).toBeGreaterThanOrEqual(2)
+      })
+      const [, leftEnd] = labelExtent(texts[0])
+      const [rightStart] = labelExtent(texts[1])
+      expect(leftEnd).toBeLessThanOrEqual(rightStart)
     })
   })
 })

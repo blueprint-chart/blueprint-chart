@@ -23,7 +23,7 @@ describe('bar-multi huge gap diagnostics', () => {
   })
 
   it('paris-medals wrap does not leave huge gap between axis labels and chart bottom', () => {
-    setContainerSize(600, 400)
+    setContainerSize(480, 400)
     const data = {
       labels: ['USA', 'China', 'Japan', 'Great Britain', 'Australia', 'France'],
       values: [],
@@ -51,13 +51,13 @@ describe('bar-multi huge gap diagnostics', () => {
     const absAxisY = axisY + marginTop
     const gapBelowAxis = svgH - absAxisY
 
-    expect(svgW).toBe(600)
+    expect(svgW).toBe(480)
     expect(gapBelowAxis).toBeLessThan(60)
     expect(gapBelowAxis).toBeGreaterThan(30)
   })
 
   it('wrapped labels sit fully below axis baseline (no overlap with chart area)', () => {
-    setContainerSize(600, 400)
+    setContainerSize(480, 400)
     const data = {
       labels: ['USA', 'China', 'Japan', 'Great Britain', 'Australia', 'France'],
       values: [],
@@ -83,7 +83,7 @@ describe('bar-multi huge gap diagnostics', () => {
   })
 
   it('after rerender, wrapped labels remain below axis baseline (no overlap)', () => {
-    setContainerSize(600, 400)
+    setContainerSize(480, 400)
     const data = {
       labels: ['USA', 'China', 'Japan', 'Great Britain', 'Australia', 'France'],
       values: [],
