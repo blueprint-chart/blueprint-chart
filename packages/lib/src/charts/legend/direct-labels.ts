@@ -60,6 +60,10 @@ function minCentreDistance(lineCountA: number, lineCountB: number): number {
   return Math.max(MIN_CENTRE_GAP_PX, halfHeights)
 }
 
+function halfExtraHeight(lineCount: number): number {
+  return (lineCount - 1) * LINE_HEIGHT_PX / 2
+}
+
 export function spreadWrappedLabels(naturalYs: number[], lineCounts: number[], top: number, bottom: number): number[] {
   if (naturalYs.length === 0) {
     return []
@@ -71,24 +75,30 @@ export function spreadWrappedLabels(naturalYs: number[], lineCounts: number[], t
   }
   const shifted = naturalYs.map((y, i) => y - offsets[i])
   const lastOffset = offsets[offsets.length - 1]
-  const spread = spreadLabels(shifted, top, bottom - lastOffset, MIN_CENTRE_GAP_PX)
+  const firstHalf = halfExtraHeight(lineCounts[0])
+  const lastHalf = halfExtraHeight(lineCounts[lineCounts.length - 1])
+  const innerTop = top + firstHalf
+  const innerBottom = Math.max(innerTop, bottom - lastOffset - lastHalf)
+  const spread = spreadLabels(shifted, innerTop, innerBottom, MIN_CENTRE_GAP_PX)
   return spread.map((y, i) => y + offsets[i])
 }
 
 export function drawDirectLabel(parent: SVGGElement, label: DirectLabel): void {
   const blockHeight = (label.lines.length - 1) * LINE_HEIGHT_PX
-  const text = document.createElementNS(SVG_NS, 'text')
+  const doc = parent.ownerDocument
+  const text = doc.createElementNS(SVG_NS, 'text')
   text.setAttribute('class', 'bc-direct-label')
   text.setAttribute('data-series', label.series)
   text.setAttribute('x', String(label.x))
   text.setAttribute('y', String(label.y - blockHeight / 2))
   text.setAttribute('font-size', RENDERED_FONT_SIZE)
   text.setAttribute('fill', label.color)
+  const lastIndex = label.lines.length - 1
   label.lines.forEach((line, index) => {
-    const tspan = document.createElementNS(SVG_NS, 'tspan')
+    const tspan = doc.createElementNS(SVG_NS, 'tspan')
     tspan.setAttribute('x', String(label.x))
     tspan.setAttribute('dy', index === 0 ? '0.35em' : String(LINE_HEIGHT_PX))
-    tspan.textContent = line
+    tspan.textContent = index === lastIndex ? line : `${line} `
     text.appendChild(tspan)
   })
   parent.appendChild(text)

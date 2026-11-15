@@ -59,6 +59,19 @@ describe('spreadWrappedLabels', () => {
     expect(ys[1] - ys[0]).toBeGreaterThanOrEqual((14 + 42) / 2)
     expect(ys[2] - ys[1]).toBeGreaterThanOrEqual((42 + 14) / 2)
   })
+  it('keeps a tall first label inside the top bound', () => {
+    const ys = spreadWrappedLabels([0, 150], [3, 1], 0, 300)
+    expect(ys[0]).toBeGreaterThanOrEqual(14)
+  })
+  it('keeps a tall last label inside the bottom bound', () => {
+    const ys = spreadWrappedLabels([150, 300], [1, 3], 0, 300)
+    expect(ys[1]).toBeLessThanOrEqual(300 - 14)
+  })
+  it('keeps the order when labels are taller than the range', () => {
+    const ys = spreadWrappedLabels([10, 20, 30, 40, 50, 60], [3, 3, 3, 3, 3, 3], 0, 100)
+    const sorted = [...ys].sort((a, b) => a - b)
+    expect(ys).toEqual(sorted)
+  })
 })
 
 describe('drawDirectLabel', () => {
@@ -71,7 +84,8 @@ describe('drawDirectLabel', () => {
     expect(text.getAttribute('data-series')).toBe('A')
     expect(text.getAttribute('fill')).toBe('red')
     expect(text.getAttribute('font-size')).toBe('11px')
-    expect([...text.querySelectorAll('tspan')].map(t => t.textContent)).toEqual(['one', 'two', 'three'])
+    expect([...text.querySelectorAll('tspan')].map(t => t.textContent?.trim())).toEqual(['one', 'two', 'three'])
+    expect(text.textContent).toBe('one two three')
     expect(Number(text.getAttribute('y'))).toBe(100 - 14)
     expect([...text.querySelectorAll('tspan')].map(t => t.getAttribute('dy'))).toEqual(['0.35em', '14', '14'])
   })
