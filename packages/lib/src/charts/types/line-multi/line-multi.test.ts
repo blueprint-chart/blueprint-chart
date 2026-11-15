@@ -1072,6 +1072,13 @@ describe('line-multi chart', () => {
       expect(container.querySelector('.bc-legend')).not.toBeNull()
     })
 
+    it('switches auto to a legend under 350 px with the line-multi default legend off', () => {
+      stubWidth(340)
+      render(container, slope, { directLabelling: 'auto', legend: false })
+      expect(container.querySelectorAll('.bc-direct-label')).toHaveLength(0)
+      expect(container.querySelector('.bc-legend')).not.toBeNull()
+    })
+
     it('keeps outside direct labels under 350 px', () => {
       stubWidth(340)
       render(container, slope, { directLabelling: 'outside' })

@@ -95,10 +95,11 @@ export function render(
   // Determine global label mode for legend/direct label sizing
   const containerWidth = contentSize(body).width
   const wantsDirect = wantsDirectLabels(options.directLabelling, options.legend, containerWidth)
-  const globalLabelMode = wantsDirect ? 'direct' : (options.legend !== false ? 'legend' : 'none')
+  const legendWanted = options.legend !== false || options.directLabelling === 'auto'
+  const showLegend = legendWanted && !wantsDirect
+  const globalLabelMode = wantsDirect ? 'direct' : (showLegend ? 'legend' : 'none')
   const directLabelNames = seriesNames.filter(name => resolveSeriesLabelMode(name, globalLabelMode, overrides) === 'direct')
 
-  const showLegend = options.legend !== false && !wantsDirect
   const requestedLegendPos = options.legendPosition ?? 'top'
   const legendPos = (containerWidth > 0 && containerWidth < NARROW_THRESHOLD && (requestedLegendPos === 'left' || requestedLegendPos === 'right'))
     ? 'top'

@@ -14,7 +14,7 @@ describe('wantsDirectLabels', () => {
   it('keeps auto direct when width is unknown', () => expect(wantsDirectLabels('auto', undefined, 0)).toBe(true))
   it('keeps outside direct under 350 px', () => expect(wantsDirectLabels('outside', undefined, 200)).toBe(true))
   it('keeps true direct under 350 px', () => expect(wantsDirectLabels(true, undefined, 200)).toBe(true))
-  it('keeps auto direct when the legend is explicitly off under 350 px', () => expect(wantsDirectLabels('auto', false, 200)).toBe(true))
+  it('switches auto to legend under 350 px even with the legend off by default', () => expect(wantsDirectLabels('auto', false, 200)).toBe(false))
   it('defers auto to an explicit legend', () => expect(wantsDirectLabels('auto', true, 800)).toBe(false))
   it('is off for empty string (DirectLabelMode.Off)/undefined/false', () => {
     expect(wantsDirectLabels('', undefined, 800)).toBe(false)

@@ -27,7 +27,7 @@ export function wantsDirectLabels(
 ): boolean {
   if (directLabelling === 'auto') {
     const isNarrow = containerWidth > 0 && containerWidth < NARROW_THRESHOLD
-    const wantsLegend = legend === true || (isNarrow && legend !== false)
+    const wantsLegend = legend === true || isNarrow
     return !wantsLegend
   }
   return !!directLabelling

@@ -101,7 +101,9 @@ export function render(
   const overrides = options.seriesOverrides
   const containerWidth = contentSize(body).width
   const wantsDirect = wantsDirectLabels(options.directLabelling, options.legend, containerWidth)
-  const globalLabelMode = wantsDirect ? 'direct' : (options.legend !== false ? 'legend' : 'none')
+  const legendWanted = options.legend !== false || options.directLabelling === 'auto'
+  const showLegend = legendWanted && !wantsDirect
+  const globalLabelMode = wantsDirect ? 'direct' : (showLegend ? 'legend' : 'none')
 
   // Collect series that will have direct labels (global or per-series override)
   const directLabelNames = seriesNames.filter((name) => {
@@ -109,7 +111,6 @@ export function render(
   })
 
   // Compute margin adjustments for legend and direct labels
-  const showLegend = options.legend !== false && !wantsDirect
   const requestedLegendPos = options.legendPosition ?? 'top'
   const legendPos = (containerWidth > 0 && containerWidth < NARROW_THRESHOLD && (requestedLegendPos === 'left' || requestedLegendPos === 'right'))
     ? 'top'
