@@ -1,4 +1,4 @@
-.PHONY: help install dev dev-story dev-docs build build-lib build-ui build-editor build-story build-docs preview preview-story preview-docs lint lint-fix test test-lib test-editor test-watch test-e2e build-parser clean release release-patch release-minor release-major _release-bump
+.PHONY: help install dev dev-story dev-docs build build-lib build-ui build-editor build-story build-docs preview preview-story preview-docs lint lint-fix test test-lib check-lib-types test-editor test-watch test-e2e build-parser clean release release-patch release-minor release-major _release-bump
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}'
@@ -60,6 +60,9 @@ typecheck: build-editor ## Typecheck the editor (needs the build's components.d.
 
 test-lib: ## Run lib tests once
 	pnpm --filter @blueprint-chart/lib test
+
+check-lib-types: build-lib ## Typecheck the lib's published types under nodenext
+	pnpm --filter @blueprint-chart/lib check:types
 
 test-editor: build-lib build-ui ## Run editor tests once
 	pnpm --filter @blueprint-chart/editor test

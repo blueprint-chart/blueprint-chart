@@ -68,7 +68,8 @@
     "prebuild": "pnpm run generate:parser",
     "pretest": "pnpm run generate:parser",
     "build": "vite build && vite build -c vite.lib.config.ts && vite build -c vite.node-backend.config.ts",
-    "test": "vitest run"
+    "test": "vitest run",
+    "check:types": "tsc -p test/types-nodenext"
   },
   "dependencies": {
     "@floating-ui/dom": "^1.8.0",

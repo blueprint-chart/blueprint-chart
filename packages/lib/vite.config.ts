@@ -1,5 +1,11 @@
+import { dirname, join, relative } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vite'
 import dts from 'vite-plugin-dts'
+import { addDtsExtensions } from './scripts/dts-extensions'
+
+const srcDir = fileURLToPath(new URL('./src', import.meta.url))
+const distDir = fileURLToPath(new URL('./dist', import.meta.url))
 
 export default defineConfig({
   plugins: [
@@ -9,6 +15,11 @@ export default defineConfig({
       exclude: ['src/**/*.test.ts', 'src/test-setup.ts'],
       insertTypesEntry: true,
       rollupTypes: false,
+      beforeWriteFile: (filePath, content) => {
+        const relativeDir = relative(distDir, dirname(filePath))
+        const sourceDir = join(srcDir, relativeDir)
+        return { content: addDtsExtensions(content, sourceDir) }
+      },
     }),
   ],
   build: {
