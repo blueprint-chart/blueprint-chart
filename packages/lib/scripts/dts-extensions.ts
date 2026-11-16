@@ -1,17 +1,27 @@
 import { existsSync } from 'node:fs'
 import { join } from 'node:path'
 
-const RELATIVE_SPECIFIER = /(\bfrom\s+|\bimport\s*\(\s*)(['"])(\.{1,2}\/[^'"]+)\2/g
+const RELATIVE_SPECIFIER = /(\bfrom\s+|\bimport\s*\(\s*|^\s*import\s+|\bdeclare\s+module\s+)(['"])(\.{1,2}\/[^'"]*)\2/gm
+const MODULE_EXTENSIONS = ['.ts', '.d.ts', '.js']
+
+function hasModule(basePath: string): boolean {
+  return MODULE_EXTENSIONS.some(extension => existsSync(`${basePath}${extension}`))
+}
 
 function resolveSpecifier(sourceDir: string, specifier: string): string {
-  const target = join(sourceDir, specifier)
-  if (existsSync(`${target}.ts`)) {
-    return `${specifier}.js`
+  const trimmed = specifier.replace(/\/$/, '')
+  const target = join(sourceDir, trimmed)
+  const targetWithoutJs = target.replace(/\.js$/, '')
+  if (trimmed.endsWith('.js') && hasModule(targetWithoutJs)) {
+    return specifier
   }
-  if (existsSync(join(target, 'index.ts'))) {
-    return `${specifier}/index.js`
+  if (hasModule(target)) {
+    return `${trimmed}.js`
   }
-  return specifier
+  if (hasModule(join(target, 'index'))) {
+    return `${trimmed}/index.js`
+  }
+  throw new Error(`Cannot resolve declaration import '${specifier}' from ${sourceDir}`)
 }
 
 export function addDtsExtensions(content: string, sourceDir: string): string {

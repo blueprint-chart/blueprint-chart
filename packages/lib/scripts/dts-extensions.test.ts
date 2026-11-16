@@ -1,8 +1,32 @@
 // @vitest-environment node
-import { fileURLToPath } from 'node:url'
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { addDtsExtensions } from './dts-extensions'
 
-const src = fileURLToPath(new URL('../src', import.meta.url))
+const FIXTURE_FILES = [
+  'enums.ts',
+  'charts/types.ts',
+  'runtime/index.ts',
+  'dsl/grammar.js',
+  'dsl/grammar.d.ts',
+]
+
+let src: string
+
+beforeAll(() => {
+  src = mkdtempSync(join(tmpdir(), 'dts-extensions-'))
+  for (const file of FIXTURE_FILES) {
+    const path = join(src, file)
+    const dir = join(path, '..')
+    mkdirSync(dir, { recursive: true })
+    writeFileSync(path, '')
+  }
+})
+
+afterAll(() => {
+  rmSync(src, { recursive: true, force: true })
+})
 
 describe('addDtsExtensions', () => {
   it('adds .js to a specifier pointing at a file', () => {
@@ -20,6 +44,17 @@ describe('addDtsExtensions', () => {
     expect(addDtsExtensions(content, src)).toBe('export * from \'./runtime/index.js\';')
   })
 
+  it('adds /index.js to a folder specifier with a trailing slash', () => {
+    const content = 'export * from \'./runtime/\';'
+    expect(addDtsExtensions(content, src)).toBe('export * from \'./runtime/index.js\';')
+  })
+
+  it('adds .js to a specifier pointing at a .js module with a .d.ts', () => {
+    const content = 'export type { Grammar } from \'./grammar\';'
+    const dslDir = join(src, 'dsl')
+    expect(addDtsExtensions(content, dslDir)).toBe('export type { Grammar } from \'./grammar.js\';')
+  })
+
   it('keeps double quotes', () => {
     const content = 'export * from "./enums";'
     expect(addDtsExtensions(content, src)).toBe('export * from "./enums.js";')
@@ -27,8 +62,18 @@ describe('addDtsExtensions', () => {
 
   it('rewrites import() type imports relative to the source dir', () => {
     const content = 'type T = import(\'../enums\').T;'
-    const dslDir = `${src}/dsl`
+    const dslDir = join(src, 'dsl')
     expect(addDtsExtensions(content, dslDir)).toBe('type T = import(\'../enums.js\').T;')
+  })
+
+  it('rewrites side-effect imports', () => {
+    const content = 'import \'./enums\';'
+    expect(addDtsExtensions(content, src)).toBe('import \'./enums.js\';')
+  })
+
+  it('rewrites module augmentations', () => {
+    const content = 'declare module \'./charts/types\' {\n}'
+    expect(addDtsExtensions(content, src)).toBe('declare module \'./charts/types.js\' {\n}')
   })
 
   it('rewrites a multi-line export block', () => {
@@ -41,9 +86,9 @@ describe('addDtsExtensions', () => {
     expect(addDtsExtensions(content, src)).toBe(content)
   })
 
-  it('leaves a specifier that matches no source file', () => {
+  it('throws on a specifier that matches no source module', () => {
     const content = 'export * from \'./does-not-exist\';'
-    expect(addDtsExtensions(content, src)).toBe(content)
+    expect(() => addDtsExtensions(content, src)).toThrow('./does-not-exist')
   })
 
   it('leaves bare specifiers', () => {
