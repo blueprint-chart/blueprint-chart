@@ -228,6 +228,9 @@ importers:
       '@floating-ui/dom':
         specifier: ^1.8.0
         version: 1.8.0
+      '@types/d3':
+        specifier: ^7.4.3
+        version: 7.4.3
       chroma-js:
         specifier: ^3.2.0
         version: 3.2.0
@@ -247,12 +250,6 @@ importers:
       '@types/chroma-js':
         specifier: ^3.1.2
         version: 3.1.2
-      '@types/d3':
-        specifier: ^7.4.3
-        version: 7.4.3
-      '@types/jsdom':
-        specifier: ^21.1.7
-        version: 21.1.7
       peggy:
         specifier: ^5.1.0
         version: 5.1.0
@@ -275,6 +272,9 @@ importers:
       '@resvg/resvg-js':
         specifier: ^2.6.2
         version: 2.6.2
+      '@types/jsdom':
+        specifier: ^21.1.7
+        version: 21.1.7
       jsdom:
         specifier: ^26.1.0
         version: 26.1.0
@@ -6816,6 +6816,7 @@ snapshots:
       '@types/node': 24.13.3
       '@types/tough-cookie': 4.0.5
       parse5: 7.3.0
+    optional: true
 
   '@types/jsesc@2.5.1': {}
 
@@ -6845,7 +6846,8 @@ snapshots:
 
   '@types/normalize-package-data@2.4.4': {}
 
-  '@types/tough-cookie@4.0.5': {}
+  '@types/tough-cookie@4.0.5':
+    optional: true
 
   '@types/unist@3.0.3': {}
 

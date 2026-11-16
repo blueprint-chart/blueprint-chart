@@ -2,10 +2,12 @@ import { dirname, join, relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vite'
 import dts from 'vite-plugin-dts'
+import { findUntypedDependencies } from './scripts/dts-dependencies'
 import { addDtsExtensions } from './scripts/dts-extensions'
 
 const srcDir = fileURLToPath(new URL('./src', import.meta.url))
 const distDir = fileURLToPath(new URL('./dist', import.meta.url))
+const packageDir = fileURLToPath(new URL('.', import.meta.url))
 
 export default defineConfig({
   plugins: [
@@ -19,6 +21,12 @@ export default defineConfig({
         const relativeDir = relative(distDir, dirname(filePath))
         const sourceDir = join(srcDir, relativeDir)
         return { content: addDtsExtensions(content, sourceDir) }
+      },
+      afterBuild: (emittedFiles) => {
+        const problems = findUntypedDependencies(emittedFiles.values(), packageDir)
+        if (problems.length > 0) {
+          throw new Error(problems.join('\n'))
+        }
       },
     }),
   ],
