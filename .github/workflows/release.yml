@@ -49,6 +49,7 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
       - run: make install
       - run: make build
+      - run: make check-lib-types
       - name: Upload docs dist
         uses: actions/upload-artifact@v7
         with:

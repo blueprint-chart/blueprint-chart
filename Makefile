@@ -52,7 +52,7 @@ lint: ## Run ESLint across all packages
 lint-fix: ## Run ESLint with auto-fix
 	pnpm lint:fix
 
-test: build-lib build-ui ## Run all unit tests once
+test: build-lib build-ui check-lib-types ## Run all unit tests and the published types check
 	pnpm -r test
 
 typecheck: build-editor ## Typecheck the editor (needs the build's components.d.ts)

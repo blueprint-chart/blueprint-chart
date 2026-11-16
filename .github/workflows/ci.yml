@@ -59,7 +59,6 @@ jobs:
       # Typecheck rides the build job: it needs the build's generated
       # components.d.ts and the lib/ui dist types, all already on this runner.
       - run: pnpm --filter @blueprint-chart/editor typecheck
-      - run: pnpm --filter @blueprint-chart/lib check:types
 
   e2e:
     runs-on: ubuntu-latest
