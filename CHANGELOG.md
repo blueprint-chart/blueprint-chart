@@ -1,3 +1,32 @@
+## [2.22.0](https://github.com/blueprint-chart/blueprint-chart/compare/v2.21.0...v2.22.0) (2026-11-16)
+
+### Features
+
+* **lib:** add shared direct label layout helpers ([100fded](https://github.com/blueprint-chart/blueprint-chart/commit/100fded899e0c948e0044f37a60fbc8b7863286a))
+* **lib:** switch bar-multi, donut and pie direct labels to a legend when narrow ([c41a939](https://github.com/blueprint-chart/blueprint-chart/commit/c41a9399f72a5d26153e1df89bfb65eb0e84f613))
+* **lib:** wrap area-stacked direct labels and switch to a legend when narrow ([96883c5](https://github.com/blueprint-chart/blueprint-chart/commit/96883c5652a1395f0cc2220af3c4deae036b14fb))
+* **lib:** wrap line-multi direct labels and switch to a legend when narrow ([7b37e87](https://github.com/blueprint-chart/blueprint-chart/commit/7b37e876cdb0c79585a002c1aa618252dbab1978))
+* **ui:** add error prop to FormControlTextInput ([808d46b](https://github.com/blueprint-chart/blueprint-chart/commit/808d46b9032fefdfec83c61d542c58eb2a6d8dad))
+
+### Bug Fixes
+
+* **editor:** warn when the overlay fade value is not a number ([6a93f16](https://github.com/blueprint-chart/blueprint-chart/commit/6a93f16a34a5d456e15d2eef38c4c15d07423e71))
+* **lib:** add extensions to relative declaration imports ([1ccc0b0](https://github.com/blueprint-chart/blueprint-chart/commit/1ccc0b042ef7df526f9af9af02789b32f512fccb))
+* **lib:** fail the build on unresolved declaration imports ([2008981](https://github.com/blueprint-chart/blueprint-chart/commit/2008981c7734727aa2b350fd98f5dc32b1f3a0f7))
+* **lib:** fit each axis label to its own slot and recentre edge labels ([6501274](https://github.com/blueprint-chart/blueprint-chart/commit/6501274fe88cc9f45febbb8ead3f51d4d8ba22ab))
+* **lib:** keep inward-anchored axis labels clear of their neighbours ([7d2e200](https://github.com/blueprint-chart/blueprint-chart/commit/7d2e20059d830ccae5412b2efe4037c60dd1c084))
+* **lib:** keep wrapped direct labels inside the plot ([9255f21](https://github.com/blueprint-chart/blueprint-chart/commit/9255f212cc643c80110d310b2d192ef6d5748c5f))
+* **lib:** let two edge axis labels share the plot width ([93b1bd2](https://github.com/blueprint-chart/blueprint-chart/commit/93b1bd2f354c859ab1682435f6f55727629ce380))
+* **lib:** measure direct labels at their rendered size ([ced0263](https://github.com/blueprint-chart/blueprint-chart/commit/ced026342314295b8ef35e762cb9298a4c2cb0cf))
+* **lib:** measure direct labels bold and keep wrapped ones inside the plot ([26988bd](https://github.com/blueprint-chart/blueprint-chart/commit/26988bd9716c19470354259392c84999f6ac837f))
+* **lib:** measure real label width before wrapping axis labels ([61b3188](https://github.com/blueprint-chart/blueprint-chart/commit/61b3188556a6a4e97a9a45330b430dd0e5db68ee))
+* **lib:** resolve direct label mode the same way in every chart type ([72dab3c](https://github.com/blueprint-chart/blueprint-chart/commit/72dab3ceb07e731b740b73d291cd886542d7cfd5))
+* **lib:** resolve published types under node16 and nodenext ([03c97f4](https://github.com/blueprint-chart/blueprint-chart/commit/03c97f445b34c0c80a2021c06a4453a9b88d87ef))
+* **lib:** ship the type packages the published declarations import ([b86f3d1](https://github.com/blueprint-chart/blueprint-chart/commit/b86f3d1e25c819f986d08f109e67cb82dfc55f23))
+* **lib:** size the line and area axis margin on range-filtered labels ([f3649d5](https://github.com/blueprint-chart/blueprint-chart/commit/f3649d50d111f4d0c7b767421c2737e8d05fabf4))
+* **lib:** switch auto direct labels to a legend when narrow ([c85999a](https://github.com/blueprint-chart/blueprint-chart/commit/c85999af0f7e0fe7662294acdab45ee0bfc8d668))
+* **lib:** thin axis labels with the same width the fit test uses ([0b9fee8](https://github.com/blueprint-chart/blueprint-chart/commit/0b9fee8e8ec49c5422889d9af7392478cce6b1eb))
+
 ## [2.21.0](https://github.com/blueprint-chart/blueprint-chart/compare/v2.20.0...v2.21.0) (2026-11-11)
 
 ### Features
